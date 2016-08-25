@@ -1,4 +1,4 @@
-(* This file provides an interface of nitpick for as an assertion tactic PSL.             *)
+(* This file provides an interface of nitpick for PSL as an assertion tactic.             *)
 (* This file does not include significant code duplication with the Isabelle source code. *)
 theory Nitpick_as_Tactic
 imports "../Runtime/Dynamic_Tactic_Generation"
