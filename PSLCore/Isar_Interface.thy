@@ -68,9 +68,9 @@ fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
   let
     val core_tac  = Mi.desugar strategy;
     val interpret = Mi.interpret;
-    fun hard_timeout_for_mirabelle_in (sec:real) = TimeLimit.timeLimit (seconds sec);
+    fun hard_timeout_in (sec:real) = TimeLimit.timeLimit (seconds sec);
   in
-    hard_timeout_for_mirabelle_in 300.0
+    hard_timeout_in 3000.0
     (interpret (Mip.eval_prim, Mip.eval_para, Mip.eval_tactical, Mip.m_equal, Mip.iddfc, (5,20))
                 core_tac) proof_state
   end : Proof.state Mi.monad;
