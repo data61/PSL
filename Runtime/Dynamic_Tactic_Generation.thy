@@ -19,11 +19,9 @@ end;
 ML{* signature DYNAMIC_TACTIC_GENERATOR =
 sig
   include DYNAMIC_TACTIC_GENERATOR_SEED;
-  val meth_name_n_modifiers_to_nontac_on_state: string -> modifiers -> Proof.state -> Proof.state Seq.seq;
-  val meth_name_n_modifiers_to_logtac_on_state: string -> modifiers -> Proof.state ->
-    (Dynamic_Utils.log * Proof.state) Seq.seq;
-  val meth_name_n_modifiers_to_stttac_on_state: string -> modifiers -> Proof.state ->
-    Dynamic_Utils.log -> (Dynamic_Utils.log * Proof.state) Seq.seq;
+  val meth_name_n_modifiers_to_nontac_on_state: string -> modifiers -> Proof.state Dynamic_Utils.nontac;
+  val meth_name_n_modifiers_to_logtac_on_state: string -> modifiers -> Proof.state Dynamic_Utils.logtac;
+  val meth_name_n_modifiers_to_stttac_on_state: string -> modifiers -> Proof.state Dynamic_Utils.stttac;
 end;
 *}
 
