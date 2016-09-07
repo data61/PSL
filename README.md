@@ -10,11 +10,11 @@ The keyword "find_proof" invokes PLS's runtime system searching for a proof base
 The keyword "try_hard" searches for a proof based on the default strategy.
 
 Contents:
-./src/PSL.thy        reads all the necessary files to use PSL and try_hard.
-./src/Example.thy    contains small example strategies and use cases.
-./src/TryHardCore/ contains the interpreter of PSL.
-./src/Runtime/     contains the interpretation of each dynamic tactic.
-./src/Category/    contains a general purpose constructor class library used to develop PSL.
+./PSL.thy      reads all the necessary files to use PSL and try_hard.
+./Example.thy  contains small example strategies and use cases.
+./TryHardCore/ contains the interpreter of PSL.
+./Runtime/     contains the interpretation of each dynamic tactic.
+./Category/    contains a general purpose constructor class library used to develop PSL.
 
 For more details, please read the paper "A Proof Strategy Language and Proof Script Generation for Isabelle"
 available at arXiv.org.
