@@ -18,14 +18,14 @@ ML{* signature MONADIC_INTERPRETER_PARAMS =
 sig
   type eval_prim;
   type eval_para;
-  type eval_tactical;
+  type eval_strategic;
   type m_equal;
   type iddfc;
-  val eval_prim    : eval_prim;
-  val eval_para    : eval_para;
-  val eval_tactical: eval_tactical;
-  val m_equal      : m_equal;
-  val iddfc        : iddfc;
+  val eval_prim      : eval_prim;
+  val eval_para      : eval_para;
+  val eval_strategic : eval_strategic;
+  val m_equal        : m_equal;
+  val iddfc          : iddfc;
 end;
 *}
 
@@ -40,7 +40,7 @@ struct
   type strings         = string list;
   type eval_prim       = prim_str -> state stttac;
   type eval_para       = para_str -> state -> state stttac Seq.seq;
-  type eval_tactical   = atom_strategic * state stttac list -> state stttac;
+  type eval_strategic  = atom_strategic * state stttac list -> state stttac;
   type m_equal         = state monad -> state monad -> bool;
   type iddfc           = int -> (atom_str -> state stttac) -> (atom_str -> state stttac);
   (* For eval_prim. *)
@@ -133,13 +133,13 @@ struct
       repeat_n' subgoal_num goal [] : (log * state) Seq.seq
     end) : state monad;
 
-  fun eval_tactical (CSolve1, [tac : state stttac])  = solve_1st_subg tac
-   |  eval_tactical (CSolve1, _)  = error "eval_tactical failed. M.Solve1 needs exactly one tactic."
-   |  eval_tactical (CRepeatN, [tac : state stttac]) = repeat_n tac
-   |  eval_tactical (CRepeatN, _) = error "eval_tactical failed. M.RepeatN needs exactly one tactic."
+  fun eval_strategic (CSolve1, [tac : state stttac])  = solve_1st_subg tac
+   |  eval_strategic (CSolve1, _)  = error "eval_strategic failed. M.Solve1 needs exactly one tactic."
+   |  eval_strategic (CRepeatN, [tac : state stttac]) = repeat_n tac
+   |  eval_strategic (CRepeatN, _) = error "eval_strategic failed. M.RepeatN needs exactly one tactic."
 
   fun iddfc (limit:int)
-    (smt_eval:'atom_tac -> 'state stttac) (atac:'atom_tac) (goal:'state) (trace:log) =
+    (smt_eval:'atom_str -> 'state stttac) (atac:'atom_str) (goal:'state) (trace:log) =
     let
       val wmt_eval_results = smt_eval atac goal trace |> Seq.pull;
       val trace_leng = wmt_eval_results |> Option.map fst |> Option.map fst |> Option.map length;

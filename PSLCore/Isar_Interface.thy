@@ -71,7 +71,7 @@ fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
     fun hard_timeout_in (sec:real) = TimeLimit.timeLimit (seconds sec);
   in
     hard_timeout_in 3000.0
-    (interpret (Mip.eval_prim, Mip.eval_para, Mip.eval_tactical, Mip.m_equal, Mip.iddfc, (5,20))
+    (interpret (Mip.eval_prim, Mip.eval_para, Mip.eval_strategic, Mip.m_equal, Mip.iddfc, (5,20))
                 core_tac) proof_state
   end : Proof.state Mi.monad;
 
