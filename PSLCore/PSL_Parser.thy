@@ -69,6 +69,8 @@ fun parse_strategy () =
      parse_seq (),
      parse_alt (),
      parse_or (),
+     parse_por (),
+     parse_palt (),
      parse_repeat (),
      parse_repeat_n (),
      parse_solve1 ()] : Mi.str parser
@@ -111,9 +113,11 @@ and parse_strategic constr name =
   parse_strategies delayer >>= (fn strategies : Mi.str Seq.seq =>
   strategies |> constr |> result))
 
-and parse_or ()  = parse_strategic Mi.Or  "Ors"   : Mi.str parser
-and parse_alt () = parse_strategic Mi.Alt "Alts"  : Mi.str parser
-and parse_seq () = parse_strategic Mi.Seq "Thens" : Mi.str parser;
+and parse_or ()   = parse_strategic Mi.Or   "Ors"   : Mi.str parser
+and parse_alt ()  = parse_strategic Mi.Alt  "Alts"  : Mi.str parser
+and parse_seq ()  = parse_strategic Mi.Seq  "Thens" : Mi.str parser
+and parse_por ()  = parse_strategic Mi.POr  "POrs"  : Mi.str parser
+and parse_palt () = parse_strategic Mi.PAlt "PAlts" : Mi.str parser;
 
 val parse_equality = string "=" |> token;
 

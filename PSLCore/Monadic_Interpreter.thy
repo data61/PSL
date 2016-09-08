@@ -74,8 +74,8 @@ sig
   | Solve1 of str
   | RepNT of str   (* Repeat n times.*)
   (* parallel tactical *)
-  | PAlt of (str * str)
-  | POr  of (str * str);
+  | PAlt of str Seq.seq
+  | POr  of str Seq.seq;
   val interpret : 'a interpret;
   val desugar : str -> core_str;
 end;
@@ -225,7 +225,6 @@ struct
   in 
     results
   end
-  infix 0 PAlt POr
   datatype str =
   (* prim_str *)
     Clarsimp
@@ -257,8 +256,8 @@ struct
   | Seq of str Seq.seq
   | Alt of str Seq.seq
   (* parallel tactical *)
-  | PAlt of (str * str)
-  | POr of (str * str)
+  | PAlt of str Seq.seq
+  | POr  of str Seq.seq
   (* non-monadic tacticals that have dedicated clauses in "inter".*)
   | RepBT of str
   | RepNB of str
@@ -312,8 +311,16 @@ struct
            NONE   => desugar t1
          | SOME _ => desugar t1 CAlt (desugar (Alt tacs2)))
         (* parallel tactical *)
-     |  desugar (t1 PAlt t2)     = desugar t1 CPAlt desugar t2
-     |  desugar (t1 POr t2)      = desugar t1 CPOr desugar t2
+     |  desugar (PAlt tacs1)      = (case Seq.pull tacs1 of
+         NONE             => error "Alt needs at least one arguement."
+       | SOME (t1, tacs2) => case Seq.pull tacs2 of
+           NONE   => desugar t1
+         | SOME _ => desugar t1 CPAlt (desugar (PAlt tacs2)))
+     |  desugar (POr strs1)       = (case Seq.pull strs1 of
+         NONE             => error "Alt needs at least one arguement."
+       | SOME (str1, strs2) => case Seq.pull strs2 of
+           NONE   => desugar str1
+         | SOME _ => desugar str1 CPOr (desugar (POr strs2)))
         (* non-monadic tacticals that have dedicated clauses in "inter".*)
      |  desugar (RepBT str)      = CRepBT (desugar str)
      |  desugar (RepNB str)      = CRepNB (desugar str)

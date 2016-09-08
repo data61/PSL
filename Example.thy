@@ -8,9 +8,20 @@ lemma "True \<or> False"
 find_proof Hammer
 oops
 
-strategy Dff = Dynamic (Fastforce)
-lemma "True"
-find_proof Dff
+strategy FFporHam = POrs [Fastforce, Hammer]
+
+lemma
+ assumes "P"
+ shows "P"
+find_proof FFporHam
+oops
+
+strategy FFpaltHam = Thens [PAlts [Fastforce, Hammer], IsSolved]
+
+lemma
+ assumes "P"
+ shows "P"
+find_proof FFpaltHam
 oops
 
 inductive foo::"'a \<Rightarrow> 'a \<Rightarrow> bool" where
