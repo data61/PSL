@@ -16,25 +16,25 @@ text{* tactic as data-type*}
 ML{* signature MONADIC_INTERPRETER =
 sig
   include TMONAD_0PLUS
-  datatype prim_tac = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct |
+  datatype prim_str = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct |
                                                 CCase | CRule | CErule |
                       (* diagnostic commands *) CHammer |
                       (* assertion tactics   *) CIs_Solved | CQuickcheck | CNitpick |
                       (* special purpose     *) CDefer;
-  datatype para_tac = CPara_Clarsimp
+  datatype para_str = CPara_Clarsimp
                     | CPara_Simp
                     | CPara_Fastforce
                     | CPara_Induct
                     | CPara_Rule
                     | CPara_Erule;
-  type atom_tac;
-  datatype atom_tactical = CSolve1 | CRepeatN;
-  type core_tac;
+  type atom_str;
+  datatype atom_strategic = CSolve1 | CRepeatN;
+  type core_str;
   type 'a stttac;
   type 'a params;
-  type 'a interpret = 'a params -> core_tac -> 'a stttac;
-  datatype tac =
-  (* prim_tac *)
+  type 'a interpret = 'a params -> core_str -> 'a stttac;
+  datatype str =
+  (* prim_str *)
     Clarsimp
   | Simp
   | Fastforce
@@ -51,7 +51,7 @@ sig
   | Nitpick
   (* special purpose *)
   | Defer
-  (* para_tac *)
+  (* para_str *)
   | Para_Clarsimp
   | Para_Simp
   | Para_Fastforce
@@ -61,74 +61,74 @@ sig
   (* monadic tactical *)
   | Skip
   | Fail
-  | Seq of tac Seq.seq
-  | Alt of tac Seq.seq
+  | Seq of str Seq.seq
+  | Alt of str Seq.seq
   (* non-monadic tacticals that have dedicated clauses in "inter".*)
-  | RepBT of tac
-  | RepNB of tac
-  | Fails of tac
-  | Or of tac Seq.seq
+  | RepBT of str
+  | RepNB of str
+  | Fails of str
+  | Or of str Seq.seq
   (* non-monadic tacticals that are syntactic sugar.*)
-  | Try of tac
+  | Try of str
   (* non-monadic tacticals that are handled by "eval_tactical".*)
-  | Solve1 of tac
-  | RepNT of tac   (* Repeat n times.*)
+  | Solve1 of str
+  | RepNT of str   (* Repeat n times.*)
   (* parallel tactical *)
-  | PAlt of (tac * tac)
-  | POr  of (tac * tac);
+  | PAlt of (str * str)
+  | POr  of (str * str);
   val interpret : 'a interpret;
-  val desugar : tac -> core_tac;
+  val desugar : str -> core_str;
 end;
 *}
 
 ML{* functor mk_Monadic_Interpreter (mt0p : TMONAD_0PLUS) : MONADIC_INTERPRETER =
 struct
   open mt0p;
-  datatype prim_tac = CClarsimp | CSimp | CFastforce | CAuto | CInduct | CCase | CRule | CErule
+  datatype prim_str = CClarsimp | CSimp | CFastforce | CAuto | CInduct | CCase | CRule | CErule
                     | CIs_Solved | CQuickcheck | CNitpick
                     | CHammer | CDefer;
-  datatype para_tac = CPara_Clarsimp
+  datatype para_str = CPara_Clarsimp
                     | CPara_Simp
                     | CPara_Fastforce
                     | CPara_Induct
                     | CPara_Rule
                     | CPara_Erule;
   datatype combine = Unique | First;
-  datatype atom_tac = CPrim of prim_tac | CPara of para_tac;
+  datatype atom_str = CPrim of prim_str | CPara of para_str;
   (* atom_tacticals have no monadic-interpretation.*)
-  datatype atom_tactical = CSolve1 | CRepeatN;
+  datatype atom_strategic = CSolve1 | CRepeatN;
   infix 0 CSeq CAlt  COr CPAlt CPOr;
-  datatype core_tac =
-    CAtom of atom_tac
+  datatype core_str =
+    CAtom of atom_str
   | CSkip
   | CFail
-  | CTry      of core_tac
-  | COr       of (core_tac * core_tac)
-  | CPOr      of (core_tac * core_tac)
-  | CSeq      of (core_tac * core_tac)
-  | CAlt      of (core_tac * core_tac)
-  | CPAlt     of (core_tac * core_tac)
-  | CRepBT    of core_tac
-  | CRepNB    of core_tac
-  | CFails    of core_tac (* Fails cannot be defined as just a syntactic sugar as the definition(desugaring) involves (goal:thm).*)
-  | CTactical of (atom_tactical * core_tac list);
+  | CTry      of core_str
+  | COr       of (core_str * core_str)
+  | CPOr      of (core_str * core_str)
+  | CSeq      of (core_str * core_str)
+  | CAlt      of (core_str * core_str)
+  | CPAlt     of (core_str * core_str)
+  | CRepBT    of core_str
+  | CRepNB    of core_str
+  | CFails    of core_str (* Fails cannot be defined as just a syntactic sugar as the definition(desugaring) involves (goal:thm).*)
+  | CTactical of (atom_strategic * core_str list);
   type 'a stttac        = 'a -> 'a monad;
-  type 'a eval_prim     = prim_tac -> 'a stttac;
-  type 'a eval_para     = para_tac -> 'a -> 'a stttac Seq.seq;
-  type 'a eval_tactical = atom_tactical * 'a stttac list -> 'a stttac;
+  type 'a eval_prim     = prim_str -> 'a stttac;
+  type 'a eval_para     = para_str -> 'a -> 'a stttac Seq.seq;
+  type 'a eval_tactical = atom_strategic * 'a stttac list -> 'a stttac;
   type 'a equal         = 'a monad -> 'a monad -> bool;
-  type 'a iddfc         = int -> (atom_tac -> 'a stttac) -> (atom_tac -> 'a stttac);
+  type 'a iddfc         = int -> (atom_str -> 'a stttac) -> (atom_str -> 'a stttac);
   type depths           = (int * int);
   type 'a params        = ('a eval_prim * 'a eval_para * 'a eval_tactical * 'a equal * 'a iddfc * depths);
-  type 'a interpret     = 'a params -> core_tac -> 'a stttac;
+  type 'a interpret     = 'a params -> core_str -> 'a stttac;
 
   (* interpret function similar to that of "A Monadic Interpretation of Tactics" by A. Martin et. al.*)
   (* (-`\<omega>-) *)
-  fun interpret (eval_prim, eval_para, eval_tactical, m_equal, iddfc, (n_deepenings, n_steps_each)) (tac:core_tac) goal =
+  fun interpret (eval_prim, eval_para, eval_tactical, m_equal, iddfc, (n_deepenings, n_steps_each)) (str:core_str) goal =
     let
        fun is_mzero monad        = m_equal monad mzero;
-       fun eval (CPrim tac) goal = eval_prim tac goal
-         | eval (CPara tac) goal =
+       fun eval (CPrim str) goal = eval_prim str goal
+         | eval (CPara str) goal =
            let
              (* should I factor this out to Monadic_Interpreter_Params ? *)
              fun how_to_combine_results CPara_Clarsimp  = Unique
@@ -141,8 +141,8 @@ struct
                (Seq.filter (not o is_mzero) results |> Seq.hd handle Option.Option => mzero)
               |  rm_useless Unique results = distinct (uncurry m_equal) (Seq.list_of results)
                                             |> Seq.of_list |> msum;
-             val combination          = how_to_combine_results tac;
-             val tactics              = eval_para tac goal;
+             val combination          = how_to_combine_results str;
+             val tactics              = eval_para str goal;
              (* Sometimes, Isabelle does not have appropriate rules.*)
              val tactics_with_handler = Seq.map (fn tactic => fn g => tactic g handle ERROR _ => mzero) tactics;
              val all_results          = Seq2.map_arg goal tactics_with_handler;
@@ -216,7 +216,7 @@ struct
             | inter (CFails ftac) goal = if is_mzero (inter ftac goal) then return goal else mzero
             | inter (CTactical (tactical, tacs)) goal = eval_tactical (tactical, map inter tacs) goal;
       in
-        inter tac goal
+        inter str goal
       end
     (* n_steps_each steps deeper for each iteration. *)
     fun nth_inter n = inter_with_limit (n_steps_each * n);
@@ -226,8 +226,8 @@ struct
     results
   end
   infix 0 PAlt POr
-  datatype tac =
-  (* prim_tac *)
+  datatype str =
+  (* prim_str *)
     Clarsimp
   | Simp
   | Fastforce
@@ -244,7 +244,7 @@ struct
   | Nitpick
   (* special purpose *)
   | Defer
-  (* para_tac *)
+  (* para_str *)
   | Para_Clarsimp
   | Para_Simp
   | Para_Fastforce
@@ -254,27 +254,27 @@ struct
   (* monadic tactical *)
   | Skip
   | Fail
-  | Seq of tac Seq.seq
-  | Alt of tac Seq.seq
+  | Seq of str Seq.seq
+  | Alt of str Seq.seq
   (* parallel tactical *)
-  | PAlt of (tac * tac)
-  | POr of (tac * tac)
+  | PAlt of (str * str)
+  | POr of (str * str)
   (* non-monadic tacticals that have dedicated clauses in "inter".*)
-  | RepBT of tac
-  | RepNB of tac
-  | Fails of tac
+  | RepBT of str
+  | RepNB of str
+  | Fails of str
   (* non-monadic tacticals that are syntactic sugar.*)
-  | Or of tac Seq.seq
-  | Try of tac
+  | Or of str Seq.seq
+  | Try of str
   (* non-monadic tacticals that are handled by "eval_tactical".*)
-  | Solve1 of tac
-  | RepNT  of tac
+  | Solve1 of str
+  | RepNT  of str
 
   local 
     val prim = CAtom o CPrim;
     val para = CAtom o CPara;
   in
-    fun (* prim_tac *)
+    fun (* prim_str *)
         desugar Clarsimp         = prim CClarsimp
      |  desugar Fastforce        = prim CFastforce
      |  desugar Simp             = prim CSimp
@@ -291,7 +291,7 @@ struct
      |  desugar Nitpick          = prim CNitpick
         (* special purpose *)
      |  desugar Defer            = prim CDefer
-        (* para_tac *)
+        (* para_str *)
      |  desugar Para_Simp        = para CPara_Simp
      |  desugar Para_Clarsimp    = para CPara_Clarsimp
      |  desugar Para_Fastforce   = para CPara_Fastforce
@@ -315,9 +315,9 @@ struct
      |  desugar (t1 PAlt t2)     = desugar t1 CPAlt desugar t2
      |  desugar (t1 POr t2)      = desugar t1 CPOr desugar t2
         (* non-monadic tacticals that have dedicated clauses in "inter".*)
-     |  desugar (RepBT tac)      = CRepBT (desugar tac)
-     |  desugar (RepNB tac)      = CRepNB (desugar tac)
-     |  desugar (Fails tac)      = CFails (desugar tac)
+     |  desugar (RepBT str)      = CRepBT (desugar str)
+     |  desugar (RepNB str)      = CRepNB (desugar str)
+     |  desugar (Fails str)      = CFails (desugar str)
         (* non-monadic tacticals that are syntactic sugar.*)
         (* desugar (tac1 Or tac2) = desugar (tac1 Alt (Fails tac1 Seq tac2)) is very inefficient.*)
      |  desugar (Or tacs1)       = (case Seq.pull tacs1 of
@@ -325,11 +325,11 @@ struct
        | SOME (t1, tacs2) => case Seq.pull tacs2 of
            NONE   => desugar t1
          | SOME _ => desugar t1 COr (desugar (Or tacs2)))
-       (* desugar (Try tac) = desugar (tac Or Skip) is very inefficient.*)
-     |  desugar (Try tac)        = CTry (desugar tac)
+       (* desugar (Try str) = desugar (str Or Skip) is very inefficient.*)
+     |  desugar (Try str)        = CTry (desugar str)
         (* non-monadic tacticals that are handled by "eval_tactical".*)
-     |  desugar (Solve1 tac)     = CTactical (CSolve1, [desugar tac])
-     |  desugar (RepNT tac)      = CTactical (CRepeatN, [desugar tac])
+     |  desugar (Solve1 str)     = CTactical (CSolve1, [desugar str])
+     |  desugar (RepNT str)      = CTactical (CRepeatN, [desugar str])
   end;
 
 end;

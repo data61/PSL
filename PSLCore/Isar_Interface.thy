@@ -26,7 +26,7 @@ structure Mi  = Monadic_Interpreter;
 structure Pc  = Parser_Combinator;
 structure Mip = Monadic_Interpreter_Param;
 
-type strategy = Mi.tac;
+type strategy = Mi.str;
 
 structure Data = Generic_Data
 (
@@ -43,7 +43,7 @@ fun put_strategy (name:string, str:strategy) = update name str
   |> Context.theory_map
   |> Local_Theory.background_theory;
 
-val parse_strategy_def_string = PSL_Parser.strategy_parser : (string * Mi.tac) Pc.parser;
+val parse_strategy_def_string = PSL_Parser.strategy_parser : (string * Mi.str) Pc.parser;
 
 fun tokens_to_string tokens = tokens |> map Token.unparse |> String.concat;
 

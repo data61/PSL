@@ -38,11 +38,11 @@ struct
   type ctxt            = Proof.context;
   type thms            = thm list;
   type strings         = string list;
-  type eval_prim       = prim_tac -> state stttac;
-  type eval_para       = para_tac -> state -> state stttac Seq.seq;
-  type eval_tactical   = atom_tactical * state stttac list -> state stttac;
+  type eval_prim       = prim_str -> state stttac;
+  type eval_para       = para_str -> state -> state stttac Seq.seq;
+  type eval_tactical   = atom_strategic * state stttac list -> state stttac;
   type m_equal         = state monad -> state monad -> bool;
-  type iddfc           = int -> (atom_tac -> state stttac) -> (atom_tac -> state stttac);
+  type iddfc           = int -> (atom_str -> state stttac) -> (atom_str -> state stttac);
   (* For eval_prim. *)
   val quickcheck_tac   = Quickcheck_Tactic.nontac;
   val nitpick_tac      = Nitpick_Tactic.nontac;
@@ -56,7 +56,7 @@ struct
 
   (* I cannot move the definition of "eval_prim" into mk_Monadic_Interpreter,
    * because its type signature is too specific.*)
-  fun eval_prim (prim:prim_tac) (goal_state:state) =
+  fun eval_prim (prim:prim_str) (goal_state:state) =
     let
       val defer_meth_name        = "tactic {* defer_tac 1 *" ^"}";
       val defer_stttac           = Seq.single o (Proof.defer 1);
@@ -82,10 +82,10 @@ struct
        tac_on_proof_state goal_state : state monad
     end;
 
-  fun eval_para (tac:para_tac) (state:Proof.state) =
+  fun eval_para (str:para_str) (state:Proof.state) =
     let
       type 'a stttac = 'a Dynamic_Utils.stttac;
-      val get_state_stttacs = case tac of
+      val get_state_stttacs = case str of
           CPara_Simp =>      (show_trace "CPara_Simp";      Dynamic_Simp.get_state_stttacs)
         | CPara_Induct =>    (show_trace "CPara_Induct";    Dynamic_Induct.get_state_stttacs)
         | CPara_Rule =>      (show_trace "CPara_Rule";      Dynamic_Rule.get_state_stttacs)
