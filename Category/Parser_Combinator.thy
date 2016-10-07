@@ -68,7 +68,8 @@ struct
   fun m >>= f = bind m f;
   fun word' _ = 
     let
-      val neWord = letter   >>= (fn x =>
+      (* Unlike Hutton and Meijer, I think numerals constitute a word.*)
+      val neWord = alphanum >>= (fn x =>
                    word' () >>= (fn xs =>
                    result (Char.toString x ^ xs)))
     in
