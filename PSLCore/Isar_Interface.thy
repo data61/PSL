@@ -24,7 +24,7 @@ struct
 
 structure Mi  = Monadic_Interpreter;
 structure Pc  = Parser_Combinator;
-structure Mip = Monadic_Interpreter_Param;
+structure Mip = Monadic_Interpreter_Params;
 
 type strategy = Mi.str;
 
@@ -70,7 +70,7 @@ fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
     val interpret = Mi.interpret;
     fun hard_timeout_in (sec:real) = TimeLimit.timeLimit (seconds sec);
   in
-    hard_timeout_in 3000.0
+    hard_timeout_in 6000.0
     (interpret (Mip.eval_prim, Mip.eval_para, Mip.eval_strategic, Mip.m_equal, Mip.iddfc, (5,20))
                 core_tac) proof_state
   end : Proof.state Mi.monad;
@@ -108,7 +108,7 @@ fun get_trans_trans (strategy_name:string) =
            val results       = results' []            : (log * Proof.state) Seq.seq;
            val logs          = lmap fst results       : log Seq.seq;
            val applies       = lmap Dynamic_Utils.mk_apply_script logs;
-           val print         = tracing (case Seq.pull applies of
+           val print         = writeln (case Seq.pull applies of
              NONE => error "empty sequence. no proof found."
            | SOME _ => Seq.hd applies);
          in

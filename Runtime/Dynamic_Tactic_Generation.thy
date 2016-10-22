@@ -34,7 +34,6 @@ struct
     let
       val attributes_name   = mods_to_string mods: string;
       val method_str_w_attr = meth_name ^ attributes_name;
-
       val nontac_on_state  = DG.string_to_nontac_on_pstate method_str_w_attr
         |> Tactic.TIMEOUT_in 0.3: Proof.state DG.nontac
         handle THM _ => K Seq.empty;

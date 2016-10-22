@@ -3,6 +3,10 @@ theory Example
 imports PSL 
 begin
 
+strategy pang_str = Thens [Dynamic (Rule), Dynamic (Rule), Dynamic (ERule)]
+lemma "(A = True) = A"
+oops
+
 strategy Hammer = Hammer
 lemma "True \<or> False"
 find_proof Hammer
@@ -65,15 +69,18 @@ oops
 strategy Hammers =  RepeatN ( Ors [Hammer, Defer]  )
 
 (* A radically simplified example. *)
-definition "ps_clear (_::bool) (_::bool) \<equiv> True"
+definition "safe_state x y \<equiv> True"
+lemma state_safety:"safe_state (x::bool) (y::bool) = True"
+apply normalization done
+
+definition "ps_safe (x::bool) (y::bool) \<equiv> safe_state True True"
 definition "valid_trans p s s' x \<equiv> True"
 
 lemma cnjct2: 
-shows 1:"ps_clear p s"
+shows 1:"ps_safe p s"
  and  2:"valid_trans p s s' x"
- and  3:"ps_clear p s'"
+ and  3:"ps_safe p s'"
 find_proof Hammers
-apply -
 oops
 
 lemma "x \<or> True" and "(1::int) > 0"

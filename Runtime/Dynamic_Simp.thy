@@ -47,7 +47,7 @@ structure STG = Simp_Tactic_Generator;
 
 fun get_state_stttacs (state:Proof.state) =
   let
-    val simp             = "HOL.simp ";
+    val simp             = "simp ";
     val all_modifiers    = STG.get_all_modifiers state : STG.modifiers;
     (* for clarsimp, I prefer not to create powerset.*)
     val all_modifierss   = map single all_modifiers |> Seq.of_list : STG.modifiers Seq.seq;

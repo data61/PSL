@@ -33,7 +33,17 @@ struct
 
   fun map_arg para funcs = case pull funcs of
     NONE => empty
-  | SOME (func, funcs_tl) => cons (func para) (map_arg para funcs_tl);
+  | SOME (func, funcs_tl) =>
+      let
+        fun tail _ = map_arg para funcs_tl
+      in
+        cons (func para) (tail ())
+        handle THM _ =>   tail ()
+             | Empty =>   tail ()
+             | TERM _ =>  tail ()
+             | TYPE _ =>  tail ()
+             | ERROR _ => tail ()
+      end;
 
   fun pairs (seq1:'a seq) (seq2:'b seq) = case pull seq1 of
     NONE        => empty

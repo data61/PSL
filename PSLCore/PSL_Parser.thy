@@ -22,25 +22,29 @@ structure Mi = Monadic_Interpreter;
 
 fun parse_atomic (str:Mi.str) (name:string) = string name >>= (K (result str)) : Mi.str parser;
 (* prim_str *)
-val parse_clarsimp   = parse_atomic Mi.Clarsimp   "Clarsimp"   : Mi.str parser;
-val parse_simp       = parse_atomic Mi.Simp       "Simp"       : Mi.str parser;
-val parse_fastforce  = parse_atomic Mi.Fastforce  "Fastforce"  : Mi.str parser;
-val parse_auto       = parse_atomic Mi.Auto       "Auto"       : Mi.str parser;
-val parse_induct     = parse_atomic Mi.Induct     "Induct"     : Mi.str parser;
-val parse_case       = parse_atomic Mi.Case       "Case"       : Mi.str parser;
-val parse_rule       = parse_atomic Mi.Rule       "Rule"       : Mi.str parser;
-val parse_erule      = parse_atomic Mi.Erule      "Erule"      : Mi.str parser;
+val parse_clarsimp      = parse_atomic Mi.Clarsimp     "Clarsimp"     : Mi.str parser;
+val parse_simp          = parse_atomic Mi.Simp         "Simp"         : Mi.str parser;
+val parse_fastforce     = parse_atomic Mi.Fastforce    "Fastforce"    : Mi.str parser;
+val parse_auto          = parse_atomic Mi.Auto         "Auto"         : Mi.str parser;
+val parse_induct        = parse_atomic Mi.Induct       "Induct"       : Mi.str parser;
+val parse_coinduction   = parse_atomic Mi.Coinduction  "Coinduction"  : Mi.str parser;
+val parse_case          = parse_atomic Mi.Cases        "Cases"        : Mi.str parser;
+val parse_rule          = parse_atomic Mi.Rule         "Rule"         : Mi.str parser;
+val parse_erule         = parse_atomic Mi.Erule        "Erule"        : Mi.str parser;
 (* diagnostic command *)
-val parse_hammer     = parse_atomic Mi.Hammer     "Hammer"     : Mi.str parser;
+val parse_hammer        = parse_atomic Mi.Hammer       "Hammer"       : Mi.str parser;
 (* assertion strategy / diagnostic command *)
-val parse_is_solved  = parse_atomic Mi.Is_Solved  "IsSolved"   : Mi.str parser;
-val parse_quickcheck = parse_atomic Mi.Quickcheck "Quickcheck" : Mi.str parser;
-val parse_nitpick    = parse_atomic Mi.Nitpick    "Nitpick"    : Mi.str parser;
+val parse_is_solved     = parse_atomic Mi.IsSolved     "IsSolved"     : Mi.str parser;
+val parse_quickcheck    = parse_atomic Mi.Quickcheck   "Quickcheck"   : Mi.str parser;
+val parse_nitpick       = parse_atomic Mi.Nitpick      "Nitpick"      : Mi.str parser;
 (* special purpose *)
-val parse_defer      = parse_atomic Mi.Defer      "Defer"      : Mi.str parser;
+val parse_defer         = parse_atomic Mi.Defer        "Defer"        : Mi.str parser;
+val parse_intro_classes = parse_atomic Mi.IntroClasses "IntroClasses" : Mi.str parser;
+val parse_transfer      = parse_atomic Mi.Transfer     "Transfer"     : Mi.str parser;
+val parse_normalization = parse_atomic Mi.Normalization"Normalization": Mi.str parser;
 (* monadic strategic *)
-val parse_skip       = parse_atomic Mi.Skip       "Skip"       : Mi.str parser;
-val parse_fail       = parse_atomic Mi.Fail       "Fail"       : Mi.str parser;
+val parse_skip       = parse_atomic Mi.Skip            "Skip"         : Mi.str parser;
+val parse_fail       = parse_atomic Mi.Fail            "Fail"         : Mi.str parser;
 
 val msum = List.foldr (op plus) zero;
 fun parse_strategy () =
@@ -50,6 +54,7 @@ fun parse_strategy () =
      parse_fastforce,
      parse_auto,
      parse_induct,
+     parse_coinduction,
      parse_case,
      parse_rule,
      parse_erule,
@@ -58,10 +63,16 @@ fun parse_strategy () =
      parse_quickcheck,
      parse_nitpick,
      parse_defer,
+     parse_intro_classes,
+     parse_transfer,
+     parse_normalization,
      parse_dclarsimp (),
      parse_dsimp (),
      parse_dfastforce (),
+     parse_dauto (),
      parse_dinduct (),
+     parse_dcoinduction (),
+     parse_dcases (),
      parse_drule (),
      parse_derule (),
      parse_skip,
@@ -94,12 +105,15 @@ and parse_dynamic constr name =
   string "Dynamic"                                             >>= (fn _ =>
   bracket (string "(") (parse_atomic constr name) (string ")") >>= (fn _ =>
   result constr))
-and parse_dclarsimp ()  = parse_dynamic Mi.Para_Clarsimp  "Clarsimp"  : Mi.str parser
-and parse_dsimp ()      = parse_dynamic Mi.Para_Simp      "Simp"      : Mi.str parser
-and parse_dfastforce () = parse_dynamic Mi.Para_Fastforce "Fastforce" : Mi.str parser
-and parse_dinduct ()    = parse_dynamic Mi.Para_Induct    "Induct"    : Mi.str parser
-and parse_drule ()      = parse_dynamic Mi.Para_Rule      "Rule"      : Mi.str parser
-and parse_derule ()     = parse_dynamic Mi.Para_Erule     "ERule"     : Mi.str parser
+and parse_dclarsimp ()    = parse_dynamic Mi.ParaClarsimp    "Clarsimp"    : Mi.str parser
+and parse_dsimp ()        = parse_dynamic Mi.ParaSimp        "Simp"        : Mi.str parser
+and parse_dfastforce ()   = parse_dynamic Mi.ParaFastforce   "Fastforce"   : Mi.str parser
+and parse_dauto ()        = parse_dynamic Mi.ParaAuto        "Auto"        : Mi.str parser
+and parse_dinduct ()      = parse_dynamic Mi.ParaInduct      "Induct"      : Mi.str parser
+and parse_dcoinduction () = parse_dynamic Mi.ParaCoinduction "Coinduction" : Mi.str parser
+and parse_dcases ()       = parse_dynamic Mi.ParaCases       "Cases"       : Mi.str parser
+and parse_drule ()        = parse_dynamic Mi.ParaRule        "Rule"        : Mi.str parser
+and parse_derule ()       = parse_dynamic Mi.ParaErule       "ERule"       : Mi.str parser
 
 and parse_strategies _ : Mi.str Seq.seq parser =
   bracket

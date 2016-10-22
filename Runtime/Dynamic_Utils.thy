@@ -102,7 +102,12 @@ fun string_to_nontac_on_pstate meth_name proof_state =
     val checked_src = check_src ctxt src;
     val text        = Method.Source checked_src;
     val text_range  = (text, (Position.none, Position.none)) : Method.text_range;
-    val results     = Proof.apply text_range proof_state handle THM _ => Seq.empty
+    val results     = Proof.apply text_range proof_state
+                      handle ERROR _ => Seq.empty
+                           | Empty   => Seq.empty
+                           | THM _   => Seq.empty
+                           | TERM _  => Seq.empty
+                           | TYPE _  => Seq.empty
                     :  Proof.state Seq.result Seq.seq;
     val filtered_results = Seq.filter_results results :  Proof.state Seq.seq;
   in
@@ -113,12 +118,16 @@ fun writer_to_state (writerTSeq : (log * 'state) seq) (trace : log) =
   Seq.map (fn (this_step, pstate) => (trace @ this_step, pstate)) writerTSeq : (log * 'state) seq
 
 (* nontac_to_logtac ignores (back:int) in (node:node). *)
-fun nontac_to_logtac (node:node) (nontac:'a nontac) (goal:'a) : (log * 'a) seq =
+fun nontac_to_logtac (node:node) (nontac:'a nontac) (goal:'a) : (log * 'a) seq = 
     Seq.map (fn result => (node, result)) (nontac goal)
  |> Seq2.seq_number
  |> Seq.map (fn (n, ({methN = methN, using = using, ...}, result)) =>
                 ([{methN = methN, using = using, back = n}], result))
-  handle THM _ => Seq.empty;
+  handle ERROR _ => Seq.empty
+       | Empty   => Seq.empty
+       | THM _   => Seq.empty
+       | TERM _  => Seq.empty
+       | TYPE _  => Seq.empty;
 
 fun logtac_to_stttac (logtac:'a logtac) = (fn (goal:'a) =>
   let

@@ -76,11 +76,10 @@ struct
 
   fun get_state_stttacs (state:Proof.state) =
     let
-      val clarsimp         = "HOL.clarsimp";
       val all_modifiers    = CTG.get_all_modifiers state : CTG.modifiers;
       (* for clarsimp, I prefer not to create powerset.*)
       val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
-      val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state clarsimp) all_modifierss;
+      val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state "clarsimp") all_modifierss;
       type 'a stttac = 'a Dynamic_Utils.stttac;
     in 
       stttacs : Proof.state stttac Seq.seq
@@ -94,10 +93,25 @@ struct
 
   fun get_state_stttacs (state:Proof.state) =
     let
-      val clarsimp         = "HOL.fastforce";
       val all_modifiers    = CTG.get_all_modifiers state : CTG.modifiers;
       val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
-      val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state clarsimp) all_modifierss;
+      val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state "fastforce") all_modifierss;
+      type 'a stttac = 'a Dynamic_Utils.stttac;
+    in 
+      stttacs : Proof.state stttac Seq.seq
+    end;
+end;
+*}
+
+ML{* structure Dynamic_Auto : DYNAMIC_TACTIC =
+struct
+  structure CTG = Classical_Tactic_Generator;
+
+  fun get_state_stttacs (state:Proof.state) =
+    let
+      val all_modifiers    = CTG.get_all_modifiers state : CTG.modifiers;
+      val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
+      val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state "auto") all_modifierss;
       type 'a stttac = 'a Dynamic_Utils.stttac;
     in 
       stttacs : Proof.state stttac Seq.seq

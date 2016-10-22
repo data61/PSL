@@ -3,6 +3,8 @@ theory Monadic_Interpreter_Params
 imports
   "../Runtime/Dynamic_Simp"
   "../Runtime/Dynamic_Induct"
+  "../Runtime/Dynamic_Coinduction"
+  "../Runtime/Dynamic_Cases"
   "../Runtime/Dynamic_Rule"
   "../Runtime/Dynamic_ERule"
   "../Runtime/Dynamic_Sledgehammer"
@@ -29,7 +31,7 @@ sig
 end;
 *}
 
-ML{* structure Monadic_Interpreter_Param : MONADIC_INTERPRETER_PARAMS =
+ML{* structure Monadic_Interpreter_Params : MONADIC_INTERPRETER_PARAMS =
 struct
 
   open Monadic_Interpreter;
@@ -63,40 +65,55 @@ struct
       val log_n_nontac_to_stttac = Dynamic_Utils.log_n_nontac_to_stttac;
       val tac_on_proof_state : state stttac =
        case prim of
-        CClarsimp =>  (show_trace "CClarsimp";  string_to_stttac "HOL.clarsimp")
-      | CSimp =>      (show_trace "CSimp";      string_to_stttac "HOL.simp")
-      | CFastforce => (show_trace "CFastforce"; string_to_stttac "HOL.fastforce")
-      | CAuto =>      (show_trace "CAuto";      string_to_stttac "HOL.auto")
-      | CInduct =>    (show_trace "CInduct";    string_to_stttac "HOL.induct")
-      | CCase   =>    (show_trace "CCase";      string_to_stttac "HOL.cases")
-      | CRule   =>    (show_trace "CRule";      string_to_stttac "HOL.rule")
-      | CErule  =>    (show_trace "CErule";     string_to_stttac "HOL.erule")
-      | CHammer =>    (show_trace "CHammer";    Dynamic_Sledgehammer.pstate_stttacs)
+        CClarsimp =>     (show_trace "CClarsimp";      string_to_stttac "clarsimp")
+      | CSimp =>         (show_trace "CSimp";          string_to_stttac "simp")
+      | CFastforce =>    (show_trace "CFastforce";     string_to_stttac "fastforce")
+      | CAuto =>         (show_trace "CAuto";          string_to_stttac "auto")
+      | CInduct =>       (show_trace "CInduct";        string_to_stttac "induct")
+      | CCoinduction =>  (show_trace "CCoinduct";      string_to_stttac "coinduction")
+      | CCases  =>       (show_trace "CCases";         string_to_stttac "cases")
+      | CRule   =>       (show_trace "CRule";          string_to_stttac "rule")
+      | CErule  =>       (show_trace "CErule";         string_to_stttac "erule")
+      | CIntroClasses => (show_trace "CIntro_Classes"; string_to_stttac "intro_classes")
+      | CTransfer =>     (show_trace "CTransfer";      string_to_stttac "transfer")
+      | CNormalization =>(show_trace "CNormalization"; string_to_stttac "normalization")
+      | CHammer =>       (show_trace "CHammer";        Dynamic_Sledgehammer.pstate_stttacs)
       (* assertion tactics *)
-      | CIs_Solved => (show_trace "CIs_Solved"; log_n_nontac_to_stttac ([], is_solved))
-      | CQuickcheck=> (show_trace "CQuickcheck";log_n_nontac_to_stttac ([], quickcheck_tac))
-      | CNitpick   => (show_trace "CNitpick";   log_n_nontac_to_stttac ([], nitpick_tac))
-      | CDefer     => (show_trace "CDefer";
+      | CIsSolved =>     (show_trace "CIs_Solved";     log_n_nontac_to_stttac ([], is_solved))
+      | CQuickcheck=>    (show_trace "CQuickcheck";    log_n_nontac_to_stttac ([], quickcheck_tac))
+      | CNitpick   =>    (show_trace "CNitpick";       log_n_nontac_to_stttac ([], nitpick_tac))
+      | CDefer     =>    (show_trace "CDefer";
           log_n_nontac_to_stttac ([{methN = defer_meth_name, using = [], back = 0}], defer_stttac))
     in
-       tac_on_proof_state goal_state : state monad
+       tac_on_proof_state goal_state
+          handle THM _ =>  mzero
+               | TERM _ => mzero
+               | Empty =>  mzero
+               | TYPE _ => mzero : state monad
     end;
 
   fun eval_para (str:para_str) (state:Proof.state) =
     let
       type 'a stttac = 'a Dynamic_Utils.stttac;
       val get_state_stttacs = case str of
-          CPara_Simp =>      (show_trace "CPara_Simp";      Dynamic_Simp.get_state_stttacs)
-        | CPara_Induct =>    (show_trace "CPara_Induct";    Dynamic_Induct.get_state_stttacs)
-        | CPara_Rule =>      (show_trace "CPara_Rule";      Dynamic_Rule.get_state_stttacs)
-        | CPara_Erule =>     (show_trace "CPara_Erule";     Dynamic_Erule.get_state_stttacs)
-        | CPara_Fastforce => (show_trace "CPara_Fastforce"; Dynamic_Fastforce.get_state_stttacs)
-        | CPara_Clarsimp =>  (show_trace "CPara_Clarsimp";  Dynamic_Clarsimp.get_state_stttacs)
+          CParaSimp =>        (show_trace "CPara_Simp";        Dynamic_Simp.get_state_stttacs)
+        | CParaInduct =>      (show_trace "CPara_Induct";      Dynamic_Induct.get_state_stttacs)
+        | CParaCoinduction => (show_trace "CPara_Coinduction"; Dynamic_Coinduction.get_state_stttacs)
+        | CParaCases =>       (show_trace "CPara_Cases";       Dynamic_Cases.get_state_stttacs)
+        | CParaRule =>        (show_trace "CPara_Rule";        Dynamic_Rule.get_state_stttacs)
+        | CParaErule =>       (show_trace "CPara_Erule";       Dynamic_Erule.get_state_stttacs)
+        | CParaFastforce =>   (show_trace "CPara_Fastforce";   Dynamic_Fastforce.get_state_stttacs)
+        | CParaAuto =>        (show_trace "CPara_Auto";        Dynamic_Auto.get_state_stttacs)
+        | CParaClarsimp =>    (show_trace "CPara_Clarsimp";    Dynamic_Clarsimp.get_state_stttacs)
     in
       (* It is okay to use the type list internally,
        * as long as the overall monadic interpretation framework is instantiated to Seq.seq for 
        * monad with 0 and plus.*)
-      get_state_stttacs state : state stttac Seq.seq
+      get_state_stttacs state
+      handle THM _  => Seq.empty
+           | Empty  => Seq.empty
+           | TERM _ => Seq.empty
+           | TYPE _ => Seq.empty: state stttac Seq.seq
     end;
 
   fun m_equal (st_mona1:state monad) (st_mona2:state monad) =
@@ -141,7 +158,11 @@ struct
   fun iddfc (limit:int)
     (smt_eval:'atom_str -> 'state stttac) (atac:'atom_str) (goal:'state) (trace:log) =
     let
-      val wmt_eval_results = smt_eval atac goal trace |> Seq.pull;
+      val wmt_eval_results = (smt_eval atac goal trace
+                              handle THM _  => Seq.empty
+                                   | Empty  => Seq.empty
+                                   | TERM _ => Seq.empty
+                                   | TYPE _ => Seq.empty) |> Seq.pull;
       val trace_leng = wmt_eval_results |> Option.map fst |> Option.map fst |> Option.map length;
       infix is_maybe_less_than
       fun (NONE is_maybe_less_than   (_:int)) = false
@@ -159,6 +180,13 @@ ML{* signature MONADIC_PROVER =
 sig
  include MONADIC_INTERPRETER;
  include MONADIC_INTERPRETER_PARAMS;
+end;
+*}
+
+ML{* structure Monadic_Prover : MONADIC_PROVER =
+struct
+  open Monadic_Interpreter;
+  open Monadic_Interpreter_Params;
 end;
 *}
 

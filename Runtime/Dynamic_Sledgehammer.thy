@@ -75,11 +75,17 @@ let
     end;
     val _ = Basics.try;
   val state_w_using = Proof.using_cmd using_raw state : state;
-  val tac_results   = Proof.apply checked_range state_w_using |> Seq.filter_results
-                     (* Why Seq.try Seq.hd? Because we want to evaluate the head of
+  val timeout       = TimeLimit.timeLimit (seconds 60.0)
+  val tac_results   = timeout (Proof.apply checked_range) state_w_using 
+                      |> Seq.filter_results
+                     (* Why Seq.try Seq.hd? Because we want to evaluate the head of   
                       * sequence strictly here to catch errors immediately.*)
                       |> Seq.try Seq.hd
-                      handle ERROR _ => Seq.empty : state Seq.seq;
+                      handle THM _ => Seq.empty
+                           | Empty => Seq.empty
+                           | TERM _ => Seq.empty
+                           | TYPE _ => Seq.empty
+                           | ERROR _ => Seq.empty : state Seq.seq;
   val results_w_log = Seq.map (fn x => ([node], x)) tac_results : (log * state) Seq.seq;
 in
   results_w_log : (log * state) Seq.seq
