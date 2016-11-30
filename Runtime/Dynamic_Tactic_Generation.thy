@@ -37,7 +37,7 @@ struct
       val nontac_on_state  = DG.string_to_nontac_on_pstate method_str_w_attr
         |> Tactic.TIMEOUT_in 0.3: Proof.state DG.nontac
         handle THM _ => K Seq.empty;
-      val trace_node       = {using = [], methN = method_str_w_attr, back = 0};
+      val trace_node       = DG.Apply {using = [], methN = method_str_w_attr, back = 0};
       val logtac_on_state  = DG.nontac_to_logtac trace_node nontac_on_state : Proof.state DG.logtac;
       val stttac_on_state  = DG.logtac_to_stttac logtac_on_state;
     in

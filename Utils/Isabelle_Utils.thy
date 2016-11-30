@@ -3,12 +3,18 @@ theory Isabelle_Utils
 imports Utils
 begin
 
+ML{*
+
+*}
+
 ML{* signature ISABELLE_UTILS =
 sig
   val flatten_trm                : term -> term list;
   val get_trms_in_thm            : thm -> term list;
   val get_typ_names_in_trm       : term -> string list;
   val get_const_names_in_thm     : thm -> string list;
+  val get_abs_names_in_trm       : term -> string list;
+  val get_abs_names_in_thm       : thm -> string list;
   val get_typs_in_thm            : thm -> typ list;
   val get_typ_names_in_thm       : thm -> string list;
   val get_free_var_names_in_trms : term list -> string list;
@@ -49,6 +55,13 @@ struct
   in
     fun get_typs_names (typs:typ list) = map get_typ_names' typs |> flat;
   end;
+
+  fun get_abs_names_in_trm (Abs (name, _, trm)) =
+        name :: (trm |> flatten_trm |> map get_abs_names_in_trm |> flat)
+   |  get_abs_names_in_trm (trm1 $ trm2) = get_abs_names_in_trm trm1 @ get_abs_names_in_trm trm2
+   |  get_abs_names_in_trm _ = [];
+
+  fun get_abs_names_in_thm thm = thm |> Thm.cprop_of |> Thm.term_of |> get_abs_names_in_trm;
 
   fun get_typ_names_in_trm trm = trm 
     |> get_typs_in_trm

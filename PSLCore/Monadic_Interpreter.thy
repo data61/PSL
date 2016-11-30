@@ -13,106 +13,19 @@ begin
 
 text{* strategy as data-type*}
 
-ML{* signature MONADIC_INTERPRETER =
+ML{* signature MONADIC_INTERPRETER_CORE =
 sig
   include TMONAD_0PLUS
-  datatype prim_str = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct |
-                                                CCoinduction | CCases | CRule | CErule |
-                      (* diagnostic commands *) CHammer |
-                      (* assertion strategy  *) CIsSolved | CQuickcheck | CNitpick |
-                      (* special purpose     *) CDefer | CIntroClasses | CTransfer | CNormalization;
-  datatype para_str = CParaClarsimp
-                    | CParaSimp
-                    | CParaFastforce
-                    | CParaAuto
-                    | CParaInduct
-                    | CParaCoinduction
-                    | CParaCases
-                    | CParaRule
-                    | CParaErule;
-  type atom_str;
-  datatype atom_strategic = CSolve1 | CRepeatN;
-  type core_str;
-  type 'a stttac;
-  type 'a params;
-  type 'a interpret = 'a params -> core_str -> 'a stttac;
-  datatype str =
-  (* prim_str *)
-    Clarsimp
-  | Simp
-  | Fastforce
-  | Auto
-  | Induct
-  | Coinduction
-  | Cases
-  | Rule
-  | Erule
-  (* diagnostic command *)
-  | Hammer
-  (* assertion strategy / diagnostic command *)
-  | IsSolved
-  | Quickcheck
-  | Nitpick
-  (* special purpose *)
-  | Defer
-  | IntroClasses
-  | Transfer
-  | Normalization
-  (* para_str *)
-  | ParaClarsimp
-  | ParaSimp
-  | ParaFastforce
-  | ParaAuto
-  | ParaInduct
-  | ParaCoinduction
-  | ParaCases
-  | ParaRule
-  | ParaErule
-  (* monadic strategic *)
-  | Skip
-  | Fail
-  | Seq of str Seq.seq
-  | Alt of str Seq.seq
-  (* non-monadic strategics that have dedicated clauses in "inter".*)
-  | RepBT of str
-  | RepNB of str
-  | Fails of str
-  | Or of str Seq.seq
-  (* non-monadic strategics that are syntactic sugar.*)
-  | Try of str
-  (* non-monadic strategics that are handled by "eval_strategic".*)
-  | Solve1 of str
-  | RepNT of str   (* Repeat n times.*)
-  (* parallel strategic *)
-  | PAlt of str Seq.seq
-  | POr  of str Seq.seq;
-  val interpret : 'a interpret;
-  val desugar : str -> core_str;
-end;
-*}
-
-ML{* functor mk_Monadic_Interpreter (mt0p : TMONAD_0PLUS) : MONADIC_INTERPRETER =
-struct
-  open mt0p;
-  datatype prim_str = CClarsimp | CSimp | CFastforce | CAuto | CInduct | CCases | CRule | CErule
-                    | CIsSolved | CQuickcheck | CNitpick | CCoinduction
-                    | CHammer | CDefer | CIntroClasses | CTransfer | CNormalization;
-  datatype para_str = CParaClarsimp
-                    | CParaSimp
-                    | CParaFastforce
-                    | CParaAuto
-                    | CParaInduct
-                    | CParaCoinduction
-                    | CParaCases
-                    | CParaRule
-                    | CParaErule;
-  datatype combine = Unique | First;
-  datatype atom_str = CPrim of prim_str | CPara of para_str;
-  (* atom_strategic without monadic-interpretation.*)
-  datatype atom_strategic = CSolve1 | CRepeatN;
-  infix 0 CSeq CAlt  COr CPAlt CPOr;
+  datatype csubtool =  CQuickcheck | CNitpick | CHammer;
+  datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
+                     | CSubgoal;
+  datatype cprim_str = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct |
+                                                CCoinduction | CCases | CRule | CErule;
+  datatype cstatic = CPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
+  datatype catom_str = CSttc of cstatic | CDyn of cprim_str;
+  datatype cstrategic = CSolve1 | CRepeatN | CCut of int;
   datatype core_str =
-    CAtom of atom_str
+    CAtom of catom_str
   | CSkip
   | CFail
   | CTry      of core_str
@@ -124,13 +37,48 @@ struct
   | CRepBT    of core_str
   | CRepNB    of core_str
   | CFails    of core_str (* Fails cannot be defined as just a syntactic sugar as the definition(desugaring) involves (goal:thm).*)
-  | CStrategic of (atom_strategic * core_str list);
+  | CStrategic of (cstrategic * core_str list);
+  type 'a stttac;
+  type 'a params;
+  type 'a interpret = 'a params -> core_str -> 'a stttac;
+  val interpret : 'a interpret;
+end;
+*}
+
+ML{* functor mk_Monadic_Interpreter_Core (mt0p : TMONAD_0PLUS) : MONADIC_INTERPRETER_CORE =
+struct
+  open mt0p;
+  datatype csubtool =  CQuickcheck | CNitpick | CHammer;
+  datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
+                     | CSubgoal;
+  datatype cprim_str = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct |
+                                                CCoinduction | CCases | CRule | CErule;
+  datatype combine = Unique | First;
+  datatype cstatic = CPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
+  datatype catom_str = CSttc of cstatic | CDyn of cprim_str;
+  (* atom_strategic without monadic-interpretation.*)
+  datatype cstrategic = CSolve1 | CRepeatN | CCut of int;
+  infix 0 CSeq CAlt  COr CPAlt CPOr;
+  datatype core_str =
+    CAtom of catom_str
+  | CSkip
+  | CFail
+  | CTry      of core_str
+  | COr       of (core_str * core_str)
+  | CPOr      of (core_str * core_str)
+  | CSeq      of (core_str * core_str)
+  | CAlt      of (core_str * core_str)
+  | CPAlt     of (core_str * core_str)
+  | CRepBT    of core_str
+  | CRepNB    of core_str
+  | CFails    of core_str (* Fails cannot be defined as just a syntactic sugar as the definition(desugaring) involves (goal:thm).*)
+  | CStrategic of (cstrategic * core_str list);
   type 'a stttac         = 'a -> 'a monad;
-  type 'a eval_prim      = prim_str -> 'a stttac;
-  type 'a eval_para      = para_str -> 'a -> 'a stttac Seq.seq;
-  type 'a eval_strategic = atom_strategic * 'a stttac list -> 'a stttac;
+  type 'a eval_prim      = cstatic -> 'a stttac;
+  type 'a eval_para      = cprim_str -> 'a -> 'a stttac Seq.seq;
+  type 'a eval_strategic = cstrategic * 'a stttac list -> 'a stttac;
   type 'a equal          = 'a monad -> 'a monad -> bool;
-  type 'a iddfc          = int -> (atom_str -> 'a stttac) -> (atom_str -> 'a stttac);
+  type 'a iddfc          = int -> (catom_str -> 'a stttac) -> (catom_str -> 'a stttac);
   type depths            = (int * int);
   type 'a params         = ('a eval_prim * 'a eval_para * 'a eval_strategic * 'a equal * 'a iddfc * depths);
   type 'a interpret      = 'a params -> core_str -> 'a stttac;
@@ -141,24 +89,24 @@ struct
                 (strategy:core_str) goal =
     let
        fun is_mzero monad        = m_equal monad mzero;
-       fun eval (CPrim str) goal = (eval_prim str goal
+       fun eval (CSttc str) goal = (eval_prim str goal
                                     handle THM _   => mzero
                                          | ERROR _ => mzero
                                          | Empty   => mzero
                                          | TERM _  => mzero
                                          | TYPE _  => mzero)
-         | eval (CPara str) goal =
+         | eval (CDyn str) goal =
            let
              (* should I factor this out to Monadic_Interpreter_Params ? *)
-             fun how_to_combine_results CParaClarsimp    = Unique
-              |  how_to_combine_results CParaSimp        = Unique
-              |  how_to_combine_results CParaFastforce   = First
-              |  how_to_combine_results CParaAuto        = Unique
-              |  how_to_combine_results CParaInduct      = Unique
-              |  how_to_combine_results CParaCoinduction = Unique
-              |  how_to_combine_results CParaCases       = Unique
-              |  how_to_combine_results CParaRule        = Unique
-              |  how_to_combine_results CParaErule       = Unique;
+             fun how_to_combine_results CClarsimp    = Unique
+              |  how_to_combine_results CSimp        = Unique
+              |  how_to_combine_results CFastforce   = First
+              |  how_to_combine_results CAuto        = Unique
+              |  how_to_combine_results CInduct      = Unique
+              |  how_to_combine_results CCoinduction = Unique
+              |  how_to_combine_results CCases       = Unique
+              |  how_to_combine_results CRule        = Unique
+              |  how_to_combine_results CErule       = Unique;
              fun rm_useless First  results =
                  (Seq.filter (not o is_mzero) results |> Seq.hd handle Option.Option => mzero)
               |  rm_useless Unique results =
@@ -174,11 +122,11 @@ struct
                                              | TERM _  => mzero
                                              | TYPE _  => mzero) tactics;
              val all_results          = Seq2.map_arg goal tactics_with_handler
-                                            handle THM _   => Seq.empty
-                                                 | ERROR _ => Seq.empty
-                                                 | TERM _  => Seq.empty
-                                                 | TYPE _  => Seq.empty
-                                                 | Empty   => Seq.empty;
+                                        handle THM _   => Seq.empty
+                                             | ERROR _ => Seq.empty
+                                             | TERM _  => Seq.empty
+                                             | TYPE _  => Seq.empty
+                                             | Empty   => Seq.empty;
              val results              = rm_useless combination all_results;
             in
               results
@@ -255,152 +203,24 @@ struct
       | results' m =
           let
             val current_result = inter_with_limit (((n_deepenings - m) + 1) * n_steps_each)
-            val solved = m_equal current_result mzero
+            val not_solved = m_equal current_result mzero
           in
-            if solved then results' (m - 1) else current_result
+            if not_solved then results' (m - 1) else current_result
           end
     val results = results' n_deepenings
   in 
     results
   end
-  datatype str =
-  (* prim_str *)
-    Clarsimp
-  | Simp
-  | Fastforce
-  | Auto
-  | Induct
-  | Coinduction
-  | Cases
-  | Rule
-  | Erule
-  (* diagnostic command *)
-  | Hammer
-  (* assertion strategy / diagnostic command *)
-  | IsSolved
-  | Quickcheck
-  | Nitpick
-  (* special purpose *)
-  | Defer
-  | IntroClasses
-  | Transfer
-  | Normalization
-  (* para_str *)
-  | ParaClarsimp
-  | ParaSimp
-  | ParaFastforce
-  | ParaAuto
-  | ParaInduct
-  | ParaCoinduction
-  | ParaCases
-  | ParaRule
-  | ParaErule
-  (* monadic strategic *)
-  | Skip
-  | Fail
-  | Seq of str Seq.seq
-  | Alt of str Seq.seq
-  (* parallel tactical *)
-  | PAlt of str Seq.seq
-  | POr  of str Seq.seq
-  (* non-monadic strategics that have dedicated clauses in "inter".*)
-  | RepBT of str
-  | RepNB of str
-  | Fails of str
-  (* non-monadic strategics that are syntactic sugar.*)
-  | Or of str Seq.seq
-  | Try of str
-  (* non-monadic strategics that are handled by "eval_strategic".*)
-  | Solve1 of str
-  | RepNT  of str
-
-  local 
-    val prim = CAtom o CPrim;
-    val para = CAtom o CPara;
-  in
-    fun (* prim_str *)
-        desugar Clarsimp        = prim CClarsimp
-     |  desugar Fastforce       = prim CFastforce
-     |  desugar Simp            = prim CSimp
-     |  desugar Auto            = prim CAuto
-     |  desugar Induct          = prim CInduct
-     |  desugar Coinduction     = prim CCoinduction
-     |  desugar Cases           = prim CCases
-     |  desugar Rule            = prim CRule
-     |  desugar Erule           = prim CErule
-        (* diagnostic command *)
-     |  desugar Hammer          = prim CHammer
-        (* assertion strategy *)
-     |  desugar IsSolved        = prim CIsSolved
-     |  desugar Quickcheck      = prim CQuickcheck
-     |  desugar Nitpick         = prim CNitpick
-        (* special purpose *)
-     |  desugar Defer           = prim CDefer
-     |  desugar IntroClasses    = prim CIntroClasses
-     |  desugar Transfer        = prim CTransfer
-     |  desugar Normalization   = prim CNormalization
-        (* para_str *)
-     |  desugar ParaSimp        = para CParaSimp
-     |  desugar ParaClarsimp    = para CParaClarsimp
-     |  desugar ParaFastforce   = para CParaFastforce
-     |  desugar ParaAuto        = para CParaAuto
-     |  desugar ParaInduct      = para CParaInduct
-     |  desugar ParaCoinduction = para CParaCoinduction
-     |  desugar ParaCases       = para CParaCases
-     |  desugar ParaRule        = para CParaRule
-     |  desugar ParaErule       = para CParaErule
-        (* monadic strategic *)
-     |  desugar Skip            = CSkip
-     |  desugar Fail            = CFail
-     |  desugar (Seq strs1)     = (case Seq.pull strs1 of
-         NONE               => error "Seq needs at least one arguement."
-       | SOME (str1, strs2) => case Seq.pull strs2 of
-           NONE   => desugar str1
-         | SOME _ => desugar str1 CSeq (desugar (Seq strs2)))
-     |  desugar (Alt strs1)     = (case Seq.pull strs1 of
-         NONE               => error "Alt needs at least one arguement."
-       | SOME (str1, strs2) => case Seq.pull strs2 of
-           NONE   => desugar str1
-         | SOME _ => desugar str1 CAlt (desugar (Alt strs2)))
-        (* parallel strategic *)
-     |  desugar (PAlt strs1)    = (case Seq.pull strs1 of
-         NONE               => error "Alt needs at least one arguement."
-       | SOME (str1, strs2) => case Seq.pull strs2 of
-           NONE   => desugar str1
-         | SOME _ => desugar str1 CPAlt (desugar (PAlt strs2)))
-     |  desugar (POr strs1)     = (case Seq.pull strs1 of
-         NONE               => error "Alt needs at least one arguement."
-       | SOME (str1, strs2) => case Seq.pull strs2 of
-           NONE   => desugar str1
-         | SOME _ => desugar str1 CPOr (desugar (POr strs2)))
-        (* non-monadic strategics that have dedicated clauses in "inter".*)
-     |  desugar (RepBT str)     = CRepBT (desugar str)
-     |  desugar (RepNB str)     = CRepNB (desugar str)
-     |  desugar (Fails str)     = CFails (desugar str)
-        (* non-monadic strategics that are syntactic sugar.*)
-        (* desugar (str1 Or str2) = desugar (str1 Alt (Fails str1 Seq str2)) is very inefficient.*)
-     |  desugar (Or strs1)      = (case Seq.pull strs1 of
-         NONE               => error "Alt needs at least one arguement."
-       | SOME (str1, strs2) => case Seq.pull strs2 of
-           NONE   => desugar str1
-         | SOME _ => desugar str1 COr (desugar (Or strs2)))
-       (* desugar (Try str) = desugar (str Or Skip) is very inefficient.*)
-     |  desugar (Try str)       = CTry (desugar str)
-        (* non-monadic strategics that are handled by "eval_strategic".*)
-     |  desugar (Solve1 str)    = CStrategic (CSolve1, [desugar str])
-     |  desugar (RepNT str)     = CStrategic (CRepeatN, [desugar str])
-  end;
-
 end;
 *}
 
-ML{* functor mk_Monadic_Interpreter_from_Monad_0plus_Min
+ML{* functor mk_Monadic_Interpreter_Core_from_Monad_0plus_Min
  (structure Log : MONOID; structure M0P_Min : MONAD_0PLUS_MIN) =
 let
   structure MT0Plus = mk_state_M0PT(struct structure Log = Log; structure Base = M0P_Min end);
-  structure Monadic_Prover = mk_Monadic_Interpreter(MT0Plus);
+  structure Monadic_Interpreter = mk_Monadic_Interpreter_Core(MT0Plus);
 in
-  Monadic_Prover : MONADIC_INTERPRETER
+  Monadic_Interpreter : MONADIC_INTERPRETER_CORE
 end;
 *}
 
@@ -414,8 +234,217 @@ end;
 structure Log = mk_Monoid (Log_Min) : MONOID;
 *}
 
+ML{* structure Monadic_Interpreter_Core : MONADIC_INTERPRETER_CORE =
+ mk_Monadic_Interpreter_Core_from_Monad_0plus_Min
+  (struct structure Log = Log; structure M0P_Min = Seq_M0P_Min end); *}
+
+ML{* signature MONADIC_INTERPRETER =
+
+sig
+
+datatype str =
+(* prim_str *)
+  Clarsimp
+| Simp
+| Fastforce
+| Auto
+| Induct
+| Coinduction
+| Cases
+| Rule
+| Erule
+(* diagnostic command *)
+| Hammer
+(* assertion strategy / diagnostic command *)
+| IsSolved
+| Quickcheck
+| Nitpick
+(* special purpose *)
+| Defer
+| Subgoal
+| IntroClasses
+| Transfer
+| Normalization
+| User of string
+(* para_str *)
+| ParaClarsimp
+| ParaSimp
+| ParaFastforce
+| ParaAuto
+| ParaInduct
+| ParaCoinduction
+| ParaCases
+| ParaRule
+| ParaErule
+(* monadic strategic *)
+| Skip
+| Fail
+| Seq of str Seq.seq
+| Alt of str Seq.seq
+(* parallel tactical *)
+| PAlt of str Seq.seq
+| POr  of str Seq.seq
+(* non-monadic strategics that have dedicated clauses in "inter".*)
+| RepBT of str
+| RepNB of str
+| Fails of str
+(* non-monadic strategics that are syntactic sugar.*)
+| Or of str Seq.seq
+| Try of str
+(* non-monadic strategics that are handled by "eval_strategic".*)
+| Solve1 of str
+| RepNT  of str
+| Cut    of (int * str)
+
+val desugar : str -> Monadic_Interpreter_Core.core_str;
+
+end;
+*}
 
 ML{* structure Monadic_Interpreter : MONADIC_INTERPRETER =
- mk_Monadic_Interpreter_from_Monad_0plus_Min
-  (struct structure Log = Log; structure M0P_Min = Seq_M0P_Min end); *}
+struct
+
+open Monadic_Interpreter_Core;
+
+datatype str =
+(* prim_str *)
+  Clarsimp
+| Simp
+| Fastforce
+| Auto
+| Induct
+| Coinduction
+| Cases
+| Rule
+| Erule
+(* diagnostic command *)
+| Hammer
+(* assertion strategy / diagnostic command *)
+| IsSolved
+| Quickcheck
+| Nitpick
+(* special purpose *)
+| Defer
+| Subgoal
+| IntroClasses
+| Transfer
+| Normalization
+| User of string
+(* para_str *)
+| ParaClarsimp
+| ParaSimp
+| ParaFastforce
+| ParaAuto
+| ParaInduct
+| ParaCoinduction
+| ParaCases
+| ParaRule
+| ParaErule
+(* monadic strategic *)
+| Skip
+| Fail
+| Seq of str Seq.seq
+| Alt of str Seq.seq
+(* parallel tactical *)
+| PAlt of str Seq.seq
+| POr  of str Seq.seq
+(* non-monadic strategics that have dedicated clauses in "inter".*)
+| RepBT of str
+| RepNB of str
+| Fails of str
+(* non-monadic strategics that are syntactic sugar.*)
+| Or of str Seq.seq
+| Try of str
+(* non-monadic strategics that are handled by "eval_strategic".*)
+| Solve1 of str
+| RepNT  of str
+| Cut    of (int * str)
+
+infix 0 CSeq CAlt  COr CPAlt CPOr;
+
+local
+  val prim = CAtom o CSttc o CPrim;
+  val dyna = CAtom o CDyn;
+  val subt = CAtom o CSttc o CSubt;
+  val spec = CAtom o CSttc o CSpec;
+  val user = CAtom o CSttc o CUser;
+in
+
+fun desugar Clarsimp        = prim CClarsimp
+ |  desugar Fastforce       = prim CFastforce
+ |  desugar Simp            = prim CSimp
+ |  desugar Auto            = prim CAuto
+ |  desugar Induct          = prim CInduct
+ |  desugar Coinduction     = prim CCoinduction
+ |  desugar Cases           = prim CCases
+ |  desugar Rule            = prim CRule
+ |  desugar Erule           = prim CErule
+    (* diagnostic command *)
+ |  desugar Hammer          = subt CHammer
+    (* assertion strategy *)
+ |  desugar IsSolved        = spec CIsSolved
+ |  desugar Quickcheck      = subt CQuickcheck
+ |  desugar Nitpick         = subt CNitpick
+    (* special purpose *)
+ |  desugar Defer           = spec CDefer
+ |  desugar Subgoal         = spec CSubgoal
+ |  desugar IntroClasses    = spec CIntroClasses
+ |  desugar Transfer        = spec CTransfer
+ |  desugar Normalization   = spec CNormalization
+ |  desugar (User tac_name) = user tac_name
+    (* para_str *)
+ |  desugar ParaSimp        = dyna CSimp
+ |  desugar ParaClarsimp    = dyna CClarsimp
+ |  desugar ParaFastforce   = dyna CFastforce
+ |  desugar ParaAuto        = dyna CAuto
+ |  desugar ParaInduct      = dyna CInduct
+ |  desugar ParaCoinduction = dyna CCoinduction
+ |  desugar ParaCases       = dyna CCases
+ |  desugar ParaRule        = dyna CRule
+ |  desugar ParaErule       = dyna CErule
+    (* monadic strategic *)
+ |  desugar Skip            = CSkip
+ |  desugar Fail            = CFail
+ |  desugar (Seq strs1)     = (case Seq.pull strs1 of
+     NONE               => error "Seq needs at least one arguement."
+   | SOME (str1, strs2) => case Seq.pull strs2 of
+       NONE   => desugar str1
+     | SOME _ => desugar str1 CSeq (desugar (Seq strs2)))
+ |  desugar (Alt strs1)     = (case Seq.pull strs1 of
+     NONE               => error "Alt needs at least one arguement."
+   | SOME (str1, strs2) => case Seq.pull strs2 of
+       NONE   => desugar str1
+     | SOME _ => desugar str1 CAlt (desugar (Alt strs2)))
+    (* parallel strategic *)
+ |  desugar (PAlt strs1)    = (case Seq.pull strs1 of
+     NONE               => error "Alt needs at least one arguement."
+   | SOME (str1, strs2) => case Seq.pull strs2 of
+       NONE   => desugar str1
+     | SOME _ => desugar str1 CPAlt (desugar (PAlt strs2)))
+ |  desugar (POr strs1)     = (case Seq.pull strs1 of
+     NONE               => error "Alt needs at least one arguement."
+   | SOME (str1, strs2) => case Seq.pull strs2 of
+       NONE   => desugar str1
+     | SOME _ => desugar str1 CPOr (desugar (POr strs2)))
+    (* non-monadic strategics that have dedicated clauses in "inter".*)
+ |  desugar (RepBT str)     = CRepBT (desugar str)
+ |  desugar (RepNB str)     = CRepNB (desugar str)
+ |  desugar (Fails str)     = CFails (desugar str)
+    (* non-monadic strategics that are syntactic sugar.*)
+    (* desugar (str1 Or str2) = desugar (str1 Alt (Fails str1 Seq str2)) is very inefficient.*)
+ |  desugar (Or strs1)      = (case Seq.pull strs1 of
+     NONE               => error "Alt needs at least one arguement."
+   | SOME (str1, strs2) => case Seq.pull strs2 of
+       NONE   => desugar str1
+     | SOME _ => desugar str1 COr (desugar (Or strs2)))
+   (* desugar (Try str) = desugar (str Or Skip) is very inefficient.*)
+ |  desugar (Try str)       = CTry (desugar str)
+    (* non-monadic strategics that are handled by "eval_strategic".*)
+ |  desugar (Solve1 str)    = CStrategic (CSolve1, [desugar str])
+ |  desugar (RepNT str)     = CStrategic (CRepeatN, [desugar str])
+ |  desugar (Cut (i, str))  = CStrategic (CCut i, [desugar str])
+end;
+end;
+*}
+
 end

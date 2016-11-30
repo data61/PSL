@@ -35,9 +35,12 @@ end;
 
 fun is_solved (state:Proof.state) =
   let
-    val goal       = state |> Proof.goal |> #goal : thm;
-    val is_solved' = Thm.nprems_of goal = 0 : bool;
-    val result     = if is_solved' then Seq.single state else Seq.empty
+    val single  = Seq.single;
+    val empty   = Seq.empty;
+    val done    = Proof.local_done_proof;
+    val goal    = state |> Proof.goal |> #goal : thm;
+    val no_goal = Thm.nprems_of goal = 0 : bool;
+    val result  = if no_goal then state |> done |> single handle ERROR _ => single state else empty;
   in
     result : Proof.state Seq.seq
   end;

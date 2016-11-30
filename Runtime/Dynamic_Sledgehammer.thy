@@ -63,11 +63,14 @@ let
                        then tracing "using_strings in sh_output_to_sh_logtac failed." else ();
                        ["Failed constructing using_strings."])
                     : string list;
-  val node : node   = {using = using_strings, methN = methN, back = 0};
+  val node : node   = Dynamic_Utils.Apply {using = using_strings, methN = methN, back = 0};
   (* print messages for debugging.*)
   val _ =
     let
-      fun tracing1 _ = tracing ("methN in node is " ^ #methN node);
+      val app = case node of
+        Dynamic_Utils.Apply app_node => app_node
+      | _ => error "app in Dynamic_Sledgehammer panics.";
+      fun tracing1 _ = tracing ("methN in node is " ^ #methN app);
       fun tracing2 _ = tracing "using_strings are ...";
       fun tracing3 _ = map tracing using_strings;
     in

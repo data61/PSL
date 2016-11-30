@@ -13,7 +13,8 @@ sig
   type src;
   type 'a seq;
   type 'a nontac   = 'a -> 'a seq;
-  type node;
+  datatype node    = Subgoal | Done | Defer
+                   | Apply of {using:string list, methN:string, back:int};
   type log;
   type 'a logtac   = 'a -> (log * 'a) seq;
   type 'a st_monad = log -> (log * 'a) seq;
@@ -43,7 +44,8 @@ type state       = Proof.state;
 type src         = Token.src;
 type 'a seq      = 'a Seq.seq;
 type 'a nontac   = 'a -> 'a seq;
-type node        = {using:string list, methN:string, back:int};
+datatype node    = Subgoal | Done | Defer
+                 | Apply of {using:string list, methN:string, back:int};
 type log         = node list;
 type 'a logtac   = 'a -> (log * 'a) seq;
 type 'a st_monad = log -> (log * 'a) seq;
@@ -117,12 +119,16 @@ fun string_to_nontac_on_pstate meth_name proof_state =
 fun writer_to_state (writerTSeq : (log * 'state) seq) (trace : log) =
   Seq.map (fn (this_step, pstate) => (trace @ this_step, pstate)) writerTSeq : (log * 'state) seq
 
+fun add_back (n, (Apply {methN = methN, using = using, ...}, result)) =
+  ([Apply {methN = methN, using = using, back = n}], result)
+  | add_back (0, (other, result)) = (tracing "add_back 0";([other], result))
+  | add_back _ = (tracing "add_back in Dynamic_Utils.thy failed."; error "add_back")
+
 (* nontac_to_logtac ignores (back:int) in (node:node). *)
 fun nontac_to_logtac (node:node) (nontac:'a nontac) (goal:'a) : (log * 'a) seq = 
     Seq.map (fn result => (node, result)) (nontac goal)
  |> Seq2.seq_number
- |> Seq.map (fn (n, ({methN = methN, using = using, ...}, result)) =>
-                ([{methN = methN, using = using, back = n}], result))
+ |> Seq.map add_back
   handle ERROR _ => Seq.empty
        | Empty   => Seq.empty
        | THM _   => Seq.empty
@@ -146,7 +152,7 @@ fun string_to_stttac_on_pstate (meth_name:string) =
   let
     val nontac         = string_to_nontac_on_pstate meth_name               : state nontac;
     val nontac_with_TO = Tactic.TIMEOUT_in 1.0  nontac                      : state nontac;
-    val trace_node     = {using = [], methN = meth_name, back = 0}  : node;
+    val trace_node     = Apply {using = [], methN = meth_name, back = 0}    : node;
     val logtac         = nontac_to_logtac trace_node nontac_with_TO         : state logtac;
     val stttac         = logtac_to_stttac logtac                            : state stttac;
   in
@@ -156,15 +162,19 @@ fun string_to_stttac_on_pstate (meth_name:string) =
 local
   fun mk_using  ([]   : string list) = ""
    |  mk_using  (using: string list) = "using " ^ String.concatWith " " using ^ " ";
-  fun mk_apply methN  = "apply (" ^ methN ^ ") ";
+  fun mk_apply methN  = "apply (" ^ methN ^ ")";
   fun mk_backs (n:int) = replicate n "back" |> String.concatWith " " handle Subscript =>
     (tracing "mk_backs in Isabelle_Utils.thy failed. It should take 0 or a positive integer.";"");
   fun mk_apply_script1 {methN : string, using : string list, back : int} =
     mk_using using ^ mk_apply methN ^ mk_backs back ^ "\n";
+  fun mk_proof_script1 (Done    : node) = "done \n"
+   |  mk_proof_script1 (Subgoal : node) = "subgoal \n"
+   |  mk_proof_script1 (Defer   : node) = "defer \n"
+   |  mk_proof_script1 (Apply n : node) = mk_apply_script1 n;
 in
   fun mk_apply_script (log:log) =
-   (tracing ("Number of apply commands: " ^ (length log |> Int.toString));
-    map mk_apply_script1 log
+   (tracing ("Number of lines of commands: " ^ (length log |> Int.toString));
+    map mk_proof_script1 log
     |> String.concat
     |> Active.sendback_markup [Markup.padding_command]) : string;
 end;

@@ -39,12 +39,13 @@ val parse_quickcheck    = parse_atomic Mi.Quickcheck   "Quickcheck"   : Mi.str p
 val parse_nitpick       = parse_atomic Mi.Nitpick      "Nitpick"      : Mi.str parser;
 (* special purpose *)
 val parse_defer         = parse_atomic Mi.Defer        "Defer"        : Mi.str parser;
+val parse_subgoal       = parse_atomic Mi.Subgoal      "Subgoal"      : Mi.str parser;
 val parse_intro_classes = parse_atomic Mi.IntroClasses "IntroClasses" : Mi.str parser;
 val parse_transfer      = parse_atomic Mi.Transfer     "Transfer"     : Mi.str parser;
 val parse_normalization = parse_atomic Mi.Normalization"Normalization": Mi.str parser;
 (* monadic strategic *)
-val parse_skip       = parse_atomic Mi.Skip            "Skip"         : Mi.str parser;
-val parse_fail       = parse_atomic Mi.Fail            "Fail"         : Mi.str parser;
+val parse_skip          = parse_atomic Mi.Skip         "Skip"         : Mi.str parser;
+val parse_fail          = parse_atomic Mi.Fail         "Fail"         : Mi.str parser;
 
 val msum = List.foldr (op plus) zero;
 fun parse_strategy () =
@@ -63,6 +64,7 @@ fun parse_strategy () =
      parse_quickcheck,
      parse_nitpick,
      parse_defer,
+     parse_subgoal,
      parse_intro_classes,
      parse_transfer,
      parse_normalization,
@@ -84,26 +86,48 @@ fun parse_strategy () =
      parse_palt (),
      parse_repeat (),
      parse_repeat_n (),
-     parse_solve1 ()] : Mi.str parser
+     parse_solve1 (),
+     parse_cut (),
+     parse_user ()] : Mi.str parser
 
-and parse_a_strategy_in_paren _ : Mi.str parser =
+and parse_a_strategy_in_paren (_) : Mi.str parser =
   bracket
-    (string "(")
-    (parse_strategy ())
-    (string ")")
+    (string "(" |> token)
+    (parse_strategy () |> token)
+    (string ")" |> token)
 
 and parse_strategic1 constr name =
-  string name                       >>= (fn delayer =>
-  parse_a_strategy_in_paren delayer >>= (
+  string name |> token                       >>= (fn delayer:string =>
+  parse_a_strategy_in_paren delayer |> token >>= (
   result o constr))
 
 and parse_repeat ()     = parse_strategic1 Mi.RepNB  "Repeat"  : Mi.str parser
 and parse_repeat_n ()   = parse_strategic1 Mi.RepNT  "RepeatN" : Mi.str parser
 and parse_solve1 ()     = parse_strategic1 Mi.Solve1 "Solve1"  : Mi.str parser
+and parse_cut ()        =
+  string "Cut" |> token >>= (fn delayer:string =>
+  nat          |> token >>= (fn limit:int =>
+  parse_a_strategy_in_paren delayer |> token >>= (fn str =>
+  (limit, str) |> Mi.Cut |> result)))
+
+and parse_words_in_paren _ =
+  token
+  (bracket
+    (string "<" |> token)
+    (many (sat (fn x => x <> #">" )))
+    (string ">" |> token) >>= (fn chars =>
+  chars |> Seq.list_of |> String.implode |> result)): string parser
+
+and parse_user () =
+  string "User"|> token        >>= (fn delayer =>
+  parse_words_in_paren delayer >>= (fn tac_names : string =>
+  tac_names |> Mi.User |> result)) : Mi.str parser
 
 and parse_dynamic constr name =
-  string "Dynamic"                                             >>= (fn _ =>
-  bracket (string "(") (parse_atomic constr name) (string ")") >>= (fn _ =>
+  token (string "Dynamic") >>= (fn _ =>
+  token (bracket (string "(" |> token)
+                 (parse_atomic constr name |> token)
+                 (string ")" |> token)) >>= (fn _ =>
   result constr))
 and parse_dclarsimp ()    = parse_dynamic Mi.ParaClarsimp    "Clarsimp"    : Mi.str parser
 and parse_dsimp ()        = parse_dynamic Mi.ParaSimp        "Simp"        : Mi.str parser
@@ -117,15 +141,16 @@ and parse_derule ()       = parse_dynamic Mi.ParaErule       "ERule"       : Mi.
 
 and parse_strategies _ : Mi.str Seq.seq parser =
   bracket
-    (string "[")
-    (sepby1 (parse_strategy (), (string ",")))
-    (string "]")
+    (string "[" |> token)
+    (sepby1 (parse_strategy () |> token, (string "," |> token)) |> token)
+    (string "]" |> token) |> token
 
 (* Do not remove "delayer", or you get stuck in a loop. *)
 and parse_strategic constr name =
-  string name              >>= (fn delayer =>
-  parse_strategies delayer >>= (fn strategies : Mi.str Seq.seq =>
-  strategies |> constr |> result))
+  token
+  (string name |> token     >>= (fn delayer =>
+   parse_strategies delayer >>= (fn strategies : Mi.str Seq.seq =>
+   strategies |> constr |> result)))
 
 and parse_or ()   = parse_strategic Mi.Or   "Ors"   : Mi.str parser
 and parse_alt ()  = parse_strategic Mi.Alt  "Alts"  : Mi.str parser
@@ -140,7 +165,7 @@ val parse_strategy_name = token word     >>= (fn str_name =>
                           result str_name));
 
 val strategy_parser =
-  parse_strategy_name >>= (fn name =>
+  parse_strategy_name >>= (fn name:string =>
   parse_strategy ()   >>= (fn strategy =>
   result (name, strategy)));
 

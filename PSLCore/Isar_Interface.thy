@@ -19,9 +19,10 @@ sig
 end;
 *}
 
-ML{* functor mk_PSL_Interface (PSL_Parser : PSL_PARSER) : PSL_INTERFACE =
+ML{* functor mk_PSL_Interface(PSL_Parser : PSL_PARSER) : PSL_INTERFACE =
 struct
 
+structure Mic = Monadic_Interpreter_Core;
 structure Mi  = Monadic_Interpreter;
 structure Pc  = Parser_Combinator;
 structure Mip = Monadic_Interpreter_Params;
@@ -45,7 +46,7 @@ fun put_strategy (name:string, str:strategy) = update name str
 
 val parse_strategy_def_string = PSL_Parser.strategy_parser : (string * Mi.str) Pc.parser;
 
-fun tokens_to_string tokens = tokens |> map Token.unparse |> String.concat;
+fun tokens_to_string tokens = tokens |> map Token.unparse |> String.concatWith " ";
 
 fun string_parser_to_token_parser (string_parser:'a Pc.parser) =
   (fn (tokens:Token.T list) => tokens
@@ -67,13 +68,13 @@ val parse_and_put_strategy_def : (local_theory -> local_theory) Token.parser = f
 fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
   let
     val core_tac  = Mi.desugar strategy;
-    val interpret = Mi.interpret;
+    val interpret = Mic.interpret;
     fun hard_timeout_in (sec:real) = TimeLimit.timeLimit (seconds sec);
   in
     hard_timeout_in 60000.0
     (interpret (Mip.eval_prim, Mip.eval_para, Mip.eval_strategic, Mip.m_equal, Mip.iddfc, (5,20))
                 core_tac) proof_state
-  end : Proof.state Mi.monad;
+  end : Proof.state Mic.monad;
 
 type trans_trans = Toplevel.transition -> Toplevel.transition;
 
@@ -102,9 +103,9 @@ fun get_trans_trans (strategy_name:string) =
            val some_strategy = lookup context strategy_name;
            val strategy      = Utils.the' (strategy_name ^ "? You haven't defined such a strategy!") 
                                some_strategy;
-           val tactic        = get_monad_tactic strategy : Proof.state Mi.stttac;
+           val tactic        = get_monad_tactic strategy : Proof.state Mic.stttac;
            val proof_state   = Toplevel.proof_of top;
-           val results'      = tactic proof_state     : Proof.state Mi.monad;
+           val results'      = tactic proof_state     : Proof.state Mic.monad;
            val results       = results' []            : (log * Proof.state) Seq.seq;
            val logs          = lmap fst results       : log Seq.seq;
            val applies       = lmap Dynamic_Utils.mk_apply_script logs;
@@ -138,7 +139,7 @@ end;
 *}
 
 (* activate the Isar interface of PSL.  *)
-ML{*  structure PSL_Interface = mk_PSL_Interface (PSL_Parser); 
+ML{*  structure PSL_Interface = mk_PSL_Interface (PSL_Parser : PSL_PARSER); 
 PSL_Interface.activate_isar_interface ();
 *}
 
