@@ -68,7 +68,7 @@ fun get_rule_names (get_rules:context -> thm -> (ref * thm) list) ctxt goal =
 
 fun get_simp_rules (ctxt:context) (goal:thm) =
   let
-    val const_names   = Isabelle_Utils.get_const_names_in_thm goal;
+    val const_names   = Isabelle_Utils.get_const_names_in_1st_subg goal;
     val related_rules = names_to_rules ctxt goal "" const_names;
     val simpset_thms  = ctxt |> simpset_of |> Raw_Simplifier.dest_ss |> #simps |> map snd;
     fun eq_test (thm1, (_, thm2)) = Thm.eq_thm (thm1, thm2);
@@ -81,7 +81,7 @@ fun get_simp_rule_names ctxt goal = get_rule_names get_simp_rules ctxt goal : st
 
 fun get_induct_rules (ctxt:context) (goal:thm) =
   let
-    val const_names  = Isabelle_Utils.get_const_names_in_thm goal : string list;
+    val const_names  = Isabelle_Utils.get_const_names_in_1st_subg goal : string list;
     val induct_rules = names_to_rules ctxt goal ".induct" const_names;
   in
     induct_rules : (Facts.ref * thm) list
@@ -90,7 +90,7 @@ fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal 
 
 fun get_coinduction_rules (ctxt:context) (goal:thm) =
   let
-    val const_names   = Isabelle_Utils.get_const_names_in_thm goal : string list;
+    val const_names   = Isabelle_Utils.get_const_names_in_1st_subg goal : string list;
     fun get_coinduct_rules post = names_to_rules ctxt goal post const_names;
     val coinduct_rules1 = get_coinduct_rules ".coinduct";
     val coinduct_rules2 = get_coinduct_rules ".coinduct_strong";
@@ -110,7 +110,7 @@ fun get_dest_rule_names  ctxt goal = get_rule_names get_dest_rules  ctxt goal : 
 fun get_split_rules ctxt goal =
   let
     (* For split, we need to use typ_names instead of const_names. *)
-    val used_typ_names = Isabelle_Utils.get_typ_names_in_thm goal;
+    val used_typ_names = Isabelle_Utils.get_typ_names_in_1st_subg goal;
     val related_rules  = names_to_rules ctxt goal "split" used_typ_names
   in
     related_rules : (Facts.ref * thm) list

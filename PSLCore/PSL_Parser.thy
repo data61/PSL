@@ -27,8 +27,10 @@ val parse_simp          = parse_atomic Mi.Simp         "Simp"         : Mi.str p
 val parse_fastforce     = parse_atomic Mi.Fastforce    "Fastforce"    : Mi.str parser;
 val parse_auto          = parse_atomic Mi.Auto         "Auto"         : Mi.str parser;
 val parse_induct        = parse_atomic Mi.Induct       "Induct"       : Mi.str parser;
+val parse_induct_tac    = parse_atomic Mi.InductTac    "InductTac"    : Mi.str parser;
 val parse_coinduction   = parse_atomic Mi.Coinduction  "Coinduction"  : Mi.str parser;
 val parse_case          = parse_atomic Mi.Cases        "Cases"        : Mi.str parser;
+val parse_case_tac      = parse_atomic Mi.CaseTac      "CaseTac"      : Mi.str parser;
 val parse_rule          = parse_atomic Mi.Rule         "Rule"         : Mi.str parser;
 val parse_erule         = parse_atomic Mi.Erule        "Erule"        : Mi.str parser;
 (* diagnostic command *)
@@ -49,14 +51,16 @@ val parse_fail          = parse_atomic Mi.Fail         "Fail"         : Mi.str p
 
 val msum = List.foldr (op plus) zero;
 fun parse_strategy () =
-  msum 
+  msum
     [parse_clarsimp,
      parse_simp,
      parse_fastforce,
      parse_auto,
      parse_induct,
+     parse_induct_tac,
      parse_coinduction,
      parse_case,
+     parse_case_tac,
      parse_rule,
      parse_erule,
      parse_hammer,
@@ -73,8 +77,10 @@ fun parse_strategy () =
      parse_dfastforce (),
      parse_dauto (),
      parse_dinduct (),
+     parse_dinduct_tac (),
      parse_dcoinduction (),
      parse_dcases (),
+     parse_dcase_tac (),
      parse_drule (),
      parse_derule (),
      parse_skip,
@@ -134,8 +140,10 @@ and parse_dsimp ()        = parse_dynamic Mi.ParaSimp        "Simp"        : Mi.
 and parse_dfastforce ()   = parse_dynamic Mi.ParaFastforce   "Fastforce"   : Mi.str parser
 and parse_dauto ()        = parse_dynamic Mi.ParaAuto        "Auto"        : Mi.str parser
 and parse_dinduct ()      = parse_dynamic Mi.ParaInduct      "Induct"      : Mi.str parser
+and parse_dinduct_tac ()  = parse_dynamic Mi.ParaInductTac   "InductTac"   : Mi.str parser
 and parse_dcoinduction () = parse_dynamic Mi.ParaCoinduction "Coinduction" : Mi.str parser
 and parse_dcases ()       = parse_dynamic Mi.ParaCases       "Cases"       : Mi.str parser
+and parse_dcase_tac ()    = parse_dynamic Mi.ParaCaseTac     "CaseTac"     : Mi.str parser
 and parse_drule ()        = parse_dynamic Mi.ParaRule        "Rule"        : Mi.str parser
 and parse_derule ()       = parse_dynamic Mi.ParaErule       "ERule"       : Mi.str parser
 

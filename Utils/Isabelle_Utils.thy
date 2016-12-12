@@ -3,38 +3,46 @@ theory Isabelle_Utils
 imports Utils
 begin
 
-ML{*
-
-*}
-
 ML{* signature ISABELLE_UTILS =
 sig
-  val flatten_trm                : term -> term list;
-  val get_trms_in_thm            : thm -> term list;
-  val get_typ_names_in_trm       : term -> string list;
-  val get_const_names_in_thm     : thm -> string list;
-  val get_abs_names_in_trm       : term -> string list;
-  val get_abs_names_in_thm       : thm -> string list;
-  val get_typs_in_thm            : thm -> typ list;
-  val get_typ_names_in_thm       : thm -> string list;
-  val get_free_var_names_in_trms : term list -> string list;
-  val get_free_var_names_in_thm  : thm -> string list;
-  val proof_state_to_thm         : Proof.state -> thm;
-  val mk_proof_obligation        : Proof.context -> string -> thm;
+  val get_1st_subg                  : thm -> term option;
+  val flatten_trm                   : term -> term list;
+  val get_trms_in_thm               : thm -> term list;
+  val get_typ_names_in_trm          : term -> string list;
+  val get_const_names_in_thm        : thm -> string list;
+  val get_const_names_in_1st_subg   : thm -> string list;
+  val get_abs_names_in_trm          : term -> string list;
+  val get_abs_names_in_thm          : thm -> string list;
+  val get_abs_name_in_1st_subg      : thm -> string list;
+  val get_typ_names_in_thm          : thm -> string list;
+  val get_typ_names_in_1st_subg     : thm -> string list;
+  val get_free_var_names_in_trms    : term list -> string list;
+  val get_free_var_names_in_thm     : thm -> string list;
+  val get_free_var_names_in_1st_subg: thm -> string list;
+  val get_all_var_names_in_1st_subg : thm -> string list;
+  val proof_state_to_thm            : Proof.state -> thm;
+  val mk_proof_obligation           : Proof.context -> string -> thm;
 end;
 *}
 
 ML{* structure Isabelle_Utils : ISABELLE_UTILS  =
 struct
+  fun get_1st_subg (goal:thm) = (SOME o hd) (Thm.prems_of goal) handle Empty => NONE : term option;
+
   fun flatten_trm (trm1 $ trm2) = flat [flatten_trm trm1, flatten_trm trm2]
     | flatten_trm trm = [trm];
 
   fun get_trms_in_thm (thm:thm) = Thm.cprop_of thm |> Thm.term_of |> flatten_trm;
 
   fun get_const_names_in_thm thm = thm
-    |> get_trms_in_thm
-    |> filter Term.is_Const
-    |> map (fst o dest_Const);
+    |> Thm.cprop_of
+    |> Thm.term_of
+    |> (fn subg:term => Term.add_const_names subg []);
+
+  fun get_const_names_in_1st_subg (goal:thm) = goal
+    |> get_1st_subg
+    |> Option.map (fn subg:term => Term.add_const_names subg [])
+    |> these;
 
   fun get_typs_in_trm (Const (_ ,T))    = [T]
    |  get_typs_in_trm (Free (_, T))     = [T]
@@ -42,11 +50,6 @@ struct
    |  get_typs_in_trm (Bound _)         = []
    |  get_typs_in_trm (Abs (_, T, trm)) = T :: get_typs_in_trm trm
    |  get_typs_in_trm (trm1 $ trm2)     = get_typs_in_trm trm1 @ get_typs_in_trm trm2;
-
-  fun get_typs_in_thm goal = goal
-    |> get_trms_in_thm
-    |> map get_typs_in_trm
-    |> flat;
 
   local
     fun get_typ_names' (Type (name, typs)) = name :: flat (map get_typ_names' typs)
@@ -63,6 +66,12 @@ struct
 
   fun get_abs_names_in_thm thm = thm |> Thm.cprop_of |> Thm.term_of |> get_abs_names_in_trm;
 
+  fun get_abs_name_in_1st_subg (goal:thm) = goal
+    |> get_1st_subg
+    |> Option.map get_abs_names_in_trm
+    |> these
+    |> map Utils.remove__s;
+
   fun get_typ_names_in_trm trm = trm 
     |> get_typs_in_trm
     |> get_typs_names
@@ -76,6 +85,12 @@ struct
     |> duplicates (op =)
     |> map Utils.remove__s;
 
+  fun get_typ_names_in_1st_subg (goal:thm) = goal
+    |> get_1st_subg
+    |> Option.map get_typ_names_in_trm
+    |> these
+    |> map Utils.remove__s;
+
   fun get_free_var_names_in trm = if Term.is_Free trm 
     then [Term.dest_Free trm |> fst |> Utils.remove__s] else [];
 
@@ -87,6 +102,18 @@ struct
   fun get_free_var_names_in_thm thm = thm
     |> get_trms_in_thm
     |> get_free_var_names_in_trms;
+
+  fun get_free_var_names_in_1st_subg (goal:thm) = goal
+    |> get_1st_subg
+    |> Option.map (fn subg:term => Term.add_frees subg [])
+    |> Option.map (map fst)
+    |> these
+    |> map Utils.remove__s;
+
+  fun get_all_var_names_in_1st_subg (goal:thm) =
+      Option.map (map fst o strip_all_vars) (get_1st_subg goal)
+    |> these
+    |> map Utils.remove__s : string list;
 
   val proof_state_to_thm = #goal o Proof.goal;
 

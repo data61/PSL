@@ -19,8 +19,8 @@ sig
   datatype csubtool =  CQuickcheck | CNitpick | CHammer;
   datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
                      | CSubgoal;
-  datatype cprim_str = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct |
-                                                CCoinduction | CCases | CRule | CErule;
+  datatype cprim_str = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct 
+                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
   datatype cstatic = CPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
   datatype catom_str = CSttc of cstatic | CDyn of cprim_str;
   datatype cstrategic = CSolve1 | CRepeatN | CCut of int;
@@ -51,8 +51,8 @@ struct
   datatype csubtool =  CQuickcheck | CNitpick | CHammer;
   datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
                      | CSubgoal;
-  datatype cprim_str = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct |
-                                                CCoinduction | CCases | CRule | CErule;
+  datatype cprim_str = (* default tactics     *) CClarsimp | CSimp | CFastforce | CAuto | CInduct
+                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
   datatype combine = Unique | First;
   datatype cstatic = CPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
   datatype catom_str = CSttc of cstatic | CDyn of cprim_str;
@@ -103,8 +103,10 @@ struct
               |  how_to_combine_results CFastforce   = First
               |  how_to_combine_results CAuto        = Unique
               |  how_to_combine_results CInduct      = Unique
+              |  how_to_combine_results CInductTac   = Unique
               |  how_to_combine_results CCoinduction = Unique
               |  how_to_combine_results CCases       = Unique
+              |  how_to_combine_results CCaseTac     = Unique
               |  how_to_combine_results CRule        = Unique
               |  how_to_combine_results CErule       = Unique;
              fun rm_useless First  results =
@@ -136,7 +138,7 @@ struct
           fun inter (CAtom atom) goal     = iddfc limit eval atom goal
             | inter CSkip        goal     = return goal
             | inter CFail        _        = mzero
-            | inter (CTry str)   goal    = inter (str COr CSkip) goal (* should be removed *)
+            | inter (CTry str)   goal     = inter (str COr CSkip) goal (* should be removed *)
             | inter (str1 COr str2)  goal =
               (* similar to the implementation of ORELSE *)
               let
@@ -249,8 +251,10 @@ datatype str =
 | Fastforce
 | Auto
 | Induct
+| InductTac
 | Coinduction
 | Cases
+| CaseTac
 | Rule
 | Erule
 (* diagnostic command *)
@@ -272,8 +276,10 @@ datatype str =
 | ParaFastforce
 | ParaAuto
 | ParaInduct
+| ParaInductTac
 | ParaCoinduction
 | ParaCases
+| ParaCaseTac
 | ParaRule
 | ParaErule
 (* monadic strategic *)
@@ -313,8 +319,10 @@ datatype str =
 | Fastforce
 | Auto
 | Induct
+| InductTac
 | Coinduction
 | Cases
+| CaseTac
 | Rule
 | Erule
 (* diagnostic command *)
@@ -336,8 +344,10 @@ datatype str =
 | ParaFastforce
 | ParaAuto
 | ParaInduct
+| ParaInductTac
 | ParaCoinduction
 | ParaCases
+| ParaCaseTac
 | ParaRule
 | ParaErule
 (* monadic strategic *)
@@ -375,8 +385,10 @@ fun desugar Clarsimp        = prim CClarsimp
  |  desugar Simp            = prim CSimp
  |  desugar Auto            = prim CAuto
  |  desugar Induct          = prim CInduct
+ |  desugar InductTac       = prim CInductTac
  |  desugar Coinduction     = prim CCoinduction
  |  desugar Cases           = prim CCases
+ |  desugar CaseTac         = prim CCaseTac
  |  desugar Rule            = prim CRule
  |  desugar Erule           = prim CErule
     (* diagnostic command *)
@@ -398,8 +410,10 @@ fun desugar Clarsimp        = prim CClarsimp
  |  desugar ParaFastforce   = dyna CFastforce
  |  desugar ParaAuto        = dyna CAuto
  |  desugar ParaInduct      = dyna CInduct
+ |  desugar ParaInductTac   = dyna CInductTac
  |  desugar ParaCoinduction = dyna CCoinduction
  |  desugar ParaCases       = dyna CCases
+ |  desugar ParaCaseTac     = dyna CCaseTac
  |  desugar ParaRule        = dyna CRule
  |  desugar ParaErule       = dyna CErule
     (* monadic strategic *)

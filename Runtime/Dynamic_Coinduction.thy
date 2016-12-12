@@ -48,7 +48,7 @@ fun mods_to_string (mods:modifiers) =
 fun get_all_modifiers (state:Proof.state) =
   let
     val {context:Proof.context, goal: thm,...} = Proof.goal state;
-    val free_var_names   = Isabelle_Utils.get_free_var_names_in_thm goal;
+    val free_var_names   = Isabelle_Utils.get_free_var_names_in_1st_subg goal;
     val induct_rules     = Find_Theorems2.get_coinduction_rule_names context goal : string list;
     val all_induct_mods  = get_ons free_var_names @ get_arbs free_var_names @ get_rules induct_rules;
   in
