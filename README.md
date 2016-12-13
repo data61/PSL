@@ -1,10 +1,13 @@
 # PSL
 
-This repository contains the implementation of *proof strategy language (PSL)* and its default strategy, **try_hard**, for Isabelle2016.
+This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
+**try_hard**, for Isabelle2016**-1**. Note that Isabelle2016 is no longer supported.
 
 ## Installation
-Users can install PSL and try_hard by importing *.PSL.thy* to their theory files with the Isabelle keyword,
-**imports**.
+1. Install [Isabelle2016-1](https://isabelle.in.tum.de/).
+2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
+3. Then, Users can install PSL and try_hard by importing *.PSL.thy* to their theory files
+   with the Isabelle keyword, **imports**.
 
 ## Basic Commands
 - The keyword **strategy** defines a new strategy.
