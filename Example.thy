@@ -93,15 +93,13 @@ find_proof Simps
 oops
 
 (* By combining "Defer" and "Hammer", we can discharge some proof obligations automatically with
- * sledgehammer, while focusing on "difficult" problems.  *)
+ * sledgehammer, while deferring "difficult" problems.  *)
 strategy Hammers =  RepeatN ( Ors [Hammer, Defer]  )
 definition "safe_state x y \<equiv> True"
 lemma state_safety:"safe_state (x::bool) (y::bool) = True"
 apply normalization done
-
 definition "ps_safe (x::bool) (y::bool) \<equiv> safe_state True True"
-definition "valid_trans p s s' x \<equiv> True"
-
+definition "valid_trans p s s' x \<equiv> undefined"
 lemma cnjct2:
 shows 1:"ps_safe p s"
  and  2:"valid_trans p s s' x"
@@ -113,6 +111,6 @@ oops
 strategy testCut = Thens [Repeat (Cut 10 (Dynamic (Rule))), IsSolved]
 lemma "True \<and> True"
 find_proof testCut
-oops
+  oops
 
 end

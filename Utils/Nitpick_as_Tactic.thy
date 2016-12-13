@@ -18,7 +18,7 @@ fun nitpick_tac (state:Proof.state) =
     val thy:theory         = (Proof.theory_of state);
     val params             = Nitpick_Commands.default_params thy [];
     val nitpick_result     = Nitpick.pick_nits_in_subgoal state params Nitpick.Normal 1 1;
-    (* "genuine" means "genuine counter-example", I guess. *)
+    (* "genuine" means "genuine counter-example". *)
     val nitpick_succeed    = fst nitpick_result = "genuine";
     val nitpick_tac_result = if nitpick_succeed then Seq.empty else single
   in
@@ -35,7 +35,7 @@ fun nontac (state:Proof.state) =
     val thy:theory         = (Proof.theory_of state);
     val params             = Nitpick_Commands.default_params thy [];
     val nitpick_result     = Nitpick.pick_nits_in_subgoal state params Nitpick.Normal 1 1;
-    (* "genuine" means "genuine counter-example", I guess. *)
+    (* "genuine" means "genuine counter-example". *)
     val nitpick_succeed    = fst nitpick_result = "genuine";
     val nitpick_tac_result = if nitpick_succeed then Seq.empty else single
   in

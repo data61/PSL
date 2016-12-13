@@ -176,7 +176,7 @@ in
    (tracing ("Number of lines of commands: " ^ (length log |> Int.toString));
     map mk_proof_script1 log
     |> String.concat
-    |> Active.sendback_markup [Markup.padding_command]) : string;
+    |> Active.sendback_markup_properties [Markup.padding_command]) : string;
 end;
 
 end;

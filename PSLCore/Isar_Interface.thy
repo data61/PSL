@@ -69,7 +69,7 @@ fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
   let
     val core_tac  = Mi.desugar strategy;
     val interpret = Mic.interpret;
-    fun hard_timeout_in (sec:real) = TimeLimit.timeLimit (seconds sec);
+    fun hard_timeout_in (sec:real) = Timeout.apply (seconds sec);
   in
     hard_timeout_in 60000.0
     (interpret (Mip.eval_prim, Mip.eval_para, Mip.eval_strategic, Mip.m_equal, Mip.iddfc, (5,20))

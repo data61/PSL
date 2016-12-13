@@ -76,7 +76,7 @@ struct
       val is_solved        = Tactic.is_solved;
       val single           = Seq.single;
       val defer_tac        = single o (Proof.defer 1);
-      val subgoal_tac      = single o #2 o Subgoal.subgoal Attrib.empty_binding NONE (false, []);
+      val subgoal_tac      = single o #2 o Subgoal.subgoal (Binding.empty, []) NONE (false, []);
       val to_stttac        = Dynamic_Utils.log_n_nontac_to_stttac;
       val tac_on_proof_state : state stttac = case prim of
         CPrim CClarsimp =>     (show_trace "CClarsimp";      string_to_stttac "clarsimp")

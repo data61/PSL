@@ -37,7 +37,7 @@ let
   val tokens        = Token.explode keywords Position.none op_w_stopper
                     |> filter_out (fn token:T => Token.is_kind Token.Space token) : T list;
   val is_using      = String.isPrefix "using " sh_output;
-  val parse_using   = Parse.and_list1 Parse.xthms1 : (ref * srcs) list list Token.parser;
+  val parse_using   = Parse.and_list1 Parse.thms1 : (ref * srcs) list list Token.parser;
   val parse_method  = Method.parse                 : text_range Token.parser;
   val parse_one     = Scan.one (K true)            : T list -> T * T list;
   val parser        = if is_using
@@ -78,7 +78,7 @@ let
     end;
     val _ = Basics.try;
   val state_w_using = Proof.using_cmd using_raw state : state;
-  val timeout       = TimeLimit.timeLimit (seconds 60.0)
+  val timeout       = Timeout.apply (seconds 60.0)
   val tac_results   = timeout (Proof.apply checked_range) state_w_using 
                       |> Seq.filter_results
                      (* Why Seq.try Seq.hd? Because we want to evaluate the head of   

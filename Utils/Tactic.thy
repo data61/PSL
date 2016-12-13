@@ -23,8 +23,8 @@ fun SINGLE tacf = Option.map fst o Seq.pull o tacf;
 (* DETERM_TIMEOUT was written by Jasmin Blanchette in nitpick_util.ML.
  * This version has exception handling on top of his version.*)
 fun DETERM_TIMEOUT delay tac st =
-  Seq.of_list (the_list (TimeLimit.timeLimit delay (fn () => SINGLE tac st) () 
-   handle TimeLimit.TimeOut => NONE));
+  Seq.of_list (the_list (Timeout.apply delay (fn () => SINGLE tac st) ()
+   handle Timeout.TIMEOUT _ => NONE));
 in
 
 fun TIMEOUT_in real tac = DETERM_TIMEOUT (seconds real) tac;
