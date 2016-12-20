@@ -38,3 +38,6 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 
 ## Documentations
 For more details, please read the paper [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) available at arXiv.org.
+
+## Screenshot
+![Screenshot](https://github.com/data61/PSL/image/screen_shot_tall.png)
