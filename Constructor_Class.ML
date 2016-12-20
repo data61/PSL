@@ -1,25 +1,33 @@
-(* This file contains the hierarchical formalisation of modular constructor classes. *)
-(* One has to provide minimal definitions to instantiate these classes.              *)
-(* This file is following the style of the Base package of Haskell.                  *)
-theory Category
-imports "../Utils/More_Seq"
-begin
+(*  Title:      Category.ML
+    Author:     Yutaka Nagashima, Data61, CSIRO
 
-ML{* signature TYP =
+This file contains the hierarchical formalisation of modular constructor classes.
+One has to provide minimal definitions to instantiate these classes.
+The underlying concepts are explained in the following short paper:
+ Close Encounters of the Higher Kind Emulating Constructor Classes in Standard ML
+ available at https://arxiv.org/abs/1608.03350
+
+This file is following the style of the Base package of Haskell.
+This file uses the ML keyword "open" many times to encode the dependency among classes, while
+keeping the code base small and clean.
+*)
+
+(** TYP **)
+signature TYP =
 sig
   type typ
 end;
-*}
 
-ML{* signature MONOID_MIN =
+(** MONOID_MIN **)
+signature MONOID_MIN =
 sig
   type monoid_min;
   val mempty : monoid_min;
   val mappend : monoid_min -> monoid_min -> monoid_min;
 end;
-*}
 
-ML{* signature MONOID =
+(** MONOID **)
+signature MONOID =
 sig
   type monoid;
   include TYP MONOID_MIN;
@@ -27,34 +35,34 @@ sig
   sharing type monoid = monoid_min;
   val mconcad : monoid list -> monoid;
 end;
-*}
 
-ML{* functor mk_Monoid (Min:MONOID_MIN) : MONOID =
+(** mk_Monoid **)
+functor mk_Monoid (Min:MONOID_MIN) : MONOID =
 struct
   open Min;
   type typ    = Min.monoid_min;
   type monoid = Min.monoid_min;
   val mconcad = List.foldr (uncurry mappend) mempty;
 end;
-*}
 
-ML{* signature FUNCTOR_MIN =
+(** FUNCTOR_MIN **)
+signature FUNCTOR_MIN =
 sig
   type 'a functo;
   val fmap : ('a -> 'b) -> 'a functo -> 'b functo;
 end;
-*}
 
-ML{* signature FUNCTOR =
+(** FUNCTOR **)
+signature FUNCTOR =
 sig
   include FUNCTOR_MIN;
   val <$  :  'a * 'b functo -> 'a functo;
   val <$> : ('a -> 'b) * 'a functo -> 'b functo;
   val void: 'a functo -> unit functo;
 end;
-*}
 
-ML{* functor mk_Functor (Min:FUNCTOR_MIN) : FUNCTOR =
+(** mk_Functor **)
+functor mk_Functor (Min:FUNCTOR_MIN) : FUNCTOR =
 struct
   (* FUNCTOR_Min *)
   open Min;
@@ -63,27 +71,27 @@ struct
   fun x <$> f = fmap x f;
   fun void x  = () <$ x;
 end;
-*}
 
-ML{* signature APPLICATIVE_MIN =
+(** APPLICATIVE_MIN **)
+signature APPLICATIVE_MIN =
 sig
   type 'a applicative;
   val pure : 'a -> 'a applicative;
   (* Sequential application. *)
   val <*> : ('a -> 'b) applicative * 'a applicative -> 'b applicative;
 end;
-*}
 
-ML{* functor applicative_Min_to_Functor_Min (Min:APPLICATIVE_MIN) : FUNCTOR_MIN =
+(** applicative_Min_to_Functor_Min **)
+functor applicative_Min_to_Functor_Min (Min:APPLICATIVE_MIN) : FUNCTOR_MIN =
 struct
   open Min;
   infix <*>;
   type 'a functo = 'a applicative;
   fun fmap f xs = pure f <*> xs;
 end;
-*}
 
-ML{* signature APPLICATIVE =
+(** APPLICATIVE **)
+signature APPLICATIVE =
 sig
   include APPLICATIVE_MIN FUNCTOR;
   sharing type applicative = functo;
@@ -96,9 +104,9 @@ sig
   val liftA2 : ('a -> 'b -> 'c) -> 'a applicative -> 'b applicative -> 'c applicative;
   val liftA3 : ('a -> 'b -> 'c -> 'd) -> 'a applicative -> 'b applicative -> 'c applicative -> 'd applicative;
 end;
-*}
 
-ML{* functor mk_Applicative (Min:APPLICATIVE_MIN) : APPLICATIVE =
+(** mk_Applicative **)
+functor mk_Applicative (Min:APPLICATIVE_MIN) : APPLICATIVE =
 struct
   type 'a applicative = 'a Min.applicative;
   (* FUNCTOR  *)
@@ -114,26 +122,26 @@ struct
   fun liftA3 f a b c = fmap f a <*> b <*> c;
   fun m <**> f = f <*> m;
 end;
-*}
 
-ML{* signature MONAD_MIN =
+(** MONAD_MIN **)
+signature MONAD_MIN =
 sig
   type 'a monad;
   val return : 'a -> 'a monad;
   val bind : 'a monad -> ('a -> 'b monad) -> 'b monad;
 end;
-*}
 
-ML{* functor monad_Min_to_Applicative_Min (Min:MONAD_MIN) : APPLICATIVE_MIN =
+(** monad_Min_to_Applicative_Min **)
+functor monad_Min_to_Applicative_Min (Min:MONAD_MIN) : APPLICATIVE_MIN =
 struct
   open Min;
   type 'a applicative = 'a monad;
   val pure = return;
   fun <*> (fs, xs) = bind fs (fn fs' => bind xs (fn xs' => return (fs' xs')));
 end;
-*}
 
-ML{* signature MONAD =
+(** MONAD **)
+signature MONAD =
 sig
   include APPLICATIVE MONAD_MIN;
   sharing type monad = applicative;
@@ -153,9 +161,9 @@ sig
    * One can define them polymorphically using the ML keyword functor. *)
   val filterM: ('a -> bool monad) -> 'a list -> 'a list monad;
 end;
-*}
 
-ML{* functor mk_Monad (Min : MONAD_MIN): MONAD =
+(** mk_Monad **)
+functor mk_Monad (Min : MONAD_MIN): MONAD =
 struct
   type 'a monad = 'a Min.monad;
   (* APPLICATIVE *)
@@ -188,9 +196,9 @@ struct
       foldr' go (return [])
     end;
 end;
-*}
 
-ML{* signature ALTERNATIVE_MIN =
+(** ALTERNATIVE_MIN **)
+signature ALTERNATIVE_MIN =
 sig
   type 'a alternative;
   val empty   : 'a alternative;
@@ -198,18 +206,18 @@ sig
   val alt_pure: 'a -> 'a alternative;
   val alt_seq : ('a -> 'b) alternative * 'a alternative -> 'b alternative;
 end;
-*}
 
-ML{* functor alternative_Min_to_Applictive_Min (Alternative_Min:ALTERNATIVE_MIN) : APPLICATIVE_MIN =
+(** alternative_Min_to_Applictive_Min **)
+functor alternative_Min_to_Applictive_Min (Alternative_Min:ALTERNATIVE_MIN) : APPLICATIVE_MIN =
 struct
   open Alternative_Min;
   type 'a applicative = 'a alternative;
   val pure = alt_pure;
   val <*>  = alt_seq;
 end;
-*}
 
-ML{* signature ALTERNATIVE =
+(** ALTERNATIVE **)
+signature ALTERNATIVE =
 sig
   include APPLICATIVE ALTERNATIVE_MIN;
   sharing type alternative = applicative;
@@ -219,9 +227,9 @@ sig
   (* utility functions *)
   val optional : 'a alternative -> 'a Option.option alternative;
 end;
-*}
 
-ML{* functor mk_Alternative (Alternative_Core:ALTERNATIVE_MIN) : ALTERNATIVE =
+(** mk_Alternative **)
+functor mk_Alternative (Alternative_Core:ALTERNATIVE_MIN) : ALTERNATIVE =
 struct
   structure Applicative_Min  = alternative_Min_to_Applictive_Min (Alternative_Core);
   structure Applicative      = mk_Applicative (Applicative_Min);
@@ -231,9 +239,9 @@ struct
   and many     (v:'a alternative) = some v <|> pure [] : 'a list alternative;
   fun optional (v:'a alternative) = SOME <$> v <|> pure NONE;
 end;
-*}
 
-ML{* signature MONAD_0PLUS_MIN =
+(** MONAD_0PLUS_MIN **)
+signature MONAD_0PLUS_MIN =
 sig
   type 'a monad;
   val return : 'a -> 'a monad;
@@ -241,9 +249,9 @@ sig
   val mzero : 'a monad;
   val mplus : ('a monad * 'a  monad) -> 'a monad;
 end;
-*}
 
-ML{* functor monad0plus_Min_to_Alternative_min(M0p_Min:MONAD_0PLUS_MIN) : ALTERNATIVE_MIN =
+(** monad0plus_Min_to_Alternative_min **)
+functor monad0plus_Min_to_Alternative_min(M0p_Min:MONAD_0PLUS_MIN) : ALTERNATIVE_MIN =
 struct
   open M0p_Min;
   type 'a alternative = 'a monad;
@@ -252,9 +260,9 @@ struct
   val alt_pure         = return;
   fun alt_seq (fs, xs) = bind fs (fn fs' => bind xs (fn xs' => return (fs' xs')));
 end;
-*}
 
-ML{* signature MONAD_0PLUS =
+(** MONAD_0PLUS **)
+signature MONAD_0PLUS =
 sig
   include MONAD;
   (* Do not "include" ALTERNATIVE to avoid name conflicts. *)
@@ -276,9 +284,9 @@ sig
   (* utility functions *)
   val optional : 'a alternative -> 'a Option.option alternative;
 end;
-*}
 
-ML{* functor mk_Monad_0Plus (Min : MONAD_0PLUS_MIN) : MONAD_0PLUS =
+(** mk_Monad_0Plus **)
+functor mk_Monad_0Plus (Min : MONAD_0PLUS_MIN) : MONAD_0PLUS =
 struct
   type 'a monad = 'a Min.monad;
   (* MONAD *)
@@ -296,57 +304,54 @@ struct
   structure Alternative     = mk_Alternative(Alternative_Min);
   open Alternative;
 end;
-*}
 
-ML{* signature TMONAD_MIN =
+(** TMONAD_MIN **)
+signature TMONAD_MIN =
 sig
   include MONAD_MIN;
   structure Base: MONAD_MIN;
   val lift : 'a Base.monad -> 'a monad;
 end;
-*}
 
-ML{* signature TMONAD = 
+(** TMONAD **)
+signature TMONAD = 
 (* The signature of transformed monad (= the return type of monad transformer). *)
 sig
   include MONAD;
   structure Base : MONAD;
   val lift : 'a Base.monad -> 'a monad;
 end;
-*}
 
-ML{* functor mk_TMonad (Min : TMONAD_MIN) : TMONAD =
+(** mk_TMonad **)
+functor mk_TMonad (Min : TMONAD_MIN) : TMONAD =
 struct
   structure Monad = mk_Monad (Min : MONAD_MIN);
   open Monad;
   structure Base = mk_Monad (Min.Base : MONAD_MIN);
   val lift = Min.lift;
 end;
-*}
 
-ML{* signature TMONAD_0PLUS_MIN =
+(** TMONAD_0PLUS_MIN **)
+signature TMONAD_0PLUS_MIN =
 sig
   include MONAD_0PLUS_MIN;
   structure Base: MONAD_0PLUS_MIN;
   val lift : 'a Base.monad -> 'a monad;
 end;
-*}
 
-ML{* signature TMONAD_0PLUS =
+(** TMONAD_0PLUS **)
+signature TMONAD_0PLUS =
 sig
   include MONAD_0PLUS;
   structure Base : MONAD_0PLUS;
   val lift : 'a Base.monad -> 'a monad;
 end;
-*}
 
-ML{* functor mk_TMonad_0Plus (Min : TMONAD_0PLUS_MIN) : TMONAD_0PLUS =
+(** mk_TMonad_0Plus **)
+functor mk_TMonad_0Plus (Min : TMONAD_0PLUS_MIN) : TMONAD_0PLUS =
 struct
   structure Monad0Plus = mk_Monad_0Plus (Min : MONAD_0PLUS_MIN);
   open Monad0Plus;
   structure Base = mk_Monad_0Plus (Min.Base : MONAD_0PLUS_MIN);
   val lift = Min.lift;
 end;
-*}
-
-end

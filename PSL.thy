@@ -1,8 +1,12 @@
-(* Read me first.                                                            *)
-(* Import this file to install PSL.                                          *)
-(* That is all you have to do to install PSL.                                *)
+(*  Title:      PSL.thy
+    Author:     Yutaka Nagashima, Data61, CSIRO
+
+Import this file to install PSL. That is all you need to do to install PSL.
+See ./Example.thy for examples.
+*)
+
 theory PSL
-imports "PSLCore/Try_Hard"
+imports Try_Hard
 begin
 
 text{* Uncomment the following to unleash the power parallelism. *}

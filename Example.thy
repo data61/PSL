@@ -1,18 +1,30 @@
-(* This file, Example.thy, contains small examples, including Example3 presented in the TACAS2017 draft. *)
+(*  Title:      PSL.ML
+    Author:     Yutaka Nagashima, Data61, CSIRO
+
+This file contains small examples showing how to use PSL and its default strategy try-hard.
+The examples includes Example3 presented in the TACAS2017 draft.
+*)
+
 theory Example
-imports PSL "~~/src/HOL/Eisbach/Eisbach"
+imports PSL "~~/src/HOL/Eisbach/Eisbach" 
 begin
 
 (* The "Hammer" strategy invokes sledgehammer as a sub-tool. *)
-strategy Hammer = Hammer
+strategy Hammer1 = Hammer
 lemma "True \<or> False"
-find_proof Hammer
+find_proof Hammer1
+oops
+
+(* Previously defined strategies can be used to define new strategies. *)
+strategy Hammer2 = Hammer1
+lemma "True \<or> False"
+find_proof Hammer2
 oops
 
 (* The "POrs" and "PAlts" combinators exploit parallelism.*)
 strategy Test_POrs = POrs [Fastforce, Hammer]
 lemma
- assumes "P" shows "P"
+  assumes "P" shows "P"
 find_proof Test_POrs
 oops
 strategy Test_PAlts = Thens [PAlts [Fastforce, Hammer], IsSolved]
@@ -32,8 +44,10 @@ oops
 (* By combining Eisbach and "User < >", we can use Eisbach methods as conditions to apply strategies.*)
 method if_match = (match conclusion in "((P::'a \<Rightarrow> 'b) = (Q::'a \<Rightarrow> 'b))" for P Q \<Rightarrow> \<open>succeed\<close>)
 strategy IfMatchRuleExt = Thens [User <if_match>, User <rule ext>]
+
 consts "QQ"::"'a \<Rightarrow> 'b"
 consts "PP"::"'a \<Rightarrow> 'b"
+
 lemma "QQ = PP"
 find_proof IfMatchRuleExt
 oops
@@ -41,12 +55,13 @@ oops
 (* One can also call the default proof methods via the "User" strategy. *)
 definition "my_foo \<equiv> True"
 strategy UserSimp2 = Thens [User < simp add: my_foo_def(1) >, IsSolved]
+
 lemma "my_foo"
 find_proof UserSimp2
 oops
 
 (* When having meta-quantified variables, "CaseTac" tends to be more useful than "Cases".*)
-strategy CaseTac = Thens [Dynamic (CaseTac), Auto]
+strategy CaseTac = Thens [Dynamic (CaseTac), Auto, IsSolved]
 lemma "\<And>xs .((case xs of [] \<Rightarrow> [] | y#ys \<Rightarrow> xs) = xs)"
 find_proof CaseTac
 oops
@@ -69,9 +84,10 @@ oops
 inductive foo::"'a \<Rightarrow> 'a \<Rightarrow> bool" where
   "foo x y"
 lemma "foo 8 90"
-find_proof Hammer
+find_proof Hammer1
 try_hard
 oops
+
 lemma assumes D shows "B \<longrightarrow> B \<or> C" and "D" and "D"
 try_hard
 oops
@@ -98,12 +114,15 @@ strategy Hammers =  RepeatN ( Ors [Hammer, Defer]  )
 definition "safe_state x y \<equiv> True"
 lemma state_safety:"safe_state (x::bool) (y::bool) = True"
 apply normalization done
+
 definition "ps_safe (x::bool) (y::bool) \<equiv> safe_state True True"
 definition "valid_trans p s s' x \<equiv> undefined"
+
 lemma cnjct2:
 shows 1:"ps_safe p s"
  and  2:"valid_trans p s s' x"
  and  3:"ps_safe p s'"
+try_hard1
 find_proof Hammers
 oops
 
@@ -111,6 +130,6 @@ oops
 strategy testCut = Thens [Repeat (Cut 10 (Dynamic (Rule))), IsSolved]
 lemma "True \<and> True"
 find_proof testCut
-  oops
+oops
 
 end

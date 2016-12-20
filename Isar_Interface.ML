@@ -1,15 +1,12 @@
-(* This file provides the Isar-level interface of PSL.
- * One can activate the interfaces by calling the functor, mk_PSL_Interface". *)
-theory Isar_Interface
-imports
-  Monadic_Interpreter_Params
-  PSL_Parser
-keywords "strategy"   :: thy_decl 
-     and "find_proof" :: diag
-     and "try_hard"   :: diag
-begin
+(*  Title:      Isar_Interface.ML
+    Author:     Yutaka Nagashima, Data61, CSIRO
 
-ML{* signature PSL_INTERFACE =
+This file provides the Isar-level interface of PSL.
+One can activate the interfaces by calling the function, "PSL_Interface.activate_isar_interface ()".
+*)
+
+(*** PSL_INTERFACE: One can define new strategies only through the Isar interface. ***)
+signature PSL_INTERFACE =
 sig
   val activate_isar_interface : unit -> unit;
   (* "strategy" and "try_hard_strategy" have to be exposed,
@@ -17,17 +14,15 @@ sig
   type strategy;
   val try_hard_strategy       : Proof.context -> strategy option;
 end;
-*}
 
-ML{* functor mk_PSL_Interface(PSL_Parser : PSL_PARSER) : PSL_INTERFACE =
+(*** PSL_Interface: One can define new strategies only through the Isar interface. ***)
+structure PSL_Interface : PSL_INTERFACE =
 struct
 
-structure Mic = Monadic_Interpreter_Core;
-structure Mi  = Monadic_Interpreter;
+structure Mp = Monadic_Prover;
 structure Pc  = Parser_Combinator;
-structure Mip = Monadic_Interpreter_Params;
 
-type strategy = Mi.str;
+type strategy = Mp.str;
 
 structure Data = Generic_Data
 (
@@ -40,41 +35,56 @@ structure Data = Generic_Data
 fun lookup ctxt = (Symtab.lookup o Data.get) (Context.Proof ctxt);
 fun update k v  = Data.map (Symtab.update_new (k, v));
 
+structure Lookup : LOOKUP =
+struct
+  fun get_str ctxt name =
+    let
+      val some_str = lookup ctxt name : Mp.str option;
+      val strategy = Utils.the' (name ^ "? You haven't defined such a strategy!") some_str : Mp.str;
+    in
+      strategy
+    end;
+end;
+
+structure PSL_Parser = mk_PSL_Parser(Lookup);
+
 fun put_strategy (name:string, str:strategy) = update name str
   |> Context.theory_map
   |> Local_Theory.background_theory;
 
-val parse_strategy_def_string = PSL_Parser.strategy_parser : (string * Mi.str) Pc.parser;
-
 fun tokens_to_string tokens = tokens |> map Token.unparse |> String.concatWith " ";
 
-fun string_parser_to_token_parser (string_parser:'a Pc.parser) =
-  (fn (tokens:Token.T list) => tokens
+fun string_parser_to_token_parser (symbols_parser:'a Pc.parser) = (fn (tokens:Token.T list) =>
+  tokens
   |> tokens_to_string
-  |> string_parser
+  |> Symbol.explode
+  |> symbols_parser
   |> Seq.hd
   (* This function assumes that the string_parser consumes the entire string. *)
   |> apsnd (K ([]))) : 'a Token.parser;
 
-val parse_strategy_def_tokens = string_parser_to_token_parser parse_strategy_def_string;
+fun parse_strategy_def_tokens ctxt = string_parser_to_token_parser (PSL_Parser.strategy_parser ctxt)
+  : (string * Mp.str) Token.parser;
 
 val parse_and_put_strategy_def : (local_theory -> local_theory) Token.parser = fn tokens =>
-  tokens
-  |> parse_strategy_def_tokens
-  |> fst
-  |> put_strategy
-  |> (fn morph => (morph, []))
+  let
+    fun get_token_parser ctxt = parse_strategy_def_tokens ctxt : (string * Mp.str) Token.parser;
+    fun get_token_p_result ctxt = get_token_parser ctxt tokens |> fst : string * Mp.str;
+    fun put_str_in_lthy (lthy:local_theory) = put_strategy (get_token_p_result lthy) lthy;
+  in
+  (put_str_in_lthy, [])
+  end;
 
 fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
   let
-    val core_tac  = Mi.desugar strategy;
-    val interpret = Mic.interpret;
+    val core_tac  = Mp.desugar strategy;
+    val interpret = Mp.interpret;
     fun hard_timeout_in (sec:real) = Timeout.apply (seconds sec);
   in
     hard_timeout_in 60000.0
-    (interpret (Mip.eval_prim, Mip.eval_para, Mip.eval_strategic, Mip.m_equal, Mip.iddfc, (5,20))
+    (interpret (Mp.eval_prim, Mp.eval_para, Mp.eval_strategic, Mp.m_equal, Mp.iddfc, (5,20))
                 core_tac) proof_state
-  end : Proof.state Mic.monad;
+  end : Proof.state Mp.monad;
 
 type trans_trans = Toplevel.transition -> Toplevel.transition;
 
@@ -101,11 +111,11 @@ fun get_trans_trans (strategy_name:string) =
            val lmap          = Seq.map;
            val context       = Toplevel.context_of top : Proof.context;
            val some_strategy = lookup context strategy_name;
-           val strategy      = Utils.the' (strategy_name ^ "? You haven't defined such a strategy!") 
+           val strategy      = Utils.the' (strategy_name ^ "? You haven't defined such a strategy!")
                                some_strategy;
-           val tactic        = get_monad_tactic strategy : Proof.state Mic.stttac;
+           val tactic        = get_monad_tactic strategy : Proof.state Mp.stttac;
            val proof_state   = Toplevel.proof_of top;
-           val results'      = tactic proof_state     : Proof.state Mic.monad;
+           val results'      = tactic proof_state     : Proof.state Mp.monad;
            val results       = results' []            : (log * Proof.state) Seq.seq;
            val logs          = lmap fst results       : log Seq.seq;
            val applies       = lmap Dynamic_Utils.mk_apply_script logs;
@@ -121,7 +131,7 @@ fun activate_isar_interface _ =
   let
     val _ = Outer_Syntax.local_theory @{command_keyword strategy} "PSL strategy definition"
       parse_and_put_strategy_def;
-    
+
     val _ =
       Outer_Syntax.command @{command_keyword find_proof}
         "find_proof tries to find a proof based on high level strategies provided in advance.."
@@ -131,16 +141,17 @@ fun activate_isar_interface _ =
       Outer_Syntax.command @{command_keyword try_hard}
        "try_hard to find efficient proof-scripts."
        (Scan.succeed (get_trans_trans "TryHard"))
+
+    val _ =
+      Outer_Syntax.command @{command_keyword try_hard1}
+       "try_hard to find efficient proof-scripts."
+       (Scan.succeed (get_trans_trans "TryHard1"))
+
   in () end;
 
 fun try_hard_strategy (ctxt:Proof.context) = lookup ctxt "TryHard";
 
 end;
-*}
 
-(* activate the Isar interface of PSL.  *)
-ML{*  structure PSL_Interface = mk_PSL_Interface (PSL_Parser : PSL_PARSER); 
+(*** activate the Isar interface of PSL. ***)
 PSL_Interface.activate_isar_interface ();
-*}
-
-end

@@ -1,24 +1,36 @@
-(* This file provides the monadic parser of PSL. *)
-theory PSL_Parser
-imports
-  Monadic_Interpreter
-  "../Category/Parser_Combinator"
-begin
+(*  Title:      PSL_Parser.ML
+    Author:     Yutaka Nagashima, Data61, CSIRO
 
-ML{* signature PSL_PARSER =
+This file provides the monadic parser of PSL.
+*)
+
+(*** PSL_PARSER: The PSL parser. ***)
+signature PSL_PARSER =
 sig
-  val strategy_parser   : (string * Monadic_Interpreter.str) Parser_Combinator.parser;
+  val strategy_parser   : Proof.context -> (string * Monadic_Interpreter.str) Parser_Combinator.parser;
   val invocation_parser : string Parser_Combinator.parser;
-end
-*}
+end;
 
-ML{* structure PSL_Parser : PSL_PARSER =
+signature LOOKUP =
+sig
+  val get_str : Proof.context -> string -> Monadic_Prover.str;
+end;
+
+(*** PSL_Parser: The PSL parser. ***)
+functor mk_PSL_Parser (Lookup:LOOKUP) : PSL_PARSER =
 struct
 
+(*As PSL_Parser uses several functions from Parser_Combinator many times, "opening" that module
+  improves the readability significantly.*)
 open Parser_Combinator;
-infix >>=; (* from Parser_Combinator *)
+infix >>=; (*from Parser_Combinator*)
 
 structure Mi = Monadic_Interpreter;
+
+(** strategy_parser **)
+fun strategy_parser (ctxt:Proof.context) =
+
+let
 
 fun parse_atomic (str:Mi.str) (name:string) = string name >>= (K (result str)) : Mi.str parser;
 (* prim_str *)
@@ -48,6 +60,10 @@ val parse_normalization = parse_atomic Mi.Normalization"Normalization": Mi.str p
 (* monadic strategic *)
 val parse_skip          = parse_atomic Mi.Skip         "Skip"         : Mi.str parser;
 val parse_fail          = parse_atomic Mi.Fail         "Fail"         : Mi.str parser;
+
+(* user-defined strategy *)
+fun parse_str ()        = token word >>= (fn str_name => Lookup.get_str ctxt str_name |> result)
+                        : Mi.str parser;
 
 val msum = List.foldr (op plus) zero;
 fun parse_strategy () =
@@ -94,7 +110,8 @@ fun parse_strategy () =
      parse_repeat_n (),
      parse_solve1 (),
      parse_cut (),
-     parse_user ()] : Mi.str parser
+     parse_user (),
+     parse_str ()] : Mi.str parser
 
 and parse_a_strategy_in_paren (_) : Mi.str parser =
   bracket
@@ -120,9 +137,9 @@ and parse_words_in_paren _ =
   token
   (bracket
     (string "<" |> token)
-    (many (sat (fn x => x <> #">" )))
-    (string ">" |> token) >>= (fn chars =>
-  chars |> Seq.list_of |> String.implode |> result)): string parser
+    (many (sat (fn x => x <> ">" )))
+    (string ">" |> token) >>= (fn symbols =>
+  symbols |> Seq.list_of |> String.concat |> result)): string parser
 
 and parse_user () =
   string "User"|> token        >>= (fn delayer =>
@@ -172,14 +189,14 @@ val parse_strategy_name = token word     >>= (fn str_name =>
                           parse_equality >>= K (
                           result str_name));
 
-val strategy_parser =
+in
+
   parse_strategy_name >>= (fn name:string =>
   parse_strategy ()   >>= (fn strategy =>
-  result (name, strategy)));
+  result (name, strategy)))
+
+end;
 
 val invocation_parser = token word >>= result : string parser;
 
 end;
-*}
-
-end
