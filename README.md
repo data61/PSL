@@ -36,6 +36,16 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 - *./PSL.thy*                      reads all the necessary files to use PSL and try_hard.
 - *./Example.thy*                  presents small example strategies and use cases.
 
+## FAQ
+
+*Q1.* Why yet another tactic language? How is PSL different from, say, Eisbach?
+
+*A1.* PSL’s runtime system attempts to generate efficient proof scripts from a given strategy by searching for the appropriate specialisation and combination of tactics for a particular conjecture without direct user interaction. Eisbach does not generate methods dynamically, trace proof attempts, nor support parallelism natively. Eisbach is good when engineers already know how to prove their conjecture in Isabelle, while PSL is good when they want to find out how to prove it.
+
+*Q2.* To be honest, I do not have time to learn a new language. Can I still use PSL without learning its syntax?
+
+*A2.* We made PSL’s syntax similar to that of Isabelle’s tactic language to lower the learning barrier of PSL. But if you do not feel writing your custom strategy, enter *try_hard*. It invokes the default strategy, TryHard. The lack of input from human engineers on the proof obligation at hand makes the TryHard less specific to each conjecture; however, we made try hard more powerful than existing proof automation tools for Isabelle by specifying larger search spaces.
+
 ## Documentations
 For more details, please read the paper [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) available at arXiv.org.
 
