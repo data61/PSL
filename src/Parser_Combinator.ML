@@ -1,4 +1,4 @@
-(*  Title:      Parser_Combinator.ML
+(*  Title:      src/Parser_Combinator.ML
     Author:     Yutaka Nagashima, Data61, CSIRO
 
 Monadic Parser Combinators described by Graham Hutton and Erik Meijer in 1996.

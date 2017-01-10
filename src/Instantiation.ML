@@ -1,4 +1,4 @@
-(*  Title:      Constructor_Class.ML
+(*  Title:      src/Instantiation.ML
     Author:     Yutaka Nagashima, Data61, CSIRO
 
 This file provides various instances of constructor classes.

@@ -1,4 +1,4 @@
-(*  Title:      PSL_Parser.ML
+(*  Title:      src/PSL_Parser.ML
     Author:     Yutaka Nagashima, Data61, CSIRO
 
 This file provides the monadic parser of PSL.

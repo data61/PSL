@@ -1,4 +1,4 @@
-(*  Title:      Category.ML
+(*  Title:      src/Constructor_Class.ML
     Author:     Yutaka Nagashima, Data61, CSIRO
 
 This file contains the hierarchical formalisation of modular constructor classes.

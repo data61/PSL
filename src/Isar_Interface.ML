@@ -1,4 +1,4 @@
-(*  Title:      Isar_Interface.ML
+(*  Title:      src/Isar_Interface.ML
     Author:     Yutaka Nagashima, Data61, CSIRO
 
 This file provides the Isar-level interface of PSL.

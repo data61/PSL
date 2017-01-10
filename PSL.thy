@@ -6,7 +6,7 @@ See ./Example.thy for examples.
 *)
 
 theory PSL
-imports Try_Hard
+imports "src/Try_Hard"
 begin
 
 text{* Uncomment the following to unleash the power parallelism. *}

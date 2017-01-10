@@ -1,4 +1,4 @@
-(*  Title:      Try_Hard.thy
+(*  Title:      src/Try_Hard.thy
     Author:     Yutaka Nagashima, Data61, CSIRO
 
 This file defines the default strategy "TryHard".
