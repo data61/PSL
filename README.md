@@ -8,6 +8,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Then, Users can install PSL and try_hard by importing *.PSL.thy* to their theory files
    with the Isabelle keyword, **imports**.
+![Screenshot](./image/screen_shot_import.png)
 
 ## Basic Commands
 - The keyword **strategy** defines a new strategy.
