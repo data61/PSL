@@ -24,18 +24,18 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
   Plugin Options => Isabelle => General => Editor Reactivity => Editor Tracing Messages.
 
 ## Contents
-- *./Utils.ML*                     includes various utility functions.
-- *./Subtool.ML*                   treats Isabelle's subtools as state-monad tactics.
-- *./Dynamic_Tactic_Generation.ML* facilitates runtime tactic generation.
-- *./Constructor_Class.ML/*        is a general purpose constructor class library.
-- *./Instantiation.ML*             instantiates some type constructors as members of constructor classes.
-- *./Monadic_Prover.ML*            contains the interpreter of PSL.
-- *./Parser_Combinator.ML*         contains general purpose monadic parser combinators.
-- *./PSL_Parser.ML*                defines the PSL parser.
-- *./Isar_Interface.thy*           sets up the Isabelle/Isar interface for PSL.
-- *./Try_Hard.thy*                 defines the default strategy try_hard.
-- *./PSL.thy*                      reads all the necessary files to use PSL and try_hard.
-- *./Example.thy*                  presents small example strategies and use cases.
+- *.src/Utils.ML*                     includes various utility functions.
+- *.src/Subtool.ML*                   treats Isabelle's subtools as state-monad tactics.
+- *.src/Dynamic_Tactic_Generation.ML* facilitates runtime tactic generation.
+- *.src/Constructor_Class.ML/*        is a general purpose constructor class library.
+- *.src/Instantiation.ML*             instantiates some type constructors as members of constructor classes.
+- *.src/Monadic_Prover.ML*            contains the interpreter of PSL.
+- *.src/Parser_Combinator.ML*         contains general purpose monadic parser combinators.
+- *.src/PSL_Parser.ML*                defines the PSL parser.
+- *.src/Isar_Interface.thy*           sets up the Isabelle/Isar interface for PSL.
+- *.src/Try_Hard.thy*                defines the default strategy try_hard.
+- *./PSL.thy*                         reads all the necessary files to use PSL and try_hard.
+- *./Example.thy*                     presents small example strategies and use cases.
 
 ## FAQ
 
