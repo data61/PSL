@@ -37,8 +37,7 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 - *./PSL.thy*                         reads all the necessary files to use PSL and try_hard.
 - *./Example.thy*                     presents small example strategies and use cases.
 
-## FAQ
-
+## FAQs
 *Q1.* Why yet another tactic language? How is PSL different from, say, Eisbach?
 
 *A1.* PSL’s runtime system attempts to generate efficient proof scripts from a given strategy by searching for the appropriate specialisation and combination of tactics for a particular conjecture without direct user interaction. Eisbach does not generate methods dynamically, trace proof attempts, nor support parallelism natively. Eisbach is good when engineers already know how to prove their conjecture in Isabelle, while PSL is good when they want to find out how to prove it.
@@ -46,6 +45,22 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 *Q2.* To be honest, I do not have time to learn a new language. Can I still use PSL without learning its syntax?
 
 *A2.* We made PSL’s syntax similar to that of Isabelle’s tactic language to lower the learning barrier of PSL. But if you do not feel writing your custom strategy, enter *try_hard*. It invokes the default strategy, TryHard. The lack of input from human engineers on the proof obligation at hand makes the TryHard less specific to each conjecture; however, we made try hard more powerful than existing proof automation tools for Isabelle by specifying larger search spaces.
+
+*Q3.* How much computational resources do I need to use PSL / try_hard?
+
+*A3.* The more is the better. You can increase the power of your strategy by using parallel combinators, such as *POrs* and *PAlts*.
+
+*Q4.* It looks like PSL's proof search got stuck due to the high volume of traing messages. How can I keep it running?
+
+*A4.* You can change the upper limit for tracing messages via jEdit's menus: Plugin Options => Isabelle => General => Editor Reactivity => Editor Tracing Messages.
+
+*Q5.* try_hard keeps running for more than five minutes. How long should I wait to get a proof for this conjecture?
+
+*A5.* It depends on how difficult your conjecture is. try_hard starts with simple proof strategies that usually do not take much time and tries more time consuming strategies if simple strategies cannot find a proof. If it keeps running for more than six hours, I would start writing proofs manually.
+
+*Q6.* How do you compare sledgehammer and try_hard?
+
+*Q7.* sledgehammer is good when you want to get a proof quickly, while try_hard is good when you have longer time for proof search. [Our evaluation](https://arxiv.org/abs/1606.02941) shows that try_hard proves 20 percentage points more proofs than sledgehammer does given 300 seconds for proof search. try_hard is particularly good at discharging discharging proof obligations that can be solved by a) mathematical (co)induction, b) general simplification rules, or c) specialised tactics.
 
 ## Documentations
 For more details, please read the paper [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) available at arXiv.org.
