@@ -58,9 +58,9 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 
 *A5.* It depends on how difficult your conjecture is. try_hard starts with simple proof strategies that usually do not take much time and tries more time consuming strategies if simple strategies cannot find a proof. If it keeps running for more than six hours, I would start writing proofs manually.
 
-*Q6.* How do you compare sledgehammer and try_hard?
+*Q6.* Why try_hard? Why not sledgehammer?
 
-*A6.* sledgehammer is good when you want to get a proof quickly, while try_hard is good when you have a longer time for proof search. [Our evaluation](https://arxiv.org/abs/1606.02941) shows that try_hard proves 20 percentage points more proofs than sledgehammer does given 300 seconds for proof search. try_hard is particularly good at discharging discharging proof obligations that can be solved by a) mathematical (co)induction, b) general simplification rules, or c) specialised tactics.
+*A6.* sledgehammer is good when you want to get a proof quickly, while try_hard is good when you have a longer time for proof search. [Our evaluation](https://arxiv.org/abs/1606.02941) shows that try_hard proves 20 percentage points more proofs than sledgehammer does given 300 seconds for proof search. try_hard is especially good at discharging proof obligations that can be nicely handled by by a) mathematical (co)induction, b) general simplification rules, or c) specialised tactics.
 
 ## Documentations
 For more details, please read the paper [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) available at arXiv.org.
