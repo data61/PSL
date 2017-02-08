@@ -13,6 +13,7 @@ sig
    *  so that Mirabelle can use it without exposing "lookup". *)
   type strategy;
   val try_hard_strategy       : Proof.context -> strategy option;
+  val try_parallel_strategy   : Proof.context -> strategy option;
 end;
 
 (*** PSL_Interface: One can define new strategies only through the Isar interface. ***)
@@ -40,7 +41,9 @@ struct
   fun get_str ctxt name =
     let
       val some_str = lookup ctxt name : Mp.str option;
-      val strategy = Utils.the' (name ^ "? You haven't defined such a strategy!") some_str : Mp.str;
+      val strategy = Utils.the' (name ^ "?\nDid you really define such a strategy?\n"
+        ^ "Also, you should not forget that PThenOne and PThenAll take *exactly* two sub-strategies!")
+        some_str : Mp.str;
     in
       strategy
     end;
@@ -60,7 +63,7 @@ fun string_parser_to_token_parser (symbols_parser:'a Pc.parser) = (fn (tokens:To
   |> Symbol.explode
   |> symbols_parser
   |> Seq.hd
-  (* This function assumes that the string_parser consumes the entire string. *)
+  (*This function assumes that the string_parser consumes the entire string.*)
   |> apsnd (K ([]))) : 'a Token.parser;
 
 fun parse_strategy_def_tokens ctxt = string_parser_to_token_parser (PSL_Parser.strategy_parser ctxt)
@@ -140,16 +143,26 @@ fun activate_isar_interface _ =
     val _ =
       Outer_Syntax.command @{command_keyword try_hard}
        "try_hard to find efficient proof-scripts."
-       (Scan.succeed (get_trans_trans "TryHard"))
+       (Scan.succeed (get_trans_trans "Try_Hard"))
 
     val _ =
-      Outer_Syntax.command @{command_keyword try_hard1}
+      Outer_Syntax.command @{command_keyword try_hard_one}
        "try_hard to find efficient proof-scripts."
-       (Scan.succeed (get_trans_trans "TryHard1"))
+       (Scan.succeed (get_trans_trans "Try_Hard_One"))
 
+    val _ =
+      Outer_Syntax.command @{command_keyword try_hard_all}
+       "try_hard to find efficient proof-scripts."
+       (Scan.succeed (get_trans_trans "Try_Hard_All"))
+
+    val _ =
+      Outer_Syntax.command @{command_keyword try_parallel}
+       "try_hard to find efficient proof-scripts."
+       (Scan.succeed (get_trans_trans "Try_Parallel"))
   in () end;
 
-fun try_hard_strategy (ctxt:Proof.context) = lookup ctxt "TryHard";
+fun try_hard_strategy     (ctxt:Proof.context) = lookup ctxt "Try_Hard";
+fun try_parallel_strategy (ctxt:Proof.context) = lookup ctxt "Try_Parallel";
 
 end;
 

@@ -131,7 +131,7 @@ let
     let
       val app = case node of
         Dynamic_Utils.Apply app_node => app_node
-      | _ => error "app in Sledgehammer_Tacctic panics.";
+      | _ => error "app in Sledgehammer_Tactic panics.";
       fun tracing1 _ = tracing ("methN in node is " ^ #methN app);
       fun tracing2 _ = tracing "using_strings are ...";
       fun tracing3 _ = map tracing using_strings;
@@ -164,7 +164,7 @@ fun hammer_logtac (pstate:Proof.state) =
     val valOf              = Option.valOf;
     val omap               = Option.map;
     val thy                = Proof.theory_of pstate : theory;
-    val params             = Sledgehammer_Commands.default_params thy [];
+    val params             = Sledgehammer_Commands.default_params thy [("isar_proofs", "false")]
     val Auto_Try           = Sledgehammer_Prover.Auto_Try;
     val fact_override      = Sledgehammer_Fact.no_fact_override;
     val run_sledgehammer   = Sledgehammer.run_sledgehammer params Auto_Try NONE 1 fact_override
@@ -211,12 +211,11 @@ val to_stttac  = Dynamic_Utils.log_n_nontac_to_stttac;
 
 fun is_solved_nontac(state:Proof.state) =
   let
-    val single  = Seq.single;
-    val empty   = Seq.empty;
     val done    = Proof.local_done_proof;
     val goal    = state |> Proof.goal |> #goal : thm;
     val no_goal = Thm.nprems_of goal = 0 : bool;
-    val result  = if no_goal then state |> done |> single handle ERROR _ => single state else empty;
+    val result  = if no_goal then state |> done |> Seq.single
+      handle ERROR _ => Seq.single state else Seq.empty;
   in
     result : Proof.state Seq.seq
   end;

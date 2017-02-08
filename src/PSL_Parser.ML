@@ -36,6 +36,7 @@ fun parse_atomic (str:Mi.str) (name:string) = string name >>= (K (result str)) :
 (* prim_str *)
 val parse_clarsimp      = parse_atomic Mi.Clarsimp     "Clarsimp"     : Mi.str parser;
 val parse_simp          = parse_atomic Mi.Simp         "Simp"         : Mi.str parser;
+val parse_blast         = parse_atomic Mi.Blast        "Blast"        : Mi.str parser;
 val parse_fastforce     = parse_atomic Mi.Fastforce    "Fastforce"    : Mi.str parser;
 val parse_auto          = parse_atomic Mi.Auto         "Auto"         : Mi.str parser;
 val parse_induct        = parse_atomic Mi.Induct       "Induct"       : Mi.str parser;
@@ -70,6 +71,7 @@ fun parse_strategy () =
   msum
     [parse_clarsimp,
      parse_simp,
+     parse_blast,
      parse_fastforce,
      parse_auto,
      parse_induct,
@@ -90,6 +92,7 @@ fun parse_strategy () =
      parse_normalization,
      parse_dclarsimp (),
      parse_dsimp (),
+     parse_dblast (),
      parse_dfastforce (),
      parse_dauto (),
      parse_dinduct (),
@@ -104,6 +107,8 @@ fun parse_strategy () =
      parse_seq (),
      parse_alt (),
      parse_or (),
+     parse_pseq (),
+     parse_pseq1 (),
      parse_por (),
      parse_palt (),
      parse_repeat (),
@@ -154,6 +159,7 @@ and parse_dynamic constr name =
   result constr))
 and parse_dclarsimp ()    = parse_dynamic Mi.ParaClarsimp    "Clarsimp"    : Mi.str parser
 and parse_dsimp ()        = parse_dynamic Mi.ParaSimp        "Simp"        : Mi.str parser
+and parse_dblast ()       = parse_dynamic Mi.ParaBlast       "Blast"       : Mi.str parser
 and parse_dfastforce ()   = parse_dynamic Mi.ParaFastforce   "Fastforce"   : Mi.str parser
 and parse_dauto ()        = parse_dynamic Mi.ParaAuto        "Auto"        : Mi.str parser
 and parse_dinduct ()      = parse_dynamic Mi.ParaInduct      "Induct"      : Mi.str parser
@@ -177,11 +183,29 @@ and parse_strategic constr name =
    parse_strategies delayer >>= (fn strategies : Mi.str Seq.seq =>
    strategies |> constr |> result)))
 
-and parse_or ()   = parse_strategic Mi.Or   "Ors"   : Mi.str parser
-and parse_alt ()  = parse_strategic Mi.Alt  "Alts"  : Mi.str parser
-and parse_seq ()  = parse_strategic Mi.Seq  "Thens" : Mi.str parser
-and parse_por ()  = parse_strategic Mi.POr  "POrs"  : Mi.str parser
-and parse_palt () = parse_strategic Mi.PAlt "PAlts" : Mi.str parser;
+and parse_2_strategies _ : Mi.str Seq.seq parser =
+  bracket
+    (string "[" |> token)
+    (parse_strategy () |> token >>= (fn x =>
+     string ","        |> token >>= (fn _ =>
+     parse_strategy () |> token >>= (fn y =>
+     (result (Seq.cons x (Seq.single y)))))))
+    (string "]" |> token) |> token
+
+(* Do not remove "delayer", or you get stuck in a loop. *)
+and parse_strategic_2 constr name =
+  token
+  (string name |> token       >>= (fn delayer =>
+   parse_2_strategies delayer >>= (fn strategies : Mi.str Seq.seq =>
+   strategies |> constr |> result)))
+
+and parse_or ()    = parse_strategic   Mi.Or    "Ors"    : Mi.str parser
+and parse_alt ()   = parse_strategic   Mi.Alt   "Alts"   : Mi.str parser
+and parse_seq ()   = parse_strategic   Mi.Seq   "Thens"  : Mi.str parser
+and parse_por ()   = parse_strategic   Mi.POr   "POrs"   : Mi.str parser
+and parse_palt ()  = parse_strategic   Mi.PAlt  "PAlts"  : Mi.str parser
+and parse_pseq ()  = parse_strategic_2 Mi.PSeq  "PThenAll" : Mi.str parser
+and parse_pseq1 () = parse_strategic_2 Mi.PSeq1 "PThenOne": Mi.str parser;
 
 val parse_equality = string "=" |> token;
 

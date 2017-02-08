@@ -60,7 +60,7 @@ structure Strings = mk_Monoid (Strings_Min) : MONOID;
  *)
 signature CONS_PROD =
 sig
-  (* Is this a valid specification for constructor products (:*:)? *)
+  (*Is this a valid specification for constructor products (:*:)?*)
   type 'a left_cons;
   type 'a right_cons;
   type 'a cons_prod = 'a left_cons * 'a right_cons;
@@ -87,21 +87,23 @@ structure ListOptionConsProdMonad = mk_Monad(ListOptionConsProdMonadMin);
 ListOptionConsProdMonadMin.return "foo";
 
 (** State **)
+(* the minimum state monad0plus transformer *)
 functor mk_stateMT_M0P_Min (structure State : TYP; structure Base : MONAD_0PLUS_MIN) : TMONAD_0PLUS_MIN =
 struct
   structure Base = Base;
   type 'a monad = State.typ -> (State.typ * 'a) Base.monad;
-  (* MONAD_CORE *)
+  (*MONAD_CORE*)
   fun return valu = fn state => Base.return (state, valu);
   fun bind st_trans bfun = fn state0 => 
     Base.bind (st_trans state0) (fn (state1, result1) => bfun result1 state1);
-  (* MONADT *)
+  (*MONADT*)
   fun lift m  = fn state => Base.bind m (fn result => Base.return (state, result));
-  (* MONAD_0PLUS_CORE *)
+  (*MONAD_0PLUS_CORE*)
   val mzero = fn _(*state*) => Base.mzero
   fun mplus (reader1, reader2) = fn state => Base.mplus (reader1 state, reader2 state);
 end
 
+(* the full state monad0plus transformer *)
 functor mk_state_M0PT (structure Log : TYP; structure Base : MONAD_0PLUS_MIN): TMONAD_0PLUS =
 let
   structure SMT_M0P_Core = mk_stateMT_M0P_Min(struct structure State = Log; structure Base = Base end);
@@ -110,6 +112,7 @@ in
   SMT_M0P
 end;
 
+(* the minimum state monad *)
 functor mk_StateM_Min (State : TYP) : MONAD_MIN =
 struct
   type 'a monad = State.typ -> ('a * State.typ);
@@ -117,6 +120,7 @@ struct
   fun bind st f = fn s => let val (v, s') = st s in f v s' end;
 end;
 
+(* the full state monad *)
 functor mk_StateM (State : TYP) : MONAD =
 struct
   structure StateM_Min = mk_StateM_Min (State);
@@ -124,12 +128,14 @@ struct
   open StateM;
 end;
 
+(* the transformed monad0plus with update *)
 signature TSTATE_MONAD_0PLUS_MIN =
 sig
   include TMONAD_0PLUS;
   val update : ('s -> 's) -> 's -> ('s * 's) Base.monad;
 end;
 
+(* the transformed monad0plus with update, set, and fetch *)
 signature TSTATE_MONAD_0PLUS =
 sig
   include TMONAD_0PLUS;
@@ -138,14 +144,7 @@ sig
   val fetch  : 's -> ('s * 's) Base.monad;
 end;
 
-functor tM0p_Min_to_State_Monad_0Plus (structure State : TYP; structure Base : MONAD_0PLUS_MIN)
- : TSTATE_MONAD_0PLUS_MIN =
-struct
-  structure State_M0pt = mk_state_M0PT (struct structure Log = State; structure Base = Base end);
-  open State_M0pt;
-  fun update f = fn s => Base.return (s, f s)
-end;
-
+(* the minimum state monad0plus transformer with update *)
 functor mk_TState_Monad_0Plus_Min (structure State : TYP; structure Base : MONAD_0PLUS_MIN) =
 struct
   structure TState_M0p = mk_state_M0PT (struct structure Log = State; structure Base = Base end);
@@ -153,6 +152,7 @@ struct
   fun update f = fn state => Base.return (state, f state);
 end : TSTATE_MONAD_0PLUS_MIN;
 
+(* the minimum state monad0plus transformer with update *)
 functor mk_TState_Monad_0Plus (structure State : TYP; structure Base : MONAD_0PLUS_MIN) =
 struct
   structure TState_M0p_Min = mk_TState_Monad_0Plus_Min (struct structure State = State;

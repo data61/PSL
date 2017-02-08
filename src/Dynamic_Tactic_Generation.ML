@@ -40,9 +40,8 @@ struct
     let
       val attributes_name   = mods_to_string mods: string;
       val method_str_w_attr = meth_name ^ attributes_name;
-      val nontac_on_state  = DG.string_to_nontac_on_pstate method_str_w_attr
-        |> Isabelle_Utils.TIMEOUT_in 0.3: Proof.state DG.nontac
-        handle THM _ => K Seq.empty;
+      val nontac_on_state   = Utils.try_with (K Seq.empty) DG.string_to_nontac_on_pstate method_str_w_attr
+        |> Isabelle_Utils.TIMEOUT_in 0.3: Proof.state DG.nontac;
       val trace_node       = DG.Apply {using = [], methN = method_str_w_attr, back = 0};
       val logtac_on_state  = DG.nontac_to_logtac trace_node nontac_on_state : Proof.state DG.logtac;
       val stttac_on_state  = DG.logtac_to_stttac logtac_on_state;
@@ -74,6 +73,7 @@ sig
   val cases       : get_stttacs;
   val case_tac    : get_stttacs;
   val clarsimp    : get_stttacs;
+  val blast       : get_stttacs;
   val fastforce   : get_stttacs;
   val auto        : get_stttacs;
 end;
@@ -222,7 +222,7 @@ fun get_state_stttacs (state:Proof.state) =
     val all_modifierss   = map single all_modifiers |> Seq.of_list : STG.modifiers Seq.seq;
     val ssstacs = Seq.map (STG.meth_name_n_modifiers_to_stttac_on_state simp) all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
-  in 
+  in
     ssstacs : Proof.state stttac Seq.seq
   end;
 
@@ -344,8 +344,8 @@ fun get_all_modifiers (state:Proof.state) =
   let
     val {context: Proof.context, goal: thm,...} = Proof.goal state;
     val all_var_names   = Isabelle_Utils.get_all_var_names_in_1st_subg goal;
-    val induct_rules     = Find_Theorems2.get_induct_rule_names context goal : string list;
-    val all_induct_mods  = get_ons all_var_names @ get_rules induct_rules;
+    val induct_rules    = Find_Theorems2.get_induct_rule_names context goal : string list;
+    val all_induct_mods = get_ons all_var_names @ get_rules induct_rules;
   in
     all_induct_mods : modifiers
   end;
@@ -484,7 +484,7 @@ fun get_state_stttacs (state:Proof.state) =
   let
     val induct         = "cases";
     val all_modifiers  = CTG.get_all_modifiers state : CTG.modifiers;
-    val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
+    val all_modifierss = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
     val stttacs        = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
   in
@@ -592,11 +592,19 @@ structure FT2 =  Find_Theorems2;
 fun get_all_modifiers (state:Proof.state) =
   let
     val {context: Proof.context, goal: thm,...} = Proof.goal state;
-    val simps     = map Simp  (FT2.get_simp_rule_names  context goal);
-    val splits    = map Split (FT2.get_split_rule_names context goal);
-    val elims     = map Elim  (FT2.get_elim_rule_names  context goal);
-    val intros    = map Intro (FT2.get_intro_rule_names context goal);
-    val dest      = map Dest  (FT2.get_dest_rule_names  context goal);
+    val split_names   = FT2.get_split_rule_names context goal;
+    val elim_names    = FT2.get_elim_rule_names  context goal;
+    val intro_names   = FT2.get_intro_rule_names context goal;
+    val dest_names    = FT2.get_dest_rule_names  context goal;
+    fun to_bool EQUAL = true
+     |  to_bool _     = false;
+    fun are_same (x, y) = (to_bool o String.compare) (x, y);
+    val simps     = subtract are_same (split_names @ elim_names @ intro_names @ dest_names)
+                    (FT2.get_fact_names_mesh state) |> map Simp;
+    val splits    = map Split split_names;
+    val elims     = map Elim  elim_names;
+    val intros    = map Intro intro_names;
+    val dest      = map Dest  dest_names;
     val modifiers = simps @ splits @ elims @ intros @ dest;
   in
     modifiers : modifiers
@@ -643,13 +651,54 @@ fun get_state_stttacs (state:Proof.state) =
                                                     
 end;
 
-(** Dynamic_Auto: The tactic generator for the auto method. **)
-structure Dynamic_Auto : DYNAMIC_TACTIC =
+(** Dynamic_Blast: The tactic generator for the fastforce method. **)
+structure Dynamic_Blast : DYNAMIC_TACTIC =
 struct
 
 fun get_state_stttacs (state:Proof.state) =
   let
     val all_modifiers    = CTG.get_all_modifiers state : CTG.modifiers;
+    val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
+    val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state "blast") all_modifierss;
+    type 'a stttac = 'a Dynamic_Utils.stttac;
+  in
+    stttacs : Proof.state stttac Seq.seq
+  end;
+
+end;
+
+(** Dynamic_Auto: The tactic generator for the auto method. **)
+structure Dynamic_Auto : DYNAMIC_TACTIC =
+struct
+
+type mods = CTG.modifiers;
+type pstate = Proof.state;
+
+(*We do not use incremental tactic specialisation for now.
+fun increment  _                 ([]:mods)           (added:mods) (_:pstate) (_:pstate) _ = added
+  | increment (meth_name:string) (new_mod::new_mods) (added:mods) (old_st:pstate) (orig_st:pstate) _ =
+     let
+       val pstate_to_thm    = Isabelle_Utils.proof_state_to_thm;
+       val olds_and_new     = added@[new_mod] : mods;
+       val new_nontac       = CTG.meth_name_n_modifiers_to_nontac_on_state meth_name olds_and_new;
+       val new_states       = new_nontac orig_st : pstate Seq.seq;
+       val new_state        = Seq.hd new_states handle Option.Option => old_st;
+       val new_old_are_same = apply2 pstate_to_thm (old_st, new_state) |> Thm.eq_thm : bool;
+       val is_solved        = (new_state |> Proof.goal |> #goal |> Thm.nprems_of) = 0
+       fun if_diff lazy     = increment meth_name new_mods olds_and_new new_state orig_st lazy;
+       fun if_same lazy     = increment meth_name new_mods added old_st orig_st lazy;
+       val final_mods       = if is_solved then olds_and_new else
+                              if new_old_are_same then if_same () else if_diff ();
+     in
+       final_mods
+     end;
+*)
+
+fun get_state_stttacs (state:Proof.state) =
+  let
+    val all_modifiers    = CTG.get_all_modifiers state : CTG.modifiers;
+  (*We do not use incremental tactic specialisation for now.
+    val incremented_mods = increment "auto" all_modifiers [] state state ();*)
     val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
     val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state "auto") all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
@@ -664,15 +713,16 @@ end;
 (** Dynamic_Tactic_Generation: body. **)
 type get_stttacs = Proof.state -> Proof.state Dynamic_Utils.stttac Seq.seq;
 val rule        = Dynamic_Rule.get_state_stttacs;
-val erule       = Dynamic_Erule.get_state_stttacs
-val simp        = Dynamic_Simp.get_state_stttacs
-val induct      = Dynamic_Induct.get_state_stttacs
-val induct_tac  = Dynamic_Induct_Tac.get_state_stttacs
-val coinduction = Dynamic_Coinduction.get_state_stttacs
-val cases       = Dynamic_Cases.get_state_stttacs
-val case_tac    = Dynamic_Case_Tac.get_state_stttacs
-val clarsimp    = Dynamic_Clarsimp.get_state_stttacs
-val fastforce   = Dynamic_Fastforce.get_state_stttacs
-val auto        = Dynamic_Auto.get_state_stttacs
+val erule       = Dynamic_Erule.get_state_stttacs;
+val simp        = Dynamic_Simp.get_state_stttacs;
+val induct      = Dynamic_Induct.get_state_stttacs;
+val induct_tac  = Dynamic_Induct_Tac.get_state_stttacs;
+val coinduction = Dynamic_Coinduction.get_state_stttacs;
+val cases       = Dynamic_Cases.get_state_stttacs;
+val case_tac    = Dynamic_Case_Tac.get_state_stttacs;
+val clarsimp    = Dynamic_Clarsimp.get_state_stttacs;
+val blast       = Dynamic_Blast.get_state_stttacs;
+val fastforce   = Dynamic_Fastforce.get_state_stttacs;
+val auto        = Dynamic_Auto.get_state_stttacs;
 
 end;

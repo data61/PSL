@@ -12,23 +12,22 @@ sig
   datatype csubtool =  CQuickcheck | CNitpick | CHammer;
   datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
                      | CSubgoal;
-  datatype cprim_str = CClarsimp | CSimp | CFastforce | CAuto | CInduct
+  datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
                      | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
   datatype cstatic = CPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
   datatype catom_str = CSttc of cstatic | CDyn of cprim_str;
-  datatype cstrategic = CSolve1 | CRepeatN | CCut of int;
+  (*CPThen cannot be a part of core_str, as the constructor class does not provide enough information.*)
+  datatype cstrategic = CSolve1 | CRepeatN | CCut of int | CPSeq | CPSeq1 | CPOr | CPAlt;
   datatype core_str =
     CAtom of catom_str
   | CSkip
   | CFail
   | COr       of (core_str * core_str)
-  | CPOr      of (core_str * core_str)
   | CSeq      of (core_str * core_str)
   | CAlt      of (core_str * core_str)
-  | CPAlt     of (core_str * core_str)
   | CRepBT    of core_str
   | CRepNB    of core_str
-  | CFails    of core_str (* Fails cannot be defined as just a syntactic sugar as the definition involves goal.*)
+  | CFails    of core_str (*Fails cannot be defined as just a syntactic sugar as the definition involves goal.*)
   | CStrategic of (cstrategic * core_str list);
   type 'a stttac;
   type 'a params;
@@ -43,23 +42,22 @@ struct
   datatype csubtool =  CQuickcheck | CNitpick | CHammer;
   datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
                      | CSubgoal;
-  datatype cprim_str = (*default tactics*) CClarsimp | CSimp | CFastforce | CAuto | CInduct
+  (*default tactics*)
+  datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
                      | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
   datatype combine = Unique | First;
   datatype cstatic = CPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
   datatype catom_str = CSttc of cstatic | CDyn of cprim_str;
-  (*atom_strategic without monadic-interpretation.*)
-  datatype cstrategic = CSolve1 | CRepeatN | CCut of int;
-  infix 0 CSeq CAlt  COr CPAlt CPOr;
+  (*atom_strategic with less-monadic interpretation.*)
+  datatype cstrategic = CSolve1 | CRepeatN | CCut of int | CPSeq | CPSeq1 | CPOr | CPAlt;
+  infix 0 CSeq CAlt  COr CPAlt;
   datatype core_str =
     CAtom of catom_str
   | CSkip
   | CFail
   | COr       of (core_str * core_str)
-  | CPOr      of (core_str * core_str)
   | CSeq      of (core_str * core_str)
   | CAlt      of (core_str * core_str)
-  | CPAlt     of (core_str * core_str)
   | CRepBT    of core_str
   | CRepNB    of core_str
   | CFails    of core_str (*I cannot Fails as a syntactic sugar as the definition involves goal.*)
@@ -79,17 +77,13 @@ struct
                 (strategy:core_str) goal =
     let
        fun is_mzero monad        = m_equal monad mzero;
-       fun eval (CSttc str) goal = (eval_prim str goal
-                                    handle THM _   => mzero
-                                         | ERROR _ => mzero
-                                         | Empty   => mzero
-                                         | TERM _  => mzero
-                                         | TYPE _  => mzero)
+       fun eval (CSttc str) goal = Utils.try_with mzero (eval_prim str) goal
          | eval (CDyn str) goal =
            let
              (*Should I factor this out to Monadic_Interpreter_Params?*)
              fun how_to_combine_results CClarsimp    = Unique
               |  how_to_combine_results CSimp        = Unique
+              |  how_to_combine_results CBlast       = Unique
               |  how_to_combine_results CFastforce   = First
               |  how_to_combine_results CAuto        = Unique
               |  how_to_combine_results CInduct      = Unique
@@ -103,22 +97,13 @@ struct
                  (Seq.filter (not o is_mzero) results |> Seq.hd handle Option.Option => mzero)
               |  rm_useless Unique results =
                  (distinct (uncurry m_equal) (Seq.list_of results)
-                  |> Seq.of_list |> msum handle Empty => mzero);
+                  |> Seq.of_list |> msum handle Empty => mzero | ERROR _ => mzero);
              val combination          = how_to_combine_results str;
-             val tactics              = eval_para str goal;
+             val tactics              = Seq2.try_seq (eval_para str) goal;
              (*Sometimes, Isabelle does not have appropriate rules.*)
-             val tactics_with_handler = Seq.map (fn tactic => fn g => tactic g
-                                        handle THM _   => mzero
-                                             | ERROR _ => mzero
-                                             | Empty   => mzero
-                                             | TERM _  => mzero
-                                             | TYPE _  => mzero) tactics;
-             val all_results          = Seq2.map_arg goal tactics_with_handler
-                                        handle THM _   => Seq.empty
-                                             | ERROR _ => Seq.empty
-                                             | TERM _  => Seq.empty
-                                             | TYPE _  => Seq.empty
-                                             | Empty   => Seq.empty;
+             val tactics_with_handler = Seq.map (fn tactic => fn goal =>
+                                        Utils.try_with mzero tactic goal) tactics;
+             val all_results          = Seq2.try_seq (Seq2.map_arg goal) tactics_with_handler;
              val results              = rm_useless combination all_results;
             in
               results
@@ -137,24 +122,8 @@ struct
               in
                 result
               end
-            | inter (str1 CPOr str2)  goal =
-              let
-                val res2      = Future.fork (fn () => inter str2 goal);
-                val res1      = inter str1 goal;
-                val res1_fail = is_mzero res1;
-                val result    = if res1_fail then Future.join res2 else (Future.cancel res2; res1);
-              in
-                result
-              end
             | inter (str1 CSeq str2) goal  = bind (inter str1 goal) (inter str2)
             | inter (str1 CAlt str2) goal  = mplus (inter str1 goal, inter str2 goal)
-            | inter (str1 CPAlt str2) goal =
-              let
-                val par_inter = mplus o Utils.list_to_pair o Par_List.map (uncurry inter);
-                val result    = par_inter [(str1, goal), (str2, goal)];
-              in
-               result
-              end
             | inter (CRepBT str) goal = (*idea: CRepBT str = (str CSeq (CRepBT str)) CAlt CSkip*)
               let
                 fun inter_CRepBT res0 =
@@ -203,7 +172,7 @@ struct
   end
 end;
 
-(*** Monadic_Interpreter_Core: The core of PSL with the core-syntax. ***)
+(*** Monadic_Interpreter_Core: The core of PSL. ***)
 (** mk_Monadic_Interpreter_Core_from_Monad_0plus_Min: makes the core of PSL from a monoid and a
  monad with a zero and plus **)
 functor mk_Monadic_Interpreter_Core_from_Monad_0plus_Min
@@ -225,20 +194,22 @@ end;
 
 structure Log = mk_Monoid (Log_Min) : MONOID;
 
-(*** Monadic_Interpreter_Core: The core of PSL with the core-syntax. ***)
+(** Monadic_Interpreter_Core: The core of PSL. **)
 structure Monadic_Interpreter_Core : MONADIC_INTERPRETER_CORE =
  mk_Monadic_Interpreter_Core_from_Monad_0plus_Min
  (struct structure Log = Log; structure M0P_Min = Seq_M0P_Min end);
 
-(*** MONADIC_INTERPRETER: The core of PSL with the surface-syntax. ***)
+(*** MONADIC_INTERPRETER: The surface-syntax of PSL with de-sugaring. ***)
 signature MONADIC_INTERPRETER =
 
 sig
 
+(* str *)
 datatype str =
 (*prim_str*)
   Clarsimp
 | Simp
+| Blast
 | Fastforce
 | Auto
 | Induct
@@ -264,6 +235,7 @@ datatype str =
 (*para_str*)
 | ParaClarsimp
 | ParaSimp
+| ParaBlast
 | ParaFastforce
 | ParaAuto
 | ParaInduct
@@ -278,9 +250,6 @@ datatype str =
 | Fail
 | Seq of str Seq.seq
 | Alt of str Seq.seq
-(*parallel tactical*)
-| PAlt of str Seq.seq
-| POr  of str Seq.seq
 (*non-monadic strategics that have dedicated clauses in "inter".*)
 | RepBT of str
 | RepNB of str
@@ -292,21 +261,28 @@ datatype str =
 | Solve1 of str
 | RepNT  of str
 | Cut    of (int * str)
+| PSeq   of str Seq.seq
+| PSeq1  of str Seq.seq
+| POr    of str Seq.seq
+| PAlt   of str Seq.seq;
 
+(* desugar *)
 val desugar : str -> Monadic_Interpreter_Core.core_str;
 
 end;
 
-(*** Monadic_Interpreter: The core of PSL with the surface-syntax. ***)
+(*** Monadic_Interpreter: The surface-syntax of PSL with de-sugaring. ***)
 structure Monadic_Interpreter : MONADIC_INTERPRETER =
 struct
 
 open Monadic_Interpreter_Core;
 
+(* str *)
 datatype str =
 (*prim_str*)
   Clarsimp
 | Simp
+| Blast
 | Fastforce
 | Auto
 | Induct
@@ -332,6 +308,7 @@ datatype str =
 (*para_str*)
 | ParaClarsimp
 | ParaSimp
+| ParaBlast
 | ParaFastforce
 | ParaAuto
 | ParaInduct
@@ -346,9 +323,6 @@ datatype str =
 | Fail
 | Seq of str Seq.seq
 | Alt of str Seq.seq
-(*parallel tactical*)
-| PAlt of str Seq.seq
-| POr  of str Seq.seq
 (*non-monadic strategics that have dedicated clauses in "inter".*)
 | RepBT of str
 | RepNB of str
@@ -360,8 +334,12 @@ datatype str =
 | Solve1 of str
 | RepNT  of str
 | Cut    of (int * str)
+| PSeq   of str Seq.seq
+| PSeq1  of str Seq.seq
+| POr    of str Seq.seq
+| PAlt   of str Seq.seq;
 
-infix 0 CSeq CAlt  COr CPAlt CPOr;
+infix 0 CSeq CAlt  COr;
 
 local
   val prim = CAtom o CSttc o CPrim;
@@ -371,7 +349,9 @@ local
   val user = CAtom o CSttc o CUser;
 in
 
+(* desugar *)
 fun desugar Clarsimp        = prim CClarsimp
+ |  desugar Blast           = prim CBlast
  |  desugar Fastforce       = prim CFastforce
  |  desugar Simp            = prim CSimp
  |  desugar Auto            = prim CAuto
@@ -396,6 +376,7 @@ fun desugar Clarsimp        = prim CClarsimp
  |  desugar (User tac_name) = user tac_name
     (*para_str*)
  |  desugar ParaSimp        = dyna CSimp
+ |  desugar ParaBlast       = dyna CBlast
  |  desugar ParaClarsimp    = dyna CClarsimp
  |  desugar ParaFastforce   = dyna CFastforce
  |  desugar ParaAuto        = dyna CAuto
@@ -419,17 +400,6 @@ fun desugar Clarsimp        = prim CClarsimp
    | SOME (str1, strs2) => case Seq.pull strs2 of
        NONE   => desugar str1
      | SOME _ => desugar str1 CAlt (desugar (Alt strs2)))
-    (*parallel strategic*)
- |  desugar (PAlt strs1)    = (case Seq.pull strs1 of
-     NONE               => error "Alt needs at least one arguement."
-   | SOME (str1, strs2) => case Seq.pull strs2 of
-       NONE   => desugar str1
-     | SOME _ => desugar str1 CPAlt (desugar (PAlt strs2)))
- |  desugar (POr strs1)     = (case Seq.pull strs1 of
-     NONE               => error "Alt needs at least one arguement."
-   | SOME (str1, strs2) => case Seq.pull strs2 of
-       NONE   => desugar str1
-     | SOME _ => desugar str1 CPOr (desugar (POr strs2)))
     (*non-monadic strategics that have dedicated clauses in "inter".*)
  |  desugar (RepBT str)     = CRepBT (desugar str)
  |  desugar (RepNB str)     = CRepNB (desugar str)
@@ -443,15 +413,17 @@ fun desugar Clarsimp        = prim CClarsimp
      | SOME _ => desugar str1 COr (desugar (Or strs2)))
     (*desugar (Try str) = desugar (str Or Skip) is very inefficient.*)
  |  desugar (Try str)       = desugar str COr CSkip
-    (* on-monadic strategics that are handled by "eval_strategic".*)
+    (*non-monadic strategics that are handled by "eval_strategic".*)
  |  desugar (Solve1 str)    = CStrategic (CSolve1, [desugar str])
  |  desugar (RepNT str)     = CStrategic (CRepeatN, [desugar str])
  |  desugar (Cut (i, str))  = CStrategic (CCut i, [desugar str])
+ |  desugar (PSeq strs)     = CStrategic (CPSeq, (Seq.map desugar strs |> Seq.list_of))
+ |  desugar (PSeq1 strs)    = CStrategic (CPSeq1,(Seq.map desugar strs |> Seq.list_of))
+ |  desugar (POr   strs)    = CStrategic (CPOr,  (Seq.map desugar strs |> Seq.list_of))
+ |  desugar (PAlt  strs)    = CStrategic (CPAlt, (Seq.map desugar strs |> Seq.list_of))
 end;
 
 end;
-
-
 
 (*** MONADIC_INTERPRETER_PARAMS: fleshes out MONADIC_INTERPRETER with evaluation functions. ***)
 signature MONADIC_INTERPRETER_PARAMS =
@@ -485,9 +457,11 @@ type eval_strategic  = MIC.cstrategic * state MIC.stttac list -> state MIC.sttta
 type m_equal         = state MIC.monad -> state MIC.monad -> bool;
 type iddfc           = int -> (MIC.catom_str -> state MIC.stttac) -> MIC.catom_str -> state MIC.stttac;
 type log             = Dynamic_Utils.log;
+type monad           = state Dynamic_Utils.st_monad;
+type monad_tac       = state Dynamic_Utils.stttac;
 (*do_trace and show_trace are for debugging only.*)
-val do_trace = false;
-fun show_trace text = if do_trace then tracing text else ();
+val do_trace         = false;
+fun show_trace text  = if do_trace then tracing text else ();
 
 local
 structure User_Seed : DYNAMIC_TACTIC_GENERATOR_SEED =
@@ -504,6 +478,7 @@ fun user_stttac (meth:string) =
   User_Tactic_Generator.meth_name_n_modifiers_to_stttac_on_state meth [(* ignores log *)];
 end;
 
+(* eval_prim *)
 (*I cannot move the definition of "eval_prim" into mk_Monadic_Interpreter,
   because its type signature is too specific.*)
 fun eval_prim (prim:MIC.cstatic) (goal_state:state) =
@@ -513,6 +488,7 @@ fun eval_prim (prim:MIC.cstatic) (goal_state:state) =
     val tac_on_proof_state : state MIC.stttac = case prim of
       MIC.CPrim MIC.CClarsimp =>     (show_trace "CClarsimp";      string_to_stttac "clarsimp")
     | MIC.CPrim MIC.CSimp =>         (show_trace "CSimp";          string_to_stttac "simp")
+    | MIC.CPrim MIC.CBlast =>        (show_trace "CBlast";         string_to_stttac "blast")
     | MIC.CPrim MIC.CFastforce =>    (show_trace "CFastforce";     string_to_stttac "fastforce")
     | MIC.CPrim MIC.CAuto =>         (show_trace "CAuto";          string_to_stttac "auto")
     | MIC.CPrim MIC.CInduct =>       (show_trace "CInduct";        string_to_stttac "induct")
@@ -531,21 +507,17 @@ fun eval_prim (prim:MIC.cstatic) (goal_state:state) =
     | MIC.CSubt MIC.CQuickcheck=>    (show_trace "CQuickcheck";    Subtools.quickcheck)
     | MIC.CSubt MIC.CNitpick   =>    (show_trace "CNitpick";       Subtools.nitpick)
     | MIC.CSpec MIC.CDefer     =>    (show_trace "CDefer";         Subtools.defer)
-    | MIC.CUser tac_name =>      (show_trace tac_name;         user_stttac tac_name);
+    | MIC.CUser tac_name =>          (show_trace tac_name;         user_stttac tac_name);
   in
-     tac_on_proof_state goal_state
-        handle THM _ =>   MIC.mzero
-             | ERROR _ => MIC.mzero
-             | TERM _ =>  MIC.mzero
-             | Empty =>   MIC.mzero
-             | TYPE _ =>  MIC.mzero : state MIC.monad
+     Utils.try_with MIC.mzero tac_on_proof_state goal_state : state MIC.monad
   end;
 
+(* eval_para *)
 fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
   let
-    type 'a stttac = 'a Dynamic_Utils.stttac;
     val get_state_stttacs = case str of
         MIC.CSimp =>        (show_trace "CPara_Simp";        Dynamic_Tactic_Generation.simp)
+      | MIC.CBlast =>       (show_trace "CBlast";            Dynamic_Tactic_Generation.blast)
       | MIC.CInduct =>      (show_trace "CPara_Induct";      Dynamic_Tactic_Generation.induct)
       | MIC.CInductTac =>   (show_trace "CPara_InductTac";   Dynamic_Tactic_Generation.induct_tac)
       | MIC.CCoinduction => (show_trace "CPara_Coinduction"; Dynamic_Tactic_Generation.coinduction)
@@ -560,15 +532,11 @@ fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
     (*It is okay to use the type list internally,
       as long as the overall monadic interpretation framework is instantiated to Seq.seq for
       monad with 0 and plus.*)
-    get_state_stttacs state
-    handle THM _   => Seq.empty
-         | ERROR _ => Seq.empty
-         | Empty   => Seq.empty
-         | TERM _  => Seq.empty
-         | TYPE _  => Seq.empty: state stttac Seq.seq
+    Seq2.try_seq get_state_stttacs state : monad_tac seq
   end;
 
-fun m_equal (st_mona1:state MIC.monad) (st_mona2:state MIC.monad) =
+(* m_equal *)
+fun m_equal (st_mona1:monad) (st_mona2:state MIC.monad) =
 (*Probably, I do not have to check the entire sequence in most cases.
   As the length of sequences can be infinite in general, I prefer to test a subset of these.*)
   let
@@ -577,13 +545,15 @@ fun m_equal (st_mona1:state MIC.monad) (st_mona2:state MIC.monad) =
     fun are_same_one (x : lstt,  y : lstt)  = apply2 (#goal o Proof.goal o snd) (x, y)
                                            |> Thm.eq_thm;
     fun are_same_seq (xs: lstts, ys: lstts) = Seq2.same_seq are_same_one (xs, ys) ;
+    (*Note that the state representing log is not always []. This is only for equality check.*)
     val xs_5 : lstts                        = st_mona1 [] |> Seq.take 5;
     val ys_5 : lstts                        = st_mona2 [] |> Seq.take 5;
   in
     are_same_seq (xs_5, ys_5)
   end;
 
-fun solve_1st_subg (tac : state MIC.stttac) (goal:state) (log:log) =
+(* solve_1st_subg *)
+fun solve_1st_subg (tac:monad_tac) (goal:state) (log:log) =
   let
     val get_thm = Isabelle_Utils.proof_state_to_thm;
     fun same_except_for_fst_prem' x y = Isabelle_Utils.same_except_for_fst_prem (get_thm x) (get_thm y)
@@ -592,36 +562,115 @@ fun solve_1st_subg (tac : state MIC.stttac) (goal:state) (log:log) =
     |> Seq.filter (fn (_, st')  => same_except_for_fst_prem' goal st'):(log * state) Seq.seq
   end;
 
-fun repeat_n (tac : state MIC.stttac) (goal : state) = (fn (log:log) =>
+(* repeat_n *)
+fun repeat_n (tac : monad_tac) (goal : state) = (fn (log:log) =>
   let
     fun repeat_n' (0:int) (g:state) = MIC.return g
-     |  repeat_n' (n:int) (g:state) = if n < 0 then error "" else
+     |  repeat_n' (n:int) (g:state) = if n < 0 then error "repeat_n failed: n < 0" else
           MIC.bind (tac g) (repeat_n' (n - 1));
     val subgoal_num = Isabelle_Utils.proof_state_to_thm goal |> Thm.nprems_of;
   in
     (*We have to add 1 because of Isabelle's strange evaluation (parse-twice thingy).*)
     repeat_n' subgoal_num goal log : (log * state) Seq.seq
-  end) : state MIC.monad;
+  end) : monad;
 
-fun cut (limit:int) (tac:state MIC.stttac) (goal:state) = Seq.take limit o tac goal : state MIC.monad;
+(* cut *)
+fun cut (limit:int) (tac:monad_tac) (goal:state) = Seq.take limit o tac goal : monad;
 
-fun eval_strategic (MIC.CSolve1, [tac : state MIC.stttac])  = solve_1st_subg tac
+local
+
+val list_of = Seq.list_of;
+val of_list = Seq.of_list;
+
+in
+
+(* pseq *)
+(*Note that pthen locally introduces strict evaluation.*)
+fun pseq (tac1::[tac2]:monad_tac list) : monad_tac = (fn goal:state =>
+  let
+     val pmap = Par_List.map;
+     fun pbind (monad:monad) (tactic:monad_tac) : monad = fn state0 : log => (fn seq => fn func =>
+       of_list (flat (pmap (list_of o func) (list_of seq)))) (monad state0) (fn (state1, result1) =>
+       tactic result1 state1);
+  in
+    pbind (tac1 goal) tac2
+  end) : monad_tac
+ |  pseq _ = error "pthen takes exactly two strategies.";
+
+(* pseq1 *)
+(*Note that pthen1 does not satisfy the monad law as a bind.*)
+(*Nevertheless, pthen1 is useful to exploit parallelism.*)
+fun pseq1 (tac1::[tac2]:monad_tac list) : monad_tac = (fn goal:state =>
+  let
+     val get_some   = Par_List.get_some;
+     val seq_to_opt = Seq2.seq_to_option;
+     fun pbind (monad:monad) (tactic:monad_tac) : monad = fn state0 : log => (fn seq => fn func =>
+       of_list (the_list (get_some (seq_to_opt o func) (list_of seq)))) (monad state0) (fn (state1, result1) =>
+       tactic result1 state1);
+  in
+    pbind (tac1 goal) tac2
+  end) : monad_tac
+ |  pseq1 _ = error "pthen1 takes exactly two strategies.";
+
+
+(* pors *)
+fun pors' (goal:state, tactic:monad_tac) : monad option =
+  let
+    val result      = (fn (log:log) => tactic goal log) : monad;
+    (*some_result forces evaluation to exploit parallelism.*)
+    val some_result = if m_equal MIC.mzero result then NONE else SOME result : monad option;
+  in
+    some_result
+end;
+
+fun pors (tactics:monad_tac list) : monad_tac = (fn goal:state =>
+  let
+    val states = replicate (length tactics) goal : state list;
+    val some_monad = Par_List.get_some pors' (ListPair.zip (states, tactics));
+    val result = case some_monad of
+      NONE       => MIC.mzero
+    | SOME monad => monad;
+  in
+    result:monad
+  end);
+
+(* palts *)
+fun palts (tactics:monad_tac list) : monad_tac = (fn goal:state => (fn log:log =>
+  let
+    val goal_n_log  = replicate (length tactics) (log, goal) : (log * state) list;
+    val get_result  = fn ((log:log, goal:state), tactic:monad_tac) => tactic goal log : (log * state) seq;
+    val result_list = Par_List.map get_result (ListPair.zip (goal_n_log, tactics))
+                    : (log * state) seq list;
+    val result_seq  = result_list |> of_list |> Seq.flat : (log * state) seq;
+  in
+    result_seq
+  end) : monad) : monad_tac;
+
+end;
+
+(* eval_strategic *)
+fun eval_strategic (MIC.CSolve1, [tac:monad_tac])  = solve_1st_subg tac
  |  eval_strategic (MIC.CSolve1, _)  = error "eval_strategic failed. M.Solve1 needs exactly one tactic."
- |  eval_strategic (MIC.CRepeatN, [tac : state MIC.stttac]) = repeat_n tac
+ |  eval_strategic (MIC.CRepeatN, [tac:monad_tac]) = repeat_n tac
  |  eval_strategic (MIC.CRepeatN, _) = error "eval_strategic failed. M.RepeatN needs exactly one tactic."
- |  eval_strategic (MIC.CCut lim, [tac : state MIC.stttac]) =
+ |  eval_strategic (MIC.CCut lim, [tac:monad_tac]) =
       if lim > 0 then cut lim tac
       else error "eval_strategic failed. The limit for CCut has to be larger than 0."
- |  eval_strategic (MIC.CCut _, _)   = error "eval strategic failed. M.CCut needs exactly one tactic.";
+ |  eval_strategic (MIC.CCut _, _)   = error "eval strategic failed. M.CCut needs exactly one tactic."
+ |  eval_strategic (MIC.CPSeq1, tac1::[tac2]) = pseq1 (tac1::[tac2])
+ |  eval_strategic (MIC.CPSeq1, _)   = error "eval strategic failed. MIC.CPSeq1 needs exactly two tactics."
+ |  eval_strategic (MIC.CPSeq, tac1::[tac2]) = pseq (tac1::[tac2])
+ |  eval_strategic (MIC.CPSeq, _)    = error "eval strategic failed. MIC.CPSeq needs exactly two tactics."
+ |  eval_strategic (MIC.CPOr, [])    = error "eval strategic failed. MIC.CPSeq needs at least one tactic."
+ |  eval_strategic (MIC.CPOr, tacs)  = pors tacs
+ |  eval_strategic (MIC.CPAlt,[])    = error "eval strategic failed. M.PAlt needs at least one tactic."
+ |  eval_strategic (MIC.CPAlt,tacs)  = palts tacs;
 
+(* iddfc *)
 fun iddfc (limit:int)
   (smt_eval:'atom_str -> 'state MIC.stttac) (atac:'atom_str) (goal:'state) (trace:log) =
   let
-    val wmt_eval_results = (smt_eval atac goal trace
-                            handle THM _  => Seq.empty
-                                 | Empty  => Seq.empty
-                                 | TERM _ => Seq.empty
-                                 | TYPE _ => Seq.empty) |> Seq.pull;
+    val wmt_eval_results = Seq2.try_seq (smt_eval atac goal) trace |> Seq.pull;
     val trace_leng = wmt_eval_results |> Option.map fst |> Option.map fst |> Option.map length;
     infix is_maybe_less_than
     fun (NONE is_maybe_less_than   (_:int)) = false
