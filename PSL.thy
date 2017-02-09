@@ -10,9 +10,8 @@ imports "src/Try_Hard"
 begin
 
 text{* Uncomment the following to unleash the power parallelism. *}
-(*
+
 ML {* Multithreading.max_threads_update 28 *}
-ML {* Goal.parallel_proofs := 1 *}
-*)
+ML {* Goal.parallel_proofs := 0 *}
 
 end

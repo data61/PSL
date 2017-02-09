@@ -1,0 +1,13 @@
+chapter AFP
+
+(* Session name, add to AFP group, list base session: *)
+session Skew_Heap (AFP) = HOL +
+  options [timeout = 600]
+  theories [document = false]
+    "~~/src/HOL/Library/Multiset"
+    "~~/src/HOL/Library/Tree"
+  theories
+    Skew_Heap
+  document_files
+    "root.bib"
+    "root.tex"

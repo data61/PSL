@@ -178,9 +178,14 @@ fun hammer_logtac (pstate:Proof.state) =
     val orig_string        = result <$> snd <$> snd <$> hd handle Empty =>
                              (if Utils.debug then tracing "Empty in orig_string/hammer_logtac" else (); 
                               NONE) : string option;
+    fun did_smt_timeout (out::timed::_) = (Utils.are_same ("out)", out)) andalso
+                                          (Utils.are_same ("timed", timed))
+     |  did_smt_timeout _ = error "Something went wrong in Subtool.ML";
     val one_line_apply     = orig_string <$> space_explode " "
                             <$> drop 2                           (* drop "Try this:"*)
-                            <$> rev <$> drop 2 <$> rev           (* drop "(0.1 ms)." and such.*)
+                            <$> rev <$> (fn tokens =>
+                                if did_smt_timeout tokens then drop 5 tokens else drop 2 tokens)
+                            <$> rev           (* drop "(0.1 ms)." and such.*)
                             <$> String.concatWith " "            : string option;
     val apply_script_cntnt = omap YXML.content_of one_line_apply : string option;
     val sh_returned        = if is_some apply_script_cntnt

@@ -3,10 +3,11 @@
 
 This file contains small examples showing how to use PSL and its default strategy try-hard.
 These examples are kept intentionally simple for illustration purposes.
+See other files from AFP for more involved examples.
 *)
 
 theory Example
-imports PSL "~~/src/HOL/Eisbach/Eisbach" 
+imports "../PSL" "~~/src/HOL/Eisbach/Eisbach" 
 begin
 
 (* The "Hammer" strategy invokes sledgehammer as a sub-tool. *)
@@ -122,7 +123,7 @@ lemma cnjct2:
 shows 1:"ps_safe p s"
  and  2:"valid_trans p s s' x"
  and  3:"ps_safe p s'"
-try_hard1
+try_hard_one
 find_proof Hammer_Or_Defer
 oops
 
