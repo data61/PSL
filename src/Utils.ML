@@ -659,7 +659,7 @@ fun string_to_stttac_on_pstate (meth_name:string) =
 local
   fun mk_using  ([]   : string list) = ""
    |  mk_using  (using: string list) = "using " ^ String.concatWith " " using ^ " ";
-  fun mk_apply methN  = "apply (" ^ methN ^ ")";
+  fun mk_apply methN  = "apply " ^ methN ^ "";
   fun mk_backs (n:int) = replicate n "back" |> String.concatWith " " handle Subscript =>
     (tracing "mk_backs in Isabelle_Utils.thy failed. It should take 0 or a positive integer.";"");
   fun mk_apply_script1 {methN : string, using : string list, back : int} =

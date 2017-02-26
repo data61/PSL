@@ -466,10 +466,11 @@ fun show_trace text  = if do_trace then tracing text else ();
 local
 structure User_Seed : DYNAMIC_TACTIC_GENERATOR_SEED =
 struct
-  type modifier  = string;
-  type modifiers = string list;
+  type modifier           = string;
+  type modifiers          = string list;
   fun get_all_modifiers _ = [];
   fun mods_to_string mods = String.concatWith " " mods;
+  val reordered_mods      = single o I;
 end;
 structure User_Tactic_Generator : DYNAMIC_TACTIC_GENERATOR =
   mk_Dynamic_Tactic_Generator (User_Seed);
@@ -525,7 +526,7 @@ fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
       | MIC.CCaseTac =>     (show_trace "CPara_CaseTac";     Dynamic_Tactic_Generation.case_tac)
       | MIC.CRule =>        (show_trace "CPara_Rule";        Dynamic_Tactic_Generation.rule)
       | MIC.CErule =>       (show_trace "CPara_Erule";       Dynamic_Tactic_Generation.erule)
-      | MIC.CFastforce =>   (show_trace "CPara_Fastforce";   Dynamic_Tactic_Generation.clarsimp)
+      | MIC.CFastforce =>   (show_trace "CPara_Fastforce";   Dynamic_Tactic_Generation.fastforce)
       | MIC.CAuto =>        (show_trace "CPara_Auto";        Dynamic_Tactic_Generation.auto)
       | MIC.CClarsimp =>    (show_trace "CPara_Clarsimp";    Dynamic_Tactic_Generation.clarsimp)
   in

@@ -19,6 +19,7 @@ sig
   val  get_all_modifiers : Proof.state -> modifiers;
   (*mods_to_string should reorder parameters and remove duplicated modifier declarations.*)
   val  mods_to_string    : modifiers -> string;
+  val  reordered_mods    : modifiers -> modifiers list;
 end;
 
 (*** DYNAMIC_TACTIC_GENERATOR: makes tactic-generator. ***)
@@ -38,13 +39,12 @@ struct
 
   fun general_case (meth_name:string) (mods:modifiers) =
     let
-      val attributes_name   = mods_to_string mods: string;
-      val method_str_w_attr = meth_name ^ attributes_name;
-      val nontac_on_state   = Utils.try_with (K Seq.empty) DG.string_to_nontac_on_pstate method_str_w_attr
-        |> Isabelle_Utils.TIMEOUT_in 0.3: Proof.state DG.nontac;
-      val trace_node       = DG.Apply {using = [], methN = method_str_w_attr, back = 0};
-      val logtac_on_state  = DG.nontac_to_logtac trace_node nontac_on_state : Proof.state DG.logtac;
-      val stttac_on_state  = DG.logtac_to_stttac logtac_on_state;
+      val method_str_w_attr = "(" ^ meth_name ^ mods_to_string mods ^ ")";
+      fun nontac_on_state st = (Utils.try_with (K Seq.empty) DG.string_to_nontac_on_pstate method_str_w_attr
+        |> Isabelle_Utils.TIMEOUT_in 0.3) st;
+      val trace_node         = DG.Apply {using = [], methN = method_str_w_attr, back = 0};
+      val logtac_on_state = DG.nontac_to_logtac trace_node nontac_on_state;
+      val stttac_on_state = DG.logtac_to_stttac logtac_on_state;
     in
       (nontac_on_state, logtac_on_state, stttac_on_state)
     end;
@@ -97,6 +97,8 @@ val get_names = map get_name;
 
 fun mods_to_string (mods:modifiers) =
   mods |> order |> (fn rules => get_names rules) |> Dynamic_Utils.get_meth_nm "";
+
+val reordered_mods = single o I;
 
 end;
 
@@ -208,6 +210,8 @@ fun get_all_modifiers (state:Proof.state) =
     all_simp_mods : modifiers
   end;
 
+val reordered_mods = single o I;
+
 end;
 
 (* STG: Simp_Tactic_Generator *)
@@ -282,18 +286,37 @@ fun get_all_modifiers (state:Proof.state) =
     all_induct_mods : modifiers
   end;
 
+val pick_vars = filter     (fn modi => case modi of On _ => true | _ => false);
+val dump_vars = filter_out (fn modi => case modi of On _ => true | _ => false);
+
+fun reordered_mods (mods:modifiers)=
+  let
+    val vars   = pick_vars mods : modifiers;
+    val varss  = Nitpick_Util.all_permutations vars : modifiers list;
+    val others = dump_vars mods : modifiers;
+    val combs  = map (fn vs => vs @ others) varss;
+  in
+    combs:modifiers list
+  end;
+
 end;
 
 (* ITG: Induct_Tactic_Generator. *)
 structure ITG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Induct_Seed);
 
+open Induct_Seed;
+
 fun get_state_stttacs (state:Proof.state) =
   let
     val induct         = "induct";
     val all_modifiers  = ITG.get_all_modifiers state : ITG.modifiers;
+    (*We need to consider all permutations because induct is order sensitive.*)
     val all_modifierss = Seq2.powerset (Seq.of_list all_modifiers)
-                      |> Seq.map Seq.list_of: ITG.modifiers Seq.seq;
-    val stttacs        = Seq.map (ITG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
+                      |> Seq.map Seq.list_of
+                      |> Seq.map reordered_mods
+                      |> Seq.map Seq.of_list
+                      |> Seq.flat: ITG.modifiers Seq.seq;
+    val stttacs    = Seq.map (ITG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
   in
     stttacs : Proof.state stttac Seq.seq
@@ -349,6 +372,8 @@ fun get_all_modifiers (state:Proof.state) =
   in
     all_induct_mods : modifiers
   end;
+
+val reordered_mods = single o I;
 
 end;
 
@@ -424,6 +449,8 @@ fun get_all_modifiers (state:Proof.state) =
     all_induct_mods : modifiers
   end;
 
+val reordered_mods = single o I;
+
 end;
 
 (* CITG: Coinduction_Tactic_Generator *)
@@ -475,6 +502,8 @@ fun get_all_modifiers (state:Proof.state) =
     all_cases_mods : modifiers
   end;
 
+val reordered_mods = single o I;
+
 end;
 
 (* CTG: Cases_Tactic_Generator *)
@@ -524,6 +553,8 @@ fun get_all_modifiers (state:Proof.state) =
   in
     all_cases_mods : modifiers
   end;
+
+val reordered_mods = single o I;
 
 end;
 
@@ -609,6 +640,8 @@ fun get_all_modifiers (state:Proof.state) =
   in
     modifiers : modifiers
   end;
+
+val reordered_mods = single o I;
 
 end;
 

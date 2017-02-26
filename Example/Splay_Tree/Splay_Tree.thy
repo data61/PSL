@@ -3,7 +3,7 @@ imports "~~/src/HOL/Library/Tree"
   "../../PSL"
 begin
 
-strategy Solve_One_Hard = Ors [Blast, Fastforce, Hammer, Thens [Subgoal, Auto, RepeatN(Hammer), IsSolved]]
+strategy Solve_One_Hard = Ors [Blast, Fastforce, Thens [Subgoal, Auto, RepeatN(Hammer), IsSolved]]
 strategy Solve_Subgoals = Thens[RepeatN(Solve_One_Hard), IsSolved]
 strategy DInduct_Hard = PThenOne [DInduct, Solve_Subgoals]
   
@@ -97,11 +97,9 @@ lemma splay_code: "splay x (Node la a ra) =
                   else if rb=Leaf then Node (Node la a lb) b rb
                        else case splay x rb of
                          Node lc c rc \<Rightarrow> Node (Node (Node la a lb) b lc) c rc))"
-try_parallel
 by(auto split: tree.split)
 
 lemma splay_Leaf_iff[simp]: "(splay a t = Leaf) = (t = Leaf)"
-find_proof DInduct_Hard
 apply(induction a t rule: splay.induct)
 apply auto
  apply(auto split: tree.splits)
@@ -232,8 +230,8 @@ fun splay_max :: "'a::linorder tree \<Rightarrow> 'a tree" where
    else case splay_max rb of
      Node lc c rc \<Rightarrow> Node (Node (Node la a lb) b lc) c rc)"
 
-lemma splay_max_Leaf_iff[simp]: "(splay_max t = Leaf) = (t = Leaf)"
-apply(induction t rule: splay_max.induct)
+lemma splay_max_Leaf_iff[simp]: "(splay_max t = Leaf) = (t = Leaf)"find_proof DInduct_Hard
+  apply(induction t rule: splay_max.induct)
   apply(auto split: tree.splits)
 done
 
@@ -257,8 +255,9 @@ done
 lemma size_if_splay_max: "splay_max t = Node l u r \<Longrightarrow> size t = size l + size r + 1"
 by (metis One_nat_def size_splay_max tree.size(4))
 
+strategy DFF = Dynamic(Fastforce)
 lemma set_splay_max: "set_tree(splay_max t) = set_tree t"
-apply(induction t rule: splay_max.induct)
+  apply(induction t rule: splay_max.induct)
    apply(simp)
   apply(simp)
 apply(force split: tree.split)

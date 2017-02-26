@@ -40,12 +40,11 @@ fun nontac (state:Proof.state) =
     fun trace_cexm _    = show_trace "Quickcheck.quickcheck found a  counterexample";
     fun trace_scexn _   = show_trace ("Quickcheck.quickcheck found a potentially spurious " ^
                                       "counterexample due to underspecified functions");
-    fun trace_error str = show_trace ("Quickcheck did not work well because " ^ str);
-    fun result _        =  (case quickcheck [] 1 state of
+    fun get_result _    =  (case quickcheck [] 1 state of
       NONE => (trace_no_cexm (); single)
     | SOME (genuine, _) => if genuine then (trace_cexm (); Seq.empty) else (trace_scexn (); single));
   in
-    result () handle ERROR msg => (trace_error msg; single) : Proof.state Seq.seq
+    Utils.try_with single get_result state
   end;
 
 val state_stttac = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac);
@@ -145,12 +144,7 @@ let
                       |> Seq.filter_results
                      (*Why Seq.try Seq.hd? Because we want to evaluate the head of
                        sequence strictly here to catch errors immediately.*)
-                      |> Seq.try Seq.hd
-                      handle THM _ => Seq.empty
-                           | Empty => Seq.empty
-                           | TERM _ => Seq.empty
-                           | TYPE _ => Seq.empty
-                           | ERROR _ => Seq.empty : Proof.state Seq.seq;
+                      |> Utils.try_with Seq.empty (Seq.try Seq.hd): Proof.state Seq.seq;
   val results_w_log = Seq.map (fn x => ([node], x)) tac_results : (Dynamic_Utils.log * Proof.state) Seq.seq;
 in
   results_w_log : (Dynamic_Utils.log * Proof.state) Seq.seq
@@ -164,7 +158,8 @@ fun hammer_logtac (pstate:Proof.state) =
     val valOf              = Option.valOf;
     val omap               = Option.map;
     val thy                = Proof.theory_of pstate : theory;
-    val params             = Sledgehammer_Commands.default_params thy [("isar_proofs", "false")]
+    val params             = Sledgehammer_Commands.default_params thy
+                             [("isar_proofs", "false"),("smt_proofs", "false")]
     val Auto_Try           = Sledgehammer_Prover.Auto_Try;
     val fact_override      = Sledgehammer_Fact.no_fact_override;
     val run_sledgehammer   = Sledgehammer.run_sledgehammer params Auto_Try NONE 1 fact_override

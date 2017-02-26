@@ -43,13 +43,8 @@ lemma get_min_in:
   "h \<noteq> Leaf \<Longrightarrow> get_min h \<in> set_tree h"try_hard
 by(induction h) auto
 
-strategy Solve_One_Hard = Ors [Blast, Fastforce, Hammer, Thens [Subgoal, Auto, RepeatN(Hammer), IsSolved]]
-strategy Solve_Subgoals = Thens[RepeatN(Solve_One_Hard), IsSolved]
-strategy DInduct_Hard = PThenOne [DInduct, Solve_Subgoals]
-
 lemma get_min_min:
   "\<lbrakk> bst_eq h; h \<noteq> Leaf \<rbrakk> \<Longrightarrow> \<forall>x \<in> set_tree h. get_min h \<le> x"
-find_proof DInduct_Hard
 proof(induction h)
   case (Node l x r) thus ?case using get_min_in[of l] get_min_in[of r]
     by auto (blast intro: order_trans)
@@ -158,6 +153,10 @@ next
     qed
   qed
 qed
+
+strategy Solve_One_Hard = Ors [Blast, Fastforce, Thens [Subgoal, Auto, RepeatN(Hammer), IsSolved]]
+strategy Solve_Subgoals = Thens[RepeatN(Solve_One_Hard), IsSolved]
+strategy DInduct_Hard = PThenOne [DInduct, Solve_Subgoals]
 
 lemma size_del_min[simp]: "size(del_min t) = size t - 1"
 find_proof DInduct_Hard

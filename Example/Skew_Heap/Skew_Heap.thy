@@ -109,7 +109,7 @@ fun del_min :: "'a::linorder heap \<Rightarrow> 'a heap" where
 lemma heap_del_min: "heap h \<Longrightarrow> heap (del_min h)"try_hard
 by (cases h) (auto simp: heap_meld)
 
-lemma mset_del_min: "mset_tree (del_min h) = mset_tree h - {# get_min h #}"try_hard_all
+lemma mset_del_min: "mset_tree (del_min h) = mset_tree h - {# get_min h #}"
 by (cases h) (auto simp: mset_meld ac_simps)
 
 end

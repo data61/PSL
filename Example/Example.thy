@@ -111,7 +111,7 @@ oops
 
 (* By combining "Defer" and "Hammer", we can discharge some proof obligations automatically with
  * sledgehammer, while deferring "difficult" problems.  *)
-strategy Hammer_Or_Defer =  RepeatN ( Ors [Hammer, Defer]  )
+strategy Hammer_Or_Defer =  RepeatN ( Ors [Hammer, Thens[Quickcheck, Defer]])
 definition "safe_state x y \<equiv> True"
 lemma state_safety:"safe_state (x::bool) (y::bool) = True"
 apply normalization done
@@ -123,7 +123,6 @@ lemma cnjct2:
 shows 1:"ps_safe p s"
  and  2:"valid_trans p s s' x"
  and  3:"ps_safe p s'"
-try_hard_one
 find_proof Hammer_Or_Defer
 oops
 

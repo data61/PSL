@@ -50,9 +50,9 @@ strategy Auto_Solve = Thens [Auto, IsSolved]
 strategy Blast_Solve = Thens [Blast, IsSolved]
 strategy FF_Solve = Thens [Fastforce, IsSolved]
 strategy Auto_Solve1 = Thens [Subgoal, Auto, IsSolved]
-strategy Auto_Hammer = Thens [Subgoal, Auto, Hammer, IsSolved]
-strategy Solve_One = Ors [Fastforce, Auto_Solve1, Hammer, Auto_Hammer]
-strategy Hammers = Thens [Repeat (Solve_One), IsSolved]
+strategy Auto_Hammer = Thens [Subgoal, Auto, RepeatN(Hammer), IsSolved]
+strategy Solve_One = Ors [Fastforce, Auto_Solve1, Hammer]
+strategy Solve_Many = Thens [Repeat (Solve_One), IsSolved]
 strategy DInduct = Dynamic (Induct)
 strategy DInductTac = Dynamic (InductTac)
 strategy DCoinduction = Dynamic (Coinduction)
@@ -81,21 +81,21 @@ strategy Basic =
        Thens [DCases, Auto_Solve],
        Thens [DCoinduction, Auto_Solve],
        (*Occasionally, auto reveals hidden facts.*)
-       Thens [Auto, Hammer, IsSolved],
+       Thens [Auto, RepeatN(Hammer), IsSolved],
        Thens [DAuto, IsSolved]
        ]
 
 strategy Advanced =
   Ors [
-       Hammers,
+       Solve_Many,
        Thens [DCases, DCases, Auto_Solve],
-       Thens [DCases, Hammers],
+       Thens [DCases, Solve_Many],
        Thens [IntroClasses,
-              Repeat (Ors [Fastforce, Thens [Transfer, Fastforce], Hammer]),
+              Repeat (Ors [Fastforce, Thens [Transfer, Fastforce], Solve_Many]),
               IsSolved],
-       Thens [Transfer, Hammers],
-       Thens [DInduct, Hammers],
-       Thens [DCoinduction, Hammers]
+       Thens [Transfer, Solve_Many],
+       Thens [DInduct, Solve_Many],
+       Thens [DCoinduction, Solve_Many]
        ]
 
 strategy Try_Hard_All =
@@ -104,8 +104,8 @@ strategy Try_Hard_All =
        Thens [DInductTac, Auto_Solve],
        Thens [DCaseTac, Auto_Solve],
        Advanced,
-       Thens [DCaseTac, Hammers],
-       Thens [DInductTac, Hammers]
+       Thens [DCaseTac, Solve_Many],
+       Thens [DInductTac, Solve_Many]
        ]
 
 strategy Try_Hard_One = Thens [Subgoal, Try_Hard_All]
@@ -117,8 +117,8 @@ strategy Try_Hard =
        Thens [DInductTac, Auto_Solve],
        Thens [DCaseTac, Auto_Solve],
        Thens [Subgoal, Advanced],
-       Thens [DCaseTac, Hammers],
-       Thens [DInductTac, Hammers]
+       Thens [DCaseTac, Solve_Many],
+       Thens [DInductTac, Solve_Many]
        ]
 
 strategy PBasic =
@@ -134,22 +134,22 @@ strategy PBasic =
        Thens [DCases, Auto_Solve],
        Thens [DCoinduction, Auto_Solve],
        (*Occasionally, auto reveals hidden facts.*)
-       Thens [Auto, Hammer, IsSolved],
+       Thens [Auto, RepeatN(Hammer), IsSolved],
        Thens [DAuto, IsSolved]
        ]
 
 strategy PAdvanced =
   POrs [
        Thens [DAuto, IsSolved],
-       Hammers,
        Thens [DCases, DCases, Auto_Solve],
-       PThenOne [DCases, Hammers],
        Thens [IntroClasses,
               Repeat (Ors [Fastforce, Thens [Transfer, Fastforce], Hammer]),
               IsSolved],
-       Thens [Transfer, Hammers],
-       PThenOne [DInduct, Hammers],
-       PThenOne [DCoinduction, Hammers]
+       Solve_Many,
+       PThenOne [DCases, Solve_Many],
+       Thens [Transfer, Solve_Many],
+       PThenOne [DInduct, Solve_Many],
+       PThenOne [DCoinduction, Solve_Many]
        ]
 
 strategy Try_Parallel =
@@ -158,8 +158,8 @@ strategy Try_Parallel =
        PThenOne [DInductTac, Auto_Solve],
        PThenOne [DCaseTac, Auto_Solve],
        Thens [Subgoal, PAdvanced],
-       PThenOne [DCaseTac, Hammers],
-       PThenOne [DInductTac, Hammers]
+       PThenOne [DCaseTac, Solve_Many],
+       PThenOne [DInductTac, Solve_Many]
        ]
 
 end
