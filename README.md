@@ -22,6 +22,7 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 - One can circumvent this situation by changing the upper limit to an extreamly large number, say 99999999.
 - One can change the upper limit for tracing messages via jEdit's menus:
   Plugin Options => Isabelle => General => Editor Reactivity => Editor Tracing Messages.
+![Screenshot](./image/tracing_messages.png)
 
 ## Contents
 - *.src/Utils.ML*                     includes various utility functions.
