@@ -36,7 +36,7 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 - *.src/Isar_Interface.thy*           sets up the Isabelle/Isar interface for PSL.
 - *.src/Try_Hard.thy*                defines the default strategy try_hard.
 - *./PSL.thy*                         reads all the necessary files to use PSL and try_hard.
-- *./Example.thy*                     presents small example strategies and use cases.
+- *./Example*                         presents small example strategies and use cases.
 
 ## FAQs
 *Q1.* Why yet another tactic language? How is PSL different from, say, Eisbach?
