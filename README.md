@@ -1,3 +1,5 @@
+**Dear CADE26 reviewers, the cade26_submission branch contains the version of this tool explained in the paper submitted to CADE26.**
+
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
