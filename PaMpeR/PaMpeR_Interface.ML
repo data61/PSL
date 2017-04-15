@@ -13,8 +13,9 @@ structure PaMpeR_Interface =
 struct
   fun PaMpeR_activate _ = 
   let
+    val path:string = (Resources.master_directory @{theory} |> File.platform_path) ^ "/recommend";
     fun assert_advice str = (if str = "no subgoal" then writeln "no subgoal!" else 
-                        (Isabelle_System.bash("egrep '"^str^"' ./PaMpeR/recommend | cut -d ' ' -f 1-10");()))
+                        (Isabelle_System.bash("egrep '" ^ str ^ "' " ^ path ^ " | cut -d ' ' -f 1-10");()))
     val simp_interface =                                                               
       Toplevel.keep_proof (fn Tstate =>                                       
     let
