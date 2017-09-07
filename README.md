@@ -55,7 +55,7 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 
 *A3.* The more is the better. You can increase the power of your strategy by using parallel combinators, such as *POrs* and *PAlts*.
 
-*Q4.* It looks like PSL's proof search got stuck due to the high volume of traing messages. How can I keep it running?
+*Q4.* It looks like PSL's proof search got stuck due to the high volume of tracing messages. How can I keep it running?
 
 *A4.* You can change the upper limit for tracing messages via jEdit's menus: Plugin Options => Isabelle => General => Editor Reactivity => Editor Tracing Messages.
 
