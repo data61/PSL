@@ -9,7 +9,9 @@ Currently the features are all in binary assertion form.
 - The second part of the system uses a machine learning result from AFP (Archive of Formal Proof) 
 and provides runtime proof method recommendation to user in a proof stage by the keyword Proof_advice.
 
-### Assertions about existence of objects (rules) in the proof state
+# List of assertions
+
+## Assertions about existence of objects (rules) in the proof state
 
 - [x] 1. local assumption
 
@@ -27,9 +29,9 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
    - [x] 10. associated recursive "simp" rule
 
-### Assertions about the first subgoal
+## Assertions about the first subgoal
 
-#### Assertions about existence of an object
+### Assertions about existence of an object
 
 - [x] 2. "case_of" constant
 
@@ -57,7 +59,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [ ] Constant "===>"
 
-#### Assertions about the outermost construct of the first subgoal
+### Assertions about the outermost construct of the first subgoal
 
 The first subgoal has ... as the outermost constant
 
@@ -75,7 +77,7 @@ The first subgoal has ... as the outermost constant
 
 - [ ] "?" (HOL existential quantifier)
 
-#### Assertions about the existence of constants not as the outermost constant
+### Assertions about the existence of constants not as the outermost constant
 
 The first subgoal has ... but not as the outermost constant.
 
