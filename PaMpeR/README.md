@@ -13,19 +13,23 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] 1. local assumption
 
-- [x] 5. associated "pinduct" rule.
+- check the existence of rules in the Proof.state that are associated with a constant in the first subgoal.
 
-- [x] 6. associated "psimps" rule.
+   - [x] 5. associated "pinduct" rule.
 
-- [x] 7. associated "pelims" rule.
+   - [x] 6. associated "psimps" rule.
 
-- [x] 8. associated "cases" rule.
+   - [x] 7. associated "pelims" rule.
 
-- [x] 9. associated "intro" rule.
+   - [x] 8. associated "cases" rule.
 
-- [x] 10. associated recursive "simp" rule
+   - [x] 9. associated "intro" rule.
 
-### Assertions about existence of constants/types in the first subgoal
+   - [x] 10. associated recursive "simp" rule
+
+### Assertions about the first subgoal
+
+#### Assertions about existence of an object
 
 - [x] 2. "case_of" constant
 
@@ -52,6 +56,42 @@ and provides runtime proof method recommendation to user in a proof stage by the
 - [ ] Check for typeclass definition
 
 - [ ] Constant "===>"
+
+#### Assertions about the outermost construct of the first subgoal
+
+The first subgoal has ... as the outermost constant
+
+- [ ] "==" (meta equality)
+
+- [ ] "=" (HOL equality)
+
+- [ ] "==>" (meta implication)
+
+- [ ] "-->" (HOL implication)
+
+- [ ] "!!" (meta universal quantifier)
+
+- [ ] "!" (HOL universal quantifier)
+
+- [ ] "?" (HOL existential quantifier)
+
+#### Assertions about the existence of constants not as the outermost constant
+
+The first subgoal has ... but not as the outermost constant.
+
+- [ ] "==" (meta equality)
+
+- [ ] "=" (HOL equality)
+
+- [ ] "==>" (meta implication)
+
+- [ ] "-->" (HOL implication)
+
+- [ ] "!!" (meta universal quantifier)
+
+- [ ] "!" (HOL universal quantifier)
+
+- [ ] "?" (HOL existential quantifier)
 
 ## Possible future assertions:
 
