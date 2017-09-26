@@ -39,25 +39,39 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] 4. "For all" constant
 
+- [x] 12. constant defined by lift_definition
+
+- [x] 13. constant defined by primcorec
+
+- [x] 14. constant defined by interpretation (Not working accurately)
+
+- [x] 15. check if the length of outmost constant is greater than 1. (a function Constant)
+
 - [x] 11. constant with prefix "Num"
 
-- [x] 12. Constant defined by lift_definition
+- [x] check if there is a constant with prefix "Real"
 
-- [x] 13. Constant defined by primcorec
+- [x] check if there is a constant with prefix "List"
 
-- [x] 14. Constant defined by interpretation (Not working accurately)
+- [ ] check if there is a record typed variable
 
-- [x] 15. Check if the length of outmost constant is greater than 1. (a function Constant)
+- [ ] check for typeclass definition
 
-- [x] Check if all constants are defined in Main
+- [ ] constant "===>"
 
-- [x] Check if there is a constant with prefix "Real"
+### Assertions about the all constants appearing in the first subgoal.
 
-- [ ] Check if there is a record typed variable
+- [x] check if all constants are defined in Main
 
-- [ ] Check for typeclass definition
+## Assertions about the classification () of proof obligation
 
-- [ ] Constant "===>"
+- [ ] is a "Equational" problem
+
+- [ ] is an "Inductive" problem
+
+- [ ] is a "Co-Inductive" problem
+
+- [ ] is an "Unknown" problem
 
 ### Assertions about the outermost construct of the first subgoal
 
