@@ -37,21 +37,21 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 ## Assertions about the first subgoal
 
-### Assertions about existence of an object
+### Assertions about existence of an object: check if the first subgoal has
 
-- [x] 2. "case_of" constant
+- [x] 2. a "case_of" constant.
+
+- [ ] a record typed variable.
+
+- [ ] a typeclass definition.
+
+- [ ] constant "===>" from the transfer package
+
+- [ ] a schematic variable.
 
 - [ ] 3. "Conjunction" as outmost constant **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
 
 - [x] 4. "For all" constant **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
-
-- [x] 15. check if the length of outmost constant is greater than 1. (a function constant)
-
-- [ ] check if there is a record typed variable
-
-- [ ] check for typeclass definition
-
-- [ ] constant "===>" from the transfer package
 
 #### check if there is a constant with prefix
 
@@ -65,7 +65,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] check if all constants are defined in Main
 
-## Assertions about the classification () of proof obligation
+## Assertions about the classification of proof obligation (according to Spec_Rules.retrieve) 
 
 - [ ] is a "Equational" problem
 
@@ -93,6 +93,8 @@ The first subgoal has ... as the outermost constant
 
 - [ ] "?" (HOL existential quantifier)
 
+- [x] 15. a function that is not fully applied yet
+
 ### Assertions about the existence of constants not as the outermost constant
 
 The first subgoal has ... but not as the outermost constant.
@@ -111,11 +113,13 @@ The first subgoal has ... but not as the outermost constant.
 
 - [ ] "?" (HOL existential quantifier)
 
+- [ ] a function that is not fully applied yet
+
 ## Possible future assertions:
 
 - [ ] Expanding into integer feature:
 
    - [ ] number of subgoals
 
-   - [ ] length of proof obligation
+   - [ ] length of proof obligation when presented as a string by Isabelle's pretty printer
 
