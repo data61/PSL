@@ -65,7 +65,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] check if all constants are defined in Main
 
-## Assertions about the classification of proof obligation (according to Spec_Rules.retrieve) 
+### Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal.
 
 - [ ] is a "Equational" problem
 
@@ -75,7 +75,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [ ] is an "Unknown" problem
 
-### Assertions about the outermost construct of the first subgoal
+### Assertions about the outermost construct of the first subgoal.
 
 The first subgoal has ... as the outermost constant
 
@@ -95,7 +95,7 @@ The first subgoal has ... as the outermost constant
 
 - [x] 15. a function that is not fully applied yet
 
-### Assertions about the existence of constants not as the outermost constant
+### Assertions about the existence of constants not as the outermost constant of the first subgoal
 
 The first subgoal has ... but not as the outermost constant.
 
