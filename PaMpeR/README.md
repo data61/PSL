@@ -35,9 +35,9 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] 2. "case_of" constant
 
-- [x] 3. "Conjunction" as outmost constant
+- [ ] 3. "Conjunction" as outmost constant **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
 
-- [x] 4. "For all" constant
+- [x] 4. "For all" constant **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
 
 - [x] 12. constant defined by lift_definition
 
@@ -45,19 +45,21 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] 14. constant defined by interpretation (Not working accurately)
 
-- [x] 15. check if the length of outmost constant is greater than 1. (a function Constant)
-
-- [x] 11. constant with prefix "Num"
-
-- [x] check if there is a constant with prefix "Real"
-
-- [x] check if there is a constant with prefix "List"
+- [x] 15. check if the length of outmost constant is greater than 1. (a function constant)
 
 - [ ] check if there is a record typed variable
 
 - [ ] check for typeclass definition
 
-- [ ] constant "===>"
+- [ ] constant "===>" from the transfer package
+
+#### check if there is a constant with prefix
+
+- [x] 11. "Num"
+
+- [x] "Real"
+
+- [x] "List"
 
 ### Assertions about the all constants appearing in the first subgoal.
 
