@@ -13,12 +13,13 @@
 
 signature ASSERTIONS =
 sig
-  (*  written assertions  *)
-  val eval_assertion: Proof.state -> real list
+  (*written assertions*)
+  val eval_assertion_for_ML: Proof.state -> real list
+  val eval_assertion:        Proof.state -> string
 end;
 
 (*** Implementation of assertions ***)
-structure Assertions =
+structure Assertions:ASSERTIONS =
 struct
 (**  Generic utility and assertion functions  **)
 
@@ -26,11 +27,8 @@ fun if_solved (goal:thm) then_clause else_clause =
   if Thm.nprems_of goal = 0 then then_clause else else_clause;
 val prems_of  = Thm.prems_of;
 
-(* returns some constant that meet given criteria *)
-fun const_list (goal:thm) = if_solved goal [] (Term.add_const_names (prems_of goal |> hd) []);
-
-fun const_exist_assert goal (f:string -> bool) = 
-  let 
+fun const_exist_assert (goal:thm) (f:string -> bool) =
+  let
     fun exist (str,_) = f str
   in
     Term.exists_Const exist (prems_of goal |> hd)
@@ -42,12 +40,8 @@ fun const_all_assert goal (f:string -> bool) =
     fun all_const (str::strs) = f str andalso all_const strs
      |  all_const [] = true
   in
-    all_const (const_list goal) 
+    all_const (Isabelle_Utils.get_const_names_in_1st_subg goal)
   end;
-
-(* dead code? *)
-fun trace_list (x::xs) = (tracing x; trace_list xs)
-  | trace_list [] = ();
 
 (* gets the thms that are named after a given constant with a given suffix from the current context. *)
 fun get_thms_of_const_name_with_suffix (ctxt:Proof.context) (sfx:string) (cname:string) =
@@ -210,6 +204,7 @@ fun const_real (goal, _) =
   in
     const_exist_assert goal isReal
   end
+
 (** Function used to generate database **)
 
 (* Parse the argument of command by/apply into the name of method*)
@@ -228,6 +223,12 @@ fun eval_assertion_gen (state:Proof.state) (assrts:(thm -> Proof.context -> bool
       fvector : bool list
     end;
 
-fun eval_assertion state = eval_assertion_gen state assertions |> map Utils.bool_to_real: real list
+fun eval_assertion_for_ML state = eval_assertion_gen state assertions |> map Utils.bool_to_real: real list;
+
+fun bool_to_string b = if b then "1" else "0";
+
+fun eval_assertion state = eval_assertion_gen state assertions
+|> map bool_to_string
+|> String.concatWith ","
 
 end;

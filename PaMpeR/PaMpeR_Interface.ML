@@ -1,5 +1,6 @@
 (*  Title:      PaMpeR_Interface.ML
     Author:     Yilun He, Data61, CSIRO
+                Yutaka Nagashima, CIIRC, CTU
     
     Enable the Proof_advice keyword.
     Using a built in bash egrep to search the trained recommendation database. Outputting most promising 9 methods.
