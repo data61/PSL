@@ -14,6 +14,7 @@ sig
   val map_pair       : ('a -> 'b) -> 'a * 'a -> 'b * 'b;
   val pair_to_list   : 'a * 'a -> 'a list;
   val list_to_pair   : 'a list -> 'a * 'a;
+  val bool_to_real   : bool -> real;
   val init           : 'a list -> 'a list;
   val intersperse    : 'a -> 'a list -> 'a list;
   val is_in_paren    : string -> bool;
@@ -48,6 +49,8 @@ fun pair_to_list (x, y) = [x, y];
 
 fun list_to_pair [a,b] = (a,b)
  |  list_to_pair _ = error "list_to_pair failed. The length of lsit is not two.";
+
+fun bool_to_real b = if b then 1.0 else 0.0;
 
 fun init [] = error "init failed. empty list"
  |  init xs = take (length xs - 1) xs;
