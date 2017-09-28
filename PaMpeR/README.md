@@ -65,7 +65,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 ### Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal.
 
-- [ ] is a "Equational" problem
+- [ ] is an "Equational" problem
 
 - [ ] is an "Inductive" problem
 
