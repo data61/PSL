@@ -45,7 +45,9 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [ ] a typeclass definition.
 
-- [ ] constant "===>" from the transfer package
+- [ ] constant "rel_fun" ("===>") from the transfer package
+
+- [ ] constant "map_fun" ("--->") from the transfer package
 
 - [ ] a schematic variable.
 
