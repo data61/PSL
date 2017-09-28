@@ -27,21 +27,57 @@ fun if_solved (goal:thm) then_clause else_clause =
   if Thm.nprems_of goal = 0 then then_clause else else_clause;
 val prems_of  = Thm.prems_of;
 
-fun const_exist_assert (goal:thm) (f:string -> bool) =
+fun fst_subg_has_const_of (goal:thm) (assert:string -> bool) =
   let
-    fun exist (str,_) = f str
+    fun test (str,_)    = assert str;
+    val fst_subg        = Isabelle_Utils.get_1st_subg goal:term option;
+    val result_unsolved = Option.map (Term.exists_Const test) fst_subg:bool option;
+    val result          = Option.getOpt (result_unsolved, false(*no-subgoal*));
   in
-    Term.exists_Const exist (prems_of goal |> hd)
+    result
+  end;
+
+fun fst_qualifier (lname:string) = Option.getOpt (lname |> Long_Name.explode |> try hd, "");
+
+fun has_const_prefixed_with goal (prefix:string) =
+  let
+    fun is_prefixed (lname:string) = fst_qualifier lname = prefix;
+  in
+    fst_subg_has_const_of goal is_prefixed
+  end;
+                                  
+fun outermost_const_name_in_1st_subg_is (goal:thm) (cname:string) =
+  let
+    infix >>= liftM;
+    fun (m >>= f)                 = Option.mapPartial f m;
+    fun (m liftM f)               = Option.map f m;
+    fun get_const_name (trm:term) = if Term.is_Const trm then SOME (Term.term_name trm) else NONE;
+    fun cname_is outmost_cname    = cname = outmost_cname;
+    val result                    = SOME goal
+                                  >>= Isabelle_Utils.get_1st_subg
+                                  >>= get_const_name 
+                                  liftM cname_is;
+  in
+    Option.getOpt (result, false):bool
+  end;
+
+(* rough classification of the first subgoal *)
+fun fst_subg_is_classified_as (ctxt:Proof.context) (goal:thm) (rclass:Spec_Rules.rough_classification) =
+  let
+    val fst_subg         = Isabelle_Utils.get_1st_subg goal:term option;
+    val classifications  = Option.map (Spec_Rules.retrieve ctxt) fst_subg |> these;
+    val rough_classes    = map fst classifications: Spec_Rules.rough_classification list;
+    val is_classified_as = exists (fn class => rclass = class) rough_classes:bool;
+  in
+    is_classified_as
   end;
 
 (* All constant meet given criteria *)
-fun const_all_assert goal (f:string -> bool) = 
-  let 
-    fun all_const (str::strs) = f str andalso all_const strs
-     |  all_const [] = true
-  in
-    all_const (Isabelle_Utils.get_const_names_in_1st_subg goal)
-  end;
+fun const_all_assert goal (assert:string -> bool) = 
+  let
+    val const_names_in_1st_subg = Isabelle_Utils.get_const_names_in_1st_subg goal;
+    val holds_for_all           = List.all assert const_names_in_1st_subg;
+  in holds_for_all:bool end;
 
 (* gets the thms that are named after a given constant with a given suffix from the current context. *)
 fun get_thms_of_const_name_with_suffix (ctxt:Proof.context) (sfx:string) (cname:string) =
@@ -66,13 +102,9 @@ fun has_thms_with_suffixes (goal:thm) (ctxt:Proof.context) (sfxes:string list) =
     val has_thms    = exists (has_thms_of_const_names_with_suffix ctxt const_names) sfxes;
   in has_thms end:bool;
 
-(** Used Assertions **)
+(** Assertions about the existence of certain objects (rules) in the proof state **)
 
-(* Constant name related assertion:  set prefix const *)
-(* Using factassert: set prefix fact *)
-(* Other assertion, or complex ones : set prefix "check" *)
-
-(* check if proof context contains local assumption *)
+(* ASSERT 01. check if the proof context contains local assumption *)
 fun check_local_assms _ ctxt = ctxt
   |> Proof_Context.theory_of
   |> Proof_Context.init_global
@@ -80,14 +112,144 @@ fun check_local_assms _ ctxt = ctxt
   |> null
   |> not
 
-(* check if proof subgoal contains case declaration *)
-fun const_case goal _ =
-  let 
-     fun is_case cons_name = String.isSubstring "case_" cons_name;
-  in
-     if_solved goal false (const_exist_assert goal is_case)
-  end
+(* ASSERT 05. check if the proof context contains a "pinduct" rule associated with a constant in the first subgoal. *)
+fun fact_pinduct goal ctxt = has_thms_with_suffixes goal ctxt ["pinduct"]
 
+(* ASSERT 06. check if the proof context contains a "psimp" rule associated with a constant in the first subgoal. *)
+fun fact_psimp   goal ctxt = has_thms_with_suffixes goal ctxt ["psimp"]
+
+(* ASSERT 07. check if the proof context contains a "pelims" rule associated with a constant in the first subgoal. *)
+fun fact_pelims  goal ctxt = has_thms_with_suffixes goal ctxt ["pelims"]
+
+(* ASSERT 08. check if the proof context contains a "cases" rule associated with a constant in the first subgoal. *)
+fun fact_cases   goal ctxt = has_thms_with_suffixes goal ctxt ["cases"]
+
+(* ASSERT 09. check if the proof context contains an "intros" rule associated with a constant in the first subgoal. *)
+fun fact_intros  goal ctxt = has_thms_with_suffixes goal ctxt ["intros"]
+
+(* ASSERT 10. check if the proof context contains a recursive simplification rule associated with a constant in the first subgoal. *)
+fun check_rec_simp goal ctxt =
+  let
+    val const_names = Isabelle_Utils.get_const_names_in_1st_subg goal;
+
+    fun is_recursive (cname:string) (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) =
+      let
+         val cname_is_in_lhs = Term.exists_Const (fn (s,_) => cname = s) A;
+         val cname_is_in_rhs = Term.exists_Const (fn (s,_) => cname = s) B;
+      in cname_is_in_lhs andalso cname_is_in_rhs end
+     |  is_recursive _ _ = false;
+
+    fun check_thm_list (thms:thm list) (cname:string) = List.exists (is_recursive cname o Thm.concl_of) thms;
+
+    fun exist_related_rsimp  []             = false
+     |  exist_related_rsimp (cname::cnames) = 
+         (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
+          exist_related_rsimp cnames);
+  in
+    exist_related_rsimp const_names
+  end;
+
+(* ASSERT 12. check if the proof context contains facts that are generated by the lift_definition *)
+(*            command and are associated with a constant in the first subgoal. *)
+fun fact_lift_def goal ctxt =
+  let
+    val lift_lemmas = ["abs_eq","rsp","transfer","rep_eq"]
+  in
+    has_thms_with_suffixes goal ctxt lift_lemmas
+  end;
+
+(* ASSERT 13. check if the proof context contains facts that are generated by the primcorec *)
+(*            command and are associated with a constant in the first subgoal. *)
+fun fact_primcorec goal ctxt = has_thms_with_suffixes goal ctxt ["code","ctr","sel"];
+
+(* ASSERT 14. check if the proof context contains facts that are generated by the primcorec *)
+(* command and are associated with a constant in the first subgoal. *)
+fun fact_interp goal ctxt = has_thms_with_suffixes goal ctxt ["cfg_axioms","weakGreibach"];
+
+(** Assertions about the first subgoal itself. **)
+(* ASSERT 2. check if the first subgoal contains a case declaration *)
+fun has_case_ goal _ =
+  let 
+     fun is_case_ cons_name = String.isSubstring "case_" cons_name;
+     val fst_subg_has_case  = fst_subg_has_const_of goal is_case_;
+  in
+    fst_subg_has_case
+  end;
+
+(* check if the first subgoal contains a variable of type record. *)
+(*TODO*)fun has_record _ _ = undefined;
+
+(* check if the first subgoal uses type class definition *)
+(*TODO*)fun uses_type_class _ _ = undefined;
+
+(* check if the first subgoal has rel_fun *)
+(*TODO*)fun has_rel_fun _ _ = undefined;
+
+(* check if the first subgoal has map_fun *)
+(*TODO*)fun has_map_fun _ _ = undefined;
+
+(* check if the first subgoal has a schematic variable *)
+(*TODO*)fun has_schematic _ _ = undefined;
+(*use Term.is_Var and Term.exists_subterm*)
+
+(* ASSERT 11. check if there is a constant with prefix "Num" in the first subgoal *)
+fun has_const_prefixed_with_Num goal _ = has_const_prefixed_with goal "Num";
+
+(* check if there is a constant with prefix "Real" in the first subgoal *)
+fun has_const_prefixed_with_Real goal _ = has_const_prefixed_with goal "Real";
+
+(* check if there is a constant with prefix "List" in the first subgoal *)
+fun has_const_prefixed_with_List goal _ = has_const_prefixed_with goal "List";
+
+(** Assertions about all constants appearing in the first subgoal itself. **)
+(* check if all constants are defined in Main *)
+fun all_consts_in_main goal ctxt =
+  let
+    val this_thy          = Proof_Context.theory_of ctxt:theory;
+    val thy_names_in_main = Context.get_theory this_thy "Main"
+      |> Theory.ancestors_of
+      |> map Context.theory_name:string list;
+    fun in_Main str = exists (fn s => s = (Long_Name.explode str|> hd)) thy_names_in_main;
+  in                                  
+    const_all_assert goal in_Main
+  end;
+
+(** Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal. **)
+
+(* checks if the first subgoal is an "Equational" problem or not. *)
+fun fst_subg_is_classified_as_Equational goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Equational;
+
+(* checks if the first subgoal is an "Inductive" problem or not. *)
+fun fst_subg_is_classified_as_Inductive goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Inductive;
+
+(* checks if the first subgoal is a "Co_Inductive" problem or not. *)
+fun fst_subg_is_classified_as_Co_Inductive goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Co_Inductive;
+
+(* checks if the first subgoal is an "Unknown" problem or not. *)
+fun fst_subg_is_classified_as_Unknown goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Unknown;
+
+(* check if the outermost construct in the first subgoal is the meta equality. *)
+fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "Pure.eq";
+
+(* check if the outermost construct in the first subgoal is the HOL equality. *)
+fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.eq";
+
+(* check if the outermost construct in the first subgoal is the meta implication. *)
+fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "Pure.imp";
+
+(* check if the outermost construct in the first subgoal is the HOL implication. *)
+fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.implies";
+
+(* check if the outermost construct in the first subgoal is the meta all. *)
+fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "Pure.all";
+
+(* check if the outermost construct in the first subgoal is the HOL all. *)
+fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.All";
+
+(* check if the outermost construct in the first subgoal is the HOL existential quantifier. *)
+fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.Ex";
+
+(*TODOs*)
 (* check if the outermost constant in subgoal is conjunction *)
 fun const_conj goal _ =
   let
@@ -108,63 +270,19 @@ fun const_all goal _ =
   let
     fun is_all cons_name = (cons_name = "Pure.all")
   in
-    const_exist_assert goal is_all
+    fst_subg_has_const_of goal is_all
   end;
-
-(* check if the constants have affiliated facts with following suffices *)
-fun fact_pinduct goal ctxt = has_thms_with_suffixes goal ctxt ["pinduct"]
-fun fact_psimp   goal ctxt = has_thms_with_suffixes goal ctxt ["psimp"]
-fun fact_pelims  goal ctxt = has_thms_with_suffixes goal ctxt ["pelims"]
-fun fact_cases   goal ctxt = has_thms_with_suffixes goal ctxt ["cases"]
-fun fact_intros  goal ctxt = has_thms_with_suffixes goal ctxt ["intros"]
-
-(* check if the constants in the current proof goal has a recursive simp rule *)
-fun check_rec_simp goal ctxt =
-  let
-    val const_names = if_solved goal [] (Term.add_const_names (prems_of goal |> hd) []);
-    fun isrec (_ $ (Term.Const ("HOL.eq",_)$A$B)) name = Term.exists_Const (fn (s,_) => name=s) A
-                                              andalso Term.exists_Const (fn (s,_) => name=s) B|
-        isrec _ _= false
-    fun check_thm_list (t::ts) q = isrec (Thm.concl_of t) q orelse check_thm_list ts q|
-        check_thm_list [] _ = false
-    fun findfact (name::namelist) = (check_thm_list (Proof_Context.get_thms ctxt (name^".simps")) name
-                              handle ERROR _ => findfact namelist)|
-        findfact [] = false
-  in findfact const_names
-  end;
-
-(* check if there is a constant with prefix num *)
-fun const_num goal _ =
-  let
-    fun isNum str = (Long_Name.explode str |> hd handle Empty => "") = "Num";
-  in
-    const_exist_assert goal isNum
-  end
-
-(* check if the context have facts with suffix corresponding to lift_definition*)
-fun fact_lift_def goal ctxt =
-  let
-    val lift_lemmas = ["abs_eq","rsp","transfer","rep_eq"]
-  in
-    has_thms_with_suffixes goal ctxt lift_lemmas
-  end
-
-(* Check for definition lemmas of primcorec *)
-fun fact_primcorec goal ctxt = has_thms_with_suffixes goal ctxt ["code","ctr","sel"];
-
-(* Check for definition lemmas of interpretation *)
-fun fact_interp goal ctxt = has_thms_with_suffixes goal ctxt ["cfg_axioms","weakGreibach"];
 
 (* check if the outermost constant is a function *)
 fun check_outer_const goal _ =
   let
-    val t    = prems_of goal |>hd;
+    val t    = prems_of goal |> hd;
     val tail = Isabelle_Utils.flatten_trm t |>tl handle Empty => [];
     fun check_empty []     = NONE
      |  check_empty (x::_) = SOME x
     val head = check_empty tail
-    fun isfun (SOME (Term.Const (_,typ))) = (Term.size_of_typ typ)> 1|
-        isfun _ = false
+    fun isfun (SOME (Term.Const (_,typ))) = (Term.size_of_typ typ)> 1
+     |  isfun _ = false
   in
     isfun head
   end;
@@ -172,7 +290,7 @@ fun check_outer_const goal _ =
 (** the list of assertions currently used **)
 val assertions =
 (*01*) [check_local_assms,
-(*02*)  const_case,
+(*02*)  has_case_,
 (*03*)  const_conj,
 (*04*)  const_all,
 (*05*)  fact_pinduct,
@@ -181,28 +299,18 @@ val assertions =
 (*08*)  fact_cases,
 (*09*)  fact_intros,
 (*10*)  check_rec_simp,
-(*11*)  const_num,
+(*11*)  has_const_prefixed_with_Num,
 (*12*)  fact_lift_def,
 (*13*)  fact_primcorec,
 (*14*)  fact_interp,
 (*15*)  check_outer_const]
-
-(** assertions not used currently **)
-(* check if all constants are defined in Main *)
-fun const_main (goal, ctxt)=
-  let
-    val main_list = Theory.ancestors_of (Context.get_theory (Proof_Context.theory_of ctxt) "Main") |> map Context.theory_name
-    fun inMain str = exists (fn s => s = (Long_Name.explode str|> hd)) main_list
-  in
-    const_all_assert goal inMain
-  end
 
 (* check if there is a constant with prefix real *)
 fun const_real (goal, _) = 
   let
     fun isReal str = (Long_Name.explode str |> hd handle Empty => "") = "Real";
   in
-    const_exist_assert goal isReal
+    fst_subg_has_const_of goal isReal
   end
 
 (** Function used to generate database **)
