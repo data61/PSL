@@ -51,10 +51,6 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [ ] a schematic variable.
 
-- [x] 4. "For all" constant
-   - "Pure.all"
-   - **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
-
 #### check if there is a constant with prefix in the first subgoal
 
 - [x] 11. "Num"
