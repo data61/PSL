@@ -51,11 +51,6 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [ ] a schematic variable.
 
-- [ ] 3. "Conjunction" as outmost constant 
-   - "HOL.conj"
-   - "Pure.conjunction"
-   - **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
-
 - [x] 4. "For all" constant
    - "Pure.all"
    - **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
@@ -85,6 +80,11 @@ and provides runtime proof method recommendation to user in a proof stage by the
 ### Assertions about the outermost construct of the first subgoal.
 
 The first subgoal has ... as the outermost constant
+
+- [ ] 3. "Conjunction" as outmost constant 
+   - "HOL.conj"
+   - "Pure.conjunction"
+   - **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
 
 - [ ] "==" (meta equality)
 
