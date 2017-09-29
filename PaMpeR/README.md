@@ -45,9 +45,9 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [ ] a typeclass definition.
 
-- [ ] constant "rel_fun" ("===>") from the transfer package
+- [x] constant "rel_fun" ("===>") from the transfer package
 
-- [ ] constant "map_fun" ("--->") from the transfer package
+- [x] constant "map_fun" ("--->") from the transfer package
 
 - [ ] a schematic variable.
 
@@ -63,7 +63,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] check if all constants are defined in Main
 
-## Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal.
+## Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal.**FIXME**
 
 - [ ] is an "Equational" problem
 
@@ -82,19 +82,19 @@ The first subgoal has ... as the outermost constant
    - "Pure.conjunction"
    - **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
 
-- [ ] "==" (meta equality)
+- [x] "==" (meta equality)
 
-- [ ] "=" (HOL equality)
+- [x] "=" (HOL equality)
 
-- [ ] "==>" (meta implication)
+- [x] "==>" (meta implication)
 
-- [ ] "-->" (HOL implication)
+- [x] "-->" (HOL implication)
 
-- [ ] "!!" (meta universal quantifier)
+- [x] "!!" (meta universal quantifier)
 
-- [ ] "!" (HOL universal quantifier)
+- [x] "!" (HOL universal quantifier)
 
-- [ ] "?" (HOL existential quantifier)
+- [x] "?" (HOL existential quantifier)
 
 - [x] 15. a function that is not fully applied yet
 
@@ -102,19 +102,19 @@ The first subgoal has ... as the outermost constant
 
 The first subgoal has ... but not as the outermost constant.
 
-- [ ] "==" (meta equality)
+- [x] "==" (meta equality)
 
-- [ ] "=" (HOL equality)
+- [x] "=" (HOL equality)
 
-- [ ] "==>" (meta implication)
+- [x] "==>" (meta implication)
 
-- [ ] "-->" (HOL implication)
+- [x] "-->" (HOL implication)
 
-- [ ] "!!" (meta universal quantifier)
+- [x] "!!" (meta universal quantifier)
 
-- [ ] "!" (HOL universal quantifier)
+- [x] "!" (HOL universal quantifier)
 
-- [ ] "?" (HOL existential quantifier)
+- [x] "?" (HOL existential quantifier)
 
 - [ ] a function that is not fully applied yet
 
