@@ -11,7 +11,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 # List of assertions
 
-## Assertions about existence of objects (rules) in the proof state
+## Assertions about the existence of objects (rules) in the proof state
 
 - [x] 1. local assumption
 
@@ -37,7 +37,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 ## Assertions about the existence of a constant in the first subgoal
 
-### Assertions about existence of an object: check if the first subgoal has
+### check if the first subgoal has the following constants:
 
 - [x] 2. a "case_of" constant. ("case_")
 
@@ -51,7 +51,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [ ] a schematic variable.
 
-### check if there is a constant with prefix in the first subgoal
+### check if the first subgoal has a constant with the following prefixes:
 
 - [x] 11. "Num"
 
@@ -63,7 +63,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] check if all constants are defined in Main
 
-## Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal.**FIXME**
+## Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal.
 
 - [ ] is an "Equational" problem
 
