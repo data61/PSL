@@ -21,36 +21,47 @@ end;
 (*** Implementation of assertions ***)
 structure Assertions:ASSERTIONS =
 struct
-(**  Generic utility and assertion functions  **)
+(** Generic utility and assertion functions **)
 
 fun if_solved (goal:thm) then_clause else_clause =
   if Thm.nprems_of goal = 0 then then_clause else else_clause;
 val prems_of  = Thm.prems_of;
+fun is_some_true maybe = Option.getOpt (maybe, false);
 
+infix >>= >=> liftM;
+fun (m >>= f)   = Option.mapPartial f m;
+fun (f >=> g)   = Option.composePartial (g f);
+fun (m liftM f) = Option.map f m;
+
+(* The first subgoal has a constant that satisfies the given assertion. *)
 fun fst_subg_has_const_of (goal:thm) (assert:string -> bool) =
   let
     fun test (str,_)    = assert str;
     val fst_subg        = Isabelle_Utils.get_1st_subg goal:term option;
     val result_unsolved = Option.map (Term.exists_Const test) fst_subg:bool option;
-    val result          = Option.getOpt (result_unsolved, false(*no-subgoal*));
+    val result          = is_some_true result_unsolved;
   in
     result
   end;
 
+(* The first subgoal has a constant of the given name. *)
+fun fst_subg_has_const_of_name (goal:thm) (name:string) =
+fst_subg_has_const_of goal (fn cname => name = cname);
+
+(* get the first quantifier of the given long name *)
 fun fst_qualifier (lname:string) = Option.getOpt (lname |> Long_Name.explode |> try hd, "");
 
-fun has_const_prefixed_with goal (prefix:string) =
+(* The first subgoal has a constant that has the name with the given prefix. *)
+fun fst_subg_has_const_prefixed_with goal (prefix:string) =
   let
     fun is_prefixed (lname:string) = fst_qualifier lname = prefix;
   in
     fst_subg_has_const_of goal is_prefixed
   end;
-                                  
+
+(* The first subgoal has a constant of the given name as the outermost constant. *)
 fun outermost_const_name_in_1st_subg_is (goal:thm) (cname:string) =
   let
-    infix >>= liftM;
-    fun (m >>= f)                 = Option.mapPartial f m;
-    fun (m liftM f)               = Option.map f m;
     fun get_const_name (trm:term) = if Term.is_Const trm then SOME (Term.term_name trm) else NONE;
     fun cname_is outmost_cname    = cname = outmost_cname;
     val result                    = SOME goal
@@ -58,10 +69,26 @@ fun outermost_const_name_in_1st_subg_is (goal:thm) (cname:string) =
                                   >>= get_const_name 
                                   liftM cname_is;
   in
-    Option.getOpt (result, false):bool
+    is_some_true result:bool
   end;
 
-(* rough classification of the first subgoal *)
+(* The first subgoal has a constant of the given name, but not as the outermost constant. *)
+fun fst_subg_has_const_name_not_as_outmost (goal:thm) (cname:string) =
+  let
+    val fst_subg                            = Isabelle_Utils.get_1st_subg goal:term option;
+    fun get_subtrm (Abs (_,_,trm))          = SOME trm
+     |  get_subtrm (_ $ trm)                = SOME trm
+     |  get_subtrm _                        = NONE;
+    fun exists_Const_of_name (cname:string) = Term.exists_Const (fn (name, _) => name = cname);
+    val result = fst_subg >>= get_subtrm liftM exists_Const_of_name cname;
+  in
+    is_some_true result:bool
+  end;
+
+(* The term is a function that is ready to take arguments. *)
+fun is_fun_not_fully_applied (trm:term) = Term.type_of trm |> Term.size_of_typ |> (fn i => 1 = i);
+
+(* rough classification of the first subgoal *)(*FIXME*)
 fun fst_subg_is_classified_as (ctxt:Proof.context) (goal:thm) (rclass:Spec_Rules.rough_classification) =
   let
     val fst_subg         = Isabelle_Utils.get_1st_subg goal:term option;
@@ -131,16 +158,13 @@ fun fact_intros  goal ctxt = has_thms_with_suffixes goal ctxt ["intros"]
 fun check_rec_simp goal ctxt =
   let
     val const_names = Isabelle_Utils.get_const_names_in_1st_subg goal;
-
     fun is_recursive (cname:string) (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) =
       let
          val cname_is_in_lhs = Term.exists_Const (fn (s,_) => cname = s) A;
          val cname_is_in_rhs = Term.exists_Const (fn (s,_) => cname = s) B;
       in cname_is_in_lhs andalso cname_is_in_rhs end
      |  is_recursive _ _ = false;
-
     fun check_thm_list (thms:thm list) (cname:string) = List.exists (is_recursive cname o Thm.concl_of) thms;
-
     fun exist_related_rsimp  []             = false
      |  exist_related_rsimp (cname::cnames) = 
          (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
@@ -181,25 +205,26 @@ fun has_case_ goal _ =
 
 (* check if the first subgoal uses type class definition *)
 (*TODO*)fun uses_type_class _ _ = undefined;
+(*use "_class" as a hint*)
 
 (* check if the first subgoal has rel_fun *)
-(*TODO*)fun has_rel_fun _ _ = undefined;
+(*TODO*)fun has_rel_fun goal _ = fst_subg_has_const_of_name goal "BNF_Def.rel_fun";
 
 (* check if the first subgoal has map_fun *)
-(*TODO*)fun has_map_fun _ _ = undefined;
+(*TODO*)fun has_map_fun goal _ = fst_subg_has_const_of_name goal "Fun.map_fun";
 
 (* check if the first subgoal has a schematic variable *)
 (*TODO*)fun has_schematic _ _ = undefined;
 (*use Term.is_Var and Term.exists_subterm*)
 
 (* ASSERT 11. check if there is a constant with prefix "Num" in the first subgoal *)
-fun has_const_prefixed_with_Num goal _ = has_const_prefixed_with goal "Num";
+fun has_const_prefixed_with_Num goal _ = fst_subg_has_const_prefixed_with goal "Num";
 
 (* check if there is a constant with prefix "Real" in the first subgoal *)
-fun has_const_prefixed_with_Real goal _ = has_const_prefixed_with goal "Real";
+fun has_const_prefixed_with_Real goal _ = fst_subg_has_const_prefixed_with goal "Real";
 
 (* check if there is a constant with prefix "List" in the first subgoal *)
-fun has_const_prefixed_with_List goal _ = has_const_prefixed_with goal "List";
+fun has_const_prefixed_with_List goal _ = fst_subg_has_const_prefixed_with goal "List";
 
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* check if all constants are defined in Main *)
@@ -215,7 +240,6 @@ fun all_consts_in_main goal ctxt =
   end;
 
 (** Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal. **)
-
 (* checks if the first subgoal is an "Equational" problem or not. *)
 fun fst_subg_is_classified_as_Equational goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Equational;
 
@@ -228,26 +252,36 @@ fun fst_subg_is_classified_as_Co_Inductive goal ctxt = fst_subg_is_classified_as
 (* checks if the first subgoal is an "Unknown" problem or not. *)
 fun fst_subg_is_classified_as_Unknown goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Unknown;
 
+(** Assertions about the outermost construct of the first subgoal. **)
 (* check if the outermost construct in the first subgoal is the meta equality. *)
-fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "Pure.eq";
+fun outermost_is_pure_eq goal _ = outermost_const_name_in_1st_subg_is goal "Pure.eq";
 
 (* check if the outermost construct in the first subgoal is the HOL equality. *)
-fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.eq";
+fun outermost_is_hol_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.eq";
 
 (* check if the outermost construct in the first subgoal is the meta implication. *)
-fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "Pure.imp";
+fun outermost_is_pure_imp goal _ = outermost_const_name_in_1st_subg_is goal "Pure.imp";
 
 (* check if the outermost construct in the first subgoal is the HOL implication. *)
-fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.implies";
+fun outermost_is_hol_imp goal _ = outermost_const_name_in_1st_subg_is goal "HOL.implies";
 
 (* check if the outermost construct in the first subgoal is the meta all. *)
-fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "Pure.all";
+fun outermost_is_pure_all goal _ = outermost_const_name_in_1st_subg_is goal "Pure.all";
 
 (* check if the outermost construct in the first subgoal is the HOL all. *)
-fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.All";
+fun outermost_is_hol_all goal _ = outermost_const_name_in_1st_subg_is goal "HOL.All";
 
 (* check if the outermost construct in the first subgoal is the HOL existential quantifier. *)
-fun outermost_is_meta_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.Ex";
+fun outermost_is_hol_ex goal _ = outermost_const_name_in_1st_subg_is goal "HOL.Ex";
+
+(* ASSERT 15. check if the outermost construct in the first suboal is a function that is not fully applied yet. *)
+fun outermost_is_fun_not_fully_applied goal _ =
+  let
+    val fst_subg   = Isabelle_Utils.get_1st_subg goal: term option;
+    val is_applied = Option.map is_fun_not_fully_applied fst_subg: bool option;
+  in
+    is_some_true is_applied:bool
+  end;
 
 (*TODOs*)
 (* check if the outermost constant in subgoal is conjunction *)
@@ -273,20 +307,6 @@ fun const_all goal _ =
     fst_subg_has_const_of goal is_all
   end;
 
-(* check if the outermost constant is a function *)
-fun check_outer_const goal _ =
-  let
-    val t    = prems_of goal |> hd;
-    val tail = Isabelle_Utils.flatten_trm t |>tl handle Empty => [];
-    fun check_empty []     = NONE
-     |  check_empty (x::_) = SOME x
-    val head = check_empty tail
-    fun isfun (SOME (Term.Const (_,typ))) = (Term.size_of_typ typ)> 1
-     |  isfun _ = false
-  in
-    isfun head
-  end;
-
 (** the list of assertions currently used **)
 val assertions =
 (*01*) [check_local_assms,
@@ -303,7 +323,7 @@ val assertions =
 (*12*)  fact_lift_def,
 (*13*)  fact_primcorec,
 (*14*)  fact_interp,
-(*15*)  check_outer_const]
+(*15*)  outermost_is_fun_not_fully_applied]
 
 (* check if there is a constant with prefix real *)
 fun const_real (goal, _) = 
