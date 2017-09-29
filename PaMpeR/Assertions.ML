@@ -283,6 +283,27 @@ fun outermost_is_fun_not_fully_applied goal _ =
     is_some_true is_applied:bool
   end;
 
+(* check if the outermost construct in the first subgoal is the meta equality. *)
+fun fst_subg_has_pure_eq_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "Pure.eq";
+
+(* check if the outermost construct in the first subgoal is the HOL equality. *)
+fun fst_subg_has_hol_eq_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.eq";
+
+(* check if the outermost construct in the first subgoal is the meta implication. *)
+fun fst_subg_has_pure_imp_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "Pure.imp";
+
+(* check if the outermost construct in the first subgoal is the HOL implication. *)
+fun fst_subg_has_hol_imp_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.implies";
+
+(* check if the outermost construct in the first subgoal is the meta all. *)
+fun fst_subg_has_pure_all_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "Pure.all";
+
+(* check if the outermost construct in the first subgoal is the HOL all. *)
+fun fst_subg_has_hol_all_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.All";
+
+(* check if the outermost construct in the first subgoal is the HOL existential quantifier. *)
+fun fst_subg_has_hol_all_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.Ex";
+
 (*TODOs*)
 (* check if the outermost constant in subgoal is conjunction *)
 fun const_conj goal _ =
