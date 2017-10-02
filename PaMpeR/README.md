@@ -11,7 +11,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 # List of assertions
 
-## Assertions about existence of objects (rules) in the proof state
+## Assertions about the existence of objects (rules) in the proof state
 
 - [x] 1. local assumption
 
@@ -37,7 +37,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 ## Assertions about the existence of a constant in the first subgoal
 
-### Assertions about existence of an object: check if the first subgoal has
+### check if the first subgoal has the following constants:
 
 - [x] 2. a "case_of" constant. ("case_")
 
@@ -45,13 +45,13 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [ ] a typeclass definition.
 
-- [ ] constant "rel_fun" ("===>") from the transfer package
+- [x] constant "rel_fun" ("===>") from the transfer package
 
-- [ ] constant "map_fun" ("--->") from the transfer package
+- [x] constant "map_fun" ("--->") from the transfer package
 
 - [ ] a schematic variable.
 
-### check if there is a constant with prefix in the first subgoal
+### check if the first subgoal has a constant with the following prefixes:
 
 - [x] 11. "Num"
 
@@ -82,19 +82,19 @@ The first subgoal has ... as the outermost constant
    - "Pure.conjunction"
    - **TO BE REPLACED WITH MORE PRECISE ASSERTIONS**
 
-- [ ] "==" (meta equality)
+- [x] "==" (meta equality)
 
-- [ ] "=" (HOL equality)
+- [x] "=" (HOL equality)
 
-- [ ] "==>" (meta implication)
+- [x] "==>" (meta implication)
 
-- [ ] "-->" (HOL implication)
+- [x] "-->" (HOL implication)
 
-- [ ] "!!" (meta universal quantifier)
+- [x] "!!" (meta universal quantifier)
 
-- [ ] "!" (HOL universal quantifier)
+- [x] "!" (HOL universal quantifier)
 
-- [ ] "?" (HOL existential quantifier)
+- [x] "?" (HOL existential quantifier)
 
 - [x] 15. a function that is not fully applied yet
 
@@ -102,19 +102,19 @@ The first subgoal has ... as the outermost constant
 
 The first subgoal has ... but not as the outermost constant.
 
-- [ ] "==" (meta equality)
+- [x] "==" (meta equality)
 
-- [ ] "=" (HOL equality)
+- [x] "=" (HOL equality)
 
-- [ ] "==>" (meta implication)
+- [x] "==>" (meta implication)
 
-- [ ] "-->" (HOL implication)
+- [x] "-->" (HOL implication)
 
-- [ ] "!!" (meta universal quantifier)
+- [x] "!!" (meta universal quantifier)
 
-- [ ] "!" (HOL universal quantifier)
+- [x] "!" (HOL universal quantifier)
 
-- [ ] "?" (HOL existential quantifier)
+- [x] "?" (HOL existential quantifier)
 
 - [ ] a function that is not fully applied yet
 
