@@ -8,8 +8,10 @@
     
     To generate Database, please do the following:
 
-        1.Search and open outer_syntax.ML
-        2.Replace the return value of function err_dup_command by ()
+        1.Search and open outer_syntax.ML. (It usually resides in src/Pure/Isar/)
+        2. a. Replace the return value of function err_dup_command by ()
+           b. Re-define the "merge" function in the structure "Data" as following:
+              fun merge data : T = data |> Symtab.join (fn name => fn (cmd1, cmd2) => cmd2);
         3.Search and open Main.thy
         4.import PaMpeR into Main
         5.add a ML chunk of function call ML{*FE_Interface.activate ()*} in Main
