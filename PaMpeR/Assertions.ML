@@ -2,13 +2,12 @@
     Author:     Yilun He, Data61, CSIRO
                 Yutaka Nagashima, CIIRC, CTU
     
-    This file stores the written assertions, which
-    can be used to extract features from proof state.
+    This file stores the written assertions, which can be used to extract features from proof state.
 
     eval_assertion converts a proof state to a list of real values, which is the feature vector of
     the state.
 
-    User can add their own assertion as functions (thm, context) -> boolean
+    Users can add their own assertion as functions of type "thm -> context -> boolean".
 *)
 
 signature ASSERTIONS =
@@ -28,7 +27,7 @@ fun if_solved (goal:thm) then_clause else_clause =
 val prems_of  = Thm.prems_of;
 fun is_some_true maybe = Option.getOpt (maybe, false);
 
-infix >>= >=> liftM;
+infix 1 >>= >=> liftM;
 fun (m >>= f)   = Option.mapPartial f m;
 fun (f >=> g)   = Option.composePartial (g f);
 fun (m liftM f) = Option.map f m;
@@ -208,13 +207,21 @@ fun has_case_ goal _ =
 (*use "_class" as a hint*)
 
 (* check if the first subgoal has rel_fun *)
-(*TODO*)fun has_rel_fun goal _ = fst_subg_has_const_of_name goal "BNF_Def.rel_fun";
+fun has_rel_fun goal _ = fst_subg_has_const_of_name goal "BNF_Def.rel_fun";
 
 (* check if the first subgoal has map_fun *)
-(*TODO*)fun has_map_fun goal _ = fst_subg_has_const_of_name goal "Fun.map_fun";
+fun has_map_fun goal _ = fst_subg_has_const_of_name goal "Fun.map_fun";
 
 (* check if the first subgoal has a schematic variable *)
-(*TODO*)fun has_schematic _ _ = undefined;
+fun fst_subg_has_schematic_var (goal:thm) _ =
+  let
+    val fst_subg          = Isabelle_Utils.get_1st_subg goal:term option;
+    fun has_schematic trm = Term.exists_subterm Term.is_Var trm: bool;
+    val result            = Option.map has_schematic fst_subg |> is_some_true: bool;
+  in
+    result
+  end;
+
 (*use Term.is_Var and Term.exists_subterm*)
 
 (* ASSERT 11. check if there is a constant with prefix "Num" in the first subgoal *)
@@ -235,7 +242,7 @@ fun all_consts_in_main goal ctxt =
       |> Theory.ancestors_of
       |> map Context.theory_name:string list;
     fun in_Main str = exists (fn s => s = (Long_Name.explode str|> hd)) thy_names_in_main;
-  in                                  
+  in
     const_all_assert goal in_Main
   end;
 
