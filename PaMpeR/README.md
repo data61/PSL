@@ -1,5 +1,7 @@
 # PaMpeR (Proof Method Recommendation system)
 
+**Waring! This branch is under heavy update. Some functions are not working properly.**
+
 PaMpeR is an enhancement tool to give proof engineers hints in their work.
 
 - The first part of the system is a feature extraction algorithm which obtains training data from existing Proof.

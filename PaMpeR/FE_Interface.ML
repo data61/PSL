@@ -29,7 +29,7 @@ sig
 end;
 structure FE_Interface : FE_INTERFACE = 
 struct
-  fun get_name (Method.Source src) = ((Token.name_of_src src)|>fst)^"\n" |
+  fun get_name (Method.Source src) = ((Token.name_of_src src) |> fst) ^ "\n" |
       get_name _ = "\n"
   fun FE_activate _ = 
   let 
@@ -38,23 +38,23 @@ struct
       Outer_Syntax.command @{command_keyword apply} "initial goal refinement step (unstructured)"
         (Method.parse >> (fn m => (Method.report m;
           Toplevel.proofs (fn pst =>(if (get_name o fst) m = "\n" then 0 else
-          Isabelle_System.bash ("echo -n '"^(Assertions.eval_assertion pst)^
-          " "^(get_name o fst) m^"' >> ~/.isabelle/Database");
+          Isabelle_System.bash
+           ("echo -n '" ^ (Assertions.eval_assertion pst) ^ "' >> ~/.isabelle/Database/" ^ (get_name o fst) m);
           Proof.apply m pst))))); 
     val local_terminal_proof = Toplevel.proof o 
           (fn m => 
             (fn state => 
               (if (get_name o fst) (fst m) = "\n" then 0 else
-            Isabelle_System.bash ("echo -n '"^(Assertions.eval_assertion state)^
-          " "^(get_name o fst) (fst m)^"' >> ~/.isabelle/Database");
+            Isabelle_System.bash
+             ("echo -n '" ^ (Assertions.eval_assertion state) ^ "' >> ~/.isabelle/Database/" ^ (get_name o fst) (fst m));
             Proof.local_future_terminal_proof m state)));
     val global_terminal_proof = 
         Toplevel.end_proof o 
         K o 
         (fn m => 
             (fn state => (if (get_name o fst) (fst m) = "\n" then 0 else
-            Isabelle_System.bash ("echo -n '"^(Assertions.eval_assertion state)^
-          " "^(get_name o fst) (fst m)^"' >> ~/.isabelle/Database");
+            Isabelle_System.bash
+             ("echo -n '"^(Assertions.eval_assertion state) ^ "' >> ~/.isabelle/Database/" ^ (get_name o fst) (fst m));
             Proof.global_future_terminal_proof m state)))
     
     fun terminal_proof m = local_terminal_proof m o global_terminal_proof m;
