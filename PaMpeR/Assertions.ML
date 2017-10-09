@@ -199,20 +199,20 @@ fun has_case_ goal _ =
     fst_subg_has_case
   end;
 
-(* check if the first subgoal contains a variable of type record. *)
+(* TODO: check if the first subgoal contains a variable of type record. *)
 (*TODO*)fun has_record _ _ = undefined;
 
-(* check if the first subgoal uses type class definition *)
+(* TODO: check if the first subgoal uses type class definition *)
 (*TODO*)fun uses_type_class _ _ = undefined;
 (*use "_class" as a hint*)
 
-(* check if the first subgoal has rel_fun *)
+(* ASSERT 16. check if the first subgoal has rel_fun *)
 fun has_rel_fun goal _ = fst_subg_has_const_of_name goal "BNF_Def.rel_fun";
 
-(* check if the first subgoal has map_fun *)
+(* ASSERT 17. check if the first subgoal has map_fun *)
 fun has_map_fun goal _ = fst_subg_has_const_of_name goal "Fun.map_fun";
 
-(* check if the first subgoal has a schematic variable *)
+(* ASSERT 18. check if the first subgoal has a schematic variable *)
 fun fst_subg_has_schematic_var (goal:thm) _ =
   let
     val fst_subg          = Isabelle_Utils.get_1st_subg goal:term option;
@@ -227,14 +227,14 @@ fun fst_subg_has_schematic_var (goal:thm) _ =
 (* ASSERT 11. check if there is a constant with prefix "Num" in the first subgoal *)
 fun has_const_prefixed_with_Num goal _ = fst_subg_has_const_prefixed_with goal "Num";
 
-(* check if there is a constant with prefix "Real" in the first subgoal *)
+(* ASSERT 19. check if there is a constant with prefix "Real" in the first subgoal *)
 fun has_const_prefixed_with_Real goal _ = fst_subg_has_const_prefixed_with goal "Real";
 
-(* check if there is a constant with prefix "List" in the first subgoal *)
+(* ASSERT 20. check if there is a constant with prefix "List" in the first subgoal *)
 fun has_const_prefixed_with_List goal _ = fst_subg_has_const_prefixed_with goal "List";
 
 (** Assertions about all constants appearing in the first subgoal itself. **)
-(* check if all constants are defined in Main *)
+(* ASSERT 21. check if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt =
   let
     val this_thy          = Proof_Context.theory_of ctxt:theory;
@@ -247,38 +247,38 @@ fun all_consts_in_main goal ctxt =
   end;
 
 (** Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal. **)
-(* checks if the first subgoal is an "Equational" problem or not. *)
+(* ASSERT 22. checks if the first subgoal is an "Equational" problem or not. *)
 fun fst_subg_is_classified_as_Equational goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Equational;
 
-(* checks if the first subgoal is an "Inductive" problem or not. *)
+(* ASSERT 23. checks if the first subgoal is an "Inductive" problem or not. *)
 fun fst_subg_is_classified_as_Inductive goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Inductive;
 
-(* checks if the first subgoal is a "Co_Inductive" problem or not. *)
+(* ASSERT 24. checks if the first subgoal is a "Co_Inductive" problem or not. *)
 fun fst_subg_is_classified_as_Co_Inductive goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Co_Inductive;
 
-(* checks if the first subgoal is an "Unknown" problem or not. *)
+(* ASSERT 25. checks if the first subgoal is an "Unknown" problem or not. *)
 fun fst_subg_is_classified_as_Unknown goal ctxt = fst_subg_is_classified_as ctxt goal Spec_Rules.Unknown;
 
 (** Assertions about the outermost construct of the first subgoal. **)
-(* check if the outermost construct in the first subgoal is the meta equality. *)
+(* ASSERT 26. check if the outermost construct in the first subgoal is the meta equality. *)
 fun outermost_is_pure_eq goal _ = outermost_const_name_in_1st_subg_is goal "Pure.eq";
 
-(* check if the outermost construct in the first subgoal is the HOL equality. *)
+(* ASSERT 27. check if the outermost construct in the first subgoal is the HOL equality. *)
 fun outermost_is_hol_eq goal _ = outermost_const_name_in_1st_subg_is goal "HOL.eq";
 
-(* check if the outermost construct in the first subgoal is the meta implication. *)
+(* ASSERT 28. check if the outermost construct in the first subgoal is the meta implication. *)
 fun outermost_is_pure_imp goal _ = outermost_const_name_in_1st_subg_is goal "Pure.imp";
 
-(* check if the outermost construct in the first subgoal is the HOL implication. *)
+(* ASSERT 29. check if the outermost construct in the first subgoal is the HOL implication. *)
 fun outermost_is_hol_imp goal _ = outermost_const_name_in_1st_subg_is goal "HOL.implies";
 
-(* check if the outermost construct in the first subgoal is the meta all. *)
+(* ASSERT 30. check if the outermost construct in the first subgoal is the meta all. *)
 fun outermost_is_pure_all goal _ = outermost_const_name_in_1st_subg_is goal "Pure.all";
 
-(* check if the outermost construct in the first subgoal is the HOL all. *)
+(* ASSERT 31. check if the outermost construct in the first subgoal is the HOL all. *)
 fun outermost_is_hol_all goal _ = outermost_const_name_in_1st_subg_is goal "HOL.All";
 
-(* check if the outermost construct in the first subgoal is the HOL existential quantifier. *)
+(* ASSERT 32. check if the outermost construct in the first subgoal is the HOL existential quantifier. *)
 fun outermost_is_hol_ex goal _ = outermost_const_name_in_1st_subg_is goal "HOL.Ex";
 
 (* ASSERT 15. check if the outermost construct in the first suboal is a function that is not fully applied yet. *)
@@ -290,26 +290,26 @@ fun outermost_is_fun_not_fully_applied goal _ =
     is_some_true is_applied:bool
   end;
 
-(* check if the outermost construct in the first subgoal is the meta equality. *)
+(* ASSERT 33. check if the outermost construct in the first subgoal is the meta equality. *)
 fun fst_subg_has_pure_eq_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "Pure.eq";
 
-(* check if the outermost construct in the first subgoal is the HOL equality. *)
+(* ASSERT 34. check if the outermost construct in the first subgoal is the HOL equality. *)
 fun fst_subg_has_hol_eq_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.eq";
 
-(* check if the outermost construct in the first subgoal is the meta implication. *)
+(* ASSERT 35. check if the outermost construct in the first subgoal is the meta implication. *)
 fun fst_subg_has_pure_imp_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "Pure.imp";
 
-(* check if the outermost construct in the first subgoal is the HOL implication. *)
+(* ASSERT 36. check if the outermost construct in the first subgoal is the HOL implication. *)
 fun fst_subg_has_hol_imp_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.implies";
 
-(* check if the outermost construct in the first subgoal is the meta all. *)
+(* ASSERT 37. check if the outermost construct in the first subgoal is the meta all. *)
 fun fst_subg_has_pure_all_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "Pure.all";
 
-(* check if the outermost construct in the first subgoal is the HOL all. *)
+(* ASSERT 38. check if the outermost construct in the first subgoal is the HOL all. *)
 fun fst_subg_has_hol_all_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.All";
 
-(* check if the outermost construct in the first subgoal is the HOL existential quantifier. *)
-fun fst_subg_has_hol_all_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.Ex";
+(* ASSERT 39. check if the outermost construct in the first subgoal is the HOL existential quantifier. *)
+fun fst_subg_has_hol_ex_not_as_outmost goal _ = fst_subg_has_const_name_not_as_outmost goal "HOL.Ex";
 
 (*TODOs*)
 (* check if the outermost constant in subgoal is conjunction *)
@@ -351,7 +351,31 @@ val assertions =
 (*12*)  fact_lift_def,
 (*13*)  fact_primcorec,
 (*14*)  fact_interp,
-(*15*)  outermost_is_fun_not_fully_applied]
+(*15*)  outermost_is_fun_not_fully_applied,
+(*16*)  has_rel_fun,
+(*17*)  has_map_fun,
+(*18*)  fst_subg_has_schematic_var,
+(*19*)  has_const_prefixed_with_Real,
+(*20*)  has_const_prefixed_with_List,
+(*21*)  all_consts_in_main,
+(*22*)  fst_subg_is_classified_as_Equational,
+(*23*)  fst_subg_is_classified_as_Inductive,
+(*24*)  fst_subg_is_classified_as_Co_Inductive,
+(*25*)  fst_subg_is_classified_as_Unknown,
+(*26*)  outermost_is_pure_eq,
+(*27*)  outermost_is_hol_eq,
+(*28*)  outermost_is_pure_imp,
+(*29*)  outermost_is_hol_imp,
+(*30*)  outermost_is_pure_all,
+(*31*)  outermost_is_hol_all,
+(*32*)  outermost_is_hol_ex,
+(*33*)  fst_subg_has_pure_eq_not_as_outmost,
+(*34*)  fst_subg_has_hol_eq_not_as_outmost,
+(*35*)  fst_subg_has_pure_imp_not_as_outmost,
+(*36*)  fst_subg_has_hol_imp_not_as_outmost,
+(*37*)  fst_subg_has_pure_all_not_as_outmost,
+(*38*)  fst_subg_has_hol_all_not_as_outmost,
+(*39*)  fst_subg_has_hol_ex_not_as_outmost]
 
 (* check if there is a constant with prefix real *)
 fun const_real (goal, _) = 
