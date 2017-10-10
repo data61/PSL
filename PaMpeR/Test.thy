@@ -1,3 +1,6 @@
+(* Title:  PSL/PaMpeR/Test.thy
+   Author: Yutaka Nagashima, CIIRC, CTU
+*)
 theory Test
   imports PaMpeR Main
   keywords "assert_nth_true" :: diag
