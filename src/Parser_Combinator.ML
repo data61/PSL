@@ -89,6 +89,22 @@ struct
                   many alphanum >>= (fn xs =>
                   result (Seq.cons x xs |> Seq.list_of |> String.concat)));
   fun many1 p   = p >>= (fn x => many p >>= (fn xs => result (Seq.cons x xs)));
+  val spaces  = many1 (sat Symbol.is_space) >>= K (result ());
+  val comment = string "(*" >>= (K (
+                many (sat (fn x => x = ")" |> not))))
+    >>= K (string ")")
+    >>= K (result ());
+  (*bracket (string "(*") (result ()) (string "*)");*)
+  fun first p inp = case Seq.pull (p inp) of
+    NONE        => Seq.empty
+  | SOME (x, _) => Seq.single x;
+  infix +++;
+  fun p +++ q = first (p plus q);
+  val junk    = many (spaces +++ comment) >>= K (result ());
+  fun parse p = junk >>= K p >>= result;
+  fun token p = p    >>= (fn v =>
+                junk >>= (K (
+                result v)));
   fun eval xs   = Int.fromString xs |> the;
   val nat       = many1 digit >>= (fn xs => xs |> Seq.list_of |> String.concat |> eval |> result);
   val int       =
@@ -96,7 +112,7 @@ struct
       val id  = fn inp => Seq.single (I, inp);
       val ope = symbol "-" >>= (fn _ => result ~) plus id;
     in
-      ope >>= (fn f => (nat >>= (fn n => f n |> result)))
+      token (ope >>= (fn f => (nat >>= (fn n => f n |> result))))
     end;
   infix sepby1;
   fun p sepby1 sep = p >>= (fn x =>
@@ -106,24 +122,7 @@ struct
                                p      >>= (fn x =>
                                closep >>= (fn _ =>
                                result x)));
-  val ints = bracket (symbol "[") (int sepby1 symbol ",") (symbol "]");
+  val ints = bracket (symbol "[" |> token) (int sepby1 symbol "," |> token) (symbol "]" |> token);
   infix sepby;
   fun p sepby sep = (p sepby1 sep) plus succ_many;
-
-  fun first p inp = case Seq.pull (p inp) of
-    NONE        => Seq.empty
-  | SOME (x, _) => Seq.single x;
-  infix +++;
-  fun p +++ q = first (p plus q);
-  val spaces  = many1 (sat Symbol.is_space) >>= K (result ());
-  val comment = string "(*" >>= (K (
-                many (sat (fn x => x = ")" |> not))))
-    >>= K (string ")")
-    >>= K (result ());
-  (*bracket (string "(*") (result ()) (string "*)");*)
-  val junk    = many (spaces +++ comment) >>= K (result ());
-  fun parse p = junk >>= K p >>= result;
-  fun token p = p    >>= (fn v =>
-                junk >>= (K (
-                result v)));
 end;
