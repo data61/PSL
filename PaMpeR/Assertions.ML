@@ -61,14 +61,26 @@ fun fst_subg_has_const_prefixed_with goal (prefix:string) =
 (* The first subgoal has a constant of the given name as the outermost constant. *)
 fun outermost_const_name_in_1st_subg_is (goal:thm) (cname:string) =
   let
-    fun get_const_name (trm:term) = if Term.is_Const trm then SOME (Term.term_name trm) else NONE;
-    fun cname_is outmost_cname    = cname = outmost_cname;
-    val result                    = SOME goal
-                                  >>= Isabelle_Utils.get_1st_subg
-                                  >>= get_const_name 
-                                  liftM cname_is;
+    fun get_const_names (trm:term) = Term.add_const_names trm []: string list;
+    fun If (thn, els) (b:bool) = if b then thn else els;
+    fun get_outmost_name (names:string list) =
+      let
+        val numb = length names;
+        val last_cname     = try (nth names) (numb - 1): string option;
+        val snd_last_cname = try (nth names) (numb - 2): string option;
+        val outmost_is_pure_const = Option.map (curry (op =) "HOL.Trueprop") last_cname: bool option;
+      in
+        Option.map (If (snd_last_cname, last_cname)) outmost_is_pure_const |> Option.join: string option
+      end;
+    val result = SOME goal
+      >>= Isabelle_Utils.get_1st_subg
+      liftM get_const_names
+      >>= get_outmost_name
+      liftM (curry (op =) cname)
+      liftM (If (true, false))
+      |> Utils.flip (curry Option.getOpt) false: bool;
   in
-    is_some_true result:bool
+    result
   end;
 
 (* The first subgoal has a constant of the given name, but not as the outermost constant. *)

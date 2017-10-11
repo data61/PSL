@@ -29,7 +29,7 @@ fun get_trans_trans_gen (yes_no:int) (assert_numb:int) =
          val proof_state   = Toplevel.proof_of top;
          val results = Assertions.eval_assertion_for_ML proof_state |> map Real.floor;
          val nth_result = List.nth (results, assert_numb - 1);
-         val mssg = if yes_no = 0 then "false" else if yes_no = 1 then "true" else "something went wrong";
+         val mssg = if nth_result = 0 then "false" else "true";
        in
          (@{assert} (nth_result = yes_no); tracing (Int.toString assert_numb ^ "th assertion is " ^ mssg))
        end)
@@ -98,5 +98,84 @@ lemma
   asserts_check [1, 0, 0]
     apply simp
   done
+
+lemma "case True of True \<Rightarrow> True | _ \<Rightarrow> True"
+  assert_nth_true 2
+  by simp_all
+
+lemma "x \<and> x"
+  assert_nth_true 3
+  oops
+
+lemma "\<And>x. x \<and> x"
+  assert_nth_true 4
+    assert_nth_true 30
+    oops
+
+lemma "x \<Longrightarrow> x"
+    assert_nth_true 28
+    oops
+
+lemma "\<exists>x. True \<and> x"
+  assert_nth_true 32
+  oops
+
+lemma "\<exists>x. True \<and> x"
+  assert_nth_true 32
+  assert_nth_true 15 (*?*) (* these quantifiers are actually functions?*)
+  oops
+
+lemma "(\<exists>x. True \<and> x) \<and> True"
+  assert_nth_false 32
+  assert_nth_true 39
+  oops
+
+lemma "(\<forall>x. True \<and> x) \<and> True"
+  assert_nth_true 38
+  oops
+
+lemma "(\<exists>x. True \<and> x)"
+  assert_nth_true 39
+  oops
+
+lemma "[1] = [1]"
+  assert_nth_true 20
+    oops
+
+lemma "True \<and> (\<forall>x. x =x)"
+  assert_nth_true 38
+  assert_nth_false 39
+    oops
+
+lemma "Ture \<Longrightarrow> (\<And>x. x =x)"
+  assert_nth_true 37
+  assert_nth_true 28 (*?*) (*assertions about outermost constructs are not working well?*)
+  oops
     
+schematic_goal "?x = True"
+  assert_nth_true 18
+  oops
+
+schematic_goal "True \<or> False" "?x = True"
+  apply -
+  assert_nth_false 18
+  assert_nth_true 21
+   prefer 2
+  assert_nth_true 18
+  oops
+
+lemma "True \<longrightarrow> True"
+  apply -
+  assert_nth_false 31
+  assert_nth_true 36 (*fst_subg_has_hol_all_not_as_outmost is broken.*)
+  oops
+
+lemma "True \<or> False" "\<forall>x. True \<or> x"
+  assert_nth_false 31
+  asserts_check [0,0,0,0]
+  defer
+  asserts_check [0,0,0,0](*The fourth assertion is broken?*)
+  assert_nth_true 31
+  by auto
+
 end
