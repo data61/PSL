@@ -85,16 +85,7 @@ fun outermost_const_name_in_1st_subg_is (goal:thm) (cname:string) =
 
 (* The first subgoal has a constant of the given name, but not as the outermost constant. *)
 fun fst_subg_has_const_name_not_as_outmost (goal:thm) (cname:string) =
-  let
-    val fst_subg                            = Isabelle_Utils.get_1st_subg goal:term option;
-    fun get_subtrm (Abs (_,_,trm))          = SOME trm
-     |  get_subtrm (_ $ trm)                = SOME trm
-     |  get_subtrm _                        = NONE;
-    fun exists_Const_of_name (cname:string) = Term.exists_Const (fn (name, _) => name = cname);
-    val result = fst_subg >>= get_subtrm liftM exists_Const_of_name cname;
-  in
-    is_some_true result:bool
-  end;
+  fst_subg_has_const_of_name goal cname andalso not (outermost_const_name_in_1st_subg_is goal cname);
 
 (* The term is a function that is ready to take arguments. *)
 fun is_fun_not_fully_applied (trm:term) = Term.type_of trm |> Term.size_of_typ |> (fn i => 1 = i);

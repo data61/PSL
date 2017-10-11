@@ -135,7 +135,7 @@ lemma "(\<forall>x. True \<and> x) \<and> True"
   oops
 
 lemma "(\<exists>x. True \<and> x)"
-  assert_nth_true 39
+  assert_nth_false 39
   oops
 
 lemma "[1] = [1]"
@@ -147,9 +147,10 @@ lemma "True \<and> (\<forall>x. x =x)"
   assert_nth_false 39
     oops
 
-lemma "Ture \<Longrightarrow> (\<And>x. x =x)"
+lemma "True \<Longrightarrow> (\<And>x. x =x)"
   assert_nth_true 37
-  assert_nth_true 28 (*?*) (*assertions about outermost constructs are not working well?*)
+  assert_nth_true 28
+  assert_nth_true 37
   oops
     
 schematic_goal "?x = True"
@@ -167,7 +168,7 @@ schematic_goal "True \<or> False" "?x = True"
 lemma "True \<longrightarrow> True"
   apply -
   assert_nth_false 31
-  assert_nth_true 36 (*fst_subg_has_hol_all_not_as_outmost is broken.*)
+  assert_nth_false 36
   oops
 
 lemma "True \<or> False" "\<forall>x. True \<or> x"
@@ -177,5 +178,11 @@ lemma "True \<or> False" "\<forall>x. True \<or> x"
   asserts_check [0,0,0,0](*The fourth assertion is broken?*)
   assert_nth_true 31
   by auto
+
+definition "MyTrue \<equiv> True"
+
+lemma "MyTrue"
+  assert_nth_false 21
+  by (simp add: MyTrue_def)
 
 end
