@@ -2,8 +2,8 @@
 
 # PSL
 
-This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for Isabelle2016**-1**. Note that Isabelle2016 is no longer supported.
+This branch contains the implementation of *proof strategy language (PSL)* and its default strategy,
+**try_hard**, for **Isabelle2016-1**. Note that Isabelle2016-1 is not the latest version of Isabelle anymore.
 
 ## Installation
 1. Install [Isabelle2016-1](https://isabelle.in.tum.de/).
