@@ -28,6 +28,7 @@ sig
   val debug          : bool; (*flag for debugging.*)
   val try_with       : 'b -> ('a -> 'b) -> 'a -> 'b;
   val are_same       : (string * string) -> bool;
+  val index          : 'a list -> (int * 'a) list;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -104,6 +105,14 @@ fun to_bool EQUAL = true
  |  to_bool _     = false;
 
 fun are_same (x, y) = (to_bool o String.compare) (x, y);
+
+fun index (zs:'a list) =
+  let
+    fun index' _ ys  []             = ys
+      | index' i ys (x::xs:'a list) = index' (i+1) ((i, x)::ys) xs
+  in
+    List.rev (index' (1:int) [] zs): (int * 'a) list
+  end;
 
 end;
 

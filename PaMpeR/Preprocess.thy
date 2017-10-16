@@ -27,7 +27,7 @@ val parallel_preprocess = false;
 
 fun get_tokens (line:string) = line
   |> space_explode " "
-  |> filter_out (fn x => x = "")
+  |> filter_out (fn x => x = " ")
   |> chop 1
   |> apfst the_single;
 
@@ -38,8 +38,8 @@ val path_to_databases = path ^ "/Databases/" : string;
 fun write_one_line_for_one_method (line:string) (method_name:string) =
   let
     val (file_name, features) = get_tokens line : (string * (string list));
-    val meth_used    = if file_name = method_name then "used" else "not_used";
-    val feature_str  = String.concatWith " " (meth_used :: features) : string;
+    val meth_used    = if file_name = method_name then "1," else "0,";
+    val feature_str  = String.concatWith "" (meth_used :: features) : string;
     val bash_command = "echo -n '" ^ feature_str ^ "\n' " ^ ">> " ^ path_to_databases ^ method_name;
     val exit_int     = Isabelle_System.bash (bash_command:string);
     val _ = if exit_int = 0 then () else tracing "open_one failed! The bach returned a non-0 value.";
@@ -86,5 +86,5 @@ fun preprocess _ = (write_databases_for_all_lines (); ());
 
 end;
 *}
-
+ML{*Preprocess.preprocess ()*}
 end

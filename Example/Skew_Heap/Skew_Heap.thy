@@ -25,11 +25,11 @@ fun get_min :: "'a::linorder heap \<Rightarrow> 'a" where
 "get_min(Node l m r) = m"
 
 lemma get_min_in:
-  "h \<noteq> Leaf \<Longrightarrow> get_min h \<in> set_tree h"try_hard_all
+  "h \<noteq> Leaf \<Longrightarrow> get_min h \<in> set_tree h"
 by(auto simp add: neq_Leaf_iff)
 
 lemma get_min_min:
-  "\<lbrakk> heap h; x \<in> set_tree h \<rbrakk> \<Longrightarrow> get_min h \<le> x"try_hard_all
+  "\<lbrakk> heap h; x \<in> set_tree h \<rbrakk> \<Longrightarrow> get_min h \<le> x"
 by(cases h)(auto)
 
 
@@ -69,16 +69,16 @@ by pat_completeness auto
 termination
 by (relation "measure (\<lambda>(x, y). size x + size y)") auto
 
-lemma size_meld[simp]: "size(meld t1 t2) = size t1 + size t2"try_hard_all
+lemma size_meld[simp]: "size(meld t1 t2) = size t1 + size t2"
 by(induction t1 t2 rule: meld.induct) auto
 
-lemma size_meld2[simp]: "size(meld2 t1 t2) = size t1 + size t2"try_hard_all
+lemma size_meld2[simp]: "size(meld2 t1 t2) = size t1 + size t2"
 by(induction t1 t2 rule: meld2.induct) auto
 
-lemma mset_meld: "mset_tree (meld h1 h2) = mset_tree h1 + mset_tree h2"try_hard_all
+lemma mset_meld: "mset_tree (meld h1 h2) = mset_tree h1 + mset_tree h2"
 by (induction h1 h2 rule: meld.induct) (auto simp add: ac_simps)
 
-lemma set_meld: "set_tree (meld h1 h2) = set_tree h1 \<union> set_tree h2"try_hard_all
+lemma set_meld: "set_tree (meld h1 h2) = set_tree h1 \<union> set_tree h2"
 by (metis mset_meld set_mset_tree set_mset_union)
 
 lemma heap_meld:
@@ -93,10 +93,10 @@ definition insert :: "'a::linorder \<Rightarrow> 'a heap \<Rightarrow> 'a heap" 
 
 hide_const (open) Skew_Heap.insert
 
-lemma heap_insert: "heap h \<Longrightarrow> heap (Skew_Heap.insert a h)"try_hard_all
+lemma heap_insert: "heap h \<Longrightarrow> heap (Skew_Heap.insert a h)"
 by (simp add: insert_def heap_meld)
 
-lemma mset_insert: "mset_tree (Skew_Heap.insert a h) = {#a#} + mset_tree h"try_hard_all
+lemma mset_insert: "mset_tree (Skew_Heap.insert a h) = {#a#} + mset_tree h"
 by (auto simp: mset_meld insert_def)
 
 
@@ -106,10 +106,19 @@ fun del_min :: "'a::linorder heap \<Rightarrow> 'a heap" where
 "del_min Leaf = Leaf" |
 "del_min (Node l m r) = meld l r"
 
-lemma heap_del_min: "heap h \<Longrightarrow> heap (del_min h)"try_hard
+lemma heap_del_min: "heap h \<Longrightarrow> heap (del_min h)"
 by (cases h) (auto simp: heap_meld)
 
 lemma mset_del_min: "mset_tree (del_min h) = mset_tree h - {# get_min h #}"
-by (cases h) (auto simp: mset_meld ac_simps)
+  by (cases h) (auto simp: mset_meld ac_simps)
+ML{* Isabelle_System.bash_output 
+"less ~/Dokumente/PSL_PaMpeR/PSL/PaMpeR/FE_Interface.ML";
+ Bash.process;
 
+Bash_Syntax.string;
+
+Isabelle_System.bash_output 
+"less ~/.isabelle/Database";
+
+*}
 end
