@@ -14,10 +14,10 @@
               fun merge data : T = data |> Symtab.join (fn name => fn (cmd1, cmd2) => cmd2);
         3.Search and open Main.thy
         4.import PaMpeR into Main
-        5.add a ML chunk of function call ML{*FE_Interface.activate ()*} in Main
+        5.add a ML chunk of function call ML{*FE_Interface.FE_activate ()*} in Main
         6.Rebuild Isabelle heap
 
-    By default the extracted feature file would be stored in ~/.isabelle/Database
+    By default the extracted feature file would be stored in PSL/PaMpeR.
     If the import does not work, please add a function call of FE_Interface.activate ()
     in a ML chunk in Main.thy
 *)
