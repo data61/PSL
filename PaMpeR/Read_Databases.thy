@@ -13,7 +13,7 @@ sig
   type one_line      = used * (feature_name * feature_value) list;
   type database      = one_line list;
   (*get_Database_names has to be called only *after* generating pre-processed databases.*)
-  val get_meth_names  : unit -> string list;
+  val get_meth_names  : unit -> meth_name list;
   val parse_database  : meth_name -> database;
   val parse_databases : unit -> database list;
 end;
