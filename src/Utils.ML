@@ -29,6 +29,8 @@ sig
   val try_with       : 'b -> ('a -> 'b) -> 'a -> 'b;
   val are_same       : (string * string) -> bool;
   val index          : 'a list -> (int * 'a) list;
+  val power          : int -> int -> int;
+  val nat_to_frac    : int -> real;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -112,6 +114,19 @@ fun index (zs:'a list) =
       | index' i ys (x::xs:'a list) = index' (i+1) ((i, x)::ys) xs
   in
     List.rev (index' (1:int) [] zs): (int * 'a) list
+  end;
+
+fun power' (_, 0, z) = z
+  | power' (x, y, z) = power' (x, y-1, x * z)
+fun power x n = power' (x, n, 1);
+
+fun nat_to_frac (n:int) =
+  let
+    val digit     = Int.toString n |> String.size : int;
+    val divide_by = power 10 digit |> Real.fromInt : real;
+    val frac      = Real.fromInt n / divide_by : real;
+  in
+    frac : real
   end;
 
 end;

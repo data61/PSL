@@ -31,6 +31,7 @@ sig
   val many1  : 'a parser -> 'a Seq.seq parser;
   val nat    : int parser;
   val int    : int parser;
+  val real   : real parser;
   val sepby1 : 'a parser * 'b parser -> 'a Seq.seq parser;
   val bracket: 'a parser -> 'b parser -> 'c parser -> 'b parser;
   val ints   : int Seq.seq parser;
@@ -89,7 +90,7 @@ struct
                   many alphanum >>= (fn xs =>
                   result (Seq.cons x xs |> Seq.list_of |> String.concat)));
   fun many1 p   = p >>= (fn x => many p >>= (fn xs => result (Seq.cons x xs)));
-  val spaces  = many1 (sat Symbol.is_space) >>= K (result ());
+  val spaces  = many1 (sat Symbol.is_ascii_blank) >>= K (result ());
   val comment = string "(*" >>= (K (
                 many (sat (fn x => x = ")" |> not))))
     >>= K (string ")")
@@ -112,17 +113,32 @@ struct
       val id  = fn inp => Seq.single (I, inp);
       val ope = symbol "-" >>= (fn _ => result ~) plus id;
     in
-      token (ope >>= (fn f => (nat >>= (fn n => f n |> result))))
+      token (ope >>= (fn f => (
+             nat >>= (fn n =>
+             f n |> result))))
     end;
+
+  val real =
+    let
+      val id  = fn inp => Seq.single (I, inp);
+      val ope = (symbol "-" plus symbol "~") >>= (fn _ => result ((op ~):real -> real)) plus id;
+    in
+      token ope >>= (fn f =>
+      token nat >>= (fn n =>
+      token (symbol ".") >>= (fn _ =>
+      token nat >>= (fn frac =>
+      (Real.fromInt n + Utils.nat_to_frac frac) |> f |> result))))
+    end;
+
   infix sepby1;
   fun p sepby1 sep = p >>= (fn x =>
                     (many (sep >>= (fn _ => p >>= (fn y => result y)))) >>= (fn xs => 
                     result (Seq.cons x xs)));
-  fun bracket openp p closep = openp  >>= (fn _ =>
-                               p      >>= (fn x =>
-                               closep >>= (fn _ =>
+  fun bracket openp p closep = token openp  >>= (fn _ =>
+                               token p      >>= (fn x =>
+                               token closep >>= (fn _ =>
                                result x)));
-  val ints = bracket (symbol "[" |> token) (int sepby1 symbol "," |> token) (symbol "]" |> token);
+  val ints = bracket (symbol "[") (int sepby1 symbol ",") (symbol "]");
   infix sepby;
   fun p sepby sep = (p sepby1 sep) plus succ_many;
 end;
