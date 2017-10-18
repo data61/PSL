@@ -138,7 +138,7 @@ struct
                                token p      >>= (fn x =>
                                token closep >>= (fn _ =>
                                result x)));
-  val ints = bracket (symbol "[") (int sepby1 symbol ",") (symbol "]");
+  val ints = bracket (symbol "[" |> token) (int sepby1 symbol "," |> token) (symbol "]" |> token);
   infix sepby;
   fun p sepby sep = (p sepby1 sep) plus succ_many;
 end;
