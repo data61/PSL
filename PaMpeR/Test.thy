@@ -2,7 +2,7 @@
    Author: Yutaka Nagashima, CIIRC, CTU
 *)
 theory Test
-  imports PaMpeR "../PSL"
+  imports PaMpeR "../PSL" "~~/src/Doc/Datatypes/Datatypes"
   keywords "assert_nth_true" :: diag
    and     "assert_nth_false" :: diag
    and     "asserts_check" :: diag
@@ -95,7 +95,7 @@ lemma
   assert_nth_true 1
   assert_nth_false 2
   assert_nth_true 1
-  asserts_check [1, 0, 0]
+  asserts_check [1, 0, 0](* Something went wrong.*)
     apply simp
   done
 
@@ -139,7 +139,7 @@ lemma "(\<exists>x. True \<and> x)"
   oops
 
 lemma "[1] = [1]"
-  assert_nth_true 20
+  assert_nth_false 20 (*!*)
     oops
 
 lemma "True \<and> (\<forall>x. x =x)"
@@ -184,5 +184,36 @@ definition "MyTrue \<equiv> True"
 lemma "MyTrue"
   assert_nth_false 21
   by (simp add: MyTrue_def)
+
+find_theorems  name:"psimp" -name:"nitpick" name:"transpose"
+lemma "transpose [] = []"
+  assert_nth_true 5 (*pinduct*)
+  assert_nth_true 6 (*psimp*)
+  oops
+
+find_theorems name:"pelims" -name:"Quickcheck" -name:"Nitpick"
+lemma "Datatypes.even Datatypes.Zero  = False"
+  apply -
+  assert_nth_true 7 (*pelims*)
+  find_theorems name:"False" name:"psimps"
+  assert_nth_true 6 (*fact_psimp*)
+  oops
+
+find_theorems  name:"cases"
+lemma "Option.Some True = Option.Some True"
+  assert_nth_true 8 (*caeses*)
+  oops
+
+lemma "True \<and> (Option.None = Option.None)"
+  apply (rule conjI)
+   assert_nth_false 8 (*cases*)
+   apply auto[1]
+  assert_nth_true 8 (*cases*)
+  oops
+
+find_theorems name:"intros" name:"sorted"
+lemma "sorted []"
+  assert_nth_true 9 (*intros*)
+  oops
 
 end

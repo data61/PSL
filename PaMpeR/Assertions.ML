@@ -18,7 +18,7 @@ sig
 end;
 
 (*** Implementation of assertions ***)
-structure Assertions:ASSERTIONS =
+structure Assertions(*:ASSERTIONS*) =
 struct
 (** Generic utility and assertion functions **)
 
@@ -128,7 +128,9 @@ fun has_thms_of_const_names_with_suffix (ctxt:Proof.context) (cnames:string list
 fun has_thms_with_suffixes (goal:thm) (ctxt:Proof.context) (sfxes:string list) =
   let
     val const_names = Isabelle_Utils.get_const_names_in_1st_subg goal;
-    val has_thms    = exists (has_thms_of_const_names_with_suffix ctxt const_names) sfxes;
+    val typ_names   = Isabelle_Utils.get_typ_names_in_1st_subg goal;
+    val names       = const_names @ typ_names;
+    val has_thms    = exists (has_thms_of_const_names_with_suffix ctxt names) sfxes;
   in has_thms end:bool;
 
 (** Assertions about the existence of certain objects (rules) in the proof state **)
@@ -145,7 +147,7 @@ fun check_local_assms _ ctxt = ctxt
 fun fact_pinduct goal ctxt = has_thms_with_suffixes goal ctxt ["pinduct"]
 
 (* ASSERT 06. check if the proof context contains a "psimp" rule associated with a constant in the first subgoal. *)
-fun fact_psimp   goal ctxt = has_thms_with_suffixes goal ctxt ["psimp"]
+fun fact_psimp   goal ctxt = has_thms_with_suffixes goal ctxt ["psimps"]
 
 (* ASSERT 07. check if the proof context contains a "pelims" rule associated with a constant in the first subgoal. *)
 fun fact_pelims  goal ctxt = has_thms_with_suffixes goal ctxt ["pelims"]
