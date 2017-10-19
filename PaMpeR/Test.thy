@@ -3,6 +3,9 @@
 *)
 theory Test
   imports PaMpeR "../PSL" "~~/src/Doc/Datatypes/Datatypes"
+    "Test/Name_Carrying_Type_Inference/SimplyTyped"
+    "Test/Coinductive_Languages/Coinductive_Language"
+    "~~/src/HOL/Word/Bits"
   keywords "assert_nth_true" :: diag
    and     "assert_nth_false" :: diag
    and     "asserts_check" :: diag
@@ -214,6 +217,42 @@ lemma "True \<and> (Option.None = Option.None)"
 find_theorems name:"intros" name:"sorted"
 lemma "sorted []"
   assert_nth_true 9 (*intros*)
+  assert_nth_true 10 (*recursive simp exists sorted*)
+  oops
+
+primrec power::"Nat.nat \<Rightarrow> Nat.nat \<Rightarrow> Nat.nat" where
+  "power x (Suc n) = times x (power x n)"
+| "power x 0 = x"
+
+print_theorems
+
+lemma "power 0 0 = 0"
+  assert_nth_false 1 (*local assumption*)
+  assert_nth_true 10 (*recursive simp*)
+  oops
+
+lemma
+  assumes my_ass:"True"
+  shows "True"
+  find_theorems name:"local"
+  find_theorems name:"my_ass"
+  assert_nth_true 1 (*local assumption*)
+  assert_nth_false 11 (*Num*)
+  oops
+
+find_theorems name:"Num"
+lemma "a * Numeral1 = a"
+  assert_nth_true 11 (*Num*)
+  assert_nth_false 12 (*lift_definition*)
+  oops
+
+lemma "depth (\<pi> \<cdot> A) = depth A"
+  assert_nth_true 12 (*lift_definition*)
+  assert_nth_false 13 (*primcorec*)
+  oops
+
+lemma "Coinductive_Language.Plus Coinductive_Language.Zero r = r"
+  assert_nth_true 13 (*primcorec*)
   oops
 
 end

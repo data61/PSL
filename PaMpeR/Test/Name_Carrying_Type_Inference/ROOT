@@ -1,0 +1,8 @@
+chapter AFP
+
+session Name_Carrying_Type_Inference (AFP) = HOL +
+  options [timeout=600]
+  theories
+    SimplyTyped
+  document_files
+    "root.tex"
