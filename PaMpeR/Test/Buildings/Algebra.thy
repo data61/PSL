@@ -7,7 +7,7 @@ text {*
 *}
 
 theory Algebra
-imports Prelim "HOL-Library.Set_Algebras"
+imports Prelim "HOL-Library.Set_Algebras" "../Assertion_Checker"
 
 begin
 
@@ -1839,9 +1839,9 @@ function prappend_signed_list :: "'a signed list \<Rightarrow> 'a signed list \<
       | "prappend_signed_list [] ys = ys"
       | "prappend_signed_list (xs@[x]) (y#ys) = (
           if y = flip_signed x then prappend_signed_list xs ys else xs @ x # y # ys
-        )"
+        )" assert_nth_false 40 assert_nth_true 41
   by (auto, rule two_prod_lists_cases_snoc_Cons)
-  termination by (relation "measure (\<lambda>(xs,ys). length xs + length ys)") auto
+  termination assert_nth_true 40 by (relation "measure (\<lambda>(xs,ys). length xs + length ys)") auto
 
 lemma proper_prappend_signed_list:
   "proper_signed_list xs \<Longrightarrow> proper_signed_list ys

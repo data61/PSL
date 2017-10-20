@@ -7,7 +7,7 @@ section {* Pitts's method for solving recursive domain predicates *}
 
 theory Logical_Relations
 imports
-  Basis
+  Basis "../Assertion_Checker"
 begin
 
 (*>*)
@@ -97,8 +97,8 @@ lemma unlr_inf: "unlr (inf x y) = unlr x \<inter> unlr y"
 lemma unlr_sup: "unlr (sup x y) = unlr x \<union> unlr y"
   unfolding sup_admS_def by (simp add: admS_def)
 
-instance
-apply intro_classes
+instance assert_nth_true 42
+apply intro_classes assert_nth_true 42 (*!*)
 apply (auto simp: less_eq_admS_def unlr_inf unlr_sup)
 done
 

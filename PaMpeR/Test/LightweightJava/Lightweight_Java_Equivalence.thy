@@ -4,7 +4,7 @@
     Maintainer:  
 *)
 
-theory Lightweight_Java_Equivalence imports Lightweight_Java_Definition begin
+theory Lightweight_Java_Equivalence imports Lightweight_Java_Definition "../Assertion_Checker" begin
 
 (* BEGIN: HELPER FUNCTIONS *)
 
@@ -210,9 +210,9 @@ where
   (if ~(acyclic_clds P) then None else
   (case find_cld_f P ctx fqn of None \<Rightarrow> None | Some (ctx', cld) \<Rightarrow>
    find_path_rec_f P ctx'
-                    (superclass_name_f cld) (path @ [(ctx',cld)])))"
+                    (superclass_name_f cld) (path @ [(ctx',cld)])))" assert_nth_false 40 assert_nth_true 41
 by pat_completeness auto
-termination
+termination assert_nth_true 40 (*is termination proof*) assert_nth_false 41
 by (relation "measure (\<lambda>(P, ctx, cl, path). (THE nn. path_length P ctx cl nn))") auto
 
 lemma [simp]: "(find_path_rec P ctx cl path path_opt) = (find_path_rec_f P ctx cl path = path_opt)"

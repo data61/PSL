@@ -2,6 +2,7 @@ section {* Finite partial functions *}
 
 theory More_Finite_Map imports
   "HOL-Library.Finite_Map"
+  "../Assertion_Checker"
 begin
 
 unbundle lifting_syntax
@@ -30,7 +31,7 @@ where
   "make_map ks v \<equiv> \<lambda>k. if k \<in> fset ks then Some v else None"
 
 lemma make_map_transfer[transfer_rule]: "(rel_fset op = ===> A ===> rel_map A) make_map make_map"
-unfolding make_map_def
+  unfolding make_map_def assert_nth_true 12 assert_nth_true 16 assert_nth_false 17
 by transfer_prover
 
 lemma dom_make_map:
@@ -42,7 +43,7 @@ lift_definition
 is "make_map" parametric make_map_transfer
 by (unfold make_map_def dom_def, auto)
 
-lemma make_fmap_empty[simp]: "[ {||} |=> f ] = fmempty"
+lemma make_fmap_empty[simp]: "[ {||} |=> f ] = fmempty" assert_nth_true 12 assert_nth_false 16 assert_nth_false 17
 by transfer (simp add: make_map_def)
 
 
@@ -53,19 +54,19 @@ subsection {* Domain *}
 lemma fmap_add_commute:
   assumes "fmdom A |\<inter>| fmdom B = {||}"
   shows "A ++\<^sub>f B = B ++\<^sub>f A"
-using assms including fset.lifting
+using assms including fset.lifting assert_nth_true 1 assert_nth_true 12 assert_nth_false 16 assert_nth_false 17
 apply (transfer)
 apply (rule ext)
 apply (auto simp: dom_def map_add_def split: option.splits)
 done
 
 lemma make_fmap_union:
-  "[ xs |=> v ] ++\<^sub>f [ ys |=> v] = [ xs |\<union>| ys |=> v ]"
+  "[ xs |=> v ] ++\<^sub>f [ ys |=> v] = [ xs |\<union>| ys |=> v ]" assert_nth_false 1 assert_nth_true 12 assert_nth_false 16 assert_nth_false 17
 by (transfer, auto simp add: make_map_def map_add_def)
 
 lemma fdom_make_fmap: "fmdom [ ks |=> v ] = ks"
 (* FIXME proper transfer proof *)
-apply (subst fmdom_def)
+apply (subst fmdom_def) assert_nth_false 2 assert_nth_true 8 assert_nth_true 12 assert_nth_false 16 assert_nth_true 17
 apply transfer
 apply (auto simp: dom_def make_map_def fset_inverse)
 done
