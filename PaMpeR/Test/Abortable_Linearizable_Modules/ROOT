@@ -1,0 +1,11 @@
+chapter AFP
+
+session Abortable_Linearizable_Modules (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Idempotence Consensus
+  document_files
+    "abstract.tex"
+    "introduction.tex"
+    "root.bib"
+    "root.tex"

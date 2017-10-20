@@ -1,0 +1,11 @@
+% Since LJ defines some context dependent TeX homs, we provide this TeX file,
+% which avoids printing of these homs in inappropriate contexts.
+\documentclass[a4paper,10pt]{article}
+\usepackage{geometry,amsmath,amssymb,supertabular,color}
+\include{lj_included}
+\renewcommand{\ottformula}{} % do not print the list of formulas
+\begin{document}
+\ottmetavars\\
+\ottgrammar\\
+\ottdefnss
+\end{document}
