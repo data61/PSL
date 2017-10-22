@@ -136,11 +136,11 @@ fun has_thms_with_suffixes (goal:thm) (ctxt:Proof.context) (sfxes:string list) =
 (* checks if the given list of strings are all appear in the given proof obligation when printed out. *)
 fun has_these_as_substrings (goal:thm) (ctxt:Proof.context) (strs:string list) =
   let
-    val goal_as_string = goal |> Thm.prop_of |> Syntax.string_of_term ctxt : string;
-    fun is_substring (str:string) = String.isSubstring str goal_as_string;
-  in
-    forall is_substring strs
-  end;
+    fun get_goal_as_string (fstg:term) = Syntax.string_of_term ctxt fstg: string;
+    fun is_substring (fst_g:string) (substr:string)         = String.isSubstring substr fst_g: bool;
+    fun none_is_substr (substrs:string list) (fst_g:string) = forall (is_substring fst_g) substrs: bool;
+    val result = Isabelle_Utils.get_1st_subg goal liftM get_goal_as_string liftM (none_is_substr strs) |> is_some_true;
+  in result end;
 
 (** Assertions about the existence of certain objects (rules) in the proof state **)
 

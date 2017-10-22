@@ -98,7 +98,7 @@ lemma unlr_sup: "unlr (sup x y) = unlr x \<union> unlr y"
   unfolding sup_admS_def by (simp add: admS_def)
 
 instance assert_nth_true 42
-apply intro_classes assert_nth_true 42 (*!*)
+apply intro_classes assert_nth_false 42
 apply (auto simp: less_eq_admS_def unlr_inf unlr_sup)
 done
 
