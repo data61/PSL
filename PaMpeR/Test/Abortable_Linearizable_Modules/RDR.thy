@@ -89,7 +89,8 @@ locale RDR = pre_RDR +
       \<and> set rs' \<subseteq> set rs \<and> set rs'' \<subseteq> set rs"
   and bot:"\<And> s . \<bottom> \<preceq> s"
 begin
-
+print_theorems
+term RDR
 lemma inf_glb:"is_glb (s1 \<sqinter> s2) s1 s2"
 proof -
   { fix s s'

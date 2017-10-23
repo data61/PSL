@@ -38,7 +38,7 @@ next
   thus ?case by auto
 qed
 
-lemma bot: "\<exists> rs . s = \<bottom> \<star> rs"
+lemma bot: "\<exists> rs . s = \<bottom> \<star> rs" assert_nth_false 44
 proof (cases s)
   case None
   hence "s = \<bottom> \<star> []" by auto

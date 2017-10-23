@@ -1231,7 +1231,7 @@ lemma PEE_strict_appI:
   shows "(\<lambda>j. strictify\<cdot>(fs j)\<cdot>(xs j)) \<in> unlr PE.delta"assert_nth_true 44 (*!*) (*This is unfortunate*)
   using assms
   apply -
-  apply (erule PEE)
+  apply (erule PEE)assert_nth_false 44
   apply simp_all
   done
 

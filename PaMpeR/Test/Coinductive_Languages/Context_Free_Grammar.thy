@@ -1,7 +1,7 @@
 section {* Word Problem for Context-Free Grammars  *}
 (*<*)
 theory Context_Free_Grammar
-imports Coinductive_Language "HOL-Library.FSet"
+imports Coinductive_Language "HOL-Library.FSet"  "../Assertion_Checker"
 begin
 
 lemma fBex_mono[mono]: "P \<le> Q \<Longrightarrow> fBex S P \<le> fBex S Q"
@@ -72,13 +72,13 @@ inductive_cases [elim!]: "in_cfls P (a # w)"
 
 declare inj_eq[OF bij_is_inj[OF to_language_bij], simp]
 
-lemma subst_in_cfls: "subst P = to_language {w. in_cfls P w}"
+lemma subst_in_cfls: "subst P = to_language {w. in_cfls P w}"assert_nth_true 13
   by (coinduction arbitrary: P) (auto intro: in_cfls.intros)
 
 lemma \<oo>\<^sub>P_in_cfl: "\<oo>\<^sub>P \<alpha> \<Longrightarrow> in_cfl \<alpha> []"
   by (induct \<alpha> rule: \<oo>\<^sub>P.induct) (auto intro!: in_cfl.intros elim: fBexI[rotated])
 
-lemma \<dd>\<^sub>P_in_cfl: "\<beta> |\<in>| \<dd>\<^sub>P \<alpha> a \<Longrightarrow> in_cfl \<beta> w \<Longrightarrow> in_cfl \<alpha> (a # w)"
+lemma \<dd>\<^sub>P_in_cfl: "\<beta> |\<in>| \<dd>\<^sub>P \<alpha> a \<Longrightarrow> in_cfl \<beta> w \<Longrightarrow> in_cfl \<alpha> (a # w)" assert_nth_false 13
 proof (induct \<alpha> a arbitrary: \<beta> w rule: \<dd>\<^sub>P.induct)
   case (3 N \<alpha> a)
   then show ?case
@@ -91,7 +91,7 @@ lemma in_cfls_in_cfl: "in_cfls P w \<Longrightarrow> fBex P (\<lambda>\<alpha>. 
     (auto simp: \<oo>\<^sub>P_in_cfl \<dd>\<^sub>P_in_cfl ffUnion.rep_eq fmember.rep_eq fBex.rep_eq fBall.rep_eq
       intro: in_cfl.intros elim: rev_bexI)
 
-lemma in_cfls_mono: "in_cfls P w \<Longrightarrow> P |\<subseteq>| Q \<Longrightarrow> in_cfls Q w"
+lemma in_cfls_mono: "in_cfls P w \<Longrightarrow> P |\<subseteq>| Q \<Longrightarrow> in_cfls Q w"assert_nth_false 13
 proof (induct P w arbitrary: Q rule: in_cfls.induct)
   case (2 a P w)
   from 2(3) 2(2)[of "ffUnion ((\<lambda>\<alpha>. local.\<dd>\<^sub>P \<alpha> a) |`| Q)"] show ?case
@@ -105,7 +105,7 @@ locale cfg_wgreibach =
   assumes weakGreibach: "\<And>N \<alpha>. \<alpha> |\<in>| prod G N \<Longrightarrow> wgreibach \<alpha>"
 begin
 
-lemma in_cfl_in_cfls: "in_cfl G \<alpha> w \<Longrightarrow> in_cfls G {|\<alpha>|} w"
+lemma in_cfl_in_cfls: "in_cfl G \<alpha> w \<Longrightarrow> in_cfls G {|\<alpha>|} w"assert_nth_false 13 assert_nth_false 43 assert_nth_false 44
 proof (induct \<alpha> w rule: in_cfl.induct)
   case (3 N \<alpha> w)
   then obtain \<beta> where
@@ -151,7 +151,7 @@ abbreviation "\<aa> \<equiv> Inl True"
 abbreviation "\<bb> \<equiv> Inl False"
 abbreviation "S \<equiv> Inr ()"
 
-interpretation palindromes: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>], [\<bb>], [\<aa>, S, \<aa>], [\<bb>, S, \<bb>]|}\<rparr>"
+interpretation palindromes: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>], [\<bb>], [\<aa>, S, \<aa>], [\<bb>, S, \<bb>]|}\<rparr>" assert_nth_true 44
   by unfold_locales auto
 
 lemma "in_language palindromes.lang []" by normalization
@@ -164,7 +164,7 @@ lemma "\<not> in_language palindromes.lang [True, False, True, False]" by normal
 lemma "in_language palindromes.lang [True, False, True, True, False, True]" by normalization
 lemma "\<not> in_language palindromes.lang [True, False, True, False, False, True]" by normalization
 
-interpretation Dyck: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, S, \<bb>, S]|}\<rparr>"
+interpretation Dyck: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, S, \<bb>, S]|}\<rparr>"assert_nth_true 44
   by unfold_locales auto
 lemma "in_language Dyck.lang []" by normalization
 lemma "\<not> in_language Dyck.lang [True]" by normalization
@@ -176,7 +176,7 @@ lemma "in_language Dyck.lang [True, False, True, False, True, True, False, False
 lemma "\<not> in_language Dyck.lang [True, False, True, True, False]" by normalization
 lemma "\<not> in_language Dyck.lang [True, True, False, False, False, True]" by normalization
 
-interpretation abSSa: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, \<bb>, S, S, \<aa>]|}\<rparr>"
+interpretation abSSa: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, \<bb>, S, S, \<aa>]|}\<rparr>" assert_nth_true 44
   by unfold_locales auto
 lemma "in_language abSSa.lang []" by normalization
 lemma "\<not> in_language abSSa.lang [True]" by normalization
