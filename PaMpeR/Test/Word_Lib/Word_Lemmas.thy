@@ -15,7 +15,7 @@ theory Word_Lemmas
   Complex_Main
   Aligned
   Word_Enum
-  "HOL-Library.Prefix_Order"
+  "HOL-Library.Prefix_Order" "../Assertion_Checker"
 begin
 
 text \<open>Set up quickcheck to support words\<close>
@@ -43,7 +43,7 @@ end
 instantiation Enum.finite_3 :: len
 begin
   definition "len_of_finite_3 (x :: Enum.finite_3 itself) \<equiv> (4 :: nat)"
-  instance
+  instance assert_nth_false 45
     by (standard, auto simp: len_of_finite_3_def)
 end
 
@@ -66,10 +66,9 @@ begin
 instance by (intro_classes) (metis word_less_induct)
 end
 
-
 lemma word_plus_mono_left:
   fixes x :: "'a :: len word"
-  shows "\<lbrakk>y \<le> z; x \<le> x + z\<rbrakk> \<Longrightarrow> y + x \<le> z + x"
+  shows "\<lbrakk>y \<le> z; x \<le> x + z\<rbrakk> \<Longrightarrow> y + x \<le> z + x" assert_nth_true 45
   by unat_arith
 
 lemma word_2p_mult_inc:
@@ -77,10 +76,10 @@ lemma word_2p_mult_inc:
   assumes suc_n: "Suc n < len_of TYPE('a::len)"
   assumes suc_m: "Suc m < len_of TYPE('a::len)"
   assumes 2: "unat (2::'a::len word) = 2"
-  shows "2^n < (2::'a::len word)^m"
+  shows "2^n < (2::'a::len word)^m" assert_nth_true 45
 proof -
   from suc_n
-  have "(2::nat) * 2 ^ n mod 2 ^ len_of TYPE('a::len) = 2 * 2^n"
+  have "(2::nat) * 2 ^ n mod 2 ^ len_of TYPE('a::len) = 2 * 2^n" assert_nth_false 45
     apply (subst mod_less)
      apply (subst power_Suc[symmetric])
      apply (rule power_strict_increasing)
@@ -118,7 +117,7 @@ qed
 lemma word_power_increasing:
   assumes x: "2 ^ x < (2 ^ y::'a::len word)" "x < len_of TYPE('a::len)" "y < len_of TYPE('a::len)"
   assumes 2: "unat (2::'a::len word) = 2"
-  shows "x < y" using x
+  shows "x < y" assert_nth_false 45 using x
   apply (induct x arbitrary: y)
    apply (case_tac y; simp)
   apply (case_tac y; clarsimp)
@@ -131,7 +130,7 @@ lemma word_power_increasing:
 
 lemma word_shiftl_add_distrib:
   fixes x :: "'a :: len word"
-  shows "(x + y) << n = (x << n) + (y << n)"
+  shows "(x + y) << n = (x << n) + (y << n)" assert_nth_true 45
   by (simp add: shiftl_t2n ring_distribs)
 
 lemma less_Suc_unat_less_bound:
@@ -146,10 +145,10 @@ lemmas ucast_up_inj = up_ucast_inj
 
 lemma up_ucast_inj_eq:
   "len_of TYPE('a) \<le> len_of TYPE ('b) \<Longrightarrow> (ucast x = (ucast y::'b::len word)) = (x = (y::'a::len word))"
-  by (fastforce dest: up_ucast_inj)
+  assert_nth_true 45 by (fastforce dest: up_ucast_inj)
 
 lemma no_plus_overflow_neg:
-  "(x :: 'a :: len word) < -y \<Longrightarrow> x \<le> x + y"
+  "(x :: 'a :: len word) < -y \<Longrightarrow> x \<le> x + y" assert_nth_true 45
   apply (simp add: no_plus_overflow_uint_size word_less_alt uint_word_ariths word_size)
   apply (subst(asm) zmod_zminus1_eq_if)
   apply (simp split: if_split_asm)
@@ -216,7 +215,7 @@ lemma word_add_offset_less:
   and     mnv: "sz < len_of TYPE('a :: len)"
   and    xv': "x < 2 ^ (len_of TYPE('a :: len) - n)"
   and     mn: "sz = m + n"
-  shows   "x * 2 ^ n + y < 2 ^ sz"
+  shows   "x * 2 ^ n + y < 2 ^ sz" assert_nth_true 45
 proof (subst mn)
   from mnv mn have nv: "n < len_of TYPE('a)" and mv: "m < len_of TYPE('a)"  by auto
 

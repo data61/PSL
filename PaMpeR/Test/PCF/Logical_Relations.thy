@@ -45,7 +45,7 @@ These sets form a complete lattice.
 (*<*)
 
 lemma admSI [intro]:
-  "\<lbrakk> \<bottom> \<in> R; adm (\<lambda>x. x \<in> R) \<rbrakk> \<Longrightarrow> R \<in> admS"
+  "\<lbrakk> \<bottom> \<in> R; adm (\<lambda>x. x \<in> R) \<rbrakk> \<Longrightarrow> R \<in> admS" assert_nth_false 45
 unfolding admS_def by simp
 
 lemma bottom_in_unlr [simp]:
@@ -71,12 +71,12 @@ definition
 definition
   "x < y \<equiv> unlr x \<subset> unlr y"
 
-instance
+instance assert_nth_false 45
   by standard (auto simp add: less_eq_admS_def less_admS_def admS.unlr_inject)
 
 end
 
-lemma mklr_leq [iff]: "\<lbrakk> x \<in> admS; y \<in> admS \<rbrakk> \<Longrightarrow> (mklr x \<le> mklr y) \<longleftrightarrow> (x \<le> y)"
+lemma mklr_leq [iff]: "\<lbrakk> x \<in> admS; y \<in> admS \<rbrakk> \<Longrightarrow> (mklr x \<le> mklr y) \<longleftrightarrow> (x \<le> y)" assert_nth_false 45
   unfolding less_eq_admS_def by simp
 
 lemma unlr_leq: "(unlr x \<le> unlr y) \<longleftrightarrow> (x \<le> y)"

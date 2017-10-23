@@ -160,6 +160,14 @@ fun has_these_as_substrings (wo:Isabelle_Utils.where_in_thm) (goal:thm) (ctxt:Pr
       |> is_some_true;
   in result end;
 
+(* get_typ_names_of_freevs_in_trm takes a term and returns a list of names of types of variables that *)
+(* appear in the term. *)
+fun get_typ_names_of_freevs_in_trm (trm:term) = Term.add_frees trm []
+  |> map snd
+  |> map (the_list o try Term.dest_Type)
+  |> flat
+  |> map fst: string list;
+
 (** Assertions about the existence of certain objects (rules) in the proof state **)
 
 (* ASSERT 01. checks if the proof context contains local assumption *)
@@ -376,6 +384,13 @@ fun is_word_bitwise _ _ = true;
 (* TODO: ASSERT 04. check if the unat_arith or uinit_arith method is a promising method or not. *)
 fun is_u_arith _ _ = true;
 
+(* ASSERT 45. checks if the first goal contains a term of type "Word.word". *)
+fun fst_subg_has_word goal _ = goal
+      |> Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
+      liftM Isabelle_Utils.get_typ_names_in_trm
+      |> these
+      |> exists (curry (op =) "Word.word"): bool;
+
 (** the list of assertions currently used **)
 val assertions =
 (*01*) [check_local_assms,
@@ -421,7 +436,8 @@ val assertions =
 (*41*)  function_package,
 (*42*)  is_instance_proof,
 (*43*)  is_locale_intro2,
-(*44*)  is_unfold_locale]
+(*44*)  is_unfold_locale,
+(*45*)  fst_subg_has_word]
 
 (* check if there is a constant with prefix real *)
 fun const_real (goal, _) = 
