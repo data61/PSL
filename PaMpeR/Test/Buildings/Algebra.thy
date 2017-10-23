@@ -1347,7 +1347,7 @@ lemma im_lconjby: "T (lconjby x g) = lconjby (T x) (T g)"
 
 lemma restrict0:
   assumes "Group G"
-  shows   "GroupHom G (restrict0 T G)"
+  shows   "GroupHom G (restrict0 T G)" assert_nth_true 43
 proof (intro_locales, rule assms, unfold_locales)
   from hom 
     show  "\<And>g g'. g \<in> G \<Longrightarrow> g' \<in> G \<Longrightarrow>

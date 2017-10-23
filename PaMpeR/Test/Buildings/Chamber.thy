@@ -618,8 +618,7 @@ lemma chamber_preimage:
   "C\<in>X \<Longrightarrow> codomain.chamber (f`C) \<Longrightarrow> domain.chamber C"
   using chamber_in_image maxsimp_preimage by simp
 
-lemma chambercomplex_image: "ChamberComplex (f\<turnstile>X)"
-  find_theorems ChamberComplex name:"axiom"
+lemma chambercomplex_image: "ChamberComplex (f\<turnstile>X)" assert_nth_true 43
 proof (intro_locales, rule simplicialcomplex_image, unfold_locales)
   show "\<And>y. y\<in>f\<turnstile>X \<Longrightarrow> \<exists>x. SimplicialComplex.maxsimp (f\<turnstile>X) x \<and> y \<subseteq> x"
     using domain.simplex_in_max maxsimp_map_into_image by fast
@@ -2023,12 +2022,12 @@ lemma adjacent_opp_chamber:
 lemma adjacentchain_preimage: 
   "set Cs \<subseteq> \<C>-f\<turnstile>\<C> \<Longrightarrow> adjacentchain (f\<Turnstile>Cs) \<Longrightarrow> adjacentchain Cs"
   using adjacent_preimage by (induct Cs rule: list_induct_CCons) auto
-
+find_theorems name:"gallery" name:"local." name:"_axioms"
 lemma gallery_preimage: "set Cs \<subseteq> \<C>-f\<turnstile>\<C> \<Longrightarrow> gallery (f\<Turnstile>Cs) \<Longrightarrow> gallery Cs"
   using galleryD_adj adjacentchain_preimage chamber_system_def gallery_def
   by    fast
 
-lemma chambercomplex_opp_half_apartment: "ChamberComplex folding.Y"
+lemma chambercomplex_opp_half_apartment: "ChamberComplex folding.Y" find_theorems name:"ChamberComplex" name:"local." name:"_axioms"
 proof (
   intro_locales, rule folding.simplicialcomplex_opp_half_apartment, unfold_locales
 )
