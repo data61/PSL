@@ -790,7 +790,7 @@ We need to show the functor respects the minimal invariant.
 
 lemma min_inv_POR_lf:
   assumes "eRSV e R' S'"
-  shows "eRSV (ValD_copy_rec\<cdot>e) (dual (POR_lf (dual S', undual R'))) (POR_lf (R', S'))"
+  shows "eRSV (ValD_copy_rec\<cdot>e) (dual (POR_lf (dual S', undual R'))) (POR_lf (R', S'))"assert_nth_false 44
 (*<*)
   apply clarsimp
   apply (simp add: POR_lf_rep_def)
@@ -805,7 +805,7 @@ lemma min_inv_POR_lf:
   apply force
   done
 
-interpretation POR: DomSolV ValD_copy_rec POR_lf
+interpretation POR: DomSolV ValD_copy_rec POR_lf assert_nth_true 44 find_theorems name:".DomSolV." apply(tactic {* fn (g:thm) => (Isabelle_Utils.get_trm_in  Isabelle_Utils.Fst_Subg g |> Option.map (Syntax.string_of_term @{context}) |> Option.map tracing;  Seq.single g)*})
   apply standard
     apply (rule ValD_copy_ID)
    apply (rule mono_POR_lf)
@@ -1187,7 +1187,7 @@ lemma min_inv_PE_lf:
   apply force
   done
 
-interpretation PE: DomSolV ValD_copy_rec PE_lf
+interpretation PE: DomSolV ValD_copy_rec PE_lf assert_nth_true 44
   apply standard
     apply (rule ValD_copy_ID)
    apply (rule mono_PE_lf)
@@ -1201,7 +1201,7 @@ lemma PEI [intro, simp]:
   "(\<lambda>i. ValN\<cdot>n) \<in> unlr PE.delta"
   "f 1 = \<bottom> \<Longrightarrow> f \<in> unlr PE.delta"
   "f 2 = \<bottom> \<Longrightarrow> f \<in> unlr PE.delta"
-  "\<lbrakk> \<And>xs. xs \<in> unlr PE.delta \<Longrightarrow> (\<lambda>j. (fs j)\<cdot>(xs j)) \<in> unlr PE.delta \<rbrakk> \<Longrightarrow> (\<lambda>i. ValF\<cdot>(fs i)) \<in> unlr PE.delta"
+  "\<lbrakk> \<And>xs. xs \<in> unlr PE.delta \<Longrightarrow> (\<lambda>j. (fs j)\<cdot>(xs j)) \<in> unlr PE.delta \<rbrakk> \<Longrightarrow> (\<lambda>i. ValF\<cdot>(fs i)) \<in> unlr PE.delta"find_theorems name:".member." assert_nth_true 44 (*!*)(*This is unfortunate.*)
   by (subst PE.delta_sol, simp, subst PE_lf_rep_def,
       fastforce simp: PE_base_lf_rep_def fn_lf_rep_def eta_cfun cfcomp1)+
 
@@ -1218,7 +1218,7 @@ lemma PEE:
      (a 1 = \<bottom> \<Longrightarrow> P);
      (a 2 = \<bottom> \<Longrightarrow> P);
      (\<And>fs. \<lbrakk> a = (\<lambda>j. ValF\<cdot>(fs j)); \<And>xs. xs \<in> unlr PE.delta \<Longrightarrow> (\<lambda>j. (fs j)\<cdot>(xs j)) \<in> unlr PE.delta \<rbrakk> \<Longrightarrow> P)
-   \<rbrakk> \<Longrightarrow> P"
+   \<rbrakk> \<Longrightarrow> P"assert_nth_false 44
   apply (subst (asm) PE.delta_sol)
   apply simp
   apply (subst (asm) PE_lf_rep_def)
@@ -1228,7 +1228,7 @@ lemma PEE:
 lemma PEE_strict_appI:
   assumes "xs \<in> unlr PE.delta"
   assumes "\<And>xs. xs \<in> unlr PE.delta \<Longrightarrow> (\<lambda>j. fs j\<cdot>(xs j)) \<in> unlr PE.delta"
-  shows "(\<lambda>j. strictify\<cdot>(fs j)\<cdot>(xs j)) \<in> unlr PE.delta"
+  shows "(\<lambda>j. strictify\<cdot>(fs j)\<cdot>(xs j)) \<in> unlr PE.delta"assert_nth_true 44 (*!*) (*This is unfortunate*)
   using assms
   apply -
   apply (erule PEE)

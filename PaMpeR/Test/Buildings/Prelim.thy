@@ -1021,7 +1021,7 @@ proof (
     by    force
 qed
 
-lemma subset: "Q\<subseteq>P \<Longrightarrow> OrderingSetMap (op \<^bold>\<le>) (op \<^bold><) (op \<^bold>\<le>*) (op \<^bold><*) Q f"
+lemma subset: "Q\<subseteq>P \<Longrightarrow> OrderingSetMap (op \<^bold>\<le>) (op \<^bold><) (op \<^bold>\<le>*) (op \<^bold><*) Q f" find_theorems name:"OrderingSetMap"
   using ordsetmap by unfold_locales fast
 
 lemma dual:

@@ -605,7 +605,7 @@ abbreviation "res_fold_A \<equiv> restrict1 fold_A (\<Union>A)"
 abbreviation "opp_fold_A \<equiv> canonical_retraction A C \<circ> canonical_retraction B' D"
 abbreviation "res_opp_fold_A \<equiv> restrict1 opp_fold_A (\<Union>A)"
 
-lemma rotate: "ChamberComplexApartmentSystemTriangle X \<A> B' A B D E C z"
+lemma rotate: "ChamberComplexApartmentSystemTriangle X \<A> B' A B D E C z" find_theorems name:"axioms" name:"ChamberComplexApartmentSystemTriangle"
   using apartments chambers facet in_apartments chambers_ne
   by    unfold_locales auto
 

@@ -1,7 +1,7 @@
 section {* The Consensus Data Type *}
 
 theory Consensus
-imports RDR
+imports RDR "../Assertion_Checker"
 begin
 
 text {* This theory provides a model for the RDR locale, thus showing 
@@ -52,7 +52,7 @@ qed
 lemma prec_eq_None_or_equal:
 fixes s1 s2
 assumes "s1 \<preceq> s2"
-shows "s1 = None \<or> s1 = s2" using assms single_use  
+shows "s1 = None \<or> s1 = s2" assert_nth_false 44 using assms single_use
 proof -
   { assume 1:"s1 \<noteq> None" and 2:"s1 \<noteq> s2"
     obtain r rs where 3:"s1 = \<bottom> \<star> ([r]@rs)" using bot using 1
@@ -67,7 +67,7 @@ proof -
   thus ?thesis by blast
 qed
 
-interpretation RDR \<delta> \<gamma> \<bottom>
+interpretation RDR \<delta> \<gamma> \<bottom> find_theorems name:".RDR." find_consts name:".RDR." assert_nth_true 44
 proof (unfold_locales)
   fix s r 
   assume "contains s r"

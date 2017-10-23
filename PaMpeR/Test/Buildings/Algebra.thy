@@ -143,7 +143,7 @@ context monoid_add
 begin
 
 sublocale nataction: power 0 plus .
-sublocale add_mult_translate: monoid_mult 0 plus
+sublocale add_mult_translate: monoid_mult 0 plus find_theorems name:"monoid_mult" name:"axiom"
   by unfold_locales (auto simp add: add.assoc)
 
 abbreviation nataction :: "'a \<Rightarrow> nat \<Rightarrow> 'a" (infix "+^" 80)
@@ -825,7 +825,7 @@ locale    Group =
   assumes nonempty   : "G \<noteq> {}"
   and     diff_closed: "\<And>g h. g \<in> G \<Longrightarrow> h \<in> G \<Longrightarrow> g - h \<in> G"
 begin
-
+print_theorems
 abbreviation Subgroup :: "'g set \<Rightarrow> bool"
   where "Subgroup H \<equiv> Group H \<and> H \<subseteq> G"
 
@@ -992,7 +992,7 @@ lemma Abs_G_perm_diff:
   by    simp
 
 lemma Group: "Group pG"
-  using identity(1) Abs_G_perm_diff the_inverseD(1) closed by unfold_locales auto
+  using identity(1) Abs_G_perm_diff the_inverseD(1) closed find_theorems name:"Group" name:"axioms" name:"local." by unfold_locales auto
 
 lemma inj_on_\<pp>_G: "inj_on \<pp> G"
 proof (rule inj_onI)
@@ -1126,7 +1126,7 @@ inductive_set genby :: "'a::group_add set \<Rightarrow> 'a set" ("\<langle>_\<ra
     | genby_diff_closed  : "w\<in>\<langle>S\<rangle> \<Longrightarrow> w'\<in>\<langle>S\<rangle> \<Longrightarrow> w - w' \<in> \<langle>S\<rangle>"
 
 lemma genby_Group: "Group \<langle>S\<rangle>"
-  using genby_0_closed genby_diff_closed by unfold_locales fast
+  using genby_0_closed genby_diff_closed find_theorems name:"Group" name:"Algebra" name:"intro" by unfold_locales fast
 
 lemmas genby_uminus_closed             = Group.uminus_closed     [OF genby_Group]
 lemmas genby_add_closed                = Group.add_closed        [OF genby_Group]
@@ -1347,7 +1347,7 @@ lemma im_lconjby: "T (lconjby x g) = lconjby (T x) (T g)"
 
 lemma restrict0:
   assumes "Group G"
-  shows   "GroupHom G (restrict0 T G)" assert_nth_true 43
+  shows   "GroupHom G (restrict0 T G)" assert_nth_true 43 find_theorems name:"Group" name:"Algebra" name:"axioms"
 proof (intro_locales, rule assms, unfold_locales)
   from hom 
     show  "\<And>g g'. g \<in> G \<Longrightarrow> g' \<in> G \<Longrightarrow>
@@ -1361,7 +1361,7 @@ end (* context UGroupHom *)
 
 lemma UGroupHomI:
   assumes "\<And>g g'. T (g + g') = T g + T g'"
-  shows   "UGroupHom T"
+  shows   "UGroupHom T" find_theorems name:"UGroupHom" name:"" name:"axioms"
   using   assms
   by      unfold_locales auto
 
@@ -1372,7 +1372,7 @@ locale GroupIso = GroupHom G T
 
 lemma (in GroupHom) isoI:
   assumes "\<And>k. k\<in>G \<Longrightarrow> T k = 0 \<Longrightarrow> k=0"
-  shows   "GroupIso G T"
+  shows   "GroupIso G T" find_theorems name:".GroupIso." name:"" name:"axioms"
 proof (unfold_locales, rule inj_onI)
   fix x y from assms show "\<lbrakk> x\<in>G; y\<in>G; T x = T y \<rbrakk> \<Longrightarrow> x = y"
     using im_diff diff_closed by force
@@ -1388,7 +1388,7 @@ abbreviation (in BinOpSetGroup) "lift_hom T \<equiv> restrict0 (T \<circ> \<ii>\
 lemma (in BinOpSetGroup) lift_hom:
   fixes T :: "'a \<Rightarrow> 'b::group_add"
   assumes "\<forall>g\<in>G. \<forall>h\<in>G. T (binop g h) = T g + T h"
-  shows   "GroupHom pG (lift_hom T)"
+  shows   "GroupHom pG (lift_hom T)" find_theorems name:".GroupHom." name:"" name:"axioms"
 proof (intro_locales, rule Group, unfold_locales)
   from assms
     show  "\<And>x y. x\<in>pG \<Longrightarrow> y\<in>pG \<Longrightarrow>
