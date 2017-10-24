@@ -41,7 +41,7 @@ fun (m liftM f) = Option.map f m;
 (* The first subgoal has a constant that satisfies the given assertion. *)
 fun fst_subg_has_const_of (goal:thm) (assert:string -> bool) = goal
   |>    Isabelle_Utils.get_1st_subg
-  liftM Term.exists_Const (assert o (fn x => (tracing x; x)) o fst)
+  liftM Term.exists_Const (assert o fst)
   |>    Utils.is_some_true: bool;
 
 (* const_all_assert checks if all constant meet given criteria *)
