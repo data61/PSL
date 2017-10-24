@@ -296,6 +296,9 @@ fun has_const_prefixed_with_Real goal _ = AU.fst_subg_has_const_prefixed_with go
 (* ASSERT 20. checks if there is a constant with prefix "List" in the first subgoal *)
 fun has_const_prefixed_with_List goal _ = AU.fst_subg_has_const_prefixed_with goal "List";
 
+(* ASSERT 49. checks if there is a constant with prefix "Set" in the first subgoal *)
+fun has_const_prefixed_with_Set goal _ = AU.fst_subg_has_const_prefixed_with goal "Set";
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt =
@@ -343,6 +346,15 @@ fun outermost_is_hol_all goal _ = AU.outermost_const_name_in_1st_subg_is goal "H
 
 (* ASSERT 32. checks if the outermost construct in the first subgoal is the HOL existential quantifier. *)
 fun outermost_is_hol_ex goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.Ex";
+
+(* ASSERT 46. checks if the outermost construct in the first subgoal is the HOL conjunction. *)
+fun outermost_is_hol_and goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.conj";
+
+(* ASSERT 47. checks if the outermost construct in the first subgoal is the HOL disjunction. *)
+fun outermost_is_hol_or goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.disj";
+
+(* ASSERT 48. checks if the outermost construct in the first subgoal is the HOL Not. *)
+fun outermost_is_hol_not goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.Not";
 
 (* ASSERT 15. checks if the outermost construct in the first suboal is a function that is not fully applied yet. *)
 fun outermost_is_fun_not_fully_applied goal _ =
@@ -458,7 +470,11 @@ val assertions =
 (*42*)  is_instance_proof,
 (*43*)  is_locale_intro2,
 (*44*)  is_unfold_locale,
-(*45*)  fst_subg_has_word]
+(*45*)  fst_subg_has_word,
+(*46*)  outermost_is_hol_and,
+(*47*)  outermost_is_hol_or,
+(*48*)  outermost_is_hol_not,
+(*49*)  has_const_prefixed_with_Set]
 
 (* check if there is a constant with prefix real *)
 fun const_real (goal, _) = 

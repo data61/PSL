@@ -89,7 +89,6 @@ end;
 
 ML{* Assertion_Checker.activate_assertion_checker ();*}
 
-
 lemma "[1] = [1]"
   assert_nth_true 20 (*!*)
   oops
@@ -98,6 +97,11 @@ find_theorems name:"Num"
 lemma "a * Numeral1 = a"
   assert_nth_true 11 (*Num*)
   assert_nth_false 12 (*lift_definition*)
+  oops
+
+lemma "1 \<in> {1,2}"
+  assert_nth_true 49
+  assert_nth_true 44 (*!*) (*This is unfortunate.*)
   oops
 
 end

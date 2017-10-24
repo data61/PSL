@@ -51,11 +51,21 @@ lemma "case True of True \<Rightarrow> True | _ \<Rightarrow> True"
 
 lemma "x \<and> x"
   assert_nth_false 3
+  assert_nth_true 46
+  oops
+
+lemma "x \<or> x"
+  assert_nth_true 47
+  oops
+
+lemma "\<not> False"
+  assert_nth_true 48
   oops
 
 lemma "\<And>x. x \<and> x"
   assert_nth_false 4
-    assert_nth_true 30
+  assert_nth_true 30
+  assert_nth_false 46
     oops
 
 lemma "x \<Longrightarrow> x"

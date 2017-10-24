@@ -6,7 +6,7 @@
 theory Decision_Tree
   imports Main
 begin
-
+lemma "x \<and> y" oops ML{* @{term "HOL.conj"}*}
 ML_file "../src/Utils.ML"
 ML_file "../src/Parser_Combinator.ML"
 
