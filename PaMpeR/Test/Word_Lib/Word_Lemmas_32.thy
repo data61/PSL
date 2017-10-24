@@ -253,7 +253,7 @@ lemma le_step_down_word_3:
   by (rule le_step_down_word_2, assumption+)
 
 lemma shiftr_1:
-  "(x::word32) >> 1 = 0 \<Longrightarrow> x < 2"
+  "(x::word32) >> 1 = 0 \<Longrightarrow> x < 2" assert_nth_true 3 assert_nth_true 4 assert_nth_true 45
   by word_bitwise clarsimp
 
 lemma has_zero_byte:

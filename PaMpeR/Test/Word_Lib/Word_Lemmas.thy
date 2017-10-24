@@ -29,7 +29,7 @@ quickcheck_generator word
 instantiation Enum.finite_1 :: len
 begin
   definition "len_of_finite_1 (x :: Enum.finite_1 itself) \<equiv> (1 :: nat)"
-  instance
+  instance assert_nth_true 42
     by (standard, auto simp: len_of_finite_1_def)
 end
 
@@ -65,11 +65,11 @@ instantiation word :: (len) wellorder
 begin
 instance by (intro_classes) (metis word_less_induct)
 end
-
+declare[[show_types,show_consts,show_sorts]]
 lemma word_plus_mono_left:
   fixes x :: "'a :: len word"
   shows "\<lbrakk>y \<le> z; x \<le> x + z\<rbrakk> \<Longrightarrow> y + x \<le> z + x" assert_nth_true 45
-  by unat_arith
+  by unat_arith ML{* @{term "less_eq"}; @{term "greater_eq"}; @{term "less"}; @{term greater}; @{term plus};*}
 
 lemma word_2p_mult_inc:
   assumes x: "2 * 2 ^ n < (2::'a::len word) * 2 ^ m"
@@ -964,22 +964,22 @@ lemma is_aligned_0'[simp]:
 
 lemma p_assoc_help:
   fixes p :: "'a::{ring,power,numeral,one}"
-  shows "p + 2^sz - 1 = p + (2^sz - 1)"
+  shows "p + 2^sz - 1 = p + (2^sz - 1)" assert_nth_true 4(*!*)
   by simp
 
 lemma word_add_increasing:
   fixes x :: "'a :: len word"
-  shows "\<lbrakk> p + w \<le> x; p \<le> p + w \<rbrakk> \<Longrightarrow> p \<le> x"
+  shows "\<lbrakk> p + w \<le> x; p \<le> p + w \<rbrakk> \<Longrightarrow> p \<le> x"assert_nth_true 4
   by unat_arith
 
 lemma word_random:
   fixes x :: "'a :: len word"
-  shows "\<lbrakk> p \<le> p + x'; x \<le> x' \<rbrakk> \<Longrightarrow> p \<le> p + x"
+  shows "\<lbrakk> p \<le> p + x'; x \<le> x' \<rbrakk> \<Longrightarrow> p \<le> p + x"assert_nth_true 4
   by unat_arith
 
 lemma word_sub_mono:
   "\<lbrakk> a \<le> c; d \<le> b; a - b \<le> a; c - d \<le> c \<rbrakk>
-    \<Longrightarrow> (a - b) \<le> (c - d :: 'a :: len word)"
+    \<Longrightarrow> (a - b) \<le> (c - d :: 'a :: len word)"assert_nth_true 4
   by unat_arith
 
 lemma power_not_zero:
@@ -1162,11 +1162,11 @@ next
 qed
 
 lemma word_plus_mcs_4:
-  "\<lbrakk>v + x \<le> w + x; x \<le> v + x\<rbrakk> \<Longrightarrow> v \<le> (w::'a::len word)"
+  "\<lbrakk>v + x \<le> w + x; x \<le> v + x\<rbrakk> \<Longrightarrow> v \<le> (w::'a::len word)"assert_nth_true 4
   by uint_arith
 
 lemma word_plus_mcs_3:
-  "\<lbrakk>v \<le> w; x \<le> w + x\<rbrakk> \<Longrightarrow> v + x \<le> w + (x::'a::len word)"
+  "\<lbrakk>v \<le> w; x \<le> w + x\<rbrakk> \<Longrightarrow> v + x \<le> w + (x::'a::len word)"assert_nth_true 4
   by unat_arith
 
 lemma aligned_neq_into_no_overlap:
@@ -4026,7 +4026,7 @@ lemma bitfield_op_twice'':
   done
 
 lemma bit_twiddle_min:
-  "(y::'a::len word) xor (((x::'a::len word) xor y) && (if x < y then -1 else 0)) = min x y"
+  "(y::'a::len word) xor (((x::'a::len word) xor y) && (if x < y then -1 else 0)) = min x y" assert_nth_false 3 assert_nth_true 4 assert_nth_true 45
   by (metis (mono_tags) min_def word_bitwise_m1_simps(2) word_bool_alg.xor_left_commute 
              word_bool_alg.xor_self word_bool_alg.xor_zero_right word_bw_comms(1)
              word_le_less_eq word_log_esimps(7))

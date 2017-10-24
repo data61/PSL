@@ -50,11 +50,11 @@ lemma "case True of True \<Rightarrow> True | _ \<Rightarrow> True"
   by simp_all
 
 lemma "x \<and> x"
-  assert_nth_true 3
+  assert_nth_false 3
   oops
 
 lemma "\<And>x. x \<and> x"
-  assert_nth_true 4
+  assert_nth_false 4
     assert_nth_true 30
     oops
 
@@ -83,10 +83,6 @@ lemma "(\<forall>x. True \<and> x) \<and> True"
 lemma "(\<exists>x. True \<and> x)"
   assert_nth_false 39
   oops
-
-lemma "[1] = [1]"
-  assert_nth_true 20 (*!*)
-    oops
 
 lemma "True \<and> (\<forall>x. x =x)"
   assert_nth_true 38
@@ -121,7 +117,7 @@ lemma "True \<or> False" "\<forall>x. True \<or> x"
   assert_nth_false 31
   asserts_check [0,0,0,0]
   defer
-  asserts_check [0,0,0,0](*The fourth assertion is broken?*)
+  asserts_check [0,0,0,0]
   assert_nth_true 31
   by auto
 
@@ -173,12 +169,6 @@ lemma
   find_theorems name:"my_ass"
   assert_nth_true 1 (*local assumption*)
   assert_nth_false 11 (*Num*)
-  oops
-
-find_theorems name:"Num"
-lemma "a * Numeral1 = a"
-  assert_nth_true 11 (*Num*)
-  assert_nth_false 12 (*lift_definition*)
   oops
 
 end

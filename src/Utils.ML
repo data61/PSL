@@ -15,6 +15,8 @@ sig
   val pair_to_list   : 'a * 'a -> 'a list;
   val list_to_pair   : 'a list -> 'a * 'a;
   val bool_to_real   : bool -> real;
+  val is_some_true   : bool option -> bool;
+  val eq             : ''a -> ''a -> bool;
   val init           : 'a list -> 'a list;
   val intersperse    : 'a -> 'a list -> 'a list;
   val is_in_paren    : string -> bool;
@@ -55,6 +57,10 @@ fun list_to_pair [a,b] = (a,b)
  |  list_to_pair _ = error "list_to_pair failed. The length of lsit is not two.";
 
 fun bool_to_real b = if b then 1.0 else 0.0;
+
+fun is_some_true maybe = Option.getOpt (maybe, false);
+
+val eq = (fn x => is_some_true o (try (equal x))): ''a -> ''a -> bool;
 
 fun init [] = error "init failed. empty list"
  |  init xs = take (length xs - 1) xs;
@@ -241,14 +247,16 @@ end;
 signature ISABELLE_UTILS =
 sig
   datatype where_in_thm = Fst_Subg | Concl | All_Subg;
+  val if_solved                     : thm -> 'a -> 'a -> 'a;
+  val fst_qualifier                 : string -> string;
   val get_1st_subg                  : thm -> term option;
   val flatten_trm                   : term -> term list;
   val get_trms_in_thm               : thm -> term list;
   val get_trm_in                    : where_in_thm -> thm -> term option;(*Should it return a list of term?*)
-  val get_const_names_in_trm        : term -> string list;
+  val get_cnames_in_trm             : term -> string list;
   val get_typ_names_in_trm          : term -> string list;
-  val get_const_names_in_thm        : thm -> string list;
-  val get_const_names_in_1st_subg   : thm -> string list;
+  val get_cnames_in_thm             : thm -> string list;
+  val get_cnames_in_1st_subg        : thm -> string list;
   val get_abs_names_in_trm          : term -> string list;
   val get_abs_names_in_thm          : thm -> string list;
   val get_abs_name_in_1st_subg      : thm -> string list;
@@ -270,6 +278,12 @@ end;
 structure Isabelle_Utils : ISABELLE_UTILS  =
 struct
 
+fun if_solved (goal:thm) then_clause else_clause =
+  if Thm.nprems_of goal = 0 then then_clause else else_clause;
+
+(*fst_qualifier "abc.def.ghi" = "abc"*)
+fun fst_qualifier (lname:string) = Option.getOpt (lname |> Long_Name.explode |> try hd, "");
+
 fun get_1st_subg (goal:thm) = (SOME o hd) (Thm.prems_of goal) handle Empty => NONE : term option;
 
 fun flatten_trm (trm1 $ trm2) = flat [flatten_trm trm1, flatten_trm trm2]
@@ -283,14 +297,14 @@ fun get_trm_in Fst_Subg g = get_1st_subg g
   | get_trm_in All_Subg g = try (Logic.mk_conjunction_list o Thm.prems_of) g
   | get_trm_in Concl    g = try Thm.concl_of g: term option;
 
-fun get_const_names_in_trm (trm:term) = Term.add_const_names trm []: string list;
+fun get_cnames_in_trm (trm:term) = Term.add_const_names trm []: string list;
 
-fun get_const_names_in_thm thm = thm
+fun get_cnames_in_thm thm = thm
   |> Thm.cprop_of
   |> Thm.term_of
   |> (fn subg:term => Term.add_const_names subg []);
 
-fun get_const_names_in_1st_subg (goal:thm) = goal
+fun get_cnames_in_1st_subg (goal:thm) = goal
   |> get_1st_subg
   |> Option.map (fn subg:term => Term.add_const_names subg [])
   |> these;
@@ -483,8 +497,8 @@ fun get_rule_names (get_rules:context -> thm -> (ref * thm) list) ctxt goal =
 
 fun get_simp_rules (ctxt:context) (goal:thm) =
   let
-    val const_names   = Isabelle_Utils.get_const_names_in_1st_subg goal;
-    val related_rules = some_names_to_rules "" const_names ctxt goal;
+    val cnames   = Isabelle_Utils.get_cnames_in_1st_subg goal;
+    val related_rules = some_names_to_rules "" cnames ctxt goal;
     val simpset_thms  = ctxt |> simpset_of |> Raw_Simplifier.dest_ss |> #simps |> map snd;
     fun eq_test (thm1, (_, thm2)) = Thm.eq_thm (thm1, thm2);
     val unique_rules  = subtract eq_test simpset_thms related_rules;
@@ -496,8 +510,8 @@ fun get_simp_rule_names ctxt goal = get_rule_names get_simp_rules ctxt goal : st
 
 fun get_induct_rules (ctxt:context) (goal:thm) =
   let
-    val const_names  = Isabelle_Utils.get_const_names_in_1st_subg goal : string list;
-    val induct_rules = some_names_to_rules ".induct" const_names ctxt goal;
+    val cnames  = Isabelle_Utils.get_cnames_in_1st_subg goal : string list;
+    val induct_rules = some_names_to_rules ".induct" cnames ctxt goal;
   in
     induct_rules : (Facts.ref * thm) list
   end;
@@ -505,8 +519,8 @@ fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal 
 
 fun get_coinduction_rules (ctxt:context) (goal:thm) =
   let
-    val const_names   = Isabelle_Utils.get_const_names_in_1st_subg goal : string list;
-    fun get_coinduct_rules post = some_names_to_rules post const_names ctxt goal;
+    val cnames                  = Isabelle_Utils.get_cnames_in_1st_subg goal : string list;
+    fun get_coinduct_rules post = some_names_to_rules post cnames ctxt goal;
     val coinduct_rules1 = get_coinduct_rules ".coinduct";
     val coinduct_rules2 = get_coinduct_rules ".coinduct_strong";
   in
@@ -524,7 +538,7 @@ fun get_dest_rule_names  ctxt goal = get_rule_names get_dest_rules  ctxt goal : 
 
 fun get_split_rules ctxt goal =
   let
-    (*For split, we need to use typ_names instead of const_names.*)
+    (*For split, we need to use typ_names instead of cnames.*)
     val used_typ_names = Isabelle_Utils.get_typ_names_in_1st_subg goal;
     val related_rules  = some_names_to_rules "split" used_typ_names ctxt goal
   in
