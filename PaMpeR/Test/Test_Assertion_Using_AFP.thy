@@ -41,7 +41,7 @@ lemma
   assert_nth_true 1
   assert_nth_false 2
   assert_nth_true 1
-  asserts_check [1, 0, 0](* Something went wrong.*)
+  asserts_check [1, 0, 0]
     apply simp
   done
 
