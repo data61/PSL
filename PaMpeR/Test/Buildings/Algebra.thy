@@ -13,13 +13,13 @@ begin
 
 subsection {* Miscellaneous algebra facts *}
 
-lemma times2_conv_add: "(j::nat) + j = 2*j"
+lemma times2_conv_add: "(j::nat) + j = 2*j"assert_nth_true 50
   by (induct j) auto
 
-lemma (in comm_semiring_1) odd_n0: "odd m \<Longrightarrow> m\<noteq>0"
+lemma (in comm_semiring_1) odd_n0: "odd m \<Longrightarrow> m\<noteq>0"assert_nth_true 50
   using dvd_0_right by fast
 
-lemma (in semigroup_add) add_assoc4: "a + b + c + d = a + (b + c + d)"
+lemma (in semigroup_add) add_assoc4: "a + b + c + d = a + (b + c + d)"assert_nth_false 50
   using add.assoc by simp
 
 lemmas (in monoid_add) sum_list_map_cong =
@@ -27,12 +27,12 @@ lemmas (in monoid_add) sum_list_map_cong =
 
 context group_add
 begin
-
+term "1::int"
 lemma map_uminus_order2:
-  "\<forall>s\<in>set ss. s+s=0 \<Longrightarrow> map (uminus) ss = ss"
+  "\<forall>s\<in>set ss. s+s=0 \<Longrightarrow> map (uminus) ss = ss"assert_nth_false 43 assert_nth_true 14 assert_nth_true 50
   by (induct ss) (auto simp add: minus_unique)
 
-lemma uminus_sum_list: "- sum_list as = sum_list (map uminus (rev as))"
+lemma uminus_sum_list: "- sum_list as = sum_list (map uminus (rev as))"assert_nth_true 50 assert_nth_false 5
   by (induct as) (auto simp add: minus_add)
 
 lemma uminus_sum_list_order2:
@@ -55,7 +55,7 @@ typedef 'a permutation = "{f::'a\<Rightarrow>'a. bij f}"
   morphisms permutation Abs_permutation
   by fast
 
-setup_lifting type_definition_permutation
+setup_lifting type_definition_permutation print_theorems
 
 abbreviation permutation_apply :: "'a permutation \<Rightarrow> 'a \<Rightarrow> 'a " (infixr "\<rightarrow>" 90)
   where "p \<rightarrow> a \<equiv> permutation p a"
@@ -63,13 +63,13 @@ abbreviation permutation_image :: "'a permutation \<Rightarrow> 'a set \<Rightar
   (infixr "`\<rightarrow>" 90)
   where "p `\<rightarrow> A \<equiv> permutation p ` A"
 
-lemma permutation_eq_image: "a `\<rightarrow> A = a `\<rightarrow> B \<Longrightarrow> A=B"
+lemma permutation_eq_image: "a `\<rightarrow> A = a `\<rightarrow> B \<Longrightarrow> A=B" assert_nth_false 50
   using permutation[of a] inj_eq_image[OF bij_is_inj] by auto
 
 instantiation permutation :: (type) zero
 begin
 lift_definition zero_permutation :: "'a permutation" is "id::'a\<Rightarrow>'a" by simp
-instance ..
+instance assert_nth_false 50 assert_nth_true 42 ..
 end
 
 instantiation permutation :: (type) plus
@@ -279,7 +279,7 @@ primrec sums :: "'a list \<Rightarrow> 'a list"
     "sums [] = [0]"
   | "sums (x#xs) = 0 # map (op + x) (sums xs)"
 
-lemma length_sums: "length (sums xs) = Suc (length xs)"
+lemma length_sums: "length (sums xs) = Suc (length xs)"assert_nth_true 50 assert_nth_false 4
   by (induct xs) auto
 
 lemma sums_snoc: "sums (xs@[x]) = sums xs @ [sum_list (xs@[x])]"
@@ -294,13 +294,13 @@ next
 qed
 
 lemma sums_Cons_conv_append_tl:
-  "sums (x#xs) = 0 # x # map (op + x) (tl (sums xs))"
+  "sums (x#xs) = 0 # x # map (op + x) (tl (sums xs))" assert_nth_true 8
   by (cases xs) auto
 
 lemma pullback_sums_map_middle2:
   "map F (sums xs) = ds@[d,e]@es \<Longrightarrow>
     \<exists>as a bs. xs = as@[a]@bs \<and> map F (sums as) = ds@[d] \<and>
-      d = F (sum_list as) \<and> e = F (sum_list (as@[a]))"
+      d = F (sum_list as) \<and> e = F (sum_list (as@[a]))" assert_nth_true 8 assert_nth_true 50
 proof (induct xs es rule: list_induct2_snoc)
   case (Nil2 xs)
   show ?case
@@ -432,7 +432,7 @@ abbreviation lconjby :: "'a\<Rightarrow>'a\<Rightarrow>'a"
 abbreviation rconjby :: "'a\<Rightarrow>'a\<Rightarrow>'a"
   where "rconjby x y \<equiv> -x+y+x"
 
-lemma lconjby_add: "lconjby (x+y) z = lconjby x (lconjby y z)"
+lemma lconjby_add: "lconjby (x+y) z = lconjby x (lconjby y z)"assert_nth_true 27
   by (auto simp add: algebra_simps)
 
 lemma rconjby_add: "rconjby (x+y) z = rconjby y (rconjby x z)"
@@ -519,7 +519,7 @@ primrec lconjseq :: "'a list \<Rightarrow> 'a list"
     "lconjseq []     = []"
   | "lconjseq (x#xs) = x # (map (lconjby x) (lconjseq xs))"
 
-lemma length_lconjseq: "length (lconjseq xs) = length xs"
+lemma length_lconjseq: "length (lconjseq xs) = length xs" assert_nth_true 50
   by (induct xs) auto
 
 lemma lconjseq_snoc: "lconjseq (xs@[x]) = lconjseq xs @ [lconjby (sum_list xs) x]"
@@ -673,7 +673,7 @@ lemma signed_rconjaction_by_order2_eq_lconjaction:
         rconjby_order2_eq_lconjby[of s]
   by    auto
 
-lemma inj_signed_lconjaction: "inj (signed_lconjaction s)"
+lemma inj_signed_lconjaction: "inj (signed_lconjaction s)"assert_nth_false 27
 proof (rule injI)
   fix x y assume 1: "signed_lconjaction s x = signed_lconjaction s y"
   moreover obtain a1 a2 :: 'a and b1 b2 :: bool

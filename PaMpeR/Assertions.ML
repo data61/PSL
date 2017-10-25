@@ -191,6 +191,9 @@ fun check_local_assms _ ctxt = ctxt
 (* ASSERT 05. checks if the proof context contains a "pinduct" rule associated with a constant in the first subgoal. *)
 fun fact_pinduct goal ctxt = AU.has_thms_with_suffixes goal ctxt ["pinduct"]
 
+(* ASSERT 50. checks if the proof context contains a "induct" rule associated with a constant in the first subgoal. *)
+fun fact_induct goal ctxt = AU.has_thms_with_suffixes goal ctxt ["induct"]
+
 (* ASSERT 06. checks if the proof context contains a "psimp" rule associated with a constant in the first subgoal. *)
 fun fact_psimp   goal ctxt = AU.has_thms_with_suffixes goal ctxt ["psimps"]
 
@@ -298,6 +301,12 @@ fun has_const_prefixed_with_List goal _ = AU.fst_subg_has_const_prefixed_with go
 
 (* ASSERT 49. checks if there is a constant with prefix "Set" in the first subgoal *)
 fun has_const_prefixed_with_Set goal _ = AU.fst_subg_has_const_prefixed_with goal "Set";
+
+(* ASSERT 51. checks if there is a constant with prefix "Nat" in the first subgoal *)
+fun has_const_prefixed_with_Nat goal _ = AU.fst_subg_has_const_prefixed_with goal "Nat";
+
+(* ASSERT 52. checks if there is a constant with prefix "Int" in the first subgoal *)
+fun has_const_prefixed_with_Int goal _ = AU.fst_subg_has_const_prefixed_with goal "Int";
 
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
@@ -474,7 +483,10 @@ val assertions =
 (*46*)  outermost_is_hol_and,
 (*47*)  outermost_is_hol_or,
 (*48*)  outermost_is_hol_not,
-(*49*)  has_const_prefixed_with_Set]
+(*49*)  has_const_prefixed_with_Set,
+(*50*)  fact_induct,
+(*51*)  has_const_prefixed_with_Nat,
+(*52*)  has_const_prefixed_with_Int]
 
 (* check if there is a constant with prefix real *)
 fun const_real (goal, _) = 

@@ -72,10 +72,10 @@ inductive_cases [elim!]: "in_cfls P (a # w)"
 
 declare inj_eq[OF bij_is_inj[OF to_language_bij], simp]
 
-lemma subst_in_cfls: "subst P = to_language {w. in_cfls P w}"assert_nth_true 13
+lemma subst_in_cfls: "subst P = to_language {w. in_cfls P w}"assert_nth_true 13 assert_nth_false 4 assert_nth_true 50
   by (coinduction arbitrary: P) (auto intro: in_cfls.intros)
 
-lemma \<oo>\<^sub>P_in_cfl: "\<oo>\<^sub>P \<alpha> \<Longrightarrow> in_cfl \<alpha> []"
+lemma \<oo>\<^sub>P_in_cfl: "\<oo>\<^sub>P \<alpha> \<Longrightarrow> in_cfl \<alpha> []" assert_nth_true 50 find_theorems name:"pinduct"
   by (induct \<alpha> rule: \<oo>\<^sub>P.induct) (auto intro!: in_cfl.intros elim: fBexI[rotated])
 
 lemma \<dd>\<^sub>P_in_cfl: "\<beta> |\<in>| \<dd>\<^sub>P \<alpha> a \<Longrightarrow> in_cfl \<beta> w \<Longrightarrow> in_cfl \<alpha> (a # w)" assert_nth_false 13
@@ -91,7 +91,7 @@ lemma in_cfls_in_cfl: "in_cfls P w \<Longrightarrow> fBex P (\<lambda>\<alpha>. 
     (auto simp: \<oo>\<^sub>P_in_cfl \<dd>\<^sub>P_in_cfl ffUnion.rep_eq fmember.rep_eq fBex.rep_eq fBall.rep_eq
       intro: in_cfl.intros elim: rev_bexI)
 
-lemma in_cfls_mono: "in_cfls P w \<Longrightarrow> P |\<subseteq>| Q \<Longrightarrow> in_cfls Q w"assert_nth_false 13
+lemma in_cfls_mono: "in_cfls P w \<Longrightarrow> P |\<subseteq>| Q \<Longrightarrow> in_cfls Q w"assert_nth_false 13 assert_nth_true 50
 proof (induct P w arbitrary: Q rule: in_cfls.induct)
   case (2 a P w)
   from 2(3) 2(2)[of "ffUnion ((\<lambda>\<alpha>. local.\<dd>\<^sub>P \<alpha> a) |`| Q)"] show ?case
