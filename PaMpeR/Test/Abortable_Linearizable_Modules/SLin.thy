@@ -13,7 +13,7 @@ datatype ('a,'b,'c,'d)SLin_action =
 | Switch nat 'b 'c 'a
 | Recover nat
 | Linearize nat
-
+print_theorems find_theorems name:"SLin_action" name:"Rep"
 datatype SLin_status = Sleep | Pending | Ready | Aborted
 
 record ('a,'b,'c)SLin_state = 
@@ -23,7 +23,7 @@ record ('a,'b,'c)SLin_state =
   status :: "'b \<Rightarrow> SLin_status"
   dstate :: 'a
   initialized :: bool
-
+print_theorems find_theorems name:"SLin_state" name:"_ext" name:"Rep"
 locale SLin = RDR + IOA
 begin
 
@@ -142,7 +142,7 @@ definition ioa where
      \<lparr>ioa.asig = asig i j ,
       start = start i,
       trans = trans i j\<rparr>"
-
+print_theorems
 end
 
 end

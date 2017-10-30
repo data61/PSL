@@ -246,13 +246,13 @@ end;
 (*** ISABELLE_UTILS : Utility functions specific to Isabelle/HOL. ***)
 signature ISABELLE_UTILS =
 sig
-  datatype where_in_thm = Fst_Subg | Concl | All_Subg;
+  datatype location = Fst_Subg | Concl | All_Subg;
   val if_solved                     : thm -> 'a -> 'a -> 'a;
   val fst_qualifier                 : string -> string;
   val get_1st_subg                  : thm -> term option;
   val flatten_trm                   : term -> term list;
   val get_trms_in_thm               : thm -> term list;
-  val get_trm_in                    : where_in_thm -> thm -> term option;(*Should it return a list of term?*)
+  val get_trm_in                    : location -> thm -> term option;(*Should it return a list of term?*)
   val get_cnames_in_trm             : term -> string list;
   val get_typ_names_in_trm          : term -> string list;
   val get_cnames_in_thm             : thm -> string list;
@@ -291,7 +291,7 @@ fun flatten_trm (trm1 $ trm2) = flat [flatten_trm trm1, flatten_trm trm2]
 
 fun get_trms_in_thm (thm:thm) = Thm.cprop_of thm |> Thm.term_of |> flatten_trm;
 
-datatype where_in_thm = Fst_Subg | Concl | All_Subg;
+datatype location = Fst_Subg | Concl | All_Subg;
 
 fun get_trm_in Fst_Subg g = get_1st_subg g
   | get_trm_in All_Subg g = try (Logic.mk_conjunction_list o Thm.prems_of) g

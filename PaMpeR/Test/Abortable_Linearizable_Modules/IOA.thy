@@ -54,7 +54,7 @@ record ('s,'a) ioa =
   asig::"'a signature"
   start::"'s set"
   trans::"('s,'a)transition set"
-
+print_theorems
 context IOA 
 begin
 
@@ -97,7 +97,7 @@ inductive
   where
     reachable_0:  "s \<in> start A \<Longrightarrow> reachable A s"
   | reachable_n:  "\<lbrakk> reachable A s; s \<midarrow>a\<midarrow>A\<longrightarrow> t \<rbrakk> \<Longrightarrow> reachable A t"
-
+print_theorems
 definition invariant where 
   "invariant A P \<equiv> (\<forall> s . reachable A s \<longrightarrow> P(s))"
 
@@ -105,7 +105,7 @@ theorem invariantI:
   fixes A P
   assumes "\<And> s . s \<in> start A \<Longrightarrow> P s"
   and "\<And> s t a . \<lbrakk>reachable A s; P s; s \<midarrow>a\<midarrow>A\<longrightarrow> t\<rbrakk> \<Longrightarrow> P t"
-  shows "invariant A P"
+  shows "invariant A P"apply(tactic {* fn g => (Isabelle_Utils.get_typ_names_in_1st_subg g |>  (map tracing); Seq.single g) *})
 proof -
   { fix s
     assume "reachable A s"
@@ -286,11 +286,11 @@ definition append_exec where
 fun last_state where
   "last_state (s,[]) = s"
 | "last_state (s,ps#p) = snd p"
-
+find_theorems name:"IOA.ioa.ioa_ext"
 lemma last_state_reachable:
   fixes A e
   assumes "is_exec_of A e"
-  shows "reachable A (last_state e)" using assms
+  shows "reachable A (last_state e)" apply(tactic {* fn g => (Isabelle_Utils.get_typ_names_in_1st_subg g |>  (map tracing); Seq.single g) *}) using assms
 proof -
   have "is_exec_of A e \<Longrightarrow> reachable A (last_state e)"
   proof (induction "snd e" arbitrary: e)
@@ -325,7 +325,7 @@ lemma trans_from_last_state:
 lemma exec_frag_prefix:
   fixes A p ps
   assumes "is_exec_frag_of A (cons_exec e p)"
-  shows "is_exec_frag_of A e"
+  shows "is_exec_frag_of A e" find_theorems  name:"is_exec_frag_of" name:"cases"
     using assms by (cases "(A, fst e, snd e)" rule:is_exec_frag_of.cases, auto simp add:cons_exec_def)
 
 lemma trace_same_ext:
@@ -382,7 +382,7 @@ qed
 lemma last_state_of_append:
   fixes e e'
   assumes "fst e' = last_state e"
-  shows "last_state (append_exec e e') = last_state e'"
+  shows "last_state (append_exec e e') = last_state e'" find_theorems name:"append_exec" find_theorems name:"last_state"
   using assms by (cases e' rule:last_state.cases, auto simp add:append_exec_def)
 
 end
