@@ -19,16 +19,13 @@ val fst_subg_has_const_of                 : thm -> (string -> bool) -> bool;
 val all_cnames_satisfy                    : thm -> (string -> bool) -> bool;
 val fst_subg_has_const_of_name            : thm -> string -> bool;
 val fst_subg_has_const_prefixed_with      : thm -> string -> bool;
-val outermost_const_name_in_1st_subg_is   : thm -> string -> bool;
+val outermost_cname_in_1st_subg_is        : thm -> string -> bool;
 val fst_subg_has_cname_not_as_outmost     : thm -> string -> bool;
-val get_outmost_cname                     : term -> string option;
-val get_thms_of_name_with_all_substrings  : context -> string list -> thm list;
 val has_thms_of_name_with_all_substrings  : context -> string list -> bool;
 val has_all_substrings_when_printed       : location -> thm -> context -> string list -> bool;
 val has_thms_with_suffixes                : thm -> context -> string list -> bool;
-val get_thms_of_cnames_with_suffix        : context -> string list -> string -> thm list;
-val has_thms_of_cnames_with_suffix        : context -> string list -> string -> bool;
-(*FIXME: Rename Me!*)val get_thms_of_cname_with_all_substrings : thm -> context -> string list -> bool;
+val has_thms_of_lnames_with_suffix        : context -> string list -> string -> bool;
+val has_thms_of_cname_with_all_substrs    : thm -> context -> string list -> bool;
 (*Not very reliable*)
 val is_fun_not_fully_applied              : term -> bool;
 val fst_subg_is_classified_as             : thm -> context -> Spec_Rules.rough_classification -> bool;
@@ -70,28 +67,16 @@ fun fst_subg_has_const_prefixed_with goal (prefix:string) =
     fst_subg_has_const_of goal is_prefixed: bool
   end;
 
-(* get_outmost_cname returns the outermost name of given term. *)
-fun get_outmost_cname (trm:term) =
-  let
-    val cnames              = Isabelle_Utils.get_cnames_in_trm trm: string list;
-    val numb                = length cnames: int;
-    val last_cname          = try (nth cnames) (numb - 1): string option;
-    val snd_last_cname      = try (nth cnames) (numb - 2): string option;
-    val outmost_is_Trueprop = Option.map (equal "HOL.Trueprop") last_cname: bool option;
-  in
-    Option.map (Utils.If (snd_last_cname, last_cname)) outmost_is_Trueprop |> Option.join: string option
-  end;
-
-(* outermost_const_name_in_1st_subg_is checks if the first subgoal has a constant of the given name as the outermost constant. *)
-fun outermost_const_name_in_1st_subg_is (goal:thm) (cname:string) = SOME goal
+(* outermost_cname_in_1st_subg_is checks if the first subgoal has a constant of the given name as the outermost constant. *)
+fun outermost_cname_in_1st_subg_is (goal:thm) (cname:string) = SOME goal
   >>=   Isabelle_Utils.get_1st_subg
-  >>=   get_outmost_cname
+  >>=   Isabelle_Utils.get_outmost_cname
   liftM equal cname
  |>     Utils.is_some_true: bool;
 
 (* fst_subg_has_cname_not_as_outmost checks if the first subgoal has a constant of the given name, but not as the outermost constant. *)
 fun fst_subg_has_cname_not_as_outmost (goal:thm) (cname:string) =
-  fst_subg_has_const_of_name goal cname andalso not (outermost_const_name_in_1st_subg_is goal cname);
+  fst_subg_has_const_of_name goal cname andalso not (outermost_cname_in_1st_subg_is goal cname);
 
 (* is_fun_not_fully_applied checks if the term is a function that is ready to take arguments. *)
 fun is_fun_not_fully_applied (trm:term) = Term.type_of trm |> Term.size_of_typ |> equal 1;
@@ -107,44 +92,26 @@ fun fst_subg_is_classified_as  (goal:thm) (ctxt:context) (rclass:Spec_Rules.roug
     is_classified_as
   end;
 
-(* FIXME: FIX THIS COMMENT: get_thms_of_name_with_all_substrings gets the thms that are named after a base-name of the constant and other given strings. *)
-(* FIXME: This function should be sent to FIND_THEORMES2 *)
-fun get_thms_of_name_with_all_substrings (ctxt:context) (substrs:string list) =
-  let
-    val criterion      = Find_Theorems2.get_criterion "" substrs: (bool * term Find_Theorems2.criterion) list;
-    val relevant_rules = Find_Theorems.find_theorems ctxt NONE NONE true criterion |> snd |> map snd;
-  in
-    relevant_rules: thm list
-  end;
-
 (* has_thms_of_name_with_all_substrings checks if the context contains thms that are named after the base-name of the constant and other strings. *)
 fun has_thms_of_name_with_all_substrings (ctxt:context) (substrs:string list) =
-  get_thms_of_name_with_all_substrings ctxt substrs |> null |> not: bool;
+  Find_Theorems2.get_thms_of_name_with_these_substrs ctxt substrs |> null |> not: bool;
 
-(* get_thms_of_cname_with_all_substrings check if the context has a thm such that its name consists of the base-name of a constant appearing *)
+(* has_thms_of_cname_with_all_substrs check if the context has a thm such that its name consists of the base-name of a constant appearing *)
 (* in the first sub-goal and other specified strings. *)
-fun get_thms_of_cname_with_all_substrings (goal:thm) (ctxt:context) (strs:string list) =
+fun has_thms_of_cname_with_all_substrs (goal:thm) (ctxt:context) (strs:string list) =
   let
     val long_cnames    = Isabelle_Utils.get_cnames_in_1st_subg goal: string list;
-    fun get_thms lname = get_thms_of_name_with_all_substrings ctxt (Long_Name.base_name lname :: strs);
+    fun get_thms lname = Find_Theorems2.get_thms_of_name_with_these_substrs ctxt (Long_Name.base_name lname :: strs);
     val result         = map get_thms long_cnames |> flat |> null |> not;
   in result:bool end;
 
-(* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
-fun get_thms_of_cname_with_suffix (ctxt:context) (sfx:string) (cname:string) =
-  try (Proof_Context.get_thms ctxt) (cname ^ "." ^ sfx) |> these: thm list;
+(* has_thms_of_lname_with_suffix checks if the current context contains thms that are named after a given constant with a given suffix. *)
+fun has_thms_of_lname_with_suffix (ctxt:context) (sfx:string) (cname:string) =
+  Find_Theorems2.get_thms_of_name_with_suffix ctxt sfx cname |> null |> not: bool;
 
-(* has_thms_of_const_name_with_suffix checks if the current context contains thms that are named after a given constant with a given suffix. *)
-fun has_thms_of_const_name_with_suffix (ctxt:context) (sfx:string) (cname:string) =
-  get_thms_of_cname_with_suffix ctxt sfx cname |> null |> not: bool;
-
-(* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
-fun get_thms_of_cnames_with_suffix (ctxt:context) (cnames:string list) (sfx:string) =
-  map (get_thms_of_cname_with_suffix ctxt sfx) cnames |> flat: thm list;
-
-(* has_thms_of_cnames_with_suffix is similar to has_thms_of_const_name_with_suffix, but with multiple constant names. *)
-fun has_thms_of_cnames_with_suffix (ctxt:context) (cnames:string list) (sfx:string) =
-  exists (has_thms_of_const_name_with_suffix ctxt sfx) cnames: bool;
+(* has_thms_of_cnames_with_suffix is similar to has_thms_of_lname_with_suffix, but with multiple constant names. *)
+fun has_thms_of_lnames_with_suffix (ctxt:context) (names:string list) (sfx:string) =
+  exists (has_thms_of_lname_with_suffix ctxt sfx) names: bool;
 
 (* has_thms_with_suffixes checks if the context contains thms that are named after a constant in the goal but with one of the given suffixes. *)
 fun has_thms_with_suffixes (goal:thm) (ctxt:context) (sfxes:string list) =
@@ -152,7 +119,7 @@ fun has_thms_with_suffixes (goal:thm) (ctxt:context) (sfxes:string list) =
     val cnames    = Isabelle_Utils.get_cnames_in_1st_subg goal;
     val typ_names = Isabelle_Utils.get_typ_names_in_1st_subg goal;
     val names     = cnames @ typ_names;
-    val has_thms  = forall (has_thms_of_cnames_with_suffix ctxt names) sfxes;
+    val has_thms  = forall (has_thms_of_lnames_with_suffix ctxt names) sfxes;
   in has_thms end:bool;
 
 (* has_all_substrings_when_printed checks if the given list of strings are all appear in the given proof obligation when printed out. *)
@@ -245,10 +212,10 @@ fun fact_lift_def goal ctxt = AU.has_thms_with_suffixes goal ctxt ["abs_eq","rsp
 fun fact_primcorec goal ctxt = AU.has_thms_with_suffixes goal ctxt ["code","ctr","sel"];
 
 (* ASSERT 14. checks if the proof obligation has intro_locales*)
-fun is_locale_intro1 goal ctxt = AU.get_thms_of_cname_with_all_substrings goal ctxt [".axioms"];
+fun is_locale_intro1 goal ctxt = AU.has_thms_of_cname_with_all_substrs goal ctxt [".axioms"];
 
 (* ASSERT 43. checks if the proof obligation has intro_locales*)
-fun is_locale_intro2 goal ctxt = AU.get_thms_of_cname_with_all_substrings goal ctxt ["local.", "_axioms"];
+fun is_locale_intro2 goal ctxt = AU.has_thms_of_cname_with_all_substrs goal ctxt ["local.", "_axioms"];
 
 (* ASSERT 44. checks if the outermost constant visible to users has a name such that the underlying   *)
 (*            proof context has a theorem of name ".base_name_of_the_constant.".                      *)
@@ -258,7 +225,7 @@ fun is_unfold_locale goal ctxt=
     fun get_rules name_with_dots = Find_Theorems2.all_names_to_rules "" [name_with_dots] ctxt goal;
     val result = goal
       |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
-      >>=   AU.get_outmost_cname
+      >>=   Isabelle_Utils.get_outmost_cname
       liftM Long_Name.base_name
       liftM (fn bname => "." ^ bname ^ ".")
       liftM get_rules
@@ -347,34 +314,34 @@ fun fst_subg_is_classified_as_Unknown goal ctxt = AU.fst_subg_is_classified_as g
 
 (** Assertions about the outermost construct of the first subgoal. **)
 (* ASSERT 26. checks if the outermost construct in the first subgoal is the meta equality. *)
-fun outermost_is_pure_eq goal _ = AU.outermost_const_name_in_1st_subg_is goal "Pure.eq";
+fun outermost_is_pure_eq goal _ = AU.outermost_cname_in_1st_subg_is goal "Pure.eq";
 
 (* ASSERT 27. checks if the outermost construct in the first subgoal is the HOL equality. *)
-fun outermost_is_hol_eq goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.eq";
+fun outermost_is_hol_eq goal _ = AU.outermost_cname_in_1st_subg_is goal "HOL.eq";
 
 (* ASSERT 28. checks if the outermost construct in the first subgoal is the meta implication. *)
-fun outermost_is_pure_imp goal _ = AU.outermost_const_name_in_1st_subg_is goal "Pure.imp";
+fun outermost_is_pure_imp goal _ = AU.outermost_cname_in_1st_subg_is goal "Pure.imp";
 
 (* ASSERT 29. checks if the outermost construct in the first subgoal is the HOL implication. *)
-fun outermost_is_hol_imp goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.implies";
+fun outermost_is_hol_imp goal _ = AU.outermost_cname_in_1st_subg_is goal "HOL.implies";
 
 (* ASSERT 30. checks if the outermost construct in the first subgoal is the meta all. *)
-fun outermost_is_pure_all goal _ = AU.outermost_const_name_in_1st_subg_is goal "Pure.all";
+fun outermost_is_pure_all goal _ = AU.outermost_cname_in_1st_subg_is goal "Pure.all";
 
 (* ASSERT 31. checks if the outermost construct in the first subgoal is the HOL all. *)
-fun outermost_is_hol_all goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.All";
+fun outermost_is_hol_all goal _ = AU.outermost_cname_in_1st_subg_is goal "HOL.All";
 
 (* ASSERT 32. checks if the outermost construct in the first subgoal is the HOL existential quantifier. *)
-fun outermost_is_hol_ex goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.Ex";
+fun outermost_is_hol_ex goal _ = AU.outermost_cname_in_1st_subg_is goal "HOL.Ex";
 
 (* ASSERT 46. checks if the outermost construct in the first subgoal is the HOL conjunction. *)
-fun outermost_is_hol_and goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.conj";
+fun outermost_is_hol_and goal _ = AU.outermost_cname_in_1st_subg_is goal "HOL.conj";
 
 (* ASSERT 47. checks if the outermost construct in the first subgoal is the HOL disjunction. *)
-fun outermost_is_hol_or goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.disj";
+fun outermost_is_hol_or goal _ = AU.outermost_cname_in_1st_subg_is goal "HOL.disj";
 
 (* ASSERT 48. checks if the outermost construct in the first subgoal is the HOL Not. *)
-fun outermost_is_hol_not goal _ = AU.outermost_const_name_in_1st_subg_is goal "HOL.Not";
+fun outermost_is_hol_not goal _ = AU.outermost_cname_in_1st_subg_is goal "HOL.Not";
 
 (* ASSERT 15. checks if the outermost construct in the first suboal is a function that is not fully applied yet. *)
 fun outermost_is_fun_not_fully_applied goal _ =

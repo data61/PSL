@@ -254,6 +254,7 @@ sig
   val get_trms_in_thm               : thm -> term list;
   val get_trm_in                    : location -> thm -> term option;(*Should it return a list of term?*)
   val get_cnames_in_trm             : term -> string list;
+  val get_outmost_cname             : term -> string option;
   val get_typ_names_in_trm          : term -> string list;
   val get_cnames_in_thm             : thm -> string list;
   val get_cnames_in_1st_subg        : thm -> string list;
@@ -303,6 +304,17 @@ fun get_cnames_in_thm thm = thm
   |> Thm.cprop_of
   |> Thm.term_of
   |> (fn subg:term => Term.add_const_names subg []);
+
+fun get_outmost_cname (trm:term) =
+  let
+    val cnames              = get_cnames_in_trm trm: string list;
+    val numb                = length cnames: int;
+    val last_cname          = try (nth cnames) (numb - 1): string option;
+    val snd_last_cname      = try (nth cnames) (numb - 2): string option;
+    val outmost_is_Trueprop = Option.map (equal "HOL.Trueprop") last_cname: bool option;
+  in
+    Option.map (Utils.If (snd_last_cname, last_cname)) outmost_is_Trueprop |> Option.join: string option
+  end;
 
 fun get_cnames_in_1st_subg (goal:thm) = goal
   |> get_1st_subg
@@ -456,6 +468,9 @@ sig
   val get_intro_rule_names      : get_rule_names;
   val get_dest_rule_names       : get_rule_names;
   val get_split_rule_names      : get_rule_names;
+  val get_thms_of_name_with_these_substrs: context -> string list -> thm list;
+  val get_thms_of_cname_with_suffix       : context -> string -> string -> thm list;
+  val get_thms_of_cnames_with_suffix      : context -> string list -> string -> thm list;
 end;
 
 (*** Find_Theorems2: provides an interface of find_theorem for PSL. ***)
@@ -546,6 +561,22 @@ fun get_split_rules ctxt goal =
   end;
 
 fun get_split_rule_names ctxt goal = get_rule_names get_split_rules ctxt goal;
+
+fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:string list) =
+  let
+    val criterion      = get_criterion "" substrs: (bool * term criterion) list;
+    val relevant_rules = Find_Theorems.find_theorems ctxt NONE NONE true criterion |> snd |> map snd;
+  in
+    relevant_rules: thm list
+  end;
+
+(* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
+fun get_thms_of_cname_with_suffix (ctxt:context) (sfx:string) (cname:string) =
+  try (Proof_Context.get_thms ctxt) (cname ^ "." ^ sfx) |> these: thm list;
+
+(* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
+fun get_thms_of_cnames_with_suffix (ctxt:context) (cnames:string list) (sfx:string) =
+  map (get_thms_of_cname_with_suffix ctxt sfx) cnames |> flat: thm list;
 
 end;
 
