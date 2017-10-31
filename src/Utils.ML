@@ -469,8 +469,8 @@ sig
   val get_dest_rule_names       : get_rule_names;
   val get_split_rule_names      : get_rule_names;
   val get_thms_of_name_with_these_substrs: context -> string list -> thm list;
-  val get_thms_of_cname_with_suffix       : context -> string -> string -> thm list;
-  val get_thms_of_cnames_with_suffix      : context -> string list -> string -> thm list;
+  val get_thms_of_name_with_suffix       : context -> string -> string -> thm list;
+  val get_thms_of_names_with_suffix      : context -> string list -> string -> thm list;
 end;
 
 (*** Find_Theorems2: provides an interface of find_theorem for PSL. ***)
@@ -571,12 +571,12 @@ fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:string list) =
   end;
 
 (* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
-fun get_thms_of_cname_with_suffix (ctxt:context) (sfx:string) (cname:string) =
-  try (Proof_Context.get_thms ctxt) (cname ^ "." ^ sfx) |> these: thm list;
+fun get_thms_of_name_with_suffix (ctxt:context) (sfx:string) (name:string) =
+  try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thm list;
 
 (* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
-fun get_thms_of_cnames_with_suffix (ctxt:context) (cnames:string list) (sfx:string) =
-  map (get_thms_of_cname_with_suffix ctxt sfx) cnames |> flat: thm list;
+fun get_thms_of_names_with_suffix (ctxt:context) (names:string list) (sfx:string) =
+  map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thm list;
 
 end;
 
