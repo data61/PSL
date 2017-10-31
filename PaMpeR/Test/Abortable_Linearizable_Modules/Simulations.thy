@@ -2,7 +2,7 @@ section {* Definition and Soundness of Refinement Mappings,
   Forward Simulations and Backward Simulations *}
 
 theory Simulations
-imports IOA
+imports IOA  "../Assertion_Checker"
 begin
 
 context IOA
@@ -62,7 +62,7 @@ lemma exec_inc_imp_trace_inc:
   assumes "ext B = ext A"
   and "\<And> e_B . is_exec_of B e_B 
     \<Longrightarrow> \<exists> e_A . is_exec_of A e_A \<and> trace (ioa.asig A) e_A = trace (ioa.asig A) e_B"
-  shows "traces B \<subseteq> traces A"
+  shows "traces B \<subseteq> traces A" assert_nth_false 53
 proof -
   { fix t
     assume "t \<in> traces B"

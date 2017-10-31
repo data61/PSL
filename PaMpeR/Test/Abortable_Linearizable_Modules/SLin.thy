@@ -3,7 +3,7 @@
 section {* The SLin Automata specification*}
 
 theory SLin
-imports IOA RDR
+imports IOA RDR "../Assertion_Checker"
 begin
 
 datatype ('a,'b,'c,'d)SLin_action =
@@ -13,9 +13,9 @@ datatype ('a,'b,'c,'d)SLin_action =
 | Switch nat 'b 'c 'a
 | Recover nat
 | Linearize nat
-print_theorems find_theorems name:"SLin_action" name:"Rep"
-datatype SLin_status = Sleep | Pending | Ready | Aborted
-
+print_theorems find_theorems name:"SLin_action" name:"rec_transfer" name:"case"
+datatype SLin_status = Sleep | Pending | Ready | Aborted lemma "Sleep = Sleep" assert_nth_true 53 assert_nth_false 54 by simp
+print_theorems find_theorems name:"fun" name:"nchotomy"
 record ('a,'b,'c)SLin_state = 
   pending :: "'b \<Rightarrow> 'b \<times> 'c"
   initVals :: "'a set"
@@ -23,7 +23,7 @@ record ('a,'b,'c)SLin_state =
   status :: "'b \<Rightarrow> SLin_status"
   dstate :: 'a
   initialized :: bool
-print_theorems find_theorems name:"SLin_state" name:"_ext" name:"Rep"
+print_theorems find_theorems name:"SLin_state" name:"_ext" name:"Rep" find_theorems name:"SLin_action.in_rel"
 locale SLin = RDR + IOA
 begin
 

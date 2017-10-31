@@ -12,7 +12,7 @@ record 'a signature =
   inputs::"'a set"
   outputs::"'a set"
   internals::"'a set"
-
+print_theorems
 context IOA
 begin 
 
@@ -105,7 +105,7 @@ theorem invariantI:
   fixes A P
   assumes "\<And> s . s \<in> start A \<Longrightarrow> P s"
   and "\<And> s t a . \<lbrakk>reachable A s; P s; s \<midarrow>a\<midarrow>A\<longrightarrow> t\<rbrakk> \<Longrightarrow> P t"
-  shows "invariant A P"
+  shows "invariant A P" assert_nth_true 55
 proof -
   { fix s
     assume "reachable A s"

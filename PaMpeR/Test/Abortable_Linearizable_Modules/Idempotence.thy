@@ -52,7 +52,7 @@ lemma trans_elim:
       and "id1 \<le> i \<and> i < id2" and "a = Response i p ou"
   | (Lin1) "Lin s s' \<and> t = t'" and "a = Linearize 0"
   | (Lin2) "Lin t t' \<and> s = s'" and "a = Linearize id1"
-  | (Reco2) "Reco t t' \<and> s = s'" and "a = Recover id1"
+  | (Reco2) "Reco t t' \<and> s = s'" and "a = Recover id1" assert_nth_true 53 assert_nth_true 54
 proof %invisible (cases a)
   case (Invoke i p c)
   with assms have

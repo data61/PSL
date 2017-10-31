@@ -45,7 +45,7 @@ These sets form a complete lattice.
 (*<*)
 
 lemma admSI [intro]:
-  "\<lbrakk> \<bottom> \<in> R; adm (\<lambda>x. x \<in> R) \<rbrakk> \<Longrightarrow> R \<in> admS" assert_nth_false 45
+  "\<lbrakk> \<bottom> \<in> R; adm (\<lambda>x. x \<in> R) \<rbrakk> \<Longrightarrow> R \<in> admS" assert_nth_false 45 assert_nth_false 53 assert_nth_false 55
 unfolding admS_def by simp
 
 lemma bottom_in_unlr [simp]:
@@ -98,7 +98,7 @@ lemma unlr_sup: "unlr (sup x y) = unlr x \<union> unlr y"
   unfolding sup_admS_def by (simp add: admS_def)
 
 instance assert_nth_true 42
-apply intro_classes assert_nth_false 42
+apply intro_classes assert_nth_false 42 assert_nth_false 55
 apply (auto simp: less_eq_admS_def unlr_inf unlr_sup)
 done
 

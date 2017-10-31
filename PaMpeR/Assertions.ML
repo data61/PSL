@@ -26,6 +26,7 @@ val has_all_substrings_when_printed       : location -> thm -> context -> string
 val has_thms_with_suffixes                : thm -> context -> string list -> bool;
 val has_thms_of_lnames_with_suffix        : context -> string list -> string -> bool;
 val has_thms_of_cname_with_all_substrs    : thm -> context -> string list -> bool;
+val has_thms_of_tname_with_all_substrs    : thm -> context -> string list -> bool;
 (*Not very reliable*)
 val is_fun_not_fully_applied              : term -> bool;
 val fst_subg_is_classified_as             : thm -> context -> Spec_Rules.rough_classification -> bool;
@@ -104,6 +105,34 @@ fun has_thms_of_cname_with_all_substrs (goal:thm) (ctxt:context) (strs:string li
     fun get_thms lname = Find_Theorems2.get_thms_of_name_with_these_substrs ctxt (Long_Name.base_name lname :: strs);
     val result         = map get_thms long_cnames |> flat |> null |> not;
   in result:bool end;
+
+(* has_thms_of_tname_with_all_substrs checks if the context has a thm such that its name consists *)
+(* of the base-name of a constant appearing in the first sub-goal and other specified strings. *)
+fun has_thms_of_tname_with_all_substrs (goal:thm) (ctxt:context) (strs:string list) =
+  let
+    open Isabelle_Utils Utils Find_Theorems2;
+    (*TODO? move this function to Isabelle_Utils*)
+    fun is_in_Main (ctxt:Proof.context) (thm:thm) =
+      let
+        val this_thy          = Proof_Context.theory_of ctxt:theory;
+        val thy_names_in_main = Context.get_theory this_thy "Main"
+          |> Theory.ancestors_of
+          |> map Context.theory_name:string list;
+        fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;
+        val thy_name = get_theory_name thm;
+        val result = exists (equal thy_name) thy_names_in_main;
+      in
+        result
+      end;
+    fun get_thms btname = (get_thms_of_name_with_these_substrs ctxt (btname :: strs));
+    val result = goal
+      |>    get_trm_in Fst_Subg
+      liftM get_typ_names_in_trm
+      liftM map Long_Name.base_name
+      liftM map (filter_out (is_in_Main ctxt) o get_thms)
+      liftM (not o null o flat)
+      |>    is_some_true;
+  in result : bool end;
 
 (* has_thms_of_lname_with_suffix checks if the current context contains thms that are named after a given constant with a given suffix. *)
 fun has_thms_of_lname_with_suffix (ctxt:context) (sfx:string) (cname:string) =
@@ -216,6 +245,15 @@ fun is_locale_intro1 goal ctxt = AU.has_thms_of_cname_with_all_substrs goal ctxt
 
 (* ASSERT 43. checks if the proof obligation has intro_locales*)
 fun is_locale_intro2 goal ctxt = AU.has_thms_of_cname_with_all_substrs goal ctxt ["local.", "_axioms"];
+
+(* ASSERT 53. checks if the proof obligation has a variable define with the datatype command. *)
+fun has_datatype_var goal ctxt = AU.has_thms_of_tname_with_all_substrs goal ctxt ["rec_transfer"];
+
+(* ASSERT 54. checks if the proof obligation has a variable define with the datatype command with a parameter. *)
+fun has_datatype_var_para goal ctxt = AU.has_thms_of_tname_with_all_substrs goal ctxt ["inj_map_strong"];
+
+(* ASSERT 55. checks if the proof obligation has a variable define with the datatype command with a parameter. *)
+fun has_var_of_rec goal ctxt = AU.has_thms_of_tname_with_all_substrs goal ctxt ["Abs_", "_ext_inject"];
 
 (* ASSERT 44. checks if the outermost constant visible to users has a name such that the underlying   *)
 (*            proof context has a theorem of name ".base_name_of_the_constant.".                      *)
@@ -464,7 +502,10 @@ val assertions =
 (*49*)  has_const_prefixed_with_Set,
 (*50*)  fact_induct,
 (*51*)  has_const_prefixed_with_Nat,
-(*52*)  has_const_prefixed_with_Int]
+(*52*)  has_const_prefixed_with_Int,
+(*53*)  has_datatype_var,
+(*54*)  has_datatype_var_para,
+(*55*)  has_var_of_rec]
 
 (* check if there is a constant with prefix real *)
 fun const_real (goal, _) = 
