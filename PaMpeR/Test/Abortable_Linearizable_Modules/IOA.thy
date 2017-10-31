@@ -105,7 +105,7 @@ theorem invariantI:
   fixes A P
   assumes "\<And> s . s \<in> start A \<Longrightarrow> P s"
   and "\<And> s t a . \<lbrakk>reachable A s; P s; s \<midarrow>a\<midarrow>A\<longrightarrow> t\<rbrakk> \<Longrightarrow> P t"
-  shows "invariant A P"apply(tactic {* fn g => (Isabelle_Utils.get_typ_names_in_1st_subg g |>  (map tracing); Seq.single g) *})
+  shows "invariant A P"
 proof -
   { fix s
     assume "reachable A s"
@@ -290,7 +290,7 @@ find_theorems name:"IOA.ioa.ioa_ext"
 lemma last_state_reachable:
   fixes A e
   assumes "is_exec_of A e"
-  shows "reachable A (last_state e)" apply(tactic {* fn g => (Isabelle_Utils.get_typ_names_in_1st_subg g |>  (map tracing); Seq.single g) *}) using assms
+  shows "reachable A (last_state e)"
 proof -
   have "is_exec_of A e \<Longrightarrow> reachable A (last_state e)"
   proof (induction "snd e" arbitrary: e)
