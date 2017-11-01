@@ -281,13 +281,6 @@ fun has_case_ goal _ =
     fst_subg_has_case
   end;
 
-(* TODO: checks if the first subgoal contains a variable of type record. *)
-(*TODO*)fun has_record _ _ = undefined;
-
-(* TODO: checks if the first subgoal uses type class definition *)
-(*TODO*)fun uses_type_class _ _ = undefined;
-(*use "_class" as a hint*)
-
 (* ASSERT 16. checks if the first subgoal has rel_fun *)
 fun has_rel_fun goal _ = AU.fst_subg_has_const_of_name goal "BNF_Def.rel_fun";
 
