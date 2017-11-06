@@ -4,21 +4,26 @@
     This file contains an experimental implementation of a decision tree construction algorithm.
 *)
 theory Decision_Tree
-  imports Main
+  imports Read_Databases
 begin
-lemma "x \<and> y" oops ML{* @{term "HOL.conj"}*}
+
 ML_file "../src/Utils.ML"
 ML_file "../src/Parser_Combinator.ML"
+
+ML{* 
+val debug_mode = false;
+fun debug switch (str:string) (f) = if debug_mode orelse switch then (tracing str; f) else f;
+*}
 
 (* Let us assume that the feature vector is a vector of boolean values for now. *)
 ML{* signature REGRESSION_TREE =
 sig
-  datatype feature_name  = Feature of int;
-  type feature_value = bool;
-  type feature = (feature_name * feature_value);
+  type feature_name   = Database.feature_name;
+  type feature_value  = bool;
+  type feature        = feature_name * feature_value;
   type feature_vector = feature list;
-  type is_method_used = bool;
-  type one_invocation = (is_method_used * feature_vector);
+  type used           = Database.used;
+  type one_invocation = used * feature_vector;
   type database       = one_invocation list;
   datatype growing_tree = Leaf of database
                         | Branch of {True:    growing_tree,
@@ -48,14 +53,15 @@ sig
 end;
 *}
 
-ML{* structure Regression_Tree (*: REGRESSION_TREE*) = struct
-datatype feature_name  = Feature of int;
-type     feature_value = bool;
-type feature = (feature_name * feature_value);
-type feature_vector = feature list;
-type is_method_used = bool;
-type one_invocation = (is_method_used * feature_vector);
-type database       = one_invocation list;
+ML{* structure Regression_Tree : REGRESSION_TREE = struct
+
+type feature_name     = Database.feature_name;
+type feature_value    = bool;
+type feature          = (feature_name * feature_value);
+type feature_vector   = feature list;
+type used             = bool;
+type one_invocation   = (used * feature_vector);
+type database         = one_invocation list;
 datatype growing_tree = Leaf of database
                       | Branch of {True:    growing_tree,
                                    Feature: feature,
@@ -77,12 +83,12 @@ fun get_numb_of_elms (Leaf dtbs) = List.length dtbs
  |  get_numb_of_elms (Branch {True=TrueT, False=FalseT, ...}) =
       get_numb_of_elms TrueT + get_numb_of_elms FalseT;
 
-val criterionN = 10;
+val criterionN = 300;
 
 fun get_avrg_of_database dtbs =
   let
     fun is_meth_used ((is_used, _):one_invocation) = is_used;
-    val size = length dtbs |> Real.fromInt;
+    val size    = length dtbs |> Real.fromInt;
     val trues   = filter is_meth_used dtbs |> length |> Real.fromInt;
     val average = trues / size;
   in
@@ -112,10 +118,15 @@ fun split_database' (_    :feature_name) ([]:database)           accumlator     
     split_database' fname data accmulator
   end;
 
-fun split_database fname data = split_database' fname data ([],[]);
+fun split_database fname data = split_database' fname data ([],[])
+  |> (fn p as (left, right) => (
+        debug false ("the number of left  elements is " ^ Int.toString (length left)) ();
+        debug false ("the number of right elements is " ^ Int.toString (length right)) ();
+      p));
 
-fun get_RSS (fname:feature_name) (data:database) =
+fun get_RSS (fname as (Database.Feature fint):feature_name) (data:database) =
 let
+  val _ = debug false ("splitting at Feature " ^ Int.toString fint) ();
   val (trues, falses)  = split_database fname data : (database * database);
   val (t_avrg, f_avrg) = apply2 get_avrg_of_database (trues, falses);
   fun residual_square _       ([]:database)          (accm:real) = accm
@@ -128,8 +139,11 @@ let
     in
       residual_square average data new_accm
     end;
-   val rss_true  = residual_square t_avrg trues  0.0;
-   val rss_false = residual_square f_avrg falses 0.0;
+   val _ = debug false ("t_avrg in get_RSS is  " ^ Real.toString t_avrg) ();
+   val _ = debug false ("f_avrg in get_RSS is  " ^ Real.toString f_avrg) ();
+   val rss_true  = if Real.isNan t_avrg then Real.posInf else residual_square t_avrg trues  0.0;
+   val rss_false = if Real.isNan f_avrg then Real.posInf else residual_square f_avrg falses 0.0;
+   val _ = debug false ("In get_RSS, the number of residual_square is " ^ (Real.toString (rss_true + rss_false) ^ " for Feature " ^ Int.toString fint))
 in
   rss_true + rss_false
 end;
@@ -142,6 +156,7 @@ fun database_to_fname_list ([]:database) = error "database_to_fname_list failed"
 fun get_feat_with_mini_RSS' (_:database)    (best_fname:feature_name, _:real)        ([]:feature_name list)         = best_fname
  |  get_feat_with_mini_RSS' (data:database) (best_fname:feature_name, mini_rss:real) (fname::fnames:feature_name list) = 
   let
+    val _ = debug false "from get_feat_with_mini_RSS' n" ();
     val new_rss              = get_RSS fname data;
     val (new_best, new_mini) = if new_rss < mini_rss then (fname, new_rss) else (best_fname, mini_rss);
   in
@@ -151,27 +166,32 @@ fun get_feat_with_mini_RSS' (_:database)    (best_fname:feature_name, _:real)   
 fun get_feature_with_mini_RSS (data:database) =
   let
     val fnames = database_to_fname_list data: feature_name list;
-    val fname  = if length fnames > 0 then hd fnames else error "get_feature_with_mini_RSS failed!";
+    val fname as (Database.Feature fint) = if length fnames > 0 then hd fnames else error "get_feature_with_mini_RSS failed!";
     val rss    = get_RSS fname data;
+    val _ = debug false ("for " ^ Int.toString fint ^ "th feature: rss is " ^ Real.toString rss) ();
   in
     get_feat_with_mini_RSS' data (fname, rss) fnames
   end;
 
-val criterion = 100;
-
 fun gtree_repeat (func:database -> growing_tree) (Leaf data) =
-  if   length data < criterion
-  then Leaf data
-  else gtree_repeat func (func data)
- |  gtree_repeat (func:database -> growing_tree) (Branch {True=right, Feature=feat, False=left}) =
-  Branch {True    = gtree_repeat func right,
-          Feature = feat,
-          False   = gtree_repeat func left}:growing_tree;
+     (debug false "gtree_repeat in the first clause" ();
+      if   length data < criterionN
+      then Leaf data
+      else gtree_repeat func (func data))
+  | gtree_repeat (func:database -> growing_tree) (Branch {True=right, Feature=feat, False=left}) =
+     (debug false "gtree_repeat in the second clause" ();
+      Branch {True    = gtree_repeat func right,
+              Feature = feat,
+              False   = gtree_repeat func left}:growing_tree);
 
 fun split_region (database:database) =
   let
-    val fname_to_split  = get_feature_with_mini_RSS database:     feature_name;
+    val _ = debug false "before calling get_feature_with_mini_RSS in split_region" ();
+    val fname_to_split as (Database.Feature fname)  = get_feature_with_mini_RSS database: feature_name;
+    val _ = debug true ("according to get_feature_with_mini_RSS called in split_regions, we use " ^ Int.toString fname ^ " to split database.") ();
+    val _ = debug false "before calling split_database in split_region" ();
     val (trues, falses) = split_database fname_to_split database: (database * database);
+    val _ = debug false "after calling split_database in split_region" ();
   in
     Branch {True    = Leaf trues,
             Feature = (fname_to_split, true (*Our feature is binary. So, this does not matter here.*)),
@@ -188,11 +208,11 @@ fun gtree_leaf_map (f:database -> real) (Leaf dtbs:growing_tree) = FLeaf (f dtbs
 
 fun post_process (gtree:growing_tree) = gtree_leaf_map get_avrg_of_database gtree : final_tree;
 
-fun print_feat ((Feature f_index, _):feature) = Int.toString f_index;
+fun print_feat ((Database.Feature f_index, _):feature) = Int.toString f_index;
 
 fun print_final_tree (FLeaf real) = "expectation " ^ Real.toString real
   | print_final_tree (FBranch {More = ftree1, Feature = feat, Less = ftree2}) =
-    "(" ^ String.concatWith ",\n " [print_feat feat, print_final_tree ftree1, print_final_tree ftree2] ^ ")";
+    "(" ^ String.concatWith ", " [print_feat feat, print_final_tree ftree1, print_final_tree ftree2] ^ ")";
 
 local
 
@@ -214,31 +234,49 @@ and parse_fbranch _ =
   token (parse_ftree ()) >>= (fn less_tree =>
   token (symbol ")")     >>= K (
   result (FBranch {More = more_tree,
-                   Feature = (Feature feat_index, true),
+                   Feature = (Database.Feature feat_index, true),
                    Less = less_tree})
   )))))))
 and parse_ftree _ = parse (parse_fleaf () plus parse_fbranch ());
 
+fun parse_printed_tree (dtr:string) = parse_ftree () (String.explode dtr |> map Char.toString) |> Seq.hd |> fst;
+
 end;
 
 end;
 *}
 
-ML{* (* test *)
+(* test *)
+ML{*
 local
   open  Regression_Tree;
   structure RT = Regression_Tree;
   val ftree = RT.FBranch {More = RT.FLeaf ~2.2,
-                          Feature = (RT.Feature 3, true),
+                          Feature = (Database.Feature 3, true),
                           Less = RT.FLeaf ~1.1};
-  val ftree2 = RT.FBranch {More = ftree, Feature = (RT.Feature 1, true), Less = ftree};
-  val ftree3 = RT.FBranch {More = ftree2, Feature = (RT.Feature 10, true), Less = ftree2};
+  val ftree2 = RT.FBranch {More = ftree, Feature = (Database.Feature 1, true), Less = ftree};
+  val ftree3 = RT.FBranch {More = ftree2, Feature = (Database.Feature 10, true), Less = ftree2};
 in
   val test_string = RT.print_final_tree ftree3;
-end
+end;
+
+tracing test_string;
 *}
 
 ML{* tracing test_string*}
-ML{* (test_string |> Symbol.explode |> Regression_Tree.parse_ftree () |> Seq.hd |> fst ) *}
+
+ML{* Regression_Tree.parse_printed_tree test_string *}
+
+(* test using datasets *)
+
+(* To use this test, you have to generate the database and pre-process it first. *)
+
+ML{* val rgtree = Regression_Tree.get_big_tree (Database.parse_database "auto"); *}
+
+ML{* val ftree = Regression_Tree.post_process rgtree; *}
+
+ML{* val printed_tree = Regression_Tree.print_final_tree ftree; *}
+
+ML{* tracing printed_tree; *}
 
 end
