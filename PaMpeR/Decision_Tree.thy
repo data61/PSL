@@ -10,7 +10,7 @@ begin
 ML_file "../src/Utils.ML"
 ML_file "../src/Parser_Combinator.ML"
 
-ML{* 
+ML{*
 val debug_mode = false;
 fun debug switch (str:string) (f) = if debug_mode orelse switch then (tracing str; f) else f;
 *}
@@ -43,8 +43,8 @@ sig
   val get_avrg_of_database:      database -> real;
   val get_avrg_of_gtree:         growing_tree -> real;
   val get_RSS:                   feature_name -> database -> real
-  val get_feature_with_mini_RSS: database -> feature_name;
-  val split_region:              database -> growing_tree;
+  val get_feature_with_mini_RSS: database -> feature_name option;
+  val split_region:              database -> growing_tree option;
   val get_big_tree:              database -> growing_tree;
   val gtree_leaf_map:            (database -> real) -> growing_tree -> final_tree;
   val post_process:              growing_tree -> final_tree;
@@ -53,7 +53,7 @@ sig
 end;
 *}
 
-ML{* structure Regression_Tree : REGRESSION_TREE = struct
+ML{* structure Regression_Tree: REGRESSION_TREE = struct
 
 type feature_name     = Database.feature_name;
 type feature_value    = bool;
@@ -83,7 +83,7 @@ fun get_numb_of_elms (Leaf dtbs) = List.length dtbs
  |  get_numb_of_elms (Branch {True=TrueT, False=FalseT, ...}) =
       get_numb_of_elms TrueT + get_numb_of_elms FalseT;
 
-val criterionN = 300;
+val criterionN = 1000;
 
 fun get_avrg_of_database dtbs =
   let
@@ -156,8 +156,8 @@ fun database_to_fname_list ([]:database) = error "database_to_fname_list failed"
 fun get_feat_with_mini_RSS' (_:database)    (best_fname:feature_name, _:real)        ([]:feature_name list)         = best_fname
  |  get_feat_with_mini_RSS' (data:database) (best_fname:feature_name, mini_rss:real) (fname::fnames:feature_name list) = 
   let
-    val _ = debug false "from get_feat_with_mini_RSS' n" ();
     val new_rss              = get_RSS fname data;
+    val _ = debug false ("new_rss is " ^ Real.toString new_rss) ();
     val (new_best, new_mini) = if new_rss < mini_rss then (fname, new_rss) else (best_fname, mini_rss);
   in
     get_feat_with_mini_RSS' data (new_best, new_mini) fnames
@@ -169,36 +169,50 @@ fun get_feature_with_mini_RSS (data:database) =
     val fname as (Database.Feature fint) = if length fnames > 0 then hd fnames else error "get_feature_with_mini_RSS failed!";
     val rss    = get_RSS fname data;
     val _ = debug false ("for " ^ Int.toString fint ^ "th feature: rss is " ^ Real.toString rss) ();
+    val fname = get_feat_with_mini_RSS' data (fname, rss) fnames;
+    val mini_rss = get_RSS fname data;
+    val result = if Real.== (Real.posInf, mini_rss) then NONE else SOME fname;
   in
-    get_feat_with_mini_RSS' data (fname, rss) fnames
+    result
   end;
 
-fun gtree_repeat (func:database -> growing_tree) (Leaf data) =
+(*TODO: clean-up*)
+fun split_region (database:database) =
+  let
+    val fname_to_split = get_feature_with_mini_RSS database: feature_name option;
+    val result =
+      if is_some fname_to_split
+      then
+        let
+          val split_at as (Database.Feature fname) = the fname_to_split;
+          val (trues, falses) = split_database split_at database: (database * database);
+        in (tracing ("making a Branch by splitting at " ^ Int.toString fname);
+            Branch {True    = Leaf trues,
+                    Feature = (the fname_to_split, true (*Our feature is binary. So, this does not matter here.*)),
+                    False   = Leaf falses} |> SOME)
+        end
+      else
+         NONE;
+  in result end;
+
+(* FIXME: to be refined. *)
+fun gtree_repeat (Leaf data) =
      (debug false "gtree_repeat in the first clause" ();
       if   length data < criterionN
       then Leaf data
-      else gtree_repeat func (func data))
-  | gtree_repeat (func:database -> growing_tree) (Branch {True=right, Feature=feat, False=left}) =
+      else (if is_some (split_region data)
+           then gtree_repeat (split_region data |> the)
+           else Leaf data):growing_tree)
+(*
+      else gtree_repeat (split_region data))
+*)
+  | gtree_repeat (Branch {True=right, Feature=feat, False=left}) =
      (debug false "gtree_repeat in the second clause" ();
-      Branch {True    = gtree_repeat func right,
+      Branch {True    = gtree_repeat right,
               Feature = feat,
-              False   = gtree_repeat func left}:growing_tree);
+              False   = gtree_repeat left}:growing_tree);
 
-fun split_region (database:database) =
-  let
-    val _ = debug false "before calling get_feature_with_mini_RSS in split_region" ();
-    val fname_to_split as (Database.Feature fname)  = get_feature_with_mini_RSS database: feature_name;
-    val _ = debug true ("according to get_feature_with_mini_RSS called in split_regions, we use " ^ Int.toString fname ^ " to split database.") ();
-    val _ = debug false "before calling split_database in split_region" ();
-    val (trues, falses) = split_database fname_to_split database: (database * database);
-    val _ = debug false "after calling split_database in split_region" ();
-  in
-    Branch {True    = Leaf trues,
-            Feature = (fname_to_split, true (*Our feature is binary. So, this does not matter here.*)),
-            False   = Leaf falses}
-  end;
-
-fun get_big_tree (data:database) = gtree_repeat split_region (Leaf data);
+fun get_big_tree (data:database) = gtree_repeat (Leaf data);
 
 fun gtree_leaf_map (f:database -> real) (Leaf dtbs:growing_tree) = FLeaf (f dtbs)
   | gtree_leaf_map (f:database -> real) (Branch {True = gtree1, Feature = feature, False = gtree2}) =
@@ -271,7 +285,7 @@ ML{* Regression_Tree.parse_printed_tree test_string *}
 
 (* To use this test, you have to generate the database and pre-process it first. *)
 
-ML{* val rgtree = Regression_Tree.get_big_tree (Database.parse_database "auto"); *}
+ML{* val rgtree = Regression_Tree.get_big_tree (Database.parse_database "induct"); *}
 
 ML{* val ftree = Regression_Tree.post_process rgtree; *}
 
