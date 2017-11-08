@@ -50,6 +50,7 @@ sig
   val post_process:              growing_tree -> final_tree;
   val print_final_tree:          final_tree -> string;
   val parse_printed_tree:        string -> final_tree;
+  val lookup_exp:                bool list -> final_tree -> real;
 end;
 *}
 
@@ -256,6 +257,19 @@ and parse_ftree _ = parse (parse_fleaf () plus parse_fbranch ());
 fun parse_printed_tree (dtr:string) = parse_ftree () (String.explode dtr |> map Char.toString) |> Seq.hd |> fst;
 
 end;
+
+type bools = bool list;
+(*
+fun lookup_fval (i:int) ((Database.Feature fint, fval)::fvec) =
+     if i = fint then fval else lookup_fval (i:int) fvec
+  | lookup_fval (_:int) [] = error "lookup_fval faild. Empty list!";
+*)
+fun lookup_exp ([]:bools) _ = error "lookup_one in Decision_Tree failed! Empty list!"
+  | lookup_exp (bs:bools) (FLeaf expect) = expect
+  | lookup_exp (bs:bools) (FBranch {More, Feature as (Database.Feature i, _), Less}) =
+    if nth bs (i + 1)
+    then lookup_exp bs More
+    else lookup_exp bs Less;
 
 end;
 *}
