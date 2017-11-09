@@ -36,12 +36,24 @@ structure RT = Regression_Tree;
 
 (* build final trees and register them in a table *)
 
+(*FIXME: use Either.*)
 fun build_ftree (meth_name:string) =
-  (tracing ("building a final tree for " ^ meth_name);
-   (meth_name, (RT.post_process o RT.get_big_tree o Database.parse_database) meth_name));
+  let
+    fun did_success sth =  if is_some sth then " successfully " else " NOT really "; 
+    val _ = tracing ("building a final tree for " ^ meth_name);
+    val database = try Database.parse_database meth_name : Database.database option;
+    val _ = tracing ("after" ^ did_success database ^ "building database for " ^ "meth_name");
+    val big_tree = Option.map (try RT.get_big_tree) database |> Option.join: RT.growing_tree option;    
+    val _ = tracing ("after" ^ did_success big_tree ^ "building big_tree for " ^ "meth_name");
+    val ftree = Option.map (try RT.post_process) big_tree |> Option.join: RT.final_tree option;
+     val _ = tracing ("after" ^ did_success ftree ^ "building big_tree for " ^ "meth_name");
+    val result = if is_some ftree then SOME (meth_name, the ftree) else NONE;
+  in
+   result
+  end;
 
 (*FIXME: the use of "try" here is unsafe.*)
-fun build_final_trees (meth_names:string list) = Par_List.map (try build_ftree) meth_names
+fun build_final_trees (meth_names:string list) = Par_List.map build_ftree meth_names
  |> (fn opts => (filter is_none opts |> length |> Int.toString |> (fn numb => tracing ("The number of failures is " ^ numb)); opts))
  |> filter is_some
  |> map the;
