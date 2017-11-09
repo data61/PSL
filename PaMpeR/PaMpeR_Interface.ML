@@ -40,7 +40,11 @@ fun build_ftree (meth_name:string) =
   (tracing ("building a final tree for " ^ meth_name);
    (meth_name, (RT.post_process o RT.get_big_tree o Database.parse_database) meth_name));
 
-fun build_final_trees (meth_names:string list) = Par_List.map build_ftree meth_names;
+(*FIXME: the use of "try" here is unsafe.*)
+fun build_final_trees (meth_names:string list) = Par_List.map (try build_ftree) meth_names
+ |> (fn opts => (filter is_none opts |> length |> Int.toString |> (fn numb => tracing ("The number of failures is " ^ numb)); opts))
+ |> filter is_some
+ |> map the;
 
 structure Data = Generic_Data
 (
@@ -89,11 +93,16 @@ val _ = reset_regression_tree_table_cmd ();
 
 (* print out regression trees in PaMpeR/RTrees *)
 
+(*FIXME: use the option monad more effectively.*)
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
-    val final_tree   = lookup ctxt meth_name |> the: Regression_Tree.final_tree;
-    val ftree_as_str = Regression_Tree.print_final_tree final_tree: string;
-    val bash_command = "echo -n '" ^ ftree_as_str  ^ "' > " ^ path_to_ftrees ^ meth_name;
+    val final_tree   = lookup ctxt meth_name: Regression_Tree.final_tree option;
+    val _ = if is_none final_tree then tracing ("no final tree available for " ^ meth_name) else ();
+    val ftree_as_str = Option.map Regression_Tree.print_final_tree final_tree: string option;
+    val bash_command =
+      if is_some ftree_as_str
+      then "echo -n '" ^ the ftree_as_str  ^ "' > " ^ path_to_ftrees ^ meth_name
+      else "echo -n '" ^ "No final tree available for " ^ meth_name ^ "'";
     val exit_int     = Isabelle_System.bash (bash_command:string);
     val _ = if exit_int = 0 then () else tracing "print_out_ftree failed! The bach returned a non-0 value.";
   in
