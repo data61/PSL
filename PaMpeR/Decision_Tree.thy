@@ -101,11 +101,12 @@ fun get_avrg_of_gtree (gtree:growing_tree) =
 
 fun eq_feature (feat1:feature_name, feat2:feature_name) = feat1 = feat2 : bool;
 
+(*TODO: move this to Utils.thy*)
 fun option_error (err_msg:string) NONE      = error err_msg
  |  option_error  _              (SOME sth) = sth;
 
-fun get_fval_of_fname (fname:feature_name) (fvec:feature_vector) =
-  AList.lookup eq_feature fvec fname |> option_error "get_fval failed";
+fun get_fval_of_fname (fname as Database.Feature i:feature_name) (fvec:feature_vector) =
+  AList.lookup eq_feature fvec fname |> option_error ("get_fval failed for " ^ Int.toString i ^ "th feature.");
 
 fun get_fval_of_one_invocation (fname:feature_name) ((_, fvec):one_invocation) =
   get_fval_of_fname fname fvec:feature_value;
