@@ -105,17 +105,21 @@ fun eq_feature (feat1:feature_name, feat2:feature_name) = feat1 = feat2 : bool;
 fun option_error (err_msg:string) NONE      = error err_msg
  |  option_error  _              (SOME sth) = sth;
 
+(*TODO: to be improved*)
 fun get_fval_of_fname (fname as Database.Feature i:feature_name) (fvec:feature_vector) =
-  AList.lookup eq_feature fvec fname |> option_error ("get_fval failed for " ^ Int.toString i ^ "th feature.");
+  AList.lookup eq_feature fvec fname (*|> option_error ("get_fval failed for " ^ Int.toString i ^ "th feature.")*);
 
 fun get_fval_of_one_invocation (fname:feature_name) ((_, fvec):one_invocation) =
-  get_fval_of_fname fname fvec:feature_value;
+  get_fval_of_fname fname fvec:feature_value option;
 
+(*TODO: to be improved*)
 fun split_database' (_    :feature_name) ([]:database)           accumlator     = accumlator        
  |  split_database' (fname:feature_name) (datum::data:database) (trues, falses) =
   let
-    val fval       = get_fval_of_one_invocation fname datum;
-    val accmulator = if fval then (datum::trues, falses) else (trues, datum::falses);
+    val fval       = get_fval_of_one_invocation fname datum: bool option;
+    val accmulator = if is_some fval
+                     then (if the fval then (datum::trues, falses) else (trues, datum::falses))
+                     else (trues, falses);
   in
     split_database' fname data accmulator
   end;
