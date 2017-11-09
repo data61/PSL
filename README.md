@@ -1,5 +1,6 @@
 **This branch PaMpeR contains an experimental implementation of a Proof Method Recommendation system, PaMpeR.**
-**Dear CADE26 reviewers, the cade26_submission branch contains the version of this tool explained in the paper submitted to CADE26.**
+
+**Please not that PaMpeR is still work in progress.**
 
 # PSL
 
