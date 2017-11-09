@@ -42,11 +42,11 @@ fun build_ftree (meth_name:string) =
     fun did_success sth =  if is_some sth then " successfully " else " NOT really "; 
     val _ = tracing ("building a final tree for " ^ meth_name);
     val database = try Database.parse_database meth_name : Database.database option;
-    val _ = tracing ("after" ^ did_success database ^ "building database for " ^ "meth_name");
+    val _ = tracing ("after" ^ did_success database ^ "building database for " ^ meth_name);
     val big_tree = Option.map (try RT.get_big_tree) database |> Option.join: RT.growing_tree option;    
-    val _ = tracing ("after" ^ did_success big_tree ^ "building big_tree for " ^ "meth_name");
+    val _ = tracing ("after" ^ did_success big_tree ^ "building big_tree for " ^ meth_name);
     val ftree = Option.map (try RT.post_process) big_tree |> Option.join: RT.final_tree option;
-     val _ = tracing ("after" ^ did_success ftree ^ "building big_tree for " ^ "meth_name");
+     val _ = tracing ("after" ^ did_success ftree ^ "building final_tree for " ^ meth_name);
     val result = if is_some ftree then SOME (meth_name, the ftree) else NONE;
   in
    result
