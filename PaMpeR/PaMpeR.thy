@@ -45,4 +45,7 @@ read_regression_trees
 
 ML_file "./FE_Interface.ML"
 
+ML{* Preprocess.all_method_names*}
+
+ML{* PaMpeR_Interface.all_method_names*}
 end

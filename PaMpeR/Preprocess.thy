@@ -8,7 +8,7 @@
 *)
 
 theory Preprocess
-imports Pure
+  imports Pure
 begin
 
 ML{* signature PREPROCESS =
@@ -17,6 +17,7 @@ sig
   val show_num_of_remaining_lines: bool;
   val parallel_preprocess: bool;
   val all_method_names   : string list;
+  val print_all_meth_names: unit -> unit;
 end;
 *}
 
@@ -43,7 +44,7 @@ fun write_one_line_for_one_method (line:string) (method_name:string) =
     val feature_str  = String.concatWith "" (meth_used :: features) : string;
     val bash_command = "echo -n '" ^ feature_str ^ "\n' " ^ ">> " ^ path_to_databases ^ method_name;
     val exit_int     = Isabelle_System.bash (bash_command:string);
-    val _ = if exit_int = 0 then () else tracing "open_one failed! The bach returned a non-0 value.";
+    val _ = if exit_int = 0 then () else tracing "write_one_line_for_one_method failed! The bach returned a non-0 value.";
   in
     ()
   end;
@@ -59,6 +60,21 @@ val all_method_names =
   in
     dist_meth_names : string list
   end;
+
+fun print_one_meth_name (meth_name:string) =
+  let
+    val bash_command = "echo -n '" ^ meth_name  ^ "\n' " ^ ">> " ^ path ^ "/method_names";
+    val exit_int = Isabelle_System.bash (bash_command:string);
+    val _ = if exit_int = 0 then () else tracing "print_one_meth_name failed! The bach returned a non-0 value.";
+  in () end;
+
+fun print_all_meth_names _ =
+  let
+    val bash_command = "rm " ^ path ^ "/method_names";
+    val exit_int = Isabelle_System.bash (bash_command:string);
+    val _ = if exit_int = 0 then () else tracing "print_all_meth_names failed! The bach returned a non-0 value.";
+    val _ = map print_one_meth_name all_method_names;
+  in () end;
 
 fun write_one_lines_for_all_methods (line:string) = write_one_lines_for_given_methods line all_method_names;
 
@@ -83,11 +99,15 @@ fun write_databases_for_all_lines _ =
     result
   end;
 
-fun preprocess _ = (write_databases_for_all_lines (); ());
+fun preprocess _ = (print_all_meth_names (); write_databases_for_all_lines (); ());
 
 end;
 *}
 
-ML{* Preprocess.preprocess *}
+ML{* map tracing Preprocess.all_method_names *}
+
+ML{* Preprocess.print_all_meth_names ()*}
+
+ML{* Preprocess.preprocess  *}
 
 end

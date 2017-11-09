@@ -17,9 +17,20 @@ end;
 structure PaMpeR_Interface = 
 struct
 
+val path = Resources.master_directory @{theory} |> File.platform_path : string;
+val path_to_ftrees  = path ^ "/RTrees/" : string
+val _               = Isabelle_System.bash ("rm -r " ^ path_to_ftrees ^ "*");
+val _               = Isabelle_System.bash ("mkdir " ^ path_to_ftrees);
+
 (*all_method_names: The database has to be present in PSL/PaMpeR/.*)
-(*TODO: probably we should store the list of all_method_names in a text file.*)
-fun all_method_names _ = Preprocess.all_method_names;
+val all_method_names =
+  let
+    val bash_script = "while read line \n do echo $line | awk '{print $1;}' \n done < '" ^ path ^ "/method_names" ^ "'" : string;
+    val bash_input  = Bash.process bash_script |> #out : string;
+    val dist_meth_names = bash_input |> String.tokens (fn c => c = #"\n") |> distinct  (op =);
+  in
+    dist_meth_names : string list
+  end;
 
 structure RT = Regression_Tree;
 
@@ -49,7 +60,7 @@ val reset = Data.map (fn _ => Symtab.empty)
   |> Context.theory_map
   |> Local_Theory.background_theory;
 
-fun get_all_final_trees_gen how = (how o all_method_names) ():  (string * Regression_Tree.final_tree) list;
+fun get_all_final_trees_gen how = how all_method_names:  (string * Regression_Tree.final_tree) list;
 
 fun register_final_trees (lthy:local_theory) = fold update (get_all_final_trees_gen build_final_trees) lthy;
 
@@ -77,11 +88,6 @@ fun reset_regression_tree_table_cmd _ =
 val _ = reset_regression_tree_table_cmd ();
 
 (* print out regression trees in PaMpeR/RTrees *)
-(*all_method_names*)
-val path = Resources.master_directory @{theory} |> File.platform_path : string;
-val path_to_ftrees  = path ^ "/RTrees/" : string
-val _               = Isabelle_System.bash ("rm -r " ^ path_to_ftrees ^ "*");
-val _               = Isabelle_System.bash ("mkdir " ^ path_to_ftrees);
 
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
@@ -101,7 +107,7 @@ fun register_printout_all_ftree_cmd _ =
   let
     val _ = Outer_Syntax.local_theory @{command_keyword print_out_regression_trees}
       "build regression trees and register them from databases."
-      (mk_parser (print_out_all_ftrees (all_method_names ())));
+      (mk_parser (print_out_all_ftrees all_method_names));
   in () end;
 
 (*TODO: This line should be moved out.*)
@@ -154,16 +160,16 @@ fun get_top_5 (pstate:Proof.state) =
       end;
 (*TODO: better if I use Lazy Sequence here?*)
     val _ =
-       get_top_result (all_method_names ()) |> (fn (wo_1) =>
-       get_top_result wo_1           |> (fn (wo_2) =>
-       get_top_result wo_2           |> (fn (wo_3) =>
-       get_top_result wo_3           |> (fn (wo_4) =>
-       get_top_result wo_4           |> (fn (wo_5) =>
-       get_top_result wo_5           |> (fn (wo_6) =>
-       get_top_result wo_6           |> (fn (wo_7) =>
-       get_top_result wo_7           |> (fn (wo_8) =>
-       get_top_result wo_8           |> (fn (wo_9) =>
-       get_top_result wo_9         )))))))))
+       get_top_result all_method_names |> (fn (wo_1) =>
+       get_top_result wo_1             |> (fn (wo_2) =>
+       get_top_result wo_2             |> (fn (wo_3) =>
+       get_top_result wo_3             |> (fn (wo_4) =>
+       get_top_result wo_4             |> (fn (wo_5) =>
+       get_top_result wo_5             |> (fn (wo_6) =>
+       get_top_result wo_6             |> (fn (wo_7) =>
+       get_top_result wo_7             |> (fn (wo_8) =>
+       get_top_result wo_8             |> (fn (wo_9) =>
+       get_top_result wo_9)))))))))
 (*
     val (top_meth_name, top_exp) = get_top_result (all_method_names ()) |> apsnd Real.toString : (string * string);
 *)
