@@ -104,8 +104,6 @@ fun preprocess _ = (print_all_meth_names (); write_databases_for_all_lines (); (
 end;
 *}
 
-ML{* map tracing Preprocess.all_method_names *}
-
 ML{* Preprocess.print_all_meth_names ()*}
 
 ML{* Preprocess.preprocess  *}

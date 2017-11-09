@@ -272,7 +272,7 @@ fun lookup_exp ([]:bools) _ = error "lookup_one in Decision_Tree failed! Empty l
 
 end;
 *}
-
+(*
 (* test *)
 ML{*
 local
@@ -307,5 +307,5 @@ ML{* val printed_tree = Regression_Tree.print_final_tree ftree; *}
 ML{* tracing printed_tree; *}
 
 ML{* Regression_Tree.parse_printed_tree printed_tree; *}
-
+*)
 end

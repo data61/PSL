@@ -12,7 +12,7 @@
         deleted after use to make space for new training.
         
         The python script TrainScript.py provides an example of python machine
-        learning on the database. Feel free to use your own training algorithm with the generated Database file.
+        learning on the database. Feel free to use your own training algorit    hm with the generated Database file.
         
       2.Proof method recommendation 
         
@@ -24,7 +24,7 @@
         from Archive of Formal Proof.
 *)
 theory PaMpeR
-  imports Decision_Tree Preprocess
+  imports Decision_Tree
 keywords "proof_advice" :: diag
   and    "build_regression_trees" :: thy_decl
   and    "print_out_regression_trees" :: thy_decl
@@ -45,7 +45,4 @@ read_regression_trees
 
 ML_file "./FE_Interface.ML"
 
-ML{* Preprocess.all_method_names*}
-
-ML{* PaMpeR_Interface.all_method_names*}
 end
