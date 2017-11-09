@@ -1,17 +1,17 @@
 theory Read_Databases
-imports Main
+imports Pure
 begin
 
 ML_file "../src/Utils.ML"
 
 ML{* signature DATABASE =
 sig
-  type used          = bool;
-  datatype feature_name  = Feature of int;
-  type feature_value = bool;
-  type meth_name     = string;
-  type one_line      = used * (feature_name * feature_value) list;
-  type database      = one_line list;
+  type used             = bool;
+  datatype feature_name = Feature of int;
+  type feature_value    = bool;
+  type meth_name        = string;
+  type one_line         = used * (feature_name * feature_value) list;
+  type database         = one_line list;
   (*get_Database_names has to be called only *after* generating pre-processed databases.*)
   val get_meth_names  : unit -> meth_name list;
   val parse_database  : meth_name -> database;

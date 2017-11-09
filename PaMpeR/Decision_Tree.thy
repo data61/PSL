@@ -84,7 +84,7 @@ fun get_numb_of_elms (Leaf dtbs) = List.length dtbs
  |  get_numb_of_elms (Branch {True=TrueT, False=FalseT, ...}) =
       get_numb_of_elms TrueT + get_numb_of_elms FalseT;
 
-val criterionN = 1000;
+val criterionN = 300;
 
 fun get_avrg_of_database dtbs =
   let
@@ -187,7 +187,7 @@ fun split_region (database:database) =
         let
           val split_at as (Database.Feature fname) = the fname_to_split;
           val (trues, falses) = split_database split_at database: (database * database);
-        in (tracing ("making a Branch by splitting at " ^ Int.toString fname);
+        in ((*tracing ("making a Branch by splitting at " ^ Int.toString fname);*)
             Branch {True    = Leaf trues,
                     Feature = (the fname_to_split, true (*Our feature is binary. So, this does not matter here.*)),
                     False   = Leaf falses} |> SOME)
@@ -265,7 +265,7 @@ fun lookup_fval (i:int) ((Database.Feature fint, fval)::fvec) =
   | lookup_fval (_:int) [] = error "lookup_fval faild. Empty list!";
 *)
 fun lookup_exp ([]:bools) _ = error "lookup_one in Decision_Tree failed! Empty list!"
-  | lookup_exp (bs:bools) (FLeaf expect) = expect
+  | lookup_exp (_ :bools) (FLeaf expect) = expect
   | lookup_exp (bs:bools) (FBranch {More, Feature as (Database.Feature i, _), Less}) =
     if nth bs (i + 1)
     then lookup_exp bs More

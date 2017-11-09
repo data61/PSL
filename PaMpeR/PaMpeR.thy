@@ -24,13 +24,17 @@
         from Archive of Formal Proof.
 *)
 theory PaMpeR
-  imports Pure
+  imports Decision_Tree Preprocess
 keywords "proof_advice" :: diag
+  and    "build_regression_trees" :: thy_decl
 begin
 
-ML_file "../src/Utils.ML"
 ML_file "./Assertions.ML"
 ML_file "./PaMpeR_Interface.ML"
+
+ML{* PaMpeR_Interface.register_ftrees_command () *}
+build_regression_trees
+
 ML_file "./FE_Interface.ML"
 
 end

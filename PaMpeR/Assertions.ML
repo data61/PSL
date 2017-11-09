@@ -167,7 +167,7 @@ end;
 signature ASSERTIONS =
 sig
   (*written assertions*)
-  val eval_assertion_for_ML: Proof.state -> real list
+  val eval_assertion_for_ML: Proof.state -> bool list
   val eval_assertion:        Proof.state -> string
 end;
 
@@ -500,14 +500,6 @@ val assertions =
 (*54*)  has_datatype_var_para,
 (*55*)  has_var_of_rec]
 
-(* check if there is a constant with prefix real *)
-fun const_real (goal, _) = 
-  let
-    fun isReal str = "Real" = Isabelle_Utils.fst_qualifier str;
-  in
-    AU.fst_subg_has_const_of goal isReal
-  end
-
 (** Function used to generate database **)
 
 (* Parse the argument of command by/apply into the name of method*)
@@ -526,7 +518,9 @@ fun eval_assertion_gen (state:Proof.state) (assrts:(thm -> context -> bool) list
       fvector : bool list
     end;
 
-fun eval_assertion_for_ML state = eval_assertion_gen state assertions |> map Utils.bool_to_real: real list;
+fun eval_assertion_for_ML_real state = eval_assertion_gen state assertions |> map Utils.bool_to_real: real list;
+
+fun eval_assertion_for_ML_bool state = eval_assertion_gen state assertions: bool list;
 
 fun bool_to_string b = if b then "1" else "0";
 
