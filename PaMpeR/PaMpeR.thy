@@ -27,13 +27,21 @@ theory PaMpeR
   imports Decision_Tree Preprocess
 keywords "proof_advice" :: diag
   and    "build_regression_trees" :: thy_decl
+  and    "print_out_regression_trees" :: thy_decl
+  and    "reset_regression_tree_table" :: thy_decl
+  and    "read_regression_trees" :: thy_decl
 begin
 
 ML_file "./Assertions.ML"
 ML_file "./PaMpeR_Interface.ML"
 
-ML{* PaMpeR_Interface.register_ftrees_command () *}
 build_regression_trees
+
+print_out_regression_trees
+
+reset_regression_tree_table
+
+read_regression_trees
 
 ML_file "./FE_Interface.ML"
 

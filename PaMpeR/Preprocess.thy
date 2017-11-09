@@ -73,9 +73,9 @@ fun write_databases_for_all_lines _ =
   let
     val bash_script      = "while read line \n do echo $line \n done < '" ^ path_to_database ^ "'" : string;
     val bash_input       = Bash.process bash_script |> #out : string;
-    val bash_input_lines = bash_input |> String.tokens (fn c => c = #"\n");(*
+    val bash_input_lines = bash_input |> String.tokens (fn c => c = #"\n");
     val _                = Isabelle_System.bash ("rm -r " ^ path_to_databases ^ "*");
-    val _                = Isabelle_System.bash ("mkdir " ^ path_to_databases);*)
+    val _                = Isabelle_System.bash ("mkdir " ^ path_to_databases);
     val result = if parallel_preprocess then
       write_databases_for_given_lines_para bash_input_lines () else
       write_databases_for_given_lines_seq  bash_input_lines ();

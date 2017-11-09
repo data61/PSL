@@ -18,9 +18,12 @@ structure PaMpeR_Interface =
 struct
 
 (*all_method_names: The database has to be present in PSL/PaMpeR/.*)
+(*TODO: probably we should store the list of all_method_names in a text file.*)
 fun all_method_names _ = Preprocess.all_method_names;
 
 structure RT = Regression_Tree;
+
+(* build final trees and register them in a table *)
 
 fun build_ftree (meth_name:string) =
   (tracing ("building a final tree for " ^ meth_name);
@@ -37,13 +40,18 @@ structure Data = Generic_Data
 );
 
 fun lookup ctxt = (Symtab.lookup o Data.get) (Context.Proof ctxt);
+
 fun update (k, v)  = Data.map (Symtab.update_new (k, v))
   |> Context.theory_map
-  |> Local_Theory.background_theory;;
+  |> Local_Theory.background_theory;
 
-fun build_all_final_trees _ = (build_final_trees o all_method_names) ();
+val reset = Data.map (fn _ => Symtab.empty)
+  |> Context.theory_map
+  |> Local_Theory.background_theory;
 
-fun register_final_trees lthy = fold update (build_all_final_trees ()(*dummy*)) lthy;
+fun get_all_final_trees_gen how = (how o all_method_names) ():  (string * Regression_Tree.final_tree) list;
+
+fun register_final_trees (lthy:local_theory) = fold update (get_all_final_trees_gen build_final_trees) lthy;
 
 fun mk_parser (func) = fn (tkns:Token.T list) => (func, tkns);
 
@@ -53,6 +61,70 @@ fun register_ftrees_command _ =
       "build regression trees and register them from databases."
       (mk_parser register_final_trees);
   in () end;
+
+(*TODO: This line should be moved out.*)
+val _ = register_ftrees_command ();
+
+(* reset the table containing final trees. *)
+fun reset_regression_tree_table_cmd _ =
+  let
+    val _ = Outer_Syntax.local_theory @{command_keyword reset_regression_tree_table}
+      "reset the table containing final trees to Table.empty."
+      (mk_parser reset);
+  in () end;
+
+(*TODO: This line should be moved out.*)
+val _ = reset_regression_tree_table_cmd ();
+
+(* print out regression trees in PaMpeR/RTrees *)
+(*all_method_names*)
+val path = Resources.master_directory @{theory} |> File.platform_path : string;
+val path_to_ftrees  = path ^ "/RTrees/" : string
+val _               = Isabelle_System.bash ("rm -r " ^ path_to_ftrees ^ "*");
+val _               = Isabelle_System.bash ("mkdir " ^ path_to_ftrees);
+
+fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
+  let
+    val final_tree   = lookup ctxt meth_name |> the: Regression_Tree.final_tree;
+    val ftree_as_str = Regression_Tree.print_final_tree final_tree: string;
+    val bash_command = "echo -n '" ^ ftree_as_str  ^ "' > " ^ path_to_ftrees ^ meth_name;
+    val exit_int     = Isabelle_System.bash (bash_command:string);
+    val _ = if exit_int = 0 then () else tracing "print_out_ftree failed! The bach returned a non-0 value.";
+  in
+    ()
+  end;
+
+fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
+  (Par_List.map (print_out_ftree lthy) meth_names; lthy);
+
+fun register_printout_all_ftree_cmd _ =
+  let
+    val _ = Outer_Syntax.local_theory @{command_keyword print_out_regression_trees}
+      "build regression trees and register them from databases."
+      (mk_parser (print_out_all_ftrees (all_method_names ())));
+  in () end;
+
+(*TODO: This line should be moved out.*)
+val _ = register_printout_all_ftree_cmd ();
+
+(* read regression trees printed in in PaMpeR/RTrees *)
+val read_regression_trees =
+  let
+    fun get_ptree (meth_name:string) = Bash.process ("head -1 " ^ path_to_ftrees ^ meth_name) |> #out: string;
+    fun read_final_tree (meth_name:string) = (meth_name, Regression_Tree.parse_printed_tree (get_ptree meth_name));
+    fun read_final_trees (meth_names:string list) = Par_List.map read_final_tree meth_names;
+    fun register_final_trees (lthy:local_theory) = fold update (get_all_final_trees_gen read_final_trees) lthy;
+  in register_final_trees end;
+
+fun read_regression_trees_cmd _ =
+  let
+    val _ = Outer_Syntax.local_theory @{command_keyword read_regression_trees}
+      "build regression trees and register them from databases."
+      (mk_parser read_regression_trees);
+  in () end;
+
+(*TODO: This line should be moved out.*)
+val _ = read_regression_trees_cmd ();
 
 fun PaMpeR_activate _ =
 let
@@ -78,7 +150,7 @@ fun get_top_5 (pstate:Proof.state) =
         val exp_str = top |> snd |>  Real.toString;
         val _ = tracing ("A promising method is " ^ fst top ^ " with expectation of " ^ exp_str);
       in
-       (remove (op =) (fst top) meth_names)
+        remove (op =) (fst top) meth_names
       end;
 (*TODO: better if I use Lazy Sequence here?*)
     val _ =

@@ -196,24 +196,23 @@ fun split_region (database:database) =
          NONE;
   in result end;
 
+val max_depth = 4
+
 (* FIXME: to be refined. *)
-fun gtree_repeat (Leaf data) =
+fun gtree_repeat (Leaf data) (depth:int) =
      (debug false "gtree_repeat in the first clause" ();
-      if   length data < criterionN
+      if   (*length data < criterionN*) (depth > max_depth)
       then Leaf data
       else (if is_some (split_region data)
-           then gtree_repeat (split_region data |> the)
+           then gtree_repeat (split_region data |> the) (depth + 1)
            else Leaf data):growing_tree)
-(*
-      else gtree_repeat (split_region data))
-*)
-  | gtree_repeat (Branch {True=right, Feature=feat, False=left}) =
+  | gtree_repeat (Branch {True=right, Feature=feat, False=left}) (depth:int) =
      (debug false "gtree_repeat in the second clause" ();
-      Branch {True    = gtree_repeat right,
+      Branch {True    = gtree_repeat right (depth + 1),
               Feature = feat,
-              False   = gtree_repeat left}:growing_tree);
+              False   = gtree_repeat left (depth + 1)}:growing_tree);
 
-fun get_big_tree (data:database) = gtree_repeat (Leaf data);
+fun get_big_tree (data:database) = gtree_repeat (Leaf data) (1:int);
 
 fun gtree_leaf_map (f:database -> real) (Leaf dtbs:growing_tree) = FLeaf (f dtbs)
   | gtree_leaf_map (f:database -> real) (Branch {True = gtree1, Feature = feature, False = gtree2}) =
@@ -299,12 +298,14 @@ ML{* Regression_Tree.parse_printed_tree test_string *}
 
 (* To use this test, you have to generate the database and pre-process it first. *)
 
-ML{* val rgtree = Regression_Tree.get_big_tree (Database.parse_database "induct"); *}
+ML{* val rgtree = Regression_Tree.get_big_tree (Database.parse_database "cases"); *}
 
 ML{* val ftree = Regression_Tree.post_process rgtree; *}
 
 ML{* val printed_tree = Regression_Tree.print_final_tree ftree; *}
 
 ML{* tracing printed_tree; *}
+
+ML{* Regression_Tree.parse_printed_tree printed_tree; *}
 
 end
