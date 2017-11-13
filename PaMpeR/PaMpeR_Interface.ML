@@ -18,15 +18,14 @@ structure PaMpeR_Interface =
 struct
 
 val path = Resources.master_directory @{theory} |> File.platform_path : string;
-val path_to_ftrees  = path ^ "/RTrees/" : string
-val _               = Isabelle_System.bash ("rm -r " ^ path_to_ftrees ^ "*");
-val _               = Isabelle_System.bash ("mkdir " ^ path_to_ftrees);
+val path_to_ftrees = path ^ "/RTrees/" : string;
+val path_to_meth_names = path ^ "/method_names": string;
 
 (*all_method_names: The database has to be present in PSL/PaMpeR/.*)
 val all_method_names =
   let
-    val bash_script = "while read line \n do echo $line | awk '{print $1;}' \n done < '" ^ path ^ "/method_names" ^ "'" : string;
-    val bash_input  = Bash.process bash_script |> #out : string;
+    val bash_script     = "while read line; do echo -e \"$line\n\"; done <" ^ path_to_meth_names : string;
+    val bash_input      = Bash.process bash_script |> #out : string;
     val dist_meth_names = bash_input |> String.tokens (fn c => c = #"\n") |> distinct  (op =);
   in
     dist_meth_names : string list
@@ -108,6 +107,8 @@ val _ = reset_regression_tree_table_cmd ();
 (*FIXME: use the option monad more effectively.*)
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
+    val _            = Isabelle_System.bash ("rm -r " ^ path_to_ftrees ^ "*");
+    val _            = Isabelle_System.bash ("mkdir " ^ path_to_ftrees);
     val final_tree   = lookup ctxt meth_name: Regression_Tree.final_tree option;
     val _ = if is_none final_tree then tracing ("no final tree available for " ^ meth_name) else ();
     val ftree_as_str = Option.map Regression_Tree.print_final_tree final_tree: string option;
@@ -163,13 +164,13 @@ fun get_top_5 (pstate:Proof.state) =
     fun get_ftree (meth_name:string) = lookup ctxt meth_name: Regression_Tree.final_tree option;
     val get_exp = Regression_Tree.lookup_exp ass_results;
     fun get_top_result' (best_meth, best_exp) (meth_name::names:string list) =
-     let
-       val expct = meth_name |> get_ftree |> the |> get_exp;
-     in
-       if best_exp < expct
-       then get_top_result' (meth_name, expct)    names
-       else get_top_result' (best_meth, best_exp) names
-     end
+         let
+           val expct = meth_name |> get_ftree |> (fn SOME ftree => get_exp ftree | NONE => (tracing ("failed at " ^ meth_name);0.0));
+         in
+           if best_exp < expct
+           then get_top_result' (meth_name, expct)    names
+           else get_top_result' (best_meth, best_exp) names
+         end
       | get_top_result' best_so_far [] = best_so_far;
     fun get_top_result meth_names =
       let
@@ -179,6 +180,7 @@ fun get_top_5 (pstate:Proof.state) =
       in
         remove (op =) (fst top) meth_names
       end;
+
 (*TODO: better if I use Lazy Sequence here?*)
     val _ =
        get_top_result all_method_names |> (fn (wo_1) =>
@@ -190,7 +192,13 @@ fun get_top_5 (pstate:Proof.state) =
        get_top_result wo_6             |> (fn (wo_7) =>
        get_top_result wo_7             |> (fn (wo_8) =>
        get_top_result wo_8             |> (fn (wo_9) =>
-       get_top_result wo_9)))))))))
+       get_top_result wo_9             |> (fn (wo_10) =>
+       get_top_result wo_10            |> (fn (wo_11) =>
+       get_top_result wo_11            |> (fn (wo_12) =>
+       get_top_result wo_12            |> (fn (wo_13) =>
+       get_top_result wo_13            |> (fn (wo_14) =>
+       get_top_result wo_14            |> (fn (wo_15) =>
+       get_top_result wo_15)))))))))))))))
 (*
     val (top_meth_name, top_exp) = get_top_result (all_method_names ()) |> apsnd Real.toString : (string * string);
 *)

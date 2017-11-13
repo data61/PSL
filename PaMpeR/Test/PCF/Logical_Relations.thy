@@ -97,7 +97,7 @@ lemma unlr_inf: "unlr (inf x y) = unlr x \<inter> unlr y"
 lemma unlr_sup: "unlr (sup x y) = unlr x \<union> unlr y"
   unfolding sup_admS_def by (simp add: admS_def)
 
-instance assert_nth_true 42
+instance assert_nth_true 42 proof_advice
 apply intro_classes assert_nth_false 42 assert_nth_false 55
 apply (auto simp: less_eq_admS_def unlr_inf unlr_sup)
 done
@@ -117,7 +117,7 @@ lemma unlr_bot[simp]:
 definition
   "top_admS \<equiv> mklr UNIV"
 
-instance
+instance proof_advice
 proof
   fix x :: "'a admS"
   show "bot \<le> x" by (simp add: bot_admS_def less_eq_admS_def admS_def)

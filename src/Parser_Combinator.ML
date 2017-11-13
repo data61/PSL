@@ -118,16 +118,17 @@ struct
              f n |> result))))
     end;
 
+  val digit_or_period = sat (fn symb => Symbol.is_digit symb orelse equal "." symb);
+  (*FIXME: digit_or_period is not good enough to parse real: think about "-0.0  .something*)
+  val positive_real   = many1 digit_or_period >>= (fn xs => xs |> Seq.list_of |> String.concat |> Real.fromString |> the |> result);
   val real =
     let
       val id  = fn inp => Seq.single (I, inp);
       val ope = (symbol "-" plus symbol "~") >>= (fn _ => result ((op ~):real -> real)) plus id;
     in
       token ope >>= (fn f =>
-      token nat >>= (fn n =>
-      token (symbol ".") >>= (fn _ =>
-      token nat >>= (fn frac =>
-      (Real.fromInt n + Utils.nat_to_frac frac) |> f |> result))))
+      token positive_real >>= (fn pr =>
+      f pr |> result))
     end;
 
   infix sepby1;

@@ -4,9 +4,9 @@
 section {* A Codatatype of Formal Languages *}
 
 theory Coinductive_Language
-imports Main
+imports Main  "../../PaMpeR"
 begin
-
+print_methods
 hide_const (open) Inter
 (*>*)
 
@@ -20,7 +20,7 @@ node constitutes a word inside or outside of the language.
 *}
 
 codatatype 'a language = Lang (\<oo>: bool) (\<dd>: "'a \<Rightarrow> 'a language")
-
+print_theorems
 text {*
 This codatatype is isormorphic to the set of lists representation of languages,
 but caters for definitions by corecursion and proofs by coinduction.
@@ -59,23 +59,23 @@ primcorec Atom :: "'a \<Rightarrow> 'a language" where
 primcorec Plus :: "'a language \<Rightarrow> 'a language \<Rightarrow> 'a language" where
   "\<oo> (Plus r s) = (\<oo> r \<or> \<oo> s)"
 | "\<dd> (Plus r s) = (\<lambda>a. Plus (\<dd> r a) (\<dd> s a))"
-
-theorem Plus_ZeroL[simp]: "Plus Zero r = r"
+print_theorems
+theorem Plus_ZeroL[simp]: "Plus Zero r = r" proof_advice find_theorems name:"Plus"
   by (coinduction arbitrary: r) simp
 
-theorem Plus_ZeroR[simp]: "Plus r Zero = r"
+theorem Plus_ZeroR[simp]: "Plus r Zero = r"  proof_advice
   by (coinduction arbitrary: r) simp
 
 theorem Plus_assoc: "Plus (Plus r s) t = Plus r (Plus s t)"
   by (coinduction arbitrary: r s t) auto
 
-theorem Plus_comm: "Plus r s = Plus s r"
+theorem Plus_comm: "Plus r s = Plus s r"  proof_advice
   by (coinduction arbitrary: r s) auto
 
 lemma Plus_rotate: "Plus r (Plus s t) = Plus s (Plus r t)"
   using Plus_assoc Plus_comm by metis
 
-theorem Plus_idem: "Plus r r = r"
+theorem Plus_idem: "Plus r r = r" proof_advice
   by (coinduction arbitrary: r) auto
 
 lemma Plus_idem_assoc: "Plus r (Plus r s) = Plus r s"
@@ -86,7 +86,7 @@ lemmas Plus_ACI[simp] = Plus_rotate Plus_comm Plus_assoc Plus_idem_assoc Plus_id
 lemma Plus_OneL[simp]: "\<oo> r \<Longrightarrow> Plus One r = r"
   by (coinduction arbitrary: r) auto
 
-lemma Plus_OneR[simp]: "\<oo> r \<Longrightarrow> Plus r One = r"
+lemma Plus_OneR[simp]: "\<oo> r \<Longrightarrow> Plus r One = r" proof_advice
   by (coinduction arbitrary: r) auto
 
 text {*
@@ -116,10 +116,10 @@ lemma TimesLR_PlusL[simp]: "TimesLR (Plus r s) t = Plus (TimesLR r t) (TimesLR s
 lemma TimesLR_PlusR[simp]: "TimesLR r (Plus s t) = Plus (TimesLR r s) (TimesLR r t)"
   by (coinduction arbitrary: r s t) auto
 
-lemma Times_Plus_Zero[simp]: "Times_Plus Zero = Zero"
+lemma Times_Plus_Zero[simp]: "Times_Plus Zero = Zero" proof_advice
   by coinduction simp
 
-lemma Times_Plus_Plus[simp]: "Times_Plus (Plus r s) = Plus (Times_Plus r) (Times_Plus s)"
+lemma Times_Plus_Plus[simp]: "Times_Plus (Plus r s) = Plus (Times_Plus r) (Times_Plus s)" proof_advice
 proof (coinduction arbitrary: r s)
   case (Lang r s)
   then show ?case unfolding Times_Plus.sel Plus.sel
@@ -154,7 +154,7 @@ theorem Times_ZeroL[simp]: "Times Zero r = Zero"
 theorem Times_ZeroR[simp]: "Times r Zero = Zero"
   by (coinduction arbitrary: r) auto
 
-theorem Times_OneL[simp]: "Times One r = r"
+theorem Times_OneL[simp]: "Times One r = r" proof_advice
   by (coinduction arbitrary: r rule: language.coinduct_strong) (simp add: rel_fun_def)
 
 theorem Times_OneR[simp]: "Times r One = r"
@@ -177,7 +177,7 @@ inductive Plus_cong for R where
 lemma language_coinduct_upto_Plus[unfolded rel_fun_def, simplified, case_names Lang, consumes 1]:
   assumes R: "R L K" and hyp:
     "(\<And>L K. R L K \<Longrightarrow> \<oo> L = \<oo> K \<and> rel_fun op = (Plus_cong R) (\<dd> L) (\<dd> K))"
-  shows "L = K"
+  shows "L = K" proof_advice
 proof (coinduct rule: language.coinduct[of "Plus_cong R"])
   fix L K assume "Plus_cong R L K"
   then show "\<oo> L = \<oo> K \<and> rel_fun op = (Plus_cong R) (\<dd> L) (\<dd> K)"
@@ -274,7 +274,7 @@ lemma ShuffleLR_ZeroR[simp]: "ShuffleLR r Zero = Zero"
 lemma ShuffleLR_PlusL[simp]: "ShuffleLR (Plus r s) t = Plus (ShuffleLR r t) (ShuffleLR s t)"
   by (coinduction arbitrary: r s t) auto
 
-lemma ShuffleLR_PlusR[simp]: "ShuffleLR r (Plus s t) = Plus (ShuffleLR r s) (ShuffleLR r t)"
+lemma ShuffleLR_PlusR[simp]: "ShuffleLR r (Plus s t) = Plus (ShuffleLR r s) (ShuffleLR r t)"  proof_advice
   by (coinduction arbitrary: r s t) auto
 
 lemma Shuffle_Plus_ShuffleLR_One[simp]: "Times_Plus (ShuffleLR r One) = r"
@@ -394,7 +394,7 @@ definition "less_language r s = (Plus r s = s \<and> r \<noteq> s)"
 lemmas language_defs = zero_language_def one_language_def plus_language_def times_language_def
   less_eq_language_def less_language_def
 
-instance proof intro_classes
+instance proof_advice proof intro_classes
   fix x y z :: "'a language" assume "x \<le> y" "y \<le> z"
   then show "x \<le> z" unfolding language_defs by (metis Plus_assoc)
 next
@@ -456,7 +456,7 @@ lemma Plus_mono: "\<lbrakk>r1 \<le> s1; r2 \<le> s2\<rbrakk> \<Longrightarrow> P
 lemma Plus_upper: "\<lbrakk>r1 \<le> s; r2 \<le> s\<rbrakk> \<Longrightarrow> Plus r1 r2 \<le> s"
   by (coinduction arbitrary: r1 r2 s) auto
 
-lemma Inter_mono: "\<lbrakk>r1 \<le> s1; r2 \<le> s2\<rbrakk> \<Longrightarrow> Inter r1 r2 \<le> Inter s1 s2"
+lemma Inter_mono: "\<lbrakk>r1 \<le> s1; r2 \<le> s2\<rbrakk> \<Longrightarrow> Inter r1 r2 \<le> Inter s1 s2" proof_advice
   by (coinduction arbitrary: r1 r2 s1 s2) (force elim!: \<dd>_mono)
 
 lemma Times_mono: "\<lbrakk>r1 \<le> s1; r2 \<le> s2\<rbrakk> \<Longrightarrow> Times r1 r2 \<le> Times s1 s2"

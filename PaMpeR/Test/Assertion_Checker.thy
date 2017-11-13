@@ -27,7 +27,7 @@ fun get_trans_trans_gen (yes_no:int) (assert_numb:int) =
       (fn top =>
        let
          val proof_state   = Toplevel.proof_of top;
-         val results = Assertions.eval_assertion_for_ML proof_state |> map Real.floor;
+         val results = Assertions.eval_assertion_for_ML_real proof_state |> map Real.floor;
          val nth_result = List.nth (results, assert_numb - 1);
          val mssg = if nth_result = 0 then "false" else "true";
        in
@@ -40,7 +40,7 @@ fun get_trans_trans_ints (expected_results:int Seq.seq) =
       (fn top =>
        let
          val proof_state     = Toplevel.proof_of top;
-         val results         = Assertions.eval_assertion_for_ML proof_state |> map Real.floor;
+         val results         = Assertions.eval_assertion_for_ML_real proof_state |> map Real.floor;
          (* The checker should inform which assertion failed to given expectations.*)
          val expected        = Seq.list_of expected_results;
          val expected_length = length expected;

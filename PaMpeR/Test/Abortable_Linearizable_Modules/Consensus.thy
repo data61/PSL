@@ -1,7 +1,7 @@
 section {* The Consensus Data Type *}
 
 theory Consensus
-imports RDR "../Assertion_Checker"
+imports RDR "../Assertion_Checker" "../../PaMpeR"
 begin
 
 text {* This theory provides a model for the RDR locale, thus showing 
@@ -38,7 +38,7 @@ next
   thus ?case by auto
 qed
 
-lemma bot: "\<exists> rs . s = \<bottom> \<star> rs" assert_nth_false 44
+lemma bot: "\<exists> rs . s = \<bottom> \<star> rs" assert_nth_false 44 proof_advice
 proof (cases s)
   case None
   hence "s = \<bottom> \<star> []" by auto

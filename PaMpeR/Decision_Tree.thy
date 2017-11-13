@@ -271,7 +271,7 @@ fun lookup_fval (i:int) ((Database.Feature fint, fval)::fvec) =
 fun lookup_exp ([]:bools) _ = error "lookup_one in Decision_Tree failed! Empty list!"
   | lookup_exp (_ :bools) (FLeaf expect) = expect
   | lookup_exp (bs:bools) (FBranch {More, Feature as (Database.Feature i, _), Less}) =
-    if nth bs (i + 1)
+    if nth bs (i - 1) (*because the numbering of assertions starts from 1.*)
     then lookup_exp bs More
     else lookup_exp bs Less;
 

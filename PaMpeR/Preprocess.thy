@@ -106,6 +106,6 @@ end;
 
 ML{* Preprocess.print_all_meth_names ()*}
 
-ML{* Preprocess.preprocess  *}
+ML{* Preprocess.preprocess () *}
 
 end

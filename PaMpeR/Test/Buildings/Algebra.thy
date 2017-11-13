@@ -7,7 +7,7 @@ text {*
 *}
 
 theory Algebra
-imports Prelim "HOL-Library.Set_Algebras" "../Assertion_Checker"
+imports Prelim "HOL-Library.Set_Algebras" "../Assertion_Checker" "../../PaMpeR"
 
 begin
 
@@ -1124,7 +1124,7 @@ inductive_set genby :: "'a::group_add set \<Rightarrow> 'a set" ("\<langle>_\<ra
       genby_0_closed     : "0\<in>\<langle>S\<rangle>"  --{* just in case @{term S} is empty *}
     | genby_genset_closed: "s\<in>S \<Longrightarrow> s\<in>\<langle>S\<rangle>"
     | genby_diff_closed  : "w\<in>\<langle>S\<rangle> \<Longrightarrow> w'\<in>\<langle>S\<rangle> \<Longrightarrow> w - w' \<in> \<langle>S\<rangle>"
-
+print_theorems
 lemma genby_Group: "Group \<langle>S\<rangle>"
   using genby_0_closed genby_diff_closed find_theorems name:"Group" name:"Algebra" name:"intro" by unfold_locales fast
 
@@ -1171,7 +1171,7 @@ next
   ultimately show "w - w' \<in> S_sum_lists" using S_sum_lists by fast
 qed
 
-lemma sum_list_lists_in_genby: "ss \<in> lists (S \<union> uminus ` S) \<Longrightarrow> sum_list ss \<in> \<langle>S\<rangle>"
+lemma sum_list_lists_in_genby: "ss \<in> lists (S \<union> uminus ` S) \<Longrightarrow> sum_list ss \<in> \<langle>S\<rangle>" proof_advice
 proof (induct ss)
   case Nil show ?case using genby_0_closed by simp
 next
@@ -1347,7 +1347,7 @@ lemma im_lconjby: "T (lconjby x g) = lconjby (T x) (T g)"
 
 lemma restrict0:
   assumes "Group G"
-  shows   "GroupHom G (restrict0 T G)" assert_nth_true 43 find_theorems name:"Group" name:"Algebra" name:"axioms"
+  shows   "GroupHom G (restrict0 T G)" assert_nth_true 43 find_theorems name:"Group" name:"Algebra" name:"axioms" proof_advice
 proof (intro_locales, rule assms, unfold_locales)
   from hom 
     show  "\<And>g g'. g \<in> G \<Longrightarrow> g' \<in> G \<Longrightarrow>
@@ -1388,7 +1388,7 @@ abbreviation (in BinOpSetGroup) "lift_hom T \<equiv> restrict0 (T \<circ> \<ii>\
 lemma (in BinOpSetGroup) lift_hom:
   fixes T :: "'a \<Rightarrow> 'b::group_add"
   assumes "\<forall>g\<in>G. \<forall>h\<in>G. T (binop g h) = T g + T h"
-  shows   "GroupHom pG (lift_hom T)" find_theorems name:".GroupHom." name:"" name:"axioms"
+  shows   "GroupHom pG (lift_hom T)" find_theorems name:".GroupHom." name:"" name:"axioms" proof_advice
 proof (intro_locales, rule Group, unfold_locales)
   from assms
     show  "\<And>x y. x\<in>pG \<Longrightarrow> y\<in>pG \<Longrightarrow>
@@ -1840,8 +1840,8 @@ function prappend_signed_list :: "'a signed list \<Rightarrow> 'a signed list \<
       | "prappend_signed_list (xs@[x]) (y#ys) = (
           if y = flip_signed x then prappend_signed_list xs ys else xs @ x # y # ys
         )" assert_nth_false 40 assert_nth_true 41
-  by (auto, rule two_prod_lists_cases_snoc_Cons)
-  termination assert_nth_true 40 by (relation "measure (\<lambda>(xs,ys). length xs + length ys)") auto
+  by (auto, rule two_prod_lists_cases_snoc_Cons) 
+  termination proof_advice assert_nth_true 40 by (relation "measure (\<lambda>(xs,ys). length xs + length ys)") auto
 
 lemma proper_prappend_signed_list:
   "proper_signed_list xs \<Longrightarrow> proper_signed_list ys
@@ -1861,7 +1861,7 @@ proof (induct xs ys rule: list_induct2_snoc_Cons)
 qed auto
 
 lemma fully_prappend_signed_list:
-  "prappend_signed_list (rev (map flip_signed xs)) xs = []"
+  "prappend_signed_list (rev (map flip_signed xs)) xs = []"proof_advice
   by (induct xs) auto
 
 lemma prappend_signed_list_single_Cons:
@@ -1893,7 +1893,7 @@ qed simp
 lemma prappend_signed_list_assoc:
   "\<lbrakk> proper_signed_list xs; proper_signed_list ys; proper_signed_list zs \<rbrakk> \<Longrightarrow>
     prappend_signed_list (prappend_signed_list xs ys) zs =
-      prappend_signed_list xs (prappend_signed_list ys zs)"
+      prappend_signed_list xs (prappend_signed_list ys zs)" proof_advice
 proof (induct xs ys zs rule: list_induct3_snoc_Conssnoc_Cons_pairwise)
   case (snoc_single_Cons xs x y z zs)
   thus ?case
@@ -1987,10 +1987,10 @@ begin
 lift_definition minus_freeword :: "'a freeword \<Rightarrow> 'a freeword \<Rightarrow> 'a freeword"
   is "\<lambda>xs ys. prappend_signed_list xs (rev (map flip_signed ys))"
   using proper_rev_map_flip_signed proper_prappend_signed_list by fast
-instance ..
+instance proof_advice ..
 end
 
-instance freeword :: (type) semigroup_add
+instance freeword :: (type) semigroup_add proof_advice
 proof
   fix a b c :: "'a freeword" show "a + b + c = a + (b + c)"
     using prappend_signed_list_assoc[of "freeword a" "freeword b" "freeword c"]
@@ -2004,12 +2004,12 @@ proof
   show "a + 0 = a" by transfer simp
 qed
 
-instance freeword :: (type) group_add
+instance freeword :: (type) group_add proof_advice
 proof
   fix a b :: "'a freeword"
   show "- a + a = 0"
     using fully_prappend_signed_list[of "freeword a"] by transfer simp
-  show "a + - b = a - b" by transfer simp
+  show "a + - b = a - b" proof_advice  by transfer simp
 qed
 
 paragraph {* Basic algebra and transfer facts in the @{type freeword} type *}
@@ -2782,7 +2782,7 @@ lemma freeliftid_trivial_P: "ps\<in>P \<Longrightarrow> freeliftid (Abs_freeword
   using freeliftid_trivial_relator_freeword_R by fast
 
 lemma GroupByPresentationInducedFun_S_P_id:
-  "GroupByPresentationInducedFun S P id"
+  "GroupByPresentationInducedFun S P id" proof_advice find_theorems name:"GroupByPresentationInducedFun"
   by  (
         intro_locales, rule GroupByPresentation_S_P,
         unfold_locales, rule freeliftid_trivial_P
