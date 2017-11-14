@@ -152,7 +152,7 @@ abbreviation "\<bb> \<equiv> Inl False"
 abbreviation "S \<equiv> Inr ()"
 
 interpretation palindromes: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>], [\<bb>], [\<aa>, S, \<aa>], [\<bb>, S, \<bb>]|}\<rparr>" assert_nth_true 44
-  by unfold_locales auto
+  assert_nth_true 59 by unfold_locales auto
 
 lemma "in_language palindromes.lang []" by normalization
 lemma "in_language palindromes.lang [True]" by normalization
@@ -164,7 +164,7 @@ lemma "\<not> in_language palindromes.lang [True, False, True, False]" by normal
 lemma "in_language palindromes.lang [True, False, True, True, False, True]" by normalization
 lemma "\<not> in_language palindromes.lang [True, False, True, False, False, True]" by normalization
 
-interpretation Dyck: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, S, \<bb>, S]|}\<rparr>"assert_nth_true 44
+interpretation Dyck: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, S, \<bb>, S]|}\<rparr>"assert_nth_true 44 assert_nth_true 59
 proof_advice  by unfold_locales auto
 lemma "in_language Dyck.lang []" by normalization
 lemma "\<not> in_language Dyck.lang [True]" by normalization

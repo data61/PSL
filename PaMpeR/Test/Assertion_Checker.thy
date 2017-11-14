@@ -102,6 +102,7 @@ lemma "a * Numeral1 = a"
 lemma "1 \<in> {1,2}"
   assert_nth_true 49
   assert_nth_true 44 (*!*) (*This is unfortunate.*)
+  assert_nth_false 59
   oops
 
 end

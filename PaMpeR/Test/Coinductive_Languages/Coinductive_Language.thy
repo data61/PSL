@@ -6,7 +6,7 @@ section {* A Codatatype of Formal Languages *}
 theory Coinductive_Language
 imports Main  "../../PaMpeR"
 begin
-print_methods
+print_locales declare[[ML_print_depth=400]] print_classes
 hide_const (open) Inter
 (*>*)
 

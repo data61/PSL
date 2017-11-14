@@ -53,7 +53,7 @@ text {*
 
 typedef 'a permutation = "{f::'a\<Rightarrow>'a. bij f}"
   morphisms permutation Abs_permutation
-  by fast
+  by fast print_theorems
 
 setup_lifting type_definition_permutation print_theorems
 
@@ -143,8 +143,8 @@ context monoid_add
 begin
 
 sublocale nataction: power 0 plus .
-sublocale add_mult_translate: monoid_mult 0 plus find_theorems name:"monoid_mult" name:"axiom" print_locales
-  by unfold_locales (auto simp add: add.assoc)
+sublocale add_mult_translate: monoid_mult 0 plus ML_prf{* @{term class.monoid_mult} *} find_theorems name:"monoid_mult" name:"axiom" print_locales
+  assert_nth_true 44 (*assert_nth_true 59*) by unfold_locales (auto simp add: add.assoc)
 
 abbreviation nataction :: "'a \<Rightarrow> nat \<Rightarrow> 'a" (infix "+^" 80)
   where "a+^n  \<equiv> nataction.power a n"
@@ -990,10 +990,10 @@ lemma Abs_G_perm_diff:
   using Abs_G_perm_def minus_permutation_abs_eq[OF bij_G_perm bij_G_perm]
         the_inv_G_perm G_perm_comp the_inverseD(1)
   by    simp
-
-lemma Group: "Group pG"
+declare[[ML_print_depth=300]]
+lemma Group: "Group pG"  ML_prf{* map #name  (Locale.pretty_locale_deps @{theory}) *}
   using identity(1) Abs_G_perm_diff the_inverseD(1) closed find_theorems name:"Group" name:"axioms" name:"local." by unfold_locales auto
-
+term Algebra.Group
 lemma inj_on_\<pp>_G: "inj_on \<pp> G"
 proof (rule inj_onI)
   fix x y assume xy: "x\<in>G" "y\<in>G" "\<pp> x = \<pp> y"

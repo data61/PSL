@@ -311,7 +311,16 @@ fun fst_subg_has_schematic_var (goal:thm) _ _ =
     result
   end;
 
-(*use Term.is_Var and Term.exists_subterm*)
+(* ASSERT 59. checks if the first subgoal contains a constant that is defined with the locale keyword. *)
+fun has_locale_const goal (ctxt:Proof.context) _ =
+  let
+    val thy          = Proof_Context.theory_of ctxt;
+    val locale_names = try Locale.pretty_locale_deps thy |> these |> map #name: string list;
+    val test         = AU.fst_subg_has_const_of_name goal: string -> bool;
+    val result       = exists test locale_names: bool;
+  in
+    result
+  end;
 
 (* ASSERT 11. checks if there is a constant with prefix "Num" in the first subgoal *)
 fun has_const_prefixed_with_Num goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Num";
@@ -515,7 +524,8 @@ val assertions =
 (*55*)  has_var_of_rec,
 (*56*)  has_eventually,
 (*57*)  fact_inductive,
-(*58*)  fact_fun]
+(*58*)  fact_fun,
+(*59*)  has_locale_const]
 
 (** Function used to generate database **)
 
