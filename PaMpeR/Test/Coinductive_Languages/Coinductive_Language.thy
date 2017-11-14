@@ -18,7 +18,7 @@ alphabet @{typ 'a}. Each node in such a tree indicates whether the path to this
 node constitutes a word inside or outside of the language.
 
 *}
-
+datatype 's test = Ho 's print_theorems
 codatatype 'a language = Lang (\<oo>: bool) (\<dd>: "'a \<Rightarrow> 'a language")
 print_theorems
 text {*
@@ -47,7 +47,7 @@ section {* Regular Languages *}
 primcorec Zero :: "'a language" where
   "\<oo> Zero = False"
 | "\<dd> Zero = (\<lambda>_. Zero)"
-
+print_theorems
 primcorec One :: "'a language" where
   "\<oo> One = True"
 | "\<dd> One = (\<lambda>_. Zero)"

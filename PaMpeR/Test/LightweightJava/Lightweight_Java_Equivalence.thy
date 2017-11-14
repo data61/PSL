@@ -70,7 +70,7 @@ superclass_name_f :: "cld \<Rightarrow> cl"
 where
 "superclass_name_f cld =
   (case cld of cld_def dcl cl fds mds \<Rightarrow> cl)"
-lemma [simp]: "(superclass_name cld cl) = (superclass_name_f cld = cl)"
+lemma [simp]: "(superclass_name cld cl) = (superclass_name_f cld = cl)"assert_nth_true 57 assert_nth_false 58
 by (force simp add: superclass_name_f_def split: cld.splits
           intro: superclass_nameI elim: superclass_name.cases)
 
@@ -109,7 +109,7 @@ where
   (distinct (map class_name_f P))"
 lemma distinct_names_map[rule_format]:
   "(\<forall>x\<in>set cld_dcl_list. case_prod (\<lambda>cld. op = (class_name_f cld)) x) \<and> distinct (map snd cld_dcl_list)
-      \<longrightarrow> distinct_names_f (map fst cld_dcl_list)"
+      \<longrightarrow> distinct_names_f (map fst cld_dcl_list)"assert_nth_false 57
 apply(induct cld_dcl_list)
  apply(clarsimp simp add: distinct_names_f_def)+ apply(force)
 done
