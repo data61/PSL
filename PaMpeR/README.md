@@ -43,7 +43,7 @@ and provides runtime proof method recommendation to user in a proof stage by the
 
 - [x] 2. a "case_of" constant. ("case_")
 
-- [ ] a record typed variable.
+- [x] a record typed variable.
 
 - [ ] a typeclass definition.
 
