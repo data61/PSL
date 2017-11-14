@@ -16,6 +16,8 @@ theory Test_Assertion_Using_AFP
   "Name_Carrying_Type_Inference/SimplyTyped"
   "Coinductive_Languages/Coinductive_Language"
   "Ribbon_Proofs/More_Finite_Map"
+  "Coinductive/Coinductive_List"
+  "Landau_Symbols/Landau_Library"
 begin
 
 find_theorems name:"pelims" -name:"Quickcheck" -name:"Nitpick"

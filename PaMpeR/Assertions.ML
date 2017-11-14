@@ -260,14 +260,17 @@ fun is_locale_intro1 goal ctxt _ = AU.has_thms_of_cname_with_all_substrs goal ct
 (* ASSERT 43. checks if the proof obligation has intro_locales*)
 fun is_locale_intro2 goal ctxt _ = AU.has_thms_of_cname_with_all_substrs goal ctxt ["local.", "_axioms"];
 
-(* ASSERT 53. checks if the proof obligation has a variable define with the datatype command. *)
+(* ASSERT 53. checks if the proof obligation has a variable of a type that is defined with the datatype command. *)
 fun has_datatype_var goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["rec_transfer"];
 
-(* ASSERT 54. checks if the proof obligation has a variable define with the datatype command with a parameter. *)
+(* ASSERT 54. checks if the proof obligation has variable of a type that is defined the datatype command with a parameter. *)
 fun has_datatype_var_para goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["inj_map_strong"];
 
-(* ASSERT 55. checks if the proof obligation has a variable define with the datatype command with a parameter. *)
+(* ASSERT 55. checks if the proof obligation has a variable of a type that is defined with the record command. *)
 fun has_var_of_rec goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["Abs_", "_ext_inject"];
+
+(* ASSERT 61. checks if the proof obligation has a variable of a type that is defined with the codatatype command. *)
+fun has_var_of_codata goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["corec_disc"];
 
 (* ASSERT 44. checks if the outermost constant visible to users has a name such that the underlying   *)
 (*            proof context has a theorem of name ".base_name_of_the_constant.".                      *)
@@ -529,7 +532,8 @@ val assertions =
 (*57*)  fact_inductive,
 (*58*)  fact_fun,
 (*59*)  has_locale_const,
-(*60*)  has_class_const]
+(*60*)  has_class_const,
+(*61*)  has_var_of_codata]
 
 (** Function used to generate database **)
 
