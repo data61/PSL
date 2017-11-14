@@ -143,7 +143,7 @@ context monoid_add
 begin
 
 sublocale nataction: power 0 plus .
-sublocale add_mult_translate: monoid_mult 0 plus find_theorems name:"monoid_mult" name:"axiom"
+sublocale add_mult_translate: monoid_mult 0 plus find_theorems name:"monoid_mult" name:"axiom" print_locales
   by unfold_locales (auto simp add: add.assoc)
 
 abbreviation nataction :: "'a \<Rightarrow> nat \<Rightarrow> 'a" (infix "+^" 80)

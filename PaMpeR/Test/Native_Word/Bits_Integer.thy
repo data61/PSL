@@ -359,7 +359,7 @@ code_printing
   (Haskell) "(Data'_Bits.complement :: Integer -> Integer)" and
   (Haskell_Quickcheck) "(Data'_Bits.complement :: Prelude.Int -> Prelude.Int)" and
   (Scala) "_.unary'_~"
-
+print_locales
 code_printing constant bin_rest_integer \<rightharpoonup>
   (SML) "IntInf.div ((_), 2)" and
   (Haskell) "(Data'_Bits.shiftrUnbounded _ 1 :: Integer)" and
@@ -527,7 +527,7 @@ code_printing constant integer_shiftr \<rightharpoonup>
   (Haskell_Quickcheck) "(Data'_Bits.shiftrUnbounded :: Prelude.Int -> Prelude.Int -> Prelude.Int)" and
   (OCaml) "Bits'_Integer.shiftr" and
   (Scala) "Bits'_Integer.shiftr"
-
+print_theorems print_codeproc print_codesetup
 lemma integer_shiftr_code [code]:
   "integer_shiftr x (Code_Numeral.Neg n) = undefined x (Code_Numeral.Neg n)"
   "integer_shiftr x 0 = x"
@@ -887,9 +887,9 @@ definition bit_integer_test :: "bool" where
       False, False, True, True])"
 
 export_code bit_integer_test checking SML Haskell? Haskell_Quickcheck? OCaml? Scala
-
+print_theorems print_codeproc find_theorems "bit_integer_test" print_codesetup
 notepad begin
-have bit_integer_test by eval
+have bit_integer_test find_theorems name:"bit_integer_test" by eval
 have bit_integer_test by normalization
 have bit_integer_test by code_simp
 end
