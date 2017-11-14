@@ -353,6 +353,9 @@ fun all_consts_in_main goal ctxt _ =
     AU.all_cnames_satisfy goal in_Main
   end;
 
+(* ASSERT 60. check if the first subgoal has a constant that is defined with the "class" keyword. *)
+fun has_class_const goal _ _ = AU.fst_subg_has_const_of goal (String.isSubstring ".class.");
+
 (** Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal. **)
 (* ASSERT 22. checks if the first subgoal is an "Equational" problem or not. *)
 fun fst_subg_is_classified_as_Equational goal ctxt _ = AU.fst_subg_is_classified_as goal ctxt Spec_Rules.Equational;
@@ -525,7 +528,8 @@ val assertions =
 (*56*)  has_eventually,
 (*57*)  fact_inductive,
 (*58*)  fact_fun,
-(*59*)  has_locale_const]
+(*59*)  has_locale_const,
+(*60*)  has_class_const]
 
 (** Function used to generate database **)
 
