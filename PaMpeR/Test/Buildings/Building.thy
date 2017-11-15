@@ -604,9 +604,9 @@ abbreviation "fold_A \<equiv> canonical_retraction A D \<circ> canonical_retract
 abbreviation "res_fold_A \<equiv> restrict1 fold_A (\<Union>A)"
 abbreviation "opp_fold_A \<equiv> canonical_retraction A C \<circ> canonical_retraction B' D"
 abbreviation "res_opp_fold_A \<equiv> restrict1 opp_fold_A (\<Union>A)"
-
-lemma rotate: "ChamberComplexApartmentSystemTriangle X \<A> B' A B D E C z" find_theorems name:"axioms" name:"ChamberComplexApartmentSystemTriangle"
-  using apartments chambers facet in_apartments chambers_ne
+  find_theorems name:"axioms_def" -name:".class." ML{* @{term ChamberComplexApartmentSystemTriangle} *}
+lemma rotate: "ChamberComplexApartmentSystemTriangle X \<A> B' A B D E C z" find_theorems name:"_def" name:"ChamberComplexApartmentSystemTriangle"
+  using apartments chambers facet in_apartments chambers_ne assert_nth_true 44
   by    unfold_locales auto
 
 lemma reflect: "ChamberComplexApartmentSystemTriangle X \<A> A B' B D C E z"

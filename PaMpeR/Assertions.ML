@@ -277,14 +277,13 @@ fun has_var_of_codata goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal c
 (*            We expect that this assertion is useful to detect the use of the unfold_locales method. *)
 fun is_unfold_locale goal ctxt _ =
   let
-    fun get_rules name_with_dots = Find_Theorems2.all_names_to_rules "" [name_with_dots] ctxt goal;
+    fun get_rules (strs:string list) = Find_Theorems2.all_names_to_rules "" strs ctxt goal;
     val result = goal
       |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
       >>=   Isabelle_Utils.get_outmost_cname
       liftM Long_Name.base_name
-      liftM (fn bname => "." ^ bname ^ ".")
-      liftM get_rules
-      liftM (not o null)
+      liftM (fn bname => ["." ^ bname ^ ".", bname ^ "_def", bname ^ "_axioms_def"])
+      liftM (forall (not o null o get_rules o single))
       |>    Utils.is_some_true: bool
   in result end;
 
