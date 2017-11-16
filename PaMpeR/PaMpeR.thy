@@ -33,6 +33,7 @@ keywords "proof_advice" :: diag
 begin
 
 ML_file "./Assertions.ML"
+ML_file "../src/Parser_Combinator.ML"
 ML_file "./PaMpeR_Interface.ML"
 
 reset_regression_tree_table

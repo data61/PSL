@@ -18,8 +18,9 @@ structure PaMpeR_Interface =
 struct
 
 val path = Resources.master_directory @{theory} |> File.platform_path : string;
-val path_to_ftrees = path ^ "/RTrees/" : string;
+val path_to_ftrees     = path ^ "/RTrees/" : string; (*FIXME:not needed anymore*)
 val path_to_meth_names = path ^ "/method_names": string;
+val path_to_rtree      = path ^ "/regression_trees";
 
 (*all_method_names: The database has to be present in PSL/PaMpeR/.*)
 val all_method_names =
@@ -51,7 +52,6 @@ fun build_ftree (meth_name:string) =
    result
   end;
 
-(*FIXME: the use of "try" here is unsafe.*)
 fun build_final_trees (meth_names:string list) = Par_List.map build_ftree meth_names
  |> (fn opts => (filter is_none opts |> length |> Int.toString |> (fn numb => tracing ("The number of failures is " ^ numb)); opts))
  |> filter is_some
@@ -95,8 +95,7 @@ val _ = register_ftrees_command ();
 fun reset_regression_tree_table_cmd _ =
   let
     val _ = Outer_Syntax.local_theory @{command_keyword reset_regression_tree_table}
-      "reset the table containing final trees to Table.empty."
-      (mk_parser reset);
+      "reset the table containing final trees to Table.empty." (mk_parser reset);
   in () end;
 
 (*TODO: This line should be moved out.*)
@@ -107,14 +106,12 @@ val _ = reset_regression_tree_table_cmd ();
 (*FIXME: use the option monad more effectively.*)
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
-    val _            = Isabelle_System.bash ("rm -r " ^ path_to_ftrees ^ "*");
-    val _            = Isabelle_System.bash ("mkdir " ^ path_to_ftrees);
-    val final_tree   = lookup ctxt meth_name: Regression_Tree.final_tree option;
+    val final_tree    = lookup ctxt meth_name: Regression_Tree.final_tree option;
     val _ = if is_none final_tree then tracing ("no final tree available for " ^ meth_name) else ();
-    val ftree_as_str = Option.map Regression_Tree.print_final_tree final_tree: string option;
-    val bash_command =
+    val ftree_as_str  = Option.map Regression_Tree.print_final_tree final_tree: string option;
+    val bash_command  =
       if is_some ftree_as_str
-      then "echo -n '" ^ the ftree_as_str  ^ "' > " ^ path_to_ftrees ^ meth_name
+      then "echo -n '" ^ meth_name ^ "," ^ the ftree_as_str ^ "' >> " ^ path_to_rtree
       else "echo -n '" ^ "No final tree available for " ^ meth_name ^ "'";
     val exit_int     = Isabelle_System.bash (bash_command:string);
     val _ = if exit_int = 0 then () else tracing "print_out_ftree failed! The bach returned a non-0 value.";
@@ -123,7 +120,9 @@ fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   end;
 
 fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
-  (Par_List.map (print_out_ftree lthy) meth_names; lthy);
+  (Isabelle_System.bash ("rm -r " ^ path_to_rtree);
+   map (print_out_ftree lthy) meth_names;
+   lthy);
 
 fun register_printout_all_ftree_cmd _ =
   let
@@ -138,10 +137,22 @@ val _ = register_printout_all_ftree_cmd ();
 (* read regression trees printed in in PaMpeR/RTrees *)
 val read_regression_trees =
   let
-    fun get_ptree (meth_name:string) = Bash.process ("head -1 " ^ path_to_ftrees ^ meth_name) |> #out: string;
-    fun read_final_tree (meth_name:string) = (meth_name, Regression_Tree.parse_printed_tree (get_ptree meth_name));
-    fun read_final_trees (meth_names:string list) = Par_List.map read_final_tree meth_names;
-    fun register_final_trees (lthy:local_theory) = fold update (get_all_final_trees_gen read_final_trees) lthy;
+    val lines = path_to_rtree |> TextIO.openIn |> TextIO.inputAll |> split_lines: string list;
+    open Parser_Combinator;
+    infix >>=;
+    fun get_string (symbols:Symbol.symbol Seq.seq) = symbols |> Seq.list_of |> String.concat: string;
+    val parse_one_line =
+      many (sat (fn x => x <> ","))  |> token >>= (fn mname_symbols: string Seq.seq =>
+      string "," |> token >>= (fn _ =>
+      many (sat (Symbol.not_eof)) |> token >>= (fn ptree_symbols:string Seq.seq=>
+      (mname_symbols, ptree_symbols) |> apply2 get_string |> (fn (mname, ptree) =>
+      result (mname, Regression_Tree.parse_printed_tree ptree)))));
+    fun read_final_tree (line:string) = line
+      |> Symbol.explode
+      |> parse parse_one_line
+      |> Seq.hd
+      |> fst;
+    fun register_final_trees (lthy:local_theory) = fold (update o read_final_tree) lines lthy;
   in register_final_trees end;
 
 fun read_regression_trees_cmd _ =
