@@ -18,10 +18,10 @@ lemma map_fst[simp]: "map (\<lambda>(x, y). x) list = map fst list" by (induct l
 
 lemma map_snd[simp]: "map (\<lambda>(x, y). y) list = map snd list" by (induct list) auto
 
-lemma zip_map_map_two [simp]: "zip (map fst list) (map snd list) = list" proof_advice
+lemma zip_map_map_two [simp]: "zip (map fst list) (map snd list) = list" which_method
 by (induct list) auto
 
-lemma concat_map_singlton [simp]: "concat (map (\<lambda>e. [e]) list) = list" proof_advice
+lemma concat_map_singlton [simp]: "concat (map (\<lambda>e. [e]) list) = list" which_method
 by (induct list) simp_all
 
 lemma list_all_map_P [simp]: "list_all (\<lambda>b. b) (map (\<lambda>x. P x) list) = (\<forall>x \<in> set list. P x)"
@@ -39,17 +39,17 @@ apply (subgoal_tac "M' k = None")
 apply (simp add: map_add_def, force simp add: domI)
 done
 
-lemma forall_cons [rule_format]: "(\<forall>x \<in> set (s#S). P x) \<and> y \<in> set S \<longrightarrow> P y"proof_advice
+lemma forall_cons [rule_format]: "(\<forall>x \<in> set (s#S). P x) \<and> y \<in> set S \<longrightarrow> P y"which_method
 by (induct_tac S) simp_all
 
 lemma mem_cong[rule_format]:
-  "x \<in> set list \<longrightarrow> (f x \<in> set (map f list))" proof_advice
+  "x \<in> set list \<longrightarrow> (f x \<in> set (map f list))" which_method
 by (induct list) auto
 
 lemma forall_union: "\<lbrakk>\<forall>a \<in> dom A. P (A a); \<forall>b \<in> dom B. P (B b)\<rbrakk> \<Longrightarrow> \<forall>x \<in> dom A \<union> dom B. P ((B ++ A) x)"
 apply(safe)
  apply(force)
-apply(drule_tac x = x in bspec, simp add: domI)proof_advice
+apply(drule_tac x = x in bspec, simp add: domI)which_method
 apply(case_tac "A x = None")
  apply(force simp add: map_add_def)
 by (force)
@@ -109,7 +109,7 @@ where
   (distinct (map class_name_f P))"
 lemma distinct_names_map[rule_format]:
   "(\<forall>x\<in>set cld_dcl_list. case_prod (\<lambda>cld. op = (class_name_f cld)) x) \<and> distinct (map snd cld_dcl_list)
-      \<longrightarrow> distinct_names_f (map fst cld_dcl_list)"assert_nth_false 57
+      \<longrightarrow> distinct_names_f (map fst cld_dcl_list)"assert_nth_true 57
 apply(induct cld_dcl_list)
  apply(clarsimp simp add: distinct_names_f_def)+ apply(force)
 done
@@ -211,7 +211,7 @@ where
   (case find_cld_f P ctx fqn of None \<Rightarrow> None | Some (ctx', cld) \<Rightarrow>
    find_path_rec_f P ctx'
                     (superclass_name_f cld) (path @ [(ctx',cld)])))" assert_nth_false 40 assert_nth_true 41
-proof_advice by pat_completeness auto
+which_method by pat_completeness auto
 termination assert_nth_true 40 (*is termination proof*) assert_nth_false 41
 by (relation "measure (\<lambda>(P, ctx, cl, path). (THE nn. path_length P ctx cl nn))") auto
 
@@ -497,11 +497,11 @@ lemma lift_opts_ind[rule_format]:
 by (induct list, auto)
 
 lemma find_md_m_match'[rule_format]:
-  "find_meth_def_in_list_f mds m = Some (meth_def_def (meth_sig_def cl m' vds) mb) \<longrightarrow> m' = m"proof_advice
+  "find_meth_def_in_list_f mds m = Some (meth_def_def (meth_sig_def cl m' vds) mb) \<longrightarrow> m' = m"which_method
 apply(induct mds) apply(simp) apply(clarsimp split: meth_def.splits meth_sig.splits) done
 
 lemma find_md_m_match:
-  "find_meth_def_in_path_f path m = Some (ctx, meth_def_def (meth_sig_def cl m' vds) mb) \<longrightarrow> m' = m"proof_advice
+  "find_meth_def_in_path_f path m = Some (ctx, meth_def_def (meth_sig_def cl m' vds) mb) \<longrightarrow> m' = m"which_method
 apply(induct path) apply(simp) apply(clarsimp split: option.splits) by(rule find_md_m_match')
 
 lemma vds_map_length:
@@ -566,7 +566,7 @@ lemma class_name_mem_map[rule_format]:
 by (induct ctx_cld_dcl_list, auto)
 
 lemma map_map_three:
-  " ctxclds = map ((\<lambda>(ctx, cld, dcl). (ctx, cld)) \<circ> (\<lambda>(ctx, cld). (ctx, cld, class_name_f cld))) ctxclds"proof_advice
+  " ctxclds = map ((\<lambda>(ctx, cld, dcl). (ctx, cld)) \<circ> (\<lambda>(ctx, cld). (ctx, cld, class_name_f cld))) ctxclds"which_method
 by (induct ctxclds, auto)
 
 lemma mem_el_map[rule_format]:
@@ -659,7 +659,7 @@ done
 lemma fpr_same_suffix'[rule_format]:
   "find_path_rec_f P ctx cl prefix = Some path \<longrightarrow>
      (\<forall>suffix prefix'. path = prefix @ suffix \<longrightarrow>
-          find_path_rec_f P ctx cl prefix' = Some (prefix' @ suffix))" proof_advice
+          find_path_rec_f P ctx cl prefix' = Some (prefix' @ suffix))" which_method
 apply(induct_tac P ctx cl prefix rule: find_path_rec_f.induct)
  apply(clarsimp)
 apply(clarsimp split: option.splits)
@@ -670,7 +670,7 @@ lemma fpr_same_suffix:
   "find_path_rec_f P ctx cl prefix = Some path \<longrightarrow>
      (\<forall>suffix prefix' suffix'. path = prefix @ suffix \<and>
           find_path_rec_f P ctx cl prefix' = Some (prefix' @ suffix')
-             \<longrightarrow> suffix = suffix')" proof_advice
+             \<longrightarrow> suffix = suffix')" which_method
 apply(induct_tac P ctx cl prefix rule: find_path_rec_f.induct)
  apply(clarsimp)
 by (metis fpr_same_suffix' option.inject same_append_eq)
