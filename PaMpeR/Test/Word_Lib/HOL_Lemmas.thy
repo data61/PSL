@@ -49,7 +49,7 @@ lemma takeWhile_take_has_property_nth:
   by (induct xs arbitrary: n; simp split: if_split_asm) (case_tac n, simp_all)
 
 lemma takeWhile_replicate:
-  "takeWhile f (replicate len x) = (if f x then replicate len x else [])"proof_advice
+  "takeWhile f (replicate len x) = (if f x then replicate len x else [])"which_method
   by (induct_tac len) auto
 
 lemma takeWhile_replicate_empty:

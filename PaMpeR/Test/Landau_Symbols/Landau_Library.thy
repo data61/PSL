@@ -175,7 +175,7 @@ apply (rule order.trans[OF powr_mono2' max.cobounded1], simp_all) []
 done
 
 lemma powr_eventually_exp_ln: "eventually (\<lambda>x. (x::real) powr p = exp (p * ln x)) at_top"
-  using eventually_gt_at_top[of "0::real"] unfolding powr_def proof_advice assert_nth_true 56 by eventually_elim simp_all
+  using eventually_gt_at_top[of "0::real"] unfolding powr_def which_method assert_nth_true 56 by eventually_elim simp_all
 
 lemma powr_eventually_exp_ln': 
   assumes "x > 0"

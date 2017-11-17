@@ -110,7 +110,7 @@ type_synonym "T" = "x \<rightharpoonup> x"
 (** library functions *)
 lemma [mono]:"
          (!! x. f x --> g x) ==> list_all (%b. b) (map f foo_list)-->
-                    list_all (%b. b) (map g foo_list) "proof_advice
+                    list_all (%b. b) (map g foo_list) "which_method
    apply(induct_tac foo_list, auto) done
 
 lemma [mono]: "case_prod f p = f (fst p) (snd p)" by (simp add: split_def)

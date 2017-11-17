@@ -51,6 +51,7 @@ sig
   val print_final_tree:          final_tree -> string;
   val parse_printed_tree:        string -> final_tree;
   val lookup_exp:                bool list -> final_tree -> real;
+  val used_features:             final_tree -> feature_name list;
 end;
 *}
 
@@ -100,10 +101,6 @@ fun get_avrg_of_gtree (gtree:growing_tree) =
   gtree |> get_database_of_tree |> get_avrg_of_database;
 
 fun eq_feature (feat1:feature_name, feat2:feature_name) = feat1 = feat2 : bool;
-
-(*TODO: move this to Utils.thy*)
-fun option_error (err_msg:string) NONE      = error err_msg
- |  option_error  _              (SOME sth) = sth;
 
 (*TODO: to be improved*)
 fun get_fval_of_fname (fname as Database.Feature i:feature_name) (fvec:feature_vector) =
@@ -275,8 +272,19 @@ fun lookup_exp ([]:bools) _ = error "lookup_one in Decision_Tree failed! Empty l
     then lookup_exp bs More
     else lookup_exp bs Less;
 
+type feature_names = feature_name list;
+
+fun used_features (ftree:final_tree) =
+  let
+    fun used_features' (FLeaf _) = []
+      | used_features' (FBranch {More, Feature as (Database.Feature i, _), Less}) =
+        i :: used_features' More @ used_features' Less;
+  in
+    used_features' ftree |> map Database.Feature
+  end;
 end;
 *}
+
 (*
 (* test *)
 ML{*

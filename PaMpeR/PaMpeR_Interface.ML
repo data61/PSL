@@ -124,6 +124,7 @@ fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
    map (print_out_ftree lthy) meth_names;
    lthy);
 
+(* TODO: This function should be moved somehwere. *)
 fun register_printout_all_ftree_cmd _ =
   let
     val _ = Outer_Syntax.local_theory @{command_keyword print_out_regression_trees}
@@ -224,7 +225,7 @@ val simp_interface = Toplevel.keep_proof (fn Tstate =>
     get_top_5 state
   end);
 
-val _ = Outer_Syntax.command @{command_keyword proof_advice} "Method recommender"
+val _ = Outer_Syntax.command @{command_keyword which_method} "Method recommender"
     (Scan.succeed simp_interface);
 in
   ()

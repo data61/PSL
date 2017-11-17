@@ -16,7 +16,7 @@
         
       2.Proof method recommendation 
         
-        Keyword proof_advice can be called during a proof stage.
+        Keyword which_method can be called during a proof stage.
         If there is still a subgoal, it will provide recommendation of method
         for the first subgoal.
         
@@ -25,7 +25,7 @@
 *)
 theory PaMpeR
   imports Decision_Tree
-keywords "proof_advice" :: diag
+keywords "which_method" :: diag
   and    "build_regression_trees" :: thy_decl
   and    "print_out_regression_trees" :: thy_decl
   and    "reset_regression_tree_table" :: thy_decl
