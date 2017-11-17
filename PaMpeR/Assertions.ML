@@ -347,6 +347,32 @@ fun has_const_prefixed_with_Nat goal _ _ = AU.fst_subg_has_const_prefixed_with g
 (* ASSERT 52. checks if there is a constant with prefix "Int" in the first subgoal *)
 fun has_const_prefixed_with_Int goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Int";
 
+local
+
+fun fst_subg_size_more_than_n (n:int) (goal:thm) =  Isabelle_Utils.get_1st_subg goal
+  liftM Term.size_of_term
+  liftM curry Int.< n
+  |>    Utils.is_some_true: bool;
+
+in
+
+(* ASSERT 63. The term size of the first subgoal is more than 5. *)
+fun fst_subg_size_more_than_5 (goal:thm) _ _ = fst_subg_size_more_than_n 5 goal;
+
+(* ASSERT 64. The term size of the first subgoal is more than 10. *)
+fun fst_subg_size_more_than_10 (goal:thm) _ _ = fst_subg_size_more_than_n 10 goal;
+
+(* ASSERT 65. The term size of the first subgoal is more than 20. *)
+fun fst_subg_size_more_than_20 (goal:thm) _ _ = fst_subg_size_more_than_n 20 goal;
+
+(* ASSERT 66. The term size of the first subgoal is more than 40. *)
+fun fst_subg_size_more_than_40 (goal:thm) _ _ = fst_subg_size_more_than_n 40 goal;
+
+(* ASSERT 67. The term size of the first subgoal is more than 80. *)
+fun fst_subg_size_more_than_80 (goal:thm) _ _ = fst_subg_size_more_than_n 80 goal;
+
+end;
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt _ =
@@ -538,7 +564,12 @@ val assertions =
 (*59*)  has_locale_const,
 (*60*)  has_class_const,
 (*61*)  has_var_of_codata,
-(*62*)  has_rel_fun_or_map_fun]
+(*62*)  has_rel_fun_or_map_fun,
+(*63*)  fst_subg_size_more_than_5,
+(*64*)  fst_subg_size_more_than_10,
+(*65*)  fst_subg_size_more_than_20,
+(*66*)  fst_subg_size_more_than_40,
+(*67*)  fst_subg_size_more_than_80]
 
 (** Function used to generate database **)
 
