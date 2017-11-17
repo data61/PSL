@@ -120,7 +120,7 @@ fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   end;
 
 fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
-  (Isabelle_System.bash ("rm -r " ^ path_to_rtree);
+  (Isabelle_System.bash ("rm " ^ path_to_rtree);
    map (print_out_ftree lthy) meth_names;
    lthy);
 

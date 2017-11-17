@@ -303,6 +303,11 @@ fun has_rel_fun goal _ _ = AU.fst_subg_has_const_of_name goal "BNF_Def.rel_fun";
 (* ASSERT 17. checks if the first subgoal has map_fun *)
 fun has_map_fun goal _ _ = AU.fst_subg_has_const_of_name goal "Fun.map_fun";
 
+(* ASSERT 62. check if the first subgoal has rel_fun or map_fun. *)
+fun has_rel_fun_or_map_fun goal _ _ =
+  AU.fst_subg_has_const_of_name goal "BNF_Def.rel_fun" orelse
+  AU.fst_subg_has_const_of_name goal "Fun.map_fun";
+
 (* ASSERT 18. checks if the first subgoal has a schematic variable *)
 fun fst_subg_has_schematic_var (goal:thm) _ _ =
   let
@@ -532,7 +537,8 @@ val assertions =
 (*58*)  fact_fun,
 (*59*)  has_locale_const,
 (*60*)  has_class_const,
-(*61*)  has_var_of_codata]
+(*61*)  has_var_of_codata,
+(*62*)  has_rel_fun_or_map_fun]
 
 (** Function used to generate database **)
 
