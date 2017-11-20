@@ -11,6 +11,7 @@ theory Preprocess
   imports Pure
 begin
 
+(*** PREPROCESS ***)
 ML{* signature PREPROCESS =
 sig
   val preprocess: unit -> unit;
@@ -21,6 +22,7 @@ sig
 end;
 *}
 
+(*** Preprocess ***)
 ML{* structure Preprocess : PREPROCESS =
 struct
 

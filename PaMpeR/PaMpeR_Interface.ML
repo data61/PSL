@@ -5,15 +5,16 @@
     Enable the which_method command.
 *)
 
+(*** PAMPER_INTERFACE ***)
 signature PAMPER_INTERFACE = 
 sig
-  val build_final_trees : string list -> (string * Regression_Tree.final_tree);
-  val register_ftrees_command: unit -> unit;
+  val build_final_trees : string list -> (string * Regression_Tree.final_tree) list;
   val PaMpeR_activate : unit -> unit;
   val lookup: Proof.context -> string -> Regression_Tree.final_tree option;
 end;
 
-structure PaMpeR_Interface = 
+(*** PaMpeR_Interface ***)
+structure PaMpeR_Interface:PAMPER_INTERFACE = 
 struct
 
 val path = Resources.master_directory @{theory} |> File.platform_path : string;
@@ -31,8 +32,6 @@ val all_method_names =
   end;
 
 structure RT = Regression_Tree;
-
-fun debug switch (str:string) f = if switch then (tracing str; f) else f;
 
 (* build final trees and register them in a table *)
 
@@ -74,13 +73,11 @@ val reset = Data.map (fn _ => Symtab.empty)
   |> Context.theory_map
   |> Local_Theory.background_theory;
 
-fun get_all_final_trees_gen how = how all_method_names:  (string * RT.final_tree) list;
+fun register_final_trees (lthy:local_theory) = fold update (build_final_trees all_method_names) lthy;
 
-fun register_final_trees (lthy:local_theory) = fold update (get_all_final_trees_gen build_final_trees) lthy;
+fun mk_parser func = fn (tkns:Token.T list) => (func, tkns);
 
-fun mk_parser (func) = fn (tkns:Token.T list) => (func, tkns);
-
-(* print out regression trees in PaMpeR/RTrees *)
+(* print out regression trees in PaMpeR/regression_trees *)
 
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
@@ -102,7 +99,7 @@ fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
    map (print_out_ftree lthy) meth_names;
    lthy);
 
-(* read regression trees printed in in PaMpeR/RTrees *)
+(* read regression trees printed in in PaMpeR/regression_trees *)
 val read_regression_trees =
   let
     val lines = path_to_rtree |> TextIO.openIn |> TextIO.inputAll |> split_lines: string list;
@@ -184,11 +181,11 @@ fun PaMpeR_activate _ =
       "reset the table containing final trees to Table.empty." (mk_parser reset);
 
     val _ = Outer_Syntax.local_theory @{command_keyword print_out_regression_trees}
-      "build regression trees and register them from databases."
+      "print-out regression trees stored in memory to PaMpeR/regression_trees."
       (mk_parser (print_out_all_ftrees all_method_names));
 
     val _ = Outer_Syntax.local_theory @{command_keyword read_regression_trees}
-      "build regression trees and register them from databases."
+      "read regression trees in PaMpeR/regression_trees and register them from databases."
       (mk_parser read_regression_trees);
 
     val _ = Outer_Syntax.command @{command_keyword which_method} "Method recommender"
