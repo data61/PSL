@@ -39,7 +39,7 @@ struct
 type location = Isabelle_Utils.location;
 type context  = Proof.context;
 
-infix 1 >>= >=> liftM;
+infix 1 >>= liftM;
 fun (m >>= f)   = Option.mapPartial f m;
 fun (m liftM f) = Option.map f m;
 
@@ -111,19 +111,6 @@ fun has_thms_of_cname_with_all_substrs (goal:thm) (ctxt:context) (strs:string li
 fun has_thms_of_tname_with_all_substrs (goal:thm) (ctxt:context) (strs:string list) =
   let
     open Isabelle_Utils Utils Find_Theorems2;
-    (*TODO? move this function to Isabelle_Utils*)
-    fun is_in_Main (ctxt:Proof.context) (thm:thm) =
-      let
-        val this_thy          = Proof_Context.theory_of ctxt:theory;
-        val thy_names_in_main = Context.get_theory this_thy "Main"
-          |> Theory.ancestors_of
-          |> map Context.theory_name:string list;
-        fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;
-        val thy_name = get_theory_name thm;
-        val result = exists (equal thy_name) thy_names_in_main;
-      in
-        result
-      end;
     fun get_thms btname = (get_thms_of_name_with_these_substrs ctxt (btname :: strs));
     val result = goal
       |>    get_trm_in Fst_Subg

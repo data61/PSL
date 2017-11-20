@@ -2,8 +2,7 @@
     Author:     Yilun He, Data61, CSIRO
                 Yutaka Nagashima, CIIRC, CTU
     
-    Enable the Proof_advice keyword.
-    Using a built in bash egrep to search the trained recommendation database. Outputting most promising 9 methods.
+    Enable the which_method command.
 *)
 
 signature PAMPER_INTERFACE = 
@@ -18,7 +17,6 @@ structure PaMpeR_Interface =
 struct
 
 val path = Resources.master_directory @{theory} |> File.platform_path : string;
-val path_to_ftrees     = path ^ "/RTrees/" : string; (*FIXME:not needed anymore*)
 val path_to_meth_names = path ^ "/method_names": string;
 val path_to_rtree      = path ^ "/regression_trees";
 
@@ -34,19 +32,20 @@ val all_method_names =
 
 structure RT = Regression_Tree;
 
+fun debug switch (str:string) f = if switch then (tracing str; f) else f;
+
 (* build final trees and register them in a table *)
 
-(*FIXME: use Either.*)
 fun build_ftree (meth_name:string) =
   let
     fun did_success sth =  if is_some sth then " successfully " else " NOT really "; 
-    val _ = tracing ("building a final tree for " ^ meth_name);
+    val _ = Utils.debug_mssg true ("building a final tree for " ^ meth_name);
     val database = try Database.parse_database meth_name : Database.database option;
-    val _ = tracing ("after" ^ did_success database ^ "building database for " ^ meth_name);
+    val _ = Utils.debug_mssg true  ("after" ^ did_success database ^ "building database for " ^ meth_name);
     val big_tree = Option.map (try RT.get_big_tree) database |> Option.join: RT.growing_tree option;    
-    val _ = tracing ("after" ^ did_success big_tree ^ "building big_tree for " ^ meth_name);
+    val _ = Utils.debug_mssg true  ("after" ^ did_success big_tree ^ "building big_tree for " ^ meth_name);
     val ftree = Option.map (try RT.post_process) big_tree |> Option.join: RT.final_tree option;
-     val _ = tracing ("after" ^ did_success ftree ^ "building final_tree for " ^ meth_name);
+    val _ = Utils.debug_mssg true  ("after" ^ did_success ftree ^ "building final_tree for " ^ meth_name);
     val result = if is_some ftree then SOME (meth_name, the ftree) else NONE;
   in
    result
@@ -59,7 +58,7 @@ fun build_final_trees (meth_names:string list) = Par_List.map build_ftree meth_n
 
 structure Data = Generic_Data
 (
-  type T     = Regression_Tree.final_tree Symtab.table;
+  type T     = RT.final_tree Symtab.table;
   val empty  = Symtab.empty : T;
   val extend = I;
   val merge  = Symtab.merge (K true);
@@ -75,40 +74,19 @@ val reset = Data.map (fn _ => Symtab.empty)
   |> Context.theory_map
   |> Local_Theory.background_theory;
 
-fun get_all_final_trees_gen how = how all_method_names:  (string * Regression_Tree.final_tree) list;
+fun get_all_final_trees_gen how = how all_method_names:  (string * RT.final_tree) list;
 
 fun register_final_trees (lthy:local_theory) = fold update (get_all_final_trees_gen build_final_trees) lthy;
 
 fun mk_parser (func) = fn (tkns:Token.T list) => (func, tkns);
 
-fun register_ftrees_command _ =
-  let
-    val _ = Outer_Syntax.local_theory @{command_keyword build_regression_trees}
-      "build regression trees and register them from databases."
-      (mk_parser register_final_trees);
-  in () end;
-
-(*TODO: This line should be moved out.*)
-val _ = register_ftrees_command ();
-
-(* reset the table containing final trees. *)
-fun reset_regression_tree_table_cmd _ =
-  let
-    val _ = Outer_Syntax.local_theory @{command_keyword reset_regression_tree_table}
-      "reset the table containing final trees to Table.empty." (mk_parser reset);
-  in () end;
-
-(*TODO: This line should be moved out.*)
-val _ = reset_regression_tree_table_cmd ();
-
 (* print out regression trees in PaMpeR/RTrees *)
 
-(*FIXME: use the option monad more effectively.*)
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
-    val final_tree    = lookup ctxt meth_name: Regression_Tree.final_tree option;
+    val final_tree    = lookup ctxt meth_name: RT.final_tree option;
     val _ = if is_none final_tree then tracing ("no final tree available for " ^ meth_name) else ();
-    val ftree_as_str  = Option.map Regression_Tree.print_final_tree final_tree: string option;
+    val ftree_as_str  = Option.map RT.print_final_tree final_tree: string option;
     val bash_command  =
       if is_some ftree_as_str
       then "echo -n '" ^ meth_name ^ "," ^ the ftree_as_str ^ "' >> " ^ path_to_rtree
@@ -124,17 +102,6 @@ fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
    map (print_out_ftree lthy) meth_names;
    lthy);
 
-(* TODO: This function should be moved somehwere. *)
-fun register_printout_all_ftree_cmd _ =
-  let
-    val _ = Outer_Syntax.local_theory @{command_keyword print_out_regression_trees}
-      "build regression trees and register them from databases."
-      (mk_parser (print_out_all_ftrees all_method_names));
-  in () end;
-
-(*TODO: This line should be moved out.*)
-val _ = register_printout_all_ftree_cmd ();
-
 (* read regression trees printed in in PaMpeR/RTrees *)
 val read_regression_trees =
   let
@@ -147,7 +114,7 @@ val read_regression_trees =
       string "," |> token >>= (fn _ =>
       many (sat (Symbol.not_eof)) |> token >>= (fn ptree_symbols:string Seq.seq=>
       (mname_symbols, ptree_symbols) |> apply2 get_string |> (fn (mname, ptree) =>
-      result (mname, Regression_Tree.parse_printed_tree ptree)))));
+      result (mname, RT.parse_printed_tree ptree)))));
     fun read_final_tree (line:string) = line
       |> Symbol.explode
       |> parse parse_one_line
@@ -156,25 +123,12 @@ val read_regression_trees =
     fun register_final_trees (lthy:local_theory) = fold (update o read_final_tree) lines lthy;
   in register_final_trees end;
 
-fun read_regression_trees_cmd _ =
-  let
-    val _ = Outer_Syntax.local_theory @{command_keyword read_regression_trees}
-      "build regression trees and register them from databases."
-      (mk_parser read_regression_trees);
-  in () end;
-
-(*TODO: This line should be moved out.*)
-val _ = read_regression_trees_cmd ();
-
-fun PaMpeR_activate _ =
-let
-
 fun get_top_5 (pstate:Proof.state) =
   let
     val ass_results = Assertions.eval_assertion_for_ML_bool pstate;
     val ctxt = Proof.context_of pstate;
-    fun get_ftree (meth_name:string) = lookup ctxt meth_name: Regression_Tree.final_tree option;
-    val get_exp = Regression_Tree.lookup_exp ass_results;
+    fun get_ftree (meth_name:string) = lookup ctxt meth_name: RT.final_tree option;
+    val get_exp = RT.lookup_exp ass_results;
     fun get_top_result' (best_meth, best_exp) (meth_name::names:string list) =
          let
            val expct = meth_name |> get_ftree |> (fn SOME ftree => get_exp ftree | NONE => (tracing ("failed at " ^ meth_name);0.0));
@@ -211,25 +165,37 @@ fun get_top_5 (pstate:Proof.state) =
        get_top_result wo_13            |> (fn (wo_14) =>
        get_top_result wo_14            |> (fn (wo_15) =>
        get_top_result wo_15)))))))))))))))
-(*
-    val (top_meth_name, top_exp) = get_top_result (all_method_names ()) |> apsnd Real.toString : (string * string);
-*)
-
   in () end;
 
-(*TODO: rename simp_interface.*)
-val simp_interface = Toplevel.keep_proof (fn Tstate =>
+val which_method_cmd = Toplevel.keep_proof (fn Tstate =>
   let
     val state = Toplevel.proof_of Tstate
   in
     get_top_5 state
   end);
 
-val _ = Outer_Syntax.command @{command_keyword which_method} "Method recommender"
-    (Scan.succeed simp_interface);
-in
-  ()
-end;
+(* Register Isar commands. *)
+fun PaMpeR_activate _ =
+  let
+    val _ = Outer_Syntax.local_theory @{command_keyword build_regression_trees}
+      "build regression trees and register them from databases." (mk_parser register_final_trees);
+
+    val _ = Outer_Syntax.local_theory @{command_keyword reset_regression_tree_table}
+      "reset the table containing final trees to Table.empty." (mk_parser reset);
+
+    val _ = Outer_Syntax.local_theory @{command_keyword print_out_regression_trees}
+      "build regression trees and register them from databases."
+      (mk_parser (print_out_all_ftrees all_method_names));
+
+    val _ = Outer_Syntax.local_theory @{command_keyword read_regression_trees}
+      "build regression trees and register them from databases."
+      (mk_parser read_regression_trees);
+
+    val _ = Outer_Syntax.command @{command_keyword which_method} "Method recommender"
+        (Scan.succeed which_method_cmd);
+  in
+    ()
+  end;
 
 end;
 

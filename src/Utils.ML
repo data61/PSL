@@ -29,6 +29,7 @@ sig
   val the'           : string -> 'a option -> 'a;
   val prefix_if_nonempty : string -> string list -> string list;
   val debug          : bool; (*flag for debugging.*)
+  val debug_mssg     : bool -> string -> 'a -> 'a;
   val try_with       : 'b -> ('a -> 'b) -> 'a -> 'b;
   val are_same       : (string * string) -> bool;
   val index          : 'a list -> (int * 'a) list;
@@ -107,6 +108,8 @@ fun prefix_if_nonempty _        [] = []
  |  prefix_if_nonempty prefixed xs = prefixed :: xs : string list;
 
 val debug = false;
+
+fun debug_mssg switch (str:string) f = if switch then (tracing str; f) else f;
 
 fun try_with  (fallback:'b) (f:'a -> 'b) (x:'a) = (case try f x of
   NONE => fallback
@@ -273,6 +276,7 @@ sig
   val TIMEOUT                       : ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
   val same_except_for_fst_prem      : thm -> thm -> bool;
   val defer                         : thm -> thm Seq.seq;
+  val is_in_Main                    : Proof.context -> thm -> bool;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -434,6 +438,19 @@ in
 end;
 
 val defer = defer_tac 1;
+
+fun is_in_Main (ctxt:Proof.context) (thm:thm) =
+  let
+    val this_thy          = Proof_Context.theory_of ctxt:theory;
+    val thy_names_in_main = Context.get_theory this_thy "Main"
+      |> Theory.ancestors_of
+      |> map Context.theory_name:string list;
+    fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;
+    val thy_name = get_theory_name thm;
+    val result = exists (equal thy_name) thy_names_in_main;
+  in
+    result
+  end;
 
 end;
 
