@@ -102,7 +102,12 @@ fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
 (* read regression trees printed in in PaMpeR/regression_trees *)
 val read_regression_trees =
   let
-    val lines = path_to_rtree |> TextIO.openIn |> TextIO.inputAll |> split_lines: string list;
+    infix 1 liftM;
+    fun (m liftM f) = Option.map f m;
+    val lines = try TextIO.openIn path_to_rtree
+      liftM  TextIO.inputAll
+      liftM  split_lines
+      |> (fn SOME sth => sth | NONE => []): string list;
     open Parser_Combinator;
     infix >>=;
     fun get_string (symbols:Symbol.symbol Seq.seq) = symbols |> Seq.list_of |> String.concat: string;
