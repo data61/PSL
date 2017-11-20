@@ -24,8 +24,6 @@ sig
                         | Branch of {True:    growing_tree,
                                      Feature: feature,
                                      False:   growing_tree };
-  (*A criterion is the maximum number all regions.*)
-  type criterion  = int;
   datatype final_tree = FLeaf of real
                       | FBranch of {More:    final_tree,
                                     Feature: feature,
@@ -34,7 +32,6 @@ sig
   val bool_to_real: bool -> real;
   val get_database_of_tree:      growing_tree -> database;
   val get_numb_of_elms: growing_tree -> int;
-  val criterionN: criterion;
   val get_avrg_of_database:      database -> real;
   val get_avrg_of_gtree:         growing_tree -> real;
   val get_RSS:                   feature_name -> database -> real
@@ -51,10 +48,6 @@ end;
 *}
 
 ML{* structure Regression_Tree: REGRESSION_TREE = struct
-
-infix 1 >>= liftM;
-fun (m >>= f)   = Option.mapPartial f m;
-fun (m liftM f) = Option.map f m;
 
 type feature_name     = Database.feature_name;
 type feature_value    = bool;
@@ -83,8 +76,6 @@ fun get_database_of_tree (Leaf dtbs) = dtbs
 fun get_numb_of_elms (Leaf dtbs) = List.length dtbs
  |  get_numb_of_elms (Branch {True=TrueT, False=FalseT, ...}) =
       get_numb_of_elms TrueT + get_numb_of_elms FalseT;
-
-val criterionN = 300;
 
 fun get_avrg_of_database dtbs =
   let
