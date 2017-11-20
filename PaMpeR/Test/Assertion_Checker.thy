@@ -89,6 +89,10 @@ end;
 
 ML{* Assertion_Checker.activate_assertion_checker ();*}
 
+lemma "True"
+  which_method
+  oops
+
 lemma "[1] = [1]"
   assert_nth_true 20
   oops

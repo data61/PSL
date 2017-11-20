@@ -6,12 +6,12 @@ ML_file "../src/Utils.ML"
 
 ML{* signature DATABASE =
 sig
-  type used             = bool;
-  datatype feature_name = Feature of int;
-  type feature_value    = bool;
-  type meth_name        = string;
-  type one_line         = used * (feature_name * feature_value) list;
-  type database         = one_line list;
+  type used          = bool;
+  type feature_name  = int;
+  type feature_value = bool;
+  type meth_name     = string;
+  type one_line      = used * (feature_name * feature_value) list;
+  type database      = one_line list;
   (*get_Database_names has to be called only *after* generating pre-processed databases.*)
   val get_meth_names  : unit -> meth_name list;
   val parse_database  : meth_name -> database;
@@ -23,7 +23,7 @@ ML{* structure Database:DATABASE =
 struct
 
 type used           = bool;
-datatype feature_name  = Feature of int;
+type feature_name   = int;
 type feature_value  = bool;
 type meth_name      = string;
 type one_line       = used * (feature_name * feature_value) list;
@@ -59,7 +59,6 @@ fun parse_database (meth_name:string) =
           | int_to_bool _       = error "int_to_bool failed.";
         fun get_feature_vector (line:int list) = tl line
           |> Utils.index
-          |> map (apfst Feature)
           |> map (apsnd int_to_bool);
         val raw_line = get_raw_line line;
         val one_line = (is_used raw_line, get_feature_vector raw_line);

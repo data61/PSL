@@ -17,6 +17,10 @@ end;
 structure PaMpeR_Interface:PAMPER_INTERFACE = 
 struct
 
+infix 1 liftM;
+fun (m liftM f) = Option.map f m;
+structure RT = Regression_Tree;
+
 val path = Resources.master_directory @{theory} |> File.platform_path : string;
 val path_to_meth_names = path ^ "/method_names": string;
 val path_to_rtree      = path ^ "/regression_trees";
@@ -31,10 +35,41 @@ val all_method_names =
     dist_meth_names : string list
   end;
 
-structure RT = Regression_Tree;
+(* Database to store regression trees. *)
+structure Regression_Trees = Generic_Data
+(
+  type T     = RT.final_tree Symtab.table;
+  val empty  = Symtab.empty : T;
+  val extend = I;
+  val merge  = Symtab.merge (K true);
+);
+
+fun lookup ctxt = (Symtab.lookup o Regression_Trees.get) (Context.Proof ctxt);
+
+fun update (k, v)  = Regression_Trees.map (Symtab.update_new (k, v))
+  |> Context.theory_map
+  |> Local_Theory.background_theory;
+
+val reset = Regression_Trees.map (fn _ => Symtab.empty)
+  |> Context.theory_map
+  |> Local_Theory.background_theory;
+
+(* Database to store quick assertions. *)
+structure Dynamic_Feature_Extractor = Generic_Data
+(
+  type T     = (thm -> Proof.context -> thm list -> bool) list Symtab.table;
+  val empty  = Symtab.empty : T;
+  val extend = I;
+  val merge  = Symtab.merge (K true);
+);
+
+fun dfe_lookup ctxt = (Symtab.lookup o Dynamic_Feature_Extractor.get) (Context.Proof ctxt);
+
+fun dfe_update (k, v)  = Dynamic_Feature_Extractor.map (Symtab.update_new (k, v))
+  |> Context.theory_map
+  |> Local_Theory.background_theory;
 
 (* build final trees and register them in a table *)
-
 fun build_ftree (meth_name:string) =
   let
     fun did_success sth =  if is_some sth then " successfully " else " NOT really "; 
@@ -55,30 +90,11 @@ fun build_final_trees (meth_names:string list) = Par_List.map build_ftree meth_n
  |> filter is_some
  |> map the;
 
-structure Data = Generic_Data
-(
-  type T     = RT.final_tree Symtab.table;
-  val empty  = Symtab.empty : T;
-  val extend = I;
-  val merge  = Symtab.merge (K true);
-);
-
-fun lookup ctxt = (Symtab.lookup o Data.get) (Context.Proof ctxt);
-
-fun update (k, v)  = Data.map (Symtab.update_new (k, v))
-  |> Context.theory_map
-  |> Local_Theory.background_theory;
-
-val reset = Data.map (fn _ => Symtab.empty)
-  |> Context.theory_map
-  |> Local_Theory.background_theory;
-
 fun register_final_trees (lthy:local_theory) = fold update (build_final_trees all_method_names) lthy;
 
 fun mk_parser func = fn (tkns:Token.T list) => (func, tkns);
 
 (* print out regression trees in PaMpeR/regression_trees *)
-
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
     val final_tree    = lookup ctxt meth_name: RT.final_tree option;
@@ -102,8 +118,6 @@ fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
 (* read regression trees printed in in PaMpeR/regression_trees *)
 val read_regression_trees =
   let
-    infix 1 liftM;
-    fun (m liftM f) = Option.map f m;
     val lines = try TextIO.openIn path_to_rtree
       liftM  TextIO.inputAll
       liftM  split_lines
@@ -125,10 +139,41 @@ val read_regression_trees =
     fun register_final_trees (lthy:local_theory) = fold (update o read_final_tree) lines lthy;
   in register_final_trees end;
 
+(* build and register fast assertions *)
+local
+
+fun get_fast_assertions (lthy:local_theory) =
+  let
+    fun get_ftrees ctxt = map (the_list o lookup ctxt) all_method_names |> flat: RT.final_tree list;
+    val features = lthy |> get_ftrees |> RT.used_features: int list;
+    val leng     = length Assertions.assertions: int;
+    val dummys   = List.tabulate (leng, (fn _ => fn _ => fn _ => fn _ => true (*dummy value*)));
+    fun swap_nth (n:int) (xs:(thm -> Proof.context -> thm list -> bool) list) =
+      nth_map (n - 1) (fn _ => nth Assertions.assertions (n - 1)) xs;
+    val fast_asserts = fold swap_nth features dummys;
+  in
+   fast_asserts: (thm -> Proof.context -> thm list -> bool) list
+  end;
+
+in
+
+fun register_fast_assertions lthy = dfe_update ("fast_assetions", (get_fast_assertions lthy)) lthy
+
+end;
+
+(* print out recommendation in the output panel. *)
+local
+
 fun get_top_5 (pstate:Proof.state) =
   let
-    val ass_results = Assertions.eval_assertion_for_ML_bool pstate;
     val ctxt = Proof.context_of pstate;
+    val fast_assertions = (flat o the_list oo dfe_lookup) ctxt "fast_assetions": (thm -> Proof.context -> thm list -> bool) list;
+    val _ = if null fast_assertions
+      then tracing "fast_assertions is empty. Did you forget to call build_fast_feature_extractor?"
+      else ();
+    val ass_results = if null fast_assertions
+      then Assertions.eval_assertion_for_ML_bool pstate
+      else Assertions.eval_assertion_gen pstate fast_assertions;
     fun get_ftree (meth_name:string) = lookup ctxt meth_name: RT.final_tree option;
     val get_exp = RT.lookup_exp ass_results;
     fun get_top_result' (best_meth, best_exp) (meth_name::names:string list) =
@@ -149,7 +194,7 @@ fun get_top_5 (pstate:Proof.state) =
         remove (op =) (fst top) meth_names
       end;
 
-(*TODO: better if I use Lazy Sequence here?*)
+    (*TODO: better if I use Lazy Sequence here?*)
     val _ =
        get_top_result all_method_names |> (fn (wo_1) =>
        get_top_result wo_1             |> (fn (wo_2) =>
@@ -168,6 +213,7 @@ fun get_top_5 (pstate:Proof.state) =
        get_top_result wo_14            |> (fn (wo_15) =>
        get_top_result wo_15)))))))))))))))
   in () end;
+in
 
 val which_method_cmd = Toplevel.keep_proof (fn Tstate =>
   let
@@ -175,6 +221,8 @@ val which_method_cmd = Toplevel.keep_proof (fn Tstate =>
   in
     get_top_5 state
   end);
+
+end;
 
 (* Register Isar commands. *)
 fun PaMpeR_activate _ =
@@ -193,8 +241,12 @@ fun PaMpeR_activate _ =
       "read regression trees in PaMpeR/regression_trees and register them from databases."
       (mk_parser read_regression_trees);
 
-    val _ = Outer_Syntax.command @{command_keyword which_method} "Method recommender"
+    val _ = Outer_Syntax.command @{command_keyword which_method} "recommend which method to use"
         (Scan.succeed which_method_cmd);
+
+    val _ = Outer_Syntax.local_theory @{command_keyword build_fast_feature_extractor}
+      "build a quick version of feature extractor by ignoring unrelevant assertions"
+      (mk_parser register_fast_assertions)
   in
     ()
   end;

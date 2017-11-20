@@ -154,23 +154,24 @@ end;
 (*** ASSERTIONS ***)
 signature ASSERTIONS =
 sig
-  (*written assertions*)
-  val eval_assertion_for_ML: Proof.state -> bool list
-  val eval_assertion:        Proof.state -> string
+  val eval_assertion_gen        : Proof.state -> (thm -> Proof.context -> thm list -> bool) list -> bool list;
+  val eval_assertion_for_ML_real: Proof.state -> real list;
+  val eval_assertion_for_ML_bool: Proof.state -> bool list;
+  val eval_assertion:             Proof.state -> string;
+  val assertions:                 (thm -> Proof.context -> thm list -> bool) list;
 end;
 
 (*** Assertions: Implementation of assertions ***)
-structure Assertions(*:ASSERTIONS*) =
+structure Assertions : ASSERTIONS =
 struct
 
 structure AU = Assert_Util;
 
-infix 1 >>= >=> liftM;
+infix 1 >>= liftM;
 
 type context  = Proof.context;
 
 fun (m >>= f)   = Option.mapPartial f m;
-fun (f >=> g)   = Option.composePartial (g f);
 fun (m liftM f) = Option.map f m;
 
 (** Assertions about the existence of certain objects (rules) in the proof state **)

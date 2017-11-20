@@ -43,7 +43,7 @@ sig
   val print_final_tree:          final_tree -> string;
   val parse_printed_tree:        string -> final_tree;
   val lookup_exp:                bool list -> final_tree -> real;
-  val used_features:             final_tree -> feature_name list;
+  val used_features:             final_tree list -> feature_name list;
 end;
 *}
 
@@ -114,10 +114,10 @@ fun split_database fname data = split_database' fname data ([],[])
         Utils.debug_mssg false ("the number of right elements is " ^ Int.toString (length right)) ();
       p));
 
-fun get_RSS (fname as (Database.Feature fint):feature_name) (data:database) =
+fun get_RSS (fint:feature_name) (data:database) =
 let
   val _ = Utils.debug_mssg false ("splitting at Feature " ^ Int.toString fint) ();
-  val (trues, falses)  = split_database fname data : (database * database);
+  val (trues, falses)  = split_database fint data : (database * database);
   val (t_avrg, f_avrg) = apply2 get_avrg_of_database (trues, falses);
   fun residual_square _       ([]:database)          (accm:real) = accm
    |  residual_square average (datum::data:database) (accm:real) =
@@ -158,9 +158,9 @@ fun get_feat_with_mini_RSS' (_:database)    (best_fname:feature_name, _:real)   
 fun get_feature_with_mini_RSS (data:database) =
   let
     val fnames = database_to_fname_list data: feature_name list;
-    val fname as (Database.Feature fint) = if length fnames > 0 then hd fnames else error "get_feature_with_mini_RSS failed!";
+    val fname  = if length fnames > 0 then hd fnames else error "get_feature_with_mini_RSS failed!";
     val rss    = get_RSS fname data;
-    val _ = Utils.debug_mssg false ("for " ^ Int.toString fint ^ "th feature: rss is " ^ Real.toString rss) ();
+    val _ = Utils.debug_mssg false ("for " ^ Int.toString fname ^ "th feature: rss is " ^ Real.toString rss) ();
     val fname = get_feat_with_mini_RSS' data (fname, rss) fnames;
     val mini_rss = get_RSS fname data;
     val result = if Real.== (Real.posInf, mini_rss) then NONE else SOME fname;
@@ -208,7 +208,7 @@ fun gtree_leaf_map (f:database -> real) (Leaf dtbs:growing_tree) = FLeaf (f dtbs
 
 fun post_process (gtree:growing_tree) = gtree_leaf_map get_avrg_of_database gtree : final_tree;
 
-fun print_feat ((Database.Feature f_index, _):feature) = Int.toString f_index;
+fun print_feat ((f_index, _):feature) = Int.toString f_index;
 
 fun print_final_tree (FLeaf real) = "expectation " ^ Real.toString real
   | print_final_tree (FBranch {More = ftree1, Feature = feat, Less = ftree2}) =
@@ -234,7 +234,7 @@ and parse_fbranch _ =
   token (parse_ftree ()) >>= (fn less_tree =>
   token (symbol ")")     >>= K (
   result (FBranch {More = more_tree,
-                   Feature = (Database.Feature feat_index, true),
+                   Feature = (feat_index, true),
                    Less = less_tree})
   )))))))
 and parse_ftree _ = parse (parse_fleaf () plus parse_fbranch ());
@@ -247,22 +247,22 @@ type bools = bool list;
 
 fun lookup_exp ([]:bools) _ = error "lookup_one in Decision_Tree failed! Empty list!"
   | lookup_exp (_ :bools) (FLeaf expect) = expect
-  | lookup_exp (bs:bools) (FBranch {More, Feature as (Database.Feature i, _), Less}) =
+  | lookup_exp (bs:bools) (FBranch {More, Feature as (i, _), Less}) =
     if nth bs (i - 1) (*because the numbering of assertions starts from 1.*)
     then lookup_exp bs More
     else lookup_exp bs Less;
 
 type feature_names = feature_name list;
 
-fun used_features (ftree:final_tree) =
+fun used_features (ftrees:final_tree list) =
   let
     fun used_features' (FLeaf _) = []
-      | used_features' (FBranch {More, Feature as (Database.Feature i, _), Less}) =
+      | used_features' (FBranch {More, Feature as (i, _), Less}) =
         i :: used_features' More @ used_features' Less;
   in
-    used_features' ftree |> map Database.Feature
+    map used_features' ftrees |> flat |> duplicates (op =)
   end;
 end;
 *}
-
+ML{* List.tabulate (5, (fn i => i + 1)); *}
 end

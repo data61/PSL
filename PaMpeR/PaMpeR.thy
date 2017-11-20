@@ -30,6 +30,7 @@ keywords "which_method" :: diag
   and    "print_out_regression_trees" :: thy_decl
   and    "reset_regression_tree_table" :: thy_decl
   and    "read_regression_trees" :: thy_decl
+  and    "build_fast_feature_extractor" :: thy_decl
 begin
 
 ML_file "./Assertions.ML"
@@ -39,6 +40,8 @@ ML_file "./PaMpeR_Interface.ML"
 reset_regression_tree_table
 
 read_regression_trees
+
+build_fast_feature_extractor
 
 ML_file "./FE_Interface.ML"
 
