@@ -164,15 +164,14 @@ end;
 (* print out recommendation in the output panel. *)
 local
 
-fun get_top_5 (pstate:Proof.state) =
+fun get_top_methods (pstate:Proof.state) =
   let
     val ctxt = Proof.context_of pstate;
-    val fast_assertions = (flat o the_list oo dfe_lookup) ctxt "fast_assetions": (thm -> Proof.context -> thm list -> bool) list;
-    val _ = if null fast_assertions
-      then tracing "fast_assertions is empty. Did you forget to call build_fast_feature_extractor?"
-      else ();
+    val fast_assertions = (flat o the_list oo dfe_lookup) ctxt "fast_assetions"
+                        : (thm -> Proof.context -> thm list -> bool) list;
     val ass_results = if null fast_assertions
-      then Assertions.eval_assertion_for_ML_bool pstate
+      then (tracing "fast_assertions is empty. Did you forget to call build_fast_feature_extractor?";
+            Assertions.eval_assertion_for_ML_bool pstate)
       else Assertions.eval_assertion_gen pstate fast_assertions;
     fun get_ftree (meth_name:string) = lookup ctxt meth_name: RT.final_tree option;
     val get_exp = RT.lookup_exp ass_results;
@@ -219,7 +218,7 @@ val which_method_cmd = Toplevel.keep_proof (fn Tstate =>
   let
     val state = Toplevel.proof_of Tstate
   in
-    get_top_5 state
+    get_top_methods state
   end);
 
 end;
