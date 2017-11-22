@@ -55,6 +55,7 @@ val reset = Regression_Trees.map (fn _ => Symtab.empty)
   |> Local_Theory.background_theory;
 
 (* Database to store quick assertions. *)
+(*TODO: this table has at most one element. AList seems to be good enough.*)
 structure Dynamic_Feature_Extractor = Generic_Data
 (
   type T     = (thm -> Proof.context -> thm list -> bool) list Symtab.table;
@@ -161,6 +162,24 @@ fun register_fast_assertions lthy = dfe_update ("fast_assetions", (get_fast_asse
 
 end;
 
+(* print out qualitative messages to explain why PaMpeR recommends the given methods in the output panel. *)
+(* TODO: it shares many functions with get_top_methods. *)
+fun why_method (mname:string) (pstate:Proof.state) =
+  let
+    val ctxt = Proof.context_of pstate;
+    val fast_assertions = (flat o the_list oo dfe_lookup) ctxt "fast_assetions"
+                        : (thm -> Proof.context -> thm list -> bool) list;
+    val ass_results = if null fast_assertions
+      then (tracing "fast_assertions is empty. Did you forget to call build_fast_feature_extractor?";
+            Assertions.eval_assertion_for_ML_bool pstate)
+      else Assertions.eval_assertion_gen pstate fast_assertions: RT.feature_values ;
+    val ftree = lookup ctxt mname: RT.final_tree option;
+    val important_feats = ftree liftM RT.important_features ass_results |> these: RT.feature_name list;
+val _ = AList.lookup
+  in
+    ()
+  end;
+
 (* print out recommendation in the output panel. *)
 local
 
@@ -172,12 +191,14 @@ fun get_top_methods (pstate:Proof.state) =
     val ass_results = if null fast_assertions
       then (tracing "fast_assertions is empty. Did you forget to call build_fast_feature_extractor?";
             Assertions.eval_assertion_for_ML_bool pstate)
-      else Assertions.eval_assertion_gen pstate fast_assertions;
+      else Assertions.eval_assertion_gen pstate fast_assertions: bool list;
     fun get_ftree (meth_name:string) = lookup ctxt meth_name: RT.final_tree option;
-    val get_exp = RT.lookup_exp ass_results;
+    val get_expect = RT.lookup_expect ass_results;
     fun get_top_result' (best_meth, best_exp) (meth_name::names:string list) =
          let
-           val expct = meth_name |> get_ftree |> (fn SOME ftree => get_exp ftree | NONE => (tracing ("failed at " ^ meth_name);0.0));
+           val expct = meth_name |> get_ftree |>
+             (fn SOME ftree => get_expect ftree
+               | NONE       => (tracing ("failed at " ^ meth_name);0.0));
          in
            if best_exp < expct
            then get_top_result' (meth_name, expct)    names

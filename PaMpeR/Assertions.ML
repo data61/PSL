@@ -559,6 +559,171 @@ val assertions =
 (*66*)  fst_subg_size_more_than_40,
 (*67*)  fst_subg_size_more_than_80]
 
+fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
+
+fun related_const_rule rule_name isar_keyword = "the underlying proof context has a " ^ rule_name ^
+ " rule associated to one of the constants appearing in the first subgoal.\n" ^
+ "Did you use the " ^ isar_keyword ^ " keyword to define this constant?";
+
+fun const_in_fst_prefixed_with (pre:string) = "the first subgoal has a constant defined in " ^ pre ^ ".";
+
+fun classified_as (class:string) = "Isabelle thinks that the first subgoal should be classified as "
+ ^ class ^ " problem.";
+
+fun outermost_is (outmost:string) = "the outermost constant of the first subgoal is " ^ outmost ^ ".";
+
+fun not_as_outermost (cname:string) = "the first subgoal has " ^ cname ^ " somewhere inside " ^
+  " not as the outermost constant.";
+
+fun type_in_fst (tname:string) = "the first subgoal has a variable of type " ^ tname ^ ".";
+
+fun related_type_rule (rule_name:string) (isar_keyword) = "the underlying proof context has a " ^
+  rule_name ^ " associated to one of the variables appearing in the first subgoal.\n" ^
+  "Did you use " ^ isar_keyword ^ " keyword to define the type?";
+
+fun trm_size_bigger_than (numb:string) = "the term size of first subgoal is more than " ^ numb ^ ".";
+
+val explanations =
+[
+(*01*)  (*check_local_assms,                     *)
+"the context has locally defined assumptions.",
+(*02*)  (*has_case_,                             *)
+"the first subgoal has case distinctions",
+(*03*)  (*is_word_bitwise,                       *)
+const_in_fst "Bits.bits_class.test_bit, Bits.bits_class.lsb, Bits.bits_class.set_bit, " ^ 
+"Bits.bits_class.bits, Bits.bits_class.shiftl, Bits.bits_class.shiftr.",
+(*04*)  (*is_u_arith,                            *)
+const_in_fst "Orderings.ord_class.less_eq, Orderings.ord_class.less, Groups.plus_class.plus.",
+(*05*)  (*fact_pinduct,                          *)
+related_const_rule "pinduct" "TODO",
+(*06*)  (*fact_psimp,                            *)
+related_const_rule "psimp" "TODO",
+(*07*)  (*fact_pelims,                           *)
+related_const_rule "pelims" "TODO",
+(*08*)  (*fact_cases,                            *)
+related_const_rule "cases" "TODO",
+(*09*)  (*fact_intros,                           *)
+related_const_rule "intros" "TODO",
+(*10*)  (*check_rec_simp,                        *)
+"the underlying proof context has a recursive simplification rule related to a constant appearing " ^
+"in the first subgoal.",
+(*11*)  (*has_const_prefixed_with_Num,           *)
+const_in_fst_prefixed_with "Num",
+(*12*)  (*fact_lift_def,                         *)
+related_const_rule "abs_eq, rsp, transfer, and rep_eq" "lift_definition.",
+(*13*)  (*fact_primcorec,                        *)
+related_const_rule "code, ctr, sel" "primcorec",
+(*14*)  (*is_locale_intro1,                      *)
+related_const_rule ".axiom" "locale",
+(*15*)  (*outermost_is_fun_not_fully_applied,    *)
+"the outer most function is not fully applied.",
+(*16*)  (*has_rel_fun,                           *)
+const_in_fst "BNF_Def.rel_fun",
+(*17*)  (*has_map_fun,                           *)
+const_in_fst "Fun.map_fun",
+(*18*)  (*fst_subg_has_schematic_var,            *)
+"the first subgoal has a schematic variable.",
+(*19*)  (*has_const_prefixed_with_Real,          *)
+const_in_fst_prefixed_with "Real",
+(*20*)  (*has_const_prefixed_with_List,          *)
+const_in_fst_prefixed_with "List",
+(*21*)  (*all_consts_in_main,                    *)
+"all constants in the first subgoal are defined in HOL/Main.",
+(*22*)  (*fst_subg_is_classified_as_Equational,  *)
+classified_as "equational",
+(*23*)  (*fst_subg_is_classified_as_Inductive,   *)
+classified_as "inductive",
+(*24*)  (*fst_subg_is_classified_as_Co_Inductive,*)
+classified_as "co_Inductive",
+(*25*)  (*fst_subg_is_classified_as_Unknown,     *)
+classified_as "unknown",
+(*26*)  (*outermost_is_pure_eq,                  *)
+outermost_is "Pure equality",
+(*27*)  (*outermost_is_hol_eq,                   *)
+outermost_is "HOL equality",
+(*28*)  (*outermost_is_pure_imp,                 *)
+outermost_is "Pure implication",
+(*29*)  (*outermost_is_hol_imp,                  *)
+outermost_is "HOL implication",
+(*30*)  (*outermost_is_pure_all,                 *)
+outermost_is "Pure universal quantifier",
+(*31*)  (*outermost_is_hol_all,                  *)
+outermost_is "HOL universal quantifier",
+(*32*)  (*outermost_is_hol_ex,                   *)
+outermost_is "HOL existential quantifier",
+(*33*)  (*fst_subg_has_pure_eq_not_as_outmost,   *)
+not_as_outermost "Pure equality",
+(*34*)  (*fst_subg_has_hol_eq_not_as_outmost,    *)
+not_as_outermost "HOL equality",
+(*35*)  (*fst_subg_has_pure_imp_not_as_outmost,  *)
+not_as_outermost  "Pure implication",
+(*36*)  (*fst_subg_has_hol_imp_not_as_outmost,   *)
+not_as_outermost "HOL implication",
+(*37*)  (*fst_subg_has_pure_all_not_as_outmost,  *)
+not_as_outermost "Pure universal quantifier",
+(*38*)  (*fst_subg_has_hol_all_not_as_outmost,   *)
+not_as_outermost "HOL universal quantifier",
+(*39*)  (*fst_subg_has_hol_ex_not_as_outmost,    *)
+not_as_outermost "HOL existential quantifier",
+(*40*)  (*is_termination_proof,                  *)
+"this conjecture is about termination.",
+(*41*)  (*function_package,                      *)
+"at least one subgoal has _sumC in it. \nAre you using the function package?",
+(*42*)  (*is_instance_proof,                     *)
+"the first subgoal has OFCLASS.\nAre you dealing with instantiation proof?",
+(*43*)  (*is_locale_intro2,                      *)
+"a constant has locally defined axioms. \nAre you dealing with a locale?",
+(*44*)  (*is_unfold_locale,                      *)
+"the proof context has _def and _axioms_def rules related to the outermost constant of the first subgoal.\n" ^
+"Are you dealing with a locale?",
+(*45*)  (*fst_subg_has_word,                     *)
+type_in_fst "Word.word",
+(*46*)  (*outermost_is_hol_and,                  *)
+outermost_is "HOL conjunction",
+(*47*)  (*outermost_is_hol_or,                   *)
+outermost_is "HOL disjunction",
+(*48*)  (*outermost_is_hol_not,                  *)
+outermost_is "HOL negation",
+(*49*)  (*has_const_prefixed_with_Set,           *)
+const_in_fst_prefixed_with "Set",
+(*50*)  (*fact_induct,                           *)
+related_const_rule "induct" "TODO",
+(*51*)  (*has_const_prefixed_with_Nat,           *)
+const_in_fst_prefixed_with "Nat",
+(*52*)  (*has_const_prefixed_with_Int,           *)
+const_in_fst_prefixed_with "Int",
+(*53*)  (*has_datatype_var,                      *)
+related_type_rule "rec_transfer" "datatype",
+(*54*)  (*has_datatype_var_para,                 *)
+related_type_rule "inj_map_strong" "datatype",
+(*55*)  (*has_var_of_rec,                        *)
+related_type_rule "Abs__ext_inject" "record",
+(*56*)  (*has_eventually,                        *)
+"the proof obligation involves Filter.eventually.",
+(*57*)  (*fact_inductive,                        *)
+related_const_rule "inducts" "inductive",
+(*58*)  (*fact_fun,                              *)
+related_const_rule "elims" "fun",
+(*59*)  (*has_locale_const,                      *)
+"the first subgoal has a constant registered as a locale.",
+(*60*)  (*has_class_const,                       *)
+"the first subgoal has a constant that is a member of a type class.",
+(*61*)  (*has_var_of_codata,                     *)
+related_type_rule "corec_disc" "codatatype",
+(*62*)  (*has_rel_fun_or_map_fun,                *)
+const_in_fst "BNF_Def.rel_fun, Fun.map_fun",
+(*63*)  (*fst_subg_size_more_than_5,             *)
+trm_size_bigger_than "5",
+(*64*)  (*fst_subg_size_more_than_10,            *)
+trm_size_bigger_than "10",
+(*65*)  (*fst_subg_size_more_than_20,            *)
+trm_size_bigger_than "20",
+(*66*)  (*fst_subg_size_more_than_40,            *)
+trm_size_bigger_than "40",
+(*67*)  (*fst_subg_size_more_than_80             *)
+trm_size_bigger_than "80"
+]
+
 (** Function used to generate database **)
 
 (* Parse the argument of command by/apply into the name of method*)

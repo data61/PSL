@@ -15,6 +15,7 @@ ML{* signature REGRESSION_TREE =
 sig
   type feature_name   = Database.feature_name;
   type feature_value  = bool;
+  type feature_values = bool list;
   type feature        = feature_name * feature_value;
   type feature_vector = feature list;
   type used           = Database.used;
@@ -42,7 +43,8 @@ sig
   val post_process:              growing_tree -> final_tree;
   val print_final_tree:          final_tree -> string;
   val parse_printed_tree:        string -> final_tree;
-  val lookup_exp:                bool list -> final_tree -> real;
+  val lookup_expect:             feature_values -> final_tree -> real;
+  val important_features:        feature_values -> final_tree -> feature_name list;
   val used_features:             final_tree list -> feature_name list;
 end;
 *}
@@ -51,6 +53,7 @@ ML{* structure Regression_Tree: REGRESSION_TREE = struct
 
 type feature_name     = Database.feature_name;
 type feature_value    = bool;
+type feature_values   = bool list;
 type feature          = (feature_name * feature_value);
 type feature_vector   = feature list;
 type used             = bool;
@@ -243,14 +246,18 @@ fun parse_printed_tree (dtr:string) = parse_ftree () (String.explode dtr |> map 
 
 end;
 
-type bools = bool list;
-
-fun lookup_exp ([]:bools) _ = error "lookup_one in Decision_Tree failed! Empty list!"
-  | lookup_exp (_ :bools) (FLeaf expect) = expect
-  | lookup_exp (bs:bools) (FBranch {More, Feature as (i, _), Less}) =
+fun lookup_expect ([]:feature_values) _ = error "lookup_expect in Decision_Tree failed! Empty list!"
+  | lookup_expect (_ :feature_values) (FLeaf expect) = expect
+  | lookup_expect (bs:feature_values) (FBranch {More, Feature as (i, _), Less}) =
     if nth bs (i - 1) (*because the numbering of assertions starts from 1.*)
-    then lookup_exp bs More
-    else lookup_exp bs Less;
+    then lookup_expect bs More
+    else lookup_expect bs Less;
+
+fun important_features (_:feature_values) (FLeaf _) = []
+  | important_features (bs:feature_values) (FBranch {More, Feature as (fname, _), Less}) =
+    if nth bs (fname - 1) = true
+    then fname :: important_features bs More
+    else fname :: important_features bs Less;
 
 type feature_names = feature_name list;
 
@@ -264,5 +271,5 @@ fun used_features (ftrees:final_tree list) =
   end;
 end;
 *}
-ML{* List.tabulate (5, (fn i => i + 1)); *}
+
 end
