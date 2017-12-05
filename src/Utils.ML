@@ -16,6 +16,7 @@ sig
   val list_to_pair   : 'a list -> 'a * 'a;
   val bool_to_real   : bool -> real;
   val is_some_true   : bool option -> bool;
+  val is_some_null   : 'a list option -> 'a list;
   val eq             : ''a -> ''a -> bool;
   val init           : 'a list -> 'a list;
   val intersperse    : 'a -> 'a list -> 'a list;
@@ -60,6 +61,8 @@ fun list_to_pair [a,b] = (a,b)
 fun bool_to_real b = if b then 1.0 else 0.0;
 
 fun is_some_true maybe = Option.getOpt (maybe, false);
+
+fun is_some_null maybe = Option.getOpt (maybe, []);
 
 val eq = (fn x => is_some_true o (try (equal x))): ''a -> ''a -> bool;
 
@@ -494,6 +497,9 @@ end;
 structure Find_Theorems2 : FIND_THEOREMS2 =
 struct
 
+infix 1 liftM;
+fun (m liftM f) = Option.map f m;
+
 open Find_Theorems;
 
 type context = Proof.context;
@@ -505,7 +511,7 @@ fun get_criterion kind_name ([]:string list) = [(true, Name kind_name)]
   | get_criterion kind_name (name::names:string list) = (true, Name name)::get_criterion kind_name names;
 
 fun all_names_to_rules kind_name (names:string list) ctxt (_(*just for type*):thm) =
-  find_theorems ctxt NONE NONE true (get_criterion kind_name names) |> snd;
+  try (find_theorems ctxt NONE NONE true) (get_criterion kind_name names) liftM snd |> Utils.is_some_null;
 
 fun some_names_to_rules kind_name names ctxt goal = names
   |> map (fn name:string => all_names_to_rules kind_name [name] ctxt goal)
@@ -582,7 +588,10 @@ fun get_split_rule_names ctxt goal = get_rule_names get_split_rules ctxt goal;
 fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:string list) =
   let
     val criterion      = get_criterion "" substrs: (bool * term criterion) list;
-    val relevant_rules = Find_Theorems.find_theorems ctxt NONE NONE true criterion |> snd |> map snd;
+    val relevant_rules = try (Find_Theorems.find_theorems ctxt NONE NONE true) criterion
+                         liftM snd
+                         liftM map snd
+                         |> Utils.is_some_null
   in
     relevant_rules: thm list
   end;

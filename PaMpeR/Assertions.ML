@@ -188,7 +188,7 @@ fun check_local_assms _ ctxt _ = ctxt
 fun has_eventually goal _ facts = goal::facts
   |> map Isabelle_Utils.get_trms_in_thm
   |> flat
-  |> map (Term.exists_Const ((equal "Filter.eventually") o fst))
+  |> map (Term.exists_Const (equal "Filter.eventually" o fst))
   |> exists (equal true);
 
 (* ASSERT 05. checks if the proof context contains a "pinduct" rule associated with a constant in the first subgoal. *)
@@ -265,11 +265,12 @@ fun has_var_of_codata goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal c
 (*            We expect that this assertion is useful to detect the use of the unfold_locales method. *)
 fun is_unfold_locale goal ctxt _ =
   let
-    fun get_rules (strs:string list) = Find_Theorems2.all_names_to_rules "" strs ctxt goal;
+    fun get_rules (strs:string list) = Find_Theorems2.all_names_to_rules "" strs ctxt goal: (Find_Theorems2.ref * thm) list;
     val result = goal
       |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
       >>=   Isabelle_Utils.get_outmost_cname
       liftM Long_Name.base_name
+      liftM (fn nm => (tracing nm; nm))
       liftM (fn bname => ["." ^ bname ^ ".", bname ^ "_def", bname ^ "_axioms_def"])
       liftM (forall (not o null o get_rules o single))
       |>    Utils.is_some_true: bool
@@ -737,8 +738,10 @@ fun get_name (Method.Source src) = (Token.name_of_src src |> fst) (*
 fun eval_assertion_gen (state:Proof.state) (assrts:(thm -> context -> thm list -> bool) list) =
     let
       val {goal:thm, context:context, facts:thm list} = Proof.goal state;
-      fun curry2 f (a, b, c) = f a b c; 
-      val fvector = Isabelle_Utils.if_solved goal [] (Utils.map_arg (goal, context, facts) (map (curry2) assrts));
+      fun curry2 f (a, b, c) = f a b c;
+      val asserts_exps = assrts ~~ explanations;
+      fun apply_ass (assert, expl) trpl = ((fn _ => tracing expl) trpl; curry2 assert trpl);
+      val fvector = Isabelle_Utils.if_solved goal [] (Utils.map_arg (goal, context, facts) (map apply_ass asserts_exps));
     in
       fvector : bool list
     end;
