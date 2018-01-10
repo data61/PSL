@@ -12,7 +12,7 @@
         deleted after use to make space for new training.
         
         The python script TrainScript.py provides an example of python machine
-        learning on the database. Feel free to use your own training algorit    hm with the generated Database file.
+        learning on the database. Feel free to use your own training algorithm with the generated Database file.
         
       2.Proof method recommendation 
         
@@ -36,7 +36,11 @@ begin
 ML_file "./Assertions.ML"
 ML_file "../src/Parser_Combinator.ML"
 ML_file "./PaMpeR_Interface.ML"
+(*
+build_regression_trees
 
+print_out_regression_trees
+*)
 reset_regression_tree_table
 
 read_regression_trees

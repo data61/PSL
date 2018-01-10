@@ -74,13 +74,13 @@ fun dfe_update (k, v)  = Dynamic_Feature_Extractor.map (Symtab.update_new (k, v)
 fun build_ftree (meth_name:string) =
   let
     fun did_success sth =  if is_some sth then " successfully " else " NOT really "; 
-    val _ = Utils.debug_mssg true ("building a final tree for " ^ meth_name);
+    val _ = Utils.debug_mssg true ("building a final tree for " ^ meth_name) ();
     val database = try Database.parse_database meth_name : Database.database option;
-    val _ = Utils.debug_mssg true  ("after" ^ did_success database ^ "building database for " ^ meth_name);
+    val _ = Utils.debug_mssg true  ("after" ^ did_success database ^ "building database for " ^ meth_name) ();
     val big_tree = Option.map (try RT.get_big_tree) database |> Option.join: RT.growing_tree option;    
-    val _ = Utils.debug_mssg true  ("after" ^ did_success big_tree ^ "building big_tree for " ^ meth_name);
+    val _ = Utils.debug_mssg true  ("after" ^ did_success big_tree ^ "building big_tree for " ^ meth_name) ();
     val ftree = Option.map (try RT.post_process) big_tree |> Option.join: RT.final_tree option;
-    val _ = Utils.debug_mssg true  ("after" ^ did_success ftree ^ "building final_tree for " ^ meth_name);
+    val _ = Utils.debug_mssg true  ("after" ^ did_success ftree ^ "building final_tree for " ^ meth_name) ();
     val result = if is_some ftree then SOME (meth_name, the ftree) else NONE;
   in
    result
@@ -99,11 +99,13 @@ fun mk_parser func = fn (tkns:Token.T list) => (func, tkns);
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
     val final_tree    = lookup ctxt meth_name: RT.final_tree option;
-    val _ = if is_none final_tree then tracing ("no final tree available for " ^ meth_name) else ();
+    val _ = if is_none final_tree
+            then tracing ("no final tree available for " ^ meth_name)
+            else tracing ("final tree available for " ^ meth_name);
     val ftree_as_str  = Option.map RT.print_final_tree final_tree: string option;
     val bash_command  =
       if is_some ftree_as_str
-      then "echo -n '" ^ meth_name ^ "," ^ the ftree_as_str ^ "' >> " ^ path_to_rtree
+      then "echo -n '" ^ meth_name ^ "," ^ the ftree_as_str ^ "\n" ^ "' >> " ^ path_to_rtree
       else "echo -n '" ^ "No final tree available for " ^ meth_name ^ "'";
     val exit_int     = Isabelle_System.bash (bash_command:string);
     val _ = if exit_int = 0 then () else tracing "print_out_ftree failed! The bach returned a non-0 value.";
@@ -117,11 +119,12 @@ fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
    lthy);
 
 (* read regression trees printed in in PaMpeR/regression_trees *)
-val read_regression_trees =
+fun read_regression_trees (lthy:local_theory)=
   let
     val lines = try TextIO.openIn path_to_rtree
       liftM  TextIO.inputAll
       liftM  split_lines
+      liftM (rev o tl o rev) (*The last line is empty.*)
       |> (fn SOME sth => sth | NONE => []): string list;
     open Parser_Combinator;
     infix >>=;
@@ -138,7 +141,7 @@ val read_regression_trees =
       |> Seq.hd
       |> fst;
     fun register_final_trees (lthy:local_theory) = fold (update o read_final_tree) lines lthy;
-  in register_final_trees end;
+  in register_final_trees lthy end;
 
 (* build and register fast assertions *)
 local
