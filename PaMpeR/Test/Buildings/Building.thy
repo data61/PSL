@@ -610,7 +610,7 @@ lemma rotate: "ChamberComplexApartmentSystemTriangle X \<A> B' A B D E C z" find
   by    unfold_locales auto
 
 lemma reflect: "ChamberComplexApartmentSystemTriangle X \<A> A B' B D C E z"
-  using apartments chambers facet in_apartments chambers_ne
+  using apartments chambers facet in_apartments chambers_ne assert_nth_true 44
   by    unfold_locales auto
 
 lemma facet_in_chambers: "z\<subseteq>C" "z\<subseteq>D" "z\<subseteq>E"

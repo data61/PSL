@@ -270,7 +270,6 @@ fun is_unfold_locale goal ctxt _ =
       |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
       >>=   Isabelle_Utils.get_outmost_cname
       liftM Long_Name.base_name
-      liftM (fn nm => (tracing nm; nm))
       liftM (fn bname => ["." ^ bname ^ ".", bname ^ "_def", bname ^ "_axioms_def"])
       liftM (forall (not o null o get_rules o single))
       |>    Utils.is_some_true: bool

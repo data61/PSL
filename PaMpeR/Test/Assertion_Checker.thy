@@ -104,11 +104,10 @@ lemma "a * Numeral1 = a"
   oops
   find_theorems name:"axioms_def"
 lemma "1 \<in> {1,2}"
-  assert_nth_true 63
-  assert_nth_false 64
+  assert_nth_true 61
+  assert_nth_false 62
   assert_nth_true 49
   assert_nth_false 44
-  assert_nth_false 59
   oops
 
 end

@@ -351,7 +351,7 @@ inductive regular_cong for R where
 lemma language_coinduct_upto_regular[unfolded rel_fun_def, simplified, case_names Lang, consumes 1]:
   assumes R: "R L K" and hyp:
     "(\<And>L K. R L K \<Longrightarrow> \<oo> L = \<oo> K \<and> rel_fun op = (regular_cong R) (\<dd> L) (\<dd> K))"
-  shows "L = K" apply(tactic {* fn g => (if Assertions.has_var_of_codata g @{context} [] then tracing "true" else tracing "false" ; Seq.single g) *})
+  shows "L = K"
 proof (coinduct rule: language.coinduct[of "regular_cong R"])
   fix L K assume "regular_cong R L K"
   then show "\<oo> L = \<oo> K \<and> rel_fun op = (regular_cong R) (\<dd> L) (\<dd> K)"

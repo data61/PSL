@@ -67,7 +67,7 @@ proof -
   thus ?thesis by blast
 qed
 
-interpretation RDR \<delta> \<gamma> \<bottom> find_theorems name:".RDR." find_consts name:".RDR." assert_nth_true 44
+interpretation RDR \<delta> \<gamma> \<bottom> find_theorems name:".RDR." find_consts name:".RDR." assert_nth_false 44 (*unfortunately*) find_theorems name:"axioms_def"
 proof (unfold_locales)
   fix s r 
   assume "contains s r"
