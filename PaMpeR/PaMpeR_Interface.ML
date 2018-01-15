@@ -166,7 +166,6 @@ fun register_fast_assertions lthy = dfe_update ("fast_assetions", (get_fast_asse
 end;
 
 (* print out qualitative messages to explain why PaMpeR recommends the given methods in the output panel. *)
-(* TODO: it shares many functions with get_top_methods. *)
 fun why_method (mname:string) (pstate:Proof.state) =
   let
     val ctxt = Proof.context_of pstate;
@@ -178,10 +177,58 @@ fun why_method (mname:string) (pstate:Proof.state) =
       else Assertions.eval_assertion_gen pstate fast_assertions: RT.feature_values ;
     val ftree = lookup ctxt mname: RT.final_tree option;
     val important_feats = ftree liftM RT.important_features ass_results |> these: RT.feature_name list;
-val _ = AList.lookup
+    val full_explanations = ass_results ~~ Assertions.explanations: (bool * string) list;
+    fun get_mssg (assrt_succ:bool, explanation:string) =
+      if assrt_succ
+      then "Because " ^ explanation
+      else "Because it is not that " ^ explanation;
+    fun print_nth (i:int) = (tracing o nth Assertions.explanations) (i - 1): unit;
+    val _ = map print_nth important_feats: unit list;
   in
     ()
   end;
+
+(* parser for the why_method *)
+local
+  type trans_trans = Toplevel.transition -> Toplevel.transition;
+  open Parser_Combinator;
+  infix >>=;
+in
+
+(*TODO: code duplication with Isar_Interface.ML*)
+val parse_method_name = token word >>= result : string parser;
+
+(*TODO: code duplication with Isar_Interface.ML*)
+fun tokens_to_string tokens = tokens |> map Token.unparse |> String.concatWith " ";
+
+(*TODO: code duplication with Isar_Interface.ML*)
+fun string_parser_to_token_parser (symbols_parser:'a parser) = (fn (tokens:Token.T list) =>
+  tokens
+  |> tokens_to_string
+  |> Symbol.explode
+  |> symbols_parser
+  |> Seq.hd
+  (*This function assumes that the string_parser consumes the entire string.*)
+  |> apsnd (K ([]))) : 'a Token.parser;
+
+(*TODO: code duplication with Isar_Interface.ML*)
+fun parser_to_trans_trans_parser (inv_p : 'a parser)
+  (get_trans_trans : 'a -> trans_trans) =
+  string_parser_to_token_parser (inv_p >>= (result o get_trans_trans)) : trans_trans Token.parser;
+
+(*TODO: rename get_trans_trans*)
+fun get_trans_trans (method_name:string) =
+   (((Toplevel.keep_proof:(Toplevel.state -> unit) -> trans_trans)
+   (fn top =>
+    let
+      val proof_state = Toplevel.proof_of top;
+      val _ = why_method method_name proof_state;
+    in
+     ()
+    end)
+   ):trans_trans);
+
+end;
 
 (* print out recommendation in the output panel. *)
 local
@@ -274,11 +321,15 @@ fun PaMpeR_activate _ =
       "read regression trees in PaMpeR/regression_trees and register them from databases."
       (mk_parser read_regression_trees);
 
-    val _ = Outer_Syntax.command @{command_keyword which_method} "recommend which method to use"
+    val _ = Outer_Syntax.command @{command_keyword which_method} "recommend which method to use."
         (Scan.succeed which_method_cmd);
 
+   val _ = Outer_Syntax.command @{command_keyword why_method}
+        "give qualitative explanations as to why one should use the given method."
+        (parser_to_trans_trans_parser parse_method_name get_trans_trans);
+
     val _ = Outer_Syntax.local_theory @{command_keyword build_fast_feature_extractor}
-      "build a quick version of feature extractor by ignoring unrelevant assertions"
+      "build a quick version of feature extractor by ignoring unrelevant assertions."
       (mk_parser register_fast_assertions)
   in
     ()

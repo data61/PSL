@@ -159,6 +159,7 @@ sig
   val eval_assertion_for_ML_bool: Proof.state -> bool list;
   val eval_assertion:             Proof.state -> string;
   val assertions:                 (thm -> Proof.context -> thm list -> bool) list;
+  val explanations:               string list;
 end;
 
 (*** Assertions: Implementation of assertions ***)
