@@ -576,7 +576,7 @@ fun classified_as (class:string) = "Isabelle thinks that the first subgoal shoul
 fun outermost_is (outmost:string) = "the outermost constant of the first subgoal is " ^ outmost ^ ".";
 
 fun not_as_outermost (cname:string) = "the first subgoal has " ^ cname ^ " somewhere inside " ^
-  " not as the outermost constant.";
+  "not as the outermost constant.";
 
 fun type_in_fst (tname:string) = "the first subgoal has a variable of type " ^ tname ^ ".";
 
