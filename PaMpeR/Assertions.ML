@@ -705,12 +705,10 @@ related_type_rule "Abs__ext_inject" "record",
 related_const_rule "inducts" "inductive",
 (*58*)  (*fact_fun,                              *)
 related_const_rule "elims" "fun",
-(*
 (*59*)  (*has_locale_const,                      *)
 "the first subgoal has a constant registered as a locale.",
 (*60*)  (*has_class_const,                       *)
 "the first subgoal has a constant that is a member of a type class.",
-*)
 (*61*)  (*has_var_of_codata,                     *)
 related_type_rule "corec_disc" "codatatype",
 (*62*)  (*has_rel_fun_or_map_fun,                *)
