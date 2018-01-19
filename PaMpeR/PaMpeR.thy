@@ -37,11 +37,11 @@ begin
 ML_file "./Assertions.ML"
 ML_file "../src/Parser_Combinator.ML"
 ML_file "./PaMpeR_Interface.ML"
-
+(*
 build_regression_trees
 
 print_out_regression_trees
-
+*)
 reset_regression_tree_table
 
 read_regression_trees

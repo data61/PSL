@@ -148,11 +148,11 @@ fun database_to_fname_list ([]:database) = error "database_to_fname_list failed"
 
 (* This can be inefficient for boolean feature values 
  * because it checks features that have been already checked in upper nodes. *)
-fun get_feat_with_mini_RSS' (_:database)    (best_fname:feature_name, _:real)        ([]:feature_name list)         = best_fname
+fun get_feat_with_mini_RSS' (_:database)    (best_fname:feature_name, _:real)        ([]:feature_name list)            = best_fname
  |  get_feat_with_mini_RSS' (data:database) (best_fname:feature_name, mini_rss:real) (fname::fnames:feature_name list) = 
   let
-    val new_rss              = get_RSS fname data;
-    val _ = Utils.debug_mssg false ("new_rss is " ^ Real.toString new_rss) ();
+    val new_rss = get_RSS fname data;
+    val _       = Utils.debug_mssg false ("new_rss is " ^ Real.toString new_rss) ();
     val (new_best, new_mini) = if new_rss < mini_rss then (fname, new_rss) else (best_fname, mini_rss);
   in
     get_feat_with_mini_RSS' data (new_best, new_mini) fnames
@@ -160,15 +160,15 @@ fun get_feat_with_mini_RSS' (_:database)    (best_fname:feature_name, _:real)   
 
 fun get_feature_with_mini_RSS (data:database) =
   let
-    val fnames = database_to_fname_list data: feature_name list;
-    val fname  = if length fnames > 0 then hd fnames else error "get_feature_with_mini_RSS failed!";
-    val rss    = get_RSS fname data;
-    val _ = Utils.debug_mssg false ("for " ^ Int.toString fname ^ "th feature: rss is " ^ Real.toString rss) ();
-    val fname = get_feat_with_mini_RSS' data (fname, rss) fnames;
+    val fnames   = database_to_fname_list data: feature_name list;
+    val fname    = if length fnames > 0 then hd fnames else error "get_feature_with_mini_RSS failed!";
+    val rss      = get_RSS fname data;
+    val _        = Utils.debug_mssg false ("for " ^ Int.toString fname ^ "th feature: rss is " ^ Real.toString rss) ();
+    val fname    = get_feat_with_mini_RSS' data (fname, rss) fnames;
     val mini_rss = get_RSS fname data;
-    val result = if Real.== (Real.posInf, mini_rss) then NONE else SOME fname;
+    val result   = if Real.== (Real.posInf, mini_rss) then NONE else SOME fname;
   in
-    result
+    result: feature_name option
   end;
 
 fun split_region (database:database) =

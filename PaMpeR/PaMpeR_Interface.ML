@@ -181,8 +181,8 @@ fun why_method (mname:string) (pstate:Proof.state) =
     fun get_mssg (assrt_succ:bool, explanation:string) =
       if assrt_succ
       then "Because " ^ explanation
-      else "Because it is not that " ^ explanation;
-    fun print_nth (i:int) = (tracing o nth Assertions.explanations) (i - 1): unit;
+      else "Because it is not true that " ^ explanation;
+    fun print_nth (i:int) = (tracing o get_mssg o nth full_explanations) (i - 1): unit;
     val _ = map print_nth important_feats: unit list;
   in
     ()
