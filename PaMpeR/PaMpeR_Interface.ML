@@ -23,7 +23,7 @@ structure RT = Regression_Tree;
 
 val path = Resources.master_directory @{theory} |> File.platform_path : string;
 val path_to_meth_names = path ^ "/method_names": string;
-val path_to_rtree      = path ^ "/regression_trees";
+val path_to_rtree      = path ^ "/regression_trees.txt";
 
 (*all_method_names: The database has to be present in PSL/PaMpeR/.*)
 val all_method_names =
@@ -95,7 +95,7 @@ fun register_final_trees (lthy:local_theory) = fold update (build_final_trees al
 
 fun mk_parser func = fn (tkns:Token.T list) => (func, tkns);
 
-(* print out regression trees in PaMpeR/regression_trees *)
+(* print out regression trees in PaMpeR/regression_trees.txt *)
 fun print_out_ftree (ctxt:Proof.context) (meth_name:string) =
   let
     val final_tree    = lookup ctxt meth_name: RT.final_tree option;
@@ -118,7 +118,7 @@ fun print_out_all_ftrees (meth_names:string list) (lthy:local_theory) =
    map (print_out_ftree lthy) meth_names;
    lthy);
 
-(* read regression trees printed in in PaMpeR/regression_trees *)
+(* read regression trees printed in in PaMpeR/regression_trees.txt *)
 fun read_regression_trees (lthy:local_theory)=
   let
     val lines = try TextIO.openIn path_to_rtree
@@ -314,11 +314,11 @@ fun PaMpeR_activate _ =
       "reset the table containing final trees to Table.empty." (mk_parser reset);
 
     val _ = Outer_Syntax.local_theory @{command_keyword print_out_regression_trees}
-      "print-out regression trees stored in memory to PaMpeR/regression_trees."
+      "print-out regression trees stored in memory to PaMpeR/regression_trees.txt."
       (mk_parser (print_out_all_ftrees all_method_names));
 
     val _ = Outer_Syntax.local_theory @{command_keyword read_regression_trees}
-      "read regression trees in PaMpeR/regression_trees and register them from databases."
+      "read regression trees in PaMpeR/regression_trees.txt and register them from databases."
       (mk_parser read_regression_trees);
 
     val _ = Outer_Syntax.command @{command_keyword which_method} "recommend which method to use."

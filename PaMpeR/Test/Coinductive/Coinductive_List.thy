@@ -14,13 +14,13 @@ begin
 
 subsection {* Auxiliary lemmata *}
 
-lemma funpow_Suc_conv [simp]: "(Suc ^^ n) m = m + n"
+lemma funpow_Suc_conv [simp]: "(Suc ^^ n) m = m + n" which_method why_method simp
 by(induct n arbitrary: m) simp_all
 
 lemma wlog_linorder_le [consumes 0, case_names le symmetry]:
   assumes le: "\<And>a b :: 'a :: linorder. a \<le> b \<Longrightarrow> P a b"
   and sym: "P b a \<Longrightarrow> P a b"
-  shows "P a b"
+  shows "P a b" which_method why_method cases
 proof(cases "a \<le> b")
   case True thus ?thesis by(rule le)
 next
@@ -65,7 +65,7 @@ declare llist.map_cong [cong]
 text {* Code generator setup *}
 
 lemma corec_llist_never_stop: "corec_llist IS_LNIL LHD (\<lambda>_. False) MORE LTL x = unfold_llist IS_LNIL LHD LTL x"
-by(coinduction arbitrary: x) auto
+which_method why_method coinduction by(coinduction arbitrary: x) auto
 
 text {* lemmas about generated constants *}
 
