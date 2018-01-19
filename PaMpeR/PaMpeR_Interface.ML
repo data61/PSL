@@ -255,43 +255,32 @@ fun get_top_methods (pstate:Proof.state) =
            else get_top_result' (best_meth, best_exp) names
          end
       | get_top_result' best_so_far [] = best_so_far;
-    fun rank 1 = "The most"
-      | rank 2 = "The second most"
-      | rank 3 = "The third most"
-      | rank 4 = "The fourth most"
-      | rank 5 = "The fifth most"
-      | rank 6 = "The sixth most"
-      | rank 7 = "The seventh most"
-      | rank 8 = "The eighth most"
-      | rank 9 = "The nineth most"
-      | rank 10 = "The tenth most"
-      | rank _ = "A"
-    fun get_top_result (numb:int) meth_names =
+    fun get_top_result meth_names =
       let
         val top = get_top_result' ("auto", 0.0) meth_names : (string * real);
         val exp_str = top |> snd |>  Real.toString;
-        val _ = tracing (rank numb ^ " promising method is " ^ fst top ^ " with expectation of " ^ exp_str);
+        val _ = tracing ("A promising method is " ^ fst top ^ " with expectation of " ^ exp_str);
       in
         remove (op =) (fst top) meth_names
       end;
     (*TODO: better if I use Lazy Sequence here?*)
     val _ =
-       get_top_result 1 all_method_names |> (fn (wo_1) =>
-       get_top_result 2 wo_1             |> (fn (wo_2) =>
-       get_top_result 3 wo_2             |> (fn (wo_3) =>
-       get_top_result 4 wo_3             |> (fn (wo_4) =>
-       get_top_result 5 wo_4             |> (fn (wo_5) =>
-       get_top_result 6 wo_5             |> (fn (wo_6) =>
-       get_top_result 7 wo_6             |> (fn (wo_7) =>
-       get_top_result 8 wo_7             |> (fn (wo_8) =>
-       get_top_result 9 wo_8             |> (fn (wo_9) =>
-       get_top_result 10 wo_9            |> (fn (wo_10) =>
-       get_top_result 11 wo_10            |> (fn (wo_11) =>
-       get_top_result 12 wo_11            |> (fn (wo_12) =>
-       get_top_result 13 wo_12            |> (fn (wo_13) =>
-       get_top_result 14 wo_13            |> (fn (wo_14) =>
-       get_top_result 15 wo_14            |> (fn (wo_15) =>
-       get_top_result 16 wo_15)))))))))))))))
+       get_top_result all_method_names |> (fn (wo_1) =>
+       get_top_result wo_1             |> (fn (wo_2) =>
+       get_top_result wo_2             |> (fn (wo_3) =>
+       get_top_result wo_3             |> (fn (wo_4) =>
+       get_top_result wo_4             |> (fn (wo_5) =>
+       get_top_result wo_5             |> (fn (wo_6) =>
+       get_top_result wo_6             |> (fn (wo_7) =>
+       get_top_result wo_7             |> (fn (wo_8) =>
+       get_top_result wo_8             |> (fn (wo_9) =>
+       get_top_result wo_9            |> (fn (wo_10) =>
+       get_top_result wo_10            |> (fn (wo_11) =>
+       get_top_result wo_11            |> (fn (wo_12) =>
+       get_top_result wo_12            |> (fn (wo_13) =>
+       get_top_result wo_13            |> (fn (wo_14) =>
+       get_top_result wo_14            |> (fn (wo_15) =>
+       get_top_result wo_15)))))))))))))))
   in () end;
 in
 

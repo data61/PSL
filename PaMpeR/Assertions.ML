@@ -566,7 +566,7 @@ fun const_in_fst consts= "the first subgoal has one of the following constants: 
 
 fun related_const_rule rule_name isar_keyword = "the underlying proof context has a " ^ rule_name ^
  " rule associated to one of the constants appearing in the first subgoal.\n" ^
- "Did you use the " ^ isar_keyword ^ " keyword to define this constant?";
+ "  Did you use the " ^ isar_keyword ^ " keyword to define this constant?";
 
 fun const_in_fst_prefixed_with (pre:string) = "the first subgoal has a constant defined in " ^ pre ^ ".";
 

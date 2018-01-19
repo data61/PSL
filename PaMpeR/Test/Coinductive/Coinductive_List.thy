@@ -14,7 +14,7 @@ begin
 
 subsection {* Auxiliary lemmata *}
 
-lemma funpow_Suc_conv [simp]: "(Suc ^^ n) m = m + n" which_method why_method simp
+lemma funpow_Suc_conv [simp]: "(Suc ^^ n) m = m + n" which_method why_method simp why_method transfer
 by(induct n arbitrary: m) simp_all
 
 lemma wlog_linorder_le [consumes 0, case_names le symmetry]:
