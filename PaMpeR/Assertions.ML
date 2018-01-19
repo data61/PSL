@@ -555,12 +555,13 @@ val assertions =
 (*60*)  has_class_const,
 *)
 (*61*)  has_var_of_codata,
-(*62*)  has_rel_fun_or_map_fun,
+(*62*)  has_rel_fun_or_map_fun(*,
+
 (*63*)  fst_subg_size_more_than_5,
 (*64*)  fst_subg_size_more_than_10,
 (*65*)  fst_subg_size_more_than_20,
 (*66*)  fst_subg_size_more_than_40,
-(*67*)  fst_subg_size_more_than_80]
+(*67*)  fst_subg_size_more_than_80*)]
 
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
 
@@ -716,7 +717,7 @@ related_const_rule "elims" "fun",
 (*61*)  (*has_var_of_codata,                     *)
 related_type_rule "corec_disc" "codatatype",
 (*62*)  (*has_rel_fun_or_map_fun,                *)
-const_in_fst "BNF_Def.rel_fun, Fun.map_fun",
+const_in_fst "BNF_Def.rel_fun, Fun.map_fun"(*,
 (*63*)  (*fst_subg_size_more_than_5,             *)
 trm_size_bigger_than "5",
 (*64*)  (*fst_subg_size_more_than_10,            *)
@@ -727,6 +728,7 @@ trm_size_bigger_than "20",
 trm_size_bigger_than "40",
 (*67*)  (*fst_subg_size_more_than_80             *)
 trm_size_bigger_than "80"
+*)
 ]
 
 (** Function used to generate database **)
