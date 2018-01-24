@@ -11,9 +11,6 @@
         These data are stored by default in ./isabelle/Database, and should be manually
         deleted after use to make space for new training.
         
-        The python script TrainScript.py provides an example of python machine
-        learning on the database. Feel free to use your own training algorithm with the generated Database file.
-        
       2.Proof method recommendation 
         
         Keyword which_method can be called during a proof stage.
@@ -48,6 +45,5 @@ read_regression_trees
 (*
 build_fast_feature_extractor
 *)
-ML_file "./FE_Interface.ML"
 
 end

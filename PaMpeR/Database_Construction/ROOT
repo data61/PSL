@@ -1,0 +1,7 @@
+session "Database_Construction" = "HOL" +
+  options [document = pdf, document_output = "output", timeout = 999999999999]
+  theories [document = false]
+    "Database_Construction"
+  theories
+  document_files
+    "root.tex"
