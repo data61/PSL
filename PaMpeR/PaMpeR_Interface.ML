@@ -11,6 +11,7 @@ sig
   val build_final_trees:  string list -> (string * Regression_Tree.final_tree) list;
   val PaMpeR_activate:    unit -> unit;
   val lookup:             Proof.context -> string -> Regression_Tree.final_tree option;
+  val get_method_rank:    string -> Proof.state -> string;
 end;
 
 (*** PaMpeR_Interface ***)
@@ -324,8 +325,6 @@ fun PaMpeR_activate _ =
     ()
   end;
 
-local
-
 type trans_trans = Toplevel.transition -> Toplevel.transition;
 
 (*TODO: remove the code-duplication with get_top_methods.*)
@@ -350,17 +349,13 @@ fun get_method_rank (human_meth_name:string) (pstate:Proof.state) =
     val sorted_pairs = sort (fn (p1, p2) => Real.compare (snd p2, snd p1)) expect_pairs: (string * real) list;
     val total_numb   = sorted_pairs |> length;
     fun meth_is_nth (meth_name:string) = find_index ((equal meth_name) o fst) sorted_pairs + 1: int;
+    val mssg = human_meth_name ^ " " ^ (human_meth_name |> meth_is_nth |> Int.toString) ^ " out of "
+               ^ Int.toString total_numb 
   in
-    (meth_is_nth human_meth_name, total_numb)
+    mssg:string
   end;
 
-fun show_method_rank (human_meth_name:string) (pstate:Proof.state) =
-  let
-    val (meth_rank, total_numb) = get_method_rank human_meth_name pstate;
-    val _ = tracing (human_meth_name ^ " " ^ (Int.toString meth_rank) ^ " out of " ^ Int.toString total_numb);
-  in
-    ()
-  end;
+fun show_method_rank (meth_name:string) (pstate:Proof.state) = tracing (get_method_rank meth_name pstate);
 
 (*TODO: rename get_trans_trans and remove the code duplication with the above function of the same name.*)
 fun get_trans_trans (method_name:string) =
@@ -373,11 +368,10 @@ fun get_trans_trans (method_name:string) =
      ()
     end)
    ):trans_trans);
-in
-   val _ = Outer_Syntax.command @{command_keyword rank_method}
-        "given a method name and proof state, shows which rank the which_method command gives to the method in the proof state."
-        (parser_to_trans_trans_parser parse_method_name get_trans_trans);
-end
+
+val _ = Outer_Syntax.command @{command_keyword rank_method}
+  "given a method name and proof state, shows which rank the which_method command gives to the method in the proof state."
+  (parser_to_trans_trans_parser parse_method_name get_trans_trans);
 
 end;
 

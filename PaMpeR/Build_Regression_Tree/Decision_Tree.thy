@@ -4,11 +4,11 @@
     This file contains an experimental implementation of a decision tree construction algorithm.
 *)
 theory Decision_Tree
-  imports Read_Databases
+  imports "../Read_Databases"
 begin
 
-ML_file "../src/Utils.ML"
-ML_file "../src/Parser_Combinator.ML"
+ML_file "../../src/Utils.ML"
+ML_file "../../src/Parser_Combinator.ML"
 
 (* Let us assume that the feature vector is a vector of boolean values for now. *)
 ML{* signature REGRESSION_TREE =
