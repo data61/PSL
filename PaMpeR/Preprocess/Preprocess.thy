@@ -35,9 +35,10 @@ fun get_tokens (line:string) = line
   |> chop 1
   |> apfst the_single;
 
-val path = Resources.master_directory @{theory} |> File.platform_path : string;
-val path_to_database  = path ^ "/Database" : string;
-val path_to_databases = path ^ "/Databases/" : string;
+val path              = Resources.master_directory @{theory} |> File.platform_path : string;
+val path_to_PaMpeR    = unsuffix "/Preprocess" path;
+val path_to_database  = path_to_PaMpeR ^ "/Build_Database/Database" : string;
+val path_to_databases = path_to_PaMpeR ^ "/Databases/" : string;
 
 fun write_one_line_for_one_method (line:string) (method_name:string) =
   let
