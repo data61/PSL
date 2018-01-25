@@ -1,4 +1,4 @@
-theory Database_Construction
+theory Build_Database
   imports Pure
 begin
 
