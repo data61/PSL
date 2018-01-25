@@ -347,7 +347,7 @@ fun get_method_rank (human_meth_name:string) (pstate:Proof.state) =
         result
       end;
     val expect_pairs = map get_expect_pair all_method_names |> filter is_some |> map the: (string * real) list;
-    val sorted_pairs = sort (fn (p1, p2) => Real.compare (snd p1, snd p2)) expect_pairs |> rev: (string * real) list;
+    val sorted_pairs = sort (fn (p1, p2) => Real.compare (snd p2, snd p1)) expect_pairs: (string * real) list;
     val total_numb   = sorted_pairs |> length;
     fun meth_is_nth (meth_name:string) = find_index ((equal meth_name) o fst) sorted_pairs + 1: int;
   in
