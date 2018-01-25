@@ -21,7 +21,7 @@
         from Archive of Formal Proof.
 *)
 theory PaMpeR
-  imports Decision_Tree
+  imports "Build_Regression_Tree/Decision_Tree"
   keywords "which_method" :: diag
   and    "why_method" :: diag
   and    "rank_method" :: diag
