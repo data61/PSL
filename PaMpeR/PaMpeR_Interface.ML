@@ -8,9 +8,9 @@
 (*** PAMPER_INTERFACE ***)
 signature PAMPER_INTERFACE = 
 sig
-  val build_final_trees : string list -> (string * Regression_Tree.final_tree) list;
-  val PaMpeR_activate : unit -> unit;
-  val lookup: Proof.context -> string -> Regression_Tree.final_tree option;
+  val build_final_trees:  string list -> (string * Regression_Tree.final_tree) list;
+  val PaMpeR_activate:    unit -> unit;
+  val lookup:             Proof.context -> string -> Regression_Tree.final_tree option;
 end;
 
 (*** PaMpeR_Interface ***)
@@ -274,7 +274,7 @@ fun get_top_methods (pstate:Proof.state) =
        get_top_result wo_6             |> (fn (wo_7) =>
        get_top_result wo_7             |> (fn (wo_8) =>
        get_top_result wo_8             |> (fn (wo_9) =>
-       get_top_result wo_9            |> (fn (wo_10) =>
+       get_top_result wo_9             |> (fn (wo_10) =>
        get_top_result wo_10            |> (fn (wo_11) =>
        get_top_result wo_11            |> (fn (wo_12) =>
        get_top_result wo_12            |> (fn (wo_13) =>
@@ -323,6 +323,61 @@ fun PaMpeR_activate _ =
   in
     ()
   end;
+
+local
+
+type trans_trans = Toplevel.transition -> Toplevel.transition;
+
+(*TODO: remove the code-duplication with get_top_methods.*)
+fun get_method_rank (human_meth_name:string) (pstate:Proof.state) =
+  let
+    val ctxt = Proof.context_of pstate;
+    val fast_assertions = (flat o the_list oo dfe_lookup) ctxt "fast_assetions"
+                        : (thm -> Proof.context -> thm list -> bool) list;
+    val ass_results = if null fast_assertions
+      then (tracing "fast_assertions is empty. Did you forget to call build_fast_feature_extractor?";
+            Assertions.eval_assertion_for_ML_bool pstate)
+      else Assertions.eval_assertion_gen pstate fast_assertions: bool list;
+    val get_expect = RT.lookup_expect ass_results: RT.final_tree -> real;
+    fun get_expect_pair (meth_name:string) =
+      let
+        val expect = lookup ctxt meth_name liftM get_expect: real option;
+        val result = expect liftM (fn exp => (meth_name, exp)):(string * real) option;
+      in
+        result
+      end;
+    val expect_pairs = map get_expect_pair all_method_names |> filter is_some |> map the: (string * real) list;
+    val sorted_pairs = sort (fn (p1, p2) => Real.compare (snd p1, snd p2)) expect_pairs |> rev: (string * real) list;
+    val total_numb   = sorted_pairs |> length;
+    fun meth_is_nth (meth_name:string) = find_index ((equal meth_name) o fst) sorted_pairs + 1: int;
+  in
+    (meth_is_nth human_meth_name, total_numb)
+  end;
+
+fun show_method_rank (human_meth_name:string) (pstate:Proof.state) =
+  let
+    val (meth_rank, total_numb) = get_method_rank human_meth_name pstate;
+    val _ = tracing (human_meth_name ^ " " ^ (Int.toString meth_rank) ^ " out of " ^ Int.toString total_numb);
+  in
+    ()
+  end;
+
+(*TODO: rename get_trans_trans and remove the code duplication with the above function of the same name.*)
+fun get_trans_trans (method_name:string) =
+   (((Toplevel.keep_proof:(Toplevel.state -> unit) -> trans_trans)
+   (fn top =>           
+    let
+      val proof_state = Toplevel.proof_of top;
+      val _ = show_method_rank method_name proof_state;
+    in
+     ()
+    end)
+   ):trans_trans);
+in
+   val _ = Outer_Syntax.command @{command_keyword rank_method}
+        "given a method name and proof state, shows which rank the which_method command gives to the method in the proof state."
+        (parser_to_trans_trans_parser parse_method_name get_trans_trans);
+end
 
 end;
 

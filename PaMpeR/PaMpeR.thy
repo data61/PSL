@@ -8,7 +8,7 @@
         which redefines the keyword by and apply, for each call of keyword generate
         a line of Feature from the state and also the applied tactic.
         
-        These data are stored by default in ./isabelle/Database, and should be manually
+        These data are stored by default in PaMpeR/BuildDatabase/Database, and should be manually
         deleted after use to make space for new training.
         
       2.Proof method recommendation 
@@ -24,6 +24,7 @@ theory PaMpeR
   imports Decision_Tree
   keywords "which_method" :: diag
   and    "why_method" :: diag
+  and    "rank_method" :: diag
   and    "build_regression_trees" :: thy_decl
   and    "print_out_regression_trees" :: thy_decl
   and    "reset_regression_tree_table" :: thy_decl
@@ -36,5 +37,6 @@ ML_file "../src/Parser_Combinator.ML"
 ML_file "./PaMpeR_Interface.ML"
 
 read_regression_trees
+build_fast_feature_extractor
 
 end
