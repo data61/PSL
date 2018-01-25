@@ -1,7 +1,7 @@
 session "Preprocess" = "HOL" +
   options [document = pdf, document_output = "output", timeout = 99999999]
   theories [document = false]
-    "../Preprocess"
+    "Preprocess"
     (* Bar *)
   theories
     (* Baz *)
