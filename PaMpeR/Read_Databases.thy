@@ -22,20 +22,20 @@ end;
 ML{* structure Database:DATABASE =
 struct
 
-type used            = bool;
-type feature_name    = int;
-type feature_value   = bool;
-type meth_name       = string;
-type one_line        = used * (feature_name * feature_value) list;
-type database        = one_line list;
-val  preprocess_path = (Resources.master_directory @{theory} |> File.platform_path) ^ "/Preprocess";
+type used          = bool;
+type feature_name  = int;
+type feature_value = bool;
+type meth_name     = string;
+type one_line      = used * (feature_name * feature_value) list;
+type database      = one_line list;
+val  pamper_path   = Resources.master_directory @{theory} |> File.platform_path;
 
 fun get_meth_names () =
   let
     val new_line = "\n" |> String.toCString |> Char.fromCString |> the;
     val double_quote:string = str (#"\"");
     val bash_script : string =
-     ("for f in " ^ preprocess_path ^ "/Databases/* \n" ^
+     ("for f in " ^ pamper_path ^ "/Databases/* \n" ^
       "do" ^
       "  bname=$( basename " ^ double_quote ^ "$f" ^ double_quote ^")\n" ^
       "  echo $bname\n" ^
@@ -66,7 +66,7 @@ fun parse_database (meth_name:string) =
         one_line : one_line
       end;
     val read_lines    = split_lines o TextIO.inputAll o TextIO.openIn : string -> string list;
-    val database_path = preprocess_path ^ "/Databases/" ^ meth_name : string;
+    val database_path = pamper_path ^ "/Databases/" ^ meth_name : string;
     fun parse (lines:string list) = map (try read_one_line) lines |> map the_list |> flat: one_line list;
     val result        = database_path |> read_lines |> parse : one_line list;
   in
