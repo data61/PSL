@@ -188,7 +188,7 @@ fun split_region (database:database) =
          NONE;
   in result end;
 
-val max_depth = 5
+val max_depth = 4
 
 fun gtree_repeat (Leaf data) (depth:int) =
       if   depth > max_depth
