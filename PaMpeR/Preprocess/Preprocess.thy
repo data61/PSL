@@ -55,6 +55,7 @@ fun write_one_line_for_one_method (line:string) (method_name:string) =
 fun write_one_lines_for_given_methods (line:string) (method_names:string list) =
   map (write_one_line_for_one_method line) method_names;
 
+(*TODO: remove code duplication with PaMpeR_Interface.thy and Postprocess.thy.*)
 val all_method_names =
   let
     val bash_script = "while read line \n do echo $line | awk '{print $1;}' \n done < '" ^ path_to_database ^ "'" : string;
