@@ -49,7 +49,7 @@ fun postprocess_one_meth (_    :string) (0:int) (_:int) (_              )  (numb
     postprocess_one_meth mname (n - 1) t accm' (numbs@[accm']): real option list
   end;
 
-fun postprocess_all_meths (mname::mnames:string list) (n:int) (lines:string list)=
+fun postprocess_one_meth' (n:int) (mname:string) =
   let
     val maybe_numbs = postprocess_one_meth mname n n (SOME 0.0) []
       |> map (Option.map two_dig) :real option list;
@@ -61,20 +61,25 @@ fun postprocess_all_meths (mname::mnames:string list) (n:int) (lines:string list
     val total_real = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
     val freqency   = two_dig (total_real / datasize_real) |> Real.toString: string;
     val line = mname ^ " " ^ total_occr ^ " " ^ freqency ^ " " ^ (space_implode " " numbs_strs);
-    val _ = if null numbs then () else
-      (proc ("echo " ^ line ^ " >> " ^ path ^ "/eval_result.txt"); ());
   in
-    postprocess_all_meths mnames n (lines @ [line])
-  end
- | postprocess_all_meths ([]:string list) (_:int) (lines) = lines;
+    (if null numbs then "" else line)
+  end;
+
+fun postprocess_all_meth n mnames = Par_List.map (postprocess_one_meth' n) mnames: string list;
+
+fun print_one_result (line:string) = proc ("echo " ^ line ^ " >> " ^ path ^ "/eval_result.txt");
 
 in
-postprocess_all_meths all_method_names 15 []
+
+ postprocess_all_meth 15 all_method_names |> map print_one_result
+
 end;
 *}
 
 ML{*
 postprocess ();
 *}
+
+(* Consider using sort -k2 -nr eval_result.txt *)
 
 end
