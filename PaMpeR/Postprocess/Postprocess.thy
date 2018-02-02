@@ -15,8 +15,8 @@ val path_to_PaMpeR   = unsuffix "/Postprocess" path;
 val path_to_all_meth_names = path_to_PaMpeR ^ "/method_names": string;
 val path_to_Database = path_to_PaMpeR ^ "/Build_Database/Database":string;
 val eval_file        = path_to_PaMpeR ^ "/Evaluation/evaluation.txt";
-fun two_dig (r:real) =  ((r * 100.0) |> Real.round |> Real.fromInt);
-fun thr_dig (r:real) =  ((r * 1000.0) |> Real.round |> Real.fromInt |> (fn x => x / 10.0) |> Real.round):int;
+fun thr_dig (r:real) = ((r * 1000.0) |> Real.round |> Real.fromInt |> (fn x => x / 10.0)):real;
+fun two_dig (r:real) = ((r * 1000.0) |> Real.round |> Real.fromInt |> (fn x => x / 10.0) |> Real.round):int;
 val datasize_real    = proc ("wc " ^ path_to_Database ^ " | awk '{print $1;}'")
                      |> #out |> Int.fromString |> the |> Real.fromInt;
 
@@ -53,7 +53,7 @@ fun postprocess_one_meth (_    :string) (0:int) (_:int) (_              )  (numb
 fun postprocess_one_meth' (n:int) (mname:string) =
   let
     val maybe_numbs = postprocess_one_meth mname n n (SOME 0.0) []
-      |> map (Option.map thr_dig) :int option list;
+      |> map (Option.map two_dig) :int option list;
     val numbs = if forall is_some maybe_numbs
       then map the maybe_numbs
       else (tracing ("postprocess_all_meths partially failed. Some Nones were detected for " ^ mname);[]):int list;
@@ -61,8 +61,8 @@ fun postprocess_one_meth' (n:int) (mname:string) =
     val total_occr = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
     val eval_occr  = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
     val total_real = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
-    val freqency   = thr_dig (total_real / datasize_real) |> Int.toString: string;
-    val line = "'" ^ mname ^ " & " ^ eval_occr ^ " & " ^ total_occr ^ " & " ^ freqency ^ " & " ^ (space_implode " & " numbs_strs) ^ "'";
+    val freqency   = thr_dig (total_real / datasize_real) |> Real.toString: string;
+    val line = "'\verb|" ^ mname ^ "| & " ^ eval_occr ^ " & " ^ total_occr ^ " & " ^ freqency ^ " & " ^ (space_implode " & " numbs_strs) ^ "\\'";
   in
     (if null numbs then "" else line)
   end;
