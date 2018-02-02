@@ -61,7 +61,7 @@ fun postprocess_one_meth' (n:int) (mname:string) =
     val eval_occr  = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
     val total_real = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
     val freqency   = two_dig (total_real / datasize_real) |> Real.toString: string;
-    val line = mname ^ " " ^ eval_occr ^ " " ^ total_occr ^ " " ^ freqency ^ " " ^ (space_implode " " numbs_strs);
+    val line = "'" ^ mname ^ " & " ^ eval_occr ^ " & " ^ total_occr ^ " & " ^ freqency ^ " & " ^ (space_implode " & " numbs_strs) ^ "'";
   in
     (if null numbs then "" else line)
   end;
