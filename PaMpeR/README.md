@@ -1,8 +1,8 @@
 # PaMpeR (Proof Method Recommendation system)
 
 # PaMpeR: The complete table for the ITP2018 preliminary evaluation:
- 
-| method | in training | per | in test | per | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
+
+| method | number of recorded occrences in training dataset | percentage in training dataset | number of occurences in testing dataset | percentage in testing dataset | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 |simp | 38251 | 27.4 | 36643 | 24.3 | 60 | 98 | 99 | 99 | 99 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100|
 |auto | 26985 | 19.4 | 39996 | 26.5 | 54 | 84 | 94 | 96 | 97 | 98 | 99 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100|
