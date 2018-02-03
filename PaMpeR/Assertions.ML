@@ -600,7 +600,7 @@ const_in_fst "Bits.bits_class.test_bit, Bits.bits_class.lsb, Bits.bits_class.set
 (*04*)  (*is_u_arith,                            *)
 const_in_fst "Orderings.ord_class.less_eq, Orderings.ord_class.less, Groups.plus_class.plus.",
 (*05*)  (*fact_pinduct,                          *)
-related_const_rule "pinduct" "function",
+related_const_rule "pinduct" "function or fun",
 (*06*)  (*fact_psimp,                            *)
 related_const_rule "psimp" "function",
 (*07*)  (*fact_pelims,                           *)
