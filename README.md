@@ -1,4 +1,4 @@
-**Dear CADE26 reviewers, the cade26_submission branch contains the version of this tool explained in the paper submitted to CADE26.**
+**Dear ITP2018 reviewers, you are currently in the master branch. The our submission artifacts for ITP2018 reside in the PSL/PaMpeR of the PaMpeR branch. **
 
 # PSL
 
