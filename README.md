@@ -1,6 +1,4 @@
-**This branch PaMpeR contains an experimental implementation of a Proof Method Recommendation system, PaMpeR.**
-
-**Please not that PaMpeR is still work in progress.**
+**This branch PaMpeR contains a Proof Method Recommendation system, PaMpeR. Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.**
 
 # PSL
 
