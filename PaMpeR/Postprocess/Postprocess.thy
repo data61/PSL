@@ -19,6 +19,8 @@ fun thr_dig (r:real) = ((r * 1000.0) |> Real.round |> Real.fromInt |> (fn x => x
 fun two_dig (r:real) = ((r * 1000.0) |> Real.round |> Real.fromInt |> (fn x => x / 10.0) |> Real.round):int;
 val datasize_real    = proc ("wc " ^ path_to_Database ^ " | awk '{print $1;}'")
                      |> #out |> Int.fromString |> the |> Real.fromInt;
+val testsize_real    = proc ("wc " ^ eval_file ^ " | awk '{print $1;}'")
+                     |> #out |> Int.fromString |> the |> Real.fromInt;
 
 (*TODO: remove code duplication with Preprocess.thy, PaMpeR_Interface.thy and Postprocess.thy.*)
 val all_method_names =
@@ -60,9 +62,12 @@ fun postprocess_one_meth' (n:int) (mname:string) =
     val numbs_strs = map Int.toString numbs: string list;
     val total_occr = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
     val eval_occr  = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
-    val total_real = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
-    val freqency   = thr_dig (total_real / datasize_real) |> Real.toString: string;
-    val line = "'\\verb|" ^ mname ^ "| & " ^ eval_occr ^ " & " ^ total_occr ^ " & " ^ freqency ^ " & " ^ (space_implode " & " numbs_strs) ^ "\\" ^ "\\" ^ "'";
+    val total_real_train = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
+    val total_real_test = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
+    val freqency_train = thr_dig (total_real_train / datasize_real) |> Real.toString: string;
+    val frequency_test = thr_dig (total_real_test /  testsize_real) |> Real.toString: string;
+    val line = "'\\verb|" ^ mname ^ "| & " ^ total_occr ^ " & " ^ freqency_train ^ " & " ^ eval_occr ^ " & " ^ frequency_test ^ " & " ^
+            (space_implode " & " numbs_strs) ^ "\\" ^ "\\" ^ "'";
   in
     (if null numbs then "" else line)
   end;
