@@ -1,6 +1,6 @@
 # PaMpeR (Proof Method Recommendation system)
 
-# PaMpeR: The complete table for the ITP2018 evaluation:
+# PaMpeR: The complete table for the ITP2018 preliminary evaluation:
  
 | method | in training | per | in test | per | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -93,6 +93,73 @@
 |slowsimp | 3 | 0.0 | 3 | 0.0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0|
 |bestsimp | 3 | 0.0 | 4 | 0.0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0|
 this | 2 | 0.0 | 30 | 0.0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0|
+
+## The list of AFP articles used in the preliminary evaluation at ITP2018.
+- Abstract-Rewriting
+- Affine_Arithmetic
+- Akra_Bazzi
+- Allen_Calculus
+- Applicative_Lifting
+- Automatic_Refinement
+- Binomial-Heaps
+- Buildings
+- Category3
+- Cauchy
+- CAVA_Automata
+- Coinductive
+- Coinductive_Languages
+- Collections
+- Containers
+- Datatype_Order_Generator
+- Deep_Learning
+- Density_Compiler
+- Deriving
+- DFS_Framework
+- Efficient-Mergesort
+- Finger-Trees
+- Gauss_Jordan
+- Gauss-Jordan-Elim-Fun
+- IP_Addresses
+- Jinja
+- Jordan_Normal_Form
+- Landau_Symbols
+- LightweightJava
+- List-Index
+- List_Update
+- Kleene_Algebra
+- Markov_Models
+- Matrix
+- MonoidalCategory
+- Name_Carrying_Type_Inference
+- Native_Word
+- Ordinal
+- Ordinals_and_Cardinals
+- Ordinary_Differential_Equations
+- Pairing_Heap
+- Paraconsistency
+- Partial_Function_MR
+- Perfect-Number-Thm
+- Pi_Calculus
+- Polynomial_Factorization
+- Polynomial_Interpolation
+- Program-Conflict-Analysis
+- Rank_Nullity_Theorem
+- Refine_Monadic
+- Regular-Sets
+- Show
+- Simpl
+- SPARCv8
+- Splay_Tree
+- Sqrt_Babylonian
+- Stone_Algebras
+- Stone_Kleene_Relation_Algebras
+- Stone_Relation_Algebras
+- Timed_Automata
+- Transition_Systems_and_Automata
+- Triangle
+- Trie
+- VectorSpace
+- Word_Lib                        
 
 # List of assertions
 
