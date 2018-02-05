@@ -1,6 +1,23 @@
 # PaMpeR (Proof Method Recommendation system)
 
-# PaMpeR: The complete table for the ITP2018 preliminary evaluation:
+## The details of our preliminary evaluation.
+
+- Machine specification:
+   - CPU model name: Intel (R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz
+   - cache size: 35840 KB
+   - Number of CPUs: 56
+   - main memory: 252 GB
+
+- Evaluation steps:
+   1. Build a training dataset from Isabelle's standard library
+   2. Preprocess the resulting raw training data
+   3. Build regression trees
+   5. Build a new Isabelle image for cross-evaluation.
+   6. Remove the evaluation.txt in PSL/PaMpeR/Evaluation.
+   7. Build the evaluation results from the target AFP library.
+   8. Postprocess the raw evalation results.
+
+## PaMpeR: The complete table for the ITP2018 preliminary evaluation:
 
 | method | number of recorded occrences in training dataset | percentage in training dataset | number of occurences in testing dataset | percentage in testing dataset | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -159,7 +176,7 @@ this | 2 | 0.0 | 30 | 0.0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 
 - Triangle
 - Trie
 - VectorSpace
-- Word_Lib                        
+- Word_Lib
 
 # List of assertions
 
