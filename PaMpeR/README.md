@@ -10,12 +10,42 @@
 
 - Evaluation steps:
    1. Build a training dataset from Isabelle's standard library
-   2. Preprocess the resulting raw training data
-   3. Build regression trees
+      1. Modify Isabelle/src/Pure/Isar/outer_syntax.ML,
+         - so that we can overwrite the definition of the **apply** command and the **by** command.
+      2. Include the path to PSL/PaMpeR/Build_Database/Build_Database.thy in the **import** statement in Isabelle/src/HOL/Main.thy.
+      3. Include the following line almost at the end of Isabelle/src/HOL/Main.thy but just before the **end** command.
+      4. Build an Isabelle image as usual.
+         - Warning! This step is very time-consuming. On our machine, it took 29 hours of elapsed time and 462 cpu hours.
+         - This step creates a rawdatabase, **Database**, in PSL/PaMpeR.
+   2. Preprocess the resulting raw training data.
+      - Build our session **Preprocess** provided in PaMpeR/Preprocess.
+      - This step creates a database for each proof method in PaMpeR/Databases.
+      - This step also creates method_names, a file containing the list of proof methods found in the training data.
+   3. Build regression trees.
+      - Build our session **Preprocess** provided in PaMpeR/Preprocess.
+      - This step creates a file containing
    5. Build a new Isabelle image for cross-evaluation.
-   6. Remove the evaluation.txt in PSL/PaMpeR/Evaluation.
+      1. Remove the Isabelle image stored in ~/.isabelle.
+      2. Remove the path to PSL/PaMpeR/Build_Database/Evaluation/Evaluation.thy in the **import** statement in Isabelle/src/HOL/Main.thy added in Step 1.
+      3. Include the path to PSL/PaMpeR/Build_Database/Evaluation/Evaluation.thy in the **import** statement in Isabelle/src/HOL/Main.thy.
+      4. Build Isabelle.
+         - Warning! This step is time consuming.
+      5. This step creates a file, evaluation.txt, in PSL/PaMpeR/Evaluation.
+   6. Remove the **evaluation.txt** in PSL/PaMpeR/Evaluation.
+      - This is an evaluation file created from Isabelle's standard library.
+      - We should not include this evaluation result, since we used this library as a training dataset.
    7. Build the evaluation results from the target AFP library.
+      1. Download the AFP from https://www.isa-afp.org/.
+         - We used the AFP files downloaded on 27th of October 2017.
+      2. Built the AFP only with the target articles written below.
+         - Modify the **ROOTS** file in thys, so that it lists articles written below.
+      3. This step creates a file, evaluation.txt, in PSL/PaMpeR/Evaluation.
+         - Warning! This step is time consuming.
    8. Postprocess the raw evalation results.
+      1. Build the session in PSL/PaMpeR/Postprocess.
+      2. This process creates eval_result.txt in PSL/PaMpeR/Postprocess.
+      3. If you want to sort the results, type **sort -k3 -nr eval_result.txt** in PSL/PaMeR/Postprocess.
+      4. This should generate the table presented below:
 
 ## PaMpeR: The complete table for the ITP2018 preliminary evaluation:
 
