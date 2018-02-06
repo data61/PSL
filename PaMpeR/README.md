@@ -5,7 +5,7 @@
 ### Machine specification:
    - CPU model name: Intel (R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz
    - cache size: 35840 KB
-   - Number of CPUs: 56
+   - number of CPUs: 56
    - main memory: 252 GB
 
 ### Evaluation steps:
