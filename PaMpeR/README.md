@@ -12,6 +12,7 @@
 1. Build a training dataset from Isabelle's standard library
    1. Modify Isabelle/src/Pure/Isar/outer_syntax.ML,
       - so that we can overwrite the definition of the **apply** command and the **by** command.
+      - We provided our version of outer_syntax.ML within PSL/PaMpeR. You can replace the original file with this file.
    2. Include the path to PSL/PaMpeR/Build_Database/Build_Database.thy in the **import** statement in Isabelle/src/HOL/Main.thy.
    3. Include the following line almost at the end of Isabelle/src/HOL/Main.thy but just before the **end** command.
    4. Build an Isabelle image as usual.
