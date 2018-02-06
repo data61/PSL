@@ -22,8 +22,8 @@
    - This step creates a database for each proof method in PaMpeR/Databases.
    - This step also creates method_names, a file containing the list of proof methods found in the training data.
 3. Build regression trees.
-   - Build our session **Preprocess** provided in PaMpeR/Preprocess.
-   - This step creates a file containing
+   - Build our session **Build_Regression_Tree** provided in PaMpeR/Build_Regression_Tree.
+   - This step creates a file (regression_trees.txt) containing regression trees for all proof methods appearing in the trainig dta.
 5. Build a new Isabelle image for cross-evaluation.
    1. Remove the Isabelle image stored in ~/.isabelle.
    2. Remove the path to PSL/PaMpeR/Build_Database/Evaluation/Evaluation.thy in the **import** statement in Isabelle/src/HOL/Main.thy added in Step 1.
