@@ -1,4 +1,5 @@
-**This branch PaMpeR contains a Proof Method Recommendation system, PaMpeR. Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR. More information is procided in PSL/PaMpeR/README.md.**
+- **This branch PaMpeR contains a Proof Method Recommendation system, PaMpeR. Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
+- **More information is procided in PSL/PaMpeR/README.md.**
 
 # PSL
 
