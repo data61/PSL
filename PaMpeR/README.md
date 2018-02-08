@@ -15,7 +15,7 @@
       - We provided our version of outer_syntax.ML within PSL/PaMpeR. You can replace the original file with this file.
    2. Include the path to PSL/PaMpeR/Build_Database/Build_Database.thy in the **import** statement in Isabelle/src/HOL/Main.thy.
    3. Include the following line almost at the end of Isabelle/src/HOL/Main.thy but just before the **end** command.
-      - ML{*FE_Interface.FE_activate ()*}
+      - ML{\*FE_Interface.FE_activate ()\*}
    4. Build an Isabelle image as usual.
       - Warning! This step is very time-consuming. On our machine, it took 29 hours of elapsed time and 462 cpu hours.
       - This step creates a rawdatabase, **Database**, in PSL/PaMpeR.
