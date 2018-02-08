@@ -28,7 +28,7 @@
    - This step creates a file (regression_trees.txt) containing regression trees for all proof methods appearing in the trainig dta.
 5. Build a new Isabelle image for cross-evaluation.
    1. Remove the Isabelle image stored in ~/.isabelle.
-   2. Remove the path to PSL/PaMpeR/Build_Database/Evaluation/Evaluation.thy in the **import** statement in Isabelle/src/HOL/Main.thy added in Step 1.
+   2. Remove the path to PSL/PaMpeR/Build_Database/Build_Database.thy in the **import** statement in Isabelle/src/HOL/Main.thy added in Step 1.
    3. Include the path to PSL/PaMpeR/Build_Database/Evaluation/Evaluation.thy in the **import** statement in Isabelle/src/HOL/Main.thy.
    4. Build Isabelle.
       - Warning! This step is time consuming.
