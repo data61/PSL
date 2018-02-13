@@ -267,7 +267,7 @@ fun used_features (ftrees:final_tree list) =
       | used_features' (FBranch {More, Feature as (i, _), Less}) =
         i :: used_features' More @ used_features' Less;
   in
-    map used_features' ftrees |> flat |> duplicates (op =)
+    map used_features' ftrees |> flat |> distinct (op =)
   end;
 end;
 *}
