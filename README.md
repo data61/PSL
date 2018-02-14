@@ -1,4 +1,4 @@
-**_Dear ITP2018 reviewers, you are currently in the master branch. Our submission artifacts for ITP2018 reside in the PSL/PaMpeR of the PaMpeR branch not here._**
+**_Dear ITP2018 reviewers, you are currently in the master branch. Our submission artifacts for ITP2018 reside in the [release v0.1 PaMpeR:ITP2018](https://github.com/data61/PSL/releases/tag/v0.1), not here._**
 
 # PSL
 
