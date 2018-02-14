@@ -30,6 +30,7 @@ val has_thms_of_tname_with_all_substrs    : thm -> context -> string list -> boo
 (*Not very reliable*)
 val is_fun_not_fully_applied              : term -> bool;
 val fst_subg_is_classified_as             : thm -> context -> Spec_Rules.rough_classification -> bool;
+val fst_has_one_of_these_consts           : thm -> string list -> bool;
 end;
 
 (** ASSERT_UTILS: Generic utility and assertion functions to write assertions. **)
@@ -148,6 +149,15 @@ fun has_all_substrings_when_printed (wo:Isabelle_Utils.location) (goal:thm) (ctx
       liftM none_is_substr strs
       |>    Utils.is_some_true;
   in result end;
+
+(* has_one_of_these_consts_in_fsg checks if goal:thm has one of the specified constants as a part
+   of the first sub-goal. *)
+fun is_one_of_strings (strs:string list) (str:string) = exists (Utils.eq str) strs;
+fun fst_has_one_of_these_consts goal (const_names:string list) = goal
+  |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
+  liftM Isabelle_Utils.get_cnames_in_trm
+  |>    these
+  |>    exists (is_one_of_strings const_names);
 
 end;
 
@@ -362,6 +372,44 @@ fun fst_subg_size_more_than_80 (goal:thm) _ _ = fst_subg_size_more_than_n 80 goa
 
 end;
 
+(* ASSERT 68. "Groups.times_class.times" *)
+(*This assertion is expected to be useful to detect the algebra method.*)
+fun fst_subg_has_times (goal:thm) _ _ = AU.fst_subg_has_const_of_name goal "Groups.times_class.times";
+
+(* ASSERT 69. "Groups.plus_class.plus" *)
+(*This assertion is expected to be useful to detect the algebra method.*)
+fun fst_subg_has_plus (goal:thm) _ _ = AU.fst_subg_has_const_of_name goal "Groups.plus_class.plus";
+
+(* ASSERT 70. "Power.power_class.power" *)
+(*This assertion is expected to be useful to detect the algebra method.*)
+fun fst_subg_has_power (goal:thm) _ _ = AU.fst_subg_has_const_of_name goal "Power.power_class.power";
+
+(* ASSERT 71. "Groups.minus_class.minus" *)
+(*This assertion is expected to be useful to detect the algebra method.*)
+fun fst_subg_has_minus (goal:thm) _ _ = AU.fst_subg_has_const_of_name goal "Groups.minus_class.minus";
+
+(* ASSERT 72. "Groups.uminus_class.uminus" *)
+(*This assertion is expected to be useful to detect the algebra method.*)
+fun fst_subg_has_uminus (goal:thm) _ _ = AU.fst_subg_has_const_of_name goal "Groups.uminus_class.uminus";
+
+(* ASSERT 73. "Fields.inverse_class.inverse_divide" *)
+(*This assertion is expected to be useful to detect the algebra method.*)
+fun fst_subg_has_inverse (goal:thm) _ _ = AU.fst_subg_has_const_of_name goal "Fields.inverse_class.inverse_divide";
+
+(* ASSERT 74. disjunction of ASSERT 68. to ASSERT 73. *)
+(*This assertion is expected to be useful to detect the algebra method.*)
+fun fst_subg_has_algebra_consts (goal:thm) _ _ = AU.fst_has_one_of_these_consts goal
+ ["Groups.times_class.times", "Groups.plus_class.plus", "Power.power_class.power",
+  "Groups.minus_class.minus", "Groups.uminus_class.uminus", "Fields.inverse_class.inverse_divide"];
+
+(* ASSERT 75. constants with the prefix "Groups".
+   This assertion is expected to be useful to detect the algebra method. *)
+fun has_const_prefixed_with_Group goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Group";
+
+(* ASSERT 76. constants with the prefix "Language".
+   This assertion is expected to be useful to detect the vcg method. *)
+fun has_const_prefixed_with_Language goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Language";
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt _ =
@@ -463,25 +511,13 @@ fun function_package goal ctxt _ = AU.has_all_substrings_when_printed Isabelle_U
 fun is_instance_proof goal ctxt _ = AU.has_all_substrings_when_printed Isabelle_Utils.Fst_Subg goal ctxt ["OFCLASS"];
 
 (* ASSERT 03. check if the word_bitwise method is a promising method or not. *)
-fun is_word_bitwise goal _ _ = goal
-  |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
-  liftM Isabelle_Utils.get_cnames_in_trm
-  |>    these
-  |>    exists (Utils.eq "Bits.bits_class.test_bit" orf
-                Utils.eq "Bits.bits_class.lsb" orf
-                Utils.eq "Bits.bits_class.set_bit" orf
-                Utils.eq "Bits.bits_class.set_bits" orf
-                Utils.eq "Bits.bits_class.shiftl" orf
-                Utils.eq "Bits.bits_class.shiftr");
+fun is_word_bitwise goal _ _ = AU.fst_has_one_of_these_consts goal
+  ["Bits.bits_class.test_bit", "Bits.bits_class.lsb", "Bits.bits_class.set_bit",
+   "Bits.bits_class.set_bits", "Bits.bits_class.shiftl", "Bits.bits_class.shiftr"];
 
-(* ASSERT 04. check if the unat_arith or uinit_arith method is a promising method or not. *)
-fun is_u_arith goal _ _ = goal
-  |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
-  liftM Isabelle_Utils.get_cnames_in_trm
-  |>    these
-  |>    exists (Utils.eq "Orderings.ord_class.less_eq" orf
-                Utils.eq "Orderings.ord_class.less" orf
-                Utils.eq "Groups.plus_class.plus");
+(* ASSERT 04. check if the unat_arith or uint_arith method is a promising method or not. *)
+fun is_u_arith goal _ _ = AU.fst_has_one_of_these_consts goal
+  ["Orderings.ord_class.less_eq", "Orderings.ord_class.less", "Groups.plus_class.plus"];
 
 (* ASSERT 45. checks if the first goal contains a term of type "Word.word". *)
 fun fst_subg_has_word goal _ _ = goal
@@ -560,7 +596,16 @@ val assertions =
 (*64*)  fst_subg_size_more_than_10,
 (*65*)  fst_subg_size_more_than_20,
 (*66*)  fst_subg_size_more_than_40,
-(*67*)  fst_subg_size_more_than_80*)]
+(*67*)  fst_subg_size_more_than_80*),
+(*68*)  fst_subg_has_times,
+(*69*)  fst_subg_has_plus,
+(*70*)  fst_subg_has_power,
+(*71*)  fst_subg_has_minus,
+(*72*)  fst_subg_has_uminus,
+(*73*)  fst_subg_has_inverse,
+(*74*)  fst_subg_has_algebra_consts,
+(*75*)  has_const_prefixed_with_Group,
+(*76*)  has_const_prefixed_with_Language]
 
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
 
@@ -728,7 +773,26 @@ trm_size_bigger_than "20",
 (*66*)  (*fst_subg_size_more_than_40,            *)
 trm_size_bigger_than "40",
 (*67*)  (*fst_subg_size_more_than_80             *)
-trm_size_bigger_than "80"*)
+trm_size_bigger_than "80"*),
+(*68*) (*fst_subg_has_times*)
+const_in_fst "Groups.times_class.times",
+(*69*) (*fst_subg_has_plus*)
+const_in_fst "Groups.plus_class.plus",
+(*70*) (*fst_subg_has_power*)
+const_in_fst "Power.power_class.power",
+(*71*) (*fst_subg_has_minus*)
+const_in_fst "Groups.minus_class.minus",
+(*72*) (*fst_subg_has_uminus*)
+const_in_fst "Groups.uminus_class.uminus",
+(*73*) (*fst_subg_has_inverse*)
+const_in_fst "Fields.inverse_class.inverse_divide",
+(*74*) (*fst_subg_has_algebra_consts*)
+const_in_fst ("Groups.times_class.times, Groups.plus_class.plus, Power.power_class.power, " ^
+   "Groups.minus_class.minus, Groups.uminus_class.uminus, and Fields.inverse_class.inverse_divide"),
+(*75*) (*has_const_prefixed_with_Group*)
+const_in_fst_prefixed_with "Group",
+(*76*) (*has_const_prefixed_with_Language       *)
+const_in_fst_prefixed_with "Language"
 ]
 
 (** Function used to generate database **)
