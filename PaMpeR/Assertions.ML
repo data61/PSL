@@ -19,6 +19,10 @@ val fst_subg_has_const_of                 : thm -> (string -> bool) -> bool;
 val all_cnames_satisfy                    : thm -> (string -> bool) -> bool;
 val fst_subg_has_const_of_name            : thm -> string -> bool;
 val fst_subg_has_const_prefixed_with      : thm -> string -> bool;
+val fst_subg_has_const_of_name_subst      : thm -> string -> bool;
+val fst_subg_has_typ_of                   : thm -> (string -> bool) -> bool;
+val fst_subg_has_typ_of_name              : thm -> string -> bool;
+val fst_subg_has_typ_of_name_subst        : thm -> string -> bool;
 val outermost_cname_in_1st_subg_is        : thm -> string -> bool;
 val fst_subg_has_cname_not_as_outmost     : thm -> string -> bool;
 val has_thms_of_name_with_all_substrings  : context -> string list -> bool;
@@ -61,13 +65,30 @@ fun all_cnames_satisfy goal (assert:string -> bool) =
     val holds_for_all      = forall assert cnames_in_1st_subg;
   in holds_for_all:bool end;
 
-(* The first subgoal has a constant that has the name with the given prefix. *)
+(* The first subgoal has a constant that has a name with the given prefix. *)
 fun fst_subg_has_const_prefixed_with goal (prefix:string) =
   let
     fun is_prefixed cname = Isabelle_Utils.fst_qualifier cname = prefix;
   in
     fst_subg_has_const_of goal is_prefixed: bool
   end;
+
+(* The first subgoal has a constant that has a name which has the given string as a substring. *)
+fun fst_subg_has_const_of_name_subst goal (substr:string) =
+  fst_subg_has_const_of goal (String.isSubstring substr);
+
+(* The first subgoal has a term of a type that satisfies the given assertion. *)
+fun fst_subg_has_typ_of (goal:thm) (assert:string -> bool) = goal
+  |> Isabelle_Utils.get_typ_names_in_1st_subg
+  |> exists assert;
+
+(* The first subgoal has a term of the given type name. *)
+fun fst_subg_has_typ_of_name (goal:thm) (name:string) =
+  fst_subg_has_typ_of goal (equal name);
+
+(* The first subgoal has a term of type that has a name which has the given string as a substring. *)
+fun fst_subg_has_typ_of_name_subst (goal:thm) (substr:string) =
+  fst_subg_has_typ_of goal (String.isSubstring substr);
 
 (* outermost_cname_in_1st_subg_is checks if the first subgoal has a constant of the given name as the outermost constant. *)
 fun outermost_cname_in_1st_subg_is (goal:thm) (cname:string) = SOME goal
@@ -402,13 +423,25 @@ fun fst_subg_has_algebra_consts (goal:thm) _ _ = AU.fst_has_one_of_these_consts 
  ["Groups.times_class.times", "Groups.plus_class.plus", "Power.power_class.power",
   "Groups.minus_class.minus", "Groups.uminus_class.uminus", "Fields.inverse_class.inverse_divide"];
 
-(* ASSERT 75. constants with the prefix "Groups".
-   This assertion is expected to be useful to detect the algebra method. *)
+(* ASSERT 75. constants with the prefix "Groups". *)
+(*This assertion is expected to be useful to detect the algebra method.*)
 fun has_const_prefixed_with_Group goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Group";
 
-(* ASSERT 76. constants with the prefix "Language".
-   This assertion is expected to be useful to detect the vcg method. *)
+(* ASSERT 76. constants with the prefix "Language". *)
+(*This assertion is expected to be useful to detect the vcg method. *)
 fun has_const_prefixed_with_Language goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Language";
+
+(* ASSERT 77. constant with the prefix "Finite_Catesian_Product". *)
+(*This assertion is expected to be useful to detect the vector method.*)
+fun has_const_prefixed_with_Cartesian_Euclidean_Space goal _ _ =
+  AU.fst_subg_has_const_prefixed_with goal "Cartesian_Euclidean_Space";
+
+(* ASSERT 78. constant with "vec" as a sub-string of its name. *)
+(*This assertion is expected to be useful to detect the vector method.*)
+fun has_subg_has_vec_const (goal:thm) _ _ = AU.fst_subg_has_const_of_name_subst goal "vec";
+
+(* ASSERT 79. term of the type "Finite_Cartesian_Product.vec". *)
+fun fst_subg_has_vec_type (goal:thm) _ _ = AU.fst_subg_has_typ_of_name goal "Finite_Cartesian_Product.vec";
 
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
@@ -605,8 +638,12 @@ val assertions =
 (*73*)  fst_subg_has_inverse,
 (*74*)  fst_subg_has_algebra_consts,
 (*75*)  has_const_prefixed_with_Group,
-(*76*)  has_const_prefixed_with_Language]
+(*76*)  has_const_prefixed_with_Language,
+(*77*)  has_const_prefixed_with_Cartesian_Euclidean_Space,
+(*78*)  has_subg_has_vec_const,
+(*79*)  fst_subg_has_vec_type]
 
+(** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
 
 val second_line = "  Note that these rules are automatically derived by the ":string;
@@ -791,8 +828,14 @@ const_in_fst ("Groups.times_class.times, Groups.plus_class.plus, Power.power_cla
    "Groups.minus_class.minus, Groups.uminus_class.uminus, and Fields.inverse_class.inverse_divide"),
 (*75*) (*has_const_prefixed_with_Group*)
 const_in_fst_prefixed_with "Group",
-(*76*) (*has_const_prefixed_with_Language       *)
-const_in_fst_prefixed_with "Language"
+(*76*) (*has_const_prefixed_with_Language*)
+const_in_fst_prefixed_with "Language",
+(*77*) (*has_const_prefixed_with_Cartesian_Euclidean_Space*)
+const_in_fst_prefixed_with "Cartesian_Euclidean_Space",
+(*78*) (*has_subg_has_vec_const*)
+const_in_fst "vec",
+(*70*) (*fst_subg_has_vec_type*)
+"the first subgoal has a term of type Finite_Cartesian_Product.vec"
 ]
 
 (** Function used to generate database **)
