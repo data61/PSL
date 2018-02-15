@@ -88,7 +88,7 @@ end;
 *}
 
 ML{* Assertion_Checker.activate_assertion_checker ();*}
-
+(*
 lemma "True"
   which_method
   oops
@@ -104,10 +104,10 @@ lemma "a * Numeral1 = a"
   oops
   find_theorems name:"axioms_def"
 lemma "1 \<in> {1,2}"
-  assert_nth_true 61
-  assert_nth_false 62
+  assert_nth_false 59
+  assert_nth_false 60
   assert_nth_true 49
   assert_nth_false 44
   oops
-
+*)
 end
