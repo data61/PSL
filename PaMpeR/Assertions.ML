@@ -317,6 +317,16 @@ fun is_unfold_locale goal ctxt _ =
       |>    Utils.is_some_true: bool
   in result end;
 
+(* ASSERT 82. checks if the first sub-goal has a constant defined with the fixrec command. *)
+fun fact_fixrec (goal:thm) ctxt _ =
+ AU.has_thms_with_suffixes goal ctxt ["unfold"];
+
+(* ASSERT 83. checks if the proof obligation has a variable of a type that is defined with the domain command. *)
+fun has_domain_var goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["unfold"];
+
+(* ASSERT 84. disjunction of ASSERT 82. and ASSERT 83.*)
+fun fact_fixrec_or_domain goal ctxt _ = fact_fixrec goal ctxt () orelse has_domain_var goal ctxt ();
+
 (** Assertions about the first subgoal itself. **)
 (* ASSERT 2. checks if the first subgoal contains a case declaration *)
 fun has_case_ goal _ _ =
@@ -663,7 +673,10 @@ val assertions =
 (*78*)  has_subg_has_vec_const,
 (*79*)  fst_subg_has_vec_type,
 (*80*)  fst_subg_has_Pure_imp_more_than_once,
-(*81*)  fst_subg_has_Pure_imp_more_than_twice]
+(*81*)  fst_subg_has_Pure_imp_more_than_twice,
+(*82*)  fact_fixrec,
+(*83*)  has_domain_var,
+(*84*)  fact_fixrec_or_domain]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -689,6 +702,10 @@ fun type_in_fst (tname:string) = "the first subgoal has a variable of type " ^ t
 fun related_type_rule (rule_name:string) (isar_keyword) = "the underlying proof context has a " ^
   rule_name ^ " associated to one of the variables appearing in the first subgoal.\n" ^
   second_line ^ isar_keyword ^ " keyword.";
+
+fun related_const_or_type_rule (crule_name:string) (cisa_keyword:string) (trule_name:string) (tisa_keyword:string) =
+  related_const_rule crule_name cisa_keyword ^ "\nOr else because " ^ 
+  related_type_rule trule_name tisa_keyword;
 
 fun trm_size_bigger_than (numb:string) = "the term size of first subgoal is more than " ^ numb ^ ".";
 
@@ -861,7 +878,13 @@ const_in_fst "vec",
 (*80*) (*fst_subg_has_Pure_imp_more_than_once*)
 "the first subgoal has Pure.imp more than once",
 (*81*) (*fst_subg_has_Pure_imp_more_than_twice*)
-"the first subgoal has Pure.imp more than two times"
+"the first subgoal has Pure.imp more than two times",
+(*82*) (*fact_fixrec*)
+related_const_rule "unfold" "fixrec",
+(*83*) (*has_domain_var*)
+related_type_rule "unfold" "domain",
+(*84*) (*fact_fixrec_or_domain*)
+related_const_or_type_rule "unfold" "fixrec" "unfold" "domain"
 ]
 
 (** Function used to generate database **)
