@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{graphicx}
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\isadroptag{theory}
+
+\newcommand{\isasymnotturnstile}{\isamath{\not\vdash}}
+\newcommand{\isasymnotTurnstile}{\isamath{\not\models}}
+
+\newcommand{\secref}[1]{\S\ref{#1}}
+\newcommand{\figref}[1]{Figure \ref{#1}}
+
+\begin{document}
+
+\title{Meta-theory of first-order predicate logic}
+\author{Stefan Berghofer}
+\maketitle
+
+\begin{abstract}
+We present a formalization of parts of Melvin Fitting's book
+``First-Order Logic and Automated Theorem Proving'' \cite{Fitting}.
+The formalization covers the syntax of first-order logic, its semantics,
+the model existence theorem, a natural deduction proof calculus together
+with a proof of correctness and completeness, as well as the
+L\"owenheim-Skolem theorem.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -36,6 +36,7 @@ sig
   val index          : 'a list -> (int * 'a) list;
   val power          : int -> int -> int;
   val nat_to_frac    : int -> real;
+  val count_str      : string -> string list -> int;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -143,6 +144,9 @@ fun nat_to_frac (n:int) =
   in
     frac : real
   end;
+
+fun count_str (str:string) (strs:string list) =
+  fold (fn name => fn n => if name = str then n + 1 else n) strs 0;
 
 end;
 
@@ -280,6 +284,7 @@ sig
   val same_except_for_fst_prem      : thm -> thm -> bool;
   val defer                         : thm -> thm Seq.seq;
   val is_in_Main                    : Proof.context -> thm -> bool;
+  val add_const_names_mult          : term -> string list -> string list;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -454,6 +459,10 @@ fun is_in_Main (ctxt:Proof.context) (thm:thm) =
   in
     result
   end;
+
+(* add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy. *)
+fun add_const_names_mult (trm:term) (names:string list) =
+  fold_aterms (fn Const (c, _) => insert (K false) c | _ => I) trm names;
 
 end;
 

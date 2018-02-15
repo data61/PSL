@@ -18,6 +18,7 @@ type context  = Proof.context;
 val fst_subg_has_const_of                 : thm -> (string -> bool) -> bool;
 val all_cnames_satisfy                    : thm -> (string -> bool) -> bool;
 val fst_subg_has_const_of_name            : thm -> string -> bool;
+val fst_subg_has_const_more_than_n_times  : thm -> string -> int -> bool;
 val fst_subg_has_const_prefixed_with      : thm -> string -> bool;
 val fst_subg_has_const_of_name_subst      : thm -> string -> bool;
 val fst_subg_has_typ_of                   : thm -> (string -> bool) -> bool;
@@ -57,6 +58,14 @@ fun fst_subg_has_const_of (goal:thm) (assert:string -> bool) = goal
 (* The first subgoal has a constant of the given name. *)
 fun fst_subg_has_const_of_name (goal:thm) (name:string) =
   fst_subg_has_const_of goal (equal name): bool;
+
+(* The first subgoal has a constant of the given name more than n times. *)
+fun fst_subg_has_const_more_than_n_times (goal:thm) (name:string) (n:int) = goal
+  |>    Isabelle_Utils.get_1st_subg
+  liftM (fn trm => Isabelle_Utils.add_const_names_mult trm [])
+  liftM (Utils.count_str name)
+  liftM (fn m => m > n)
+  |> Utils.is_some_true:bool;
 
 (* all_cnames_satisfy checks if all constant meet given criteria *)
 fun all_cnames_satisfy goal (assert:string -> bool) = 
@@ -174,6 +183,7 @@ fun has_all_substrings_when_printed (wo:Isabelle_Utils.location) (goal:thm) (ctx
 (* has_one_of_these_consts_in_fsg checks if goal:thm has one of the specified constants as a part
    of the first sub-goal. *)
 fun is_one_of_strings (strs:string list) (str:string) = exists (Utils.eq str) strs;
+
 fun fst_has_one_of_these_consts goal (const_names:string list) = goal
   |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
   liftM Isabelle_Utils.get_cnames_in_trm
@@ -443,6 +453,16 @@ fun has_subg_has_vec_const (goal:thm) _ _ = AU.fst_subg_has_const_of_name_subst 
 (* ASSERT 79. term of the type "Finite_Cartesian_Product.vec". *)
 fun fst_subg_has_vec_type (goal:thm) _ _ = AU.fst_subg_has_typ_of_name goal "Finite_Cartesian_Product.vec";
 
+(* ASSERT 80. checks if the first subgoal has more than 1 occurrence of "Pure.imp". *)
+(*This assertion is expected to be useful to detect the hypsubst method.*)
+fun fst_subg_has_Pure_imp_more_than_once (goal:thm) _ _ =
+  AU.fst_subg_has_const_more_than_n_times goal "Pure.imp" 1;
+
+(* ASSERT 81. checks if the first subgoal has more than 2 occurrence of "Pure.imp". *)
+(*This assertion is expected to be useful to detect the hypsubst method.*)
+fun fst_subg_has_Pure_imp_more_than_twice (goal:thm) _ _ =
+  AU.fst_subg_has_const_more_than_n_times goal "Pure.imp" 2;
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt _ =
@@ -641,7 +661,9 @@ val assertions =
 (*76*)  has_const_prefixed_with_Language,
 (*77*)  has_const_prefixed_with_Cartesian_Euclidean_Space,
 (*78*)  has_subg_has_vec_const,
-(*79*)  fst_subg_has_vec_type]
+(*79*)  fst_subg_has_vec_type,
+(*80*)  fst_subg_has_Pure_imp_more_than_once,
+(*81*)  fst_subg_has_Pure_imp_more_than_twice]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -834,8 +856,12 @@ const_in_fst_prefixed_with "Language",
 const_in_fst_prefixed_with "Cartesian_Euclidean_Space",
 (*78*) (*has_subg_has_vec_const*)
 const_in_fst "vec",
-(*70*) (*fst_subg_has_vec_type*)
-"the first subgoal has a term of type Finite_Cartesian_Product.vec"
+(*79*) (*fst_subg_has_vec_type*)
+"the first subgoal has a term of type Finite_Cartesian_Product.vec",
+(*80*) (*fst_subg_has_Pure_imp_more_than_once*)
+"the first subgoal has Pure.imp more than once",
+(*81*) (*fst_subg_has_Pure_imp_more_than_twice*)
+"the first subgoal has Pure.imp more than two times"
 ]
 
 (** Function used to generate database **)
