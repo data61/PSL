@@ -7,7 +7,7 @@ theory Data_List
     Data_Bool
     Data_Tuple
     Data_Integer
-    Numeral_Cpo "../Assertion_Checker"
+    Numeral_Cpo
 begin
 
 subsection \<open>Datatype definition\<close>
