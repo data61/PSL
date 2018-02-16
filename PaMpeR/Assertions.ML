@@ -324,8 +324,20 @@ fun fact_fixrec (goal:thm) ctxt _ =
 (* ASSERT 83. checks if the proof obligation has a variable of a type that is defined with the domain command. *)
 fun has_domain_var goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["unfold"];
 
-(* ASSERT 84. disjunction of ASSERT 82. and ASSERT 83.*)
+(* ASSERT 84. disjunction of ASSERT 82. and ASSERT 83. *)
 fun fact_fixrec_or_domain goal ctxt _ = fact_fixrec goal ctxt () orelse has_domain_var goal ctxt ();
+
+(* ASSERT 85. checks if the proof context contains a "narrowing...simps" rule associated with a type of variables in the first subgoal. *)
+(*We expect that this assertion is useful to detect the use of the nominal_induct method.*)
+fun has_nominal_datatype_var1 goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["narrowing", "simps"];
+
+(* ASSERT 86. checks if the proof context contains a "constr_rep" rule associated with a type of variables in the first subgoal. *)
+(*We expect that this assertion is useful to detect the use of the nominal_induct method.*)
+fun has_nominal_datatype_var2 goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["constr_rep"];
+
+(* ASSERT 87. checks if the proof context contains a "rec_unique" rule associated with a type of variables in the first subgoal. *)
+(*We expect that this assertion is useful to detect the use of the nominal_induct method.*)
+fun has_nominal_datatype_var3 goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["rec_unique"];
 
 (** Assertions about the first subgoal itself. **)
 (* ASSERT 2. checks if the first subgoal contains a case declaration *)
@@ -676,7 +688,10 @@ val assertions =
 (*81*)  fst_subg_has_Pure_imp_more_than_twice,
 (*82*)  fact_fixrec,
 (*83*)  has_domain_var,
-(*84*)  fact_fixrec_or_domain]
+(*84*)  fact_fixrec_or_domain,
+(*85*)  has_nominal_datatype_var1,
+(*86*)  has_nominal_datatype_var2,
+(*87*)  has_nominal_datatype_var3]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -884,7 +899,13 @@ related_const_rule "unfold" "fixrec",
 (*83*) (*has_domain_var*)
 related_type_rule "unfold" "domain",
 (*84*) (*fact_fixrec_or_domain*)
-related_const_or_type_rule "unfold" "fixrec" "unfold" "domain"
+related_const_or_type_rule "unfold" "fixrec" "unfold" "domain",
+(*86*)  (*has_nominal_datatype_var1,*)
+related_type_rule "narrowing...simp" "nominal_datatype",
+(*87*)  (*has_nominal_datatype_var2,*)
+related_type_rule "constr_rep" "nominal_datatype",
+(*87*)  (*has_nominal_datatype_var3*)
+related_type_rule "rec_unique" "nominal_datatype"
 ]
 
 (** Function used to generate database **)

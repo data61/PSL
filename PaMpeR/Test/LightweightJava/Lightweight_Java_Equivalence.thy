@@ -61,7 +61,7 @@ class_name_f :: "cld \<Rightarrow> dcl"
 where
 "class_name_f cld =
   (case cld of cld_def dcl cl fds mds \<Rightarrow> dcl)"
-lemma [simp]: "(class_name cld dcl) = (class_name_f cld = dcl)"
+lemma [simp]: "(class_name cld dcl) = (class_name_f cld = dcl)" assert_nth_false 78 assert_nth_false 79 assert_nth_false 80
 by (force simp add: class_name_f_def split: cld.splits
           intro: class_nameI elim: class_name.cases)
 
