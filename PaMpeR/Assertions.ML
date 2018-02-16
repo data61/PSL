@@ -173,10 +173,12 @@ fun has_thms_with_suffixes (goal:thm) (ctxt:context) (sfxes:string list) =
 (* has_all_substrings_when_printed checks if the given list of strings are all appear in the given proof obligation when printed out. *)
 fun has_all_substrings_when_printed (wo:Isabelle_Utils.location) (goal:thm) (ctxt:context) (strs:string list) =
   let
-    fun none_is_substr (substrs:string list) (fst_g:string) = forall (Utils.flip String.isSubstring fst_g) substrs: bool;
+    fun all_are_substr (substrs:string list) (fst_g:string) = forall (Utils.flip String.isSubstring fst_g) substrs: bool;
     val result = Isabelle_Utils.get_trm_in wo goal
       liftM Syntax.string_of_term ctxt
-      liftM none_is_substr strs
+      liftM (fn str => (tracing str; str))
+      liftM all_are_substr strs
+      |> (fn b => (if is_some b then (tracing "is_some b"; if the b then tracing "true" else tracing "false") else tracing "is_none"; b))
       |>    Utils.is_some_true;
   in result end;
 
@@ -485,6 +487,9 @@ fun fst_subg_has_Pure_imp_more_than_once (goal:thm) _ _ =
 fun fst_subg_has_Pure_imp_more_than_twice (goal:thm) _ _ =
   AU.fst_subg_has_const_more_than_n_times goal "Pure.imp" 2;
 
+(* ASSERT. 88. checks if the goal is started with the Isar-keyword "obtain". *)
+fun is_obtain_proof goal ctxt _ = AU.has_all_substrings_when_printed Isabelle_Utils.Fst_Subg goal ctxt ["thesis", "\<Longrightarrow>", ")"];
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt _ =
@@ -691,7 +696,8 @@ val assertions =
 (*84*)  fact_fixrec_or_domain,
 (*85*)  has_nominal_datatype_var1,
 (*86*)  has_nominal_datatype_var2,
-(*87*)  has_nominal_datatype_var3]
+(*87*)  has_nominal_datatype_var3,
+(*88*)  is_obtain_proof]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -900,12 +906,14 @@ related_const_rule "unfold" "fixrec",
 related_type_rule "unfold" "domain",
 (*84*) (*fact_fixrec_or_domain*)
 related_const_or_type_rule "unfold" "fixrec" "unfold" "domain",
-(*86*)  (*has_nominal_datatype_var1,*)
+(*86*) (*has_nominal_datatype_var1,*)
 related_type_rule "narrowing...simp" "nominal_datatype",
-(*87*)  (*has_nominal_datatype_var2,*)
+(*87*) (*has_nominal_datatype_var2,*)
 related_type_rule "constr_rep" "nominal_datatype",
-(*87*)  (*has_nominal_datatype_var3*)
-related_type_rule "rec_unique" "nominal_datatype"
+(*87*) (*has_nominal_datatype_var3*)
+related_type_rule "rec_unique" "nominal_datatype",
+(*88*) (*is_obtain_proof*)
+"this proof obligation stared by the obtain keyword"
 ]
 
 (** Function used to generate database **)

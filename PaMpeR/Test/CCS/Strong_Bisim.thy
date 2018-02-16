@@ -3,7 +3,7 @@
    Author/Maintainer: Jesper Bengtson (jebe@itu.dk), 2012
 *)
 theory Strong_Bisim
-  imports Strong_Sim
+  imports Strong_Sim "../Assertion_Checker"
 begin
 
 lemma monotonic:
@@ -163,11 +163,11 @@ lemma bisimTransCoinduct[consumes 1, case_names cSim cSym]:
 proof -
   from `(P, Q) \<in> X` have "(P, Q) \<in> bisim O X O bisim"
     by(auto intro: reflexive)
-  thus ?thesis
+  thus ?thesis thm bisimWeakCoinduct
   proof(coinduct rule: bisimWeakCoinduct)
     case(cSim P Q)
     from `(P, Q) \<in> bisim O X O bisim`
-    obtain R S where "P \<sim> R" and "(R, S) \<in> X" and "S \<sim> Q"
+    obtain R S where "P \<sim> R" and "(R, S) \<in> X" and "S \<sim> Q" assert_nth_true 81
       by auto
     from `P \<sim> R` have "P \<leadsto>[bisim] R" by(rule bisimE)
     moreover from `(R, S) \<in> X` have "R \<leadsto>[(bisim O X O bisim)] S"
