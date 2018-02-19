@@ -183,4 +183,34 @@ lemma
   assert_nth_false 11 (*Num*)
   oops
 
+
+inductive evn :: "nat \<Rightarrow> bool" where
+zero: "evn 0" |
+step: "evn n \<Longrightarrow> evn (Suc (Suc n))"
+
+lemma "\<And>x. evn 0 \<Longrightarrow> True" "False"
+  apply - assert_nth_true 82
+  oops
+
+lemma "\<And>x. False \<Longrightarrow> evn 0" "False"
+  apply - assert_nth_false 82
+  oops
+
+lemma "False" "\<And>x. False \<Longrightarrow> evn 0" 
+  apply - assert_nth_false 82
+  oops
+
+
+lemma "\<And>x. False \<Longrightarrow> True" "False"
+  apply - assert_nth_false 82
+  oops
+
+lemma "\<And>x. (True \<longrightarrow> True) \<Longrightarrow> True" "False"
+  apply - assert_nth_false 82
+  oops
+
+lemma "\<And>x. (True \<and> True) \<Longrightarrow> True" "False"
+  apply - assert_nth_false 82
+  oops
+
 end

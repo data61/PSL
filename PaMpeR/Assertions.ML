@@ -36,6 +36,7 @@ val has_thms_of_tname_with_all_substrs    : thm -> context -> string list -> boo
 val is_fun_not_fully_applied              : term -> bool;
 val fst_subg_is_classified_as             : thm -> context -> Spec_Rules.rough_classification -> bool;
 val fst_has_one_of_these_consts           : thm -> string list -> bool;
+val assrt_on_outmost_after_pure_imp_in    : (term -> bool) -> term -> bool;
 end;
 
 (** ASSERT_UTILS: Generic utility and assertion functions to write assertions. **)
@@ -176,9 +177,7 @@ fun has_all_substrings_when_printed (wo:Isabelle_Utils.location) (goal:thm) (ctx
     fun all_are_substr (substrs:string list) (fst_g:string) = forall (Utils.flip String.isSubstring fst_g) substrs: bool;
     val result = Isabelle_Utils.get_trm_in wo goal
       liftM Syntax.string_of_term ctxt
-      liftM (fn str => (tracing str; str))
       liftM all_are_substr strs
-      |> (fn b => (if is_some b then (tracing "is_some b"; if the b then tracing "true" else tracing "false") else tracing "is_none"; b))
       |>    Utils.is_some_true;
   in result end;
 
@@ -191,6 +190,16 @@ fun fst_has_one_of_these_consts goal (const_names:string list) = goal
   liftM Isabelle_Utils.get_cnames_in_trm
   |>    these
   |>    exists (is_one_of_strings const_names);
+
+fun assrt_on_outmost_after_pure_imp_in (assrt:term -> bool) (@{term "Pure.imp"} $ (concl $ prems)) =
+      assrt prems orelse
+      assrt_on_outmost_after_pure_imp_in assrt concl orelse
+      assrt_on_outmost_after_pure_imp_in assrt prems
+  | assrt_on_outmost_after_pure_imp_in assrt (trm1 $ trm2) =
+      assrt_on_outmost_after_pure_imp_in assrt trm1 orelse
+      assrt_on_outmost_after_pure_imp_in assrt trm2
+ | assrt_on_outmost_after_pure_imp_in assrt (Abs (_, _, trm)) = assrt_on_outmost_after_pure_imp_in assrt trm
+ | assrt_on_outmost_after_pure_imp_in  _ _ = false;
 
 end;
 
@@ -340,6 +349,26 @@ fun has_nominal_datatype_var2 goal ctxt _ = AU.has_thms_of_tname_with_all_substr
 (* ASSERT 87. checks if the proof context contains a "rec_unique" rule associated with a type of variables in the first subgoal. *)
 (*We expect that this assertion is useful to detect the use of the nominal_induct method.*)
 fun has_nominal_datatype_var3 goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["rec_unique"];
+
+(* ASSERT 89. checks if the proof context contains a "inducts" rule associated with a constant.    *)
+(*            that appears as the outermost constant (modulo Trueprop) of a premise of a Pure.imp. *)
+(*We expect that this assertion is useful to detect the use of ind_case method.*)
+local
+
+fun outmost_cname (Const (cname, _) $ _) = cname
+ |  outmost_cname  _                     = "";
+
+fun has_inducts_rule (ctxt:Proof.context) (trm:term) =
+  Assert_Util.has_thms_of_lnames_with_suffix ctxt [outmost_cname trm] "inducts";
+
+in
+
+fun inductive_as_outmost_in_pure_imp_prems (goal:thm) (ctxt:Proof.context) _ = goal
+|> Isabelle_Utils.get_1st_subg
+liftM (ctxt |> has_inducts_rule |> Assert_Util.assrt_on_outmost_after_pure_imp_in) 
+|> Utils.is_some_true;
+
+end;
 
 (** Assertions about the first subgoal itself. **)
 (* ASSERT 2. checks if the first subgoal contains a case declaration *)
@@ -697,7 +726,8 @@ val assertions =
 (*85*)  has_nominal_datatype_var1,
 (*86*)  has_nominal_datatype_var2,
 (*87*)  has_nominal_datatype_var3,
-(*88*)  is_obtain_proof]
+(*88*)  is_obtain_proof,
+(*89*)  inductive_as_outmost_in_pure_imp_prems]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -913,8 +943,10 @@ related_type_rule "constr_rep" "nominal_datatype",
 (*87*) (*has_nominal_datatype_var3*)
 related_type_rule "rec_unique" "nominal_datatype",
 (*88*) (*is_obtain_proof*)
-"this proof obligation stared by the obtain keyword"
-]
+"this proof obligation stared by the obtain keyword",
+(*89*) (*inductive_as_outmost_in_pure_imp_prems*)
+("the first sub-goal has a constant defined with the inductive keyword or the inductive_set keyword" ^
+ " as the outermost constant of a premise of meta-implication")]
 
 (** Function used to generate database **)
 
