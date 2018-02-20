@@ -32,10 +32,10 @@ val has_thms_with_suffixes                : thm -> context -> string list -> boo
 val has_thms_of_lnames_with_suffix        : context -> string list -> string -> bool;
 val has_thms_of_cname_with_all_substrs    : thm -> context -> string list -> bool;
 val has_thms_of_tname_with_all_substrs    : thm -> context -> string list -> bool;
-(*Not very reliable*)
-val is_fun_not_fully_applied              : term -> bool;
+val is_fun_not_fully_applied              : term -> bool;(*Not very reliable*)
 val fst_subg_is_classified_as             : thm -> context -> Spec_Rules.rough_classification -> bool;
 val fst_has_one_of_these_consts           : thm -> string list -> bool;
+val fst_has_one_of_these_tnames           : thm -> string list -> bool;
 val assrt_on_outmost_after_pure_imp_in    : (term -> bool) -> term -> bool;
 end;
 
@@ -183,13 +183,19 @@ fun has_all_substrings_when_printed (wo:Isabelle_Utils.location) (goal:thm) (ctx
 
 (* has_one_of_these_consts_in_fsg checks if goal:thm has one of the specified constants as a part
    of the first sub-goal. *)
-fun is_one_of_strings (strs:string list) (str:string) = exists (Utils.eq str) strs;
-
 fun fst_has_one_of_these_consts goal (const_names:string list) = goal
   |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
   liftM Isabelle_Utils.get_cnames_in_trm
   |>    these
-  |>    exists (is_one_of_strings const_names);
+  |>    exists (Utils.is_one_of_strings const_names);
+
+(* has_one_of_these_tnames_in_fsg checks if goal:thm has one of the specified type names as a part
+   of the first sub-goal. *)
+fun fst_has_one_of_these_tnames goal (const_names:string list) = goal
+  |>    Isabelle_Utils.get_trm_in Isabelle_Utils.Fst_Subg
+  liftM Isabelle_Utils.get_typ_names_in_trm
+  |>    these
+  |>    exists (Utils.is_one_of_strings const_names);
 
 fun assrt_on_outmost_after_pure_imp_in (assrt:term -> bool) (@{term "Pure.imp"} $ (concl $ prems)) =
       assrt prems orelse
@@ -369,6 +375,23 @@ liftM (ctxt |> has_inducts_rule |> Assert_Util.assrt_on_outmost_after_pure_imp_i
 |> Utils.is_some_true;
 
 end;
+
+(* ASSERT 90. check if the goal or its chained facts have one of the following constants: \<ge>, >, <, \<le>. *)
+(*We expect that this assertion is useful for the linarith method.*)
+fun is_linarith goal _ facts = goal::facts
+  |> map (Utils.flip AU.fst_has_one_of_these_consts ["Orderings.ord_class.less_eq",
+    "Orderings.ord_class.less", "Orderings.greater", "Orderings.greater_eq"])
+  |> exists I;
+
+(* ASSERT 91. checks if the first sub-goal has a term of one of the numeral types. *)
+(*We expect that this assertion is useful to recommend liarith method.*)
+fun has_trm_of_nat_int_rat_real goal _ _ = AU.fst_has_one_of_these_tnames goal
+  ["Nat.nat", "Int.int", "Rat.rat", "Real.real"]
+
+(* ASSERT 92. disjunction of ASSERT 91 and ASSERT 92. *)
+(*We expect that this assertion is useful to recommend liarith method.*)
+fun is_linarith2 goal _ facts = is_linarith goal () facts orelse
+  has_trm_of_nat_int_rat_real goal () ();
 
 (** Assertions about the first subgoal itself. **)
 (* ASSERT 2. checks if the first subgoal contains a case declaration *)
@@ -635,7 +658,7 @@ fun fst_subg_has_word goal _ _ = goal
   |>    these
   |>    exists (equal "Word.word"): bool;
 
-(** the list of assertions currently used **)
+(** The list of assertions currently used **)
 val assertions =
 (*01*) [check_local_assms,
 (*02*)  has_case_,
@@ -727,7 +750,10 @@ val assertions =
 (*86*)  has_nominal_datatype_var2,
 (*87*)  has_nominal_datatype_var3,
 (*88*)  is_obtain_proof,
-(*89*)  inductive_as_outmost_in_pure_imp_prems]
+(*89*)  inductive_as_outmost_in_pure_imp_prems,
+(*90*)  is_linarith,
+(*91*)  has_trm_of_nat_int_rat_real,
+(*92*)  is_linarith2]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -946,7 +972,15 @@ related_type_rule "rec_unique" "nominal_datatype",
 "this proof obligation stared by the obtain keyword",
 (*89*) (*inductive_as_outmost_in_pure_imp_prems*)
 ("the first sub-goal has a constant defined with the inductive keyword or the inductive_set keyword" ^
- " as the outermost constant of a premise of meta-implication")]
+ " as the outermost constant of a premise of meta-implication"),
+(*90*) (*is_linarith*)
+const_in_fst "Orderings.ord_class.less_eq, Orderings.ord_class.less, Orderings.greater, Orderings.greater_eq",
+(*91*) (*has_trm_of_nat_int_rat_real*)
+type_in_fst "Nat.nat, Int.int, Rat.rat, or Real.real",
+(*92*) (*is_linarith2*)
+(const_in_fst "Orderings.ord_class.less_eq, Orderings.ord_class.less, Orderings.greater, Orderings.greater_eq" ^
+ " or " ^ type_in_fst "Nat.nat, Int.int, Rat.rat, or Real.real")
+]
 
 (** Function used to generate database **)
 

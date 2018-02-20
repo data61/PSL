@@ -183,8 +183,15 @@ lemma
   assert_nth_false 11 (*Num*)
   oops
 
+lemma "\<And>x. (1::Real.real) = 1" assert_nth_false 83
+  assert_nth_true 84 assert_nth_true 85
+  oops
 
-inductive evn :: "nat \<Rightarrow> bool" where
+lemma "\<And>x. (1::Rat.rat) + 1 > 2" assert_nth_true 83
+  assert_nth_true 84 assert_nth_true 85
+  oops
+
+inductive evn :: "Nat.nat \<Rightarrow> bool" where
 zero: "evn 0" |
 step: "evn n \<Longrightarrow> evn (Suc (Suc n))"
 
@@ -212,5 +219,4 @@ lemma "\<And>x. (True \<longrightarrow> True) \<Longrightarrow> True" "False"
 lemma "\<And>x. (True \<and> True) \<Longrightarrow> True" "False"
   apply - assert_nth_false 82
   oops
-
 end
