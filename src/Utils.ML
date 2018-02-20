@@ -37,6 +37,7 @@ sig
   val power          : int -> int -> int;
   val nat_to_frac    : int -> real;
   val count_str      : string -> string list -> int;
+  val is_one_of_strings: string list -> string -> bool;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -147,6 +148,8 @@ fun nat_to_frac (n:int) =
 
 fun count_str (str:string) (strs:string list) =
   fold (fn name => fn n => if name = str then n + 1 else n) strs 0;
+
+fun is_one_of_strings (strs:string list) (str:string) = exists (equal str) strs;
 
 end;
 
@@ -361,17 +364,17 @@ fun get_abs_name_in_1st_subg (goal:thm) = goal
   |> these
   |> map Utils.remove__s;
 
-fun get_typ_names_in_trm trm = trm 
+fun get_typ_names_in_trm trm = trm
   |> get_typs_in_trm
   |> get_typs_names
-  |> duplicates (op =)
+  |> distinct (op =)
   |> map Utils.remove__s;
 
-fun get_typ_names_in_thm thm = thm 
+fun get_typ_names_in_thm thm = thm
   |> get_trms_in_thm
   |> map get_typ_names_in_trm
   |> flat
-  |> duplicates (op =)
+  |> distinct (op =)
   |> map Utils.remove__s;
 
 fun get_typ_names_in_1st_subg (goal:thm) = goal
