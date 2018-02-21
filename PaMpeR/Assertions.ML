@@ -148,7 +148,7 @@ fun has_thms_of_tname_with_all_substrs (goal:thm) (ctxt:context) (strs:string li
       |>    get_trm_in Fst_Subg
       liftM get_typ_names_in_trm
       liftM map Long_Name.base_name
-      liftM map (filter_out (is_in_Main ctxt) o get_thms)
+      liftM map ((*filter_out (is_in_Main ctxt) o*) get_thms)
       liftM (not o null o flat)
       |>    is_some_true;
   in result : bool end;
@@ -358,6 +358,7 @@ fun has_nominal_datatype_var3 goal ctxt _ = AU.has_thms_of_tname_with_all_substr
 
 (* ASSERT 89. checks if the proof context contains a "inducts" rule associated with a constant.    *)
 (*            that appears as the outermost constant (modulo Trueprop) of a premise of a Pure.imp. *)
+
 (*We expect that this assertion is useful to detect the use of ind_case method.*)
 local
 
@@ -382,6 +383,22 @@ fun is_linarith goal _ facts = goal::facts
   |> map (Utils.flip AU.fst_has_one_of_these_consts ["Orderings.ord_class.less_eq",
     "Orderings.ord_class.less", "Orderings.greater", "Orderings.greater_eq"])
   |> exists I;
+
+(* ASSERT 93. checks if the first sub-goal has a constant defined with the quotient_definition keyword. *)
+(*We expect that this assertion is useful for the lifting method and descending method.*)
+fun has_quotient_definition goal ctxt _ = AU.has_thms_with_suffixes goal ctxt ["rsp"]
+
+(* ASSERT 94. checks if the first sub-goal has a term of a type defined with the quotient_type keyword. *)
+(*We expect that this assertion is useful for the lifting method and descending method.*)
+fun has_quotient_type goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["Quotient_"];
+
+(* ASSERT 95. disjunction of ASSERT 93 and ASSERT 94. *)
+fun has_quotient_definition_or_quotient_type goal ctxt _ = has_quotient_definition goal ctxt ()
+  orelse has_quotient_type goal ctxt ();
+
+(* ASSERT 96. conjunction of ASSERT 93 and ASSERT 94. *)
+fun has_quotient_definition_and_quotient_type goal ctxt _ = has_quotient_definition goal ctxt ()
+  andalso has_quotient_type goal ctxt ();
 
 (** Assertions about the first subgoal itself. **)
 (* ASSERT 2. checks if the first subgoal contains a case declaration *)
@@ -758,7 +775,11 @@ val assertions =
 (*90*)  is_linarith,
 (*91*)  has_trm_of_nat_int_rat_real,
 (*92*)  is_linarith2,
-(*93*)  has_trm_of_real]
+(*93*)  has_trm_of_real,
+(*94*)  has_quotient_definition,
+(*95*)  has_quotient_type,
+(*96*)  has_quotient_definition_or_quotient_type,
+(*97*)  has_quotient_definition_and_quotient_type]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -986,7 +1007,15 @@ type_in_fst "Nat.nat, Int.int, Rat.rat, or Real.real",
 (const_in_fst "Orderings.ord_class.less_eq, Orderings.ord_class.less, Orderings.greater, Orderings.greater_eq" ^
  " or " ^ type_in_fst "Nat.nat, Int.int, Rat.rat, or Real.real"),
 (*93*) (*has_trm_of_real*)
-type_in_fst "Real.real"
+type_in_fst "Real.real",
+(*94*) (*has_quotient_definition*)
+related_const_rule "rsp" "quotient_definition",
+(*95*) (*has_quotient_type*)
+related_type_rule "Quotient_" "quotient_type",
+(*96*) (*has_quotient_definition_or_quotient_type*)
+related_const_rule "rsp" "quotient_definition" ^ " or " ^ related_type_rule "Quotient_" "quotient_type",
+(*97*) (*has_quotient_definition_and_quotient_type*)
+related_const_rule "rsp" "quotient_definition" ^ " and " ^ related_type_rule "Quotient_" "quotient_type"
 ]
 
 (** Function used to generate database **)
