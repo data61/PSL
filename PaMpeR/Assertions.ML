@@ -383,16 +383,6 @@ fun is_linarith goal _ facts = goal::facts
     "Orderings.ord_class.less", "Orderings.greater", "Orderings.greater_eq"])
   |> exists I;
 
-(* ASSERT 91. checks if the first sub-goal has a term of one of the numeral types. *)
-(*We expect that this assertion is useful to recommend liarith method.*)
-fun has_trm_of_nat_int_rat_real goal _ _ = AU.fst_has_one_of_these_tnames goal
-  ["Nat.nat", "Int.int", "Rat.rat", "Real.real"]
-
-(* ASSERT 92. disjunction of ASSERT 91 and ASSERT 92. *)
-(*We expect that this assertion is useful to recommend liarith method.*)
-fun is_linarith2 goal _ facts = is_linarith goal () facts orelse
-  has_trm_of_nat_int_rat_real goal () ();
-
 (** Assertions about the first subgoal itself. **)
 (* ASSERT 2. checks if the first subgoal contains a case declaration *)
 fun has_case_ goal _ _ =
@@ -539,8 +529,22 @@ fun fst_subg_has_Pure_imp_more_than_once (goal:thm) _ _ =
 fun fst_subg_has_Pure_imp_more_than_twice (goal:thm) _ _ =
   AU.fst_subg_has_const_more_than_n_times goal "Pure.imp" 2;
 
-(* ASSERT. 88. checks if the goal is started with the Isar-keyword "obtain". *)
+(* ASSERT 88. checks if the goal is started with the Isar-keyword "obtain". *)
 fun is_obtain_proof goal ctxt _ = AU.has_all_substrings_when_printed Isabelle_Utils.Fst_Subg goal ctxt ["thesis", "\<Longrightarrow>", ")"];
+
+(* ASSERT 91. checks if the first sub-goal has a term of one of the numeral types. *)
+(*We expect that this assertion is useful to recommend liarith method.*)
+fun has_trm_of_nat_int_rat_real goal _ _ = AU.fst_has_one_of_these_tnames goal
+  ["Nat.nat", "Int.int", "Rat.rat", "Real.real"]
+
+(* ASSERT 92. disjunction of ASSERT 91 and ASSERT 92. *)
+(*We expect that this assertion is useful to recommend liarith method.*)
+fun is_linarith2 goal _ facts = is_linarith goal () facts orelse
+  has_trm_of_nat_int_rat_real goal () ();
+
+(* ASSERT 93. checks if the first sub-goal has a term of type real. *)
+(*We expect that this assertion is useful to recommend the approximation method or sos method.*)
+fun has_trm_of_real goal _ _ = AU.fst_has_one_of_these_tnames goal ["Real.real"]
 
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
@@ -753,7 +757,8 @@ val assertions =
 (*89*)  inductive_as_outmost_in_pure_imp_prems,
 (*90*)  is_linarith,
 (*91*)  has_trm_of_nat_int_rat_real,
-(*92*)  is_linarith2]
+(*92*)  is_linarith2,
+(*93*)  has_trm_of_real]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -979,7 +984,9 @@ const_in_fst "Orderings.ord_class.less_eq, Orderings.ord_class.less, Orderings.g
 type_in_fst "Nat.nat, Int.int, Rat.rat, or Real.real",
 (*92*) (*is_linarith2*)
 (const_in_fst "Orderings.ord_class.less_eq, Orderings.ord_class.less, Orderings.greater, Orderings.greater_eq" ^
- " or " ^ type_in_fst "Nat.nat, Int.int, Rat.rat, or Real.real")
+ " or " ^ type_in_fst "Nat.nat, Int.int, Rat.rat, or Real.real"),
+(*93*) (*has_trm_of_real*)
+type_in_fst "Real.real"
 ]
 
 (** Function used to generate database **)
