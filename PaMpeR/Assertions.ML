@@ -371,9 +371,9 @@ fun has_inducts_rule (ctxt:Proof.context) (trm:term) =
 in
 
 fun inductive_as_outmost_in_pure_imp_prems (goal:thm) (ctxt:Proof.context) _ = goal
-|> Isabelle_Utils.get_1st_subg
-liftM (ctxt |> has_inducts_rule |> Assert_Util.assrt_on_outmost_after_pure_imp_in) 
-|> Utils.is_some_true;
+  |>    Isabelle_Utils.get_1st_subg
+  liftM (ctxt |> has_inducts_rule |> Assert_Util.assrt_on_outmost_after_pure_imp_in) 
+  |>    Utils.is_some_true;
 
 end;
 
@@ -562,6 +562,44 @@ fun is_linarith2 goal _ facts = is_linarith goal () facts orelse
 (* ASSERT 93. checks if the first sub-goal has a term of type real. *)
 (*We expect that this assertion is useful to recommend the approximation method or sos method.*)
 fun has_trm_of_real goal _ _ = AU.fst_has_one_of_these_tnames goal ["Real.real"]
+
+(* ASSERT 98. checks if there is a constant with prefix "Seq" in the first subgoal *)
+(*We expect that this assertion is useful to recommend methods defined in HOL/HOLCF/IOA/Sequence.thy.*)
+fun has_const_prefixed_with_Seq goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Seq";
+
+(* ASSERT 99. checks if there is a constant with prefix "Sequence" in the first subgoal *)
+(*We expect that this assertion is useful to recommend methods defined in HOL/HOLCF/IOA/Sequence.thy.*)
+fun has_const_prefixed_with_Sequence goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Sequence";
+
+(* ASSERT 100. disjunction of ASSERT 98 and ASSERT 99. *)
+(*We expect that this assertion is useful to recommend methods defined in HOL/HOLCF/IOA/Sequence.thy.*)
+fun has_const_prefixed_with_Seq_or_Sequence goal _ _ =
+  has_const_prefixed_with_Seq goal () () orelse
+  has_const_prefixed_with_Sequence goal () ();
+
+(* ASSERT 101. conjunction of ASSERT 98 and ASSERT 99. *)
+(*We expect that this assertion is useful to recommend methods defined in HOL/HOLCF/IOA/Sequence.thy.*)
+fun has_const_prefixed_with_Seq_and_Sequence goal _ _ =
+  has_const_prefixed_with_Seq goal () () andalso
+  has_const_prefixed_with_Sequence goal () ();
+
+(* ASSERT 102. checks if the first sub-goal has a term of a type defined in Seq. *)
+(*We expect that this assertion is useful to recommend methods defined in HOL/HOLCF/IOA/Sequence.thy.*)
+fun has_type_defined_in_Seq goal _ _ = AU.fst_subg_has_typ_of_name_subst goal "Seq";
+
+(* ASSERT 103. checks if the first sub-goal has a term of a type defined in Sequence. *)
+(*We expect that this assertion is useful to recommend methods defined in HOL/HOLCF/IOA/Sequence.thy.*)
+fun has_type_defined_in_Sequence goal _ _ = AU.fst_subg_has_typ_of_name_subst goal "Sequence";
+
+(* ASSERT 104. disjunction of ASSERT 102 and ASSERT 103. *)
+(*We expect that this assertion is useful to recommend methods defined in HOL/HOLCF/IOA/Sequence.thy.*)
+fun has_type_defined_in_Seq_or_Sequence goal _ _ = has_type_defined_in_Seq goal () () orelse
+  has_type_defined_in_Sequence goal () ();
+
+(* ASSERT 105. disjunction of ASSERT 100 and ASSERT 104. *)
+(*We expect that this assertion is useful to recommend methods defined in HOL/HOLCF/IOA/Sequence.thy.*)
+fun has_const_or_type_of_Seq_or_Sequence goal _ _ = has_const_prefixed_with_Seq_or_Sequence goal () ()
+ orelse has_type_defined_in_Seq_or_Sequence goal () ();
 
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
@@ -779,7 +817,15 @@ val assertions =
 (*94*)  has_quotient_definition,
 (*95*)  has_quotient_type,
 (*96*)  has_quotient_definition_or_quotient_type,
-(*97*)  has_quotient_definition_and_quotient_type]
+(*97*)  has_quotient_definition_and_quotient_type,
+(*98*)  has_const_prefixed_with_Seq,
+(*99*)  has_const_prefixed_with_Sequence,
+(*100*) has_const_prefixed_with_Seq_or_Sequence,
+(*101*) has_const_prefixed_with_Seq_and_Sequence,
+(*102*) has_type_defined_in_Seq,
+(*103*) has_type_defined_in_Sequence,
+(*104*) has_type_defined_in_Seq_or_Sequence,
+(*105*) has_const_or_type_of_Seq_or_Sequence]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -801,6 +847,8 @@ fun not_as_outermost (cname:string) = "the first subgoal has " ^ cname ^ " somew
   "not as the outermost constant.";
 
 fun type_in_fst (tname:string) = "the first subgoal has a variable of type " ^ tname ^ ".";
+
+fun type_in_fst_subst (tname:string) = "the first subgoal has a term of a type related to " ^ tname ^ ".";
 
 fun related_type_rule (rule_name:string) (isar_keyword) = "the underlying proof context has a " ^
   rule_name ^ " associated to one of the variables appearing in the first subgoal.\n" ^
@@ -1015,7 +1063,19 @@ related_type_rule "Quotient_" "quotient_type",
 (*96*) (*has_quotient_definition_or_quotient_type*)
 related_const_rule "rsp" "quotient_definition" ^ " or " ^ related_type_rule "Quotient_" "quotient_type",
 (*97*) (*has_quotient_definition_and_quotient_type*)
-related_const_rule "rsp" "quotient_definition" ^ " and " ^ related_type_rule "Quotient_" "quotient_type"
+related_const_rule "rsp" "quotient_definition" ^ " and " ^ related_type_rule "Quotient_" "quotient_type",
+(*98*)  (*has_const_prefixed_with_Seq*)
+const_in_fst_prefixed_with "Seq",
+(*99*)  (*has_const_prefixed_with_Sequence*)
+const_in_fst_prefixed_with "Sequence",
+(*100*)  (*has_const_prefixed_with_Seq_or_Sequence*)
+const_in_fst_prefixed_with "Seq or Sequence",
+(*101*) (*has_const_prefixed_with_Seq_and_Sequence*)
+const_in_fst_prefixed_with "Seq and Sequence",
+type_in_fst_subst "Seq",
+type_in_fst_subst "Sequence",
+type_in_fst_subst "Seq or Sequence",
+const_in_fst_prefixed_with "Seq or Sequence" ^ "Or else " ^ type_in_fst_subst "Seq or Sequence"
 ]
 
 (** Function used to generate database **)
