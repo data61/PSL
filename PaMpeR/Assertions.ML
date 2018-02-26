@@ -431,7 +431,8 @@ fun fst_subg_has_schematic_var (goal:thm) _ _ =
     result
   end;
 
-(* ASSERT 59. checks if the first subgoal contains a constant that is defined with the locale keyword. *)
+(* ASSERT. checks if the first subgoal contains a constant that is defined with the locale keyword. *)
+(*This assertion causes problems when applied to HOL-Analysis.*)
 fun has_locale_const goal (ctxt:Proof.context) _ =
   let
     val thy          = Proof_Context.theory_of ctxt;
@@ -720,6 +721,9 @@ fun fst_subg_has_word goal _ _ = goal
   |>    these
   |>    exists (equal "Word.word"): bool;
 
+(* ASSERT 59. checks if the outermost construct in the first subgoal is Abstraction.temp_strengthening. *)
+fun outermost_is_temp_strengthening goal _ _ =  AU.outermost_cname_in_1st_subg_is goal "Abstraction.temp_strengthening";
+
 (** The list of assertions currently used **)
 val assertions =
 (*01*) [check_local_assms,
@@ -780,8 +784,8 @@ val assertions =
 (*56*)  has_eventually,
 (*57*)  fact_inductive,
 (*58*)  fact_fun,
+(*59*)  outermost_is_temp_strengthening,
 (*
-(*59*)  has_locale_const,
 (*60*)  has_class_const,
 *)
 (*61*)  has_var_of_codata,
@@ -985,9 +989,9 @@ related_type_rule "Abs__ext_inject" "record",
 related_const_rule "inducts" "inductive",
 (*58*)  (*fact_fun,                              *)
 related_const_rule "elims" "fun",
-(*59*)  (*has_locale_const,                      *)
+(*59*)  (*outermost_is_temp_strengthening,       *)
+outermost_is "Abstract.temp_strengthening",
 (*
-"the first subgoal has a constant registered as a locale.",
 (*60*)  (*has_class_const,                       *)
 "the first subgoal has a constant that is a member of a type class.",
 *)
