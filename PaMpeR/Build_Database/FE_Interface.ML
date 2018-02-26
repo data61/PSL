@@ -17,7 +17,7 @@
         5.add a ML chunk of function call ML{*FE_Interface.FE_activate ()*} in Main
         6.Rebuild Isabelle heap
 
-    By default the extracted feature file would be stored in PSL/PaMpeR.
+    By default the extracted feature file would be stored in PSL/PaMpeR/Build_Database.
     If the import does not work, please add a function call of FE_Interface.activate ()
     in a ML chunk in Main.thy
 *)
@@ -36,13 +36,19 @@ struct
 
     val path = Resources.master_directory @{theory} |> File.platform_path : string;
     val path_to_database  = path ^ "/Database" : string;
+
+    fun string_some NONE = "PANIC_SOMETHING_WENT_WRONG"
+     |  string_some (SOME x) = x;
     
     val _ =
       Outer_Syntax.command @{command_keyword apply} "initial goal refinement step (unstructured)"
         (Method.parse >> (fn m => (Method.report m;
           Toplevel.proofs (fn pst =>(if (get_name o fst) m = "\n" then 0 else
           Isabelle_System.bash
-            ("echo -n '" ^ (get_name o fst) m ^ " " ^ (Assertions.eval_assertion pst) ^ "\n" ^
+            ("echo -n '" ^
+             (Method.position (SOME m) |> Position.file_of |> string_some) ^ " " ^
+             (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
+             (get_name o fst) m ^ " " ^ (Assertions.eval_assertion pst) ^ "\n" ^
              "' >> " ^ path_to_database);
           Proof.apply m pst))))); 
     val local_terminal_proof = Toplevel.proof o 
