@@ -624,6 +624,10 @@ fun is_word_bitwise goal _ _ = AU.fst_has_one_of_these_consts goal
 fun is_u_arith goal _ _ = AU.fst_has_one_of_these_consts goal
   ["Orderings.ord_class.less_eq", "Orderings.ord_class.less", "Groups.plus_class.plus"];
 
+(* ASSERT 60. check if the firs subgoal has "CompoScheds.mkex" in it. *)
+(*We expect that this assertion is useful for the mkex_induct method.*)
+fun is_mkex_induct goal _ _ = AU.fst_has_one_of_these_consts goal ["CompoScheds.mkex"];
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt _ =
@@ -637,7 +641,8 @@ fun all_consts_in_main goal ctxt _ =
     AU.all_cnames_satisfy goal in_Main
   end;
 
-(* ASSERT 60. check if the first subgoal has a constant that is defined with the "class" keyword. *)
+(* ASSERT TODO. check if the first subgoal has a constant that is defined with the "class" keyword. *)
+(*This assertion is currently not used, as it causes problems when mining HOL-Analysis.*)
 fun has_class_const goal _ _ = AU.fst_subg_has_const_of goal (String.isSubstring ".class.");
 
 (** Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal. **)
@@ -785,9 +790,7 @@ val assertions =
 (*57*)  fact_inductive,
 (*58*)  fact_fun,
 (*59*)  outermost_is_temp_strengthening,
-(*
-(*60*)  has_class_const,
-*)
+(*60*)  is_mkex_induct,
 (*61*)  has_var_of_codata,
 (*62*)  has_rel_fun_or_map_fun(*,
 (*63*)  fst_subg_size_more_than_5,
@@ -991,10 +994,8 @@ related_const_rule "inducts" "inductive",
 related_const_rule "elims" "fun",
 (*59*)  (*outermost_is_temp_strengthening,       *)
 outermost_is "Abstract.temp_strengthening",
-(*
-(*60*)  (*has_class_const,                       *)
-"the first subgoal has a constant that is a member of a type class.",
-*)
+(*60*)  (*is_mkex_induct,                        *)
+const_in_fst "CompoScheds.mkex",
 (*61*)  (*has_var_of_codata,                     *)
 related_type_rule "corec_disc" "codatatype",
 (*62*)  (*has_rel_fun_or_map_fun,                *)
