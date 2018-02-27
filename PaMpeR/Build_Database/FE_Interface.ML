@@ -46,7 +46,7 @@ struct
           Toplevel.proofs (fn pst =>(if (get_name o fst) m = "\n" then 0 else
           Isabelle_System.bash
             ("echo -n '" ^
-             (Method.position (SOME m) |> Position.file_of |> string_some) ^ " " ^
+             (Method.position (SOME m) |> Position.file_of |> string_some) ^
              (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
              (get_name o fst) m ^ " " ^ (Assertions.eval_assertion pst) ^ "\n" ^
              "' >> " ^ path_to_database);

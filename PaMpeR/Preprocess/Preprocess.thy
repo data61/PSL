@@ -32,7 +32,7 @@ val parallel_preprocess = true;
 fun get_tokens (line:string) = line
   |> space_explode " "
   |> filter_out (fn x => x = " ")
-  |> chop 3
+  |> chop 2
   |> apfst the_single;
 
 val path              = Resources.master_directory @{theory} |> File.platform_path : string;
@@ -58,7 +58,7 @@ fun write_one_lines_for_given_methods (line:string) (method_names:string list) =
 (*TODO: remove code duplication with PaMpeR_Interface.thy and Postprocess.thy.*)
 val all_method_names =
   let
-    val bash_script = "while read line \n do echo $line | awk '{print $3;}' \n done < '" ^ path_to_database ^ "'" : string;
+    val bash_script = "while read line \n do echo $line | awk '{print $2;}' \n done < '" ^ path_to_database ^ "'" : string;
     val bash_input  = Bash.process bash_script |> #out : string;
     val dist_meth_names = bash_input |> String.tokens (fn c => c = #"\n") |> distinct  (op =);
   in
