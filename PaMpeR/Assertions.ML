@@ -628,6 +628,22 @@ fun is_u_arith goal _ _ = AU.fst_has_one_of_these_consts goal
 (*We expect that this assertion is useful for the mkex_induct method.*)
 fun is_mkex_induct goal _ _ = AU.fst_has_one_of_these_consts goal ["CompoScheds.mkex"];
 
+(* ASSERT 107. checks if the first sub-goal has a term of type 'a Sigma_Algebra.measure. *)
+(*We expect that this assertion is useful to recommend the approximation method or measurable method.*)
+fun has_trm_of_measure goal _ _ = AU.fst_has_one_of_these_tnames goal ["Sigma_Algebra.measure"];
+
+(* ASSERT 108. checks if the first sub-goal has Borel_Space.borel_measurable. *)
+(*We expect that this assertion is useful to recommend the approximation method or measurable method.*)
+fun has_borel_measurable goal _ _ = AU.fst_has_one_of_these_consts goal ["Borel_Space.borel_measurable"];
+
+(* ASSERT 109. disjunction of ASSERT 107 and ASSERT 108. *)
+fun of_measure_or_has_borel_measurable goal _ _ = AU.fst_has_one_of_these_tnames goal ["Sigma_Algebra.measure"]
+  orelse AU.fst_has_one_of_these_consts goal ["Borel_Space.borel_measurable"];
+
+(* ASSERT 110. conjunction of ASSERT 107 and ASSERT 108. *)
+fun of_measure_and_has_borel_measurable goal _ _ = AU.fst_has_one_of_these_tnames goal ["Sigma_Algebra.measure"]
+  andalso AU.fst_has_one_of_these_consts goal ["Borel_Space.borel_measurable"];
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt _ =
@@ -836,7 +852,11 @@ val assertions =
 (*103*) has_type_defined_in_Sequence,
 (*104*) has_type_defined_in_Seq_or_Sequence,
 (*105*) has_const_or_type_of_Seq_or_Sequence,
-(*106*) is_countable_class]
+(*106*) is_countable_class,
+(*107*) has_trm_of_measure,
+(*108*) has_borel_measurable,
+(*109*) of_measure_or_has_borel_measurable,
+(*110*) of_measure_and_has_borel_measurable]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -1070,9 +1090,9 @@ related_const_rule "rsp" "quotient_definition",
 (*95*) (*has_quotient_type*)
 related_type_rule "Quotient_" "quotient_type",
 (*96*) (*has_quotient_definition_or_quotient_type*)
-related_const_rule "rsp" "quotient_definition" ^ " or " ^ related_type_rule "Quotient_" "quotient_type",
+related_const_rule "rsp" "quotient_definition" ^ " Or else" ^ related_type_rule "Quotient_" "quotient_type",
 (*97*) (*has_quotient_definition_and_quotient_type*)
-related_const_rule "rsp" "quotient_definition" ^ " and " ^ related_type_rule "Quotient_" "quotient_type",
+related_const_rule "rsp" "quotient_definition" ^ " And also " ^ related_type_rule "Quotient_" "quotient_type",
 (*98*)  (*has_const_prefixed_with_Seq*)
 const_in_fst_prefixed_with "Seq",
 (*99*)  (*has_const_prefixed_with_Sequence*)
@@ -1090,7 +1110,15 @@ type_in_fst_subst "Seq or Sequence",
 (*105*) (*has_const_or_type_of_Seq_or_Sequence*)
 const_in_fst_prefixed_with "Seq or Sequence" ^ "Or else " ^ type_in_fst_subst "Seq or Sequence",
 (*106*) (*is_countable_class*)
-"the first subgoal is about instantiation proof of a countable_class."
+"the first subgoal is about instantiation proof of a countable_class.",
+(*107*) (*has_trm_of_measure*)
+type_in_fst "Sigma_Algebra.measure",
+(*108*) (*has_borel_measurable*)
+const_in_fst "Borel_Space.borel_measurable",
+(*109*) (*of_measure_or_has_borel_measurable*)
+type_in_fst "Sigma_Algebra.measure" ^ " Or else " ^ const_in_fst "Borel_Space.borel_measurable",
+(*110*) (*of_measure_and_has_borel_measurable*)
+type_in_fst "Sigma_Algebra.measure" ^ " And also " ^ const_in_fst "Borel_Space.borel_measurable"
 ]
 
 (** Function used to generate database **)
