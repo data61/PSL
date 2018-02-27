@@ -57,8 +57,8 @@ struct
               (if (get_name o fst) (fst m) = "\n" then 0 else
             Isabelle_System.bash 
               ("echo -n '" ^
-               (Method.position (SOME m) |> Position.file_of |> string_some) ^
-               (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
+               (Method.position (SOME (fst m)) |> Position.file_of |> string_some) ^
+               (Method.position (SOME (fst m)) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
                (get_name o fst) (fst m) ^ " " ^ (Assertions.eval_assertion state) ^ "\n" ^
                "' >> " ^ path_to_database);
             Proof.local_future_terminal_proof m state)));
@@ -69,8 +69,8 @@ struct
             (fn state => (if (get_name o fst) (fst m) = "\n" then 0 else
             Isabelle_System.bash
               ("echo -n '" ^
-               (Method.position (SOME m) |> Position.file_of |> string_some) ^
-               (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
+               (Method.position (SOME (fst m)) |> Position.file_of |> string_some) ^
+               (Method.position (SOME (fst m)) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
                (get_name o fst) (fst m) ^ " " ^ (Assertions.eval_assertion state) ^ "\n" ^
                "' >> " ^ path_to_database);
             Proof.global_future_terminal_proof m state)))
