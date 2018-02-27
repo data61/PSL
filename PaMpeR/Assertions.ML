@@ -654,6 +654,10 @@ fun is_mir goal _ _ = AU.fst_has_one_of_these_consts goal ["Archimedean_Field.fl
 (*We expect that this assertion is useful to recommend the hoare method.*)
 fun is_hoare goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Hoare";
 
+(* ASSERT 113. checks if the proof obligation involves the string "COBEGIN". *)
+(*We expect that this assertion is useful to recommend the oghoare method.*)
+fun is_oghoare goal ctxt _ = AU.has_all_substrings_when_printed Isabelle_Utils.Fst_Subg goal ctxt ["COBEGIN"];
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt _ =
@@ -868,7 +872,8 @@ val assertions =
 (*109*) of_measure_or_has_borel_measurable,
 (*110*) of_measure_and_has_borel_measurable,
 (*111*) is_mir,
-(*112*) is_hoare]
+(*112*) is_hoare,
+(*113*) is_oghoare]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -1134,7 +1139,9 @@ type_in_fst "Sigma_Algebra.measure" ^ " And also " ^ const_in_fst "Borel_Space.b
 (*111*) (*is_mir*)
 const_in_fst "Archimedean_Field.floor_ceiling_class.floor",
 (*112*) (*is_hoare*)
-const_in_fst_prefixed_with "Hoare"
+const_in_fst_prefixed_with "Hoare",
+(*113*)  (*is_instance_proof*)
+"the first subgoal has COBEGIN."
 ]
 
 (** Function used to generate database **)
