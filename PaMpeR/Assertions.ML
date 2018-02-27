@@ -629,20 +629,26 @@ fun is_u_arith goal _ _ = AU.fst_has_one_of_these_consts goal
 fun is_mkex_induct goal _ _ = AU.fst_has_one_of_these_consts goal ["CompoScheds.mkex"];
 
 (* ASSERT 107. checks if the first sub-goal has a term of type 'a Sigma_Algebra.measure. *)
-(*We expect that this assertion is useful to recommend the approximation method or measurable method.*)
+(*We expect that this assertion is useful to recommend the measurable method.*)
 fun has_trm_of_measure goal _ _ = AU.fst_has_one_of_these_tnames goal ["Sigma_Algebra.measure"];
 
 (* ASSERT 108. checks if the first sub-goal has Borel_Space.borel_measurable. *)
-(*We expect that this assertion is useful to recommend the approximation method or measurable method.*)
+(*We expect that this assertion is useful to recommend the measurable method.*)
 fun has_borel_measurable goal _ _ = AU.fst_has_one_of_these_consts goal ["Borel_Space.borel_measurable"];
 
 (* ASSERT 109. disjunction of ASSERT 107 and ASSERT 108. *)
+(*We expect that this assertion is useful to recommend the measurable method.*)
 fun of_measure_or_has_borel_measurable goal _ _ = AU.fst_has_one_of_these_tnames goal ["Sigma_Algebra.measure"]
   orelse AU.fst_has_one_of_these_consts goal ["Borel_Space.borel_measurable"];
 
 (* ASSERT 110. conjunction of ASSERT 107 and ASSERT 108. *)
+(*We expect that this assertion is useful to recommend the measurable method.*)
 fun of_measure_and_has_borel_measurable goal _ _ = AU.fst_has_one_of_these_tnames goal ["Sigma_Algebra.measure"]
   andalso AU.fst_has_one_of_these_consts goal ["Borel_Space.borel_measurable"];
+
+(* ASSERT 111. checks if the first sub-goal has "Archimedean_Field.floor_ceiling_class.floor". *)
+(*We expect that this assertion is useful to recommend the mir method.*)
+fun is_mir goal _ _ = AU.fst_has_one_of_these_consts goal ["Archimedean_Field.floor_ceiling_class.floor"];
 
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
@@ -856,7 +862,8 @@ val assertions =
 (*107*) has_trm_of_measure,
 (*108*) has_borel_measurable,
 (*109*) of_measure_or_has_borel_measurable,
-(*110*) of_measure_and_has_borel_measurable]
+(*110*) of_measure_and_has_borel_measurable,
+(*111*) is_mir]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -1118,7 +1125,9 @@ const_in_fst "Borel_Space.borel_measurable",
 (*109*) (*of_measure_or_has_borel_measurable*)
 type_in_fst "Sigma_Algebra.measure" ^ " Or else " ^ const_in_fst "Borel_Space.borel_measurable",
 (*110*) (*of_measure_and_has_borel_measurable*)
-type_in_fst "Sigma_Algebra.measure" ^ " And also " ^ const_in_fst "Borel_Space.borel_measurable"
+type_in_fst "Sigma_Algebra.measure" ^ " And also " ^ const_in_fst "Borel_Space.borel_measurable",
+(*111*) (*is_mir*)
+const_in_fst "Archimedean_Field.floor_ceiling_class.floor"
 ]
 
 (** Function used to generate database **)
