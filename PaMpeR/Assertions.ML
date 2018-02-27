@@ -650,6 +650,10 @@ fun of_measure_and_has_borel_measurable goal _ _ = AU.fst_has_one_of_these_tname
 (*We expect that this assertion is useful to recommend the mir method.*)
 fun is_mir goal _ _ = AU.fst_has_one_of_these_consts goal ["Archimedean_Field.floor_ceiling_class.floor"];
 
+(* ASSERT 112. checks if the first sub-goal has a constant defined in Hoare.thy *)
+(*We expect that this assertion is useful to recommend the hoare method.*)
+fun is_hoare goal _ _ = AU.fst_subg_has_const_prefixed_with goal "Hoare";
+
 (** Assertions about all constants appearing in the first subgoal itself. **)
 (* ASSERT 21. checks if all constants are defined in Main *)
 fun all_consts_in_main goal ctxt _ =
@@ -863,7 +867,8 @@ val assertions =
 (*108*) has_borel_measurable,
 (*109*) of_measure_or_has_borel_measurable,
 (*110*) of_measure_and_has_borel_measurable,
-(*111*) is_mir]
+(*111*) is_mir,
+(*112*) is_hoare]
 
 (** functions to generate qualitative explanations **)
 fun const_in_fst consts= "the first subgoal has one of the following constants: " ^ consts: string;
@@ -1127,7 +1132,9 @@ type_in_fst "Sigma_Algebra.measure" ^ " Or else " ^ const_in_fst "Borel_Space.bo
 (*110*) (*of_measure_and_has_borel_measurable*)
 type_in_fst "Sigma_Algebra.measure" ^ " And also " ^ const_in_fst "Borel_Space.borel_measurable",
 (*111*) (*is_mir*)
-const_in_fst "Archimedean_Field.floor_ceiling_class.floor"
+const_in_fst "Archimedean_Field.floor_ceiling_class.floor",
+(*112*) (*is_hoare*)
+const_in_fst_prefixed_with "Hoare"
 ]
 
 (** Function used to generate database **)
