@@ -1,0 +1,9 @@
+session "Preprocess" = "HOL" +
+  options [document = pdf, document_output = "output", timeout = 99999999]
+  theories [document = false]
+    "Preprocess"
+    (* Bar *)
+  theories
+    (* Baz *)
+  document_files
+    "root.tex"

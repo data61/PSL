@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+\newcommand{\isasymcongruent}{\isamath{\equiv}}
+\renewcommand{\isasymequiv}{\isamath{\triangleq}}
+
+\usepackage[latin1]{inputenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The independence of Tarski's Euclidean axiom}
+\author{T.~J.~M.~Makarios}
+\maketitle
+
+\begin{abstract}
+Tarski's axioms of plane geometry are formalized and, using the standard real Cartesian model, shown to be consistent.
+A substantial theory of the projective plane is developed.
+Building on this theory, the Klein--Beltrami model of the hyperbolic plane is defined and shown to satisfy all of Tarski's axioms except his Euclidean axiom;
+thus Tarski's Euclidean axiom is shown to be independent of his other axioms of plane geometry.
+
+An earlier version of this work was the subject of the author's MSc thesis \cite{makarios}, which contains natural-language explanations of some of the more interesting proofs.
+\end{abstract}
+
+\tableofcontents
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

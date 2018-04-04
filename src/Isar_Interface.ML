@@ -14,6 +14,10 @@ sig
   type strategy;
   val try_hard_strategy       : Proof.context -> strategy option;
   val try_parallel_strategy   : Proof.context -> strategy option;
+  val string_parser_to_token_parser: 'a Parser_Combinator.parser -> 'a Token.parser;
+  val parser_to_trans_trans_parser:  'a Parser_Combinator.parser ->
+     ('a -> Toplevel.transition -> Toplevel.transition) ->
+     (Toplevel.transition -> Toplevel.transition) Token.parser;
 end;
 
 (*** PSL_Interface: One can define new strategies only through the Isar interface. ***)
@@ -100,8 +104,8 @@ val op >>= =  Parser_Combinator.>>=;
 
 in
 
-fun invocation_parser_to_trans_trans_parser (inv_p : string Pc.parser)
-  (get_trans_trans : string -> trans_trans) =
+fun parser_to_trans_trans_parser (inv_p : 'a Pc.parser)
+  (get_trans_trans : 'a -> trans_trans) =
   string_parser_to_token_parser (inv_p >>= (Pc.result o get_trans_trans)) : trans_trans Token.parser;
 
 end;
@@ -138,7 +142,7 @@ fun activate_isar_interface _ =
     val _ =
       Outer_Syntax.command @{command_keyword find_proof}
         "find_proof tries to find a proof based on high level strategies provided in advance.."
-        (invocation_parser_to_trans_trans_parser strategy_invocation_parser get_trans_trans);
+        (parser_to_trans_trans_parser strategy_invocation_parser get_trans_trans);
 
     val _ =
       Outer_Syntax.command @{command_keyword try_hard}

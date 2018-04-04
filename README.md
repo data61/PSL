@@ -1,12 +1,15 @@
-**_Dear ITP2018 reviewers, you are currently in the master branch. Our submission artifacts for ITP2018 reside in the [release v0.1 PaMpeR:ITP2018](https://github.com/data61/PSL/releases/tag/v0.1), not here._**
+- **_Dear ITP2018 reviewers, our submission artifacts for ITP2018 reside in the [release v0.1 PaMpeR:ITP2018](https://github.com/data61/PSL/releases/tag/v0.1), not here._**
+- **This branch is under active development. Please use [release v0.1 PaMpeR:ITP2018](https://github.com/data61/PSL/releases/tag/v0.1), which is the latest stable version.**
+- **This branch PaMpeR contains a Proof Method Recommendation system, PaMpeR. Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
+- **More information is provided in PSL/PaMpeR/README.md.**
 
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for Isabelle2016**-1**. Note that Isabelle2016 is no longer supported.
+**try_hard**, for Isabelle2017. Note that Isabelle2016 and Isabelle2016-1 are no longer supported.
 
 ## Installation
-1. Install [Isabelle2016-1](https://isabelle.in.tum.de/).
+1. Install [Isabelle2017](https://isabelle.in.tum.de/).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Then, Users can install PSL and try_hard by importing *.PSL.thy* to their theory files
    with the Isabelle keyword, **imports**.
@@ -55,7 +58,7 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 
 *A3.* The more is the better. You can increase the power of your strategy by using parallel combinators, such as *POrs* and *PAlts*.
 
-*Q4.* It looks like PSL's proof search got stuck due to the high volume of tracing messages. How can I keep it running?
+*Q4.* It looks like PSL's proof search got stuck due to the high volume of traing messages. How can I keep it running?
 
 *A4.* You can change the upper limit for tracing messages via jEdit's menus: Plugin Options => Isabelle => General => Editor Reactivity => Editor Tracing Messages.
 

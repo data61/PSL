@@ -1,0 +1,44 @@
+chapter AFP
+
+session "Native_Word" (AFP) = "HOL-Word" +
+  options [timeout = 1200]
+  sessions
+    "HOL-Imperative_HOL"
+  theories [document = false]
+    "HOL-Library.Code_Target_Int"
+    "HOL-Library.Code_Char"
+    "HOL-Library.Code_Test"
+    "HOL-Imperative_HOL.Heap_Monad"
+  theories
+    More_Bits_Int
+    Bits_Integer
+    Code_Target_Bits_Int
+    Word_Misc
+    Uint32
+    Uint16
+    Uint8
+    Uint
+    Native_Cast
+    Native_Word_Imperative_HOL
+    Native_Word_Test_Emu
+    Native_Word_Test_PolyML
+    Native_Word_Test_PolyML2
+    Native_Word_Test_Scala
+  theories [condition = ML_SYSTEM_64]
+    Native_Word_Test_PolyML64
+  theories [condition = ISABELLE_GHC]
+    Native_Word_Test_GHC
+  theories [condition = ISABELLE_MLTON]
+    Native_Word_Test_MLton
+    Native_Word_Test_MLton2
+  theories [condition = ISABELLE_OCAMLC]
+    Native_Word_Test_OCaml
+    Native_Word_Test_OCaml2
+  theories [condition = ISABELLE_SMLNJ]
+    Native_Word_Test_SMLNJ
+    Native_Word_Test_SMLNJ2
+  theories
+    Uint_Userguide
+  document_files
+    "root.tex"
+    "root.bib"

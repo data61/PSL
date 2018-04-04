@@ -31,6 +31,7 @@ sig
   val many1  : 'a parser -> 'a Seq.seq parser;
   val nat    : int parser;
   val int    : int parser;
+  val real   : real parser;
   val sepby1 : 'a parser * 'b parser -> 'a Seq.seq parser;
   val bracket: 'a parser -> 'b parser -> 'c parser -> 'b parser;
   val ints   : int Seq.seq parser;
@@ -89,6 +90,22 @@ struct
                   many alphanum >>= (fn xs =>
                   result (Seq.cons x xs |> Seq.list_of |> String.concat)));
   fun many1 p   = p >>= (fn x => many p >>= (fn xs => result (Seq.cons x xs)));
+  val spaces  = many1 (sat Symbol.is_ascii_blank) >>= K (result ());
+  val comment = string "(*" >>= (K (
+                many (sat (fn x => x = ")" |> not))))
+    >>= K (string ")")
+    >>= K (result ());
+  (*bracket (string "(*") (result ()) (string "*)");*)
+  fun first p inp = case Seq.pull (p inp) of
+    NONE        => Seq.empty
+  | SOME (x, _) => Seq.single x;
+  infix +++;
+  fun p +++ q = first (p plus q);
+  val junk    = many (spaces +++ comment) >>= K (result ());
+  fun parse p = junk >>= K p >>= result;
+  fun token p = p    >>= (fn v =>
+                junk >>= (K (
+                result v)));
   fun eval xs   = Int.fromString xs |> the;
   val nat       = many1 digit >>= (fn xs => xs |> Seq.list_of |> String.concat |> eval |> result);
   val int       =
@@ -96,34 +113,33 @@ struct
       val id  = fn inp => Seq.single (I, inp);
       val ope = symbol "-" >>= (fn _ => result ~) plus id;
     in
-      ope >>= (fn f => (nat >>= (fn n => f n |> result)))
+      token (ope >>= (fn f => (
+             nat >>= (fn n =>
+             f n |> result))))
     end;
+
+  val digit_or_period = sat (fn symb => Symbol.is_digit symb orelse equal "." symb);
+  (*FIXME: digit_or_period is not good enough to parse real: think about "-0.0  .something*)
+  val positive_real   = many1 digit_or_period >>= (fn xs => xs |> Seq.list_of |> String.concat |> Real.fromString |> the |> result);
+  val real =
+    let
+      val id  = fn inp => Seq.single (I, inp);
+      val ope = (symbol "-" plus symbol "~") >>= (fn _ => result ((op ~):real -> real)) plus id;
+    in
+      token ope >>= (fn f =>
+      token positive_real >>= (fn pr =>
+      f pr |> result))
+    end;
+
   infix sepby1;
   fun p sepby1 sep = p >>= (fn x =>
                     (many (sep >>= (fn _ => p >>= (fn y => result y)))) >>= (fn xs => 
                     result (Seq.cons x xs)));
-  fun bracket openp p closep = openp  >>= (fn _ =>
-                               p      >>= (fn x =>
-                               closep >>= (fn _ =>
+  fun bracket openp p closep = token openp  >>= (fn _ =>
+                               token p      >>= (fn x =>
+                               token closep >>= (fn _ =>
                                result x)));
-  val ints = bracket (symbol "[") (int sepby1 symbol ",") (symbol "]");
+  val ints = bracket (symbol "[" |> token) (int sepby1 symbol "," |> token) (symbol "]" |> token);
   infix sepby;
   fun p sepby sep = (p sepby1 sep) plus succ_many;
-
-  fun first p inp = case Seq.pull (p inp) of
-    NONE        => Seq.empty
-  | SOME (x, _) => Seq.single x;
-  infix +++;
-  fun p +++ q = first (p plus q);
-  val spaces  = many1 (sat Symbol.is_space) >>= K (result ());
-  val comment = string "(*" >>= (K (
-                many (sat (fn x => x = ")" |> not))))
-    >>= K (string ")")
-    >>= K (result ());
-  (*bracket (string "(*") (result ()) (string "*)");*)
-  val junk    = many (spaces +++ comment) >>= K (result ());
-  fun parse p = junk >>= K p >>= result;
-  fun token p = p    >>= (fn v =>
-                junk >>= (K (
-                result v)));
 end;

@@ -620,6 +620,26 @@ fun mods_to_string (mods:modifiers) =
 
 structure FT2 =  Find_Theorems2;
 
+fun get_fact_names_mesh (state: Proof.state) =
+  let
+    val {context: Proof.context, goal: thm, facts: thm list} = Proof.goal state;
+    val (_, hyps: term list, cncl: term) = ATP_Util.strip_subgoal goal 1 context;
+    val params as {provers: string list,...}: Sledgehammer_Commands.params =
+      Sledgehammer_Commands.default_params (Proof.theory_of state) [];
+    val keywords    = Thy_Header.get_keywords' context: Keyword.keywords;
+    val rule_table  = Sledgehammer_Fact.clasimpset_rule_table_of context
+      : ATP_Problem_Generate.status Termtab.table;
+    val all_facts   = Sledgehammer_Fact.all_facts context true true keywords [] facts rule_table
+      : Sledgehammer_Fact.raw_fact list;
+    val no_override = Sledgehammer_Fact.no_fact_override: Sledgehammer_Fact.fact_override;
+    val relevant_facts : (string * Sledgehammer_MaSh.fact list) list =
+      Sledgehammer_MaSh.relevant_facts context params (hd provers) 200 no_override hyps cncl all_facts;
+    (*convert relevant facts into a string list*)
+    val relevant_fact_names = relevant_facts |> map #2 |> flat |> map (fn x => #1 (#1 x));
+  in
+    relevant_fact_names : string list
+  end;
+
 fun get_all_modifiers (state:Proof.state) =
   let
     val {context: Proof.context, goal: thm,...} = Proof.goal state;
@@ -631,7 +651,7 @@ fun get_all_modifiers (state:Proof.state) =
      |  to_bool _     = false;
     fun are_same (x, y) = (to_bool o String.compare) (x, y);
     val simps     = subtract are_same (split_names @ elim_names @ intro_names @ dest_names)
-                    (FT2.get_fact_names_mesh state) |> map Simp;
+                    (get_fact_names_mesh state) |> map Simp;
     val splits    = map Split split_names;
     val elims     = map Elim  elim_names;
     val intros    = map Intro intro_names;

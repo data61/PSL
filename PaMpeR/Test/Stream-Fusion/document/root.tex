@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Stream Fusion}
+\author{Brian Huffman}
+\maketitle
+
+\begin{abstract}
+  Stream Fusion \cite{CLS07} is a system for removing intermediate
+  list structures from Haskell programs; it consists of a Haskell
+  library along with several compiler rewrite rules.  (The library is
+  available online at
+  \url{http://www.cse.unsw.edu.au/~dons/streams.html}.)
+
+  These theories contain a formalization of much of the Stream Fusion
+  library in HOLCF.  Lazy list and stream types are defined, along
+  with coercions between the two types, as well as an equivalence
+  relation for streams that generate the same list.  List and stream
+  versions of \texttt{map}, \texttt{filter}, \texttt{foldr},
+  \texttt{enumFromTo}, \texttt{append}, \texttt{zipWith}, and
+  \texttt{concatMap} are defined, and the stream versions are shown to
+  respect stream equivalence.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

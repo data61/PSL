@@ -1,0 +1,16 @@
+chapter AFP
+
+session "Ribbon_Proofs" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    More_Finite_Map
+    JHelper
+    Proofchain
+    Ribbons_Basic
+    Ribbons_Interfaces
+    Ribbons_Stratified
+    Ribbons_Graphical
+    Ribbons_Graphical_Soundness
+  document_files 
+    "root.tex"
+    "root.bib"
