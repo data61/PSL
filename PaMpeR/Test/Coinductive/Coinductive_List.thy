@@ -327,11 +327,11 @@ lemma shows lappend_lnull1: "lnull xs \<Longrightarrow> lappend xs ys = ys"
   and lappend_lnull2: "lnull ys \<Longrightarrow> lappend xs ys = xs"
 unfolding lnull_def by simp_all
 
-lemma lappend_assoc: "lappend (lappend xs ys) zs = lappend xs (lappend ys zs)"
+lemma lappend_assoc: "lappend (lappend xs ys) zs = lappend xs (lappend ys zs)" rank_method coinduction
 by(coinduction arbitrary: xs rule: llist.coinduct_strong) auto
 
 lemma lmap_lappend_distrib: 
-  "lmap f (lappend xs ys) = lappend (lmap f xs) (lmap f ys)"
+  "lmap f (lappend xs ys) = lappend (lmap f xs) (lmap f ys)"rank_method coinduction
 by(coinduction arbitrary: xs rule: llist.coinduct_strong) auto
 
 lemma lappend_snocL1_conv_LCons2: 
@@ -359,7 +359,7 @@ next
   thus ?lhs by induct simp_all
 qed
 
-lemma lappend_inf: "\<not> lfinite xs \<Longrightarrow> lappend xs ys = xs"
+lemma lappend_inf: "\<not> lfinite xs \<Longrightarrow> lappend xs ys = xs"rank_method coinduction
 by(coinduction arbitrary: xs) auto
 
 lemma lfinite_lmap [simp]:
@@ -434,7 +434,7 @@ lemma lprefix_coinduct [consumes 1, case_names lprefix, case_conclusion lprefix 
   shows "xs \<sqsubseteq> ys"
 proof -
   from major have "(xs, ys) \<in> {(xs, ys). P xs ys}" by simp
-  thus ?thesis
+  thus ?thesis rank_method coinduction
   proof(coinduct rule: lprefixI)
     case (lprefix xs ys)
     hence "P xs ys" by simp
@@ -443,7 +443,7 @@ proof -
   qed
 qed
 
-lemma lprefix_refl [intro, simp]: "xs \<sqsubseteq> xs" assert_nth_true 61
+lemma lprefix_refl [intro, simp]: "xs \<sqsubseteq> xs"
 by(coinduction arbitrary: xs) simp_all
 
 lemma lprefix_LNil [simp]: "xs \<sqsubseteq> LNil \<longleftrightarrow> lnull xs"

@@ -2950,7 +2950,7 @@ proof-
   thus ?thesis by fast
 qed
 
-lemma length_wall_crossings: "length (wall_crossings Cs) = length Cs - 1"assert_nth_true 58 assert_nth_false 57
+lemma length_wall_crossings: "length (wall_crossings Cs) = length Cs - 1"assert_nth_true 58
   by (induct Cs rule: list_induct_CCons) auto
 
 lemma wall_crossings_snoc:

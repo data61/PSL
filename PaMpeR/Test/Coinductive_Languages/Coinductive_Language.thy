@@ -60,10 +60,10 @@ primcorec Plus :: "'a language \<Rightarrow> 'a language \<Rightarrow> 'a langua
   "\<oo> (Plus r s) = (\<oo> r \<or> \<oo> s)"
 | "\<dd> (Plus r s) = (\<lambda>a. Plus (\<dd> r a) (\<dd> s a))"
 print_theorems
-theorem Plus_ZeroL[simp]: "Plus Zero r = r" which_method find_theorems name:"Plus"
+theorem Plus_ZeroL[simp]: "Plus Zero r = r" which_method find_theorems name:"Plus" rank_method intro_classes
   by (coinduction arbitrary: r) simp
 
-theorem Plus_ZeroR[simp]: "Plus r Zero = r"  which_method
+theorem Plus_ZeroR[simp]: "Plus r Zero = r"  which_method rank_method coinduction
   by (coinduction arbitrary: r) simp
 
 theorem Plus_assoc: "Plus (Plus r s) t = Plus r (Plus s t)"

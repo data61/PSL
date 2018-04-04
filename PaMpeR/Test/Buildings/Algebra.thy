@@ -144,7 +144,7 @@ begin
 
 sublocale nataction: power 0 plus .
 sublocale add_mult_translate: monoid_mult 0 plus ML_prf{* @{term class.monoid_mult} *} find_theorems name:"monoid_mult" name:"axiom" print_locales
-  assert_nth_true 44 by unfold_locales (auto simp add: add.assoc)
+  which_method rank_method unfold_locales assert_nth_true 44 by unfold_locales (auto simp add: add.assoc)
 
 abbreviation nataction :: "'a \<Rightarrow> nat \<Rightarrow> 'a" (infix "+^" 80)
   where "a+^n  \<equiv> nataction.power a n"

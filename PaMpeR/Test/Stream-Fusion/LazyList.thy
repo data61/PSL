@@ -12,7 +12,7 @@ where
   "mapL\<cdot>f\<cdot>LNil = LNil"
 | "mapL\<cdot>f\<cdot>(LCons\<cdot>x\<cdot>xs) = LCons\<cdot>(f\<cdot>x)\<cdot>(mapL\<cdot>f\<cdot>xs)"
 
-lemma mapL_strict [simp]: "mapL\<cdot>f\<cdot>\<bottom> = \<bottom>" assert_nth_true 75 assert_nth_true 76 assert_nth_true 77
+lemma mapL_strict [simp]: "mapL\<cdot>f\<cdot>\<bottom> = \<bottom>" assert_nth_true 75 assert_nth_true 76 assert_nth_true 77 assert_nth_false 78 assert_nth_false 79 assert_nth_false 80
 by fixrec_simp
 
 fixrec
