@@ -18,7 +18,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 ## Basic Commands
 - The keyword **strategy** defines a new strategy.
 - The keyword **find_proof** invokes PLS's runtime system searching for a proof based on a given strategy.
-- The keyword **try_hard** searches for a proof based on the default strategy. Upon success, it discharges the first fub-goal or all the sub-goals in a given proof obligation.
+- The keyword **try_hard** searches for a proof based on the default strategy. Upon success, it discharges the first sub-goal or all the sub-goals in a given proof obligation.
 - The keyword **try_hard_one** is similar to try_hard, but focuses only on the first sub-goal.
 - The keyword **try_hard_all** is similar to try_hard, but tries to discharge all sub-goals.
 - The keyword **try_parallel** is similar to try_hard, but exploits parallelism.
