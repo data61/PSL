@@ -110,11 +110,5 @@ end;
 ML{* Preprocess.print_all_meth_names ()*}
 
 ML{* Preprocess.preprocess () *}
-ML{*chop 2 [1,2,3];
-"~/shared/afp-2018-02-26_eval/thys/Incompleteness/Coding_Predicates.thy722 auto 1,0,0,0,1,1,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
-  |> space_explode " "
-  |> filter_out (fn x => x = " ")
 
-  |> (fn xs => (nth xs 0, [nth xs 2]));
-*}
 end
