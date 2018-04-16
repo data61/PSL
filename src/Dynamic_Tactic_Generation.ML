@@ -19,7 +19,7 @@ sig
   val  get_all_modifiers : Proof.state -> modifiers;
   (*mods_to_string should reorder parameters and remove duplicated modifier declarations.*)
   val  mods_to_string    : modifiers -> string;
-  val  reordered_mods    : modifiers -> modifiers list;
+  val  reordered_mods    : modifiers -> modifiers list;(*mostly for mathematical induction*)
 end;
 
 (*** DYNAMIC_TACTIC_GENERATOR: makes tactic-generator. ***)
