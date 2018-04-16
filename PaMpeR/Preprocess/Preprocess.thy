@@ -107,8 +107,6 @@ fun preprocess _ = (print_all_meth_names (); write_databases_for_all_lines (); (
 end;
 *}
 
-ML{* Preprocess.print_all_meth_names ()*}
-
 ML{* Preprocess.preprocess () *}
 
 end
