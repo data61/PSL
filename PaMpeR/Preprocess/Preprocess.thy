@@ -17,7 +17,6 @@ sig
   val preprocess: unit -> unit;
   val show_num_of_remaining_lines: bool;
   val parallel_preprocess: bool;
-  val all_method_names   : string list;
   val print_all_meth_names: unit -> unit;
 end;
 *}
@@ -38,6 +37,7 @@ val path              = Resources.master_directory @{theory} |> File.platform_pa
 val path_to_PaMpeR    = unsuffix "/Preprocess" path;
 val path_to_database  = path_to_PaMpeR ^ "/Build_Database/Database" : string;
 val path_to_databases = path_to_PaMpeR ^ "/Databases/" : string;
+val path_to_meth_names= path ^ "/method_names" : string;
 
 fun write_one_line_for_one_method (line:string) (method_name:string) =
   let
@@ -54,16 +54,6 @@ fun write_one_line_for_one_method (line:string) (method_name:string) =
 fun write_one_lines_for_given_methods (line:string) (method_names:string list) =
   map (write_one_line_for_one_method line) method_names;
 
-(*TODO: remove code duplication with PaMpeR_Interface.thy and Postprocess.thy.*)
-val all_method_names =
-  let
-    val bash_script = "while read line \n do echo $line | awk '{print $2;}' \n done < '" ^ path_to_database ^ "'" : string;
-    val bash_input  = Bash.process bash_script |> #out : string;
-    val dist_meth_names = bash_input |> String.tokens (fn c => c = #"\n") |> distinct  (op =);
-  in
-    dist_meth_names : string list
-  end;
-
 fun print_one_meth_name (meth_name:string) =
   let
     val bash_command = "echo -n '" ^ meth_name  ^ "\n' " ^ ">> " ^ path ^ "/method_names";
@@ -73,13 +63,30 @@ fun print_one_meth_name (meth_name:string) =
 
 fun print_all_meth_names _ =
   let
+    val all_method_names = (*TODO: remove code duplication with PaMpeR_Interface.thy and Postprocess.thy.*)
+      let
+        val bash_script = "while read line \n do echo $line | awk '{print $2;}' \n done < '" ^ path_to_database ^ "'" : string;
+        val bash_input  = Bash.process bash_script |> #out : string;
+        val dist_meth_names = bash_input |> String.tokens (fn c => c = #"\n") |> distinct  (op =);
+      in
+        dist_meth_names : string list
+      end;
     val bash_command = "rm " ^ path ^ "/method_names";
     val exit_int = Isabelle_System.bash (bash_command:string);
     val _ = if exit_int = 0 then () else tracing "print_all_meth_names failed! The bach returned a non-0 value.";
     val _ = map print_one_meth_name all_method_names;
   in () end;
 
-fun write_one_lines_for_all_methods (line:string) = write_one_lines_for_given_methods line all_method_names;
+fun read_all_meth_names _ =
+  let
+    val bash_script = "while read line \n do echo $line | awk '{print $2;}' \n done < '" ^ path_to_meth_names ^ "'" : string;
+    val bash_input  = Bash.process bash_script |> #out : string;
+    val dist_meth_names = bash_input |> String.tokens (fn c => c = #"\n") |> distinct  (op =);
+  in
+    dist_meth_names : string list
+  end;
+
+fun write_one_lines_for_all_methods (line:string) = write_one_lines_for_given_methods line (read_all_meth_names ());
 
 fun write_databases_for_given_lines_seq [] _ = []
  |  write_databases_for_given_lines_seq (line::lines:string list) _ =
