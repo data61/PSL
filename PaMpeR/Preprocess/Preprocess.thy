@@ -79,7 +79,7 @@ fun print_all_meth_names _ =
 
 fun read_all_meth_names _ =
   let
-    val bash_script = "while read line \n do echo $line | awk '{print $2;}' \n done < '" ^ path_to_meth_names ^ "'" : string;
+    val bash_script = "while read line \n do echo $line | awk '{print $1;}' \n done < '" ^ path_to_meth_names ^ "'" : string;
     val bash_input  = Bash.process bash_script |> #out : string;
     val dist_meth_names = bash_input |> String.tokens (fn c => c = #"\n") |> distinct  (op =);
   in
