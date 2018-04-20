@@ -23,7 +23,7 @@ fun (m liftM f) = Option.map f m;
 structure RT = Regression_Tree;
 
 val path = Resources.master_directory @{theory} |> File.platform_path : string;
-val path_to_meth_names = path ^ "/method_names": string;
+val path_to_meth_names = path ^ "/Preprocess/method_names": string;
 val path_to_rtree      = path ^ "/regression_trees.txt";
 
 (*all_method_names: The database has to be present in PSL/PaMpeR/.*)
