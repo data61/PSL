@@ -12,7 +12,7 @@ sig
   datatype csubtool =  CQuickcheck | CNitpick | CHammer;
   datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
                      | CSubgoal;
-  datatype cpgt      = CGeneralize;(*proof goal transformer*)
+  datatype cpgt      = CGeneralize | CConjecture;(*proof goal transformer*)
   datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
                      | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
   datatype cstatic = CSPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
@@ -44,7 +44,7 @@ struct
   datatype csubtool =  CQuickcheck | CNitpick | CHammer;
   datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
                      | CSubgoal;
-  datatype cpgt     =  CGeneralize;(*proof goal transformer*)
+  datatype cpgt     =  CGeneralize | CConjecture;(*proof goal transformer*)
   (*default tactics*)
   datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
                      | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
@@ -85,7 +85,8 @@ struct
        fun eval (CSttc str) goal = Utils.try_with mzero (eval_prim str) goal
          | eval (CDyn (CPGT str)) goal = (*TODO: remove the code duplication with the following clause.*)
            let
-             fun how_to_combine_results CGeneralize = Unique;
+             fun how_to_combine_results CGeneralize = Unique
+              |  how_to_combine_results CConjecture = Unique
              fun rm_useless First  results =
                  (Seq.filter (not o is_mzero) results |> Seq.hd handle Option.Option => mzero)
               |  rm_useless Unique results =
@@ -257,6 +258,7 @@ datatype str =
 | User of string
 (*pgt: proof goal transformer*)
 | Generalize
+| Conjecture
 (*para_str*)
 | ParaClarsimp
 | ParaSimp
@@ -332,6 +334,7 @@ datatype str =
 | User of string
 (*pgt: proof goal transformer*)
 | Generalize
+| Conjecture
 (*para_str*)
 | ParaClarsimp
 | ParaSimp
@@ -404,6 +407,7 @@ fun desugar Clarsimp        = prim CClarsimp
  |  desugar (User tac_name) = user tac_name
     (*pgt: proof goal transformer*)
  |  desugar Generalize      = pgtf CGeneralize
+ |  desugar Conjecture      = pgtf CConjecture
     (*para_str*)
  |  desugar ParaSimp        = dyna CSimp
  |  desugar ParaBlast       = dyna CBlast
@@ -569,7 +573,7 @@ fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
     Seq2.try_seq get_state_stttacs state : monad_tac seq
   end;
 
-(* eval_pgt *)
+(* eval_pgt  TODO: move this somewhere more suitable. *)
 structure Generalize_Seed: DYNAMIC_TACTIC_GENERATOR_SEED =
 struct
 
@@ -593,21 +597,58 @@ val reordered_mods = single o I;
 
 end;
 
-(*PGTG: Proof Goal Transformer Generator*)
-structure PGTG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Generalize_Seed);
+structure Conjecture_Seed: DYNAMIC_TACTIC_GENERATOR_SEED =
+struct
 
-fun pgtg_get_state_stttacs (state:Proof.state) =
+datatype modifier = GenGoal of string;
+
+type modifiers = modifier list;
+
+fun get_all_modifiers (state:Proof.state) =
   let
-    val all_modifiers  = PGTG.get_all_modifiers state : PGTG.modifiers;
-    val all_modifierss = map single all_modifiers |> Seq.of_list : PGTG.modifiers Seq.seq;
-    val stttacs        = Seq.map (PGTG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
+     val {context: Proof.context, facts: thm list, goal: thm} = Proof.goal state;
+     val conjecture_goals = conjecture_strs context goal: string list;
+     val modifiers = map GenGoal conjecture_goals: modifiers;
+  in
+    modifiers
+  end;
+
+fun mods_to_string [GenGoal gen_goal] = gen_goal
+ |  mods_to_string _                  = error "Generalize_Seed failed!"
+
+val reordered_mods = single o I;
+
+end;
+
+(* PGTGG: Proof Goal Transformer Generalize Generator TODO: move this somewhere more suitable. *)
+structure PGTGG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Generalize_Seed);
+
+fun pgtgg_get_state_stttacs (state:Proof.state) =
+  let
+    val all_modifiers  = PGTGG.get_all_modifiers state : PGTGG.modifiers;
+    val all_modifierss = map single all_modifiers |> Seq.of_list : PGTGG.modifiers Seq.seq;
+    val stttacs        = Seq.map (PGTGG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
   in
     stttacs : Proof.state stttac Seq.seq
   end;
 
-fun eval_pgt (_:MIC.cpgt) (state:Proof.state) = (*MIC.cpgt has only one possibility (CGeneralize).*)
-    Seq2.try_seq pgtg_get_state_stttacs state : monad_tac seq;
+(* PGTGG: Proof Goal Transformer Conjecture Generator TODO: move this somewhere more suitable. *)
+structure PGTCG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Conjecture_Seed);
+
+fun pgtcg_get_state_stttacs (state:Proof.state) =
+  let
+    val all_modifiers  = PGTCG.get_all_modifiers state : PGTCG.modifiers;
+    val all_modifierss = map single all_modifiers |> Seq.of_list : PGTCG.modifiers Seq.seq;
+    val stttacs        = Seq.map (PGTCG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
+    type 'a stttac = 'a Dynamic_Utils.stttac;
+  in
+    stttacs : Proof.state stttac Seq.seq
+  end;
+
+fun eval_pgt (MIC.CGeneralize:MIC.cpgt) (state:Proof.state) = Seq2.try_seq pgtgg_get_state_stttacs state : monad_tac seq
+ |  eval_pgt (MIC.CConjecture:MIC.cpgt) (state:Proof.state) = Seq2.try_seq pgtcg_get_state_stttacs state : monad_tac seq;
+
 (* m_equal *)
 fun m_equal (st_mona1:monad) (st_mona2:state MIC.monad) =
 (*Probably, I do not have to check the entire sequence in most cases.

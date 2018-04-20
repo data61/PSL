@@ -24,17 +24,27 @@ ML{* (* How to apply quickcheck to a raw thm? *)
 strategy Generalize_Test = Thens [Generalize, Fastforce, Dynamic(InductTac), Auto, IsSolved]
 strategy Generalize_Test2 = Thens [Clarsimp, IsSolved]
 strategy Generalize_Test3 = Generalize
+strategy Generalize_Test4 = Thens [Dynamic(Induct), Auto, IsSolved]
 
 lemma "True"
   find_proof Generalize_Test2
   oops
 
-lemma "((my_rev j) @@ k) @@ l = (my_rev j) @@ (k @@ l)"
-  find_proof Generalize_Test
-  apply(subgoal_tac"\<And>uu. (uu @@ k) @@ l = uu @@ k @@ l" )
+lemma "((my_rev j) @@ (my_rev k)) @@ (my_rev l) = (my_rev j) @@ ((my_rev k) @@ (my_rev l))"
+  (*find_proof Generalize_T est*)
+  apply(induct j arbitrary: k l)
    apply fastforce
-  apply(induct_tac uu)
   apply auto
-  done
+  oops
+
+primrec itrev:: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+ "itrev [] ys = ys" |
+ "itrev (x#xs) ys = itrev xs (x#ys)"
+
+strategy Generalize_Conjecture = Thens [Conjecture, Fastforce, Quickcheck, Dynamic(Induct), Auto, IsSolved]
+
+lemma original_goal:"itrev xs [] = rev xs"
+  find_proof Generalize_Conjecture
+  oops
 
 end
