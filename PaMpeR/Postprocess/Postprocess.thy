@@ -1,3 +1,9 @@
+(* Title:  Preprocess.thy
+   Author Yutaka Nagashima, CIIRC, CTU
+
+   This file assumes that you have build a Database in PSL/PaMpeR/Build_Database.
+   Furthermore, the bash script this file uses is tested on a Linux machine.
+*)
 theory Postprocess
 imports "Pure"
 begin
@@ -14,7 +20,7 @@ val path             = Resources.master_directory @{theory} |> File.platform_pat
 val path_to_PaMpeR   = unsuffix "/Postprocess" path;
 val path_to_all_meth_names = path_to_PaMpeR ^ "/Preprocess/method_names": string;
 val path_to_Database = path_to_PaMpeR ^ "/Build_Database/Database":string;
-val eval_file        = path_to_PaMpeR ^ "/Evaluation/evaluation.txt";
+val eval_file        = path_to_PaMpeR ^ "/Evaluate_ASE/evaluation_success.txt";
 fun thr_dig (r:real) = ((r * 1000.0) |> Real.round |> Real.fromInt |> (fn x => x / 10.0)):real;
 fun two_dig (r:real) = ((r * 1000.0) |> Real.round |> Real.fromInt |> (fn x => x / 10.0) |> Real.round):int;
 val datasize_real    = proc ("wc " ^ path_to_Database ^ " | awk '{print $1;}'")
@@ -60,9 +66,9 @@ fun postprocess_one_meth' (n:int) (mname:string) =
       then map the maybe_numbs
       else (tracing ("postprocess_all_meths partially failed. Some Nones were detected for " ^ mname);[]):int list;
     val numbs_strs = map Int.toString numbs: string list;
-    val total_occr = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
+    val total_occr = proc ("grep '\\b" ^ mname ^ "\\b' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
     val eval_occr  = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
-    val total_real_train = proc ("grep '^" ^ mname ^ "\\s' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
+    val total_real_train = proc ("grep '\\b" ^ mname ^ "\\b' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
     val total_real_test = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
     val freqency_train = thr_dig (total_real_train / datasize_real) |> Real.toString: string;
     val frequency_test = thr_dig (total_real_test /  testsize_real) |> Real.toString: string;
@@ -87,6 +93,6 @@ ML{*
 postprocess ();
 *}
 
-(* Consider using sort -k2 -nr eval_result.txt *)
+(* Consider using sort -k3q -nr eval_result.txt *)
 
 end
