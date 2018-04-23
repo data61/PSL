@@ -12,7 +12,7 @@ let
 val proc             = Bash.process;
 val path             = Resources.master_directory @{theory} |> File.platform_path : string;
 val path_to_PaMpeR   = unsuffix "/Postprocess" path;
-val path_to_all_meth_names = path_to_PaMpeR ^ "/method_names": string;
+val path_to_all_meth_names = path_to_PaMpeR ^ "/Preprocess/method_names": string;
 val path_to_Database = path_to_PaMpeR ^ "/Build_Database/Database":string;
 val eval_file        = path_to_PaMpeR ^ "/Evaluation/evaluation.txt";
 fun thr_dig (r:real) = ((r * 1000.0) |> Real.round |> Real.fromInt |> (fn x => x / 10.0)):real;
