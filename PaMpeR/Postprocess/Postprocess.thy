@@ -2,7 +2,7 @@
    Author Yutaka Nagashima, CIIRC, CTU
 
    This file assumes that you have build a Database in PSL/PaMpeR/Build_Database.
-   Furthermore, the bash script this file uses is tested on a Linux machine.
+   And PSL/PaMpeR/Build_Database/Database is used for the training.
 *)
 theory Postprocess
 imports "Pure"
