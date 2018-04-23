@@ -26,7 +26,7 @@ val path = Resources.master_directory @{theory} |> File.platform_path : string;
 val path_to_meth_names = path ^ "/Preprocess/method_names": string;
 val path_to_rtree      = path ^ "/regression_trees.txt";
 
-(*all_method_names: The database has to be present in PSL/PaMpeR/.*)
+(*all_method_names: The database has to be present in PSL/PaMpeR/Preprocess.*)
 val all_method_names =
   let
     val bash_script     = "while read line; do echo -e \"$line\n\"; done <" ^ path_to_meth_names : string;
@@ -260,10 +260,11 @@ fun get_top_methods (pstate:Proof.state) =
       let
         val top = get_top_result' ("auto", 0.0) meth_names : (string * real);
         val exp_str = top |> snd |>  Real.toString;
-        val _ = tracing ("A promising method is " ^ fst top ^ " with expectation of " ^ exp_str);
+        val _ = tracing ("  " ^ fst top ^ " with expectation of " ^ exp_str);
       in
         remove (op =) (fst top) meth_names
       end;
+    val _ = tracing "Promising methods for this proof goal are:"
     (*TODO: better if I use Lazy Sequence here?*)
     val _ =
        get_top_result all_method_names |> (fn (wo_1) =>
