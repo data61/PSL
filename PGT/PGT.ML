@@ -160,12 +160,13 @@ fun conjecture_strs (ctxt:Proof.context) (goal:thm) =
    val fst_subg = Isabelle_Utils.get_1st_subg goal |> the: term;
    val consts = Term.add_consts fst_subg [] |> map Const;
    val dup_subtrms = get_subtrms fst_subg |> duplicates (op =): term list;
-   val abstracteds = distinct (op =) (consts @ dup_subtrms);
+   val abstracteds = distinct (op =) (consts @ dup_subtrms): term list;
    val generalizeds = map (generalize_trm ctxt fst_subg) abstracteds: term list;
-   val conjectures = map (conjecture ctxt) generalizeds |> flat |> distinct (op =): term list;
-   val checked_cnjcts = List.mapPartial ((try o Syntax.check_term) ctxt) conjectures: term list;
+   val conjectures = map (conjecture ctxt) (fst_subg::generalizeds) |> flat |> distinct (op =): term list;
+   val checked_cnjcts = List.mapPartial ((try o Syntax.check_term) ctxt) (conjectures): term list;
    val cnjct_strs  = map (trm_to_string ctxt) checked_cnjcts: string list;
    val subgoals = map (fn x => " \"" ^ x ^ "\"") cnjct_strs;
+   val _ = tracing ("PGT creates " ^ Int.toString (length subgoals) ^ " conjectures.");
  in
    subgoals:string list
  end;
