@@ -1,4 +1,4 @@
-- **_Dear ITP2018 reviewers, our submission artifacts for ITP2018 reside in the [release v0.1 PaMpeR:ITP2018](https://github.com/data61/PSL/releases/tag/v0.1), not here._**
+- **_Dear CICM2018 reviewers, our Proof Goal Transformer (PGT) for CICM2018 resides in [the PGT branch](https://github.com/data61/PSL/tree/PGT), not here._**
 - **This branch is under active development. Please use [release v0.1 PaMpeR:ITP2018](https://github.com/data61/PSL/releases/tag/v0.1), which is the latest stable version.**
 - **This branch PaMpeR contains a Proof Method Recommendation system, PaMpeR. Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
 - **More information is provided in PSL/PaMpeR/README.md.**
