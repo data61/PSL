@@ -1,5 +1,40 @@
-- [ ] `TIP_prop_01`:    
-- [ ] `TIP_prop_02`:
+- [X] `TIP_prop_01`: `"x (take n xs) (drop n xs) = xs"`
+   - =
+      - x_fun(1,2,)
+         - take_fun(1,2,)
+            - n_data
+            - xs_data 
+         - drop_fun(1,2,)
+            - n_data
+            - xs_data
+      - xs_data
+   - good: `induct      rule: drop.induct`
+   - good: `induct xs   rule: drop.induct`
+   - good: `induct n xs rule: drop.induct`
+   - good: `induct      rule: take.induct`
+   - good: `induct xs   rule: take.induct`
+   - good: `induct n xs rule: take.induct`
+   - bad:  `induct xs n rule: take.induct`
+   - bad:  `induct n    rule: take.induct`
+   - bad:  `induct xs n rule: drop.induct`
+   - bad:  `induct n    rule: drop.induct`
+- [ ] `TIP_prop_02`: `t2 (count n xs) (count n ys) = count n (y xs ys)`
+   - =
+      - t2_fun(1,,2)
+         - count_fun(2,,1)
+            - n_data
+            - xs_data
+         - count_fun(2,,1)
+            - n_data
+            - ys_data
+      - count_fun(2,,1)
+         - n_data
+         - y_fun(1,,2)
+            - xs_data
+            - ys_data
+   - good: `induct xs`
+   - good: `induct xs arbitrary n`
+   - good: `induct xs arbitrary n ys`
 - [ ] `TIP_prop_03`:
 - [ ] `TIP_prop_04`:
 - [ ] `TIP_prop_05`:
