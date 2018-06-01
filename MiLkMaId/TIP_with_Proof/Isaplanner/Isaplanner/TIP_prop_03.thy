@@ -37,6 +37,7 @@ fun t2 :: "Nat => Nat => bool" where
 
 theorem property0 :
   "t2 (count n xs) (count n (y xs ys))"
+  find_proof DInd
   (*Why induction on xs?
     Because the innermost recursively defined constant "y" is defined recursively on the
     first parameter, which is "xs" in this case.

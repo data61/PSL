@@ -1,33 +1,33 @@
-- [ ] `TIP_prop_01.thy`:
-- [ ] `TIP_prop_02.thy`:
-- [ ] `TIP_prop_03.thy`:
-- [ ] `TIP_prop_04.thy`:
-- [ ] `TIP_prop_05.thy`:
-- [ ] `TIP_prop_06.thy`:
-- [ ] `TIP_prop_07.thy`:
-- [ ] `TIP_prop_08.thy`:
-- [ ] `TIP_prop_09.thy`:
-- [ ] `TIP_prop_10.thy`:
-- [ ] `TIP_prop_11.thy`:
-- [ ] `TIP_prop_12.thy`:
-- [ ] `TIP_prop_13.thy`:
-- [ ] `TIP_prop_14.thy`:
-- [ ] `TIP_prop_15.thy`:
-- [ ] `TIP_prop_16.thy`:
-- [ ] `TIP_prop_17.thy`:
-- [ ] `TIP_prop_18.thy`:
-- [ ] `TIP_prop_19.thy`:
-- [ ] `TIP_prop_20.thy`:
-- [ ] `TIP_prop_21.thy`:
-- [ ] `TIP_prop_22.thy`:
-- [ ] `TIP_prop_23.thy`:
-- [ ] `TIP_prop_24.thy`:
-- [ ] `TIP_prop_25.thy`:
-- [ ] `TIP_prop_26.thy`:
-- [ ] `TIP_prop_27.thy`:
-- [ ] `TIP_prop_28.thy`:
-- [ ] `TIP_prop_29.thy`:
-- [ ] `TIP_prop_30.thy`:
+- [X] `TIP_prop_01.thy`:
+- [X] `TIP_prop_02.thy`:
+- [X] `TIP_prop_03.thy`:
+- [X] `TIP_prop_04.thy`:
+- [X] `TIP_prop_05.thy`:
+- [X] `TIP_prop_06.thy`:
+- [X] `TIP_prop_07.thy`:
+- [X] `TIP_prop_08.thy`:
+- [X] `TIP_prop_09.thy`:
+- [X] `TIP_prop_10.thy`:
+- [X] `TIP_prop_11.thy`:
+- [X] `TIP_prop_12.thy`:
+- [X] `TIP_prop_13.thy`:
+- [X] `TIP_prop_14.thy`:
+- [X] `TIP_prop_15.thy`:
+- [X] `TIP_prop_16.thy`:
+- [X] `TIP_prop_17.thy`:
+- [X] `TIP_prop_18.thy`:
+- [X] `TIP_prop_19.thy`:
+- [X] `TIP_prop_20.thy`:
+- [X] `TIP_prop_21.thy`:
+- [X] `TIP_prop_22.thy`:
+- [X] `TIP_prop_23.thy`:
+- [X] `TIP_prop_24.thy`:
+- [X] `TIP_prop_25.thy`:
+- [X] `TIP_prop_26.thy`:
+- [X] `TIP_prop_27.thy`:
+- [X] `TIP_prop_28.thy`:
+- [X] `TIP_prop_29.thy`:
+- [X] `TIP_prop_30.thy`:
 - [ ] `TIP_prop_31.thy`:
 - [ ] `TIP_prop_32.thy`:
 - [ ] `TIP_prop_33.thy`:

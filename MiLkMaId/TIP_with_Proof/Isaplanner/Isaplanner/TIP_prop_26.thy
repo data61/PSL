@@ -31,7 +31,28 @@ fun elem :: "Nat => Nat list => bool" where
 
 theorem property0 :
   "((elem z xs) ==> (elem z (y xs ys)))"
+  find_proof DInd
+  apply (induct arbitrary: ys rule: elem.induct)
+  apply auto
+  done 
+
+theorem property0' :
+  "((elem z xs) ==> (elem z (y xs ys)))"
+  (*Why induction on "xs"?
+    Because "elem" is the only recursive function in the premise, which pattern-matches on the 
+    second parameter, which is "xs" in this case.
+    Furthermore, the innermost recursive function "y" is pattern-matches on the first parameter,
+    which is "xs" in this case.*)
   apply(induct xs)
-  by auto
+  apply auto
+  done
+
+theorem property0 :
+  "((elem z xs) ==> (elem z (y xs ys)))"
+  apply (induct arbitrary: ys rule: y.induct)
+   apply (induct z)
+  apply(induct_tac y2)
+  nitpick
+  oops
 
 end

@@ -7,7 +7,7 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_27
+theory TIP_prop_27
   imports "../../Test_Base"
 begin
 
@@ -30,9 +30,10 @@ fun elem :: "Nat => Nat list => bool" where
 | "elem z (cons2 z2 xs) = (if x z z2 then True else elem z xs)"
 
 theorem property0 :
-  "((elem z ys) ==> (elem z (y xs ys)))"
+  "((elem z ys) ==> (elem z (y xs ys)))"(*This problem is very similar to TIP_prop_26.thy*)
+  find_proof DInd
   apply (induct arbitrary: ys rule: TIP_prop_27.elem.induct)
-  apply auto
-  done 
+   apply auto
+  done
 
 end

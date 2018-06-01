@@ -27,6 +27,33 @@ theorem property0 :
   find_proof DInd
   apply (induct arbitrary: n rule: TIP_prop_08.t22.induct)
    apply auto
-  done 
+  done
+
+theorem property0' :
+  "((t2 (t22 k m) (t22 k n)) = (t2 m n))"
+  apply(induct k arbitrary:n m)(*equivalent to apply (induct arbitrary: n rule: TIP_prop_08.t22.induct)*)
+   apply auto
+  done
+
+theorem property0'' :
+  "((t2 (t22 k m) (t22 k n)) = (t2 m n))"
+  (*applying induction on "k" is the natural choice:
+    "t22" is the unique innermost recursive constant, which pattern-matches on the first parameter.
+    Furthermore, the other recursive function, "t2" takes "t22" in its arguments, and
+    the two "t22"s have different arguments ("m" and "n"). Therefore, without applying induction on
+    "t22"'s argument we cannot finish this proof.*)
+  apply(induct k)
+   apply auto
+  done
+
+theorem property0''' :(*sub-optimal proof*)
+  "((t2 (t22 k m) (t22 k n)) = (t2 m n))"
+  apply(induct m)
+   apply clarsimp
+   apply(induct k)(*extra induction*)
+    apply fastforce+
+  apply(induct k)(*extra induction*)
+   apply auto
+  done
 
 end

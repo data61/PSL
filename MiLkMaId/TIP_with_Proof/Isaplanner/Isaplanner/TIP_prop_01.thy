@@ -31,6 +31,7 @@ fun drop :: "Nat => 'a list => 'a list" where
 
 theorem property0 :
   "x (take n xs) (drop n xs) = xs"
+  find_proof DInd
   (*"induct rule:take.induct also works well.*)
   (*Because take.induct and drop.induct are identical.*)
   (*why "induct rule:take.induct" or "induct rule:drop.induct"?
