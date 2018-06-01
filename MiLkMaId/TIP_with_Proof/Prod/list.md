@@ -35,27 +35,27 @@
    - good: `induct xs`
    - good: `induct xs arbitrary n`
    - good: `induct xs arbitrary n ys`
-- [ ] `TIP_prop_03`:
-- [ ] `TIP_prop_04`:
-- [ ] `TIP_prop_05`:
-- [ ] `TIP_prop_06`:
-- [ ] `TIP_prop_07`:
-- [ ] `TIP_prop_08`:
-- [ ] `TIP_prop_09`:
-- [ ] `TIP_prop_10`:
-- [ ] `TIP_prop_11`:
-- [ ] `TIP_prop_12`:
-- [ ] `TIP_prop_13`:
-- [ ] `TIP_prop_14`:
-- [ ] `TIP_prop_15`:
-- [ ] `TIP_prop_16`:
-- [ ] `TIP_prop_17`:
-- [ ] `TIP_prop_18`:
-- [ ] `TIP_prop_19`:
+- [X] `TIP_prop_03`:
+- [X] `TIP_prop_04`:
+- [X] `TIP_prop_05`:
+- [X] `TIP_prop_06`:
+- [X] `TIP_prop_07`:
+- [X] `TIP_prop_08`:
+- [X] `TIP_prop_09`:
+- [X] `TIP_prop_10`:
+- [X] `TIP_prop_11`:
+- [X] `TIP_prop_12`:
+- [X] `TIP_prop_13`:
+- [X] `TIP_prop_14`:
+- [X] `TIP_prop_15`:
+- [X] `TIP_prop_16`:
+- [X] `TIP_prop_17`:
+- [X] `TIP_prop_18`:
+- [X] `TIP_prop_19`:
 - [ ] `TIP_prop_20`:
-- [ ] `TIP_prop_21`:
-- [ ] `TIP_prop_22`:
-- [ ] `TIP_prop_23`:
+- [X] `TIP_prop_21`:
+- [X] `TIP_prop_22`:
+- [X] `TIP_prop_23`:
 - [ ] `TIP_prop_24`:
 - [ ] `TIP_prop_25`:
 - [ ] `TIP_prop_26`:
