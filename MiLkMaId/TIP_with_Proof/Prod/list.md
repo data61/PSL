@@ -60,7 +60,7 @@
 - [ ] `TIP_prop_25`:
 - [ ] `TIP_prop_26`:
 - [X] `TIP_prop_27`:
-- [ ] `TIP_prop_28`:
+- [X] `TIP_prop_28`:
 - [ ] `TIP_prop_29`:
 - [ ] `TIP_prop_30`:
 - [ ] `TIP_prop_31`:
