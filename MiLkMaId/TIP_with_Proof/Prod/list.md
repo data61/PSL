@@ -1,0 +1,85 @@
+- [X] `TIP_prop_01`: `"x (take n xs) (drop n xs) = xs"`
+   - =
+      - x_fun(1,2,)
+         - take_fun(1,2,)
+            - n_data
+            - xs_data 
+         - drop_fun(1,2,)
+            - n_data
+            - xs_data
+      - xs_data
+   - good: `induct      rule: drop.induct`
+   - good: `induct xs   rule: drop.induct`
+   - good: `induct n xs rule: drop.induct`
+   - good: `induct      rule: take.induct`
+   - good: `induct xs   rule: take.induct`
+   - good: `induct n xs rule: take.induct`
+   - bad:  `induct xs n rule: take.induct`
+   - bad:  `induct n    rule: take.induct`
+   - bad:  `induct xs n rule: drop.induct`
+   - bad:  `induct n    rule: drop.induct`
+- [ ] `TIP_prop_02`: `t2 (count n xs) (count n ys) = count n (y xs ys)`
+   - =
+      - t2_fun(1,,2)
+         - count_fun(2,,1)
+            - n_data
+            - xs_data
+         - count_fun(2,,1)
+            - n_data
+            - ys_data
+      - count_fun(2,,1)
+         - n_data
+         - y_fun(1,,2)
+            - xs_data
+            - ys_data
+   - good: `induct xs`
+   - good: `induct xs arbitrary n`
+   - good: `induct xs arbitrary n ys`
+- [ ] `TIP_prop_03`:
+- [ ] `TIP_prop_04`:
+- [ ] `TIP_prop_05`:
+- [ ] `TIP_prop_06`:
+- [ ] `TIP_prop_07`:
+- [ ] `TIP_prop_08`:
+- [ ] `TIP_prop_09`:
+- [ ] `TIP_prop_10`:
+- [ ] `TIP_prop_11`:
+- [ ] `TIP_prop_12`:
+- [ ] `TIP_prop_13`:
+- [ ] `TIP_prop_14`:
+- [ ] `TIP_prop_15`:
+- [ ] `TIP_prop_16`:
+- [ ] `TIP_prop_17`:
+- [ ] `TIP_prop_18`:
+- [ ] `TIP_prop_19`:
+- [ ] `TIP_prop_20`:
+- [ ] `TIP_prop_21`:
+- [ ] `TIP_prop_22`:
+- [ ] `TIP_prop_23`:
+- [ ] `TIP_prop_24`:
+- [ ] `TIP_prop_25`:
+- [ ] `TIP_prop_26`:
+- [ ] `TIP_prop_27`:
+- [ ] `TIP_prop_28`:
+- [ ] `TIP_prop_29`:
+- [ ] `TIP_prop_30`:
+- [ ] `TIP_prop_31`:
+- [ ] `TIP_prop_32`:
+- [ ] `TIP_prop_33`:
+- [ ] `TIP_prop_34`:
+- [ ] `TIP_prop_35`:
+- [ ] `TIP_prop_36`:
+- [ ] `TIP_prop_37`:
+- [ ] `TIP_prop_38`:
+- [ ] `TIP_prop_39`:
+- [ ] `TIP_prop_40`:
+- [ ] `TIP_prop_41`:
+- [ ] `TIP_prop_42`:
+- [ ] `TIP_prop_43`:
+- [ ] `TIP_prop_44`:
+- [ ] `TIP_prop_45`:
+- [ ] `TIP_prop_46`:
+- [ ] `TIP_prop_47`:
+- [ ] `TIP_prop_48`:
+- [ ] `TIP_prop_49`:
+- [ ] `TIP_prop_50`:
