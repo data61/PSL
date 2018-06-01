@@ -7,7 +7,7 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_23
+theory TIP_prop_23
   imports "../../Test_Base"
 begin
 
@@ -23,18 +23,37 @@ theorem property0 :
   (*why "induct a arbitrary: b" rather than "induct b arbitrary: a"?
     \<rightarrow> both work well.*)
   apply(induct a arbitrary: b)
+   apply(induct_tac b)(*"case_tac" works well. See below.*)
+    apply fastforce+
+  apply(induct_tac b)(*"case_tac" works well. See below.*)
+   apply fastforce+
+  done
+
+theorem property0' :
+  "((max a b) = (max b a))"
+  apply(induct a arbitrary: b)
    apply (case_tac b)
     apply fastforce+
   apply (case_tac b)
    apply fastforce+
   done
-    (*
+
+theorem property0'' :
+  "((max a b) = (max b a))"
+  apply(induct b arbitrary: a)
+   apply (induct_tac a)
+    apply fastforce+
+  apply (induct_tac a)
+   apply fastforce+
+  done
+
+theorem property0''' :
+  "((max a b) = (max b a))"
   apply(induct b arbitrary: a)
    apply (case_tac a)
     apply fastforce+
   apply (case_tac a)
    apply fastforce+
   done
-*)
 
 end

@@ -7,23 +7,37 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_07
-imports "../../Test_Base"
+theory TIP_prop_07
+  imports "../../Test_Base"
 begin
 
 datatype Nat = Z | S "Nat"
 
 fun t22 :: "Nat => Nat => Nat" where
-"t22 (Z) y = y"
+  "t22 (Z) y = y"
 | "t22 (S z) y = S (t22 z y)"
 
 fun t2 :: "Nat => Nat => Nat" where
-"t2 (Z) y = Z"
+  "t2 (Z) y = Z"
 | "t2 (S z) (Z) = S z"
 | "t2 (S z) (S x2) = t2 z x2"
 
 theorem property0 :
   "((t2 (t22 n m) n) = m)"
-  oops
+  apply(induct n)
+   apply(subst t22.simps)
+   apply(induct m)
+    apply auto
+  done
+
+theorem
+  "((t2 (t22 n m) n) = m)"
+  apply(induct n arbitrary: m)
+   apply(subst t22.simps)
+   apply(induct m)
+    apply auto
+  apply(induct_tac m)
+   apply auto
+  done
 
 end

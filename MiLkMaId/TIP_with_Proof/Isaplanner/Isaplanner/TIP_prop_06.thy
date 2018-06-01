@@ -24,6 +24,8 @@ fun t2 :: "Nat => Nat => Nat" where
 
 theorem property0 :
   "((t2 n (t22 n m)) = Z)"
-  oops
-
+  find_proof DInd
+  apply (induct n (*arbitrary: m*))
+  apply auto
+  done 
 end

@@ -7,7 +7,7 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_02
+theory TIP_prop_02
   imports "../../Test_Base"
 begin
 
@@ -35,8 +35,8 @@ fun t2 :: "Nat => Nat => Nat" where
 | "t2 (S z2) y2 = S (t2 z2 y2)"
 
 theorem property0 :
-  "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
-  apply(induct xs)
+  "t2 (count n xs) (count n ys) = count n (y xs ys)"
+  apply(induct xs arbitrary:n ys)
    apply(subst y.simps(1))
    apply(subst count.simps(1))
    apply(subst t2.simps(1))
@@ -57,20 +57,26 @@ theorem property0' :
   oops
 
 (*alternative proof*)
-theorem property1 :
+theorem property0'' :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
-  apply (induct xs arbitrary: ys rule: count.induct)
- (*Why "count.induct" not "y.induct"?
+  apply (induct xs arbitrary: n ys rule: count.induct)
+    (*Why "count.induct" not "y.induct"?
    Because "(induct rule: y.induct)" leads to a non-theorem.
    Because "y" is under another "recursive" function ("count")?*)
- (*"xs" in "induct xs" here is removable.*)
- (*Why "induct xs" (why induction on xs)?
+    (*"xs" in "induct xs" here is removable.*)
+    (*Why "induct xs" (why induction on xs)?
    Because two innermost recursive constants ("count" in "count n xs" and "y" in "y xs ys")
    is recursively defined on "xs". *)
- (*Why "arbitrary: ys", "arbitrary: n", "arbitrary: ys n", or "arbitrary: n ys"?
+    (*Why "arbitrary: ys", "arbitrary: n", "arbitrary: ys n", or "arbitrary: n ys"?
    Because of "n" and "ys" in "count n ys".
    This "count" is also the innermost recursive constant, but we induct on "xs".*)
    apply auto
   done
+
+theorem property0''' :
+  "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
+  apply(induct rule:y.induct)
+  nitpick
+  oops
 
 end
