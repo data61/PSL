@@ -7,19 +7,24 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_32
-imports "../../Test_Base"
+theory TIP_prop_32
+  imports "../../Test_Base"
 begin
 
 datatype Nat = Z | S "Nat"
 
 fun min :: "Nat => Nat => Nat" where
-"min (Z) y = Z"
+  "min (Z) y = Z"
 | "min (S z) (Z) = Z"
 | "min (S z) (S y1) = S (min z y1)"
 
-theorem property0 :
+theorem property0 :(* Similar to TIP_prop_23.thy *)
   "((min a b) = (min b a))"
-  oops
+  apply(induct a arbitrary:b)
+   apply(case_tac b)
+    apply fastforce+
+  apply(case_tac b)
+   apply fastforce+
+  done
 
 end

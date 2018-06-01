@@ -18,8 +18,11 @@ fun takeWhile :: "('a => bool) => 'a list => 'a list" where
 | "takeWhile x (cons2 z xs) =
      (if x z then cons2 z (takeWhile x xs) else nil2)"
 
-theorem property0 :
+theorem property0 :(* Similar to TIP_prop_36 *)
   "((takeWhile (% (x :: 'a) => True) xs) = xs)"
-  oops
+  find_proof DInd
+  apply (induct xs)(*xs is optional*)
+  apply auto
+  done 
 
 end

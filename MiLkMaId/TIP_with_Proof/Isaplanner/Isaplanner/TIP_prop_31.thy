@@ -18,8 +18,20 @@ fun min :: "Nat => Nat => Nat" where
 | "min (S z) (Z) = Z"
 | "min (S z) (S y1) = S (min z y1)"
 
+theorem property0 :(* Similar to TIP_prop_22.thy *)
+  "((min (min a b) c) = (min a (min b c)))"
+  apply(induct a arbitrary: b c)
+   apply fastforce
+  apply(induct_tac b)
+   apply fastforce
+  apply(case_tac c)(*This can be case_tac*)
+   apply fastforce+
+  done
+
 theorem property0 :
   "((min (min a b) c) = (min a (min b c)))"
+  apply(induct rule:min.induct)
+  nitpick
   oops
 
 end

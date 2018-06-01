@@ -36,7 +36,8 @@ theorem property0 :
    *)
   apply(induct_tac b)
    apply fastforce
-  apply(induct_tac c)(*Despite the warning "Induction variable occurs also among premises: "c"", it works.*)
+  apply(induct_tac c)(*This can be case_tac*)
+  (*Despite the warning "Induction variable occurs also among premises: "c"", it works.*)
   apply fastforce+
   done
 

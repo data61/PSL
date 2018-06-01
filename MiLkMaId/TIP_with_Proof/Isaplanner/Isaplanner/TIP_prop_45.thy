@@ -21,8 +21,18 @@ fun zip :: "'a list => 'b list => (('a, 'b) pair) list" where
 | "zip (cons2 z x2) (cons2 x3 x4) = cons2 (pair2 z x3) (zip x2 x4)"
 
 theorem property0 :
-  "((zip (cons2 x xs) (cons2 y ys)) =
-      (cons2 (pair2 x y) (zip xs ys)))"
-  oops
+  "((zip (cons2 x xs) (cons2 y ys)) = (cons2 (pair2 x y) (zip xs ys)))"
+  find_proof DInd
+  apply (induct arbitrary: xs)
+  apply auto
+  done
+
+theorem property0' :
+  "((zip (cons2 x xs) (cons2 y ys)) = (cons2 (pair2 x y) (zip xs ys)))"
+  (*Why "induct xs"?
+    Because of "(zip xs ys)" on the right-hand side.*)
+  apply (induct xs)
+  apply auto
+  done 
 
 end

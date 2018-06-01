@@ -28,21 +28,21 @@
 - [X] `TIP_prop_28.thy`:
 - [X] `TIP_prop_29.thy`:
 - [X] `TIP_prop_30.thy`:
-- [ ] `TIP_prop_31.thy`:
-- [ ] `TIP_prop_32.thy`:
-- [ ] `TIP_prop_33.thy`:
-- [ ] `TIP_prop_34.thy`:
-- [ ] `TIP_prop_35.thy`:
-- [ ] `TIP_prop_36.thy`:
-- [ ] `TIP_prop_37.thy`:
-- [ ] `TIP_prop_38.thy`:
-- [ ] `TIP_prop_39.thy`:
-- [ ] `TIP_prop_40.thy`:
-- [ ] `TIP_prop_41.thy`:
-- [ ] `TIP_prop_42.thy`:
-- [ ] `TIP_prop_43.thy`:
-- [ ] `TIP_prop_44.thy`:
-- [ ] `TIP_prop_45.thy`:
+- [X] `TIP_prop_31.thy`:
+- [X] `TIP_prop_32.thy`:
+- [X] `TIP_prop_33.thy`:
+- [X] `TIP_prop_34.thy`:
+- [X] `TIP_prop_35.thy`:
+- [X] `TIP_prop_36.thy`:
+- [X] `TIP_prop_37.thy`:
+- [X] `TIP_prop_38.thy`:
+- [X] `TIP_prop_39.thy`:
+- [X] `TIP_prop_40.thy`:
+- [X] `TIP_prop_41.thy`:
+- [X] `TIP_prop_42.thy`:
+- [X] `TIP_prop_43.thy`:
+- [X] `TIP_prop_44.thy`:
+- [X] `TIP_prop_45.thy`:
 - [ ] `TIP_prop_46.thy`:
 - [ ] `TIP_prop_47.thy`:
 - [ ] `TIP_prop_48.thy`:

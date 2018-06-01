@@ -7,8 +7,8 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_47
-imports "../../Test_Base"
+theory TIP_prop_47
+  imports "../../Test_Base"
 begin
 
 datatype 'a Tree = Leaf | Node "'a Tree" "'a" "'a Tree"
@@ -16,16 +16,16 @@ datatype 'a Tree = Leaf | Node "'a Tree" "'a" "'a Tree"
 datatype Nat = Z | S "Nat"
 
 fun mirror :: "'a Tree => 'a Tree" where
-"mirror (Leaf) = Leaf"
+  "mirror (Leaf) = Leaf"
 | "mirror (Node l y r) = Node (mirror r) y (mirror l)"
 
 fun max :: "Nat => Nat => Nat" where
-"max (Z) y = y"
+  "max (Z) y = y"
 | "max (S z) (Z) = S z"
 | "max (S z) (S x2) = S (max z x2)"
 
 fun height :: "'a Tree => Nat" where
-"height (Leaf) = Z"
+  "height (Leaf) = Z"
 | "height (Node l y r) = S (max (height l) (height r))"
 
 theorem property0 :

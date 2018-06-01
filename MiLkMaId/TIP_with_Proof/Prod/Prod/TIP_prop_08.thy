@@ -7,7 +7,7 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_08
+theory TIP_prop_08
   imports "../../Test_Base"
 begin
 

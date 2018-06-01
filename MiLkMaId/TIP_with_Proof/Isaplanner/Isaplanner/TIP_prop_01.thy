@@ -29,20 +29,20 @@ fun drop :: "Nat => 'a list => 'a list" where
 | "drop (S z2) (nil2) = nil2"
 | "drop (S z2) (cons2 x2 x3) = drop z2 x3"
 
-theorem property0 :
+theorem property0 :(*Probably the best proof.*)
   "x (take n xs) (drop n xs) = xs"
   find_proof DInd
   (*"induct rule:take.induct also works well.*)
   (*Because take.induct and drop.induct are identical.*)
   (*why "induct rule:take.induct" or "induct rule:drop.induct"?
-    Because the definitions of the innermost recursively defined constants ("take" and "drop") 
+    Because all the definitions of the innermost recursively defined constants ("take" and "drop") 
     produce the same rule. *)
   (*Why induction on xs?*)
   apply (induct xs rule: TIP_prop_01.drop.induct)
     apply auto
   done
 
-theorem property0':
+theorem property0'(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on n might look promising in the first try
     since both "take" and "drop" are defined recursively on the first argument, but...*)

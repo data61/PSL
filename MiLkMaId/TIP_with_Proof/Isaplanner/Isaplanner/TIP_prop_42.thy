@@ -7,8 +7,8 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_42
-imports "../../Test_Base"
+theory TIP_prop_42
+  imports "../../Test_Base"
 begin
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
@@ -16,12 +16,21 @@ datatype 'a list = nil2 | cons2 "'a" "'a list"
 datatype Nat = Z | S "Nat"
 
 fun take :: "Nat => 'a list => 'a list" where
-"take (Z) y = nil2"
+  "take (Z) y = nil2"
 | "take (S z) (nil2) = nil2"
 | "take (S z) (cons2 x2 x3) = cons2 x2 (take z x3)"
 
 theorem property0 :
   "((take (S n) (cons2 x xs)) = (cons2 x (take n xs)))"
-  oops
+  find_proof DInd
+  apply (induct)
+   apply auto
+  done 
+
+theorem property0' :
+  "((take (S n) (cons2 x xs)) = (cons2 x (take n xs)))"
+  apply (induct n)
+   apply auto
+  done
 
 end
