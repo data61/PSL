@@ -28,7 +28,7 @@ theorem property0 :
   "((case ys of
          nil2 => True
          | cons2 y z => False) ==>
-      ((last (x xs ys)) = (last ys)))"
+      ((last (x xs ys)) = (last ys)))"nitpick
   oops
 
 end

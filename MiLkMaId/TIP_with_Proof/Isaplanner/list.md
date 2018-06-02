@@ -46,22 +46,22 @@
 - [ ] `TIP_prop_46.thy`:
 - [ ] `TIP_prop_47.thy`:
 - [ ] `TIP_prop_48.thy`:
-- [ ] `TIP_prop_49.thy`:
+- [X] `TIP_prop_49.thy`:
 - [ ] `TIP_prop_50.thy`:
-- [ ] `TIP_prop_51.thy`:
+- [X] `TIP_prop_51.thy`:
 - [ ] `TIP_prop_52.thy`:
 - [ ] `TIP_prop_53.thy`:
 - [ ] `TIP_prop_54.thy`:
-- [ ] `TIP_prop_55.thy`:
+- [X] `TIP_prop_55.thy`:
 - [ ] `TIP_prop_56.thy`:
-- [ ] `TIP_prop_57.thy`:
-- [ ] `TIP_prop_58.thy`:
-- [ ] `TIP_prop_59.thy`:
-- [ ] `TIP_prop_60.thy`:
-- [ ] `TIP_prop_61.thy`:
-- [ ] `TIP_prop_62.thy`:
+- [X] `TIP_prop_57.thy`:
+- [X] `TIP_prop_58.thy`:
+- [X] `TIP_prop_59.thy`:
+- [ ] `TIP_prop_60.thy`:FIXME: nitpick found a counter-example.
+- [X] `TIP_prop_61.thy`:
+- [ ] `TIP_prop_62.thy`:FIXME: nitpick found a counter-example.
 - [ ] `TIP_prop_63.thy`:
-- [ ] `TIP_prop_64.thy`:
+- [X] `TIP_prop_64.thy`:
 - [ ] `TIP_prop_65.thy`:
 - [ ] `TIP_prop_66.thy`:
 - [ ] `TIP_prop_67.thy`:
