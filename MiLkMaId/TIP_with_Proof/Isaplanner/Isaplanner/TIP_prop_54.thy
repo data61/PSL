@@ -22,27 +22,7 @@ fun t2 :: "Nat => Nat => Nat" where
 | "t2 (S z) (Z) = S z"
 | "t2 (S z) (S x2) = t2 z x2"
 
-lemma "t2 (t22 z y) y = z \<longrightarrow> t2 (S (t22 z y)) y = S z"
-  apply(induct z arbitrary:)
-   apply auto
-  oops
-
 theorem property0 : "((t2 (t22 m n) n) = m)"
-  apply(induct n rule: t22.induct)
-   apply clarsimp
-   apply(induct_tac y)
-    apply fastforce+
-  apply clarsimp
-  apply(induct_tac z)
-   apply fastforce+
   oops
-
-theorem property0 : "((t2 (t22 m n) n) = m)"
-  apply(induct m arbitrary: )
-   apply clarsimp
-   apply(induct_tac n)
-  apply fastforce+
-  apply clarsimp
-  oops (*difficult to proceed any further.*)
 
 end

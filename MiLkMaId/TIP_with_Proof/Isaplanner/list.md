@@ -62,7 +62,7 @@
 - [ ] `TIP_prop_62.thy`:FIXME: nitpick found a counter-example.
 - [ ] `TIP_prop_63.thy`:
 - [X] `TIP_prop_64.thy`:
-- [ ] `TIP_prop_65.thy`:
+- [X] `TIP_prop_65.thy`:
 - [ ] `TIP_prop_66.thy`:
 - [ ] `TIP_prop_67.thy`:
 - [ ] `TIP_prop_68.thy`:
