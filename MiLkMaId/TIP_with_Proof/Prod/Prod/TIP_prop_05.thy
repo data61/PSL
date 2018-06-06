@@ -7,7 +7,7 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_05
+theory TIP_prop_05
   imports "../../Test_Base"
 begin
 
@@ -47,6 +47,25 @@ theorem property0 :
   apply (induct_tac revxs) (*equivalent to (induct revxs arbitrary: lenxs) due to meta_allI*)
    apply auto[1]
   apply auto[1]
+  done
+
+theorem alternative_proof: "((length (rev y)) = (length y))"
+  apply(induct y)
+   apply fastforce
+  apply clarsimp
+    (*common sub-term*)
+  apply(subgoal_tac "\<And>x1 y rev_y length_y. length rev_y = length_y \<Longrightarrow> length (x rev_y (cons2 x1 nil2)) = S length_y")
+   apply fastforce
+  apply(thin_tac "TIP_prop_05.length (TIP_prop_05.rev y) = TIP_prop_05.length y")
+  apply(subgoal_tac "TIP_prop_05.length rev_y = length_y \<longrightarrow> TIP_prop_05.length (x rev_y (cons2 x1a nil2)) = S length_y")
+   apply fastforce
+  apply(thin_tac "TIP_prop_05.length rev_y = length_y")
+  apply(rule meta_allI)
+  back nitpick quickcheck
+  back nitpick quickcheck
+  back nitpick quickcheck
+  apply (induct_tac rev_y)
+   apply auto
   done
 
 end

@@ -7,14 +7,15 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_07
+theory TIP_prop_07
   imports "../../Test_Base"
 begin
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
 
 datatype Nat = Z | S "Nat"
-
+print_theorems
+find_theorems "?x = ?y \<Longrightarrow> S ?x = S ?y"
 fun qrev :: "'a list => 'a list => 'a list" where
   "qrev (nil2) y = y"
 | "qrev (cons2 z xs) y = qrev xs (cons2 z y)"
@@ -29,6 +30,27 @@ fun t2 :: "Nat => Nat => Nat" where
 
 theorem property0 :
   "((length (qrev x y)) = (t2 (length x) (length y)))"
-  oops
+  apply(induct x arbitrary: y)
+   apply auto[1]
+  apply(subst qrev.simps)
+    (*Note that we insert only the conclusion.*)
+  apply(subgoal_tac
+      "length (qrev x (cons2 x1 y)) = S (length (qrev x y)) &&&
+    S (length (qrev x y)) = t2 (length (cons2 x1 x)) (length y)")
+   apply presburger
+  apply(rule conjunctionI)
+   apply(thin_tac "(\<And>y. TIP_prop_07.length (qrev x y) = t2 (TIP_prop_07.length x) (TIP_prop_07.length y))")
+   apply(rule meta_allI)
+   back
+   back
+   back
+   back
+   apply(rule meta_allI)
+   back
+   back
+   back
+   apply(induct_tac rule: TIP_prop_07.length.induct)(*Note that "induct" does not work here.*)
+    apply fastforce+
+  done
 
 end
