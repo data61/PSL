@@ -42,7 +42,7 @@
 - [X] `TIP_prop_07`:
 - [ ] `TIP_prop_08`:
 - [ ] `TIP_prop_09`:
-- [ ] `TIP_prop_10`:
+- [X] `TIP_prop_10`:
 - [ ] `TIP_prop_11`:
 - [ ] `TIP_prop_12`:
 - [ ] `TIP_prop_13`:
