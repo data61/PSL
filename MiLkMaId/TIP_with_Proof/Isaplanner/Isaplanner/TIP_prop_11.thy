@@ -22,6 +22,7 @@ fun drop :: "Nat => 'a list => 'a list" where
 
 theorem property0 :
   "((drop Z xs) = xs)"
+  find_proof DInd
   (*Why not "(induct rule:drop.induct)"?
     Because of the constant "Z" in "drop Z xs"(?)
     Because the resulting sub-goal 
