@@ -12,10 +12,12 @@ sig
   datatype csubtool =  CQuickcheck | CNitpick | CHammer;
   datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
                      | CSubgoal;
+  datatype cpgt      = CGeneralize | CConjecture;(*proof goal transformer*)
   datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
                      | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
-  datatype cstatic = CPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
-  datatype catom_str = CSttc of cstatic | CDyn of cprim_str;
+  datatype cstatic = CSPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
+  datatype cdynamic = CDPrim of cprim_str | CPGT of cpgt;
+  datatype catom_str = CSttc of cstatic | CDyn of cdynamic;
   (*CPThen cannot be a part of core_str, as the constructor class does not provide enough information.*)
   datatype cstrategic = CSolve1 | CRepeatN | CCut of int | CPSeq | CPSeq1 | CPOr | CPAlt;
   datatype core_str =
@@ -42,12 +44,14 @@ struct
   datatype csubtool =  CQuickcheck | CNitpick | CHammer;
   datatype cspecial =  CIsSolved | CDefer | CIntroClasses | CTransfer | CNormalization
                      | CSubgoal;
+  datatype cpgt     =  CGeneralize | CConjecture;(*proof goal transformer*)
   (*default tactics*)
   datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
                      | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
   datatype combine = Unique | First;
-  datatype cstatic = CPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
-  datatype catom_str = CSttc of cstatic | CDyn of cprim_str;
+  datatype cstatic = CSPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
+  datatype cdynamic = CDPrim of cprim_str | CPGT of cpgt;
+  datatype catom_str = CSttc of cstatic | CDyn of cdynamic;
   (*atom_strategic with less-monadic interpretation.*)
   datatype cstrategic = CSolve1 | CRepeatN | CCut of int | CPSeq | CPSeq1 | CPOr | CPAlt;
   infix 0 CSeq CAlt  COr CPAlt;
@@ -65,20 +69,40 @@ struct
   type 'a stttac         = 'a -> 'a monad;
   type 'a eval_prim      = cstatic -> 'a stttac;
   type 'a eval_para      = cprim_str -> 'a -> 'a stttac Seq.seq;
+  type 'a eval_pgt       = cpgt -> 'a -> 'a stttac Seq.seq;
   type 'a eval_strategic = cstrategic * 'a stttac list -> 'a stttac;
   type 'a equal          = 'a monad -> 'a monad -> bool;
   type 'a iddfc          = int -> (catom_str -> 'a stttac) -> (catom_str -> 'a stttac);
   type depths            = (int * int);
-  type 'a params         = ('a eval_prim * 'a eval_para * 'a eval_strategic * 'a equal * 'a iddfc * depths);
+  type 'a params         = ('a eval_prim * 'a eval_para * 'a eval_pgt * 'a eval_strategic * 'a equal * 'a iddfc * depths);
   type 'a interpret      = 'a params -> core_str -> 'a stttac;
 
   (*Interpret function similar to that of "A Monadic Interpretation of Tactics" by A. Martin et. al.*)
-  fun interpret (eval_prim, eval_para, eval_strategic, m_equal, iddfc, (n_deepenings, n_steps_each))
+  fun interpret (eval_prim, eval_para, eval_pgt, eval_strategic, m_equal, iddfc, (n_deepenings, n_steps_each))
                 (strategy:core_str) goal =
     let
        fun is_mzero monad        = m_equal monad mzero;
        fun eval (CSttc str) goal = Utils.try_with mzero (eval_prim str) goal
-         | eval (CDyn str) goal =
+         | eval (CDyn (CPGT str)) goal = (*TODO: remove the code duplication with the following clause.*)
+           let
+             fun how_to_combine_results CGeneralize = Unique
+              |  how_to_combine_results CConjecture = Unique
+             fun rm_useless First  results =
+                 (Seq.filter (not o is_mzero) results |> Seq.hd handle Option.Option => mzero)
+              |  rm_useless Unique results =
+                 (distinct (uncurry m_equal) (Seq.list_of results)
+                  |> Seq.of_list |> msum handle Empty => mzero | ERROR _ => mzero);
+             val combination          = how_to_combine_results str;
+             val tactics              = Seq2.try_seq (eval_pgt str) goal;
+             (*Sometimes, Isabelle does not have appropriate rules.*)
+             val tactics_with_handler = Seq.map (fn tactic => fn goal =>
+                                        Utils.try_with mzero tactic goal) tactics;
+             val all_results          = Seq2.try_seq (Seq2.map_arg goal) tactics_with_handler;
+             val results              = rm_useless combination all_results;
+            in
+              results
+            end
+         | eval (CDyn (CDPrim str)) goal =
            let
              (*Should I factor this out to Monadic_Interpreter_Params?*)
              fun how_to_combine_results CClarsimp    = Unique
@@ -232,6 +256,9 @@ datatype str =
 | Transfer
 | Normalization
 | User of string
+(*pgt: proof goal transformer*)
+| Generalize
+| Conjecture
 (*para_str*)
 | ParaClarsimp
 | ParaSimp
@@ -305,6 +332,9 @@ datatype str =
 | Transfer
 | Normalization
 | User of string
+(*pgt: proof goal transformer*)
+| Generalize
+| Conjecture
 (*para_str*)
 | ParaClarsimp
 | ParaSimp
@@ -342,10 +372,11 @@ datatype str =
 infix 0 CSeq CAlt  COr;
 
 local
-  val prim = CAtom o CSttc o CPrim;
-  val dyna = CAtom o CDyn;
+  val prim = CAtom o CSttc o CSPrim;
+  val dyna = CAtom o CDyn  o CDPrim;
   val subt = CAtom o CSttc o CSubt;
   val spec = CAtom o CSttc o CSpec;
+  val pgtf = CAtom o CDyn  o CPGT;
   val user = CAtom o CSttc o CUser;
 in
 
@@ -374,6 +405,9 @@ fun desugar Clarsimp        = prim CClarsimp
  |  desugar Transfer        = spec CTransfer
  |  desugar Normalization   = spec CNormalization
  |  desugar (User tac_name) = user tac_name
+    (*pgt: proof goal transformer*)
+ |  desugar Generalize      = pgtf CGeneralize
+ |  desugar Conjecture      = pgtf CConjecture
     (*para_str*)
  |  desugar ParaSimp        = dyna CSimp
  |  desugar ParaBlast       = dyna CBlast
@@ -430,11 +464,13 @@ signature MONADIC_INTERPRETER_PARAMS =
 sig
   type eval_prim;
   type eval_para;
+  type eval_pgt;
   type eval_strategic;
   type m_equal;
   type iddfc;
   val eval_prim      : eval_prim;
   val eval_para      : eval_para;
+  val eval_pgt       : eval_pgt;
   val eval_strategic : eval_strategic;
   val m_equal        : m_equal;
   val iddfc          : iddfc;
@@ -453,6 +489,7 @@ type thms            = thm list;
 type strings         = string list;
 type eval_prim       = MIC.cstatic -> state MIC.stttac;
 type eval_para       = MIC.cprim_str -> state -> state MIC.stttac Seq.seq;
+type eval_pgt        = MIC.cpgt -> state -> state MIC.stttac Seq.seq;
 type eval_strategic  = MIC.cstrategic * state MIC.stttac list -> state MIC.stttac;
 type m_equal         = state MIC.monad -> state MIC.monad -> bool;
 type iddfc           = int -> (MIC.catom_str -> state MIC.stttac) -> MIC.catom_str -> state MIC.stttac;
@@ -487,28 +524,28 @@ fun eval_prim (prim:MIC.cstatic) (goal_state:state) =
     (*For eval_prim.*)
     val string_to_stttac = Dynamic_Utils.string_to_stttac_on_pstate;
     val tac_on_proof_state : state MIC.stttac = case prim of
-      MIC.CPrim MIC.CClarsimp =>     (show_trace "CClarsimp";      string_to_stttac "clarsimp")
-    | MIC.CPrim MIC.CSimp =>         (show_trace "CSimp";          string_to_stttac "simp")
-    | MIC.CPrim MIC.CBlast =>        (show_trace "CBlast";         string_to_stttac "blast")
-    | MIC.CPrim MIC.CFastforce =>    (show_trace "CFastforce";     string_to_stttac "fastforce")
-    | MIC.CPrim MIC.CAuto =>         (show_trace "CAuto";          string_to_stttac "auto")
-    | MIC.CPrim MIC.CInduct =>       (show_trace "CInduct";        string_to_stttac "induct")
-    | MIC.CPrim MIC.CInductTac =>    (show_trace "CInductTac";     string_to_stttac "induct_tac")
-    | MIC.CPrim MIC.CCoinduction =>  (show_trace "CCoinduct";      string_to_stttac "coinduction")
-    | MIC.CPrim MIC.CCases  =>       (show_trace "CCases";         string_to_stttac "cases")
-    | MIC.CPrim MIC.CCaseTac =>      (show_trace "CCaseTac";       string_to_stttac "case_tac")
-    | MIC.CPrim MIC.CRule   =>       (show_trace "CRule";          string_to_stttac "rule")
-    | MIC.CPrim MIC.CErule  =>       (show_trace "CErule";         string_to_stttac "erule")
-    | MIC.CSpec MIC.CIntroClasses => (show_trace "CIntro_Classes"; string_to_stttac "intro_classes")
-    | MIC.CSpec MIC.CTransfer =>     (show_trace "CTransfer";      string_to_stttac "transfer")
-    | MIC.CSpec MIC.CNormalization =>(show_trace "CNormalization"; string_to_stttac "normalization")
-    | MIC.CSpec MIC.CSubgoal =>      (show_trace "CSubgoal";       Subtools.subgoal)
-    | MIC.CSubt MIC.CHammer =>       (show_trace "CHammer";        Subtools.hammer)
-    | MIC.CSpec MIC.CIsSolved =>     (show_trace "CIs_Solved";     Subtools.is_solved)
-    | MIC.CSubt MIC.CQuickcheck=>    (show_trace "CQuickcheck";    Subtools.quickcheck)
-    | MIC.CSubt MIC.CNitpick   =>    (show_trace "CNitpick";       Subtools.nitpick)
-    | MIC.CSpec MIC.CDefer     =>    (show_trace "CDefer";         Subtools.defer)
-    | MIC.CUser tac_name =>          (show_trace tac_name;         user_stttac tac_name);
+      MIC.CSPrim MIC.CClarsimp =>     (show_trace "CClarsimp";      string_to_stttac "clarsimp")
+    | MIC.CSPrim MIC.CSimp =>         (show_trace "CSimp";          string_to_stttac "simp")
+    | MIC.CSPrim MIC.CBlast =>        (show_trace "CBlast";         string_to_stttac "blast")
+    | MIC.CSPrim MIC.CFastforce =>    (show_trace "CFastforce";     string_to_stttac "fastforce")
+    | MIC.CSPrim MIC.CAuto =>         (show_trace "CAuto";          string_to_stttac "auto")
+    | MIC.CSPrim MIC.CInduct =>       (show_trace "CInduct";        string_to_stttac "induct")
+    | MIC.CSPrim MIC.CInductTac =>    (show_trace "CInductTac";     string_to_stttac "induct_tac")
+    | MIC.CSPrim MIC.CCoinduction =>  (show_trace "CCoinduct";      string_to_stttac "coinduction")
+    | MIC.CSPrim MIC.CCases  =>       (show_trace "CCases";         string_to_stttac "cases")
+    | MIC.CSPrim MIC.CCaseTac =>      (show_trace "CCaseTac";       string_to_stttac "case_tac")
+    | MIC.CSPrim MIC.CRule   =>       (show_trace "CRule";          string_to_stttac "rule")
+    | MIC.CSPrim MIC.CErule  =>       (show_trace "CErule";         string_to_stttac "erule")
+    | MIC.CSpec MIC.CIntroClasses =>  (show_trace "CIntro_Classes"; string_to_stttac "intro_classes")
+    | MIC.CSpec MIC.CTransfer =>      (show_trace "CTransfer";      string_to_stttac "transfer")
+    | MIC.CSpec MIC.CNormalization => (show_trace "CNormalization"; string_to_stttac "normalization")
+    | MIC.CSpec MIC.CSubgoal =>       (show_trace "CSubgoal";       Subtools.subgoal)
+    | MIC.CSubt MIC.CHammer =>        (show_trace "CHammer";        Subtools.hammer)
+    | MIC.CSpec MIC.CIsSolved =>      (show_trace "CIs_Solved";     Subtools.is_solved)
+    | MIC.CSubt MIC.CQuickcheck=>     (show_trace "CQuickcheck";    Subtools.quickcheck)
+    | MIC.CSubt MIC.CNitpick   =>     (show_trace "CNitpick";       Subtools.nitpick)
+    | MIC.CSpec MIC.CDefer     =>     (show_trace "CDefer";         Subtools.defer)
+    | MIC.CUser tac_name =>           (show_trace tac_name;         user_stttac tac_name);
   in
      Utils.try_with MIC.mzero tac_on_proof_state goal_state : state MIC.monad
   end;
@@ -535,6 +572,9 @@ fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
       monad with 0 and plus.*)
     Seq2.try_seq get_state_stttacs state : monad_tac seq
   end;
+
+fun eval_pgt (MIC.CGeneralize:MIC.cpgt) (state:Proof.state) = Seq2.try_seq Dynamic_Tactic_Generation.generalize state : monad_tac seq
+ |  eval_pgt (MIC.CConjecture:MIC.cpgt) (state:Proof.state) = Seq2.try_seq Dynamic_Tactic_Generation.conjecture state : monad_tac seq;
 
 (* m_equal *)
 fun m_equal (st_mona1:monad) (st_mona2:state MIC.monad) =

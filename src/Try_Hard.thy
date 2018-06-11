@@ -16,6 +16,7 @@ begin
 
 ML_file "Utils.ML"
 ML_file "Subtool.ML"
+ML_file "../PGT/PGT.ML"
 ML_file "Dynamic_Tactic_Generation.ML"
 ML_file "Constructor_Class.ML"
 ML_file "Instantiation.ML"
@@ -41,6 +42,8 @@ strategy Defer = Defer
 strategy IntroClasses = IntroClasses
 strategy Transfer = Transfer
 strategy Normalization = Normalization
+strategy Generalize = Generalize
+strategy Conjecture = Conjecture
 strategy Hammer = Hammer
 strategy Nitpick = Nitpick
 strategy Quickcheck = Quickcheck
