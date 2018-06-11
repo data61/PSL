@@ -4,6 +4,17 @@
 This file presents the functions for automatic generalization of tactics.
 *)
 
+signature PROOF_GOAL_TRANSFORMER =
+sig
+
+val generalize_str : Proof.context -> thm -> string list;
+val conjecture_strs: Proof.context -> thm -> string list;
+
+end;
+
+structure Proof_Goal_Transformer: PROOF_GOAL_TRANSFORMER =
+struct
+
 (* Utility functions *)
 val typs_to_dummyT = Term.map_types (K dummyT);
 val atyps_to_dummyT = Term.map_types (Term.map_atyps (K dummyT));
@@ -56,19 +67,27 @@ fun trm_to_thm (ctxt:Proof.context) (trm:term) =
     val thm  = Goal.init ctrm;
   in thm end;
 (* Now, this question is not meaningful, because I am not going to apply quick-check only after
-   applying fastforce. *)
+   applying fastforce within the same atomic step. *)
 
 (* How to create a subgoal_tac? *)
 fun generalize (ctxt:Proof.context) (goal:thm) =
  if Isabelle_Utils.get_1st_subg goal |> is_none then [] else 
  let
-   val fst_subg = Isabelle_Utils.get_1st_subg goal |> the: term;
-   val consts = Term.add_consts fst_subg [] |> map Const;
-   val dup_subtrms = get_subtrms fst_subg |> duplicates (op =): term list;
-   val abstracteds = distinct (op =) (consts @ dup_subtrms);
-   val conjectures = map (generalize_trm ctxt fst_subg) abstracteds: term list;
-   val cnjct_strs  = map (trm_to_string ctxt) conjectures: string list;
-   val subgoals    = map (fn x => " \"" ^ x ^ "\"") cnjct_strs;
+   val fst_subg     = Isabelle_Utils.get_1st_subg goal |> the: term;
+   val consts       = Term.add_consts fst_subg [] |> map Const;
+   val dup_subtrms  = get_subtrms fst_subg |> duplicates (op =): term list;
+   val abstracteds  = distinct (op =) (consts @ dup_subtrms): term list;
+   val generalizeds = map (generalize_trm ctxt fst_subg) abstracteds: term list;
+ in
+   generalizeds : term list
+ end;
+
+fun generalize_str (ctxt:Proof.context) (goal:thm) =
+ if Isabelle_Utils.get_1st_subg goal |> is_none then [] else 
+ let
+   val generalizeds = generalize ctxt goal: term list;
+   val gen_strs     = map (trm_to_string ctxt) generalizeds: string list;
+   val subgoals     = map (fn x => " \"" ^ x ^ "\"") gen_strs;
  in
    subgoals:string list
  end;
@@ -129,7 +148,7 @@ fun get_new_trms (orig_trm:term) (subtrm:term) (func:term) : term list =
     map (replace_with orig_trm subtrm) new_subtrms |> distinct (op =): term list
   end;
 
-(* How can I find a list of constants used in the definition of list of constants appearing in a term? *)
+(* How can I find a list of constants used in the definitions of the constants appearing in a term? *)
 fun get_consts_to_conjecture (ctxt:Proof.context) (trm:term) =
 let
   val cnames_in_trm = Isabelle_Utils.get_cnames_in_trm trm: string list;
@@ -153,20 +172,18 @@ fun conjecture (ctxt:Proof.context) (orig_trm: term) =
     checked
   end;
 
-(* TODO: remove code-duplication with generalize. *)
 fun conjecture_strs (ctxt:Proof.context) (goal:thm) =
  if Isabelle_Utils.get_1st_subg goal |> is_none then [] else
  let
-   val fst_subg = Isabelle_Utils.get_1st_subg goal |> the: term;
-   val consts = Term.add_consts fst_subg [] |> map Const;
-   val dup_subtrms = get_subtrms fst_subg |> duplicates (op =): term list;
-   val abstracteds = distinct (op =) (consts @ dup_subtrms): term list;
-   val generalizeds = map (generalize_trm ctxt fst_subg) abstracteds: term list;
-   val conjectures = map (conjecture ctxt) (fst_subg::generalizeds) |> flat |> distinct (op =): term list;
-   val checked_cnjcts = List.mapPartial ((try o Syntax.check_term) ctxt) (conjectures): term list;
-   val cnjct_strs  = map (trm_to_string ctxt) checked_cnjcts: string list;
-   val subgoals = map (fn x => " \"" ^ x ^ "\"") cnjct_strs;
+   val fst_subg       = Isabelle_Utils.get_1st_subg goal |> the: term;
+   val generalizeds   = generalize ctxt goal: term list;
+   val conjectures    = map (conjecture ctxt) (fst_subg::generalizeds) |> flat |> distinct (op =): term list;
+   val checked_cnjcts = List.mapPartial ((try o Syntax.check_term) ctxt) conjectures: term list;
+   val cnjct_strs     = map (trm_to_string ctxt) checked_cnjcts: string list;
+   val subgoals       = map (fn x => " \"" ^ x ^ "\"") cnjct_strs;
    val _ = tracing ("PGT creates " ^ Int.toString (length subgoals) ^ " conjectures.");
  in
    subgoals:string list
  end;
+
+end;

@@ -573,81 +573,8 @@ fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
     Seq2.try_seq get_state_stttacs state : monad_tac seq
   end;
 
-(* eval_pgt  TODO: move this somewhere more suitable. *)
-structure Generalize_Seed: DYNAMIC_TACTIC_GENERATOR_SEED =
-struct
-
-datatype modifier = GenGoal of string;
-
-type modifiers = modifier list;
-
-fun get_all_modifiers (state:Proof.state) =
-  let
-     val {context: Proof.context, facts: thm list, goal: thm} = Proof.goal state;
-     val generalized_goals = generalize context goal: string list;
-     val modifiers = map GenGoal generalized_goals: modifiers;
-  in
-    modifiers
-  end;
-
-fun mods_to_string [GenGoal gen_goal] = gen_goal
- |  mods_to_string _                  = error "Generalize_Seed failed!"
-
-val reordered_mods = single o I;
-
-end;
-
-structure Conjecture_Seed: DYNAMIC_TACTIC_GENERATOR_SEED =
-struct
-
-datatype modifier = GenGoal of string;
-
-type modifiers = modifier list;
-
-fun get_all_modifiers (state:Proof.state) =
-  let
-     val {context: Proof.context, facts: thm list, goal: thm} = Proof.goal state;
-     val conjecture_goals = conjecture_strs context goal: string list;
-     val modifiers = map GenGoal conjecture_goals: modifiers;
-  in
-    modifiers
-  end;
-
-fun mods_to_string [GenGoal gen_goal] = gen_goal
- |  mods_to_string _                  = error "Generalize_Seed failed!"
-
-val reordered_mods = single o I;
-
-end;
-
-(* PGTGG: Proof Goal Transformer Generalize Generator TODO: move this somewhere more suitable. *)
-structure PGTGG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Generalize_Seed);
-
-fun pgtgg_get_state_stttacs (state:Proof.state) =
-  let
-    val all_modifiers  = PGTGG.get_all_modifiers state : PGTGG.modifiers;
-    val all_modifierss = map single all_modifiers |> Seq.of_list : PGTGG.modifiers Seq.seq;
-    val stttacs        = Seq.map (PGTGG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
-    type 'a stttac = 'a Dynamic_Utils.stttac;
-  in
-    stttacs : Proof.state stttac Seq.seq
-  end;
-
-(* PGTGG: Proof Goal Transformer Conjecture Generator TODO: move this somewhere more suitable. *)
-structure PGTCG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Conjecture_Seed);
-
-fun pgtcg_get_state_stttacs (state:Proof.state) =
-  let
-    val all_modifiers  = PGTCG.get_all_modifiers state : PGTCG.modifiers;
-    val all_modifierss = map single all_modifiers |> Seq.of_list : PGTCG.modifiers Seq.seq;
-    val stttacs        = Seq.map (PGTCG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
-    type 'a stttac = 'a Dynamic_Utils.stttac;
-  in
-    stttacs : Proof.state stttac Seq.seq
-  end;
-
-fun eval_pgt (MIC.CGeneralize:MIC.cpgt) (state:Proof.state) = Seq2.try_seq pgtgg_get_state_stttacs state : monad_tac seq
- |  eval_pgt (MIC.CConjecture:MIC.cpgt) (state:Proof.state) = Seq2.try_seq pgtcg_get_state_stttacs state : monad_tac seq;
+fun eval_pgt (MIC.CGeneralize:MIC.cpgt) (state:Proof.state) = Seq2.try_seq Dynamic_Tactic_Generation.generalize state : monad_tac seq
+ |  eval_pgt (MIC.CConjecture:MIC.cpgt) (state:Proof.state) = Seq2.try_seq Dynamic_Tactic_Generation.conjecture state : monad_tac seq;
 
 (* m_equal *)
 fun m_equal (st_mona1:monad) (st_mona2:state MIC.monad) =

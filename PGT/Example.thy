@@ -1,50 +1,49 @@
 theory Example
-imports "../PSL"
+imports "../PSL" "../PaMpeR/PaMpeR" "../PSL"
 begin
 
-primrec my_append :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" (infixr "@@" 65) where
-append_Nil: "[] @@ ys = ys" |
-append_Cons: "(x#xs) @@ ys = x # xs @@ ys"
+(* DEMO1: PSL *)
 
-primrec my_rev :: "'a list \<Rightarrow> 'a list" where
-"my_rev [] = []" |
-"my_rev (x # xs) = my_rev xs @@ [x]"
+fun sep::"'a \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+"sep a [] = []" |
+"sep a [x] = [x]" |
+"sep a (x#y#zs) = x # a # sep a (y#zs)"
 
-ML{*
-val goal = trm_to_thm @{context} @{term "((my_rev j) @@ k) @@ l = (my_rev j) @@ (k @@ l)"};
-val cons = generalize @{context} goal;
-*}
-declare [[ML_print_depth=300]]
+strategy DInd = Thens [Dynamic (Induct), Auto, IsSolved]
 
-ML{* (* How to apply quickcheck to a raw thm? *)
-(* No, I only apply quickcheck after applying fastforce. 
-   So, I can use quickcheck as part of PSL strategies. *)
-*}
-
-strategy Generalize_Test = Thens [Generalize, Fastforce, Dynamic(InductTac), Auto, IsSolved]
-strategy Generalize_Test2 = Thens [Clarsimp, IsSolved]
-strategy Generalize_Test3 = Generalize
-strategy Generalize_Test4 = Thens [Dynamic(Induct), Auto, IsSolved]
-
-lemma "True"
-  find_proof Generalize_Test2
+(* The proof in the Isabelle tutorial. *)
+lemma "map f (sep x xs) = sep (f x) (map f xs)"
+  find_proof DInd
   oops
 
-lemma "((my_rev j) @@ (my_rev k)) @@ (my_rev l) = (my_rev j) @@ ((my_rev k) @@ (my_rev l))"
-  (*find_proof Generalize_T est*)
-  apply(induct j arbitrary: k l)
-   apply fastforce
-  apply auto
+(* DEMO2: PaMpeR *)
+
+lemma
+ "map f (sep x xs) = sep (f x) (map f xs)"
+(* The print_methods command prints out the list of methods defined in this proof context in
+ * alphabetical order. *)
+  print_methods
+  which_method
+  why_method induct
+  thm sep.simps(3)
+  rank_method coinduction
   oops
+
+(* DEMO3: PGT *)
 
 primrec itrev:: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
  "itrev [] ys = ys" |
  "itrev (x#xs) ys = itrev xs (x#ys)"
 
-strategy Generalize_Conjecture = Thens [Conjecture, Fastforce, Quickcheck, Dynamic(Induct), Auto, IsSolved]
+strategy CDInd = Thens [Conjecture, Fastforce, Thens [Nitpick, Quickcheck], DInd]
+strategy DInd_Or_CDInd = Ors [DInd, CDInd]
 
-lemma original_goal:"itrev xs [] = rev xs"
-  find_proof Generalize_Conjecture
-  oops
+lemma "itrev xs [] = rev xs"
+  find_proof DInd_Or_CDInd
+  apply (subgoal_tac "\<And>Nil. itrev xs Nil = rev xs @ Nil")
+  apply fastforce
+  apply (induct xs)
+  apply auto
+  done
 
 end
