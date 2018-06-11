@@ -1,3 +1,4 @@
+- **This branch is under active development. Please use [release v0.1.1 PSL with PGT: CICM2018 for Isabelle2017](https://github.com/data61/PSL/releases/tag/v0.1.1), which is the latest stable version.**
 - **Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
 - **More information about PaMpeR is provided in PSL/PaMpeR/README.md.**
 
