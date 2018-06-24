@@ -35,17 +35,17 @@
    - good: `induct xs`
    - good: `induct xs arbitrary n`
    - good: `induct xs arbitrary n ys`
-- [ ] `TIP_prop_03`:
-- [ ] `TIP_prop_04`:
+- [X] `TIP_prop_03`:
+- [X] `TIP_prop_04`:
 - [X] `TIP_prop_05`:
 - [X] `TIP_prop_06`:
 - [X] `TIP_prop_07`:
-- [ ] `TIP_prop_08`:
-- [ ] `TIP_prop_09`:
+- [X] `TIP_prop_08`:
+- [X] `TIP_prop_09`:
 - [X] `TIP_prop_10`:
-- [ ] `TIP_prop_11`:
+- [X] `TIP_prop_11`:
 - [ ] `TIP_prop_12`:
-- [ ] `TIP_prop_13`:
+- [X] `TIP_prop_13`:
 - [ ] `TIP_prop_14`:
 - [ ] `TIP_prop_15`:
 - [ ] `TIP_prop_16`:

@@ -27,9 +27,22 @@ fun t2 :: "Nat => Nat => Nat" where
 "t2 (Z) z = z"
 | "t2 (S z2) z = S (t2 z2 z)"
 
+lemma t2_succ: "S (t2 n m) = t2 n (S m)"
+  by(induct n, auto)
+
+lemma t2_comm: "t2 n m = t2 m n"
+  apply(induct n, simp)
+   apply(induct m, auto)
+  apply(case_tac m, simp)
+  apply(simp add: t2_succ)
+  done
+
 theorem property0 :
   "((length (x y z)) = (t2 (length z) (length y)))"
   apply(induct y)
-  oops
+  apply(simp add: t2_comm, auto)
+  apply(case_tac z, simp)
+  apply(simp add: t2_comm)
+  done
 
 end

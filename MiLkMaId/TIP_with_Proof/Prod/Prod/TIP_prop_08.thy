@@ -20,8 +20,21 @@ fun drop :: "Nat => 'a list => 'a list" where
 | "drop (S z) (nil2) = nil2"
 | "drop (S z) (cons2 x2 x3) = drop z x3"
 
+lemma drop_nil: "drop n nil2 = nil2"
+  by(case_tac n, auto)
+
+lemma drop_succ: "drop (S n) (drop m l) = drop n (drop (S m) l)" 
+  apply(induction l)
+   apply(simp add: drop_nil, simp)
+  apply(induction m, auto)
+  apply(case_tac l, simp add: drop_nil, auto)
+  done
+
 theorem property0 :
   "((drop x (drop y z)) = (drop y (drop x z)))"
-  oops
+  apply(induct z rule: drop.induct, auto)
+  apply(case_tac y, auto)
+  apply(simp add: drop_succ)
+  done
 
 end
