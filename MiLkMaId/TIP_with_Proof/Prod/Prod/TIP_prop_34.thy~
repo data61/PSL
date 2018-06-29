@@ -27,7 +27,6 @@ fun mult :: "Nat => Nat => Nat => Nat" where
 
 theorem property0 :
   "((t22 x y) = (mult x y Z))"
-  apply(induction x, auto)
-  apply(induction y, auto)
   oops
+
 end

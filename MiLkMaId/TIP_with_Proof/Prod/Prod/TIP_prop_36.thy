@@ -35,6 +35,8 @@ fun elem :: "Nat => Nat list => bool" where
 
 theorem property0 :
   "((elem x2 y2) ==> (elem x2 (z y2 z2)))"
-  oops
+  apply(induction y2, auto)
+  apply(case_tac "y x2 x1", auto)
+  done
 
 end

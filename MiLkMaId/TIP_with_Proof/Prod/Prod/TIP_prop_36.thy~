@@ -7,27 +7,34 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_34
+  theory TIP_prop_36
   imports "../../Test_Base"
 begin
 
+datatype 'a list = nil2 | cons2 "'a" "'a list"
+
 datatype Nat = Z | S "Nat"
 
-fun t2 :: "Nat => Nat => Nat" where
-  "t2 (Z) y = y"
-| "t2 (S z) y = S (t2 z y)"
+fun z :: "'a list => 'a list => 'a list" where
+  "z (nil2) y2 = y2"
+| "z (cons2 z2 xs) y2 = cons2 z2 (z xs y2)"
 
-fun t22 :: "Nat => Nat => Nat" where
-  "t22 (Z) y = Z"
-| "t22 (S z) y = t2 y (t22 z y)"
+fun y :: "Nat => Nat => bool" where
+  "y (Z) (Z) = True"
+| "y (Z) (S z2) = False"
+| "y (S x22) (Z) = False"
+| "y (S x22) (S y22) = y x22 y22"
 
-fun mult :: "Nat => Nat => Nat => Nat" where
-  "mult (Z) y z = z"
-| "mult (S x2) y z = mult x2 y (t2 y z)"
+fun x :: "bool => bool => bool" where
+  "x True y2 = True"
+| "x False y2 = y2"
+
+fun elem :: "Nat => Nat list => bool" where
+  "elem x2 (nil2) = False"
+| "elem x2 (cons2 z2 xs) = x (y x2 z2) (elem x2 xs)"
 
 theorem property0 :
-  "((t22 x y) = (mult x y Z))"
-  apply(induction x, auto)
-  apply(induction y, auto)
+  "((elem x2 y2) ==> (elem x2 (z y2 z2)))"
   oops
+
 end
