@@ -44,11 +44,11 @@
 - [X] `TIP_prop_09`:
 - [X] `TIP_prop_10`:
 - [X] `TIP_prop_11`:
-- [ ] `TIP_prop_12`:
+- [X] `TIP_prop_12`:
 - [X] `TIP_prop_13`:
 - [ ] `TIP_prop_14`:
-- [ ] `TIP_prop_15`:
-- [ ] `TIP_prop_16`:
+- [X] `TIP_prop_15`:
+- [X] `TIP_prop_16`:
 - [ ] `TIP_prop_17`:
 - [ ] `TIP_prop_18`:
 - [ ] `TIP_prop_19`:
@@ -60,17 +60,17 @@
 - [ ] `TIP_prop_25`:
 - [ ] `TIP_prop_26`:
 - [ ] `TIP_prop_27`:
-- [ ] `TIP_prop_28`:
-- [ ] `TIP_prop_29`:
-- [ ] `TIP_prop_30`:
+- [X] `TIP_prop_28`:
+- [X] `TIP_prop_29`:
+- [X] `TIP_prop_30`:
 - [ ] `TIP_prop_31`:
 - [ ] `TIP_prop_32`:
 - [ ] `TIP_prop_33`:
-- [ ] `TIP_prop_34`:
+- [X] `TIP_prop_34`:
 - [ ] `TIP_prop_35`:
-- [ ] `TIP_prop_36`:
-- [ ] `TIP_prop_37`:
-- [ ] `TIP_prop_38`:
+- [X] `TIP_prop_36`:
+- [X] `TIP_prop_37`:
+- [X] `TIP_prop_38`:
 - [ ] `TIP_prop_39`:
 - [ ] `TIP_prop_40`:
 - [ ] `TIP_prop_41`:

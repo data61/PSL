@@ -16,6 +16,7 @@ datatype 'a list = nil2 | cons2 "'a" "'a list"
 fun qrev :: "'a list => 'a list => 'a list" where
   "qrev (nil2) y = y"
 | "qrev (cons2 z xs) y = qrev xs (cons2 z y)"
+
 theorem property0 :
   "((qrev (qrev x (nil2)) (nil2)) = x)"
   oops

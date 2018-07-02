@@ -24,20 +24,17 @@ fun rev :: "'a list => 'a list" where
 fun qrev :: "'a list => 'a list => 'a list" where
   "qrev (nil2) z = z"
 | "qrev (cons2 z2 xs) z = qrev xs (cons2 z2 z)"
-lemma app_comm: "x (x y z) w = x y (x z w)" by (induction y, auto)
+
+lemma app_assoc: "x (x y z) w = x y (x z w)" by (induction y, auto)
 lemma qrev_rev: "qrev y z = x (rev y) z"
   apply(induction y arbitrary: z, auto)
-  apply(simp add: app_comm)
+  apply(simp add: app_assoc)
   done
 lemma app_nil: "x y nil2 = y" by(induction y, auto)
 lemma rev_app: "rev (x y z) = x (rev z) (rev y)" 
   apply(induction y, auto)
    apply(simp add: app_nil) 
-  using app_comm apply(auto)
-  done
-lemma revrev: "rev (rev y) = y"
-  apply(induction y, auto)
-  apply(simp add: rev_app)
+  using app_assoc apply(auto)
   done
 theorem property0 :
   "((rev (qrev y (nil2))) = y)"

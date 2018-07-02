@@ -22,11 +22,11 @@ fun rev :: "'a list => 'a list" where
 | "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
 
 lemma app_nil: "x y nil2 = y" by (induct y, auto)
-lemma app_comm: "x (x y z) w = x y (x z w)" by (induction y, auto)
+lemma app_assoc: "x (x y z) w = x y (x z w)" by (induction y, auto)
 lemma rev_app: "rev (x y z) = x (rev z) (rev y)" 
   apply(induction y, auto)
    apply(simp add: app_nil) 
-  using app_comm apply(auto)
+  using app_assoc apply(auto)
   done
 
 lemma revrev: "rev (rev y) = y"
