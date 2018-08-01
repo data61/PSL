@@ -61,9 +61,9 @@ theorem alternative_proof: "((length (rev y)) = (length y))"
    apply fastforce
   apply(thin_tac "TIP_prop_05.length rev_y = length_y")
   apply(rule meta_allI)
-  back nitpick quickcheck
-  back nitpick quickcheck
-  back nitpick quickcheck
+  back quickcheck (*Nitpick cannot handle goals with schematic type variables*)
+  back quickcheck (*Nitpick cannot handle goals with schematic type variables*)
+  back quickcheck (*Nitpick cannot handle goals with schematic type variables*)
   apply (induct_tac rev_y)
    apply auto
   done

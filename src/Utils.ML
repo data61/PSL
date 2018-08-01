@@ -38,6 +38,9 @@ sig
   val nat_to_frac    : int -> real;
   val count_str      : string -> string list -> int;
   val is_one_of_strings: string list -> string -> bool;
+  val somes          : 'a option list -> 'a list;
+  val conjunction    : bool -> bool -> bool;
+  val disjunction    : bool -> bool -> bool;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -150,6 +153,12 @@ fun count_str (str:string) (strs:string list) =
   fold (fn name => fn n => if name = str then n + 1 else n) strs 0;
 
 fun is_one_of_strings (strs:string list) (str:string) = exists (equal str) strs;
+
+fun somes (maybes: 'a option list) = filter is_some maybes |> map the;
+
+fun conjunction x y = x andalso y;
+
+fun disjunction x y = x orelse y;
 
 end;
 

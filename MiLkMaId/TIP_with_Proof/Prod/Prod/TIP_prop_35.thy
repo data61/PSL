@@ -31,13 +31,19 @@ fun exp :: "Nat => Nat => Nat" where
 fun qexp :: "Nat => Nat => Nat => Nat" where
   "qexp x (Z) z = z"
 | "qexp x (S n) z = qexp x n (t22 x z)"
+
 lemma t2_comm: "t2 x y = t2 y x" sorry
+
 lemma t22_zero: "t22 x Z = Z" by(induction x, auto)
+
 lemma t22_comm: "t22 x y = t22 y x"
   apply(induction x, auto)
    apply(simp add: t22_zero)apply(induction y, auto)
+  sorry
+
 lemma t22_assoc: "t22 x (t22 y z) = t22 (t22 x y) z" apply(induction y, auto)apply(simp add: t22_zero) sorry
-lemma t2_qexp: "t22 w (qexp x y z) = qexp x y (t22 w z)" 
+
+lemma t2_qexp: "t22 w (qexp x y z) = qexp x y (t22 w z)"
   apply(induction y arbitrary: z, auto) 
   apply(simp add: t22_assoc)
   apply(simp add: t22_comm)
