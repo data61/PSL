@@ -33,8 +33,14 @@ fun elem :: "Nat => Nat list => bool" where
   "elem x2 (nil2) = False"
 | "elem x2 (cons2 z2 xs) = x (y x2 z2) (elem x2 xs)"
 
+lemma or_left_true: "x x2 True = True" by(case_tac "x2", auto)
+
 theorem property0 :
   "((elem x2 z2) ==> (elem x2 (z y2 z2)))"
-  oops
+  apply(induction y2, auto)
+  apply(case_tac "elem x2 z2", auto)
+  apply(induction z2, auto)
+  apply(simp add:or_left_true)
+  done
 
 end

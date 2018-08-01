@@ -29,10 +29,10 @@ fun qrevflat :: "('a list) list => 'a list => 'a list" where
   "qrevflat (nil2) z = z"
 | "qrevflat (cons2 xs xss) z = qrevflat xss (x (rev xs) z)"
 lemma app_nil: "x y nil2 = y" by (induction y, auto)
-lemma app_assoc: "x (x y z) w = x y (x z w)" by (induction y, auto)
+lemma app_comm: "x (x y z) w = x y (x z w)" by (induction y, auto)
 lemma revflat_qrevflat:  "(qrevflat y z) = x (revflat y) z"
   apply(induction y arbitrary: z, auto)
-  apply(simp add: app_assoc)
+  apply(simp add: app_comm)
   done
 theorem property0 :
   "((revflat y) = (qrevflat y (nil2)))"

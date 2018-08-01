@@ -24,9 +24,15 @@ fun t22 :: "Nat => Nat => Nat" where
 fun mult :: "Nat => Nat => Nat => Nat" where
   "mult (Z) y z = z"
 | "mult (S x2) y z = mult x2 y (t2 y z)"
-
+lemma t2_0: "t2 x Z = x" by (induction x, auto)
+lemma t2_assoc: "t2 (t2 x y) z = t2 x (t2 y z)" by(induction x, auto)
+lemma t2_comm_suc: "t2 (S x) y = t2 x (S y)" by (induction x, auto)
+lemma t2_comm: "t2 x y = t2 y x" using t2_0 t2_comm_suc by (induction x, simp_all)
+lemma t2_mult: "t2 w (mult x y z) = mult x y (t2 w z)"
+  using t2_assoc t2_comm by(induction x arbitrary: w y z, simp_all)
 theorem property0 :
   "((t22 x y) = (mult x y Z))"
-  oops
-
+  apply(induction x arbitrary: y, auto)
+  apply(simp add: t2_mult)
+  done
 end

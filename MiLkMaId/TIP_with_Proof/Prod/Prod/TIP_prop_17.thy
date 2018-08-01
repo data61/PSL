@@ -20,6 +20,11 @@ fun x :: "'a list => 'a list => 'a list" where
 fun rev :: "'a list => 'a list" where
 "rev (nil2) = nil2"
 | "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
+lemma rev_app: "rev (x xs ys) = x (rev ys) (rev xs)"apply(induct xs, auto)
+lemma rev_rev: "rev (rev y) = y"
+  apply(induction y, auto)
+  
+  sorry
 
 theorem property0 :
   "((rev (rev (x y z))) = (x (rev (rev y)) (rev (rev z))))"

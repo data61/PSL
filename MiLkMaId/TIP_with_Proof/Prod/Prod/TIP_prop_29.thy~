@@ -7,7 +7,7 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
-  theory TIP_prop_28
+  theory TIP_prop_29
   imports "../../Test_Base"
 begin
 
@@ -21,23 +21,28 @@ fun rev :: "'a list => 'a list" where
   "rev (nil2) = nil2"
 | "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
 
-fun revflat :: "('a list) list => 'a list" where
-  "revflat (nil2) = nil2"
-| "revflat (cons2 xs xss) = x (revflat xss) (rev xs)"
-
-fun qrevflat :: "('a list) list => 'a list => 'a list" where
-  "qrevflat (nil2) z = z"
-| "qrevflat (cons2 xs xss) z = qrevflat xss (x (rev xs) z)"
-lemma app_nil: "x y nil2 = y" by (induction y, auto)
-lemma app_assoc: "x (x y z) w = x y (x z w)" by (induction y, auto)
-lemma revflat_qrevflat:  "(qrevflat y z) = x (revflat y) z"
+fun qrev :: "'a list => 'a list => 'a list" where
+  "qrev (nil2) z = z"
+| "qrev (cons2 z2 xs) z = qrev xs (cons2 z2 z)"
+lemma app_comm: "x (x y z) w = x y (x z w)" by (induction y, auto)
+lemma qrev_rev: "qrev y z = x (rev y) z"
   apply(induction y arbitrary: z, auto)
-  apply(simp add: app_assoc)
+  apply(simp add: app_comm)
+  done
+lemma app_nil: "x y nil2 = y" by(induction y, auto)
+lemma rev_app: "rev (x y z) = x (rev z) (rev y)" 
+  apply(induction y, auto)
+   apply(simp add: app_nil) 
+  using app_comm apply(auto)
+  done
+lemma revrev: "rev (rev y) = y"
+  apply(induction y, auto)
+  apply(simp add: rev_app)
   done
 theorem property0 :
-  "((revflat y) = (qrevflat y (nil2)))"
+  "((rev (qrev y (nil2))) = y)"
   apply(induction y, auto)
-  apply(simp add: app_nil revflat_qrevflat)
+  apply(simp add: qrev_rev)
+  apply(simp add: rev_app)
   done
-
 end

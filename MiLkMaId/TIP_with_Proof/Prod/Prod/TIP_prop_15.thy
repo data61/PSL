@@ -17,8 +17,13 @@ fun t2 :: "Nat => Nat => Nat" where
 "t2 (Z) y = y"
 | "t2 (S z) y = S (t2 z y)"
 
+lemma t2_succ: "S (t2 n m) = t2 n (S m)"
+  by(induct n, auto)
+
 theorem property0 :
   "((t2 x (S x)) = (S (t2 x x)))"
-  oops
+  apply(induction x, auto)
+  apply(simp add:t2_succ)
+  done
 
 end

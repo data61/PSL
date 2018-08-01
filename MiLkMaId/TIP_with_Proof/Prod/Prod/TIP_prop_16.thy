@@ -22,8 +22,13 @@ fun t2 :: "Nat => Nat => Nat" where
 "t2 (Z) y = y"
 | "t2 (S z) y = S (t2 z y)"
 
+lemma t2_succ: "t2 n (S m) = t2 (S n) m"
+  by(induct n, auto)
+
 theorem property0 :
   "even (t2 x x)"
-  oops
+  apply(induct x rule: even.induct , auto)
+  apply(simp add:t2_succ)
+  done
 
 end

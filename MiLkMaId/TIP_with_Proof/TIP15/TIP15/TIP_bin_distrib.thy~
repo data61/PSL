@@ -32,7 +32,7 @@ fun times :: "Bin => Bin => Bin" where
 | "times (OneAnd xs12) y = plus (ZeroAnd (times xs12 y)) y"
 
 theorem property0 :
-  "((times x (plus y z)) = (plus (times x y) (times x z)))"apply(induction x, auto)apply(induction y, auto)
+  "((times x (plus y z)) = (plus (times x y) (times x z)))"
   oops
 
 end
