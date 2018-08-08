@@ -14,8 +14,7 @@ begin
 datatype 'a list = nil2 | cons2 "'a" "'a list"
 
 datatype Nat = Z | S "Nat"
-print_theorems
-find_theorems "?x = ?y \<Longrightarrow> S ?x = S ?y"
+
 fun qrev :: "'a list => 'a list => 'a list" where
   "qrev (nil2) y = y"
 | "qrev (cons2 z xs) y = qrev xs (cons2 z y)"
