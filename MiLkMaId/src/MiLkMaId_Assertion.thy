@@ -35,9 +35,6 @@ fun has_related_rsimp (Const (c, _)) = exist_related_rsimp [c]
 *}
 
 
-(* test *)
-fun identity::"'a \<Rightarrow> 'a" where "identity z = z"
-
 ML{* (* test *)
 @{assert} (exist_related_rsimp ["TIP_prop_01.drop"]);
 @{assert} (exist_related_rsimp ["identity"] = false);
@@ -161,7 +158,6 @@ val test_data =
   [true, false, true, true ]]: bool list list;
 
 @{assert} (get_elem_in_matrix test_data (1,3) = SOME false);
-
 @{assert} (get_elem_in_matrix test_data (2,3) = SOME true);
 *}
 
@@ -354,10 +350,6 @@ type datum =
 type data = datum list;
 *}
 
-(* FIXME: I should not add ("level" and) "ancestors" to the accumulator!
-          because different branches have different ancestors!  *)
-ML{* type accumulator = {level: int, ancestors: ancestors, data: data}; *}
-
 ML{* fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:data) (old_ancestors:ancestors) =
   let
     val new_level     = old_level + 1                                 : int;
@@ -393,17 +385,17 @@ ML{* fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_dat
 *}
 
 ML{* fun uncurried_trm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] []; *}
-
+ML{* @{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry *}
 ML{* (* test *)
 @{assert} ((@{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry |> uncurried_trm_to_data) =
 ( [{point = {cname = "A", level = 1, utyp = UF},
       ancestors = []},
    {point = {cname = "B", level = 2, utyp = UF},
       ancestors = [({cname = "A", level = 1, utyp = UF}, Full)]},
-   {point = {cname = "MiLkMaId_Assertion.identity", level = 2, utyp = UC},
+   {point = {cname = "MiLkMaId_Example.identity", level = 2, utyp = UC},
      ancestors = [({cname = "A", level = 1, utyp = UF}, Full)]},
    {point = {cname = "G", level = 3, utyp = UF},
-     ancestors = [({cname = "MiLkMaId_Assertion.identity", level = 2, utyp = UC}, Full),
+     ancestors = [({cname = "MiLkMaId_Example.identity", level = 2, utyp = UC}, Full),
                   ({cname = "A", level = 1, utyp = UF}, Full)]},
    {point = {cname = "D", level = 2, utyp = UF},
      ancestors = [({cname = "A", level = 1, utyp = UF}, Full)]},
@@ -429,7 +421,61 @@ ML{* (* test *)
 *}
 
 ML{*
-datatype command = Definition | Fun | Function | Inductive | Other;
+datatype command = Definition | Fun | FunctionInductive | Other;
+*}
+
+ML{* (* test *)
+@{term "even n = odd (Suc n)"} |> uncurry;
+@{term "even n = odd (Suc n)"} |> uncurry |> uncurried_trm_to_data;
+
+@{assert}(
+ (@{term "even n = odd (Suc n)"} |> uncurry |> uncurried_trm_to_data) =
+ [{point = {cname = "HOL.eq", level = 1, utyp = UC},
+   ancestors = []},
+  {point = {cname = "MiLkMaId_Example.even",       level = 2, utyp = UC},
+   ancestors = [({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]},
+  {point = {cname = "n", level = 3, utyp = UF},
+   ancestors = [({cname = "MiLkMaId_Example.even", level = 2, utyp = UC}, Full),
+                ({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]},
+  {point = {cname = "MiLkMaId_Example.odd", level = 2, utyp = UC},
+   ancestors = [({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]},
+  {point = {cname = "Nat.Suc", level = 3, utyp = UC},
+   ancestors = [({cname = "MiLkMaId_Example.odd",  level = 2, utyp = UC}, Full),
+                ({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]},
+  {point = {cname = "n", level = 4, utyp = UF},
+   ancestors = [({cname = "Nat.Suc",               level = 3, utyp = UC}, Full),
+                ({cname = "MiLkMaId_Example.odd",  level = 2, utyp = UC}, Full),
+                ({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]}])
+*}
+
+term "filter (\<lambda> _. True) xs = xs"
+
+ML{* (* test *)
+@{term "filter (\<lambda> _. True) xs = xs"} |> uncurry;
+(@{term "filter (\<lambda> _. True) xs = xs"} |> uncurry |> uncurried_trm_to_data) =
+[{point = {cname = "HOL.eq", level = 1, utyp = UC},
+  ancestors = []},
+ {point = {cname = "MiLkMaId_Example.filter", level = 2, utyp = UC},
+  ancestors = [({cname = "HOL.eq",                  level = 1, utyp = UC}, Full)]},
+ {point = {cname = "HOL.True", level = 4, utyp = UC},
+  ancestors = [({cname = "uu_",                     level = 3, utyp = UAb}, Full),
+               ({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC},  Full(*TODO: This should not be Full.*)),
+               ({cname = "HOL.eq",                  level = 1, utyp = UC},  Full)]},
+ {point = {cname = "uu_", level = 3, utyp = UAb},
+  ancestors = [({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC}, Full),
+               ({cname = "HOL.eq",                  level = 1, utyp = UC}, Full)]},
+ {point = {cname = "xs", level = 3, utyp = UF},
+  ancestors = [({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC}, Full),
+               ({cname = "HOL.eq",                  level = 1, utyp = UC}, Full)]},
+ {point = {cname = "xs", level = 2, utyp = UF},
+  ancestors = [({cname = "HOL.eq",                  level = 1, utyp = UC}, Full)]}]
+*}
+
+ML{* (* test *)
+uncurry @{term "even 1"};
+uncurry @{term "\<lambda> B. C B (\<lambda>E. F E B)"};
+uncurry @{term "\<forall>x. P x y x"};
+uncurry @{term "\<And>x. P x y x"};
 *}
 
 end
