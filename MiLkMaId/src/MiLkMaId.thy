@@ -4,6 +4,4 @@ begin
 
 ML_file "MiLkMaId_Assertion.ML"
 
-term "filter (\<lambda> _. True) xs = xs"
-
 end

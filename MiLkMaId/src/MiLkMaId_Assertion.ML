@@ -1,4 +1,4 @@
-(*  Title:      MiLkMaId/MiLkMaId_Assertion.thy
+(*  Title:      MiLkMaId/MiLkMaId_Assertion.ML
     Author:     Yutaka Nagashima, CIIRC, CTU
 
 This file defines functions to convert proof obligations to a simpler format,
@@ -6,11 +6,7 @@ so that machine learning algorithms can effectively recommend which arguments to
 apply mathematical induction in Isabelle/HOL.
 *)
 
-(* Utilty functions *)
-infix >>= <$>;
-val _ = Option.map;
-fun (m >>= f) = Option.mapPartial f m;
-fun (m <$> f) = Option.map f m;
+(** Utility functions **)
 
 (* How to check if a constant is recursively defined. *)
 fun is_recursive (cname:string) (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) =
@@ -40,6 +36,72 @@ fun count_recursive_consts trm = fold_aterms (fn Const (cname, _) => (fn n =>
 (* test *)
 @{assert} (count_recursive_consts @{term "x (take n xs) (drop n xs) = x xs (take n xs)"} = 5);
 
+(* Utilty functions *)
+infix >>= <$>;
+val _ = Option.map;
+fun (m >>= f) = Option.mapPartial f m;
+fun (m <$> f) = Option.map f m;
+
+(** MILKMAID_ASSERTION **)
+signature MILKMAID_ASSERTION =
+sig
+
+datatype uterm =
+  UConst of string * typ |
+  UFree  of string * typ |
+  UVar   of indexname * typ |
+  UBound of int |
+  UAbs   of string * typ * uterm |
+  UApp   of (uterm * uterm list);
+datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
+datatype pattern = Full | Partial | Var;
+type point =
+  {cname: string,
+   utyp : utyp,
+   level: int};
+type ancestors = (point * pattern) list;
+type datum =
+  {point    : point,
+   ancestors: ancestors};
+type data = datum list;
+type 'a matrix = 'a list list;
+datatype command = Definition | Fun | Function | Inductive | Other;
+
+(* operations on term *)
+val flatten           : term -> term list -> term list;
+val get_left          : term -> term option;
+val get_many          : Proof.context -> string -> (term -> term option) -> term list;
+val get_lefts         : Proof.context -> string -> term list;
+val is_head_Const     : term -> bool;
+val are_Consts        : term -> bool list;
+val get_cncl          : term -> term option;
+val get_left_in_concl : term -> term option;
+val get_left_in_concls: Proof.context -> string -> term list;
+
+(* operations on uterm *)
+val map_types'           : (typ -> typ) -> uterm -> uterm;
+val uncurry              : term -> uterm;
+val get_name             : uterm -> string;
+val uncurried_trm_to_data: uterm -> data;
+
+(* operations on matrix *)
+val get_elem_in_matrix: 'a matrix -> int * int (*(nth column, nth row) start at 0*) -> 'a option;
+val is_regular_matrix : bool matrix -> bool;
+val get_nth_column    : bool matrix -> int -> bool list;
+val transpose         : bool matrix -> bool list list option;
+val classify          : bool matrix -> pattern list option;
+
+(* mk_parameter_matrix *)
+val mk_parameter_matrix_for_fun     : Proof.context -> string -> bool list list;
+val mk_parameter_matrix_for_intros  : Proof.context -> string -> bool list list;
+val mk_parameter_matrix_for_function: Proof.context -> string -> bool list list;
+end;
+
+(** MiLkMaId_Assertion  **)
+
+structure MiLkMaId_Assertion : MILKMAID_ASSERTION =
+struct
+
 (* un-curried syntax tree *)
 datatype uterm =
   UConst of string * typ |
@@ -49,6 +111,7 @@ datatype uterm =
   UAbs   of string * typ * uterm |
   UApp   of (uterm * uterm list);
 
+(* map_types' *)
 fun map_types' f =
   let
     fun map_aux' (UConst (a, T))  = UConst (a, f T)
@@ -63,6 +126,7 @@ fun map_types' f =
 fun flatten (trm1 $ trm2) acc = flatten trm1 (trm2 :: acc)
  |  flatten trm acc = trm :: acc;
 
+(* uncurry *)
 fun uncurry (Const c) = UConst c
   | uncurry (Free f)  = UFree f
   | uncurry (Var v)   = UVar v
@@ -75,17 +139,13 @@ fun uncurry (Const c) = UConst c
       UApp (uncurry (hd xs), map uncurry (tl xs))
     end;
 
+(* get_name *)
 fun get_name (UConst  (name, _))        = name
  |  get_name (UFree   (name, _))        = name
  |  get_name (UVar   ((name, numb), _)) = name ^ Int.toString numb
  |  get_name (UBound   numb)            = Int.toString numb
  |  get_name (UAbs    (name, _, _))     = name
  |  get_name (UApp    _)                = error "get_name failed! The argument is UApp.";
-
-(* test *)
-val strip_type = Term.map_types (K dummyT);
-val strip_type' = map_types' (K dummyT);
-val strip_atype = Term.map_types (map_atyps (K dummyT));
 
 (* How to get left-hand-sides of rules from a proof context and their names? *)
 (* TODO: improve it with a monad transformer for Option here. *)
@@ -106,10 +166,6 @@ fun get_many (ctxt:Proof.context) (name:string) (getter:term -> term option) =
 
 fun get_lefts (ctxt:Proof.context) (name:string) = get_many ctxt name get_left;
 
-(* test *)
-get_lefts @{context} "sep.simps";
-get_lefts @{context} "my_true2";
-
 (* How to check which terms in a function application are constants. *)
 fun is_head_Const (Const _)  = true
  |  is_head_Const (trm1 $ _) = is_head_Const trm1
@@ -119,9 +175,6 @@ fun are_Consts' (acc:bool list) (trm1 $ trm2:term) = are_Consts' (is_head_Const 
  |  are_Consts' (acc:bool list) (trm:term)         = is_head_Const trm :: acc;
 
 val are_Consts = are_Consts' [];
-
-(* test *)
-get_lefts @{context} "sep.simps" |> map are_Consts;
 
 (* How to express matrix as a list of lists. *)
 type 'a matrix = 'a list list;
@@ -135,15 +188,6 @@ fun get_elem_in_matrix (matrix: 'a matrix) (row:int, column:int) =
     the_row >>= get_column
   end;
 
-(* test *)
-val test_data =
- [[true, false, true, false],
-  [true, false, true, false],
-  [true, false, true, true ]]: bool list list;
-
-@{assert} (get_elem_in_matrix test_data (1,3) = SOME false);
-@{assert} (get_elem_in_matrix test_data (2,3) = SOME true);
-
 (* How to check if a matrix is regular or not. *)
 fun is_regular_matrix (matrix:'a matrix) =
 let
@@ -154,27 +198,8 @@ in
   are_same_ints lengs
 end;
 
-(* test2 *)
-@{assert} (is_regular_matrix test_data);
-
-val test_data2 =
- [[true, false, true, false],
-  [true, true, false],
-  [true, false, true, true ]]: bool list list;
-
-@{assert} (is_regular_matrix test_data2 = false);
-
 (* How to get nth row in a matrix. *)
 fun get_nth_column (m: 'a matrix) (n:int) = map (fn mat => nth mat n) m;
-
-(* test *)
-@{assert} (get_nth_column test_data2 1 =  [false, true, false]);
-@{assert} (List.tabulate (0, get_nth_column test_data) = []);
-@{assert} (List.tabulate (length (hd test_data), get_nth_column test_data) =
- [[true,  true,  true],
-  [false, false, false], 
-  [true,  true,  true],
-  [false, false, true]]);
 
 (* How to transpose a matrix. *)
 fun transpose ([]:'a matrix)     = NONE(*TODO: double check*)
@@ -189,11 +214,6 @@ fun transpose ([]:'a matrix)     = NONE(*TODO: double check*)
     end
   else NONE;
 
-(* test *)
-val test_data3 = [[], [], [], []];
-@{assert} (transpose test_data = SOME [[true, true, true], [false, false, false], [true, true, true], [false, false, true]]);
-@{assert} (transpose test_data3 = NONE);
-
 (* How to classify parameters based on a parameter matrix. *)
 fun classify ([]: bool matrix)     = NONE (* should it throw an exception? *)
  |  classify ([[]]: bool matrix)   = NONE
@@ -206,35 +226,15 @@ in
   result
 end;
 
-(* test *)
-@{assert} (classify test_data  = SOME [Full, Var, Full, Partial]);
-@{assert} (classify test_data2 = NONE);
-@{assert} (classify test_data3 = NONE);
-
-(* How to produce parameter-matrix from a constant name. *)
-(* simps, psimps, coinduction? inductive? fun function definition *)
-(* We can use get_lefts and are_Consts for constants defined with "fun". *)
-Proof_Context.get_thms @{context} "filter.simps";
-get_lefts @{context} "filter.simps";
-get_lefts @{context} "filter.simps" |> map are_Consts;
-
 (* mk_parameter_matrix_for_fun *)
 fun mk_parameter_matrix_for_fun (ctxt:Proof.context) (cname:string) =
   get_lefts ctxt (cname ^ ".simps") |> map are_Consts;
-
-(* test *)
-mk_parameter_matrix_for_fun @{context} "Assertion.filter" |> classify;
-mk_parameter_matrix_for_fun @{context} "identity" |> classify;
 
 (* How to produce parameter-matrix for constants defined with "induct". *)
 (* Probably intros-rules are good target: focus on the conclusions.  *)
 fun get_cncl (trm:term) =
     try HOLogic.dest_Trueprop trm
 >>= try Logic.strip_imp_concl;
-
-get_many @{context} "evn.intros" get_cncl;
-
-try (Proof_Context.get_thms @{context}) "evn.intros" |> these |> map Thm.prop_of;
 
 (* mk_parameter_matrix_for_induct *)
 fun mk_parameter_matrix_for_intros (ctxt:Proof.context) (cname:string) =
@@ -243,10 +243,6 @@ fun mk_parameter_matrix_for_intros (ctxt:Proof.context) (cname:string) =
 |> map Logic.strip_imp_concl
 |> map HOLogic.dest_Trueprop
 |> map are_Consts;
-
-(* test *)
-@{assert} ((mk_parameter_matrix_for_intros @{context} "evn" |> classify)
-= (SOME [Full, Full, Var]: pattern list option));
 
 (* What should I do for constants defined with "function"? psimp? pinduct? 
  \<rightarrow> The premise of psimp seems more suitable.*)
@@ -260,25 +256,9 @@ fun get_left_in_concl (trm:term) =
 fun get_left_in_concls (ctxt:Proof.context) (name:string) =
   get_many ctxt name get_left_in_concl;
 
-get_left_in_concls @{context} "even.psimps";
-try (Proof_Context.get_thms @{context}) "even.psimps"
-|> these
-|> map Thm.prop_of
-|> map get_left_in_concl
-|> Utils.somes;
-
 fun mk_parameter_matrix_for_function (ctxt:Proof.context) (cname:string) =
   get_left_in_concls ctxt (cname ^ ".psimps") |> map are_Consts;
 
-(* test *)
-@{assert} 
-  (mk_parameter_matrix_for_function @{context} "even" = [[true, true], [true, true]]);
-@{assert}
- ((mk_parameter_matrix_for_function @{context} "even" |> classify) = SOME [Full, Full]);
-@{assert}
- (mk_parameter_matrix_for_function @{context} "nubBy" = [[true, false, true], [true, false, true]]);
-@{assert}
- ((mk_parameter_matrix_for_function @{context} "nubBy" |> classify) = SOME [Full, Var, Full]);
 
 (* How to tell if a constant is defined with the "fun"/"function"/"inductive" keyword? *)
 (*
@@ -348,6 +328,88 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
 
 fun uncurried_trm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
 
+datatype command = Definition | Fun | Function | Inductive | Other;
+
+end;
+
+structure MiLkMaId_Assertion_Test =
+struct
+open MiLkMaId_Assertion
+
+(* test *)
+val test_data =
+ [[true, false, true, false],
+  [true, false, true, false],
+  [true, false, true, true ]]: bool list list;
+
+val _ = @{assert} (get_elem_in_matrix test_data (1,3) = SOME false);
+val _ = @{assert} (get_elem_in_matrix test_data (2,3) = SOME true);
+val _ = @{assert} (get_elem_in_matrix test_data (3,2) = NONE);
+val _ = @{assert} (get_elem_in_matrix test_data (2,3) = SOME true);
+
+val test_data2 =
+ [[true, false, true, false],
+  [true, true, false],
+  [true, false, true, true ]]: bool list list;
+
+val _ = @{assert} (is_regular_matrix test_data2 = false);
+
+(* test *)
+val _ = @{assert} (get_lefts @{context} "MyTrue2_def" = []); (*TODO: This is probably wrong. Double-check. *)
+
+val _ = @{assert} (transpose test_data = SOME
+  [[true,  true,  true],
+   [false, false, false],
+   [true,  true,  true],
+   [false, false, true]]);
+
+val test_data3 = [[], [], [], []];
+
+val _ = @{assert} (transpose test_data3 = NONE);
+val _ = @{assert} (classify test_data  = SOME [Full, Var, Full, Partial]);
+val _ = @{assert} (classify test_data2 = NONE);
+val _ = @{assert} (classify test_data3 = NONE);
+
+
+(*
+(* How to produce parameter-matrix from a constant name. *)
+(* simps, psimps, coinduction? inductive? fun function definition *)
+(* We can use get_lefts and are_Consts for constants defined with "fun". *)
+Proof_Context.get_thms @{context} "filter.simps";
+get_lefts @{context} "filter.simps";
+get_lefts @{context} "filter.simps" |> map are_Consts;
+
+(* test *)
+mk_parameter_matrix_for_fun @{context} "Assertion.filter" |> classify;
+mk_parameter_matrix_for_fun @{context} "identity" |> classify;
+
+get_many @{context} "evn.intros" get_cncl;
+
+try (Proof_Context.get_thms @{context}) "evn.intros" |> these |> map Thm.prop_of;
+
+
+(* test *)
+@{assert} ((mk_parameter_matrix_for_intros @{context} "evn" |> classify)
+= (SOME [Full, Full, Var]: pattern list option));
+
+
+get_left_in_concls @{context} "even.psimps";
+try (Proof_Context.get_thms @{context}) "even.psimps"
+|> these
+|> map Thm.prop_of
+|> map get_left_in_concl
+|> Utils.somes;
+
+(* test *)
+@{assert} 
+  (mk_parameter_matrix_for_function @{context} "even" = [[true, true], [true, true]]);
+@{assert}
+ ((mk_parameter_matrix_for_function @{context} "even" |> classify) = SOME [Full, Full]);
+@{assert}
+ (mk_parameter_matrix_for_function @{context} "nubBy" = [[true, false, true], [true, false, true]]);
+@{assert}
+ ((mk_parameter_matrix_for_function @{context} "nubBy" |> classify) = SOME [Full, Var, Full]);
+
 @{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry;
 
 (* test *)
@@ -383,7 +445,6 @@ fun uncurried_trm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
                                                               ({cname = "E", level = 1, utyp = UAb}, Full)]},
   {point = {cname = "E", level = 1, utyp = UAb}, ancestors = []}]);
 
-datatype command = Definition | Fun | FunctionInductive | Other;
 
 (* test *)
 @{term "even n = odd (Suc n)"} |> uncurry;
@@ -434,3 +495,6 @@ uncurry @{term "even 1"};
 uncurry @{term "\<lambda> B. C B (\<lambda>E. F E B)"};
 uncurry @{term "\<forall>x. P x y x"};
 uncurry @{term "\<And>x. P x y x"};
+*)
+
+end;
