@@ -54,7 +54,7 @@ datatype uterm =
   UAbs   of string * typ * uterm |
   UApp   of (uterm * uterm list);
 datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
-datatype pattern = Full | Partial | Var;
+datatype pattern = Full | Partial | Var | Abstract | Other;
 type point =
   {cname: string,
    utyp : utyp,
@@ -65,7 +65,7 @@ type datum =
    ancestors: ancestors};
 type data = datum list;
 type 'a matrix = 'a list list;
-datatype command = Definition | Fun | Function | Inductive | Other;
+datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
 (* operations on term *)
 val flatten           : term -> term list -> term list;
@@ -149,9 +149,6 @@ fun get_name (UConst  (name, _))        = name
 
 (* How to get left-hand-sides of rules from a proof context and their names? *)
 (* TODO: improve it with a monad transformer for Option here. *)
-fun get_left (_ $ (Term.Const ("HOL.eq",_) $ left $ _):term) = SOME left
- |  get_left  _                                              = NONE;
-
 fun get_left (trm:term) =
     try HOLogic.dest_Trueprop trm
 >>= try HOLogic.dest_eq
@@ -178,7 +175,12 @@ val are_Consts = are_Consts' [];
 
 (* How to express matrix as a list of lists. *)
 type 'a matrix = 'a list list;
-datatype pattern = Full | Partial | Var;
+datatype pattern =
+   Full     (* Pattern-matching for this parameter is complete. *)
+ | Partial  (* Pattern-matching for this parameter is not complete, but some clauses are pattern-matched. *)
+ | Var      (* This parameter is a variable in all clauses. *)
+ | Abstract (* This parameter is a function body of a lambda abstracted term. *)
+ | Other;
 
 fun get_elem_in_matrix (matrix: 'a matrix) (row:int, column:int) =
   let
@@ -233,8 +235,8 @@ fun mk_parameter_matrix_for_fun (ctxt:Proof.context) (cname:string) =
 (* How to produce parameter-matrix for constants defined with "induct". *)
 (* Probably intros-rules are good target: focus on the conclusions.  *)
 fun get_cncl (trm:term) =
-    try HOLogic.dest_Trueprop trm
->>= try Logic.strip_imp_concl;
+    try Logic.strip_imp_concl trm
+>>= try HOLogic.dest_Trueprop
 
 (* mk_parameter_matrix_for_induct *)
 fun mk_parameter_matrix_for_intros (ctxt:Proof.context) (cname:string) =
@@ -267,6 +269,7 @@ fun           \<rightarrow> cases, elims, induct, pelims, simps (* no _def, no p
 function      \<rightarrow> cases, pelims, pinduct, psimps (* no _def, no induct, no simps *)
 inductive     \<rightarrow> cases, induct, inducts, intros, simps, \<dots> (* no _def, no pelims, no elims *)
 inductive_set \<rightarrow> cases, induct, inducts, intros, simps, step_set, zero_set, _def, cases induct, \<dots>
+(*TODO: primrec*)
 *)
 
 (* data-point *)
@@ -328,15 +331,15 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
 
 fun uncurried_trm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
 
-datatype command = Definition | Fun | Function | Inductive | Other;
+datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
 end;
 
+(** test **)
 structure MiLkMaId_Assertion_Test =
 struct
 open MiLkMaId_Assertion
 
-(* test *)
 val test_data =
  [[true, false, true, false],
   [true, false, true, false],
@@ -354,7 +357,6 @@ val test_data2 =
 
 val _ = @{assert} (is_regular_matrix test_data2 = false);
 
-(* test *)
 val _ = @{assert} (get_lefts @{context} "MyTrue2_def" = []); (*TODO: This is probably wrong. Double-check. *)
 
 val _ = @{assert} (transpose test_data = SOME
@@ -370,50 +372,43 @@ val _ = @{assert} (classify test_data  = SOME [Full, Var, Full, Partial]);
 val _ = @{assert} (classify test_data2 = NONE);
 val _ = @{assert} (classify test_data3 = NONE);
 
+val _ =
+((@{term "(\<lambda>E. F E)"} |> uncurry |> uncurried_trm_to_data) =
+ [{point = {cname = "F", level = 2, utyp = UF},  ancestors = [({cname = "E", level = 1, utyp = UAb}, Full)]},
+  {point = {cname = "0", level = 3, utyp = UB},  ancestors = [({cname = "F", level = 2, utyp = UF},  Full),
+                                                              ({cname = "E", level = 1, utyp = UAb}, Full)]},
+  {point = {cname = "E", level = 1, utyp = UAb}, ancestors = []}]);
 
-(*
-(* How to produce parameter-matrix from a constant name. *)
-(* simps, psimps, coinduction? inductive? fun function definition *)
-(* We can use get_lefts and are_Consts for constants defined with "fun". *)
-Proof_Context.get_thms @{context} "filter.simps";
-get_lefts @{context} "filter.simps";
-get_lefts @{context} "filter.simps" |> map are_Consts;
+(* test mk_parameter_matrix_for_fun *)
+val _ = @{assert} ((mk_parameter_matrix_for_fun @{context} "MiLkMaId_Example.filter" |> classify) =
+  SOME [Full, Var, Full]);
+val _ = @{assert} ((mk_parameter_matrix_for_fun @{context} "MiLkMaId_Example.identity" |> classify) =
+  SOME [Full, Var]);
 
-(* test *)
-mk_parameter_matrix_for_fun @{context} "Assertion.filter" |> classify;
-mk_parameter_matrix_for_fun @{context} "identity" |> classify;
+(* test are_Consts *)
+val _ = @{assert} ((get_lefts @{context} "filter.simps" |> map are_Consts) =
+  [[true, false, true],
+   [true, false, true]]);
 
-get_many @{context} "evn.intros" get_cncl;
+(* test mk_parameter_matrix_for_intros *)
+val _ = @{assert} ((mk_parameter_matrix_for_intros @{context} "evn" |> classify) = 
+  (SOME [Full, Full, Var]: pattern list option));
 
-try (Proof_Context.get_thms @{context}) "evn.intros" |> these |> map Thm.prop_of;
-
-
-(* test *)
-@{assert} ((mk_parameter_matrix_for_intros @{context} "evn" |> classify)
-= (SOME [Full, Full, Var]: pattern list option));
-
-
-get_left_in_concls @{context} "even.psimps";
-try (Proof_Context.get_thms @{context}) "even.psimps"
-|> these
-|> map Thm.prop_of
-|> map get_left_in_concl
-|> Utils.somes;
-
-(* test *)
-@{assert} 
+(* test mk_parameter_matrix_for_function *)
+val _ = @{assert} 
   (mk_parameter_matrix_for_function @{context} "even" = [[true, true], [true, true]]);
-@{assert}
+
+val _ = @{assert}
  ((mk_parameter_matrix_for_function @{context} "even" |> classify) = SOME [Full, Full]);
-@{assert}
+
+val _ = @{assert}
  (mk_parameter_matrix_for_function @{context} "nubBy" = [[true, false, true], [true, false, true]]);
-@{assert}
+
+val _ = @{assert}
  ((mk_parameter_matrix_for_function @{context} "nubBy" |> classify) = SOME [Full, Var, Full]);
 
-@{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry;
-
-(* test *)
-@{assert} ((@{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry |> uncurried_trm_to_data) =
+(* test uncurry and uncurried_trm_to_data *)
+val _ = @{assert} ((@{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry |> uncurried_trm_to_data) =
 ( [{point = {cname = "A", level = 1, utyp = UF},
       ancestors = []},
    {point = {cname = "B", level = 2, utyp = UF},
@@ -437,6 +432,10 @@ try (Proof_Context.get_thms @{context}) "even.psimps"
    {point = {cname = "E", level = 3, utyp = UAb},
       ancestors = [({cname = "D", level = 2, utyp = UF}, Full),
                    ({cname = "A", level = 1, utyp = UF}, Full)]}]: data));
+
+(*
+(* test *)
+
 
 @{assert}
 ((@{term "(\<lambda>E. F E)"} |> uncurry |> uncurried_trm_to_data) =
@@ -497,4 +496,4 @@ uncurry @{term "\<forall>x. P x y x"};
 uncurry @{term "\<And>x. P x y x"};
 *)
 
-end;
+end;;
