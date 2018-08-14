@@ -4,19 +4,59 @@ begin
 
 ML_file "MiLkMaId_Assertion.ML"
 
-
-(** tests **)
-ML{* open MiLkMaId_Assertion; *}
-
-ML{* get_many @{context} "evn.intros" get_cncl; *}
-
-ML{* @{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry; *}
+ML{* (* TODO: to differentiate "inductive" and "inductive_set", we should check the types.  *)
+dest_Const @{term "even_set"} |> snd |> dest_Type |> fst;
+*}
 
 ML{*
-uncurry @{term "even 1"};
-uncurry @{term "\<lambda> B. C B (\<lambda>E. F E B)"};
-uncurry @{term "\<forall>x. P x y x"};
-uncurry @{term "\<And>x. P x y x"};
+(* test check_suffix *)
+(* "evn" defined with the "inductive" keyword *)
+val _ = @{assert} (check_suffix @{context} "evn" suffix_for_inductive);
+val _ = @{assert} (check_suffix @{context} "evn" suffix_for_fun = false);
+val _ = @{assert} (check_suffix @{context} "evn" suffix_for_function = false);
+val _ = @{assert} (check_suffix @{context} "evn" suffix_for_primrec = false);
+ 
+(* "fib" defined with the "fun" keyword *)
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.fib" suffix_for_inductive = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.fib" suffix_for_fun);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.fib" suffix_for_function = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.fib" suffix_for_primrec = false);
+
+(* "even" defined with the "function" keyword *)
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.even" suffix_for_inductive = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.even" suffix_for_fun = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.even" suffix_for_function);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.even" suffix_for_primrec = false);
+
+(* "odd" defined with the "function" keyword *)
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.odd" suffix_for_inductive = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.odd" suffix_for_fun = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.odd" suffix_for_function);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.odd" suffix_for_primrec = false);
+
+(* "filter" defined with the "fun" keyword *)
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.filter" suffix_for_inductive = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.filter" suffix_for_fun);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.filter" suffix_for_function = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.filter" suffix_for_primrec = false);
+
+(* "nubBy" defined with the "fun" keyword *)
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.nubBy" suffix_for_inductive = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.nubBy" suffix_for_fun = false);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.nubBy" suffix_for_function);
+val _ = @{assert} (check_suffix @{context} "MiLkMaId_Example.nubBy" suffix_for_primrec = false);
+
+(* test get_command *)
+val _ = @{assert} (get_command "MiLkMaId_Example.MyTrue1"  @{context} = Unknown);
+val _ = @{assert} (get_command "MiLkMaId.append2"          @{context} = Unknown (*Because it is not really defined in that file.*));
+val _ = @{assert} (get_command "MiLkMaId_Example.append2"  @{context} = Primrec);
+val _ = @{assert} (get_command "MiLkMaId_Example.evn"      @{context} = Inductive);
+val _ = @{assert} (get_command "MiLkMaId_Example.fib"      @{context} = Fun);
+val _ = @{assert} (get_command "MiLkMaId_Example.even"     @{context} = Function);
+val _ = @{assert} (get_command "MiLkMaId_Example.odd"      @{context} = Function);
+val _ = @{assert} (get_command "MiLkMaId_Example.filter"   @{context} = Fun);
+val _ = @{assert} (get_command "MiLkMaId_Example.nubBy"    @{context} = Function);
+val _ = @{assert} (get_command "MiLkMaId_Example.even_set" @{context} = Inductive);(*FIXME: It should be Inductive_Set.*)
 *}
 
 end

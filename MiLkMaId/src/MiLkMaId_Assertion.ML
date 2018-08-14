@@ -25,16 +25,9 @@ fun exist_related_rsimp  []             = false
 fun has_related_rsimp (Const (c, _)) = exist_related_rsimp [c]
  |  has_related_rsimp _ = false;
 
-(* test *)
-@{assert} (exist_related_rsimp ["TIP_prop_01.drop"]);
-@{assert} (exist_related_rsimp ["identity"] = false);
-
 (* How to get the number of recursive functions in a term? *)
 fun count_recursive_consts trm = fold_aterms (fn Const (cname, _) => (fn n =>
   if exist_related_rsimp [cname] then n + 1 else n) | _ => I) trm 0;
-
-(* test *)
-@{assert} (count_recursive_consts @{term "x (take n xs) (drop n xs) = x xs (take n xs)"} = 5);
 
 (* Utilty functions *)
 infix >>= <$>;
@@ -43,9 +36,12 @@ fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
 
 (** MILKMAID_ASSERTION **)
+(*MILKMAID_ASSERTION exposes many functions that are not meant to be used by other users
+ *because unit tests using @{assert} in MiLkMaId_Test.thy require them to be accessible.*)
 signature MILKMAID_ASSERTION =
 sig
 
+(* types *)
 datatype uterm =
   UConst of string * typ |
   UFree  of string * typ |
@@ -68,7 +64,15 @@ type 'a matrix = 'a list list;
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
 (* operations about command *)
-val get_command: string -> Proof.context -> command; (*code duplication with PaMpeR?*)
+type suffixes = (string list * string list);
+val check_suffix            : Proof.context -> string -> suffixes -> bool;
+val suffix_for_definition   : suffixes;
+val suffix_for_primrec      : suffixes;
+val suffix_for_fun          : suffixes;
+val suffix_for_function     : suffixes;
+val suffix_for_inductive    : suffixes;
+val suffix_for_inductive_set: suffixes;
+val get_command             : string -> Proof.context -> command; (*code duplication with PaMpeR?*)
 
 (* operations on term *)
 val flatten           : term -> term list -> term list;
@@ -95,15 +99,15 @@ val transpose         : bool matrix -> bool list list option;
 val classify          : bool matrix -> pattern list option;
 
 (* mk_parameter_matrix *)
-val mk_parameter_matrix_for_fun     : Proof.context -> string -> bool matrix;
-val mk_parameter_matrix_for_intros  : Proof.context -> string -> bool matrix;
-val mk_parameter_matrix_for_function: Proof.context -> string -> bool matrix;
-val mk_parameter_matrix             : Proof.context -> string -> bool matrix;
+val mk_parameter_matrix_for_primrec   : Proof.context -> string -> bool matrix;
+val mk_parameter_matrix_for_fun       : Proof.context -> string -> bool matrix;
+val mk_parameter_matrix_for_function  : Proof.context -> string -> bool matrix;
+val mk_parameter_matrix_for_inductive : Proof.context -> string -> bool matrix;
+val mk_parameter_matrix               : Proof.context -> string -> bool matrix;
 
 end;
 
-(** MiLkMaId_Assertion  **)
-
+(** MiLkMaId_Assertion **)
 structure MiLkMaId_Assertion : MILKMAID_ASSERTION =
 struct
 
@@ -178,6 +182,48 @@ fun are_Consts' (acc:bool list) (trm1 $ trm2:term) = are_Consts' (is_head_Const 
 
 val are_Consts = are_Consts' [];
 
+(* type and functions about command *)
+datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+
+fun has_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:string) =
+  can (Proof_Context.get_thms ctxt) (cnst_name ^ "." ^ suffix);
+
+fun has_no_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:string) =
+  can (Proof_Context.get_thms ctxt) (cnst_name ^ "." ^ suffix) |> not;
+
+(*TODO*)val suffix_for_definition = (["_def"], ["cases", "elims", "induct", "simps", "intros"]);
+val suffix_for_fun =       (["cases", "elims", "induct", "pelims", "simps"], ["inducts", "intros"]);(*The "fun" keyword produces psimps.*)
+val suffix_for_function =  (["cases", "pelims", "psimps"], ["elims", "simps", "intros"]);
+val suffix_for_primrec =   (["simps"], ["cases", "pelims", "psimps","elims", "intros"]);
+val suffix_for_inductive = (["cases", "induct", "inducts", "intros", "simps"], ["pelims", "elims"]);
+(*TODO*)val suffix_for_inductive_set = suffix_for_inductive;
+(* Note that the "inductive_set" keyword creates "_eq" as well. But it is computationally expensive
+ * to check the existence of this sort of derived lemma because we have to use regular expression.
+ * Instead of this, we should check the type of this constant. *)
+
+type suffixes = (string list * string list);
+
+fun check_suffix (ctxt:Proof.context) (cnst_name:string) ((haves, donts): suffixes) =
+ (map (has_rule_with_suffix ctxt cnst_name) haves @  (map (has_no_rule_with_suffix ctxt cnst_name) donts))
+|> filter_out I
+|> null;
+
+fun get_command (trm_name:string) (ctxt:Proof.context) =
+let
+  val check_suffix  = check_suffix ctxt trm_name;
+  val is_fun        = check_suffix suffix_for_fun;
+  val is_function   = check_suffix suffix_for_function;
+  val is_primrec    = check_suffix suffix_for_primrec;
+  val is_inductive  = check_suffix suffix_for_inductive;
+  val checks = [is_primrec, is_fun, is_function, is_inductive]: bool list;
+in
+  (if checks = [true,  false, false, false] then Primrec else
+   if checks = [false, true,  false, false] then Fun else
+   if checks = [false, false, true,  false] then Function else
+   if checks = [false, false, false, true ] then Inductive else 
+   Unknown)
+end;
+
 (* How to express matrix as a list of lists. *)
 type 'a matrix = 'a list list;
 datatype pattern =
@@ -233,9 +279,21 @@ in
   result
 end;
 
-(* mk_parameter_matrix_for_fun *)
-fun mk_parameter_matrix_for_fun (ctxt:Proof.context) (cname:string) =
+(* mk_parameter_matrix_for_function *)
+fun mk_parameter_matrix_for_function (ctxt:Proof.context) (cname:string) =
+  try (Proof_Context.get_thms ctxt) (cname ^ ".intros") |> these
+|> map Thm.prop_of
+|> map Logic.strip_imp_concl
+|> map get_left
+|> Utils.somes
+|> map are_Consts;
+
+(* mk_parameter_matrix_for_primrec *)
+fun mk_parameter_matrix_for_primrec (ctxt:Proof.context) (cname:string) =
   get_lefts ctxt (cname ^ ".simps") |> map are_Consts;
+
+(* mk_parameter_matrix_for_fun *)
+fun mk_parameter_matrix_for_fun (ctxt:Proof.context) (cname:string) = mk_parameter_matrix_for_primrec ctxt cname;
 
 (* How to produce parameter-matrix for constants defined with "induct". *)
 (* Probably intros-rules are good target: focus on the conclusions.  *)
@@ -244,7 +302,7 @@ fun get_cncl (trm:term) =
 >>= try HOLogic.dest_Trueprop
 
 (* mk_parameter_matrix_for_induct *)
-fun mk_parameter_matrix_for_intros (ctxt:Proof.context) (cname:string) =
+fun mk_parameter_matrix_for_inductive (ctxt:Proof.context) (cname:string) =
   try (Proof_Context.get_thms ctxt) (cname ^ ".intros") |> these
 |> map Thm.prop_of
 |> map Logic.strip_imp_concl
@@ -252,10 +310,18 @@ fun mk_parameter_matrix_for_intros (ctxt:Proof.context) (cname:string) =
 |> map are_Consts;
 
 (* mk_parameter_matrix *)
-fun mk_parameter_matrix (ctxt:Proof.context) (cname:string) = [[]](*TODO*);
-
-(* What should I do for constants defined with "function"? psimp? pinduct? 
- \<rightarrow> The premise of psimp seems more suitable.*)
+fun mk_parameter_matrix (ctxt:Proof.context) (cname:string) =
+let
+  val command = get_command cname ctxt: command;
+  val result = case command of
+  Primrec =>   mk_parameter_matrix_for_primrec ctxt cname
+| Fun =>       mk_parameter_matrix_for_fun ctxt cname
+| Function =>  mk_parameter_matrix_for_function ctxt cname
+| Inductive => mk_parameter_matrix_for_inductive ctxt cname
+| _ => [[]] (*TODO*)
+in
+  result
+end;
 
 fun get_left_in_concl (trm:term) =
     try Logic.strip_imp_concl trm
@@ -268,17 +334,6 @@ fun get_left_in_concls (ctxt:Proof.context) (name:string) =
 
 fun mk_parameter_matrix_for_function (ctxt:Proof.context) (cname:string) =
   get_left_in_concls ctxt (cname ^ ".psimps") |> map are_Consts;
-
-
-(* How to tell if a constant is defined with the "fun"/"function"/"inductive" keyword? *)
-(*
-definition    \<rightarrow> _def (* no cases, no elims, no induct, no simps *)
-fun           \<rightarrow> cases, elims, induct, pelims, simps (* no _def, no pinduct, no psimps *)
-function      \<rightarrow> cases, pelims, pinduct, psimps (* no _def, no induct, no simps *)
-inductive     \<rightarrow> cases, induct, inducts, intros, simps, \<dots> (* no _def, no pelims, no elims *)
-inductive_set \<rightarrow> cases, induct, inducts, intros, simps, step_set, zero_set, _def, cases induct, \<dots>
-(*TODO: primrec*)
-*)
 
 (* data-point *)
 datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
@@ -339,9 +394,5 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
   end;
 
 fun uncurried_trm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
-
-datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
-
-fun get_command _ _ = Unknown; (*TODO*)
 
 end;

@@ -10,16 +10,19 @@ begin
 
 (** Isabelle definitions for testing **)
 
-definition "MyTrue1 \<equiv> True"
+definition "MyTrue1 \<equiv> True" print_theorems
 
-definition "MyTrue2 \<equiv> True"
+definition MyTrueDef: "MyTrue2 \<equiv> True" print_theorems
+
+definition nand :: "bool \<Rightarrow> bool \<Rightarrow> bool" where "nand A B \<equiv> \<not> (A \<and> B)"
+print_theorems
 
 (* Example from the Isabelle tutorial by Tobias Nipkow et al. *)
 inductive evn :: "nat \<Rightarrow> nat \<Rightarrow> bool" where
 step: "evn n m \<Longrightarrow> evn (Suc(Suc n)) m" |
 zero: "evn 0 n" |
 step_test: "evn n m \<Longrightarrow> evn (Suc(Suc n)) m"
-print_theorems (*cases, induct, inducts, intros, simps, step, step_test, zero*)
+print_theorems (*cases, induct, inducts, intros, simps(, step, step_test, zero)*)
 
 (* Example from Defining Recursive Functions in Isabelle/HOL by Alexander Krauss *)
 fun fib :: "nat \<Rightarrow> nat" where
@@ -61,6 +64,23 @@ step_set: "n \<in> even_set \<Longrightarrow> (Suc (Suc n)) \<in> even_set"
 print_theorems 
 (* cases, induct, inducts, intros, simps, step_set, zero_set, _def, cases induct, \<dots>*)
 
-ML{* @{term "0 \<in> even_set"} *}
+(*Probably we should use the type to detect if a constant is defined with the "inductive_set" keywords.*)
+ML{* @{term "0 \<in> even_set"}; @{term "even_set"}; @{typ "nat set"} *}
+
+(* test *)
+fun identity::"'a \<Rightarrow> 'a" where "identity z = z"
+
+term "append"
+find_theorems name:"append." name:"simp"
+find_theorems name:"append." name:"psimp"
+find_theorems name:"append." name:"induct"
+find_theorems name:"append."
+term append
+
+(* Example similar to the append function defined in Isabelle's standard library (src/HOL/List.thy) *)
+primrec append2 :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+append_Nil2: "append2  nil2         ys = ys" |
+append_Cons2:"append2 (cons2 x1 xs) ys = cons2 x1 (append2 xs ys)"
+print_theorems
 
 end
