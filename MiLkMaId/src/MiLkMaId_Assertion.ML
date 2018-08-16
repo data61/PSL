@@ -351,7 +351,17 @@ type point =
    level: int};
 
 (* TODO: ancestors should also talk about types of pattern-matching. *)
-type ancestors = (point * pattern) list;
+(* No. Ancestors should tag each point with the information that says that point is nth argument
+ * of the ancestor. Why?
+ * - Because we want to deal with only one task at one step. When constructing a table from a proof
+ *   goal, it is already one task. We should have a separate step for checking the completeness of
+ *   pattern-match.
+ * - Because we are not sure if checking the completeness of pattern-match is enough or not. Knowing
+ *   the location of the current point with regards to the constant name provides more information.
+ *   And we can infer the information about pattern-matching from the location of the current point
+ *   in terms of each constant. *)
+(*For "fun p x y", "x" is the first argument and "y" is the second argument.*)
+type ancestors = (point * pattern(*int*)) list;
 
 type datum =
   {point    : point,
@@ -365,7 +375,7 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
     val new_point     = {cname = name, utyp = UAb, level = new_level} : point;
     val new_datum     = {point = new_point, ancestors = old_ancestors}: datum;
     val new_data      = new_datum :: old_data                         : data;
-    val new_ancestors = (new_point, Abstract) :: old_ancestors    : ancestors;
+    val new_ancestors = (new_point, Abstract) :: old_ancestors        : ancestors;
   in
     uc_trm_to_points' utrm new_level new_data new_ancestors:data
   end
