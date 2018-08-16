@@ -47,7 +47,7 @@ datatype uterm =
   UFree  of string * typ |
   UVar   of indexname * typ |
   UBound of int |
-  UAbs   of string * typ * uterm |
+  UAbs   of string * typ * uterm |(*TODO: probably we also apply un-currying to lambda abstraction.*)
   UApp   of (uterm * uterm list);
 datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
 datatype pattern = Full | Partial | Var | Abstract | Other;
@@ -55,7 +55,7 @@ type point =
   {cname: string,
    utyp : utyp,
    level: int};
-type ancestors = (point * pattern) list;
+type ancestors = (point * int) list;
 type datum =
   {point    : point,
    ancestors: ancestors};
@@ -350,7 +350,6 @@ type point =
    utyp : utyp,
    level: int};
 
-(* TODO: ancestors should also talk about types of pattern-matching. *)
 (* No. Ancestors should tag each point with the information that says that point is nth argument
  * of the ancestor. Why?
  * - Because we want to deal with only one task at one step. When constructing a table from a proof
@@ -361,7 +360,7 @@ type point =
  *   And we can infer the information about pattern-matching from the location of the current point
  *   in terms of each constant. *)
 (*For "fun p x y", "x" is the first argument and "y" is the second argument.*)
-type ancestors = (point * pattern(*int*)) list;
+type ancestors = (point * int) list;
 
 type datum =
   {point    : point,
@@ -369,13 +368,17 @@ type datum =
 
 type data = datum list;
 
+(*TODO: I need a function that creates*)
+
 fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:data) (old_ancestors:ancestors) =
   let
     val new_level     = old_level + 1                                 : int;
     val new_point     = {cname = name, utyp = UAb, level = new_level} : point;
     val new_datum     = {point = new_point, ancestors = old_ancestors}: datum;
     val new_data      = new_datum :: old_data                         : data;
-    val new_ancestors = (new_point, Abstract) :: old_ancestors        : ancestors;
+    (*So far, lambda abstraction takes only 1 variable.
+     *TODO: probably we also apply un-currying to lambda abstraction.*)
+    val new_ancestors = (new_point, 1) :: old_ancestors       : ancestors;
   in
     uc_trm_to_points' utrm new_level new_data new_ancestors:data
   end
@@ -384,12 +387,11 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
     val new_level      = old_level + 1: int;
     val new_point      = {cname = get_name func, utyp = get_utyp func, level = new_level}: point;
     val new_datum      = {point = new_point, ancestors = old_ancestors}: datum;
-    val new_ancestorss = List.tabulate (length args, K ((new_point, Full(*TODO*))::old_ancestors))
-    (*In order to remove this TODO, I have to be able to guess the Isabelle keyword used to define "func".*)
+    val new_ancestorss = List.tabulate (length args, fn n => ((new_point, n)::old_ancestors))
                        : ancestors list;
-    val xs = args ~~ new_ancestorss: (uterm * ancestors) list;
-    val results = map (fn (utrm:uterm, ans:ancestors) => uc_trm_to_points' utrm new_level [] ans) xs;
-    val result = new_datum :: flat results @ old_data: data;
+    val new_nodes = args ~~ new_ancestorss: (uterm * ancestors) list;
+    val results   = map (fn (utrm:uterm, ans:ancestors) => uc_trm_to_points' utrm new_level [] ans) new_nodes;
+    val result    = new_datum :: flat results @ old_data: data;
   in
     result:data
   end                                                                                                                    

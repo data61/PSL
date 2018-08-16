@@ -47,9 +47,9 @@ val _ = @{assert} (classify test_data3 = NONE);
 
 val _ =
 ((@{term "(\<lambda>E. F E)"} |> uncurry |> uncurried_trm_to_data) =
- [{point = {cname = "F", level = 2, utyp = UF},  ancestors = [({cname = "E", level = 1, utyp = UAb}, Full)]},
-  {point = {cname = "0", level = 3, utyp = UB},  ancestors = [({cname = "F", level = 2, utyp = UF},  Full),
-                                                              ({cname = "E", level = 1, utyp = UAb}, Full)]},
+ [{point = {cname = "F", level = 2, utyp = UF},  ancestors = [({cname = "E", level = 1, utyp = UAb}, 1)]},
+  {point = {cname = "0", level = 3, utyp = UB},  ancestors = [({cname = "F", level = 2, utyp = UF},  1),
+                                                              ({cname = "E", level = 1, utyp = UAb}, 1)]},
   {point = {cname = "E", level = 1, utyp = UAb}, ancestors = []}]);
 
 (* test mk_parameter_matrix_for_fun *)
@@ -81,72 +81,73 @@ val _ = @{assert}
  ((mk_parameter_matrix_for_function @{context} "nubBy" |> classify) = SOME [Full, Var, Full]);
 
 (* test uncurry and uncurried_trm_to_data *)
+
 val _ = @{assert} ((@{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry |> uncurried_trm_to_data) =
  ([{point = {cname = "A", level = 1, utyp = UF},
       ancestors = []},
    {point = {cname = "B", level = 2, utyp = UF},
-      ancestors = [({cname = "A", level = 1, utyp = UF}, Full)]},
+      ancestors = [({cname = "A", level = 1, utyp = UF}, 1)]},
    {point = {cname = "MiLkMaId_Example.identity", level = 2, utyp = UC},
-     ancestors = [({cname = "A", level = 1, utyp = UF}, Full)]},
+     ancestors = [({cname = "A", level = 1, utyp = UF}, 2)]},
    {point = {cname = "G", level = 3, utyp = UF},
-     ancestors = [({cname = "MiLkMaId_Example.identity", level = 2, utyp = UC}, Full),
-                  ({cname = "A", level = 1, utyp = UF}, Full)]},
+     ancestors = [({cname = "MiLkMaId_Example.identity", level = 2, utyp = UC}, 1),
+                  ({cname = "A", level = 1, utyp = UF}, 2)]},
    {point = {cname = "D", level = 2, utyp = UF},
-     ancestors = [({cname = "A", level = 1, utyp = UF}, Full)]},
+     ancestors = [({cname = "A", level = 1, utyp = UF}, 3)]},
    {point = {cname = "F", level = 4, utyp = UF},
-      ancestors = [({cname = "E", level = 3, utyp = UAb}, Abstract),
-                   ({cname = "D", level = 2, utyp = UF},  Full),
-                   ({cname = "A", level = 1, utyp = UF},  Full)]},
+      ancestors = [({cname = "E", level = 3, utyp = UAb}, 1),
+                   ({cname = "D", level = 2, utyp = UF},  1),
+                   ({cname = "A", level = 1, utyp = UF},  3)]},
    {point = {cname = "0", level = 5, utyp = UB},
-      ancestors = [({cname = "F", level = 4, utyp = UF},  Full),
-                   ({cname = "E", level = 3, utyp = UAb}, Abstract),
-                   ({cname = "D", level = 2, utyp = UF},  Full),
-                   ({cname = "A", level = 1, utyp = UF},  Full)]},
+      ancestors = [({cname = "F", level = 4, utyp = UF},  1),
+                   ({cname = "E", level = 3, utyp = UAb}, 1),
+                   ({cname = "D", level = 2, utyp = UF},  1),
+                   ({cname = "A", level = 1, utyp = UF},  3)]},(*"0" (="E") is an argument of "A"!*)
    {point = {cname = "E", level = 3, utyp = UAb},
-      ancestors = [({cname = "D", level = 2, utyp = UF}, Full),
-                   ({cname = "A", level = 1, utyp = UF}, Full)]}]: data));
+      ancestors = [({cname = "D", level = 2, utyp = UF}, 1),
+                   ({cname = "A", level = 1, utyp = UF}, 3)]}]: data));
 
 val _ = @{assert} ((@{term "(\<lambda>E. F E)"} |> uncurry |> uncurried_trm_to_data) =
- [{point = {cname = "F", level = 2, utyp = UF},  ancestors = [({cname = "E", level = 1, utyp = UAb}, Abstract)]},
-  {point = {cname = "0", level = 3, utyp = UB},  ancestors = [({cname = "F", level = 2, utyp = UF},  Full),
-                                                              ({cname = "E", level = 1, utyp = UAb}, Abstract)]},
+ [{point = {cname = "F", level = 2, utyp = UF},  ancestors = [({cname = "E", level = 1, utyp = UAb}, 1)]},
+  {point = {cname = "0", level = 3, utyp = UB},  ancestors = [({cname = "F", level = 2, utyp = UF},  1),
+                                                              ({cname = "E", level = 1, utyp = UAb}, 1)]},
   {point = {cname = "E", level = 1, utyp = UAb}, ancestors = []}]);
 
 val _ = @{assert} ((@{term "even n = odd (Suc n)"} |> uncurry |> uncurried_trm_to_data) =
  [{point = {cname = "HOL.eq", level = 1, utyp = UC},
    ancestors = []},
   {point = {cname = "MiLkMaId_Example.even",       level = 2, utyp = UC},
-   ancestors = [({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]},
+   ancestors = [({cname = "HOL.eq",                level = 1, utyp = UC}, 1)]},
   {point = {cname = "n", level = 3, utyp = UF},
-   ancestors = [({cname = "MiLkMaId_Example.even", level = 2, utyp = UC}, Full),
-                ({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]},
+   ancestors = [({cname = "MiLkMaId_Example.even", level = 2, utyp = UC}, 1),
+                ({cname = "HOL.eq",                level = 1, utyp = UC}, 1)]},
   {point = {cname = "MiLkMaId_Example.odd", level = 2, utyp = UC},
-   ancestors = [({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]},
+   ancestors = [({cname = "HOL.eq",                level = 1, utyp = UC}, 2)]},
   {point = {cname = "Nat.Suc", level = 3, utyp = UC},
-   ancestors = [({cname = "MiLkMaId_Example.odd",  level = 2, utyp = UC}, Full),
-                ({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]},
+   ancestors = [({cname = "MiLkMaId_Example.odd",  level = 2, utyp = UC}, 1),
+                ({cname = "HOL.eq",                level = 1, utyp = UC}, 2)]},
   {point = {cname = "n", level = 4, utyp = UF},
-   ancestors = [({cname = "Nat.Suc",               level = 3, utyp = UC}, Full),
-                ({cname = "MiLkMaId_Example.odd",  level = 2, utyp = UC}, Full),
-                ({cname = "HOL.eq",                level = 1, utyp = UC}, Full)]}]);
+   ancestors = [({cname = "Nat.Suc",               level = 3, utyp = UC}, 1),
+                ({cname = "MiLkMaId_Example.odd",  level = 2, utyp = UC}, 1),
+                ({cname = "HOL.eq",                level = 1, utyp = UC}, 2)]}]);
 
 val _ = @{assert} ((@{term "filter (\<lambda> _. True) xs = xs"} |> uncurry |> uncurried_trm_to_data) =
 [{point = {cname = "HOL.eq", level = 1, utyp = UC},
   ancestors = []},
  {point = {cname = "MiLkMaId_Example.filter", level = 2, utyp = UC},
-  ancestors = [({cname = "HOL.eq",                  level = 1, utyp = UC}, Full)]},
+  ancestors = [({cname = "HOL.eq",                  level = 1, utyp = UC}, 1)]},
  {point = {cname = "HOL.True", level = 4, utyp = UC},
-  ancestors = [({cname = "uu_",                     level = 3, utyp = UAb}, Abstract),
-               ({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC},  Full(*TODO: This should not be Full.*)),
-               ({cname = "HOL.eq",                  level = 1, utyp = UC},  Full)]},
+  ancestors = [({cname = "uu_",                     level = 3, utyp = UAb}, 1),
+               ({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC},  1(*TODO: This should not be Full.*)),
+               ({cname = "HOL.eq",                  level = 1, utyp = UC},  1)]},
  {point = {cname = "uu_", level = 3, utyp = UAb},
-  ancestors = [({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC}, Full),
-               ({cname = "HOL.eq",                  level = 1, utyp = UC}, Full)]},
+  ancestors = [({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC}, 1),
+               ({cname = "HOL.eq",                  level = 1, utyp = UC}, 1)]},
  {point = {cname = "xs", level = 3, utyp = UF},
-  ancestors = [({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC}, Full),
-               ({cname = "HOL.eq",                  level = 1, utyp = UC}, Full)]},
+  ancestors = [({cname = "MiLkMaId_Example.filter", level = 2, utyp = UC}, 2),
+               ({cname = "HOL.eq",                  level = 1, utyp = UC}, 1)]},
  {point = {cname = "xs", level = 2, utyp = UF},
-  ancestors = [({cname = "HOL.eq",                  level = 1, utyp = UC}, Full)]}]);
+  ancestors = [({cname = "HOL.eq",                  level = 1, utyp = UC}, 2)]}]);
 
 (* test check_suffix *)
 (* "evn" defined with the "inductive" keyword *)
