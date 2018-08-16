@@ -30,7 +30,7 @@ fun count_recursive_consts trm = fold_aterms (fn Const (cname, _) => (fn n =>
   if exist_related_rsimp [cname] then n + 1 else n) | _ => I) trm 0;
 
 (* Utilty functions *)
-infix >>= <$>;
+infix 1 >>= <$>;
 val _ = Option.map;
 fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
@@ -55,11 +55,16 @@ type point =
   {cname: string,
    utyp : utyp,
    level: int};
-type ancestors = (point * int) list;
+type ancestors  = (point * int) list;
 type datum =
   {point    : point,
    ancestors: ancestors};
 type data = datum list;
+type ancestors_p = (point * pattern) list;
+type datum_p =
+  {point    : point,
+   ancestors: ancestors_p};
+type data_p = datum_p list;
 type 'a matrix = 'a list list;
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
@@ -104,6 +109,9 @@ val mk_parameter_matrix_for_fun       : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix_for_function  : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix_for_inductive : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix               : Proof.context -> string -> bool matrix;
+
+(* operations about pattern *)
+val get_pattern : Proof.context -> string -> int -> pattern;
 
 end;
 
@@ -368,8 +376,6 @@ type datum =
 
 type data = datum list;
 
-(*TODO: I need a function that creates*)
-
 fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:data) (old_ancestors:ancestors) =
   let
     val new_level     = old_level + 1                                 : int;
@@ -378,7 +384,7 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
     val new_data      = new_datum :: old_data                         : data;
     (*So far, lambda abstraction takes only 1 variable.
      *TODO: probably we also apply un-currying to lambda abstraction.*)
-    val new_ancestors = (new_point, 1) :: old_ancestors       : ancestors;
+    val new_ancestors = (new_point, 1) :: old_ancestors               : ancestors;
   in
     uc_trm_to_points' utrm new_level new_data new_ancestors:data
   end
@@ -387,7 +393,7 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
     val new_level      = old_level + 1: int;
     val new_point      = {cname = get_name func, utyp = get_utyp func, level = new_level}: point;
     val new_datum      = {point = new_point, ancestors = old_ancestors}: datum;
-    val new_ancestorss = List.tabulate (length args, fn n => ((new_point, n)::old_ancestors))
+    val new_ancestorss = List.tabulate (length args, fn n => ((new_point, n + 1)::old_ancestors))
                        : ancestors list;
     val new_nodes = args ~~ new_ancestorss: (uterm * ancestors) list;
     val results   = map (fn (utrm:uterm, ans:ancestors) => uc_trm_to_points' utrm new_level [] ans) new_nodes;
@@ -406,5 +412,17 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
   end;
 
 fun uncurried_trm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
+
+type ancestors_p = (point * pattern) list;
+type datum_p =
+  {point    : point,
+   ancestors: ancestors_p};
+type data_p = datum_p list;
+
+fun get_pattern (ctxt:Proof.context) (cname:string) (nth_arg:int) =
+  mk_parameter_matrix ctxt cname
+|> (classify: bool matrix -> pattern list option)
+>>= (fn patterns => try (nth patterns) nth_arg)
+|> (fn res => Option.getOpt (res, Other));
 
 end;
