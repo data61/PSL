@@ -1,9 +1,3 @@
-theory Build_Database
-imports Pure
-begin
-
-ML_file "../../src/Utils.ML"
-
 (*  Title:      FE_Interface.ML
     Author:     Yilun He, Data61, CSIRO
                 Yutaka Nagashima, CTU, CIIRC, University of Innsbruck
@@ -19,16 +13,13 @@ ML_file "../../src/Utils.ML"
         2. a. Replace the return value of function err_dup_command by ()
            b. Re-define the "merge" function in the structure "Data" as following:
               fun merge data : T = data |> Symtab.join (fn name => fn (cmd1, cmd2) => cmd2);
-        3.Search and open Main.thy
-        4.import PaMpeR into Main
-        5.add a ML chunk of function call ML{*FE_Interface.FE_activate ()*} in Main
+        3.Search and open src/HOL/Main.thy
+        4.import PSL/MiLkMaId/src/Build_Database.thy into src/HOL/Main.thy
+        5.add a ML chunk of function call ML{*FE_Interface.FE_activate ()*} in src/HOL/Main.thy
         6.Rebuild Isabelle heap
 
-    By default the extracted feature file would be stored in PSL/PaMpeR/Build_Database.
-    If the import does not work, please add a function call of FE_Interface.activate ()
-    in a ML chunk in Main.thy
+    By default the extracted feature file would be stored in PSL/MiLkMaId/src/Build_Database/Database.
 *)
-ML{*
 signature FE_INTERFACE = 
 sig
   val FE_activate : unit -> unit
@@ -96,7 +87,3 @@ struct
     ()
   end;
 end;
-
-*}
-
-end
