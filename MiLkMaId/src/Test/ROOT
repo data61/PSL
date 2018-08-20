@@ -1,0 +1,7 @@
+session "MiLkMaId_Test" = "HOL" +
+  options [document = pdf, document_output = "output", timeout = 99999999999999]
+  theories [document = false]
+    "MiLkMaId_Test"
+  theories
+  document_files
+    "root.tex"
