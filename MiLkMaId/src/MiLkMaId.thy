@@ -8,4 +8,6 @@ ML{* (* TODO: to differentiate "inductive" and "inductive_set", we should check 
 dest_Const @{term "even_set"} |> snd |> dest_Type |> fst;
 *}
 
+ML_file "Smart_Induct.ML"
+
 end
