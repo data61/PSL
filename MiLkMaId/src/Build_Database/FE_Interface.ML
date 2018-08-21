@@ -44,7 +44,7 @@ struct
   fun get_name (Method.Source src) = (fst (Token.name_of_src src))
     | get_name _ = "\n"
 
-  fun FE_activate _ = 
+  fun FE_activate _ =
   let
 
     fun which_directory Induct     = "Induct/"
@@ -83,8 +83,8 @@ struct
                  Proof.apply m pst))
           end)));
 
-    val local_terminal_proof = Toplevel.proof o 
-          (fn m => 
+    val local_terminal_proof = Toplevel.proof o
+          (fn m =>
           let
              val meth_name = (get_name o fst o fst) m: string;
           in
@@ -94,7 +94,7 @@ struct
             Proof.local_future_terminal_proof m state))
           end);
 
-    val global_terminal_proof = 
+    val global_terminal_proof =
         Toplevel.end_proof o
         K o
         (fn m =>
