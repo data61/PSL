@@ -39,7 +39,7 @@ struct
     if "induction"  = meth_name then SOME Induction  else
     if "induct_tac" = meth_name then SOME Induct_Tac else NONE;
 
-  fun within_PSLs_scope (before:thm) = 90;
+  fun within_PSLs_scope (before:thm) = 90(*TODO*);
 
   fun get_name (Method.Source src) = (fst (Token.name_of_src src))
     | get_name _ = "\n"
@@ -61,21 +61,26 @@ struct
 
     fun string_some NONE = "PANIC_SOMETHING_WENT_WRONG"
      |  string_some (SOME x) = x;
-    
+
+    fun bash_script (m: Method.text_range) (meth_name:string) : int =
+      Isabelle_System.bash
+        ("echo -n '" ^
+         (Method.position (SOME m) |> Position.file_of |> string_some) ^
+         (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
+         meth_name ^ " " ^ "TODO" (*Assertions.eval_assertion pst*) ^ "\n" ^
+         "' >> " ^ the (get_new_path meth_name));
+
     val _ =
       Outer_Syntax.command @{command_keyword apply2} "initial goal refinement step (unstructured)"
         (Method.parse >> (fn m => (Method.report m;
           let
              val meth_name = (get_name o fst) m: string;
           in
-            Toplevel.proofs (fn pst =>(if meth_name = "\n" orelse is_none (get_new_path meth_name) then 0 else
-            Isabelle_System.bash
-              ("echo -n '" ^
-               (Method.position (SOME m) |> Position.file_of |> string_some) ^
-               (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
-               meth_name ^ " " ^ "TODO" (*Assertions.eval_assertion pst*) ^ "\n" ^
-               "' >> " ^ the (get_new_path meth_name));
-            Proof.apply m pst))
+            Toplevel.proofs
+              (fn pst =>
+                (if meth_name = "\n" orelse is_none (get_new_path meth_name)
+                 then 0 else bash_script m meth_name;
+                 Proof.apply m pst))
           end)));
 
     val local_terminal_proof = Toplevel.proof o 
@@ -83,30 +88,22 @@ struct
           let
              val meth_name = (get_name o fst o fst) m: string;
           in
-            (fn state => (if meth_name = "\n" orelse is_none (get_new_path meth_name) then 0 else
-            Isabelle_System.bash 
-              ("echo -n '" ^
-               (Method.position (SOME (fst m)) |> Position.file_of |> string_some) ^
-               (Method.position (SOME (fst m)) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
-               meth_name ^ " " ^ "TODO" (*Assertions.eval_assertion state*) ^ "\n" ^
-               "' >> " ^ the (get_new_path meth_name));
+            (fn state =>
+              (if meth_name = "\n" orelse is_none (get_new_path meth_name)
+               then 0 else bash_script (fst m) meth_name;
             Proof.local_future_terminal_proof m state))
           end);
 
     val global_terminal_proof = 
-        Toplevel.end_proof o 
-        K o 
+        Toplevel.end_proof o
+        K o
         (fn m =>
           let
              val meth_name = (get_name o fst o fst) m: string;
           in
-            (fn state => (if meth_name = "\n" orelse is_none (get_new_path meth_name) then 0 else
-            Isabelle_System.bash
-              ("echo -n '" ^
-               (Method.position (SOME (fst m)) |> Position.file_of |> string_some) ^
-               (Method.position (SOME (fst m)) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
-               meth_name ^ " " ^ "TODO" (*Assertions.eval_assertion state*) ^ "\n" ^
-               "' >> " ^ the (get_new_path meth_name));
+            (fn state =>
+              (if meth_name = "\n" orelse is_none (get_new_path meth_name)
+               then 0 else bash_script (fst m) meth_name;
             Proof.global_future_terminal_proof m state))
           end);
     
