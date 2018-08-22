@@ -17,7 +17,6 @@ begin
 ML_file "Utils.ML"
 ML_file "Subtool.ML"
 ML_file "Dynamic_Tactic_Generation.ML"
-ML_file "../MiLkMaId/src/Smart_Induct.ML"
 ML_file "Constructor_Class.ML"
 ML_file "Instantiation.ML"
 ML_file "Monadic_Prover.ML"

@@ -62,12 +62,20 @@ struct
     fun string_some NONE = "PANIC_SOMETHING_WENT_WRONG"
      |  string_some (SOME x) = x;
 
-    fun bash_script (m: Method.text_range) (meth_name:string) : int =
+    fun get_mssg (meth_name:string) (m:Method.text_range) (pst:Proof.state) =
+      if meth_name = "induct"
+      then
+        if Smart_Induct.psl_mk_right_mods m pst
+        then "Within_the_scope_of_PSL"
+        else "Outside_the_scope_of_PSL"
+      else "TODO";
+
+    fun bash_script (meth_name:string) (m: Method.text_range) (pst:Proof.state): int =
       Isabelle_System.bash
         ("echo -n '" ^
          (Method.position (SOME m) |> Position.file_of |> string_some) ^
          (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
-         meth_name ^ " " ^ "TODO" (*Assertions.eval_assertion pst*) ^ "\n" ^
+         meth_name ^ " " ^ (get_mssg meth_name m pst) (*Assertions.eval_assertion pst*) ^ "\n" ^
          "' >> " ^ the (get_new_path meth_name));
 
     val _ =
@@ -79,10 +87,10 @@ struct
             Toplevel.proofs
               (fn pst =>
                 (if meth_name = "\n" orelse is_none (get_new_path meth_name)
-                 then 0 else bash_script m meth_name;
+                 then 0 else bash_script meth_name m pst;
                  Proof.apply m pst))
           end)));
-
+(*
     val local_terminal_proof = Toplevel.proof o
           (fn m =>
           let
@@ -115,6 +123,7 @@ struct
          (Method.report m1;
           Option.map Method.report m2;
           terminal_proof (m1, m2))));
+*)
   in
     ()
   end;
