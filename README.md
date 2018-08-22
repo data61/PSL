@@ -1,5 +1,5 @@
 - **This branch is under active development. Please use [release v0.1.1 PSL with PGT: CICM2018 for Isabelle2017](https://github.com/data61/PSL/releases/tag/v0.1.1), which is the latest stable version.**
-- **The latest version of Isabelle, Isabelle2018, is not supported yet. Use Isabelle2017 instead of Isabelle2018.**
+- **The latest version of Isabelle, Isabelle2018, is not supported yet. Use [Isabelle2017](https://isabelle.in.tum.de/website-Isabelle2017/index.html) instead of Isabelle2018.**
 - **Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
 - **More information about PaMpeR is provided in PSL/PaMpeR/README.md.**
 
