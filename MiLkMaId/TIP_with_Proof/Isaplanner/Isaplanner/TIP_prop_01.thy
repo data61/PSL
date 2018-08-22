@@ -8,7 +8,7 @@
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
 theory TIP_prop_01
-  imports "../../Test_Base"
+  imports "../../Test_Base" "../../../src/Build_Database/Build_Database"
 begin
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
@@ -38,7 +38,7 @@ theorem property0 :(*Probably the best proof.*)
     Because all the definitions of the innermost recursively defined constants ("take" and "drop") 
     produce the same rule. *)
   (*Why induction on xs?*)
-  apply (induct xs rule: TIP_prop_01.drop.induct)
+  apply2 (induct xs rule: TIP_prop_01.drop.induct)
     apply auto
   done
 
@@ -46,8 +46,8 @@ theorem property0'(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on n might look promising in the first try
     since both "take" and "drop" are defined recursively on the first argument, but...*)
-  apply(induct n arbitrary: xs)
-   apply auto[1]
+  apply2(induct n arbitrary: xs)
+   apply2 auto[1]
     (*This is problematic:
     We cannot use the simplification rule of "x"
     because we cannot simplify "TIP_prop_01.take (S n) xs".
@@ -65,8 +65,8 @@ theorem property0''(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on "xs" without "rule:take.induct" might look promising in the first try
     since both "take" and "drop" are defined recursively on the first argument, but...*)
-  apply(induct xs arbitrary: n)
-   apply(induct n)
+  apply2(induct xs arbitrary: n)
+   apply2(induct n)
     apply(case_tac n)(*cases is not good enough because "n" is quantified by \<And>*)
      apply fastforce+
     (*It is not so easy from this point
@@ -88,7 +88,7 @@ theorem property0''(*sub-optimal proof*):
 
 theorem
   "x (take n xs) (drop n xs) = xs"
-  apply(induct rule:x.induct)
+  apply2(induct rule:x.induct)
   nitpick
   oops
 

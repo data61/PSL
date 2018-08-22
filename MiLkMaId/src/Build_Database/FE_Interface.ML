@@ -41,9 +41,6 @@ struct
 
   fun within_PSLs_scope (before:thm) = 90(*TODO*);
 
-  fun get_name (Method.Source src) = (fst (Token.name_of_src src))
-    | get_name _ = "\n"
-
   fun FE_activate _ =
   let
 
@@ -62,12 +59,20 @@ struct
     fun string_some NONE = "PANIC_SOMETHING_WENT_WRONG"
      |  string_some (SOME x) = x;
 
+    fun just_trace (mssg:string) = (tracing mssg; mssg);
+
     fun get_mssg (meth_name:string) (m:Method.text_range) (pst:Proof.state) =
-      if meth_name = "induct"
+      if meth_name = "induct" orelse meth_name = "induction"
       then
-        if Smart_Induct.psl_mk_right_mods m pst
-        then "Within_the_scope_of_PSL"
-        else "Outside_the_scope_of_PSL"
+        let
+           val (in_scope, result_numb, nontac_numb) = Smart_Induct.psl_mk_right_mods m pst;
+           val result_numb_str =  Int.toString result_numb;
+           val nontac_numb_str =  Int.toString nontac_numb;
+        in
+          if in_scope
+          then just_trace ("Within_the_scope_of_PSL "  ^ result_numb_str ^ " " ^ nontac_numb_str)
+          else just_trace ("Outside_the_scope_of_PSL " ^ nontac_numb_str ^ " " ^ nontac_numb_str)
+        end
       else "TODO";
 
     fun bash_script (meth_name:string) (m: Method.text_range) (pst:Proof.state): int =
@@ -82,7 +87,7 @@ struct
       Outer_Syntax.command @{command_keyword apply2} "initial goal refinement step (unstructured)"
         (Method.parse >> (fn m => (Method.report m;
           let
-             val meth_name = (get_name o fst) m: string;
+             val meth_name = (Isabelle_Utils.get_meth_name o fst) m: string;
           in
             Toplevel.proofs
               (fn pst =>
@@ -90,40 +95,6 @@ struct
                  then 0 else bash_script meth_name m pst;
                  Proof.apply m pst))
           end)));
-(*
-    val local_terminal_proof = Toplevel.proof o
-          (fn m =>
-          let
-             val meth_name = (get_name o fst o fst) m: string;
-          in
-            (fn state =>
-              (if meth_name = "\n" orelse is_none (get_new_path meth_name)
-               then 0 else bash_script (fst m) meth_name;
-            Proof.local_future_terminal_proof m state))
-          end);
-
-    val global_terminal_proof =
-        Toplevel.end_proof o
-        K o
-        (fn m =>
-          let
-             val meth_name = (get_name o fst o fst) m: string;
-          in
-            (fn state =>
-              (if meth_name = "\n" orelse is_none (get_new_path meth_name)
-               then 0 else bash_script (fst m) meth_name;
-            Proof.global_future_terminal_proof m state))
-          end);
-    
-    fun terminal_proof m = local_terminal_proof m o global_terminal_proof m;
-    
-    val _ =
-      Outer_Syntax.command @{command_keyword by2} "terminal backward proof"
-        (Method.parse -- Scan.option Method.parse >> (fn (m1, m2) =>
-         (Method.report m1;
-          Option.map Method.report m2;
-          terminal_proof (m1, m2))));
-*)
   in
     ()
   end;

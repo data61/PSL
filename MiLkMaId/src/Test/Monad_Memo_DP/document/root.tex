@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\pagestyle{plain} % turn on page numbers
+
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{mathpartir}
+%\usepackage{tikz}
+%\usepackage{pgfplots}
+
+\usepackage[hidelinks]{hyperref}
+
+% no right margin in quote:
+\renewenvironment{quote}
+{\list{}{}%
+\item\relax}
+{\endlist}
+
+\newcommand{\noquotes}[1]{{\renewcommand{\isachardoublequote}{}\renewcommand{\isachardoublequoteopen}{}\renewcommand{\isachardoublequoteclose}{}#1}}
+
+\isabellestyle{it}
+
+\renewcommand{\isacharunderscore}{\_}
+\renewcommand{\isacharunderscorekeyword}{\_}
+\renewcommand{\isadigit}[1]{{\rm #1}}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+\newcommand{\eqnum}{\refstepcounter{equation}\hfill(\theequation)}
+
+\hyphenation{Isa-belle}
+
+
+\begin{document}
+
+\title{Monadification, Memoization\\ and Dynamic Programming}
+\author{Simon Wimmer \and Shuwei Hu \and Tobias Nipkow}
+\date{Technical University of Munich\\[\baselineskip] \today}
+\maketitle
+
+\begin{abstract}
+We present a lightweight framework for the
+automatic  verified  (functional  or  imperative)  memoization  of  recursive functions.
+Our tool can turn a pure Isabelle/HOL function definition into a monadified version
+in a state monad or the Imperative HOL heap monad, and prove a correspondence theorem.
+We provide a variety of memory implementations for the two types of monads.
+A number of simple techniques allow us to achieve bottom-up computation
+and space-efficient memoization.
+The framework's utility is demonstrated on a number of representative dynamic programming problems.
+A detailed description of our work can be found in the accompanying paper \cite{DP-ITP-2018}.
+\end{abstract}
+
+\tableofcontents
+
+\pagebreak
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\input{session.tex}
+
+%\bibliographystyle{splncs03}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

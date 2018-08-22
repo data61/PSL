@@ -6,7 +6,7 @@
 (*** DYNAMIC_TACTIC: makes a series of state-monad based tactics from proof state. ***)
 signature SMART_TACTIC =
 sig
-  val psl_mk_right_mods: Method.text_range -> Proof.state -> bool;
+  val psl_mk_right_mods: Method.text_range -> Proof.state -> (bool * int * int);
 end;
 
 (** Smart_Induct: The tactic generator for the induct method. **)
@@ -94,17 +94,17 @@ fun get_all_modifierss (pst:DU.state) : ITG.modifiers list =
   |> map IS.reordered_mods
   |> flat: ITG.modifiers list;
 
-fun modifiers_to_str (mods: IS.modifiers) : string = "(" ^ "induct" ^ IS.mods_to_string mods ^ ")";
+fun mk_modifiers_to_str (meth_name:string) (mods: IS.modifiers) : string =
+  enclose "(" ")" (meth_name ^ IS.mods_to_string mods);
 
 fun str_to_nontac (meth:string) : DU.state DU.nontac =
   IU.TIMEOUT_in 3.0 (Utils.try_with (K Seq.empty) DU.string_to_nontac_on_pstate meth);
 
-fun state_to_nontacs (pst:DU.state): DU.state DU.nontac list = pst
+fun state_to_nontacs (meth_name:string) (pst:DU.state): DU.state DU.nontac list = pst
   |> get_all_modifierss
-  |> map modifiers_to_str
+  |> map (mk_modifiers_to_str meth_name)
   |> map (try str_to_nontac)
-  |> Utils.somes
-  |> (fn x => (tracing (Int.toString (length x)); x));
+  |> Utils.somes;
 
 fun get_fst_result (pst:Proof.state) (nontac: DU.state DU.nontac) : DU.state option =
       (try nontac pst: DU.state Seq.seq option)
@@ -113,9 +113,9 @@ fun get_fst_result (pst:Proof.state) (nontac: DU.state DU.nontac) : DU.state opt
 fun get_fst_results (pst:Proof.state) (nontacs: DU.state DU.nontac list) : DU.state list =
   map (get_fst_result pst) nontacs |> Utils.somes;
 
-fun state_to_fst_thms (pst:DU.state) : thm list =
+fun state_to_fst_thms (meth_name:string) (pst:DU.state) : thm list =
   let
-    val nontacs = state_to_nontacs pst            : DU.state DU.nontac list;
+    val nontacs = state_to_nontacs meth_name pst  : DU.state DU.nontac list;
     val states  = get_fst_results pst nontacs     : DU.state list;
     val thms    = map IU.proof_state_to_thm states: thm list;
   in
@@ -127,13 +127,15 @@ fun psl_mk_right_mods (model_meth: Method.text_range) (pst:Proof.state) =
     val model_result = try (Proof.apply model_meth) pst
       >>= try Seq.filter_results
       >>= try Seq.hd
-      >>= try IU.proof_state_to_thm: thm option;
-    val psl_results = state_to_fst_thms pst: thm list;
+      >>= try IU.proof_state_to_thm                                                : thm option;
+    val meth_name   = IU.get_meth_name (fst model_meth)                            : string;
+    val psl_results = state_to_fst_thms meth_name pst                              : thm list;
+    val nontac_numb = length (state_to_nontacs meth_name pst)                      : int;
     fun has_one (NONE  : thm option) = false
-     |  has_one (SOME g: thm option) = List.exists (curry Thm.eq_thm g) psl_results;
+     |  has_one (SOME g: thm option) = List.exists (curry Thm.eq_thm g) psl_results: bool;
     val result = has_one model_result;
   in
-    result
+    (result, length psl_results, nontac_numb): (bool * int * int)
   end;
 
 end;
@@ -207,6 +209,6 @@ fun get_state_stttacs (state:Proof.state) =
     stttacs
   end;
 
-fun psl_mk_right_mods _ _ = true (*TODO*);
+fun psl_mk_right_mods _ _ = (true, 0, 0) (*TODO*);
 
 end;

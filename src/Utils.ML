@@ -274,7 +274,7 @@ sig
   val get_1st_subg                  : thm -> term option;
   val flatten_trm                   : term -> term list;
   val get_trms_in_thm               : thm -> term list;
-  val get_trm_in                    : location -> thm -> term option;(*Should it return a list of term?*)
+  val get_trm_in                    : location -> thm -> term option;(*Should it return a list of terms?*)
   val get_cnames_in_trm             : term -> string list;
   val get_outmost_cname             : term -> string option;
   val get_typ_names_in_trm          : term -> string list;
@@ -297,6 +297,7 @@ sig
   val defer                         : thm -> thm Seq.seq;
   val is_in_Main                    : Proof.context -> thm -> bool;
   val add_const_names_mult          : term -> string list -> string list;
+  val get_meth_name                 : Method.text -> string;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -437,6 +438,9 @@ in
 fun TIMEOUT_in real tac = DETERM_TIMEOUT (seconds real) tac;
 
 fun TIMEOUT tac         = DETERM_TIMEOUT (seconds 0.3) tac;
+
+fun get_meth_name (Method.Source src) = (fst (Token.name_of_src src))
+  | get_meth_name _ = "\n"
 
 end;
 
