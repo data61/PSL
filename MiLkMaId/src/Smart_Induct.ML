@@ -6,12 +6,28 @@
 (*** DYNAMIC_TACTIC: makes a series of state-monad based tactics from proof state. ***)
 signature SMART_TACTIC =
 sig
-  val psl_mk_right_mods: Method.text_range -> Proof.state -> (bool * int * int);
+  type one_line = {used       : bool,
+                   ass_results: bool list};
+  type datum = {within_psls_scope       : bool,
+                numb_of_successful_meths: int, (*NB: upper limit is 10000*)
+                numb_of_created_methds  : int, (*NB: upper limit is 10000*)
+                ass_results             : one_line list
+                };
+  val psl_mk_right_mods: Method.text_range -> Proof.state -> datum;
 end;
 
 (** Smart_Induct: The tactic generator for the induct method. **)
 structure Smart_Induct : SMART_TACTIC =
 struct
+(*We expose the definitions of these types because other modules should be able to use record field selections.*)
+type one_line = {used       : bool,
+                 ass_results: bool list
+                 };
+type datum = {within_psls_scope       : bool,
+              numb_of_successful_meths: int, (*NB: upper limit is 10000*)
+              numb_of_created_methds  : int, (*NB: upper limit is 10000*)
+              ass_results             : one_line list
+              };
 
 (* Induct_Seed: The seed to make the tactic-generator for the induct method. *)
 structure Induct_Seed : DYNAMIC_TACTIC_GENERATOR_SEED =
@@ -66,7 +82,7 @@ fun get_all_modifiers (state:Proof.state) =
 val pick_vars = filter     (fn modi => case modi of On _ => true | _ => false);
 val dump_vars = filter_out (fn modi => case modi of On _ => true | _ => false);
 
-fun reordered_mods (mods:modifiers)=
+fun reordered_mods (mods:modifiers) =
   let
     val vars   = pick_vars mods : modifiers;
     val varss  = Nitpick_Util.all_permutations vars : modifiers list;
@@ -89,6 +105,7 @@ fun get_all_modifierss (pst:DU.state) : ITG.modifiers list =
     ITG.get_all_modifiers pst
   |> Seq.of_list
   |> Seq2.powerset
+  |> Seq.chop 10000 |> fst |> Seq.of_list (*TODO: Double-check. We set an upper limit.*)
   |> Seq.list_of
   |> map Seq.list_of
   |> map IS.reordered_mods
@@ -130,12 +147,15 @@ fun psl_mk_right_mods (model_meth: Method.text_range) (pst:Proof.state) =
       >>= try IU.proof_state_to_thm                                                : thm option;
     val meth_name   = IU.get_meth_name (fst model_meth)                            : string;
     val psl_results = state_to_fst_thms meth_name pst                              : thm list;
-    val nontac_numb = length (state_to_nontacs meth_name pst)                      : int;
     fun has_one (NONE  : thm option) = false
      |  has_one (SOME g: thm option) = List.exists (curry Thm.eq_thm g) psl_results: bool;
-    val result = has_one model_result;
+    val datum = {within_psls_scope        = has_one model_result                   : bool,
+                 numb_of_successful_meths = length psl_results                     : int,
+                 numb_of_created_methds   = length (state_to_nontacs meth_name pst): int,
+                 ass_results              = [(*TODO*)]                             : one_line list
+                 }: datum;
   in
-    (result, length psl_results, nontac_numb): (bool * int * int)
+    datum
   end;
 
 end;
@@ -143,6 +163,15 @@ end;
 (** Dynamic_Induct_Tac: The tactic generator for the induct_tac method. **)
 structure Dynamic_Induct_Tac : SMART_TACTIC =
 struct
+
+type one_line = {used       : bool,
+                 ass_results: bool list
+                 };
+type datum = {within_psls_scope       : bool,
+              numb_of_successful_meths: int, (*NB: upper limit is 10000*)
+              numb_of_created_methds  : int, (*NB: upper limit is 10000*)
+              ass_results             : one_line list
+              };
 
 (* Induct_Tac_Seed: The seed to make the tactic-generator for the induct_tac method. *)
 structure Induct_Tac_Seed : DYNAMIC_TACTIC_GENERATOR_SEED =
@@ -175,7 +204,7 @@ fun mods_to_string (mods:modifiers) =
   in
     mods |> order |> (fn (ons, rules) =>
     get_names ons
-    @ prefix_if_nonnil "rule:"      (get_names rules))
+    @ prefix_if_nonnil "rule:" (get_names rules))
     |> Dynamic_Utils.get_meth_nm ""
   end;
 
@@ -211,6 +240,13 @@ fun get_state_stttacs (state:Proof.state) =
     stttacs
   end;
 
-fun psl_mk_right_mods _ _ = (true, 0, 0) (*TODO*);
+(*TODO*)
+val datum = {within_psls_scope        = true: bool,
+             numb_of_successful_meths = 0   : int,
+             numb_of_created_methds   = 0   : int,
+             ass_results              = []  : one_line list
+             }: datum;
+
+fun psl_mk_right_mods _ _ = datum (*TODO*);
 
 end;
