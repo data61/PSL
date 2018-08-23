@@ -43,7 +43,6 @@ struct
 
   fun FE_activate _ =
   let
-
     fun which_directory Induct     = "Induct/"
      |  which_directory Induction  = "Induction/"
      |  which_directory Induct_Tac = "Induct_Tac/";

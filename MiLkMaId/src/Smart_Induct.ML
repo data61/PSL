@@ -202,7 +202,9 @@ fun get_state_stttacs (state:Proof.state) =
     val induct         = "induct_tac";
     val all_modifiers  = ITTG.get_all_modifiers state : ITTG.modifiers;
     val all_modifierss = Seq2.powerset (Seq.of_list all_modifiers)
-                      |> Seq.map Seq.list_of: ITTG.modifiers Seq.seq;
+                      |> Seq.chop 10000 |> fst |> Seq.of_list (*TODO: Double-check. We set an upper limit.*)
+                      |> Seq.map Seq.list_of
+                       : ITTG.modifiers Seq.seq;
     val stttacs        = Seq.map (ITTG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
   in 
