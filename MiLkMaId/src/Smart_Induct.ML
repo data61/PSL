@@ -11,9 +11,9 @@ sig
   type datum = {within_psls_scope       : bool,
                 numb_of_successful_meths: int, (*NB: upper limit is 10000*)
                 numb_of_created_methds  : int, (*NB: upper limit is 10000*)
-                ass_results             : one_line list
+                lines                   : one_line list
                 };
-  val psl_mk_right_mods: Method.text_range -> Proof.state -> datum;
+  val mk_datapoint: Method.text_range -> Proof.state -> datum;
 end;
 
 (** Smart_Induct: The tactic generator for the induct method. **)
@@ -26,7 +26,7 @@ type one_line = {used       : bool,
 type datum = {within_psls_scope       : bool,
               numb_of_successful_meths: int, (*NB: upper limit is 10000*)
               numb_of_created_methds  : int, (*NB: upper limit is 10000*)
-              ass_results             : one_line list
+              lines                   : one_line list
               };
 
 (* Induct_Seed: The seed to make the tactic-generator for the induct method. *)
@@ -96,7 +96,6 @@ end;
 
 (* ITG: Induct_Tactic_Generator. *)
 structure ITG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Induct_Seed);
-
 structure IS = Induct_Seed;
 structure DU = Dynamic_Utils;
 structure IU = Isabelle_Utils;
@@ -111,7 +110,7 @@ fun get_all_modifierss (pst:DU.state) : ITG.modifiers list =
   |> map IS.reordered_mods
   |> flat: ITG.modifiers list;
 
-fun mk_modifiers_to_str (meth_name:string) (mods: IS.modifiers) : string =
+fun modifiers_to_str (meth_name:string) (mods: IS.modifiers) : string =
   enclose "(" ")" (meth_name ^ IS.mods_to_string mods);
 
 fun str_to_nontac (meth:string) : DU.state DU.nontac =
@@ -119,7 +118,7 @@ fun str_to_nontac (meth:string) : DU.state DU.nontac =
 
 fun state_to_nontacs (meth_name:string) (pst:DU.state): DU.state DU.nontac list = pst
   |> get_all_modifierss
-  |> map (mk_modifiers_to_str meth_name)
+  |> map (modifiers_to_str meth_name)
   |> map (try str_to_nontac)
   |> Utils.somes;
 
@@ -139,20 +138,56 @@ fun state_to_fst_thms (meth_name:string) (pst:DU.state) : thm list =
     thms
   end;
 
-fun psl_mk_right_mods (model_meth: Method.text_range) (pst:Proof.state) =
+structure More_MiLkMaId_Assertion =
+struct
+
+fun ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) (model_post:thm) =
+  [true, true, false];
+
+fun mk_get_post_thm (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): thm option =
+  let
+    val nontac = try (modifiers_to_str meth_name) mods
+             >>= try (str_to_nontac): Proof.state DU.nontac option;
+    fun mk_fst_res _   NONE       = NONE
+     |  mk_fst_res st (SOME ntac) = try ntac st >>= try Seq.hd;
+    val post_thm = mk_fst_res  pre_pst nontac <$> IU.proof_state_to_thm: thm option;
+  in
+    post_thm: thm option
+  end;
+
+fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
+    mk_get_post_thm meth_name pre_pst mods
+<$> (curry Thm.eq_thm model_post)
+|>  (fn used:bool option => Option.getOpt (used, false)): bool;
+
+fun mk_a_line (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
+  {used        = is_used meth_name pre_pst model_post mods,
+   ass_results = ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) (model_post:thm)
+   }: one_line;
+
+fun mk_lines (meth_name:string) (pre_pst:Proof.state) (modss:ITG.modifiers list) (model_post:thm) =
+  map (mk_a_line meth_name pre_pst model_post) modss;
+
+end;
+
+fun mk_datapoint (model_meth: Method.text_range) (pst:Proof.state) =
   let
     val model_result = try (Proof.apply model_meth) pst
       >>= try Seq.filter_results
       >>= try Seq.hd
       >>= try IU.proof_state_to_thm                                                : thm option;
+    (*Nobody should apply induction to TrueI*)
+    val model_result' = Option.getOpt (model_result, TrueI)                        : thm;
     val meth_name   = IU.get_meth_name (fst model_meth)                            : string;
     val psl_results = state_to_fst_thms meth_name pst                              : thm list;
     fun has_one (NONE  : thm option) = false
      |  has_one (SOME g: thm option) = List.exists (curry Thm.eq_thm g) psl_results: bool;
+    val all_modss = get_all_modifierss pst: ITG.modifiers list; (*TODO: Do I need this here? I can construct it within More_MiLkMaId_Assertion*)
+    val lines = More_MiLkMaId_Assertion.mk_lines meth_name pst all_modss model_result';
     val datum = {within_psls_scope        = has_one model_result                   : bool,
                  numb_of_successful_meths = length psl_results                     : int,
                  numb_of_created_methds   = length (state_to_nontacs meth_name pst): int,
-                 ass_results              = [(*TODO*)]                             : one_line list
+                 lines                    = lines                                  : one_line list
                  }: datum;
   in
     datum
@@ -170,7 +205,7 @@ type one_line = {used       : bool,
 type datum = {within_psls_scope       : bool,
               numb_of_successful_meths: int, (*NB: upper limit is 10000*)
               numb_of_created_methds  : int, (*NB: upper limit is 10000*)
-              ass_results             : one_line list
+              lines                   : one_line list
               };
 
 (* Induct_Tac_Seed: The seed to make the tactic-generator for the induct_tac method. *)
@@ -244,9 +279,9 @@ fun get_state_stttacs (state:Proof.state) =
 val datum = {within_psls_scope        = true: bool,
              numb_of_successful_meths = 0   : int,
              numb_of_created_methds   = 0   : int,
-             ass_results              = []  : one_line list
+             lines                    = []  : one_line list
              }: datum;
 
-fun psl_mk_right_mods _ _ = datum (*TODO*);
+fun mk_datapoint _ _ = datum (*TODO*);
 
 end;

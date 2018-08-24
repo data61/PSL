@@ -15,6 +15,7 @@ sig
   val pair_to_list   : 'a * 'a -> 'a list;
   val list_to_pair   : 'a list -> 'a * 'a;
   val bool_to_real   : bool -> real;
+  val bool_to_int    : bool -> int;
   val is_some_true   : bool option -> bool;
   val is_some_null   : 'a list option -> 'a list;
   val eq             : ''a -> ''a -> bool;
@@ -64,6 +65,8 @@ fun list_to_pair [a,b] = (a,b)
  |  list_to_pair _ = error "list_to_pair failed. The length of lsit is not two.";
 
 fun bool_to_real b = if b then 1.0 else 0.0;
+
+fun bool_to_int b = if b then 1 else 0;
 
 fun is_some_true maybe = Option.getOpt (maybe, false);
 

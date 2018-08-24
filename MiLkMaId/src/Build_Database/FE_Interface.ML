@@ -39,8 +39,6 @@ struct
     if "induction"  = meth_name then SOME Induction  else
     if "induct_tac" = meth_name then SOME Induct_Tac else NONE;
 
-  fun within_PSLs_scope (before:thm) = 90(*TODO*);
-
   fun FE_activate _ =
   let
     fun which_directory Induct     = "Induct/"
@@ -60,17 +58,33 @@ struct
 
     fun just_trace (mssg:string) = (tracing mssg; mssg);
 
+    fun print_datum (datum:Smart_Induct.datum) =
+      let
+        val within = if #within_psls_scope datum
+                     then "Within_the_scope_of_PSL"
+                     else "Outside_the_scope_of_PSL": string;
+        val numb_of_successful_meths = #numb_of_successful_meths datum |> Int.toString: string;
+        val numb_of_created_methds   = #numb_of_created_methds   datum |> Int.toString: string;
+        fun print_one_line (line:Smart_Induct.one_line) =
+          let
+            val bool_to_int_str = Int.toString o Utils.bool_to_int: bool -> string;
+            val used  = #used line |> bool_to_int_str: string;
+            val ass_results = map bool_to_int_str (#ass_results line): string list;
+          in
+            space_implode " " (used::ass_results)
+          end;
+        val lines = map print_one_line (#lines datum) |> space_implode "\n": string
+      in
+        (space_implode " " [within, numb_of_successful_meths,  numb_of_created_methds, "\n"] ^ lines)
+      end;
+
     fun get_mssg (meth_name:string) (m:Method.text_range) (pst:Proof.state) =
       if meth_name = "induct" orelse meth_name = "induction"
       then
         let
-           val (in_scope, result_numb, nontac_numb) = Smart_Induct.psl_mk_right_mods m pst;
-           val result_numb_str =  Int.toString result_numb;
-           val nontac_numb_str =  Int.toString nontac_numb;
+           val datum = Smart_Induct.mk_datapoint m pst: Smart_Induct.datum;
         in
-          if in_scope
-          then just_trace ("Within_the_scope_of_PSL "  ^ result_numb_str ^ " " ^ nontac_numb_str)
-          else just_trace ("Outside_the_scope_of_PSL " ^ nontac_numb_str ^ " " ^ nontac_numb_str)
+          just_trace (print_datum datum)
         end
       else "TODO";
 
