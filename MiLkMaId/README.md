@@ -5,21 +5,24 @@ This directory contains the experimental implementation of our recommendation sy
 ## List of Heuristics
 
 - [ ] 1. Apply induction on (an) argument(s) of an innermost constant.
-- [ ] 2. If the first sub-goal contains a constant _c_ defined with the _fun_ keyword, use _c.induct_.
-- [ ] 3. If one uses _bla.induct_ rule and _bla.induct_'s conclusion has _n_ arguemnts in the uncurried form, 
-         he/she should specify _n_ variables to which the induct method should apply induction on.
-         And these arguements should be just variables and they also should be arguements of _bla_.
-- [ ] 4. If the first sub-goal involves a meta-implication and terms of types that are defined with the _datatype_ keyword 
+- [ ] 2. If the first sub-goal contains a constant `c` defined with the `fun` keyword, use `c.induct`.
+- [ ] 3. If one uses `bla.induct` rule and `bla.inducts` conclusion has `n` arguemnts in the uncurried form, 
+         he/she should specify `n` variables to which the induct method should apply induction on.
+         And these arguements should be just variables and they also should be arguements of `bla`
+- [ ] 4. If the first sub-goal involves a meta-implication and terms of types that are defined with the `datatype` keyword 
          in the conclusion of the meta-implication, one should apply induction on the term 
-         that has a type defined with the _datatype_ keyword.
-- [ ] 5. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number i
-         if the function is defined by recursion in argument number i._
+         that has a type defined with the `datatype` keyword.
+- [ ] 5. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
+         if the function is defined by recursion in argument number `i`._
 - [ ] 6. If the first sub-goal appearing after applying a mathematical induction can easily imply the original sub-goal,
          this mathematical induction is not useful. 
          I expect that this assertion helps MiLkMaId to discard inductions that do not alter goals meaningfully.
 - [ ] 7. If the first sub-goal appearing after applying a mathematical induction involves fewer constants than the ofiginal
          sub-goal, this mathematical induction is not useful.
          I expect that this heuristics helps MiLkMaId detect mathematical inductions that are destroy provability.
+- [ ] 8. If multiple recursively defined constants appear at the same level in the syntax tree of 
+         the uncurried version of the first sub-goal, do induction on the argument(s) of constants that are defined outside
+         `HOL/Main.thy`
          
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s), 
