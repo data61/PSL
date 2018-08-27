@@ -75,6 +75,7 @@ theorem property0'' :
   apply(induct n)
   (*This is bad:
     The first sub-goal is identical to the original goal.
+    Not really.
    *)
   oops
 

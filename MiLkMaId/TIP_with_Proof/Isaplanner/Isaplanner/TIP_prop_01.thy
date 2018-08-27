@@ -38,6 +38,9 @@ theorem property0 :(*Probably the best proof.*)
     Because all the definitions of the innermost recursively defined constants ("take" and "drop") 
     produce the same rule. *)
   (*Why induction on xs?*)
+  (* Induction on "n xs rule: TIP_prop_01.drop.induct" works as well.
+   * Induction on "n" rule: TIP_prop_01.drop.induct is bad
+   * because the resulting proof goal is identical to the original goal. *)
   apply2 (induct xs rule: TIP_prop_01.drop.induct)
     apply auto
   done

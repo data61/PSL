@@ -62,15 +62,16 @@ theorem property0'' :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
   apply (induct xs arbitrary: n ys rule: count.induct)
     (*Why "count.induct" not "y.induct"?
-   Because "(induct rule: y.induct)" leads to a non-theorem.
-   Because "y" is under another "recursive" function ("count")?*)
+     *Because "(induct rule: y.induct)" leads to a non-theorem.
+     *Because "y" is under another "recursive" function ("count")?
+     *No. "y.induct" can be useful as well. See property0'''' for more detail.*)
     (*"xs" in "induct xs" here is removable.*)
     (*Why "induct xs" (why induction on xs)?
-   Because two innermost recursive constants ("count" in "count n xs" and "y" in "y xs ys")
-   is recursively defined on "xs". *)
+     *Because two innermost recursive constants ("count" in "count n xs" and "y" in "y xs ys")
+     *is recursively defined on "xs". *)
     (*Why "arbitrary: ys", "arbitrary: n", "arbitrary: ys n", or "arbitrary: n ys"?
-   Because of "n" and "ys" in "count n ys".
-   This "count" is also the innermost recursive constant, but we induct on "xs".*)
+     *Because of "n" and "ys" in "count n ys".
+     *This "count" is also the innermost recursive constant, but we induct on "xs".*)
    apply auto
   done
 
@@ -79,5 +80,10 @@ theorem property0''' :
   apply(induct rule:y.induct)
   nitpick
   oops
+
+theorem property0'''' :
+  "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
+  apply(induct xs ys rule:y.induct)
+  by auto
 
 end

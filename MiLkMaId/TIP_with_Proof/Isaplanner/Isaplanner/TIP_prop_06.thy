@@ -8,7 +8,7 @@
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
   theory TIP_prop_06
-imports "../../Test_Base"
+imports "../../Test_Base" "../../../src/Build_Database/Build_Database"
 begin
 
 datatype Nat = Z | S "Nat"
@@ -25,7 +25,21 @@ fun t2 :: "Nat => Nat => Nat" where
 theorem property0 :
   "((t2 n (t22 n m)) = Z)"
   find_proof DInd
-  apply (induct n (*arbitrary: m*))
+  apply2 (induct n (*arbitrary: m*))
   apply auto
-  done 
+  done
+
+theorem property0' :
+  "((t2 n (t22 n m)) = Z)"
+  apply(induct n m arbitrary: m rule:t22.induct)
+   apply auto
+  done
+
+theorem property0'' :
+  "((t2 n (t22 n m)) = Z)"
+  find_proof DInd
+  apply (induct n arbitrary: m)
+  apply auto
+  done
+
 end

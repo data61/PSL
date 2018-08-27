@@ -32,7 +32,8 @@ theorem property0 :
    apply fastforce
   apply clarsimp
     (*Why "induct_tac xs"?
-    Because the innermost recurisve constant is defined recu*)
+    *Because the pattern-matching of the innermost recursive constant (count) is complete
+    *on the second argument (here xs), which is universally quantified with \<And>.*)
   apply(induct_tac xs)
    defer
    apply auto[1]
