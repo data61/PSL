@@ -14,8 +14,9 @@ This directory contains the experimental implementation of our recommendation sy
          that has a type defined with the `datatype` keyword.
 - [ ] 5. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
          if the function is defined by recursion in argument number `i`._
-- [ ] 6. If the first sub-goal appearing after applying a mathematical induction can easily imply the original sub-goal,
-         this mathematical induction is not useful. 
+- [ ] 6. If the first sub-goal appearing after applying a mathematical induction is alpha equivalent to 
+         the original sub-goal,
+         this mathematical induction is not useful. (Use `Term.aconv`)
          I expect that this assertion helps MiLkMaId to discard inductions that do not alter goals meaningfully.
 - [ ] 7. If the first sub-goal appearing after applying a mathematical induction involves fewer constants than the ofiginal
          sub-goal, this mathematical induction is not useful.
