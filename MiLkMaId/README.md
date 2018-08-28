@@ -35,6 +35,8 @@ This directory contains the experimental implementation of our recommendation sy
           all sub-goals that appear after applying mathematical induction, the mathematical induction tends to be promising.
 - [ ] 12. If the same variable (or sub-term) appears as the induction variable and generalized variable, 
           this mathematical induction is less promising.
+- [ ] 13. If the mathematical induction under consideration uses more than one rules,
+          probably this induction is not very promising
           
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s), 
