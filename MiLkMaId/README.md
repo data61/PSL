@@ -5,7 +5,8 @@ This directory contains the experimental implementation of our recommendation sy
 ## List of Heuristics
 
 - [ ] 1. Apply induction on (an) argument(s) of an innermost constant.
-- [ ] 2. If the first sub-goal contains a constant `c` defined with the `fun` keyword, use `c.induct`.
+- [ ] 2. If the first sub-goal contains (a) constant(s) defined with the `fun` keyword, use `c.induct`
+         where `c` is the innermost constant defined with `fun`.
 - [ ] 3. If one uses `bla.induct` rule and `bla.inducts` conclusion has `n` arguemnts in the uncurried form, 
          he/she should specify `n` variables to which the induct method should apply induction on.
          And these arguements should be just variables and they also should be arguements of `bla`
