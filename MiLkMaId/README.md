@@ -5,7 +5,8 @@ This directory contains the experimental implementation of our recommendation sy
 ## List of Heuristics
 
 - [ ] 1. Apply induction on (an) argument(s) of an innermost constant.
-- [ ] 2. If the first sub-goal contains a constant `c` defined with the `fun` keyword, use `c.induct`.
+- [ ] 2. If the first sub-goal contains (a) constant(s) defined with the `fun` keyword, use `c.induct`
+         where `c` is the innermost constant defined with `fun`.
 - [ ] 3. If one uses `bla.induct` rule and `bla.inducts` conclusion has `n` arguemnts in the uncurried form, 
          he/she should specify `n` variables to which the induct method should apply induction on.
          And these arguements should be just variables and they also should be arguements of `bla`
@@ -33,9 +34,9 @@ This directory contains the experimental implementation of our recommendation sy
           (`Isaplanner/TIP_prop_01.thy`)
 - [ ] 11. If the underlying context has a simplification rule applicable to 
           all sub-goals that appear after applying mathematical induction, the mathematical induction tends to be promising.
-- [ ] 12. If the same variable (or sub-term) appears as the induction variable and generalized variable, 
+- [X] 12. If the same variable (or sub-term) appears as the induction variable and generalized variable, 
           this mathematical induction is less promising.
-- [ ] 13. If the mathematical induction under consideration uses more than one rules,
+- [X] 13. If the mathematical induction under consideration uses more than one rules,
           probably this induction is not very promising
           
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
