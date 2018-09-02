@@ -52,19 +52,24 @@ datatype uterm =
 datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
 datatype pattern = Full | Partial | Var | Abstract | Other;
 type point =
-  {cname: string,
+  {cname: string,(*TODO: cname is a misnomer. A point does not have to be a constant.*)
    utyp : utyp,
    level: int};
-type ancestors  = (point * int) list;
+type ancestor = (point * int (*The current point is the nth argument to this ancestor.*));
+type ancestors  = ancestor list;
 type datum =
   {point    : point,
    ancestors: ancestors};
 type data = datum list;
-type ancestors_p = (point * pattern) list;
-type datum_p =
+type ancestor_with_pattern =
+  {point  : point,
+   nth_arg: int,
+   pattern: pattern};
+type ancestors_with_pattern = ancestor_with_pattern list;
+type datum_with_pattern =
   {point    : point,
-   ancestors: ancestors_p};
-type data_p = datum_p list;
+   ancestors: ancestors_with_pattern};
+type data_with_pattern = datum_with_pattern list;
 type 'a matrix = 'a list list;
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
@@ -95,6 +100,7 @@ val map_types'           : (typ -> typ) -> uterm -> uterm;
 val uncurry              : term -> uterm;
 val get_name             : uterm -> string;
 val uncurried_trm_to_data: uterm -> data;
+val uterm_to_level       : string -> uterm -> int;
 
 (* operations on matrix *)
 val get_elem_in_matrix: 'a matrix -> int * int (*(nth column, nth row) start at 0*) -> 'a option;
@@ -112,6 +118,7 @@ val mk_parameter_matrix               : Proof.context -> string -> bool matrix;
 
 (* operations about pattern *)
 val get_pattern : Proof.context -> string -> int -> pattern;
+val data_to_data_with_pattern: Proof.context -> data -> data_with_pattern;
 
 end;
 
@@ -326,7 +333,7 @@ let
 | Fun =>       mk_parameter_matrix_for_fun ctxt cname
 | Function =>  mk_parameter_matrix_for_function ctxt cname
 | Inductive => mk_parameter_matrix_for_inductive ctxt cname
-| _ => [[]] (*TODO*)
+| _ => [[(*This includes the cases where cname is not a name of a constant.*)]] (*TODO*)
 in
   result
 end;
@@ -368,7 +375,8 @@ type point =
  *   And we can infer the information about pattern-matching from the location of the current point
  *   in terms of each constant. *)
 (*For "fun p x y", "x" is the first argument and "y" is the second argument.*)
-type ancestors = (point * int) list;
+type ancestor = (point * int);
+type ancestors = ancestor list;
 
 type datum =
   {point    : point,
@@ -413,16 +421,68 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
 
 fun uncurried_trm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
 
-type ancestors_p = (point * pattern) list;
-type datum_p =
-  {point    : point,
-   ancestors: ancestors_p};
-type data_p = datum_p list;
-
 fun get_pattern (ctxt:Proof.context) (cname:string) (nth_arg:int) =
   mk_parameter_matrix ctxt cname
 |> (classify: bool matrix -> pattern list option)
 >>= (fn patterns => try (nth patterns) nth_arg)
 |> (fn res => Option.getOpt (res, Other));
+
+(* data with pattern *)
+type ancestor_with_pattern =
+  {point  : point,
+   nth_arg: int,
+   pattern: pattern};
+type ancestors_with_pattern = ancestor_with_pattern list;
+type datum_with_pattern =
+  {point    : point,
+   ancestors: ancestors_with_pattern};
+type data_with_pattern = datum_with_pattern list;
+
+fun ancestor_to_ancestor_with_pattern (ctxt:Proof.context) ((point as {cname, ...}, nth_arg):ancestor) =
+  let
+    val pattern = get_pattern ctxt cname nth_arg
+  in
+    {point = point, nth_arg = nth_arg, pattern = pattern}: ancestor_with_pattern
+  end;
+
+fun ancestors_to_ancestors_with_pattern (ctxt:Proof.context) (ancestors:ancestors) =
+  map (ancestor_to_ancestor_with_pattern ctxt) ancestors: ancestors_with_pattern;
+
+fun datum_to_datum_with_pattern (ctxt:Proof.context) ({point, ancestors}:datum) =
+  let
+    val ancestors_with_pattern = ancestors_to_ancestors_with_pattern ctxt ancestors;
+  in
+    {point = point, ancestors = ancestors_with_pattern}: datum_with_pattern
+  end;
+
+fun data_to_data_with_pattern (ctxt:Proof.context) (data:data) =
+  map (datum_to_datum_with_pattern ctxt) data: data_with_pattern;
+
+(*TODO*)
+fun uterm_to_level (name:string) (utrm:uterm) =
+  let
+    val data = uncurried_trm_to_data utrm:data;
+    val points = map #point data: point list;
+  in
+    1
+  end;
+
+fun get_innermost_const_with_fun (ctxt:Proof.context) (data:data) =
+  let
+    fun point_with_fun (p:point) = [];
+    val consts_with_fun = [];
+  in
+    []
+  end;
+
+fun is_arg_of_full_pttrn_match ancestors () =();
+
+fun is_always_argument_of_complete_pattern_matching (ctxt:Proof.context) (data:data) (name:string) =
+  let
+    val _ = true;
+    val _ = false;
+  in
+    []
+  end;
 
 end;

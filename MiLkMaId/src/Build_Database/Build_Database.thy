@@ -11,6 +11,7 @@ fun (m <$> f) = Option.map f m;
 *}
 
 ML_file "../../../src/Utils.ML"
+ML_file "../MiLkMaId_Assertion.ML"
 ML_file "../Smart_Induct.ML"
 ML_file "FE_Interface.ML"
 

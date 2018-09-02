@@ -30,7 +30,9 @@ type datum = {within_psls_scope       : bool,
               };
 
 (* Induct_Seed: The seed to make the tactic-generator for the induct method. *)
-structure Induct_Seed : DYNAMIC_TACTIC_GENERATOR_SEED =
+(* We should not annotate the signature to this structure Induct_Seed
+ * because we have to access some functions that are not exposed when defining assertions. *)
+structure Induct_Seed (*: DYNAMIC_TACTIC_GENERATOR_SEED*) =
 struct
 
 datatype modifier = 
@@ -141,11 +143,85 @@ fun state_to_fst_thms (meth_name:string) (pst:DU.state) : thm list =
 structure More_MiLkMaId_Assertion =
 struct
 
-fun ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) (model_post:thm) =
-  [true, true, false];
+structure MA = MiLkMaId_Assertion;
+
+(*TODO: some of the following functions should be defined in MiLkMaId_Assertion.*)
+fun get_the_level_of_innermost_UApp' ([]:MA.data)              (acc:int) = acc
+ |  get_the_level_of_innermost_UApp' ({point,...}::ds:MA.data) (acc:int) =
+let
+  val {cname, utyp, level} = point;
+  val new_acc = if utyp = MA.UAp andalso level > acc then level else acc: int;
+in
+  get_the_level_of_innermost_UApp' ds new_acc: int
+end;
+
+fun get_the_level_of_innermost_UApp (data:MA.data) = get_the_level_of_innermost_UApp' data 1;
+
+fun get_points_below_n (threshold:int) (data:MA.data) =
+let
+  (*"below" in the un-curried syntax tree*)
+  fun is_below_n (n:int) ({level,...}:MA.point) = level > n;
+  val points = map #point data: MA.point list;
+in
+  filter (is_below_n threshold) points: MA.point list
+end;
+
+fun opt_map_pair f (SOME v1, SOME v2) = SOME (f (v1, v2))
+ |  opt_map_pair f _ = NONE;
+
+fun ass_001 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    (*TODO: re-factor this.*)
+    val ctxt = Proof.context_of pst: Proof.context;
+    val thm = IU.proof_state_to_thm pst: thm;
+    val fst_subg = IU.get_1st_subg thm: term option;
+    val uncurrid_fst_subg = Option.map MA.uncurry fst_subg: MA.uterm option;
+    val data = Option.map MA.uncurried_trm_to_data uncurrid_fst_subg: MA.data option;
+    val data_with_pattern = Option.map (MA.data_to_data_with_pattern ctxt) data: MA.data_with_pattern option;
+    val level_of_innermost_UApp = Option.map get_the_level_of_innermost_UApp data;
+    val some_innermost_points = opt_map_pair (uncurry get_points_below_n) (level_of_innermost_UApp, data): MA.point list option;
+    val innermost_points = these some_innermost_points: MA.point list;
+  in
+    true
+  end;
+
+fun ass_012 (_:Proof.state) (mods:ITG.modifiers) =
+  let
+    val (ons, arbs, _) = IS.order mods;
+    val dups = duplicates (op =) (map IS.get_name (ons @ arbs));
+    val has_dup = (not o null) dups;
+  in
+    has_dup
+  end;
+
+
+fun ass_013 (_:Proof.state) (mods:ITG.modifiers) =
+  let
+    val (_, _, rules) = IS.order mods;
+    val less_than_2_rules = length rules < 2;
+  in
+    less_than_2_rules
+  end;
+
+(*TODO*)
+fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
+(*001*)true,
+(*002*)true,
+(*003*)true,
+(*004*)true,
+(*005*)true,
+(*006*)true,
+(*007*)true,
+(*008*)true,
+(*009*)true,
+(*010*)true,
+(*011*)false,
+(*012*)ass_012 pre_pst mods,
+(*013*)ass_013 pre_pst mods];
 
 fun mk_get_post_thm (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): thm option =
   let
+val _ = (fn modi => modifiers_to_str meth_name modi |> tracing) mods;
     val nontac = try (modifiers_to_str meth_name) mods
              >>= try (str_to_nontac): Proof.state DU.nontac option;
     fun mk_fst_res _   NONE       = NONE
@@ -162,7 +238,7 @@ fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.
 
 fun mk_a_line (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
   {used        = is_used meth_name pre_pst model_post mods,
-   ass_results = ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) (model_post:thm)
+   ass_results = mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers)
    }: one_line;
 
 fun mk_lines (meth_name:string) (pre_pst:Proof.state) (modss:ITG.modifiers list) (model_post:thm) =
