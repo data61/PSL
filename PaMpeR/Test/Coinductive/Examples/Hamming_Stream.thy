@@ -197,7 +197,7 @@ end
 partial_function (llist) hamming' :: "unit \<Rightarrow> nat llist"
 where
   "hamming' _ = 
-   LCons 1 (lmerge (lmap (op * 2) (hamming' ())) (lmerge (lmap (op * 3) (hamming' ())) (lmap (op * 5) (hamming' ()))))"
+   LCons 1 (lmerge (lmap (( * ) 2) (hamming' ())) (lmerge (lmap (( * ) 3) (hamming' ())) (lmap (( * ) 5) (hamming' ()))))"
 
 definition hamming :: "nat llist"
 where "hamming = hamming' ()"
@@ -212,11 +212,11 @@ lemma lhd_hamming [simp]: "lhd hamming = 1"
 unfolding hamming_def by(subst hamming'.simps) simp
 
 lemma ltl_hamming [simp]:
-  "ltl hamming = lmerge (lmap (op * 2) hamming) (lmerge (lmap (op * 3) hamming) (lmap (op * 5) hamming))"
+  "ltl hamming = lmerge (lmap (( * ) 2) hamming) (lmerge (lmap (( * ) 3) hamming) (lmap (( * ) 5) hamming))"
 unfolding hamming_def by(subst hamming'.simps) simp
 
 lemma hamming_unfold:
-  "hamming = LCons 1 (lmerge (lmap (op * 2) hamming) (lmerge (lmap (op * 3) hamming) (lmap (op * 5) hamming)))"
+  "hamming = LCons 1 (lmerge (lmap (( * ) 2) hamming) (lmerge (lmap (( * ) 3) hamming) (lmap (( * ) 5) hamming)))"
 by(rule llist.expand) simp_all
 
 definition smooth :: "nat \<Rightarrow> bool"
@@ -256,11 +256,11 @@ lemma lfinite_hamming [simp]: "\<not> lfinite hamming"
 proof
   assume "lfinite hamming"
   then obtain n where n: "llength hamming = enat n" unfolding lfinite_conv_llength_enat by fastforce
-  have "llength (lmap (op * 3) hamming) \<sqinter> llength (lmap (op * 5) hamming) \<le> llength (lmerge (lmap (op * 3) hamming) (lmap (op * 5) hamming))"
+  have "llength (lmap (( * ) 3) hamming) \<sqinter> llength (lmap (( * ) 5) hamming) \<le> llength (lmerge (lmap (( * ) 3) hamming) (lmap (( * ) 5) hamming))"
     by(rule llength_lmerge_above)
   hence "llength hamming \<le> \<dots>" by simp
-  moreover have "llength (lmap (op * 2) hamming) \<sqinter> \<dots> \<le>
-    llength (lmerge (lmap (op * 2) hamming) (lmerge (lmap (op * 3) hamming) (lmap (op * 5) hamming)))"
+  moreover have "llength (lmap (( * ) 2) hamming) \<sqinter> \<dots> \<le>
+    llength (lmerge (lmap (( * ) 2) hamming) (lmerge (lmap (( * ) 3) hamming) (lmap (( * ) 5) hamming)))"
     by(rule llength_lmerge_above)
   ultimately have "llength hamming \<le> \<dots>" by(simp add: inf.absorb1)
   also from n have "\<dots> < enat n"
@@ -283,9 +283,9 @@ lemma smooth_hamming:
 using assms
 proof(induction n rule: less_induct)
   have [simp]:
-    "monotone op \<le> op \<le> (op * 2 :: nat \<Rightarrow> nat)" 
-    "monotone op \<le> op \<le> (op * 3 :: nat \<Rightarrow> nat)" 
-    "monotone op \<le> op \<le> (op * 5 :: nat \<Rightarrow> nat)" 
+    "monotone (\<le>) (\<le>) (( * ) 2 :: nat \<Rightarrow> nat)" 
+    "monotone (\<le>) (\<le>) (( * ) 3 :: nat \<Rightarrow> nat)" 
+    "monotone (\<le>) (\<le>) (( * ) 5 :: nat \<Rightarrow> nat)" 
     by(simp_all add: monotone_def)
 
   case (less n)

@@ -245,7 +245,7 @@ where
 | coms_loop: "coms_dia G c \<Longrightarrow> coms_com (Loop_dia G) (Loop c)"
 | coms_main: "\<lbrakk> \<pi> \<in> lins (Graph V \<Lambda> E); length cs = length \<pi>;
     \<forall>i<length \<pi>. case_sum (coms_ass \<circ> \<Lambda>) (coms_com \<circ> snd3) (\<pi>!i) (cs!i) \<rbrakk> 
-    \<Longrightarrow> coms_dia (Graph V \<Lambda> E) (foldr (op ;;) cs Skip)"
+    \<Longrightarrow> coms_dia (Graph V \<Lambda> E) (foldr (;;) cs Skip)"
 monos 
   coms_mono_helper
 

@@ -13,7 +13,7 @@ section "Lemmas for Word Length 32"
 theory Word_Lemmas_32
 imports
   Word_Lemmas
-  Word_Setup_32
+  Word_Setup_32 "../Assertion_Checker"
 begin
 
 lemma ucast_8_32_inj:
@@ -84,6 +84,12 @@ lemma unat_less_word_bits:
 lemmas unat_mask_word32' = unat_mask[where 'a=32]
 lemmas unat_mask_word32 = unat_mask_word32'[folded word_bits_def]
 
+lemma unat_less_2p_word_bits:
+  "unat (x :: 32 word) < 2 ^ word_bits"
+  apply (simp only: word_bits_def)
+  apply (rule unat_lt2p)
+  done
+
 lemma Suc_unat_mask_div:
   "Suc (unat (mask sz div word_size::word32)) = 2 ^ (min sz word_bits - 2)"
   apply (case_tac "sz < word_bits")
@@ -149,7 +155,7 @@ lemmas if_then_simps = if_then_0_else_1 if_then_1_else_0
 
 lemma ucast_le_ucast_8_32:
   "(ucast x \<le> (ucast y :: word32)) = (x \<le> (y :: word8))"
-  by (simp add: word_le_nat_alt unat_ucast_8_32)
+  by (simp add: ucast_le_ucast)
 
 lemma in_16_range:
   "0 \<in> S \<Longrightarrow> r \<in> (\<lambda>x. r + x * (16 :: word32)) ` S"
@@ -275,9 +281,9 @@ lemma mask_step_down_32:
 
 lemma unat_of_int_32:
   "\<lbrakk>i \<ge> 0; i \<le>2 ^ 31\<rbrakk> \<Longrightarrow> (unat ((of_int i)::sword32)) = nat i"
-  unfolding unat_def 
+  unfolding unat_def
   apply (subst eq_nat_nat_iff, clarsimp+)
-  apply (simp add: word_of_int uint_word_of_int int_mod_eq')
+  apply (simp add: word_of_int uint_word_of_int)
   done
 
 (* Helper for packing then unpacking a 64-bit variable. *)
@@ -290,7 +296,7 @@ lemma cast_chunk_assemble_id_64'[simp]:
   "(((ucast ((scast (x::64 word))::32 word))::64 word) || (((ucast ((scast (x >> 32))::32 word))::64 word) << 32)) = x"
   by (simp add:cast_chunk_scast_assemble_id)
 
-(* Specialiasations of down_cast_same for adding to local simpsets. *)
+(* Specialisations of down_cast_same for adding to local simpsets. *)
 lemma cast_down_u64: "(scast::64 word \<Rightarrow> 32 word) = (ucast::64 word \<Rightarrow> 32 word)"
   apply (subst down_cast_same[symmetric])
    apply (simp add:is_down)+

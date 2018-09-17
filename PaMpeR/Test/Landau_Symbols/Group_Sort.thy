@@ -101,9 +101,9 @@ private lemma multiset_of_sort: "mset (sort xs) = mset xs"
 proof (induction xs rule: sort.induct)
   case (2 x xs)
   let ?M = "\<lambda>oper. {#y:# mset xs. oper (f y) (f x)#}"
-  from 2 have "mset (sort (x#xs)) = ?M (op <) + ?M (op =) + ?M (op >) + {#x#}"
+  from 2 have "mset (sort (x#xs)) = ?M (<) + ?M (=) + ?M (>) + {#x#}"
     by (simp add: part Multiset.union_assoc mset_filter)
-  also have "?M (op <) + ?M (op =) + ?M (op >) = mset xs"
+  also have "?M (<) + ?M (=) + ?M (>) = mset xs"
     by ((subst filter_mset_union, force)+, subst multiset_eq_iff, force)
   finally show ?case by simp
 qed simp
@@ -115,14 +115,14 @@ private lemma set_sort: "set (sort xs) = set xs"
   using arg_cong[OF multiset_of_sort[of xs], of "set_mset"] by (simp only: set_mset_mset)
 
 private lemma sorted_all_equal: "(\<And>x. x \<in> set xs \<Longrightarrow> x = y) \<Longrightarrow> sorted xs"
-  by (induction xs) (auto simp: sorted_Cons)
+  by (induction xs) (auto)
 
 private lemma sorted_sort: "sorted (map f (sort xs))"
 apply (induction xs rule: sort.induct)
 apply simp
-apply (simp only: sorted_append sorted_Cons sort.simps part map_append split)
+apply (simp only: sorted_append sort.simps part map_append split)
 apply (intro conjI TrueI)
-using sorted_map_same by (auto simp: set_sort sorted_Cons)
+using sorted_map_same by (auto simp: set_sort)
 
 
 
@@ -159,12 +159,12 @@ proof (induction xs rule: group.induct)
     with f_group obtain x'' where x'': "x'' \<in> set xs" "f x' = f x''" by force
     have "f (fold merge [y\<leftarrow>xs . f y = f x] x) = f x"
       by (subst f_fold_merge) simp_all
-    also from 2(2) x'' have "... \<le> f x'" by (auto simp: sorted_Cons) 
+    also from 2(2) x'' have "... \<le> f x'" by (auto) 
     finally have "f (fold merge [y\<leftarrow>xs . f y = f x] x) \<le> f x'" .
   }
   moreover from 2(2) have "sorted (map f (group [xa\<leftarrow>xs . f xa \<noteq> f x]))"
-    by (intro 2 sorted_filter) (simp_all add: sorted_Cons o_def)
-  ultimately show ?case by (simp add: o_def sorted_Cons)
+    by (intro 2 sorted_filter) (simp_all add: o_def)
+  ultimately show ?case by (simp add: o_def)
 qed simp_all
 
 private lemma distinct_group: "distinct (map f (group xs))"

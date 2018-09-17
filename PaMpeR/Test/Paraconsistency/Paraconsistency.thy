@@ -157,7 +157,7 @@ The following functions support arbitrary unary and binary truth tables.
 
 definition tv_pair_row :: "tv list \<Rightarrow> tv \<Rightarrow> (tv * tv) list"
 where
-  "tv_pair_row tvs tv = map (\<lambda>x. (tv, x)) tvs"
+  "tv_pair_row tvs tv \<equiv> map (\<lambda>x. (tv, x)) tvs"
 
 definition tv_pair_table :: "tv list \<Rightarrow> (tv * tv) list list"
 where
@@ -165,26 +165,34 @@ where
 
 definition map_row :: "(tv \<Rightarrow> tv \<Rightarrow> tv) \<Rightarrow> (tv * tv) list \<Rightarrow> tv list"
 where
-  "map_row f tvtvs = map (\<lambda>(x, y). f x y) tvtvs"
+  "map_row f tvtvs \<equiv> map (\<lambda>(x, y). f x y) tvtvs"
 
 definition map_table :: "(tv \<Rightarrow> tv \<Rightarrow> tv) \<Rightarrow> (tv * tv) list list \<Rightarrow> tv list list"
 where
-  "map_table f tvtvss = map (map_row f) tvtvss"
+  "map_table f tvtvss \<equiv> map (map_row f) tvtvss"
 
 definition unary_truth_table :: "fm \<Rightarrow> tv list \<Rightarrow> tv list"
 where
-  "unary_truth_table p tvs =
+  "unary_truth_table p tvs \<equiv>
       map (\<lambda>x. eval ((\<lambda>s. undefined)(''p'' := x)) p) tvs"
 
 definition binary_truth_table :: "fm \<Rightarrow> tv list \<Rightarrow> tv list list"
 where
-  "binary_truth_table p tvs =
+  "binary_truth_table p tvs \<equiv>
       map_table (\<lambda>x y. eval ((\<lambda>s. undefined)(''p'' := x, ''q'' := y)) p) (tv_pair_table tvs)"
+
+definition digit_of_nat :: "nat \<Rightarrow> char"
+where
+  "digit_of_nat n \<equiv>
+   (if n = 1 then (CHR ''1'') else if n = 2 then (CHR ''2'') else if n = 3 then (CHR ''3'') else
+    if n = 4 then (CHR ''4'') else if n = 5 then (CHR ''5'') else if n = 6 then (CHR ''6'') else
+    if n = 7 then (CHR ''7'') else if n = 8 then (CHR ''8'') else if n = 9 then (CHR ''9'') else
+      (CHR ''0''))"
 
 fun string_of_nat :: "nat \<Rightarrow> string"
 where
-  "string_of_nat n = (if n < 10 then [char_of_nat (48 + n)] else
-      string_of_nat (n div 10) @ [char_of_nat (48 + (n mod 10))])"
+  "string_of_nat n =
+      (if n < 10 then [digit_of_nat n] else string_of_nat (n div 10) @ [digit_of_nat (n mod 10)])"
 
 fun string_tv :: "tv \<Rightarrow> string"
 where
@@ -194,28 +202,27 @@ where
 
 definition appends :: "string list \<Rightarrow> string"
 where
-  "appends strs = foldr append strs []"
+  "appends strs \<equiv> foldr append strs []"
 
 definition appends_nl :: "string list \<Rightarrow> string"
 where
-  "appends_nl strs = ''\<newline>  '' @
-      foldr (\<lambda>s s'. s @ ''\<newline>  '' @ s') (butlast strs) (last strs) @ ''\<newline>''"
+  "appends_nl strs \<equiv> ''\<newline>  '' @ foldr (\<lambda>s s'. s @ ''\<newline>  '' @ s') (butlast strs) (last strs) @ ''\<newline>''"
 
 definition string_table :: "tv list list \<Rightarrow> string list list"
 where
-  "string_table tvss = map (map string_tv) tvss"
+  "string_table tvss \<equiv> map (map string_tv) tvss"
 
 definition string_table_string :: "string list list \<Rightarrow> string"
 where
-  "string_table_string strss = appends_nl (map appends strss)"
+  "string_table_string strss \<equiv> appends_nl (map appends strss)"
 
 definition unary :: "fm \<Rightarrow> tv list \<Rightarrow> string"
 where
-  "unary p tvs = appends_nl (map string_tv (unary_truth_table p tvs))"
+  "unary p tvs \<equiv> appends_nl (map string_tv (unary_truth_table p tvs))"
 
 definition binary :: "fm \<Rightarrow> tv list \<Rightarrow> string"
 where
-  "binary p tvs = string_table_string (string_table (binary_truth_table p tvs))"
+  "binary p tvs \<equiv> string_table_string (string_table (binary_truth_table p tvs))"
 
 subsection \<open>Main Truth Tables\<close>
 
@@ -1461,7 +1468,7 @@ proof -
       using icase
       by (cases "i ''p''"; cases "i ''q''"; cases "i ''r''"; cases "i ''s''") simp_all
   qed
-  ultimately show "?thesis"
+  ultimately show ?thesis
     using reduce
     by simp
 qed
@@ -1486,7 +1493,7 @@ proof -
       using icase
       by (cases "i ''p''"; cases "i ''q''"; cases "i ''r''"; cases "i ''s''") simp_all
   qed
-  ultimately show "?thesis"
+  ultimately show ?thesis
     using reduce
     by simp
 qed
@@ -1511,7 +1518,7 @@ proof -
       using icase
       by (cases "i ''p''"; cases "i ''q''"; cases "i ''r''"; cases "i ''s''") simp_all
   qed
-  ultimately show "?thesis"
+  ultimately show ?thesis
     using reduce
     by simp
 qed

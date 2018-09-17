@@ -3,21 +3,24 @@
 *)
 theory Test_Assertion_Using_AFP
   imports
+  (*checked within their own proof scripts*)
   Assertion_Checker
   "~~/src/Doc/Datatypes/Datatypes"
   "Paraconsistency/Paraconsistency"
   "Native_Word/Native_Word_Test"
   "Buildings/Algebra"
-  "LightweightJava/Lightweight_Java_Equivalence"
-  "Word_Lib/Word_Lemmas"
   "Buildings/Chamber"
   "Buildings/Prelim"
+  "LightweightJava/Lightweight_Java_Equivalence"
+  "Word_Lib/Word_Lemmas"
   "Abortable_Linearizable_Modules/Consensus"
-  "Name_Carrying_Type_Inference/SimplyTyped"
+  "Abortable_Linearizable_Modules/IOA"
   "Coinductive_Languages/Coinductive_Language"
   "Ribbon_Proofs/More_Finite_Map"
   "Coinductive/Coinductive_List"
   "Landau_Symbols/Landau_Library"
+  (*used in the following body*)
+  "Name_Carrying_Type_Inference/SimplyTyped"
 begin
 
 find_theorems name:"pelims" -name:"Quickcheck" -name:"Nitpick"
@@ -28,7 +31,7 @@ lemma "Datatypes.even Datatypes.Zero  = False"
   assert_nth_true 6 (*fact_psimp*)
   oops
 
-lemma "depth (\<pi> \<cdot> A) = depth A"
+lemma "SimplyTyped.depth (\<pi> \<cdot> A) = depth A"
   assert_nth_true 12 (*lift_definition*)
   assert_nth_false 13 (*primcorec*)
   oops
@@ -157,12 +160,6 @@ lemma "True \<and> (Option.None = Option.None)"
   assert_nth_true 8 (*cases*)
   oops
 
-find_theorems name:"intros" name:"sorted"
-lemma "sorted []"
-  assert_nth_true 9 (*intros*)
-  assert_nth_true 10 (*recursive simp exists sorted*)
-  oops
-
 primrec power::"Nat.nat \<Rightarrow> Nat.nat \<Rightarrow> Nat.nat" where
   "power x (Suc n) = times x (power x n)"
 | "power x 0 = x"
@@ -183,21 +180,17 @@ lemma
   assert_nth_false 11 (*Num*)
   oops
 
-lemma "\<And>x. (1::Real.real) = 1" assert_nth_false 83
-  assert_nth_true 84 assert_nth_true 85
+lemma "\<And>x. (1::Real.real) = 1"
+  assert_nth_true 83 assert_nth_true 84 assert_nth_true 85
   oops
 
-lemma "\<And>x. (1::Rat.rat) + 1 > 2" assert_nth_true 83
-  assert_nth_true 84 assert_nth_true 85
+lemma "\<And>x. (1::Rat.rat) + 1 > 2"
+  assert_nth_true 83 assert_nth_true 84 assert_nth_true 85
   oops
 
 inductive evn :: "Nat.nat \<Rightarrow> bool" where
 zero: "evn 0" |
 step: "evn n \<Longrightarrow> evn (Suc (Suc n))"
-
-lemma "\<And>x. evn 0 \<Longrightarrow> True" "False"
-  apply - assert_nth_true 82
-  oops
 
 lemma "\<And>x. False \<Longrightarrow> evn 0" "False"
   apply - assert_nth_false 82
@@ -219,4 +212,5 @@ lemma "\<And>x. (True \<longrightarrow> True) \<Longrightarrow> True" "False"
 lemma "\<And>x. (True \<and> True) \<Longrightarrow> True" "False"
   apply - assert_nth_false 82
   oops
+
 end

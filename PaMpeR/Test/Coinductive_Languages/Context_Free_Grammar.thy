@@ -1,23 +1,8 @@
 section {* Word Problem for Context-Free Grammars  *}
 (*<*)
 theory Context_Free_Grammar
-imports Coinductive_Language "HOL-Library.FSet"  "../Assertion_Checker"
+imports Coinductive_Language "HOL-Library.FSet" "../Assertion_Checker"
 begin
-
-lemma fBex_mono[mono]: "P \<le> Q \<Longrightarrow> fBex S P \<le> fBex S Q"
-  by auto
-
-lemma ffUnion_fempty[simp]: "ffUnion {||} = {||}"which_method
-  including fset.lifting
-  by transfer auto
-
-lemma ffUnion_finsert[simp]: "ffUnion (finsert A F) = A |\<union>| ffUnion F" which_method
-  including fset.lifting
-  by transfer auto
-
-lemma ffUnion_mono: "A |\<subseteq>| B \<Longrightarrow> ffUnion A |\<subseteq>| ffUnion B" which_method
-  including fset.lifting
-  by transfer auto
 (*>*)
 
 
@@ -72,14 +57,14 @@ inductive_cases [elim!]: "in_cfls P (a # w)"
 
 declare inj_eq[OF bij_is_inj[OF to_language_bij], simp]
 
-lemma subst_in_cfls: "subst P = to_language {w. in_cfls P w}"assert_nth_true 13 assert_nth_false 4 assert_nth_true 50
-which_method assert_nth_true 54 assert_nth_false 1 by (coinduction arbitrary: P) (auto intro: in_cfls.intros)
+lemma subst_in_cfls: "subst P = to_language {w. in_cfls P w}"
+  by (coinduction arbitrary: P) (auto intro: in_cfls.intros)
 
 lemma \<oo>\<^sub>P_in_cfl: "\<oo>\<^sub>P \<alpha> \<Longrightarrow> in_cfl \<alpha> []" assert_nth_true 50 find_theorems name:"pinduct" which_method
   by (induct \<alpha> rule: \<oo>\<^sub>P.induct) (auto intro!: in_cfl.intros elim: fBexI[rotated])
 
 lemma \<dd>\<^sub>P_in_cfl: "\<beta> |\<in>| \<dd>\<^sub>P \<alpha> a \<Longrightarrow> in_cfl \<beta> w \<Longrightarrow> in_cfl \<alpha> (a # w)" assert_nth_false 13
-which_method proof (induct \<alpha> a arbitrary: \<beta> w rule: \<dd>\<^sub>P.induct)
+proof (induct \<alpha> a arbitrary: \<beta> w rule: \<dd>\<^sub>P.induct)
   case (3 N \<alpha> a)
   then show ?case
     by (auto simp: rev_fBexI neq_Nil_conv split: if_splits
@@ -91,11 +76,11 @@ lemma in_cfls_in_cfl: "in_cfls P w \<Longrightarrow> fBex P (\<lambda>\<alpha>. 
     (auto simp: \<oo>\<^sub>P_in_cfl \<dd>\<^sub>P_in_cfl ffUnion.rep_eq fmember.rep_eq fBex.rep_eq fBall.rep_eq
       intro: in_cfl.intros elim: rev_bexI)
 
-lemma in_cfls_mono: "in_cfls P w \<Longrightarrow> P |\<subseteq>| Q \<Longrightarrow> in_cfls Q w"assert_nth_false 13 assert_nth_true 50 which_method
+lemma in_cfls_mono: "in_cfls P w \<Longrightarrow> P |\<subseteq>| Q \<Longrightarrow> in_cfls Q w" assert_nth_false 13 assert_nth_true 50 which_method
 proof (induct P w arbitrary: Q rule: in_cfls.induct)
   case (2 a P w)
   from 2(3) 2(2)[of "ffUnion ((\<lambda>\<alpha>. local.\<dd>\<^sub>P \<alpha> a) |`| Q)"] show ?case
-    by (auto intro!: ffUnion_mono in_cfls.intros)
+    by (auto intro!: ffunion_mono in_cfls.intros)
 qed (auto intro!: in_cfls.intros)
 
 end
@@ -105,7 +90,7 @@ locale cfg_wgreibach =
   assumes weakGreibach: "\<And>N \<alpha>. \<alpha> |\<in>| prod G N \<Longrightarrow> wgreibach \<alpha>"
 begin
 
-lemma in_cfl_in_cfls: "in_cfl G \<alpha> w \<Longrightarrow> in_cfls G {|\<alpha>|} w"assert_nth_false 13 assert_nth_false 43 assert_nth_false 44
+lemma in_cfl_in_cfls: "in_cfl G \<alpha> w \<Longrightarrow> in_cfls G {|\<alpha>|} w" assert_nth_false 13 assert_nth_false 43 assert_nth_false 44
 proof (induct \<alpha> w rule: in_cfl.induct)
   case (3 N \<alpha> w)
   then obtain \<beta> where
@@ -151,8 +136,8 @@ abbreviation "\<aa> \<equiv> Inl True"
 abbreviation "\<bb> \<equiv> Inl False"
 abbreviation "S \<equiv> Inr ()"
 
-interpretation palindromes: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>], [\<bb>], [\<aa>, S, \<aa>], [\<bb>, S, \<bb>]|}\<rparr>" assert_nth_true 44
-  assert_nth_true 59 by unfold_locales auto
+interpretation palindromes: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>], [\<bb>], [\<aa>, S, \<aa>], [\<bb>, S, \<bb>]|}\<rparr>"assert_nth_false 44(*!*)
+  by unfold_locales auto
 
 lemma "in_language palindromes.lang []" by normalization
 lemma "in_language palindromes.lang [True]" by normalization
@@ -164,8 +149,8 @@ lemma "\<not> in_language palindromes.lang [True, False, True, False]" by normal
 lemma "in_language palindromes.lang [True, False, True, True, False, True]" by normalization
 lemma "\<not> in_language palindromes.lang [True, False, True, False, False, True]" by normalization
 
-interpretation Dyck: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, S, \<bb>, S]|}\<rparr>"assert_nth_true 44 assert_nth_true 59
-which_method  by unfold_locales auto
+interpretation Dyck: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, S, \<bb>, S]|}\<rparr>" assert_nth_false 44(*!*)
+  by unfold_locales auto
 lemma "in_language Dyck.lang []" by normalization
 lemma "\<not> in_language Dyck.lang [True]" by normalization
 lemma "\<not> in_language Dyck.lang [False]" by normalization
@@ -176,8 +161,8 @@ lemma "in_language Dyck.lang [True, False, True, False, True, True, False, False
 lemma "\<not> in_language Dyck.lang [True, False, True, True, False]" by normalization
 lemma "\<not> in_language Dyck.lang [True, True, False, False, False, True]" by normalization
 
-interpretation abSSa: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, \<bb>, S, S, \<aa>]|}\<rparr>" assert_nth_true 44
-which_method  by unfold_locales auto
+interpretation abSSa: cfg_wgreibach "\<lparr>init = (), prod = \<lambda>_. {|[], [\<aa>, \<bb>, S, S, \<aa>]|}\<rparr>"assert_nth_false 44(*!*)
+  by unfold_locales auto
 lemma "in_language abSSa.lang []" by normalization
 lemma "\<not> in_language abSSa.lang [True]" by normalization
 lemma "\<not> in_language abSSa.lang [False]" by normalization

@@ -2,7 +2,7 @@ section {* Definition and Soundness of Refinement Mappings,
   Forward Simulations and Backward Simulations *}
 
 theory Simulations
-imports IOA  "../Assertion_Checker"
+imports IOA "../Assertion_Checker" "../../PaMpeR"
 begin
 
 context IOA
@@ -30,7 +30,7 @@ definition
 definition
   is_backward_sim :: "('s1 \<Rightarrow> ('s2 set)) \<Rightarrow> ('s1,'a)ioa \<Rightarrow> ('s2,'a)ioa \<Rightarrow> bool" where
   "is_backward_sim f B A \<equiv>
-   (\<forall> s . f s \<noteq> {}) (* Quantifying over reachable states would suffice *)
+   (\<forall> s . f s \<noteq> {}) \<comment> \<open>Quantifying over reachable states would suffice\<close>
    \<and> (\<forall> s \<in> start B . f s \<subseteq> start A)
    \<and> (\<forall> s t a t'. t' \<in> f t \<and> s \<midarrow>a\<midarrow>B\<longrightarrow> t \<and> reachable B s
         \<longrightarrow> (\<exists> e . fst e \<in> f s \<and> last_state e = t' \<and> is_exec_frag_of A e
@@ -62,7 +62,7 @@ lemma exec_inc_imp_trace_inc:
   assumes "ext B = ext A"
   and "\<And> e_B . is_exec_of B e_B 
     \<Longrightarrow> \<exists> e_A . is_exec_of A e_A \<and> trace (ioa.asig A) e_A = trace (ioa.asig A) e_B"
-  shows "traces B \<subseteq> traces A" assert_nth_false 53
+  shows "traces B \<subseteq> traces A"
 proof -
   { fix t
     assume "t \<in> traces B"

@@ -144,13 +144,13 @@ lemma ex1_apartment_iso:
   assumes "A\<in>\<A>" "A'\<in>\<A>" "chamber C" "C\<in>A\<inter>A'"
   shows   "\<exists>!f. ChamberComplexIsomorphism A A' f \<and>
             fixespointwise f (\<Union>(A\<inter>A')) \<and> fixespointwise f (-\<Union>A)"
---{* The third clause in the conjunction is to facilitate uniqueness. *}
+\<comment> \<open>The third clause in the conjunction is to facilitate uniqueness.\<close>
 proof (rule ex_ex1I)
   from assms obtain f
     where f: "ChamberComplexIsomorphism A A' f" "fixespointwise f (\<Union>(A\<inter>A'))"
     using strong_intersecttwo
     by    fast
-  def f' \<equiv> "restrict1 f (\<Union>A)"
+  define f' where "f' = restrict1 f (\<Union>A)"
   from f(1) f'_def have "ChamberComplexIsomorphism A A' f'"
     by (fastforce intro: ChamberComplexIsomorphism.iso_cong fun_eq_onI)
   moreover from f(2) f'_def have "fixespointwise f' (\<Union>(A\<inter>A'))"
@@ -288,15 +288,15 @@ lemma canonical_retraction_retraction:
   assumes "A\<in>\<A>" "chamber C" "C\<in>A" "v\<in>\<Union>A"
   shows   "canonical_retraction A C v = v"
 proof-
-  def D: D \<equiv> "supchamber v"
-  def B: B \<equiv> "supapartment D C"
-  from D assms(1,4) have D_facts: "chamber D" "v\<in>D"
+  define D where "D = supchamber v"
+  define B where "B = supapartment D C"
+  from D_def assms(1,4) have D_facts: "chamber D" "v\<in>D"
     using apartment_simplices supchamberD[of v] by auto
-  from B assms(2) have B_facts: "B\<in>\<A>" "D\<in>B" "C\<in>B"
+  from B_def assms(2) have B_facts: "B\<in>\<A>" "D\<in>B" "C\<in>B"
     using D_facts(1) supapartmentD[of D C] by auto
   from assms(1,4) have "v\<in>\<Union>(B\<inter>A)"
     using D_facts(2) B_facts(1,2) apartment_vertex_set_int by fast
-  with assms(1-3) D B show ?thesis
+  with assms(1-3) D_def B_def show ?thesis
     using canonical_retraction_def B_facts(1,3) fixespointwiseD[of _ "\<Union>(B\<inter>A)" v]
           the_apartment_isoD(2)[of B A C]
     by    simp
@@ -317,21 +317,22 @@ lemma canonical_retraction_uniform:
   shows   "fun_eq_on (canonical_retraction A C) (the_apartment_iso B A) (\<Union>B)"
 proof (rule fun_eq_onI)
   fix v assume v: "v\<in>\<Union>B"
-  def D': D' \<equiv> "supchamber v"
-  def B': B' \<equiv> "supapartment D' C"
-  def g : g  \<equiv> "the_apartment_iso B' A"
-  and f : f  \<equiv> "the_apartment_iso B B'"
-  and h : h  \<equiv> "the_apartment_iso B A"
-  from D' v apartments(2) have D'_facts: "chamber D'" "v\<in>D'"
+  define D' B' g f h
+    where "D' = supchamber v"
+      and "B' = supapartment D' C"
+      and "g = the_apartment_iso B' A"
+      and "f = the_apartment_iso B B'"
+      and "h = the_apartment_iso B A"
+  from D'_def v apartments(2) have D'_facts: "chamber D'" "v\<in>D'"
     using apartment_simplices supchamberD[of v] by auto
-  from B' chambers(1) have B'_facts: "B'\<in>\<A>" "D'\<in>B'" "C\<in>B'" 
+  from B'_def chambers(1) have B'_facts: "B'\<in>\<A>" "D'\<in>B'" "C\<in>B'" 
     using D'_facts(1) supapartmentD[of D' C] by auto
-  from f apartments(2) chambers have "fixespointwise f (\<Union>(B \<inter> B'))"
+  from f_def apartments(2) chambers have "fixespointwise f (\<Union>(B \<inter> B'))"
     using B'_facts(1,3) the_apartment_isoD(2)[of B B' C] by fast
   moreover from v apartments(2) have "v\<in>\<Union>(B\<inter>B')"
     using D'_facts(2) B'_facts(1,2) apartment_vertex_set_int by fast
   ultimately show "canonical_retraction A C v = h v"
-    using D' B' g f h v apartments chambers fixespointwiseD[of f "\<Union>(B\<inter>B')" v]
+    using D'_def B'_def g_def f_def h_def v apartments chambers fixespointwiseD[of f "\<Union>(B\<inter>B')" v]
           canonical_retraction_def apartment_simplices[of B] B'_facts(1,3)
           the_apartment_iso_comp[of B B' A C]
     by    auto
@@ -440,9 +441,10 @@ proof (cases "C=D")
     using apartment_chamber_distance_def chamber_distance_def by simp
 next
   case False
-  def Cs \<equiv> "ARG_MIN length Cs. ChamberComplex.gallery A (C#Cs@[D])"
-  and Ds \<equiv> "ARG_MIN length Ds. gallery (C#Ds@[D])"
-  and f \<equiv> "canonical_retraction A C"
+  define Cs Ds f
+    where "Cs = (ARG_MIN length Cs. ChamberComplex.gallery A (C#Cs@[D]))"
+      and "Ds = (ARG_MIN length Ds. gallery (C#Ds@[D]))"
+      and "f = canonical_retraction A C"
 
   from assms(2,3) False Ds_def have 1: "gallery (C#Ds@[D])"
     using gallery_least_length by fast
@@ -495,8 +497,9 @@ lemma apartment_face_distance:
   assumes "A\<in>\<A>" "chamber C" "C\<in>A" "F\<in>A"
   shows   "ChamberComplex.face_distance A F C = face_distance F C"
 proof-
-  def D  \<equiv> "closest_supchamber F C"
-  and D' \<equiv> "ChamberComplex.closest_supchamber A F C"
+  define D D'
+    where "D = closest_supchamber F C"
+      and "D' = ChamberComplex.closest_supchamber A F C"
 
   from assms D'_def have chamber_D': "ChamberComplex.chamber A D'"
     using chamber_in_apartment ChamberComplex.closest_supchamberD(1)
@@ -516,9 +519,9 @@ proof-
           ChamberComplex.closest_supchamberD(2)[OF complexes]
     by    auto
 
-  from assms(2) obtain B where "B\<in>\<A>" "C\<in>B" "D\<in>B"
+  from assms(2) obtain B where B: "B\<in>\<A>" "C\<in>B" "D\<in>B"
     using chambers(1) containtwo by fast
-  moreover with assms have "the_apartment_iso B A ` F = F"
+  moreover from assms B have "the_apartment_iso B A ` F = F"
     using F_DD'(1) apartment_faces the_apartment_iso_int_im by force
   moreover have "the_apartment_iso B A ` F \<subseteq> the_apartment_iso B A ` D"
     using F_DD'(1) by fast
@@ -526,14 +529,11 @@ proof-
     using assms(1-3) D'_def 1 chambers(1) apartment_chamber_distance[of B]
           chamber_in_apartment[of B D] chamber_in_apartment[of B C]
           ChamberComplexIsomorphism.chamber_map[
-            OF the_apartment_isoD(1), of B A
-          ]
+            OF the_apartment_isoD(1), of B A]
           ChamberComplex.closest_supchamber_closest[ 
-            OF complexes, of A "the_apartment_iso B A ` D" F C
-          ]
+            OF complexes, of A "the_apartment_iso B A ` D" F C]
           ChamberComplexIsomorphism.chamber_distance_map[
-            OF the_apartment_isoD(1), of B A C
-          ]
+            OF the_apartment_isoD(1), of B A C]
           the_apartment_iso_int_im[of B A C C]
     by    force
   moreover from assms D_def
@@ -604,8 +604,8 @@ abbreviation "fold_A \<equiv> canonical_retraction A D \<circ> canonical_retract
 abbreviation "res_fold_A \<equiv> restrict1 fold_A (\<Union>A)"
 abbreviation "opp_fold_A \<equiv> canonical_retraction A C \<circ> canonical_retraction B' D"
 abbreviation "res_opp_fold_A \<equiv> restrict1 opp_fold_A (\<Union>A)"
-  find_theorems name:"axioms_def" -name:".class." ML{* @{term ChamberComplexApartmentSystemTriangle} *}
-lemma rotate: "ChamberComplexApartmentSystemTriangle X \<A> B' A B D E C z" find_theorems name:"_def" name:"ChamberComplexApartmentSystemTriangle"
+
+lemma rotate: "ChamberComplexApartmentSystemTriangle X \<A> B' A B D E C z"
   using apartments chambers facet in_apartments chambers_ne assert_nth_true 44
   by    unfold_locales auto
 
@@ -796,7 +796,7 @@ proof-
       have  Achamber_F: "ChamberComplex.chamber A F"
       using complexes ChamberComplex.chamber_system_def
       by    fast
-    def Fs \<equiv> "ARG_MIN length Fs. ChamberComplex.gallery A (C#Fs@[F])"
+    define Fs where "Fs = (ARG_MIN length Fs. ChamberComplex.gallery A (C#Fs@[F]))"
     show ?thesis
     proof (rule apartment_standard_uniqueness_pgallery_betw, rule apartments(1))
       show "ChamberComplexMorphism A A fold_A"
@@ -881,9 +881,7 @@ proof (rule seteqI)
               ]
         by    auto
     qed
-  qed (simp add:
-        chambers(1) facet_in_chambers(1) face_distance_eq_0 chamber_distance_def
-      )
+  qed (simp add: chambers(1) facet_in_chambers(1) face_distance_eq_0 chamber_distance_def)
   ultimately show "F\<in>f\<C>_A" using f\<C>_A by fast
 next
   from \<C>_A f\<C>_A show "\<And>F. F\<in>f\<C>_A \<Longrightarrow> F\<in>fold_A \<turnstile> \<C>_A"
@@ -1003,7 +1001,7 @@ proof
       using apartment_trivial_morphism by fast
     show "fixespointwise opp_fold_A F"
       using F' opp_fold_A_chamber_system_image_fixespointwise by fast
-    def Fs \<equiv> "ARG_MIN length Fs. ChamberComplex.gallery A (F#Fs@[C])"
+    define Fs where "Fs = (ARG_MIN length Fs. ChamberComplex.gallery A (F#Fs@[C]))"
     with apartments(1)
       have  mingal: "ChamberComplex.min_gallery A (F#Fs@[C])"
       using A_chambers(1) Achamber_F F_ne_C
@@ -1126,11 +1124,8 @@ next
     by    fastforce
   with apartments(1) have ch_F: "chamber F" using apartment_chamber by simp
   have "ChamberComplex.min_gallery A (C#Fs@[F])"
-  proof (
-    rule ChamberComplex.min_galleryI_betw_compare, rule complexes,
-    rule apartments(1)
-  )
-    def Gs \<equiv> "ARG_MIN length Gs. ChamberComplex.gallery A (C#Gs@[F])"
+  proof (rule ChamberComplex.min_galleryI_betw_compare, rule complexes, rule apartments(1))
+    define Gs where "Gs = (ARG_MIN length Gs. ChamberComplex.gallery A (C#Gs@[F]))"
     from assms snoc show "C\<noteq>F"
       using ChamberComplex.min_gallery_pgallery
             ChamberComplex.pgalleryD_distinct
@@ -1542,13 +1537,13 @@ lemma apartments_have_many_foldings3:
   assumes "A\<in>\<A>" "chamber C" "chamber D" "C\<sim>D" "C\<noteq>D" "C\<in>A" "D\<in>A"
   shows   "\<exists>f g. OpposedThinChamberComplexFoldings A f g C \<and> D=g`C"
 proof
-  def E \<equiv> "some_third_chamber C D (C\<inter>D)"
-  def B \<equiv> "supapartment C E"
-  def f \<equiv> "restrict1 (canonical_retraction A D \<circ> canonical_retraction B C) (\<Union>A)"
+  define E where "E = some_third_chamber C D (C\<inter>D)"
+  define B where "B = supapartment C E"
+  define f where "f = restrict1 (canonical_retraction A D \<circ> canonical_retraction B C) (\<Union>A)"
   show "\<exists>g. OpposedThinChamberComplexFoldings A f g C \<and> D = g ` C"
   proof
-    def B' \<equiv> "supapartment D E"
-    def g \<equiv> "restrict1 (canonical_retraction A C \<circ> canonical_retraction B' D) (\<Union>A)"
+    define B' where "B' = supapartment D E"
+    define g where "g = restrict1 (canonical_retraction A C \<circ> canonical_retraction B' D) (\<Union>A)"
     from assms E_def B_def f_def B'_def g_def
       show  "OpposedThinChamberComplexFoldings A f g C \<and> D = g`C"
       using apartments_have_many_foldings1(3)[of A C D]

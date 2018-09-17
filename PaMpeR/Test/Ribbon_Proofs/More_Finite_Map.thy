@@ -1,8 +1,7 @@
 section {* Finite partial functions *}
 
 theory More_Finite_Map imports
-  "HOL-Library.Finite_Map"
-  "../Assertion_Checker"
+  "HOL-Library.Finite_Map" "../Assertion_Checker"
 begin
 
 unbundle lifting_syntax
@@ -30,8 +29,8 @@ definition
 where
   "make_map ks v \<equiv> \<lambda>k. if k \<in> fset ks then Some v else None"
 
-lemma make_map_transfer[transfer_rule]: "(rel_fset op = ===> A ===> rel_map A) make_map make_map"
-  unfolding make_map_def assert_nth_true 12 assert_nth_true 16 assert_nth_false 17
+lemma make_map_transfer[transfer_rule]: "(rel_fset (=) ===> A ===> rel_map A) make_map make_map"
+unfolding make_map_def assert_nth_true 12 assert_nth_true 16 assert_nth_false 17
 by transfer_prover
 
 lemma dom_make_map:
@@ -75,7 +74,7 @@ subsection {* Lookup *}
 
 lift_definition
   lookup :: "('k \<rightharpoonup>\<^sub>f 'v) \<Rightarrow> 'k \<Rightarrow> 'v"
-is "op \<circ> the" .
+is "(\<circ>) the" .
 
 lemma lookup_make_fmap:
   assumes "k \<in> fset ks"

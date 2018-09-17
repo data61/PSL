@@ -3,13 +3,6 @@ chapter AFP
 session Landau_Symbols (AFP) = "HOL-Library" +
   options [timeout = 600]
   theories
-    Landau_Symbols
+    Landau_More
   document_files
     "root.tex"
-
-session Landau_Analysis (AFP) = "HOL-Analysis" +
-  options [timeout = 600, document = false, theory_qualifier = Landau_Symbols]
-  sessions
-    Landau_Symbols
-  theories
-    Landau_Symbols

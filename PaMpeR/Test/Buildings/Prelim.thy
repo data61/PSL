@@ -268,29 +268,27 @@ lemmas inj_eq_image = inj_on_eq_image[OF _ subset_UNIV subset_UNIV]
 
 lemma induced_pow_fun_inj_on:
   assumes "inj_on f A"
-  shows   "inj_on (op ` f) (Pow A)"
-  using   inj_onD[OF assms] inj_onI[of "Pow A" "op ` f"]
+  shows   "inj_on ((`) f) (Pow A)"
+  using   inj_onD[OF assms] inj_onI[of "Pow A" "(`) f"]
   by      blast
 
-lemma inj_on_minus_set: "inj_on (op - A) (Pow A)"
+lemma inj_on_minus_set: "inj_on ((-) A) (Pow A)"
   by (fast intro: inj_onI)
 
 lemma induced_pow_fun_surj:
-  "(op ` f) ` (Pow A) = Pow (f`A)"
+  "((`) f) ` (Pow A) = Pow (f`A)"
 proof (rule seteqI)
-  fix X show "X \<in> (op ` f) ` (Pow A) \<Longrightarrow> X \<in> Pow (f`A)" by fast
+  fix X show "X \<in> ((`) f) ` (Pow A) \<Longrightarrow> X \<in> Pow (f`A)" by fast
 next
   fix Y assume Y: "Y \<in> Pow (f`A)"
   moreover hence "Y = f`{a\<in>A. f a \<in> Y}" by fast
-  ultimately show "Y\<in> (op ` f) ` (Pow A)" by auto
+  ultimately show "Y\<in> ((`) f) ` (Pow A)" by auto
 qed
 
 lemma bij_betw_f_the_inv_into_f:
   "bij_betw f A B \<Longrightarrow> y\<in>B \<Longrightarrow> f (the_inv_into A f y) = y"
--- {*
-  an equivalent lemma appears in the HOL library, but this version avoids the double
-  @{const bij_betw} premises
-*}
+\<comment> \<open>an equivalent lemma appears in the HOL library, but this version avoids the double
+  @{const bij_betw} premises\<close>
   unfolding bij_betw_def by (blast intro: f_the_inv_into_f)
 
 lemma bij_betw_the_inv_into_onto: "bij_betw f A B \<Longrightarrow> the_inv_into A f ` B = A"
@@ -298,22 +296,22 @@ lemma bij_betw_the_inv_into_onto: "bij_betw f A B \<Longrightarrow> the_inv_into
 
 lemma bij_betw_imp_bij_betw_Pow:
   assumes "bij_betw f A B"
-  shows   "bij_betw (op ` f) (Pow A) (Pow B)"
+  shows   "bij_betw ((`) f) (Pow A) (Pow B)"
   unfolding bij_betw_def
 proof (rule conjI, rule inj_onI)
   show "\<And>x y. \<lbrakk> x\<in>Pow A; y\<in>Pow A; f`x = f`y \<rbrakk> \<Longrightarrow> x=y"
     using inj_onD[OF bij_betw_imp_inj_on, OF assms] by blast
-  show "op ` f ` Pow A = Pow B"
+  show "(`) f ` Pow A = Pow B"
   proof
-    show "op ` f ` Pow A \<subseteq> Pow B" using bij_betw_imp_surj_on[OF assms] by fast
-    show "op ` f ` Pow A \<supseteq> Pow B"
+    show "(`) f ` Pow A \<subseteq> Pow B" using bij_betw_imp_surj_on[OF assms] by fast
+    show "(`) f ` Pow A \<supseteq> Pow B"
     proof
       fix y assume y: "y\<in>Pow B"
       with assms have "y = f ` the_inv_into A f ` y"
         using bij_betw_f_the_inv_into_f[THEN sym] by fastforce
       moreover from y assms have "the_inv_into A f ` y \<subseteq> A"
         using bij_betw_the_inv_into_onto by fastforce
-      ultimately show "y \<in> op ` f ` Pow A" by auto
+      ultimately show "y \<in> (`) f ` Pow A" by auto
     qed
   qed
 qed
@@ -390,10 +388,10 @@ text {*
 *}
 
 abbreviation setsetmapim :: "('a\<Rightarrow>'b) \<Rightarrow> 'a set set \<Rightarrow> 'b set set" (infix "\<turnstile>" 70)
-  where "f\<turnstile>X \<equiv> (op ` f) ` X"
+  where "f\<turnstile>X \<equiv> ((`) f) ` X"
 
 abbreviation setlistmapim :: "('a\<Rightarrow>'b) \<Rightarrow> 'a set list \<Rightarrow> 'b set list" (infix "\<Turnstile>" 70)
-  where "f\<Turnstile>Xs \<equiv> map (op ` f) Xs"
+  where "f\<Turnstile>Xs \<equiv> map ((`) f) Xs"
 
 lemma setsetmapim_comp: "(f\<circ>g)\<turnstile>A = f\<turnstile>(g\<turnstile>A)"
   by (auto simp add: image_comp)
@@ -697,8 +695,8 @@ primrec alternating_list :: "nat \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow>
   where zero: "alternating_list 0 s t = []"
       | Suc : "alternating_list (Suc k) s t =
                 alternating_list k s t @ [if even k then s else t]"
--- {* could be defined using Cons, but we want the alternating list to always start with the same
-letter as it grows, and it's easier to do that via append *}
+\<comment> \<open>could be defined using Cons, but we want the alternating list to always start with the same
+letter as it grows, and it's easier to do that via append\<close>
 
 lemma alternating_list2: "alternating_list 2 s t = [s,t]"
   using arg_cong[OF Suc_1, THEN sym, of "\<lambda>n. alternating_list n s t"] by simp
@@ -1021,7 +1019,7 @@ proof (
     by    force
 qed
 
-lemma subset: "Q\<subseteq>P \<Longrightarrow> OrderingSetMap (op \<^bold>\<le>) (op \<^bold><) (op \<^bold>\<le>*) (op \<^bold><*) Q f" find_theorems name:"OrderingSetMap"
+lemma subset: "Q\<subseteq>P \<Longrightarrow> OrderingSetMap (\<^bold>\<le>) (\<^bold><) (\<^bold>\<le>*) (\<^bold><*) Q f"
   using ordsetmap by unfold_locales fast
 
 lemma dual:
@@ -1044,7 +1042,7 @@ locale OrderingSetIso = OrderingSetMap less_eq less less_eq' less' P f
   and     rev_OrderingSetMap:
     "OrderingSetMap less_eq' less' less_eq less (f`P) (the_inv_into P f)"
 
-abbreviation "subset_ordering_iso \<equiv> OrderingSetIso (op \<subseteq>) (op \<subset>) (op \<subseteq>) (op \<subset>)"
+abbreviation "subset_ordering_iso \<equiv> OrderingSetIso (\<subseteq>) (\<subset>) (\<subseteq>) (\<subset>)"
 
 lemma (in OrderingSetMap) isoI:
   assumes "inj_on f P" "\<And>a b. a\<in>P \<Longrightarrow> b\<in>P \<Longrightarrow> f a \<^bold>\<le>* f b \<Longrightarrow> a \<^bold>\<le> b"
@@ -1096,7 +1094,7 @@ lemma iso_comp:
   assumes "OrderingSetIso less_eq' less' less_eq'' less'' Q g" "f`P \<subseteq> Q"
   shows   "OrderingSetIso less_eq less less_eq'' less'' P (g\<circ>f)"
 proof (rule OrderingSetMap.isoI)
-  from assms show "OrderingSetMap op \<^bold>\<le> op \<^bold>< less_eq'' less'' P (g \<circ> f)"
+  from assms show "OrderingSetMap (\<^bold>\<le>) (\<^bold><) less_eq'' less'' P (g \<circ> f)"
     using OrderingSetIso.axioms(1) comp by fast
   from assms(2) show "inj_on (g \<circ> f) P"
     using OrderingSetIso.inj[OF assms(1)]
@@ -1109,7 +1107,7 @@ next
 qed
 
 lemma iso_subset:
-  "Q\<subseteq>P \<Longrightarrow> OrderingSetIso (op \<^bold>\<le>) (op \<^bold><) (op \<^bold>\<le>*) (op \<^bold><*) Q f"
+  "Q\<subseteq>P \<Longrightarrow> OrderingSetIso (\<^bold>\<le>) (\<^bold><) (\<^bold>\<le>*) (\<^bold><*) Q f"
   using subset[of Q] subset_inj_on[OF inj] rev_ordsetmap
   by    (blast intro: OrderingSetMap.isoI)
 
@@ -1125,20 +1123,20 @@ end (* context OrderingSetIso *)
 
 lemma induced_pow_fun_subset_ordering_iso:
   assumes "inj_on f A"
-  shows   "subset_ordering_iso (Pow A) (op ` f)"
+  shows   "subset_ordering_iso (Pow A) ((`) f)"
 proof
   show "\<And>a b. a \<in> Pow A \<Longrightarrow> b \<in> Pow A \<Longrightarrow> a \<subseteq> b \<Longrightarrow> f ` a \<subseteq> f ` b" by fast
-  from assms show 2:"inj_on (op ` f) (Pow A)"
+  from assms show 2:"inj_on ((`) f) (Pow A)"
     using induced_pow_fun_inj_on by fast
-  show "\<And>a b. a \<in> op ` f ` Pow A \<Longrightarrow> b \<in> op ` f ` Pow A \<Longrightarrow> a \<subseteq> b
-        \<Longrightarrow> the_inv_into (Pow A) (op ` f) a \<subseteq> the_inv_into (Pow A) (op ` f) b"
+  show "\<And>a b. a \<in> (`) f ` Pow A \<Longrightarrow> b \<in> (`) f ` Pow A \<Longrightarrow> a \<subseteq> b
+        \<Longrightarrow> the_inv_into (Pow A) ((`) f) a \<subseteq> the_inv_into (Pow A) ((`) f) b"
   proof-
     fix Y1 Y2
-    assume Y: "Y1 \<in> (op ` f) ` Pow A" "Y2 \<in> (op ` f) ` Pow A" "Y1 \<subseteq> Y2"
+    assume Y: "Y1 \<in> ((`) f) ` Pow A" "Y2 \<in> ((`) f) ` Pow A" "Y1 \<subseteq> Y2"
     from Y(1,2) obtain X1 X2 where "X1\<subseteq>A" "X2\<subseteq>A" "Y1 = f`X1" "Y2 = f`X2"
       by auto
     with assms Y(3)
-      show  "the_inv_into (Pow A) (op ` f) Y1 \<subseteq> the_inv_into (Pow A) (op ` f) Y2"
+      show  "the_inv_into (Pow A) ((`) f) Y1 \<subseteq> the_inv_into (Pow A) ((`) f) Y2"
       using inj_onD[OF assms] the_inv_into_f_f[OF 2, of X1]
             the_inv_into_f_f[OF 2, of X2]
       by    blast
@@ -1268,7 +1266,7 @@ definition minimal_in :: "'a set \<Rightarrow> 'a \<Rightarrow> bool"
 
 definition pseudominimal_in :: "'a set \<Rightarrow> 'a \<Rightarrow> bool"
   where "pseudominimal_in P x \<equiv> minimal_in (P - {bottom P}) x"
--- {* only makes sense for @{term "has_bottom P"} *}
+\<comment> \<open>only makes sense for @{term "has_bottom P"}\<close>
 
 lemma minimal_inD1: "minimal_in P x \<Longrightarrow> x\<in>P"
   using minimal_in_def by fast
@@ -1397,7 +1395,7 @@ lemma pseudominimal_in_below_in:
   by        (force intro: pseudominimal_inI)
 
 lemma collect_pseudominimals_below_in_less_eq_top:
-  assumes "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) (P.\<^bold>\<le>x) f"
+  assumes "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) (P.\<^bold>\<le>x) f"
           "f`(P.\<^bold>\<le>x) = Pow A" "a \<subseteq> {y. pseudominimal_in (P.\<^bold>\<le>x) y}"
   defines "w \<equiv> the_inv_into (P.\<^bold>\<le>x) f (\<Union>(f`a))"
   shows   "w \<^bold>\<le> x"
@@ -1409,7 +1407,7 @@ proof-
 qed
 
 lemma collect_pseudominimals_below_in_poset:
-  assumes   "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) (P.\<^bold>\<le>x) f"
+  assumes   "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) (P.\<^bold>\<le>x) f"
             "f`(P.\<^bold>\<le>x) = Pow A"
             "a \<subseteq> {y. pseudominimal_in (P.\<^bold>\<le>x) y}"
   defines   "w \<equiv> the_inv_into (P.\<^bold>\<le>x) f (\<Union>(f`a))"
@@ -1419,7 +1417,7 @@ lemma collect_pseudominimals_below_in_poset:
   by        force
 
 lemma collect_pseudominimals_below_in_eq:
-  assumes "x\<in>P" "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) (P.\<^bold>\<le>x) f"
+  assumes "x\<in>P" "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) (P.\<^bold>\<le>x) f"
           "f`(P.\<^bold>\<le>x) = Pow A" "a \<subseteq> {y. pseudominimal_in (P.\<^bold>\<le>x) y}"
   defines w: "w \<equiv> the_inv_into (P.\<^bold>\<le>x) f (\<Union>(f`a))"
   shows   "a = {y. pseudominimal_in (P.\<^bold>\<le>w) y}"
@@ -1545,11 +1543,11 @@ begin
 definition simplex_like :: "'a set \<Rightarrow> bool"
   where "simplex_like P \<equiv> finite P \<and>
           (\<exists>f A::nat set.
-            OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) P f \<and> f`P = Pow A
+            OrderingSetIso less_eq less (\<subseteq>) (\<subset>) P f \<and> f`P = Pow A
           )"
 
 lemma simplex_likeI:
-  assumes "finite P" "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) P f"
+  assumes "finite P" "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) P f"
           "f`P = Pow (A::nat set)"
   shows   "simplex_like P"
   using assms simplex_like_def by auto
@@ -1559,7 +1557,7 @@ lemma simplex_likeD_finite: "simplex_like P \<Longrightarrow> finite P"
 
 lemma simplex_likeD_iso:
   "simplex_like P \<Longrightarrow>
-    \<exists>f A::nat set. OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) P f \<and> f`P = Pow A"
+    \<exists>f A::nat set. OrderingSetIso less_eq less (\<subseteq>) (\<subset>) P f \<and> f`P = Pow A"
   using simplex_like_def by simp
 
 lemma simplex_like_has_bottom: "simplex_like P \<Longrightarrow> has_bottom P"
@@ -1571,7 +1569,7 @@ lemma simplex_like_no_pseudominimal_imp_singleton:
   shows "\<exists>p. P = {p}"
 proof-
   obtain f and A::"nat set"
-    where fA: "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) P f" "f`P = Pow A"
+    where fA: "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) P f" "f`P = Pow A"
     using simplex_likeD_iso[OF assms(1)]
     by    auto
   define e where e: "e \<equiv> {}:: nat set"
@@ -1600,12 +1598,12 @@ lemma simplex_like_no_pseudominimal_in_below_in_imp_singleton:
   by    fast
 
 lemma pseudo_simplex_like_has_bottom:
-  "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) P f \<Longrightarrow> f`P = Pow A \<Longrightarrow>
+  "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) P f \<Longrightarrow> f`P = Pow A \<Longrightarrow>
     has_bottom P"
   using has_bottom_pow OrderingSetIso.pullback_has_bottom by fastforce
 
 lemma pseudo_simplex_like_above_pseudominimal_is_top:
-  assumes "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) P f" "f`P = Pow A" "t\<in>P"
+  assumes "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) P f" "f`P = Pow A" "t\<in>P"
           "\<And>x. pseudominimal_in P x \<Longrightarrow> x \<^bold>\<le> t"
   shows   "f t = A"
 proof
@@ -1624,7 +1622,7 @@ proof
 qed
 
 lemma pseudo_simplex_like_below_in_above_pseudominimal_is_top:
-  assumes "x\<in>P" "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) (P.\<^bold>\<le>x) f"
+  assumes "x\<in>P" "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) (P.\<^bold>\<le>x) f"
           "f`(P.\<^bold>\<le>x) = Pow A" "t \<in> P.\<^bold>\<le>x"
           "\<And>y. pseudominimal_in (P.\<^bold>\<le>x) y \<Longrightarrow> y \<^bold>\<le> t"
   shows   "t = x"
@@ -1649,11 +1647,11 @@ lemma (in OrderingSetIso) simplex_like_map:
   shows   "codomain.simplex_like (f`P)"
 proof-
   obtain g::"'a \<Rightarrow> nat set" and A::"nat set"
-    where gA: "OrderingSetIso (op \<^bold>\<le>) (op \<^bold><) (op \<subseteq>) (op \<subset>) P g" "g`P = Pow A"
+    where gA: "OrderingSetIso (\<^bold>\<le>) (\<^bold><) (\<subseteq>) (\<subset>) P g" "g`P = Pow A"
     using domain.simplex_likeD_iso[OF assms]
     by    auto
   from gA(1) inj
-    have  "OrderingSetIso (op \<^bold>\<le>*) (op \<^bold><*) (op \<subseteq>) (op \<subset>) (f`P)
+    have  "OrderingSetIso (\<^bold>\<le>*) (\<^bold><*) (\<subseteq>) (\<subset>) (f`P)
             (g \<circ> (the_inv_into P f))"
     using OrderingSetIso.iso_comp[OF inv_iso] the_inv_into_onto
     by    fast
@@ -1669,7 +1667,7 @@ lemma (in OrderingSetIso) pullback_simplex_like:
   shows   "domain.simplex_like P"
 proof-
   obtain g::"'b \<Rightarrow> nat set" and A::"nat set"
-    where gA:  "OrderingSetIso (op \<^bold>\<le>*) (op \<^bold><*) (op \<subseteq>) (op \<subset>) (f`P) g"
+    where gA:  "OrderingSetIso (\<^bold>\<le>*) (\<^bold><*) (\<subseteq>) (\<subset>) (f`P) g"
                "g`(f`P) = Pow A"
     using codomain.simplex_likeD_iso[OF assms(2)]
     by    auto
@@ -1684,7 +1682,7 @@ lemma simplex_like_pow:
 proof-
   from assms obtain f::"'a\<Rightarrow>nat" where "inj_on f A"
     using finite_imp_inj_to_nat_seg[of A] by auto
-  hence "subset_ordering_iso (Pow A) (op ` f)"
+  hence "subset_ordering_iso (Pow A) ((`) f)"
     using induced_pow_fun_subset_ordering_iso by fast
   with assms show ?thesis using induced_pow_fun_surj
     by (blast intro: order.simplex_likeI)
@@ -1692,18 +1690,18 @@ qed
 
 subsubsection {* The superset ordering *}
 
-abbreviation "supset_has_bottom       \<equiv> ordering.has_bottom       (op \<supseteq>)"
-abbreviation "supset_bottom           \<equiv> ordering.bottom           (op \<supseteq>)"
-abbreviation "supset_lbound_of        \<equiv> ordering.lbound_of        (op \<supseteq>)"
-abbreviation "supset_glbound_in_of    \<equiv> ordering.glbound_in_of    (op \<supseteq>)"
-abbreviation "supset_simplex_like     \<equiv> ordering.simplex_like     (op \<supseteq>) (op \<supset>)"
+abbreviation "supset_has_bottom       \<equiv> ordering.has_bottom       (\<supseteq>)"
+abbreviation "supset_bottom           \<equiv> ordering.bottom           (\<supseteq>)"
+abbreviation "supset_lbound_of        \<equiv> ordering.lbound_of        (\<supseteq>)"
+abbreviation "supset_glbound_in_of    \<equiv> ordering.glbound_in_of    (\<supseteq>)"
+abbreviation "supset_simplex_like     \<equiv> ordering.simplex_like     (\<supseteq>) (\<supset>)"
 abbreviation "supset_pseudominimal_in \<equiv>
-                ordering.pseudominimal_in (op \<supseteq>) (op \<supset>)"
+                ordering.pseudominimal_in (\<supseteq>) (\<supset>)"
 
 abbreviation supset_below_in :: "'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set" (infix ".\<supseteq>" 70)
-  where "P.\<supseteq>A \<equiv> ordering.below_in (op \<supseteq>) P A"
+  where "P.\<supseteq>A \<equiv> ordering.below_in (\<supseteq>) P A"
 
-lemma supset_poset: "ordering (op \<supseteq>) (op \<supset>)" ..
+lemma supset_poset: "ordering (\<supseteq>) (\<supset>)" ..
 
 lemmas supset_bottomI            = ordering.bottomI            [OF supset_poset]
 lemmas supset_pseudominimal_inI  = ordering.pseudominimal_inI  [OF supset_poset]
@@ -1720,7 +1718,7 @@ lemmas supset_has_bottom_pseudominimal_in_below_in =
   ordering.has_bottom_pseudominimal_in_below_in[OF supset_poset]
 
 lemma OrderingSetIso_pow_complement:
-  "OrderingSetIso (op \<supseteq>) (op \<supset>) (op \<subseteq>) (op \<subset>) (Pow A) (op - A)"
+  "OrderingSetIso (\<supseteq>) (\<supset>) (\<subseteq>) (\<subset>) (Pow A) ((-) A)"
   using inj_on_minus_set by (fast intro: OrderingSetIsoI_orders_greater2less)
 
 lemma simplex_like_pow_above_in:
@@ -1732,10 +1730,10 @@ proof (
 )
   from assms(1) show "finite ((Pow A).\<supseteq>X)" by simp
   from assms(1) have "finite (Pow (A-X))" by fast
-  moreover from assms(2) have "(op - A) ` ((Pow A).\<supseteq>X) = Pow (A-X)"
+  moreover from assms(2) have "((-) A) ` ((Pow A).\<supseteq>X) = Pow (A-X)"
     by auto
   ultimately
-    show  "ordering.simplex_like op \<subseteq> op \<subset> ( (op - A) ` ((Pow A).\<supseteq>X))"
+    show  "ordering.simplex_like (\<subseteq>) (\<subset>) ( ((-) A) ` ((Pow A).\<supseteq>X))"
     using simplex_like_pow
     by    fastforce
 qed fast

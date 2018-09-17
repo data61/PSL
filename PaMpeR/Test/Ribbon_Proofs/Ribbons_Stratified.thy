@@ -28,7 +28,7 @@ fun
   com_sdia :: "sdiagram \<Rightarrow> command" and
   com_cell :: "cell \<Rightarrow> command"
 where
-  "com_sdia (SDiagram \<rho>s) = foldr (op ;;) (map (com_cell \<circ> fst) \<rho>s) Skip"
+  "com_sdia (SDiagram \<rho>s) = foldr (;;) (map (com_cell \<circ> fst) \<rho>s) Skip"
 | "com_cell (Filler P) = Skip"
 | "com_cell (Basic P c Q) = c"
 | "com_cell (Exists_sdia x D) = com_sdia D"
@@ -55,7 +55,7 @@ lemma wr_sdia_is_wr_com:
   shows "(wr_sdia D = wr_com (com_sdia D))"
   and "(wr_cell \<gamma> = wr_com (com_cell \<gamma>))"
   and "(\<Union>\<rho> \<in> set \<rho>s. wr_cell (fst \<rho>)) 
-    = wr_com (foldr (op ;;) (map (\<lambda>(\<gamma>,F). com_cell \<gamma>) \<rho>s) Skip)"
+    = wr_com (foldr (;;) (map (\<lambda>(\<gamma>,F). com_cell \<gamma>) \<rho>s) Skip)"
   and "wr_cell (fst \<rho>) = wr_com (com_cell (fst \<rho>))"
 apply (induct D and \<gamma> and \<rho>s and \<rho> rule: compat_sdiagram.induct compat_cell.induct
   compat_cell_interface_prod_list.induct compat_cell_interface_prod.induct)

@@ -214,7 +214,7 @@ lemma face_im:
   assumes "w \<in> X" "y \<subseteq> f`w"
   defines "u \<equiv> {a\<in>w. f a \<in> y}"
   shows "y \<in> f\<turnstile>X"
-  using assms faces[of w u] image_eqI[of y "op ` f" u X]
+  using assms faces[of w u] image_eqI[of y "(`) f" u X]
   by    fast
 
 lemma im_faces: "x \<in> f \<turnstile> X \<Longrightarrow> y \<subseteq> x \<Longrightarrow> y \<in> f \<turnstile> X"
@@ -628,7 +628,7 @@ next
   from ab(1) obtain x where x: "x\<in>P" "a = {y. pseudominimal_in (P.\<^bold>\<le>x) y}"
     unfolding PosetComplex_def by fast
   from assms x(1) obtain f and A::"nat set"
-    where fA: "OrderingSetIso less_eq less (op \<subseteq>) (op \<subset>) (P.\<^bold>\<le>x) f"
+    where fA: "OrderingSetIso less_eq less (\<subseteq>) (\<subset>) (P.\<^bold>\<le>x) f"
               "f`(P.\<^bold>\<le>x) = Pow A"
     using simplex_likeD_iso[of "P.\<^bold>\<le>x"]
     by    auto
@@ -645,7 +645,7 @@ definition poset_simplex_map :: "'a set \<Rightarrow> 'a \<Rightarrow> 'a set"
 
 lemma poset_to_PosetComplex_OrderingSetMap:
   assumes "\<And>x. x\<in>P \<Longrightarrow> simplex_like (P.\<^bold>\<le>x)"
-  shows   "OrderingSetMap (op \<^bold>\<le>) (op \<^bold><) (op \<subseteq>) (op \<subset>) P (poset_simplex_map P)"
+  shows   "OrderingSetMap (\<^bold>\<le>) (\<^bold><) (\<subseteq>) (\<subset>) P (poset_simplex_map P)"
 proof
   from assms
     show  "\<And>a b. \<lbrakk> a\<in>P; b\<in>P; a\<^bold>\<le>b \<rbrakk> \<Longrightarrow>
@@ -719,9 +719,9 @@ proof (rule inj_onI)
 qed
 
 lemma OrderingSetIso_smap:
-  "OrderingSetIso (op \<^bold>\<le>) (op \<^bold><) (op \<subseteq>) (op \<subset>) P smap"
+  "OrderingSetIso (\<^bold>\<le>) (\<^bold><) (\<subseteq>) (\<subset>) P smap"
 proof (rule OrderingSetMap.isoI)
-  show "OrderingSetMap op \<^bold>\<le> op \<^bold>< op \<subseteq> op \<subset> P smap"
+  show "OrderingSetMap (\<^bold>\<le>) (\<^bold><) (\<subseteq>) (\<subset>) P smap"
     using poset_simplex_map_def below_in_P_simplex_like
           poset_to_PosetComplex_OrderingSetMap
     by    simp
@@ -729,7 +729,7 @@ next
   fix x y assume xy: "x\<in>P" "y\<in>P" "smap x \<subseteq> smap y"
   from xy(2) have "simplex_like (P.\<^bold>\<le>y)" using below_in_P_simplex_like by fast
   from this obtain g and A::"nat set"
-    where "OrderingSetIso (op \<^bold>\<le>) (op \<^bold><) (op \<subseteq>) (op \<subset>) (P.\<^bold>\<le>y) g"
+    where "OrderingSetIso (\<^bold>\<le>) (\<^bold><) (\<subseteq>) (\<subset>) (P.\<^bold>\<le>y) g"
           "g`(P.\<^bold>\<le>y) = Pow A"
     using simplex_likeD_iso[of "P.\<^bold>\<le>y"]
     by    auto

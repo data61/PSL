@@ -10,6 +10,7 @@ test_code
   test_uint16 test_uint16_emulation
   test_uint8 "test_uint8' = 0x12" test_uint8_emulation
   test_casts test_casts'
+  test_casts_uint' test_casts_uint''
 in OCaml
 
 end

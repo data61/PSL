@@ -15,7 +15,7 @@ text {* We prove that the proof rules for graphical ribbon proofs are sound
 
   We first describe how to extract proofchains from a diagram. This process is
   similar to the process of extracting commands from a diagram, which was
-  described in @{theory Ribbons_Graphical}. When we extract a proofchain, we
+  described in @{theory Ribbon_Proofs.Ribbons_Graphical}. When we extract a proofchain, we
   don't just include the commands, but the assertions in between them. Our
   main lemma for proving soundness says that each of these proofchains
   corresponds to a valid separation logic proof.
@@ -131,7 +131,7 @@ text {* In order to perform induction over our diagrams, we shall wish
   and can be thought of as having been removed from @{term G}.
 
   We now give an updated version of the @{term "lins G"} function. This was
-  originally defined in @{theory Ribbons_Graphical}. We provide an extra
+  originally defined in @{theory Ribbon_Proofs.Ribbons_Graphical}. We provide an extra
   parameter, @{term S}, which denotes the subset of @{term G}'s initial nodes
   that shouldn't be included in the linear extensions. *}
 
@@ -558,13 +558,13 @@ next
         with lins2(4)[OF this `v |\<in>| (thd3 e)`] show False by auto
       qed
 
-      def S' \<equiv> "{|v|} |\<union>| S"
+      define S' where "S' = {|v|} |\<union>| S"
 
-      def \<Pi>' \<equiv> "mk_ps_chain \<lbrace> initial_ps2 S' G \<rbrace> \<pi>'"
+      define \<Pi>' where "\<Pi>' = mk_ps_chain \<lbrace> initial_ps2 S' G \<rbrace> \<pi>'"
       hence pre_\<Pi>': "pre \<Pi>' = initial_ps2 S' G"
       by (metis pre.simps(1) pre_mk_ps_chain)
 
-      def \<sigma> \<equiv> "[ initials G - ({|v|} |\<union>| S) |=> Top ] ++\<^sub>f [ S |=> Bot ]"
+      define \<sigma> where "\<sigma> = [ initials G - ({|v|} |\<union>| S) |=> Top ] ++\<^sub>f [ S |=> Bot ]"
 
       have "wf_ps_chain \<Pi>' \<and> (post \<Pi>' = [terminals G |=> Bot])"
       proof (intro Suc.hyps[of "S'"])
@@ -634,8 +634,8 @@ next
     next
       case (Inr e)
       note x_def = this
-      def vs \<equiv> "fst3 e"
-      def ws \<equiv> "thd3 e"
+      define vs where "vs = fst3 e"
+      define ws where "ws = thd3 e"
 
       obtain c where e_def: "e = (vs, c, ws)"
       by (metis vs_def ws_def fst3_simp thd3_simp prod_cases3)
@@ -685,16 +685,16 @@ next
       apply (unfold ws_def G_def, auto simp add: e_in_E)
       done
 
-      def S' \<equiv> "S - vs"
-      def V' \<equiv> "V - vs"
-      def E' \<equiv> "removeAll e E"
-      def G' \<equiv> "Graph V' \<Lambda> E'"
+      define S' where "S' = S - vs"
+      define V' where "V' = V - vs"
+      define E' where "E' = removeAll e E"
+      define G' where "G' = Graph V' \<Lambda> E'"
 
-      def \<Pi>' \<equiv> "mk_ps_chain \<lbrace> initial_ps2 S' G' \<rbrace> \<pi>'"
+      define \<Pi>' where "\<Pi>' = mk_ps_chain \<lbrace> initial_ps2 S' G' \<rbrace> \<pi>'"
       hence pre_\<Pi>': "pre \<Pi>' = initial_ps2 S' G'"
       by (metis pre.simps(1) pre_mk_ps_chain)
 
-      def \<sigma> \<equiv> "[ initials G - S |=> Top ] ++\<^sub>f [ S - vs |=> Bot ]"
+      define \<sigma> where "\<sigma> = [ initials G - S |=> Top ] ++\<^sub>f [ S - vs |=> Bot ]"
 
       have next_initial_ps2: "initial_ps2 S' G'
         = initial_ps2 S G \<ominus> vs ++\<^sub>f [ws |=> Top]"
@@ -805,7 +805,7 @@ next
         apply (unfold make_fmap_union)
         apply (metis (lifting) funion_absorb2 vs_def vs_in_S)
         apply (intro arg_cong2[of _ _ "[ S - fst3 e |=> Bot ]"
-            "[ S - fst3 e |=> Bot ]" "op ++\<^sub>f"])
+            "[ S - fst3 e |=> Bot ]" "(++\<^sub>f)"])
         apply (intro arg_cong2[of _ _ "Top" "Top" "make_fmap"])
         defer 1
         apply (simp, simp)
@@ -975,12 +975,12 @@ next
     hence \<pi>_cs: "\<And>i. i < length \<pi> \<Longrightarrow>
       case_sum (coms_ass \<circ> \<Lambda>) (coms_com \<circ> snd3) (\<pi> ! i) (cs ! i)" by auto
     assume G_def: "G = Graph V \<Lambda> E"
-    assume c_def: "c = foldr op ;; cs Skip"
+    assume c_def: "c = foldr (;;) cs Skip"
     assume \<pi>_lin: "\<pi> \<in> lins (Graph V \<Lambda> E)"
 
     note lins = linsD[OF \<pi>_lin]
 
-    def \<Pi> \<equiv> "mk_ps_chain \<lbrace> initial_ps G \<rbrace> \<pi>"
+    define \<Pi> where "\<Pi> = mk_ps_chain \<lbrace> initial_ps G \<rbrace> \<pi>"
 
     have "\<Pi> \<in> ps_chains G" by (simp add: \<pi>_lin \<Pi>_def ps_chains_def G_def)
     hence 1: "post \<Pi> = [ terminals G |=> Bot ]"
@@ -988,7 +988,7 @@ next
     by (insert wf_chains G_def wf_G, auto simp add: wf_ps_chain_def)
 
     show "prov_triple (asn (\<Otimes>v|\<in>|initials (Graph V \<Lambda> E). top_ass (\<Lambda> v)),
-      foldr op ;; cs Skip, asn (\<Otimes>v|\<in>|terminals (Graph V \<Lambda> E). bot_ass (\<Lambda> v)))"
+      foldr (;;) cs Skip, asn (\<Otimes>v|\<in>|terminals (Graph V \<Lambda> E). bot_ass (\<Lambda> v)))"
     using [[unfold_abs_def = false]]
     apply (intro seq_fold[of _ "ps_chain_to_int_chain G \<Pi>"])
     apply (unfold len_cs)

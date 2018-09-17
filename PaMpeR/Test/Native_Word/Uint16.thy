@@ -41,18 +41,18 @@ declare Quotient_uint16[transfer_rule]
 instantiation uint16 :: "{neg_numeral, modulo, comm_monoid_mult, comm_ring}" begin
 lift_definition zero_uint16 :: uint16 is "0" .
 lift_definition one_uint16 :: uint16 is "1" .
-lift_definition plus_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "op +" .
-lift_definition minus_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "op -" .
+lift_definition plus_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "(+)" .
+lift_definition minus_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "(-)" .
 lift_definition uminus_uint16 :: "uint16 \<Rightarrow> uint16" is uminus .
-lift_definition times_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "op *" .
-lift_definition divide_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "op div" .
-lift_definition modulo_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "op mod" .
+lift_definition times_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "( * )" .
+lift_definition divide_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "(div)" .
+lift_definition modulo_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" is "(mod)" .
 instance by standard (transfer, simp add: algebra_simps)+
 end
 
 instantiation uint16 :: linorder begin
-lift_definition less_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> bool" is "op <" .
-lift_definition less_eq_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> bool" is "op \<le>" .
+lift_definition less_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> bool" is "(<)" .
+lift_definition less_eq_uint16 :: "uint16 \<Rightarrow> uint16 \<Rightarrow> bool" is "(\<le>)" .
 instance by standard (transfer, simp add: less_le_not_le linear)+
 end
 
@@ -115,7 +115,7 @@ lemma Rep_uint16_neg_numeral [simp]: "Rep_uint16 (- numeral n) = - numeral n"
 by(simp only: uminus_uint16_def)(simp add: Abs_uint16_inverse)
 
 lemma numeral_uint16_transfer [transfer_rule]:
-  "(rel_fun op = cr_uint16) numeral numeral"
+  "(rel_fun (=) cr_uint16) numeral numeral"
 by(auto simp add: cr_uint16_def)
 
 lemma numeral_uint16 [code_unfold]: "numeral n = Uint16 (numeral n)"
@@ -219,7 +219,7 @@ text {*
 definition Rep_uint16' where [simp]: "Rep_uint16' = Rep_uint16"
 
 lemma Rep_uint16'_transfer [transfer_rule]:
-  "rel_fun cr_uint16 op = (\<lambda>x. x) Rep_uint16'"
+  "rel_fun cr_uint16 (=) (\<lambda>x. x) Rep_uint16'"
 unfolding Rep_uint16'_def by(rule uint16.rep_transfer)
 
 lemma Rep_uint16'_code [code]: "Rep_uint16' x = (BITS n. x !! n)"
@@ -308,10 +308,10 @@ code_printing
   (Scala) "(_ ^ _).toChar"
 
 definition uint16_div :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" 
-where "uint16_div x y = (if y = 0 then undefined (op div :: uint16 \<Rightarrow> _) x (0 :: uint16) else x div y)"
+where "uint16_div x y = (if y = 0 then undefined ((div) :: uint16 \<Rightarrow> _) x (0 :: uint16) else x div y)"
 
 definition uint16_mod :: "uint16 \<Rightarrow> uint16 \<Rightarrow> uint16" 
-where "uint16_mod x y = (if y = 0 then undefined (op mod :: uint16 \<Rightarrow> _) x (0 :: uint16) else x mod y)"
+where "uint16_mod x y = (if y = 0 then undefined ((mod) :: uint16 \<Rightarrow> _) x (0 :: uint16) else x mod y)"
 
 context includes undefined_transfer begin
 
@@ -323,12 +323,12 @@ unfolding uint16_mod_def by transfer (simp add: word_mod_def)
 
 lemma uint16_div_code [code abstract]:
   "Rep_uint16 (uint16_div x y) =
-  (if y = 0 then Rep_uint16 (undefined (op div :: uint16 \<Rightarrow> _) x (0 :: uint16)) else Rep_uint16 x div Rep_uint16 y)"
+  (if y = 0 then Rep_uint16 (undefined ((div) :: uint16 \<Rightarrow> _) x (0 :: uint16)) else Rep_uint16 x div Rep_uint16 y)"
 unfolding uint16_div_def by transfer simp
 
 lemma uint16_mod_code [code abstract]:
   "Rep_uint16 (uint16_mod x y) =
-  (if y = 0 then Rep_uint16 (undefined (op mod :: uint16 \<Rightarrow> _) x (0 :: uint16)) else Rep_uint16 x mod Rep_uint16 y)"
+  (if y = 0 then Rep_uint16 (undefined ((mod) :: uint16 \<Rightarrow> _) x (0 :: uint16)) else Rep_uint16 x mod Rep_uint16 y)"
 unfolding uint16_mod_def by transfer simp
 
 end

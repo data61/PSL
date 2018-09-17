@@ -25,18 +25,18 @@ declare Quotient_uint32[transfer_rule]
 instantiation uint32 :: "{neg_numeral, modulo, comm_monoid_mult, comm_ring}" begin
 lift_definition zero_uint32 :: uint32 is "0 :: 32 word" .
 lift_definition one_uint32 :: uint32 is "1" .
-lift_definition plus_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "op + :: 32 word \<Rightarrow> _" .
-lift_definition minus_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "op -" .
+lift_definition plus_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "(+) :: 32 word \<Rightarrow> _" .
+lift_definition minus_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "(-)" .
 lift_definition uminus_uint32 :: "uint32 \<Rightarrow> uint32" is uminus .
-lift_definition times_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "op *" .
-lift_definition divide_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "op div" .
-lift_definition modulo_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "op mod" .
+lift_definition times_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "( * )" .
+lift_definition divide_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "(div)" .
+lift_definition modulo_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" is "(mod)" .
 instance by standard (transfer, simp add: algebra_simps)+
 end
 
 instantiation uint32 :: linorder begin
-lift_definition less_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> bool" is "op <" .
-lift_definition less_eq_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> bool" is "op \<le>" .
+lift_definition less_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> bool" is "(<)" .
+lift_definition less_eq_uint32 :: "uint32 \<Rightarrow> uint32 \<Rightarrow> bool" is "(\<le>)" .
 instance by standard (transfer, simp add: less_le_not_le linear)+
 end
 
@@ -71,7 +71,7 @@ lift_definition size_uint32 :: "uint32 \<Rightarrow> nat" is "size" .
 instance ..
 end
 
-lemmas [code] = size_uint32.rep_eq
+lemmas [code] = size_uint32.rep_eq                                                    
 
 lift_definition sshiftr_uint32 :: "uint32 \<Rightarrow> nat \<Rightarrow> uint32" (infixl ">>>" 55) is sshiftr .
 
@@ -87,7 +87,7 @@ definition integer_of_uint32 :: "uint32 \<Rightarrow> integer"
 where "integer_of_uint32 = integer_of_int o int_of_uint32"
 
 lemma bitval_integer_transfer [transfer_rule]:
-  "(rel_fun op = pcr_integer) of_bool of_bool"
+  "(rel_fun (=) pcr_integer) of_bool of_bool"
 by(auto simp add: of_bool_def integer.pcr_cr_eq cr_integer_def split: bit.split)
 
 text {* Use pretty numerals from integer for pretty printing *}
@@ -100,7 +100,7 @@ lemma Rep_uint32_numeral [simp]: "Rep_uint32 (numeral n) = numeral n"
 by(induction n)(simp_all add: one_uint32_def Abs_uint32_inverse numeral.simps plus_uint32_def)
 
 lemma numeral_uint32_transfer [transfer_rule]:
-  "(rel_fun op = cr_uint32) numeral numeral"
+  "(rel_fun (=) cr_uint32) numeral numeral"
 by(auto simp add: cr_uint32_def)
 
 lemma numeral_uint32 [code_unfold]: "numeral n = Uint32 (numeral n)"
@@ -282,7 +282,7 @@ text {*
 definition Rep_uint32' where [simp]: "Rep_uint32' = Rep_uint32"
 
 lemma Rep_uint32'_transfer [transfer_rule]:
-  "rel_fun cr_uint32 op = (\<lambda>x. x) Rep_uint32'"
+  "rel_fun cr_uint32 (=) (\<lambda>x. x) Rep_uint32'"
 unfolding Rep_uint32'_def by(rule uint32.rep_transfer)
 
 lemma Rep_uint32'_code [code]: "Rep_uint32' x = (BITS n. x !! n)"
@@ -388,7 +388,7 @@ code_printing
 
 definition uint32_divmod :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32 \<times> uint32" where
   "uint32_divmod x y = 
-  (if y = 0 then (undefined (op div :: uint32 \<Rightarrow> _) x (0 :: uint32), undefined (op mod :: uint32 \<Rightarrow> _) x (0 :: uint32)) 
+  (if y = 0 then (undefined ((div) :: uint32 \<Rightarrow> _) x (0 :: uint32), undefined ((mod) :: uint32 \<Rightarrow> _) x (0 :: uint32)) 
   else (x div y, x mod y))"
 
 definition uint32_div :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32" 
@@ -408,15 +408,15 @@ by transfer (simp add: word_mod_def)
 definition uint32_sdiv :: "uint32 \<Rightarrow> uint32 \<Rightarrow> uint32"
 where [code del]:
   "uint32_sdiv x y =
-   (if y = 0 then undefined (op div :: uint32 \<Rightarrow> _) x (0 :: uint32)
+   (if y = 0 then undefined ((div) :: uint32 \<Rightarrow> _) x (0 :: uint32)
     else Abs_uint32 (Rep_uint32 x sdiv Rep_uint32 y))"
 
 definition div0_uint32 :: "uint32 \<Rightarrow> uint32"
-where [code del]: "div0_uint32 x = undefined (op div :: uint32 \<Rightarrow> _) x (0 :: uint32)"
+where [code del]: "div0_uint32 x = undefined ((div) :: uint32 \<Rightarrow> _) x (0 :: uint32)"
 declare [[code abort: div0_uint32]]
 
 definition mod0_uint32 :: "uint32 \<Rightarrow> uint32"
-where [code del]: "mod0_uint32 x = undefined (op mod :: uint32 \<Rightarrow> _) x (0 :: uint32)"
+where [code del]: "mod0_uint32 x = undefined ((mod) :: uint32 \<Rightarrow> _) x (0 :: uint32)"
 declare [[code abort: mod0_uint32]]
 
 lemma uint32_divmod_code [code]:
@@ -431,7 +431,7 @@ by transfer(simp add: divmod_via_sdivmod)
 
 lemma uint32_sdiv_code [code abstract]:
   "Rep_uint32 (uint32_sdiv x y) =
-   (if y = 0 then Rep_uint32 (undefined (op div :: uint32 \<Rightarrow> _) x (0 :: uint32))
+   (if y = 0 then Rep_uint32 (undefined ((div) :: uint32 \<Rightarrow> _) x (0 :: uint32))
     else Rep_uint32 x sdiv Rep_uint32 y)"
 unfolding uint32_sdiv_def by(simp add: Abs_uint32_inverse)
 
@@ -474,7 +474,8 @@ code_printing constant uint32_test_bit \<rightharpoonup>
   (SML) "Uint32.test'_bit" and
   (Haskell) "Data'_Bits.testBitBounded" and
   (OCaml) "Uint32.test'_bit" and
-  (Scala) "Uint32.test'_bit"
+  (Scala) "Uint32.test'_bit" and
+  (Eval) "(fn w => fn n => if n < 0 orelse 32 <= n then raise (Fail \"argument to uint32'_test'_bit out of bounds\") else Uint32.test'_bit w n)"
 
 definition uint32_set_bit :: "uint32 \<Rightarrow> integer \<Rightarrow> bool \<Rightarrow> uint32"
 where [code del]:
@@ -497,7 +498,8 @@ code_printing constant uint32_set_bit \<rightharpoonup>
   (SML) "Uint32.set'_bit" and
   (Haskell) "Data'_Bits.setBitBounded" and
   (OCaml) "Uint32.set'_bit" and
-  (Scala) "Uint32.set'_bit"
+  (Scala) "Uint32.set'_bit" and
+  (Eval) "(fn w => fn n => fn b => if n < 0 orelse 32 <= n then raise (Fail \"argument to uint32'_set'_bit out of bounds\") else Uint32.set'_bit x n b)"
 
 lift_definition uint32_set_bits :: "(nat \<Rightarrow> bool) \<Rightarrow> uint32 \<Rightarrow> nat \<Rightarrow> uint32" is set_bits_aux .
 
@@ -533,7 +535,8 @@ code_printing constant uint32_shiftl \<rightharpoonup>
   (SML) "Uint32.shiftl" and
   (Haskell) "Data'_Bits.shiftlBounded" and
   (OCaml) "Uint32.shiftl" and
-  (Scala) "Uint32.shiftl"
+  (Scala) "Uint32.shiftl" and
+  (Eval) "(fn x => fn i => if i < 0 orelse i >= 32 then raise Fail \"argument to uint32'_shiftl out of bounds\" else Uint32.shiftl x i)"
 
 definition uint32_shiftr :: "uint32 \<Rightarrow> integer \<Rightarrow> uint32"
 where [code del]:
@@ -552,7 +555,8 @@ code_printing constant uint32_shiftr \<rightharpoonup>
   (SML) "Uint32.shiftr" and
   (Haskell) "Data'_Bits.shiftrBounded" and
   (OCaml) "Uint32.shiftr" and
-  (Scala) "Uint32.shiftr"
+  (Scala) "Uint32.shiftr" and
+  (Eval) "(fn x => fn i => if i < 0 orelse i >= 32 then raise Fail \"argument to uint32'_shiftr out of bounds\" else Uint32.shiftr x i)"
 
 definition uint32_sshiftr :: "uint32 \<Rightarrow> integer \<Rightarrow> uint32"
 where [code del]:
@@ -579,7 +583,8 @@ code_printing constant uint32_sshiftr \<rightharpoonup>
   (Haskell) 
     "(Prelude.fromInteger (Prelude.toInteger (Data'_Bits.shiftrBounded (Prelude.fromInteger (Prelude.toInteger _) :: Uint32.Int32) _)) :: Uint32.Word32)" and
   (OCaml) "Uint32.shiftr'_signed" and
-  (Scala) "Uint32.shiftr'_signed"
+  (Scala) "Uint32.shiftr'_signed" and
+  (Eval) "(fn x => fn i => if i < 0 orelse i >= 32 then raise Fail \"argument to uint32'_shiftr'_signed out of bounds\" else Uint32.shiftr'_signed x i)"
 
 lemma uint32_msb_test_bit: "msb x \<longleftrightarrow> (x :: uint32) !! 31"
 by transfer(simp add: msb_nth)

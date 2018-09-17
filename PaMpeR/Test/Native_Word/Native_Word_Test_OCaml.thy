@@ -13,6 +13,7 @@ test_code
   test_uint32 "test_uint32' = 0x12"
   test_uint
   test_casts''
+  test_casts_uint
 in OCaml
 
 end

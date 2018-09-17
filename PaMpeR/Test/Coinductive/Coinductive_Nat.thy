@@ -471,19 +471,19 @@ lemma Sup_image_eadd1:
   shows "Sup ((\<lambda>y :: enat. x + y) ` Y) = x + Sup Y"
 proof(cases "finite Y")
   case True
-  have "op + x ` Y = {x + m |m. m \<in> Y}" by auto
+  have "(+) x ` Y = {x + m |m. m \<in> Y}" by auto
   thus ?thesis using True by(simp add: Sup_enat_def add_Max_commute assms)
 next
   case False
   thus ?thesis
   proof(cases x)
     case (enat x')
-    hence "\<not> finite (op + x ` Y)" using False
+    hence "\<not> finite ((+) x ` Y)" using False
       by(auto dest!: finite_imageD intro: inj_onI)
     with False show ?thesis by(simp add: Sup_enat_def assms)
   next
     case infinity
-    hence "op + x ` Y = {\<infinity>}" using assms by auto
+    hence "(+) x ` Y = {\<infinity>}" using assms by auto
     thus ?thesis using infinity by(simp add: image_constant_conv assms)
   qed
 qed
@@ -494,19 +494,19 @@ by(subst (1 2) add.commute)(rule Sup_image_eadd1)
 
 
 lemma mono2mono_eSuc [THEN lfp.mono2mono, cont_intro, simp]:
-  shows monotone_eSuc: "monotone op \<le> op \<le> eSuc"
+  shows monotone_eSuc: "monotone (\<le>) (\<le>) eSuc"
 by(rule monotoneI) simp
 
 lemma mcont2mcont_eSuc [THEN lfp.mcont2mcont, cont_intro, simp]:
-  shows mcont_eSuc: "mcont Sup op \<le> Sup op \<le> eSuc"
+  shows mcont_eSuc: "mcont Sup (\<le>) Sup (\<le>) eSuc"
 by(intro mcontI contI)(simp_all add: monotone_eSuc eSuc_Sup)
 
 lemma mono2mono_epred [THEN lfp.mono2mono, cont_intro, simp]:
-  shows monotone_epred: "monotone op \<le> op \<le> epred"
+  shows monotone_epred: "monotone (\<le>) (\<le>) epred"
 by(rule monotoneI)(simp add: epred_le_epredI)
 
 lemma mcont2mcont_epred [THEN lfp.mcont2mcont, cont_intro, simp]:
-  shows mcont_epred: "mcont Sup op \<le> Sup op \<le> epred"
+  shows mcont_epred: "mcont Sup (\<le>) Sup (\<le>) epred"
 by(simp add: mcont_def monotone_epred cont_def epred_Sup)
 
 lemma enat_cocase_mono [partial_function_mono, cont_intro]: 
@@ -520,52 +520,52 @@ lemma enat_cocase_mcont [cont_intro, simp]:
 by(cases x rule: co.enat.exhaust) simp_all
 
 lemma eSuc_mono [partial_function_mono]:
-  "monotone (fun_ord op \<le>) op \<le> f \<Longrightarrow> monotone (fun_ord op \<le>) op \<le> (\<lambda>x. eSuc (f x))"
+  "monotone (fun_ord (\<le>)) (\<le>) f \<Longrightarrow> monotone (fun_ord (\<le>)) (\<le>) (\<lambda>x. eSuc (f x))"
 by(rule mono2mono_eSuc)
 
 lemma mono2mono_enat_minus1 [THEN lfp.mono2mono, cont_intro, simp]:
-  shows monotone_enat_minus1: "monotone op \<le> op \<le> (\<lambda>n. n - m :: enat)"
+  shows monotone_enat_minus1: "monotone (\<le>) (\<le>) (\<lambda>n. n - m :: enat)"
 by(rule monotoneI)(rule enat_minus_mono1)
 
 lemma mcont2mcont_enat_minus [THEN lfp.mcont2mcont, cont_intro, simp]:
-  shows mcont_enat_minus: "m \<noteq> \<infinity> \<Longrightarrow> mcont Sup op \<le> Sup op \<le> (\<lambda>n. n - m :: enat)"
+  shows mcont_enat_minus: "m \<noteq> \<infinity> \<Longrightarrow> mcont Sup (\<le>) Sup (\<le>) (\<lambda>n. n - m :: enat)"
 by(rule mcontI)(simp_all add: monotone_enat_minus1 contI Sup_enat_minus1)
 
-lemma monotone_eadd1: "monotone op \<le> op \<le> (\<lambda>x. x + y :: enat)"
+lemma monotone_eadd1: "monotone (\<le>) (\<le>) (\<lambda>x. x + y :: enat)"
 by(auto intro!: monotoneI)
 
-lemma monotone_eadd2: "monotone op \<le> op \<le> (\<lambda>y. x + y :: enat)"
+lemma monotone_eadd2: "monotone (\<le>) (\<le>) (\<lambda>y. x + y :: enat)"
 by(auto intro!: monotoneI)
 
 lemma mono2mono_eadd[THEN lfp.mono2mono2, cont_intro, simp]:
-  shows monotone_eadd: "monotone (rel_prod op \<le> op \<le>) op \<le> (\<lambda>(x, y). x + y :: enat)"
+  shows monotone_eadd: "monotone (rel_prod (\<le>) (\<le>)) (\<le>) (\<lambda>(x, y). x + y :: enat)"
 by(simp add: monotone_eadd1 monotone_eadd2)
 
-lemma mcont_eadd2: "mcont Sup op \<le> Sup op \<le> (\<lambda>y. x + y :: enat)"
+lemma mcont_eadd2: "mcont Sup (\<le>) Sup (\<le>) (\<lambda>y. x + y :: enat)"
 by(auto intro: mcontI monotone_eadd2 contI Sup_image_eadd1[symmetric])
 
-lemma mcont_eadd1: "mcont Sup op \<le> Sup op \<le> (\<lambda>x. x + y :: enat)"
+lemma mcont_eadd1: "mcont Sup (\<le>) Sup (\<le>) (\<lambda>x. x + y :: enat)"
 by(auto intro: mcontI monotone_eadd1 contI Sup_image_eadd2[symmetric])
 
 lemma mcont2mcont_eadd [cont_intro, simp]:
-  "\<lbrakk> mcont lub ord Sup op \<le> (\<lambda>x. f x);
-    mcont lub ord Sup op \<le> (\<lambda>x. g x) \<rbrakk>
-  \<Longrightarrow> mcont lub ord Sup op \<le> (\<lambda>x. f x + g x :: enat)"
+  "\<lbrakk> mcont lub ord Sup (\<le>) (\<lambda>x. f x);
+    mcont lub ord Sup (\<le>) (\<lambda>x. g x) \<rbrakk>
+  \<Longrightarrow> mcont lub ord Sup (\<le>) (\<lambda>x. f x + g x :: enat)"
 by(best intro: ccpo.mcont2mcont'[OF complete_lattice_ccpo] mcont_eadd1 mcont_eadd2 ccpo.mcont_const[OF complete_lattice_ccpo])
 
 lemma eadd_partial_function_mono [partial_function_mono]:
-  "\<lbrakk> monotone (fun_ord op \<le>) op \<le> f; monotone (fun_ord op \<le>) op \<le> g \<rbrakk>
-  \<Longrightarrow> monotone (fun_ord op \<le>) op \<le> (\<lambda>x. f x + g x :: enat)"
+  "\<lbrakk> monotone (fun_ord (\<le>)) (\<le>) f; monotone (fun_ord (\<le>)) (\<le>) g \<rbrakk>
+  \<Longrightarrow> monotone (fun_ord (\<le>)) (\<le>) (\<lambda>x. f x + g x :: enat)"
 by(rule mono2mono_eadd)
 
-lemma monotone_max_enat1: "monotone op \<le> op \<le> (\<lambda>x. max x y :: enat)"
+lemma monotone_max_enat1: "monotone (\<le>) (\<le>) (\<lambda>x. max x y :: enat)"
 by(auto intro!: monotoneI simp add: max_def)
 
-lemma monotone_max_enat2: "monotone op \<le> op \<le> (\<lambda>y. max x y :: enat)"
+lemma monotone_max_enat2: "monotone (\<le>) (\<le>) (\<lambda>y. max x y :: enat)"
 by(auto intro!: monotoneI simp add: max_def)
 
 lemma mono2mono_max_enat[THEN lfp.mono2mono2, cont_intro, simp]:
-  shows monotone_max_enat: "monotone (rel_prod op \<le> op \<le>) op \<le> (\<lambda>(x, y). max x y :: enat)"
+  shows monotone_max_enat: "monotone (rel_prod (\<le>) (\<le>)) (\<le>) (\<lambda>(x, y). max x y :: enat)"
 by(simp add: monotone_max_enat1 monotone_max_enat2)
 
 lemma max_Sup_enat2:
@@ -607,36 +607,36 @@ lemma max_Sup_enat1:
   "Y \<noteq> {} \<Longrightarrow> max (Sup Y) x = Sup ((\<lambda>y :: enat. max y x) ` Y)"
 by(subst (1 2) max.commute)(rule max_Sup_enat2)
 
-lemma mcont_max_enat1: "mcont Sup op \<le> Sup op \<le> (\<lambda>x. max x y :: enat)"
+lemma mcont_max_enat1: "mcont Sup (\<le>) Sup (\<le>) (\<lambda>x. max x y :: enat)"
 by(auto intro!: mcontI contI max_Sup_enat1 simp add: monotone_max_enat1)
 
-lemma mcont_max_enat2: "mcont Sup op \<le> Sup op \<le> (\<lambda>y. max x y :: enat)"
+lemma mcont_max_enat2: "mcont Sup (\<le>) Sup (\<le>) (\<lambda>y. max x y :: enat)"
 by(auto intro!: mcontI contI max_Sup_enat2 simp add: monotone_max_enat2)
 
 lemma mcont2mcont_max_enat [cont_intro, simp]:
-  "\<lbrakk> mcont lub ord Sup op \<le> (\<lambda>x. f x);
-    mcont lub ord Sup op \<le> (\<lambda>x. g x) \<rbrakk>
-  \<Longrightarrow> mcont lub ord Sup op \<le> (\<lambda>x. max (f x) (g x) :: enat)"
+  "\<lbrakk> mcont lub ord Sup (\<le>) (\<lambda>x. f x);
+    mcont lub ord Sup (\<le>) (\<lambda>x. g x) \<rbrakk>
+  \<Longrightarrow> mcont lub ord Sup (\<le>) (\<lambda>x. max (f x) (g x) :: enat)"
 by(best intro: ccpo.mcont2mcont'[OF complete_lattice_ccpo] mcont_max_enat1 mcont_max_enat2 ccpo.mcont_const[OF complete_lattice_ccpo])
 
 lemma max_enat_partial_function_mono [partial_function_mono]:
-  "\<lbrakk> monotone (fun_ord op \<le>) op \<le> f; monotone (fun_ord op \<le>) op \<le> g \<rbrakk>
-  \<Longrightarrow> monotone (fun_ord op \<le>) op \<le> (\<lambda>x. max (f x) (g x) :: enat)"
+  "\<lbrakk> monotone (fun_ord (\<le>)) (\<le>) f; monotone (fun_ord (\<le>)) (\<le>) g \<rbrakk>
+  \<Longrightarrow> monotone (fun_ord (\<le>)) (\<le>) (\<lambda>x. max (f x) (g x) :: enat)"
 by(rule mono2mono_max_enat)
 
 lemma chain_epredI:
-  "Complete_Partial_Order.chain op \<le> Y
-  \<Longrightarrow> Complete_Partial_Order.chain op \<le> (epred ` (Y \<inter> {x. x \<noteq> 0}))"
+  "Complete_Partial_Order.chain (\<le>) Y
+  \<Longrightarrow> Complete_Partial_Order.chain (\<le>) (epred ` (Y \<inter> {x. x \<noteq> 0}))"
 by(auto intro: chainI dest: chainD)
 
 lemma monotone_enat_le_case:
   fixes bot
-  assumes mono: "monotone op \<le> ord (\<lambda>x. f x (eSuc x))"
+  assumes mono: "monotone (\<le>) ord (\<lambda>x. f x (eSuc x))"
   and ord: "\<And>x. ord bot (f x (eSuc x))"
   and bot: "ord bot bot"
-  shows "monotone op \<le> ord (\<lambda>x. case x of 0 \<Rightarrow> bot | eSuc x' \<Rightarrow> f x' x)"
+  shows "monotone (\<le>) ord (\<lambda>x. case x of 0 \<Rightarrow> bot | eSuc x' \<Rightarrow> f x' x)"
 proof -
-  have "monotone op \<le> ord (\<lambda>x. if x \<le> 0 then bot else f (epred x) x)"
+  have "monotone (\<le>) ord (\<lambda>x. if x \<le> 0 then bot else f (epred x) x)"
   proof(rule monotone_if_bot)
     fix x y :: enat
     assume "x \<le> y" "\<not> x \<le> 0"
@@ -656,12 +656,12 @@ qed
 lemma mcont_enat_le_case:
   fixes bot
   assumes ccpo: "class.ccpo lub ord (mk_less ord)"
-  and mcont: "mcont Sup op \<le> lub ord (\<lambda>x. f x (eSuc x))"
+  and mcont: "mcont Sup (\<le>) lub ord (\<lambda>x. f x (eSuc x))"
   and ord: "\<And>x. ord bot (f x (eSuc x))"
-  shows "mcont Sup op \<le> lub ord (\<lambda>x. case x of 0 \<Rightarrow> bot | eSuc x' \<Rightarrow> f x' x)"
+  shows "mcont Sup (\<le>) lub ord (\<lambda>x. case x of 0 \<Rightarrow> bot | eSuc x' \<Rightarrow> f x' x)"
 proof -
   from ccpo
-  have "mcont Sup op \<le> lub ord (\<lambda>x. if x \<le> 0 then bot else f (epred x) x)"
+  have "mcont Sup (\<le>) lub ord (\<lambda>x. if x \<le> 0 then bot else f (epred x) x)"
   proof(rule mcont_if_bot)
     fix x y :: enat
     assume "x \<le> y" "\<not> x \<le> 0"
@@ -669,7 +669,7 @@ proof -
       by(cases x y rule: co.enat.exhaust[case_product co.enat.exhaust])(auto intro: mcont_monoD[OF mcont])
   next
     fix Y :: "enat set"
-    assume chain: "Complete_Partial_Order.chain op \<le> Y"
+    assume chain: "Complete_Partial_Order.chain (\<le>) Y"
       and Y: "Y \<noteq> {}" "\<And>x. x \<in> Y \<Longrightarrow> \<not> x \<le> 0"
     from Y have Y': "Y \<inter> {x. x \<noteq> 0} \<noteq> {}" by auto
     from Y(2) have eq: "Y = eSuc ` (epred ` (Y \<inter> {x. x \<noteq> 0}))"

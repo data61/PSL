@@ -25,8 +25,8 @@ datatype conc_interface =
 
 text {* We define an equivalence on interfaces. The first three rules make this 
   an equivalence relation. The next three make it a congruence. The next two 
-  identify interfaces up to associativity and commutativity of @{term "op \<otimes>\<^sub>c"} 
-  The final two make @{term "\<epsilon>\<^sub>c"} the left and right unit of @{term "op \<otimes>\<^sub>c"}. 
+  identify interfaces up to associativity and commutativity of @{term "(\<otimes>\<^sub>c)"} 
+  The final two make @{term "\<epsilon>\<^sub>c"} the left and right unit of @{term "(\<otimes>\<^sub>c)"}. 
   *}
 inductive
   equiv_int :: "conc_interface \<Rightarrow> conc_interface \<Rightarrow> bool" (infix "\<simeq>" 45)
@@ -88,22 +88,22 @@ lemma hcomp_emp:
 by (rule hcomp_conc_unit2[Transfer.transferred])
 
 lemma comp_fun_commute_hcomp:
-  "comp_fun_commute (op \<otimes>)"
+  "comp_fun_commute (\<otimes>)"
 by standard (simp add: hcomp_assoc fun_eq_iff, metis hcomp_comm)
 
 subsection {* An iterated horizontal-composition operator *}
 
 definition iter_hcomp :: "('a fset) \<Rightarrow> ('a \<Rightarrow> interface) \<Rightarrow> interface"
 where
-  "iter_hcomp X f \<equiv> ffold (op \<otimes> \<circ> f) \<epsilon> X"
+  "iter_hcomp X f \<equiv> ffold ((\<otimes>) \<circ> f) \<epsilon> X"
 
 syntax "iter_hcomp_syntax" :: 
   "'a \<Rightarrow> ('a fset) \<Rightarrow> ('a \<Rightarrow> interface) \<Rightarrow> interface"
       ("(\<Otimes>_|\<in>|_. _)" [0,0,10] 10)
 translations "\<Otimes>x|\<in>|M. e" == "CONST iter_hcomp M (\<lambda>x. e)"
 
-term "\<Otimes>P|\<in>|Ps. f P" -- "this is eta-expanded, so prints in expanded form"
-term "\<Otimes>P|\<in>|Ps. f" -- "this isn't eta-expanded, so prints as written"
+term "\<Otimes>P|\<in>|Ps. f P" \<comment> \<open>this is eta-expanded, so prints in expanded form\<close>
+term "\<Otimes>P|\<in>|Ps. f" \<comment> \<open>this isn't eta-expanded, so prints as written\<close>
 
 lemma iter_hcomp_cong:
   assumes "\<forall>v \<in> fset vs. \<phi> v = \<phi>' v"
@@ -120,7 +120,7 @@ lemma iter_hcomp_insert:
   assumes "v |\<notin>| ws"
   shows "(\<Otimes>x |\<in>| finsert v ws. p x) = (p v \<otimes> (\<Otimes>x |\<in>| ws. p x))"
 proof -
-  interpret comp_fun_commute "(op \<otimes> \<circ> p)"
+  interpret comp_fun_commute "((\<otimes>) \<circ> p)"
   by (metis comp_fun_commute.comp_comp_fun_commute comp_fun_commute_hcomp)
   from assms show ?thesis unfolding iter_hcomp_def by auto
 qed
@@ -183,7 +183,7 @@ lemma seq_fold:
   "\<And>\<Pi>. \<lbrakk> length cs = chainlen \<Pi> ; p1 = asn (pre \<Pi>) ; p2 = asn (post \<Pi>) ; 
   \<And>i. i < chainlen \<Pi> \<Longrightarrow> prov_triple 
   (asn (fst3 (nthtriple \<Pi> i)), cs ! i, asn (thd3 (nthtriple \<Pi> i))) \<rbrakk>
-  \<Longrightarrow> prov_triple (p1, foldr (op ;;) cs Skip, p2)"
+  \<Longrightarrow> prov_triple (p1, foldr (;;) cs Skip, p2)"
 proof (induct cs arbitrary: p1 p2)
   case Nil
   thus ?case 

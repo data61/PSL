@@ -17,7 +17,7 @@ lemma dropWhile_append:
 lemma dropWhile_False: "(\<And>x. x \<in> set xs \<Longrightarrow> P x) \<Longrightarrow> dropWhile P xs = []"
   by simp
 
-abbreviation (in order) "chain \<equiv> Complete_Partial_Order.chain op \<le>"
+abbreviation (in order) "chain \<equiv> Complete_Partial_Order.chain (\<le>)"
 
 lemma (in linorder) chain_linorder: "chain C"
   by (simp add: chain_def linear)
@@ -59,7 +59,7 @@ lemma tendsto_LimI: "(f \<longlongrightarrow> y) F \<Longrightarrow> (f \<longlo
 
 subsection {* The filter @{text at'} *}
 
-abbreviation (in ccpo) "compact_element \<equiv> ccpo.compact Sup op \<le>"
+abbreviation (in ccpo) "compact_element \<equiv> ccpo.compact Sup (\<le>)"
 
 lemma tendsto_unique_eventually:
   fixes x x' :: "'a :: t2_space"
@@ -153,11 +153,11 @@ qed
 lemma closed_ccpo: "closed A \<longleftrightarrow> (\<forall>C. chain C \<longrightarrow> C \<noteq> {} \<longrightarrow> C \<subseteq> A \<longrightarrow> Sup C \<in> A)"
   unfolding closed_def open_ccpo by auto
 
-lemma closed_admissible: "closed {x. P x} \<longleftrightarrow> ccpo.admissible Sup op \<le> P"
+lemma closed_admissible: "closed {x. P x} \<longleftrightarrow> ccpo.admissible Sup (\<le>) P"
   unfolding closed_ccpo ccpo.admissible_def by auto
 
 lemma open_singletonI_compact: "compact_element x \<Longrightarrow> open {x}"
-  using admissible_compact_neq[of Sup "op \<le>" x]
+  using admissible_compact_neq[of Sup "(\<le>)" x]
   by (simp add: closed_admissible[symmetric] open_closed Collect_neg_eq)
 
 lemma closed_Ici: "closed {.. b}"
@@ -233,13 +233,13 @@ lemma tendsto_ccpoI:
   by (intro tendsto_open_vimage) (auto simp: open_ccpo)
 
 lemma tendsto_mcont:
-  assumes mcont: "mcont Sup op \<le> Sup op \<le> (f :: 'a :: ccpo_topology \<Rightarrow> 'b :: ccpo_topology)"
+  assumes mcont: "mcont Sup (\<le>) Sup (\<le>) (f :: 'a :: ccpo_topology \<Rightarrow> 'b :: ccpo_topology)"
   shows "f \<midarrow>l\<rightarrow> f l"
 proof (intro tendsto_ccpoI conjI)
   fix C :: "'a set" assume C: "chain C" "C \<noteq> {}"
   show "chain (f`C)"
     using mcont
-    by (intro chain_imageI[where le_a="op \<le>"] C) (simp add: mcont_def monotone_def)
+    by (intro chain_imageI[where le_a="(\<le>)"] C) (simp add: mcont_def monotone_def)
   show "f (\<Squnion>C) = \<Squnion>(f ` C)"
     using mcont C by (simp add: mcont_def cont_def)
 qed

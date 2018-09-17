@@ -27,7 +27,7 @@ includes integer.lifting
 begin
 
 lemma bitval_integer_transfer [transfer_rule]:
-  "(rel_fun op = pcr_integer) of_bool of_bool"
+  "(rel_fun (=) pcr_integer) of_bool of_bool"
 by(auto simp add: of_bool_def integer.pcr_cr_eq cr_integer_def split: bit.split)
 
 lemma integer_of_nat_less_0_conv [simp]: "\<not> integer_of_nat n < 0"
@@ -37,7 +37,7 @@ lemma int_of_integer_pow: "int_of_integer (x ^ n) = int_of_integer x ^ n"
 by(induct n) simp_all
 
 lemma pow_integer_transfer [transfer_rule]:
-  "(rel_fun pcr_integer (rel_fun op = pcr_integer)) op ^ op ^"
+  "(rel_fun pcr_integer (rel_fun (=) pcr_integer)) (^) (^)"
 by(auto 4 3 simp add: integer.pcr_cr_eq cr_integer_def int_of_integer_pow)
 
 lemma sub1_lt_0_iff [simp]: "Code_Numeral.sub n num.One < 0 \<longleftrightarrow> False"
@@ -207,10 +207,10 @@ shiftrUnbounded x n
 shiftrBounded :: (Ord a, Data.Bits.Bits a) => a -> Integer -> a;
 shiftrBounded x n = Data.Bits.shiftR x (fromInteger n);*}
 
-  and -- {* @{theory Quickcheck_Narrowing} maps @{typ integer} to 
+  and \<comment> \<open>@{theory HOL.Quickcheck_Narrowing} maps @{typ integer} to 
             Haskell's Prelude.Int type instead of Integer. For compatibility
             with the Haskell target, we nevertheless provide bounded and 
-            unbounded functions. *}
+            unbounded functions.\<close>
   (Haskell_Quickcheck)
 {*import qualified Data.Bits;
 
@@ -359,7 +359,7 @@ code_printing
   (Haskell) "(Data'_Bits.complement :: Integer -> Integer)" and
   (Haskell_Quickcheck) "(Data'_Bits.complement :: Prelude.Int -> Prelude.Int)" and
   (Scala) "_.unary'_~"
-print_locales
+
 code_printing constant bin_rest_integer \<rightharpoonup>
   (SML) "IntInf.div ((_), 2)" and
   (Haskell) "(Data'_Bits.shiftrUnbounded _ 1 :: Integer)" and
@@ -527,7 +527,7 @@ code_printing constant integer_shiftr \<rightharpoonup>
   (Haskell_Quickcheck) "(Data'_Bits.shiftrUnbounded :: Prelude.Int -> Prelude.Int -> Prelude.Int)" and
   (OCaml) "Bits'_Integer.shiftr" and
   (Scala) "Bits'_Integer.shiftr"
-print_theorems print_codeproc print_codesetup
+
 lemma integer_shiftr_code [code]:
   "integer_shiftr x (Code_Numeral.Neg n) = undefined x (Code_Numeral.Neg n)"
   "integer_shiftr x 0 = x"
@@ -752,7 +752,7 @@ lemma log2_le_plus1: "0 \<le> i \<Longrightarrow> log2 i \<le> log2 (i + 1)"
 proof(induct i rule: log2.induct)
   case (1 i) 
   moreover have "i mod 2 = 0 \<or> i mod 2 = 1" by arith
-  ultimately show ?case by(subst (1 2) log2.simps)(auto, simp_all add: zdiv_zadd1_eq)
+  ultimately show ?case by(subst (1 2) log2.simps)(auto, simp_all add: div_add1_eq)
 qed
 
 lemma log2_mono: 
@@ -828,7 +828,7 @@ proof -
     by(simp add: int_and_assoc int_not_def xor_pint_def)
 qed
 
-lemma and_pninteger:  -- {* justification for OCaml implementation of @{term andpnint} *}
+lemma and_pninteger:  \<comment> \<open>justification for OCaml implementation of @{term andpnint}\<close>
   "\<lbrakk> x \<ge> 0; y < 0; k \<ge> log2_integer x; k \<ge> log2_integer (- y) \<rbrakk> 
   \<Longrightarrow> and_pninteger x y = and_pinteger x (xor_pinteger (bin_mask_integer k) (- y - 1))"
 by transfer(rule and_pnint)
@@ -850,7 +850,7 @@ proof -
       (subst bbw_lcs(1), subst (3) int_and_comm, simp add: int_and_mask)
 qed
 
-lemma or_pinteger: -- {* justification for OCaml implementation of @{term or_pnint} *}
+lemma or_pinteger: \<comment> \<open>justification for OCaml implementation of @{term or_pnint}\<close>
   "\<lbrakk>  x \<ge> 0; y < 0; k \<ge> log2_integer x; k \<ge> log2_integer (- y) \<rbrakk>
   \<Longrightarrow> or_pninteger x y = - (and_pinteger (xor_pinteger (bin_mask_integer k) x) (- y - 1)) - 1"
 by(transfer)(rule or_pnint)
@@ -887,9 +887,9 @@ definition bit_integer_test :: "bool" where
       False, False, True, True])"
 
 export_code bit_integer_test checking SML Haskell? Haskell_Quickcheck? OCaml? Scala
-print_theorems print_codeproc find_theorems "bit_integer_test" print_codesetup
+
 notepad begin
-have bit_integer_test find_theorems name:"bit_integer_test" by eval
+have bit_integer_test by eval
 have bit_integer_test by normalization
 have bit_integer_test by code_simp
 end

@@ -17,12 +17,6 @@ lemma eventually_at_top_compose:
   shows   "eventually (\<lambda>x. P (f x)) F"
   using assms filterlim_at_top filterlim_iff by blast
 
-lemma filterlim_abs_real: "filterlim (abs::real \<Rightarrow> real) at_top at_top"
-proof (subst filterlim_cong[OF refl refl])
-  from eventually_ge_at_top[of "0::real"] show "eventually (\<lambda>x::real. \<bar>x\<bar> = x) at_top"
-    by eventually_elim simp
-qed (simp_all add: filterlim_ident)
-
 lemma eventually_False_at_top_linorder [simp]: 
   "eventually (\<lambda>_::_::linorder. False) at_top \<longleftrightarrow> False"
   unfolding eventually_at_top_linorder by force
@@ -150,18 +144,6 @@ proof-
   with assms show ?thesis by (simp add: field_simps)
 qed
 
-lemma powr_mono2':
-  assumes "(z::real) \<le> 0" "x > 0" "x \<le> y"
-  shows   "x powr z \<ge> y powr z" ML_prf{* Assumption.all_prems_of @{context} *}
-proof-
-  from assms have "x powr -z \<le> y powr -z"
-    by (intro powr_mono2) simp_all
-  with assms show ?thesis by (simp add: field_simps powr_minus)
-qed
-
-lemma powr_mono2_ex: "0 \<le> (a::real) \<Longrightarrow> 0 \<le> x \<Longrightarrow> x \<le> y \<Longrightarrow> x powr a \<le> y powr a"
-  by (cases "x = 0") (simp_all add: powr_mono2)
-
 lemma powr_lower_bound: "\<lbrakk>(l::real) > 0; l \<le> x; x \<le> u\<rbrakk> \<Longrightarrow> min (l powr z) (u powr z) \<le> x powr z"
 apply (cases "z \<ge> 0")
 apply (rule order.trans[OF min.cobounded1 powr_mono2], simp_all) []
@@ -175,7 +157,7 @@ apply (rule order.trans[OF powr_mono2' max.cobounded1], simp_all) []
 done
 
 lemma powr_eventually_exp_ln: "eventually (\<lambda>x. (x::real) powr p = exp (p * ln x)) at_top"
-  using eventually_gt_at_top[of "0::real"] unfolding powr_def which_method assert_nth_true 56 by eventually_elim simp_all
+  using eventually_gt_at_top[of "0::real"] unfolding powr_def by eventually_elim simp_all
 
 lemma powr_eventually_exp_ln': 
   assumes "x > 0"
@@ -184,7 +166,7 @@ proof-
   let ?A = "{(0::real)<..}"
   from assms have "eventually (\<lambda>x. x > 0) (nhds x)" unfolding eventually_nhds
     by (intro exI[of _ "{(0::real)<..}"]) simp_all
-  thus ?thesis by eventually_elim (simp add: powr_def)
+  thus ?thesis which_method assert_nth_true 56 by eventually_elim (simp add: powr_def)
 qed
 
 

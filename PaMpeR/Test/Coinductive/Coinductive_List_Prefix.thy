@@ -32,10 +32,10 @@ qed
 
 end
 
-lemma le_llist_conv_lprefix [iff]: "op \<le> = lprefix"
+lemma le_llist_conv_lprefix [iff]: "(\<le>) = lprefix"
 by(simp add: less_eq_llist_def fun_eq_iff)
 
-lemma less_llist_conv_lstrict_prefix [iff]: "op < = lstrict_prefix"
+lemma less_llist_conv_lstrict_prefix [iff]: "(<) = lstrict_prefix"
 by(simp add: less_llist_def fun_eq_iff)
 
 instantiation llist :: (type) order_bot begin

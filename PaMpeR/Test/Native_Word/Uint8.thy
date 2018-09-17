@@ -32,18 +32,18 @@ declare Quotient_uint8[transfer_rule]
 instantiation uint8 :: "{neg_numeral, modulo, comm_monoid_mult, comm_ring}" begin
 lift_definition zero_uint8 :: uint8 is "0" .
 lift_definition one_uint8 :: uint8 is "1" .
-lift_definition plus_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "op +" .
-lift_definition minus_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "op -" .
+lift_definition plus_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "(+)" .
+lift_definition minus_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "(-)" .
 lift_definition uminus_uint8 :: "uint8 \<Rightarrow> uint8" is uminus .
-lift_definition times_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "op *" .
-lift_definition divide_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "op div" .
-lift_definition modulo_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "op mod" .
+lift_definition times_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "( * )" .
+lift_definition divide_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "(div)" .
+lift_definition modulo_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" is "(mod)" .
 instance by standard (transfer, simp add: algebra_simps)+
 end
 
 instantiation uint8 :: linorder begin
-lift_definition less_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> bool" is "op <" .
-lift_definition less_eq_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> bool" is "op \<le>" .
+lift_definition less_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> bool" is "(<)" .
+lift_definition less_eq_uint8 :: "uint8 \<Rightarrow> uint8 \<Rightarrow> bool" is "(\<le>)" .
 instance by standard (transfer, simp add: less_le_not_le linear)+
 end
 
@@ -103,7 +103,7 @@ lemma Rep_uint8_numeral [simp]: "Rep_uint8 (numeral n) = numeral n"
 by(induction n)(simp_all add: one_uint8_def Abs_uint8_inverse numeral.simps plus_uint8_def)
 
 lemma numeral_uint8_transfer [transfer_rule]:
-  "(rel_fun op = cr_uint8) numeral numeral"
+  "(rel_fun (=) cr_uint8) numeral numeral"
 by(auto simp add: cr_uint8_def)
 
 lemma numeral_uint8 [code_unfold]: "numeral n = Uint8 (numeral n)"
@@ -222,7 +222,7 @@ text {*
 definition Rep_uint8' where [simp]: "Rep_uint8' = Rep_uint8"
 
 lemma Rep_uint8'_transfer [transfer_rule]:
-  "rel_fun cr_uint8 op = (\<lambda>x. x) Rep_uint8'"
+  "rel_fun cr_uint8 (=) (\<lambda>x. x) Rep_uint8'"
 unfolding Rep_uint8'_def by(rule uint8.rep_transfer)
 
 lemma Rep_uint8'_code [code]: "Rep_uint8' x = (BITS n. x !! n)"
@@ -310,7 +310,7 @@ code_printing type_constructor uint8 \<rightharpoonup>
 
 definition uint8_divmod :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8 \<times> uint8" where
   "uint8_divmod x y = 
-  (if y = 0 then (undefined (op div :: uint8 \<Rightarrow> _) x (0 :: uint8), undefined (op mod :: uint8 \<Rightarrow> _) x (0 :: uint8)) 
+  (if y = 0 then (undefined ((div) :: uint8 \<Rightarrow> _) x (0 :: uint8), undefined ((mod) :: uint8 \<Rightarrow> _) x (0 :: uint8)) 
   else (x div y, x mod y))"
 
 definition uint8_div :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8" 
@@ -330,15 +330,15 @@ by transfer (simp add: word_mod_def)
 definition uint8_sdiv :: "uint8 \<Rightarrow> uint8 \<Rightarrow> uint8"
 where
   "uint8_sdiv x y =
-   (if y = 0 then undefined (op div :: uint8 \<Rightarrow> _) x (0 :: uint8)
+   (if y = 0 then undefined ((div) :: uint8 \<Rightarrow> _) x (0 :: uint8)
     else Abs_uint8 (Rep_uint8 x sdiv Rep_uint8 y))"
 
 definition div0_uint8 :: "uint8 \<Rightarrow> uint8"
-where [code del]: "div0_uint8 x = undefined (op div :: uint8 \<Rightarrow> _) x (0 :: uint8)"
+where [code del]: "div0_uint8 x = undefined ((div) :: uint8 \<Rightarrow> _) x (0 :: uint8)"
 declare [[code abort: div0_uint8]]
 
 definition mod0_uint8 :: "uint8 \<Rightarrow> uint8"
-where [code del]: "mod0_uint8 x = undefined (op mod :: uint8 \<Rightarrow> _) x (0 :: uint8)"
+where [code del]: "mod0_uint8 x = undefined ((mod) :: uint8 \<Rightarrow> _) x (0 :: uint8)"
 declare [[code abort: mod0_uint8]]
 
 lemma uint8_divmod_code [code]:
@@ -353,7 +353,7 @@ by transfer(simp add: divmod_via_sdivmod)
 
 lemma uint8_sdiv_code [code abstract]:
   "Rep_uint8 (uint8_sdiv x y) =
-   (if y = 0 then Rep_uint8 (undefined (op div :: uint8 \<Rightarrow> _) x (0 :: uint8))
+   (if y = 0 then Rep_uint8 (undefined ((div) :: uint8 \<Rightarrow> _) x (0 :: uint8))
     else Rep_uint8 x sdiv Rep_uint8 y)"
 unfolding uint8_sdiv_def by(simp add: Abs_uint8_inverse)
 
@@ -393,7 +393,9 @@ unfolding uint8_test_bit_def by(simp add: test_bit_uint8.rep_eq)
 code_printing constant uint8_test_bit \<rightharpoonup>
   (SML) "Uint8.test'_bit" and
   (Haskell) "Data'_Bits.testBitBounded" and
-  (Scala) "Uint8.test'_bit"
+  (Scala) "Uint8.test'_bit" and
+  (Eval) "(fn x => fn i => if i < 0 orelse i >= 8 then raise (Fail \"argument to uint8'_test'_bit out of bounds\") else Uint8.test'_bit x i)"
+
 
 definition uint8_set_bit :: "uint8 \<Rightarrow> integer \<Rightarrow> bool \<Rightarrow> uint8"
 where [code del]:
@@ -415,7 +417,8 @@ including undefined_transfer unfolding uint8_set_bit_def by transfer simp
 code_printing constant uint8_set_bit \<rightharpoonup>
   (SML) "Uint8.set'_bit" and
   (Haskell) "Data'_Bits.setBitBounded" and
-  (Scala) "Uint8.set'_bit"
+  (Scala) "Uint8.set'_bit" and
+  (Eval) "(fn x => fn i => fn b => if i < 0 orelse i >= 8 then raise (Fail \"argument to uint8'_set'_bit out of bounds\") else Uint8.set'_bit x i b)"
 
 
 lift_definition uint8_set_bits :: "(nat \<Rightarrow> bool) \<Rightarrow> uint8 \<Rightarrow> nat \<Rightarrow> uint8" is set_bits_aux .
@@ -452,7 +455,8 @@ including undefined_transfer unfolding uint8_shiftl_def by transfer simp
 code_printing constant uint8_shiftl \<rightharpoonup>
   (SML) "Uint8.shiftl" and
   (Haskell) "Data'_Bits.shiftlBounded" and
-  (Scala) "Uint8.shiftl"
+  (Scala) "Uint8.shiftl" and
+  (Eval) "(fn x => fn i => if i < 0 orelse i >= 8 then raise (Fail \"argument to uint8'_shiftl out of bounds\") else Uint8.shiftl x i)"
 
 definition uint8_shiftr :: "uint8 \<Rightarrow> integer \<Rightarrow> uint8"
 where [code del]:
@@ -471,7 +475,8 @@ including undefined_transfer unfolding uint8_shiftr_def by transfer simp
 code_printing constant uint8_shiftr \<rightharpoonup>
   (SML) "Uint8.shiftr" and
   (Haskell) "Data'_Bits.shiftrBounded" and
-  (Scala) "Uint8.shiftr"
+  (Scala) "Uint8.shiftr" and
+  (Eval) "(fn x => fn i => if i < 0 orelse i >= 8 then raise (Fail \"argument to uint8'_shiftr out of bounds\") else Uint8.shiftr x i)"
 
 definition uint8_sshiftr :: "uint8 \<Rightarrow> integer \<Rightarrow> uint8"
 where [code del]:
@@ -498,7 +503,9 @@ code_printing constant uint8_sshiftr \<rightharpoonup>
   (SML) "Uint8.shiftr'_signed" and
   (Haskell) 
     "(Prelude.fromInteger (Prelude.toInteger (Data'_Bits.shiftrBounded (Prelude.fromInteger (Prelude.toInteger _) :: Uint8.Int8) _)) :: Uint8.Word8)" and
-  (Scala) "Uint8.shiftr'_signed"
+  (Scala) "Uint8.shiftr'_signed" and
+  (Eval) "(fn x => fn i => if i < 0 orelse i >= 8 then raise (Fail \"argument to uint8'_sshiftr out of bounds\") else Uint8.shiftr'_signed x i)"
+
 
 lemma uint8_msb_test_bit: "msb x \<longleftrightarrow> (x :: uint8) !! 7"
 by transfer(simp add: msb_nth)

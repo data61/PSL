@@ -311,6 +311,8 @@ fun is_locale_intro2 goal ctxt _ = AU.has_thms_of_cname_with_all_substrs goal ct
 fun has_datatype_var goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["rec_transfer"];
 
 (* ASSERT 54. checks if the proof obligation has variable of a type that is defined the datatype command with a parameter. *)
+(* FIXME? 
+ * The HOL equality "=" seems to have a related rule that has "inj_map_strong" as a sub-string of its name.*)
 fun has_datatype_var_para goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal ctxt ["inj_map_strong"];
 
 (* ASSERT 55. checks if the proof obligation has a variable of a type that is defined with the record command. *)
@@ -322,6 +324,8 @@ fun has_var_of_codata goal ctxt _ = AU.has_thms_of_tname_with_all_substrs goal c
 (* ASSERT 44. checks if the outermost constant visible to users has a name such that the underlying   *)
 (*            proof context has a theorem of name ".base_name_of_the_constant.".                      *)
 (*            We expect that this assertion is useful to detect the use of the unfold_locales method. *)
+(* FIXME?
+ * Maybe I should check only ".induct" and "_def" rules, ignoreing ".-." and "_axioms_def" rules. *)
 fun is_unfold_locale goal ctxt _ =
   let
     fun get_rules (strs:string list) = Find_Theorems2.all_names_to_rules "" strs ctxt goal: (Find_Theorems2.ref * thm) list;
@@ -663,7 +667,7 @@ fun is_oghoare goal ctxt _ = AU.has_all_substrings_when_printed Isabelle_Utils.F
 fun all_consts_in_main goal ctxt _ =
   let
     val this_thy          = Proof_Context.theory_of ctxt:theory;
-    val thy_names_in_main = Context.get_theory this_thy "Main"
+    val thy_names_in_main = Context.get_theory {long=false} this_thy "Main"
       |> Theory.ancestors_of
       |> map Context.theory_name:string list;
     fun in_Main str = exists (str |> Isabelle_Utils.fst_qualifier |> equal) thy_names_in_main;

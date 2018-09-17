@@ -45,7 +45,7 @@ by(simp add: uint_word_of_int and_bin_mask_conv_mod)
 
 lemma shiftl_transfer [transfer_rule]:
   includes lifting_syntax
-  shows "(pcr_word ===> op = ===> pcr_word) op << op <<"
+  shows "(pcr_word ===> (=) ===> pcr_word) (<<) (<<)"
 by(auto intro!: rel_funI word_eqI simp add: word.pcr_cr_eq cr_word_def word_size nth_shiftl)
 
 lemma set_bits_K_False [simp]: "set_bits (\<lambda>_. False) = (0 :: 'a :: len0 word)"
@@ -179,7 +179,7 @@ lemma nat_div_eq_Suc_0_iff: "n div m = Suc 0 \<longleftrightarrow> n \<ge> m \<a
 lemma word_div_lt_eq_0:
   fixes x :: "'a :: len word"
   shows "x < y \<Longrightarrow> x div y = 0"
-by(simp only: word_div_def zero_word_def uint_nat zdiv_int[symmetric] transfer_int_nat_numerals(1) word_less_def div_less)
+  by (simp add: word_eq_iff word_less_def word_test_bit_def uint_div div_pos_pos_trivial)
 
 lemma Suc_0_lt_2p_len_of: "Suc 0 < 2 ^ len_of TYPE('a :: len)"
 by (metis One_nat_def len_gt_0 one_less_numeral_iff one_less_power semiring_norm(76))
@@ -211,7 +211,7 @@ proof -
     with assms q have "x div y mod 2 \<noteq> 0" unfolding r
       by (metis Nat.add_0_right diff_0_eq_0 diff_Suc_1 le_div_geq mod2_gr_0 mod_div_trivial mult_0 neq0_conv numeral_1_eq_Suc_0 numerals(1)) 
     hence "x div y = ?q + 1" unfolding q
-      by(metis le_add_diff_inverse mod_2_not_eq_zero_eq_one_nat mod_less_eq_dividend add.commute)
+      by simp
     moreover hence "x mod y = ?r - y"
       by simp(metis minus_div_mult_eq_mod [symmetric] diff_commute diff_diff_left mult_Suc)
     ultimately show ?thesis using True by(simp add: Let_def)
@@ -335,7 +335,7 @@ lemma word_of_int_via_signed:
          if i' - shift < least \<or> overflow \<le> i' - shift then arbitrary1 i' else word_of_int (i' - shift)
        else if i' < least \<or> overflow \<le> i' then arbitrary2 i' else word_of_int i')"
 proof -
-  def i' \<equiv> "i AND mask"
+  define i' where "i' = i AND mask"
   have "shift = mask + 1" unfolding assms by(simp add: bin_mask_p1_conv_shift)
   hence "i' < shift" by(simp add: mask_def i'_def int_and_le)
   show ?thesis

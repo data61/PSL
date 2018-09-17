@@ -97,7 +97,7 @@ lemma special_cosets_lcoset_closed: "w\<in>W \<Longrightarrow> X\<in>\<P> \<Long
   using genby_add_closed unfolding special_cosets_def
   by    (fastforce simp add: set_plus_rearrange2)
 
-lemma special_cosets_lcoset_shift: "w\<in>W \<Longrightarrow> (op +o w) ` \<P> = \<P>"
+lemma special_cosets_lcoset_shift: "w\<in>W \<Longrightarrow> ((+o) w) ` \<P> = \<P>"
   using special_cosets_lcoset_closed genby_uminus_closed
   by    (force simp add: set_plus_rearrange2)
 
@@ -225,9 +225,9 @@ lemma Abs_freelist_rev_append_alternating_list_in_Q:
   shows "Abs_freelist (rev (alternating_list n s t) @ alternating_list n s t) \<in> Q"
 proof (induct n)
   case (Suc m)
-  def u: u \<equiv> "if even m then s else t"
-  def x: x \<equiv> "Abs_freelist (rev (alternating_list m s t) @ alternating_list m s t)"
-  from u x assms have
+  define u where "u = (if even m then s else t)"
+  define x where "x = Abs_freelist (rev (alternating_list m s t) @ alternating_list m s t)"
+  from u_def x_def assms have
     "Abs_freelist (rev (alternating_list (Suc m) s t) @
       alternating_list (Suc m) s t) =
         (pair_relator_freeword u u) + rconjby (Abs_freeletter u) x"
@@ -240,12 +240,12 @@ proof (induct n)
             "rev (alternating_list m s t) @ alternating_list m s t"
           ]
     by    (simp add: add.assoc[THEN sym] S_relator_freeword)
-  moreover from Suc assms u x have "rconjby (Abs_freeletter u) x \<in> Q"
+  moreover from Suc assms u_def x_def have "rconjby (Abs_freeletter u) x \<in> Q"
     using Abs_freeletter_in_FreeGroup_iff[of _ S]
           FreeGroup_genby_set_lconjby_set_rconjby_closed
     by    fastforce
   ultimately show ?case
-    using u assms relator_freeword_Q genby_add_closed by fastforce
+    using u_def assms relator_freeword_Q genby_add_closed by fastforce
 qed (simp add: zero_freeword.abs_eq[THEN sym] genby_0_closed)
 
 lemma Abs_freeword_freelist_uminus_add_in_Q:
@@ -270,20 +270,20 @@ proof (induct xs)
             )
   next
     case False
-    def s: s \<equiv> "fst x"
+    define s where "s = fst x"
     with Cons(3) have s_S: "s\<in>S" by simp
-    def q: q \<equiv> "rconjby (Abs_freelistfst xs) (pair_relator_freeword s s)"
-    from s False Cons(3) have
+    define q where "q = rconjby (Abs_freelistfst xs) (pair_relator_freeword s s)"
+    from s_def False Cons(3) have
       "- Abs_freelistfst (x#xs) + Abs_freeword (x#xs) =
         -Abs_freelistfst xs + -pair_relator_freeword s s + Abs_freeword xs"
       using 1 surjective_pairing[of x] S_relator_freeword[of s]
             uminus_Abs_freeword_singleton[of s False, THEN sym]
       by    (simp add: add.assoc)
-    with q have 2:
+    with q_def have 2:
       "- Abs_freelistfst (x#xs) + Abs_freeword (x#xs) =
         -q + (-Abs_freelistfst xs + Abs_freeword xs)"
       by (simp add: rconjby_uminus[THEN sym] add.assoc[THEN sym])
-    moreover from q s Cons(3) have "-q\<in>Q"
+    moreover from q_def s_def Cons(3) have "-q\<in>Q"
       using proper_signed_list_map_uniform_snd[of True "map fst xs"]
             rconj_relator_freeword genby_uminus_closed
       by    fastforce
@@ -367,7 +367,7 @@ proof-
 qed
 
 lemma flip_altsublist_chain_map_Cons_grow:
-  "flip_altsublist_chain tss \<Longrightarrow> flip_altsublist_chain (map (op # t) tss)"
+  "flip_altsublist_chain tss \<Longrightarrow> flip_altsublist_chain (map ((#) t) tss)"
   by  (induct tss rule: list_induct_CCons)
       (auto simp add:
         binrelchain_Cons_reduce[of flip_altsublist_adjacent]
@@ -491,25 +491,25 @@ lemma flip_altsublist_adjacent_in_Q':
   assumes Axs: "Abs_freelist xs \<in> Q"
   shows "Abs_freelist ys \<in> Q"
 proof-
-  def X: X \<equiv> "Abs_freelist xs"
-  and Y: Y \<equiv> "Abs_freelist ys"
-  and A: A \<equiv> "Abs_freelist as"
-  and B: B \<equiv> "Abs_freelist bs"
-  and half_st : half_st  \<equiv> "Abs_freelist (pair_relator_halflist s t)"
-  and half2_st: half2_st \<equiv> "Abs_freelist (pair_relator_halflist2 s t)"
-  and half_ts : half_ts  \<equiv> "Abs_freelist (pair_relator_halflist t s)"
-  def z: z \<equiv> "-half2_st + B"
-  def w1: w1 \<equiv> "rconjby z (pair_relator_freeword s t)"
-  and w2: w2 \<equiv>
-    "Abs_freelist (rev (pair_relator_halflist t s) @ pair_relator_halflist t s)"
-  def w3: w3 \<equiv> "rconjby B w2"
+  define X Y A B half_st half2_st half_ts
+    where "X = Abs_freelist xs"
+      and "Y = Abs_freelist ys"
+      and "A = Abs_freelist as"
+      and "B = Abs_freelist bs"
+      and "half_st = Abs_freelist (pair_relator_halflist s t)"
+      and "half2_st = Abs_freelist (pair_relator_halflist2 s t)"
+      and "half_ts = Abs_freelist (pair_relator_halflist t s)"
+  define z where "z = -half2_st + B"
+  define w1 w2 where "w1 = rconjby z (pair_relator_freeword s t)"
+    and "w2 = Abs_freelist (rev (pair_relator_halflist t s) @ pair_relator_halflist t s)"
+  define w3 where "w3 = rconjby B w2"
 
-  from w1 z
+  from w1_def z_def
     have  w1': "w1 = rconjby B (lconjby half2_st (pair_relator_freeword s t))"
     by    (simp add: rconjby_add)
   hence "-w1 = rconjby B (lconjby half2_st (-pair_relator_freeword s t))"
     using lconjby_uminus[of "half2_st"] by (simp add: rconjby_uminus[THEN sym])
-  moreover from X xs A half_st B have "X = A + B + rconjby B half_st"
+  moreover from X_def xs A_def half_st_def B_def have "X = A + B + rconjby B half_st"
     by  (simp add:
           Abs_freelist_append_append[THEN sym] add.assoc[THEN sym]
         )
@@ -517,14 +517,14 @@ proof-
     "X + -w1 = A + B +
       ( rconjby B (half_st + (half2_st + -pair_relator_freeword s t - half2_st)) )"
     by (simp add: add.assoc add_rconjby)
-  moreover from w2 half2_st half_ts have "w2 = half2_st + half_ts"
+  moreover from w2_def half2_st_def half_ts_def have "w2 = half2_st + half_ts"
     by  (simp add:
           Abs_freelist_append[THEN sym]
           pair_relator_halflist2_conv_rev_pair_relator_halflist
         )
   ultimately have
     "X + -w1 + w3 = A + B + (rconjby B (-half2_st + (half2_st + half_ts)))"
-    using half_st half2_st w3 add_assoc4[
+    using half_st_def half2_st_def w3_def add_assoc4[
             of half_st half2_st "-pair_relator_freeword s t" "-half2_st"
           ]
     by    (simp add:
@@ -532,7 +532,7 @@ proof-
             add.assoc add_rconjby
           )
   hence Y': "Y = X - w1 + w3"
-    using A half_ts B ys Y
+    using A_def half_ts_def B_def ys Y_def
     by    (simp add:
             add.assoc[THEN sym]
             Abs_freelist_append_append[THEN sym]
@@ -541,7 +541,7 @@ proof-
   from Axs have xs_S: "xs \<in> lists S" using Q_FreeS FreeGroupD_transfer' by fast
   have "w1\<in>Q \<and> w3\<in>Q"
   proof (cases "relfun s t")
-    case 0 with w1 w2 w3 show ?thesis using genby_0_closed
+    case 0 with w1_def w2_def w3_def show ?thesis using genby_0_closed
       by  (auto simp add:
             zero_freeword.abs_eq[THEN sym]
             add_order_add_sym
@@ -556,20 +556,20 @@ proof-
       case Suc with m xs xs_S show ?thesis
         using set_alternating_list2[of "add_order (s+t)" s t] by fastforce
     qed
-    from xs xs_S B have B_S: "B \<in> FreeGroup S"
+    from xs xs_S B_def have B_S: "B \<in> FreeGroup S"
       using Abs_freelist_in_FreeGroup[of bs S] by simp
-    moreover from w2 have "w2\<in>Q"
+    moreover from w2_def have "w2\<in>Q"
       using st Abs_freelist_rev_append_alternating_list_in_Q[of t s "add_order (t+s)"]
       by    fast
     ultimately have "w3 \<in> Q"
-      using w3 FreeGroup_genby_set_lconjby_set_rconjby_closed by fast
-    moreover from half2_st have "w1 \<in> Q"
+      using w3_def FreeGroup_genby_set_lconjby_set_rconjby_closed by fast
+    moreover from half2_st_def have "w1 \<in> Q"
       using w1' st B_S alternating_list_in_lists[of s S] alternating_list_in_lists[of t S]
             lconjby_Abs_freelist_relator_freeword[of s t]
       by    (force intro: FreeGroup_genby_set_lconjby_set_rconjby_closed)
     ultimately show ?thesis by fast
   qed
-  with X Y Axs show ?thesis
+  with X_def Y_def Axs show ?thesis
     using Y' genby_diff_closed[of X] genby_add_closed[of "X-w1" _ w3] by simp
 
 qed
@@ -613,50 +613,51 @@ lemma exchange_alternating_not_in_alternating:
 proof-
   from assms(1) obtain m k where n: "n = Suc m" and m: "m = Suc k"
     using gr0_implies_Suc by fastforce
-  def altnst: altnst \<equiv> "alternating_list n s t"
-  and altnts: altnts \<equiv> "alternating_list n t s"
-  and altmts: altmts \<equiv> "alternating_list m t s"
-  and altkst: altkst \<equiv> "alternating_list k s t"
-  from altnst altmts n have altnmst: "altnst = s # altmts"
+  define altnst altnts altmts altkst
+    where "altnst = alternating_list n s t"
+    and "altnts = alternating_list n t s"
+    and "altmts = alternating_list m t s"
+    and "altkst = alternating_list k s t"
+  from altnst_def altmts_def n have altnmst: "altnst = s # altmts"
     using alternating_list_Suc_Cons[of m] by fastforce
-  with assms(3) altnst have s_S: "s\<in>S" using reduced_word_for_lists by fastforce
+  with assms(3) altnst_def have s_S: "s\<in>S" using reduced_word_for_lists by fastforce
   from assms(5) have t_S: "t\<in>S" using reduced_word_for_lists by fastforce
-  from m altnmst altmts altkst have altnkst: "altnst = s # t # altkst"
+  from m altnmst altmts_def altkst_def have altnkst: "altnst = s # t # altkst"
     using alternating_list_Suc_Cons by fastforce
   have "\<not> length xs < n"
   proof (cases "Suc (length xs) = n")
     case True
-    with assms(4,5) n altnts have flip: "S_reduced_for w (altnts @ cs)"
+    with assms(4,5) n altnts_def have flip: "S_reduced_for w (altnts @ cs)"
       using length_alternating_list[of n s t]
             same_length_eq_append[of altnts "xs@[x]" cs ys]
             alternating_list_Suc_Cons[of m t s]
       by    auto
-    from altnst have "sum_list altnst = sum_list altnts"
+    from altnst_def have "sum_list altnst = sum_list altnts"
       using reduced_word_for_sum_list[OF assms(3)]
             reduced_word_for_sum_list[OF flip]
       by    auto
-    with n assms(2) altnst altnts show ?thesis
+    with n assms(2) altnst_def altnts_def show ?thesis
       using alternating_S_no_flip[OF s_S t_S] by fast
   next
     case False show ?thesis
     proof (cases xs ys rule: two_lists_cases_snoc_Cons)
       case Nil1
-      from Nil1(1) assms(4) altnkst altnst have "ys = t # altkst @ cs" by auto
+      from Nil1(1) assms(4) altnkst altnst_def have "ys = t # altkst @ cs" by auto
       with Nil1(1) assms(5) show ?thesis
         using t_S genset_order2_add[of t]
               contains_order2_nreduced[of t S "[]" "altkst@cs"]
               reduced_word_for_imp_reduced_word
         by    force
     next
-      case Nil2 with assms(4) altnst False show ?thesis
+      case Nil2 with assms(4) altnst_def False show ?thesis
         using length_append[of altnst cs]
         by    (fastforce simp add: length_alternating_list)
     next
       case (snoc_Cons us u z zs)
-      with assms(4,5) altnst
+      with assms(4,5) altnst_def
         have  1: "altnst @ cs = us@[u,x,z]@zs" "S_reduced_for w (t#us@[u,z]@zs)"
         by    auto
-      from 1(1) snoc_Cons(1) False altnst show ?thesis
+      from 1(1) snoc_Cons(1) False altnst_def show ?thesis
         using take_append[of n altnst cs] take_append[of n "us@[u,x,z]" zs]
               set_alternating_list[of n s t]
               alternating_list_alternates[of n s t us u]
@@ -684,9 +685,9 @@ begin
 
 lemmas flip_altsublist_chain_sum_list =
   flip_altsublist_chain_funcong_Cons_snoc[OF flip_altsublist_adjacent_sum_list_ball]
--- {* This lemma represents one direction in the word problem: if a word in generators can be
+\<comment> \<open>This lemma represents one direction in the word problem: if a word in generators can be
 transformed into another by a sequence of manipulations, each of which consists of replacing a
-half-relator subword by its reversal, then the two words sum to the same element of @{term W}. *}
+half-relator subword by its reversal, then the two words sum to the same element of @{term W}.\<close>
 
 lemma reduced_word_problem_eq_hd_step:
   assumes step: "\<And>y ss ts. \<lbrakk>
@@ -701,10 +702,10 @@ proof (cases "ss=ts")
   thus ?thesis by fast
 next
   case False
-  def y: y \<equiv> "sum_list ss"
+  define y where "y = sum_list ss"
   with set_up(1) have ss: "S_reduced_for y ss"
     using reduced_word_for_imp_reduced_word reduced_word_Cons_reduce by fast
-  moreover with y have ts: "S_reduced_for y ts"
+  moreover from y_def ss have ts: "S_reduced_for y ts"
     using reduced_word_for_sum_list[OF set_up(1)]
           reduced_word_for_sum_list[OF set_up(2)]
           reduced_word_for_eq_length[OF set_up(1) set_up(2)]
@@ -733,7 +734,7 @@ text {*
 context PreCoxeterSystem
 begin
 
-abbreviation "\<H> \<equiv> (\<Union>w\<in>W. lconjby w ` S)" -- {* the set of reflections *}
+abbreviation "\<H> \<equiv> (\<Union>w\<in>W. lconjby w ` S)" \<comment> \<open>the set of reflections\<close>
 
 abbreviation "lift_signed_lconjperm \<equiv> freeword_funlift signed_lconjpermutation"
 
@@ -824,9 +825,9 @@ lemma GroupByPresentationInducedFun_S_R_signed_lconjaction:
   "GroupByPresentationInducedFun S P signed_lconjpermutation"
 proof (intro_locales, rule GroupByPresentation_S_P, unfold_locales)
   fix ps assume ps: "ps\<in>P"
-  def r \<equiv> "Abs_freeword ps"
+  define r where "r = Abs_freeword ps"
   with ps have r: "r\<in>P'" by fast
-  from this obtain s t where st: "s\<in>S" "t\<in>S" "r = pair_relator_freeword s t"
+  then obtain s t where st: "s\<in>S" "t\<in>S" "r = pair_relator_freeword s t"
     using relator_freewords by fast
   from r st(3)
     have 1: "permutation (lift_signed_lconjperm r) =
@@ -1005,7 +1006,7 @@ lemma two_reduced_heads_imp_reduced_alt_step:
           "reduced_word_for S w (alternating_list n s t @ cs)"
   shows   "\<exists>ds. reduced_word_for S w (alternating_list (Suc n) t s @ ds)"
 proof-
-  def altnst: altnst \<equiv> "alternating_list n s t"
+  define altnst where "altnst = alternating_list n s t"
   with assms(2,4) obtain x xs ys 
     where xxsys: "altnst @ cs = xs@[x]@ys" "reduced_word_for S w (t#xs@ys)"
     using reduced_head_imp_exchange
@@ -1014,17 +1015,17 @@ proof-
   proof (cases n rule: nat_cases_2Suc)
     case 0 with xxsys(2) show ?thesis by auto
   next
-    case 1 with assms(1,4) xxsys altnst show ?thesis
+    case 1 with assms(1,4) xxsys altnst_def show ?thesis
       using reduced_word_for_sum_list[of S w "s#cs"]
             reduced_word_for_sum_list[of S w "t#cs"]
       by    (cases xs) auto
   next
     case (SucSuc k)
-    with assms(3,4) xxsys altnst have "length xs \<ge> n"
+    with assms(3,4) xxsys altnst_def have "length xs \<ge> n"
       using exchange_alternating_not_in_alternating by simp
-    moreover def ds \<equiv> "take (length xs - n) cs"
+    moreover define ds where "ds = take (length xs - n) cs"
     ultimately have "t#xs@ys = alternating_list (Suc n) t s @ ds @ ys"
-      using xxsys(1) altnst take_append[of "length xs" altnst cs]
+      using xxsys(1) altnst_def take_append[of "length xs" altnst cs]
             alternating_list_Suc_Cons[of n t]
       by    (fastforce simp add: length_alternating_list)
     with xxsys(2) show ?thesis by auto
@@ -1053,21 +1054,20 @@ lemma two_reduced_heads_imp_reduced_alt:
   assumes "s\<noteq>t" "reduced_word_for S w (s#as)" "reduced_word_for S w (t#bs)"
   shows "\<exists>cs. reduced_word_for S w (pair_relator_halflist s t @ cs)"
 proof-
-  def altst: altst \<equiv> "pair_relator_halflist s t"
-  and altts: altts \<equiv> "pair_relator_halflist t s"
-  from this obtain cs
+  define altst altts
+    where "altst = pair_relator_halflist s t"
+      and "altts = pair_relator_halflist t s"
+  then obtain cs
     where cs: "reduced_word_for S w (altst @ cs) \<or>
                 reduced_word_for S w (altts @ cs)"
     using add_order_add_sym[of t] two_reduced_heads_imp_reduced_alt'[OF assms]
     by    auto
-  moreover from altst altts
+  moreover from altst_def altts_def
     have  "reduced_word_for S w (altts @ cs) \<Longrightarrow> reduced_word_for S w (altst @ cs)"
     using reduced_word_for_lists[OF assms(2)] reduced_word_for_lists[OF assms(3)]
           flip_altsublist_adjacent_def
-    by    (
-            force intro: S_reduced_forI_flip_altsublist_adjacent
-            simp add: add_order_add_sym
-          )
+    by (force intro: S_reduced_forI_flip_altsublist_adjacent
+        simp add: add_order_add_sym)
   ultimately show "\<exists>cs. reduced_word_for S w (altst @ cs)" by fast
 qed
 
@@ -1076,14 +1076,15 @@ lemma two_reduced_heads_imp_nzero_relfun:
   shows   "relfun s t \<noteq> 0"
 proof
   assume 1: "relfun s t = 0"
-  def altst: altst \<equiv> "alternating_list (Suc (S_length w)) s t"
-  and altts: altts \<equiv> "alternating_list (Suc (S_length w)) t s"
+  define altst altts
+    where "altst = alternating_list (Suc (S_length w)) s t"
+      and "altts = alternating_list (Suc (S_length w)) t s"
   with 1 obtain cs
     where "reduced_word_for S w (altst @ cs) \<or>
             reduced_word_for S w (altts @ cs)"
     using two_reduced_heads_imp_reduced_alt'[OF assms]
     by    fast
-  moreover from altst altts
+  moreover from altst_def altts_def
     have  "length (altst @ cs) > S_length w"
           "length (altts @ cs) > S_length w"
     using length_alternating_list[of _ s] length_alternating_list[of _ t]
@@ -1110,26 +1111,27 @@ proof-
     where cs: "reduced_word_for S w (pair_relator_halflist a b @ cs)"
     using two_reduced_heads_imp_reduced_alt
     by    fast
-  def rs: rs \<equiv> "pair_relator_halflist a b @ cs"
-  and us: us \<equiv> "pair_relator_halflist b a @ cs"
+  define rs us where "rs = pair_relator_halflist a b @ cs"
+    and "us = pair_relator_halflist b a @ cs"
   from assms(2,3) have a_S: "a\<in>S" and b_S: "b\<in>S" 
     using reduced_word_for_lists[of S _ "a#as"] reduced_word_for_lists[of S _ "b#bs"]
     by    auto
-  with rs us have midlink: "flip_altsublist_adjacent rs us"
+  with rs_def us_def have midlink: "flip_altsublist_adjacent rs us"
     using add_order_add_sym[of b a] flip_altsublist_adjacent_def by fastforce
   from assms(2-4) have "relfun a b \<noteq> 0"
     using two_reduced_heads_imp_nzero_relfun by fast
   from this obtain k where k: "relfun a b = Suc k"
     using not0_implies_Suc by auto
-  def qs: qs \<equiv> "alternating_list k b a @ cs"
-  and vs: vs \<equiv> "alternating_list k a b @ cs"
-  with k rs us have rs': "rs = a # qs" and us': "us = b # vs"
+  define qs vs
+    where "qs = alternating_list k b a @ cs"
+      and "vs = alternating_list k a b @ cs"
+  with k rs_def us_def have rs': "rs = a # qs" and us': "us = b # vs"
     using add_order_add_sym[of b a] alternating_list_Suc_Cons[of k] by auto
-  from assms(1,2) cs rs rs'
+  from assms(1,2) cs rs_def rs'
     have  startlink: "as \<noteq> qs \<Longrightarrow> \<exists>xss. flip_altsublist_chain ((a#as) # xss @ [rs])"
     using reduced_word_problem_eq_hd_step
     by    fastforce
-  from assms(1,3) rs cs us'
+  from assms(1,3) rs_def cs us'
     have  endlink: "bs \<noteq> vs \<Longrightarrow> \<exists>xss. flip_altsublist_chain (us # xss @ [b#bs])"
     using midlink flip_altsublist_adjacent_sym
           S_reduced_forI_flip_altsublist_adjacent[of w rs]
@@ -1343,33 +1345,33 @@ lemma special_coset_eq_imp_eq_gensets:
   by    force
 
 lemma special_subgroup_special_coset_subset_ordering_iso:
-  "subset_ordering_iso (genby ` Pow S) (op +o w)"
+  "subset_ordering_iso (genby ` Pow S) ((+o) w)"
 proof
   show "\<And>a b. a \<subseteq> b \<Longrightarrow> w +o a \<subseteq> w +o b" using elt_set_plus_def by auto
-  show 2: "inj_on (op +o w) (genby ` Pow S)"
+  show 2: "inj_on ((+o) w) (genby ` Pow S)"
     using lcoset_inj_on inj_inj_on by fast
-  show  "\<And>a b. a \<in> op +o w ` genby ` Pow S \<Longrightarrow>
-          b \<in> op +o w ` genby ` Pow S \<Longrightarrow>
+  show  "\<And>a b. a \<in> (+o) w ` genby ` Pow S \<Longrightarrow>
+          b \<in> (+o) w ` genby ` Pow S \<Longrightarrow>
           a \<subseteq> b \<Longrightarrow>
-          the_inv_into (genby ` Pow S) (op +o w) a \<subseteq>
-            the_inv_into (genby ` Pow S) (op +o w) b"
+          the_inv_into (genby ` Pow S) ((+o) w) a \<subseteq>
+            the_inv_into (genby ` Pow S) ((+o) w) b"
   proof-
     fix a b
-    assume ab : "a \<in> op +o w ` genby ` Pow S" "b \<in> op +o w ` genby ` Pow S"
+    assume ab : "a \<in> (+o) w ` genby ` Pow S" "b \<in> (+o) w ` genby ` Pow S"
       and  a_b: "a\<subseteq>b"
     from ab obtain Ta Tb
       where "Ta\<in>Pow S" "a = w +o \<langle>Ta\<rangle>" "Tb\<in>Pow S" "b = w +o \<langle>Tb\<rangle>"
       by    auto
     with a_b
-      show  "the_inv_into (genby ` Pow S) (op +o w) a \<subseteq>
-              the_inv_into (genby ` Pow S) (op +o w) b"
+      show  "the_inv_into (genby ` Pow S) ((+o) w) a \<subseteq>
+              the_inv_into (genby ` Pow S) ((+o) w) b"
       using the_inv_into_f_eq[OF 2] lcoset_eq_reps_subset[of w "\<langle>Ta\<rangle>" "\<langle>Tb\<rangle>"]
       by    simp
   qed
 qed
 
 lemma special_coset_subset_ordering_iso:
-  "subset_ordering_iso (Pow S) (op +o w \<circ> genby)"
+  "subset_ordering_iso (Pow S) ((+o) w \<circ> genby)"
   using special_subgroup_genby_subset_ordering_iso
         special_subgroup_special_coset_subset_ordering_iso
   by    (fast intro: OrderingSetIso.iso_comp)
@@ -1378,11 +1380,11 @@ lemmas special_coset_subset_rev_mono =
   OrderingSetIso.rev_ordsetmap[OF special_coset_subset_ordering_iso]
 
 lemma special_coset_below_in_subset_ordering_iso:
-  "subset_ordering_iso ((Pow S).\<supseteq>T) (op +o w \<circ> genby)"
+  "subset_ordering_iso ((Pow S).\<supseteq>T) ((+o) w \<circ> genby)"
   using special_coset_subset_ordering_iso by (auto intro: OrderingSetIso.iso_subset)
 
 lemma special_coset_below_in_supset_ordering_iso:
-  "OrderingSetIso (op \<supseteq>) (op \<supset>) (op \<supseteq>) (op \<supset>) ((Pow S).\<supseteq>T) (op +o w \<circ> genby)"
+  "OrderingSetIso (\<supseteq>) (\<supset>) (\<supseteq>) (\<supset>) ((Pow S).\<supseteq>T) ((+o) w \<circ> genby)"
   using special_coset_below_in_subset_ordering_iso OrderingSetIso.iso_dual by fast
 
 lemma special_coset_pseudominimals:
@@ -1701,7 +1703,7 @@ lemma card_flipped_reflections:
   assumes "w\<in>W"
   shows "card (flipped_reflections w) = S_length w"
 proof-
-  def ss: ss \<equiv> "arg_min length (word_for S w)"
+  define ss where "ss = arg_min length (word_for S w)"
   with assms have "S_reduced_for w ss"
     using genby_S_reduced_word_for_arg_min by simp
   thus ?thesis
@@ -1716,18 +1718,17 @@ end (* context CoxeterSystem *)
 sublocale CoxeterSystem < PreCoxeterSystemWithDeletion
 proof
   fix ss assume ss: "ss \<in> lists S" "\<not> S_reduced ss"
-  def w: w \<equiv> "sum_list ss"
+  define w where "w = sum_list ss"
   with ss(1)
     have  "distinct (lconjseq ss) \<Longrightarrow> card (flipped_reflections w) = length ss"
     by    (simp add:
             flipped_reflections_distinct_lconjseq_eq_lconjseq distinct_card
-            length_lconjseq
-          )
-  moreover from w ss have "length ss > S_length w" using word_length_lt by fast
-  moreover from w ss(1) have "card (flipped_reflections w) = S_length w"
+            length_lconjseq)
+  moreover from w_def ss have "length ss > S_length w" using word_length_lt by fast
+  moreover from w_def ss(1) have "card (flipped_reflections w) = S_length w"
     using special_subgroup_eq_sum_list card_flipped_reflections by fast
   ultimately have "\<not> distinct (lconjseq ss)" by auto
-  with w ss
+  with w_def ss
     show  "\<exists>a b as bs cs. ss = as @ [a] @ bs @ [b] @ cs \<and>
             sum_list ss = sum_list (as @ bs @ cs)"
     using deletion'
@@ -1754,7 +1755,7 @@ proof (induct ss)
   show ?case
   proof (cases "S_reduced ss")
     case True
-    def w: w \<equiv> "sum_list ss"
+    define w where "w = sum_list ss"
     with True have ss_red_w: "reduced_word_for S w ss" by fast
     moreover from Cons(2) have "s\<in>S" by simp
     ultimately obtain as bs where asbs: "reduced_word_for S w (s#as@bs)"
@@ -1768,7 +1769,7 @@ proof (induct ss)
       from this obtain xss where "flip_altsublist_chain (ss # xss @ [s#as@bs])"
         using ss_red_w asbs reduced_word_problem by fast
       hence "flip_altsublist_chain (
-              (s#ss) # map (op # s) xss @ [[]@[s,s]@(as@bs)]
+              (s#ss) # map ((#) s) xss @ [[]@[s,s]@(as@bs)]
             )"
         using flip_altsublist_chain_map_Cons_grow by fastforce
       thus ?thesis by fast
@@ -1777,7 +1778,7 @@ proof (induct ss)
     case False
     with Cons(1,2) obtain xss as t bs
       where "flip_altsublist_chain (
-              (s#ss) # map (op # s) xss @ [(s#as)@[t,t]@bs]
+              (s#ss) # map ((#) s) xss @ [(s#as)@[t,t]@bs]
             )"
       using flip_altsublist_chain_map_Cons_grow
       by    fastforce
@@ -1892,12 +1893,12 @@ next
     using zero_notin_S reduced_word_singleton[of s S] by fastforce
 next
   case (Cons_snoc s ts t) have ss: "ss = s#ts@[t]" by fact
-  def Ms \<equiv> "map (\<lambda>w. w`\<rightarrow>C0) (map (op + s) (sums ts))"
+  define Ms where "Ms = map (\<lambda>w. w`\<rightarrow>C0) (map ((+) s) (sums ts))"
   with ss
     have  C0_ms_ss_C0: "map (\<lambda>w. w`\<rightarrow>C0) (sums ss) =
                           C0 # Ms @ [sum_list ss `\<rightarrow> C0]"
     by    (simp add: sums_snoc zero_permutation.rep_eq)
-  def rs \<equiv> "arg_min length (word_for S (sum_list ss))"
+  define rs where "rs = arg_min length (word_for S (sum_list ss))"
   with assms(1) have rs: "rs \<in> lists S" "sum_list rs = sum_list ss"
     using arg_min_natI[of "\<lambda>rs. word_for S (sum_list ss) rs" ss length] by auto
   show ?thesis
@@ -1918,7 +1919,7 @@ next
       by    (fastforce simp add: length_sums)
   next
     case (Cons_snoc p qs q)
-    def Ns \<equiv> "map (\<lambda>w. w`\<rightarrow>C0) (map (op + p) (sums qs))"
+    define Ns where "Ns = map (\<lambda>w. w`\<rightarrow>C0) (map ((+) p) (sums qs))"
     from assms rs_def have "length rs < length ss"
       using word_length_lt[of ss S]
             reduced_word_for_length reduced_word_for_arg_min[of ss S]
@@ -1944,8 +1945,8 @@ lemma S_list_not_min_gallery_double_split:
       sum_list (as@[s]@bs@[t]) `\<rightarrow> C0 \<in> f\<turnstile>\<C> \<and>
       ss = as@[s]@bs@[t]@cs"
 proof-
-  def Cs \<equiv> "map (\<lambda>w. w`\<rightarrow>C0) (sums ss)"
-  moreover with assms(1) have "gallery Cs"
+  define Cs where "Cs = map (\<lambda>w. w`\<rightarrow>C0) (sums ss)"
+  moreover from assms(1) Cs_def have "gallery Cs"
     using S_list_image_gallery by fastforce
   moreover from assms(1) Cs_def have "{} \<notin> set (wall_crossings Cs)"
     using S_list_image_crosses_walls by fastforce
@@ -1959,13 +1960,13 @@ proof-
   show ?thesis
   proof (cases "Cs = As@[A,B,F]@Fs")
     case True
-    def bs: bs \<equiv> "[]::'a permutation list"
+    define bs :: "'a permutation list" where "bs = []"
     from True Cs_def obtain as s t cs where
       "ss = as@[s,t]@cs" "A = sum_list as `\<rightarrow> C0" "B = sum_list (as@[s]) `\<rightarrow> C0"
       "F = sum_list (as@[s,t]) `\<rightarrow> C0"
       using pullback_sums_map_middle3[of "\<lambda>w. w`\<rightarrow>C0" ss As A B F Fs]
       by    auto
-    with sep(1,2,4) bs have
+    with sep(1,2,4) bs_def have
       "sum_list as `\<rightarrow> C0 \<in> f\<turnstile>\<C>" "sum_list (as@[s]) `\<rightarrow> C0 \<in> g\<turnstile>\<C>"
       "sum_list (as@[s]@bs) `\<rightarrow> C0 \<in> g\<turnstile>\<C>" "sum_list (as@[s]@bs@[t]) `\<rightarrow> C0 \<in> f\<turnstile>\<C>"
       "ss = as@[s]@bs@[t]@cs"
@@ -2012,31 +2013,31 @@ proof-
             )
   next
     case (snoc b bs)
-    def bC0: bC0 \<equiv> "b`\<rightarrow>C0"
-    and B: B \<equiv> "sum_list (as@bs) `\<rightarrow> C0"
-    def y : y  \<equiv> "C0\<inter>bC0"
-    def z : z  \<equiv> "\<s> ` sum_list (as@[s]@bs) `\<rightarrow> y"
-    and z': z' \<equiv> "sum_list (as@bs) `\<rightarrow> y"
+    define bC0 B where "bC0 = b`\<rightarrow>C0" and "B = sum_list (as@bs) `\<rightarrow> C0"
+    define y where "y = C0\<inter>bC0"
+    define z z'
+      where "z = \<s> ` sum_list (as@[s]@bs) `\<rightarrow> y"
+        and "z' = sum_list (as@bs) `\<rightarrow> y"
 
-    from snoc B have B': "\<s> ` sum_list (as@[s]@bs) `\<rightarrow> C0 = B" by simp
+    from snoc B_def have B': "\<s> ` sum_list (as@[s]@bs) `\<rightarrow> C0 = B" by simp
 
     obtain \<phi> where \<phi>: "label_wrt C0 \<phi>" using ex_label_map by fast
-    from bC0 y snoc(2) obtain u where u: "bC0 = insert u y"
+    from bC0_def y_def snoc(2) obtain u where u: "bC0 = insert u y"
       using fundchamber_S_adjacent[of b] adjacent_sym
             fundchamber_S_image_neq_fundchamber
             adjacent_int_decomp[of bC0 C0]
       by    (auto simp add: Int_commute)
-    def v : v  \<equiv> "\<s> (sum_list (as@[s]@bs) \<rightarrow> u)"
-    and v': v' \<equiv> "sum_list (as@bs) \<rightarrow> u"
+    define v v'
+      where "v = \<s> (sum_list (as@[s]@bs) \<rightarrow> u)"
+        and "v' = sum_list (as@bs) \<rightarrow> u"
 
-    from bC0 u v z v' z'
+    from bC0_def u v_def z_def v'_def z'_def
       have  ins_vz : "\<s> ` sum_list (as@[s]@bs@[b]) `\<rightarrow> C0 = insert v z"
       and   ins_vz': "sum_list (as@bs@[b]) `\<rightarrow> C0 = insert v' z'"
       using image_insert[of "permutation (sum_list (as@[s]@bs))" u y, THEN sym]
             image_insert[
               of \<s> "sum_list (as@[s]@bs)\<rightarrow>u" "sum_list (as@[s]@bs)`\<rightarrow>y",
-              THEN sym
-            ]
+              THEN sym]
             image_insert[of "permutation (sum_list (as@bs))" u y, THEN sym]
       by    (auto simp add: plus_permutation.rep_eq image_comp)
 
@@ -2046,14 +2047,14 @@ proof-
       using sum_list_S_in_W[of "as@[s]@bs"] sum_list_S_in_W[of "as@bs"]
             sum_list_S_in_W[of "as@[s]@bs@[b]"] sum_list_S_in_W[of "as@bs@[b]"]
       by    auto
-    from u bC0 snoc(2) have "u\<in>\<Union>X"
+    from u bC0_def snoc(2) have u: "u\<in>\<Union>X"
       using fundchamber_S_chamber[of b] chamberD_simplex[of bC0] by auto
-    moreover with as s snoc(2) have "sum_list (as@[s]@bs) \<rightarrow> u \<in> \<Union>X"
+    moreover from as s snoc(2) u have "sum_list (as@[s]@bs) \<rightarrow> u \<in> \<Union>X"
       using sums(1)
             ChamberComplexEndomorphism.vertex_map[OF W_endomorphism]
       by    fastforce
     ultimately have "\<phi> v = \<phi> v'"
-      using \<s> v v' sums(1,2) W_respects_labels[OF \<phi>, of "sum_list (as@[s]@bs)" u]
+      using \<s> v_def v'_def sums(1,2) W_respects_labels[OF \<phi>, of "sum_list (as@[s]@bs)" u]
             W_respects_labels[OF \<phi>, of "sum_list (as@bs)" u]
             OpposedThinChamberComplexFoldings.indaut_resplabels[
               OF C \<phi>
@@ -2069,7 +2070,7 @@ proof-
             fundchamber_W_image_chamber[of "sum_list (as@bs@[b])"]
       by    (auto simp add: ins_vz[THEN sym] ins_vz'[THEN sym])
 
-    moreover from y z z' bC0 B snoc(2) \<s> have "z\<lhd>B" "z'\<lhd>B"
+    moreover from y_def z_def z'_def bC0_def B_def snoc(2) \<s> have "z\<lhd>B" "z'\<lhd>B"
       using B' sums(1,2) fundchamber_S_adjacent[of b]
             fundchamber_S_image_neq_fundchamber[of b]
             adjacent_int_facet1[of C0]
@@ -2085,7 +2086,7 @@ proof-
             ]
       by    auto
 
-    moreover from snoc(2) B \<s> have "insert v z \<noteq> B" "insert v' z' \<noteq> B"
+    moreover from snoc(2) B_def \<s> have "insert v z \<noteq> B" "insert v' z' \<noteq> B"
       using sum_list_append[of "as@[s]@bs" "[b]"] sum_list_append[of "as@bs" "[b]"]
             fundchamber_next_WS_image_neq[of b "sum_list (as@[s]@bs)"]
             fundchamber_next_WS_image_neq[of b "sum_list (as@bs)"]
@@ -2099,7 +2100,7 @@ proof-
       by    (auto simp add: ins_vz[THEN sym] ins_vz'[THEN sym])
 
     ultimately show ?case
-      using B sums(2) fundchamber_W_image_chamber[of "sum_list (as@bs)"]
+      using B_def sums(2) fundchamber_W_image_chamber[of "sum_list (as@bs)"]
             label_wrt_eq_on_adjacent_vertex[OF \<phi>, of v v' B z z']
       by    (auto simp add: ins_vz[THEN sym] ins_vz'[THEN sym])
   qed
@@ -2130,20 +2131,18 @@ lemma fold_middle_sum_chain:
                 "sum_list (as@[s]@bs) `\<rightarrow> C0 \<in> g\<turnstile>\<C>" "sum_list (as@[s]@bs@[t]) `\<rightarrow> C0 \<in> f\<turnstile>\<C>"
   shows   "sum_list (as@[s]@bs@[t]@cs) `\<rightarrow> C0 = sum_list (as@bs@cs) `\<rightarrow> C0"
 proof-
-  def \<s>: \<s> \<equiv> "induced_automorph f g"
-  moreover from fg obtain C
+  define \<s> where "\<s> = induced_automorph f g"
+  from fg obtain C
     where "OpposedThinChamberComplexFoldings X f g C"
     using foldpairs_def
     by    fast
-  ultimately
-    have "id ` sum_list (as@[s]@bs@[t]@cs) `\<rightarrow> C0 = sum_list (as@bs@cs) `\<rightarrow> C0"
-    using fg S sep fold_end_sum_chain_gf[of f g "as@[s]@bs" t cs]
+  then have "id ` sum_list (as@[s]@bs@[t]@cs) `\<rightarrow> C0 = sum_list (as@bs@cs) `\<rightarrow> C0"
+    using \<s>_def fg S sep fold_end_sum_chain_gf[of f g "as@[s]@bs" t cs]
           fold_end_sum_chain_fg[of f g as s "bs@cs"]
     by    (simp add:
             image_comp[THEN sym]
             OpposedThinChamberComplexFoldings.indaut_order2[
-              THEN sym
-            ]
+              THEN sym]
           )
   thus ?thesis by simp
 qed
@@ -2156,7 +2155,7 @@ lemma S_list_not_min_gallery_deletion:
 proof-
   from w ss(1) have w_W: "w\<in>W" using sum_list_S_in_W by fast
 
-  def Cs: Cs \<equiv> "map (\<lambda>w. w`\<rightarrow>C0) (sums ss)"
+  define Cs where "Cs = map (\<lambda>w. w`\<rightarrow>C0) (sums ss)"
   from ss obtain f g as s bs t cs
     where fg    : "(f,g)\<in>foldpairs"
     and   sep   : "sum_list as `\<rightarrow> C0 \<in> f\<turnstile>\<C>"
@@ -2209,7 +2208,7 @@ locale CoxeterComplex = CoxeterSystem S
 begin
 
 definition TheComplex :: "'w set set set"
-  where "TheComplex \<equiv> ordering.PosetComplex (op \<supseteq>) (op \<supset>) \<P>"
+  where "TheComplex \<equiv> ordering.PosetComplex (\<supseteq>) (\<supset>) \<P>"
 abbreviation "\<Sigma> \<equiv> TheComplex"
 
 end (* context CoxeterComplex *)
@@ -2235,7 +2234,7 @@ proof-
   from assms obtain w T where "w\<in>W" "T \<in> Pow S" "X = w +o \<langle>T\<rangle>"
     using special_cosets_def by auto
   thus ?thesis
-    using image_eq_UN[where f= "op +o w \<circ> genby"]
+    using image_eq_UN[where f= "(+o) w \<circ> genby"]
           finite_genset simplex_like_pow_above_in
           OrderingSetIso.simplex_like_map[
             OF special_coset_below_in_supset_ordering_iso, of T w
@@ -2247,16 +2246,16 @@ qed
 lemma SimplicialComplex_\<Sigma>: "SimplicialComplex \<Sigma>"
   unfolding TheComplex_def
 proof (rule ordering.poset_is_SimplicialComplex)
-  show "ordering (op \<supseteq>) (op \<supset>)" ..
+  show "ordering (\<supseteq>) (\<supset>)" ..
   show "\<forall>X\<in>\<P>. supset_simplex_like (\<P>.\<supseteq>X)"
     using simplex_like_special_cosets by fast
 qed
 
-lemma ComplexLikePoset_special_cosets: "ComplexLikePoset (op \<supseteq>) (op \<supset>) \<P>"
+lemma ComplexLikePoset_special_cosets: "ComplexLikePoset (\<supseteq>) (\<supset>) \<P>"
   using simplex_like_special_cosets special_cosets_has_bottom special_cosets_have_glbs
   by    unfold_locales
 
-abbreviation "smap \<equiv> ordering.poset_simplex_map (op \<supseteq>) (op \<supset>) \<P>"
+abbreviation "smap \<equiv> ordering.poset_simplex_map (\<supseteq>) (\<supset>) \<P>"
 
 lemmas smap_def = ordering.poset_simplex_map_def[OF supset_poset, of \<P>]
 
@@ -2363,14 +2362,14 @@ proof
 qed (rule smap0_conv_special_subgroups[THEN sym])
 
 lemma smap_singleton_conv_W_image: 
-  "w\<in>W \<Longrightarrow> smap {w} = (op +o w) ` (smap 0)"
+  "w\<in>W \<Longrightarrow> smap {w} = ((+o) w) ` (smap 0)"
   using genby_0_closed[of S] maxsimp_vertices[of 0] maxsimp_vertices[of w]
         maxsimp_vertex_conv_special_coset
   by    force
 
 lemma W_lcoset_bij_betw_singletons:
   assumes "w\<in>W"
-  shows   "bij_betw (op +o w) (smap 0) (smap {w})"
+  shows   "bij_betw ((+o) w) (smap 0) (smap {w})"
   unfolding bij_betw_def
 proof (rule conjI, rule inj_onI)
   fix X Y assume XY: "X \<in> smap 0" "Y \<in> smap 0" "w +o X = w +o Y"
@@ -2579,7 +2578,7 @@ lemma fundchamber_vertex_stabilizer1:
   shows   "w \<in> \<langle>S-{t}\<rangle>"
 proof-
   from v tw(1) have v_C0: "v\<in>C0" using fundantivertex by simp
-  def ss \<equiv> "arg_min length (word_for S w)"
+  define ss where "ss = arg_min length (word_for S w)"
   moreover
     have "reduced_word S ss \<Longrightarrow> sum_list ss \<rightarrow> v = v \<Longrightarrow> sum_list ss \<in> \<langle>S-{t}\<rangle>"
   proof (induct ss)
@@ -2590,7 +2589,7 @@ proof-
       by    auto
     from fg(1) have opp_fg: "OpposedThinChamberComplexFoldings X f g C0"
       using fundfoldpairs_def by auto
-    def Cs \<equiv> "map (\<lambda>w. w`\<rightarrow>C0) (sums (s#ss))"
+    define Cs where "Cs = map (\<lambda>w. w`\<rightarrow>C0) (sums (s#ss))"
     with Cons(2) have minCs: "min_gallery Cs"
       using reduced_S_list_min_gallery by fast
     have sv: "s\<rightarrow>v = v"
@@ -2598,8 +2597,9 @@ proof-
       case Nil with Cons(3) show ?thesis by simp
     next
       case (snoc ts t)
-      def Ms \<equiv> "map (\<lambda>w. w`\<rightarrow>C0) (map (op + s) (sums ts))"
-      and Cn \<equiv> "sum_list (s#ss) `\<rightarrow> C0"
+      define Ms Cn
+        where "Ms = map (\<lambda>w. w`\<rightarrow>C0) (map ((+) s) (sums ts))"
+          and "Cn = sum_list (s#ss) `\<rightarrow> C0"
       with snoc Cs_def have "Cs = C0 # Ms @ [Cn]"
         by (simp add: sums_snoc zero_permutation.rep_eq)
       with minCs Cs_def fg have "C0\<in>f\<turnstile>\<C>" "Cn\<in>g\<turnstile>\<C>"
@@ -2760,15 +2760,14 @@ proof (rule inj_onI)
   fix v1 v2 assume v: "v1\<in>\<Union>X" "v2\<in>\<Union>X" "\<psi> v1 = \<psi> v2"
   from v(1,2) have \<phi>v: "\<phi> v1 \<in> C0" "\<phi> v2 \<in> C0"
     using label_wrt_elt_image[OF \<phi>(1)] by auto
-  def s1: s1 \<equiv> "fundantipermutation (\<phi> v1)"
-  and s2: s2 \<equiv> "fundantipermutation (\<phi> v2)"
+  define s1 s2 where "s1 = fundantipermutation (\<phi> v1)" and "s2 = fundantipermutation (\<phi> v2)"
   from v(1,2) obtain w1 w2 where "w1\<in>W" "v1\<in>w1`\<rightarrow>C0" "w2\<in>W" "v2\<in>w2`\<rightarrow>C0"
     using simplex_in_max chamber_eq_W_image by blast
-  with assms s1 s2 have \<psi>v: "\<psi> v1 = w1 +o \<langle>S-{s1}\<rangle>" "\<psi> v2 = w2 +o \<langle>S-{s2}\<rangle>"
+  with assms s1_def s2_def have \<psi>v: "\<psi> v1 = w1 +o \<langle>S-{s1}\<rangle>" "\<psi> v2 = w2 +o \<langle>S-{s2}\<rangle>"
     using label_wrt_special_coset2' by auto
   with v(3) have "w1 +o \<langle>S-{s1}\<rangle> = w2 +o \<langle>S-{s2}\<rangle>"
     using label_wrt_special_coset2' by auto
-  with s1 s2 have "\<phi> v1 = \<phi> v2"
+  with s1_def s2_def have "\<phi> v1 = \<phi> v2"
     using PreCoxeterSystemWithDeletion.special_coset_eq_imp_eq_gensets[
             OF PreCoxeterSystemWithDeletion, of "S-{s1}" "S-{s2}" w1 w2
           ]
@@ -2818,11 +2817,12 @@ lemma label_stab_map_bij_betw_W_chambers:
   shows     "bij_betw \<psi> (w0`\<rightarrow>C0) (CoxeterComplex.smap S {w0})"
   unfolding bij_betw_def
 proof (rule conjI, rule inj_on_inverseI)
-  def f1: f1 \<equiv> "the_inv_into (CoxeterComplex.smap S 0) (op +o w0)"
-  and f2: f2 \<equiv> "the_inv_into S (\<lambda>s. \<langle>S-{s}\<rangle>)"
-  def g:  g  \<equiv> "(op \<rightarrow> w0) \<circ> fundantivertex \<circ> f2 \<circ> f1"
+  define f1 f2
+    where "f1 = the_inv_into (CoxeterComplex.smap S 0) ((+o) w0)"
+      and "f2 = the_inv_into S (\<lambda>s. \<langle>S-{s}\<rangle>)"
+  define g where "g = ((\<rightarrow>) w0) \<circ> fundantivertex \<circ> f2 \<circ> f1"
 
-  from assms(3) have inj_opw0: "inj_on (op +o w0) (CoxeterComplex.smap S 0)"
+  from assms(3) have inj_opw0: "inj_on ((+o) w0) (CoxeterComplex.smap S 0)"
     using bij_betw_imp_inj_on[OF CoxeterComplex.W_lcoset_bij_betw_singletons]
           CoxeterComplex
     by    fast
@@ -2843,7 +2843,7 @@ proof (rule conjI, rule inj_on_inverseI)
 
   from v0 assms have "\<psi> v = w0 +o \<langle>S-{fundantipermutation v0}\<rangle>"
     using label_wrt_special_coset1' by simp
-  with f1 assms(3) f2 v0 g show "g (\<psi> v) = v"
+  with f1_def assms(3) f2_def v0 g_def show "g (\<psi> v) = v"
     using v0' fap_v0 the_inv_into_f_f[OF inj_opw0]
           the_inv_into_f_f[OF inj_genby_minus_s]
           bij_betw_f_the_inv_into_f[OF fundantivertex_bij_betw]
@@ -2878,9 +2878,9 @@ next
     using CoxeterComplex.chamber_is_singleton[OF CoxeterComplex] by fast
   with assms have "bij_betw \<psi> (w`\<rightarrow>C0) z"
     using label_stab_map_bij_betw_W_chambers by fast
-  hence 1: "bij_betw (op ` \<psi>) (Pow (w`\<rightarrow>C0)) (Pow z)"
+  hence 1: "bij_betw ((`) \<psi>) (Pow (w`\<rightarrow>C0)) (Pow z)"
     using bij_betw_imp_bij_betw_Pow by fast
-  define x where x: "x \<equiv> the_inv_into (Pow (w`\<rightarrow>C0)) (op ` \<psi>) y"
+  define x where x: "x \<equiv> the_inv_into (Pow (w`\<rightarrow>C0)) ((`) \<psi>) y"
   with z(2) have "x \<subseteq> w`\<rightarrow>C0" using bij_betw_the_inv_into_onto[OF 1] by auto
   with w(1) have "x\<in>X"
     using faces fundchamber_W_image_chamber chamberD_simplex

@@ -350,10 +350,10 @@ unfolding semigroup_def by(transfer, simp add: preprm_compose_def preprm_ext_def
 interpretation "'a prm": group prm_compose prm_id prm_inv
 unfolding group_def group_axioms_def
 proof -
-  have "semigroup op \<diamondop>" using "'a prm.semigroup_axioms".
+  have "semigroup (\<diamondop>)" using "'a prm.semigroup_axioms".
   moreover have "\<forall>a. \<epsilon> \<diamondop> a = a" by(transfer, simp add: preprm_id_def preprm_compose_def preprm_ext_def)
   moreover have "\<forall>a. prm_inv a \<diamondop> a = \<epsilon>" using prm_inv_compose by blast
-  ultimately show "semigroup op \<diamondop> \<and> (\<forall>a. \<epsilon> \<diamondop> a = a) \<and> (\<forall>a. prm_inv a \<diamondop> a = \<epsilon>)" by blast
+  ultimately show "semigroup (\<diamondop>) \<and> (\<forall>a. \<epsilon> \<diamondop> a = a) \<and> (\<forall>a. prm_inv a \<diamondop> a = \<epsilon>)" by blast
 qed
 
 definition prm_set :: "'a prm \<Rightarrow> 'a set \<Rightarrow> 'a set" (infix "{$}" 140) where
@@ -362,11 +362,11 @@ definition prm_set :: "'a prm \<Rightarrow> 'a set \<Rightarrow> 'a set" (infix 
 lemma prm_set_apply_compose:
   shows "\<pi> {$} (\<sigma> {$} S) = (\<pi> \<diamondop> \<sigma>) {$} S"
 unfolding prm_set_def proof -
-  have "op $ \<pi> ` op $ \<sigma> ` S = (\<lambda>x. \<pi> $ x) ` (\<lambda>x. \<sigma> $ x) ` S" by simp
+  have "($) \<pi> ` ($) \<sigma> ` S = (\<lambda>x. \<pi> $ x) ` (\<lambda>x. \<sigma> $ x) ` S" by simp
   moreover have "... = (\<lambda>x. \<pi> $ (\<sigma> $ x)) ` S" by auto
   moreover have "... = (\<lambda>x. (\<pi> \<diamondop> \<sigma>) $ x) ` S" using prm_apply_composition by metis
   moreover have "... = (\<pi> \<diamondop> \<sigma>) {$} S" using prm_set_def by metis
-  ultimately show "op $ \<pi> ` op $ \<sigma> ` S = op $ (\<pi> \<diamondop> \<sigma>) ` S" by metis
+  ultimately show "($) \<pi> ` ($) \<sigma> ` S = ($) (\<pi> \<diamondop> \<sigma>) ` S" by metis
 qed
 
 lemma prm_set_membership:
@@ -388,10 +388,10 @@ lemma prm_set_id:
   shows "\<epsilon> {$} S = S"
 unfolding prm_set_def
 proof -
-  have "op $ \<epsilon> ` S = (\<lambda>x. \<epsilon> $ x) ` S" by simp
+  have "($) \<epsilon> ` S = (\<lambda>x. \<epsilon> $ x) ` S" by simp
   moreover have "... = (\<lambda>x. x) ` S" using prm_apply_id by metis
   moreover have "... = S" by auto
-  ultimately show "op $ \<epsilon> ` S = S" by metis
+  ultimately show "($) \<epsilon> ` S = S" by metis
 qed
 
 lemma prm_set_unit_inaction:

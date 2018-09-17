@@ -69,7 +69,7 @@ text {* induction rules *}
 
 lemmas stream_set_induct = sset_induct
 
-subsection {* Lemmas about operations from @{theory Stream} *}
+subsection {* Lemmas about operations from @{theory "HOL-Library.Stream"} *}
 
 lemma szip_iterates:
   "szip (siterate f a) (siterate g b) = siterate (map_prod f g) (a, b)"
@@ -220,19 +220,19 @@ context includes lifting_syntax
 begin
 
 lemma lmap_infinite_transfer [transfer_rule]:
-  "(op = ===> eq_onp (\<lambda>xs. \<not> lfinite xs) ===> eq_onp (\<lambda>xs. \<not> lfinite xs)) lmap lmap"
+  "((=) ===> eq_onp (\<lambda>xs. \<not> lfinite xs) ===> eq_onp (\<lambda>xs. \<not> lfinite xs)) lmap lmap"
 by(simp add: rel_fun_def eq_onp_def)
 
 lemma lset_infinite_transfer [transfer_rule]:
-  "(eq_onp (\<lambda>xs. \<not> lfinite xs) ===> op =) lset lset"
+  "(eq_onp (\<lambda>xs. \<not> lfinite xs) ===> (=)) lset lset"
 by(simp add: rel_fun_def eq_onp_def)
 
 lemma unfold_stream_transfer [transfer_rule]:
-  "(op = ===> op = ===> op = ===> pcr_stream op =) (unfold_llist (\<lambda>_. False)) unfold_stream"
+  "((=) ===> (=) ===> (=) ===> pcr_stream (=)) (unfold_llist (\<lambda>_. False)) unfold_stream"
 by(auto simp add: stream.pcr_cr_eq cr_stream_def intro!: rel_funI)
 
 lemma corec_stream_transfer [transfer_rule]:
-  "(op = ===> op = ===> (op = ===> pcr_stream op =) ===> op = ===> op = ===> pcr_stream op=)
+  "((=) ===> (=) ===> ((=) ===> pcr_stream (=)) ===> (=) ===> (=) ===> pcr_stream (=))
    (corec_llist (\<lambda>_. False)) corec_stream"
 apply(auto intro!: rel_funI simp add: cr_stream_def stream.pcr_cr_eq)
 apply(rule fun_cong) back
@@ -247,15 +247,15 @@ by(auto simp add: pcr_stream_def cr_stream_def intro!: rel_funI relcomppI)(frule
 lemma stl_transfer [transfer_rule]: "(pcr_stream A ===> pcr_stream A) ltl stl"
 by(auto simp add: pcr_stream_def cr_stream_def intro!: rel_funI relcomppI dest: llist_all2_ltlI)
 
-lemma llist_of_stream_transfer [transfer_rule]: "(pcr_stream op = ===> op =) id llist_of_stream"
+lemma llist_of_stream_transfer [transfer_rule]: "(pcr_stream (=) ===> (=)) id llist_of_stream"
 by(simp add: rel_fun_def stream.pcr_cr_eq cr_stream_def)
 
 lemma stream_of_llist_transfer [transfer_rule]:
-  "(eq_onp (\<lambda>xs. \<not> lfinite xs) ===> pcr_stream op =) (\<lambda>xs. xs) stream_of_llist"
+  "(eq_onp (\<lambda>xs. \<not> lfinite xs) ===> pcr_stream (=)) (\<lambda>xs. xs) stream_of_llist"
 by(simp add: eq_onp_def rel_fun_def stream.pcr_cr_eq cr_stream_def)
 
 lemma SCons_transfer [transfer_rule]:
-  "(A ===> pcr_stream A ===> pcr_stream A) LCons op ##"
+  "(A ===> pcr_stream A ===> pcr_stream A) LCons (##)"
 by(auto simp add: cr_stream_def pcr_stream_def intro!: rel_funI relcomppI intro: llist_all2_expand)
 
 lemma sset_transfer [transfer_rule]: "(pcr_stream A ===> rel_set A) lset sset"
@@ -265,11 +265,11 @@ lemma smap_transfer [transfer_rule]:
   "((A ===> B) ===> pcr_stream A ===> pcr_stream B) lmap smap"
 by(auto simp add: cr_stream_def pcr_stream_def intro!: rel_funI relcomppI dest: lmap_transfer[THEN rel_funD] elim: rel_funD)
 
-lemma snth_transfer [transfer_rule]: "(pcr_stream op = ===> op =) lnth snth"
+lemma snth_transfer [transfer_rule]: "(pcr_stream (=) ===> (=)) lnth snth"
 by(rule rel_funI)(clarsimp simp add: stream.pcr_cr_eq cr_stream_def fun_eq_iff)
 
 lemma siterate_transfer [transfer_rule]:
-  "(op = ===> op = ===> pcr_stream op =) iterates siterate"
+  "((=) ===> (=) ===> pcr_stream (=)) iterates siterate"
 by(rule rel_funI)+(clarsimp simp add: stream.pcr_cr_eq cr_stream_def)
 
 context
@@ -299,7 +299,7 @@ apply(rule_tac b="llist_of_stream b" in relcomppI; auto intro!: GrpI)
 done
 
 lemma stream_all2_transfer [transfer_rule]:
-  "(op = ===> pcr_stream op = ===> pcr_stream op = ===> op =) llist_all2 stream_all2"
+  "((=) ===> pcr_stream (=) ===> pcr_stream (=) ===> (=)) llist_all2 stream_all2"
 by(simp add: rel_fun_def stream.pcr_cr_eq cr_stream_def)
 
 lemma stream_all2_coinduct:
@@ -313,11 +313,11 @@ apply auto
 done
 
 lemma shift_transfer [transfer_rule]:
-  "(op = ===> pcr_stream op = ===> pcr_stream op =) (lappend \<circ> llist_of) shift"
+  "((=) ===> pcr_stream (=) ===> pcr_stream (=)) (lappend \<circ> llist_of) shift"
 by(clarsimp simp add: rel_fun_def stream.pcr_cr_eq cr_stream_def)
 
 lemma szip_transfer [transfer_rule]:
-  "(pcr_stream op = ===> pcr_stream op = ===> pcr_stream op =) lzip szip"
+  "(pcr_stream (=) ===> pcr_stream (=) ===> pcr_stream (=)) lzip szip"
 by(simp add: stream.pcr_cr_eq cr_stream_def rel_fun_def)
 
 subsection {* Link @{typ "'a stream"} with @{typ "nat \<Rightarrow> 'a"} *}

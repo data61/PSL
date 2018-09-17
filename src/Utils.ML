@@ -151,6 +151,8 @@ fun count_str (str:string) (strs:string list) =
 
 fun is_one_of_strings (strs:string list) (str:string) = exists (equal str) strs;
 
+fun somes (maybes: 'a option list) = map the o filter is_some;
+
 end;
 
 (*** SEQ2 : Auxiliary functions on Seq.seq ***)
@@ -461,7 +463,7 @@ val defer = defer_tac 1;
 fun is_in_Main (ctxt:Proof.context) (thm:thm) =
   let
     val this_thy          = Proof_Context.theory_of ctxt:theory;
-    val thy_names_in_main = Context.get_theory this_thy "Main"
+    val thy_names_in_main = Context.get_theory {long=false} this_thy "Main"
       |> Theory.ancestors_of
       |> map Context.theory_name:string list;
     fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;

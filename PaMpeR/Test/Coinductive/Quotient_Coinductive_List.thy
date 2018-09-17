@@ -127,7 +127,7 @@ by(simp_all add: fun_eq_iff llist.map_comp o_def)
 
 lemma lmap_respect [quot_respect]:
   shows "((R1 ===> R2) ===> (llist_all2 R1) ===> llist_all2 R2) lmap lmap"
-  and   "((R1 ===> op =) ===> (llist_all2 R1) ===> op =) lmap lmap"
+  and   "((R1 ===> (=)) ===> (llist_all2 R1) ===> (=)) lmap lmap"
 by(fact lmap_transfer)(simp add: llist_all2_conv_all_lnth lmap_eq_lmap_conv_llist_all2 rel_fun_def)
 
 lemmas llist_all2_respect [quot_respect] = llist_all2_transfer
