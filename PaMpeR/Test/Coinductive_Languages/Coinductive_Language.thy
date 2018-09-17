@@ -4,9 +4,9 @@
 section {* A Codatatype of Formal Languages *}
 
 theory Coinductive_Language
-imports Main  "../../PaMpeR"
+imports Main
 begin
-print_locales declare[[ML_print_depth=400]] print_classes
+
 hide_const (open) Inter
 (*>*)
 
@@ -18,9 +18,9 @@ alphabet @{typ 'a}. Each node in such a tree indicates whether the path to this
 node constitutes a word inside or outside of the language.
 
 *}
-datatype 's test = Ho 's print_theorems
+
 codatatype 'a language = Lang (\<oo>: bool) (\<dd>: "'a \<Rightarrow> 'a language")
-print_theorems
+
 text {*
 This codatatype is isormorphic to the set of lists representation of languages,
 but caters for definitions by corecursion and proofs by coinduction.
@@ -47,7 +47,7 @@ section {* Regular Languages *}
 primcorec Zero :: "'a language" where
   "\<oo> Zero = False"
 | "\<dd> Zero = (\<lambda>_. Zero)"
-print_theorems
+
 primcorec One :: "'a language" where
   "\<oo> One = True"
 | "\<dd> One = (\<lambda>_. Zero)"
@@ -59,23 +59,23 @@ primcorec Atom :: "'a \<Rightarrow> 'a language" where
 primcorec Plus :: "'a language \<Rightarrow> 'a language \<Rightarrow> 'a language" where
   "\<oo> (Plus r s) = (\<oo> r \<or> \<oo> s)"
 | "\<dd> (Plus r s) = (\<lambda>a. Plus (\<dd> r a) (\<dd> s a))"
-print_theorems
-theorem Plus_ZeroL[simp]: "Plus Zero r = r" which_method find_theorems name:"Plus" rank_method intro_classes
+
+theorem Plus_ZeroL[simp]: "Plus Zero r = r"
   by (coinduction arbitrary: r) simp
 
-theorem Plus_ZeroR[simp]: "Plus r Zero = r"  which_method rank_method coinduction
+theorem Plus_ZeroR[simp]: "Plus r Zero = r"
   by (coinduction arbitrary: r) simp
 
 theorem Plus_assoc: "Plus (Plus r s) t = Plus r (Plus s t)"
   by (coinduction arbitrary: r s t) auto
 
-theorem Plus_comm: "Plus r s = Plus s r"  which_method
+theorem Plus_comm: "Plus r s = Plus s r"
   by (coinduction arbitrary: r s) auto
 
 lemma Plus_rotate: "Plus r (Plus s t) = Plus s (Plus r t)"
   using Plus_assoc Plus_comm by metis
 
-theorem Plus_idem: "Plus r r = r" which_method
+theorem Plus_idem: "Plus r r = r"
   by (coinduction arbitrary: r) auto
 
 lemma Plus_idem_assoc: "Plus r (Plus r s) = Plus r s"
@@ -86,7 +86,7 @@ lemmas Plus_ACI[simp] = Plus_rotate Plus_comm Plus_assoc Plus_idem_assoc Plus_id
 lemma Plus_OneL[simp]: "\<oo> r \<Longrightarrow> Plus One r = r"
   by (coinduction arbitrary: r) auto
 
-lemma Plus_OneR[simp]: "\<oo> r \<Longrightarrow> Plus r One = r" which_method
+lemma Plus_OneR[simp]: "\<oo> r \<Longrightarrow> Plus r One = r"
   by (coinduction arbitrary: r) auto
 
 text {*
@@ -116,10 +116,10 @@ lemma TimesLR_PlusL[simp]: "TimesLR (Plus r s) t = Plus (TimesLR r t) (TimesLR s
 lemma TimesLR_PlusR[simp]: "TimesLR r (Plus s t) = Plus (TimesLR r s) (TimesLR r t)"
   by (coinduction arbitrary: r s t) auto
 
-lemma Times_Plus_Zero[simp]: "Times_Plus Zero = Zero" which_method
+lemma Times_Plus_Zero[simp]: "Times_Plus Zero = Zero"
   by coinduction simp
 
-lemma Times_Plus_Plus[simp]: "Times_Plus (Plus r s) = Plus (Times_Plus r) (Times_Plus s)" which_method
+lemma Times_Plus_Plus[simp]: "Times_Plus (Plus r s) = Plus (Times_Plus r) (Times_Plus s)"
 proof (coinduction arbitrary: r s)
   case (Lang r s)
   then show ?case unfolding Times_Plus.sel Plus.sel
@@ -154,7 +154,7 @@ theorem Times_ZeroL[simp]: "Times Zero r = Zero"
 theorem Times_ZeroR[simp]: "Times r Zero = Zero"
   by (coinduction arbitrary: r) auto
 
-theorem Times_OneL[simp]: "Times One r = r" which_method
+theorem Times_OneL[simp]: "Times One r = r"
   by (coinduction arbitrary: r rule: language.coinduct_strong) (simp add: rel_fun_def)
 
 theorem Times_OneR[simp]: "Times r One = r"
@@ -176,11 +176,11 @@ inductive Plus_cong for R where
 
 lemma language_coinduct_upto_Plus[unfolded rel_fun_def, simplified, case_names Lang, consumes 1]:
   assumes R: "R L K" and hyp:
-    "(\<And>L K. R L K \<Longrightarrow> \<oo> L = \<oo> K \<and> rel_fun op = (Plus_cong R) (\<dd> L) (\<dd> K))"
-  shows "L = K" which_method
+    "(\<And>L K. R L K \<Longrightarrow> \<oo> L = \<oo> K \<and> rel_fun (=) (Plus_cong R) (\<dd> L) (\<dd> K))"
+  shows "L = K"
 proof (coinduct rule: language.coinduct[of "Plus_cong R"])
   fix L K assume "Plus_cong R L K"
-  then show "\<oo> L = \<oo> K \<and> rel_fun op = (Plus_cong R) (\<dd> L) (\<dd> K)"
+  then show "\<oo> L = \<oo> K \<and> rel_fun (=) (Plus_cong R) (\<dd> L) (\<dd> K)"
     by (induct rule: Plus_cong.induct) (auto simp: rel_fun_def intro: Sym dest: hyp)
 qed (intro Base R)
 
@@ -274,7 +274,7 @@ lemma ShuffleLR_ZeroR[simp]: "ShuffleLR r Zero = Zero"
 lemma ShuffleLR_PlusL[simp]: "ShuffleLR (Plus r s) t = Plus (ShuffleLR r t) (ShuffleLR s t)"
   by (coinduction arbitrary: r s t) auto
 
-lemma ShuffleLR_PlusR[simp]: "ShuffleLR r (Plus s t) = Plus (ShuffleLR r s) (ShuffleLR r t)"  which_method
+lemma ShuffleLR_PlusR[simp]: "ShuffleLR r (Plus s t) = Plus (ShuffleLR r s) (ShuffleLR r t)"
   by (coinduction arbitrary: r s t) auto
 
 lemma Shuffle_Plus_ShuffleLR_One[simp]: "Times_Plus (ShuffleLR r One) = r"
@@ -350,11 +350,11 @@ inductive regular_cong for R where
 
 lemma language_coinduct_upto_regular[unfolded rel_fun_def, simplified, case_names Lang, consumes 1]:
   assumes R: "R L K" and hyp:
-    "(\<And>L K. R L K \<Longrightarrow> \<oo> L = \<oo> K \<and> rel_fun op = (regular_cong R) (\<dd> L) (\<dd> K))"
+    "(\<And>L K. R L K \<Longrightarrow> \<oo> L = \<oo> K \<and> rel_fun (=) (regular_cong R) (\<dd> L) (\<dd> K))"
   shows "L = K"
 proof (coinduct rule: language.coinduct[of "regular_cong R"])
   fix L K assume "regular_cong R L K"
-  then show "\<oo> L = \<oo> K \<and> rel_fun op = (regular_cong R) (\<dd> L) (\<dd> K)"
+  then show "\<oo> L = \<oo> K \<and> rel_fun (=) (regular_cong R) (\<dd> L) (\<dd> K)"
     by (induct rule: regular_cong.induct) (auto dest: hyp simp: rel_fun_def)
 qed (intro Base R)
 
@@ -394,7 +394,7 @@ definition "less_language r s = (Plus r s = s \<and> r \<noteq> s)"
 lemmas language_defs = zero_language_def one_language_def plus_language_def times_language_def
   less_eq_language_def less_language_def
 
-instance which_method proof intro_classes
+instance proof intro_classes
   fix x y z :: "'a language" assume "x \<le> y" "y \<le> z"
   then show "x \<le> z" unfolding language_defs by (metis Plus_assoc)
 next
@@ -411,7 +411,7 @@ lemma \<dd>_mono[dest]: "r \<le> s \<Longrightarrow> \<dd> r a \<le> \<dd> s a"
   unfolding less_eq_language_def by (metis Plus.simps(2))
 
 text {*
-  For reasoning about @{term "op \<le>"}, we prove a coinduction principle and generalize it
+  For reasoning about @{term "(\<le>)"}, we prove a coinduction principle and generalize it
   to support up-to reasoning.
 *}
 
@@ -456,7 +456,7 @@ lemma Plus_mono: "\<lbrakk>r1 \<le> s1; r2 \<le> s2\<rbrakk> \<Longrightarrow> P
 lemma Plus_upper: "\<lbrakk>r1 \<le> s; r2 \<le> s\<rbrakk> \<Longrightarrow> Plus r1 r2 \<le> s"
   by (coinduction arbitrary: r1 r2 s) auto
 
-lemma Inter_mono: "\<lbrakk>r1 \<le> s1; r2 \<le> s2\<rbrakk> \<Longrightarrow> Inter r1 r2 \<le> Inter s1 s2" which_method
+lemma Inter_mono: "\<lbrakk>r1 \<le> s1; r2 \<le> s2\<rbrakk> \<Longrightarrow> Inter r1 r2 \<le> Inter s1 s2"
   by (coinduction arbitrary: r1 r2 s1 s2) (force elim!: \<dd>_mono)
 
 lemma Times_mono: "\<lbrakk>r1 \<le> s1; r2 \<le> s2\<rbrakk> \<Longrightarrow> Times r1 r2 \<le> Times s1 s2"

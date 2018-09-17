@@ -7,8 +7,8 @@ begin
 locale Sequences 
 begin
 
-text {* We reverse the order of application of @{term "op #"} and 
-  @{term "op @"} because it we think that it is easier to think of sequences as growing 
+text {* We reverse the order of application of @{term "(#)"} and 
+  @{term "(@)"} because it we think that it is easier to think of sequences as growing 
   to the right. *}
 no_notation Cons (infixr "#" 65)
 abbreviation Append  (infixl "#" 65)

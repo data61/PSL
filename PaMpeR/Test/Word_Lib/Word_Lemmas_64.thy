@@ -84,6 +84,29 @@ lemma unat_less_word_bits:
 lemmas unat_mask_word64' = unat_mask[where 'a=64]
 lemmas unat_mask_word64 = unat_mask_word64'[folded word_bits_def]
 
+lemma unat_less_2p_word_bits:
+  "unat (x :: 64 word) < 2 ^ word_bits"
+  apply (simp only: word_bits_def)
+  apply (rule unat_lt2p)
+  done
+
+lemma Suc_unat_mask_div:
+  "Suc (unat (mask sz div word_size::word64)) = 2 ^ (min sz word_bits - 3)"
+  apply (case_tac "sz < word_bits")
+   apply (case_tac "3\<le>sz")
+    apply (clarsimp simp: word_size_def word_bits_def min_def mask_def)
+    apply (drule (2) Suc_div_unat_helper
+           [where 'a=64 and sz=sz and us=3, simplified, symmetric])
+   apply (simp add: not_le word_size_def word_bits_def)
+   apply (case_tac sz, simp add: unat_word_ariths)
+   apply (case_tac nat, simp add: unat_word_ariths
+                                  unat_mask_word64 min_def word_bits_def)
+   apply (case_tac nata, simp add: unat_word_ariths unat_mask_word64 word_bits_def)
+   apply simp
+  apply (simp add: unat_word_ariths
+                   unat_mask_word64 min_def word_bits_def word_size_def)
+  done
+
 lemmas word64_minus_one_le' = word_minus_one_le[where 'a=64]
 lemmas word64_minus_one_le = word64_minus_one_le'[simplified]
 
@@ -133,7 +156,7 @@ lemmas if_then_simps = if_then_0_else_1 if_then_1_else_0
 
 lemma ucast_le_ucast_8_64:
   "(ucast x \<le> (ucast y :: word64)) = (x \<le> (y :: word8))"
-  by (simp add: word_le_nat_alt unat_ucast_8_64)
+  by (simp add: ucast_le_ucast)
 
 lemma in_16_range:
   "0 \<in> S \<Longrightarrow> r \<in> (\<lambda>x. r + x * (16 :: word64)) ` S"
@@ -238,7 +261,6 @@ lemma le_step_down_word_3:
 
 lemma shiftr_1:
   "(x::word64) >> 1 = 0 \<Longrightarrow> x < 2"
-  apply(tactic {* fn g => (Seq.single g)*})
   by word_bitwise clarsimp
 
 lemma mask_step_down_64:
@@ -253,9 +275,9 @@ lemma mask_step_down_64:
 
 lemma unat_of_int_64:
   "\<lbrakk>i \<ge> 0; i \<le> 2 ^ 63\<rbrakk> \<Longrightarrow> (unat ((of_int i)::sword64)) = nat i"
-  unfolding unat_def 
+  unfolding unat_def
   apply (subst eq_nat_nat_iff, clarsimp+)
-  apply (simp add: word_of_int uint_word_of_int int_mod_eq')
+  apply (simp add: word_of_int uint_word_of_int)
   done
 
 (* Helper for packing then unpacking a 64-bit variable. *)
@@ -268,7 +290,7 @@ lemma cast_chunk_assemble_id_64'[simp]:
   "(((ucast ((scast (x::64 word))::32 word))::64 word) || (((ucast ((scast (x >> 32))::32 word))::64 word) << 32)) = x"
   by (simp add:cast_chunk_scast_assemble_id)
 
-(* Specialiasations of down_cast_same for adding to local simpsets. *)
+(* Specialisations of down_cast_same for adding to local simpsets. *)
 lemma cast_down_u64: "(scast::64 word \<Rightarrow> 32 word) = (ucast::64 word \<Rightarrow> 32 word)"
   apply (subst down_cast_same[symmetric])
    apply (simp add:is_down)+

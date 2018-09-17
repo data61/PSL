@@ -25,10 +25,14 @@ sig
   val simplify_landau_real_prod_prop_conv : Proof.context -> conv
   val simplify_landau_real_prod_prop_simproc : Proof.context -> cterm -> thm option
 
+  val landau_sum_limit : int Config.T
+
 end
 
 structure Landau: LANDAU =
 struct
+
+val landau_sum_limit = Attrib.setup_config_int @{binding landau_sum_limit} (K 3)
 
 fun landau_simprocs ctxt = map (Simplifier.the_simproc ctxt) 
   ["Landau_Simprocs.simplify_landau_product"]
@@ -223,6 +227,15 @@ val plus_absorb_thms2 = @{thms landau_symbols[THEN landau_symbol.plus_absorb2]}
 val minus_absorb_thms1 = @{thms landau_symbols[THEN landau_symbol.diff_absorb1]}
 val minus_absorb_thms2 = @{thms landau_symbols[THEN landau_symbol.diff_absorb2]}
 
+val sum_term_size =
+  let
+    fun go acc (Const (@{const_name "Groups.plus"}, _) $ l $ r) = go (go acc l) r
+      | go acc (Const (@{const_name "Groups.minus"}, _) $ l $ r) = go (go acc l) r
+      | go acc _ = acc + 1
+  in
+    go 0
+  end
+
 local
   fun mk_smallo fltr S T = 
     Const (@{const_name smallo}, filterT S --> (S --> T) --> HOLogic.mk_setT (S --> T)) $ fltr
@@ -238,6 +251,11 @@ in
         case f of
           Abs a => a
         | _ => raise CTERM ("simplify_landau_sum_conv", [ct])
+      val limit = Config.get ctxt landau_sum_limit
+      val _ = 
+        if limit < 0 orelse sum_term_size f_body <= limit then ()
+        else raise CTERM ("simplify_landau_sum_conv", [ct])
+
       val T = Term.fastype_of f |> Term.dest_funT |> snd
       fun abs t = Abs (x_name, S, t)
 

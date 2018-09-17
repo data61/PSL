@@ -15,6 +15,8 @@ test_code
   test_uint
   test_casts
   test_casts''
+  test_casts_uint
+  test_casts_uint''
 in MLton
 
 text {* MLton provides \texttt{Word16} and \texttt{Word64} structures. To test them in the
@@ -31,6 +33,9 @@ test_code
   test_casts
   test_casts'
   test_casts''
+  test_casts_uint
+  test_casts_uint'
+  test_casts_uint''
 in MLton_word
 
 end

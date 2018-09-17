@@ -5,8 +5,6 @@ session "Coinductive_Languages" (AFP) = HOL +
   sessions
     "HOL-Library"
     "Regular-Sets"
-  theories [document = false]
-    "Regular-Sets.Regular_Set"
   theories
     Coinductive_Language
     Coinductive_Regular_Set

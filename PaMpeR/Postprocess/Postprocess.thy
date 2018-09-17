@@ -39,7 +39,7 @@ val all_method_names =
     dist_meth_names : string list
   end;
 
-val all_method_names_standard =
+val method_names_standard =
   let
     val bash_script = "while read line \n do echo $line | awk '{print $1;}' \n done < '" ^ path_to_all_meth_namees_standard ^ "'" : string;
     val bash_input  = Bash.process bash_script |> #out : string;
@@ -48,7 +48,7 @@ val all_method_names_standard =
     dist_meth_names : string list
   end;
 
-val all_method_names_user_defined = subtract (op =) all_method_names_standard all_method_names;
+val method_names_user_defined = subtract (op =) method_names_standard all_method_names;
 
 fun postprocess_one_meth (_    :string) (0:int) (_:int) (_              )  (numbs:real option list) = numbs
  |  postprocess_one_meth (mname:string) (n:int) (t:int) (accm:real option) (numbs:real option list) =
@@ -82,51 +82,60 @@ fun postprocess_one_meth' (n:int) (mname:string) =
       then proc ("grep ' - ' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the
       else proc ("grep '\\b" ^ mname ^ "\\b' " ^ path_to_Database ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the;
     val occur_in_train_str = Int.toString occur_in_train;
-    val occur_in_eval  = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
+    val occur_in_test_str  = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Int.toString;
     val occur_in_train_real = Real.fromInt occur_in_train;
-    val total_real_test = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
-    val freqency_train = thr_dig (occur_in_train_real / datasize_real) |> Real.toString: string;
-    val frequency_test = thr_dig (total_real_test /  testsize_real) |> Real.toString: string;
-    val line_latex = "'\\verb|" ^ mname ^ "| & " ^ occur_in_train_str ^ " & " ^ freqency_train ^ " & " ^ occur_in_eval ^ " & " ^ frequency_test ^ " & " ^
+    val occur_in_test_real = proc ("grep '^" ^ mname ^ "\\s' " ^ eval_file ^ " | wc | awk '{print $1;}'") |> #out |> Int.fromString |> the |> Real.fromInt;
+    val frequency_train = thr_dig (occur_in_train_real / datasize_real) |> Real.toString: string;
+    val frequency_test = thr_dig (occur_in_test_real /  testsize_real) |> Real.toString: string;
+    val line_latex = "'\\verb|" ^ mname ^ "| & " ^ occur_in_train_str ^ " & " ^ frequency_train ^ " & " ^ occur_in_test_str ^ " & " ^ frequency_test ^ " & " ^
             (space_implode " & " numbs_strs) ^ "\\" ^ "\\" ^ "'";
     val line_raw = "'[(*" ^ mname ^ "*) " ^ (space_implode "," numbs_strs) ^ "]'";
   in
-    (if null numbs then ("", "") else (line_latex, line_raw))
+    (if null numbs then ("", "","","","","") else (line_latex, line_raw, frequency_train, frequency_test, occur_in_train_str, occur_in_test_str))
   end;
 
-fun postprocess_all_meth n mnames = Par_List.map (postprocess_one_meth' n) mnames: (string * string) list;
+fun postprocess_all_meth n mnames = Par_List.map (postprocess_one_meth' n) mnames: (string * string * string * string * string * string) list;
 
 fun print_one_result (dest:string) (line:string) = proc ("echo " ^ line ^ " >> " ^ path ^ dest);
 
-val among_top_nth = 169:int;
+val among_top_nth = 15:int;
 
 in
 
- postprocess_all_meth among_top_nth all_method_names_standard |> map (fn (latex, raw) => (
-(*
+ postprocess_all_meth among_top_nth method_names_standard |> map (fn (latex, raw, fq_train, fq_test,occ_train,occ_test) => (
    print_one_result "/eval_result_in_standard_latex.txt" latex;
-*)
-   print_one_result "/eval_result_in_standard_raw.txt" raw));
+   print_one_result "/eval_result_in_standard_raw.txt" raw;
+   print_one_result "/eval_result_in_standard_frequencey_train.txt" fq_train;
+   print_one_result "/eval_result_in_standard_frequencey_test.txt" fq_test;
+   print_one_result "/eval_result_in_standard_occ_train.txt" occ_train;
+   print_one_result "/eval_result_in_standard_occ_test.txt" occ_test
+  ));
 
- postprocess_all_meth among_top_nth all_method_names_user_defined |> map (fn (latex, raw) => (
-(*
+ postprocess_all_meth among_top_nth method_names_user_defined |> map (fn (latex, raw, fq_train, fq_test,occ_train,occ_test) => (
    print_one_result "/eval_result_user_defined_latex.txt" latex;
-*)
-   print_one_result "/eval_result_user_defined_raw.txt" raw));
+   print_one_result "/eval_result_user_defined_raw.txt" raw;
+   print_one_result "/eval_result_user_defined_frequencey_train.txt" fq_train;
+   print_one_result "/eval_result_user_defined_frequencey_test.txt" fq_test;
+   print_one_result "/eval_result_user_defined_occ_train.txt" occ_train;
+   print_one_result "/eval_result_user_defined_occ_test.txt" occ_test
+  ));
 
- postprocess_all_meth among_top_nth all_method_names |> map (fn (latex, raw) => (
-(*
+ postprocess_all_meth among_top_nth all_method_names |> map (fn (latex, raw, fq_train, fq_test,occ_train,occ_test) => (
    print_one_result "/eval_result_all_methods_latex.txt" latex;
-*)
-   print_one_result "/eval_result_all_methods_raw.txt" raw))
+   print_one_result "/eval_result_all_methods_raw.txt" raw;
+   print_one_result "/eval_result_all_methods_raw_frequencey_train.txt" fq_train;
+   print_one_result "/eval_result_all_methods_raw_frequencey_test.txt" fq_test;
+   print_one_result "/eval_result_all_methods_occ_train.txt" occ_train;
+   print_one_result "/eval_result_all_methods_occ_test.txt" occ_test
+  ))
 
 end;
 *}
-(*
+
 ML{*
 postprocess ();
 *}
-*)
+
 (* Consider using sort -k3q -nr eval_result.txt *)
 
 end

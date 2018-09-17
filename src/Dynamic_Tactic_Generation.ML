@@ -19,7 +19,7 @@ sig
   val  get_all_modifiers : Proof.state -> modifiers;
   (*mods_to_string should reorder parameters and remove duplicated modifier declarations.*)
   val  mods_to_string    : modifiers -> string;
-  val  reordered_mods    : modifiers -> modifiers list;
+  val  reordered_mods    : modifiers -> modifiers list;(*mostly for mathematical induction*)
 end;
 
 (*** DYNAMIC_TACTIC_GENERATOR: makes tactic-generator. ***)
@@ -76,6 +76,8 @@ sig
   val blast       : get_stttacs;
   val fastforce   : get_stttacs;
   val auto        : get_stttacs;
+  val generalize  : get_stttacs;
+  val conjecture  : get_stttacs;
 end;
 
 (*** Dynamic_Tactic_Generation ***)
@@ -763,6 +765,94 @@ end;
 
 end;
 
+(** Generalize: The tactic generator for the PGT command, Generalize. **)
+structure Generalize : DYNAMIC_TACTIC =
+struct
+
+(* Generalize_Seed: The seed to make the tactic-generator for the case_tac method. *)
+structure Generalize_Seed: DYNAMIC_TACTIC_GENERATOR_SEED =
+struct
+
+datatype modifier = GenGoal of string;
+
+type modifiers = modifier list;
+
+fun get_all_modifiers (state:Proof.state) =
+  let
+     val {context: Proof.context, facts: thm list, goal: thm} = Proof.goal state;
+     val generalize_str    = Proof_Goal_Transformer.generalize_str;
+     val generalized_goals = generalize_str context goal: string list;
+     val modifiers         = map GenGoal generalized_goals: modifiers;
+  in
+    modifiers
+  end;
+
+fun mods_to_string [GenGoal gen_goal] = gen_goal
+ |  mods_to_string _                  = error "Generalize_Seed failed!"
+
+val reordered_mods = single o I;
+
+end;
+
+(* PGTGG: Proof Goal Transformer Generalize Generator. *)
+structure PGTGG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Generalize_Seed);
+
+fun get_state_stttacs (state:Proof.state) =
+  let
+    val all_modifiers  = PGTGG.get_all_modifiers state : PGTGG.modifiers;
+    val all_modifierss = map single all_modifiers |> Seq.of_list : PGTGG.modifiers Seq.seq;
+    val stttacs        = Seq.map (PGTGG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
+    type 'a stttac = 'a Dynamic_Utils.stttac;
+  in
+    stttacs : Proof.state stttac Seq.seq
+  end;
+
+end;
+
+(** Conjecture: The tactic generator for the PGT command, Conjecture. **)
+structure Conjecture : DYNAMIC_TACTIC =
+struct
+
+(* Generalize_Seed: The seed to make the tactic-generator for the conjecture method. *)
+structure Conjecture_Seed: DYNAMIC_TACTIC_GENERATOR_SEED =
+struct
+
+datatype modifier = GenGoal of string;
+
+type modifiers = modifier list;
+
+fun get_all_modifiers (state:Proof.state) =
+  let
+     val {context: Proof.context, facts: thm list, goal: thm} = Proof.goal state;
+     val conjecture_strs  = Proof_Goal_Transformer.conjecture_strs;
+     val conjecture_goals = conjecture_strs context goal: string list;
+     val modifiers        = map GenGoal conjecture_goals: modifiers;
+  in
+    modifiers
+  end;
+
+fun mods_to_string [GenGoal gen_goal] = gen_goal
+ |  mods_to_string _                  = error "Generalize_Seed failed!"
+
+val reordered_mods = single o I;
+
+end;
+
+(* PGTGG: Proof Goal Transformer Conjecture Generator . *)
+structure PGTCG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Conjecture_Seed);
+
+fun get_state_stttacs (state:Proof.state) =
+  let
+    val all_modifiers  = PGTCG.get_all_modifiers state : PGTCG.modifiers;
+    val all_modifierss = map single all_modifiers |> Seq.of_list : PGTCG.modifiers Seq.seq;
+    val stttacs        = Seq.map (PGTCG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
+    type 'a stttac = 'a Dynamic_Utils.stttac;
+  in
+    stttacs : Proof.state stttac Seq.seq
+  end;
+
+end;
+
 (** Dynamic_Tactic_Generation: body. **)
 type get_stttacs = Proof.state -> Proof.state Dynamic_Utils.stttac Seq.seq;
 val rule        = Dynamic_Rule.get_state_stttacs;
@@ -777,5 +867,7 @@ val clarsimp    = Dynamic_Clarsimp.get_state_stttacs;
 val blast       = Dynamic_Blast.get_state_stttacs;
 val fastforce   = Dynamic_Fastforce.get_state_stttacs;
 val auto        = Dynamic_Auto.get_state_stttacs;
+val generalize  = Generalize.get_state_stttacs;
+val conjecture  = Conjecture.get_state_stttacs;
 
 end;

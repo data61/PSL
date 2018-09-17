@@ -109,7 +109,7 @@ fun write_databases_for_all_lines _ =
     result
   end;
 
-fun preprocess _ = (print_all_meth_names (); write_databases_for_all_lines (); ());
+fun preprocess _ = ((*print_all_meth_names ();*) write_databases_for_all_lines (); ());
 
 end;
 *}

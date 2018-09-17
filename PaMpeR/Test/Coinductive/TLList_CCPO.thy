@@ -8,7 +8,7 @@ theory TLList_CCPO imports TLList begin
 
 lemma Set_is_empty_parametric [transfer_rule]:
   includes lifting_syntax
-  shows "(rel_set A ===> op =) Set.is_empty Set.is_empty"
+  shows "(rel_set A ===> (=)) Set.is_empty Set.is_empty"
 by(auto simp add: rel_fun_def Set.is_empty_def dest: rel_setD1 rel_setD2)
 
 lemma monotone_comp: "\<lbrakk> monotone orda ordb g; monotone ordb ordc f \<rbrakk> \<Longrightarrow> monotone orda ordc (f \<circ> g)"
@@ -31,27 +31,27 @@ begin
 
 lemma monotone_parametric [transfer_rule]:
   assumes [transfer_rule]: "bi_total A"
-  shows "((A ===> A ===> op =) ===> (B ===> B ===> op =) ===> (A ===> B) ===> op =) monotone monotone"
+  shows "((A ===> A ===> (=)) ===> (B ===> B ===> (=)) ===> (A ===> B) ===> (=)) monotone monotone"
 unfolding monotone_def[abs_def] by transfer_prover
 
 lemma cont_parametric [transfer_rule]:
   assumes [transfer_rule]: "bi_total A" "bi_unique B"
-  shows "((rel_set A ===> A) ===> (A ===> A ===> op =) ===> (rel_set B ===> B) ===> (B ===> B ===> op =) ===> (A ===> B) ===> op =) cont cont"
+  shows "((rel_set A ===> A) ===> (A ===> A ===> (=)) ===> (rel_set B ===> B) ===> (B ===> B ===> (=)) ===> (A ===> B) ===> (=)) cont cont"
 unfolding cont_def[abs_def] Set.is_empty_def[symmetric] by transfer_prover
 
 lemma mcont_parametric [transfer_rule]:
   assumes [transfer_rule]: "bi_total A" "bi_unique B"
-  shows "((rel_set A ===> A) ===> (A ===> A ===> op =) ===> (rel_set B ===> B) ===> (B ===> B ===> op =) ===> (A ===> B) ===> op =) mcont mcont"
+  shows "((rel_set A ===> A) ===> (A ===> A ===> (=)) ===> (rel_set B ===> B) ===> (B ===> B ===> (=)) ===> (A ===> B) ===> (=)) mcont mcont"
 unfolding mcont_def[abs_def] by transfer_prover
 
 end
 
 lemma (in ccpo) Sup_Un_less:
-  assumes chain: "Complete_Partial_Order.chain op \<le> (A \<union> B)"
+  assumes chain: "Complete_Partial_Order.chain (\<le>) (A \<union> B)"
   and AB: "\<forall>x\<in>A. \<exists>y\<in>B. x \<le> y"
   shows "Sup (A \<union> B) = Sup B"
 proof(rule antisym)
-  from chain have chain': "Complete_Partial_Order.chain op \<le> B"
+  from chain have chain': "Complete_Partial_Order.chain (\<le>) B"
     by(blast intro: chain_subset)
   show "Sup (A \<union> B) \<le> Sup B" using chain
   proof(rule ccpo_Sup_least)
@@ -239,7 +239,7 @@ done
 
 lemma ex_TCons_raw_parametric:
   includes lifting_syntax
-  shows "(rel_set (rel_prod (llist_all2 A) B) ===> op =) (\<lambda>Y. \<exists>(xs, b) \<in> Y. \<not> lnull xs) (\<lambda>Y. \<exists>(xs, b) \<in> Y. \<not> lnull xs)"
+  shows "(rel_set (rel_prod (llist_all2 A) B) ===> (=)) (\<lambda>Y. \<exists>(xs, b) \<in> Y. \<not> lnull xs) (\<lambda>Y. \<exists>(xs, b) \<in> Y. \<not> lnull xs)"
 by(auto 4 4 simp add: rel_fun_def dest: rel_setD1 rel_setD2 llist_all2_lnullD intro: rev_bexI)
 
 lift_definition ex_TCons :: "('a, 'b) tllist set \<Rightarrow> bool"
@@ -422,12 +422,12 @@ lifting_forget tllist.lifting
 lemmas [transfer_rule] = tllist_ord.transfer tSup.transfer
 
 lemma mono2mono_tset[THEN lfp.mono2mono, cont_intro]:
-  shows smonotone_tset: "monotone tllist_ord op \<subseteq> tset"
+  shows smonotone_tset: "monotone tllist_ord (\<subseteq>) tset"
 including tllist.lifting
 by transfer(rule monotone_comp[OF _ monotone_lset], auto intro: monotoneI)
 
 lemma mcont2mcont_tset [THEN lfp.mcont2mcont, cont_intro]:
-  shows mcont_tset: "mcont tSup tllist_ord Union op \<subseteq> tset"
+  shows mcont_tset: "mcont tSup tllist_ord Union (\<subseteq>) tset"
 including tllist.lifting
 apply transfer
 apply(rule mcont_comp[OF _ mcont_lset])
@@ -439,17 +439,17 @@ context includes lifting_syntax
 begin
 
 lemma rel_fun_lift:
-  "(\<And>x. A (f x) (g x)) \<Longrightarrow> (op = ===> A) f g"
+  "(\<And>x. A (f x) (g x)) \<Longrightarrow> ((=) ===> A) f g"
 by(simp add: rel_fun_def)
 
 lemma tllist_ord_transfer [transfer_rule]:
-  "(op = ===> pcr_tllist op = op = ===> pcr_tllist op = op = ===> op =)
+  "((=) ===> pcr_tllist (=) (=) ===> pcr_tllist (=) (=) ===> (=))
      (\<lambda>b (xs1, b1) (xs2, b2). if lfinite xs1 then b1 = b \<and> lprefix xs1 xs2 \<or> xs1 = xs2 \<and> flat_ord b b1 b2 else xs1 = xs2)
      tllist_ord"
 by(rule rel_fun_lift)(rule tllist_ord.transfer)
 
 lemma tSup_transfer [transfer_rule]:
-  "(op = ===> rel_set (pcr_tllist op = op =) ===> pcr_tllist op = op =)
+  "((=) ===> rel_set (pcr_tllist (=) (=)) ===> pcr_tllist (=) (=))
      (\<lambda>b A. (lSup (fst ` A), flat_lub b (snd ` (A \<inter> {(xs, _). lfinite xs}))))
      tSup"
 by(rule rel_fun_lift)(rule tSup.transfer)

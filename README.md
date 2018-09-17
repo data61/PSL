@@ -1,9 +1,13 @@
 - This branch **MiLkMaId** is a prototype of a new component to improve PSL's runtime tactic generation for mathematical induction using machine learning techniques. **MiLkMaId** stands for **M**achine **L**earning **M**athematical **I**nduction.
+- **This branch is under active development. Please use [release v0.1.1 PSL with PGT: CICM2018 for Isabelle2017](https://github.com/data61/PSL/releases/tag/v0.1.1), which is the latest stable version.**
+- **This branch is now compatible with Isabelle2018, the latest official release of Isabelle/HOL.**
+- **Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
+- **More information about PaMpeR is provided in PSL/PaMpeR/README.md.**
 
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for Isabelle2017. Note that Isabelle2016 and Isabelle2016-1 are no longer supported.
+**try_hard**, for Isabelle**2017**. Note that Isabelle2016 and Isabelle2016-1 are no longer supported. Furthermore, the latest version of Isabelle, Isabelle**2018**, is not supported yet.
 
 ## Installation
 1. Install [Isabelle2017](https://isabelle.in.tum.de/).
@@ -67,8 +71,13 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 
 *A6.* sledgehammer is good when you want to get a proof quickly, while try_hard is good when you have a longer time for proof search. [Our evaluation](https://arxiv.org/abs/1606.02941) shows that given 300 seconds of time-out for each proof goal try_hard solves 1115 proof goals out of 1526, while sledgehammer found proofs for 901 of them using the same computational resources and re-constructed proofs in Isabelle for 866 of them. This is a 14 percentage point improvement of proof search and a 16 percentage point increase for proof reconstruction. Moreover, 299 goals (20% of all goals) were solved only by try_hard within 300 seconds. try_hard is especially good at discharging proof obligations that can be nicely handled by by a) mathematical (co)induction, b) general simplification rules, or c) specialised tactics.
 
+*Q7.* What are *Generalize* and *Conjecture*? Which proof methods will PSL generate for these atomic strategies?
+
+*A7.* *Generalize* and *Conjecture* are new additions to PSL's atomic proof strategies. Given a proof obligation, *Generalize* attempts to create conjectures by generalizing the proof obligation in various ways and insert each of them as a subgoal of the original proof obligation. *Conjecture* works similarly to *Generalize*; However, *Conjecture* also tries to mutate the original proof obligation as well as generalization of the original obligation. *Generalize* and *Conjecture* are still experimental, and we do not have an evaulation results. The example file (PGT/Example.thy) contains an example of how it works. We attached a screenshot of this file in the following. For more details, please find our tool paper accepted at [11th Conference on Intelligent Computer Mathematics (CICM2018)](https://cicm-conference.org/2018/cicm.php).
+
 ## Documentations
 For more details, please read the paper [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) available at arXiv.org.
 
-## Screenshot
+## Screenshots
 ![Screenshot](./image/screen_shot_tall.png)
+![Screenshot](./image/screen_shot_pgt.png)

@@ -11,7 +11,7 @@ typedecl proc
 typedecl val
 
 locale Consensus
--- {* To avoid name clashes *}
+\<comment> \<open>To avoid name clashes\<close>
 begin
 
 fun \<delta>::"val option \<Rightarrow> (proc \<times> val) \<Rightarrow> val option" (infix "\<bullet>" 65) where
@@ -52,7 +52,7 @@ qed
 lemma prec_eq_None_or_equal:
 fixes s1 s2
 assumes "s1 \<preceq> s2"
-shows "s1 = None \<or> s1 = s2" assert_nth_false 44 using assms single_use
+shows "s1 = None \<or> s1 = s2" assert_nth_false 44 using assms single_use  
 proof -
   { assume 1:"s1 \<noteq> None" and 2:"s1 \<noteq> s2"
     obtain r rs where 3:"s1 = \<bottom> \<star> ([r]@rs)" using bot using 1

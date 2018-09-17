@@ -3,19 +3,19 @@
 section {* The SLin Automata specification*}
 
 theory SLin
-imports IOA RDR "../Assertion_Checker"
+imports IOA RDR
 begin
 
 datatype ('a,'b,'c,'d)SLin_action =
--- {* The nat component is the instance number *}
+\<comment> \<open>The nat component is the instance number\<close>
   Invoke nat 'b 'c
 | Response nat 'b 'd
 | Switch nat 'b 'c 'a
 | Recover nat
 | Linearize nat
-print_theorems find_theorems name:"SLin_action" name:"rec_transfer" name:"case"
-datatype SLin_status = Sleep | Pending | Ready | Aborted lemma "Sleep = Sleep" assert_nth_true 53 assert_nth_false 54 by simp
-print_theorems find_theorems name:"fun" name:"nchotomy"
+
+datatype SLin_status = Sleep | Pending | Ready | Aborted
+
 record ('a,'b,'c)SLin_state = 
   pending :: "'b \<Rightarrow> 'b \<times> 'c"
   initVals :: "'a set"
@@ -23,13 +23,13 @@ record ('a,'b,'c)SLin_state =
   status :: "'b \<Rightarrow> SLin_status"
   dstate :: 'a
   initialized :: bool
-print_theorems find_theorems name:"SLin_state" name:"_ext" name:"Rep" find_theorems name:"SLin_action.in_rel"
+
 locale SLin = RDR + IOA
 begin
 
 definition
   asig :: "nat \<Rightarrow> nat \<Rightarrow> ('a,'b,'c,'d)SLin_action signature" 
-  -- {* The first instance has number 0 *}
+  \<comment> \<open>The first instance has number 0\<close>
   where
   "asig i j \<equiv> \<lparr>
     inputs = {act . \<exists> p c iv i' .
@@ -142,7 +142,7 @@ definition ioa where
      \<lparr>ioa.asig = asig i j ,
       start = start i,
       trans = trans i j\<rparr>"
-print_theorems
+
 end
 
 end

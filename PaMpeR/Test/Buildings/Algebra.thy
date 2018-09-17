@@ -13,13 +13,13 @@ begin
 
 subsection {* Miscellaneous algebra facts *}
 
-lemma times2_conv_add: "(j::nat) + j = 2*j"assert_nth_true 50
+lemma times2_conv_add: "(j::nat) + j = 2*j" assert_nth_true 50
   by (induct j) auto
 
-lemma (in comm_semiring_1) odd_n0: "odd m \<Longrightarrow> m\<noteq>0"assert_nth_true 50
+lemma (in comm_semiring_1) odd_n0: "odd m \<Longrightarrow> m\<noteq>0" assert_nth_true 50
   using dvd_0_right by fast
 
-lemma (in semigroup_add) add_assoc4: "a + b + c + d = a + (b + c + d)"assert_nth_false 50
+lemma (in semigroup_add) add_assoc4: "a + b + c + d = a + (b + c + d)"
   using add.assoc by simp
 
 lemmas (in monoid_add) sum_list_map_cong =
@@ -27,12 +27,12 @@ lemmas (in monoid_add) sum_list_map_cong =
 
 context group_add
 begin
-term "1::int"
+
 lemma map_uminus_order2:
-  "\<forall>s\<in>set ss. s+s=0 \<Longrightarrow> map (uminus) ss = ss"assert_nth_false 43 assert_nth_true 14 assert_nth_true 50
+  "\<forall>s\<in>set ss. s+s=0 \<Longrightarrow> map (uminus) ss = ss" assert_nth_false 43 assert_nth_true 14 assert_nth_true 50
   by (induct ss) (auto simp add: minus_unique)
 
-lemma uminus_sum_list: "- sum_list as = sum_list (map uminus (rev as))"assert_nth_true 50 assert_nth_false 5
+lemma uminus_sum_list: "- sum_list as = sum_list (map uminus (rev as))" assert_nth_false 5 assert_nth_true 50
   by (induct as) (auto simp add: minus_add)
 
 lemma uminus_sum_list_order2:
@@ -53,9 +53,9 @@ text {*
 
 typedef 'a permutation = "{f::'a\<Rightarrow>'a. bij f}"
   morphisms permutation Abs_permutation
-  by fast print_theorems
+  by fast
 
-setup_lifting type_definition_permutation print_theorems
+setup_lifting type_definition_permutation
 
 abbreviation permutation_apply :: "'a permutation \<Rightarrow> 'a \<Rightarrow> 'a " (infixr "\<rightarrow>" 90)
   where "p \<rightarrow> a \<equiv> permutation p a"
@@ -143,8 +143,8 @@ context monoid_add
 begin
 
 sublocale nataction: power 0 plus .
-sublocale add_mult_translate: monoid_mult 0 plus ML_prf{* @{term class.monoid_mult} *} find_theorems name:"monoid_mult" name:"axiom" print_locales
-  which_method rank_method unfold_locales assert_nth_true 44 by unfold_locales (auto simp add: add.assoc)
+sublocale add_mult_translate: monoid_mult 0 plus which_method rank_method unfold_locales assert_nth_true 44
+  by unfold_locales (auto simp add: add.assoc)
 
 abbreviation nataction :: "'a \<Rightarrow> nat \<Rightarrow> 'a" (infix "+^" 80)
   where "a+^n  \<equiv> nataction.power a n"
@@ -277,16 +277,16 @@ begin
 primrec sums :: "'a list \<Rightarrow> 'a list"
   where
     "sums [] = [0]"
-  | "sums (x#xs) = 0 # map (op + x) (sums xs)"
+  | "sums (x#xs) = 0 # map ((+) x) (sums xs)"
 
-lemma length_sums: "length (sums xs) = Suc (length xs)"assert_nth_true 50 assert_nth_false 4
+lemma length_sums: "length (sums xs) = Suc (length xs)" assert_nth_true 50 assert_nth_false 4
   by (induct xs) auto
 
 lemma sums_snoc: "sums (xs@[x]) = sums xs @ [sum_list (xs@[x])]"
   by (induct xs) (auto simp add: add.assoc)
 
 lemma sums_append2:
-  "sums (xs@ys) = butlast (sums xs) @ map (op + (sum_list xs)) (sums ys)"
+  "sums (xs@ys) = butlast (sums xs) @ map ((+) (sum_list xs)) (sums ys)"
 proof (induct ys rule: rev_induct)
   case Nil show ?case by (cases xs rule: rev_cases) (auto simp add: sums_snoc)
 next
@@ -294,7 +294,7 @@ next
 qed
 
 lemma sums_Cons_conv_append_tl:
-  "sums (x#xs) = 0 # x # map (op + x) (tl (sums xs))" assert_nth_true 8
+  "sums (x#xs) = 0 # x # map ((+) x) (tl (sums xs))" assert_nth_true 8
   by (cases xs) auto
 
 lemma pullback_sums_map_middle2:
@@ -432,7 +432,7 @@ abbreviation lconjby :: "'a\<Rightarrow>'a\<Rightarrow>'a"
 abbreviation rconjby :: "'a\<Rightarrow>'a\<Rightarrow>'a"
   where "rconjby x y \<equiv> -x+y+x"
 
-lemma lconjby_add: "lconjby (x+y) z = lconjby x (lconjby y z)"assert_nth_true 27
+lemma lconjby_add: "lconjby (x+y) z = lconjby x (lconjby y z)" assert_nth_true 27
   by (auto simp add: algebra_simps)
 
 lemma rconjby_add: "rconjby (x+y) z = rconjby y (rconjby x z)"
@@ -519,7 +519,7 @@ primrec lconjseq :: "'a list \<Rightarrow> 'a list"
     "lconjseq []     = []"
   | "lconjseq (x#xs) = x # (map (lconjby x) (lconjseq xs))"
 
-lemma length_lconjseq: "length (lconjseq xs) = length xs" assert_nth_true 50
+lemma length_lconjseq: "length (lconjseq xs) = length xs"
   by (induct xs) auto
 
 lemma lconjseq_snoc: "lconjseq (xs@[x]) = lconjseq xs @ [lconjby (sum_list xs) x]"
@@ -636,8 +636,8 @@ type_synonym 'a signed = "'a\<times>bool"
 
 definition signed_funaction :: "('a\<Rightarrow>'a\<Rightarrow>'a) \<Rightarrow> 'a \<Rightarrow> 'a signed \<Rightarrow> 'a signed"
   where "signed_funaction f s x \<equiv> map_prod (f s) (\<lambda>b. b \<noteq> (fst x = s)) x"
-  -- {* so the sign of @{term x} is flipped precisely when its first component is equal to
-@{term s} *}
+  \<comment> \<open>so the sign of @{term x} is flipped precisely when its first component is equal to
+@{term s}\<close>
 
 context group_add
 begin
@@ -673,7 +673,7 @@ lemma signed_rconjaction_by_order2_eq_lconjaction:
         rconjby_order2_eq_lconjby[of s]
   by    auto
 
-lemma inj_signed_lconjaction: "inj (signed_lconjaction s)"assert_nth_false 27
+lemma inj_signed_lconjaction: "inj (signed_lconjaction s)" assert_nth_false 27
 proof (rule injI)
   fix x y assume 1: "signed_lconjaction s x = signed_lconjaction s y"
   moreover obtain a1 a2 :: 'a and b1 b2 :: bool
@@ -760,8 +760,8 @@ subsection {* Cosets *}
 subsubsection {* Basic facts *}
 
 lemma set_zero_plus' [simp]: "(0::'a::monoid_add) +o C = C"
--- {* lemma @{text "Set_Algebras.set_zero_plus"} is restricted to types of class
-@{class comm_monoid_add}; here is a version in @{class monoid_add}. *}
+\<comment> \<open>lemma @{text "Set_Algebras.set_zero_plus"} is restricted to types of class
+@{class comm_monoid_add}; here is a version in @{class monoid_add}.\<close>
   by (auto simp add: elt_set_plus_def)
 
 lemma lcoset_0: "(w::'a::monoid_add) +o 0 = {w}"
@@ -777,8 +777,8 @@ lemma lcoset_eq_reps_subset:
 lemma lcoset_eq_reps: "(a::'a::group_add) +o A = a +o B \<Longrightarrow> A = B"
   using lcoset_eq_reps_subset[of a A B] lcoset_eq_reps_subset[of a B A] by auto
 
-lemma lcoset_inj_on: "inj (op +o (a::'a::group_add))"
-  using lcoset_eq_reps inj_onI[of UNIV "op +o a"] by auto
+lemma lcoset_inj_on: "inj ((+o) (a::'a::group_add))"
+  using lcoset_eq_reps inj_onI[of UNIV "(+o) a"] by auto
 
 lemma lcoset_conv_set: "(a::'g::group_add) \<in> b +o A \<Longrightarrow> -b + a \<in> A"
   by (auto simp add: elt_set_plus_def)
@@ -787,21 +787,21 @@ subsubsection {* The supset order on cosets *}
 
 lemma supset_lbound_lcoset_shift:
   "supset_lbound_of X Y B \<Longrightarrow>
-    ordering.lbound_of (op \<supseteq>) (a +o X) (a +o Y) (a +o B)"
+    ordering.lbound_of (\<supseteq>) (a +o X) (a +o Y) (a +o B)"
   using ordering.lbound_of_def[OF supset_poset, of X Y B] 
   by    (fast intro: ordering.lbound_ofI supset_poset)
 
 lemma supset_glbound_in_of_lcoset_shift:
   fixes   P :: "'a::group_add set set"
   assumes "supset_glbound_in_of P X Y B"
-  shows   "supset_glbound_in_of (op +o a ` P) (a +o X) (a +o Y) (a +o B)"
+  shows   "supset_glbound_in_of ((+o) a ` P) (a +o X) (a +o Y) (a +o B)"
   using   ordering.glbound_in_ofD_in[OF supset_poset, OF assms]
           ordering.glbound_in_ofD_lbound[OF supset_poset, OF assms]
           supset_lbound_lcoset_shift[of X Y B a]
           supset_lbound_lcoset_shift[of "a +o X" "a +o Y" _ "-a"]
           ordering.glbound_in_ofD_glbound[OF supset_poset, OF assms]
           ordering.glbound_in_ofI[
-            OF supset_poset, of "a +o B" "op +o a ` P" "a +o X" "a +o Y"
+            OF supset_poset, of "a +o B" "(+o) a ` P" "a +o X" "a +o Y"
           ]
   by      (fastforce simp add: set_plus_rearrange2)
 
@@ -825,7 +825,7 @@ locale    Group =
   assumes nonempty   : "G \<noteq> {}"
   and     diff_closed: "\<And>g h. g \<in> G \<Longrightarrow> h \<in> G \<Longrightarrow> g - h \<in> G"
 begin
-print_theorems
+
 abbreviation Subgroup :: "'g set \<Rightarrow> bool"
   where "Subgroup H \<equiv> Group H \<and> H \<subseteq> G"
 
@@ -869,7 +869,7 @@ subsubsection {* Sets with a suitable binary operation *}
 
 text {*
   We have chosen to only consider groups in types of class @{class group_add} so that we can take
-  advantage of all the algebra lemmas already proven in @{theory Groups} in HOL, as well as
+  advantage of all the algebra lemmas already proven in @{theory HOL.Groups}, as well as
   constructs like @{const sum_list}. The following locale builds a bridge between this restricted
   view of groups and the usual notion of a binary operation on a set satisfying the group axioms,
   by constructing an injective map into type @{type permutation} (which is of class
@@ -912,9 +912,9 @@ abbreviation "G_perm g \<equiv> restrict1 (binop g) G"
 definition Abs_G_perm :: "'a \<Rightarrow> 'a permutation"
   where "Abs_G_perm g \<equiv> Abs_permutation (G_perm g)"
 
-abbreviation "\<pp> \<equiv> Abs_G_perm" -- {* the injection into type @{type permutation} *}
-abbreviation "\<ii>\<pp> \<equiv> the_inv_into G \<pp>" -- {* the reverse correspondence *}
-abbreviation "pG \<equiv> \<pp>`G" -- {* the resulting @{const Group} of type @{type permutation} *}
+abbreviation "\<pp> \<equiv> Abs_G_perm" \<comment> \<open>the injection into type @{type permutation}\<close>
+abbreviation "\<ii>\<pp> \<equiv> the_inv_into G \<pp>" \<comment> \<open>the reverse correspondence\<close>
+abbreviation "pG \<equiv> \<pp>`G" \<comment> \<open>the resulting @{const Group} of type @{type permutation}\<close>
 
 lemma G_perm_comp:
   "g\<in>G \<Longrightarrow> h\<in>G \<Longrightarrow> G_perm g \<circ> G_perm h = G_perm (binop g h)"
@@ -990,10 +990,10 @@ lemma Abs_G_perm_diff:
   using Abs_G_perm_def minus_permutation_abs_eq[OF bij_G_perm bij_G_perm]
         the_inv_G_perm G_perm_comp the_inverseD(1)
   by    simp
-declare[[ML_print_depth=300]]
-lemma Group: "Group pG"  ML_prf{* map #name  (Locale.pretty_locale_deps @{theory}) *}
-  using identity(1) Abs_G_perm_diff the_inverseD(1) closed find_theorems name:"Group" name:"axioms" name:"local." by unfold_locales auto
-term Algebra.Group
+
+lemma Group: "Group pG"
+  using identity(1) Abs_G_perm_diff the_inverseD(1) closed by unfold_locales auto
+
 lemma inj_on_\<pp>_G: "inj_on \<pp> G"
 proof (rule inj_onI)
   fix x y assume xy: "x\<in>G" "y\<in>G" "\<pp> x = \<pp> y"
@@ -1121,12 +1121,12 @@ subsubsection {* The @{const Group} generated by a set *}
 inductive_set genby :: "'a::group_add set \<Rightarrow> 'a set" ("\<langle>_\<rangle>")
   for S :: "'a set"
   where
-      genby_0_closed     : "0\<in>\<langle>S\<rangle>"  --{* just in case @{term S} is empty *}
+      genby_0_closed     : "0\<in>\<langle>S\<rangle>"  \<comment> \<open>just in case @{term S} is empty\<close>
     | genby_genset_closed: "s\<in>S \<Longrightarrow> s\<in>\<langle>S\<rangle>"
     | genby_diff_closed  : "w\<in>\<langle>S\<rangle> \<Longrightarrow> w'\<in>\<langle>S\<rangle> \<Longrightarrow> w - w' \<in> \<langle>S\<rangle>"
-print_theorems
+
 lemma genby_Group: "Group \<langle>S\<rangle>"
-  using genby_0_closed genby_diff_closed find_theorems name:"Group" name:"Algebra" name:"intro" by unfold_locales fast
+  using genby_0_closed genby_diff_closed by unfold_locales fast
 
 lemmas genby_uminus_closed             = Group.uminus_closed     [OF genby_Group]
 lemmas genby_add_closed                = Group.add_closed        [OF genby_Group]
@@ -1171,7 +1171,7 @@ next
   ultimately show "w - w' \<in> S_sum_lists" using S_sum_lists by fast
 qed
 
-lemma sum_list_lists_in_genby: "ss \<in> lists (S \<union> uminus ` S) \<Longrightarrow> sum_list ss \<in> \<langle>S\<rangle>" which_method
+lemma sum_list_lists_in_genby: "ss \<in> lists (S \<union> uminus ` S) \<Longrightarrow> sum_list ss \<in> \<langle>S\<rangle>"
 proof (induct ss)
   case Nil show ?case using genby_0_closed by simp
 next
@@ -1361,7 +1361,7 @@ end (* context UGroupHom *)
 
 lemma UGroupHomI:
   assumes "\<And>g g'. T (g + g') = T g + T g'"
-  shows   "UGroupHom T" find_theorems name:"UGroupHom" name:"" name:"axioms"
+  shows   "UGroupHom T"
   using   assms
   by      unfold_locales auto
 
@@ -1372,7 +1372,7 @@ locale GroupIso = GroupHom G T
 
 lemma (in GroupHom) isoI:
   assumes "\<And>k. k\<in>G \<Longrightarrow> T k = 0 \<Longrightarrow> k=0"
-  shows   "GroupIso G T" find_theorems name:".GroupIso." name:"" name:"axioms"
+  shows   "GroupIso G T"
 proof (unfold_locales, rule inj_onI)
   fix x y from assms show "\<lbrakk> x\<in>G; y\<in>G; T x = T y \<rbrakk> \<Longrightarrow> x = y"
     using im_diff diff_closed by force
@@ -1388,7 +1388,7 @@ abbreviation (in BinOpSetGroup) "lift_hom T \<equiv> restrict0 (T \<circ> \<ii>\
 lemma (in BinOpSetGroup) lift_hom:
   fixes T :: "'a \<Rightarrow> 'b::group_add"
   assumes "\<forall>g\<in>G. \<forall>h\<in>G. T (binop g h) = T g + T h"
-  shows   "GroupHom pG (lift_hom T)" find_theorems name:".GroupHom." name:"" name:"axioms" which_method
+  shows   "GroupHom pG (lift_hom T)"
 proof (intro_locales, rule Group, unfold_locales)
   from assms
     show  "\<And>x y. x\<in>pG \<Longrightarrow> y\<in>pG \<Longrightarrow>
@@ -1595,7 +1595,7 @@ abbreviation "quotient_set H \<equiv> G // LCoset_rel H"
 
 lemma BinOpSetGroup_normal_quotient:
   assumes "Subgroup H" "normal H"
-  shows   "BinOpSetGroup (quotient_set H) (op +) H"
+  shows   "BinOpSetGroup (quotient_set H) (+) H"
 proof
   from assms(1) have H0: "H = LCoset_rel H `` {0}"
     using trivial_LCoset by auto
@@ -1630,7 +1630,7 @@ proof
 qed (rule add.assoc)
 
 abbreviation "abs_lcoset_perm H \<equiv>
-                BinOpSetGroup.Abs_G_perm (quotient_set H) (op +)"
+                BinOpSetGroup.Abs_G_perm (quotient_set H) (+)"
 abbreviation "abs_lcoset_perm_lift H g \<equiv> abs_lcoset_perm H (LCoset_rel H `` {g})"
 abbreviation "abs_lcoset_perm_lift_arg_permutation g H \<equiv> abs_lcoset_perm_lift H g"
 
@@ -1654,7 +1654,7 @@ lemmas bij_lcoset_perm =
 
 lemma trivial_lcoset_perm:
   assumes "Subgroup H" "normal H" "h\<in>H"
-  shows   "restrict1 (op + (LCoset_rel H `` {h})) (quotient_set H) = id"
+  shows   "restrict1 ((+) (LCoset_rel H `` {h})) (quotient_set H) = id"
 proof (rule ext, simp, rule impI)
   fix x assume x: "x \<in> quotient_set H"
   then obtain k where k: "k\<in>G" "x = LCoset_rel H `` {k}"
@@ -1669,7 +1669,7 @@ proof (rule ext, simp, rule impI)
 qed
 
 definition quotient_group :: "'g set \<Rightarrow> 'g set permutation set" where
-  "quotient_group H \<equiv> BinOpSetGroup.pG (quotient_set H) (op +)"
+  "quotient_group H \<equiv> BinOpSetGroup.pG (quotient_set H) (+)"
 
 abbreviation "natural_quotient_hom H \<equiv> restrict0 (\<lambda>g. \<lceil>g|H\<rceil>) G"
 
@@ -1726,7 +1726,7 @@ lemma respects_Ker_lcosets: "H \<subseteq> Ker \<Longrightarrow> T respects (LCo
   by        (blast intro: congruentI)
 
 abbreviation "quotient_hom H \<equiv>
-  BinOpSetGroup.lift_hom (quotient_set H) (op +) (quotientfun T)"
+  BinOpSetGroup.lift_hom (quotient_set H) (+) (quotientfun T)"
 
 lemmas normal_subgroup_quotientfun_classrep_equality =
   quotientfun_classrep_equality[
@@ -1840,7 +1840,7 @@ function prappend_signed_list :: "'a signed list \<Rightarrow> 'a signed list \<
       | "prappend_signed_list (xs@[x]) (y#ys) = (
           if y = flip_signed x then prappend_signed_list xs ys else xs @ x # y # ys
         )" assert_nth_false 40 assert_nth_true 41
-  by (auto, rule two_prod_lists_cases_snoc_Cons) 
+  by (auto, rule two_prod_lists_cases_snoc_Cons)
   termination which_method assert_nth_true 40 by (relation "measure (\<lambda>(xs,ys). length xs + length ys)") auto
 
 lemma proper_prappend_signed_list:
@@ -1861,7 +1861,7 @@ proof (induct xs ys rule: list_induct2_snoc_Cons)
 qed auto
 
 lemma fully_prappend_signed_list:
-  "prappend_signed_list (rev (map flip_signed xs)) xs = []"which_method
+  "prappend_signed_list (rev (map flip_signed xs)) xs = []"
   by (induct xs) auto
 
 lemma prappend_signed_list_single_Cons:
@@ -1893,7 +1893,7 @@ qed simp
 lemma prappend_signed_list_assoc:
   "\<lbrakk> proper_signed_list xs; proper_signed_list ys; proper_signed_list zs \<rbrakk> \<Longrightarrow>
     prappend_signed_list (prappend_signed_list xs ys) zs =
-      prappend_signed_list xs (prappend_signed_list ys zs)" which_method
+      prappend_signed_list xs (prappend_signed_list ys zs)"
 proof (induct xs ys zs rule: list_induct3_snoc_Conssnoc_Cons_pairwise)
   case (snoc_single_Cons xs x y z zs)
   thus ?case
@@ -1987,10 +1987,10 @@ begin
 lift_definition minus_freeword :: "'a freeword \<Rightarrow> 'a freeword \<Rightarrow> 'a freeword"
   is "\<lambda>xs ys. prappend_signed_list xs (rev (map flip_signed ys))"
   using proper_rev_map_flip_signed proper_prappend_signed_list by fast
-instance which_method ..
+instance ..
 end
 
-instance freeword :: (type) semigroup_add which_method
+instance freeword :: (type) semigroup_add
 proof
   fix a b c :: "'a freeword" show "a + b + c = a + (b + c)"
     using prappend_signed_list_assoc[of "freeword a" "freeword b" "freeword c"]
@@ -2004,12 +2004,12 @@ proof
   show "a + 0 = a" by transfer simp
 qed
 
-instance freeword :: (type) group_add which_method
+instance freeword :: (type) group_add
 proof
   fix a b :: "'a freeword"
   show "- a + a = 0"
     using fully_prappend_signed_list[of "freeword a"] by transfer simp
-  show "a + - b = a - b" which_method  by transfer simp
+  show "a + - b = a - b" by transfer simp
 qed
 
 paragraph {* Basic algebra and transfer facts in the @{type freeword} type *}
@@ -2556,15 +2556,15 @@ text {*
 *}
 
 locale GroupByPresentation =
-  fixes   S :: "'a set"  -- {* the set of generators *}
-  and     P :: "'a signed list set" -- {* the set of relator words *}
+  fixes   S :: "'a set"  \<comment> \<open>the set of generators\<close>
+  and     P :: "'a signed list set" \<comment> \<open>the set of relator words\<close>
   assumes P_S: "ps\<in>P \<Longrightarrow> fst ` set ps \<subseteq> S"
   and     proper_P: "ps\<in>P \<Longrightarrow> proper_signed_list ps"
 begin
 
-abbreviation "P' \<equiv> Abs_freeword ` P" -- {* the set of relators *}
+abbreviation "P' \<equiv> Abs_freeword ` P" \<comment> \<open>the set of relators\<close>
 abbreviation "Q \<equiv> Group.normal_closure (FreeGroup S) P'"
--- {* the normal subgroup generated by relators inside the free group *}
+\<comment> \<open>the normal subgroup generated by relators inside the free group\<close>
 abbreviation "G \<equiv> Group.quotient_group (FreeGroup S) Q"
 
 lemmas G_UN = Group.quotient_group_UN[OF FreeGroup_Group, of S Q]
@@ -2608,7 +2608,7 @@ text {*
 
 locale GroupByPresentationInducedFun = GroupByPresentation S P
   for     S :: "'a set"
-  and     P :: "'a signed list set" -- {* the set of relator words *}
+  and     P :: "'a signed list set" \<comment> \<open>the set of relator words\<close>
 + fixes   f :: "'a \<Rightarrow> 'b::group_add"
   assumes lift_f_trivial_P:
     "ps\<in>P \<Longrightarrow> freeword_funlift f (Abs_freeword ps) = 0"
@@ -2619,8 +2619,8 @@ abbreviation "lift_f \<equiv> freeword_funlift f"
 definition induced_hom :: "'a freeword set permutation \<Rightarrow> 'b"
   where "induced_hom \<equiv> GroupHom.quotient_hom (FreeGroup S)
           (restrict0 lift_f (FreeGroup S)) Q"
-  -- {* the @{const restrict0} operation is really only necessary to make
-@{const GroupByPresentationInducedFun.induced_hom} a @{const GroupHom} *}
+  \<comment> \<open>the @{const restrict0} operation is really only necessary to make
+@{const GroupByPresentationInducedFun.induced_hom} a @{const GroupHom}\<close>
 abbreviation "F \<equiv> induced_hom"
 
 lemma lift_f_trivial_P': "p\<in>P' \<Longrightarrow> lift_f p = 0"
@@ -2652,11 +2652,9 @@ lemma restrict0_lift_f_Ker_Q:
 
 lemma induced_hom_equality:
   "w \<in> FreeGroup S \<Longrightarrow> F (\<lceil>FreeGroup S|w|Q\<rceil>) = lift_f w"
--- {* 
-  algebraic properties of the induced homomorphism could be proved using its properties as a group
+\<comment> \<open>algebraic properties of the induced homomorphism could be proved using its properties as a group
   homomorphism, but it's generally easier to prove them using the algebraic properties of the lift
-  via this lemma
-*}
+  via this lemma\<close>
   unfolding induced_hom_def
   using     GroupHom.quotient_hom_im hom_restrict0_freeword_funlift
             Q_subgroup_FreeS normal_Q restrict0_lift_f_Ker_Q
@@ -2743,8 +2741,8 @@ text {*
 *}
 
 locale GroupWithGeneratorsRelators =
-  fixes S :: "'g::group_add set" -- {* the set of generators *}
-  and   R :: "'g list set" -- {* the set of relator words *}
+  fixes S :: "'g::group_add set" \<comment> \<open>the set of generators\<close>
+  and   R :: "'g list set" \<comment> \<open>the set of relator words\<close>
   assumes relators: "rs\<in>R \<Longrightarrow> rs \<in> lists (S \<union> uminus ` S)"
                     "rs\<in>R \<Longrightarrow> sum_list rs = 0"
                     "rs\<in>R \<Longrightarrow> proper_signed_list (map (charpair S) rs)"
@@ -2755,7 +2753,7 @@ abbreviation "P' \<equiv> GroupByPresentation.P' P"
 abbreviation "Q \<equiv> GroupByPresentation.Q S P"
 abbreviation "G \<equiv> GroupByPresentation.G S P"
 abbreviation "relator_freeword rs \<equiv> Abs_freeword (map (charpair S) rs)"
--- {* this maps R onto P' *}
+\<comment> \<open>this maps R onto P'\<close>
 
 abbreviation "freeliftid \<equiv> freeword_funlift id"
 
@@ -2782,7 +2780,7 @@ lemma freeliftid_trivial_P: "ps\<in>P \<Longrightarrow> freeliftid (Abs_freeword
   using freeliftid_trivial_relator_freeword_R by fast
 
 lemma GroupByPresentationInducedFun_S_P_id:
-  "GroupByPresentationInducedFun S P id" which_method find_theorems name:"GroupByPresentationInducedFun"
+  "GroupByPresentationInducedFun S P id"
   by  (
         intro_locales, rule GroupByPresentation_S_P,
         unfold_locales, rule freeliftid_trivial_P
@@ -2835,8 +2833,8 @@ theorem induced_id_hom_surj: "GroupHom G induced_id" "induced_id ` G = \<langle>
 end (* context GroupWithGeneratorsRelators *)
 
 locale GroupPresentation = GroupWithGeneratorsRelators S R
-  for S :: "'g::group_add set" -- {* the set of generators *}
-  and R :: "'g list set" -- {* the set of relator words *}
+  for S :: "'g::group_add set" \<comment> \<open>the set of generators\<close>
+  and R :: "'g list set" \<comment> \<open>the set of relator words\<close>
 + assumes induced_id_inj: "inj_on induced_id G"
 begin
 
@@ -2870,7 +2868,7 @@ abbreviation "reduced_words_for A a \<equiv> Collect (reduced_word_for A a)"
 
 abbreviation reduced_letter_set :: "'a set \<Rightarrow> 'a \<Rightarrow> 'a set"
   where "reduced_letter_set A a \<equiv> \<Union>( set ` (reduced_words_for A a) )"
-  -- {* will be empty if @{term a} is not in the set generated by @{term A} *}
+  \<comment> \<open>will be empty if @{term a} is not in the set generated by @{term A}\<close>
 
 definition word_length :: "'a set \<Rightarrow> 'a \<Rightarrow> nat"
   where "word_length A a \<equiv> length (arg_min length (word_for A a))"

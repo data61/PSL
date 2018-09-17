@@ -142,9 +142,9 @@ theorem koenigslemma:
   shows "\<exists>xs \<in> paths graph. n \<in> lset xs \<and> \<not> lfinite xs \<and> ldistinct xs"
 proof(intro bexI conjI)
   let ?P = "\<lambda>(n, ns) n'. graph n n' \<and> infinite (reachable_via graph (- insert n (insert n' ns)) n') \<and> n' \<notin> insert n ns"
-  def LTL == "\<lambda>(n, ns). let n' = SOME n'. ?P (n, ns) n' in (n', insert n ns)"
-  def f == "unfold_llist (\<lambda>_. False) fst LTL"
-  def ns == "{} :: 'node set"
+  define LTL where "LTL = (\<lambda>(n, ns). let n' = SOME n'. ?P (n, ns) n' in (n', insert n ns))"
+  define f where "f = unfold_llist (\<lambda>_. False) fst LTL"
+  define ns :: "'node set" where "ns = {}"
 
   { fix n ns
     assume "infinite (reachable_via graph (- insert n ns) n)"

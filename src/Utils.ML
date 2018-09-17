@@ -281,6 +281,7 @@ sig
   val get_cnames_in_trm             : term -> string list;
   val get_outmost_cname             : term -> string option;
   val get_typ_names_in_trm          : term -> string list;
+  val get_consts_in_thm             : thm -> term list;
   val get_cnames_in_thm             : thm -> string list;
   val get_cnames_in_1st_subg        : thm -> string list;
   val get_abs_names_in_trm          : term -> string list;
@@ -315,6 +316,7 @@ fun fst_qualifier (lname:string) = Option.getOpt (lname |> Long_Name.explode |> 
 
 fun get_1st_subg (goal:thm) = (SOME o hd) (Thm.prems_of goal) handle Empty => NONE : term option;
 
+(*TODO: Double check if we should ignore the sub-term in Abs.*)
 fun flatten_trm (trm1 $ trm2) = flat [flatten_trm trm1, flatten_trm trm2]
   | flatten_trm trm = [trm];
 
@@ -327,6 +329,12 @@ fun get_trm_in Fst_Subg g = get_1st_subg g
   | get_trm_in Concl    g = try Thm.concl_of g: term option;
 
 fun get_cnames_in_trm (trm:term) = Term.add_const_names trm []: string list;
+
+fun get_consts_in_thm thm = thm
+  |> Thm.cprop_of
+  |> Thm.term_of
+  |> (fn trm:term => Term.add_consts trm [])
+  |> map Const;
 
 fun get_cnames_in_thm thm = thm
   |> Thm.cprop_of
@@ -469,7 +477,7 @@ val defer = defer_tac 1;
 fun is_in_Main (ctxt:Proof.context) (thm:thm) =
   let
     val this_thy          = Proof_Context.theory_of ctxt:theory;
-    val thy_names_in_main = Context.get_theory this_thy "Main"
+    val thy_names_in_main = Context.get_theory {long=false} this_thy "Main"
       |> Theory.ancestors_of
       |> map Context.theory_name:string list;
     fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;

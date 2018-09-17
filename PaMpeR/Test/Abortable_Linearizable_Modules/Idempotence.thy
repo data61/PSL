@@ -14,7 +14,7 @@ lemmas ids = id1 id2
 definition composition where
   "composition  \<equiv> 
      hide ((ioa 0 id1) \<parallel> (ioa id1 id2))
-          {act . EX p c av . act = Switch id1 p c av }"
+          {act . \<exists>p c av . act = Switch id1 p c av }"
 
 lemmas comp_simps = hide_def composition_def ioa_def par2_def is_trans_def
   start_def actions_def asig_def trans_def
@@ -165,9 +165,9 @@ fun P16 where
   "P16 (s1,s2) = (dstate s2 \<noteq> \<bottom> \<longrightarrow> initialized s2)"
 
 fun P17 where                                                         
--- {* For the Response1 case of the refinement proof, in case a response
+\<comment> \<open>For the Response1 case of the refinement proof, in case a response
   is produced in the first instance and the second instance is already
-  initialized *}
+  initialized\<close>
   "P17 (s1,s2) = (initialized s2 
     \<longrightarrow> (\<forall> p . 
       ((status s1 p = Ready 
@@ -633,7 +633,7 @@ next
       using 1 by (auto simp add:safeInits_def initSets_def)
         (metis equals0D less_eq_def)
     have 6:"\<Sqinter> (initVals s2) \<preceq> \<Sqinter> ivs" using 3 P13 4
-      by (metis P13.simps antimono) 
+      by (simp add: subset_imp) 
     have 7:"initVals s2 = initVals t2" using Reco2(1) by auto
     show "P12 (t1,t2)" using 2 5 6 7 
       by (metis P12.simps absorb2 coboundedI1)
@@ -1086,7 +1086,8 @@ next
           moreover 
           have "P13 (s1,s2)" using reach P13_invariant
             by (metis invariant_def)
-          ultimately show ?thesis using 2 3 antimono by simp
+          ultimately show ?thesis
+            using 2 3 by (simp add: subset_imp)
         qed
         show ?thesis using that 1 4 by simp
           (metis coboundedI2 less_eq_def orderE) 
@@ -1374,22 +1375,22 @@ theorem idempotence:
   shows "((composition) =<| (ioa 0 id2))"
 proof -
   have same_input_sig:"inp (composition) = inp (ioa 0 id2)" 
-    -- {*First we show that both automata have the same input and output signature*}
+    \<comment> \<open>First we show that both automata have the same input and output signature\<close>
       using  ids by auto
   moreover
   have same_output_sig:"out (composition) = out (ioa 0 id2)" 
-    -- {*Then we show that output signatures match*}
+    \<comment> \<open>Then we show that output signatures match\<close>
     using ids by auto
   moreover
   have "traces (composition) \<subseteq> traces (ioa 0 id2)"
-    -- {*Finally we show trace inclusion*}
+    \<comment> \<open>Finally we show trace inclusion\<close>
   proof - 
     have "ext (composition) = ext (ioa 0 id2)"  
-      -- {*First we show that they have the same external signature*}
+      \<comment> \<open>First we show that they have the same external signature\<close>
       using same_input_sig and same_output_sig by simp
     moreover
     have "is_ref_map f (composition) (ioa 0 id2)"
-      -- {*Then we show that @{text f_comp} is a refinement mapping*}
+      \<comment> \<open>Then we show that @{text f_comp} is a refinement mapping\<close>
     proof (auto simp only:is_ref_map_def)
       fix s1 s2
       assume 1:"(s1,s2) \<in> ioa.start (composition)"

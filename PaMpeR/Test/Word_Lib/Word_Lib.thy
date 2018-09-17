@@ -86,12 +86,17 @@ definition
 where
   "word_clz w \<equiv> length (takeWhile Not (to_bl w))"
 
+(* Count trailing zeros  *)
+definition
+  word_ctz :: "'a::len word \<Rightarrow> nat"
+where
+  "word_ctz w \<equiv> length (takeWhile Not (rev (to_bl w)))"
 
 definition
   word_log2 :: "'a::len word \<Rightarrow> nat"
 where
   "word_log2 (w::'a::len word) \<equiv> size w - 1 - word_clz w"
-  
+
 
 (* Bit population count. Equivalent of __builtin_popcount. *)
 definition
@@ -99,6 +104,18 @@ definition
 where
   "pop_count w \<equiv> length (filter id (to_bl w))"
 
+
+(* Sign extension from bit n *)
+
+definition
+  sign_extend :: "nat \<Rightarrow> 'a::len word \<Rightarrow> 'a word"
+where
+  "sign_extend n w \<equiv> if w !! n then w || ~~mask n else w && mask n"
+
+definition
+  sign_extended :: "nat \<Rightarrow> 'a::len word \<Rightarrow> bool"
+where
+  "sign_extended n w \<equiv> \<forall>i. n < i \<longrightarrow> i < size w \<longrightarrow> w !! i = w !! n"
 
 
 lemma ptr_add_0 [simp]:
@@ -113,13 +130,6 @@ lemma shiftl_power:
   done
 
 lemmas of_bl_reasoning = to_bl_use_of_bl of_bl_append
-
-(*TODO: delete, this will be in the Isabelle main distribution in future*)
-lemma bl_to_bin_lt2p_drop: "bl_to_bin bs < 2 ^ length (dropWhile Not bs)"
-  unfolding bl_to_bin_def
-proof(induction bs)
-  case(Cons b bs) with bl_to_bin_lt2p_aux[where w=1] show ?case by simp
-qed simp
 
 lemma uint_of_bl_is_bl_to_bin_drop:
   "length (dropWhile Not l) \<le> len_of TYPE('a) \<Longrightarrow> uint (of_bl l :: 'a::len word) = bl_to_bin l"
@@ -138,7 +148,7 @@ corollary uint_of_bl_is_bl_to_bin:
 
 
 lemma bin_to_bl_or:
-  "bin_to_bl n (a OR b) = map2 (op \<or>) (bin_to_bl n a) (bin_to_bl n b)"
+  "bin_to_bl n (a OR b) = map2 (\<or>) (bin_to_bl n a) (bin_to_bl n b)"
   using bl_or_aux_bin[where n=n and v=a and w=b and bs="[]" and cs="[]"]
   by simp
 
@@ -173,6 +183,10 @@ lemma and_mask:
 lemma AND_twice [simp]:
   "(w && m) && m = w && m"
   by (simp add: word_eqI)
+
+lemma word_combine_masks:
+  "w && m = z \<Longrightarrow> w && m' = z' \<Longrightarrow> w && (m || m') = (z || z')"
+  by (auto simp: word_eq_iff)
 
 lemma nth_w2p_same:
   "(2^n :: 'a :: len word) !! n = (n < len_of TYPE('a))"
@@ -241,6 +255,9 @@ lemma and_mask_arith:
 lemma mask_2pm1: "mask n = 2 ^ n - 1"
   by (simp add : mask_def)
 
+lemma word_and_mask_le_2pm1: "w && mask n \<le> 2 ^ n - 1"
+  by (simp add: mask_2pm1[symmetric] word_and_le1)
+
 lemma is_aligned_AND_less_0:
   "u && mask n = 0 \<Longrightarrow> v < 2^n \<Longrightarrow> u && v = 0"
   apply (drule less_mask_eq)
@@ -286,7 +303,7 @@ lemma shiftr_mask_le:
 
 lemmas shiftr_mask = order_refl [THEN shiftr_mask_le, simp]
 
-lemma word_leI: 
+lemma word_leI:
   "(\<And>n.  \<lbrakk>n < size (u::'a::len0 word); u !! n \<rbrakk> \<Longrightarrow> (v::'a::len0 word) !! n) \<Longrightarrow> u <= v"
   apply (rule xtr4)
    apply (rule word_and_le2)
@@ -333,6 +350,10 @@ lemma and_mask_eq_iff_shiftr_0:
 
 lemmas and_mask_eq_iff_le_mask = trans
   [OF and_mask_eq_iff_shiftr_0 le_mask_iff [THEN sym]]
+
+lemma mask_shiftl_decompose:
+  "mask m << n = mask (m + n) && ~~ mask n"
+  by (auto intro!: word_eqI simp: and_not_mask nth_shiftl nth_shiftr word_size)
 
 lemma one_bit_shiftl: "set_bit 0 n True = (1 :: 'a :: len word) << n"
   apply (rule word_eqI)
@@ -488,6 +509,13 @@ lemma word_and_max_word:
   shows "x = max_word \<Longrightarrow> a AND x = a"
   by simp
 
+(* Simplifying with word_and_max_word and max_word_def works for arbitrary word sizes,
+   but the conditional rewrite can be slow when combined with other common rewrites on
+   word expressions. If we are willing to limit our attention to common word sizes,
+   the following will usually be much faster. *)
+lemmas word_and_max_simps[simplified max_word_def, simplified] =
+  word_and_max[where 'a=8] word_and_max[where 'a=16] word_and_max[where 'a=32] word_and_max[where 'a=64]
+
 lemma word_and_1:
   fixes x::"'a::len word"
   shows "(x AND 1) = (if x!!0 then 1 else 0)"
@@ -540,10 +568,7 @@ lemma ucast_of_nat:
   apply (rule nat_int.Rep_eqD)
   apply (simp only: zmod_int)
   apply (rule mod_mod_cancel)
-  apply (subst zdvd_int[symmetric])
-  apply (rule le_imp_power_dvd)
-  apply (simp add: is_down_def target_size_def source_size_def word_size)
-  done
+  by (simp add: is_down le_imp_power_dvd)
 
 (* shortcut for some specific lengths *)
 lemma word_fixed_sint_1[simp]:
@@ -647,10 +672,10 @@ lemma to_bl_1:
 proof -
   have "to_bl (1 :: 'a::len word) = to_bl (mask 1 :: 'a::len word)"
     by (simp add: mask_def)
-  
+
   also have "\<dots> = replicate (len_of TYPE('a) - 1) False @ [True]"
     by (cases "len_of TYPE('a)"; clarsimp simp: to_bl_mask)
- 
+
   finally show ?thesis .
 qed
 

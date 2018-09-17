@@ -24,7 +24,7 @@ where [simp, code del]: "force xs = (case xs of LNil \<Rightarrow> None | LCons 
 
 code_datatype Lazy_llist
 
-declare -- {* Restore consistency in code equations between @{const partial_term_of} and @{const narrowing} for @{typ "'a llist"} *}
+declare \<comment> \<open>Restore consistency in code equations between @{const partial_term_of} and @{const narrowing} for @{typ "'a llist"}\<close>
    [[code drop: "partial_term_of :: _ llist itself => _"]]
 
 lemma partial_term_of_llist_code [code]:

@@ -17,6 +17,7 @@ test_code
   test_uint8 "test_uint8' = 0x12"
   test_uint
   test_casts test_casts' test_casts''
+  test_casts_uint test_casts_uint' test_casts_uint''
 in GHC
 
 subsection {* Test quickcheck narrowing *}

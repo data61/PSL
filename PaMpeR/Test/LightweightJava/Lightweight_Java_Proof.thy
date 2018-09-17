@@ -345,7 +345,7 @@ lemma lift_opts_map:
 by (induct cl_var_ty_list, auto)
 
 lemma m_in_list[rule_format]:
-  "(\<forall>x\<in>set meth_def_meth_list. case_prod (\<lambda>meth_def. op = (method_name_f meth_def)) x) \<and>
+  "(\<forall>x\<in>set meth_def_meth_list. case_prod (\<lambda>meth_def. (=) (method_name_f meth_def)) x) \<and>
    find_meth_def_in_list_f (map fst meth_def_meth_list) m = Some md \<longrightarrow>
        m \<in> snd ` set meth_def_meth_list"
 by (induct meth_def_meth_list, auto simp add: method_name_f_def split: meth_def.splits meth_sig.splits)
@@ -1019,7 +1019,7 @@ done
 lemma var_not_var'_x':
   "\<lbrakk>\<Gamma> (x_var var) = Some ty_var; L (x_var var) = Some v_var;
     \<forall>x\<in>set y_cl_var_var'_v_list. L (x_var ((\<lambda>(y, cl, var, var', v). var') x)) = None; L x' = None\<rbrakk>
-    \<Longrightarrow> (\<Gamma> ++ map_of (map (\<lambda>((y, cl, var, var', v), y', y). (x_var var', y)) (zip y_cl_var_var'_v_list y_ty_list)) ++ empty(x' \<mapsto> ty_x_d)) (x_var var) = Some ty_var"
+    \<Longrightarrow> (\<Gamma> ++ map_of (map (\<lambda>((y, cl, var, var', v), y', y). (x_var var', y)) (zip y_cl_var_var'_v_list y_ty_list)) ++ Map.empty(x' \<mapsto> ty_x_d)) (x_var var) = Some ty_var"
 apply(subgoal_tac "x_var var \<noteq> x'")
  apply(simp add: map_add_def)
  apply(subgoal_tac "map_of (map (\<lambda>((y, cl, var, var', v), y', y). (x_var var', y)) (zip y_cl_var_var'_v_list y_ty_list)) (x_var var) = None")
@@ -1139,7 +1139,7 @@ lemma subtypes_through_tr:
   "\<lbrakk>distinct (map (\<lambda>(cl, var, ty). var) cl_var_ty_list); distinct (map (\<lambda>(y, cl, var, var', v). var') y_cl_var_var'_v_list);
     x' \<notin> (\<lambda>(y, cl, var, var', v). x_var var') ` set y_cl_var_var'_v_list; map fst y_cl_var_var'_v_list = map fst y_ty_list;
     map (\<lambda>(cl, var, ty). ty) cl_var_ty_list = map snd y_ty_list; map (\<lambda>(y, cl, var, u). var) y_cl_var_var'_v_list = map (\<lambda>(cl, var, ty). var) cl_var_ty_list;
-    \<forall>x\<in>set y_y'_list. case_prod (\<lambda>y. op = (case if y = x_this then Some x' else map_of (map (\<lambda>(y, cl, var, var', v). (x_var var, x_var var')) y_cl_var_var'_v_list) y of
+    \<forall>x\<in>set y_y'_list. case_prod (\<lambda>y. (=) (case if y = x_this then Some x' else map_of (map (\<lambda>(y, cl, var, var', v). (x_var var, x_var var')) y_cl_var_var'_v_list) y of
                                        None \<Rightarrow> y | Some x' \<Rightarrow> x')) x;
     \<forall>x\<in>set y_ty_lista. (\<lambda>(y, ty). sty_option P (if y = x_this then Some ty_x_m else map_of (map (\<lambda>(cl, var, y). (x_var var, y)) cl_var_ty_list) y) (Some ty)) x;
     map fst y_y'_list = map fst y_ty_lista; (y, y') = y_y'_list ! i; (yy, ty) = y_ty_lista ! i; i < length y_y'_list; i < length y_ty_lista\<rbrakk> \<Longrightarrow>
@@ -1463,12 +1463,12 @@ apply(case_tac S)
 apply(clarsimp) apply(rename_tac s ss)
 apply(case_tac s)
 apply(erule_tac[1-7] wf_configE) apply(simp_all)
--- "block"
+\<comment> \<open>block\<close>
 apply(force intro: r_blockI[simplified])
--- "variable assignment"
+\<comment> \<open>variable assignment\<close>
 apply(clarsimp, erule wf_stmtE, simp_all, clarsimp)
 apply(frule type_to_val, simp) apply(clarify) apply(frule r_var_assignI) apply(force)
--- "field read"
+\<comment> \<open>field read\<close>
 apply(clarsimp, erule wf_stmtE, simp_all, clarsimp)
 apply(erule wf_varstateE)
 apply(drule_tac x = x in bspec, simp add: domI)
@@ -1478,7 +1478,7 @@ apply(erule wf_heapE) apply(drule_tac x = oid in bspec, simp add: domI) apply(cl
 apply(rename_tac x oid ty_x_s ty_x_d fields_oid fs)
 apply(frule no_field_hiding, simp+) apply(drule_tac x = f in bspec, simp) apply(clarsimp)
 apply(erule wf_objectE) apply(clarsimp, frule_tac H = H in r_field_readI, simp, force)+
--- "field write"
+\<comment> \<open>field write\<close>
 apply(clarsimp, erule wf_stmtE, simp_all, clarsimp)
 apply(erule wf_varstateE) apply(frule_tac x = x in bspec, simp add: domI)
 apply(erule wf_objectE) apply(clarsimp) apply(frule r_field_write_npeI) apply(force)
@@ -1487,7 +1487,7 @@ apply(drule_tac x = y in bspec, simp add: domI) apply(clarsimp)
 apply(erule sty_option.cases) apply(clarsimp split: option.splits)
 apply(erule wf_objectE) apply(clarsimp)
 apply(frule_tac H = H and y = y in r_field_writeI, simp, force)+
--- "conditional branch"
+\<comment> \<open>conditional branch\<close>
 apply(clarsimp, erule wf_stmtE, simp_all, clarsimp) apply(erule disjE)
 apply(frule type_to_val, simp, clarify) apply(case_tac "v = w")
 apply(frule_tac y = y in r_if_trueI, force+)
@@ -1495,7 +1495,7 @@ apply(frule_tac y = y in r_if_falseI, force+)
 apply(frule type_to_val, simp, clarify) apply(case_tac "v = w")
 apply(frule_tac y = y and v = w in r_if_trueI, force+)
 apply(frule_tac y = y and v = w in r_if_falseI, force+)
--- "object creation"
+\<comment> \<open>object creation\<close>
 apply(clarsimp, erule wf_stmtE, simp_all, clarsimp) apply(rename_tac cl ctx ty var)
 apply(erule sty_option.cases) apply(clarsimp) apply(rename_tac ty_cl ty_var)
 apply(simp add: is_sty_one_def split: option.splits) apply(rename_tac path)
@@ -1503,7 +1503,7 @@ apply(frule find_path_fields) apply(erule exE)
 apply(frule fresh_oid) apply(erule exE)
 apply(frule_tac H = H and L = L and var = var and s_list = ss and f_list = fs in r_newI[simplified])
 apply(clarsimp simp add: fields_f_def split: option.splits) apply(assumption) apply(simp) apply(force)
--- "method call"
+\<comment> \<open>method call\<close>
 apply(clarsimp, erule wf_stmtE, simp_all, clarsimp)
 apply(rename_tac ss y_ty_list x ty_x_s m ty_r_s var)
 apply(erule wf_varstateE) apply(frule_tac x = x in bspec, simp add: domI) apply(clarsimp)
@@ -1726,7 +1726,7 @@ apply(erule_tac Q = "\<forall>\<Gamma>'. \<Gamma> \<subseteq>\<^sub>m \<Gamma>' 
                     s_list)))" in contrapos_pp) apply(simp only: not_all)
 apply(rule_tac x = "\<Gamma> ++
                     map_of (map (\<lambda>((y, cl, var, var', v), (y', ty)). (x_var var', ty)) (zip y_cl_var_var'_v_list y_ty_list)) ++
-                    empty (x' \<mapsto> ty_def ctx dcl)" in exI)
+                    Map.empty (x' \<mapsto> ty_def ctx dcl)" in exI)
 apply(clarsimp split del: if_split) apply(rule)
  apply(clarsimp simp add: map_le_def split del: if_split) apply(rule sym)
  apply(rule_tac L = L and Pa = Pa and H = H in map_of_map_and_x) apply(assumption+) apply(simp add: not_dom_is_none) apply(erule wf_varstateE) apply(clarsimp)

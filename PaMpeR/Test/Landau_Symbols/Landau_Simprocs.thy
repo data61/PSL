@@ -7,7 +7,7 @@
 section {* Simplification procedures *}
 
 theory Landau_Simprocs
-imports Landau_Symbols_Definition Landau_Real_Products
+imports Landau_Real_Products
 begin
 
 subsection {* Simplification under Landau symbols *}
@@ -101,20 +101,47 @@ lemmas bigtheta_simps =
   landau_theta.cong_bigtheta[OF bigtheta_const_ln_powr]
 
 
+text \<open>
+  The following simproc attempts to cancel common factors in Landau symbols, i.\,e.\ in a
+  goal like $f(x) h(x) \in L(g(x) h(x))$, the common factor $h(x)$ will be cancelled. This only
+  works if the simproc can prove that $h(x)$ is eventually non-zero, for which it uses some
+  heuristics.
+\<close>
 simproc_setup landau_cancel_factor (
     "f \<in> o[F](g)" | "f \<in> O[F](g)" | "f \<in> \<omega>[F](g)" | "f \<in> \<Omega>[F](g)" | "f \<in> \<Theta>[F](g)"
   ) = {* K Landau.cancel_factor_simproc *}
 
+text \<open>
+  The next simproc attempts to cancel dominated summands from Landau symbols; e.\,g.\ $O(x + \ln x)$
+  is simplified to $O(x)$, since $\ln x \in o(x)$. This can be very slow on large terms, so it
+  is not enabled by default.
+\<close>
 simproc_setup simplify_landau_sum (
     "o[F](\<lambda>x. f x)" | "O[F](\<lambda>x. f x)" | "\<omega>[F](\<lambda>x. f x)" | "\<Omega>[F](\<lambda>x. f x)" | "\<Theta>[F](\<lambda>x. f x)" |
     "f \<in> o[F](g)" | "f \<in> O[F](g)" | "f \<in> \<omega>[F](g)" | "f \<in> \<Omega>[F](g)" | "f \<in> \<Theta>[F](g)"
   ) = {* K (Landau.lift_landau_simproc Landau.simplify_landau_sum_simproc) *}
-                                   
+
+
+text \<open>
+  This simproc attempts to simplify factors of an expression in a Landau symbol statement
+  independently from another, i.\,e.\ in something like $O(f(x) g(x)$, a simp rule that rewrites
+  $O(f(x))$ to $O(f'(x))$ will also rewrite $O(f(x) g(x))$ to $O(f'(x) g(x))$ without any further
+  setup.
+\<close>
 simproc_setup simplify_landau_product (
     "o[F](\<lambda>x. f x)" | "O[F](\<lambda>x. f x)" | "\<omega>[F](\<lambda>x. f x)" | "\<Omega>[F](\<lambda>x. f x)" | "\<Theta>[F](\<lambda>x. f x)" |
     "f \<in> o[F](g)" | "f \<in> O[F](g)" | "f \<in> \<omega>[F](g)" | "f \<in> \<Omega>[F](g)" | "f \<in> \<Theta>[F](g)"
   ) = {* K (Landau.lift_landau_simproc Landau.simplify_landau_product_simproc) *}
 
+text \<open>
+  Lastly, the next very specialised simproc can solve goals of the form 
+  $f(x) \in L(g(x))$ where $f$ and $g$ are real-valued functions consisting only of multiplications,
+  powers of $x$, and powers of iterated logarithms of $x$. This is done by rewriting both sides
+  into the form $x^a (\ln x)^b (\ln \ln x)^c$ etc.\ and then comparing the exponents
+  lexicographically.
+
+  Note that for historic reasons, this only works for $x\to\infty$.
+\<close>
 simproc_setup landau_real_prod (
     "(f :: real \<Rightarrow> real) \<in> o(g)" | "(f :: real \<Rightarrow> real) \<in> O(g)" |
     "(f :: real \<Rightarrow> real) \<in> \<omega>(g)" | "(f :: real \<Rightarrow> real) \<in> \<Omega>(g)" |
@@ -122,8 +149,14 @@ simproc_setup landau_real_prod (
   ) = {* K Landau.simplify_landau_real_prod_prop_simproc *}
 
 
-
 subsection {* Tests *}
+
+lemma asymp_equiv_plus_const_left: "(\<lambda>n. c + real n) \<sim>[at_top] (\<lambda>n. real n)"
+  by (subst asymp_equiv_add_left) (auto intro!: asymp_equiv_intros eventually_gt_at_top)
+
+lemma asymp_equiv_plus_const_right: "(\<lambda>n. real n + c) \<sim>[at_top] (\<lambda>n. real n)"
+  using asymp_equiv_plus_const_left[of c] by (simp add: add.commute)
+
 
 subsubsection {* Product simplification tests *}
 
@@ -174,9 +207,8 @@ lemma "\<Theta>(\<lambda>x::real. 2 * x powr 3 + x * x^2/ln x) = \<Theta>(\<lamb
 (* TODO: tweak simproc with size threshold *)
 lemma "\<Theta>(\<lambda>x::real. 2 * x powr 3 + x * x^2/ln x + 42 * x powr 9 + 213 * x powr 5 - 4 * x powr 7) = 
          \<Theta>(\<lambda>x::real. x ^ 3 + x / ln x * x powr (3/2) - 2*x powr 9)"
-  by simp
+  using [[landau_sum_limit = 5]] by simp
 
 lemma "(\<lambda>x::real. x + x * ln (3*x)) \<in> o(\<lambda>x::real. x^2 + ln (2*x) powr 3)" by simp
-
 
 end

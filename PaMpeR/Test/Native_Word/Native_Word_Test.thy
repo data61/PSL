@@ -5,7 +5,7 @@
 chapter {* Test cases *}
 
 theory Native_Word_Test imports
-  Uint64 Uint32 Uint16 Uint8 Uint Native_Cast
+  Uint64 Uint32 Uint16 Uint8 Uint Native_Cast_Uint
   "HOL-Library.Code_Test"
 begin
 
@@ -250,9 +250,9 @@ notation sshiftr_uint (infixl ">>>" 55)
 
 definition "test_uint \<equiv> let 
   test_list1 = (let
-      HS = uint_of_int ((2^(dflt_size - 1)))
+      HS = uint_of_int (2 ^ (dflt_size - 1))
     in
-      ([ HS+HS+1, -1, -HS - HS + 5, HS + (HS - 1), 0x12
+      ([ HS + HS + 1, -1, -HS - HS + 5, HS + (HS - 1), 0x12
       , 0x5A AND 0x36
       , 0x5A OR 0x36
       , 0x5A XOR 0x36
@@ -271,7 +271,7 @@ definition "test_uint \<equiv> let
     else []) :: uint list));
   
   test_list2 = (let 
-      S=wivs_shift 
+      S = wivs_shift 
     in 
       ([ 1, -1, -S + 5, S - 1, 0x12
       , 0x5A AND 0x36
@@ -288,7 +288,7 @@ definition "test_uint \<equiv> let
       , 5, 5, -5, -5
       , 4, -8, 0, 1
       , 3, (S >> 3) - 1, 0, 0
-      , 3, (S>>1) + (S >> 1) - 1, 0, -1] 
+      , 3, (S >> 1) + (S >> 1) - 1, 0, -1] 
     else []) :: int list));
 
   test_list_c1 = (let
@@ -318,7 +318,7 @@ export_code test_uint checking SML Haskell? OCaml? Scala
 
 lemma "test_uint"
 quickcheck[exhaustive, expect=no_counterexample]
-oops -- "FIXME: prove correctness of test by reflective means (not yet supported)"
+oops \<comment> \<open>FIXME: prove correctness of test by reflective means (not yet supported)\<close>
 
 lemma "x AND y = x OR (y :: uint)"
 quickcheck[random, expect=counterexample]
@@ -421,8 +421,6 @@ section {* Tests for casts *}
 
 definition test_casts :: bool
 where "test_casts \<longleftrightarrow>
-  map uint8_of_char [CHR ''a'', 0, char_of_nat 255] = [97, 0, 255] \<and>
-  map char_of_uint8 [65, 0, 255] = [CHR ''A'', 0, char_of_nat 255] \<and>
   map uint8_of_uint32 [10, 0, 0xFE, 0xFFFFFFFF] = [10, 0, 0xFE, 0xFF] \<and>
   map uint8_of_uint64 [10, 0, 0xFE, 0xFFFFFFFFFFFFFFFF] = [10, 0, 0xFE, 0xFF] \<and>
   map uint32_of_uint8 [10, 0, 0xFF] = [10, 0, 0xFF] \<and>
@@ -442,7 +440,6 @@ where "test_casts'' \<longleftrightarrow>
   map uint32_of_uint64 [10, 0, 0xFFFFFFFE, 0xFFFFFFFFFFFFFFFF] = [10, 0, 0xFFFFFFFE, 0xFFFFFFFF] \<and>
   map uint64_of_uint32 [10, 0, 0xFFFFFFFF] = [10, 0, 0xFFFFFFFF]"
 
-
 export_code test_casts test_casts'' checking SML Haskell? Scala
 export_code test_casts'' checking OCaml?
 export_code test_casts' checking Haskell? Scala
@@ -461,5 +458,26 @@ ML {*
   val true = @{code test_casts}
   val true = @{code test_casts''}
 *}
+
+definition test_casts_uint :: bool where
+  "test_casts_uint \<longleftrightarrow>
+  map uint_of_uint32 ([0, 10] @ (if dflt_size < 32 then [1 << (dflt_size - 1), 0xFFFFFFFF] else [0xFFFFFFFF])) = 
+  [0, 10] @ (if dflt_size < 32 then [1 << (dflt_size - 1), (1 << dflt_size) - 1] else [0xFFFFFFFF]) \<and>
+  map uint32_of_uint [0, 10, if dflt_size < 32 then 1 << (dflt_size - 1) else 0xFFFFFFFF] =
+  [0, 10, if dflt_size < 32 then 1 << (dflt_size - 1) else 0xFFFFFFFF] \<and>
+  map uint_of_uint64 [0, 10, 1 << (dflt_size - 1), 0xFFFFFFFFFFFFFFFF] =
+  [0, 10, 1 << (dflt_size - 1), (1 << dflt_size) - 1] \<and>
+  map uint64_of_uint [0, 10, 1 << (dflt_size - 1)] =
+  [0, 10, 1 << (dflt_size - 1)]"
+
+definition test_casts_uint' :: bool where
+  "test_casts_uint' \<longleftrightarrow>
+  map uint_of_uint16 [0, 10, 0xFFFF] = [0, 10, 0xFFFF] \<and>
+  map uint16_of_uint [0, 10, 0xFFFF] = [0, 10, 0xFFFF]"
+
+definition test_casts_uint'' :: bool where
+  "test_casts_uint'' \<longleftrightarrow>
+  map uint_of_uint8 [0, 10, 0xFF] = [0, 10, 0xFF] \<and>
+  map uint8_of_uint [0, 10, 0xFF] = [0, 10, 0xFF]"
 
 end

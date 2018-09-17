@@ -4,19 +4,6 @@ session Coinductive (AFP) = "HOL-Computational_Algebra" +
   options [timeout = 600]
   sessions
     "HOL-Analysis"
-  theories [document = false]
-    "HOL-Library.Stream"
-    "HOL-Library.Extended_Nat"
-    "HOL-Library.Infinite_Set"
-    "HOL-Library.Lattice_Syntax"
-    "HOL-Library.Old_Datatype"
-    "HOL-Library.Prefix_Order"
-    "HOL-Library.Quotient_List"
-    "HOL-Library.Quotient_Set"
-    "HOL-Library.Quotient_Sum"
-    "HOL-Library.Simps_Case_Conv"
-    "HOL-Analysis.Extended_Real_Limits"
-    "HOL-Computational_Algebra.Primes"
   theories
     Coinductive
     Lazy_TLList

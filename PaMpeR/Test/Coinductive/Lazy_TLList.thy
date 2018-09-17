@@ -24,7 +24,7 @@ where [simp, code del]: "force xs = (case xs of TNil b \<Rightarrow> Inr b | TCo
 
 code_datatype Lazy_tllist
 
-declare -- {* Restore consistency in code equations between @{const partial_term_of} and @{const narrowing} for @{typ "('a, 'b) tllist"} *}
+declare \<comment> \<open>Restore consistency in code equations between @{const partial_term_of} and @{const narrowing} for @{typ "('a, 'b) tllist"}\<close>
    [[code drop: "partial_term_of :: (_, _) tllist itself => _"]]
 
 lemma partial_term_of_tllist_code [code]:

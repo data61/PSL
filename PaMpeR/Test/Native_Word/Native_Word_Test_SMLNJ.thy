@@ -15,6 +15,8 @@ test_code
   test_uint
   test_casts
   test_casts''
+  test_casts_uint
+  test_casts_uint''
 in SMLNJ
 
 text {* SMLNJ provides a \texttt{Word64} structure. To test it in the
@@ -34,7 +36,9 @@ test_code
   test_uint
   \<comment> \<open>The cast operations for @{typ uint64} use \texttt{Word64.fromLarge} and
       \texttt{Word64.toLarge}, which are unimplemented in SMLNJ's \texttt{Word64} structure.\<close>
-  (* test_casts test_casts'' *)
+  (* test_casts test_casts'' 
+  test_casts_uint *)
+  test_casts_uint''
 in SMLNJ_word
 
 end

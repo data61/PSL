@@ -32,6 +32,7 @@ end
 consts dflt_size_aux :: "nat"
 specification (dflt_size_aux) dflt_size_aux_g0: "dflt_size_aux > 0"
   by auto
+hide_fact dflt_size_aux_def
 
 instantiation dflt_size :: len begin
 definition "len_of_dflt_size (_ :: dflt_size itself) \<equiv> dflt_size_aux"
@@ -43,7 +44,7 @@ abbreviation "dflt_size \<equiv> len_of (TYPE (dflt_size))"
 context includes integer.lifting begin
 lift_definition dflt_size_integer :: integer is "int dflt_size" .
 declare dflt_size_integer_def[code del]
-  -- "The code generator will substitute a machine-dependent value for this constant"
+  \<comment> \<open>The code generator will substitute a machine-dependent value for this constant\<close>
 
 lemma dflt_size_by_int[code]: "dflt_size = nat_of_integer dflt_size_integer"
 by transfer simp
@@ -72,18 +73,18 @@ declare Quotient_uint[transfer_rule]
 instantiation uint :: "{neg_numeral, modulo, comm_monoid_mult, comm_ring}" begin
 lift_definition zero_uint :: uint is "0 :: dflt_size word" .
 lift_definition one_uint :: uint is "1" .
-lift_definition plus_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "op + :: dflt_size word \<Rightarrow> _" .
-lift_definition minus_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "op -" .
+lift_definition plus_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "(+) :: dflt_size word \<Rightarrow> _" .
+lift_definition minus_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "(-)" .
 lift_definition uminus_uint :: "uint \<Rightarrow> uint" is uminus .
-lift_definition times_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "op *" .
-lift_definition divide_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "op div" .
-lift_definition modulo_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "op mod" .
+lift_definition times_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "( * )" .
+lift_definition divide_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "(div)" .
+lift_definition modulo_uint :: "uint \<Rightarrow> uint \<Rightarrow> uint" is "(mod)" .
 instance by standard (transfer, simp add: algebra_simps)+
 end
 
 instantiation uint :: linorder begin
-lift_definition less_uint :: "uint \<Rightarrow> uint \<Rightarrow> bool" is "op <" .
-lift_definition less_eq_uint :: "uint \<Rightarrow> uint \<Rightarrow> bool" is "op \<le>" .
+lift_definition less_uint :: "uint \<Rightarrow> uint \<Rightarrow> bool" is "(<)" .
+lift_definition less_eq_uint :: "uint \<Rightarrow> uint \<Rightarrow> bool" is "(\<le>)" .
 instance by standard (transfer, simp add: less_le_not_le linear)+
 end
 
@@ -125,7 +126,7 @@ lift_definition sshiftr_uint :: "uint \<Rightarrow> nat \<Rightarrow> uint" (inf
 lift_definition uint_of_int :: "int \<Rightarrow> uint" is "word_of_int" .
 
 lemma of_bool_integer_transfer [transfer_rule]:
-  "(rel_fun op = pcr_integer) of_bool of_bool"
+  "(rel_fun (=) pcr_integer) of_bool of_bool"
 by(auto simp add: integer.pcr_cr_eq cr_integer_def split: bit.split)
 
 text {* Use pretty numerals from integer for pretty printing *}
@@ -138,7 +139,7 @@ lemma Rep_uint_numeral [simp]: "Rep_uint (numeral n) = numeral n"
 by(induction n)(simp_all add: one_uint_def Abs_uint_inverse numeral.simps plus_uint_def)
 
 lemma numeral_uint_transfer [transfer_rule]:
-  "(rel_fun op = cr_uint) numeral numeral"
+  "(rel_fun (=) cr_uint) numeral numeral"
 by(auto simp add: cr_uint_def)
 
 lemma numeral_uint [code_unfold]: "numeral n = Uint (numeral n)"
@@ -248,12 +249,19 @@ code_printing code_module "Uint" \<rightharpoonup> (OCaml)
   val shiftr : t -> Big_int.big_int -> t
   val shiftr_signed : t -> Big_int.big_int -> t
   val test_bit : t -> Big_int.big_int -> bool
+  val int_mask : int
+  val int32_mask : int32
+  val int64_mask : int64
 end = struct
 
 type t = int
 
-let dflt_size = Big_int.big_int_of_int (
-  let rec f n = if n=0 then 0 else f (n / 2) + 1 in f min_int);;
+(* Can be replaced with Sys.int_size in OCaml 4.03.0 *)
+let dflt_size_int = 
+  let rec f n = if n=0 then 0 else f (n / 2) + 1 
+  in f min_int;;
+
+let dflt_size = Big_int.big_int_of_int dflt_size_int;;
 
 (* negative numbers have their highest bit set, 
    so they are greater than positive ones *)
@@ -279,6 +287,17 @@ let shiftr x n = x lsr (Big_int.int_of_big_int n);;
 let shiftr_signed x n = x asr (Big_int.int_of_big_int n);;
 
 let test_bit x n = x land (1 lsl (Big_int.int_of_big_int n)) <> 0;;
+
+let int_mask =
+  if dflt_size_int < 32 then lnot 0 else 0xFFFFFFFF;;
+
+let int32_mask = 
+  if dflt_size_int < 32 then Int32.pred (Int32.shift_left Int32.one dflt_size_int) 
+  else Int32.of_string "0xFFFFFFFF";;
+
+let int64_mask = 
+  if dflt_size_int < 64 then Int64.pred (Int64.shift_left Int64.one dflt_size_int) 
+  else Int64.of_string "0xFFFFFFFFFFFFFFFF";;
 
 end;; (*struct Uint*)*}
 code_reserved OCaml Uint
@@ -315,49 +334,43 @@ code_reserved Scala Uint
 
 
 text {*
-  OCaml's conversion from Big\_int to int demands that the value fits int a signed integer.
+  OCaml's conversion from Big\_int to int demands that the value fits into a signed integer.
   The following justifies the implementation.
 *}
 
 context includes integer.lifting begin
-definition wivs_mask :: int where "wivs_mask == (2^(dflt_size) - 1)"
+definition wivs_mask :: int where "wivs_mask = 2^ dflt_size - 1"
 lift_definition wivs_mask_integer :: integer is wivs_mask .
-lemma [code]: "wivs_mask_integer = (2^dflt_size) - 1"
+lemma [code]: "wivs_mask_integer = 2 ^ dflt_size - 1"
   by transfer (simp add: wivs_mask_def)
 
-definition wivs_shift :: int where "wivs_shift == (2^(dflt_size))"
+definition wivs_shift :: int where "wivs_shift = 2 ^ dflt_size"
 lift_definition wivs_shift_integer :: integer is wivs_shift .
-lemma [code]: "wivs_shift_integer = (2^dflt_size)"
+lemma [code]: "wivs_shift_integer = 2 ^ dflt_size"
   by transfer (simp add: wivs_shift_def)
 
 definition wivs_index :: nat where "wivs_index == dflt_size - 1"
 lift_definition wivs_index_integer :: integer is "int wivs_index".
 lemma wivs_index_integer_code[code]: "wivs_index_integer = dflt_size_integer - 1"
-  apply transfer apply (simp add: wivs_index_def)
-  by (metis One_nat_def add_diff_cancel2 dflt_size(1) diff_Suc_1 
-    less_nat_zero_code nat.exhaust of_nat_Suc)
+  by transfer (simp add: wivs_index_def of_nat_diff)
 
-definition wivs_overflow :: int where "wivs_overflow == (2^(dflt_size - 1))"
+definition wivs_overflow :: int where "wivs_overflow == 2^ (dflt_size - 1)"
 lift_definition wivs_overflow_integer :: integer is wivs_overflow .
-lemma [code]: "wivs_overflow_integer = (2^(dflt_size - 1))"
+lemma [code]: "wivs_overflow_integer = 2 ^ (dflt_size - 1)"
   by transfer (simp add: wivs_overflow_def)
 
 definition wivs_least :: int where "wivs_least == - wivs_overflow"
 lift_definition wivs_least_integer :: integer is wivs_least .
-lemma [code]: "wivs_least_integer = - (2^(dflt_size - 1))"
+lemma [code]: "wivs_least_integer = - (2 ^ (dflt_size - 1))"
   by transfer (simp add: wivs_overflow_def wivs_least_def)
 
-definition Uint_signed :: "integer \<Rightarrow> uint" 
-where "Uint_signed i = (if i < wivs_least_integer 
-  \<or> wivs_overflow_integer \<le> i then undefined Uint i else Uint i)"
+definition Uint_signed :: "integer \<Rightarrow> uint" where
+  "Uint_signed i = (if i < wivs_least_integer \<or> wivs_overflow_integer \<le> i then undefined Uint i else Uint i)"
 
 lemma Uint_code [code]:
   "Uint i = 
-  (let i' = i AND wivs_mask_integer
-   in 
-     if i' !! wivs_index then 
-       Uint_signed (i' - wivs_shift_integer) 
-     else Uint_signed i')"
+  (let i' = i AND wivs_mask_integer in 
+   if i' !! wivs_index then Uint_signed (i' - wivs_shift_integer) else Uint_signed i')"
   including undefined_transfer 
   unfolding Uint_signed_def
   apply transfer
@@ -389,6 +402,12 @@ definition Rep_uint' where [simp]: "Rep_uint' = Rep_uint"
 
 lemma Rep_uint'_code [code]: "Rep_uint' x = (BITS n. x !! n)"
 unfolding Rep_uint'_def by transfer simp
+
+lift_definition Abs_uint' :: "dflt_size word \<Rightarrow> uint" is "\<lambda>x :: dflt_size word. x" .
+
+lemma Abs_uint'_code [code]:
+  "Abs_uint' x = Uint (integer_of_int (uint x))"
+including integer.lifting by transfer simp
 
 declare [[code drop: "term_of_class.term_of :: uint \<Rightarrow> _"]]
 
@@ -525,7 +544,7 @@ code_printing
 
 definition uint_divmod :: "uint \<Rightarrow> uint \<Rightarrow> uint \<times> uint" where
   "uint_divmod x y = 
-  (if y = 0 then (undefined (op div :: uint \<Rightarrow> _) x (0 :: uint), undefined (op mod :: uint \<Rightarrow> _) x (0 :: uint)) 
+  (if y = 0 then (undefined ((div) :: uint \<Rightarrow> _) x (0 :: uint), undefined ((mod) :: uint \<Rightarrow> _) x (0 :: uint)) 
   else (x div y, x mod y))"
 
 definition uint_div :: "uint \<Rightarrow> uint \<Rightarrow> uint" 
@@ -545,15 +564,15 @@ by transfer(simp add: word_mod_def)
 definition uint_sdiv :: "uint \<Rightarrow> uint \<Rightarrow> uint"
 where [code del]:
   "uint_sdiv x y =
-   (if y = 0 then undefined (op div :: uint \<Rightarrow> _) x (0 :: uint)
+   (if y = 0 then undefined ((div) :: uint \<Rightarrow> _) x (0 :: uint)
     else Abs_uint (Rep_uint x sdiv Rep_uint y))"
 
 definition div0_uint :: "uint \<Rightarrow> uint"
-where [code del]: "div0_uint x = undefined (op div :: uint \<Rightarrow> _) x (0 :: uint)"
+where [code del]: "div0_uint x = undefined ((div) :: uint \<Rightarrow> _) x (0 :: uint)"
 declare [[code abort: div0_uint]]
 
 definition mod0_uint :: "uint \<Rightarrow> uint"
-where [code del]: "mod0_uint x = undefined (op mod :: uint \<Rightarrow> _) x (0 :: uint)"
+where [code del]: "mod0_uint x = undefined ((mod) :: uint \<Rightarrow> _) x (0 :: uint)"
 declare [[code abort: mod0_uint]]
 
 definition wivs_overflow_uint :: uint 
@@ -583,7 +602,7 @@ lemma uint_divmod_code [code]:
 
 lemma uint_sdiv_code [code abstract]:
   "Rep_uint (uint_sdiv x y) =
-   (if y = 0 then Rep_uint (undefined (op div :: uint \<Rightarrow> _) x (0 :: uint))
+   (if y = 0 then Rep_uint (undefined ((div) :: uint \<Rightarrow> _) x (0 :: uint))
     else Rep_uint x sdiv Rep_uint y)"
 unfolding uint_sdiv_def by(simp add: Abs_uint_inverse)
 

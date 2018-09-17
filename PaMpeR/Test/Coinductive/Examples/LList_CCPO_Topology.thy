@@ -142,7 +142,7 @@ lemma ldistinct_closure: "{xs. ldistinct xs} = closure {xs. lfinite xs \<and> ld
   by (rule closure_eq_lfinite[OF closed_ldistinct ldistinct_lprefix])
 
 lemma closed_ldistinct': "(\<And>x. isCont f x) \<Longrightarrow> closed {xs. ldistinct (f xs)}"
-  using continuous_closed_preimage_univ[of _ f, OF closed_ldistinct] by auto
+  using continuous_closed_vimage[of _ f, OF closed_ldistinct] by auto
 
 lemma closed_lsorted: "closed {xs. lsorted xs}"
   unfolding closed_ccpo by (auto simp: lsorted_lSup Sup_llist_def subset_eq)
@@ -151,7 +151,7 @@ lemma lsorted_closure: "{xs. lsorted xs} = closure {xs. lfinite xs \<and> lsorte
   by (rule closure_eq_lfinite[OF closed_lsorted lsorted_lprefixD])
 
 lemma closed_lsorted': "(\<And>x. isCont f x) \<Longrightarrow> closed {xs. lsorted (f xs)}"
-  using continuous_closed_preimage_univ[of _ f, OF closed_lsorted] by auto
+  using continuous_closed_vimage[of _ f, OF closed_lsorted] by auto
 
 lemma closed_in_lset: "closed {l. x \<in> lset l}"
   unfolding closed_ccpo by (auto simp add: subset_eq lset_lSup Sup_llist_def)
@@ -191,8 +191,7 @@ lemma closed_list_all2:
   fixes f g :: "'b::t2_space \<Rightarrow> 'a llist"
   assumes f: "\<And>x. isCont f x" and g: "\<And>x. isCont g x"
   shows "closed {x. llist_all2 R (f x) (g x)}"
-  using  isCont_closed_vimage[OF isCont_Pair[OF f g] closed_llist_all2, of R]
-  by simp
+  using  continuous_closed_vimage[OF closed_llist_all2  isCont_Pair[OF f g]] by simp
 
 lemma at_botI_lfinite[simp]: "lfinite l \<Longrightarrow> at l = bot"
   by (simp add: at_eq_bot_iff)
@@ -502,7 +501,7 @@ lemma mono_up: "xs \<le> ys \<Longrightarrow> up a xs \<le> up a ys"
   unfolding less_eq_list_def by (subst (asm) prefix_def) (auto intro!: prefix_up)
 
 lemma sorted_up: "sorted (up a xs)"
-  by (induction xs arbitrary: a) (auto dest: set_upD intro: less_imp_le sorted.Cons)
+  by (induction xs arbitrary: a) (auto dest: set_upD intro: less_imp_le)
 
 
 subsection {* Define more functions on lazy lists as continuous extensions *}
@@ -543,14 +542,14 @@ end
 
 declare lup'.mono[cont_intro]
 
-lemma monotone_lup': "monotone (rel_prod op = lprefix) lprefix (\<lambda>(a, xs). lup' a xs)"
+lemma monotone_lup': "monotone (rel_prod (=) lprefix) lprefix (\<lambda>(a, xs). lup' a xs)"
 by(rule llist.fixp_preserves_mono2[OF lup'.mono lup'_def]) simp
 
 lemma mono2mono_lup'2[THEN llist.mono2mono, simp, cont_intro]:
   shows monotone_lup'2: "monotone lprefix lprefix (lup' a)"
 using monotone_lup' by auto
 
-lemma mcont_lup': "mcont (prod_lub the_Sup lSup) (rel_prod op = lprefix) lSup lprefix (\<lambda>(a, xs). lup' a xs)"
+lemma mcont_lup': "mcont (prod_lub the_Sup lSup) (rel_prod (=) lprefix) lSup lprefix (\<lambda>(a, xs). lup' a xs)"
 by(rule llist.fixp_preserves_mcont2[OF lup'.mono lup'_def]) simp
 
 lemma mcont2mcont_lup'2[THEN llist.mcont2mcont, simp, cont_intro]:

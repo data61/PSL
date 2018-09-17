@@ -11,11 +11,9 @@ section {* Test with Scala *}
 text {*
   In Scala, @{typ uint} and @{typ uint32} are both implemented as type \texttt{Int}.
   When they are used in the same generated program, we have to suppress the type class
-  instances for one of them. Similarly for @{typ uint16} and @{typ char}
-  if @{theory Code_Char} is loaded.
+  instances for one of them.
 *}
 code_printing class_instance uint32 :: equal \<rightharpoonup> (Scala) -
-  | class_instance uint16 :: equal \<rightharpoonup> (Scala) -
 
 test_code
   test_uint64 "test_uint64' = 0x12"
@@ -24,6 +22,7 @@ test_code
   test_uint8 "test_uint8' = 0x12" 
   test_uint
   test_casts test_casts' test_casts''
+  test_casts_uint test_casts_uint' test_casts_uint''
 in Scala
 
 end

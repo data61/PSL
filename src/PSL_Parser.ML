@@ -58,6 +58,9 @@ val parse_subgoal       = parse_atomic Mi.Subgoal      "Subgoal"      : Mi.str p
 val parse_intro_classes = parse_atomic Mi.IntroClasses "IntroClasses" : Mi.str parser;
 val parse_transfer      = parse_atomic Mi.Transfer     "Transfer"     : Mi.str parser;
 val parse_normalization = parse_atomic Mi.Normalization"Normalization": Mi.str parser;
+(* proof goal transformer *)
+val parse_generalize    = parse_atomic Mi.Generalize   "Generalize"   : Mi.str parser;
+val parse_conjecture    = parse_atomic Mi.Conjecture   "Conjecture"   : Mi.str parser;
 (* monadic strategic *)
 val parse_skip          = parse_atomic Mi.Skip         "Skip"         : Mi.str parser;
 val parse_fail          = parse_atomic Mi.Fail         "Fail"         : Mi.str parser;
@@ -90,6 +93,8 @@ fun parse_strategy () =
      parse_intro_classes,
      parse_transfer,
      parse_normalization,
+     parse_generalize,
+     parse_conjecture,
      parse_dclarsimp (),
      parse_dsimp (),
      parse_dblast (),

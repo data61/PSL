@@ -13,6 +13,7 @@ declare [[code_test_overlord]]
 test_code
   test_uint16 test_uint16_emulation
   test_casts'
+  test_casts_uint'
 in MLton
 
 end

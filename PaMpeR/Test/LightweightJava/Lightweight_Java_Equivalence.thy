@@ -4,7 +4,7 @@
     Maintainer:  
 *)
 
-theory Lightweight_Java_Equivalence imports Lightweight_Java_Definition "../Assertion_Checker" begin
+theory Lightweight_Java_Equivalence imports Lightweight_Java_Definition begin
 
 (* BEGIN: HELPER FUNCTIONS *)
 
@@ -18,16 +18,16 @@ lemma map_fst[simp]: "map (\<lambda>(x, y). x) list = map fst list" by (induct l
 
 lemma map_snd[simp]: "map (\<lambda>(x, y). y) list = map snd list" by (induct list) auto
 
-lemma zip_map_map_two [simp]: "zip (map fst list) (map snd list) = list" which_method
+lemma zip_map_map_two [simp]: "zip (map fst list) (map snd list) = list"
 by (induct list) auto
 
-lemma concat_map_singlton [simp]: "concat (map (\<lambda>e. [e]) list) = list" which_method
+lemma concat_map_singlton [simp]: "concat (map (\<lambda>e. [e]) list) = list"
 by (induct list) simp_all
 
 lemma list_all_map_P [simp]: "list_all (\<lambda>b. b) (map (\<lambda>x. P x) list) = (\<forall>x \<in> set list. P x)"
 by (induct list) simp_all
 
-lemma dom_single[simp]: "a : dom (empty(k \<mapsto> v)) = (a = k)"
+lemma dom_single[simp]: "a : dom (Map.empty(k \<mapsto> v)) = (a = k)"
 by (simp add: dom_def)
 
 lemma predicted_lu[rule_format, simp]:
@@ -39,17 +39,17 @@ apply (subgoal_tac "M' k = None")
 apply (simp add: map_add_def, force simp add: domI)
 done
 
-lemma forall_cons [rule_format]: "(\<forall>x \<in> set (s#S). P x) \<and> y \<in> set S \<longrightarrow> P y"which_method
+lemma forall_cons [rule_format]: "(\<forall>x \<in> set (s#S). P x) \<and> y \<in> set S \<longrightarrow> P y"
 by (induct_tac S) simp_all
 
 lemma mem_cong[rule_format]:
-  "x \<in> set list \<longrightarrow> (f x \<in> set (map f list))" which_method
+  "x \<in> set list \<longrightarrow> (f x \<in> set (map f list))"
 by (induct list) auto
 
 lemma forall_union: "\<lbrakk>\<forall>a \<in> dom A. P (A a); \<forall>b \<in> dom B. P (B b)\<rbrakk> \<Longrightarrow> \<forall>x \<in> dom A \<union> dom B. P ((B ++ A) x)"
 apply(safe)
  apply(force)
-apply(drule_tac x = x in bspec, simp add: domI)which_method
+apply(drule_tac x = x in bspec, simp add: domI)
 apply(case_tac "A x = None")
  apply(force simp add: map_add_def)
 by (force)
@@ -61,7 +61,7 @@ class_name_f :: "cld \<Rightarrow> dcl"
 where
 "class_name_f cld =
   (case cld of cld_def dcl cl fds mds \<Rightarrow> dcl)"
-lemma [simp]: "(class_name cld dcl) = (class_name_f cld = dcl)" assert_nth_false 78 assert_nth_false 79 assert_nth_false 80
+lemma [simp]: "(class_name cld dcl) = (class_name_f cld = dcl)"
 by (force simp add: class_name_f_def split: cld.splits
           intro: class_nameI elim: class_name.cases)
 
@@ -70,7 +70,7 @@ superclass_name_f :: "cld \<Rightarrow> cl"
 where
 "superclass_name_f cld =
   (case cld of cld_def dcl cl fds mds \<Rightarrow> cl)"
-lemma [simp]: "(superclass_name cld cl) = (superclass_name_f cld = cl)"assert_nth_true 57 assert_nth_false 58
+lemma [simp]: "(superclass_name cld cl) = (superclass_name_f cld = cl)"
 by (force simp add: superclass_name_f_def split: cld.splits
           intro: superclass_nameI elim: superclass_name.cases)
 
@@ -108,8 +108,8 @@ where
 "distinct_names_f P =
   (distinct (map class_name_f P))"
 lemma distinct_names_map[rule_format]:
-  "(\<forall>x\<in>set cld_dcl_list. case_prod (\<lambda>cld. op = (class_name_f cld)) x) \<and> distinct (map snd cld_dcl_list)
-      \<longrightarrow> distinct_names_f (map fst cld_dcl_list)"assert_nth_true 57
+  "(\<forall>x\<in>set cld_dcl_list. case_prod (\<lambda>cld. (=) (class_name_f cld)) x) \<and> distinct (map snd cld_dcl_list)
+      \<longrightarrow> distinct_names_f (map fst cld_dcl_list)"
 apply(induct cld_dcl_list)
  apply(clarsimp simp add: distinct_names_f_def)+ apply(force)
 done
@@ -210,9 +210,9 @@ where
   (if ~(acyclic_clds P) then None else
   (case find_cld_f P ctx fqn of None \<Rightarrow> None | Some (ctx', cld) \<Rightarrow>
    find_path_rec_f P ctx'
-                    (superclass_name_f cld) (path @ [(ctx',cld)])))" assert_nth_false 40 assert_nth_true 41
-which_method by pat_completeness auto
-termination assert_nth_true 40 (*is termination proof*) assert_nth_false 41
+                    (superclass_name_f cld) (path @ [(ctx',cld)])))"
+by pat_completeness auto
+termination
 by (relation "measure (\<lambda>(P, ctx, cl, path). (THE nn. path_length P ctx cl nn))") auto
 
 lemma [simp]: "(find_path_rec P ctx cl path path_opt) = (find_path_rec_f P ctx cl path = path_opt)"
@@ -497,11 +497,11 @@ lemma lift_opts_ind[rule_format]:
 by (induct list, auto)
 
 lemma find_md_m_match'[rule_format]:
-  "find_meth_def_in_list_f mds m = Some (meth_def_def (meth_sig_def cl m' vds) mb) \<longrightarrow> m' = m"which_method
+  "find_meth_def_in_list_f mds m = Some (meth_def_def (meth_sig_def cl m' vds) mb) \<longrightarrow> m' = m"
 apply(induct mds) apply(simp) apply(clarsimp split: meth_def.splits meth_sig.splits) done
 
 lemma find_md_m_match:
-  "find_meth_def_in_path_f path m = Some (ctx, meth_def_def (meth_sig_def cl m' vds) mb) \<longrightarrow> m' = m"which_method
+  "find_meth_def_in_path_f path m = Some (ctx, meth_def_def (meth_sig_def cl m' vds) mb) \<longrightarrow> m' = m"
 apply(induct path) apply(simp) apply(clarsimp split: option.splits) by(rule find_md_m_match')
 
 lemma vds_map_length:
@@ -566,7 +566,7 @@ lemma class_name_mem_map[rule_format]:
 by (induct ctx_cld_dcl_list, auto)
 
 lemma map_map_three:
-  " ctxclds = map ((\<lambda>(ctx, cld, dcl). (ctx, cld)) \<circ> (\<lambda>(ctx, cld). (ctx, cld, class_name_f cld))) ctxclds"which_method
+  " ctxclds = map ((\<lambda>(ctx, cld, dcl). (ctx, cld)) \<circ> (\<lambda>(ctx, cld). (ctx, cld, class_name_f cld))) ctxclds"
 by (induct ctxclds, auto)
 
 lemma mem_el_map[rule_format]:
@@ -659,7 +659,7 @@ done
 lemma fpr_same_suffix'[rule_format]:
   "find_path_rec_f P ctx cl prefix = Some path \<longrightarrow>
      (\<forall>suffix prefix'. path = prefix @ suffix \<longrightarrow>
-          find_path_rec_f P ctx cl prefix' = Some (prefix' @ suffix))" which_method
+          find_path_rec_f P ctx cl prefix' = Some (prefix' @ suffix))"
 apply(induct_tac P ctx cl prefix rule: find_path_rec_f.induct)
  apply(clarsimp)
 apply(clarsimp split: option.splits)
@@ -670,7 +670,7 @@ lemma fpr_same_suffix:
   "find_path_rec_f P ctx cl prefix = Some path \<longrightarrow>
      (\<forall>suffix prefix' suffix'. path = prefix @ suffix \<and>
           find_path_rec_f P ctx cl prefix' = Some (prefix' @ suffix')
-             \<longrightarrow> suffix = suffix')" which_method
+             \<longrightarrow> suffix = suffix')"
 apply(induct_tac P ctx cl prefix rule: find_path_rec_f.induct)
  apply(clarsimp)
 by (metis fpr_same_suffix' option.inject same_append_eq)
@@ -834,7 +834,7 @@ lemma [simp]: "(\<forall>x\<in>set s_s'_list. case x of (s_XXX, s_') \<Rightarro
        tr_ss_f T (map fst s_s'_list) = map snd s_s'_list"
 by (induct s_s'_list, auto)
 
-lemma [simp]: "(\<forall>x\<in>set y_y'_list. case_prod (\<lambda>y_XXX. op = (case T y_XXX of None \<Rightarrow> y_XXX | Some x' \<Rightarrow> x')) x) \<longrightarrow> map (tr_x T) (map fst y_y'_list) = map snd y_y'_list"
+lemma [simp]: "(\<forall>x\<in>set y_y'_list. case_prod (\<lambda>y_XXX. (=) (case T y_XXX of None \<Rightarrow> y_XXX | Some x' \<Rightarrow> x')) x) \<longrightarrow> map (tr_x T) (map fst y_y'_list) = map snd y_y'_list"
 apply(induct y_y'_list) apply(simp) apply(clarsimp) apply(simp only: tr_x_def) done
 
 lemma set_zip_tr[simp]: "(s, s') \<in> set (zip ss (tr_ss_f T ss)) \<longrightarrow> s' = tr_s_f T s" by (induct ss, auto)
