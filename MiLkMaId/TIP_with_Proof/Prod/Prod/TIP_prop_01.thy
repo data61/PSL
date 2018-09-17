@@ -33,12 +33,14 @@ theorem property0 :
    apply presburger
   apply(thin_tac "double x = t2 x x")
   apply (rule conjunctionI)
-   apply(subgoal_tac "(\<And>x y. t2 x (S y) = t2 (S x) y)")(*generalization by renaming*)
+   apply simp(*mostly to get rid of x, a bit of simplification as well*)
+   apply(subgoal_tac "(\<And>x y. t2 x (S y) = S (t2 x y))")(*generalization by renaming*)
     apply presburger
    apply simp(*to get rid of xa*)
-   apply(induct_tac xb)
+   apply(induct_tac x)
     apply auto[1]
    apply auto[1]
-  by simp
+  apply auto[1]
+  done
 
 end
