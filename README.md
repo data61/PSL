@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 - This branch **MiLkMaId** is a prototype of a new component to improve PSL's runtime tactic generation for mathematical induction using machine learning techniques. **MiLkMaId** stands for **M**achine **L**earning **M**athematical **I**nduction.
 - **This branch is under active development. Please use [release v0.1.2-alpha PSL, PaMpeR, and PGT for Isabelle2018.](https://github.com/data61/PSL/releases/tag/v0.1.2-alpha), which is the latest stable version.**
 - **Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
