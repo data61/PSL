@@ -5,7 +5,7 @@
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for Isabelle**2017**. Note that Isabelle2016 and Isabelle2016-1 are no longer supported. Furthermore, the latest version of Isabelle, Isabelle**2018**, is not supported yet.
+**try_hard**, for Isabelle**2018**. Note that Isabelle2016, Isabelle2016-1, Isabelle2017 are no longer supported.
 
 ## Installation
 1. Install [Isabelle2017](https://isabelle.in.tum.de/).
