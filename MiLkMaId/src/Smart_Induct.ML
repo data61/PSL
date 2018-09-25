@@ -149,7 +149,7 @@ structure MA = MiLkMaId_Assertion;
 fun get_the_level_of_innermost_UApp' ([]:MA.data)              (acc:int) = acc
  |  get_the_level_of_innermost_UApp' ({point,...}::ds:MA.data) (acc:int) =
 let
-  val {cname, utyp, level} = point;
+  val {name, utyp, level} = point;
   val new_acc = if utyp = MA.UAp andalso level > acc then level else acc: int;
 in
   get_the_level_of_innermost_UApp' ds new_acc: int
