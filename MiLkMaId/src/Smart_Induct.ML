@@ -167,7 +167,7 @@ in
 end;
 
 fun opt_map_pair f (SOME v1, SOME v2) = SOME (f (v1, v2))
- |  opt_map_pair f _ = NONE;
+ |  opt_map_pair _ _ = NONE;
 
 fun ass_001 (pst:Proof.state) (mods:ITG.modifiers) =
   let

@@ -55,7 +55,9 @@ type point =
   {name: string,
    utyp : utyp,
    level: int};
-type ancestor = (point * int (*The current point is the nth argument to this ancestor.*));
+type ancestor =
+  {point  : point,
+   nth_arg: int};
 type ancestors  = ancestor list;
 type datum =
   {point    : point,
@@ -365,7 +367,7 @@ type point =
    utyp : utyp,
    level: int};
 
-(* We should tag each point with the information that says that point is the nth argument
+(* We should tag each ancestor with the information that says that point is the nth argument
  * of the ancestor. Why?
  * - Because we want to deal with only one task at one step. When constructing a table from a proof
  *   goal, it is already one task. We should have a separate step for checking the completeness of
@@ -375,7 +377,9 @@ type point =
  *   And we can infer the information about pattern-matching from the location of the current point
  *   in terms of each constant. *)
 (*For "fun p x y", "x" is the first argument and "y" is the second argument.*)
-type ancestor = (point * int);
+type ancestor =
+  {point  : point,
+   nth_arg: int};
 type ancestors = ancestor list;
 
 type datum =
@@ -387,12 +391,12 @@ type data = datum list;
 fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:data) (old_ancestors:ancestors) =
   let
     val new_level     = old_level + 1                                 : int;
-    val new_point     = {name = name, utyp = UAb, level = new_level} : point;
+    val new_point     = {name = name, utyp = UAb, level = new_level}  : point;
     val new_datum     = {point = new_point, ancestors = old_ancestors}: datum;
     val new_data      = new_datum :: old_data                         : data;
     (*So far, lambda abstraction takes only 1 variable.
      *TODO: probably we also apply un-currying to lambda abstraction.*)
-    val new_ancestors = (new_point, 1) :: old_ancestors               : ancestors;
+    val new_ancestors = {point = new_point, nth_arg = 1} :: old_ancestors : ancestors;
   in
     uc_trm_to_points' utrm new_level new_data new_ancestors:data
   end
@@ -401,7 +405,7 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
     val new_level      = old_level + 1: int;
     val new_point      = {name = get_name func, utyp = get_utyp func, level = new_level}: point;
     val new_datum      = {point = new_point, ancestors = old_ancestors}: datum;
-    val new_ancestorss = List.tabulate (length args, fn n => ((new_point, n + 1)::old_ancestors))
+    val new_ancestorss = List.tabulate (length args, fn n => ({point = new_point, nth_arg = n + 1}::old_ancestors))
                        : ancestors list;
     val new_nodes = args ~~ new_ancestorss: (uterm * ancestors) list;
     val results   = map (fn (utrm:uterm, ans:ancestors) => uc_trm_to_points' utrm new_level [] ans) new_nodes;
@@ -438,7 +442,7 @@ type datum_with_pattern =
    ancestors: ancestors_with_pattern};
 type data_with_pattern = datum_with_pattern list;
 
-fun ancestor_to_ancestor_with_pattern (ctxt:Proof.context) ((point as {name, ...}, nth_arg):ancestor) =
+fun ancestor_to_ancestor_with_pattern (ctxt:Proof.context) ({point = point as {name, ...}, nth_arg = nth_arg}:ancestor) =
   let
     val pattern = get_pattern ctxt name nth_arg
   in
