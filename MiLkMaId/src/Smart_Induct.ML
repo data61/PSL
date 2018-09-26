@@ -3,7 +3,7 @@
 
 *)
 
-(*** DYNAMIC_TACTIC: makes a series of state-monad based tactics from proof state. ***)
+(*** SMART_TACTIC: makes a series of state-monad based tactics from proof state. ***)
 signature SMART_TACTIC =
 sig
   type one_line = {used       : bool,
@@ -16,7 +16,7 @@ sig
   val mk_datapoint: Method.text_range -> Proof.state -> datum;
 end;
 
-(** Smart_Induct: The tactic generator for the induct method. **)
+(*** Smart_Induct: The tactic generator for the induct method. ***)
 structure Smart_Induct : SMART_TACTIC =
 struct
 (*We expose the definitions of these types because other modules should be able to use record field selections.*)
@@ -29,7 +29,7 @@ type datum = {within_psls_scope       : bool,
               lines                   : one_line list
               };
 
-(* Induct_Seed: The seed to make the tactic-generator for the induct method. *)
+(** Induct_Seed: The seed to make the tactic-generator for the induct method. **)
 (* We should not annotate the signature to this structure Induct_Seed
  * because we have to access some functions that are not exposed when defining assertions. *)
 structure Induct_Seed (*: DYNAMIC_TACTIC_GENERATOR_SEED*) =
@@ -96,7 +96,7 @@ fun reordered_mods (mods:modifiers) =
 
 end;
 
-(* ITG: Induct_Tactic_Generator. *)
+(*ITG: Induct_Tactic_Generator.*)
 structure ITG : DYNAMIC_TACTIC_GENERATOR = mk_Dynamic_Tactic_Generator (Induct_Seed);
 structure IS = Induct_Seed;
 structure DU = Dynamic_Utils;
@@ -140,10 +140,11 @@ fun state_to_fst_thms (meth_name:string) (pst:DU.state) : thm list =
     thms
   end;
 
-structure More_MiLkMaId_Assertion =
+(** More_MiLkMaId_Table **)
+structure More_MiLkMaId_Table =
 struct
 
-structure MA = MiLkMaId_Assertion;
+structure MA = MiLkMaId_Table;
 
 (*TODO: some of the following functions should be defined in MiLkMaId_Assertion.*)
 fun get_the_level_of_innermost_UApp' ([]:MA.data)              (acc:int) = acc
@@ -259,7 +260,7 @@ fun mk_datapoint (model_meth: Method.text_range) (pst:Proof.state) =
     fun has_one (NONE  : thm option) = false
      |  has_one (SOME g: thm option) = List.exists (curry Thm.eq_thm g) psl_results: bool;
     val all_modss = get_all_modifierss pst: ITG.modifiers list; (*TODO: Do I need this here? I can construct it within More_MiLkMaId_Assertion*)
-    val lines = More_MiLkMaId_Assertion.mk_lines meth_name pst all_modss model_result';
+    val lines = More_MiLkMaId_Table.mk_lines meth_name pst all_modss model_result';
     val datum = {within_psls_scope        = has_one model_result                   : bool,
                  numb_of_successful_meths = length psl_results                     : int,
                  numb_of_created_methds   = length (state_to_nontacs meth_name pst): int,
@@ -271,7 +272,7 @@ fun mk_datapoint (model_meth: Method.text_range) (pst:Proof.state) =
 
 end;
 
-(** Dynamic_Induct_Tac: The tactic generator for the induct_tac method. **)
+(*** TODO: Dynamic_Induct_Tac: The tactic generator for the induct_tac method. ***)
 structure Dynamic_Induct_Tac : SMART_TACTIC =
 struct
 

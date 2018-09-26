@@ -38,7 +38,7 @@ fun (m <$> f) = Option.map f m;
 (** MILKMAID_ASSERTION **)
 (*MILKMAID_ASSERTION exposes many functions that are not meant to be used by other users
  *because unit tests using @{assert} in MiLkMaId_Test.thy require them to be accessible.*)
-signature MILKMAID_ASSERTION =
+signature MILKMAID_TABLE =
 sig
 
 (* types *)
@@ -125,7 +125,7 @@ val data_to_data_with_pattern: Proof.context -> data -> data_with_pattern;
 end;
 
 (** MiLkMaId_Assertion **)
-structure MiLkMaId_Assertion : MILKMAID_ASSERTION =
+structure MiLkMaId_Table : MILKMAID_TABLE =
 struct
 
 (* un-curried syntax tree *)

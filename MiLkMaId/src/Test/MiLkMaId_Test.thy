@@ -11,7 +11,7 @@ val _ = @{assert} (count_recursive_consts @{term "x (take n xs) (drop n xs) = x 
 ML{* (** test MiLkMaId_Assertion_Test **)
 structure MiLkMaId_Assertion_Test =
 struct
-open MiLkMaId_Assertion
+open MiLkMaId_Table
 
 val test_data =
  [[true, false, true, false],
@@ -221,7 +221,7 @@ end;
 *}
 
 (** tests **)
-ML{* open MiLkMaId_Assertion; *}
+ML{* open MiLkMaId_Table; *}
 
 ML{*
 mk_parameter_matrix @{context} "append2";
