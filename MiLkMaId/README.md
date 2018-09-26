@@ -19,7 +19,7 @@ This directory contains the experimental implementation of our recommendation sy
          the original sub-goal,
          this mathematical induction is not useful. (Use `Term.aconv`)
          I expect that this assertion helps MiLkMaId to discard inductions that do not alter goals meaningfully.
-- [ ] 7. If the first sub-goal appearing after applying a mathematical induction involves fewer constants than the ofiginal
+- [ ] 7. If the first sub-goal appearing after applying a mathematical induction involves fewer constants than the original
          sub-goal, this mathematical induction is not useful.
          I expect that this heuristics helps MiLkMaId detect mathematical inductions that are destroy provability.
 - [ ] 8. If multiple recursively defined constants appear at the same level in the syntax tree of 
