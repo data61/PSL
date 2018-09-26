@@ -98,11 +98,11 @@ val get_left_in_concl : term -> term option;
 val get_left_in_concls: Proof.context -> string -> term list;
 
 (* operations on uterm *)
-val map_types'           : (typ -> typ) -> uterm -> uterm;
-val uncurry              : term -> uterm;
-val get_name             : uterm -> string;
-val uncurried_trm_to_data: uterm -> data;
-val uterm_to_level       : string -> uterm -> int;
+val map_types'    : (typ -> typ) -> uterm -> uterm;
+val uncurry       : term -> uterm;
+val get_name      : uterm -> string;
+val utrm_to_data  : uterm -> data;
+val uterm_to_level: string -> uterm -> int;
 
 (* operations on matrix *)
 val get_elem_in_matrix: 'a matrix -> int * int (*(nth column, nth row) start at 0*) -> 'a option;
@@ -423,7 +423,7 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
     new_data:data
   end;
 
-fun uncurried_trm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
+fun utrm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
 
 fun get_pattern (ctxt:Proof.context) (cname:string) (nth_arg:int) =
   mk_parameter_matrix ctxt cname
@@ -465,7 +465,7 @@ fun data_to_data_with_pattern (ctxt:Proof.context) (data:data) =
 (*TODO*)
 fun uterm_to_level (name:string) (utrm:uterm) =
   let
-    val data = uncurried_trm_to_data utrm:data;
+    val data = utrm_to_data utrm:data;
     val points = map #point data: point list;
   in
     1

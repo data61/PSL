@@ -46,7 +46,7 @@ val _ = @{assert} (classify test_data2 = NONE);
 val _ = @{assert} (classify test_data3 = NONE);
 
 val _ =
-((@{term "(\<lambda>E. F E)"} |> uncurry |> uncurried_trm_to_data) =
+((@{term "(\<lambda>E. F E)"} |> uncurry |> utrm_to_data) =
  [{point = {name = "F", level = 2, utyp = UF},
    ancestors = [{point = {name = "E", level = 1, utyp = UAb}, nth_arg = 1}]},
   {point = {name = "0", level = 3, utyp = UB},
@@ -84,7 +84,7 @@ val _ = @{assert}
 
 (* test uncurry and uncurried_trm_to_data *)
 
-val _ = @{assert} ((@{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry |> uncurried_trm_to_data) =
+val _ = @{assert} ((@{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurry |> utrm_to_data) =
  ([{point = {name = "A", level = 1, utyp = UF},
       ancestors = []},
    {point = {name = "B", level = 2, utyp = UF},
@@ -123,7 +123,7 @@ val _ = @{assert} ((@{term "(A B (identity G)) (D (\<lambda>E. F E))"} |> uncurr
                    {point   = {name = "A", level = 1, utyp = UF},
                     nth_arg = 3}]}]: data));
 
-val _ = @{assert} ((@{term "(\<lambda>E. F E)"} |> uncurry |> uncurried_trm_to_data) =
+val _ = @{assert} ((@{term "(\<lambda>E. F E)"} |> uncurry |> utrm_to_data) =
  [{point     = {name = "F", level = 2, utyp = UF},
    ancestors = [{point = {name = "E", level = 1, utyp = UAb}, nth_arg = 1}]},
   {point     = {name = "0", level = 3, utyp = UB},
@@ -132,7 +132,7 @@ val _ = @{assert} ((@{term "(\<lambda>E. F E)"} |> uncurry |> uncurried_trm_to_d
   {point     = {name = "E", level = 1, utyp = UAb},
    ancestors = []}]);
 
-val _ = @{assert} ((@{term "even n = odd (Suc n)"} |> uncurry |> uncurried_trm_to_data) =
+val _ = @{assert} ((@{term "even n = odd (Suc n)"} |> uncurry |> utrm_to_data) =
  [{point = {name = "HOL.eq", level = 1, utyp = UC},
    ancestors = []},
   {point = {name = "MiLkMaId_Example.even",       level = 2, utyp = UC},
@@ -150,7 +150,7 @@ val _ = @{assert} ((@{term "even n = odd (Suc n)"} |> uncurry |> uncurried_trm_t
                 {point = {name = "MiLkMaId_Example.odd",  level = 2, utyp = UC}, nth_arg = 1},
                 {point = {name = "HOL.eq",                level = 1, utyp = UC}, nth_arg = 2}]}]);
 
-val _ = @{assert} ((@{term "filter (\<lambda> _. True) xs = xs"} |> uncurry |> uncurried_trm_to_data) =
+val _ = @{assert} ((@{term "filter (\<lambda> _. True) xs = xs"} |> uncurry |> utrm_to_data) =
 [{point = {name = "HOL.eq", level = 1, utyp = UC},
   ancestors = []},
  {point = {name = "MiLkMaId_Example.filter", level = 2, utyp = UC},
