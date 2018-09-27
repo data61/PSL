@@ -20,6 +20,7 @@ sig
   val is_some_null   : 'a list option -> 'a list;
   val eq             : ''a -> ''a -> bool;
   val init           : 'a list -> 'a list;
+  val last           : 'a list -> 'a;
   val intersperse    : 'a -> 'a list -> 'a list;
   val is_in_paren    : string -> bool;
   val ??             : ('a -> bool) * ('a -> 'a) -> 'a -> 'a;
@@ -76,6 +77,10 @@ val eq = (fn x => is_some_true o (try (equal x))): ''a -> ''a -> bool;
 
 fun init [] = error "init failed. empty list"
  |  init xs = take (length xs - 1) xs;
+
+fun last [] = raise List.Empty
+  | last [x] = x
+  | last (_::xs) = last xs;
 
 fun intersperse _   []      = []
  |  intersperse _   (x::[]) = [x]

@@ -99,7 +99,8 @@ val get_left_in_concls: Proof.context -> string -> term list;
 
 (* operations on uterm *)
 val map_types'    : (typ -> typ) -> uterm -> uterm;
-val uncurry       : term -> uterm;
+val trm_to_utrm   : term -> uterm;
+val utrm_to_trm   : uterm -> term;
 val get_name      : uterm -> string;
 val utrm_to_data  : uterm -> data;
 val uterm_to_level: string -> uterm -> int;
@@ -153,16 +154,32 @@ fun flatten (trm1 $ trm2) acc = flatten trm1 (trm2 :: acc)
  |  flatten trm acc = trm :: acc;
 
 (* uncurry *)
-fun uncurry (Const c) = UConst c
-  | uncurry (Free f)  = UFree f
-  | uncurry (Var v)   = UVar v
-  | uncurry (Bound i) = UBound i
-  | uncurry (Abs (name, typ, trm)) = UAbs (name, typ, uncurry trm)
-  | uncurry (trm1 $ trm2) =
+fun trm_to_utrm (Const c) = UConst c
+  | trm_to_utrm (Free f)  = UFree f
+  | trm_to_utrm (Var v)   = UVar v
+  | trm_to_utrm (Bound i) = UBound i
+  | trm_to_utrm (Abs (name, typ, trm)) = UAbs (name, typ, trm_to_utrm trm)
+  | trm_to_utrm (trm1 $ trm2) =
     let
       val xs = flatten (trm1 $ trm2) [];
     in
-      UApp (uncurry (hd xs), map uncurry (tl xs))
+      UApp (trm_to_utrm (hd xs), map trm_to_utrm (tl xs))
+    end;
+
+(* curry: necessary to produce string representations for sub-terms. *)
+fun utrm_to_trm (UConst c) = Const c
+  | utrm_to_trm (UFree f)  = Free f
+  | utrm_to_trm (UVar v)   = Var v
+  | utrm_to_trm (UBound i) = Bound i
+  | utrm_to_trm (UAbs (name, typ, utrm)) = Abs (name, typ, utrm_to_trm utrm)
+  | utrm_to_trm (UApp (_, [])) = error "utrm_to_trm failed at UApp (utrm, [])"
+  | utrm_to_trm (UApp (utrm, [uarg])) = utrm_to_trm utrm $ utrm_to_trm uarg
+  | utrm_to_trm (UApp (utrm, uargs)) =
+    let
+      val init_uargs = Utils.init uargs: uterm list;
+      val last_uarg  = Utils.last uargs: uterm;
+    in
+      utrm_to_trm (UApp (utrm, init_uargs)) $ utrm_to_trm last_uarg
     end;
 
 (* get_name *)
@@ -479,7 +496,7 @@ fun get_innermost_const_with_fun (ctxt:Proof.context) (data:data) =
     []
   end;
 
-fun is_arg_of_full_pttrn_match ancestors () =();
+fun is_arg_of_full_pttrn_match ancestors () = ();
 
 fun is_always_argument_of_complete_pattern_matching (ctxt:Proof.context) (data:data) (name:string) =
   let
