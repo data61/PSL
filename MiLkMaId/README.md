@@ -4,7 +4,7 @@ This directory contains the experimental implementation of our recommendation sy
 
 ## List of Heuristics
 
-Note that these heuristics take the form of assertions. When we feed the results of these assertions to machine learning algorithms, the results should be treated as _dummy variables_, which maps `SOME true` to `1.0`, `SOME false` to `-1.0`, and `NONE` to `0.0`.
+Note that these heuristics take the form of assertions. When we feed the results of these assertions to machine learning algorithms, the results should be treated as _dummy variables_, which map `SOME true` to `1.0`, `SOME false` to `-1.0`, and `NONE` to `0.0`.
 
 - [ ] 1. Apply induction on (an) argument(s) of an innermost constant.
 - [ ] 2. If the first sub-goal contains (a) constant(s) defined with the `fun` keyword, use `c.induct`
