@@ -48,6 +48,7 @@ sig
   val disjunction    : bool -> bool -> bool;
   val a_member       : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
   val members        : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
+  val cart_prod      : 'a list -> 'b list -> ('a * 'b) list;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -180,6 +181,13 @@ fun a_member (eq:('a * 'b) -> bool) (one_of_them: 'a list) (in_those: 'b list) =
 
 fun members (eq:('a * 'b) -> bool) (all_of_them: 'a list) (in_those: 'b list) =
   fold (fn x:'a => fn b => b andalso member eq in_those x) (all_of_them:'a list) true;
+
+fun cart_prod (xs:'a list) (ys:'b list) =
+  let
+    fun cart_prod' ([]   :'a list) (ys:'b list) (acc:('a * 'b) list) = acc
+      | cart_prod' (x::xs:'a list) (ys:'b list) (acc:('a * 'b) list) =
+        cart_prod' xs ys (map (pair x) ys @ acc);
+  in cart_prod' xs ys [] end;
 
 end;
 

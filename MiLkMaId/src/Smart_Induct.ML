@@ -84,12 +84,21 @@ fun get_all_modifiers (state:Proof.state) =
 val pick_vars = filter     (fn modi => case modi of On _ => true | _ => false);
 val dump_vars = filter_out (fn modi => case modi of On _ => true | _ => false);
 
+val pick_arbs = filter     (fn modi => case modi of Arbitrary _ => true | _ => false);
+val dump_arbs = filter_out (fn modi => case modi of Arbitrary _ => true | _ => false);
+
+val pick_rules = filter     (fn modi => case modi of Rule _ => true | _ => false);
+val dump_rules = filter_out (fn modi => case modi of Rule _ => true | _ => false);
+
 fun reordered_mods (mods:modifiers) =
   let
-    val vars   = pick_vars mods : modifiers;
-    val varss  = Nitpick_Util.all_permutations vars : modifiers list;
-    val others = dump_vars mods : modifiers;
-    val combs  = map (fn vs => vs @ others) varss;
+    val vars   = pick_vars mods                    : modifiers;
+    val varss  = Nitpick_Util.all_permutations vars: modifiers list;
+    val arbs   = pick_arbs mods                    : modifiers;
+    val arbss  = Nitpick_Util.all_permutations arbs: modifiers list;
+    val rules  = pick_rules mods                   : modifiers;
+    val vars_n_arbs = Utils.cart_prod varss arbss  : (modifiers * modifiers) list;
+    val combs  = map (fn (vars, arbs) => vars @ arbs @ rules) vars_n_arbs;
   in
     combs:modifiers list
   end;
@@ -106,10 +115,10 @@ fun get_all_modifierss (pst:DU.state) : ITG.modifiers list =
     ITG.get_all_modifiers pst
   |> Seq.of_list
   |> Seq2.powerset
+  |> Seq.map Seq.list_of
+  |> Seq.map IS.reordered_mods
   |> Seq.chop 10000 |> fst |> Seq.of_list (*TODO: Double-check. We set an upper limit.*)
   |> Seq.list_of
-  |> map Seq.list_of
-  |> map IS.reordered_mods
   |> flat: ITG.modifiers list;
 
 fun modifiers_to_str (meth_name:string) (mods: IS.modifiers) : string =
@@ -240,7 +249,6 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 
 fun mk_get_post_thm (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): thm option =
   let
-val _ = (fn modi => modifiers_to_str meth_name modi |> tracing) mods;
     val nontac = try (modifiers_to_str meth_name) mods
              >>= try (str_to_nontac): Proof.state DU.nontac option;
     fun mk_fst_res _   NONE       = NONE
@@ -277,8 +285,22 @@ fun mk_datapoint (model_meth: Method.text_range) (pst:Proof.state) =
     val psl_results = state_to_fst_thms meth_name pst                              : thm list;
     fun has_one (NONE  : thm option) = false
      |  has_one (SOME g: thm option) = List.exists (curry Thm.eq_thm g) psl_results: bool;
-    val all_modss = get_all_modifierss pst: ITG.modifiers list; (*TODO: Do I need this here? I can construct it within More_MiLkMaId_Assertion*)
+    val all_modss = get_all_modifierss pst: ITG.modifiers list;
+    (*TODO: Do I need "all_modss" here? I can construct it within More_MiLkMaId_Assertion*)
     val lines = More_MiLkMaId_Table.mk_lines meth_name pst all_modss model_result';
+
+    (*TODO: print_one_line and _ are only for testing. ToBeRemoved*)
+    fun print_one_line (line:one_line) =
+      let
+        val bool_to_int_str = Int.toString o Utils.bool_to_int: bool -> string;
+        val used  = #used line |> bool_to_int_str: string;
+        val ass_results = map bool_to_int_str (#ass_results line): string list;
+      in
+        space_implode "" (used::ass_results)
+      end;
+    val _ = (map print_one_line lines ~~ map IS.mods_to_string all_modss)
+      |> map (tracing o String.concatWith " --- " o Utils.pair_to_list);
+
     val datum = {within_psls_scope        = has_one model_result                   : bool,
                  numb_of_successful_meths = length psl_results                     : int,
                  numb_of_created_methds   = length (state_to_nontacs meth_name pst): int,

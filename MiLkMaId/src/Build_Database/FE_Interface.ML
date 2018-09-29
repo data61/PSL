@@ -56,8 +56,6 @@ struct
     fun string_some NONE = "PANIC_SOMETHING_WENT_WRONG"
      |  string_some (SOME x) = x;
 
-    fun just_trace (mssg:string) = (tracing mssg; mssg);
-
     fun print_datum (datum:Smart_Induct.datum) =
       let
         val within = if #within_psls_scope datum
@@ -84,7 +82,7 @@ struct
         let
            val datum = Smart_Induct.mk_datapoint m pst: Smart_Induct.datum;
         in
-          just_trace (print_datum datum)
+          (tracing (print_datum datum); (print_datum datum))
         end
       else "TODO";
 

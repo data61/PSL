@@ -8,7 +8,7 @@
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
 theory TIP_prop_02
-  imports "../../Test_Base"
+  imports "../../Test_Base" "../../../src/Build_Database/Build_Database"
 begin
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
@@ -37,7 +37,7 @@ fun t2 :: "Nat => Nat => Nat" where
 theorem property0 :
   "t2 (count n xs) (count n ys) = count n (y xs ys)"
   find_proof DInd
-  apply(induct xs arbitrary:n ys)
+  apply2(induct xs arbitrary:n ys)
    apply(subst y.simps(1))
    apply(subst count.simps(1))
    apply(subst t2.simps(1))
@@ -48,7 +48,7 @@ theorem property0 :
 theorem property0' :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
   (*why not "induct ys"?*)
-  apply(induct ys)
+  apply2(induct ys)
    apply(subst count.simps(1))
     (* Neither of the innermost recursively defined constant "count" in "(count n xs)" and 
    "y" in "(y xs nil2)" has a simp rule applicable to these.*)
@@ -60,7 +60,7 @@ theorem property0' :
 (*alternative proof*)
 theorem property0'' :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
-  apply (induct xs arbitrary: n ys rule: count.induct)
+  apply2 (induct xs arbitrary: n ys rule: count.induct)
     (*Why "count.induct" not "y.induct"?
      *Because "(induct rule: y.induct)" leads to a non-theorem.
      *Because "y" is under another "recursive" function ("count")?
