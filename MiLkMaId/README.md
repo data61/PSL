@@ -6,7 +6,7 @@ This directory contains the experimental implementation of our recommendation sy
 
 Note that these heuristics take the form of assertions. When we feed the results of these assertions to machine learning algorithms, the results should be treated as _dummy variables_, which map `SOME true` to `1.0`, `SOME false` to `-1.0`, and `NONE` to `0.0`.
 
-- [ ] 1. At least one argument of induction is an argument of an innermost constant.
+- [X] 1. At least one argument of induction is an argument of an innermost constant.
 - [ ] 2. If the first sub-goal contains (a) constant(s) defined with the `fun` keyword, use `c.induct`
          where `c` is the innermost constant defined with `fun`.
 - [ ] 3. If one uses `bla.induct` rule and `bla.inducts` conclusion has `n` arguemnts in the uncurried form, 
@@ -40,7 +40,7 @@ Note that these heuristics take the form of assertions. When we feed the results
           this mathematical induction is less promising.
 - [X] 13. If the mathematical induction under consideration uses more than one rules,
           probably this induction is not very promising
-- [ ] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
+- [X] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
           
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s), 
