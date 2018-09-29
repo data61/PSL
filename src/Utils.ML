@@ -4,10 +4,13 @@
 This file provides utility functions that are not specific to Isabelle/HOL.
 *)
 
+type strings = string list;
+
 (*** UTILS : Utility functions not specific to Isabelle/HOL. ***)
 signature UTILS =
 sig
   val flip           : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c;
+  val flip_arg_pair  : ('a * 'b -> 'c) -> 'b * 'a -> 'c;
   val delay          : ('a -> 'b) * 'a -> 'b;
   val map_arg        : 'a -> ('a -> 'b) list -> 'b list;
   (*map_pair and pair_to_list are useful only if the pair consists of the same type.*)
@@ -28,9 +31,9 @@ sig
   val rm_parentheses_with_contents_in_the_end : string -> string;
   val rm_parentheses : string -> string;
   val remove__s      : string -> string;
-  val push_to_front  : string -> string list -> string list;
+  val push_to_front  : string -> strings -> strings;
   val the'           : string -> 'a option -> 'a;
-  val prefix_if_nonempty : string -> string list -> string list;
+  val prefix_if_nonempty : string -> strings -> strings;
   val debug          : bool; (*flag for debugging.*)
   val debug_mssg     : bool -> string -> 'a -> 'a;
   val try_with       : 'b -> ('a -> 'b) -> 'a -> 'b;
@@ -38,11 +41,13 @@ sig
   val index          : 'a list -> (int * 'a) list;
   val power          : int -> int -> int;
   val nat_to_frac    : int -> real;
-  val count_str      : string -> string list -> int;
-  val is_one_of_strings: string list -> string -> bool;
+  val count_str      : string -> strings -> int;
+  val is_one_of_strings: strings -> string -> bool;
   val somes          : 'a option list -> 'a list;
   val conjunction    : bool -> bool -> bool;
   val disjunction    : bool -> bool -> bool;
+  val a_member       : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
+  val members        : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -50,6 +55,8 @@ structure Utils:UTILS =
 struct
 
 fun flip f x y = f y x;
+
+fun flip_arg_pair (f:('a * 'b)-> 'c) = (fn p:('b * 'a) => f (swap p)): ('b * 'a) -> 'c;
 
 infix delay;
 fun (f delay x) =  f x;
@@ -121,7 +128,7 @@ fun the' (mssg:string)  NONE        = error mssg
  |  the' (_   :string) (SOME thing) = thing
 
 fun prefix_if_nonempty _        [] = []
- |  prefix_if_nonempty prefixed xs = prefixed :: xs : string list;
+ |  prefix_if_nonempty prefixed xs = prefixed :: xs : strings;
 
 val debug = false;
 
@@ -157,16 +164,22 @@ fun nat_to_frac (n:int) =
     frac : real
   end;
 
-fun count_str (str:string) (strs:string list) =
+fun count_str (str:string) (strs:strings) =
   fold (fn name => fn n => if name = str then n + 1 else n) strs 0;
 
-fun is_one_of_strings (strs:string list) (str:string) = exists (equal str) strs;
+fun is_one_of_strings (strs:strings) (str:string) = exists (equal str) strs;
 
 fun somes (maybes: 'a option list) = filter is_some maybes |> map the;
 
 fun conjunction x y = x andalso y;
 
 fun disjunction x y = x orelse y;
+
+fun a_member (eq:('a * 'b) -> bool) (one_of_them: 'a list) (in_those: 'b list) =
+  fold (fn x:'a => fn b => b orelse member eq in_those x) (one_of_them:'a list) false;
+
+fun members (eq:('a * 'b) -> bool) (all_of_them: 'a list) (in_those: 'b list) =
+  fold (fn x:'a => fn b => b andalso member eq in_those x) (all_of_them:'a list) true;
 
 end;
 
@@ -283,21 +296,21 @@ sig
   val flatten_trm                   : term -> term list;
   val get_trms_in_thm               : thm -> term list;
   val get_trm_in                    : location -> thm -> term option;(*Should it return a list of terms?*)
-  val get_cnames_in_trm             : term -> string list;
+  val get_cnames_in_trm             : term -> strings;
   val get_outmost_cname             : term -> string option;
-  val get_typ_names_in_trm          : term -> string list;
+  val get_typ_names_in_trm          : term -> strings;
   val get_consts_in_thm             : thm -> term list;
-  val get_cnames_in_thm             : thm -> string list;
-  val get_cnames_in_1st_subg        : thm -> string list;
-  val get_abs_names_in_trm          : term -> string list;
-  val get_abs_names_in_thm          : thm -> string list;
-  val get_abs_name_in_1st_subg      : thm -> string list;
-  val get_typ_names_in_thm          : thm -> string list;
-  val get_typ_names_in_1st_subg     : thm -> string list;
-  val get_free_var_names_in_trms    : term list -> string list;
-  val get_free_var_names_in_thm     : thm -> string list;
-  val get_free_var_names_in_1st_subg: thm -> string list;
-  val get_all_var_names_in_1st_subg : thm -> string list;
+  val get_cnames_in_thm             : thm -> strings;
+  val get_cnames_in_1st_subg        : thm -> strings;
+  val get_abs_names_in_trm          : term -> strings;
+  val get_abs_names_in_thm          : thm -> strings;
+  val get_abs_name_in_1st_subg      : thm -> strings;
+  val get_typ_names_in_thm          : thm -> strings;
+  val get_typ_names_in_1st_subg     : thm -> strings;
+  val get_free_var_names_in_trms    : term list -> strings;
+  val get_free_var_names_in_thm     : thm -> strings;
+  val get_free_var_names_in_1st_subg: thm -> strings;
+  val get_all_var_names_in_1st_subg : thm -> strings;
   val proof_state_to_thm            : Proof.state -> thm;
   val mk_proof_obligation           : Proof.context -> string -> thm;
   val TIMEOUT_in                    : real -> ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
@@ -305,7 +318,7 @@ sig
   val same_except_for_fst_prem      : thm -> thm -> bool;
   val defer                         : thm -> thm Seq.seq;
   val is_in_Main                    : Proof.context -> thm -> bool;
-  val add_const_names_mult          : term -> string list -> string list;
+  val add_const_names_mult          : term -> strings -> strings;
   val get_meth_name                 : Method.text -> string;
 end;
 
@@ -333,7 +346,7 @@ fun get_trm_in Fst_Subg g = get_1st_subg g
   | get_trm_in All_Subg g = try (Logic.mk_conjunction_list o Thm.prems_of) g
   | get_trm_in Concl    g = try Thm.concl_of g: term option;
 
-fun get_cnames_in_trm (trm:term) = Term.add_const_names trm []: string list;
+fun get_cnames_in_trm (trm:term) = Term.add_const_names trm []: strings;
 
 fun get_consts_in_thm thm = thm
   |> Thm.cprop_of
@@ -348,7 +361,7 @@ fun get_cnames_in_thm thm = thm
 
 fun get_outmost_cname (trm:term) =
   let
-    val cnames              = get_cnames_in_trm trm: string list;
+    val cnames              = get_cnames_in_trm trm: strings;
     val numb                = length cnames: int;
     val last_cname          = try (nth cnames) (numb - 1): string option;
     val snd_last_cname      = try (nth cnames) (numb - 2): string option;
@@ -431,7 +444,7 @@ fun get_free_var_names_in_1st_subg (goal:thm) = goal
 fun get_all_var_names_in_1st_subg (goal:thm) =
     Option.map (map fst o strip_all_vars) (get_1st_subg goal)
   |> these
-  |> map Utils.remove__s : string list;
+  |> map Utils.remove__s : strings;
 
 val proof_state_to_thm = #goal o Proof.goal;
 
@@ -484,7 +497,7 @@ fun is_in_Main (ctxt:Proof.context) (thm:thm) =
     val this_thy          = Proof_Context.theory_of ctxt:theory;
     val thy_names_in_main = Context.get_theory {long=false} this_thy "Main"
       |> Theory.ancestors_of
-      |> map Context.theory_name:string list;
+      |> map Context.theory_name:strings;
     fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;
     val thy_name = get_theory_name thm;
     val result = exists (equal thy_name) thy_names_in_main;
@@ -493,7 +506,7 @@ fun is_in_Main (ctxt:Proof.context) (thm:thm) =
   end;
 
 (* add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy. *)
-fun add_const_names_mult (trm:term) (names:string list) =
+fun add_const_names_mult (trm:term) (names:strings) =
   fold_aterms (fn Const (c, _) => insert (K false) c | _ => I) trm names;
 
 end;
@@ -509,10 +522,10 @@ sig
   type context;
   type ref;
   type get_rules = context -> thm -> (ref * thm) list;
-  type get_rule_names = context -> thm -> string list;
-  val get_criterion             : string -> string list -> (bool * 'a criterion) list;
-  val all_names_to_rules        : string -> string list -> get_rules;
-  val some_names_to_rules       : string -> string list -> get_rules;
+  type get_rule_names = context -> thm -> strings;
+  val get_criterion             : string -> strings -> (bool * 'a criterion) list;
+  val all_names_to_rules        : string -> strings -> get_rules;
+  val some_names_to_rules       : string -> strings -> get_rules;
   val get_rule_names            : get_rules -> context -> thm -> xstring list;
   val get_simp_rules            : get_rules;
   val get_induct_rules          : get_rules;
@@ -529,9 +542,9 @@ sig
   val get_intro_rule_names      : get_rule_names;
   val get_dest_rule_names       : get_rule_names;
   val get_split_rule_names      : get_rule_names;
-  val get_thms_of_name_with_these_substrs: context -> string list -> thm list;
+  val get_thms_of_name_with_these_substrs: context -> strings -> thm list;
   val get_thms_of_name_with_suffix       : context -> string -> string -> thm list;
-  val get_thms_of_names_with_suffix      : context -> string list -> string -> thm list;
+  val get_thms_of_names_with_suffix      : context -> strings -> string -> thm list;
 end;
 
 (*** Find_Theorems2: provides an interface of find_theorem for PSL. ***)
@@ -546,12 +559,12 @@ open Find_Theorems;
 type context = Proof.context;
 type ref = Facts.ref;
 type get_rules = context -> thm -> (ref * thm) list;
-type get_rule_names = context -> thm -> string list;
+type get_rule_names = context -> thm -> strings;
 
-fun get_criterion kind_name ([]:string list) = [(true, Name kind_name)]
-  | get_criterion kind_name (name::names:string list) = (true, Name name)::get_criterion kind_name names;
+fun get_criterion kind_name ([]:strings) = [(true, Name kind_name)]
+  | get_criterion kind_name (name::names:strings) = (true, Name name)::get_criterion kind_name names;
 
-fun all_names_to_rules kind_name (names:string list) ctxt (_(*just for type*):thm) =
+fun all_names_to_rules kind_name (names:strings) ctxt (_(*just for type*):thm) =
   try (find_theorems ctxt NONE NONE true) (get_criterion kind_name names) liftM snd |> Utils.is_some_null;
 
 fun some_names_to_rules kind_name names ctxt goal = names
@@ -585,35 +598,35 @@ fun get_simp_rules (ctxt:context) (goal:thm) =
     unique_rules : (Facts.ref * thm) list
   end;
 
-fun get_simp_rule_names ctxt goal = get_rule_names get_simp_rules ctxt goal : string list;
+fun get_simp_rule_names ctxt goal = get_rule_names get_simp_rules ctxt goal : strings;
 
 fun get_induct_rules (ctxt:context) (goal:thm) =
   let
-    val cnames  = Isabelle_Utils.get_cnames_in_1st_subg goal : string list;
+    val cnames  = Isabelle_Utils.get_cnames_in_1st_subg goal : strings;
     val induct_rules = some_names_to_rules ".induct" cnames ctxt goal;
   in
     induct_rules : (Facts.ref * thm) list
   end;
-fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal : string list;
+fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal : strings;
 
 fun get_coinduction_rules (ctxt:context) (goal:thm) =
   let
-    val cnames                  = Isabelle_Utils.get_cnames_in_1st_subg goal : string list;
+    val cnames                  = Isabelle_Utils.get_cnames_in_1st_subg goal : strings;
     fun get_coinduct_rules post = some_names_to_rules post cnames ctxt goal;
     val coinduct_rules1 = get_coinduct_rules ".coinduct";
     val coinduct_rules2 = get_coinduct_rules ".coinduct_strong";
   in
     coinduct_rules1 @ coinduct_rules2: (Facts.ref * thm) list
   end;
-fun get_coinduction_rule_names ctxt goal = get_rule_names get_coinduction_rules ctxt goal : string list;
+fun get_coinduction_rule_names ctxt goal = get_rule_names get_coinduction_rules ctxt goal : strings;
 
 fun get_elim_rules  ctxt goal = find_theorems ctxt (SOME goal) NONE true [(true, Elim)] |> snd;
 fun get_intro_rules ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Intro)] |> snd;
 fun get_dest_rules  ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Dest)] |> snd;
         
-fun get_elim_rule_names  ctxt goal = get_rule_names get_elim_rules  ctxt goal : string list;
-fun get_intro_rule_names ctxt goal = get_rule_names get_intro_rules ctxt goal : string list;
-fun get_dest_rule_names  ctxt goal = get_rule_names get_dest_rules  ctxt goal : string list;
+fun get_elim_rule_names  ctxt goal = get_rule_names get_elim_rules  ctxt goal : strings;
+fun get_intro_rule_names ctxt goal = get_rule_names get_intro_rules ctxt goal : strings;
+fun get_dest_rule_names  ctxt goal = get_rule_names get_dest_rules  ctxt goal : strings;
 
 fun get_split_rules ctxt goal =
   let
@@ -626,7 +639,7 @@ fun get_split_rules ctxt goal =
 
 fun get_split_rule_names ctxt goal = get_rule_names get_split_rules ctxt goal;
 
-fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:string list) =
+fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:strings) =
   let
     val criterion      = get_criterion "" substrs: (bool * term criterion) list;
     val relevant_rules = try (Find_Theorems.find_theorems ctxt NONE NONE true) criterion
@@ -642,7 +655,7 @@ fun get_thms_of_name_with_suffix (ctxt:context) (sfx:string) (name:string) =
   try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thm list;
 
 (* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
-fun get_thms_of_names_with_suffix (ctxt:context) (names:string list) (sfx:string) =
+fun get_thms_of_names_with_suffix (ctxt:context) (names:strings) (sfx:string) =
   map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thm list;
 
 end;
@@ -656,7 +669,7 @@ sig
   type 'a seq;
   type 'a nontac   = 'a -> 'a seq;
   datatype node    = Subgoal | Done | Defer
-                   | Apply of {using:string list, methN:string, back:int};
+                   | Apply of {using:strings, methN:string, back:int};
   type log;
   type 'a logtac   = 'a -> (log * 'a) seq;
   type 'a st_monad = log -> (log * 'a) seq;
@@ -666,7 +679,7 @@ sig
   val checked_src_to_meth : context -> src -> Method.method;
   val str_to_tokens       : context -> string -> Token.T list;
   val get_tokens          : string -> Token.T list -> src;
-  val get_meth_nm         : string -> string list -> string;
+  val get_meth_nm         : string -> strings -> string;
   val reform              : log * 'goal nontac -> 'goal logtac;
   val writer_to_state     : (log * 'state) seq -> 'state st_monad;
   val nontac_to_logtac    : node -> 'a nontac -> 'a logtac;
@@ -687,7 +700,7 @@ type src         = Token.src;
 type 'a seq      = 'a Seq.seq;
 type 'a nontac   = 'a -> 'a seq;
 datatype node    = Subgoal | Done | Defer
-                 | Apply of {using:string list, methN:string, back:int};
+                 | Apply of {using:strings, methN:string, back:int};
 type log         = node list;
 type 'a logtac   = 'a -> (log * 'a) seq;
 type 'a st_monad = log -> (log * 'a) seq;
@@ -723,7 +736,7 @@ end;
 fun get_tokens (meth_nm:string) (attributes:Token.T list) =
   Token.make_src (meth_nm, Position.none) attributes;
 
-fun get_meth_nm (meth:string) (attributes:string list) = 
+fun get_meth_nm (meth:string) (attributes:strings) =
   Utils.intersperse " " (meth :: attributes) |> String.concat;
 
 fun reform (param:('meth_str * ('goal nontac))) =
@@ -791,12 +804,12 @@ fun string_to_stttac_on_pstate (meth_name:string) =
   end;
 
 local
-  fun mk_using  ([]   : string list) = ""
-   |  mk_using  (using: string list) = "using " ^ String.concatWith " " using ^ " ";
+  fun mk_using  ([]   : strings) = ""
+   |  mk_using  (using: strings) = "using " ^ String.concatWith " " using ^ " ";
   fun mk_apply methN  = "apply " ^ methN ^ "";
   fun mk_backs (n:int) = replicate n "back" |> String.concatWith " " handle Subscript =>
     (tracing "mk_backs in Isabelle_Utils.thy failed. It should take 0 or a positive integer.";"");
-  fun mk_apply_script1 {methN : string, using : string list, back : int} =
+  fun mk_apply_script1 {methN : string, using : strings, back : int} =
     mk_using using ^ mk_apply methN ^ mk_backs back ^ "\n";
   fun mk_proof_script1 (Done    : node) = "done \n"
    |  mk_proof_script1 (Subgoal : node) = "subgoal \n"

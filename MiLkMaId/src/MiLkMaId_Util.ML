@@ -35,8 +35,8 @@ val _ = Option.map;
 fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
 
-(** MILKMAID_ASSERTION **)
-(*MILKMAID_ASSERTION exposes many functions that are not meant to be used by other users
+(** MILKMAID_TABLE **)
+(*MILKMAID_TABLE exposes many functions that are not meant to be used by other users
  *because unit tests using @{assert} in MiLkMaId_Test.thy require them to be accessible.*)
 signature MILKMAID_TABLE =
 sig
@@ -54,7 +54,7 @@ datatype pattern = Full | Partial | Var | Abstract | Other;
 type point =
   {name: string,
    utyp : utyp,
-   level: int};
+   level: int(*The level of the root is 1.*)};
 type ancestor =
   {point  : point,
    nth_arg: int};
@@ -120,12 +120,20 @@ val mk_parameter_matrix_for_inductive : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix               : Proof.context -> string -> bool matrix;
 
 (* operations about pattern *)
-val get_pattern : Proof.context -> string -> int -> pattern;
+val get_pattern              : Proof.context -> string -> int -> pattern;
 val data_to_data_with_pattern: Proof.context -> data -> data_with_pattern;
+
+(* utility functions for assertions *)
+type ufun_n_args = {level: int(*The level of the root is 1.*),
+                    ufun : uterm,
+                    uargs: uterm list};
+type ufun_n_argss = ufun_n_args list;
+val utrm_to_innermost_ufun_n_argss: uterm -> ufun_n_args list;
+val ufun_n_argss_to_var_namess    : ufun_n_argss -> string list list;
 
 end;
 
-(** MiLkMaId_Assertion **)
+(** MiLkMaId_Table **)
 structure MiLkMaId_Table : MILKMAID_TABLE =
 struct
 
@@ -479,7 +487,45 @@ fun datum_to_datum_with_pattern (ctxt:Proof.context) ({point, ancestors}:datum) 
 fun data_to_data_with_pattern (ctxt:Proof.context) (data:data) =
   map (datum_to_datum_with_pattern ctxt) data: data_with_pattern;
 
-(*TODO*)
+(* functions for Assertion 1 *)
+type ufun_n_args = {
+  level: int(*The level of the root is 1.*),
+  ufun:  uterm,
+  uargs: uterm list};
+type ufun_n_argss = ufun_n_args list;
+
+fun get_max_level xs = fold (fn x:ufun_n_args => fn acc:int =>
+  if #level x > acc then #level x else acc) xs 0;
+
+fun get_cons_n_argss_of_level (level:int) (xs:ufun_n_argss) = fold (fn x:ufun_n_args => fn acc:ufun_n_argss =>
+  if #level x = level then x::acc else acc) xs [];
+
+(*utrm_to_innermost_ufun_n_argss produces the pairs of function and arguments on the lowest level of the given syntax tree.*)
+fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
+  let
+    fun tail_recursive (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm)  =
+        tail_recursive acc (level + 1) utrm
+      | tail_recursive (acc:ufun_n_argss) (level:int) (UApp (UConst body, uargs):uterm) =
+        let
+          (*The computation of all requires a large memory.*)
+          val mapped = tail_recursive [{level = level, ufun = UConst body, uargs = uargs}] (level + 1);
+          val all = map mapped uargs |> flat: ufun_n_argss;
+          val deepest_level = get_max_level all: int;
+          val deepests = get_cons_n_argss_of_level deepest_level all: ufun_n_argss
+          val result = if null deepests then acc else deepests: ufun_n_argss;
+        in
+          result: ufun_n_argss
+        end
+      | tail_recursive (acc:ufun_n_argss) _ _ = acc: ufun_n_argss
+  in
+    tail_recursive [] 1 utrm
+  end;
+
+fun ufun_n_args_to_var_names ({uargs,...}:ufun_n_args) =
+  map (fn UFree (name, _) => [name] | _ => []) uargs |> flat: string list;
+
+fun ufun_n_argss_to_var_namess (pairs:ufun_n_argss) = map ufun_n_args_to_var_names pairs: string list list;
+
 fun uterm_to_level (name:string) (utrm:uterm) =
   let
     val data = utrm_to_data utrm:data;

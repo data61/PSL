@@ -42,9 +42,9 @@ datatype modifier =
 
 type modifiers = modifier list;
 
-fun get_ons   (fvars:string list) = map On fvars;
-fun get_arbs  (fvars:string list) = map Arbitrary fvars;
-fun get_rules (rules:string list) = map Rule rules;
+fun get_ons   (fvars:strings) = map On fvars;
+fun get_arbs  (fvars:strings) = map Arbitrary fvars;
+fun get_rules (rules:strings) = map Rule rules;
 
 fun order' ordered [] = ordered
  |  order' (ons, arbs, rules) (On        var :: mods) = order' (On var::ons, arbs, rules) mods
@@ -65,9 +65,9 @@ fun mods_to_string (mods:modifiers) =
     val prefix_if_nonnil = Utils.prefix_if_nonempty;
   in
     mods |> order |> (fn (ons, arbs, rules) =>
-    get_names ons
-    @ prefix_if_nonnil "arbitrary:" (get_names arbs)
-    @ prefix_if_nonnil "rule:"      (get_names rules))
+      get_names ons
+      @ prefix_if_nonnil "arbitrary:" (get_names arbs)
+      @ prefix_if_nonnil "rule:"      (get_names rules))
     |> Dynamic_Utils.get_meth_nm ""
   end;
 
@@ -75,7 +75,7 @@ fun get_all_modifiers (state:Proof.state) =
   let
     val {context: Proof.context, goal: thm,...} = Proof.goal state;
     val free_var_names   = Isabelle_Utils.get_free_var_names_in_1st_subg goal;
-    val induct_rules     = Find_Theorems2.get_induct_rule_names context goal : string list;
+    val induct_rules     = Find_Theorems2.get_induct_rule_names context goal : strings;
     val all_induct_mods  = get_ons free_var_names @ get_arbs free_var_names @ get_rules induct_rules;
   in
     all_induct_mods : modifiers
@@ -170,20 +170,37 @@ end;
 fun opt_map_pair f (SOME v1, SOME v2) = SOME (f (v1, v2))
  |  opt_map_pair _ _ = NONE;
 
+(*TODO: This re-factoring of ass_001 and ass_014 increases the execution time.*)
+fun help_ass_001_ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val omap                   = Option.map;
+    val thm                    = IU.proof_state_to_thm pst: thm;
+    val fst_subg               = IU.get_1st_subg thm: term option;
+    val uncurried_fst_subg     = omap MA.trm_to_utrm fst_subg: MA.uterm option;
+    val innermost_ufun_n_argss = omap MA.utrm_to_innermost_ufun_n_argss uncurried_fst_subg |> these: MA.ufun_n_args list;
+    (*The type of innermost_var_namess is "strings list" because we need one "strings" for each innermost constant.*)
+    val innermost_var_namess   = MA.ufun_n_argss_to_var_namess innermost_ufun_n_argss: strings list;
+    val on_names               = mods |> IS.pick_vars |> IS.get_names: strings;
+  in
+    {on_names = on_names, innermost_var_namess = innermost_var_namess}
+  end;
+
 fun ass_001 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    (*TODO: re-factor this.*)
-    val ctxt = Proof.context_of pst: Proof.context;
-    val thm = IU.proof_state_to_thm pst: thm;
-    val fst_subg = IU.get_1st_subg thm: term option;
-    val uncurrid_fst_subg = Option.map MA.trm_to_utrm fst_subg: MA.uterm option;
-    val data = Option.map MA.utrm_to_data uncurrid_fst_subg: MA.data option;
-    val data_with_pattern = Option.map (MA.data_to_data_with_pattern ctxt) data: MA.data_with_pattern option;
-    val level_of_innermost_UApp = Option.map get_the_level_of_innermost_UApp data;
-    val some_innermost_points = opt_map_pair (uncurry get_points_below_n) (level_of_innermost_UApp, data): MA.point list option;
-    val innermost_points = these some_innermost_points: MA.point list;
+    val {on_names, innermost_var_namess} = help_ass_001_ass_014 pst mods;
+    val has_at_least_one_innermost_vname = Utils.a_member (op =) on_names: strings -> bool;
+    val result = fold (fn vnames:strings => fn b:bool => b orelse has_at_least_one_innermost_vname vnames) innermost_var_namess false: bool;
   in
-    true
+    result:bool
+  end;
+
+fun ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, innermost_var_namess} = help_ass_001_ass_014 pst mods;
+    val all_are_innermost_vname = Utils.members (op =) on_names: strings -> bool;
+    val result = fold (fn vnames:strings => fn b:bool => b orelse all_are_innermost_vname vnames) innermost_var_namess false: bool;
+  in
+    result:bool
   end;
 
 fun ass_012 (_:Proof.state) (mods:ITG.modifiers) =
@@ -206,7 +223,7 @@ fun ass_013 (_:Proof.state) (mods:ITG.modifiers) =
 
 (*TODO*)
 fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
-(*001*)true,
+(*001*)ass_001 pre_pst mods,
 (*002*)true,
 (*003*)true,
 (*004*)true,
@@ -218,7 +235,8 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*010*)true,
 (*011*)false,
 (*012*)ass_012 pre_pst mods,
-(*013*)ass_013 pre_pst mods];
+(*013*)ass_013 pre_pst mods,
+(*014*)ass_014 pre_pst mods];
 
 fun mk_get_post_thm (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): thm option =
   let
@@ -295,8 +313,8 @@ datatype modifier =
 
 type modifiers = modifier list;
 
-fun get_ons   (fvars:string list) = map On fvars;
-fun get_rules (rules:string list) = map Rule rules;
+fun get_ons   (fvars:strings) = map On fvars;
+fun get_rules (rules:strings) = map Rule rules;
 
 fun order' ordered [] = ordered
  |  order' (ons, rules) (On        var :: mods) = order' (On var::ons, rules) mods
@@ -324,7 +342,7 @@ fun get_all_modifiers (state:Proof.state) =
   let
     val {context: Proof.context, goal: thm,...} = Proof.goal state;
     val all_var_names   = Isabelle_Utils.get_all_var_names_in_1st_subg goal;
-    val induct_rules    = Find_Theorems2.get_induct_rule_names context goal : string list;
+    val induct_rules    = Find_Theorems2.get_induct_rule_names context goal : strings;
     val all_induct_mods = get_ons all_var_names @ get_rules induct_rules;
   in
     all_induct_mods : modifiers
