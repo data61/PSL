@@ -8,7 +8,7 @@
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
 theory TIP_prop_07
-  imports "../../Test_Base"
+  imports "../../Test_Base" "../../../src/Build_Database/Build_Database"
 begin
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
@@ -29,7 +29,7 @@ fun t2 :: "Nat => Nat => Nat" where
 
 theorem property0 :
   "((length (qrev x y)) = (t2 (length x) (length y)))"
-  apply(induct x arbitrary: y)
+  apply2(induct x arbitrary: y (*rule: TIP_prop_07.length.induct*))
    apply auto[1]
   apply(subst qrev.simps)
     (*Note that we insert only the conclusion.*)

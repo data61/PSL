@@ -103,7 +103,6 @@ val trm_to_utrm   : term -> uterm;
 val utrm_to_trm   : uterm -> term;
 val get_name      : uterm -> string;
 val utrm_to_data  : uterm -> data;
-val uterm_to_level: string -> uterm -> int;
 
 (* operations on matrix *)
 val get_elem_in_matrix: 'a matrix -> int * int (*(nth column, nth row) start at 0*) -> 'a option;
@@ -128,8 +127,9 @@ type ufun_n_args = {level: int(*The level of the root is 1.*),
                     ufun : uterm,
                     uargs: uterm list};
 type ufun_n_argss = ufun_n_args list;
-val utrm_to_innermost_ufun_n_argss: uterm -> ufun_n_args list;
-val ufun_n_argss_to_var_namess    : ufun_n_argss -> string list list;
+val utrm_to_innermost_ufun_n_argss                    : uterm -> ufun_n_argss;
+val ufun_n_argss_to_ufun_defined_w_fun_command_n_argss: Proof.context -> ufun_n_argss -> ufun_n_argss;
+val ufun_n_argss_to_var_namess                        : ufun_n_argss -> strings list;
 
 end;
 
@@ -503,53 +503,33 @@ fun get_cons_n_argss_of_level (level:int) (xs:ufun_n_argss) = fold (fn x:ufun_n_
 (*utrm_to_innermost_ufun_n_argss produces the pairs of function and arguments on the lowest level of the given syntax tree.*)
 fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
   let
-    fun tail_recursive (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm)  =
-        tail_recursive acc (level + 1) utrm
-      | tail_recursive (acc:ufun_n_argss) (level:int) (UApp (UConst body, uargs):uterm) =
+    fun tail_rec (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm)  =
+        tail_rec (acc:ufun_n_argss) (level + 1)  utrm
+      | tail_rec (acc:ufun_n_argss) (level:int) (UApp (UConst body, uargs):uterm) =
         let
           (*The computation of all requires a large memory.*)
-          val mapped = tail_recursive [{level = level, ufun = UConst body, uargs = uargs}] (level + 1);
-          val all = map mapped uargs |> flat: ufun_n_argss;
+          val mapped        = tail_rec [{level = level, ufun = UConst body, uargs = uargs}] (level + 1)
+                            : uterm -> ufun_n_args list;
+          val all           = map mapped uargs |> flat: ufun_n_argss;
           val deepest_level = get_max_level all: int;
-          val deepests = get_cons_n_argss_of_level deepest_level all: ufun_n_argss
-          val result = if null deepests then acc else deepests: ufun_n_argss;
+          val deepests      = get_cons_n_argss_of_level deepest_level all: ufun_n_argss
+          val result        = if null deepests then acc else deepests: ufun_n_argss;
         in
           result: ufun_n_argss
         end
-      | tail_recursive (acc:ufun_n_argss) _ _ = acc: ufun_n_argss
+      | tail_rec (acc:ufun_n_argss) _ _ = acc: ufun_n_argss
   in
-    tail_recursive [] 1 utrm
+    tail_rec [] 1 utrm
   end;
+
+fun ufun_n_argss_to_ufun_defined_w_fun_command_n_argss (ctxt:Proof.context) (pairs:ufun_n_args list) =
+  filter (fn {ufun, ...} => case ufun of
+    UConst (cname, _) => get_command cname ctxt = Fun
+  | _                 => false) pairs;
 
 fun ufun_n_args_to_var_names ({uargs,...}:ufun_n_args) =
   map (fn UFree (name, _) => [name] | _ => []) uargs |> flat: string list;
 
 fun ufun_n_argss_to_var_namess (pairs:ufun_n_argss) = map ufun_n_args_to_var_names pairs: string list list;
-
-fun uterm_to_level (name:string) (utrm:uterm) =
-  let
-    val data = utrm_to_data utrm:data;
-    val points = map #point data: point list;
-  in
-    1
-  end;
-
-fun get_innermost_const_with_fun (ctxt:Proof.context) (data:data) =
-  let
-    fun point_with_fun (p:point) = [];
-    val consts_with_fun = [];
-  in
-    []
-  end;
-
-fun is_arg_of_full_pttrn_match ancestors () = ();
-
-fun is_always_argument_of_complete_pattern_matching (ctxt:Proof.context) (data:data) (name:string) =
-  let
-    val _ = true;
-    val _ = false;
-  in
-    []
-  end;
 
 end;

@@ -30,6 +30,7 @@ fun double :: "Nat => Nat" where
 theorem property0 :
   "((length (x y y)) = (double (length y)))"
   (*why not "induct y"?*)
+  apply(induct rule:x.induct)
   apply(induct rule:length.induct)
    apply auto[1]
   apply clarsimp
