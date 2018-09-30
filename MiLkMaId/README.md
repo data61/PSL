@@ -41,8 +41,8 @@ Note that these heuristics take the form of assertions. When we feed the results
 - [X] 13. If the mathematical induction under consideration uses more than one rules,
           probably this induction is not very promising
 - [X] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
-- [ ] 15. The first sub-goal appearing after applying a mathematical induction involves meta-universal quantifiers over variables that do not even appear in the body.
-          
+- [ ] 15. The first sub-goal appearing after applying a mathematical induction involves meta-universal quantifiers over variables that do not appear in the body.
+
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s), 
       generalize free variables appearing in the sub-term(s).
