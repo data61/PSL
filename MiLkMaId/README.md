@@ -6,9 +6,9 @@ This directory contains the experimental implementation of our recommendation sy
 
 Note that these heuristics take the form of assertions. When we feed the results of these assertions to machine learning algorithms, the results should be treated as _dummy variables_, which map `SOME true` to `1.0`, `SOME false` to `-1.0`, and `NONE` to `0.0`.
 
-- [X] 1. At least one argument of induction is an argument of an innermost constant.
-- [ ] 2. If the first sub-goal contains (a) constant(s) defined with the `fun` keyword, use `c.induct`
-         where `c` is the innermost constant defined with `fun`.
+- [X] 1. At least one argument of induction is an argument of an innermost constant that is a function.
+- [ ] 2. If the first sub-goal contains (a) constant(s) defined with the `fun` keyword as an innermost function,
+         use `c.induct`.
 - [ ] 3. If one uses `bla.induct` rule and `bla.inducts` conclusion has `n` arguemnts in the uncurried form, 
          he/she should specify `n` variables to which the induct method should apply induction on.
          And these arguements should not only just variables and they also should be arguements of `bla`.
