@@ -12,6 +12,8 @@ Note that these heuristics take the form of assertions. When we feed the results
 - [ ] 3. If one uses `bla.induct` rule and `bla.inducts` conclusion has `n` arguemnts in the uncurried form, 
          he/she should specify `n` variables to which the induct method should apply induction on.
          And these arguements should not only be variables and they also should be arguements of `bla`.
+         Furthermore, the order of arguments to the `induct` method should be the same as 
+         the order of these variables as the arguments to `bla` in the first sub-goal.
 - [ ] 4. If the first sub-goal involves a meta-implication and terms of types that are defined with the `datatype` keyword 
          in the conclusion of the meta-implication, one should apply induction on the term 
          that has a type defined with the `datatype` keyword.
