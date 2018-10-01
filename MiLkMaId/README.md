@@ -4,12 +4,14 @@ This directory contains the experimental implementation of our recommendation sy
 
 ## List of Heuristics
 
-Note that these heuristics take the form of assertions. When we feed the results of these assertions to machine learning algorithms, the results should be treated as _dummy variables_, which map `SOME true` to `1.0`, `SOME false` to `-1.0`, and `NONE` to `0.0`.
+Note that these heuristics take the form of assertions. When we feed the results of these assertions to machine
+learning algorithms, the results should be treated as _dummy variables_, which map `SOME true` to `1.0`, 
+`SOME false` to `-1.0`, and `NONE` to `0.0`.
 
-- [X] 1. At least one argument of induction is an argument of an innermost constant that is a function.
-- [X] 2. If the first sub-goal contains (a) constant(s) defined with the `fun` keyword as an innermost function,
-         use `c.induct`.
-- [ ] 3. If one uses `bla.induct` rule and `bla.inducts` conclusion has `n` arguemnts in the uncurried form, 
+- [X] 1. Check if at least one argument of induction is an argument of an innermost constant that is a function.
+- [X] 2. Check if the `induct` method uses `c.induct` in case the first sub-goal contains (a) constant(s) defined with 
+         the `fun` keyword as an innermost function.
+- [ ] 3. If one uses `bla.induct` rule and `bla.induct`'s conclusion has `n` arguemnts in the uncurried form, 
          he/she should specify `n` variables to which the induct method should apply induction on.
          And these arguements should not only be variables and they also should be arguements of `bla`.
          Furthermore, the order of arguments to the `induct` method should be the same as 
@@ -48,7 +50,8 @@ Note that these heuristics take the form of assertions. When we feed the results
 - [X] 13. If the mathematical induction under consideration uses more than one rules,
           probably this induction is not very promising
 - [X] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
-- [ ] 15. The first sub-goal appearing after applying a mathematical induction involves meta-universal quantifiers over variables that do not appear in the body.
+- [ ] 15. The first sub-goal appearing after applying a mathematical induction involves meta-universal quantifiers over
+          variables that do not appear in the body.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s), 
