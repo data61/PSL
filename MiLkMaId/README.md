@@ -11,11 +11,13 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 1. Check if at least one argument of induction is an argument of an innermost constant that is a function.
 - [X] 2. Check if the `induct` method uses `c.induct` in case the first sub-goal contains (a) constant(s) defined with 
          the `fun` keyword as an innermost function.
-- [ ] 3. If one uses `bla.induct` rule and `bla.induct`'s conclusion has `n` arguemnts in the uncurried form, 
-         he/she should specify `n` variables to which the induct method should apply induction on.
-         And these arguements should not only be variables and they also should be arguements of `bla`.
-         Furthermore, the order of arguments to the `induct` method should be the same as 
-         the order of these variables as the arguments to `bla` in the first sub-goal.
+- [ ] 3. Check if
+   - the `induct` method uses an `.induct` rule, say `bla.induct`,
+   - the `induct` method has `n` arguemnts in the uncurried form, 
+   - `bla.induct`'s conclusion has `n` arguemnts in the uncurried form,
+   - the arguments to the `induct` method are the arguments to `bla` int the proof obligation, and
+   - the order of arguments of the `induct` method is consistent with the order of the arguments to 
+     `bla` in the proof obligation.
 - [ ] 4. If the first sub-goal involves a meta-implication and terms of types that are defined with the `datatype` keyword 
          in the conclusion of the meta-implication, one should apply induction on the term 
          that has a type defined with the `datatype` keyword.
