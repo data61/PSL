@@ -30,7 +30,7 @@ Note that these heuristics take the form of assertions. When we feed the results
          I expect that this assertion helps MiLkMaId to discard inductions that do not alter goals meaningfully.
 - [ ] 7. If the first sub-goal appearing after applying a mathematical induction involves fewer constants than the original
          sub-goal, this mathematical induction is not useful.
-         I expect that this heuristics helps MiLkMaId detect mathematical inductions that are destroy provability.
+         I expect that this heuristics helps MiLkMaId detect mathematical inductions that destroy provability.
 - [ ] 8. If multiple recursively defined constants appear at the same level in the syntax tree of 
          the uncurried version of the first sub-goal, do induction on the argument(s) of constants that are defined outside
          `HOL/Main.thy`.
