@@ -25,9 +25,8 @@ Note that these heuristics take the form of assertions. When we feed the results
          representing the first sub-goal, and 
    - if for all arguments to the `induct` method an argument appears as the _n_th argument to `f` 
      where pattern-matching is complete for the _n_th parameter in the definition of `f`.
-- [ ] 6. If the first sub-goal appearing after applying a mathematical induction is alpha equivalent to 
-         the original sub-goal,
-         this mathematical induction is not useful. (Use `Term.aconv`)
+- [X] 6. If the first sub-goal appearing after applying a mathematical induction is alpha equivalent to
+         the original sub-goal, this mathematical induction is not useful. (Use `Term.aconv`)
          I expect that this assertion helps MiLkMaId to discard inductions that do not alter goals meaningfully.
 - [ ] 7. If the first sub-goal appearing after applying a mathematical induction involves fewer constants than the original
          sub-goal, this mathematical induction is not useful.

@@ -5,6 +5,9 @@ This file provides utility functions that are not specific to Isabelle/HOL.
 *)
 
 type strings = string list;
+infix 1 >>= <$>;
+fun (m >>= f) = Option.mapPartial f m;
+fun (m <$> f) = Option.map f m;
 
 (*** UTILS : Utility functions not specific to Isabelle/HOL. ***)
 signature UTILS =
@@ -320,6 +323,7 @@ sig
   val get_free_var_names_in_1st_subg: thm -> strings;
   val get_all_var_names_in_1st_subg : thm -> strings;
   val proof_state_to_thm            : Proof.state -> thm;
+  val pst_to_fst_subg               : Proof.state -> term option;
   val mk_proof_obligation           : Proof.context -> string -> thm;
   val TIMEOUT_in                    : real -> ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
   val TIMEOUT                       : ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
@@ -455,6 +459,9 @@ fun get_all_var_names_in_1st_subg (goal:thm) =
   |> map Utils.remove__s : strings;
 
 val proof_state_to_thm = #goal o Proof.goal;
+
+fun pst_to_fst_subg (pst:Proof.state) = try proof_state_to_thm pst
+  >>= get_1st_subg;
 
 fun mk_proof_obligation ctxt (prop_str:string) = 
   Syntax.read_prop ctxt prop_str

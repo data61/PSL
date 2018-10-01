@@ -52,7 +52,7 @@ datatype uterm =
 datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
 datatype pattern = Full | Partial | Var | Abstract | Other;
 type point =
-  {name: string,
+  {name : string,
    utyp : utyp,
    level: int(*The level of the root is 1.*)};
 type ancestor =
@@ -487,7 +487,6 @@ fun datum_to_datum_with_pattern (ctxt:Proof.context) ({point, ancestors}:datum) 
 fun data_to_data_with_pattern (ctxt:Proof.context) (data:data) =
   map (datum_to_datum_with_pattern ctxt) data: data_with_pattern;
 
-(* functions for Assertion 1 *)
 type ufun_n_args = {
   level: int(*The level of the root is 1.*),
   ufun:  uterm,

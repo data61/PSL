@@ -153,6 +153,8 @@ fun state_to_fst_thms (meth_name:string) (pst:DU.state) : thm list =
 structure MiLkMaId_Assertion =
 struct
 
+val omap = Option.map;
+
 structure MA = MiLkMaId_Table;
 
 (*TODO: some of the following functions should be defined in MiLkMaId_Assertion.*)
@@ -176,13 +178,15 @@ fun get_points_below_n (threshold:int) (data:MA.data) =
     filter (is_below_n threshold) points: MA.point list
   end;
 
+fun pst_to_innermost_ufun_n_argss (pst:Proof.state) =
+      IU.pst_to_fst_subg pst
+  <$> MA.trm_to_utrm
+  <$> MA.utrm_to_innermost_ufun_n_argss
+  |>  these: MA.ufun_n_args list;
+
 fun get_var_namess_of_innermost_constants (pst:Proof.state) =
   let
-    val omap                   = Option.map;
-    val thm                    = IU.proof_state_to_thm pst: thm;
-    val fst_subg               = IU.get_1st_subg thm: term option;
-    val uncurried_fst_subg     = omap MA.trm_to_utrm fst_subg: MA.uterm option;
-    val innermost_ufun_n_argss = omap MA.utrm_to_innermost_ufun_n_argss uncurried_fst_subg |> these: MA.ufun_n_args list;
+    val innermost_ufun_n_argss = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
     (*The type of innermost_var_namess is "strings list" because we need one "strings" for each innermost constant.*)
     val innermost_var_namess   = MA.ufun_n_argss_to_var_namess innermost_ufun_n_argss: strings list;
   in
@@ -199,23 +203,9 @@ fun ass_001 (pst:Proof.state) (mods:ITG.modifiers) =
     result:bool
   end;
 
-fun ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
-  let
-    val innermost_var_namess = get_var_namess_of_innermost_constants pst;
-    val on_names = mods |> IS.pick_vars |> IS.get_names: strings: strings;
-    val all_are_innermost_vname = Utils.members (op =) on_names: strings -> bool;
-    val result = fold (fn vnames:strings => fn b:bool => b orelse all_are_innermost_vname vnames) innermost_var_namess false: bool;
-  in
-    result:bool
-  end;
-
 fun ass_002 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val omap                   = Option.map;
-    val thm                    = IU.proof_state_to_thm pst: thm;
-    val fst_subg               = IU.get_1st_subg thm: term option;
-    val uncurried_fst_subg     = omap MA.trm_to_utrm fst_subg: MA.uterm option;
-    val innermost_ufun_n_argss = omap MA.utrm_to_innermost_ufun_n_argss uncurried_fst_subg |> these: MA.ufun_n_args list;
+    val innermost_ufun_n_argss = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
     val ctxt                   = Proof.context_of pst;
     val ufun_defined_w_fun_command_n_argss = MA.ufun_n_argss_to_ufun_defined_w_fun_command_n_argss ctxt innermost_ufun_n_argss;
     val rule_names             = mods |> IS.pick_rules |> IS.get_names: strings: strings;
@@ -225,6 +215,32 @@ fun ass_002 (pst:Proof.state) (mods:ITG.modifiers) =
     val result = Utils.a_member (op =) rule_names innermost_induct_names;
   in
     result:bool
+  end;
+
+fun mk_post_thm (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): thm option =
+  let
+    val nontac = try (modifiers_to_str meth_name) mods
+             >>= try (str_to_nontac): Proof.state DU.nontac option;
+    fun mk_fst_res _   NONE       = NONE
+     |  mk_fst_res st (SOME ntac) = try ntac st >>= try Seq.hd;
+    val post_thm = mk_fst_res  pre_pst nontac <$> IU.proof_state_to_thm: thm option;
+  in
+    post_thm: thm option
+  end;
+
+fun mk_post_1st_subg (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): term option =
+  mk_post_thm meth_name pre_pst mods >>= IU.get_1st_subg;
+
+fun ass_006 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val pre_1st_subg  = IU.pst_to_fst_subg pst            : term option;
+    val post_1st_subg = mk_post_1st_subg "induct" pst mods: term option;
+    fun map_option_pair f (SOME x, SOME y) = SOME (f (x, y))
+      | map_option_pair _  _               = NONE
+    val are_same = map_option_pair Term.aconv (pre_1st_subg, post_1st_subg): bool option;
+    val result = Option.getOpt (are_same, false): bool;
+  in
+    result: bool
   end;
 
 fun ass_012 (_:Proof.state) (mods:ITG.modifiers) =
@@ -244,6 +260,16 @@ fun ass_013 (_:Proof.state) (mods:ITG.modifiers) =
     less_than_2_rules
   end;
 
+fun ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val innermost_var_namess = get_var_namess_of_innermost_constants pst;
+    val on_names = mods |> IS.pick_vars |> IS.get_names: strings: strings;
+    val all_are_innermost_vname = Utils.members (op =) on_names: strings -> bool;
+    val result = fold (fn vnames:strings => fn b:bool => b orelse all_are_innermost_vname vnames) innermost_var_namess false: bool;
+  in
+    result:bool
+  end;
+
 (*TODO*)
 fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*001*)ass_001 pre_pst mods,
@@ -251,7 +277,7 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*003*)true,
 (*004*)true,
 (*005*)true,
-(*006*)true,
+(*006*)ass_006 pre_pst mods,
 (*007*)true,
 (*008*)true,
 (*009*)true,
@@ -261,19 +287,8 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*013*)ass_013 pre_pst mods,
 (*014*)ass_014 pre_pst mods];
 
-fun mk_get_post_thm (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): thm option =
-  let
-    val nontac = try (modifiers_to_str meth_name) mods
-             >>= try (str_to_nontac): Proof.state DU.nontac option;
-    fun mk_fst_res _   NONE       = NONE
-     |  mk_fst_res st (SOME ntac) = try ntac st >>= try Seq.hd;
-    val post_thm = mk_fst_res  pre_pst nontac <$> IU.proof_state_to_thm: thm option;
-  in
-    post_thm: thm option
-  end;
-
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
-    mk_get_post_thm meth_name pre_pst mods
+    mk_post_thm meth_name pre_pst mods
 <$> (curry Thm.eq_thm model_post)
 |>  (fn used:bool option => Option.getOpt (used, false)): bool;
 
