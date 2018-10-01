@@ -16,7 +16,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
      where `bla` is an innermost function that is applied to (a) variable(s),
    - the `induct` method has `n` arguments in the uncurried form where
      n is the number of arguments in the conclusion of `bla.induct` in the uncurried form,
-   - the arguments to the `induct` method are the arguments to `bla` int the proof obligation, and
+   - the arguments to the `induct` method are the arguments to `bla` in the proof obligation, and
    - the order of arguments of the `induct` method is consistent with the order of the arguments to 
      `bla` in the proof obligation.
 - [ ] 4. If the first sub-goal involves a meta-implication and terms of types that are defined with the `datatype` keyword 
