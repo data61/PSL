@@ -20,7 +20,9 @@ Note that these heuristics take the form of assertions. When we feed the results
 - [ ] 5. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
          if the function is defined by recursion in argument number `i`._
          More precisely, this assertion checks 
-   - if all arguments to the `induct` method are arguments to the same function `f`, that is the common parent (immediate ancestor) of these arguments in the un-curried syntax tree representing the first sub-goal, and 
+   - if all arguments to the `induct` method are arguments to the same function `f`,
+   - `f` is the common parent (immediate ancestor) of these arguments in the un-curried syntax tree
+         representing the first sub-goal, and 
    - if for all arguments to the `induct` method an argument appears as the _n_th argument to `f` 
      where pattern-matching is complete for the _n_th parameter in the definition of `f`.
 - [ ] 6. If the first sub-goal appearing after applying a mathematical induction is alpha equivalent to 
