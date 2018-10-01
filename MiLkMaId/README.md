@@ -13,6 +13,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
          the `fun` keyword as an innermost function.
 - [ ] 3. Check if
    - the `induct` method uses an `.induct` rule, say `bla.induct`,
+     where `bla` is an innermost function that is applied to (a) variable(s),
    - the `induct` method has `n` arguments in the uncurried form where
      n is the number of arguments in the conclusion of `bla.induct` in the uncurried form,
    - the arguments to the `induct` method are the arguments to `bla` int the proof obligation, and
