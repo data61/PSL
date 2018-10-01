@@ -40,7 +40,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
          `HOL/Main.thy`.
 - [ ] 9. Check if 
    - the `induct` method uses an `.induct` rule, say `c.induct`, and
-   - there is no constant with associated `.induct` rule that appear below the lowest `c`
+   - there is no constants with an associated `.induct` rule that appear below the lowest `c`
      in the uncurried syntax tree of the first sub-goal.
      (`Isaplanner/TIP_prop_01.thy`)
 - [ ] 10. If the first sub-goal contains multiple constants with associated `.induct` theorems, 
