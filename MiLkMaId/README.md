@@ -23,12 +23,13 @@ learning algorithms, the results should be treated as _dummy variables_, which m
          that has a type defined with the `datatype` keyword.
 - [ ] 5. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
          if the function is defined by recursion in argument number `i`._
-         More precisely, this assertion checks 
-   - if all arguments to the `induct` method are arguments to the same function `f`,
-   - `f` is the common parent (immediate ancestor) of these arguments in the un-curried syntax tree
-         representing the first sub-goal, and 
-   - if for all arguments to the `induct` method an argument appears as the `n`th argument to `f` 
-     where pattern-matching is complete for the `n`th parameter in the definition of `f`.
+         More precisely, this assertion checks if
+   - all arguments to the `induct` method are arguments to the same function, say `f`,
+   - `f` is the common parent (immediate ancestor) of these arguments in the uncurried syntax tree
+     representing the first sub-goal, and 
+   - for any argument to the `induct` method, say `x`, `x` appears as the `n`th argument to `f` 
+     in the proof obligation at least once where
+     pattern-matching is complete for the `n`th parameter in the definition of `f`.
 - [X] 6. If the first sub-goal appearing after applying a mathematical induction is alpha equivalent to
          the original sub-goal, this mathematical induction is not useful. (Use `Term.aconv`)
          I expect that this assertion helps MiLkMaId to discard inductions that do not alter goals meaningfully.
