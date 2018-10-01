@@ -19,6 +19,7 @@ Note that these heuristics take the form of assertions. When we feed the results
          that has a type defined with the `datatype` keyword.
 - [ ] 5. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
          if the function is defined by recursion in argument number `i`._
+         This assertion checks the recursion of the immediate ancestor.
 - [ ] 6. If the first sub-goal appearing after applying a mathematical induction is alpha equivalent to 
          the original sub-goal,
          this mathematical induction is not useful. (Use `Term.aconv`)
