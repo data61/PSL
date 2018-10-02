@@ -253,6 +253,7 @@ fun get_ons   (fvars:string list) = map On fvars;
 fun get_arbs  (fvars:string list) = map Arbitrary fvars;
 fun get_rules (rules:string list) = map Rule rules;
 
+(*TODO: Double-check. This function flips the order of each kind of modifiers.*)
 fun order' ordered [] = ordered
  |  order' (ons, arbs, rules) (On        var :: mods) = order' (On var::ons, arbs, rules) mods
  |  order' (ons, arbs, rules) (Arbitrary var :: mods) = order' (ons, Arbitrary var::arbs, rules) mods
@@ -343,6 +344,7 @@ type modifiers = modifier list;
 fun get_ons   (fvars:string list) = map On fvars;
 fun get_rules (rules:string list) = map Rule rules;
 
+(*TODO: Double-check. This function flips the order of each kind of modifiers.*)
 fun order' ordered [] = ordered
  |  order' (ons, rules) (On        var :: mods) = order' (On var::ons, rules) mods
  |  order' (ons, rules) (Rule     rule :: mods) = order' (ons, Rule rule::rules) mods;

@@ -265,4 +265,16 @@ proof -
     by auto
 qed
 
+datatype Nat = Z | S "Nat"
+
+fun double :: "Nat => Nat" where
+  "double (Z) = Z"
+| "double (S y) = S (S (double y))"
+
+ML{*
+(*The first column is for the constant name.*)
+val _ = @{assert} ((mk_parameter_matrix @{context} "MiLkMaId_Test.double" |> classify <$> length)
+                  = SOME 2);
+*}
+
 end

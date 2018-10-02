@@ -52,7 +52,8 @@ fun order' ordered [] = ordered
  |  order' (ons, arbs, rules) (Rule     rule :: mods) = order' (ons, arbs, Rule rule::rules) mods;
 
 fun order (mods:modifiers) = (*(ons, arbs, rules)*)
-  order' ([],[],[]) mods : (modifiers * modifiers * modifiers)
+     order' ([],[],[]) mods
+  |> (fn (a, b, c) => (rev a, rev b, rev c)): (modifiers * modifiers * modifiers)
 
 fun get_name (On        name) = name
   | get_name (Arbitrary name) = name
@@ -182,7 +183,7 @@ fun pst_to_innermost_ufun_n_argss (pst:Proof.state) =
       IU.pst_to_fst_subg pst
   <$> MA.trm_to_utrm
   <$> MA.utrm_to_innermost_ufun_n_argss
-  |>  these: MA.ufun_n_args list;
+   |> these: MA.ufun_n_args list;
 
 fun get_var_namess_of_innermost_constants (pst:Proof.state) =
   let
@@ -203,18 +204,39 @@ fun ass_001 (pst:Proof.state) (mods:ITG.modifiers) =
     result:bool
   end;
 
+fun ufun_n_arg_to_induct_name (MA.UConst (cname, _)) = SOME (cname^".induct")
+  | ufun_n_arg_to_induct_name  _                     = NONE;
+
 fun ass_002 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val innermost_ufun_n_argss = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
     val ctxt                   = Proof.context_of pst;
-    val ufun_defined_w_fun_command_n_argss = MA.ufun_n_argss_to_ufun_defined_w_fun_command_n_argss ctxt innermost_ufun_n_argss;
+    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss;
     val rule_names             = mods |> IS.pick_rules |> IS.get_names: strings: strings;
-    fun ufun_n_arg_to_induct_name (MA.UConst (cname, _)) = SOME (cname^".induct")
-      | ufun_n_arg_to_induct_name  _                     = NONE;
-    val innermost_induct_names = map (ufun_n_arg_to_induct_name o #ufun) ufun_defined_w_fun_command_n_argss |> Utils.somes: strings;
+    val innermost_induct_names = map (ufun_n_arg_to_induct_name o #ufun) ufun_w_induct_rule_n_argss
+                               |> Utils.somes: strings;
     val result = Utils.a_member (op =) rule_names innermost_induct_names;
   in
     result:bool
+  end;
+
+fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
+    val ctxt                       = Proof.context_of pst;
+    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss;
+    val rule_names                 = mods |> IS.pick_rules |> IS.get_names: strings: strings;
+    val cnames = map (unsuffix ".induct") rule_names: strings;
+    val on_names = mods |> IS.pick_vars |> IS.get_names |> rev(*!*): strings: strings;
+    (*get_var_namess_of_innermost_constants is too much*)
+    val name_pairs = MA.ufun_n_argss_to_name_pairs ufun_w_induct_rule_n_argss: (string option * strings) list;
+    fun for_given_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
+      | for_given_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =
+        cname_from_rule = fname andalso on_names = var_names;
+    fun for_a_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
+      Utils.a_member (uncurry for_given_cname_n_given_ufun_n_args) cnames_from_rules pairs;
+  in
+    for_a_cname_n_all_ufun_n_args cnames name_pairs:bool
   end;
 
 fun mk_post_thm (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): thm option =
@@ -274,7 +296,7 @@ fun ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
 fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*001*)ass_001 pre_pst mods,
 (*002*)ass_002 pre_pst mods,
-(*003*)true,
+(*003*)ass_003 pre_pst mods,
 (*004*)true,
 (*005*)true,
 (*006*)ass_006 pre_pst mods,

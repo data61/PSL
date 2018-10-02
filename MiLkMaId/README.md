@@ -11,7 +11,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 1. Check if at least one argument of induction is an argument of an innermost constant that is a function.
 - [X] 2. Check if the `induct` method uses `c.induct` in case the first sub-goal contains (a) constant(s) defined with 
          the `fun` keyword as an innermost function.
-- [ ] 3. Check if
+- [X] 3. Check if
    - the `induct` method uses an `.induct` rule, say `bla.induct`,
      where `bla` is an innermost function that is applied to (a) variable(s),
    - the `induct` method has `n` arguments in the uncurried form where

@@ -66,7 +66,7 @@ theorem property0' :
 (*alternative proof*)
 theorem property0'' :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
-  apply2 (induct xs arbitrary: n ys rule: count.induct)
+  apply2 (induct (*n*) xs arbitrary: n ys rule: count.induct)
     (*Why "count.induct" not "y.induct"?
      *Because "(induct rule: y.induct)" leads to a non-theorem.
      *Because "y" is under another "recursive" function ("count")?
@@ -89,7 +89,7 @@ theorem property0''' :
 
 theorem property0'''' :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
-  apply(induct xs ys rule:y.induct)
+  apply(induct xs ys arbitrary: n rule:y.induct)
   by auto
 
 end

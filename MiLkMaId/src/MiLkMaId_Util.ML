@@ -108,7 +108,7 @@ val utrm_to_data  : uterm -> data;
 val get_elem_in_matrix: 'a matrix -> int * int (*(nth column, nth row) start at 0*) -> 'a option;
 val is_regular_matrix : bool matrix -> bool;
 val get_nth_column    : bool matrix -> int -> bool list;
-val transpose         : bool matrix -> bool list list option;
+val transpose         : bool matrix -> bool matrix option;
 val classify          : bool matrix -> pattern list option;
 
 (* mk_parameter_matrix *)
@@ -127,9 +127,12 @@ type ufun_n_args = {level: int(*The level of the root is 1.*),
                     ufun : uterm,
                     uargs: uterm list};
 type ufun_n_argss = ufun_n_args list;
-val utrm_to_innermost_ufun_n_argss                    : uterm -> ufun_n_argss;
-val ufun_n_argss_to_ufun_defined_w_fun_command_n_argss: Proof.context -> ufun_n_argss -> ufun_n_argss;
-val ufun_n_argss_to_var_namess                        : ufun_n_argss -> strings list;
+val utrm_to_innermost_ufun_n_argss                          : uterm -> ufun_n_argss;
+val ufun_n_argss_to_ufun_defined_w_fun_command_n_argss      : Proof.context -> ufun_n_argss -> ufun_n_argss;
+val ufun_n_argss_to_ufun_defined_w_inductive_command_n_argss: Proof.context -> ufun_n_argss -> ufun_n_argss;
+val ufun_n_argss_to_ufun_w_induct_rule_n_argss              : Proof.context -> ufun_n_argss -> ufun_n_argss;
+val ufun_n_argss_to_var_namess                              : ufun_n_argss -> strings list;
+val ufun_n_argss_to_name_pairs                              : ufun_n_argss -> (string option * strings) list;
 
 end;
 
@@ -502,7 +505,7 @@ fun get_cons_n_argss_of_level (level:int) (xs:ufun_n_argss) = fold (fn x:ufun_n_
 (*utrm_to_innermost_ufun_n_argss produces the pairs of function and arguments on the lowest level of the given syntax tree.*)
 fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
   let
-    fun tail_rec (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm)  =
+    fun tail_rec (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm) =
         tail_rec (acc:ufun_n_argss) (level + 1)  utrm
       | tail_rec (acc:ufun_n_argss) (level:int) (UApp (UConst body, uargs):uterm) =
         let
@@ -521,14 +524,29 @@ fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
     tail_rec [] 1 utrm
   end;
 
-fun ufun_n_argss_to_ufun_defined_w_fun_command_n_argss (ctxt:Proof.context) (pairs:ufun_n_args list) =
+fun ufun_n_argss_to_ufun_defined_w_certain_command_n_argss  (ctxt:Proof.context) (pairs:ufun_n_args list) (cmmd:command) =
   filter (fn {ufun, ...} => case ufun of
-    UConst (cname, _) => get_command cname ctxt = Fun
+    UConst (cname, _) => get_command cname ctxt = cmmd
   | _                 => false) pairs;
 
-fun ufun_n_args_to_var_names ({uargs,...}:ufun_n_args) =
-  map (fn UFree (name, _) => [name] | _ => []) uargs |> flat: string list;
+fun ufun_n_argss_to_ufun_defined_w_fun_command_n_argss (ctxt:Proof.context) (pairs:ufun_n_args list) =
+  ufun_n_argss_to_ufun_defined_w_certain_command_n_argss ctxt pairs Fun;
 
-fun ufun_n_argss_to_var_namess (pairs:ufun_n_argss) = map ufun_n_args_to_var_names pairs: string list list;
+fun ufun_n_argss_to_ufun_defined_w_inductive_command_n_argss (ctxt:Proof.context) (pairs:ufun_n_args list) =
+  ufun_n_argss_to_ufun_defined_w_certain_command_n_argss ctxt pairs Inductive;
+
+fun ufun_n_argss_to_ufun_w_induct_rule_n_argss (ctxt:Proof.context) (pairs:ufun_n_args list) =
+ (ufun_n_argss_to_ufun_defined_w_certain_command_n_argss ctxt pairs Fun @
+  ufun_n_argss_to_ufun_defined_w_certain_command_n_argss ctxt pairs Inductive)
+|> distinct (op =);
+
+fun ufun_n_args_to_name_pairs ({ufun, uargs,...}:ufun_n_args) =
+  ((fn UConst (name, _) => SOME name | _ => NONE) ufun,
+   map (fn UFree (name, _) => [name] | _ => []) uargs |> flat: strings);
+
+fun ufun_n_argss_to_var_namess (pairs:ufun_n_argss) = map (snd o ufun_n_args_to_name_pairs) pairs: strings list;
+
+fun ufun_n_argss_to_name_pairs (pairs:ufun_n_argss) = map ufun_n_args_to_name_pairs pairs
+                                                    : (string option * strings) list;
 
 end;
