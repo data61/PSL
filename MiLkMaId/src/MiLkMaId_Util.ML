@@ -51,6 +51,7 @@ datatype uterm =
   UApp   of (uterm * uterm list);
 datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
 datatype pattern = Full | Partial | Var | Abstract | Other;
+type patterns = pattern list;
 type point =
   {name : string,
    utyp : utyp,
@@ -109,7 +110,7 @@ val get_elem_in_matrix: 'a matrix -> int * int (*(nth column, nth row) start at 
 val is_regular_matrix : bool matrix -> bool;
 val get_nth_column    : bool matrix -> int -> bool list;
 val transpose         : bool matrix -> bool matrix option;
-val classify          : bool matrix -> pattern list option;
+val classify          : bool matrix -> patterns option;
 
 (* mk_parameter_matrix *)
 val mk_parameter_matrix_for_primrec   : Proof.context -> string -> bool matrix;
@@ -119,7 +120,8 @@ val mk_parameter_matrix_for_inductive : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix               : Proof.context -> string -> bool matrix;
 
 (* operations about pattern *)
-val get_pattern              : Proof.context -> string -> int -> pattern;
+val get_nth_pattern          : Proof.context -> string -> int -> pattern;
+val get_patterns             : Proof.context -> string -> patterns option;
 val data_to_data_with_pattern: Proof.context -> data -> data_with_pattern;
 
 (* utility functions for assertions *)
@@ -127,12 +129,14 @@ type ufun_n_args = {level: int(*The level of the root is 1.*),
                     ufun : uterm,
                     uargs: uterm list};
 type ufun_n_argss = ufun_n_args list;
+val utrm_to_ufun_n_argss                                    : uterm -> ufun_n_argss;
 val utrm_to_innermost_ufun_n_argss                          : uterm -> ufun_n_argss;
 val ufun_n_argss_to_ufun_defined_w_fun_command_n_argss      : Proof.context -> ufun_n_argss -> ufun_n_argss;
 val ufun_n_argss_to_ufun_defined_w_inductive_command_n_argss: Proof.context -> ufun_n_argss -> ufun_n_argss;
 val ufun_n_argss_to_ufun_w_induct_rule_n_argss              : Proof.context -> ufun_n_argss -> ufun_n_argss;
 val ufun_n_argss_to_var_namess                              : ufun_n_argss -> strings list;
-val ufun_n_argss_to_name_pairs                              : ufun_n_argss -> (string option * strings) list;
+val ufun_n_argss_to_cname_n_vnames_pairs                    : ufun_n_argss -> (string option * strings) list;
+val ufun_n_args_to_vnames_only_full                               : Proof.context -> ufun_n_args -> strings;
 
 end;
 
@@ -277,6 +281,7 @@ datatype pattern =
  | Var      (* This parameter is a variable in all clauses. *)
  | Abstract (* This parameter is a function body of a lambda abstracted term. *)
  | Other;
+type patterns = pattern list;
 
 fun get_elem_in_matrix (matrix: 'a matrix) (row:int, column:int) =
   let
@@ -443,19 +448,26 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
   end                                                                                                                    
   | uc_trm_to_points' (utrm:uterm) (old_level:int) (old_data:data) (old_ancestors:ancestors) =
   let
-    val new_level = old_level + 1                                                    : int;
-    val new_point = {name = get_name utrm, utyp = get_utyp utrm, level = new_level} : point;
-    val new_datum = {point = new_point, ancestors = old_ancestors}                   : datum;
-    val new_data  = new_datum :: old_data                                            : data;
+    val new_level = old_level + 1                                                  : int;
+    val new_point = {name = get_name utrm, utyp = get_utyp utrm, level = new_level}: point;
+    val new_datum = {point = new_point, ancestors = old_ancestors}                 : datum;
+    val new_data  = new_datum :: old_data                                          : data;
   in
     new_data:data
   end;
 
 fun utrm_to_data (utrm:uterm) = uc_trm_to_points' utrm 0 [] [];
 
-fun get_pattern (ctxt:Proof.context) (cname:string) (nth_arg:int) =
-  mk_parameter_matrix ctxt cname
-|> (classify: bool matrix -> pattern list option)
+fun get_patterns (ctxt:Proof.context) (cname:string): patterns option =
+  let
+    val pmatrix  = mk_parameter_matrix ctxt cname: bool matrix;
+    val patterns = classify pmatrix              : patterns option;
+  in
+    patterns
+  end;
+
+fun get_nth_pattern (ctxt:Proof.context) (cname:string) (nth_arg:int) =
+  get_patterns ctxt cname
 >>= (fn patterns => try (nth patterns) nth_arg)
 |> (fn res => Option.getOpt (res, Other));
 
@@ -472,7 +484,7 @@ type data_with_pattern = datum_with_pattern list;
 
 fun ancestor_to_ancestor_with_pattern (ctxt:Proof.context) ({point = point as {name, ...}, nth_arg = nth_arg}:ancestor) =
   let
-    val pattern = get_pattern ctxt name nth_arg
+    val pattern = get_nth_pattern ctxt name nth_arg
   in
     {point = point, nth_arg = nth_arg, pattern = pattern}: ancestor_with_pattern
   end;
@@ -503,7 +515,7 @@ fun get_cons_n_argss_of_level (level:int) (xs:ufun_n_argss) = fold (fn x:ufun_n_
   if #level x = level then x::acc else acc) xs [];
 
 (*utrm_to_innermost_ufun_n_argss produces the pairs of function and arguments on the lowest level of the given syntax tree.*)
-fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
+fun utrm_to_ufun_n_argss (utrm:uterm) =
   let
     fun tail_rec (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm) =
         tail_rec (acc:ufun_n_argss) (level + 1)  utrm
@@ -512,10 +524,37 @@ fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
           (*The computation of all requires a large memory.*)
           val mapped        = tail_rec [{level = level, ufun = UConst body, uargs = uargs}] (level + 1)
                             : uterm -> ufun_n_args list;
-          val all           = map mapped uargs |> flat: ufun_n_argss;
-          val deepest_level = get_max_level all: int;
+          val all           = flat (map mapped uargs) @ acc: ufun_n_argss;
+          fun eq_args (trip1:ufun_n_args, trip2:ufun_n_args) : bool =
+            let
+              val uargs1 = #uargs trip1: uterm list;
+              val uargs2 = #uargs trip2: uterm list;
+            in
+              uargs1 = uargs2
+            end;
+         val wo_dups = distinct eq_args all: ufun_n_argss;
+        in
+          wo_dups
+        end
+      | tail_rec (acc:ufun_n_argss) _ _ = acc: ufun_n_argss
+  in
+    tail_rec [] 1 utrm
+  end;
+
+(*utrm_to_innermost_ufun_n_argss produces the pairs of function and arguments on the lowest level of the given syntax tree.*)
+fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
+  let
+    fun tail_rec (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm) =
+        tail_rec (acc:ufun_n_argss) (level + 1)  utrm
+      | tail_rec (acc:ufun_n_argss) (level:int) (UApp (UConst body, uargs):uterm) =
+        let
+          (*The computation of all requires a large memory.*)
+          val mapped        = tail_rec [{level = level, ufun = UConst body, uargs = uargs}] (level + 1)
+                                                                         : uterm -> ufun_n_argss;
+          val all           = map mapped uargs |> flat                   : ufun_n_argss;
+          val deepest_level = get_max_level all                          : int;
           val deepests      = get_cons_n_argss_of_level deepest_level all: ufun_n_argss
-          val result        = if null deepests then acc else deepests: ufun_n_argss;
+          val result        = if null deepests then acc else deepests    : ufun_n_argss;
         in
           result: ufun_n_argss
         end
@@ -540,13 +579,36 @@ fun ufun_n_argss_to_ufun_w_induct_rule_n_argss (ctxt:Proof.context) (pairs:ufun_
   ufun_n_argss_to_ufun_defined_w_certain_command_n_argss ctxt pairs Inductive)
 |> distinct (op =);
 
-fun ufun_n_args_to_name_pairs ({ufun, uargs,...}:ufun_n_args) =
+fun ufun_n_args_to_cname_n_vnames ({ufun, uargs,...}:ufun_n_args) =
   ((fn UConst (name, _) => SOME name | _ => NONE) ufun,
-   map (fn UFree (name, _) => [name] | _ => []) uargs |> flat: strings);
+   map (fn UFree (name, _) => [name] | _ => []) uargs |> flat: strings): (string option * strings);
 
-fun ufun_n_argss_to_var_namess (pairs:ufun_n_argss) = map (snd o ufun_n_args_to_name_pairs) pairs: strings list;
+fun ufun_n_argss_to_var_namess (pairs:ufun_n_argss) = map (snd o ufun_n_args_to_cname_n_vnames) pairs
+  : strings list;
 
-fun ufun_n_argss_to_name_pairs (pairs:ufun_n_argss) = map ufun_n_args_to_name_pairs pairs
-                                                    : (string option * strings) list;
+fun ufun_n_argss_to_cname_n_vnames_pairs (pairs:ufun_n_argss) = map ufun_n_args_to_cname_n_vnames pairs
+  : (string option * strings) list;
+
+fun is_Full (Full:pattern) = true
+  | is_Full  _             = false;
+
+fun is_Fulls (patterns:patterns) = drop 1 patterns |> map is_Full: bool list;
+
+fun is_not_Fulls (patterns: patterns) = is_Fulls patterns |> map not: bool list;
+
+fun thin_out (xs:'a list) (bs:bool list) = bs ~~ xs |> filter_out fst |> map snd;
+
+fun ufun_n_args_to_vnames_only_full (ctxt:Proof.context) ({ufun, uargs, level}:ufun_n_args) =
+  let
+    val cname_ufun = case ufun of
+        UConst (cname, _) => SOME cname
+      | _                 => NONE                           : string option;
+    val patterns       = cname_ufun >>= get_patterns ctxt   : patterns option;
+    val not_fulls      = patterns <$> is_not_Fulls          : bool list option;
+    val full_args      = not_fulls <$>thin_out uargs |> these: uterm list;
+    val vnames_of_full = ufun_n_args_to_cname_n_vnames {ufun=ufun, uargs= full_args, level=level} |> snd: strings;
+  in
+    vnames_of_full: strings
+  end;
 
 end;

@@ -22,7 +22,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [ ] 4. If the first sub-goal involves a meta-implication and terms of types that are defined with the `datatype` keyword 
          in the conclusion of the meta-implication, one should apply induction on the term 
          that has a type defined with the `datatype` keyword.
-- [ ] 5. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
+- [X] 5. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
          if the function is defined by recursion in argument number `i`._
          More precisely, this assertion checks if
    - all arguments to the `induct` method are arguments to the same function, say `f`,
@@ -58,6 +58,17 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
 - [ ] 15. The first sub-goal appearing after applying a mathematical induction involves meta-universal quantifiers over
           variables that do not appear in the body.
+- [ ] 16. The `induct` method uses at least one argument for the `rule` field.
+- [ ] 17. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
+         if the function is defined by recursion in argument number `i`._
+         More precisely, this assertion checks if
+   - the `induct` method takes at least one argument to specify on which sub-term Isabelle should apply mathematical induction, and
+   - for any argument to the `induct` method, say `x`, the following statement holds:
+      - there is an occurrence of `x` in the proof obligation, such that
+         - `x` appears as an argument or part of argument to a function, say `f`, and
+         - for all such functions, the instance of `x` or the sub-term, to which the instance of `x` belong,
+           appears as the `n`th argument, where
+           pattern-matching is complete for the `n`th parameter in the definition of `f`.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s), 
