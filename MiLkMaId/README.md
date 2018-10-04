@@ -57,8 +57,8 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 13. If the mathematical induction under consideration uses more than one rules,
           probably this induction is not very promising
 - [X] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
-- [ ] 15. The first sub-goal appearing after applying a mathematical induction involves meta-universal quantifiers over
-          variables that do not appear in the body.
+- [X] 15. Check if the `induct` method introduces a lambda abstraction in the first-sub goal that is not used in the body.
+          This includes quantified variables that are not used in the body.
 - [X] 16. The `induct` method uses at least one argument for the `rule` field.
 - [ ] 17. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
          if the function is defined by recursion in argument number `i`._

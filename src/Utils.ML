@@ -332,6 +332,7 @@ sig
   val is_in_Main                    : Proof.context -> thm -> bool;
   val add_const_names_mult          : term -> strings -> strings;
   val get_meth_name                 : Method.text -> string;
+  val are_all_de_Bruijn_indices_used: term -> bool;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -519,6 +520,25 @@ fun is_in_Main (ctxt:Proof.context) (thm:thm) =
   in
     result
   end;
+
+fun is_this_abstract_used (_  :int) (Const _      :term) = false
+  | is_this_abstract_used (_  :int) (Free _       :term) = false
+  | is_this_abstract_used (_  :int) (Var _        :term) = false
+  | is_this_abstract_used (dBi:int) (Bound i      :term) = dBi = i
+  | is_this_abstract_used (dBi:int) (Abs (_,_,trm):term) = is_this_abstract_used (dBi + 1) trm
+  | is_this_abstract_used (dBi:int) (trm1 $ trm2  :term) =
+      is_this_abstract_used dBi trm1 orelse
+      is_this_abstract_used dBi trm2;
+
+fun are_all_de_Bruijn_indices_used' (max_dBi:int) (Abs (_,_,trm):term) =
+      is_this_abstract_used          0            trm andalso
+      are_all_de_Bruijn_indices_used' (max_dBi + 1) trm
+  | are_all_de_Bruijn_indices_used' (max_dBi:int) (trm1 $ trm2  :term) =
+      are_all_de_Bruijn_indices_used' max_dBi trm1 orelse
+      are_all_de_Bruijn_indices_used' max_dBi trm2
+  | are_all_de_Bruijn_indices_used' (max_dBi:int) (trm:term) = is_this_abstract_used max_dBi trm;
+
+fun are_all_de_Bruijn_indices_used (trm:term) = are_all_de_Bruijn_indices_used' ~1 trm;
 
 (* add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy. *)
 fun add_const_names_mult (trm:term) (names:strings) =

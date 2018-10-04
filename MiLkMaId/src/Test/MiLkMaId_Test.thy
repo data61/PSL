@@ -277,4 +277,23 @@ val _ = @{assert} ((mk_parameter_matrix @{context} "MiLkMaId_Test.double" |> cla
                   = SOME 2);
 *}
 
+ML{*
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x. x"}                 = true);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x y. x y"}             = true);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x y. z x y"}           = true);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x y. x y"}             = true);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x. z"}                 = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x z. z (\<forall>x. x)"}       = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x z. y z (\<forall>x. x)"}     = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x z. y x (\<forall>x. w x z)"} = true);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x z. (y x) (\<forall>x. w x z)"} = true);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x z. (y x) (\<forall>z. w x z)"} = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x z. x (\<And>z. z)"}        = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>P z. P (\<And>z. z)"}        = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>  z. P (\<And>z. z)"}        = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>z. (\<And>z. z)"}            = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>z. z \<and> True"}           = true);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>z. True \<and> (\<forall>y. y z)"}   = true);
+*}
+
 end

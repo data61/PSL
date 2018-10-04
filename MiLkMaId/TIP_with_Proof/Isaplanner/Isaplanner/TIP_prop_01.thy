@@ -10,10 +10,7 @@
 theory TIP_prop_01
   imports "../../Test_Base" "../../../src/Build_Database/Build_Database"
 begin
-ML{*
-@{term "\<And>x. x"}
 
-*}
 datatype 'a list = nil2 | cons2 "'a" "'a list"
 
 datatype Nat = Z | S "Nat"
@@ -91,11 +88,5 @@ theorem property0''(*sub-optimal proof*):
   apply(subst "drop.simps")
   apply(subst "x.simps")
   by auto
-
-theorem
-  "x (take n xs) (drop n xs) = xs"
-  apply2(induct rule:x.induct)
-  nitpick
-  oops
 
 end

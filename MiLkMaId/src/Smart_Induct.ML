@@ -323,6 +323,19 @@ fun ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
     result:bool
   end;
 
+fun ass_015 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val pre_1st_subg         = IU.pst_to_fst_subg pst                                                              : term option;
+    val post_1st_subg        = mk_post_1st_subg "induct" pst mods                                                  : term option;
+    val all_dBi_in_pre_used  = omap IU.are_all_de_Bruijn_indices_used pre_1st_subg                                 : bool option;
+    val all_dBi_in_post_used = omap IU.are_all_de_Bruijn_indices_used post_1st_subg                                : bool option;
+    val some_dBi_not_used    = omap not all_dBi_in_post_used                                                       : bool option;
+    val pre_n_post_are_diff  = map_option_pair (uncurry Utils.conjunction) (all_dBi_in_pre_used, some_dBi_not_used): bool option;
+    val result               = Option.getOpt (pre_n_post_are_diff, false)                                          : bool;  
+  in
+    result: bool
+  end;
+
 fun ass_016 (_:Proof.state) (mods:ITG.modifiers) =
   let
     val numb_rule = mods |> IS.pick_rules |> length: int;
@@ -347,7 +360,7 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*012*)ass_012 pre_pst mods,
 (*013*)ass_013 pre_pst mods,
 (*014*)ass_014 pre_pst mods,
-(*015*)true,
+(*015*)ass_015 pre_pst mods,
 (*016*)ass_016 pre_pst mods,
 (*017*)true];
 
