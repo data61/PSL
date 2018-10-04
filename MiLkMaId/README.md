@@ -59,7 +59,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
 - [ ] 15. The first sub-goal appearing after applying a mathematical induction involves meta-universal quantifiers over
           variables that do not appear in the body.
-- [ ] 16. The `induct` method uses at least one argument for the `rule` field.
+- [X] 16. The `induct` method uses at least one argument for the `rule` field.
 - [ ] 17. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
          if the function is defined by recursion in argument number `i`._
          More precisely, this assertion checks if

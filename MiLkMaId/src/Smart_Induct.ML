@@ -34,7 +34,7 @@ type datum = {within_psls_scope       : bool,
 structure Induct_Seed (*: DYNAMIC_TACTIC_GENERATOR_SEED*) =
 struct
 
-datatype modifier = 
+datatype modifier =
   On        of string
 | Arbitrary of string
 | Rule      of string;
@@ -201,9 +201,9 @@ fun get_var_namess_of_innermost_constants (pst:Proof.state) =
 
 fun ass_001 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val innermost_var_namess = get_var_namess_of_innermost_constants pst;
-    val on_names = mods |> IS.pick_vars |> IS.get_names: strings: strings;
-    val has_at_least_one_innermost_vname = Utils.a_member (op =) on_names: strings -> bool;
+    val innermost_var_namess             = get_var_namess_of_innermost_constants pst: strings list;
+    val on_names                         = mods |> IS.pick_vars |> IS.get_names     : strings: strings;
+    val has_at_least_one_innermost_vname = Utils.a_member (op =) on_names           : strings -> bool;
     val result = fold (fn vnames:strings => fn b:bool => b orelse has_at_least_one_innermost_vname vnames) innermost_var_namess false: bool;
   in
     result:bool
@@ -220,7 +220,7 @@ fun ass_002 (pst:Proof.state) (mods:ITG.modifiers) =
     val rule_names             = mods |> IS.pick_rules |> IS.get_names: strings: strings;
     val innermost_induct_names = map (ufun_n_arg_to_induct_name o #ufun) ufun_w_induct_rule_n_argss
                                |> Utils.somes: strings;
-    val result = Utils.a_member (op =) rule_names innermost_induct_names;
+    val result                 = Utils.a_member (op =) rule_names innermost_induct_names;
   in
     result:bool
   end;
@@ -276,8 +276,8 @@ fun ass_006 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val pre_1st_subg  = IU.pst_to_fst_subg pst            : term option;
     val post_1st_subg = mk_post_1st_subg "induct" pst mods: term option;
-    val are_same = map_option_pair Term.aconv (pre_1st_subg, post_1st_subg): bool option;
-    val result = Option.getOpt (are_same, false): bool;
+    val are_same      = map_option_pair Term.aconv (pre_1st_subg, post_1st_subg): bool option;
+    val result        = Option.getOpt (are_same, false): bool;
   in
     result: bool
   end;
@@ -299,15 +299,15 @@ fun ass_007 (pst:Proof.state) (mods:ITG.modifiers) =
 fun ass_012 (_:Proof.state) (mods:ITG.modifiers) =
   let
     val (ons, arbs, _) = IS.order mods;
-    val dups = duplicates (op =) (map IS.get_name (ons @ arbs));
-    val has_dup = (not o null) dups;
+    val dups           = duplicates (op =) (map IS.get_name (ons @ arbs));
+    val has_dup        = (not o null) dups;
   in
     has_dup
   end;
 
 fun ass_013 (_:Proof.state) (mods:ITG.modifiers) =
   let
-    val (_, _, rules) = IS.order mods;
+    val (_, _, rules)     = IS.order mods;
     val less_than_2_rules = length rules < 2;
   in
     less_than_2_rules
@@ -315,10 +315,18 @@ fun ass_013 (_:Proof.state) (mods:ITG.modifiers) =
 
 fun ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val innermost_var_namess = get_var_namess_of_innermost_constants pst;
-    val on_names = mods |> IS.pick_vars |> IS.get_names: strings: strings;
+    val innermost_var_namess    = get_var_namess_of_innermost_constants pst;
+    val on_names                = mods |> IS.pick_vars |> IS.get_names: strings: strings;
     val all_are_innermost_vname = Utils.members (op =) on_names: strings -> bool;
     val result = fold (fn vnames:strings => fn b:bool => b orelse all_are_innermost_vname vnames) innermost_var_namess false: bool;
+  in
+    result:bool
+  end;
+
+fun ass_016 (_:Proof.state) (mods:ITG.modifiers) =
+  let
+    val numb_rule = mods |> IS.pick_rules |> length: int;
+    val result    = numb_rule > 0                  : bool;
   in
     result:bool
   end;
@@ -338,7 +346,10 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*011*)false,
 (*012*)ass_012 pre_pst mods,
 (*013*)ass_013 pre_pst mods,
-(*014*)ass_014 pre_pst mods];
+(*014*)ass_014 pre_pst mods,
+(*015*)true,
+(*016*)ass_016 pre_pst mods,
+(*017*)true];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
     mk_post_thm meth_name pre_pst mods
