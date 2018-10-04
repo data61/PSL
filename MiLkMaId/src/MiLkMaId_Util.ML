@@ -136,7 +136,7 @@ val ufun_n_argss_to_ufun_defined_w_inductive_command_n_argss: Proof.context -> u
 val ufun_n_argss_to_ufun_w_induct_rule_n_argss              : Proof.context -> ufun_n_argss -> ufun_n_argss;
 val ufun_n_argss_to_var_namess                              : ufun_n_argss -> strings list;
 val ufun_n_argss_to_cname_n_vnames_pairs                    : ufun_n_argss -> (string option * strings) list;
-val ufun_n_args_to_vnames_only_full                               : Proof.context -> ufun_n_args -> strings;
+val ufun_n_args_to_vnames_only_full                         : Proof.context -> ufun_n_args -> strings;
 
 end;
 

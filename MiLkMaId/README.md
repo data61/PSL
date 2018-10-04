@@ -34,8 +34,9 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 6. If the first sub-goal appearing after applying a mathematical induction is alpha equivalent to
          the original sub-goal, this mathematical induction is not useful. (Use `Term.aconv`)
          I expect that this assertion helps MiLkMaId to discard inductions that do not alter goals meaningfully.
-- [ ] 7. If the first sub-goal appearing after applying a mathematical induction involves fewer constants than the original
-         sub-goal, this mathematical induction is not useful.
+- [X] 7. Check if the sum of the number of `arbitrary` terms in the `induct` method and the number of constants appearing
+         in the first sub-goal is strictly larger than the number of constants in the first sub-goal appearing
+         after applying a mathematical induction involves fewer constants.
          I expect that this heuristics helps MiLkMaId detect mathematical inductions that destroy provability.
 - [ ] 8. If multiple recursively defined constants appear at the same level in the syntax tree of 
          the uncurried version of the first sub-goal, do induction on the argument(s) of constants that are defined outside

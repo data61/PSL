@@ -10,7 +10,10 @@
 theory TIP_prop_01
   imports "../../Test_Base" "../../../src/Build_Database/Build_Database"
 begin
+ML{*
+@{term "\<And>x. x"}
 
+*}
 datatype 'a list = nil2 | cons2 "'a" "'a list"
 
 datatype Nat = Z | S "Nat"

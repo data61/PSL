@@ -269,14 +269,29 @@ fun mk_post_thm (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): t
 fun mk_post_1st_subg (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifiers): term option =
   mk_post_thm meth_name pre_pst mods >>= IU.get_1st_subg;
 
+fun map_option_pair f (SOME x, SOME y) = SOME (f (x, y))
+  | map_option_pair _  _               = NONE
+
 fun ass_006 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val pre_1st_subg  = IU.pst_to_fst_subg pst            : term option;
     val post_1st_subg = mk_post_1st_subg "induct" pst mods: term option;
-    fun map_option_pair f (SOME x, SOME y) = SOME (f (x, y))
-      | map_option_pair _  _               = NONE
     val are_same = map_option_pair Term.aconv (pre_1st_subg, post_1st_subg): bool option;
     val result = Option.getOpt (are_same, false): bool;
+  in
+    result: bool
+  end;
+
+fun ass_007 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val pre_1st_subg           = IU.pst_to_fst_subg pst                                            : term option;
+    val post_1st_subg          = mk_post_1st_subg "induct" pst mods                                : term option;
+    val numb_arbs              = IS.pick_arbs mods |> length |> SOME                               : int option;
+    val numb_pre_1st_subg      = pre_1st_subg  <$> Utils.flip Term.add_consts [] <$> length        : int option;
+    val numb_post_1st_subg     = post_1st_subg <$> Utils.flip Term.add_consts [] <$> length        : int option;
+    val numb_post_1st_adjusted = map_option_pair (op -) (numb_post_1st_subg, numb_arbs)            : int option;
+    val post_has_less_const    = map_option_pair (op >) (numb_pre_1st_subg, numb_post_1st_adjusted): bool option;
+    val result                 = Option.getOpt (post_has_less_const, false)                        : bool;
   in
     result: bool
   end;
@@ -316,7 +331,7 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*004*)true,
 (*005*)ass_005 pre_pst mods,
 (*006*)ass_006 pre_pst mods,
-(*007*)true,
+(*007*)ass_007 pre_pst mods,
 (*008*)true,
 (*009*)true,
 (*010*)true,
