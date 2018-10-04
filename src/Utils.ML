@@ -530,15 +530,21 @@ fun is_this_abstract_used (_  :int) (Const _      :term) = false
       is_this_abstract_used dBi trm1 orelse
       is_this_abstract_used dBi trm2;
 
-fun are_all_de_Bruijn_indices_used' (max_dBi:int) (Abs (_,_,trm):term) =
-      is_this_abstract_used          0            trm andalso
-      are_all_de_Bruijn_indices_used' (max_dBi + 1) trm
-  | are_all_de_Bruijn_indices_used' (max_dBi:int) (trm1 $ trm2  :term) =
-      are_all_de_Bruijn_indices_used' max_dBi trm1 orelse
-      are_all_de_Bruijn_indices_used' max_dBi trm2
-  | are_all_de_Bruijn_indices_used' (max_dBi:int) (trm:term) = is_this_abstract_used max_dBi trm;
+fun are_all_de_Bruijn_indices_used' (Abs (_,_,trm):term) =
+      is_this_abstract_used 0 trm andalso
+      are_all_de_Bruijn_indices_used' trm
+  | are_all_de_Bruijn_indices_used' (trm1 $ trm2  :term) =
+      are_all_de_Bruijn_indices_used' trm1 orelse
+      are_all_de_Bruijn_indices_used' trm2
+  | are_all_de_Bruijn_indices_used' (trm:term) = is_this_abstract_used 0 trm;
 
-fun are_all_de_Bruijn_indices_used (trm:term) = are_all_de_Bruijn_indices_used' ~1 trm;
+fun are_all_de_Bruijn_indices_used (Const _ $ Abs (name,typ,trm)) =
+      are_all_de_Bruijn_indices_used' (Abs (name,typ,trm))
+  | are_all_de_Bruijn_indices_used (trm as (Abs (_,_,_):term):term) =
+      are_all_de_Bruijn_indices_used' trm
+  | are_all_de_Bruijn_indices_used (trm1 $ trm2) =
+      are_all_de_Bruijn_indices_used trm1 andalso are_all_de_Bruijn_indices_used trm2
+  | are_all_de_Bruijn_indices_used _ = true;
 
 (* add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy. *)
 fun add_const_names_mult (trm:term) (names:strings) =

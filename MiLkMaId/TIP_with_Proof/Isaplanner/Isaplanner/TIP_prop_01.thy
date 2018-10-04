@@ -31,6 +31,7 @@ fun drop :: "Nat => 'a list => 'a list" where
 
 theorem property0 :(*Probably the best proof.*)
   "x (take n xs) (drop n xs) = xs"
+  ML_prf{* Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "x (take n xs) (drop n xs) = xs"}*}
   find_proof DInd
   (*"induct rule:take.induct also works well.*)
   (*Because take.induct and drop.induct are identical.*)
@@ -49,8 +50,8 @@ theorem property0'(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on n might look promising in the first try
     since both "take" and "drop" are defined recursively on the first argument, but...*)
-  apply2(induct n arbitrary: xs)
-   apply2 auto[1]
+  apply(*2*)(induct n arbitrary: xs)
+   apply(*2*) auto[1]
     (*This is problematic:
     We cannot use the simplification rule of "x"
     because we cannot simplify "TIP_prop_01.take (S n) xs".
@@ -68,8 +69,8 @@ theorem property0''(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on "xs" without "rule:take.induct" might look promising in the first try
     since both "take" and "drop" are defined recursively on the first argument, but...*)
-  apply2(induct xs arbitrary: n)
-   apply2(induct n)
+  apply(*2*)(induct xs arbitrary: n)
+   apply(*2*)(induct n)
     apply(case_tac n)(*cases is not good enough because "n" is quantified by \<And>*)
      apply fastforce+
     (*It is not so easy from this point

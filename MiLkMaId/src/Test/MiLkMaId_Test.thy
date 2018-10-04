@@ -278,6 +278,10 @@ val _ = @{assert} ((mk_parameter_matrix @{context} "MiLkMaId_Test.double" |> cla
 *}
 
 ML{*
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "(\<forall>x. y)"}                 = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "(\<forall>x. y) \<and> (\<forall>z. z)"}       = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "(\<lambda>x. y (\<forall>x. z)) (\<lambda>x. x)"} = false);
+@{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "True"}                   = true);
 @{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x. x"}                 = true);
 @{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x y. x y"}             = true);
 @{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>x y. z x y"}           = true);
