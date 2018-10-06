@@ -46,10 +46,15 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - there is no constants with an associated `.induct` rule that appear at a level that is deeper than the level of
      the lowest `c` in the uncurried syntax tree of the first sub-goal.
      (`Isaplanner/TIP_prop_01.thy`)
-- [ ] 10. If the first sub-goal contains multiple constants with associated `.induct` theorems,
-          use the `c.induct` that has the associated `c` that appears always in the position of argument number `i`
-          where the pattern-matching of the corresponding ancestral constant is complete on argument number `i`.
-          (`Isaplanner/TIP_prop_01.thy`)
+- [ ] 10. Check if
+   - the `induct` rule ses at least one argument for the `rule` field, and
+   - all the `rule`s used as arguments to the `induct` method the innermost ones. More precisely: 
+      - for any `c1.induct` rule,
+         - if the deepest level of the occurrences of `c1` is `n`,
+         - there is no constant `c2`, such that
+            - `c2` has an associated `.induct` rule in the proof context, and
+            - the level of `c2` is higher than `n`.
+   - (`Isaplanner/TIP_prop_01.thy`)
 - [ ] 11. If the underlying context has a simplification rule applicable to
           all sub-goals that appear after applying mathematical induction, the mathematical induction tends to be promising.
 - [X] 12. If the same variable (or sub-term) appears as the induction variable and generalized variable,
