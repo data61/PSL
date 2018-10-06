@@ -76,6 +76,11 @@ type data_with_pattern = datum_with_pattern list;
 type 'a matrix = 'a list list;
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
+val datum_to_level             : datum -> int;
+val filter_data                : (datum -> bool) -> data -> data;
+val filter_data_with_point_name: data -> string -> data;
+val filter_data_wo_point_name  : data -> string -> data;
+
 (* operations about command *)
 type suffixes = (string list * string list);
 val check_suffix            : Proof.context -> string -> suffixes -> bool;
@@ -481,6 +486,13 @@ type datum_with_pattern =
   {point    : point,
    ancestors: ancestors_with_pattern};
 type data_with_pattern = datum_with_pattern list;
+
+fun datum_to_level ({point,...}:datum) = #level point        : int;
+fun filter_data (f:datum -> bool) (data:data) = filter f data: data;
+fun filter_data_with_point_name (data:data) (pname:string) =
+  filter_data (fn {point,...} => #name point = pname) data   : data;
+fun filter_data_wo_point_name (data:data) (pname:string) =
+  filter_out (fn {point,...} => #name point = pname) data    : data;
 
 fun ancestor_to_ancestor_with_pattern (ctxt:Proof.context) ({point = point as {name, ...}, nth_arg = nth_arg}:ancestor) =
   let

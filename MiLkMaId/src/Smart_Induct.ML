@@ -296,6 +296,38 @@ fun ass_007 (pst:Proof.state) (mods:ITG.modifiers) =
     result: bool
   end;
 
+fun ass_009 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val pre_1st_subg            = IU.pst_to_fst_subg pst                                     : term option;
+    val rule_names              = IS.pick_rules mods |> map IS.get_name                      : string list;
+    val numb_rules              = rule_names |> length                                       : int;
+    val rule_cnames             = map (unsuffix ".induct") rule_names                        : strings;
+    val ucr_1st_subg            = omap MA.trm_to_utrm pre_1st_subg                           : MA.uterm option;
+    val data                    = omap MA.utrm_to_data ucr_1st_subg                          : MA.data option;
+    val ctxt                    = Proof.context_of pst: Proof.context                        : Proof.context;
+    val cname_to_filtered_data' = omap MA.filter_data_with_point_name data                   : (string -> MA.data) option;
+    val cname_to_filtered_data  = Utils.opt_app cname_to_filtered_data'                      : string option -> MA.data option;
+    val data_w_rule_cnames      = map cname_to_filtered_data (map SOME rule_cnames)
+                                |> Utils.somes |> flat                                       : MA.data;
+    val levels_of_rule_cnames   = map MA.datum_to_level data_w_rule_cnames                   : int list;
+    val max_level_of_rule_cname = fold (curry Int.max) levels_of_rule_cnames 0               : int;
+
+    val cname_to_filtered_out_data' = omap MA.filter_data_wo_point_name data                 : (string -> MA.data) option;
+    val cname_to_filtered_out_data  = Utils.opt_app cname_to_filtered_out_data'              : string option -> MA.data option;
+    val data_wo_rule_cnamess    = map cname_to_filtered_out_data (map SOME rule_cnames)
+                                |> Utils.somes                                               : MA.data list;
+    val data_wo_rule_cnames     = fold (inter (op =)) data_wo_rule_cnamess (these data)      : MA.data;
+    val has_induct_rule         = fn name:string =>
+                                 (try (Proof_Context.get_thm ctxt) (name^".induct"))
+                                |> is_some                                                   : bool;
+    val other_data_w_induct_name = filter (fn {point,...}:MA.datum =>
+                                   #name point |> has_induct_rule) data_wo_rule_cnames       : MA.data;
+    val level_of_others         = map MA.datum_to_level other_data_w_induct_name             : int list;
+    val max_level_of_others     = fold (curry Int.max) level_of_others 0                     : int;
+  in
+    numb_rules > 0 andalso max_level_of_rule_cname >= max_level_of_others
+  end;
+
 fun ass_012 (_:Proof.state) (mods:ITG.modifiers) =
   let
     val (ons, arbs, _) = IS.order mods;
@@ -390,7 +422,7 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*006*)ass_006 pre_pst mods,
 (*007*)ass_007 pre_pst mods,
 (*008*)true,
-(*009*)true,
+(*009*)ass_009 pre_pst mods,
 (*010*)true,
 (*011*)false,
 (*012*)ass_012 pre_pst mods,

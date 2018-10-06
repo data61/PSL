@@ -24,6 +24,7 @@ sig
   val bool_to_int    : bool -> int;
   val is_some_true   : bool option -> bool;
   val is_some_null   : 'a list option -> 'a list;
+  val opt_app        : ('a -> 'b) option -> 'a option -> 'b option;
   val eq             : ''a -> ''a -> bool;
   val init           : 'a list -> 'a list;
   val last           : 'a list -> 'a;
@@ -83,6 +84,9 @@ fun bool_to_int b = if b then 1 else 0;
 fun is_some_true maybe = Option.getOpt (maybe, false);
 
 fun is_some_null maybe = Option.getOpt (maybe, []);
+
+fun opt_app (SOME f: ('a -> 'b) option) (SOME x: 'a option) = SOME (f x)
+  | opt_app  _                           _                  = NONE;
 
 val eq = (fn x => is_some_true o (try (equal x))): ''a -> ''a -> bool;
 

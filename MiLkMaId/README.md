@@ -41,10 +41,10 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [ ] 8. If multiple recursively defined constants appear at the same level in the syntax tree of 
          the uncurried version of the first sub-goal, do induction on the argument(s) of constants that are defined outside
          `HOL/Main.thy`.
-- [ ] 9. Check if
+- [X] 9. Check if
    - the `induct` method uses an `.induct` rule, say `c.induct`, and
-   - there is no constants with an associated `.induct` rule that appear below the lowest `c`
-     in the uncurried syntax tree of the first sub-goal.
+   - there is no constants with an associated `.induct` rule that appear at a level that is deeper than the level of
+     the lowest `c` in the uncurried syntax tree of the first sub-goal.
      (`Isaplanner/TIP_prop_01.thy`)
 - [ ] 10. If the first sub-goal contains multiple constants with associated `.induct` theorems,
           use the `c.induct` that has the associated `c` that appears always in the position of argument number `i`

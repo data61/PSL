@@ -31,8 +31,9 @@ fun drop :: "Nat => 'a list => 'a list" where
 
 theorem property0 :(*Probably the best proof.*)
   "x (take n xs) (drop n xs) = xs"
-  ML_prf{* Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "x (take n xs) (drop n xs) = xs"}*}
+(*
   find_proof DInd
+*)
   (*"induct rule:take.induct also works well.*)
   (*Because take.induct and drop.induct are identical.*)
   (*why "induct rule:take.induct" or "induct rule:drop.induct"?
@@ -45,7 +46,9 @@ theorem property0 :(*Probably the best proof.*)
   apply2 (induct xs rule: TIP_prop_01.drop.induct)
     apply auto
   done
-
+ML{* fold (inter (op =)) [[1,2,3,4,5],[1,3,5]] [1,2,3,4,5];
+(try (Proof_Context.get_thm @{context}) ("TIP_prop_01.n"^".induct"))
+                                |> is_some        *}
 theorem property0'(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on n might look promising in the first try
