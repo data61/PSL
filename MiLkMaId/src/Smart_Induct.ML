@@ -344,6 +344,42 @@ fun ass_016 (_:Proof.state) (mods:ITG.modifiers) =
     result:bool
   end;
 
+fun is_this_datum_w_pttrn_of_vname (vname:string) ({point,...}:MA.datum_with_pattern) =
+  let
+    val {name, utyp,...} = point;
+  in
+    name = vname (*FIXME: why does the following cause problems? andalso utyp = MA.UV*)
+  end;
+
+fun ass_017 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val pre_1st_subg = IU.pst_to_fst_subg pst                       : term option;
+    val ucr_1st_subg = omap MA.trm_to_utrm pre_1st_subg             : MA.uterm option;
+    val data         = omap MA.utrm_to_data ucr_1st_subg            : MA.data option;
+    val ctxt         = Proof.context_of pst: Proof.context          : Proof.context;
+    val data_w_pttrn = omap (MA.data_to_data_with_pattern ctxt) data: MA.data_with_pattern option;
+    val vnames       = mods |> IS.pick_vars |> IS.get_names         : strings;
+    val induct_has_at_least_one_ons = length vnames > 0: bool;
+    fun is_Full_or_Other ({pattern,...}:MA.ancestor_with_pattern) =
+      pattern = MA.Full orelse pattern = MA.Other;
+    fun this_point_is_Full_or_Other_to_all_ancestors ({ancestors,...}:MA.datum_with_pattern) =
+      forall is_Full_or_Other ancestors;
+    fun one_var_of_vname_is_Full_or_Other_to_all_ancestors' (vname:string) (data_w_pttrn:MA.data_with_pattern) =
+      let
+        val data_of_vname = filter (is_this_datum_w_pttrn_of_vname vname) data_w_pttrn: MA.data_with_pattern;
+        val has_an_instance_that_is_Full_or_Other_to_all_ist_ancestors =
+          exists this_point_is_Full_or_Other_to_all_ancestors data_of_vname: bool;
+      in
+        has_an_instance_that_is_Full_or_Other_to_all_ist_ancestors
+      end;
+    fun one_var_of_vname_is_Full_or_Other_to_all_ancestors (vname:string) =
+      Option.getOpt (omap (one_var_of_vname_is_Full_or_Other_to_all_ancestors' vname) data_w_pttrn, false): bool;
+    val all_ons_are_Full_or_Other_to_all_ancestors =
+      forall one_var_of_vname_is_Full_or_Other_to_all_ancestors vnames: bool;
+  in
+    induct_has_at_least_one_ons andalso all_ons_are_Full_or_Other_to_all_ancestors
+  end;
+
 (*TODO*)
 fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*001*)ass_001 pre_pst mods,
@@ -362,7 +398,7 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*014*)ass_014 pre_pst mods,
 (*015*)ass_015 pre_pst mods,
 (*016*)ass_016 pre_pst mods,
-(*017*)true];
+(*017*)ass_017 pre_pst mods];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
     mk_post_thm meth_name pre_pst mods

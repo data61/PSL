@@ -436,7 +436,7 @@ fun uc_trm_to_points' (UAbs (name, _, utrm):uterm) (old_level:int) (old_data:dat
   | uc_trm_to_points' (UApp (func, args):uterm) (old_level:int) (old_data:data) (old_ancestors:ancestors) =
   let
     val new_level      = old_level + 1: int;
-    val new_point      = {name = get_name func, utyp = get_utyp func, level = new_level}: point;
+    val new_point      = {name = get_name func, utyp = UAp, level = new_level}: point;
     val new_datum      = {point = new_point, ancestors = old_ancestors}: datum;
     val new_ancestorss = List.tabulate (length args, fn n => ({point = new_point, nth_arg = n + 1}::old_ancestors))
                        : ancestors list;
