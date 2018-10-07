@@ -60,8 +60,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
           all sub-goals that appear after applying mathematical induction, the mathematical induction tends to be promising.
 - [X] 12. If the same variable (or sub-term) appears as the induction variable and generalized variable,
           this mathematical induction is less promising.
-- [X] 13. If the mathematical induction under consideration uses more than one rules,
-          probably this induction is not very promising
+- [X] 13. Checks if the number of arguments for the `rule` field is less than two.
 - [X] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
 - [X] 15. Check if the `induct` method introduces a lambda abstraction in the first-sub goal that is not used in the body.
           This includes quantified variables that are not used in the body.
