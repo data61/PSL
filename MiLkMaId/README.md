@@ -42,10 +42,11 @@ learning algorithms, the results should be treated as _dummy variables_, which m
          the uncurried version of the first sub-goal, do induction on the argument(s) of constants that are defined outside
          `HOL/Main.thy`.
 - [X] 9. Check if
-   - the `induct` method uses an `.induct` rule, say `c.induct`, and
-   - there is no constants with an associated `.induct` rule that appear at a level that is deeper than the level of
-     the lowest `c` in the uncurried syntax tree of the first sub-goal.
-     (`Isaplanner/TIP_prop_01.thy`)
+   - The `induct` rule has at least one argument in the `rule` field, and
+   - for any `.induct` rule, say `c.induct`, in the `rule` field of the `induct` method,
+      - there is no constants with an associated `.induct` rule that appear at a level that is deeper than the level of
+        the lowest `c` in the uncurried syntax tree of the first sub-goal.
+        (Check `Isaplanner/TIP_prop_01.thy` for example.)
 - [ ] 10. Check if
    - the `induct` rule ses at least one argument for the `rule` field, and
    - all the `rule`s used as arguments to the `induct` method the innermost ones. More precisely: 
