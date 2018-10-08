@@ -83,6 +83,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
      n is the number of arguments in the conclusion of `bla.induct` in the uncurried form,
    - for some `bla`, 
       - all arguments to the `induct` method appears as an argument to the same instance of `bla`.
+   - Assrtion019 is similar to assertion003, but more relaxed.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
