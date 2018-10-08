@@ -58,7 +58,7 @@ struct
      |  which_directory Induct_Tac = "Induct_Tac/";
 
     fun get_new_path' (induct:string) =
-      (*File.platform_path (Resources.master_directory @{theory}) ^*) "~/Database/" ^ induct ^ serial_string ();
+      File.platform_path (Resources.master_directory @{theory}) ^ "/Database/" ^ induct ^ serial_string ();
 
     fun get_new_path (meth_name:string) : string option = SOME meth_name
      >>= which_induct

@@ -412,6 +412,27 @@ fun ass_017 (pst:Proof.state) (mods:ITG.modifiers) =
     induct_has_at_least_one_ons andalso all_ons_are_Full_or_Other_to_all_ancestors
   end;
 
+fun ass_018 _ (mods:ITG.modifiers) = length mods = 0;
+
+(*TODO: ass_019 is similar to ass_003. Re-factor them.*)
+fun ass_019 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
+    val ctxt                       = Proof.context_of pst             : Proof.context;
+    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss;
+    val rule_names                 = mods |> IS.pick_rules |> IS.get_names           : strings: strings;
+    val rule_cnames                = map (unsuffix ".induct") rule_names             : strings;
+    val on_names                   = mods |> IS.pick_vars |> IS.get_names            : strings;
+    val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss: (string option * strings) list;
+    fun for_given_rule_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
+      | for_given_rule_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =
+        cname_from_rule = fname andalso Utils.members (op =) on_names var_names; (*The only difference to ass_003.*)
+    fun for_some_rule_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
+      Utils.a_member (uncurry for_given_rule_cname_n_given_ufun_n_args) cnames_from_rules pairs;
+  in
+    for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs:bool
+  end;
+
 (*TODO*)
 fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*001*)ass_001 pre_pst mods,
@@ -430,7 +451,10 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*014*)ass_014 pre_pst mods,
 (*015*)ass_015 pre_pst mods,
 (*016*)ass_016 pre_pst mods,
-(*017*)ass_017 pre_pst mods];
+(*017*)ass_017 pre_pst mods,
+(*018*)ass_018 pre_pst mods,
+(*019*)ass_019 pre_pst mods
+];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
     mk_post_thm meth_name pre_pst mods
