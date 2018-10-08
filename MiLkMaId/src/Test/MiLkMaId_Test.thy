@@ -1,7 +1,16 @@
 theory MiLkMaId_Test
-imports "../MiLkMaId"
+imports (*"../MiLkMaId"*)Main
 begin
 
+lemma "True"
+  apply induct
+  apply induct_tac
+  apply induction
+  apply induct
+  apply induct
+  apply auto
+  done
+(*
 ML{* (* test on utility functions *)
 val _ = @{assert} (exist_related_rsimp ["TIP_prop_01.drop"]);
 val _ = @{assert} (exist_related_rsimp ["identity"] = false);
@@ -299,5 +308,5 @@ ML{*
 @{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>z. z \<and> True"}           = true);
 @{assert} (Isabelle_Utils.are_all_de_Bruijn_indices_used @{term "\<And>z. True \<and> (\<forall>y. y z)"}   = true);
 *}
-
+*)
 end

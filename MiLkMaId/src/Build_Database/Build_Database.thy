@@ -1,7 +1,10 @@
 theory Build_Database
   imports "../../../src/Try_Hard"
+(*
   keywords "apply2" :: prf_script
-(*   and     "by2" (*"proof2"*) :: "qed"*)
+   and "proof2" :: prf_block
+   and     "by2" (*"proof2"*) :: "qed"
+*)
 begin
 
 ML{*

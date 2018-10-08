@@ -117,9 +117,9 @@ fun get_all_modifierss (pst:DU.state) : ITG.modifiers list =
   |> Seq2.powerset
   |> Seq.map Seq.list_of
   |> Seq.map IS.reordered_mods
-  |> Seq.chop 10000 |> fst |> Seq.of_list (*TODO: Double-check. We set an upper limit.*)
-  |> Seq.list_of
-  |> flat: ITG.modifiers list;
+  |> Seq.map Seq.of_list
+  |> Seq.flat
+  |> Seq.chop 10000 |> fst: ITG.modifiers list;(*TODO: Double-check. We set an upper limit.*)
 
 fun modifiers_to_str (meth_name:string) (mods: IS.modifiers) : string =
   enclose "(" ")" (meth_name ^ IS.mods_to_string mods);
@@ -231,16 +231,16 @@ fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) =
     val ctxt                       = Proof.context_of pst             : Proof.context;
     val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss;
     val rule_names                 = mods |> IS.pick_rules |> IS.get_names           : strings: strings;
-    val cnames                     = map (unsuffix ".induct") rule_names             : strings;
-    val on_names                   = mods |> IS.pick_vars |> IS.get_names |> rev(*!*): strings;
+    val rule_cnames                = map (unsuffix ".induct") rule_names             : strings;
+    val on_names                   = mods |> IS.pick_vars |> IS.get_names            : strings;
     val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss: (string option * strings) list;
-    fun for_given_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
-      | for_given_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =
-        cname_from_rule = fname andalso on_names = var_names;
-    fun for_a_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
-      Utils.a_member (uncurry for_given_cname_n_given_ufun_n_args) cnames_from_rules pairs;
+    fun for_given_rule_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
+      | for_given_rule_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =
+        cname_from_rule = fname andalso on_names = var_names
+    fun for_some_rule_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
+      Utils.a_member (uncurry for_given_rule_cname_n_given_ufun_n_args) cnames_from_rules pairs;
   in
-    for_a_cname_n_all_ufun_n_args cnames name_pairs:bool
+    for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs:bool
   end;
 
 fun ass_005 (pst:Proof.state) (mods:ITG.modifiers) =
@@ -472,9 +472,10 @@ fun mk_datapoint (model_meth: Method.text_range) (pst:Proof.state) =
       in
         space_implode "" (used::ass_results)
       end;
+(*
     val _ = (map print_one_line lines ~~ map IS.mods_to_string all_modss)
       |> map (tracing o String.concatWith " --- " o Utils.pair_to_list);
-
+*)
     val datum = {within_psls_scope        = has_one model_result                   : bool,
                  numb_of_successful_meths = length psl_results                     : int,
                  numb_of_created_methds   = length (state_to_nontacs meth_name pst): int,

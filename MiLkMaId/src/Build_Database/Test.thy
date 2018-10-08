@@ -3,11 +3,11 @@ imports Main Build_Database
 begin
 
 lemma "True"
-  apply2 induct
-  apply2 induct_tac
-  apply2 induction
-  apply2 induct
-  apply2 auto
+  apply induct
+  apply induct_tac
+  apply induction
+  apply induct
+  apply auto
   done
 
 end

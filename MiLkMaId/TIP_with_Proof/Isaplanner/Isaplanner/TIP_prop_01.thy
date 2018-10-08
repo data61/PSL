@@ -43,12 +43,10 @@ theorem property0 :(*Probably the best proof.*)
   (* Induction on "n xs rule: TIP_prop_01.drop.induct" works as well.
    * Induction on "n" rule: TIP_prop_01.drop.induct is bad
    * because the resulting proof goal is identical to the original goal. *)
-  apply2 (induct xs rule: TIP_prop_01.drop.induct)
+  apply (induct xs rule: TIP_prop_01.drop.induct)
     apply auto
   done
-ML{* fold (inter (op =)) [[1,2,3,4,5],[1,3,5]] [1,2,3,4,5];
-(try (Proof_Context.get_thm @{context}) ("TIP_prop_01.n"^".induct"))
-                                |> is_some        *}
+
 theorem property0'(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on n might look promising in the first try
