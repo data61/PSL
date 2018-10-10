@@ -614,10 +614,11 @@ fun ufun_n_args_to_vnames_only_full (ctxt:Proof.context) ({ufun, uargs, level}:u
   let
     val cname_ufun = case ufun of
         UConst (cname, _) => SOME cname
-      | _                 => NONE                           : string option;
-    val patterns       = cname_ufun >>= get_patterns ctxt   : patterns option;
-    val not_fulls      = patterns <$> is_not_Fulls          : bool list option;
-    val full_args      = not_fulls <$>thin_out uargs |> these: uterm list;
+      | _                 => NONE                                 : string option;
+    val patterns       = cname_ufun >>= get_patterns ctxt         : patterns option;
+    val not_fulls      = patterns <$> is_not_Fulls                : bool list option;
+    val not_full_args  = not_fulls >>= try tl                     : bool list option;
+    val full_args      = not_full_args <$> thin_out uargs |> these: uterm list;
     val vnames_of_full = ufun_n_args_to_cname_n_vnames {ufun=ufun, uargs= full_args, level=level} |> snd: strings;
   in
     vnames_of_full: strings

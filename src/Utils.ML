@@ -337,6 +337,7 @@ sig
   val add_const_names_mult          : term -> strings -> strings;
   val get_meth_name                 : Method.text -> string;
   val are_all_de_Bruijn_indices_used: term -> bool;
+  val pstate_to_usings              : Proof.state -> thm list;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -553,6 +554,8 @@ fun are_all_de_Bruijn_indices_used (Const _ $ Abs (name,typ,trm)) =
 (* add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy. *)
 fun add_const_names_mult (trm:term) (names:strings) =
   fold_aterms (fn Const (c, _) => insert (K false) c | _ => I) trm names;
+
+fun pstate_to_usings (pstate:Proof.state) = Proof.raw_goal pstate |> #facts: thm list;
 
 end;
 

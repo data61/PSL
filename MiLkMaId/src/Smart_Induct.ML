@@ -247,7 +247,7 @@ fun ass_005 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val ufun_n_argss       = pst_to_ufun_n_argss pst                                   : MA.ufun_n_args list;
     val ctxt               = Proof.context_of pst                                      : Proof.context;
-    val on_names           = mods |> IS.pick_vars |> IS.get_names |> rev(*!*)          : strings;
+    val on_names           = mods |> IS.pick_vars |> IS.get_names                      : strings;
     val vnames_only_fullss = map (MA.ufun_n_args_to_vnames_only_full ctxt) ufun_n_argss: strings list;
     fun are_all_vnames_of_full (vnames:strings) (fulls:strings) = Utils.members (op =) vnames fulls;
     val result = exists (are_all_vnames_of_full on_names) vnames_only_fullss andalso length on_names > 0;
@@ -433,6 +433,9 @@ fun ass_019 (pst:Proof.state) (mods:ITG.modifiers) =
     for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs:bool
   end;
 
+(* ass_020. checks if the proof context contains local assumption *)
+fun ass_020 (pstate:Proof.state) _ = IU.pstate_to_usings pstate |> null;
+
 (*TODO*)
 fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*001*)ass_001 pre_pst mods,
@@ -453,7 +456,8 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*016*)ass_016 pre_pst mods,
 (*017*)ass_017 pre_pst mods,
 (*018*)ass_018 pre_pst mods,
-(*019*)ass_019 pre_pst mods
+(*019*)ass_019 pre_pst mods,
+(*020*)ass_020 pre_pst mods
 ];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
