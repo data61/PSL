@@ -618,8 +618,10 @@ fun ufun_n_args_to_vnames_only_full (ctxt:Proof.context) ({ufun, uargs, level}:u
     val patterns       = cname_ufun >>= get_patterns ctxt         : patterns option;
     val not_fulls      = patterns <$> is_not_Fulls                : bool list option;
     val not_full_args  = not_fulls >>= try tl                     : bool list option;
-    val full_args      = not_full_args <$> thin_out uargs |> these: uterm list;
+    (*TODO: why does thin_out fail sometimes?*)
+    val full_args      = not_full_args >>= try (thin_out uargs) |> these: uterm list;
     val vnames_of_full = ufun_n_args_to_cname_n_vnames {ufun=ufun, uargs= full_args, level=level} |> snd: strings;
+val _ = map tracing vnames_of_full;
   in
     vnames_of_full: strings
   end;

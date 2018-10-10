@@ -81,8 +81,9 @@ struct
             val bool_to_int_str = Int.toString o Utils.bool_to_int: bool -> string;
             val used  = #used line |> bool_to_int_str: string;
             val ass_results = map bool_to_int_str (#ass_results line): string list;
+            val meth_str = "method_is: " ^ #meth_w_args line;
           in
-            space_implode " " (used::ass_results)
+            space_implode " " ((used::ass_results) @ [meth_str])
           end;
         val lines = map print_one_line (#lines datum): strings
       in

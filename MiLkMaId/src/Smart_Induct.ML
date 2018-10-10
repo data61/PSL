@@ -6,7 +6,8 @@
 signature SMART_TACTIC =
 sig
   type one_line = {used       : bool,
-                   ass_results: bool list};
+                   ass_results: bool list,
+                   meth_w_args: string};
   type datum = {within_psls_scope       : bool,
                 numb_of_successful_meths: int, (*NB: upper limit is 10000*)
                 numb_of_created_methds  : int, (*NB: upper limit is 10000*)
@@ -20,8 +21,8 @@ structure Smart_Induct : SMART_TACTIC =
 struct
 (*We expose the definitions of these types because other modules should be able to use record field selections.*)
 type one_line = {used       : bool,
-                 ass_results: bool list
-                 };
+                 ass_results: bool list,
+                 meth_w_args: string};
 type datum = {within_psls_scope       : bool,
               numb_of_successful_meths: int, (*NB: upper limit is 10000*)
               numb_of_created_methds  : int, (*NB: upper limit is 10000*)
@@ -467,7 +468,8 @@ fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.
 
 fun mk_a_line (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
   {used        = is_used meth_name pre_pst model_post mods,
-   ass_results = mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers)
+   ass_results = mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers),
+   meth_w_args = IS.mods_to_string mods
    }: one_line;
 
 fun mk_lines (meth_name:string) (pre_pst:Proof.state) (modss:ITG.modifiers list) (model_post:thm) =
@@ -500,10 +502,7 @@ fun mk_datapoint (model_meth: Method.text_range) (pst:Proof.state) =
       in
         space_implode "" (used::ass_results)
       end;
-(*
-    val _ = (map print_one_line lines ~~ map IS.mods_to_string all_modss)
-      |> map (tracing o String.concatWith " --- " o Utils.pair_to_list);
-*)
+
     val datum = {within_psls_scope        = has_one model_result                   : bool,
                  numb_of_successful_meths = length psl_results                     : int,
                  numb_of_created_methds   = length (state_to_nontacs meth_name pst): int,
@@ -520,8 +519,8 @@ structure Dynamic_Induct_Tac : SMART_TACTIC =
 struct
 
 type one_line = {used       : bool,
-                 ass_results: bool list
-                 };
+                 ass_results: bool list,
+                 meth_w_args: string};
 type datum = {within_psls_scope       : bool,
               numb_of_successful_meths: int, (*NB: upper limit is 10000*)
               numb_of_created_methds  : int, (*NB: upper limit is 10000*)
