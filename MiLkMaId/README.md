@@ -92,6 +92,14 @@ learning algorithms, the results should be treated as _dummy variables_, which m
             - then there is an induction variable, say `xs`, 
               that appears as the nth argument of an occurrence of `foo` in the proof obligation.
    - `by (induct xs arbitrary: ys)` in line 1833 of `src/HOL/Library/Multiset.thy`.
+- [ ] 22. Check if
+   - for any variable, say `Q` generalized by the `arbitrary` keyword,
+      - if there exists a function, say `nextl`, that takes `Q` as part of its `n`th argument,
+         - there exists an induction variable, say `xs`, such that
+            - for some natural number `m` that is smaller than or equal to the number of arguments `nextl` can take,
+               - there are multiple occurrences of `nextl` such that
+                  - `xs` appears as part of the `m`th argument to `nextl`, and
+                  - `Q` appears as part of the `n`th argument to `nextl`.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
