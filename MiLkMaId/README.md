@@ -100,6 +100,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
                - there are multiple occurrences of `nextl` such that
                   - `xs` appears as part of the `m`th argument to `nextl`, and
                   - `Q` appears as part of the `n`th argument to `nextl`.
+   - `by (induct xs arbitrary: Q)` in line 623 of `thys/Finite_Automata_HF/Finite_Automate_HF.thy`.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
