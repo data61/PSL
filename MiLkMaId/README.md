@@ -84,6 +84,14 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - for some `bla`, 
       - all arguments to the `induct` method appears as an argument to the same instance of `bla`.
    - Assrtion019 is similar to assertion003, but more relaxed.
+- [X] 20. Check if the proof context contains local assumption introduced by the `using` keyword.
+- [ ] 21. Check if 
+   - for any variable, say `ys`, generalized by the `arbitrary` keyword,
+      - for any occurrence of `ys` in the proof goal,
+         - if `ys` is the nth argument of a function `foo`,
+            - then there is an induction variable, say `xs`, 
+              that appears as the nth argument of an occurrence of `foo` in the proof obligation.
+   - `by (induct xs arbitrary: ys)` in line 1833 of `src/HOL/Library/Multiset.thy`.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
