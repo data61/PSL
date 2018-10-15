@@ -106,6 +106,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
                   - `Q` appears as part of the `n`th argument to `nextl`.
    - `by (induct xs arbitrary: Q)` in line 623 of `thys/Finite_Automata_HF/Finite_Automate_HF.thy`.
    - `by (induct xs arbitrary: l)` in line 156 of `thy/Binomial-Queues/Binomial_Queue.thy`.
+   - `by (induct p1 arbitrary: v)` in line 146 of `thy/Dijkstra_Schortest_Path/Graph.thy`.
 - [ ] 23. Check if 
    - the proof obligation has either `Set.member` or `Set.not_member`, and
    - all induction variables appear as part of the second argument to either `Set.member` or `Set.not_member` at least once
