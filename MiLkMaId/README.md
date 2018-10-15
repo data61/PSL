@@ -87,7 +87,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 20. Check if the proof context contains local assumption introduced by the `using` keyword.
 - [ ] 21. Check if 
    - for any variable, say `ys`, generalized by the `arbitrary` keyword,
-      - for any occurrence of `ys` in the proof goal,
+      - for some occurrence of `ys` in the proof goal,
          - if `ys` is the nth argument of a function `foo`,
             - then there is an induction variable, say `xs`, 
               that appears as the nth argument of an occurrence of `foo` in the proof obligation.
