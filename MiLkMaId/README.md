@@ -106,7 +106,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - all induction variables appear as part of the second argument to either `Set.member` or `Set.not_member` at least once
 - [ ] 24. Check if 
    - a proof obligation has variables of type `nat`, and
-   - all induction variables have type `nat.
+   - all induction variables have type `nat`.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
