@@ -85,7 +85,9 @@ learning algorithms, the results should be treated as _dummy variables_, which m
       - all arguments to the `induct` method appears as an argument to the same instance of `bla`.
    - Assrtion019 is similar to assertion003, but more relaxed.
 - [X] 20. Check if the proof context contains local assumption introduced by the `using` keyword.
-- [ ] 21. Check if 
+- [ ] 21. Check if
+   - the `induct` method has at least one argument as induction variable,
+   - the `induct` method has at least one argument in the `arbitrary` field, and
    - for any variable, say `ys`, generalized by the `arbitrary` keyword,
       - for some occurrence of `ys` in the proof goal,
          - if `ys` is the nth argument of a function `foo`,
@@ -103,6 +105,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
                   - `xs` appears as part of the `m`th argument to `nextl`, and
                   - `Q` appears as part of the `n`th argument to `nextl`.
    - `by (induct xs arbitrary: Q)` in line 623 of `thys/Finite_Automata_HF/Finite_Automate_HF.thy`.
+   - `by (induct xs arbitrary: l)` in line 156 of `thy/Binomial-Queues/Binomial_Queue.thy`.
 - [ ] 23. Check if 
    - the proof obligation has either `Set.member` or `Set.not_member`, and
    - all induction variables appear as part of the second argument to either `Set.member` or `Set.not_member` at least once
