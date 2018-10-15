@@ -97,10 +97,11 @@ learning algorithms, the results should be treated as _dummy variables_, which m
       - if there exists a function, say `nextl`, that takes `Q` as part of its `n`th argument,
          - there exists an induction variable, say `xs`, such that
             - for some natural number `m` that is smaller than or equal to the number of arguments `nextl` can take,
-               - there are multiple occurrences of `nextl` such that
+               - there are _multiple_ occurrences of `nextl` such that
                   - `xs` appears as part of the `m`th argument to `nextl`, and
                   - `Q` appears as part of the `n`th argument to `nextl`.
    - `by (induct xs arbitrary: Q)` in line 623 of `thys/Finite_Automata_HF/Finite_Automate_HF.thy`.
+- [ ] 23. Check if a proof obligation has either `Set.member` or `Set.not_member`, then all induction variables appear as part of the second argument to either `Set.member` or `Set.not_member` at least once.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
