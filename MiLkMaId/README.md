@@ -107,6 +107,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - a proof obligation has either `Set.member` or `Set.not_member`, and
    - all induction variables appear as part of the second argument to either `Set.member` or `Set.not_member` at least once
    - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
+   - `proof (induction vs arbitrary: c)` in line 422 of `thys/Timed_Automata/DBM.thy`.
 - [ ] 24. Check if 
    - a proof obligation has variables of type `nat`, and
    - all induction variables have type `nat`.
