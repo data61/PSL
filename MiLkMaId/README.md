@@ -115,7 +115,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [ ] 25. Check if
    - the proof obligation has `List.list.set`,
    - the `induct` method takes at least one argument as induction variables and
-   - _all_ induction variables appears as part of the argument to at least one occurrence of `List.list.set`.
+   - _all_ induction variables appear as part of the argument to at least one occurrence of `List.list.set`.
 - [ ] 26. Check if
    - the proof obligation has `List.list.set`,
    - the `induct` method takes at least one argument as induction variables and
