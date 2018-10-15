@@ -119,7 +119,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
 - [ ] 26. Check if
    - the proof obligation has `List.list.set`,
-   - the `induct` method takes at least one argument as induction variables and
+   - the `induct` method takes at least one argument as induction variable and
    - _at least one_ induction variables appears as part of the argument to at least one occurrence of `List.list.set`.
    - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
 - [ ] 27. Check if none of induction variables has a function type.
@@ -129,6 +129,10 @@ learning algorithms, the results should be treated as _dummy variables_, which m
       - the second argument is just a variable, say `i`, and
       - `i` is generalized by the `arbitrary` keyword.
    - `proof(induct xs arbitrary: i j)` in line 361 og `thys/Stable_Matching/Basis.thy`.
+- [ ] 29. Check if
+   - the proof obligation has at least one variable of type (constructor) `set` or or `list`,
+   - the `induct` method takes at least one argument as induction variable, and
+   - at least one induction variable has a type of `set` or `list`.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
