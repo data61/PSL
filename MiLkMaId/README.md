@@ -131,8 +131,9 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - `proof(induct xs arbitrary: i j)` in line 361 og `thys/Stable_Matching/Basis.thy`.
 - [ ] 29. Check if
    - the proof obligation has at least one variable of type (constructor) `set` or or `list`,
-   - the `induct` method takes at least one argument as induction variable, and
-   - at least one induction variable has a type of `set` or `list`.
+   - the `induct` method takes at least one argument as induction variable,
+   - at least one induction variable has a type of `set` or `list`, and
+   - `proof (induct xs)` in line 30 of `thys/Binomial-Queues/Binomial_Queue.thy`.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
