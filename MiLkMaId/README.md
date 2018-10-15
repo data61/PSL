@@ -92,6 +92,8 @@ learning algorithms, the results should be treated as _dummy variables_, which m
             - then there is an induction variable, say `xs`, 
               that appears as the nth argument of an occurrence of `foo` in the proof obligation.
    - `by (induct xs arbitrary: ys)` in line 1833 of `src/HOL/Library/Multiset.thy`.
+   - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
+   - `proof (induct xs arbitrary: ys)` in line 2542 of `src/HOL/Library/Multiset.thy` (as part of `assumes`).
 - [ ] 22. Check if
    - for any variable, say `Q` generalized by the `arbitrary` keyword,
       - if there exists a function, say `nextl`, that takes `Q` as part of its `n`th argument,
@@ -104,6 +106,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [ ] 23. Check if 
    - a proof obligation has either `Set.member` or `Set.not_member`, and
    - all induction variables appear as part of the second argument to either `Set.member` or `Set.not_member` at least once
+   - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
 - [ ] 24. Check if 
    - a proof obligation has variables of type `nat`, and
    - all induction variables have type `nat`.
