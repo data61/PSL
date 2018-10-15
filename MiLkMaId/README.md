@@ -124,16 +124,21 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [ ] 26. Check if
    - the proof obligation has `List.list.set`,
    - the `induct` method takes at least one argument as induction variable and
-   - _at least one_ induction variables appears as part of the argument to at least one occurrence of `List.list.set`.
+   - _at least one_ induction variable appears as part of the argument to at least one occurrence of `List.list.set`.
    - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
-- [ ] 27. Check if none of induction variables has a function type.
-- [ ] 28. Check if
+- [ ] 27. Check if
+   - the proof obligation has `List.list.set`,
+   - the `induct` method takes at least one argument as induction variable and
+   - _all_ induction variables appear as part of the arguments to at least one occurrence of `List.list.set`.
+   - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
+- [ ] 28. Check if none of induction variables has a function type.
+- [ ] 29. Check if
    - the proof obligation has `List.nth`, and
    - for some occurrence of `List.nth`
       - the second argument is just a variable, say `i`, and
       - `i` is generalized by the `arbitrary` keyword.
    - `proof(induct xs arbitrary: i j)` in line 361 og `thys/Stable_Matching/Basis.thy`.
-- [ ] 29. Check if
+- [ ] 30. Check if
    - the proof obligation has at least one variable of type (constructor) `set` or or `list`,
    - the `induct` method takes at least one argument as induction variable,
    - at least one induction variable has a type of `set` or `list`, and
