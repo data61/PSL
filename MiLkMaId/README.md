@@ -96,7 +96,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - `proof (induct xs arbitrary: ys)` in line 2542 of `src/HOL/Library/Multiset.thy` (as part of `assumes`).
 - [ ] 22. Check if
    - for any variable, say `Q` generalized by the `arbitrary` keyword,
-      - if there exists a function, say `nextl`, that takes `Q` as part of its `n`th argument,
+      - if there exists a function, say `nextl`, that takes `Q` as ~~part of~~ its `n`th argument,
          - there exists an induction variable, say `xs`, such that
             - for some natural number `m` that is smaller than or equal to the number of arguments `nextl` can take,
                - there are _multiple_ occurrences of `nextl` such that
