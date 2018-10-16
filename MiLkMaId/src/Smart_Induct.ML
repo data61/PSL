@@ -226,20 +226,33 @@ fun ass_002 (pst:Proof.state) (mods:ITG.modifiers) =
     result:bool
   end;
 
+fun induct_rule_name_to_const_name (induct_rule_name) : string option =
+    try (unsuffix ".induct"   )  induct_rule_name
+<|> try (unsuffix ".induct(1)")  induct_rule_name
+<|> try (unsuffix ".induct(2)")  induct_rule_name
+<|> try (unsuffix ".induct(3)")  induct_rule_name
+<|> try (unsuffix ".induct(4)")  induct_rule_name
+<|> try (unsuffix ".induct(5)")  induct_rule_name
+<|> try (unsuffix ".induct(6)")  induct_rule_name
+<|> try (unsuffix ".induct(7)")  induct_rule_name
+<|> try (unsuffix ".induct(8)")  induct_rule_name
+<|> try (unsuffix ".induct(9)")  induct_rule_name
+<|> try (unsuffix ".induct(10)") induct_rule_name;
+
 fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
-    val ctxt                       = Proof.context_of pst             : Proof.context;
-    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss;
-    val rule_names                 = mods |> IS.pick_rules |> IS.get_names           : strings: strings;
-    val rule_cnames                = map (unsuffix ".induct") rule_names             : strings;
-    val on_names                   = mods |> IS.pick_vars |> IS.get_names            : strings;
-    val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss: (string option * strings) list;
+    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst                                        : MA.ufun_n_args list;
+    val ctxt                       = Proof.context_of pst                                                     : Proof.context;
+    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss: MA.ufun_n_argss;
+    val rule_names                 = mods |> IS.pick_rules |> IS.get_names                                    : strings: strings;
+    val rule_cnames                = map induct_rule_name_to_const_name rule_names |> Utils.somes             : strings;
+    val on_names                   = mods |> IS.pick_vars |> IS.get_names                                     : strings;
+    val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss       : (string option * strings) list;
     fun for_given_rule_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
       | for_given_rule_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =
         cname_from_rule = fname andalso on_names = var_names
     fun for_some_rule_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
-      Utils.a_member (uncurry for_given_rule_cname_n_given_ufun_n_args) cnames_from_rules pairs;
+        Utils.a_member (uncurry for_given_rule_cname_n_given_ufun_n_args) cnames_from_rules pairs;
   in
     for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs:bool
   end;
@@ -299,32 +312,32 @@ fun ass_007 (pst:Proof.state) (mods:ITG.modifiers) =
 
 fun ass_009 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val pre_1st_subg            = IU.pst_to_fst_subg pst                                     : term option;
-    val rule_names              = IS.pick_rules mods |> map IS.get_name                      : string list;
-    val numb_rules              = rule_names |> length                                       : int;
-    val rule_cnames             = map (unsuffix ".induct") rule_names                        : strings;
-    val ucr_1st_subg            = omap MA.trm_to_utrm pre_1st_subg                           : MA.uterm option;
-    val data                    = omap MA.utrm_to_data ucr_1st_subg                          : MA.data option;
-    val ctxt                    = Proof.context_of pst: Proof.context                        : Proof.context;
-    val cname_to_filtered_data' = omap MA.filter_data_with_point_name data                   : (string -> MA.data) option;
-    val cname_to_filtered_data  = Utils.opt_app cname_to_filtered_data'                      : string option -> MA.data option;
+    val pre_1st_subg            = IU.pst_to_fst_subg pst                                      : term option;
+    val rule_names              = IS.pick_rules mods |> map IS.get_name                       : string list;
+    val numb_rules              = rule_names |> length                                        : int;
+    val rule_cnames             = map induct_rule_name_to_const_name rule_names |> Utils.somes: strings;
+    val ucr_1st_subg            = omap MA.trm_to_utrm pre_1st_subg                            : MA.uterm option;
+    val data                    = omap MA.utrm_to_data ucr_1st_subg                           : MA.data option;
+    val ctxt                    = Proof.context_of pst: Proof.context                         : Proof.context;
+    val cname_to_filtered_data' = omap MA.filter_data_with_point_name data                    : (string -> MA.data) option;
+    val cname_to_filtered_data  = Utils.opt_app cname_to_filtered_data'                       : string option -> MA.data option;
     val data_w_rule_cnames      = map cname_to_filtered_data (map SOME rule_cnames)
-                                |> Utils.somes |> flat                                       : MA.data;
-    val levels_of_rule_cnames   = map MA.datum_to_level data_w_rule_cnames                   : int list;
-    val max_level_of_rule_cname = fold (curry Int.max) levels_of_rule_cnames 0               : int;
+                                |> Utils.somes |> flat                                        : MA.data;
+    val levels_of_rule_cnames   = map MA.datum_to_level data_w_rule_cnames                    : int list;
+    val max_level_of_rule_cname = fold (curry Int.max) levels_of_rule_cnames 0                : int;
 
-    val cname_to_filtered_out_data' = omap MA.filter_data_wo_point_name data                 : (string -> MA.data) option;
-    val cname_to_filtered_out_data  = Utils.opt_app cname_to_filtered_out_data'              : string option -> MA.data option;
+    val cname_to_filtered_out_data' = omap MA.filter_data_wo_point_name data                  : (string -> MA.data) option;
+    val cname_to_filtered_out_data  = Utils.opt_app cname_to_filtered_out_data'               : string option -> MA.data option;
     val data_wo_rule_cnamess    = map cname_to_filtered_out_data (map SOME rule_cnames)
-                                |> Utils.somes                                               : MA.data list;
-    val data_wo_rule_cnames     = fold (inter (op =)) data_wo_rule_cnamess (these data)      : MA.data;
+                                |> Utils.somes                                                : MA.data list;
+    val data_wo_rule_cnames     = fold (inter (op =)) data_wo_rule_cnamess (these data)       : MA.data;
     val has_induct_rule         = fn name:string =>
                                  (try (Proof_Context.get_thm ctxt) (name^".induct"))
-                                |> is_some                                                   : bool;
+                                |> is_some                                                    : bool;
     val other_data_w_induct_name = filter (fn {point,...}:MA.datum =>
-                                   #name point |> has_induct_rule) data_wo_rule_cnames       : MA.data;
-    val level_of_others         = map MA.datum_to_level other_data_w_induct_name             : int list;
-    val max_level_of_others     = fold (curry Int.max) level_of_others 0                     : int;
+                                   #name point |> has_induct_rule) data_wo_rule_cnames        : MA.data;
+    val level_of_others         = map MA.datum_to_level other_data_w_induct_name              : int list;
+    val max_level_of_others     = fold (curry Int.max) level_of_others 0                      : int;
   in
     numb_rules > 0 andalso max_level_of_rule_cname >= max_level_of_others
   end;
@@ -418,12 +431,12 @@ fun ass_018 _ (mods:ITG.modifiers) = length mods = 0;
 (*TODO: ass_019 is similar to ass_003. Re-factor them.*)
 fun ass_019 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
-    val ctxt                       = Proof.context_of pst             : Proof.context;
+    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst                           : MA.ufun_n_args list;
+    val ctxt                       = Proof.context_of pst                                        : Proof.context;
     val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss;
-    val rule_names                 = mods |> IS.pick_rules |> IS.get_names           : strings: strings;
-    val rule_cnames                = map (unsuffix ".induct") rule_names             : strings;
-    val on_names                   = mods |> IS.pick_vars |> IS.get_names            : strings;
+    val rule_names                 = mods |> IS.pick_rules |> IS.get_names                       : strings: strings;
+    val rule_cnames                = map induct_rule_name_to_const_name rule_names |> Utils.somes: strings;
+    val on_names                   = mods |> IS.pick_vars |> IS.get_names                        : strings;
     val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss: (string option * strings) list;
     fun for_given_rule_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
       | for_given_rule_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =

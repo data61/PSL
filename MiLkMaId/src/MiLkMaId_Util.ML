@@ -30,10 +30,14 @@ fun count_recursive_consts trm = fold_aterms (fn Const (cname, _) => (fn n =>
   if exist_related_rsimp [cname] then n + 1 else n) | _ => I) trm 0;
 
 (* Utilty functions *)
-infix 1 >>= <$>;
+infix 1 >>= <$> <|>;
 val _ = Option.map;
 fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
+fun (NONE   <|> NONE  ) = NONE
+  | (NONE   <|> SOME x) = SOME x
+  | (SOME x <|> NONE  ) = SOME x
+  | (SOME x <|> SOME _) = SOME x
 
 (** MILKMAID_TABLE **)
 (*MILKMAID_TABLE exposes many functions that are not meant to be used by other users
