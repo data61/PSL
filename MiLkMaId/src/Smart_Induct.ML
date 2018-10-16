@@ -228,16 +228,16 @@ fun ass_002 (pst:Proof.state) (mods:ITG.modifiers) =
 
 fun induct_rule_name_to_const_name (induct_rule_name) : string option =
     try (unsuffix ".induct"   )  induct_rule_name
-<|> try (unsuffix ".induct(1)")  induct_rule_name
-<|> try (unsuffix ".induct(2)")  induct_rule_name
-<|> try (unsuffix ".induct(3)")  induct_rule_name
-<|> try (unsuffix ".induct(4)")  induct_rule_name
-<|> try (unsuffix ".induct(5)")  induct_rule_name
-<|> try (unsuffix ".induct(6)")  induct_rule_name
-<|> try (unsuffix ".induct(7)")  induct_rule_name
-<|> try (unsuffix ".induct(8)")  induct_rule_name
-<|> try (unsuffix ".induct(9)")  induct_rule_name
-<|> try (unsuffix ".induct(10)") induct_rule_name;
+<|> try (unsuffix ".inducts(1)")  induct_rule_name
+<|> try (unsuffix ".inducts(2)")  induct_rule_name
+<|> try (unsuffix ".inducts(3)")  induct_rule_name
+<|> try (unsuffix ".inducts(4)")  induct_rule_name
+<|> try (unsuffix ".inducts(5)")  induct_rule_name
+<|> try (unsuffix ".inducts(6)")  induct_rule_name
+<|> try (unsuffix ".inducts(7)")  induct_rule_name
+<|> try (unsuffix ".inducts(8)")  induct_rule_name
+<|> try (unsuffix ".inducts(9)")  induct_rule_name
+<|> try (unsuffix ".inducts(10)") induct_rule_name;
 
 fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) =
   let
@@ -245,7 +245,9 @@ fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) =
     val ctxt                       = Proof.context_of pst                                                     : Proof.context;
     val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss: MA.ufun_n_argss;
     val rule_names                 = mods |> IS.pick_rules |> IS.get_names                                    : strings: strings;
+val _ = tracing (String.concatWith " " rule_names)
     val rule_cnames                = map induct_rule_name_to_const_name rule_names |> Utils.somes             : strings;
+val _ = tracing (String.concatWith " " rule_cnames);
     val on_names                   = mods |> IS.pick_vars |> IS.get_names                                     : strings;
     val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss       : (string option * strings) list;
     fun for_given_rule_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
