@@ -84,6 +84,65 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - for some `bla`, 
       - all arguments to the `induct` method appears as an argument to the same instance of `bla`.
    - Assrtion019 is similar to assertion003, but more relaxed.
+- [X] 20. Check if the proof context contains local assumption introduced by the `using` keyword.
+- [ ] 21. Check if
+   - the `induct` method has at least one argument as induction variable,
+   - the `induct` method has at least one argument in the `arbitrary` field, and
+   - for any variable, say `ys`, generalized by the `arbitrary` keyword,
+      - for some occurrence of `ys` in the proof goal,
+         - if `ys` is the nth argument of a function `foo`,
+            - then there is an induction variable, say `xs`, 
+              that appears as the nth argument of an occurrence of `foo` in the proof obligation.
+   - `by (induct xs arbitrary: ys)` in line 1833 of `src/HOL/Library/Multiset.thy`.
+   - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
+   - `proof (induct xs arbitrary: ys)` in line 2542 of `src/HOL/Library/Multiset.thy` (as part of `assumes`).
+- [ ] 22. Check if
+   - for any variable, say `Q` generalized by the `arbitrary` keyword,
+      - if there exists a function, say `nextl`, that takes `Q` as ~~part of~~ its `n`th argument,
+         - there exists an induction variable, say `xs`, such that
+            - for some natural number `m` that is smaller than or equal to the number of arguments `nextl` can take,
+               - there are _multiple_ occurrences of `nextl` such that
+                  - `xs` appears as part of the `m`th argument to `nextl`, and
+                  - `Q` appears as part of the `n`th argument to `nextl`.
+   - `by (induct xs arbitrary: Q)` in line 623 of `thys/Finite_Automata_HF/Finite_Automate_HF.thy`.
+   - `by (induct xs arbitrary: l)` in line 156 of `thy/Binomial-Queues/Binomial_Queue.thy`.
+   - `by (induct p1 arbitrary: v)` in line 146 of `thy/Dijkstra_Schortest_Path/Graph.thy`.
+- [ ] 23. Check if 
+   - the proof obligation has either `Set.member` or `Set.not_member`, and
+   - all induction variables appear as part of the second argument to either `Set.member` or `Set.not_member` at least once
+   - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
+   - `proof (induction vs arbitrary: c)` in line 422 of `thys/Timed_Automata/DBM.thy`.
+- [ ] 24. Check if 
+   - the proof obligation has variables of type `nat`,
+   - the `induct` method takes at least one argument as induction variables and
+   - all induction variables have type `nat`.
+- [ ] 25. Check if
+   - the proof obligation has `List.list.set`,
+   - the `induct` method takes at least one argument as induction variables and
+   - _all_ induction variables appear as part of the argument to at least one occurrence of `List.list.set`.
+   - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
+- [ ] 26. Check if
+   - the proof obligation has `List.list.set`,
+   - the `induct` method takes at least one argument as induction variable and
+   - _at least one_ induction variable appears as part of the argument to at least one occurrence of `List.list.set`.
+   - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
+- [ ] 27. Check if
+   - the proof obligation has `List.list.set`,
+   - the `induct` method takes at least one argument as induction variable and
+   - _all_ induction variables appear as part of the arguments to at least one occurrence of `List.list.set`.
+   - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
+- [ ] 28. Check if none of induction variables has a function type.
+- [ ] 29. Check if
+   - the proof obligation has `List.nth`, and
+   - for some occurrence of `List.nth`
+      - the second argument is just a variable, say `i`, and
+      - `i` is generalized by the `arbitrary` keyword.
+   - `proof(induct xs arbitrary: i j)` in line 361 og `thys/Stable_Matching/Basis.thy`.
+- [ ] 30. Check if
+   - the proof obligation has at least one variable of type (constructor) `set` or or `list`,
+   - the `induct` method takes at least one argument as induction variable,
+   - at least one induction variable has a type of `set` or `list`, and
+   - `proof (induct xs)` in line 30 of `thys/Binomial-Queues/Binomial_Queue.thy`.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
