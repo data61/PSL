@@ -12,8 +12,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 2. Check if the `induct` method uses `c.induct` in case the first sub-goal contains (a) constant(s) defined with 
          the `fun` keyword or `inductive` keyword as an innermost function.
 - [X] 3. Check if
-   - the `induct` method uses an `.induct` rule, say `bla.induct`,
-     where `bla` is an innermost function that is applied to (a) variable(s),
+   - the `induct` method takes at least one argument, say `bla.induct` for the `rule` field,
    - the `induct` method has `n` arguments in the uncurried form where
      n is the number of arguments in the conclusion of `bla.induct` in the uncurried form,
    - for some `bla`, 
@@ -83,7 +82,8 @@ learning algorithms, the results should be treated as _dummy variables_, which m
      n is the number of arguments in the conclusion of `bla.induct` in the uncurried form,
    - for some `bla`, 
       - all arguments to the `induct` method appears as an argument to the same instance of `bla`.
-   - Assrtion019 is similar to assertion003, but more relaxed.
+   - Assrtion019 is 
+   to assertion003, but more relaxed.
 - [X] 20. Check if the proof context contains local assumption introduced by the `using` keyword.
 - [ ] 21. Check if
    - the `induct` method has at least one argument as induction variable,
@@ -143,6 +143,28 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - the `induct` method takes at least one argument as induction variable,
    - at least one induction variable has a type of `set` or `list`, and
    - `proof (induct xs)` in line 30 of `thys/Binomial-Queues/Binomial_Queue.thy`.
+- [ ] 31. Check if
+   - the proof state has a local assumption or auxiliary lemma introduced or bounded by the `assume` or `using` keyword, 
+   - the `induct` method takes at least one argument as induction variable, and
+   - _at least one_ induction variable appears in one of the local assumptions.
+- [ ] 32. Check if
+   - the proof state has a local assumption introduced by the `assume` keyword, 
+   - the `induct` method takes at least one argument as induction variable, and
+   - _all_ induction variable appear in one of the local assumptions.
+      - similar to assertion31.
+- [ ] 33. Check if
+   - the first subgoal has a meta-implication `==>`, 
+   - the `induct` method takes at least one argument as induction variable, and
+   - _at least one_ induction variable appears in one of the premises of some `==>`.
+- [ ] 34. Check if
+   - the first subgoal has a meta-implication `==>`, 
+   - the `induct` method takes at least one argument as induction variable, and
+   - _all_ induction variable appear in one of the premises of some `==>`.
+      - similar to assertion33.
+- [ ] 35. Check if
+   - the `induct` method uses an `.induct` rule, say `bla.induct`,
+     where `bla` is an innermost function that is applied to (a) variable(s) for some `PROP` term 
+     in the first sub-goal or some chained facts.  
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
