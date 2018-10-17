@@ -8,7 +8,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 **try_hard**, for Isabelle**2018**. Note that Isabelle2016, Isabelle2016-1, Isabelle2017 are no longer supported.
 
 ## Installation
-1. Install [Isabelle2017](https://isabelle.in.tum.de/).
+1. Install [Isabelle2018](https://isabelle.in.tum.de/).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Then, Users can install PSL and try_hard by importing *.PSL.thy* to their theory files
    with the Isabelle keyword, **imports**.
