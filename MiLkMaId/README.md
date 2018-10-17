@@ -144,13 +144,13 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - at least one induction variable has a type of `set` or `list`, and
    - `proof (induct xs)` in line 30 of `thys/Binomial-Queues/Binomial_Queue.thy`.
 - [ ] 31. Check if
-   - the proof state has a local assumption or auxiliary lemma introduced or bounded by the `assume` or `using` keyword, 
+   - the proof state has a chained fact, 
    - the `induct` method takes at least one argument as induction variable, and
-   - _at least one_ induction variable appears in one of the local assumptions.
+   - _at least one_ induction variable appears in one of the chained facts.
 - [ ] 32. Check if
-   - the proof state has a local assumption introduced by the `assume` keyword, 
+   - the proof state has a chained fact, 
    - the `induct` method takes at least one argument as induction variable, and
-   - _all_ induction variable appear in one of the local assumptions.
+   - _all_ induction variable appear in one of the chained facts.
       - similar to assertion31.
 - [ ] 33. Check if
    - the first subgoal has a meta-implication `==>`, 
@@ -165,6 +165,24 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - the `induct` method uses an `.induct` rule, say `bla.induct`,
      where `bla` is an innermost function that is applied to (a) variable(s) for some `PROP` term 
      in the first sub-goal or some chained facts.  
+- [ ] 36. Check if
+   - the proof state has a chained fact,
+   - the `induct` method takes at least one argument for the `rule` field, and
+   - _at least one_ induction rule appears in one of the local assumptions.
+- [ ] 37. Check if
+   - the proof state has a chained fact,
+   - the `induct` method takes at least one argument for the `rule` field, and
+   - _all_ induction rules appear in one of the local assumptions.
+      - similar to assertion37.
+- [ ] 38. Check if
+   - the first subgoal has a meta-implication `==>`,
+   - the `induct` method takes at least one argument for the `rule` field, and
+   - _at least one_ induction rule appears in one of the premises of some `==>`.
+- [ ] 39. Check if
+   - the first subgoal has a meta-implication `==>`,
+   - the `induct` method takes at least one argument for the `rule` field, and
+   - _all_ induction rule appears in one of the premises of some `==>`.
+      - similar to assertion38.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
