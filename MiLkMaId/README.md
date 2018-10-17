@@ -18,6 +18,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - for some `bla`, 
       - all arguments to it are used as arguments to the `induct` method and 
       - they appear in the same order.
+   - example: `proof(induct g xs ys rule: dfs.induct)` line 200 if `thy/Depth-First-Search.thy`.
 - [ ] 4. If the first sub-goal involves a meta-implication and terms of types that are defined with the `datatype` keyword
          in the conclusion of the meta-implication, one should apply induction on the term
          that has a type defined with the `datatype` keyword.
