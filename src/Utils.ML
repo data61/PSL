@@ -41,7 +41,7 @@ sig
   val debug          : bool; (*flag for debugging.*)
   val debug_mssg     : bool -> string -> 'a -> 'a;
   val try_with       : 'b -> ('a -> 'b) -> 'a -> 'b;
-  val are_same       : (string * string) -> bool;
+  val are_same       : (string * string) -> bool; (*FIXME: Isn't this redundant? We already have equal.*)
   val index          : 'a list -> (int * 'a) list;
   val power          : int -> int -> int;
   val nat_to_frac    : int -> real;
@@ -53,6 +53,8 @@ sig
   val a_member       : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
   val members        : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
   val cart_prod      : 'a list -> 'b list -> ('a * 'b) list;
+  val add_index      : 'a list -> (int * 'a) list; (*index starts at 0*);
+  val order_sensitive_multi_subset: ('a -> 'b -> bool) -> 'a list -> 'b list -> bool;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -195,6 +197,17 @@ fun cart_prod (xs:'a list) (ys:'b list) =
       | cart_prod' (x::xs:'a list) (ys:'b list) (acc:('a * 'b) list) =
         cart_prod' xs ys (map (pair x) ys @ acc);
   in cart_prod' xs ys [] end;
+
+fun add_index'     []  result _   = result
+  | add_index' (x::xs) result idx = add_index' xs (result @ [(idx, x)]) (idx + 1) ;
+fun add_index xs = add_index' xs [] 0;
+
+fun order_sensitive_multi_subset _      []      _   = true
+  | order_sensitive_multi_subset _  (_:: _)     []  = false
+  | order_sensitive_multi_subset eq (x::xs) (y::ys) =
+  if eq x y
+  then order_sensitive_multi_subset eq     xs  ys
+  else order_sensitive_multi_subset eq (x::xs) ys;
 
 end;
 

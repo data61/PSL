@@ -51,7 +51,8 @@ theorem property0'' :
   apply (induct "(takeWhile p xs)" rule:x.induct)
    apply fastforce
   apply clarsimp
-  (*This is bad: The conclusion is equivalent to the original goal.*)
+  (*This is bad: The conclusion is equivalent to the original goal.
+   * \<rightarrow> No. That does not necessarily mean it is bad. *)
   oops
 
 end

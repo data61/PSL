@@ -37,7 +37,7 @@ fun t2 :: "Nat => Nat => Nat" where
 theorem property0 :
   "t2 (count n xs) (count n ys) = count n (y xs ys)"
   find_proof DInd
-  apply2 (induct n xs arbitrary: ys rule: TIP_prop_02.count.induct)
+  apply (induct n xs arbitrary: ys rule: TIP_prop_02.count.induct)
   apply auto
   done
 

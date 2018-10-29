@@ -241,20 +241,23 @@ fun induct_rule_name_to_const_name (induct_rule_name) : string option =
 
 fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst                                        : MA.ufun_n_args list;
-    val ctxt                       = Proof.context_of pst                                                     : Proof.context;
-    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss: MA.ufun_n_argss;
-    val rule_names                 = mods |> IS.pick_rules |> IS.get_names                                    : strings: strings;
-    val rule_cnames                = map induct_rule_name_to_const_name rule_names |> Utils.somes             : strings;
-    val on_names                   = mods |> IS.pick_vars |> IS.get_names                                     : strings;
-    val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss       : (string option * strings) list;
+    val ufun_n_argss               = pst_to_ufun_n_argss pst                                           : MA.ufun_n_args list;
+    val ctxt                       = Proof.context_of pst                                              : Proof.context;
+    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt ufun_n_argss   : MA.ufun_n_argss;
+    val rules                      = mods |> IS.pick_rules                                             : ITG.modifiers;
+    val has_at_least_one_rule      = length rules > 0                                                  : bool;
+    val rule_names                 = rules |> IS.get_names                                             : strings: strings;
+    val rule_cnames                = map induct_rule_name_to_const_name rule_names |> Utils.somes      : strings;
+    val on_names                   = mods |> IS.pick_vars |> IS.get_names                              : strings;
+    val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss: (string option * strings) list;
     fun for_given_rule_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
       | for_given_rule_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =
         cname_from_rule = fname andalso on_names = var_names
+        (*Utils.order_sensitive_multi_subset equal on_names var_names;*)
     fun for_some_rule_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
         Utils.a_member (uncurry for_given_rule_cname_n_given_ufun_n_args) cnames_from_rules pairs;
   in
-    for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs:bool
+    has_at_least_one_rule andalso for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs:bool
   end;
 
 fun ass_005 (pst:Proof.state) (mods:ITG.modifiers) =

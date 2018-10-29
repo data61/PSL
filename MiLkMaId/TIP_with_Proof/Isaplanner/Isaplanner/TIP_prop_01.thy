@@ -51,8 +51,8 @@ theorem property0'(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on n might look promising in the first try
     since both "take" and "drop" are defined recursively on the first argument, but...*)
-  apply(*2*)(induct n arbitrary: xs)
-   apply(*2*) auto[1]
+  apply(induct n arbitrary: xs)
+   apply auto[1]
     (*This is problematic:
     We cannot use the simplification rule of "x"
     because we cannot simplify "TIP_prop_01.take (S n) xs".
@@ -70,8 +70,8 @@ theorem property0''(*sub-optimal proof*):
   "x (take n xs) (drop n xs) = xs"
   (*Induction on "xs" without "rule:take.induct" might look promising in the first try
     since both "take" and "drop" are defined recursively on the first argument, but...*)
-  apply(*2*)(induct xs arbitrary: n)
-   apply(*2*)(induct n)
+  apply (induct xs arbitrary: n)
+   apply (induct n)
     apply(case_tac n)(*cases is not good enough because "n" is quantified by \<And>*)
      apply fastforce+
     (*It is not so easy from this point

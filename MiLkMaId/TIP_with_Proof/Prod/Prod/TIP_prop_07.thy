@@ -29,7 +29,7 @@ fun t2 :: "Nat => Nat => Nat" where
 
 theorem property0 :
   "((length (qrev x y)) = (t2 (length x) (length y)))"
-  apply2(induct x arbitrary: y (*rule: TIP_prop_07.length.induct*))
+  apply(induct x arbitrary: y (*rule: TIP_prop_07.length.induct*))
    apply auto[1]
   apply(subst qrev.simps)
     (*Note that we insert only the conclusion.*)

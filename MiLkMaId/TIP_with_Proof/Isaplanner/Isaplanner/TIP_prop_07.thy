@@ -32,12 +32,10 @@ theorem property0 :
 
 theorem
   "((t2 (t22 n m) n) = m)"
-  apply(induct n arbitrary: m)
+  apply(induct n)
    apply(subst t22.simps)
    apply(induct m)
     apply auto
-  apply(induct_tac m)
-   apply auto
   done
 
 end

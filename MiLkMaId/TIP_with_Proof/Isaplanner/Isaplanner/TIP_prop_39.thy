@@ -33,7 +33,7 @@ fun t2 :: "Nat => Nat => Nat" where
 theorem property0 :
   "((t2 (count n (cons2 y (nil2))) (count n xs)) = (count n (cons2 y xs)))"
   find_proof DInd
-  apply (induct arbitrary: n)
+  apply (induct y arbitrary: n)
    apply auto
   done
 

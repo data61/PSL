@@ -14,13 +14,14 @@ begin
 datatype 'a list = nil2 | cons2 "'a" "'a list"
 
 datatype Nat = Z | S "Nat"
-print_theorems
+
 fun x :: "Nat => Nat => bool" where
   "x (Z) (Z) = True"
 | "x (Z) (S z2) = False"
 | "x (S x2) (Z) = False"
 | "x (S x2) (S y2) = x x2 y2"
 
+(*to detect case-distinction, I have to detect things liks Nat.case_Nat.*)
 fun count :: "Nat => Nat list => Nat" where
   "count y (nil2) = Z"
 | "count y (cons2 z2 ys) =

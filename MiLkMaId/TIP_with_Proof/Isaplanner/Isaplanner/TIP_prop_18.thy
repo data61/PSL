@@ -25,7 +25,7 @@ fun t2 :: "Nat => Nat => bool" where
 theorem property0 :
   "t2 i (S (t22 i m))"
   find_proof DInd
-  apply (induct arbitrary: m)
+  apply (induct arbitrary: m)(* This arbitrary is not directly important: "induct i" also works well. *)
    apply auto
   done 
 

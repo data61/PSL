@@ -78,12 +78,17 @@ struct
         val first_line               = space_implode " " [within, numb_of_successful_meths,  numb_of_created_methds]: string;
         fun print_one_line (line:Smart_Induct.one_line) =
           let
-            val bool_to_int_str = Int.toString o Utils.bool_to_int: bool -> string;
-            val used  = #used line |> bool_to_int_str: string;
-            val ass_results = map bool_to_int_str (#ass_results line): string list;
-            val meth_str = "arguments_are " ^ #meth_w_args line;
+            val bool_to_int_str = Int.toString o Utils.bool_to_int       : bool -> string;
+            val used            = #used line |> bool_to_int_str          : string;
+            val ass_results     = #ass_results line
+                               |> Utils.add_index
+                               |> map (apfst Int.toString)
+                               |> map (apsnd bool_to_int_str)
+                               |> map (fn (x,y) => x ^ ":" ^y)
+           (*map bool_to_int_str (#ass_results line): strings;*)
+            val meth_str        = "arguments_are " ^ #meth_w_args line   : string;
           in
-            space_implode " " (("results_are" ^ used::ass_results) @ [meth_str])
+            space_implode " " (("results_are_" ^ used::ass_results) @ [meth_str])
           end;
         val lines = map print_one_line (#lines datum): strings
       in
@@ -102,7 +107,7 @@ struct
                        (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " ";
         fun mk_a_line (content:string) = location ^ " " ^ header ^ " result: " ^ content ^ " result_end";
         val lines = map mk_a_line contents |> String.concatWith "\n";
-      in lines end;
+      in (tracing lines; lines) end;
 
     fun get_mssg (meth_name:string) (m:Method.text_range) (pst:Proof.state) =
       if meth_name = "induct" orelse meth_name = "induction"

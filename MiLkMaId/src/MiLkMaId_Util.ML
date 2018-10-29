@@ -341,6 +341,7 @@ end;
 (* mk_parameter_matrix_for_function *)
 fun mk_parameter_matrix_for_function (ctxt:Proof.context) (cname:string) =
   try (Proof_Context.get_thms ctxt) (cname ^ ".intros") |> these
+|> (fn these_list => (length these_list |> Int.toString |> tracing; these_list))
 |> map Thm.prop_of
 |> map Logic.strip_imp_concl
 |> map get_left
@@ -621,11 +622,9 @@ fun ufun_n_args_to_vnames_only_full (ctxt:Proof.context) ({ufun, uargs, level}:u
       | _                 => NONE                                 : string option;
     val patterns       = cname_ufun >>= get_patterns ctxt         : patterns option;
     val not_fulls      = patterns <$> is_not_Fulls                : bool list option;
-    val not_full_args  = not_fulls >>= try tl                     : bool list option;
     (*TODO: why does thin_out fail sometimes?*)
-    val full_args      = not_full_args >>= try (thin_out uargs) |> these: uterm list;
-    val vnames_of_full = ufun_n_args_to_cname_n_vnames {ufun=ufun, uargs= full_args, level=level} |> snd: strings;
-val _ = map tracing vnames_of_full;
+    val full_args      = (*not_full_args*)not_fulls  >>= try (thin_out uargs) |> these(*uargs*): uterm list;
+    val vnames_of_full = ufun_n_args_to_cname_n_vnames {ufun=ufun, uargs=full_args, level=level} |> snd: strings;
   in
     vnames_of_full: strings
   end;

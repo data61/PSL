@@ -30,22 +30,4 @@ theorem property0 :
     apply auto
   done
 
-lemma helper:"\<And>x1 xs y x1a.
-       (\<And>y. TIP_prop_51.butlast (x xs (cons2 y nil2)) = xs) \<Longrightarrow>
-       TIP_prop_51.butlast (cons2 x1 (x x2 (cons2 y nil2))) = cons2 x1 x2 \<Longrightarrow> 
- TIP_prop_51.butlast (cons2 x1a (x x2 (cons2 y nil2))) = cons2 x1a x2"
-  apply (induct)
-   apply auto
-  done
-
-theorem "((butlast (x xs (cons2 y (nil2)))) = xs)"
-  apply(induct xs arbitrary: y)
-   apply fastforce
-  apply clarsimp
-  apply(induct_tac xs)
-   apply fastforce
-  using helper
-  apply fastforce
-  done
-
 end

@@ -1,6 +1,9 @@
 theory MiLkMaId_Test
-imports (*"../MiLkMaId"*)Main
+imports "../MiLkMaId_Example"
 begin
+
+ML_file "../../../src/Utils.ML"
+ML_file "../MiLkMaId_Util.ML"
 
 lemma "True"
   apply induct
@@ -228,19 +231,27 @@ val _ = @{assert} (get_command "MiLkMaId_Example.even_set" @{context} = Inductiv
 
 end;
 *}
-
+*)
 (** tests **)
 ML{* open MiLkMaId_Table; *}
 
 ML{*
-mk_parameter_matrix @{context} "append2";
-mk_parameter_matrix @{context} "evn";
-mk_parameter_matrix @{context} "fib";
-mk_parameter_matrix @{context} "even";
-mk_parameter_matrix @{context} "odd";
-mk_parameter_matrix @{context} "filter";
-mk_parameter_matrix @{context} "nubBy";
-mk_parameter_matrix @{context} "even_set";
+val append2 = mk_parameter_matrix @{context} "append2";
+val append2_classsify = mk_parameter_matrix @{context} "append2" |> classify;
+val even = mk_parameter_matrix @{context} "evn";
+val even_classify = mk_parameter_matrix @{context} "evn" |> classify;
+val fib = mk_parameter_matrix @{context} "fib";
+val fib_classify = mk_parameter_matrix @{context} "fib" |> classify;
+val even = mk_parameter_matrix @{context} "even";
+val even_classify = mk_parameter_matrix @{context} "even" |> classify;
+val odd = mk_parameter_matrix @{context} "odd";
+val odd_classify = mk_parameter_matrix @{context} "odd" |> classify;
+val filter = mk_parameter_matrix @{context} "filter";
+val filter_classify = mk_parameter_matrix @{context} "filter" |> classify;
+val numbBy = mk_parameter_matrix @{context} "nubBy";
+val numbBy_classify = mk_parameter_matrix @{context} "nubBy" |> classify;
+val even_set = mk_parameter_matrix @{context} "even_set";
+val even_set_classify = mk_parameter_matrix @{context} "even_set" |> classify;
 *}
 
 
