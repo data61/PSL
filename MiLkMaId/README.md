@@ -49,7 +49,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
         (Check `Isaplanner/TIP_prop_01.thy` for example.)
 - [ ] 10. Check if
    - the `induct` rule ses at least one argument for the `rule` field, and
-   - all the `rule`s used as arguments to the `induct` method the innermost ones. More precisely: 
+   - all the `rule`s used as arguments to the `induct` method are the innermost ones. More precisely: 
       - for any `c1.induct` rule,
          - if the deepest level of the occurrences of `c1` is `n`,
          - there is no constant `c2`, such that
