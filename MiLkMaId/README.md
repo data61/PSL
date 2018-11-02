@@ -108,15 +108,17 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - `by (induct xs arbitrary: Q)` in line 623 of `thys/Finite_Automata_HF/Finite_Automate_HF.thy`.
    - `by (induct xs arbitrary: l)` in line 156 of `thy/Binomial-Queues/Binomial_Queue.thy`.
    - `by (induct p1 arbitrary: v)` in line 146 of `thy/Dijkstra_Schortest_Path/Graph.thy`.
-- [ ] 23. Check if 
+- [X] 23. Check if 
    - the proof obligation has either `Set.member` or `Set.not_member`, and
    - all induction variables appear as part of the second argument to either `Set.member` or `Set.not_member` at least once
    - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
    - `proof (induction vs arbitrary: c)` in line 422 of `thys/Timed_Automata/DBM.thy`.
-- [ ] 24. Check if 
-   - the proof obligation has variables of type `nat`,
-   - the `induct` method takes at least one argument as induction variables and
-   - all induction variables have type `nat`.
+- [X] 24. Check if 
+   - the proof obligation has either `Set.member` or `Set.not_member`, and
+   - there exists a induction variable that appears as part of the second argument to 
+     either `Set.member` or `Set.not_member` at least once
+   - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
+   - `proof (induction vs arbitrary: c)` in line 422 of `thys/Timed_Automata/DBM.thy`.
 - [ ] 25. Check if
    - the proof obligation has `List.list.set`,
    - the `induct` method takes at least one argument as induction variables and
@@ -184,6 +186,11 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - the `induct` method takes at least one argument for the `rule` field, and
    - _all_ induction rule appears in one of the premises of some `==>`.
       - similar to assertion38.
+- [ ] 40. Check if 
+   - the proof obligation has variables of type `nat`,
+   - the `induct` method takes at least one argument as induction variables and
+   - all induction variables have type `nat`.
+
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),

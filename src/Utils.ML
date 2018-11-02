@@ -5,6 +5,7 @@ This file provides utility functions that are not specific to Isabelle/HOL.
 *)
 
 type strings = string list;
+type terms   = term list;
 infix 1 >>= <$>;
 fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
@@ -318,39 +319,42 @@ end;
 signature ISABELLE_UTILS =
 sig
   datatype location = Fst_Subg | Concl | All_Subg;
-  val if_solved                     : thm -> 'a -> 'a -> 'a;
-  val fst_qualifier                 : string -> string;
-  val get_1st_subg                  : thm -> term option;
-  val flatten_trm                   : term -> term list;
-  val get_trms_in_thm               : thm -> term list;
-  val get_trm_in                    : location -> thm -> term option;(*Should it return a list of terms?*)
-  val get_cnames_in_trm             : term -> strings;
-  val get_outmost_cname             : term -> string option;
-  val get_typ_names_in_trm          : term -> strings;
-  val get_consts_in_thm             : thm -> term list;
-  val get_cnames_in_thm             : thm -> strings;
-  val get_cnames_in_1st_subg        : thm -> strings;
-  val get_abs_names_in_trm          : term -> strings;
-  val get_abs_names_in_thm          : thm -> strings;
-  val get_abs_name_in_1st_subg      : thm -> strings;
-  val get_typ_names_in_thm          : thm -> strings;
-  val get_typ_names_in_1st_subg     : thm -> strings;
-  val get_free_var_names_in_trms    : term list -> strings;
-  val get_free_var_names_in_thm     : thm -> strings;
-  val get_free_var_names_in_1st_subg: thm -> strings;
-  val get_all_var_names_in_1st_subg : thm -> strings;
-  val proof_state_to_thm            : Proof.state -> thm;
-  val pst_to_fst_subg               : Proof.state -> term option;
-  val mk_proof_obligation           : Proof.context -> string -> thm;
-  val TIMEOUT_in                    : real -> ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
-  val TIMEOUT                       : ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
-  val same_except_for_fst_prem      : thm -> thm -> bool;
-  val defer                         : thm -> thm Seq.seq;
-  val is_in_Main                    : Proof.context -> thm -> bool;
-  val add_const_names_mult          : term -> strings -> strings;
-  val get_meth_name                 : Method.text -> string;
-  val are_all_de_Bruijn_indices_used: term -> bool;
-  val pstate_to_usings              : Proof.state -> thm list;
+  val if_solved                         : thm -> 'a -> 'a -> 'a;
+  val fst_qualifier                     : string -> string;
+  val get_1st_subg                      : thm -> term option;
+  val flatten_trm                       : term -> term list;
+  val get_trms_in_thm                   : thm -> term list;
+  val get_trm_in                        : location -> thm -> term option;(*Should it return a list of terms?*)
+  val get_cnames_in_trm                 : term -> strings;
+  val get_outmost_cname                 : term -> string option;
+  val get_typ_names_in_trm              : term -> strings;
+  val get_consts_in_thm                 : thm -> term list;
+  val get_cnames_in_thm                 : thm -> strings;
+  val get_cnames_in_1st_subg            : thm -> strings;
+  val get_abs_names_in_trm              : term -> strings;
+  val get_abs_names_in_thm              : thm -> strings;
+  val get_abs_name_in_1st_subg          : thm -> strings;
+  val get_typ_names_in_thm              : thm -> strings;
+  val get_typ_names_in_1st_subg         : thm -> strings;
+  val get_free_var_names_in_trm         : term -> strings;
+  val get_free_var_names_in_trms        : term list -> strings;
+  val get_free_var_names_in_thm         : thm -> strings;
+  val get_free_var_names_in_1st_subg    : thm -> strings;
+  val get_all_var_names_in_1st_subg     : thm -> strings;
+  val proof_state_to_thm                : Proof.state -> thm;
+  val pst_to_fst_subg                   : Proof.state -> term option;
+  val mk_proof_obligation               : Proof.context -> string -> thm;
+  val TIMEOUT_in                        : real -> ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
+  val TIMEOUT                           : ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
+  val same_except_for_fst_prem          : thm -> thm -> bool;
+  val defer                             : thm -> thm Seq.seq;
+  val is_in_Main                        : Proof.context -> thm -> bool;
+  val add_const_names_mult              : term -> strings -> strings;
+  val get_meth_name                     : Method.text -> string;
+  val are_all_de_Bruijn_indices_used    : term -> bool;
+  val pstate_to_usings                  : Proof.state -> thm list;
+  val trm_to_snd_args_of_const          : string -> term -> term list;
+  val pstate_to_1st_subg_n_chained_facts: Proof.state -> term list;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -453,11 +457,14 @@ fun get_typ_names_in_1st_subg (goal:thm) = goal
   |> these
   |> map Utils.remove__s;
 
-fun get_free_var_names_in trm = if Term.is_Free trm 
+fun get_free_var_names_in' trm = if Term.is_Free trm
   then [Term.dest_Free trm |> fst |> Utils.remove__s] else [];
 
+fun get_free_var_names_in_trm trm = Term.fold_aterms (fn trm => fn acc =>
+  get_free_var_names_in' trm @ acc |> distinct (op =)) trm [];
+
 fun get_free_var_names_in_trms trms = trms
-  |> map get_free_var_names_in
+  |> map get_free_var_names_in_trm
   |> List.concat
   |> distinct (op =);
 
@@ -482,7 +489,7 @@ val proof_state_to_thm = #goal o Proof.goal;
 fun pst_to_fst_subg (pst:Proof.state) = try proof_state_to_thm pst
   >>= get_1st_subg;
 
-fun mk_proof_obligation ctxt (prop_str:string) = 
+fun mk_proof_obligation ctxt (prop_str:string) =
   Syntax.read_prop ctxt prop_str
   |> Thm.cterm_of ctxt
   |> Thm.trivial;
@@ -569,6 +576,23 @@ fun add_const_names_mult (trm:term) (names:strings) =
   fold_aterms (fn Const (c, _) => insert (K false) c | _ => I) trm names;
 
 fun pstate_to_usings (pstate:Proof.state) = Proof.raw_goal pstate |> #facts: thm list;
+
+fun trm_to_snd_args_of_const (cname:string) (Const (fn_cname, _) $ arg1 $ arg2) = if cname = fn_cname
+    then trm_to_snd_args_of_const cname arg1 @ [arg2]
+    else trm_to_snd_args_of_const cname arg1 @ trm_to_snd_args_of_const cname arg2
+  | trm_to_snd_args_of_const (cname:string)(trm1 $ trm2) =
+    trm_to_snd_args_of_const cname trm1 @ trm_to_snd_args_of_const cname trm2
+  | trm_to_snd_args_of_const (cname:string) (Abs (_, _, trm)) = trm_to_snd_args_of_const cname trm
+  | trm_to_snd_args_of_const _ _ = [];
+
+fun pstate_to_1st_subg_n_chained_facts (pst:Proof.state) =
+  let
+    val chained_thms = pstate_to_usings pst: thm list;
+    val chained_trms = map Thm.prop_of chained_thms: term list;
+    val fst_subg_trm = pst_to_fst_subg pst |> the_list: term list;
+  in
+    fst_subg_trm @ chained_trms
+  end;
 
 end;
 

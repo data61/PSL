@@ -453,6 +453,34 @@ fun ass_019 (pst:Proof.state) (mods:ITG.modifiers) =
 (* ass_020. checks if the proof context contains local assumption *)
 fun ass_020 (pstate:Proof.state) _ = IU.pstate_to_usings pstate |> null;
 
+(* helper functions for ass_023 and ass_040 *)
+fun pstate_to_ons_n_vnames_in_snd_args_of_set_member (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    fun map_flat_distinct mapped eq arg  = map mapped arg |> flat |> distinct eq;
+    val chained_n_fst_subg               = IU.pstate_to_1st_subg_n_chained_facts pstate                                              : terms;
+    val snd_args_of_set_member           = map_flat_distinct (IU.trm_to_snd_args_of_const "Set.member") Term.aconv chained_n_fst_subg: terms;
+    val vnames_in_snd_args_of_set_member = map_flat_distinct IU.get_free_var_names_in_trm (op =) snd_args_of_set_member              : strings;
+    val on_names                         = mods |> IS.pick_vars |> IS.get_names                                                      : strings;
+  in
+    {ons = on_names: strings, vnames = vnames_in_snd_args_of_set_member: strings}
+  end;
+
+(* ass_023. checks if the proof context contains local assumption *)
+fun ass_023 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {ons, vnames} = pstate_to_ons_n_vnames_in_snd_args_of_set_member pstate mods;
+  in
+    Utils.members (op =) ons vnames
+  end;
+
+(* ass_024. checks if the proof context contains local assumption *)
+fun ass_024 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {ons, vnames} = pstate_to_ons_n_vnames_in_snd_args_of_set_member pstate mods;
+  in
+    Utils.a_member (op =) ons vnames
+  end;
+
 (*TODO*)
 fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*001*)ass_001 pre_pst mods,
@@ -474,7 +502,27 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*017*)ass_017 pre_pst mods,
 (*018*)ass_018 pre_pst mods,
 (*019*)ass_019 pre_pst mods,
-(*020*)ass_020 pre_pst mods
+(*020*)ass_020 pre_pst mods,
+(*021*)true,
+(*022*)true,
+(*023*)ass_023 pre_pst mods,
+(*024*)ass_023 pre_pst mods,
+(*025*)true,
+(*026*)true,
+(*027*)true,
+(*028*)true,
+(*029*)true,
+(*030*)true,
+(*031*)true,
+(*032*)true,
+(*033*)true,
+(*034*)true,
+(*035*)true,
+(*036*)true,
+(*037*)true,
+(*038*)true,
+(*039*)true,
+(*040*)true
 ];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
