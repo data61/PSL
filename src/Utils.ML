@@ -56,6 +56,7 @@ sig
   val cart_prod      : 'a list -> 'b list -> ('a * 'b) list;
   val add_index      : 'a list -> (int * 'a) list; (*index starts at 0*);
   val order_sensitive_multi_subset: ('a -> 'b -> bool) -> 'a list -> 'b list -> bool;
+  val map_flat_distinct           : (term -> 'a list) -> ('a * 'a -> bool) -> terms -> 'a list;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -210,6 +211,8 @@ fun order_sensitive_multi_subset _      []      _   = true
   then order_sensitive_multi_subset eq     xs  ys
   else order_sensitive_multi_subset eq (x::xs) ys;
 
+fun map_flat_distinct mapped eq arg  = map mapped arg |> flat |> distinct eq;
+
 end;
 
 (*** SEQ2 : Auxiliary functions on Seq.seq ***)
@@ -322,13 +325,13 @@ sig
   val if_solved                         : thm -> 'a -> 'a -> 'a;
   val fst_qualifier                     : string -> string;
   val get_1st_subg                      : thm -> term option;
-  val flatten_trm                       : term -> term list;
-  val get_trms_in_thm                   : thm -> term list;
+  val flatten_trm                       : term -> terms;
+  val get_trms_in_thm                   : thm -> terms;
   val get_trm_in                        : location -> thm -> term option;(*Should it return a list of terms?*)
   val get_cnames_in_trm                 : term -> strings;
   val get_outmost_cname                 : term -> string option;
   val get_typ_names_in_trm              : term -> strings;
-  val get_consts_in_thm                 : thm -> term list;
+  val get_consts_in_thm                 : thm -> terms;
   val get_cnames_in_thm                 : thm -> strings;
   val get_cnames_in_1st_subg            : thm -> strings;
   val get_abs_names_in_trm              : term -> strings;
@@ -337,7 +340,7 @@ sig
   val get_typ_names_in_thm              : thm -> strings;
   val get_typ_names_in_1st_subg         : thm -> strings;
   val get_free_var_names_in_trm         : term -> strings;
-  val get_free_var_names_in_trms        : term list -> strings;
+  val get_free_var_names_in_trms        : terms -> strings;
   val get_free_var_names_in_thm         : thm -> strings;
   val get_free_var_names_in_1st_subg    : thm -> strings;
   val get_all_var_names_in_1st_subg     : thm -> strings;
@@ -353,8 +356,10 @@ sig
   val get_meth_name                     : Method.text -> string;
   val are_all_de_Bruijn_indices_used    : term -> bool;
   val pstate_to_usings                  : Proof.state -> thm list;
-  val trm_to_snd_args_of_const          : string -> term -> term list;
-  val pstate_to_1st_subg_n_chained_facts: Proof.state -> term list;
+  val trm_to_fst_args_of_const          : string -> term -> terms;
+  val trm_to_snd_args_of_const          : string -> term -> terms;
+  val pstate_to_1st_subg_n_chained_facts: Proof.state -> terms;
+  val pstate_to_cnames_in_1st_subg_n_chained_facts: Proof.state -> string list;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -521,8 +526,8 @@ let
   val concl1                            = Thm.concl_of goal1 : term ;
   val concl2                            = Thm.concl_of goal2 : term ;
   val eq_concl                          = Term.aconv (concl1, concl2);
-  val prems1                            = Thm.prems_of goal1 : term list;
-  val prems2                            = Thm.prems_of goal2 : term list ;
+  val prems1                            = Thm.prems_of goal1 : terms;
+  val prems2                            = Thm.prems_of goal2 : terms ;
   val goal1_has_a_prem                  = List.null prems1 : bool ;
   fun prems1_prems2tl prems1 prems2     = prems1 ~~ List.tl prems2;
   fun prems1_equiv_prems2 prems1 prems2 = List.all (Term.aconv) (prems1_prems2tl prems1 prems2);
@@ -577,6 +582,14 @@ fun add_const_names_mult (trm:term) (names:strings) =
 
 fun pstate_to_usings (pstate:Proof.state) = Proof.raw_goal pstate |> #facts: thm list;
 
+fun trm_to_fst_args_of_const (cname:string) (Const (fn_cname, _) $ arg) = if cname = fn_cname
+    then trm_to_fst_args_of_const cname arg @ [arg]
+    else trm_to_fst_args_of_const cname arg
+  | trm_to_fst_args_of_const (cname:string)(trm1 $ trm2) =
+    trm_to_fst_args_of_const cname trm1 @ trm_to_fst_args_of_const cname trm2
+  | trm_to_fst_args_of_const (cname:string) (Abs (_, _, trm)) = trm_to_fst_args_of_const cname trm
+  | trm_to_fst_args_of_const _ _ = [];
+
 fun trm_to_snd_args_of_const (cname:string) (Const (fn_cname, _) $ arg1 $ arg2) = if cname = fn_cname
     then trm_to_snd_args_of_const cname arg1 @ [arg2]
     else trm_to_snd_args_of_const cname arg1 @ trm_to_snd_args_of_const cname arg2
@@ -588,11 +601,15 @@ fun trm_to_snd_args_of_const (cname:string) (Const (fn_cname, _) $ arg1 $ arg2) 
 fun pstate_to_1st_subg_n_chained_facts (pst:Proof.state) =
   let
     val chained_thms = pstate_to_usings pst: thm list;
-    val chained_trms = map Thm.prop_of chained_thms: term list;
-    val fst_subg_trm = pst_to_fst_subg pst |> the_list: term list;
+    val chained_trms = map Thm.prop_of chained_thms: terms;
+    val fst_subg_trm = pst_to_fst_subg pst |> the_list: terms;
   in
     fst_subg_trm @ chained_trms
   end;
+
+fun pstate_to_cnames_in_1st_subg_n_chained_facts (pstate:Proof.state) =
+   pstate_to_1st_subg_n_chained_facts pstate
+|> Utils.map_flat_distinct (fn trm:term => Term.add_const_names trm []) (op =);
 
 end;
 
