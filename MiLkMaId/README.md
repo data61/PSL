@@ -119,17 +119,17 @@ learning algorithms, the results should be treated as _dummy variables_, which m
      either `Set.member` or `Set.not_member` at least once
    - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
    - `proof (induction vs arbitrary: c)` in line 422 of `thys/Timed_Automata/DBM.thy`.
-- [ ] 25. Check if
+- [X] 25. Check if
    - the proof obligation has `List.list.set`,
    - the `induct` method takes at least one argument as induction variables and
    - _all_ induction variables appear as part of the argument to at least one occurrence of `List.list.set`.
    - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
-- [ ] 26. Check if
+- [X] 26. Check if
    - the proof obligation has `List.list.set`,
    - the `induct` method takes at least one argument as induction variable and
    - _at least one_ induction variable appears as part of the argument to at least one occurrence of `List.list.set`.
    - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
-- [ ] 27. Check if
+- [X] 27. Check if
    - the proof obligation has `List.list.set`,
    - the `induct` method takes at least one argument as induction variable and
    - no induction variable appears as part of the arguments to at least one occurrence of `List.list.set`.
