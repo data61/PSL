@@ -135,12 +135,13 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - no induction variable appears as part of the arguments to at least one occurrence of `List.list.set`.
    - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
 - [ ] 28. Check if none of induction variables has a function type.
-- [ ] 29. Check if
-   - the proof obligation has `List.nth`, and
-   - for some occurrence of `List.nth`
-      - the second argument is just a variable, say `i`, and
-      - `i` is generalized by the `arbitrary` keyword.
-   - `proof(induct xs arbitrary: i j)` in line 361 og `thys/Stable_Matching/Basis.thy`.
+- [X] 29. Check if
+   - the proof obligation has `List.nth`,
+   - the `induct` method has at least one argument as `arbitrary` variable, and
+   - for some `arbitrary` variable, `arb_var`,
+      - there exists an occurrence, `nth_occ`, of `List.nth`, such that
+         - `arb_var` appears part of the second argument of `nth_occ`.
+   - `proof(induct xs arbitrary: i j)` in line 361 of `thys/Stable_Matching/Basis.thy`.
 - [ ] 30. Check if
    - the proof obligation has at least one variable of type (constructor) `set` or or `list`,
    - the `induct` method takes at least one argument as induction variable,
@@ -196,6 +197,13 @@ learning algorithms, the results should be treated as _dummy variables_, which m
      either `Set.member` or `Set.not_member` at least once
    - `by (induction xs ys arbitrary: zs rule: shuffle.induct)` in line 1939 of `src/HOL/Library/Multiset.thy`.
    - `proof (induction vs arbitrary: c)` in line 422 of `thys/Timed_Automata/DBM.thy`.
+- [X] 42. Check if
+   - the proof obligation has `List.nth`,
+   - the `induct` method has at least one argument as `arbitrary` variable, and
+   - for any `arbitrary` variable, `arb_var`,
+      - there exists _no_ occurrence, `nth_occ`, of `List.nth`, such that
+         - `arb_var` appears part of the second argument of `nth_occ`.
+   - `proof(induct xs arbitrary: i j)` in line 361 of `thys/Stable_Matching/Basis.thy`.
 
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.

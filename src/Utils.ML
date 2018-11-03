@@ -6,6 +6,7 @@ This file provides utility functions that are not specific to Isabelle/HOL.
 
 type strings = string list;
 type terms   = term list;
+type thms    = thm list;
 infix 1 >>= <$>;
 fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
@@ -355,7 +356,8 @@ sig
   val add_const_names_mult              : term -> strings -> strings;
   val get_meth_name                     : Method.text -> string;
   val are_all_de_Bruijn_indices_used    : term -> bool;
-  val pstate_to_usings                  : Proof.state -> thm list;
+  val pstate_to_usings                  : Proof.state -> thms;
+  val pstate_to_chained_facts_as_terms  : Proof.state -> terms;
   val trm_to_fst_args_of_const          : string -> term -> terms;
   val trm_to_snd_args_of_const          : string -> term -> terms;
   val pstate_to_1st_subg_n_chained_facts: Proof.state -> terms;
@@ -580,7 +582,15 @@ fun are_all_de_Bruijn_indices_used (Const _ $ Abs (name,typ,trm)) =
 fun add_const_names_mult (trm:term) (names:strings) =
   fold_aterms (fn Const (c, _) => insert (K false) c | _ => I) trm names;
 
-fun pstate_to_usings (pstate:Proof.state) = Proof.raw_goal pstate |> #facts: thm list;
+fun pstate_to_usings (pstate:Proof.state) = Proof.raw_goal pstate |> #facts: thms;
+
+fun pstate_to_chained_facts_as_terms (pst:Proof.state) =
+  let
+    val chained_thms = pstate_to_usings pst: thms;
+    val chained_trms = map Thm.prop_of chained_thms: terms;
+  in
+    chained_trms
+  end;
 
 fun trm_to_fst_args_of_const (cname:string) (Const (fn_cname, _) $ arg) = if cname = fn_cname
     then trm_to_fst_args_of_const cname arg @ [arg]
@@ -600,7 +610,7 @@ fun trm_to_snd_args_of_const (cname:string) (Const (fn_cname, _) $ arg1 $ arg2) 
 
 fun pstate_to_1st_subg_n_chained_facts (pst:Proof.state) =
   let
-    val chained_thms = pstate_to_usings pst: thm list;
+    val chained_thms = pstate_to_usings pst: thms;
     val chained_trms = map Thm.prop_of chained_thms: terms;
     val fst_subg_trm = pst_to_fst_subg pst |> the_list: terms;
   in
@@ -644,9 +654,9 @@ sig
   val get_intro_rule_names      : get_rule_names;
   val get_dest_rule_names       : get_rule_names;
   val get_split_rule_names      : get_rule_names;
-  val get_thms_of_name_with_these_substrs: context -> strings -> thm list;
-  val get_thms_of_name_with_suffix       : context -> string -> string -> thm list;
-  val get_thms_of_names_with_suffix      : context -> strings -> string -> thm list;
+  val get_thms_of_name_with_these_substrs: context -> strings -> thms;
+  val get_thms_of_name_with_suffix       : context -> string -> string -> thms;
+  val get_thms_of_names_with_suffix      : context -> strings -> string -> thms;
 end;
 
 (*** Find_Theorems2: provides an interface of find_theorem for PSL. ***)
@@ -749,16 +759,16 @@ fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:strings) =
                          liftM map snd
                          |> Utils.is_some_null
   in
-    relevant_rules: thm list
+    relevant_rules: thms
   end;
 
 (* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
 fun get_thms_of_name_with_suffix (ctxt:context) (sfx:string) (name:string) =
-  try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thm list;
+  try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thms;
 
 (* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
 fun get_thms_of_names_with_suffix (ctxt:context) (names:strings) (sfx:string) =
-  map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thm list;
+  map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thms;
 
 end;
 

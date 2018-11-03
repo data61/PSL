@@ -454,77 +454,96 @@ fun ass_019 (pst:Proof.state) (mods:ITG.modifiers) =
 fun ass_020 (pstate:Proof.state) _ = IU.pstate_to_usings pstate |> null;
 
 (* TODO *)
-fun pstate_to_ons_n_vnames_in_nth_args_of_set_member (trm_to_nth_args_of_const: string -> term -> terms)
+fun pstate_to_ons_n_vnames_in_nth_args_of_const (trm_to_nth_args_of_const: string -> term -> terms)
   (cname:string) (pstate:Proof.state) (mods:ITG.modifiers) =
   let
     val cnames_in_1st_subg_n_chained_facts = IU.pstate_to_cnames_in_1st_subg_n_chained_facts pstate                                : strings;
-    val has_set_member                     = exists (equal cname) cnames_in_1st_subg_n_chained_facts                               : bool;
     val chained_n_fst_subg                 = IU.pstate_to_1st_subg_n_chained_facts pstate                                          : terms;
     val nth_args_of_set_member             = Utils.map_flat_distinct (trm_to_nth_args_of_const cname) Term.aconv chained_n_fst_subg: terms;
     val vnames_in_snd_args_of_set_member   = Utils.map_flat_distinct IU.get_free_var_names_in_trm (op =) nth_args_of_set_member    : strings;
     val on_names                           = mods |> IS.pick_vars |> IS.get_names                                                  : strings;
-    val has_ind_vars                       = null on_names                                                                         : bool;
+    val arb_names                          = mods |> IS.pick_arbs |> IS.get_names                                                  : strings;
   in
-    {has_ind_vars   = has_ind_vars,
-     has_set_member = has_set_member: bool,
+    {has_ind_vars   = null on_names,
+     has_arb_vars   = null arb_names,
+     has_const      = exists (equal cname) cnames_in_1st_subg_n_chained_facts: bool,
      ons            = on_names: strings,
+     arbs           = arb_names: strings,
      vnames         = vnames_in_snd_args_of_set_member: strings}
   end;
 
 (* helper functions for ass_023, ass_040, and ass_041 *)
 fun pstate_to_ons_n_vnames_in_snd_args_of_set_member (pstate:Proof.state) (mods:ITG.modifiers) =
-  pstate_to_ons_n_vnames_in_nth_args_of_set_member IU.trm_to_snd_args_of_const "Set.member" pstate mods;
+  pstate_to_ons_n_vnames_in_nth_args_of_const IU.trm_to_snd_args_of_const "Set.member" pstate mods;
 
 (* ass_023. checks if the proof context contains local assumption *)
 fun ass_023 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
-    val {has_ind_vars, has_set_member, ons, vnames} = pstate_to_ons_n_vnames_in_snd_args_of_set_member pstate mods;
+    val {has_ind_vars, has_const, ons, vnames,...} = pstate_to_ons_n_vnames_in_snd_args_of_set_member pstate mods;
   in
-    has_ind_vars andalso has_set_member andalso Utils.members (op =) ons vnames
+    has_ind_vars andalso has_const andalso Utils.members (op =) ons vnames
   end;
 
 (* ass_024. checks if the proof context contains local assumption *)
 fun ass_024 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
-    val {has_ind_vars, has_set_member, ons, vnames} = pstate_to_ons_n_vnames_in_snd_args_of_set_member pstate mods;
+    val {has_ind_vars, has_const, ons, vnames,...} = pstate_to_ons_n_vnames_in_snd_args_of_set_member pstate mods;
   in
-    has_ind_vars andalso has_set_member andalso Utils.a_member (op =) ons vnames
+    has_ind_vars andalso has_const andalso Utils.a_member (op =) ons vnames
   end;
 
-(* TODO: helper functions for ass_025 and ass_026 *)
+(* helper functions for ass_025, ass_026, and ass_027 *)
 fun pstate_to_ons_n_vnames_in_fst_args_of_list_set (pstate:Proof.state) (mods:ITG.modifiers) =
-  pstate_to_ons_n_vnames_in_nth_args_of_set_member IU.trm_to_fst_args_of_const "List.list.set" pstate mods;
+  pstate_to_ons_n_vnames_in_nth_args_of_const IU.trm_to_fst_args_of_const "List.list.set" pstate mods;
 
 (* ass_025. checks if the proof context contains local assumption *)
 fun ass_025 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
-    val {has_ind_vars, has_set_member, ons, vnames} = pstate_to_ons_n_vnames_in_fst_args_of_list_set pstate mods;
+    val {has_ind_vars, has_const, ons, vnames,...} = pstate_to_ons_n_vnames_in_fst_args_of_list_set pstate mods;
   in
-    has_ind_vars andalso has_set_member andalso Utils.a_member (op =) ons vnames
+    has_ind_vars andalso has_const andalso Utils.a_member (op =) ons vnames
   end;
 
 (* ass_026. *)
 fun ass_026 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
-    val {has_ind_vars, has_set_member, ons, vnames} = pstate_to_ons_n_vnames_in_fst_args_of_list_set pstate mods;
+    val {has_ind_vars, has_const, ons, vnames,...} = pstate_to_ons_n_vnames_in_fst_args_of_list_set pstate mods;
   in
-    has_ind_vars andalso has_set_member andalso Utils.members (op =) ons vnames
+    has_ind_vars andalso has_const andalso Utils.members (op =) ons vnames
   end;
 
 (* ass_027. *)
 fun ass_027 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
-    val {has_ind_vars, has_set_member, ons, vnames} = pstate_to_ons_n_vnames_in_fst_args_of_list_set pstate mods;
+    val {has_ind_vars, has_const, ons, vnames,...} = pstate_to_ons_n_vnames_in_fst_args_of_list_set pstate mods;
   in
-    has_ind_vars andalso has_set_member andalso not (Utils.a_member (op =) ons vnames)
+    has_ind_vars andalso has_const andalso not (Utils.a_member (op =) ons vnames)
+  end;
+
+(* helper functions for ass_029 *)
+fun pstate_to_ons_n_vnames_in_snd_args_of_list_nth (pstate:Proof.state) (mods:ITG.modifiers) =
+  pstate_to_ons_n_vnames_in_nth_args_of_const IU.trm_to_snd_args_of_const "List.nth" pstate mods;
+
+fun ass_029 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {has_arb_vars, has_const, arbs, vnames,...} = pstate_to_ons_n_vnames_in_snd_args_of_list_nth pstate mods;
+  in
+    has_arb_vars andalso has_const andalso Utils.a_member (op =) arbs vnames
   end;
 
 (* ass_041. checks if the proof context contains local assumption *)
 fun ass_041 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
-    val {has_ind_vars, has_set_member, ons, vnames} = pstate_to_ons_n_vnames_in_snd_args_of_set_member pstate mods;
+    val {has_ind_vars, has_const, ons, vnames,...} = pstate_to_ons_n_vnames_in_snd_args_of_set_member pstate mods;
   in
-    has_ind_vars andalso has_set_member andalso not (Utils.a_member (op =) ons vnames)
+    has_ind_vars andalso has_const andalso not (Utils.a_member (op =) ons vnames)
+  end;
+
+fun ass_042 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {has_arb_vars, has_const, arbs, vnames,...} = pstate_to_ons_n_vnames_in_snd_args_of_list_nth pstate mods;
+  in
+    has_arb_vars andalso has_const andalso not (Utils.a_member (op =) arbs vnames)
   end;
 
 (*TODO*)
@@ -557,7 +576,7 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*026*)ass_026 pre_pst mods,
 (*027*)ass_027 pre_pst mods,
 (*028*)true,
-(*029*)true,
+(*029*)ass_029 pre_pst mods,
 (*030*)true,
 (*031*)true,
 (*032*)true,
@@ -569,7 +588,8 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*038*)true,
 (*039*)true,
 (*040*)true,
-(*041*)ass_041 pre_pst mods
+(*041*)ass_041 pre_pst mods,
+(*042*)ass_042 pre_pst mods
 ];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
