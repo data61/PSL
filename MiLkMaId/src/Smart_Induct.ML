@@ -531,6 +531,33 @@ fun ass_029 (pstate:Proof.state) (mods:ITG.modifiers) =
     has_arb_vars andalso has_const andalso Utils.a_member (op =) arbs vnames
   end;
 
+(* pstate_to_on_names_n_vnames_in_chained_facts: helper function for ass_031, ass_032, ass_043. *)
+fun pstate_to_on_names_n_vnames_in_chained_facts (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val chained_facts           = IU.pstate_to_chained_facts_as_terms pstate : terms;
+    val vnames_in_chained_facts = IU.get_free_var_names_in_trms chained_facts: strings;
+    val on_names                = mods |> IS.pick_vars |> IS.get_names       : strings;
+  in
+    {on_names                = on_names               : strings,
+     vnames_in_chained_facts = vnames_in_chained_facts: strings}
+  end;
+
+(* ass_031. *)
+fun ass_031 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, vnames_in_chained_facts} = pstate_to_on_names_n_vnames_in_chained_facts pstate mods;
+  in
+    not (null on_names) andalso Utils.a_member (op =) on_names vnames_in_chained_facts
+  end;
+
+(* ass_032. *)
+fun ass_032 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, vnames_in_chained_facts} = pstate_to_on_names_n_vnames_in_chained_facts pstate mods;
+  in
+    not (null on_names) andalso Utils.members (op =) on_names vnames_in_chained_facts
+  end;
+
 (* ass_041. checks if the proof context contains local assumption *)
 fun ass_041 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
@@ -539,11 +566,20 @@ fun ass_041 (pstate:Proof.state) (mods:ITG.modifiers) =
     has_ind_vars andalso has_const andalso not (Utils.a_member (op =) ons vnames)
   end;
 
+(* ass_042. *)
 fun ass_042 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
     val {has_arb_vars, has_const, arbs, vnames,...} = pstate_to_ons_n_vnames_in_snd_args_of_list_nth pstate mods;
   in
     has_arb_vars andalso has_const andalso not (Utils.a_member (op =) arbs vnames)
+  end;
+
+(* ass_043. *)
+fun ass_043 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, vnames_in_chained_facts} = pstate_to_on_names_n_vnames_in_chained_facts pstate mods;
+  in
+    not (null on_names) andalso not (Utils.a_member (op =) on_names vnames_in_chained_facts)
   end;
 
 (*TODO*)

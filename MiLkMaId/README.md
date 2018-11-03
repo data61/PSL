@@ -147,14 +147,14 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - the `induct` method takes at least one argument as induction variable,
    - at least one induction variable has a type of `set` or `list`, and
    - `proof (induct xs)` in line 30 of `thys/Binomial-Queues/Binomial_Queue.thy`.
-- [ ] 31. Check if
+- [X] 31. Check if
    - the proof state has a chained fact, 
    - the `induct` method takes at least one argument as induction variable, and
    - _at least one_ induction variable appears in one of the chained facts.
-- [ ] 32. Check if
+- [X] 32. Check if
    - the proof state has a chained fact, 
    - the `induct` method takes at least one argument as induction variable, and
-   - _all_ induction variable appear in one of the chained facts.
+   - _all_ induction variables appear in one of the chained facts.
       - similar to assertion31.
 - [ ] 33. Check if
    - the first subgoal has a meta-implication `==>`, 
@@ -204,7 +204,11 @@ learning algorithms, the results should be treated as _dummy variables_, which m
       - there exists _no_ occurrence, `nth_occ`, of `List.nth`, such that
          - `arb_var` appears part of the second argument of `nth_occ`.
    - `proof(induct xs arbitrary: i j)` in line 361 of `thys/Stable_Matching/Basis.thy`.
-
+- [X] 43. Check if
+   - the proof state has a chained fact, 
+   - the `induct` method takes at least one argument as induction variable, and
+   - no induction variable appears in one of the chained facts.
+      - similar to assertion31.
 
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
