@@ -614,8 +614,8 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*028*)true,
 (*029*)ass_029 pre_pst mods,
 (*030*)true,
-(*031*)true,
-(*032*)true,
+(*031*)ass_031 pre_pst mods,
+(*032*)ass_032 pre_pst mods,
 (*033*)true,
 (*034*)true,
 (*035*)true,
@@ -625,7 +625,8 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*039*)true,
 (*040*)true,
 (*041*)ass_041 pre_pst mods,
-(*042*)ass_042 pre_pst mods
+(*042*)ass_042 pre_pst mods,
+(*043*)ass_043 pre_pst mods
 ];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
