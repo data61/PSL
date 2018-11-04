@@ -620,7 +620,7 @@ fun ass_044 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
     val {on_names, has_ind_vars, has_meta_imp_in_chained_facts, vnames_in_premises_in_chained_facts, ...} = pstate_to_on_names_n_vnames_in_premises pstate mods;
   in
-    has_meta_imp_in_chained_facts andalso has_ind_vars andalso Utils.a_member (op =) on_names vnames_in_premises_in_chained_facts
+    has_meta_imp_in_chained_facts andalso has_ind_vars andalso not (Utils.a_member (op =) on_names vnames_in_premises_in_chained_facts)
   end;
 
 (* ass_045 *)
@@ -637,6 +637,14 @@ fun ass_046 (pstate:Proof.state) (mods:ITG.modifiers) =
     val {on_names, has_ind_vars, has_meta_imp_in_fst_subg, vnames_in_premises_in_fst_subg, ...} = pstate_to_on_names_n_vnames_in_premises pstate mods;
   in
     has_meta_imp_in_fst_subg andalso has_ind_vars andalso not (Utils.a_member (op =) on_names vnames_in_premises_in_fst_subg)
+  end;
+
+(* ass_047 *)
+fun ass_047 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, has_ind_vars, has_meta_imp_in_chained_facts, vnames_in_premises_in_chained_facts, ...} = pstate_to_on_names_n_vnames_in_premises pstate mods;
+  in
+    has_meta_imp_in_chained_facts andalso has_ind_vars andalso Utils.members (op =) on_names vnames_in_premises_in_chained_facts
   end;
 
 (*TODO*)
@@ -685,8 +693,8 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*042*)ass_042 pre_pst mods,
 (*043*)ass_043 pre_pst mods,
 (*044*)ass_044 pre_pst mods,
-(*045*)ass_044 pre_pst mods,
-(*046*)ass_044 pre_pst mods
+(*045*)ass_045 pre_pst mods,
+(*046*)ass_046 pre_pst mods
 ];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
