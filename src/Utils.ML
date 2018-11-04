@@ -361,7 +361,9 @@ sig
   val trm_to_fst_args_of_const          : string -> term -> terms;
   val trm_to_snd_args_of_const          : string -> term -> terms;
   val pstate_to_1st_subg_n_chained_facts: Proof.state -> terms;
+  val pstate_to_1st_subg_n_chained_facts_record   : Proof.state -> {fst_subg:term option, chained_facts:terms};
   val pstate_to_cnames_in_1st_subg_n_chained_facts: Proof.state -> string list;
+  val trms_have_cname                             : string -> terms -> bool;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -617,9 +619,25 @@ fun pstate_to_1st_subg_n_chained_facts (pst:Proof.state) =
     fst_subg_trm @ chained_trms
   end;
 
+fun pstate_to_1st_subg_n_chained_facts_record (pst:Proof.state) =
+  let
+    val chained_thms = pstate_to_usings pst: thms;
+    val chained_trms = map Thm.prop_of chained_thms: terms;
+    val fst_subg_trm = pst_to_fst_subg pst: term option;
+  in
+    {fst_subg = fst_subg_trm, chained_facts = chained_trms}
+  end;
+
 fun pstate_to_cnames_in_1st_subg_n_chained_facts (pstate:Proof.state) =
    pstate_to_1st_subg_n_chained_facts pstate
 |> Utils.map_flat_distinct (fn trm:term => Term.add_const_names trm []) (op =);
+
+fun trms_have_cname (cname:string) (trms:terms) =
+  let
+    val cnames = map (fn trm => Term.add_consts trm []) trms |> flat |> map fst: strings;
+  in
+    exists (equal cname) cnames
+  end;
 
 end;
 

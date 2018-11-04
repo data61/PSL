@@ -156,11 +156,11 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - the `induct` method takes at least one argument as induction variable, and
    - _all_ induction variables appear in one of the chained facts.
       - similar to assertion31.
-- [ ] 33. Check if
+- [X] 33. Check if
    - the first subgoal has a meta-implication `==>`, 
    - the `induct` method takes at least one argument as induction variable, and
    - _at least one_ induction variable appears in one of the premises of some `==>`.
-- [ ] 34. Check if
+- [X] 34. Check if
    - the first subgoal has a meta-implication `==>`, 
    - the `induct` method takes at least one argument as induction variable, and
    - _all_ induction variable appear in one of the premises of some `==>`.
@@ -209,7 +209,21 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - the `induct` method takes at least one argument as induction variable, and
    - no induction variable appears in one of the chained facts.
       - similar to assertion31.
-
+- [X] 44. Check if
+   - the first subgoal has a meta-implication `==>`,
+   - the `induct` method takes at least one argument as induction variable, and
+   - no induction variable appears in any of the premises of some `==>` in the chained facts.
+      - similar to assertion33.
+- [X] 45. Check if
+   - at least one of the chained goals has a meta-implication `==>`,
+   - the `induct` method takes at least one argument as induction variable, and
+   - there exists an induction variable that appears in one of the premises of some `==>` in the chained facts.
+      - similar to assertion33.
+- [X] 46. Check if
+   - the first subgoal has a meta-implication `==>`,
+   - the `induct` method takes at least one argument as induction variable, and
+   - _no_ induction variable appears in one of the premises of some `==>`.
+      - similar to assertion33.
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
       generalize free variables appearing in the sub-term(s).

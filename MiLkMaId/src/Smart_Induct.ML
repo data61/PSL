@@ -558,6 +558,39 @@ fun ass_032 (pstate:Proof.state) (mods:ITG.modifiers) =
     not (null on_names) andalso Utils.members (op =) on_names vnames_in_chained_facts
   end;
 
+(* pstate_to_on_names_n_vnames_in_prems_in_fst_subg: helper function for TODO. *)
+fun pstate_to_on_names_n_vnames_in_premises (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {fst_subg, chained_facts}        = IU.pstate_to_1st_subg_n_chained_facts_record pstate;
+    val prems_in_fst_subg                = omap Logic.strip_imp_prems fst_subg |> these        : terms;
+    val prems_in_chained_facts           = map Logic.strip_imp_prems chained_facts |> flat     : terms;
+    val on_names                         = mods |> IS.pick_vars |> IS.get_names                : strings;
+  in
+    {on_names                            = on_names                                            : strings,
+     has_ind_vars                        = not (null on_names)                                 : bool,
+     has_meta_imp_in_fst_subg            = IU.trms_have_cname "Pure.imp" (the_list fst_subg)   : bool,
+     has_meta_imp_in_chained_facts       = IU.trms_have_cname "Pure.imp" chained_facts         : bool,
+     vnames_in_premises_in_fst_subg      = IU.get_free_var_names_in_trms prems_in_fst_subg     : strings,
+     vnames_in_premises_in_chained_facts = IU.get_free_var_names_in_trms prems_in_chained_facts: strings
+     }
+  end;
+
+(* ass_033 *)
+fun ass_033 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, has_ind_vars, has_meta_imp_in_fst_subg, vnames_in_premises_in_fst_subg, ...} = pstate_to_on_names_n_vnames_in_premises pstate mods;
+  in
+    has_meta_imp_in_fst_subg andalso has_ind_vars andalso Utils.a_member (op =) on_names vnames_in_premises_in_fst_subg
+  end;
+
+(* ass_034 *)
+fun ass_034 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, has_ind_vars, has_meta_imp_in_fst_subg, vnames_in_premises_in_fst_subg, ...} = pstate_to_on_names_n_vnames_in_premises pstate mods;
+  in
+    has_meta_imp_in_fst_subg andalso has_ind_vars andalso Utils.members (op =) on_names vnames_in_premises_in_fst_subg
+  end;
+
 (* ass_041. checks if the proof context contains local assumption *)
 fun ass_041 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
@@ -571,7 +604,7 @@ fun ass_042 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
     val {has_arb_vars, has_const, arbs, vnames,...} = pstate_to_ons_n_vnames_in_snd_args_of_list_nth pstate mods;
   in
-    has_arb_vars andalso has_const andalso not (Utils.a_member (op =) arbs vnames)
+    has_arb_vars andalso has_const andalso Utils.a_member (op =) arbs vnames
   end;
 
 (* ass_043. *)
@@ -580,6 +613,30 @@ fun ass_043 (pstate:Proof.state) (mods:ITG.modifiers) =
     val {on_names, vnames_in_chained_facts} = pstate_to_on_names_n_vnames_in_chained_facts pstate mods;
   in
     not (null on_names) andalso not (Utils.a_member (op =) on_names vnames_in_chained_facts)
+  end;
+
+(* ass_044 *)
+fun ass_044 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, has_ind_vars, has_meta_imp_in_chained_facts, vnames_in_premises_in_chained_facts, ...} = pstate_to_on_names_n_vnames_in_premises pstate mods;
+  in
+    has_meta_imp_in_chained_facts andalso has_ind_vars andalso Utils.a_member (op =) on_names vnames_in_premises_in_chained_facts
+  end;
+
+(* ass_045 *)
+fun ass_045 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, has_ind_vars, has_meta_imp_in_chained_facts, vnames_in_premises_in_chained_facts, ...} = pstate_to_on_names_n_vnames_in_premises pstate mods;
+  in
+    has_meta_imp_in_chained_facts andalso has_ind_vars andalso not (Utils.a_member (op =) on_names vnames_in_premises_in_chained_facts)
+  end;
+
+(* ass_046 *)
+fun ass_046 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val {on_names, has_ind_vars, has_meta_imp_in_fst_subg, vnames_in_premises_in_fst_subg, ...} = pstate_to_on_names_n_vnames_in_premises pstate mods;
+  in
+    has_meta_imp_in_fst_subg andalso has_ind_vars andalso not (Utils.a_member (op =) on_names vnames_in_premises_in_fst_subg)
   end;
 
 (*TODO*)
@@ -616,8 +673,8 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*030*)true,
 (*031*)ass_031 pre_pst mods,
 (*032*)ass_032 pre_pst mods,
-(*033*)true,
-(*034*)true,
+(*033*)ass_033 pre_pst mods,
+(*034*)ass_034 pre_pst mods,
 (*035*)true,
 (*036*)true,
 (*037*)true,
@@ -626,7 +683,10 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*040*)true,
 (*041*)ass_041 pre_pst mods,
 (*042*)ass_042 pre_pst mods,
-(*043*)ass_043 pre_pst mods
+(*043*)ass_043 pre_pst mods,
+(*044*)ass_044 pre_pst mods,
+(*045*)ass_044 pre_pst mods,
+(*046*)ass_044 pre_pst mods
 ];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
