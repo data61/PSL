@@ -137,7 +137,8 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - no induction variable appears as part of the arguments to at least one occurrence of `List.list.set`.
    - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
 - [X] 28. Check if
-   - there is a free variable of function type either in the first subgoal or one of the chained facts, and
+   - there is a free variable of function type either in the first subgoal or one of the chained facts,
+   - the `induct` method has at least one induction variable, and
    - none of induction variables has a function type.
 - [X] 29. Check if
    - the proof obligation has `List.nth`,
@@ -191,10 +192,10 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - the `induct` method takes at least one argument for the `rule` field, and
    - _all_ induction rule appears in one of the premises of some `==>`.
       - similar to assertion38.
-- [ ] 40. Check if 
-   - the proof obligation has variables of type `nat`,
-   - the `induct` method takes at least one argument as induction variables and
-   - all induction variables have type `nat`.
+- [X] 40. Check if
+   - there is a free variable of type `nat` either in the first subgoal or one of the chained facts, and
+   - the `induct` method takes at least one argument as induction variables, and
+   - none of induction variables has `nat` type.
 - [X] 41. Check if
    - the proof obligation has either `Set.member` or `Set.not_member`, and
    - there exists no induction variable that appears as part of the second argument to

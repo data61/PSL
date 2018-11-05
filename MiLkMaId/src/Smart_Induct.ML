@@ -468,7 +468,7 @@ fun pstate_to_ons_n_vnames_in_nth_args_of_const (trm_to_nth_args_of_const: strin
      vnames         = vnames_in_snd_args_of_set_member: strings}
   end;
 
-(* helper functions for ass_023, ass_040, and ass_041 *)
+(* helper functions for ass_023, ass_024, and ass_041 *)
 fun pstate_to_ons_n_vnames_in_snd_args_of_set_member (pstate:Proof.state) (mods:ITG.modifiers) =
   pstate_to_ons_n_vnames_in_nth_args_of_const IU.trm_to_snd_args_of_const "Set.member" pstate mods;
 
@@ -516,18 +516,22 @@ fun ass_027 (pstate:Proof.state) (mods:ITG.modifiers) =
     has_ind_vars andalso has_const andalso not (Utils.a_member (op =) ons vnames)
   end;
 
-(* ass_028. *)
-fun ass_028 (pstate:Proof.state) (mods:ITG.modifiers) =
+fun helper_ass_028_ass_040 (pstate:Proof.state) (mods:ITG.modifiers)
+  (trm_to_consts_fvars_vars: term -> {consts: term list, frees: term list, vars: term list}) =
   let
-    val on_names                         = mods |> IS.pick_vars |> IS.get_names                                           : strings;
-    val fst_subg_n_chained_facts         = IU.pstate_to_1st_subg_n_chained_facts pstate                                   : terms;
-    fun trm_to_fun_free_names (trm:term) = trm |> IU.trm_to_funs |> #frees |> map (fst o Term.dest_Free)                  : strings;
-    val fun_free_names                   = map trm_to_fun_free_names fst_subg_n_chained_facts |> flat |> duplicates (op =): strings;
-    val no_var_is_fun_type               = Utils.a_member (op =) on_names fun_free_names |> not                           : bool;
-    val has_a_fvar_of_fun_typ            = (not o null) fun_free_names                                                    : bool;
+    val on_names                     = mods |> IS.pick_vars |> IS.get_names                                       : strings;
+    val has_ons                      = null on_names |> not                                                       : bool;
+    val fst_subg_n_chained_facts     = IU.pstate_to_1st_subg_n_chained_facts pstate                               : terms;
+    fun trm_to_fvar_names (trm:term) = trm |> trm_to_consts_fvars_vars |> #frees |> map (fst o Term.dest_Free)    : strings;
+    val fun_fvar_names               = map trm_to_fvar_names fst_subg_n_chained_facts |> flat |> duplicates (op =): strings;
+    val has_a_fvar_of_fun_typ        = (not o null) fun_fvar_names                                                : bool;
+    val no_var_is_fun_type           = Utils.a_member (op =) on_names fun_fvar_names |> not                       : bool;
   in
-    has_a_fvar_of_fun_typ andalso no_var_is_fun_type
+    has_a_fvar_of_fun_typ andalso has_ons andalso no_var_is_fun_type
   end;
+
+(* ass_028. *)
+fun ass_028 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_040 pstate mods IU.trm_to_funs;
 
 (* helper functions for ass_029 *)
 fun pstate_to_ons_n_vnames_in_snd_args_of_list_nth (pstate:Proof.state) (mods:ITG.modifiers) =
@@ -599,6 +603,9 @@ fun ass_034 (pstate:Proof.state) (mods:ITG.modifiers) =
   in
     has_meta_imp_in_fst_subg andalso has_ind_vars andalso Utils.members (op =) on_names vnames_in_premises_in_fst_subg
   end;
+
+(* ass_040. *)
+fun ass_040 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_040 pstate mods IU.trm_to_nats;
 
 (* ass_041. checks if the proof context contains local assumption *)
 fun ass_041 (pstate:Proof.state) (mods:ITG.modifiers) =

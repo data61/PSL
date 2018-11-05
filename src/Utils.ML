@@ -366,6 +366,9 @@ sig
   val trms_have_cname                             : string -> terms -> bool;
   val trm_has_prop                                : term -> bool;
   val trm_to_prop_trms                            : term -> terms;
+  val is_nat_typ                                  : typ -> bool;
+  val trm_has_nat_typ                             : term -> bool;
+  val trm_to_nats                                 : term -> {consts: term list, frees: term list, vars: term list};
   val is_fun_typ                                  : typ -> bool;
   val trm_has_fun_typ                             : term -> bool;
   val trm_to_funs                                 : term -> {consts: term list, frees: term list, vars: term list};
@@ -676,23 +679,32 @@ and trm_to_prop_trms (trm:term) =
     distinct Term.aconv all_results
   end;
 
+fun trm_to_certain_var_free_const (assert_trm:term -> bool) (trm:term) =
+  let
+    val vars       = Term.add_vars trm []  : (indexname * typ) list;
+    val frees      = Term.add_frees trm [] : (string * typ) list;
+    val consts     = Term.add_consts trm []: (string * typ) list;
+    val result =
+      {vars   = map Term.Var vars     |> filter assert_trm,
+       frees  = map Term.Free frees   |> filter assert_trm,
+       consts = map Term.Const consts |> filter assert_trm};
+  in
+    result:{consts: term list, frees: term list, vars: term list}
+  end;
+
+fun is_nat_typ (Type (typ_name, _):typ) = typ_name = "nat"
+  | is_nat_typ  _                       = false;
+
+fun trm_has_nat_typ (trm:term) = Term.exists_type is_nat_typ trm: bool;
+
+fun trm_to_nats (trm:term) = trm_to_certain_var_free_const trm_has_nat_typ trm;
+
 fun is_fun_typ (Type (typ_name, _):typ) = typ_name = "fun"
   | is_fun_typ  _                       = false;
 
 fun trm_has_fun_typ (trm:term) = Term.exists_type is_fun_typ trm: bool;
 
-fun trm_to_funs (trm:term) =
-  let
-    val vars       = Term.add_vars trm []        : (indexname * typ) list;
-    val frees      = Term.add_frees trm []       : (string * typ) list;
-    val consts     = Term.add_consts trm []      : (string * typ) list;
-    val result =
-      {vars   = map Term.Var vars     |> filter trm_has_fun_typ,
-       frees  = map Term.Free frees   |> filter trm_has_fun_typ,
-       consts = map Term.Const consts |> filter trm_has_fun_typ};
-  in
-    result:{consts: term list, frees: term list, vars: term list}
-  end;
+fun trm_to_funs (trm:term) = trm_to_certain_var_free_const trm_has_fun_typ trm;
 
 end;
 
