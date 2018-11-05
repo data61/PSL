@@ -136,7 +136,9 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - the `induct` method takes at least one argument as induction variable and
    - no induction variable appears as part of the arguments to at least one occurrence of `List.list.set`.
    - `by (induct xs)` in line 447 of `thys/Stable_Matching/Basis.thy`.
-- [ ] 28. Check if none of induction variables has a function type.
+- [X] 28. Check if
+   - there is a free variable of function type either in the first subgoal or one of the chained facts, and
+   - none of induction variables has a function type.
 - [X] 29. Check if
    - the proof obligation has `List.nth`,
    - the `induct` method has at least one argument as `arbitrary` variable, and
@@ -146,8 +148,8 @@ learning algorithms, the results should be treated as _dummy variables_, which m
    - `proof(induct xs arbitrary: i j)` in line 361 of `thys/Stable_Matching/Basis.thy`.
 - [ ] 30. Check if
    - the proof obligation has at least one variable of type (constructor) `set` or or `list`,
-   - the `induct` method takes at least one argument as induction variable,
-   - at least one induction variable has a type of `set` or `list`, and
+   - the `induct` method takes at least one argument as induction variable, and
+   - at least one induction variable has a type of `set` or `list`.
    - `proof (induct xs)` in line 30 of `thys/Binomial-Queues/Binomial_Queue.thy`.
 - [X] 31. Check if
    - the proof state has a chained fact, 
@@ -169,7 +171,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
       - similar to assertion33.
 - [ ] 35. Check if
    - the `induct` method uses an `.induct` rule, say `bla.induct`,
-     where `bla` is an innermost function that is applied to (a) variable(s) for some `PROP` term 
+     where `bla` is an innermost function that is applied to (a) variable(s) in some `PROP` term 
      in the first sub-goal or some chained facts.  
 - [ ] 36. Check if
    - the proof state has a chained fact,

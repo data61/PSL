@@ -516,6 +516,19 @@ fun ass_027 (pstate:Proof.state) (mods:ITG.modifiers) =
     has_ind_vars andalso has_const andalso not (Utils.a_member (op =) ons vnames)
   end;
 
+(* ass_028. *)
+fun ass_028 (pstate:Proof.state) (mods:ITG.modifiers) =
+  let
+    val on_names                         = mods |> IS.pick_vars |> IS.get_names                                           : strings;
+    val fst_subg_n_chained_facts         = IU.pstate_to_1st_subg_n_chained_facts pstate                                   : terms;
+    fun trm_to_fun_free_names (trm:term) = trm |> IU.trm_to_funs |> #frees |> map (fst o Term.dest_Free)                  : strings;
+    val fun_free_names                   = map trm_to_fun_free_names fst_subg_n_chained_facts |> flat |> duplicates (op =): strings;
+    val no_var_is_fun_type               = Utils.a_member (op =) on_names fun_free_names |> not                           : bool;
+    val has_a_fvar_of_fun_typ            = (not o null) fun_free_names                                                    : bool;
+  in
+    has_a_fvar_of_fun_typ andalso no_var_is_fun_type
+  end;
+
 (* helper functions for ass_029 *)
 fun pstate_to_ons_n_vnames_in_snd_args_of_list_nth (pstate:Proof.state) (mods:ITG.modifiers) =
   pstate_to_ons_n_vnames_in_nth_args_of_const IU.trm_to_snd_args_of_const "List.nth" pstate mods;
@@ -672,7 +685,7 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*025*)ass_025 pre_pst mods,
 (*026*)ass_026 pre_pst mods,
 (*027*)ass_027 pre_pst mods,
-(*028*)true,
+(*028*)ass_028 pre_pst mods,
 (*029*)ass_029 pre_pst mods,
 (*030*)true,
 (*031*)ass_031 pre_pst mods,

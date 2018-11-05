@@ -366,6 +366,9 @@ sig
   val trms_have_cname                             : string -> terms -> bool;
   val trm_has_prop                                : term -> bool;
   val trm_to_prop_trms                            : term -> terms;
+  val is_fun_typ                                  : typ -> bool;
+  val trm_has_fun_typ                             : term -> bool;
+  val trm_to_funs                                 : term -> {consts: term list, frees: term list, vars: term list};
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -582,7 +585,7 @@ fun are_all_de_Bruijn_indices_used (Const _ $ Abs (name,typ,trm)) =
       are_all_de_Bruijn_indices_used trm1 andalso are_all_de_Bruijn_indices_used trm2
   | are_all_de_Bruijn_indices_used _ = true;
 
-(* add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy. *)
+(*add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy.*)
 fun add_const_names_mult (trm:term) (names:strings) =
   fold_aterms (fn Const (c, _) => insert (K false) c | _ => I) trm names;
 
@@ -671,6 +674,24 @@ and trm_to_prop_trms (trm:term) =
     val all_results = (*filter_out trm_has_prop*) props @ this_lvl @ deeper_lvl         : terms;
   in
     distinct Term.aconv all_results
+  end;
+
+fun is_fun_typ (Type (typ_name, _):typ) = typ_name = "fun"
+  | is_fun_typ  _                       = false;
+
+fun trm_has_fun_typ (trm:term) = Term.exists_type is_fun_typ trm: bool;
+
+fun trm_to_funs (trm:term) =
+  let
+    val vars       = Term.add_vars trm []        : (indexname * typ) list;
+    val frees      = Term.add_frees trm []       : (string * typ) list;
+    val consts     = Term.add_consts trm []      : (string * typ) list;
+    val result =
+      {vars   = map Term.Var vars     |> filter trm_has_fun_typ,
+       frees  = map Term.Free frees   |> filter trm_has_fun_typ,
+       consts = map Term.Const consts |> filter trm_has_fun_typ};
+  in
+    result:{consts: term list, frees: term list, vars: term list}
   end;
 
 end;
