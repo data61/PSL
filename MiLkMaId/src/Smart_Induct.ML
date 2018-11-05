@@ -180,10 +180,13 @@ fun get_points_below_n (threshold:int) (data:MA.data) =
   end;
 
 fun gen_pst_to_ufun_n_argss (pst:Proof.state) (get_ufun_n_argss: MA.uterm -> MA.ufun_n_argss) =
-      IU.pst_to_fst_subg pst
-  <$> MA.trm_to_utrm
-  <$> get_ufun_n_argss
-   |> these: MA.ufun_n_args list;
+      IU.pstate_to_1st_subg_n_chained_facts pst
+   |> map IU.trm_to_prop_trms
+   |> flat
+   |> map MA.trm_to_utrm
+   |> map get_ufun_n_argss
+   |> flat
+   : MA.ufun_n_args list;
 
 fun pst_to_ufun_n_argss (pst:Proof.state) = gen_pst_to_ufun_n_argss pst MA.utrm_to_ufun_n_argss
                                           : MA.ufun_n_args list;

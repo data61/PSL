@@ -8,14 +8,15 @@ Note that these heuristics take the form of assertions. When we feed the results
 learning algorithms, the results should be treated as _dummy variables_, which map `SOME true` to `1.0`, 
 `SOME false` to `-1.0`, and `NONE` to `0.0`.
 
-- [X] 1. Check if at least one argument of induction is an argument of an innermost constant that is a function.
+- [X] 1. Check if at least one argument of induction is an argument of an innermost constant that is a function
+         in either the first subgoal or one of the chained facts.
 - [X] 2. Check if the `induct` method uses `c.induct` in case the first sub-goal contains (a) constant(s) defined with 
          the `fun` keyword or `inductive` keyword as an innermost function.
 - [X] 3. Check if
    - the `induct` method takes at least one argument, say `bla.induct` for the `rule` field,
    - the `induct` method has `n` arguments in the uncurried form where
      n is the number of arguments in the conclusion of `bla.induct` in the uncurried form,
-   - for some `bla`, 
+   - for some `bla`,
       - all arguments to it are used as arguments to the `induct` method and 
       - they appear in the same order.
    - example: `proof(induct g xs ys rule: dfs.induct)` line 200 if `thy/Depth-First-Search.thy`.

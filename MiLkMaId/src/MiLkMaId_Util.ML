@@ -531,16 +531,17 @@ fun get_max_level xs = fold (fn x:ufun_n_args => fn acc:int =>
 fun get_cons_n_argss_of_level (level:int) (xs:ufun_n_argss) = fold (fn x:ufun_n_args => fn acc:ufun_n_argss =>
   if #level x = level then x::acc else acc) xs [];
 
+fun eq_args (trip1:ufun_n_args, trip2:ufun_n_args) : bool =
+  let
+    val uargs1 = #uargs trip1: uterm list;
+    val uargs2 = #uargs trip2: uterm list;
+  in
+    uargs1 = uargs2
+  end;
+
 (*utrm_to_ufun_n_argss produces the pairs of function and arguments.*)
 fun utrm_to_ufun_n_argss (utrm:uterm) =
   let
-    fun eq_args (trip1:ufun_n_args, trip2:ufun_n_args) : bool =
-      let
-        val uargs1 = #uargs trip1: uterm list;
-        val uargs2 = #uargs trip2: uterm list;
-      in
-        uargs1 = uargs2
-      end;
     fun tail_rec (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm) =
         tail_rec (acc:ufun_n_argss) (level + 1)  utrm
       | tail_rec (acc:ufun_n_argss) (level:int) (UApp (UConst body, uargs):uterm) =
@@ -571,7 +572,7 @@ fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
           val deepests      = get_cons_n_argss_of_level deepest_level all                              : ufun_n_argss
           val result        = if null deepests then acc else deepests                                  : ufun_n_argss;
         in
-          result: ufun_n_argss
+          distinct eq_args result: ufun_n_argss
         end
       | tail_rec (acc:ufun_n_argss) _ _ = acc: ufun_n_argss
   in
