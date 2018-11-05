@@ -179,6 +179,8 @@ fun get_points_below_n (threshold:int) (data:MA.data) =
     filter (is_below_n threshold) points: MA.point list
   end;
 
+(* TODO: in future, this function, gen_pst_to_ufun_n_argss, should be parametrised, so that
+ * users can specify if he/she wants to consider the first subgoal or chained facts. *)
 fun gen_pst_to_ufun_n_argss (pst:Proof.state) (get_ufun_n_argss: MA.uterm -> MA.ufun_n_argss) =
       IU.pstate_to_1st_subg_n_chained_facts pst
    |> map IU.trm_to_prop_trms
@@ -186,17 +188,17 @@ fun gen_pst_to_ufun_n_argss (pst:Proof.state) (get_ufun_n_argss: MA.uterm -> MA.
    |> map MA.trm_to_utrm
    |> map get_ufun_n_argss
    |> flat
-   : MA.ufun_n_args list;
+   : MA.ufun_n_argss;
 
 fun pst_to_ufun_n_argss (pst:Proof.state) = gen_pst_to_ufun_n_argss pst MA.utrm_to_ufun_n_argss
-                                          : MA.ufun_n_args list;
+                                          : MA.ufun_n_argss;
 
 fun pst_to_innermost_ufun_n_argss (pst:Proof.state) = gen_pst_to_ufun_n_argss pst MA.utrm_to_innermost_ufun_n_argss
-                                                    : MA.ufun_n_args list;
+                                                    : MA.ufun_n_argss;
 
 fun get_var_namess_of_innermost_constants (pst:Proof.state) =
   let
-    val innermost_ufun_n_argss = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
+    val innermost_ufun_n_argss = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_argss;
     (*The type of innermost_var_namess is "strings list" because we need one "strings" for each innermost constant.*)
     val innermost_var_namess   = MA.ufun_n_argss_to_var_namess innermost_ufun_n_argss: strings list;
   in
@@ -218,13 +220,12 @@ fun ufun_n_arg_to_induct_name (MA.UConst (cname, _)) = SOME (cname^".induct")
 
 fun ass_002 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val innermost_ufun_n_argss = pst_to_innermost_ufun_n_argss pst: MA.ufun_n_args list;
-    val ctxt                   = Proof.context_of pst;
-    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss;
-    val rule_names             = mods |> IS.pick_rules |> IS.get_names: strings: strings;
-    val innermost_induct_names = map (ufun_n_arg_to_induct_name o #ufun) ufun_w_induct_rule_n_argss
-                               |> Utils.somes: strings;
-    val result                 = Utils.a_member (op =) rule_names innermost_induct_names;
+    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst                                                : MA.ufun_n_args list;
+    val ctxt                       = Proof.context_of pst                                                             : Proof.context;
+    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss        : MA.ufun_n_argss;
+    val rule_names                 = mods |> IS.pick_rules |> IS.get_names                                            : strings;
+    val innermost_induct_names     = map (ufun_n_arg_to_induct_name o #ufun) ufun_w_induct_rule_n_argss |> Utils.somes: strings;
+    val result                     = Utils.a_member (op =) rule_names innermost_induct_names                          : bool;
   in
     result:bool
   end;
@@ -242,7 +243,7 @@ fun induct_rule_name_to_const_name (induct_rule_name) : string option =
 <|> try (unsuffix ".inducts(9)")  induct_rule_name
 <|> try (unsuffix ".inducts(10)") induct_rule_name;
 
-fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) =
+fun helper_for_ass_003_019 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val ufun_n_argss               = pst_to_ufun_n_argss pst                                           : MA.ufun_n_args list;
     val ctxt                       = Proof.context_of pst                                              : Proof.context;
@@ -253,15 +254,23 @@ fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) =
     val rule_cnames                = map induct_rule_name_to_const_name rule_names |> Utils.somes      : strings;
     val on_names                   = mods |> IS.pick_vars |> IS.get_names                              : strings;
     val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss: (string option * strings) list;
+    fun for_given_rule_cname_n_given_ufun_n_args_ind_are_subset_in_ord (_              :string) (NONE, _)               = false
+      | for_given_rule_cname_n_given_ufun_n_args_ind_are_subset_in_ord (cname_from_rule:string) (SOME fname, var_names) =
+        cname_from_rule = fname andalso Utils.order_sensitive_multi_subset equal on_names var_names
+    fun for_some_rule_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
+        Utils.a_member (uncurry for_given_rule_cname_n_given_ufun_n_args_ind_are_subset_in_ord) cnames_from_rules pairs;
     fun for_given_rule_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
       | for_given_rule_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =
-        cname_from_rule = fname andalso on_names = var_names
-        (*Utils.order_sensitive_multi_subset equal on_names var_names;*)
-    fun for_some_rule_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
+        cname_from_rule = fname andalso subset (op =) (on_names, var_names);
+    fun for_all_rule_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
         Utils.a_member (uncurry for_given_rule_cname_n_given_ufun_n_args) cnames_from_rules pairs;
+    val result = {ass_003 = has_at_least_one_rule andalso for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs: bool,
+                  ass_019 = has_at_least_one_rule andalso for_all_rule_cname_n_all_ufun_n_args  rule_cnames name_pairs: bool}
   in
-    has_at_least_one_rule andalso for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs:bool
+    result
   end;
+
+fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) = helper_for_ass_003_019 pst mods |> #ass_003;
 
 fun ass_005 (pst:Proof.state) (mods:ITG.modifiers) =
   let
@@ -434,24 +443,8 @@ fun ass_017 (pst:Proof.state) (mods:ITG.modifiers) =
 
 fun ass_018 _ (mods:ITG.modifiers) = length mods = 0;
 
-(*TODO: ass_019 is similar to ass_003. Re-factor them.*)
-fun ass_019 (pst:Proof.state) (mods:ITG.modifiers) =
-  let
-    val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst                           : MA.ufun_n_args list;
-    val ctxt                       = Proof.context_of pst                                        : Proof.context;
-    val ufun_w_induct_rule_n_argss = MA.ufun_n_argss_to_ufun_w_induct_rule_n_argss ctxt innermost_ufun_n_argss;
-    val rule_names                 = mods |> IS.pick_rules |> IS.get_names                       : strings: strings;
-    val rule_cnames                = map induct_rule_name_to_const_name rule_names |> Utils.somes: strings;
-    val on_names                   = mods |> IS.pick_vars |> IS.get_names                        : strings;
-    val name_pairs                 = MA.ufun_n_argss_to_cname_n_vnames_pairs ufun_w_induct_rule_n_argss: (string option * strings) list;
-    fun for_given_rule_cname_n_given_ufun_n_args (_              :string) (NONE, _)               = false
-      | for_given_rule_cname_n_given_ufun_n_args (cname_from_rule:string) (SOME fname, var_names) =
-        cname_from_rule = fname andalso Utils.members (op =) on_names var_names; (*The only difference to ass_003.*)
-    fun for_some_rule_cname_n_all_ufun_n_args (cnames_from_rules:strings) (pairs:(string option * strings) list) =
-      Utils.a_member (uncurry for_given_rule_cname_n_given_ufun_n_args) cnames_from_rules pairs;
-  in
-    for_some_rule_cname_n_all_ufun_n_args rule_cnames name_pairs:bool
-  end;
+(* ass_019 *)
+fun ass_019 (pst:Proof.state) (mods:ITG.modifiers) = helper_for_ass_003_019 pst mods |> #ass_019;
 
 (* ass_020. checks if the proof context contains local assumption *)
 fun ass_020 (pstate:Proof.state) _ = IU.pstate_to_usings pstate |> null;

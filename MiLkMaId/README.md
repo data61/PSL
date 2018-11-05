@@ -10,8 +10,8 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 
 - [X] 1. Check if at least one argument of induction is an argument of an innermost constant that is a function
          in either the first subgoal or one of the chained facts.
-- [X] 2. Check if the `induct` method uses `c.induct` in case the first sub-goal contains (a) constant(s) defined with 
-         the `fun` keyword or `inductive` keyword as an innermost function.
+- [X] 2. Check if the `induct` method uses `c.induct` in case the first sub-goal or one of the chained facts
+         contains (a) constant(s) defined with the `fun` keyword or `inductive` keyword as an innermost function.
 - [X] 3. Check if
    - the `induct` method takes at least one argument, say `bla.induct` for the `rule` field,
    - the `induct` method has `n` arguments in the uncurried form where
@@ -62,12 +62,13 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 12. If the same variable (or sub-term) appears as the induction variable and generalized variable,
           this mathematical induction is less promising.
 - [X] 13. Checks if the number of arguments for the `rule` field is less than two.
-- [X] 14. All arguments of induction are arguments of the same innermost constant that are free variables.
+- [X] 14. All arguments of induction are free variables that are arguments of the same innermost constant in a PROP term
+          in either the first sub-goal or one of the chained facts.
 - [X] 15. Check if the `induct` method introduces a lambda abstraction in the first-sub goal that is not used in the body.
           This includes quantified variables that are not used in the body.
 - [X] 16. The `induct` method uses at least one argument for the `rule` field.
 - [X] 17. (Heuristics from Section 3.2 of the old Isabelle tutorial.[1]) _Do induction on argument number `i`
-         if the function is defined by recursion in argument number `i`._
+         if the function is defined by recursion in argument number `i`.
          More precisely, this assertion checks if
    - the `induct` method takes at least one argument to specify on which sub-term Isabelle should apply mathematical induction, and
    - for any argument to the `induct` method, say `x`, the following statement holds:
@@ -79,13 +80,13 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 18. The `induct` method does not take any argument.
 - [X] 19. Check if
    - the `induct` method uses an `.induct` rule, say `bla.induct`,
-     where `bla` is an innermost function that is applied to (a) variable(s),
+     where `bla` is an innermost function that is applied to (a) variable(s) in a PROP term either in the first sub-goal
+     or one of the chained facts,
    - the `induct` method has `n` arguments in the uncurried form where
      n is the number of arguments in the conclusion of `bla.induct` in the uncurried form,
-   - for some `bla`, 
+   - for some `bla`,
       - all arguments to the `induct` method appears as an argument to the same instance of `bla`.
-   - Assrtion019 is 
-   to assertion003, but more relaxed.
+   - Assrtion019 is similar to assertion003, but more relaxed.
 - [X] 20. Check if the proof context contains local assumption introduced by the `using` keyword.
 - [ ] 21. Check if
    - the `induct` method has at least one argument as induction variable,
