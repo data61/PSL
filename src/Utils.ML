@@ -364,6 +364,8 @@ sig
   val pstate_to_1st_subg_n_chained_facts_record   : Proof.state -> {fst_subg:term option, chained_facts:terms};
   val pstate_to_cnames_in_1st_subg_n_chained_facts: Proof.state -> string list;
   val trms_have_cname                             : string -> terms -> bool;
+  val trm_has_prop                                : term -> bool;
+  val trm_to_prop_trms                            : term -> terms;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -637,6 +639,38 @@ fun trms_have_cname (cname:string) (trms:terms) =
     val cnames = map (fn trm => Term.add_consts trm []) trms |> flat |> map fst: strings;
   in
     exists (equal cname) cnames
+  end;
+
+fun trm_has_prop (trm:term) =
+  let
+    val cnames = Term.add_consts trm [] |> map fst: strings;
+    val these_consts_make_prop = ["Pure.imp", "Pure.all", "Pure.conjunction", "Pure.eq"]: strings;
+  in
+    Utils.a_member (op =) these_consts_make_prop cnames: bool
+  end;
+
+fun trm_to_prop_trms_help (trm1 $ trm2)   = trm_to_prop_trms trm1 @ trm_to_prop_trms trm2
+  | trm_to_prop_trms_help (Abs (_,_,trm)) = trm_to_prop_trms trm
+  | trm_to_prop_trms_help _               = []
+and trm_to_prop_trms (trm:term) =
+  let
+   (*
+    fun dest_all' (Const ("Pure.all", _) $ Abs abs) = SOME (Abs abs)
+      | dest_all'  _                                = NONE;
+    *)
+    (*Warning: Logic.dest_all calls Term.dest_abs internally.
+      But this helps us identify the names of variables represented by de-Bruijn indices.*)
+    val all         = try Logic.dest_all trm         >>= try snd |> the_list            : terms;
+    val equals      = try Logic.dest_equals trm      >>= try Utils.pair_to_list |> these: terms;
+    val implies     = try Logic.dest_implies trm     >>= try Utils.pair_to_list |> these: terms;
+    val conjcts     = try Logic.dest_conjunction trm >>= try Utils.pair_to_list |> these: terms;
+    val props       = all @ equals @ implies @ conjcts                                  : terms;
+    val deeper_lvl  = trm_to_prop_trms_help trm                                         : terms;
+    val this_lvl    = map trm_to_prop_trms props |> flat                                : terms;
+    (*filter_out trm_has_prop removes some valuable terms in @{term "(\<And>x. y (z \<Longrightarrow> w) )"}*)
+    val all_results = (*filter_out trm_has_prop*) props @ this_lvl @ deeper_lvl         : terms;
+  in
+    distinct Term.aconv all_results
   end;
 
 end;

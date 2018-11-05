@@ -139,7 +139,7 @@ type ufun_n_args = {level: int(*The level of the root is 1.*),
                     uargs: uterm list};
 type ufun_n_argss = ufun_n_args list;
 val utrm_to_ufun_n_argss                                    : uterm -> ufun_n_argss;
-val utrm_to_innermost_ufun_n_argss                          : uterm -> ufun_n_argss;
+val utrm_to_innermost_ufun_n_argss                          : uterm -> ufun_n_argss;(*Be aware of possible encounter with nested applications of \<Longrightarrow>*)
 val ufun_n_argss_to_ufun_defined_w_fun_command_n_argss      : Proof.context -> ufun_n_argss -> ufun_n_argss;
 val ufun_n_argss_to_ufun_defined_w_inductive_command_n_argss: Proof.context -> ufun_n_argss -> ufun_n_argss;
 val ufun_n_argss_to_ufun_w_induct_rule_n_argss              : Proof.context -> ufun_n_argss -> ufun_n_argss;
@@ -531,25 +531,24 @@ fun get_max_level xs = fold (fn x:ufun_n_args => fn acc:int =>
 fun get_cons_n_argss_of_level (level:int) (xs:ufun_n_argss) = fold (fn x:ufun_n_args => fn acc:ufun_n_argss =>
   if #level x = level then x::acc else acc) xs [];
 
-(*utrm_to_innermost_ufun_n_argss produces the pairs of function and arguments on the lowest level of the given syntax tree.*)
+(*utrm_to_ufun_n_argss produces the pairs of function and arguments.*)
 fun utrm_to_ufun_n_argss (utrm:uterm) =
   let
+    fun eq_args (trip1:ufun_n_args, trip2:ufun_n_args) : bool =
+      let
+        val uargs1 = #uargs trip1: uterm list;
+        val uargs2 = #uargs trip2: uterm list;
+      in
+        uargs1 = uargs2
+      end;
     fun tail_rec (acc:ufun_n_argss) (level:int) (UAbs (_, _, utrm):uterm) =
         tail_rec (acc:ufun_n_argss) (level + 1)  utrm
       | tail_rec (acc:ufun_n_argss) (level:int) (UApp (UConst body, uargs):uterm) =
         let
           (*The computation of all requires a large memory.*)
-          val mapped        = tail_rec [{level = level, ufun = UConst body, uargs = uargs}] (level + 1)
-                            : uterm -> ufun_n_args list;
-          val all           = flat (map mapped uargs) @ acc: ufun_n_argss;
-          fun eq_args (trip1:ufun_n_args, trip2:ufun_n_args) : bool =
-            let
-              val uargs1 = #uargs trip1: uterm list;
-              val uargs2 = #uargs trip2: uterm list;
-            in
-              uargs1 = uargs2
-            end;
-         val wo_dups = distinct eq_args all: ufun_n_argss;
+          val mapped  = tail_rec [{level = level, ufun = UConst body, uargs = uargs}] (level + 1): uterm -> ufun_n_args list;
+          val all     = flat (map mapped uargs) @ acc                                            : ufun_n_argss;
+          val wo_dups = distinct eq_args all                                                     : ufun_n_argss;
         in
           wo_dups
         end
@@ -566,12 +565,11 @@ fun utrm_to_innermost_ufun_n_argss (utrm:uterm) =
       | tail_rec (acc:ufun_n_argss) (level:int) (UApp (UConst body, uargs):uterm) =
         let
           (*The computation of all requires a large memory.*)
-          val mapped        = tail_rec [{level = level, ufun = UConst body, uargs = uargs}] (level + 1)
-                                                                         : uterm -> ufun_n_argss;
-          val all           = map mapped uargs |> flat                   : ufun_n_argss;
-          val deepest_level = get_max_level all                          : int;
-          val deepests      = get_cons_n_argss_of_level deepest_level all: ufun_n_argss
-          val result        = if null deepests then acc else deepests    : ufun_n_argss;
+          val mapped        = tail_rec [{level = level, ufun = UConst body, uargs = uargs}] (level + 1): uterm -> ufun_n_argss;
+          val all           = map mapped uargs |> flat                                                 : ufun_n_argss;
+          val deepest_level = get_max_level all                                                        : int;
+          val deepests      = get_cons_n_argss_of_level deepest_level all                              : ufun_n_argss
+          val result        = if null deepests then acc else deepests                                  : ufun_n_argss;
         in
           result: ufun_n_argss
         end
