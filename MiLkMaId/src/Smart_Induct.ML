@@ -524,24 +524,24 @@ fun ind_var_of_certain_typ (pstate:Proof.state) (mods:ITG.modifiers)
     val fst_subg_n_chained_facts     = IU.pstate_to_1st_subg_n_chained_facts pstate                               : terms;
     fun trm_to_fvar_names (trm:term) = trm |> trm_to_consts_fvars_vars |> #frees |> map (fst o Term.dest_Free)    : strings;
     val fun_fvar_names               = map trm_to_fvar_names fst_subg_n_chained_facts |> flat |> duplicates (op =): strings;
-    val has_a_fvar_of_fun_typ        = (not o null) fun_fvar_names                                                : bool;
-    val no_ind_var_is_fun_type       = Utils.a_member (op =) on_names fun_fvar_names |> not                       : bool;
-    val some_ind_var_is_fun_type     = Utils.a_member (op =) on_names fun_fvar_names                              : bool;
-    val all_ind_var_is_fun_type      = Utils.members (op =) on_names fun_fvar_names                               : bool;
+    val has_a_fvar_of_certain_typ    = (not o null) fun_fvar_names                                                : bool;
+    val no_ind_var_is_certain_type   = Utils.a_member (op =) on_names fun_fvar_names |> not                       : bool;
+    val some_ind_var_is_certain_type = Utils.a_member (op =) on_names fun_fvar_names                              : bool;
+    val all_ind_var_is_certain_type  = Utils.members (op =) on_names fun_fvar_names                               : bool;
   in
-    {has_a_fvar_of_fun_typ    = has_a_fvar_of_fun_typ,
-     has_ons                  = has_ons,
-     no_ind_var_is_fun_type   = no_ind_var_is_fun_type,
-     some_ind_var_is_fun_type = some_ind_var_is_fun_type,
-     all_ind_var_is_fun_type  = all_ind_var_is_fun_type}
+    {has_a_fvar_of_certain_typ    = has_a_fvar_of_certain_typ,
+     has_ons                      = has_ons,
+     no_ind_var_is_certain_type   = no_ind_var_is_certain_type,
+     some_ind_var_is_certain_type = some_ind_var_is_certain_type,
+     all_ind_var_is_certain_type  = all_ind_var_is_certain_type}
   end;
 
 fun helper_ass_028_ass_030_ass_040 (pstate:Proof.state) (mods:ITG.modifiers)
   (trm_to_consts_fvars_vars: term -> {consts: term list, frees: term list, vars: term list}) =
   let
-    val res = ind_var_of_certain_typ pstate mods trm_to_consts_fvars_vars;
+    val result = ind_var_of_certain_typ pstate mods trm_to_consts_fvars_vars;
   in
-     #has_a_fvar_of_fun_typ res andalso #has_ons res andalso #no_ind_var_is_fun_type res
+     #has_a_fvar_of_certain_typ result andalso #has_ons result andalso #no_ind_var_is_certain_type result
   end;
 
 (* ass_028. *)
@@ -680,6 +680,40 @@ fun ass_047 (pstate:Proof.state) (mods:ITG.modifiers) =
     has_meta_imp_in_chained_facts andalso has_ind_vars andalso Utils.members (op =) on_names vnames_in_premises_in_chained_facts
   end;
 
+fun helper_ass_048_ass_049_ass_050 (pstate:Proof.state) (mods:ITG.modifiers)
+  (trm_to_consts_fvars_vars: term -> {consts: term list, frees: term list, vars: term list}) =
+  let
+    val res = ind_var_of_certain_typ pstate mods trm_to_consts_fvars_vars;
+  in
+     #has_a_fvar_of_certain_typ res andalso #has_ons res andalso #some_ind_var_is_certain_type res
+  end;
+
+(* ass_048 *)
+fun ass_048 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_048_ass_049_ass_050 pstate mods IU.trm_to_nats;
+
+(* ass_049 *)
+fun ass_049 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_030_ass_040 pstate mods IU.trm_to_funs;
+
+(* ass_050 *)
+fun ass_050 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_030_ass_040 pstate mods IU.trm_to_sets_and_lists;
+
+fun helper_ass_051_ass_052_ass_053 (pstate:Proof.state) (mods:ITG.modifiers)
+  (trm_to_consts_fvars_vars: term -> {consts: term list, frees: term list, vars: term list}) =
+  let
+    val res = ind_var_of_certain_typ pstate mods trm_to_consts_fvars_vars;
+  in
+     #has_a_fvar_of_certain_typ res andalso #has_ons res andalso #all_ind_var_is_certain_type res
+  end;
+
+(* ass_051 *)
+fun ass_051 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_051_ass_052_ass_053 pstate mods IU.trm_to_nats;
+
+(* ass_052 *)
+fun ass_049 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_051_ass_052_ass_053 pstate mods IU.trm_to_funs;
+
+(* ass_053 *)
+fun ass_053 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_051_ass_052_ass_053 pstate mods IU.trm_to_sets_and_lists;
+
 (*TODO*)
 fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*001*)ass_001 pre_pst mods,
@@ -728,7 +762,13 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*044*)ass_044 pre_pst mods,
 (*045*)ass_045 pre_pst mods,
 (*046*)ass_046 pre_pst mods,
-(*047*)ass_047 pre_pst mods
+(*047*)ass_047 pre_pst mods,
+(*048*)ass_048 pre_pst mods,
+(*049*)ass_049 pre_pst mods,
+(*050*)ass_050 pre_pst mods,
+(*051*)ass_048 pre_pst mods,
+(*052*)ass_049 pre_pst mods,
+(*053*)ass_050 pre_pst mods
 ];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
@@ -768,7 +808,7 @@ fun mk_datapoint (model_meth: Method.text_range) (pst:Proof.state) =
       let
         val bool_to_int_str = Int.toString o Utils.bool_to_int: bool -> string;
         val used  = #used line |> bool_to_int_str: string;
-        val ass_results = map bool_to_int_str (#ass_results line): string list;
+        val ass_results = map bool_to_int_str (#ass_results line): strings;
       in
         space_implode "" (used::ass_results)
       end;

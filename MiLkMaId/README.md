@@ -196,7 +196,7 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 40. Check if
    - there is a free variable of type `nat` either in the first subgoal or one of the chained facts, and
    - the `induct` method takes at least one argument as induction variables, and
-   - none of induction variables has `nat` type.
+   - no induction variable has `nat` type.
 - [X] 41. Check if
    - the proof obligation has either `Set.member` or `Set.not_member`, and
    - there exists no induction variable that appears as part of the second argument to
@@ -228,8 +228,37 @@ learning algorithms, the results should be treated as _dummy variables_, which m
 - [X] 46. Check if
    - the first subgoal has a meta-implication `==>`,
    - the `induct` method takes at least one argument as induction variable, and
-   - all induction variable appears in one of the premises of some `==>`.
+   - all induction variables appear in one of the premises of some `==>`.
       - similar to assertion33.
+- [X] 47. Check if
+   - the first subgoal has a meta-implication `==>`,
+   - the `induct` method takes at least one argument as induction variable, and
+   - no induction variable appears in one of the premises of some `==>`.
+      - similar to assertion33.
+- [X] 48. Check if
+   - there is a free variable of type `nat` either in the first subgoal or one of the chained facts, and
+   - the `induct` method takes at least one argument as induction variables, and
+   - there exists an induction variable has `nat` type.
+- [X] 49. Check if
+   - there is a free variable of type `fun` either in the first subgoal or one of the chained facts, and
+   - the `induct` method takes at least one argument as induction variables, and
+   - there exists an induction variable has `fun` type.
+- [X] 50. Check if
+   - there is a free variable of type `set` or `list` either in the first subgoal or one of the chained facts, and
+   - the `induct` method takes at least one argument as induction variables, and
+   - there exists an induction variable has `set` or `list` type.
+- [X] 51. Check if
+   - there is a free variable of type `nat` either in the first subgoal or one of the chained facts, and
+   - the `induct` method takes at least one argument as induction variables, and
+   - all induction variables have `nat` type.
+- [X] 52. Check if
+   - there is a free variable of type `fun` either in the first subgoal or one of the chained facts, and
+   - the `induct` method takes at least one argument as induction variables, and
+   - all induction variables have `fun` type.
+- [X] 53. Check if
+   - there is a free variable of type `set` or `list` either in the first subgoal or one of the chained facts, and
+   - the `induct` method takes at least one argument as induction variables, and
+   - all induction variables have  `set` or `list` type.
 ## List of Heuristics that are not relevant to the current implementation of _PSL_.
 - [ ] If one does induction on (a) sub-term(s) more complicated than (a) variable(s),
       generalize free variables appearing in the sub-term(s).
