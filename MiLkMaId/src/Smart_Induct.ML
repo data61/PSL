@@ -516,7 +516,7 @@ fun ass_027 (pstate:Proof.state) (mods:ITG.modifiers) =
     has_ind_vars andalso has_const andalso not (Utils.a_member (op =) ons vnames)
   end;
 
-fun helper_ass_028_ass_040 (pstate:Proof.state) (mods:ITG.modifiers)
+fun ind_var_of_certain_typ (pstate:Proof.state) (mods:ITG.modifiers)
   (trm_to_consts_fvars_vars: term -> {consts: term list, frees: term list, vars: term list}) =
   let
     val on_names                     = mods |> IS.pick_vars |> IS.get_names                                       : strings;
@@ -525,13 +525,27 @@ fun helper_ass_028_ass_040 (pstate:Proof.state) (mods:ITG.modifiers)
     fun trm_to_fvar_names (trm:term) = trm |> trm_to_consts_fvars_vars |> #frees |> map (fst o Term.dest_Free)    : strings;
     val fun_fvar_names               = map trm_to_fvar_names fst_subg_n_chained_facts |> flat |> duplicates (op =): strings;
     val has_a_fvar_of_fun_typ        = (not o null) fun_fvar_names                                                : bool;
-    val no_var_is_fun_type           = Utils.a_member (op =) on_names fun_fvar_names |> not                       : bool;
+    val no_ind_var_is_fun_type       = Utils.a_member (op =) on_names fun_fvar_names |> not                       : bool;
+    val some_ind_var_is_fun_type     = Utils.a_member (op =) on_names fun_fvar_names                              : bool;
+    val all_ind_var_is_fun_type      = Utils.members (op =) on_names fun_fvar_names                               : bool;
   in
-    has_a_fvar_of_fun_typ andalso has_ons andalso no_var_is_fun_type
+    {has_a_fvar_of_fun_typ    = has_a_fvar_of_fun_typ,
+     has_ons                  = has_ons,
+     no_ind_var_is_fun_type   = no_ind_var_is_fun_type,
+     some_ind_var_is_fun_type = some_ind_var_is_fun_type,
+     all_ind_var_is_fun_type  = all_ind_var_is_fun_type}
+  end;
+
+fun helper_ass_028_ass_030_ass_040 (pstate:Proof.state) (mods:ITG.modifiers)
+  (trm_to_consts_fvars_vars: term -> {consts: term list, frees: term list, vars: term list}) =
+  let
+    val res = ind_var_of_certain_typ pstate mods trm_to_consts_fvars_vars;
+  in
+     #has_a_fvar_of_fun_typ res andalso #has_ons res andalso #no_ind_var_is_fun_type res
   end;
 
 (* ass_028. *)
-fun ass_028 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_040 pstate mods IU.trm_to_funs;
+fun ass_028 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_030_ass_040 pstate mods IU.trm_to_funs;
 
 (* helper functions for ass_029 *)
 fun pstate_to_ons_n_vnames_in_snd_args_of_list_nth (pstate:Proof.state) (mods:ITG.modifiers) =
@@ -543,6 +557,9 @@ fun ass_029 (pstate:Proof.state) (mods:ITG.modifiers) =
   in
     has_arb_vars andalso has_const andalso Utils.a_member (op =) arbs vnames
   end;
+
+(* ass_030. *)
+fun ass_030 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_030_ass_040 pstate mods IU.trm_to_sets_and_lists;
 
 (* pstate_to_on_names_n_vnames_in_chained_facts: helper function for ass_031, ass_032, ass_043. *)
 fun pstate_to_on_names_n_vnames_in_chained_facts (pstate:Proof.state) (mods:ITG.modifiers) =
@@ -605,7 +622,7 @@ fun ass_034 (pstate:Proof.state) (mods:ITG.modifiers) =
   end;
 
 (* ass_040. *)
-fun ass_040 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_040 pstate mods IU.trm_to_nats;
+fun ass_040 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_030_ass_040 pstate mods IU.trm_to_nats;
 
 (* ass_041. checks if the proof context contains local assumption *)
 fun ass_041 (pstate:Proof.state) (mods:ITG.modifiers) =

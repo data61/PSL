@@ -372,6 +372,13 @@ sig
   val is_fun_typ                                  : typ -> bool;
   val trm_has_fun_typ                             : term -> bool;
   val trm_to_funs                                 : term -> {consts: term list, frees: term list, vars: term list};
+  val is_set_typ                                  : typ -> bool;
+  val trm_has_set_typ                             : term -> bool;
+  val trm_to_sets                                 : term -> {consts: term list, frees: term list, vars: term list};
+  val is_list_typ                                 : typ -> bool;
+  val trm_has_list_typ                            : term -> bool;
+  val trm_to_lists                                : term -> {consts: term list, frees: term list, vars: term list};
+  val trm_to_sets_and_lists                       : term -> {consts: term list, frees: term list, vars: term list};
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -706,6 +713,30 @@ fun trm_has_fun_typ (trm:term) = Term.exists_type is_fun_typ trm: bool;
 
 fun trm_to_funs (trm:term) = trm_to_certain_var_free_const trm_has_fun_typ trm;
 
+fun is_set_typ (Type (typ_name, _):typ) = typ_name = "Set.set"
+  | is_set_typ  _                       = false;
+
+fun trm_has_set_typ (trm:term) = Term.exists_type is_set_typ trm: bool;
+
+fun trm_to_sets (trm:term) = trm_to_certain_var_free_const trm_has_set_typ trm;
+
+fun is_list_typ (Type (typ_name, _):typ) = typ_name = "List.list"
+  | is_list_typ  _                       = false;
+
+fun trm_has_list_typ (trm:term) = Term.exists_type is_list_typ trm: bool;
+
+fun trm_to_lists (trm:term) = trm_to_certain_var_free_const trm_has_list_typ trm;
+
+fun trm_to_sets_and_lists (trm:term) =
+  let
+    val lists = trm_to_certain_var_free_const trm_has_list_typ trm;
+    val sets  = trm_to_certain_var_free_const trm_has_set_typ  trm;
+    val consts = #consts lists @ #consts sets |> distinct Term.aconv;
+    val frees  = #frees  lists @ #frees  sets |> distinct Term.aconv;
+    val vars   = #vars   lists @ #vars   sets |> distinct Term.aconv;
+  in
+    {consts = consts, frees = frees, vars = vars}
+  end;
 end;
 
 (*** FIND_THEOREMS2: provides an interface of find_theorem for PSL. ***)

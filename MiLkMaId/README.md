@@ -147,10 +147,11 @@ learning algorithms, the results should be treated as _dummy variables_, which m
       - there exists an occurrence, `nth_occ`, of `List.nth`, such that
          - `arb_var` appears part of the second argument of `nth_occ`.
    - `proof(induct xs arbitrary: i j)` in line 361 of `thys/Stable_Matching/Basis.thy`.
-- [ ] 30. Check if
-   - the proof obligation has at least one variable of type (constructor) `set` or or `list`,
+- [X] 30. Check if
+   - there is at least one variable of type (constructor) `set` or `list` either in the first sub-goal or 
+     one of the chained facts,
    - the `induct` method takes at least one argument as induction variable, and
-   - at least one induction variable has a type of `set` or `list`.
+   - no induction variable has a type of `set` or `list`.
    - `proof (induct xs)` in line 30 of `thys/Binomial-Queues/Binomial_Queue.thy`.
 - [X] 31. Check if
    - the proof state has a chained fact, 
