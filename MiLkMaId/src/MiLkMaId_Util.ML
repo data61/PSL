@@ -17,17 +17,15 @@ fun is_recursive (cname:string) (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) =
   in cname_is_in_lhs andalso cname_is_in_rhs end
  |  is_recursive _ _ = false;
 fun check_thm_list (thms:thm list) (cname:string) = List.exists (is_recursive cname o Thm.concl_of) thms;
-fun exist_related_rsimp  []             = false
- |  exist_related_rsimp (cname::cnames) = 
-     (check_thm_list (Proof_Context.get_thms @{context} (cname^".simps")) cname handle ERROR _ =>
-      exist_related_rsimp cnames);
-
-fun has_related_rsimp (Const (c, _)) = exist_related_rsimp [c]
- |  has_related_rsimp _ = false;
-
+fun exist_related_rsimp (_   :Proof.context)  []             = false
+ |  exist_related_rsimp (ctxt:Proof.context) (cname::cnames) =
+     (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
+      exist_related_rsimp ctxt cnames);
+fun has_related_rsimp (ctxt:Proof.context) (Const (c, _)) = exist_related_rsimp ctxt [c]
+ |  has_related_rsimp (_:Proof.context)     _             = false;
 (* How to get the number of recursive functions in a term? *)
-fun count_recursive_consts trm = fold_aterms (fn Const (cname, _) => (fn n =>
-  if exist_related_rsimp [cname] then n + 1 else n) | _ => I) trm 0;
+fun count_recursive_consts (ctxt:Proof.context) trm = fold_aterms (fn Const (cname, _) => (fn n =>
+  if exist_related_rsimp ctxt [cname] then n + 1 else n) | _ => I) trm 0;
 
 (* Utilty functions *)
 infix 1 >>= <$> <|>;
@@ -582,8 +580,11 @@ fun ancestors_with_pattern_to_ancestors_w_pattern_n_kind (ctxt:Proof.context) (a
 fun datum_with_pattern_to_datum_w_pattern_n_kind (ctxt:Proof.context) ({point, ancestors}:datum_with_pattern) =
   let
     val ancestors_w_pattern_n_kind = ancestors_with_pattern_to_ancestors_w_pattern_n_kind ctxt ancestors: ancestors_w_pattern_n_kind;
-    val {name, utyp, level}        = point;
-    val point_w_kind               = {name = name, utyp = utyp, level = level, cmmnd = Unknown (*TODO*), rcrsv = NONE (*TODO*)}: point_w_kind;
+    val {name, utyp, level}        = point                                                              : point;
+    val command                    = get_command name ctxt                                              : command;
+    val resursive                  = if command = Definition orelse command = Unknown
+                                     then NONE else SOME (exist_related_rsimp ctxt [name])              : bool option;
+    val point_w_kind               = {name = name, utyp = utyp, level = level, cmmnd = command, rcrsv = resursive}: point_w_kind;
   in
     {point = point_w_kind, ancestors = ancestors_w_pattern_n_kind}: datum_w_pattern_n_kind
   end;
