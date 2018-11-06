@@ -755,7 +755,7 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*037*)true,
 (*038*)true,
 (*039*)true,
-(*040*)true,
+(*040*)ass_040 pre_pst mods,
 (*041*)ass_041 pre_pst mods,
 (*042*)ass_042 pre_pst mods,
 (*043*)ass_043 pre_pst mods,

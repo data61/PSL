@@ -45,7 +45,7 @@ fun (NONE   <|> NONE  ) = NONE
 signature MILKMAID_TABLE =
 sig
 
-(* types *)
+(* uterm and utyp *)
 datatype uterm =
   UConst of string * typ |
   UFree  of string * typ |
@@ -54,8 +54,8 @@ datatype uterm =
   UAbs   of string * typ * uterm |(*TODO: maybe we also apply un-currying to lambda abstraction.*)
   UApp   of (uterm * uterm list);
 datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
-datatype pattern = Full | Partial | Var | Abstract | Other;
-type patterns = pattern list;
+
+(* data *)
 type point =
   {name : string,
    utyp : utyp,
@@ -68,6 +68,10 @@ type datum =
   {point    : point,
    ancestors: ancestors};
 type data = datum list;
+
+(* data_with_pattern *)
+datatype pattern = Full | Partial | Var | Abstract | Other;
+type patterns = pattern list;
 type ancestor_with_pattern =
   {point  : point,
    nth_arg: int,
@@ -77,8 +81,32 @@ type datum_with_pattern =
   {point    : point,
    ancestors: ancestors_with_pattern};
 type data_with_pattern = datum_with_pattern list;
-type 'a matrix = 'a list list;
+
+(* kind *)
+(* note that kind here is the pair of the command name used to define each constant and a tag
+   that indicates if the constant is defined recursively or not. *)
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+type recursive   = bool option;
+
+(* data_with_pattern_and_kind *)
+type point_w_kind =
+  {name : string,
+   utyp : utyp,
+   level: int(*The level of the root is 1.*),
+   cmmnd: command,
+   rcrsv: recursive};
+type ancestor_w_pattern_n_kind =
+  {point  : point_w_kind,
+   nth_arg: int,
+   pattern: pattern};
+type ancestors_w_pattern_n_kind = ancestor_w_pattern_n_kind list;
+type datum_w_pattern_n_kind =
+  {point    : point_w_kind,
+   ancestors: ancestors_w_pattern_n_kind};
+type data_w_pattern_n_kind = datum_w_pattern_n_kind list;
+
+(* matrix *)
+type 'a matrix = 'a list list;
 
 val datum_to_level             : datum -> int;
 val filter_data                : (datum -> bool) -> data -> data;
@@ -128,10 +156,11 @@ val mk_parameter_matrix_for_function  : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix_for_inductive : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix               : Proof.context -> string -> bool matrix;
 
-(* operations about pattern *)
-val get_nth_pattern          : Proof.context -> string -> int -> pattern;
-val get_patterns             : Proof.context -> string -> patterns option;
-val data_to_data_with_pattern: Proof.context -> data -> data_with_pattern;
+(* operations about pattern and kind *)
+val get_nth_pattern                           : Proof.context -> string -> int -> pattern;
+val get_patterns                              : Proof.context -> string -> patterns option;
+val data_to_data_with_pattern                 : Proof.context -> data -> data_with_pattern;
+val data_with_pattern_to_data_w_pattern_n_kind: Proof.context -> data_with_pattern -> data_w_pattern_n_kind;
 
 (* utility functions for assertions *)
 type ufun_n_args = {level: int(*The level of the root is 1.*),
@@ -518,6 +547,49 @@ fun datum_to_datum_with_pattern (ctxt:Proof.context) ({point, ancestors}:datum) 
 
 fun data_to_data_with_pattern (ctxt:Proof.context) (data:data) =
   map (datum_to_datum_with_pattern ctxt) data: data_with_pattern;
+
+type recursive   = bool option;
+
+type point_w_kind =
+  {name : string,
+   utyp : utyp,
+   level: int(*The level of the root is 1.*),
+   cmmnd: command,
+   rcrsv: recursive};
+type ancestor_w_pattern_n_kind =
+  {point  : point_w_kind,
+   nth_arg: int,
+   pattern: pattern};
+type ancestors_w_pattern_n_kind = ancestor_w_pattern_n_kind list;
+type datum_w_pattern_n_kind =
+  {point    : point_w_kind,
+   ancestors: ancestors_w_pattern_n_kind};
+type data_w_pattern_n_kind = datum_w_pattern_n_kind list;
+
+fun point_to_point_w_kind ({name, utyp, level}:point) =
+  {name = name, utyp = utyp, level = level, cmmnd = Unknown, rcrsv = NONE};(*TODO*)
+
+fun ancestor_w_pattern_to_ancestor_w_pattern_n_kind (ctxt:Proof.context) ({point = point, nth_arg = nth_arg, pattern = pattern}:ancestor_with_pattern) =
+  let
+    val point_w_kind = point_to_point_w_kind point: point_w_kind;
+  in
+    {point = point_w_kind, nth_arg = nth_arg, pattern = pattern}: ancestor_w_pattern_n_kind
+  end;
+
+fun ancestors_with_pattern_to_ancestors_w_pattern_n_kind (ctxt:Proof.context) (ancestors_w_pattern:ancestors_with_pattern) =
+  map (ancestor_w_pattern_to_ancestor_w_pattern_n_kind ctxt) ancestors_w_pattern: ancestors_w_pattern_n_kind;
+
+fun datum_with_pattern_to_datum_w_pattern_n_kind (ctxt:Proof.context) ({point, ancestors}:datum_with_pattern) =
+  let
+    val ancestors_w_pattern_n_kind = ancestors_with_pattern_to_ancestors_w_pattern_n_kind ctxt ancestors: ancestors_w_pattern_n_kind;
+    val {name, utyp, level}        = point;
+    val point_w_kind               = {name = name, utyp = utyp, level = level, cmmnd = Unknown (*TODO*), rcrsv = NONE (*TODO*)}: point_w_kind;
+  in
+    {point = point_w_kind, ancestors = ancestors_w_pattern_n_kind}: datum_w_pattern_n_kind
+  end;
+
+fun data_with_pattern_to_data_w_pattern_n_kind (ctxt:Proof.context) (data:data_with_pattern) =
+  map (datum_with_pattern_to_datum_w_pattern_n_kind ctxt) data: data_w_pattern_n_kind;
 
 type ufun_n_args = {
   level: int(*The level of the root is 1.*),
