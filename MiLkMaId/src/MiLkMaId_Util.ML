@@ -519,6 +519,9 @@ type datum_with_pattern =
    ancestors: ancestors_with_pattern};
 type data_with_pattern = datum_with_pattern list;
 
+(*TODO: functions related to data_to_data_with_pattern and functions related to
+  data_with_pattern_to_data_w_pattern_n_kind have a lot in common. Re-factor them. *)
+
 fun datum_to_level ({point,...}:datum) = #level point        : int;
 fun filter_data (f:datum -> bool) (data:data) = filter f data: data;
 fun filter_data_with_point_name (data:data) (pname:string) =
@@ -564,12 +567,19 @@ type datum_w_pattern_n_kind =
    ancestors: ancestors_w_pattern_n_kind};
 type data_w_pattern_n_kind = datum_w_pattern_n_kind list;
 
-fun point_to_point_w_kind ({name, utyp, level}:point) =
-  {name = name, utyp = utyp, level = level, cmmnd = Unknown, rcrsv = NONE};(*TODO*)
-
-fun ancestor_w_pattern_to_ancestor_w_pattern_n_kind (_:Proof.context) ({point = point, nth_arg = nth_arg, pattern = pattern}:ancestor_with_pattern) =
+fun point_to_point_w_kind (ctxt:Proof.context) ({name, utyp, level}:point) =
   let
-    val point_w_kind = point_to_point_w_kind point: point_w_kind;
+    val command      = get_command name ctxt                                                        : command;
+    val resursive    = if command = Definition orelse command = Unknown
+                       then NONE else SOME (exist_related_rsimp ctxt [name])                        : bool option;
+    val point_w_kind = {name = name, utyp = utyp, level = level, cmmnd = command, rcrsv = resursive}: point_w_kind;
+  in
+    point_w_kind:point_w_kind
+  end;
+
+fun ancestor_w_pattern_to_ancestor_w_pattern_n_kind (ctxt:Proof.context) ({point = point, nth_arg = nth_arg, pattern = pattern}:ancestor_with_pattern) =
+  let
+    val point_w_kind = point_to_point_w_kind ctxt point: point_w_kind;
   in
     {point = point_w_kind, nth_arg = nth_arg, pattern = pattern}: ancestor_w_pattern_n_kind
   end;
@@ -580,11 +590,7 @@ fun ancestors_with_pattern_to_ancestors_w_pattern_n_kind (ctxt:Proof.context) (a
 fun datum_with_pattern_to_datum_w_pattern_n_kind (ctxt:Proof.context) ({point, ancestors}:datum_with_pattern) =
   let
     val ancestors_w_pattern_n_kind = ancestors_with_pattern_to_ancestors_w_pattern_n_kind ctxt ancestors: ancestors_w_pattern_n_kind;
-    val {name, utyp, level}        = point                                                              : point;
-    val command                    = get_command name ctxt                                              : command;
-    val resursive                  = if command = Definition orelse command = Unknown
-                                     then NONE else SOME (exist_related_rsimp ctxt [name])              : bool option;
-    val point_w_kind               = {name = name, utyp = utyp, level = level, cmmnd = command, rcrsv = resursive}: point_w_kind;
+    val point_w_kind               = point_to_point_w_kind ctxt point: point_w_kind;
   in
     {point = point_w_kind, ancestors = ancestors_w_pattern_n_kind}: datum_w_pattern_n_kind
   end;

@@ -205,6 +205,7 @@ fun get_var_namess_of_innermost_constants (pst:Proof.state) =
     innermost_var_namess
   end;
 
+(* ass_001 *)
 fun ass_001 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val innermost_var_namess             = get_var_namess_of_innermost_constants pst: strings list;
@@ -218,6 +219,7 @@ fun ass_001 (pst:Proof.state) (mods:ITG.modifiers) =
 fun ufun_n_arg_to_induct_name (MA.UConst (cname, _)) = SOME (cname^".induct")
   | ufun_n_arg_to_induct_name  _                     = NONE;
 
+(* ass_002 *)
 fun ass_002 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val innermost_ufun_n_argss     = pst_to_innermost_ufun_n_argss pst                                                : MA.ufun_n_args list;
@@ -270,8 +272,10 @@ fun helper_for_ass_003_019 (pst:Proof.state) (mods:ITG.modifiers) =
     result
   end;
 
+(* ass_003 *)
 fun ass_003 (pst:Proof.state) (mods:ITG.modifiers) = helper_for_ass_003_019 pst mods |> #ass_003;
 
+(* ass_005 *)
 fun ass_005 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val ufun_n_argss       = pst_to_ufun_n_argss pst                                   : MA.ufun_n_args list;
@@ -301,6 +305,7 @@ fun mk_post_1st_subg (meth_name:string) (pre_pst:Proof.state) (mods:ITG.modifier
 fun map_option_pair f (SOME x, SOME y) = SOME (f (x, y))
   | map_option_pair _  _               = NONE
 
+(* ass_006 *)
 fun ass_006 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val pre_1st_subg  = IU.pst_to_fst_subg pst            : term option;
@@ -311,6 +316,7 @@ fun ass_006 (pst:Proof.state) (mods:ITG.modifiers) =
     result: bool
   end;
 
+(* ass_007 *)
 fun ass_007 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val pre_1st_subg           = IU.pst_to_fst_subg pst                                            : term option;
@@ -325,6 +331,7 @@ fun ass_007 (pst:Proof.state) (mods:ITG.modifiers) =
     result: bool
   end;
 
+(* ass_009 *)
 fun ass_009 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val pre_1st_subg            = IU.pst_to_fst_subg pst                                      : term option;
@@ -357,6 +364,7 @@ fun ass_009 (pst:Proof.state) (mods:ITG.modifiers) =
     numb_rules > 0 andalso max_level_of_rule_cname >= max_level_of_others
   end;
 
+(* ass_012 *)
 fun ass_012 (_:Proof.state) (mods:ITG.modifiers) =
   let
     val (ons, arbs, _) = IS.order mods;
@@ -366,6 +374,7 @@ fun ass_012 (_:Proof.state) (mods:ITG.modifiers) =
     has_dup
   end;
 
+(* ass_013 *)
 fun ass_013 (_:Proof.state) (mods:ITG.modifiers) =
   let
     val (_, _, rules)     = IS.order mods;
@@ -374,6 +383,7 @@ fun ass_013 (_:Proof.state) (mods:ITG.modifiers) =
     less_than_2_rules
   end;
 
+(* ass_014 *)
 fun ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val innermost_var_namess    = get_var_namess_of_innermost_constants pst;
@@ -384,6 +394,7 @@ fun ass_014 (pst:Proof.state) (mods:ITG.modifiers) =
     result:bool
   end;
 
+(* ass_015 *)
 fun ass_015 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val pre_1st_subg         = IU.pst_to_fst_subg pst                                                              : term option;
@@ -397,6 +408,7 @@ fun ass_015 (pst:Proof.state) (mods:ITG.modifiers) =
     result: bool
   end;
 
+(* ass_016 *)
 fun ass_016 (_:Proof.state) (mods:ITG.modifiers) =
   let
     val numb_rule = mods |> IS.pick_rules |> length: int;
@@ -412,6 +424,7 @@ fun is_this_datum_w_pttrn_of_vname (vname:string) ({point,...}:MA.datum_with_pat
     name = vname (*FIXME: why does the following cause problems? andalso utyp = MA.UV*)
   end;
 
+(* ass_017 *)(*TODO: FIXME: we should think about chained facts as well.*)
 fun ass_017 (pst:Proof.state) (mods:ITG.modifiers) =
   let
     val pre_1st_subg = IU.pst_to_fst_subg pst                       : term option;
@@ -441,15 +454,48 @@ fun ass_017 (pst:Proof.state) (mods:ITG.modifiers) =
     induct_has_at_least_one_ons andalso all_ons_are_Full_or_Other_to_all_ancestors
   end;
 
+(* ass_018 *)
 fun ass_018 _ (mods:ITG.modifiers) = length mods = 0;
 
 (* ass_019 *)
 fun ass_019 (pst:Proof.state) (mods:ITG.modifiers) = helper_for_ass_003_019 pst mods |> #ass_019;
 
-(* ass_020. checks if the proof context contains local assumption *)
+(* ass_020. checks if the proof state has chained facts *)
 fun ass_020 (pstate:Proof.state) _ = IU.pstate_to_usings pstate |> null;
 
-(* TODO *)
+(* ass_021 *)(*TODO: FIXME:*)
+fun ass_021 (pst:Proof.state) (mods:ITG.modifiers) =
+  let
+    val pre_1st_subg        = IU.pst_to_fst_subg pst                                                : term option;
+    val ucr_1st_subg        = omap MA.trm_to_utrm pre_1st_subg                                      : MA.uterm option;
+    val data                = omap MA.utrm_to_data ucr_1st_subg                                     : MA.data option;
+    val ctxt                = Proof.context_of pst: Proof.context                                   : Proof.context;
+    val data_w_pttrn        = omap (MA.data_to_data_with_pattern ctxt) data                         : MA.data_with_pattern option;
+    val data_w_pttrn_n_kind = omap (MA.data_with_pattern_to_data_w_pattern_n_kind ctxt) data_w_pttrn: MA.data_w_pattern_n_kind option;
+    val vnames       = mods |> IS.pick_vars |> IS.get_names         : strings;
+    val arb_names    = mods |> IS.pick_arbs |> IS.get_names         : strings; 
+    val induct_has_at_least_one_ons  = length vnames    > 0: bool;
+    val induct_has_at_least_one_arbs = length arb_names > 0: bool; 
+    fun is_Full_or_Other ({pattern,...}:MA.ancestor_with_pattern) =
+      pattern = MA.Full orelse pattern = MA.Other;
+    fun this_point_is_Full_or_Other_to_all_ancestors ({ancestors,...}:MA.datum_with_pattern) =
+      forall is_Full_or_Other ancestors;
+    fun one_var_of_vname_is_Full_or_Other_to_all_ancestors' (vname:string) (data_w_pttrn:MA.data_with_pattern) =
+      let
+        val data_of_vname = filter (is_this_datum_w_pttrn_of_vname vname) data_w_pttrn: MA.data_with_pattern;
+        val has_an_instance_that_is_Full_or_Other_to_all_ist_ancestors =
+          exists this_point_is_Full_or_Other_to_all_ancestors data_of_vname: bool;
+      in
+        has_an_instance_that_is_Full_or_Other_to_all_ist_ancestors
+      end;
+    fun one_var_of_vname_is_Full_or_Other_to_all_ancestors (vname:string) =
+      Option.getOpt (omap (one_var_of_vname_is_Full_or_Other_to_all_ancestors' vname) data_w_pttrn, false): bool;
+    val all_ons_are_Full_or_Other_to_all_ancestors =
+      forall one_var_of_vname_is_Full_or_Other_to_all_ancestors vnames: bool;
+  in
+    induct_has_at_least_one_ons andalso all_ons_are_Full_or_Other_to_all_ancestors
+  end;
+
 fun pstate_to_ons_n_vnames_in_nth_args_of_const (trm_to_nth_args_of_const: string -> term -> terms)
   (cname:string) (pstate:Proof.state) (mods:ITG.modifiers) =
   let
@@ -460,12 +506,12 @@ fun pstate_to_ons_n_vnames_in_nth_args_of_const (trm_to_nth_args_of_const: strin
     val on_names                           = mods |> IS.pick_vars |> IS.get_names                                                  : strings;
     val arb_names                          = mods |> IS.pick_arbs |> IS.get_names                                                  : strings;
   in
-    {has_ind_vars   = null on_names,
-     has_arb_vars   = null arb_names,
+    {has_ind_vars   = null on_names                                          : bool,
+     has_arb_vars   = null arb_names                                         : bool,
      has_const      = exists (equal cname) cnames_in_1st_subg_n_chained_facts: bool,
-     ons            = on_names: strings,
-     arbs           = arb_names: strings,
-     vnames         = vnames_in_snd_args_of_set_member: strings}
+     ons            = on_names                                               : strings,
+     arbs           = arb_names                                              : strings,
+     vnames         = vnames_in_snd_args_of_set_member                       : strings}
   end;
 
 (* helper functions for ass_023, ass_024, and ass_041 *)
@@ -551,6 +597,7 @@ fun ass_028 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_028_ass_030_a
 fun pstate_to_ons_n_vnames_in_snd_args_of_list_nth (pstate:Proof.state) (mods:ITG.modifiers) =
   pstate_to_ons_n_vnames_in_nth_args_of_const IU.trm_to_snd_args_of_const "List.nth" pstate mods;
 
+(* ass_029 *)
 fun ass_029 (pstate:Proof.state) (mods:ITG.modifiers) =
   let
     val {has_arb_vars, has_const, arbs, vnames,...} = pstate_to_ons_n_vnames_in_snd_args_of_list_nth pstate mods;
@@ -588,7 +635,7 @@ fun ass_032 (pstate:Proof.state) (mods:ITG.modifiers) =
     not (null on_names) andalso Utils.members (op =) on_names vnames_in_chained_facts
   end;
 
-(* pstate_to_on_names_n_vnames_in_prems_in_fst_subg: helper function for TODO. *)
+(* pstate_to_on_names_n_vnames_in_prems_in_fst_subg: helper function for ass_033, ass_034, ass_044 to ass_047. *)
 fun pstate_to_on_names_n_vnames_in_premises (pstate:Proof.state) (mods:ITG.modifiers) =
   let
     val {fst_subg, chained_facts}        = IU.pstate_to_1st_subg_n_chained_facts_record pstate;
@@ -709,7 +756,7 @@ fun helper_ass_051_ass_052_ass_053 (pstate:Proof.state) (mods:ITG.modifiers)
 fun ass_051 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_051_ass_052_ass_053 pstate mods IU.trm_to_nats;
 
 (* ass_052 *)
-fun ass_049 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_051_ass_052_ass_053 pstate mods IU.trm_to_funs;
+fun ass_052 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_051_ass_052_ass_053 pstate mods IU.trm_to_funs;
 
 (* ass_053 *)
 fun ass_053 (pstate:Proof.state) (mods:ITG.modifiers) = helper_ass_051_ass_052_ass_053 pstate mods IU.trm_to_sets_and_lists;
@@ -766,9 +813,9 @@ fun mk_ass_results (pre_pst:Proof.state) (mods:ITG.modifiers) = [
 (*048*)ass_048 pre_pst mods,
 (*049*)ass_049 pre_pst mods,
 (*050*)ass_050 pre_pst mods,
-(*051*)ass_048 pre_pst mods,
-(*052*)ass_049 pre_pst mods,
-(*053*)ass_050 pre_pst mods
+(*051*)ass_051 pre_pst mods,
+(*052*)ass_052 pre_pst mods,
+(*053*)ass_053 pre_pst mods
 ];
 
 fun is_used (meth_name:string) (pre_pst:Proof.state) (model_post:thm) (mods:ITG.modifiers) =
