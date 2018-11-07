@@ -14,50 +14,52 @@ fun (m <$> f) = Option.map f m;
 (*** UTILS : Utility functions not specific to Isabelle/HOL. ***)
 signature UTILS =
 sig
-  val flip           : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c;
-  val flip_arg_pair  : ('a * 'b -> 'c) -> 'b * 'a -> 'c;
-  val delay          : ('a -> 'b) * 'a -> 'b;
-  val map_arg        : 'a -> ('a -> 'b) list -> 'b list;
+  val flip                                    : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c;
+  val flip_arg_pair                           : ('a * 'b -> 'c) -> 'b * 'a -> 'c;
+  val delay                                   : ('a -> 'b) * 'a -> 'b;
+  val map_arg                                 : 'a -> ('a -> 'b) list -> 'b list;
   (*map_pair and pair_to_list are useful only if the pair consists of the same type.*)
-  val map_pair       : ('a -> 'b) -> 'a * 'a -> 'b * 'b;
-  val pair_to_list   : 'a * 'a -> 'a list;
-  val list_to_pair   : 'a list -> 'a * 'a;
-  val bool_to_real   : bool -> real;
-  val bool_to_int    : bool -> int;
-  val is_some_true   : bool option -> bool;
-  val is_some_null   : 'a list option -> 'a list;
-  val opt_app        : ('a -> 'b) option -> 'a option -> 'b option;
-  val eq             : ''a -> ''a -> bool;
-  val init           : 'a list -> 'a list;
-  val last           : 'a list -> 'a;
-  val intersperse    : 'a -> 'a list -> 'a list;
-  val is_in_paren    : string -> bool;
-  val ??             : ('a -> bool) * ('a -> 'a) -> 'a -> 'a;
-  val If             : 'a * 'a -> bool -> 'a;
+  val map_pair                                : ('a -> 'b) -> 'a * 'a -> 'b * 'b;
+  val pair_to_list                            : 'a * 'a -> 'a list;
+  val list_to_pair                            : 'a list -> 'a * 'a;
+  val bool_to_real                            : bool -> real;
+  val bool_to_int                             : bool -> int;
+  val is_some_true                            : bool option -> bool;
+  val is_some_null                            : 'a list option -> 'a list;
+  val opt_app                                 : ('a -> 'b) option -> 'a option -> 'b option;
+  val eq                                      : ''a -> ''a -> bool;
+  val init                                    : 'a list -> 'a list;
+  val last                                    : 'a list -> 'a;
+  val intersperse                             : 'a -> 'a list -> 'a list;
+  val is_in_paren                             : string -> bool;
+  val ??                                      : ('a -> bool) * ('a -> 'a) -> 'a -> 'a;
+  val If                                      : 'a * 'a -> bool -> 'a;
   val rm_parentheses_with_contents_in_the_end : string -> string;
-  val rm_parentheses : string -> string;
-  val remove__s      : string -> string;
-  val push_to_front  : string -> strings -> strings;
-  val the'           : string -> 'a option -> 'a;
-  val prefix_if_nonempty : string -> strings -> strings;
-  val debug          : bool; (*flag for debugging.*)
-  val debug_mssg     : bool -> string -> 'a -> 'a;
-  val try_with       : 'b -> ('a -> 'b) -> 'a -> 'b;
-  val are_same       : (string * string) -> bool; (*FIXME: Isn't this redundant? We already have equal.*)
-  val index          : 'a list -> (int * 'a) list;
-  val power          : int -> int -> int;
-  val nat_to_frac    : int -> real;
-  val count_str      : string -> strings -> int;
-  val is_one_of_strings: strings -> string -> bool;
-  val somes          : 'a option list -> 'a list;
-  val conjunction    : bool -> bool -> bool;
-  val disjunction    : bool -> bool -> bool;
-  val a_member       : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
-  val members        : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
-  val cart_prod      : 'a list -> 'b list -> ('a * 'b) list;
-  val add_index      : 'a list -> (int * 'a) list; (*index starts at 0*);
-  val order_sensitive_multi_subset: ('a -> 'b -> bool) -> 'a list -> 'b list -> bool;
-  val map_flat_distinct           : (term -> 'a list) -> ('a * 'a -> bool) -> terms -> 'a list;
+  val rm_parentheses                          : string -> string;
+  val remove__s                               : string -> string;
+  val push_to_front                           : string -> strings -> strings;
+  val the'                                    : string -> 'a option -> 'a;
+  val prefix_if_nonempty                      : string -> strings -> strings;
+  val debug                                   : bool; (*flag for debugging.*)
+  val debug_mssg                              : bool -> string -> 'a -> 'a;
+  val try_with                                : 'b -> ('a -> 'b) -> 'a -> 'b;
+  val are_same                                : (string * string) -> bool; (*FIXME: Isn't this redundant? We already have equal.*)
+  val index                                   : 'a list -> (int * 'a) list;
+  val power                                   : int -> int -> int;
+  val nat_to_frac                             : int -> real;
+  val count_str                               : string -> strings -> int;
+  val is_one_of_strings                       : strings -> string -> bool;
+  val somes                                   : 'a option list -> 'a list;
+  val conjunction                             : bool -> bool -> bool;
+  val disjunction                             : bool -> bool -> bool;
+  val a_member                                : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
+  val members                                 : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
+  val cart_prod                               : 'a list -> 'b list -> ('a * 'b) list;
+  val add_index                               : 'a list -> (int * 'a) list; (*index starts at 0*);
+  val order_sensitive_multi_subset            : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool;
+  val map_flat_distinct                       : (term -> 'a list) -> ('a * 'a -> bool) -> terms -> 'a list;
+  val exist_n                                 : ('a -> bool) -> int -> 'a list -> bool;
+  val exist_mult                              : ('a -> bool) -> 'a list -> bool;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -213,6 +215,26 @@ fun order_sensitive_multi_subset _      []      _   = true
   else order_sensitive_multi_subset eq (x::xs) ys;
 
 fun map_flat_distinct mapped eq arg  = map mapped arg |> flat |> distinct eq;
+
+fun error_if_less_than_0 (n:int) x = if n < 0 then error "exist_n failed. n is less than 0" else x;
+
+fun exist_n (_:'a -> bool)  (0:int) (_    :'a list) = true
+  | exist_n (_:'a -> bool)  (n:int) ([]   :'a list) = error_if_less_than_0 n false
+  | exist_n (f:'a -> bool)  (n:int) (x::xs:'a list) =
+    error_if_less_than_0 n (if f x then exist_n f (n - 1) xs else exist_n f n xs);
+
+val _ = @{assert} (exist_n (equal "a") 2 ["a","b","c","d","b"]          |> not);
+val _ = @{assert} (exist_n (equal "b") 2 ["a","b","c","d","b"]);
+val _ = @{assert} (exist_n (equal "b") 1 ["a","b","c","d","b"]);
+val _ = @{assert} (exist_n (equal "b") 3 ["a","b","c","d","b"]          |> not);
+val _ = @{assert} (exist_n (equal "c") 3 ["a","b","c","d","b", "c"]     |> not);
+val _ = @{assert} (exist_n (equal "c") 3 ["a","b","c","d","b", "c", "c"]);
+val _ = @{assert} (exist_n (equal "c") 2 ["a","b","c","d","b", "c", "c"]);
+
+fun exist_mult  (f:'a -> bool) (xs:'a list) = exist_n f 2 xs;
+
+val _ = @{assert} (exist_mult (equal "b") ["a","b","c","d","b"]);
+val _ = @{assert} (exist_mult (equal "c") ["a","b","c","d"] |> not);
 
 end;
 

@@ -522,12 +522,10 @@ type data_with_pattern = datum_with_pattern list;
 (*TODO: functions related to data_to_data_with_pattern and functions related to
   data_with_pattern_to_data_w_pattern_n_kind have a lot in common. Re-factor them. *)
 
-fun datum_to_level ({point,...}:datum) = #level point        : int;
-fun filter_data (f:datum -> bool) (data:data) = filter f data: data;
-fun filter_data_with_point_name (data:data) (pname:string) =
-  filter_data (fn {point,...} => #name point = pname) data   : data;
-fun filter_data_wo_point_name (data:data) (pname:string) =
-  filter_out (fn {point,...} => #name point = pname) data    : data;
+fun datum_to_level ({point,...}:datum)                     = #level point                                            : int;
+fun filter_data (f:datum -> bool) (data:data)              = filter f data                                           : data;
+fun filter_data_with_point_name (data:data) (pname:string) = filter_data (fn {point,...} => #name point = pname) data: data;
+fun filter_data_wo_point_name (data:data) (pname:string)   = filter_out (fn {point,...} => #name point = pname) data : data;
 
 fun ancestor_to_ancestor_with_pattern (ctxt:Proof.context) ({point = point as {name, ...}, nth_arg = nth_arg}:ancestor) =
   let
@@ -536,8 +534,7 @@ fun ancestor_to_ancestor_with_pattern (ctxt:Proof.context) ({point = point as {n
     {point = point, nth_arg = nth_arg, pattern = pattern}: ancestor_with_pattern
   end;
 
-fun ancestors_to_ancestors_with_pattern (ctxt:Proof.context) (ancestors:ancestors) =
-  map (ancestor_to_ancestor_with_pattern ctxt) ancestors: ancestors_with_pattern;
+fun ancestors_to_ancestors_with_pattern (ctxt:Proof.context) (ancestors:ancestors) = map (ancestor_to_ancestor_with_pattern ctxt) ancestors: ancestors_with_pattern;
 
 fun datum_to_datum_with_pattern (ctxt:Proof.context) ({point, ancestors}:datum) =
   let
@@ -546,8 +543,7 @@ fun datum_to_datum_with_pattern (ctxt:Proof.context) ({point, ancestors}:datum) 
     {point = point, ancestors = ancestors_with_pattern}: datum_with_pattern
   end;
 
-fun data_to_data_with_pattern (ctxt:Proof.context) (data:data) =
-  map (datum_to_datum_with_pattern ctxt) data: data_with_pattern;
+fun data_to_data_with_pattern (ctxt:Proof.context) (data:data) = map (datum_to_datum_with_pattern ctxt) data: data_with_pattern;
 
 type recursive   = bool option;
 
