@@ -567,7 +567,7 @@ type data_w_pattern_n_kind = datum_w_pattern_n_kind list;
 fun point_to_point_w_kind ({name, utyp, level}:point) =
   {name = name, utyp = utyp, level = level, cmmnd = Unknown, rcrsv = NONE};(*TODO*)
 
-fun ancestor_w_pattern_to_ancestor_w_pattern_n_kind (ctxt:Proof.context) ({point = point, nth_arg = nth_arg, pattern = pattern}:ancestor_with_pattern) =
+fun ancestor_w_pattern_to_ancestor_w_pattern_n_kind (_:Proof.context) ({point = point, nth_arg = nth_arg, pattern = pattern}:ancestor_with_pattern) =
   let
     val point_w_kind = point_to_point_w_kind point: point_w_kind;
   in
