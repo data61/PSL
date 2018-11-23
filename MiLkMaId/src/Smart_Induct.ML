@@ -466,34 +466,45 @@ fun ass_020 (pstate:Proof.state) _ = IU.pstate_to_usings pstate |> null;
 (* ass_021 *)(*TODO: FIXME:*)
 fun ass_021 (pst:Proof.state) (mods:ITG.modifiers) =
   let
-    val pre_1st_subg        = IU.pst_to_fst_subg pst                                                : term option;
-    val ucr_1st_subg        = omap MA.trm_to_utrm pre_1st_subg                                      : MA.uterm option;
-    val data                = omap MA.utrm_to_data ucr_1st_subg                                     : MA.data option;
-    val ctxt                = Proof.context_of pst: Proof.context                                   : Proof.context;
-    val data_w_pttrn        = omap (MA.data_to_data_with_pattern ctxt) data                         : MA.data_with_pattern option;
-    val data_w_pttrn_n_kind = omap (MA.data_with_pattern_to_data_w_pattern_n_kind ctxt) data_w_pttrn: MA.data_w_pattern_n_kind option;
-    val vnames       = mods |> IS.pick_vars |> IS.get_names         : strings;
-    val arb_names    = mods |> IS.pick_arbs |> IS.get_names         : strings; 
-    val induct_has_at_least_one_ons  = length vnames    > 0: bool;
-    val induct_has_at_least_one_arbs = length arb_names > 0: bool; 
-    fun is_Full_or_Other ({pattern,...}:MA.ancestor_with_pattern) =
-      pattern = MA.Full orelse pattern = MA.Other;
-    fun this_point_is_Full_or_Other_to_all_ancestors ({ancestors,...}:MA.datum_with_pattern) =
-      forall is_Full_or_Other ancestors;
-    fun one_var_of_vname_is_Full_or_Other_to_all_ancestors' (vname:string) (data_w_pttrn:MA.data_with_pattern) =
-      let
-        val data_of_vname = filter (is_this_datum_w_pttrn_of_vname vname) data_w_pttrn: MA.data_with_pattern;
-        val has_an_instance_that_is_Full_or_Other_to_all_ist_ancestors =
-          exists this_point_is_Full_or_Other_to_all_ancestors data_of_vname: bool;
-      in
-        has_an_instance_that_is_Full_or_Other_to_all_ist_ancestors
-      end;
-    fun one_var_of_vname_is_Full_or_Other_to_all_ancestors (vname:string) =
-      Option.getOpt (omap (one_var_of_vname_is_Full_or_Other_to_all_ancestors' vname) data_w_pttrn, false): bool;
-    val all_ons_are_Full_or_Other_to_all_ancestors =
-      forall one_var_of_vname_is_Full_or_Other_to_all_ancestors vnames: bool;
+    val vnames                       = mods |> IS.pick_vars |> IS.get_names: strings;
+    val arb_names                    = mods |> IS.pick_arbs |> IS.get_names: strings;
+    val induct_has_at_least_one_ons  = length vnames    > 0                : bool;
+    val induct_has_at_least_one_arbs = length arb_names > 0                : bool;
+    val ctxt                         = Proof.context_of pst: Proof.context: Proof.context;
+
+    fun const_has_vname_in_part_of_nth_arg (data:MA.data_w_pattern_n_kind) (cname:string) (vname:string) (arg_numb:int) = ();
+
+    fun ancestor_w_pttrn_n_kind_is_rcsv_const ({point,...}:MA.ancestor_w_pattern_n_kind) = exist_related_rsimp ctxt [#name point]: bool;
+    fun datum_w_pttrn_n_kind_has_ancestor_of ({ancestors,...}:MA.datum_w_pattern_n_kind) (f:MA.ancestor_w_pattern_n_kind -> bool) = exists f ancestors;
+
+    val fst_subg_n_chained_facts_term = IU.pstate_to_1st_subg_n_chained_facts pst                                                   : terms;
+    val data_w_pattern_n_kind         = map (MA.trm_to_data_w_pttrn_n_kind ctxt) fst_subg_n_chained_facts_term |> flat              : MA.data_w_pattern_n_kind;
+    fun name_of_point_w_kind_is (cname:string) ({name,...} : MA.point_w_kind) = cname = name                                        : bool;
+    fun name_of_data_pattern_n_kind_is ({point,...}: MA.datum_w_pattern_n_kind) (cname:string) = name_of_point_w_kind_is cname point: bool;
+    fun datum_is_arb_occ (datum_w_pk:MA.datum_w_pattern_n_kind) = exists (name_of_data_pattern_n_kind_is datum_w_pk) arb_names      ;
+    val data_w_pattern_n_kind_of_var_occs = filter datum_is_arb_occ data_w_pattern_n_kind                                           ;
+
+    fun exists_an_occ_of (arb_name:string) = exists (K true(*TODO: for some recursive function*)) data_w_pattern_n_kind_of_var_occs;
+
+    fun ancestor_w_pttrn_n_kind_is_rcsv_const ({point,...}:MA.ancestor_w_pattern_n_kind) = exist_related_rsimp ctxt [#name point]: bool;
+    fun datum_w_pttrn_n_kind_has_ancestor_of ({ancestors,...}:MA.datum_w_pattern_n_kind) (f:MA.ancestor_w_pattern_n_kind -> bool) = exists f ancestors;
+
+    val fst_subg_n_chained_facts_term = IU.pstate_to_1st_subg_n_chained_facts pst                                                   : terms;
+    val data_w_pattern_n_kind         = map (MA.trm_to_data_w_pttrn_n_kind ctxt) fst_subg_n_chained_facts_term |> flat              : MA.data_w_pattern_n_kind;
+    fun name_of_point_w_kind_is (cname:string) ({name,...} : MA.point_w_kind) = cname = name                                        : bool;
+    fun name_of_data_pattern_n_kind_is ({point,...}: MA.datum_w_pattern_n_kind) (cname:string) = name_of_point_w_kind_is cname point: bool;
+    fun datum_is_arb_occ (datum_w_pk:MA.datum_w_pattern_n_kind) = exists (name_of_data_pattern_n_kind_is datum_w_pk) arb_names      ;
+    val data_w_pattern_n_kind_of_var_occs = filter datum_is_arb_occ data_w_pattern_n_kind                                           ;
+
+    fun exists_on_occ (on_name:string, arb_name:string, cname:string) = true(*TODO*);
+    fun exists_an_ind (on_name:string, arb_name:string, cname:string) = exists (K true(*TODO*)) vnames;
+
+    fun exist_occs_of_fun    (arb_name:string, cname:MA.data_w_pattern_n_kind) = Utils.exist_mult (K true (*TODO*)) [(*TODO:recusrive functions*)];
+    fun exists_a_fun_of      (arb_name:string, cname:MA.data_w_pattern_n_kind) = exists (K true(*TODO*)) [(*TODO:recusrive functions*)];
+    fun exists_an_occ_of_arb (arb_name:string)                                 = exists (K true(*TODO: for some recursive function*)) data_w_pattern_n_kind_of_var_occs;
+    val forall_arb = forall exists_an_occ_of_arb arb_names;
   in
-    induct_has_at_least_one_ons andalso all_ons_are_Full_or_Other_to_all_ancestors
+    (*TODO*)()
   end;
 
 fun pstate_to_ons_n_vnames_in_nth_args_of_const (trm_to_nth_args_of_const: string -> term -> terms)
