@@ -51,6 +51,7 @@ datatype uterm =
   UBound of int |
   UAbs   of string * typ * uterm |(*TODO: maybe we also apply un-currying to lambda abstraction.*)
   UApp   of (uterm * uterm list);
+type uterms = uterm list;
 datatype utyp = UC (*UConst*) | UF (*UFree*) | UV (*UVar*) | UB (*UBound*) | UAb (*UAbs*) | UAp (*UAp*);
 
 (* data *)
@@ -103,6 +104,9 @@ type datum_w_pattern_n_kind =
    ancestors: ancestors_w_pattern_n_kind};
 type data_w_pattern_n_kind = datum_w_pattern_n_kind list;
 
+type datas_w_pattern_n_kind     = data_w_pattern_n_kind list;
+type datas_w_pattern_n_kind_rec = {fst_subg: data_w_pattern_n_kind option, chained_facts: datas_w_pattern_n_kind};
+
 (* matrix *)
 type 'a matrix = 'a list list;
 
@@ -154,11 +158,20 @@ val mk_parameter_matrix_for_function  : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix_for_inductive : Proof.context -> string -> bool matrix;
 val mk_parameter_matrix               : Proof.context -> string -> bool matrix;
 
-(* operations about pattern and kind *)
+(* operations on pattern and kind *)
 val get_nth_pattern                           : Proof.context -> string -> int -> pattern;
 val get_patterns                              : Proof.context -> string -> patterns option;
 val data_to_data_with_pattern                 : Proof.context -> data -> data_with_pattern;
 val data_with_pattern_to_data_w_pattern_n_kind: Proof.context -> data_with_pattern -> data_w_pattern_n_kind;
+
+(* from term to various formats directly *)
+val trm_to_data               : term -> data;
+val trm_to_data_w_pattern     : Proof.context -> term -> data_with_pattern;
+val trm_to_data_w_pttrn_n_kind: Proof.context -> term -> data_w_pattern_n_kind;
+
+(* from Proof.state to various formats directly *)
+val pst_to_datas_w_pattern_n_kind    : Proof.state -> datas_w_pattern_n_kind;
+val pst_to_datas_w_pattern_n_kind_rec: Proof.state -> datas_w_pattern_n_kind_rec;
 
 (* utility functions for assertions *)
 type ufun_n_args = {level: int(*The level of the root is 1.*),
@@ -188,6 +201,8 @@ datatype uterm =
   UBound of int |
   UAbs   of string * typ * uterm |
   UApp   of (uterm * uterm list);
+
+type uterms = uterm list;
 
 (* map_types' *)
 fun map_types' f =
@@ -593,6 +608,29 @@ fun datum_with_pattern_to_datum_w_pattern_n_kind (ctxt:Proof.context) ({point, a
 
 fun data_with_pattern_to_data_w_pattern_n_kind (ctxt:Proof.context) (data:data_with_pattern) =
   map (datum_with_pattern_to_datum_w_pattern_n_kind ctxt) data: data_w_pattern_n_kind;
+
+val trm_to_data                                     = utrm_to_data o trm_to_utrm                                                  : term -> data;
+fun trm_to_data_w_pattern (ctxt:Proof.context)      = data_to_data_with_pattern ctxt o trm_to_data                                : term -> data_with_pattern;
+fun trm_to_data_w_pttrn_n_kind (ctxt:Proof.context) = data_with_pattern_to_data_w_pattern_n_kind ctxt o trm_to_data_w_pattern ctxt: term -> data_w_pattern_n_kind;
+
+type datas_w_pattern_n_kind     = data_w_pattern_n_kind list;
+type datas_w_pattern_n_kind_rec = {fst_subg: data_w_pattern_n_kind option, chained_facts: datas_w_pattern_n_kind};
+
+fun pst_to_datas_w_pattern_n_kind_rec (pst:Proof.state) =
+  let
+    val ctxt = Proof.context_of pst: Proof.context;
+    val {fst_subg:term option, chained_facts:terms} = Isabelle_Utils.pstate_to_1st_subg_n_chained_facts_record pst;
+  in
+    {fst_subg      = Option.map (trm_to_data_w_pttrn_n_kind ctxt) fst_subg: data_w_pattern_n_kind option,
+     chained_facts = map (trm_to_data_w_pttrn_n_kind ctxt) chained_facts  : datas_w_pattern_n_kind}
+  end;
+
+fun pst_to_datas_w_pattern_n_kind (pst:Proof.state) =
+  let
+    val  {fst_subg, chained_facts} = pst_to_datas_w_pattern_n_kind_rec pst;
+  in
+    the_list fst_subg @ chained_facts: datas_w_pattern_n_kind
+  end;
 
 type ufun_n_args = {
   level: int(*The level of the root is 1.*),
