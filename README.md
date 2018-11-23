@@ -75,9 +75,9 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 
 ## Documentations
 We have three academic papers describing the ideas implemented in this project.
-- [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) presents the overall idea of PSL.
-- [Goal-Oriented Conjecturing for Isabelle/HOL](http://arxiv.org/abs/1806.04774) presents the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`.
-- [PaMpeR: Proof Method Recommendation System for Isabelle/HOL](http://arxiv.org/abs/1806.07239) presents the proof method recommendation system implemented in `PSL/PaMpeR`.
+- [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) at [CADE2017](https://doi.org/10.1007/978-3-319-63046-5_32) presents the overall idea of PSL.
+- [Goal-Oriented Conjecturing for Isabelle/HOL](http://arxiv.org/abs/1806.04774) at [CICM2018](https://doi.org/10.1007/978-3-319-96812-4_19) presents the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`.
+- [PaMpeR: Proof Method Recommendation System for Isabelle/HOL](http://arxiv.org/abs/1806.07239) at [ASE](http://doi.acm.org/10.1145/3238147.3238210) presents the proof method recommendation system implemented in `PSL/PaMpeR`.
 
 ## Citation
 - **PSL**:
