@@ -69,12 +69,69 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 
 *A6.* sledgehammer is good when you want to get a proof quickly, while try_hard is good when you have a longer time for proof search. [Our evaluation](https://arxiv.org/abs/1606.02941) shows that given 300 seconds of time-out for each proof goal try_hard solves 1115 proof goals out of 1526, while sledgehammer found proofs for 901 of them using the same computational resources and re-constructed proofs in Isabelle for 866 of them. This is a 14 percentage point improvement of proof search and a 16 percentage point increase for proof reconstruction. Moreover, 299 goals (20% of all goals) were solved only by try_hard within 300 seconds. try_hard is especially good at discharging proof obligations that can be nicely handled by by a) mathematical (co)induction, b) general simplification rules, or c) specialised tactics.
 
-*Q7.* What are *Generalize* and *Conjecture*? Which proof methods will PSL generate for these atomic strategies?
+*Q7.* What are `Generalize` and `Conjecture`? Which proof methods will PSL generate for these atomic strategies?
 
 *A7.* *Generalize* and *Conjecture* are new additions to PSL's atomic proof strategies. Given a proof obligation, *Generalize* attempts to create conjectures by generalizing the proof obligation in various ways and insert each of them as a subgoal of the original proof obligation. *Conjecture* works similarly to *Generalize*; However, *Conjecture* also tries to mutate the original proof obligation as well as generalization of the original obligation. *Generalize* and *Conjecture* are still experimental, and we do not have an evaulation results. The example file (PGT/Example.thy) contains an example of how it works. We attached a screenshot of this file in the following. For more details, please find our tool paper accepted at [11th Conference on Intelligent Computer Mathematics (CICM2018)](https://cicm-conference.org/2018/cicm.php).
 
 ## Documentations
-For more details, please read the paper [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) available at arXiv.org.
+We have three academic papers describing the ideas implemented in this project.
+- [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) presents the overall idea of PSL.
+- [Goal-Oriented Conjecturing for Isabelle/HOL](http://arxiv.org/abs/1806.04774) presents the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`.
+- [PaMpeR: Proof Method Recommendation System for Isabelle/HOL](http://arxiv.org/abs/1806.07239) presents the proof method recommendation system implemented in `PSL/PaMpeR`.
+
+## Citation
+- **PSL**:
+`@InProceedings{10.1007/978-3-319-63046-5_32,
+author="Nagashima, Yutaka
+and Kumar, Ramana",
+editor="de Moura, Leonardo",
+title="A Proof Strategy Language and Proof Script Generation for Isabelle/HOL",
+booktitle="Automated Deduction -- CADE 26",
+year="2017",
+publisher="Springer International Publishing",
+address="Cham",
+pages="528--545",
+abstract="We introduce a language, PSL, designed to capture high level proof strategies in Isabelle/HOL. Given a strategy and a proof obligation, PSL's runtime system generates and combines various tactics to explore a large search space with low memory usage. Upon success, PSL generates an efficient proof script, which bypasses a large part of the proof search. We also present PSL's monadic interpreter to show that the underlying idea of PSL is transferable to other ITPs.",
+isbn="978-3-319-63046-5"
+}`
+
+- **PGT**:
+`@InProceedings{10.1007/978-3-319-96812-4_19,
+author="Nagashima, Yutaka
+and Parsert, Julian",
+editor="Rabe, Florian
+and Farmer, William M.
+and Passmore, Grant O.
+and Youssef, Abdou",
+title="Goal-Oriented Conjecturing for Isabelle/HOL",
+booktitle="Intelligent Computer Mathematics",
+year="2018",
+publisher="Springer International Publishing",
+address="Cham",
+pages="225--231",
+abstract="We present PGT, a Proof Goal Transformer for Isabelle/HOL. Given a proof goal and its background context, PGT attempts to generate conjectures from the original goal by transforming the original proof goal. These conjectures should be weak enough to be provable by automation but sufficiently strong to identify and prove the original goal. By incorporating PGT into the pre-existing PSL framework, we exploit Isabelle's strong automation to identify and prove such conjectures.",
+isbn="978-3-319-96812-4"
+}`
+
+- **PaMpeR**:
+`@inproceedings{Nagashima:2018:PPM:3238147.3238210,
+ author = {Nagashima, Yutaka and He, Yilun},
+ title = {PaMpeR: Proof Method Recommendation System for Isabelle/HOL},
+ booktitle = {Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering},
+ series = {ASE 2018},
+ year = {2018},
+ isbn = {978-1-4503-5937-5},
+ location = {Montpellier, France},
+ pages = {362--372},
+ numpages = {11},
+ url = {http://doi.acm.org/10.1145/3238147.3238210},
+ doi = {10.1145/3238147.3238210},
+ acmid = {3238210},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Isabelle/HOL, data mining, interactive theorem prover, proof method, recommendation system},
+}`
+
 
 ## Screenshots
 ![Screenshot](./image/screen_shot_tall.png)
