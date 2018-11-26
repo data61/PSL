@@ -1,4 +1,5 @@
 signature LIFTER =
+
 sig
 datatype nth        = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;

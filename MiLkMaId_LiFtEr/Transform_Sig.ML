@@ -115,9 +115,22 @@ type node_w_auxiliary =
   pttrn: pttrn_of_a_cnst option,
   cmmnd: command option};
 
-(*
- * datatype location = Fst_Subg | Chnd_Fct of int;
- * datatype key = Node_Location of (location * path);
- *)
+datatype unique_node_w_print  = UNode_Print of {node: node, print:print};
+type     unique_node_w_prints = unique_node_w_print list;
+
+(*To be used in the new dynamic induct.*)
+val nodes_w_print_to_unique_nodes_w_print: node_w_prints -> unique_node_w_prints;
+val unique_node_w_print_to_paths         : unique_node_w_print  -> paths;
+val unique_nodes_w_print_to_pathss       : unique_node_w_prints -> paths list;
+val unique_nodes_n_print_to_pathss       : (unique_node_w_prints * paths list);(*Use: AList.update*)
+datatype unique_node_id = Unique_Node_Id of int;
+
+datatype rule_name = Rule_Name of string;
+
+(*TIP: use functions from AList, such as AList.update, for name_space.*)
+datatype name_space = Name_Space of
+ {subtrm:     (int * path)           list,
+  subtrm_occ: (int * unique_node_id) list,
+  rule:       (int * rule_name)      list};
 
 end;
