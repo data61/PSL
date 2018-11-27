@@ -1,16 +1,21 @@
+(*  Title:      PSL/Transform_Sig.ML
+    Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
+
+The conversion to transform term to a format more amenable to LiFtEr.
+The overall work-flow is:
+  term                              ---->
+  trm_w_prnt                        ---->
+  futrm_w_prnt                      ---->
+  futrm_w_prnt_n_path               ---->
+  One_Term: TABLE with node_w_print ---->
+  One_Term: TABLE with node_w_auxiliary
+*)
+
 (*** TRANSFORM_STRUCT ***)
 signature TRANSFORM =
 sig
 
 (** term as syntax tree **)
-(* The overall work-flow is:
- * term                              ---->
- * trm_w_prnt                        ---->
- * futrm_w_prnt                      ---->
- * futrm_w_prnt_n_path               ---->    
- * One_Term: TABLE with node_w_print ---->
- * One_Term: TABLE with node_w_auxiliary
- *)
 
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
 datatype print = Print of string;

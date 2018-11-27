@@ -1,3 +1,16 @@
+(*  Title:      PSL/Transform_Struct.ML
+    Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
+
+The conversion to transform term to a format more amenable to LiFtEr.
+The overall work-flow is:
+  term                              ---->
+  trm_w_prnt                        ---->
+  futrm_w_prnt                      ---->
+  futrm_w_prnt_n_path               ---->
+  One_Term: TABLE with node_w_print ---->
+  One_Term: TABLE with node_w_auxiliary
+*)
+
 (*** TRANSFORM_STRUCT ***)
 structure Transform =
 struct
