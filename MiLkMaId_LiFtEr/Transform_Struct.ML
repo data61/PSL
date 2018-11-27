@@ -20,15 +20,45 @@ datatype print = Print of string;
 
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =
-  C_Prnt of string * typ        * print (*Const*)
-| F_Prnt of string * typ        * print (*Free*)
-| V_Prnt of indexname * typ     * print (*Var*)
-| B_Prnt of int                 * print (*Bound*)
-| L_Prnt of string * typ * term * print (*Abs (Lambda Abstraction)*)
-| A_Prnt of term * term         * print;(*$   (Application)*)
+  C_Prnt of string * typ              * print (*Const*)
+| F_Prnt of string * typ              * print (*Free*)
+| V_Prnt of indexname * typ           * print (*Var*)
+| B_Prnt of int                       * print (*Bound*)
+| L_Prnt of string * typ * trm_w_prnt * print (*Abs (Lambda Abstraction)*)
+| A_Prnt of trm_w_prnt * trm_w_prnt   * print;(*$   (Application)*)
 
-(* trm_to_trm_w_prnt *)
-val trm_to_trm_w_prnt = undefined: term -> trm_w_prnt;
+(* tricky cases
+ * trm_to_string @{context} (Term.Bound 3);
+ * trm_to_string @{context} @{term "s (\<lambda>x. t x u)"}
+ *)
+
+fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
+  let
+    val trm_to_string' = Print o Isabelle_Utils.trm_to_string ctxt;
+    fun trm_to_trm_w_prnt' (Const _) (trm_wo_bound as Const (name,     typ)) = (C_Prnt (name,     typ, trm_to_string' trm_wo_bound))
+      | trm_to_trm_w_prnt' (Free  _) (trm_wo_bound as Free  (name,     typ)) = (F_Prnt (name,     typ, trm_to_string' trm_wo_bound))
+      | trm_to_trm_w_prnt' (Var   _) (trm_wo_bound as Var   (idx_name, typ)) = (V_Prnt (idx_name, typ, trm_to_string' trm_wo_bound))
+      | trm_to_trm_w_prnt' (Bound i) (trm_wo_bound as Free   _             ) = (B_Prnt (i,             trm_to_string' trm_wo_bound))
+      | trm_to_trm_w_prnt' (Abs   _) (Abs (trip as (name, typ, subtrm))) =
+        let
+          val (_, abs_free_subtrm) = Term.dest_abs trip                       : (string * term);
+          val print                = trm_to_string' (Abs trip)                : print;
+          val new_subtrm           = trm_to_trm_w_prnt' subtrm abs_free_subtrm: trm_w_prnt;
+        in
+          L_Prnt (name, typ, new_subtrm, print)
+        end
+      | trm_to_trm_w_prnt' (_ $ _) (trm1 $ trm2) =
+        let
+          val new_trm1 = trm_to_trm_w_prnt' trm1 trm1: trm_w_prnt;
+          val new_trm2 = trm_to_trm_w_prnt' trm1 trm1: trm_w_prnt;
+          val print    = trm_to_string' (trm1 $ trm2);
+        in
+          A_Prnt (new_trm1, new_trm2, print)
+        end
+      | trm_to_trm_w_prnt' _ _ = error "trm_to_trm_w_print failed. Undesirable combination."
+  in
+    trm_to_trm_w_prnt' trm trm
+  end;
 
 (* utrm_w_prnt: un-curried term with print *)
 datatype utrm_w_prnt =

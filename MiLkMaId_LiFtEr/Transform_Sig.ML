@@ -22,15 +22,15 @@ datatype print = Print of string;
 
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =
-  C_Prnt of string * typ        * print (*Const*)
-| F_Prnt of string * typ        * print (*Free*)
-| V_Prnt of indexname * typ     * print (*Var*)
-| B_Prnt of int                 * print (*Bound*)
-| L_Prnt of string * typ * term * print (*Abs (Lambda Abstraction)*)
-| A_Prnt of term * term         * print;(*$   (Application)*)
+  C_Prnt of string * typ              * print (*Const*)
+| F_Prnt of string * typ              * print (*Free*)
+| V_Prnt of indexname * typ           * print (*Var*)
+| B_Prnt of int                       * print (*Bound*)
+| L_Prnt of string * typ * trm_w_prnt * print (*Abs (Lambda Abstraction)*)
+| A_Prnt of trm_w_prnt * trm_w_prnt   * print;(*$   (Application)*)
 
 (* trm_to_trm_w_prnt *)
-val trm_to_trm_w_prnt: term -> trm_w_prnt;
+val trm_to_trm_w_prnt: Proof.context -> term -> trm_w_prnt;
 
 (* utrm_w_prnt: un-curried term with print *)
 datatype utrm_w_prnt =

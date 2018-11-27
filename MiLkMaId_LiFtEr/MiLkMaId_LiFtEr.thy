@@ -8,9 +8,18 @@ theory MiLkMaId_LiFtEr
   imports Main
 begin
 
+ML_file "../src/Utils.ML"
+
 ML{* (*type synonyms*)
 type strings = string list;
 type ints    = int    list;
+*}
+
+ML{*
+(* test Term.string_of_vname *)
+val should_be_question_Q = @{thm conjI} |> Thm.concl_of |> Term.dest_comb |> snd |> Term.dest_comb
+  |> snd |> Term.dest_Var |> fst |> Term.string_of_vname;
+@{assert} ("?Q" = should_be_question_Q);
 *}
 
 ML_file "Transform_Sig.ML"

@@ -401,6 +401,7 @@ sig
   val trm_has_list_typ                            : term -> bool;
   val trm_to_lists                                : term -> {consts: term list, frees: term list, vars: term list};
   val trm_to_sets_and_lists                       : term -> {consts: term list, frees: term list, vars: term list};
+  val trm_to_string                               : Proof.context -> term -> string;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -759,6 +760,11 @@ fun trm_to_sets_and_lists (trm:term) =
   in
     {consts = consts, frees = frees, vars = vars}
   end;
+
+fun trm_to_string (ctxt:Proof.context) (trm:term) = Syntax.string_of_term ctxt trm
+ |> YXML.parse_body
+ |> XML.content_of : string;
+
 end;
 
 (*** FIND_THEOREMS2: provides an interface of find_theorem for PSL. ***)
