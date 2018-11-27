@@ -12,18 +12,8 @@ The overall work-flow is:
 *)
 
 (*** TRANSFORM_STRUCT ***)
-structure Transform =
+structure Transform : TRANSFORM =
 struct
-
-(** term as syntax tree **)
-(* The overall work-flow is:
- * term                              ---->
- * trm_w_prnt                        ---->
- * futrm_w_prnt                      ---->
- * futrm_w_prnt_n_path               ---->    
- * One_Term: TABLE with node_w_print ---->
- * One_Term: TABLE with node_w_auxiliary
- *)
 
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
 datatype print = Print of string;
