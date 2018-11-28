@@ -79,6 +79,8 @@ We have three academic papers describing the ideas implemented in this project.
 - [Goal-Oriented Conjecturing for Isabelle/HOL](http://arxiv.org/abs/1806.04774) at [CICM2018](https://doi.org/10.1007/978-3-319-96812-4_19) presents the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`.
 - [PaMpeR: Proof Method Recommendation System for Isabelle/HOL](http://arxiv.org/abs/1806.07239) at [ASE2018](http://doi.acm.org/10.1145/3238147.3238210) presents the proof method recommendation system implemented in `PSL/PaMpeR`.
 
+We presented the final goal of this project at [AITP2017](http://aitp-conference.org/2017/). Our position paper "Towards Smart Proof Search for Isabelle" is available at [arXiv](https://arxiv.org/abs/1701.03037).
+
 ## Citation
 - **PSL**:
 `@InProceedings{10.1007/978-3-319-63046-5_32,
@@ -132,6 +134,15 @@ isbn="978-3-319-96812-4"
  keywords = {Isabelle/HOL, data mining, interactive theorem prover, proof method, recommendation system},
 }`
 
+- **Position Paper**:
+`@misc{nagashima2017smart,
+    title={Towards Smart Proof Search for Isabelle},
+    author={Yutaka Nagashima},
+    year={2017},
+    eprint={1701.03037},
+    archivePrefix={arXiv},
+    primaryClass={cs.AI}
+}`
 
 ## Screenshots
 ![Screenshot](./image/screen_shot_tall.png)
