@@ -198,7 +198,7 @@ fun members (eq:('a * 'b) -> bool) (all_of_them: 'a list) (in_those: 'b list) =
 
 fun cart_prod (xs:'a list) (ys:'b list) =
   let
-    fun cart_prod' ([]   :'a list) (ys:'b list) (acc:('a * 'b) list) = acc
+    fun cart_prod' ([]   :'a list) (_ :'b list) (acc:('a * 'b) list) = acc
       | cart_prod' (x::xs:'a list) (ys:'b list) (acc:('a * 'b) list) =
         cart_prod' xs ys (map (pair x) ys @ acc);
   in cart_prod' xs ys [] end;
