@@ -81,6 +81,8 @@ We have three academic papers describing the ideas implemented in this project.
 
 We presented the final goal of this project at [AITP2017](http://aitp-conference.org/2017/). Our position paper "Towards Smart Proof Search for Isabelle" is available at [arXiv](https://arxiv.org/abs/1701.03037).
 
+We are currently developing ``MiLkMaId``, an extension to `PSL` to improve its proof automation. Our position paper "Towards Machine Learning Mathematical Induction" is available at [arXiv](https://arxiv.org/abs/1812.04088). This abstract is under review at [AITP2019](http://aitp-conference.org/2019/).
+
 ## Citation
 - **PSL**:
 `@InProceedings{10.1007/978-3-319-63046-5_32,
