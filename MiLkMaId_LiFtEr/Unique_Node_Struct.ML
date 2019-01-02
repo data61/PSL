@@ -1,19 +1,19 @@
-(*  Title:      PSL/Transform_Struct.ML
+(*  Title:      PSL/Unique_Node_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                === trm_w_prnt_to_utrm_w_prnt ==================>
-  trm_w_prnt          === utrm_w_prnt_to_utrm_w_prnt =================>
-  utrm_w_prnt         === utrm_w_prnt_to_utrm_w_prnt =================>
-  futrm_w_prnt        === futrm_w_prnt_to_futrm_w_prnt_n_path ========>
-  futrm_w_prnt_n_path === futrm_w_prnt_n_path_to_unique_nodes ========>
-  unique_nodes        === unique_nodes_to_unique_nodes_w_auxiliary ===>
-  nodes_w_auxiliary
+  term                              === trm_w_prnt_to_utrm_w_prnt ==================> (* in this file *)
+  trm_w_prnt                        === utrm_w_prnt_to_utrm_w_prnt =================> (* in this file *)
+  utrm_w_prnt                       === utrm_w_prnt_to_utrm_w_prnt =================> (* in this file *)
+  futrm_w_prnt                      === futrm_w_prnt_to_futrm_w_prnt_n_path ========> (* in this file *)
+  futrm_w_prnt_n_path               === futrm_w_prnt_n_path_to_unique_nodes ========> (* in this file *)
+  unique_nodes                      === unique_nodes_to_unique_nodes_w_auxiliary ===> (* Term_Table_Struct.ML *)
+  nodes_w_auxiliary                                                                   (* Term_Table_Struct.ML *)
 *)
 
-(*** TRANSFORM_STRUCT ***)
-structure Transform =
+(*** Unique_Node ***)
+structure Unique_Node (*:UNIQUE_NODE*) =
 struct
 
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)

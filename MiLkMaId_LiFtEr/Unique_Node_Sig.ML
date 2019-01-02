@@ -1,19 +1,19 @@
-(*  Title:      PSL/Transform_Sig.ML
+(*  Title:      PSL/Unique_Node_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                              === trm_w_prnt_to_utrm_w_prnt ==================>
-  trm_w_prnt                        === utrm_w_prnt_to_utrm_w_prnt =================>
-  utrm_w_prnt                       === utrm_w_prnt_to_utrm_w_prnt =================>
-  futrm_w_prnt                      === futrm_w_prnt_to_futrm_w_prnt_n_path ========>
-  futrm_w_prnt_n_path               === futrm_w_prnt_n_path_to_unique_nodes ========>
-  unique_nodes                      === unique_nodes_to_unique_nodes_w_auxiliary ===>
-  nodes_w_auxiliary
+  term                              === trm_w_prnt_to_utrm_w_prnt ==================> (* in this file *)
+  trm_w_prnt                        === utrm_w_prnt_to_utrm_w_prnt =================> (* in this file *)
+  utrm_w_prnt                       === utrm_w_prnt_to_utrm_w_prnt =================> (* in this file *)
+  futrm_w_prnt                      === futrm_w_prnt_to_futrm_w_prnt_n_path ========> (* in this file *)
+  futrm_w_prnt_n_path               === futrm_w_prnt_n_path_to_unique_nodes ========> (* in this file *)
+  unique_nodes                      === unique_nodes_to_unique_nodes_w_auxiliary ===> (* Term_Table_Sig.ML *)
+  nodes_w_auxiliary                                                                   (* Term_Table_Sig.ML *)
 *)
 
-(*** TRANSFORM_STRUCT ***)
-signature TRANSFORM =
+(*** UNIQUE_NODE ***)
+signature UNIQUE_NODE =
 sig
 
 (** term as syntax tree **)
