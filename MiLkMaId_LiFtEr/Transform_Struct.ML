@@ -3,16 +3,17 @@
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                              ---->
-  trm_w_prnt                        ---->
-  futrm_w_prnt                      ---->
-  futrm_w_prnt_n_path               ---->
-  One_Term: TABLE with node_w_print ---->
-  One_Term: TABLE with node_w_auxiliary
+  term                === trm_w_prnt_to_utrm_w_prnt ==================>
+  trm_w_prnt          === utrm_w_prnt_to_utrm_w_prnt =================>
+  utrm_w_prnt         === utrm_w_prnt_to_utrm_w_prnt =================>
+  futrm_w_prnt        === futrm_w_prnt_to_futrm_w_prnt_n_path ========>
+  futrm_w_prnt_n_path === futrm_w_prnt_n_path_to_unique_nodes ========>
+  unique_nodes        === unique_nodes_to_unique_nodes_w_auxiliary ===>
+  nodes_w_auxiliary
 *)
 
 (*** TRANSFORM_STRUCT ***)
-structure Transform : TRANSFORM =
+structure Transform =
 struct
 
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
