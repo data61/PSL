@@ -24,6 +24,7 @@ val should_be_question_Q = @{thm conjI} |> Thm.concl_of |> Term.dest_comb |> snd
 
 ML_file "Unique_Node_Sig.ML"
 ML_file "Unique_Node_Struct.ML"
+ML_file "Unique_Node_Test.ML"
 ML_file "Term_Table_Sig.ML"
 ML_file "Term_Table_Structure.ML"
 ML_file "DInduct_Sig.ML"

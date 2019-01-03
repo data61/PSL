@@ -13,7 +13,7 @@ The overall work-flow is:
 *)
 
 (*** Unique_Node ***)
-structure Unique_Node (*:UNIQUE_NODE*) =
+structure Unique_Node: UNIQUE_NODE  =
 struct
 
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
@@ -85,7 +85,7 @@ datatype utrm_w_prnt =
 | UL_Prnt of string * typ * utrm_w_prnt     * print
 | UA_Prnt of utrm_w_prnt * utrm_w_prnt list * print;
 
-type utrm_w_prnts = utrm_w_prnt list;
+type utrms_w_prnt = utrm_w_prnt list;
 
 (* trm_w_prnt_to_utrm_w_prnt *)
 
@@ -107,67 +107,6 @@ fun trm_w_prnt_to_utrm_w_prnt (C_Prnt  c : trm_w_prnt                 ) = UC_Prn
       UA_Prnt (trm_w_prnt_to_utrm_w_prnt (hd trm_w_prnts), map trm_w_prnt_to_utrm_w_prnt (tl trm_w_prnts), prnt)
     end: utrm_w_prnt;
 
-(* test trm_w_prnt_to_utrm_w_prnt *)
-(*Function application associates to the right.*)
-local
-  val f_x_y_1 = (Free ("f", dummyT) $  Free ("x", dummyT)) $ Free ("y", dummyT): term;
-  val f_x_y_2 =  Free ("f", dummyT) $  Free ("x", dummyT)  $ Free ("y", dummyT): term;
-  val f_x_y_3 =  Free ("f", dummyT) $ (Free ("x", dummyT)  $ Free ("y", dummyT)): term;
-in
-  val _ = @{assert} (f_x_y_1 = f_x_y_2);
-  val _ = @{assert} (not (f_x_y_1 = f_x_y_3));
-end;
-
-local
-(*
- *     $         $
- *    / \       / \
- *   $   y     f [x,y]
- *  / \    ==>
- * f   x
- *)
-val p_foo     = F_Prnt ("foo",   dummyT, Print "print_foo");
-val p_x       = F_Prnt ("x",     dummyT, Print "print_x");
-val p_y       = F_Prnt ("y",     dummyT, Print "print_y");
-val p_foo_x   = A_Prnt (p_foo,   p_x,    Print "print_foo_x");
-val p_foo_x_y = A_Prnt (p_foo_x, p_y,    Print "print_foo_x_y");
-
-val up_foo     = UF_Prnt ("foo",  dummyT,       Print "print_foo");
-val up_x       = UF_Prnt ("x",    dummyT,       Print "print_x");
-val up_y       = UF_Prnt ("y",    dummyT,       Print "print_y");
-val up_foo_x_y = UA_Prnt (up_foo, [up_x, up_y], Print "print_foo_x_y");
-in
-  val _ = @{assert} (trm_w_prnt_to_utrm_w_prnt p_foo_x_y = up_foo_x_y);
-end;
-
-local
-(*
- *       $            $
- *      / \          / \
- *     $   z        f  |
- *    / \     ==>   [$,  z]
- *   f   $          / \
- *      / \        x  |
- *     x   y         [y]
- *)
-val p_foo       = F_Prnt ("foo",     dummyT, Print "print_foo");
-val p_x         = F_Prnt ("x",       dummyT, Print "print_x");
-val p_y         = F_Prnt ("y",       dummyT, Print "print_y");
-val p_z         = F_Prnt ("z",       dummyT, Print "print_z");
-val p_x_y       = A_Prnt (p_x,       p_y,    Print "print_x_y");
-val p_foo_x_y   = A_Prnt (p_foo,     p_x_y,  Print "print_foo_x_y");
-val p_foo_x_y_z = A_Prnt (p_foo_x_y, p_z,    Print "print_foo_x_y_z");
-
-val up_foo       = UF_Prnt ("foo",  dummyT,       Print "print_foo");
-val up_x         = UF_Prnt ("x",    dummyT,       Print "print_x");
-val up_y         = UF_Prnt ("y",    dummyT,       Print "print_y");
-val up_z         = UF_Prnt ("z",    dummyT,       Print "print_z");
-val up_x_y       = UA_Prnt (up_x,   [up_y],       Print "print_x_y");
-val up_foo_x_y_z = UA_Prnt (up_foo, [up_x_y, up_z],       Print "print_foo_x_y_z");
-in
-  val _ = @{assert} (trm_w_prnt_to_utrm_w_prnt p_foo_x_y_z = up_foo_x_y_z)
-end;
-
 (*
  * Isabelle's functions for Hereditary Harrop Formula, such as Drule.norm_hhf, are not helpful here:
  * Hereditary Harrop Formula still involve possibly nested applications of binary meta-implications,
@@ -186,13 +125,16 @@ datatype futrm_w_prnt =
 | FUA_Prnt of futrm_w_prnt * futrm_w_prnt list * print;
 
 (* utrm_w_prnt_to_utrm_w_prnt *)
-val utrm_w_prnt_to_utrm_w_prnt = undefined: trm_w_prnt -> utrm_w_prnt;
+val utrm_w_prnt_to_futrm_w_prnt = undefined: utrm_w_prnt -> futrm_w_prnt;
 
-(* un-curried flattened term with print and path*)
-type ints = int list;
-
+(* path *)
 datatype path  = Path of ints;
+
+(* paths *)
 type     paths = path list;
+
+(* path_ord *)
+val path_ord = undefined: (path * path) -> order;
 
 (* futrm_w_prnt_n_path: un-curried flattened term with print and path to each node*)
 datatype futrm_w_prnt_n_path =
@@ -203,6 +145,9 @@ datatype futrm_w_prnt_n_path =
 | UFL_Prnt_n_Path of (string * typ * futrm_w_prnt_n_path       ) * print * path
 | UFA_Prnt_n_Path of (futrm_w_prnt_n_path * futrm_w_prnt_n_path) * print * path;
 
+(* futrm_w_prnt_to_futrm_w_prnt_n_path *)
+val futrm_w_prnt_to_futrm_w_prnt_n_path = undefined: futrm_w_prnt -> futrm_w_prnt_n_path;
+
 (** term as Table  **)
 datatype node =
   NC of (string * typ)    (*Const*)
@@ -212,54 +157,16 @@ datatype node =
 | NL of (string * typ)    (*Abs (Lambda Abstraction)*)
 | NA                      (*$   (Application)*)
 
-datatype node_w_print = Node_Print of {node: node, print:print};
-type     node_w_prints = node_w_print list;
-val path_ord = undefined: (path * path) -> order;
+(* unique_node *)
+type unique_node =
+  {node : node,
+   print: print,
+   path : path};
 
-structure One_Term = Table(type key = path val ord = path_ord): TABLE;
+(* unique_nodes *)
+type unique_nodes = unique_node list;
 
-(** pattern **)
-datatype left_pttrn  = Var | Cnst;
-datatype right_pttrn =
-  If
-| Case
-| Unchanged_In_Rec_Call (*The nth parameter appears as the nth parameter to a recursive call of f on the right hand side.*)
-| Changed_In_Rec_Call   (*A part of the nth parameter appears as part of the nth parameter to a recursive call of f.*)
-| Sth_Else_In_Rec_Call  (*In a recursive call of f, no part of the nth parameter appears.*);
-type     left_pttrns                   = left_pttrn list;
-datatype pttrn_for_a_param_in_a_clause = Pttrn_Atom    of right_pttrn * (left_pttrns list);
-datatype pttrn_for_a_clause            = Pttrn_Clause  of pttrn_for_a_param_in_a_clause list;
-datatype pttrn_for_a_param             = Pttrn_Paramt  of pttrn_for_a_param_in_a_clause list;
-datatype pttrn_of_all_clauses          = Pttrn_Clauses of pttrn_for_a_clause list;
-datatype pttrn_of_all_params           = Pttrn_Params  of pttrn_for_a_param list;
-datatype pttrn_of_a_cnst               = pttrn_of_all_clauses | pttrn_of_all_params;
-
-(* matrix? 'a matrix (= 'a list list) provides more generality.
- * But we only have to tackle this problem for now. So we do not have the necessity for generalization. *)
-datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
-type node_w_auxiliary =
- {node : node,
-  print: print,
-  rcsv : bool option,
-  pttrn: pttrn_of_a_cnst option,
-  cmmnd: command option};
-
-datatype unique_node_w_print  = UNode_Print of {node: node, print:print};
-type     unique_node_w_prints = unique_node_w_print list;
-
-(*To be used in the new dynamic induct.*)
-val nodes_w_print_to_unique_nodes_w_print = undefined: node_w_prints -> unique_node_w_prints;
-val unique_node_w_print_to_paths          = undefined: unique_node_w_print  -> paths;
-val unique_nodes_w_print_to_pathss        = undefined: unique_node_w_prints -> paths list;
-val unique_nodes_n_print_to_pathss        = ((*TODO*)[],[]) : (unique_node_w_prints * paths list);(*Use: AList.update*)
-datatype unique_node_id = Unique_Node_Id of int;
-
-datatype rule_name = Rule_Name of string;
-
-(*TIP: use functions from AList, such as AList.update, for name_space.*)
-datatype name_space = Name_Space of
- {subtrm:     (int * path)           list,
-  subtrm_occ: (int * unique_node_id) list,
-  rule:       (int * rule_name)      list};
+(* futrm_w_prnt_n_path_to_unique_nodes *)
+val futrm_w_prnt_n_path_to_unique_nodes = undefined: futrm_w_prnt_n_path -> unique_nodes;
 
 end;

@@ -68,8 +68,6 @@ datatype futrm_w_prnt =
 (* utrm_w_prnt_to_futrm_w_prnt *)
 val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
 
-type     ints = int list;
-
 (* path *)
 datatype path  = Path of ints;
 
