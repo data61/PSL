@@ -240,7 +240,7 @@ datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 type node_w_auxiliary =
  {node : node,
   print: print,
-  rcsv: bool option,
+  rcsv : bool option,
   pttrn: pttrn_of_a_cnst option,
   cmmnd: command option};
 

@@ -4,8 +4,10 @@
 The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 *)
 signature LIFTER =
-
 sig
+
+type abstract_proof_state;
+
 datatype nth        = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
 datatype rule       = Rule        of int;
@@ -61,5 +63,7 @@ datatype assrt      =
 | Are_Diff_Str   of nth        * nth (*Not & Are_Same_Str*)
 | Has_Typ        of subtrm_occ * typ (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest    of subtrm_occ       (*Not & Is_At_Deepest*)
+
+val eval: abstract_proof_state * assrt -> bool;
 
 end;
