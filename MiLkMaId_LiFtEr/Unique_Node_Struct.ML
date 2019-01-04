@@ -54,7 +54,7 @@ fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
       | trm_to_trm_w_prnt' (_ $ _) (trm1 $ trm2) =
         let
           val new_trm1 = trm_to_trm_w_prnt' trm1 trm1: trm_w_prnt;
-          val new_trm2 = trm_to_trm_w_prnt' trm1 trm1: trm_w_prnt;
+          val new_trm2 = trm_to_trm_w_prnt' trm2 trm2: trm_w_prnt;
           val print    = trm_to_string' (trm1 $ trm2);
         in
           A_Prnt (new_trm1, new_trm2, print)
@@ -63,18 +63,6 @@ fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
   in
     trm_to_trm_w_prnt' trm trm
   end;
-
-(* test: trm_to_trm_w_prnt *)
-fun dest_Print (Print p) = p;
-
-fun trm_w_prnt_to_prnt (C_Prnt (_, _,     print)) = print
-  | trm_w_prnt_to_prnt (F_Prnt (_, _,     print)) = print
-  | trm_w_prnt_to_prnt (V_Prnt (_, _,     print)) = print
-  | trm_w_prnt_to_prnt (B_Prnt (_,        print)) = print
-  | trm_w_prnt_to_prnt (L_Prnt (_, _ , _, print)) = print
-  | trm_w_prnt_to_prnt (A_Prnt (_, _ ,    print)) = print;
-
-val _ = @{assert} ("s (\<lambda>x. f x y)" = (@{term "s (\<lambda>x. f x y)"} |> trm_to_trm_w_prnt @{context} |> trm_w_prnt_to_prnt |> dest_Print));
 
 (* utrm_w_prnt: un-curried term with print *)
 datatype utrm_w_prnt =
@@ -124,7 +112,7 @@ datatype futrm_w_prnt =
 | FUL_Prnt of string * typ * futrm_w_prnt      * print
 | FUA_Prnt of futrm_w_prnt * futrm_w_prnt list * print;
 
-(* utrm_w_prnt_to_utrm_w_prnt *)
+(* utrm_w_prnt_to_futrm_w_prnt *)
 local
 
 type utrms_w_prnt = utrm_w_prnt list;
@@ -135,12 +123,13 @@ fun helper (_:utrms_w_prnt) (UC_Prnt (name, typ, print)) = FUC_Prnt (name, typ, 
  |  helper (_:utrms_w_prnt) (UB_Prnt (i,         print)) = FUB_Prnt (i, print)
  |  helper (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt:utrm_w_prnt, print)) =
       FUL_Prnt (name, typ, helper [] utrm_w_prnt, print)
- |  helper (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], print)) =
+ |  helper (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], print as (Print p))) =
     let
+val _ = tracing p;
       val one_more_imp = case conclusion of UA_Prnt (UC_Prnt ("Pure.imp", _, _), _, _) => true | _ => false;
       val result = if one_more_imp
-        then helper (acc @ [premise]) conclusion
-        else FUA_Prnt ((FUC_Prnt ("Pure.imp", name, typ)), map (helper []) (acc @ [premise, conclusion]), print)
+        then (tracing "then clause"; helper (acc @ [premise]) conclusion)
+        else (tracing "else clause"; FUA_Prnt ((FUC_Prnt ("Pure.imp", name, typ)), map (helper []) (acc @ [premise, conclusion]), print));
     in
       result
     end
