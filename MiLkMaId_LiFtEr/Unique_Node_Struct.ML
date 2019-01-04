@@ -144,12 +144,15 @@ fun helper (_:utrms_w_prnt) (UC_Prnt (name, typ, print)) = FUC_Prnt (name, typ, 
     in
       result
     end
- |  helper (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conclusion", name, typ)), [premise, conclusion], print)) =
+ |  helper (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conclusion", name, typ)), [left, right], print)) =
     let
-      val one_more_imp = case conclusion of UA_Prnt (UC_Prnt ("Pure.imp", _, _), _, _) => true | _ => false;
-      val result = if one_more_imp
-        then helper (acc @ [premise]) conclusion
-        else FUA_Prnt ((FUC_Prnt ("Pure.imp", name, typ)), map (helper []) (acc @ [premise, conclusion]), print)
+(*TODO: double-check if we should ignore recursive calls of &&& on the left hand side of a &&&.
+        Intuitively, ignoring such &&&s is okay because they do not really appear in practice.*)
+(*    val left_is_cnjnction  = case left  of UA_Prnt (UC_Prnt ("Pure.conclusion", _, _), _, _) => true | _ => false;*)
+      val right_is_cnjnction = case right of UA_Prnt (UC_Prnt ("Pure.conclusion", _, _), _, _) => true | _ => false;
+      val result = if right_is_cnjnction
+        then helper (acc @ [left]) right
+        else FUA_Prnt ((FUC_Prnt ("Pure.conclusion", name, typ)), map (helper []) (acc @ [left, right]), print)
     in
       result
     end
