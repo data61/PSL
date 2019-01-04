@@ -115,41 +115,68 @@ datatype futrm_w_prnt =
 (* utrm_w_prnt_to_futrm_w_prnt *)
 local
 
+fun utrm_w_prnt_to_prnt (UC_Prnt (_, _,    print)) = print
+  | utrm_w_prnt_to_prnt (UF_Prnt (_, _,    print)) = print
+  | utrm_w_prnt_to_prnt (UV_Prnt (_, _,    print)) = print
+  | utrm_w_prnt_to_prnt (UB_Prnt (_,       print)) = print
+  | utrm_w_prnt_to_prnt (UL_Prnt (_, _, _, print)) = print
+  | utrm_w_prnt_to_prnt (UA_Prnt (_, _,    print)) = print;
+
+fun map_fs_xs ([]      :('a -> 'b) list) ([]       :'a list) = []
+  | map_fs_xs (f::funcs:('a -> 'b) list) (arg::args:'a list) = f arg :: map_fs_xs funcs args
+  | map_fs_xs  _                          _                  = error "map_fs_xs failed";
+
 type utrms_w_prnt = utrm_w_prnt list;
 
-fun helper (_:utrms_w_prnt) (UC_Prnt (name, typ, print)) = FUC_Prnt (name, typ, print)
- |  helper (_:utrms_w_prnt) (UF_Prnt (name, typ, print)) = FUF_Prnt (name, typ, print)
- |  helper (_:utrms_w_prnt) (UV_Prnt (idx,  typ, print)) = FUV_Prnt (idx,  typ, print)
- |  helper (_:utrms_w_prnt) (UB_Prnt (i,         print)) = FUB_Prnt (i, print)
- |  helper (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt:utrm_w_prnt, print)) =
-      FUL_Prnt (name, typ, helper [] utrm_w_prnt, print)
- |  helper (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], print as (Print p))) =
+fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt (name, typ, print)) = FUC_Prnt (name, typ, print)
+ |  helper (_    : print) (_:utrms_w_prnt) (UF_Prnt (name, typ, print)) = FUF_Prnt (name, typ, print)
+ |  helper (_    : print) (_:utrms_w_prnt) (UV_Prnt (idx,  typ, print)) = FUV_Prnt (idx,  typ, print)
+ |  helper (_    : print) (_:utrms_w_prnt) (UB_Prnt (i,         print)) = FUB_Prnt (i, print)
+ |  helper (_    : print) (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt:utrm_w_prnt, print)) =
+      FUL_Prnt (name, typ, helper (utrm_w_prnt_to_prnt utrm_w_prnt) [] utrm_w_prnt, print)
+ |  helper (imp_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], print as (Print p))) =
     let
-val _ = tracing p;
       val one_more_imp = case conclusion of UA_Prnt (UC_Prnt ("Pure.imp", _, _), _, _) => true | _ => false;
       val result = if one_more_imp
-        then (tracing "then clause"; helper (acc @ [premise]) conclusion)
-        else (tracing "else clause"; FUA_Prnt ((FUC_Prnt ("Pure.imp", name, typ)), map (helper []) (acc @ [premise, conclusion]), print));
+        then helper imp_p (acc @ [premise]) conclusion
+        else
+          let
+            val args            = acc @ [premise, conclusion] : utrm_w_prnt list;
+            val prints_for_args = map utrm_w_prnt_to_prnt args: print list;
+            val helpers         = map helper prints_for_args  : (utrm_w_prnt list -> utrm_w_prnt -> futrm_w_prnt) list;
+            val helpers'        = Utils.map_arg [] helpers    : (utrm_w_prnt -> futrm_w_prnt) list;
+            val futrm_w_prnts   = map_fs_xs helpers' args     : futrm_w_prnt list;
+          in
+            FUA_Prnt ((FUC_Prnt ("Pure.imp", name, typ)), futrm_w_prnts, imp_p)
+          end;
     in
       result
     end
- |  helper (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conclusion", name, typ)), [left, right], print)) =
+ |  helper (cnj_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conjunction", name, typ)), [left, right], print)) =
     let
 (*TODO: double-check if we should ignore recursive calls of &&& on the left hand side of a &&&.
         Intuitively, ignoring such &&&s is okay because they do not really appear in practice.*)
-(*    val left_is_cnjnction  = case left  of UA_Prnt (UC_Prnt ("Pure.conclusion", _, _), _, _) => true | _ => false;*)
-      val right_is_cnjnction = case right of UA_Prnt (UC_Prnt ("Pure.conclusion", _, _), _, _) => true | _ => false;
+(*If I should flatten nexted &&&s on the left hand side of a &&&, I should do so before applying trm_to_trm_w_prnt*)
+      val right_is_cnjnction = case right of UA_Prnt (UC_Prnt ("Pure.conjunction", _, _), _, _) => true | _ => false;
       val result = if right_is_cnjnction
-        then helper (acc @ [left]) right
-        else FUA_Prnt ((FUC_Prnt ("Pure.conclusion", name, typ)), map (helper []) (acc @ [left, right]), print)
+        then helper cnj_p (acc @ [left]) right
+        else
+         let
+            val args            = acc @ [left, right]         : utrm_w_prnt list;
+            val prints_for_args = map utrm_w_prnt_to_prnt args: print list;
+            val helpers         = map helper prints_for_args  : (utrm_w_prnt list -> utrm_w_prnt -> futrm_w_prnt) list;
+            val helpers'        = Utils.map_arg [] helpers    : (utrm_w_prnt -> futrm_w_prnt) list;
+            val futrm_w_prnts   = map_fs_xs helpers' args     : futrm_w_prnt list;
+         in FUA_Prnt ((FUC_Prnt ("Pure.conjunction", name, typ)), futrm_w_prnts, cnj_p)
+         end;
     in
       result
     end
- |  helper (_:utrms_w_prnt) (UA_Prnt (func, args, print)) = FUA_Prnt (helper [] func, map (helper []) args, print);
+ |  helper (_    : print) (_:utrms_w_prnt) (UA_Prnt (func, args, print)) = FUA_Prnt (helper print [] func, map (helper print []) args, print);
 
 in
 
-fun utrm_w_prnt_to_futrm_w_prnt (utrm_w_prnt) = helper [] utrm_w_prnt: futrm_w_prnt;
+fun utrm_w_prnt_to_futrm_w_prnt (utrm_w_prnt) = helper (utrm_w_prnt_to_prnt utrm_w_prnt) [] utrm_w_prnt: futrm_w_prnt;
 
 end;
 
