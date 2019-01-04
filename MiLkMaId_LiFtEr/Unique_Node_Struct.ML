@@ -125,7 +125,41 @@ datatype futrm_w_prnt =
 | FUA_Prnt of futrm_w_prnt * futrm_w_prnt list * print;
 
 (* utrm_w_prnt_to_utrm_w_prnt *)
-val utrm_w_prnt_to_futrm_w_prnt = undefined: utrm_w_prnt -> futrm_w_prnt;
+local
+
+type utrms_w_prnt = utrm_w_prnt list;
+
+fun helper (_:utrms_w_prnt) (UC_Prnt (name, typ, print)) = FUC_Prnt (name, typ, print)
+ |  helper (_:utrms_w_prnt) (UF_Prnt (name, typ, print)) = FUF_Prnt (name, typ, print)
+ |  helper (_:utrms_w_prnt) (UV_Prnt (idx,  typ, print)) = FUV_Prnt (idx,  typ, print)
+ |  helper (_:utrms_w_prnt) (UB_Prnt (i,         print)) = FUB_Prnt (i, print)
+ |  helper (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt:utrm_w_prnt, print)) =
+      FUL_Prnt (name, typ, helper [] utrm_w_prnt, print)
+ |  helper (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], print)) =
+    let
+      val one_more_imp = case conclusion of UA_Prnt (UC_Prnt ("Pure.imp", _, _), _, _) => true | _ => false;
+      val result = if one_more_imp
+        then helper (acc @ [premise]) conclusion
+        else FUA_Prnt ((FUC_Prnt ("Pure.imp", name, typ)), map (helper []) (acc @ [premise, conclusion]), print)
+    in
+      result
+    end
+ |  helper (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conclusion", name, typ)), [premise, conclusion], print)) =
+    let
+      val one_more_imp = case conclusion of UA_Prnt (UC_Prnt ("Pure.imp", _, _), _, _) => true | _ => false;
+      val result = if one_more_imp
+        then helper (acc @ [premise]) conclusion
+        else FUA_Prnt ((FUC_Prnt ("Pure.imp", name, typ)), map (helper []) (acc @ [premise, conclusion]), print)
+    in
+      result
+    end
+ |  helper (_:utrms_w_prnt) (UA_Prnt (func, args, print)) = FUA_Prnt (helper [] func, map (helper []) args, print);
+
+in
+
+fun utrm_w_prnt_to_futrm_w_prnt (utrm_w_prnt) = helper [] utrm_w_prnt: futrm_w_prnt;
+
+end;
 
 (* path *)
 datatype path  = Path of ints;

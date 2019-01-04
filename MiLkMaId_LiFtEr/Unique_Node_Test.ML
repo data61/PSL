@@ -79,6 +79,4 @@ in
   val _ = @{assert} (trm_w_prnt_to_utrm_w_prnt p_foo_x_y_z = up_foo_x_y_z)
 end;
 
-
-
 end;
