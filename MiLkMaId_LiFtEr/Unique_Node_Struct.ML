@@ -128,13 +128,13 @@ fun map_fs_xs ([]      :('a -> 'b) list) ([]       :'a list) = []
 
 type utrms_w_prnt = utrm_w_prnt list;
 
-fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt (name, typ, print)) = FUC_Prnt (name, typ, print)
- |  helper (_    : print) (_:utrms_w_prnt) (UF_Prnt (name, typ, print)) = FUF_Prnt (name, typ, print)
- |  helper (_    : print) (_:utrms_w_prnt) (UV_Prnt (idx,  typ, print)) = FUV_Prnt (idx,  typ, print)
- |  helper (_    : print) (_:utrms_w_prnt) (UB_Prnt (i,         print)) = FUB_Prnt (i, print)
- |  helper (_    : print) (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt:utrm_w_prnt, print)) =
+fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
+ |  helper (_    : print) (_:utrms_w_prnt) (UF_Prnt content) = FUF_Prnt content
+ |  helper (_    : print) (_:utrms_w_prnt) (UV_Prnt content) = FUV_Prnt content
+ |  helper (_    : print) (_:utrms_w_prnt) (UB_Prnt content) = FUB_Prnt content
+ |  helper (_    : print) (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt, print)) =
       FUL_Prnt (name, typ, helper (utrm_w_prnt_to_prnt utrm_w_prnt) [] utrm_w_prnt, print)
- |  helper (imp_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], print as (Print p))) =
+ |  helper (imp_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], _)) =
     let
       val one_more_imp = case conclusion of UA_Prnt (UC_Prnt ("Pure.imp", _, _), _, _) => true | _ => false;
       val result = if one_more_imp
@@ -152,27 +152,29 @@ fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt (name, typ, print)) = FUC_Pr
     in
       result
     end
- |  helper (cnj_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conjunction", name, typ)), [left, right], print)) =
+ |  helper (cnj_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conjunction", name, typ)), [left, right], _)) =
     let
-(*TODO: double-check if we should ignore recursive calls of &&& on the left hand side of a &&&.
-        Intuitively, ignoring such &&&s is okay because they do not really appear in practice.*)
-(*If I should flatten nexted &&&s on the left hand side of a &&&, I should do so before applying trm_to_trm_w_prnt*)
+      (*TODO: double-check if we should ignore recursive calls of &&& on the left hand side of a &&&.
+              Intuitively, ignoring such &&&s is okay because they do not really appear in practice.*)
+      (*If I should flatten nexted &&&s on the left hand side of a &&&, I should do so before applying trm_to_trm_w_prnt*)
       val right_is_cnjnction = case right of UA_Prnt (UC_Prnt ("Pure.conjunction", _, _), _, _) => true | _ => false;
       val result = if right_is_cnjnction
         then helper cnj_p (acc @ [left]) right
         else
-         let
+          let
             val args            = acc @ [left, right]         : utrm_w_prnt list;
             val prints_for_args = map utrm_w_prnt_to_prnt args: print list;
             val helpers         = map helper prints_for_args  : (utrm_w_prnt list -> utrm_w_prnt -> futrm_w_prnt) list;
             val helpers'        = Utils.map_arg [] helpers    : (utrm_w_prnt -> futrm_w_prnt) list;
             val futrm_w_prnts   = map_fs_xs helpers' args     : futrm_w_prnt list;
-         in FUA_Prnt ((FUC_Prnt ("Pure.conjunction", name, typ)), futrm_w_prnts, cnj_p)
-         end;
+          in
+            FUA_Prnt ((FUC_Prnt ("Pure.conjunction", name, typ)), futrm_w_prnts, cnj_p)
+          end;
     in
       result
     end
- |  helper (_    : print) (_:utrms_w_prnt) (UA_Prnt (func, args, print)) = FUA_Prnt (helper print [] func, map (helper print []) args, print);
+ |  helper (_    : print) (_:utrms_w_prnt) (UA_Prnt (func, args, print)) =
+      FUA_Prnt (helper print [] func, map (helper print []) args, print);
 
 in
 
@@ -191,15 +193,44 @@ val path_ord = undefined: (path * path) -> order;
 
 (* futrm_w_prnt_n_path: un-curried flattened term with print and path to each node*)
 datatype futrm_w_prnt_n_path =
-  UFC_Prnt_n_Path of (string * typ                             ) * print * path
-| UFF_Prnt_n_Path of (string * typ                             ) * print * path
-| UFV_Prnt_n_Path of (indexname * typ                          ) * print * path
-| UFB_Prnt_n_Path of  int                                        * print * path
-| UFL_Prnt_n_Path of (string * typ * futrm_w_prnt_n_path       ) * print * path
-| UFA_Prnt_n_Path of (futrm_w_prnt_n_path * futrm_w_prnt_n_path) * print * path;
+  UFC_Prnt_n_Path of (string * typ                                  ) * print * path
+| UFF_Prnt_n_Path of (string * typ                                  ) * print * path
+| UFV_Prnt_n_Path of (indexname * typ                               ) * print * path
+| UFB_Prnt_n_Path of  int                                             * print * path
+| UFL_Prnt_n_Path of (string * typ * futrm_w_prnt_n_path            ) * print * path
+| UFA_Prnt_n_Path of (futrm_w_prnt_n_path * futrm_w_prnt_n_path list) * print * path;
+
+type futrms_w_prnt_n_path = futrm_w_prnt_n_path list;
 
 (* futrm_w_prnt_to_futrm_w_prnt_n_path *)
-val futrm_w_prnt_to_futrm_w_prnt_n_path = undefined: futrm_w_prnt -> futrm_w_prnt_n_path;
+local
+
+fun helper (FUC_Prnt (name, typ,      print)) (path:path) = UFC_Prnt_n_Path ((name, typ), print, path)
+  | helper (FUF_Prnt (name, typ,      print)) (path:path) = UFF_Prnt_n_Path ((name, typ), print, path)
+  | helper (FUV_Prnt (idx,  typ,      print)) (path:path) = UFV_Prnt_n_Path ((idx,  typ), print, path)
+  | helper (FUB_Prnt (i,              print)) (path:path) = UFB_Prnt_n_Path (i,           print, path)
+  | helper (FUL_Prnt (name, typ, trm, print)) (Path p:path) =
+    let
+      val inner = helper trm (Path (p @ [0]));
+    in
+      UFL_Prnt_n_Path ((name, typ, inner), print, Path p)
+    end
+  | helper (FUA_Prnt (func, args, print)) (Path p:path) =
+    let
+      val arg_len = length (args)                                 : int;
+      val arg_numbs = List.tabulate (arg_len, curry (op +) 1)     : ints;
+      val arg_paths = map (fn numb => Path (p @ [numb])) arg_numbs: paths;
+      val func' = helper func (Path (p @ [0]))                    : futrm_w_prnt_n_path;
+      val args' = map (uncurry helper) (args ~~ arg_paths)        : futrms_w_prnt_n_path;
+    in
+      UFA_Prnt_n_Path ((func', args'), print, Path p)
+    end;
+
+in
+
+fun futrm_w_prnt_to_futrm_w_prnt_n_path t  = helper t (Path [0])
+
+end;
 
 (** term as Table  **)
 datatype node =

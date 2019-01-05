@@ -79,12 +79,12 @@ val path_ord: (path * path) -> order;
 
 (* futrm_w_prnt_n_path: un-curried flattened term with print and path to each node*)
 datatype futrm_w_prnt_n_path =
-  UFC_Prnt_n_Path of (string * typ                             ) * print * path
-| UFF_Prnt_n_Path of (string * typ                             ) * print * path
-| UFV_Prnt_n_Path of (indexname * typ                          ) * print * path
-| UFB_Prnt_n_Path of  int                                        * print * path
-| UFL_Prnt_n_Path of (string * typ * futrm_w_prnt_n_path       ) * print * path
-| UFA_Prnt_n_Path of (futrm_w_prnt_n_path * futrm_w_prnt_n_path) * print * path;
+  UFC_Prnt_n_Path of (string * typ                                  ) * print * path
+| UFF_Prnt_n_Path of (string * typ                                  ) * print * path
+| UFV_Prnt_n_Path of (indexname * typ                               ) * print * path
+| UFB_Prnt_n_Path of  int                                             * print * path
+| UFL_Prnt_n_Path of (string * typ * futrm_w_prnt_n_path            ) * print * path
+| UFA_Prnt_n_Path of (futrm_w_prnt_n_path * futrm_w_prnt_n_path list) * print * path;
 
 (* futrm_w_prnt_to_futrm_w_prnt_n_path *)
 val futrm_w_prnt_to_futrm_w_prnt_n_path: futrm_w_prnt -> futrm_w_prnt_n_path;
