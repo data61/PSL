@@ -251,6 +251,14 @@ type unique_node =
 type unique_nodes = unique_node list;
 
 (* futrm_w_prnt_n_path_to_unique_nodes *)
-val futrm_w_prnt_n_path_to_unique_nodes = undefined: futrm_w_prnt_n_path -> unique_nodes;
+fun futrm_w_prnt_n_path_to_unique_nodes (UFC_Prnt_n_Path (ctnt, prnt, path)) = [{node = NC ctnt, print = prnt, path = path}]
+  | futrm_w_prnt_n_path_to_unique_nodes (UFF_Prnt_n_Path (ctnt, prnt, path)) = [{node = NF ctnt, print = prnt, path = path}]
+  | futrm_w_prnt_n_path_to_unique_nodes (UFV_Prnt_n_Path (ctnt, prnt, path)) = [{node = NV ctnt, print = prnt, path = path}]
+  | futrm_w_prnt_n_path_to_unique_nodes (UFB_Prnt_n_Path (ctnt, prnt, path)) = [{node = NB ctnt, print = prnt, path = path}]
+  | futrm_w_prnt_n_path_to_unique_nodes (UFL_Prnt_n_Path ((name, typ, trm), prnt, path)) =
+      {node = NL (name, typ), print = prnt, path = path} :: futrm_w_prnt_n_path_to_unique_nodes trm
+  | futrm_w_prnt_n_path_to_unique_nodes (UFA_Prnt_n_Path ((func, args), prnt, path)) =
+    {node = NA, print = prnt, path = path} ::
+    futrm_w_prnt_n_path_to_unique_nodes func @ maps futrm_w_prnt_n_path_to_unique_nodes args;
 
 end;
