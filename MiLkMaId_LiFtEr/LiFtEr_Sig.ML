@@ -6,7 +6,7 @@ The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 signature LIFTER =
 sig
 
-type abstract_proof_state;
+type abs_pstate_w_aux;
 
 datatype nth        = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
@@ -31,7 +31,7 @@ datatype assrt      =
 | All_Arb_Occ    of subtrm_occ * subtrm * assrt
 | All_Rule_Occ   of rule_occ   * rule   * assrt
 | Some_Ind_Occ   of subtrm_occ * subtrm * assrt
-| Some_Arb_Occ   of subtrm_occ * subtrm * assrt
+| Some_Arb_Occ   of subtrm_occ * subtrm * assrt 
 | Some_Rule_Occ  of rule       * rule   * assrt
 (*combinators*)
 | And            of assrt * assrt
@@ -39,8 +39,8 @@ datatype assrt      =
 | Not            of assrt * assrt
 | Imply          of assrt * assrt
 (*atomic*)
-| Are_Same_Nth   of nth    * nth
-| Are_Same_Str   of nth    * nth (*subtrm*)
+| Are_Same_Nth   of nth        * nth
+| Are_Same_Str   of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
 | Is_In_Trm_Str  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
 | Is_In_Trm_Sem  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
@@ -64,6 +64,14 @@ datatype assrt      =
 | Has_Typ        of subtrm_occ * typ (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest    of subtrm_occ       (*Not & Is_At_Deepest*)
 
-val eval: abstract_proof_state * assrt -> bool;
+datatype rule_name       = Rule_Name of string;
+
+(*TIP: use functions from AList, such as AList.update, for name_space.*)
+datatype name_space = Name_Space of
+ {subtrm:     (int * Unique_Node.paths) list,
+  subtrm_occ: (int * Unique_Node.path)  list,
+  rule:       (int * rule_name)         list};
+
+val eval: abs_pstate_w_aux * assrt * name_space -> bool;
 
 end;
