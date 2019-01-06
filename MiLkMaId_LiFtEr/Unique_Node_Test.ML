@@ -18,7 +18,19 @@ struct
 
 open Unique_Node;
 
-(* test trm_w_prnt_to_utrm_w_prnt *)
+(** test: trm_to_trm_w_prnt **)
+fun dest_Print (Print p) = p;
+
+fun trm_w_prnt_to_prnt (C_Prnt (_, _,     print)) = print
+  | trm_w_prnt_to_prnt (F_Prnt (_, _,     print)) = print
+  | trm_w_prnt_to_prnt (V_Prnt (_, _,     print)) = print
+  | trm_w_prnt_to_prnt (B_Prnt (_,        print)) = print
+  | trm_w_prnt_to_prnt (L_Prnt (_, _ , _, print)) = print
+  | trm_w_prnt_to_prnt (A_Prnt (_, _ ,    print)) = print;
+
+val _ = @{assert} ("s (\<lambda>x. f x y)" = (@{term "s (\<lambda>x. f x y)"} |> trm_to_trm_w_prnt @{context} |> trm_w_prnt_to_prnt |> dest_Print));
+
+(** test trm_w_prnt_to_utrm_w_prnt **)
 (*Function application associates to the right.*)
 local
   val f_x_y_1 = (Free ("f", dummyT) $  Free ("x", dummyT)) $ Free ("y", dummyT): term;
