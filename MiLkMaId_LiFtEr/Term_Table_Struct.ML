@@ -38,6 +38,11 @@ datatype pttrn_of_a_cnst               = pttrn_of_all_clauses | pttrn_of_all_par
 (* matrix? 'a matrix (= 'a list list) provides more generality.
  * But we only have to tackle this problem for now. So we do not have the necessity for generalization. *)
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+
+type unique_node_wo_path =
+  {node : node,
+   print: print};
+
 type unique_node_w_auxiliary_wo_path =
  {node : node,
   print: print,
@@ -50,13 +55,12 @@ val unique_node_to_unique_node_w_auxiliary = undefined;
 structure One_Term = Table(type key = path val ord = path_ord): TABLE;
 open One_Term;
 
-type unique_node_wo_path =
-  {node : node,
-   print: print};
+type trm_table     = unique_node_wo_path table;
+type trm_table_aux = unique_node_w_auxiliary_wo_path table;
 
-val unique_nodes_to_a_table = undefined: unique_nodes -> unique_node_wo_path table;
+val unique_nodes_to_trm_table = undefined: unique_nodes -> trm_table;
 
-val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: unique_node_wo_path table -> unique_node_w_auxiliary_wo_path table;
+val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: unique_node_wo_path table -> Proof.state -> trm_table_aux;
 
 datatype rule_name       = Rule_Name of string;
 datatype unique_node_id  = UNode_Id of ints;
@@ -67,5 +71,13 @@ datatype name_space = Name_Space of
  {subtrm:     (int * path)            list,
   subtrm_occ: (int * unique_node_ids) list,
   rule:       (int * rule_name)       list};
+
+type abs_pstate =
+  {fst_subg: unique_node_wo_path table,
+   usings  : unique_node_wo_path table list};
+
+type abs_pstate_w_aux =
+  {fst_subg: trm_table_aux,
+   usings  : trm_table_aux list};
 
 end;

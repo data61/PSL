@@ -37,6 +37,11 @@ datatype pttrn_of_a_cnst               = pttrn_of_all_clauses | pttrn_of_all_par
 (* matrix? 'a matrix (= 'a list list) provides more generality.
  * But we only have to tackle this problem for now. So we do not have the necessity for generalization. *)
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+
+type unique_node_wo_path =
+  {node : node,
+   print: print};
+
 type unique_node_w_auxiliary_wo_path =
 (* We do not need a path anymore within a node
  * because a path is used as an unique identifier to a unique node. *)
@@ -50,12 +55,15 @@ val unique_node_to_unique_node_w_auxiliary: unique_node -> unique_node_w_auxilia
 
 include TABLE;
 
-type unique_node_wo_path =
-  {node : node,
-   print: print};
+type trm_table     = unique_node_wo_path table;
+type trm_table_aux = unique_node_w_auxiliary_wo_path table;
             
-val unique_nodes_to_a_table: unique_nodes -> unique_node_wo_path table;
+val unique_nodes_to_trm_table: unique_nodes -> trm_table;
 
-val unique_node_wo_path_to_unique_node_w_auxiliary: unique_node_wo_path table -> unique_node_w_auxiliary_wo_path table;
+val unique_node_wo_path_to_unique_node_w_auxiliary: unique_node_wo_path table -> Proof.state -> trm_table_aux;
+
+type abs_pstate;
+
+type abs_pstate_w_aux;
 
 end;
