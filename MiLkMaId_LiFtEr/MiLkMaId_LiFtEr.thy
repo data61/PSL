@@ -22,18 +22,11 @@ val should_be_question_Q = @{thm conjI} |> Thm.concl_of |> Term.dest_comb |> snd
 @{assert} ("?Q" = should_be_question_Q);
 *}
 
-ML{*
-@{term "A &&& B &&& C"} = @{term "A &&& (B &&& C) "};
-@{term "A \<Longrightarrow> B \<Longrightarrow> C"} = @{term "A \<Longrightarrow> (B \<Longrightarrow> C)"};
-@{term "A &&& B"};
-@{term "A \<Longrightarrow> B"};
-*}
-
 ML_file "Unique_Node_Sig.ML"
 ML_file "Unique_Node_Struct.ML"
 ML_file "Unique_Node_Test.ML"
 ML_file "Term_Table_Sig.ML"
-ML_file "Term_Table_Structure.ML"
+ML_file "Term_Table_Struct.ML"
 ML_file "DInduct_Sig.ML"
 ML_file "DInduct_Struct.ML"
 ML_file "LiFtEr_Sig.ML"
