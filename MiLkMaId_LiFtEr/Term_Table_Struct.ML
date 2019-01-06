@@ -62,16 +62,6 @@ val unique_nodes_to_trm_table = undefined: unique_nodes -> trm_table;
 
 val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: unique_node_wo_path table -> Proof.state -> trm_table_aux;
 
-datatype rule_name       = Rule_Name of string;
-datatype unique_node_id  = UNode_Id of ints;
-type     unique_node_ids = unique_node_id list;
-
-(*TIP: use functions from AList, such as AList.update, for name_space.*)
-datatype name_space = Name_Space of
- {subtrm:     (int * path)            list,
-  subtrm_occ: (int * unique_node_ids) list,
-  rule:       (int * rule_name)       list};
-
 type abs_pstate =
   {fst_subg: unique_node_wo_path table,
    usings  : unique_node_wo_path table list};
