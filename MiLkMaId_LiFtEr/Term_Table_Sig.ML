@@ -16,30 +16,7 @@ The overall work-flow is:
 signature TERM_TABLE =
 sig
 
-(** from Unique_Node_Struct **)
-
-datatype node = (*TODO: This should be Unique_Node.node.*)
-  NC of (string * typ)    (*Const*)
-| NF of (string * typ)    (*Free*)
-| NV of (indexname * typ) (*Var*)
-| NB of  int              (*Bound*)
-| NL of (string * typ)    (*Abs (Lambda Abstraction)*)
-| NA                      (*$   (Application)*)
-
-type print        = string  (*TODO: This should be Unique_Node.print.*)
-type path         = int list(*TODO: This should be Unique_Node.path. *)
-
-(* unique_node *)(*TODO: This should be Unique_Node.unique_node.*)
-type unique_node =
-  {node : node,
-   print: print,
-   path : path};
-
-type unique_nodes = unique_node list;
-
-(** Original in Term_Table **)
-(* term_table represents a proof obligation with its surrounding proof state. *)
-val path_ord: (path * path) -> order;
+include UNIQUE_NODE;
 
 (** pattern **)
 datatype left_pttrn  = Var | Cnst;
@@ -65,7 +42,7 @@ type unique_node_w_auxiliary_wo_path =
  * because a path is used as an unique identifier to a unique node. *)
  {node : node,
   print: print,
-  rcsv: bool option,
+  rcsv : bool option,
   pttrn: pttrn_of_a_cnst option,
   cmmnd: command option};
 
