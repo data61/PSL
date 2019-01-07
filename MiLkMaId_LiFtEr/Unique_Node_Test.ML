@@ -1,4 +1,4 @@
-(*  Title:      PSL/Unique_Node_Test.ML
+(*  Title:      PSL/MiLkMaId_LiFtEr/Unique_Node_Test.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 The conversion to transform term to a format more amenable to LiFtEr.

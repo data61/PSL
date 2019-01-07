@@ -1,4 +1,4 @@
-(*  Title:      PSL/MiLkMaId_LiFtEr.thy
+(*  Title:      PSL/MiLkMaId_LiFtEr/MiLkMaId_LiFtEr.thy
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 MiLkMaId: Machine Learning Mathematical Induction for Isabelle/HOL, and

@@ -1,4 +1,4 @@
-(*  Title:      PSL/Term_Table_Sig.ML
+(*  Title:      PSL/MiLkMaId_LiFtEr/Term_Table_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 The conversion to transform term to a format more amenable to LiFtEr.
@@ -52,7 +52,7 @@ type unique_node_w_auxiliary_wo_path =
   cmmnd: command option};
 
 val unique_node_to_unique_node_w_auxiliary: unique_node -> unique_node_w_auxiliary_wo_path;
-
+(*
 include TABLE;
 
 type trm_table     = unique_node_wo_path table;
@@ -65,5 +65,5 @@ val unique_node_wo_path_to_unique_node_w_auxiliary: unique_node_wo_path table ->
 type abs_pstate;
 
 type abs_pstate_w_aux;
-
+*)
 end;

@@ -1,4 +1,4 @@
-(*  Title:      PSL/Term_Table_Test.ML
+(*  Title:      PSL/MiLkMaId_LiFtEr/Term_Table_Test.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 The conversion to transform term to a format more amenable to LiFtEr.
