@@ -3,16 +3,16 @@
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                              === trm_w_prnt_to_utrm_w_prnt ==================> (* in Unique_Node_Struct.ML *)
-  trm_w_prnt                        === utrm_w_prnt_to_utrm_w_prnt =================> (* in Unique_Node_Struct.ML *)
-  utrm_w_prnt                       === utrm_w_prnt_to_utrm_w_prnt =================> (* in Unique_Node_Struct.ML *)
-  futrm_w_prnt                      === futrm_w_prnt_to_futrm_w_prnt_n_path ========> (* in Unique_Node_Struct.ML *)
-  futrm_w_prnt_n_path               === futrm_w_prnt_n_path_to_unique_nodes ========> (* in Unique_Node_Struct.ML *)
-  unique_nodes                      === unique_nodes_to_unique_nodes_w_auxiliary ===> (* in this file *)
+  term                === trm_to_trm_w_prnt ==========================> (* Unique_Node *)
+  trm_w_prnt          === trm_w_prnt_to_utrm_w_prnt ==================> (* Unique_Node *)
+  utrm_w_prnt         === utrm_w_prnt_to_futrm_w_prnt ================> (* Unique_Node *)
+  futrm_w_prnt        === futrm_w_prnt_to_futrm_w_prnt_n_path ========> (* Unique_Node *)
+  futrm_w_prnt_n_path === futrm_w_prnt_n_path_to_unique_nodes ========> (* Unique_Node *)
+  unique_nodes        === unique_nodes_to_unique_nodes_w_auxiliary ===> (* Term_Table  *)
   nodes_w_auxiliary
 *)
 
-(**  Term_Table **)
+(*** Term_Table ***)
 structure Term_Table: TERM_TABLE =
 
 struct
@@ -52,19 +52,50 @@ type unique_node_w_auxiliary_wo_path =
 
 val unique_node_to_unique_node_w_auxiliary = undefined;
 
+end;
+
+(* path_ord: This definition is more or less arbitrary. *)
+fun path_ord' ([],    []   ) = EQUAL
+  | path_ord' (_,     []   ) = GREATER
+  | path_ord' ([],     _   ) = LESS
+  | path_ord' (x::xs, y::ys) = case Int.compare (x, y) of
+      EQUAL => path_ord' (xs, ys)
+    | diff  => diff;
+
+fun path_ord (ints1, ints2) = path_ord' (ints1, ints2);
+
+type path = ints;
 structure One_Term = Table(type key = path val ord = path_ord): TABLE;
+
+val list_fold = fold;
+local
+
 open One_Term;
 
-type trm_table     = unique_node_wo_path table;
-type trm_table_aux = unique_node_w_auxiliary_wo_path table;
+in
 
-val unique_nodes_to_trm_table = undefined: unique_nodes -> trm_table;
+type trm_table     = Term_Table.unique_node_wo_path table;
+type trm_table_aux = Term_Table.unique_node_w_auxiliary_wo_path table;
 
-val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: unique_node_wo_path table -> Proof.state -> trm_table_aux;
+fun mk_pair (unode:Term_Table.unique_node) =
+ (#path unode                  : path,
+  {node = #node unode          : Term_Table.node,
+   print = #print unode: Term_Table.print}: Term_Table.unique_node_wo_path);
+
+fun to_be_folded (key_val_pair:(path * 'a)) (table: 'a table) = (
+update_new key_val_pair table
+)
+;
+
+fun list_to_table (key_val_pairs: (path * 'a) list) = list_fold to_be_folded key_val_pairs empty; 
+
+fun unique_nodes_to_trm_table (unodes:Term_Table.unique_nodes) = List.map mk_pair unodes |> list_to_table;
+
+val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: Term_Table.unique_node_wo_path table -> Proof.state -> trm_table_aux;
 
 type abs_pstate =
-  {fst_subg: unique_node_wo_path table,
-   usings  : unique_node_wo_path table list};
+  {fst_subg: Term_Table.unique_node_wo_path table,
+   usings  : Term_Table.unique_node_wo_path table list};
 
 type abs_pstate_w_aux =
   {fst_subg: trm_table_aux,

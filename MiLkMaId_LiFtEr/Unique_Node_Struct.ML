@@ -3,13 +3,13 @@
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                              === trm_w_prnt_to_utrm_w_prnt ==================> (* in this file *)
-  trm_w_prnt                        === utrm_w_prnt_to_utrm_w_prnt =================> (* in this file *)
-  utrm_w_prnt                       === utrm_w_prnt_to_utrm_w_prnt =================> (* in this file *)
-  futrm_w_prnt                      === futrm_w_prnt_to_futrm_w_prnt_n_path ========> (* in this file *)
-  futrm_w_prnt_n_path               === futrm_w_prnt_n_path_to_unique_nodes ========> (* in this file *)
-  unique_nodes                      === unique_nodes_to_unique_nodes_w_auxiliary ===> (* Term_Table_Struct.ML *)
-  nodes_w_auxiliary                                                                   (* Term_Table_Struct.ML *)
+  term                === trm_to_trm_w_prnt ==========================> (* Unique_Node *)
+  trm_w_prnt          === trm_w_prnt_to_utrm_w_prnt ==================> (* Unique_Node *)
+  utrm_w_prnt         === utrm_w_prnt_to_futrm_w_prnt ================> (* Unique_Node *)
+  futrm_w_prnt        === futrm_w_prnt_to_futrm_w_prnt_n_path ========> (* Unique_Node *)
+  futrm_w_prnt_n_path === futrm_w_prnt_n_path_to_unique_nodes ========> (* Unique_Node *)
+  unique_nodes        === unique_nodes_to_unique_nodes_w_auxiliary ===> (* Term_Table  *)
+  nodes_w_auxiliary
 *)
 
 (*** Unique_Node ***)
@@ -183,7 +183,7 @@ fun utrm_w_prnt_to_futrm_w_prnt (utrm_w_prnt) = helper (utrm_w_prnt_to_prnt utrm
 end;
 
 (* path *)
-datatype path  = Path of ints;
+type path  = ints;
 
 (* paths *)
 type     paths = path list;
@@ -209,26 +209,26 @@ fun helper (FUC_Prnt (name, typ,      print)) (path:path) = UFC_Prnt_n_Path ((na
   | helper (FUF_Prnt (name, typ,      print)) (path:path) = UFF_Prnt_n_Path ((name, typ), print, path)
   | helper (FUV_Prnt (idx,  typ,      print)) (path:path) = UFV_Prnt_n_Path ((idx,  typ), print, path)
   | helper (FUB_Prnt (i,              print)) (path:path) = UFB_Prnt_n_Path (i,           print, path)
-  | helper (FUL_Prnt (name, typ, trm, print)) (Path p:path) =
+  | helper (FUL_Prnt (name, typ, trm, print)) (path:path) =
     let
-      val inner = helper trm (Path (p @ [0]));
+      val inner = helper trm (path @ [0]);
     in
-      UFL_Prnt_n_Path ((name, typ, inner), print, Path p)
+      UFL_Prnt_n_Path ((name, typ, inner), print, path)
     end
-  | helper (FUA_Prnt (func, args, print)) (Path p:path) =
+  | helper (FUA_Prnt (func, args, print)) (path:path) =
     let
-      val arg_len = length (args)                                 : int;
-      val arg_numbs = List.tabulate (arg_len, curry (op +) 1)     : ints;
-      val arg_paths = map (fn numb => Path (p @ [numb])) arg_numbs: paths;
-      val func' = helper func (Path (p @ [0]))                    : futrm_w_prnt_n_path;
-      val args' = map (uncurry helper) (args ~~ arg_paths)        : futrms_w_prnt_n_path;
+      val arg_len = length (args)                               : int;
+      val arg_numbs = List.tabulate (arg_len, curry (op +) 1)   : ints;
+      val arg_paths = map (fn numb => (path @ [numb])) arg_numbs: paths;
+      val func' = helper func (path @ [0])                      : futrm_w_prnt_n_path;
+      val args' = map (uncurry helper) (args ~~ arg_paths)      : futrms_w_prnt_n_path;
     in
-      UFA_Prnt_n_Path ((func', args'), print, Path p)
+      UFA_Prnt_n_Path ((func', args'), print, path)
     end;
 
 in
 
-fun futrm_w_prnt_to_futrm_w_prnt_n_path t  = helper t (Path [0])
+fun futrm_w_prnt_to_futrm_w_prnt_n_path t  = helper t [0]
 
 end;
 
