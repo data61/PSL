@@ -8,20 +8,20 @@ signature DYNAMIC_INDUCT =
 sig
 
 datatype modifier = 
-  Ind  of Unique_Node.unique_node
-| Arb  of Unique_Node.unique_node
+  Ind  of string
+| Arb  of string
 | Rule of string;
 
 type modifiers = modifier list;
 
-val unique_np_to_ons : Unique_Node.unique_node -> modifier;
-val unique_np_to_arbs: Unique_Node.unique_node -> modifiers;
-val strs_to_rules    : strings -> modifiers;
-val order            : modifiers -> (modifiers * modifiers * modifiers);
-val same_mod         : (modifier  * modifier ) -> bool;
-val same_mods        : (modifiers * modifiers) -> bool;
-val filter_inds      : modifiers -> modifiers;
-val filter_arbs      : modifiers -> modifiers;
-val filter_rules     : modifiers -> modifiers;
+val unode_w_aux_wo_path_to_on : Unique_Node.unique_node_w_aux_wo_path -> modifier;
+val unode_w_aux_wo_path_to_arb: Unique_Node.unique_node_w_aux_wo_path -> modifier;
+val strs_to_rules             : strings -> modifiers;
+val order                     : modifiers -> (modifiers * modifiers * modifiers);
+val same_mod                  : (modifier  * modifier ) -> bool;
+val same_mods                 : (modifiers * modifiers) -> bool;
+val filter_inds               : modifiers -> modifiers;
+val filter_arbs               : modifiers -> modifiers;
+val filter_rules              : modifiers -> modifiers;
 
 end;

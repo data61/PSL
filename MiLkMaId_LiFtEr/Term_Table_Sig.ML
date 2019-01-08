@@ -38,9 +38,9 @@ sig
 include TABLE;
 
 type trm_table     = Unique_Node.unique_node_wo_path One_Term.table;
-type trm_table_aux = Unique_Node.unique_node_w_auxiliary_wo_path One_Term.table;
+type trm_table_aux = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
 
-val unique_nodes_to_trm_table: Unique_Node.unique_nodes -> trm_table;
+val unique_nodes_to_trm_table                     : Unique_Node.unique_nodes -> trm_table;
 val unique_node_wo_path_to_unique_node_w_auxiliary: trm_table -> Proof.state -> trm_table_aux;
 
 type abs_pstate =

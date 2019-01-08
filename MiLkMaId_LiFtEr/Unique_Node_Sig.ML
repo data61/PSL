@@ -21,6 +21,8 @@ sig
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
 datatype print = Print of string;
 
+val dest_print: print -> string;
+
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =
   C_Prnt of string * typ              * print (*Const*)
@@ -135,16 +137,17 @@ type unique_node_wo_path =
   {node : node,
    print: print};
 
-(* unique_node_w_auxiliary_wo_path *)
-type unique_node_w_auxiliary_wo_path =
-(* We do not need a path anymore within a node
- * because a path is used as an unique identifier to a unique node. *)
+(* unique_node_w_aux_wo_path *)
+type unique_node_w_aux_wo_path =
  {node : node,
   print: print,
   rcsv : bool option,
   pttrn: pttrn_of_a_cnst option,
   cmmnd: command option};
 
-val unique_node_to_unique_node_w_auxiliary: unique_node -> unique_node_w_auxiliary_wo_path;
+(* unique_node_w_aux *)
+type unique_node_w_aux = {path: path, unode_w_aux: unique_node_w_aux_wo_path};
+
+val unique_node_to_unique_node_w_aux: unique_node -> unique_node_w_aux;
 
 end;

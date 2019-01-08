@@ -21,7 +21,7 @@ open One_Term;
 open Unique_Node;
 
 type trm_table     = unique_node_wo_path table;
-type trm_table_aux = unique_node_w_auxiliary_wo_path table;
+type trm_table_aux = unique_node_w_aux_wo_path table;
 
 fun split_unique_node (unode:unique_node): path * unique_node_wo_path =
  (#path unode                  : path,
