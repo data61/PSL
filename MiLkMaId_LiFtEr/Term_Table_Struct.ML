@@ -36,6 +36,10 @@ fun unique_nodes_to_trm_table (unodes:unique_nodes) = List.map split_unique_node
 
 val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: unique_node_wo_path table -> Proof.state -> trm_table_aux;
 
+type print_to_paths_table = Unique_Node.path list Print_Table.table;
+
+val print_to_paths = undefined: Unique_Node.print -> Unique_Node.path list;
+
 type abs_pstate =
   {fst_subg: trm_table,
    usings  : trm_table list};

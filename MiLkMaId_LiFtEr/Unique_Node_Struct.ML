@@ -300,6 +300,7 @@ type unique_node_w_aux_wo_path =
 (* unique_node_w_aux *)
 type unique_node_w_aux = {path: path, unode_w_aux: unique_node_w_aux_wo_path};
 
+(* unique_node_to_unique_node_w_aux: TODO *)
 val unique_node_to_unique_node_w_aux = undefined;
 
 end;

@@ -25,9 +25,12 @@ fun path_ord' ([],    []   ) = EQUAL
 
 fun path_ord (ints1, ints2) = path_ord' (ints1, ints2);
 
+fun prnt_ord (Unique_Node.Print p1, Unique_Node.Print p2) = String.compare (p1, p2);
+
 in
 
-structure One_Term = Table(type key = Unique_Node.path val ord = path_ord): TABLE;
+structure One_Term   = Table (type key = Unique_Node.path  val ord = path_ord): TABLE;
+structure Print_Table = Table (type key = Unique_Node.print val ord = prnt_ord): TABLE;
 
 end;
 
@@ -42,6 +45,12 @@ type trm_table_aux = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
 
 val unique_nodes_to_trm_table                     : Unique_Node.unique_nodes -> trm_table;
 val unique_node_wo_path_to_unique_node_w_auxiliary: trm_table -> Proof.state -> trm_table_aux;
+
+val str_n_trm_table_to_unique_nodes: Unique_Node.print * trm_table -> Unique_Node.unique_nodes;
+
+type print_to_paths_table = Unique_Node.path list Print_Table.table;
+
+val print_to_paths: Unique_Node.print -> Unique_Node.path list;
 
 type abs_pstate =
   {fst_subg: trm_table,
