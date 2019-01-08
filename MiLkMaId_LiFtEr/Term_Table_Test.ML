@@ -19,27 +19,28 @@ val _ = @{assert} (@{term "A \<Longrightarrow> B \<Longrightarrow> C"} = @{term 
 local
 
 (** test utrm_w_prnt_to_utrm_w_prnt **)
+structure UN = Unique_Node;
 structure TT = Term_Table;
 
 fun trm_to_unique_nodes (trm:term) =
   let
-    val trm_w_prnt          = TT.trm_to_trm_w_prnt @{context} trm;
-    val utrm_w_prnt         = TT.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
-    val futrm_w_prnt        = TT.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
-    val futrm_w_prnt_n_path = TT.futrm_w_prnt_to_futrm_w_prnt_n_path futrm_w_prnt;
-    val unique_nodes        = TT.futrm_w_prnt_n_path_to_unique_nodes futrm_w_prnt_n_path;
-    val term_table          = unique_nodes_to_trm_table unique_nodes;
+    val trm_w_prnt          = UN.trm_to_trm_w_prnt @{context} trm;
+    val utrm_w_prnt         = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
+    val futrm_w_prnt        = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
+    val futrm_w_prnt_n_path = UN.futrm_w_prnt_to_futrm_w_prnt_n_path futrm_w_prnt;
+    val unique_nodes        = UN.futrm_w_prnt_n_path_to_unique_nodes futrm_w_prnt_n_path;
+    val term_table          = TT.unique_nodes_to_trm_table unique_nodes;
   in
     term_table
   end;
 
 val imp_xyz       = @{term "(x &&& w &&& ww) \<Longrightarrow> f (\<lambda>x. x w) z \<Longrightarrow> z1 &&& z2 &&& z3"}: term;
-val imp_xyz_table = trm_to_unique_nodes imp_xyz: TT.unique_node_wo_path One_Term.table;
+val imp_xyz_table = trm_to_unique_nodes imp_xyz: Unique_Node.unique_node_wo_path One_Term.table;
 
-fun unode_wo_path_table_n_path_to_print (table: TT.unique_node_wo_path One_Term.table, path) =
+fun unode_wo_path_table_n_path_to_print (table, path) =
   let
-    val node       = One_Term.lookup table path: TT.unique_node_wo_path option;
-    val some_print = Option.map #print node    : TT.print option;
+    val node       = TT.lookup table path  : UN.unique_node_wo_path option;
+    val some_print = Option.map #print node: UN.print option;
   in
     some_print
   end;

@@ -12,93 +12,42 @@ The overall work-flow is:
   nodes_w_auxiliary
 *)
 
-(*** Term_Table ***)
-structure Term_Table: TERM_TABLE =
-
-struct
-
-open Unique_Node;
-
-(** pattern **)
-datatype left_pttrn  = Var | Cnst;
-datatype right_pttrn =
-  If
-| Case
-| Unchanged_In_Rec_Call (*The nth parameter appears as the nth parameter to a recursive call of f on the right hand side.*)
-| Changed_In_Rec_Call   (*A part of the nth parameter appears as part of the nth parameter to a recursive call of f.*)
-| Sth_Else_In_Rec_Call  (*In a recursive call of f, no part of the nth parameter appears.*);
-type     left_pttrns                   = left_pttrn list;
-datatype pttrn_for_a_param_in_a_clause = Pttrn_Atom    of right_pttrn * (left_pttrns list);
-datatype pttrn_for_a_clause            = Pttrn_Clause  of pttrn_for_a_param_in_a_clause list;
-datatype pttrn_for_a_param             = Pttrn_Paramt  of pttrn_for_a_param_in_a_clause list;
-datatype pttrn_of_all_clauses          = Pttrn_Clauses of pttrn_for_a_clause list;
-datatype pttrn_of_all_params           = Pttrn_Params  of pttrn_for_a_param list;
-datatype pttrn_of_a_cnst               = pttrn_of_all_clauses | pttrn_of_all_params;
-
-(* matrix? 'a matrix (= 'a list list) provides more generality.
- * But we only have to tackle this problem for now. So we do not have the necessity for generalization. *)
-datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
-
-type unique_node_wo_path =
-  {node : node,
-   print: print};
-
-type unique_node_w_auxiliary_wo_path =
- {node : node,
-  print: print,
-  rcsv : bool option,
-  pttrn: pttrn_of_a_cnst option,
-  cmmnd: command option};
-
-val unique_node_to_unique_node_w_auxiliary = undefined;
-
-end;
-
-(* path_ord: This definition is more or less arbitrary. *)
-fun path_ord' ([],    []   ) = EQUAL
-  | path_ord' (_,     []   ) = GREATER
-  | path_ord' ([],     _   ) = LESS
-  | path_ord' (x::xs, y::ys) = case Int.compare (x, y) of
-      EQUAL => path_ord' (xs, ys)
-    | diff  => diff;
-
-fun path_ord (ints1, ints2) = path_ord' (ints1, ints2);
-
-type path = ints;
-structure One_Term = Table(type key = path val ord = path_ord): TABLE;
-
-val list_fold = fold;
+(*** One_Term ***)
 local
-
-open One_Term;
 
 in
 
-type trm_table     = Term_Table.unique_node_wo_path table;
-type trm_table_aux = Term_Table.unique_node_w_auxiliary_wo_path table;
+structure Term_Table: TERM_TABLE =
+struct
 
-fun mk_pair (unode:Term_Table.unique_node) =
+val list_fold = fold;
+open One_Term;
+open Unique_Node;
+
+type trm_table     = unique_node_wo_path table;
+type trm_table_aux = unique_node_w_auxiliary_wo_path table;
+
+fun split_unique_node (unode:unique_node): path * unique_node_wo_path =
  (#path unode                  : path,
-  {node = #node unode          : Term_Table.node,
-   print = #print unode: Term_Table.print}: Term_Table.unique_node_wo_path);
+  {node = #node unode          : node,
+   print = #print unode: print}: unique_node_wo_path);
 
-fun to_be_folded (key_val_pair:(path * 'a)) (table: 'a table) = (
-update_new key_val_pair table
-)
-;
+fun to_be_folded (key_val_pair:(path * 'a)) (table: 'a table) = update_new key_val_pair table;
 
 fun list_to_table (key_val_pairs: (path * 'a) list) = list_fold to_be_folded key_val_pairs empty; 
 
-fun unique_nodes_to_trm_table (unodes:Term_Table.unique_nodes) = List.map mk_pair unodes |> list_to_table;
+fun unique_nodes_to_trm_table (unodes:unique_nodes) = List.map split_unique_node unodes |> list_to_table;
 
-val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: Term_Table.unique_node_wo_path table -> Proof.state -> trm_table_aux;
+val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: unique_node_wo_path table -> Proof.state -> trm_table_aux;
 
 type abs_pstate =
-  {fst_subg: Term_Table.unique_node_wo_path table,
-   usings  : Term_Table.unique_node_wo_path table list};
+  {fst_subg: trm_table,
+   usings  : trm_table list};
 
 type abs_pstate_w_aux =
   {fst_subg: trm_table_aux,
    usings  : trm_table_aux list};
+
+end;
 
 end;

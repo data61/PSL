@@ -12,58 +12,41 @@ The overall work-flow is:
   nodes_w_auxiliary
 *)
 
-(*** TERM_TABLE ***)
+local
+
+(* path_ord: This definition is more or less arbitrary. *)
+fun path_ord' ([],    []   ) = EQUAL
+  | path_ord' (_,     []   ) = GREATER
+  | path_ord' ([],     _   ) = LESS
+  | path_ord' (x::xs, y::ys) = case Int.compare (x, y) of
+      EQUAL => path_ord' (xs, ys)
+    | diff  => diff;
+
+fun path_ord (ints1, ints2) = path_ord' (ints1, ints2);
+
+in
+
+structure One_Term = Table(type key = Unique_Node.path val ord = path_ord): TABLE;
+
+end;
+
 signature TERM_TABLE =
 sig
 
-include UNIQUE_NODE;
-
-(** pattern **)
-datatype left_pttrn  = Var | Cnst;
-datatype right_pttrn =
-  If
-| Case
-| Unchanged_In_Rec_Call (*The nth parameter appears as the nth parameter to a recursive call of f on the right hand side.*)
-| Changed_In_Rec_Call   (*A part of the nth parameter appears as part of the nth parameter to a recursive call of f.*)
-| Sth_Else_In_Rec_Call  (*In a recursive call of f, no part of the nth parameter appears.*);
-type     left_pttrns                   = left_pttrn list;
-datatype pttrn_for_a_param_in_a_clause = Pttrn_Atom    of right_pttrn * (left_pttrns list);
-datatype pttrn_for_a_clause            = Pttrn_Clause  of pttrn_for_a_param_in_a_clause list;
-datatype pttrn_for_a_param             = Pttrn_Paramt  of pttrn_for_a_param_in_a_clause list;
-datatype pttrn_of_all_clauses          = Pttrn_Clauses of pttrn_for_a_clause list;
-datatype pttrn_of_all_params           = Pttrn_Params  of pttrn_for_a_param list;
-datatype pttrn_of_a_cnst               = pttrn_of_all_clauses | pttrn_of_all_params;
-
-(* matrix? 'a matrix (= 'a list list) provides more generality.
- * But we only have to tackle this problem for now. So we do not have the necessity for generalization. *)
-datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
-
-type unique_node_wo_path =
-  {node : node,
-   print: print};
-
-type unique_node_w_auxiliary_wo_path =
-(* We do not need a path anymore within a node
- * because a path is used as an unique identifier to a unique node. *)
- {node : node,
-  print: print,
-  rcsv : bool option,
-  pttrn: pttrn_of_a_cnst option,
-  cmmnd: command option};
-
-val unique_node_to_unique_node_w_auxiliary: unique_node -> unique_node_w_auxiliary_wo_path;
-(*
 include TABLE;
 
-type trm_table     = unique_node_wo_path table;
-type trm_table_aux = unique_node_w_auxiliary_wo_path table;
-            
-val unique_nodes_to_trm_table: unique_nodes -> trm_table;
+type trm_table     = Unique_Node.unique_node_wo_path One_Term.table;
+type trm_table_aux = Unique_Node.unique_node_w_auxiliary_wo_path One_Term.table;
 
-val unique_node_wo_path_to_unique_node_w_auxiliary: unique_node_wo_path table -> Proof.state -> trm_table_aux;
+val unique_nodes_to_trm_table: Unique_Node.unique_nodes -> trm_table;
+val unique_node_wo_path_to_unique_node_w_auxiliary: trm_table -> Proof.state -> trm_table_aux;
 
-type abs_pstate;
+type abs_pstate =
+  {fst_subg: trm_table,
+   usings  : trm_table list};
 
-type abs_pstate_w_aux;
-*)
+type abs_pstate_w_aux =
+  {fst_subg: trm_table_aux,
+   usings  : trm_table_aux list};
+
 end;
