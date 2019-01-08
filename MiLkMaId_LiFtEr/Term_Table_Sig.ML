@@ -12,6 +12,7 @@ The overall work-flow is:
   nodes_w_auxiliary
 *)
 
+(*** One_Term ***)
 local
 
 (* path_ord: This definition is more or less arbitrary. *)
@@ -30,6 +31,7 @@ structure One_Term = Table(type key = Unique_Node.path val ord = path_ord): TABL
 
 end;
 
+(*** TERM_TABLE ***)
 signature TERM_TABLE =
 sig
 

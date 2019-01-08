@@ -12,11 +12,7 @@ The overall work-flow is:
   nodes_w_auxiliary
 *)
 
-(*** One_Term ***)
-local
-
-in
-
+(*** Term_Table ***)
 structure Term_Table: TERM_TABLE =
 struct
 
@@ -47,7 +43,5 @@ type abs_pstate =
 type abs_pstate_w_aux =
   {fst_subg: trm_table_aux,
    usings  : trm_table_aux list};
-
-end;
 
 end;
