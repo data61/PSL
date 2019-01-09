@@ -46,16 +46,16 @@ val unique_node_wo_path_to_unique_node_w_auxiliary: unode_table -> Proof.state -
 
 type paths_table = Unique_Node.path list Print_Table.table;
 
-val print_to_paths: Unique_Node.print -> Unique_Node.path list;
-
 val unode_table_to_print_paths_table    : unode_table     -> paths_table;
 val unode_aux_table_to_print_paths_table: unode_aux_table -> paths_table;
 
-type unode_n_print_table     = {unode_table    : unode_table,     print_table: paths_table};
-type unode_aux_n_print_table = {unode_aux_table: unode_aux_table, print_table: paths_table};
+type unode_n_print_table     = {unode_table    : unode_table,     paths_table: paths_table};
+type unode_aux_n_print_table = {unode_aux_table: unode_aux_table, paths_table: paths_table};
 
 val unode_table_to_unode_n_print_table        : unode_table     -> unode_n_print_table;
 val unode_aux_table_to_unode_aux_n_print_table: unode_aux_table -> unode_aux_n_print_table;
+
+val print_n_paths_table_to_paths: paths_table -> Unique_Node.print -> Unique_Node.path list;
 
 type abs_pstate =
   {fst_subg: unode_n_print_table,

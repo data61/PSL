@@ -58,7 +58,7 @@ val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,2]
 
 val _ = @{assert}
 ((TT.unode_table_to_unode_n_print_table imp_xyz_table
-  |> #print_table
+  |> #paths_table
   |> (fn tbl => Print_Table.lookup tbl (UN.Print "z2"))) =
  SOME [[0, 2, 1, 2], [0, 3, 2], [0, 3, 2, 1]]);
 
@@ -69,7 +69,7 @@ val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,3,2,1] |> the |> #print) = 
 
 val x =
 ((TT.unode_table_to_unode_n_print_table imp_xyz_table
-  |> #print_table
+  |> #paths_table
   |> (fn tbl => Print_Table.lookup tbl (UN.Print "x"))));
 
 val unode011    = One_Term.lookup imp_xyz_table [0,1,1]      ;
