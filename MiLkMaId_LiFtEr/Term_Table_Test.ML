@@ -39,7 +39,7 @@ val imp_xyz_table = trm_to_unique_nodes imp_xyz: Unique_Node.unique_node_wo_path
 
 fun unode_wo_path_table_n_path_to_print (table, path) =
   let
-    val node       = TT.lookup table path  : UN.unique_node_wo_path option;
+    val node       = One_Term.lookup table path  : UN.unique_node_wo_path option;
     val some_print = Option.map #print node: UN.print option;
   in
     some_print
