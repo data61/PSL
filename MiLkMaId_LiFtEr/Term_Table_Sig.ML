@@ -37,20 +37,22 @@ end;
 (*** TERM_TABLE ***)
 signature TERM_TABLE =
 sig
-
+(*
 include TABLE;
-
+*)
 type trm_table     = Unique_Node.unique_node_wo_path One_Term.table;
 type trm_table_aux = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
 
 val unique_nodes_to_trm_table                     : Unique_Node.unique_nodes -> trm_table;
 val unique_node_wo_path_to_unique_node_w_auxiliary: trm_table -> Proof.state -> trm_table_aux;
 
-val str_n_trm_table_to_unique_nodes: Unique_Node.print * trm_table -> Unique_Node.unique_nodes;
-
 type print_to_paths_table = Unique_Node.path list Print_Table.table;
 
 val print_to_paths: Unique_Node.print -> Unique_Node.path list;
+
+val trm_table_to_print_paths_table    : trm_table     -> print_to_paths_table;
+
+val trm_table_aux_to_print_paths_table: trm_table_aux -> print_to_paths_table;
 
 type abs_pstate =
   {fst_subg: trm_table,
