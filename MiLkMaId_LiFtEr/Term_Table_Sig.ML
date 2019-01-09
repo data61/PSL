@@ -37,29 +37,30 @@ end;
 (*** TERM_TABLE ***)
 signature TERM_TABLE =
 sig
-(*
-include TABLE;
-*)
-type trm_table     = Unique_Node.unique_node_wo_path One_Term.table;
-type trm_table_aux = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
 
-val unique_nodes_to_trm_table                     : Unique_Node.unique_nodes -> trm_table;
-val unique_node_wo_path_to_unique_node_w_auxiliary: trm_table -> Proof.state -> trm_table_aux;
+type unode_table     = Unique_Node.unique_node_wo_path One_Term.table;
+type unode_aux_table = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
 
-type print_to_paths_table = Unique_Node.path list Print_Table.table;
+val unique_nodes_to_trm_table                     : Unique_Node.unique_nodes -> unode_table;
+val unique_node_wo_path_to_unique_node_w_auxiliary: unode_table -> Proof.state -> unode_aux_table;
+
+type paths_table = Unique_Node.path list Print_Table.table;
 
 val print_to_paths: Unique_Node.print -> Unique_Node.path list;
 
-val trm_table_to_print_paths_table    : trm_table     -> print_to_paths_table;
+val trm_table_to_print_paths_table    : unode_table     -> paths_table;
 
-val trm_table_aux_to_print_paths_table: trm_table_aux -> print_to_paths_table;
+val trm_aux_table_to_print_paths_table: unode_aux_table -> paths_table;
+
+type trm_n_print_tables     = {trm_table    : unode_table,     print_table: paths_table};
+type trm_aux_n_print_tables = {trm_table_aux: unode_aux_table, print_table: paths_table};
 
 type abs_pstate =
-  {fst_subg: trm_table,
-   usings  : trm_table list};
+  {fst_subg: trm_n_print_tables,
+   usings  : trm_n_print_tables list};
 
 type abs_pstate_w_aux =
-  {fst_subg: trm_table_aux,
-   usings  : trm_table_aux list};
+  {fst_subg: trm_aux_n_print_tables,
+   usings  : trm_aux_n_print_tables list};
 
 end;
