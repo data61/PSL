@@ -48,19 +48,20 @@ fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
       | trm_to_trm_w_prnt' (Bound i) (trm_wo_bound as Free   _             ) = (B_Prnt (i,             trm_to_string' trm_wo_bound))
       | trm_to_trm_w_prnt' (Abs   _) (Abs (trip as (name, typ, subtrm))) =
         let
+          (*Note that Term.dest_abs replaces the outermost (Bound i) with a free variable.*)
           val (_, abs_free_subtrm) = Term.dest_abs trip                       : (string * term);
           val print                = trm_to_string' (Abs trip)                : print;
-          val new_subtrm           = trm_to_trm_w_prnt' subtrm abs_free_subtrm: trm_w_prnt;
+          val subtrm_w_print       = trm_to_trm_w_prnt' subtrm abs_free_subtrm: trm_w_prnt;
         in
-          L_Prnt (name, typ, new_subtrm, print)
+          L_Prnt (name, typ, subtrm_w_print, print)
         end
-      | trm_to_trm_w_prnt' (_ $ _) (trm1 $ trm2) =
+      | trm_to_trm_w_prnt' (orig_trm1 $ orig_trm2) (trm1_w_less_bound $ trm2_w_less_bound) =
         let
-          val new_trm1 = trm_to_trm_w_prnt' trm1 trm1: trm_w_prnt;
-          val new_trm2 = trm_to_trm_w_prnt' trm2 trm2: trm_w_prnt;
-          val print    = trm_to_string' (trm1 $ trm2);
+          val trm1_w_print = trm_to_trm_w_prnt' orig_trm1 trm1_w_less_bound: trm_w_prnt;
+          val trm2_w_print = trm_to_trm_w_prnt' orig_trm2 trm2_w_less_bound: trm_w_prnt;
+          val print    = trm_to_string' (trm1_w_less_bound $ trm2_w_less_bound);
         in
-          A_Prnt (new_trm1, new_trm2, print)
+          A_Prnt (trm1_w_print, trm2_w_print, print)
         end
       | trm_to_trm_w_prnt' _ _ = error "trm_to_trm_w_print failed. Undesirable combination."
   in

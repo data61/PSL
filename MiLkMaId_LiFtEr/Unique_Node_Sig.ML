@@ -74,7 +74,7 @@ val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
 type path  = ints;
 
 (* paths *)
-type     paths = path list;
+type paths = path list;
 
 (* path_ord *)
 val path_ord: (path * path) -> order;

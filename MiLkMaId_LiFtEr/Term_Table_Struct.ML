@@ -61,7 +61,7 @@ fun unode_table_to_unode_n_print_table (unode_table:unode_table) =
   {unode_table = unode_table,
    print_table = unode_table_to_print_paths_table unode_table}: unode_n_print_table;
 
-fun unode_aux_table_to_unode_aux_n_print_table (unode_aux_table:unode_aux_table)=
+fun unode_aux_table_to_unode_aux_n_print_table (unode_aux_table:unode_aux_table) =
   {unode_aux_table = unode_aux_table,
    print_table     = unode_aux_table_to_print_paths_table unode_aux_table}: unode_aux_n_print_table;
 
