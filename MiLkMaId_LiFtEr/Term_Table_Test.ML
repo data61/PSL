@@ -76,9 +76,9 @@ val unode011    = One_Term.lookup imp_xyz_table [0,1,1]      ;
 val unode0111   = One_Term.lookup imp_xyz_table [0,1,1,1]    ;
 val unode021100 = One_Term.lookup imp_xyz_table [0,2,1,1,0,0];
 
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,1,1]      |> the |> #print) = (UN.Print "x"));;
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,1,1,1]    |> the |> #print) = (UN.Print "x"));;
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,2,1,1,0,0]|> the |> #print) = (UN.Print "x"));;
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,1,1]      |> the |> #print) = (UN.Print "x"));
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,1,1,1]    |> the |> #print) = (UN.Print "x"));
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,2,1,1,0,0]|> the |> #print) = (UN.Print "x"));
 
 val a_imp_xyz       = @{term "(\<lambda>f. f w)"}: term;
 val a_imp_xyz_table = trm_to_unique_nodes a_imp_xyz: TT.unode_table;

@@ -27,7 +27,7 @@ datatype trm_w_prnt =
   C_Prnt of string * typ              * print (*Const*)
 | F_Prnt of string * typ              * print (*Free*)
 | V_Prnt of indexname * typ           * print (*Var*)
-| B_Prnt of int                       * print (*Bound*)
+| B_Prnt of int * typ                 * print (*Bound*)
 | L_Prnt of string * typ * trm_w_prnt * print (*Abs (Lambda Abstraction)*)
 | A_Prnt of trm_w_prnt * trm_w_prnt   * print;(*$   (Application)*)
 
@@ -45,7 +45,7 @@ fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
     fun trm_to_trm_w_prnt' (Const _) (trm_wo_bound as Const (name,     typ)) = (C_Prnt (name,     typ, trm_to_string' trm_wo_bound))
       | trm_to_trm_w_prnt' (Free  _) (trm_wo_bound as Free  (name,     typ)) = (F_Prnt (name,     typ, trm_to_string' trm_wo_bound))
       | trm_to_trm_w_prnt' (Var   _) (trm_wo_bound as Var   (idx_name, typ)) = (V_Prnt (idx_name, typ, trm_to_string' trm_wo_bound))
-      | trm_to_trm_w_prnt' (Bound i) (trm_wo_bound as Free   _             ) = (B_Prnt (i,             trm_to_string' trm_wo_bound))
+      | trm_to_trm_w_prnt' (Bound i) (trm_wo_bound as Free  (_,        typ)) = (B_Prnt (i,        typ, trm_to_string' trm_wo_bound))
       | trm_to_trm_w_prnt' (Abs   _) (Abs (trip as (name, typ, subtrm))) =
         let
           (*Note that Term.dest_abs replaces the outermost (Bound i) with a free variable.*)
@@ -73,7 +73,7 @@ datatype utrm_w_prnt =
   UC_Prnt of string * typ                   * print
 | UF_Prnt of string * typ                   * print
 | UV_Prnt of indexname * typ                * print
-| UB_Prnt of int                            * print
+| UB_Prnt of int * typ                      * print
 | UL_Prnt of string * typ * utrm_w_prnt     * print
 | UA_Prnt of utrm_w_prnt * utrm_w_prnt list * print;
 
@@ -112,7 +112,7 @@ datatype futrm_w_prnt =
   FUC_Prnt of string * typ                     * print
 | FUF_Prnt of string * typ                     * print
 | FUV_Prnt of indexname * typ                  * print
-| FUB_Prnt of int                              * print
+| FUB_Prnt of int * typ                        * print
 | FUL_Prnt of string * typ * futrm_w_prnt      * print
 | FUA_Prnt of futrm_w_prnt * futrm_w_prnt list * print;
 
@@ -122,7 +122,7 @@ local
 fun utrm_w_prnt_to_prnt (UC_Prnt (_, _,    print)) = print
   | utrm_w_prnt_to_prnt (UF_Prnt (_, _,    print)) = print
   | utrm_w_prnt_to_prnt (UV_Prnt (_, _,    print)) = print
-  | utrm_w_prnt_to_prnt (UB_Prnt (_,       print)) = print
+  | utrm_w_prnt_to_prnt (UB_Prnt (_, _,    print)) = print
   | utrm_w_prnt_to_prnt (UL_Prnt (_, _, _, print)) = print
   | utrm_w_prnt_to_prnt (UA_Prnt (_, _,    print)) = print;
 
@@ -200,7 +200,7 @@ datatype futrm_w_prnt_n_path =
   UFC_Prnt_n_Path of (string * typ                                  ) * print * path
 | UFF_Prnt_n_Path of (string * typ                                  ) * print * path
 | UFV_Prnt_n_Path of (indexname * typ                               ) * print * path
-| UFB_Prnt_n_Path of  int                                             * print * path
+| UFB_Prnt_n_Path of (int * typ                                     ) * print * path
 | UFL_Prnt_n_Path of (string * typ * futrm_w_prnt_n_path            ) * print * path
 | UFA_Prnt_n_Path of (futrm_w_prnt_n_path * futrm_w_prnt_n_path list) * print * path;
 
@@ -212,7 +212,7 @@ local
 fun helper (FUC_Prnt (name, typ,      print)) (path:path) = UFC_Prnt_n_Path ((name, typ), print, path)
   | helper (FUF_Prnt (name, typ,      print)) (path:path) = UFF_Prnt_n_Path ((name, typ), print, path)
   | helper (FUV_Prnt (idx,  typ,      print)) (path:path) = UFV_Prnt_n_Path ((idx,  typ), print, path)
-  | helper (FUB_Prnt (i,              print)) (path:path) = UFB_Prnt_n_Path (i,           print, path)
+  | helper (FUB_Prnt (i,    typ,      print)) (path:path) = UFB_Prnt_n_Path ((i,    typ), print, path)
   | helper (FUL_Prnt (name, typ, trm, print)) (path:path) =
     let
       val inner = helper trm (path @ [0]);
@@ -241,7 +241,7 @@ datatype node =
   NC of (string * typ)    (*Const*)
 | NF of (string * typ)    (*Free*)
 | NV of (indexname * typ) (*Var*)
-| NB of  int              (*Bound*)
+| NB of (int * typ)       (*Bound*)
 | NL of (string * typ)    (*Abs (Lambda Abstraction)*)
 | NA                      (*$   (Application)*)
 
