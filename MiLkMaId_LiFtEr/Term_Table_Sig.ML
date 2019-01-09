@@ -48,19 +48,21 @@ type paths_table = Unique_Node.path list Print_Table.table;
 
 val print_to_paths: Unique_Node.print -> Unique_Node.path list;
 
-val trm_table_to_print_paths_table    : unode_table     -> paths_table;
+val unode_table_to_print_paths_table    : unode_table     -> paths_table;
+val unode_aux_table_to_print_paths_table: unode_aux_table -> paths_table;
 
-val trm_aux_table_to_print_paths_table: unode_aux_table -> paths_table;
+type unode_n_print_table     = {unode_table    : unode_table,     print_table: paths_table};
+type unode_aux_n_print_table = {unode_aux_table: unode_aux_table, print_table: paths_table};
 
-type trm_n_print_tables     = {trm_table    : unode_table,     print_table: paths_table};
-type trm_aux_n_print_tables = {trm_table_aux: unode_aux_table, print_table: paths_table};
+val unode_table_to_unode_n_print_table        : unode_table     -> unode_n_print_table;
+val unode_aux_table_to_unode_aux_n_print_table: unode_aux_table -> unode_aux_n_print_table;
 
 type abs_pstate =
-  {fst_subg: trm_n_print_tables,
-   usings  : trm_n_print_tables list};
+  {fst_subg: unode_n_print_table,
+   usings  : unode_n_print_table list};
 
 type abs_pstate_w_aux =
-  {fst_subg: trm_aux_n_print_tables,
-   usings  : trm_aux_n_print_tables list};
+  {fst_subg: unode_aux_n_print_table,
+   usings  : unode_aux_n_print_table list};
 
 end;
