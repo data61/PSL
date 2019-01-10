@@ -14,6 +14,7 @@ datatype rule       = Rule        of int;
 datatype subtrm_occ = Sub_Trm_Occ of int;
 datatype rule_occ   = Rule_Occ    of int;
 datatype hol_typ    = Fun | List | Nat | Set | Rec;(*commonly used HOL types*)
+datatype pattern    = Pttrn (*TODO*)
 datatype assrt      =
 (*quantifiers*)
   All_Ind        of subtrm * assrt
@@ -25,7 +26,7 @@ datatype assrt      =
 | Some_Arb       of subtrm * assrt
 | Some_Sub_Trm   of subtrm * assrt
 | Some_Rule      of rule   * assrt
-| Some_Nth       of nth    * assrt
+| Some_Nth       of nth    * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
 | All_Ind_Occ    of subtrm_occ * subtrm * assrt
 | All_Arb_Occ    of subtrm_occ * subtrm * assrt
@@ -39,6 +40,7 @@ datatype assrt      =
 | Not            of assrt * assrt
 | Imply          of assrt * assrt
 (*atomic*)
+| Is_Nrh_Arg_Of  of subtrm_occ * nth * subtrm_occ (*sub-tree-1 is the nth argument of sub-tree-2*)
 | Are_Same_Nth   of nth        * nth
 | Are_Same_Str   of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
@@ -58,6 +60,9 @@ datatype assrt      =
 | Is_App         of subtrm_occ (*function application corresponding to $ in Term*)
 | Not_Fully_App  of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
 | Is_Nth_Arg_Of  of subtrm_occ * nth * subtrm_occ
+| Less           of nth        * nth (* nth_1 < nth_2 *)
+(* TODO: pattern *)
+| Pattern        of nth * subtrm * pattern (*In the definition of subtrm, the nth argument has this pattern.*)
 (*syntax sugars*)
 | Are_Diff_Nth   of nth        * nth (*Not & Are_Same_Nth*)
 | Are_Diff_Str   of nth        * nth (*Not & Are_Same_Str*)

@@ -30,6 +30,8 @@ ML_file "Term_Table_Struct.ML"
 ML_file "Term_Table_Test.ML"
 ML_file "DInduct_Sig.ML"
 ML_file "DInduct_Struct.ML"
+ML_file "LiFtEr_Util_Sig.ML"
+ML_file "LiFtEr_Util_Struct.ML"
 ML_file "LiFtEr_Sig.ML"
 ML_file "LiFtEr_Struct.ML"
 
