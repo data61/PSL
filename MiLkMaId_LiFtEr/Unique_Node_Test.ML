@@ -24,7 +24,7 @@ fun dest_Print (Print p) = p;
 fun trm_w_prnt_to_prnt (C_Prnt (_, _,     print)) = print
   | trm_w_prnt_to_prnt (F_Prnt (_, _,     print)) = print
   | trm_w_prnt_to_prnt (V_Prnt (_, _,     print)) = print
-  | trm_w_prnt_to_prnt (B_Prnt (_,        print)) = print
+  | trm_w_prnt_to_prnt (B_Prnt (_, _,     print)) = print
   | trm_w_prnt_to_prnt (L_Prnt (_, _ , _, print)) = print
   | trm_w_prnt_to_prnt (A_Prnt (_, _ ,    print)) = print;
 
