@@ -1,0 +1,36 @@
+(*  Title:      PSL/MiLkMaId_LiFtEr/Matrix_Test.ML
+    Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
+
+Unit test for utility fucntions about matrices.
+*)
+structure Matrix_Test =
+struct
+
+open Matrix;
+
+val rc_123456789 = RCMatrix (
+Row [Column [1,2,3],
+     Column [4,5,6],
+     Column [7,8,9]]);
+
+val rc_147258369 = RCMatrix (
+Row [Column [1,4,7],
+     Column [2,5,8],
+     Column [3,6,9]]);
+
+val cr_147258369 = CRMatrix (
+Column [Row [1,4,7],
+        Row [2,5,8],
+        Row [3,6,9]]);
+
+val cr_123456789 = CRMatrix (
+Column [Row [1,2,3],
+        Row [4,5,6],
+        Row [7,8,9]]);
+
+val _ = @{assert} ((SOME cr_147258369) = Matrix.rcmatrix_to_crmatrix rc_123456789);
+val _ = @{assert} ((SOME rc_123456789) = Matrix.crmatrix_to_rcmatrix cr_147258369);
+val _ = @{assert} ((SOME rc_147258369) = Matrix.transpose_rcmatrix   rc_123456789);
+val _ = @{assert} ((SOME cr_147258369) = Matrix.transpose_crmatrix   cr_123456789);
+
+end;

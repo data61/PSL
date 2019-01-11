@@ -14,16 +14,20 @@ datatype 'a column                = Column   of 'a list;
 datatype 'a row_of_columns_matrix = RCMatrix of 'a column row;
 datatype 'a column_of_rows_matrix = CRMatrix of 'a row column;
 
-fun nth_of_a_column     (Column   rows)    (n:int) = nth    rows    n;
-fun nth_of_a_row        (Row      columns) (n:int) = nth    columns n;
-fun numbs_in_a_row      (Row      columns)         = length columns;
-fun numbs_in_a_column   (Column   rows)            = length rows;
-fun row_to_list         (Row      columns)         = columns: 'a list;
-fun column_to_list      (Column   rows)            = rows   : 'a list;
-fun dest_rcmatrix       (RCMatrix row_of_columns)  = row_of_columns: 'a column row;
-fun dest_crmatrix       (CRMatrix column_of_rows)  = column_of_rows: 'a row column;
-fun rcmatrix_to_columns (RCMatrix row_of_columns)  = row_to_list    row_of_columns: 'a column list;
-fun crmatrix_to_rows    (CRMatrix column_of_rows)  = column_to_list column_of_rows: 'a row list;
+fun nth_of_a_column     (Column   rows)    (n:int)   = nth    rows    n;
+fun nth_of_a_row        (Row      columns) (n:int)   = nth    columns n;
+fun numbs_in_a_row      (Row      columns)           = length columns;
+fun numbs_in_a_column   (Column   rows)              = length rows;
+fun dest_row            (Row      columns)           = columns: 'a list;
+fun dest_column         (Column   rows)              = rows   : 'a list;
+fun map_row              f (Row columns)             = map f columns |> Row;
+fun map_column           f (Column rows)             = map f rows    |> Column;
+fun dest_rcmatrix       (RCMatrix row_of_columns)    = row_of_columns: 'a column row;
+fun dest_crmatrix       (CRMatrix column_of_rows)    = column_of_rows: 'a row column;
+fun map_rcmatrix         f (RCMatrix row_of_columns) = map_row (map_column f) row_of_columns |> RCMatrix;
+fun map_crmatrix         f (CRMatrix column_of_rows) = map_column (map_row f) column_of_rows |> CRMatrix;
+fun rcmatrix_to_columns (RCMatrix row_of_columns)    = dest_row    row_of_columns: 'a column list;
+fun crmatrix_to_rows    (CRMatrix column_of_rows)    = dest_column column_of_rows: 'a row list;
 
 fun rcmatrix_to_element_at_mth_row_nth_column (RCMatrix row_of_columns: 'a row_of_columns_matrix) (row_index: int) (column_index: int) =
      SOME row_of_columns
@@ -36,14 +40,14 @@ fun are_same_ints (x::xs) = forall (curry (op =) x) xs
 (* How to check if a matrix is regular or not. *)
 fun is_regular_rcmatrix (RCMatrix row_of_columns:'a row_of_columns_matrix) =
   let
-    val numbers_of_elems_in_columns = map numbs_in_a_column (row_to_list row_of_columns);
+    val numbers_of_elems_in_columns = map numbs_in_a_column (dest_row row_of_columns);
   in
     are_same_ints numbers_of_elems_in_columns
   end;
 
 fun is_regular_crmatrix (CRMatrix column_of_rows:'a column_of_rows_matrix) =
   let
-    val numbers_of_elems_in_rows = map numbs_in_a_row (column_to_list column_of_rows);
+    val numbers_of_elems_in_rows = map numbs_in_a_row (dest_column column_of_rows);
   in
     are_same_ints numbers_of_elems_in_rows
   end;
@@ -85,7 +89,7 @@ fun rcmatrix_to_crmatrix' (rcmatrix: 'a row_of_columns_matrix) =
     val list_of_columns  = rcmatrix_to_columns rcmatrix    : 'a column list;
     val opt_first_column = try hd list_of_columns          : 'a column option;
     val opt_numb_rows    = opt_first_column
-                       >>= try column_to_list
+                       >>= try dest_column
                        >>= try length                      : int option;
     val numb_rows        = Option.getOpt (opt_numb_rows, 0): int;
     val list_of_rows = List.tabulate (numb_rows, rcmatrix_to_nth_row rcmatrix): 'a row list;
@@ -111,7 +115,7 @@ fun crmatrix_to_rcmatrix' (crmatrix: 'a column_of_rows_matrix) =
     val list_of_rows     = crmatrix_to_rows crmatrix    : 'a row list;
     val opt_first_row    = try hd list_of_rows          : 'a row option;
     val opt_numb_columns = opt_first_row
-                       >>= try row_to_list
+                       >>= try dest_row
                        >>= try length                : int option;
     val numb_columns     = Option.getOpt (opt_numb_columns, 0): int;
     val list_of_columns  = List.tabulate (numb_columns, crmatrix_to_nth_column crmatrix): 'a column list;
@@ -126,7 +130,43 @@ in
 fun crmatrix_to_rcmatrix (crmatrix: 'a column_of_rows_matrix) =
   if   is_regular_crmatrix crmatrix
   then SOME (crmatrix_to_rcmatrix' crmatrix)
-  else NONE;                                             
+  else NONE;
+
+end;
+
+local
+
+fun transpose_rcmatrix' (CRMatrix column_of_rows: 'a column_of_rows_matrix) =
+  let
+    val rows           = dest_column column_of_rows     : 'a row list;
+    val columns        = map (Column o dest_row) rows   : 'a column list;
+    val row_of_columns = Row columns                    : 'a column row;
+  in
+    RCMatrix row_of_columns
+  end;
+
+in
+
+fun transpose_rcmatrix (rcmatrix: 'a row_of_columns_matrix) =
+  rcmatrix_to_crmatrix rcmatrix <$> transpose_rcmatrix'
+
+end;
+
+local
+
+fun transpose_crmatrix' (RCMatrix row_of_columns: 'a row_of_columns_matrix) =
+  let
+    val columns        = dest_row row_of_columns        : 'a column list;
+    val rows           = map (Row o dest_column) columns: 'a row list;
+    val column_of_rows = Column rows                    : 'a row column;
+  in
+    CRMatrix column_of_rows
+  end;
+
+in
+
+fun transpose_crmatrix (crmatrix: 'a column_of_rows_matrix) =
+  crmatrix_to_rcmatrix crmatrix <$> transpose_crmatrix'
 
 end;
 

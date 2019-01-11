@@ -25,6 +25,7 @@ val should_be_question_Q = @{thm conjI} |> Thm.concl_of |> Term.dest_comb |> snd
 ML_file "../MiLkMaId/src/MiLkMaId_Util.ML"
 ML_file "Matrix_Sig.ML"
 ML_file "Matrix_Struct.ML"
+ML_file "Matrix_Test.ML"
 ML_file "LiFtEr_Util_Sig.ML"
 ML_file "LiFtEr_Util_Struct.ML"
 ML_file "Unique_Node_Sig.ML"
