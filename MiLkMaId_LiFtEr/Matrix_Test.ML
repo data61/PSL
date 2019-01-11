@@ -28,9 +28,9 @@ Column [Row [1,2,3],
         Row [4,5,6],
         Row [7,8,9]]);
 
-val _ = @{assert} ((SOME cr_147258369) = Matrix.rcmatrix_to_crmatrix rc_123456789);
-val _ = @{assert} ((SOME rc_123456789) = Matrix.crmatrix_to_rcmatrix cr_147258369);
-val _ = @{assert} ((SOME rc_147258369) = Matrix.transpose_rcmatrix   rc_123456789);
-val _ = @{assert} ((SOME cr_147258369) = Matrix.transpose_crmatrix   cr_123456789);
+val _ = @{assert} ((SOME cr_147258369) = rcmatrix_to_crmatrix rc_123456789);
+val _ = @{assert} ((SOME rc_123456789) = crmatrix_to_rcmatrix cr_147258369);
+val _ = @{assert} ((SOME rc_147258369) = transpose_rcmatrix   rc_123456789);
+val _ = @{assert} ((SOME cr_147258369) = transpose_crmatrix   cr_123456789);
 
 end;
