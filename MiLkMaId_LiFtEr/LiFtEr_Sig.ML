@@ -32,7 +32,7 @@ datatype assrt      =
 | All_Arb_Occ    of subtrm_occ * subtrm * assrt
 | All_Rule_Occ   of rule_occ   * rule   * assrt
 | Some_Ind_Occ   of subtrm_occ * subtrm * assrt
-| Some_Arb_Occ   of subtrm_occ * subtrm * assrt 
+| Some_Arb_Occ   of subtrm_occ * subtrm * assrt
 | Some_Rule_Occ  of rule       * rule   * assrt
 (*combinators*)
 | And            of assrt * assrt
