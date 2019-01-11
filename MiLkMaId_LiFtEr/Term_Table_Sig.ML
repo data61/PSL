@@ -29,7 +29,7 @@ fun prnt_ord (Unique_Node.Print p1, Unique_Node.Print p2) = String.compare (p1, 
 
 in
 
-structure One_Term   = Table (type key = Unique_Node.path  val ord = path_ord): TABLE;
+structure One_Term    = Table (type key = Unique_Node.path  val ord = path_ord): TABLE;
 structure Print_Table = Table (type key = Unique_Node.print val ord = prnt_ord): TABLE;
 
 end;
@@ -64,5 +64,10 @@ type abs_pstate =
 type abs_pstate_w_aux =
   {fst_subg: unode_aux_n_print_table,
    usings  : unode_aux_n_print_table list};
+
+(*Use One_Term.keys to implement it.*)
+val unode_table_to_lowest_fvars: unode_table -> Unique_Node.path list;
+val path_to_ancestor_paths     : Unique_Node.path -> Unique_Node.path list;
+val path_to_descendent_paths   : Unique_Node.path -> Unique_Node.path list;
 
 end;

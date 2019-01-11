@@ -74,4 +74,9 @@ type abs_pstate_w_aux =
   {fst_subg: unode_aux_n_print_table,
    usings  : unode_aux_n_print_table list};
 
+(*Use One_Term.keys to implement it.*)
+val unode_table_to_lowest_fvars = undefined: unode_table      -> Unique_Node.path list;
+val path_to_ancestor_paths      = undefined: Unique_Node.path -> Unique_Node.path list;
+val path_to_descendent_paths    = undefined: Unique_Node.path -> Unique_Node.path list;
+
 end;

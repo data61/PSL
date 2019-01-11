@@ -145,7 +145,7 @@ val get_name      : uterm -> string;
 val utrm_to_data  : uterm -> data;
 
 (* operations on matrix *)
-val get_elem_in_matrix: 'a matrix -> int * int (*(nth column, nth row) start at 0*) -> 'a option;
+val get_elem_in_matrix: 'a matrix -> int * int (*(nth row, nth column) start at 0*) -> 'a option;
 val is_regular_matrix : bool matrix -> bool;
 val get_nth_column    : bool matrix -> int -> bool list;
 val transpose         : bool matrix -> bool matrix option;
@@ -568,14 +568,18 @@ type point_w_kind =
    level: int(*The level of the root is 1.*),
    cmmnd: command,
    rcrsv: recursive};
+
 type ancestor_w_pattern_n_kind =
   {point  : point_w_kind,
    nth_arg: int,
    pattern: pattern};
+
 type ancestors_w_pattern_n_kind = ancestor_w_pattern_n_kind list;
+
 type datum_w_pattern_n_kind =
   {point    : point_w_kind,
    ancestors: ancestors_w_pattern_n_kind};
+
 type data_w_pattern_n_kind = datum_w_pattern_n_kind list;
 
 fun point_to_point_w_kind (ctxt:Proof.context) ({name, utyp, level}:point) =
