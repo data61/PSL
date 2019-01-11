@@ -3,7 +3,7 @@
 
 Utility fucntions about matrices.
 *)
-structure Matrix =
+structure Matrix: MATRIX =
 struct
 
 (*I guess the massive use of data-constructors is sub-optimal in terms of run-time performance.
