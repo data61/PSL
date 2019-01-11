@@ -32,5 +32,7 @@ val _ = @{assert} ((SOME cr_147258369) = rcmatrix_to_crmatrix rc_123456789);
 val _ = @{assert} ((SOME rc_123456789) = crmatrix_to_rcmatrix cr_147258369);
 val _ = @{assert} ((SOME rc_147258369) = transpose_rcmatrix   rc_123456789);
 val _ = @{assert} ((SOME cr_147258369) = transpose_crmatrix   cr_123456789);
+val _ = @{assert} (SOME 3 = Matrix.rcmatrix_to_element_at_mth_row_nth_column rc_123456789 0 2);
+val _ = @{assert} (SOME 3 = Matrix.crmatrix_to_element_at_mth_row_nth_column cr_123456789 0 2);
 
 end;

@@ -23,11 +23,12 @@ datatype at_which_position = Same_Arg_Position of which_call | Diff_Arg_Position
 type     recursive         = {portion : portion, which_call : which_call, at_which_position : at_which_position};
 datatype right_pttrn                  = If | Case | Recursive of recursive;
 type     right_pttrns                 = right_pttrn list;
-datatype pttrn_of_a_param_in_a_clause = Pttrn_Atom    of left_pttrn * (right_pttrns list);
-datatype pttrn_of_a_clause            = Pttrn_Clause  of pttrn_of_a_param_in_a_clause list;
-datatype pttrn_of_clauses             = Pttrn_Clauses of pttrn_of_a_clause list;
+datatype pttrn_of_a_param_in_a_clause = Pttrn_Atom    of left_pttrn * right_pttrns;
+type     pttrn_of_a_clause            = pttrn_of_a_param_in_a_clause Matrix.row;
+type     pttrn_of_clauses             = pttrn_of_a_clause            Matrix.column;
+type     pttrn_of_a_const             = pttrn_of_a_param_in_a_clause Matrix.column_of_rows_matrix;
 
-val get_pttrn_of_nth_params_mth_clause: pttrn_of_clauses -> int (*nth*) -> int (*mth*) -> pttrn_of_a_param_in_a_clause;
+val get_pttrn_of_nth_params_mth_clause: pttrn_of_a_const -> int (*nth*) -> int (*mth*) -> pttrn_of_a_param_in_a_clause option;
 
 (* matrix? 'a matrix (= 'a list list) provides more generality.
  * But we only have to tackle this problem for now. So we do not have the necessity for generalization. *)

@@ -30,7 +30,6 @@ val map_crmatrix       :('a -> 'b) -> 'a column_of_rows_matrix -> 'b column_of_r
 val rcmatrix_to_columns: 'a row_of_columns_matrix -> 'a column list;
 val crmatrix_to_rows   : 'a column_of_rows_matrix -> 'a row    list;
 
-val rcmatrix_to_element_at_mth_row_nth_column: 'a row_of_columns_matrix -> int (*row_index*) -> int (*column_index*) -> 'a option;
 (*TODO: rename*)
 val are_same_ints: ''a list -> bool;
 
@@ -44,4 +43,7 @@ val rcmatrix_to_crmatrix  : 'a row_of_columns_matrix -> 'a column_of_rows_matrix
 val crmatrix_to_rcmatrix  : 'a column_of_rows_matrix -> 'a row_of_columns_matrix option;
 val transpose_rcmatrix    : 'a row_of_columns_matrix -> 'a row_of_columns_matrix option;
 val transpose_crmatrix    : 'a column_of_rows_matrix -> 'a column_of_rows_matrix option;
+val rcmatrix_to_element_at_mth_row_nth_column: 'a row_of_columns_matrix -> int (*row_index*) -> int (*column_index*) -> 'a option;
+val crmatrix_to_element_at_mth_row_nth_column: 'a column_of_rows_matrix -> int (*row_index*) -> int (*column_index*) -> 'a option;
+
 end;
