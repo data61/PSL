@@ -122,7 +122,7 @@ type unique_node_w_aux_wo_path =
  {node : node,
   print: print,
   rcsv : bool option,
-  pttrn: LiFtEr_Util.pttrn_of_clauses option,
+  pttrn: LiFtEr_Util.pttrn_of_a_const option,
   cmmnd: LiFtEr_Util.command option};
 
 (* unique_node_w_aux *)

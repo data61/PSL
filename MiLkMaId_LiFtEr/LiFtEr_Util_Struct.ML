@@ -3,6 +3,7 @@
 
 Helper functions for LiFtEr.
 *)
+(*** LiFtEr_Util ***)
 structure LiFtEr_Util: LIFTER_UTIL =
 struct
 
@@ -10,15 +11,12 @@ type path = ints;
 
 (* patterns *)
 datatype left_pttrn        = Var                 | Data_Const_WO_Param | Data_Const_W_Param;
-
 datatype which_call        = All_Rec_Calls       | Some_Rec_Call;
-
 (* portion
  * Whole: If the whole nth parameter of "f" appears as an argument of (some/all) recursive call(s) of "f" in the definition of "f".
  * Part:  If a part of nth parameter of "f" appears as an argument of (some/all) recursive call(s) of "f" in the definition of "f".
  *)
 datatype portion           = Whole of which_call | Part of which_call;
-
 (* at which position:
  * Same_Arg_Position: If the nth parameter of "f" appears as (part of) the nth argument of (some/all) recursive call(s) of "f" in the definition of "f".
  * Diff_Arg_Position: If the nth parameter of "f" appears as (part of) of an argument of (some/all) recursive call(s) of "f" in the definition of "f". *)
@@ -38,8 +36,7 @@ fun get_pttrn_of_nth_params_mth_clause (pttrn:pttrn_of_a_const) (mth_param:int) 
     param:pttrn_of_a_param_in_a_clause option
   end;
 
-(* matrix? 'a matrix (= 'a list list) provides more generality.
- * But we only have to tackle this problem for now. So we do not have the necessity for generalization. *)
-datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+(* command *)
+datatype command           = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
 end;

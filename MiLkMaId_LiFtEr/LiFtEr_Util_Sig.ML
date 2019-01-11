@@ -3,14 +3,15 @@
 
 Helper functions for LiFtEr.
 *)
+(*** LIFTER_UTIL ***)
 signature LIFTER_UTIL =
 sig
 
 type path = ints;
 
 (** patterns **)
-datatype left_pttrn        = Var                 | Data_Const_WO_Param | Data_Const_W_Param;
-datatype which_call        = All_Rec_Calls       | Some_Rec_Call;
+datatype left_pttrn        = Var           | Data_Const_WO_Param | Data_Const_W_Param;
+datatype which_call        = All_Rec_Calls | Some_Rec_Call;
 (* portion
  * Whole: If the whole nth parameter of "f" appears as an argument of (some/all) recursive call(s) of "f" in the definition of "f".
  * Part:  If a part of nth parameter of "f" appears as an argument of (some/all) recursive call(s) of "f" in the definition of "f".
@@ -30,8 +31,7 @@ type     pttrn_of_a_const             = pttrn_of_a_param_in_a_clause Matrix.colu
 
 val get_pttrn_of_nth_params_mth_clause: pttrn_of_a_const -> int (*nth*) -> int (*mth*) -> pttrn_of_a_param_in_a_clause option;
 
-(* matrix? 'a matrix (= 'a list list) provides more generality.
- * But we only have to tackle this problem for now. So we do not have the necessity for generalization. *)
-datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+(* command *)
+datatype command           = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
 end;
