@@ -72,6 +72,7 @@ datatype assrt      =
 | Not_Deepest    of subtrm_occ       (*Not & Is_At_Deepest*)
 
 datatype rule_name       = Rule_Name of string;
+type rule_names = rule_name list;
 type path;
 type paths;
 type pathss;
@@ -82,7 +83,7 @@ datatype name_space = Name_Space of
  {subtrm:     (int * paths    ) list,
   subtrm_occ: (int * path     ) list,
   rule:       (int * rule_name) list,
-  numb:       (int * numb     ) list};
+  numb:       (int * int      ) list};
 
 type name_spaces = name_space list;
 
@@ -90,7 +91,7 @@ datatype name_subspace =
   Name_Space_Subtrm     of (int * paths    ) list
 | Name_Space_Subtrm_occ of (int * path     ) list
 | Name_Space_Rule       of (int * rule_name) list
-| Name_Space_Numb       of (int * numb     ) list;
+| Name_Space_Numb       of (int * int      ) list;
 
 datatype name_domains = Name_Domains of
   {ind_domain    : pathss,
@@ -98,7 +99,8 @@ datatype name_domains = Name_Domains of
    arb_domain    : pathss,
    arb_occ_domain: paths,
    subtrm_domain : pathss,
-   rule_domain   : strings};
+   numb_domain   : ints,
+   rule_domain   : rule_names};
 
 datatype name_domain =
   Ind_Domain     of pathss
@@ -106,7 +108,7 @@ datatype name_domain =
 | Arb_Domain     of pathss
 | Arb_Occ_Domain of paths
 | Subtrm_Domain  of pathss
-| Rule_Domain    of strings;
+| Rule_Domain    of rule_names;
 
 val no_overlad: assrt -> bool;
 val eval      : name_domains * abs_pstate_w_aux * assrt -> bool;
