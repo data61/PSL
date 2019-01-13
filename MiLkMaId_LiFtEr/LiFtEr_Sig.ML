@@ -54,6 +54,7 @@ datatype assrt      =
 | Is_Cnst        of subtrm_occ
 | Is_Var         of subtrm_occ
 | Is_Free        of subtrm_occ
+| Is_Bound       of subtrm_occ (*corresponds to Bound in term*)
 | Is_Lambda      of subtrm_occ (*lambda abstraction corresponding to Abs in Term*)
 | Is_App         of subtrm_occ (*function application corresponding to $ in Term*)
 | Not_Fully_App  of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
@@ -85,14 +86,29 @@ datatype name_space = Name_Space of
 
 type name_spaces = name_space list;
 
-datatype name_domain = Name_Domain of
+datatype name_subspace =
+  Name_Space_Subtrm     of (int * paths    ) list
+| Name_Space_Subtrm_occ of (int * path     ) list
+| Name_Space_Rule       of (int * rule_name) list
+| Name_Space_Numb       of (int * numb     ) list;
+
+datatype name_domains = Name_Domains of
   {ind_domain    : pathss,
    ind_occ_domain: paths,
    arb_domain    : pathss,
    arb_occ_domain: paths,
+   subtrm_domain : pathss,
    rule_domain   : strings};
 
+datatype name_domain =
+  Ind_Domain     of pathss
+| Ind_Occ_Domain of paths
+| Arb_Domain     of pathss
+| Arb_Occ_Domain of paths
+| Subtrm_Domain  of pathss
+| Rule_Domain    of strings;
+
 val no_overlad: assrt -> bool;
-val eval      : name_domain * abs_pstate_w_aux * assrt -> bool;
+val eval      : name_domains * abs_pstate_w_aux * assrt -> bool;
 
 end;
