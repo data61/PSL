@@ -37,7 +37,7 @@ datatype assrt      =
 | Or             of assrt * assrt
 | Not            of assrt
 | Imply          of assrt * assrt
-(*atomic*)
+(*atomic about proof goal*)
 | Is_Numb_Arg_Of of subtrm_occ * numb * subtrm_occ (*sub-tree-1 is the numb-th argument of sub-tree-2*)
 | Are_Same_Nth   of numb       * numb
 | Are_Same_Str   of subtrm_occ * subtrm_occ (*subtrm*)
@@ -59,6 +59,9 @@ datatype assrt      =
 | Not_Fully_App  of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
 | Is_Nth_Arg_Of  of subtrm_occ * numb * subtrm_occ
 | Less           of numb       * numb (* nth_1 < nth_2 *)
+(*atomic about induct method*)
+| Is_Nth_Ind     of subtrm * numb
+| Is_Nth_Arb     of subtrm * numb
 (* TODO: pattern *)
 | Pattern        of numb * subtrm * pattern (*In the definition of subtrm, the nth argument has this pattern.*)
 (*syntax sugars*)
@@ -76,6 +79,11 @@ datatype name_space = Name_Space of
   rule:       (int * rule_name       )  list,
   numb:       (int * numb            )  list};
 
+type name_spaces = name_space list;
+type path   = Unique_Node.path;
+type paths  = Unique_Node.path  list;
+type pathss = Unique_Node.paths list;
+
 datatype name =
   Name_Nth        of numb
 | Name_Subtrm     of subtrm
@@ -83,9 +91,11 @@ datatype name =
 | Name_Subtrm_Occ of subtrm_occ;
 
 datatype name_domain = Name_Domain of
-  {subtrm_domain    : Unique_Node.paths list,
-   subtrm_occ_domain: Unique_Node.paths,
-   rule_domain      : strings};
+  {ind_domain    : pathss,
+   ind_occ_domain: paths,
+   arb_domain    : pathss,
+   arb_occ_domain: paths,
+   rule_domain   : strings};
 
 fun no_name_collision (Name_Space name_space: name_space) (name: name) =
   let
@@ -109,7 +119,11 @@ val no_overlad = undefined: assrt -> bool;
 fun eval (Name_Domain name_domain: name_domain, abs_pst_w_aux, assert) = (*TODO*)
   let
     fun alist_add (alist: (int * 'a) list) (key:int, value:'a) = AList.update (op =) (key, value) alist: (int * 'a) list;
-    val subtrm_name_domain = #subtrm_domain name_domain: Unique_Node.paths list;
+    val {ind_domain,
+         ind_occ_domain,
+         arb_domain,
+         arb_occ_domain,
+         rule_domain}   = name_domain;
     val empty_name_space = Name_Space
        {subtrm     = [],
         subtrm_occ = [],
@@ -119,12 +133,24 @@ fun eval (Name_Domain name_domain: name_domain, abs_pst_w_aux, assert) = (*TODO*
     fun eval' (All_Ind ((Sub_Trm i), assrt), Name_Space name_space: name_space) =
           let
             val {subtrm, subtrm_occ, rule, numb}   = name_space;
-            val new_elements_for_subtrm_name_space = map (fn paths => (i, paths)) subtrm_name_domain          : (int * Unique_Node.paths) list;
-            val new_subtrm_entries_in_name_space   = map (alist_add subtrm) new_elements_for_subtrm_name_space: (int * Unique_Node.paths) list list;
+            val new_elements_for_subtrm_name_space = map (fn paths => (i, paths)) ind_domain                                           : (int * paths) list;
+            val new_subtrm_entries_in_name_space   = map (alist_add subtrm) new_elements_for_subtrm_name_space                          : (int * paths) list list;
             fun get_new_name_space new_subtrm      = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ, rule = rule, numb = numb}: name_space;
-            val new_name_spaces                    = map get_new_name_space new_subtrm_entries_in_name_space  : name_space list;
-            fun eval_for_one_name_space (ns:name_space) = eval' (assrt, ns);
-            fun eval_for_name_spaces (nss:name_space list) = forall eval_for_one_name_space nss: bool;
+            val new_name_spaces                    = map get_new_name_space new_subtrm_entries_in_name_space                            : name_spaces;
+            fun eval_for_one_name_space (ns :name_space)  = eval' (assrt, ns)                                                           : bool;
+            fun eval_for_name_spaces    (nss:name_spaces) = forall eval_for_one_name_space nss                                          : bool;
+          in
+            eval_for_name_spaces new_name_spaces
+          end
+      | eval' (All_Arb ((Sub_Trm i), assrt), Name_Space name_space: name_space) =
+          let
+            val {subtrm, subtrm_occ, rule, numb}   = name_space;
+            val new_elements_for_subtrm_name_space = map (fn paths => (i, paths)) arb_domain                                            : (int * paths) list;
+            val new_subtrm_entries_in_name_space   = map (alist_add subtrm) new_elements_for_subtrm_name_space                          : (int * paths) list list;
+            fun get_new_name_space new_subtrm      = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ, rule = rule, numb = numb}: name_space;
+            val new_name_spaces                    = map get_new_name_space new_subtrm_entries_in_name_space                            : name_spaces;
+            fun eval_for_one_name_space (ns :name_space ) = eval' (assrt, ns)                                                           : bool;
+            fun eval_for_name_spaces    (nss:name_spaces) = forall eval_for_one_name_space nss                                          : bool;
           in
             eval_for_name_spaces new_name_spaces
           end
