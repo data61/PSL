@@ -8,11 +8,10 @@ sig
 
 type abs_pstate_w_aux;
 
-datatype nth        = Nth         of int;
+datatype numb       = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
 datatype rule       = Rule        of int;
 datatype subtrm_occ = Sub_Trm_Occ of int;
-datatype rule_occ   = Rule_Occ    of int;
 datatype hol_typ    = Fun | List | Nat | Set | Rec;(*commonly used HOL types*)
 datatype pattern    = Pttrn (*TODO*)
 datatype assrt      =
@@ -21,27 +20,26 @@ datatype assrt      =
 | All_Arb        of subtrm * assrt
 | All_Sub_Trm    of subtrm * assrt
 | All_Rule       of rule   * assrt
-| All_Nth        of nth    * assrt
+| All_Nth        of numb   * assrt
 | Some_Ind       of subtrm * assrt
 | Some_Arb       of subtrm * assrt
 | Some_Sub_Trm   of subtrm * assrt
 | Some_Rule      of rule   * assrt
-| Some_Nth       of nth    * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
+| Some_Nth       of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
 | All_Ind_Occ    of subtrm_occ * subtrm * assrt
 | All_Arb_Occ    of subtrm_occ * subtrm * assrt
-| All_Rule_Occ   of rule_occ   * rule   * assrt
 | Some_Ind_Occ   of subtrm_occ * subtrm * assrt
 | Some_Arb_Occ   of subtrm_occ * subtrm * assrt
 | Some_Rule_Occ  of rule       * rule   * assrt
 (*combinators*)
 | And            of assrt * assrt
 | Or             of assrt * assrt
-| Not            of assrt * assrt
+| Not            of assrt
 | Imply          of assrt * assrt
 (*atomic*)
-| Is_Nrh_Arg_Of  of subtrm_occ * nth * subtrm_occ (*sub-tree-1 is the nth argument of sub-tree-2*)
-| Are_Same_Nth   of nth        * nth
+| Is_Numb_Arg_Of of subtrm_occ * numb * subtrm_occ (*sub-tree-1 is the numb-th argument of sub-tree-2*)
+| Are_Same_Nth   of numb       * numb
 | Are_Same_Str   of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
 | Is_In_Trm_Str  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
@@ -59,24 +57,32 @@ datatype assrt      =
 | Is_Lambda      of subtrm_occ (*lambda abstraction corresponding to Abs in Term*)
 | Is_App         of subtrm_occ (*function application corresponding to $ in Term*)
 | Not_Fully_App  of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
-| Is_Nth_Arg_Of  of subtrm_occ * nth * subtrm_occ
-| Less           of nth        * nth (* nth_1 < nth_2 *)
+| Is_Nth_Arg_Of  of subtrm_occ * numb* subtrm_occ
+| Less           of numb       * numb(* nth_1 < nth_2 *)
 (* TODO: pattern *)
-| Pattern        of nth * subtrm * pattern (*In the definition of subtrm, the nth argument has this pattern.*)
+| Pattern        of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
-| Are_Diff_Nth   of nth        * nth (*Not & Are_Same_Nth*)
-| Are_Diff_Str   of nth        * nth (*Not & Are_Same_Str*)
+| Are_Diff_Nth   of numb       * numb(*Not & Are_Same_Nth*)
+| Are_Diff_Str   of numb       * numb(*Not & Are_Same_Str*)
 | Has_Typ        of subtrm_occ * typ (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest    of subtrm_occ       (*Not & Is_At_Deepest*)
 
 datatype rule_name       = Rule_Name of string;
 
-(*TIP: use functions from AList, such as AList.update, for name_space.*)
+(*Note that the name_space specified here is the name_space within each assertion:
+ *Different assertions have different name_spaces.*)
 datatype name_space = Name_Space of
  {subtrm:     (int * Unique_Node.paths) list,
-  subtrm_occ: (int * Unique_Node.path)  list,
-  rule:       (int * rule_name)         list};
+  subtrm_occ: (int * Unique_Node.path ) list,
+  rule:       (int * rule_name        ) list,
+  numb:       (int * numb             ) list};
 
-val eval: abs_pstate_w_aux * assrt * name_space -> bool;
+datatype name_domain = Name_Domain of
+  {subtrm_domain    : Unique_Node.paths list,
+   subtrm_occ_domain: Unique_Node.paths,
+   rule_domain      : strings};
+
+val no_overlad: assrt -> bool;
+val eval      : name_domain * abs_pstate_w_aux * assrt -> bool;
 
 end;
