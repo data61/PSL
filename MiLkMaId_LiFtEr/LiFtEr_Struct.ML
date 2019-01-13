@@ -164,34 +164,22 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
         map (alist_add old_field) new_field
       end;
 
-    (*Note that we never modify abs_pst_w_aux or name_domains.*)
-    fun eval' (All_Ind ((Sub_Trm i), assrt)) (name_space as Name_Space {subtrm, ...}: name_space) =
+    datatype quantifier = Universal | Existential;
+    (*code refactoring using mutual recursion*)
+    fun eval'_subtrrm_quantifier (assrt:assrt) (index:int) (name_space as Name_Space {subtrm, ...}:name_space) (quantifier:quantifier) (domain: pathss) =
         let
-          val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces i ind_domain subtrm         : (int * paths) list list;
+          val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces index ind_domain subtrm     : (int * paths) list list;
           fun get_new_name_space  new_subtrm         = update_subtrm_in_name_space name_space new_subtrm      : name_space;
           val new_name_spaces                        = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
-          fun eval_for_name_spaces (nss:name_spaces) = forall (eval' assrt) nss                               : bool;
+          val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists;
+          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate (eval' assrt) nss: bool;
         in
           eval_for_name_spaces new_name_spaces
         end
-      | eval' (All_Arb ((Sub_Trm i), assrt)) (name_space as Name_Space {subtrm, ...}: name_space) =
-        let
-          val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces i arb_domain subtrm         : (int * paths) list list;
-          fun get_new_name_space new_subtrm          = update_subtrm_in_name_space name_space new_subtrm      : name_space;
-          val new_name_spaces                        = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
-          fun eval_for_name_spaces (nss:name_spaces) = forall (eval' assrt) nss                               : bool;
-        in
-          eval_for_name_spaces new_name_spaces
-        end
-      | eval' (All_Sub_Trm ((Sub_Trm i), assrt)) (name_space as Name_Space {subtrm, ...}: name_space) =
-        let
-          val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces i subtrm_domain subtrm      : (int * paths) list list;
-          fun get_new_name_space new_subtrm          = update_subtrm_in_name_space name_space new_subtrm      : name_space;
-          val new_name_spaces                        = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
-          fun eval_for_name_spaces (nss:name_spaces) = forall (eval' assrt) nss                               : bool;
-        in
-          eval_for_name_spaces new_name_spaces
-        end
+    (*Note that we never modify abs_pst_w_aux or name_domains.*)
+    and eval' (All_Ind ((Sub_Trm i), inner)) (name_space as Name_Space {subtrm, ...}: name_space)     = eval'_subtrrm_quantifier inner i name_space Universal ind_domain
+      | eval' (All_Arb ((Sub_Trm i), inner)) (name_space as Name_Space {subtrm, ...}: name_space)     = eval'_subtrrm_quantifier inner i name_space Universal arb_domain
+      | eval' (All_Sub_Trm ((Sub_Trm i), inner)) (name_space as Name_Space {subtrm, ...}: name_space) = eval'_subtrrm_quantifier inner i name_space Universal subtrm_domain
       | eval' (All_Rule ((Rule i), assrt)) (name_space as Name_Space {rule, ...}: name_space) =
         let
           val new_rule_entries_in_name_space         = get_fields_for_name_spaces i rule_domain rule          : (int * rule_name) list list;
@@ -207,6 +195,27 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
           fun get_new_name_space new_numb            = update_numb_in_name_space name_space new_numb          : name_space;
           val new_name_spaces                        = map get_new_name_space new_numb_entries_in_name_space  : name_spaces;
           fun eval_for_name_spaces (nss:name_spaces) = forall (eval' assrt) nss                               : bool;
+        in
+          eval_for_name_spaces new_name_spaces
+        end
+      | eval' (Some_Ind ((Sub_Trm i), inner)) (name_space as Name_Space {subtrm, ...}: name_space)     = eval'_subtrrm_quantifier inner i name_space Existential ind_domain
+      | eval' (Some_Arb ((Sub_Trm i), inner)) (name_space as Name_Space {subtrm, ...}: name_space)     = eval'_subtrrm_quantifier inner i name_space Existential arb_domain
+      | eval' (Some_Sub_Trm ((Sub_Trm i), inner)) (name_space as Name_Space {subtrm, ...}: name_space) = eval'_subtrrm_quantifier inner i name_space Existential subtrm_domain
+      | eval' (Some_Rule ((Rule i), assrt)) (name_space as Name_Space {rule, ...}: name_space) =
+        let
+          val new_rule_entries_in_name_space         = get_fields_for_name_spaces i rule_domain rule          : (int * rule_name) list list;
+          fun get_new_name_space new_rule            = update_rule_in_name_space name_space new_rule          : name_space;
+          val new_name_spaces                        = map get_new_name_space new_rule_entries_in_name_space  : name_spaces;
+          fun eval_for_name_spaces (nss:name_spaces) = exists (eval' assrt) nss                               : bool;
+        in
+          eval_for_name_spaces new_name_spaces
+        end
+      | eval' (Some_Nth ((Nth i), assrt)) (name_space as Name_Space {numb, ...}: name_space) =
+        let
+          val new_numb_entries_in_name_space         = get_fields_for_name_spaces i numb_domain numb          : (int * int) list list;
+          fun get_new_name_space new_numb            = update_numb_in_name_space name_space new_numb          : name_space;
+          val new_name_spaces                        = map get_new_name_space new_numb_entries_in_name_space  : name_spaces;
+          fun eval_for_name_spaces (nss:name_spaces) = exists (eval' assrt) nss                               : bool;
         in
           eval_for_name_spaces new_name_spaces
         end
