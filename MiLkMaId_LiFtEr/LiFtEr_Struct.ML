@@ -168,7 +168,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
     (*code refactoring using mutual recursion*)
     fun eval'_subtrrm_quantifier (assrt:assrt) (index:int) (name_space as Name_Space {subtrm, ...}:name_space) (quantifier:quantifier) (domain: pathss) =
         let
-          val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces index ind_domain subtrm     : (int * paths) list list;
+          val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces index domain subtrm         : (int * paths) list list;
           fun get_new_name_space  new_subtrm         = update_subtrm_in_name_space name_space new_subtrm      : name_space;
           val new_name_spaces                        = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
           val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists;
