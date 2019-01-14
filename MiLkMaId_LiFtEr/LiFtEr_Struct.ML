@@ -77,20 +77,24 @@ type path           = Unique_Node.path;
 type paths          = Unique_Node.path  list;
 type pathss         = Unique_Node.paths list;
 
+datatype address =(*TODO: better name?*)
+  Address_Subtrm     of paths
+| Address_Subtrm_Occ of path
+| Address_Rule       of rule_name
+| Address_Numb       of int;
+
+type addresses = address list;(*TODO: better name?*)
+
 (*TIP: use functions from AList, such as AList.update, for name_space.*)
 datatype name_space = Name_Space of
- {subtrm:     (int * paths    ) list,
-  subtrm_occ: (int * path     ) list,
-  rule:       (int * rule_name) list,
-  numb:       (int * int      ) list};
+ {subtrm:     (int * address) list,
+  subtrm_occ: (int * address) list,
+  rule:       (int * address) list,
+  numb:       (int * address) list};
 
 type name_spaces = name_space list;
 
-datatype name_subspace =
-  Name_Space_Subtrm     of (int * paths    ) list
-| Name_Space_Subtrm_occ of (int * path     ) list
-| Name_Space_Rule       of (int * rule_name) list
-| Name_Space_Numb       of (int * int      ) list;
+type name_subspace = (int * address) list;
 
 datatype name =
   Name_Nth        of numb
@@ -99,17 +103,16 @@ datatype name =
 | Name_Subtrm_Occ of subtrm_occ;
 
 datatype name_domains = Name_Domains of
-  {ind_domain    : pathss,
-   arb_domain    : pathss,
-   subtrm_domain : pathss,
-   numb_domain   : ints,
-   rule_domain   : rule_names};
+  {ind_domain    : addresses,
+   arb_domain    : addresses,
+   subtrm_domain : addresses,
+   numb_domain   : addresses,
+   rule_domain   : addresses};
 
-datatype name_domain =
-  Ind_Domain     of pathss
-| Arb_Domain     of pathss
-| Subtrm_Domain  of pathss
-| Rule_Domain    of rule_names;
+datatype name_domain =(*TODO: to be removed?*)
+  Subtrm_Domain of addresses (*Subtrm_Domain for all of Ind, Arb, and Subtrm*)
+| Rule_Domain   of addresses
+| Numb_Domain   of addresses;
 
 fun no_name_collision (Name_Space name_space: name_space) (name: name) =
   let
@@ -141,78 +144,65 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
 
     fun alist_add (alist: (int * 'a) list) (key:int, value:'a) = AList.update (op =) (key, value) alist: (int * 'a) list;
 
-    fun update_subtrm_in_name_space (Name_Space {subtrm_occ, rule, numb, ...}: name_space) (new_subtrm: (int * paths) list) =
-        Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ, rule = rule, numb = numb}: name_space;
+    datatype address_type =
+      ATyp_Subtrm
+    | ATyp_Subtrm_Occ
+    | ATyp_Rule
+    | ATyp_Numb;
 
-    fun update_subtrm_occ_in_name_space (Name_Space {subtrm, rule, numb, ...}: name_space) (new_subtrm_occ: (int * path) list) =
-        Name_Space {subtrm = subtrm, subtrm_occ = new_subtrm_occ, rule = rule, numb = numb}: name_space;
+    fun update_name_space (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) (new_subtrm    : (int * address) list) ATyp_Subtrm     = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
+      | update_name_space (Name_Space {subtrm, rule, numb, ...}      : name_space) (new_subtrm_occ: (int * address) list) ATyp_Subtrm_Occ = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
+      | update_name_space (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) (new_rule      : (int * address) list) ATyp_Rule       = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
+      | update_name_space (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) (new_numb      : (int * address) list) ATyp_Numb       = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
 
-    fun update_rule_in_name_space (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) (new_rule: (int * rule_name) list) =
-        Name_Space {subtrm = subtrm, subtrm_occ = subtrm_occ, rule = new_rule, numb = numb}: name_space;
-
-    fun update_numb_in_name_space (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) (new_numb: (int * int) list) =
-        Name_Space {subtrm = subtrm, subtrm_occ = subtrm_occ, rule = rule, numb = new_numb}: name_space;
-
-    fun get_fields_for_name_spaces (i:int) (domain:'a list) (old_field:(int * 'a) list) =
+    fun get_fields_for_name_spaces (i:int) (domain:address list) (old_field:(int * address) list) =
       let
         val new_field = map (pair i) domain;
       in
-        map (alist_add old_field) new_field
+        map (alist_add old_field) new_field: (int * address) list list
       end;
 
     datatype quantifier = Universal | Existential;
 
-    fun how_to_aggregate (quantifier:quantifier) = case quantifier of Universal => forall | Existential => exists
-                                                 :(name_space -> bool) -> name_space list -> bool;
-    (*code refactoring using mutual recursion*)
-    fun eval'_subtrm_quantifier (inner:assrt) (index:int) (name_space as Name_Space {subtrm, ...}:name_space) (quantifier:quantifier) (domain: pathss) =
-        let
-          val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces index domain subtrm         : (int * paths) list list;
-          fun get_new_name_space new_subtrm          = update_subtrm_in_name_space name_space new_subtrm      : name_space;
-          val new_name_spaces                        = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
-        in
-          eval'_quantifier new_name_spaces quantifier inner
-        end
-    and eval'_rule_quantifier (inner:assrt) (index:int) (name_space as Name_Space {rule, ...}:name_space) (quantifier:quantifier) (domain: rule_names) =
-        let
-          val new_rule_entries_in_name_space         = get_fields_for_name_spaces index domain rule           : (int * rule_name) list list;
-          fun get_new_name_space new_rule            = update_rule_in_name_space name_space new_rule          : name_space;
-          val new_name_spaces                        = map get_new_name_space new_rule_entries_in_name_space  : name_spaces;
-        in
-          eval'_quantifier new_name_spaces quantifier inner
-        end
-    and eval'_nth_quantifier (inner:assrt) (index:int) (name_space as Name_Space {numb, ...}:name_space) (quantifier:quantifier) (domain: ints) =
-        let
-          val new_numb_entries_in_name_space         = get_fields_for_name_spaces index domain numb           : (int * int) list list;
-          fun get_new_name_space new_numb            = update_numb_in_name_space name_space new_numb          : name_space;
-          val new_name_spaces                        = map get_new_name_space new_numb_entries_in_name_space  : name_spaces;
-        in
-          eval'_quantifier new_name_spaces quantifier inner
-        end
+    fun how_to_aggregate (Universal  :quantifier) = forall
+     |  how_to_aggregate (Existential:quantifier) = exists: (name_space -> bool) -> name_space list -> bool;
+
+    fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:(int * address(*=paths/path/rule_name/int*)) list) (quantifier:quantifier) (domain: addresses) (add_typ:address_type) =
+      let
+        val new_subtrm_entries_in_name_space = get_fields_for_name_spaces index domain name_subspace  : (int * address) list list;
+        fun get_new_name_space new_subtrm    = update_name_space name_space new_subtrm add_typ        : name_space;
+        val new_name_spaces                  = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
+      in
+        eval'_quantifier new_name_spaces quantifier inner: bool
+      end
     and eval'_subtrm_occ_quantifier (Sub_Trm_Occ occ_idx) (Sub_Trm trm_idx) (inner:assrt) (name_space as Name_Space {subtrm, subtrm_occ, ...}:name_space) (quantifier:quantifier) =
         let
           (*The domain of sub-term-occurrences depends on which sub-term we consider.*)
-          val subtrm_occ_domain                      = AList.lookup (op =) subtrm trm_idx |> these                    : paths(*TODO:better error handling*);
-          val new_subtrm_occ_entries_in_name_space   = get_fields_for_name_spaces occ_idx subtrm_occ_domain subtrm_occ:(int * path) list list;
-          fun get_new_name_space new_subtrm_occ      = update_subtrm_occ_in_name_space name_space new_subtrm_occ      : name_space;
-          val new_name_spaces                        = map get_new_name_space new_subtrm_occ_entries_in_name_space    : name_spaces;
+          val name_space_of_this_subtrm                  = AList.lookup (op =) subtrm trm_idx;
+          fun dest_Address_Subtrm (Address_Subtrm paths) = SOME paths
+            | dest_Address_Subtrm  _                     = NONE      : paths option;
+          val paths = name_space_of_this_subtrm >>= dest_Address_Subtrm |> these: paths;
+          val new_subtrm_occ_entries_in_name_space   = get_fields_for_name_spaces occ_idx (map Address_Subtrm_Occ paths) subtrm_occ:(int * address) list list;
+          fun get_new_name_space new_subtrm_occ      = update_name_space name_space new_subtrm_occ ATyp_Subtrm_Occ                 : name_space;
+          val new_name_spaces                        = map get_new_name_space new_subtrm_occ_entries_in_name_space                 : name_spaces;
         in
           eval'_quantifier new_name_spaces quantifier inner
         end
+    (*code refactoring using mutual recursion*)
     and eval'_quantifier (nss:name_spaces) (quantifier:quantifier) (inner:assrt) = how_to_aggregate quantifier (eval' inner) nss: bool
     and
       (*Note that we never modify abs_pst_w_aux or name_domains.*)
       (*quantifiers*)
-        eval' (All_Ind      ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   ind_domain
-      | eval' (All_Arb      ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   arb_domain
-      | eval' (All_Sub_Trm  ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   subtrm_domain
-      | eval' (All_Rule     ((Rule    i), inner)) (name_space: name_space) = eval'_rule_quantifier   inner i name_space Universal   rule_domain
-      | eval' (All_Nth      ((Nth     i), inner)) (name_space: name_space) = eval'_nth_quantifier    inner i name_space Universal   numb_domain
-      | eval' (Some_Ind     ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Existential ind_domain
-      | eval' (Some_Arb     ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Existential arb_domain
-      | eval' (Some_Sub_Trm ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Existential subtrm_domain
-      | eval' (Some_Rule    ((Rule    i), inner)) (name_space: name_space) = eval'_rule_quantifier   inner i name_space Existential rule_domain
-      | eval' (Some_Nth     ((Nth     i), inner)) (name_space: name_space) = eval'_nth_quantifier    inner i name_space Existential numb_domain
+        eval' (All_Ind      ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) Universal   ind_domain    ATyp_Subtrm
+      | eval' (All_Arb      ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) Universal   arb_domain    ATyp_Subtrm
+      | eval' (All_Sub_Trm  ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) Universal   subtrm_domain ATyp_Subtrm
+      | eval' (All_Rule     ((Rule    i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) Universal   rule_domain   ATyp_Rule
+      | eval' (All_Nth      ((Nth     i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) Universal   numb_domain   ATyp_Numb
+      | eval' (Some_Ind     ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) Existential ind_domain    ATyp_Subtrm
+      | eval' (Some_Arb     ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) Existential arb_domain    ATyp_Subtrm
+      | eval' (Some_Sub_Trm ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) Existential subtrm_domain ATyp_Subtrm
+      | eval' (Some_Rule    ((Rule    i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) Existential rule_domain   ATyp_Rule
+      | eval' (Some_Nth     ((Nth     i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) Existential numb_domain   ATyp_Numb
       (*quantifiers for occurrences*)
       | eval' (All_Sub_Trm_Occ  (subtrm_occ, subtrm, assrt)) (name_space: name_space) = eval'_subtrm_occ_quantifier subtrm_occ subtrm assrt name_space Universal
       | eval' (Some_Sub_Trm_Occ (subtrm_occ, subtrm, assrt)) (name_space: name_space) = eval'_subtrm_occ_quantifier subtrm_occ subtrm assrt name_space Existential

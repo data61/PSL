@@ -77,34 +77,37 @@ type path;
 type paths;
 type pathss;
 
+datatype address =(*TODO: better name?*)
+  Address_Subtrm     of paths
+| Address_Subtrm_Occ of path
+| Address_Rule       of rule_name
+| Address_Numb       of int;
+
+type addresses = address list;(*TODO: better name?*)
+
 (*Note that the name_space specified here is the name_space within each assertion:
  *Different assertions have different name_spaces.*)
 datatype name_space = Name_Space of
- {subtrm:     (int * paths    ) list,
-  subtrm_occ: (int * path     ) list,
-  rule:       (int * rule_name) list,
-  numb:       (int * int      ) list};
+ {subtrm:     (int * address) list,
+  subtrm_occ: (int * address) list,
+  rule:       (int * address) list,
+  numb:       (int * address) list};
 
 type name_spaces = name_space list;
 
-datatype name_subspace =
-  Name_Space_Subtrm     of (int * paths    ) list
-| Name_Space_Subtrm_occ of (int * path     ) list
-| Name_Space_Rule       of (int * rule_name) list
-| Name_Space_Numb       of (int * int      ) list;
+type name_subspace = (int * address) list;
 
 datatype name_domains = Name_Domains of
-  {ind_domain    : pathss,
-   arb_domain    : pathss,
-   subtrm_domain : pathss,
-   numb_domain   : ints,
-   rule_domain   : rule_names};
+  {ind_domain    : addresses,
+   arb_domain    : addresses,
+   subtrm_domain : addresses,
+   numb_domain   : addresses,
+   rule_domain   : addresses};
 
-datatype name_domain =
-  Ind_Domain     of pathss
-| Arb_Domain     of pathss
-| Subtrm_Domain  of pathss
-| Rule_Domain    of rule_names;
+datatype name_domain =(*TODO: to be removed?*)
+  Subtrm_Domain of addresses (*Subtrm_Domain for all of Ind, Arb, and Subtrm*)
+| Rule_Domain   of addresses
+| Numb_Domain   of addresses;
 
 val no_overlad: assrt -> bool;
 val eval      : name_domains * abs_pstate_w_aux * assrt -> bool;
