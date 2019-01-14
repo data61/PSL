@@ -57,9 +57,8 @@ datatype assrt      =
 | Not_Fully_App  of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
 | Is_Nth_Arg_Of  of subtrm_occ * numb* subtrm_occ
 | Less           of numb       * numb(* nth_1 < nth_2 *)
-(*atomic about induct method*)
-| Is_Nth_Ind     of subtrm * numb
-| Is_Nth_Arb     of subtrm * numb
+| Is_Nth_Ind     of subtrm     * numb
+| Is_Nth_Arb     of subtrm     * numb
 (* TODO: pattern *)
 | Pattern        of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
 (*syntax sugars*)

@@ -57,9 +57,8 @@ datatype assrt      =
 | Not_Fully_App  of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
 | Is_Nth_Arg_Of  of subtrm_occ * numb * subtrm_occ
 | Less           of numb       * numb (* nth_1 < nth_2 *)
-(*atomic about induct method*)
-| Is_Nth_Ind     of subtrm * numb
-| Is_Nth_Arb     of subtrm * numb
+| Is_Nth_Ind     of subtrm     * numb
+| Is_Nth_Arb     of subtrm     * numb
 (* TODO: pattern *)
 | Pattern        of numb * subtrm * pattern (*In the definition of subtrm, the nth argument has this pattern.*)
 (*syntax sugars*)
@@ -210,7 +209,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
           eval_for_name_spaces new_name_spaces
         end
     (*Note that we never modify abs_pst_w_aux or name_domains.*)
-    and (*quantifiers*)
+    and
+      (*quantifiers*)
         eval' (All_Ind      ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   ind_domain
       | eval' (All_Arb      ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   arb_domain
       | eval' (All_Sub_Trm  ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   subtrm_domain
@@ -221,8 +221,10 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
       | eval' (Some_Sub_Trm ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Existential subtrm_domain
       | eval' (Some_Rule    ((Rule    i), inner)) (name_space: name_space) = eval'_rule_quantifier   inner i name_space Existential rule_domain
       | eval' (Some_Nth     ((Nth     i), inner)) (name_space: name_space) = eval'_nth_quantifier    inner i name_space Existential numb_domain
-        (*quantifiers for occurrences*)
-      | eval' (All_Sub_Trm_Occ (subtrm_occ, subtrm, assrt)) (name_space: name_space) = eval'_subtrm_occ_quantifier subtrm_occ subtrm assrt name_space Universal
+      (*quantifiers for occurrences*)
+      | eval' (All_Sub_Trm_Occ  (subtrm_occ, subtrm, assrt)) (name_space: name_space) = eval'_subtrm_occ_quantifier subtrm_occ subtrm assrt name_space Universal
+      | eval' (Some_Sub_Trm_Occ (subtrm_occ, subtrm, assrt)) (name_space: name_space) = eval'_subtrm_occ_quantifier subtrm_occ subtrm assrt name_space Existential
+      (*combinators*)
       | eval' (And (assrt1, assrt2)) name_space = eval' assrt1 name_space andalso eval' assrt2 name_space
       | eval' (Or (assrt1, assrt2))  name_space = eval' assrt1 name_space orelse  eval' assrt2 name_space
       | eval' (Not assrt)            name_space = not (eval' assrt name_space)
