@@ -165,14 +165,16 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
       end;
 
     datatype quantifier = Universal | Existential;
+
+    fun how_to_aggregate (quantifier:quantifier) = case quantifier of Universal => forall | Existential => exists
+                                                 :(name_space -> bool) -> name_space list -> bool;
     (*code refactoring using mutual recursion*)
     fun eval'_subtrm_quantifier (assrt:assrt) (index:int) (name_space as Name_Space {subtrm, ...}:name_space) (quantifier:quantifier) (domain: pathss) =
         let
           val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces index domain subtrm         : (int * paths) list list;
           fun get_new_name_space new_subtrm          = update_subtrm_in_name_space name_space new_subtrm      : name_space;
           val new_name_spaces                        = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
-          val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists;
-          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate (eval' assrt) nss                     : bool;
+          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate quantifier (eval' assrt) nss          : bool;
         in
           eval_for_name_spaces new_name_spaces
         end
@@ -181,8 +183,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
           val new_rule_entries_in_name_space         = get_fields_for_name_spaces index domain rule           : (int * rule_name) list list;
           fun get_new_name_space new_rule            = update_rule_in_name_space name_space new_rule          : name_space;
           val new_name_spaces                        = map get_new_name_space new_rule_entries_in_name_space  : name_spaces;
-          val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists;
-          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate (eval' assrt) nss                     : bool;
+          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate quantifier (eval' assrt) nss          : bool;
         in
           eval_for_name_spaces new_name_spaces
         end
@@ -191,8 +192,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
           val new_numb_entries_in_name_space         = get_fields_for_name_spaces index domain numb           : (int * int) list list;
           fun get_new_name_space new_numb            = update_numb_in_name_space name_space new_numb          : name_space;
           val new_name_spaces                        = map get_new_name_space new_numb_entries_in_name_space  : name_spaces;
-          val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists;
-          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate (eval' assrt) nss                     : bool;
+          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate quantifier (eval' assrt) nss          : bool;
         in
           eval_for_name_spaces new_name_spaces
         end
@@ -203,8 +203,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
           val new_subtrm_occ_entries_in_name_space   = get_fields_for_name_spaces occ_idx subtrm_occ_domain subtrm_occ:(int * path) list list;
           fun get_new_name_space new_subtrm_occ      = update_subtrm_occ_in_name_space name_space new_subtrm_occ      : name_space;
           val new_name_spaces                        = map get_new_name_space new_subtrm_occ_entries_in_name_space    : name_spaces;
-          val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists :(name_space -> bool) -> name_space list -> bool;
-          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate (eval' assrt) nss                             : bool;
+          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate quantifier (eval' assrt) nss                  : bool;
         in
           eval_for_name_spaces new_name_spaces
         end
