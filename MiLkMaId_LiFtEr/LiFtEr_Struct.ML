@@ -100,18 +100,14 @@ datatype name =
 
 datatype name_domains = Name_Domains of
   {ind_domain    : pathss,
-   ind_occ_domain: paths,
    arb_domain    : pathss,
-   arb_occ_domain: paths,
    subtrm_domain : pathss,
    numb_domain   : ints,
    rule_domain   : rule_names};
 
 datatype name_domain =
   Ind_Domain     of pathss
-| Ind_Occ_Domain of paths
 | Arb_Domain     of pathss
-| Arb_Occ_Domain of paths
 | Subtrm_Domain  of pathss
 | Rule_Domain    of rule_names;
 
@@ -136,7 +132,7 @@ val no_overlad = undefined: assrt -> bool;
 
 fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TODO*)
   let
-    val {ind_domain, ind_occ_domain, arb_domain, arb_occ_domain, subtrm_domain, numb_domain, rule_domain} = name_domains;
+    val {ind_domain, arb_domain, subtrm_domain, numb_domain, rule_domain} = name_domains;
     val empty_name_space = Name_Space
        {subtrm     = [],
         subtrm_occ = [],

@@ -95,18 +95,14 @@ datatype name_subspace =
 
 datatype name_domains = Name_Domains of
   {ind_domain    : pathss,
-   ind_occ_domain: paths,
    arb_domain    : pathss,
-   arb_occ_domain: paths,
    subtrm_domain : pathss,
    numb_domain   : ints,
    rule_domain   : rule_names};
 
 datatype name_domain =
   Ind_Domain     of pathss
-| Ind_Occ_Domain of paths
 | Arb_Domain     of pathss
-| Arb_Occ_Domain of paths
 | Subtrm_Domain  of pathss
 | Rule_Domain    of rule_names;
 
