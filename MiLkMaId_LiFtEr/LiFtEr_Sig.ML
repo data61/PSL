@@ -27,11 +27,8 @@ datatype assrt      =
 | Some_Rule      of rule   * assrt
 | Some_Nth       of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
-| All_Ind_Occ    of subtrm_occ * subtrm * assrt
-| All_Arb_Occ    of subtrm_occ * subtrm * assrt
-| Some_Ind_Occ   of subtrm_occ * subtrm * assrt
-| Some_Arb_Occ   of subtrm_occ * subtrm * assrt
-| Some_Rule_Occ  of rule       * rule   * assrt
+| All_Sub_Trm_Occ  of subtrm_occ * subtrm * assrt
+| Some_Sub_Trm_Occ of subtrm_occ * subtrm * assrt
 (*combinators*)
 | And            of assrt * assrt
 | Or             of assrt * assrt
@@ -66,10 +63,14 @@ datatype assrt      =
 (* TODO: pattern *)
 | Pattern        of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
-| Are_Diff_Nth   of numb       * numb(*Not & Are_Same_Nth*)
-| Are_Diff_Str   of numb       * numb(*Not & Are_Same_Str*)
-| Has_Typ        of subtrm_occ * typ (*Some_Sub_Trm, Is_In, & Is_Typ*)
-| Not_Deepest    of subtrm_occ       (*Not & Is_At_Deepest*)
+| All_Ind_Occ    of subtrm_occ * subtrm * assrt (*Probably with All_Ind  and All_Sub_Trm_Occ*)
+| All_Arb_Occ    of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
+| Some_Ind_Occ   of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
+| Some_Arb_Occ   of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
+| Are_Diff_Nth   of numb       * numb           (*Not & Are_Same_Nth*)
+| Are_Diff_Str   of numb       * numb           (*Not & Are_Same_Str*)
+| Has_Typ        of subtrm_occ * typ            (*Some_Sub_Trm, Is_In, & Is_Typ*)
+| Not_Deepest    of subtrm_occ                  (*Not & Is_At_Deepest*)
 
 datatype rule_name       = Rule_Name of string;
 type rule_names = rule_name list;

@@ -27,11 +27,8 @@ datatype assrt      =
 | Some_Rule      of rule   * assrt
 | Some_Nth       of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
-| All_Ind_Occ    of subtrm_occ * subtrm * assrt
-| All_Arb_Occ    of subtrm_occ * subtrm * assrt
-| Some_Ind_Occ   of subtrm_occ * subtrm * assrt
-| Some_Arb_Occ   of subtrm_occ * subtrm * assrt
-| Some_Rule_Occ  of rule       * rule   * assrt
+| All_Sub_Trm_Occ  of subtrm_occ * subtrm * assrt
+| Some_Sub_Trm_Occ of subtrm_occ * subtrm * assrt
 (*combinators*)
 | And            of assrt * assrt
 | Or             of assrt * assrt
@@ -66,10 +63,14 @@ datatype assrt      =
 (* TODO: pattern *)
 | Pattern        of numb * subtrm * pattern (*In the definition of subtrm, the nth argument has this pattern.*)
 (*syntax sugars*)
-| Are_Diff_Nth   of numb       * numb (*Not & Are_Same_Nth*)
-| Are_Diff_Str   of numb       * numb (*Not & Are_Same_Str*)
-| Has_Typ        of subtrm_occ * typ (*Some_Sub_Trm, Is_In, & Is_Typ*)
-| Not_Deepest    of subtrm_occ       (*Not & Is_At_Deepest*)
+| All_Ind_Occ    of subtrm_occ * subtrm * assrt (*Probably with All_Ind  and All_Sub_Trm_Occ*)
+| All_Arb_Occ    of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
+| Some_Ind_Occ   of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
+| Some_Arb_Occ   of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
+| Are_Diff_Nth   of numb       * numb           (*Not & Are_Same_Nth*)
+| Are_Diff_Str   of numb       * numb           (*Not & Are_Same_Str*)
+| Has_Typ        of subtrm_occ * typ            (*Some_Sub_Trm, Is_In, & Is_Typ*)
+| Not_Deepest    of subtrm_occ                  (*Not & Is_At_Deepest*)
 
 datatype rule_name  = Rule_Name of string;
 type rule_names     = rule_name list;
@@ -166,7 +167,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
 
     datatype quantifier = Universal | Existential;
     (*code refactoring using mutual recursion*)
-    fun eval'_subtrrm_quantifier (assrt:assrt) (index:int) (name_space as Name_Space {subtrm, ...}:name_space) (quantifier:quantifier) (domain: pathss) =
+    fun eval'_subtrm_quantifier (assrt:assrt) (index:int) (name_space as Name_Space {subtrm, ...}:name_space) (quantifier:quantifier) (domain: pathss) =
         let
           val new_subtrm_entries_in_name_space       = get_fields_for_name_spaces index domain subtrm         : (int * paths) list list;
           fun get_new_name_space new_subtrm          = update_subtrm_in_name_space name_space new_subtrm      : name_space;
@@ -196,17 +197,29 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
         in
           eval_for_name_spaces new_name_spaces
         end
+    and (*WIP*) eval'_subtrm_occ_quantifier (assrt:assrt) (index:int) (name_space as Name_Space {subtrm_occ, ...}:name_space) (quantifier:quantifier) (domain: paths) =
+        let
+          val new_subtrm_occ_entries_in_name_space   = get_fields_for_name_spaces index domain subtrm_occ            :(int * path) list list;
+          fun get_new_name_space new_subtrm          = update_subtrm_occ_in_name_space name_space new_subtrm         : name_space;
+          val new_name_spaces                        = map get_new_name_space new_subtrm_occ_entries_in_name_space   : name_spaces;
+          val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists:(name_space -> bool) -> name_space list -> bool;
+          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate (eval' assrt) nss                            : bool;
+        in
+          eval_for_name_spaces new_name_spaces
+        end
     (*Note that we never modify abs_pst_w_aux or name_domains.*)
-    and eval' (All_Ind      ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrrm_quantifier inner i name_space Universal   ind_domain
-      | eval' (All_Arb      ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrrm_quantifier inner i name_space Universal   arb_domain
-      | eval' (All_Sub_Trm  ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrrm_quantifier inner i name_space Universal   subtrm_domain
-      | eval' (All_Rule     ((Rule    i), inner)) (name_space: name_space) = eval'_rule_quantifier    inner i name_space Universal   rule_domain
-      | eval' (All_Nth      ((Nth     i), inner)) (name_space: name_space) = eval'_nth_quantifier     inner i name_space Universal   numb_domain
-      | eval' (Some_Ind     ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrrm_quantifier inner i name_space Existential ind_domain
-      | eval' (Some_Arb     ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrrm_quantifier inner i name_space Existential arb_domain
-      | eval' (Some_Sub_Trm ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrrm_quantifier inner i name_space Existential subtrm_domain
-      | eval' (Some_Rule    ((Rule    i), inner)) (name_space: name_space) = eval'_rule_quantifier    inner i name_space Existential rule_domain
-      | eval' (Some_Nth     ((Nth     i), inner)) (name_space: name_space) = eval'_nth_quantifier     inner i name_space Existential numb_domain
+    and (*quantifiers*)
+        eval' (All_Ind      ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   ind_domain
+      | eval' (All_Arb      ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   arb_domain
+      | eval' (All_Sub_Trm  ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Universal   subtrm_domain
+      | eval' (All_Rule     ((Rule    i), inner)) (name_space: name_space) = eval'_rule_quantifier   inner i name_space Universal   rule_domain
+      | eval' (All_Nth      ((Nth     i), inner)) (name_space: name_space) = eval'_nth_quantifier    inner i name_space Universal   numb_domain
+      | eval' (Some_Ind     ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Existential ind_domain
+      | eval' (Some_Arb     ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Existential arb_domain
+      | eval' (Some_Sub_Trm ((Sub_Trm i), inner)) (name_space: name_space) = eval'_subtrm_quantifier inner i name_space Existential subtrm_domain
+      | eval' (Some_Rule    ((Rule    i), inner)) (name_space: name_space) = eval'_rule_quantifier   inner i name_space Existential rule_domain
+      | eval' (Some_Nth     ((Nth     i), inner)) (name_space: name_space) = eval'_nth_quantifier    inner i name_space Existential numb_domain
+        (*quantifiers for occurrences*)
       | eval' (And (assrt1, assrt2)) name_space = eval' assrt1 name_space andalso eval' assrt2 name_space
       | eval' (Or (assrt1, assrt2))  name_space = eval' assrt1 name_space orelse  eval' assrt2 name_space
       | eval' (Not assrt)            name_space = not (eval' assrt name_space)
