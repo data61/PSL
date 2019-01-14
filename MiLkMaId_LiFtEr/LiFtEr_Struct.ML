@@ -197,13 +197,15 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
         in
           eval_for_name_spaces new_name_spaces
         end
-    and (*WIP*) eval'_subtrm_occ_quantifier (assrt:assrt) (index:int) (name_space as Name_Space {subtrm_occ, ...}:name_space) (quantifier:quantifier) (domain: paths) =
+    and eval'_subtrm_occ_quantifier (Sub_Trm_Occ occ_idx) (Sub_Trm trm_idx) (assrt:assrt) (name_space as Name_Space {subtrm, subtrm_occ, ...}:name_space) (quantifier:quantifier) =
         let
-          val new_subtrm_occ_entries_in_name_space   = get_fields_for_name_spaces index domain subtrm_occ            :(int * path) list list;
-          fun get_new_name_space new_subtrm          = update_subtrm_occ_in_name_space name_space new_subtrm         : name_space;
-          val new_name_spaces                        = map get_new_name_space new_subtrm_occ_entries_in_name_space   : name_spaces;
-          val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists:(name_space -> bool) -> name_space list -> bool;
-          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate (eval' assrt) nss                            : bool;
+          (*The domain of sub-term-occurrences depends on which sub-term we consider.*)
+          val subtrm_occ_domain                      = AList.lookup (op =) subtrm trm_idx |> these                    : paths(*TODO:better error handling*);
+          val new_subtrm_occ_entries_in_name_space   = get_fields_for_name_spaces occ_idx subtrm_occ_domain subtrm_occ:(int * path) list list;
+          fun get_new_name_space new_subtrm_occ      = update_subtrm_occ_in_name_space name_space new_subtrm_occ      : name_space;
+          val new_name_spaces                        = map get_new_name_space new_subtrm_occ_entries_in_name_space    : name_spaces;
+          val how_to_aggregate                       = case quantifier of Universal => forall | Existential => exists :(name_space -> bool) -> name_space list -> bool;
+          fun eval_for_name_spaces (nss:name_spaces) = how_to_aggregate (eval' assrt) nss                             : bool;
         in
           eval_for_name_spaces new_name_spaces
         end
@@ -220,6 +222,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
       | eval' (Some_Rule    ((Rule    i), inner)) (name_space: name_space) = eval'_rule_quantifier   inner i name_space Existential rule_domain
       | eval' (Some_Nth     ((Nth     i), inner)) (name_space: name_space) = eval'_nth_quantifier    inner i name_space Existential numb_domain
         (*quantifiers for occurrences*)
+      | eval' (All_Sub_Trm_Occ (subtrm_occ, subtrm, assrt)) (name_space: name_space) = eval'_subtrm_occ_quantifier subtrm_occ subtrm assrt name_space Universal
       | eval' (And (assrt1, assrt2)) name_space = eval' assrt1 name_space andalso eval' assrt2 name_space
       | eval' (Or (assrt1, assrt2))  name_space = eval' assrt1 name_space orelse  eval' assrt2 name_space
       | eval' (Not assrt)            name_space = not (eval' assrt name_space)
