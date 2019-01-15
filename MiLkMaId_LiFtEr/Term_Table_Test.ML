@@ -34,7 +34,7 @@ fun trm_to_unique_nodes (trm:term) =
     term_table
   end;
 
-val imp_xyz       = @{term "(x &&& w &&& ww) \<Longrightarrow> f (\<lambda>x. x w) z2 \<Longrightarrow> z1 &&& z2 &&& z3"}: term;
+val imp_xyz       = @{term "(x &&& w &&& ww) \<Longrightarrow> f (\<lambda>x. x w) z2 \<Longrightarrow> z1 &&& z2 &&& (z3 z4 z5 z6)"}: term;
 val imp_xyz_table = trm_to_unique_nodes imp_xyz: TT.unode_table;
 
 fun unode_wo_path_table_n_path_to_print (table, path) =
@@ -47,14 +47,26 @@ fun unode_wo_path_table_n_path_to_print (table, path) =
 
 in
 
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0]      ) |> the) = (Unique_Node.Print "x &&& w &&& ww \<Longrightarrow> f (\<lambda>x. x w) z2 \<Longrightarrow> z1 &&& z2 &&& z3"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,1]    ) |> the) = (Unique_Node.Print "x &&& w &&& ww"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,1,3]  ) |> the) = (Unique_Node.Print "ww"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3]    ) |> the) = (Unique_Node.Print "z1 &&& z2 &&& z3"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1]  ) |> the) = (Unique_Node.Print "f (\<lambda>x. x w) z2"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1]) |> the) = (Unique_Node.Print "\<lambda>x. x w"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0]) |> the) = (Unique_Node.Print "x w"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,2]) |> the) = (Unique_Node.Print "z2"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0]      )     |> the) = (Unique_Node.Print "x &&& w &&& ww \<Longrightarrow> f (\<lambda>x. x w) z2 \<Longrightarrow> z1 &&& z2 &&& z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,0]    )     |> the) = (Unique_Node.Print "(\<Longrightarrow>)"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,1]    )     |> the) = (Unique_Node.Print "x &&& w &&& ww"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,1,3]  )     |> the) = (Unique_Node.Print "ww"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3]    )     |> the) = (Unique_Node.Print "z1 &&& z2 &&& z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,0]  )     |> the) = (Unique_Node.Print "(&&&)"))
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,1])       |> the) = (Unique_Node.Print "z1"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3])       |> the) = (Unique_Node.Print "z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,0])     |> the) = (Unique_Node.Print "Trueprop"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1])     |> the) = (Unique_Node.Print "z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,0])   |> the) = (Unique_Node.Print "z3"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,1])   |> the) = (Unique_Node.Print "z4"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,2])   |> the) = (Unique_Node.Print "z5"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1]  )     |> the) = (Unique_Node.Print "f (\<lambda>x. x w) z2"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,0])     |> the) = (Unique_Node.Print "f"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1])     |> the) = (Unique_Node.Print "\<lambda>x. x w"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0])   |> the) = (Unique_Node.Print "x w"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0,0]) |> the) = (Unique_Node.Print "x"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0,1]) |> the) = (Unique_Node.Print "w"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,2])     |> the) = (Unique_Node.Print "z2"));
 
 val _ = @{assert}
 ((TT.unode_table_to_unode_n_print_table imp_xyz_table

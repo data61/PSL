@@ -106,7 +106,6 @@ fun trm_w_prnt_to_utrm_w_prnt (C_Prnt  c : trm_w_prnt                 ) = UC_Prn
  * We should flatten terms after introducing uncurrying forms because flattening nested pure-implications
  * requires uncurried terms.
  *)
-
 (* futrm_w_prnt: un-curried flattened term with print *)
 datatype futrm_w_prnt =
   FUC_Prnt of string       * typ                 * print
@@ -220,12 +219,18 @@ fun helper (FUC_Prnt (name, typ,      print)) (path:path) = UFC_Prnt_n_Path ((na
       UFL_Prnt_n_Path ((name, typ, inner), print, path)
     end
   | helper (FUA_Prnt (func, args, print)) (path:path) =
+    (*TODO: FIXME: Probably the rank of "fun" should be higher than those of "args" by one.*)
     let
-      val arg_len = length (args)                               : int;
+      val arg_len = length  args                                : int;
       val arg_numbs = List.tabulate (arg_len, curry (op +) 1)   : ints;
-      val arg_paths = map (fn numb => (path @ [numb])) arg_numbs: paths;
-      val func' = helper func (path @ [0])                      : futrm_w_prnt_n_path;
-      val args' = map (uncurry helper) (args ~~ arg_paths)      : futrms_w_prnt_n_path;
+      (*TODO: Should "arg_paths" be "map (fn numb => (path @ [0] @ [numb])) arg_numbs"?                                     *)
+      (*      I think "func" is always atomic because of Isabelle's automatic beta-reduction and "trm_w_prnt_to_utrm_w_prnt"*)
+      (*      In that case, "arg_numbs" should be "List.tabulate (arg_len, curry (op +) 0)   : ints;"                       *)
+      (*      Probably I should not do this change:                                                                         *)
+      (*      Function application ($) already made the corresponding path longer by one.                                   *)
+      val arg_paths = map (fn numb => (path @ [numb])) arg_numbs: paths: paths;
+      val func'     = helper func (path @ [0])                         : futrm_w_prnt_n_path;
+      val args'     = map (uncurry helper) (args ~~ arg_paths)         : futrms_w_prnt_n_path;
     in
       UFA_Prnt_n_Path ((func', args'), print, path)
     end;

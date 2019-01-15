@@ -41,7 +41,7 @@ datatype assrt      =
 | Is_In_Trm_Loc  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
 | Is_In_Trm_Str  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
 | Is_In_Trm_Sem  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
-| Is_Typ         of subtrm_occ * typ
+| Is_Typ         of subtrm_occ * hol_typ
 | Is_At_Deepest  of subtrm_occ
 | Is_In_Chained  of subtrm_occ
 | Is_In_Fst_Subg of subtrm_occ
@@ -68,7 +68,7 @@ datatype assrt      =
 | Some_Arb_Occ   of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Are_Diff_Nth   of numb       * numb           (*Not & Are_Same_Nth*)
 | Are_Diff_Str   of numb       * numb           (*Not & Are_Same_Str*)
-| Has_Typ        of subtrm_occ * typ            (*Some_Sub_Trm, Is_In, & Is_Typ*)
+| Has_Typ        of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest    of subtrm_occ                  (*Not & Is_At_Deepest*)
 
 datatype rule_name       = Rule_Name of string;

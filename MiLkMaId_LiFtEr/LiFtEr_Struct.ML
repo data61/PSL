@@ -41,7 +41,7 @@ datatype assrt      =
 | Is_In_Trm_Loc  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
 | Is_In_Trm_Str  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
 | Is_In_Trm_Sem  of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
-| Is_Typ         of subtrm_occ * typ
+| Is_Typ         of subtrm_occ * hol_typ
 | Is_At_Deepest  of subtrm_occ
 | Is_In_Chained  of subtrm_occ
 | Is_In_Fst_Subg of subtrm_occ
@@ -68,7 +68,7 @@ datatype assrt      =
 | Some_Arb_Occ   of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Are_Diff_Nth   of numb       * numb           (*Not & Are_Same_Nth*)
 | Are_Diff_Str   of numb       * numb           (*Not & Are_Same_Str*)
-| Has_Typ        of subtrm_occ * typ            (*Some_Sub_Trm, Is_In, & Is_Typ*)
+| Has_Typ        of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest    of subtrm_occ                  (*Not & Is_At_Deepest*)
 
 datatype rule_name  = Rule_Name of string;
@@ -241,7 +241,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           result
         end
-      | eval' (Are_Same_Str (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2))  (Name_Space name_space:name_space) =
+      | eval' (Are_Same_Str (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
         let
           val fst_subg               = #fst_subg abs_pst_w_aux                                                    : Term_Table.unode_aux_n_print_table;
           val fst_subg_unode_table   = #unode_aux_table fst_subg                                                  : Term_Table.unode_aux_table;
@@ -258,6 +258,47 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           val result                 = Option.getOpt (result_option, false)                                       : bool;
         in
           result
+        end
+      | eval' (Is_In_Trm_Loc (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
+        let
+          val fst_subg               = #fst_subg abs_pst_w_aux                                                    : Term_Table.unode_aux_n_print_table;
+          val fst_subg_unode_table   = #unode_aux_table fst_subg                                                  : Term_Table.unode_aux_table;
+          val subtrm_occ_name_space  = #subtrm_occ name_space                                                     : name_subspace;
+          val occ1_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_1 >>= dest_Address_Subtrm_Occ: path option;
+          val occ2_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_2 >>= dest_Address_Subtrm_Occ: path option;
+          fun mk_option_pair (SOME x, SOME y) = SOME (x, y)
+            | mk_option_pair  _               = NONE;
+          fun path1_is_above_path2 ([]:path)    (_    :path) = true
+            | path1_is_above_path2 (x::xs:path) (y::ys:path) = true
+          (*TODO: what to do with function application?
+           *      Should "f" in "f x y" be above x and y?*)
+          val result_option          = Option.map (uncurry path1_is_above_path2) (mk_option_pair (occ1_path_option, occ2_path_option)): bool option;
+          val result                 = Option.getOpt (result_option, false)                                       : bool;
+        in result
+        end
+      | eval' (Is_In_Trm_Loc (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
+        let
+        in true
+        end
+      | eval' (Is_In_Trm_Str (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
+        let
+        in true (*TODO*)
+        end
+      | eval' (Is_In_Trm_Sem (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
+        let
+        in true (*TODO*)
+        end
+      | eval' (Is_Typ (Sub_Trm_Occ occ_idx, typ:hol_typ)) (Name_Space name_space:name_space) =
+        let
+        in true (*TODO*)
+        end
+      | eval' (Is_At_Deepest (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+        let
+        in true (*TODO*)
+        end
+      | eval' (Is_In_Chained (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+        let
+        in true (*TODO*)
         end
       | eval' _ _ = true (*TODO*)
   in
