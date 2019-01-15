@@ -115,3 +115,7 @@ val no_overlad: assrt -> bool;
 val eval      : name_domains * abs_pstate_w_aux * assrt -> bool;
 
 end;
+
+val test = String.isSubstring "asdf" "sd";
+val test = String.isSubstring "sd" "asdf";
+val test = String.isSubstring "sdd" "asdf";

@@ -144,7 +144,7 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 (*TODO: check name collisions before evaluation.*)
 val no_overlad = undefined: assrt -> bool;
 
-fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TODO*)
+fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_aux, assert) = (*TODO*)
   let
     val {ind_domain, arb_domain, subtrm_domain, numb_domain, rule_domain} = name_domains;
 
@@ -231,17 +231,34 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux, assert) = (*TO
           else true
       | eval' (Is_Numb_Arg_Of (subtrm1, Nth i, subtrm2)) _ = true (*TODO*)
       | eval' (Are_Same_Nth (Nth n1, Nth n2)) (Name_Space ns:name_space) =
-         let
-           val numb_name_space = #numb ns                                                : name_subspace;
-           val numb1_option    = alist_lookup_eq numb_name_space n1 >>= dest_Address_Numb: int option;
-           val numb2_option    = alist_lookup_eq numb_name_space n2 >>= dest_Address_Numb: int option;
-           val result_option   = opt_equal (numb1_option, numb2_option)                  : bool option;
-           (*TODO: in future, it might be a better idea to have option type as the result of eval.*)
-           val result          = Option.getOpt (result_option, false)                    : bool;
-         in
-           result
-         end
-      | eval' (Are_Same_Str (subtrm_occ1, subtrm_occ2))  _ = true
+        let
+          val numb_name_space = #numb ns                                                : name_subspace;
+          val numb1_option    = alist_lookup_eq numb_name_space n1 >>= dest_Address_Numb: int option;
+          val numb2_option    = alist_lookup_eq numb_name_space n2 >>= dest_Address_Numb: int option;
+          val result_option   = opt_equal (numb1_option, numb2_option)                  : bool option;
+          (*TODO: in future, it might be a better idea to have option type as the result of eval.*)
+          val result          = Option.getOpt (result_option, false)                    : bool;
+        in
+          result
+        end
+      | eval' (Are_Same_Str (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2))  (Name_Space name_space:name_space) =
+        let
+          val fst_subg               = #fst_subg abs_pst_w_aux                                                    : Term_Table.unode_aux_n_print_table;
+          val fst_subg_unode_table   = #unode_aux_table fst_subg                                                  : Term_Table.unode_aux_table;
+          val subtrm_occ_name_space  = #subtrm_occ name_space                                                     : name_subspace;
+          val occ1_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_1 >>= dest_Address_Subtrm_Occ: path option;
+          val occ1_node_w_aux_option = Option.mapPartial (One_Term.lookup fst_subg_unode_table) occ1_path_option  : Unique_Node.unique_node_w_aux_wo_path option;
+          val occ1_print_option      = Option.map #print occ1_node_w_aux_option                                   : Unique_Node.print option;
+          val occ1_string_option     = Option.map Unique_Node.dest_print occ1_print_option                        : string option;
+          val occ2_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_2 >>= dest_Address_Subtrm_Occ: path option;
+          val occ2_node_w_aux_option = Option.mapPartial (One_Term.lookup fst_subg_unode_table) occ2_path_option  : Unique_Node.unique_node_w_aux_wo_path option;
+          val occ2_print_option      = Option.map #print occ2_node_w_aux_option                                   : Unique_Node.print option;
+          val occ2_string_option     = Option.map Unique_Node.dest_print occ2_print_option                        : string option;
+          val result_option          = opt_equal (occ1_string_option, occ2_string_option)                         : bool option;
+          val result                 = Option.getOpt (result_option, false)                                       : bool;
+        in
+          result
+        end
       | eval' _ _ = true (*TODO*)
   in
     eval' assert empty_name_space
