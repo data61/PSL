@@ -85,17 +85,19 @@ datatype address =(*TODO: better name?*)
 
 type addresses = address list;(*TODO: better name?*)
 
+type name_subspace = (int * address) list;
+
+type name_subspaces = name_subspace list;
+
 (*Note that the name_space specified here is the name_space within each assertion:
  *Different assertions have different name_spaces.*)
 datatype name_space = Name_Space of
- {subtrm:     (int * address) list,
-  subtrm_occ: (int * address) list,
-  rule:       (int * address) list,
-  numb:       (int * address) list};
+ {subtrm:     name_subspace,
+  subtrm_occ: name_subspace,
+  rule:       name_subspace,
+  numb:       name_subspace};
 
 type name_spaces = name_space list;
-
-type name_subspace = (int * address) list;
 
 datatype name_domains = Name_Domains of
   {ind_domain    : addresses,

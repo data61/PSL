@@ -29,7 +29,6 @@ fun count_recursive_consts (ctxt:Proof.context) trm = fold_aterms (fn Const (cna
 
 (* Utilty functions *)
 infix 1 >>= <$> <|>;
-val _ = Option.map;
 fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
 fun (NONE   <|> NONE  ) = NONE
