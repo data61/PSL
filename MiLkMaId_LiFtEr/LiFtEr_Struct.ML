@@ -59,6 +59,7 @@ datatype assrt      =
 | Less           of numb       * numb (* nth_1 < nth_2 *)
 | Is_Nth_Ind     of subtrm     * numb
 | Is_Nth_Arb     of subtrm     * numb
+| Print_Is       of subtrm     * string
 (* TODO: pattern *)
 | Pattern        of numb * subtrm * pattern (*In the definition of subtrm, the nth argument has this pattern.*)
 (*syntax sugars*)
