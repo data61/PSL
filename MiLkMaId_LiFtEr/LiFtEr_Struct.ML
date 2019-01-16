@@ -174,9 +174,6 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       occ_path_option
     end;
 
-    fun name_space_n_subtrm_occ_id_to_subtrm_occ_path_pair (nspace:name_space) (subtrm_occ1:subtrm_occ, subtrm_occ2:subtrm_occ) =
-        apply2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path nspace) (subtrm_occ1, subtrm_occ2);
-
     datatype address_type =
       ATyp_Subtrm
     | ATyp_Subtrm_Occ
@@ -223,7 +220,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           quantifier (eval' inner) new_name_spaces
         end
-    (*code refactoring using mutual recursion*)
+    (*code re-factoring using mutual recursion*)
     and
       (*Note that we never modify abs_pst_w_aux or name_domains.*)
       (*quantifiers*)
@@ -261,38 +258,27 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Are_Same_Str (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val (occ1_path_option,
-               occ2_path_option)  = name_space_n_subtrm_occ_id_to_subtrm_occ_path_pair name_space (subtrm_occ1, subtrm_occ2);
-          val (occ1_print_option,
-               occ2_print_option) = apply2 (Option.mapPartial path_to_print) (occ1_path_option, occ2_path_option);
-          val result_option       = Utils.mk_option_pair (occ1_print_option, occ2_print_option)
-                                <$> uncurry UN.same_prints                                              : bool option;
-          val result              = Utils.is_some_true result_option                                    : bool;
+          val occ1_occ2_path_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path * path) option;
+          val occ1_occ2_print_option = Utils.mapPartial2 path_to_print occ1_occ2_path_option                                                         : (UN.print * UN.print) option;
+          val result_option          = occ1_occ2_print_option <$> uncurry UN.same_prints                                                             : bool option;
+          val result                 = Utils.is_some_true result_option                                                                              : bool;
         in
           result
         end
       | eval' (Is_In_Trm_Loc (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val (occ1_path_option,
-               occ2_path_option)  = name_space_n_subtrm_occ_id_to_subtrm_occ_path_pair name_space (subtrm_occ1, subtrm_occ2);
-          (*What to do with function application?             *)
-          (*Should "f" in "f x y" be above x and y?           *)
-          (*No. "f", "x", and "y" should be at the same level.*)
-          val result_option       = Utils.mk_option_pair (occ1_path_option, occ2_path_option)
-                                <$> uncurry UN.path1_is_above_path2                                     : bool option;
-          val result              = Utils.is_some_true result_option                                    : bool;
+          val occ1_occ2_path_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path * path) option;
+          val result_option          = occ1_occ2_path_option <$> uncurry UN.path1_is_above_path2                                                     : bool option;
+          val result                 = Utils.is_some_true result_option                                                                              : bool;
         in
           result
         end
       | eval' (Is_In_Trm_Str (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val (occ1_path_option,
-               occ2_path_option)  = name_space_n_subtrm_occ_id_to_subtrm_occ_path_pair name_space (subtrm_occ1, subtrm_occ2);
-          val (occ1_print_option,
-               occ2_print_option) = apply2 (Option.mapPartial path_to_print) (occ1_path_option, occ2_path_option);
-          val result_option       = Utils.mk_option_pair (occ1_print_option, occ2_print_option)
-                                <$> uncurry UN.is_subprint_of                                           : bool option;
-          val result              = Utils.is_some_true result_option                                    : bool;
+          val occ1_occ2_path_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path * path) option;
+          val occ1_occ2_print_option = Utils.mapPartial2 path_to_print occ1_occ2_path_option                                                         : (UN.print * UN.print) option;
+          val result_option          = occ1_occ2_print_option <$> uncurry UN.is_subprint_of                                                          : bool option;
+          val result                 = Utils.is_some_true result_option                                                                              : bool;
         in
           result
         end

@@ -61,6 +61,7 @@ sig
   val exist_n                                 : ('a -> bool) -> int -> 'a list -> bool;
   val exist_mult                              : ('a -> bool) -> 'a list -> bool;
   val mk_option_pair                          : ('a option * 'b option) -> ('a * 'b) option;
+  val mapPartial2                             : ('a -> 'b option) -> ('a * 'a) option -> ('b * 'b) option;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -239,6 +240,16 @@ val _ = @{assert} (exist_mult (equal "c") ["a","b","c","d"] |> not);
 
 fun mk_option_pair (SOME x, SOME y) = SOME (x, y)
   | mk_option_pair  _               = NONE;
+
+fun mapPartial2  (f:'a -> 'b option) (SOME (x1, x2)) =
+  let
+    val (res1, res2) = apply2 f (x1,x2);
+    val result = case res1 of
+        SOME r1 => (case res2 of SOME r2 => SOME (r1, r2) | _ => NONE)
+      | _ => NONE;
+    in result end
+  | mapPartial2 _ _ = NONE;
+
 
 end;
 
