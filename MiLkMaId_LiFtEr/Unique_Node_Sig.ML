@@ -104,6 +104,17 @@ datatype node =
 | NL of (string    * typ) (*Abs (Lambda Abstraction)*)
 | NA                      (*$   (Application)*)
 
+datatype node_typ = Node_Typ_NC | Node_Typ_NF | Node_Typ_NV | Node_Typ_NB | Node_Typ_NL | Node_Typ_NA;
+
+val is_NC: node -> bool;
+val is_NF: node -> bool;
+val is_NV: node -> bool;
+val is_NB: node -> bool;
+val is_NL: node -> bool;
+val is_NA: node -> bool;
+
+val node_typ_to_checker: node_typ -> node-> bool;
+
 (* unique_node *)
 type unique_node =
   {node : node,

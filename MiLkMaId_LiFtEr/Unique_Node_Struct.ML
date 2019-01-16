@@ -259,6 +259,22 @@ datatype node =
 | NL of (string    * typ) (*Abs (Lambda Abstraction)*)
 | NA                      (*$   (Application)*)
 
+datatype node_typ = Node_Typ_NC | Node_Typ_NF | Node_Typ_NV | Node_Typ_NB | Node_Typ_NL | Node_Typ_NA;
+
+fun is_NC (NC _) = true | is_NC _ = false;
+fun is_NF (NF _) = true | is_NF _ = false;
+fun is_NV (NV _) = true | is_NV _ = false;
+fun is_NB (NB _) = true | is_NB _ = false;
+fun is_NL (NL _) = true | is_NL _ = false;
+fun is_NA (NA  ) = true | is_NA _ = false;
+
+fun node_typ_to_checker Node_Typ_NC = is_NC
+  | node_typ_to_checker Node_Typ_NF = is_NF
+  | node_typ_to_checker Node_Typ_NV = is_NV
+  | node_typ_to_checker Node_Typ_NB = is_NB
+  | node_typ_to_checker Node_Typ_NL = is_NL
+  | node_typ_to_checker Node_Typ_NA = is_NA;
+
 (* unique_node *)
 type unique_node =
   {node : node,

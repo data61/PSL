@@ -16,6 +16,7 @@ datatype rule       = Rule        of int;
 datatype subtrm_occ = Sub_Trm_Occ of int;
 datatype hol_typ    = Fun | List | Nat | Int | Set | Rec;(*commonly used HOL types*)
 datatype pattern    = Pttrn (*TODO*)
+infix And Or;
 datatype assrt      =
 (*quantifiers*)
   All_Ind          of subtrm * assrt
@@ -197,7 +198,16 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     val fst_subg                  = #fst_subg abs_pst_w_aux                             : Term_Table.unode_aux_n_print_table;
     val fst_subg_unode_table      = #unode_aux_table fst_subg                           : Term_Table.unode_aux_table;
     fun path_to_print (path:path) = One_Term.lookup fst_subg_unode_table path <$> #print: UN.print option;
+    fun path_to_node  (path:path) = One_Term.lookup fst_subg_unode_table path <$> #node : UN.node option;
 
+    fun name_space_n_subtrm_occ_n_node_typ_to_bool (name_space:name_space) (subtrm_occ:subtrm_occ) (node_typ:UN.node_typ) =
+      let
+       val path_option   = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space subtrm_occ: path option;
+       val node_option   = path_option >>= path_to_node                                       : UN.node option;
+       val result_option = node_option <$> UN.node_typ_to_checker node_typ                    : bool option;
+      in
+        Utils.is_some_true result_option
+      end;
 
     fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: addresses) (add_typ:address_type) =
       let
@@ -297,6 +307,35 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Is_In_Chained (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
         let
         in true (*TODO*)
+        end
+      | eval' (Is_In_Fst_Subg (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+        let
+        in true (*TODO*)
+        end
+      | eval' (Is_In_Prems (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+        let
+        in true (*TODO*)
+        end
+      | eval' (Is_In_Cnclsn (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+        let
+        in true (*TODO*)
+        end
+      | eval' (Is_Const_Of_Name subtrm_occ) (name_space:name_space) =
+        let
+        in true (*TODO*)
+        end
+      | eval' (Is_Cnst   subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_n_node_typ_to_bool name_space subtrm_occ UN.Node_Typ_NC
+      | eval' (Is_Var    subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_n_node_typ_to_bool name_space subtrm_occ UN.Node_Typ_NV
+      | eval' (Is_Free   subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_n_node_typ_to_bool name_space subtrm_occ UN.Node_Typ_NF
+      | eval' (Is_Bound  subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_n_node_typ_to_bool name_space subtrm_occ UN.Node_Typ_NB
+      | eval' (Is_Lambda subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_n_node_typ_to_bool name_space subtrm_occ UN.Node_Typ_NL
+      | eval' (Is_App    subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_n_node_typ_to_bool name_space subtrm_occ UN.Node_Typ_NA
+      (*TODO: more constructors between Is_App and Is_Atom*)
+      | eval' (Is_Atom subtrm_occ) (name_space:name_space) =
+        let
+          val desugared_assert = Is_Cnst subtrm_occ Or Is_Free subtrm_occ Or Is_Bound subtrm_occ
+        in
+          eval' desugared_assert name_space
         end
       | eval' _ _ = true (*TODO*)
   in
