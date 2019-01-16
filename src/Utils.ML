@@ -60,6 +60,7 @@ sig
   val map_flat_distinct                       : (term -> 'a list) -> ('a * 'a -> bool) -> terms -> 'a list;
   val exist_n                                 : ('a -> bool) -> int -> 'a list -> bool;
   val exist_mult                              : ('a -> bool) -> 'a list -> bool;
+  val mk_option_pair                          : ('a option * 'b option) -> ('a * 'b) option;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -235,6 +236,9 @@ fun exist_mult  (f:'a -> bool) (xs:'a list) = exist_n f 2 xs;
 
 val _ = @{assert} (exist_mult (equal "b") ["a","b","c","d","b"]);
 val _ = @{assert} (exist_mult (equal "c") ["a","b","c","d"] |> not);
+
+fun mk_option_pair (SOME x, SOME y) = SOME (x, y)
+  | mk_option_pair  _               = NONE;
 
 end;
 
