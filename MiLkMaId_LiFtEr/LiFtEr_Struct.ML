@@ -89,8 +89,8 @@ datatype address =(*TODO: better name?*)
 | Address_Rule       of rule_name
 | Address_Numb       of int;
 
-fun dest_Subtrm             (Address_Subtrm     paths) = SOME (paths: paths)    : paths     option
-  | dest_Subtrm              _                         = NONE                   : paths     option;
+fun dest_Address_Subtrm     (Address_Subtrm     paths) = SOME (paths: paths)    : paths     option
+  | dest_Address_Subtrm      _                         = NONE                   : paths     option;
 fun dest_Address_Subtrm_Occ (Address_Subtrm_Occ path ) = SOME (path: path)      : path      option
   | dest_Address_Subtrm_Occ  _                         = NONE                   : path      option;
 fun dest_Address_Rule       (Address_Rule       rname) = SOME (rname: rule_name): rule_name option
@@ -188,6 +188,11 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     fun how_to_aggregate (Universal  :quantifier) = forall
      |  how_to_aggregate (Existential:quantifier) = exists: (name_space -> bool) -> name_spaces -> bool;
 
+    val fst_subg                  = #fst_subg abs_pst_w_aux                             : Term_Table.unode_aux_n_print_table;
+    val fst_subg_unode_table      = #unode_aux_table fst_subg                           : Term_Table.unode_aux_table;
+    fun path_to_print (path:path) = One_Term.lookup fst_subg_unode_table path <$> #print: UN.print option;
+
+
     fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: addresses) (add_typ:address_type) =
       let
         val new_subtrm_entries_in_name_space = get_new_name_subspaces index domain name_subspace      : name_subspaces;
@@ -248,19 +253,13 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Are_Same_Str (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
         let
-          val fst_subg               = #fst_subg abs_pst_w_aux                                                    : Term_Table.unode_aux_n_print_table;
-          val fst_subg_unode_table   = #unode_aux_table fst_subg                                                  : Term_Table.unode_aux_table;
           val subtrm_occ_name_space  = #subtrm_occ name_space                                                     : name_subspace;
           val occ1_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_1 >>= dest_Address_Subtrm_Occ: path option;
-          val occ1_node_w_aux_option = occ1_path_option >>= (One_Term.lookup fst_subg_unode_table)                : UN.unique_node_w_aux_wo_path option;
-          val occ1_print_option      = occ1_node_w_aux_option <$> #print                                          : UN.print option;
-          fun same_prints    (UN.Print p1) (UN.Print p2) = p1 = p2;
-          val occ1_string_option     = occ1_print_option <$> UN.dest_print                                        : string option;
           val occ2_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_2 >>= dest_Address_Subtrm_Occ: path option;
-          val occ2_node_w_aux_option = occ2_path_option >>= (One_Term.lookup fst_subg_unode_table)                : UN.unique_node_w_aux_wo_path option;
-          val occ2_print_option      = occ2_node_w_aux_option <$> #print                                          : UN.print option;
-          val occ2_string_option     = occ2_print_option <$> UN.dest_print                                        : string option;
-          val result_option          = opt_equal (occ1_string_option, occ2_string_option)                         : bool option;
+          val (occ1_print_option,
+               occ2_print_option)    = apply2 (Option.mapPartial path_to_print) (occ1_path_option, occ2_path_option);
+          val result_option          = Utils.mk_option_pair (occ1_print_option, occ2_print_option)
+                                   <$> uncurry UN.same_prints                                                     : bool option;
           val result                 = Utils.is_some_true result_option                                           : bool;
         in
           result
@@ -270,32 +269,27 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           val subtrm_occ_name_space  = #subtrm_occ name_space                                                     : name_subspace;
           val occ1_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_1 >>= dest_Address_Subtrm_Occ: path option;
           val occ2_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_2 >>= dest_Address_Subtrm_Occ: path option;
-          fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_above_path2 xs ys else false
-            | path1_is_above_path2 ([]   :path) (_::_ :path) = true
-            | path1_is_above_path2  _            _           = false;
           (*What to do with function application?             *)
           (*Should "f" in "f x y" be above x and y?           *)
           (*No. "f", "x", and "y" should be at the same level.*)
-          val result_option          = Utils.mk_option_pair (occ1_path_option, occ2_path_option) <$> (uncurry path1_is_above_path2) : bool option;
-          val result                 = Utils.is_some_true result_option                                                             : bool;
-        in result end
+          val result_option          = Utils.mk_option_pair (occ1_path_option, occ2_path_option)
+                                   <$> uncurry UN.path1_is_above_path2                                            : bool option;
+          val result                 = Utils.is_some_true result_option                                           : bool;
+        in
+          result
+        end
       | eval' (Is_In_Trm_Str (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
         let
-          val fst_subg               = #fst_subg abs_pst_w_aux                                                    : Term_Table.unode_aux_n_print_table;
-          val fst_subg_unode_table   = #unode_aux_table fst_subg                                                  : Term_Table.unode_aux_table;
           val subtrm_occ_name_space  = #subtrm_occ name_space                                                     : name_subspace;
           val occ1_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_1 >>= dest_Address_Subtrm_Occ: path option;
           val occ2_path_option       = alist_lookup_eq subtrm_occ_name_space occ_idx_2 >>= dest_Address_Subtrm_Occ: path option;
-          fun is_subprint_of (UN.Print p1) (UN.Print p2) = String.isSubstring p1 p2;
-          fun path_to_print (path:path) = One_Term.lookup fst_subg_unode_table path <$> #print: UN.print option;
           val (occ1_print_option,
-               occ2_print_option) = apply2 (Option.mapPartial path_to_print) (occ1_path_option, occ2_path_option);
-          (*What to do with function application?             *)
-          (*Should "f" in "f x y" be above x and y?           *)
-          (*No. "f", "x", and "y" should be at the same level.*)
-          val result_option          = Utils.mk_option_pair (occ1_print_option, occ2_print_option) <$> (uncurry is_subprint_of): bool option;
-          val result                 = Utils.is_some_true result_option                                                        : bool;
-        in result end
+               occ2_print_option)    = apply2 (Option.mapPartial path_to_print) (occ1_path_option, occ2_path_option);
+          val result_option          = Utils.mk_option_pair (occ1_print_option, occ2_print_option) <$> (uncurry UN.is_subprint_of): bool option;
+          val result                 = Utils.is_some_true result_option                                                           : bool;
+        in
+          result
+        end
       | eval' (Is_In_Trm_Sem (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
         let
         in true (*TODO*)

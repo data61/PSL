@@ -21,7 +21,9 @@ sig
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
 datatype print = Print of string;
 
-val dest_print: print -> string;
+val dest_print    : print -> string;
+val is_subprint_of: print -> print -> bool;
+val same_prints   : print -> print -> bool
 
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  
@@ -72,6 +74,8 @@ val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
 
 (* path *)
 type path  = ints;
+
+val path1_is_above_path2: path -> path -> bool
 
 (* paths *)
 type paths = path list;

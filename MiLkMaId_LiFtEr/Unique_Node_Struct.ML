@@ -22,6 +22,10 @@ datatype print = Print of string;
 (* dest_print *)
 fun dest_print (Print str) = str;
 
+fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
+
+fun same_prints    (Print p1) (Print p2) = p1 = p2;
+
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  
   C_Prnt of string     * typ              * print (*Const*)
@@ -187,6 +191,11 @@ end;
 
 (* path *)
 type path  = ints;
+
+fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_above_path2 xs ys else false
+  | path1_is_above_path2 ([]   :path) (_::_ :path) = true
+  | path1_is_above_path2  _            _           = false;
+
 
 (* paths *)
 type paths = path list;
