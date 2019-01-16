@@ -14,7 +14,7 @@ datatype numb       = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
 datatype rule       = Rule        of int;
 datatype subtrm_occ = Sub_Trm_Occ of int;
-datatype hol_typ    = Fun | List | Nat | Set | Rec;(*commonly used HOL types*)
+datatype hol_typ    = Fun | List | Nat | Int | Set | Rec;(*commonly used HOL types*)
 datatype pattern    = Pttrn (*TODO*)
 datatype assrt      =
 (*quantifiers*)

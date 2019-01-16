@@ -411,6 +411,9 @@ sig
   val trm_to_funs                                 : term -> {consts: term list, frees: term list, vars: term list};
   val is_set_typ                                  : typ -> bool;
   val trm_has_set_typ                             : term -> bool;
+  val is_int_typ                                  : typ -> bool;
+  val trm_has_int_typ                             : term -> bool;
+  val is_record_trm                               : term -> bool;
   val trm_to_sets                                 : term -> {consts: term list, frees: term list, vars: term list};
   val is_list_typ                                 : typ -> bool;
   val trm_has_list_typ                            : term -> bool;
@@ -751,10 +754,27 @@ fun trm_has_fun_typ (trm:term) = Term.exists_type is_fun_typ trm: bool;
 
 fun trm_to_funs (trm:term) = trm_to_certain_var_free_const trm_has_fun_typ trm;
 
+fun is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ (inner as (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ _ ))) =
+    is_record_trm inner
+  | is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ Const ("Orderings.bot_class.bot", _))                = true
+  | is_record_trm _ = false;
+
+val _ = @{assert} (is_record_trm @{term "{fieldA = True, fieldB = x}"});
+val _ = @{assert} (is_record_trm @{term "{fieldA = w}"});
+val _ = @{assert} (is_record_trm @{term "{x, y}"} |> not);
+val _ = @{assert} (is_record_trm @{term "f {fieldA = w}"} |> not);
+
 fun is_set_typ (Type (typ_name, _):typ) = typ_name = "Set.set"
   | is_set_typ  _                       = false;
 
 fun trm_has_set_typ (trm:term) = Term.exists_type is_set_typ trm: bool;
+
+val _ = @{assert} (trm_has_set_typ @{term "f {a,b,c}"});
+
+fun is_int_typ (Type (typ_name, _):typ) = typ_name = "int"
+  | is_int_typ  _                       = false;
+
+fun trm_has_int_typ (trm:term) = Term.exists_type is_int_typ trm: bool;
 
 fun trm_to_sets (trm:term) = trm_to_certain_var_free_const trm_has_set_typ trm;
 

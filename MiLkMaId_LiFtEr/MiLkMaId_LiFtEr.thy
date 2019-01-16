@@ -38,7 +38,5 @@ ML_file "DInduct_Sig.ML"
 ML_file "DInduct_Struct.ML"
 ML_file "LiFtEr_Sig.ML"
 ML_file "LiFtEr_Struct.ML"
-ML{*String.isSubstring "asf" "sf";*}
-ML{*String.isSubstring "asf" "sasf";*}
 
 end
