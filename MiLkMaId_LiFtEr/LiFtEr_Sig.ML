@@ -81,7 +81,7 @@ type path;
 type paths;
 type pathss;
 
-datatype address =(*TODO: better name?*)
+datatype address =(*TODO: better name? FIXME: this is actually value type.*)
   Address_Subtrm     of paths
 | Address_Subtrm_Occ of path
 | Address_Rule       of rule_name
