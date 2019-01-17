@@ -268,6 +268,17 @@ fun is_NB (NB _) = true | is_NB _ = false;
 fun is_NL (NL _) = true | is_NL _ = false;
 fun is_NA (NA  ) = true | is_NA _ = false;
 
+fun dest_NC (NC (name, typ)) = SOME (name, typ)
+  | dest_NC  _               = NONE;
+fun dest_NF (NF (name, typ)) = SOME (name, typ)
+  | dest_NF  _               = NONE;
+fun dest_NV (NV (name, typ)) = SOME (name, typ)
+  | dest_NV  _               = NONE;
+fun dest_NB (NB (int,  typ)) = SOME (int,  typ)
+  | dest_NB  _               = NONE;
+fun dest_NL (NL (name, typ)) = SOME (name, typ)
+  | dest_NL  _               = NONE;
+
 fun node_typ_to_checker Node_Typ_NC = is_NC
   | node_typ_to_checker Node_Typ_NF = is_NF
   | node_typ_to_checker Node_Typ_NV = is_NV

@@ -113,6 +113,12 @@ val is_NB: node -> bool;
 val is_NL: node -> bool;
 val is_NA: node -> bool;
 
+val dest_NC: node -> (string    * typ) option;
+val dest_NF: node -> (string    * typ) option;
+val dest_NV: node -> (indexname * typ) option;
+val dest_NB: node -> (int       * typ) option;
+val dest_NL: node -> (string    * typ) option;
+
 val node_typ_to_checker: node_typ -> node-> bool;
 
 (* unique_node *)
