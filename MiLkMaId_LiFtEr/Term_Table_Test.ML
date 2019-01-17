@@ -107,4 +107,10 @@ val all_x_f_x_table = trm_to_unique_nodes all_x_f_x: TT.unode_table;
 val all_f_f_x       = @{term "(\<And>f. f x)"}: term;
 val all_f_f_x_table = trm_to_unique_nodes all_f_f_x: TT.unode_table;
 
+val sample_list = @{term "[1,2,3]"};
+val sample_list_table = trm_to_unique_nodes sample_list;
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0  ])|> the) = (Unique_Node.Print "[1, 2, 3]"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,0])|> the) = (Unique_Node.Print "(#)"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,1])|> the) = (Unique_Node.Print "1"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,2])|> the) = (Unique_Node.Print "[2, 3]"));
 end;

@@ -6,6 +6,8 @@ The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 structure LiFtEr: LIFTER =
 struct
 
+open LiFtEr_Util;
+
 structure UN = Unique_Node;
 
 type abs_pstate_w_aux = Term_Table.abs_pstate_w_aux;
@@ -14,7 +16,6 @@ datatype numb       = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
 datatype rule       = Rule        of int;
 datatype subtrm_occ = Sub_Trm_Occ of int;
-datatype hol_typ    = Fun | List | Nat | Int | Set | Rec;(*commonly used HOL types*)
 datatype pattern    = Pttrn (*TODO*)
 infix And Or Imply;
 datatype assrt      =
@@ -295,8 +296,9 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         let
         in true (*TODO*)
         end
-      | eval' (Is_Typ (Sub_Trm_Occ occ_idx, typ:hol_typ)) (Name_Space name_space:name_space) =
+      | eval' (Is_Typ (Sub_Trm_Occ occ_idx, hol_typ:hol_typ)) (Name_Space name_space:name_space) =
         let
+fun is_typ Fun_Typ (typ:typ) = ()
         in true (*TODO*)
         end
       | eval' (Is_At_Deepest (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =

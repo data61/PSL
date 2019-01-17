@@ -32,6 +32,8 @@ type     pttrn_of_a_const             = pttrn_of_a_param_in_a_clause Matrix.colu
 val get_pttrn_of_nth_params_mth_clause: pttrn_of_a_const -> int (*nth*) -> int (*mth*) -> pttrn_of_a_param_in_a_clause option;
 
 (* command *)
-datatype command           = Definition | Fun | Function | Inductive | Primrec | Unknown;
+datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+
+datatype hol_typ = Fun | List | Nat | Int | Set (*TODO:| Rec*) | Rec;(*commonly used HOL types*)
 
 end;

@@ -37,6 +37,8 @@ fun get_pttrn_of_nth_params_mth_clause (pttrn:pttrn_of_a_const) (mth_param:int) 
   end;
 
 (* command *)
-datatype command           = Definition | Fun | Function | Inductive | Primrec | Unknown;
+datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+
+datatype hol_typ = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
 
 end;

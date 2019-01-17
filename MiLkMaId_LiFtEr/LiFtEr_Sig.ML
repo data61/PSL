@@ -6,13 +6,14 @@ The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 signature LIFTER =
 sig
 
+include LIFTER_UTIL;
+
 type abs_pstate_w_aux;
 
 datatype numb       = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
 datatype rule       = Rule        of int;
 datatype subtrm_occ = Sub_Trm_Occ of int;
-datatype hol_typ    = Fun | List | Nat | Int | Set | Rec;(*commonly used HOL types*)
 datatype pattern    = Pttrn (*TODO*)
 datatype assrt      =
 (*quantifiers*)
@@ -77,7 +78,6 @@ datatype assrt      =
 
 datatype rule_name = Rule_Name of string;
 type rule_names    = rule_name list;
-type path;
 type paths;
 type pathss;
 

@@ -415,7 +415,7 @@ sig
   val trm_has_int_typ                             : term -> bool;
   val is_record_trm                               : term -> bool;
   val trm_to_sets                                 : term -> {consts: term list, frees: term list, vars: term list};
-  val is_list_typ                                 : typ -> bool;
+  val is_list_typ                                 : typ -> bool;(*TODO: this name is misleading.*)
   val trm_has_list_typ                            : term -> bool;
   val trm_to_lists                                : term -> {consts: term list, frees: term list, vars: term list};
   val trm_to_sets_and_lists                       : term -> {consts: term list, frees: term list, vars: term list};
@@ -756,8 +756,8 @@ fun trm_to_funs (trm:term) = trm_to_certain_var_free_const trm_has_fun_typ trm;
 
 fun is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ (inner as (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ _ ))) =
     is_record_trm inner
-  | is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ Const ("Orderings.bot_class.bot", _))                = true
-  | is_record_trm _ = false;
+  | is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ Const ("Orderings.bot_class.bot", _))                                      = true
+  | is_record_trm  _                                                                                                                                    = false;
 
 val _ = @{assert} (is_record_trm @{term "{fieldA = True, fieldB = x}"});
 val _ = @{assert} (is_record_trm @{term "{fieldA = w}"});
