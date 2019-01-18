@@ -365,6 +365,18 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           result
         end
+      | eval' (Is_Nth_Arb (subtrm:subtrm, Nth numb)) (name_space:name_space) =
+        let
+          val nth_arb_print_option     = try (nth arbs) numb <$> LiFtEr_Util.dest_induct_arb             : print option;
+          val subtrm_occ_paths_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm    : paths option;
+          val subtrm_occ_a_path_option = subtrm_occ_paths_option >>= try hd                              : path  option;
+          val subtrm_print_option      = subtrm_occ_a_path_option >>= path_to_print                      : print option;
+          val tobe_compared            = Utils.mk_option_pair (nth_arb_print_option, subtrm_print_option): (print * print) option;
+          val result_option            = tobe_compared <$> uncurry LU.same_prints                        : bool option;
+          val result                   = Utils.is_some_true result_option                                : bool;
+        in
+          result
+        end
       (*TODO: more constructors between Is_App and Is_Atom*)
       | eval' (Is_Atom subtrm_occ) (name_space:name_space) =
         let
