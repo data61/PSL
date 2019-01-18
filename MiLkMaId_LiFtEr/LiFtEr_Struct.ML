@@ -216,6 +216,22 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     fun path_to_print (path:path) = One_Term.lookup fst_subg_unode_table path <$> #print: UN.print option;
     fun path_to_node  (path:path) = One_Term.lookup fst_subg_unode_table path <$> #node : UN.node option;
 
+    fun is_nth_arg_of_induct_method (assrt:assrt) (subtrm:subtrm) (Nth numb) (name_space:name_space) =
+      let
+        fun get_print_option (Is_Nth_Ind _) = try (nth ons ) numb <$> LiFtEr_Util.dest_induct_on   : print option
+          | get_print_option (Is_Nth_Arb _) = try (nth arbs) numb <$> LiFtEr_Util.dest_induct_arb  : print option
+          | get_print_option (_)            = NONE                                                 : print option;
+        val nth_print_option         = get_print_option assrt                                      : print option;
+        val subtrm_occ_paths_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm: paths option;
+        val subtrm_occ_a_path_option = subtrm_occ_paths_option >>= try hd                          : path  option;
+        val subtrm_print_option      = subtrm_occ_a_path_option >>= path_to_print                  : print option;
+        val tobe_compared            = Utils.mk_option_pair (nth_print_option, subtrm_print_option): (print * print) option;
+        val result_option            = tobe_compared <$> uncurry LU.same_prints                    : bool option;
+        val result                   = Utils.is_some_true result_option                            : bool;
+      in
+        result
+      end;
+
     fun name_space_n_subtrm_occ_are_node_typ_of (name_space:name_space) (subtrm_occ:subtrm_occ) (node_typ:UN.node_typ) =
       let
        val path_option   = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space subtrm_occ: path option;
@@ -353,30 +369,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Is_Lambda subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NL
       | eval' (Is_App    subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NA
       (*TODO: more constructors between Is_App and Is_Atom*)
-      | eval' (Is_Nth_Ind (subtrm:subtrm, Nth numb)) (name_space:name_space) =
-        let
-          val nth_on_print_option      = try (nth ons) numb <$> LiFtEr_Util.dest_induct_on              : print option;
-          val subtrm_occ_paths_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm   : paths option;
-          val subtrm_occ_a_path_option = subtrm_occ_paths_option >>= try hd                             : path  option;
-          val subtrm_print_option      = subtrm_occ_a_path_option >>= path_to_print                     : print option;
-          val tobe_compared            = Utils.mk_option_pair (nth_on_print_option, subtrm_print_option): (print * print) option;
-          val result_option            = tobe_compared <$> uncurry LU.same_prints                       : bool option;
-          val result                   = Utils.is_some_true result_option                               : bool;
-        in
-          result
-        end
-      | eval' (Is_Nth_Arb (subtrm:subtrm, Nth numb)) (name_space:name_space) =
-        let
-          val nth_arb_print_option     = try (nth arbs) numb <$> LiFtEr_Util.dest_induct_arb             : print option;
-          val subtrm_occ_paths_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm    : paths option;
-          val subtrm_occ_a_path_option = subtrm_occ_paths_option >>= try hd                              : path  option;
-          val subtrm_print_option      = subtrm_occ_a_path_option >>= path_to_print                      : print option;
-          val tobe_compared            = Utils.mk_option_pair (nth_arb_print_option, subtrm_print_option): (print * print) option;
-          val result_option            = tobe_compared <$> uncurry LU.same_prints                        : bool option;
-          val result                   = Utils.is_some_true result_option                                : bool;
-        in
-          result
-        end
+      | eval' (assrt as Is_Nth_Ind (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
+      | eval' (assrt as Is_Nth_Arb (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
       (*TODO: more constructors between Is_App and Is_Atom*)
       | eval' (Is_Atom subtrm_occ) (name_space:name_space) =
         let
