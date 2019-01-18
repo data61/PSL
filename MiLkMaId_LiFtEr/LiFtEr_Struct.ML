@@ -171,18 +171,18 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun name_space_n_subtrm_occ_id_to_subtrm_occ_path (Name_Space nspace:name_space) (Sub_Trm_Occ occ_idx:subtrm_occ) =
       let
-          val subtrm_occ_name_space  = #subtrm_occ nspace                           : name_subspace;
-          val occ_path_option        = alist_lookup_eq subtrm_occ_name_space occ_idx
-                                   >>= dest_Address_Subtrm_Occ                      : path option;
+          val subtrm_occ_name_space  = #subtrm_occ nspace                            : name_subspace;
+          val occ_address_option     = alist_lookup_eq subtrm_occ_name_space occ_idx : address option;
+          val occ_path_option        = occ_address_option >>= dest_Address_Subtrm_Occ: path option;
       in
         occ_path_option
       end;
 
     fun name_space_n_subtrm_id_to_subtrm_occ_paths (Name_Space nspace:name_space) (Sub_Trm subtrm_idx:subtrm) =
       let
-          val subtrm_name_space      = #subtrm nspace                           : name_subspace;
-          val subtrm_paths_option    = alist_lookup_eq subtrm_name_space subtrm_idx
-                                   >>= dest_Address_Subtrm                      : paths option;
+          val subtrm_name_space     = #subtrm nspace                              : name_subspace;
+          val subtrm_address_option = alist_lookup_eq subtrm_name_space subtrm_idx: address option;
+          val subtrm_paths_option   = subtrm_address_option>>= dest_Address_Subtrm: paths option;
       in
         subtrm_paths_option
       end;
@@ -200,9 +200,10 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun get_new_name_subspaces (i:int) (domain:address list) (old_name_subspace:name_subspace) =
       let
-        val new_name_subspace = map (pair i) domain: name_subspace;
+        val new_name_subspace  = map (pair i) domain: name_subspace                 : name_subspace;
+        val new_name_subspaces = map (alist_add old_name_subspace) new_name_subspace: name_subspaces;
       in
-        map (alist_add old_name_subspace) new_name_subspace: name_subspaces
+        new_name_subspaces
       end;
 
     type quantifier = (name_space -> bool) -> name_space list -> bool;
@@ -371,14 +372,15 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       (*TODO: more constructors between Is_App and Is_Atom*)
       | eval' (assrt as Is_Nth_Ind (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
       | eval' (assrt as Is_Nth_Arb (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
-      (*TODO: more constructors between Is_App and Is_Atom*)
+      (*TODO: more constructors between Is_Nth_Arb and Is_Atom*)
+      | eval' (Numb_Is  (Nth numb, int:int))     (name_space:name_space) = true (*TODO*)
+      | eval' (Print_Is (subtrm, string:string)) (name_space:name_space) = true (*TODO*)
       | eval' (Is_Atom subtrm_occ) (name_space:name_space) =
         let
           val desugared_assert = Is_Cnst subtrm_occ Or Is_Free subtrm_occ Or Is_Bound subtrm_occ
         in
           eval' desugared_assert name_space
         end
-      | eval' _ _ = true (*TODO*)
   in
     eval' assert empty_name_space
   end;
