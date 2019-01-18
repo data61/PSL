@@ -16,9 +16,9 @@ open Unique_Node;
 
 type modifiers = modifier list;
 
-fun unode_w_aux_wo_path_to_on (unode:unique_node_w_aux_wo_path) = #print unode |> dest_print |> Ind: modifier;
+fun unode_w_aux_wo_path_to_on (unode:unique_node_w_aux_wo_path) = #print unode |> LiFtEr_Util.dest_print |> Ind: modifier;
 
-fun unode_w_aux_wo_path_to_arb (unode:unique_node_w_aux_wo_path) = #print unode |> dest_print |> Arb: modifier;
+fun unode_w_aux_wo_path_to_arb (unode:unique_node_w_aux_wo_path) = #print unode |> LiFtEr_Util.dest_print |> Arb: modifier;
 
 fun strs_to_rules (strs:strings) = map Rule strs:  modifiers;
 

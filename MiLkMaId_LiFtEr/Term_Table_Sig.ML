@@ -25,7 +25,7 @@ fun path_ord' ([],    []   ) = EQUAL
 
 fun path_ord (ints1, ints2) = path_ord' (ints1, ints2);
 
-fun prnt_ord (Unique_Node.Print p1, Unique_Node.Print p2) = String.compare (p1, p2);
+fun prnt_ord (LiFtEr_Util.Print p1, LiFtEr_Util.Print p2) = String.compare (p1, p2);
 
 in
 

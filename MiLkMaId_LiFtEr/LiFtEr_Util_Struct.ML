@@ -10,7 +10,7 @@ struct
 type path = ints;
 
 (* patterns *)
-datatype left_pttrn        = Var                 | Data_Const_WO_Param | Data_Const_W_Param;
+datatype left_pttrn        = PVar                | PData_Const_WO_Param | PData_Const_W_Param;
 datatype which_call        = All_Rec_Calls       | Some_Rec_Call;
 (* portion
  * Whole: If the whole nth parameter of "f" appears as an argument of (some/all) recursive call(s) of "f" in the definition of "f".
@@ -36,9 +36,21 @@ fun get_pttrn_of_nth_params_mth_clause (pttrn:pttrn_of_a_const) (mth_param:int) 
     param:pttrn_of_a_param_in_a_clause option
   end;
 
-(* command *)
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
-
 datatype hol_typ = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
+datatype print   = Print of string;
+
+fun dest_print (Print str) = str;
+fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
+fun same_prints    (Print p1) (Print p2) = p1 = p2;
+
+datatype induct_on   = Ind_On      of print;
+datatype induct_arb  = Ind_Arb     of print;
+datatype induct_rule = Ind_Rule    of string;
+datatype ind_mods    = Ind_Mods    of {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
+
+fun dest_induct_on   (Ind_On print)    = print;
+fun dest_induct_arb  (Ind_Arb print)   = print;
+fun dest_induct_rule (Ind_Rule string) = string;
 
 end;

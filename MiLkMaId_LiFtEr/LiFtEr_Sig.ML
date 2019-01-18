@@ -10,12 +10,12 @@ include LIFTER_UTIL;
 
 type abs_pstate_w_aux;
 
-datatype numb       = Nth         of int;
-datatype subtrm     = Sub_Trm     of int;
-datatype rule       = Rule        of int;
-datatype subtrm_occ = Sub_Trm_Occ of int;
-datatype pattern    = Pttrn (*TODO*)
-datatype assrt      =
+datatype numb        = Nth         of int;
+datatype subtrm      = Sub_Trm     of int;
+datatype rule        = Rule        of int;
+datatype subtrm_occ  = Sub_Trm_Occ of int;
+datatype pattern     = Pttrn (*TODO*)
+datatype assrt       =
 (*quantifiers*)
   All_Ind          of subtrm * assrt
 | All_Arb          of subtrm * assrt
@@ -116,6 +116,6 @@ datatype name_domain =(*TODO: to be removed?*)
 | Numb_Domain   of addresses;
 
 val no_overlad: assrt -> bool;
-val eval      : name_domains * abs_pstate_w_aux * assrt -> bool;
+val eval      : name_domains * abs_pstate_w_aux * assrt * ind_mods -> bool;
 
 end;

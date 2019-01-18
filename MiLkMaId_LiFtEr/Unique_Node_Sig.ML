@@ -17,13 +17,7 @@ signature UNIQUE_NODE =
 sig
 
 (** term as syntax tree **)
-
-(* print: the printed format of a sub-tree in the syntax tree of a term. *)
-datatype print = Print of string;
-
-val dest_print    : print -> string;
-val is_subprint_of: print -> print -> bool;
-val same_prints   : print -> print -> bool
+type print;
 
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  

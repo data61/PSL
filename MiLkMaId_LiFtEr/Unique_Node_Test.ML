@@ -17,6 +17,7 @@ structure Unique_Node_Test (*:UNIQUE_NODE*) =
 struct
 
 open Unique_Node;
+open LiFtEr_Util;
 
 (** test: trm_to_trm_w_prnt **)
 fun dest_Print (Print p) = p;

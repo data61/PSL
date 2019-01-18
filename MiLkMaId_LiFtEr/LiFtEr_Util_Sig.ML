@@ -10,7 +10,7 @@ sig
 type path = ints;
 
 (** patterns **)
-datatype left_pttrn        = Var           | Data_Const_WO_Param | Data_Const_W_Param;
+datatype left_pttrn        = PVar          | PData_Const_WO_Param | PData_Const_W_Param;
 datatype which_call        = All_Rec_Calls | Some_Rec_Call;
 (* portion
  * Whole: If the whole nth parameter of "f" appears as an argument of (some/all) recursive call(s) of "f" in the definition of "f".
@@ -34,6 +34,22 @@ val get_pttrn_of_nth_params_mth_clause: pttrn_of_a_const -> int (*nth*) -> int (
 (* command *)
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
-datatype hol_typ = Fun | List | Nat | Int | Set (*TODO:| Rec*) | Rec;(*commonly used HOL types*)
+datatype hol_typ = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
+
+(* print: the printed format of a sub-tree in the syntax tree of a term. *)
+datatype print = Print of string;
+val dest_print    : print -> string;
+val is_subprint_of: print -> print -> bool;
+val same_prints   : print -> print -> bool
+
+(* modifiers for the induct method *)
+datatype induct_on   = Ind_On      of print;
+datatype induct_arb  = Ind_Arb     of print;
+datatype induct_rule = Ind_Rule    of string;
+datatype ind_mods    = Ind_Mods    of {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
+
+val dest_induct_on  : induct_on   -> print;
+val dest_induct_arb : induct_arb  -> print;
+val dest_induct_rule: induct_rule -> string;
 
 end;

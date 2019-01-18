@@ -47,50 +47,50 @@ fun unode_wo_path_table_n_path_to_print (table, path) =
 
 in
 
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0]      )     |> the) = (Unique_Node.Print "x &&& w &&& ww \<Longrightarrow> f (\<lambda>x. x w) z2 \<Longrightarrow> z1 &&& z2 &&& z3 z4 z5 z6"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,0]    )     |> the) = (Unique_Node.Print "(\<Longrightarrow>)"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,1]    )     |> the) = (Unique_Node.Print "x &&& w &&& ww"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,1,3]  )     |> the) = (Unique_Node.Print "ww"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3]    )     |> the) = (Unique_Node.Print "z1 &&& z2 &&& z3 z4 z5 z6"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,0]  )     |> the) = (Unique_Node.Print "(&&&)"))
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,1])       |> the) = (Unique_Node.Print "z1"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3])       |> the) = (Unique_Node.Print "z3 z4 z5 z6"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,0])     |> the) = (Unique_Node.Print "Trueprop"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1])     |> the) = (Unique_Node.Print "z3 z4 z5 z6"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,0])   |> the) = (Unique_Node.Print "z3"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,1])   |> the) = (Unique_Node.Print "z4"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,2])   |> the) = (Unique_Node.Print "z5"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1]  )     |> the) = (Unique_Node.Print "f (\<lambda>x. x w) z2"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,0])     |> the) = (Unique_Node.Print "f"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1])     |> the) = (Unique_Node.Print "\<lambda>x. x w"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0])   |> the) = (Unique_Node.Print "x w"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0,0]) |> the) = (Unique_Node.Print "x"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0,1]) |> the) = (Unique_Node.Print "w"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,2])     |> the) = (Unique_Node.Print "z2"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0]      )     |> the) = (LiFtEr_Util.Print "x &&& w &&& ww \<Longrightarrow> f (\<lambda>x. x w) z2 \<Longrightarrow> z1 &&& z2 &&& z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,0]    )     |> the) = (LiFtEr_Util.Print "(\<Longrightarrow>)"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,1]    )     |> the) = (LiFtEr_Util.Print "x &&& w &&& ww"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,1,3]  )     |> the) = (LiFtEr_Util.Print "ww"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3]    )     |> the) = (LiFtEr_Util.Print "z1 &&& z2 &&& z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,0]  )     |> the) = (LiFtEr_Util.Print "(&&&)"))
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,1])       |> the) = (LiFtEr_Util.Print "z1"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3])       |> the) = (LiFtEr_Util.Print "z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,0])     |> the) = (LiFtEr_Util.Print "Trueprop"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1])     |> the) = (LiFtEr_Util.Print "z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,0])   |> the) = (LiFtEr_Util.Print "z3"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,1])   |> the) = (LiFtEr_Util.Print "z4"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,3,3,1,2])   |> the) = (LiFtEr_Util.Print "z5"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1]  )     |> the) = (LiFtEr_Util.Print "f (\<lambda>x. x w) z2"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,0])     |> the) = (LiFtEr_Util.Print "f"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1])     |> the) = (LiFtEr_Util.Print "\<lambda>x. x w"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0])   |> the) = (LiFtEr_Util.Print "x w"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0,0]) |> the) = (LiFtEr_Util.Print "x"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,1,0,1]) |> the) = (LiFtEr_Util.Print "w"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (imp_xyz_table, [0,2,1,2])     |> the) = (LiFtEr_Util.Print "z2"));
 
 val _ = @{assert}
 ((TT.unode_table_to_unode_n_print_table imp_xyz_table
   |> #paths_table
-  |> (fn tbl => Print_Table.lookup tbl (UN.Print "z2"))) =
+  |> (fn tbl => Print_Table.lookup tbl (LiFtEr_Util.Print "z2"))) =
  SOME [[0, 2, 1, 2], [0, 3, 2], [0, 3, 2, 1]]);
 
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,2,1,2] |> the |> #print) = (UN.Print "z2"));
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,3,2]   |> the |> #print) = (UN.Print "z2"));
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,3,2,1] |> the |> #print) = (UN.Print "z2"));
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,2,1,2] |> the |> #print) = (LiFtEr_Util.Print "z2"));
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,3,2]   |> the |> #print) = (LiFtEr_Util.Print "z2"));
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,3,2,1] |> the |> #print) = (LiFtEr_Util.Print "z2"));
 (*Should I care about the types? In this case, maybe we should ignore unode032.*)
 
 val x =
 ((TT.unode_table_to_unode_n_print_table imp_xyz_table
   |> #paths_table
-  |> (fn tbl => Print_Table.lookup tbl (UN.Print "x"))));
+  |> (fn tbl => Print_Table.lookup tbl (LiFtEr_Util.Print "x"))));
 
 val unode011    = One_Term.lookup imp_xyz_table [0,1,1]      ;
 val unode0111   = One_Term.lookup imp_xyz_table [0,1,1,1]    ;
 val unode021100 = One_Term.lookup imp_xyz_table [0,2,1,1,0,0];
 
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,1,1]      |> the |> #print) = (UN.Print "x"));
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,1,1,1]    |> the |> #print) = (UN.Print "x"));
-val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,2,1,1,0,0]|> the |> #print) = (UN.Print "x"));
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,1,1]      |> the |> #print) = (LiFtEr_Util.Print "x"));
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,1,1,1]    |> the |> #print) = (LiFtEr_Util.Print "x"));
+val _ = @{assert} ((One_Term.lookup imp_xyz_table [0,2,1,1,0,0]|> the |> #print) = (LiFtEr_Util.Print "x"));
 
 val a_imp_xyz       = @{term "(\<lambda>f. f w)"}: term;
 val a_imp_xyz_table = trm_to_unique_nodes a_imp_xyz: TT.unode_table;
@@ -109,8 +109,8 @@ val all_f_f_x_table = trm_to_unique_nodes all_f_f_x: TT.unode_table;
 
 val sample_list = @{term "[1,2,3]"};
 val sample_list_table = trm_to_unique_nodes sample_list;
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0  ])|> the) = (Unique_Node.Print "[1, 2, 3]"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,0])|> the) = (Unique_Node.Print "(#)"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,1])|> the) = (Unique_Node.Print "1"));
-val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,2])|> the) = (Unique_Node.Print "[2, 3]"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0  ])|> the) = (LiFtEr_Util.Print "[1, 2, 3]"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,0])|> the) = (LiFtEr_Util.Print "(#)"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,1])|> the) = (LiFtEr_Util.Print "1"));
+val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,2])|> the) = (LiFtEr_Util.Print "[2, 3]"));
 end;

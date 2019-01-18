@@ -17,7 +17,8 @@ structure Unique_Node: UNIQUE_NODE  =
 struct
 
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
-datatype print = Print of string;
+type print = LiFtEr_Util.print;
+open LiFtEr_Util;
 
 (* dest_print *)
 fun dest_print (Print str) = str;
