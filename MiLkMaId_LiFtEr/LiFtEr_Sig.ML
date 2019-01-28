@@ -70,7 +70,7 @@ datatype assrt       =
 | Some_Arb_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Is_Atom          of subtrm_occ                  (*Is_Cnst, Is_Var, Is_Free *)
 | Are_Diff_Nth     of numb       * numb           (*Not & Are_Same_Nth*)
-| Are_Diff_Str     of numb       * numb           (*Not & Are_Same_Str*)
+| Are_Diff_Str     of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
 | Has_Typ          of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest      of subtrm_occ                  (*Not & Is_At_Deepest*)
 | Is_More_Than     of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Nth*)

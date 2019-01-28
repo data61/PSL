@@ -75,7 +75,7 @@ datatype assrt       =
 | Some_Ind_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Some_Arb_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Are_Diff_Nth     of numb       * numb           (*Not & Are_Same_Numb*)
-| Are_Diff_Str     of numb       * numb           (*Not & Are_Same_Str*)
+| Are_Diff_Str     of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
 | Has_Typ          of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest      of subtrm_occ                  (*Not & Is_At_Deepest*)
 | Is_More_Than     of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
@@ -369,18 +369,31 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Is_Bound  subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NB
       | eval' (Is_Lambda subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NL
       | eval' (Is_App    subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NA
-      (*TODO: more constructors between Is_App and Is_Atom*)
+      | eval' (Not_Fully_App subtrm_occ)    (name_space:name_space) = true (*TODO*)
+      | eval' (Is_Less_Than (numb1, numb2)) (name_space:name_space) = true (*TODO*)
+      | eval' (Is_Nth_Arg_Of (func:subtrm_occ, numb:numb, arg:subtrm_occ)) (name_space:name_space) = true (*TODO*)
       | eval' (assrt as Is_Nth_Ind (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
       | eval' (assrt as Is_Nth_Arb (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
-      (*TODO: more constructors between Is_Nth_Arb and Is_Atom*)
       | eval' (Numb_Is  (Nth numb, int:int))     (name_space:name_space) = true (*TODO*)
       | eval' (Print_Is (subtrm, string:string)) (name_space:name_space) = true (*TODO*)
+      | eval' (Pattern (numb:numb, subtrm:subtrm, pttrn:pattern)) (name_space:name_space) = true (*TODO*)
+      (*syntax sugars*)
+      | eval' (All_Ind_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
+      | eval' (All_Arb_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
+      | eval' (Some_Ind_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
+      | eval' (Some_Arb_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
       | eval' (Is_Atom subtrm_occ) (name_space:name_space) =
         let
           val desugared_assert = Is_Cnst subtrm_occ Or Is_Free subtrm_occ Or Is_Bound subtrm_occ
         in
           eval' desugared_assert name_space
         end
+      | eval' (Are_Diff_Nth (numb1:numb, numb2:numb)) (name_space:name_space) = true (*TODO*)
+      | eval' (Are_Diff_Str (subtrm_occ1:subtrm_occ, subtrm_occ2:subtrm_occ)) (name_space:name_space) = true (*TODO*)
+      | eval' (Has_Typ      (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) = true (*TODO*)
+      | eval' (Not_Deepest  (subtrm_occ:subtrm_occ)) (name_space:name_space) = true (*TODO*)
+      | eval' (Is_More_Than (numb1:numb, numb2:numb)) (name_space:name_space) = true (*TODO*)
+      | eval' (For_Numb_N   (numb1:numb, int:int)) (name_space:name_space) = true (*TODO*)
   in
     eval' assert empty_name_space
   end;
