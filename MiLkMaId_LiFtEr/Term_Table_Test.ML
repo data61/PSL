@@ -113,4 +113,8 @@ val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0  ]
 val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,0])|> the) = (LiFtEr_Util.Print "(#)"));
 val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,1])|> the) = (LiFtEr_Util.Print "1"));
 val _ = @{assert}((unode_wo_path_table_n_path_to_print (sample_list_table, [0,2])|> the) = (LiFtEr_Util.Print "[2, 3]"));
+
+val var_of_type_list = @{term "xs::int list"};
+val var_of_type_list_table = trm_to_unique_nodes var_of_type_list;
+
 end;

@@ -26,7 +26,7 @@ datatype assrt       =
 | Some_Arb         of subtrm * assrt
 | Some_Sub_Trm     of subtrm * assrt
 | Some_Rule        of rule   * assrt
-| Some_Numb         of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
+| Some_Numb        of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
 | All_Sub_Trm_Occ  of subtrm_occ * subtrm * assrt
 | Some_Sub_Trm_Occ of subtrm_occ * subtrm * assrt
@@ -69,11 +69,11 @@ datatype assrt       =
 | Some_Ind_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Some_Arb_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Is_Atom          of subtrm_occ                  (*Is_Cnst, Is_Var, Is_Free *)
-| Are_Diff_Nth     of numb       * numb           (*Not & Are_Same_Nth*)
+| Are_Diff_Numb    of numb       * numb           (*Not & Are_Same_Nth*)
 | Are_Diff_Str     of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
 | Has_Typ          of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest      of subtrm_occ                  (*Not & Is_At_Deepest*)
-| Is_More_Than     of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Nth*)
+| Is_More_Than     of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
 | For_Numb_N       of numb       * int            (*All_Numb $ Numb_Is*)
 
 datatype rule_name = Rule_Name of string;
@@ -96,10 +96,10 @@ type name_subspaces = name_subspace list;
 (*Note that the name_space specified here is the name_space within each assertion:
  *Different assertions have different name_spaces.*)
 datatype name_space = Name_Space of
- {subtrm:     name_subspace,
+ {subtrm    : name_subspace,
   subtrm_occ: name_subspace,
-  rule:       name_subspace,
-  numb:       name_subspace};
+  rule      : name_subspace,
+  numb      : name_subspace};
 
 type name_spaces = name_space list;
 

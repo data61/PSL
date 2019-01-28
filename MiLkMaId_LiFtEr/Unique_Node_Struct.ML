@@ -21,7 +21,7 @@ type print = LiFtEr_Util.print;
 open LiFtEr_Util;
 
 (* dest_print *)
-fun dest_print (Print str) = str;
+fun dest_Print (Print str) = str;
 
 fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
 

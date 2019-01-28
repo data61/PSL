@@ -20,7 +20,6 @@ open Unique_Node;
 open LiFtEr_Util;
 
 (** test: trm_to_trm_w_prnt **)
-fun dest_Print (Print p) = p;
 
 fun trm_w_prnt_to_prnt (C_Prnt (_, _,     print)) = print
   | trm_w_prnt_to_prnt (F_Prnt (_, _,     print)) = print

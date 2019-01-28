@@ -74,7 +74,7 @@ datatype assrt       =
 | All_Arb_Occ      of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
 | Some_Ind_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Some_Arb_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
-| Are_Diff_Nth     of numb       * numb           (*Not & Are_Same_Numb*)
+| Are_Diff_Numb    of numb       * numb           (*Not & Are_Same_Numb*)
 | Are_Diff_Str     of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
 | Has_Typ          of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest      of subtrm_occ                  (*Not & Is_At_Deepest*)
@@ -87,7 +87,7 @@ type path          = UN.path;
 type paths         = path  list;
 type pathss        = paths list;
 
-datatype address =(*TODO: better name?*)
+datatype address =(*TODO: better name? id?*)
   Address_Subtrm     of paths
 | Address_Subtrm_Occ of path
 | Address_Rule       of rule_name
@@ -166,25 +166,54 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun alist_add       (alist: (''a * 'a) list) (key:''a, value:'a) = AList.update (op =) (key, value) alist: (''a * 'a) list;
     fun alist_lookup_eq (alist: (''a * 'b) list) (key:''a)           = AList.lookup (op =) alist key;
-    fun opt_equal (SOME x, SOME y)   = SOME (x = y)
-      | opt_equal (     _,      _)   = NONE        : bool option;
+    fun opt_equal (SOME x, SOME y) = SOME (x = y)
+      | opt_equal (     _,      _) = NONE        : bool option;
 
-    fun name_space_n_subtrm_occ_id_to_subtrm_occ_path (Name_Space nspace:name_space) (Sub_Trm_Occ occ_idx:subtrm_occ) =
+    fun name_space_n_numb_id_to_integer (Name_Space nspace) (Nth numb_id) =
+    let
+      val numb_name_space        = #numb nspace                                : name_subspace;
+      val integer_address_option = alist_lookup_eq numb_name_space numb_id     : address option;
+      val integer_option         = integer_address_option >>= dest_Address_Numb: int option;
+    in
+      integer_option
+    end;
+
+    fun name_space_n_subtrm_occ_id_to_subtrm_occ_path (Name_Space nspace:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
       let
-          val subtrm_occ_name_space  = #subtrm_occ nspace                            : name_subspace;
-          val occ_address_option     = alist_lookup_eq subtrm_occ_name_space occ_idx : address option;
-          val occ_path_option        = occ_address_option >>= dest_Address_Subtrm_Occ: path option;
+        val subtrm_occ_name_space  = #subtrm_occ nspace                            : name_subspace;
+        val occ_address_option     = alist_lookup_eq subtrm_occ_name_space occ_id  : address option;
+        val occ_path_option        = occ_address_option >>= dest_Address_Subtrm_Occ: path option;
       in
         occ_path_option
       end;
 
-    fun name_space_n_subtrm_id_to_subtrm_occ_paths (Name_Space nspace:name_space) (Sub_Trm subtrm_idx:subtrm) =
+    fun name_space_n_subtrm_id_to_subtrm_occ_paths (Name_Space nspace:name_space) (Sub_Trm subtrm_id:subtrm) =
       let
-          val subtrm_name_space     = #subtrm nspace                              : name_subspace;
-          val subtrm_address_option = alist_lookup_eq subtrm_name_space subtrm_idx: address option;
-          val subtrm_paths_option   = subtrm_address_option>>= dest_Address_Subtrm: paths option;
+        val subtrm_name_space     = #subtrm nspace                              : name_subspace;
+        val subtrm_address_option = alist_lookup_eq subtrm_name_space subtrm_id : address option;
+        val subtrm_paths_option   = subtrm_address_option>>= dest_Address_Subtrm: paths option;
       in
         subtrm_paths_option
+      end;
+
+    type quantifier = (name_space -> bool) -> name_space list -> bool;
+
+    val {ons, arbs, rules}        = mods                                                : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
+    val fst_subg                  = #fst_subg abs_pst_w_aux                             : Term_Table.unode_aux_n_print_table;
+    val fst_subg_unode_table      = #unode_aux_table fst_subg                           : Term_Table.unode_aux_table;
+    (*TODO: probably we have to have multiple tables;*)
+    (*      one for the first sub-goal, and          *)
+    (*      one for each chained fact.               *)
+    fun path_to_print (path:path) = One_Term.lookup fst_subg_unode_table path <$> #print: UN.print option;
+    fun path_to_node  (path:path) = One_Term.lookup fst_subg_unode_table path <$> #node : UN.node option;
+
+    fun name_space_n_subtrm_id_to_print (name_space:name_space) (subtrm:subtrm) =
+      let
+        val subtrm_occ_paths_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm: paths option;
+        val subtrm_occ_a_path_option = subtrm_occ_paths_option >>= try hd                          : path  option;
+        val print_option             = subtrm_occ_a_path_option >>= path_to_print                  : print option;
+      in
+        print_option
       end;
 
     datatype address_type =
@@ -206,29 +235,18 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         new_name_subspaces
       end;
 
-    type quantifier = (name_space -> bool) -> name_space list -> bool;
-
-    val {ons, arbs, rules}        = mods                                                : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
-    val fst_subg                  = #fst_subg abs_pst_w_aux                             : Term_Table.unode_aux_n_print_table;
-    val fst_subg_unode_table      = #unode_aux_table fst_subg                           : Term_Table.unode_aux_table;
-    (*TODO: probably we have to have multiple tales;*)
-    (*      one for the first sub-goal, and         *)
-    (*      one for each chained fact.              *)
-    fun path_to_print (path:path) = One_Term.lookup fst_subg_unode_table path <$> #print: UN.print option;
-    fun path_to_node  (path:path) = One_Term.lookup fst_subg_unode_table path <$> #node : UN.node option;
-
     fun is_nth_arg_of_induct_method (assrt:assrt) (subtrm:subtrm) (Nth numb) (name_space:name_space) =
       let
-        fun get_print_option (Is_Nth_Ind _) = try (nth ons ) numb <$> LiFtEr_Util.dest_induct_on   : print option
-          | get_print_option (Is_Nth_Arb _) = try (nth arbs) numb <$> LiFtEr_Util.dest_induct_arb  : print option
-          | get_print_option (_)            = NONE                                                 : print option;
-        val nth_print_option         = get_print_option assrt                                      : print option;
-        val subtrm_occ_paths_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm: paths option;
-        val subtrm_occ_a_path_option = subtrm_occ_paths_option >>= try hd                          : path  option;
-        val subtrm_print_option      = subtrm_occ_a_path_option >>= path_to_print                  : print option;
-        val tobe_compared            = Utils.mk_option_pair (nth_print_option, subtrm_print_option): (print * print) option;
-        val result_option            = tobe_compared <$> uncurry LU.same_prints                    : bool option;
-        val result                   = Utils.is_some_true result_option                            : bool;
+        (* TODO: FIXME: we should not use numb directly.                     *)
+        (* First check out what number does (Nth numb) stands in name_space. *)
+        fun get_print_option (Is_Nth_Ind _) = try (nth ons ) numb <$> LiFtEr_Util.dest_induct_on    : print option
+          | get_print_option (Is_Nth_Arb _) = try (nth arbs) numb <$> LiFtEr_Util.dest_induct_arb   : print option
+          | get_print_option  _             = NONE                                                  : print option;
+        val nth_print_option         = get_print_option assrt                                       : print option;
+        val subtrm_print_option      = name_space_n_subtrm_id_to_print name_space subtrm            : print option;
+        val tobe_compared            = Utils.mk_option_pair (nth_print_option, subtrm_print_option) : (print * print) option;
+        val result_option            = tobe_compared <$> uncurry LU.same_prints                     : bool option;
+        val result                   = Utils.is_some_true result_option                             : bool;
       in
         result
       end;
@@ -265,6 +283,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
     (*code re-factoring using mutual recursion*)
     and
+      (** eval' is the core function of LiFtEr's interpreter. **)
       (*Note that we never modify abs_pst_w_aux or name_domains.*)
       (*quantifiers*)
         eval' (All_Ind      ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) forall ind_domain    ATyp_Subtrm
@@ -333,10 +352,15 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           fun is_typ Fun_Typ (typ:typ) = ((*TODO*))
         in true (*TODO*)
         end
-      | eval' (Is_At_Deepest (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+      | eval' (Is_At_Deepest (Sub_Trm_Occ occ_id)) (Name_Space name_space:name_space) =
         let
-        in true (*TODO*)
-        end
+        (* TODO:
+         * 1. get the maximum depth.
+         * 2. get the path of "(Sub_Trm_Occ occ_id)".
+         * 3. get the length of "(Sub_Trm_Occ occ_id)"'s path, which is the depth of this occurrence.
+         * 4. compare the depth of the first sub-goal or chained-facts that contain "(Sub_Trm_Occ occ_id)" with the maximum depth.
+         *)
+        in true (*TODO*) end
       | eval' (Is_In_Chained (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
         let
         in true (*TODO*)
@@ -369,13 +393,47 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Is_Bound  subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NB
       | eval' (Is_Lambda subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NL
       | eval' (Is_App    subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NA
-      | eval' (Not_Fully_App subtrm_occ)    (name_space:name_space) = true (*TODO*)
-      | eval' (Is_Less_Than (numb1, numb2)) (name_space:name_space) = true (*TODO*)
+      | eval' (Not_Fully_App subtrm_occ) (name_space:name_space) = true
+        (*TODO: 1. Check if subtrm_occ is of NA.                                        *)
+        (*      2. If the path to subtrm_occ is p, get sub-term occurrences at p@?.     *)
+        (*      3. Check how many argument the sub-term occurrence at p@[0] expects.    *)
+        (*      4. Count how many argument the sub-term occurrence at p@[0] takes at p. *)
+      | eval' (Is_Less_Than (Nth numb1, Nth numb2)) (Name_Space nspace:name_space) =
+        let
+          val numb_name_space = #numb nspace                                               : name_subspace;
+          val numb1_option    = alist_lookup_eq numb_name_space numb1 >>= dest_Address_Numb: int option;
+          val numb2_option    = alist_lookup_eq numb_name_space numb2 >>= dest_Address_Numb: int option;
+          val numbs_option    = Utils.mk_option_pair (numb1_option, numb2_option)          : (int * int) option;
+          val result_option   = numbs_option <$> Int.>                                     : bool option;
+          val result          = Utils.is_some_true result_option                           : bool;
+        in
+          result
+        end
       | eval' (Is_Nth_Arg_Of (func:subtrm_occ, numb:numb, arg:subtrm_occ)) (name_space:name_space) = true (*TODO*)
+        (*TODO:                                                                                                       *)
+        (* 1. get the path of func.                                                                                   *)
+        (* 2. get the path of arg.                                                                                    *)
+        (* 3. get the integer numb represents.                                                                        *)
+        (* 4. determine if arg is the nth argument of func, where n stands for the integer value represented by numb. *)
       | eval' (assrt as Is_Nth_Ind (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
       | eval' (assrt as Is_Nth_Arb (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
-      | eval' (Numb_Is  (Nth numb, int:int))     (name_space:name_space) = true (*TODO*)
-      | eval' (Print_Is (subtrm, string:string)) (name_space:name_space) = true (*TODO*)
+      | eval' (Numb_Is  (Nth numb, int:int)) (name_space:name_space) =
+        let
+          val numb_option   = name_space_n_numb_id_to_integer name_space (Nth numb): int option;
+          val result_option = numb_option <$> equal int                            : bool option;
+          val result        = Utils.is_some_true result_option                     : bool;
+        in
+         result
+        end
+      | eval' (Print_Is (subtrm:subtrm, string:string)) (name_space:name_space) =
+        let
+          val print_option        = name_space_n_subtrm_id_to_print name_space subtrm: print option;
+          val print_string_option = print_option <$> UN.dest_Print                   : string option;
+          val result_option       = print_string_option <$> equal string             : bool option;
+          val result              = Utils.is_some_true result_option                 : bool;
+        in
+          result
+        end
       | eval' (Pattern (numb:numb, subtrm:subtrm, pttrn:pattern)) (name_space:name_space) = true (*TODO*)
       (*syntax sugars*)
       | eval' (All_Ind_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
@@ -388,12 +446,27 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           eval' desugared_assert name_space
         end
-      | eval' (Are_Diff_Nth (numb1:numb, numb2:numb)) (name_space:name_space) = true (*TODO*)
-      | eval' (Are_Diff_Str (subtrm_occ1:subtrm_occ, subtrm_occ2:subtrm_occ)) (name_space:name_space) = true (*TODO*)
-      | eval' (Has_Typ      (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) = true (*TODO*)
-      | eval' (Not_Deepest  (subtrm_occ:subtrm_occ)) (name_space:name_space) = true (*TODO*)
-      | eval' (Is_More_Than (numb1:numb, numb2:numb)) (name_space:name_space) = true (*TODO*)
-      | eval' (For_Numb_N   (numb1:numb, int:int)) (name_space:name_space) = true (*TODO*)
+      | eval' (Are_Diff_Numb (numb1, numb2)) name_space =
+        let
+          val desugared_assert = (Not (Are_Same_Numb (numb1, numb2)));
+        in
+          eval' desugared_assert name_space
+        end
+      | eval' (Are_Diff_Str  (subtrm_occ1, subtrm_occ2)) name_space =
+        let
+          val desugared_assert = Not (Are_Same_Str (subtrm_occ1, subtrm_occ2));
+        in
+          eval' desugared_assert name_space
+        end
+      | eval' (Has_Typ       (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) = true (*TODO*)
+      | eval' (Not_Deepest   (subtrm_occ:subtrm_occ)) (name_space:name_space) = true (*TODO*)
+      | eval' (Is_More_Than  (numb1:numb, numb2:numb)) (name_space:name_space) =
+        let
+          val desugared_assrt = Not (Is_Less_Than (numb1, numb2)) And Not (Are_Same_Numb (numb1, numb2));
+        in
+          eval' desugared_assrt name_space
+        end
+      | eval' (For_Numb_N    (numb1:numb, int:int)) (name_space:name_space) = true (*TODO*)
   in
     eval' assert empty_name_space
   end;
