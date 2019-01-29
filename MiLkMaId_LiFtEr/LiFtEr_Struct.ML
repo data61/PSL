@@ -400,12 +400,13 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         (*      4. Count how many argument the sub-term occurrence at p@[0] takes at p. *)
       | eval' (Is_Less_Than (Nth numb1, Nth numb2)) (Name_Space nspace:name_space) =
         let
-          val numb_name_space = #numb nspace                                               : name_subspace;
-          val numb1_option    = alist_lookup_eq numb_name_space numb1 >>= dest_Address_Numb: int option;
-          val numb2_option    = alist_lookup_eq numb_name_space numb2 >>= dest_Address_Numb: int option;
-          val numbs_option    = Utils.mk_option_pair (numb1_option, numb2_option)          : (int * int) option;
-          val result_option   = numbs_option <$> Int.>                                     : bool option;
-          val result          = Utils.is_some_true result_option                           : bool;
+          val numb_name_space     = #numb nspace                                                : name_subspace;
+          fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb : int option;
+          val numb1_option         = get_numb_option numb1                                      : int option;
+          val numb2_option         = get_numb_option numb2                                      : int option;
+          val numbs_option         = Utils.mk_option_pair (numb1_option, numb2_option)          : (int * int) option;
+          val result_option        = numbs_option <$> Int.>                                     : bool option;
+          val result               = Utils.is_some_true result_option                           : bool;
         in
           result
         end
