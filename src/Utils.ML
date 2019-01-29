@@ -420,6 +420,7 @@ sig
   val trm_to_lists                                : term -> {consts: term list, frees: term list, vars: term list};
   val trm_to_sets_and_lists                       : term -> {consts: term list, frees: term list, vars: term list};
   val trm_to_string                               : Proof.context -> term -> string;
+  val count_numb_of_args_of_fun_typ               : typ -> int;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -799,6 +800,18 @@ fun trm_to_sets_and_lists (trm:term) =
 fun trm_to_string (ctxt:Proof.context) (trm:term) = Syntax.string_of_term ctxt trm
  |> YXML.parse_body
  |> XML.content_of : string;
+
+fun count_numb_of_args_of_fun_typ' (fun_typ:typ) (acc:int) = case try dest_funT fun_typ of
+  NONE => acc
+| SOME (_(*domain_typ*), range_typ) => count_numb_of_args_of_fun_typ' range_typ (acc + 1);
+
+fun count_numb_of_args_of_fun_typ (typ:typ) = count_numb_of_args_of_fun_typ' typ 0;
+
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "(\<and>)"}         |> dest_Const |> snd) = 2);
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "hd" }         |> dest_Const |> snd) = 1);
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "(@)"}         |> dest_Const |> snd) = 2);
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "foldl"}       |> dest_Const |> snd) = 3);
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "list_update"} |> dest_Const |> snd) = 3);
 
 end;
 

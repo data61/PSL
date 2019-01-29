@@ -280,6 +280,12 @@ fun dest_NB (NB (int,  typ)) = SOME (int,  typ)
 fun dest_NL (NL (name, typ)) = SOME (name, typ)
   | dest_NL  _               = NONE;
 
+fun node_to_atoms_typ (NC (_, typ)) = SOME typ
+  | node_to_atoms_typ (NF (_, typ)) = SOME typ
+  | node_to_atoms_typ (NV (_, typ)) = SOME typ
+  | node_to_atoms_typ (NB (_, typ)) = SOME typ
+  | node_to_atoms_typ  _            = NONE
+
 fun node_typ_to_checker Node_Typ_NC = is_NC
   | node_typ_to_checker Node_Typ_NF = is_NF
   | node_typ_to_checker Node_Typ_NV = is_NV

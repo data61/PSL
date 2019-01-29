@@ -166,17 +166,17 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun alist_add       (alist: (''a * 'a) list) (key:''a, value:'a) = AList.update (op =) (key, value) alist: (''a * 'a) list;
     fun alist_lookup_eq (alist: (''a * 'b) list) (key:''a)           = AList.lookup (op =) alist key;
-    fun opt_equal (SOME x, SOME y) = SOME (x = y)
-      | opt_equal (     _,      _) = NONE        : bool option;
+    fun opt_equal (SOME x, SOME y) = x = y
+      | opt_equal (     _,      _) = false: bool;
 
     fun name_space_n_numb_id_to_integer (Name_Space nspace) (Nth numb_id) =
-    let
-      val numb_name_space        = #numb nspace                                : name_subspace;
-      val integer_address_option = alist_lookup_eq numb_name_space numb_id     : address option;
-      val integer_option         = integer_address_option >>= dest_Address_Numb: int option;
-    in
-      integer_option
-    end;
+      let
+        val numb_name_space        = #numb nspace                                : name_subspace;
+        val integer_address_option = alist_lookup_eq numb_name_space numb_id     : address option;
+        val integer_option         = integer_address_option >>= dest_Address_Numb: int option;
+      in
+        integer_option
+      end;
 
     fun name_space_n_subtrm_occ_id_to_subtrm_occ_path (Name_Space nspace:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
       let
@@ -206,6 +206,14 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     (*      one for each chained fact.               *)
     fun path_to_print (path:path) = One_Term.lookup fst_subg_unode_table path <$> #print: UN.print option;
     fun path_to_node  (path:path) = One_Term.lookup fst_subg_unode_table path <$> #node : UN.node option;
+
+    fun name_space_n_subtrm_occ_id_to_node (name_space:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
+      let
+        val occ_path_option = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space (Sub_Trm_Occ occ_id): path option;
+        val node_option     = occ_path_option >>= path_to_node                                             : UN.node option;
+      in
+        node_option
+      end;
 
     fun name_space_n_subtrm_id_to_print (name_space:name_space) (subtrm:subtrm) =
       let
@@ -253,8 +261,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun name_space_n_subtrm_occ_are_node_typ_of (name_space:name_space) (subtrm_occ:subtrm_occ) (node_typ:UN.node_typ) =
       let
-       val path_option   = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space subtrm_occ: path option;
-       val node_option   = path_option >>= path_to_node                                       : UN.node option;
+       val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ           : UN.node option;
        val result_option = node_option <$> UN.node_typ_to_checker node_typ                    : bool option;
       in
         Utils.is_some_true result_option
@@ -312,8 +319,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           val numb_name_space = #numb ns                                                : name_subspace;
           val numb1_option    = alist_lookup_eq numb_name_space n1 >>= dest_Address_Numb: int option;
           val numb2_option    = alist_lookup_eq numb_name_space n2 >>= dest_Address_Numb: int option;
-          val result_option   = opt_equal (numb1_option, numb2_option)                  : bool option;
-          val result          = Utils.is_some_true result_option                        : bool;
+          val result          = opt_equal (numb1_option, numb2_option)                  : bool;
         in
           result
         end
@@ -379,11 +385,10 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Is_Const_Of_Name (subtrm_occ, const_name:string)) (name_space:name_space) =
         let
-          val path_option   = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space subtrm_occ: path option;
-          val node_option   = path_option >>= path_to_node                                       : UN.node option;
-          val cname_option  = node_option >>= UN.dest_NC <$> fst                                 : string option;
-          val result_option = cname_option <$> equal const_name                                  : bool option;
-          val result        = Utils.is_some_true result_option                                   : bool;
+          val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ: UN.node option;
+          val cname_option  = node_option >>= UN.dest_NC <$> fst                      : string option;
+          val result_option = cname_option <$> equal const_name                       : bool option;
+          val result        = Utils.is_some_true result_option                        : bool;
         in
           result
         end
@@ -393,14 +398,27 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Is_Bound  subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NB
       | eval' (Is_Lambda subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NL
       | eval' (Is_App    subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NA
-      | eval' (Not_Fully_App subtrm_occ) (name_space:name_space) = true
-        (*TODO: 1. Check if subtrm_occ is of NA.                                        *)
-        (*      2. If the path to subtrm_occ is p, get sub-term occurrences at p@?.     *)
-        (*      3. Check how many argument the sub-term occurrence at p@[0] expects.    *)
-        (*      4. Count how many argument the sub-term occurrence at p@[0] takes at p. *)
+      | eval' (Not_Fully_App subtrm_occ) (name_space:name_space) =
+        let
+          val subtrm_occ_path_option = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space subtrm_occ    : path option;
+          val subtrm_occ_node        = subtrm_occ_path_option >>= path_to_node                                : UN.node option;
+          val is_NA                  = subtrm_occ_node <$> UN.is_NA |> Utils.is_some_true                     : bool;
+          val func_path_option       = Utils.mk_option_pair (subtrm_occ_path_option, SOME [0]) <$> List.@     : ints option;
+          val func_node_option       = func_path_option >>= path_to_node                                      : UN.node option;
+          fun path_has_n_children' (p:path) (acc:int) = case path_to_node (p @ [acc]) of
+              NONE => acc
+            | SOME _ => path_has_n_children' p (acc + 1);
+          fun path_has_n_children (p:path)  = path_has_n_children' p 0                                        : int;
+          val numb_of_funcs_children_option = func_path_option <$> path_has_n_children                        : int option;
+          val fun_typ_option                = func_node_option >>= UN.node_to_atoms_typ                       : typ option; 
+          val numb_of_fun_typs_args         = fun_typ_option <$> Isabelle_Utils.count_numb_of_args_of_fun_typ : int option;
+          val same_numbs                    = opt_equal (numb_of_funcs_children_option, numb_of_fun_typs_args): bool;
+        in
+          is_NA andalso same_numbs
+        end
       | eval' (Is_Less_Than (Nth numb1, Nth numb2)) (Name_Space nspace:name_space) =
         let
-          val numb_name_space     = #numb nspace                                                : name_subspace;
+          val numb_name_space      = #numb nspace                                               : name_subspace;
           fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb : int option;
           val numb1_option         = get_numb_option numb1                                      : int option;
           val numb2_option         = get_numb_option numb2                                      : int option;

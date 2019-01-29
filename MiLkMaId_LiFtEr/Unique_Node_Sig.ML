@@ -115,6 +115,8 @@ val dest_NV: node -> (indexname * typ) option;
 val dest_NB: node -> (int       * typ) option;
 val dest_NL: node -> (string    * typ) option;
 
+val node_to_atoms_typ: node -> typ option;
+
 val node_typ_to_checker: node_typ -> node-> bool;
 
 (* unique_node *)
