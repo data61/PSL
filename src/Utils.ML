@@ -403,6 +403,7 @@ sig
   val trms_have_cname                             : string -> terms -> bool;
   val trm_has_prop                                : term -> bool;
   val trm_to_prop_trms                            : term -> terms;
+  val is_typ_of_name                              : string -> typ -> bool;
   val is_nat_typ                                  : typ -> bool;
   val trm_has_nat_typ                             : term -> bool;
   val trm_to_nats                                 : term -> {consts: term list, frees: term list, vars: term list};
@@ -741,15 +742,22 @@ fun trm_to_certain_var_free_const (assert_trm:term -> bool) (trm:term) =
     result:{consts: term list, frees: term list, vars: term list}
   end;
 
-fun is_nat_typ (Type (typ_name, _):typ) = typ_name = "nat"
-  | is_nat_typ  _                       = false;
+fun is_typ_of_name (typ_name:string) (typ:typ) = try dest_Type typ <$> fst <$> equal typ_name |> Utils.is_some_true;
+
+fun is_nat_typ (typ:typ) = is_typ_of_name "Nat.nat" typ;
+
+val _ = @{assert}      (@{term "x::nat"} |> dest_Free |> snd |> is_nat_typ);
+val _ = @{assert} (not (@{term "x::int"} |> dest_Free |> snd |> is_nat_typ));
 
 fun trm_has_nat_typ (trm:term) = Term.exists_type is_nat_typ trm: bool;
 
 fun trm_to_nats (trm:term) = trm_to_certain_var_free_const trm_has_nat_typ trm;
 
-fun is_fun_typ (Type (typ_name, _):typ) = typ_name = "fun"
-  | is_fun_typ  _                       = false;
+fun is_fun_typ (typ:typ) = is_typ_of_name "fun" typ;
+
+val _ = @{assert}      (@{term "(\<and>)"} |> dest_Const |> snd |> is_fun_typ);
+val _ = @{assert} (not (@{term "x"} |> dest_Free  |> snd |> is_fun_typ));
+val _ = @{assert}      (@{term "x::int \<Rightarrow> bool"} |> dest_Free  |> snd |> is_fun_typ);
 
 fun trm_has_fun_typ (trm:term) = Term.exists_type is_fun_typ trm: bool;
 
@@ -765,22 +773,28 @@ val _ = @{assert} (is_record_trm @{term "{fieldA = w}"});
 val _ = @{assert} (is_record_trm @{term "{x, y}"} |> not);
 val _ = @{assert} (is_record_trm @{term "f {fieldA = w}"} |> not);
 
-fun is_set_typ (Type (typ_name, _):typ) = typ_name = "Set.set"
-  | is_set_typ  _                       = false;
+fun is_set_typ (typ:typ) = is_typ_of_name "Set.set" typ;
+
+val _ = @{assert}      (@{term "xs::int set" } |> dest_Free |> snd |> is_set_typ);
+val _ = @{assert} (not (@{term "xs::int list"} |> dest_Free |> snd |> is_set_typ));
 
 fun trm_has_set_typ (trm:term) = Term.exists_type is_set_typ trm: bool;
 
 val _ = @{assert} (trm_has_set_typ @{term "f {a,b,c}"});
 
-fun is_int_typ (Type (typ_name, _):typ) = typ_name = "int"
-  | is_int_typ  _                       = false;
+fun is_int_typ (typ:typ) = is_typ_of_name "Int.int" typ;
+
+val _ = @{assert}      (@{term "x::int"} |> dest_Free |> snd |> is_int_typ);
+val _ = @{assert} (not (@{term "x::nat"} |> dest_Free |> snd |> is_int_typ));
 
 fun trm_has_int_typ (trm:term) = Term.exists_type is_int_typ trm: bool;
 
 fun trm_to_sets (trm:term) = trm_to_certain_var_free_const trm_has_set_typ trm;
 
-fun is_list_typ (Type (typ_name, _):typ) = typ_name = "List.list"
-  | is_list_typ  _                       = false;
+fun is_list_typ (typ:typ) = is_typ_of_name "List.list" typ;
+
+val _ = @{assert}      (@{term "xs::int list"} |> dest_Free |> snd |> is_list_typ);
+val _ = @{assert} (not (@{term "xs::int set" } |> dest_Free |> snd |> is_list_typ));
 
 fun trm_has_list_typ (trm:term) = Term.exists_type is_list_typ trm: bool;
 

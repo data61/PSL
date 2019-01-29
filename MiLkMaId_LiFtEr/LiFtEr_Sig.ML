@@ -16,7 +16,7 @@ datatype rule        = Rule        of int;
 datatype subtrm_occ  = Sub_Trm_Occ of int;
 datatype pattern     = Pttrn (*TODO*)
 datatype assrt       =
-(*quantifiers*)
+(*quantifiers: TODO: maybe existential quantifiers, i.e. "Some_*", should be treated as syntax sugars. But performance?*)
   All_Ind          of subtrm * assrt
 | All_Arb          of subtrm * assrt
 | All_Sub_Trm      of subtrm * assrt

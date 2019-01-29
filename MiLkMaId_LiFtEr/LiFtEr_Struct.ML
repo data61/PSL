@@ -354,10 +354,17 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         let
         in true (*TODO*)
         end
-      | eval' (Is_Typ (Sub_Trm_Occ occ_idx, hol_typ:hol_typ)) (Name_Space name_space:name_space) =
+      | eval' (Is_Typ (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) =
         let
-          fun is_typ Fun_Typ (typ:typ) = ((*TODO*))
-        in true (*TODO*)
+          fun is_hol_typ_of Fun_Typ  (typ:typ) = Isabelle_Utils.is_fun_typ  typ
+            | is_hol_typ_of List_Typ (typ:typ) = Isabelle_Utils.is_list_typ typ
+            | is_hol_typ_of Nat_Typ  (typ:typ) = Isabelle_Utils.is_nat_typ  typ
+            | is_hol_typ_of Int_Typ  (typ:typ) = Isabelle_Utils.is_int_typ  typ
+            | is_hol_typ_of Set_Typ  (typ:typ) = Isabelle_Utils.is_set_typ  typ;
+          val node_option     = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ: UN.node option;
+          val atomic_node_typ = node_option >>= UN.node_to_atoms_typ: typ option;
+          val result          = atomic_node_typ <$> is_hol_typ_of hol_typ |> Utils.is_some_true: bool;
+        in result
         end
       | eval' (Is_At_Deepest (Sub_Trm_Occ occ_id)) (Name_Space name_space:name_space) =
         let
@@ -404,12 +411,12 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           val subtrm_occ_node        = subtrm_occ_path_option >>= path_to_node                                : UN.node option;
           val is_NA                  = subtrm_occ_node <$> UN.is_NA |> Utils.is_some_true                     : bool;
           val func_path_option       = Utils.mk_option_pair (subtrm_occ_path_option, SOME [0]) <$> List.@     : ints option;
-          val func_node_option       = func_path_option >>= path_to_node                                      : UN.node option;
           fun path_has_n_children' (p:path) (acc:int) = case path_to_node (p @ [acc]) of
               NONE => acc
             | SOME _ => path_has_n_children' p (acc + 1);
           fun path_has_n_children (p:path)  = path_has_n_children' p 0                                        : int;
           val numb_of_funcs_children_option = func_path_option <$> path_has_n_children                        : int option;
+          val func_node_option              = func_path_option >>= path_to_node                               : UN.node option;
           val fun_typ_option                = func_node_option >>= UN.node_to_atoms_typ                       : typ option; 
           val numb_of_fun_typs_args         = fun_typ_option <$> Isabelle_Utils.count_numb_of_args_of_fun_typ : int option;
           val same_numbs                    = opt_equal (numb_of_funcs_children_option, numb_of_fun_typs_args): bool;
