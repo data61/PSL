@@ -428,12 +428,20 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           result
         end
-      | eval' (Is_Nth_Arg_Of (func:subtrm_occ, numb:numb, arg:subtrm_occ)) (name_space:name_space) = true (*TODO*)
-        (*TODO:                                                                                                       *)
-        (* 1. get the path of func.                                                                                   *)
-        (* 2. get the path of arg.                                                                                    *)
-        (* 3. get the integer numb represents.                                                                        *)
-        (* 4. determine if arg is the nth argument of func, where n stands for the integer value represented by numb. *)
+      | eval' (Is_Nth_Arg_Of (func:subtrm_occ, Nth numb:numb, arg:subtrm_occ)) (name_space as Name_Space nspace) =
+        let
+          val path_of_func_option            = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space func       : path option;
+          val path_of_arg_option             = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space arg        : path option;
+          val numb_name_space                = #numb nspace                                                        : name_subspace;
+          val numb_option                    = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb          : int option;
+          val numb_list_option               = numb_option <$> single                                              : int list option;
+          val init_of_path_to_func_option    = path_of_func_option <$> Utils.init                                  : path option;
+          val init_n_last_option             = Utils.mk_option_pair (init_of_path_to_func_option, numb_list_option): (path * path) option;
+          val path_to_nth_arg_of_func_option = init_n_last_option <$> List.@                                       : path option;
+          val are_same_paths                 = opt_equal (path_of_arg_option, path_to_nth_arg_of_func_option)      : bool;
+        in
+          are_same_paths
+        end
       | eval' (assrt as Is_Nth_Ind (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
       | eval' (assrt as Is_Nth_Arb (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
       | eval' (Numb_Is  (Nth numb, int:int)) (name_space:name_space) =
