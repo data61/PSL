@@ -461,10 +461,30 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Pattern (numb:numb, subtrm:subtrm, pttrn:pattern)) (name_space:name_space) = true (*TODO*)
       (*syntax sugars*)
-      | eval' (All_Ind_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
-      | eval' (All_Arb_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
-      | eval' (Some_Ind_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
-      | eval' (Some_Arb_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, assrt:assrt)) (name_space:name_space) = true (*TODO*)
+      | eval' (All_Ind_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = (*TODO*)
+        let
+          val desugared_assert = All_Ind (subtrm, (All_Sub_Trm_Occ (subtrm_occ, subtrm, inner)));
+        in
+          eval' desugared_assert name_space
+        end
+      | eval' (All_Arb_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = (*TODO*)
+        let
+          val desugared_assert = All_Arb (subtrm, (All_Sub_Trm_Occ (subtrm_occ, subtrm, inner)));
+        in
+          eval' desugared_assert name_space
+        end
+      | eval' (Some_Ind_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = (*TODO*)
+        let
+          val desugared_assert = Some_Ind (subtrm, (Some_Sub_Trm_Occ (subtrm_occ, subtrm, inner)));
+        in
+          eval' desugared_assert name_space
+        end
+      | eval' (Some_Arb_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = (*TODO*)
+        let
+          val desugared_assert = Some_Arb (subtrm, (Some_Sub_Trm_Occ (subtrm_occ, subtrm, inner)));
+        in
+          eval' desugared_assert name_space
+        end
       | eval' (Is_Atom subtrm_occ) (name_space:name_space) =
         let
           val desugared_assert = Is_Cnst subtrm_occ Or Is_Free subtrm_occ Or Is_Bound subtrm_occ
@@ -483,7 +503,12 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           eval' desugared_assert name_space
         end
-      | eval' (Has_Typ       (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) = true (*TODO*)
+      | eval' (Has_Typ       (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) =
+        let
+          val desugared_assert = ();
+        in
+          (*TODO*)true
+        end
       | eval' (Not_Deepest   (subtrm_occ:subtrm_occ))                  (name_space:name_space) = true
         (*TODO:
          * 1. get the depth of the entire term in which the sub-term occurrence resides.
