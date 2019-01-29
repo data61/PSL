@@ -79,7 +79,7 @@ datatype assrt       =
 | Has_Typ          of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Not_Deepest      of subtrm_occ                  (*Not & Is_At_Deepest*)
 | Is_More_Than     of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
-| For_Numb_N       of numb       * int            (*All_Nth $ Numb_Is*)
+| For_Numb_N       of numb       * int * assrt    (*Some_Numb $ Numb_Is*)
 
 datatype rule_name = Rule_Name of string;
 type rule_names    = rule_name list;
@@ -261,10 +261,11 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun name_space_n_subtrm_occ_are_node_typ_of (name_space:name_space) (subtrm_occ:subtrm_occ) (node_typ:UN.node_typ) =
       let
-       val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ           : UN.node option;
-       val result_option = node_option <$> UN.node_typ_to_checker node_typ                    : bool option;
+        val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ           : UN.node option;
+        val result_option = node_option <$> UN.node_typ_to_checker node_typ                    : bool option;
+        val result        = Utils.is_some_true result_option                                   : bool;
       in
-        Utils.is_some_true result_option
+        result
       end;
 
     fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: addresses) (add_typ:address_type) =
@@ -387,8 +388,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         let
           val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ: UN.node option;
           val cname_option  = node_option >>= UN.dest_NC <$> fst                      : string option;
-          val result_option = cname_option <$> equal const_name                       : bool option;
-          val result        = Utils.is_some_true result_option                        : bool;
+          val result        = opt_equal (cname_option, SOME const_name)               : bool;
         in
           result
         end
@@ -447,8 +447,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Numb_Is  (Nth numb, int:int)) (name_space:name_space) =
         let
           val numb_option   = name_space_n_numb_id_to_integer name_space (Nth numb): int option;
-          val result_option = numb_option <$> equal int                            : bool option;
-          val result        = Utils.is_some_true result_option                     : bool;
+          val result        = opt_equal (numb_option, SOME int)                    : bool;
         in
          result
         end
@@ -456,8 +455,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         let
           val print_option        = name_space_n_subtrm_id_to_print name_space subtrm: print option;
           val print_string_option = print_option <$> UN.dest_Print                   : string option;
-          val result_option       = print_string_option <$> equal string             : bool option;
-          val result              = Utils.is_some_true result_option                 : bool;
+          val result              = opt_equal (print_string_option, SOME string)     : bool;
         in
           result
         end
@@ -486,14 +484,24 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           eval' desugared_assert name_space
         end
       | eval' (Has_Typ       (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) = true (*TODO*)
-      | eval' (Not_Deepest   (subtrm_occ:subtrm_occ)) (name_space:name_space) = true (*TODO*)
+      | eval' (Not_Deepest   (subtrm_occ:subtrm_occ))                  (name_space:name_space) = true
+        (*TODO:
+         * 1. get the depth of the entire term in which the sub-term occurrence resides.
+         * 2. get the depth of the sub-term occurrence.
+         * 3. compare these depths.
+         *)
       | eval' (Is_More_Than  (numb1:numb, numb2:numb)) (name_space:name_space) =
         let
           val desugared_assrt = Not (Is_Less_Than (numb1, numb2)) And Not (Are_Same_Numb (numb1, numb2));
         in
           eval' desugared_assrt name_space
         end
-      | eval' (For_Numb_N    (numb1:numb, int:int)) (name_space:name_space) = true (*TODO*)
+      | eval' (For_Numb_N    (numb:numb, int:int, inner:assrt)) (name_space:name_space) =
+        let
+          val desugared_assert = Numb_Is (numb, int) And Some_Numb (numb, inner);
+        in
+          eval' desugared_assert name_space
+        end
   in
     eval' assert empty_name_space
   end;
