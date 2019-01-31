@@ -468,48 +468,13 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Pattern (numb:numb, subtrm:subtrm, pttrn:pattern)) (name_space:name_space) = true (*TODO*)
       (*syntax sugars*)
-      | eval' (All_Ind_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = (*TODO*)
-        let
-          val desugared_assert = All_Ind (subtrm, (All_Sub_Trm_Occ (subtrm_occ, subtrm, inner)));
-        in
-          eval' desugared_assert name_space
-        end
-      | eval' (All_Arb_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = (*TODO*)
-        let
-          val desugared_assert = All_Arb (subtrm, (All_Sub_Trm_Occ (subtrm_occ, subtrm, inner)));
-        in
-          eval' desugared_assert name_space
-        end
-      | eval' (Some_Ind_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = (*TODO*)
-        let
-          val desugared_assert = Some_Ind (subtrm, (Some_Sub_Trm_Occ (subtrm_occ, subtrm, inner)));
-        in
-          eval' desugared_assert name_space
-        end
-      | eval' (Some_Arb_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = (*TODO*)
-        let
-          val desugared_assert = Some_Arb (subtrm, (Some_Sub_Trm_Occ (subtrm_occ, subtrm, inner)));
-        in
-          eval' desugared_assert name_space
-        end
-      | eval' (Is_Atom subtrm_occ) (name_space:name_space) =
-        let
-          val desugared_assert = Is_Cnst subtrm_occ Or Is_Free subtrm_occ Or Is_Bound subtrm_occ
-        in
-          eval' desugared_assert name_space
-        end
-      | eval' (Are_Diff_Numb (numb1, numb2)) name_space =
-        let
-          val desugared_assert = (Not (Are_Same_Numb (numb1, numb2)));
-        in
-          eval' desugared_assert name_space
-        end
-      | eval' (Are_Diff_Str  (subtrm_occ1, subtrm_occ2)) name_space =
-        let
-          val desugared_assert = Not (Are_Same_Str (subtrm_occ1, subtrm_occ2));
-        in
-          eval' desugared_assert name_space
-        end
+      | eval' (All_Ind_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = eval' (All_Ind (subtrm, (All_Sub_Trm_Occ (subtrm_occ, subtrm, inner))))   name_space
+      | eval' (All_Arb_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = eval' (All_Arb (subtrm, (All_Sub_Trm_Occ (subtrm_occ, subtrm, inner))))   name_space
+      | eval' (Some_Ind_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = eval' (Some_Ind (subtrm, (Some_Sub_Trm_Occ (subtrm_occ, subtrm, inner)))) name_space
+      | eval' (Some_Arb_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = eval' (Some_Arb (subtrm, (Some_Sub_Trm_Occ (subtrm_occ, subtrm, inner)))) name_space
+      | eval' (Is_Atom subtrm_occ)                                               (name_space:name_space) = eval' (Is_Cnst subtrm_occ Or Is_Free subtrm_occ Or Is_Bound subtrm_occ)   name_space
+      | eval' (Are_Diff_Numb (numb1, numb2))                                     (name_space:name_space) = eval' (Not (Are_Same_Numb (numb1, numb2)))                                name_space
+      | eval' (Are_Diff_Str  (subtrm_occ1, subtrm_occ2))                         (name_space:name_space) = eval' (Not (Are_Same_Str (subtrm_occ1, subtrm_occ2)))                     name_space
       | eval' (Has_Typ       (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) =
         let
           val desugared_assert = ();
@@ -522,18 +487,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
          * 2. get the depth of the sub-term occurrence.
          * 3. compare these depths.
          *)
-      | eval' (Is_More_Than  (numb1:numb, numb2:numb)) (name_space:name_space) =
-        let
-          val desugared_assrt = Not (Is_Less_Than (numb1, numb2)) And Not (Are_Same_Numb (numb1, numb2));
-        in
-          eval' desugared_assrt name_space
-        end
-      | eval' (For_Numb_N    (numb:numb, int:int, inner:assrt)) (name_space:name_space) =
-        let
-          val desugared_assert = Numb_Is (numb, int) And Some_Numb (numb, inner);
-        in
-          eval' desugared_assert name_space
-        end
+      | eval' (Is_More_Than  (numb1:numb, numb2:numb))          (name_space:name_space) = eval' (Not (Is_Less_Than (numb1, numb2)) And Not (Are_Same_Numb (numb1, numb2))) name_space
+      | eval' (For_Numb_N    (numb:numb, int:int, inner:assrt)) (name_space:name_space) = eval' (Numb_Is (numb, int) And Some_Numb (numb, inner))                          name_space
   in
     eval' assert empty_name_space
   end;
