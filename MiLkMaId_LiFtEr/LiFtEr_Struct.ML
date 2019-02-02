@@ -10,8 +10,9 @@ open LiFtEr_Util;
 
 structure UN = Unique_Node;
 structure LU = LiFtEr_Util;
+structure TT = Term_Table;
 
-type abs_pstate_w_aux = Term_Table.abs_pstate_w_aux;
+type abs_pstate_w_aux = TT.abs_pstate_w_aux;
 
 datatype numb        = Nth         of int;
 datatype subtrm      = Sub_Trm     of int;
@@ -87,20 +88,30 @@ type path          = UN.path;
 type paths         = path  list;
 type pathss        = paths list;
 
+(* location: first sub-goal = Nth_Subg 0. *)
+datatype location = Nth_Subg of int | Chained_Fact of int;
+
+fun same_location (Nth_Subg     n1, Nth_Subg     n2) = n1 = n2
+  | same_location (Chained_Fact n1, Chained_Fact n2) = n1 = n2
+  | same_location  _                                 = false;
+
+type path_n_loc  = path * location;
+type path_n_locs = path_n_loc list;
+
 datatype address =(*TODO: better name? id?*)
-  Address_Subtrm     of paths
-| Address_Subtrm_Occ of path
+  Address_Subtrm     of (path * location) list
+| Address_Subtrm_Occ of path  * location
 | Address_Rule       of rule_name
 | Address_Numb       of int;
 
-fun dest_Address_Subtrm     (Address_Subtrm     paths) = SOME (paths: paths)    : paths     option
-  | dest_Address_Subtrm      _                         = NONE                   : paths     option;
-fun dest_Address_Subtrm_Occ (Address_Subtrm_Occ path ) = SOME (path: path)      : path      option
-  | dest_Address_Subtrm_Occ  _                         = NONE                   : path      option;
-fun dest_Address_Rule       (Address_Rule       rname) = SOME (rname: rule_name): rule_name option
-  | dest_Address_Rule        _                         = NONE                   : rule_name option;
-fun dest_Address_Numb       (Address_Numb i)           = SOME (i: int)          : int       option
-  | dest_Address_Numb        _                         = NONE                   : int       option;
+fun dest_Address_Subtrm     (Address_Subtrm     path_n_loc_s) = SOME path_n_loc_s     : path_n_locs option
+  | dest_Address_Subtrm      _                                = NONE                  : path_n_locs option;
+fun dest_Address_Subtrm_Occ (Address_Subtrm_Occ path_n_loc )  = SOME path_n_loc       : path_n_loc  option
+  | dest_Address_Subtrm_Occ  _                                = NONE                  : path_n_loc  option;
+fun dest_Address_Rule       (Address_Rule       rname)        = SOME (rname:rule_name): rule_name   option
+  | dest_Address_Rule        _                                = NONE                  : rule_name   option;
+fun dest_Address_Numb       (Address_Numb i)                  = SOME (i: int)         : int         option
+  | dest_Address_Numb        _                                = NONE                  : int         option;
 
 type addresses = address list;(*TODO: better name?*)
 
@@ -182,44 +193,66 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       let
         val subtrm_occ_name_space  = #subtrm_occ nspace                            : name_subspace;
         val occ_address_option     = alist_lookup_eq subtrm_occ_name_space occ_id  : address option;
-        val occ_path_option        = occ_address_option >>= dest_Address_Subtrm_Occ: path option;
+        val occ_path_n_loc_option  = occ_address_option >>= dest_Address_Subtrm_Occ: path_n_loc option;
       in
-        occ_path_option
+        occ_path_n_loc_option
       end;
 
     fun name_space_n_subtrm_id_to_subtrm_occ_paths (Name_Space nspace:name_space) (Sub_Trm subtrm_id:subtrm) =
       let
         val subtrm_name_space     = #subtrm nspace                              : name_subspace;
         val subtrm_address_option = alist_lookup_eq subtrm_name_space subtrm_id : address option;
-        val subtrm_paths_option   = subtrm_address_option>>= dest_Address_Subtrm: paths option;
+        val subtrm_paths_option   = subtrm_address_option>>= dest_Address_Subtrm: path_n_locs option;
       in
-        subtrm_paths_option
+        subtrm_paths_option: (path * location) list option
       end;
 
     type quantifier = (name_space -> bool) -> name_space list -> bool;
 
-    val {ons, arbs, rules}        = mods                                                : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
-    val fst_subg                  = #fst_subg abs_pst_w_aux                             : Term_Table.unode_aux_n_print_table;
-    val fst_subg_unode_table      = #unode_aux_table fst_subg                           : Term_Table.unode_aux_table;
+    val {ons, arbs, rules}        = mods                         : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
+    val subgoals                  = #subgoals abs_pst_w_aux      : TT.unode_aux_n_path_tables;
+    val unode_aux_tables          = map #unode_aux_table subgoals: TT.unode_aux_table list;
     (*TODO: probably we have to have multiple tables;*)
     (*      one for the first sub-goal, and          *)
     (*      one for each chained fact.               *)
-    fun path_to_print (path:path) = One_Term.lookup fst_subg_unode_table path <$> #print: UN.print option;
-    fun path_to_node  (path:path) = One_Term.lookup fst_subg_unode_table path <$> #node : UN.node option;
+    fun unode_aux_table_n_path_to_print (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #print: UN.print option;
+    fun unode_aux_table_n_path_to_node  (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #node : UN.node option;
+    fun loc_to_unode_aux_n_path_table (Nth_Subg     n:location) = try (nth (#subgoals abs_pst_w_aux)) n                           : TT.unode_aux_n_path_table option
+      | loc_to_unode_aux_n_path_table (Chained_Fact n:location) = try (nth (#usings   abs_pst_w_aux)) n                           : TT.unode_aux_n_path_table option;
+
+    fun loc_to_unode_aux_table (loc:location) = loc_to_unode_aux_n_path_table loc <$> #unode_aux_table: TT.unode_aux_table option;
+
+    fun path_n_loc_to_print (path:path, loc:location) = 
+    let
+      val unode_aux_table_option = loc_to_unode_aux_table loc                                : TT.unode_aux_table option;
+      val path_to_print_option   = unode_aux_table_option <$> unode_aux_table_n_path_to_print: (path -> UN.print option) option;
+      val print_option           = path_to_print_option   <*> SOME path |> Option.join       : UN.print option;
+    in
+      print_option
+    end;
+
+    fun path_n_loc_to_node  (path:path, loc:location) =
+    let
+      val unode_aux_table_option = loc_to_unode_aux_table loc                               : TT.unode_aux_table option;
+      val path_to_node_option    = unode_aux_table_option <$> unode_aux_table_n_path_to_node: (path -> UN.node option) option;
+      val node_option            = path_to_node_option <*> SOME path |> Option.join         : UN.node option;
+    in
+      node_option: UN.node option
+    end;
 
     fun name_space_n_subtrm_occ_id_to_node (name_space:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
       let
-        val occ_path_option = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space (Sub_Trm_Occ occ_id): path option;
-        val node_option     = occ_path_option >>= path_to_node                                             : UN.node option;
+        val occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space (Sub_Trm_Occ occ_id): path_n_loc option;
+        val node_option           = occ_path_n_loc_option <$> path_n_loc_to_node |> Option.join                  : UN.node option;
       in
         node_option
       end;
 
     fun name_space_n_subtrm_id_to_print (name_space:name_space) (subtrm:subtrm) =
       let
-        val subtrm_occ_paths_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm: paths option;
-        val subtrm_occ_a_path_option = subtrm_occ_paths_option >>= try hd                          : path  option;
-        val print_option             = subtrm_occ_a_path_option >>= path_to_print                  : print option;
+        val subtrm_occ_path_n_locs_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm: path_n_locs option;
+        val subtrm_occ_a_path_n_loc_option = subtrm_occ_path_n_locs_option >>= try hd                    : path_n_loc  option;
+        val print_option                   = subtrm_occ_a_path_n_loc_option >>= path_n_loc_to_print      : print option;
       in
         print_option
       end;
@@ -279,13 +312,13 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     and eval'_subtrm_occ_quantifier (Sub_Trm_Occ occ_idx) (Sub_Trm trm_idx) (inner:assrt) (name_space as Name_Space {subtrm, subtrm_occ, ...}:name_space) (quantifier:quantifier) =
         let
           (*The domain of sub-term-occurrences depends on which sub-term we consider.*)
-          val name_space_of_this_subtrm                  = AList.lookup (op =) subtrm trm_idx                                      : address option;
+          val name_space_of_this_subtrm                  = AList.lookup (op =) subtrm trm_idx                                            : address option;
           fun dest_Address_Subtrm (Address_Subtrm paths) = SOME paths
-            | dest_Address_Subtrm  _                     = NONE                                                                    : paths option;
-          val paths                                      = name_space_of_this_subtrm >>= dest_Address_Subtrm |> these              : paths;
-          val new_subtrm_occ_entries_in_name_space       = get_new_name_subspaces occ_idx (map Address_Subtrm_Occ paths) subtrm_occ: name_subspaces;
-          fun get_new_name_space new_subtrm_occ          = update_name_space name_space new_subtrm_occ ATyp_Subtrm_Occ             : name_space;
-          val new_name_spaces                            = map get_new_name_space new_subtrm_occ_entries_in_name_space             : name_spaces;
+            | dest_Address_Subtrm  _                     = NONE                                                                          : path_n_locs option;
+          val path_n_locs                                = name_space_of_this_subtrm >>= dest_Address_Subtrm |> these                    : path_n_locs;
+          val new_subtrm_occ_entries_in_name_space       = get_new_name_subspaces occ_idx (map Address_Subtrm_Occ path_n_locs) subtrm_occ: name_subspaces;
+          fun get_new_name_space new_subtrm_occ          = update_name_space name_space new_subtrm_occ ATyp_Subtrm_Occ                   : name_space;
+          val new_name_spaces                            = map get_new_name_space new_subtrm_occ_entries_in_name_space                   : name_spaces;
         in
           quantifier (eval' inner) new_name_spaces
         end
@@ -326,27 +359,31 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Are_Same_Str (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val occ1_occ2_path_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path * path) option;
-          val occ1_occ2_print_option = Utils.mapPartial2 path_to_print occ1_occ2_path_option                                                         : (UN.print * UN.print) option;
-          val result_option          = occ1_occ2_print_option <$> uncurry LU.same_prints                                                             : bool option;
-          val result                 = Utils.is_some_true result_option                                                                              : bool;
+          val occ1_occ2_path_n_loc_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
+          val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                                             : (UN.print * UN.print) option;
+          val result_option                = occ1_occ2_print_option <$> uncurry LU.same_prints                                                             : bool option;
+          val result                       = Utils.is_some_true result_option                                                                              : bool;
         in
           result
         end
       | eval' (Is_In_Trm_Loc (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val occ1_occ2_path_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path * path) option;
-          val result_option          = occ1_occ2_path_option <$> uncurry UN.path1_is_above_path2                                                     : bool option;
-          val result                 = Utils.is_some_true result_option                                                                              : bool;
+          val occ1_occ2_path_n_loc_option = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
+          val occ1_occ2_path_option       = occ1_occ2_path_n_loc_option <$> apply2 fst                                                                    : (path * path) option;
+          val occ1_occ2_loc_option        = occ1_occ2_path_n_loc_option <$> apply2 snd                                                                    : (location * location) option;
+          val path1_is_under_path2_option = occ1_occ2_path_option <$> uncurry UN.path1_is_above_path2                                                     : bool option;
+          val loc1_n_loc2_are_same        = occ1_occ2_loc_option <$> same_location                                                                        : bool option;
+          val result_pair                 = Utils.mk_option_pair (path1_is_under_path2_option, loc1_n_loc2_are_same)                                      : (bool * bool) option;
+          val result                      = result_pair <$> (op =) |> Utils.is_some_true                                                                  : bool;
         in
           result
         end
       | eval' (Is_In_Trm_Str (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val occ1_occ2_path_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path * path) option;
-          val occ1_occ2_print_option = Utils.mapPartial2 path_to_print occ1_occ2_path_option                                                         : (UN.print * UN.print) option;
-          val result_option          = occ1_occ2_print_option <$> uncurry LU.is_subprint_of                                                          : bool option;
-          val result                 = Utils.is_some_true result_option                                                                              : bool;
+          val occ1_occ2_path_n_loc_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
+          val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                                             : (UN.print * UN.print) option;
+          val result_option                = occ1_occ2_print_option <$> uncurry LU.is_subprint_of                                                          : bool option;
+          val result                       = Utils.is_some_true result_option                                                                              : bool;
         in
           result
         end
@@ -407,18 +444,21 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Is_App    subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NA
       | eval' (Not_Fully_App subtrm_occ) (name_space:name_space) =
         let
-          val subtrm_occ_path_option = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space subtrm_occ    : path option;
-          val subtrm_occ_node        = subtrm_occ_path_option >>= path_to_node                                : UN.node option;
-          val is_NA                  = subtrm_occ_node <$> UN.is_NA |> Utils.is_some_true                     : bool;
-          val func_path_option       = Utils.mk_option_pair (subtrm_occ_path_option, SOME [0]) <$> List.@     : ints option;
-          fun path_has_n_children' (p:path) (acc:int) = case path_to_node (p @ [acc]) of
+          val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space subtrm_occ: path_n_loc option;
+          val subtrm_occ_path_option       = subtrm_occ_path_n_loc_option <$> fst: path option                  : path option;
+          val subtrm_occ_loc_option        = subtrm_occ_path_n_loc_option <$> snd: location option              : location option;
+          val subtrm_occ_node              = subtrm_occ_path_n_loc_option >>= path_n_loc_to_node                : UN.node option;
+          val is_NA                        = subtrm_occ_node <$> UN.is_NA |> Utils.is_some_true                 : bool;
+          val func_path_option             = Utils.mk_option_pair (subtrm_occ_path_option, SOME [0]) <$> List.@ : path option;
+          val func_path_loc_option         = Utils.mk_option_pair (func_path_option, subtrm_occ_loc_option)     : path_n_loc option;
+          fun path_at_loc_has_n_children' (p:path) (loc:location) (acc:int) = case path_n_loc_to_node (p @ [acc], loc) of
               NONE => acc
-            | SOME _ => path_has_n_children' p (acc + 1);
-          fun path_has_n_children (p:path)  = path_has_n_children' p 0                                        : int;
-          val numb_of_funcs_children_option = func_path_option <$> path_has_n_children                        : int option;
-          val func_node_option              = func_path_option >>= path_to_node                               : UN.node option;
-          val fun_typ_option                = func_node_option >>= UN.node_to_atoms_typ                       : typ option; 
-          val numb_of_fun_typs_args         = fun_typ_option <$> Isabelle_Utils.count_numb_of_args_of_fun_typ : int option;
+            | SOME _ => path_at_loc_has_n_children' p loc (acc + 1);
+          fun path_at_loc_has_n_children (p:path, loc:location) = path_at_loc_has_n_children' p loc 0         : int;
+          val numb_of_funcs_children_option = func_path_loc_option <$> path_at_loc_has_n_children             : int option;
+          val func_node_option              = func_path_loc_option >>= path_n_loc_to_node                     : UN.node option;
+          val func_typ_option               = func_node_option >>= UN.node_to_atoms_typ                       : typ option;
+          val numb_of_fun_typs_args         = func_typ_option <$> Isabelle_Utils.count_numb_of_args_of_fun_typ: int option;
           val same_numbs                    = opt_equal (numb_of_funcs_children_option, numb_of_fun_typs_args): bool;
         in
           is_NA andalso same_numbs
@@ -437,15 +477,17 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Is_Nth_Arg_Of (func:subtrm_occ, Nth numb:numb, arg:subtrm_occ)) (name_space as Name_Space nspace) =
         let
-          val path_of_func_option            = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space func       : path option;
-          val path_of_arg_option             = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space arg        : path option;
+          val path_n_loc_of_func_option      = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space func       : path_n_loc option;
+          val path_n_loc_of_arg_option       = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space arg        : path_n_loc option;
           val numb_name_space                = #numb nspace                                                        : name_subspace;
           val numb_option                    = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb          : int option;
           val numb_list_option               = numb_option <$> single                                              : int list option;
-          val init_of_path_to_func_option    = path_of_func_option <$> Utils.init                                  : path option;
+          val func_occ_path_option           = path_n_loc_of_func_option <$> fst                                   : path option;
+          val init_of_path_to_func_option    = func_occ_path_option <$> Utils.init                                 : path option;
           val init_n_last_option             = Utils.mk_option_pair (init_of_path_to_func_option, numb_list_option): (path * path) option;
           val path_to_nth_arg_of_func_option = init_n_last_option <$> List.@                                       : path option;
-          val are_same_paths                 = opt_equal (path_of_arg_option, path_to_nth_arg_of_func_option)      : bool;
+          val arg_occ_path_option            = path_n_loc_of_arg_option  <$> fst                                   : path option;
+          val are_same_paths                 = opt_equal (arg_occ_path_option, path_to_nth_arg_of_func_option)     : bool;
         in
           are_same_paths
         end

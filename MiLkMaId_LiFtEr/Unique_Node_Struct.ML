@@ -197,7 +197,6 @@ fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_abov
   | path1_is_above_path2 ([]   :path) (_::_ :path) = true
   | path1_is_above_path2  _            _           = false;
 
-
 (* paths *)
 type paths = path list;
 

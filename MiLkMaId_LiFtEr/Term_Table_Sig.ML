@@ -49,21 +49,23 @@ type paths_table = Unique_Node.path list Print_Table.table;
 val unode_table_to_print_paths_table    : unode_table     -> paths_table;
 val unode_aux_table_to_print_paths_table: unode_aux_table -> paths_table;
 
-type unode_n_print_table     = {unode_table    : unode_table,     paths_table: paths_table};
-type unode_aux_n_print_table = {unode_aux_table: unode_aux_table, paths_table: paths_table};
+type unode_n_path_table      = {unode_table    : unode_table,     paths_table: paths_table};
+type unode_n_path_tables     = unode_n_path_table list;
+type unode_aux_n_path_table  = {unode_aux_table: unode_aux_table, paths_table: paths_table};
+type unode_aux_n_path_tables = unode_aux_n_path_table list;
 
-val unode_table_to_unode_n_print_table        : unode_table     -> unode_n_print_table;
-val unode_aux_table_to_unode_aux_n_print_table: unode_aux_table -> unode_aux_n_print_table;
+val unode_table_to_unode_n_print_table        : unode_table     -> unode_n_path_table;
+val unode_aux_table_to_unode_aux_n_print_table: unode_aux_table -> unode_aux_n_path_table;
 
 val print_n_paths_table_to_paths: paths_table -> Unique_Node.print -> Unique_Node.path list;
 
 type abs_pstate =
-  {fst_subg: unode_n_print_table,
-   usings  : unode_n_print_table list};
+  {subgoals: unode_n_path_tables,
+   usings  : unode_n_path_tables};
 
 type abs_pstate_w_aux =
-  {fst_subg: unode_aux_n_print_table,
-   usings  : unode_aux_n_print_table list};
+  {subgoals: unode_aux_n_path_tables,
+   usings  : unode_aux_n_path_tables};
 
 (*Use One_Term.keys to implement it.*)
 val unode_table_to_lowest_fvars: unode_table -> Unique_Node.path list;

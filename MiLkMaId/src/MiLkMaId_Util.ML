@@ -28,9 +28,10 @@ fun count_recursive_consts (ctxt:Proof.context) trm = fold_aterms (fn Const (cna
   if exist_related_rsimp ctxt [cname] then n + 1 else n) | _ => I) trm 0;
 
 (* Utilty functions *)
-infix 1 >>= <$> <|>;
+infix 1 >>= <$> <|> <*>;
 fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
+fun (f <*> m) = Utils.opt_app f m;
 fun (NONE   <|> NONE  ) = NONE
   | (NONE   <|> SOME x) = SOME x
   | (SOME x <|> NONE  ) = SOME x

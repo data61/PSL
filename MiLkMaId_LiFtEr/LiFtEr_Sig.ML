@@ -80,10 +80,13 @@ datatype rule_name = Rule_Name of string;
 type rule_names    = rule_name list;
 type paths;
 type pathss;
+type location;
+type path_n_loc;
+type path_n_locs;
 
 datatype address =(*TODO: better name? FIXME: this is actually value type.*)
-  Address_Subtrm     of paths
-| Address_Subtrm_Occ of path
+  Address_Subtrm     of path_n_locs
+| Address_Subtrm_Occ of path_n_loc
 | Address_Rule       of rule_name
 | Address_Numb       of int;
 
