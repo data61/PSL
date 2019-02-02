@@ -91,6 +91,12 @@ type pathss        = paths list;
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location = Nth_Subg of int | Chained_Fact of int;
 
+fun in_subgoals (Nth_Subg _:location) = true
+  | in_subgoals  _                    = false;
+
+fun in_chained_facts (Chained_Fact _:location) = true
+  | in_chained_facts   _                       = false;
+
 fun same_location (Nth_Subg     n1, Nth_Subg     n2) = n1 = n2
   | same_location (Chained_Fact n1, Chained_Fact n2) = n1 = n2
   | same_location  _                                 = false;
@@ -165,7 +171,7 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 (*TODO: check name collisions before evaluation.*)
 val no_overlad = undefined: assrt -> bool;
 
-fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_aux, assert: assrt, Ind_Mods mods:ind_mods) = (*TODO*)
+fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_aux, assert: assrt, Ind_Mods mods:ind_mods) =
   let
     val {ind_domain, arb_domain, subtrm_domain, numb_domain, rule_domain} = name_domains;
 
@@ -189,22 +195,22 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         integer_option
       end;
 
-    fun name_space_n_subtrm_occ_id_to_subtrm_occ_path (Name_Space nspace:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
+    fun name_space_n_subtrm_occ_id_to_path_n_loc (Name_Space nspace:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
       let
         val subtrm_occ_name_space  = #subtrm_occ nspace                            : name_subspace;
         val occ_address_option     = alist_lookup_eq subtrm_occ_name_space occ_id  : address option;
         val occ_path_n_loc_option  = occ_address_option >>= dest_Address_Subtrm_Occ: path_n_loc option;
       in
-        occ_path_n_loc_option
+        occ_path_n_loc_option:  path_n_loc option
       end;
 
-    fun name_space_n_subtrm_id_to_subtrm_occ_paths (Name_Space nspace:name_space) (Sub_Trm subtrm_id:subtrm) =
+    fun name_space_n_subtrm_id_to_path_n_locs (Name_Space nspace:name_space) (Sub_Trm subtrm_id:subtrm) =
       let
         val subtrm_name_space     = #subtrm nspace                              : name_subspace;
         val subtrm_address_option = alist_lookup_eq subtrm_name_space subtrm_id : address option;
         val subtrm_paths_option   = subtrm_address_option>>= dest_Address_Subtrm: path_n_locs option;
       in
-        subtrm_paths_option: (path * location) list option
+        subtrm_paths_option: path_n_locs option
       end;
 
     type quantifier = (name_space -> bool) -> name_space list -> bool;
@@ -242,17 +248,17 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun name_space_n_subtrm_occ_id_to_node (name_space:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
       let
-        val occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space (Sub_Trm_Occ occ_id): path_n_loc option;
-        val node_option           = occ_path_n_loc_option <$> path_n_loc_to_node |> Option.join                  : UN.node option;
+        val occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space (Sub_Trm_Occ occ_id): path_n_loc option;
+        val node_option           = occ_path_n_loc_option <$> path_n_loc_to_node |> Option.join             : UN.node option;
       in
         node_option
       end;
 
     fun name_space_n_subtrm_id_to_print (name_space:name_space) (subtrm:subtrm) =
       let
-        val subtrm_occ_path_n_locs_option  = name_space_n_subtrm_id_to_subtrm_occ_paths name_space subtrm: path_n_locs option;
-        val subtrm_occ_a_path_n_loc_option = subtrm_occ_path_n_locs_option >>= try hd                    : path_n_loc  option;
-        val print_option                   = subtrm_occ_a_path_n_loc_option >>= path_n_loc_to_print      : print option;
+        val subtrm_occ_path_n_locs_option  = name_space_n_subtrm_id_to_path_n_locs name_space subtrm: path_n_locs option;
+        val subtrm_occ_a_path_n_loc_option = subtrm_occ_path_n_locs_option >>= try hd               : path_n_loc  option;
+        val print_option                   = subtrm_occ_a_path_n_loc_option >>= path_n_loc_to_print : print option;
       in
         print_option
       end;
@@ -280,23 +286,23 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       let
         (* TODO: FIXME: we should not use numb directly.                     *)
         (* First check out what number does (Nth numb) stands in name_space. *)
-        fun get_print_option (Is_Nth_Ind _) = try (nth ons ) numb <$> LiFtEr_Util.dest_induct_on    : print option
-          | get_print_option (Is_Nth_Arb _) = try (nth arbs) numb <$> LiFtEr_Util.dest_induct_arb   : print option
-          | get_print_option  _             = NONE                                                  : print option;
-        val nth_print_option         = get_print_option assrt                                       : print option;
-        val subtrm_print_option      = name_space_n_subtrm_id_to_print name_space subtrm            : print option;
-        val tobe_compared            = Utils.mk_option_pair (nth_print_option, subtrm_print_option) : (print * print) option;
-        val result_option            = tobe_compared <$> uncurry LU.same_prints                     : bool option;
-        val result                   = Utils.is_some_true result_option                             : bool;
+        fun get_print_option (Is_Nth_Ind _) = try (nth ons ) numb <$> LiFtEr_Util.dest_induct_on   : print option
+          | get_print_option (Is_Nth_Arb _) = try (nth arbs) numb <$> LiFtEr_Util.dest_induct_arb  : print option
+          | get_print_option  _             = NONE                                                 : print option;
+        val nth_print_option         = get_print_option assrt                                      : print option;
+        val subtrm_print_option      = name_space_n_subtrm_id_to_print name_space subtrm           : print option;
+        val tobe_compared            = Utils.mk_option_pair (nth_print_option, subtrm_print_option): (print * print) option;
+        val result_option            = tobe_compared <$> uncurry LU.same_prints                    : bool option;
+        val result                   = Utils.is_some_true result_option                            : bool;
       in
         result
       end;
 
     fun name_space_n_subtrm_occ_are_node_typ_of (name_space:name_space) (subtrm_occ:subtrm_occ) (node_typ:UN.node_typ) =
       let
-        val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ           : UN.node option;
-        val result_option = node_option <$> UN.node_typ_to_checker node_typ                    : bool option;
-        val result        = Utils.is_some_true result_option                                   : bool;
+        val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ: UN.node option;
+        val result_option = node_option <$> UN.node_typ_to_checker node_typ         : bool option;
+        val result        = Utils.is_some_true result_option                        : bool;
       in
         result
       end;
@@ -359,16 +365,16 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Are_Same_Str (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val occ1_occ2_path_n_loc_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
-          val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                                             : (UN.print * UN.print) option;
-          val result_option                = occ1_occ2_print_option <$> uncurry LU.same_prints                                                             : bool option;
-          val result                       = Utils.is_some_true result_option                                                                              : bool;
+          val occ1_occ2_path_n_loc_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_path_n_loc name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
+          val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                                        : (UN.print * UN.print) option;
+          val result_option                = occ1_occ2_print_option <$> uncurry LU.same_prints                                                        : bool option;
+          val result                       = Utils.is_some_true result_option                                                                         : bool;
         in
           result
         end
       | eval' (Is_In_Trm_Loc (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val occ1_occ2_path_n_loc_option = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
+          val occ1_occ2_path_n_loc_option = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_path_n_loc name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
           val occ1_occ2_path_option       = occ1_occ2_path_n_loc_option <$> apply2 fst                                                                    : (path * path) option;
           val occ1_occ2_loc_option        = occ1_occ2_path_n_loc_option <$> apply2 snd                                                                    : (location * location) option;
           val path1_is_under_path2_option = occ1_occ2_path_option <$> uncurry UN.path1_is_above_path2                                                     : bool option;
@@ -380,7 +386,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Is_In_Trm_Str (subtrm_occ1, subtrm_occ2)) (name_space:name_space) =
         let
-          val occ1_occ2_path_n_loc_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
+          val occ1_occ2_path_n_loc_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_path_n_loc name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
           val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                                             : (UN.print * UN.print) option;
           val result_option                = occ1_occ2_print_option <$> uncurry LU.is_subprint_of                                                          : bool option;
           val result                       = Utils.is_some_true result_option                                                                              : bool;
@@ -412,16 +418,33 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
          * 4. compare the depth of the first sub-goal or chained-facts that contain "(Sub_Trm_Occ occ_id)" with the maximum depth.
          *)
         in true (*TODO*) end
-      | eval' (Is_In_Chained (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+      | eval' (Is_In_Chained (subtrm_occ:subtrm_occ)) (name_space:name_space) =
         let
-        in true (*TODO*)
+          val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ  : path_n_loc option;
+          val subtrm_occ_loc_option        = subtrm_occ_path_n_loc_option <$> snd: location option           : location option;
+          val result                       = subtrm_occ_loc_option <$> in_chained_facts |> Utils.is_some_true: bool;
+        in
+          result
         end
-      | eval' (Is_In_Fst_Subg (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+      | eval' (Is_In_Fst_Subg (subtrm_occ:subtrm_occ)) (name_space:name_space) =
         let
-        in true (*TODO*)
+          val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ: path_n_loc option;
+          val subtrm_occ_loc_option        = subtrm_occ_path_n_loc_option <$> snd: location option         : location option;
+          val result                       = subtrm_occ_loc_option <$> in_subgoals |> Utils.is_some_true   : bool;
+        in
+          result
         end
-      | eval' (Is_In_Prems (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
+      | eval' (Is_In_Prems (subtrm_occ:subtrm_occ)) (Name_Space name_space:name_space) =
+        (* Should Is_In_Prems treated as a syntax-sugar based on
+           Is_Nth_Arg_Of, Is_In_Trm_Loc, Some_Sub_Trm_Occ, Is_Const_Of_Name, Is_In_Trm_Loc? *)
         let
+          val get_fresh_subtrm_occ_id = 1;(*TODO*)
+          val get_fresh_subtrm_id = 1;(*TODO*)
+          val desugared_assrt =(*TODO: FIXME*)
+            Some_Sub_Trm (Sub_Trm 1(*TOOD*),
+             (Some_Sub_Trm_Occ (Sub_Trm_Occ 1(*TODO*), Sub_Trm 1(*TODO*),
+               (Some_Sub_Trm_Occ (Sub_Trm_Occ 2(*TODO*), Sub_Trm 1(*TODO*),
+                Is_In_Cnclsn (Sub_Trm_Occ 1))))))
         in true (*TODO*)
         end
       | eval' (Is_In_Cnclsn (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
@@ -444,7 +467,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Is_App    subtrm_occ) (name_space:name_space) = name_space_n_subtrm_occ_are_node_typ_of name_space subtrm_occ UN.Node_Typ_NA
       | eval' (Not_Fully_App subtrm_occ) (name_space:name_space) =
         let
-          val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space subtrm_occ: path_n_loc option;
+          val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ: path_n_loc option;
           val subtrm_occ_path_option       = subtrm_occ_path_n_loc_option <$> fst: path option                  : path option;
           val subtrm_occ_loc_option        = subtrm_occ_path_n_loc_option <$> snd: location option              : location option;
           val subtrm_occ_node              = subtrm_occ_path_n_loc_option >>= path_n_loc_to_node                : UN.node option;
@@ -477,8 +500,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Is_Nth_Arg_Of (func:subtrm_occ, Nth numb:numb, arg:subtrm_occ)) (name_space as Name_Space nspace) =
         let
-          val path_n_loc_of_func_option      = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space func       : path_n_loc option;
-          val path_n_loc_of_arg_option       = name_space_n_subtrm_occ_id_to_subtrm_occ_path name_space arg        : path_n_loc option;
+          val path_n_loc_of_func_option      = name_space_n_subtrm_occ_id_to_path_n_loc name_space func            : path_n_loc option;
+          val path_n_loc_of_arg_option       = name_space_n_subtrm_occ_id_to_path_n_loc name_space arg             : path_n_loc option;
           val numb_name_space                = #numb nspace                                                        : name_subspace;
           val numb_option                    = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb          : int option;
           val numb_list_option               = numb_option <$> single                                              : int list option;
