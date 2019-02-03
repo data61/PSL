@@ -23,64 +23,64 @@ datatype pattern     = Pttrn (*TODO*)
 infix And Or Imply;
 datatype assrt       =
 (*quantifiers*)
-  All_Ind          of subtrm * assrt
-| All_Arb          of subtrm * assrt
-| All_Sub_Trm      of subtrm * assrt
-| All_Rule         of rule   * assrt
-| All_Numb         of numb   * assrt
-| Some_Ind         of subtrm * assrt
-| Some_Arb         of subtrm * assrt
-| Some_Sub_Trm     of subtrm * assrt
-| Some_Rule        of rule   * assrt
-| Some_Numb         of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
+  All_Ind                 of subtrm * assrt
+| All_Arb                 of subtrm * assrt
+| All_Sub_Trm             of subtrm * assrt
+| All_Rule                of rule   * assrt
+| All_Numb                of numb   * assrt
+| Some_Ind                of subtrm * assrt
+| Some_Arb                of subtrm * assrt
+| Some_Sub_Trm            of subtrm * assrt
+| Some_Rule               of rule   * assrt
+| Some_Numb               of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
-| All_Sub_Trm_Occ  of subtrm_occ * subtrm * assrt
-| Some_Sub_Trm_Occ of subtrm_occ * subtrm * assrt
+| All_Sub_Trm_Occ         of subtrm_occ * subtrm * assrt
+| Some_Sub_Trm_Occ        of subtrm_occ * subtrm * assrt
 (*combinators*)
-| And              of assrt * assrt
-| Or               of assrt * assrt
-| Not              of assrt
-| Imply            of assrt * assrt
+| And                     of assrt * assrt
+| Or                      of assrt * assrt
+| Not                     of assrt
+| Imply                   of assrt * assrt
 (*atomic about proof goal*)
-| Are_Same_Numb    of numb       * numb
-| Are_Same_Str     of subtrm_occ * subtrm_occ (*subtrm*)
-| Is_In_Trm_Loc    of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
-| Is_In_Trm_Str    of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
-| Is_In_Trm_Sem    of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
-| Is_Typ           of subtrm_occ * hol_typ
-| Is_At_Deepest    of subtrm_occ
-| Is_In_Chained    of subtrm_occ
-| Is_In_Fst_Subg   of subtrm_occ
-| Is_In_Prems      of subtrm_occ
-| Is_In_Cnclsn     of subtrm_occ
-| Is_Atom          of subtrm_occ
-| Is_Cnst          of subtrm_occ
-| Is_Const_Of_Name of subtrm_occ * string
-| Is_Var           of subtrm_occ
-| Is_Free          of subtrm_occ
-| Is_Bound         of subtrm_occ (*corresponds to Bound in term*)
-| Is_Lambda        of subtrm_occ (*lambda abstraction corresponding to Abs in Term*)
-| Is_App           of subtrm_occ (*function application corresponding to $ in Term*)
-| Not_Fully_App    of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
-| Is_Less_Than     of numb       * numb (* nth_1 < nth_2 *)
-| Is_Nth_Arg_Of    of subtrm_occ * numb * subtrm_occ
-| Is_Nth_Ind       of subtrm     * numb
-| Is_Nth_Arb       of subtrm     * numb
-| Numb_Is          of numb       * int
-| Print_Is         of subtrm     * string
+| Are_Same_Numb           of numb       * numb
+| Are_Same_Str            of subtrm_occ * subtrm_occ (*subtrm*)
+| Is_In_Trm_Loc           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
+| Is_In_Trm_Str           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
+| Is_In_Trm_Sem           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
+| Is_Typ                  of subtrm_occ * hol_typ
+| Is_In_Chained           of subtrm_occ
+| Is_In_Fst_Subg          of subtrm_occ
+| Is_In_Prems             of subtrm_occ
+| Is_In_Cnclsn            of subtrm_occ
+| Is_Atom                 of subtrm_occ
+| Is_Cnst                 of subtrm_occ
+| Is_Const_Of_Name        of subtrm_occ * string
+| Is_Var                  of subtrm_occ
+| Is_Free                 of subtrm_occ
+| Is_Bound                of subtrm_occ (*corresponds to Bound in term*)
+| Is_Lambda               of subtrm_occ (*lambda abstraction corresponding to Abs in Term*)
+| Is_App                  of subtrm_occ (*function application corresponding to $ in Term*)
+| Not_Fully_App           of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
+| Is_Less_Than            of numb       * numb (* nth_1 < nth_2 *)
+| Is_Nth_Arg_Of           of subtrm_occ * numb * subtrm_occ
+| Is_Nth_Ind              of subtrm     * numb
+| Is_Nth_Arb              of subtrm     * numb
+| Numb_Is                 of numb       * int
+| Depth_Of_Sub_Trm_Occ_Is of subtrm_occ * numb
+| Print_Is                of subtrm     * string
 (* TODO: pattern *)
-| Pattern          of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
+| Pattern                 of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
-| All_Ind_Occ      of subtrm_occ * subtrm * assrt (*Probably with All_Ind  and All_Sub_Trm_Occ*)
-| All_Arb_Occ      of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
-| Some_Ind_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
-| Some_Arb_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
-| Are_Diff_Numb    of numb       * numb           (*Not & Are_Same_Numb*)
-| Are_Diff_Str     of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
-| Has_Typ          of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
-| Not_Deepest      of subtrm_occ                  (*Not & Is_At_Deepest*)
-| Is_More_Than     of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
-| For_Numb_N       of numb       * int * assrt    (*Some_Numb $ Numb_Is*)
+| All_Ind_Occ             of subtrm_occ * subtrm * assrt (*Probably with All_Ind  and All_Sub_Trm_Occ*)
+| All_Arb_Occ             of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
+| Some_Ind_Occ            of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
+| Some_Arb_Occ            of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
+| Are_Diff_Numb           of numb       * numb           (*Not & Are_Same_Numb*)
+| Are_Diff_Str            of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
+| Has_Typ                 of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
+| Is_At_Deepest           of subtrm_occ
+| Is_More_Than            of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
+| For_Numb_N              of numb       * int * assrt    (*Some_Numb $ Numb_Is*)
 
 datatype rule_name = Rule_Name of string;
 type rule_names    = rule_name list;
@@ -203,16 +203,13 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     type quantifier = (name_space -> bool) -> name_space list -> bool;
 
-    val {ons, arbs, rules}        = mods                         : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
-    val subgoals                  = #subgoals abs_pst_w_aux      : TT.unode_aux_n_path_tables;
-    val unode_aux_tables          = map #unode_aux_table subgoals: TT.unode_aux_table list;
-    (*TODO: probably we have to have multiple tables;*)
-    (*      one for the first sub-goal, and          *)
-    (*      one for each chained fact.               *)
+    val {ons, arbs, rules}        = mods                                                                                          : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
+    val subgoals                  = #subgoals abs_pst_w_aux                                                                       : TT.unode_aux_n_path_tables;
+    val unode_aux_tables          = map #unode_aux_table subgoals                                                                 : TT.unode_aux_table list;
     fun unode_aux_table_n_path_to_print (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #print: UN.print option;
     fun unode_aux_table_n_path_to_node  (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #node : UN.node option;
-    fun loc_to_unode_aux_n_path_table (TT.Nth_Subg     n:location) = try (nth (#subgoals abs_pst_w_aux)) n                           : TT.unode_aux_n_path_table option
-      | loc_to_unode_aux_n_path_table (TT.Chained_Fact n:location) = try (nth (#usings   abs_pst_w_aux)) n                           : TT.unode_aux_n_path_table option;
+    fun loc_to_unode_aux_n_path_table (TT.Nth_Subg     n:location) = try (nth (#subgoals abs_pst_w_aux)) n                        : TT.unode_aux_n_path_table option
+      | loc_to_unode_aux_n_path_table (TT.Chained_Fact n:location) = try (nth (#usings   abs_pst_w_aux)) n                        : TT.unode_aux_n_path_table option;
 
     fun loc_to_unode_aux_table (loc:location) = loc_to_unode_aux_n_path_table loc <$> #unode_aux_table: TT.unode_aux_table option;
 
@@ -398,15 +395,6 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           val result          = atomic_node_typ <$> is_hol_typ_of hol_typ |> Utils.is_some_true: bool;
         in result
         end
-      | eval' (Is_At_Deepest (Sub_Trm_Occ occ_id)) (Name_Space name_space:name_space) =
-        let
-        (* TODO:
-         * 1. get the maximum depth.
-         * 2. get the path of "(Sub_Trm_Occ occ_id)".
-         * 3. get the length of "(Sub_Trm_Occ occ_id)"'s path, which is the depth of this occurrence.
-         * 4. compare the depth of the first sub-goal or chained-facts that contain "(Sub_Trm_Occ occ_id)" with the maximum depth.
-         *)
-        in true (*TODO*) end
       | eval' (Is_In_Chained (subtrm_occ:subtrm_occ)) (name_space:name_space) =
         let
           val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ     : path_n_loc option;
@@ -535,23 +523,22 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           (*TODO*)true
         end
-      | eval' (Not_Deepest (subtrm_occ:subtrm_occ)) (name_space:name_space) =
+      | eval' (Is_At_Deepest (subtrm_occ:subtrm_occ)) (name_space:name_space) =
+        (* TODO:
+         * Treat Is_At_Deepest as a syntactic sugar for something based on Depth_Of_Sub_Trm_Occ_Is, Some_Sub_Trm, and Not.
+         * We can introduce a new quantifier safely without polluting name_space for other (inner) assertions
+         * because Is_At_Deepest is an atomic assertion.*)
         let
-          val path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ                              : path_n_loc option;
+          val path_n_loc_option             = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ                  : path_n_loc option;
           val (path_option, loc_option)     = Utils.mk_options_pair path_n_loc_option                                         : (path option * location option);
           val subtrm_occs_depth_option      = path_option <$> length: int option                                              : int option;
           val unode_aux_n_path_table_option = loc_option <$> TT.abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table abs_pst_w_aux: TT.unode_aux_n_path_table option;
           val unode_aux_table_option        = unode_aux_n_path_table_option <$> #unode_aux_table                              : TT.unode_aux_table option;
-          val maximum_depth_option = unode_aux_table_option >>= TT.unode_aux_table_to_depth: int option;
-          val result = opt_equal (subtrm_occs_depth_option, maximum_depth_option);
+          val maximum_depth_option          = unode_aux_table_option >>= TT.unode_aux_table_to_depth: int option              : int option;
+          val result                        = opt_equal (subtrm_occs_depth_option, maximum_depth_option)                      : bool;
         in
           result
         end
-        (*TODO:
-         * 1. get the depth of the entire term in which the sub-term occurrence resides.
-         * 2. get the depth of the sub-term occurrence.
-         * 3. compare these depths.
-         *)
       | eval' (Is_More_Than  (numb1:numb, numb2:numb))          (name_space:name_space) = eval' (Not (Is_Less_Than (numb1, numb2)) And Not (Are_Same_Numb (numb1, numb2))) name_space
       | eval' (For_Numb_N    (numb:numb, int:int, inner:assrt)) (name_space:name_space) = eval' (Numb_Is (numb, int) And Some_Numb (numb, inner))                          name_space
   in

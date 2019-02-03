@@ -16,65 +16,65 @@ datatype rule        = Rule        of int;
 datatype subtrm_occ  = Sub_Trm_Occ of int;
 datatype pattern     = Pttrn (*TODO*)
 datatype assrt       =
-(*quantifiers: TODO: maybe existential quantifiers, i.e. "Some_*", should be treated as syntax sugars. But performance?*)
-  All_Ind          of subtrm * assrt
-| All_Arb          of subtrm * assrt
-| All_Sub_Trm      of subtrm * assrt
-| All_Rule         of rule   * assrt
-| All_Numb         of numb   * assrt
-| Some_Ind         of subtrm * assrt
-| Some_Arb         of subtrm * assrt
-| Some_Sub_Trm     of subtrm * assrt
-| Some_Rule        of rule   * assrt
-| Some_Numb        of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
+(*quantifiers*)
+  All_Ind                 of subtrm * assrt
+| All_Arb                 of subtrm * assrt
+| All_Sub_Trm             of subtrm * assrt
+| All_Rule                of rule   * assrt
+| All_Numb                of numb   * assrt
+| Some_Ind                of subtrm * assrt
+| Some_Arb                of subtrm * assrt
+| Some_Sub_Trm            of subtrm * assrt
+| Some_Rule               of rule   * assrt
+| Some_Numb               of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
-| All_Sub_Trm_Occ  of subtrm_occ * subtrm * assrt
-| Some_Sub_Trm_Occ of subtrm_occ * subtrm * assrt
+| All_Sub_Trm_Occ         of subtrm_occ * subtrm * assrt
+| Some_Sub_Trm_Occ        of subtrm_occ * subtrm * assrt
 (*combinators*)
-| And              of assrt * assrt
-| Or               of assrt * assrt
-| Not              of assrt
-| Imply            of assrt * assrt
+| And                     of assrt * assrt
+| Or                      of assrt * assrt
+| Not                     of assrt
+| Imply                   of assrt * assrt
 (*atomic about proof goal*)
-| Are_Same_Numb    of numb       * numb
-| Are_Same_Str     of subtrm_occ * subtrm_occ (*subtrm*)
-| Is_In_Trm_Loc    of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
-| Is_In_Trm_Str    of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
-| Is_In_Trm_Sem    of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
-| Is_Typ           of subtrm_occ * hol_typ
-| Is_At_Deepest    of subtrm_occ
-| Is_In_Chained    of subtrm_occ
-| Is_In_Fst_Subg   of subtrm_occ
-| Is_In_Prems      of subtrm_occ
-| Is_In_Cnclsn     of subtrm_occ
-| Is_Const_Of_Name of subtrm_occ * string
-| Is_Cnst          of subtrm_occ
-| Is_Var           of subtrm_occ
-| Is_Free          of subtrm_occ
-| Is_Bound         of subtrm_occ (*corresponds to Bound in term*)
-| Is_Lambda        of subtrm_occ (*lambda abstraction corresponding to Abs in Term*)
-| Is_App           of subtrm_occ (*function application corresponding to $ in Term*)
-| Not_Fully_App    of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
-| Is_Less_Than     of numb       * numb (* nth_1 < nth_2 *)
-| Is_Nth_Arg_Of    of subtrm_occ * numb * subtrm_occ (*sub-tree-1 is the numb-th argument of sub-tree-2*)
-| Is_Nth_Ind       of subtrm     * numb
-| Is_Nth_Arb       of subtrm     * numb
-| Numb_Is          of numb       * int
-| Print_Is         of subtrm     * string
+| Are_Same_Numb           of numb       * numb
+| Are_Same_Str            of subtrm_occ * subtrm_occ (*subtrm*)
+| Is_In_Trm_Loc           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
+| Is_In_Trm_Str           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
+| Is_In_Trm_Sem           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
+| Is_Typ                  of subtrm_occ * hol_typ
+| Is_In_Chained           of subtrm_occ
+| Is_In_Fst_Subg          of subtrm_occ
+| Is_In_Prems             of subtrm_occ
+| Is_In_Cnclsn            of subtrm_occ
+| Is_Atom                 of subtrm_occ
+| Is_Cnst                 of subtrm_occ
+| Is_Const_Of_Name        of subtrm_occ * string
+| Is_Var                  of subtrm_occ
+| Is_Free                 of subtrm_occ
+| Is_Bound                of subtrm_occ (*corresponds to Bound in term*)
+| Is_Lambda               of subtrm_occ (*lambda abstraction corresponding to Abs in Term*)
+| Is_App                  of subtrm_occ (*function application corresponding to $ in Term*)
+| Not_Fully_App           of subtrm_occ (*If subtrm is function application that is not fully applied returns true, otherwise returns false.*)
+| Is_Less_Than            of numb       * numb (* nth_1 < nth_2 *)
+| Is_Nth_Arg_Of           of subtrm_occ * numb * subtrm_occ
+| Is_Nth_Ind              of subtrm     * numb
+| Is_Nth_Arb              of subtrm     * numb
+| Numb_Is                 of numb       * int
+| Depth_Of_Sub_Trm_Occ_Is of subtrm_occ * numb
+| Print_Is                of subtrm     * string
 (* TODO: pattern *)
-| Pattern          of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
+| Pattern                 of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
-| All_Ind_Occ      of subtrm_occ * subtrm * assrt (*Probably with All_Ind  and All_Sub_Trm_Occ*)
-| All_Arb_Occ      of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
-| Some_Ind_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
-| Some_Arb_Occ     of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
-| Is_Atom          of subtrm_occ                  (*Is_Cnst, Is_Var, and Is_Free *)
-| Are_Diff_Numb    of numb       * numb           (*Not and Are_Same_Nth*)
-| Are_Diff_Str     of subtrm_occ * subtrm_occ     (*Not and Are_Same_Str*)
-| Has_Typ          of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, and Is_Typ*)
-| Not_Deepest      of subtrm_occ                  (*Not and Is_At_Deepest*)
-| Is_More_Than     of numb       * numb           (*Not, Is_Less_Than, And, and Are_Same_Numb*)
-| For_Numb_N       of numb       * int * assrt    (*Some_Numb, And, and Numb_Is*)
+| All_Ind_Occ             of subtrm_occ * subtrm * assrt (*Probably with All_Ind  and All_Sub_Trm_Occ*)
+| All_Arb_Occ             of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
+| Some_Ind_Occ            of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
+| Some_Arb_Occ            of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
+| Are_Diff_Numb           of numb       * numb           (*Not & Are_Same_Numb*)
+| Are_Diff_Str            of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
+| Has_Typ                 of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
+| Is_At_Deepest           of subtrm_occ
+| Is_More_Than            of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
+| For_Numb_N              of numb       * int * assrt    (*Some_Numb $ Numb_Is*)
 
 datatype rule_name = Rule_Name of string;
 type rule_names    = rule_name list;
