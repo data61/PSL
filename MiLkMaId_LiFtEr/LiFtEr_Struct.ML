@@ -495,10 +495,20 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (assrt as Is_Nth_Arb (subtrm:subtrm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt subtrm numb name_space
       | eval' (Numb_Is  (Nth numb, int:int)) (name_space:name_space) =
         let
-          val numb_option   = name_space_n_numb_id_to_integer name_space (Nth numb): int option;
-          val result        = opt_equal (numb_option, SOME int)                    : bool;
+          val numb_option         = name_space_n_numb_id_to_integer name_space (Nth numb): int option;
+          val are_same_int_option = opt_equal (numb_option, SOME int)                    : bool;
         in
-         result
+         are_same_int_option
+        end
+      | eval' (Depth_Of_Sub_Trm_Occ_Is (subtrm_occ:subtrm_occ, numb:numb)) (name_space:name_space) =
+        let
+          val path_n_loc_option        = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ: path_n_loc option;
+          val (path_option, _)         = Utils.mk_options_pair path_n_loc_option                       : (path option * location option);
+          val subtrm_occs_depth_option = path_option <$> length: int option                            : int option;
+          val int_at_numb_option       = name_space_n_numb_id_to_integer name_space numb               : int option;
+          val are_same_int_option      = opt_equal (subtrm_occs_depth_option, int_at_numb_option)      : bool;
+        in
+          are_same_int_option
         end
       | eval' (Print_Is (subtrm:subtrm, string:string)) (name_space:name_space) =
         let
