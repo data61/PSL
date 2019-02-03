@@ -21,7 +21,7 @@ structure OT = One_Term;
 structure UN = Unique_Node;
 structure PT = Print_Table;
 
-type unode_table     = UN.unique_node_wo_path OT.table;
+type unode_table     = UN.unique_node_wo_path       OT.table;
 type unode_aux_table = UN.unique_node_w_aux_wo_path OT.table;
 
 fun split_unique_node (unode:UN.unique_node): UN.path * UN.unique_node_wo_path =
@@ -76,7 +76,31 @@ type abs_pstate_w_aux =
   {subgoals: unode_aux_n_path_tables,
    usings  : unode_aux_n_path_tables};
 
+(* location: first sub-goal = Nth_Subg 0. *)
+datatype location = Nth_Subg of int | Chained_Fact of int;
+
+fun in_subgoals (Nth_Subg _:location) = true
+  | in_subgoals  _                    = false;
+
+fun in_chained_facts (Chained_Fact _:location) = true
+  | in_chained_facts   _                       = false;
+
+fun same_location (Nth_Subg     n1, Nth_Subg     n2) = n1 = n2
+  | same_location (Chained_Fact n1, Chained_Fact n2) = n1 = n2
+  | same_location  _                                 = false;
+
+fun abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table (pst:abs_pstate_w_aux) (Nth_Subg     n) = nth (#subgoals pst) n
+  | abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table (pst:abs_pstate_w_aux) (Chained_Fact n) = nth (#usings   pst) n
+
 (*Use One_Term.keys to implement it.*)
+fun unode_aux_table_to_depth (unode_aux_table:unode_aux_table) =
+  let
+    val max_path_n_node_w_aux_wo_path_option = OT.max unode_aux_table                      : (UN.path * UN.unique_node_w_aux_wo_path) option;
+    val max_path_option                      = max_path_n_node_w_aux_wo_path_option <$> fst: UN.path option;
+    val depth_option                         = max_path_option <$> length                  : int option;
+  in
+    depth_option
+  end;
 val unode_table_to_lowest_fvars = undefined: unode_table      -> Unique_Node.path list;
 val path_to_ancestor_paths      = undefined: Unique_Node.path -> Unique_Node.path list;
 val path_to_descendent_paths    = undefined: Unique_Node.path -> Unique_Node.path list;

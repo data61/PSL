@@ -88,19 +88,7 @@ type path          = UN.path;
 type paths         = path  list;
 type pathss        = paths list;
 
-(* location: first sub-goal = Nth_Subg 0. *)
-datatype location = Nth_Subg of int | Chained_Fact of int;
-
-fun in_subgoals (Nth_Subg _:location) = true
-  | in_subgoals  _                    = false;
-
-fun in_chained_facts (Chained_Fact _:location) = true
-  | in_chained_facts   _                       = false;
-
-fun same_location (Nth_Subg     n1, Nth_Subg     n2) = n1 = n2
-  | same_location (Chained_Fact n1, Chained_Fact n2) = n1 = n2
-  | same_location  _                                 = false;
-
+type location    = TT.location;
 type path_n_loc  = path * location;
 type path_n_locs = path_n_loc list;
 
@@ -223,8 +211,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     (*      one for each chained fact.               *)
     fun unode_aux_table_n_path_to_print (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #print: UN.print option;
     fun unode_aux_table_n_path_to_node  (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #node : UN.node option;
-    fun loc_to_unode_aux_n_path_table (Nth_Subg     n:location) = try (nth (#subgoals abs_pst_w_aux)) n                           : TT.unode_aux_n_path_table option
-      | loc_to_unode_aux_n_path_table (Chained_Fact n:location) = try (nth (#usings   abs_pst_w_aux)) n                           : TT.unode_aux_n_path_table option;
+    fun loc_to_unode_aux_n_path_table (TT.Nth_Subg     n:location) = try (nth (#subgoals abs_pst_w_aux)) n                           : TT.unode_aux_n_path_table option
+      | loc_to_unode_aux_n_path_table (TT.Chained_Fact n:location) = try (nth (#usings   abs_pst_w_aux)) n                           : TT.unode_aux_n_path_table option;
 
     fun loc_to_unode_aux_table (loc:location) = loc_to_unode_aux_n_path_table loc <$> #unode_aux_table: TT.unode_aux_table option;
 
@@ -262,6 +250,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       in
         print_option
       end;
+
+    fun loc_to_deepest_depth (loc:location) = abs_pst_w_aux;
 
     datatype address_type =
       ATyp_Subtrm
@@ -378,7 +368,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           val occ1_occ2_path_option       = occ1_occ2_path_n_loc_option <$> apply2 fst                                                                    : (path * path) option;
           val occ1_occ2_loc_option        = occ1_occ2_path_n_loc_option <$> apply2 snd                                                                    : (location * location) option;
           val path1_is_under_path2_option = occ1_occ2_path_option <$> uncurry UN.path1_is_above_path2                                                     : bool option;
-          val loc1_n_loc2_are_same        = occ1_occ2_loc_option <$> same_location                                                                        : bool option;
+          val loc1_n_loc2_are_same        = occ1_occ2_loc_option <$> TT.same_location                                                                     : bool option;
           val result_pair                 = Utils.mk_option_pair (path1_is_under_path2_option, loc1_n_loc2_are_same)                                      : (bool * bool) option;
           val result                      = result_pair <$> (op =) |> Utils.is_some_true                                                                  : bool;
         in
@@ -420,9 +410,9 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in true (*TODO*) end
       | eval' (Is_In_Chained (subtrm_occ:subtrm_occ)) (name_space:name_space) =
         let
-          val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ  : path_n_loc option;
-          val subtrm_occ_loc_option        = subtrm_occ_path_n_loc_option <$> snd: location option           : location option;
-          val result                       = subtrm_occ_loc_option <$> in_chained_facts |> Utils.is_some_true: bool;
+          val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ     : path_n_loc option;
+          val subtrm_occ_loc_option        = subtrm_occ_path_n_loc_option <$> snd: location option              : location option;
+          val result                       = subtrm_occ_loc_option <$> TT.in_chained_facts |> Utils.is_some_true: bool;
         in
           result
         end
@@ -430,7 +420,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         let
           val subtrm_occ_path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ: path_n_loc option;
           val subtrm_occ_loc_option        = subtrm_occ_path_n_loc_option <$> snd: location option         : location option;
-          val result                       = subtrm_occ_loc_option <$> in_subgoals |> Utils.is_some_true   : bool;
+          val result                       = subtrm_occ_loc_option <$> TT.in_subgoals |> Utils.is_some_true: bool;
         in
           result
         end
@@ -546,7 +536,18 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           (*TODO*)true
         end
-      | eval' (Not_Deepest   (subtrm_occ:subtrm_occ))                  (name_space:name_space) = true
+      | eval' (Not_Deepest (subtrm_occ:subtrm_occ)) (name_space:name_space) =
+        let
+          val path_n_loc_option = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ                              : path_n_loc option;
+          val (path_option, loc_option)     = Utils.mk_options_pair path_n_loc_option                                         : (path option * location option);
+          val subtrm_occs_depth_option      = path_option <$> length: int option                                              : int option;
+          val unode_aux_n_path_table_option = loc_option <$> TT.abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table abs_pst_w_aux: TT.unode_aux_n_path_table option;
+          val unode_aux_table_option        = unode_aux_n_path_table_option <$> #unode_aux_table                              : TT.unode_aux_table option;
+          val maximum_depth_option = unode_aux_table_option >>= TT.unode_aux_table_to_depth: int option;
+          val result = opt_equal (subtrm_occs_depth_option, maximum_depth_option);
+        in
+          result
+        end
         (*TODO:
          * 1. get the depth of the entire term in which the sub-term occurrence resides.
          * 2. get the depth of the sub-term occurrence.

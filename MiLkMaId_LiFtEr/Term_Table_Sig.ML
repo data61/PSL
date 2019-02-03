@@ -16,14 +16,12 @@ The overall work-flow is:
 local
 
 (* path_ord: This definition is more or less arbitrary. *)
-fun path_ord' ([],    []   ) = EQUAL
-  | path_ord' (_,     []   ) = GREATER
-  | path_ord' ([],     _   ) = LESS
-  | path_ord' (x::xs, y::ys) = case Int.compare (x, y) of
-      EQUAL => path_ord' (xs, ys)
+fun path_ord ([],    []   ) = EQUAL
+  | path_ord (_,     []   ) = GREATER
+  | path_ord ([],     _   ) = LESS
+  | path_ord (x::xs, y::ys) = case Int.compare (x, y) of
+      EQUAL => path_ord (xs, ys)
     | diff  => diff;
-
-fun path_ord (ints1, ints2) = path_ord' (ints1, ints2);
 
 fun prnt_ord (LiFtEr_Util.Print p1, LiFtEr_Util.Print p2) = String.compare (p1, p2);
 
@@ -67,7 +65,17 @@ type abs_pstate_w_aux =
   {subgoals: unode_aux_n_path_tables,
    usings  : unode_aux_n_path_tables};
 
+(* location: first sub-goal = Nth_Subg 0. *)
+datatype location = Nth_Subg of int | Chained_Fact of int;
+
+val in_subgoals: location -> bool;
+val in_chained_facts: location -> bool;
+val same_location: (location * location) -> bool;
+
+val abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table: abs_pstate_w_aux -> location -> unode_aux_n_path_table;
+
 (*Use One_Term.keys to implement it.*)
+val unode_aux_table_to_depth   : unode_aux_table -> int option;
 val unode_table_to_lowest_fvars: unode_table -> Unique_Node.path list;
 val path_to_ancestor_paths     : Unique_Node.path -> Unique_Node.path list;
 val path_to_descendent_paths   : Unique_Node.path -> Unique_Node.path list;

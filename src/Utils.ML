@@ -61,6 +61,7 @@ sig
   val exist_n                                 : ('a -> bool) -> int -> 'a list -> bool;
   val exist_mult                              : ('a -> bool) -> 'a list -> bool;
   val mk_option_pair                          : ('a option * 'b option) -> ('a * 'b) option;
+  val mk_options_pair                         : ('a * 'b) option -> ('a option * 'b option);
   val mapPartial2                             : ('a -> 'b option) -> ('a * 'a) option -> ('b * 'b) option;
 end;
 
@@ -240,6 +241,9 @@ val _ = @{assert} (exist_mult (equal "c") ["a","b","c","d"] |> not);
 
 fun mk_option_pair (SOME x, SOME y) = SOME (x, y)
   | mk_option_pair  _               = NONE;
+
+fun mk_options_pair  NONE         = (NONE,   NONE  )
+  | mk_options_pair (SOME (x, y)) = (SOME x, SOME y)
 
 fun mapPartial2  (f:'a -> 'b option) (SOME (x1, x2)) =
   let
