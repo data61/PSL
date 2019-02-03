@@ -272,18 +272,17 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         new_name_subspaces
       end;
 
-    fun is_nth_arg_of_induct_method (assrt:assrt) (subtrm:subtrm) (Nth numb) (name_space:name_space) =
+    fun is_nth_arg_of_induct_method (assrt:assrt) (subtrm:subtrm) (nth_numb:numb) (name_space:name_space) =
       let
-        (* TODO: FIXME: we should not use numb directly.                     *)
-        (* First check out what number does (Nth numb) stands in name_space. *)
-        fun get_print_option (Is_Nth_Ind _) = try (nth ons ) numb <$> LiFtEr_Util.dest_induct_on   : print option
-          | get_print_option (Is_Nth_Arb _) = try (nth arbs) numb <$> LiFtEr_Util.dest_induct_arb  : print option
-          | get_print_option  _             = NONE                                                 : print option;
-        val nth_print_option         = get_print_option assrt                                      : print option;
-        val subtrm_print_option      = name_space_n_subtrm_id_to_print name_space subtrm           : print option;
-        val tobe_compared            = Utils.mk_option_pair (nth_print_option, subtrm_print_option): (print * print) option;
-        val result_option            = tobe_compared <$> uncurry LU.same_prints                    : bool option;
-        val result                   = Utils.is_some_true result_option                            : bool;
+        val numb                     = name_space_n_numb_id_to_integer name_space nth_numb           : int option;
+        fun get_print_option (Is_Nth_Ind _) = numb >>= try (nth ons ) <$> LiFtEr_Util.dest_induct_on : print option
+          | get_print_option (Is_Nth_Arb _) = numb >>= try (nth arbs) <$> LiFtEr_Util.dest_induct_arb: print option
+          | get_print_option  _             = NONE                                                   : print option;
+        val nth_print_option         = get_print_option assrt                                        : print option;
+        val subtrm_print_option      = name_space_n_subtrm_id_to_print name_space subtrm             : print option;
+        val tobe_compared            = Utils.mk_option_pair (nth_print_option, subtrm_print_option)  : (print * print) option;
+        val result_option            = tobe_compared <$> uncurry LU.same_prints                      : bool option;
+        val result                   = Utils.is_some_true result_option                              : bool;
       in
         result
       end;
