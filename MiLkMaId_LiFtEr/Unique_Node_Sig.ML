@@ -19,8 +19,6 @@ sig
 (** term as syntax tree **)
 type print;
 
-val dest_Print: print -> string;
-
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  
   C_Prnt of string     * typ              * print (*Const*)

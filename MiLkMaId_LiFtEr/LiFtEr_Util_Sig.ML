@@ -38,9 +38,10 @@ datatype hol_typ = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec
 
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
 datatype print = Print of string;
-val dest_print    : print -> string;
-val is_subprint_of: print -> print -> bool;
-val same_prints   : print -> print -> bool
+val dest_print           : print -> string;
+val is_subprint_of       : print -> print -> bool;
+val same_prints          : print -> print -> bool;
+val ctxt_n_print_to_cname: Proof.context -> print -> string option;
 
 (* modifiers for the induct method *)
 datatype induct_on   = Ind_On      of print;

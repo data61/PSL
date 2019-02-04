@@ -36,6 +36,7 @@ datatype assrt      =
 | Not                     of assrt
 | Imply                   of assrt * assrt
 (*atomic about proof goal*)
+| Is_Rule_Of              of rule       * subtrm_occ
 | Are_Same_Numb           of numb       * numb
 | Are_Same_Str            of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)

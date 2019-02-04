@@ -43,6 +43,13 @@ datatype print   = Print of string;
 fun dest_print (Print str) = str;
 fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
 fun same_prints    (Print p1) (Print p2) = p1 = p2;
+fun ctxt_n_print_to_cname  (ctxt:Proof.context) (print:print) =
+  let
+    val trm_option = try dest_print print >>= try (Syntax.read_term ctxt): term   option;
+    val trm_cname  = trm_option >>= try Term.dest_Const <$> fst          : string option;
+  in
+    trm_cname
+  end;
 
 datatype induct_on   = Ind_On      of print;
 datatype induct_arb  = Ind_Arb     of print;

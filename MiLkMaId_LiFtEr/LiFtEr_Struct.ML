@@ -21,6 +21,7 @@ datatype subtrm_occ   = Sub_Trm_Occ of int;
 
 datatype pattern      = Pttrn (*TODO*)
 infix And Or Imply;
+(* assrt *)
 datatype assrt        =
 (*quantifiers*)
   All_Ind                 of subtrm * assrt
@@ -42,6 +43,7 @@ datatype assrt        =
 | Not                     of assrt
 | Imply                   of assrt * assrt
 (*atomic about proof goal*)
+| Is_Rule_Of              of rule       * subtrm_occ
 | Are_Same_Numb           of numb       * numb
 | Are_Same_Str            of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
@@ -81,8 +83,14 @@ datatype assrt        =
 | Is_More_Than            of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
 | For_Numb_N              of numb       * int * assrt    (*Some_Numb $ Numb_Is*)
 
+(* rule_name(s) *)
 datatype rule_name = Rule_Name of string;
 type rule_names    = rule_name list;
+
+fun dest_Rule_Name (Rule_Name rname) = SOME rname
+  | dest_Rule_Name  _                = NONE;
+
+(* path(s/ss) *)
 type path          = UN.path;
 type paths         = path  list;
 type pathss        = paths list;
@@ -91,6 +99,7 @@ type location    = TT.location;
 type path_n_loc  = path * location;
 type path_n_locs = path_n_loc list;
 
+(* address/name_space *)
 datatype address =(*TODO: better name? id?*)
   Address_Subtrm     of (path * location) list
 | Address_Subtrm_Occ of path  * location
@@ -153,6 +162,7 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 (*TODO: check name collisions before evaluation. Use no_name_collision.*)
 val no_overlad = undefined: assrt -> bool;
 
+(* eval *)
 fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_aux, assert: assrt, Ind_Mods mods:ind_mods) =
   let
     val {ind_domain, arb_domain, subtrm_domain, numb_domain, rule_domain} = name_domains;
@@ -231,6 +241,14 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         val node_option           = occ_path_n_loc_option <$> path_n_loc_to_node |> Option.join             : UN.node option;
       in
         node_option
+      end;
+
+    fun name_space_n_subtrm_occ_id_to_cname (name_space:name_space) (subtrm_occ:subtrm_occ) =
+      let
+          val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ: UN.node option;
+          val cname_option  = node_option >>= UN.dest_NC <$> fst                      : string option;
+      in
+        cname_option: string option
       end;
 
     fun name_space_n_subtrm_id_to_print (name_space:name_space) (subtrm:subtrm) =
@@ -341,6 +359,19 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           if   eval' assrt1 name_space
           then eval' assrt2 name_space
           else true
+      | eval' (Is_Rule_Of (Rule rule_id:rule, subtrm_occ)) (Name_Space ns:name_space) =
+        let
+          val rule_name_subspace_option = try #rule ns: name_subspace option;
+          val rule_address_option       = rule_name_subspace_option <$> AList.lookup (op =) <*> SOME rule_id |> Option.join: address option;
+          val rule_name_option          = rule_address_option >>= dest_Address_Rule                                        : rule_name option;
+          val rule_name_string_option   = rule_name_option >>= dest_Rule_Name                                              : string option;
+          val subtrm_occ_cname_option   = name_space_n_subtrm_occ_id_to_cname (Name_Space ns) subtrm_occ                   : string option;
+          val option_pair = Utils.mk_option_pair (subtrm_occ_cname_option, SOME ".induct"): (string * string) option;
+          val subtrm_occ_rule_option    = option_pair <$> (op ^): string option;
+          val result                    = opt_equal (subtrm_occ_rule_option, rule_name_string_option);
+        in
+          result
+        end
       | eval' (Are_Same_Numb (Nth n1, Nth n2)) (Name_Space ns:name_space) =
         let
           val numb_name_space = #numb ns                                                : name_subspace;
@@ -432,9 +463,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Is_Const_Of_Name (subtrm_occ, const_name:string)) (name_space:name_space) =
         let
-          val node_option   = name_space_n_subtrm_occ_id_to_node name_space subtrm_occ: UN.node option;
-          val cname_option  = node_option >>= UN.dest_NC <$> fst                      : string option;
-          val result        = opt_equal (cname_option, SOME const_name)               : bool;
+          val cname_option = name_space_n_subtrm_occ_id_to_cname name_space subtrm_occ: string option;
+          val result       = opt_equal (cname_option, SOME const_name)                : bool;
         in
           result
         end
@@ -515,7 +545,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Print_Is (subtrm:subtrm, string:string)) (name_space:name_space) =
         let
           val print_option        = name_space_n_subtrm_id_to_print name_space subtrm: print option;
-          val print_string_option = print_option <$> UN.dest_Print                   : string option;
+          val print_string_option = print_option <$> dest_print                      : string option;
           val result              = opt_equal (print_string_option, SOME string)     : bool;
         in
           result
@@ -541,7 +571,6 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
          * We can introduce a new quantifier safely without polluting name_space for other (inner) assertions
          * because Is_At_Deepest is an atomic assertion.*)
         let
-          val desugared_assrt = Some_Sub_Trm_Occ
           val path_n_loc_option             = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ                  : path_n_loc option;
           val (path_option, loc_option)     = Utils.mk_options_pair path_n_loc_option                                         : (path option * location option);
           val subtrm_occs_depth_option      = path_option <$> length: int option                                              : int option;

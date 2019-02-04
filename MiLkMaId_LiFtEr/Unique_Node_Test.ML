@@ -28,7 +28,7 @@ fun trm_w_prnt_to_prnt (C_Prnt (_, _,     print)) = print
   | trm_w_prnt_to_prnt (L_Prnt (_, _ , _, print)) = print
   | trm_w_prnt_to_prnt (A_Prnt (_, _ ,    print)) = print;
 
-val _ = @{assert} ("s (\<lambda>x. f x y)" = (@{term "s (\<lambda>x. f x y)"} |> trm_to_trm_w_prnt @{context} |> trm_w_prnt_to_prnt |> dest_Print));
+val _ = @{assert} ("s (\<lambda>x. f x y)" = (@{term "s (\<lambda>x. f x y)"} |> trm_to_trm_w_prnt @{context} |> trm_w_prnt_to_prnt |> dest_print));
 
 (** test trm_w_prnt_to_utrm_w_prnt **)
 (*Function application associates to the right.*)
