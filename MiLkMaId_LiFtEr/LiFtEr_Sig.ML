@@ -10,12 +10,12 @@ include LIFTER_UTIL;
 
 type abs_pstate_w_aux;
 
-datatype numb        = Nth         of int;
-datatype subtrm      = Sub_Trm     of int;
-datatype rule        = Rule        of int;
-datatype subtrm_occ  = Sub_Trm_Occ of int;
-datatype pattern     = Pttrn (*TODO*)
-datatype assrt       =
+datatype numb       = Nth         of int;
+datatype subtrm     = Sub_Trm     of int;
+datatype rule       = Rule        of int;
+datatype subtrm_occ = Sub_Trm_Occ of int;
+datatype pattern    = Pttrn (*TODO*)
+datatype assrt      =
 (*quantifiers*)
   All_Ind                 of subtrm * assrt
 | All_Arb                 of subtrm * assrt
@@ -40,7 +40,6 @@ datatype assrt       =
 | Are_Same_Str            of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
 | Is_In_Trm_Str           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
-| Is_In_Trm_Sem           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
 | Is_Typ                  of subtrm_occ * hol_typ
 | Is_In_Chained           of subtrm_occ
 | Is_In_Fst_Subg          of subtrm_occ
@@ -112,11 +111,6 @@ datatype name_domains = Name_Domains of
    subtrm_domain : addresses,
    numb_domain   : addresses,
    rule_domain   : addresses};
-
-datatype name_domain =(*TODO: to be removed?*)
-  Subtrm_Domain of addresses (*Subtrm_Domain for all of Ind, Arb, and Subtrm*)
-| Rule_Domain   of addresses
-| Numb_Domain   of addresses;
 
 val no_overlad: assrt -> bool;
 val eval      : name_domains * abs_pstate_w_aux * assrt * ind_mods -> bool;

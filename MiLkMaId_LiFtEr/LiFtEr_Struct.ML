@@ -14,14 +14,14 @@ structure TT = Term_Table;
 
 type abs_pstate_w_aux = TT.abs_pstate_w_aux;
 
-datatype numb        = Nth         of int;
-datatype subtrm      = Sub_Trm     of int;
-datatype rule        = Rule        of int;
-datatype subtrm_occ  = Sub_Trm_Occ of int;
+datatype numb         = Nth         of int;
+datatype subtrm       = Sub_Trm     of int;
+datatype rule         = Rule        of int;
+datatype subtrm_occ   = Sub_Trm_Occ of int;
 
-datatype pattern     = Pttrn (*TODO*)
+datatype pattern      = Pttrn (*TODO*)
 infix And Or Imply;
-datatype assrt       =
+datatype assrt        =
 (*quantifiers*)
   All_Ind                 of subtrm * assrt
 | All_Arb                 of subtrm * assrt
@@ -46,7 +46,6 @@ datatype assrt       =
 | Are_Same_Str            of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
 | Is_In_Trm_Str           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
-| Is_In_Trm_Sem           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 string-wise but modulo lambda-abstraction*)
 | Is_Typ                  of subtrm_occ * hol_typ
 | Is_In_Chained           of subtrm_occ
 | Is_In_Fst_Subg          of subtrm_occ
@@ -135,11 +134,6 @@ datatype name_domains = Name_Domains of
    numb_domain   : addresses,
    rule_domain   : addresses};
 
-datatype name_domain =(*TODO: to be removed?*)
-  Subtrm_Domain of addresses (*Subtrm_Domain for all of Ind, Arb, and Subtrm*)
-| Rule_Domain   of addresses
-| Numb_Domain   of addresses;
-
 fun no_name_collision (Name_Space name_space: name_space) (name: name) =
   let
     fun fsts (xs:('a * 'b) list) = map fst xs: 'a list;
@@ -156,7 +150,7 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
     no_name_collision' name
   end;
 
-(*TODO: check name collisions before evaluation.*)
+(*TODO: check name collisions before evaluation. Use no_name_collision.*)
 val no_overlad = undefined: assrt -> bool;
 
 fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_aux, assert: assrt, Ind_Mods mods:ind_mods) =
@@ -248,8 +242,6 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         print_option
       end;
 
-    fun loc_to_deepest_depth (loc:location) = abs_pst_w_aux;
-
     datatype address_type =
       ATyp_Subtrm
     | ATyp_Subtrm_Occ
@@ -260,6 +252,15 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | update_name_space (Name_Space {subtrm, rule, numb, ...}      : name_space) (new_subtrm_occ: name_subspace) ATyp_Subtrm_Occ = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
       | update_name_space (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) (new_rule      : name_subspace) ATyp_Rule       = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
       | update_name_space (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) (new_numb      : name_subspace) ATyp_Numb       = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
+
+    fun get_max_id (alist_int:(int * 'a) list) = map fst alist_int
+                                              |> sort Int.compare
+                                              |> try rev >>=  try hd;
+    fun name_subspace_to_fresh_id (sub_space:name_subspace) = get_max_id sub_space <$> (curry (op +) 1);
+    fun name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Subtrm     = #subtrm ns     |> name_subspace_to_fresh_id
+      | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Subtrm_Occ = #subtrm_occ ns |> name_subspace_to_fresh_id
+      | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Rule       = #rule ns       |> name_subspace_to_fresh_id
+      | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Numb       = #numb ns       |> name_subspace_to_fresh_id: int option;
 
     fun get_new_name_subspaces (i:int) (domain:address list) (old_name_subspace:name_subspace) =
       let
@@ -379,10 +380,6 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           result
         end
-      | eval' (Is_In_Trm_Sem (Sub_Trm_Occ occ_idx_1, Sub_Trm_Occ occ_idx_2)) (Name_Space name_space:name_space) =
-        let
-        in true (*TODO*)
-        end
       | eval' (Is_Typ (subtrm_occ:subtrm_occ, hol_typ:hol_typ)) (name_space:name_space) =
         let
           fun is_hol_typ_of Fun_Typ  (typ:typ) = Isabelle_Utils.is_fun_typ  typ
@@ -411,17 +408,22 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           result
         end
-      | eval' (Is_In_Prems (subtrm_occ:subtrm_occ)) (Name_Space name_space:name_space) =
+      | eval' (Is_In_Prems (subtrm_occ:subtrm_occ)) (name_space:name_space) =
         (* Should Is_In_Prems treated as a syntax-sugar based on
-           Is_Nth_Arg_Of, Is_In_Trm_Loc, Some_Sub_Trm_Occ, Is_Const_Of_Name, Is_In_Trm_Loc? *)
+           Is_Nth_Arg_Of, Is_In_Trm_Loc, Some_Sub_Trm_Occ, Is_Const_Of_Name? *)
         let
-          val get_fresh_subtrm_occ_id = 1;(*TODO*)
-          val get_fresh_subtrm_id = 1;(*TODO*)
-          val desugared_assrt =(*TODO: FIXME*)
-            Some_Sub_Trm (Sub_Trm 1(*TOOD*),
-             (Some_Sub_Trm_Occ (Sub_Trm_Occ 1(*TODO*), Sub_Trm 1(*TODO*),
-               (Some_Sub_Trm_Occ (Sub_Trm_Occ 2(*TODO*), Sub_Trm 1(*TODO*),
-                Is_In_Cnclsn (Sub_Trm_Occ 1))))))
+          val fresh_subtrm_occ_id = name_space_n_address_typ_to_fresh_id name_space ATyp_Subtrm_Occ;
+          (*TODO:
+           * There is an occurrence of sub-term (Sub_Trm i) such that
+           * - (Sub_Trm i) is Pure.imp.
+           * - The first argument of (Sub_Trm i) is subtrm_occ.
+           * That is to say
+           *   Some_Sub_Trm_Occ (fresh_subtrm_occ,
+           *       Is_Const_Of_Name (fresh_subtrm_occ, "Pure.imp")
+           *     And
+           *       For_Numb_N (fresh_numb, 1,
+           *         Is_Nth_Arg_Of (Sub_Trm i, fresh_numb, fresh_subtrm_occ)))
+           *)
         in true (*TODO*)
         end
       | eval' (Is_In_Cnclsn (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
@@ -535,10 +537,11 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         end
       | eval' (Is_At_Deepest (subtrm_occ:subtrm_occ)) (name_space:name_space) =
         (* TODO:
-         * Treat Is_At_Deepest as a syntactic sugar for something based on Depth_Of_Sub_Trm_Occ_Is, Some_Sub_Trm, and Not.
+         * Treat Is_At_Deepest as a syntactic sugar for something based on Depth_Of_Sub_Trm_Occ_Is, Some_Sub_Trm_Occ, and Not.
          * We can introduce a new quantifier safely without polluting name_space for other (inner) assertions
          * because Is_At_Deepest is an atomic assertion.*)
         let
+          val desugared_assrt = Some_Sub_Trm_Occ
           val path_n_loc_option             = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ                  : path_n_loc option;
           val (path_option, loc_option)     = Utils.mk_options_pair path_n_loc_option                                         : (path option * location option);
           val subtrm_occs_depth_option      = path_option <$> length: int option                                              : int option;
