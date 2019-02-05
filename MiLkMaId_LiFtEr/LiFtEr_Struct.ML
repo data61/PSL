@@ -273,12 +273,13 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun get_max_id (alist_int:(int * 'a) list) = map fst alist_int
                                               |> sort Int.compare
-                                              |> try rev >>=  try hd;
-    fun name_subspace_to_fresh_id (sub_space:name_subspace) = get_max_id sub_space <$> (curry (op +) 1);
+                                              |> try rev >>=  try hd
+                                              |> (fn x => case x of SOME i => i | NONE => 0);
+    fun name_subspace_to_fresh_id (sub_space:name_subspace) = get_max_id sub_space |> (curry (op +) 1);
     fun name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Subtrm     = #subtrm ns     |> name_subspace_to_fresh_id
       | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Subtrm_Occ = #subtrm_occ ns |> name_subspace_to_fresh_id
       | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Rule       = #rule ns       |> name_subspace_to_fresh_id
-      | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Numb       = #numb ns       |> name_subspace_to_fresh_id: int option;
+      | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Numb       = #numb ns       |> name_subspace_to_fresh_id: int;
 
     fun get_new_name_subspaces (i:int) (domain:address list) (old_name_subspace:name_subspace) =
       let
@@ -443,7 +444,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         (* Should Is_In_Prems treated as a syntax-sugar based on
            Is_Nth_Arg_Of, Is_In_Trm_Loc, Some_Sub_Trm_Occ, Is_Const_Of_Name? *)
         let
-          val fresh_subtrm_occ_id = name_space_n_address_typ_to_fresh_id name_space ATyp_Subtrm_Occ;
+          val fresh_subtrm_occ_id = name_space_n_address_typ_to_fresh_id name_space ATyp_Subtrm_Occ: int;
+          val fresh_numb_id       = name_space_n_address_typ_to_fresh_id name_space ATyp_Numb      : int;
           (*TODO:
            * There is an occurrence of sub-term (Sub_Trm i) such that
            * - (Sub_Trm i) is Pure.imp.
@@ -455,6 +457,16 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
            *       For_Numb_N (fresh_numb, 1,
            *         Is_Nth_Arg_Of (Sub_Trm i, fresh_numb, fresh_subtrm_occ)))
            *)
+(*TODO:
+implement All_Sub_Trm_Occ as All_Sub_Trm_Occ of (subtrm_occ * assrt),
+implement Some_Sub_Trm_Occ as Sub_Trm_Occ_Is_Of_Sub_Trm of (subtrm_occ * assrt), and
+introduce Sub_Trm_Occ_Is_Of_Sub_Trm of (subtrm_occ * subtrm * assrt). *)
+          val desugared =
+              Some_Sub_Trm_Occ (Sub_Trm_Occ fresh_subtrm_occ_id,
+                  Is_Const_Of_Name (Sub_Trm_Occ fresh_subtrm_occ_id, "Pure.imp")
+                And
+                  For_Numb_N (Nth fresh_numb_id, 1,
+                    Is_Nth_Arg_Of (Sub_Trm_Occ fresh_subtrm_occ_id, Nth fresh_numb_id, subtrm_occ)))
         in true (*TODO*)
         end
       | eval' (Is_In_Cnclsn (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
