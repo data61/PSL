@@ -461,12 +461,14 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 implement All_Sub_Trm_Occ as All_Sub_Trm_Occ of (subtrm_occ * assrt),
 implement Some_Sub_Trm_Occ as Sub_Trm_Occ_Is_Of_Sub_Trm of (subtrm_occ * assrt), and
 introduce Sub_Trm_Occ_Is_Of_Sub_Trm of (subtrm_occ * subtrm * assrt). *)
+(*
           val desugared =
               Some_Sub_Trm_Occ (Sub_Trm_Occ fresh_subtrm_occ_id,
                   Is_Const_Of_Name (Sub_Trm_Occ fresh_subtrm_occ_id, "Pure.imp")
                 And
                   For_Numb_N (Nth fresh_numb_id, 1,
                     Is_Nth_Arg_Of (Sub_Trm_Occ fresh_subtrm_occ_id, Nth fresh_numb_id, subtrm_occ)))
+*)
         in true (*TODO*)
         end
       | eval' (Is_In_Cnclsn (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
