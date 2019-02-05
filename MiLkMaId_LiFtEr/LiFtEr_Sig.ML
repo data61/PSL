@@ -28,8 +28,8 @@ datatype assrt      =
 | Some_Rule               of rule   * assrt
 | Some_Numb               of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
-| All_Sub_Trm_Occ         of subtrm_occ * subtrm * assrt
-| Some_Sub_Trm_Occ        of subtrm_occ * subtrm * assrt
+| All_Sub_Trm_Occ         of subtrm_occ * assrt
+| Some_Sub_Trm_Occ        of subtrm_occ * assrt
 (*combinators*)
 | And                     of assrt * assrt
 | Or                      of assrt * assrt
@@ -37,6 +37,7 @@ datatype assrt      =
 | Imply                   of assrt * assrt
 (*atomic about proof goal*)
 | Is_Rule_Of              of rule       * subtrm_occ
+| Trm_Occ_Is_Of_Trm       of subtrm_occ * subtrm
 | Are_Same_Numb           of numb       * numb
 | Are_Same_Str            of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
@@ -65,16 +66,14 @@ datatype assrt      =
 (* TODO: pattern *)
 | Pattern                 of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
-| All_Ind_Occ             of subtrm_occ * subtrm * assrt (*Probably with All_Ind  and All_Sub_Trm_Occ*)
-| All_Arb_Occ             of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
-| Some_Ind_Occ            of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
-| Some_Arb_Occ            of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Are_Diff_Numb           of numb       * numb           (*Not & Are_Same_Numb*)
 | Are_Diff_Str            of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
 | Has_Typ                 of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Is_At_Deepest           of subtrm_occ
 | Is_More_Than            of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
 | For_Numb_N              of numb       * int * assrt    (*Some_Numb $ Numb_Is*)
+| All_Sub_Trm_Occ_Of      of subtrm_occ * subtrm * assrt
+| Some_Sub_Trm_Occ_Of     of subtrm_occ * subtrm * assrt
 
 datatype rule_name = Rule_Name of string;
 type rule_names    = rule_name list;

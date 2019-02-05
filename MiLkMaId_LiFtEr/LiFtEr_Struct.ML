@@ -35,15 +35,15 @@ datatype assrt        =
 | Some_Rule               of rule   * assrt
 | Some_Numb               of numb   * assrt (*n must be smaller than or equal to the argument number of the variable/constant that has the maximum argument number.*)
 (*quantifiers for occurrences*)
-| All_Sub_Trm_Occ         of subtrm_occ * subtrm * assrt
-| Some_Sub_Trm_Occ        of subtrm_occ * subtrm * assrt
-(*combinators*)
+| All_Sub_Trm_Occ         of subtrm_occ * assrt
+| Some_Sub_Trm_Occ        of subtrm_occ * assrt
 | And                     of assrt * assrt
 | Or                      of assrt * assrt
 | Not                     of assrt
 | Imply                   of assrt * assrt
 (*atomic about proof goal*)
 | Is_Rule_Of              of rule       * subtrm_occ
+| Trm_Occ_Is_Of_Trm       of subtrm_occ * subtrm
 | Are_Same_Numb           of numb       * numb
 | Are_Same_Str            of subtrm_occ * subtrm_occ (*subtrm*)
 | Is_In_Trm_Loc           of subtrm_occ * subtrm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
@@ -72,23 +72,20 @@ datatype assrt        =
 (* TODO: pattern *)
 | Pattern                 of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
-| All_Ind_Occ             of subtrm_occ * subtrm * assrt (*Probably with All_Ind  and All_Sub_Trm_Occ*)
-| All_Arb_Occ             of subtrm_occ * subtrm * assrt (*Probably with All_Arb  and All_Sub_Trm_Occ*)
-| Some_Ind_Occ            of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
-| Some_Arb_Occ            of subtrm_occ * subtrm * assrt (*Probably with Some_Ind and Some_Sub_Trm_Occ*)
 | Are_Diff_Numb           of numb       * numb           (*Not & Are_Same_Numb*)
 | Are_Diff_Str            of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
 | Has_Typ                 of subtrm_occ * hol_typ        (*Some_Sub_Trm, Is_In, & Is_Typ*)
 | Is_At_Deepest           of subtrm_occ
 | Is_More_Than            of numb       * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
 | For_Numb_N              of numb       * int * assrt    (*Some_Numb $ Numb_Is*)
+| All_Sub_Trm_Occ_Of      of subtrm_occ * subtrm * assrt
+| Some_Sub_Trm_Occ_Of     of subtrm_occ * subtrm * assrt
 
 (* rule_name(s) *)
 datatype rule_name = Rule_Name of string;
 type rule_names    = rule_name list;
 
 fun dest_Rule_Name (Rule_Name rname) = SOME rname
-  | dest_Rule_Name  _                = NONE;
 
 (* path(s/ss) *)
 type path          = UN.path;
@@ -98,6 +95,8 @@ type pathss        = paths list;
 type location    = TT.location;
 type path_n_loc  = path * location;
 type path_n_locs = path_n_loc list;
+
+fun same_path_n_loc (path1, location1) (path2, location2) = path1 = path2 andalso location1 = location2;
 
 (* address/name_space *)
 datatype address =(*TODO: better name? id?*)
@@ -207,9 +206,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     type quantifier = (name_space -> bool) -> name_space list -> bool;
 
-    val {ons, arbs, rules}        = mods                                                                                          : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
-    val subgoals                  = #subgoals abs_pst_w_aux                                                                       : TT.unode_aux_n_path_tables;
-    val unode_aux_tables          = map #unode_aux_table subgoals                                                                 : TT.unode_aux_table list;
+    val {ons, arbs,...} = mods                                                                                          : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
     fun unode_aux_table_n_path_to_print (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #print: UN.print option;
     fun unode_aux_table_n_path_to_node  (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #node : UN.node option;
     fun loc_to_unode_aux_n_path_table (TT.Nth_Subg     n:location) = try (nth (#subgoals abs_pst_w_aux)) n                        : TT.unode_aux_n_path_table option
@@ -266,10 +263,10 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     | ATyp_Rule
     | ATyp_Numb;
 
-    fun update_name_space (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) (new_subtrm    : name_subspace) ATyp_Subtrm     = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
-      | update_name_space (Name_Space {subtrm, rule, numb, ...}      : name_space) (new_subtrm_occ: name_subspace) ATyp_Subtrm_Occ = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
-      | update_name_space (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) (new_rule      : name_subspace) ATyp_Rule       = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
-      | update_name_space (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) (new_numb      : name_subspace) ATyp_Numb       = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
+    fun update_name_space (new_subtrm    : name_subspace) ATyp_Subtrm     (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
+      | update_name_space (new_subtrm_occ: name_subspace) ATyp_Subtrm_Occ (Name_Space {subtrm, rule, numb, ...}      : name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
+      | update_name_space (new_rule      : name_subspace) ATyp_Rule       (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
+      | update_name_space (new_numb      : name_subspace) ATyp_Numb       (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
 
     fun get_max_id (alist_int:(int * 'a) list) = map fst alist_int
                                               |> sort Int.compare
@@ -316,24 +313,40 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: addresses) (add_typ:address_type) =
       let
         val new_subtrm_entries_in_name_space = get_new_name_subspaces index domain name_subspace      : name_subspaces;
-        fun get_new_name_space new_subtrm    = update_name_space name_space new_subtrm add_typ        : name_space;
+        fun get_new_name_space new_subtrm    = update_name_space new_subtrm add_typ name_space        : name_space;
         val new_name_spaces                  = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
       in
         quantifier (eval' inner) new_name_spaces
       end
-    and eval'_subtrm_occ_quantifier (Sub_Trm_Occ occ_idx) (Sub_Trm trm_idx) (inner:assrt) (name_space as Name_Space {subtrm, subtrm_occ, ...}:name_space) (quantifier:quantifier) =
+    and eval'_subtrm_occ_quantifier (Sub_Trm_Occ occ_idx) (inner:assrt) (name_space as Name_Space {subtrm_occ, ...}:name_space) (quantifier:quantifier) =
         let
           (*The domain of sub-term-occurrences depends on which sub-term we consider.*)
-          val name_space_of_this_subtrm                  = AList.lookup (op =) subtrm trm_idx                                            : address option;
-          fun dest_Address_Subtrm (Address_Subtrm paths) = SOME paths
-            | dest_Address_Subtrm  _                     = NONE                                                                          : path_n_locs option;
-          val path_n_locs                                = name_space_of_this_subtrm >>= dest_Address_Subtrm |> these                    : path_n_locs;
+          val path_n_locs                                = subtrm_domain |> map dest_Address_Subtrm_Occ |> Utils.somes                   : path_n_locs;
           val new_subtrm_occ_entries_in_name_space       = get_new_name_subspaces occ_idx (map Address_Subtrm_Occ path_n_locs) subtrm_occ: name_subspaces;
-          fun get_new_name_space new_subtrm_occ          = update_name_space name_space new_subtrm_occ ATyp_Subtrm_Occ                   : name_space;
+          fun get_new_name_space new_subtrm_occ          = update_name_space new_subtrm_occ ATyp_Subtrm_Occ name_space                   : name_space;
           val new_name_spaces                            = map get_new_name_space new_subtrm_occ_entries_in_name_space                   : name_spaces;
         in
           quantifier (eval' inner) new_name_spaces
         end
+    and eval'_in_imp (subtrm_occ:subtrm_occ) (name_space:name_space) (nth_arg:int) =
+        let
+          val fresh_subtrm_occ_id = name_space_n_address_typ_to_fresh_id name_space ATyp_Subtrm_Occ: int;
+          val fresh_numb_id       = name_space_n_address_typ_to_fresh_id name_space ATyp_Numb      : int;
+          val meta_imp_occ        = Sub_Trm_Occ fresh_subtrm_occ_id                                : subtrm_occ;
+          val premise_occ         = Sub_Trm_Occ (fresh_subtrm_occ_id + 1)                          : subtrm_occ;
+          val nth_arg_numb        = Nth fresh_numb_id                                              : numb;
+          val desugared = Some_Sub_Trm_Occ (meta_imp_occ,
+                              Is_Const_Of_Name (meta_imp_occ, "Pure.imp")
+                            And
+                              Some_Sub_Trm_Occ (premise_occ,
+                                For_Numb_N (nth_arg_numb, nth_arg,
+                                    Is_Nth_Arg_Of (premise_occ, nth_arg_numb, meta_imp_occ)
+                                  And
+                                    Is_In_Trm_Str (subtrm_occ, premise_occ)
+                                )
+                              )
+                          );
+        in eval' desugared name_space end
     (*code re-factoring using mutual recursion*)
     and
       (** eval' is the core function of LiFtEr's interpreter. **)
@@ -350,8 +363,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
       | eval' (Some_Rule    ((Rule    i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) exists rule_domain   ATyp_Rule
       | eval' (Some_Numb    ((Nth     i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) exists numb_domain   ATyp_Numb
       (*quantifiers for occurrences*)
-      | eval' (All_Sub_Trm_Occ  (subtrm_occ, subtrm, assrt)) (name_space: name_space) = eval'_subtrm_occ_quantifier subtrm_occ subtrm assrt name_space forall
-      | eval' (Some_Sub_Trm_Occ (subtrm_occ, subtrm, assrt)) (name_space: name_space) = eval'_subtrm_occ_quantifier subtrm_occ subtrm assrt name_space exists
+      | eval' (All_Sub_Trm_Occ     (subtrm_occ, assrt))         (ns:name_space) = eval'_subtrm_occ_quantifier subtrm_occ assrt ns forall
+      | eval' (Some_Sub_Trm_Occ    (subtrm_occ, assrt))         (ns:name_space) = eval'_subtrm_occ_quantifier subtrm_occ assrt ns exists
       (*combinators*)
       | eval' (assrt1 And assrt2) name_space = eval' assrt1 name_space andalso eval' assrt2 name_space
       | eval' (assrt1 Or  assrt2) name_space = eval' assrt1 name_space orelse  eval' assrt2 name_space
@@ -370,6 +383,18 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
           val option_pair = Utils.mk_option_pair (subtrm_occ_cname_option, SOME ".induct"): (string * string) option;
           val subtrm_occ_rule_option    = option_pair <$> (op ^): string option;
           val result                    = opt_equal (subtrm_occ_rule_option, rule_name_string_option);
+        in
+          result
+        end
+      | eval' (Trm_Occ_Is_Of_Trm (subtrm_occ:subtrm_occ, Sub_Trm trm_id:subtrm)) (ns as Name_Space {subtrm, ...}:name_space) =
+        let
+          val subtrm_address_option = AList.lookup (op =) subtrm trm_id                     : address option;
+          val subtrm_path_n_locs    = subtrm_address_option >>= dest_Address_Subtrm |> these: path_n_locs;
+          val subtrm_occ_path_n_loc = name_space_n_subtrm_occ_id_to_path_n_loc ns subtrm_occ: path_n_loc option;
+          val euqals_occ_path_n_loc = subtrm_occ_path_n_loc <$> same_path_n_loc             :(path * location -> bool) option;
+          val result                = euqals_occ_path_n_loc
+                                  <$> Utils.flip exists subtrm_path_n_locs
+                                   |> Utils.is_some_true                                    : bool;
         in
           result
         end
@@ -440,41 +465,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           result
         end
-      | eval' (Is_In_Prems (subtrm_occ:subtrm_occ)) (name_space:name_space) =
-        (* Should Is_In_Prems treated as a syntax-sugar based on
-           Is_Nth_Arg_Of, Is_In_Trm_Loc, Some_Sub_Trm_Occ, Is_Const_Of_Name? *)
-        let
-          val fresh_subtrm_occ_id = name_space_n_address_typ_to_fresh_id name_space ATyp_Subtrm_Occ: int;
-          val fresh_numb_id       = name_space_n_address_typ_to_fresh_id name_space ATyp_Numb      : int;
-          (*TODO:
-           * There is an occurrence of sub-term (Sub_Trm i) such that
-           * - (Sub_Trm i) is Pure.imp.
-           * - The first argument of (Sub_Trm i) is subtrm_occ.
-           * That is to say
-           *   Some_Sub_Trm_Occ (fresh_subtrm_occ,
-           *       Is_Const_Of_Name (fresh_subtrm_occ, "Pure.imp")
-           *     And
-           *       For_Numb_N (fresh_numb, 1,
-           *         Is_Nth_Arg_Of (Sub_Trm i, fresh_numb, fresh_subtrm_occ)))
-           *)
-(*TODO:
-implement All_Sub_Trm_Occ as All_Sub_Trm_Occ of (subtrm_occ * assrt),
-implement Some_Sub_Trm_Occ as Sub_Trm_Occ_Is_Of_Sub_Trm of (subtrm_occ * assrt), and
-introduce Sub_Trm_Occ_Is_Of_Sub_Trm of (subtrm_occ * subtrm * assrt). *)
-(*
-          val desugared =
-              Some_Sub_Trm_Occ (Sub_Trm_Occ fresh_subtrm_occ_id,
-                  Is_Const_Of_Name (Sub_Trm_Occ fresh_subtrm_occ_id, "Pure.imp")
-                And
-                  For_Numb_N (Nth fresh_numb_id, 1,
-                    Is_Nth_Arg_Of (Sub_Trm_Occ fresh_subtrm_occ_id, Nth fresh_numb_id, subtrm_occ)))
-*)
-        in true (*TODO*)
-        end
-      | eval' (Is_In_Cnclsn (Sub_Trm_Occ occ_idx)) (Name_Space name_space:name_space) =
-        let
-        in true (*TODO*)
-        end
+      | eval' (Is_In_Prems  (subtrm_occ:subtrm_occ)) (name_space:name_space) = eval'_in_imp subtrm_occ name_space 1
+      | eval' (Is_In_Cnclsn (subtrm_occ:subtrm_occ)) (name_space:name_space) = eval'_in_imp subtrm_occ name_space 2
       | eval' (Is_Const_Of_Name (subtrm_occ, const_name:string)) (name_space:name_space) =
         let
           val cname_option = name_space_n_subtrm_occ_id_to_cname name_space subtrm_occ: string option;
@@ -566,10 +558,6 @@ introduce Sub_Trm_Occ_Is_Of_Sub_Trm of (subtrm_occ * subtrm * assrt). *)
         end
       | eval' (Pattern (numb:numb, subtrm:subtrm, pttrn:pattern)) (name_space:name_space) = true (*TODO*)
       (*syntax sugars*)
-      | eval' (All_Ind_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = eval' (All_Ind (subtrm, (All_Sub_Trm_Occ (subtrm_occ, subtrm, inner))))   name_space
-      | eval' (All_Arb_Occ  (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = eval' (All_Arb (subtrm, (All_Sub_Trm_Occ (subtrm_occ, subtrm, inner))))   name_space
-      | eval' (Some_Ind_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = eval' (Some_Ind (subtrm, (Some_Sub_Trm_Occ (subtrm_occ, subtrm, inner)))) name_space
-      | eval' (Some_Arb_Occ (subtrm_occ:subtrm_occ, subtrm:subtrm, inner:assrt)) (name_space:name_space) = eval' (Some_Arb (subtrm, (Some_Sub_Trm_Occ (subtrm_occ, subtrm, inner)))) name_space
       | eval' (Is_Atom subtrm_occ)                                               (name_space:name_space) = eval' (Is_Cnst subtrm_occ Or Is_Free subtrm_occ Or Is_Bound subtrm_occ)   name_space
       | eval' (Are_Diff_Numb (numb1, numb2))                                     (name_space:name_space) = eval' (Not (Are_Same_Numb (numb1, numb2)))                                name_space
       | eval' (Are_Diff_Str  (subtrm_occ1, subtrm_occ2))                         (name_space:name_space) = eval' (Not (Are_Same_Str (subtrm_occ1, subtrm_occ2)))                     name_space
@@ -597,6 +585,16 @@ introduce Sub_Trm_Occ_Is_Of_Sub_Trm of (subtrm_occ * subtrm * assrt). *)
         end
       | eval' (Is_More_Than  (numb1:numb, numb2:numb))          (name_space:name_space) = eval' (Not (Is_Less_Than (numb1, numb2)) And Not (Are_Same_Numb (numb1, numb2))) name_space
       | eval' (For_Numb_N    (numb:numb, int:int, inner:assrt)) (name_space:name_space) = eval' (Numb_Is (numb, int) And Some_Numb (numb, inner))                          name_space
+      | eval' (All_Sub_Trm_Occ_Of  (subtrm_occ, subtrm, assrt)) (name_space:name_space) =
+        eval' (All_Sub_Trm_Occ (subtrm_occ,
+                                  Trm_Occ_Is_Of_Trm (subtrm_occ, subtrm)
+                                And
+                                  assrt)) name_space
+      | eval' (Some_Sub_Trm_Occ_Of (subtrm_occ, subtrm, assrt)) (name_space:name_space) =
+        eval' (Some_Sub_Trm_Occ (subtrm_occ,
+                                  Trm_Occ_Is_Of_Trm (subtrm_occ, subtrm)
+                                And
+                                  assrt)) name_space
   in
     eval' assert empty_name_space
   end;
