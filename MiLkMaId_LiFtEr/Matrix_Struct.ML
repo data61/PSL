@@ -150,4 +150,13 @@ fun crmatrix_to_element_at_mth_row_nth_column (crmatrix:'a column_of_rows_matrix
   crmatrix_to_rcmatrix crmatrix >>= (fn rcmatrix =>
   rcmatrix_to_element_at_mth_row_nth_column rcmatrix nth mth);
 
+val empty_rcmatrix= RCMatrix (Row [])   : 'a row_of_columns_matrix;
+val empty_crmatrix= CRMatrix (Column []): 'a column_of_rows_matrix;
+
+type 'a matrix = 'a list list;
+
+fun list_to_column (xs:'a list) = Column xs: 'a column;
+
+fun matrix_to_row_of_columns_matrix (xs:'a matrix) = RCMatrix (Row (map list_to_column xs)): 'a row_of_columns_matrix;
+
 end;

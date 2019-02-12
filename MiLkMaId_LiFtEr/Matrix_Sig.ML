@@ -46,4 +46,10 @@ val transpose_crmatrix    : 'a column_of_rows_matrix -> 'a column_of_rows_matrix
 val rcmatrix_to_element_at_mth_row_nth_column: 'a row_of_columns_matrix -> int (*row_index*) -> int (*column_index*) -> 'a option;
 val crmatrix_to_element_at_mth_row_nth_column: 'a column_of_rows_matrix -> int (*row_index*) -> int (*column_index*) -> 'a option;
 
+val empty_rcmatrix: 'a row_of_columns_matrix;
+val empty_crmatrix: 'a column_of_rows_matrix;
+
+type 'a matrix = 'a list list;
+val matrix_to_row_of_columns_matrix: 'a matrix ->'a row_of_columns_matrix;
+
 end;
