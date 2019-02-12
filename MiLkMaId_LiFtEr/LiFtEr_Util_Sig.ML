@@ -3,41 +3,39 @@
 
 Helper functions for LiFtEr.
 *)
+
+(*** PATTERN ***)
+signature PATTERN =
+sig
+
+(* command *)
+datatype command                        = Definition | Fun | Function | Inductive | Primrec | Unknown;
+datatype hol_typ                        = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
+datatype left_pattern                   = Only_Var | Data_Constructor_WO_Var | Data_Constructor_W_Var;
+datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom of left_pattern (*TODO: right_pattern*);
+datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.column;
+datatype pattern_of_a_const(*TODO:term?*) = Pattern_Of_A_Const of
+                                          {(*hol_typ*)
+                                           matrix : pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix};
+
+end;
+
 (*** LIFTER_UTIL ***)
 signature LIFTER_UTIL =
 sig
 
-type path = ints;
-
-(** patterns **)
-datatype left_pttrn        = PVar          | PData_Const_WO_Param | PData_Const_W_Param;
-datatype which_call        = All_Rec_Calls | Some_Rec_Call;
-(* portion
- * Whole: If the whole nth parameter of "f" appears as an argument of (some/all) recursive call(s) of "f" in the definition of "f".
- * Part:  If a part of nth parameter of "f" appears as an argument of (some/all) recursive call(s) of "f" in the definition of "f".
- *)
-datatype portion           = Whole of which_call | Part of which_call;
-(* at which position:
- * Same_Arg_Position: If the nth parameter of "f" appears as (part of) the nth argument of (some/all) recursive call(s) of "f" in the definition of "f".
- * Diff_Arg_Position: If the nth parameter of "f" appears as (part of) of an argument of (some/all) recursive call(s) of "f" in the definition of "f". *)
-datatype at_which_position = Same_Arg_Position of which_call | Diff_Arg_Position of which_call;
-type     recursive         = {portion : portion, which_call : which_call, at_which_position : at_which_position};
-datatype right_pttrn                  = If | Case | Recursive of recursive;
-type     right_pttrns                 = right_pttrn list;
-datatype pttrn_of_a_param_in_a_clause = Pttrn_Atom    of left_pttrn * right_pttrns;
-type     pttrn_of_a_clause            = pttrn_of_a_param_in_a_clause Matrix.row;
-type     pttrn_of_clauses             = pttrn_of_a_clause            Matrix.column;
-type     pttrn_of_a_const             = pttrn_of_a_param_in_a_clause Matrix.column_of_rows_matrix;
-
-val get_pttrn_of_nth_params_mth_clause: pttrn_of_a_const -> int (*nth*) -> int (*mth*) -> pttrn_of_a_param_in_a_clause option;
-
-(* command *)
-datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
-
-datatype hol_typ = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
-
+type     path  = ints;
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
 datatype print = Print of string;
+
+end;
+
+(*** TEST_LIFTER ***)
+signature TEST_LIFTER =
+sig
+
+include LIFTER_UTIL;
+
 val dest_print           : print -> string;
 val is_subprint_of       : print -> print -> bool;
 val same_prints          : print -> print -> bool;
@@ -52,5 +50,23 @@ datatype ind_mods    = Ind_Mods    of {ons: induct_on list, arbs: induct_arb lis
 val dest_induct_on  : induct_on   -> print;
 val dest_induct_arb : induct_arb  -> print;
 val dest_induct_rule: induct_rule -> string;
+
+end;
+
+signature LIFTER_UTIL_AFTER_FEB =
+sig
+
+datatype left_pattern                   = Only_Var | Data_Constructor_WO_Var | Data_Constructor_W_Var;
+datatype at_which_position_in_rec_call  = Same_Arg_Pos      | Diff_Arg_Pos;
+datatype is_the_entire_arg_in_rec_call  = Is_The_Entire_Arg | Is_Not_The_Entire_Arg;
+datatype is_in_recurisve_call           = Recursion of at_which_position_in_rec_call * is_the_entire_arg_in_rec_call;
+type     is_in_recurisve_calls          = is_in_recurisve_call list; 
+datatype is_in_if_condition             = Is_In_If_Condition   | Is_Not_In_If_Condition;
+datatype is_in_case_condition           = Is_In_Case_Condition | Is_Not_In_Case_Condition;
+datatype right_occ_pattern              = Right_Occ_Pattern  of {in_if:is_in_if_condition, in_case:is_in_case_condition, in_recs: is_in_recurisve_calls};
+datatype right_pattern                  = Right_Pattern      of right_occ_pattern list;
+datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom    of left_pattern * right_pattern;
+datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.column; 
+datatype pattern_of_a_const             = Pattern_Of_A_Const of pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix;
 
 end;

@@ -191,7 +191,7 @@ fun utrm_w_prnt_to_futrm_w_prnt (utrm_w_prnt) = helper (utrm_w_prnt_to_prnt utrm
 end;
 
 (* path *)
-type path  = ints;
+type path  = LiFtEr_Util.path;
 
 fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_above_path2 xs ys else false
   | path1_is_above_path2 ([]   :path) (_::_ :path) = true
@@ -322,8 +322,8 @@ type unique_node_w_aux_wo_path =
  {node : node,
   print: print,
   rcsv : bool option,
-  pttrn: LiFtEr_Util.pttrn_of_a_const option,
-  cmmnd: LiFtEr_Util.command option};
+  pttrn: Pattern.pattern_of_a_const option,
+  cmmnd: Pattern.command option};
 
 (* unique_node_w_aux *)
 type unique_node_w_aux = {path: path, unode_w_aux: unique_node_w_aux_wo_path};

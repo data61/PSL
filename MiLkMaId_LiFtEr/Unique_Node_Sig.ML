@@ -67,7 +67,7 @@ datatype futrm_w_prnt =
 val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
 
 (* path *)
-type path  = ints;
+type path  = LiFtEr_Util.path;
 
 val path1_is_above_path2: path -> path -> bool
 
@@ -139,8 +139,8 @@ type unique_node_w_aux_wo_path =
  {node : node,
   print: print,
   rcsv : bool option,
-  pttrn: LiFtEr_Util.pttrn_of_a_const option,
-  cmmnd: LiFtEr_Util.command option};
+  pttrn: Pattern.pattern_of_a_const option,
+  cmmnd: Pattern.command option};
 
 (* unique_node_w_aux *)
 type unique_node_w_aux = {path: path, unode_w_aux: unique_node_w_aux_wo_path};

@@ -6,7 +6,7 @@ The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 structure LiFtEr: LIFTER =
 struct
 
-open LiFtEr_Util;
+open Pattern Test_LiFtEr;
 
 structure UN = Unique_Node;
 structure LU = LiFtEr_Util;
@@ -289,13 +289,13 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
     fun is_nth_arg_of_induct_method (assrt:assrt) (subtrm:subtrm) (nth_numb:numb) (name_space:name_space) =
       let
         val numb                     = name_space_n_numb_id_to_integer name_space nth_numb           : int option;
-        fun get_print_option (Is_Nth_Ind _) = numb >>= try (nth ons ) <$> LiFtEr_Util.dest_induct_on : print option
-          | get_print_option (Is_Nth_Arb _) = numb >>= try (nth arbs) <$> LiFtEr_Util.dest_induct_arb: print option
+        fun get_print_option (Is_Nth_Ind _) = numb >>= try (nth ons ) <$> dest_induct_on             : print option
+          | get_print_option (Is_Nth_Arb _) = numb >>= try (nth arbs) <$> dest_induct_arb            : print option
           | get_print_option  _             = NONE                                                   : print option;
         val nth_print_option         = get_print_option assrt                                        : print option;
         val subtrm_print_option      = name_space_n_subtrm_id_to_print name_space subtrm             : print option;
         val tobe_compared            = Utils.mk_option_pair (nth_print_option, subtrm_print_option)  : (print * print) option;
-        val result_option            = tobe_compared <$> uncurry LU.same_prints                      : bool option;
+        val result_option            = tobe_compared <$> uncurry same_prints                         : bool option;
         val result                   = Utils.is_some_true result_option                              : bool;
       in
         result
@@ -411,7 +411,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         let
           val occ1_occ2_path_n_loc_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_path_n_loc name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
           val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                                        : (UN.print * UN.print) option;
-          val result_option                = occ1_occ2_print_option <$> uncurry LU.same_prints                                                        : bool option;
+          val result_option                = occ1_occ2_print_option <$> uncurry same_prints                                                        : bool option;
           val result                       = Utils.is_some_true result_option                                                                         : bool;
         in
           result
@@ -432,7 +432,7 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         let
           val occ1_occ2_path_n_loc_option  = Utils.mapPartial2 (name_space_n_subtrm_occ_id_to_path_n_loc name_space) (SOME (subtrm_occ1, subtrm_occ2)): (path_n_loc * path_n_loc) option;
           val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                                             : (UN.print * UN.print) option;
-          val result_option                = occ1_occ2_print_option <$> uncurry LU.is_subprint_of                                                          : bool option;
+          val result_option                = occ1_occ2_print_option <$> uncurry is_subprint_of                                                          : bool option;
           val result                       = Utils.is_some_true result_option                                                                              : bool;
         in
           result
