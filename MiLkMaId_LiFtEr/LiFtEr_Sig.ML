@@ -6,7 +6,7 @@ The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 signature LIFTER =
 sig
 
-include LIFTER_UTIL PATTERN TEST_LIFTER;
+include  PATTERN TEST_LIFTER;
 
 type abs_pstate_w_aux;
 
@@ -14,7 +14,7 @@ datatype numb       = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
 datatype rule       = Rule        of int;
 datatype subtrm_occ = Sub_Trm_Occ of int;
-datatype pattern    = Pttrn (*TODO*)
+datatype pattern    = All_Only_Var | All_Const | Mixed;(*TODO: This is not final.*)
 datatype assrt      =
 (*quantifiers*)
   All_Ind                 of subtrm * assrt
@@ -64,7 +64,7 @@ datatype assrt      =
 | Depth_Of_Sub_Trm_Occ_Is of subtrm_occ * numb
 | Print_Is                of subtrm     * string
 (* TODO: pattern *)
-| Pattern                 of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
+| Pattern                 of numb* subtrm_occ * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
 | Are_Diff_Numb           of numb       * numb           (*Not & Are_Same_Numb*)
 | Are_Diff_Str            of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
@@ -113,6 +113,10 @@ datatype name_domains = Name_Domains of
    rule_domain   : addresses};
 
 val no_overlad: assrt -> bool;
-val eval      : name_domains * abs_pstate_w_aux * assrt * ind_mods -> bool;
+(*TODO: Double-check. It is possible to remove Proof.context from the signature of eval
+ *      if we handle patterns before calling eval.
+ *      But in that case, we have to pass the result of handling patterns to eval.
+ *      So, it is easier to simply pass Proof.context.*)
+val eval      : name_domains * abs_pstate_w_aux * assrt * ind_mods * Proof.context -> bool;
 
 end;

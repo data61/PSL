@@ -18,9 +18,10 @@ datatype numb         = Nth         of int;
 datatype subtrm       = Sub_Trm     of int;
 datatype rule         = Rule        of int;
 datatype subtrm_occ   = Sub_Trm_Occ of int;
+datatype pattern    = All_Only_Var | All_Const | Mixed;(*TODO: This is not final.*)
 
-datatype pattern      = Pttrn (*TODO*)
 infix And Or Imply;
+
 (* assrt *)
 datatype assrt        =
 (*quantifiers*)
@@ -70,7 +71,7 @@ datatype assrt        =
 | Depth_Of_Sub_Trm_Occ_Is of subtrm_occ * numb
 | Print_Is                of subtrm     * string
 (* TODO: pattern *)
-| Pattern                 of numb* subtrm * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)
+| Pattern                 of numb * subtrm_occ * pattern (*In the definition of subtrm, the numb-th argument has this pattern.*)(*TODO: subtrm_occ or subtrm?*)
 (*syntax sugars*)
 | Are_Diff_Numb           of numb       * numb           (*Not & Are_Same_Numb*)
 | Are_Diff_Str            of subtrm_occ * subtrm_occ     (*Not & Are_Same_Str*)
@@ -162,7 +163,7 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 val no_overlad = undefined: assrt -> bool;
 
 (* eval *)
-fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_aux, assert: assrt, Ind_Mods mods:ind_mods) =
+fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_aux, assert: assrt, Ind_Mods mods:ind_mods, ctxt:Proof.context) =
   let
     val {ind_domain, arb_domain, subtrm_domain, numb_domain, rule_domain} = name_domains;
 
@@ -556,7 +557,18 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
         in
           result
         end
-      | eval' (Pattern (numb:numb, subtrm:subtrm, pttrn:pattern)) (name_space:name_space) = true (*TODO*)
+      | eval' (Pattern (Nth numb:numb, subtrm_occ:subtrm_occ, pttrn:pattern)) (name_space as Name_Space nspace:name_space) =
+        let
+          val numb_name_space      = #numb nspace                                               : name_subspace;
+          fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb : int option;(*TODO: remove code-duplication with other clauses.*)
+          val numb_option          = get_numb_option numb                                       : int option;
+          val cname_option         = name_space_n_subtrm_occ_id_to_cname name_space subtrm_occ  : string option;
+          val input_pair_option    = Utils.mk_option_pair (cname_option, numb_option)           : (string * int) option;
+          val result_option        = case pttrn of
+            All_Only_Var => Option.map (uncurry (is_nth_all_Only_Var ctxt)) input_pair_option: bool option
+          | All_Const    => Option.map (uncurry (is_nth_all_Only_Var ctxt)) input_pair_option: bool option
+          | Mixed        => SOME true;
+        in is_some result_option end (*TODO: improve this clause.*)
       (*syntax sugars*)
       | eval' (Is_Atom subtrm_occ)                                               (name_space:name_space) = eval' (Is_Cnst subtrm_occ Or Is_Free subtrm_occ Or Is_Bound subtrm_occ)   name_space
       | eval' (Are_Diff_Numb (numb1, numb2))                                     (name_space:name_space) = eval' (Not (Are_Same_Numb (numb1, numb2)))                                name_space

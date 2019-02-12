@@ -75,7 +75,7 @@ fun is_head_Const (Const _)  = true
  |  is_head_Const _          = false
 
 (* is_var_of_const *)
-(*TODO: This is not accurate. We should not ignore Data_Constructor_WO_Var. *)
+(*TODO: This is not accurate. We should not ignore Data_Constructor_WO_Var. FIXME.*)
 fun is_var_of_const (trm:term) = if is_head_Const trm then Data_Constructor_W_Var else Only_Var;
 
 (*TODO: This is not accurate. We should not ignore Data_Constructor_WO_Var. *)
@@ -152,6 +152,42 @@ let
     | _(*TODO*) => (Matrix.empty_rcmatrix |> Matrix.map_rcmatrix Pattern_Of_Atom |> Pattern_Matrix)
 in
   result: pattern_matrix
+end;
+
+fun ctxt_n_name_to_patterns_of_each_param (ctxt:Proof.context) (cname:string) =
+let
+  val Pattern_Matrix  pattern_matrix         = mk_parameter_matrix ctxt cname;
+  val Matrix.RCMatrix columns_of_each_param  = pattern_matrix;
+  val Matrix.Row      patterns_of_each_param = columns_of_each_param;
+in
+  map Pattern_Of_A_Param patterns_of_each_param: pattern_of_a_param list
+end;
+
+fun is_nth_all_Only_Var (ctxt:Proof.context) (cname:string) (n:int) =
+let
+  val patterns_of_each_param              = ctxt_n_name_to_patterns_of_each_param ctxt cname: pattern_of_a_param list;
+  (*TODO: we should use the option type to handle exceptions.*)
+  val Pattern_Of_A_Param pattern_of_nth_param = nth patterns_of_each_param n: pattern_of_a_param;
+  val Matrix.Column column_of_nth_param       = pattern_of_nth_param        : pattern_of_a_param_in_a_clause Matrix.column
+  fun is_Only_Var (Pattern_Of_Atom Only_Var)  = true
+    | is_Only_Var  _                          = false;
+  val nth_param_is_all_Only_Var = forall is_Only_Var column_of_nth_param    : bool;
+in
+  nth_param_is_all_Only_Var: bool
+end;
+
+(*TODO: refactor patterns_of_each_param and is_nth_all_Data_Constructor_W_Var.*)
+fun is_nth_all_Data_Constructor_W_Var (ctxt:Proof.context) (cname:string) (n:int) =
+let
+  val patterns_of_each_param              = ctxt_n_name_to_patterns_of_each_param ctxt cname: pattern_of_a_param list;
+  (*TODO: we should use the option type to handle exceptions.*)
+  val Pattern_Of_A_Param pattern_of_nth_param = nth patterns_of_each_param n: pattern_of_a_param;
+  val Matrix.Column column_of_nth_param       = pattern_of_nth_param        : pattern_of_a_param_in_a_clause Matrix.column
+  fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_W_Var) = true
+    | is_Data_Constructor_W_Var  _                                       = false;
+  val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var column_of_nth_param : bool;
+in
+  nth_param_is_all_Only_Var: bool
 end;
 
 end;
