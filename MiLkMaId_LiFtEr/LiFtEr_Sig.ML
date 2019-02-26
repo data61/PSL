@@ -112,11 +112,14 @@ datatype name_domains = Name_Domains of
    numb_domain   : addresses,
    rule_domain   : addresses};
 
+val assrt_n_abs_pstate_w_aux_to_name_domains: assrt -> abs_pstate_w_aux -> name_domains;
+val pstate_to_abs_pstate_w_aux              : Proof.state -> abs_pstate_w_aux;
+
 val no_overlad: assrt -> bool;
 (*TODO: Double-check. It is possible to remove Proof.context from the signature of eval
  *      if we handle patterns before calling eval.
  *      But in that case, we have to pass the result of handling patterns to eval.
  *      So, it is easier to simply pass Proof.context.*)
-val eval      : name_domains * abs_pstate_w_aux * assrt * ind_mods * Proof.context -> bool;
+val eval      : Proof.state * assrt * ind_mods -> bool;
 
 end;

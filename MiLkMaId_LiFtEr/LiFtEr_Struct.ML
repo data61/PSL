@@ -143,6 +143,60 @@ datatype name_domains = Name_Domains of
    numb_domain   : addresses,
    rule_domain   : addresses};
 
+(*TODO*)
+fun assrt_n_abs_pstate_w_aux_to_name_domains (assrt:assrt) (abs_pstate_w_aux:abs_pstate_w_aux) =
+let
+  val ind_domain = []
+in
+  Name_Domains
+   {ind_domain    = ind_domain,
+    arb_domain    = [],
+    subtrm_domain = [],
+    numb_domain   = [],
+    rule_domain   = []}: name_domains
+end;
+
+local
+
+fun get_new_name_subspaces (i:int) (domain:address list) (old_name_subspace:name_subspace) =
+  let
+    val new_name_subspace  = map (pair i) domain: name_subspace                       : name_subspace;
+    val new_name_subspaces = map (Utils.alist_add old_name_subspace) new_name_subspace: name_subspaces;
+  in
+    new_name_subspaces
+  end;
+
+datatype address_type =
+  ATyp_Subtrm
+| ATyp_Subtrm_Occ
+| ATyp_Rule
+| ATyp_Numb;
+
+fun update_name_space (new_subtrm    : name_subspace) ATyp_Subtrm     (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
+  | update_name_space (new_subtrm_occ: name_subspace) ATyp_Subtrm_Occ (Name_Space {subtrm, rule, numb, ...}      : name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
+  | update_name_space (new_rule      : name_subspace) ATyp_Rule       (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
+  | update_name_space (new_numb      : name_subspace) ATyp_Numb       (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
+
+(*TODO: numb_domain should not rely on a magic number, 30.*)
+val numb_domain = List.tabulate (30, I) |> map Address_Numb: addresses;
+
+(* TODO *)
+fun assrt_n_abs_pstate_w_aux_to_name_domains2 (assrt:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (domain: addresses) (add_typ:address_type) =
+  let
+    val new_subtrm_entries_in_name_space = get_new_name_subspaces index domain name_subspace      : name_subspaces;
+    fun get_new_name_space new_subtrm    = update_name_space new_subtrm add_typ name_space        : name_space;
+    val new_name_spaces                  = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
+  in
+    new_name_spaces
+  end;
+
+in
+
+end;
+
+(*TODO*)
+val pstate_to_abs_pstate_w_aux: Proof.state -> abs_pstate_w_aux = undefined;
+
 fun no_name_collision (Name_Space name_space: name_space) (name: name) =
   let
     fun fsts (xs:('a * 'b) list) = map fst xs: 'a list;
@@ -163,20 +217,20 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 val no_overlad = undefined: assrt -> bool;
 
 (* eval *)
-fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_aux, assert: assrt, Ind_Mods mods:ind_mods, ctxt:Proof.context) =
+fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
   let
+    val abs_pst_w_aux             = pstate_to_abs_pstate_w_aux pstate                            : abs_pstate_w_aux;
+    val Name_Domains name_domains = assrt_n_abs_pstate_w_aux_to_name_domains assert abs_pst_w_aux: name_domains;
     val {ind_domain, arb_domain, subtrm_domain, numb_domain, rule_domain} = name_domains;
-
+    val ctxt                      = Proof.context_of pstate                                      : Proof.context;
     val empty_name_space = Name_Space
        {subtrm     = [],
         subtrm_occ = [],
         rule       = [],
         numb       = []};
 
-    fun alist_add       (alist: (''a * 'a) list) (key:''a, value:'a) = AList.update (op =) (key, value) alist: (''a * 'a) list;
-    fun alist_lookup_eq (alist: (''a * 'b) list) (key:''a)           = AList.lookup (op =) alist key;
-    fun opt_equal (SOME x, SOME y) = x = y
-      | opt_equal (     _,      _) = false: bool;
+    val alist_lookup_eq = Utils.alist_lookup_eq;
+    val opt_equal       = Utils.opt_equal;
 
     fun name_space_n_numb_id_to_integer (Name_Space nspace) (Nth numb_id) =
       let
@@ -281,8 +335,8 @@ fun eval (Name_Domains name_domains: name_domains, abs_pst_w_aux: abs_pstate_w_a
 
     fun get_new_name_subspaces (i:int) (domain:address list) (old_name_subspace:name_subspace) =
       let
-        val new_name_subspace  = map (pair i) domain: name_subspace                 : name_subspace;
-        val new_name_subspaces = map (alist_add old_name_subspace) new_name_subspace: name_subspaces;
+        val new_name_subspace  = map (pair i) domain: name_subspace                       : name_subspace;
+        val new_name_subspaces = map (Utils.alist_add old_name_subspace) new_name_subspace: name_subspaces;
       in
         new_name_subspaces
       end;

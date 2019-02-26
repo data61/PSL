@@ -6,6 +6,7 @@ LiFtEr:   Logical Feature Extractor.
 *)
 theory MiLkMaId_LiFtEr
   imports Main
+  keywords "apply_MeLoId" :: prf_script % "proof"
 begin
 
 ML_file "../src/Utils.ML"
@@ -13,13 +14,6 @@ ML_file "../src/Utils.ML"
 ML{* (*type synonyms*)
 type strings = string list;
 type ints    = int    list;
-*}
-
-ML{*
-(* test Term.string_of_vname *)
-val should_be_question_Q = @{thm conjI} |> Thm.concl_of |> Term.dest_comb |> snd |> Term.dest_comb
-  |> snd |> Term.dest_Var |> fst |> Term.string_of_vname;
-@{assert} ("?Q" = should_be_question_Q);
 *}
 
 ML_file "../MiLkMaId/src/MiLkMaId_Util.ML"
@@ -38,5 +32,6 @@ ML_file "DInduct_Sig.ML"
 ML_file "DInduct_Struct.ML"
 ML_file "LiFtEr_Sig.ML"
 ML_file "LiFtEr_Struct.ML"
+ML_file "Apply_MeLoId.ML"
 
 end

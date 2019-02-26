@@ -54,7 +54,7 @@ val trm_w_prnt_to_utrm_w_prnt: trm_w_prnt -> utrm_w_prnt;
  * requires uncurried terms.
  *)
 
-(* futrm_w_prnt: un-curried flattened term with print *)
+(* futrm_w_prnt: un-curried folded term with print *)
 datatype futrm_w_prnt =
   FUC_Prnt of string       * typ                 * print
 | FUF_Prnt of string       * typ                 * print
@@ -77,7 +77,7 @@ type paths = path list;
 (* path_ord *)
 val path_ord: (path * path) -> order;
 
-(* futrm_w_prnt_n_path: un-curried flattened term with print and path to each node*)
+(* futrm_w_prnt_n_path: un-curried folded term with print and path to each node*)
 datatype futrm_w_prnt_n_path =
   UFC_Prnt_n_Path of (string    * typ                               ) * print * path
 | UFF_Prnt_n_Path of (string    * typ                               ) * print * path
@@ -89,7 +89,7 @@ datatype futrm_w_prnt_n_path =
 (* futrm_w_prnt_to_futrm_w_prnt_n_path *)
 val futrm_w_prnt_to_futrm_w_prnt_n_path: futrm_w_prnt -> futrm_w_prnt_n_path;
 
-(* node: un-curried flattened term without print. This constitutes a part of unique_node. *)
+(* node: un-curried folded term without print. This constitutes a part of unique_node. *)
 datatype node =
   NC of (string    * typ) (*Const*)
 | NF of (string    * typ) (*Free*)

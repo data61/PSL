@@ -111,7 +111,7 @@ fun trm_w_prnt_to_utrm_w_prnt (C_Prnt  c : trm_w_prnt                 ) = UC_Prn
  * We should flatten terms after introducing uncurrying forms because flattening nested pure-implications
  * requires uncurried terms.
  *)
-(* futrm_w_prnt: un-curried flattened term with print *)
+(* futrm_w_prnt: un-curried folded term with print *)
 datatype futrm_w_prnt =
   FUC_Prnt of string       * typ                 * print
 | FUF_Prnt of string       * typ                 * print
@@ -203,7 +203,7 @@ type paths = path list;
 (* path_ord *)
 val path_ord = undefined: (path * path) -> order;
 
-(* futrm_w_prnt_n_path: un-curried flattened term with print and path to each node*)
+(* futrm_w_prnt_n_path: un-curried folded term with print and path to each node*)
 datatype futrm_w_prnt_n_path =
   UFC_Prnt_n_Path of (string    * typ                               ) * print * path
 | UFF_Prnt_n_Path of (string    * typ                               ) * print * path

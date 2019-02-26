@@ -63,6 +63,9 @@ sig
   val mk_option_pair                          : ('a option * 'b option) -> ('a * 'b) option;
   val mk_options_pair                         : ('a * 'b) option -> ('a option * 'b option);
   val mapPartial2                             : ('a -> 'b option) -> ('a * 'a) option -> ('b * 'b) option;
+  val alist_add                               : (''a * 'a) list -> (''a * 'a) -> (''a * 'a) list;
+  val alist_lookup_eq                         : (''a * 'a) list -> ''a -> 'a option;
+  val opt_equal                               : (''a option * ''a option) -> bool;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -254,6 +257,12 @@ fun mapPartial2  (f:'a -> 'b option) (SOME (x1, x2)) =
     in result end
   | mapPartial2 _ _ = NONE;
 
+fun alist_add       (alist: (''a * 'a) list) (key:''a, value:'a) = AList.update (op =) (key, value) alist: (''a * 'a) list;
+
+fun alist_lookup_eq (alist: (''a * 'b) list) (key:''a)           = AList.lookup (op =) alist key;
+
+fun opt_equal (SOME x, SOME y) = x = y
+  | opt_equal (     _,      _) = false: bool;
 
 end;
 
@@ -843,30 +852,34 @@ sig
   include FIND_THEOREMS;
   type context;
   type ref;
-  type get_rules = context -> thm -> (ref * thm) list;
-  type get_rule_names = context -> thm -> strings;
-  val get_criterion             : string -> strings -> (bool * 'a criterion) list;
-  val all_names_to_rules        : string -> strings -> get_rules;
-  val some_names_to_rules       : string -> strings -> get_rules;
-  val get_rule_names            : get_rules -> context -> thm -> xstring list;
-  val get_simp_rules            : get_rules;
-  val get_induct_rules          : get_rules;
-  val get_coinduction_rules     : get_rules;
+  type get_rules           = context -> thm -> (ref * thm) list;
+  type get_rule_names      = context -> thm -> strings;
+  type pstate_to_thms      = Proof.state -> thms;
+  type pstate_to_thm_names = Proof.state -> strings;
+  val get_criterion                      : string -> strings -> (bool * 'a criterion) list;
+  val all_names_to_rules                 : string -> strings -> get_rules;
+  val some_names_to_rules                : string -> strings -> get_rules;
+  val get_rule_names                     : get_rules -> context -> thm -> xstring list;
+  val get_simp_rules                     : get_rules;
+  val get_thms_of_name_with_these_substrs: context -> string list -> thm list;
+  val get_thms_of_name_with_suffix       : context -> string -> string -> thm list;
+  val get_thms_of_names_with_suffix      : context -> string list -> string -> thm list;
+  val get_induct_rules                   : get_rules;      (*used in PSL. TODO: to be replaced with pstate_to_induct_thms*)
+  val pstate_to_induct_thms              : pstate_to_thms; (*used in MeLoId*)
+  val get_coinduction_rules              : get_rules;
   (*These get_(elim, intro, dest)_rules may not be powerful enough.*)
-  val get_elim_rules            : get_rules;
-  val get_intro_rules           : get_rules;
-  val get_dest_rules            : get_rules;
-  val get_split_rules           : get_rules;
-  val get_simp_rule_names       : get_rule_names;
-  val get_induct_rule_names     : get_rule_names;
-  val get_coinduction_rule_names: get_rule_names;
-  val get_elim_rule_names       : get_rule_names;
-  val get_intro_rule_names      : get_rule_names;
-  val get_dest_rule_names       : get_rule_names;
-  val get_split_rule_names      : get_rule_names;
-  val get_thms_of_name_with_these_substrs: context -> strings -> thms;
-  val get_thms_of_name_with_suffix       : context -> string -> string -> thms;
-  val get_thms_of_names_with_suffix      : context -> strings -> string -> thms;
+  val get_elim_rules                     : get_rules;
+  val get_intro_rules                    : get_rules;
+  val get_dest_rules                     : get_rules;
+  val get_split_rules                    : get_rules;
+  val get_simp_rule_names                : get_rule_names;
+  val get_induct_rule_names              : get_rule_names;      (*used in PSL. TODO: to be replaced with pstate_to_induct_thm_names*)
+  val pstate_to_induct_thm_names         : pstate_to_thm_names; (*used in MeLoId*)
+  val get_coinduction_rule_names         : get_rule_names;
+  val get_elim_rule_names                : get_rule_names;
+  val get_intro_rule_names               : get_rule_names;
+  val get_dest_rule_names                : get_rule_names;
+  val get_split_rule_names               : get_rule_names;
 end;
 
 (*** Find_Theorems2: provides an interface of find_theorem for PSL. ***)
@@ -882,11 +895,13 @@ type context = Proof.context;
 type ref = Facts.ref;
 type get_rules = context -> thm -> (ref * thm) list;
 type get_rule_names = context -> thm -> strings;
+type pstate_to_thms      = Proof.state -> thms;
+type pstate_to_thm_names = Proof.state -> strings;
 
 fun get_criterion kind_name ([]:strings) = [(true, Name kind_name)]
   | get_criterion kind_name (name::names:strings) = (true, Name name)::get_criterion kind_name names;
 
-fun all_names_to_rules kind_name (names:strings) ctxt (_(*just for type*):thm) =
+fun all_names_to_rules kind_name (names:strings) ctxt (_(*just for type checking*):thm) =
   try (find_theorems ctxt NONE NONE true) (get_criterion kind_name names) liftM snd |> Utils.is_some_null;
 
 fun some_names_to_rules kind_name names ctxt goal = names
@@ -929,7 +944,50 @@ fun get_induct_rules (ctxt:context) (goal:thm) =
   in
     induct_rules : (Facts.ref * thm) list
   end;
+
 fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal : strings;
+
+(* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
+fun get_thms_of_name_with_suffix (ctxt:context) (sfx:string) (name:string) =
+  try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thms;
+
+(* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
+fun get_thms_of_names_with_suffix (ctxt:context) (names:strings) (sfx:string) =
+  map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thms;
+
+fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:strings) =
+  let
+    val criterion      = get_criterion "" substrs: (bool * term criterion) list;
+    val relevant_rules = try (Find_Theorems.find_theorems ctxt NONE NONE true) criterion
+                         liftM snd
+                         liftM map snd
+                         |> Utils.is_some_null
+  in
+    relevant_rules: thms
+  end;
+
+fun pstate_to_induct_thms (pstate:Proof.state) =
+  let
+    val ctxt        = Proof.context_of pstate                                           : Proof.context;
+    val cnames      = Isabelle_Utils.pstate_to_cnames_in_1st_subg_n_chained_facts pstate: strings;
+    val induct_thms = get_thms_of_names_with_suffix ctxt cnames "induct"                : thms;
+  in
+    induct_thms
+  end;
+
+fun pstate_to_induct_thm_names (pstate:Proof.state) =
+  let
+    val ctxt   = Proof.context_of pstate;
+    val cnames = Isabelle_Utils.pstate_to_cnames_in_1st_subg_n_chained_facts pstate: strings;
+    fun ctxt_has_thm_of_name (thm_name:string) = (*TODO: This function should be defined outside pstate_to_induct_thm_names? *)
+        case try (Proof_Context.get_thms ctxt) thm_name of
+         NONE      => false
+       | SOME thms => null thms;
+    val induct_thm_names      = map (fn cname => cname ^ ".induct") cnames: strings;
+    val some_induct_thm_names = filter ctxt_has_thm_of_name induct_thm_names;
+  in
+    some_induct_thm_names
+  end;
 
 fun get_coinduction_rules (ctxt:context) (goal:thm) =
   let
@@ -940,6 +998,7 @@ fun get_coinduction_rules (ctxt:context) (goal:thm) =
   in
     coinduct_rules1 @ coinduct_rules2: (Facts.ref * thm) list
   end;
+
 fun get_coinduction_rule_names ctxt goal = get_rule_names get_coinduction_rules ctxt goal : strings;
 
 fun get_elim_rules  ctxt goal = find_theorems ctxt (SOME goal) NONE true [(true, Elim)] |> snd;
@@ -960,25 +1019,6 @@ fun get_split_rules ctxt goal =
   end;
 
 fun get_split_rule_names ctxt goal = get_rule_names get_split_rules ctxt goal;
-
-fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:strings) =
-  let
-    val criterion      = get_criterion "" substrs: (bool * term criterion) list;
-    val relevant_rules = try (Find_Theorems.find_theorems ctxt NONE NONE true) criterion
-                         liftM snd
-                         liftM map snd
-                         |> Utils.is_some_null
-  in
-    relevant_rules: thms
-  end;
-
-(* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
-fun get_thms_of_name_with_suffix (ctxt:context) (sfx:string) (name:string) =
-  try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thms;
-
-(* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
-fun get_thms_of_names_with_suffix (ctxt:context) (names:strings) (sfx:string) =
-  map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thms;
 
 end;
 
