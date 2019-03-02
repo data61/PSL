@@ -39,9 +39,11 @@ end;
 signature LIFTER_UTIL =
 sig
 
-type     path  = ints;
+type     path   = ints;
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
-datatype print = Print of string;
+datatype print  = Print of string;
+type     prints = print list;
+val same_prints: print -> print -> bool;
 
 end;
 
@@ -53,7 +55,6 @@ include LIFTER_UTIL;
 
 val dest_print           : print -> string;
 val is_subprint_of       : print -> print -> bool;
-val same_prints          : print -> print -> bool;
 val ctxt_n_print_to_cname: Proof.context -> print -> string option;
 
 (* modifiers for the induct method *)

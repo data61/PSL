@@ -84,7 +84,7 @@ type path_n_loc;
 type path_n_locs;
 
 datatype address =(*TODO: better name? FIXME: this is actually value type.*)
-  Address_Subtrm     of path_n_locs
+  Address_Subtrm     of print
 | Address_Subtrm_Occ of path_n_loc
 | Address_Rule       of rule_name
 | Address_Numb       of int;
@@ -105,15 +105,15 @@ datatype name_space = Name_Space of
 
 type name_spaces = name_space list;
 
-datatype name_domains = Name_Domains of
-  {ind_domain    : addresses,
-   arb_domain    : addresses,
-   subtrm_domain : addresses,
-   numb_domain   : addresses,
-   rule_domain   : addresses};
+datatype domain = Dom_Subt_Occ of path_n_locs | Dom_Subt of prints | Dom_Rule of rule_names | Dom_Numb of ints;
 
-val assrt_n_abs_pstate_w_aux_to_name_domains: assrt -> abs_pstate_w_aux -> name_domains;
-val pstate_to_abs_pstate_w_aux              : Proof.state -> abs_pstate_w_aux;
+datatype name_domains = Name_Domains of
+  {subtrm_domain : domain,
+   rule_domain   : domain,
+   numb_domain   : domain};
+
+val pst_to_name_domains       : Proof.state -> name_domains;
+val pstate_to_abs_pstate_w_aux: Proof.state -> abs_pstate_w_aux;
 
 val no_overlad: assrt -> bool;
 (*TODO: Double-check. It is possible to remove Proof.context from the signature of eval

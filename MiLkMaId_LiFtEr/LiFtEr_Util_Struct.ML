@@ -196,10 +196,11 @@ end;
 structure LiFtEr_Util: LIFTER_UTIL =
 struct
 
-type     path  = ints;
+type     path   = ints;
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
-datatype print = Print of string;
-
+datatype print  = Print of string;
+type     prints = print list;
+fun same_prints (Print p1) (Print p2) = p1 = p2;
 end;
 
 (*** Test_Lifter ***)
@@ -210,7 +211,6 @@ open LiFtEr_Util;
 
 fun dest_print (Print str) = str;
 fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
-fun same_prints    (Print p1) (Print p2) = p1 = p2;
 fun ctxt_n_print_to_cname  (ctxt:Proof.context) (print:print) =
   let
     val trm_option = try dest_print print >>= try (Syntax.read_term ctxt): term   option;

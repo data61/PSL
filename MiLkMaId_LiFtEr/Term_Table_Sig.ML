@@ -42,14 +42,15 @@ type unode_aux_table = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
 val unique_nodes_to_trm_table                     : Unique_Node.unique_nodes -> unode_table;
 val unique_node_wo_path_to_unique_node_w_auxiliary: unode_table -> Proof.state -> unode_aux_table;
 
-type paths_table = Unique_Node.path list Print_Table.table;
+type paths_table  = Unique_Node.path list Print_Table.table;
+type paths_tables = paths_table list;
 
 val unode_table_to_print_paths_table    : unode_table     -> paths_table;
 val unode_aux_table_to_print_paths_table: unode_aux_table -> paths_table;
 
 type unode_n_path_table      = {unode_table    : unode_table,     paths_table: paths_table};
-type unode_n_path_tables     = unode_n_path_table list;
 type unode_aux_n_path_table  = {unode_aux_table: unode_aux_table, paths_table: paths_table};
+type unode_n_path_tables     = unode_n_path_table list;
 type unode_aux_n_path_tables = unode_aux_n_path_table list;
 
 val unode_table_to_unode_n_print_table        : unode_table     -> unode_n_path_table;
@@ -67,12 +68,16 @@ type abs_pstate_w_aux =
 
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location = Nth_Subg of int | Chained_Fact of int;
+type path_n_loc   = Unique_Node.path * location;
+type path_n_locs  = path_n_loc list;
 
-val in_subgoals: location -> bool;
+val in_subgoals     : location -> bool;
 val in_chained_facts: location -> bool;
-val same_location: (location * location) -> bool;
+val same_location   : (location * location) -> bool;
 
+val abs_pstate_w_aux_to_unode_aux_n_path_tables     : abs_pstate_w_aux -> paths_tables;
 val abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table: abs_pstate_w_aux -> location -> unode_aux_n_path_table;
+val print_n_abs_pstate_w_aux_to_path_n_locs         : abs_pstate_w_aux -> LiFtEr_Util.print -> path_n_locs;
 
 (*Use One_Term.keys to implement it.*)
 val unode_aux_table_to_depth   : unode_aux_table -> int option;

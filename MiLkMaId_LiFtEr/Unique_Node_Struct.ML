@@ -200,7 +200,7 @@ fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_abov
 (* paths *)
 type paths = path list;
 
-(* path_ord *)
+(* path_ord *)(*TODO*)
 val path_ord = undefined: (path * path) -> order;
 
 (* futrm_w_prnt_n_path: un-curried folded term with print and path to each node*)

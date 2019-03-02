@@ -397,6 +397,7 @@ sig
   val get_all_var_names_in_1st_subg     : thm -> strings;
   val proof_state_to_thm                : Proof.state -> thm;
   val pst_to_fst_subg                   : Proof.state -> term option;
+  val pst_to_subgs                      : Proof.state -> term list;
   val mk_proof_obligation               : Proof.context -> string -> thm;
   val TIMEOUT_in                        : real -> ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
   val TIMEOUT                           : ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
@@ -568,6 +569,10 @@ val proof_state_to_thm = #goal o Proof.goal;
 
 fun pst_to_fst_subg (pst:Proof.state) = try proof_state_to_thm pst
   >>= get_1st_subg;
+
+fun pst_to_subgs (pst:Proof.state) = try proof_state_to_thm pst
+  <$> Thm.prems_of
+   |> these;
 
 fun mk_proof_obligation ctxt (prop_str:string) =
   Syntax.read_prop ctxt prop_str
@@ -939,7 +944,7 @@ fun get_simp_rule_names ctxt goal = get_rule_names get_simp_rules ctxt goal : st
 
 fun get_induct_rules (ctxt:context) (goal:thm) =
   let
-    val cnames  = Isabelle_Utils.get_cnames_in_1st_subg goal : strings;
+    val cnames  = Isabelle_Utils.get_cnames_in_1st_subg goal         : strings;
     val induct_rules = some_names_to_rules ".induct" cnames ctxt goal;
   in
     induct_rules : (Facts.ref * thm) list

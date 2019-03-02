@@ -37,7 +37,8 @@ fun unique_nodes_to_trm_table (unodes:UN.unique_nodes) = List.map split_unique_n
 
 val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: UN.unique_node_wo_path OT.table -> Proof.state -> unode_aux_table;
 
-type paths_table = Unique_Node.path list Print_Table.table;
+type paths_table  = Unique_Node.path list Print_Table.table;
+type paths_tables = paths_table list;
 
 fun gen_trm_table_to_print_paths_table (trm_table) (get_print)=
   let
@@ -53,8 +54,8 @@ fun unode_table_to_print_paths_table     (unode_table    :unode_table    ) = gen
 fun unode_aux_table_to_print_paths_table (unode_aux_table:unode_aux_table) = gen_trm_table_to_print_paths_table unode_aux_table (#print: UN.unique_node_w_aux_wo_path -> UN.print): paths_table;
 
 type unode_n_path_table      = {unode_table    : unode_table,     paths_table: paths_table};
-type unode_n_path_tables     = unode_n_path_table list;
 type unode_aux_n_path_table  = {unode_aux_table: unode_aux_table, paths_table: paths_table};
+type unode_n_path_tables     = unode_n_path_table list;
 type unode_aux_n_path_tables = unode_aux_n_path_table list;
 
 fun unode_table_to_unode_n_print_table (unode_table:unode_table) =
@@ -78,6 +79,8 @@ type abs_pstate_w_aux =
 
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location = Nth_Subg of int | Chained_Fact of int;
+type path_n_loc   = UN.path * location;
+type path_n_locs  = path_n_loc list;
 
 fun in_subgoals (Nth_Subg _:location) = true
   | in_subgoals  _                    = false;
@@ -89,8 +92,28 @@ fun same_location (Nth_Subg     n1, Nth_Subg     n2) = n1 = n2
   | same_location (Chained_Fact n1, Chained_Fact n2) = n1 = n2
   | same_location  _                                 = false;
 
+fun abs_pstate_w_aux_to_unode_aux_n_path_tables ({subgoals, usings}:abs_pstate_w_aux) =
+  map #paths_table (subgoals @ usings): paths_tables;
+
 fun abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table (pst:abs_pstate_w_aux) (Nth_Subg     n) = nth (#subgoals pst) n
   | abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table (pst:abs_pstate_w_aux) (Chained_Fact n) = nth (#usings   pst) n
+
+fun print_n_abs_pstate_w_aux_to_path_n_locs ({subgoals, usings}:abs_pstate_w_aux) (print:UN.print) =
+  let
+    val (ptables_in_subgs, ptables_in_usings) = apply2 (map #paths_table) (subgoals, usings)                                                  : (paths_tables * paths_tables);
+    fun minus_one (x:int)                     = x - 1                                                                                         : int;
+    val ptables_n_locs_in_subgs               = Utils.index ptables_in_subgs  |> map swap |> map (apsnd minus_one) |> map (apsnd Nth_Subg)    : (paths_table * location) list;
+    val ptables_n_locs_in_usings              = Utils.index ptables_in_usings |> map swap |> map (apsnd minus_one) |> map (apsnd Chained_Fact): (paths_table * location) list;
+    val ptables_n_locs_in_subgs2              = map (apfst (Utils.flip PT.lookup_list print)) ptables_n_locs_in_subgs                         : (UN.paths * location) list;
+    val ptables_n_locs_in_usings2             = map (apfst (Utils.flip PT.lookup_list print)) ptables_n_locs_in_usings                        : (UN.paths * location) list;
+    fun merge ([]:'a list, y:'b) = []
+      | merge (x::xs     , y:'b) = (x, y) :: merge (xs, y);
+    val ptables_n_locs_in_subgs3              = map merge ptables_n_locs_in_subgs2  |> flat          : path_n_locs;
+    val ptables_n_locs_in_usings3             = map merge ptables_n_locs_in_usings2 |> flat          : path_n_locs;
+    val path_n_locs                           = ptables_n_locs_in_subgs3 @ ptables_n_locs_in_usings3 : path_n_locs;
+  in
+    path_n_locs
+  end;
 
 (*Use One_Term.keys to implement it.*)
 fun unode_aux_table_to_depth (unode_aux_table:unode_aux_table) =
@@ -101,6 +124,7 @@ fun unode_aux_table_to_depth (unode_aux_table:unode_aux_table) =
   in
     depth_option
   end;
+
 val unode_table_to_lowest_fvars = undefined: unode_table      -> Unique_Node.path list;
 val path_to_ancestor_paths      = undefined: Unique_Node.path -> Unique_Node.path list;
 val path_to_descendent_paths    = undefined: Unique_Node.path -> Unique_Node.path list;
