@@ -111,7 +111,7 @@ fun parser_to_trans_trans_parser (inv_p : 'a Pc.parser)
 end;
 
 fun get_trans_trans (strategy_name:string) =
-      (((Toplevel.keep_proof:(Toplevel.state -> unit) -> trans_trans)
+      (Toplevel.keep_proof:(Toplevel.state -> unit) -> trans_trans)
         (fn top =>
          let
            type log          = Dynamic_Utils.log;
@@ -132,7 +132,7 @@ fun get_trans_trans (strategy_name:string) =
          in
            print
          end)
-       ):trans_trans);
+       :trans_trans;
 
 fun activate_isar_interface _ =
   let

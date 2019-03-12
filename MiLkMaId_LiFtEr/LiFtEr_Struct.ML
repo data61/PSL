@@ -15,10 +15,10 @@ structure PT = Print_Table;
 
 type abs_pstate_w_aux = TT.abs_pstate_w_aux;
 
-datatype numb         = Nth         of int;
-datatype subtrm       = Sub_Trm     of int;
-datatype rule         = Rule        of int;
-datatype subtrm_occ   = Sub_Trm_Occ of int;
+datatype numb       = Nth         of int;
+datatype subtrm     = Sub_Trm     of int;
+datatype rule       = Rule        of int;
+datatype subtrm_occ = Sub_Trm_Occ of int;
 datatype pattern    = All_Only_Var | All_Const | Mixed;(*TODO: This is not final.*)
 
 infix And Or Imply;
@@ -152,8 +152,20 @@ val empty_domain (*TODO: This should not be used*) = Name_Domains
 (*TODO: check name collisions before evaluation. Use no_name_collision.*)
 val no_overlad = undefined: assrt -> bool;
 
-(*TODO*)
-val pstate_to_abs_pstate_w_aux: Proof.state -> abs_pstate_w_aux = undefined;
+fun pstate_to_abs_pstate_w_aux (pst:Proof.state): abs_pstate_w_aux =
+  let
+    val chained_facts = Isabelle_Utils.pstate_to_usings pst
+                     |> map Thm.prop_of: terms;
+    val subgoals = Isabelle_Utils.pst_to_subgs pst: terms;
+  in
+  {subgoals = [],
+   usings   = []}
+  end;
+(*
+type abs_pstate_w_aux =
+  {subgoals: unode_aux_n_path_tables,
+   usings  : unode_aux_n_path_tables};
+*)
 
 fun get_new_name_subspaces (i:int) (domain:addresses) (old_name_subspace:name_subspace) =
   let
@@ -190,8 +202,8 @@ fun pst_to_trm_domain (pst:Proof.state) =
         unode_aux_n_path_tables |> map #paths_table |> map Print_Table.keys :prints list;
     val subgoal_pathss = unode_n_path_tables_to_pathss subgoals             : prints list;
     val using_pathss   = unode_n_path_tables_to_pathss usings               : prints list;
-    val prints          = (subgoal_pathss @ using_pathss) |> flat |> distinct (uncurry LU.same_prints);
-    val result           = Dom_Subt prints                                  : domain;
+    val prints         = (subgoal_pathss @ using_pathss) |> flat |> distinct (uncurry LU.same_prints);
+    val result         = Dom_Subt prints                                    : domain;
   in
     result: domain
   end;
@@ -220,7 +232,9 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 (* eval *)
 fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
   let
+    val _ = tracing "start computing eval in LiFtEr_Struct.ML";
     val abs_pstate_w_aux          = pstate_to_abs_pstate_w_aux pstate       : abs_pstate_w_aux;
+    val _ = tracing "Before name_space_n_subtrm_occ_id_to_node in eval.";
     val Name_Domains name_domains = pst_to_name_domains pstate              : name_domains;
     val {subtrm_domain, numb_domain, rule_domain} = name_domains;
     val ctxt                      = Proof.context_of pstate                 : Proof.context;
@@ -262,7 +276,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
 
     type quantifier = (name_space -> bool) -> name_space list -> bool;
 
-    val {ons, arbs,...} = mods                                                                                          : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
+    val {ons, arbs,...} = mods                                                                                          : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule list};
     fun unode_aux_table_n_path_to_print (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #print: UN.print option;
     fun unode_aux_table_n_path_to_node  (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #node : UN.node option;
     fun loc_to_unode_aux_n_path_table (TT.Nth_Subg     n:location) = try (nth (#subgoals abs_pstate_w_aux)) n                     : TT.unode_aux_n_path_table option
@@ -362,6 +376,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       in
         result
       end;
+
+    val _ = tracing "Before the calling the mutual recursive function in eval.";
 
     fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: domain) (add_typ:address_type) =
       let

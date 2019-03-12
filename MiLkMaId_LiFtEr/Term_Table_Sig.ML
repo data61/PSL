@@ -10,6 +10,8 @@ The overall work-flow is:
   futrm_w_prnt_n_path === futrm_w_prnt_n_path_to_unique_nodes ========> (* Unique_Node *)
   unique_nodes        === unique_nodes_to_unique_nodes_w_auxiliary ===> (* Term_Table  *)
   nodes_w_auxiliary
+  abs_pstate_w_aux = {subgoals: unode_aux_n_path_tables,
+                      usings  : unode_aux_n_path_tables}
 *)
 
 (*** One_Term ***)
@@ -65,6 +67,8 @@ type abs_pstate =
 type abs_pstate_w_aux =
   {subgoals: unode_aux_n_path_tables,
    usings  : unode_aux_n_path_tables};
+
+val pstate_to_abs_pstate_w_aux: Proof.state -> abs_pstate_w_aux;
 
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location = Nth_Subg of int | Chained_Fact of int;

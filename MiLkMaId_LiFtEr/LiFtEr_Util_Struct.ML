@@ -219,10 +219,10 @@ fun ctxt_n_print_to_cname  (ctxt:Proof.context) (print:print) =
     trm_cname
   end;
 
-datatype induct_on   = Ind_On      of print;
-datatype induct_arb  = Ind_Arb     of print;
-datatype induct_rule = Ind_Rule    of string;
-datatype ind_mods    = Ind_Mods    of {ons: induct_on list, arbs: induct_arb list, rules: induct_rule};
+datatype induct_on   = Ind_On   of print;
+datatype induct_arb  = Ind_Arb  of print;
+datatype induct_rule = Ind_Rule of string;
+datatype ind_mods    = Ind_Mods of {ons: induct_on list, arbs: induct_arb list, rules: induct_rule list};
 
 fun dest_induct_on   (Ind_On print)    = print;
 fun dest_induct_arb  (Ind_Arb print)   = print;

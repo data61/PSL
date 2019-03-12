@@ -77,6 +77,22 @@ type abs_pstate_w_aux =
   {subgoals: unode_aux_n_path_tables,
    usings  : unode_aux_n_path_tables};
 
+
+fun pstate_to_abs_pstate_w_aux (pst:Proof.state): abs_pstate_w_aux =
+  let
+    val chained_facts = Isabelle_Utils.pstate_to_usings pst
+                     |> map Thm.prop_of: terms;
+    val subgoals = Isabelle_Utils.pst_to_subgs pst: terms;
+  in
+  {subgoals = [],
+   usings   = []}
+  end;
+(*
+type abs_pstate_w_aux =
+  {subgoals: unode_aux_n_path_tables,
+   usings  : unode_aux_n_path_tables};
+*)
+
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location = Nth_Subg of int | Chained_Fact of int;
 type path_n_loc   = UN.path * location;
