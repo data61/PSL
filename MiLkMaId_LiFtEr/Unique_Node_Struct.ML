@@ -3,13 +3,19 @@
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                === trm_to_trm_w_prnt ==========================> (* Unique_Node *)
-  trm_w_prnt          === trm_w_prnt_to_utrm_w_prnt ==================> (* Unique_Node *)
-  utrm_w_prnt         === utrm_w_prnt_to_futrm_w_prnt ================> (* Unique_Node *)
-  futrm_w_prnt        === futrm_w_prnt_to_futrm_w_prnt_n_path ========> (* Unique_Node *)
-  futrm_w_prnt_n_path === futrm_w_prnt_n_path_to_unique_nodes ========> (* Unique_Node *)
-  unique_nodes        === unique_nodes_to_unique_nodes_w_auxiliary ===> (* Term_Table  *)
-  nodes_w_auxiliary
+  term                   ==== trm_to_trm_w_prnt ============================>              (* in Unique_Node *)
+  trm_w_prnt             ==== trm_w_prnt_to_utrm_w_prnt ====================>              (* in Unique_Node *)
+  utrm_w_prnt            ==== utrm_w_prnt_to_futrm_w_prnt ==================>              (* in Unique_Node *)
+  futrm_w_prnt           ==== futrm_w_prnt_to_futrm_w_prnt_n_path ==========>              (* in Unique_Node *)
+  futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
+  unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
+  unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
+ (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table  (* in Term_Table  *))
+  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_print_table ===>              (* in Term_Table  *)
+  unode_aux_n_path_table
+
+  Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
+  Proof.state            ==== pst_to_pst_to_abs_pstate_w_aux ===============> pst_to_abs_pstate_w_aux (* in Term_Table *)
 *)
 
 (*** Unique_Node ***)

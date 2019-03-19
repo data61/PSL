@@ -3,15 +3,19 @@
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                === trm_to_trm_w_prnt ==========================> (* Unique_Node *)
-  trm_w_prnt          === trm_w_prnt_to_utrm_w_prnt ==================> (* Unique_Node *)
-  utrm_w_prnt         === utrm_w_prnt_to_futrm_w_prnt ================> (* Unique_Node *)
-  futrm_w_prnt        === futrm_w_prnt_to_futrm_w_prnt_n_path ========> (* Unique_Node *)
-  futrm_w_prnt_n_path === futrm_w_prnt_n_path_to_unique_nodes ========> (* Unique_Node *)
-  unique_nodes        === unique_nodes_to_unique_nodes_w_auxiliary ===> (* Term_Table  *)
-  nodes_w_auxiliary
-  abs_pstate_w_aux = {subgoals: unode_aux_n_path_tables,
-                      usings  : unode_aux_n_path_tables}
+  term                   ==== trm_to_trm_w_prnt ============================>              (* in Unique_Node *)
+  trm_w_prnt             ==== trm_w_prnt_to_utrm_w_prnt ====================>              (* in Unique_Node *)
+  utrm_w_prnt            ==== utrm_w_prnt_to_futrm_w_prnt ==================>              (* in Unique_Node *)
+  futrm_w_prnt           ==== futrm_w_prnt_to_futrm_w_prnt_n_path ==========>              (* in Unique_Node *)
+  futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
+  unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
+  unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
+ (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table  (* in Term_Table  *))
+  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_print_table ===>              (* in Term_Table  *)
+  unode_aux_n_path_table
+
+  Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
+  Proof.state            ==== pst_to_pst_to_abs_pstate_w_aux ===============> pst_to_abs_pstate_w_aux (* in Term_Table *)
 *)
 
 (*** One_Term ***)
@@ -41,7 +45,7 @@ sig
 type unode_table     = Unique_Node.unique_node_wo_path One_Term.table;
 type unode_aux_table = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
 
-val unique_nodes_to_trm_table     : Unique_Node.unique_nodes -> unode_table;
+val unique_nodes_to_unode_table   : Unique_Node.unique_nodes -> unode_table;
 val unode_table_to_unode_aux_table: unode_table -> Proof.state -> unode_aux_table;
 
 type paths_table  = Unique_Node.path list Print_Table.table;
@@ -80,5 +84,8 @@ val unode_aux_table_to_depth   : unode_aux_table -> int option;
 val unode_table_to_lowest_fvars: unode_table -> Unique_Node.path list;
 val path_to_ancestor_paths     : Unique_Node.path -> Unique_Node.path list;
 val path_to_descendent_paths   : Unique_Node.path -> Unique_Node.path list;
+
+val pst_n_trm_to_unode_aux_n_path_table: Proof.state -> term -> unode_aux_n_path_table;
+val pst_to_pst_to_abs_pstate_w_aux     : Proof.state -> abs_pstate_w_aux;
 
 end;
