@@ -41,28 +41,20 @@ sig
 type unode_table     = Unique_Node.unique_node_wo_path One_Term.table;
 type unode_aux_table = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
 
-val unique_nodes_to_trm_table                     : Unique_Node.unique_nodes -> unode_table;
-val unique_node_wo_path_to_unique_node_w_auxiliary: unode_table -> Proof.state -> unode_aux_table;
+val unique_nodes_to_trm_table     : Unique_Node.unique_nodes -> unode_table;
+val unode_table_to_unode_aux_table: unode_table -> Proof.state -> unode_aux_table;
 
 type paths_table  = Unique_Node.path list Print_Table.table;
 type paths_tables = paths_table list;
 
-val unode_table_to_print_paths_table    : unode_table     -> paths_table;
 val unode_aux_table_to_print_paths_table: unode_aux_table -> paths_table;
 
-type unode_n_path_table      = {unode_table    : unode_table,     paths_table: paths_table};
 type unode_aux_n_path_table  = {unode_aux_table: unode_aux_table, paths_table: paths_table};
-type unode_n_path_tables     = unode_n_path_table list;
 type unode_aux_n_path_tables = unode_aux_n_path_table list;
 
-val unode_table_to_unode_n_print_table        : unode_table     -> unode_n_path_table;
 val unode_aux_table_to_unode_aux_n_print_table: unode_aux_table -> unode_aux_n_path_table;
 
 val print_n_paths_table_to_paths: paths_table -> Unique_Node.print -> Unique_Node.path list;
-
-type abs_pstate =
-  {subgoals: unode_n_path_tables,
-   usings  : unode_n_path_tables};
 
 type abs_pstate_w_aux =
   {subgoals: unode_aux_n_path_tables,

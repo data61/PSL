@@ -35,7 +35,15 @@ fun list_to_table (key_val_pairs: (UN.path * 'a) list) = list_fold to_be_folded 
 
 fun unique_nodes_to_trm_table (unodes:UN.unique_nodes) = List.map split_unique_node unodes |> list_to_table;
 
-val unique_node_wo_path_to_unique_node_w_auxiliary = undefined: UN.unique_node_wo_path OT.table -> Proof.state -> unode_aux_table;
+fun unode_table_to_unode_aux_table (unode_table:unode_table) (pst:Proof.state) =
+  let
+    val unique_node_to_unique_node_w_auxs  = OT.map (K UN.unique_node_to_unique_node_w_aux);
+(* FIXME:
+    val unode_aux_table = unique_node_to_unique_node_w_auxs unode_table
+*)
+  in
+    undefined (): unode_aux_table
+  end;
 
 type paths_table  = Unique_Node.path list Print_Table.table;
 type paths_tables = paths_table list;
@@ -50,17 +58,10 @@ fun gen_trm_table_to_print_paths_table (trm_table) (get_print)=
     print_paths_table: paths_table
   end;
 
-fun unode_table_to_print_paths_table     (unode_table    :unode_table    ) = gen_trm_table_to_print_paths_table unode_table     (#print: UN.unique_node_wo_path       -> UN.print): paths_table;
 fun unode_aux_table_to_print_paths_table (unode_aux_table:unode_aux_table) = gen_trm_table_to_print_paths_table unode_aux_table (#print: UN.unique_node_w_aux_wo_path -> UN.print): paths_table;
 
-type unode_n_path_table      = {unode_table    : unode_table,     paths_table: paths_table};
 type unode_aux_n_path_table  = {unode_aux_table: unode_aux_table, paths_table: paths_table};
-type unode_n_path_tables     = unode_n_path_table list;
 type unode_aux_n_path_tables = unode_aux_n_path_table list;
-
-fun unode_table_to_unode_n_print_table (unode_table:unode_table) =
-  {unode_table = unode_table,
-   paths_table = unode_table_to_print_paths_table unode_table}: unode_n_path_table;
 
 fun unode_aux_table_to_unode_aux_n_print_table (unode_aux_table:unode_aux_table) =
   {unode_aux_table = unode_aux_table,
@@ -68,10 +69,6 @@ fun unode_aux_table_to_unode_aux_n_print_table (unode_aux_table:unode_aux_table)
 
 fun print_n_paths_table_to_paths (paths_table:paths_table) (print: UN.print) =
   Print_Table.lookup_list paths_table print;
-
-type abs_pstate =
-  {subgoals: unode_n_path_table list,
-   usings  : unode_n_path_table list};
 
 type abs_pstate_w_aux =
   {subgoals: unode_aux_n_path_tables,
@@ -122,7 +119,7 @@ fun print_n_abs_pstate_w_aux_to_path_n_locs ({subgoals, usings}:abs_pstate_w_aux
     val ptables_n_locs_in_usings              = Utils.index ptables_in_usings |> map swap |> map (apsnd minus_one) |> map (apsnd Chained_Fact): (paths_table * location) list;
     val ptables_n_locs_in_subgs2              = map (apfst (Utils.flip PT.lookup_list print)) ptables_n_locs_in_subgs                         : (UN.paths * location) list;
     val ptables_n_locs_in_usings2             = map (apfst (Utils.flip PT.lookup_list print)) ptables_n_locs_in_usings                        : (UN.paths * location) list;
-    fun merge ([]:'a list, y:'b) = []
+    fun merge ([]:'a list, _:'b) = []
       | merge (x::xs     , y:'b) = (x, y) :: merge (xs, y);
     val ptables_n_locs_in_subgs3              = map merge ptables_n_locs_in_subgs2  |> flat          : path_n_locs;
     val ptables_n_locs_in_usings3             = map merge ptables_n_locs_in_usings2 |> flat          : path_n_locs;

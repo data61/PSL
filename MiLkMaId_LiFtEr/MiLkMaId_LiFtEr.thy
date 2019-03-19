@@ -98,7 +98,8 @@ val sample_induct_args2 = TL.Ind_Mods
 structure L = LiFtEr;
 infix And;
 val op And = L.And
-val sample_assert =
+
+ val sample_assert =
   L.All_Ind (L.Sub_Trm 1,
     L.Some_Sub_Trm_Occ (L.Sub_Trm_Occ 2,
         L.Trm_Occ_Is_Of_Trm (L.Sub_Trm_Occ 2, L.Sub_Trm 1)
