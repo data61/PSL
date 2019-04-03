@@ -11,7 +11,7 @@
    Some proofs were added by Yutaka Nagashima.*)
 
 theory Exercise
-imports Main "../PSL" "../PaMpeR/PaMpeR" "../PSL"
+imports Main
 begin
 
 (*** Exercise I ***)
@@ -37,7 +37,6 @@ fun ins :: "Nat => Nat list => Nat list" where
 
 theorem property15 :
   "((len (ins x xs)) = (S (len xs)))"
-  try_hard
   oops
 
 fun map :: "('a => 'b) => 'a list => 'b list" where
@@ -51,7 +50,6 @@ fun drop :: "Nat => 'a list => 'a list" where
 
 theorem property12 :
   "((drop n (map f xs)) = (map f (drop n xs)))"
-  try_hard
   oops
 
 fun x :: "'a list => 'a list => 'a list" where
@@ -65,7 +63,6 @@ fun filter :: "('a => bool) => 'a list => 'a list" where
 
 theorem property14 :
   "((filter p (x xs ys)) = (x (filter p xs) (filter p ys)))"
-  try_hard
   oops
 
 (*** Exercise II-a ***)
