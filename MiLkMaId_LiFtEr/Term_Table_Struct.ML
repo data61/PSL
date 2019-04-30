@@ -10,8 +10,8 @@ The overall work-flow is:
   futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
   unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
   unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
- (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table  (* in Term_Table  *))
-  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_print_table ===>              (* in Term_Table  *)
+   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table     (* in Term_Table  *)
+    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_print_table ===> unode_aux_table (* in Term_Table  *))
   unode_aux_n_path_table
 
   Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
@@ -43,8 +43,9 @@ fun unique_nodes_to_unode_table (unodes:UN.unique_nodes) = List.map split_unique
 
 fun unode_table_to_unode_aux_table (unode_table:unode_table) (pst:Proof.state) =
   let
-    val unique_node_to_unique_node_w_auxs  = OT.map (K UN.unique_node_to_unique_node_w_aux);
 (* FIXME:
+    val unique_node_to_unique_node_w_auxs  = OT.map (K UN.unique_node_to_unique_node_w_aux)
+                                           : UN.unique_node OT.table -> UN.unique_node_w_aux OT.table;
     val unode_aux_table = unique_node_to_unique_node_w_auxs unode_table
 *)
   in
