@@ -3,21 +3,21 @@
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                   ==== trm_to_trm_w_prnt ============================>              (* in Unique_Node *)
-  trm_w_prnt             ==== trm_w_prnt_to_utrm_w_prnt ====================>              (* in Unique_Node *)
-  utrm_w_prnt            ==== utrm_w_prnt_to_futrm_w_prnt ==================>              (* in Unique_Node *)
-  futrm_w_prnt           ==== futrm_w_prnt_to_futrm_w_prnt_n_path ==========>              (* in Unique_Node *)
-  futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
-  unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
-  unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
-   (unique_node_wo_path    ==== unique_node_wo_path_to_unique_node_w_aux =====> unique_node_w_aux      (* in Unique_Node *))
-  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ====>              (* in Term_Table  *)
-   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table            (* in Term_Table  *)
-    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ===>  unode_aux_n_path_table (* in Term_Table  *))
-  unode_aux_n_path_table
-
-  Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
-  Proof.state            ==== pst_to_pst_to_abs_pstate_w_aux ===============> pst_to_abs_pstate_w_aux (* in Term_Table *)
+Proof.state            ==== pst_to_lifter_pst ================================================>                      (* in Term_Table *)
+   (Proof.state & term     ==== pst_n_trm_to_one_term ========================================>                      (* in Term_Table *)
+       (term                    ==== trm_to_trm_w_prnt =======================================>                      (* in Unique_Node *)
+        trm_w_prnt              ==== trm_w_prnt_to_utrm_w_prnt ===============================>                      (* in Unique_Node *)
+        utrm_w_prnt             ==== utrm_w_prnt_to_futrm_w_prnt =============================>                      (* in Unique_Node *)
+        futrm_w_prnt            ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================>                      (* in Unique_Node *)
+        futrm_w_prnt_n_path     ==== futrm_w_prnt_n_path_to_unodes ===========================>                      (* in Unique_Node *)
+        unodes                  ==== unodes_to_unode_table ===================================>                      (* in Term_Table  *)
+        path_to_unode_table     ==== path_to_unode_table_to_path_to_unode_aux_table ==========>                      (* in Term_Table  *)
+           (unode                    ==== unode_n_pst_to_unode_w_aux =========================> unode_w_aux          (* in Unique_Node *))
+        path_to_unode_aux_table ==== path_to_unode_aux_table_to_one_term =====================>                      (* in Term_Table  *)
+           (path_to_unode_aux_table  ==== path_to_unode_aux_table_to_print_to_paths_table ====> print_to_paths_table (* in Term_Table  *))
+        one_term)
+    one_term)
+lifter_pst
 *)
 
 (*** Unique_Node ***)
@@ -300,28 +300,28 @@ fun node_typ_to_checker Node_Typ_NC = is_NC
   | node_typ_to_checker Node_Typ_NL = is_NL
   | node_typ_to_checker Node_Typ_NA = is_NA;
 
-(* unique_node *)
-type unique_node =
+(* unode *)
+type unode =
   {node : node,
    print: print,
    path : path};
 
-(* unique_nodes *)
-type unique_nodes = unique_node list;
+(* unodes *)
+type unodes = unode list;
 
-(* futrm_w_prnt_n_path_to_unique_nodes *)
-fun futrm_w_prnt_n_path_to_unique_nodes (UFC_Prnt_n_Path (ctnt, prnt, path)) = [{node = NC ctnt, print = prnt, path = path}]
-  | futrm_w_prnt_n_path_to_unique_nodes (UFF_Prnt_n_Path (ctnt, prnt, path)) = [{node = NF ctnt, print = prnt, path = path}]
-  | futrm_w_prnt_n_path_to_unique_nodes (UFV_Prnt_n_Path (ctnt, prnt, path)) = [{node = NV ctnt, print = prnt, path = path}]
-  | futrm_w_prnt_n_path_to_unique_nodes (UFB_Prnt_n_Path (ctnt, prnt, path)) = [{node = NB ctnt, print = prnt, path = path}]
-  | futrm_w_prnt_n_path_to_unique_nodes (UFL_Prnt_n_Path ((name, typ, trm), prnt, path)) =
-      {node = NL (name, typ), print = prnt, path = path} :: futrm_w_prnt_n_path_to_unique_nodes trm
-  | futrm_w_prnt_n_path_to_unique_nodes (UFA_Prnt_n_Path ((func, args), prnt, path)) =
+(* futrm_w_prnt_n_path_to_unodes *)
+fun futrm_w_prnt_n_path_to_unodes (UFC_Prnt_n_Path (ctnt, prnt, path)) = [{node = NC ctnt, print = prnt, path = path}]
+  | futrm_w_prnt_n_path_to_unodes (UFF_Prnt_n_Path (ctnt, prnt, path)) = [{node = NF ctnt, print = prnt, path = path}]
+  | futrm_w_prnt_n_path_to_unodes (UFV_Prnt_n_Path (ctnt, prnt, path)) = [{node = NV ctnt, print = prnt, path = path}]
+  | futrm_w_prnt_n_path_to_unodes (UFB_Prnt_n_Path (ctnt, prnt, path)) = [{node = NB ctnt, print = prnt, path = path}]
+  | futrm_w_prnt_n_path_to_unodes (UFL_Prnt_n_Path ((name, typ, trm), prnt, path)) =
+      {node = NL (name, typ), print = prnt, path = path} :: futrm_w_prnt_n_path_to_unodes trm
+  | futrm_w_prnt_n_path_to_unodes (UFA_Prnt_n_Path ((func, args), prnt, path)) =
     {node = NA, print = prnt, path = path} ::
-    futrm_w_prnt_n_path_to_unique_nodes func @ maps futrm_w_prnt_n_path_to_unique_nodes args;
+    futrm_w_prnt_n_path_to_unodes func @ maps futrm_w_prnt_n_path_to_unodes args;
 
-(* unique_node_w_aux *)
-type unique_node_w_aux =
+(* unode_w_aux *)
+type unode_w_aux =
  {node : node,
   print: print,
   rcsv : bool option,
@@ -329,7 +329,7 @@ type unique_node_w_aux =
   cmmnd: Pattern.command option,
   path : path};
 
-(* unique_node_to_unique_node_w_aux: TODO *)
-val unique_node_to_unique_node_w_aux = undefined;
+(* unode_to_unode_w_aux: TODO *)
+val unode_n_pst_to_unode_w_aux = undefined;
 
 end;

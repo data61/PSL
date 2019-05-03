@@ -3,24 +3,24 @@
 
 The conversion to transform term to a format more amenable to LiFtEr.
 The overall work-flow is:
-  term                   ==== trm_to_trm_w_prnt ============================>              (* in Unique_Node *)
-  trm_w_prnt             ==== trm_w_prnt_to_utrm_w_prnt ====================>              (* in Unique_Node *)
-  utrm_w_prnt            ==== utrm_w_prnt_to_futrm_w_prnt ==================>              (* in Unique_Node *)
-  futrm_w_prnt           ==== futrm_w_prnt_to_futrm_w_prnt_n_path ==========>              (* in Unique_Node *)
-  futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
-  unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
-  unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
-   (unique_node_wo_path    ==== unique_node_wo_path_to_unique_node_w_aux =====> unique_node_w_aux      (* in Unique_Node *))
-  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ====>              (* in Term_Table  *)
-   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table            (* in Term_Table  *)
-    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ===>  unode_aux_n_path_table (* in Term_Table  *))
-  unode_aux_n_path_table
-
-  Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
-  Proof.state            ==== pst_to_pst_to_abs_pstate_w_aux ===============> pst_to_abs_pstate_w_aux (* in Term_Table *)
+Proof.state            ==== pst_to_lifter_pst ================================================>                      (* in Term_Table *)
+   (Proof.state & term     ==== pst_n_trm_to_one_term ========================================>                      (* in Term_Table *)
+       (term                    ==== trm_to_trm_w_prnt =======================================>                      (* in Unique_Node *)
+        trm_w_prnt              ==== trm_w_prnt_to_utrm_w_prnt ===============================>                      (* in Unique_Node *)
+        utrm_w_prnt             ==== utrm_w_prnt_to_futrm_w_prnt =============================>                      (* in Unique_Node *)
+        futrm_w_prnt            ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================>                      (* in Unique_Node *)
+        futrm_w_prnt_n_path     ==== futrm_w_prnt_n_path_to_unodes ===========================>                      (* in Unique_Node *)
+        unodes                  ==== unodes_to_unode_table ===================================>                      (* in Term_Table  *)
+        path_to_unode_table     ==== path_to_unode_table_to_path_to_unode_aux_table ==========>                      (* in Term_Table  *)
+           (unode                    ==== unode_n_pst_to_unode_w_aux =========================> unode_w_aux          (* in Unique_Node *))
+        path_to_unode_aux_table ==== path_to_unode_aux_table_to_one_term =====================>                      (* in Term_Table  *)
+           (path_to_unode_aux_table  ==== path_to_unode_aux_table_to_print_to_paths_table ====> print_to_paths_table (* in Term_Table  *))
+        one_term)
+    one_term)
+lifter_pst
 *)
 
-(*** One_Term ***)
+(*** Path_Table and Print_Table ***)
 local
 
 (* path_ord: This definition is more or less arbitrary. *)
@@ -35,8 +35,9 @@ fun prnt_ord (LiFtEr_Util.Print p1, LiFtEr_Util.Print p2) = String.compare (p1, 
 
 in
 
-structure One_Term    = Table (type key = Unique_Node.path  val ord = path_ord): TABLE;
-structure Print_Table = Table (type key = Unique_Node.print val ord = prnt_ord): TABLE;
+structure UN          = Unique_Node;
+structure Path_Table  = Table (type key = UN.path  val ord = path_ord): TABLE;
+structure Print_Table = Table (type key = UN.print val ord = prnt_ord): TABLE;
 
 end;
 
@@ -44,50 +45,46 @@ end;
 signature TERM_TABLE =
 sig
 
-type unode_table     = Unique_Node.unique_node       One_Term.table;
-type unode_aux_table = Unique_Node.unique_node_w_aux One_Term.table;
+type path_to_unode_table     = UN.unode       Path_Table.table;
+type path_to_unode_aux_table = UN.unode_w_aux Path_Table.table;
 
-val unique_nodes_to_unode_table   : Unique_Node.unique_nodes -> unode_table;
-val unode_table_to_unode_aux_table: unode_table -> Proof.state -> unode_aux_table;
+val unodes_to_unode_table                    : UN.unodes -> path_to_unode_table;
+val path_to_unode_aux_table_n_pst_to_print_to_paths_table: path_to_unode_table -> Proof.state -> path_to_unode_aux_table;
 
-type paths_table  = Unique_Node.path list Print_Table.table;
-type paths_tables = paths_table list;
+type print_to_paths_table  = UN.paths Print_Table.table;
+type print_to_paths_tables = print_to_paths_table list;
 
-val unode_aux_table_to_print_paths_table: unode_aux_table -> paths_table;
+val print_to_paths_table_n_print_to_paths: print_to_paths_table -> UN.print -> UN.paths;
 
-type unode_aux_n_path_table  = {unode_aux_table: unode_aux_table, paths_table: paths_table};
-type unode_aux_n_path_tables = unode_aux_n_path_table list;
+type one_term  = {path_to_unode_aux_table: path_to_unode_aux_table, print_to_paths_table: print_to_paths_table};
+type one_terms = one_term list;
 
-val unode_aux_table_to_unode_aux_n_print_table: unode_aux_table -> unode_aux_n_path_table;
+val path_to_unode_aux_table_to_one_term: path_to_unode_aux_table -> one_term;
+val pst_n_trm_to_one_term              : Proof.state -> term -> one_term;
 
-val print_n_paths_table_to_paths: paths_table -> Unique_Node.print -> Unique_Node.path list;
+type lifter_pst =
+  {subgoals: one_terms,
+   usings  : one_terms};
 
-type abs_pstate_w_aux =
-  {subgoals: unode_aux_n_path_tables,
-   usings  : unode_aux_n_path_tables};
-
-val pstate_to_abs_pstate_w_aux: Proof.state -> abs_pstate_w_aux;
+val pst_to_lifter_pst: Proof.state -> lifter_pst;
 
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location = Nth_Subg of int | Chained_Fact of int;
-type path_n_loc   = Unique_Node.path * location;
+type path_n_loc   = UN.path * location;
 type path_n_locs  = path_n_loc list;
 
 val in_subgoals     : location -> bool;
 val in_chained_facts: location -> bool;
 val same_location   : (location * location) -> bool;
 
-val abs_pstate_w_aux_to_unode_aux_n_path_tables     : abs_pstate_w_aux -> paths_tables;
-val abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table: abs_pstate_w_aux -> location -> unode_aux_n_path_table;
-val print_n_abs_pstate_w_aux_to_path_n_locs         : abs_pstate_w_aux -> LiFtEr_Util.print -> path_n_locs;
+val lifter_pst_to_print_to_paths_tables: lifter_pst -> print_to_paths_tables;
+val lifter_pst_n_loc_to_one_term       : lifter_pst -> location -> one_term;
+val print_n_lifter_pst_to_path_n_locs  : lifter_pst -> LiFtEr_Util.print -> path_n_locs;
 
 (*Use One_Term.keys to implement it.*)
-val unode_aux_table_to_depth   : unode_aux_table -> int option;
-val unode_table_to_lowest_fvars: unode_table -> Unique_Node.path list;
-val path_to_ancestor_paths     : Unique_Node.path -> Unique_Node.path list;
-val path_to_descendent_paths   : Unique_Node.path -> Unique_Node.path list;
-
-val pst_n_trm_to_unode_aux_n_path_table: Proof.state -> term -> unode_aux_n_path_table;
-val pst_to_pst_to_abs_pstate_w_aux     : Proof.state -> abs_pstate_w_aux;
+val path_to_unode_aux_table_to_depth   : path_to_unode_aux_table -> int option;
+val path_to_unode_table_to_lowest_fvars: path_to_unode_table -> UN.paths;
+val path_to_ancestor_paths             : UN.path -> UN.paths;
+val path_to_descendent_paths           : UN.path -> UN.paths;
 
 end;
