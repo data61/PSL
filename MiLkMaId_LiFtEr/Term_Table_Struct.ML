@@ -10,8 +10,10 @@ The overall work-flow is:
   futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
   unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
   unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
-   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table     (* in Term_Table  *)
-    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_print_table ===> unode_aux_table (* in Term_Table  *))
+   (unique_node_wo_path    ==== unique_node_wo_path_to_unique_node_w_aux =====> unique_node_w_aux      (* in Unique_Node *))
+  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ====>              (* in Term_Table  *)
+   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table            (* in Term_Table  *)
+    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ===>  unode_aux_n_path_table (* in Term_Table  *))
   unode_aux_n_path_table
 
   Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
@@ -27,35 +29,29 @@ structure OT = One_Term;
 structure UN = Unique_Node;
 structure PT = Print_Table;
 
-type unode_table     = UN.unique_node_wo_path       OT.table;
-type unode_aux_table = UN.unique_node_w_aux_wo_path OT.table;
-
-fun split_unique_node (unode:UN.unique_node): UN.path * UN.unique_node_wo_path =
- (#path unode                     : UN.path,
-  {node = #node unode             : UN.node,
-   print = #print unode: UN.print}: UN.unique_node_wo_path);
+type unode_table     = UN.unique_node       OT.table;
+type unode_aux_table = UN.unique_node_w_aux OT.table;
 
 fun to_be_folded (key_val_pair:(UN.path * 'a)) (table: 'a OT.table) = OT.update_new key_val_pair table;
 
 fun list_to_table (key_val_pairs: (UN.path * 'a) list) = list_fold to_be_folded key_val_pairs OT.empty;
 
-fun unique_nodes_to_unode_table (unodes:UN.unique_nodes) = List.map split_unique_node unodes |> list_to_table;
+fun unique_nodes_to_unode_table (unodes:UN.unique_nodes) =
+  List.map (fn unode => (#path unode, unode)) unodes |> list_to_table;
 
 fun unode_table_to_unode_aux_table (unode_table:unode_table) (pst:Proof.state) =
   let
-(* FIXME:
-    val unique_node_to_unique_node_w_auxs  = OT.map (K UN.unique_node_to_unique_node_w_aux)
-                                           : UN.unique_node OT.table -> UN.unique_node_w_aux OT.table;
-    val unode_aux_table = unique_node_to_unique_node_w_auxs unode_table
-*)
+    (* We use the K combinator  because we do not change key*)
+    val unode_table_to_unode_aux_table  = OT.map (K UN.unique_node_to_unique_node_w_aux)
+      : unode_table -> UN.unique_node_w_aux OT.table;
   in
-    undefined (): unode_aux_table
+    unode_table_to_unode_aux_table unode_table: UN.unique_node_w_aux OT.table
   end;
 
 type paths_table  = Unique_Node.path list Print_Table.table;
 type paths_tables = paths_table list;
 
-fun gen_trm_table_to_print_paths_table (trm_table) (get_print)=
+fun gen_trm_table_to_print_paths_table (trm_table:'a OT.table) (get_print:'a -> UN.print) =
   let
     val path_n_unode_s    = One_Term.dest trm_table;
     val path_n_print_s    = List.map (apsnd get_print) path_n_unode_s;
@@ -65,7 +61,8 @@ fun gen_trm_table_to_print_paths_table (trm_table) (get_print)=
     print_paths_table: paths_table
   end;
 
-fun unode_aux_table_to_print_paths_table (unode_aux_table:unode_aux_table) = gen_trm_table_to_print_paths_table unode_aux_table (#print: UN.unique_node_w_aux_wo_path -> UN.print): paths_table;
+fun unode_aux_table_to_print_paths_table (unode_aux_table:unode_aux_table) =
+  gen_trm_table_to_print_paths_table unode_aux_table (#print): paths_table;
 
 type unode_aux_n_path_table  = {unode_aux_table: unode_aux_table, paths_table: paths_table};
 type unode_aux_n_path_tables = unode_aux_n_path_table list;
@@ -87,15 +84,10 @@ fun pstate_to_abs_pstate_w_aux (pst:Proof.state): abs_pstate_w_aux =
     val chained_facts = Isabelle_Utils.pstate_to_usings pst
                      |> map Thm.prop_of: terms;
     val subgoals = Isabelle_Utils.pst_to_subgs pst: terms;
-  in
+  in (*TODO*)
   {subgoals = [],
    usings   = []}
   end;
-(*
-type abs_pstate_w_aux =
-  {subgoals: unode_aux_n_path_tables,
-   usings  : unode_aux_n_path_tables};
-*)
 
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location = Nth_Subg of int | Chained_Fact of int;
@@ -138,9 +130,9 @@ fun print_n_abs_pstate_w_aux_to_path_n_locs ({subgoals, usings}:abs_pstate_w_aux
 (*Use One_Term.keys to implement it.*)
 fun unode_aux_table_to_depth (unode_aux_table:unode_aux_table) =
   let
-    val max_path_n_node_w_aux_wo_path_option = OT.max unode_aux_table                      : (UN.path * UN.unique_node_w_aux_wo_path) option;
-    val max_path_option                      = max_path_n_node_w_aux_wo_path_option <$> fst: UN.path option;
-    val depth_option                         = max_path_option <$> length                  : int option;
+    val max_path_n_node_w_aux_option = OT.max unode_aux_table              : (UN.path * UN.unique_node_w_aux) option;
+    val max_path_option              = max_path_n_node_w_aux_option <$> fst: UN.path option;
+    val depth_option                 = max_path_option <$> length          : int option;
   in
     depth_option
   end;
@@ -151,7 +143,8 @@ val path_to_descendent_paths    = undefined: Unique_Node.path -> Unique_Node.pat
 
 fun pst_n_trm_to_unode_aux_n_path_table (pst:Proof.state) (trm:term): unode_aux_n_path_table =
   let
-    val trm_w_prnt             = UN.trm_to_trm_w_prnt @{context} trm;
+    val ctxt                   = Proof.context_of pst;
+    val trm_w_prnt             = UN.trm_to_trm_w_prnt ctxt trm;
     val utrm_w_prnt            = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
     val futrm_w_prnt           = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
     val futrm_w_prnt_n_path    = UN.futrm_w_prnt_to_futrm_w_prnt_n_path futrm_w_prnt;

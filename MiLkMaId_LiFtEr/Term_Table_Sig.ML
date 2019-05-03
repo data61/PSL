@@ -10,8 +10,10 @@ The overall work-flow is:
   futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
   unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
   unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
-   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table     (* in Term_Table  *)
-    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_print_table ===> unode_aux_table (* in Term_Table  *))
+   (unique_node_wo_path    ==== unique_node_wo_path_to_unique_node_w_aux =====> unique_node_w_aux      (* in Unique_Node *))
+  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ====>              (* in Term_Table  *)
+   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table            (* in Term_Table  *)
+    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ===>  unode_aux_n_path_table (* in Term_Table  *))
   unode_aux_n_path_table
 
   Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
@@ -42,8 +44,8 @@ end;
 signature TERM_TABLE =
 sig
 
-type unode_table     = Unique_Node.unique_node_wo_path One_Term.table;
-type unode_aux_table = Unique_Node.unique_node_w_aux_wo_path One_Term.table;
+type unode_table     = Unique_Node.unique_node       One_Term.table;
+type unode_aux_table = Unique_Node.unique_node_w_aux One_Term.table;
 
 val unique_nodes_to_unode_table   : Unique_Node.unique_nodes -> unode_table;
 val unode_table_to_unode_aux_table: unode_table -> Proof.state -> unode_aux_table;

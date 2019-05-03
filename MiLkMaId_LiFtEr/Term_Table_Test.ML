@@ -10,8 +10,10 @@ The overall work-flow is:
   futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
   unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
   unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
- (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table  (* in Term_Table  *))
-  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_print_table ===>              (* in Term_Table  *)
+   (unique_node_wo_path    ==== unique_node_wo_path_to_unique_node_w_aux =====> unique_node_w_aux      (* in Unique_Node *))
+  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ====>              (* in Term_Table  *)
+   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table            (* in Term_Table  *)
+    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ===>  unode_aux_n_path_table (* in Term_Table  *))
   unode_aux_n_path_table
 
   Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
@@ -45,7 +47,7 @@ val imp_xyz_table = trm_to_unode_table imp_xyz: TT.unode_table;
 
 fun unode_wo_path_table_n_path_to_print (table, path) =
   let
-    val node       = One_Term.lookup table path  : UN.unique_node_wo_path option;
+    val node       = One_Term.lookup table path  : UN.unique_node option;
     val some_print = Option.map #print node: UN.print option;
   in
     some_print

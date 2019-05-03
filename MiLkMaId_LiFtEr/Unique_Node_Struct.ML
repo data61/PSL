@@ -10,8 +10,10 @@ The overall work-flow is:
   futrm_w_prnt_n_path    ==== futrm_w_prnt_n_path_to_unique_nodes ==========>              (* in Unique_Node *)
   unique_nodes           ==== unique_nodes_to_unode_table ==================>              (* in Term_Table  *)
   unode_table            ==== unode_table_to_unode_aux_table ===============>              (* in Term_Table  *)
-   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table     (* in Term_Table  *)
-    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_print_table ===> unode_aux_table (* in Term_Table  *))
+   (unique_node_wo_path    ==== unique_node_wo_path_to_unique_node_w_aux =====> unique_node_w_aux      (* in Unique_Node *))
+  unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ====>              (* in Term_Table  *)
+   (unode_aux_table        ==== unode_aux_table_to_print_paths_table =========> paths_table            (* in Term_Table  *)
+    unode_aux_table        ==== unode_aux_table_to_unode_aux_n_path_table ===>  unode_aux_n_path_table (* in Term_Table  *))
   unode_aux_n_path_table
 
   Proof.state * term     ==== pst_n_trm_to_unode_aux_n_path_table ==========> unode_aux_n_path_table  (* in Term_Table *)
@@ -318,21 +320,14 @@ fun futrm_w_prnt_n_path_to_unique_nodes (UFC_Prnt_n_Path (ctnt, prnt, path)) = [
     {node = NA, print = prnt, path = path} ::
     futrm_w_prnt_n_path_to_unique_nodes func @ maps futrm_w_prnt_n_path_to_unique_nodes args;
 
-(* unique_node_wo_path *)
-type unique_node_wo_path =
-  {node : node,
-   print: print};
-
-(* unique_node_w_aux_wo_path *)
-type unique_node_w_aux_wo_path =
+(* unique_node_w_aux *)
+type unique_node_w_aux =
  {node : node,
   print: print,
   rcsv : bool option,
   pttrn: Pattern.pattern_of_a_const option,
-  cmmnd: Pattern.command option};
-
-(* unique_node_w_aux *)
-type unique_node_w_aux = {path: path, unode_w_aux: unique_node_w_aux_wo_path};
+  cmmnd: Pattern.command option,
+  path : path};
 
 (* unique_node_to_unique_node_w_aux: TODO *)
 val unique_node_to_unique_node_w_aux = undefined;
