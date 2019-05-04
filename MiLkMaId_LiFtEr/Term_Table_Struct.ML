@@ -75,20 +75,6 @@ fun path_to_unode_aux_table_to_one_term (path_to_unode_aux_table:path_to_unode_a
 fun print_to_paths_table_n_print_to_paths (print_to_paths_table:print_to_paths_table) (print: UN.print) =
   Print_Table.lookup_list print_to_paths_table print;
 
-type lifter_pst =
-  {subgoals: one_terms,
-   usings  : one_terms};
-
-fun pst_to_lifter_pst (pst:Proof.state): lifter_pst =
-  let
-    val chained_facts = Isabelle_Utils.pstate_to_usings pst
-                     |> map Thm.prop_of: terms;
-    val subgoals = Isabelle_Utils.pst_to_subgs pst: terms;
-  in (*TODO*)
-  {subgoals = [],
-   usings   = []}
-  end;
-
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location = Nth_Subg of int | Chained_Fact of int;
 type path_n_loc   = UN.path * location;
@@ -103,6 +89,10 @@ fun in_chained_facts (Chained_Fact _:location) = true
 fun same_location (Nth_Subg     n1, Nth_Subg     n2) = n1 = n2
   | same_location (Chained_Fact n1, Chained_Fact n2) = n1 = n2
   | same_location  _                                 = false;
+
+type lifter_pst =
+  {subgoals: one_terms,
+   usings  : one_terms};
 
 fun lifter_pst_to_print_to_paths_tables ({subgoals, usings}:lifter_pst) =
   map #print_to_paths_table (subgoals @ usings): print_to_paths_tables;
@@ -156,15 +146,14 @@ fun pst_n_trm_to_one_term (pst:Proof.state) (trm:term): one_term =
     one_term: one_term
   end;
 
-fun pst_to_lifter_pst (pst: Proof.state) =
+fun pst_to_lifter_pst (pst:Proof.state): lifter_pst =
   let
-    val chained_facts = Isabelle_Utils.pstate_to_usings pst
-                     |> map Thm.prop_of: terms;
-    val subgoals = Isabelle_Utils.pst_to_subgs pst: terms;
-    fun process_trms (trms:terms) = map (pst_n_trm_to_one_term pst) trms;
+    val chained_facts_trms = Isabelle_Utils.pstate_to_usings pst |> map Thm.prop_of: terms;
+    val subgoals_trms      = Isabelle_Utils.pst_to_subgs pst                       : terms;
+    fun process_trms (trms:terms) = map (pst_n_trm_to_one_term pst) trms           : one_terms;
   in
-    {subgoals = process_trms subgoals,
-     usings   = process_trms chained_facts}
+    {subgoals = process_trms subgoals_trms,
+     usings   = process_trms chained_facts_trms}
   end;
 
 end;
