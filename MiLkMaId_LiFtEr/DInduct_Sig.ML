@@ -14,8 +14,8 @@ datatype modifier =
 
 type modifiers = modifier list;
 
-val unode_w_aux_wo_path_to_on : Unique_Node.unique_node_w_aux_wo_path -> modifier;
-val unode_w_aux_wo_path_to_arb: Unique_Node.unique_node_w_aux_wo_path -> modifier;
+val unode_w_aux_wo_path_to_on : Unique_Node.unode_w_aux -> modifier;
+val unode_w_aux_wo_path_to_arb: Unique_Node.unode_w_aux -> modifier;
 val strs_to_rules             : strings -> modifiers;
 val order                     : modifiers -> (modifiers * modifiers * modifiers);
 val same_mod                  : (modifier  * modifier ) -> bool;

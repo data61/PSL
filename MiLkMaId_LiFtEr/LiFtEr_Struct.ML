@@ -13,7 +13,7 @@ structure LU = LiFtEr_Util;
 structure TT = Term_Table;
 structure PT = Print_Table;
 
-type abs_pstate_w_aux = TT.abs_pstate_w_aux;
+type lifter_pst = TT.lifter_pst;
 
 datatype numb       = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
@@ -152,7 +152,7 @@ val empty_domain (*TODO: This should not be used*) = Name_Domains
 (*TODO: check name collisions before evaluation. Use no_name_collision.*)
 val no_overlad = undefined: assrt -> bool;
 
-fun pstate_to_abs_pstate_w_aux (pst:Proof.state): abs_pstate_w_aux =
+fun pstate_to_abs_pstate_w_aux (pst:Proof.state): lifter_pst =
   let
     val chained_facts = Isabelle_Utils.pstate_to_usings pst
                      |> map Thm.prop_of: terms;
@@ -196,10 +196,10 @@ fun pst_to_rule_domain (pst:Proof.state) = Find_Theorems2.pstate_to_induct_thm_n
 
 fun pst_to_trm_domain (pst:Proof.state) =
   let
-    val abs_pstate_w_aux   =  pstate_to_abs_pstate_w_aux pst: abs_pstate_w_aux;
+    val abs_pstate_w_aux   =  pstate_to_abs_pstate_w_aux pst: lifter_pst;
     val {subgoals, usings} = abs_pstate_w_aux;
-    fun unode_n_path_tables_to_pathss (unode_aux_n_path_tables:TT.unode_aux_n_path_tables) =
-        unode_aux_n_path_tables |> map #paths_table |> map Print_Table.keys :prints list;
+    fun unode_n_path_tables_to_pathss (one_terms:TT.one_terms) =
+        one_terms |> map #print_to_paths_table |> map Print_Table.keys :prints list;
     val subgoal_pathss = unode_n_path_tables_to_pathss subgoals             : prints list;
     val using_pathss   = unode_n_path_tables_to_pathss usings               : prints list;
     val prints         = (subgoal_pathss @ using_pathss) |> flat |> distinct (uncurry LU.same_prints);
@@ -233,7 +233,7 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
   let
     val _ = tracing "start computing eval in LiFtEr_Struct.ML";
-    val abs_pstate_w_aux          = pstate_to_abs_pstate_w_aux pstate       : abs_pstate_w_aux;
+    val lifter_pst                = pstate_to_abs_pstate_w_aux pstate       : lifter_pst;
     val _ = tracing "Before name_space_n_subtrm_occ_id_to_node in eval.";
     val Name_Domains name_domains = pst_to_name_domains pstate              : name_domains;
     val {subtrm_domain, numb_domain, rule_domain} = name_domains;
@@ -276,26 +276,29 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
 
     type quantifier = (name_space -> bool) -> name_space list -> bool;
 
-    val {ons, arbs,...} = mods                                                                                          : {ons: induct_on list, arbs: induct_arb list, rules: induct_rule list};
-    fun unode_aux_table_n_path_to_print (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #print: UN.print option;
-    fun unode_aux_table_n_path_to_node  (unode_table:TT.unode_aux_table) (path:path) = One_Term.lookup unode_table path <$> #node : UN.node option;
-    fun loc_to_unode_aux_n_path_table (TT.Nth_Subg     n:location) = try (nth (#subgoals abs_pstate_w_aux)) n                     : TT.unode_aux_n_path_table option
-      | loc_to_unode_aux_n_path_table (TT.Chained_Fact n:location) = try (nth (#usings   abs_pstate_w_aux)) n                     : TT.unode_aux_n_path_table option;
+    val {ons, arbs,...} = mods: {ons: induct_on list, arbs: induct_arb list, rules: induct_rule list};
+    fun path_to_unode_aux_table_n_path_to_print (path_to_unode_aux_table:TT.path_to_unode_aux_table) (path:path) =
+        Path_Table.lookup path_to_unode_aux_table path <$> #print: UN.print option;
+    fun unode_aux_table_n_path_to_node  (path_to_unode_aux_table:TT.path_to_unode_aux_table) (path:path) =
+        Path_Table.lookup path_to_unode_aux_table path <$> #node : UN.node option;
+    fun loc_to_one_term (TT.Nth_Subg     n:location) = try (nth (#subgoals lifter_pst)) n: TT.one_term option
+      | loc_to_one_term (TT.Chained_Fact n:location) = try (nth (#usings   lifter_pst)) n: TT.one_term option;
 
-    fun loc_to_unode_aux_table (loc:location) = loc_to_unode_aux_n_path_table loc <$> #unode_aux_table: TT.unode_aux_table option;
+    fun loc_to_path_to_unode_aux_table (loc:location) = loc_to_one_term loc <$> #path_to_unode_aux_table
+      : TT.path_to_unode_aux_table option;
 
     fun path_n_loc_to_print (path:path, loc:location) = 
     let
-      val unode_aux_table_option = loc_to_unode_aux_table loc                                : TT.unode_aux_table option;
-      val path_to_print_option   = unode_aux_table_option <$> unode_aux_table_n_path_to_print: (path -> UN.print option) option;
-      val print_option           = path_to_print_option   <*> SOME path |> Option.join       : UN.print option;
+      val unode_aux_table_option = loc_to_path_to_unode_aux_table loc                                : TT.path_to_unode_aux_table option;
+      val path_to_print_option   = unode_aux_table_option <$> path_to_unode_aux_table_n_path_to_print: (path -> UN.print option) option;
+      val print_option           = path_to_print_option   <*> SOME path |> Option.join               : UN.print option;
     in
       print_option
     end;
 
     fun path_n_loc_to_node  (path:path, loc:location) =
     let
-      val unode_aux_table_option = loc_to_unode_aux_table loc                               : TT.unode_aux_table option;
+      val unode_aux_table_option = loc_to_path_to_unode_aux_table loc                       : TT.path_to_unode_aux_table option;
       val path_to_node_option    = unode_aux_table_option <$> unode_aux_table_n_path_to_node: (path -> UN.node option) option;
       val node_option            = path_to_node_option <*> SOME path |> Option.join         : UN.node option;
     in
@@ -452,7 +455,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val subtrm_address_option   = AList.lookup (op =) subtrm trm_id                   : address option;
           val subtrm_print_option     = subtrm_address_option >>= dest_Address_Subtrm       : print option;
           val subtrm_path_n_locs      = subtrm_print_option
-                                    >>= try (TT.print_n_abs_pstate_w_aux_to_path_n_locs abs_pstate_w_aux)
+                                    >>= try (TT.print_n_lifter_pst_to_path_n_locs lifter_pst)
                                      |> these: path_n_locs;
           val subtrm_occ_path_n_loc   = name_space_n_subtrm_occ_id_to_path_n_loc ns subtrm_occ: path_n_loc option;
           val euqals_occ_path_n_loc   = subtrm_occ_path_n_loc <$> same_path_n_loc             :(path * location -> bool) option;
@@ -648,13 +651,13 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
          * We can introduce a new quantifier safely without polluting name_space for other (inner) assertions
          * because Is_At_Deepest is an atomic assertion.*)
         let
-          val path_n_loc_option             = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ                     : path_n_loc option;
-          val (path_option, loc_option)     = Utils.mk_options_pair path_n_loc_option                                            : (path option * location option);
-          val subtrm_occs_depth_option      = path_option <$> length: int option                                                 : int option;
-          val unode_aux_n_path_table_option = loc_option <$> TT.abs_pstate_w_aux_n_loc_to_unode_aux_n_path_table abs_pstate_w_aux: TT.unode_aux_n_path_table option;
-          val unode_aux_table_option        = unode_aux_n_path_table_option <$> #unode_aux_table                                 : TT.unode_aux_table option;
-          val maximum_depth_option          = unode_aux_table_option >>= TT.unode_aux_table_to_depth: int option                 : int option;
-          val result                        = opt_equal (subtrm_occs_depth_option, maximum_depth_option)                         : bool;
+          val path_n_loc_option             = name_space_n_subtrm_occ_id_to_path_n_loc name_space subtrm_occ: path_n_loc option;
+          val (path_option, loc_option)     = Utils.mk_options_pair path_n_loc_option                       : (path option * location option);
+          val subtrm_occs_depth_option      = path_option <$> length: int option                            : int option;
+          val one_term_option               = loc_option <$> TT.lifter_pst_n_loc_to_one_term lifter_pst     : TT.one_term option;
+          val unode_aux_table_option        = one_term_option <$> #path_to_unode_aux_table                  : TT.path_to_unode_aux_table option;
+          val maximum_depth_option          = unode_aux_table_option >>= TT.path_to_unode_aux_table_to_depth: int option;
+          val result                        = opt_equal (subtrm_occs_depth_option, maximum_depth_option)    : bool;
         in
           result
         end

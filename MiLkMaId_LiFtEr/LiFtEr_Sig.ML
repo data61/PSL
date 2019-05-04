@@ -8,7 +8,7 @@ sig
 
 include  PATTERN TEST_LIFTER;
 
-type abs_pstate_w_aux;
+type lifter_pst;
 
 datatype numb       = Nth         of int;
 datatype subtrm     = Sub_Trm     of int;
@@ -113,7 +113,7 @@ datatype name_domains = Name_Domains of
    numb_domain   : domain};
 
 val pst_to_name_domains       : Proof.state -> name_domains;
-val pstate_to_abs_pstate_w_aux: Proof.state -> abs_pstate_w_aux;
+val pstate_to_abs_pstate_w_aux: Proof.state -> lifter_pst;
 
 val no_overlad: assrt -> bool;
 (*TODO: Double-check. It is possible to remove Proof.context from the signature of eval
