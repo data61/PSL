@@ -209,7 +209,15 @@ fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_abov
 type paths = path list;
 
 (* path_ord *)(*TODO*)
-val path_ord = undefined: (path * path) -> order;
+fun path_ord (xs, ys) =
+  let
+    fun ints_compare'  []     (y::ys) EQUAL = GREATER
+      | ints_compare' (x::xs)  []     EQUAL = LESS
+      | ints_compare' (x::xs) (y::ys) EQUAL = ints_compare' xs ys (Int.compare (x, y))
+      | ints_compare'  _       _      ord   = ord;
+  in
+    ints_compare' xs ys EQUAL: order
+  end;
 
 (* futrm_w_prnt_n_path: un-curried folded term with print and path to each node*)
 datatype futrm_w_prnt_n_path =
@@ -320,16 +328,56 @@ fun futrm_w_prnt_n_path_to_unodes (UFC_Prnt_n_Path (ctnt, prnt, path)) = [{node 
     {node = NA, print = prnt, path = path} ::
     futrm_w_prnt_n_path_to_unodes func @ maps futrm_w_prnt_n_path_to_unodes args;
 
+fun node_to_const_name (NC (cname, _)) = SOME (cname:string)
+  | node_to_const_name  _              = NONE;
+
+fun pst_n_node_to_rcsv  (pst:Proof.state) (node:node) =
+(*TODO: remove code-duplication with check_rec_simp in Assertion.ML*)
+  let
+    val ctxt = Proof.context_of pst: Proof.context;
+    val cnames = node_to_const_name node |> the_list;
+    fun is_recursive (cname:string) (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) =
+      let
+         val cname_is_in_lhs = Term.exists_Const (fn (s,_) => cname = s) A;
+         val cname_is_in_rhs = Term.exists_Const (fn (s,_) => cname = s) B;
+      in cname_is_in_lhs andalso cname_is_in_rhs end
+     |  is_recursive _ _ = false;
+    fun check_thm_list (thms:thm list) (cname:string) = List.exists (is_recursive cname o Thm.concl_of) thms;
+    fun exist_related_rsimp  []             = false
+     |  exist_related_rsimp (cname::cnames) =
+         (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
+          exist_related_rsimp cnames);
+  in
+    if null cnames then NONE else SOME (exist_related_rsimp cnames)
+  end;
+
+fun pst_n_node_to_pttrn (pst:Proof.state) (node:node) = NONE (*TODO: LiFtEr_Util_After_Feb.pst_n_cname_to_pattern_of_a_const*);
+
+fun pst_n_node_to_cmmnd (pst:Proof.state) (node:node) =
+  let
+    val ctxt           = Proof.context_of pst                     : Proof.context;
+    val cname_option   = node_to_const_name node                  : string option;
+    val command_otpion = cname_option <$> Pattern.get_command ctxt: Pattern.command option;
+  in
+    command_otpion
+  end;
+
 (* unode_w_aux *)
 type unode_w_aux =
  {node : node,
   print: print,
+  path : path,
   rcsv : bool option,
   pttrn: Pattern.pattern_of_a_const option,
-  cmmnd: Pattern.command option,
-  path : path};
+  cmmnd: Pattern.command option};
 
 (* unode_to_unode_w_aux: TODO *)
-val unode_n_pst_to_unode_w_aux = undefined;
+fun unode_n_pst_to_unode_w_aux ({node, print, path}:unode) (pst:Proof.state) =
+ {node = node,
+  print= print,
+  path = path,
+  rcsv = pst_n_node_to_rcsv  pst node,
+  pttrn= pst_n_node_to_pttrn pst node,
+  cmmnd= pst_n_node_to_cmmnd pst node};
 
 end;

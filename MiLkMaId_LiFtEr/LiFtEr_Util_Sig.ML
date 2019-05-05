@@ -69,6 +69,7 @@ val dest_induct_rule: induct_rule -> string;
 
 end;
 
+(*** LIFTER_UTIL_AFTER_FEB ***)
 signature LIFTER_UTIL_AFTER_FEB =
 sig
 
@@ -84,5 +85,7 @@ datatype right_pattern                  = Right_Pattern      of right_occ_patter
 datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom    of left_pattern * right_pattern;
 datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.column; 
 datatype pattern_of_a_const             = Pattern_Of_A_Const of pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix;
+
+val pst_n_cname_to_pattern_of_a_const: Proof.state -> string -> pattern_of_a_const;
 
 end;

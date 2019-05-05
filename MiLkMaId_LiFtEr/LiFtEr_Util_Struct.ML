@@ -228,4 +228,10 @@ fun dest_induct_on   (Ind_On print)    = print;
 fun dest_induct_arb  (Ind_Arb print)   = print;
 fun dest_induct_rule (Ind_Rule string) = string;
 
+(*** LIFTER_UTIL_AFTER_FEB ***)
+structure LiFtEr_Util_After_Feb (*:LIFTER_UTIL_AFTER_FEB*) =
+struct
+(*TODO*)
+end;
+
 end;
