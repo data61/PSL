@@ -228,10 +228,26 @@ fun dest_induct_on   (Ind_On print)    = print;
 fun dest_induct_arb  (Ind_Arb print)   = print;
 fun dest_induct_rule (Ind_Rule string) = string;
 
-(*** LIFTER_UTIL_AFTER_FEB ***)
-structure LiFtEr_Util_After_Feb (*:LIFTER_UTIL_AFTER_FEB*) =
-struct
-(*TODO*)
 end;
+
+(*** LIFTER_UTIL_AFTER_FEB ***)
+structure LiFtEr_Util_After_Feb : LIFTER_UTIL_AFTER_FEB =
+struct
+
+datatype left_pattern                   = Only_Var | Data_Constructor_WO_Var | Data_Constructor_W_Var;
+datatype at_which_position_in_rec_call  = Same_Arg_Pos      | Diff_Arg_Pos;
+datatype is_the_entire_arg_in_rec_call  = Is_The_Entire_Arg | Is_Not_The_Entire_Arg;
+datatype is_in_recurisve_call           = Recursion of at_which_position_in_rec_call * is_the_entire_arg_in_rec_call;
+type     is_in_recurisve_calls          = is_in_recurisve_call list;
+datatype is_in_if_condition             = Is_In_If_Condition   | Is_Not_In_If_Condition;
+datatype is_in_case_condition           = Is_In_Case_Condition | Is_Not_In_Case_Condition;
+datatype right_occ_pattern              = Right_Occ_Pattern  of {in_if:is_in_if_condition, in_case:is_in_case_condition, in_recs: is_in_recurisve_calls};
+datatype right_pattern                  = Right_Pattern      of right_occ_pattern list;
+datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom    of left_pattern * right_pattern;
+datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.column;
+datatype pattern_of_a_const             = Pattern_Of_A_Const of pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix;
+
+(*TODO*)
+fun pst_n_cname_to_pattern_of_a_const (pst:Proof.state) = undefined:  string -> pattern_of_a_const;
 
 end;

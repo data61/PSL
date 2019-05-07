@@ -139,7 +139,7 @@ val futrm_w_prnt_n_path_to_unodes: futrm_w_prnt_n_path -> unodes;
 
 (* auxiliary functions for unode_n_pst_to_unode_w_aux. *)
 val pst_n_node_to_rcsv : Proof.state -> node -> bool option;
-val pst_n_node_to_pttrn: Proof.state -> node -> Pattern.pattern_of_a_const option;
+val pst_n_node_to_pttrn: Proof.state -> node -> LiFtEr_Util_After_Feb.pattern_of_a_const option;
 val pst_n_node_to_cmmnd: Proof.state -> node -> Pattern.command option;
 
 (* unode_w_aux *)
@@ -148,7 +148,7 @@ type unode_w_aux =
   print: print,
   path : path,
   rcsv : bool option,
-  pttrn: Pattern.pattern_of_a_const option,
+  pttrn: LiFtEr_Util_After_Feb.pattern_of_a_const option,
   cmmnd: Pattern.command option};
 
 (* unode_to_unode_w_aux *)
