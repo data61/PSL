@@ -33,15 +33,15 @@ datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom    of left_pattern (*T
 datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.column;
 datatype pattern_matrix                 = Pattern_Matrix     of pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix;
 datatype pattern_of_a_const(*TODO:term?*) = Pattern_Of_A_Const of
-                                          {(*hol_typ*)
+                                          {(*TODO:hol_typ*)
                                            matrix : pattern_matrix};
 
 (* type: mk_parameter_matrix *)
-val mk_parameter_matrix_for_fun       : Proof.context -> string -> pattern_matrix;
-val mk_parameter_matrix_for_function  : Proof.context -> string -> pattern_matrix;
-val mk_parameter_matrix_for_inductive : Proof.context -> string -> pattern_matrix;
-val mk_parameter_matrix_for_primrec   : Proof.context -> string -> pattern_matrix;
-val mk_parameter_matrix: Proof.context -> string -> pattern_matrix;
+val mk_pattern_matrix_for_fun       : Proof.context -> string -> pattern_matrix;
+val mk_pattern_matrix_for_function  : Proof.context -> string -> pattern_matrix;
+val mk_pattern_matrix_for_inductive : Proof.context -> string -> pattern_matrix;
+val mk_pattern_matrix_for_primrec   : Proof.context -> string -> pattern_matrix;
+val mk_pattern_matrix: Proof.context -> string -> pattern_matrix;
 
 val ctxt_n_cname_to_pattern_of_a_const   : Proof.context -> string -> pattern_of_a_const;
 

@@ -1,4 +1,4 @@
-(*  Title:      PSL/MiLkMaId_LiFtEr/Apply_MeLoId_Struct.ML
+(*  Title:      PSL/MiLkMaId_LiFtEr/Apply_MeLoId.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 

@@ -75,7 +75,7 @@ fun get_ind_mod (ctxt:Proof.context) ind_mod_numb: LiFtEr.ind_mods =
   let
     val some_assrt = lookup_ind_mod ctxt ind_mod_numb;
     val assertion = Utils.the' (Int.toString ind_mod_numb ^
-                    "?\nDid you really define such a modifier") some_assrt : LiFtEr.ind_mods;
+                    "?\nDid you really define such a modifier?") some_assrt : LiFtEr.ind_mods;
   in
     assertion: LiFtEr.ind_mods
   end;

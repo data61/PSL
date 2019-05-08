@@ -122,8 +122,8 @@ fun terms_to_pattern_matrix (terms:terms) = terms
  |> Matrix.map_rcmatrix Pattern_Of_Atom
  |> Pattern_Matrix
 
-(* mk_parameter_matrix_for_function *)
-fun mk_parameter_matrix_for_function (ctxt:Proof.context) (cname:string) =
+(* mk_pattern_matrix_for_function *)
+fun mk_pattern_matrix_for_function (ctxt:Proof.context) (cname:string) =
    try (Proof_Context.get_thms ctxt) (cname ^ ".intros") |> these
 |> (fn these_list => (length these_list |> Int.toString |> tracing; these_list))
 |> map Thm.prop_of
@@ -132,13 +132,13 @@ fun mk_parameter_matrix_for_function (ctxt:Proof.context) (cname:string) =
 |> Utils.somes
 |> terms_to_pattern_matrix;
 
-(* mk_parameter_matrix_for_primrec *)
-fun mk_parameter_matrix_for_primrec (ctxt:Proof.context) (cname:string) =
+(* mk_pattern_matrix_for_primrec *)
+fun mk_pattern_matrix_for_primrec (ctxt:Proof.context) (cname:string) =
    get_lefts ctxt (cname ^ ".simps")
 |> terms_to_pattern_matrix;
 
-(* mk_parameter_matrix_for_fun *)
-fun mk_parameter_matrix_for_fun (ctxt:Proof.context) (cname:string) = mk_parameter_matrix_for_primrec ctxt cname;
+(* mk_pattern_matrix_for_fun *)
+fun mk_pattern_matrix_for_fun (ctxt:Proof.context) (cname:string) = mk_pattern_matrix_for_primrec ctxt cname;
 
 (* How to produce parameter-matrix for constants defined with "induct". *)
 (* Probably intros-rules are good target: focus on the conclusions.  *)
@@ -146,33 +146,38 @@ fun get_cncl (trm:term) =
     try Logic.strip_imp_concl trm
 >>= try HOLogic.dest_Trueprop
 
-(* mk_parameter_matrix_for_induct *)
-fun mk_parameter_matrix_for_inductive (ctxt:Proof.context) (cname:string) =
+(* mk_pattern_matrix_for_induct *)
+fun mk_pattern_matrix_for_inductive (ctxt:Proof.context) (cname:string) =
    try (Proof_Context.get_thms ctxt) (cname ^ ".intros") |> these
 |> map Thm.prop_of
 |> map Logic.strip_imp_concl
 |> map HOLogic.dest_Trueprop
 |> terms_to_pattern_matrix;
 
-(* mk_parameter_matrix *)
-fun mk_parameter_matrix (ctxt:Proof.context) (cname:string) =
+(* mk_pattern_matrix *)
+fun mk_pattern_matrix (ctxt:Proof.context) (cname:string) =
   let
     val command = get_command ctxt cname: command;
     val result = case command of
-        Primrec   => mk_parameter_matrix_for_primrec   ctxt cname
-      | Fun       => mk_parameter_matrix_for_fun       ctxt cname
-      | Function  => mk_parameter_matrix_for_function  ctxt cname
-      | Inductive => mk_parameter_matrix_for_inductive ctxt cname
+        Primrec   => mk_pattern_matrix_for_primrec   ctxt cname
+      | Fun       => mk_pattern_matrix_for_fun       ctxt cname
+      | Function  => mk_pattern_matrix_for_function  ctxt cname
+      | Inductive => mk_pattern_matrix_for_inductive ctxt cname
       | _(*TODO*) => (Matrix.empty_rcmatrix |> Matrix.map_rcmatrix Pattern_Of_Atom |> Pattern_Matrix)
   in
     result: pattern_matrix
   end;
 
-val ctxt_n_cname_to_pattern_of_a_const = undefined; (*TODO*)
+fun ctxt_n_cname_to_pattern_of_a_const (ctxt:Proof.context) (*cname:string*) =
+  let
+    val pattern_matrix = undefined;
+  in
+    undefined (*TODO*)
+  end;
 
 fun ctxt_n_name_to_patterns_of_each_param (ctxt:Proof.context) (cname:string) =
   let
-    val Pattern_Matrix  pattern_matrix         = mk_parameter_matrix ctxt cname;
+    val Pattern_Matrix  pattern_matrix         = mk_pattern_matrix ctxt cname;
     val Matrix.RCMatrix columns_of_each_param  = pattern_matrix;
     val Matrix.Row      patterns_of_each_param = columns_of_each_param;
   in
