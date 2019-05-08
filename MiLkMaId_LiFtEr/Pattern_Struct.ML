@@ -168,11 +168,12 @@ fun mk_pattern_matrix (ctxt:Proof.context) (cname:string) =
     result: pattern_matrix
   end;
 
-fun ctxt_n_cname_to_pattern_of_a_const (ctxt:Proof.context) (*cname:string*) =
+fun ctxt_n_cname_to_pattern_of_a_const (ctxt:Proof.context) (cname:string) =
   let
-    val pattern_matrix = undefined;
+    val pattern_matrix     = mk_pattern_matrix ctxt cname                : pattern_matrix;
+    val pattern_of_a_const = Pattern_Of_A_Const {matrix = pattern_matrix}: pattern_of_a_const;
   in
-    undefined (*TODO*)
+    pattern_of_a_const
   end;
 
 fun ctxt_n_name_to_patterns_of_each_param (ctxt:Proof.context) (cname:string) =
