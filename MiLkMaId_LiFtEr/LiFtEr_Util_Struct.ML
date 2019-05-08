@@ -31,35 +31,49 @@ val suffix_for_inductive = (["cases", "induct", "inducts", "intros", "simps"], [
 type suffixes = (string list * string list);
 
 fun check_suffix (ctxt:Proof.context) (cnst_name:string) ((haves, donts): suffixes) =
- (map (has_rule_with_suffix ctxt cnst_name) haves @  (map (has_no_rule_with_suffix ctxt cnst_name) donts))
-|> filter_out I
-|> null;
+   (map (has_rule_with_suffix ctxt cnst_name) haves @  (map (has_no_rule_with_suffix ctxt cnst_name) donts))
+  |> filter_out I
+  |> null;
 
 fun get_command (ctxt:Proof.context) (trm_name:string) =
-let
-  val check_suffix  = check_suffix ctxt trm_name;
-  val is_fun        = check_suffix suffix_for_fun;
-  val is_function   = check_suffix suffix_for_function;
-  val is_primrec    = check_suffix suffix_for_primrec;
-  val is_inductive  = check_suffix suffix_for_inductive;
-  val checks        = [is_primrec, is_fun, is_function, is_inductive]: bool list;
-in
-  (if checks = [true,  false, false, false] then Primrec   else
-   if checks = [false, true,  false, false] then Fun       else
-   if checks = [false, false, true,  false] then Function  else
-   if checks = [false, false, false, true ] then Inductive else
-   Unknown)
-end;
+  let
+    val check_suffix  = check_suffix ctxt trm_name;
+    val is_fun        = check_suffix suffix_for_fun;
+    val is_function   = check_suffix suffix_for_function;
+    val is_primrec    = check_suffix suffix_for_primrec;
+    val is_inductive  = check_suffix suffix_for_inductive;
+    val checks        = [is_primrec, is_fun, is_function, is_inductive]: bool list;
+  in
+    (if checks = [true,  false, false, false] then Primrec   else
+     if checks = [false, true,  false, false] then Fun       else
+     if checks = [false, false, true,  false] then Function  else
+     if checks = [false, false, false, true ] then Inductive else
+     Unknown)
+  end;
 
 (** types: pattern **)
 datatype hol_typ                        = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
+
+(* pattern of the left-hand side of the definition *)
 datatype left_pattern                   = Only_Var | Data_Constructor_WO_Var | Data_Constructor_W_Var;
+
+(* pattern of the right-hand side of the definition *)
+datatype at_which_position_in_rec_call  = Same_Arg_Pos      | Diff_Arg_Pos;
+datatype is_the_entire_arg_in_rec_call  = Is_The_Entire_Arg | Is_Not_The_Entire_Arg;
+datatype is_in_recurisve_call           = Recursion of at_which_position_in_rec_call * is_the_entire_arg_in_rec_call;
+type     is_in_recurisve_calls          = is_in_recurisve_call list;
+datatype is_in_if_condition             = Is_In_If_Condition   | Is_Not_In_If_Condition;
+datatype is_in_case_condition           = Is_In_Case_Condition | Is_Not_In_Case_Condition;
+datatype right_occ_pattern              = Right_Occ_Pattern  of {in_if:is_in_if_condition, in_case:is_in_case_condition, in_recs: is_in_recurisve_calls};
+datatype right_pattern                  = Right_Pattern      of right_occ_pattern list;
+
+(* pattern of each constant *)
 datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom of left_pattern (*TODO: right_pattern*);
 datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.column;
+datatype pattern_matrix                 = Pattern_Matrix of pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix;
 datatype pattern_of_a_const(*TODO:term?*)= Pattern_Of_A_Const of
                                           {(*hol_typ*)
-                                           matrix : pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix};
-datatype pattern_matrix                 = Pattern_Matrix of pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix;
+                                           matrix : pattern_matrix};
 
 (** operations: pattern **)
 
@@ -142,53 +156,55 @@ fun mk_parameter_matrix_for_inductive (ctxt:Proof.context) (cname:string) =
 
 (* mk_parameter_matrix *)
 fun mk_parameter_matrix (ctxt:Proof.context) (cname:string) =
-let
-  val command = get_command ctxt cname: command;
-  val result = case command of
-      Primrec   => mk_parameter_matrix_for_primrec   ctxt cname
-    | Fun       => mk_parameter_matrix_for_fun       ctxt cname
-    | Function  => mk_parameter_matrix_for_function  ctxt cname
-    | Inductive => mk_parameter_matrix_for_inductive ctxt cname
-    | _(*TODO*) => (Matrix.empty_rcmatrix |> Matrix.map_rcmatrix Pattern_Of_Atom |> Pattern_Matrix)
-in
-  result: pattern_matrix
-end;
+  let
+    val command = get_command ctxt cname: command;
+    val result = case command of
+        Primrec   => mk_parameter_matrix_for_primrec   ctxt cname
+      | Fun       => mk_parameter_matrix_for_fun       ctxt cname
+      | Function  => mk_parameter_matrix_for_function  ctxt cname
+      | Inductive => mk_parameter_matrix_for_inductive ctxt cname
+      | _(*TODO*) => (Matrix.empty_rcmatrix |> Matrix.map_rcmatrix Pattern_Of_Atom |> Pattern_Matrix)
+  in
+    result: pattern_matrix
+  end;
+
+val ctxt_n_cname_to_pattern_of_a_const = undefined; (*TODO*)
 
 fun ctxt_n_name_to_patterns_of_each_param (ctxt:Proof.context) (cname:string) =
-let
-  val Pattern_Matrix  pattern_matrix         = mk_parameter_matrix ctxt cname;
-  val Matrix.RCMatrix columns_of_each_param  = pattern_matrix;
-  val Matrix.Row      patterns_of_each_param = columns_of_each_param;
-in
-  map Pattern_Of_A_Param patterns_of_each_param: pattern_of_a_param list
-end;
+  let
+    val Pattern_Matrix  pattern_matrix         = mk_parameter_matrix ctxt cname;
+    val Matrix.RCMatrix columns_of_each_param  = pattern_matrix;
+    val Matrix.Row      patterns_of_each_param = columns_of_each_param;
+  in
+    map Pattern_Of_A_Param patterns_of_each_param: pattern_of_a_param list
+  end;
 
 fun is_nth_all_Only_Var (ctxt:Proof.context) (cname:string) (n:int) =
-let
-  val patterns_of_each_param              = ctxt_n_name_to_patterns_of_each_param ctxt cname: pattern_of_a_param list;
-  (*TODO: we should use the option type to handle exceptions.*)
-  val Pattern_Of_A_Param pattern_of_nth_param = nth patterns_of_each_param n: pattern_of_a_param;
-  val Matrix.Column column_of_nth_param       = pattern_of_nth_param        : pattern_of_a_param_in_a_clause Matrix.column
-  fun is_Only_Var (Pattern_Of_Atom Only_Var)  = true
-    | is_Only_Var  _                          = false;
-  val nth_param_is_all_Only_Var = forall is_Only_Var column_of_nth_param    : bool;
-in
-  nth_param_is_all_Only_Var: bool
-end;
+  let
+    val patterns_of_each_param              = ctxt_n_name_to_patterns_of_each_param ctxt cname: pattern_of_a_param list;
+    (*TODO: we should use the option type to handle exceptions.*)
+    val Pattern_Of_A_Param pattern_of_nth_param = nth patterns_of_each_param n: pattern_of_a_param;
+    val Matrix.Column column_of_nth_param       = pattern_of_nth_param        : pattern_of_a_param_in_a_clause Matrix.column
+    fun is_Only_Var (Pattern_Of_Atom Only_Var)  = true
+      | is_Only_Var  _                          = false;
+    val nth_param_is_all_Only_Var = forall is_Only_Var column_of_nth_param    : bool;
+  in
+    nth_param_is_all_Only_Var: bool
+  end;
 
 (*TODO: refactor patterns_of_each_param and is_nth_all_Data_Constructor_W_Var.*)
 fun is_nth_all_Data_Constructor_W_Var (ctxt:Proof.context) (cname:string) (n:int) =
-let
-  val patterns_of_each_param              = ctxt_n_name_to_patterns_of_each_param ctxt cname: pattern_of_a_param list;
-  (*TODO: we should use the option type to handle exceptions.*)
-  val Pattern_Of_A_Param pattern_of_nth_param = nth patterns_of_each_param n: pattern_of_a_param;
-  val Matrix.Column column_of_nth_param       = pattern_of_nth_param        : pattern_of_a_param_in_a_clause Matrix.column
-  fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_W_Var) = true
-    | is_Data_Constructor_W_Var  _                                       = false;
-  val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var column_of_nth_param : bool;
-in
-  nth_param_is_all_Only_Var: bool
-end;
+  let
+    val patterns_of_each_param                  = ctxt_n_name_to_patterns_of_each_param ctxt cname: pattern_of_a_param list;
+    (*TODO: we should use the option type to handle exceptions.*)
+    val Pattern_Of_A_Param pattern_of_nth_param = nth patterns_of_each_param n: pattern_of_a_param;
+    val Matrix.Column column_of_nth_param       = pattern_of_nth_param        : pattern_of_a_param_in_a_clause Matrix.column
+    fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_W_Var) = true
+      | is_Data_Constructor_W_Var  _                                       = false;
+    val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var column_of_nth_param : bool;
+  in
+    nth_param_is_all_Only_Var: bool
+  end;
 
 end;
 
@@ -227,27 +243,5 @@ datatype ind_mods    = Ind_Mods of {ons: induct_on list, arbs: induct_arb list, 
 fun dest_induct_on   (Ind_On print)    = print;
 fun dest_induct_arb  (Ind_Arb print)   = print;
 fun dest_induct_rule (Ind_Rule string) = string;
-
-end;
-
-(*** LIFTER_UTIL_AFTER_FEB ***)
-structure LiFtEr_Util_After_Feb : LIFTER_UTIL_AFTER_FEB =
-struct
-
-datatype left_pattern                   = Only_Var | Data_Constructor_WO_Var | Data_Constructor_W_Var;
-datatype at_which_position_in_rec_call  = Same_Arg_Pos      | Diff_Arg_Pos;
-datatype is_the_entire_arg_in_rec_call  = Is_The_Entire_Arg | Is_Not_The_Entire_Arg;
-datatype is_in_recurisve_call           = Recursion of at_which_position_in_rec_call * is_the_entire_arg_in_rec_call;
-type     is_in_recurisve_calls          = is_in_recurisve_call list;
-datatype is_in_if_condition             = Is_In_If_Condition   | Is_Not_In_If_Condition;
-datatype is_in_case_condition           = Is_In_Case_Condition | Is_Not_In_Case_Condition;
-datatype right_occ_pattern              = Right_Occ_Pattern  of {in_if:is_in_if_condition, in_case:is_in_case_condition, in_recs: is_in_recurisve_calls};
-datatype right_pattern                  = Right_Pattern      of right_occ_pattern list;
-datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom    of left_pattern * right_pattern;
-datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.column;
-datatype pattern_of_a_const             = Pattern_Of_A_Const of pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix;
-
-(*TODO*)
-fun pst_n_cname_to_pattern_of_a_const (pst:Proof.state) = undefined:  string -> pattern_of_a_const;
 
 end;

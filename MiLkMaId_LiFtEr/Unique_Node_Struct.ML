@@ -353,7 +353,7 @@ fun pst_n_node_to_rcsv  (pst:Proof.state) (node:node) =
 
 fun pst_n_node_to_pttrn (pst:Proof.state) (node:node) =
   node_to_const_name node <$>
-  LiFtEr_Util_After_Feb.pst_n_cname_to_pattern_of_a_const pst;
+  Pattern.ctxt_n_cname_to_pattern_of_a_const (Proof.context_of pst);
 
 fun pst_n_node_to_cmmnd (pst:Proof.state) (node:node) =
   let
@@ -370,7 +370,7 @@ type unode_w_aux =
   print: print,
   path : path,
   rcsv : bool option,
-  pttrn: LiFtEr_Util_After_Feb.pattern_of_a_const option,
+  pttrn: Pattern.pattern_of_a_const option,
   cmmnd: Pattern.command option};
 
 (* unode_to_unode_w_aux: TODO *)
@@ -379,7 +379,7 @@ fun unode_n_pst_to_unode_w_aux ({node, print, path}:unode) (pst:Proof.state) =
   print= print                       :print,
   path = path                        :path,
   rcsv = pst_n_node_to_rcsv  pst node:bool option,
-  pttrn= pst_n_node_to_pttrn pst node:LiFtEr_Util_After_Feb.pattern_of_a_const option,
+  pttrn= pst_n_node_to_pttrn pst node:Pattern.pattern_of_a_const option,
   cmmnd= pst_n_node_to_cmmnd pst node:Pattern.command option};
 
 end;
