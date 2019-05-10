@@ -35,9 +35,17 @@ ML_file "DInduct_Sig.ML"
 ML_file "DInduct_Struct.ML"
 ML_file "LiFtEr_Sig.ML"
 ML_file "LiFtEr_Struct.ML"
-ML_file "Apply_MeLoId.ML"
+ML_file "Apply_LiFtEr_Sig.ML"
+ML_file "Apply_LiFtEr_Struct.ML"
 
 ML{* (*samples*)
+local
+
+structure LU = LiFtEr_Util;
+structure L = LiFtEr;
+
+in
+
 val sample_induct_args1 = LU.Ind_Mods
  {ons   = [LU.Ind_On (LU.Print "x")],
   arbs  = [LU.Ind_Arb (LU.Print "y")],
@@ -50,9 +58,6 @@ val sample_induct_args2 = LU.Ind_Mods
   rules = []
   }: LU.ind_mods;
 
-local
-structure L = LiFtEr;
-in
 infix And;
 val op And = L.And
 
@@ -62,15 +67,17 @@ val op And = L.And
         L.Trm_Occ_Is_Of_Trm (L.Sub_Trm_Occ 2, L.Sub_Trm 1)
       And
         L.Is_Atom (L.Sub_Trm_Occ 2))): L.assrt;
-end
+end;
 *}
 
-setup{* update_assert 1 sample_assert; *}
-ML   {* get_assrt @{context} 1;    *}
-setup{* update_ind_mod 1 sample_induct_args1; *}
-setup{* update_ind_mod 2 sample_induct_args2; *}
-ML   {* get_ind_mod @{context} 1;    *}
-ML   {* get_ind_mod @{context} 2;    *}
+setup{* Apply_LiFtEr.update_assert 1 sample_assert;        *}
+ML   {* Apply_LiFtEr.get_assrt @{context} 1;               *}
+setup{* Apply_LiFtEr.update_ind_mod 1 sample_induct_args1; *}
+setup{* Apply_LiFtEr.update_ind_mod 2 sample_induct_args2; *}
+ML   {* Apply_LiFtEr.get_ind_mod @{context} 1;             *}
+ML   {* Apply_LiFtEr.get_ind_mod @{context} 2;             *}
+
+ML{* Apply_LiFtEr.activate (); *}
 
 lemma "True"
   test_LiFtEr_true 1 1

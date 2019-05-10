@@ -1,6 +1,8 @@
-(*  Title:      PSL/MiLkMaId_LiFtEr/Apply_MeLoId.ML
+(*  Title:      PSL/MiLkMaId_LiFtEr/Apply_LiFtEr_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
+structure Apply_LiFtEr =
+struct 
 
 structure LiFtEr_Assertion = Generic_Data
 (
@@ -94,10 +96,15 @@ val get_trans_trans_to_token_parser = PSL_Interface.parser_to_trans_trans_parser
 val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true : trans_trans Token.parser;
 val token_parser_false = get_trans_trans_to_token_parser get_trans_trans_false: trans_trans Token.parser;
 
-val _ =
-  Outer_Syntax.command @{command_keyword test_LiFtEr_true}
-    "TODO" token_parser_true;
+fun activate _ =
+  let
+    val _ =
+      Outer_Syntax.command @{command_keyword test_LiFtEr_true}
+        "TODO" token_parser_true;
+    
+    val _ =
+      Outer_Syntax.command @{command_keyword test_LiFtEr_false}
+        "TODO" token_parser_false;
+  in () end;
 
-val _ =
-  Outer_Syntax.command @{command_keyword test_LiFtEr_false}
-    "TODO" token_parser_false;
+end;
