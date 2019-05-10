@@ -6,7 +6,7 @@ The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 signature LIFTER =
 sig
 
-include  PATTERN TEST_LIFTER;
+include  PATTERN LIFTER_UTIL;
 
 type lifter_pst;
 

@@ -14,14 +14,6 @@ datatype print  = Print of string;
 type     prints = print list;
 val same_prints: print -> print -> bool;
 
-end;
-
-(*** TEST_LIFTER ***)
-signature TEST_LIFTER =
-sig
-
-include LIFTER_UTIL;
-
 val dest_print           : print -> string;
 val is_subprint_of       : print -> print -> bool;
 val ctxt_n_print_to_cname: Proof.context -> print -> string option;

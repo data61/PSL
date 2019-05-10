@@ -46,7 +46,7 @@ fun get_ind_mod (ctxt:Proof.context) ind_mod_numb: LiFtEr.ind_mods =
   end;
 
 structure PC = Parser_Combinator;
-structure TL = Test_LiFtEr;
+structure LU = LiFtEr_Util;
 structure UN = Unique_Node;
 structure DI = Dynamic_Induct;
 
@@ -63,7 +63,7 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (ass_numb:int, ind_mod_num
     val pst = Toplevel.proof_of top: Proof.state;
     val ctxt = Toplevel.context_of top: Proof.context;
     val assert  = get_assrt ctxt ass_numb: LiFtEr.assrt;
-    val ind_mod = get_ind_mod ctxt ind_mod_numb: TL.ind_mods;
+    val ind_mod = get_ind_mod ctxt ind_mod_numb: LU.ind_mods;
     fun apply_assrt (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
         LiFtEr.eval (pst, assrt, ind_mods): bool;
     fun run_test (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =

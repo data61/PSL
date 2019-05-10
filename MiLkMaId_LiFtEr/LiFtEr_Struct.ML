@@ -6,7 +6,7 @@ The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 structure LiFtEr: LIFTER =
 struct
 
-open Pattern Test_LiFtEr;
+open Pattern LiFtEr_Util;
 
 structure UN = Unique_Node;
 structure LU = LiFtEr_Util;

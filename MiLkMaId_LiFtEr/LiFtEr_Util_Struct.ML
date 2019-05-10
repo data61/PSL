@@ -13,13 +13,6 @@ type     path   = ints;
 datatype print  = Print of string;
 type     prints = print list;
 fun same_prints (Print p1) (Print p2) = p1 = p2;
-end;
-
-(*** Test_Lifter ***)
-structure Test_LiFtEr: TEST_LIFTER =
-struct
-
-open LiFtEr_Util;
 
 fun dest_print (Print str) = str;
 fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;

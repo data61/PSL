@@ -26,7 +26,6 @@ struct
 
 open Unique_Node;
 open LiFtEr_Util;
-open Test_LiFtEr;
 
 (** test: trm_to_trm_w_prnt **)
 

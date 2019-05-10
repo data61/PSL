@@ -38,17 +38,17 @@ ML_file "LiFtEr_Struct.ML"
 ML_file "Apply_MeLoId.ML"
 
 ML{* (*samples*)
-val sample_induct_args1 = TL.Ind_Mods
- {ons   = [TL.Ind_On (TL.Print "x")],
-  arbs  = [TL.Ind_Arb (TL.Print "y")],
+val sample_induct_args1 = LU.Ind_Mods
+ {ons   = [LU.Ind_On (LU.Print "x")],
+  arbs  = [LU.Ind_Arb (LU.Print "y")],
   rules = []
-  }: TL.ind_mods;
+  }: LU.ind_mods;
 
-val sample_induct_args2 = TL.Ind_Mods
- {ons   = [TL.Ind_On (TL.Print "x")],
+val sample_induct_args2 = LU.Ind_Mods
+ {ons   = [LU.Ind_On (LU.Print "x")],
   arbs  = [],
   rules = []
-  }: TL.ind_mods;
+  }: LU.ind_mods;
 
 local
 structure L = LiFtEr;
