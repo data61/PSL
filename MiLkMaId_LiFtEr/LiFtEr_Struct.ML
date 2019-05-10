@@ -100,25 +100,25 @@ type path_n_locs = TT.path_n_locs;
 
 fun same_path_n_loc (path1, location1) (path2, location2) = path1 = path2 andalso location1 = location2;
 
-(* address/name_space *)
-datatype address =(*TODO: better name? id?*)
-  Address_Subtrm     of print
-| Address_Subtrm_Occ of path_n_loc
-| Address_Rule       of rule_name
-| Address_Numb       of int;
+(* id/name_space *)
+datatype id =(*TODO: better name? id?*)
+  ID_Subtrm     of print
+| ID_Subtrm_Occ of path_n_loc
+| ID_Rule       of rule_name
+| ID_Numb       of int;
 
-fun dest_Address_Subtrm     (Address_Subtrm     print)       = SOME print            : print      option
-  | dest_Address_Subtrm      _                               = NONE                  : print      option;
-fun dest_Address_Subtrm_Occ (Address_Subtrm_Occ path_n_loc ) = SOME path_n_loc       : path_n_loc option
-  | dest_Address_Subtrm_Occ  _                               = NONE                  : path_n_loc option;
-fun dest_Address_Rule       (Address_Rule       rname)       = SOME (rname:rule_name): rule_name  option
-  | dest_Address_Rule        _                               = NONE                  : rule_name  option;
-fun dest_Address_Numb       (Address_Numb i)                 = SOME (i: int)         : int        option
-  | dest_Address_Numb        _                               = NONE                  : int        option;
+fun dest_ID_Subtrm     (ID_Subtrm     print)       = SOME print            : print      option
+  | dest_ID_Subtrm      _                          = NONE                  : print      option;
+fun dest_ID_Subtrm_Occ (ID_Subtrm_Occ path_n_loc ) = SOME path_n_loc       : path_n_loc option
+  | dest_ID_Subtrm_Occ  _                          = NONE                  : path_n_loc option;
+fun dest_ID_Rule       (ID_Rule       rname)       = SOME (rname:rule_name): rule_name  option
+  | dest_ID_Rule        _                          = NONE                  : rule_name  option;
+fun dest_ID_Numb       (ID_Numb i)                 = SOME (i: int)         : int        option
+  | dest_ID_Numb        _                          = NONE                  : int        option;
 
-type addresses = address list;(*TODO: better name?*)
+type ids = id list;(*TODO: better name?*)
 
-type name_subspace = (int * address) list;
+type name_subspace = (int * id) list;
 
 type name_subspaces = name_subspace list;
 
@@ -167,7 +167,7 @@ type abs_pstate_w_aux =
    usings  : unode_aux_n_path_tables};
 *)
 
-fun get_new_name_subspaces (i:int) (domain:addresses) (old_name_subspace:name_subspace) =
+fun get_new_name_subspaces (i:int) (domain:ids) (old_name_subspace:name_subspace) =
   let
     val new_name_subspace  = map (pair i) domain: name_subspace                       : name_subspace;
     val new_name_subspaces = map (Utils.alist_add old_name_subspace) new_name_subspace: name_subspaces;
@@ -175,16 +175,16 @@ fun get_new_name_subspaces (i:int) (domain:addresses) (old_name_subspace:name_su
     new_name_subspaces
   end;
 
-datatype address_type =
-  ATyp_Subtrm
-| ATyp_Subtrm_Occ
-| ATyp_Rule
-| ATyp_Numb;
+datatype id_type =
+  IDTyp_Subtrm
+| IDTyp_Subtrm_Occ
+| IDTyp_Rule
+| IDTyp_Numb;
 
-fun update_name_space (new_subtrm    : name_subspace) ATyp_Subtrm     (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
-  | update_name_space (new_subtrm_occ: name_subspace) ATyp_Subtrm_Occ (Name_Space {subtrm, rule, numb, ...}      : name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
-  | update_name_space (new_rule      : name_subspace) ATyp_Rule       (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
-  | update_name_space (new_numb      : name_subspace) ATyp_Numb       (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
+fun update_name_space (new_subtrm    : name_subspace) IDTyp_Subtrm     (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
+  | update_name_space (new_subtrm_occ: name_subspace) IDTyp_Subtrm_Occ (Name_Space {subtrm, rule, numb, ...}      : name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
+  | update_name_space (new_rule      : name_subspace) IDTyp_Rule       (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
+  | update_name_space (new_numb      : name_subspace) IDTyp_Numb       (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
 
 (*TODO: numb_domain should not rely on a magic number, 30.*)
 val numb_domain = List.tabulate (30, I) |> Dom_Numb: domain;
@@ -249,27 +249,27 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
 
     fun name_space_n_numb_id_to_integer (Name_Space nspace) (Nth numb_id) =
       let
-        val numb_name_space        = #numb nspace                                : name_subspace;
-        val integer_address_option = alist_lookup_eq numb_name_space numb_id     : address option;
-        val integer_option         = integer_address_option >>= dest_Address_Numb: int option;
+        val numb_name_space   = #numb nspace                           : name_subspace;
+        val integer_id_option = alist_lookup_eq numb_name_space numb_id: id option;
+        val integer_option    = integer_id_option >>= dest_ID_Numb     : int option;
       in
         integer_option
       end;
 
     fun name_space_n_subtrm_occ_id_to_path_n_loc (Name_Space nspace:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
       let
-        val subtrm_occ_name_space  = #subtrm_occ nspace                            : name_subspace;
-        val occ_address_option     = alist_lookup_eq subtrm_occ_name_space occ_id  : address option;
-        val occ_path_n_loc_option  = occ_address_option >>= dest_Address_Subtrm_Occ: path_n_loc option;
+        val subtrm_occ_name_space = #subtrm_occ nspace                          : name_subspace;
+        val occ_id_option         = alist_lookup_eq subtrm_occ_name_space occ_id: id option;
+        val occ_path_n_loc_option = occ_id_option >>= dest_ID_Subtrm_Occ        : path_n_loc option;
       in
         occ_path_n_loc_option:  path_n_loc option
       end;
 
     fun name_space_n_subtrm_id_to_print (Name_Space nspace:name_space) (Sub_Trm subtrm_id:subtrm) =
       let
-        val subtrm_name_space     = #subtrm nspace                              : name_subspace;
-        val subtrm_address_option = alist_lookup_eq subtrm_name_space subtrm_id : address option;
-        val subtrm_paths_option   = subtrm_address_option>>= dest_Address_Subtrm: print option;
+        val subtrm_name_space   = #subtrm nspace                             : name_subspace;
+        val subtrm_id_option    = alist_lookup_eq subtrm_name_space subtrm_id: id option;
+        val subtrm_paths_option = subtrm_id_option>>= dest_ID_Subtrm         : print option;
       in
         subtrm_paths_option: print option
       end;
@@ -321,16 +321,10 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         cname_option: string option
       end;
 
-    datatype address_type =
-      ATyp_Subtrm
-    | ATyp_Subtrm_Occ
-    | ATyp_Rule
-    | ATyp_Numb;
-
-    fun update_name_space (new_subtrm    : name_subspace) ATyp_Subtrm     (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
-      | update_name_space (new_subtrm_occ: name_subspace) ATyp_Subtrm_Occ (Name_Space {subtrm, rule, numb, ...}      : name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
-      | update_name_space (new_rule      : name_subspace) ATyp_Rule       (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
-      | update_name_space (new_numb      : name_subspace) ATyp_Numb       (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
+    fun update_name_space (new_subtrm    : name_subspace) IDTyp_Subtrm     (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
+      | update_name_space (new_subtrm_occ: name_subspace) IDTyp_Subtrm_Occ (Name_Space {subtrm, rule, numb, ...}      : name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
+      | update_name_space (new_rule      : name_subspace) IDTyp_Rule       (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
+      | update_name_space (new_numb      : name_subspace) IDTyp_Numb       (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
 
     fun get_max_id (alist_int:(int * 'a) list) = map fst alist_int
                                               |> sort Int.compare
@@ -338,19 +332,19 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
                                               |> (fn x => case x of SOME i => i | NONE => 0);
 
     fun name_subspace_to_fresh_id (sub_space:name_subspace) = get_max_id sub_space |> (curry (op +) 1);
-    fun name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Subtrm     = #subtrm ns     |> name_subspace_to_fresh_id
-      | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Subtrm_Occ = #subtrm_occ ns |> name_subspace_to_fresh_id
-      | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Rule       = #rule ns       |> name_subspace_to_fresh_id
-      | name_space_n_address_typ_to_fresh_id (Name_Space ns:name_space) ATyp_Numb       = #numb ns       |> name_subspace_to_fresh_id: int;
+    fun name_space_n_id_typ_to_fresh_id (Name_Space ns:name_space) IDTyp_Subtrm     = #subtrm ns     |> name_subspace_to_fresh_id
+      | name_space_n_id_typ_to_fresh_id (Name_Space ns:name_space) IDTyp_Subtrm_Occ = #subtrm_occ ns |> name_subspace_to_fresh_id
+      | name_space_n_id_typ_to_fresh_id (Name_Space ns:name_space) IDTyp_Rule       = #rule ns       |> name_subspace_to_fresh_id
+      | name_space_n_id_typ_to_fresh_id (Name_Space ns:name_space) IDTyp_Numb       = #numb ns       |> name_subspace_to_fresh_id: int;
 
     fun get_new_name_subspaces (idx:int) (domain:domain) (old_name_subspace:name_subspace) =
       let
-        val new_addresses      = case domain of
-            Dom_Subt prints     => map Address_Subtrm prints
-          | Dom_Subt_Occ paths  => map Address_Subtrm_Occ paths
-          | Dom_Rule     rnames => map Address_Rule rnames
-          | Dom_Numb     numb   => map Address_Numb numb                                  : addresses;
-        val new_name_subspace  = map (pair idx) new_addresses                             : name_subspace;
+        val new_ides      = case domain of
+            Dom_Subt prints     => map ID_Subtrm prints
+          | Dom_Subt_Occ paths  => map ID_Subtrm_Occ paths
+          | Dom_Rule     rnames => map ID_Rule rnames
+          | Dom_Numb     numb   => map ID_Numb numb                                       : ids;
+        val new_name_subspace  = map (pair idx) new_ides                                  : name_subspace;
         val new_name_subspaces = map (Utils.alist_add old_name_subspace) new_name_subspace: name_subspaces;
       in
         new_name_subspaces: name_subspaces
@@ -382,7 +376,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
 
     val _ = tracing "Before the calling the mutual recursive function in eval.";
 
-    fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: domain) (add_typ:address_type) =
+    fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: domain) (add_typ:id_type) =
       let
         val new_subtrm_entries_in_name_space = get_new_name_subspaces index domain name_subspace      : name_subspaces;
         fun get_new_name_space new_subtrm    = update_name_space new_subtrm add_typ name_space        : name_space;
@@ -392,11 +386,11 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       end
     and eval'_in_imp (subtrm_occ:subtrm_occ) (name_space:name_space) (nth_arg:int) =
         let
-          val fresh_subtrm_occ_id = name_space_n_address_typ_to_fresh_id name_space ATyp_Subtrm_Occ: int;
-          val fresh_numb_id       = name_space_n_address_typ_to_fresh_id name_space ATyp_Numb      : int;
-          val meta_imp_occ        = Sub_Trm_Occ fresh_subtrm_occ_id                                : subtrm_occ;
-          val premise_occ         = Sub_Trm_Occ (fresh_subtrm_occ_id + 1)                          : subtrm_occ;
-          val nth_arg_numb        = Nth fresh_numb_id                                              : numb;
+          val fresh_subtrm_occ_id = name_space_n_id_typ_to_fresh_id name_space IDTyp_Subtrm_Occ: int;
+          val fresh_numb_id       = name_space_n_id_typ_to_fresh_id name_space IDTyp_Numb      : int;
+          val meta_imp_occ        = Sub_Trm_Occ fresh_subtrm_occ_id                            : subtrm_occ;
+          val premise_occ         = Sub_Trm_Occ (fresh_subtrm_occ_id + 1)                      : subtrm_occ;
+          val nth_arg_numb        = Nth fresh_numb_id                                          : numb;
           val desugared = Some_Sub_Trm_Occ (meta_imp_occ,
                               Is_Const_Of_Name (meta_imp_occ, "Pure.imp")
                             And
@@ -414,19 +408,19 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       (** eval' is the core function of LiFtEr's interpreter. **)
       (*Note that we never modify abs_pst_w_aux or name_domains.*)
       (*quantifiers*)
-        eval' (All_Ind      ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) forall subtrm_domain ATyp_Subtrm
-      | eval' (All_Arb      ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) forall subtrm_domain ATyp_Subtrm
-      | eval' (All_Sub_Trm  ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) forall subtrm_domain ATyp_Subtrm
-      | eval' (All_Rule     ((Rule    i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) forall rule_domain   ATyp_Rule
-      | eval' (All_Numb     ((Nth     i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) forall numb_domain   ATyp_Numb
-      | eval' (Some_Ind     ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) exists subtrm_domain ATyp_Subtrm
-      | eval' (Some_Arb     ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) exists subtrm_domain ATyp_Subtrm
-      | eval' (Some_Sub_Trm ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) exists subtrm_domain ATyp_Subtrm
-      | eval' (Some_Rule    ((Rule    i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) exists rule_domain   ATyp_Rule
-      | eval' (Some_Numb    ((Nth     i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) exists numb_domain   ATyp_Numb
+        eval' (All_Ind      ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) forall subtrm_domain IDTyp_Subtrm
+      | eval' (All_Arb      ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) forall subtrm_domain IDTyp_Subtrm
+      | eval' (All_Sub_Trm  ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) forall subtrm_domain IDTyp_Subtrm
+      | eval' (All_Rule     ((Rule    i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) forall rule_domain   IDTyp_Rule
+      | eval' (All_Numb     ((Nth     i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) forall numb_domain   IDTyp_Numb
+      | eval' (Some_Ind     ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) exists subtrm_domain IDTyp_Subtrm
+      | eval' (Some_Arb     ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) exists subtrm_domain IDTyp_Subtrm
+      | eval' (Some_Sub_Trm ((Sub_Trm i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm name_space) exists subtrm_domain IDTyp_Subtrm
+      | eval' (Some_Rule    ((Rule    i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) exists rule_domain   IDTyp_Rule
+      | eval' (Some_Numb    ((Nth     i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) exists numb_domain   IDTyp_Numb
       (*quantifiers for occurrences*)
-      | eval' (All_Sub_Trm_Occ  ((Sub_Trm_Occ i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm_occ name_space) forall subtrm_domain ATyp_Subtrm_Occ
-      | eval' (Some_Sub_Trm_Occ ((Sub_Trm_Occ i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm_occ name_space) forall subtrm_domain ATyp_Subtrm_Occ
+      | eval' (All_Sub_Trm_Occ  ((Sub_Trm_Occ i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm_occ name_space) forall subtrm_domain IDTyp_Subtrm_Occ
+      | eval' (Some_Sub_Trm_Occ ((Sub_Trm_Occ i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm_occ name_space) forall subtrm_domain IDTyp_Subtrm_Occ
 (*    | eval' (All_Sub_Trm_Occ     (subtrm_occ, assrt))         (ns:name_space) = eval'_subtrm_occ_quantifier subtrm_occ assrt ns forall*)
 (*    | eval' (Some_Sub_Trm_Occ    (subtrm_occ, assrt))         (ns:name_space) = eval'_subtrm_occ_quantifier subtrm_occ assrt ns exists*)
       (*combinators*)
@@ -440,8 +434,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       | eval' (Is_Rule_Of (Rule rule_id:rule, subtrm_occ)) (Name_Space ns:name_space) =
         let
           val rule_name_subspace_option = try #rule ns: name_subspace option;
-          val rule_address_option       = rule_name_subspace_option <$> AList.lookup (op =) <*> SOME rule_id |> Option.join: address option;
-          val rule_name_option          = rule_address_option >>= dest_Address_Rule                                        : rule_name option;
+          val rule_id_option            = rule_name_subspace_option <$> AList.lookup (op =) <*> SOME rule_id |> Option.join: id option;
+          val rule_name_option          = rule_id_option >>= dest_ID_Rule                                                  : rule_name option;
           val rule_name_string_option   = rule_name_option >>= dest_Rule_Name                                              : string option;
           val subtrm_occ_cname_option   = name_space_n_subtrm_occ_id_to_cname (Name_Space ns) subtrm_occ                   : string option;
           val option_pair = Utils.mk_option_pair (subtrm_occ_cname_option, SOME ".induct"): (string * string) option;
@@ -452,25 +446,25 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         end
       | eval' (Trm_Occ_Is_Of_Trm (subtrm_occ:subtrm_occ, Sub_Trm trm_id:subtrm)) (ns as Name_Space {subtrm, ...}:name_space) =
         let
-          val subtrm_address_option   = AList.lookup (op =) subtrm trm_id                   : address option;
-          val subtrm_print_option     = subtrm_address_option >>= dest_Address_Subtrm       : print option;
-          val subtrm_path_n_locs      = subtrm_print_option
-                                    >>= try (TT.print_n_lifter_pst_to_path_n_locs lifter_pst)
-                                     |> these: path_n_locs;
-          val subtrm_occ_path_n_loc   = name_space_n_subtrm_occ_id_to_path_n_loc ns subtrm_occ: path_n_loc option;
-          val euqals_occ_path_n_loc   = subtrm_occ_path_n_loc <$> same_path_n_loc             :(path * location -> bool) option;
-          val result                  = euqals_occ_path_n_loc
-                                    <$> Utils.flip exists subtrm_path_n_locs
-                                     |> Utils.is_some_true                                    : bool;
+          val subtrm_id_option      = AList.lookup (op =) subtrm trm_id                     : id option;
+          val subtrm_print_option   = subtrm_id_option >>= dest_ID_Subtrm                   : print option;
+          val subtrm_path_n_locs    = subtrm_print_option
+                                  >>= try (TT.print_n_lifter_pst_to_path_n_locs lifter_pst)
+                                   |> these: path_n_locs;
+          val subtrm_occ_path_n_loc = name_space_n_subtrm_occ_id_to_path_n_loc ns subtrm_occ: path_n_loc option;
+          val euqals_occ_path_n_loc = subtrm_occ_path_n_loc <$> same_path_n_loc             :(path * location -> bool) option;
+          val result                = euqals_occ_path_n_loc
+                                  <$> Utils.flip exists subtrm_path_n_locs
+                                   |> Utils.is_some_true                                    : bool;
         in
           result
         end
       | eval' (Are_Same_Numb (Nth n1, Nth n2)) (Name_Space ns:name_space) =
         let
-          val numb_name_space = #numb ns                                                : name_subspace;
-          val numb1_option    = alist_lookup_eq numb_name_space n1 >>= dest_Address_Numb: int option;
-          val numb2_option    = alist_lookup_eq numb_name_space n2 >>= dest_Address_Numb: int option;
-          val result          = opt_equal (numb1_option, numb2_option)                  : bool;
+          val numb_name_space = #numb ns                                           : name_subspace;
+          val numb1_option    = alist_lookup_eq numb_name_space n1 >>= dest_ID_Numb: int option;
+          val numb2_option    = alist_lookup_eq numb_name_space n2 >>= dest_ID_Numb: int option;
+          val result          = opt_equal (numb1_option, numb2_option)             : bool;
         in
           result
         end
@@ -570,13 +564,13 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         end
       | eval' (Is_Less_Than (Nth numb1, Nth numb2)) (Name_Space nspace:name_space) =
         let
-          val numb_name_space      = #numb nspace                                               : name_subspace;
-          fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb : int option;
-          val numb1_option         = get_numb_option numb1                                      : int option;
-          val numb2_option         = get_numb_option numb2                                      : int option;
-          val numbs_option         = Utils.mk_option_pair (numb1_option, numb2_option)          : (int * int) option;
-          val result_option        = numbs_option <$> Int.>                                     : bool option;
-          val result               = Utils.is_some_true result_option                           : bool;
+          val numb_name_space      = #numb nspace                                         : name_subspace;
+          fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb: int option;
+          val numb1_option         = get_numb_option numb1                                : int option;
+          val numb2_option         = get_numb_option numb2                                : int option;
+          val numbs_option         = Utils.mk_option_pair (numb1_option, numb2_option)    : (int * int) option;
+          val result_option        = numbs_option <$> Int.>                               : bool option;
+          val result               = Utils.is_some_true result_option                     : bool;
         in
           result
         end
@@ -585,7 +579,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val path_n_loc_of_func_option      = name_space_n_subtrm_occ_id_to_path_n_loc name_space func            : path_n_loc option;
           val path_n_loc_of_arg_option       = name_space_n_subtrm_occ_id_to_path_n_loc name_space arg             : path_n_loc option;
           val numb_name_space                = #numb nspace                                                        : name_subspace;
-          val numb_option                    = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb          : int option;
+          val numb_option                    = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb               : int option;
           val numb_list_option               = numb_option <$> single                                              : int list option;
           val func_occ_path_option           = path_n_loc_of_func_option <$> fst                                   : path option;
           val init_of_path_to_func_option    = func_occ_path_option <$> Utils.init                                 : path option;
@@ -625,14 +619,14 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         end
       | eval' (Pattern (Nth numb:numb, subtrm_occ:subtrm_occ, pttrn:pattern)) (name_space as Name_Space nspace:name_space) =
         let
-          val numb_name_space      = #numb nspace                                               : name_subspace;
-          fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_Address_Numb : int option;(*TODO: remove code-duplication with other clauses.*)
-          val numb_option          = get_numb_option numb                                       : int option;
-          val cname_option         = name_space_n_subtrm_occ_id_to_cname name_space subtrm_occ  : string option;
-          val input_pair_option    = Utils.mk_option_pair (cname_option, numb_option)           : (string * int) option;
+          val numb_name_space      = #numb nspace                                             : name_subspace;
+          fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb    : int option;(*TODO: remove code-duplication with other clauses.*)
+          val numb_option          = get_numb_option numb                                     : int option;
+          val cname_option         = name_space_n_subtrm_occ_id_to_cname name_space subtrm_occ: string option;
+          val input_pair_option    = Utils.mk_option_pair (cname_option, numb_option)         : (string * int) option;
           val result_option        = case pttrn of
-            All_Only_Var => Option.map (uncurry (is_nth_all_Only_Var ctxt)) input_pair_option: bool option
-          | All_Const    => Option.map (uncurry (is_nth_all_Only_Var ctxt)) input_pair_option: bool option
+            All_Only_Var => Option.map (uncurry (is_nth_all_Only_Var ctxt)) input_pair_option : bool option
+          | All_Const    => Option.map (uncurry (is_nth_all_Only_Var ctxt)) input_pair_option : bool option
           | Mixed        => SOME true;
         in is_some result_option end (*TODO: improve this clause.*)
       (*syntax sugars*)

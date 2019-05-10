@@ -167,7 +167,7 @@ val token_parser_false = get_trans_trans_to_token_parser get_trans_trans_false: 
 ML_file "Apply_MeLoId.ML"
 
 lemma "True"
-  test_LiFtEr_true 1 1 (*TODO: finish implementing pst_to_lifter_pst in Term_Table_Struct.ML*)
+  test_LiFtEr_true 1 1
   oops
 
 end

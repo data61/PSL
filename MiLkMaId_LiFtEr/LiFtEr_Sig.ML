@@ -83,15 +83,15 @@ type location;
 type path_n_loc;
 type path_n_locs;
 
-datatype address =(*TODO: better name? FIXME: this is actually value type.*)
-  Address_Subtrm     of print
-| Address_Subtrm_Occ of path_n_loc
-| Address_Rule       of rule_name
-| Address_Numb       of int;
+datatype id =(*TODO: better name? FIXME: this is actually value type.*)
+  ID_Subtrm     of print
+| ID_Subtrm_Occ of path_n_loc
+| ID_Rule       of rule_name
+| ID_Numb       of int;
 
-type addresses = address list;(*TODO: better name?*)
+type ids = id list;(*TODO: better name?*)
 
-type name_subspace = (int * address) list;
+type name_subspace = (int * id) list;
 
 type name_subspaces = name_subspace list;
 

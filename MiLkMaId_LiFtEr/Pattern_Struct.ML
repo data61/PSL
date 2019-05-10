@@ -11,7 +11,7 @@ struct
 (** type: command **)
 datatype command  = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
-(** operations: command **)
+(** operation: command **)
 fun has_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:string) =
   can (Proof_Context.get_thms ctxt) (cnst_name ^ "." ^ suffix);
 
@@ -51,7 +51,7 @@ fun get_command (ctxt:Proof.context) (trm_name:string) =
      Unknown)
   end;
 
-(** types: pattern **)
+(** type: pattern **)
 datatype hol_typ                        = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
 
 (* pattern of the left-hand side of the definition *)
@@ -75,7 +75,7 @@ datatype pattern_of_a_const(*TODO:term?*)= Pattern_Of_A_Const of
                                           {(*hol_typ*)
                                            matrix : pattern_matrix};
 
-(** operations: pattern **)
+(** operation: assertion **)
 
 (* get_left: get left-hand-sides *)
 fun get_left (trm:term) =
@@ -121,6 +121,9 @@ fun terms_to_pattern_matrix (terms:terms) = terms
  |> Matrix.matrix_to_row_of_columns_matrix
  |> Matrix.map_rcmatrix Pattern_Of_Atom
  |> Pattern_Matrix
+
+(* type: mk_parameter_matrix *)
+type mk_parameter_matrix                = Proof.context -> string -> pattern_matrix;
 
 (* mk_pattern_matrix_for_function *)
 fun mk_pattern_matrix_for_function (ctxt:Proof.context) (cname:string) =
