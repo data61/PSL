@@ -1,10 +1,10 @@
-(*  Title:      PSL/MiLkMaId_LiFtEr/MiLkMaId_LiFtEr.thy
+(*  Title:      PSL/MiLkMaId_LiFtEr/MeLoId_LiFtEr.thy
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 MeLoId: Machine Learning Induction for Isabelle/HOL, and
-LiFtEr:   Logical Feature Extractor.
+LiFtEr: Logical Feature Extractor.
 *)
-theory MiLkMaId_LiFtEr
+theory MeLoId_LiFtEr
   imports "../PSL"
   keywords "test_LiFtEr_true" :: diag
    and     "test_LiFtEr_false":: diag
