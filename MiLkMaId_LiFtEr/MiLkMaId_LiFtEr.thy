@@ -1,7 +1,7 @@
 (*  Title:      PSL/MiLkMaId_LiFtEr/MiLkMaId_LiFtEr.thy
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
-MiLkMaId: Machine Learning Mathematical Induction for Isabelle/HOL, and
+MeLoId: Machine Learning Induction for Isabelle/HOL, and
 LiFtEr:   Logical Feature Extractor.
 *)
 theory MiLkMaId_LiFtEr
@@ -37,6 +37,7 @@ ML_file "LiFtEr_Sig.ML"
 ML_file "LiFtEr_Struct.ML"
 ML_file "Apply_LiFtEr_Sig.ML"
 ML_file "Apply_LiFtEr_Struct.ML"
+ML_file "LiFtEr_Assertion_Struct.ML"
 
 ML{* (*samples*)
 local
@@ -58,24 +59,15 @@ val sample_induct_args2 = LU.Ind_Mods
   rules = []
   }: LU.ind_mods;
 
-infix And;
-val op And = L.And
-
- val sample_assert =
-  L.All_Ind (L.Sub_Trm 1,
-    L.Some_Sub_Trm_Occ (L.Sub_Trm_Occ 2,
-        L.Trm_Occ_Is_Of_Trm (L.Sub_Trm_Occ 2, L.Sub_Trm 1)
-      And
-        L.Is_Atom (L.Sub_Trm_Occ 2))): L.assrt;
 end;
 *}
 
-setup{* Apply_LiFtEr.update_assert 1 sample_assert;        *}
-ML   {* Apply_LiFtEr.get_assrt @{context} 1;               *}
-setup{* Apply_LiFtEr.update_ind_mod 1 sample_induct_args1; *}
-setup{* Apply_LiFtEr.update_ind_mod 2 sample_induct_args2; *}
-ML   {* Apply_LiFtEr.get_ind_mod @{context} 1;             *}
-ML   {* Apply_LiFtEr.get_ind_mod @{context} 2;             *}
+setup{* Apply_LiFtEr.update_assert 1 LiFtEr_Assertion.sample_assert; *}
+ML   {* Apply_LiFtEr.get_assrt @{context} 1;                         *}
+setup{* Apply_LiFtEr.update_ind_mod 1 sample_induct_args1;           *}
+setup{* Apply_LiFtEr.update_ind_mod 2 sample_induct_args2;           *}
+ML   {* Apply_LiFtEr.get_ind_mod @{context} 1;                       *}
+ML   {* Apply_LiFtEr.get_ind_mod @{context} 2;                       *}
 
 ML{* Apply_LiFtEr.activate (); *}
 
