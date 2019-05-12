@@ -100,7 +100,7 @@ fun lifter_pst_to_print_to_paths_tables ({subgoals, usings}:lifter_pst) =
 fun lifter_pst_n_loc_to_one_term (pst:lifter_pst) (Nth_Subg     n) = nth (#subgoals pst) n
   | lifter_pst_n_loc_to_one_term (pst:lifter_pst) (Chained_Fact n) = nth (#usings   pst) n
 
-fun print_n_lifter_pst_to_path_n_locs ({subgoals, usings}:lifter_pst) (print:UN.print) =
+fun lifter_pst_n_print_to_path_n_locs ({subgoals, usings}:lifter_pst) (print:UN.print) =
   let
     val (ptables_in_subgs, ptables_in_usings) = apply2 (map #print_to_paths_table) (subgoals, usings)                                         : (print_to_paths_tables * print_to_paths_tables);
     fun minus_one (x:int)                     = x - 1                                                                                         : int;

@@ -109,17 +109,18 @@ type name_spaces = name_space list;
 datatype domain = Dom_Subt_Occ of path_n_locs | Dom_Subt of prints | Dom_Rule of rule_names | Dom_Numb of ints;
 
 datatype name_domains = Name_Domains of
-  {subtrm_domain : domain,
-   rule_domain   : domain,
-   numb_domain   : domain};
+  {subtrm_domain    : domain,
+   subtrm_occ_domain: domain,
+   rule_domain      : domain,
+   numb_domain      : domain};
 
-val pst_to_name_domains       : Proof.state -> name_domains;
+val pst_to_name_domains: Proof.state -> LiFtEr_Util.ind_mods -> name_domains;
 
 val no_overlad: assrt -> bool;
 (*TODO: Double-check. It is possible to remove Proof.context from the signature of eval
  *      if we handle patterns before calling eval.
  *      But in that case, we have to pass the result of handling patterns to eval.
  *      So, it is easier to simply pass Proof.context.*)
-val eval      : Proof.state * assrt * ind_mods -> bool;
+val eval: Proof.state * assrt * ind_mods -> bool;
 
 end;

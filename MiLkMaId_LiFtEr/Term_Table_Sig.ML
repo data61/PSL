@@ -79,7 +79,7 @@ val same_location   : (location * location) -> bool;
 
 val lifter_pst_to_print_to_paths_tables: lifter_pst -> print_to_paths_tables;
 val lifter_pst_n_loc_to_one_term       : lifter_pst -> location -> one_term;
-val print_n_lifter_pst_to_path_n_locs  : lifter_pst -> LiFtEr_Util.print -> path_n_locs;
+val lifter_pst_n_print_to_path_n_locs  : lifter_pst -> LiFtEr_Util.print -> path_n_locs;
 
 (*Use One_Term.keys to implement it.*)
 val path_to_unode_aux_table_to_depth   : path_to_unode_aux_table -> int option;

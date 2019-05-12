@@ -24,7 +24,7 @@ datatype pattern    = All_Only_Var | All_Const | Mixed;(*TODO: This is not final
 infix And Or Imply;
 
 (* assrt *)
-datatype assrt        =
+datatype assrt =
 (*quantifiers*)
   All_Ind                 of subtrm * assrt
 | All_Arb                 of subtrm * assrt
@@ -91,9 +91,9 @@ type rule_names    = rule_name list;
 fun dest_Rule_Name (Rule_Name rname) = SOME rname
 
 (* path(s/ss) *)
-type path          = UN.path;
-type paths         = path  list;
-type pathss        = paths list;
+type path        = UN.path;
+type paths       = path  list;
+type pathss      = paths list;
 
 type location    = TT.location;
 type path_n_loc  = TT.path_n_loc;
@@ -108,6 +108,11 @@ datatype id =(*TODO: better name? id?*)
 | ID_Rule       of rule_name
 | ID_Numb       of int;
 
+fun print_id (ID_Subtrm (Print print))   = "ID_Subtrm " ^ print (*TODO*)
+  | print_id (ID_Subtrm_Occ p_n_l)       = "ID_Subtrm_Occ"
+  | print_id (ID_Rule (Rule_Name rname)) = "ID_Rule " ^ rname
+  | print_id (ID_Numb int)               = "ID_Numb " ^ Int.toString int;
+
 fun dest_ID_Subtrm     (ID_Subtrm     print)       = SOME print            : print      option
   | dest_ID_Subtrm      _                          = NONE                  : print      option;
 fun dest_ID_Subtrm_Occ (ID_Subtrm_Occ path_n_loc ) = SOME path_n_loc       : path_n_loc option
@@ -117,7 +122,7 @@ fun dest_ID_Rule       (ID_Rule       rname)       = SOME (rname:rule_name): rul
 fun dest_ID_Numb       (ID_Numb i)                 = SOME (i: int)         : int        option
   | dest_ID_Numb        _                          = NONE                  : int        option;
 
-type ids = id list;(*TODO: better name?*)
+type ids = id list;
 
 type name_subspace = (int * id) list;
 
@@ -141,22 +146,24 @@ datatype name =
 datatype domain = Dom_Subt of prints | Dom_Subt_Occ of path_n_locs | Dom_Rule of rule_names | Dom_Numb of ints;
 
 datatype name_domains = Name_Domains of
-  {subtrm_domain : domain,
-   rule_domain   : domain,
-   numb_domain   : domain};
+  {subtrm_domain    : domain,
+   subtrm_occ_domain: domain,
+   rule_domain      : domain,
+   numb_domain      : domain};
 
 val empty_domain (*TODO: This should not be used*) = Name_Domains
-  {subtrm_domain = Dom_Subt [],
-   numb_domain   = Dom_Rule [],
-   rule_domain   = Dom_Numb []}: name_domains;
+  {subtrm_domain     = Dom_Subt [],
+   subtrm_occ_domain = Dom_Subt_Occ [],
+   numb_domain       = Dom_Rule [],
+   rule_domain       = Dom_Numb []}: name_domains;
 
-(*TODO FIXME: check name collisions before evaluation. Use no_name_collision.*)
+(*TODO: check name collisions before evaluation. Use no_name_collision.*)
 val no_overlad = undefined: assrt -> bool;
 
-(*TODO FIXME: check name collisions before evaluation. Use no_name_collision.*)
 fun pst_to_abs_lifter_pst (pst:Proof.state): lifter_pst =
   let
-
+    (*TODO: use no_overload*)
+    val no_overlad = undefined: assrt -> bool;
   in
     Term_Table.pst_to_lifter_pst pst
   end;
@@ -183,16 +190,12 @@ fun update_name_space (new_subtrm    : name_subspace) IDTyp_Subtrm     (Name_Spa
 (*TODO: numb_domain should not rely on a magic number, 30.*)
 val numb_domain = List.tabulate (30, I) |> Dom_Numb: domain;
 
-(*Warning: we ignore induct-rules that do not appear neither of the first sub-goal or chained facts.*)
-fun pst_to_rule_domain (pst:Proof.state) = Find_Theorems2.pstate_to_induct_thm_names pst
-  |> map Rule_Name
-  |> (fn x => (tracing ("The cardinality of rule_domain is " ^ Int.toString (length x) ^ "."); x))
-  |> Dom_Rule: domain;
+fun ind_mods_to_rule_domain (LU.Ind_Mods {rules,...}:LU.ind_mods) =
+  map (Rule_Name o LU.dest_induct_rule) rules |> Dom_Rule
 
 fun pst_to_trm_domain (pst:Proof.state) =
   let
-    val abs_pstate_w_aux   = pst_to_abs_lifter_pst pst: lifter_pst;
-    val {subgoals, usings} = abs_pstate_w_aux;
+    val {subgoals, usings} = pst_to_abs_lifter_pst pst: lifter_pst;
     fun unode_n_path_tables_to_pathss (one_terms:TT.one_terms) =
         one_terms |> map #print_to_paths_table |> map Print_Table.keys :prints list;
     val subgoal_pathss = unode_n_path_tables_to_pathss subgoals             : prints list;
@@ -204,10 +207,36 @@ fun pst_to_trm_domain (pst:Proof.state) =
     result: domain
   end;
 
-fun pst_to_name_domains (pst:Proof.state): name_domains = Name_Domains
-  {subtrm_domain = pst_to_trm_domain pst,
-   rule_domain   = pst_to_rule_domain pst,
-   numb_domain   = numb_domain};
+fun pst_to_trm_occ_domain (pst:Proof.state) =
+  let
+    val {subgoals, usings} = pst_to_abs_lifter_pst pst: lifter_pst;
+    datatype loc_typ = LTyp_Nth_Subg | LTyp_Chained_Fact;
+    fun one_term_n_loc_typ_to_path_n_locs (term:TT.one_term) (acc:int) (loc_typ:loc_typ) =
+        let
+          val paths = #path_to_unode_aux_table term |> Path_Table.keys: UN.paths;
+          fun loc_typ_n_int_to_location (LTyp_Nth_Subg    :loc_typ) (i:int) = TT.Nth_Subg     i
+            | loc_typ_n_int_to_location (LTyp_Chained_Fact:loc_typ) (i:int) = TT.Chained_Fact i;
+          val path_n_locs = map (fn path => (path, loc_typ_n_int_to_location loc_typ acc)) paths: TT.path_n_locs;
+        in
+          path_n_locs
+        end;
+    fun one_terms_n_loc_typ_to_path_n_locs ([]       :TT.one_terms) _ _ acc = acc: path_n_locs list
+      | one_terms_n_loc_typ_to_path_n_locs (trm::trms:TT.one_terms) (counter:int) (ltyp:loc_typ) (acc:path_n_locs list) =
+        one_terms_n_loc_typ_to_path_n_locs (trms     :TT.one_terms) (counter + 1) (ltyp:loc_typ) (one_term_n_loc_typ_to_path_n_locs trm counter ltyp :: acc)
+    val path_n_locs_in_subgoals = one_terms_n_loc_typ_to_path_n_locs subgoals 0 LTyp_Nth_Subg     [];
+    val path_n_locs_in_chained  = one_terms_n_loc_typ_to_path_n_locs usings   0 LTyp_Chained_Fact [];
+    val path_n_locs = flat (path_n_locs_in_subgoals @ path_n_locs_in_chained: path_n_locs list): path_n_locs
+    val _ = tracing ("The cardinality of trm_occ_domain is " ^ Int.toString (length path_n_locs) ^ ".");
+    val result = Dom_Subt_Occ path_n_locs: domain;
+  in
+    result: domain
+  end;
+
+fun pst_to_name_domains (pst:Proof.state) (ind_mods:LU.ind_mods): name_domains = Name_Domains
+  {subtrm_domain     = pst_to_trm_domain pst,
+   subtrm_occ_domain = pst_to_trm_occ_domain pst,
+   rule_domain       = ind_mods_to_rule_domain ind_mods,
+   numb_domain       = numb_domain};
 
 fun no_name_collision (Name_Space name_space: name_space) (name: name) =
   let
@@ -228,12 +257,12 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 (* eval *)
 fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
   let
+    val Name_Domains name_domains = pst_to_name_domains pstate (Ind_Mods mods):  name_domains;
     val _ = tracing "Start computing eval in LiFtEr_Struct.ML";
-    val lifter_pst                = Term_Table.pst_to_lifter_pst pstate     : lifter_pst;
+    val lifter_pst                = Term_Table.pst_to_lifter_pst pstate       : lifter_pst;
     val _ = tracing "Before name_space_n_subtrm_occ_id_to_node in eval.";
-    val Name_Domains name_domains = pst_to_name_domains pstate              : name_domains;
-    val {subtrm_domain, numb_domain, rule_domain} = name_domains;
-    val ctxt                      = Proof.context_of pstate                 : Proof.context;
+    val {subtrm_domain, subtrm_occ_domain, numb_domain, rule_domain} = name_domains;
+    val ctxt                      = Proof.context_of pstate                   : Proof.context;
     val empty_name_space = Name_Space
        {subtrm     = [],
         subtrm_occ = [],
@@ -254,7 +283,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
 
     fun name_space_n_subtrm_occ_id_to_path_n_loc (Name_Space nspace:name_space) (Sub_Trm_Occ occ_id:subtrm_occ) =
       let
-        val subtrm_occ_name_space = #subtrm_occ nspace                          : name_subspace;
+        val subtrm_occ_name_space = #subtrm_occ nspace                          : name_subspace
         val occ_id_option         = alist_lookup_eq subtrm_occ_name_space occ_id: id option;
         val occ_path_n_loc_option = occ_id_option >>= dest_ID_Subtrm_Occ        : path_n_loc option;
       in
@@ -317,10 +346,10 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         cname_option: string option
       end;
 
-    fun update_name_space (new_subtrm    : name_subspace) IDTyp_Subtrm     (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }: name_space
-      | update_name_space (new_subtrm_occ: name_subspace) IDTyp_Subtrm_Occ (Name_Space {subtrm, rule, numb, ...}      : name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }: name_space
-      | update_name_space (new_rule      : name_subspace) IDTyp_Rule       (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }: name_space
-      | update_name_space (new_numb      : name_subspace) IDTyp_Numb       (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb}: name_space;
+    fun update_name_space (new_subtrm    : name_subspace) IDTyp_Subtrm     (Name_Space {subtrm_occ, rule, numb, ...}  : name_space) = Name_Space {subtrm = new_subtrm, subtrm_occ = subtrm_occ,     rule = rule,     numb = numb    }
+      | update_name_space (new_subtrm_occ: name_subspace) IDTyp_Subtrm_Occ (Name_Space {subtrm, rule, numb, ...}      : name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = new_subtrm_occ, rule = rule,     numb = numb    }
+      | update_name_space (new_rule      : name_subspace) IDTyp_Rule       (Name_Space {subtrm, subtrm_occ, numb, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = new_rule, numb = numb    }
+      | update_name_space (new_numb      : name_subspace) IDTyp_Numb       (Name_Space {subtrm, subtrm_occ, rule, ...}: name_space) = Name_Space {subtrm = subtrm,     subtrm_occ = subtrm_occ,     rule = rule,     numb = new_numb};
 
     fun get_max_id (alist_int:(int * 'a) list) = map fst alist_int
                                               |> sort Int.compare
@@ -334,13 +363,14 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       | name_space_n_id_typ_to_fresh_id (Name_Space ns:name_space) IDTyp_Numb       = #numb ns       |> name_subspace_to_fresh_id: int;
 
     fun get_new_name_subspaces (idx:int) (domain:domain) (old_name_subspace:name_subspace) =
+      (*TODO: Double-check if we really have to pass domain around. Each assertion has a fixed domain.*)
       let
-        val new_ides      = case domain of
-            Dom_Subt prints     => map ID_Subtrm prints
+        val new_ids      = case domain of
+            Dom_Subt     prints => map ID_Subtrm     prints
           | Dom_Subt_Occ paths  => map ID_Subtrm_Occ paths
-          | Dom_Rule     rnames => map ID_Rule rnames
-          | Dom_Numb     numb   => map ID_Numb numb                                       : ids;
-        val new_name_subspace  = map (pair idx) new_ides                                  : name_subspace;
+          | Dom_Rule     rnames => map ID_Rule       rnames
+          | Dom_Numb     numb   => map ID_Numb       numb                                 : ids;
+        val new_name_subspace  = map (pair idx) new_ids                                   : name_subspace;
         val new_name_subspaces = map (Utils.alist_add old_name_subspace) new_name_subspace: name_subspaces;
       in
         new_name_subspaces: name_subspaces
@@ -370,12 +400,12 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         result
       end;
 
-    val _ = tracing "Before the calling the mutual recursive function in eval.";
+    val _ = tracing "Before calling the mutual recursive function in eval.";
 
     fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: domain) (add_typ:id_type) =
       let
         val new_subtrm_entries_in_name_space = get_new_name_subspaces index domain name_subspace      : name_subspaces;
-        fun get_new_name_space new_subtrm    = update_name_space new_subtrm add_typ name_space        : name_space;
+        fun get_new_name_space new_name_subspace = update_name_space new_name_subspace add_typ name_space: name_space;
         val new_name_spaces                  = map get_new_name_space new_subtrm_entries_in_name_space: name_spaces;
       in
         quantifier (eval' inner) new_name_spaces
@@ -415,10 +445,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       | eval' (Some_Rule    ((Rule    i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) exists rule_domain   IDTyp_Rule
       | eval' (Some_Numb    ((Nth     i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) exists numb_domain   IDTyp_Numb
       (*quantifiers for occurrences*)
-      | eval' (All_Sub_Trm_Occ  ((Sub_Trm_Occ i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm_occ name_space) forall subtrm_domain IDTyp_Subtrm_Occ
-      | eval' (Some_Sub_Trm_Occ ((Sub_Trm_Occ i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm_occ name_space) forall subtrm_domain IDTyp_Subtrm_Occ
-(*    | eval' (All_Sub_Trm_Occ     (subtrm_occ, assrt))         (ns:name_space) = eval'_subtrm_occ_quantifier subtrm_occ assrt ns forall*)
-(*    | eval' (Some_Sub_Trm_Occ    (subtrm_occ, assrt))         (ns:name_space) = eval'_subtrm_occ_quantifier subtrm_occ assrt ns exists*)
+      | eval' (All_Sub_Trm_Occ  ((Sub_Trm_Occ i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm_occ name_space) forall subtrm_occ_domain IDTyp_Subtrm_Occ
+      | eval' (Some_Sub_Trm_Occ ((Sub_Trm_Occ i), inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#subtrm_occ name_space) exists subtrm_occ_domain IDTyp_Subtrm_Occ
       (*combinators*)
       | eval' (assrt1 And assrt2) name_space = eval' assrt1 name_space andalso eval' assrt2 name_space
       | eval' (assrt1 Or  assrt2) name_space = eval' assrt1 name_space orelse  eval' assrt2 name_space
@@ -446,7 +474,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val subtrm_id_option      = AList.lookup (op =) subtrm trm_id                     : id option;
           val subtrm_print_option   = subtrm_id_option >>= dest_ID_Subtrm                   : print option;
           val subtrm_path_n_locs    = subtrm_print_option
-                                  >>= try (TT.print_n_lifter_pst_to_path_n_locs lifter_pst)
+                                  >>= try (TT.lifter_pst_n_print_to_path_n_locs lifter_pst)
                                    |> these: path_n_locs;
           val subtrm_occ_path_n_loc = name_space_n_subtrm_occ_id_to_path_n_loc ns subtrm_occ: path_n_loc option;
           val euqals_occ_path_n_loc = subtrm_occ_path_n_loc <$> same_path_n_loc             :(path * location -> bool) option;
