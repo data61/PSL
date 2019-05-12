@@ -34,6 +34,7 @@ datatype assrt      =
 | And                     of assrt * assrt
 | Or                      of assrt * assrt
 | Not                     of assrt
+| True
 | Imply                   of assrt * assrt
 (*atomic about proof goal*)
 | Is_Rule_Of              of rule       * subtrm_occ
@@ -113,7 +114,6 @@ datatype name_domains = Name_Domains of
    numb_domain   : domain};
 
 val pst_to_name_domains       : Proof.state -> name_domains;
-val pstate_to_abs_pstate_w_aux: Proof.state -> lifter_pst;
 
 val no_overlad: assrt -> bool;
 (*TODO: Double-check. It is possible to remove Proof.context from the signature of eval

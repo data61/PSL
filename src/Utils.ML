@@ -987,7 +987,7 @@ fun pstate_to_induct_thm_names (pstate:Proof.state) =
     fun ctxt_has_thm_of_name (thm_name:string) = (*TODO: This function should be defined outside pstate_to_induct_thm_names? *)
         case try (Proof_Context.get_thms ctxt) thm_name of
          NONE      => false
-       | SOME thms => null thms;
+       | SOME thms => null thms |> not;
     val induct_thm_names      = map (fn cname => cname ^ ".induct") cnames: strings;
     val some_induct_thm_names = filter ctxt_has_thm_of_name induct_thm_names;
   in

@@ -72,7 +72,7 @@ ML   {* Apply_LiFtEr.get_ind_mod @{context} 2;                       *}
 ML{* Apply_LiFtEr.activate (); *}
 
 lemma "True"
-  test_LiFtEr_true 1 1
+  test_LiFtEr_false 1 1
   oops
 
 end

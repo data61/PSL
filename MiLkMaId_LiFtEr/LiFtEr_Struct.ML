@@ -42,6 +42,7 @@ datatype assrt        =
 | And                     of assrt * assrt
 | Or                      of assrt * assrt
 | Not                     of assrt
+| True
 | Imply                   of assrt * assrt
 (*atomic about proof goal*)
 | Is_Rule_Of              of rule       * subtrm_occ
@@ -149,23 +150,16 @@ val empty_domain (*TODO: This should not be used*) = Name_Domains
    numb_domain   = Dom_Rule [],
    rule_domain   = Dom_Numb []}: name_domains;
 
-(*TODO: check name collisions before evaluation. Use no_name_collision.*)
+(*TODO FIXME: check name collisions before evaluation. Use no_name_collision.*)
 val no_overlad = undefined: assrt -> bool;
 
-fun pstate_to_abs_pstate_w_aux (pst:Proof.state): lifter_pst =
+(*TODO FIXME: check name collisions before evaluation. Use no_name_collision.*)
+fun pst_to_abs_lifter_pst (pst:Proof.state): lifter_pst =
   let
-    val chained_facts = Isabelle_Utils.pstate_to_usings pst
-                     |> map Thm.prop_of: terms;
-    val subgoals = Isabelle_Utils.pst_to_subgs pst: terms;
+
   in
-  {subgoals = [],
-   usings   = []}
+    Term_Table.pst_to_lifter_pst pst
   end;
-(*
-type abs_pstate_w_aux =
-  {subgoals: unode_aux_n_path_tables,
-   usings  : unode_aux_n_path_tables};
-*)
 
 fun get_new_name_subspaces (i:int) (domain:ids) (old_name_subspace:name_subspace) =
   let
@@ -192,17 +186,19 @@ val numb_domain = List.tabulate (30, I) |> Dom_Numb: domain;
 (*Warning: we ignore induct-rules that do not appear neither of the first sub-goal or chained facts.*)
 fun pst_to_rule_domain (pst:Proof.state) = Find_Theorems2.pstate_to_induct_thm_names pst
   |> map Rule_Name
+  |> (fn x => (tracing ("The cardinality of rule_domain is " ^ Int.toString (length x) ^ "."); x))
   |> Dom_Rule: domain;
 
 fun pst_to_trm_domain (pst:Proof.state) =
   let
-    val abs_pstate_w_aux   =  pstate_to_abs_pstate_w_aux pst: lifter_pst;
+    val abs_pstate_w_aux   = pst_to_abs_lifter_pst pst: lifter_pst;
     val {subgoals, usings} = abs_pstate_w_aux;
     fun unode_n_path_tables_to_pathss (one_terms:TT.one_terms) =
         one_terms |> map #print_to_paths_table |> map Print_Table.keys :prints list;
     val subgoal_pathss = unode_n_path_tables_to_pathss subgoals             : prints list;
     val using_pathss   = unode_n_path_tables_to_pathss usings               : prints list;
     val prints         = (subgoal_pathss @ using_pathss) |> flat |> distinct (uncurry LU.same_prints);
+    val _ = tracing ("The cardinality of trm_domain is " ^ Int.toString (length prints) ^ ".");
     val result         = Dom_Subt prints                                    : domain;
   in
     result: domain
@@ -232,8 +228,8 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 (* eval *)
 fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
   let
-    val _ = tracing "start computing eval in LiFtEr_Struct.ML";
-    val lifter_pst                = pstate_to_abs_pstate_w_aux pstate       : lifter_pst;
+    val _ = tracing "Start computing eval in LiFtEr_Struct.ML";
+    val lifter_pst                = Term_Table.pst_to_lifter_pst pstate     : lifter_pst;
     val _ = tracing "Before name_space_n_subtrm_occ_id_to_node in eval.";
     val Name_Domains name_domains = pst_to_name_domains pstate              : name_domains;
     val {subtrm_domain, numb_domain, rule_domain} = name_domains;
@@ -427,6 +423,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       | eval' (assrt1 And assrt2) name_space = eval' assrt1 name_space andalso eval' assrt2 name_space
       | eval' (assrt1 Or  assrt2) name_space = eval' assrt1 name_space orelse  eval' assrt2 name_space
       | eval' (Not assrt)            name_space = not (eval' assrt name_space)
+      | eval'  True _ = true
       | eval' (assrt1 Imply assrt2) name_space =
           if   eval' assrt1 name_space
           then eval' assrt2 name_space
@@ -526,8 +523,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           result
         end
-      | eval' (Is_In_Prems  (subtrm_occ:subtrm_occ)) (name_space:name_space) = eval'_in_imp subtrm_occ name_space 1
-      | eval' (Is_In_Cnclsn (subtrm_occ:subtrm_occ)) (name_space:name_space) = eval'_in_imp subtrm_occ name_space 2
+      | eval' (Is_In_Prems  (subtrm_occ:subtrm_occ)) (name_space:name_space) = eval'_in_imp subtrm_occ name_space 1(*TODO:FIXME: not always true*)
+      | eval' (Is_In_Cnclsn (subtrm_occ:subtrm_occ)) (name_space:name_space) = eval'_in_imp subtrm_occ name_space 2(*TODO:FIXME: not always true*)
       | eval' (Is_Const_Of_Name (subtrm_occ, const_name:string)) (name_space:name_space) =
         let
           val cname_option = name_space_n_subtrm_occ_id_to_cname name_space subtrm_occ: string option;
