@@ -71,8 +71,15 @@ ML   {* Apply_LiFtEr.get_ind_mod @{context} 2;                       *}
 
 ML{* Apply_LiFtEr.activate (); *}
 
-lemma "True"
+lemma "True \<and> x"
   test_LiFtEr_false 1 1
   oops
 
+lemma "\<not> (\<forall>x. True \<and> x)"
+  apply fastforce
+  done
+
+schematic_goal "\<not> (True \<and> ?x)"
+  apply fastforce
+  oops
 end
