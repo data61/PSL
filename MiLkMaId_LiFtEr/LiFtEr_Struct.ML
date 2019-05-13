@@ -709,7 +709,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       | eval' (All_Trm_Occ_Of (trm_occ, trm, assrt)) (name_space:name_space) =
         eval' (All_Trm_Occ    (trm_occ,
                                   Trm_Occ_Is_Of_Trm (trm_occ, trm)
-                                And
+                                Imply
                                   assrt)) name_space
       | eval' (Some_Trm_Occ_Of (trm_occ, trm, assrt)) (name_space:name_space) =
         eval' (Some_Trm_Occ (trm_occ,

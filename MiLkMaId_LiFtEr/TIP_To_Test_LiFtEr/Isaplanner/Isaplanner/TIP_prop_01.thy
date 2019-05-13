@@ -60,6 +60,18 @@ val mods_for_Isaplanner_01_04 = Ind_Mods
   rules = []
   }: ind_mods;
 
+val mods_for_Isaplanner_01_05 = Ind_Mods
+ {ons   = [Ind_On (Print "xs"), Ind_On (Print "n")],
+  arbs  = [],
+  rules = []
+  }: ind_mods;
+
+val mods_for_Isaplanner_01_06 = Ind_Mods
+ {ons   = [Ind_On (Print "TIP_prop_01.drop n xs"), Ind_On (Print "n")],
+  arbs  = [],
+  rules = []
+  }: ind_mods;
+
 val test_Some_Rule_n_Some_Trm_Occ_n_Is_Rule_Of =
     Some_Rule (Rule 1,
       Some_Trm_Occ (Trm_Occ 2,
@@ -123,8 +135,44 @@ val test_Print_Is_n_Is_Rule_Of =
          Is_Rule_Of (Rule 1, Trm_Occ 3)))))));
 
 val test_Some_Rule = Some_Rule (Rule 1, True);
+
 val test_Some_Ind  = Some_Ind  (Trm 1, True);
+
 val test_Some_Arb  = Some_Arb  (Trm 1, True);
+
+val test_All_Ind_n_Is_Atom =
+  All_Ind (Trm 1,
+    Some_Trm_Occ (Trm_Occ 2,
+        Trm_Occ_Is_Of_Trm (Trm_Occ 2, Trm 1)
+     And
+        Is_Atom (Trm_Occ 2)));
+
+val test_All_Ind_n_Is_Atom_n_Some_Trm_Occ_Of =
+  All_Ind (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+      Is_Atom (Trm_Occ 2)));
+
+val test_All_Ind_n_Is_Atom_n_All_Trm_Occ_Of =
+  All_Ind (Trm 1,
+    All_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+      Is_Atom (Trm_Occ 2)));
+
+val test_All_Ind_n_All_Trm_Occ_n_Imply_Is_Atom =
+  All_Ind (Trm 1,
+    All_Trm_Occ (Trm_Occ 2,
+        Trm_Occ_Is_Of_Trm (Trm_Occ 2, Trm 1)
+      Imply
+        Is_Atom (Trm_Occ 2)));
+
+val test_All_Ind_n_Some_Trm_Occ_Of1 =
+  All_Ind (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+      Is_Atom (Trm_Occ 2)));
+
+val test_All_Ind_n_Some_Trm_Occ_Of2 =
+  All_Ind (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+      Not (Is_Atom (Trm_Occ 2))));
 
 end;
 *}
@@ -142,11 +190,20 @@ setup{* Apply_LiFtEr.update_assert  13 test_Print_Is_n_Is_Rule_Of;              
 setup{* Apply_LiFtEr.update_assert  14 test_Some_Rule;                                *}
 setup{* Apply_LiFtEr.update_assert  15 test_Some_Arb;                                 *}
 setup{* Apply_LiFtEr.update_assert  16 test_Some_Ind;                                 *}
+setup{* Apply_LiFtEr.update_assert  17 test_All_Ind_n_Is_Atom;                        *}
+setup{* Apply_LiFtEr.update_assert  18 test_All_Ind_n_Is_Atom_n_Some_Trm_Occ_Of;      *}
+setup{* Apply_LiFtEr.update_assert  19 test_All_Ind_n_Is_Atom_n_All_Trm_Occ_Of;       *}
+setup{* Apply_LiFtEr.update_assert  20 test_All_Ind_n_All_Trm_Occ_n_Imply_Is_Atom;    *}
+setup{* Apply_LiFtEr.update_assert  21 test_All_Ind_n_Some_Trm_Occ_Of1;               *}
+setup{* Apply_LiFtEr.update_assert  22 test_All_Ind_n_Some_Trm_Occ_Of1;               *}
+
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
 setup{* Apply_LiFtEr.update_ind_mod 5 mods_for_Isaplanner_01_03; *}
 setup{* Apply_LiFtEr.update_ind_mod 6 mods_for_Isaplanner_01_04; *}
+setup{* Apply_LiFtEr.update_ind_mod 7 mods_for_Isaplanner_01_05; *}
+setup{* Apply_LiFtEr.update_ind_mod 8 mods_for_Isaplanner_01_06; *}
 
 theorem property0 :
   "((x (take n xs) (drop n xs)) = xs)"
@@ -168,6 +225,18 @@ theorem property0 :
   test_LiFtEr_true  15 5
   test_LiFtEr_true  15 6
   test_LiFtEr_true  16 6
+  test_LiFtEr_true  17 7
+  test_LiFtEr_false 17 8
+  test_LiFtEr_true  18 7
+  test_LiFtEr_false 18 8
+  test_LiFtEr_true  19 7
+  test_LiFtEr_false 19 8
+  test_LiFtEr_true  20 7
+  test_LiFtEr_false 20 8
+  test_LiFtEr_true  21 7
+  test_LiFtEr_false 21 8
+  test_LiFtEr_true  22 7
+  test_LiFtEr_false 22 8
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
