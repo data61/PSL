@@ -60,84 +60,84 @@ val mods_for_Isaplanner_01_04 = Ind_Mods
   rules = []
   }: ind_mods;
 
-val test_Some_Rule_n_Some_Sub_Trm_Occ_n_Is_Rule_Of =
+val test_Some_Rule_n_Some_Trm_Occ_n_Is_Rule_Of =
     Some_Rule (Rule 1,
-      Some_Sub_Trm_Occ (Sub_Trm_Occ 2,
-        Is_Rule_Of (Rule 1, Sub_Trm_Occ 2)));
+      Some_Trm_Occ (Trm_Occ 2,
+        Is_Rule_Of (Rule 1, Trm_Occ 2)));
 
 val assert_should_succeed =
   Some_Rule (Rule 1,
-    Some_Sub_Trm (Sub_Trm 2,
-      Some_Sub_Trm_Occ (Sub_Trm_Occ 3,
-          Is_Cnst (Sub_Trm_Occ 3)
+    Some_Trm (Trm 2,
+      Some_Trm_Occ (Trm_Occ 3,
+          Is_Cnst (Trm_Occ 3)
         And
-          Is_Rule_Of (Rule 1, Sub_Trm_Occ 3)
+          Is_Rule_Of (Rule 1, Trm_Occ 3)
         And
-          Trm_Occ_Is_Of_Trm (Sub_Trm_Occ 3, Sub_Trm 2))));
+          Trm_Occ_Is_Of_Trm (Trm_Occ 3, Trm 2))));
 
 val test_True      = True;
 val test_Not       = Not True;
 val test_Or_True   = True Or (Not True);
 val test_Or_False  = (Not True) Or (Not True);
-val test_Some_Ind_and_Some_Sub_Trm_Occ = Some_Ind (Sub_Trm 1, True)
+val test_Some_Ind_and_Some_Trm_Occ = Some_Ind (Trm 1, True)
 (* test_Print_Is *)
 val test_Print_Is =
-    (Some_Sub_Trm (Sub_Trm 1,
-         Print_Is (Sub_Trm 1, "TIP_prop_01.drop")))
+    (Some_Trm (Trm 1,
+         Print_Is (Trm 1, "TIP_prop_01.drop")))
   And
-    (Some_Sub_Trm (Sub_Trm 1,
-         Print_Is (Sub_Trm 1, "TIP_prop_01.take")))
+    (Some_Trm (Trm 1,
+         Print_Is (Trm 1, "TIP_prop_01.take")))
   And
-    (Some_Sub_Trm (Sub_Trm 1,
-         Print_Is (Sub_Trm 1, "TIP_prop_01.drop n xs")))
+    (Some_Trm (Trm 1,
+         Print_Is (Trm 1, "TIP_prop_01.drop n xs")))
   And
     (Not (*Print does not contain redundant parentheses.*)
-      (Some_Sub_Trm (Sub_Trm 1,
-           Print_Is (Sub_Trm 1, "(TIP_prop_01.drop n xs)"))))
+      (Some_Trm (Trm 1,
+           Print_Is (Trm 1, "(TIP_prop_01.drop n xs)"))))
   And
     (*For some reasons, Print uses a short name for "x".*)
-    (Some_Sub_Trm (Sub_Trm 1,
-         Print_Is (Sub_Trm 1, "x")))
+    (Some_Trm (Trm 1,
+         Print_Is (Trm 1, "x")))
   And
-    (Some_Sub_Trm (Sub_Trm 1,
-         Print_Is (Sub_Trm 1, "x (TIP_prop_01.take n xs) (TIP_prop_01.drop n xs)")))
+    (Some_Trm (Trm 1,
+         Print_Is (Trm 1, "x (TIP_prop_01.take n xs) (TIP_prop_01.drop n xs)")))
   And
-    (Some_Sub_Trm (Sub_Trm 1,
-         Print_Is (Sub_Trm 1, "x (TIP_prop_01.take n xs) (TIP_prop_01.drop n xs) = xs")));
+    (Some_Trm (Trm 1,
+         Print_Is (Trm 1, "x (TIP_prop_01.take n xs) (TIP_prop_01.drop n xs) = xs")));
 
-(* test_Some_Sub_Trm_Occ *)
-val test_Some_Sub_Trm_Occ =
-    (Some_Sub_Trm (Sub_Trm 1,
-       (Some_Sub_Trm_Occ (Sub_Trm_Occ 2,
-         Print_Is (Sub_Trm 1, "TIP_prop_01.drop")
+(* test_Some_Trm_Occ *)
+val test_Some_Trm_Occ =
+    (Some_Trm (Trm 1,
+       (Some_Trm_Occ (Trm_Occ 2,
+         Print_Is (Trm 1, "TIP_prop_01.drop")
        And
-         Trm_Occ_Is_Of_Trm (Sub_Trm_Occ 2, Sub_Trm 1)))));
+         Trm_Occ_Is_Of_Trm (Trm_Occ 2, Trm 1)))));
 
 (* test_Print_Is_n_Is_Rule_Of *)
 val test_Print_Is_n_Is_Rule_Of =
   (Some_Rule (Rule 1,
-    (Some_Sub_Trm (Sub_Trm 2,
-       (Some_Sub_Trm_Occ (Sub_Trm_Occ 3,
-         Print_Is (Sub_Trm 2, "TIP_prop_01.drop")
+    (Some_Trm (Trm 2,
+       (Some_Trm_Occ (Trm_Occ 3,
+         Print_Is (Trm 2, "TIP_prop_01.drop")
        And
-         Is_Rule_Of (Rule 1, Sub_Trm_Occ 3)))))));
+         Is_Rule_Of (Rule 1, Trm_Occ 3)))))));
 
 val test_Some_Rule = Some_Rule (Rule 1, True);
 
-val test_Some_Arb = Some_Arb (Sub_Trm 1, True);
+val test_Some_Arb = Some_Arb (Trm 1, True);
 
 end;
 *}
 
 setup{* Apply_LiFtEr.update_assert  4 LiFtEr_Assertion.sample_assert;                 *}
-setup{* Apply_LiFtEr.update_assert  5 test_Some_Rule_n_Some_Sub_Trm_Occ_n_Is_Rule_Of; *}
+setup{* Apply_LiFtEr.update_assert  5 test_Some_Rule_n_Some_Trm_Occ_n_Is_Rule_Of; *}
 setup{* Apply_LiFtEr.update_assert  6 test_True;                                      *}
 setup{* Apply_LiFtEr.update_assert  7 test_Not;                                       *}
 setup{* Apply_LiFtEr.update_assert  8 test_Or_True;                                   *}
 setup{* Apply_LiFtEr.update_assert  9 test_Or_False;                                  *}
-setup{* Apply_LiFtEr.update_assert  10 test_Some_Ind_and_Some_Sub_Trm_Occ;            *}
+setup{* Apply_LiFtEr.update_assert  10 test_Some_Ind_and_Some_Trm_Occ;            *}
 setup{* Apply_LiFtEr.update_assert  11 test_Print_Is                                  *}
-setup{* Apply_LiFtEr.update_assert  12 test_Some_Sub_Trm_Occ;                         *}
+setup{* Apply_LiFtEr.update_assert  12 test_Some_Trm_Occ;                         *}
 setup{* Apply_LiFtEr.update_assert  13 test_Print_Is_n_Is_Rule_Of;                    *}
 setup{* Apply_LiFtEr.update_assert  14 test_Some_Rule;                                *}
 setup{* Apply_LiFtEr.update_assert  15 test_Some_Arb;                                 *}
@@ -164,6 +164,8 @@ theorem property0 :
   test_LiFtEr_true  13 3
   test_LiFtEr_false 14 5
   test_LiFtEr_true  14 4
+  test_LiFtEr_true  15 6
+(*  test_LiFtEr_false 15 5 TODO: FIXME*)
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
