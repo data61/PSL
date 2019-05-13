@@ -77,7 +77,7 @@ datatype assrt   =
 | Pattern                 of numb* trm_occ * pattern (*In the definition of trm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
 | Are_Diff_Numb           of numb    * numb           (*Not & Are_Same_Numb*)
-| Are_Diff_Str            of trm_occ * trm_occ     (*Not & Are_Same_Str*)
+| Are_Diff_Str            of trm_occ * trm_occ        (*Not & Are_Same_Str*)
 | Has_Typ                 of trm_occ * hol_typ        (*Some_Trm, Is_In, & Is_Typ*)
 | Is_At_Deepest           of trm_occ
 | Is_More_Than            of numb    * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
@@ -544,6 +544,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                               : (UN.print * UN.print) option;
           val result_option                = occ1_occ2_print_option <$> uncurry is_subprint_of                                               : bool option;
           val result                       = Utils.is_some_true result_option                                                                : bool;
+          val _ = tracing (if is_none result_option then "None" else "Some");
+          val _ = tracing (if result then "result is True" else "result is False");
         in
           result
         end

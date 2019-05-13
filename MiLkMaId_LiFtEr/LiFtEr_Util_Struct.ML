@@ -15,7 +15,13 @@ type     prints = print list;
 fun same_prints (Print p1) (Print p2) = p1 = p2;
 
 fun dest_print (Print str) = str;
-fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
+
+infix isSubstring;
+
+val (op isSubstring) = uncurry String.isSubstring;
+
+fun is_subprint_of (Print p1) (Print p2) = p2 isSubstring p1;
+
 fun ctxt_n_print_to_cname  (ctxt:Proof.context) (print:print) =
   let
     val trm_option = try dest_print print >>= try (Syntax.read_term ctxt): term   option;

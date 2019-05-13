@@ -32,7 +32,7 @@ ML{* (*modifiers*)
 local
 
 open LiFtEr LiFtEr_Util;
-infix And Or Imply;
+infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str;
 
 in
 
@@ -69,6 +69,12 @@ val mods_for_Isaplanner_01_05 = Ind_Mods
 val mods_for_Isaplanner_01_06 = Ind_Mods
  {ons   = [Ind_On (Print "TIP_prop_01.drop n xs"), Ind_On (Print "n")],
   arbs  = [],
+  rules = []
+  }: ind_mods;
+
+val mods_for_Isaplanner_01_07 = Ind_Mods
+ {ons   = [Ind_On (Print "TIP_prop_01.drop n xs")],
+  arbs  = [Ind_Arb (Print "n")],
   rules = []
   }: ind_mods;
 
@@ -174,6 +180,17 @@ val test_All_Ind_n_Some_Trm_Occ_Of2 =
     Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
       Not (Is_Atom (Trm_Occ 2))));
 
+val test_All_Ind_n_Some_Trm_Occ_Of3 =
+    Some_Arb (Trm 2, True)
+  Imply
+    Some_Arb (Trm 2,
+      All_Ind (Trm 1,
+        All_Trm_Occ_Of (Trm_Occ 3, Trm 2,
+          Some_Trm_Occ_Of (Trm_Occ 4, Trm 1,
+              Trm_Occ 4
+            Is_In_Trm_Str
+              Trm_Occ 3))));
+
 end;
 *}
 
@@ -195,7 +212,8 @@ setup{* Apply_LiFtEr.update_assert  18 test_All_Ind_n_Is_Atom_n_Some_Trm_Occ_Of;
 setup{* Apply_LiFtEr.update_assert  19 test_All_Ind_n_Is_Atom_n_All_Trm_Occ_Of;       *}
 setup{* Apply_LiFtEr.update_assert  20 test_All_Ind_n_All_Trm_Occ_n_Imply_Is_Atom;    *}
 setup{* Apply_LiFtEr.update_assert  21 test_All_Ind_n_Some_Trm_Occ_Of1;               *}
-setup{* Apply_LiFtEr.update_assert  22 test_All_Ind_n_Some_Trm_Occ_Of1;               *}
+setup{* Apply_LiFtEr.update_assert  22 test_All_Ind_n_Some_Trm_Occ_Of2;               *}
+setup{* Apply_LiFtEr.update_assert  23 test_All_Ind_n_Some_Trm_Occ_Of3;               *}
 
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
@@ -204,6 +222,7 @@ setup{* Apply_LiFtEr.update_ind_mod 5 mods_for_Isaplanner_01_03; *}
 setup{* Apply_LiFtEr.update_ind_mod 6 mods_for_Isaplanner_01_04; *}
 setup{* Apply_LiFtEr.update_ind_mod 7 mods_for_Isaplanner_01_05; *}
 setup{* Apply_LiFtEr.update_ind_mod 8 mods_for_Isaplanner_01_06; *}
+setup{* Apply_LiFtEr.update_ind_mod 9 mods_for_Isaplanner_01_07; *}
 
 theorem property0 :
   "((x (take n xs) (drop n xs)) = xs)"
@@ -235,10 +254,12 @@ theorem property0 :
   test_LiFtEr_false 20 8
   test_LiFtEr_true  21 7
   test_LiFtEr_false 21 8
-  test_LiFtEr_true  22 7
+  test_LiFtEr_false 22 7
   test_LiFtEr_false 22 8
+  test_LiFtEr_true  23 9
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
-
+ML{* String.isSubstring "TIP_prop_01.drop n xs" "n"*}
+ML{* String.isSubstring "n" "TIP_prop_01.drop n xs"*}
 end
