@@ -176,7 +176,7 @@ fun get_new_name_subspaces (i:int) (domain:ids) (old_name_subspace:name_subspace
     new_name_subspaces
   end;
 
-datatype id_type =
+datatype id_typ =
   IDTyp_Subtrm
 | IDTyp_Subtrm_Occ
 | IDTyp_Rule
@@ -402,7 +402,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
 
     val _ = tracing "Before calling the mutual recursive function in eval.";
 
-    fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: domain) (add_typ:id_type) =
+    fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: domain) (add_typ:id_typ) =
       let
         val new_subtrm_entries_in_name_space = get_new_name_subspaces index domain name_subspace      : name_subspaces;
         fun get_new_name_space new_name_subspace = update_name_space new_name_subspace add_typ name_space: name_space;

@@ -31,29 +31,34 @@ fun drop :: "Nat => 'a list => 'a list" where
 ML{* (*modifiers*)
 local
 
-structure LU = LiFtEr_Util;
-open LiFtEr;
+open LiFtEr LiFtEr_Util;
 infix And Or Imply;
 
 in
 
-val mods_for_Isaplanner_01_01 = LU.Ind_Mods
- {ons   = [LU.Ind_On (LU.Print "xs")],
+val mods_for_Isaplanner_01_01 = Ind_Mods
+ {ons   = [Ind_On (Print "xs")],
   arbs  = [],
-  rules = [LU.Ind_Rule "TIP_prop_01.drop.induct"]
-  }: LU.ind_mods;
+  rules = [Ind_Rule "TIP_prop_01.drop.induct"]
+  }: ind_mods;
 
-val mods_for_Isaplanner_01_02 = LU.Ind_Mods
+val mods_for_Isaplanner_01_02 = Ind_Mods
  {ons   = [],
   arbs  = [],
-  rules = [LU.Ind_Rule "TIP_prop_01.drop.induct"]
-  }: LU.ind_mods;
+  rules = [Ind_Rule "TIP_prop_01.drop.induct"]
+  }: ind_mods;
 
-val mods_for_Isaplanner_01_03 = LU.Ind_Mods
- {ons   = [LU.Ind_On (LU.Print "xs")],
+val mods_for_Isaplanner_01_03 = Ind_Mods
+ {ons   = [],
+  arbs  = [Ind_Arb (Print "n")],
+  rules = []
+  }: ind_mods;
+
+val mods_for_Isaplanner_01_04 = Ind_Mods
+ {ons   = [Ind_On (Print "xs")],
   arbs  = [],
   rules = []
-  }: LU.ind_mods;
+  }: ind_mods;
 
 val test_Some_Rule_n_Some_Sub_Trm_Occ_n_Is_Rule_Of =
     Some_Rule (Rule 1,
@@ -118,6 +123,9 @@ val test_Print_Is_n_Is_Rule_Of =
          Is_Rule_Of (Rule 1, Sub_Trm_Occ 3)))))));
 
 val test_Some_Rule = Some_Rule (Rule 1, True);
+
+val test_Some_Arb = Some_Arb (Sub_Trm 1, True);
+
 end;
 *}
 
@@ -131,12 +139,13 @@ setup{* Apply_LiFtEr.update_assert  10 test_Some_Ind_and_Some_Sub_Trm_Occ;      
 setup{* Apply_LiFtEr.update_assert  11 test_Print_Is                                  *}
 setup{* Apply_LiFtEr.update_assert  12 test_Some_Sub_Trm_Occ;                         *}
 setup{* Apply_LiFtEr.update_assert  13 test_Print_Is_n_Is_Rule_Of;                    *}
-setup{* Apply_LiFtEr.update_assert  14 test_Some_Rule            ;                    *}
+setup{* Apply_LiFtEr.update_assert  14 test_Some_Rule;                                *}
+setup{* Apply_LiFtEr.update_assert  15 test_Some_Arb;                                 *}
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
 setup{* Apply_LiFtEr.update_ind_mod 5 mods_for_Isaplanner_01_03; *}
-
+setup{* Apply_LiFtEr.update_ind_mod 6 mods_for_Isaplanner_01_04; *}
 
 theorem property0 :
   "((x (take n xs) (drop n xs)) = xs)"
