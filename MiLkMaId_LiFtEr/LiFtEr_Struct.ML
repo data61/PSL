@@ -144,17 +144,27 @@ datatype name =
 | Name_Rule    of rule
 | Name_Trm_Occ of trm_occ;
 
-datatype domain = Dom_Trm of prints | Dom_Trm_Occ of path_n_locs | Dom_Rule of rule_names | Dom_Numb of ints;
+datatype domain =
+  Dom_Trm_Occ of path_n_locs 
+| Dom_Trm     of prints
+| Dom_On      of prints
+| Dom_Arb     of prints
+| Dom_Rule    of rule_names
+| Dom_Numb    of ints;
 
 datatype name_domains = Name_Domains of
   {trm_domain    : domain,
    trm_occ_domain: domain,
+   on_domain     : domain,
+   arb_domain    : domain,
    rule_domain   : domain,
    numb_domain   : domain};
 
 val empty_domain (*TODO: This should not be used*) = Name_Domains
   {trm_domain     = Dom_Trm [],
    trm_occ_domain = Dom_Trm_Occ [],
+   on_domain      = Dom_On [],
+   arb_domain     = Dom_Arb [],
    numb_domain    = Dom_Rule [],
    rule_domain    = Dom_Numb []}: name_domains;
 
@@ -180,13 +190,19 @@ fun get_new_name_subspaces (i:int) (domain:ids) (old_name_subspace:name_subspace
 datatype id_typ =
   IDTyp_Trm
 | IDTyp_Trm_Occ
+| IDTyp_On
+| IDTyp_Arb
 | IDTyp_Rule
 | IDTyp_Numb;
 
-fun update_name_space (new_trm    : name_subspace)    IDTyp_Trm     (Name_Space {trm_occ, rule, numb, ...}: name_space) = Name_Space {trm = new_trm, trm_occ = trm_occ,     rule = rule,     numb = numb    }: name_space
-  | update_name_space (new_trm_occ: name_subspace)    IDTyp_Trm_Occ (Name_Space {trm, rule, numb, ...}    : name_space) = Name_Space {trm = trm,     trm_occ = new_trm_occ, rule = rule,     numb = numb    }: name_space
-  | update_name_space (new_rule      : name_subspace) IDTyp_Rule    (Name_Space {trm, trm_occ, numb, ...} : name_space) = Name_Space {trm = trm,     trm_occ = trm_occ,     rule = new_rule, numb = numb    }: name_space
-  | update_name_space (new_numb      : name_subspace) IDTyp_Numb    (Name_Space {trm, trm_occ, rule, ...} : name_space) = Name_Space {trm = trm,     trm_occ = trm_occ,     rule = rule,     numb = new_numb}: name_space;
+(*Note that IDTyp_On and IDTyp_Arb have their own domains, but they share name_space with IDTyp_Trm*)
+(*because induction terms and generalized terms are kind of terms.                                 *)
+fun update_name_space (new_trm    : name_subspace) IDTyp_Trm     (Name_Space {trm_occ, rule, numb, ...}: name_space) = Name_Space {trm = new_trm, trm_occ = trm_occ,     rule = rule,     numb = numb    }: name_space
+  | update_name_space (new_trm_occ: name_subspace) IDTyp_Trm_Occ (Name_Space {trm, rule, numb, ...}    : name_space) = Name_Space {trm = trm,     trm_occ = new_trm_occ, rule = rule,     numb = numb    }: name_space
+  | update_name_space (new_trm    : name_subspace) IDTyp_On      (Name_Space {trm_occ, rule, numb, ...}: name_space) = Name_Space {trm = new_trm, trm_occ = trm_occ,     rule = rule,     numb = numb    }: name_space
+  | update_name_space (new_trm    : name_subspace) IDTyp_Arb     (Name_Space {trm_occ, rule, numb, ...}: name_space) = Name_Space {trm = new_trm, trm_occ = trm_occ,     rule = rule,     numb = numb    }: name_space
+  | update_name_space (new_rule   : name_subspace) IDTyp_Rule    (Name_Space {trm, trm_occ, numb, ...} : name_space) = Name_Space {trm = trm,     trm_occ = trm_occ,     rule = new_rule, numb = numb    }: name_space
+  | update_name_space (new_numb   : name_subspace) IDTyp_Numb    (Name_Space {trm, trm_occ, rule, ...} : name_space) = Name_Space {trm = trm,     trm_occ = trm_occ,     rule = rule,     numb = new_numb}: name_space;
 
 (*TODO: numb_domain should not rely on a magic number, 30.*)
 val numb_domain = List.tabulate (30, I) |> Dom_Numb: domain;
@@ -235,6 +251,8 @@ fun pst_to_trm_occ_domain (pst:Proof.state) =
 fun pst_to_name_domains (pst:Proof.state) (ind_mods:LU.ind_mods): name_domains = Name_Domains
   {trm_domain     = pst_to_trm_domain pst,
    trm_occ_domain = pst_to_trm_occ_domain pst,
+   on_domain      = undefined ((*TODO*)),
+   arb_domain     = undefined ((*TODO*)),
    rule_domain    = ind_mods_to_rule_domain ind_mods,
    numb_domain    = numb_domain};
 
@@ -261,7 +279,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
     val _ = tracing "Start computing eval in LiFtEr_Struct.ML";
     val lifter_pst                = Term_Table.pst_to_lifter_pst pstate       : lifter_pst;
     val _ = tracing "Before name_space_n_trm_occ_id_to_node in eval.";
-    val {trm_domain, trm_occ_domain, numb_domain, rule_domain} = name_domains;
+    val {trm_domain, trm_occ_domain, on_domain, arb_domain, numb_domain, rule_domain} = name_domains;
     val ctxt                      = Proof.context_of pstate                   : Proof.context;
     val empty_name_space = Name_Space
        {trm     = [],
@@ -434,13 +452,13 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       (** eval' is the core function of LiFtEr's interpreter. **)
       (*Note that we never modify abs_pst_w_aux or name_domains.*)
       (*quantifiers*)
-        eval' (All_Ind      (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    forall trm_domain  IDTyp_Trm
-      | eval' (All_Arb      (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    forall trm_domain  IDTyp_Trm
+        eval' (All_Ind      (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    forall on_domain   IDTyp_Trm
+      | eval' (All_Arb      (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    forall arb_domain  IDTyp_Trm
       | eval' (All_Trm      (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    forall trm_domain  IDTyp_Trm
       | eval' (All_Rule     (Rule    i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) forall rule_domain IDTyp_Rule
       | eval' (All_Numb     (Nth     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) forall numb_domain IDTyp_Numb
-      | eval' (Some_Ind     (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    exists trm_domain  IDTyp_Trm
-      | eval' (Some_Arb     (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    exists trm_domain  IDTyp_Trm
+      | eval' (Some_Ind     (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    exists on_domain   IDTyp_Trm
+      | eval' (Some_Arb     (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    exists arb_domain  IDTyp_Trm
       | eval' (Some_Trm     (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm name_space)    exists trm_domain  IDTyp_Trm
       | eval' (Some_Rule    (Rule    i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule   name_space) exists rule_domain IDTyp_Rule
       | eval' (Some_Numb    (Nth     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb   name_space) exists numb_domain IDTyp_Numb

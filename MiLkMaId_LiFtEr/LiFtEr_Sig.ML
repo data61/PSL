@@ -106,11 +106,19 @@ datatype name_space = Name_Space of
 
 type name_spaces = name_space list;
 
-datatype domain = Dom_Trm_Occ of path_n_locs | Dom_Trm of prints | Dom_Rule of rule_names | Dom_Numb of ints;
+datatype domain =
+  Dom_Trm_Occ of path_n_locs
+| Dom_Trm     of prints
+| Dom_On      of prints
+| Dom_Arb     of prints
+| Dom_Rule    of rule_names
+| Dom_Numb    of ints;
 
 datatype name_domains = Name_Domains of
   {trm_domain    : domain,
    trm_occ_domain: domain,
+   on_domain     : domain,
+   arb_domain    : domain,
    rule_domain   : domain,
    numb_domain   : domain};
 
