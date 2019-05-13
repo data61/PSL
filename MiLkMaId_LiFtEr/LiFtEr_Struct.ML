@@ -144,7 +144,7 @@ datatype name =
 | Name_Rule    of rule
 | Name_Trm_Occ of trm_occ;
 
-datatype domain = Dom_Subt of prints | Dom_Subt_Occ of path_n_locs | Dom_Rule of rule_names | Dom_Numb of ints;
+datatype domain = Dom_Trm of prints | Dom_Trm_Occ of path_n_locs | Dom_Rule of rule_names | Dom_Numb of ints;
 
 datatype name_domains = Name_Domains of
   {trm_domain    : domain,
@@ -153,8 +153,8 @@ datatype name_domains = Name_Domains of
    numb_domain   : domain};
 
 val empty_domain (*TODO: This should not be used*) = Name_Domains
-  {trm_domain     = Dom_Subt [],
-   trm_occ_domain = Dom_Subt_Occ [],
+  {trm_domain     = Dom_Trm [],
+   trm_occ_domain = Dom_Trm_Occ [],
    numb_domain    = Dom_Rule [],
    rule_domain    = Dom_Numb []}: name_domains;
 
@@ -202,7 +202,7 @@ fun pst_to_trm_domain (pst:Proof.state) =
     val using_pathss   = unode_n_path_tables_to_pathss usings                                        :prints list;
     val prints         = (subgoal_pathss @ using_pathss) |> flat |> distinct (uncurry LU.same_prints):print list;
     val _ = tracing ("The cardinality of trm_domain is " ^ Int.toString (length prints) ^ ".");
-    val result         = Dom_Subt prints                                                             :domain;
+    val result         = Dom_Trm prints                                                              :domain;
   in
     result: domain
   end;
@@ -227,7 +227,7 @@ fun pst_to_trm_occ_domain (pst:Proof.state) =
     val path_n_locs_in_chained  = one_terms_n_loc_typ_to_path_n_locs usings   0 LTyp_Chained_Fact [];
     val path_n_locs = flat (path_n_locs_in_subgoals @ path_n_locs_in_chained: path_n_locs list): path_n_locs
     val _ = tracing ("The cardinality of trm_occ_domain is " ^ Int.toString (length path_n_locs) ^ ".");
-    val result = Dom_Subt_Occ path_n_locs: domain;
+    val result = Dom_Trm_Occ path_n_locs: domain;
   in
     result: domain
   end;
@@ -366,8 +366,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       (*TODO: Double-check if we really have to pass domain around. Each assertion has a fixed domain.*)
       let
         val new_ids      = case domain of
-            Dom_Subt     prints => map ID_Trm     prints
-          | Dom_Subt_Occ paths  => map ID_Trm_Occ paths
+            Dom_Trm     prints  => map ID_Trm     prints
+          | Dom_Trm_Occ paths   => map ID_Trm_Occ paths
           | Dom_Rule     rnames => map ID_Rule       rnames
           | Dom_Numb     numb   => map ID_Numb       numb                                 : ids;
         val new_name_subspace  = map (pair idx) new_ids                                   : name_subspace;

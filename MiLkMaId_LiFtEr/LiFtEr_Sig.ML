@@ -65,10 +65,10 @@ datatype assrt   =
 | Depth_Of_Trm_Occ_Is     of trm_occ * numb
 | Print_Is                of trm     * string
 (* TODO: pattern *)
-| Pattern                 of numb* trm_occ * pattern (*In the definition of trm, the numb-th argument has this pattern.*)
+| Pattern                 of numb* trm_occ * pattern  (*In the definition of trm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
 | Are_Diff_Numb           of numb    * numb           (*Not & Are_Same_Numb*)
-| Are_Diff_Str            of trm_occ * trm_occ     (*Not & Are_Same_Str*)
+| Are_Diff_Str            of trm_occ * trm_occ        (*Not & Are_Same_Str*)
 | Has_Typ                 of trm_occ * hol_typ        (*Some_Trm, Is_In, & Is_Typ*)
 | Is_At_Deepest           of trm_occ
 | Is_More_Than            of numb    * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
@@ -106,7 +106,7 @@ datatype name_space = Name_Space of
 
 type name_spaces = name_space list;
 
-datatype domain = Dom_Subt_Occ of path_n_locs | Dom_Subt of prints | Dom_Rule of rule_names | Dom_Numb of ints;
+datatype domain = Dom_Trm_Occ of path_n_locs | Dom_Trm of prints | Dom_Rule of rule_names | Dom_Numb of ints;
 
 datatype name_domains = Name_Domains of
   {trm_domain    : domain,
