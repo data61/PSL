@@ -84,7 +84,7 @@ type location;
 type path_n_loc;
 type path_n_locs;
 
-datatype id =(*TODO: better name? FIXME: this is actually value type.*)
+datatype id =
   ID_Trm     of print
 | ID_Trm_Occ of path_n_loc
 | ID_Rule    of rule_name

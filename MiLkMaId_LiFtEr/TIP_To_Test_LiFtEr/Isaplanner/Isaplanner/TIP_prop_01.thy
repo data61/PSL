@@ -56,7 +56,7 @@ val mods_for_Isaplanner_01_03 = Ind_Mods
 
 val mods_for_Isaplanner_01_04 = Ind_Mods
  {ons   = [Ind_On (Print "xs")],
-  arbs  = [],
+  arbs  = [Ind_Arb (Print "n")],
   rules = []
   }: ind_mods;
 
@@ -123,8 +123,8 @@ val test_Print_Is_n_Is_Rule_Of =
          Is_Rule_Of (Rule 1, Trm_Occ 3)))))));
 
 val test_Some_Rule = Some_Rule (Rule 1, True);
-
-val test_Some_Arb = Some_Arb (Trm 1, True);
+val test_Some_Ind  = Some_Ind  (Trm 1, True);
+val test_Some_Arb  = Some_Arb  (Trm 1, True);
 
 end;
 *}
@@ -135,12 +135,13 @@ setup{* Apply_LiFtEr.update_assert  6 test_True;                                
 setup{* Apply_LiFtEr.update_assert  7 test_Not;                                       *}
 setup{* Apply_LiFtEr.update_assert  8 test_Or_True;                                   *}
 setup{* Apply_LiFtEr.update_assert  9 test_Or_False;                                  *}
-setup{* Apply_LiFtEr.update_assert  10 test_Some_Ind_and_Some_Trm_Occ;            *}
+setup{* Apply_LiFtEr.update_assert  10 test_Some_Ind_and_Some_Trm_Occ;                *}
 setup{* Apply_LiFtEr.update_assert  11 test_Print_Is                                  *}
-setup{* Apply_LiFtEr.update_assert  12 test_Some_Trm_Occ;                         *}
+setup{* Apply_LiFtEr.update_assert  12 test_Some_Trm_Occ;                             *}
 setup{* Apply_LiFtEr.update_assert  13 test_Print_Is_n_Is_Rule_Of;                    *}
 setup{* Apply_LiFtEr.update_assert  14 test_Some_Rule;                                *}
 setup{* Apply_LiFtEr.update_assert  15 test_Some_Arb;                                 *}
+setup{* Apply_LiFtEr.update_assert  16 test_Some_Ind;                                 *}
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
@@ -164,8 +165,9 @@ theorem property0 :
   test_LiFtEr_true  13 3
   test_LiFtEr_false 14 5
   test_LiFtEr_true  14 4
+  test_LiFtEr_true  15 5
   test_LiFtEr_true  15 6
-(*  test_LiFtEr_false 15 5 TODO: FIXME*)
+  test_LiFtEr_true  16 6
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
