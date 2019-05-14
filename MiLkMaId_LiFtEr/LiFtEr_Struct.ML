@@ -68,8 +68,8 @@ datatype assrt   =
 | Not_Fully_App           of trm_occ (*If trm is function application that is not fully applied returns true, otherwise returns false.*)
 | Is_Less_Than            of numb    * numb (* nth_1 < nth_2 *)
 | Is_Nth_Arg_Of           of trm_occ * numb * trm_occ
-| Is_Nth_Ind              of trm     * numb
-| Is_Nth_Arb              of trm     * numb
+| Is_Nth_Ind              of trm     * numb (*Counting starts with 0.*)
+| Is_Nth_Arb              of trm     * numb (*Counting starts with 0.*)
 | Numb_Is                 of numb    * int
 | Depth_Of_Trm_Occ_Is     of trm_occ * numb
 | Print_Is                of trm     * string
@@ -641,8 +641,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           are_same_paths
         end
-      | eval' (assrt as Is_Nth_Ind (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space
-      | eval' (assrt as Is_Nth_Arb (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space
+      | eval' (assrt as Is_Nth_Ind (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space (*Counting starts with 0.*)
+      | eval' (assrt as Is_Nth_Arb (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space (*Counting starts with 0.*)
       | eval' (Numb_Is  (Nth numb, int:int)) (name_space:name_space) =
         let
           val numb_option         = name_space_n_numb_id_to_integer name_space (Nth numb): int option;

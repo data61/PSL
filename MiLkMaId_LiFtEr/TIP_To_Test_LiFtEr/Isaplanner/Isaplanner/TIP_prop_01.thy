@@ -183,10 +183,20 @@ val test_Is_At_Deepest_n_All_Trm_Occ_Of =
     All_Trm_Occ_Of (Trm_Occ 2, Trm 1,
       Is_At_Deepest (Trm_Occ 2)));
 
-val test_Is_Nth_Ind =
+val test_Is_Nth_Ind0 =
   Some_Ind (Trm 1,
     For_Numb_N (Nth 2, 0,
-      (Trm 1) Is_Nth_Ind (Nth 2)));
+      Trm 1 Is_Nth_Ind Nth 2));
+
+val test_Is_Nth_Ind1 =
+  Some_Ind (Trm 1,
+    For_Numb_N (Nth 2, 1,
+      Trm 1 Is_Nth_Ind Nth 2));
+
+val test_Is_Nth_Ind2 =
+  Some_Ind (Trm 1,
+    For_Numb_N (Nth 2, 2,
+      Trm 1 Is_Nth_Ind Nth 2));
 end;
 *}
 
@@ -212,7 +222,9 @@ setup{* Apply_LiFtEr.update_assert  22 test_All_Ind_n_Some_Trm_Occ_Of2;         
 setup{* Apply_LiFtEr.update_assert  23 test_All_Ind_n_Some_Trm_Occ_Of3;               *}
 setup{* Apply_LiFtEr.update_assert  24 test_Is_At_Deepest_n_Some_Trm_Occ_Of;          *}
 setup{* Apply_LiFtEr.update_assert  25 test_Is_At_Deepest_n_All_Trm_Occ_Of;           *}
-setup{* Apply_LiFtEr.update_assert  26 test_Is_Nth_Ind;                               *}
+setup{* Apply_LiFtEr.update_assert  26 test_Is_Nth_Ind0;                              *}
+setup{* Apply_LiFtEr.update_assert  27 test_Is_Nth_Ind1;                              *}
+setup{* Apply_LiFtEr.update_assert  28 test_Is_Nth_Ind2;                              *}
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
@@ -277,6 +289,11 @@ theorem property0 :
   test_LiFtEr_true  24 7
   test_LiFtEr_false 25 7
   test_LiFtEr_true  26 8
+  test_LiFtEr_true  27 8
+  test_LiFtEr_false 28 8
+  test_LiFtEr_true  26 9
+  test_LiFtEr_false 27 9
+  test_LiFtEr_false 28 9
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
