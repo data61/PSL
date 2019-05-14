@@ -10,24 +10,6 @@ theory TIP_prop_01
   imports "../../Test_Base" "../../../MeLoId_LiFtEr"
 begin
 
-datatype 'a list = nil2 | cons2 "'a" "'a list"
-
-datatype Nat = Z | S "Nat"
-
-fun x :: "'a list => 'a list => 'a list" where
-  "x (nil2) z = z"
-| "x (cons2 z2 xs) z = cons2 z2 (x xs z)"
-
-fun take :: "Nat => 'a list => 'a list" where
-  "take (Z) z = nil2"
-| "take (S z2) (nil2) = nil2"
-| "take (S z2) (cons2 x2 x3) = cons2 x2 (take z2 x3)"
-
-fun drop :: "Nat => 'a list => 'a list" where
-  "drop (Z) z = z"
-| "drop (S z2) (nil2) = nil2"
-| "drop (S z2) (cons2 x2 x3) = drop z2 x3"
-
 ML{* (*modifiers*)
 local
 
@@ -191,6 +173,15 @@ val test_All_Ind_n_Some_Trm_Occ_Of3 =
             Is_In_Trm_Str
               Trm_Occ 3))));
 
+val test_Is_At_Deepest_n_Some_Trm_Occ_Of =
+  All_Ind (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+      Is_At_Deepest (Trm_Occ 2)));
+
+val test_Is_At_Deepest_n_All_Trm_Occ_Of =
+  All_Ind (Trm 1,
+    All_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+      Is_At_Deepest (Trm_Occ 2)));
 end;
 *}
 
@@ -214,7 +205,8 @@ setup{* Apply_LiFtEr.update_assert  20 test_All_Ind_n_All_Trm_Occ_n_Imply_Is_Ato
 setup{* Apply_LiFtEr.update_assert  21 test_All_Ind_n_Some_Trm_Occ_Of1;               *}
 setup{* Apply_LiFtEr.update_assert  22 test_All_Ind_n_Some_Trm_Occ_Of2;               *}
 setup{* Apply_LiFtEr.update_assert  23 test_All_Ind_n_Some_Trm_Occ_Of3;               *}
-
+setup{* Apply_LiFtEr.update_assert  24 test_Is_At_Deepest_n_Some_Trm_Occ_Of;          *}
+setup{* Apply_LiFtEr.update_assert  25 test_Is_At_Deepest_n_All_Trm_Occ_Of;           *}
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
@@ -223,6 +215,24 @@ setup{* Apply_LiFtEr.update_ind_mod 6 mods_for_Isaplanner_01_04; *}
 setup{* Apply_LiFtEr.update_ind_mod 7 mods_for_Isaplanner_01_05; *}
 setup{* Apply_LiFtEr.update_ind_mod 8 mods_for_Isaplanner_01_06; *}
 setup{* Apply_LiFtEr.update_ind_mod 9 mods_for_Isaplanner_01_07; *}
+
+datatype 'a list = nil2 | cons2 "'a" "'a list"
+
+datatype Nat = Z | S "Nat"
+
+fun x :: "'a list => 'a list => 'a list" where
+  "x (nil2) z = z"
+| "x (cons2 z2 xs) z = cons2 z2 (x xs z)"
+
+fun take :: "Nat => 'a list => 'a list" where
+  "take (Z) z = nil2"
+| "take (S z2) (nil2) = nil2"
+| "take (S z2) (cons2 x2 x3) = cons2 x2 (take z2 x3)"
+
+fun drop :: "Nat => 'a list => 'a list" where
+  "drop (Z) z = z"
+| "drop (S z2) (nil2) = nil2"
+| "drop (S z2) (cons2 x2 x3) = drop z2 x3"
 
 theorem property0 :
   "((x (take n xs) (drop n xs)) = xs)"
@@ -257,6 +267,9 @@ theorem property0 :
   test_LiFtEr_false 22 7
   test_LiFtEr_false 22 8
   test_LiFtEr_true  23 9
+  test_LiFtEr_true  24 6
+  test_LiFtEr_true  24 7
+  test_LiFtEr_false 25 7
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done

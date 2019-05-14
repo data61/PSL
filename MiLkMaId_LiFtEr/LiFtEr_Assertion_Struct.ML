@@ -18,11 +18,11 @@ infix And;
 val op And = L.And
 
 val sample_assert =
- L.All_Ind (L.Sub_Trm 1,
-   L.Some_Sub_Trm_Occ (L.Sub_Trm_Occ 2,
-       L.Trm_Occ_Is_Of_Trm (L.Sub_Trm_Occ 2, L.Sub_Trm 1)
+ L.All_Ind (L.Trm 1,
+   L.Some_Trm_Occ (L.Trm_Occ 2,
+       L.Trm_Occ_Is_Of_Trm (L.Trm_Occ 2, L.Trm 1)
      And
-       L.Is_Atom (L.Sub_Trm_Occ 2))): L.assrt;
+       L.Is_Atom (L.Trm_Occ 2))): L.assrt;
 
 (*** assertions to judge induction variables regardless of arbitrary or rule ***)
 

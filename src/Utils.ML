@@ -5,6 +5,7 @@ This file provides utility functions that are not specific to Isabelle/HOL.
 *)
 
 type strings = string list;
+type ints    = int    list;
 type terms   = term list;
 type thms    = thm list;
 infix 1 >>= <$>;
@@ -66,6 +67,7 @@ sig
   val alist_add                               : (''a * 'a) list -> (''a * 'a) -> (''a * 'a) list;
   val alist_lookup_eq                         : (''a * 'a) list -> ''a -> 'a option;
   val opt_equal                               : (''a option * ''a option) -> bool;
+  val ints_to_max_option                      : int list -> int option;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -263,6 +265,12 @@ fun alist_lookup_eq (alist: (''a * 'b) list) (key:''a)           = AList.lookup 
 
 fun opt_equal (SOME x, SOME y) = x = y
   | opt_equal (     _,      _) = false: bool;
+
+fun ints_to_max' ([]:ints)    acc = acc
+  | ints_to_max' (i::is:ints) acc = ints_to_max' is (Int.max (i, acc));
+
+fun ints_to_max_option  []          = NONE
+  | ints_to_max_option (i::is:ints) = SOME (ints_to_max' is i)
 
 end;
 

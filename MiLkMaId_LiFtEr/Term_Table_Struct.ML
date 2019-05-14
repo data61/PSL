@@ -120,9 +120,9 @@ fun lifter_pst_n_print_to_path_n_locs ({subgoals, usings}:lifter_pst) (print:UN.
 (*Use One_Term.keys to implement it.*)
 fun path_to_unode_aux_table_to_depth (path_to_unode_aux_table:path_to_unode_aux_table) =
   let
-    val max_path_n_node_w_aux_option = PaT.max path_to_unode_aux_table     : (UN.path * UN.unode_w_aux) option;
-    val max_path_option              = max_path_n_node_w_aux_option <$> fst: UN.path option;
-    val depth_option                 = max_path_option <$> length          : int option;
+    val keys         = PaT.keys path_to_unode_aux_table;
+    val key_lengs    = map length keys                   : ints;
+    val depth_option = Utils.ints_to_max_option key_lengs: int option;
   in
     depth_option
   end;

@@ -11,12 +11,6 @@ theory MeLoId_LiFtEr
 begin
 
 ML_file "../src/Utils.ML"
-
-ML{* (*type synonyms*)
-type strings = string list;
-type ints    = int    list;
-*}
-
 ML_file "../MiLkMaId/src/MiLkMaId_Util.ML"
 ML_file "Matrix_Sig.ML"
 ML_file "Matrix_Struct.ML"

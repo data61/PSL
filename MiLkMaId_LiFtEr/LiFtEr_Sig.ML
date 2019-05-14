@@ -65,7 +65,7 @@ datatype assrt   =
 | Depth_Of_Trm_Occ_Is     of trm_occ * numb
 | Print_Is                of trm     * string
 (* TODO: pattern *)
-| Pattern                 of numb* trm_occ * pattern  (*In the definition of trm, the numb-th argument has this pattern.*)
+| Pattern                 of numb * trm_occ * pattern  (*In the definition of trm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
 | Are_Diff_Numb           of numb    * numb           (*Not & Are_Same_Numb*)
 | Are_Diff_Str            of trm_occ * trm_occ        (*Not & Are_Same_Str*)
