@@ -14,7 +14,7 @@ ML{* (*modifiers*)
 local
 
 open LiFtEr LiFtEr_Util;
-infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str;
+infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str Is_Nth_Ind;
 
 in
 
@@ -182,6 +182,11 @@ val test_Is_At_Deepest_n_All_Trm_Occ_Of =
   All_Ind (Trm 1,
     All_Trm_Occ_Of (Trm_Occ 2, Trm 1,
       Is_At_Deepest (Trm_Occ 2)));
+
+val test_Is_Nth_Ind =
+  Some_Ind (Trm 1,
+    For_Numb_N (Nth 2, 0,
+      (Trm 1) Is_Nth_Ind (Nth 2)));
 end;
 *}
 
@@ -207,6 +212,7 @@ setup{* Apply_LiFtEr.update_assert  22 test_All_Ind_n_Some_Trm_Occ_Of2;         
 setup{* Apply_LiFtEr.update_assert  23 test_All_Ind_n_Some_Trm_Occ_Of3;               *}
 setup{* Apply_LiFtEr.update_assert  24 test_Is_At_Deepest_n_Some_Trm_Occ_Of;          *}
 setup{* Apply_LiFtEr.update_assert  25 test_Is_At_Deepest_n_All_Trm_Occ_Of;           *}
+setup{* Apply_LiFtEr.update_assert  26 test_Is_Nth_Ind;                               *}
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
@@ -270,6 +276,7 @@ theorem property0 :
   test_LiFtEr_true  24 6
   test_LiFtEr_true  24 7
   test_LiFtEr_false 25 7
+  test_LiFtEr_true  26 8
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done

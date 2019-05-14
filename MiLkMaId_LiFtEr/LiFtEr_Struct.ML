@@ -707,7 +707,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           result
         end
       | eval' (Is_More_Than   (numb1:numb, numb2:numb))          (name_space:name_space) = eval' (Not (Is_Less_Than (numb1, numb2)) And Not (Are_Same_Numb (numb1, numb2))) name_space
-      | eval' (For_Numb_N     (numb:numb, int:int, inner:assrt)) (name_space:name_space) = eval' (Numb_Is (numb, int) And Some_Numb (numb, inner))                          name_space
+      | eval' (For_Numb_N     (numb:numb, int:int, inner:assrt)) (name_space:name_space) = eval' (Some_Numb (numb, Numb_Is (numb, int) And inner))                          name_space
       | eval' (All_Trm_Occ_Of (trm_occ, trm, assrt)) (name_space:name_space) =
         eval' (All_Trm_Occ    (trm_occ,
                                   Trm_Occ_Is_Of_Trm (trm_occ, trm)
