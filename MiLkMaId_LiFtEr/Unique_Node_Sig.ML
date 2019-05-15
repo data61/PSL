@@ -125,6 +125,8 @@ val node_to_atoms_typ: node -> typ option;
 
 val node_typ_to_checker: node_typ -> node-> bool;
 
+val node_to_node_typ_str: node -> string;
+
 (* unode *)
 type unode =
   {node : node,

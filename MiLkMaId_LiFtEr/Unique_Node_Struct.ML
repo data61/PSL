@@ -308,6 +308,13 @@ fun node_typ_to_checker Node_Typ_NC = is_NC
   | node_typ_to_checker Node_Typ_NL = is_NL
   | node_typ_to_checker Node_Typ_NA = is_NA;
 
+fun node_to_node_typ_str (NC _) = "NC"
+  | node_to_node_typ_str (NF _) = "NF"
+  | node_to_node_typ_str (NV _) = "NV"
+  | node_to_node_typ_str (NB _) = "NB"
+  | node_to_node_typ_str (NL _) = "NL"
+  | node_to_node_typ_str  NA    = "NA";
+
 (* unode *)
 type unode =
   {node : node,

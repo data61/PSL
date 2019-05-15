@@ -12,7 +12,8 @@ type     path   = ints;
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
 datatype print  = Print of string;
 type     prints = print list;
-val same_prints: print -> print -> bool;
+val same_prints   : print -> print -> bool;
+val path_to_string: path -> string;
 
 val dest_print           : print -> string;
 val is_subprint_of       : print -> print -> bool;

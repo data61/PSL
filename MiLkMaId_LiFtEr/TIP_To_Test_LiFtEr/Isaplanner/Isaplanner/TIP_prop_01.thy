@@ -24,7 +24,6 @@ infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str Is_Nth_Ind
   Is_In_Cnclsn
   Is_Atom
   Is_Cnst
-  Is_At_Deepest
   Is_More_Than
   Is_Const_Of_Name;
 
@@ -276,6 +275,17 @@ val test_Depth_Of_Trm_Occ_Is6 =(*Probably the depth is for function application.
     )
   );
 
+val test_Is_At_Deepest_n_Depth_Of_Trm_Occ_Is =
+  Some_Trm (Trm 2,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 2,
+        Is_At_Deepest (Trm_Occ 1)
+      And
+        For_Numb_N (Nth 3, 4,
+           Depth_Of_Trm_Occ_Is (Trm_Occ 1, Nth 3)
+         )
+    )
+  );
+
 end;
 *}
 
@@ -310,6 +320,8 @@ setup{* Apply_LiFtEr.update_assert  31 test_Depth_Of_Trm_Occ_Is3;               
 setup{* Apply_LiFtEr.update_assert  32 test_Depth_Of_Trm_Occ_Is4;                     *}
 setup{* Apply_LiFtEr.update_assert  33 test_Depth_Of_Trm_Occ_Is5;                     *}
 setup{* Apply_LiFtEr.update_assert  34 test_Depth_Of_Trm_Occ_Is6;                     *}
+setup{* Apply_LiFtEr.update_assert  35 test_Is_At_Deepest_n_Depth_Of_Trm_Occ_Is;      *}
+
 
 
 
@@ -387,6 +399,7 @@ theorem property0 :
   test_LiFtEr_false 32 9
   test_LiFtEr_true  33 9
   test_LiFtEr_true  34 9
+  test_LiFtEr_true  35 9
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done

@@ -16,6 +16,12 @@ fun same_prints (Print p1) (Print p2) = p1 = p2;
 
 fun dest_print (Print str) = str;
 
+fun path_to_string'  []               (acc:string) = acc
+  | path_to_string' (step::path:ints) (acc:string)= path_to_string' path (acc ^ "," ^ Int.toString step);
+
+fun path_to_string  []               = ""
+  | path_to_string (step::path:ints) = "Path is " ^ Int.toString step ^ path_to_string' path "";
+
 infix isSubstring;
 
 val (op isSubstring) = uncurry String.isSubstring;

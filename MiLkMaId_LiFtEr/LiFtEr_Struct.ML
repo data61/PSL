@@ -696,12 +696,18 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
          * We can introduce a new quantifier safely without polluting name_space for other (inner) assertions
          * because Is_At_Deepest is an atomic assertion.*)
         let
+val _ = tracing "Is_At_Deepest Starts";
           val path_n_loc_option         = name_space_n_trm_occ_id_to_path_n_loc name_space trm_occ: path_n_loc option;
+val _ = tracing (if is_some path_n_loc_option then "path_n_loc_option is some" else "path_n_loc_option is none");
           val (path_option, loc_option) = Utils.mk_options_pair path_n_loc_option                       : (path option * location option);
           val trm_occs_depth_option     = path_option <$> length: int option                            : int option;
+val _ = tracing (if is_some trm_occs_depth_option then "trm_occs_depth_option is some " ^ (trm_occs_depth_option |> the |> Int.toString) else "trm_occs_depth_option is none");
           val one_term_option           = loc_option <$> TT.lifter_pst_n_loc_to_one_term lifter_pst     : TT.one_term option;
+val _ = tracing (if is_some one_term_option then "one_term_option is some" else "one_term_option is none");
           val unode_aux_table_option    = one_term_option <$> #path_to_unode_aux_table                  : TT.path_to_unode_aux_table option;
+val _ = tracing (if is_some unode_aux_table_option then "unode_aux_table_option is some" else "unode_aux_table_option is none");
           val maximum_depth_option      = unode_aux_table_option >>= TT.path_to_unode_aux_table_to_depth: int option;
+val _ = tracing (if is_some maximum_depth_option then "maximum_depth_option is some" ^ (the maximum_depth_option |> Int.toString) else "maximum_depth_option is none");
           val result                    = opt_equal (trm_occs_depth_option, maximum_depth_option)       : bool;
         in
           result
