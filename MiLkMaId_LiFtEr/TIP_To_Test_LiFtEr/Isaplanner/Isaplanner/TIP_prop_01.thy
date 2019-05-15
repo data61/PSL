@@ -18,12 +18,6 @@ infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str Is_Nth_Ind
   Is_In_Trm_Loc
   Is_In_Trm_Str
   Is_Typ
-  Is_In_Chained
-  Is_In_Fst_Subg
-  Is_In_Prems
-  Is_In_Cnclsn
-  Is_Atom
-  Is_Cnst
   Is_More_Than
   Is_Const_Of_Name
   Is_Printed_As
@@ -286,6 +280,65 @@ val test_Is_At_Deepest_n_Depth_Of_Trm_Occ_Is =
     )
   );
 
+val test_Is_At_Deepest =
+  Some_Trm (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+        Is_At_Deepest (Trm_Occ 2)
+      And
+        (Trm 1 Is_Printed_As "xs")));
+
+val test_Is_At_Deepest2 =
+  All_Trm (Trm 1,
+      Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+          Is_At_Deepest (Trm_Occ 2)
+        Imply
+         ((Trm 1 Is_Printed_As "xs")
+          Or
+          (Trm 1 Is_Printed_As "n")
+          Or
+          (Trm 1 Is_Printed_As "TIP_prop_01.drop")
+          Or
+          (Trm 1 Is_Printed_As "TIP_prop_01.take"))));
+
+val test_Is_At_Deepest3 =
+  Some_Trm (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+       (Trm 1 Is_Printed_As "TIP_prop_01.x")
+      And
+        Is_At_Deepest (Trm_Occ 2)));
+
+(*TODO: fix Is_In_Prems*)
+val test_Is_In_Prems1 =
+  Some_Trm (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+        (Trm 1 Is_Printed_As "x")
+      And
+        (Is_In_Prems (Trm_Occ 2))));
+
+val test_Is_Nth_Arg_Of1 =
+  Some_Trm (Trm 1,
+  Some_Trm (Trm 2,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+        (Trm 1 Is_Printed_As "n")
+      And
+        (Trm 2 Is_Printed_As "TIP_prop_01.take")
+      And
+        For_Numb_N (Numb 1, 0,
+          Is_Nth_Arg_Of (Trm_Occ 1, Numb 1, Trm_Occ 2))))));
+
+val test_Is_Nth_Arg_Of2 =
+  Some_Trm (Trm 1,
+  Some_Trm (Trm 2,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+        (Trm 1 Is_Printed_As "n")
+      And
+        (Trm 2 Is_Printed_As "TIP_prop_01.take")
+      And
+        For_Numb_N (Numb 1, 1,
+          Is_Nth_Arg_Of (Trm_Occ 1, Numb 1, Trm_Occ 2))))));
+
 end;
 *}
 
@@ -321,6 +374,12 @@ setup{* Apply_LiFtEr.update_assert  32 test_Depth_Of_Trm_Occ_Is4;               
 setup{* Apply_LiFtEr.update_assert  33 test_Depth_Of_Trm_Occ_Is5;                     *}
 setup{* Apply_LiFtEr.update_assert  34 test_Depth_Of_Trm_Occ_Is6;                     *}
 setup{* Apply_LiFtEr.update_assert  35 test_Is_At_Deepest_n_Depth_Of_Trm_Occ_Is;      *}
+setup{* Apply_LiFtEr.update_assert  36 test_Is_At_Deepest;                            *}
+setup{* Apply_LiFtEr.update_assert  37 test_Is_At_Deepest2;                           *}
+setup{* Apply_LiFtEr.update_assert  38 test_Is_At_Deepest3;                           *}
+setup{* Apply_LiFtEr.update_assert  39 test_Is_In_Prems1;                             *}
+setup{* Apply_LiFtEr.update_assert  40 test_Is_Nth_Arg_Of1;                           *}
+setup{* Apply_LiFtEr.update_assert  41 test_Is_Nth_Arg_Of2;                           *}
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
@@ -397,9 +456,18 @@ theorem property0 :
   test_LiFtEr_true  33 9
   test_LiFtEr_true  34 9
   test_LiFtEr_true  35 9
+  test_LiFtEr_true  36 9
+  test_LiFtEr_true  37 9
+  test_LiFtEr_false 38 9
+  test_LiFtEr_true  40 1
+  test_LiFtEr_false 41 1
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
+
+lemma "P x \<Longrightarrow> Q y"
+
+  oops
 
 lemma "(\<lambda>x . True \<or> x) = (\<lambda>x . True \<or> x)"
   oops
