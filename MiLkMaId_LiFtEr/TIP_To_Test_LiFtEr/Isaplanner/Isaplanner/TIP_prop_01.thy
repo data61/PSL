@@ -14,7 +14,19 @@ ML{* (*modifiers*)
 local
 
 open LiFtEr LiFtEr_Util;
-infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str Is_Nth_Ind;
+infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str Is_Nth_Ind
+  Is_In_Trm_Loc
+  Is_In_Trm_Str
+  Is_Typ
+  Is_In_Chained
+  Is_In_Fst_Subg
+  Is_In_Prems
+  Is_In_Cnclsn
+  Is_Atom
+  Is_Cnst
+  Is_At_Deepest
+  Is_More_Than
+  Is_Const_Of_Name;
 
 in
 
@@ -197,6 +209,73 @@ val test_Is_Nth_Ind2 =
   Some_Ind (Trm 1,
     For_Numb_N (Nth 2, 2,
       Trm 1 Is_Nth_Ind Nth 2));
+
+val test_Depth_Of_Trm_Occ_Is1 =
+  Some_Trm (Trm 1,
+      Some_Trm_Occ (Trm_Occ 2,
+        For_Numb_N (Nth 3, 4,
+            (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.drop")
+          And
+            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+        )
+    )
+  );
+
+val test_Depth_Of_Trm_Occ_Is2 =
+  Some_Trm (Trm 1,
+      Some_Trm_Occ (Trm_Occ 2,
+        For_Numb_N (Nth 3, 5,
+            (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.drop")
+          And
+            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+        )
+    )
+  );
+
+val test_Depth_Of_Trm_Occ_Is3 =
+  Some_Trm (Trm 1,
+      Some_Trm_Occ (Trm_Occ 2,
+        For_Numb_N (Nth 3, 4,
+            (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.x")
+          And
+            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+        )
+    )
+  );
+
+val test_Depth_Of_Trm_Occ_Is4 =
+  Some_Trm (Trm 1,
+      Some_Trm_Occ (Trm_Occ 2,
+        For_Numb_N (Nth 3, 3,
+            (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.x")
+          And
+            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+        )
+    )
+  );
+
+val test_Depth_Of_Trm_Occ_Is5 =
+  Some_Trm (Trm 1,
+      Some_Trm_Occ (Trm_Occ 2,
+        For_Numb_N (Nth 3, 3,
+            (Trm_Occ 2 Is_Const_Of_Name "HOL.eq")
+          And
+            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+        )
+    )
+  );
+
+val test_Depth_Of_Trm_Occ_Is6 =(*Probably the depth is for function application.*)
+  Some_Trm (Trm 1,
+      Some_Trm_Occ (Trm_Occ 2,
+        For_Numb_N (Nth 3, 2,
+            (Trm_Occ 2 Is_Const_Of_Name "HOL.Trueprop")
+          And
+            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+        )
+    )
+  );
+
 end;
 *}
 
@@ -225,6 +304,14 @@ setup{* Apply_LiFtEr.update_assert  25 test_Is_At_Deepest_n_All_Trm_Occ_Of;     
 setup{* Apply_LiFtEr.update_assert  26 test_Is_Nth_Ind0;                              *}
 setup{* Apply_LiFtEr.update_assert  27 test_Is_Nth_Ind1;                              *}
 setup{* Apply_LiFtEr.update_assert  28 test_Is_Nth_Ind2;                              *}
+setup{* Apply_LiFtEr.update_assert  29 test_Depth_Of_Trm_Occ_Is1;                     *}
+setup{* Apply_LiFtEr.update_assert  30 test_Depth_Of_Trm_Occ_Is2;                     *}
+setup{* Apply_LiFtEr.update_assert  31 test_Depth_Of_Trm_Occ_Is3;                     *}
+setup{* Apply_LiFtEr.update_assert  32 test_Depth_Of_Trm_Occ_Is4;                     *}
+setup{* Apply_LiFtEr.update_assert  33 test_Depth_Of_Trm_Occ_Is5;                     *}
+setup{* Apply_LiFtEr.update_assert  34 test_Depth_Of_Trm_Occ_Is6;                     *}
+
+
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
@@ -294,9 +381,17 @@ theorem property0 :
   test_LiFtEr_true  26 9
   test_LiFtEr_false 27 9
   test_LiFtEr_false 28 9
+  test_LiFtEr_false 29 9
+  test_LiFtEr_true  30 9
+  test_LiFtEr_true  31 9
+  test_LiFtEr_false 32 9
+  test_LiFtEr_true  33 9
+  test_LiFtEr_true  34 9
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
-ML{* String.isSubstring "TIP_prop_01.drop n xs" "n"*}
-ML{* String.isSubstring "n" "TIP_prop_01.drop n xs"*}
+
+lemma "(\<lambda>x . True \<or> x) = (\<lambda>x . True \<or> x)"
+  oops
+
 end
