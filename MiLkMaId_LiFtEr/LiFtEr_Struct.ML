@@ -15,7 +15,7 @@ structure PT = Print_Table;
 
 type lifter_pst = TT.lifter_pst;
 
-datatype numb    = Nth     of int;
+datatype numb    = Numb    of int;
 datatype trm     = Trm     of int;
 datatype rule    = Rule    of int;
 datatype trm_occ = Trm_Occ of int;
@@ -70,9 +70,9 @@ datatype assrt   =
 | Is_Nth_Arg_Of           of trm_occ * numb * trm_occ
 | Is_Nth_Ind              of trm     * numb (*Counting starts with 0.*)
 | Is_Nth_Arb              of trm     * numb (*Counting starts with 0.*)
-| Numb_Is                 of numb    * int
-| Depth_Of_Trm_Occ_Is     of trm_occ * numb
-| Print_Is                of trm     * string
+| Is_Int                  of numb    * int
+| Is_At_Depth             of trm_occ * numb
+| Is_Printed_As           of trm     * string
 (* TODO: pattern *)
 | Pattern                 of numb* trm_occ * pattern (*In the definition of trm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
@@ -81,7 +81,7 @@ datatype assrt   =
 | Has_Typ                 of trm_occ * hol_typ        (*Some_Trm, Is_In, & Is_Typ*)
 | Is_At_Deepest           of trm_occ
 | Is_More_Than            of numb    * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
-| For_Numb_N              of numb    * int * assrt    (*Some_Numb $ Numb_Is*)
+| For_Numb_N              of numb    * int * assrt    (*Some_Numb $ Is_Int*)
 | All_Trm_Occ_Of          of trm_occ * trm * assrt
 | Some_Trm_Occ_Of         of trm_occ * trm * assrt
 
@@ -139,7 +139,7 @@ datatype name_space = Name_Space of
 type name_spaces = name_space list;
 
 datatype name =
-  Name_Nth     of numb
+  Name_Numb    of numb
 | Name_Trm     of trm
 | Name_Rule    of rule
 | Name_Trm_Occ of trm_occ;
@@ -266,7 +266,7 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
     fun is_in_trms     (x:int) = #trm     name_space |> is_in_fsts x: bool;
     fun is_in_rules    (x:int) = #rule       name_space |> is_in_fsts x: bool;
     fun is_in_trm_occs (x:int) = #trm_occ name_space |> is_in_fsts x: bool;
-    fun no_name_collision' (Name_Nth     (Nth     i):name) = is_in_numbs    i
+    fun no_name_collision' (Name_Numb    (Numb    i):name) = is_in_numbs    i
      |  no_name_collision' (Name_Trm     (Trm     i):name) = is_in_trms     i
      |  no_name_collision' (Name_Rule    (Rule    i):name) = is_in_rules    i
      |  no_name_collision' (Name_Trm_Occ (Trm_Occ i):name) = is_in_trm_occs i;
@@ -291,7 +291,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
     val alist_lookup_eq = Utils.alist_lookup_eq;
     val opt_equal       = Utils.opt_equal;
 
-    fun name_space_n_numb_id_to_integer (Name_Space nspace) (Nth numb_id) =
+    fun name_space_n_numb_id_to_integer (Name_Space nspace) (Numb numb_id) =
       let
         val numb_name_space   = #numb nspace                           : name_subspace;
         val integer_id_option = alist_lookup_eq numb_name_space numb_id: id option;
@@ -440,7 +440,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val fresh_numb_id    = name_space_n_id_typ_to_fresh_id name_space IDTyp_Numb      : int;
           val meta_imp_occ     = Trm_Occ fresh_trm_occ_id                                   : trm_occ;
           val premise_occ      = Trm_Occ (fresh_trm_occ_id + 1)                             : trm_occ;
-          val nth_arg_numb     = Nth fresh_numb_id                                          : numb;
+          val nth_arg_numb     = Numb fresh_numb_id                                         : numb;
           val desugared = Some_Trm_Occ (meta_imp_occ,
                               Is_Const_Of_Name (meta_imp_occ, "Pure.imp")
                             And
@@ -462,12 +462,12 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       | eval' (All_Arb      (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm  name_space) forall arb_domain  IDTyp_Arb
       | eval' (All_Trm      (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm  name_space) forall trm_domain  IDTyp_Trm
       | eval' (All_Rule     (Rule    i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule name_space) forall rule_domain IDTyp_Rule
-      | eval' (All_Numb     (Nth     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb name_space) forall numb_domain IDTyp_Numb
+      | eval' (All_Numb     (Numb    i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb name_space) forall numb_domain IDTyp_Numb
       | eval' (Some_Ind     (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm  name_space) exists on_domain   IDTyp_On
       | eval' (Some_Arb     (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm  name_space) exists arb_domain  IDTyp_Arb
       | eval' (Some_Trm     (Trm     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm  name_space) exists trm_domain  IDTyp_Trm
       | eval' (Some_Rule    (Rule    i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#rule name_space) exists rule_domain IDTyp_Rule
-      | eval' (Some_Numb    (Nth     i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb name_space) exists numb_domain IDTyp_Numb
+      | eval' (Some_Numb    (Numb    i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#numb name_space) exists numb_domain IDTyp_Numb
       (*quantifiers for occurrences*)
       | eval' (All_Trm_Occ  (Trm_Occ i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm_occ name_space) forall trm_occ_domain IDTyp_Trm_Occ
       | eval' (Some_Trm_Occ (Trm_Occ i, inner)) (NS as Name_Space name_space: name_space) = eval'_quantifier' inner i NS (#trm_occ name_space) exists trm_occ_domain IDTyp_Trm_Occ
@@ -508,7 +508,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           result
         end
-      | eval' (Are_Same_Numb (Nth n1, Nth n2)) (Name_Space ns:name_space) =
+      | eval' (Are_Same_Numb (Numb n1, Numb n2)) (Name_Space ns:name_space) =
         let
           val numb_name_space = #numb ns                                           : name_subspace;
           val numb1_option    = alist_lookup_eq numb_name_space n1 >>= dest_ID_Numb: int option;
@@ -613,7 +613,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           is_NA andalso same_numbs
         end
-      | eval' (Is_Less_Than (Nth numb1, Nth numb2)) (Name_Space nspace:name_space) =
+      | eval' (Is_Less_Than (Numb numb1, Numb numb2)) (Name_Space nspace:name_space) =
         let
           val numb_name_space      = #numb nspace                                         : name_subspace;
           fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb: int option;
@@ -625,7 +625,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           result
         end
-      | eval' (Is_Nth_Arg_Of (func:trm_occ, Nth numb:numb, arg:trm_occ)) (name_space as Name_Space nspace) =
+      | eval' (Is_Nth_Arg_Of (func:trm_occ, Numb numb:numb, arg:trm_occ)) (name_space as Name_Space nspace) =
         let
           val path_n_loc_of_func_option      = name_space_n_trm_occ_id_to_path_n_loc name_space func               : path_n_loc option;
           val path_n_loc_of_arg_option       = name_space_n_trm_occ_id_to_path_n_loc name_space arg                : path_n_loc option;
@@ -643,14 +643,14 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         end
       | eval' (assrt as Is_Nth_Ind (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space (*Counting starts with 0.*)
       | eval' (assrt as Is_Nth_Arb (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space (*Counting starts with 0.*)
-      | eval' (Numb_Is  (Nth numb, int:int)) (name_space:name_space) =
+      | eval' (Is_Int  (Numb numb, int:int)) (name_space:name_space) =
         let
-          val numb_option         = name_space_n_numb_id_to_integer name_space (Nth numb): int option;
-          val are_same_int_option = opt_equal (numb_option, SOME int)                    : bool;
+          val numb_option         = name_space_n_numb_id_to_integer name_space (Numb numb): int option;
+          val are_same_int_option = opt_equal (numb_option, SOME int)                     : bool;
         in
          are_same_int_option
         end
-      | eval' (Depth_Of_Trm_Occ_Is (trm_occ:trm_occ, numb:numb)) (name_space:name_space) =
+      | eval' (Is_At_Depth (trm_occ:trm_occ, numb:numb)) (name_space:name_space) =
         let
           val path_n_loc_option        = name_space_n_trm_occ_id_to_path_n_loc name_space trm_occ: path_n_loc option;
           val (path_option, _)         = Utils.mk_options_pair path_n_loc_option              : (path option * location option);
@@ -660,7 +660,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           are_same_int_option
         end
-      | eval' (Print_Is (trm:trm, string:string)) (name_space:name_space) =
+      | eval' (Is_Printed_As (trm:trm, string:string)) (name_space:name_space) =
         let
           val print_option        = name_space_n_trm_id_to_print name_space trm : print option;
           val print_string_option = print_option <$> dest_print                 : string option;
@@ -668,7 +668,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           result
         end
-      | eval' (Pattern (Nth numb:numb, trm_occ:trm_occ, pttrn:pattern)) (name_space as Name_Space nspace:name_space) =
+      | eval' (Pattern (Numb numb:numb, trm_occ:trm_occ, pttrn:pattern)) (name_space as Name_Space nspace:name_space) =
         let
           val numb_name_space      = #numb nspace                                         : name_subspace;
           fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb: int option;(*TODO: remove code-duplication with other clauses.*)
@@ -692,7 +692,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         end
       | eval' (Is_At_Deepest (trm_occ:trm_occ)) (name_space:name_space) =
         (* TODO:
-         * Treat Is_At_Deepest as a syntactic sugar for something based on Depth_Of_Trm_Occ_Is, Some_Trm_Occ, and Not.
+         * Treat Is_At_Deepest as a syntactic sugar for something based on Is_At_Depth, Some_Trm_Occ, and Not.
          * We can introduce a new quantifier safely without polluting name_space for other (inner) assertions
          * because Is_At_Deepest is an atomic assertion.*)
         let
@@ -713,7 +713,7 @@ val _ = tracing (if is_some maximum_depth_option then "maximum_depth_option is s
           result
         end
       | eval' (Is_More_Than   (numb1:numb, numb2:numb))          (name_space:name_space) = eval' (Not (Is_Less_Than (numb1, numb2)) And Not (Are_Same_Numb (numb1, numb2))) name_space
-      | eval' (For_Numb_N     (numb:numb, int:int, inner:assrt)) (name_space:name_space) = eval' (Some_Numb (numb, Numb_Is (numb, int) And inner))                          name_space
+      | eval' (For_Numb_N     (numb:numb, int:int, inner:assrt)) (name_space:name_space) = eval' (Some_Numb (numb, Is_Int (numb, int) And inner))                          name_space
       | eval' (All_Trm_Occ_Of (trm_occ, trm, assrt)) (name_space:name_space) =
         eval' (All_Trm_Occ    (trm_occ,
                                   Trm_Occ_Is_Of_Trm (trm_occ, trm)

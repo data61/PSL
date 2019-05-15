@@ -25,7 +25,9 @@ infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str Is_Nth_Ind
   Is_Atom
   Is_Cnst
   Is_More_Than
-  Is_Const_Of_Name;
+  Is_Const_Of_Name
+  Is_Printed_As
+  Is_At_Depth;
 
 in
 
@@ -94,33 +96,33 @@ val test_Some_Ind_and_Some_Trm_Occ = Some_Ind (Trm 1, True)
 (* test_Print_Is *)
 val test_Print_Is =
     (Some_Trm (Trm 1,
-         Print_Is (Trm 1, "TIP_prop_01.drop")))
+       Trm 1 Is_Printed_As "TIP_prop_01.drop"))
   And
     (Some_Trm (Trm 1,
-         Print_Is (Trm 1, "TIP_prop_01.take")))
+       Trm 1 Is_Printed_As "TIP_prop_01.take"))
   And
     (Some_Trm (Trm 1,
-         Print_Is (Trm 1, "TIP_prop_01.drop n xs")))
+       Trm 1 Is_Printed_As "TIP_prop_01.drop n xs"))
   And
     (Not (*Print does not contain redundant parentheses.*)
       (Some_Trm (Trm 1,
-           Print_Is (Trm 1, "(TIP_prop_01.drop n xs)"))))
+         Trm 1 Is_Printed_As "(TIP_prop_01.drop n xs)")))
   And
     (*For some reasons, Print uses a short name for "x".*)
     (Some_Trm (Trm 1,
-         Print_Is (Trm 1, "x")))
+       Trm 1 Is_Printed_As "x"))
   And
     (Some_Trm (Trm 1,
-         Print_Is (Trm 1, "x (TIP_prop_01.take n xs) (TIP_prop_01.drop n xs)")))
+       Trm 1 Is_Printed_As "x (TIP_prop_01.take n xs) (TIP_prop_01.drop n xs)"))
   And
     (Some_Trm (Trm 1,
-         Print_Is (Trm 1, "x (TIP_prop_01.take n xs) (TIP_prop_01.drop n xs) = xs")));
+       Trm 1 Is_Printed_As "x (TIP_prop_01.take n xs) (TIP_prop_01.drop n xs) = xs"));
 
 (* test_Some_Trm_Occ *)
 val test_Some_Trm_Occ =
     (Some_Trm (Trm 1,
        (Some_Trm_Occ (Trm_Occ 2,
-         Print_Is (Trm 1, "TIP_prop_01.drop")
+         Trm 1 Is_Printed_As "TIP_prop_01.drop"
        And
          Trm_Occ_Is_Of_Trm (Trm_Occ 2, Trm 1)))));
 
@@ -129,7 +131,7 @@ val test_Print_Is_n_Is_Rule_Of =
   (Some_Rule (Rule 1,
     (Some_Trm (Trm 2,
        (Some_Trm_Occ (Trm_Occ 3,
-         Print_Is (Trm 2, "TIP_prop_01.drop")
+         Trm 2 Is_Printed_As "TIP_prop_01.drop"
        And
          Is_Rule_Of (Rule 1, Trm_Occ 3)))))));
 
@@ -180,9 +182,7 @@ val test_All_Ind_n_Some_Trm_Occ_Of3 =
       All_Ind (Trm 1,
         All_Trm_Occ_Of (Trm_Occ 3, Trm 2,
           Some_Trm_Occ_Of (Trm_Occ 4, Trm 1,
-              Trm_Occ 4
-            Is_In_Trm_Str
-              Trm_Occ 3))));
+            Trm_Occ 4 Is_In_Trm_Str Trm_Occ 3))));
 
 val test_Is_At_Deepest_n_Some_Trm_Occ_Of =
   All_Ind (Trm 1,
@@ -196,26 +196,26 @@ val test_Is_At_Deepest_n_All_Trm_Occ_Of =
 
 val test_Is_Nth_Ind0 =
   Some_Ind (Trm 1,
-    For_Numb_N (Nth 2, 0,
-      Trm 1 Is_Nth_Ind Nth 2));
+    For_Numb_N (Numb 2, 0,
+      Trm 1 Is_Nth_Ind Numb 2));
 
 val test_Is_Nth_Ind1 =
   Some_Ind (Trm 1,
-    For_Numb_N (Nth 2, 1,
-      Trm 1 Is_Nth_Ind Nth 2));
+    For_Numb_N (Numb 2, 1,
+      Trm 1 Is_Nth_Ind Numb 2));
 
 val test_Is_Nth_Ind2 =
   Some_Ind (Trm 1,
-    For_Numb_N (Nth 2, 2,
-      Trm 1 Is_Nth_Ind Nth 2));
+    For_Numb_N (Numb 2, 2,
+      Trm 1 Is_Nth_Ind Numb 2));
 
 val test_Depth_Of_Trm_Occ_Is1 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 3,
+        For_Numb_N (Numb 3, 3,
             (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.drop")
           And
-            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+            (Trm_Occ 2  Is_At_Depth Numb 3)
         )
     )
   );
@@ -223,10 +223,10 @@ val test_Depth_Of_Trm_Occ_Is1 =
 val test_Depth_Of_Trm_Occ_Is2 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 4,
+        For_Numb_N (Numb 3, 4,
             (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.drop")
           And
-            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+            (Trm_Occ 2 Is_At_Depth Numb 3)
         )
     )
   );
@@ -234,10 +234,10 @@ val test_Depth_Of_Trm_Occ_Is2 =
 val test_Depth_Of_Trm_Occ_Is3 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 3,
+        For_Numb_N (Numb 3, 3,
             (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.x")
           And
-            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+            (Trm_Occ 2 Is_At_Depth Numb 3)
         )
     )
   );
@@ -245,10 +245,10 @@ val test_Depth_Of_Trm_Occ_Is3 =
 val test_Depth_Of_Trm_Occ_Is4 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 2,
+        For_Numb_N (Numb 3, 2,
             (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.x")
           And
-            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+            (Trm_Occ 2 Is_At_Depth Numb 3)
         )
     )
   );
@@ -256,10 +256,10 @@ val test_Depth_Of_Trm_Occ_Is4 =
 val test_Depth_Of_Trm_Occ_Is5 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 2,
+        For_Numb_N (Numb 3, 2,
             (Trm_Occ 2 Is_Const_Of_Name "HOL.eq")
           And
-            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+            (Trm_Occ 2 Is_At_Depth Numb 3)
         )
     )
   );
@@ -267,10 +267,10 @@ val test_Depth_Of_Trm_Occ_Is5 =
 val test_Depth_Of_Trm_Occ_Is6 =(*Probably the depth is for function application.*)
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 1,
+        For_Numb_N (Numb 3, 1,
             (Trm_Occ 2 Is_Const_Of_Name "HOL.Trueprop")
           And
-            Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
+            (Trm_Occ 2 Is_At_Depth Numb 3)
         )
     )
   );
@@ -280,8 +280,8 @@ val test_Is_At_Deepest_n_Depth_Of_Trm_Occ_Is =
     Some_Trm_Occ_Of (Trm_Occ 1, Trm 2,
         Is_At_Deepest (Trm_Occ 1)
       And
-        For_Numb_N (Nth 3, 4,
-           Depth_Of_Trm_Occ_Is (Trm_Occ 1, Nth 3)
+        For_Numb_N (Numb 3, 4,
+           Trm_Occ 1 Is_At_Depth Numb 3
          )
     )
   );
@@ -321,9 +321,6 @@ setup{* Apply_LiFtEr.update_assert  32 test_Depth_Of_Trm_Occ_Is4;               
 setup{* Apply_LiFtEr.update_assert  33 test_Depth_Of_Trm_Occ_Is5;                     *}
 setup{* Apply_LiFtEr.update_assert  34 test_Depth_Of_Trm_Occ_Is6;                     *}
 setup{* Apply_LiFtEr.update_assert  35 test_Is_At_Deepest_n_Depth_Of_Trm_Occ_Is;      *}
-
-
-
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}

@@ -10,7 +10,7 @@ include  PATTERN LIFTER_UTIL;
 
 type lifter_pst;
 
-datatype numb    = Nth     of int;
+datatype numb    = Numb    of int;
 datatype trm     = Trm     of int;
 datatype rule    = Rule    of int;
 datatype trm_occ = Trm_Occ of int;
@@ -61,9 +61,9 @@ datatype assrt   =
 | Is_Nth_Arg_Of           of trm_occ * numb * trm_occ
 | Is_Nth_Ind              of trm     * numb (*Counting starts with 0.*)
 | Is_Nth_Arb              of trm     * numb (*Counting starts with 0.*)
-| Numb_Is                 of numb    * int
-| Depth_Of_Trm_Occ_Is     of trm_occ * numb
-| Print_Is                of trm     * string
+| Is_Int                  of numb    * int
+| Is_At_Depth             of trm_occ * numb
+| Is_Printed_As           of trm     * string
 (* TODO: pattern *)
 | Pattern                 of numb * trm_occ * pattern  (*In the definition of trm, the numb-th argument has this pattern.*)
 (*syntax sugars*)
@@ -72,7 +72,7 @@ datatype assrt   =
 | Has_Typ                 of trm_occ * hol_typ        (*Some_Trm, Is_In, & Is_Typ*)
 | Is_At_Deepest           of trm_occ
 | Is_More_Than            of numb    * numb           (*Not, Is_Less_Than, And, Are_Same_Numb*)
-| For_Numb_N              of numb    * int * assrt    (*Some_Numb $ Numb_Is*)
+| For_Numb_N              of numb    * int * assrt    (*Some_Numb $ Is_Int*)
 | All_Trm_Occ_Of          of trm_occ * trm * assrt
 | Some_Trm_Occ_Of         of trm_occ * trm * assrt
 
