@@ -213,7 +213,7 @@ val test_Is_Nth_Ind2 =
 val test_Depth_Of_Trm_Occ_Is1 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 4,
+        For_Numb_N (Nth 3, 3,
             (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.drop")
           And
             Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
@@ -224,7 +224,7 @@ val test_Depth_Of_Trm_Occ_Is1 =
 val test_Depth_Of_Trm_Occ_Is2 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 5,
+        For_Numb_N (Nth 3, 4,
             (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.drop")
           And
             Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
@@ -235,7 +235,7 @@ val test_Depth_Of_Trm_Occ_Is2 =
 val test_Depth_Of_Trm_Occ_Is3 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 4,
+        For_Numb_N (Nth 3, 3,
             (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.x")
           And
             Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
@@ -246,7 +246,7 @@ val test_Depth_Of_Trm_Occ_Is3 =
 val test_Depth_Of_Trm_Occ_Is4 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 3,
+        For_Numb_N (Nth 3, 2,
             (Trm_Occ 2 Is_Const_Of_Name "TIP_prop_01.x")
           And
             Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
@@ -257,7 +257,7 @@ val test_Depth_Of_Trm_Occ_Is4 =
 val test_Depth_Of_Trm_Occ_Is5 =
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 3,
+        For_Numb_N (Nth 3, 2,
             (Trm_Occ 2 Is_Const_Of_Name "HOL.eq")
           And
             Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)
@@ -268,7 +268,7 @@ val test_Depth_Of_Trm_Occ_Is5 =
 val test_Depth_Of_Trm_Occ_Is6 =(*Probably the depth is for function application.*)
   Some_Trm (Trm 1,
       Some_Trm_Occ (Trm_Occ 2,
-        For_Numb_N (Nth 3, 2,
+        For_Numb_N (Nth 3, 1,
             (Trm_Occ 2 Is_Const_Of_Name "HOL.Trueprop")
           And
             Depth_Of_Trm_Occ_Is (Trm_Occ 2, Nth 3)

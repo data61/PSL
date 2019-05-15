@@ -262,7 +262,7 @@ fun helper (FUC_Prnt (name, typ,      print)) (path:path) = UFC_Prnt_n_Path ((na
 
 in
 
-fun futrm_w_prnt_to_futrm_w_prnt_n_path t  = helper t [0]
+fun futrm_w_prnt_to_futrm_w_prnt_n_path t  = helper t []
 
 end;
 
