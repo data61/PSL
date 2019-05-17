@@ -339,6 +339,14 @@ val test_Is_Nth_Arg_Of2 =
         For_Numb_N (Numb 1, 1,
           Is_Nth_Arg_Of (Trm_Occ 1, Numb 1, Trm_Occ 2))))));
 
+val test_Are_Same_Numb1 = ();
+
+val test_Are_Same_Str1 = ();
+
+val test_Is_In_Fst_Subg = ();
+
+val test_Pattern = ();
+
 end;
 *}
 
@@ -470,6 +478,10 @@ lemma "P x \<Longrightarrow> Q y"
   oops
 
 lemma "(\<lambda>x . True \<or> x) = (\<lambda>x . True \<or> x)"
+  oops
+
+lemma "nth [1] = nth [1]"
+(*test_Not_Fully_App*)
   oops
 
 end
