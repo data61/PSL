@@ -8,6 +8,8 @@ ML types and operations to describe patterns of constant definitions in Isabelle
 structure Pattern:PATTERN =
 struct
 
+open Matrix;
+
 (** type: command **)
 datatype command  = Definition | Fun | Function | Inductive | Primrec | Unknown;
 
@@ -55,7 +57,7 @@ fun get_command (ctxt:Proof.context) (trm_name:string) =
 datatype hol_typ                        = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
 
 (* pattern of the left-hand side of the definition *)
-datatype left_pattern                   = Only_Var | Data_Constructor_WO_Var | Data_Constructor_W_Var;
+datatype left_pattern                   = Only_Var | Data_Constructor_WO_Var | Data_Constructor_W_Var | Unknown_Left;
 
 (* pattern of the right-hand side of the definition *)
 datatype at_which_position_in_rec_call  = Same_Arg_Pos      | Diff_Arg_Pos;
@@ -69,32 +71,28 @@ datatype right_pattern                  = Right_Pattern      of right_occ_patter
 
 (* pattern of each constant *)
 datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom of left_pattern (*TODO: right_pattern*);
-datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.column;
-datatype pattern_matrix                 = Pattern_Matrix of pattern_of_a_param_in_a_clause Matrix.row_of_columns_matrix;
+datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.row;
+datatype pattern_matrix                 = Pattern_Matrix of pattern_of_a_param_in_a_clause Matrix.column_of_rows_matrix;
 datatype pattern_of_a_const(*TODO:term?*)= Pattern_Of_A_Const of
                                           {(*hol_typ*)
                                            matrix : pattern_matrix};
 
 (** operation: assertion **)
 
-(* get_left: get left-hand-sides *)
-fun get_left (trm:term) =
-    try HOLogic.dest_Trueprop trm
->>= try HOLogic.dest_eq
->>= try fst
-
 (* is_head_Const *)
 fun is_head_Const (Const _)  = true
  |  is_head_Const (trm1 $ _) = is_head_Const trm1
  |  is_head_Const _          = false
 
-(* is_var_of_const *)
-(*TODO: This is not accurate. We should not ignore Data_Constructor_WO_Var. FIXME.*)
-fun is_var_of_const (trm:term) = if is_head_Const trm then Data_Constructor_W_Var else Only_Var;
+(* trm_to_left_pattern *)
+fun trm_to_left_pattern (Var _)   = Only_Var
+  | trm_to_left_pattern (Const _) = Data_Constructor_WO_Var
+  | trm_to_left_pattern (_ $ _)   = Data_Constructor_W_Var
+  | trm_to_left_pattern  _        = Unknown_Left;
 
-(*TODO: This is not accurate. We should not ignore Data_Constructor_WO_Var. *)
-fun are_var_of_const' (acc:left_pattern list) (trm1 $ trm2:term) = are_var_of_const' (is_var_of_const trm2 :: acc) trm1
- |  are_var_of_const' (acc:left_pattern list) (trm:term)         = is_var_of_const trm :: acc;
+(*TODO: rename are_var_of_const' and are_var_of_const.*)
+fun are_var_of_const' (acc:left_pattern list) (trm1 $ trm2:term) = are_var_of_const' (trm_to_left_pattern trm2 :: acc) trm1
+ |  are_var_of_const' (acc:left_pattern list) (trm:term)         = trm_to_left_pattern trm :: acc;
 
 val are_var_of_const = are_var_of_const' []: term -> left_pattern list;
 
@@ -118,12 +116,18 @@ fun get_lefts (ctxt:Proof.context) (name:string) = get_many ctxt name get_left: 
 (* terms_to_pattern_matrix *)
 fun terms_to_pattern_matrix (terms:terms) = terms
  |> map are_var_of_const
+ |> map List.tl
+ |> Matrix.matrix_to_column_of_rows_matrix
+ |> Matrix.map_crmatrix Pattern_Of_Atom
+ |> Pattern_Matrix;
+(*
  |> Matrix.matrix_to_row_of_columns_matrix
  |> Matrix.map_rcmatrix Pattern_Of_Atom
- |> Pattern_Matrix
+ |> Pattern_Matrix;
+*)
 
 (* type: mk_parameter_matrix *)
-type mk_parameter_matrix                = Proof.context -> string -> pattern_matrix;
+type mk_pattern_matrix = Proof.context -> string -> pattern_matrix;
 
 (* mk_pattern_matrix_for_function *)
 fun mk_pattern_matrix_for_function (ctxt:Proof.context) (cname:string) =
@@ -166,7 +170,7 @@ fun mk_pattern_matrix (ctxt:Proof.context) (cname:string) =
       | Fun       => mk_pattern_matrix_for_fun       ctxt cname
       | Function  => mk_pattern_matrix_for_function  ctxt cname
       | Inductive => mk_pattern_matrix_for_inductive ctxt cname
-      | _(*TODO*) => (Matrix.empty_rcmatrix |> Matrix.map_rcmatrix Pattern_Of_Atom |> Pattern_Matrix)
+      | _(*TODO*) => (Matrix.empty_crmatrix |> Matrix.map_crmatrix Pattern_Of_Atom |> Pattern_Matrix)
   in
     result: pattern_matrix
   end;
@@ -182,35 +186,53 @@ fun ctxt_n_cname_to_pattern_of_a_const (ctxt:Proof.context) (cname:string) =
 fun ctxt_n_name_to_patterns_of_each_param (ctxt:Proof.context) (cname:string) =
   let
     val Pattern_Matrix  pattern_matrix         = mk_pattern_matrix ctxt cname;
-    val Matrix.RCMatrix columns_of_each_param  = pattern_matrix;
-    val Matrix.Row      patterns_of_each_param = columns_of_each_param;
+    val Matrix.CRMatrix columns_of_each_param  = pattern_matrix;
+    val Matrix.Column   patterns_of_each_param = columns_of_each_param;
   in
     map Pattern_Of_A_Param patterns_of_each_param: pattern_of_a_param list
   end;
 
 fun is_nth_all_Only_Var (ctxt:Proof.context) (cname:string) (n:int) =
   let
-    val patterns_of_each_param              = ctxt_n_name_to_patterns_of_each_param ctxt cname: pattern_of_a_param list;
-    (*TODO: we should use the option type to handle exceptions.*)
-    val Pattern_Of_A_Param pattern_of_nth_param = nth patterns_of_each_param n: pattern_of_a_param;
-    val Matrix.Column column_of_nth_param       = pattern_of_nth_param        : pattern_of_a_param_in_a_clause Matrix.column
+    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
+    val Column nth_column_as_list = crmatrix_to_nth_column crmatrix n: pattern_of_a_param_in_a_clause column;
     fun is_Only_Var (Pattern_Of_Atom Only_Var)  = true
       | is_Only_Var  _                          = false;
-    val nth_param_is_all_Only_Var = forall is_Only_Var column_of_nth_param    : bool;
+    val nth_param_is_all_Only_Var = forall is_Only_Var nth_column_as_list: bool;
   in
     nth_param_is_all_Only_Var: bool
   end;
 
-(*TODO: refactor patterns_of_each_param and is_nth_all_Data_Constructor_W_Var.*)
 fun is_nth_all_Data_Constructor_W_Var (ctxt:Proof.context) (cname:string) (n:int) =
   let
-    val patterns_of_each_param                  = ctxt_n_name_to_patterns_of_each_param ctxt cname: pattern_of_a_param list;
-    (*TODO: we should use the option type to handle exceptions.*)
-    val Pattern_Of_A_Param pattern_of_nth_param = nth patterns_of_each_param n: pattern_of_a_param;
-    val Matrix.Column column_of_nth_param       = pattern_of_nth_param        : pattern_of_a_param_in_a_clause Matrix.column
+    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
+    val Column nth_column_as_list = crmatrix_to_nth_column crmatrix n: pattern_of_a_param_in_a_clause column;
     fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_W_Var) = true
       | is_Data_Constructor_W_Var  _                                       = false;
-    val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var column_of_nth_param : bool;
+    val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var nth_column_as_list: bool;
+  in
+    nth_param_is_all_Only_Var: bool
+  end;
+
+fun is_nth_all_Data_Constructor_WO_Var (ctxt:Proof.context) (cname:string) (n:int) =
+  let
+    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
+    val Column nth_column_as_list = crmatrix_to_nth_column crmatrix n: pattern_of_a_param_in_a_clause column;
+    fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_WO_Var) = true
+      | is_Data_Constructor_W_Var  _                                        = false;
+    val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var nth_column_as_list: bool;
+  in
+    nth_param_is_all_Only_Var: bool
+  end;
+
+fun is_nth_all_Data_Constructor_W_or_WO_Var (ctxt:Proof.context) (cname:string) (n:int) =
+  let
+    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
+    val Column nth_column_as_list = crmatrix_to_nth_column crmatrix n: pattern_of_a_param_in_a_clause column;
+    fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_W_Var)  = true
+      | is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_WO_Var) = true
+      | is_Data_Constructor_W_Var  _                                        = false;
+    val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var nth_column_as_list: bool;
   in
     nth_param_is_all_Only_Var: bool
   end;

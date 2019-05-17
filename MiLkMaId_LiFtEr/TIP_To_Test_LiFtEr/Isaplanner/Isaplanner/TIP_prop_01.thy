@@ -102,7 +102,8 @@ val test_Print_Is =
       (Some_Trm (Trm 1,
          Trm 1 Is_Printed_As "(TIP_prop_01.drop n xs)")))
   And
-    (*For some reasons, Print uses a short name for "x".*)
+    (*For some reasons, Print uses a short name for "x".         *)
+    (*==> Because there is no constant previously defined as "x".*)
     (Some_Trm (Trm 1,
        Trm 1 Is_Printed_As "x"))
   And
@@ -483,5 +484,30 @@ lemma "(\<lambda>x . True \<or> x) = (\<lambda>x . True \<or> x)"
 lemma "nth [1] = nth [1]"
 (*test_Not_Fully_App*)
   oops
+
+ML{* open Pattern;*}
+
+ML{*
+mk_pattern_matrix                       @{context} "take";
+ctxt_n_name_to_patterns_of_each_param   @{context} "take";
+val _ = @{assert} (is_nth_all_Only_Var                     @{context} "take" 0 |> not);
+val _ = @{assert} (is_nth_all_Only_Var                     @{context} "take" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_Var       @{context} "take" 0 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_Var       @{context} "take" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_WO_Var      @{context} "take" 0 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_WO_Var      @{context} "take" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_or_WO_Var @{context} "take" 0       );
+val _ = @{assert} (is_nth_all_Data_Constructor_W_or_WO_Var @{context} "take" 1 |> not);
+mk_pattern_matrix                       @{context} "x"  ;
+ctxt_n_name_to_patterns_of_each_param   @{context} "x"  ;
+val _ = @{assert} (is_nth_all_Only_Var                     @{context} "x" 0 |> not);
+val _ = @{assert} (is_nth_all_Only_Var                     @{context} "x" 1       );
+val _ = @{assert} (is_nth_all_Data_Constructor_W_Var       @{context} "x" 0 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_Var       @{context} "x" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_WO_Var      @{context} "x" 0 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_WO_Var      @{context} "x" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_or_WO_Var @{context} "x" 0       );
+val _ = @{assert} (is_nth_all_Data_Constructor_W_or_WO_Var @{context} "x" 1 |> not);
+*}
 
 end

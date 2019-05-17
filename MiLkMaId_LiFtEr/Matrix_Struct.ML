@@ -11,6 +11,8 @@ struct
  * performance is not critical in this project.*)
 datatype 'a row                   = Row      of 'a list;
 datatype 'a column                = Column   of 'a list;
+type     'a rows                  = 'a row list;
+type     'a columns               = 'a column list;
 datatype 'a row_of_columns_matrix = RCMatrix of 'a column row;
 datatype 'a column_of_rows_matrix = CRMatrix of 'a row column;
 
@@ -158,5 +160,9 @@ type 'a matrix = 'a list list;
 fun list_to_column (xs:'a list) = Column xs: 'a column;
 
 fun matrix_to_row_of_columns_matrix (xs:'a matrix) = RCMatrix (Row (map list_to_column xs)): 'a row_of_columns_matrix;
+
+fun list_to_row (xs:'a list) = Row xs: 'a row;
+
+fun matrix_to_column_of_rows_matrix (xs:'a matrix) = CRMatrix (Column (map list_to_row xs)): 'a column_of_rows_matrix;
 
 end;

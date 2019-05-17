@@ -11,6 +11,8 @@ sig
  * performance is not critical in this project.*)
 datatype 'a row                   = Row      of 'a list;
 datatype 'a column                = Column   of 'a list;
+type     'a rows                  = 'a row list;
+type     'a columns               = 'a column list;
 datatype 'a row_of_columns_matrix = RCMatrix of 'a column row;
 datatype 'a column_of_rows_matrix = CRMatrix of 'a row column;
 
@@ -27,8 +29,8 @@ val dest_crmatrix      : 'a column_of_rows_matrix -> 'a row    column;
 val map_rcmatrix       :('a -> 'b) -> 'a row_of_columns_matrix -> 'b row_of_columns_matrix;
 val map_crmatrix       :('a -> 'b) -> 'a column_of_rows_matrix -> 'b column_of_rows_matrix;
 
-val rcmatrix_to_columns: 'a row_of_columns_matrix -> 'a column list;
-val crmatrix_to_rows   : 'a column_of_rows_matrix -> 'a row    list;
+val rcmatrix_to_columns: 'a row_of_columns_matrix -> 'a columns;
+val crmatrix_to_rows   : 'a column_of_rows_matrix -> 'a rows;
 
 (*TODO: rename*)
 val are_same_ints: ''a list -> bool;
@@ -49,7 +51,11 @@ val crmatrix_to_element_at_mth_row_nth_column: 'a column_of_rows_matrix -> int (
 val empty_rcmatrix: 'a row_of_columns_matrix;
 val empty_crmatrix: 'a column_of_rows_matrix;
 
+val list_to_column: 'a list -> 'a column;
+val list_to_row   : 'a list -> 'a row;
+
 type 'a matrix = 'a list list;
 val matrix_to_row_of_columns_matrix: 'a matrix ->'a row_of_columns_matrix;
+val matrix_to_column_of_rows_matrix: 'a matrix ->'a column_of_rows_matrix;
 
 end;

@@ -43,7 +43,7 @@ theorem property0 :
 
 theorem property0_5:
   "t2 (count n xs) (count n ys) = count n (y xs ys)"
-  apply2(induct xs arbitrary:n ys)
+  apply(induct xs arbitrary:n ys)
    apply(subst y.simps(1))
    apply(subst count.simps(1))
    apply(subst t2.simps(1))
@@ -54,7 +54,7 @@ theorem property0_5:
 theorem property0' :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
   (*why not "induct ys"?*)
-  apply2(induct ys)
+  apply(induct ys)
    apply(subst count.simps(1))
     (* Neither of the innermost recursively defined constant "count" in "(count n xs)" and 
    "y" in "(y xs nil2)" has a simp rule applicable to these.*)
@@ -66,7 +66,7 @@ theorem property0' :
 (*alternative proof*)
 theorem property0'' :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
-  apply2 (induct (*n*) xs arbitrary: n ys rule: count.induct)
+  apply (induct (*n*) xs arbitrary: n ys rule: count.induct)
     (*Why "count.induct" not "y.induct"?
      *Because "(induct rule: y.induct)" leads to a non-theorem.
      *Because "y" is under another "recursive" function ("count")?

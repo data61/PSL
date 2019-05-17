@@ -10,6 +10,11 @@ theory MeLoId_LiFtEr
    and     "test_LiFtEr_false":: diag
 begin
 
+ML{*
+@{term "List.nth"}
+*}
+thm List.nth.simps
+
 ML_file "../src/Utils.ML"
 ML_file "../MiLkMaId/src/MiLkMaId_Util.ML"
 ML_file "Matrix_Sig.ML"
@@ -19,6 +24,7 @@ ML_file "LiFtEr_Util_Sig.ML"
 ML_file "LiFtEr_Util_Struct.ML"
 ML_file "Pattern_Sig.ML"
 ML_file "Pattern_Struct.ML"
+ML_file "Pattern_Test.ML"
 ML_file "Unique_Node_Sig.ML"
 ML_file "Unique_Node_Struct.ML"
 ML_file "Unique_Node_Test.ML"
@@ -64,10 +70,6 @@ ML   {* Apply_LiFtEr.get_ind_mod @{context} 1;                       *}
 ML   {* Apply_LiFtEr.get_ind_mod @{context} 2;                       *}
 
 ML{* Apply_LiFtEr.activate (); *}
-
-lemma "True \<and> x"
-  test_LiFtEr_false 1 1
-  oops
 
 lemma "\<not> (\<forall>x. True \<and> x)"
   apply fastforce
