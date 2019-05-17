@@ -131,8 +131,7 @@ type mk_pattern_matrix = Proof.context -> string -> pattern_matrix;
 
 (* mk_pattern_matrix_for_function *)
 fun mk_pattern_matrix_for_function (ctxt:Proof.context) (cname:string) =
-   try (Proof_Context.get_thms ctxt) (cname ^ ".intros") |> these
-|> (fn these_list => (length these_list |> Int.toString |> tracing; these_list))
+   try (Proof_Context.get_thms ctxt) (cname ^ ".psimps") |> these
 |> map Thm.prop_of
 |> map Logic.strip_imp_concl
 |> map get_left

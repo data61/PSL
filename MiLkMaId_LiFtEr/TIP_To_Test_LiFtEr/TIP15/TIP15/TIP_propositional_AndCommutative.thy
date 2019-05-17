@@ -5,7 +5,7 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.*)
   theory TIP_propositional_AndCommutative
-  imports "../../Test_Base"
+  imports "../../Test_Base" "../../../MeLoId_LiFtEr"
 begin
 
 datatype ('a, 'b) pair = pair2 "'a" "'b"
@@ -65,8 +65,7 @@ function models :: "(((int, bool) pair) list) list => Form =>
 | "models2 q (nil2) = nil2"
 | "models2 q (cons2 y2 z2) = models z2 q (models3 q y2)"
 | "models3 (x p q) y2 = models2 q (models3 p y2)"
-| "models3 (Not (x r q2)) y2 =
-     y (models3 (Not r) y2) (models3 (x r (Not q2)) y2)"
+| "models3 (Not (x r q2)) y2 = y (models3 (Not r) y2) (models3 (x r (Not q2)) y2)"
 | "models3 (Not (Not p2)) y2 = models3 p2 y2"
 | "models3 (Not (Var x2)) y2 =
      (if (~ (or2 (models4 x2 y2))) then
@@ -79,7 +78,7 @@ function models :: "(((int, bool) pair) list) list => Form =>
         else
         nil2)"
   by pat_completeness auto
-
+print_theorems
 fun valid :: "Form => bool" where
   "valid z =
    (case models3 (Not z) (nil2) of
@@ -89,5 +88,21 @@ fun valid :: "Form => bool" where
 theorem property0 :
   "((valid (x p q)) = (valid (x q p)))"
   oops
+
+ML{* open Pattern;*}
+
+ML{*
+Pattern.mk_pattern_matrix                       @{context} "models";
+ctxt_n_name_to_patterns_of_each_param   @{context} "models";
+
+val _ = @{assert} (is_nth_all_Only_Var                     @{context} "models3" 0 |> not);
+val _ = @{assert} (is_nth_all_Only_Var                     @{context} "models3" 1       );
+val _ = @{assert} (is_nth_all_Data_Constructor_W_Var       @{context} "models3" 0       );
+val _ = @{assert} (is_nth_all_Data_Constructor_W_Var       @{context} "models3" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_WO_Var      @{context} "models3" 0 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_WO_Var      @{context} "models3" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_or_WO_Var @{context} "models3" 0       );
+val _ = @{assert} (is_nth_all_Data_Constructor_W_or_WO_Var @{context} "models3" 1 |> not);
+*}
 
 end

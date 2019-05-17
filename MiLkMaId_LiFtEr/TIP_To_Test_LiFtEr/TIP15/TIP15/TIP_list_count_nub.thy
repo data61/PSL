@@ -5,7 +5,7 @@
    Yutaka Nagashima at CIIRC, CTU changed the TIP output theory file slightly 
    to make it compatible with Isabelle2017.*)
   theory TIP_list_count_nub
-  imports "../../Test_Base"
+  imports "../../Test_Base" "../../../MeLoId_LiFtEr"
 begin
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
@@ -36,5 +36,21 @@ theorem property0 :
       ((count x (nubBy (% (y :: 'a) => % (z :: 'a) => (y = z)) xs)) =
          1))"
   oops
+
+ML{* open Pattern;*}
+
+ML{*
+mk_pattern_matrix                       @{context} "nubBy";
+ctxt_n_name_to_patterns_of_each_param   @{context} "nubBy";
+
+val _ = @{assert} (is_nth_all_Only_Var                     @{context} "nubBy" 0       );
+val _ = @{assert} (is_nth_all_Only_Var                     @{context} "nubBy" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_Var       @{context} "nubBy" 0 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_Var       @{context} "nubBy" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_WO_Var      @{context} "nubBy" 0 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_WO_Var      @{context} "nubBy" 1 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_or_WO_Var @{context} "nubBy" 0 |> not);
+val _ = @{assert} (is_nth_all_Data_Constructor_W_or_WO_Var @{context} "nubBy" 1       );
+*}
 
 end
