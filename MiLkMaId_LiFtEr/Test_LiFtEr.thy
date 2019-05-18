@@ -18,11 +18,18 @@ inductive evn :: "nat \<Rightarrow> bool" where
 
 print_theorems
 
+ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "Test_LiFtEr.evn");      *}
+ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "HOL.eq"      |> not);   *}
+ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "List.insert" |> not);   *}
+ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "xs"          |> not);   *}
+
 (* This definition of "evn" is from the official tutorial "A Proof Assistant for Higher-Order Logic". *)
 primrec itrev:: "'a List.list \<Rightarrow> 'a List.list \<Rightarrow> 'a List.list" where
   "itrev [] ys = ys" |
   "itrev (xa#xs) ys = itrev xs (xa#ys)"
 
 print_theorems
+
+ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "Test_LiFtEr.itrev"); *}
 
 end

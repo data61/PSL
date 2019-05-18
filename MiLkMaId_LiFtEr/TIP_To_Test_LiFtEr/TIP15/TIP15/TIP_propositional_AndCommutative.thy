@@ -92,7 +92,7 @@ theorem property0 :
 ML{* open Pattern;*}
 
 ML{*
-Pattern.mk_pattern_matrix                       @{context} "models";
+Pattern.mk_pattern_matrix               @{context} "models";
 ctxt_n_name_to_patterns_of_each_param   @{context} "models";
 
 val _ = @{assert} (is_nth_all_Only_Var                     @{context} "models3" 0 |> not);

@@ -47,7 +47,8 @@ val mk_pattern_matrix_for_inductive : mk_pattern_matrix;
 val mk_pattern_matrix_for_primrec   : mk_pattern_matrix;
 val mk_pattern_matrix               : mk_pattern_matrix;
 
-val ctxt_n_cname_to_pattern_of_a_const   : Proof.context -> string -> pattern_of_a_const;
+val has_recursive_simp_or_psimp_about_const_name: Proof.context -> string -> bool;
+val ctxt_n_cname_to_pattern_of_a_const          : Proof.context -> string -> pattern_of_a_const;
 
 (** assertion **)
 (* assertion on the nth argument *)

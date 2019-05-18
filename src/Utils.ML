@@ -447,6 +447,7 @@ sig
   val is_recursive_eq_about_cosnt_name            : term -> string -> bool;
   val has_recursive_simp_about_const_names        : Proof.context -> strings -> bool;
   val has_recursive_simp_about_const_name         : Proof.context -> string -> bool;
+  val has_recursive_psimp_about_const_name        : Proof.context -> string -> bool;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -875,6 +876,15 @@ fun has_recursive_simp_about_const_names (_   :Proof.context)  []             = 
       has_recursive_simp_about_const_names ctxt cnames);
 
 fun has_recursive_simp_about_const_name (ctxt:Proof.context) (cname:string) = has_recursive_simp_about_const_names ctxt [cname]
+
+fun has_recursive_psimp_about_const_name (ctxt:Proof.context) (cname:string) =
+  let
+    val psimps_name         = cname ^ ".psimps"                                     : string;
+    val psimps              = try (Proof_Context.get_thms ctxt) psimps_name |> these: thms;
+    val psimps_props        = map Thm.prop_of psimps                                : terms;
+    val cncls_as_props      = map Logic.strip_imp_concl psimps_props                : terms;
+    val has_recursive_psimp = List.exists ((fn trm => is_recursive_eq_about_cosnt_name trm cname)) cncls_as_props;
+  in has_recursive_psimp end;
 
 end;
 

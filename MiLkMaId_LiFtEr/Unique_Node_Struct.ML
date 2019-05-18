@@ -339,24 +339,11 @@ fun node_to_const_name (NC (cname, _)) = SOME (cname:string)
   | node_to_const_name  _              = NONE;
 
 fun pst_n_node_to_rcsv  (pst:Proof.state) (node:node) =
-(*TODO: remove code-duplication with check_rec_simp in Assertion.ML*)
   let
-    val ctxt = Proof.context_of pst: Proof.context;
-    val cnames = node_to_const_name node |> the_list;
-    fun is_recursive (cname:string) (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) =
-      let
-         val cname_is_in_lhs = Term.exists_Const (fn (s,_) => cname = s) A;
-         val cname_is_in_rhs = Term.exists_Const (fn (s,_) => cname = s) B;
-      in cname_is_in_lhs andalso cname_is_in_rhs end
-     |  is_recursive _ _ = false;
-    fun check_thm_list (thms:thm list) (cname:string) = List.exists (is_recursive cname o Thm.concl_of) thms;
-    fun exist_related_rsimp  []             = false
-     |  exist_related_rsimp (cname::cnames) =
-         (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
-          exist_related_rsimp cnames);
-  in
-    if null cnames then NONE else SOME (exist_related_rsimp cnames)
-  end;
+    val ctxt             = Proof.context_of pst                                                      : Proof.context;
+    val cname_option     = dest_NC node <$> fst                                                      : string option;
+    val recursive_option = cname_option <$> Pattern.has_recursive_simp_or_psimp_about_const_name ctxt: bool option;
+  in recursive_option end;
 
 fun pst_n_node_to_pttrn (pst:Proof.state) (node:node) =
   node_to_const_name node <$>
