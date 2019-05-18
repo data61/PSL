@@ -444,11 +444,16 @@ sig
   val trm_to_sets_and_lists                       : term -> {consts: term list, frees: term list, vars: term list};
   val trm_to_string                               : Proof.context -> term -> string;
   val count_numb_of_args_of_fun_typ               : typ -> int;
+  val is_recursive_eq_about_cosnt_name            : term -> string -> bool;
+  val has_recursive_simp_about_const_names        : Proof.context -> strings -> bool;
+  val has_recursive_simp_about_const_name         : Proof.context -> string -> bool;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
 structure Isabelle_Utils : ISABELLE_UTILS  =
 struct
+
+val has_recursive_simp_about = undefined;
 
 fun if_solved (goal:thm) then_clause else_clause =
   if Thm.nprems_of goal = 0 then then_clause else else_clause;
@@ -852,6 +857,24 @@ val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "hd" }         |> dest_
 val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "(@)"}         |> dest_Const |> snd) = 2);
 val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "foldl"}       |> dest_Const |> snd) = 3);
 val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "list_update"} |> dest_Const |> snd) = 3);
+
+(* TODO: remove code-duplication with PaMpeR/Assertion.ML *)
+fun is_recursive_eq_about_cosnt_name (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) (cname:string) =
+  let
+     val cname_is_in_lhs = Term.exists_Const (fn (s,_) => cname = s) A;
+     val cname_is_in_rhs = Term.exists_Const (fn (s,_) => cname = s) B;
+  in cname_is_in_lhs andalso cname_is_in_rhs end
+ |  is_recursive_eq_about_cosnt_name _ _ = false;
+
+fun check_thm_list (thms:thm list) (cname:string) =
+  List.exists ((fn trm => is_recursive_eq_about_cosnt_name trm cname) o Thm.concl_of) thms;
+
+fun has_recursive_simp_about_const_names (_   :Proof.context)  []             = false
+ |  has_recursive_simp_about_const_names (ctxt:Proof.context) (cname::cnames) =
+     (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
+      has_recursive_simp_about_const_names ctxt cnames);
+
+fun has_recursive_simp_about_const_name (ctxt:Proof.context) (cname:string) = has_recursive_simp_about_const_names ctxt [cname]
 
 end;
 

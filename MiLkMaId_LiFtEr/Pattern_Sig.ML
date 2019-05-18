@@ -34,7 +34,8 @@ datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_par
 datatype pattern_matrix                 = Pattern_Matrix     of pattern_of_a_param_in_a_clause Matrix.column_of_rows_matrix;
 datatype pattern_of_a_const(*TODO:term?*) = Pattern_Of_A_Const of
                                           {(*TODO:hol_typ*)
-                                           matrix : pattern_matrix};
+                                           matrix    : pattern_matrix,
+                                           recursive:  bool};
 
 (* type: mk_parameter_matrix *)
 type mk_pattern_matrix = Proof.context -> string -> pattern_matrix;

@@ -8,24 +8,9 @@ apply mathematical induction in Isabelle/HOL.
 
 (** Utility functions **)
 
-(* How to check if a constant is recursively defined. *)
-fun is_recursive (cname:string) (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) =
-(* TODO: remove code-duplication with PaMpeR/Assertion.ML *)
-  let
-     val cname_is_in_lhs = Term.exists_Const (fn (s,_) => cname = s) A;
-     val cname_is_in_rhs = Term.exists_Const (fn (s,_) => cname = s) B;
-  in cname_is_in_lhs andalso cname_is_in_rhs end
- |  is_recursive _ _ = false;
-fun check_thm_list (thms:thm list) (cname:string) = List.exists (is_recursive cname o Thm.concl_of) thms;
-fun exist_related_rsimp (_   :Proof.context)  []             = false
- |  exist_related_rsimp (ctxt:Proof.context) (cname::cnames) =
-     (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
-      exist_related_rsimp ctxt cnames);
-fun has_related_rsimp (ctxt:Proof.context) (Const (c, _)) = exist_related_rsimp ctxt [c]
- |  has_related_rsimp (_:Proof.context)     _             = false;
 (* How to get the number of recursive functions in a term? *)
 fun count_recursive_consts (ctxt:Proof.context) trm = fold_aterms (fn Const (cname, _) => (fn n =>
-  if exist_related_rsimp ctxt [cname] then n + 1 else n) | _ => I) trm 0;
+  if Isabelle_Utils.has_recursive_simp_about_const_names ctxt [cname] then n + 1 else n) | _ => I) trm 0;
 
 (* Utilty functions *)
 infix 1 >>= <$> <|> <*>;
@@ -584,10 +569,10 @@ type data_w_pattern_n_kind = datum_w_pattern_n_kind list;
 
 fun point_to_point_w_kind (ctxt:Proof.context) ({name, utyp, level}:point) =
   let
-    val command      = get_command name ctxt                                                        : command;
+    val command      = get_command name ctxt                                                             : command;
     val resursive    = if command = Definition orelse command = Unknown
-                       then NONE else SOME (exist_related_rsimp ctxt [name])                        : bool option;
-    val point_w_kind = {name = name, utyp = utyp, level = level, cmmnd = command, rcrsv = resursive}: point_w_kind;
+                       then NONE else SOME (Isabelle_Utils.has_recursive_simp_about_const_name ctxt name): bool option;
+    val point_w_kind = {name = name, utyp = utyp, level = level, cmmnd = command, rcrsv = resursive}     : point_w_kind;
   in
     point_w_kind:point_w_kind
   end;

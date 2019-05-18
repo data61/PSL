@@ -74,8 +74,9 @@ datatype pattern_of_a_param_in_a_clause = Pattern_Of_Atom of left_pattern (*TODO
 datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_param_in_a_clause Matrix.row;
 datatype pattern_matrix                 = Pattern_Matrix of pattern_of_a_param_in_a_clause Matrix.column_of_rows_matrix;
 datatype pattern_of_a_const(*TODO:term?*)= Pattern_Of_A_Const of
-                                          {(*hol_typ*)
-                                           matrix : pattern_matrix};
+                                          {(*TODO:hol_typ*)
+                                           matrix    : pattern_matrix,
+                                           recursive:  bool};
 
 (** operation: assertion **)
 
@@ -174,10 +175,39 @@ fun mk_pattern_matrix (ctxt:Proof.context) (cname:string) =
     result: pattern_matrix
   end;
 
+datatype recursive_or_inductive_clause  = Rec_Or_Ind  of bool;
+datatype recursive_or_inductive_clauses = Rec_Or_Inds of recursive_or_inductive_clause column;
+(*TODO*)
+
+fun ctxt_n_cname_to_rec_or_inds_option (ctxt:Proof.context) (cname:string) = undefined;
+(*TODO: write something similar to  utrm_w_prnt_to_futrm_w_prnt in Unique_Node_Struct.ML.*)
+
+fun has_recursive_psimp_about_const_name (ctxt:Proof.context) = undefined;
+
+fun has_recursive_simp_or_psimp_about_const_name (ctxt:Proof.context) (cname:string) =
+  let
+    val command = get_command ctxt cname: command;
+    val result = case command of
+        Primrec   => Isabelle_Utils.has_recursive_simp_about_const_name ctxt cname |> SOME
+      | Fun       => Isabelle_Utils.has_recursive_simp_about_const_name ctxt cname |> SOME
+      | Function  => has_recursive_psimp_about_const_name               ctxt cname |> SOME
+      | Inductive => Isabelle_Utils.has_recursive_simp_about_const_name ctxt cname |> SOME
+      | _(*TODO*) => NONE
+  in result
+  end
+
+(* TODO: The "function" keyword produces psimp-rules instead of simp rules.
+ * psimp-rules have assumptions before equations.
+ * So, we cannot use Isabelle_Utils.has_recursive_simp_about_const_name.
+ * We have to define has_recursive_psimp_about_const_name in Utils.ML.  *)
+
 fun ctxt_n_cname_to_pattern_of_a_const (ctxt:Proof.context) (cname:string) =
   let
-    val pattern_matrix     = mk_pattern_matrix ctxt cname                : pattern_matrix;
-    val pattern_of_a_const = Pattern_Of_A_Const {matrix = pattern_matrix}: pattern_of_a_const;
+    val pattern_matrix     = mk_pattern_matrix ctxt cname                                 : pattern_matrix;
+    val is_recursive       = Isabelle_Utils.has_recursive_simp_about_const_name ctxt cname: bool;
+    val pattern_of_a_const = Pattern_Of_A_Const
+         {matrix    = pattern_matrix,
+          recursive = is_recursive}: pattern_of_a_const;
   in
     pattern_of_a_const
   end;
