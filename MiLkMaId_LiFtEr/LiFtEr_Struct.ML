@@ -19,7 +19,7 @@ datatype numb    = Numb    of int;
 datatype trm     = Trm     of int;
 datatype rule    = Rule    of int;
 datatype trm_occ = Trm_Occ of int;
-datatype pattern = All_Only_Var | All_Const | Mixed;(*TODO: This is not final.*)
+datatype pattern = All_Only_Var | All_Constr | Mixed;(*TODO: This is not final.*)
 
 infix And Or Imply;
 
@@ -713,10 +713,10 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val cname_option         = name_space_n_trm_occ_id_to_cname name_space trm_occ  : string option;
           val input_pair_option    = Utils.mk_option_pair (cname_option, numb_option)     : (string * int) option;
           val result_option        = case pttrn of
-            All_Only_Var => Option.map (uncurry (is_nth_all_Only_Var ctxt)) input_pair_option: bool option
-          | All_Const    => Option.map (uncurry (is_nth_all_Only_Var ctxt)) input_pair_option: bool option
-          | Mixed        => SOME true;
-        in is_some result_option end (*TODO: improve this clause.*)
+            All_Only_Var => Option.map (uncurry (is_nth_all_Only_Var                     ctxt)) input_pair_option: bool option
+          | All_Constr   => Option.map (uncurry (is_nth_all_Data_Constructor_W_or_WO_Var ctxt)) input_pair_option: bool option
+          | Mixed        => Option.map (uncurry (is_nth_Var_n_Constructor                ctxt)) input_pair_option: bool option
+        in Utils.is_some_true result_option end (*TODO: improve this clause.*)
       (*syntax sugars*)
       | eval' (Is_Atom trm_occ)                                  (name_space:name_space) = eval' (Is_Cnst trm_occ Or Is_Free trm_occ Or Is_Bound trm_occ)   name_space
       | eval' (Are_Diff_Numb (numb1, numb2))                     (name_space:name_space) = eval' (Not (Are_Same_Numb (numb1, numb2)))                                name_space

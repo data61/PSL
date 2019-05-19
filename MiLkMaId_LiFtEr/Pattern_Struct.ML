@@ -214,6 +214,7 @@ fun ctxt_n_name_to_patterns_of_each_param (ctxt:Proof.context) (cname:string) =
     map Pattern_Of_A_Param patterns_of_each_param: pattern_of_a_param list
   end;
 
+(*TODO: re-factoring*)
 fun is_nth_all_Only_Var (ctxt:Proof.context) (cname:string) (n:int) =
   let
     val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
@@ -258,5 +259,8 @@ fun is_nth_all_Data_Constructor_W_or_WO_Var (ctxt:Proof.context) (cname:string) 
   in
     nth_param_is_all_Only_Var: bool
   end;
+
+fun is_nth_Var_n_Constructor (ctxt:Proof.context) (cname:string) (n:int) =
+  not (is_nth_all_Only_Var ctxt cname n) andalso not (is_nth_all_Data_Constructor_W_or_WO_Var ctxt cname n);
 
 end;

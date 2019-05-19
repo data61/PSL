@@ -56,5 +56,6 @@ val is_nth_all_Only_Var                    : Proof.context -> string -> int -> b
 val is_nth_all_Data_Constructor_W_Var      : Proof.context -> string -> int -> bool;
 val is_nth_all_Data_Constructor_WO_Var     : Proof.context -> string -> int -> bool;
 val is_nth_all_Data_Constructor_W_or_WO_Var: Proof.context -> string -> int -> bool;
+val is_nth_Var_n_Constructor               : Proof.context -> string -> int -> bool;
 
 end;
