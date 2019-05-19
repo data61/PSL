@@ -19,6 +19,7 @@ inductive evn :: "nat \<Rightarrow> bool" where
 print_theorems
 
 ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "Test_LiFtEr.evn");      *}
+ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "List.nth");             *}
 ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "HOL.eq"      |> not);   *}
 ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "List.insert" |> not);   *}
 ML{* val _ = @{assert} (Pattern.has_recursive_simp_or_psimp_about_const_name @{context} "xs"          |> not);   *}

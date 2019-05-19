@@ -60,6 +60,7 @@ datatype assrt   =
 | Is_Atom                 of trm_occ
 | Is_Cnst                 of trm_occ
 | Is_Const_Of_Name        of trm_occ * string
+| Is_Recursive_Cnst       of trm_occ
 | Is_Var                  of trm_occ
 | Is_Free                 of trm_occ
 | Is_Bound                of trm_occ (*corresponds to Bound in term*)
@@ -321,10 +322,13 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
     type quantifier = (name_space -> bool) -> name_space list -> bool;
 
     val {ons, arbs,...} = mods: {ons: induct_on list, arbs: induct_arb list, rules: induct_rule list};
+
     fun path_to_unode_aux_table_n_path_to_print (path_to_unode_aux_table:TT.path_to_unode_aux_table) (path:path) =
         Path_Table.lookup path_to_unode_aux_table path <$> #print: UN.print option;
+
     fun unode_aux_table_n_path_to_node  (path_to_unode_aux_table:TT.path_to_unode_aux_table) (path:path) =
         Path_Table.lookup path_to_unode_aux_table path <$> #node : UN.node option;
+
     fun loc_to_one_term (TT.Nth_Subg     n:location) = try (nth (#subgoals lifter_pst)) n: TT.one_term option
       | loc_to_one_term (TT.Chained_Fact n:location) = try (nth (#usings   lifter_pst)) n: TT.one_term option;
 
@@ -340,14 +344,30 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       print_option
     end;
 
+    fun path_n_loc_to_unode_w_aux  (path:path, loc:location) =
+    let
+      val unode_aux_table_option     = loc_to_path_to_unode_aux_table loc                       : TT.path_to_unode_aux_table option;
+      val path_to_unode_w_aux_option = unode_aux_table_option <$> Path_Table.lookup             : (path -> UN.unode_w_aux option) option;
+      val unode_w_aux_option         = path_to_unode_w_aux_option <*> SOME path |> Option.join  : UN.unode_w_aux option;
+    in
+      unode_w_aux_option: UN.unode_w_aux option
+    end;
+
     fun path_n_loc_to_node  (path:path, loc:location) =
     let
-      val unode_aux_table_option = loc_to_path_to_unode_aux_table loc                       : TT.path_to_unode_aux_table option;
-      val path_to_node_option    = unode_aux_table_option <$> unode_aux_table_n_path_to_node: (path -> UN.node option) option;
-      val node_option            = path_to_node_option <*> SOME path |> Option.join         : UN.node option;
+      val unode_w_aux = path_n_loc_to_unode_w_aux (path, loc): UN.unode_w_aux option;
+      val node_option = unode_w_aux <$> #node                : UN.node option;
     in
       node_option: UN.node option
     end;
+
+    fun name_space_n_trm_occ_id_to_unode_w_aux (name_space:name_space) (Trm_Occ occ_id:trm_occ) =
+      let
+        val occ_path_n_loc_option = name_space_n_trm_occ_id_to_path_n_loc name_space (Trm_Occ occ_id) : path_n_loc option;
+        val unode_w_aux_option    = occ_path_n_loc_option <$> path_n_loc_to_unode_w_aux |> Option.join: UN.unode_w_aux option;
+      in
+        unode_w_aux_option
+      end;
 
     fun name_space_n_trm_occ_id_to_node (name_space:name_space) (Trm_Occ occ_id:trm_occ) =
       let
@@ -586,6 +606,11 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           result
         end
+      | eval' (Is_Recursive_Cnst (trm_occ as Trm_Occ occ_id:trm_occ)) (name_space:name_space) =
+        let
+          val unode_w_aux_option = name_space_n_trm_occ_id_to_unode_w_aux name_space trm_occ        : UN.unode_w_aux option;
+          val is_rcsv            = unode_w_aux_option <$> #rcsv |> Option.join |> Utils.is_some_true: bool;
+        in is_rcsv end
       | eval' (Is_Cnst   trm_occ) (name_space:name_space) = name_space_n_trm_occ_are_node_typ_of name_space trm_occ UN.Node_Typ_NC
       | eval' (Is_Var    trm_occ) (name_space:name_space) = name_space_n_trm_occ_are_node_typ_of name_space trm_occ UN.Node_Typ_NV
       | eval' (Is_Free   trm_occ) (name_space:name_space) = name_space_n_trm_occ_are_node_typ_of name_space trm_occ UN.Node_Typ_NF

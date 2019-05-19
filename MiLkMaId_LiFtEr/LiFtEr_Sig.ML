@@ -51,6 +51,7 @@ datatype assrt   =
 | Is_Atom                 of trm_occ
 | Is_Cnst                 of trm_occ
 | Is_Const_Of_Name        of trm_occ * string
+| Is_Recursive_Const      of trm_occ
 | Is_Var                  of trm_occ
 | Is_Free                 of trm_occ
 | Is_Bound                of trm_occ (*corresponds to Bound in term*)

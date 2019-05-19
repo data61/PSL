@@ -340,6 +340,20 @@ val test_Is_Nth_Arg_Of2 =
         For_Numb_N (Numb 1, 1,
           Is_Nth_Arg_Of (Trm_Occ 1, Numb 1, Trm_Occ 2))))));
 
+val test_Is_Recursive_Cnst_true =
+  Some_Trm (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+        (Trm 1 Is_Printed_As "TIP_prop_01.take")
+      And
+         Is_Recursive_Cnst (Trm_Occ 1)));
+
+val test_Is_Recursive_Cnst_false =
+  Some_Trm (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+        (Trm 1 Is_Printed_As "HOL.eq")
+      And
+         Is_Recursive_Cnst (Trm_Occ 1)));
+
 val test_Are_Same_Numb1 = ();
 
 val test_Are_Same_Str1 = ();
@@ -389,6 +403,8 @@ setup{* Apply_LiFtEr.update_assert  38 test_Is_At_Deepest3;                     
 setup{* Apply_LiFtEr.update_assert  39 test_Is_In_Prems1;                             *}
 setup{* Apply_LiFtEr.update_assert  40 test_Is_Nth_Arg_Of1;                           *}
 setup{* Apply_LiFtEr.update_assert  41 test_Is_Nth_Arg_Of2;                           *}
+setup{* Apply_LiFtEr.update_assert  42 test_Is_Recursive_Cnst_true;                   *}
+setup{* Apply_LiFtEr.update_assert  43 test_Is_Recursive_Cnst_false;                  *}
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
@@ -470,6 +486,8 @@ theorem property0 :
   test_LiFtEr_false 38 9
   test_LiFtEr_true  40 1
   test_LiFtEr_false 41 1
+  test_LiFtEr_true  42 1
+  test_LiFtEr_false 43 1
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done

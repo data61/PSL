@@ -76,8 +76,7 @@ datatype pattern_of_a_param             = Pattern_Of_A_Param of pattern_of_a_par
 datatype pattern_matrix                 = Pattern_Matrix of pattern_of_a_param_in_a_clause Matrix.column_of_rows_matrix;
 datatype pattern_of_a_const(*TODO:term?*)= Pattern_Of_A_Const of
                                           {(*TODO:hol_typ*)
-                                           matrix    : pattern_matrix,
-                                           recursive:  bool};
+                                           matrix: pattern_matrix};
 
 (** operation: assertion **)
 
@@ -200,10 +199,8 @@ fun has_recursive_simp_or_psimp_about_const_name (ctxt:Proof.context) (cname:str
 fun ctxt_n_cname_to_pattern_of_a_const (ctxt:Proof.context) (cname:string) =
   let
     val pattern_matrix     = mk_pattern_matrix ctxt cname                           : pattern_matrix;
-    val is_recursive       = has_recursive_simp_or_psimp_about_const_name ctxt cname: bool;
     val pattern_of_a_const = Pattern_Of_A_Const
-         {matrix    = pattern_matrix,
-          recursive = is_recursive}: pattern_of_a_const;
+         {matrix    = pattern_matrix}: pattern_of_a_const;
   in
     pattern_of_a_const
   end;
