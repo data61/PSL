@@ -51,7 +51,7 @@ datatype assrt   =
 | Is_Atom                 of trm_occ
 | Is_Cnst                 of trm_occ
 | Is_Const_Of_Name        of trm_occ * string
-| Is_Recursive_Const      of trm_occ
+| Is_Recursive_Cnst       of trm_occ
 | Is_Var                  of trm_occ
 | Is_Free                 of trm_occ
 | Is_Bound                of trm_occ (*corresponds to Bound in term*)
@@ -59,6 +59,7 @@ datatype assrt   =
 | Is_App                  of trm_occ (*function application corresponding to $ in Term*)
 | Not_Fully_App           of trm_occ (*If trm is function application that is not fully applied returns true, otherwise returns false.*)
 | Is_Less_Than            of numb    * numb (* nth_1 < nth_2 *)
+| Is_An_Arg_Of            of trm_occ * trm_occ
 | Is_Nth_Arg_Of           of trm_occ * numb * trm_occ
 | Is_Nth_Ind              of trm     * numb (*Counting starts with 0.*)
 | Is_Nth_Arb              of trm     * numb (*Counting starts with 0.*)

@@ -24,9 +24,7 @@ fun path_to_string  []               = ""
 
 infix isSubstring;
 
-val (op isSubstring) = uncurry String.isSubstring;
-
-fun is_subprint_of (Print p1) (Print p2) = p2 isSubstring p1;
+fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
 
 fun ctxt_n_print_to_cname  (ctxt:Proof.context) (print:print) =
   let

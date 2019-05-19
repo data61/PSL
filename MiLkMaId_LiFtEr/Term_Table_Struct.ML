@@ -127,6 +127,25 @@ fun path_to_unode_aux_table_to_depth (path_to_unode_aux_table:path_to_unode_aux_
     depth_option
   end;
 
+fun paths_at_the_same_level (path1:UN.path) (path2:UN.path) =
+  let
+    val lengths = apply2 length (path1, path2): (int * int);
+  in
+    uncurry equal lengths: bool
+  end;
+
+fun path1_is_an_arg_of_path2 (path1:UN.path) (path2:UN.path) =
+  let
+    val path1_last_option = try Utils.last path1: int option;
+    val path2_last_option = try Utils.last path2: int option;
+    (*TODO: This is not always correct. We have to exclude Abstraction by checking the parent node.
+     *      For this, we need the path_to_node table. *)
+    val path2_is_func     = Option.map (      equal 0) path2_last_option |> Utils.is_some_true: bool;
+    val path1_is_arg      = Option.map (not o equal 0) path1_last_option |> Utils.is_some_true: bool;
+  in
+    paths_at_the_same_level path1 path2 andalso path2_is_func andalso path1_is_arg
+  end;
+
 val path_to_unode_table_to_lowest_fvars = undefined: path_to_unode_table -> Unique_Node.path list;
 val path_to_ancestor_paths              = undefined: Unique_Node.path -> Unique_Node.path list;
 val path_to_descendent_paths            = undefined: Unique_Node.path -> Unique_Node.path list;

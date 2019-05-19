@@ -68,6 +68,7 @@ datatype assrt   =
 | Is_App                  of trm_occ (*function application corresponding to $ in Term*)
 | Not_Fully_App           of trm_occ (*If trm is function application that is not fully applied returns true, otherwise returns false.*)
 | Is_Less_Than            of numb    * numb (* nth_1 < nth_2 *)
+| Is_An_Arg_Of            of trm_occ * trm_occ
 | Is_Nth_Arg_Of           of trm_occ * numb * trm_occ
 | Is_Nth_Ind              of trm     * numb (*Counting starts with 0.*)
 | Is_Nth_Arb              of trm     * numb (*Counting starts with 0.*)
@@ -551,10 +552,9 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val occ1_occ2_path_n_loc_option = Utils.mapPartial2 (name_space_n_trm_occ_id_to_path_n_loc name_space) (SOME (trm_occ1, trm_occ2)): (path_n_loc * path_n_loc) option;
           val occ1_occ2_path_option       = occ1_occ2_path_n_loc_option <$> apply2 fst                                                      : (path * path) option;
           val occ1_occ2_loc_option        = occ1_occ2_path_n_loc_option <$> apply2 snd                                                      : (location * location) option;
-          val path1_is_under_path2_option = occ1_occ2_path_option <$> uncurry UN.path1_is_above_path2                                       : bool option;
+          val path2_is_above_path1_option = occ1_occ2_path_option <$> uncurry UN.path1_is_above_path2 <$> not                               : bool option;
           val loc1_n_loc2_are_same        = occ1_occ2_loc_option <$> TT.same_location                                                       : bool option;
-          val result_pair                 = Utils.mk_option_pair (path1_is_under_path2_option, loc1_n_loc2_are_same)                        : (bool * bool) option;
-          val result                      = result_pair <$> (op =) |> Utils.is_some_true                                                    : bool;
+          val result                      = Utils.is_some_true loc1_n_loc2_are_same andalso Utils.is_some_true path2_is_above_path1_option  : bool;
         in
           result
         end
@@ -649,6 +649,18 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val result               = Utils.is_some_true result_option                     : bool;
         in
           result
+        end
+      | eval' (Is_An_Arg_Of (func:trm_occ, arg:trm_occ)) (name_space:name_space) =
+        let
+          val path_n_loc_of_func_option = name_space_n_trm_occ_id_to_path_n_loc name_space func                            : path_n_loc option;
+          val path_n_loc_of_arg_option  = name_space_n_trm_occ_id_to_path_n_loc name_space arg                             : path_n_loc option;
+          val path_n_loc_pair_option    = Utils.mk_option_pair  (path_n_loc_of_func_option, path_n_loc_of_arg_option)      : (path_n_loc * path_n_loc) option;
+          val loc_pair_option           = Option.map (apply2 snd) path_n_loc_pair_option                                   : (location * location) option;
+          val are_same_location         = loc_pair_option <$>  TT.same_location |> Utils.is_some_true                      : bool;
+          fun path_pair_option _        = Option.map (apply2 fst) path_n_loc_pair_option                                   : (path * path) option;
+          fun is_func_of_arg   _        = path_pair_option () <$> uncurry TT.path1_is_an_arg_of_path2 |> Utils.is_some_true: bool;
+        in
+          if are_same_location then (tracing "are_same_location is true"; is_func_of_arg ()) else false
         end
       | eval' (Is_Nth_Arg_Of (func:trm_occ, Numb numb:numb, arg:trm_occ)) (name_space as Name_Space nspace) =
         let

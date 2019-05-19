@@ -21,7 +21,8 @@ infix And Or Imply Is_In_Trm_Loc Is_In_Trm_Str Is_Nth_Ind
   Is_More_Than
   Is_Const_Of_Name
   Is_Printed_As
-  Is_At_Depth;
+  Is_At_Depth
+  Is_An_Arg_Of;
 
 in
 
@@ -171,13 +172,13 @@ val test_All_Ind_n_Some_Trm_Occ_Of2 =
       Not (Is_Atom (Trm_Occ 2))));
 
 val test_All_Ind_n_Some_Trm_Occ_Of3 =
-    Some_Arb (Trm 2, True)
+    Some_Arb (Trm 1, True)
   Imply
-    Some_Arb (Trm 2,
-      All_Ind (Trm 1,
-        All_Trm_Occ_Of (Trm_Occ 3, Trm 2,
-          Some_Trm_Occ_Of (Trm_Occ 4, Trm 1,
-            Trm_Occ 4 Is_In_Trm_Str Trm_Occ 3))));
+    Some_Arb (Trm 1,
+      All_Ind (Trm 2,
+        All_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+          Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+            Trm_Occ 1 Is_In_Trm_Str Trm_Occ 2))));
 
 val test_Is_At_Deepest_n_Some_Trm_Occ_Of =
   All_Ind (Trm 1,
@@ -354,6 +355,58 @@ val test_Is_Recursive_Cnst_false =
       And
          Is_Recursive_Cnst (Trm_Occ 1)));
 
+val test_Is_Nth_Arg_Of =
+  Some_Trm (Trm 1,
+  Some_Trm (Trm 2,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+      For_Numb_N (Numb 1, 0,
+          (Trm 1 Is_Printed_As "n")
+        And
+          (Trm 2 Is_Printed_As "TIP_prop_01.take")
+        And
+          (Is_Nth_Arg_Of ((Trm_Occ 1), (Numb 1), (Trm_Occ 2))))))));
+
+val test_Is_An_Arg_Of =
+  Some_Trm (Trm 1,
+  Some_Trm (Trm 2,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+        (Trm 1 Is_Printed_As "xs")
+      And
+        (Trm 2 Is_Printed_As "TIP_prop_01.take")
+      And
+        (Trm_Occ 1 Is_An_Arg_Of Trm_Occ 2)))));
+
+val test_Is_An_Arg_Of2 =
+  Some_Trm (Trm 1,
+  Some_Trm (Trm 2,
+  Some_Trm (Trm 3,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+    Some_Trm_Occ_Of (Trm_Occ 3, Trm 3,
+        (Trm 1 Is_Printed_As "x")
+      And
+        (Trm 2 Is_Printed_As "n")
+      And
+        (Trm_Occ 2 Is_In_Trm_Str Trm_Occ 3)
+      And
+        (Trm_Occ 3 Is_An_Arg_Of Trm_Occ 1)
+      ))))));
+
+val test_Is_In_Trm_Loc =
+  Some_Trm (Trm 1,
+  Some_Trm (Trm 2,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+        (Trm 1 Is_Printed_As "xs")
+      And
+        (Trm 2 Is_Printed_As "TIP_prop_01.take n xs")
+      And
+        (Trm_Occ 1 Is_In_Trm_Loc Trm_Occ 2)
+      ))));
+
+
 val test_Are_Same_Numb1 = ();
 
 val test_Are_Same_Str1 = ();
@@ -405,6 +458,10 @@ setup{* Apply_LiFtEr.update_assert  40 test_Is_Nth_Arg_Of1;                     
 setup{* Apply_LiFtEr.update_assert  41 test_Is_Nth_Arg_Of2;                           *}
 setup{* Apply_LiFtEr.update_assert  42 test_Is_Recursive_Cnst_true;                   *}
 setup{* Apply_LiFtEr.update_assert  43 test_Is_Recursive_Cnst_false;                  *}
+setup{* Apply_LiFtEr.update_assert  44 test_Is_Nth_Arg_Of;                            *}
+setup{* Apply_LiFtEr.update_assert  45 test_Is_An_Arg_Of;                             *}
+setup{* Apply_LiFtEr.update_assert  46 test_Is_An_Arg_Of2;                            *}
+setup{* Apply_LiFtEr.update_assert  47 test_Is_In_Trm_Loc;                            *}
 
 setup{* Apply_LiFtEr.update_ind_mod 3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod 4 mods_for_Isaplanner_01_02; *}
@@ -431,7 +488,7 @@ fun drop :: "Nat => 'a list => 'a list" where
   "drop (Z) z = z"
 | "drop (S z2) (nil2) = nil2"
 | "drop (S z2) (cons2 x2 x3) = drop z2 x3"
-
+ML{* Utils.last [1,2,3]*}
 theorem property0 :
   "((x (take n xs) (drop n xs)) = xs)"
 (*
@@ -488,6 +545,10 @@ theorem property0 :
   test_LiFtEr_false 41 1
   test_LiFtEr_true  42 1
   test_LiFtEr_false 43 1
+  test_LiFtEr_true  44 1
+  test_LiFtEr_true  45 1
+  test_LiFtEr_true  46 1
+  test_LiFtEr_true  47 1
   apply (induct xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
