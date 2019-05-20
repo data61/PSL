@@ -11,18 +11,22 @@ struct
 type assertions = (int * LiFtEr.assrt) list;
 fun register_assertions (asserts: assertions) = map (uncurry Apply_LiFtEr.update_assert) asserts;
 
-structure LU = LiFtEr_Util;
-structure L  = LiFtEr;
-
-infix And;
-val op And = L.And
-
-val sample_assert =
- L.All_Ind (L.Trm 1,
-   L.Some_Trm_Occ (L.Trm_Occ 2,
-       L.Trm_Occ_Is_Of_Trm (L.Trm_Occ 2, L.Trm 1)
-     And
-       L.Is_Atom (L.Trm_Occ 2))): L.assrt;
+open LiFtEr LiFtEr_Util;
+infix
+  And
+  Or
+  Imply
+  Is_In_Trm_Loc
+  Is_In_Trm_Str
+  Is_Nth_Ind
+  Is_In_Trm_Loc
+  Is_In_Trm_Str
+  Is_Typ
+  Is_More_Than
+  Is_Const_Of_Name
+  Is_Printed_As
+  Is_At_Depth
+  Is_An_Arg_Of;
 
 (*** assertions to judge induction variables regardless of arbitrary or rule ***)
 

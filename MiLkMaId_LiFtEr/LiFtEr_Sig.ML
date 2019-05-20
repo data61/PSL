@@ -14,7 +14,7 @@ datatype numb    = Numb    of int;
 datatype trm     = Trm     of int;
 datatype rule    = Rule    of int;
 datatype trm_occ = Trm_Occ of int;
-datatype pattern = All_Only_Var | All_Const | Mixed;(*TODO: This is not final.*)
+datatype pattern = All_Only_Var | All_Constr | Mixed;(*TODO: This is not final.*)
 datatype assrt   =
 (*quantifiers*)
   All_Ind                 of trm  * assrt

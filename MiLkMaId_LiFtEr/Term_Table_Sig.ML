@@ -84,6 +84,7 @@ val lifter_pst_n_print_to_path_n_locs  : lifter_pst -> LiFtEr_Util.print -> path
 (*Use One_Term.keys to implement it.*)
 val paths_at_the_same_level            : UN.path -> UN.path -> bool;(*TODO: Move this to Unique_Node?*)
 val path1_is_an_arg_of_path2           : UN.path -> UN.path -> bool;
+val path1_is_nth_arg_of_path2          : UN.path -> int -> UN.path -> bool;
 val path_to_unode_aux_table_to_depth   : path_to_unode_aux_table -> int option;
 val path_to_unode_table_to_lowest_fvars: path_to_unode_table -> UN.paths;
 val path_to_ancestor_paths             : UN.path -> UN.paths;

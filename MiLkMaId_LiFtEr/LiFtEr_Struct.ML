@@ -660,23 +660,26 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           fun path_pair_option _        = Option.map (apply2 fst) path_n_loc_pair_option                                   : (path * path) option;
           fun is_func_of_arg   _        = path_pair_option () <$> uncurry TT.path1_is_an_arg_of_path2 |> Utils.is_some_true: bool;
         in
-          if are_same_location then (tracing "are_same_location is true"; is_func_of_arg ()) else false
+          if are_same_location then is_func_of_arg () else false
         end
       | eval' (Is_Nth_Arg_Of (func:trm_occ, Numb numb:numb, arg:trm_occ)) (name_space as Name_Space nspace) =
         let
-          val path_n_loc_of_func_option      = name_space_n_trm_occ_id_to_path_n_loc name_space func               : path_n_loc option;
-          val path_n_loc_of_arg_option       = name_space_n_trm_occ_id_to_path_n_loc name_space arg                : path_n_loc option;
-          val numb_name_space                = #numb nspace                                                        : name_subspace;
-          val numb_option                    = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb               : int option;
-          val numb_list_option               = numb_option <$> single                                              : int list option;
-          val func_occ_path_option           = path_n_loc_of_func_option <$> fst                                   : path option;
-          val init_of_path_to_func_option    = func_occ_path_option <$> Utils.init                                 : path option;
-          val init_n_last_option             = Utils.mk_option_pair (init_of_path_to_func_option, numb_list_option): (path * path) option;
-          val path_to_nth_arg_of_func_option = init_n_last_option <$> List.@                                       : path option;
-          val arg_occ_path_option            = path_n_loc_of_arg_option  <$> fst                                   : path option;
-          val are_same_paths                 = opt_equal (arg_occ_path_option, path_to_nth_arg_of_func_option)     : bool;
+          val path_n_loc_of_func_option = name_space_n_trm_occ_id_to_path_n_loc name_space func                       : path_n_loc option;
+          val path_n_loc_of_arg_option  = name_space_n_trm_occ_id_to_path_n_loc name_space arg                        : path_n_loc option;
+          val path_n_loc_pair_option    = Utils.mk_option_pair  (path_n_loc_of_func_option, path_n_loc_of_arg_option) : (path_n_loc * path_n_loc) option;
+          val numb_name_space           = #numb nspace                                                                : name_subspace;
+          val numb_option               = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb                       : int option;
+          val loc_pair_option           = Option.map (apply2 snd) path_n_loc_pair_option                              : (location * location) option;
+          val are_same_location         = loc_pair_option <$>  TT.same_location |> Utils.is_some_true                 : bool;
+          fun path_pair_option _        = Option.map (apply2 fst) path_n_loc_pair_option                              : (path * path) option;
+          fun preproc (SOME (p1, p2):(path*path) option) (SOME i: int option) = SOME (p1, i, p2)                      : (path * int * path) option
+            | preproc  _                                  _                   = NONE                                  : (path * int * path) option;
+          fun trip_option _             = preproc (path_pair_option ()) numb_option                                   : (path * int * path) option;
+          fun is_nth_arg_of   _         = trip_option ()
+                                      <$> (fn (a,b,c) => TT.path1_is_nth_arg_of_path2 a b c)
+                                       |> Utils.is_some_true                                                          : bool;
         in
-          are_same_paths
+          if (tracing "are_same_location"; are_same_location) then is_nth_arg_of () else false
         end
       | eval' (assrt as Is_Nth_Ind (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space (*Counting starts with 0.*)
       | eval' (assrt as Is_Nth_Arb (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space (*Counting starts with 0.*)
