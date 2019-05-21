@@ -579,7 +579,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val node_option     = name_space_n_trm_occ_id_to_node name_space trm_occ: UN.node option;
           val atomic_node_typ = node_option >>= UN.node_to_atoms_typ: typ option;
           val result          = atomic_node_typ <$> is_hol_typ_of hol_typ |> Utils.is_some_true: bool;
-        in result
+        in
+          result
         end
       | eval' (Is_In_Chained (trm_occ:trm_occ)) (name_space:name_space) =
         let
@@ -679,7 +680,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
                                       <$> (fn (a,b,c) => TT.path1_is_nth_arg_of_path2 a b c)
                                        |> Utils.is_some_true                                                          : bool;
         in
-          if (tracing "are_same_location"; are_same_location) then is_nth_arg_of () else false
+          if are_same_location then is_nth_arg_of () else false
         end
       | eval' (assrt as Is_Nth_Ind (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space (*Counting starts with 0.*)
       | eval' (assrt as Is_Nth_Arb (trm:trm, numb)) (name_space:name_space) = is_nth_arg_of_induct_method assrt trm numb name_space (*Counting starts with 0.*)
@@ -710,16 +711,19 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         end
       | eval' (Pattern (Numb numb:numb, trm_occ:trm_occ, pttrn:pattern)) (name_space as Name_Space nspace:name_space) =
         let
-          val numb_name_space      = #numb nspace                                         : name_subspace;
-          fun get_numb_option numb = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb: int option;(*TODO: remove code-duplication with other clauses.*)
-          val numb_option          = get_numb_option numb                                 : int option;
-          val cname_option         = name_space_n_trm_occ_id_to_cname name_space trm_occ  : string option;
-          val input_pair_option    = Utils.mk_option_pair (cname_option, numb_option)     : (string * int) option;
-          val result_option        = case pttrn of
-            All_Only_Var => Option.map (uncurry (is_nth_all_Only_Var                     ctxt)) input_pair_option: bool option
-          | All_Constr   => Option.map (uncurry (is_nth_all_Data_Constructor_W_or_WO_Var ctxt)) input_pair_option: bool option
-          | Mixed        => Option.map (uncurry (is_nth_Var_n_Constructor                ctxt)) input_pair_option: bool option
-        in Utils.is_some_true result_option end (*TODO: improve this clause.*)
+          val numb_name_space       = #numb nspace                                         : name_subspace;
+          fun get_numb_option numb  = alist_lookup_eq numb_name_space numb >>= dest_ID_Numb: int option;(*TODO: remove code-duplication with other clauses.*)
+          val numb_option           = get_numb_option numb                                 : int option;
+          val cname_option          = name_space_n_trm_occ_id_to_cname name_space trm_occ  : string option;
+          val input_pair_option     = Utils.mk_option_pair (cname_option, numb_option)     : (string * int) option;
+          fun app_nth_check checker = input_pair_option <$> uncurry (checker ctxt)         : bool option;
+          val result_option         = case pttrn of
+            All_Only_Var => app_nth_check is_nth_all_Only_Var                              : bool option
+          | All_Constr   => app_nth_check is_nth_all_Data_Constructor_W_or_WO_Var          : bool option
+          | Mixed        => app_nth_check is_nth_Var_n_Constructor                         : bool option
+        in
+          Utils.is_some_true result_option
+        end (*TODO: improve this clause.*)
       (*syntax sugars*)
       | eval' (Is_Atom trm_occ)                                  (name_space:name_space) = eval' (Is_Cnst trm_occ Or Is_Free trm_occ Or Is_Bound trm_occ)   name_space
       | eval' (Are_Diff_Numb (numb1, numb2))                     (name_space:name_space) = eval' (Not (Are_Same_Numb (numb1, numb2)))                                name_space

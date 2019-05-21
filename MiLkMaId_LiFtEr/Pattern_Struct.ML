@@ -214,48 +214,48 @@ fun ctxt_n_name_to_patterns_of_each_param (ctxt:Proof.context) (cname:string) =
     map Pattern_Of_A_Param patterns_of_each_param: pattern_of_a_param list
   end;
 
-(*TODO: re-factoring*)
+(*TODO: re-factor these. Probably Matrix.crmatrix_to_nth_column should return an option type.*)
 fun is_nth_all_Only_Var (ctxt:Proof.context) (cname:string) (n:int) =
   let
-    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
-    val Column nth_column_as_list = crmatrix_to_nth_column crmatrix n: pattern_of_a_param_in_a_clause column;
+    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname                           : pattern_matrix;
+    val nth_column_as_list_option = try (crmatrix_to_nth_column crmatrix) n <$> dest_column;
     fun is_Only_Var (Pattern_Of_Atom Only_Var)  = true
       | is_Only_Var  _                          = false;
-    val nth_param_is_all_Only_Var = forall is_Only_Var nth_column_as_list: bool;
+    val nth_param_is_all_Only_Var = nth_column_as_list_option <$> forall is_Only_Var |> Utils.is_some_true: bool;
   in
     nth_param_is_all_Only_Var: bool
   end;
 
 fun is_nth_all_Data_Constructor_W_Var (ctxt:Proof.context) (cname:string) (n:int) =
   let
-    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
-    val Column nth_column_as_list = crmatrix_to_nth_column crmatrix n: pattern_of_a_param_in_a_clause column;
+    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname                           : pattern_matrix;
+    val nth_column_as_list_option = try (crmatrix_to_nth_column crmatrix) n <$> dest_column;
     fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_W_Var) = true
       | is_Data_Constructor_W_Var  _                                       = false;
-    val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var nth_column_as_list: bool;
+    val nth_param_is_all_Only_Var = nth_column_as_list_option <$> forall is_Data_Constructor_W_Var |> Utils.is_some_true: bool;
   in
     nth_param_is_all_Only_Var: bool
   end;
 
 fun is_nth_all_Data_Constructor_WO_Var (ctxt:Proof.context) (cname:string) (n:int) =
   let
-    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
-    val Column nth_column_as_list = crmatrix_to_nth_column crmatrix n: pattern_of_a_param_in_a_clause column;
+    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname                           : pattern_matrix;
+    val nth_column_as_list_option = try (crmatrix_to_nth_column crmatrix) n <$> dest_column;
     fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_WO_Var) = true
       | is_Data_Constructor_W_Var  _                                        = false;
-    val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var nth_column_as_list: bool;
+    val nth_param_is_all_Only_Var = nth_column_as_list_option <$>  forall is_Data_Constructor_W_Var |> Utils.is_some_true: bool;
   in
     nth_param_is_all_Only_Var: bool
   end;
 
 fun is_nth_all_Data_Constructor_W_or_WO_Var (ctxt:Proof.context) (cname:string) (n:int) =
   let
-    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname     : pattern_matrix;
-    val Column nth_column_as_list = crmatrix_to_nth_column crmatrix n: pattern_of_a_param_in_a_clause column;
+    val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname                           : pattern_matrix;
+    val nth_column_as_list_option = try (crmatrix_to_nth_column crmatrix) n <$> dest_column;
     fun is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_W_Var)  = true
       | is_Data_Constructor_W_Var (Pattern_Of_Atom Data_Constructor_WO_Var) = true
       | is_Data_Constructor_W_Var  _                                        = false;
-    val nth_param_is_all_Only_Var = forall is_Data_Constructor_W_Var nth_column_as_list: bool;
+    val nth_param_is_all_Only_Var = nth_column_as_list_option <$> forall is_Data_Constructor_W_Var |> Utils.is_some_true: bool;
   in
     nth_param_is_all_Only_Var: bool
   end;

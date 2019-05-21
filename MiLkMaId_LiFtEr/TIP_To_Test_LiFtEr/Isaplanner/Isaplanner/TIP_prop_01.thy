@@ -75,10 +75,16 @@ val mods_for_Isaplanner_01_08 = Ind_Mods
   rules = [Ind_Rule "TIP_prop_01.drop.induct"]
   }: ind_mods;
 
+val mods_for_Isaplanner_01_09 = Ind_Mods
+ {ons   = [Ind_On (Print "n")],
+  arbs  = [],
+  rules = []
+  }: ind_mods;
+
 val test_Some_Rule_n_Some_Trm_Occ_n_Is_Rule_Of =
     Some_Rule (Rule 1,
       Some_Trm_Occ (Trm_Occ 2,
-        Is_Rule_Of (Rule 1, Trm_Occ 2)));
+        Rule 1 Is_Rule_Of  Trm_Occ 2));
 
 val assert_should_succeed =
   Some_Rule (Rule 1,
@@ -86,7 +92,7 @@ val assert_should_succeed =
       Some_Trm_Occ (Trm_Occ 3,
           Is_Cnst (Trm_Occ 3)
         And
-          Is_Rule_Of (Rule 1, Trm_Occ 3)
+          (Rule 1 Is_Rule_Of Trm_Occ 3)
         And
           Trm_Occ_Is_Of_Trm (Trm_Occ 3, Trm 2))));
 
@@ -454,42 +460,35 @@ val test_Rule_n_Inds =
                Some_Numb (Numb 1,
                  (Is_Nth_Arg_Of (Trm_Occ 2(*n xs*), Numb 1, Trm_Occ 1(*drop*))
                 And
-                 (Trm 2(*n xs*) Is_Nth_Ind Numb 1))))))))));
+                 (Trm 2 Is_Nth_Ind Numb 1))))))))));
 
-val test_If_All_Ind_Var_Are_at_Bottom =
+val test_if_all_ind_vars_have_an_occ_at_bottom =
+  All_Ind (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+      Is_At_Deepest (Trm_Occ 2)));
+
+val test_if_all_ind_vars_are_arguments_of_a_recursive_function =
+  All_Ind (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+       Some_Trm (Trm 3,
+         Some_Trm_Occ_Of (Trm_Occ 4, Trm 3,
+           Is_Recursive_Cnst (Trm_Occ 4)
+         And
+           (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 4)))));
+
+val test_If_all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete =
 All_Ind (Trm 1,
-  All_Trm_Occ_Of
-    (Trm_Occ 2 (* two occurrences of "n" in the proof obligation*),
-     Trm 1(*"n" as induction term*),
-     Is_At_Deepest (Trm_Occ 2)));
-
-val test_If_All_Ind_Var_Are_Arguments_Of_A_Recursive_Function =
-All_Ind (Trm 1, (*n*)
-  Some_Trm_Occ_Of
-    (Trm_Occ 2 (* two occurrences of "n" in the proof obligation*),
-     Trm 1(*"n" as induction term*),
-     Some_Trm (Trm 3, (* Trm 3 is "take".*)
-       Some_Trm_Occ_Of (Trm_Occ 4, Trm 3, (*Trm_Occ 4 is an occurrence of "take"*)
-         Is_Recursive_Cnst (Trm_Occ 4)
-       And
-         (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 4 )))));
-
-val test_If_All_Ind_Var_Are_Arguments_where_Pattern_Match_is_Complete =
-All_Ind (Trm 1, (*n*)
-  All_Trm_Occ_Of
-    (Trm_Occ 2 (* two occurrences of "n" in the proof obligation*),
-     Trm 1(*"n" as induction term*),
-     Some_Trm (Trm 3, (* Trm 3 is "take".*)
-       Some_Trm_Occ_Of (Trm_Occ 4, Trm 3, (*Trm_Occ 4 is an occurrence of "take"*)
-         Is_Recursive_Cnst (Trm_Occ 4)
-       And
-         (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 4)
-       And
-         (Some_Numb (Numb 5,
-              Pattern (Numb 5, Trm_Occ 4(*take or drop*), All_Constr)
-            And
-              Is_Nth_Arg_Of (Trm_Occ 2, Numb 5, Trm_Occ 4)))) (*"Numb 5" should mean 0.*)
-     )));
+  All_Trm_Occ_Of (Trm_Occ 2, Trm 1,
+    Some_Trm (Trm 3,
+      Some_Trm_Occ_Of (Trm_Occ 4, Trm 3,
+        Is_Recursive_Cnst (Trm_Occ 4)
+      And
+        (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 4)
+      And
+        (Some_Numb (Numb 5,
+             Pattern (Numb 5, Trm_Occ 4, All_Constr)
+           And
+             Is_Nth_Arg_Of (Trm_Occ 2, Numb 5, Trm_Occ 4)))))));
 
 val test_Are_Same_Numb1 = ();
 
@@ -550,6 +549,9 @@ setup{* Apply_LiFtEr.update_assert  49 test_Pattern2;                           
 setup{* Apply_LiFtEr.update_assert  50 test_Pattern3;                                 *}
 setup{* Apply_LiFtEr.update_assert  51 test_Pattern4;                                 *}
 setup{* Apply_LiFtEr.update_assert  52 test_Rule_n_Inds;                              *}
+setup{* Apply_LiFtEr.update_assert  53 test_if_all_ind_vars_have_an_occ_at_bottom;    *}
+setup{* Apply_LiFtEr.update_assert  54 test_if_all_ind_vars_are_arguments_of_a_recursive_function;       *}
+setup{* Apply_LiFtEr.update_assert  55 test_If_all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete;*}
 
 setup{* Apply_LiFtEr.update_ind_mod  3 mods_for_Isaplanner_01_01; *}
 setup{* Apply_LiFtEr.update_ind_mod  4 mods_for_Isaplanner_01_02; *}
@@ -559,6 +561,7 @@ setup{* Apply_LiFtEr.update_ind_mod  7 mods_for_Isaplanner_01_05; *}
 setup{* Apply_LiFtEr.update_ind_mod  8 mods_for_Isaplanner_01_06; *}
 setup{* Apply_LiFtEr.update_ind_mod  9 mods_for_Isaplanner_01_07; *}
 setup{* Apply_LiFtEr.update_ind_mod 10 mods_for_Isaplanner_01_08; *}
+setup{* Apply_LiFtEr.update_ind_mod 11 mods_for_Isaplanner_01_09; *}
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
 
@@ -644,6 +647,11 @@ theorem property0 :
   test_LiFtEr_false 51 1
   test_LiFtEr_true  52 10
   test_LiFtEr_false 52 3 (*Probably it is worthwhile to check the number of arguments a function takes. Is_Func_W_Numb_Args*)
+  test_LiFtEr_true  53 3
+  test_LiFtEr_true  53 7
+  test_LiFtEr_true  54 7
+  test_LiFtEr_true  55 11
+  test_LiFtEr_false 55 3
   apply (induct n xs rule: TIP_prop_01.drop.induct)
   apply auto
   done
