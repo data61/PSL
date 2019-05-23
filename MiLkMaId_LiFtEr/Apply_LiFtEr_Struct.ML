@@ -100,11 +100,11 @@ val token_parser_false = get_trans_trans_to_token_parser get_trans_trans_false: 
 fun activate _ =
   let
     val _ =
-      Outer_Syntax.command @{command_keyword test_LiFtEr_true}
+      Outer_Syntax.command @{command_keyword assert_LiFtEr_true}
         "TODO" token_parser_true;
     
     val _ =
-      Outer_Syntax.command @{command_keyword test_LiFtEr_false}
+      Outer_Syntax.command @{command_keyword assert_LiFtEr_false}
         "TODO" token_parser_false;
   in () end;
 

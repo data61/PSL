@@ -78,7 +78,7 @@ function models :: "(((int, bool) pair) list) list => Form =>
         else
         nil2)"
   by pat_completeness auto
-print_theorems
+
 fun valid :: "Form => bool" where
   "valid z =
    (case models3 (Not z) (nil2) of

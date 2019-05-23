@@ -6,8 +6,8 @@ LiFtEr: Logical Feature Extractor.
 *)
 theory MeLoId_LiFtEr
   imports "../PSL"
-  keywords "test_LiFtEr_true" :: diag
-   and     "test_LiFtEr_false":: diag
+  keywords "assert_LiFtEr_true" :: diag
+   and     "assert_LiFtEr_false":: diag
 begin
 
 ML{*
