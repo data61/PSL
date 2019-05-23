@@ -60,9 +60,9 @@ datatype assrt   =
 | Not_Fully_App           of trm_occ (*If trm is function application that is not fully applied returns true, otherwise returns false.*)
 | Is_Less_Than            of numb    * numb (* nth_1 < nth_2 *)
 | Is_An_Arg_Of            of trm_occ * trm_occ
-| Is_Nth_Arg_Of           of trm_occ * numb * trm_occ
-| Is_Nth_Ind              of trm     * numb (*Counting starts with 0.*)
-| Is_Nth_Arb              of trm     * numb (*Counting starts with 0.*)
+| Is_Nth_Arg_Of           of trm_occ * numb * trm_occ (*Counting starts with 0.*)
+| Is_Nth_Ind              of trm     * numb           (*Counting starts with 0.*)
+| Is_Nth_Arb              of trm     * numb           (*Counting starts with 0.*)
 | Is_Int                  of numb    * int
 | Is_At_Depth             of trm_occ * numb
 | Is_Printed_As           of trm     * string
