@@ -125,13 +125,13 @@ val Example6 = ind_is_not_arb And vars_in_ind_terms_are_generalized;
 end;
 *}
 
-setup{* Apply_LiFtEr.update_assert 1 all_ind_term_are_non_const_wo_syntactic_sugar;                           *}
-setup{* Apply_LiFtEr.update_assert 2 all_ind_term_are_non_const_with_syntactic_sugar;                         *}
-setup{* Apply_LiFtEr.update_assert 3 all_ind_terms_have_an_occ_as_variable_at_bottom;                         *}
-setup{* Apply_LiFtEr.update_assert 4 all_ind_vars_are_arguments_of_a_recursive_function;                      *}
-setup{* Apply_LiFtEr.update_assert 5 all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete;*}
-setup{* Apply_LiFtEr.update_assert 6 all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order;     *}
-setup{* Apply_LiFtEr.update_assert 7 vars_in_ind_terms_are_generalized;                                       *}
+setup{* Apply_LiFtEr.update_assert "example_1a" all_ind_term_are_non_const_wo_syntactic_sugar;                           *}
+setup{* Apply_LiFtEr.update_assert "example_1b" all_ind_term_are_non_const_with_syntactic_sugar;                         *}
+setup{* Apply_LiFtEr.update_assert "example_2"  all_ind_terms_have_an_occ_as_variable_at_bottom;                         *}
+setup{* Apply_LiFtEr.update_assert "example_3"  all_ind_vars_are_arguments_of_a_recursive_function;                      *}
+setup{* Apply_LiFtEr.update_assert "example_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete;*}
+setup{* Apply_LiFtEr.update_assert "example_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order;     *}
+setup{* Apply_LiFtEr.update_assert "example_6"  vars_in_ind_terms_are_generalized;                                       *}
 
 ML{* (*Arguments for the induct method to attack "itrev xs ys = rev xs @ ys". *)
 local
@@ -158,25 +158,31 @@ Ind_Mods
 end;
 *}
 
-setup{* Apply_LiFtEr.update_ind_mod 1 official_solution_for_itrev_equals_rev; *}
-setup{* Apply_LiFtEr.update_ind_mod 2 bad_answer_for_itrev_equals_rev       ; *}
+setup{* Apply_LiFtEr.update_ind_mod "on_xs_arb_ys" official_solution_for_itrev_equals_rev; *}
+setup{* Apply_LiFtEr.update_ind_mod "on_itrev_arb_ys" bad_answer_for_itrev_equals_rev       ; *}
 
+(*Model proof by Nipkow et.al.*)
 lemma "itrev xs ys = rev xs @ ys"
   (*The first argument to assert_LiFtEr_true is the identifier of a LiFtEr assertion, while
  *the second argument to assert_LiFtEr_true is the identifier of a combination of arguments to
  *the induct method.*)
-  assert_LiFtEr_true  1 1
-  assert_LiFtEr_false 1 2
-  assert_LiFtEr_true  2 1
-  assert_LiFtEr_false 2 2
-  assert_LiFtEr_true  3 1
-  assert_LiFtEr_true  4 1
-  assert_LiFtEr_true  5 1
-  assert_LiFtEr_true  6 1
+  assert_LiFtEr_true  example_1a on_xs_arb_ys
+  assert_LiFtEr_false example_1a on_itrev_arb_ys
+  assert_LiFtEr_true  example_1b on_xs_arb_ys
+  assert_LiFtEr_false example_1b on_itrev_arb_ys
+  assert_LiFtEr_true  example_2  on_xs_arb_ys
+  assert_LiFtEr_true  example_3  on_xs_arb_ys
+  assert_LiFtEr_true  example_4  on_xs_arb_ys
+  assert_LiFtEr_true  example_5  on_xs_arb_ys
   apply(induction xs arbitrary: ys)
    apply(auto)
   done
-    (*alternatively by(induct xs ys rule:itrev.induct) auto*)
+
+(*Alternative proof by Yutaka Nagashima.*)
+lemma "itrev xs ys = rev xs @ ys"
+  apply(induct xs ys rule:itrev.induct)
+   apply auto
+  done
 
 subsection{* Computation Induction *}
 
@@ -209,17 +215,17 @@ Ind_Mods
 end;
 *}
 
-setup{* Apply_LiFtEr.update_ind_mod 3 official_solution_for_map_sep_equals_sep_map; *}
-setup{* Apply_LiFtEr.update_ind_mod 4 only_for_test;                                *}
+setup{* Apply_LiFtEr.update_ind_mod "on_a_xs_rule_sep"   official_solution_for_map_sep_equals_sep_map; *}
+setup{* Apply_LiFtEr.update_ind_mod "on_sep_a_xs_arb_xs" only_for_test;                                *}
 
 lemma "map f (sep a xs) = sep (f a) (map f xs)"
-  assert_LiFtEr_true 3 3
-  assert_LiFtEr_true 4 3
-  assert_LiFtEr_true 5 3
-  assert_LiFtEr_true 6 3
-  assert_LiFtEr_true 7 4
-apply(induction a xs rule: Induction_Demo.sep.induct)
-apply auto
-done
+  assert_LiFtEr_true example_2 on_a_xs_rule_sep
+  assert_LiFtEr_true example_3 on_a_xs_rule_sep
+  assert_LiFtEr_true example_4 on_a_xs_rule_sep
+  assert_LiFtEr_true example_5 on_a_xs_rule_sep
+  assert_LiFtEr_true example_6 on_sep_a_xs_arb_xs
+  apply(induction a xs rule: Induction_Demo.sep.induct)
+    apply auto
+  done
 
 end

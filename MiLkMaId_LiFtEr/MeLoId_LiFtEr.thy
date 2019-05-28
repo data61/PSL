@@ -10,11 +10,6 @@ theory MeLoId_LiFtEr
    and     "assert_LiFtEr_false":: diag
 begin
 
-ML{*
-@{term "List.nth"}
-*}
-thm List.nth.simps
-
 ML_file "../src/Utils.ML"
 ML_file "../MiLkMaId/src/MiLkMaId_Util.ML"
 ML_file "Matrix_Sig.ML"

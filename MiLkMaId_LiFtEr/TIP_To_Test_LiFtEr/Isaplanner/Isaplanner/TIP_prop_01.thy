@@ -40,12 +40,12 @@ val sample_induct_args2 = Ind_Mods
 end;
 *}
 
-setup{* Apply_LiFtEr.update_assert 1                  sample_assert; *}
-ML   {* Apply_LiFtEr.get_assrt @{context} 1;                         *}
-setup{* Apply_LiFtEr.update_ind_mod 1 sample_induct_args1;           *}
-setup{* Apply_LiFtEr.update_ind_mod 2 sample_induct_args2;           *}
-ML   {* Apply_LiFtEr.get_ind_mod @{context} 1;                       *}
-ML   {* Apply_LiFtEr.get_ind_mod @{context} 2;                       *}
+setup{* Apply_LiFtEr.update_assert "1" sample_assert;        *}
+ML   {* Apply_LiFtEr.get_assrt @{context} "1";               *}
+setup{* Apply_LiFtEr.update_ind_mod "1" sample_induct_args1; *}
+setup{* Apply_LiFtEr.update_ind_mod "2" sample_induct_args2; *}
+ML   {* Apply_LiFtEr.get_ind_mod @{context} "1";             *}
+ML   {* Apply_LiFtEr.get_ind_mod @{context} "2";             *}
 
 ML{* (*modifiers*)
 local
@@ -540,67 +540,67 @@ val test_Pattern = ();
 end;
 *}
 
-setup{* Apply_LiFtEr.update_assert  5 test_Some_Rule_n_Some_Trm_Occ_n_Is_Rule_Of; *}
-setup{* Apply_LiFtEr.update_assert  6 test_True;                                      *}
-setup{* Apply_LiFtEr.update_assert  7 test_Not;                                       *}
-setup{* Apply_LiFtEr.update_assert  8 test_Or_True;                                   *}
-setup{* Apply_LiFtEr.update_assert  9 test_Or_False;                                  *}
-setup{* Apply_LiFtEr.update_assert  10 test_Some_Ind_and_Some_Trm_Occ;                *}
-setup{* Apply_LiFtEr.update_assert  11 test_Print_Is                                  *}
-setup{* Apply_LiFtEr.update_assert  12 test_Some_Trm_Occ;                             *}
-setup{* Apply_LiFtEr.update_assert  13 test_Print_Is_n_Is_Rule_Of;                    *}
-setup{* Apply_LiFtEr.update_assert  14 test_Some_Rule;                                *}
-setup{* Apply_LiFtEr.update_assert  15 test_Some_Arb;                                 *}
-setup{* Apply_LiFtEr.update_assert  16 test_Some_Ind;                                 *}
-setup{* Apply_LiFtEr.update_assert  17 test_All_Ind_n_Is_Atom;                        *}
-setup{* Apply_LiFtEr.update_assert  18 test_All_Ind_n_Is_Atom_n_Some_Trm_Occ_Of;      *}
-setup{* Apply_LiFtEr.update_assert  19 test_All_Ind_n_Is_Atom_n_All_Trm_Occ_Of;       *}
-setup{* Apply_LiFtEr.update_assert  20 test_All_Ind_n_All_Trm_Occ_n_Imply_Is_Atom;    *}
-setup{* Apply_LiFtEr.update_assert  21 test_All_Ind_n_Some_Trm_Occ_Of1;               *}
-setup{* Apply_LiFtEr.update_assert  22 test_All_Ind_n_Some_Trm_Occ_Of2;               *}
-setup{* Apply_LiFtEr.update_assert  23 test_All_Ind_n_Some_Trm_Occ_Of3;               *}
-setup{* Apply_LiFtEr.update_assert  24 test_Is_At_Deepest_n_Some_Trm_Occ_Of;          *}
-setup{* Apply_LiFtEr.update_assert  25 test_Is_At_Deepest_n_All_Trm_Occ_Of;           *}
-setup{* Apply_LiFtEr.update_assert  26 test_Is_Nth_Ind0;                              *}
-setup{* Apply_LiFtEr.update_assert  27 test_Is_Nth_Ind1;                              *}
-setup{* Apply_LiFtEr.update_assert  28 test_Is_Nth_Ind2;                              *}
-setup{* Apply_LiFtEr.update_assert  29 test_Depth_Of_Trm_Occ_Is1;                     *}
-setup{* Apply_LiFtEr.update_assert  30 test_Depth_Of_Trm_Occ_Is2;                     *}
-setup{* Apply_LiFtEr.update_assert  31 test_Depth_Of_Trm_Occ_Is3;                     *}
-setup{* Apply_LiFtEr.update_assert  32 test_Depth_Of_Trm_Occ_Is4;                     *}
-setup{* Apply_LiFtEr.update_assert  33 test_Depth_Of_Trm_Occ_Is5;                     *}
-setup{* Apply_LiFtEr.update_assert  34 test_Depth_Of_Trm_Occ_Is6;                     *}
-setup{* Apply_LiFtEr.update_assert  35 test_Is_At_Deepest_n_Depth_Of_Trm_Occ_Is;      *}
-setup{* Apply_LiFtEr.update_assert  36 test_Is_At_Deepest;                            *}
-setup{* Apply_LiFtEr.update_assert  37 test_Is_At_Deepest2;                           *}
-setup{* Apply_LiFtEr.update_assert  38 test_Is_At_Deepest3;                           *}
-setup{* Apply_LiFtEr.update_assert  39 test_Is_In_Prems1;                             *}
-setup{* Apply_LiFtEr.update_assert  40 test_Is_Nth_Arg_Of1;                           *}
-setup{* Apply_LiFtEr.update_assert  41 test_Is_Nth_Arg_Of2;                           *}
-setup{* Apply_LiFtEr.update_assert  42 test_Is_Recursive_Cnst_true;                   *}
-setup{* Apply_LiFtEr.update_assert  43 test_Is_Recursive_Cnst_false;                  *}
-setup{* Apply_LiFtEr.update_assert  44 test_Is_Nth_Arg_Of;                            *}
-setup{* Apply_LiFtEr.update_assert  45 test_Is_An_Arg_Of;                             *}
-setup{* Apply_LiFtEr.update_assert  46 test_Is_An_Arg_Of2;                            *}
-setup{* Apply_LiFtEr.update_assert  47 test_Is_In_Trm_Loc;                            *}
-setup{* Apply_LiFtEr.update_assert  48 test_Pattern1;                                 *}
-setup{* Apply_LiFtEr.update_assert  49 test_Pattern2;                                 *}
-setup{* Apply_LiFtEr.update_assert  50 test_Pattern3;                                 *}
-setup{* Apply_LiFtEr.update_assert  51 test_Pattern4;                                 *}
-setup{* Apply_LiFtEr.update_assert  52 test_Rule_n_Inds;                              *}
-setup{* Apply_LiFtEr.update_assert  53 test_if_all_ind_vars_have_an_occ_at_bottom;    *}
-setup{* Apply_LiFtEr.update_assert  54 test_if_all_ind_vars_are_arguments_of_a_recursive_function;       *}
-setup{* Apply_LiFtEr.update_assert  55 test_If_all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete;*}
+setup{* Apply_LiFtEr.update_assert  "5"  test_Some_Rule_n_Some_Trm_Occ_n_Is_Rule_Of;                                      *}
+setup{* Apply_LiFtEr.update_assert  "6"  test_True;                                                                       *}
+setup{* Apply_LiFtEr.update_assert  "7"  test_Not;                                                                        *}
+setup{* Apply_LiFtEr.update_assert  "8"  test_Or_True;                                                                    *}
+setup{* Apply_LiFtEr.update_assert  "9"  test_Or_False;                                                                   *}
+setup{* Apply_LiFtEr.update_assert  "10" test_Some_Ind_and_Some_Trm_Occ;                                                  *}
+setup{* Apply_LiFtEr.update_assert  "11" test_Print_Is                                                                    *}
+setup{* Apply_LiFtEr.update_assert  "12" test_Some_Trm_Occ;                                                               *}
+setup{* Apply_LiFtEr.update_assert  "13" test_Print_Is_n_Is_Rule_Of;                                                      *}
+setup{* Apply_LiFtEr.update_assert  "14" test_Some_Rule;                                                                  *}
+setup{* Apply_LiFtEr.update_assert  "15" test_Some_Arb;                                                                   *}
+setup{* Apply_LiFtEr.update_assert  "16" test_Some_Ind;                                                                   *}
+setup{* Apply_LiFtEr.update_assert  "17" test_All_Ind_n_Is_Atom;                                                          *}
+setup{* Apply_LiFtEr.update_assert  "18" test_All_Ind_n_Is_Atom_n_Some_Trm_Occ_Of;                                        *}
+setup{* Apply_LiFtEr.update_assert  "19" test_All_Ind_n_Is_Atom_n_All_Trm_Occ_Of;                                         *}
+setup{* Apply_LiFtEr.update_assert  "20" test_All_Ind_n_All_Trm_Occ_n_Imply_Is_Atom;                                      *}
+setup{* Apply_LiFtEr.update_assert  "21" test_All_Ind_n_Some_Trm_Occ_Of1;                                                 *}
+setup{* Apply_LiFtEr.update_assert  "22" test_All_Ind_n_Some_Trm_Occ_Of2;                                                 *}
+setup{* Apply_LiFtEr.update_assert  "23" test_All_Ind_n_Some_Trm_Occ_Of3;                                                 *}
+setup{* Apply_LiFtEr.update_assert  "24" test_Is_At_Deepest_n_Some_Trm_Occ_Of;                                            *}
+setup{* Apply_LiFtEr.update_assert  "25" test_Is_At_Deepest_n_All_Trm_Occ_Of;                                             *}
+setup{* Apply_LiFtEr.update_assert  "26" test_Is_Nth_Ind0;                                                                *}
+setup{* Apply_LiFtEr.update_assert  "27" test_Is_Nth_Ind1;                                                                *}
+setup{* Apply_LiFtEr.update_assert  "28" test_Is_Nth_Ind2;                                                                *}
+setup{* Apply_LiFtEr.update_assert  "29" test_Depth_Of_Trm_Occ_Is1;                                                       *}
+setup{* Apply_LiFtEr.update_assert  "30" test_Depth_Of_Trm_Occ_Is2;                                                       *}
+setup{* Apply_LiFtEr.update_assert  "31" test_Depth_Of_Trm_Occ_Is3;                                                       *}
+setup{* Apply_LiFtEr.update_assert  "32" test_Depth_Of_Trm_Occ_Is4;                                                       *}
+setup{* Apply_LiFtEr.update_assert  "33" test_Depth_Of_Trm_Occ_Is5;                                                       *}
+setup{* Apply_LiFtEr.update_assert  "34" test_Depth_Of_Trm_Occ_Is6;                                                       *}
+setup{* Apply_LiFtEr.update_assert  "35" test_Is_At_Deepest_n_Depth_Of_Trm_Occ_Is;                                        *}
+setup{* Apply_LiFtEr.update_assert  "36" test_Is_At_Deepest;                                                              *}
+setup{* Apply_LiFtEr.update_assert  "37" test_Is_At_Deepest2;                                                             *}
+setup{* Apply_LiFtEr.update_assert  "38" test_Is_At_Deepest3;                                                             *}
+setup{* Apply_LiFtEr.update_assert  "39" test_Is_In_Prems1;                                                               *}
+setup{* Apply_LiFtEr.update_assert  "40" test_Is_Nth_Arg_Of1;                                                             *}
+setup{* Apply_LiFtEr.update_assert  "41" test_Is_Nth_Arg_Of2;                                                             *}
+setup{* Apply_LiFtEr.update_assert  "42" test_Is_Recursive_Cnst_true;                                                     *}
+setup{* Apply_LiFtEr.update_assert  "43" test_Is_Recursive_Cnst_false;                                                    *}
+setup{* Apply_LiFtEr.update_assert  "44" test_Is_Nth_Arg_Of;                                                              *}
+setup{* Apply_LiFtEr.update_assert  "45" test_Is_An_Arg_Of;                                                               *}
+setup{* Apply_LiFtEr.update_assert  "46" test_Is_An_Arg_Of2;                                                              *}
+setup{* Apply_LiFtEr.update_assert  "47" test_Is_In_Trm_Loc;                                                              *}
+setup{* Apply_LiFtEr.update_assert  "48" test_Pattern1;                                                                   *}
+setup{* Apply_LiFtEr.update_assert  "49" test_Pattern2;                                                                   *}
+setup{* Apply_LiFtEr.update_assert  "50" test_Pattern3;                                                                   *}
+setup{* Apply_LiFtEr.update_assert  "51" test_Pattern4;                                                                   *}
+setup{* Apply_LiFtEr.update_assert  "52" test_Rule_n_Inds;                                                                *}
+setup{* Apply_LiFtEr.update_assert  "53" test_if_all_ind_vars_have_an_occ_at_bottom;                                      *}
+setup{* Apply_LiFtEr.update_assert  "54" test_if_all_ind_vars_are_arguments_of_a_recursive_function;                      *}
+setup{* Apply_LiFtEr.update_assert  "55" test_If_all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete;*}
 
-setup{* Apply_LiFtEr.update_ind_mod  3 mods_for_Isaplanner_01_01; *}
-setup{* Apply_LiFtEr.update_ind_mod  4 mods_for_Isaplanner_01_02; *}
-setup{* Apply_LiFtEr.update_ind_mod  5 mods_for_Isaplanner_01_03; *}
-setup{* Apply_LiFtEr.update_ind_mod  6 mods_for_Isaplanner_01_04; *}
-setup{* Apply_LiFtEr.update_ind_mod  7 mods_for_Isaplanner_01_05; *}
-setup{* Apply_LiFtEr.update_ind_mod  8 mods_for_Isaplanner_01_06; *}
-setup{* Apply_LiFtEr.update_ind_mod  9 mods_for_Isaplanner_01_07; *}
-setup{* Apply_LiFtEr.update_ind_mod 10 mods_for_Isaplanner_01_08; *}
-setup{* Apply_LiFtEr.update_ind_mod 11 mods_for_Isaplanner_01_09; *}
+setup{* Apply_LiFtEr.update_ind_mod  "3"  mods_for_Isaplanner_01_01; *}
+setup{* Apply_LiFtEr.update_ind_mod  "4"  mods_for_Isaplanner_01_02; *}
+setup{* Apply_LiFtEr.update_ind_mod  "5"  mods_for_Isaplanner_01_03; *}
+setup{* Apply_LiFtEr.update_ind_mod  "6"  mods_for_Isaplanner_01_04; *}
+setup{* Apply_LiFtEr.update_ind_mod  "7"  mods_for_Isaplanner_01_05; *}
+setup{* Apply_LiFtEr.update_ind_mod  "8"  mods_for_Isaplanner_01_06; *}
+setup{* Apply_LiFtEr.update_ind_mod  "9"  mods_for_Isaplanner_01_07; *}
+setup{* Apply_LiFtEr.update_ind_mod  "10" mods_for_Isaplanner_01_08; *}
+setup{* Apply_LiFtEr.update_ind_mod  "11" mods_for_Isaplanner_01_09; *}
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
 
