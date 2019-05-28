@@ -1,9 +1,9 @@
 # LiFtEr
 
-LiFtEr is a domain specific language developed to extract features of induction in Isabelle/HOL.
+LiFtEr is a domain-specific language developed to extract features of promising applications of induction in Isabelle/HOL.
 
 ## Contents
-- `MeLoId_LiFtEr.thy` imports necessary ML files.ML_file "Matrix_Sig.ML"
+- `LiFtEr.thy`          imports necessary ML files.ML_file "Matrix_Sig.ML"
 - `Matrix_*.ML`         handles matrices.
 - `LiFtEr_Util_*.ML`    provides utility functions.
 - `Pattern_*.ML`        patterns for each constant.
@@ -12,3 +12,6 @@ LiFtEr is a domain specific language developed to extract features of induction 
 - `DInduct_*.ML`        similar to the one for PSL.
 - `LiFtEr_*.ML`         interpreter of our domain specific language `LiFtEr`
 - `Apply_LiFtEr_*.ML`   how to apply LiFtEr assertions.
+- `README.md`           this file.
+- `Concrete_Semantics`  example files from the book "Concrete Semantics" written by Nipkow et.al.
+- `TIP_To_Test_LiFtEr`  TIP problems in Isabelle/HOL.
