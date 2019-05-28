@@ -39,6 +39,7 @@ datatype assrt   =
 (*atomic about proof goal*)
 | Is_Rule_Of              of rule    * trm_occ
 | Trm_Occ_Is_Of_Trm       of trm_occ * trm
+| Are_Same_Trm            of trm     * trm
 | Are_Same_Numb           of numb    * numb
 | Are_Same_Str            of trm_occ * trm_occ (*trm*)
 | Is_In_Trm_Loc           of trm_occ * trm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)

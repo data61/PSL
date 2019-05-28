@@ -62,24 +62,19 @@ type trans_trans = Toplevel.transition -> Toplevel.transition;
 fun get_trans_trans_gen (should_b_true_or_false:bool) (ass_numb:int, ind_mod_numb:int) =
   Toplevel.keep_proof (fn top: Toplevel.state =>
   let
-    val pst     = Toplevel.proof_of top: Proof.state;
-    val ctxt    = Toplevel.context_of top: Proof.context;
-    val assert  = get_assrt ctxt ass_numb: LiFtEr.assrt;
+    val pst     = Toplevel.proof_of top        : Proof.state;
+    val ctxt    = Toplevel.context_of top      : Proof.context;
+    val assert  = get_assrt ctxt ass_numb      : LiFtEr.assrt;
     val ind_mod = get_ind_mod ctxt ind_mod_numb: LU.ind_mods;
     fun apply_assrt (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
         LiFtEr.eval (pst, assrt, ind_mods): bool;
     fun run_test (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
-        if   should_b_true_or_false
-        then (tracing "From the then-clause in run_test"; apply_assrt assrt pst ind_mods = true)
-        else (tracing "From the else-clause in run_test"; apply_assrt assrt pst ind_mods = false);
-    fun show_result (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
-        if   run_test assrt pst ind_mods
-        then tracing "Assertion succeeded."
-        else tracing "Assertion failed.";
-    val _ = tracing "=== Before calling show_result. ===";
-    val _ = show_result assert pst ind_mod;
-    val _ = tracing "=== After calling show_result. ====";
-    val _ = @{assert} (run_test assert pst ind_mod);
+        apply_assrt assrt pst ind_mods = should_b_true_or_false
+    val _ = @{assert} (
+            let
+              val result = run_test assert pst ind_mod
+              val _      = tracing ("Assertion " ^ (if result then "succeeded." else "failed."));
+            in result end);    
   in
     ()
   end)

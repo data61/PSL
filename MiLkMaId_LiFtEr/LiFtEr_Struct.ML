@@ -48,6 +48,7 @@ datatype assrt   =
 (*atomic about proof goal*)
 | Is_Rule_Of              of rule    * trm_occ
 | Trm_Occ_Is_Of_Trm       of trm_occ * trm
+| Are_Same_Trm            of trm     * trm
 | Are_Same_Numb           of numb    * numb
 | Are_Same_Str            of trm_occ * trm_occ (*trm*)
 | Is_In_Trm_Loc           of trm_occ * trm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
@@ -221,7 +222,6 @@ fun pst_to_trm_domain (pst:Proof.state) =
     val subgoal_pathss = unode_n_path_tables_to_pathss subgoals                                      :prints list;
     val using_pathss   = unode_n_path_tables_to_pathss usings                                        :prints list;
     val prints         = (subgoal_pathss @ using_pathss) |> flat |> distinct (uncurry LU.same_prints):print list;
-    val _ = tracing ("The cardinality of trm_domain is " ^ Int.toString (length prints) ^ ".");
     val result         = Dom_Trm prints                                                              :domain;
   in
     result: domain
@@ -243,11 +243,10 @@ fun pst_to_trm_occ_domain (pst:Proof.state) =
     fun one_terms_n_loc_typ_to_path_n_locs ([]       :TT.one_terms)  _             _              acc                   = acc: path_n_locs list
       | one_terms_n_loc_typ_to_path_n_locs (trm::trms:TT.one_terms) (counter:int) (ltyp:loc_typ) (acc:path_n_locs list) =
         one_terms_n_loc_typ_to_path_n_locs (trms     :TT.one_terms) (counter + 1) (ltyp:loc_typ) (one_term_n_loc_typ_to_path_n_locs trm counter ltyp :: acc)
-    val path_n_locs_in_subgoals = one_terms_n_loc_typ_to_path_n_locs subgoals 0 LTyp_Nth_Subg     [];
-    val path_n_locs_in_chained  = one_terms_n_loc_typ_to_path_n_locs usings   0 LTyp_Chained_Fact [];
-    val path_n_locs = flat (path_n_locs_in_subgoals @ path_n_locs_in_chained: path_n_locs list): path_n_locs
-    val _ = tracing ("The cardinality of trm_occ_domain is " ^ Int.toString (length path_n_locs) ^ ".");
-    val result = Dom_Trm_Occ path_n_locs: domain;
+    val path_n_locs_in_subgoals = one_terms_n_loc_typ_to_path_n_locs subgoals 0 LTyp_Nth_Subg     []: path_n_locs list;
+    val path_n_locs_in_chained  = one_terms_n_loc_typ_to_path_n_locs usings   0 LTyp_Chained_Fact []: path_n_locs list;
+    val path_n_locs             = flat (path_n_locs_in_subgoals @ path_n_locs_in_chained            : path_n_locs list): path_n_locs
+    val result                  = Dom_Trm_Occ path_n_locs                                           : domain;
   in
     result: domain
   end;
@@ -279,7 +278,6 @@ fun no_name_collision (Name_Space name_space: name_space) (name: name) =
 (* eval *)
 fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
   let
-    val _ = tracing "Start computing eval in LiFtEr_Struct.ML";
     val Name_Domains name_domains = pst_to_name_domains pstate (Ind_Mods mods):  name_domains;
     val lifter_pst                = Term_Table.pst_to_lifter_pst pstate       : lifter_pst;
     val {trm_domain, trm_occ_domain, on_domain, arb_domain, numb_domain, rule_domain} = name_domains;
@@ -445,8 +443,6 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         result
       end;
 
-    val _ = tracing "Before calling the mutual recursive function in eval.";
-
     fun eval'_quantifier' (inner:assrt) (index:int) (name_space:name_space) (name_subspace:name_subspace) (quantifier:quantifier) (domain: domain) (add_typ:id_typ) =
       let
         val new_trm_entries_in_name_space        = get_new_name_subspaces index domain name_subspace     : name_subspaces;
@@ -529,6 +525,16 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           result
         end
+      | eval' (Are_Same_Trm  (Trm  t1, Trm  t2)) (Name_Space ns:name_space) =
+        let
+          val trm_name_space = #trm ns                                                    : name_subspace;
+          val print1_option  = alist_lookup_eq trm_name_space t1 >>= dest_ID_Trm          : print option;
+          val print2_option  = alist_lookup_eq trm_name_space t2 >>= dest_ID_Trm          : print option;;
+          val prints_option  = Utils.mk_option_pair (print1_option, print2_option)        :(print * print) option;
+          val result         = prints_option <$> uncurry same_prints |> Utils.is_some_true: bool;
+        in
+          result
+        end
       | eval' (Are_Same_Numb (Numb n1, Numb n2)) (Name_Space ns:name_space) =
         let
           val numb_name_space = #numb ns                                           : name_subspace;
@@ -548,11 +554,12 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           result
         end
       | eval' (Is_In_Trm_Loc (trm_occ1, trm_occ2)) (name_space:name_space) =
-        let
+        let (*TODO: double-check.*)
           val occ1_occ2_path_n_loc_option = Utils.mapPartial2 (name_space_n_trm_occ_id_to_path_n_loc name_space) (SOME (trm_occ1, trm_occ2)): (path_n_loc * path_n_loc) option;
           val occ1_occ2_path_option       = occ1_occ2_path_n_loc_option <$> apply2 fst                                                      : (path * path) option;
           val occ1_occ2_loc_option        = occ1_occ2_path_n_loc_option <$> apply2 snd                                                      : (location * location) option;
-          val path2_is_above_path1_option = occ1_occ2_path_option <$> uncurry UN.path1_is_above_path2 <$> not                               : bool option;
+          val occ2_occ1_path_option       = occ1_occ2_path_option <$> swap                                                                  : (path * path) option;
+          val path2_is_above_path1_option = occ2_occ1_path_option <$> uncurry UN.path1_is_above_path2                                       : bool option;
           val loc1_n_loc2_are_same        = occ1_occ2_loc_option <$> TT.same_location                                                       : bool option;
           val result                      = Utils.is_some_true loc1_n_loc2_are_same andalso Utils.is_some_true path2_is_above_path1_option  : bool;
         in
