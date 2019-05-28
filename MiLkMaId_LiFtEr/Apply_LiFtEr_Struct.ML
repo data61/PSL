@@ -63,7 +63,7 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (ass_numb:int, ind_mod_num
   Toplevel.keep_proof (fn top: Toplevel.state =>
   let
     val pst     = Toplevel.proof_of top        : Proof.state;
-    val ctxt    = Toplevel.context_of top      : Proof.context;
+    val ctxt    = Toplevel.context_of top      : Proof.context;                          
     val assert  = get_assrt ctxt ass_numb      : LiFtEr.assrt;
     val ind_mod = get_ind_mod ctxt ind_mod_numb: LU.ind_mods;
     fun apply_assrt (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
