@@ -454,8 +454,6 @@ end;
 structure Isabelle_Utils : ISABELLE_UTILS  =
 struct
 
-val has_recursive_simp_about = undefined;
-
 fun if_solved (goal:thm) then_clause else_clause =
   if Thm.nprems_of goal = 0 then then_clause else else_clause;
 

@@ -1,4 +1,4 @@
-(*  Title:      MiLkMaId/src/Smart_Induct.ML
+(*  Title:      MeLoId/src/Smart_Induct.ML
     Author:     Yutaka Nagashima, CIIRC, CTU, University of Innsbruck
 *)
 
@@ -474,7 +474,7 @@ fun ass_021 (pst:Proof.state) (mods:ITG.modifiers) =
 
     fun const_has_vname_in_part_of_nth_arg (data:MA.data_w_pattern_n_kind) (cname:string) (vname:string) (arg_numb:int) = ();
 
-    fun ancestor_w_pttrn_n_kind_is_rcsv_const ({point,...}:MA.ancestor_w_pattern_n_kind) = exist_related_rsimp ctxt [#name point]: bool;
+    fun ancestor_w_pttrn_n_kind_is_rcsv_const ({point,...}:MA.ancestor_w_pattern_n_kind) = IU.has_recursive_simp_about_const_name ctxt (#name point): bool;
     fun datum_w_pttrn_n_kind_has_ancestor_of ({ancestors,...}:MA.datum_w_pattern_n_kind) (f:MA.ancestor_w_pattern_n_kind -> bool) = exists f ancestors;
 
     val fst_subg_n_chained_facts_term = IU.pstate_to_1st_subg_n_chained_facts pst                                                   : terms;
@@ -486,7 +486,7 @@ fun ass_021 (pst:Proof.state) (mods:ITG.modifiers) =
 
     fun exists_an_occ_of (arb_name:string) = exists (K true(*TODO: for some recursive function*)) data_w_pattern_n_kind_of_var_occs;
 
-    fun ancestor_w_pttrn_n_kind_is_rcsv_const ({point,...}:MA.ancestor_w_pattern_n_kind) = exist_related_rsimp ctxt [#name point]: bool;
+    fun ancestor_w_pttrn_n_kind_is_rcsv_const ({point,...}:MA.ancestor_w_pattern_n_kind) = IU.has_recursive_simp_about_const_name ctxt (#name point): bool;
     fun datum_w_pttrn_n_kind_has_ancestor_of ({ancestors,...}:MA.datum_w_pattern_n_kind) (f:MA.ancestor_w_pattern_n_kind -> bool) = exists f ancestors;
 
     val fst_subg_n_chained_facts_term = IU.pstate_to_1st_subg_n_chained_facts pst                                                   : terms;

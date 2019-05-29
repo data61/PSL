@@ -1,4 +1,4 @@
-(*  Title:      MiLkMaId/MiLkMaId_Util.ML
+(*  Title:      MeLoId/MiLkMaId_Util.ML
     Author:     Yutaka Nagashima, CIIRC, CTU
 
 This file defines functions to convert proof obligations to a simpler format,

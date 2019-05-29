@@ -1,4 +1,4 @@
-(*  Title:      MiLkMaId/src/MiLkMaId_Example.thy
+(*  Title:      MeLoId/src/MiLkMaId_Example.thy
     Author:     Yutaka Nagashima, CIIRC, CTU
 
 This file defines auxiliary constants defined in available literature.
