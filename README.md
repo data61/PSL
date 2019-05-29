@@ -33,7 +33,7 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 ![Screenshot](./image/tracing_messages.png)
 
 ## Contents
-- *.src/Utils.ML*                     includes various utility functions.
+- `.src/Utils.ML` includes various utility functions.
 - `.src/Subtool.ML` treats Isabelle's subtools as state-monad tactics.
 - `.src/Dynamic_Tactic_Generation.ML` facilitates runtime tactic generation.
 - `.src/Constructor_Class.ML/` is a general purpose constructor class library.
