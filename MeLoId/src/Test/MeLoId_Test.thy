@@ -1,9 +1,9 @@
-theory MiLkMaId_Test
-imports "../MiLkMaId_Example"
+theory MeLoId_Test
+imports "../MeLoId_Example"
 begin
 
 ML_file "../../../src/Utils.ML"
-ML_file "../MiLkMaId_Util.ML"
+ML_file "../MeLoId_Util.ML"
 
 lemma "True"
   apply induct

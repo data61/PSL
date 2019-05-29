@@ -4,7 +4,7 @@
 This file defines auxiliary constants defined in available literature.
 We use these constants to test ML functions defined in MiLkMaId/Assertion.thy.
 *)
-theory MiLkMaId_Example
+theory MeLoId_Example
 imports "../TIP_with_Proof/Isaplanner/Isaplanner/TIP_prop_01" "HOL.Real"
 begin
 
