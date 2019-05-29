@@ -45,7 +45,8 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 - `.src/Try_Hard.thy` defines the default strategy try_hard.
 - `./PSL.thy` reads all the necessary files to use PSL and try_hard.
 - `./Example` presents small example strategies and use cases.
-- `PaMpeR/` is a tool for **p**roof **m**thod **r**commendation.     
+- `PaMpeR/` is a tool for **p**roof **m**thod **r**commendation.
+- `PGT/` is our conjecturing mechanism, **p**roof **g**oal **t**ransformer.
 - `MeLoId/` is work in progress.
 - `LiFtEr/` is a language to encode induction heuristics.
 
