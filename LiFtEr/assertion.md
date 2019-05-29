@@ -1,8 +1,8 @@
  Title:      PSL/LiFtEr/assertion.md
  Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
-MiLkMaId: Machine Learning Mathematical Induction for Isabelle/HOL, and
-LiFtEr:   Logical Feature Extractor.
+MeLoId: Machine Learning Induction for Isabelle/HOL, and
+LiFtEr: Logical Feature Extractor.
 This file contains a list of assertions that 
 - a) would be useful to distill the essence of induct methods,
 - b) but are very difficult to implement without LiFtEr.
