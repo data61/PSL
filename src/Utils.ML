@@ -4,40 +4,70 @@
 This file provides utility functions that are not specific to Isabelle/HOL.
 *)
 
+type strings = string list;
+type ints    = int    list;
+type terms   = term list;
+type thms    = thm list;
+infix 1 >>= <$>;
+fun (m >>= f) = Option.mapPartial f m;
+fun (m <$> f) = Option.map f m;
+
 (*** UTILS : Utility functions not specific to Isabelle/HOL. ***)
 signature UTILS =
 sig
-  val flip           : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c;
-  val delay          : ('a -> 'b) * 'a -> 'b;
-  val map_arg        : 'a -> ('a -> 'b) list -> 'b list;
+  val flip                                    : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c;
+  val flip_arg_pair                           : ('a * 'b -> 'c) -> 'b * 'a -> 'c;
+  val delay                                   : ('a -> 'b) * 'a -> 'b;
+  val map_arg                                 : 'a -> ('a -> 'b) list -> 'b list;
   (*map_pair and pair_to_list are useful only if the pair consists of the same type.*)
-  val map_pair       : ('a -> 'b) -> 'a * 'a -> 'b * 'b;
-  val pair_to_list   : 'a * 'a -> 'a list;
-  val list_to_pair   : 'a list -> 'a * 'a;
-  val bool_to_real   : bool -> real;
-  val is_some_true   : bool option -> bool;
-  val is_some_null   : 'a list option -> 'a list;
-  val eq             : ''a -> ''a -> bool;
-  val init           : 'a list -> 'a list;
-  val intersperse    : 'a -> 'a list -> 'a list;
-  val is_in_paren    : string -> bool;
-  val ??             : ('a -> bool) * ('a -> 'a) -> 'a -> 'a;
-  val If             : 'a * 'a -> bool -> 'a;
+  val map_pair                                : ('a -> 'b) -> 'a * 'a -> 'b * 'b;
+  val pair_to_list                            : 'a * 'a -> 'a list;
+  val list_to_pair                            : 'a list -> 'a * 'a;
+  val bool_to_real                            : bool -> real;
+  val bool_to_int                             : bool -> int;
+  val is_some_true                            : bool option -> bool;
+  val is_some_null                            : 'a list option -> 'a list;
+  val opt_app                                 : ('a -> 'b) option -> 'a option -> 'b option;
+  val eq                                      : ''a -> ''a -> bool;
+  val init                                    : 'a list -> 'a list;
+  val last                                    : 'a list -> 'a;
+  val intersperse                             : 'a -> 'a list -> 'a list;
+  val is_in_paren                             : string -> bool;
+  val ??                                      : ('a -> bool) * ('a -> 'a) -> 'a -> 'a;
+  val If                                      : 'a * 'a -> bool -> 'a;
   val rm_parentheses_with_contents_in_the_end : string -> string;
-  val rm_parentheses : string -> string;
-  val remove__s      : string -> string;
-  val push_to_front  : string -> string list -> string list;
-  val the'           : string -> 'a option -> 'a;
-  val prefix_if_nonempty : string -> string list -> string list;
-  val debug          : bool; (*flag for debugging.*)
-  val debug_mssg     : bool -> string -> 'a -> 'a;
-  val try_with       : 'b -> ('a -> 'b) -> 'a -> 'b;
-  val are_same       : (string * string) -> bool;
-  val index          : 'a list -> (int * 'a) list;
-  val power          : int -> int -> int;
-  val nat_to_frac    : int -> real;
-  val count_str      : string -> string list -> int;
-  val is_one_of_strings: string list -> string -> bool;
+  val rm_parentheses                          : string -> string;
+  val remove__s                               : string -> string;
+  val push_to_front                           : string -> strings -> strings;
+  val the'                                    : string -> 'a option -> 'a;
+  val prefix_if_nonempty                      : string -> strings -> strings;
+  val debug                                   : bool; (*flag for debugging.*)
+  val debug_mssg                              : bool -> string -> 'a -> 'a;
+  val try_with                                : 'b -> ('a -> 'b) -> 'a -> 'b;
+  val are_same                                : (string * string) -> bool; (*FIXME: Isn't this redundant? We already have equal.*)
+  val index                                   : 'a list -> (int * 'a) list;
+  val power                                   : int -> int -> int;
+  val nat_to_frac                             : int -> real;
+  val count_str                               : string -> strings -> int;
+  val is_one_of_strings                       : strings -> string -> bool;
+  val somes                                   : 'a option list -> 'a list;
+  val conjunction                             : bool -> bool -> bool;
+  val disjunction                             : bool -> bool -> bool;
+  val a_member                                : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
+  val members                                 : (('a * 'b) -> bool) -> 'a list -> 'b list -> bool;
+  val cart_prod                               : 'a list -> 'b list -> ('a * 'b) list;
+  val add_index                               : 'a list -> (int * 'a) list; (*index starts at 0*);
+  val order_sensitive_multi_subset            : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool;
+  val map_flat_distinct                       : (term -> 'a list) -> ('a * 'a -> bool) -> terms -> 'a list;
+  val exist_n                                 : ('a -> bool) -> int -> 'a list -> bool;
+  val exist_mult                              : ('a -> bool) -> 'a list -> bool;
+  val mk_option_pair                          : ('a option * 'b option) -> ('a * 'b) option;
+  val mk_options_pair                         : ('a * 'b) option -> ('a option * 'b option);
+  val mapPartial2                             : ('a -> 'b option) -> ('a * 'a) option -> ('b * 'b) option;
+  val alist_add                               : (''a * 'a) list -> (''a * 'a) -> (''a * 'a) list;
+  val alist_lookup_eq                         : (''a * 'a) list -> ''a -> 'a option;
+  val opt_equal                               : (''a option * ''a option) -> bool;
+  val ints_to_max_option                      : int list -> int option;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -45,6 +75,8 @@ structure Utils:UTILS =
 struct
 
 fun flip f x y = f y x;
+
+fun flip_arg_pair (f:('a * 'b)-> 'c) = (fn p:('b * 'a) => f (swap p)): ('b * 'a) -> 'c;
 
 infix delay;
 fun (f delay x) =  f x;
@@ -62,14 +94,23 @@ fun list_to_pair [a,b] = (a,b)
 
 fun bool_to_real b = if b then 1.0 else 0.0;
 
+fun bool_to_int b = if b then 1 else 0;
+
 fun is_some_true maybe = Option.getOpt (maybe, false);
 
 fun is_some_null maybe = Option.getOpt (maybe, []);
+
+fun opt_app (SOME f: ('a -> 'b) option) (SOME x: 'a option) = SOME (f x)
+  | opt_app  _                           _                  = NONE;
 
 val eq = (fn x => is_some_true o (try (equal x))): ''a -> ''a -> bool;
 
 fun init [] = error "init failed. empty list"
  |  init xs = take (length xs - 1) xs;
+
+fun last [] = raise List.Empty
+  | last [x] = x
+  | last (_::xs) = last xs;
 
 fun intersperse _   []      = []
  |  intersperse _   (x::[]) = [x]
@@ -110,7 +151,7 @@ fun the' (mssg:string)  NONE        = error mssg
  |  the' (_   :string) (SOME thing) = thing
 
 fun prefix_if_nonempty _        [] = []
- |  prefix_if_nonempty prefixed xs = prefixed :: xs : string list;
+ |  prefix_if_nonempty prefixed xs = prefixed :: xs : strings;
 
 val debug = false;
 
@@ -146,12 +187,90 @@ fun nat_to_frac (n:int) =
     frac : real
   end;
 
-fun count_str (str:string) (strs:string list) =
+fun count_str (str:string) (strs:strings) =
   fold (fn name => fn n => if name = str then n + 1 else n) strs 0;
 
-fun is_one_of_strings (strs:string list) (str:string) = exists (equal str) strs;
+fun is_one_of_strings (strs:strings) (str:string) = exists (equal str) strs;
 
-fun somes (maybes: 'a option list) = map the o filter is_some;
+fun somes (maybes: 'a option list) = filter is_some maybes |> map the;
+
+fun conjunction x y = x andalso y;
+
+fun disjunction x y = x orelse y;
+
+fun a_member (eq:('a * 'b) -> bool) (one_of_them: 'a list) (in_those: 'b list) =
+  fold (fn x:'a => fn b => b orelse member eq in_those x) (one_of_them:'a list) false;
+
+fun members (eq:('a * 'b) -> bool) (all_of_them: 'a list) (in_those: 'b list) =
+  fold (fn x:'a => fn b => b andalso member eq in_those x) (all_of_them:'a list) true;
+
+fun cart_prod (xs:'a list) (ys:'b list) =
+  let
+    fun cart_prod' ([]   :'a list) (_ :'b list) (acc:('a * 'b) list) = acc
+      | cart_prod' (x::xs:'a list) (ys:'b list) (acc:('a * 'b) list) =
+        cart_prod' xs ys (map (pair x) ys @ acc);
+  in cart_prod' xs ys [] end;
+
+fun add_index'     []  result _   = result
+  | add_index' (x::xs) result idx = add_index' xs (result @ [(idx, x)]) (idx + 1) ;
+fun add_index xs = add_index' xs [] 0;
+
+fun order_sensitive_multi_subset _      []      _   = true
+  | order_sensitive_multi_subset _  (_:: _)     []  = false
+  | order_sensitive_multi_subset eq (x::xs) (y::ys) =
+  if eq x y
+  then order_sensitive_multi_subset eq     xs  ys
+  else order_sensitive_multi_subset eq (x::xs) ys;
+
+fun map_flat_distinct mapped eq arg  = map mapped arg |> flat |> distinct eq;
+
+fun error_if_less_than_0 (n:int) x = if n < 0 then error "exist_n failed. n is less than 0" else x;
+
+fun exist_n (_:'a -> bool)  (0:int) (_    :'a list) = true
+  | exist_n (_:'a -> bool)  (n:int) ([]   :'a list) = error_if_less_than_0 n false
+  | exist_n (f:'a -> bool)  (n:int) (x::xs:'a list) =
+    error_if_less_than_0 n (if f x then exist_n f (n - 1) xs else exist_n f n xs);
+
+val _ = @{assert} (exist_n (equal "a") 2 ["a","b","c","d","b"]          |> not);
+val _ = @{assert} (exist_n (equal "b") 2 ["a","b","c","d","b"]);
+val _ = @{assert} (exist_n (equal "b") 1 ["a","b","c","d","b"]);
+val _ = @{assert} (exist_n (equal "b") 3 ["a","b","c","d","b"]          |> not);
+val _ = @{assert} (exist_n (equal "c") 3 ["a","b","c","d","b", "c"]     |> not);
+val _ = @{assert} (exist_n (equal "c") 3 ["a","b","c","d","b", "c", "c"]);
+val _ = @{assert} (exist_n (equal "c") 2 ["a","b","c","d","b", "c", "c"]);
+
+fun exist_mult  (f:'a -> bool) (xs:'a list) = exist_n f 2 xs;
+
+val _ = @{assert} (exist_mult (equal "b") ["a","b","c","d","b"]);
+val _ = @{assert} (exist_mult (equal "c") ["a","b","c","d"] |> not);
+
+fun mk_option_pair (SOME x, SOME y) = SOME (x, y)
+  | mk_option_pair  _               = NONE;
+
+fun mk_options_pair  NONE         = (NONE,   NONE  )
+  | mk_options_pair (SOME (x, y)) = (SOME x, SOME y)
+
+fun mapPartial2  (f:'a -> 'b option) (SOME (x1, x2)) =
+  let
+    val (res1, res2) = apply2 f (x1,x2);
+    val result = case res1 of
+        SOME r1 => (case res2 of SOME r2 => SOME (r1, r2) | _ => NONE)
+      | _ => NONE;
+    in result end
+  | mapPartial2 _ _ = NONE;
+
+fun alist_add       (alist: (''a * 'a) list) (key:''a, value:'a) = AList.update (op =) (key, value) alist: (''a * 'a) list;
+
+fun alist_lookup_eq (alist: (''a * 'b) list) (key:''a)           = AList.lookup (op =) alist key;
+
+fun opt_equal (SOME x, SOME y) = x = y
+  | opt_equal (     _,      _) = false: bool;
+
+fun ints_to_max' ([]:ints)    acc = acc
+  | ints_to_max' (i::is:ints) acc = ints_to_max' is (Int.max (i, acc));
+
+fun ints_to_max_option  []          = NONE
+  | ints_to_max_option (i::is:ints) = SOME (ints_to_max' is i)
 
 end;
 
@@ -262,35 +381,73 @@ end;
 signature ISABELLE_UTILS =
 sig
   datatype location = Fst_Subg | Concl | All_Subg;
-  val if_solved                     : thm -> 'a -> 'a -> 'a;
-  val fst_qualifier                 : string -> string;
-  val get_1st_subg                  : thm -> term option;
-  val flatten_trm                   : term -> term list;
-  val get_trms_in_thm               : thm -> term list;
-  val get_trm_in                    : location -> thm -> term option;(*Should it return a list of term?*)
-  val get_cnames_in_trm             : term -> string list;
-  val get_outmost_cname             : term -> string option;
-  val get_typ_names_in_trm          : term -> string list;
-  val get_consts_in_thm             : thm -> term list;
-  val get_cnames_in_thm             : thm -> string list;
-  val get_cnames_in_1st_subg        : thm -> string list;
-  val get_abs_names_in_trm          : term -> string list;
-  val get_abs_names_in_thm          : thm -> string list;
-  val get_abs_name_in_1st_subg      : thm -> string list;
-  val get_typ_names_in_thm          : thm -> string list;
-  val get_typ_names_in_1st_subg     : thm -> string list;
-  val get_free_var_names_in_trms    : term list -> string list;
-  val get_free_var_names_in_thm     : thm -> string list;
-  val get_free_var_names_in_1st_subg: thm -> string list;
-  val get_all_var_names_in_1st_subg : thm -> string list;
-  val proof_state_to_thm            : Proof.state -> thm;
-  val mk_proof_obligation           : Proof.context -> string -> thm;
-  val TIMEOUT_in                    : real -> ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
-  val TIMEOUT                       : ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
-  val same_except_for_fst_prem      : thm -> thm -> bool;
-  val defer                         : thm -> thm Seq.seq;
-  val is_in_Main                    : Proof.context -> thm -> bool;
-  val add_const_names_mult          : term -> string list -> string list;
+  val if_solved                         : thm -> 'a -> 'a -> 'a;
+  val fst_qualifier                     : string -> string;
+  val get_1st_subg                      : thm -> term option;
+  val flatten_trm                       : term -> terms;
+  val get_trms_in_thm                   : thm -> terms;
+  val get_trm_in                        : location -> thm -> term option;(*Should it return a list of terms?*)
+  val get_cnames_in_trm                 : term -> strings;
+  val get_outmost_cname                 : term -> string option;
+  val get_typ_names_in_trm              : term -> strings;
+  val get_consts_in_thm                 : thm -> terms;
+  val get_cnames_in_thm                 : thm -> strings;
+  val get_cnames_in_1st_subg            : thm -> strings;
+  val get_abs_names_in_trm              : term -> strings;
+  val get_abs_names_in_thm              : thm -> strings;
+  val get_abs_name_in_1st_subg          : thm -> strings;
+  val get_typ_names_in_thm              : thm -> strings;
+  val get_typ_names_in_1st_subg         : thm -> strings;
+  val get_free_var_names_in_trm         : term -> strings;
+  val get_free_var_names_in_trms        : terms -> strings;
+  val get_free_var_names_in_thm         : thm -> strings;
+  val get_free_var_names_in_1st_subg    : thm -> strings;
+  val get_all_var_names_in_1st_subg     : thm -> strings;
+  val proof_state_to_thm                : Proof.state -> thm;
+  val pst_to_fst_subg                   : Proof.state -> term option;
+  val pst_to_subgs                      : Proof.state -> term list;
+  val mk_proof_obligation               : Proof.context -> string -> thm;
+  val TIMEOUT_in                        : real -> ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
+  val TIMEOUT                           : ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
+  val same_except_for_fst_prem          : thm -> thm -> bool;
+  val defer                             : thm -> thm Seq.seq;
+  val is_in_Main                        : Proof.context -> thm -> bool;
+  val add_const_names_mult              : term -> strings -> strings;
+  val get_meth_name                     : Method.text -> string;
+  val are_all_de_Bruijn_indices_used    : term -> bool;
+  val pstate_to_usings                  : Proof.state -> thms;
+  val pstate_to_chained_facts_as_terms  : Proof.state -> terms;
+  val trm_to_fst_args_of_const          : string -> term -> terms;
+  val trm_to_snd_args_of_const          : string -> term -> terms;
+  val pstate_to_1st_subg_n_chained_facts: Proof.state -> terms;
+  val pstate_to_1st_subg_n_chained_facts_record   : Proof.state -> {fst_subg:term option, chained_facts:terms};
+  val pstate_to_cnames_in_1st_subg_n_chained_facts: Proof.state -> string list;
+  val trms_have_cname                             : string -> terms -> bool;
+  val trm_has_prop                                : term -> bool;
+  val trm_to_prop_trms                            : term -> terms;
+  val is_typ_of_name                              : string -> typ -> bool;
+  val is_nat_typ                                  : typ -> bool;
+  val trm_has_nat_typ                             : term -> bool;
+  val trm_to_nats                                 : term -> {consts: term list, frees: term list, vars: term list};
+  val is_fun_typ                                  : typ -> bool;
+  val trm_has_fun_typ                             : term -> bool;
+  val trm_to_funs                                 : term -> {consts: term list, frees: term list, vars: term list};
+  val is_set_typ                                  : typ -> bool;
+  val trm_has_set_typ                             : term -> bool;
+  val is_int_typ                                  : typ -> bool;
+  val trm_has_int_typ                             : term -> bool;
+  val is_record_trm                               : term -> bool;
+  val trm_to_sets                                 : term -> {consts: term list, frees: term list, vars: term list};
+  val is_list_typ                                 : typ -> bool;(*TODO: this name is misleading.*)
+  val trm_has_list_typ                            : term -> bool;
+  val trm_to_lists                                : term -> {consts: term list, frees: term list, vars: term list};
+  val trm_to_sets_and_lists                       : term -> {consts: term list, frees: term list, vars: term list};
+  val trm_to_string                               : Proof.context -> term -> string;
+  val count_numb_of_args_of_fun_typ               : typ -> int;
+  val is_recursive_eq_about_cosnt_name            : term -> string -> bool;
+  val has_recursive_simp_about_const_names        : Proof.context -> strings -> bool;
+  val has_recursive_simp_about_const_name         : Proof.context -> string -> bool;
+  val has_recursive_psimp_about_const_name        : Proof.context -> string -> bool;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -317,7 +474,7 @@ fun get_trm_in Fst_Subg g = get_1st_subg g
   | get_trm_in All_Subg g = try (Logic.mk_conjunction_list o Thm.prems_of) g
   | get_trm_in Concl    g = try Thm.concl_of g: term option;
 
-fun get_cnames_in_trm (trm:term) = Term.add_const_names trm []: string list;
+fun get_cnames_in_trm (trm:term) = Term.add_const_names trm []: strings;
 
 fun get_consts_in_thm thm = thm
   |> Thm.cprop_of
@@ -332,7 +489,7 @@ fun get_cnames_in_thm thm = thm
 
 fun get_outmost_cname (trm:term) =
   let
-    val cnames              = get_cnames_in_trm trm: string list;
+    val cnames              = get_cnames_in_trm trm: strings;
     val numb                = length cnames: int;
     val last_cname          = try (nth cnames) (numb - 1): string option;
     val snd_last_cname      = try (nth cnames) (numb - 2): string option;
@@ -393,11 +550,14 @@ fun get_typ_names_in_1st_subg (goal:thm) = goal
   |> these
   |> map Utils.remove__s;
 
-fun get_free_var_names_in trm = if Term.is_Free trm 
+fun get_free_var_names_in' trm = if Term.is_Free trm
   then [Term.dest_Free trm |> fst |> Utils.remove__s] else [];
 
+fun get_free_var_names_in_trm trm = Term.fold_aterms (fn trm => fn acc =>
+  get_free_var_names_in' trm @ acc |> distinct (op =)) trm [];
+
 fun get_free_var_names_in_trms trms = trms
-  |> map get_free_var_names_in
+  |> map get_free_var_names_in_trm
   |> List.concat
   |> distinct (op =);
 
@@ -415,11 +575,18 @@ fun get_free_var_names_in_1st_subg (goal:thm) = goal
 fun get_all_var_names_in_1st_subg (goal:thm) =
     Option.map (map fst o strip_all_vars) (get_1st_subg goal)
   |> these
-  |> map Utils.remove__s : string list;
+  |> map Utils.remove__s : strings;
 
 val proof_state_to_thm = #goal o Proof.goal;
 
-fun mk_proof_obligation ctxt (prop_str:string) = 
+fun pst_to_fst_subg (pst:Proof.state) = try proof_state_to_thm pst
+  >>= get_1st_subg;
+
+fun pst_to_subgs (pst:Proof.state) = try proof_state_to_thm pst
+  <$> Thm.prems_of
+   |> these;
+
+fun mk_proof_obligation ctxt (prop_str:string) =
   Syntax.read_prop ctxt prop_str
   |> Thm.cterm_of ctxt
   |> Thm.trivial;
@@ -439,6 +606,9 @@ fun TIMEOUT_in real tac = DETERM_TIMEOUT (seconds real) tac;
 
 fun TIMEOUT tac         = DETERM_TIMEOUT (seconds 0.3) tac;
 
+fun get_meth_name (Method.Source src) = (fst (Token.name_of_src src))
+  | get_meth_name _ = "\n"
+
 end;
 
 (*same_except_for_fst_prem checks if two thms are the same except for the first premise of the second.*)
@@ -448,8 +618,8 @@ let
   val concl1                            = Thm.concl_of goal1 : term ;
   val concl2                            = Thm.concl_of goal2 : term ;
   val eq_concl                          = Term.aconv (concl1, concl2);
-  val prems1                            = Thm.prems_of goal1 : term list;
-  val prems2                            = Thm.prems_of goal2 : term list ;
+  val prems1                            = Thm.prems_of goal1 : terms;
+  val prems2                            = Thm.prems_of goal2 : terms ;
   val goal1_has_a_prem                  = List.null prems1 : bool ;
   fun prems1_prems2tl prems1 prems2     = prems1 ~~ List.tl prems2;
   fun prems1_equiv_prems2 prems1 prems2 = List.all (Term.aconv) (prems1_prems2tl prems1 prems2);
@@ -465,7 +635,7 @@ fun is_in_Main (ctxt:Proof.context) (thm:thm) =
     val this_thy          = Proof_Context.theory_of ctxt:theory;
     val thy_names_in_main = Context.get_theory {long=false} this_thy "Main"
       |> Theory.ancestors_of
-      |> map Context.theory_name:string list;
+      |> map Context.theory_name:strings;
     fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;
     val thy_name = get_theory_name thm;
     val result = exists (equal thy_name) thy_names_in_main;
@@ -473,9 +643,246 @@ fun is_in_Main (ctxt:Proof.context) (thm:thm) =
     result
   end;
 
-(* add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy. *)
-fun add_const_names_mult (trm:term) (names:string list) =
+fun is_this_abstract_used (_  :int) (Const _      :term) = false
+  | is_this_abstract_used (_  :int) (Free _       :term) = false
+  | is_this_abstract_used (_  :int) (Var _        :term) = false
+  | is_this_abstract_used (dBi:int) (Bound i      :term) = dBi = i
+  | is_this_abstract_used (dBi:int) (Abs (_,_,trm):term) = is_this_abstract_used (dBi + 1) trm
+  | is_this_abstract_used (dBi:int) (trm1 $ trm2  :term) =
+      is_this_abstract_used dBi trm1 orelse
+      is_this_abstract_used dBi trm2;
+
+fun are_all_de_Bruijn_indices_used' (Abs (_,_,trm):term) =
+      is_this_abstract_used 0 trm andalso
+      are_all_de_Bruijn_indices_used' trm
+  | are_all_de_Bruijn_indices_used' (trm1 $ trm2  :term) =
+      are_all_de_Bruijn_indices_used' trm1 orelse
+      are_all_de_Bruijn_indices_used' trm2
+  | are_all_de_Bruijn_indices_used' (trm:term) = is_this_abstract_used 0 trm;
+
+fun are_all_de_Bruijn_indices_used (Const _ $ Abs (name,typ,trm)) =
+      are_all_de_Bruijn_indices_used' (Abs (name,typ,trm))
+  | are_all_de_Bruijn_indices_used (trm as (Abs (_,_,_):term):term) =
+      are_all_de_Bruijn_indices_used' trm
+  | are_all_de_Bruijn_indices_used (trm1 $ trm2) =
+      are_all_de_Bruijn_indices_used trm1 andalso are_all_de_Bruijn_indices_used trm2
+  | are_all_de_Bruijn_indices_used _ = true;
+
+(*add_const_names_mult is similar to Term.add_const_names, but it accepts redundancy.*)
+fun add_const_names_mult (trm:term) (names:strings) =
   fold_aterms (fn Const (c, _) => insert (K false) c | _ => I) trm names;
+
+fun pstate_to_usings (pstate:Proof.state) = Proof.raw_goal pstate |> #facts: thms;
+
+fun pstate_to_chained_facts_as_terms (pst:Proof.state) =
+  let
+    val chained_thms = pstate_to_usings pst: thms;
+    val chained_trms = map Thm.prop_of chained_thms: terms;
+  in
+    chained_trms
+  end;
+
+fun trm_to_fst_args_of_const (cname:string) (Const (fn_cname, _) $ arg) = if cname = fn_cname
+    then trm_to_fst_args_of_const cname arg @ [arg]
+    else trm_to_fst_args_of_const cname arg
+  | trm_to_fst_args_of_const (cname:string)(trm1 $ trm2) =
+    trm_to_fst_args_of_const cname trm1 @ trm_to_fst_args_of_const cname trm2
+  | trm_to_fst_args_of_const (cname:string) (Abs (_, _, trm)) = trm_to_fst_args_of_const cname trm
+  | trm_to_fst_args_of_const _ _ = [];
+
+fun trm_to_snd_args_of_const (cname:string) (Const (fn_cname, _) $ arg1 $ arg2) = if cname = fn_cname
+    then trm_to_snd_args_of_const cname arg1 @ [arg2]
+    else trm_to_snd_args_of_const cname arg1 @ trm_to_snd_args_of_const cname arg2
+  | trm_to_snd_args_of_const (cname:string)(trm1 $ trm2) =
+    trm_to_snd_args_of_const cname trm1 @ trm_to_snd_args_of_const cname trm2
+  | trm_to_snd_args_of_const (cname:string) (Abs (_, _, trm)) = trm_to_snd_args_of_const cname trm
+  | trm_to_snd_args_of_const _ _ = [];
+
+fun pstate_to_1st_subg_n_chained_facts (pst:Proof.state) =
+  let
+    val chained_thms = pstate_to_usings pst: thms;
+    val chained_trms = map Thm.prop_of chained_thms: terms;
+    val fst_subg_trm = pst_to_fst_subg pst |> the_list: terms;
+  in
+    fst_subg_trm @ chained_trms
+  end;
+
+fun pstate_to_1st_subg_n_chained_facts_record (pst:Proof.state) =
+  let
+    val chained_thms = pstate_to_usings pst: thms;
+    val chained_trms = map Thm.prop_of chained_thms: terms;
+    val fst_subg_trm = pst_to_fst_subg pst: term option;
+  in
+    {fst_subg = fst_subg_trm, chained_facts = chained_trms}
+  end;
+
+fun pstate_to_cnames_in_1st_subg_n_chained_facts (pstate:Proof.state) =
+   pstate_to_1st_subg_n_chained_facts pstate
+|> Utils.map_flat_distinct (fn trm:term => Term.add_const_names trm []) (op =);
+
+fun trms_have_cname (cname:string) (trms:terms) =
+  let
+    val cnames = map (fn trm => Term.add_consts trm []) trms |> flat |> map fst: strings;
+  in
+    exists (equal cname) cnames
+  end;
+
+fun trm_has_prop (trm:term) =
+  let
+    val cnames = Term.add_consts trm [] |> map fst: strings;
+    val these_consts_make_prop = ["Pure.imp", "Pure.all", "Pure.conjunction", "Pure.eq"]: strings;
+  in
+    Utils.a_member (op =) these_consts_make_prop cnames: bool
+  end;
+
+fun trm_to_prop_trms_help (trm1 $ trm2)   = trm_to_prop_trms trm1 @ trm_to_prop_trms trm2
+  | trm_to_prop_trms_help (Abs (_,_,trm)) = trm_to_prop_trms trm
+  | trm_to_prop_trms_help _               = []
+and trm_to_prop_trms (trm:term) =
+  let
+   (*
+    fun dest_all' (Const ("Pure.all", _) $ Abs abs) = SOME (Abs abs)
+      | dest_all'  _                                = NONE;
+    *)
+    (*Warning: Logic.dest_all calls Term.dest_abs internally.
+      But this helps us identify the names of variables represented by de-Bruijn indices.*)
+    val all         = try Logic.dest_all trm         >>= try snd |> the_list            : terms;
+    val equals      = try Logic.dest_equals trm      >>= try Utils.pair_to_list |> these: terms;
+    val implies     = try Logic.dest_implies trm     >>= try Utils.pair_to_list |> these: terms;
+    val conjcts     = try Logic.dest_conjunction trm >>= try Utils.pair_to_list |> these: terms;
+    val props       = all @ equals @ implies @ conjcts                                  : terms;
+    val deeper_lvl  = trm_to_prop_trms_help trm                                         : terms;
+    val this_lvl    = map trm_to_prop_trms props |> flat                                : terms;
+    (*filter_out trm_has_prop removes some valuable terms in @{term "(\<And>x. y (z \<Longrightarrow> w) )"}*)
+    val all_results = (*filter_out trm_has_prop*) props @ this_lvl @ deeper_lvl         : terms;
+  in
+    distinct Term.aconv all_results
+  end;
+
+fun trm_to_certain_var_free_const (assert_trm:term -> bool) (trm:term) =
+  let
+    val vars       = Term.add_vars trm []  : (indexname * typ) list;
+    val frees      = Term.add_frees trm [] : (string * typ) list;
+    val consts     = Term.add_consts trm []: (string * typ) list;
+    val result =
+      {vars   = map Term.Var vars     |> filter assert_trm,
+       frees  = map Term.Free frees   |> filter assert_trm,
+       consts = map Term.Const consts |> filter assert_trm};
+  in
+    result:{consts: term list, frees: term list, vars: term list}
+  end;
+
+fun is_typ_of_name (typ_name:string) (typ:typ) = try dest_Type typ <$> fst <$> equal typ_name |> Utils.is_some_true;
+
+fun is_nat_typ (typ:typ) = is_typ_of_name "Nat.nat" typ;
+
+val _ = @{assert}      (@{term "x::nat"} |> dest_Free |> snd |> is_nat_typ);
+val _ = @{assert} (not (@{term "x::int"} |> dest_Free |> snd |> is_nat_typ));
+
+fun trm_has_nat_typ (trm:term) = Term.exists_type is_nat_typ trm: bool;
+
+fun trm_to_nats (trm:term) = trm_to_certain_var_free_const trm_has_nat_typ trm;
+
+fun is_fun_typ (typ:typ) = is_typ_of_name "fun" typ;
+
+val _ = @{assert}      (@{term "(\<and>)"} |> dest_Const |> snd |> is_fun_typ);
+val _ = @{assert} (not (@{term "x"} |> dest_Free  |> snd |> is_fun_typ));
+val _ = @{assert}      (@{term "x::int \<Rightarrow> bool"} |> dest_Free  |> snd |> is_fun_typ);
+
+fun trm_has_fun_typ (trm:term) = Term.exists_type is_fun_typ trm: bool;
+
+fun trm_to_funs (trm:term) = trm_to_certain_var_free_const trm_has_fun_typ trm;
+
+fun is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ (inner as (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ _ ))) =
+    is_record_trm inner
+  | is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ Const ("Orderings.bot_class.bot", _))                                      = true
+  | is_record_trm  _                                                                                                                                    = false;
+
+val _ = @{assert} (is_record_trm @{term "{fieldA = True, fieldB = x}"});
+val _ = @{assert} (is_record_trm @{term "{fieldA = w}"});
+val _ = @{assert} (is_record_trm @{term "{x, y}"} |> not);
+val _ = @{assert} (is_record_trm @{term "f {fieldA = w}"} |> not);
+
+fun is_set_typ (typ:typ) = is_typ_of_name "Set.set" typ;
+
+val _ = @{assert}      (@{term "xs::int set" } |> dest_Free |> snd |> is_set_typ);
+val _ = @{assert} (not (@{term "xs::int list"} |> dest_Free |> snd |> is_set_typ));
+
+fun trm_has_set_typ (trm:term) = Term.exists_type is_set_typ trm: bool;
+
+val _ = @{assert} (trm_has_set_typ @{term "f {a,b,c}"});
+
+fun is_int_typ (typ:typ) = is_typ_of_name "Int.int" typ;
+
+val _ = @{assert}      (@{term "x::int"} |> dest_Free |> snd |> is_int_typ);
+val _ = @{assert} (not (@{term "x::nat"} |> dest_Free |> snd |> is_int_typ));
+
+fun trm_has_int_typ (trm:term) = Term.exists_type is_int_typ trm: bool;
+
+fun trm_to_sets (trm:term) = trm_to_certain_var_free_const trm_has_set_typ trm;
+
+fun is_list_typ (typ:typ) = is_typ_of_name "List.list" typ;
+
+val _ = @{assert}      (@{term "xs::int list"} |> dest_Free |> snd |> is_list_typ);
+val _ = @{assert} (not (@{term "xs::int set" } |> dest_Free |> snd |> is_list_typ));
+
+fun trm_has_list_typ (trm:term) = Term.exists_type is_list_typ trm: bool;
+
+fun trm_to_lists (trm:term) = trm_to_certain_var_free_const trm_has_list_typ trm;
+
+fun trm_to_sets_and_lists (trm:term) =
+  let
+    val lists = trm_to_certain_var_free_const trm_has_list_typ trm;
+    val sets  = trm_to_certain_var_free_const trm_has_set_typ  trm;
+    val consts = #consts lists @ #consts sets |> distinct Term.aconv;
+    val frees  = #frees  lists @ #frees  sets |> distinct Term.aconv;
+    val vars   = #vars   lists @ #vars   sets |> distinct Term.aconv;
+  in
+    {consts = consts, frees = frees, vars = vars}
+  end;
+
+fun trm_to_string (ctxt:Proof.context) (trm:term) = Syntax.string_of_term ctxt trm
+ |> YXML.parse_body
+ |> XML.content_of : string;
+
+fun count_numb_of_args_of_fun_typ' (fun_typ:typ) (acc:int) = case try dest_funT fun_typ of
+  NONE => acc
+| SOME (_(*domain_typ*), range_typ) => count_numb_of_args_of_fun_typ' range_typ (acc + 1);
+
+fun count_numb_of_args_of_fun_typ (typ:typ) = count_numb_of_args_of_fun_typ' typ 0;
+
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "(\<and>)"}         |> dest_Const |> snd) = 2);
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "hd" }         |> dest_Const |> snd) = 1);
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "(@)"}         |> dest_Const |> snd) = 2);
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "foldl"}       |> dest_Const |> snd) = 3);
+val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "list_update"} |> dest_Const |> snd) = 3);
+
+(* TODO: remove code-duplication with PaMpeR/Assertion.ML *)
+fun is_recursive_eq_about_cosnt_name (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) (cname:string) =
+  let
+     val cname_is_in_lhs = Term.exists_Const (fn (s,_) => cname = s) A;
+     val cname_is_in_rhs = Term.exists_Const (fn (s,_) => cname = s) B;
+  in cname_is_in_lhs andalso cname_is_in_rhs end
+ |  is_recursive_eq_about_cosnt_name _ _ = false;
+
+fun check_thm_list (thms:thm list) (cname:string) =
+  List.exists ((fn trm => is_recursive_eq_about_cosnt_name trm cname) o Thm.concl_of) thms;
+
+fun has_recursive_simp_about_const_names (_   :Proof.context)  []             = false
+ |  has_recursive_simp_about_const_names (ctxt:Proof.context) (cname::cnames) =
+     (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
+      has_recursive_simp_about_const_names ctxt cnames);
+
+fun has_recursive_simp_about_const_name (ctxt:Proof.context) (cname:string) = has_recursive_simp_about_const_names ctxt [cname]
+
+fun has_recursive_psimp_about_const_name (ctxt:Proof.context) (cname:string) =
+  let
+    val psimps_name         = cname ^ ".psimps"                                     : string;
+    val psimps              = try (Proof_Context.get_thms ctxt) psimps_name |> these: thms;
+    val psimps_props        = map Thm.prop_of psimps                                : terms;
+    val cncls_as_props      = map Logic.strip_imp_concl psimps_props                : terms;
+    val has_recursive_psimp = List.exists ((fn trm => is_recursive_eq_about_cosnt_name trm cname)) cncls_as_props;
+  in has_recursive_psimp end;
 
 end;
 
@@ -489,30 +896,34 @@ sig
   include FIND_THEOREMS;
   type context;
   type ref;
-  type get_rules = context -> thm -> (ref * thm) list;
-  type get_rule_names = context -> thm -> string list;
-  val get_criterion             : string -> string list -> (bool * 'a criterion) list;
-  val all_names_to_rules        : string -> string list -> get_rules;
-  val some_names_to_rules       : string -> string list -> get_rules;
-  val get_rule_names            : get_rules -> context -> thm -> xstring list;
-  val get_simp_rules            : get_rules;
-  val get_induct_rules          : get_rules;
-  val get_coinduction_rules     : get_rules;
-  (*These get_(elim, intro, dest)_rules may not be powerful enough.*)
-  val get_elim_rules            : get_rules;
-  val get_intro_rules           : get_rules;
-  val get_dest_rules            : get_rules;
-  val get_split_rules           : get_rules;
-  val get_simp_rule_names       : get_rule_names;
-  val get_induct_rule_names     : get_rule_names;
-  val get_coinduction_rule_names: get_rule_names;
-  val get_elim_rule_names       : get_rule_names;
-  val get_intro_rule_names      : get_rule_names;
-  val get_dest_rule_names       : get_rule_names;
-  val get_split_rule_names      : get_rule_names;
+  type get_rules           = context -> thm -> (ref * thm) list;
+  type get_rule_names      = context -> thm -> strings;
+  type pstate_to_thms      = Proof.state -> thms;
+  type pstate_to_thm_names = Proof.state -> strings;
+  val get_criterion                      : string -> strings -> (bool * 'a criterion) list;
+  val all_names_to_rules                 : string -> strings -> get_rules;
+  val some_names_to_rules                : string -> strings -> get_rules;
+  val get_rule_names                     : get_rules -> context -> thm -> xstring list;
+  val get_simp_rules                     : get_rules;
   val get_thms_of_name_with_these_substrs: context -> string list -> thm list;
   val get_thms_of_name_with_suffix       : context -> string -> string -> thm list;
   val get_thms_of_names_with_suffix      : context -> string list -> string -> thm list;
+  val get_induct_rules                   : get_rules;      (*used in PSL. TODO: to be replaced with pstate_to_induct_thms*)
+  val pstate_to_induct_thms              : pstate_to_thms; (*used in MeLoId*)
+  val get_coinduction_rules              : get_rules;
+  (*These get_(elim, intro, dest)_rules may not be powerful enough.*)
+  val get_elim_rules                     : get_rules;
+  val get_intro_rules                    : get_rules;
+  val get_dest_rules                     : get_rules;
+  val get_split_rules                    : get_rules;
+  val get_simp_rule_names                : get_rule_names;
+  val get_induct_rule_names              : get_rule_names;      (*used in PSL. TODO: to be replaced with pstate_to_induct_thm_names*)
+  val pstate_to_induct_thm_names         : pstate_to_thm_names; (*used in MeLoId*)
+  val get_coinduction_rule_names         : get_rule_names;
+  val get_elim_rule_names                : get_rule_names;
+  val get_intro_rule_names               : get_rule_names;
+  val get_dest_rule_names                : get_rule_names;
+  val get_split_rule_names               : get_rule_names;
 end;
 
 (*** Find_Theorems2: provides an interface of find_theorem for PSL. ***)
@@ -527,12 +938,14 @@ open Find_Theorems;
 type context = Proof.context;
 type ref = Facts.ref;
 type get_rules = context -> thm -> (ref * thm) list;
-type get_rule_names = context -> thm -> string list;
+type get_rule_names = context -> thm -> strings;
+type pstate_to_thms      = Proof.state -> thms;
+type pstate_to_thm_names = Proof.state -> strings;
 
-fun get_criterion kind_name ([]:string list) = [(true, Name kind_name)]
-  | get_criterion kind_name (name::names:string list) = (true, Name name)::get_criterion kind_name names;
+fun get_criterion kind_name ([]:strings) = [(true, Name kind_name)]
+  | get_criterion kind_name (name::names:strings) = (true, Name name)::get_criterion kind_name names;
 
-fun all_names_to_rules kind_name (names:string list) ctxt (_(*just for type*):thm) =
+fun all_names_to_rules kind_name (names:strings) ctxt (_(*just for type checking*):thm) =
   try (find_theorems ctxt NONE NONE true) (get_criterion kind_name names) liftM snd |> Utils.is_some_null;
 
 fun some_names_to_rules kind_name names ctxt goal = names
@@ -566,35 +979,79 @@ fun get_simp_rules (ctxt:context) (goal:thm) =
     unique_rules : (Facts.ref * thm) list
   end;
 
-fun get_simp_rule_names ctxt goal = get_rule_names get_simp_rules ctxt goal : string list;
+fun get_simp_rule_names ctxt goal = get_rule_names get_simp_rules ctxt goal : strings;
 
 fun get_induct_rules (ctxt:context) (goal:thm) =
   let
-    val cnames  = Isabelle_Utils.get_cnames_in_1st_subg goal : string list;
+    val cnames  = Isabelle_Utils.get_cnames_in_1st_subg goal         : strings;
     val induct_rules = some_names_to_rules ".induct" cnames ctxt goal;
   in
     induct_rules : (Facts.ref * thm) list
   end;
-fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal : string list;
+
+fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal : strings;
+
+(* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
+fun get_thms_of_name_with_suffix (ctxt:context) (sfx:string) (name:string) =
+  try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thms;
+
+(* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
+fun get_thms_of_names_with_suffix (ctxt:context) (names:strings) (sfx:string) =
+  map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thms;
+
+fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:strings) =
+  let
+    val criterion      = get_criterion "" substrs: (bool * term criterion) list;
+    val relevant_rules = try (Find_Theorems.find_theorems ctxt NONE NONE true) criterion
+                         liftM snd
+                         liftM map snd
+                         |> Utils.is_some_null
+  in
+    relevant_rules: thms
+  end;
+
+fun pstate_to_induct_thms (pstate:Proof.state) =
+  let
+    val ctxt        = Proof.context_of pstate                                           : Proof.context;
+    val cnames      = Isabelle_Utils.pstate_to_cnames_in_1st_subg_n_chained_facts pstate: strings;
+    val induct_thms = get_thms_of_names_with_suffix ctxt cnames "induct"                : thms;
+  in
+    induct_thms
+  end;
+
+fun pstate_to_induct_thm_names (pstate:Proof.state) =
+  let
+    val ctxt   = Proof.context_of pstate;
+    val cnames = Isabelle_Utils.pstate_to_cnames_in_1st_subg_n_chained_facts pstate: strings;
+    fun ctxt_has_thm_of_name (thm_name:string) = (*TODO: This function should be defined outside pstate_to_induct_thm_names? *)
+        case try (Proof_Context.get_thms ctxt) thm_name of
+         NONE      => false
+       | SOME thms => null thms |> not;
+    val induct_thm_names      = map (fn cname => cname ^ ".induct") cnames: strings;
+    val some_induct_thm_names = filter ctxt_has_thm_of_name induct_thm_names;
+  in
+    some_induct_thm_names
+  end;
 
 fun get_coinduction_rules (ctxt:context) (goal:thm) =
   let
-    val cnames                  = Isabelle_Utils.get_cnames_in_1st_subg goal : string list;
+    val cnames                  = Isabelle_Utils.get_cnames_in_1st_subg goal : strings;
     fun get_coinduct_rules post = some_names_to_rules post cnames ctxt goal;
     val coinduct_rules1 = get_coinduct_rules ".coinduct";
     val coinduct_rules2 = get_coinduct_rules ".coinduct_strong";
   in
     coinduct_rules1 @ coinduct_rules2: (Facts.ref * thm) list
   end;
-fun get_coinduction_rule_names ctxt goal = get_rule_names get_coinduction_rules ctxt goal : string list;
+
+fun get_coinduction_rule_names ctxt goal = get_rule_names get_coinduction_rules ctxt goal : strings;
 
 fun get_elim_rules  ctxt goal = find_theorems ctxt (SOME goal) NONE true [(true, Elim)] |> snd;
 fun get_intro_rules ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Intro)] |> snd;
 fun get_dest_rules  ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Dest)] |> snd;
         
-fun get_elim_rule_names  ctxt goal = get_rule_names get_elim_rules  ctxt goal : string list;
-fun get_intro_rule_names ctxt goal = get_rule_names get_intro_rules ctxt goal : string list;
-fun get_dest_rule_names  ctxt goal = get_rule_names get_dest_rules  ctxt goal : string list;
+fun get_elim_rule_names  ctxt goal = get_rule_names get_elim_rules  ctxt goal : strings;
+fun get_intro_rule_names ctxt goal = get_rule_names get_intro_rules ctxt goal : strings;
+fun get_dest_rule_names  ctxt goal = get_rule_names get_dest_rules  ctxt goal : strings;
 
 fun get_split_rules ctxt goal =
   let
@@ -607,25 +1064,6 @@ fun get_split_rules ctxt goal =
 
 fun get_split_rule_names ctxt goal = get_rule_names get_split_rules ctxt goal;
 
-fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:string list) =
-  let
-    val criterion      = get_criterion "" substrs: (bool * term criterion) list;
-    val relevant_rules = try (Find_Theorems.find_theorems ctxt NONE NONE true) criterion
-                         liftM snd
-                         liftM map snd
-                         |> Utils.is_some_null
-  in
-    relevant_rules: thm list
-  end;
-
-(* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
-fun get_thms_of_name_with_suffix (ctxt:context) (sfx:string) (name:string) =
-  try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thm list;
-
-(* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
-fun get_thms_of_names_with_suffix (ctxt:context) (names:string list) (sfx:string) =
-  map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thm list;
-
 end;
 
 (*** DYNAMIC_UTILS: Utility functions useful to generate tactics at run-time. ***)
@@ -637,7 +1075,7 @@ sig
   type 'a seq;
   type 'a nontac   = 'a -> 'a seq;
   datatype node    = Subgoal | Done | Defer
-                   | Apply of {using:string list, methN:string, back:int};
+                   | Apply of {using:strings, methN:string, back:int};
   type log;
   type 'a logtac   = 'a -> (log * 'a) seq;
   type 'a st_monad = log -> (log * 'a) seq;
@@ -647,7 +1085,7 @@ sig
   val checked_src_to_meth : context -> src -> Method.method;
   val str_to_tokens       : context -> string -> Token.T list;
   val get_tokens          : string -> Token.T list -> src;
-  val get_meth_nm         : string -> string list -> string;
+  val get_meth_nm         : string -> strings -> string;
   val reform              : log * 'goal nontac -> 'goal logtac;
   val writer_to_state     : (log * 'state) seq -> 'state st_monad;
   val nontac_to_logtac    : node -> 'a nontac -> 'a logtac;
@@ -668,7 +1106,7 @@ type src         = Token.src;
 type 'a seq      = 'a Seq.seq;
 type 'a nontac   = 'a -> 'a seq;
 datatype node    = Subgoal | Done | Defer
-                 | Apply of {using:string list, methN:string, back:int};
+                 | Apply of {using:strings, methN:string, back:int};
 type log         = node list;
 type 'a logtac   = 'a -> (log * 'a) seq;
 type 'a st_monad = log -> (log * 'a) seq;
@@ -704,7 +1142,7 @@ end;
 fun get_tokens (meth_nm:string) (attributes:Token.T list) =
   Token.make_src (meth_nm, Position.none) attributes;
 
-fun get_meth_nm (meth:string) (attributes:string list) = 
+fun get_meth_nm (meth:string) (attributes:strings) =
   Utils.intersperse " " (meth :: attributes) |> String.concat;
 
 fun reform (param:('meth_str * ('goal nontac))) =
@@ -772,12 +1210,12 @@ fun string_to_stttac_on_pstate (meth_name:string) =
   end;
 
 local
-  fun mk_using  ([]   : string list) = ""
-   |  mk_using  (using: string list) = "using " ^ String.concatWith " " using ^ " ";
+  fun mk_using  ([]   : strings) = ""
+   |  mk_using  (using: strings) = "using " ^ String.concatWith " " using ^ " ";
   fun mk_apply methN  = "apply " ^ methN ^ "";
   fun mk_backs (n:int) = replicate n "back" |> String.concatWith " " handle Subscript =>
     (tracing "mk_backs in Isabelle_Utils.thy failed. It should take 0 or a positive integer.";"");
-  fun mk_apply_script1 {methN : string, using : string list, back : int} =
+  fun mk_apply_script1 {methN : string, using : strings, back : int} =
     mk_using using ^ mk_apply methN ^ mk_backs back ^ "\n";
   fun mk_proof_script1 (Done    : node) = "done \n"
    |  mk_proof_script1 (Subgoal : node) = "subgoal \n"

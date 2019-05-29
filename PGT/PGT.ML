@@ -16,13 +16,9 @@ structure Proof_Goal_Transformer: PROOF_GOAL_TRANSFORMER =
 struct
 
 (* Utility functions *)
+(*TODO: move these utility functions to Isabelle_Util*)
 val typs_to_dummyT = Term.map_types (K dummyT);
 val atyps_to_dummyT = Term.map_types (Term.map_atyps (K dummyT));
-
-(* How to print new subgoals? *)
-fun trm_to_string (ctxt:Proof.context) (trm:term) =  Syntax.string_of_term ctxt trm
- |> YXML.parse_body
- |> XML.content_of : string;
 
 (* How to get the list of subterms? *)
 fun get_subtrms (Const p:term) = [Const p]
@@ -54,7 +50,7 @@ fun generalize_trm (ctxt:Proof.context) (original:term) (subtrm:term) =
 |> atyps_to_dummyT
 |> Syntax.check_term ctxt;
 
-(* How to print new subgoals? *) 
+(* How to print new subgoals? *)
 fun trm_to_string (ctxt:Proof.context) (trm:term) =  Syntax.string_of_term ctxt trm
  |> YXML.parse_body
  |> XML.content_of : string;

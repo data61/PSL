@@ -1,3 +1,5 @@
+- *New!* The directory `LiFtEr` contains a working prototype of our domain-specific language to implement induction heuristics.
+- *New!* The directory `MeLoId` is still under development. Upon success, it should implent a mechanism for **M**achine **L**earning **I**nduction.
 - **This branch is under active development. Please use [release v0.1.2-alpha PSL, PaMpeR, and PGT for Isabelle2018.](https://github.com/data61/PSL/releases/tag/v0.1.2-alpha), which is the latest stable version.**
 - **Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
 - **More information about PaMpeR is provided in PSL/PaMpeR/README.md.**
@@ -31,18 +33,21 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 ![Screenshot](./image/tracing_messages.png)
 
 ## Contents
-- *.src/Utils.ML*                     includes various utility functions.
-- *.src/Subtool.ML*                   treats Isabelle's subtools as state-monad tactics.
-- *.src/Dynamic_Tactic_Generation.ML* facilitates runtime tactic generation.
-- *.src/Constructor_Class.ML/*        is a general purpose constructor class library.
-- *.src/Instantiation.ML*             instantiates some type constructors as members of constructor classes.
-- *.src/Monadic_Prover.ML*            contains the interpreter of PSL.
-- *.src/Parser_Combinator.ML*         contains general purpose monadic parser combinators.
-- *.src/PSL_Parser.ML*                defines the PSL parser.
-- *.src/Isar_Interface.thy*           sets up the Isabelle/Isar interface for PSL.
-- *.src/Try_Hard.thy*                defines the default strategy try_hard.
-- *./PSL.thy*                         reads all the necessary files to use PSL and try_hard.
-- *./Example*                         presents small example strategies and use cases.
+- `.src/Utils.ML` includes various utility functions.
+- `.src/Subtool.ML` treats Isabelle's subtools as state-monad tactics.
+- `.src/Dynamic_Tactic_Generation.ML` facilitates runtime tactic generation.
+- `.src/Constructor_Class.ML/` is a general purpose constructor class library.
+- `.src/Instantiation.ML` instantiates some type constructors as members of constructor classes.
+- `.src/Monadic_Prover.ML` contains the interpreter of PSL.
+- `.src/Parser_Combinator.ML` contains general purpose monadic parser combinators.
+- `.src/PSL_Parser.ML` defines the PSL parser.
+- `.src/Isar_Interface.thy` sets up the Isabelle/Isar interface for PSL.
+- `.src/Try_Hard.thy` defines the default strategy try_hard.
+- `./PSL.thy` reads all the necessary files to use PSL and try_hard.
+- `./Example` presents small example strategies and use cases.
+- `PaMpeR/` is a tool for **p**roof **m**thod **r**commendation.     
+- `MeLoId/` is work in progress.
+- `LiFtEr/` is a language to encode induction heuristics.
 
 ## FAQs
 *Q1.* Why yet another tactic language? How is PSL different from, say, Eisbach?

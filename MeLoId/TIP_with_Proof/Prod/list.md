@@ -1,0 +1,50 @@
+- [X] `TIP_prop_01`: `"x (take n xs) (drop n xs) = xs"`
+- [X] `TIP_prop_02`: `t2 (count n xs) (count n ys) = count n (y xs ys)`
+- [X] `TIP_prop_03`:
+- [X] `TIP_prop_04`:
+- [X] `TIP_prop_05`:
+- [X] `TIP_prop_06`:
+- [X] `TIP_prop_07`:
+- [X] `TIP_prop_08`:
+- [X] `TIP_prop_09`:
+- [X] `TIP_prop_10`:
+- [X] `TIP_prop_11`:
+- [X] `TIP_prop_12`:
+- [X] `TIP_prop_13`:
+- [ ] `TIP_prop_14`:
+- [X] `TIP_prop_15`:
+- [X] `TIP_prop_16`:
+- [ ] `TIP_prop_17`:
+- [ ] `TIP_prop_18`:
+- [ ] `TIP_prop_19`:
+- [ ] `TIP_prop_20`:
+- [ ] `TIP_prop_21`:
+- [ ] `TIP_prop_22`:
+- [ ] `TIP_prop_23`:
+- [ ] `TIP_prop_24`:
+- [ ] `TIP_prop_25`:
+- [ ] `TIP_prop_26`:
+- [ ] `TIP_prop_27`:
+- [X] `TIP_prop_28`:
+- [X] `TIP_prop_29`:
+- [X] `TIP_prop_30`:
+- [ ] `TIP_prop_31`:
+- [ ] `TIP_prop_32`:
+- [ ] `TIP_prop_33`:
+- [X] `TIP_prop_34`:
+- [ ] `TIP_prop_35`:
+- [X] `TIP_prop_36`:
+- [X] `TIP_prop_37`:
+- [X] `TIP_prop_38`:
+- [ ] `TIP_prop_39`:
+- [ ] `TIP_prop_40`:
+- [ ] `TIP_prop_41`:
+- [ ] `TIP_prop_42`:
+- [ ] `TIP_prop_43`:
+- [ ] `TIP_prop_44`:
+- [ ] `TIP_prop_45`:
+- [ ] `TIP_prop_46`:
+- [ ] `TIP_prop_47`:
+- [ ] `TIP_prop_48`:
+- [ ] `TIP_prop_49`:
+- [ ] `TIP_prop_50`:
