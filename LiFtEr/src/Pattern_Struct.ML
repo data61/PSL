@@ -121,11 +121,6 @@ fun terms_to_pattern_matrix (terms:terms) = terms
  |> Matrix.matrix_to_column_of_rows_matrix
  |> Matrix.map_crmatrix Pattern_Of_Atom
  |> Pattern_Matrix;
-(*
- |> Matrix.matrix_to_row_of_columns_matrix
- |> Matrix.map_rcmatrix Pattern_Of_Atom
- |> Pattern_Matrix;
-*)
 
 (* type: mk_parameter_matrix *)
 type mk_pattern_matrix = Proof.context -> string -> pattern_matrix;
@@ -171,14 +166,6 @@ fun mk_pattern_matrix (ctxt:Proof.context) (cname:string) =
 
 datatype recursive_or_inductive_clause  = Rec_Or_Ind  of bool;
 datatype recursive_or_inductive_clauses = Rec_Or_Inds of recursive_or_inductive_clause column;
-(*TODO*)
-
-fun ctxt_n_cname_to_rec_or_inds_option (ctxt:Proof.context) (cname:string) =
-  let
-    (*TODO*)
-  in
-    undefined
-  end;
 
 fun has_recursive_simp_or_psimp_about_const_name (ctxt:Proof.context) (cname:string) =
   let
@@ -191,16 +178,10 @@ fun has_recursive_simp_or_psimp_about_const_name (ctxt:Proof.context) (cname:str
       | _ (*TODO: inductive_set*) => false
   in result end;
 
-(* TODO: The "function" keyword produces psimp-rules instead of simp rules.
- * psimp-rules have assumptions before equations.
- * So, we cannot use Isabelle_Utils.has_recursive_simp_about_const_name.
- * We have to define has_recursive_psimp_about_const_name in Utils.ML.  *)
-
 fun ctxt_n_cname_to_pattern_of_a_const (ctxt:Proof.context) (cname:string) =
   let
-    val pattern_matrix     = mk_pattern_matrix ctxt cname                           : pattern_matrix;
-    val pattern_of_a_const = Pattern_Of_A_Const
-         {matrix    = pattern_matrix}: pattern_of_a_const;
+    val pattern_matrix     = mk_pattern_matrix ctxt cname                   : pattern_matrix;
+    val pattern_of_a_const = Pattern_Of_A_Const {matrix    = pattern_matrix}: pattern_of_a_const;
   in
     pattern_of_a_const
   end;
@@ -218,7 +199,7 @@ fun ctxt_n_name_to_patterns_of_each_param (ctxt:Proof.context) (cname:string) =
 fun is_nth_all_Only_Var (ctxt:Proof.context) (cname:string) (n:int) =
   let
     val Pattern_Matrix crmatrix   = mk_pattern_matrix ctxt cname                           : pattern_matrix;
-    val nth_column_as_list_option = try (crmatrix_to_nth_column crmatrix) n <$> dest_column;
+    val nth_column_as_list_option = try (crmatrix_to_nth_column crmatrix) n <$> dest_column: pattern_of_a_param_in_a_clause list option;
     fun is_Only_Var (Pattern_Of_Atom Only_Var)  = true
       | is_Only_Var  _                          = false;
     val nth_param_is_all_Only_Var = nth_column_as_list_option <$> forall is_Only_Var |> Utils.is_some_true: bool;
