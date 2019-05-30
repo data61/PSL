@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/DInduct_Struct.ML
+(*  Title:      PSL/LiFtEr/src/DInduct_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 Infrastructure to construct various induct methods.

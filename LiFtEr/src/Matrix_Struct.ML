@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/Matrix_Struct.ML
+(*  Title:      PSL/LiFtEr/src/Matrix_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 Utility fucntions about matrices.

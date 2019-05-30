@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/Apply_LiFtEr_Struct.ML
+(*  Title:      PSL/LiFtEr/src/Apply_LiFtEr_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 structure Apply_LiFtEr =

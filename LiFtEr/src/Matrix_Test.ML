@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/Matrix_Test.ML
+(*  Title:      PSL/LiFtEr/src/Matrix_Test.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 Unit test for utility fucntions about matrices.

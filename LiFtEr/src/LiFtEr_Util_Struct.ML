@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/LiFtEr_Util_Struct.ML
+(*  Title:      PSL/LiFtEr/src/LiFtEr_Util_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 Helper functions for LiFtEr.

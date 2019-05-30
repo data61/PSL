@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/Apply_LiFtEr_Sig.ML
+(*  Title:      PSL/LiFtEr/src/Apply_LiFtEr_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 signature APPLY_LIFTER =

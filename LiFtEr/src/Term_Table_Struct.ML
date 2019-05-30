@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/Term_Table_Struct.ML
+(*  Title:      PSL/LiFtEr/src/Term_Table_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 The conversion to transform term to a format more amenable to LiFtEr.

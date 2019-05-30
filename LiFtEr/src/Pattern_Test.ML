@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/Pattern_Test.ML
+(*  Title:      PSL/LiFtEr/src/Pattern_Test.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 

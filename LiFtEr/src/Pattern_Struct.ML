@@ -1,4 +1,4 @@
-(*  Title:      PSL/LiFtEr/Pattern_Struct.ML
+(*  Title:      PSL/LiFtEr/src/Pattern_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 ML types and operations to describe patterns of constant definitions in Isabelle/HOL.
