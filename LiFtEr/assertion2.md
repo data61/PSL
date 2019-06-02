@@ -7,7 +7,9 @@
 ## Generalization based on control-flow analysis of function definitions.
 - If we apply induction on `xs`,
 - `xs` is the nth argument of an occurrence of `foo`, 
-- the `induct` method does not take any argument in the `rule` field, and
+- (the `induct` method does not take any argument in the `rule` field), and
+   - Probably the presence of arguments in the `rule` field is not relevant.
+   - See, for example, `lemma mono2_step: "c1 ≤ c2 ⟹ S1 ⊆ S2 ⟹ step S1 c1 ≤ step S2 c2"` line 155 in `Abs_Int_ITP2012/Collecting.thy`.
 - the nth parameter in a clause of the definition of `foo` is used as part of the mth argument to a recursive call of `foo` appearing in the same clause,
 - then all non-`xs` variables appearing as part of the mth argument of any `foo` should be generalized.
 
@@ -26,6 +28,8 @@
 - `exec_append[simp]: "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"` line 33 in `Concrete_Semantics/ASM.thy`.
 - `(∀j. j ≠ i ⟶ netmap s' j = netmap s j) ∧ net_ip_action np (i:deliver(d)) i p s s'` line 488 in `AWN/Pnet.thy`.
 - `is_binqueue_append: "is_binqueue l xs ⟹ is_binqueue (length xs + l) ys ⟹ is_binqueue l (xs @ ys)"` line 156 in `Binomial-Queues/Binomial_Queue.thy`.
+- `lemma mono2_step: "c1 ≤ c2 ⟹ S1 ⊆ S2 ⟹ step S1 c1 ≤ step S2 c2"` line 155 in `Abs_Int_ITP2012/Collecting.thy`.
+   - They probably focused on `c1 ≤ c2` when deciding induction terms. But they probably looked at `step S1 c1 ≤ step S2 c2` when deciding to generalize `S1` and `S2`.
 
 # Non-generalization heuristics
 
