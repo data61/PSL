@@ -33,6 +33,7 @@
 - `shows "tensor_vec_from_lookup ds e = v"` line 125 in `Deep_Learning/Tensor.thy`.
    
 ## Generalization based on a bound variable in function definitions.
+
 ### Example
 - `lemma length_tensor_vec_from_lookup: "length (tensor_vec_from_lookup ds e) = prod_list ds"` line 214 in `Deep_Learning/Tensor.thy`.
 - It is induction on `ds`, which is the first argument of `tensor_vec_from_lookup` in the proof goal.
@@ -41,6 +42,12 @@
 - When `tensor_vec_from_lookup` is `map`ped over, `i` becomes a natural number smaller than `d`.
 - And `d` is the first parameter on the left-hand side of the definition in this clause.
 - Therefore, `e` in the proof goal should be generalized.
+
+### Other examples
+- `lemma lookup_tensor_vec: assumes "is⊲ds" shows "lookup_base ds (tensor_vec_from_lookup ds e) is = e is"` line 217 in `Deep_Learning/Tensor.thy`.
+   - Note that the recursion induction is applied to `is` and `ds` in `is⊲ds` as `proof (induction arbitrary:e rule:valid_index.induct)proof (induction arbitrary:e rule:valid_index.induct)`.
+   - This proof script is equivalent to `proof (induction "is" ds arbitrary:e rule:valid_index.induct)`.
+   - But the generalization heuristic is applied to `tensor_vec_from_lookup ds e`.
 
 # Non-generalization heuristics
 
