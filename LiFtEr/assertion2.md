@@ -30,6 +30,17 @@
 - `is_binqueue_append: "is_binqueue l xs ⟹ is_binqueue (length xs + l) ys ⟹ is_binqueue l (xs @ ys)"` line 156 in `Binomial-Queues/Binomial_Queue.thy`.
 - `lemma mono2_step: "c1 ≤ c2 ⟹ S1 ⊆ S2 ⟹ step S1 c1 ≤ step S2 c2"` line 155 in `Abs_Int_ITP2012/Collecting.thy`.
    - They probably focused on `c1 ≤ c2` when deciding induction terms. But they probably looked at `step S1 c1 ≤ step S2 c2` when deciding to generalize `S1` and `S2`.
+- `shows "tensor_vec_from_lookup ds e = v"` line 125 in `Deep_Learning/Tensor.thy`.
+   
+## Generalization based on a bound variable in function definitions.
+### Example
+- `lemma length_tensor_vec_from_lookup: "length (tensor_vec_from_lookup ds e) = prod_list ds"` line 214 in `Deep_Learning/Tensor.thy`.
+- It is induction on `ds`, which is the first argument of `tensor_vec_from_lookup` in the proof goal.
+- `e` is the second argument of `tensor_vec_from_lookup` in the proof goal.
+- In the second clause of `tensor_vec_from_lookup`, the recursive call of `tensor_vec_from_lookup` has a bound variable `i` inside its second argument.
+- When `tensor_vec_from_lookup` is `map`ped over, `i` becomes a natural number smaller than `d`.
+- And `d` is the first parameter on the left-hand side of the definition in this clause.
+- Therefore, `e` in the proof goal should be generalized.
 
 # Non-generalization heuristics
 
