@@ -12,6 +12,7 @@
    - See, for example, `lemma mono2_step: "c1 ≤ c2 ⟹ S1 ⊆ S2 ⟹ step S1 c1 ≤ step S2 c2"` line 155 in `Abs_Int_ITP2012/Collecting.thy`.
 - the nth parameter in a clause of the definition of `foo` is used as part of the mth argument to a recursive call of `foo` appearing in the same clause,
 - then all non-`xs` variables appearing as part of the mth argument of any `foo` should be generalized.
+- Maybe it is enough to check if the mth arguments of all recursive calls of `foo` are identical to the mth parameters in each clause of the definition.
 
 ### Example (`itrev xs ys = rev xs @ ys` in `Concrete_Semantics/Induction_Demo.thy`)
 - `apply (induction xs arbitrary ys)`
