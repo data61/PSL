@@ -169,6 +169,11 @@
    - `p` appears as part of the second argument of `∈` in the assumption.
    - `s`, `a`, and `s'` appear as part of the first argument of `∈` in the assumption.
 
+## Generalize pointfree-style arguments.
+
+### Examples
+- TODO
+
 # Non-generalization heuristics
 
 ## Non-generalization based on control-flow analysis of function definitions.
@@ -200,3 +205,17 @@
 - `by (induct xs arbitrary: l)`
 - line 154 in `Bionmial_Queses/Binomial_Queue.thy`.
 - The occurrence of `xs` in the conclusion has `@` and `is_binqueue`, and both of them are defined recursively.
+
+## Terms of type constructors are more likely to be inducted on than terms of type variables of function types.
+- Especially there is no argument in the `rule` field.
+
+### Examples
+
+- line 204 in `Berlekamp_Zassenhaus/Arithmetic_Record_Based.thy`
+   - `goal (1 subgoal): 1. S (nth_default x xs n) (nth_default y ys n)`
+   - `y(induct l' arbitrary: σ')`
+
+- line 30 in `Binomial-Queues/Binomial_Queue.thy`
+   - `goal (1 subgoal): 1. P xs`
+   - `proof (induct xs)`
+   - The type of `P` is a function type, whereas the type of `xs` is `'a option list`.
