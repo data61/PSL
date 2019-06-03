@@ -49,7 +49,7 @@
    - This proof script is equivalent to `proof (induction "is" ds arbitrary:e rule:valid_index.induct)`.
    - But the generalization heuristic is applied to `tensor_vec_from_lookup ds e`.
    
-## The same relative position heuristics.
+## The same relative position to difference occurrence of the same recursive function.
 
 ### Other examples
 - `using this: x ≤ y y ≤ z goal (1 subgoal):  1. x ≤ z` line 53 in `Abs_Int_ITP2012/Collecting.thy`.
@@ -57,6 +57,8 @@
    - Note that the current implementation of `Dynaimc (Induct)` probably cannot find `less_eq_acom.induct`.
 -  `(eq, eq') ∈ R → R → bool_rel ⟹ (l1, l1') ∈ ⟨R⟩list_rel ⟹ (l2, l2') ∈ ⟨R⟩list_rel ⟹ (local.list_eq eq l1 l2, local.list_eq eq' l1' l2') ∈ bool_rel` line 515 `Automatic_Refinement/Autoref_Bidings_HOL.thy`.
    - `apply (induct eq' l1' l2' arbitrary: (*eq*) l1 l2 rule: list_eq.induct)`
+   - `eq'`, `l1'`, and `l2'` are arguments of `local.list_eq`. 
+   - `eq`, `l1`, and `l2` are arguments of a different occurrence of `local.list_eq`.
 
 # Non-generalization heuristics
 
