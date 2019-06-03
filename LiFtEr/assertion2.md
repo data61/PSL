@@ -44,8 +44,12 @@
 - Therefore, `e` in the proof goal should be generalized.
 
 ### Other examples
-- `lemma lookup_tensor_vec: assumes "is⊲ds" shows "lookup_base ds (tensor_vec_from_lookup ds e) is = e is"` line 217 in `Deep_Learning/Tensor.thy`.
-   - Note that the recursion induction is applied to `is` and `ds` in `is⊲ds` as `proof (induction arbitrary:e rule:valid_index.induct)proof (induction arbitrary:e rule:valid_index.induct)`.
+- `lemma lookup_tensor_vec:`
+   - `assumes "is⊲ds" shows "lookup_base ds (tensor_vec_from_lookup ds e) is = e is"` line 217 in `Deep_Learning/Tensor.thy`.
+   - Note that the recursion induction is applied to `is` and `ds` in `is⊲ds` as 
+   -`proof (induction arbitrary:e rule:valid_index.induct).
+   - Note that the recursion induction is applied to `is` and `ds` in `is⊲ds` as  `proof (induction arbitrary:e rule:valid_index.induct).
+   - Note that the recursion induction is applied to `is` and `ds` in `is⊲ds` as `proof (induction arbitrary:e rule:valid_index.induct).
    - This proof script is equivalent to `proof (induction "is" ds arbitrary:e rule:valid_index.induct)`.
    - But the generalization heuristic is applied to `tensor_vec_from_lookup ds e`.
    
