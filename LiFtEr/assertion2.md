@@ -132,7 +132,21 @@
    - Induction on `p`, and
    - `p` appears on the right-hand side of `∈`, and
    - `s` appears on the left-hand side of `∈`,
-   - Therefore, `s` should be generalized.
+   - Probably `s` should be generalized.
+   
+- line 95 in `Abs_Int_ITP2012/Collection.thy`
+   - `a ∈ A ⟹ lift Inter (strip a) A ≤ a`
+   - `proof(induction a arbitrary: A)`
+   - Induction on `a`, and
+   - `a` appears in `a ∈ A` in the assumption.
+   - Probably `A` should be generalized.
+   
+- line 106 in `Abs_Int_ITP2012/Collection.thy`
+   - `using this:`
+   - `b ∈ {c'. strip c' = i}`
+   - `∀a∈A. b ≤ a`
+   - `goal (1 subgoal): 1. b ≤ lift Inter i A`
+   - `(induction b arbitrary: i A)`
 
 # Non-generalization heuristics
 
