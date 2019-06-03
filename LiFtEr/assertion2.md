@@ -82,6 +82,18 @@
    - These induction variables `X`  and `Y` appear in the chained facts as the second arguments to `R`.
    - And `x` and `y` are the first arguments to those occurrences of `R`.
    - Therefore, `x` and `y` should be generalized.
+   
+## The variables on the other side of equation of induction terms.
+
+### Examples
+- `lemma size_partition: "partition p t = (l',r') ⟹ size t = size l' + size r'"`
+   - `by (induction p t arbitrary: l' r' rule: partition.induct)`
+   - line 52 in `Splay_Tree/Splay_Heap.thy`
+   - Induction on `p` and `t` in `partition p t`, which appears on the left-hand side of an equation.
+   - `l'` and `r'` appear in `(l',r')` on the right-hand side of the same equation.
+   - Neither `l'` or `r'` is "hidden" by any recursive function.
+   - Therefore, `l'` and `r'` should be generalized.
+   
 
 # Non-generalization heuristics
 
