@@ -94,6 +94,7 @@
    - Therefore, `c` and `c'` should be generalized.
    
 ## The variables on the other side of equation of induction terms.
+- especially for equations appearing in assupmtions.
 
 ### Examples
 - `lemma size_partition: "partition p t = (l',r') ⟹ size t = size l' + size r'"`
@@ -103,7 +104,9 @@
    - `l'` and `r'` appear in `(l',r')` on the right-hand side of the same equation.
    - Neither `l'` or `r'` is "hidden" by any recursive function.
    - Therefore, `l'` and `r'` should be generalized.
-   
+- `lemma bot_acom[rule_format]: "strip c' = c ⟶ ⊥⇩c c ⊑ c'"`
+   - `apply(induct c arbitrary: c')`
+   - line 173 in `Abs_Int_ITP2012/Abs_Int0.thy`
 
 # Non-generalization heuristics
 
