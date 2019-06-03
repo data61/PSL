@@ -66,8 +66,12 @@
 - `lemma cf_similarI: assumes "x ∈ CF" "y ∈ CF" and "opaque x = opaque y" and "CF_pure x ↔ CF_pure y" shows "x ≅ y"`
    - `using assms proof (induction (*x*) arbitrary: y)` where `x` is optional (did not appear in the original script).
    - Well... it turned out that this proof goes through without `arbitrary:y`.
+- `lemma mono_step': "S ⊑ S' ⟹ c ⊑ c' ⟹ step' S c ⊑ step' S' c'"`
+   - line 390 in `Abs_Int_ITP2012/Abs_Int0.thy`.
+   - `apply(induction c c' arbitrary: S S' rule: le_acom.induct)`
+   - This is induction on `c` and `c'` in `S ⊑ S'`.
 
-## The same position relative to a recursive function.
+## Multiple occurrences in the same positions relative to a recursive function that takes induction terms.
 
 ### Examples
 - `using this:`
@@ -85,7 +89,9 @@
 - `lemma mono_step': "S ⊑ S' ⟹ c ⊑ c' ⟹ step' S c ⊑ step' S' c'"`
    - `apply(induction c c' arbitrary: S S' rule: le_acom.induct)`
    - line 390 in `Abs_Int_ITP2012/Abs_Int0.thy`.
-   
+   - This is induction on `S` and `S'` in `S ⊑ S'`.
+   - `c` and `c'` are also arguments of a difference occurrence of `⊑`.
+   - Therefore, `c` and `c'` should be generalized.
    
 ## The variables on the other side of equation of induction terms.
 
