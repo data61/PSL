@@ -107,6 +107,7 @@
 - `lemma bot_acom[rule_format]: "strip c' = c ⟶ ⊥⇩c c ⊑ c'"`
    - `apply(induct c arbitrary: c')`
    - line 173 in `Abs_Int_ITP2012/Abs_Int0.thy`
+   - Note that one can complete this proof starting with `apply(induct c' arbitrary: c)` instead of `apply(induct c arbitrary: c')`.
 
 # Non-generalization heuristics
 
