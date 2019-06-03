@@ -49,7 +49,7 @@
    - This proof script is equivalent to `proof (induction "is" ds arbitrary:e rule:valid_index.induct)`.
    - But the generalization heuristic is applied to `tensor_vec_from_lookup ds e`.
    
-## The same relative position to difference occurrence of the same recursive function.
+## The position of induction terms relative to a recursive function for a difference occurrence of the same recursive function.
 
 ### Examples
 - `using this: x ≤ y y ≤ z goal (1 subgoal):  1. x ≤ z` line 53 in `Abs_Int_ITP2012/Collecting.thy`.
@@ -62,6 +62,22 @@
 - `lemma cf_similarI: assumes "x ∈ CF" "y ∈ CF" and "opaque x = opaque y" and "CF_pure x ↔ CF_pure y" shows "x ≅ y"`
    - `using assms proof (induction (*x*) arbitrary: y)` where `x` is optional (did not appear in the original script).
    - Well... it turned out that this proof goes through without `arbitrary:y`.
+
+## The same position relative to a recursive function.
+
+### Examples
+- `using this:`
+   - `R x X` 
+   - `R y Y` 
+   - `goal (1 subgoal): 1. R (gcd_eucl_i x y) (normalization_euclidean_semiring_class.gcd X Y)`
+   - `proof (induct X Y arbitrary: x y rule: Euclidean_Algorithm.gcd.induct)`
+   - line 135 in `Berlekamp_Yassenhaus/Arithmetic_Record_Based.thy`
+   - This is induction on `X` and `Y` in `gcd X Y`.
+   - `gcd X Y` is the second argument to `R` in the goal.
+   - The first argument to this occurrence of `R` is `gcd_eucl_i x y`, which contains `x` and `y`.
+   - These induction variables `X`  and `Y` appear in the chained facts as the second arguments to `R`.
+   - And `x` and `y` are the first arguments to those occurrences of `R`.
+   - Therefore, `x` and `y` should be generalized.
 
 # Non-generalization heuristics
 
