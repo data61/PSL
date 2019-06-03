@@ -51,7 +51,7 @@
    
 ## The same relative position to difference occurrence of the same recursive function.
 
-### Other examples
+### Examples
 - `using this: x ≤ y y ≤ z goal (1 subgoal):  1. x ≤ z` line 53 in `Abs_Int_ITP2012/Collecting.thy`.
    - `apply(induct x y arbitrary: z rule: less_eq_acom.induct)`
    - Note that the current implementation of `Dynaimc (Induct)` probably cannot find `less_eq_acom.induct`.
@@ -59,6 +59,9 @@
    - `apply (induct eq' l1' l2' arbitrary: (*eq*) l1 l2 rule: list_eq.induct)`
    - `eq'`, `l1'`, and `l2'` are arguments of `local.list_eq`. 
    - `eq`, `l1`, and `l2` are arguments of a different occurrence of `local.list_eq`.
+- `lemma cf_similarI: assumes "x ∈ CF" "y ∈ CF" and "opaque x = opaque y" and "CF_pure x ↔ CF_pure y" shows "x ≅ y"`
+   - `using assms proof (induction (*x*) arbitrary: y)` where `x` is optional (did not appear in the original script).
+   - Well... it turned out that this proof goes through without `arbitrary:y`.
 
 # Non-generalization heuristics
 
