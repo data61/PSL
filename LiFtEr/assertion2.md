@@ -82,6 +82,10 @@
    - These induction variables `X`  and `Y` appear in the chained facts as the second arguments to `R`.
    - And `x` and `y` are the first arguments to those occurrences of `R`.
    - Therefore, `x` and `y` should be generalized.
+- `lemma mono_step': "S ⊑ S' ⟹ c ⊑ c' ⟹ step' S c ⊑ step' S' c'"`
+   - `apply(induction c c' arbitrary: S S' rule: le_acom.induct)`
+   - line 390 in `Abs_Int_ITP2012/Abs_Int0.thy`.
+   
    
 ## The variables on the other side of equation of induction terms.
 
