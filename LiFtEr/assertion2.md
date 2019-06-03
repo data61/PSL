@@ -123,6 +123,12 @@
    - `using this: (σ, SubnetS s t) ∈ oreachable (opnet onp (p⇩1 ∥ p⇩2)) S U `
    - `goal (1 subgoal): 1. P σ s t`
    - `using assms proof (induction p arbitrary: s a s')`
+   
+- line 133 in `AWN/Pnet.thy`
+   - `using this:`
+   - `SubnetS s t ∈ reachable (pnet np (p1 ∥ p2)) I`
+   - `goal (1 subgoal): 1. P s t`
+   - `proof (induction "SubnetS s t" arbitrary: s t)`
 
 ## Generalization involving the membership function.
 - line 40 in `AWN/Pnet.thy`
@@ -147,6 +153,14 @@
    - `∀a∈A. b ≤ a`
    - `goal (1 subgoal): 1. b ≤ lift Inter i A`
    - `(induction b arbitrary: i A)`
+   
+- line 16 in `AWN/Pnet.thy`
+   - `lemma pnet_maintains_dom:`
+   - `assumes "(s, a, s') ∈ trans (pnet np p)"`
+   - `shows "net_ips s = net_ips s'"`
+   - `using assms proof (induction p arbitrary: s a s')`
+   - `p` appears as part of the second argument of `∈` in the assumption.
+   - `s`, `a`, and `s'` appear as part of the first argument of `∈` in the assumption.
 
 # Non-generalization heuristics
 
