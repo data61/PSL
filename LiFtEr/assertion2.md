@@ -108,6 +108,31 @@
    - `apply(induct c arbitrary: c')`
    - line 173 in `Abs_Int_ITP2012/Abs_Int0.thy`
    - Note that one can complete this proof starting with `apply(induct c' arbitrary: c)` instead of `apply(induct c arbitrary: c')`.
+- `have "min xs ≠ Some a"`
+   - line 485 in `Binomial-Queue/Binomial_Queue.thy`.
+   - `proof (induct xs arbitrary: a)`
+- line 40 in `AWN/Pnet.thy`
+   - `assume "s ∈ init (pnet np p)"`
+   - `thus "net_ips s = net_tree_ips p"`
+   - `proof (induction p arbitrary: s)`
+
+## Generalization of variables appearing in induction terms.
+
+### Examples
+- line 19 in `AWN/OPnet_Lifting.thy`.
+   - `using this: (σ, SubnetS s t) ∈ oreachable (opnet onp (p⇩1 ∥ p⇩2)) S U `
+   - `goal (1 subgoal): 1. P σ s t`
+   - `using assms proof (induction p arbitrary: s a s')`
+
+## Generalization involving the membership function.
+- line 40 in `AWN/Pnet.thy`
+   - `assume "s ∈ init (pnet np p)"`
+   - `thus "net_ips s = net_tree_ips p"`
+   - `proof (induction p arbitrary: s)`
+   - Induction on `p`, and
+   - `p` appears on the right-hand side of `∈`, and
+   - `s` appears on the left-hand side of `∈`,
+   - Therefore, `s` should be generalized.
 
 # Non-generalization heuristics
 
