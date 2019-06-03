@@ -183,3 +183,13 @@
 
 ### Other examples
 - `exec_append[simp]: "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"` line 33 in `Concrete_Semantics/ASM.thy`.
+
+# Induction term heuristics
+
+## Induction on terms that have maximum number of recursive functions above them in the syntax tree.
+
+### Examples
+- `lemma is_binqueue_append:`
+- `"is_binqueue l xs ⟹ is_binqueue (length xs + l) ys ⟹ is_binqueue l (xs @ ys)"`
+- `by (induct xs arbitrary: l)`
+- The occurrence of `xs` in the conclusion has `@` and `is_binqueue`, and both of them are defined recursively.
