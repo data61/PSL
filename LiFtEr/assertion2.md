@@ -15,10 +15,10 @@
 - Maybe it is enough to check if the mth arguments of all recursive calls of `foo` are identical to the mth parameters in each clause of the definition.
 - Note that if a proof obligation involve constants defined with the `definition` keyword, it is worth trying to look into the definition. And we might find a recursively defined constants there. In that case, we should take one step further in the ladder of definitions: invetigate how that recursive function is defined.
    - Example: line 204 in `Berlekamp_Zassenhaus/Arithmetic_Record_Based.thy`.
-   - `goal (1 subgoal): 1. S (nth_default x xs n) (nth_default y ys n)`
-   - `proof (induct arbitrary: n)`
-   - But `nth_default` itself is not defined recursively, but its definition involves the `!` operator.
-   - And because of the recursive definition of `!`, `n` in the proof goal should be generalized.
+      - `goal (1 subgoal): 1. S (nth_default x xs n) (nth_default y ys n)`
+      - `proof (induct arbitrary: n)`
+      - But `nth_default` itself is not defined recursively, but its definition involves the `!` operator.
+      - And because of the recursive definition of `!`, `n` in the proof goal should be generalized.
 
 ### Example (`itrev xs ys = rev xs @ ys` in `Concrete_Semantics/Induction_Demo.thy`)
 - `apply (induction xs arbitrary ys)`
