@@ -168,6 +168,13 @@
    - `using assms proof (induction p arbitrary: s a s')`
    - `p` appears as part of the second argument of `∈` in the assumption.
    - `s`, `a`, and `s'` appear as part of the first argument of `∈` in the assumption.
+   
+## Generalize the second argument of `!`.
+
+### Examples:
+- line 53 in `Deep_Learning/Tensor.thy`
+   - `lemma valid_index_lt: "is ⊲ ds ⟹ m<length ds ⟹ is!m < ds!m"`
+   - `proof (induction arbitrary:m rule:valid_index.induct)`
 
 ## Generalize pointfree-style arguments.
 
@@ -219,3 +226,16 @@
    - `goal (1 subgoal): 1. P xs`
    - `proof (induct xs)`
    - The type of `P` is a function type, whereas the type of `xs` is `'a option list`.
+   
+## Do not generalize bound variables.
+- Probably the heuristics would be more accurate if we focus on those bound variables that are acutually universally quantified.
+- This should not be too difficult because `*@{term"⋀m. m"}` is encoded as
+- `Const ("Pure.all", "(bool ⇒ prop) ⇒ prop") $ Abs ("m", "bool", Const ("HOL.Trueprop", "bool ⇒ prop") $ Bound 0): term`
+
+### Examples
+- line 62 in `Deep_Learning/Tensor.thy`
+   - `lemma valid_indexI:`
+   - `assumes "length is = length ds" and "⋀m. m<length ds ⟹ is!m < ds!m"`
+   - `shows "is ⊲ ds"`
+   - `using assms proof (induction "is" arbitrary:ds)`
+   - `m` is not generalized because it is a bound variable. (It is already generalized by the meta-universal quantifier.)
