@@ -77,6 +77,17 @@
    - line 390 in `Abs_Int_ITP2012/Abs_Int0.thy`.
    - `apply(induction c c' arbitrary: S S' rule: le_acom.induct)`
    - This is induction on `c` and `c'` in `S ⊑ S'`.
+   
+## Generalize free variables that occur in a chained fact or assumption of a meta-implication where any of induction terms appear.
+
+### Examples
+- line 162 in `Deep_Learning/Tensor.thy`
+   - `lemma concat_parts:`
+   - `assumes "⋀xs. xs∈set xss ⟹ length xs = d" and "i<length xss"`
+   - `shows "fixed_length_sublist (concat xss) d i = xss ! i"`
+   - `using assms proof (induction xss arbitrary:i)`
+   - `i` is generalized (partially) because of `"i<length xss"` (?).
+   - Note that `d` also appears in the chained fact `"⋀xs. xs∈set xss ⟹ length xs = d"` where `xss`, but `d` is in the conclusion whereas `xss` is in the assumption.
 
 ## Multiple occurrences in the same positions relative to a recursive function that takes induction terms.
 
