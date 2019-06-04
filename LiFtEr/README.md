@@ -11,5 +11,3 @@ LiFtEr is a domain-specific language developed to extract features of promising 
 - `assertion.md`        contains induction heuristics that are mostly about the syntax trees of proof obligations.
 - `assertion2.md`       contains "advanced" induction heuristics.
 - `README.md`           this file.
-- `Concrete_Semantics`  example files from the book "Concrete Semantics" written by Nipkow et.al.
-- `TIP_To_Test_LiFtEr`  TIP problems in Isabelle/HOL.
