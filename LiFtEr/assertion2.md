@@ -19,6 +19,13 @@
       - `proof (induct arbitrary: n)`
       - But `nth_default` itself is not defined recursively, but its definition involves the `!` operator.
       - And because of the recursive definition of `!`, `n` in the proof goal should be generalized.
+   - Example: line 162 in `Deep_Learning/Tensor.thy`
+      - `lemma concat_parts:`
+      - `assumes "⋀xs. xs∈set xss ⟹ length xs = d" and "i<length xss"`
+      - `shows "fixed_length_sublist (concat xss) d i = xss ! i"`
+      - Here `fixed_length_sublist` is defined with the `definition` keyword as following:
+         - `"fixed_length_sublist xs l i = (take l (drop (l*i) xs))"`
+      - So, `fixed_length_sublist` itself is not defined but uses recursively defined functions `take` and `drop`.
 
 ### Example (`itrev xs ys = rev xs @ ys` in `Concrete_Semantics/Induction_Demo.thy`)
 - `apply (induction xs arbitrary ys)`
