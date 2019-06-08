@@ -282,6 +282,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
     val lifter_pst                = Term_Table.pst_to_lifter_pst pstate       : lifter_pst;
     val {trm_domain, trm_occ_domain, on_domain, arb_domain, numb_domain, rule_domain} = name_domains;
     val ctxt                      = Proof.context_of pstate                   : Proof.context;
+    val normalize_trm             = Isabelle_Utils.normalize_trm_as_string ctxt: string -> string;
     val empty_name_space = Name_Space
        {trm     = [],
         trm_occ = [],
@@ -504,7 +505,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val rule_name_option          = rule_id_option >>= dest_ID_Rule                                                  : rule_name option;
           val rule_name_string_option   = rule_name_option >>= dest_Rule_Name                                              : string option;
           val trm_occ_cname_option      = name_space_n_trm_occ_id_to_cname (Name_Space ns) trm_occ                         : string option;
-          val option_pair               = Utils.mk_option_pair (trm_occ_cname_option, SOME ".induct")                      : (string * string) option;
+          val trm_occ_cname_option'     = trm_occ_cname_option <$> Isabelle_Utils.normalize_trm_as_string ctxt             : string option;
+          val option_pair               = Utils.mk_option_pair (trm_occ_cname_option', SOME ".induct")                     : (string * string) option;
           val trm_occ_rule_option       = option_pair <$> (op ^): string option;
           val result                    = opt_equal (trm_occ_rule_option, rule_name_string_option);
         in
@@ -527,11 +529,12 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         end
       | eval' (Are_Same_Trm  (Trm  t1, Trm  t2)) (Name_Space ns:name_space) =
         let
-          val trm_name_space = #trm ns                                                    : name_subspace;
-          val print1_option  = alist_lookup_eq trm_name_space t1 >>= dest_ID_Trm          : print option;
-          val print2_option  = alist_lookup_eq trm_name_space t2 >>= dest_ID_Trm          : print option;;
-          val prints_option  = Utils.mk_option_pair (print1_option, print2_option)        :(print * print) option;
-          val result         = prints_option <$> uncurry same_prints |> Utils.is_some_true: bool;
+          val trm_name_space  = #trm ns                                                : name_subspace;
+          val print1_option   = alist_lookup_eq trm_name_space t1 >>= dest_ID_Trm      : print option;
+          val print2_option   = alist_lookup_eq trm_name_space t2 >>= dest_ID_Trm      : print option;
+          val prints_option   = Utils.mk_option_pair (print1_option, print2_option)    :(print * print) option;
+          val result          = prints_option <$> uncurry (same_normalized_prints ctxt)
+                             |> Utils.is_some_true                                     :bool;
         in
           result
         end
@@ -609,12 +612,14 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       | eval' (Is_In_Cnclsn (trm_occ:trm_occ)) (name_space:name_space) = eval'_in_imp trm_occ name_space 2(*TODO:FIXME: not always true*)
       | eval' (Is_Const_Of_Name (trm_occ, const_name:string)) (name_space:name_space) =
         let
-          val cname_option = name_space_n_trm_occ_id_to_cname name_space trm_occ: string option;
-          val result       = opt_equal (cname_option, SOME const_name)          : bool;
+          val cname_option            = name_space_n_trm_occ_id_to_cname name_space trm_occ : string option;
+          val cname_option_normalized = cname_option <$> normalize_trm                      : string option; 
+          val const_name_normalized   = normalize_trm const_name                            : string;
+          val result       = opt_equal (cname_option_normalized, SOME const_name_normalized): bool;
         in
           result
         end
-      | eval' (Is_Recursive_Cnst (trm_occ as Trm_Occ occ_id:trm_occ)) (name_space:name_space) =
+      | eval' (Is_Recursive_Cnst (trm_occ:trm_occ)) (name_space:name_space) =
         let
           val unode_w_aux_option = name_space_n_trm_occ_id_to_unode_w_aux name_space trm_occ        : UN.unode_w_aux option;
           val is_rcsv            = unode_w_aux_option <$> #rcsv |> Option.join |> Utils.is_some_true: bool;
@@ -710,9 +715,11 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         end
       | eval' (Is_Printed_As (trm:trm, string:string)) (name_space:name_space) =
         let
-          val print_option        = name_space_n_trm_id_to_print name_space trm : print option;
-          val print_string_option = print_option <$> dest_print                 : string option;
-          val result              = opt_equal (print_string_option, SOME string): bool;
+          val print_option            = name_space_n_trm_id_to_print name_space trm: print option;
+          val print_string_option     = print_option <$> dest_print                : string option;
+          val normalized_print_option = print_string_option <$> normalize_trm      : string option;
+          val normalized_input_string = normalize_trm string                       : string;
+          val result                  = opt_equal (normalized_print_option, SOME normalized_input_string): bool;
         in
           result
         end

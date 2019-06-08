@@ -2,7 +2,13 @@
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 structure Apply_LiFtEr =
-struct 
+struct
+
+structure PC = Parser_Combinator;
+structure LU = LiFtEr_Util;
+structure UN = Unique_Node;
+structure DI = Dynamic_Induct;
+structure IU = Isabelle_Utils;
 
 structure LiFtEr_Assertion = Generic_Data
 (
@@ -40,17 +46,32 @@ fun update_ind_mod k v  = Symtab.update_new (k, v)
 
 fun get_ind_mod (ctxt:Proof.context) (ind_mod_name:string): LiFtEr.ind_mods =
   let
-    val some_ind_mods = lookup_ind_mod ctxt ind_mod_name;
-    val assertion = Utils.the' (ind_mod_name ^
-                    "?\nDid you really define such a modifier?") some_ind_mods : LiFtEr.ind_mods;
+    val some_ind_mods = lookup_ind_mod ctxt ind_mod_name: LiFtEr.ind_mods option;
+    fun mk_clean_mods (ind_mods:LU.ind_mods) =
+      let
+        val normalize = IU.normalize_trm_as_string ctxt;
+        val {ons, arbs, rules} = LU.dest_mods ind_mods;
+        fun normalize_rule_as_string (rule_as_string:string) =
+          let
+            val short_cname_option = try (space_explode ".") rule_as_string
+                                 <$> Utils.init <$> Utils.last: string option;
+            val long_name_option = short_cname_option <$> normalize: string option;
+            val clean_rule_name  = long_name_option <$> curry (op ^) <*> SOME ".induct";
+            val result           = if is_some clean_rule_name then the clean_rule_name else "";
+          in
+            result
+          end;
+         val clean_ons   = map (LU.string_to_induct_on   o normalize                o LU.induct_on_to_string  ) ons  : LU.induct_on   list;
+         val clean_arbs  = map (LU.string_to_induct_arb  o normalize                o LU.induct_arb_to_string ) arbs : LU.induct_arb  list;
+         val clean_rules = map (LU.string_to_induct_rule o normalize_rule_as_string o LU.induct_rule_to_string) rules: LU.induct_rule list;
+      in
+        LU.Ind_Mods {ons = clean_ons, arbs = clean_arbs, rules = clean_rules}: LU.ind_mods
+      end;
+    val clean_mods_option = some_ind_mods <$> mk_clean_mods: LU.ind_mods option;
+    val clean_mods        = Utils.the' (ind_mod_name ^ "?\nDid you really define such a modifier?") clean_mods_option : LU.ind_mods;
   in
-    assertion: LiFtEr.ind_mods
+    clean_mods
   end;
-
-structure PC = Parser_Combinator;
-structure LU = LiFtEr_Util;
-structure UN = Unique_Node;
-structure DI = Dynamic_Induct;
 
 val LiFtEr_parser =
   PC.bind (PC.token PC.word) (fn assrt_name:string =>

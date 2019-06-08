@@ -123,7 +123,8 @@ setup{* Apply_LiFtEr.update_assert "example_2"  all_ind_terms_have_an_occ_as_var
 setup{* Apply_LiFtEr.update_assert "example_3"  all_ind_vars_are_arguments_of_a_recursive_function;                      *}
 setup{* Apply_LiFtEr.update_assert "example_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete;*}
 setup{* Apply_LiFtEr.update_assert "example_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order;     *}
-setup{* Apply_LiFtEr.update_assert "example_6"  vars_in_ind_terms_are_generalized;                                       *}
+setup{* Apply_LiFtEr.update_assert "example_6a" ind_is_not_arb;                                       *}
+setup{* Apply_LiFtEr.update_assert "example_6b" vars_in_ind_terms_are_generalized;                                       *}
 
 ML{* (*Arguments for the induct method to attack "itrev xs ys = rev xs @ ys". *)
 local
@@ -140,6 +141,7 @@ Ind_Mods
   rules = []
   }: ind_mods;
 
+(* An example of inappropriate combination of arguments of the induct method. *)
 val bad_answer_for_itrev_equals_rev =
 Ind_Mods
  {ons   = [Ind_On  (Print "itrev")],
@@ -147,33 +149,47 @@ Ind_Mods
   rules = []
   }: ind_mods;
 
+(* Alternative proof found by Yutaka Nagashima.*)
 val alt_prf =
 Ind_Mods
  {ons   = [Ind_On  (Print "xs"), Ind_On (Print "ys")],
   arbs  = [],
-  rules = [Ind_Rule "Induction_Demo.itrev.induct"]
+  rules = [Ind_Rule "itrev.induct"]
   }: ind_mods;
 
 end;
 *}
 
-setup{* Apply_LiFtEr.update_ind_mod "on_xs_arb_ys" official_solution_for_itrev_equals_rev; *}
-setup{* Apply_LiFtEr.update_ind_mod "on_itrev_arb_ys" bad_answer_for_itrev_equals_rev    ; *}
-setup{* Apply_LiFtEr.update_ind_mod "on_xs_ys_rule_itrev" alt_prf                        ; *}
+setup{* Apply_LiFtEr.update_ind_mod "model_prf"   official_solution_for_itrev_equals_rev; *}
+setup{* Apply_LiFtEr.update_ind_mod "bad_non_prf" bad_answer_for_itrev_equals_rev       ; *}
+setup{* Apply_LiFtEr.update_ind_mod "alt_prf"     alt_prf                               ; *}
 
 (*Model proof by Nipkow et.al.*)
 lemma "itrev xs ys = rev xs @ ys"
   (*The first argument to assert_LiFtEr_true is the identifier of a LiFtEr assertion, while
  *the second argument to assert_LiFtEr_true is the identifier of a combination of arguments to
  *the induct method.*)
-  assert_LiFtEr_true  example_1a on_xs_arb_ys
-  assert_LiFtEr_false example_1a on_itrev_arb_ys
-  assert_LiFtEr_true  example_1b on_xs_arb_ys
-  assert_LiFtEr_false example_1b on_itrev_arb_ys
-  assert_LiFtEr_true  example_2  on_xs_arb_ys
-  assert_LiFtEr_true  example_3  on_xs_arb_ys
-  assert_LiFtEr_true  example_4  on_xs_arb_ys
-  assert_LiFtEr_true  example_5  on_xs_arb_ys
+  assert_LiFtEr_true  example_1a model_prf
+  assert_LiFtEr_false example_1a bad_non_prf
+  assert_LiFtEr_true  example_1b model_prf
+  assert_LiFtEr_false example_1b bad_non_prf
+  assert_LiFtEr_true  example_2  model_prf
+  assert_LiFtEr_false example_2  bad_non_prf
+  assert_LiFtEr_true  example_3  model_prf
+  assert_LiFtEr_false example_3  bad_non_prf
+  assert_LiFtEr_true  example_3  alt_prf
+  assert_LiFtEr_true  example_4  model_prf
+  assert_LiFtEr_false example_4  bad_non_prf
+  assert_LiFtEr_true  example_4  alt_prf
+  assert_LiFtEr_true  example_5  model_prf
+  assert_LiFtEr_true  example_5  bad_non_prf (*This is a little unfortunate: example_5 cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_true  example_5  alt_prf
+  assert_LiFtEr_true  example_6a model_prf
+  assert_LiFtEr_true  example_6a bad_non_prf (*This is a little unfortunate: example_5 cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_true  example_6a alt_prf
+  assert_LiFtEr_true  example_6b model_prf
+  assert_LiFtEr_true  example_6b bad_non_prf (*This is a little unfortunate: example_5 cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_true  example_6b alt_prf
   apply(induction xs arbitrary: ys)
    apply(auto)
   done
@@ -202,7 +218,7 @@ val official_solution_for_map_sep_equals_sep_map =
 Ind_Mods
  {ons   = [Ind_On  (Print "a"), Ind_On  (Print "xs")],
   arbs  = [],
-  rules = [Ind_Rule "Induction_Demo.sep.induct"]
+  rules = [Ind_Rule "sep.induct"]
   }: ind_mods;
 
 val only_for_test =
@@ -223,7 +239,7 @@ lemma "map f (sep a xs) = sep (f a) (map f xs)"
   assert_LiFtEr_true example_3 on_a_xs_rule_sep
   assert_LiFtEr_true example_4 on_a_xs_rule_sep
   assert_LiFtEr_true example_5 on_a_xs_rule_sep
-  assert_LiFtEr_true example_6 on_sep_a_xs_arb_xs
+  assert_LiFtEr_true example_6b on_sep_a_xs_arb_xs
   apply(induction a xs rule: Induction_Demo.sep.induct)
     apply auto
   done

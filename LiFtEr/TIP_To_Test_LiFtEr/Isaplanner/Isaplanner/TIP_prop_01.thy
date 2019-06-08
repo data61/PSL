@@ -149,9 +149,8 @@ val test_Print_Is =
     (Some_Trm (Trm 1,
        Trm 1 Is_Printed_As "TIP_prop_01.drop n xs"))
   And
-    (Not (*Print does not contain redundant parentheses.*)
       (Some_Trm (Trm 1,
-         Trm 1 Is_Printed_As "(TIP_prop_01.drop n xs)")))
+         Trm 1 Is_Printed_As "(TIP_prop_01.drop n xs)"))(* The parentheses will be removed by Isabelle_Utils.normalize_trm_as_string.*)
   And
     (*For some reasons, Print uses a short name for "x".         *)
     (*==> Because there is no constant previously defined as "x".*)

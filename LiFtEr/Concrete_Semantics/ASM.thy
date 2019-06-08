@@ -42,6 +42,55 @@ lemma exec_append_alt_proof:
    apply (auto)
   done
 
+ML{* (*Arguments for the induct method to attack "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)". *)
+local
+
+open LiFtEr;
+
+in
+
+(* Official solution by Tobias Nipkow and Gerwin Klein. *)
+val model_prf_for_exec_append =
+Ind_Mods
+ {ons   = [Ind_On  (Print "is1")],
+  arbs  = [Ind_Arb (Print "stk")],
+  rules = []
+  }: ind_mods;
+
+(* Alternative solution found by Yutaka Nagashima. *)
+val alt_prf_for_exec_append =
+Ind_Mods
+ {ons   = [Ind_On  (Print "is1"), Ind_On  (Print "s"), Ind_On  (Print "stk")],
+  arbs  = [],
+  rules = [Ind_Rule "ASM.exec.induct"]
+  }: ind_mods;
+
+end
+*}
+setup{* Apply_LiFtEr.update_ind_mod "model_prf_for_exec_append" model_prf_for_exec_append; *}
+setup{* Apply_LiFtEr.update_ind_mod "alt_prf_for_exec_append"   alt_prf_for_exec_append       ; *}
+
+(* test LiFtEr assertions *)
+lemma exec_append_alt_proof:
+  "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"
+  assert_LiFtEr_true  example_1a model_prf_for_exec_append
+  assert_LiFtEr_true  example_1b model_prf_for_exec_append
+  assert_LiFtEr_true  example_1a alt_prf_for_exec_append
+  assert_LiFtEr_true  example_1b alt_prf_for_exec_append
+  assert_LiFtEr_true  example_2  model_prf_for_exec_append
+  assert_LiFtEr_true  example_2  alt_prf_for_exec_append
+  assert_LiFtEr_true  example_3  model_prf_for_exec_append
+  assert_LiFtEr_true  example_3  alt_prf_for_exec_append
+  assert_LiFtEr_true  example_4  model_prf_for_exec_append
+  assert_LiFtEr_true  example_4  alt_prf_for_exec_append
+  assert_LiFtEr_true  example_5  model_prf_for_exec_append
+  assert_LiFtEr_true  example_5  alt_prf_for_exec_append
+  assert_LiFtEr_true  example_6a model_prf_for_exec_append
+  assert_LiFtEr_true  example_6a alt_prf_for_exec_append
+  assert_LiFtEr_true  example_6b model_prf_for_exec_append
+  assert_LiFtEr_true  example_6b alt_prf_for_exec_append
+  oops
+
 subsection "Compilation"
 
 fun comp :: "aexp \<Rightarrow> instr list" where
