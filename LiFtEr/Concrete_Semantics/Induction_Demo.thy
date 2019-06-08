@@ -69,14 +69,14 @@ val all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete =
 Imply
  Some_Trm (Trm 1,
   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-   All_Ind (Trm 2,
-     Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
-       Is_Recursive_Cnst (Trm_Occ 1)
-      And
-      (Some_Numb (Numb 1,
+    Is_Recursive_Cnst (Trm_Occ 1)
+   And
+    All_Ind (Trm 2,
+      Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+       Some_Numb (Numb 1,
          Pattern (Numb 1, Trm_Occ 1, All_Constr)
         And
-         Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1)))))));
+         Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1))))));
 
 (* Example 5 *)
 val all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order =
@@ -90,9 +90,9 @@ Imply
     (All_Ind (Trm 2,
      (Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
        Some_Numb (Numb 1,
-        (Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1)
+         Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1)
         And
-        (Trm 2 Is_Nth_Ind Numb 1))))))))));
+        (Trm 2 Is_Nth_Ind Numb 1)))))))));
 
 (* Example 6 *)
 val ind_is_not_arb =
@@ -103,22 +103,14 @@ All_Arb (Trm 1,
 val vars_in_ind_terms_are_generalized =
  Some_Ind (Trm 1,
   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-    Some_Trm (Trm 2,
+   (All_Trm (Trm 2,
      Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
-        (Trm_Occ 2 Is_In_Trm_Loc Trm_Occ 1)
+       ((Trm_Occ 2 Is_In_Trm_Loc Trm_Occ 1)
        And
-        Is_Free (Trm_Occ 2)))))
-Imply
- Some_Ind (Trm 1,
-  Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-    Some_Trm (Trm 2,
-     Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
-        (Trm_Occ 2 Is_In_Trm_Loc Trm_Occ 1)
-       And
-        Is_Free (Trm_Occ 2)
-       And
-        Some_Arb (Trm 3,
-         Are_Same_Trm (Trm 2, Trm 3))))));
+        Is_Free (Trm_Occ 2))
+      Imply
+       Some_Arb (Trm 3,
+        Are_Same_Trm (Trm 2, Trm 3)))))));
 
 val Example6 = ind_is_not_arb And vars_in_ind_terms_are_generalized;
 
@@ -155,11 +147,19 @@ Ind_Mods
   rules = []
   }: ind_mods;
 
+val alt_prf =
+Ind_Mods
+ {ons   = [Ind_On  (Print "xs"), Ind_On (Print "ys")],
+  arbs  = [],
+  rules = [Ind_Rule "Induction_Demo.itrev.induct"]
+  }: ind_mods;
+
 end;
 *}
 
 setup{* Apply_LiFtEr.update_ind_mod "on_xs_arb_ys" official_solution_for_itrev_equals_rev; *}
-setup{* Apply_LiFtEr.update_ind_mod "on_itrev_arb_ys" bad_answer_for_itrev_equals_rev       ; *}
+setup{* Apply_LiFtEr.update_ind_mod "on_itrev_arb_ys" bad_answer_for_itrev_equals_rev    ; *}
+setup{* Apply_LiFtEr.update_ind_mod "on_xs_ys_rule_itrev" alt_prf                        ; *}
 
 (*Model proof by Nipkow et.al.*)
 lemma "itrev xs ys = rev xs @ ys"

@@ -67,7 +67,6 @@ apply(induction rule: ev.induct)
 apply arith
 done
 
-
 subsection{*Inductive definition of the reflexive transitive closure *}
 
 inductive
