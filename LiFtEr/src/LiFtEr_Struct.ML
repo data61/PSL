@@ -208,7 +208,30 @@ fun update_name_space (new_trm    : name_subspace) IDTyp_Trm     (Name_Space {tr
   | update_name_space (new_numb   : name_subspace) IDTyp_Numb    (Name_Space {trm, trm_occ, rule, ...} : name_space) = Name_Space {trm = trm,     trm_occ = trm_occ,     rule = rule,     numb = new_numb}: name_space;
 
 (*TODO: numb_domain should not rely on a magic number, 30.*)
-val numb_domain = List.tabulate (30, I) |> Dom_Numb: domain;
+fun pst_to_numb_of_subtrms  (pst:Proof.state) =
+  let
+    val {subgoals, usings} = pst_to_abs_lifter_pst pst                                                    : lifter_pst;
+    val numbs_of_subtrms   = map (length o Path_Table.keys o #path_to_unode_aux_table) (subgoals @ usings): ints;
+    val numb_of_subtrms    = fold (curry (op +)) numbs_of_subtrms 0                                       : int;
+  in
+    numb_of_subtrms
+  end;
+
+fun pst_to_numb_of_max_arity (pst:Proof.state) =
+  let
+    val subgoals        = Isabelle_Utils.pst_to_subgs pst                         : terms;
+    val chained_terms   = Isabelle_Utils.pstate_to_chained_facts_as_terms pst     : terms;
+    val types           = map (fn trm => Term.add_consts trm []) (subgoals @ chained_terms)
+                       |> flat |> map snd                                         : typ list;
+    val arities         = map Isabelle_Utils.count_numb_of_args_of_fun_typ types  : ints;
+    val max_arity_opt   = Utils.ints_to_max_option arities: int option            : int option;
+    val max_arity       = if is_none max_arity_opt   then 0 else the max_arity_opt: int;
+  in
+    max_arity
+  end;
+
+fun pst_to_max_numb    (pst:Proof.state) = Int.max (pst_to_numb_of_subtrms pst, pst_to_numb_of_max_arity pst): int;
+fun pst_to_numb_domain (pst:Proof.state) = List.tabulate (pst_to_max_numb pst, I) |> Dom_Numb                                 : domain;
 
 fun ind_mods_to_on_domain   (LU.Ind_Mods {ons,...  }:LU.ind_mods) = map  LU.dest_induct_on                ons   |> Dom_On  : domain;
 fun ind_mods_to_arb_domain  (LU.Ind_Mods {arbs,... }:LU.ind_mods) = map  LU.dest_induct_arb               arbs  |> Dom_Arb : domain;
@@ -257,7 +280,7 @@ fun pst_to_name_domains (pst:Proof.state) (ind_mods:LU.ind_mods): name_domains =
    on_domain      = ind_mods_to_on_domain   ind_mods,
    arb_domain     = ind_mods_to_arb_domain  ind_mods,
    rule_domain    = ind_mods_to_rule_domain ind_mods,
-   numb_domain    = numb_domain};
+   numb_domain    = pst_to_numb_domain pst};
 
 fun no_name_collision (Name_Space name_space: name_space) (name: name) =
   let

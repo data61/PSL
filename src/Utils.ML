@@ -448,7 +448,7 @@ sig
   val has_recursive_simp_about_const_names        : Proof.context -> strings -> bool;
   val has_recursive_simp_about_const_name         : Proof.context -> string -> bool;
   val has_recursive_psimp_about_const_name        : Proof.context -> string -> bool;
-  val clean_trm_as_string                         : Proof.context -> string -> string;
+  val normalize_trm_as_string                     : Proof.context -> string -> string;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -730,7 +730,7 @@ fun trms_have_cname (cname:string) (trms:terms) =
 
 fun trm_has_prop (trm:term) =
   let
-    val cnames = Term.add_consts trm [] |> map fst: strings;
+    val cnames = Term.add_const_names trm []: strings;
     val these_consts_make_prop = ["Pure.imp", "Pure.all", "Pure.conjunction", "Pure.eq"]: strings;
   in
     Utils.a_member (op =) these_consts_make_prop cnames: bool
@@ -885,7 +885,7 @@ fun has_recursive_psimp_about_const_name (ctxt:Proof.context) (cname:string) =
     val has_recursive_psimp = List.exists ((fn trm => is_recursive_eq_about_cosnt_name trm cname)) cncls_as_props;
   in has_recursive_psimp end;
 
-fun clean_trm_as_string (ctxt:Proof.context) (trm_as_string:string) =
+fun normalize_trm_as_string (ctxt:Proof.context) (trm_as_string:string) =
     Syntax.read_term ctxt trm_as_string |> trm_to_string ctxt: string;
 
 end;
