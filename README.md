@@ -1,16 +1,13 @@
 - *New!* The directory `LiFtEr` contains a working prototype of our domain-specific language to implement induction heuristics.
-- *New!* The directory `MeLoId` is still under development. Upon success, it should implent a mechanism for **M**achine **L**earning **I**nduction.
 - **This branch is under active development. Please use [release v0.1.2-alpha PSL, PaMpeR, and PGT for Isabelle2018.](https://github.com/data61/PSL/releases/tag/v0.1.2-alpha), which is the latest stable version.**
-- **Please import PaMpeR/PaMpeR.thy to your theory file to elicit recommendations from PaMpeR.** 
-- **More information about PaMpeR is provided in PSL/PaMpeR/README.md.**
 
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for Isabelle**2018**. Note that Isabelle2016, Isabelle2016-1, Isabelle2017 are no longer supported.
+**try_hard**, for [Isabelle201**8**](https://isabelle.in.tum.de/website-Isabelle2018/index.html) not Isabelle201**9**. We plant to support Isabelle2019 soon.
 
 ## Installation
-1. Install [Isabelle2018](https://isabelle.in.tum.de/).
+1. Install [Isabelle2018](https://isabelle.in.tum.de/website-Isabelle2018/index.html).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Then, Users can install PSL and try_hard by importing *.PSL.thy* to their theory files
    with the Isabelle keyword, **imports**.
@@ -87,7 +84,7 @@ We have three academic papers describing the ideas implemented in this project.
 
 We presented the final goal of this project at [AITP2017](http://aitp-conference.org/2017/). Our position paper "Towards Smart Proof Search for Isabelle" is available at [arXiv](https://arxiv.org/abs/1701.03037).
 
-We are currently developing ``MiLkMaId``, an extension to `PSL` to improve its proof automation. Our position paper "Towards Machine Learning Mathematical Induction" is available at [arXiv](https://arxiv.org/abs/1812.04088). This abstract is under review at [AITP2019](http://aitp-conference.org/2019/).
+We are currently developing ``MeLoId``, an extension to `PSL` to improve its proof automation. Our position paper "Towards Machine Learning Induction" is available at [arXiv](https://arxiv.org/abs/1812.04088). We presented this abstract at [AITP2019](http://aitp-conference.org/2019/) and [LiVe2019](https://www7.in.tum.de/~kretinsk/LiVe2019.html).
 
 ## Citation
 - **PSL**:
