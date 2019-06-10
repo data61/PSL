@@ -94,12 +94,13 @@ Imply
         And
         (Trm 2 Is_Nth_Ind Numb 1)))))))));
 
-(* Example 6 *)
+(* Example 6-a *)
 val ind_is_not_arb =
 All_Arb (Trm 1,
  Not (Some_Ind (Trm 2,
   Are_Same_Trm (Trm 1, Trm 2))));
 
+(* Example 6-b *)
 val vars_in_ind_terms_are_generalized =
  Some_Ind (Trm 1,
   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
@@ -123,7 +124,7 @@ setup{* Apply_LiFtEr.update_assert "example_2"  all_ind_terms_have_an_occ_as_var
 setup{* Apply_LiFtEr.update_assert "example_3"  all_ind_vars_are_arguments_of_a_recursive_function;                      *}
 setup{* Apply_LiFtEr.update_assert "example_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete;*}
 setup{* Apply_LiFtEr.update_assert "example_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order;     *}
-setup{* Apply_LiFtEr.update_assert "example_6a" ind_is_not_arb;                                       *}
+setup{* Apply_LiFtEr.update_assert "example_6a" ind_is_not_arb;                                                          *}
 setup{* Apply_LiFtEr.update_assert "example_6b" vars_in_ind_terms_are_generalized;                                       *}
 
 ML{* (*Arguments for the induct method to attack "itrev xs ys = rev xs @ ys". *)
@@ -164,7 +165,6 @@ setup{* Apply_LiFtEr.update_ind_mod "model_prf"   official_solution_for_itrev_eq
 setup{* Apply_LiFtEr.update_ind_mod "bad_non_prf" bad_answer_for_itrev_equals_rev       ; *}
 setup{* Apply_LiFtEr.update_ind_mod "alt_prf"     alt_prf                               ; *}
 
-(*Model proof by Nipkow et.al.*)
 lemma "itrev xs ys = rev xs @ ys"
   (*The first argument to assert_LiFtEr_true is the identifier of a LiFtEr assertion, while
  *the second argument to assert_LiFtEr_true is the identifier of a combination of arguments to
@@ -182,20 +182,24 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_LiFtEr_false example_4  bad_non_prf
   assert_LiFtEr_true  example_4  alt_prf
   assert_LiFtEr_true  example_5  model_prf
-  assert_LiFtEr_true  example_5  bad_non_prf (*This is a little unfortunate: example_5 cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_true  example_5  bad_non_prf (*This is a little unfortunate: example_5 alone cannot detect bad_non_prf is inappropriate.*)
   assert_LiFtEr_true  example_5  alt_prf
   assert_LiFtEr_true  example_6a model_prf
-  assert_LiFtEr_true  example_6a bad_non_prf (*This is a little unfortunate: example_5 cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_true  example_6a bad_non_prf (*This is a little unfortunate: example_6a alone cannot detect bad_non_prf is inappropriate.*)
   assert_LiFtEr_true  example_6a alt_prf
   assert_LiFtEr_true  example_6b model_prf
-  assert_LiFtEr_true  example_6b bad_non_prf (*This is a little unfortunate: example_5 cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_true  example_6b bad_non_prf (*This is a little unfortunate: example_6b alone cannot detect bad_non_prf is inappropriate.*)
   assert_LiFtEr_true  example_6b alt_prf
-  apply(induction xs arbitrary: ys)
+  oops
+
+(*Model proof by Nipkow et.al.*)
+lemma model_prf:"itrev xs ys = rev xs @ ys"
+  apply(induct xs arbitrary: ys)
    apply(auto)
   done
 
 (*Alternative proof by Yutaka Nagashima.*)
-lemma "itrev xs ys = rev xs @ ys"
+lemma alt_prf:"itrev xs ys = rev xs @ ys"
   apply(induct xs ys rule:itrev.induct)
    apply auto
   done

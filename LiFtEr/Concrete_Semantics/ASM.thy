@@ -30,15 +30,15 @@ fun exec :: "instr list \<Rightarrow> state \<Rightarrow> stack \<Rightarrow> st
 
 value "exec [LOADI 5, LOAD ''y'', ADD] <''x'' := 42, ''y'' := 43> [50]"
 
-lemma exec_append[simp]:
+lemma exec_append_model_prf[simp]:
   "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"
-  apply(induction is1 arbitrary: stk)
+  apply(induct is1 arbitrary: stk)
    apply (auto)
   done
 
 lemma exec_append_alt_proof:
   "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"
-  apply(induction is1 s stk rule:exec.induct)
+  apply(induct is1 s stk rule:exec.induct)
    apply (auto)
   done
 
@@ -71,11 +71,11 @@ setup{* Apply_LiFtEr.update_ind_mod "model_prf_for_exec_append" model_prf_for_ex
 setup{* Apply_LiFtEr.update_ind_mod "alt_prf_for_exec_append"   alt_prf_for_exec_append       ; *}
 
 (* test LiFtEr assertions *)
-lemma exec_append_alt_proof:
+lemma exec_append:
   "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"
   assert_LiFtEr_true  example_1a model_prf_for_exec_append
-  assert_LiFtEr_true  example_1b model_prf_for_exec_append
   assert_LiFtEr_true  example_1a alt_prf_for_exec_append
+  assert_LiFtEr_true  example_1b model_prf_for_exec_append
   assert_LiFtEr_true  example_1b alt_prf_for_exec_append
   assert_LiFtEr_true  example_2  model_prf_for_exec_append
   assert_LiFtEr_true  example_2  alt_prf_for_exec_append
