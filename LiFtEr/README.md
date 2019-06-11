@@ -1,4 +1,6 @@
-**Message to APLAS2019 reviewers: the following two files contain the examples presented in our paper submitted at APLAS2019:Concrete_Semantics/Induction_Demo.thy and Concrete_Semantics/ASM.thy**
+**Message to APLAS2019 reviewers: the following two files contain the examples presented in our paper submitted at APLAS2019:**
+- LiFtEr/Concrete_Semantics/Induction_Demo.thy, and
+- LiFtEr/Concrete_Semantics/ASM.thy
 
 # LiFtEr
 

@@ -777,18 +777,11 @@ fun is_typ_of_name (typ_name:string) (typ:typ) = try dest_Type typ <$> fst <$> e
 
 fun is_nat_typ (typ:typ) = is_typ_of_name "Nat.nat" typ;
 
-val _ = @{assert}      (@{term "x::nat"} |> dest_Free |> snd |> is_nat_typ);
-val _ = @{assert} (not (@{term "x::int"} |> dest_Free |> snd |> is_nat_typ));
-
 fun trm_has_nat_typ (trm:term) = Term.exists_type is_nat_typ trm: bool;
 
 fun trm_to_nats (trm:term) = trm_to_certain_var_free_const trm_has_nat_typ trm;
 
 fun is_fun_typ (typ:typ) = is_typ_of_name "fun" typ;
-
-val _ = @{assert}      (@{term "(\<and>)"} |> dest_Const |> snd |> is_fun_typ);
-val _ = @{assert} (not (@{term "x"} |> dest_Free  |> snd |> is_fun_typ));
-val _ = @{assert}      (@{term "x::int \<Rightarrow> bool"} |> dest_Free  |> snd |> is_fun_typ);
 
 fun trm_has_fun_typ (trm:term) = Term.exists_type is_fun_typ trm: bool;
 
@@ -799,33 +792,17 @@ fun is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ (in
   | is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ Const ("Orderings.bot_class.bot", _))                                      = true
   | is_record_trm  _                                                                                                                                    = false;
 
-val _ = @{assert} (is_record_trm @{term "{fieldA = True, fieldB = x}"});
-val _ = @{assert} (is_record_trm @{term "{fieldA = w}"});
-val _ = @{assert} (is_record_trm @{term "{x, y}"} |> not);
-val _ = @{assert} (is_record_trm @{term "f {fieldA = w}"} |> not);
-
 fun is_set_typ (typ:typ) = is_typ_of_name "Set.set" typ;
-
-val _ = @{assert}      (@{term "xs::int set" } |> dest_Free |> snd |> is_set_typ);
-val _ = @{assert} (not (@{term "xs::int list"} |> dest_Free |> snd |> is_set_typ));
 
 fun trm_has_set_typ (trm:term) = Term.exists_type is_set_typ trm: bool;
 
-val _ = @{assert} (trm_has_set_typ @{term "f {a,b,c}"});
-
 fun is_int_typ (typ:typ) = is_typ_of_name "Int.int" typ;
-
-val _ = @{assert}      (@{term "x::int"} |> dest_Free |> snd |> is_int_typ);
-val _ = @{assert} (not (@{term "x::nat"} |> dest_Free |> snd |> is_int_typ));
 
 fun trm_has_int_typ (trm:term) = Term.exists_type is_int_typ trm: bool;
 
 fun trm_to_sets (trm:term) = trm_to_certain_var_free_const trm_has_set_typ trm;
 
 fun is_list_typ (typ:typ) = is_typ_of_name "List.list" typ;
-
-val _ = @{assert}      (@{term "xs::int list"} |> dest_Free |> snd |> is_list_typ);
-val _ = @{assert} (not (@{term "xs::int set" } |> dest_Free |> snd |> is_list_typ));
 
 fun trm_has_list_typ (trm:term) = Term.exists_type is_list_typ trm: bool;
 
@@ -851,12 +828,6 @@ fun count_numb_of_args_of_fun_typ' (fun_typ:typ) (acc:int) = case try dest_funT 
 | SOME (_(*domain_typ*), range_typ) => count_numb_of_args_of_fun_typ' range_typ (acc + 1);
 
 fun count_numb_of_args_of_fun_typ (typ:typ) = count_numb_of_args_of_fun_typ' typ 0;
-
-val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "(\<and>)"}         |> dest_Const |> snd) = 2);
-val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "hd" }         |> dest_Const |> snd) = 1);
-val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "(@)"}         |> dest_Const |> snd) = 2);
-val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "foldl"}       |> dest_Const |> snd) = 3);
-val _ = @{assert} (count_numb_of_args_of_fun_typ (@{term "list_update"} |> dest_Const |> snd) = 3);
 
 (* TODO: remove code-duplication with PaMpeR/Assertion.ML *)
 fun is_recursive_eq_about_cosnt_name (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) (cname:string) =
