@@ -23,7 +23,7 @@ fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
   "itrev [] ys = ys" |
   "itrev (x#xs) ys = itrev xs (x#ys)"
 
-ML{* (* Example assertions in LiFtEr. *)
+ML\<open> (* Example assertions in LiFtEr. *)
 local
 
 open LiFtEr_Util LiFtEr;
@@ -116,18 +116,18 @@ val vars_in_ind_terms_are_generalized =
 val Example6 = ind_is_not_arb And vars_in_ind_terms_are_generalized;
 
 end;
-*}
+\<close>
 
-setup{* Apply_LiFtEr.update_assert "example_1a" all_ind_term_are_non_const_wo_syntactic_sugar;                           *}
-setup{* Apply_LiFtEr.update_assert "example_1b" all_ind_term_are_non_const_with_syntactic_sugar;                         *}
-setup{* Apply_LiFtEr.update_assert "example_2"  all_ind_terms_have_an_occ_as_variable_at_bottom;                         *}
-setup{* Apply_LiFtEr.update_assert "example_3"  all_ind_vars_are_arguments_of_a_recursive_function;                      *}
-setup{* Apply_LiFtEr.update_assert "example_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete;*}
-setup{* Apply_LiFtEr.update_assert "example_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order;     *}
-setup{* Apply_LiFtEr.update_assert "example_6a" ind_is_not_arb;                                                          *}
-setup{* Apply_LiFtEr.update_assert "example_6b" vars_in_ind_terms_are_generalized;                                       *}
+setup\<open> Apply_LiFtEr.update_assert "example_1a" all_ind_term_are_non_const_wo_syntactic_sugar                           \<close>
+setup\<open> Apply_LiFtEr.update_assert "example_1b" all_ind_term_are_non_const_with_syntactic_sugar                         \<close>
+setup\<open> Apply_LiFtEr.update_assert "example_2"  all_ind_terms_have_an_occ_as_variable_at_bottom                         \<close>
+setup\<open> Apply_LiFtEr.update_assert "example_3"  all_ind_vars_are_arguments_of_a_recursive_function                      \<close>
+setup\<open> Apply_LiFtEr.update_assert "example_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete\<close>
+setup\<open> Apply_LiFtEr.update_assert "example_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order     \<close>
+setup\<open> Apply_LiFtEr.update_assert "example_6a" ind_is_not_arb                                                          \<close>
+setup\<open> Apply_LiFtEr.update_assert "example_6b" vars_in_ind_terms_are_generalized                                       \<close>
 
-ML{* (*Arguments for the induct method to attack "itrev xs ys = rev xs @ ys". *)
+ML\<open> (*Arguments for the induct method to attack "itrev xs ys = rev xs @ ys". *)
 local
 
 open LiFtEr;
@@ -159,11 +159,11 @@ Ind_Mods
   }: ind_mods;
 
 end;
-*}
+\<close>
 
-setup{* Apply_LiFtEr.update_ind_mod "model_prf"   official_solution_for_itrev_equals_rev; *}
-setup{* Apply_LiFtEr.update_ind_mod "bad_non_prf" bad_answer_for_itrev_equals_rev       ; *}
-setup{* Apply_LiFtEr.update_ind_mod "alt_prf"     alt_prf                               ; *}
+setup\<open> Apply_LiFtEr.update_ind_mod "model_prf"   official_solution_for_itrev_equals_rev \<close>
+setup\<open> Apply_LiFtEr.update_ind_mod "bad_non_prf" bad_answer_for_itrev_equals_rev        \<close>
+setup\<open> Apply_LiFtEr.update_ind_mod "alt_prf"     alt_prf                                \<close>
 
 lemma "itrev xs ys = rev xs @ ys"
   (*The first argument to assert_LiFtEr_true is the identifier of a LiFtEr assertion, while
@@ -204,14 +204,14 @@ lemma alt_prf:"itrev xs ys = rev xs @ ys"
    apply auto
   done
 
-subsection{* Computation Induction *}
+subsection\<open> Computation Induction \<close>
 
 fun sep :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list" where
   "sep a [] = []" |
   "sep a [x] = [x]" |
   "sep a (x#y#zs) = x # a # sep a (y#zs)"
 
-ML{* (*Arguments for the induct method to attack "map f (sep a xs) = sep (f a) (map f xs)". *)
+ML\<open> (*Arguments for the induct method to attack "map f (sep a xs) = sep (f a) (map f xs)". *)
 local
 
 open LiFtEr;
@@ -233,10 +233,10 @@ Ind_Mods
   }: ind_mods;
 
 end;
-*}
+\<close>
 
-setup{* Apply_LiFtEr.update_ind_mod "on_a_xs_rule_sep"   official_solution_for_map_sep_equals_sep_map; *}
-setup{* Apply_LiFtEr.update_ind_mod "on_sep_a_xs_arb_xs" only_for_test;                                *}
+setup\<open> Apply_LiFtEr.update_ind_mod "on_a_xs_rule_sep"   official_solution_for_map_sep_equals_sep_map \<close>
+setup\<open> Apply_LiFtEr.update_ind_mod "on_sep_a_xs_arb_xs" only_for_test                                \<close>
 
 lemma "map f (sep a xs) = sep (f a) (map f xs)"
   assert_LiFtEr_true example_2 on_a_xs_rule_sep

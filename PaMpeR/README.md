@@ -1,10 +1,13 @@
 # PaMpeR (Proof Method Recommendation system)
 
+Waring!
+PaMpeR's data-extraction mechanism, preprocessor, decision tree construction algorithm, and
+cross-validation framework have not been updated for Isabelle2019 yet.
+
 ## Installation
 1. Install [Isabelle](https://isabelle.in.tum.de/).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
-3. Move to the PaMpeR branch (https://github.com/data61/PSL/tree/PaMpeR).
-4. Then, Users can install PaMpeR by importing *.PaMpeR/PaMpeR.thy* to their theory files
+3. Then, Users can install PaMpeR by importing *.PaMpeR/PaMpeR.thy* to their theory files
    with the Isabelle keyword, **imports**.
    
 ## Three PaMpeR Commands

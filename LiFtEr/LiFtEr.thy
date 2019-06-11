@@ -34,6 +34,6 @@ ML_file "src/Apply_LiFtEr_Sig.ML"
 ML_file "src/Apply_LiFtEr_Struct.ML"
 ML_file "src/LiFtEr_Assertion_Struct.ML"
 
-ML{* Apply_LiFtEr.activate (); *}
+ML\<open> Apply_LiFtEr.activate (); \<close>
 
 end

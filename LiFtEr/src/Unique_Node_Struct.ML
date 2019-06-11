@@ -211,8 +211,8 @@ type paths = path list;
 (* path_ord *)(*TODO*)
 fun path_ord (xs, ys) =
   let
-    fun ints_compare'  []     (y::ys) EQUAL = GREATER
-      | ints_compare' (x::xs)  []     EQUAL = LESS
+    fun ints_compare'  []     (_::_)  EQUAL = GREATER
+      | ints_compare' (_::_)   []     EQUAL = LESS
       | ints_compare' (x::xs) (y::ys) EQUAL = ints_compare' xs ys (Int.compare (x, y))
       | ints_compare'  _       _      ord   = ord;
   in

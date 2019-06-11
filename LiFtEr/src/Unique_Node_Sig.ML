@@ -27,6 +27,10 @@ sig
 (** term as syntax tree **)
 type print;
 
+val dest_Print    : print -> string;
+val is_subprint_of: print -> print -> bool;
+val same_prints   : print -> print -> bool;
+
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  
   C_Prnt of string     * typ              * print (*Const*)

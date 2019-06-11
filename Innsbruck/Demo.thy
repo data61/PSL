@@ -69,12 +69,12 @@ ML‹ fun show_tac (ctxt:Proof.context) (thm:thm) =
 ›
 
 lemma "w ∧ x ⟹ y ∧ z ⟹ z"
-  apply(tactic {* show_tac @{context} *})
+  apply(tactic ‹ show_tac @{context} ›)
   apply(erule conjE)
   back
-  apply(tactic {* show_tac @{context} *})
+  apply(tactic ‹ show_tac @{context} ›)
   apply assumption
-  apply(tactic {* show_tac @{context} *})
+  apply(tactic ‹ show_tac @{context} ›)
   done
 
 end

@@ -1,3 +1,5 @@
+**Message to APLAS2019 reviewers: the following two files contain the examples presented in our paper submitted at APLAS2019:Concrete_Semantics/Induction_Demo.thy and Concrete_Semantics/ASM.thy**
+
 # LiFtEr
 
 LiFtEr is a domain-specific language developed to extract features of promising applications of induction in Isabelle/HOL.

@@ -113,7 +113,7 @@ datatype id =
 | ID_Numb    of int;
 
 fun print_id (ID_Trm (Print print))      = "ID_Trm " ^ print (*TODO*)
-  | print_id (ID_Trm_Occ p_n_l)          = "ID_Trm_Occ"
+  | print_id (ID_Trm_Occ _)              = "ID_Trm_Occ"
   | print_id (ID_Rule (Rule_Name rname)) = "ID_Rule " ^ rname
   | print_id (ID_Numb int)               = "ID_Numb " ^ Int.toString int;
 
@@ -163,21 +163,13 @@ datatype name_domains = Name_Domains of
    rule_domain   : domain,
    numb_domain   : domain};
 
-val empty_domain (*TODO: This should not be used*) = Name_Domains
-  {trm_domain     = Dom_Trm [],
-   trm_occ_domain = Dom_Trm_Occ [],
-   on_domain      = Dom_On [],
-   arb_domain     = Dom_Arb [],
-   numb_domain    = Dom_Rule [],
-   rule_domain    = Dom_Numb []}: name_domains;
-
 (*TODO: check name collisions before evaluation. Use no_name_collision.*)
 val no_overlad = undefined: assrt -> bool;
 
 fun pst_to_abs_lifter_pst (pst:Proof.state): lifter_pst =
   let
     (*TODO: use no_overload*)
-    val no_overlad = undefined: assrt -> bool;
+    val _ = undefined: assrt -> bool;
   in
     Term_Table.pst_to_lifter_pst pst
   end;
@@ -765,11 +757,10 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
       | eval' (Is_Atom trm_occ)                                  (name_space:name_space) = eval' (Is_Cnst trm_occ Or Is_Free trm_occ Or Is_Bound trm_occ)   name_space
       | eval' (Are_Diff_Numb (numb1, numb2))                     (name_space:name_space) = eval' (Not (Are_Same_Numb (numb1, numb2)))                                name_space
       | eval' (Are_Diff_Str  (trm_occ1, trm_occ2))               (name_space:name_space) = eval' (Not (Are_Same_Str (trm_occ1, trm_occ2)))                     name_space
-      | eval' (Has_Typ       (trm_occ:trm_occ, hol_typ:hol_typ)) (name_space:name_space) =
+      | eval' (Has_Typ       (_:trm_occ, _:hol_typ)) (_:name_space) =
         let
-          val desugared_assert = ();
         in
-          (*TODO*)true
+          (*TODO*)undefined ()
         end
       | eval' (Is_At_Deepest (trm_occ:trm_occ)) (name_space:name_space) =
         (* TODO:

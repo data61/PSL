@@ -4,7 +4,7 @@ begin
 
 ML_file "../src/Utils.ML" (*TODO, FIXME: Utils.ML has test cases that involve constants and types defined in Main, but not in Pure*)
 
-ML{* signature DATABASE =
+ML\<open> signature DATABASE =
 sig
   type used          = bool;
   type feature_name  = int;
@@ -17,9 +17,9 @@ sig
   val parse_database  : meth_name -> database;
   val parse_databases : unit -> database list;
 end;
-*}
+\<close>
 
-ML{* structure Database:DATABASE =
+ML\<open> structure Database:DATABASE =
 struct
 
 type used          = bool;
@@ -76,6 +76,6 @@ fun parse_database (meth_name:string) =
 fun parse_databases () = get_meth_names () |> map parse_database;
 
 end
-*}
+\<close>
 
 end

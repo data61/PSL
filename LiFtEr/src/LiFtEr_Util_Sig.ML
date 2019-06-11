@@ -13,7 +13,7 @@ type     path   = ints;
 datatype print  = Print of string;
 type     prints = print list;
 val same_prints           : print -> print -> bool;
-val same_normalized_prints: print -> print -> bool;
+val same_normalized_prints: Proof.context -> print -> print -> bool;
 val path_to_string        : path -> string;
 
 val dest_print           : print -> string;

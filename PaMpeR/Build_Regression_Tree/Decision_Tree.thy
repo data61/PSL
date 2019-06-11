@@ -11,7 +11,7 @@ ML_file "../../src/Utils.ML"
 ML_file "../../src/Parser_Combinator.ML"
 
 (* Let us assume that the feature vector is a vector of boolean values for now. *)
-ML{* signature REGRESSION_TREE =
+ML\<open> signature REGRESSION_TREE =
 sig
   type feature_name   = Database.feature_name;
   type feature_value  = bool;
@@ -47,9 +47,9 @@ sig
   val important_features:        feature_values -> final_tree -> feature_name list;
   val used_features:             final_tree list -> feature_name list;
 end;
-*}
+\<close>
 
-ML{* structure Regression_Tree: REGRESSION_TREE = struct
+ML\<open> structure Regression_Tree: REGRESSION_TREE = struct
 
 type feature_name     = Database.feature_name;
 type feature_value    = bool;
@@ -270,6 +270,6 @@ fun used_features (ftrees:final_tree list) =
     map used_features' ftrees |> flat |> distinct (op =)
   end;
 end;
-*}
+\<close>
 
 end

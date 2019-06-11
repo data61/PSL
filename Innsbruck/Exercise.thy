@@ -70,35 +70,35 @@ theorem property14 :
 
 ML_file "Constructor_Class.ML"
 
-ML{* structure List_Min : MONAD_MIN =
+ML‹ structure List_Min : MONAD_MIN =
 struct
   type 'a monad     = 'a list;
   fun return x      = [x];
   fun bind seq func = flat (map func seq);
 end;
-*}
+\<close>
 
-ML{* structure ListCC = mk_Monad (List_Min); *}
+ML‹ structure ListCC = mk_Monad (List_Min); \<close>
 
 (* Some monad functions become available *)
-ML{* ListCC.>>=; *}
-ML{* ListCC.>=>; *}
-ML{* ListCC.join;*}
+ML‹ ListCC.>>=; ›
+ML‹ ListCC.>=>; ›
+ML‹ ListCC.join;›
 
 (* Since every monad is an applicative, ListCC has applicative functions. *)
-ML{* ListCC.<*> *}
-ML{* ListCC.liftA *}
+ML‹ ListCC.<*>   ›
+ML‹ ListCC.liftA ›
 
 (* Since every applicative is a functor, ListCC has functor functions. *)
-ML{* ListCC.fmap *}
-ML{* ListCC.<$> *}
+ML‹ ListCC.fmap ›
+ML‹ ListCC.<$>  ›
 
-ML{* structure Seq_Min (*: MONAD_MIN*) =
+ML‹ structure Seq_Min (*: MONAD_MIN*) =
 struct
   type 'a monad     = 'a Seq.seq;
   (* TODO *)
 end;
-*}
+›
 
 (* If you define Seq_Min properly, mk_Monad can produce many auxiliary functions for Seq.seq. *)
 (*ML{* structure SeqCC = mk_Monad (Seq_Min); *}*)
@@ -107,7 +107,7 @@ end;
 (* TODO: Prove the following lemma using the tactic-method.
  *       The tactic-method takes a ML tactic of type "thm ⇒ thm Seq.seq" *)
 lemma "True ∨ False"
-  apply (tactic {* fn thm:thm => (*TODO: Change here*) Seq.single thm *})
+  apply (tactic ‹ fn thm:thm => (*TODO: Change here*) Seq.single thm ›)
   oops
 
 end

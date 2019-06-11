@@ -1,13 +1,16 @@
+- **Message to APLAS2019 reviewers: the following two files contain the examples presented in our paper submitted at APLAS2019:**
+   - LiFtEr/Concrete_Semantics/Induction_Demo.thy, and
+   - LiFtEr/Concrete_Semantics/ASM.thy
 - *New!* The directory `LiFtEr` contains a working prototype of our domain-specific language to implement induction heuristics.
 - **This branch is under active development. Please use [release v0.1.2-alpha PSL, PaMpeR, and PGT for Isabelle2018.](https://github.com/data61/PSL/releases/tag/v0.1.2-alpha), which is the latest stable version.**
 
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for [Isabelle201**8**](https://isabelle.in.tum.de/website-Isabelle2018/index.html) not Isabelle201**9**. We plant to support Isabelle2019 soon.
+**try_hard**, for [Isabelle201**9**](https://isabelle.in.tum.de) not [Isabelle201**8**](https://isabelle.in.tum.de/website-Isabelle2018/index.html).
 
 ## Installation
-1. Install [Isabelle2018](https://isabelle.in.tum.de/website-Isabelle2018/index.html).
+1. Install [Isabelle2019](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Then, Users can install PSL and try_hard by importing *.PSL.thy* to their theory files
    with the Isabelle keyword, **imports**.

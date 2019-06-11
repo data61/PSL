@@ -681,7 +681,7 @@ fun has_class_const goal _ _ = AU.fst_subg_has_const_of goal (String.isSubstring
 
 (** Assertions about the classification of terms (according to Spec_Rules.retrieve) in the first subgoal. **)
 (* ASSERT 22. checks if the first subgoal is an "Equational" problem or not. *)
-fun fst_subg_is_classified_as_Equational goal ctxt _ = AU.fst_subg_is_classified_as goal ctxt Spec_Rules.Equational;
+fun fst_subg_is_classified_as_Equational goal ctxt _ = AU.fst_subg_is_classified_as goal ctxt (Spec_Rules.Equational Spec_Rules.Unknown_Recursion);
 
 (* ASSERT 23. checks if the first subgoal is an "Inductive" problem or not. *)
 fun fst_subg_is_classified_as_Inductive goal ctxt _ = AU.fst_subg_is_classified_as goal ctxt Spec_Rules.Inductive;

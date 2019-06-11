@@ -42,7 +42,7 @@ lemma exec_append_alt_proof:
    apply (auto)
   done
 
-ML{* (*Arguments for the induct method to attack "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)". *)
+ML\<open> (*Arguments for the induct method to attack "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)". *)
 local
 
 open LiFtEr;
@@ -66,9 +66,9 @@ Ind_Mods
   }: ind_mods;
 
 end
-*}
-setup{* Apply_LiFtEr.update_ind_mod "model_prf_for_exec_append" model_prf_for_exec_append; *}
-setup{* Apply_LiFtEr.update_ind_mod "alt_prf_for_exec_append"   alt_prf_for_exec_append       ; *}
+\<close>
+setup\<open> Apply_LiFtEr.update_ind_mod "model_prf_for_exec_append" model_prf_for_exec_append\<close>
+setup\<open> Apply_LiFtEr.update_ind_mod "alt_prf_for_exec_append"   alt_prf_for_exec_append  \<close>
 
 (* test LiFtEr assertions *)
 lemma exec_append:
