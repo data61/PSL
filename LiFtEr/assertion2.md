@@ -67,7 +67,7 @@
    - This proof script is equivalent to `proof (induction "is" ds arbitrary:e rule:valid_index.induct)`.
    - But the generalization heuristic is applied to `tensor_vec_from_lookup ds e`.
    
-## The position of induction terms relative to a recursive function for a difference occurrence of the same recursive function.
+## The position of induction terms relative to a recursive function for a different occurrence of the same recursive function.
 
 ### Examples
 - `using this: x ≤ y y ≤ z goal (1 subgoal):  1. x ≤ z` line 53 in `Abs_Int_ITP2012/Collecting.thy`.
@@ -115,7 +115,7 @@
    - `apply(induction c c' arbitrary: S S' rule: le_acom.induct)`
    - line 390 in `Abs_Int_ITP2012/Abs_Int0.thy`.
    - This is induction on `S` and `S'` in `S ⊑ S'`.
-   - `c` and `c'` are also arguments of a difference occurrence of `⊑`.
+   - `c` and `c'` are also arguments of a differen occurrence of `⊑`.
    - Therefore, `c` and `c'` should be generalized.
    
 ## The variables on the other side of equation of induction terms.
