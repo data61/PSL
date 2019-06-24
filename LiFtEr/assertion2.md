@@ -320,6 +320,15 @@
    - `1. P ξ p`
    - `proof (induction "(ξ, p)" arbitrary: ξ p (*reachable.induct*))`
 
+### Other examples
+- `AWN/OInvariants.thy` line 64
+   - `lemma oreachable_pair_induct [consumes, case_names init other local]:`
+   - `using this:`
+   - `(σ, p) ∈ oreachable A S U`
+   - `goal (1 subgoal):`
+   - `1. P σ p`
+   - `proof (induction "(σ, p)" arbitrary: σ p (*rule: oreachable.induct*))`
+
 # Computation induction heuristics (a.k.a. recursion induction or functional induction)
 
   
