@@ -45,6 +45,17 @@
 - `lemma mono2_step: "c1 ≤ c2 ⟹ S1 ⊆ S2 ⟹ step S1 c1 ≤ step S2 c2"` line 155 in `Abs_Int_ITP2012/Collecting.thy`.
    - They probably focused on `c1 ≤ c2` when deciding induction terms. But they probably looked at `step S1 c1 ≤ step S2 c2` when deciding to generalize `S1` and `S2`.
 - `shows "tensor_vec_from_lookup ds e = v"` line 125 in `Deep_Learning/Tensor.thy`.
+- `NormByEval/NBE.thy` line 478
+   - `lemma subst_foldl[simp]:`
+   - `"subst σ (s ∙∙ ts) = (subst σ s) ∙∙ (map (subst σ) ts)"`
+   - `by (induct ts arbitrary: s) auto`
+   - where `∙∙` is defined as:
+      - `abbreviation foldl_At (infix "∙∙" 90) where`
+      - `"t ∙∙ ts ≡ foldl (∙) t ts"`
+   - and `foldl` is defined as:
+      - `primrec foldl :: "('b ⇒ 'a ⇒ 'b) ⇒ 'b ⇒ 'a list ⇒ 'b" where`
+      - `foldl_Nil:  "foldl f a [] = a" |
+      - `foldl_Cons: "foldl f a (x # xs) = foldl f (f a x) xs"`
    
 ## Generalization based on a bound variable in function definitions.
 
