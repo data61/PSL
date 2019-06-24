@@ -275,7 +275,7 @@
 - line 154 in `Bionmial_Queses/Binomial_Queue.thy`.
 - The occurrence of `xs` in the conclusion has `@` and `is_binqueue`, and both of them are defined recursively.
 
-## Terms of type constructors are more likely to be inducted on than terms of type variables of function types.
+## Terms of (recursive) type constructors are more likely to be inducted on than terms of type variables of function types.
 - Especially there is no argument in the `rule` field.
 
 ### Examples
