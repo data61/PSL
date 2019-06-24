@@ -288,4 +288,38 @@
    - `goal (1 subgoal): 1. P xs`
    - `proof (induct xs)`
    - The type of `P` is a function type, whereas the type of `xs` is `'a option list`.
+
+## If a constant `c` defined with the `inductive_set` keyword appears in a chained rule or assumption in the form similar to `x : c y z`, apply induction on `x`.
+
+### Example
+- `AWN/Invariants.thy` line 35
+   - `using this:`
+   - `(ξ, p) ∈ reachable A I`
+   - `goal (1 subgoal):`
+   - `1. P ξ p`
+   - `proof (induction "(ξ, p)" arbitrary: ξ p (*reachable.induct*))`
+   
+### Other examples
+- `AWN/OInvariants.thy` line 64
+   - `lemma oreachable_pair_induct [consumes, case_names init other local]:`
+   - `using this:`
+   - `(σ, p) ∈ oreachable A S U`
+   - `goal (1 subgoal):`
+   - `1. P σ p`
+   - `proof (induction "(σ, p)" arbitrary: σ p (*rule: oreachable.induct*))`
+
+# Rule induction heuristics
+
+## If a constant `c` defined with the `inductive_set` keyword appears in a chained rule or assumption in the form similar to `x : c y z`, apply rule induction `c.induct`.
+
+### Example
+- `AWN/Invariants.thy` line 35
+   - `using this:`
+   - `(ξ, p) ∈ reachable A I`
+   - `goal (1 subgoal):`
+   - `1. P ξ p`
+   - `proof (induction "(ξ, p)" arbitrary: ξ p (*reachable.induct*))`
+
+# Computation induction heuristics (a.k.a. recursion induction or functional induction)
+
   
