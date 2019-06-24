@@ -66,6 +66,14 @@
    - Note that the recursion induction is applied to `is` and `ds` in `is⊲ds` as `proof (induction arbitrary:e rule:valid_index.induct).
    - This proof script is equivalent to `proof (induction "is" ds arbitrary:e rule:valid_index.induct)`.
    - But the generalization heuristic is applied to `tensor_vec_from_lookup ds e`.
+- `Dependent_SIFUM_Type_Systems/Security.thy`
+   - line 115
+   - `lemma meval_sched_det:`
+   - `"meval_sched ns c c' ⟹ meval_sched ns c c'' ⟹ c' = c''"`
+   - `apply(induct ns arbitrary: c)`
+   - where the second clause of the definition of `meval_sched` is:
+      - `"meval_sched (n#ns) c c' = (∃ c''.  c ↝⇘n⇙ c'' ∧ meval_sched ns c'' c')"`
+      - Note that the existential quantifier of HOL uses `Abs`.
    
 ## The position of induction terms relative to a recursive function for a different occurrence of the same recursive function.
 
