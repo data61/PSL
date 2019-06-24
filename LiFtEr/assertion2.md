@@ -205,6 +205,12 @@
    - `using assms proof (induction p arbitrary: s a s')`
    - `p` appears as part of the second argument of `∈` in the assumption.
    - `s`, `a`, and `s'` appear as part of the first argument of `∈` in the assumption.
+
+- line 544 in `ConcurrentIMP/CIMP_lang.thy`
+   - `lemma at_decompose:`
+   - `"(c, ictxt, fctxt) ∈ decompose_com c0 ⟹ (∀l. atC c l ⟶ atC c0 l)"`
+   - `by (induct c0 arbitrary: c ictxt fctxt) fastforce+`
+   - where `decompose_com` is defined with the `fun` keyword.
    
 ## Generalize the second argument of `!`.
 
