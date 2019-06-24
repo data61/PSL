@@ -251,6 +251,19 @@
 ### Other examples
 - `exec_append[simp]: "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"` line 33 in `Concrete_Semantics/ASM.thy`.
 
+## Do not generalize bound variables.
+- Probably the heuristics would be more accurate if we focus on those bound variables that are acutually universally quantified.
+- This should not be too difficult because `*@{term"⋀m. m"}` is encoded as
+- `Const ("Pure.all", "(bool ⇒ prop) ⇒ prop") $ Abs ("m", "bool", Const ("HOL.Trueprop", "bool ⇒ prop") $ Bound 0): term`
+
+### Examples
+- line 62 in `Deep_Learning/Tensor.thy`
+   - `lemma valid_indexI:`
+   - `assumes "length is = length ds" and "⋀m. m<length ds ⟹ is!m < ds!m"`
+   - `shows "is ⊲ ds"`
+   - `using assms proof (induction "is" arbitrary:ds)`
+   - `m` is not generalized because it is a bound variable. (It is already generalized by the meta-universal quantifier.)
+
 # Induction term heuristics
 
 ## Induction on terms that have maximum number of recursive functions above them in the syntax tree.
@@ -275,16 +288,4 @@
    - `goal (1 subgoal): 1. P xs`
    - `proof (induct xs)`
    - The type of `P` is a function type, whereas the type of `xs` is `'a option list`.
-   
-## Do not generalize bound variables.
-- Probably the heuristics would be more accurate if we focus on those bound variables that are acutually universally quantified.
-- This should not be too difficult because `*@{term"⋀m. m"}` is encoded as
-- `Const ("Pure.all", "(bool ⇒ prop) ⇒ prop") $ Abs ("m", "bool", Const ("HOL.Trueprop", "bool ⇒ prop") $ Bound 0): term`
-
-### Examples
-- line 62 in `Deep_Learning/Tensor.thy`
-   - `lemma valid_indexI:`
-   - `assumes "length is = length ds" and "⋀m. m<length ds ⟹ is!m < ds!m"`
-   - `shows "is ⊲ ds"`
-   - `using assms proof (induction "is" arbitrary:ds)`
-   - `m` is not generalized because it is a bound variable. (It is already generalized by the meta-universal quantifier.)
+  
