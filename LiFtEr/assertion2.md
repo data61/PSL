@@ -197,7 +197,13 @@
 ## Generalize pointfree-style arguments.
 
 ### Examples
-- TODO
+- `Affine_Arithmetic/Counterclockwise.thy` line 199
+   - ` 1. list_all (le (fold min_for ys y)) (y # ys)`
+   - `proof (induct ys arbitrary: y)`
+   - where `fold` is defined as
+      - `primrec fold :: "('a ⇒ 'b ⇒ 'b) ⇒ 'a list ⇒ 'b ⇒ 'b" where`
+      - `fold_Nil:  "fold f [] = id" |`
+      - `fold_Cons: "fold f (x # xs) = fold f xs ∘ f x"`
 
 # Non-generalization heuristics
 
