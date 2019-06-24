@@ -331,4 +331,20 @@
 
 # Computation induction heuristics (a.k.a. recursion induction or functional induction)
 
+## Let f be a recursive function. If the definition of f is more complicated than having one equation for each constructor of some datatype, then properties of f are best proved via f.induct. (This heuristics appears in Concrete Semantics.)
+
+### Example
+- `Binomial-Queues/Binomial_Queue.thy` line 269.
+   - `lemma add_Some_not_Nil [simp]:`
+   - `"add (Some t) xs ≠ []"`
+   - `by (induct "Some t" xs rule: add.induct) simp_all`
+   - where `add` is defined
+      - `fun add :: "('a::linorder, 'b) bintree option ⇒ ('a, 'b) binqueue ⇒ ('a, 'b) binqueue"`
+      - `where`
+      - `  "add None xs = xs"`
+      - `| "add (Some t) [] = [Some t]"`
+      - `| "add (Some t) (None # xs) = Some t # xs"`
+      - `| "add (Some t) (Some r # xs) = None # add (Some (merge t r)) xs"`
+   - Note that the second parameter of `add` is complicated in the second and third clauses.
+
   
