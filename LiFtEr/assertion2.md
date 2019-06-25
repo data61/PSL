@@ -363,3 +363,19 @@
     - `⟹ env⦇x:A⦈⦇y:B⦈ ⊢ {n → [Fvar x,Fvar y]} t' : C)"`
     - `proof (induct (*e t C*) set:typing)`
     - where `e t C` does not change the behaviour.
+    
+# Heuristics for induction with `pred:`.
+
+## A constant defined by the `inductive` keyword appears in an assumption or chained fact.
+
+### Examples
+- `NormByEval/NBE.thy` line 481
+   - `lemma subst_V: "pure t ⟹ subst V t = t"`
+   - `by(induct pred:pure) simp_all`
+
+- `NormByEval/NBE.thy` line 487
+   - `lemma lift_subst_aux:`
+   - `"pure t ⟹ ∀i<k. σ' i = lift k (σ i) ⟹`
+   - `∀i≥k. σ'(Suc i) = lift k (σ i) ⟹` 
+   - `σ' k = V k ⟹ lift k (subst σ t) = subst σ' (lift k t)"`
+   - `apply(induct (*t*) arbitrary:σ σ' k pred:pure)`
