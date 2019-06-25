@@ -388,3 +388,11 @@
    - `∀i≥k. σ'(Suc i) = lift k (σ i) ⟹` 
    - `σ' k = V k ⟹ lift k (subst σ t) = subst σ' (lift k t)"`
    - `apply(induct (*t*) arbitrary:σ σ' k pred:pure)`
+
+- `Applicative_Lifting/Idiomatic_Terms.thy` line 116
+   - `lemma similar_into_equiv: "x ≅ y ⟹ x ≃ y"`
+   - `by (induction pred: itrm_cong) (auto intro: ap_cong itrm_sym itrm_trans)`
+
+- `Applicative_Lifting/Idiomatic_Terms.thy` line 119
+   - `lemma opaque_equiv: "x ≃ y ⟹ opaque x = opaque y"`
+   - `proof (induction pred: itrm_cong)`
