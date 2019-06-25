@@ -352,6 +352,13 @@
  ## A constant defined by the `inductive_set` keyword appears in an assumption or chained fact.
  
  ### Examples
+ - `ConcurrentIMP/CIMP_lang.thy` line 339
+    - `lemma ctxt_inj:`
+    - `assumes "(E, fctxt) ∈ ctxt"`
+    - `assumes "E x = E y"`
+    - `shows "x = y"`
+    - `using assms by (induct set: ctxt) auto`
+ 
  - `HotelKeyCards/NewCard.thy` line 77
     - `lemma currk_issued[simp]: "s : reach ⟹ currk s r : issued s"`
     - `by (induct set: reach) auto`
