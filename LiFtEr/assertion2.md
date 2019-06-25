@@ -370,6 +370,8 @@
     - `⟹ env⦇x:A⦈⦇y:B⦈ ⊢ {n → [Fvar x,Fvar y]} t' : C)"`
     - `proof (induct (*e t C*) set:typing)`
     - where `e t C` does not change the behaviour.
+    - Note that `typing` is defined by the `inductive` keyword.
+    - Note that we can swap `set:` with `pred:` here.
     
 # Heuristics for induction with `pred:`.
 
