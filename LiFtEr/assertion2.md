@@ -347,4 +347,19 @@
       - `| "add (Some t) (Some r # xs) = None # add (Some (merge t r)) xs"`
    - Note that the second parameter of `add` is complicated in the second and third clauses.
 
-  
+ # Heuristics for induction with `set:`.
+ 
+ ## A constant defined by the `inductive_set` keyword appears in an assumption or chained fact.
+ 
+ ### Examples
+ - `HotelKeyCards/NewCard.thy` line 77
+    - `lemma currk_issued[simp]: "s : reach ⟹ currk s r : issued s"`
+    - `by (induct set: reach) auto`
+ 
+ - `Locally-Nameless-Sigma/Sigma/TypedSigma.thy` line 270
+    - `lemma type_renaming'[rule_format]:`
+    - `"e ⊢ t : C ⟹`
+    - `(⋀env t' s p x y A B n. ⟦ s ∉ FV t'; p ∉ FV t'; x ∉ FV t'; y ∉ FV t'; x ∉ env_dom env; y ∉ env_dom env; s ≠ p;  x ≠ y; t = {n → [Fvar s,Fvar p]} t'; e = env⦇s:A⦈⦇p:B⦈ ⟧`
+    - `⟹ env⦇x:A⦈⦇y:B⦈ ⊢ {n → [Fvar x,Fvar y]} t' : C)"`
+    - `proof (induct (*e t C*) set:typing)`
+    - where `e t C` does not change the behaviour.
