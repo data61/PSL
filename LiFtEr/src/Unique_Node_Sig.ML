@@ -81,7 +81,9 @@ val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
 (* path *)
 type path  = LiFtEr_Util.path;
 
-val path1_is_above_path2: path -> path -> bool
+val are_same_path: path -> path -> bool;
+
+val path1_is_above_path2: path -> path -> bool;
 
 (* paths *)
 type paths = path list;

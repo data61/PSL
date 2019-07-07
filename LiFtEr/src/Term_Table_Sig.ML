@@ -21,7 +21,6 @@ lifter_pst
 *)
 
 (*** Path_Table and Print_Table ***)
-local
 
 (* path_ord: This definition is more or less arbitrary. *)
 fun path_ord ([],    []   ) = EQUAL
@@ -33,13 +32,9 @@ fun path_ord ([],    []   ) = EQUAL
 
 fun prnt_ord (LiFtEr_Util.Print p1, LiFtEr_Util.Print p2) = String.compare (p1, p2);
 
-in
-
 structure UN          = Unique_Node;
 structure Path_Table  = Table (type key = UN.path  val ord = path_ord): TABLE;
 structure Print_Table = Table (type key = UN.print val ord = prnt_ord): TABLE;
-
-end;
 
 (*** TERM_TABLE ***)
 signature TERM_TABLE =

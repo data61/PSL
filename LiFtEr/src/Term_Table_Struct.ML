@@ -24,7 +24,6 @@ lifter_pst
 structure Term_Table: TERM_TABLE =
 struct
 
-val list_fold = fold;
 structure PaT = Path_Table;
 structure UN  = Unique_Node;
 structure PrT = Print_Table;
@@ -32,12 +31,8 @@ structure PrT = Print_Table;
 type path_to_unode_table     = UN.unode       PaT.table;
 type path_to_unode_aux_table = UN.unode_w_aux PaT.table;
 
-fun to_be_folded (key_val_pair:(UN.path * 'a)) (table: 'a PaT.table) = PaT.update_new key_val_pair table;
-
-fun list_to_table (key_val_pairs: (UN.path * 'a) list) = list_fold to_be_folded key_val_pairs PaT.empty;
-
 fun unodes_to_unode_table (unodes:UN.unodes) =
-  List.map (fn unode => (#path unode, unode)) unodes |> list_to_table;
+   List.map (fn unode => (#path unode, unode)) unodes |> PaT.make;
 
 fun path_to_unode_aux_table_n_pst_to_print_to_paths_table (unode_table:path_to_unode_table) (pst:Proof.state) =
   let

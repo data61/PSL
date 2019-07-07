@@ -201,6 +201,8 @@ end;
 (* path *)
 type path  = LiFtEr_Util.path;
 
+fun are_same_path (path1:path) (path2:path) = forall (op =) (path1 ~~ path2);
+
 fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_above_path2 xs ys else false
   | path1_is_above_path2 ([]   :path) (_::_ :path) = true
   | path1_is_above_path2  _            _           = false;
