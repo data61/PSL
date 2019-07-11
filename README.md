@@ -3,7 +3,6 @@
    - LiFtEr/Concrete_Semantics/ASM.thy
    - This master branch is under active development. For reviewing, please use [the appropriate release specified in the draft](https://github.com/data61/PSL/releases/tag/v0.1.3-alpha).
 - *New!* The directory `LiFtEr` contains a working prototype of our domain-specific language to implement induction heuristics.
-- **This branch is under active development. Please use [release v0.1.2-alpha PSL, PaMpeR, and PGT for Isabelle2018.](https://github.com/data61/PSL/releases/tag/v0.1.2-alpha), which is the latest stable version.**
 
 # PSL
 
