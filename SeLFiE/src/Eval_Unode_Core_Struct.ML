@@ -6,9 +6,8 @@ struct
 
 type unode = Unique_Node.unode;
 
-datatype assert_unode_core =
-  Assert_Node_Sugar of Eval_Node_Sugar.assert_node_sugar
-| Has_Same_Prnt_As  of unode * unode
+datatype assert =
+  Has_Same_Prnt_As  of unode * unode
 | Is_In_Trm_Prnt    of unode * unode (*sub-tree-1 is within sub-tree-2 string-wise*)
 | Is_Deeper_Than    of unode * unode
 | Is_Shallower_Than of unode * unode
@@ -29,52 +28,49 @@ val unode2_to_depth2             = apply2 unode_to_depth: unode * unode -> int *
 fun unode2_to_print2 (unode2:unode * unode) = apply2 #print unode2;
 fun unode2_to_path2  (unode2:unode * unode) = apply2 #path  unode2;
 
-fun eval_unode_core' (unode1 Has_Same_Prnt_As unode2) : bool =
+fun eval' (unode1 Has_Same_Prnt_As unode2) : bool =
     let
       val (print1, print2) = unode2_to_print2 (unode1, unode2);
       val result_bool      = LiFtEr_Util.same_prints print1 print2;
     in
       result_bool
     end
-  | eval_unode_core' (unode1 Is_In_Trm_Prnt unode2) =
+  | eval' (unode1 Is_In_Trm_Prnt unode2) =
     let
       val (print1, print2) = unode2_to_print2 (unode1, unode2);
       val result_bool      = LiFtEr_Util.is_subprint_of print1 print2;
     in
       result_bool
     end
-  | eval_unode_core' (unode1 Is_Deeper_Than unode2) =
+  | eval' (unode1 Is_Deeper_Than unode2) =
     let
       val (depth1, depth2) = unode2_to_depth2 (unode1, unode2): (int * int);
       val result_bool      = depth1 > depth2;
     in
       result_bool
     end
-  | eval_unode_core' (unode1 Is_Shallower_Than unode2) =
+  | eval' (unode1 Is_Shallower_Than unode2) =
     let
       val (depth1, depth2) = unode2_to_depth2 (unode1, unode2): (int * int);
       val result_bool      = depth1 < depth2;
     in
       result_bool
     end
-  | eval_unode_core' (unode1 Is_Path_Above unode2) =
+  | eval' (unode1 Is_Path_Above unode2) =
     let
       val (path1, path2) = unode2_to_path2 (unode1, unode2)              : (UN.path * UN.path);
       val result_bool    = uncurry UN.path1_is_above_path2 (path1, path2): bool;
     in
       result_bool
     end
-  | eval_unode_core' (unode1 Is_Same_Path_As unode2) =
+  | eval' (unode1 Is_Same_Path_As unode2) =
     let
       val (path1, path2) = unode2_to_path2 (unode1, unode2)       : (UN.path * UN.path);
       val result_bool    = uncurry UN.are_same_path (path1, path2): bool;
     in
       result_bool
-    end
-  | eval_unode_core' (Assert_Node_Sugar _) = error "eval_unode_core' failed."
+    end;
 
-fun eval_unode_core (Assert_Node_Sugar assert_node_sugar) = Eval_Node_Sugar.eval_node_sugar assert_node_sugar
-  | eval_unode_core  assert_unode_core                    = eval_unode_core' assert_unode_core
-                                                         |> Eval_Connective.bool_to_assert_connective;
+fun eval assert = eval' assert |> Eval_Connective.bool_to_assert_connective;
 
 end;

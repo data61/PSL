@@ -4,17 +4,14 @@
 signature EVAL_FPUNODE_SUGAR =
 sig
 
-type assert_fpunode_core;
-type assert_connective;
 type fpunode;
 
-datatype assert_fpunode_sugar =
-  Assert_Fpunode_Core of assert_fpunode_core
-| Connective          of assert_connective
+datatype assert =
+  Connective          of Eval_Connective.assert
 | Is_Above            of fpunode * fpunode
 | Is_Below            of fpunode * fpunode
 | Is_Same_Occ_As      of fpunode * fpunode;
 
-val eval_fpunode_sugar: assert_fpunode_sugar -> Eval_Connective.assert_connective;
+val eval: assert -> Eval_Connective.assert;
 
 end;

@@ -4,30 +4,29 @@
 structure Eval_Print_Sugar: EVAL_PRINT_SUGAR =
 struct
 
-open Eval_Print_Core;
-open Eval_Connective;
-open Full_Path_To_Fpunode;
-open Eval_Fpunode_Core;
-open Eval_Print_Core;
+structure EC   = Eval_Connective;
+structure EPC  = Eval_Print_Core;
+structure FPTF = Full_Path_To_Fpunode;
 
-datatype assert_print_sugar =
-  Assert_Print_Core    of assert_print_core
-| Connective           of assert_connective
+type print   = LiFtEr_Util.print;
+type fpunode = Full_Path_To_Fpunode.fpunode;
+
+datatype assert =
+  Connective           of EC.assert
 | Are_Different_Prints of print   * print
 | Fpnode_Has_Print     of fpunode * print;
 
 infix
   Fpnode_Has_Print
-  Print_Is_String
+  Print_Is_String;
 
-fun eval_print_sugar (Assert_Print_Core assert_print_core) = eval_print_core assert_print_core
-  | eval_print_sugar (Connective assert_connective) = eval_connective assert_connective
-  | eval_print_sugar (Are_Different_Prints print_pair) =
-    print_pair |> Are_Same_Prints |> eval_print_core |> Not |> eval_connective
-  | eval_print_sugar (fpunode Fpnode_Has_Print print1) =
+fun eval (Connective assert_connective) = EC.eval assert_connective
+  | eval (Are_Different_Prints print_pair) =
+    print_pair |> EPC.Are_Same_Prints |> EPC.eval |> EC.Not |> EC.eval
+  | eval (fpunode Fpnode_Has_Print print1) =
     let
-      val print2 = fpunode_to_unode fpunode |> #print: print;
-      val result = same_prints print1 print2 |> bool_to_assert_connective;
+      val print2 = FPTF.fpunode_to_unode fpunode |> #print: print;
+      val result = LiFtEr_Util.same_prints print1 print2 |> EC.bool_to_assert_connective;
     in
       result
     end;

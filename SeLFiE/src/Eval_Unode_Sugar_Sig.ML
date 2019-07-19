@@ -4,16 +4,11 @@
 signature EVAL_UNODE_SUGAR =
 sig
 
-type assert_unode_core;
-type assert_connective;
-type unode;
+datatype assert =
+  Connective        of Eval_Connective.assert
+| Is_As_Deep_As     of UN.unode * UN.unode
+| Is_Path_Below     of UN.unode * UN.unode;
 
-datatype assert_unode_sugar =
-  Assert_Unode_Core of assert_unode_core
-| Connective        of assert_connective
-| Is_As_Deep_As     of unode * unode
-| Is_Path_Below     of unode * unode;
-
-val eval_unode_sugar: assert_unode_sugar -> assert_connective;
+val eval: assert -> Eval_Connective.assert;
 
 end;

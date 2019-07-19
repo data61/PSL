@@ -18,14 +18,13 @@ The overall work-flow is:
  full_path_to_fpunode_table) list            ==== merge_full_path_to_fpunode_tables =============================================> (* in Full_Path_To_Unode_Struct *)
  full_path_to_fpunode_table
 *)
-
-datatype location  = Subgoal of int | Chained_Fact of int;
+datatype location = Subgoal of int | Chained_Fact of int;
 
 fun are_same_location (Subgoal      n) (Subgoal      m) = n = m
   | are_same_location (Chained_Fact n) (Chained_Fact m) = n = m
   | are_same_location  _                _               = false;
 
-type     full_path = location * UN.path;
+type full_path = location * UN.path;
 
 (*This definition is more or less arbitrary.*)
 fun full_path_ord ((Subgoal n, path1), (Subgoal m, path2)) =
@@ -51,6 +50,9 @@ type full_path_to_fpunode_table;
 
 val pst_to_full_path_to_fpunode_table: Proof.state -> full_path_to_fpunode_table;
 
-val fpunode_to_unode: fpunode -> UN.unode;
+val fpunode_to_unode:    fpunode -> UN.unode;
+val fpunode_to_node :    fpunode -> UN.node;
+val fpunode2_to_unode2: (fpunode * fpunode) -> (UN.unode * UN.unode);
+val fpunode2_to_node2:  (fpunode * fpunode) -> (UN.node  * UN.node);
 
 end;

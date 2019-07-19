@@ -1,39 +1,19 @@
-(*  Title:      PSL/SeLFeE/src/Eval_Var.ML
+(*  Title:      PSL/SeLFeE/src/Eval_Var_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-signature EVAL_VAR =
-sig
-
-type connective;
-type atom;
-type primitive_op;
-
-datatype expr =
-  Var        of string
-| Lambda     of string * expr
-| Apply      of expr   * expr
-| Connective of connective
-| Primitive  of primitive_op * atom list;
-
-val eval: expr -> expr;
-
-end;
-
-functor from_Eval_Var_to_Eval_Bound (EB: EVAL_BOUND): EVAL_VAR =
+structure Eval_Var =
 struct
 
-type connective   = EB.connective;
-type atom         = EB.atom;
-type primitive_op = EB.primitive_op;
+structure EB = Eval_Bound;
 
 datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
-| Connective of connective
-| Primitive  of primitive_op * atom list;
+| Connective of Eval_Connective.assert
+| Assert     of Eval_Full_Path.assert;
 
-type eb_expr = EB.expr;
+type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
 type environment = (string * int) list; (*map a variable name to a de-Bruijn index*)
 
@@ -47,11 +27,18 @@ fun var_to_bound env (Var        vname           ) = EB.Bound (lookup env vname)
   | var_to_bound env (Lambda    (name,  sub_expr)) = EB.Lambda (var_to_bound (increment_then_update_with_0 name env) sub_expr)
   | var_to_bound env (Apply     (expr1, expr2   )) = EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
   | var_to_bound _   (Connective c               ) = EB.Connective c
-  | var_to_bound _   (Primitive  p               ) = EB.Primitive  p;
+  | var_to_bound _   (Assert     assert          ) = EB.Assert assert;
 
 fun bound_to_var (EB.Connective c) = Connective c
   | bound_to_var  _                = error "bound_to_var in from_Eval_Var_to_Eval_Bound failed.";
 
-fun eval (expr:expr) = EB.eval (var_to_bound [] expr) |> bound_to_var;
+fun eval (table:full_path_to_fpunode_table) (expr:expr) =
+  let
+    val eb_result  = EB.eval table (var_to_bound [] expr): Eval_Bound.expr;
+    val connective = EB.de_Connective eb_result          : Eval_Connective.assert;
+    val result     = Connective connective               : expr;
+  in
+    result
+  end;
 
 end;

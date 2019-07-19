@@ -4,18 +4,22 @@
 structure Eval_Fpunode_Sugar: EVAL_FPUNODE_SUGAR =
 struct
 
-open Eval_Fpunode_Core;
-open Eval_Connective;
-open Full_Path_To_Fpunode;
-open Eval_Unode_Core;
-open Eval_Unode_Sugar;
+structure EC   = Eval_Connective;
+structure EUC  = Eval_Unode_Core;
+structure EUS  = Eval_Unode_Sugar;
+structure EFC  = Eval_Fpunode_Core;
+structure FPTF = Full_Path_To_Fpunode;
 
-datatype assert_fpunode_sugar =
-  Assert_Fpunode_Core of assert_fpunode_core
-| Connective          of assert_connective
-| Is_Above            of fpunode * fpunode
-| Is_Below            of fpunode * fpunode
-| Is_Same_Occ_As      of fpunode * fpunode;
+type fpunode = Full_Path_To_Fpunode.fpunode;
+
+datatype assert =
+  Connective     of Eval_Connective.assert
+| Is_Above       of fpunode * fpunode
+| Is_Below       of fpunode * fpunode
+| Is_Same_Occ_As of fpunode * fpunode;
+
+val Is_In_Same_Location_As = EFC.Is_In_Same_Location_As;
+val And = EC.And;
 
 infix
   Is_Above
@@ -25,24 +29,21 @@ infix
   And
   Is_In_Same_Location_As
 
-fun fpunode2_to_unode2 (fpun1, fpun2) = apply2 fpunode_to_unode (fpun1, fpun2): (UN.unode * UN.unode);
-
-fun eval_fpunode_sugar (Assert_Fpunode_Core assert_fpunode_core) = eval_fpunode_core assert_fpunode_core
-  | eval_fpunode_sugar (Connective assert_connective) = eval_connective assert_connective
-  | eval_fpunode_sugar (fpun1 Is_Above fpun2) =
-    eval_connective (
-       (eval_fpunode_core (fpun1 Is_In_Same_Location_As fpun2))
+fun eval (Connective assert_connective) = EC.eval assert_connective
+  | eval (fpun1 Is_Above fpun2) =
+    EC.eval (
+       (EFC.eval (fpun1 Is_In_Same_Location_As fpun2))
       And
-       (eval_unode_core (Is_Path_Above (fpunode2_to_unode2 (fpun1, fpun2)))))
-  | eval_fpunode_sugar (fpun1 Is_Below fpun2) =
-    eval_connective (
-       (eval_fpunode_core (fpun1 Is_In_Same_Location_As fpun2))
+       (EUC.eval (EUC.Is_Path_Above (FPTF.fpunode2_to_unode2 (fpun1, fpun2)))))
+  | eval (fpun1 Is_Below fpun2) =
+    EC.eval (
+       (EFC.eval (fpun1 Is_In_Same_Location_As fpun2))
       And
-       (eval_unode_sugar (Is_Path_Below (fpunode2_to_unode2 (fpun1, fpun2)))))
-  | eval_fpunode_sugar (fpun1 Is_Same_Occ_As fpun2) =
-    eval_connective (
-       (eval_fpunode_core (fpun1 Is_In_Same_Location_As fpun2))
+       (EUS.eval (EUS.Is_Path_Below (FPTF.fpunode2_to_unode2 (fpun1, fpun2)))))
+  | eval (fpun1 Is_Same_Occ_As fpun2) =
+    EC.eval (
+       (EFC.eval (fpun1 Is_In_Same_Location_As fpun2))
       And
-       (eval_unode_core (Is_Same_Path_As (fpunode2_to_unode2 (fpun1, fpun2)))))
+       (EUC.eval (EUC.Is_Same_Path_As (FPTF.fpunode2_to_unode2 (fpun1, fpun2)))))
 
 end;

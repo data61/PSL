@@ -21,7 +21,6 @@ The overall work-flow is:
 structure Full_Path_To_Fpunode: FULL_PATH_TO_FPUNODE =
 struct
 
-(*fp for full-path*)
 type fpunode =
   {unode     : UN.unode,
    location  : location};
@@ -111,5 +110,11 @@ fun pst_to_full_path_to_fpunode_table (pst:Proof.state) : full_path_to_fpunode_t
   end;
 
 fun fpunode_to_unode {unode,...} = unode;
+
+fun fpunode_to_node {unode,...} = #node unode: UN.node;
+
+fun fpunode2_to_unode2 (fpun1, fpun2) = apply2 fpunode_to_unode (fpun1, fpun2): (UN.unode * UN.unode);
+
+fun fpunode2_to_node2 (fpun1, fpun2) = apply2 fpunode_to_node (fpun1, fpun2): (UN.node * UN.node);
 
 end;

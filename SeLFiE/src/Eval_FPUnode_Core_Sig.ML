@@ -4,14 +4,13 @@
 signature EVAL_FPUNODE_CORE =
 sig
 
-type fpunode;
+type fpunode = Full_Path_To_Fpunode.fpunode;
 
-datatype assert_fpunode_core =
-  Assert_Fpunode_Sugar   of Eval_Unode_Sugar.assert_unode_sugar
-| Is_In_Same_Location_As of fpunode * fpunode
+datatype assert =
+  Is_In_Same_Location_As of fpunode * fpunode
 | Is_In_Chained          of fpunode
 | Is_In_Fst_Subg         of fpunode;
 
-val eval_fpunode_core: assert_fpunode_core -> Eval_Connective.assert_connective;
+val eval: assert -> Eval_Connective.assert;
 
 end;

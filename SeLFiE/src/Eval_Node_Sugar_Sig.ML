@@ -4,16 +4,11 @@
 signature EVAL_NODE_SUGAR =
 sig
 
-type assert_node_core;
-type assert_connective;
-type node;
+datatype assert =
+  Connective of Eval_Connective.assert
+| Is_Atom    of UN.node
+| Is_Compund of UN.node;
 
-datatype assert_node_sugar =
-  Assert_Node_Core of assert_node_core
-| Connective       of assert_connective
-| Is_Atom          of node
-| Is_Compund       of node;
-
-val eval_node_sugar: assert_node_sugar -> assert_connective;
+val eval: assert -> Eval_Connective.assert;
 
 end;

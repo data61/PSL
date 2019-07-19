@@ -48,20 +48,24 @@ ML_file "src/Eval_FPUnode_Core_Sig.ML"
 ML_file "src/Eval_FPUnode_Core_Struct.ML"
 ML_file "src/Eval_FPUnode_Sugar_Sig.ML"
 ML_file "src/Eval_FPUnode_Sugar_Struct.ML"
-ML_file "src/Eval_Bound.ML"
-ML_file "src/Eval_Bound_Fpunode.ML"
-ML_file "src/Eval_Var.ML"
-ML_file "src/Eval_Var_Fpunode.ML"
-
-ML_file "src/Eval_Fpunode_Quantifier_Core_Sig.ML"
-ML_file "src/Eval_Fpunode_Quantifier_Core_Struct.ML"
-
 ML_file "src/Print_To_Full_Paths_Sig.ML"
 ML_file "src/Print_To_Full_Paths_Struct.ML"
 ML_file "src/Eval_Print_Core_Sig.ML"
 ML_file "src/Eval_Print_Core_Struct.ML"
 ML_file "src/Eval_Print_Sugar_Sig.ML"
 ML_file "src/Eval_Print_Sugar_Struct.ML"
+
+ML_file "src/Eval_Primitive_Sig.ML"
+ML_file "src/Eval_Primitive_Struct.ML"
+ML_file "src/Eval_Full_Path_Sig.ML"
+ML_file "src/Eval_Full_Path_Struct.ML"
+
+(*Eval_Full_Path.ML*)
+
+ML_file "src/Eval_Bound_Sig.ML"
+ML_file "src/Eval_Bound_Struct.ML"
+ML_file "src/Eval_Var_Sig.ML"
+ML_file "src/Eval_Var_Struct.ML"
 
 ML\<open> 
 @{term "let x = 1 in x"};

@@ -4,16 +4,14 @@
 signature EVAL_NODE_CORE =
 sig
 
-type node;
+datatype assert =
+  Is_Cnst   of UN.node
+| Is_Free   of UN.node
+| Is_Var    of UN.node
+| Is_Bound  of UN.node (*corresponds to Bound in term*)
+| Is_Lambda of UN.node (*lambda abstraction corresponding to Abs in Term*)
+| Is_App    of UN.node (*function application corresponding to $ in Term*)
 
-datatype assert_node_core =
-  Is_Cnst   of node
-| Is_Free   of node
-| Is_Var    of node
-| Is_Bound  of node (*corresponds to Bound in term*)
-| Is_Lambda of node (*lambda abstraction corresponding to Abs in Term*)
-| Is_App    of node (*function application corresponding to $ in Term*)
-
-val eval_node_core: assert_node_core -> Eval_Connective.assert_connective;
+val eval: assert -> Eval_Connective.assert;
 
 end;

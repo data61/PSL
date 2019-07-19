@@ -4,25 +4,21 @@
 structure Eval_Node_Core: EVAL_NODE_CORE =
 struct
 
-type node = Unique_Node.node;
+datatype assert =
+  Is_Cnst   of UN.node
+| Is_Free   of UN.node
+| Is_Var    of UN.node
+| Is_Bound  of UN.node (*corresponds to Bound in term*)
+| Is_Lambda of UN.node (*lambda abstraction corresponding to Abs in Term*)
+| Is_App    of UN.node (*function application corresponding to $ in Term*)
 
-datatype assert_node_core =
-  Is_Cnst          of node
-| Is_Free          of node
-| Is_Var           of node
-| Is_Bound         of node (*corresponds to Bound in term*)
-| Is_Lambda        of node (*lambda abstraction corresponding to Abs in Term*)
-| Is_App           of node (*function application corresponding to $ in Term*)
+fun eval' (Is_Cnst   node) = UN.is_NC node
+  | eval' (Is_Free   node) = UN.is_NF node
+  | eval' (Is_Var    node) = UN.is_NV node
+  | eval' (Is_Bound  node) = UN.is_NB node
+  | eval' (Is_Lambda node) = UN.is_NL node
+  | eval' (Is_App    node) = UN.is_NA node;
 
-fun eval_node_core' (Is_Cnst   node) = UN.is_NC node
-  | eval_node_core' (Is_Free   node) = UN.is_NF node
-  | eval_node_core' (Is_Var    node) = UN.is_NV node
-  | eval_node_core' (Is_Bound  node) = UN.is_NB node
-  | eval_node_core' (Is_Lambda node) = UN.is_NL node
-  | eval_node_core' (Is_App    node) = UN.is_NA node;
-
-fun eval_node_core assert_node_core =
-    eval_node_core' assert_node_core
- |> Eval_Connective.bool_to_assert_connective;
+fun eval assert = eval' assert |> Eval_Connective.bool_to_assert_connective;
 
 end;

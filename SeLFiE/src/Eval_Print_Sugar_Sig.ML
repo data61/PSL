@@ -4,17 +4,14 @@
 signature EVAL_PRINT_SUGAR =
 sig
 
-type assert_print_core;
-type assert_connective;
-type print;
-type fpunode;
+type print   = LiFtEr_Util.print;
+type fpunode = Full_Path_To_Fpunode.fpunode;
 
-datatype assert_print_sugar =
-  Assert_Print_Core    of assert_print_core
-| Connective           of assert_connective
+datatype assert =
+  Connective           of Eval_Connective.assert
 | Are_Different_Prints of print   * print
 | Fpnode_Has_Print     of fpunode * print;
 
-val eval_print_sugar: assert_print_sugar -> assert_connective;
+val eval: assert -> Eval_Connective.assert;
 
 end;
