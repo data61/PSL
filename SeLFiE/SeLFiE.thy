@@ -54,18 +54,18 @@ ML_file "src/Eval_Print_Core_Sig.ML"
 ML_file "src/Eval_Print_Core_Struct.ML"
 ML_file "src/Eval_Print_Sugar_Sig.ML"
 ML_file "src/Eval_Print_Sugar_Struct.ML"
-
 ML_file "src/Eval_Primitive_Sig.ML"
 ML_file "src/Eval_Primitive_Struct.ML"
 ML_file "src/Eval_Full_Path_Sig.ML"
 ML_file "src/Eval_Full_Path_Struct.ML"
-
-(*Eval_Full_Path.ML*)
-
+ML_file "src/Eval_Parameters_Sig.ML"
+ML_file "src/Eval_Parameters_Struct.ML"
 ML_file "src/Eval_Bound_Sig.ML"
 ML_file "src/Eval_Bound_Struct.ML"
 ML_file "src/Eval_Var_Sig.ML"
 ML_file "src/Eval_Var_Struct.ML"
+ML_file "src/Eval_Quantifier_Core_Sig.ML"
+ML_file "src/Eval_Quantifier_Core_Struct.ML"
 
 ML\<open> 
 @{term "let x = 1 in x"};

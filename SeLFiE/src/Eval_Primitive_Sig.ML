@@ -19,6 +19,8 @@ datatype assert =
 | Or                     of connective * connective
 | Nor                    of connective * connective
 | Imply                  of connective * connective
+| Ands                   of connective list
+| Ors                    of connective list
 (*Eval_Node_Core*)
 | Is_Cnst                of node
 | Is_Free                of node

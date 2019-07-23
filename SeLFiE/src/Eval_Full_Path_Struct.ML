@@ -18,6 +18,8 @@ datatype assert =
 | Or                     of connective * connective
 | Nor                    of connective * connective
 | Imply                  of connective * connective
+| Ands                   of connective list
+| Ors                    of connective list
 (*Eval_Node_Core*)
 | Is_Cnst                of full_path
 | Is_Free                of full_path
@@ -92,6 +94,8 @@ fun
   | eval' (Or  pair)   = EC.eval (EC.Or  pair)
   | eval' (Nor pair)   = EC.eval (EC.Nor pair)
   | eval' (Imply pair) = EC.eval (EC.Imply pair)
+  | eval' (Ands cons)  = EC.eval (EC.Ands cons)
+  | eval' (Ors  cons)  = EC.eval (EC.Ors  cons)
   (*Eval_Node_Core*)
   | eval' (Is_Cnst   fp) = full_path_to_node fp |> EP.Is_Cnst   |> EP.eval
   | eval' (Is_Free   fp) = full_path_to_node fp |> EP.Is_Free   |> EP.eval

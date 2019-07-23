@@ -6,10 +6,13 @@ sig
 
 datatype expr =
   Var        of string
-| Lambda     of expr
-| Apply      of expr * expr
+| Lambda     of string * expr
+| Apply      of expr   * expr
 | Connective of Eval_Connective.assert
-| Atom       of Eval_Full_Path.assert;
+| Literal    of Eval_Parameters.parameter
+| Assert     of Eval_Parameters.assert * expr list;
+
+val de_Connective: expr -> Eval_Connective.assert;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 

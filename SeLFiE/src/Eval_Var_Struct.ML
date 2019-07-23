@@ -1,7 +1,7 @@
 (*  Title:      PSL/SeLFeE/src/Eval_Var_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-structure Eval_Var =
+structure Eval_Var: EVAL_VAR =
 struct
 
 structure EB = Eval_Bound;
@@ -11,7 +11,11 @@ datatype expr =
 | Lambda     of string * expr
 | Apply      of expr   * expr
 | Connective of Eval_Connective.assert
-| Assert     of Eval_Full_Path.assert;
+| Literal    of Eval_Parameters.parameter
+| Assert     of Eval_Parameters.assert * expr list;
+
+fun de_Connective (Connective assert) = assert
+  | de_Connective  _                  = error "de_Connective in Eval_Var failed.";
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
@@ -27,10 +31,8 @@ fun var_to_bound env (Var        vname           ) = EB.Bound (lookup env vname)
   | var_to_bound env (Lambda    (name,  sub_expr)) = EB.Lambda (var_to_bound (increment_then_update_with_0 name env) sub_expr)
   | var_to_bound env (Apply     (expr1, expr2   )) = EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
   | var_to_bound _   (Connective c               ) = EB.Connective c
-  | var_to_bound _   (Assert     assert          ) = EB.Assert assert;
-
-fun bound_to_var (EB.Connective c) = Connective c
-  | bound_to_var  _                = error "bound_to_var in from_Eval_Var_to_Eval_Bound failed.";
+  | var_to_bound _   (Literal    param           ) = EB.Literal param
+  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params);
 
 fun eval (table:full_path_to_fpunode_table) (expr:expr) =
   let

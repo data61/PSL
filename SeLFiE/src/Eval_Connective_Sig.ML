@@ -12,7 +12,9 @@ datatype assert =
 | And   of assert * assert
 | Or    of assert * assert
 | Nor   of assert * assert
-| Imply of assert * assert;
+| Imply of assert * assert
+| Ands  of assert list
+| Ors   of assert list;
 
 val eval: assert -> assert;
 

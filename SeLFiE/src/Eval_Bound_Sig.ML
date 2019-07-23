@@ -9,7 +9,8 @@ datatype expr =
 | Lambda     of expr
 | Apply      of expr * expr
 | Connective of Eval_Connective.assert
-| Assert     of Eval_Full_Path.assert;
+| Literal    of Eval_Parameters.parameter
+| Assert     of Eval_Parameters.assert * expr list;
 
 val de_Connective: expr -> Eval_Connective.assert;
 

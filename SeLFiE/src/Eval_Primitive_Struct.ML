@@ -31,6 +31,8 @@ datatype assert =
 | Or                     of connective * connective
 | Nor                    of connective * connective
 | Imply                  of connective * connective
+| Ands                   of connective list
+| Ors                    of connective list
 (*Eval_Node_Core*)
 | Is_Cnst                of node
 | Is_Free                of node
@@ -66,13 +68,15 @@ datatype assert =
 | Are_Different_Prints   of print   * print
 | Fpnode_Has_Print       of fpunode * print;
 
-fun eval True         = EC.True     
-  | eval False        = EC.False  
+fun eval True         = EC.True
+  | eval False        = EC.False
   | eval (Not con)    = EC.eval (EC.Not con)
   | eval (And pair)   = EC.eval (EC.And pair)
   | eval (Or  pair)   = EC.eval (EC.Or  pair)
   | eval (Nor pair)   = EC.eval (EC.Nor pair)
   | eval (Imply pair) = EC.eval (EC.Imply pair)
+  | eval (Ands cons)  = EC.eval (EC.Ands cons)
+  | eval (Ors  cons)  = EC.eval (EC.Ors  cons)
   (*Eval_Node_Core*)
   | eval (Is_Cnst   node)  = ENC.eval (ENC.Is_Cnst   node)
   | eval (Is_Free   node)  = ENC.eval (ENC.Is_Free   node)
