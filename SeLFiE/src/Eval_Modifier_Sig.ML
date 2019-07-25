@@ -1,13 +1,17 @@
-(*  Title:      PSL/SeLFiE/src/Eval_Quantifier_Core_Sig.ML
+(*  Title:      PSL/SeLFiE/src/Eval_Modifier_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-signature EVAL_QUANTIFIER_CORE =
+signature EVAL_MODIFIER =
 sig
 
-datatype qtyp = QFull_Path | QPrint;
+datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule;
 
-type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
-type print_to_full_paths_table  = full_path list Print_Table.table;
+datatype modifier = 
+  Ind  of string
+| Arb  of string
+| Rule of string;
+
+val pst_to_ind_domain: Proof.state -> modifier -> Eval_Parameters.parameters;
 
 datatype expr =
   Var        of string
@@ -19,8 +23,6 @@ datatype expr =
 | All        of string * qtyp * expr
 | Some       of string * qtyp * expr;
 
-val de_Connective: expr -> Eval_Connective.assert;
-
-val eval: full_path_to_fpunode_table -> print_to_full_paths_table -> expr -> expr;
+val eval: Proof.state -> expr -> expr;
 
 end;
