@@ -1,7 +1,5 @@
-(*  Title:      PSL/LiFtEr/src/Eval_Quantifier_Core_Sig.ML
+(*  Title:      PSL/SeLFiE/src/Eval_Quantifier_Core_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
-
-The syntax and interpreter of LiFtEr, Logical Feature Extractor for MiLkMaId.
 *)
 signature EVAL_QUANTIFIER_CORE =
 sig
