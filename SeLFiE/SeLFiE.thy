@@ -68,6 +68,8 @@ ML_file "src/Eval_Quantifier_Core_Sig.ML"
 ML_file "src/Eval_Quantifier_Core_Struct.ML"
 ML_file "src/Eval_Modifier_Sig.ML"
 ML_file "src/Eval_Modifier_Struct.ML"
+ML_file "src/Eval_Surface_Sig.ML"
+ML_file "src/Eval_Surface_Struct.ML"
 ML\<open> 
 @{term "let x = 1 in x"};
 (*
