@@ -54,6 +54,9 @@ ML_file "src/Eval_Print_Core_Sig.ML"
 ML_file "src/Eval_Print_Core_Struct.ML"
 ML_file "src/Eval_Print_Sugar_Sig.ML"
 ML_file "src/Eval_Print_Sugar_Struct.ML"
+ML_file "src/Eval_Number_Sig.ML"
+ML_file "src/Eval_Number_Struct.ML"(*WIP*)
+(*TODO: Probably the right order is: first Eval_Full_Path then Eval_Primitive.*)
 ML_file "src/Eval_Primitive_Sig.ML"
 ML_file "src/Eval_Primitive_Struct.ML"
 ML_file "src/Eval_Full_Path_Sig.ML"
@@ -84,7 +87,7 @@ $ Abs   ("x", "'a", Bound 0): term
 $(  Const ("Groups.plus_class.plus", "'a \<Rightarrow> 'a \<Rightarrow> 'a") 
   $ Const ("Groups.one_class.one", "'a") 
   $ Free ("y", "'a")
- ) 
+ )
 $ Abs   ("x", "'a", Bound 0)
 *)
 

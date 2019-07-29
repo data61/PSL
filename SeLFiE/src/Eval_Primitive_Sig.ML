@@ -9,6 +9,7 @@ type node       = UN.node;
 type unode      = UN.unode;
 type fpunode    = Full_Path_To_Fpunode.fpunode;
 type print      = LiFtEr_Util.print;
+type number     = Eval_Number.number;
 
 datatype assert =
 (*Eval_Connective*)
@@ -54,7 +55,11 @@ datatype assert =
 | Is_Printed_As          of print * string
 (*Eval_Print_Sugar*)
 | Are_Different_Prints   of print   * print
-| Fpnode_Has_Print       of fpunode * print;
+| Fpnode_Has_Print       of fpunode * print
+(*Eval_Number*)
+| Are_Same_Number        of number * number
+| Is_Less_Than           of number * number
+| Is_Int                 of number * int;
 
 val eval: assert -> Eval_Connective.assert;
 

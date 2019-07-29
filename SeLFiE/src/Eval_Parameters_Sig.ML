@@ -6,8 +6,16 @@ sig
 
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
+type number     = Eval_Number.number;
 
-datatype parameter = Connective of connective | Full_Path of full_path | Print of print | String of string(*redundant?*);
+datatype parameter =
+  Connective of connective
+| Full_Path  of full_path
+| Print      of print
+| String     of string(*redundant?*)
+| Number     of int
+| Int        of int;
+
 type     parameters = parameter list;
 
 datatype assert =
@@ -54,7 +62,11 @@ datatype assert =
 | Is_Printed_As
 (*Eval_Print_Sugar*)
 | Are_Different_Prints
-| Fpnode_Has_Print;
+| Fpnode_Has_Print
+(*Eval_Number*)
+| Are_Same_Number
+| Is_Less_Than
+| Is_Int;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 

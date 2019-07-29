@@ -5,11 +5,20 @@ structure Eval_Parameters: EVAL_PARAMETERS =
 struct           
 
 structure EFP = Eval_Full_Path;
+structure EN  = Eval_Number;
 
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
+type number     = Eval_Number.number;
 
-datatype parameter = Connective of connective | Full_Path of full_path | Print of print | String of string(*redundant?*);
+datatype parameter =
+  Connective of connective
+| Full_Path  of full_path
+| Print      of print
+| String     of string(*redundant?*)
+| Number     of int
+| Int        of int;
+
 type     parameters = parameter list;
 
 fun de_Connective (Connective c) = c
@@ -59,7 +68,11 @@ datatype assert =
 | Is_Printed_As
 (*Eval_Print_Sugar*)
 | Are_Different_Prints
-| Fpnode_Has_Print;
+| Fpnode_Has_Print
+(*Eval_Number*)
+| Are_Same_Number
+| Is_Less_Than
+| Is_Int;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
@@ -108,6 +121,10 @@ fun
   (*Eval_Print_Sugar*)
   | unlist Are_Different_Prints [Print p1, Print p2]     = EFP.Are_Different_Prints (p1, p2)
   | unlist Fpnode_Has_Print     [Full_Path fp, Print pr] = EFP.Fpnode_Has_Print     (fp, pr)
+  (*Eval_Number*)
+  | unlist Are_Same_Number [Number numb1, Number numb2] = EFP.Are_Same_Number (EN.Number numb1, EN.Number numb2)
+  | unlist Is_Less_Than    [Number numb1, Number numb2] = EFP.Is_Less_Than    (EN.Number numb1, EN.Number numb2)
+  | unlist Is_Int          [Number numb,  Int    int  ] = EFP.Is_Int          (EN.Number numb,              int)
   | unlist _ _ = error "unlist in Eval_Parameters_Struct.ML failed!"
 
 fun eval fp_to_fpun_table assert parameters =

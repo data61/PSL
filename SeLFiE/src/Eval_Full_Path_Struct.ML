@@ -6,6 +6,8 @@ struct
 
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
+type number     = Eval_Number.number;
+
 structure EC = Eval_Connective;
 structure EP = Eval_Primitive;        
 
@@ -53,7 +55,11 @@ datatype assert =
 | Is_Printed_As          of print * string
 (*Eval_Print_Sugar*)
 | Are_Different_Prints   of print     * print
-| Fpnode_Has_Print       of full_path * print;
+| Fpnode_Has_Print       of full_path * print
+(*Eval_Number*)
+| Are_Same_Number        of number * number
+| Is_Less_Than           of number * number
+| Is_Int                 of number * int;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
@@ -130,6 +136,10 @@ fun
   (*Eval_Print_Sugar*)
   | eval' (Are_Different_Prints pair) = EP.eval (EP.Are_Different_Prints pair)
   | eval' (Fpnode_Has_Print     pair) = pair |> apfst full_path_to_fpunode |> EP.Fpnode_Has_Print |> EP.eval
+  (*Eval_Number*)
+  | eval' (Are_Same_Number pair) = EP.eval (EP.Are_Same_Number pair)
+  | eval' (Is_Less_Than    pair) = EP.eval (EP.Is_Less_Than    pair)
+  | eval' (Is_Int          pair) = EP.eval (EP.Is_Int          pair);
 
 in eval' assert end;
 

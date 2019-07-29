@@ -13,12 +13,14 @@ structure EFC = Eval_Fpunode_Core;
 structure EFS = Eval_Fpunode_Sugar;
 structure EPC = Eval_Print_Core;
 structure EPS = Eval_Print_Sugar;
+structure EN  = Eval_Number;
 
 type connective = Eval_Connective.assert;
 type node       = UN.node;
 type unode      = UN.unode;
 type fpunode    = Full_Path_To_Fpunode.fpunode;
 type print      = LiFtEr_Util.print;
+type number     = Eval_Number.number;
 
 (*TODO: primitive should not take arguments.
   val eval: primitive -> atom list -> connective *)
@@ -66,7 +68,11 @@ datatype assert =
 | Is_Printed_As          of print * string
 (*Eval_Print_Sugar*)
 | Are_Different_Prints   of print   * print
-| Fpnode_Has_Print       of fpunode * print;
+| Fpnode_Has_Print       of fpunode * print
+(*Eval_Number*)
+| Are_Same_Number        of number * number
+| Is_Less_Than           of number * number
+| Is_Int                 of number * int;
 
 fun eval True         = EC.True
   | eval False        = EC.False
@@ -110,6 +116,10 @@ fun eval True         = EC.True
   | eval (Is_Printed_As pair)   = EPC.eval (EPC.Is_Printed_As   pair)
   (*Eval_Print_Sugar*)
   | eval (Are_Different_Prints pair) = EPS.eval (EPS.Are_Different_Prints pair)
-  | eval (Fpnode_Has_Print     pair) = EPS.eval (EPS.Fpnode_Has_Print     pair);
+  | eval (Fpnode_Has_Print     pair) = EPS.eval (EPS.Fpnode_Has_Print     pair)
+  (*Eval_Number*)
+  | eval (Are_Same_Number pair) = EN.eval (EN.Are_Same_Number pair)
+  | eval (Is_Less_Than    pair) = EN.eval (EN.Is_Less_Than    pair)
+  | eval (Is_Int          pair) = EN.eval (EN.Is_Int          pair);
 
 end;
