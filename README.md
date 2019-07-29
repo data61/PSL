@@ -84,10 +84,13 @@ We have three academic papers describing the ideas implemented in this project.
 - [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) at [CADE2017](https://doi.org/10.1007/978-3-319-63046-5_32) presents the overall idea of PSL.
 - [Goal-Oriented Conjecturing for Isabelle/HOL](http://arxiv.org/abs/1806.04774) at [CICM2018](https://doi.org/10.1007/978-3-319-96812-4_19) presents the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`.
 - [PaMpeR: Proof Method Recommendation System for Isabelle/HOL](http://arxiv.org/abs/1806.07239) at [ASE2018](http://doi.acm.org/10.1145/3238147.3238210) presents the proof method recommendation system implemented in `PSL/PaMpeR`.
+- [LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL](https://arxiv.org/abs/1906.08084) presents our domain specific language to encode induction heuristics.
 
 We presented the final goal of this project at [AITP2017](http://aitp-conference.org/2017/). Our position paper "Towards Smart Proof Search for Isabelle" is available at [arXiv](https://arxiv.org/abs/1701.03037).
 
 We are currently developing ``MeLoId``, an extension to `PSL` to improve its proof automation. Our position paper "Towards Machine Learning Induction" is available at [arXiv](https://arxiv.org/abs/1812.04088). We presented this abstract at [AITP2019](http://aitp-conference.org/2019/) and [LiVe2019](https://www7.in.tum.de/~kretinsk/LiVe2019.html).
+
+We also plan to improve the proof automation using evolutionary computation. We presented our plan during the poster session at [GECCO2019](https://gecco-2019.sigevo.org/index.html/HomePage). Our poster-only paper is available at [ACM digital library](https://doi.org/10.1145/3319619) and [arXiv](https://arxiv.org/abs/1904.08468).
 
 ## Citation
 - **PSL**:
@@ -140,6 +143,41 @@ isbn="978-3-319-96812-4"
  publisher = {ACM},
  address = {New York, NY, USA},
  keywords = {Isabelle/HOL, data mining, interactive theorem prover, proof method, recommendation system},
+}`
+
+- **Towards Evolutionary Theorem Proving for Isabelle/HOL**:
+`@inproceedings{Nagashima:2019:TET:3319619.3321921,
+ author = {Nagashima, Yutaka},
+ title = {Towards Evolutionary Theorem Proving for Isabelle/HOL},
+ booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference Companion},
+ series = {GECCO '19},
+ year = {2019},
+ isbn = {978-1-4503-6748-6},
+ location = {Prague, Czech Republic},
+ pages = {419--420},
+ numpages = {2},
+ url = {http://doi.acm.org/10.1145/3319619.3321921},
+ doi = {10.1145/3319619.3321921},
+ acmid = {3321921},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {genetic algorithm, isabelle/HOL, theorem proving},
+} 
+`
+
+- **LiFtEr**:
+`@article{DBLP:journals/corr/abs-1906-08084,
+  author    = {Yutaka Nagashima},
+  title     = {LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL},
+  journal   = {CoRR},
+  volume    = {abs/1906.08084},
+  year      = {2019},
+  url       = {http://arxiv.org/abs/1906.08084},
+  archivePrefix = {arXiv},
+  eprint    = {1906.08084},
+  timestamp = {Mon, 24 Jun 2019 17:28:45 +0200},
+  biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1906-08084},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
 }`
 
 - **Position Paper**:
