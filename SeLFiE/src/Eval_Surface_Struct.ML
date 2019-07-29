@@ -55,6 +55,10 @@ datatype assert =
 (*Eval_Print_Sugar*)
 | Are_Different_Prints   of name * name
 | Fpnode_Has_Print       of name * name
+(*Eval_Number*)
+| Are_Same_Number        of name  * name
+| Is_Less_Than           of name  * name
+| Is_Int                 of name  * int
 (*Quantifier*)
 | All                    of name * qtyp * assert
 | Some                   of name * qtyp * assert;
@@ -119,10 +123,14 @@ and
 | surf_to_mod (Is_Same_Occ_As pair) = EM.Assert (EP.Is_Same_Occ_As, name_pair_to_var_list pair)
 (*Eval_Print_Core*)
 | surf_to_mod (Are_Same_Prints  pair         ) = EM.Assert (EP.Are_Same_Prints, name_pair_to_var_list pair)
-| surf_to_mod (Is_Printed_As   (name, string)) = EM.Assert (EP.Is_Printed_As, [EM.Var name, EM.Literal (EP.String string)])
+| surf_to_mod (Is_Printed_As   (name, string)) = EM.Assert (EP.Is_Printed_As,   [EM.Var name, EM.Literal (EP.String string)])
 (*Eval_Print_Sugar*)
 | surf_to_mod (Are_Different_Prints pair) = EM.Assert (EP.Are_Different_Prints, name_pair_to_var_list pair)
 | surf_to_mod (Fpnode_Has_Print     pair) = EM.Assert (EP.Fpnode_Has_Print,     name_pair_to_var_list pair)
+(*Eval_Number*)
+| surf_to_mod (Are_Same_Number pair) = EM.Assert (EP.Are_Same_Number, name_pair_to_var_list pair)
+| surf_to_mod (Is_Less_Than    pair) = EM.Assert (EP.Is_Less_Than,    name_pair_to_var_list pair)
+| surf_to_mod (Is_Int   (name, int)) = EM.Assert (EP.Is_Int,          [EM.Var name, EM.Literal (EP.Int int)])
 (*Quantifier*)
 | surf_to_mod (All  (name, qyp, assert)) = EM.All  (name, convert_qtyp qyp, surf_to_mod assert)
 | surf_to_mod (Some (name, qyp, assert)) = EM.Some (name, convert_qtyp qyp, surf_to_mod assert);

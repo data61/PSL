@@ -55,6 +55,10 @@ datatype assert =
 (*Eval_Print_Sugar*)
 | Are_Different_Prints   of name * name
 | Fpnode_Has_Print       of name * name
+(*Eval_Number*)
+| Are_Same_Number        of name  * name
+| Is_Less_Than           of name  * name
+| Is_Int                 of name  * int
 (*Quantifier*)
 | All                    of name * qtyp * assert
 | Some                   of name * qtyp * assert;
