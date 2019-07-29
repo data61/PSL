@@ -4,6 +4,9 @@
 structure Eval_Parameters: EVAL_PARAMETERS =
 struct           
 
+structure EC  = Eval_Connective;
+structure EPC = Eval_Print_Core;
+structure EPS = Eval_Print_Sugar;
 structure EFP = Eval_Full_Path;
 structure EN  = Eval_Number;
 
@@ -76,62 +79,61 @@ datatype assert =
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
-fun
-  (*Eval_Connective*)
-    unlist True  []                                 = EFP.True
-  | unlist False []                                 = EFP.False
-  | unlist Not   [Connective assert]                = EFP.Not    assert
-  | unlist And   [Connective ass1, Connective ass2] = EFP.And   (ass1, ass2)
-  | unlist Or    [Connective ass1, Connective ass2] = EFP.Or    (ass1, ass2)
-  | unlist Nor   [Connective ass1, Connective ass2] = EFP.Nor   (ass1, ass2)
-  | unlist Imply [Connective ass1, Connective ass2] = EFP.Imply (ass1, ass2)
-  | unlist Ands  ands                               = EFP.Ands  (map de_Connective ands)
-  | unlist Ors   ors                                = EFP.Ors   (map de_Connective ors )
-  (*Eval_Node_Core*)
-  | unlist Is_Cnst   [Full_Path fp] = EFP.Is_Cnst   fp
-  | unlist Is_Free   [Full_Path fp] = EFP.Is_Free   fp
-  | unlist Is_Var    [Full_Path fp] = EFP.Is_Var    fp
-  | unlist Is_Bound  [Full_Path fp] = EFP.Is_Bound  fp
-  | unlist Is_Lambda [Full_Path fp] = EFP.Is_Lambda fp
-  | unlist Is_App    [Full_Path fp] = EFP.Is_App    fp
-  (*Eval_Node_Sugar*)
-  | unlist Is_Atom    [Full_Path fp] = EFP.Is_Atom    fp
-  | unlist Is_Compund [Full_Path fp] = EFP.Is_Compund fp
-  (*Eval_Unode_Core*)
-  | unlist Has_Same_Prnt_As  [Full_Path fp1, Full_Path fp2] = EFP.Has_Same_Prnt_As  (fp1, fp2)
-  | unlist Is_In_Trm_Prnt    [Full_Path fp1, Full_Path fp2] = EFP.Is_In_Trm_Prnt    (fp1, fp2)
-  | unlist Is_Deeper_Than    [Full_Path fp1, Full_Path fp2] = EFP.Is_Deeper_Than    (fp1, fp2)
-  | unlist Is_Shallower_Than [Full_Path fp1, Full_Path fp2] = EFP.Is_Shallower_Than (fp1, fp2)
-  | unlist Is_Path_Above     [Full_Path fp1, Full_Path fp2] = EFP.Is_Path_Above     (fp1, fp2)
-  | unlist Is_Same_Path_As   [Full_Path fp1, Full_Path fp2] = EFP.Is_Same_Path_As   (fp1, fp2)
-  (*Eval_Unode_Sugar*)
-  | unlist Is_As_Deep_As [Full_Path fp1, Full_Path fp2] = EFP.Is_As_Deep_As (fp1, fp2)
-  | unlist Is_Path_Below [Full_Path fp1, Full_Path fp2] = EFP.Is_Path_Below (fp1, fp2)
-  (*Eval_Fpunode_Core*)
-  | unlist Is_In_Same_Location_As [Full_Path fp1, Full_Path fp2] = EFP.Is_In_Same_Location_As (fp1, fp2)
-  | unlist Is_In_Chained          [Full_Path fp]                 = EFP.Is_In_Chained  fp
-  | unlist Is_In_Fst_Subg         [Full_Path fp]                 = EFP.Is_In_Fst_Subg fp
-  (*Eval_Fpunode_Sugar*)
-  | unlist Is_Above       [Full_Path fp1, Full_Path fp2] = EFP.Is_Above       (fp1, fp2)
-  | unlist Is_Below       [Full_Path fp1, Full_Path fp2] = EFP.Is_Below       (fp1, fp2)
-  | unlist Is_Same_Occ_As [Full_Path fp1, Full_Path fp2] = EFP.Is_Same_Occ_As (fp1, fp2)
-  (*Eval_Print_Core*)
-  | unlist Are_Same_Prints [Print p1, Print p2] = EFP.Are_Same_Prints (p1, p2)
-  | unlist Is_Printed_As   [Print p,  String s] = EFP.Is_Printed_As   (p, s)
-  (*Eval_Print_Sugar*)
-  | unlist Are_Different_Prints [Print p1, Print p2]     = EFP.Are_Different_Prints (p1, p2)
-  | unlist Fpnode_Has_Print     [Full_Path fp, Print pr] = EFP.Fpnode_Has_Print     (fp, pr)
-  (*Eval_Number*)
-  | unlist Are_Same_Number [Number numb1, Number numb2] = EFP.Are_Same_Number (EN.Number numb1, EN.Number numb2)
-  | unlist Is_Less_Than    [Number numb1, Number numb2] = EFP.Is_Less_Than    (EN.Number numb1, EN.Number numb2)
-  | unlist Is_Int          [Number numb,  Int    int  ] = EFP.Is_Int          (EN.Number numb,              int)
-  | unlist _ _ = error "unlist in Eval_Parameters_Struct.ML failed!"
 
 fun eval fp_to_fpun_table assert parameters =
   let
-    val assert_full_path = unlist assert parameters: EFP.assert;
+    fun
+      (*Eval_Connective*)
+        eval' True  []                                 = EC.eval  EC.True
+      | eval' False []                                 = EC.eval  EC.False
+      | eval' Not   [Connective assert]                = EC.eval (EC.Not    assert)
+      | eval' And   [Connective ass1, Connective ass2] = EC.eval (EC.And   (ass1, ass2))
+      | eval' Or    [Connective ass1, Connective ass2] = EC.eval (EC.Or    (ass1, ass2))
+      | eval' Nor   [Connective ass1, Connective ass2] = EC.eval (EC.Nor   (ass1, ass2))
+      | eval' Imply [Connective ass1, Connective ass2] = EC.eval (EC.Imply (ass1, ass2))
+      | eval' Ands  ands                               = EC.eval (EC.Ands  (map de_Connective ands))
+      | eval' Ors   ors                                = EC.eval (EC.Ors   (map de_Connective ors ))
+      (*Eval_Node_Core*)
+      | eval' Is_Cnst   [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Cnst   fp)
+      | eval' Is_Free   [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Free   fp)
+      | eval' Is_Var    [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Var    fp)
+      | eval' Is_Bound  [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Bound  fp)
+      | eval' Is_Lambda [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Lambda fp)
+      | eval' Is_App    [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_App    fp)
+      (*Eval_Node_Sugar*)
+      | eval' Is_Atom    [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Atom    fp)
+      | eval' Is_Compund [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Compund fp)
+      (*Eval_Unode_Core*)
+      | eval' Has_Same_Prnt_As  [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Has_Same_Prnt_As  (fp1, fp2))
+      | eval' Is_In_Trm_Prnt    [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_In_Trm_Prnt    (fp1, fp2))
+      | eval' Is_Deeper_Than    [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Deeper_Than    (fp1, fp2))
+      | eval' Is_Shallower_Than [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Shallower_Than (fp1, fp2))
+      | eval' Is_Path_Above     [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Path_Above     (fp1, fp2))
+      | eval' Is_Same_Path_As   [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Same_Path_As   (fp1, fp2))
+      (*Eval_Unode_Sugar*)
+      | eval' Is_As_Deep_As [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_As_Deep_As (fp1, fp2))
+      | eval' Is_Path_Below [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Path_Below (fp1, fp2))
+      (*Eval_Fpunode_Core*)
+      | eval' Is_In_Same_Location_As [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_In_Same_Location_As (fp1, fp2))
+      | eval' Is_In_Chained          [Full_Path fp]                 = EFP.eval fp_to_fpun_table (EFP.Is_In_Chained  fp)
+      | eval' Is_In_Fst_Subg         [Full_Path fp]                 = EFP.eval fp_to_fpun_table (EFP.Is_In_Fst_Subg fp)
+      (*Eval_Fpunode_Sugar*)
+      | eval' Is_Above       [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Above       (fp1, fp2))
+      | eval' Is_Below       [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Below       (fp1, fp2))
+      | eval' Is_Same_Occ_As [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Same_Occ_As (fp1, fp2))
+      (*Eval_Print_Core*)
+      | eval' Are_Same_Prints [Print p1, Print p2] = EPC.eval (EPC.Are_Same_Prints (p1, p2))
+      | eval' Is_Printed_As   [Print p,  String s] = EPC.eval (EPC.Is_Printed_As   (p, s))
+      (*Eval_Print_Sugar*)
+      | eval' Are_Different_Prints [Print p1, Print p2]     = EPS.eval (EPS.Are_Different_Prints (p1, p2))
+      | eval' Fpnode_Has_Print     [Full_Path fp, Print pr] = EFP.eval fp_to_fpun_table (EFP.Fpnode_Has_Print     (fp, pr))
+      (*Eval_Number*)
+      | eval' Are_Same_Number [Number numb1, Number numb2] = EN.eval (EN.Are_Same_Number (EN.Number numb1, EN.Number numb2))
+      | eval' Is_Less_Than    [Number numb1, Number numb2] = EN.eval (EN.Is_Less_Than    (EN.Number numb1, EN.Number numb2))
+      | eval' Is_Int          [Number numb,  Int    int  ] = EN.eval (EN.Is_Int          (EN.Number numb,              int))
+      | eval' _ _ = error "eval' in Eval_Parameters_Struct.ML failed!"
   in
-    EFP.eval fp_to_fpun_table assert_full_path
+    eval' assert parameters: Eval_Connective.assert
   end;
 
 end;

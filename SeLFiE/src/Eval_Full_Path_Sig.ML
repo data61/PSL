@@ -9,18 +9,8 @@ type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
 
 datatype assert =
-(*Eval_Connective*)
-  True
-| False
-| Not                    of connective
-| And                    of connective * connective
-| Or                     of connective * connective
-| Nor                    of connective * connective
-| Imply                  of connective * connective
-| Ands                   of connective list
-| Ors                    of connective list
 (*Eval_Node_Core*)
-| Is_Cnst                of full_path
+  Is_Cnst                of full_path
 | Is_Free                of full_path
 | Is_Var                 of full_path
 | Is_Bound               of full_path
@@ -47,16 +37,8 @@ datatype assert =
 | Is_Above               of full_path * full_path
 | Is_Below               of full_path * full_path
 | Is_Same_Occ_As         of full_path * full_path
-(*Eval_Print_Core*)
-| Are_Same_Prints        of print * print
-| Is_Printed_As          of print * string
 (*Eval_Print_Sugar*)
-| Are_Different_Prints   of print     * print
-| Fpnode_Has_Print       of full_path * print
-(*Eval_Number*)
-| Are_Same_Number        of number * number
-| Is_Less_Than           of number * number
-| Is_Int                 of number * int;
+| Fpnode_Has_Print       of full_path * print;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 

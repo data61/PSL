@@ -23,44 +23,46 @@ datatype assert =
 | Ands                   of connective list
 | Ors                    of connective list
 (*Eval_Node_Core*)
-| Is_Cnst                of node
-| Is_Free                of node
-| Is_Var                 of node
-| Is_Bound               of node
-| Is_Lambda              of node
-| Is_App                 of node
+| Is_Cnst                of full_path
+| Is_Free                of full_path
+| Is_Var                 of full_path
+| Is_Bound               of full_path
+| Is_Lambda              of full_path
+| Is_App                 of full_path
 (*Eval_Node_Sugar*)
-| Is_Atom                of node
-| Is_Compund             of node
+| Is_Atom                of full_path
+| Is_Compund             of full_path
 (*Eval_Unode_Core*)
-| Has_Same_Prnt_As       of unode * unode
-| Is_In_Trm_Prnt         of unode * unode
-| Is_Deeper_Than         of unode * unode
-| Is_Shallower_Than      of unode * unode
-| Is_Path_Above          of unode * unode
-| Is_Same_Path_As        of unode * unode
+| Has_Same_Prnt_As       of full_path * full_path
+| Is_In_Trm_Prnt         of full_path * full_path
+| Is_Deeper_Than         of full_path * full_path
+| Is_Shallower_Than      of full_path * full_path
+| Is_Path_Above          of full_path * full_path
+| Is_Same_Path_As        of full_path * full_path
 (*Eval_Unode_Sugar*)
-| Is_As_Deep_As          of unode * unode
-| Is_Path_Below          of unode * unode
+| Is_As_Deep_As          of full_path * full_path
+| Is_Path_Below          of full_path * full_path
 (*Eval_Fpunode_Core*)
-| Is_In_Same_Location_As of fpunode * fpunode
-| Is_In_Chained          of fpunode
-| Is_In_Fst_Subg         of fpunode
+| Is_In_Same_Location_As of full_path * full_path
+| Is_In_Chained          of full_path
+| Is_In_Fst_Subg         of full_path
 (*Eval_Fpunode_Sugar*)
-| Is_Above               of fpunode * fpunode
-| Is_Below               of fpunode * fpunode
-| Is_Same_Occ_As         of fpunode * fpunode
+| Is_Above               of full_path * full_path
+| Is_Below               of full_path * full_path
+| Is_Same_Occ_As         of full_path * full_path
 (*Eval_Print_Core*)
 | Are_Same_Prints        of print * print
 | Is_Printed_As          of print * string
 (*Eval_Print_Sugar*)
-| Are_Different_Prints   of print   * print
-| Fpnode_Has_Print       of fpunode * print
+| Are_Different_Prints   of print     * print
+| Fpnode_Has_Print       of full_path * print
 (*Eval_Number*)
 | Are_Same_Number        of number * number
 | Is_Less_Than           of number * number
 | Is_Int                 of number * int;
 
-val eval: assert -> Eval_Connective.assert;
+type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
+
+val eval: full_path_to_fpunode_table -> assert -> Eval_Connective.assert;
 
 end

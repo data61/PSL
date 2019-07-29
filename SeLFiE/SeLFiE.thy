@@ -56,11 +56,10 @@ ML_file "src/Eval_Print_Sugar_Sig.ML"
 ML_file "src/Eval_Print_Sugar_Struct.ML"
 ML_file "src/Eval_Number_Sig.ML"
 ML_file "src/Eval_Number_Struct.ML"(*WIP*)
-(*TODO: Probably the right order is: first Eval_Full_Path then Eval_Primitive.*)
-ML_file "src/Eval_Primitive_Sig.ML"
-ML_file "src/Eval_Primitive_Struct.ML"
 ML_file "src/Eval_Full_Path_Sig.ML"
 ML_file "src/Eval_Full_Path_Struct.ML"
+ML_file "src/Eval_Primitive_Sig.ML"
+ML_file "src/Eval_Primitive_Struct.ML"
 ML_file "src/Eval_Parameters_Sig.ML"
 ML_file "src/Eval_Parameters_Struct.ML"
 ML_file "src/Eval_Bound_Sig.ML"
