@@ -59,6 +59,8 @@ datatype assert =
 | Are_Same_Number        of name  * name
 | Is_Less_Than           of name  * name
 | Is_Int                 of name  * int
+(*Other*)
+| Is_Nth_Arg_Of          of name * name * name
 (*Quantifier*)
 | All                    of name * qtyp * assert
 | Some                   of name * qtyp * assert;
@@ -131,6 +133,8 @@ and
 | surf_to_mod (Are_Same_Number pair) = EM.Assert (EP.Are_Same_Number, name_pair_to_var_list pair)
 | surf_to_mod (Is_Less_Than    pair) = EM.Assert (EP.Is_Less_Than,    name_pair_to_var_list pair)
 | surf_to_mod (Is_Int   (name, int)) = EM.Assert (EP.Is_Int,          [EM.Var name, EM.Literal (EP.Int int)])
+(*Other*)
+| surf_to_mod (Is_Nth_Arg_Of (fp_name1, numb_name, fp_name2)) = EM.Assert (EP.Is_Nth_Arg_Of, [EM.Var fp_name1, EM.Var numb_name, EM.Var fp_name2])
 (*Quantifier*)
 | surf_to_mod (All  (name, qyp, assert)) = EM.All  (name, convert_qtyp qyp, surf_to_mod assert)
 | surf_to_mod (Some (name, qyp, assert)) = EM.Some (name, convert_qtyp qyp, surf_to_mod assert);

@@ -110,7 +110,7 @@ fun
   | eval' (Is_Below       pair) = full_path2_to_fpunode2 pair |> EFS.Is_Below       |> EFS.eval
   | eval' (Is_Same_Occ_As pair) = full_path2_to_fpunode2 pair |> EFS.Is_Same_Occ_As |> EFS.eval
   (*Eval_Print_Sugar*)
-  | eval' (Fpnode_Has_Print pair) = pair |> apfst full_path_to_fpunode |> EPS.Fpnode_Has_Print |> EPS.eval
+  | eval' (Fpnode_Has_Print pair) = pair |> apfst full_path_to_fpunode |> EPS.Fpnode_Has_Print |> EPS.eval;
 
 in eval' assert end;
 

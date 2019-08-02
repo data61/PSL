@@ -2,6 +2,9 @@
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 signature EVAL_PRIMITIVE =
+(*TODO: Probably we do not need this module.
+ *      This module is used by Eval_Parameters only for Others.
+ *      Rename it to Eval_Other.*)
 sig
 
 type connective = Eval_Connective.assert;
@@ -59,7 +62,9 @@ datatype assert =
 (*Eval_Number*)
 | Are_Same_Number        of number * number
 | Is_Less_Than           of number * number
-| Is_Int                 of number * int;
+| Is_Int                 of number * int
+(*Others. TODO: Maybe it is better to use a separate module for Others.*)
+| Is_Nth_Arg_Of          of full_path * number * full_path;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 

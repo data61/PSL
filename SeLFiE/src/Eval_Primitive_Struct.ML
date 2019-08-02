@@ -65,7 +65,9 @@ datatype assert =
 (*Eval_Number*)
 | Are_Same_Number        of number * number
 | Is_Less_Than           of number * number
-| Is_Int                 of number * int;
+| Is_Int                 of number * int
+(*Others*)
+| Is_Nth_Arg_Of          of full_path * number * full_path;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
@@ -117,7 +119,10 @@ fun eval fpun_table assert =
       (*Eval_Number*)
       | eval' (Are_Same_Number pair) = EN.eval (EN.Are_Same_Number pair)
       | eval' (Is_Less_Than    pair) = EN.eval (EN.Is_Less_Than    pair)
-      | eval' (Is_Int          pair) = EN.eval (EN.Is_Int          pair);
+      | eval' (Is_Int          pair) = EN.eval (EN.Is_Int          pair)
+      (*Others*)
+      | eval' (Is_Nth_Arg_Of ((loc1, path1), EN.Number n,  (loc2, path2))) =
+        (loc1 = loc2 andalso UN.is_nth_arg_of path1 n path2) |> EC.bool_to_assert_connective;
   in
     eval' assert
   end;

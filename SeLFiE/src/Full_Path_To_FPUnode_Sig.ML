@@ -20,6 +20,7 @@ The overall work-flow is:
 *)
 datatype location = Subgoal of int | Chained_Fact of int;
 
+(*TODO: remove are_same_location. (op =) can do the job.*)
 fun are_same_location (Subgoal      n) (Subgoal      m) = n = m
   | are_same_location (Chained_Fact n) (Chained_Fact m) = n = m
   | are_same_location  _                _               = false;

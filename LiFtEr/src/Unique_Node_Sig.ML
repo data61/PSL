@@ -85,6 +85,10 @@ val are_same_path: path -> path -> bool;
 
 val path1_is_above_path2: path -> path -> bool;
 
+val have_same_ancestors_only: path -> path -> bool;
+
+val is_nth_arg_of: path -> int -> path -> bool;
+
 (* paths *)
 type paths = path list;
 

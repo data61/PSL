@@ -9,6 +9,7 @@ structure EPC = Eval_Print_Core;
 structure EPS = Eval_Print_Sugar;
 structure EFP = Eval_Full_Path;
 structure EN  = Eval_Number;
+structure EP  = Eval_Primitive;
 
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
@@ -19,7 +20,7 @@ datatype parameter =
 | Full_Path  of full_path
 | Print      of print
 | String     of string(*redundant?*)
-| Number     of int
+| Number     of Eval_Number.number
 | Int        of int;
 
 type     parameters = parameter list;
@@ -75,7 +76,9 @@ datatype assert =
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
-| Is_Int;
+| Is_Int
+(*Others*)
+| Is_Nth_Arg_Of;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
@@ -128,9 +131,11 @@ fun eval fp_to_fpun_table assert parameters =
       | eval' Are_Different_Prints [Print p1, Print p2]     = EPS.eval (EPS.Are_Different_Prints (p1, p2))
       | eval' Fpnode_Has_Print     [Full_Path fp, Print pr] = EFP.eval fp_to_fpun_table (EFP.Fpnode_Has_Print     (fp, pr))
       (*Eval_Number*)
-      | eval' Are_Same_Number [Number numb1, Number numb2] = EN.eval (EN.Are_Same_Number (EN.Number numb1, EN.Number numb2))
-      | eval' Is_Less_Than    [Number numb1, Number numb2] = EN.eval (EN.Is_Less_Than    (EN.Number numb1, EN.Number numb2))
-      | eval' Is_Int          [Number numb,  Int    int  ] = EN.eval (EN.Is_Int          (EN.Number numb,              int))
+      | eval' Are_Same_Number [Number numb1,  Number numb2]            = EN.eval (EN.Are_Same_Number (numb1, numb2))
+      | eval' Is_Less_Than    [Number numb1,  Number numb2]            = EN.eval (EN.Is_Less_Than    (numb1, numb2))
+      | eval' Is_Int          [Number numb,   Int    int  ]            = EN.eval (EN.Is_Int          (numb,    int))
+      (*Others*)
+      | eval' Is_Nth_Arg_Of   [Full_Path fp1, Number n, Full_Path fp2] = EP.eval fp_to_fpun_table (EP.Is_Nth_Arg_Of (fp1, n, fp2))
       | eval' _ _ = error "eval' in Eval_Parameters_Struct.ML failed!"
   in
     eval' assert parameters: Eval_Connective.assert

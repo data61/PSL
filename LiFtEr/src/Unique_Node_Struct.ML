@@ -207,6 +207,16 @@ fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_abov
   | path1_is_above_path2 ([]   :path) (_::_ :path) = true
   | path1_is_above_path2  _            _           = false;
 
+fun have_same_ancestors_only     []      []  = false
+  | have_same_ancestors_only    [x]     [y]  = x = y
+  | have_same_ancestors_only (x::xs) (y::ys) = x = y andalso have_same_ancestors_only xs ys
+  | have_same_ancestors_only      _       _  = false;
+
+fun is_nth_arg_of (path1:path) (n:int) (path2) =
+  if   have_same_ancestors_only path1 path2 andalso (not o null) path1 andalso (not o null) path2
+  then Utils.last path1 = 0 andalso Utils.last path2 = n
+  else false;
+
 (* paths *)
 type paths = path list;
 

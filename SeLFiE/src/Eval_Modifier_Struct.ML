@@ -7,7 +7,6 @@ struct
 structure EQC  = Eval_Quantifier_Core;
 structure FPTF = Full_Path_To_Fpunode;
 structure EP   = Eval_Parameters;
-structure LU   = LiFtEr_Util;
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule;
 

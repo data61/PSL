@@ -13,7 +13,6 @@ datatype assert =
 | Are_Same_Number  of number  * number
 | Is_Less_Than     of number  * number
 (*
-| Is_Nth_Arg_Of    of fpunode * number * fpunode
 | Is_Nth_Ind       of print   * number (*Counting starts with 0.*)
 | Is_Nth_Arb       of print   * number (*Counting starts with 0.*)
 *)

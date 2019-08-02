@@ -59,6 +59,8 @@ datatype assert =
 | Are_Same_Number        of name  * name
 | Is_Less_Than           of name  * name
 | Is_Int                 of name  * int
+(*Other*)
+| Is_Nth_Arg_Of          of name * name * name
 (*Quantifier*)
 | All                    of name * qtyp * assert
 | Some                   of name * qtyp * assert;
