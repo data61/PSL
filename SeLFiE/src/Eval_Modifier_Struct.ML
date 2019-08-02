@@ -6,6 +6,8 @@ struct
 
 structure EQC  = Eval_Quantifier_Core;
 structure FPTF = Full_Path_To_Fpunode;
+structure EP   = Eval_Parameters;
+structure LU   = LiFtEr_Util;
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule;
 
@@ -28,12 +30,16 @@ val pst_to_ind_domain = undefined: Proof.state -> modifier -> Eval_Parameters.pa
 datatype expr =
   Var        of string
 | Lambda     of string * expr
-| Apply      of expr * expr
+| Apply      of expr   * expr
 | Connective of Eval_Connective.assert
 | Literal    of Eval_Parameters.parameter
 | Assert     of Eval_Parameters.assert * expr list
 | All        of string * qtyp * expr
-| Some       of string * qtyp * expr;
+| Some       of string * qtyp * expr
+| Is_Rule_Of of expr   * expr;
+
+(*TODO:*)
+(*convert_parameter *)
 
 (*TODO: Double-check if I can treat a rule as a print.*)
 fun convert_qtyp QFull_Path = EQC.QFull_Path
@@ -50,14 +56,24 @@ fun convert_expr (Var        vname                 ) = EQC.Var         vname
   | convert_expr (Assert     (assrt, ps)           ) = EQC.Assert     (assrt, map convert_expr ps)
   | convert_expr (All        (vname, qtyp, subexpr)) = EQC.All        (vname, convert_qtyp qtyp, convert_expr subexpr)
   | convert_expr (Some       (vname, qtyp, subexpr)) = EQC.Some       (vname, convert_qtyp qtyp, convert_expr subexpr)
+  | convert_expr  _                                  = error "convert_expr in Eval_Modifer failed."
+
+infix Is_Rule_Of
 
 fun eval pst (expr:expr) = 
   let
     val full_path_to_fpunode_table = FPTF.pst_to_full_path_to_fpunode_table pst: FPTF.full_path_to_fpunode_table;
     val print_to_paths_table       = Print_To_Full_Paths.full_path_to_fpunode_table_to_print_to_paths_table full_path_to_fpunode_table;
-    val expr'                      = convert_expr expr
+    fun eval' (Literal (EP.Print rule) Is_Rule_Of Literal (EP.Print print)) =
+                   LiFtEr_Util.same_prints rule print
+                |> Eval_Connective.bool_to_assert_connective
+                |> Connective
+      | eval'  _ = convert_expr expr
+                |> EQC.eval full_path_to_fpunode_table print_to_paths_table
+                |> EQC.de_Connective
+                |> Connective
   in
-    EQC.eval full_path_to_fpunode_table print_to_paths_table expr' |> EQC.de_Connective |> Connective
-  end
+    eval' expr
+  end;
 
 end;
