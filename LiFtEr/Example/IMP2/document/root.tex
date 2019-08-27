@@ -1,0 +1,85 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\newcommand{\isactrlimp}{{\bf imp}}
+\newcommand{\isactrlhtriple}{{\bf htriple}}
+%\newcommand{\isactrlhtriple_partial}{{\bf htriple\_partial}}
+
+
+\begin{document}
+
+\title{IMP2 --- Simple Program Verification in Isabelle/HOL}
+\author{Peter Lammich \and Simon Wimmer}
+\maketitle
+
+\abstract{
+IMP2 is a simple imperative language together with Isabelle tooling to 
+create a program verification environment in Isabelle/HOL.
+The tools include a C-like syntax, a verification condition generator, 
+and Isabelle commands for the specification of programs. 
+The framework is modular, i.e., it allows easy reuse of already proved programs 
+within larger programs.
+
+This entry comes with a quickstart guide and a large collection of examples, 
+spanning basic algorithms with simple proofs to more advanced algorithms and 
+proof techniques like data refinement.
+Some highlights from the examples are: Bisection Square Root, Extended Euclid, 
+Exponentiation by Squaring, Binary Search, Insertion Sort, Quicksort, Depth First Search.
+
+The abstract syntax and semantics are very simple and well-documented. 
+They are suitable to be used in a course, as extension to the IMP language 
+which comes with the Isabelle distribution.
+
+While this entry is limited to a simple imperative language,
+the ideas could be extended to more sophisticated languages.
+}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

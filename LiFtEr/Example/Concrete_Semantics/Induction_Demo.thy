@@ -8,7 +8,7 @@
  *
  *)
 theory Induction_Demo
-  imports Main "../LiFtEr"
+  imports Main "../../LiFtEr"
 begin
 
 (* HINT FOR ONLINE DEMO
@@ -118,6 +118,7 @@ val Example6 = ind_is_not_arb And vars_in_ind_terms_are_generalized;
 end;
 \<close>
 
+setup\<open> Apply_LiFtEr.update_assert "example_0"  (LiFtEr.Some_Rule (LiFtEr.Rule 1, (LiFtEr.True)))                         \<close>
 setup\<open> Apply_LiFtEr.update_assert "example_1a" all_ind_term_are_non_const_wo_syntactic_sugar                           \<close>
 setup\<open> Apply_LiFtEr.update_assert "example_1b" all_ind_term_are_non_const_with_syntactic_sugar                         \<close>
 setup\<open> Apply_LiFtEr.update_assert "example_2"  all_ind_terms_have_an_occ_as_variable_at_bottom                         \<close>
@@ -151,7 +152,7 @@ Ind_Mods
   }: ind_mods;
 
 (* Alternative proof found by Yutaka Nagashima.*)
-val alt_prf =
+val xs_ys_rule_itrev_induct =
 Ind_Mods
  {ons   = [Ind_On  (Print "xs"), Ind_On (Print "ys")],
   arbs  = [],
@@ -161,35 +162,35 @@ Ind_Mods
 end;
 \<close>
 
-setup\<open> Apply_LiFtEr.update_ind_mod "model_prf"   official_solution_for_itrev_equals_rev \<close>
-setup\<open> Apply_LiFtEr.update_ind_mod "bad_non_prf" bad_answer_for_itrev_equals_rev        \<close>
-setup\<open> Apply_LiFtEr.update_ind_mod "alt_prf"     alt_prf                                \<close>
+setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_xs_arbitrary_ys"   official_solution_for_itrev_equals_rev \<close>
+setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_itrev_arbitrary_ys" bad_answer_for_itrev_equals_rev        \<close>
+setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_xs_ys_rule_itrev_induct"     xs_ys_rule_itrev_induct                                \<close>
 
-lemma "itrev xs ys = rev xs @ ys"
-  (*The first argument to assert_LiFtEr_true is the identifier of a LiFtEr assertion, while
- *the second argument to assert_LiFtEr_true is the identifier of a combination of arguments to
- *the induct method.*)
-  assert_LiFtEr_true  example_1a model_prf
-  assert_LiFtEr_false example_1a bad_non_prf
-  assert_LiFtEr_true  example_1b model_prf
-  assert_LiFtEr_false example_1b bad_non_prf
-  assert_LiFtEr_true  example_2  model_prf
-  assert_LiFtEr_false example_2  bad_non_prf
-  assert_LiFtEr_true  example_3  model_prf
-  assert_LiFtEr_false example_3  bad_non_prf
-  assert_LiFtEr_true  example_3  alt_prf
-  assert_LiFtEr_true  example_4  model_prf
-  assert_LiFtEr_false example_4  bad_non_prf
-  assert_LiFtEr_true  example_4  alt_prf
-  assert_LiFtEr_true  example_5  model_prf
-  assert_LiFtEr_true  example_5  bad_non_prf (*This is a little unfortunate: example_5 alone cannot detect bad_non_prf is inappropriate.*)
-  assert_LiFtEr_true  example_5  alt_prf
-  assert_LiFtEr_true  example_6a model_prf
-  assert_LiFtEr_true  example_6a bad_non_prf (*This is a little unfortunate: example_6a alone cannot detect bad_non_prf is inappropriate.*)
-  assert_LiFtEr_true  example_6a alt_prf
-  assert_LiFtEr_true  example_6b model_prf
-  assert_LiFtEr_true  example_6b bad_non_prf (*This is a little unfortunate: example_6b alone cannot detect bad_non_prf is inappropriate.*)
-  assert_LiFtEr_true  example_6b alt_prf
+ lemma "itrev xs ys = rev xs @ ys"
+  assert_LiFtEr example_1a [on["xs"],     arb["ys"],rule[]]
+  assert_LiFtEr example_1a [on["xs","ys"],arb["ys"],rule["itrev.induct"]]
+  assert_LiFtEr example_1a [on["itrev"],  arb["ys"],rule[]]
+  
+  assert_LiFtEr_false example_1a induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  example_1b induct_on_xs_arbitrary_ys
+  assert_LiFtEr_false example_1b induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  example_2  induct_on_xs_arbitrary_ys
+  assert_LiFtEr_false example_2  induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  example_3  induct_on_xs_arbitrary_ys
+  assert_LiFtEr_false example_3  induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  example_3  induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_true  example_4  induct_on_xs_arbitrary_ys
+  assert_LiFtEr_false example_4  induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  example_4  induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_true  example_5  induct_on_xs_arbitrary_ys
+  assert_LiFtEr_true  example_5  induct_on_itrev_arbitrary_ys (*This is a little unfortunate: example_5 alone cannot detect induct_on_itrev_arbitrary_ys is inappropriate.*)
+  assert_LiFtEr_true  example_5  induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_true  example_6a induct_on_xs_arbitrary_ys
+  assert_LiFtEr_true  example_6a induct_on_itrev_arbitrary_ys (*This is a little unfortunate: example_6a alone cannot detect induct_on_itrev_arbitrary_ys is inappropriate.*)
+  assert_LiFtEr_true  example_6a induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_true  example_6b induct_on_xs_arbitrary_ys
+  assert_LiFtEr_true  example_6b induct_on_itrev_arbitrary_ys (*This is a little unfortunate: example_6b alone cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_true  example_6b induct_on_xs_ys_rule_itrev_induct
   oops
 
 (*Model proof by Nipkow et.al.*)
