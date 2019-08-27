@@ -9,6 +9,7 @@ theory LiFtEr
   keywords "assert_LiFtEr_true" :: diag
    and     "assert_LiFtEr_false":: diag
    and     "assert_LiFtEr"      :: diag
+   and     "test_all_LiFtErs"   :: diag
 begin
 
 ML_file "../src/Utils.ML"
@@ -35,8 +36,9 @@ ML_file "src/Apply_LiFtEr_Sig.ML"
 ML_file "src/Apply_LiFtEr_Struct.ML"
 ML_file "src/LiFtEr_Assertion_Struct.ML"
 
-ML\<open> Apply_LiFtEr.activate (); \<close>
+ML\<open> Apply_LiFtEr.activate ();  \<close>
 ML\<open> Apply_LiFtEr.activate2 (); \<close>
+ML\<open> Apply_LiFtEr.activate3 (); \<close>
 
 ML\<open>
 Symbol.is_printable "\<pi>";

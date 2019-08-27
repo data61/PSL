@@ -118,7 +118,6 @@ val Example6 = ind_is_not_arb And vars_in_ind_terms_are_generalized;
 end;
 \<close>
 
-setup\<open> Apply_LiFtEr.update_assert "example_0"  (LiFtEr.Some_Rule (LiFtEr.Rule 1, (LiFtEr.True)))                         \<close>
 setup\<open> Apply_LiFtEr.update_assert "example_1a" all_ind_term_are_non_const_wo_syntactic_sugar                           \<close>
 setup\<open> Apply_LiFtEr.update_assert "example_1b" all_ind_term_are_non_const_with_syntactic_sugar                         \<close>
 setup\<open> Apply_LiFtEr.update_assert "example_2"  all_ind_terms_have_an_occ_as_variable_at_bottom                         \<close>
@@ -166,11 +165,15 @@ setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_xs_arbitrary_ys"   official_
 setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_itrev_arbitrary_ys" bad_answer_for_itrev_equals_rev        \<close>
 setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_xs_ys_rule_itrev_induct"     xs_ys_rule_itrev_induct                                \<close>
 
- lemma "itrev xs ys = rev xs @ ys"
+lemma "itrev xs ys = rev xs @ ys"
   assert_LiFtEr example_1a [on["xs"],     arb["ys"],rule[]]
-  assert_LiFtEr example_1a [on["xs","ys"],arb["ys"],rule["itrev.induct"]]
-  assert_LiFtEr example_1a [on["itrev"],  arb["ys"],rule[]]
-  
+  assert_LiFtEr example_1a [on["xs","ys"],arb[],    rule["itrev.induct"]]
+  (*assert_LiFtEr example_1a [on["itrev"],  arb["ys"],rule[]]*)
+
+  test_all_LiFtErs [on["xs"],     arb["ys"],rule[]]
+  test_all_LiFtErs [on["xs","ys"],arb[],    rule["itrev.induct"]]
+  test_all_LiFtErs [on["itrev"],  arb["ys"],rule[]]
+
   assert_LiFtEr_false example_1a induct_on_itrev_arbitrary_ys
   assert_LiFtEr_true  example_1b induct_on_xs_arbitrary_ys
   assert_LiFtEr_false example_1b induct_on_itrev_arbitrary_ys
