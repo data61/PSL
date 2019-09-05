@@ -19,9 +19,18 @@ begin
    proof attempt.
 *)
 
-fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
-  "itrev [] ys = ys" |
+ primrec rev :: "'a list \<Rightarrow> 'a list" where
+  "rev []       = []" |
+  "rev (x # xs) = rev xs @ [x]"
+
+
+ fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+  "itrev []     ys = ys" |
   "itrev (x#xs) ys = itrev xs (x#ys)"
+
+
+ lemma "itrev xs ys = rev xs @ ys"
+  apply(induct xs arbitrary: ys) apply auto done
 
 ML\<open> (* Example assertions in LiFtEr. *)
 local
@@ -118,14 +127,14 @@ val Example6 = ind_is_not_arb And vars_in_ind_terms_are_generalized;
 end;
 \<close>
 
-setup\<open> Apply_LiFtEr.update_assert "example_1a" all_ind_term_are_non_const_wo_syntactic_sugar                           \<close>
-setup\<open> Apply_LiFtEr.update_assert "example_1b" all_ind_term_are_non_const_with_syntactic_sugar                         \<close>
-setup\<open> Apply_LiFtEr.update_assert "example_2"  all_ind_terms_have_an_occ_as_variable_at_bottom                         \<close>
-setup\<open> Apply_LiFtEr.update_assert "example_3"  all_ind_vars_are_arguments_of_a_recursive_function                      \<close>
-setup\<open> Apply_LiFtEr.update_assert "example_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete\<close>
-setup\<open> Apply_LiFtEr.update_assert "example_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order     \<close>
-setup\<open> Apply_LiFtEr.update_assert "example_6a" ind_is_not_arb                                                          \<close>
-setup\<open> Apply_LiFtEr.update_assert "example_6b" vars_in_ind_terms_are_generalized                                       \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_1a" all_ind_term_are_non_const_wo_syntactic_sugar                           \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_1b" all_ind_term_are_non_const_with_syntactic_sugar                         \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_2"  all_ind_terms_have_an_occ_as_variable_at_bottom                         \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_3"  all_ind_vars_are_arguments_of_a_recursive_function                      \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete\<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order     \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_6a" ind_is_not_arb                                                          \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_6b" vars_in_ind_terms_are_generalized                                       \<close>
 
 ML\<open> (*Arguments for the induct method to attack "itrev xs ys = rev xs @ ys". *)
 local
@@ -165,35 +174,35 @@ setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_xs_arbitrary_ys"   official_
 setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_itrev_arbitrary_ys" bad_answer_for_itrev_equals_rev        \<close>
 setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_xs_ys_rule_itrev_induct"     xs_ys_rule_itrev_induct                                \<close>
 
-lemma "itrev xs ys = rev xs @ ys"
-  assert_LiFtEr example_1a [on["xs"],     arb["ys"],rule[]]
-  assert_LiFtEr example_1a [on["xs","ys"],arb[],    rule["itrev.induct"]]
-  (*assert_LiFtEr example_1a [on["itrev"],  arb["ys"],rule[]]*)
+ lemma "itrev xs ys = rev xs @ ys"
+  assert_LiFtEr heuristic_1a [on["xs"],     arb["ys"],rule[]]
+  assert_LiFtEr heuristic_1a [on["xs","ys"],arb[],    rule["itrev.induct"]]
+(*  assert_LiFtEr heuristic_1a [on["itrev"],  arb["ys"],rule[]]*)
 
   test_all_LiFtErs [on["xs"],     arb["ys"],rule[]]
   test_all_LiFtErs [on["xs","ys"],arb[],    rule["itrev.induct"]]
   test_all_LiFtErs [on["itrev"],  arb["ys"],rule[]]
 
-  assert_LiFtEr_false example_1a induct_on_itrev_arbitrary_ys
-  assert_LiFtEr_true  example_1b induct_on_xs_arbitrary_ys
-  assert_LiFtEr_false example_1b induct_on_itrev_arbitrary_ys
-  assert_LiFtEr_true  example_2  induct_on_xs_arbitrary_ys
-  assert_LiFtEr_false example_2  induct_on_itrev_arbitrary_ys
-  assert_LiFtEr_true  example_3  induct_on_xs_arbitrary_ys
-  assert_LiFtEr_false example_3  induct_on_itrev_arbitrary_ys
-  assert_LiFtEr_true  example_3  induct_on_xs_ys_rule_itrev_induct
-  assert_LiFtEr_true  example_4  induct_on_xs_arbitrary_ys
-  assert_LiFtEr_false example_4  induct_on_itrev_arbitrary_ys
-  assert_LiFtEr_true  example_4  induct_on_xs_ys_rule_itrev_induct
-  assert_LiFtEr_true  example_5  induct_on_xs_arbitrary_ys
-  assert_LiFtEr_true  example_5  induct_on_itrev_arbitrary_ys (*This is a little unfortunate: example_5 alone cannot detect induct_on_itrev_arbitrary_ys is inappropriate.*)
-  assert_LiFtEr_true  example_5  induct_on_xs_ys_rule_itrev_induct
-  assert_LiFtEr_true  example_6a induct_on_xs_arbitrary_ys
-  assert_LiFtEr_true  example_6a induct_on_itrev_arbitrary_ys (*This is a little unfortunate: example_6a alone cannot detect induct_on_itrev_arbitrary_ys is inappropriate.*)
-  assert_LiFtEr_true  example_6a induct_on_xs_ys_rule_itrev_induct
-  assert_LiFtEr_true  example_6b induct_on_xs_arbitrary_ys
-  assert_LiFtEr_true  example_6b induct_on_itrev_arbitrary_ys (*This is a little unfortunate: example_6b alone cannot detect bad_non_prf is inappropriate.*)
-  assert_LiFtEr_true  example_6b induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_false heuristic_1a induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  heuristic_1b induct_on_xs_arbitrary_ys
+  assert_LiFtEr_false heuristic_1b induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  heuristic_2  induct_on_xs_arbitrary_ys
+  assert_LiFtEr_false heuristic_2  induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  heuristic_3  induct_on_xs_arbitrary_ys
+  assert_LiFtEr_false heuristic_3  induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  heuristic_3  induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_true  heuristic_4  induct_on_xs_arbitrary_ys
+  assert_LiFtEr_false heuristic_4  induct_on_itrev_arbitrary_ys
+  assert_LiFtEr_true  heuristic_4  induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_true  heuristic_5  induct_on_xs_arbitrary_ys
+  assert_LiFtEr_true  heuristic_5  induct_on_itrev_arbitrary_ys (*This is a little unfortunate: heuristic_5 alone cannot detect induct_on_itrev_arbitrary_ys is inappropriate.*)
+  assert_LiFtEr_true  heuristic_5  induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_true  heuristic_6a induct_on_xs_arbitrary_ys
+  assert_LiFtEr_true  heuristic_6a induct_on_itrev_arbitrary_ys (*This is a little unfortunate: heuristic_6a alone cannot detect induct_on_itrev_arbitrary_ys is inappropriate.*)
+  assert_LiFtEr_true  heuristic_6a induct_on_xs_ys_rule_itrev_induct
+  assert_LiFtEr_true  heuristic_6b induct_on_xs_arbitrary_ys
+  assert_LiFtEr_true  heuristic_6b induct_on_itrev_arbitrary_ys (*This is a little unfortunate: heuristic_6b alone cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_true  heuristic_6b induct_on_xs_ys_rule_itrev_induct
   oops
 
 (*Model proof by Nipkow et.al.*)
@@ -243,11 +252,11 @@ setup\<open> Apply_LiFtEr.update_ind_mod "on_a_xs_rule_sep"   official_solution_
 setup\<open> Apply_LiFtEr.update_ind_mod "on_sep_a_xs_arb_xs" only_for_test                                \<close>
 
 lemma "map f (sep a xs) = sep (f a) (map f xs)"
-  assert_LiFtEr_true example_2 on_a_xs_rule_sep
-  assert_LiFtEr_true example_3 on_a_xs_rule_sep
-  assert_LiFtEr_true example_4 on_a_xs_rule_sep
-  assert_LiFtEr_true example_5 on_a_xs_rule_sep
-  assert_LiFtEr_true example_6b on_sep_a_xs_arb_xs
+  assert_LiFtEr_true heuristic_2  on_a_xs_rule_sep
+  assert_LiFtEr_true heuristic_3  on_a_xs_rule_sep
+  assert_LiFtEr_true heuristic_4  on_a_xs_rule_sep
+  assert_LiFtEr_true heuristic_5  on_a_xs_rule_sep
+  assert_LiFtEr_true heuristic_6b on_sep_a_xs_arb_xs
   apply(induction a xs rule: Induction_Demo.sep.induct)
     apply auto
   done
