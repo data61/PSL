@@ -81,14 +81,14 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 
 ## Documentations
 We have three academic papers describing the ideas implemented in this project.
-- [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) at [CADE2017](https://doi.org/10.1007/978-3-319-63046-5_32) presents the overall idea of PSL.
-- [Goal-Oriented Conjecturing for Isabelle/HOL](http://arxiv.org/abs/1806.04774) at [CICM2018](https://doi.org/10.1007/978-3-319-96812-4_19) presents the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`.
-- [PaMpeR: Proof Method Recommendation System for Isabelle/HOL](http://arxiv.org/abs/1806.07239) at [ASE2018](http://doi.acm.org/10.1145/3238147.3238210) presents the proof method recommendation system implemented in `PSL/PaMpeR`.
-- [LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL](https://arxiv.org/abs/1906.08084) presents our domain specific language to encode induction heuristics.
+- [A Proof Strategy Language and Proof Script Generation for Isabelle/HOL](https://arxiv.org/abs/1606.02941) at [CADE2017](https://doi.org/10.1007/978-3-319-63046-5_32) explains the overall idea of PSL.
+- [Goal-Oriented Conjecturing for Isabelle/HOL](http://arxiv.org/abs/1806.04774) at [CICM2018](https://doi.org/10.1007/978-3-319-96812-4_19) explains the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`.
+- [PaMpeR: Proof Method Recommendation System for Isabelle/HOL](http://arxiv.org/abs/1806.07239) at [ASE2018](http://doi.acm.org/10.1145/3238147.3238210) explains the proof method recommendation system implemented in `PSL/PaMpeR`.
+- [LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL](https://arxiv.org/abs/1906.08084) at [APLAS2019](https://conf.researchr.org/home/aplas-2019) explains our domain specific language to encode induction heuristics.
 
 We presented the final goal of this project at [AITP2017](http://aitp-conference.org/2017/). Our position paper "Towards Smart Proof Search for Isabelle" is available at [arXiv](https://arxiv.org/abs/1701.03037).
 
-We are currently developing ``MeLoId``, an extension to `PSL` to improve its proof automation. Our position paper "Towards Machine Learning Induction" is available at [arXiv](https://arxiv.org/abs/1812.04088). We presented this abstract at [AITP2019](http://aitp-conference.org/2019/) and [LiVe2019](https://www7.in.tum.de/~kretinsk/LiVe2019.html).
+We are currently developing ``MeLoId``, an extension to `PSL` to improve its proof automation. Our position paper "Towards Machine Learning Induction" is available at [arXiv](https://arxiv.org/abs/1812.04088). We presented this abstract at [AITP2019](http://aitp-conference.org/2019/), [LiVe2019](https://www7.in.tum.de/~kretinsk/LiVe2019.html), and [ML2019](https://icfp19.sigplan.org/home/mlfamilyworkshop-2019).
 
 We also plan to improve the proof automation using evolutionary computation. We presented our plan during the poster session at [GECCO2019](https://gecco-2019.sigevo.org/index.html/HomePage). Our poster-only paper is available at [ACM digital library](https://doi.org/10.1145/3319619) and [arXiv](https://arxiv.org/abs/1904.08468).
 
