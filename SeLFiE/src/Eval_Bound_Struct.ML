@@ -42,16 +42,20 @@ type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_tabl
 fun eval_prim (Literal param) = param
   | eval_prim  _              = error "eval_prim in Eval_Bound_Struct failed!"
 
-fun eval (table:full_path_to_fpunode_table) (Apply (t1, t2)) = (case eval table t1 of
-      Lambda u => eval table (subst 0 (eval table t2) u)
-    | u1       => Apply (u1, eval table t2))
-  | eval table (Assert (assert, param_exprs)) =
-    let
-      val params = map eval_prim param_exprs: Eval_Parameters.parameters;
-    in
-      Eval_Parameters.eval table assert params |> Connective
-    end
-  | eval _ t = t;
-
+fun eval (table:full_path_to_fpunode_table) (expr:expr) =
+let
+  fun eval' (Apply (trm1, trm2)) = (case eval' trm1 of
+        Lambda u => eval' (subst 0 (eval' trm2) u)
+      | u1       => Apply (u1, eval' trm2))
+    | eval' (Assert (assert, param_exprs)) =
+      let
+        val params = map eval_prim param_exprs: Eval_Parameters.parameters;
+      in
+        Eval_Parameters.eval table assert params |> Connective
+      end
+    | eval' t = t
+in
+  eval' expr
+end;
 
 end;

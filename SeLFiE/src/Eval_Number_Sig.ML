@@ -12,7 +12,7 @@ datatype assert =
   Connective       of Eval_Connective.assert
 | Are_Same_Number  of number  * number
 | Is_Less_Than     of number  * number
-(*
+(* TODO: Is_Nth_Ind and Is_Nth_Arb should be defined in Eval_Modifier.
 | Is_Nth_Ind       of print   * number (*Counting starts with 0.*)
 | Is_Nth_Arb       of print   * number (*Counting starts with 0.*)
 *)

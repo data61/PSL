@@ -55,10 +55,10 @@ ML_file "src/Eval_Print_Core_Struct.ML"
 ML_file "src/Eval_Print_Sugar_Sig.ML"
 ML_file "src/Eval_Print_Sugar_Struct.ML"
 ML_file "src/Eval_Number_Sig.ML"
-ML_file "src/Eval_Number_Struct.ML"(*WIP*)
-ML_file "src/Eval_Full_Path_Sig.ML"
+ML_file "src/Eval_Number_Struct.ML"
+ML_file "src/Eval_Full_Path_Sig.ML"(*TODO:Is_Nth_Arg*)
 ML_file "src/Eval_Full_Path_Struct.ML"
-ML_file "src/Eval_Primitive_Sig.ML"
+ML_file "src/Eval_Primitive_Sig.ML" (*TODO: a separate module for Is_Nth_Arg_Of?*)
 ML_file "src/Eval_Primitive_Struct.ML"
 ML_file "src/Eval_Parameters_Sig.ML"
 ML_file "src/Eval_Parameters_Struct.ML"
@@ -70,6 +70,10 @@ ML_file "src/Eval_Quantifier_Core_Sig.ML"
 ML_file "src/Eval_Quantifier_Core_Struct.ML"
 ML_file "src/Eval_Modifier_Sig.ML"(*TODO:add atomic-assertion "Is_Rule_Of"*)
 ML_file "src/Eval_Modifier_Struct.ML"
+(*TODO: bootstrapping*)
+(* Bootstrapping has to happen after introducing Eval_Modifier
+ * because we need modifiers to fetch related lemmas.
+ *)
 ML_file "src/Eval_Surface_Sig.ML"
 ML_file "src/Eval_Surface_Struct.ML"
 ML\<open> 
