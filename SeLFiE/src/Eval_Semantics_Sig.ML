@@ -70,10 +70,6 @@ datatype assert =
 | Holds_In_Any_Clause_Of of assert * name
 | Holds_In_One_Clause_Of of assert * name;
 
-val name_dup_check: assert -> bool;
-
-val type_check: assert -> bool;
-
 val eval: Proof.state -> assert -> bool;
 
 end;
