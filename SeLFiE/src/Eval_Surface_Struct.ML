@@ -63,7 +63,9 @@ datatype assert =
 | Is_Nth_Arg_Of          of name * name * name
 (*Quantifier*)
 | All                    of name * qtyp * assert
-| Some                   of name * qtyp * assert;
+| Some                   of name * qtyp * assert
+(*Modifier*)
+| Is_Rule_Of             of name * name;
 
 val name_dup_check = undefined: assert -> bool;
 
@@ -137,7 +139,9 @@ and
 | surf_to_mod (Is_Nth_Arg_Of (fp_name1, numb_name, fp_name2)) = EM.Assert (EP.Is_Nth_Arg_Of, [EM.Var fp_name1, EM.Var numb_name, EM.Var fp_name2])
 (*Quantifier*)
 | surf_to_mod (All  (name, qyp, assert)) = EM.All  (name, convert_qtyp qyp, surf_to_mod assert)
-| surf_to_mod (Some (name, qyp, assert)) = EM.Some (name, convert_qtyp qyp, surf_to_mod assert);
+| surf_to_mod (Some (name, qyp, assert)) = EM.Some (name, convert_qtyp qyp, surf_to_mod assert)
+(*Modifier*)
+| surf_to_mod (Is_Rule_Of pair) = surf_to_mod (Are_Same_Prints pair);
 
 fun eval (pst:Proof.state) (assert:assert) =
   let

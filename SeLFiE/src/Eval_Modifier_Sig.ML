@@ -22,8 +22,7 @@ datatype expr =
 | Literal    of Eval_Parameters.parameter
 | Assert     of Eval_Parameters.assert * expr list
 | All        of string * qtyp * expr
-| Some       of string * qtyp * expr
-| Is_Rule_Of of expr   * expr;
+| Some       of string * qtyp * expr;
 
 val eval: Proof.state -> expr -> expr;
 

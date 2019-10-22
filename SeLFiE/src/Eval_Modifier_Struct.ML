@@ -34,8 +34,7 @@ datatype expr =
 | Literal    of Eval_Parameters.parameter
 | Assert     of Eval_Parameters.assert * expr list
 | All        of string * qtyp * expr
-| Some       of string * qtyp * expr
-| Is_Rule_Of of expr   * expr;
+| Some       of string * qtyp * expr;
 
 (*TODO:*)
 (*convert_parameter *)
@@ -54,25 +53,18 @@ fun convert_expr (Var        vname                 ) = EQC.Var         vname
   | convert_expr (Literal    ps                    ) = EQC.Literal     ps
   | convert_expr (Assert     (assrt, ps)           ) = EQC.Assert     (assrt, map convert_expr ps)
   | convert_expr (All        (vname, qtyp, subexpr)) = EQC.All        (vname, convert_qtyp qtyp, convert_expr subexpr)
-  | convert_expr (Some       (vname, qtyp, subexpr)) = EQC.Some       (vname, convert_qtyp qtyp, convert_expr subexpr)
-  | convert_expr  _                                  = error "convert_expr in Eval_Modifer failed."
-
-infix Is_Rule_Of
+  | convert_expr (Some       (vname, qtyp, subexpr)) = EQC.Some       (vname, convert_qtyp qtyp, convert_expr subexpr);
 
 fun eval pst (expr:expr) = 
   let
     val full_path_to_fpunode_table = FPTF.pst_to_full_path_to_fpunode_table pst: FPTF.full_path_to_fpunode_table;
     val print_to_paths_table       = Print_To_Full_Paths.full_path_to_fpunode_table_to_print_to_paths_table full_path_to_fpunode_table;
-    fun eval' (Literal (EP.Print rule) Is_Rule_Of Literal (EP.Print print)) =
-                   LiFtEr_Util.same_prints rule print
-                |> Eval_Connective.bool_to_assert_connective
-                |> Connective
-      | eval'  _ = convert_expr expr
-                |> EQC.eval full_path_to_fpunode_table print_to_paths_table
-                |> EQC.de_Connective
-                |> Connective
+    val result = convert_expr expr
+              |> EQC.eval full_path_to_fpunode_table print_to_paths_table
+              |> EQC.de_Connective
+              |> Connective
   in
-    eval' expr
+    result
   end;
 
 end;

@@ -63,7 +63,9 @@ datatype assert =
 | Is_Nth_Arg_Of          of name * name * name
 (*Quantifier*)
 | All                    of name * qtyp * assert
-| Some                   of name * qtyp * assert;
+| Some                   of name * qtyp * assert
+(*Modifier*)
+| Is_Rule_Of             of name * name;
 
 val name_dup_check: assert -> bool;
 

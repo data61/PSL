@@ -69,6 +69,8 @@ ML_file "src/Eval_Var_Sig.ML"
 ML_file "src/Eval_Var_Struct.ML"
 ML_file "src/Eval_Quantifier_Core_Sig.ML"
 ML_file "src/Eval_Quantifier_Core_Struct.ML"
+(* We can define modifier after we define quantifier
+ * because modifiers qualify over sub-terms. *)
 ML_file "src/Eval_Modifier_Sig.ML"(*TODO:add atomic-assertion "Is_Rule_Of"*)
 ML_file "src/Eval_Modifier_Struct.ML"
 (*TODO: bootstrapping*)

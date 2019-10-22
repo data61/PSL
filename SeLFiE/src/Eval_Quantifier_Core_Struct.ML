@@ -7,7 +7,7 @@ struct
 structure EV = Eval_Var;
 structure EP = Eval_Parameters;
 
-datatype qtyp = QFull_Path | QPrint;(*| QNumb*)
+datatype qtyp = QFull_Path | QPrint;(*| QNumb TODO*)
 
 datatype expr =
   Var        of string
