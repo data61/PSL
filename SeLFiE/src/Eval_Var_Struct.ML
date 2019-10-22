@@ -32,7 +32,9 @@ fun var_to_bound env (Var        vname           ) = EB.Bound (lookup env vname)
   | var_to_bound env (Apply     (expr1, expr2   )) = EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
   | var_to_bound _   (Connective c               ) = EB.Connective c
   | var_to_bound _   (Literal    param           ) = EB.Literal param
-  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params);
+(*
+  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params)
+*);
 
 fun eval (table:full_path_to_fpunode_table) (expr:expr) =
   let
