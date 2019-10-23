@@ -6,6 +6,7 @@ local
 
 open Eval_Bound;
 structure EC = Eval_Connective;
+structure EP = Eval_Parameters;
 val empty_table = Full_Path_Table.empty;
 
 in
@@ -16,7 +17,7 @@ Apply
  (Lambda
   (Bound 0),
  (Connective EC.True));
-
+                                                                       
 val _ = @{assert} (Connective EC.True = eval empty_table expr1);
 
 (*(\<lambda>x. \<lambda>y. y) True False = False*)
@@ -32,14 +33,31 @@ Apply
 
 val _ = @{assert} (Connective EC.False = eval empty_table expr2);
 
-(*
-val expr2 =
+(*True \<or> False = True*)
+val expr3 = Connective (EC.Or (EC.True, EC.False));
+
+val _ = @{assert} (Connective EC.True = eval empty_table expr3);
+
+(*True \<and> False = False*)
+val expr4 = Connective (EC.And (EC.True, EC.False));
+
+val _ = @{assert} (Connective EC.False = eval empty_table expr4);
+
+(*(\<lambda>x. Not x) False = True*)
+(*We have to have connectives as
+val expr1 =
 Apply
  (Lambda
-  (Apply
-   (Assert (Eval_Parameters.Not)
-    Bound 0)
-   ),
+  (Connective (EC.Not (Bound 0))),
  (Connective EC.True));
 *)
+val expr5 =
+Apply
+ (Lambda
+  ((Assert (EP.Not, [Bound 0]))),
+ (Literal (EP.Connective EC.True)));
+(*What? We have two Trues? One as assert the other one as parameter?*)
+
+val _ = @{assert} (Connective EC.True = eval empty_table expr5);
+
 end;
