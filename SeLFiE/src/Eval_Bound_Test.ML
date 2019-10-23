@@ -16,28 +16,36 @@ val expr1 =
 Apply
  (Lambda
   (Bound 0),
- (Connective EC.True));
+ (Literal (EP.Connective EC.True)));
                                                                        
-val _ = @{assert} (Connective EC.True = eval empty_table expr1);
+val _ = @{assert} (Literal (EP.Connective EC.True) = eval empty_table expr1);
 
 (*(\<lambda>x. \<lambda>y. y) True False = False*)
 val expr2 =
 Apply
  (Apply
+  (Lambda
    (Lambda
-     (Lambda
-      (Bound 0)),
-     (Connective EC.True)),
-  Connective EC.False
+    (Bound 0)),
+   (Literal (EP.Connective EC.True))),
+  (Literal (EP.Connective EC.False))
   );
 
-val _ = @{assert} (Connective EC.False = eval empty_table expr2);
+val _ = @{assert} (Literal (EP.Connective EC.False) = eval empty_table expr2);
 
 (*True \<or> False = True*)
-val expr3 = Connective (EC.Or (EC.True, EC.False));
 (*
-val _ = @{assert} (Connective EC.True = eval empty_table expr3);
+val expr3 = Connective (EC.Or (EC.True, EC.False));
+*)
+val expr3 =
+Assert
+ (EP.Or,
+  [(Literal (EP.Connective EC.True)),
+   (Literal (EP.Connective EC.False))
+   ])
 
+val _ = @{assert} (Literal (EP.Connective EC.True) = eval empty_table expr3);
+(*
 (*True \<and> False = False*)
 val expr4 = Connective (EC.And (EC.True, EC.False));
 
@@ -51,6 +59,6 @@ Apply
  (Literal (EP.Connective EC.False)));
 (*What? We have two Trues? One as assert the other one as parameter?*)
 
-val _ = @{assert} (Connective EC.True = eval empty_table expr5);
+val _ = @{assert} (Literal (EP.Connective EC.True) = eval empty_table expr5);
 
 end;

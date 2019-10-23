@@ -88,8 +88,8 @@ and surf_list_to_mod_list list = map surf_to_mod  list
 and name_pair_to_var_list pair = map EM.Var      (pair_to_list pair)
 and 
 (*Eval_Connective*)
-  surf_to_mod True         = EM.Connective (EC.True)
-| surf_to_mod False        = EM.Connective (EC.False)
+  surf_to_mod True         = EM.Literal (EP.Connective (EC.True))
+| surf_to_mod False        = EM.Literal (EP.Connective (EC.False))
 | surf_to_mod (Not   ass)  = EM.Assert (EP.Not,  [surf_to_mod ass] )
 | surf_to_mod (And   pair) = EM.Assert (EP.And,   surf_pair_to_mod_list pair)
 | surf_to_mod (Or    pair) = EM.Assert (EP.Or,    surf_pair_to_mod_list pair)
@@ -143,17 +143,17 @@ and
 (*Modifier*)
 | surf_to_mod (Is_Rule_Of pair) = surf_to_mod (Are_Same_Prints pair);
 
+fun convert_result (EM.Literal (EP.Connective EC.True))  = True
+  | convert_result (EM.Literal (EP.Connective EC.False)) = False
+  | convert_result  _ = error "eval in Eval_Syntax_Struct failed. Evaluation is not complete.";
+
 fun eval (pst:Proof.state) (assert:assert) =
   let
-    val em_expr   = surf_to_mod assert : EM.expr;
-    val em_result = EM.eval pst em_expr: EM.expr;
-    fun to_bool (EM.Connective ec_ass) = (case ec_ass of
-        EC.True  => true
-      | EC.False => false
-      | _        => error "to_bool in Eval_Surface_Struct failed. Wrong value of Eval_Connect.assert.")
-      | to_bool  _ = error "to_bool in Eval_Surface_Struct failed." 
+    val em_expr   = surf_to_mod assert      : EM.expr;
+    val em_result = EM.eval pst em_expr     : EM.expr;
+    val result    = convert_result em_result: assert;
   in
-    to_bool em_result
+    result
   end;
 
 end;

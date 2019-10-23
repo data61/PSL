@@ -12,18 +12,13 @@ datatype expr =
   Bound      of int
 | Lambda     of expr
 | Apply      of expr * expr
-| Connective of Eval_Connective.assert
 | Literal    of Eval_Parameters.parameter
 | Assert     of Eval_Parameters.assert * expr list;
-
-fun de_Connective (Connective assert) = assert
-  | de_Connective  _                  = error "de_Connective in Eval_Bound failed.";
 
 fun shift 0 _ u                     = u
   | shift i d (Bound j)             = if j >= d then Bound (j+i) else Bound j
   | shift i d (Lambda t)            = Lambda (shift i (d+1) t)
   | shift i d (Apply (t, u))        = Apply (shift i d t, shift i d u)
-  | shift _ _ (Connective c)        = Connective c
   | shift _ _ (Literal param)       = Literal param
   | shift i d (Assert (ass, exprs)) = Assert (ass, map (shift i d) exprs);
 
@@ -33,7 +28,6 @@ fun subst i u (Bound j) =
       else               Bound (j-1)
   | subst i u (Lambda t)            = Lambda (subst (i+1) u t)
   | subst i u (Apply (t1, t2))      = Apply (subst i u t1, subst i u t2)
-  | subst _ _ (Connective c)        = Connective c
   | subst _ _ (Literal param)       = Literal param
   | subst i u (Assert (ass, exprs)) = Assert (ass, map (subst i u) exprs);
 
@@ -51,7 +45,7 @@ let
       let
         val params = map eval_prim param_exprs: Eval_Parameters.parameters;
       in
-        Eval_Parameters.eval table assert params |> Connective
+        Eval_Parameters.eval table assert params |> Eval_Parameters.Connective |> Literal
       end
     | eval' t = t
 in

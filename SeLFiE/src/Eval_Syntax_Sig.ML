@@ -71,6 +71,6 @@ val name_dup_check: assert -> bool;
 
 val type_check: assert -> bool;
 
-val eval: Proof.state -> assert -> bool;
+val eval: Proof.state -> assert -> assert;
 
 end;

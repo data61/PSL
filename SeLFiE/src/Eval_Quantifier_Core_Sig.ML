@@ -13,13 +13,10 @@ datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr * expr
-| Connective of Eval_Connective.assert
 | Literal    of Eval_Parameters.parameter
 | Assert     of Eval_Parameters.assert * expr list
 | All        of string * qtyp * expr
 | Some       of string * qtyp * expr;
-
-val de_Connective: expr -> Eval_Connective.assert;
 
 val eval: full_path_to_fpunode_table -> print_to_full_paths_table -> expr -> expr;
 

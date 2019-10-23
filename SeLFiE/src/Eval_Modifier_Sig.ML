@@ -18,7 +18,6 @@ datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
-| Connective of Eval_Connective.assert
 | Literal    of Eval_Parameters.parameter
 | Assert     of Eval_Parameters.assert * expr list
 | All        of string * qtyp * expr

@@ -30,7 +30,6 @@ datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
-| Connective of Eval_Connective.assert
 | Literal    of Eval_Parameters.parameter
 | Assert     of Eval_Parameters.assert * expr list
 | All        of string * qtyp * expr
@@ -49,20 +48,22 @@ fun convert_qtyp QFull_Path = EQC.QFull_Path
 fun convert_expr (Var        vname                 ) = EQC.Var         vname
   | convert_expr (Lambda    (vname, subexpr)       ) = EQC.Lambda     (vname, convert_expr subexpr)
   | convert_expr (Apply      pair                  ) = EQC.Apply      (apply2 convert_expr pair)
-  | convert_expr (Connective connective            ) = EQC.Connective  connective
   | convert_expr (Literal    ps                    ) = EQC.Literal     ps
   | convert_expr (Assert     (assrt, ps)           ) = EQC.Assert     (assrt, map convert_expr ps)
   | convert_expr (All        (vname, qtyp, subexpr)) = EQC.All        (vname, convert_qtyp qtyp, convert_expr subexpr)
   | convert_expr (Some       (vname, qtyp, subexpr)) = EQC.Some       (vname, convert_qtyp qtyp, convert_expr subexpr);
 
+fun convert_result (EQC.Literal (EP.Connective connect)) = Literal (EP.Connective connect)
+  | convert_result  _ =
+    error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
+
 fun eval pst (expr:expr) = 
   let
     val full_path_to_fpunode_table = FPTF.pst_to_full_path_to_fpunode_table pst: FPTF.full_path_to_fpunode_table;
     val print_to_paths_table       = Print_To_Full_Paths.full_path_to_fpunode_table_to_print_to_paths_table full_path_to_fpunode_table;
-    val result = convert_expr expr
-              |> EQC.eval full_path_to_fpunode_table print_to_paths_table
-              |> EQC.de_Connective
-              |> Connective
+    val eqc_result                 = convert_expr expr |> EQC.eval full_path_to_fpunode_table print_to_paths_table
+                                   : Eval_Quantifier_Core.expr;
+    val result = convert_result eqc_result: expr;
   in
     result
   end;

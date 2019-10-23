@@ -70,6 +70,6 @@ datatype assert =
 | Holds_In_Any_Clause_Of of assert * name
 | Holds_In_One_Clause_Of of assert * name;
 
-fun eval (pst:Proof.state) (assert:assert) = true (*TODO*);
+fun eval (pst:Proof.state) (assert:assert) = True (*TODO*);
 
 end;

@@ -5,17 +5,14 @@ structure Eval_Var: EVAL_VAR =
 struct
 
 structure EB = Eval_Bound;
+structure EP = Eval_Parameters;
 
 datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
-| Connective of Eval_Connective.assert
 | Literal    of Eval_Parameters.parameter
 | Assert     of Eval_Parameters.assert * expr list;
-
-fun de_Connective (Connective assert) = assert
-  | de_Connective  _                  = error "de_Connective in Eval_Var failed.";
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
@@ -30,17 +27,17 @@ fun increment_then_update_with_0 var_name env = env |> increment |> update_with_
 fun var_to_bound env (Var        vname           ) = EB.Bound (lookup env vname)
   | var_to_bound env (Lambda    (name,  sub_expr)) = EB.Lambda (var_to_bound (increment_then_update_with_0 name env) sub_expr)
   | var_to_bound env (Apply     (expr1, expr2   )) = EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
-  | var_to_bound _   (Connective c               ) = EB.Connective c
   | var_to_bound _   (Literal    param           ) = EB.Literal param
-(*
-  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params)
-*);
+  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params);
+
+fun convert_result (EB.Literal (EP.Connective connect)) = Literal (EP.Connective connect)
+  | convert_result  _ =
+    error "eval in Eval_Var_Struct failed. Evaluation is not complete.";
 
 fun eval (table:full_path_to_fpunode_table) (expr:expr) =
   let
     val eb_result  = EB.eval table (var_to_bound [] expr): Eval_Bound.expr;
-    val connective = EB.de_Connective eb_result          : Eval_Connective.assert;
-    val result     = Connective connective               : expr;
+    val result     = convert_result eb_result            : expr;
   in
     result
   end;
