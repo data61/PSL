@@ -74,8 +74,8 @@ ML_file "src/Eval_Modifier_Sig.ML"(*TODO:add atomic-assertion "Is_Rule_Of"*)
 ML_file "src/Eval_Modifier_Struct.ML"
 (*TODO: The type signature of eval should be "val eval: Proof.state -> term -> assert -> bool"
  * so that I can use it in Eval_Semantics_Struct.*)
-ML_file "src/Eval_Surface_Sig.ML"   (*This is only for syntax.*)
-ML_file "src/Eval_Surface_Struct.ML"(*This is only for syntax.*)
+ML_file "src/Eval_Syntax_Sig.ML"   (*This is only for syntax.*)
+ML_file "src/Eval_Syntax_Struct.ML"(*This is only for syntax.*)
 (* Bootstrapping has to happen after introducing Eval_Modifier
  * because we need modifiers to fetch related lemmas. *)
 ML_file "src/Eval_Semantics_Sig.ML"
