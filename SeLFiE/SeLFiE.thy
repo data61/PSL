@@ -62,6 +62,8 @@ ML_file "src/Eval_Primitive_Sig.ML" (*TODO: a separate module for Is_Nth_Arg_Of?
 ML_file "src/Eval_Primitive_Struct.ML"
 ML_file "src/Eval_Parameters_Sig.ML"
 ML_file "src/Eval_Parameters_Struct.ML"
+ML_file "src/Eval_Expression_Sig.ML"
+ML_file "src/Eval_Expression_Struct.ML"
 ML_file "src/Eval_Bound_Sig.ML"
 ML_file "src/Eval_Bound_Struct.ML"
 ML_file "src/Eval_Bound_Test.ML"

@@ -35,29 +35,24 @@ val _ = @{assert} (Connective EC.False = eval empty_table expr2);
 
 (*True \<or> False = True*)
 val expr3 = Connective (EC.Or (EC.True, EC.False));
-
+(*
 val _ = @{assert} (Connective EC.True = eval empty_table expr3);
 
 (*True \<and> False = False*)
 val expr4 = Connective (EC.And (EC.True, EC.False));
 
 val _ = @{assert} (Connective EC.False = eval empty_table expr4);
-
-(*(\<lambda>x. Not x) False = True*)
-(*We have to have connectives as
-val expr1 =
-Apply
- (Lambda
-  (Connective (EC.Not (Bound 0))),
- (Connective EC.True));
 *)
+(*(\<lambda>x. Not x) False = True*)
 val expr5 =
 Apply
  (Lambda
-  ((Assert (EP.Not, [Bound 0]))),
- (Literal (EP.Connective EC.True)));
+  (Assert (EP.Not, [Bound 0])),
+ (Literal (EP.Connective EC.False)));
 (*What? We have two Trues? One as assert the other one as parameter?*)
-
+val _ = tracing "\nEXPR5";
+val asd = eval empty_table expr5;
+(*
 val _ = @{assert} (Connective EC.True = eval empty_table expr5);
-
+*)
 end;
