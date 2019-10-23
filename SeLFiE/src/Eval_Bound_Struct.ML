@@ -19,13 +19,13 @@ datatype expr =
 fun de_Connective (Connective assert) = assert
   | de_Connective  _                  = error "de_Connective in Eval_Bound failed.";
 
-fun shift 0 _ u               = u
-  | shift i d (Bound j)       = if j >= d then Bound (j+i) else Bound j
-  | shift i d (Lambda t)      = Lambda (shift i (d+1) t)
-  | shift i d (Apply (t, u))  = Apply (shift i d t, shift i d u)
-  | shift _ _ (Connective c)  = Connective c
-  | shift _ _ (Literal param) = Literal param
-  | shift _ _ (Assert assert) = Assert assert;
+fun shift 0 _ u                     = u
+  | shift i d (Bound j)             = if j >= d then Bound (j+i) else Bound j
+  | shift i d (Lambda t)            = Lambda (shift i (d+1) t)
+  | shift i d (Apply (t, u))        = Apply (shift i d t, shift i d u)
+  | shift _ _ (Connective c)        = Connective c
+  | shift _ _ (Literal param)       = Literal param
+  | shift i d (Assert (ass, exprs)) = Assert (ass, map (shift i d) exprs);
 
 fun subst i u (Bound j) =
       if      j < i then Bound j (*locally bound*)

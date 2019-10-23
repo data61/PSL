@@ -50,9 +50,7 @@ Apply
   (Assert (EP.Not, [Bound 0])),
  (Literal (EP.Connective EC.False)));
 (*What? We have two Trues? One as assert the other one as parameter?*)
-val _ = tracing "\nEXPR5";
-val asd = eval empty_table expr5;
-(*
+
 val _ = @{assert} (Connective EC.True = eval empty_table expr5);
-*)
+
 end;
