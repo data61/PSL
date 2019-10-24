@@ -1,7 +1,7 @@
-(*  Title:      PSL/SeLFiE/src/Eval_Surface_Sig.ML
+(*  Title:      PSL/SeLFiE/src/Eval_Syntax_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-signature EVAL_SURFACE =
+signature EVAL_SYNTAX =
 sig
 
 type full_path;
@@ -65,11 +65,10 @@ datatype assert =
 | All                    of name * qtyp * assert
 | Some                   of name * qtyp * assert
 (*Modifier*)
-| Is_Rule_Of             of name * name;
-
-val name_dup_check: assert -> bool;
-
-val type_check: assert -> bool;
+| Is_Rule_Of             of name * name
+(*Semantic*)
+| Holds_In_Any_Clause_Of of assert * name
+| Holds_In_One_Clause_Of of assert * name;
 
 val eval: Proof.state -> assert -> assert;
 
