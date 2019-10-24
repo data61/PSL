@@ -18,18 +18,8 @@ type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
 
 datatype assert =
-(*Eval_Connective*)
-  True
-| False
-| Not                    of connective
-| And                    of connective * connective
-| Or                     of connective * connective
-| Nor                    of connective * connective
-| Imply                  of connective * connective
-| Ands                   of connective list
-| Ors                    of connective list
 (*Eval_Node_Core*)
-| Is_Cnst                of full_path
+  Is_Cnst                of full_path
 | Is_Free                of full_path
 | Is_Var                 of full_path
 | Is_Bound               of full_path
@@ -73,17 +63,8 @@ type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_tabl
 
 fun eval fpun_table assert =
   let
-    fun eval' True         = EC.True
-      | eval' False        = EC.False
-      | eval' (Not con)    = EC.eval (EC.Not con)
-      | eval' (And pair)   = EC.eval (EC.And pair)
-      | eval' (Or  pair)   = EC.eval (EC.Or  pair)
-      | eval' (Nor pair)   = EC.eval (EC.Nor pair)
-      | eval' (Imply pair) = EC.eval (EC.Imply pair)
-      | eval' (Ands cons)  = EC.eval (EC.Ands cons)
-      | eval' (Ors  cons)  = EC.eval (EC.Ors  cons)
-      (*Eval_Node_Core*)
-      | eval' (Is_Cnst   full_path)  = EFP.eval fpun_table (EFP.Is_Cnst   full_path)
+    fun (*Eval_Node_Core*)
+        eval' (Is_Cnst   full_path)  = EFP.eval fpun_table (EFP.Is_Cnst   full_path)
       | eval' (Is_Free   full_path)  = EFP.eval fpun_table (EFP.Is_Free   full_path)
       | eval' (Is_Var    full_path)  = EFP.eval fpun_table (EFP.Is_Var    full_path)
       | eval' (Is_Bound  full_path)  = EFP.eval fpun_table (EFP.Is_Bound  full_path)

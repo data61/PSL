@@ -1,5 +1,7 @@
 (*  Title:      PSL/SeLFeE/src/Eval_Expression_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
+
+    Eval_Expression has constructs from Eval_Connective.
 *)
 signature EVAL_EXPRESSION =
 sig
@@ -9,20 +11,18 @@ type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
 
 datatype parameter =
-  Connective of connective
+  Bool       of bool
 | Full_Path  of full_path
 | Print      of print
 | String     of string(*redundant?*)
 | Number     of Eval_Number.number
 | Int        of int;
 
-type     parameters = parameter list;
+type parameters = parameter list;
 
 datatype assert =
 (*Eval_Connective*)
-  True
-| False
-| Not
+  Not
 | And
 | Or
 | Nor
@@ -72,6 +72,6 @@ datatype assert =
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
-val eval: full_path_to_fpunode_table -> assert -> parameters -> Eval_Connective.assert;
+val eval: full_path_to_fpunode_table -> assert -> parameters -> parameter;
 
 end;

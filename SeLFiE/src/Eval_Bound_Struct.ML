@@ -8,12 +8,14 @@
 structure Eval_Bound: EVAL_BOUND  =
 struct
 
+structure EE = Eval_Expression;
+
 datatype expr =
   Bound      of int
 | Lambda     of expr
 | Apply      of expr * expr
-| Literal    of Eval_Parameters.parameter
-| Assert     of Eval_Parameters.assert * expr list;
+| Literal    of EE.parameter
+| Assert     of EE.assert * expr list;
 
 fun shift 0 _ u                     = u
   | shift i d (Bound j)             = if j >= d then Bound (j+i) else Bound j
@@ -43,9 +45,9 @@ let
       | u1       => Apply (u1, eval' trm2))
     | eval' (Assert (assert, param_exprs)) =
       let
-        val params = map eval_prim param_exprs: Eval_Parameters.parameters;
+        val params = map eval_prim param_exprs: EE.parameters;
       in
-        Eval_Parameters.eval table assert params |> Eval_Parameters.Connective |> Literal
+        EE.eval table assert params |> Literal
       end
     | eval' t = t
 in

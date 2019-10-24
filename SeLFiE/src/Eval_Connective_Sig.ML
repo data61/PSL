@@ -19,5 +19,6 @@ datatype assert =
 val eval: assert -> assert;
 
 val bool_to_assert_connective: bool -> assert;
+val assert_connective_to_bool: assert -> bool;
 
 end;

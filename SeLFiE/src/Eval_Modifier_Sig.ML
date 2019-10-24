@@ -18,8 +18,8 @@ datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
-| Literal    of Eval_Parameters.parameter
-| Assert     of Eval_Parameters.assert * expr list
+| Literal    of Eval_Expression.parameter
+| Assert     of Eval_Expression.assert * expr list
 | All        of string * qtyp * expr
 | Some       of string * qtyp * expr;
 

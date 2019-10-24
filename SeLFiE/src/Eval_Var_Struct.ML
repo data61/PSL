@@ -5,14 +5,14 @@ structure Eval_Var: EVAL_VAR =
 struct
 
 structure EB = Eval_Bound;
-structure EP = Eval_Parameters;
+structure EE = Eval_Expression;
 
 datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
-| Literal    of Eval_Parameters.parameter
-| Assert     of Eval_Parameters.assert * expr list;
+| Literal    of EE.parameter
+| Assert     of EE.assert * expr list;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 
@@ -30,7 +30,7 @@ fun var_to_bound env (Var        vname           ) = EB.Bound (lookup env vname)
   | var_to_bound _   (Literal    param           ) = EB.Literal param
   | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params);
 
-fun convert_result (EB.Literal (EP.Connective connect)) = Literal (EP.Connective connect)
+fun convert_result (EB.Literal ee_bool) = Literal ee_bool
   | convert_result  _ =
     error "eval in Eval_Var_Struct failed. Evaluation is not complete.";
 

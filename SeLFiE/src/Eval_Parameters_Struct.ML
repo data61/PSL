@@ -16,31 +16,18 @@ type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
 
 datatype parameter =
-  Connective of connective
-| Full_Path  of full_path
-| Print      of print
-| String     of string(*redundant?*)
-| Number     of Eval_Number.number
-| Int        of int;
+  Bool      of bool
+| Full_Path of full_path
+| Print     of print
+| String    of string(*redundant?*)
+| Number    of Eval_Number.number
+| Int       of int;
 
-type     parameters = parameter list;
-
-fun de_Connective (Connective c) = c
-  | de_Connective  _             = error "de_Connective in Eval_Parameters_Struct failed."
+type parameters = parameter list;
 
 datatype assert =
-(*Eval_Connective*)
-  True
-| False
-| Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
 (*Eval_Node_Core*)
-| Is_Cnst
+  Is_Cnst
 | Is_Free
 | Is_Var
 | Is_Bound
@@ -86,18 +73,8 @@ type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_tabl
 fun eval fp_to_fpun_table assert parameters =
   let
     fun
-      (*Eval_Connective*)
-        eval' True  []                                 = EC.eval  EC.True
-      | eval' False []                                 = EC.eval  EC.False
-      | eval' Not   [Connective assert]                = EC.eval (EC.Not    assert)
-      | eval' And   [Connective ass1, Connective ass2] = EC.eval (EC.And   (ass1, ass2))
-      | eval' Or    [Connective ass1, Connective ass2] = EC.eval (EC.Or    (ass1, ass2))
-      | eval' Nor   [Connective ass1, Connective ass2] = EC.eval (EC.Nor   (ass1, ass2))
-      | eval' Imply [Connective ass1, Connective ass2] = EC.eval (EC.Imply (ass1, ass2))
-      | eval' Ands  ands                               = EC.eval (EC.Ands  (map de_Connective ands))
-      | eval' Ors   ors                                = EC.eval (EC.Ors   (map de_Connective ors ))
       (*Eval_Node_Core*)
-      | eval' Is_Cnst   [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Cnst   fp)
+        eval' Is_Cnst   [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Cnst   fp)
       | eval' Is_Free   [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Free   fp)
       | eval' Is_Var    [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Var    fp)
       | eval' Is_Bound  [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Bound  fp)

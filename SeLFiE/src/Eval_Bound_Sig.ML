@@ -8,8 +8,8 @@ datatype expr =
   Bound      of int
 | Lambda     of expr
 | Apply      of expr * expr
-| Literal    of Eval_Parameters.parameter
-| Assert     of Eval_Parameters.assert * expr list;
+| Literal    of Eval_Expression.parameter
+| Assert     of Eval_Expression.assert * expr list;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 

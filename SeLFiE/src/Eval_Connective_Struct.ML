@@ -35,5 +35,8 @@ fun eval'  True                = true
 fun eval assert_connective = if eval' assert_connective then True else False;
 
 fun bool_to_assert_connective (b:bool) = if b then True else False;
+fun assert_connective_to_bool True  = true
+  | assert_connective_to_bool False = false
+  | assert_connective_to_bool _     = error "assert_connective_to_bool failed."
 
 end;

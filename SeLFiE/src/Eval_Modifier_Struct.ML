@@ -7,6 +7,7 @@ struct
 structure EQC  = Eval_Quantifier_Core;
 structure FPTF = Full_Path_To_Fpunode;
 structure EP   = Eval_Parameters;
+structure EE   = Eval_Expression;
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule;
 
@@ -30,8 +31,8 @@ datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
-| Literal    of Eval_Parameters.parameter
-| Assert     of Eval_Parameters.assert * expr list
+| Literal    of EE.parameter
+| Assert     of EE.assert     * expr list
 | All        of string * qtyp * expr
 | Some       of string * qtyp * expr;
 
@@ -53,7 +54,7 @@ fun convert_expr (Var        vname                 ) = EQC.Var         vname
   | convert_expr (All        (vname, qtyp, subexpr)) = EQC.All        (vname, convert_qtyp qtyp, convert_expr subexpr)
   | convert_expr (Some       (vname, qtyp, subexpr)) = EQC.Some       (vname, convert_qtyp qtyp, convert_expr subexpr);
 
-fun convert_result (EQC.Literal (EP.Connective connect)) = Literal (EP.Connective connect)
+fun convert_result (EQC.Literal ee_bool) = Literal ee_bool
   | convert_result  _ =
     error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
 

@@ -9,28 +9,17 @@ type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
 
 datatype parameter =
-  Connective of connective
-| Full_Path  of full_path
-| Print      of print
-| String     of string(*redundant?*)
-| Number     of Eval_Number.number
-| Int        of int;
+  Full_Path of full_path
+| Print     of print
+| String    of string(*redundant?*)
+| Number    of Eval_Number.number
+| Int       of int;
 
-type     parameters = parameter list;
+type parameters = parameter list;
 
 datatype assert =
-(*Eval_Connective*)
-  True
-| False
-| Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
 (*Eval_Node_Core*)
-| Is_Cnst
+  Is_Cnst
 | Is_Free
 | Is_Var
 | Is_Bound
