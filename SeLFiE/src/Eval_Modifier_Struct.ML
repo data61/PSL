@@ -18,15 +18,6 @@ datatype modifier =
 
 val pst_to_ind_domain = undefined: Proof.state -> modifier -> Eval_Parameters.parameters;
 
-(* TODO: I have to have extra atomic assertions about rule.
- *       Therefore, we cannot use the fixed type Eval_Parameters.assert in Assert.
- *       We have to use a type class (= module) for assert.
- *       This means that I have to define
- *        - Eval_Bound_Struct, 
- *        - Eval_Var_Struct, and
- *        - Eval_Quantifier_Core_Struct
- *       as functors.
- *)
 datatype expr =
   Var        of string
 | Lambda     of string * expr

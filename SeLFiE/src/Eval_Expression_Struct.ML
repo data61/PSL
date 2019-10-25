@@ -27,7 +27,7 @@ datatype parameter =
 
 type  parameters = parameter list;
 
-fun convert_param (Bool      _ ) = error "convert_param in Eval_Expression_Struct failed."
+fun convert_param (Bool       _) = error "convert_param in Eval_Expression_Struct failed."
   | convert_param (Full_Path fp) = EP.Full_Path fp
   | convert_param (Print      p) = EP.Print p
   | convert_param (String     s) = EP.String s
