@@ -16,8 +16,7 @@ type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
 
 datatype parameter =
-  Bool      of bool
-| Full_Path of full_path
+  Full_Path of full_path
 | Print     of print
 | String    of string(*redundant?*)
 | Number    of Eval_Number.number

@@ -11,7 +11,7 @@ structure EPC = Eval_Print_Core;
 structure EPS = Eval_Print_Sugar;
 structure EFP = Eval_Full_Path;
 structure EN  = Eval_Number;
-structure EP  = Eval_Primitive;
+structure EP  = Eval_Parameters;
 
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
@@ -26,6 +26,13 @@ datatype parameter =
 | Int        of int;
 
 type  parameters = parameter list;
+
+fun convert_param (Bool      _ ) = error "convert_param in Eval_Expression_Struct failed."
+  | convert_param (Full_Path fp) = EP.Full_Path fp
+  | convert_param (Print      p) = EP.Print p
+  | convert_param (String     s) = EP.String s
+  | convert_param (Number     n) = EP.Number n
+  | convert_param (Int        i) = EP.Int i
 
 fun de_Bool (Bool c) = c
   | de_Bool  _       = error "de_Bool in Eval_Expression_Struct failed."
@@ -86,6 +93,48 @@ val bool_to_connect    = EC.bool_to_assert_connective;
 val bools_to_connects  = Utils.map_pair bool_to_connect;
 val de_bool_to_connect = bool_to_connect o de_Bool;
 
+fun expr_to_param Is_Cnst                = EP.Is_Cnst
+(*Eval_Node_Core*)
+  | expr_to_param Is_Free                = EP.Is_Free
+  | expr_to_param Is_Var                 = EP.Is_Var
+  | expr_to_param Is_Bound               = EP.Is_Bound
+  | expr_to_param Is_Lambda              = EP.Is_Lambda
+  | expr_to_param Is_App                 = EP.Is_App
+  (*Eval_Node_Sugar*)
+  | expr_to_param Is_Atom                = EP.Is_Atom
+  | expr_to_param Is_Compund             = EP.Is_Compund
+  (*Eval_Unode_Core*)
+  | expr_to_param Has_Same_Prnt_As       = EP.Has_Same_Prnt_As
+  | expr_to_param Is_In_Trm_Prnt         = EP.Is_In_Trm_Prnt
+  | expr_to_param Is_Deeper_Than         = EP.Is_Deeper_Than
+  | expr_to_param Is_Shallower_Than      = EP.Is_Shallower_Than
+  | expr_to_param Is_Path_Above          = EP.Is_Path_Above
+  | expr_to_param Is_Same_Path_As        = EP.Is_Same_Path_As
+  (*Eval_Unode_Sugar*)
+  | expr_to_param Is_As_Deep_As          = EP.Is_As_Deep_As
+  | expr_to_param Is_Path_Below          = EP.Is_Path_Below
+  (*Eval_Fpunode_Core*)
+  | expr_to_param Is_In_Same_Location_As = EP.Is_In_Same_Location_As
+  | expr_to_param Is_In_Chained          = EP.Is_In_Chained
+  | expr_to_param Is_In_Fst_Subg         = EP.Is_In_Fst_Subg
+  (*Eval_Fpunode_Sugar*)
+  | expr_to_param Is_Above               = EP.Is_Above
+  | expr_to_param Is_Below               = EP.Is_Below
+  | expr_to_param Is_Same_Occ_As         = EP.Is_Same_Occ_As
+  (*Eval_Print_Core*)
+  | expr_to_param Are_Same_Prints        = EP.Are_Same_Prints
+  | expr_to_param Is_Printed_As          = EP.Is_Printed_As
+  (*Eval_Print_Sugar*)
+  | expr_to_param Are_Different_Prints   = EP.Are_Different_Prints
+  | expr_to_param Fpnode_Has_Print       = EP.Fpnode_Has_Print
+  (*Eval_Number*)
+  | expr_to_param Are_Same_Number        = EP.Are_Same_Number
+  | expr_to_param Is_Less_Than           = EP.Is_Less_Than
+  | expr_to_param Is_Int                 = EP.Is_Int
+  (*Others*)
+  | expr_to_param Is_Nth_Arg_Of          = EP.Is_Nth_Arg_Of
+  | expr_to_param _                      = error "expr_to_param in Eval_Expression_Struct failed.";
+
 fun eval fp_to_fpun_table assert parameters =
   let
     fun
@@ -98,46 +147,7 @@ fun eval fp_to_fpun_table assert parameters =
       | eval' Ands  ands               = EC.eval (EC.Ands  (map de_bool_to_connect ands))
       | eval' Ors   ors                = EC.eval (EC.Ors   (map de_bool_to_connect ors ))
       (*Eval_Node_Core*)
-      | eval' Is_Cnst   [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Cnst   fp)
-      | eval' Is_Free   [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Free   fp)
-      | eval' Is_Var    [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Var    fp)
-      | eval' Is_Bound  [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Bound  fp)
-      | eval' Is_Lambda [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Lambda fp)
-      | eval' Is_App    [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_App    fp)
-      (*Eval_Node_Sugar*)
-      | eval' Is_Atom    [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Atom    fp)
-      | eval' Is_Compund [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Compund fp)
-      (*Eval_Unode_Core*)
-      | eval' Has_Same_Prnt_As  [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Has_Same_Prnt_As  (fp1, fp2))
-      | eval' Is_In_Trm_Prnt    [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_In_Trm_Prnt    (fp1, fp2))
-      | eval' Is_Deeper_Than    [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Deeper_Than    (fp1, fp2))
-      | eval' Is_Shallower_Than [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Shallower_Than (fp1, fp2))
-      | eval' Is_Path_Above     [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Path_Above     (fp1, fp2))
-      | eval' Is_Same_Path_As   [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Same_Path_As   (fp1, fp2))
-      (*Eval_Unode_Sugar*)
-      | eval' Is_As_Deep_As [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_As_Deep_As (fp1, fp2))
-      | eval' Is_Path_Below [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Path_Below (fp1, fp2))
-      (*Eval_Fpunode_Core*)
-      | eval' Is_In_Same_Location_As [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_In_Same_Location_As (fp1, fp2))
-      | eval' Is_In_Chained          [Full_Path fp]                 = EFP.eval fp_to_fpun_table (EFP.Is_In_Chained  fp)
-      | eval' Is_In_Fst_Subg         [Full_Path fp]                 = EFP.eval fp_to_fpun_table (EFP.Is_In_Fst_Subg fp)
-      (*Eval_Fpunode_Sugar*)
-      | eval' Is_Above       [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Above       (fp1, fp2))
-      | eval' Is_Below       [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Below       (fp1, fp2))
-      | eval' Is_Same_Occ_As [Full_Path fp1, Full_Path fp2] = EFP.eval fp_to_fpun_table (EFP.Is_Same_Occ_As (fp1, fp2))
-      (*Eval_Print_Core*)
-      | eval' Are_Same_Prints [Print p1, Print p2] = EPC.eval (EPC.Are_Same_Prints (p1, p2))
-      | eval' Is_Printed_As   [Print p,  String s] = EPC.eval (EPC.Is_Printed_As   (p, s))
-      (*Eval_Print_Sugar*)
-      | eval' Are_Different_Prints [Print p1, Print p2]     = EPS.eval (EPS.Are_Different_Prints (p1, p2))
-      | eval' Fpnode_Has_Print     [Full_Path fp, Print pr] = EFP.eval fp_to_fpun_table (EFP.Fpnode_Has_Print     (fp, pr))
-      (*Eval_Number*)
-      | eval' Are_Same_Number [Number numb1,  Number numb2]            = EN.eval (EN.Are_Same_Number (numb1, numb2))
-      | eval' Is_Less_Than    [Number numb1,  Number numb2]            = EN.eval (EN.Is_Less_Than    (numb1, numb2))
-      | eval' Is_Int          [Number numb,   Int    int  ]            = EN.eval (EN.Is_Int          (numb,    int))
-      (*Others*)
-      | eval' Is_Nth_Arg_Of   [Full_Path fp1, Number n, Full_Path fp2] = EP.eval fp_to_fpun_table (EP.Is_Nth_Arg_Of (fp1, n, fp2))
-      | eval' _ _ = error "eval' in Eval_Parameters_Struct.ML failed!"
+      | eval' ass params = EP.eval fp_to_fpun_table (expr_to_param ass) (map convert_param params)
     val ec_result = eval' assert parameters: Eval_Connective.assert;
     val result    = ec_result |> EC.assert_connective_to_bool |> Bool;
   in
