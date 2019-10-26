@@ -71,13 +71,8 @@ ML_file "src/Eval_Var_Sig.ML"
 ML_file "src/Eval_Var_Struct.ML"
 ML_file "src/Eval_Quantifier_Core_Sig.ML"(*TODO:Number*)
 ML_file "src/Eval_Quantifier_Core_Struct.ML"
-(*We can define modifier after we define quantifier because modifiers qualify over sub-terms.*)
-(* Bootstrapping has to happen after introducing Eval_Modifier
- * because we need modifiers to fetch related lemmas. *)
-ML_file "src/Eval_Semantics_Sig.ML"
-ML_file "src/Eval_Semantics_Struct.ML"(*TODO*)
-ML_file "src/Eval_Syntax_Sig.ML"   (*This is only for syntax.*)
-ML_file "src/Eval_Syntax_Struct.ML"(*This is only for syntax.*)
+ML_file "src/Eval_Surface_Sig.ML"
+ML_file "src/Eval_Surface_Struct.ML" (*TODO: Holds_In_Any_Clause_Of*)
 ML\<open>
 @{term "let x = 1 in x"};
 (*

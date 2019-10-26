@@ -1,14 +1,13 @@
-(*  Title:      PSL/SeLFiE/src/Eval_Syntax_Struct.ML
+(*  Title:      PSL/SeLFiE/src/Eval_Surface_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-structure Eval_Syntax:EVAL_SYNTAX =
-struct
+signature EVAL_SURFACE =
+sig
 
-type full_path = full_path;
-type print     = LiFtEr_Util.print;
-type name      = string;
+type print;
+type name;
 
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule;
+type qtyp;
 
 datatype assert =
 (*Eval_Connective*)
@@ -70,6 +69,15 @@ datatype assert =
 | Holds_In_Any_Clause_Of of assert * name
 | Holds_In_One_Clause_Of of assert * name;
 
-fun eval (pst:Proof.state) (assert:assert) = True (*TODO*);
+val name_dup_check: assert -> bool;
+
+val type_check: assert -> bool;
+
+(*Check if an assertion does not involve modifiers within the semantic part.*)
+val sanity_check: assert -> bool;
+
+val pst_to_modifiers: Proof.state -> Eval_Modifier.modifiers;
+
+val eval: Proof.state -> assert -> assert;
 
 end;

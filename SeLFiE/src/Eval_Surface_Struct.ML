@@ -1,14 +1,22 @@
-(*  Title:      PSL/SeLFiE/src/Eval_Semantics_Struct.ML
+(*  Title:      PSL/SeLFiE/src/Eval_Surface_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-structure Eval_Semantics:EVAL_SEMANTICS =
+structure Eval_Surface:EVAL_SURFACE =
 struct
 
-type full_path = full_path;
 type print     = LiFtEr_Util.print;
 type name      = string;
 
-type qtyp = Eval_Quantifier_Core.qtyp;
+
+structure EC   = Eval_Connective;
+structure EP   = Eval_Parameters;
+structure EE   = Eval_Expression;
+structure EQC  = Eval_Quantifier_Core;
+structure EM   = Eval_Modifier;
+structure FPTF = Full_Path_To_Fpunode;
+structure PTFP = Print_To_Full_Paths;
+
+type qtyp = EQC.qtyp;
 
 datatype assert =
 (*Eval_Connective*)
@@ -65,19 +73,14 @@ datatype assert =
 | All                    of name * qtyp * assert
 | Some                   of name * qtyp * assert
 (*Modifier*)
-| Is_Rule_Of             of name * name;
+| Is_Rule_Of             of name * name
+(*Semantic*)
+| Holds_In_Any_Clause_Of of assert * name
+| Holds_In_One_Clause_Of of assert * name;
 
 val name_dup_check = undefined: assert -> bool;
 
 val type_check = undefined: assert -> bool;
-
-structure EC   = Eval_Connective;
-structure EP   = Eval_Parameters;
-structure EE   = Eval_Expression;
-structure EQC  = Eval_Quantifier_Core;
-structure EM   = Eval_Modifier;
-structure FPTF = Full_Path_To_Fpunode;
-structure PTFP = Print_To_Full_Paths;
 
 val pair_to_list = Utils.pair_to_list;
 
@@ -139,11 +142,16 @@ and
 | surf_to_mod (All  (name, qyp, assert)) = EQC.All  (name, qyp, surf_to_mod assert)
 | surf_to_mod (Some (name, qyp, assert)) = EQC.Some (name, qyp, surf_to_mod assert)
 (*Modifier*)
-| surf_to_mod (Is_Rule_Of pair) = surf_to_mod (Are_Same_Prints pair);
+| surf_to_mod (Is_Rule_Of pair) = surf_to_mod (Are_Same_Prints pair)
+(*Semantic*)
+| surf_to_mod (Holds_In_Any_Clause_Of (assert, name)) = undefined ((*TODO*))
+| surf_to_mod (Holds_In_One_Clause_Of (assert, name)) = undefined ((*TODO*));
 
 fun convert_result (EQC.Literal (EE.Bool true )) = True
   | convert_result (EQC.Literal (EE.Bool false)) = False
   | convert_result  _ = error "eval in Eval_Syntax_Struct failed. Evaluation is not complete.";
+
+val sanity_check = undefined: assert -> bool;
 
 val pst_to_modifiers = undefined; (*TODO: probably in Eval_Modifier*)
 
