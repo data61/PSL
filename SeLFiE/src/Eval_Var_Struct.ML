@@ -15,6 +15,7 @@ datatype expr =
 | Assert     of EE.assert * expr list;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
+type modifiers                  = Eval_Modifier.modifiers;
 
 type environment = (string * int) list; (*map a variable name to a de-Bruijn index*)
 
@@ -34,9 +35,9 @@ fun convert_result (EB.Literal ee_bool) = Literal ee_bool
   | convert_result  _ =
     error "eval in Eval_Var_Struct failed. Evaluation is not complete.";
 
-fun eval (table:full_path_to_fpunode_table) (expr:expr) =
+fun eval (table:full_path_to_fpunode_table) (modifiers:modifiers) (expr:expr) =
   let
-    val eb_result  = EB.eval table (var_to_bound [] expr): Eval_Bound.expr;
+    val eb_result  = EB.eval table modifiers (var_to_bound [] expr): Eval_Bound.expr;
     val result     = convert_result eb_result            : expr;
   in
     result

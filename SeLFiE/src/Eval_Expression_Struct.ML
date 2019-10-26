@@ -12,6 +12,7 @@ structure EPS = Eval_Print_Sugar;
 structure EFP = Eval_Full_Path;
 structure EN  = Eval_Number;
 structure EP  = Eval_Parameters;
+structure EM  = Eval_Modifier;
 
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
@@ -84,10 +85,14 @@ datatype assert =
 | Are_Same_Number
 | Is_Less_Than
 | Is_Int
+(*Eval_Modifier*)
+| Is_Nth_Ind
+| Is_Nth_Arb
 (*Others*)
 | Is_Nth_Arg_Of;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
+type modifiers                  = Eval_Modifier.modifiers;
 
 val bool_to_connect    = EC.bool_to_assert_connective;
 val bools_to_connects  = Utils.map_pair bool_to_connect;
@@ -131,11 +136,14 @@ fun expr_to_param Is_Cnst                = EP.Is_Cnst
   | expr_to_param Are_Same_Number        = EP.Are_Same_Number
   | expr_to_param Is_Less_Than           = EP.Is_Less_Than
   | expr_to_param Is_Int                 = EP.Is_Int
+  (*Eval_Modifier*)
+  | expr_to_param Is_Nth_Ind             = EP.Is_Nth_Ind
+  | expr_to_param Is_Nth_Arb             = EP.Is_Nth_Arb
   (*Others*)
   | expr_to_param Is_Nth_Arg_Of          = EP.Is_Nth_Arg_Of
   | expr_to_param _                      = error "expr_to_param in Eval_Expression_Struct failed.";
 
-fun eval fp_to_fpun_table assert parameters =
+fun eval fp_to_fpun_table modifiers assert parameters =
   let
     fun
       (*Eval_Connective*)
@@ -147,7 +155,7 @@ fun eval fp_to_fpun_table assert parameters =
       | eval' Ands  ands               = EC.eval (EC.Ands  (map de_bool_to_connect ands))
       | eval' Ors   ors                = EC.eval (EC.Ors   (map de_bool_to_connect ors ))
       (*Eval_Node_Core*)
-      | eval' ass params = EP.eval fp_to_fpun_table (expr_to_param ass) (map convert_param params)
+      | eval' ass params = EP.eval fp_to_fpun_table modifiers (expr_to_param ass) (map convert_param params)
     val ec_result = eval' assert parameters: Eval_Connective.assert;
     val result    = ec_result |> EC.assert_connective_to_bool |> Bool;
   in

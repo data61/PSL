@@ -1,28 +1,21 @@
-(*  Title:      PSL/SeLFiE/src/Eval_Modifier_Sig.ML
+(*  Title:      PSL/SeLFeE/src/Eval_Modifier_Sig.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 signature EVAL_MODIFIER =
 sig
 
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule;
+type print         = LiFtEr_Util.print;
+type prints        = LiFtEr_Util.prints;
+type fpunode       = Full_Path_To_Fpunode.fpunode;
+type number        = Eval_Number.number;
+datatype modifiers = Modifiers of {ons:   prints,
+                                   arbs:  prints,
+                                   rules: prints};
 
-(*TODO: Double-check if we really want one datatype for three types of modifier.*)
-datatype modifier = 
-  Ind  of string
-| Arb  of string
-| Rule of string;
+datatype assert =
+  Is_Nth_Ind       of print   * number (*Counting starts with 0.*)
+| Is_Nth_Arb       of print   * number (*Counting starts with 0.*);
 
-val pst_to_ind_domain: Proof.state -> modifier -> Eval_Parameters.parameters;
-
-datatype expr =
-  Var        of string
-| Lambda     of string * expr
-| Apply      of expr   * expr
-| Literal    of Eval_Expression.parameter
-| Assert     of Eval_Expression.assert * expr list
-| All        of string * qtyp * expr
-| Some       of string * qtyp * expr;
-
-val eval: Proof.state -> expr -> expr;
+val eval: modifiers -> assert -> Eval_Connective.assert;
 
 end;

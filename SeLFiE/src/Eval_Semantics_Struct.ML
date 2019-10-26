@@ -8,7 +8,7 @@ type full_path = full_path;
 type print     = LiFtEr_Util.print;
 type name      = string;
 
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule;
+type qtyp = Eval_Quantifier_Core.qtyp;
 
 datatype assert =
 (*Eval_Connective*)
@@ -71,88 +71,90 @@ val name_dup_check = undefined: assert -> bool;
 
 val type_check = undefined: assert -> bool;
 
-structure EM = Eval_Modifier;
-structure EC = Eval_Connective;
-structure EP = Eval_Parameters;
-structure EE = Eval_Expression;
+structure EC   = Eval_Connective;
+structure EP   = Eval_Parameters;
+structure EE   = Eval_Expression;
+structure EQC  = Eval_Quantifier_Core;
+structure EM   = Eval_Modifier;
+structure FPTF = Full_Path_To_Fpunode;
+structure PTFP = Print_To_Full_Paths;
 
 val pair_to_list = Utils.pair_to_list;
 
-fun convert_qtyp QFull_Path = EM.QFull_Path
-  | convert_qtyp QPrint     = EM.QPrint
-  | convert_qtyp QInd       = EM.QInd
-  | convert_qtyp QArb       = EM.QArb
-  | convert_qtyp QRule      = EM.QRule;
-
 fun surf_pair_to_mod_list pair = map surf_to_mod (pair_to_list pair)
 and surf_list_to_mod_list list = map surf_to_mod  list
-and name_pair_to_var_list pair = map EM.Var      (pair_to_list pair)
+and name_pair_to_var_list pair = map EQC.Var     (pair_to_list pair)
 and 
 (*Eval_Connective*)
-  surf_to_mod True         = EM.Literal (EE.Bool true)
-| surf_to_mod False        = EM.Literal (EE.Bool false)
-| surf_to_mod (Not   ass)  = EM.Assert (EE.Not,  [surf_to_mod ass] )
-| surf_to_mod (And   pair) = EM.Assert (EE.And,   surf_pair_to_mod_list pair)
-| surf_to_mod (Or    pair) = EM.Assert (EE.Or,    surf_pair_to_mod_list pair)
-| surf_to_mod (Nor   pair) = EM.Assert (EE.Nor,   surf_pair_to_mod_list pair)
-| surf_to_mod (Imply pair) = EM.Assert (EE.Imply, surf_pair_to_mod_list pair)
-| surf_to_mod (Ands  list) = EM.Assert (EE.Ands,  surf_list_to_mod_list list)
-| surf_to_mod (Ors   list) = EM.Assert (EE.Ors,   surf_list_to_mod_list list)
+  surf_to_mod True         = EQC.Literal (EE.Bool true)
+| surf_to_mod False        = EQC.Literal (EE.Bool false)
+| surf_to_mod (Not   ass)  = EQC.Assert (EE.Not,  [surf_to_mod ass] )
+| surf_to_mod (And   pair) = EQC.Assert (EE.And,   surf_pair_to_mod_list pair)
+| surf_to_mod (Or    pair) = EQC.Assert (EE.Or,    surf_pair_to_mod_list pair)
+| surf_to_mod (Nor   pair) = EQC.Assert (EE.Nor,   surf_pair_to_mod_list pair)
+| surf_to_mod (Imply pair) = EQC.Assert (EE.Imply, surf_pair_to_mod_list pair)
+| surf_to_mod (Ands  list) = EQC.Assert (EE.Ands,  surf_list_to_mod_list list)
+| surf_to_mod (Ors   list) = EQC.Assert (EE.Ors,   surf_list_to_mod_list list)
 (*Eval_Node_Core*)
-| surf_to_mod (Is_Cnst   name) = EM.Assert (EE.Is_Cnst,   [EM.Var name])
-| surf_to_mod (Is_Free   name) = EM.Assert (EE.Is_Free,   [EM.Var name])
-| surf_to_mod (Is_Var    name) = EM.Assert (EE.Is_Var,    [EM.Var name])
-| surf_to_mod (Is_Bound  name) = EM.Assert (EE.Is_Bound,  [EM.Var name])
-| surf_to_mod (Is_Lambda name) = EM.Assert (EE.Is_Lambda, [EM.Var name])
-| surf_to_mod (Is_App    name) = EM.Assert (EE.Is_App,    [EM.Var name])
+| surf_to_mod (Is_Cnst   name) = EQC.Assert (EE.Is_Cnst,   [EQC.Var name])
+| surf_to_mod (Is_Free   name) = EQC.Assert (EE.Is_Free,   [EQC.Var name])
+| surf_to_mod (Is_Var    name) = EQC.Assert (EE.Is_Var,    [EQC.Var name])
+| surf_to_mod (Is_Bound  name) = EQC.Assert (EE.Is_Bound,  [EQC.Var name])
+| surf_to_mod (Is_Lambda name) = EQC.Assert (EE.Is_Lambda, [EQC.Var name])
+| surf_to_mod (Is_App    name) = EQC.Assert (EE.Is_App,    [EQC.Var name])
 (*Eval_Node_Sugar*)
-| surf_to_mod (Is_Atom    name) = EM.Assert (EE.Is_Atom,    [EM.Var name])
-| surf_to_mod (Is_Compund name) = EM.Assert (EE.Is_Compund, [EM.Var name])
+| surf_to_mod (Is_Atom    name) = EQC.Assert (EE.Is_Atom,    [EQC.Var name])
+| surf_to_mod (Is_Compund name) = EQC.Assert (EE.Is_Compund, [EQC.Var name])
 (*Eval_Unode_Core*)
-| surf_to_mod (Has_Same_Prnt_As  pair) = EM.Assert (EE.Has_Same_Prnt_As,  name_pair_to_var_list pair)
-| surf_to_mod (Is_In_Trm_Prnt    pair) = EM.Assert (EE.Is_In_Trm_Prnt,    name_pair_to_var_list pair)
-| surf_to_mod (Is_Deeper_Than    pair) = EM.Assert (EE.Is_Deeper_Than,    name_pair_to_var_list pair)
-| surf_to_mod (Is_Shallower_Than pair) = EM.Assert (EE.Is_Shallower_Than, name_pair_to_var_list pair)
-| surf_to_mod (Is_Path_Above     pair) = EM.Assert (EE.Is_Path_Above,     name_pair_to_var_list pair)
-| surf_to_mod (Is_Same_Path_As   pair) = EM.Assert (EE.Is_Same_Path_As,   name_pair_to_var_list pair)
+| surf_to_mod (Has_Same_Prnt_As  pair) = EQC.Assert (EE.Has_Same_Prnt_As,  name_pair_to_var_list pair)
+| surf_to_mod (Is_In_Trm_Prnt    pair) = EQC.Assert (EE.Is_In_Trm_Prnt,    name_pair_to_var_list pair)
+| surf_to_mod (Is_Deeper_Than    pair) = EQC.Assert (EE.Is_Deeper_Than,    name_pair_to_var_list pair)
+| surf_to_mod (Is_Shallower_Than pair) = EQC.Assert (EE.Is_Shallower_Than, name_pair_to_var_list pair)
+| surf_to_mod (Is_Path_Above     pair) = EQC.Assert (EE.Is_Path_Above,     name_pair_to_var_list pair)
+| surf_to_mod (Is_Same_Path_As   pair) = EQC.Assert (EE.Is_Same_Path_As,   name_pair_to_var_list pair)
 (*Eval_Unode_Sugar*)
-| surf_to_mod (Is_As_Deep_As     pair) = EM.Assert (EE.Is_As_Deep_As,     name_pair_to_var_list pair)
-| surf_to_mod (Is_Path_Below     pair) = EM.Assert (EE.Is_Path_Below,     name_pair_to_var_list pair)
+| surf_to_mod (Is_As_Deep_As     pair) = EQC.Assert (EE.Is_As_Deep_As,     name_pair_to_var_list pair)
+| surf_to_mod (Is_Path_Below     pair) = EQC.Assert (EE.Is_Path_Below,     name_pair_to_var_list pair)
 (*Eval_Fpunode_Core*)
-| surf_to_mod (Is_In_Same_Location_As pair) = EM.Assert (EE.Is_In_Same_Location_As, name_pair_to_var_list pair)
-| surf_to_mod (Is_In_Chained          name) = EM.Assert (EE.Is_In_Chained,          [EM.Var name])
-| surf_to_mod (Is_In_Fst_Subg         name) = EM.Assert (EE.Is_In_Fst_Subg,         [EM.Var name])
+| surf_to_mod (Is_In_Same_Location_As pair) = EQC.Assert (EE.Is_In_Same_Location_As, name_pair_to_var_list pair)
+| surf_to_mod (Is_In_Chained          name) = EQC.Assert (EE.Is_In_Chained,          [EQC.Var name])
+| surf_to_mod (Is_In_Fst_Subg         name) = EQC.Assert (EE.Is_In_Fst_Subg,         [EQC.Var name])
 (*Eval_Fpunode_Sugar*)
-| surf_to_mod (Is_Above       pair) = EM.Assert (EE.Is_Above,       name_pair_to_var_list pair)
-| surf_to_mod (Is_Below       pair) = EM.Assert (EE.Is_Below,       name_pair_to_var_list pair)
-| surf_to_mod (Is_Same_Occ_As pair) = EM.Assert (EE.Is_Same_Occ_As, name_pair_to_var_list pair)
+| surf_to_mod (Is_Above       pair) = EQC.Assert (EE.Is_Above,       name_pair_to_var_list pair)
+| surf_to_mod (Is_Below       pair) = EQC.Assert (EE.Is_Below,       name_pair_to_var_list pair)
+| surf_to_mod (Is_Same_Occ_As pair) = EQC.Assert (EE.Is_Same_Occ_As, name_pair_to_var_list pair)
 (*Eval_Print_Core*)
-| surf_to_mod (Are_Same_Prints  pair         ) = EM.Assert (EE.Are_Same_Prints, name_pair_to_var_list pair)
-| surf_to_mod (Is_Printed_As   (name, string)) = EM.Assert (EE.Is_Printed_As,   [EM.Var name, EM.Literal (EE.String string)])
+| surf_to_mod (Are_Same_Prints  pair         ) = EQC.Assert (EE.Are_Same_Prints, name_pair_to_var_list pair)
+| surf_to_mod (Is_Printed_As   (name, string)) = EQC.Assert (EE.Is_Printed_As,   [EQC.Var name, EQC.Literal (EE.String string)])
 (*Eval_Print_Sugar*)
-| surf_to_mod (Are_Different_Prints pair) = EM.Assert (EE.Are_Different_Prints, name_pair_to_var_list pair)
-| surf_to_mod (Fpnode_Has_Print     pair) = EM.Assert (EE.Fpnode_Has_Print,     name_pair_to_var_list pair)
+| surf_to_mod (Are_Different_Prints pair) = EQC.Assert (EE.Are_Different_Prints, name_pair_to_var_list pair)
+| surf_to_mod (Fpnode_Has_Print     pair) = EQC.Assert (EE.Fpnode_Has_Print,     name_pair_to_var_list pair)
 (*Eval_Number*)
-| surf_to_mod (Are_Same_Number pair) = EM.Assert (EE.Are_Same_Number, name_pair_to_var_list pair)
-| surf_to_mod (Is_Less_Than    pair) = EM.Assert (EE.Is_Less_Than,    name_pair_to_var_list pair)
-| surf_to_mod (Is_Int   (name, int)) = EM.Assert (EE.Is_Int,          [EM.Var name, EM.Literal (EE.Int int)])
+| surf_to_mod (Are_Same_Number pair) = EQC.Assert (EE.Are_Same_Number, name_pair_to_var_list pair)
+| surf_to_mod (Is_Less_Than    pair) = EQC.Assert (EE.Is_Less_Than,    name_pair_to_var_list pair)
+| surf_to_mod (Is_Int   (name, int)) = EQC.Assert (EE.Is_Int,          [EQC.Var name, EQC.Literal (EE.Int int)])
 (*Other*)
-| surf_to_mod (Is_Nth_Arg_Of (fp_name1, numb_name, fp_name2)) = EM.Assert (EE.Is_Nth_Arg_Of, [EM.Var fp_name1, EM.Var numb_name, EM.Var fp_name2])
+| surf_to_mod (Is_Nth_Arg_Of (fp_name1, numb_name, fp_name2)) = EQC.Assert (EE.Is_Nth_Arg_Of, [EQC.Var fp_name1, EQC.Var numb_name, EQC.Var fp_name2])
 (*Quantifier*)
-| surf_to_mod (All  (name, qyp, assert)) = EM.All  (name, convert_qtyp qyp, surf_to_mod assert)
-| surf_to_mod (Some (name, qyp, assert)) = EM.Some (name, convert_qtyp qyp, surf_to_mod assert)
+| surf_to_mod (All  (name, qyp, assert)) = EQC.All  (name, qyp, surf_to_mod assert)
+| surf_to_mod (Some (name, qyp, assert)) = EQC.Some (name, qyp, surf_to_mod assert)
 (*Modifier*)
 | surf_to_mod (Is_Rule_Of pair) = surf_to_mod (Are_Same_Prints pair);
 
-fun convert_result (EM.Literal (EE.Bool true )) = True
-  | convert_result (EM.Literal (EE.Bool false)) = False
+fun convert_result (EQC.Literal (EE.Bool true )) = True
+  | convert_result (EQC.Literal (EE.Bool false)) = False
   | convert_result  _ = error "eval in Eval_Syntax_Struct failed. Evaluation is not complete.";
+
+val pst_to_modifiers = undefined; (*TODO: probably in Eval_Modifier*)
 
 fun eval (pst:Proof.state) (assert:assert) =
   let
-    val em_expr   = surf_to_mod assert      : EM.expr;
-    val em_result = EM.eval pst em_expr     : EM.expr;
-    val result    = convert_result em_result: assert;
+    val eqc_expr             = surf_to_mod assert                                             : EQC.expr;
+    val full_path_to_fpunode = FPTF.pst_to_full_path_to_fpunode_table pst                     : FPTF.full_path_to_fpunode_table;
+    val print_to_paths       = PTFP.full_path_to_fpunode_table_to_print_to_paths_table full_path_to_fpunode;
+    val modifiers            = pst_to_modifiers pst                                           : EM.modifiers;
+    val eqc_result           = EQC.eval full_path_to_fpunode modifiers print_to_paths eqc_expr: EQC.expr;
+    val result               = convert_result eqc_result                                      : assert;
   in
     result
   end;

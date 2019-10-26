@@ -8,7 +8,7 @@ type full_path;
 type print;
 type name;
 
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule;
+type qtyp = Eval_Quantifier_Core.qtyp;
 
 datatype assert =
 (*Eval_Connective*)
@@ -70,6 +70,8 @@ datatype assert =
 val name_dup_check: assert -> bool;
 
 val type_check: assert -> bool;
+
+val pst_to_modifiers: Proof.state -> Eval_Modifier.modifiers;
 
 val eval: Proof.state -> assert -> assert;
 

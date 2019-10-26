@@ -1,5 +1,8 @@
 (*  Title:      PSL/SeLFeE/src/Eval_Parameters_Struct.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
+
+1. add Is_Nth_Arg_Of
+2. add parameter
 *)
 structure Eval_Parameters: EVAL_PARAMETERS =
 struct           
@@ -9,7 +12,7 @@ structure EPC = Eval_Print_Core;
 structure EPS = Eval_Print_Sugar;
 structure EFP = Eval_Full_Path;
 structure EN  = Eval_Number;
-structure EP  = Eval_Primitive;
+structure EM  = Eval_Modifier;
 
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
@@ -63,13 +66,16 @@ datatype assert =
 | Are_Same_Number
 | Is_Less_Than
 | Is_Int
+(*Eval_Modifier*)
+| Is_Nth_Ind
+| Is_Nth_Arb
 (*Others*)
 | Is_Nth_Arg_Of;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
+type modifiers                  = Eval_Modifier.modifiers;
 
-
-fun eval fp_to_fpun_table assert parameters =
+fun eval fp_to_fpun_table modifiers assert parameters =
   let
     fun
       (*Eval_Node_Core*)
@@ -110,8 +116,12 @@ fun eval fp_to_fpun_table assert parameters =
       | eval' Are_Same_Number [Number numb1,  Number numb2]            = EN.eval (EN.Are_Same_Number (numb1, numb2))
       | eval' Is_Less_Than    [Number numb1,  Number numb2]            = EN.eval (EN.Is_Less_Than    (numb1, numb2))
       | eval' Is_Int          [Number numb,   Int    int  ]            = EN.eval (EN.Is_Int          (numb,    int))
+      (*Eval_Modifier*)
+      | eval' Is_Nth_Ind [Print p, Number n] = EM.eval modifiers (EM.Is_Nth_Ind (p, n))
+      | eval' Is_Nth_Arb [Print p, Number n] = EM.eval modifiers (EM.Is_Nth_Arb (p, n))
       (*Others*)
-      | eval' Is_Nth_Arg_Of   [Full_Path fp1, Number n, Full_Path fp2] = EP.eval fp_to_fpun_table (EP.Is_Nth_Arg_Of (fp1, n, fp2))
+      | eval' Is_Nth_Arg_Of   [Full_Path (loc1, path1), Number (EN.Number n), Full_Path (loc2, path2)] =
+        (loc1 = loc2 andalso UN.is_nth_arg_of path1 n path2) |> EC.bool_to_assert_connective
       | eval' _ _ = error "eval' in Eval_Parameters_Struct.ML failed!"
   in
     eval' assert parameters: Eval_Connective.assert

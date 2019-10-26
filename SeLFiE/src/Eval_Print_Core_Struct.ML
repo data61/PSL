@@ -15,9 +15,7 @@ datatype assert =
 
 infix Is_Printed_As;
 
-fun eval (Are_Same_Prints print_pair) =
-    print_pair |> uncurry LU.same_prints |> EC.bool_to_assert_connective
-  | eval (LU.Print printed_str Is_Printed_As string) =
-    EC.bool_to_assert_connective (printed_str = string);
+fun eval (Are_Same_Prints print_pair)                = print_pair |> uncurry LU.same_prints |> EC.bool_to_assert_connective
+  | eval (LU.Print printed_str Is_Printed_As string) = EC.bool_to_assert_connective (printed_str = string);
 
 end;

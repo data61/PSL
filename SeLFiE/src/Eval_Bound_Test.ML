@@ -8,7 +8,9 @@ open Eval_Bound;
 structure EC = Eval_Connective;
 structure EP = Eval_Parameters;
 structure EE = Eval_Expression;
+structure EM = Eval_Modifier;
 val empty_table = Full_Path_Table.empty;
+val empty_mods  = EM.Modifiers {ons = [], arbs = [], rules = []};
 
 in
 
@@ -19,7 +21,7 @@ Apply
   (Bound 0),
  (Literal (EE.Bool true)));
                                                                        
-val _ = @{assert} (Literal (EE.Bool true) = eval empty_table expr1);
+val _ = @{assert} (Literal (EE.Bool true) = eval empty_table empty_mods expr1);
 
 (*(\<lambda>x. \<lambda>y. y) True False = False*)
 val expr2 =
@@ -32,7 +34,7 @@ Apply
   (Literal (EE.Bool false))
   );
 
-val _ = @{assert} (Literal (EE.Bool false) = eval empty_table expr2);
+val _ = @{assert} (Literal (EE.Bool false) = eval empty_table empty_mods expr2);
 
 (*True \<or> False = True*)
 (*
@@ -45,7 +47,7 @@ Assert
    (Literal (EE.Bool false))
    ])
 
-val _ = @{assert} (Literal (EE.Bool true) = eval empty_table expr3);
+val _ = @{assert} (Literal (EE.Bool true) = eval empty_table empty_mods expr3);
 (*
 (*True \<and> False = False*)
 val expr4 = Connective (EC.And (EC.True, EC.False));
@@ -60,6 +62,6 @@ Apply
  (Literal (EE.Bool false)));
 (*What? We have two Trues? One as assert the other one as parameter?*)
 
-val _ = @{assert} (Literal (EE.Bool true) = eval empty_table expr5);
+val _ = @{assert} (Literal (EE.Bool true) = eval empty_table empty_mods expr5);
 
 end;

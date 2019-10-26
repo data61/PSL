@@ -34,11 +34,12 @@ fun subst i u (Bound j) =
   | subst i u (Assert (ass, exprs)) = Assert (ass, map (subst i u) exprs);
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
+type modifiers                  = Eval_Modifier.modifiers;
 
 fun eval_prim (Literal param) = param
   | eval_prim  _              = error "eval_prim in Eval_Bound_Struct failed!"
 
-fun eval (table:full_path_to_fpunode_table) (expr:expr) =
+fun eval (table:full_path_to_fpunode_table) (modifiers:modifiers) (expr:expr) =
 let
   fun eval' (Apply (trm1, trm2)) = (case eval' trm1 of
         Lambda u => eval' (subst 0 (eval' trm2) u)
@@ -47,7 +48,7 @@ let
       let
         val params = map eval_prim param_exprs: EE.parameters;
       in
-        EE.eval table assert params |> Literal
+        EE.eval table modifiers assert params |> Literal
       end
     | eval' t = t
 in

@@ -56,10 +56,10 @@ ML_file "src/Eval_Print_Sugar_Sig.ML"
 ML_file "src/Eval_Print_Sugar_Struct.ML"
 ML_file "src/Eval_Number_Sig.ML"
 ML_file "src/Eval_Number_Struct.ML"
+ML_file "src/Eval_Modifier_Sig.ML"
+ML_file "src/Eval_Modifier_Struct.ML"
 ML_file "src/Eval_Full_Path_Sig.ML"(*TODO:Is_Nth_Arg*)
 ML_file "src/Eval_Full_Path_Struct.ML"
-ML_file "src/Eval_Primitive_Sig.ML" (*TODO: a separate module for Is_Nth_Arg_Of?*)
-ML_file "src/Eval_Primitive_Struct.ML"
 ML_file "src/Eval_Parameters_Sig.ML"
 ML_file "src/Eval_Parameters_Struct.ML"
 ML_file "src/Eval_Expression_Sig.ML"
@@ -69,15 +69,13 @@ ML_file "src/Eval_Bound_Struct.ML"
 ML_file "src/Eval_Bound_Test.ML"
 ML_file "src/Eval_Var_Sig.ML"
 ML_file "src/Eval_Var_Struct.ML"
-ML_file "src/Eval_Quantifier_Core_Sig.ML"
+ML_file "src/Eval_Quantifier_Core_Sig.ML"(*TODO:Number*)
 ML_file "src/Eval_Quantifier_Core_Struct.ML"
 (*We can define modifier after we define quantifier because modifiers qualify over sub-terms.*)
-ML_file "src/Eval_Modifier_Sig.ML"(*TODO:add atomic-assertion "Is_Rule_Of"*)
-ML_file "src/Eval_Modifier_Struct.ML"
 (* Bootstrapping has to happen after introducing Eval_Modifier
  * because we need modifiers to fetch related lemmas. *)
 ML_file "src/Eval_Semantics_Sig.ML"
-ML_file "src/Eval_Semantics_Struct.ML"
+ML_file "src/Eval_Semantics_Struct.ML"(*TODO*)
 ML_file "src/Eval_Syntax_Sig.ML"   (*This is only for syntax.*)
 ML_file "src/Eval_Syntax_Struct.ML"(*This is only for syntax.*)
 ML\<open>

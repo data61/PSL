@@ -15,7 +15,7 @@ datatype parameter =
 | Full_Path  of full_path
 | Print      of print
 | String     of string(*redundant?*)
-| Number     of Eval_Number.number
+| Number     of number
 | Int        of int;
 
 type parameters = parameter list;
@@ -67,11 +67,15 @@ datatype assert =
 | Are_Same_Number
 | Is_Less_Than
 | Is_Int
+(*Eval_Modifier*)
+| Is_Nth_Ind
+| Is_Nth_Arb
 (*Others*)
 | Is_Nth_Arg_Of;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
+type modifiers                  = Eval_Modifier.modifiers;
 
-val eval: full_path_to_fpunode_table -> assert -> parameters -> parameter;
+val eval: full_path_to_fpunode_table -> modifiers -> assert -> parameters -> parameter;
 
 end;

@@ -43,6 +43,7 @@ sig
   val prefix_if_nonempty                      : string -> strings -> strings;
   val debug                                   : bool; (*flag for debugging.*)
   val debug_mssg                              : bool -> string -> 'a -> 'a;
+  val try'                                    : string -> ('a -> 'b) -> 'a -> 'b;
   val try_with                                : 'b -> ('a -> 'b) -> 'a -> 'b;
   val are_same                                : (string * string) -> bool; (*FIXME: Isn't this redundant? We already have equal.*)
   val index                                   : 'a list -> (int * 'a) list;
@@ -157,6 +158,10 @@ val debug = false;
 
 fun debug_mssg switch (str:string) f = if switch then (tracing str; f) else f;
 
+fun try' (mssg:string) (f:'a -> 'b) (x:'a) = (case try f x of
+  NONE   => error mssg
+| SOME y => y);
+
 fun try_with  (fallback:'b) (f:'a -> 'b) (x:'a) = (case try f x of
   NONE => fallback
 | SOME y => y);
@@ -175,7 +180,8 @@ fun index (zs:'a list) =
   end;
 
 fun power' (_, 0, z) = z
-  | power' (x, y, z) = power' (x, y-1, x * z)
+  | power' (x, y, z) = power' (x, y-1, x * z);
+
 fun power x n = power' (x, n, 1);
 
 fun nat_to_frac (n:int) =

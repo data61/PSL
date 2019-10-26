@@ -15,12 +15,6 @@ datatype assert =
   Connective      of Eval_Connective.assert
 | Are_Same_Number of number  * number
 | Is_Less_Than    of number  * number
-(*We need full_path for this!*)
-(*| Is_Nth_Arg_Of    of fpunode * number * fpunode *)
-(* We need modifiers for this!*)
-(*| Is_Nth_Ind       of print   * number (*Counting starts with 0.*)*)
-(*We need modifiers for this!*)
-(*| Is_Nth_Arb       of print   * number (*Counting starts with 0.*)*)
 | Is_Int          of number  * int;
 
 infix
