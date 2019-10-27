@@ -145,7 +145,7 @@ and
 (*Modifier*)
 | surf_to_mod (Is_Rule_Of pair) = surf_to_mod (Are_Same_Prints pair)(*TODO: maybe we need a sanity checker to confirm that the first argument is rule.*)
 (*Semantic*)
-| surf_to_mod (Is_Defined_With        (name,   cmnd)) = undefined ()
+| surf_to_mod (Is_Defined_With        (name,   cmnd)) = EQC.Assert (EE.Is_Defined_With, [EQC.Var name, EQC.Literal (EE.Command cmnd)])
 | surf_to_mod (Holds_In_Any_Clause_Of (assert, name)) = undefined ((*TODO*))
 | surf_to_mod (Holds_In_One_Clause_Of (assert, name)) = undefined ((*TODO*));
 
