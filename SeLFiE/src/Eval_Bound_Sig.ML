@@ -11,9 +11,6 @@ datatype expr =
 | Literal    of Eval_Expression.parameter
 | Assert     of Eval_Expression.assert * expr list;
 
-type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
-type modifiers                  = Eval_Modifier.modifiers;
-
-val eval: full_path_to_fpunode_table -> modifiers -> expr -> expr;
+val eval: Proof.state -> expr -> expr;
 
 end;

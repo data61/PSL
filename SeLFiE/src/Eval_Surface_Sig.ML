@@ -66,6 +66,7 @@ datatype assert =
 (*Modifier*)
 | Is_Rule_Of             of name * name
 (*Semantic*)
+| Is_Defined_With        of name   * Pattern.command
 | Holds_In_Any_Clause_Of of assert * name
 | Holds_In_One_Clause_Of of assert * name;
 

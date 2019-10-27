@@ -17,6 +17,7 @@ structure EM  = Eval_Modifier;
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
+type command    = Pattern.command;
 
 datatype parameter =
   Bool       of bool
@@ -24,7 +25,8 @@ datatype parameter =
 | Print      of print
 | String     of string(*redundant?*)
 | Number     of Eval_Number.number
-| Int        of int;
+| Int        of int
+| Command    of command;
 
 type  parameters = parameter list;
 
@@ -34,6 +36,7 @@ fun convert_param (Bool       _) = error "convert_param in Eval_Expression_Struc
   | convert_param (String     s) = EP.String s
   | convert_param (Number     n) = EP.Number n
   | convert_param (Int        i) = EP.Int i
+  | convert_param (Command    c) = EP.Command c;
 
 fun de_Bool (Bool c) = c
   | de_Bool  _       = error "de_Bool in Eval_Expression_Struct failed."
@@ -89,7 +92,8 @@ datatype assert =
 | Is_Nth_Ind
 | Is_Nth_Arb
 (*Others*)
-| Is_Nth_Arg_Of;
+| Is_Nth_Arg_Of
+| Is_Defined_With;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 type modifiers                  = Eval_Modifier.modifiers;
@@ -141,9 +145,10 @@ fun expr_to_param Is_Cnst                = EP.Is_Cnst
   | expr_to_param Is_Nth_Arb             = EP.Is_Nth_Arb
   (*Others*)
   | expr_to_param Is_Nth_Arg_Of          = EP.Is_Nth_Arg_Of
+  | expr_to_param Is_Defined_With        = EP.Is_Defined_With
   | expr_to_param _                      = error "expr_to_param in Eval_Expression_Struct failed.";
 
-fun eval fp_to_fpun_table modifiers assert parameters =
+fun eval pst assert parameters =
   let
     fun
       (*Eval_Connective*)
@@ -155,7 +160,7 @@ fun eval fp_to_fpun_table modifiers assert parameters =
       | eval' Ands  ands               = EC.eval (EC.Ands  (map de_bool_to_connect ands))
       | eval' Ors   ors                = EC.eval (EC.Ors   (map de_bool_to_connect ors ))
       (*Eval_Node_Core*)
-      | eval' ass params = EP.eval fp_to_fpun_table modifiers (expr_to_param ass) (map convert_param params)
+      | eval' ass params = EP.eval pst (expr_to_param ass) (map convert_param params)
     val ec_result = eval' assert parameters: Eval_Connective.assert;
     val result    = ec_result |> EC.assert_connective_to_bool |> Bool;
   in

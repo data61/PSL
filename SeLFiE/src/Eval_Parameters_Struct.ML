@@ -17,13 +17,15 @@ structure EM  = Eval_Modifier;
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
+type command    = Pattern.command;
 
 datatype parameter =
   Full_Path of full_path
 | Print     of print
 | String    of string(*redundant?*)
 | Number    of Eval_Number.number
-| Int       of int;
+| Int       of int
+| Command   of command;
 
 type parameters = parameter list;
 
@@ -70,13 +72,23 @@ datatype assert =
 | Is_Nth_Ind
 | Is_Nth_Arb
 (*Others*)
-| Is_Nth_Arg_Of;
+| Is_Nth_Arg_Of
+| Is_Defined_With;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 type modifiers                  = Eval_Modifier.modifiers;
 
-fun eval fp_to_fpun_table modifiers assert parameters =
+val pst_to_full_path_to_fpunode_table = undefined; (*TODO*)
+val pst_to_modifiers                  = undefined; (*TODO*)
+
+val dest_print  = LiFtEr_Util.dest_print;
+val get_command = Pattern.get_command;
+
+fun eval pst assert parameters =
   let
+    val ctxt             = Proof.context_of pst;
+    val fp_to_fpun_table = pst_to_full_path_to_fpunode_table pst;
+    val modifiers        = pst_to_modifiers pst;
     fun
       (*Eval_Node_Core*)
         eval' Is_Cnst   [Full_Path fp] = EFP.eval fp_to_fpun_table (EFP.Is_Cnst   fp)
@@ -122,6 +134,7 @@ fun eval fp_to_fpun_table modifiers assert parameters =
       (*Others*)
       | eval' Is_Nth_Arg_Of   [Full_Path (loc1, path1), Number (EN.Number n), Full_Path (loc2, path2)] =
         (loc1 = loc2 andalso UN.is_nth_arg_of path1 n path2) |> EC.bool_to_assert_connective
+      | eval' Is_Defined_With [Print p, Command c] = p |> dest_print |> get_command ctxt |> equal c |> EC.bool_to_assert_connective
       | eval' _ _ = error "eval' in Eval_Parameters_Struct.ML failed!"
   in
     eval' assert parameters: Eval_Connective.assert

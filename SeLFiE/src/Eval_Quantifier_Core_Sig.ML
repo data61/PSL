@@ -6,8 +6,6 @@ sig
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 
-type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
-type modifiers                  = Eval_Modifier.modifiers;
 type print_to_full_paths_table  = full_path list Print_Table.table;
 
 datatype expr =
@@ -19,6 +17,6 @@ datatype expr =
 | All        of string * qtyp * expr
 | Some       of string * qtyp * expr;
 
-val eval: full_path_to_fpunode_table -> modifiers -> print_to_full_paths_table -> expr -> expr;
+val eval: Proof.state -> expr -> expr;
 
 end;

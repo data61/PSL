@@ -7,13 +7,15 @@ sig
 type connective = Eval_Connective.assert;
 type print      = LiFtEr_Util.print;
 type number     = Eval_Number.number;
+type command    = Pattern.command;
 
 datatype parameter =
   Full_Path of full_path
 | Print     of print
 | String    of string(*redundant?*)
 | Number    of number
-| Int       of int;
+| Int       of int
+| Command   of command;
 
 type parameters = parameter list;
 
@@ -60,11 +62,15 @@ datatype assert =
 | Is_Nth_Ind
 | Is_Nth_Arb
 (*Others*)
-| Is_Nth_Arg_Of;
+| Is_Nth_Arg_Of
+| Is_Defined_With;
 
 type full_path_to_fpunode_table = Full_Path_To_Fpunode.full_path_to_fpunode_table;
 type modifiers                  = Eval_Modifier.modifiers;
 
-val eval: full_path_to_fpunode_table -> modifiers -> assert -> parameters -> Eval_Connective.assert;
+val pst_to_full_path_to_fpunode_table: Proof.state -> full_path_to_fpunode_table;
+val pst_to_modifiers                 : Proof.state -> modifiers; 
+
+val eval: Proof.state -> assert -> parameters -> Eval_Connective.assert;
 
 end;

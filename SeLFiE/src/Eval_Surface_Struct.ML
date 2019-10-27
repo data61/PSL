@@ -75,6 +75,7 @@ datatype assert =
 (*Modifier*)
 | Is_Rule_Of             of name * name
 (*Semantic*)
+| Is_Defined_With        of name   * Pattern.command
 | Holds_In_Any_Clause_Of of assert * name
 | Holds_In_One_Clause_Of of assert * name;
 
@@ -142,8 +143,9 @@ and
 | surf_to_mod (All  (name, qyp, assert)) = EQC.All  (name, qyp, surf_to_mod assert)
 | surf_to_mod (Some (name, qyp, assert)) = EQC.Some (name, qyp, surf_to_mod assert)
 (*Modifier*)
-| surf_to_mod (Is_Rule_Of pair) = surf_to_mod (Are_Same_Prints pair)
+| surf_to_mod (Is_Rule_Of pair) = surf_to_mod (Are_Same_Prints pair)(*TODO: maybe we need a sanity checker to confirm that the first argument is rule.*)
 (*Semantic*)
+| surf_to_mod (Is_Defined_With        (name,   cmnd)) = undefined ()
 | surf_to_mod (Holds_In_Any_Clause_Of (assert, name)) = undefined ((*TODO*))
 | surf_to_mod (Holds_In_One_Clause_Of (assert, name)) = undefined ((*TODO*));
 
@@ -157,12 +159,9 @@ val pst_to_modifiers = undefined; (*TODO: probably in Eval_Modifier*)
 
 fun eval (pst:Proof.state) (assert:assert) =
   let
-    val eqc_expr             = surf_to_mod assert                                             : EQC.expr;
-    val full_path_to_fpunode = FPTF.pst_to_full_path_to_fpunode_table pst                     : FPTF.full_path_to_fpunode_table;
-    val print_to_paths       = PTFP.full_path_to_fpunode_table_to_print_to_paths_table full_path_to_fpunode;
-    val modifiers            = pst_to_modifiers pst                                           : EM.modifiers;
-    val eqc_result           = EQC.eval full_path_to_fpunode modifiers print_to_paths eqc_expr: EQC.expr;
-    val result               = convert_result eqc_result                                      : assert;
+    val eqc_expr             = surf_to_mod assert       : EQC.expr;
+    val eqc_result           = EQC.eval pst eqc_expr    : EQC.expr;
+    val result               = convert_result eqc_result: assert;
   in
     result
   end;
