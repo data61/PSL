@@ -4,8 +4,6 @@
 signature EVAL_NUMBER =
 sig
 
-type print      = LiFtEr_Util.print;
-type fpunode    = Full_Path_To_Fpunode.fpunode;
 datatype number = Number of int;
 
 datatype assert =

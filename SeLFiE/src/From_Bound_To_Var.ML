@@ -1,18 +1,40 @@
-(*  Title:      PSL/SeLFeE/src/Eval_Var_Struct.ML
+(*  Title:      PSL/SeLFeE/src/From_Bound_To_Var.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-structure Eval_Var: EVAL_VAR =
+functor from_Bound_to_Var (Eval_Bound:EVAL_BOUND): EVAL_VAR  =
 struct
 
 structure EB = Eval_Bound;
-structure EE = Eval_Expression;
+
+type parameter = EB.parameter;
+
+type parameter_assert = EB.parameter_assert;
+
+datatype assert =
+  Not
+| And
+| Or
+| Nor
+| Imply
+| Ands
+| Ors
+| Eval_Parameter of parameter_assert;
+
+fun convert_assert Not   = EB.Not
+  | convert_assert And   = EB.And
+  | convert_assert Or    = EB.Or
+  | convert_assert Nor   = EB.Nor
+  | convert_assert Imply = EB.Imply
+  | convert_assert Ands  = EB.Ands
+  | convert_assert Ors   = EB.Ors
+  | convert_assert (Eval_Parameter assert) = EB.Eval_Parameter assert;
 
 datatype expr =
   Var        of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
-| Literal    of EE.parameter
-| Assert     of EE.assert * expr list;
+| Literal    of parameter
+| Assert     of assert * expr list;
 
 type environment = (string * int) list; (*map a variable name to a de-Bruijn index*)
 
@@ -26,7 +48,7 @@ fun var_to_bound env (Var        vname           ) = EB.Bound (lookup env vname)
   | var_to_bound env (Lambda    (name,  sub_expr)) = EB.Lambda (var_to_bound (increment_then_update_with_0 name env) sub_expr)
   | var_to_bound env (Apply     (expr1, expr2   )) = EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
   | var_to_bound _   (Literal    param           ) = EB.Literal param
-  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params);
+  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (convert_assert assert, map (var_to_bound env) params);
 
 fun convert_result (EB.Literal ee_bool) = Literal ee_bool
   | convert_result  _ =

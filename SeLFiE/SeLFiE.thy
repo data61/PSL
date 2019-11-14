@@ -42,37 +42,62 @@ ML_file "src/Eval_Unode_Core_Sig.ML"
 ML_file "src/Eval_Unode_Core_Struct.ML"
 ML_file "src/Eval_Unode_Sugar_Sig.ML"
 ML_file "src/Eval_Unode_Sugar_Struct.ML"
-ML_file "src/Full_Path_To_FPUnode_Sig.ML"
-ML_file "src/Full_Path_To_FPUnode_Struct.ML"
-ML_file "src/Eval_FPUnode_Core_Sig.ML"
-ML_file "src/Eval_FPUnode_Core_Struct.ML"
-ML_file "src/Eval_FPUnode_Sugar_Sig.ML"
-ML_file "src/Eval_FPUnode_Sugar_Struct.ML"
-ML_file "src/Print_To_Full_Paths_Sig.ML"
-ML_file "src/Print_To_Full_Paths_Struct.ML"
-ML_file "src/Eval_Print_Core_Sig.ML"
+ML_file "src/Path_To_Unode_Sig.ML"
+ML_file "src/Path_To_Unode_Struct.ML"
+ML_file "src/Print_To_Paths_Sig.ML"
+ML_file "src/Print_To_Paths_Struct.ML"
+ML_file "src/Eval_Print_Core_Sig.ML"   (*Rename this to Eval_Print_Path_Core*)
 ML_file "src/Eval_Print_Core_Struct.ML"
 ML_file "src/Eval_Print_Sugar_Sig.ML"
 ML_file "src/Eval_Print_Sugar_Struct.ML"
 ML_file "src/Eval_Number_Sig.ML"
 ML_file "src/Eval_Number_Struct.ML"
-ML_file "src/Eval_Modifier_Sig.ML"
-ML_file "src/Eval_Modifier_Struct.ML"
-ML_file "src/Eval_Full_Path_Sig.ML"
-ML_file "src/Eval_Full_Path_Struct.ML"
-ML_file "src/Eval_Parameters_Sig.ML"(*TODO:Is_Nth_Arg, pst_to_full_path_to_fpunode_table, pst_to_modifiers*)
-ML_file "src/Eval_Parameters_Struct.ML"
+ML_file "src/Eval_Path_Sig.ML"
+ML_file "src/Eval_Path_Struct.ML"
+ML_file "src/Eval_Parameter_Sig.ML"
 ML_file "src/Eval_Expression_Sig.ML"
-ML_file "src/Eval_Expression_Struct.ML"
 ML_file "src/Eval_Bound_Sig.ML"
-ML_file "src/Eval_Bound_Struct.ML"
-ML_file "src/Eval_Bound_Test.ML"
 ML_file "src/Eval_Var_Sig.ML"
-ML_file "src/Eval_Var_Struct.ML"
-ML_file "src/Eval_Quantifier_Core_Sig.ML"(*TODO:Number*)
-ML_file "src/Eval_Quantifier_Core_Struct.ML"
-ML_file "src/Eval_Surface_Sig.ML"
-ML_file "src/Eval_Surface_Struct.ML" (*TODO: Holds_In_Any_Clause_Of*)
+ML_file "src/Eval_Quantifier_Sig.ML"    (*TODO:Number*)
+ML_file "src/Eval_Path_Parameter_Struct.ML"
+ML_file "src/From_Parameter_To_Expression.ML"
+ML_file "src/From_Expression_To_Bound.ML"
+ML_file "src/From_Bound_To_Var.ML"
+ML_file "src/From_Var_To_Quantifier.ML" (*This should be an ML functor.*)
+
+ML\<open> (* from Path_Expression to Path_Var *)
+structure Eval_Path_Expression = from_Parameter_to_Expression (Eval_Path_Parameter ): EVAL_EXPRESSION;
+structure Eval_Path_Bound      = from_Expression_to_Bound     (Eval_Path_Expression): EVAL_BOUND;
+structure Eval_Path_Var        = from_Bound_to_Var            (Eval_Path_Bound     ): EVAL_VAR;
+\<close>
+ML\<open> (* Path_Quantifier_Domain *)
+structure Path_Quantifier_Domain:QUANTIFIER_DOMAIN =
+struct
+
+datatype qtyp  = QPath | QPrint | QNumber;
+type parameter = Eval_Path_Expression.parameter;
+
+val qtyp_to_qdomain = undefined: qtyp -> parameter list;
+
+type path  = UN.path;
+type path_to_node_table   = path Path_Table.table;
+type print_to_paths_table = path list Print_Table.table;
+
+fun mk_all_paths  pst term = Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term |> Path_Table.keys: path list;
+fun mk_all_prints pst term =
+let
+  val path_to_node_table   = Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term                      : Path_To_Unode.path_to_unode_table;
+  val print_to_paths_table = Print_To_Paths.path_to_unode_table_to_print_to_paths_table path_to_node_table: print_to_paths_table;
+in
+  Print_Table.keys print_to_paths_table
+end;
+end;
+\<close>
+ML\<open> (* from Path_Var to Path_Quantifier *)
+structure Eval_Path_Quantifier = 
+  from_Var_to_Quantifier(structure Eval_Var = Eval_Path_Var and Quantifier_Domain = Path_Quantifier_Domain)
+\<close>
+
 ML\<open>
 @{term "let x = 1 in x"};
 (*

@@ -6,13 +6,11 @@ struct
 
 structure EC = Eval_Connective;
 
-type print       = LiFtEr_Util.print;
-type fpunode     = Full_Path_To_Fpunode.fpunode;
 datatype number  = Number of int;
 
 datatype assert =
 (*We we really need Connective? We do not have syntactic sugars for Number.*)
-  Connective      of Eval_Connective.assert
+  Connective      of EC.assert
 | Are_Same_Number of number  * number
 | Is_Less_Than    of number  * number
 | Is_Int          of number  * int;

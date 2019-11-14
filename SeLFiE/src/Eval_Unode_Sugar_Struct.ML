@@ -16,7 +16,7 @@ val Is_Deeper_Than    = EUC.Is_Deeper_Than;
 val Is_Shallower_Than = EUC.Is_Shallower_Than;
 val Is_Path_Above     = EUC.Is_Path_Above;
 val Is_Same_Path_As   = EUC.Is_Same_Path_As;
-val Nor = EC.Nor;
+val Nor               = EC.Nor;
 
 infix
   Is_As_Deep_As
