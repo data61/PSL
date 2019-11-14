@@ -1,4 +1,4 @@
-(*  Title:      PSL/SeLFeE/SeLFeE.thy
+(*  Title:      PSL/SeLFiE/SeLFiE.thy
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 MeLoId: Machine Learning Induction for Isabelle/HOL, and
@@ -97,6 +97,18 @@ ML\<open> (* from Path_Var to Path_Quantifier *)
 structure Eval_Path_Quantifier = 
   from_Var_to_Quantifier(structure Eval_Var = Eval_Path_Var and Quantifier_Domain = Path_Quantifier_Domain)
 \<close>
+(*Global/Local? Outer/Inner?*)
+ML_file "src/Eval_Inner_Sig.ML"
+ML_file "src/Eval_Global_Unode_Core_Sig.ML"
+ML_file "src/Eval_Global_Unode_Sugar_Sig.ML"
+ML_file "src/Global_Path_To_Global_Unode_Sig.ML"
+ML_file "src/Print_To_Global_Paths_Sig.ML"
+ML_file "src/Eval_Global_Print_Sig.ML"
+ML_file "src/Eval_Global_Modifier_Sig.ML" (*Modifier is always Global.*)
+ML_file "src/Eval_Global_Path_Sig.ML"
+ML_file "src/Eval_Global_Parameter_Struct.ML" (*TODO: add Inner*)
+(*convert Eval_Global_Parameter_Struct to Eval_Global_Quantifier_Struct*)
+ML_file "src/Eval_Outer_Sig.ML"
 
 ML\<open>
 @{term "let x = 1 in x"};
@@ -108,9 +120,9 @@ $ Abs   ("x", "'a", Bound 0): term
 
 @{term "let x = 1 + y in x"};
 (*
-  Const ("HOL.Let", "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> 'a") 
-$(  Const ("Groups.plus_class.plus", "'a \<Rightarrow> 'a \<Rightarrow> 'a") 
-  $ Const ("Groups.one_class.one", "'a") 
+  Const ("HOL.Let", "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> 'a")
+$(  Const ("Groups.plus_class.plus", "'a \<Rightarrow> 'a \<Rightarrow> 'a")
+  $ Const ("Groups.one_class.one", "'a")
   $ Free ("y", "'a")
  )
 $ Abs   ("x", "'a", Bound 0)
@@ -136,7 +148,7 @@ $ Free  ("x", "'b list"):
 (*
   Const ("List.list.case_list", "'a \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> 'a list \<Rightarrow> 'a")
 $ Free  ("y", "'a")
-$ Abs   ("w", "'a", Abs ("ws", "'a list", Bound 1)) 
+$ Abs   ("w", "'a", Abs ("ws", "'a list", Bound 1))
 $ Free  ("x", "'a list")
 *)
 
@@ -166,7 +178,7 @@ ML\<open>
 (*
   Const ("LiFtEr.alpha.case_alpha", "'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> alpha \<Rightarrow> 'a")
 $ Free  ("a", "'a")
-$ Free  ("b", "'a") 
+$ Free  ("b", "'a")
 $ Const ("HOL.undefined", "'a")
 $ Const ("HOL.undefined", "'a")
 $ Free  ("x", "alpha")
