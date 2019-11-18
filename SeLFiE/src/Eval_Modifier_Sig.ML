@@ -6,7 +6,7 @@ sig
 
 type print         = LiFtEr_Util.print;
 type prints        = LiFtEr_Util.prints;
-type fpunode       = Full_Path_To_Fpunode.fpunode;
+type outer_unode   = unit (*TODO*);
 type number        = Eval_Number.number;
 datatype modifiers = Modifiers of {ons:   prints,
                                    arbs:  prints,

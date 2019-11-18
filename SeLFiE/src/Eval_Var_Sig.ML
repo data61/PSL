@@ -1,7 +1,7 @@
-(*  Title:      PSL/SeLFeE/src/Eval_Var_Sig.ML
+(*  Title:      PSL/SeLFeE/src/Interpreter/Eval_Variable.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-signature EVAL_VAR =
+signature EVAL_VARIABLE =
 sig
 
 type parameter;
@@ -20,7 +20,7 @@ datatype assert =
 | Eval_Parameter of parameter_assert;
 
 datatype expr =
-  Var        of string
+  Variable   of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
 | Literal    of parameter

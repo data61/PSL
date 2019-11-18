@@ -1,7 +1,7 @@
 (*  Title:      PSL/SeLFeE/src/Eval_Path_Sig.thy
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-signature EVAL_PATH =
+signature EVAL_INNER_PATH =
 sig
 
 type connective = Eval_Connective.assert;

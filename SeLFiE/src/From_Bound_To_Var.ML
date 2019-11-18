@@ -56,7 +56,7 @@ fun convert_result (EB.Literal ee_bool) = Literal ee_bool
 
 fun eval (trm:term) (pst:Proof.state) (expr:expr) =
   let
-    val eb_result  = EB.eval trm pst (var_to_bound [] expr): Eval_Bound.expr;
+    val eb_result  = EB.eval trm pst (var_to_bound [] expr): Eval_Bound.expr;(*TODO: for inner assertions we have to pass an environment from the outer assertion.*)
     val result     = convert_result eb_result          : expr;
   in
     result

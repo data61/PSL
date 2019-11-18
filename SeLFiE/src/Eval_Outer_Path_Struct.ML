@@ -1,7 +1,7 @@
 (*  Title:      PSL/SeLFeE/src/Eval_Path_Struct.thy
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-structure Eval_Path: EVAL_PATH =
+structure Eval_Path: EVAL_INNER_PATH =
 struct
 
 type connective = Eval_Connective.assert;

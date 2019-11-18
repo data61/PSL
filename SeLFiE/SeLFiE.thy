@@ -52,14 +52,14 @@ ML_file "src/Eval_Print_Sugar_Sig.ML"
 ML_file "src/Eval_Print_Sugar_Struct.ML"
 ML_file "src/Eval_Number_Sig.ML"
 ML_file "src/Eval_Number_Struct.ML"
-ML_file "src/Eval_Path_Sig.ML"
-ML_file "src/Eval_Path_Struct.ML"
+ML_file "src/Eval_Inner_Path_Sig.ML"
+ML_file "src/Eval_Inner_Path_Struct.ML"
 ML_file "src/Eval_Parameter_Sig.ML"
 ML_file "src/Eval_Expression_Sig.ML"
 ML_file "src/Eval_Bound_Sig.ML"
 ML_file "src/Eval_Var_Sig.ML"
 ML_file "src/Eval_Quantifier_Sig.ML"    (*TODO:Number*)
-ML_file "src/Eval_Path_Parameter_Struct.ML"
+ML_file "src/Eval_Inner_Parameter_Struct.ML"
 ML_file "src/From_Parameter_To_Expression.ML"
 ML_file "src/From_Expression_To_Bound.ML"
 ML_file "src/From_Bound_To_Var.ML"
@@ -99,15 +99,21 @@ structure Eval_Path_Quantifier =
 \<close>
 (*Global/Local? Outer/Inner?*)
 ML_file "src/Eval_Inner_Sig.ML"
+ML_file "src/Eval_Inner_Struct.ML"
+ML_file "src/Eval_Inner_Sugar_Sig.ML"
+ML_file "src/Eval_Outer_Unode_Sig.ML"
+(*
 ML_file "src/Eval_Global_Unode_Core_Sig.ML"
 ML_file "src/Eval_Global_Unode_Sugar_Sig.ML"
-ML_file "src/Global_Path_To_Global_Unode_Sig.ML"
-ML_file "src/Print_To_Global_Paths_Sig.ML"
-ML_file "src/Eval_Global_Print_Sig.ML"
-ML_file "src/Eval_Global_Modifier_Sig.ML" (*Modifier is always Global.*)
-ML_file "src/Eval_Global_Path_Sig.ML"
-ML_file "src/Eval_Global_Parameter_Struct.ML" (*TODO: add Inner*)
-(*convert Eval_Global_Parameter_Struct to Eval_Global_Quantifier_Struct*)
+*)
+ML_file "src/Outer_Path_To_Outer_Unode_Sig.ML"
+ML_file "src/Outer_Path_To_Outer_Unode_Struct.ML"
+ML_file "src/Print_To_Outer_Paths_Sig.ML"
+(*ML_file "src/Eval_Print_Sig.ML" same signature for Outer_Print and Inner_Print*)
+ML_file "src/Eval_Modifier_Sig.ML" (*Modifier is always Global.*)
+ML_file "src/Eval_Outer_Path_Sig.ML"
+ML_file "src/Eval_Outer_Parameter_Struct.ML" (*TODO: add Inner*)
+(*convert Eval_Outer_Parameter_Struct to Eval_Outer_Quantifier_Struct*)
 ML_file "src/Eval_Outer_Sig.ML"
 
 ML\<open>
