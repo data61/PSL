@@ -1,0 +1,143 @@
+(*  Title:      PSL/SeLFiE/SeLFiE.thy
+    Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
+
+MeLoId: Machine Learning Induction for Isabelle/HOL, and
+LiFtEr: Logical Feature Extractor.
+SeLFiE: Semantic Logical Feature Extractor.
+*)
+theory SeLFiE
+  imports "../PSL"
+(*
+  keywords "assert_SeLFiE_true" :: diag
+   and     "assert_SeLFiE_false":: diag
+*)
+begin
+
+(* pre-processing *)
+ML_file "../src/Utils.ML"
+ML_file "../MeLoId/src/MeLoId_Util.ML"
+ML_file "../LiFtEr/src/Matrix_Sig.ML"
+ML_file "../LiFtEr/src/Matrix_Struct.ML"
+ML_file "../LiFtEr/src/Matrix_Test.ML"
+ML_file "src/Preprocessor/Util.ML"
+ML_file "src/Preprocessor/Pattern.ML" (*TODO: We only need get_command from this module.*)
+ML_file "src/Preprocessor/Unique_Node.ML"
+ML_file "src/Preprocessor/Unique_Node_Test.ML"
+ML_file "src/Preprocessor/Term_Table.ML"(*TODO: local in end for UN?*)
+ML_file "src/Preprocessor/Term_Table_Test.ML"
+ML_file "src/Preprocessor/Dynamic_Induct.ML"
+
+(* bootstrapping interpreter *)
+ML_file "src/Interpreter/Eval_Bool.ML"
+ML_file "src/Interpreter/Eval_Node.ML"
+ML_file "src/Interpreter/Eval_Unode.ML"
+ML_file "src/Interpreter/Path_To_Unode.ML"(*The bifurcation of "inner" and "outer" starts here.*)
+ML_file "src/Interpreter/Print_To_Paths.ML"
+ML_file "src/Interpreter/Eval_Print.ML"
+ML_file "src/Interpreter/Eval_Number.ML"
+ML_file "src/Interpreter/Eval_Path.ML"(*TODO: Eval_Outer_Path*)
+ML_file "src/Interpreter/Eval_Parameter.ML" (*TODO: Eval_Outer_Path is still Eval_Inner_Parameter.*)
+ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
+ML_file "src/Interpreter/Eval_Bound.ML"
+ML_file "src/Interpreter/Eval_Variable.ML"
+
+ML_file "src/Interpreter/From_Parameter_To_Parameter_With_Bool.ML"
+ML\<open> structure Eval_Inner_Parameter_With_Bool = from_Parameter_to_Parameter_With_Bool (Eval_Inner_Parameter): EVAL_PARAMETER_WITH_BOOL; \<close>
+ML\<open> structure Eval_Outer_Parameter_With_Bool = from_Parameter_to_Parameter_With_Bool (Eval_Outer_Parameter): EVAL_PARAMETER_WITH_BOOL; \<close>
+
+ML_file "src/Interpreter/From_Parameter_With_Bool_To_Bound.ML"
+ML\<open> structure Eval_Inner_Bound = from_Parameter_With_Bool_to_Bound (Eval_Inner_Parameter_With_Bool): EVAL_BOUND; \<close>
+ML\<open> structure Eval_Outer_Bound = from_Parameter_With_Bool_to_Bound (Eval_Outer_Parameter_With_Bool): EVAL_BOUND; \<close>
+
+ML_file "src/Interpreter/From_Bound_To_Variable.ML"
+ML\<open> structure Eval_Inner_Variable = from_Bound_to_Variable (Eval_Inner_Bound): EVAL_VARIABLE; \<close>
+ML\<open> structure Eval_Outer_Variable = from_Bound_to_Variable (Eval_Outer_Bound): EVAL_VARIABLE; \<close>
+
+ML_file "src/Interpreter/Eval_Quantifier.ML"(*TODO:Number*)
+ML_file "src/Interpreter/Quantifier_Domain.ML" (*TODO: from_Path_To_Unode_and_Print_To_Paths_to_Quantifier_Domain*)
+
+ML_file "src/Interpreter/From_Variable_To_Quantifier.ML"
+ML\<open> structure Eval_Inner_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Inner_Variable and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
+ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Outer_Variable and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
+
+ML_file "src/Interpreter/Eval_Deep.ML"
+ML_file "src/Interpreter/From_Quantifier_To_Deep.ML"
+
+ML\<open> structure Eval_Inner_Deep = from_Quantifier_to_Deep(structure Eval_Quantifier = Eval_Inner_Quantifier and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_DEEP; \<close>
+
+ML\<open>
+@{term "let x = 1 in x"};
+(*
+  Const ("HOL.Let", "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> 'a")
+$ Const ("Groups.one_class.one", "'a")
+$ Abs   ("x", "'a", Bound 0): term
+*)
+
+@{term "let x = 1 + y in x"};
+(*
+  Const ("HOL.Let", "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> 'a")
+$(  Const ("Groups.plus_class.plus", "'a \<Rightarrow> 'a \<Rightarrow> 'a")
+  $ Const ("Groups.one_class.one", "'a")
+  $ Free ("y", "'a")
+ )
+$ Abs   ("x", "'a", Bound 0)
+*)
+
+@{term "\<lambda>x. x + 1"};
+@{term "case x of [] => y | _ \<Rightarrow> z"};
+(*
+  Const ("List.list.case_list", "'a \<Rightarrow> ('b \<Rightarrow> 'b list \<Rightarrow> 'a) \<Rightarrow> 'b list \<Rightarrow> 'a")
+$ Free  ("y", "'a")
+$ Abs   ("a", "'b", Abs ("list", "'b list", Free ("z", "'a")))
+$ Free  ("x", "'b list")
+*)
+@{term "case x of [] => y | w#ws \<Rightarrow> z"};
+(*
+  Const ("List.list.case_list", "'a \<Rightarrow> ('b \<Rightarrow> 'b list \<Rightarrow> 'a) \<Rightarrow> 'b list \<Rightarrow> 'a")
+$ Free  ("y", "'a")
+$ Abs   ("w", "'b", Abs ("ws", "'b list", Free ("z", "'a")))
+$ Free  ("x", "'b list"):
+*)
+
+@{term "case x of [] => y | w#ws \<Rightarrow> w"};
+(*
+  Const ("List.list.case_list", "'a \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> 'a) \<Rightarrow> 'a list \<Rightarrow> 'a")
+$ Free  ("y", "'a")
+$ Abs   ("w", "'a", Abs ("ws", "'a list", Bound 1))
+$ Free  ("x", "'a list")
+*)
+
+@{term "case x of True => y | _ \<Rightarrow> z"}
+(*
+  Const ("Product_Type.bool.case_bool", "'a \<Rightarrow> 'a \<Rightarrow> bool \<Rightarrow> 'a")
+$ Free  ("y", "'a")
+$ Free  ("z", "'a")
+$ Free  ("x", "bool")
+*)
+
+(*
+Is_Case = name has a string "case" as its sub-string
+  and it it takes n arguments, (n-1)th argument's type name is part of the constant name..;
+Is_Maybe_Bound_Of_Case;
+*)
+\<close>
+find_consts name:"case_list"
+find_consts name:"Product_Type.bool.case_bool"
+find_theorems name:"case" name:"bool"
+find_theorems name:"List.list"
+thm List.list.case
+
+datatype alpha = A | B | C | D
+ML\<open>
+@{term "case x of A \<Rightarrow> a | B \<Rightarrow> b"};
+(*
+  Const ("LiFtEr.alpha.case_alpha", "'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> alpha \<Rightarrow> 'a")
+$ Free  ("a", "'a")
+$ Free  ("b", "'a")
+$ Const ("HOL.undefined", "'a")
+$ Const ("HOL.undefined", "'a")
+$ Free  ("x", "alpha")
+*)
+\<close>
+
+end
