@@ -6,7 +6,7 @@
 signature EVAL_PARAMETER =
 sig
 
-type path    = SeLFiE_Util.path;
+type path(*    = SeLFiE_Util.inner_path*);
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
 type command = Pattern.command;
@@ -31,7 +31,7 @@ end;
 structure Eval_Inner_Parameter: EVAL_PARAMETER =
 struct           
 
-type path    = SeLFiE_Util.path;
+type path    = SeLFiE_Util.inner_path;
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
 type command = Pattern.command;
@@ -107,11 +107,11 @@ fun eval trm pst assert parameters =
 
 end;
 
-(*** Eval_Outer_Parameter ***) (*TODO*)
+(*** Eval_Outer_Parameter ***) (*TODO: This is still Eval_Inner_Parameter.*)
 structure Eval_Outer_Parameter: EVAL_PARAMETER =
 struct           
 
-type path    = SeLFiE_Util.path;
+type path    = SeLFiE_Util.inner_path;
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
 type command = Pattern.command;

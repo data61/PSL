@@ -79,33 +79,33 @@ datatype futrm_w_prnt =
 val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
 
 (* path *)
-type path  = SeLFiE_Util.path;
+type inner_path = SeLFiE_Util.inner_path;
 
-val are_same_path: path -> path -> bool;
+val are_same_inner_path: inner_path -> inner_path -> bool;
 
-val path1_is_above_path2: path -> path -> bool;
+val inner_path1_is_above_inner_path2: inner_path -> inner_path -> bool;
 
-val have_same_ancestors_only: path -> path -> bool;
+val have_same_ancestors_only: inner_path -> inner_path -> bool;
 
-val is_nth_arg_of: path -> int -> path -> bool;
+val is_nth_arg_of: inner_path -> int -> inner_path -> bool;
 
-(* paths *)
-type paths = path list;
+(* inner_paths *)
+type inner_paths = inner_path list;
 
-(* path_ord *)
-val path_ord: (path * path) -> order;
+(* inner_path_ord *)
+val inner_path_ord: (inner_path * inner_path) -> order;
 
-(* futrm_w_prnt_n_path: un-curried folded term with print and path to each node*)
-datatype futrm_w_prnt_n_path =
-  UFC_Prnt_n_Path of (string    * typ                               ) * print * path
-| UFF_Prnt_n_Path of (string    * typ                               ) * print * path
-| UFV_Prnt_n_Path of (indexname * typ                               ) * print * path
-| UFB_Prnt_n_Path of (int       * typ                               ) * print * path
-| UFL_Prnt_n_Path of (string    * typ * futrm_w_prnt_n_path         ) * print * path
-| UFA_Prnt_n_Path of (futrm_w_prnt_n_path * futrm_w_prnt_n_path list) * print * path;
+(* futrm_w_prnt_n_inner_path: un-curried folded term with print and inner_path to each node*)
+datatype futrm_w_prnt_n_inner_path =
+  UFC_Prnt_n_Path of (string    * typ                               ) * print * inner_path
+| UFF_Prnt_n_Path of (string    * typ                               ) * print * inner_path
+| UFV_Prnt_n_Path of (indexname * typ                               ) * print * inner_path
+| UFB_Prnt_n_Path of (int       * typ                               ) * print * inner_path
+| UFL_Prnt_n_Path of (string    * typ * futrm_w_prnt_n_inner_path         ) * print * inner_path
+| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * print * inner_path;
 
-(* futrm_w_prnt_to_futrm_w_prnt_n_path *)
-val futrm_w_prnt_to_futrm_w_prnt_n_path: futrm_w_prnt -> futrm_w_prnt_n_path;
+(* futrm_w_prnt_to_futrm_w_prnt_n_inner_path *)
+val futrm_w_prnt_to_futrm_w_prnt_n_inner_path: futrm_w_prnt -> futrm_w_prnt_n_inner_path;
 
 (* node: un-curried folded term without print. This constitutes a part of unode (unique_node). *)
 datatype node =
@@ -139,15 +139,15 @@ val node_to_node_typ_str: node -> string;
 
 (* unode *)
 type unode =
-  {node : node,
-   print: print,
-   path : path};
+  {node       : node,
+   print      : print,
+   inner_path : inner_path};
 
 (* unodes *)
 type unodes = unode list;
 
-(* futrm_w_prnt_n_path_to_unodes *)
-val futrm_w_prnt_n_path_to_unodes: futrm_w_prnt_n_path -> unodes;
+(* futrm_w_prnt_n_inner_path_to_unodes *)
+val futrm_w_prnt_n_inner_path_to_unodes: futrm_w_prnt_n_inner_path -> unodes;
 
 (* auxiliary functions for unode_n_pst_to_unode_w_aux. *)
 val pst_n_node_to_rcsv : Proof.state -> node -> bool option;
@@ -158,7 +158,7 @@ val pst_n_node_to_cmmnd: Proof.state -> node -> Pattern.command option;
 type unode_w_aux =
  {node : node,
   print: print,
-  path : path,
+  inner_path : inner_path,
   rcsv : bool option,
   pttrn: Pattern.pattern_of_a_const option,
   cmmnd: Pattern.command option};
@@ -346,30 +346,30 @@ fun utrm_w_prnt_to_futrm_w_prnt (utrm_w_prnt) = helper (utrm_w_prnt_to_prnt utrm
 
 end;
 
-(* path *)
-type path  = SeLFiE_Util.path;
+(* inner_path *)
+type inner_path  = SeLFiE_Util.inner_path;
 
-fun are_same_path (path1:path) (path2:path) = forall (op =) (path1 ~~ path2);
+fun are_same_inner_path (inner_path1:inner_path) (inner_path2:inner_path) = forall (op =) (inner_path1 ~~ inner_path2);
 
-fun path1_is_above_path2 (x::xs:path) (y::ys:path) = if x = y then path1_is_above_path2 xs ys else false
-  | path1_is_above_path2 ([]   :path) (_::_ :path) = true
-  | path1_is_above_path2  _            _           = false;
+fun inner_path1_is_above_inner_path2 (x::xs:inner_path) (y::ys:inner_path) = if x = y then inner_path1_is_above_inner_path2 xs ys else false
+  | inner_path1_is_above_inner_path2 ([]   :inner_path) (_::_ :inner_path) = true
+  | inner_path1_is_above_inner_path2   _                 _                 = false;
 
 fun have_same_ancestors_only     []      []  = false
   | have_same_ancestors_only    [x]     [y]  = x = y
   | have_same_ancestors_only (x::xs) (y::ys) = x = y andalso have_same_ancestors_only xs ys
   | have_same_ancestors_only      _       _  = false;
 
-fun is_nth_arg_of (path1:path) (n:int) (path2) =
-  if   have_same_ancestors_only path1 path2 andalso (not o null) path1 andalso (not o null) path2
-  then Utils.last path1 = 0 andalso Utils.last path2 = n
+fun is_nth_arg_of (inner_path1:inner_path) (n:int) (inner_path2) =
+  if   have_same_ancestors_only inner_path1 inner_path2 andalso (not o null) inner_path1 andalso (not o null) inner_path2
+  then Utils.last inner_path1 = 0 andalso Utils.last inner_path2 = n
   else false;
 
-(* paths *)
-type paths = path list;
+(* inner_paths *)
+type inner_paths = inner_path list;
 
-(* path_ord *)(*TODO*)
-fun path_ord (xs, ys) =
+(* inner_path_ord *)(*TODO*)
+fun inner_path_ord (xs, ys) =
   let
     fun ints_compare'  []     (_::_)  EQUAL = GREATER
       | ints_compare' (_::_)   []     EQUAL = LESS
@@ -379,50 +379,50 @@ fun path_ord (xs, ys) =
     ints_compare' xs ys EQUAL: order
   end;
 
-(* futrm_w_prnt_n_path: un-curried folded term with print and path to each node*)
-datatype futrm_w_prnt_n_path =
-  UFC_Prnt_n_Path of (string    * typ                               ) * print * path
-| UFF_Prnt_n_Path of (string    * typ                               ) * print * path
-| UFV_Prnt_n_Path of (indexname * typ                               ) * print * path
-| UFB_Prnt_n_Path of (int       * typ                               ) * print * path
-| UFL_Prnt_n_Path of (string    * typ * futrm_w_prnt_n_path         ) * print * path
-| UFA_Prnt_n_Path of (futrm_w_prnt_n_path * futrm_w_prnt_n_path list) * print * path;
+(* futrm_w_prnt_n_inner_path: un-curried folded term with print and inner_path to each node*)
+datatype futrm_w_prnt_n_inner_path =
+  UFC_Prnt_n_Path of (string    * typ                                           ) * print * inner_path
+| UFF_Prnt_n_Path of (string    * typ                                           ) * print * inner_path
+| UFV_Prnt_n_Path of (indexname * typ                                           ) * print * inner_path
+| UFB_Prnt_n_Path of (int       * typ                                           ) * print * inner_path
+| UFL_Prnt_n_Path of (string    * typ * futrm_w_prnt_n_inner_path               ) * print * inner_path
+| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * print * inner_path;
 
-type futrms_w_prnt_n_path = futrm_w_prnt_n_path list;
+type futrms_w_prnt_n_inner_path = futrm_w_prnt_n_inner_path list;
 
-(* futrm_w_prnt_to_futrm_w_prnt_n_path *)
+(* futrm_w_prnt_to_futrm_w_prnt_n_inner_path *)
 local
 
-fun helper (FUC_Prnt (name, typ,      print)) (path:path) = UFC_Prnt_n_Path ((name, typ), print, path)
-  | helper (FUF_Prnt (name, typ,      print)) (path:path) = UFF_Prnt_n_Path ((name, typ), print, path)
-  | helper (FUV_Prnt (idx,  typ,      print)) (path:path) = UFV_Prnt_n_Path ((idx,  typ), print, path)
-  | helper (FUB_Prnt (i,    typ,      print)) (path:path) = UFB_Prnt_n_Path ((i,    typ), print, path)
-  | helper (FUL_Prnt (name, typ, trm, print)) (path:path) =
+fun helper (FUC_Prnt (name, typ,      print)) (inner_path:inner_path) = UFC_Prnt_n_Path ((name, typ), print, inner_path)
+  | helper (FUF_Prnt (name, typ,      print)) (inner_path:inner_path) = UFF_Prnt_n_Path ((name, typ), print, inner_path)
+  | helper (FUV_Prnt (idx,  typ,      print)) (inner_path:inner_path) = UFV_Prnt_n_Path ((idx,  typ), print, inner_path)
+  | helper (FUB_Prnt (i,    typ,      print)) (inner_path:inner_path) = UFB_Prnt_n_Path ((i,    typ), print, inner_path)
+  | helper (FUL_Prnt (name, typ, trm, print)) (inner_path:inner_path) =
     let
-      val inner = helper trm (path @ [0]);
+      val inner = helper trm (inner_path @ [0]);
     in
-      UFL_Prnt_n_Path ((name, typ, inner), print, path)
+      UFL_Prnt_n_Path ((name, typ, inner), print, inner_path)
     end
-  | helper (FUA_Prnt (func, args, print)) (path:path) =
+  | helper (FUA_Prnt (func, args, print)) (inner_path:inner_path) =
     (*TODO: FIXME: Probably the rank of "fun" should be higher than those of "args" by one.*)
     let
       val arg_len = length  args                                : int;
       val arg_numbs = List.tabulate (arg_len, curry (op +) 1)   : ints;
-      (*TODO: Should "arg_paths" be "map (fn numb => (path @ [0] @ [numb])) arg_numbs"?                                     *)
+      (*TODO: Should "arg_inner_paths" be "map (fn numb => (inner_path @ [0] @ [numb])) arg_numbs"?                                     *)
       (*      I think "func" is always atomic because of Isabelle's automatic beta-reduction and "trm_w_prnt_to_utrm_w_prnt"*)
       (*      In that case, "arg_numbs" should be "List.tabulate (arg_len, curry (op +) 0)   : ints;"                       *)
       (*      Probably I should not do this change:                                                                         *)
-      (*      Function application ($) already made the corresponding path longer by one.                                   *)
-      val arg_paths = map (fn numb => (path @ [numb])) arg_numbs: paths: paths;
-      val func'     = helper func (path @ [0])                         : futrm_w_prnt_n_path;
-      val args'     = map (uncurry helper) (args ~~ arg_paths)         : futrms_w_prnt_n_path;
+      (*      Function application ($) already made the corresponding inner_path longer by one.                                   *)
+      val arg_inner_paths = map (fn numb => (inner_path @ [numb])) arg_numbs: inner_paths: inner_paths;
+      val func'     = helper func (inner_path @ [0])                         : futrm_w_prnt_n_inner_path;
+      val args'     = map (uncurry helper) (args ~~ arg_inner_paths)         : futrms_w_prnt_n_inner_path;
     in
-      UFA_Prnt_n_Path ((func', args'), print, path)
+      UFA_Prnt_n_Path ((func', args'), print, inner_path)
     end;
 
 in
 
-fun futrm_w_prnt_to_futrm_w_prnt_n_path t  = helper t []
+fun futrm_w_prnt_to_futrm_w_prnt_n_inner_path t  = helper t []
 
 end;
 
@@ -477,23 +477,23 @@ fun node_to_node_typ_str (NC _) = "NC"
 
 (* unode *)
 type unode =
-  {node : node,
-   print: print,
-   path : path};
+  {node       : node,
+   print      : print,
+   inner_path : inner_path};
 
 (* unodes *)
 type unodes = unode list;
 
-(* futrm_w_prnt_n_path_to_unodes *)
-fun futrm_w_prnt_n_path_to_unodes (UFC_Prnt_n_Path (ctnt, prnt, path)) = [{node = NC ctnt, print = prnt, path = path}]
-  | futrm_w_prnt_n_path_to_unodes (UFF_Prnt_n_Path (ctnt, prnt, path)) = [{node = NF ctnt, print = prnt, path = path}]
-  | futrm_w_prnt_n_path_to_unodes (UFV_Prnt_n_Path (ctnt, prnt, path)) = [{node = NV ctnt, print = prnt, path = path}]
-  | futrm_w_prnt_n_path_to_unodes (UFB_Prnt_n_Path (ctnt, prnt, path)) = [{node = NB ctnt, print = prnt, path = path}]
-  | futrm_w_prnt_n_path_to_unodes (UFL_Prnt_n_Path ((name, typ, trm), prnt, path)) =
-      {node = NL (name, typ), print = prnt, path = path} :: futrm_w_prnt_n_path_to_unodes trm
-  | futrm_w_prnt_n_path_to_unodes (UFA_Prnt_n_Path ((func, args), prnt, path)) =
-    {node = NA, print = prnt, path = path} ::
-    futrm_w_prnt_n_path_to_unodes func @ maps futrm_w_prnt_n_path_to_unodes args;
+(* futrm_w_prnt_n_inner_path_to_unodes *)
+fun futrm_w_prnt_n_inner_path_to_unodes (UFC_Prnt_n_Path (ctnt, prnt, inner_path)) = [{node = NC ctnt, print = prnt, inner_path = inner_path}]
+  | futrm_w_prnt_n_inner_path_to_unodes (UFF_Prnt_n_Path (ctnt, prnt, inner_path)) = [{node = NF ctnt, print = prnt, inner_path = inner_path}]
+  | futrm_w_prnt_n_inner_path_to_unodes (UFV_Prnt_n_Path (ctnt, prnt, inner_path)) = [{node = NV ctnt, print = prnt, inner_path = inner_path}]
+  | futrm_w_prnt_n_inner_path_to_unodes (UFB_Prnt_n_Path (ctnt, prnt, inner_path)) = [{node = NB ctnt, print = prnt, inner_path = inner_path}]
+  | futrm_w_prnt_n_inner_path_to_unodes (UFL_Prnt_n_Path ((name, typ, trm), prnt, inner_path)) =
+      {node = NL (name, typ), print = prnt, inner_path = inner_path} :: futrm_w_prnt_n_inner_path_to_unodes trm
+  | futrm_w_prnt_n_inner_path_to_unodes (UFA_Prnt_n_Path ((func, args), prnt, inner_path)) =
+    {node = NA, print = prnt, inner_path = inner_path} ::
+    futrm_w_prnt_n_inner_path_to_unodes func @ maps futrm_w_prnt_n_inner_path_to_unodes args;
 
 fun node_to_const_name (NC (cname, _)) = SOME (cname:string)
   | node_to_const_name  _              = NONE;
@@ -520,18 +520,18 @@ fun pst_n_node_to_cmmnd (pst:Proof.state) (node:node) =
 
 (* unode_w_aux *)
 type unode_w_aux =
- {node : node,
-  print: print,
-  path : path,
-  rcsv : bool option,
-  pttrn: Pattern.pattern_of_a_const option,
-  cmmnd: Pattern.command option};
+ {node       : node,
+  print      : print,
+  inner_path : inner_path,
+  rcsv       : bool option,
+  pttrn      : Pattern.pattern_of_a_const option,
+  cmmnd      : Pattern.command option};
 
 (* unode_to_unode_w_aux: TODO *)
-fun unode_n_pst_to_unode_w_aux ({node, print, path}:unode) (pst:Proof.state) =
+fun unode_n_pst_to_unode_w_aux ({node, print, inner_path}:unode) (pst:Proof.state) =
  {node = node                        :node,
   print= print                       :print,
-  path = path                        :path,
+  inner_path = inner_path            :inner_path,
   rcsv = pst_n_node_to_rcsv  pst node:bool option,
   pttrn= pst_n_node_to_pttrn pst node:Pattern.pattern_of_a_const option,
   cmmnd= pst_n_node_to_cmmnd pst node:Pattern.command option};

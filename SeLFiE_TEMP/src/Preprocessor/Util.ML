@@ -8,19 +8,19 @@ Helper functions for SeLFiE.
 signature SELFIE_UTIL =
 sig
 
-type     path   = ints;
-(* print: the printed format of a sub-tree in the syntax tree of a term. *)
+type     inner_path   = ints;
+(*print: the printed format of a sub-tree in the syntax tree of a term.*)
 datatype print  = Print of string;
 type     prints = print list;
 val same_prints           : print -> print -> bool;
 val same_normalized_prints: Proof.context -> print -> print -> bool;
-val path_to_string        : path -> string;
+val inner_path_to_string  : inner_path -> string;
 
 val dest_print           : print -> string;
 val is_subprint_of       : print -> print -> bool;
 val ctxt_n_print_to_cname: Proof.context -> print -> string option;
 
-(* modifiers for the induct method *)
+(*modifiers for the induct method*)
 datatype induct_on   = Ind_On      of print;
 datatype induct_arb  = Ind_Arb     of print;
 datatype induct_rule = Ind_Rule    of string;
@@ -45,8 +45,8 @@ end;
 structure SeLFiE_Util: SELFIE_UTIL =
 struct
 
-type     path   = ints;
-(* print: the printed format of a sub-tree in the syntax tree of a term. *)
+type     inner_path   = ints;
+(*print: the printed format of a sub-tree in the syntax tree of a term.*)
 datatype print  = Print of string;
 type     prints = print list;
 fun same_prints (Print p1) (Print p2) = p1 = p2;
@@ -63,8 +63,8 @@ fun dest_print (Print str) = str;
 fun path_to_string'  []               (acc:string) = acc
   | path_to_string' (step::path:ints) (acc:string)= path_to_string' path (acc ^ "," ^ Int.toString step);
 
-fun path_to_string  []               = ""
-  | path_to_string (step::path:ints) = "Path is " ^ Int.toString step ^ path_to_string' path "";
+fun inner_path_to_string  []               = ""
+  | inner_path_to_string (step::path:ints) = "Path is " ^ Int.toString step ^ path_to_string' path "";
 
 infix isSubstring;
 

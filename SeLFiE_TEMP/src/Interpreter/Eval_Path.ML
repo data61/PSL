@@ -7,7 +7,7 @@ signature EVAL_PATH =
 sig
 
 type connective = Eval_Bool.assert;
-type path       = UN.path;
+type path       = UN.inner_path;
 type print      = SeLFiE_Util.print;
 type assert;
 (*
@@ -44,7 +44,7 @@ struct
 type connective = Eval_Bool.assert;
 type print      = SeLFiE_Util.print;
 type number     = Eval_Number.number;
-type path       = UN.path;
+type path       = UN.inner_path;
 
 structure END = Eval_Node;
 structure EU  = Eval_Unode;

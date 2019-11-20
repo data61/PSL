@@ -29,7 +29,7 @@ type parameter = Eval_Inner_Parameter_With_Bool.parameter;
 
 val qtyp_to_qdomain = undefined: qtyp -> parameter list;
 
-type path  = UN.path;
+type path  = UN.inner_path;
 type path_to_node_table   = path Path_Table.table;
 type print_to_paths_table = path list Print_Table.table;
 

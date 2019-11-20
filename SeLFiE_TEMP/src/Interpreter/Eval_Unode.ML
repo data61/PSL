@@ -41,12 +41,12 @@ infix
   Is_Same_Path_As;
 
 
-fun unode_to_depth (unode:unode) = unode |>  #path |> length; (*TODO: move this to Unique_Node*)
+fun unode_to_depth (unode:unode) = unode |>  #inner_path |> length; (*TODO: move this to Unique_Node*)
 val unode2_to_depth2             = apply2 unode_to_depth: unode * unode -> int * int;
 fun unode2_to_print2 (unode2:unode * unode) = apply2 #print unode2;
-fun unode2_to_path2  (unode2:unode * unode) = apply2 #path  unode2;
+fun unode2_to_inner_path2  (unode2:unode * unode) = apply2 #inner_path  unode2;
 
-fun eval' (unode1 Has_Same_Prnt_As unode2) : bool =
+fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     let
       val (print1, print2) = unode2_to_print2 (unode1, unode2);
       val result_bool      = SeLFiE_Util.same_prints print1 print2;
@@ -76,15 +76,15 @@ fun eval' (unode1 Has_Same_Prnt_As unode2) : bool =
     end
   | eval' (unode1 Is_Path_Above unode2) =
     let
-      val (path1, path2) = unode2_to_path2 (unode1, unode2)              : (UN.path * UN.path);
-      val result_bool    = uncurry UN.path1_is_above_path2 (path1, path2): bool;
+      val (inner_path1, inner_path2) = unode2_to_inner_path2 (unode1, unode2)                    : (UN.inner_path * UN.inner_path);
+      val result_bool    = uncurry UN.inner_path1_is_above_inner_path2 (inner_path1, inner_path2): bool;
     in
       result_bool
     end
   | eval' (unode1 Is_Same_Path_As unode2) =
     let
-      val (path1, path2) = unode2_to_path2 (unode1, unode2)       : (UN.path * UN.path);
-      val result_bool    = uncurry UN.are_same_path (path1, path2): bool;
+      val (inner_path1, inner_path2) = unode2_to_inner_path2 (unode1, unode2)       : (UN.inner_path * UN.inner_path);
+      val result_bool    = uncurry UN.are_same_inner_path (inner_path1, inner_path2): bool;
     in
       result_bool
     end;
