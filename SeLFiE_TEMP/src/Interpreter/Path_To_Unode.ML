@@ -29,7 +29,7 @@ end;
 structure Inner_Path_To_Inner_Unode: PATH_TO_UNODE =
 struct
 
-structure PaT = Path_Table;
+structure PaT = Inner_Path_Table;
 structure UN  = Unique_Node;
 structure PrT = Print_Table;
 
@@ -148,7 +148,7 @@ fun outer_path_ord ((Subgoal n, inner_path1), (Subgoal m, inner_path2)) =
 fun outer_path_eq (full_p1:outer_path, full_p2:outer_path) = case outer_path_ord (full_p1, full_p2) of
   EQUAL => true | _ => false;
 
-(*** Outer_Path_Table  ***)
+(*** Outer_Inner_Path_Table  ***)
 structure Outer_Path_Table  = Table (type key = outer_path  val ord = outer_path_ord): TABLE;
 
 (*** Outer_Path_To_Outer_Unode  ***)
@@ -190,18 +190,18 @@ fun pst_n_location_n_term_list_to_location_n_path_to_unode_table (pst:Proof.stat
           val futrm_w_prnt              = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
           val futrm_w_prnt_n_inner_path = UN.futrm_w_prnt_to_futrm_w_prnt_n_inner_path futrm_w_prnt;
           val unodes                    = UN.futrm_w_prnt_n_inner_path_to_unodes futrm_w_prnt_n_inner_path;
-          val path_to_unode_table = Term_Table.unodes_to_unode_table unodes: UN.unode Path_Table.table;
+          val path_to_unode_table = Term_Table.unodes_to_unode_table unodes: UN.unode Inner_Path_Table.table;
         in
           pst_n_location_n_term_list_to_location_n_path_to_unode_table' pairs ((loc, path_to_unode_table)::acc)
         end;                                     
   in
     pst_n_location_n_term_list_to_location_n_path_to_unode_table' outer_pairs []
-   : (location * UN.unode Path_Table.table) list
+   : (location * UN.unode Inner_Path_Table.table) list
   end;
 
 fun location_n_path_to_unode_table_to_outer_path_to_fp_unode_table (loc:location, path_to_unode_table) =
   let
-    val path_unode_pairs                   = Path_Table.dest path_to_unode_table: (UN.inner_path * UN.unode) list;
+    val path_unode_pairs                   = Inner_Path_Table.dest path_to_unode_table: (UN.inner_path * UN.unode) list;
     fun unode_to_fp_unode (unode:UN.unode) = {unode = unode, location = loc}:outer_unode;
     fun path_unode_pairs_to_outer_path_fp_node_pair (inner_path:UN.inner_path, unode:UN.unode) =
         ((loc, inner_path), unode_to_fp_unode unode): (outer_path * outer_unode);

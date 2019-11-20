@@ -32,22 +32,22 @@ fun inner_path_ord ([],    []   ) = EQUAL
 
 fun prnt_ord (SeLFiE_Util.Print p1, SeLFiE_Util.Print p2) = String.compare (p1, p2);
 
-structure UN          = Unique_Node;
-structure Path_Table  = Table (type key = UN.inner_path  val ord = inner_path_ord): TABLE;
-structure Print_Table = Table (type key = UN.print val ord = prnt_ord): TABLE;
+structure UN               = Unique_Node;
+structure Inner_Path_Table = Table (type key = UN.inner_path  val ord = inner_path_ord): TABLE;
+structure Print_Table      = Table (type key = UN.print val ord = prnt_ord): TABLE;
 
 (*** TERM_TABLE ***)
 signature TERM_TABLE =
 sig
 
-type inner_path_to_unode_table     = UN.unode       Path_Table.table;
-type inner_path_to_unode_aux_table = UN.unode_w_aux Path_Table.table;
+type inner_path_to_unode_table     = UN.unode       Inner_Path_Table.table;
+type inner_path_to_unode_aux_table = UN.unode_w_aux Inner_Path_Table.table;
 (*TODO: Double-check if this causes problems to Poly/ML's type checker.
  *      E.g. 
  *       - location_n_inner_path_to_unode_table_to_full_inner_path_to_fp_unode_table in Outer_Path_To_Outer_Unode.ML
  *       - location_n_inner_path_to_unode_table_list_to_location_n_full_inner_path_to_fp_unode_table_list in the same file.*)
 
-val unodes_to_unode_table                    : UN.unodes -> UN.unode Path_Table.table;
+val unodes_to_unode_table                    : UN.unodes -> UN.unode Inner_Path_Table.table;
 val inner_path_to_unode_aux_table_n_pst_to_print_to_inner_paths_table: inner_path_to_unode_table -> Proof.state -> inner_path_to_unode_aux_table;
 
 type print_to_inner_paths_table  = UN.inner_paths Print_Table.table;
@@ -95,32 +95,31 @@ end;
 structure Term_Table: TERM_TABLE =
 struct
 
-structure PaT = Path_Table;
 structure UN  = Unique_Node;
 structure PrT = Print_Table;
 
-type inner_path_to_unode_table     = UN.unode       PaT.table;
-type inner_path_to_unode_aux_table = UN.unode_w_aux PaT.table;
+type inner_path_to_unode_table     = UN.unode       Inner_Path_Table.table;
+type inner_path_to_unode_aux_table = UN.unode_w_aux Inner_Path_Table.table;
 
 fun unodes_to_unode_table (unodes:UN.unodes) =
-   List.map (fn unode => (#inner_path unode, unode)) unodes |> PaT.make: UN.unode PaT.table;
+   List.map (fn unode => (#inner_path unode, unode)) unodes |> Inner_Path_Table.make: UN.unode Inner_Path_Table.table;
 
 fun inner_path_to_unode_aux_table_n_pst_to_print_to_inner_paths_table (unode_table:inner_path_to_unode_table) (pst:Proof.state) =
   let
     (* We use the K combinator  because we do not change key*)
     fun unode_to_unode_w_aux (unode:UN.unode) = UN.unode_n_pst_to_unode_w_aux unode pst;
-    val inner_path_to_unode_table_to_inner_path_to_unode_aux_table  = PaT.map (K unode_to_unode_w_aux)
-      : inner_path_to_unode_table -> UN.unode_w_aux PaT.table;
+    val inner_path_to_unode_table_to_inner_path_to_unode_aux_table  = Inner_Path_Table.map (K unode_to_unode_w_aux)
+      : inner_path_to_unode_table -> UN.unode_w_aux Inner_Path_Table.table;
   in
-    inner_path_to_unode_table_to_inner_path_to_unode_aux_table unode_table: UN.unode_w_aux PaT.table
+    inner_path_to_unode_table_to_inner_path_to_unode_aux_table unode_table: UN.unode_w_aux Inner_Path_Table.table
   end;
 
 type print_to_inner_paths_table  = Unique_Node.inner_path list Print_Table.table;
 type print_to_inner_paths_tables = print_to_inner_paths_table list;
 
-fun gen_trm_table_to_print_to_inner_paths_table (trm_table:'a PaT.table) (get_print:'a -> UN.print) =
+fun gen_trm_table_to_print_to_inner_paths_table (trm_table:'a Inner_Path_Table.table) (get_print:'a -> UN.print) =
   let
-    val inner_path_n_unode_s       = PaT.dest trm_table;
+    val inner_path_n_unode_s       = Inner_Path_Table.dest trm_table;
     val inner_path_n_print_s       = List.map (apsnd get_print) inner_path_n_unode_s;
     val print_n_inner_path_s       = map swap inner_path_n_print_s;
     val print_to_inner_paths_table = PrT.make_list print_n_inner_path_s;
@@ -183,10 +182,9 @@ fun lifter_pst_n_print_to_inner_path_n_locs ({subgoals, usings}:lifter_pst) (pri
     inner_path_n_locs
   end;
 
-(*Use One_Term.keys to implement it.*)
 fun inner_path_to_unode_aux_table_to_depth (inner_path_to_unode_aux_table:inner_path_to_unode_aux_table) =
   let
-    val keys         = PaT.keys inner_path_to_unode_aux_table;
+    val keys         = Inner_Path_Table.keys inner_path_to_unode_aux_table;
     val key_lengs    = map length keys                   : ints;
     val depth_option = Utils.ints_to_max_option key_lengs: int option;
   in

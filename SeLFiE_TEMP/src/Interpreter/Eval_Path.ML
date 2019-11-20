@@ -76,7 +76,7 @@ fun eval (term:term) (pst:Proof.state) assert =
   let
     val table = trm_n_pst_to_path_to_unode_table term pst: path_to_unode_table;
     type unode = UN.unode;
-    fun path_to_unode (p:path) = Path_Table.lookup table p |> Utils.the' "lookup in path_to_unode failed";
+    fun path_to_unode (p:path) = Inner_Path_Table.lookup table p |> Utils.the' "lookup in path_to_unode failed";
     fun path_to_node  (p:path) = path_to_unode p |> #node: UN.node;
     fun path2_to_unode2 (p1:path, p2:path) = apply2 path_to_unode (p1, p2): (UN.unode * UN.unode);
     (*

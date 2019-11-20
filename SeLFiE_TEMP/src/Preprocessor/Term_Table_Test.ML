@@ -48,7 +48,7 @@ val imp_xyz_table = trm_to_inner_path_to_unode_table imp_xyz: TT.inner_path_to_u
 
 fun unode_wo_inner_path_table_n_inner_path_to_print (table, inner_path) =
   let
-    val node       = Path_Table.lookup table inner_path: UN.unode option;
+    val node       = Inner_Path_Table.lookup table inner_path: UN.unode option;
     val some_print = Option.map #print node      : UN.print option;
   in
     some_print
@@ -77,18 +77,18 @@ val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_tabl
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,1,1,0,1]) |> the) = (SeLFiE_Util.Print "w"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,1,2])     |> the) = (SeLFiE_Util.Print "z2"));
 
-val _ = @{assert} ((Path_Table.lookup imp_xyz_table [2,1,2] |> the |> #print) = (SeLFiE_Util.Print "z2"));
-val _ = @{assert} ((Path_Table.lookup imp_xyz_table [3,2]   |> the |> #print) = (SeLFiE_Util.Print "z2"));
-val _ = @{assert} ((Path_Table.lookup imp_xyz_table [3,2,1] |> the |> #print) = (SeLFiE_Util.Print "z2"));
+val _ = @{assert} ((Inner_Path_Table.lookup imp_xyz_table [2,1,2] |> the |> #print) = (SeLFiE_Util.Print "z2"));
+val _ = @{assert} ((Inner_Path_Table.lookup imp_xyz_table [3,2]   |> the |> #print) = (SeLFiE_Util.Print "z2"));
+val _ = @{assert} ((Inner_Path_Table.lookup imp_xyz_table [3,2,1] |> the |> #print) = (SeLFiE_Util.Print "z2"));
 (*Should I care about the types? In this case, maybe we should ignore unode032.*)
 
-val unode011    = Path_Table.lookup imp_xyz_table [1,1]      ;
-val unode0111   = Path_Table.lookup imp_xyz_table [1,1,1]    ;
-val unode021100 = Path_Table.lookup imp_xyz_table [2,1,1,0,0];
+val unode011    = Inner_Path_Table.lookup imp_xyz_table [1,1]      ;
+val unode0111   = Inner_Path_Table.lookup imp_xyz_table [1,1,1]    ;
+val unode021100 = Inner_Path_Table.lookup imp_xyz_table [2,1,1,0,0];
 
-val _ = @{assert} ((Path_Table.lookup imp_xyz_table [1,1]      |> the |> #print) = (SeLFiE_Util.Print "x"));
-val _ = @{assert} ((Path_Table.lookup imp_xyz_table [1,1,1]    |> the |> #print) = (SeLFiE_Util.Print "x"));
-val _ = @{assert} ((Path_Table.lookup imp_xyz_table [2,1,1,0,0]|> the |> #print) = (SeLFiE_Util.Print "x"));
+val _ = @{assert} ((Inner_Path_Table.lookup imp_xyz_table [1,1]      |> the |> #print) = (SeLFiE_Util.Print "x"));
+val _ = @{assert} ((Inner_Path_Table.lookup imp_xyz_table [1,1,1]    |> the |> #print) = (SeLFiE_Util.Print "x"));
+val _ = @{assert} ((Inner_Path_Table.lookup imp_xyz_table [2,1,1,0,0]|> the |> #print) = (SeLFiE_Util.Print "x"));
 
 val a_imp_xyz       = @{term "(\<lambda>f. f w)"}: term;
 val a_imp_xyz_table = trm_to_inner_path_to_unode_table a_imp_xyz: TT.inner_path_to_unode_table;
