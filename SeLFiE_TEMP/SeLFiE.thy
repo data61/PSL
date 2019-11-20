@@ -41,6 +41,13 @@ ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/Eval_Bound.ML"
 ML_file "src/Interpreter/Eval_Variable.ML"
 
+ML_file "src/Interpreter/Make_Eval_Path.ML"
+ML\<open> structure Eval_Inner_Path = make_Eval_Path(Inner_Path_To_Inner_Unode): EVAL_PATH; \<close>
+
+ML_file "src/Interpreter/From_Path_To_Parameter.ML"
+ML\<open> structure Eval_Inner_Parameter = from_Path_to_Parameter(Eval_Inner_Path): EVAL_PARAMETER; \<close>
+ML\<open> structure Eval_Outer_Parameter = from_Path_to_Parameter(Eval_Inner_Path): EVAL_PARAMETER; \<close>
+
 ML_file "src/Interpreter/From_Parameter_To_Parameter_With_Bool.ML"
 ML\<open> structure Eval_Inner_Parameter_With_Bool = from_Parameter_to_Parameter_With_Bool (Eval_Inner_Parameter): EVAL_PARAMETER_WITH_BOOL; \<close>
 ML\<open> structure Eval_Outer_Parameter_With_Bool = from_Parameter_to_Parameter_With_Bool (Eval_Outer_Parameter): EVAL_PARAMETER_WITH_BOOL; \<close>

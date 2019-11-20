@@ -96,7 +96,6 @@ structure Term_Table: TERM_TABLE =
 struct
 
 structure UN  = Unique_Node;
-structure PrT = Print_Table;
 
 type inner_path_to_unode_table     = UN.unode       Inner_Path_Table.table;
 type inner_path_to_unode_aux_table = UN.unode_w_aux Inner_Path_Table.table;
@@ -122,7 +121,7 @@ fun gen_trm_table_to_print_to_inner_paths_table (trm_table:'a Inner_Path_Table.t
     val inner_path_n_unode_s       = Inner_Path_Table.dest trm_table;
     val inner_path_n_print_s       = List.map (apsnd get_print) inner_path_n_unode_s;
     val print_n_inner_path_s       = map swap inner_path_n_print_s;
-    val print_to_inner_paths_table = PrT.make_list print_n_inner_path_s;
+    val print_to_inner_paths_table = Print_Table.make_list print_n_inner_path_s;
   in
     print_to_inner_paths_table: print_to_inner_paths_table
   end;
@@ -171,8 +170,8 @@ fun lifter_pst_n_print_to_inner_path_n_locs ({subgoals, usings}:lifter_pst) (pri
     fun minus_one (x:int)                     = x - 1                                                                                         : int;
     val ptables_n_locs_in_subgs               = Utils.index ptables_in_subgs  |> map swap |> map (apsnd minus_one) |> map (apsnd Nth_Subg)    : (print_to_inner_paths_table * location) list;
     val ptables_n_locs_in_usings              = Utils.index ptables_in_usings |> map swap |> map (apsnd minus_one) |> map (apsnd Chained_Fact): (print_to_inner_paths_table * location) list;
-    val ptables_n_locs_in_subgs2              = map (apfst (Utils.flip PrT.lookup_list print)) ptables_n_locs_in_subgs                        : (UN.inner_paths * location) list;
-    val ptables_n_locs_in_usings2             = map (apfst (Utils.flip PrT.lookup_list print)) ptables_n_locs_in_usings                       : (UN.inner_paths * location) list;
+    val ptables_n_locs_in_subgs2              = map (apfst (Utils.flip Print_Table.lookup_list print)) ptables_n_locs_in_subgs                        : (UN.inner_paths * location) list;
+    val ptables_n_locs_in_usings2             = map (apfst (Utils.flip Print_Table.lookup_list print)) ptables_n_locs_in_usings                       : (UN.inner_paths * location) list;
     fun merge ([]:'a list, _:'b) = []
       | merge (x::xs     , y:'b) = (x, y) :: merge (xs, y);
     val ptables_n_locs_in_subgs3              = map merge ptables_n_locs_in_subgs2  |> flat          : inner_path_n_locs;

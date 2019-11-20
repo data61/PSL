@@ -41,10 +41,10 @@ type print_to_paths_table = outer_path list Print_Table.table;
 
 fun path_to_unode_table_to_print_to_paths_table (outer_path_to_outer_unode_table: Outer_Path_To_Outer_Unode.path_to_unode_table) =
   let
-    val outer_path_n_outer_unode_list    = Outer_Path_Table.dest outer_path_to_outer_unode_table;
-    val outer_path_n_print_list          = List.map (apsnd (#print o #unode)) outer_path_n_outer_unode_list: (outer_path * UN.print) list;
-    val outer_print_n_outer_path_list    = map swap outer_path_n_print_list                                : (UN.print * outer_path) list;
-    val outer_print_to_outer_paths_table = Print_Table.make_list outer_print_n_outer_path_list             : print_to_paths_table;
+    val outer_path_n_outer_unode_list    = Outer_Path_Table.dest outer_path_to_outer_unode_table: (Outer_Path_Table.key * UN.unode) list;
+    val outer_path_n_print_list          = List.map (apsnd #print) outer_path_n_outer_unode_list: (outer_path * UN.print) list;
+    val outer_print_n_outer_path_list    = map swap outer_path_n_print_list                     : (UN.print * outer_path) list;
+    val outer_print_to_outer_paths_table = Print_Table.make_list outer_print_n_outer_path_list  : print_to_paths_table;
   in
     outer_print_to_outer_paths_table: print_to_paths_table
   end;

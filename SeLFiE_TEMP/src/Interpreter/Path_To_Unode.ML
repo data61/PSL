@@ -21,6 +21,8 @@ sig
 
 type path;
 type path_to_unode_table;
+
+val lookup: path_to_unode_table -> path -> UN.unode option;
 val pst_n_trm_to_path_to_unode_table: Proof.state -> term -> path_to_unode_table;
 
 end;
@@ -29,35 +31,37 @@ end;
 structure Inner_Path_To_Inner_Unode: PATH_TO_UNODE =
 struct
 
-structure PaT = Inner_Path_Table;
+structure Path_Table = Inner_Path_Table;
+
 structure UN  = Unique_Node;
-structure PrT = Print_Table;
 
 type path                = UN.inner_path;
-type path_to_unode_table = UN.unode PaT.table;
+type path_to_unode_table = UN.unode Path_Table.table;
+
+fun lookup (table:path_to_unode_table) (path:path) = Inner_Path_Table.lookup table path: UN.unode option;
 
 fun unodes_to_unode_table (unodes:UN.unodes) =
-   List.map (fn unode => (#inner_path unode, unode)) unodes |> PaT.make;
+   List.map (fn unode => (#inner_path unode, unode)) unodes |> Path_Table.make;
 
 fun path_to_unode_aux_table_n_pst_to_print_to_paths_table (unode_table:path_to_unode_table) (pst:Proof.state) =
   let
-    (* We use the K combinator  because we do not change key*)
+    (*We use the K combinator  because we do not change key*)
     fun unode_to_unode_w_aux (unode:UN.unode) = UN.unode_n_pst_to_unode_w_aux unode pst;
-    val path_to_unode_table_to_path_to_unode_aux_table  = PaT.map (K unode_to_unode_w_aux)
-      : path_to_unode_table -> UN.unode_w_aux PaT.table;
+    val path_to_unode_table_to_path_to_unode_aux_table  = Path_Table.map (K unode_to_unode_w_aux)
+      : path_to_unode_table -> UN.unode_w_aux Path_Table.table;
   in
-    path_to_unode_table_to_path_to_unode_aux_table unode_table: UN.unode_w_aux PaT.table
+    path_to_unode_table_to_path_to_unode_aux_table unode_table: UN.unode_w_aux Path_Table.table
   end;
 
 type print_to_paths_table  = UN.inner_path list Print_Table.table;
 type print_to_paths_tables = print_to_paths_table list;
 
-fun gen_trm_table_to_print_to_paths_table (trm_table:'a PaT.table) (get_print:'a -> UN.print) =
+fun gen_trm_table_to_print_to_paths_table (trm_table:'a Path_Table.table) (get_print:'a -> UN.print) =
   let
-    val path_n_unode_s       = PaT.dest trm_table;
+    val path_n_unode_s       = Path_Table.dest trm_table;
     val path_n_print_s       = List.map (apsnd get_print) path_n_unode_s;
     val print_n_path_s       = map swap path_n_print_s;
-    val print_to_paths_table = PrT.make_list print_n_path_s;
+    val print_to_paths_table = Print_Table.make_list print_n_path_s;
   in
     print_to_paths_table: print_to_paths_table
   end;
@@ -69,7 +73,7 @@ fun print_to_paths_table_n_print_to_paths (print_to_paths_table:print_to_paths_t
 
 fun path_to_unode_table_to_depth (path_to_unode_aux_table:path_to_unode_table) =
   let
-    val keys         = PaT.keys path_to_unode_aux_table;
+    val keys         = Path_Table.keys path_to_unode_aux_table;
     val key_lengs    = map length keys                   : ints;
     val depth_option = Utils.ints_to_max_option key_lengs: int option;
   in
@@ -148,12 +152,14 @@ fun outer_path_ord ((Subgoal n, inner_path1), (Subgoal m, inner_path2)) =
 fun outer_path_eq (full_p1:outer_path, full_p2:outer_path) = case outer_path_ord (full_p1, full_p2) of
   EQUAL => true | _ => false;
 
-(*** Outer_Inner_Path_Table  ***)
+(*** Outer_Path_Table  ***)
 structure Outer_Path_Table  = Table (type key = outer_path  val ord = outer_path_ord): TABLE;
 
 (*** Outer_Path_To_Outer_Unode  ***)
 structure Outer_Path_To_Outer_Unode: PATH_TO_UNODE =
 struct
+
+structure Path_Table = Outer_Path_Table;
 
 type path = outer_path;
 
@@ -161,7 +167,9 @@ type outer_unode =
   {unode     : UN.unode,
    location  : location};
 
-type path_to_unode_table = outer_unode Outer_Path_Table.table;
+type path_to_unode_table = UN.unode Outer_Path_Table.table
+
+fun lookup (table:path_to_unode_table) (path:path) = Outer_Path_Table.lookup table path: UN.unode option;
 
 type outer_path_to_outer_unode_table = outer_unode Outer_Path_Table.table;
 
@@ -236,7 +244,7 @@ fun eq_fp_unodes (fpn1:outer_unode, fpn2:outer_unode) =
 fun merge_outer_path_to_fp_unode_tables (tables:outer_path_to_outer_unode_table list): outer_path_to_outer_unode_table =
   fold  (Outer_Path_Table.merge eq_fp_unodes |> curry) tables Outer_Path_Table.empty;
 
-fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) _: outer_path_to_outer_unode_table =
+fun pst_n_trm_to_path_to_outer_unode_table (pst:Proof.state) _: outer_path_to_outer_unode_table =
   let
     val loc_n_trm_list = pst_to_location_n_term_list pst: (location * term) list;
     val loc_path_to_unode_table_list               = pst_n_location_n_term_list_to_location_n_path_to_unode_table pst loc_n_trm_list                                 : (location * Term_Table.inner_path_to_unode_table) list;
@@ -245,6 +253,14 @@ fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) _: outer_path_to_outer_un
     val outer_path_to_outer_unode_table            = merge_outer_path_to_fp_unode_tables outer_path_to_outer_unode_table_list                                        : outer_path_to_outer_unode_table;
   in
     outer_path_to_outer_unode_table: outer_path_to_outer_unode_table
+  end;
+
+fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) _: path_to_unode_table =
+  let
+    val outer_path_to_outer_unode_table = pst_n_trm_to_path_to_outer_unode_table pst ();
+    val outer_path_to_unode_table       = Path_Table.map (fn _ => fn {unode, ...}:outer_unode => unode) outer_path_to_outer_unode_table
+  in
+    outer_path_to_unode_table
   end;
 
 fun outer_unode_to_unode ({unode,...}:outer_unode) = unode;
