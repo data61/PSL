@@ -25,19 +25,22 @@ val in_or_out: in_or_out;
 type path;
 type path_to_unode_table;
 
-val lookup: path_to_unode_table -> path -> UN.unode option;
+val table_to_paths  : path_to_unode_table -> path list;
+val lookup          : path_to_unode_table -> path -> UN.unode option;
 val pst_n_trm_to_path_to_unode_table: Proof.state -> term -> path_to_unode_table;
 
 end;
 
 (*** Inner_Path_To_Inner_Unode ***)
-structure Inner_Path_To_Inner_Unode: PATH_TO_UNODE =
+structure Inner_Path_To_Unode: PATH_TO_UNODE =
 struct
 
 datatype in_or_out = In | Out;
 val in_or_out = In;
 
 structure Path_Table = Inner_Path_Table;
+
+val table_to_paths = Path_Table.keys;
 
 structure UN  = Unique_Node;
 
@@ -162,7 +165,7 @@ fun outer_path_eq (full_p1:outer_path, full_p2:outer_path) = case outer_path_ord
 structure Outer_Path_Table  = Table (type key = outer_path  val ord = outer_path_ord): TABLE;
 
 (*** Outer_Path_To_Outer_Unode  ***)
-structure Outer_Path_To_Outer_Unode: PATH_TO_UNODE =
+structure Outer_Path_To_Unode: PATH_TO_UNODE =
 struct
 
 datatype in_or_out = In | Out;
@@ -170,13 +173,15 @@ val in_or_out = Out;
 
 structure Path_Table = Outer_Path_Table;
 
+val table_to_paths = Path_Table.keys;
+
 type path = outer_path;
 
 type outer_unode =
   {unode     : UN.unode,
    location  : location};
 
-type path_to_unode_table = UN.unode Outer_Path_Table.table
+type path_to_unode_table = UN.unode Outer_Path_Table.table;
 
 fun lookup (table:path_to_unode_table) (path:path) = Outer_Path_Table.lookup table path: UN.unode option;
 
