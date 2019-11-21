@@ -1,7 +1,7 @@
 (*  Title:      PSL/SeLFiE/src/From_Variable_To_Quantifier.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-functor from_Var_to_Quantifier
+functor from_Variable_to_Quantifier
  (structure Eval_Variable:EVAL_VARIABLE
   and       Quantifier_Domain:QUANTIFIER_DOMAIN
   sharing type Eval_Variable.parameter = Quantifier_Domain.parameter): EVAL_QUANTIFIER =
@@ -33,7 +33,7 @@ fun convert_assert Not   = EV.Not
   | convert_assert Ors   = EV.Ors
   | convert_assert (Eval_Parameter assert) = EV.Eval_Parameter assert;
 
-type qtyp      = QD.qtyp;
+type qtyp = QD.qtyp;
 
 datatype expr =
   Variable of string

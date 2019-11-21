@@ -30,10 +30,10 @@ type parameter = Eval_Inner_Parameter_With_Bool.parameter;
 val qtyp_to_qdomain = undefined: qtyp -> parameter list;
 
 type path  = UN.inner_path;
-type path_to_node_table   = path Path_Table.table;
+type path_to_node_table   = path Inner_Path_Table.table;
 type print_to_paths_table = path list Print_Table.table;
 
-fun mk_all_paths  pst term = Inner_Path_To_Inner_Unode.pst_n_trm_to_path_to_unode_table pst term |> Path_Table.keys: path list;
+fun mk_all_paths  pst term = Inner_Path_To_Inner_Unode.pst_n_trm_to_path_to_unode_table pst term |> Inner_Path_Table.keys: path list;
 fun mk_all_prints pst term =
   let
     val path_to_node_table   = Inner_Path_To_Inner_Unode.pst_n_trm_to_path_to_unode_table pst term          : Inner_Path_To_Inner_Unode.path_to_unode_table;

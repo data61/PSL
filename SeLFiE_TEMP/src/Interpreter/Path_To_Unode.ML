@@ -19,6 +19,9 @@ The overall work-flow is:
 signature PATH_TO_UNODE =
 sig
 
+datatype in_or_out = In | Out;
+val in_or_out: in_or_out;
+
 type path;
 type path_to_unode_table;
 
@@ -30,6 +33,9 @@ end;
 (*** Inner_Path_To_Inner_Unode ***)
 structure Inner_Path_To_Inner_Unode: PATH_TO_UNODE =
 struct
+
+datatype in_or_out = In | Out;
+val in_or_out = In;
 
 structure Path_Table = Inner_Path_Table;
 
@@ -158,6 +164,9 @@ structure Outer_Path_Table  = Table (type key = outer_path  val ord = outer_path
 (*** Outer_Path_To_Outer_Unode  ***)
 structure Outer_Path_To_Outer_Unode: PATH_TO_UNODE =
 struct
+
+datatype in_or_out = In | Out;
+val in_or_out = Out;
 
 structure Path_Table = Outer_Path_Table;
 
