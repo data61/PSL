@@ -23,6 +23,7 @@ ML_file "src/Preprocessor/Util.ML"
 ML_file "src/Preprocessor/Pattern.ML" (*TODO: We only need get_command from this module.*)
 ML_file "src/Preprocessor/Unique_Node.ML"
 ML_file "src/Preprocessor/Unique_Node_Test.ML"
+ML_file "src/Preprocessor/Path_Table_And_Print_Table.ML"
 ML_file "src/Preprocessor/Term_Table.ML"(*TODO: local in end for UN?*)
 ML_file "src/Preprocessor/Term_Table_Test.ML"
 ML_file "src/Preprocessor/Dynamic_Induct.ML"
@@ -83,7 +84,7 @@ ML\<open> structure Eval_Inner_Quantifier = from_Variable_to_Quantifier(structur
 ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Outer_Variable and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 
 ML\<open> structure Eval_Inner_Deep = from_Quantifier_to_Deep(structure Eval_Quantifier = Eval_Inner_Quantifier and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_DEEP; \<close>
-ML\<open> structure Eval_Inner_Deep = from_Quantifier_to_Deep(structure Eval_Quantifier = Eval_Outer_Quantifier and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_DEEP; \<close>
+ML\<open> structure Eval_Outer_Deep = from_Quantifier_to_Deep(structure Eval_Quantifier = Eval_Outer_Quantifier and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_DEEP; \<close>
 
 ML\<open>
 @{term "let x = 1 in x"};

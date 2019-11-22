@@ -20,34 +20,14 @@ Proof.state            ==== pst_to_lifter_pst ==================================
 lifter_pst
 *)
 
-(*** Path_Table and Print_Table ***)
-
-(* inner_path_ord: This definition is more or less arbitrary. *)
-fun inner_path_ord ([],    []   ) = EQUAL
-  | inner_path_ord (_,     []   ) = GREATER
-  | inner_path_ord ([],     _   ) = LESS
-  | inner_path_ord (x::xs, y::ys) = case Int.compare (x, y) of
-      EQUAL => inner_path_ord (xs, ys)
-    | diff  => diff;
-
-fun prnt_ord (SeLFiE_Util.Print p1, SeLFiE_Util.Print p2) = String.compare (p1, p2);
-
-structure UN               = Unique_Node;
-structure Inner_Path_Table = Table (type key = UN.inner_path  val ord = inner_path_ord): TABLE;
-structure Print_Table      = Table (type key = UN.print val ord = prnt_ord): TABLE;
-
 (*** TERM_TABLE ***)
 signature TERM_TABLE =
 sig
 
 type inner_path_to_unode_table     = UN.unode       Inner_Path_Table.table;
 type inner_path_to_unode_aux_table = UN.unode_w_aux Inner_Path_Table.table;
-(*TODO: Double-check if this causes problems to Poly/ML's type checker.
- *      E.g. 
- *       - location_n_inner_path_to_unode_table_to_full_inner_path_to_fp_unode_table in Outer_Path_To_Outer_Unode.ML
- *       - location_n_inner_path_to_unode_table_list_to_location_n_full_inner_path_to_fp_unode_table_list in the same file.*)
 
-val unodes_to_unode_table                    : UN.unodes -> UN.unode Inner_Path_Table.table;
+val unodes_to_unode_table: UN.unodes -> UN.unode Inner_Path_Table.table;
 val inner_path_to_unode_aux_table_n_pst_to_print_to_inner_paths_table: inner_path_to_unode_table -> Proof.state -> inner_path_to_unode_aux_table;
 
 type print_to_inner_paths_table  = UN.inner_paths Print_Table.table;

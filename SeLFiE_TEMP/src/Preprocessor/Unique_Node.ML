@@ -25,7 +25,7 @@ signature UNIQUE_NODE =
 sig
 
 (** term as syntax tree **)
-type print;
+type print = SeLFiE_Util.print;
 
 val dest_Print    : print -> string;
 val is_subprint_of: print -> print -> bool;
@@ -537,3 +537,5 @@ fun unode_n_pst_to_unode_w_aux ({node, print, inner_path}:unode) (pst:Proof.stat
   cmmnd= pst_n_node_to_cmmnd pst node:Pattern.command option};
 
 end;
+
+structure UN = Unique_Node;
