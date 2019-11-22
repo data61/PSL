@@ -27,7 +27,6 @@ val _ = @{assert} (@{term "A \<Longrightarrow> B \<Longrightarrow> C"} = @{term 
 local
 
 (** test utrm_w_prnt_to_utrm_w_prnt **)
-structure UN = Unique_Node;
 structure TT = Term_Table;
 
 (*FIXME: TODO: take a context as a parameter.*)

@@ -140,30 +140,6 @@ fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) (trm:term) =
 
 end;
 
-(*TODO: probably these types and functions should be defined in SeLFiE_Util, not here.*)
-datatype location = Subgoal of int | Chained_Fact of int;
-
-(*TODO: remove are_same_location. (op =) can do the job.*)
-fun are_same_location (Subgoal      n) (Subgoal      m) = n = m
-  | are_same_location (Chained_Fact n) (Chained_Fact m) = n = m
-  | are_same_location  _                _               = false;
-
-type outer_path = location * UN.inner_path;
-
-(*This definition is more or less arbitrary.*)
-fun outer_path_ord ((Subgoal n, inner_path1), (Subgoal m, inner_path2)) =
-    (case Int.compare (n, m) of EQUAL => inner_path_ord (inner_path1, inner_path2) | diff  => diff)
-  | outer_path_ord ((Chained_Fact n, inner_path1), (Chained_Fact m, inner_path2)) =
-    (case Int.compare (n, m) of EQUAL => inner_path_ord (inner_path1, inner_path2) | diff  => diff)
-  | outer_path_ord ((Subgoal      _, _), (Chained_Fact _, _)) = GREATER
-  | outer_path_ord ((Chained_Fact _, _), (Subgoal      _, _)) = LESS
-
-fun outer_path_eq (full_p1:outer_path, full_p2:outer_path) = case outer_path_ord (full_p1, full_p2) of
-  EQUAL => true | _ => false;
-
-(*** Outer_Path_Table  ***)
-structure Outer_Path_Table  = Table (type key = outer_path  val ord = outer_path_ord): TABLE;
-
 (*** Outer_Path_To_Outer_Unode  ***)
 structure Outer_Path_To_Unode: PATH_TO_UNODE =
 struct
@@ -248,7 +224,7 @@ fun eq_fp_unodes (fpn1:outer_unode, fpn2:outer_unode) =
   let
     val loc1                   = #location fpn1;
     val loc2                   = #location fpn2;
-    val same_loc               = are_same_location loc1 loc2: bool;
+    val same_loc               = loc1 = loc2: bool;
     val fp_unode_to_inner_path = #inner_path o #unode: outer_unode -> Unique_Node.inner_path;
     val same_inner_path        = apply2 fp_unode_to_inner_path (fpn1, fpn2) |> uncurry Unique_Node.are_same_inner_path: bool; 
   in
