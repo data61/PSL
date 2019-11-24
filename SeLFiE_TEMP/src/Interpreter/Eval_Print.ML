@@ -16,8 +16,8 @@ val eval: assert -> Eval_Bool.assert;
 
 end;
 
-(*** Eval_Inner_Print ***)
-structure Eval_Inner_Print =
+(*** Eval_Print ***)
+structure Eval_Print =
 struct
 
 structure EB = Eval_Bool;
@@ -35,6 +35,3 @@ fun eval (Are_Same_Prints print_pair)                = print_pair |> uncurry SU.
   | eval (SU.Print printed_str Is_Printed_As string) = EB.bool_to_assert (printed_str = string);
 
 end;
-
-(*** Eval_Outer_Print ***)
-(*TODO*)

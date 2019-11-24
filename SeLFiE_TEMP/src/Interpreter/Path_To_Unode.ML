@@ -52,42 +52,10 @@ fun lookup (table:path_to_unode_table) (path:path) = Inner_Path_Table.lookup tab
 fun unodes_to_unode_table (unodes:UN.unodes) =
    List.map (fn unode => (#inner_path unode, unode)) unodes |> Path_Table.make;
 
-fun path_to_unode_aux_table_n_pst_to_print_to_paths_table (unode_table:path_to_unode_table) (pst:Proof.state) =
-  let
-    (*We use the K combinator  because we do not change key*)
-    fun unode_to_unode_w_aux (unode:UN.unode) = UN.unode_n_pst_to_unode_w_aux unode pst;
-    val path_to_unode_table_to_path_to_unode_aux_table  = Path_Table.map (K unode_to_unode_w_aux)
-      : path_to_unode_table -> UN.unode_w_aux Path_Table.table;
-  in
-    path_to_unode_table_to_path_to_unode_aux_table unode_table: UN.unode_w_aux Path_Table.table
-  end;
-
 type print_to_paths_table  = UN.inner_path list Print_Table.table;
 type print_to_paths_tables = print_to_paths_table list;
 
-fun gen_trm_table_to_print_to_paths_table (trm_table:'a Path_Table.table) (get_print:'a -> UN.print) =
-  let
-    val path_n_unode_s       = Path_Table.dest trm_table;
-    val path_n_print_s       = List.map (apsnd get_print) path_n_unode_s;
-    val print_n_path_s       = map swap path_n_print_s;
-    val print_to_paths_table = Print_Table.make_list print_n_path_s;
-  in
-    print_to_paths_table: print_to_paths_table
-  end;
-
 type one_term  = {path_to_unode_table: path_to_unode_table, print_to_paths_table: print_to_paths_table};
-
-fun print_to_paths_table_n_print_to_paths (print_to_paths_table:print_to_paths_table) (print: UN.print) =
-  Print_Table.lookup_list print_to_paths_table print;
-
-fun path_to_unode_table_to_depth (path_to_unode_aux_table:path_to_unode_table) =
-  let
-    val keys         = Path_Table.keys path_to_unode_aux_table;
-    val key_lengs    = map length keys                   : ints;
-    val depth_option = Utils.ints_to_max_option key_lengs: int option;
-  in
-    depth_option
-  end;
 
 fun inner_paths_at_the_same_level (inner_path1:UN.inner_path) (inner_path2:UN.inner_path) =
   let

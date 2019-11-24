@@ -8,7 +8,7 @@
  *
  *)
 theory Induction_Demo
-  imports Main "../../LiFtEr"
+  imports Main "../../LiFtEr" "../../../PaMpeR/PaMpeR"
 begin
 
 (* HINT FOR ONLINE DEMO
@@ -22,12 +22,20 @@ begin
  primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
   "rev (x # xs) = rev xs @ [x]"
-
+ print_theorems
 
  fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
   "itrev []     ys = ys" |
   "itrev (x#xs) ys = itrev xs (x#ys)"
+ print_theorems
 
+function itrev2 :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+  "itrev2 []     ys = ys" |
+  "itrev2 (x#xs) ys = itrev2 xs (x#ys)"
+     apply pat_completeness
+    apply auto
+  done
+ print_theorems
 
  lemma "itrev xs ys = rev xs @ ys"
   apply(induct xs arbitrary: ys) apply auto done

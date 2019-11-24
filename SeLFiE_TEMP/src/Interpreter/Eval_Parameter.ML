@@ -6,7 +6,7 @@
 signature EVAL_PARAMETER =
 sig
 
-type path(*    = SeLFiE_Util.inner_path*);
+type path;
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
 type command = Pattern.command;
@@ -14,7 +14,7 @@ type command = Pattern.command;
 datatype parameter =
   Path      of path
 | Print     of print
-| String    of string(*redundant?*)
+| String    of string
 | Number    of number
 | Int       of int
 | Command   of command;

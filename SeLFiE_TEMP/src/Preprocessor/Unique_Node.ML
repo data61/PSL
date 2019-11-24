@@ -97,11 +97,11 @@ val inner_path_ord: (inner_path * inner_path) -> order;
 
 (* futrm_w_prnt_n_inner_path: un-curried folded term with print and inner_path to each node*)
 datatype futrm_w_prnt_n_inner_path =
-  UFC_Prnt_n_Path of (string    * typ                               ) * print * inner_path
-| UFF_Prnt_n_Path of (string    * typ                               ) * print * inner_path
-| UFV_Prnt_n_Path of (indexname * typ                               ) * print * inner_path
-| UFB_Prnt_n_Path of (int       * typ                               ) * print * inner_path
-| UFL_Prnt_n_Path of (string    * typ * futrm_w_prnt_n_inner_path         ) * print * inner_path
+  UFC_Prnt_n_Path of (string    * typ                                           ) * print * inner_path
+| UFF_Prnt_n_Path of (string    * typ                                           ) * print * inner_path
+| UFV_Prnt_n_Path of (indexname * typ                                           ) * print * inner_path
+| UFB_Prnt_n_Path of (int       * typ                                           ) * print * inner_path
+| UFL_Prnt_n_Path of (string    * typ           * futrm_w_prnt_n_inner_path     ) * print * inner_path
 | UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * print * inner_path;
 
 (* futrm_w_prnt_to_futrm_w_prnt_n_inner_path *)
@@ -137,7 +137,7 @@ val node_typ_to_checker: node_typ -> node-> bool;
 
 val node_to_node_typ_str: node -> string;
 
-(* unode *)
+(* unode: unode has inner_path inside for better performance *)
 type unode =
   {node       : node,
    print      : print,
@@ -148,23 +148,6 @@ type unodes = unode list;
 
 (* futrm_w_prnt_n_inner_path_to_unodes *)
 val futrm_w_prnt_n_inner_path_to_unodes: futrm_w_prnt_n_inner_path -> unodes;
-
-(* auxiliary functions for unode_n_pst_to_unode_w_aux. *)
-val pst_n_node_to_rcsv : Proof.state -> node -> bool option;
-val pst_n_node_to_pttrn: Proof.state -> node -> Pattern.pattern_of_a_const option;
-val pst_n_node_to_cmmnd: Proof.state -> node -> Pattern.command option;
-
-(* unode_w_aux *)
-type unode_w_aux =
- {node : node,
-  print: print,
-  inner_path : inner_path,
-  rcsv : bool option,
-  pttrn: Pattern.pattern_of_a_const option,
-  cmmnd: Pattern.command option};
-
-(* unode_to_unode_w_aux *)
-val unode_n_pst_to_unode_w_aux: unode -> Proof.state -> unode_w_aux;
 
 end;
 
@@ -498,17 +481,6 @@ fun futrm_w_prnt_n_inner_path_to_unodes (UFC_Prnt_n_Path (ctnt, prnt, inner_path
 fun node_to_const_name (NC (cname, _)) = SOME (cname:string)
   | node_to_const_name  _              = NONE;
 
-fun pst_n_node_to_rcsv  (pst:Proof.state) (node:node) =
-  let
-    val ctxt             = Proof.context_of pst                                                      : Proof.context;
-    val cname_option     = dest_NC node <$> fst                                                      : string option;
-    val recursive_option = cname_option <$> Pattern.has_recursive_simp_or_psimp_about_const_name ctxt: bool option;
-  in recursive_option end;
-
-fun pst_n_node_to_pttrn (pst:Proof.state) (node:node) =
-  node_to_const_name node <$>
-  Pattern.ctxt_n_cname_to_pattern_of_a_const (Proof.context_of pst);
-
 fun pst_n_node_to_cmmnd (pst:Proof.state) (node:node) =
   let
     val ctxt           = Proof.context_of pst                     : Proof.context;
@@ -517,24 +489,6 @@ fun pst_n_node_to_cmmnd (pst:Proof.state) (node:node) =
   in
     command_otpion
   end;
-
-(* unode_w_aux *)
-type unode_w_aux =
- {node       : node,
-  print      : print,
-  inner_path : inner_path,
-  rcsv       : bool option,
-  pttrn      : Pattern.pattern_of_a_const option,
-  cmmnd      : Pattern.command option};
-
-(* unode_to_unode_w_aux: TODO *)
-fun unode_n_pst_to_unode_w_aux ({node, print, inner_path}:unode) (pst:Proof.state) =
- {node = node                        :node,
-  print= print                       :print,
-  inner_path = inner_path            :inner_path,
-  rcsv = pst_n_node_to_rcsv  pst node:bool option,
-  pttrn= pst_n_node_to_pttrn pst node:Pattern.pattern_of_a_const option,
-  cmmnd= pst_n_node_to_cmmnd pst node:Pattern.command option};
 
 end;
 

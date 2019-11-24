@@ -39,15 +39,15 @@ datatype parameter_assert =
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Printed_As
-(*Eval_Print_Sugar*)
-(*TODO:| Unode_Has_Print*)
+(*Eval_Path*)
+| Unode_Has_Print
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
 | Is_Int;
 
 structure EPT  = Eval_Path;
-structure EPR  = Eval_Inner_Print;(*TODO: we do not need two Eval_Prints?*)
+structure EPR  = Eval_Print;
 structure ENMB = Eval_Number;
 
 fun eval trm pst assert parameters =

@@ -16,6 +16,7 @@ subsection{*Inductive definition of the even numbers*}
 inductive ev :: "nat \<Rightarrow> bool" where
 ev0: "ev 0" |
 evSS: "ev n \<Longrightarrow> ev (Suc(Suc n))"
+print_theorems
 
 thm ev0 evSS
 thm ev.intros

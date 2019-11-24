@@ -2,14 +2,10 @@
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 
-functor from_Quantifier_to_Deep
- (structure Eval_Quantifier:EVAL_QUANTIFIER
-  and       Quantifier_Domain:QUANTIFIER_DOMAIN
-  sharing type Eval_Quantifier.parameter = Quantifier_Domain.parameter): EVAL_DEEP =
+functor from_Quantifier_to_Deep (Eval_Quantifier:EVAL_QUANTIFIER): EVAL_DEEP =
 struct
 
 structure EQ  = Eval_Quantifier;
-structure QD  = Quantifier_Domain;
 
 type parameter = EQ.parameter;
 
@@ -34,7 +30,7 @@ fun convert_assert Not   = EQ.Not
   | convert_assert Ors   = EQ.Ors
   | convert_assert (Eval_Parameter assert) = EQ.Eval_Parameter assert;
 
-type qtyp      = QD.qtyp;
+type qtyp = EQ.qtyp;
 
 val convert_qtyp = undefined;(*TODO*)
 
@@ -49,16 +45,10 @@ datatype expr =
 | In_All_Definition_Of  of string * expr
 | In_Some_Definition_Of of string * expr;
 
-type path_to_node_table   = QD.path_to_node_table;
-type print_to_paths_table = QD.print_to_paths_table;
-
 fun convert_result (EQ.Literal ee_bool) = Literal ee_bool
   | convert_result  _ = error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
 
-(*TODO: should I use Eval_Parameter instead of Eval_Expression?
-Probably, it does not matter much. Both of them are too concrete (w/wo full-nodes).
-The good news is that the return type of eval in Quantifier can be Connective.bool rather than Expression*)
-fun eval(trm:term) (pst:Proof.state) expr =
+fun eval (trm:term) (pst:Proof.state) expr =
   let
     (*TODO: get terms for definitions!*)
     fun get_terms (_:string) = [(*TODO*)]: terms;

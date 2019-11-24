@@ -25,13 +25,9 @@ datatype assert =
 | Is_Shallower_Than      of path * path
 | Is_Path_Above          of path * path
 | Is_Same_Path_As        of path * path
+(*only in path*)
+| Unode_Has_Print        of path * print;
 
-(*Eval_Print_Sugar*)
-(*TODO: | Unode_Has_Print        of path * print;*)
-
-(*
-type path_to_unode_table = Inner_Path_To_Inner_Unode.path_to_unode_table;
-*)
 (*val eval: path_to_unode_table -> assert -> Eval_Bool.assert;*)
 val eval: term -> Proof.state -> assert -> Eval_Bool.assert;
 

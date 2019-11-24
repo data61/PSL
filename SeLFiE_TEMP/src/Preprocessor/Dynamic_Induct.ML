@@ -14,8 +14,6 @@ datatype modifier =
 
 type modifiers = modifier list;
 
-val unode_w_aux_wo_path_to_on : Unique_Node.unode_w_aux -> modifier;
-val unode_w_aux_wo_path_to_arb: Unique_Node.unode_w_aux -> modifier;
 val strs_to_rules             : strings -> modifiers;
 val order                     : modifiers -> (modifiers * modifiers * modifiers);
 val same_mod                  : (modifier  * modifier ) -> bool;
@@ -37,10 +35,6 @@ datatype modifier =
 open Unique_Node;
 
 type modifiers = modifier list;
-
-fun unode_w_aux_wo_path_to_on (unode:unode_w_aux) = #print unode |> SeLFiE_Util.dest_print |> Ind: modifier;
-
-fun unode_w_aux_wo_path_to_arb (unode:unode_w_aux) = #print unode |> SeLFiE_Util.dest_print |> Arb: modifier;
 
 fun strs_to_rules (strs:strings) = map Rule strs:  modifiers;
 

@@ -16,7 +16,7 @@ datatype parameter =
   Bool    of bool
 | Path    of path
 | Print   of print
-| String  of string(*redundant?*)
+| String  of string
 | Number  of number
 | Int     of int
 | Command of command;

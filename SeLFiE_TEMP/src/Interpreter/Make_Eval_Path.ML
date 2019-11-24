@@ -13,7 +13,7 @@ type path       = Path_To_Unode.path;
 
 structure END = Eval_Node;
 structure EU  = Eval_Unode;
-structure EIP = Eval_Inner_Print;
+structure EIP = Eval_Print;
 structure ENB = Eval_Number;
 
 datatype assert =
@@ -30,7 +30,9 @@ datatype assert =
 | Is_Deeper_Than         of path * path
 | Is_Shallower_Than      of path * path
 | Is_Path_Above          of path * path
-| Is_Same_Path_As        of path * path;
+| Is_Same_Path_As        of path * path
+(*only in path*)
+| Unode_Has_Print        of path * print;
 
 type path_to_unode_table = Path_To_Unode.path_to_unode_table;
 val trm_n_pst_to_path_to_unode_table = undefined: term -> Proof.state -> path_to_unode_table;(*TODO*)
@@ -66,8 +68,14 @@ fun eval (term:term) (pst:Proof.state) assert =
       | eval' (Is_Shallower_Than pair) = path2_to_unode2 pair |> EU.Is_Shallower_Than |> EU.eval
       | eval' (Is_Path_Above     pair) = path2_to_unode2 pair |> EU.Is_Path_Above     |> EU.eval
       | eval' (Is_Same_Path_As   pair) = path2_to_unode2 pair |> EU.Is_Same_Path_As   |> EU.eval
-      (*Eval_Print_Sugar*)
-    (*TODO:  | eval' (Unode_Has_Print pair) = pair |> apfst path_to_unode |> EPS.Unode_Has_Print |> EPS.eval;*)
+      (*only in path*)
+      | eval' (Unode_Has_Print pair) =
+          let
+            val this_print  = snd pair;
+            val unode_print = pair |> fst |> path_to_unode |> #print: SeLFiE_Util.print;
+          in
+            SeLFiE_Util.same_prints this_print unode_print |> Eval_Bool.bool_to_assert
+          end
   in eval' assert end;
 
 end;

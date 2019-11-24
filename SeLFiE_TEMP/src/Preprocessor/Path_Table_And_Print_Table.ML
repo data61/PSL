@@ -2,7 +2,7 @@
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 
-(*** Inner_Path_Table ***)
+(*** structure: Inner_Path_Table ***)
 (*inner_path_ord: This definition is more or less arbitrary.*)
 fun inner_path_ord ([],    []   ) = EQUAL
   | inner_path_ord (_,     []   ) = GREATER
@@ -15,7 +15,7 @@ fun prnt_ord (SeLFiE_Util.Print p1, SeLFiE_Util.Print p2) = String.compare (p1, 
 
 structure Inner_Path_Table = Table (type key = SeLFiE_Util.inner_path  val ord = inner_path_ord): TABLE;
 
-(*** Outer_Path_Table  ***)
+(*** structure: Outer_Path_Table  ***)
 datatype location = Subgoal of int | Chained_Fact of int;
 
 type outer_path = location * UN.inner_path;
@@ -33,5 +33,5 @@ fun outer_path_eq (full_p1:outer_path, full_p2:outer_path) = case outer_path_ord
 
 structure Outer_Path_Table  = Table (type key = outer_path  val ord = outer_path_ord): TABLE;
 
-(*** Print_Table  ***)
+(*** structure: Print_Table  ***)
 structure Print_Table = Table (type key = SeLFiE_Util.print       val ord = prnt_ord      ): TABLE;

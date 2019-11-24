@@ -33,7 +33,7 @@ type parameter = Eval_Parameter_With_Bool.parameter;
 
 val qtyp_to_qdomain = undefined: qtyp -> parameter list;
 
-type path = Print_To_Paths.path;
+type path                 = Print_To_Paths.path;
 type path_to_node_table   = Path_To_Unode.path_to_unode_table;
 type print_to_paths_table = Print_To_Paths.print_to_paths_table;
 
@@ -45,5 +45,7 @@ fun mk_all_prints pst term =
   in
     Print_To_Paths.print_to_paths_table_to_prints print_to_paths_table
   end;
+
+fun mk_all_numbers _ = ();
 
 end;

@@ -24,7 +24,7 @@ ML_file "src/Preprocessor/Pattern.ML" (*TODO: We only need get_command from this
 ML_file "src/Preprocessor/Unique_Node.ML"
 ML_file "src/Preprocessor/Unique_Node_Test.ML"
 ML_file "src/Preprocessor/Path_Table_And_Print_Table.ML"
-ML_file "src/Preprocessor/Term_Table.ML"(*TODO: local in end for UN?*)
+ML_file "src/Preprocessor/Term_Table.ML"
 ML_file "src/Preprocessor/Term_Table_Test.ML"
 ML_file "src/Preprocessor/Dynamic_Induct.ML"
 
@@ -32,18 +32,18 @@ ML_file "src/Preprocessor/Dynamic_Induct.ML"
 ML_file "src/Interpreter/Eval_Bool.ML"
 ML_file "src/Interpreter/Eval_Node.ML"
 ML_file "src/Interpreter/Eval_Unode.ML"
-ML_file "src/Interpreter/Eval_Path.ML"(*TODO: Eval_Outer_Path*)
+ML_file "src/Interpreter/Eval_Path.ML"
 ML_file "src/Interpreter/Eval_Print.ML"
 ML_file "src/Interpreter/Eval_Number.ML"
-ML_file "src/Interpreter/Eval_Parameter.ML" (*TODO: Eval_Outer_Path is still Eval_Inner_Parameter.*)
+ML_file "src/Interpreter/Eval_Parameter.ML"
 ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/Eval_Bound.ML"
 ML_file "src/Interpreter/Eval_Variable.ML"
-ML_file "src/Interpreter/Eval_Quantifier.ML"   (*TODO:Number*)
+ML_file "src/Interpreter/Eval_Quantifier.ML"(*TODO:Number*)
 ML_file "src/Interpreter/Eval_Deep.ML"
 
 ML_file "src/Interpreter/Path_To_Unode.ML"  (*The bifurcation of "inner" and "outer" starts here.*)
-ML_file "src/Interpreter/Print_To_Paths.ML" (*TODO: These should be produced by a functor.*)
+ML_file "src/Interpreter/Print_To_Paths.ML"
 ML\<open> structure Print_To_Inner_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Inner_Path_Table); \<close>
 ML\<open> structure Print_To_Outer_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Outer_Path_Table); \<close>
 
@@ -52,12 +52,12 @@ ML_file "src/Interpreter/From_Path_To_Parameter.ML"
 ML_file "src/Interpreter/From_Parameter_To_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/From_Parameter_With_Bool_To_Bound.ML"
 ML_file "src/Interpreter/From_Bound_To_Variable.ML"
-ML_file "src/Interpreter/Quantifier_Domain.ML" (*TODO: from_Path_To_Unode_and_Print_To_Paths_to_Quantifier_Domain*)
+ML_file "src/Interpreter/Quantifier_Domain.ML"
 ML_file "src/Interpreter/From_Variable_To_Quantifier.ML"
 ML_file "src/Interpreter/From_Quantifier_To_Deep.ML"
 
-ML\<open> structure Eval_Inner_Path = make_Eval_Path(Inner_Path_To_Unode): EVAL_PATH; \<close>
-ML\<open> structure Eval_Outer_Path = make_Eval_Path(Outer_Path_To_Unode): EVAL_PATH; \<close>
+ML\<open> structure Eval_Inner_Path = make_Eval_Path (Inner_Path_To_Unode): EVAL_PATH; \<close>
+ML\<open> structure Eval_Outer_Path = make_Eval_Path (Outer_Path_To_Unode): EVAL_PATH; \<close>
 
 ML\<open> structure Eval_Inner_Parameter = from_Path_to_Parameter(Eval_Inner_Path): EVAL_PARAMETER; \<close>
 ML\<open> structure Eval_Outer_Parameter = from_Path_to_Parameter(Eval_Outer_Path): EVAL_PARAMETER; \<close>
@@ -83,9 +83,87 @@ ML\<open> structure Outer_Quantifier_Domain = make_Quantifier_Domain
 ML\<open> structure Eval_Inner_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Inner_Variable and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Outer_Variable and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 
-ML\<open> structure Eval_Inner_Deep = from_Quantifier_to_Deep(structure Eval_Quantifier = Eval_Inner_Quantifier and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_DEEP; \<close>
-ML\<open> structure Eval_Outer_Deep = from_Quantifier_to_Deep(structure Eval_Quantifier = Eval_Outer_Quantifier and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_DEEP; \<close>
+(*TODO: we should add the "dive-in" construct to Assert. No. to parameter.*)
+ML\<open>
 
+structure EIQ = Eval_Inner_Quantifier;
+structure EOQ = Eval_Outer_Quantifier;
+
+datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
+
+datatype outermost_expr = Outer of EOQ.expr | Dive_In     of inner_expr
+     and inner_expr     = Inner of EIQ.expr | Dive_Deeper of inner_expr;
+
+fun convert' (Eval_Outer_Parameter_With_Bool.Bool true)  = Eval_Inner_Parameter_With_Bool.Bool true
+  | convert' (Eval_Outer_Parameter_With_Bool.Bool false) = Eval_Inner_Parameter_With_Bool.Bool false
+  | convert'  _                                          = error "convert failed!"
+
+fun convert (Eval_Outer_Quantifier.Literal l) = Eval_Inner_Quantifier.Literal (convert' l)
+  | convert  _ = error "convert failed!"
+
+fun eval (pst:Proof.state) (Outer   outer_eq_expr) (trm:term) = EOQ.eval trm pst outer_eq_expr |> convert
+  | eval (pst:Proof.state) (Dive_In inner_expr)    (_  :term) =
+    let
+      val simp_rules = []: terms;
+      val subexprs   = map (eval_inner pst inner_expr) simp_rules: EIQ.expr list;
+      val result     = EIQ.eval Term.dummy pst (EIQ.Assert (EIQ.Ands, subexprs)): EIQ.expr
+    in
+      result: EIQ.expr
+    end
+and eval_inner pst (Inner inner_expr) trm = EIQ.eval trm pst inner_expr
+  | eval_inner pst (Dive_Deeper inner_expr) _ =
+    let
+      val simp_rules = []: terms;
+      val subexprs   = map (eval_inner pst inner_expr) simp_rules: EIQ.expr list;
+      val result     = EIQ.eval Term.dummy pst (EIQ.Assert (EIQ.Ands, subexprs)): EIQ.expr
+    in
+      result: EIQ.expr
+    end
+
+(*
+fun eval (trm:term) (pst:Proof.state) expr =
+  let
+    (*TODO: get terms for definitions!*)
+    fun get_terms (_:string) = [(*TODO*)]: terms;
+    fun eval' (Variable vname)              = eval trm pst (Variable vname)
+      | eval' (Lambda (vname, subexpr))     = eval trm pst (Lambda  (vname, eval' subexpr))
+      | eval' (Literal ps             )     = eval trm pst (Literal  ps)
+      | eval' (Assert (assrt, ps))          = eval trm pst (Assert  (assrt, map eval' ps))
+      | eval' (All  (vname, qtyp, subexpr)) = eval trm pst (All  (vname, qtyp, eval' subexpr))
+      | eval' (Some (vname, qtyp, subexpr)) = eval trm pst (Some (vname, qtyp, eval' subexpr))
+      | eval' (In_All_Definition_Of (vname, subexpr)) =
+        let
+          (*TODO: This inner call of eval should be
+           * - eval in Eval_Inner            if this functor is creating Eval_Outer.
+           * - just a recursive call of eval if this functor is creating Eval_Inner.*)
+          val subexprs = map (fn term => eval term pst subexpr) (get_terms vname): expr list;
+        in
+          eval' (Assert (Ands, subexprs))
+        end
+      | eval' (In_Some_Definition_Of (vname, subexpr)) =
+        let
+          (*TODO: This inner call of eval should be
+           * - eval in Eval_Inner            if this functor is creating Eval_Outer.
+           * - just a recursive call of eval if this functor is creating Eval_Inner.*)
+          val subexprs = map (fn term => eval term pst subexpr) (get_terms vname): expr list;
+        in
+          eval' (Assert (Ors, subexprs))
+        end;
+
+    val ev_result  = eval' expr              : EQ.expr;
+    val result     = convert_result ev_result: expr;
+  in
+    result
+  end;
+
+end;
+*)
+\<close>
+
+ML\<open> structure Eval_Inner_Deep = from_Quantifier_to_Deep(Eval_Inner_Quantifier): EVAL_DEEP; \<close>
+ML\<open> structure Eval_Outer_Deep = from_Quantifier_to_Deep(Eval_Outer_Quantifier): EVAL_DEEP; \<close>
+
+(* auxiliary stuff *)
 ML\<open>
 @{term "let x = 1 in x"};
 (*
@@ -112,6 +190,7 @@ $ Free  ("y", "'a")
 $ Abs   ("a", "'b", Abs ("list", "'b list", Free ("z", "'a")))
 $ Free  ("x", "'b list")
 *)
+
 @{term "case x of [] => y | w#ws \<Rightarrow> z"};
 (*
   Const ("List.list.case_list", "'a \<Rightarrow> ('b \<Rightarrow> 'b list \<Rightarrow> 'a) \<Rightarrow> 'b list \<Rightarrow> 'a")
