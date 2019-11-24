@@ -54,7 +54,6 @@ ML_file "src/Interpreter/From_Parameter_With_Bool_To_Bound.ML"
 ML_file "src/Interpreter/From_Bound_To_Variable.ML"
 ML_file "src/Interpreter/Quantifier_Domain.ML"
 ML_file "src/Interpreter/From_Variable_To_Quantifier.ML"
-ML_file "src/Interpreter/From_Quantifier_To_Deep.ML"
 
 ML\<open> structure Eval_Inner_Path = make_Eval_Path (Inner_Path_To_Unode): EVAL_PATH; \<close>
 ML\<open> structure Eval_Outer_Path = make_Eval_Path (Outer_Path_To_Unode): EVAL_PATH; \<close>
@@ -94,6 +93,8 @@ datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 datatype outermost_expr = Outer of EOQ.expr | Dive_In     of inner_expr
      and inner_expr     = Inner of EIQ.expr | Dive_Deeper of inner_expr;
 
+datatype expr = Out of outermost_expr | In of inner_expr;
+
 fun convert' (Eval_Outer_Parameter_With_Bool.Bool true)  = Eval_Inner_Parameter_With_Bool.Bool true
   | convert' (Eval_Outer_Parameter_With_Bool.Bool false) = Eval_Inner_Parameter_With_Bool.Bool false
   | convert'  _                                          = error "convert failed!"
@@ -101,67 +102,26 @@ fun convert' (Eval_Outer_Parameter_With_Bool.Bool true)  = Eval_Inner_Parameter_
 fun convert (Eval_Outer_Quantifier.Literal l) = Eval_Inner_Quantifier.Literal (convert' l)
   | convert  _ = error "convert failed!"
 
-fun eval (pst:Proof.state) (Outer   outer_eq_expr) (trm:term) = EOQ.eval trm pst outer_eq_expr |> convert
-  | eval (pst:Proof.state) (Dive_In inner_expr)    (_  :term) =
-    let
-      val simp_rules = []: terms;
-      val subexprs   = map (eval_inner pst inner_expr) simp_rules: EIQ.expr list;
-      val result     = EIQ.eval Term.dummy pst (EIQ.Assert (EIQ.Ands, subexprs)): EIQ.expr
-    in
-      result: EIQ.expr
-    end
-and eval_inner pst (Inner inner_expr) trm = EIQ.eval trm pst inner_expr
-  | eval_inner pst (Dive_Deeper inner_expr) _ =
-    let
-      val simp_rules = []: terms;
-      val subexprs   = map (eval_inner pst inner_expr) simp_rules: EIQ.expr list;
-      val result     = EIQ.eval Term.dummy pst (EIQ.Assert (EIQ.Ands, subexprs)): EIQ.expr
-    in
-      result: EIQ.expr
-    end
 
-(*
-fun eval (trm:term) (pst:Proof.state) expr =
+fun eval (pst:Proof.state) (expr:expr) (trm:term) =
   let
-    (*TODO: get terms for definitions!*)
-    fun get_terms (_:string) = [(*TODO*)]: terms;
-    fun eval' (Variable vname)              = eval trm pst (Variable vname)
-      | eval' (Lambda (vname, subexpr))     = eval trm pst (Lambda  (vname, eval' subexpr))
-      | eval' (Literal ps             )     = eval trm pst (Literal  ps)
-      | eval' (Assert (assrt, ps))          = eval trm pst (Assert  (assrt, map eval' ps))
-      | eval' (All  (vname, qtyp, subexpr)) = eval trm pst (All  (vname, qtyp, eval' subexpr))
-      | eval' (Some (vname, qtyp, subexpr)) = eval trm pst (Some (vname, qtyp, eval' subexpr))
-      | eval' (In_All_Definition_Of (vname, subexpr)) =
+    fun eval_outer (Outer       outer_eq_expr ) (trm:term) = EOQ.eval trm pst outer_eq_expr |> convert
+      | eval_outer (Dive_In     inner_expr    ) (trm:term) = eval_in_all_def pst inner_expr trm
+    and eval_inner (Inner       inner_expr    ) (trm:term) = EIQ.eval trm pst inner_expr
+      | eval_inner (Dive_Deeper inner_expr    ) (trm:term) = eval_in_all_def pst inner_expr trm
+    and eval_in_all_def (pst:Proof.state) (inner_expr:inner_expr) (trm:term) =
         let
-          (*TODO: This inner call of eval should be
-           * - eval in Eval_Inner            if this functor is creating Eval_Outer.
-           * - just a recursive call of eval if this functor is creating Eval_Inner.*)
-          val subexprs = map (fn term => eval term pst subexpr) (get_terms vname): expr list;
+          val simp_rules = []: terms;(*TODO*)
+          val subexprs   = map (eval_inner inner_expr) simp_rules: EIQ.expr list;
+          val result     = EIQ.eval Term.dummy pst (EIQ.Assert (EIQ.Ands, subexprs)): EIQ.expr
         in
-          eval' (Assert (Ands, subexprs))
+          result: EIQ.expr
         end
-      | eval' (In_Some_Definition_Of (vname, subexpr)) =
-        let
-          (*TODO: This inner call of eval should be
-           * - eval in Eval_Inner            if this functor is creating Eval_Outer.
-           * - just a recursive call of eval if this functor is creating Eval_Inner.*)
-          val subexprs = map (fn term => eval term pst subexpr) (get_terms vname): expr list;
-        in
-          eval' (Assert (Ors, subexprs))
-        end;
-
-    val ev_result  = eval' expr              : EQ.expr;
-    val result     = convert_result ev_result: expr;
   in
-    result
+    case expr of Out outermost_expr => eval_outer outermost_expr trm
+               | In inner_expr => eval_inner inner_expr trm
   end;
-
-end;
-*)
 \<close>
-
-ML\<open> structure Eval_Inner_Deep = from_Quantifier_to_Deep(Eval_Inner_Quantifier): EVAL_DEEP; \<close>
-ML\<open> structure Eval_Outer_Deep = from_Quantifier_to_Deep(Eval_Outer_Quantifier): EVAL_DEEP; \<close>
 
 (* auxiliary stuff *)
 ML\<open>
