@@ -37,9 +37,9 @@ infix
   Is_Less_Than
   Is_Int
 
-fun eval' (Are_Same_Number (Number numb1, Number numb2)) = (numb1 = numb2)
-  | eval' (Number numb1 Is_Less_Than Number numb2)       = (numb1 < numb2)
-  | eval' (Number numb Is_Int int)                       = (numb = int)
+fun eval' (Are_Same_Number (Number numb1, Number numb2)) = numb1 = numb2
+  | eval' (Number numb1 Is_Less_Than Number numb2)       = numb1 < numb2
+  | eval' (Number numb Is_Int int)                       = numb = int
   | eval'  _                                             = error "eval' in Eval_Number_Struct failed!";
 
 fun eval (Connective assert_connective) = EC.eval assert_connective

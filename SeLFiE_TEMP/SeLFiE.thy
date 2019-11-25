@@ -40,7 +40,6 @@ ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/Eval_Bound.ML"
 ML_file "src/Interpreter/Eval_Variable.ML"
 ML_file "src/Interpreter/Eval_Quantifier.ML"(*TODO:Number*)
-ML_file "src/Interpreter/Eval_Deep.ML"
 
 ML_file "src/Interpreter/Path_To_Unode.ML"  (*The bifurcation of "inner" and "outer" starts here.*)
 ML_file "src/Interpreter/Print_To_Paths.ML"
@@ -82,46 +81,7 @@ ML\<open> structure Outer_Quantifier_Domain = make_Quantifier_Domain
 ML\<open> structure Eval_Inner_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Inner_Variable and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Outer_Variable and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 
-(*TODO: we should add the "dive-in" construct to Assert. No. to parameter.*)
-ML\<open>
-
-structure EIQ = Eval_Inner_Quantifier;
-structure EOQ = Eval_Outer_Quantifier;
-
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
-
-datatype outermost_expr = Outer of EOQ.expr | Dive_In     of inner_expr
-     and inner_expr     = Inner of EIQ.expr | Dive_Deeper of inner_expr;
-
-datatype expr = Out of outermost_expr | In of inner_expr;
-
-fun convert' (Eval_Outer_Parameter_With_Bool.Bool true)  = Eval_Inner_Parameter_With_Bool.Bool true
-  | convert' (Eval_Outer_Parameter_With_Bool.Bool false) = Eval_Inner_Parameter_With_Bool.Bool false
-  | convert'  _                                          = error "convert failed!"
-
-fun convert (Eval_Outer_Quantifier.Literal l) = Eval_Inner_Quantifier.Literal (convert' l)
-  | convert  _ = error "convert failed!"
-
-
-fun eval (pst:Proof.state) (expr:expr) (trm:term) =
-  let
-    fun eval_outer (Outer       outer_eq_expr ) (trm:term) = EOQ.eval trm pst outer_eq_expr |> convert
-      | eval_outer (Dive_In     inner_expr    ) (trm:term) = eval_in_all_def pst inner_expr trm
-    and eval_inner (Inner       inner_expr    ) (trm:term) = EIQ.eval trm pst inner_expr
-      | eval_inner (Dive_Deeper inner_expr    ) (trm:term) = eval_in_all_def pst inner_expr trm
-    and eval_in_all_def (pst:Proof.state) (inner_expr:inner_expr) (trm:term) =
-        let
-          val simp_rules = []: terms;(*TODO*)
-          val subexprs   = map (eval_inner inner_expr) simp_rules: EIQ.expr list;
-          val result     = EIQ.eval Term.dummy pst (EIQ.Assert (EIQ.Ands, subexprs)): EIQ.expr
-        in
-          result: EIQ.expr
-        end
-  in
-    case expr of Out outermost_expr => eval_outer outermost_expr trm
-               | In inner_expr => eval_inner inner_expr trm
-  end;
-\<close>
+ML_file "src/Interpreter/Eval_Deep.ML"
 
 (* auxiliary stuff *)
 ML\<open>
