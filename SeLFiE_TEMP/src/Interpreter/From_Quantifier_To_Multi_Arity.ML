@@ -8,7 +8,49 @@ structure EQ = Eval_Quantifier;
 
 type parameter = EQ.parameter;
 
-type parameter_assert = EQ.parameter_assert;
+datatype parameter_assert =
+(*Eval_Node*)
+  Is_Cnst
+| Is_Free
+| Is_Var
+| Is_Bound
+| Is_Lambda
+| Is_App
+(*Eval_Unode*)
+| Has_Same_Prnt_As
+| Is_In_Trm_Prnt
+| Is_Deeper_Than
+| Is_Shallower_Than
+| Is_Path_Above
+| Is_Same_Path_As
+(*Eval_Print*)
+| Are_Same_Prints
+| Is_Printed_As
+(*Eval_Path*)
+| Unode_Has_Print
+(*Eval_Number*)
+| Are_Same_Number
+| Is_Less_Than
+| Is_Int;
+
+fun convert_parameter_assert Is_Cnst          = EQ.Is_Cnst
+  | convert_parameter_assert Is_Free          = EQ.Is_Free
+  | convert_parameter_assert Is_Var           = EQ.Is_Var
+  | convert_parameter_assert Is_Bound         = EQ.Is_Bound
+  | convert_parameter_assert Is_Lambda        = EQ.Is_Lambda
+  | convert_parameter_assert Is_App           = EQ.Is_App
+  | convert_parameter_assert Has_Same_Prnt_As = EQ.Has_Same_Prnt_As
+  | convert_parameter_assert Is_In_Trm_Prnt   = EQ.Is_In_Trm_Prnt
+  | convert_parameter_assert Is_Deeper_Than   = EQ.Is_Deeper_Than
+  | convert_parameter_assert Is_Shallower_Than= EQ.Is_Shallower_Than
+  | convert_parameter_assert Is_Path_Above    = EQ.Is_Path_Above
+  | convert_parameter_assert Is_Same_Path_As  = EQ.Is_Same_Path_As
+  | convert_parameter_assert Are_Same_Prints  = EQ.Are_Same_Prints
+  | convert_parameter_assert Is_Printed_As    = EQ.Is_Printed_As
+  | convert_parameter_assert Unode_Has_Print  = EQ.Unode_Has_Print
+  | convert_parameter_assert Are_Same_Number  = EQ.Are_Same_Number
+  | convert_parameter_assert Is_Less_Than     = EQ.Is_Less_Than
+  | convert_parameter_assert Is_Int           = EQ.Is_Int;
 
 datatype assert =
   Not
@@ -27,7 +69,7 @@ fun convert_assert Not   = EQ.Not
   | convert_assert Imply = EQ.Imply
   | convert_assert Ands  = EQ.Ands
   | convert_assert Ors   = EQ.Ors
-  | convert_assert (Eval_Parameter assert) = EQ.Eval_Parameter assert;
+  | convert_assert (Eval_Parameter assert) = EQ.Eval_Parameter (convert_parameter_assert assert);
 
 type qtyp = EQ.qtyp;
 
@@ -65,8 +107,6 @@ and mk_nested_pair_for_quantifier qtyp pairs expr =
     in
       mk_nested_pair pairs (quantifier_to_multi_arity expr)
     end;
-
-val _ = quantifier_to_multi_arity;
 
 fun convert_result (EQ.Literal ee_bool) = Literal ee_bool
   | convert_result  _ =
