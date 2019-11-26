@@ -5,7 +5,31 @@ signature EVAL_VARIABLE =
 sig
 
 type parameter;
-type parameter_assert;
+
+datatype parameter_assert =
+(*Eval_Node*)
+  Is_Cnst
+| Is_Free
+| Is_Var
+| Is_Bound
+| Is_Lambda
+| Is_App
+(*Eval_Unode*)
+| Has_Same_Prnt_As
+| Is_In_Trm_Prnt
+| Is_Deeper_Than
+| Is_Shallower_Than
+| Is_Path_Above
+| Is_Same_Path_As
+(*Eval_Print*)
+| Are_Same_Prints
+| Is_Printed_As
+(*Eval_Path*)
+| Unode_Has_Print
+(*Eval_Number*)
+| Are_Same_Number
+| Is_Less_Than
+| Is_Int;
 
 (* The data-type constructors for boolean operations have to be declared in this signature.
  * because we need them in From_Var_To_Quantifier.*)

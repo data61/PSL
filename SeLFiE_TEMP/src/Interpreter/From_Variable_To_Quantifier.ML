@@ -12,7 +12,49 @@ structure QD  = Quantifier_Domain;
 
 type parameter = EV.parameter;
 
-type parameter_assert = EV.parameter_assert;
+datatype parameter_assert =
+(*Eval_Node*)
+  Is_Cnst
+| Is_Free
+| Is_Var
+| Is_Bound
+| Is_Lambda
+| Is_App
+(*Eval_Unode*)
+| Has_Same_Prnt_As
+| Is_In_Trm_Prnt
+| Is_Deeper_Than
+| Is_Shallower_Than
+| Is_Path_Above
+| Is_Same_Path_As
+(*Eval_Print*)
+| Are_Same_Prints
+| Is_Printed_As
+(*Eval_Path*)
+| Unode_Has_Print
+(*Eval_Number*)
+| Are_Same_Number
+| Is_Less_Than
+| Is_Int;
+
+fun convert_parameter_assert Is_Cnst          = EV.Is_Cnst
+  | convert_parameter_assert Is_Free          = EV.Is_Free
+  | convert_parameter_assert Is_Var           = EV.Is_Var
+  | convert_parameter_assert Is_Bound         = EV.Is_Bound
+  | convert_parameter_assert Is_Lambda        = EV.Is_Lambda
+  | convert_parameter_assert Is_App           = EV.Is_App
+  | convert_parameter_assert Has_Same_Prnt_As = EV.Has_Same_Prnt_As
+  | convert_parameter_assert Is_In_Trm_Prnt   = EV.Is_In_Trm_Prnt
+  | convert_parameter_assert Is_Deeper_Than   = EV.Is_Deeper_Than
+  | convert_parameter_assert Is_Shallower_Than= EV.Is_Shallower_Than
+  | convert_parameter_assert Is_Path_Above    = EV.Is_Path_Above
+  | convert_parameter_assert Is_Same_Path_As  = EV.Is_Same_Path_As
+  | convert_parameter_assert Are_Same_Prints  = EV.Are_Same_Prints
+  | convert_parameter_assert Is_Printed_As    = EV.Is_Printed_As
+  | convert_parameter_assert Unode_Has_Print  = EV.Unode_Has_Print
+  | convert_parameter_assert Are_Same_Number  = EV.Are_Same_Number
+  | convert_parameter_assert Is_Less_Than     = EV.Is_Less_Than
+  | convert_parameter_assert Is_Int           = EV.Is_Int;
 
 datatype assert =
   Not
@@ -31,7 +73,7 @@ fun convert_assert Not   = EV.Not
   | convert_assert Imply = EV.Imply
   | convert_assert Ands  = EV.Ands
   | convert_assert Ors   = EV.Ors
-  | convert_assert (Eval_Parameter assert) = EV.Eval_Parameter assert;
+  | convert_assert (Eval_Parameter assert) = EV.Eval_Parameter (convert_parameter_assert assert);
 
 type qtyp = QD.qtyp;
 
