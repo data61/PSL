@@ -40,6 +40,7 @@ ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/Eval_Bound.ML"
 ML_file "src/Interpreter/Eval_Variable.ML"
 ML_file "src/Interpreter/Eval_Quantifier.ML"(*TODO:Number*)
+ML_file "src/Interpreter/Eval_Multi_Arity.ML"(*TODO:Number*)
 
 ML_file "src/Interpreter/Path_To_Unode.ML"  (*The bifurcation of "inner" and "outer" starts here.*)
 ML_file "src/Interpreter/Print_To_Paths.ML"
@@ -54,6 +55,7 @@ ML_file "src/Interpreter/From_Parameter_With_Bool_To_Bound.ML"
 ML_file "src/Interpreter/From_Bound_To_Variable.ML"
 ML_file "src/Interpreter/Quantifier_Domain.ML"
 ML_file "src/Interpreter/From_Variable_To_Quantifier.ML"
+ML_file "src/Interpreter/From_Quantifier_To_Multi_Arity.ML"
 
 ML\<open> structure Eval_Inner_Path = make_Eval_Path (Inner_Path_To_Unode): EVAL_PATH; \<close>
 ML\<open> structure Eval_Outer_Path = make_Eval_Path (Outer_Path_To_Unode): EVAL_PATH; \<close>
@@ -83,16 +85,16 @@ ML\<open> structure Outer_Quantifier_Domain = make_Quantifier_Domain
 ML\<open> structure Eval_Inner_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Inner_Variable and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Outer_Variable and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 
-ML_file "src/Interpreter/Eval_Deep.ML"
-ML_file "src/Interpreter/Eval_Multi_Arity.ML"(*TODO:Number*)
-ML_file "src/Interpreter/From_Quantifier_To_Multi_Arity.ML"
+
 
 ML\<open> structure Eval_Inner_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Inner_Quantifier): EVAL_MULTI_ARITY; \<close>
 ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Outer_Quantifier): EVAL_MULTI_ARITY; \<close>
 
+ML_file "src/Interpreter/Eval_Deep.ML"
+ML_file "src/Interpreter/Eval_Sugar.ML"
+
 ML\<open>
 open Eval_Outer_Multi_Arity;
-
 \<close>
 
 (* auxiliary stuff *)
