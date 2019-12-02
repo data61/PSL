@@ -84,7 +84,7 @@ We published academic papers describing the ideas implemented in this project.
 - A Proof Strategy Language and Proof Script Generation for Isabelle/HOL at [CADE2017](http://www.cse.chalmers.se/~myreen/cade-26/) explains the overall idea of PSL. ([arXiv](https://arxiv.org/abs/1606.02941)/[Springer](https://doi.org/10.1007/978-3-319-63046-5_32))
 - Goal-Oriented Conjecturing for Isabelle/HOL at [CICM2018](https://cicm-conference.org/2018/cicm.php) explains the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`. ([arXiv](https://arxiv.org/abs/1806.04774)/[Springer](https://doi.org/10.1007/978-3-319-96812-4_19))
 - PaMpeR: Proof Method Recommendation System for Isabelle/HOL at [ASE2018](http://ase2018.com) explains the proof method recommendation system implemented in `PSL/PaMpeR`. ([arXiv](https://arxiv.org/abs/1806.07239)/[ACM](http://doi.acm.org/10.1145/3238147.3238210))
-- LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL at [APLAS2019](https://conf.researchr.org/home/aplas-2019) explains our domain specific language to encode induction heuristics. ([arXiv](https://arxiv.org/abs/1906.08084))
+- LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL at [APLAS2019](https://conf.researchr.org/home/aplas-2019) explains our domain specific language to encode induction heuristics. ([arXiv](https://arxiv.org/abs/1906.08084)/[Springer](https://doi.org/10.1007/978-3-030-34175-6_14))
 
 We presented the final goal of this project at [AITP2017](http://aitp-conference.org/2017/). Our position paper "Towards Smart Proof Search for Isabelle" is available at [arXiv](https://arxiv.org/abs/1701.03037).
 
@@ -166,17 +166,18 @@ isbn="978-3-319-96812-4"
 `
 
 - **LiFtEr**:
-`@article{DBLP:journals/corr/abs-1906-08084,
+`@inproceedings{DBLP:conf/aplas/Nagashima19,
   author    = {Yutaka Nagashima},
   title     = {LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL},
-  journal   = {CoRR},
-  volume    = {abs/1906.08084},
+  booktitle = {Programming Languages and Systems - 17th Asian Symposium, {APLAS}
+               2019, Nusa Dua, Bali, Indonesia, December 1-4, 2019, Proceedings},
+  pages     = {266--287},
   year      = {2019},
-  url       = {http://arxiv.org/abs/1906.08084},
-  archivePrefix = {arXiv},
-  eprint    = {1906.08084},
-  timestamp = {Mon, 24 Jun 2019 17:28:45 +0200},
-  biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1906-08084},
+  crossref  = {DBLP:conf/aplas/2019},
+  url       = {https://doi.org/10.1007/978-3-030-34175-6\_14},
+  doi       = {10.1007/978-3-030-34175-6\_14},
+  timestamp = {Tue, 26 Nov 2019 18:31:01 +0100},
+  biburl    = {https://dblp.org/rec/bib/conf/aplas/Nagashima19},
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }`
 
