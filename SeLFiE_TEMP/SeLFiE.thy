@@ -45,8 +45,8 @@ ML_file "src/Interpreter/Eval_Multi_Arity.ML"(*TODO:Number*)
 ML_file "src/Interpreter/Path_To_Unode.ML"  (*The bifurcation of "inner" and "outer" starts here.*)
 ML_file "src/Interpreter/Print_To_Paths.ML"
 
-ML\<open> structure Print_To_Inner_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Inner_Path_Table); \<close>
-ML\<open> structure Print_To_Outer_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Outer_Path_Table); \<close>
+ML\<open> structure Print_To_Inner_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Inner_Path_Table): PRINT_TO_PATHS; \<close>
+ML\<open> structure Print_To_Outer_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Outer_Path_Table): PRINT_TO_PATHS; \<close>
 
 ML_file "src/Interpreter/Make_Eval_Path.ML"
 ML_file "src/Interpreter/From_Path_To_Parameter.ML"
@@ -90,8 +90,13 @@ ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structur
 ML\<open> structure Eval_Inner_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Inner_Quantifier): EVAL_MULTI_ARITY; \<close>
 ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Outer_Quantifier): EVAL_MULTI_ARITY; \<close>
 
-ML_file "src/Interpreter/Eval_Deep.ML"
+(* We should have Sugar before Deep because it is not possible to represent two levels of corresponding 
+ * constructs using the same constructor in Deep. For example, we need two True in Depp:
+ * one for outermost layer and the other one for inner layers.*)
 ML_file "src/Interpreter/Eval_Sugar.ML"
+ML_file "src/Interpreter/From_Multi_To_Sugar.ML"
+
+ML_file "src/Interpreter/Eval_Deep.ML"
 
 ML\<open>
 open Eval_Outer_Multi_Arity;

@@ -1,7 +1,7 @@
 (*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Deep.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-(*** EVAL_DEEP ***)
+(*** signature EVAL_DEEP ***)
 signature EVAL_DEEP =
 sig
 
@@ -21,7 +21,7 @@ val eval: Proof.state -> expr -> term -> Eval_Inner_Multi_Arity.expr;
 
 end;
 
-(*** Eval_Deep ***)
+(*** structure Eval_Deep ***)
 structure Eval_Deep: EVAL_DEEP =
 struct
 
@@ -45,7 +45,7 @@ fun convert' (Eval_Outer_Parameter_With_Bool.Bool   true ) = Eval_Inner_Paramete
   | convert' (Eval_Outer_Parameter_With_Bool.Print  print) = Eval_Inner_Parameter_With_Bool.Print  print
   | convert' (Eval_Outer_Parameter_With_Bool.Number numb ) = Eval_Inner_Parameter_With_Bool.Number numb
   | convert' (Eval_Outer_Parameter_With_Bool.Int    int  ) = Eval_Inner_Parameter_With_Bool.Int    int
-  | convert'  _                                            = error "convert failed!"
+  | convert'  _                                            = error "convert' in Eval_Deep failed!"
 
 fun convert (EOMA.Literal l) = EIMA.Literal (convert' l)
   | convert  _ = error "convert to produce Eval_Deep failed!"

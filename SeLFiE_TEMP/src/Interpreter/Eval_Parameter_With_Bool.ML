@@ -23,7 +23,7 @@ datatype parameter =
 
 type parameters = parameter list;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free
@@ -49,7 +49,7 @@ datatype parameter_assert =
 | Is_Int;
 
 (* The data-type constructors for boolean operations have to be declared in this signature.
- * because we need them in From_Var_To_Quantifier.*)
+ * because we need them i`n From_Var_To_Quantifier.*)
 datatype assert =
   Not
 | And
@@ -58,7 +58,7 @@ datatype assert =
 | Imply
 | Ands
 | Ors
-| Eval_Parameter of parameter_assert;
+| Atomic of atomic_assert;
 
 val eval: term -> Proof.state -> assert -> parameters -> parameter;
 

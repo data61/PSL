@@ -1,15 +1,28 @@
 (*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Sugar.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-(*** EVAL_SUGAR ***)
+(*** signature: EVAL_SUGAR ***)
 signature EVAL_SUGAR =
 sig
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 
+type print   = SeLFiE_Util.print;
+type number  = Eval_Number.number;
+
 datatype assert =
+(*bool*)
+  True
+| False
+| Not      of assert
+| And      of assert * assert
+| Or       of assert * assert
+| Nor      of assert * assert
+| Imply    of assert * assert
+| Ands     of assert list
+| Ors      of assert list
 (*Eval_Node*)
-  Is_Cnst    of assert
+| Is_Cnst    of assert
 | Is_Free    of assert
 | Is_Var     of assert
 | Is_Bound   of assert
@@ -31,14 +44,9 @@ datatype assert =
 | Are_Same_Number of assert * assert
 | Is_Less_Than    of assert * assert
 | Is_Int          of assert * assert
-(*assert*)
-| Not      of assert * assert
-| And      of assert * assert
-| Or       of assert * assert
-| Nor      of assert * assert
-| Imply    of assert * assert
-| Ands     of assert list
-| Ors      of assert list
+(*Parameter*)
+| Print  of print
+| Number of number
 (*expr*)
 | Variable of string
 | Lambdas  of strings * assert
@@ -46,16 +54,11 @@ datatype assert =
 | Literal  of assert
 | Alls     of (string * qtyp) list * assert
 | Somes    of (string * qtyp) list * assert
-| Outermost   of assert
-| IN_All_Def  of (string * assert)
-| IN_Some_Def of (string * assert);
+| In_All_Def_Of  of (string * assert)
+| In_Some_Def_Of of (string * assert)
+| Outermost of assert
+| Innermost of assert;
 
-type outer_assert = Eval_Outer_Multi_Arity.parameter_assert;
-type inner_assert = Eval_Inner_Multi_Arity.parameter_assert;
-
-datatype expr       = Outer of Eval_Outer_Multi_Arity.expr | Dive_In     of inner_expr
-     and inner_expr = Inner of Eval_Inner_Multi_Arity.expr | Dive_Deeper of inner_expr;
-
-val eval: Proof.state -> expr -> term -> Eval_Inner_Multi_Arity.expr;
+val eval: Proof.state -> assert -> term -> Eval_Inner_Multi_Arity.expr;
 
 end;

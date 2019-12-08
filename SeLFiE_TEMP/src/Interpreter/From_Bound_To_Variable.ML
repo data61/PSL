@@ -8,7 +8,7 @@ structure EB = Eval_Bound;
 
 type parameter = EB.parameter;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free
@@ -60,7 +60,7 @@ datatype assert =
 | Imply
 | Ands
 | Ors
-| Eval_Parameter of parameter_assert;
+| Atomic of atomic_assert;
 
 fun convert_assert Not   = EB.Not
   | convert_assert And   = EB.And
@@ -69,7 +69,7 @@ fun convert_assert Not   = EB.Not
   | convert_assert Imply = EB.Imply
   | convert_assert Ands  = EB.Ands
   | convert_assert Ors   = EB.Ors
-  | convert_assert (Eval_Parameter assert) = EB.Eval_Parameter (convert_parameter_assert assert);
+  | convert_assert (Atomic assert) = EB.Atomic (convert_parameter_assert assert);
 
 datatype expr =
   Variable   of string

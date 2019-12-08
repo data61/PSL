@@ -6,7 +6,7 @@ sig
 
 type parameter;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free
@@ -41,7 +41,7 @@ datatype assert =
 | Imply
 | Ands
 | Ors
-| Eval_Parameter of parameter_assert;
+| Eval_Parameter of atomic_assert;
 
 type qtyp(* = QFull_Path | QPrint | QInd | QArb | QRule | QNumber*)
 

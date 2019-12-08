@@ -12,7 +12,7 @@ structure QD  = Quantifier_Domain;
 
 type parameter = EV.parameter;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free
@@ -64,7 +64,7 @@ datatype assert =
 | Imply
 | Ands
 | Ors
-| Eval_Parameter of parameter_assert;
+| Atomic of atomic_assert;
 
 fun convert_assert Not   = EV.Not
   | convert_assert And   = EV.And
@@ -73,7 +73,7 @@ fun convert_assert Not   = EV.Not
   | convert_assert Imply = EV.Imply
   | convert_assert Ands  = EV.Ands
   | convert_assert Ors   = EV.Ors
-  | convert_assert (Eval_Parameter assert) = EV.Eval_Parameter (convert_parameter_assert assert);
+  | convert_assert (Atomic assert) = EV.Atomic (convert_parameter_assert assert);
 
 type qtyp = QD.qtyp;
 
@@ -92,7 +92,7 @@ type print_to_paths_table = QD.print_to_paths_table;
 fun convert_result (EV.Literal ee_bool) = Literal ee_bool
   | convert_result  _ = error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
 
-(*TODO: should I use Eval_Parameter instead of Eval_Expression?
+(*TODO: should I use Atomic instead of Eval_Expression?
 Probably, it does not matter much. Both of them are too concrete (w/wo full-nodes).
 The good news is that the return type of eval in Quantifier can be Connective.bool rather than Expression*)
 fun eval(trm:term) (pst:Proof.state) expr =

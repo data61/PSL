@@ -21,7 +21,7 @@ datatype parameter =
 
 type parameters = parameter list;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free

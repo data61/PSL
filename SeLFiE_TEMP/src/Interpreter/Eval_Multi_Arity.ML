@@ -1,4 +1,4 @@
-(*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Quantifier.ML
+(*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Multi_Arity.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 signature EVAL_MULTI_ARITY =
@@ -6,7 +6,7 @@ sig
 
 type parameter;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free
@@ -41,7 +41,7 @@ datatype assert =
 | Imply
 | Ands
 | Ors
-| Eval_Parameter of parameter_assert;
+| Atomic of atomic_assert;
 
 type qtyp(* = QFull_Path | QPrint | QInd | QArb | QRule | QNumber*)
 

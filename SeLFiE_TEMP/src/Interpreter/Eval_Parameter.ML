@@ -21,7 +21,7 @@ datatype parameter =
 
 type parameters = parameter list;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free
@@ -46,6 +46,6 @@ datatype parameter_assert =
 | Is_Less_Than
 | Is_Int;
 
-val eval: term -> Proof.state -> parameter_assert -> parameters -> Eval_Bool.assert;
+val eval: term -> Proof.state -> atomic_assert -> parameters -> Eval_Bool.assert;
 
 end;

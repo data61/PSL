@@ -96,7 +96,7 @@ fun quantifier_to_multi_arity (Variable vname)        = EQ.Variable vname
     end
   | quantifier_to_multi_arity (Literal param)        = EQ.Literal param
   | quantifier_to_multi_arity (Assert (ass, exprs))  = EQ.Assert (convert_assert ass, map quantifier_to_multi_arity exprs)
-  | quantifier_to_multi_arity (Alls   (pairs, expr)) = mk_nested_pair_for_quantifier All pairs expr
+  | quantifier_to_multi_arity (Alls   (pairs, expr)) = mk_nested_pair_for_quantifier All  pairs expr
   | quantifier_to_multi_arity (Somes  (pairs, expr)) = mk_nested_pair_for_quantifier Some pairs expr
 and mk_nested_pair_for_quantifier qtyp pairs expr =
     let

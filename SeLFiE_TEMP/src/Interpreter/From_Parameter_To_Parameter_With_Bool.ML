@@ -27,7 +27,7 @@ datatype parameter =
 
 type parameters = parameter list;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free
@@ -79,7 +79,7 @@ datatype assert =
 | Imply
 | Ands
 | Ors
-| Eval_Parameter of parameter_assert;
+| Atomic of atomic_assert;
 
 structure EB = Eval_Bool;
 
@@ -109,7 +109,7 @@ fun eval (trm:term) (pst:Proof.state) (assert:assert) (parameters:parameter list
       | eval' Ands  ands               = EB.eval (EB.Ands  (map de_bool_to_connect ands))
       | eval' Ors   ors                = EB.eval (EB.Ors   (map de_bool_to_connect ors ))
       (*Eval_Unode_Core*)
-      | eval' (Eval_Parameter para_assert) params = EP.eval trm pst (convert_parameter_assert para_assert) (map convert_param params)
+      | eval' (Atomic atomic_assert) params = EP.eval trm pst (convert_parameter_assert atomic_assert) (map convert_param params)
       | eval' _ _ = error "eval' in From_Parameter_To_Expression.ML failed."
     val ec_result = eval' assert parameters: Eval_Bool.assert;
     val result    = ec_result |> EB.assert_to_bool |> Bool;
