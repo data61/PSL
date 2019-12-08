@@ -10,7 +10,7 @@ struct
 
 structure EPWB = Eval_Parameter_With_Bool;
 
-type parameter        = EPWB.parameter;
+type parameter = EPWB.parameter;
 
 datatype atomic_assert =
 (*Eval_Node*)
@@ -102,20 +102,19 @@ fun eval_prim (Literal param) = param
   | eval_prim  _              = error "eval_prim in Eval_Bound_Struct failed!"
 
 fun eval (trm:term) (pst:Proof.state) (expr:expr) =
-let
-  fun eval' (Apply (trm1, trm2)) = (case eval' trm1 of
-        Lambda u => eval' (subst 0 (eval' trm2) u)
-      | u1       => Apply (u1, eval' trm2))
-    | eval' (Assert (assert, param_exprs)) =
-      let
-        (*TODO: FIXME! For boolean connectives, we cannot assume that their arguments are always literals.*)
-        val params = map eval_prim param_exprs: EPWB.parameters;
-      in
-        EPWB.eval trm pst (convert_assert assert) params |> Literal
-      end
-    | eval' t = t
-in
-  eval' expr
-end;
+  let
+    fun eval' (Apply (trm1, trm2)) = (case eval' trm1 of
+          Lambda u => eval' (subst 0 (eval' trm2) u)
+        | u1       => Apply (u1, eval' trm2))
+      | eval' (Assert (assert, param_exprs)) =
+          let
+            val params = map eval_prim param_exprs: EPWB.parameters;
+          in
+            EPWB.eval trm pst (convert_assert assert) params |> Literal
+          end
+      | eval' t = t
+  in
+    eval' expr
+  end;
 
 end;

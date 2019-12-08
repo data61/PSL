@@ -97,20 +97,21 @@ Probably, it does not matter much. Both of them are too concrete (w/wo full-node
 The good news is that the return type of eval in Quantifier can be Connective.bool rather than Expression*)
 fun eval(trm:term) (pst:Proof.state) expr =
   let
-    fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:qtyp) =
+    fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:qtyp) (ands_or_ors:assert) =
       let
         val params = QD.qtyp_to_qdomain qtyp: QD.parameter list;
         val apps = map (fn param => Apply (Lambda (vname, subexpr), Literal param)) params: expr list;
       in
-        Assert (Ands, apps): expr
+        Assert (ands_or_ors, apps): expr
       end;
     fun eval' (Variable vname)              = EV.eval trm pst (EV.Variable vname)
       | eval' (Lambda (vname, subexpr))     = EV.eval trm pst (EV.Lambda (vname, eval' subexpr))
       | eval' (Apply   pair           )     = EV.eval trm pst (EV.Apply (apply2 eval' pair))
       | eval' (Literal ps             )     = EV.eval trm pst (EV.Literal ps)
       | eval' (Assert (assrt, ps))          = EV.eval trm pst (EV.Assert (convert_assert assrt, map eval' ps))
-      | eval' (All  (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp)
-      | eval' (Some (vname, qtyp, subexpr)) = eval' (Assert (Not, [All (vname, qtyp, Assert (Not, [subexpr]))]))
+      | eval' (All  (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp Ands)
+      (*Note that we cannot treat Some as a syntax sugar for All because Not has to take Literals due to the restriction imposed in From_Parameter_To_Parameter_With_Bool.ML.*)
+      | eval' (Some (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp Ors)
     val ev_result  = eval' expr              : EV.expr;
     val result     = convert_result ev_result: expr;
   in

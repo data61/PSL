@@ -8,9 +8,9 @@ signature EVAL_PARAMETER_WITH_BOOL =
 sig
 
 type path;
-type print      = SeLFiE_Util.print;
-type number     = Eval_Number.number;
-type command    = Pattern.command;(*TODO: double-check*)
+type print   = SeLFiE_Util.print;
+type number  = Eval_Number.number;
+type command = Pattern.command;(*TODO: double-check*)
 
 datatype parameter =
   Bool    of bool
