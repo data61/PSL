@@ -108,6 +108,9 @@ fun eval (trm:term) (pst:Proof.state) (expr:expr) =
         | u1       => Apply (u1, eval' trm2))
       | eval' (Assert (assert, param_exprs)) =
           let
+            (* Note that param_exprs are always Literal at this point
+             * because the evaluation function in From_Variable_To_Quantifier evaluated
+             * param_exprs eagerly.*)
             val params = map eval_prim param_exprs: EPWB.parameters;
           in
             EPWB.eval trm pst (convert_assert assert) params |> Literal

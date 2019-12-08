@@ -8,7 +8,7 @@ structure EQ = Eval_Quantifier;
 
 type parameter = EQ.parameter;
 
-datatype parameter_assert =
+datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
 | Is_Free
@@ -60,7 +60,7 @@ datatype assert =
 | Imply
 | Ands
 | Ors
-| Eval_Parameter of parameter_assert;
+| Atomic of atomic_assert;
 
 fun convert_assert Not   = EQ.Not
   | convert_assert And   = EQ.And
@@ -69,7 +69,7 @@ fun convert_assert Not   = EQ.Not
   | convert_assert Imply = EQ.Imply
   | convert_assert Ands  = EQ.Ands
   | convert_assert Ors   = EQ.Ors
-  | convert_assert (Eval_Parameter assert) = EQ.Eval_Parameter (convert_parameter_assert assert);
+  | convert_assert (Atomic assert) = EQ.Atomic (convert_parameter_assert assert);
 
 type qtyp = EQ.qtyp;
 

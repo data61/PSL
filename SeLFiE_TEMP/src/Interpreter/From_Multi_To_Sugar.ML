@@ -6,6 +6,8 @@
 functor from_Multi_Arity_to_Sugar (Eval_Multi_Arity:EVAL_MULTI_ARITY) =
 struct
 
+structure EMA = Eval_Multi_Arity;
+
 (*** Eval_Multi_Arity ***)
 (*
 (*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Multi_Arity.ML
@@ -51,7 +53,7 @@ datatype assert =
 | Imply
 | Ands
 | Ors
-| Eval_Parameter of parameter_assert;
+| Atomic of parameter_assert;
 
 type qtyp(* = QFull_Path | QPrint | QInd | QArb | QRule | QNumber*)
 
@@ -123,7 +125,8 @@ datatype assert =
 | Outermost of assert
 | Innermost of assert;
 
-structure EMA = Eval_Multi_Arity;
+(*TODO: we have to evaluate the inner parts for boolean connectives because they can take literals in earlier stages.*)
+(*We probably need mutual recursion between convert and eval to enforce strict evaluation to handle Not, And, Or, Nor, Imply, Ands, and Ors..*)
 fun (*convert (True)  = () (*TODO: I have to get True as a parameter*)
   | convert (False) = () (*TODO: I have to get False as a parameter*)
   |*) 
@@ -134,26 +137,26 @@ fun (*convert (True)  = () (*TODO: I have to get True as a parameter*)
   | convert (Imply (ass1, ass2)) = EMA.Assert (EMA.Imply, [convert ass1, convert ass2])
   | convert (Ands   asserts    ) = EMA.Assert (EMA.Ands,   map convert asserts)
   | convert (Ors    asserts    ) = EMA.Assert (EMA.Ors,    map convert asserts)
-  | convert (Is_Cnst assert    ) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Cnst,   [convert assert])
-  | convert (Is_Free assert    ) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Free,   [convert assert])
-  | convert (Is_Var  assert    ) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Var,    [convert assert])
-  | convert (Is_Bound    assert) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Bound,  [convert assert])
-  | convert (Is_Lambda   assert) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Lambda, [convert assert])
-  | convert (Is_App      assert) = EMA.Assert (EMA.Eval_Parameter EMA.Is_App,    [convert assert])
-  | convert (Has_Same_Prnt_As  (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Has_Same_Prnt_As,  map convert [ass1, ass2])
-  | convert (Is_In_Trm_Prnt    (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Is_In_Trm_Prnt,    map convert [ass1, ass2])
-  | convert (Is_Deeper_Than    (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Deeper_Than,    map convert [ass1, ass2])
-  | convert (Is_Shallower_Than (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Shallower_Than, map convert [ass1, ass2])
-  | convert (Is_Path_Above     (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Path_Above,     map convert [ass1, ass2])
-  | convert (Is_Same_Path_As   (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Same_Path_As,   map convert [ass1, ass2])
-  | convert (Are_Same_Prints   (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Are_Same_Prints,   map convert [ass1, ass2])
-  | convert (Is_Printed_As     (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Printed_As,     map convert [ass1, ass2])
-  | convert (Unode_Has_Print   (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Unode_Has_Print,   map convert [ass1, ass2])
-  | convert (Are_Same_Number   (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Are_Same_Number,   map convert [ass1, ass2])
-  | convert (Is_Less_Than      (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Less_Than,      map convert [ass1, ass2])
-  | convert (Is_Int            (ass1, ass2)) = EMA.Assert (EMA.Eval_Parameter EMA.Is_Int,            map convert [ass1, ass2])
+  | convert (Is_Cnst assert    ) = EMA.Assert (EMA.Atomic EMA.Is_Cnst,   [convert assert])
+  | convert (Is_Free assert    ) = EMA.Assert (EMA.Atomic EMA.Is_Free,   [convert assert])
+  | convert (Is_Var  assert    ) = EMA.Assert (EMA.Atomic EMA.Is_Var,    [convert assert])
+  | convert (Is_Bound    assert) = EMA.Assert (EMA.Atomic EMA.Is_Bound,  [convert assert])
+  | convert (Is_Lambda   assert) = EMA.Assert (EMA.Atomic EMA.Is_Lambda, [convert assert])
+  | convert (Is_App      assert) = EMA.Assert (EMA.Atomic EMA.Is_App,    [convert assert])
+  | convert (Has_Same_Prnt_As  (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Has_Same_Prnt_As,  map convert [ass1, ass2])
+  | convert (Is_In_Trm_Prnt    (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_In_Trm_Prnt,    map convert [ass1, ass2])
+  | convert (Is_Deeper_Than    (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Deeper_Than,    map convert [ass1, ass2])
+  | convert (Is_Shallower_Than (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Shallower_Than, map convert [ass1, ass2])
+  | convert (Is_Path_Above     (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Path_Above,     map convert [ass1, ass2])
+  | convert (Is_Same_Path_As   (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Same_Path_As,   map convert [ass1, ass2])
+  | convert (Are_Same_Prints   (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Are_Same_Prints,   map convert [ass1, ass2])
+  | convert (Is_Printed_As     (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Printed_As,     map convert [ass1, ass2])
+  | convert (Unode_Has_Print   (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Unode_Has_Print,   map convert [ass1, ass2])
+  | convert (Are_Same_Number   (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Are_Same_Number,   map convert [ass1, ass2])
+  | convert (Is_Less_Than      (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Less_Than,      map convert [ass1, ass2])
+  | convert (Is_Int            (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Int,            map convert [ass1, ass2])
 (*TODO
-  | convert (Print              print)       = EMA.Assert (EMA.Eval_Parameter EMA.Is_Int,            map convert [ass1, ass2])
+  | convert (Print              print)       = EMA.Assert (EMA.Atomic EMA.Is_Int,            map convert [ass1, ass2])
 *)
 (*
 | Print  of print
