@@ -6,7 +6,7 @@
 signature QUANTIFIER_DOMAIN =
 sig
 
-type qtyp;
+datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 type parameter;
 
 val  qtyp_to_qdomain: qtyp -> parameter list;
@@ -29,7 +29,7 @@ functor make_Quantifier_Domain
    sharing type Print_To_Paths.path_to_unode_table = Path_To_Unode.path_to_unode_table): QUANTIFIER_DOMAIN =
 struct
 
-datatype qtyp  = QPath | QPrint | QNumber;
+datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 type parameter = Eval_Variable.parameter;
 
 val qtyp_to_qdomain = undefined: qtyp -> parameter list;

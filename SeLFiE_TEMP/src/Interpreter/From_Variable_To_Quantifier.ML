@@ -103,7 +103,14 @@ fun convert_assert Not   = EV.Not
   | convert_assert Ors   = EV.Ors
   | convert_assert (Atomic assert) = EV.Atomic (convert_parameter_assert assert);
 
-type qtyp = QD.qtyp;
+datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
+
+fun qtyp_go_away QFull_Path = QD.QFull_Path
+  | qtyp_go_away QPrint     = QD.QPrint
+  | qtyp_go_away QInd       = QD.QInd
+  | qtyp_go_away QArb       = QD.QArb
+  | qtyp_go_away QRule      = QD.QRule
+  | qtyp_go_away QNumber    = QD.QNumber
 
 datatype expr =
   Variable of string
@@ -127,7 +134,7 @@ fun eval(trm:term) (pst:Proof.state) expr =
   let
     fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:qtyp) (ands_or_ors:assert) =
       let
-        val params = QD.qtyp_to_qdomain qtyp: QD.parameter list;
+        val params = QD.qtyp_to_qdomain (qtyp_go_away qtyp): QD.parameter list;
         val apps = map (fn param => Apply (Lambda (vname, subexpr), Literal (there_to_here param))) params: expr list;
       in
         Assert (ands_or_ors, apps): expr

@@ -85,8 +85,6 @@ ML\<open> structure Outer_Quantifier_Domain = make_Quantifier_Domain
 ML\<open> structure Eval_Inner_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Inner_Variable and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Outer_Variable and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 
-
-
 ML\<open> structure Eval_Inner_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Inner_Quantifier): EVAL_MULTI_ARITY; \<close>
 ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Outer_Quantifier): EVAL_MULTI_ARITY; \<close>
 
@@ -96,6 +94,9 @@ ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eva
 
 ML_file "src/Interpreter/Eval_Sugar.ML"
 ML_file "src/Interpreter/From_Multi_To_Sugar.ML"
+
+ML\<open> structure Eval_Inner_Sugar = from_Multi_Arity_to_Sugar (Eval_Inner_Multi_Arity): EVAL_SUGAR; \<close>
+ML\<open> structure Eval_Outer_Sugar = from_Multi_Arity_to_Sugar (Eval_Outer_Multi_Arity): EVAL_SUGAR; \<close>
 
 ML_file "src/Interpreter/Eval_Deep.ML"
 

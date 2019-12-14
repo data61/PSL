@@ -51,14 +51,9 @@ datatype assert =
 | Variable of string
 | Lambdas  of strings * assert
 | Applies  of assert  * assert list
-| Literal  of assert
 | Alls     of (string * qtyp) list * assert
-| Somes    of (string * qtyp) list * assert
-| In_All_Def_Of  of (string * assert)
-| In_Some_Def_Of of (string * assert)
-| Outermost of assert
-| Innermost of assert;
+| Somes    of (string * qtyp) list * assert;
 
-val eval: Proof.state -> assert -> term -> Eval_Inner_Multi_Arity.expr;
+val eval: Proof.state -> term -> assert -> assert;
 
 end;
