@@ -6,7 +6,35 @@ struct
 
 structure EB = Eval_Bound;
 
-type parameter = EB.parameter;
+type path    = EB.path;
+type print   = SeLFiE_Util.print;
+type number  = Eval_Number.number;
+type command = Pattern.command;(*TODO: double-check*)
+
+datatype parameter =
+  Bool    of bool
+| Path    of path
+| Print   of print
+| String  of string
+| Number  of number
+| Int     of int
+| Command of command;
+
+fun here_to_there (Bool b)    = EB.Bool b
+  | here_to_there (Path p)    = EB.Path p
+  | here_to_there (Print p)   = EB.Print p
+  | here_to_there (String s)  = EB.String s
+  | here_to_there (Number n)  = EB.Number n
+  | here_to_there (Int i)     = EB.Int i
+  | here_to_there (Command i) = EB.Command i;
+
+fun there_to_here (EB.Bool b)    = Bool b
+  | there_to_here (EB.Path p)    = Path p
+  | there_to_here (EB.Print p)   = Print p
+  | there_to_here (EB.String s)  = String s
+  | there_to_here (EB.Number n)  = Number n
+  | there_to_here (EB.Int i)     = Int i
+  | there_to_here (EB.Command i) = Command i;
 
 datatype atomic_assert =
 (*Eval_Node*)
@@ -89,10 +117,10 @@ fun increment_then_update_with_0 var_name env = env |> increment |> update_with_
 fun var_to_bound env (Variable   vname           ) = EB.Bound (lookup env vname)
   | var_to_bound env (Lambda    (name,  sub_expr)) = EB.Lambda (var_to_bound (increment_then_update_with_0 name env) sub_expr)
   | var_to_bound env (Apply     (expr1, expr2   )) = EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
-  | var_to_bound _   (Literal    param           ) = EB.Literal param
+  | var_to_bound _   (Literal    param           ) = EB.Literal (here_to_there param)
   | var_to_bound env (Assert    (assert, params) ) = EB.Assert (convert_assert assert, map (var_to_bound env) params);
 
-fun convert_result (EB.Literal ee_bool) = Literal ee_bool
+fun convert_result (EB.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ =
     error "eval in Eval_Var_Struct failed. Evaluation is not complete.";
 

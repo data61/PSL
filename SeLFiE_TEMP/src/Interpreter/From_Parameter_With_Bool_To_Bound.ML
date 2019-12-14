@@ -10,7 +10,35 @@ struct
 
 structure EPWB = Eval_Parameter_With_Bool;
 
-type parameter = EPWB.parameter;
+type path    = EPWB.path;
+type print   = SeLFiE_Util.print;
+type number  = Eval_Number.number;
+type command = Pattern.command;(*TODO: double-check*)
+
+datatype parameter =
+  Bool    of bool
+| Path    of path
+| Print   of print
+| String  of string
+| Number  of number
+| Int     of int
+| Command of command;
+
+fun here_to_there (Bool b)    = EPWB.Bool b
+  | here_to_there (Path p)    = EPWB.Path p
+  | here_to_there (Print p)   = EPWB.Print p
+  | here_to_there (String s)  = EPWB.String s
+  | here_to_there (Number n)  = EPWB.Number n
+  | here_to_there (Int i)     = EPWB.Int i
+  | here_to_there (Command i) = EPWB.Command i;
+
+fun there_to_here (EPWB.Bool b)    = Bool b
+  | there_to_here (EPWB.Path p)    = Path p
+  | there_to_here (EPWB.Print p)   = Print p
+  | there_to_here (EPWB.String s)  = String s
+  | there_to_here (EPWB.Number n)  = Number n
+  | there_to_here (EPWB.Int i)     = Int i
+  | there_to_here (EPWB.Command i) = Command i;
 
 datatype atomic_assert =
 (*Eval_Node*)
@@ -98,7 +126,7 @@ fun subst i u (Bound j) =
   | subst _ _ (Literal param)       = Literal param
   | subst i u (Assert (ass, exprs)) = Assert (ass, map (subst i u) exprs);
 
-fun eval_prim (Literal param) = param
+fun eval_prim (Literal param) = here_to_there param
   | eval_prim  _              = error "eval_prim in Eval_Bound_Struct failed!"
 
 fun eval (trm:term) (pst:Proof.state) (expr:expr) =
@@ -113,7 +141,7 @@ fun eval (trm:term) (pst:Proof.state) (expr:expr) =
              * param_exprs eagerly.*)
             val params = map eval_prim param_exprs: EPWB.parameters;
           in
-            EPWB.eval trm pst (convert_assert assert) params |> Literal
+            EPWB.eval trm pst (convert_assert assert) params |> there_to_here |> Literal
           end
       | eval' t = t
   in

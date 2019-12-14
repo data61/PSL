@@ -10,7 +10,35 @@ struct
 structure EV  = Eval_Variable;
 structure QD  = Quantifier_Domain;
 
-type parameter = EV.parameter;
+type path    = EV.path;
+type print   = SeLFiE_Util.print;
+type number  = Eval_Number.number;
+type command = Pattern.command;(*TODO: double-check*)
+
+datatype parameter =
+  Bool    of bool
+| Path    of path
+| Print   of print
+| String  of string
+| Number  of number
+| Int     of int
+| Command of command;
+
+fun here_to_there (Bool b)    = EV.Bool b
+  | here_to_there (Path p)    = EV.Path p
+  | here_to_there (Print p)   = EV.Print p
+  | here_to_there (String s)  = EV.String s
+  | here_to_there (Number n)  = EV.Number n
+  | here_to_there (Int i)     = EV.Int i
+  | here_to_there (Command i) = EV.Command i;
+
+fun there_to_here (EV.Bool b)    = Bool b
+  | there_to_here (EV.Path p)    = Path p
+  | there_to_here (EV.Print p)   = Print p
+  | there_to_here (EV.String s)  = String s
+  | there_to_here (EV.Number n)  = Number n
+  | there_to_here (EV.Int i)     = Int i
+  | there_to_here (EV.Command i) = Command i;
 
 datatype atomic_assert =
 (*Eval_Node*)
@@ -89,7 +117,7 @@ datatype expr =
 type path_to_node_table   = QD.path_to_node_table;
 type print_to_paths_table = QD.print_to_paths_table;
 
-fun convert_result (EV.Literal ee_bool) = Literal ee_bool
+fun convert_result (EV.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ = error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
 
 (*TODO: should I use Atomic instead of Eval_Expression?
@@ -100,14 +128,14 @@ fun eval(trm:term) (pst:Proof.state) expr =
     fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:qtyp) (ands_or_ors:assert) =
       let
         val params = QD.qtyp_to_qdomain qtyp: QD.parameter list;
-        val apps = map (fn param => Apply (Lambda (vname, subexpr), Literal param)) params: expr list;
+        val apps = map (fn param => Apply (Lambda (vname, subexpr), Literal (there_to_here param))) params: expr list;
       in
         Assert (ands_or_ors, apps): expr
       end;
     fun eval' (Variable vname)              = EV.eval trm pst (EV.Variable vname)
       | eval' (Lambda (vname, subexpr))     = EV.eval trm pst (EV.Lambda (vname, eval' subexpr))
       | eval' (Apply   pair           )     = EV.eval trm pst (EV.Apply (apply2 eval' pair))
-      | eval' (Literal ps             )     = EV.eval trm pst (EV.Literal ps)
+      | eval' (Literal ps             )     = EV.eval trm pst (EV.Literal (here_to_there ps))
       | eval' (Assert (assrt, ps))          = EV.eval trm pst (EV.Assert (convert_assert assrt, map eval' ps))
       | eval' (All  (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp Ands)
       (*Note that we cannot treat Some as a syntax sugar for All because Not has to take Literals due to the restriction imposed in From_Parameter_To_Parameter_With_Bool.ML.*)

@@ -7,8 +7,8 @@ sig
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 
-type outer_assert = Eval_Outer_Multi_Arity.parameter_assert;
-type inner_assert = Eval_Inner_Multi_Arity.parameter_assert;
+type outer_assert (*= Eval_Outer_Multi_Arity.parameter_assert*);
+type inner_assert (*= Eval_Inner_Multi_Arity.parameter_assert*);
 
 (*The triples are:
  - the literal for which we dive in,
@@ -22,6 +22,7 @@ val eval: Proof.state -> expr -> term -> Eval_Inner_Multi_Arity.expr;
 end;
 
 (*** structure Eval_Deep ***)
+(*
 structure Eval_Deep: EVAL_DEEP =
 struct
 
@@ -75,3 +76,4 @@ fun eval (pst:Proof.state) (expr:expr) (trm:term) =
   end;
 
 end;
+*)

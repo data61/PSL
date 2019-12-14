@@ -4,7 +4,19 @@
 signature EVAL_MULTI_ARITY =
 sig
 
-type parameter;
+type path;
+type print   = SeLFiE_Util.print;
+type number  = Eval_Number.number;
+type command = Pattern.command;(*TODO: double-check*)
+
+datatype parameter =
+  Bool    of bool
+| Path    of path
+| Print   of print
+| String  of string
+| Number  of number
+| Int     of int
+| Command of command;
 
 datatype atomic_assert =
 (*Eval_Node*)

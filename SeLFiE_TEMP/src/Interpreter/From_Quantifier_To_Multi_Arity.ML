@@ -6,7 +6,35 @@ struct
 
 structure EQ = Eval_Quantifier;
 
-type parameter = EQ.parameter;
+type path    = EQ.path;
+type print   = SeLFiE_Util.print;
+type number  = Eval_Number.number;
+type command = Pattern.command;(*TODO: double-check*)
+
+datatype parameter =
+  Bool    of bool
+| Path    of path
+| Print   of print
+| String  of string
+| Number  of number
+| Int     of int
+| Command of command;
+
+fun here_to_there (Bool b)    = EQ.Bool b
+  | here_to_there (Path p)    = EQ.Path p
+  | here_to_there (Print p)   = EQ.Print p
+  | here_to_there (String s)  = EQ.String s
+  | here_to_there (Number n)  = EQ.Number n
+  | here_to_there (Int i)     = EQ.Int i
+  | here_to_there (Command i) = EQ.Command i;
+
+fun there_to_here (EQ.Bool b)    = Bool b
+  | there_to_here (EQ.Path p)    = Path p
+  | there_to_here (EQ.Print p)   = Print p
+  | there_to_here (EQ.String s)  = String s
+  | there_to_here (EQ.Number n)  = Number n
+  | there_to_here (EQ.Int i)     = Int i
+  | there_to_here (EQ.Command i) = Command i;
 
 datatype atomic_assert =
 (*Eval_Node*)
@@ -94,7 +122,7 @@ fun quantifier_to_multi_arity (Variable vname)        = EQ.Variable vname
     in
       mk_nested_pair xs (quantifier_to_multi_arity f)
     end
-  | quantifier_to_multi_arity (Literal param)        = EQ.Literal param
+  | quantifier_to_multi_arity (Literal param)        = EQ.Literal (here_to_there param)
   | quantifier_to_multi_arity (Assert (ass, exprs))  = EQ.Assert (convert_assert ass, map quantifier_to_multi_arity exprs)
   | quantifier_to_multi_arity (Alls   (pairs, expr)) = mk_nested_pair_for_quantifier All  pairs expr
   | quantifier_to_multi_arity (Somes  (pairs, expr)) = mk_nested_pair_for_quantifier Some pairs expr
@@ -108,7 +136,7 @@ and mk_nested_pair_for_quantifier qtyp pairs expr =
       mk_nested_pair pairs (quantifier_to_multi_arity expr)
     end;
 
-fun convert_result (EQ.Literal ee_bool) = Literal ee_bool
+fun convert_result (EQ.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ =
     error "eval in Eval_Var_Struct failed. Evaluation is not complete.";
 

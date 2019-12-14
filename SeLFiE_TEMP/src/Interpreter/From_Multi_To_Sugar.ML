@@ -125,8 +125,6 @@ datatype assert =
 | Outermost of assert
 | Innermost of assert;
 
-(*TODO: we have to evaluate the inner parts for boolean connectives because they can take literals in earlier stages.*)
-(*We probably need mutual recursion between convert and eval to enforce strict evaluation to handle Not, And, Or, Nor, Imply, Ands, and Ors..*)
 fun (*convert (True)  = () (*TODO: I have to get True as a parameter*)
   | convert (False) = () (*TODO: I have to get False as a parameter*)
   |*) 
@@ -155,58 +153,9 @@ fun (*convert (True)  = () (*TODO: I have to get True as a parameter*)
   | convert (Are_Same_Number   (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Are_Same_Number,   map convert [ass1, ass2])
   | convert (Is_Less_Than      (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Less_Than,      map convert [ass1, ass2])
   | convert (Is_Int            (ass1, ass2)) = EMA.Assert (EMA.Atomic EMA.Is_Int,            map convert [ass1, ass2])
-(*TODO
-  | convert (Print              print)       = EMA.Assert (EMA.Atomic EMA.Is_Int,            map convert [ass1, ass2])
-*)
-(*
-| Print  of print
-| Number of number
-*)
-;
-(*** EVAL_SUGAR  ***)
-(*
-signature EVAL_SUGAR =
-sig
-
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
-
-type print   = SeLFiE_Util.print;
-type number  = Eval_Number.number;
-
-datatype assert =
-(*bool*)
-  True
-| False
-| Not      of assert * assert
-| And      of assert * assert
-| Or       of assert * assert
-| Nor      of assert * assert
-| Imply    of assert * assert
-| Ands     of assert list
-| Ors      of assert list
-(*Eval_Node*)
-| Is_Cnst    of assert
-| Is_Free    of assert
-| Is_Var     of assert
-| Is_Bound   of assert
-| Is_Lambda  of assert
-| Is_App     of assert
-(*Eval_Unode*)
-| Has_Same_Prnt_As  of assert * assert
-| Is_In_Trm_Prnt    of assert * assert
-| Is_Deeper_Than    of assert * assert
-| Is_Shallower_Than of assert * assert
-| Is_Path_Above     of assert * assert
-| Is_Same_Path_As   of assert * assert
-(*Eval_Print*)
-| Are_Same_Prints   of assert * assert
-| Is_Printed_As     of assert * assert
-(*Eval_Path*)
-| Unode_Has_Print   of assert * assert
-(*Eval_Number*)
-| Are_Same_Number of assert * assert
-| Is_Less_Than    of assert * assert
-| Is_Int          of assert * assert
+(*I need a concrete parameter here..*)
+  | convert (Print              print      ) = EMA.Literal (EMA.Print print)
+(*TODO:
 (*Parameter*)
 | Print  of print
 | Number of number
@@ -221,10 +170,7 @@ datatype assert =
 | In_Some_Def_Of of (string * assert)
 | Outermost of assert
 | Innermost of assert;
-
-val eval: Proof.state -> assert -> term -> Eval_Inner_Multi_Arity.expr;
-
-end;
 *)
+;
 
 end;

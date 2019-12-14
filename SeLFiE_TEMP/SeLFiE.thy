@@ -73,14 +73,14 @@ ML\<open> structure Eval_Inner_Variable = from_Bound_to_Variable (Eval_Inner_Bou
 ML\<open> structure Eval_Outer_Variable = from_Bound_to_Variable (Eval_Outer_Bound): EVAL_VARIABLE; \<close>
 
 ML\<open> structure Inner_Quantifier_Domain = make_Quantifier_Domain
-     (structure Print_To_Paths           = Print_To_Inner_Paths
-            and Path_To_Unode            = Inner_Path_To_Unode
-            and Eval_Parameter_With_Bool = Eval_Inner_Parameter_With_Bool): QUANTIFIER_DOMAIN \<close>
+     (structure Print_To_Paths = Print_To_Inner_Paths
+            and Path_To_Unode  = Inner_Path_To_Unode
+            and Eval_Variable  = Eval_Inner_Variable): QUANTIFIER_DOMAIN \<close>
 
 ML\<open> structure Outer_Quantifier_Domain = make_Quantifier_Domain
-     (structure Print_To_Paths           = Print_To_Outer_Paths
-            and Path_To_Unode            = Outer_Path_To_Unode
-            and Eval_Parameter_With_Bool = Eval_Outer_Parameter_With_Bool): QUANTIFIER_DOMAIN \<close>
+     (structure Print_To_Paths = Print_To_Outer_Paths
+            and Path_To_Unode  = Outer_Path_To_Unode
+            and Eval_Variable  = Eval_Outer_Variable): QUANTIFIER_DOMAIN \<close>
 
 ML\<open> structure Eval_Inner_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Inner_Variable and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Outer_Variable and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>

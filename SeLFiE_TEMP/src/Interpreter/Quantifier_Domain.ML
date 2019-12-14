@@ -20,16 +20,17 @@ val mk_all_prints: Proof.state -> term -> SeLFiE_Util.prints;
 
 end;
 
+(*** functor: make_Quantifier_Domain  ***)
 functor make_Quantifier_Domain
   (structure Print_To_Paths:PRINT_TO_PATHS
          and Path_To_Unode :PATH_TO_UNODE
-         and Eval_Parameter_With_Bool:EVAL_PARAMETER_WITH_BOOL
+         and Eval_Variable:EVAL_VARIABLE
    sharing type Print_To_Paths.path                = Path_To_Unode.path
    sharing type Print_To_Paths.path_to_unode_table = Path_To_Unode.path_to_unode_table): QUANTIFIER_DOMAIN =
 struct
 
 datatype qtyp  = QPath | QPrint | QNumber;
-type parameter = Eval_Parameter_With_Bool.parameter;
+type parameter = Eval_Variable.parameter;
 
 val qtyp_to_qdomain = undefined: qtyp -> parameter list;
 
@@ -46,6 +47,6 @@ fun mk_all_prints pst term =
     Print_To_Paths.print_to_paths_table_to_prints print_to_paths_table
   end;
 
-fun mk_all_numbers _ = ();
+fun mk_all_numbers _ = ();(*TODO*)
 
 end;
