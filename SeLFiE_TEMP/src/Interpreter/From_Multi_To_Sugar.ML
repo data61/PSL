@@ -17,7 +17,6 @@ fun go_away_qtyp QFull_Path = EMA.QFull_Path
   | go_away_qtyp QRule      = EMA.QRule
   | go_away_qtyp QNumber    = EMA.QNumber
 
-
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
 

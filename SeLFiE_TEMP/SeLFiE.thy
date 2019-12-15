@@ -91,6 +91,11 @@ ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eva
 (* We should have Sugar before Deep because it is not possible to represent two levels of corresponding 
  * constructs using the same constructor in Deep. For example, we need two True in Depp:
  * one for outermost layer and the other one for inner layers.*)
+(* Maybe this was wrong:
+ * Multiple \<rightarrow> Deep \<rightarrow> Surface was the right order without Sugar? *)
+
+ML_file "src/Interpreter/Eval_Deep_WO_Sugar.ML"
+ML_file "src/Interpreter/From_Multiple_To_Deep.ML"
 
 ML_file "src/Interpreter/Eval_Sugar.ML"
 ML_file "src/Interpreter/From_Multi_To_Sugar.ML"
@@ -99,10 +104,6 @@ ML\<open> structure Eval_Inner_Sugar = from_Multi_Arity_to_Sugar (Eval_Inner_Mul
 ML\<open> structure Eval_Outer_Sugar = from_Multi_Arity_to_Sugar (Eval_Outer_Multi_Arity): EVAL_SUGAR; \<close>
 
 ML_file "src/Interpreter/Eval_Deep.ML"
-
-ML\<open>
-open Eval_Outer_Multi_Arity;
-\<close>
 
 (* auxiliary stuff *)
 ML\<open>
