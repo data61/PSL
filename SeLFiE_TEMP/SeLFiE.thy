@@ -94,7 +94,7 @@ ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eva
 (* Maybe this was wrong:
  * Multiple \<rightarrow> Deep \<rightarrow> Surface was the right order without Sugar? *)
 
-ML_file "src/Interpreter/Eval_Deep_WO_Sugar.ML"
+ML_file "src/Interpreter/Eval_Deep.ML"
 ML_file "src/Interpreter/From_Multiple_To_Deep.ML"
 
 ML_file "src/Interpreter/Eval_Sugar.ML"
