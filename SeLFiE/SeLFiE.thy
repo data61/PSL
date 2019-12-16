@@ -97,12 +97,6 @@ ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eva
 ML_file "src/Interpreter/Eval_Deep.ML"
 ML_file "src/Interpreter/From_Multiple_To_Deep.ML"
 
-ML_file "src/Interpreter/Eval_Sugar.ML"
-ML_file "src/Interpreter/From_Multi_To_Sugar.ML"
-
-ML\<open> structure Eval_Inner_Sugar = from_Multi_Arity_to_Sugar (Eval_Inner_Multi_Arity): EVAL_SUGAR; \<close>
-ML\<open> structure Eval_Outer_Sugar = from_Multi_Arity_to_Sugar (Eval_Outer_Multi_Arity): EVAL_SUGAR; \<close>
-
 (* auxiliary stuff *)
 ML\<open>
 @{term "let x = 1 in x"};
