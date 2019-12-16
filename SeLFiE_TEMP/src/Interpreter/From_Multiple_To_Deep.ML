@@ -100,6 +100,22 @@ fun come_back_inner_parameter (EIM.Bool    b) = Inner_Bool    b
   | come_back_inner_parameter (EIM.Int     i) = Inner_Int     i
   | come_back_inner_parameter (EIM.Command c) = Inner_Command c;
 
+fun move_in_parameter (Outer_Bool    b) = Inner_Bool b
+  | move_in_parameter (Outer_Path    _) = error "move_in_parameter in From_Multiple_To_Deep.ML failed. move_in_parameter is not defined for Outer_Path"
+  | move_in_parameter (Outer_Print   p) = Inner_Print p
+  | move_in_parameter (Outer_String  s) = Inner_String s
+  | move_in_parameter (Outer_Number  n) = Inner_Number n
+  | move_in_parameter (Outer_Int     i) = Inner_Int i
+  | move_in_parameter (Outer_Command c) = Inner_Command c;
+
+fun move_out_parameter (Inner_Bool    b) = Outer_Bool b
+  | move_out_parameter (Inner_Path    _) = error "move_out_parameter in From_Multiple_To_Deep.ML failed. move_out_parameter is not defined for Inner_Path"
+  | move_out_parameter (Inner_Print   p) = Outer_Print p
+  | move_out_parameter (Inner_String  s) = Outer_String s
+  | move_out_parameter (Inner_Number  n) = Outer_Number n
+  | move_out_parameter (Inner_Int     i) = Outer_Int i
+  | move_out_parameter (Inner_Command c) = Outer_Command c;
+
 fun go_away_outer_atomic Is_Cnst           = EOM.Is_Cnst
   | go_away_outer_atomic Is_Free           = EOM.Is_Free
   | go_away_outer_atomic Is_Var            = EOM.Is_Var
@@ -183,12 +199,12 @@ datatype outer_expression =
 | Dive_In        of (outer_expression * inner_expression * outer_expression list)
 and inner_expression =
   Inner_Variable of string
-| Inner_Lambdas  of strings * outer_expression
-| Inner_Applies  of outer_expression    * outer_expression list
+| Inner_Lambdas  of strings * inner_expression
+| Inner_Applies  of inner_expression    * inner_expression list
 | Inner_Literal  of inner_parameter
-| Inner_Assert   of assert * outer_expression list
-| Inner_Alls     of (string * qtyp) list * outer_expression
-| Inner_Somes    of (string * qtyp) list * outer_expression
+| Inner_Assert   of assert * inner_expression list
+| Inner_Alls     of (string * qtyp) list * inner_expression
+| Inner_Somes    of (string * qtyp) list * inner_expression
 | Dive_Deeper    of (inner_expression * inner_expression * inner_expression list);
 
 fun come_back_outer_expression (EOM.Literal p) = come_back_outer_parameter p |> Outer_Literal
@@ -197,19 +213,27 @@ fun come_back_outer_expression (EOM.Literal p) = come_back_outer_parameter p |> 
 fun come_back_inner_expression (EIM.Literal p) = come_back_inner_parameter p |> Inner_Literal
   | come_back_inner_expression _ = error "come_back_inner_expression in From_Multiple_To_Deep.ML failed."
 
-fun from_outer_parameter_to_inner_parameter (Outer_Bool   b) = Inner_Bool b
-  | from_outer_parameter_to_inner_parameter (Outer_Print  p) = Inner_Print p
-  | from_outer_parameter_to_inner_parameter (Outer_Number n) = Inner_Number n
-  | from_outer_parameter_to_inner_parameter _ = error "from_outer_parameter_to_inner_parameter in From_Multiple_To_Deep.ML failed. Not Bool, Print, or Number."
-
 datatype expr = Outer of outer_expression | Inner of inner_expression;
 
-(* I need two evals
- * - eval_inner: term -> Proof.state -> outer_expression -> outer_expression
- * - eval_outer: term -> Proof.state -> inner_expression -> inner_expression
- * They should be mutually recursive.
- *)
-fun eval_outer (trm:term) (pst:Proof.state) (outer_expression:outer_expression) =
+fun move_in_literal (Outer_Literal outer_param) = Inner_Literal (move_in_parameter  outer_param): inner_expression
+  | move_in_literal  _ = error "move_in_literal in From_Multiple_To_Deep.ML failed. move_in_literal is defined only for Outer_Literal.";
+
+fun move_out_literal (Inner_Literal inner_param) = Outer_Literal (move_out_parameter inner_param): outer_expression
+  | move_out_literal  _ = error "move_out_literal in From_Multiple_To_Deep.ML failed. move_out_literal is defined only for Outer_Literal.";
+
+fun go_away_outer_literal (Outer_Literal outer_param) = EOM.Literal (go_away_outer_parameter outer_param)
+  | go_away_outer_literal  _  = error "go_away_outer_literal in From_Multiple_To_Deep.ML failed. go_away_outer_literal is defined only for Outer_Literal."
+
+fun go_away_inner_literal (Inner_Literal inner_param) = EIM.Literal (go_away_inner_parameter inner_param)
+  | go_away_inner_literal  _  = error "go_away_outer_literal in From_Multiple_To_Deep.ML failed. go_away_outer_literal is defined only for Outer_Literal."
+
+fun outer_literal_to_simp_rules (Outer_Literal _) = [(*TODO*)]:term list
+  | outer_literal_to_simp_rules  _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal."
+
+fun inner_literal_to_simp_rules (Inner_Literal _) = [(*TODO*)]:term list
+  | inner_literal_to_simp_rules  _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal."
+
+fun eval_outer (pst:Proof.state) (outer_expression:outer_expression) (trm:term) =
   let
     val eval_eom = EOM.eval trm pst;
     fun eval_outer' (Outer_Variable vname             ) = eval_eom (EOM.Variable vname)
@@ -219,18 +243,48 @@ fun eval_outer (trm:term) (pst:Proof.state) (outer_expression:outer_expression) 
       | eval_outer' (Outer_Assert  (assert, sub_exprs)) = eval_eom (EOM.Assert  (go_away_outer_assert assert, map eval_outer' sub_exprs))
       | eval_outer' (Outer_Alls    (pairs,  sub_expr )) = eval_eom (EOM.Alls  (map (apsnd go_away_outer_qtyp) pairs, eval_outer' sub_expr))
       | eval_outer' (Outer_Somes   (pairs,  sub_expr )) = eval_eom (EOM.Somes (map (apsnd go_away_outer_qtyp) pairs, eval_outer' sub_expr))
-      | eval_outer' (Dive_In (target, inner_expr, args)) = error "TODO"
+      | eval_outer' (Dive_In (target, Inner_Lambdas inner_lambda, outer_args)) =
+        let
+          val inner_args    = map move_in_literal outer_args                        : inner_expression list;
+          val simp_rules    = outer_literal_to_simp_rules target                    : term list;
+          val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
+          val inner_results = map (eval_inner pst inner_apps) simp_rules            : inner_expression list;
+          val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;
+          val inner_result  = eval_inner pst inner_ands Term.dummy                  : inner_expression;
+          val outer_result  = move_out_literal inner_result                         : outer_expression;
+        in
+          go_away_outer_literal outer_result
+        end
+      | eval_outer' (Dive_In _) = error "eval_outer' in From_Multiple_To_Deep.ML failed. An inner expression passed to eval_outer' for Dive_In has to be Inner_Lambda."
   in
     eval_outer' outer_expression |> come_back_outer_expression
   end
-and eval_inner (trm:term) (pst:Proof.state) (inner_expression:inner_expression) =
+and eval_inner (pst:Proof.state) (inner_expression:inner_expression) (trm:term) =
   let
     val eval_eim = EIM.eval trm pst;
-    fun eval_inner' _ = error "TODO";
+    fun eval_inner' (Inner_Variable vname)             = eval_eim (EIM.Variable vname)
+      | eval_inner' (Inner_Lambdas (vnames, sub_expr)) = eval_eim (EIM.Lambdas (vnames, eval_inner' sub_expr))
+      | eval_inner' (Inner_Applies (func,   args     )) = eval_eim (EIM.Applies (eval_inner' func, map eval_inner' args))
+      | eval_inner' (Inner_Literal  parameter         ) = eval_eim (EIM.Literal (go_away_inner_parameter parameter))
+      | eval_inner' (Inner_Assert  (assert, sub_exprs)) = eval_eim (EIM.Assert  (go_away_inner_assert assert, map eval_inner' sub_exprs))
+      | eval_inner' (Inner_Alls    (pairs,  sub_expr )) = eval_eim (EIM.Alls  (map (apsnd go_away_inner_qtyp) pairs, eval_inner' sub_expr))
+      | eval_inner' (Inner_Somes   (pairs,  sub_expr )) = eval_eim (EIM.Somes (map (apsnd go_away_inner_qtyp) pairs, eval_inner' sub_expr))
+      | eval_inner' (Dive_Deeper (target, Inner_Lambdas inner_lambda, inner_args)) =
+        let
+          val simp_rules    = inner_literal_to_simp_rules target                    : term list;
+          val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
+          val inner_results = map (eval_inner pst inner_apps) simp_rules            : inner_expression list;
+          val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;
+          val inner_result  = eval_inner pst inner_ands Term.dummy                  : inner_expression;
+        in
+          go_away_inner_literal inner_result
+        end
+      | eval_inner' (Dive_Deeper _) = error "eval_inner' in From_Multiple_To_Deep.ML failed. An inner expression passed to eval_inner' for Dive_Deeper has to be Inner_Lambda."
   in
     eval_inner' inner_expression |> come_back_inner_expression
   end;
 
-fun eval _ = undefined;(*TODO*)
+fun eval (term:term) (pst:Proof.state) (Outer outer_expr) = eval_outer pst outer_expr term |> Outer
+  | eval _ _ _ = error "eval in From_Multiple_To_Deep.ML failed. eval is defined only for Outer.";
 
 end;

@@ -70,20 +70,20 @@ datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 datatype outer_expression =
   Outer_Variable of string
 | Outer_Lambdas  of strings * outer_expression
-| Outer_Applies  of outer_expression    * outer_expression list
+| Outer_Applies  of outer_expression * outer_expression list
 | Outer_Literal  of outer_parameter
 | Outer_Assert   of assert * outer_expression list
 | Outer_Alls     of (string * qtyp) list * outer_expression
 | Outer_Somes    of (string * qtyp) list * outer_expression
-| Dive_In        of (outer_expression * inner_expression * outer_expression list)   
+| Dive_In        of (outer_expression * inner_expression * outer_expression list)
 and inner_expression =
   Inner_Variable of string
-| Inner_Lambdas  of strings * outer_expression
-| Inner_Applies  of outer_expression    * outer_expression list
+| Inner_Lambdas  of strings * inner_expression
+| Inner_Applies  of inner_expression    * inner_expression list
 | Inner_Literal  of inner_parameter
-| Inner_Assert   of assert * outer_expression list
-| Inner_Alls     of (string * qtyp) list * outer_expression
-| Inner_Somes    of (string * qtyp) list * outer_expression
+| Inner_Assert   of assert * inner_expression list
+| Inner_Alls     of (string * qtyp) list * inner_expression
+| Inner_Somes    of (string * qtyp) list * inner_expression
 | Dive_Deeper    of (inner_expression * inner_expression * inner_expression list);
 
 datatype expr = Outer of outer_expression | Inner of inner_expression;
