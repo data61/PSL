@@ -86,6 +86,9 @@ and inner_expression =
 | Inner_Somes    of (string * qtyp) list * inner_expression
 | Dive_Deeper    of (inner_expression * inner_expression * inner_expression list);
 
+val eval_inner: Proof.state -> inner_expression -> term -> inner_expression;
+val eval_outer: Proof.state -> outer_expression -> term -> outer_expression;
+
 datatype expr = Outer of outer_expression | Inner of inner_expression;
 
 val eval: term -> Proof.state -> expr -> expr;

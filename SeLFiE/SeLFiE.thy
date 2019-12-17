@@ -97,6 +97,8 @@ ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eva
 ML_file "src/Interpreter/Eval_Deep.ML"
 ML_file "src/Interpreter/From_Multiple_To_Deep.ML"
 
+ML_file "src/Interpreter/Eval_Surface.ML"
+
 (* auxiliary stuff *)
 ML\<open>
 @{term "let x = 1 in x"};
