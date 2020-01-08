@@ -32,7 +32,7 @@ fun has_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:string)
 fun has_no_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:string) =
   can (Proof_Context.get_thms ctxt) (cnst_name ^ "." ^ suffix) |> not;
 
-(*TODO*)val suffix_for_definition = (["_def"], ["cases", "elims", "induct", "simps", "intros"]);
+val suffix_for_definition = ([(*"_def"*)], ["cases", "elims", "induct", "pelims", "simps", "intros"]);
 val suffix_for_fun =       (["cases", "elims", "induct", "pelims", "simps"], ["inducts", "intros"]);(*The "fun" keyword produces psimps.*)
 val suffix_for_function =  (["cases", "pelims", "psimps"], ["elims", "simps", "intros"]);
 val suffix_for_primrec =   (["simps"], ["cases", "pelims", "psimps","elims", "intros"]);
@@ -66,7 +66,7 @@ fun get_command (ctxt:Proof.context) (trm_name:string) =
   end;
 
 (** type: pattern **)
-datatype hol_typ                        = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ (*TODO:| Rec_Typ*);(*commonly used HOL types*)
+datatype hol_typ = Fun_Typ | List_Typ | Nat_Typ | Int_Typ | Set_Typ;(*commonly used HOL types*)
 
 (* get_left *)
 fun get_left (trm:term): term option =

@@ -175,20 +175,29 @@ fun eval (term:term) (pst:Proof.state)(assert:assert) =
       | eval_out (Applies (func,    args))    = ed_eval_outer (ED.Outer_Applies (eval_out func, map eval_out args))
       | eval_out (Alls    (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Alls    (map (apsnd go_away_outer_qtyp) pairs, eval_out sub_ass))
       | eval_out (Somes   (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Somes   (map (apsnd go_away_outer_qtyp) pairs, eval_out sub_ass))
-      | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst (ED.Dive_In (eval_out target, eval_in pst inner_ass, map eval_out outer_args)) term
+      | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst (ED.Dive_In (eval_out target, eval_in inner_ass, map eval_out outer_args)) term
       | eval_out (In_Some_Definitions (target, Lambdas (vnames, body), outer_args)) =
         let
-          val sugar = (ED.Dive_In (eval_out target, ED.Inner_Assert (ED.Not, [eval_in pst (Lambdas (vnames, Not body))]), map eval_out outer_args))
+          val sugar = (ED.Dive_In (eval_out target, ED.Inner_Assert (ED.Not, [eval_in (Lambdas (vnames, Not body))]), map eval_out outer_args))
         in
           ED.eval_outer pst sugar term
         end
       | eval_out (In_All_Definitions  _) = error "eval_out in From_Deep_To_Surface.ML failed. The inner part of In_All_Definitions has to be a lambda abstraction."
       | eval_out (In_Some_Definitions _) = error "eval_out in From_Deep_To_Surface.ML failed. The inner part of In_Some_Definitions has to be a lambda abstraction."
       | eval_out (Outermost _)           = error "eval_out in From_Deep_To_Surface.ML failed. eval_out is not defined for Outermost."
+    and ed_eval_inner                    (inner_expr:ED.inner_expression)                    = ED.eval_inner pst inner_expr term                               : ED.inner_expression
+    and ed_eval_inner_param              (param     :ED.inner_parameter)                     = ed_eval_inner (ED.Inner_Literal param)                          : ED.inner_expression
+    and ed_eval_inner_assert_one         (ass:ED.assert,          arg:assert)                = ed_eval_inner (ED.Inner_Assert (ass, [eval_in arg]))            : ED.inner_expression
+    and ed_eval_inner_assert_atomic_one  (atom:ED.atomic_assert,  arg:assert)                = ed_eval_inner_assert_one (ED.Atomic atom, arg)                  : ED.inner_expression
+    and ed_eval_inner_assert_pair        (ass:ED.assert,         (arg1:assert, arg2:assert)) = ed_eval_inner (ED.Inner_Assert (ass, map eval_in [arg1, arg2])) : ED.inner_expression
+    and ed_eval_inner_assert_atomic_pair (atom:ED.atomic_assert, (arg1:assert, arg2:assert)) = ed_eval_inner_assert_pair (ED.Atomic atom, (arg1, arg2))        : ED.inner_expression
+    and ed_eval_inner_assert_list        (assert:ED.assert,  args: assert list)              = ed_eval_inner (ED.Inner_Assert (assert, map eval_in args))      : ED.inner_expression
+    and eval_in True      = ed_eval_inner_param (ED.Inner_Bool true)
+      | eval_in False     = ed_eval_inner_param (ED.Inner_Bool false)
+      | eval_in (Not ass) = ed_eval_inner_assert_one (ED.Not, ass)
   in
       error "TODO"
   end
-  and eval_in _ = undefined;
 
 val eval = undefined: Proof.state -> term -> assert -> assert;
 

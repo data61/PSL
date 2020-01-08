@@ -301,9 +301,10 @@ fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
     end
  |  helper (cnj_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conjunction", name, typ)), [left, right], _)) =
     let
-      (*TODO: double-check if we should ignore recursive calls of &&& on the left hand side of a &&&.
-              Intuitively, ignoring such &&&s is okay because they do not really appear in practice.*)
-      (*If I should flatten nexted &&&s on the left hand side of a &&&, I should do so before applying trm_to_trm_w_prnt*)
+      (*For the moment, I ignore nested calls of &&& on the left hand side of a &&&.
+        Intuitively, ignoring such &&&s is okay because they do not really appear in practice.
+        If it does occur, proof authors probably introduce such nested calls for a reason.
+        So, I should not rewrite it without knowing the reason.*)
       val right_is_cnjnction = case right of UA_Prnt (UC_Prnt ("Pure.conjunction", _, _), _, _) => true | _ => false;
       val result = if right_is_cnjnction
         then helper cnj_p (acc @ [left]) right
@@ -351,7 +352,7 @@ fun is_nth_arg_of (inner_path1:inner_path) (n:int) (inner_path2) =
 (* inner_paths *)
 type inner_paths = inner_path list;
 
-(* inner_path_ord *)(*TODO*)
+(* inner_path_ord *)
 fun inner_path_ord (xs, ys) =
   let
     fun ints_compare'  []     (_::_)  EQUAL = GREATER
@@ -387,15 +388,14 @@ fun helper (FUC_Prnt (name, typ,      print)) (inner_path:inner_path) = UFC_Prnt
       UFL_Prnt_n_Path ((name, typ, inner), print, inner_path)
     end
   | helper (FUA_Prnt (func, args, print)) (inner_path:inner_path) =
-    (*TODO: FIXME: Probably the rank of "fun" should be higher than those of "args" by one.*)
     let
       val arg_len = length  args                                : int;
       val arg_numbs = List.tabulate (arg_len, curry (op +) 1)   : ints;
-      (*TODO: Should "arg_inner_paths" be "map (fn numb => (inner_path @ [0] @ [numb])) arg_numbs"?                                     *)
+      (*TODO: Should "arg_inner_paths" be "map (fn numb => (inner_path @ [0] @ [numb])) arg_numbs"?                         *)
       (*      I think "func" is always atomic because of Isabelle's automatic beta-reduction and "trm_w_prnt_to_utrm_w_prnt"*)
       (*      In that case, "arg_numbs" should be "List.tabulate (arg_len, curry (op +) 0)   : ints;"                       *)
       (*      Probably I should not do this change:                                                                         *)
-      (*      Function application ($) already made the corresponding inner_path longer by one.                                   *)
+      (*      Function application ($) already made the corresponding inner_path longer by one.                             *)
       val arg_inner_paths = map (fn numb => (inner_path @ [numb])) arg_numbs: inner_paths: inner_paths;
       val func'     = helper func (inner_path @ [0])                         : futrm_w_prnt_n_inner_path;
       val args'     = map (uncurry helper) (args ~~ arg_inner_paths)         : futrms_w_prnt_n_inner_path;

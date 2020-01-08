@@ -13,7 +13,7 @@ structure QD  = Quantifier_Domain;
 type path    = EV.path;
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
-type command = Pattern.command;(*TODO: double-check*)
+type command = Pattern.command;
 
 datatype parameter =
   Bool    of bool
@@ -127,9 +127,6 @@ type print_to_paths_table = QD.print_to_paths_table;
 fun convert_result (EV.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ = error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
 
-(*TODO: should I use Atomic instead of Eval_Expression?
-Probably, it does not matter much. Both of them are too concrete (w/wo full-nodes).
-The good news is that the return type of eval in Quantifier can be Connective.bool rather than Expression*)
 fun eval(trm:term) (pst:Proof.state) expr =
   let
     fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:qtyp) (ands_or_ors:assert) =

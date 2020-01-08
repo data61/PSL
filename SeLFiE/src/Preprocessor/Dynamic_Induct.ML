@@ -38,14 +38,13 @@ type modifiers = modifier list;
 
 fun strs_to_rules (strs:strings) = map Rule strs:  modifiers;
 
-(*TODO: Double-check. This function does not flip the order of each kind of modifiers.*)
 fun order (mods:modifiers) =
   let
     fun order' ordered [] = ordered
      |  order' (ons, arbs, rules) (Ind  var  :: mods) = order' (Ind var::ons, arbs,          rules           ) mods
      |  order' (ons, arbs, rules) (Arb  var  :: mods) = order' (ons,          Arb var::arbs, rules           ) mods
      |  order' (ons, arbs, rules) (Rule rule :: mods) = order' (ons,          arbs,          Rule rule::rules) mods;
-    val (inds, abs, rules) = order' ([],[],[]) mods : (modifiers * modifiers * modifiers)
+    val (inds, abs, rules) = order' ([],[],[]) mods : (modifiers * modifiers * modifiers);
   in
     (rev inds, rev abs, rev rules)
   end;

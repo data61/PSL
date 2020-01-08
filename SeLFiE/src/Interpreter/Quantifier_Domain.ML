@@ -32,7 +32,7 @@ struct
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 type parameter = Eval_Variable.parameter;
 
-val qtyp_to_qdomain = undefined: qtyp -> parameter list;
+val qtyp_to_qdomain = undefined: qtyp -> parameter list(*TODO*)
 
 type path                 = Print_To_Paths.path;
 type path_to_node_table   = Path_To_Unode.path_to_unode_table;

@@ -9,7 +9,7 @@ structure EB = Eval_Bound;
 type path    = EB.path;
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
-type command = Pattern.command;(*TODO: double-check*)
+type command = Pattern.command;
 
 datatype parameter =
   Bool    of bool
@@ -127,7 +127,6 @@ fun convert_result (EB.Literal ee_bool) = Literal (there_to_here ee_bool)
 fun eval (trm:term) (pst:Proof.state) (expr:expr) =
   let
     val eb_result  = EB.eval trm pst (var_to_bound [] expr): Eval_Bound.expr;
-(*TODO: for inner assertions we have to pass an environment from the outer assertion.*)
     val result     = convert_result eb_result          : expr;
   in
     result
