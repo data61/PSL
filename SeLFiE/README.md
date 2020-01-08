@@ -2,6 +2,7 @@
 
 This directory contains SeLFiE.
 Note that SeLFiE is still work in progress.
+It is not ready for use yet.
 
 ## The bootstrapping
 
@@ -14,3 +15,12 @@ Note that SeLFiE is still work in progress.
 6. analyze how each constant is defined in the relevant context and attach semantic information to it for the atomic assertion “Pattern” described in 
 
 ### Interpreter
+- TODO
+
+### TODOs
+- [ ] remove most of things from `SeLFiEsrc/Preprocessor/Pattern.ML` except for `get_command`.
+- [ ] `qtyp_to_qdomain` in `Quantifier_Domain.ML`.
+- [ ] `mk_all_numbers` in `Quantifier_Domain.ML`.
+- [ ] `unode_to_depth` in `Eval_Unode.ML`.
+
+- [ ] `eavl` in `Eval_Surface.ML`.
