@@ -20,7 +20,7 @@ ML_file "../LiFtEr/src/Matrix_Sig.ML"
 ML_file "../LiFtEr/src/Matrix_Struct.ML"
 ML_file "../LiFtEr/src/Matrix_Test.ML"
 ML_file "src/Preprocessor/Util.ML"
-ML_file "src/Preprocessor/Pattern.ML" (*TODO: We only need get_command from this module.*)
+ML_file "src/Preprocessor/Pattern.ML"
 ML_file "src/Preprocessor/Unique_Node.ML"
 ML_file "src/Preprocessor/Unique_Node_Test.ML"
 ML_file "src/Preprocessor/Path_Table_And_Print_Table.ML"
