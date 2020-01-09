@@ -39,8 +39,6 @@ type print_to_paths_table = Print_To_Paths.print_to_paths_table;
 
 fun mk_all_paths  pst term = Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term |> Path_To_Unode.table_to_paths: path list;
 
-fun pst_n_trm_to_path_params pst trm = mk_all_paths pst trm 
-
 fun mk_all_prints pst term =
   let
     val path_to_node_table   = Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term                      : Path_To_Unode.path_to_unode_table;
