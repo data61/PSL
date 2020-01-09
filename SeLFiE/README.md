@@ -19,7 +19,7 @@ It is not ready for use yet.
 
 ### TODOs
 - [X]  remove most of things from `SeLFiEsrc/Preprocessor/Pattern.ML` except for `get_command`.
-- [ ] `qtyp_to_qdomain` in `Quantifier_Domain.ML`.
+- [X] `qtyp_to_qdomain` in `Quantifier_Domain.ML`.
 - [X] `mk_all_numbers` in `Quantifier_Domain.ML`. -> `pst_n_trm_to_numb_domain`.
 - [ ] `unode_to_depth` in `Eval_Unode.ML`.
 - [ ] `outer_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`.
