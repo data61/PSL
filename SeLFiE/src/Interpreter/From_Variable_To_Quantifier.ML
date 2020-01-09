@@ -127,11 +127,11 @@ type print_to_paths_table = QD.print_to_paths_table;
 fun convert_result (EV.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ = error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
 
-fun eval(trm:term) (pst:Proof.state) expr =
+fun eval(trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
     fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:qtyp) (ands_or_ors:assert) =
       let
-        val params = QD.qtyp_to_qdomain (qtyp_go_away qtyp) pst trm: QD.parameter list;
+        val params = QD.qtyp_to_qdomain (qtyp_go_away qtyp) pst trm induct_args: QD.parameter list;
         val apps = map (fn param => Apply (Lambda (vname, subexpr), Literal (there_to_here param))) params: expr list;
       in
         Assert (ands_or_ors, apps): expr

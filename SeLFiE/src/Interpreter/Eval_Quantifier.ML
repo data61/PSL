@@ -66,6 +66,6 @@ datatype expr =
 | All      of string * qtyp * expr
 | Some     of string * qtyp * expr;
 
-val eval: term -> Proof.state -> expr -> expr;
+val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;

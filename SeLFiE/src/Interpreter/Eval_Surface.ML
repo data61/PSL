@@ -59,7 +59,7 @@ datatype assert =
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert;
 
-val eval: term -> Proof.state -> assert -> assert;
+val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
 end;
 
@@ -130,10 +130,10 @@ fun go_away_outer_qtyp QFull_Path = ED.QFull_Path
   | go_away_outer_qtyp QRule      = ED.QRule
   | go_away_outer_qtyp QNumber    = ED.QNumber;
 
-fun eval (term:term) (pst:Proof.state)(assert:assert) =
+fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
     val pair_to_list = Utils.pair_to_list;
-    fun ed_eval_outer                    (outer_expr:ED.outer_expression)                    = ED.eval_outer pst outer_expr term                               : ED.outer_expression;
+    fun ed_eval_outer                    (outer_expr:ED.outer_expression)                    = ED.eval_outer pst induct_args outer_expr term                   : ED.outer_expression;
     fun ed_eval_outer_param              (param     :ED.outer_parameter)                     = ed_eval_outer (ED.Outer_Literal param)                          : ED.outer_expression;
     fun ed_eval_outer_assert_one         (ass:ED.assert,          arg:assert)                = ed_eval_outer (ED.Outer_Assert (ass, [eval_out arg]))           : ED.outer_expression
     and ed_eval_outer_assert_atomic_one  (atom:ED.atomic_assert,  arg:assert)                = ed_eval_outer_assert_one (ED.Atomic atom, arg)                  : ED.outer_expression
@@ -175,17 +175,17 @@ fun eval (term:term) (pst:Proof.state)(assert:assert) =
       | eval_out (Applies (func,    args))    = ed_eval_outer (ED.Outer_Applies (eval_out func, map eval_out args))
       | eval_out (Alls    (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Alls    (map (apsnd go_away_outer_qtyp) pairs, eval_out sub_ass))
       | eval_out (Somes   (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Somes   (map (apsnd go_away_outer_qtyp) pairs, eval_out sub_ass))
-      | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst (ED.Dive_In (eval_out target, eval_in inner_ass, map eval_out outer_args)) term
+      | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst induct_args (ED.Dive_In (eval_out target, eval_in inner_ass, map eval_out outer_args)) term
       | eval_out (In_Some_Definitions (target, Lambdas (vnames, body), outer_args)) =
         let
           val sugar = (ED.Dive_In (eval_out target, ED.Inner_Assert (ED.Not, [eval_in (Lambdas (vnames, Not body))]), map eval_out outer_args))
         in
-          ED.eval_outer pst sugar term
+          ED.eval_outer pst induct_args sugar term
         end
       | eval_out (In_All_Definitions  _) = error "eval_out in From_Deep_To_Surface.ML failed. The inner part of In_All_Definitions has to be a lambda abstraction."
       | eval_out (In_Some_Definitions _) = error "eval_out in From_Deep_To_Surface.ML failed. The inner part of In_Some_Definitions has to be a lambda abstraction."
       | eval_out (Outermost _)           = error "eval_out in From_Deep_To_Surface.ML failed. eval_out is not defined for Outermost."
-    and ed_eval_inner                    (inner_expr:ED.inner_expression)                    = ED.eval_inner pst inner_expr term                               : ED.inner_expression
+    and ed_eval_inner                    (inner_expr:ED.inner_expression)                    = ED.eval_inner pst induct_args inner_expr term                   : ED.inner_expression
     and ed_eval_inner_param              (param     :ED.inner_parameter)                     = ed_eval_inner (ED.Inner_Literal param)                          : ED.inner_expression
     and ed_eval_inner_assert_one         (ass:ED.assert,          arg:assert)                = ed_eval_inner (ED.Inner_Assert (ass, [eval_in arg]))            : ED.inner_expression
     and ed_eval_inner_assert_atomic_one  (atom:ED.atomic_assert,  arg:assert)                = ed_eval_inner_assert_one (ED.Atomic atom, arg)                  : ED.inner_expression

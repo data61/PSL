@@ -147,10 +147,10 @@ fun convert_result (EQ.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ =
     error "eval in Eval_Var_Struct failed. Evaluation is not complete.";
 
-fun eval (trm:term) (pst:Proof.state) expr =
+fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
-    val eq_result  = EQ.eval trm pst (quantifier_to_multi_arity expr);
-    val result     = convert_result eq_result                        : expr;
+    val eq_result  = EQ.eval trm pst induct_args (quantifier_to_multi_arity expr): EQ.expr;
+    val result     = convert_result eq_result                                    : expr;
   in
     result
   end;

@@ -41,7 +41,7 @@ ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/Eval_Bound.ML"
 ML_file "src/Interpreter/Eval_Variable.ML"
 ML_file "src/Interpreter/Eval_Quantifier.ML" (*TODO:Number*)
-ML_file "src/Interpreter/Eval_Multi_Arity.ML"(*TODO:Number*)
+ML_file "src/Interpreter/Eval_Multi_Arity.ML"
 
 ML_file "src/Interpreter/Path_To_Unode.ML"  (*The bifurcation of "inner" and "outer" starts here.*)
 ML_file "src/Interpreter/Print_To_Paths.ML"

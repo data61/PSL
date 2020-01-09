@@ -9,7 +9,7 @@ sig
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 type parameter;
 
-val  qtyp_to_qdomain: qtyp -> Proof.state -> term -> parameter list;
+val  qtyp_to_qdomain: qtyp -> Proof.state -> term -> SeLFiE_Util.induct_arguments-> parameter list;
 
 type path;
 type path_to_node_table;
@@ -66,9 +66,13 @@ fun pst_n_trm_to_max_numb    (pst:Proof.state) (trm:term) = Int.max (pst_n_trm_t
 
 fun pst_n_trm_to_numb_domain (pst:Proof.state) (trm:term) = List.tabulate (pst_n_trm_to_max_numb pst trm, Eval_Variable.Number o Eval_Number.Number): Eval_Variable.parameter list;
 
-fun qtyp_to_qdomain QNumber    pst trm = pst_n_trm_to_numb_domain pst trm
-  | qtyp_to_qdomain QFull_Path pst trm = mk_all_paths  pst trm |> map Eval_Variable.Path
-  | qtyp_to_qdomain QPrint     pst trm = mk_all_prints pst trm |> map Eval_Variable.Print
-  (*TODO: I have to pass around the arguments of the induct method.*)
+val map_Print = map Eval_Variable.Print;
+
+fun qtyp_to_qdomain QNumber    pst trm _ = pst_n_trm_to_numb_domain pst trm
+  | qtyp_to_qdomain QFull_Path pst trm _ = mk_all_paths  pst trm |> map Eval_Variable.Path
+  | qtyp_to_qdomain QPrint     pst trm _ = mk_all_prints pst trm |> map_Print
+  | qtyp_to_qdomain QInd       _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Print ons
+  | qtyp_to_qdomain QArb       _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Print arbs
+  | qtyp_to_qdomain QRule      _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Print rules
 
 end;

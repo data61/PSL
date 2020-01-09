@@ -233,9 +233,9 @@ fun outer_literal_to_simp_rules (Outer_Literal _) = [(*TODO*)]:term list
 fun inner_literal_to_simp_rules (Inner_Literal _) = [(*TODO*)]:term list
   | inner_literal_to_simp_rules  _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal."
 
-fun eval_outer (pst:Proof.state) (outer_expression:outer_expression) (trm:term) =
+fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (outer_expression:outer_expression) (trm:term) =
   let
-    val eval_eom = EOM.eval trm pst;
+    val eval_eom = EOM.eval trm pst induct_args;
     fun eval_outer' (Outer_Variable vname             ) = eval_eom (EOM.Variable vname)
       | eval_outer' (Outer_Lambdas (vnames, sub_expr )) = eval_eom (EOM.Lambdas (vnames, eval_outer' sub_expr))
       | eval_outer' (Outer_Applies (func,   args     )) = eval_eom (EOM.Applies (eval_outer' func, map eval_outer' args))
@@ -248,9 +248,9 @@ fun eval_outer (pst:Proof.state) (outer_expression:outer_expression) (trm:term) 
           val inner_args    = map move_in_literal outer_args                        : inner_expression list;
           val simp_rules    = outer_literal_to_simp_rules target                    : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
-          val inner_results = map (eval_inner pst inner_apps) simp_rules            : inner_expression list;
+          val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
           val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;
-          val inner_result  = eval_inner pst inner_ands Term.dummy                  : inner_expression;
+          val inner_result  = eval_inner pst induct_args inner_ands Term.dummy      : inner_expression;
           val outer_result  = move_out_literal inner_result                         : outer_expression;
         in
           go_away_outer_literal outer_result
@@ -259,9 +259,9 @@ fun eval_outer (pst:Proof.state) (outer_expression:outer_expression) (trm:term) 
   in
     eval_outer' outer_expression |> come_back_outer_expression
   end
-and eval_inner (pst:Proof.state) (inner_expression:inner_expression) (trm:term) =
+and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inner_expression:inner_expression) (trm:term) =
   let
-    val eval_eim = EIM.eval trm pst;
+    val eval_eim = EIM.eval trm pst induct_args;
     fun eval_inner' (Inner_Variable vname)             = eval_eim (EIM.Variable vname)
       | eval_inner' (Inner_Lambdas (vnames, sub_expr)) = eval_eim (EIM.Lambdas (vnames, eval_inner' sub_expr))
       | eval_inner' (Inner_Applies (func,   args     )) = eval_eim (EIM.Applies (eval_inner' func, map eval_inner' args))
@@ -273,9 +273,9 @@ and eval_inner (pst:Proof.state) (inner_expression:inner_expression) (trm:term) 
         let
           val simp_rules    = inner_literal_to_simp_rules target                    : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
-          val inner_results = map (eval_inner pst inner_apps) simp_rules            : inner_expression list;
+          val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
           val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;
-          val inner_result  = eval_inner pst inner_ands Term.dummy                  : inner_expression;
+          val inner_result  = eval_inner pst induct_args inner_ands Term.dummy      : inner_expression;
         in
           go_away_inner_literal inner_result
         end
@@ -284,7 +284,7 @@ and eval_inner (pst:Proof.state) (inner_expression:inner_expression) (trm:term) 
     eval_inner' inner_expression |> come_back_inner_expression
   end;
 
-fun eval (term:term) (pst:Proof.state) (Outer outer_expr) = eval_outer pst outer_expr term |> Outer
-  | eval _ _ _ = error "eval in From_Multiple_To_Deep.ML failed. eval is defined only for Outer.";
+fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (Outer outer_expr) = eval_outer pst induct_args outer_expr term |> Outer
+  | eval _ _ _ _ = error "eval in From_Multiple_To_Deep.ML failed. eval is defined only for Outer.";
 
 end;
