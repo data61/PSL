@@ -18,7 +18,7 @@ It is not ready for use yet.
 - TODO
 
 ### TODOs
-- [ ]  remove most of things from `SeLFiEsrc/Preprocessor/Pattern.ML` except for `get_command`.
+- [X]  remove most of things from `SeLFiEsrc/Preprocessor/Pattern.ML` except for `get_command`.
 - [ ] `qtyp_to_qdomain` in `Quantifier_Domain.ML`.
 - [ ] `mk_all_numbers` in `Quantifier_Domain.ML`.
 - [ ] `unode_to_depth` in `Eval_Unode.ML`.
