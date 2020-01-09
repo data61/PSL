@@ -20,24 +20,9 @@ val dest_print           : print -> string;
 val is_subprint_of       : print -> print -> bool;
 val ctxt_n_print_to_cname: Proof.context -> print -> string option;
 
-(*modifiers for the induct method*)
-datatype induct_on   = Ind_On      of print;
-datatype induct_arb  = Ind_Arb     of print;
-datatype induct_rule = Ind_Rule    of string;
-datatype ind_mods    = Ind_Mods    of {ons: induct_on list, arbs: induct_arb list, rules: induct_rule list};
-
-val dest_induct_on  : induct_on   -> print;
-val dest_induct_arb : induct_arb  -> print;
-val dest_induct_rule: induct_rule -> string;
-val dest_mods       : ind_mods    -> {ons: induct_on list, arbs: induct_arb list, rules: induct_rule list};
-
-val string_to_induct_on  : string -> induct_on;
-val string_to_induct_arb : string -> induct_arb;
-val string_to_induct_rule: string -> induct_rule;
-
-val induct_on_to_string  : induct_on   -> string;
-val induct_arb_to_string : induct_arb  -> string;
-val induct_rule_to_string: induct_rule -> string;
+(*arguments passed to the induct method*)
+datatype induct_arguments = Induct_Arguments of {ons: prints, arbs: prints, rules: prints};
+val dest_induct_arguments: induct_arguments  -> {ons: prints, arbs: prints, rules: prints};
 
 end;
 
@@ -78,22 +63,8 @@ fun ctxt_n_print_to_cname  (ctxt:Proof.context) (print:print) =
     trm_cname
   end;
 
-datatype induct_on   = Ind_On   of print;
-datatype induct_arb  = Ind_Arb  of print;
-datatype induct_rule = Ind_Rule of string;
-datatype ind_mods    = Ind_Mods of {ons: induct_on list, arbs: induct_arb list, rules: induct_rule list};
-
-fun dest_induct_on   (Ind_On    print            ) = print;
-fun dest_induct_arb  (Ind_Arb   print            ) = print;
-fun dest_induct_rule (Ind_Rule  string           ) = string;
-fun dest_mods        (Ind_Mods {ons, arbs, rules}) = {ons = ons, arbs = arbs, rules = rules};
-
-fun string_to_induct_on   (trm_str:string) = (Ind_On  o Print) trm_str
-fun string_to_induct_arb  (trm_str:string) = (Ind_Arb o Print) trm_str;
-fun string_to_induct_rule (trm_str:string) = Ind_Rule trm_str;
-
-fun induct_on_to_string   (on:   induct_on)   = (dest_print o dest_induct_on)  on  : string;
-fun induct_arb_to_string  (arb:  induct_arb)  = (dest_print o dest_induct_arb) arb : string;
-fun induct_rule_to_string (rule: induct_rule) =  dest_induct_rule              rule: string;
+(*arguments passed to the induct method*)
+datatype induct_arguments = Induct_Arguments of {ons: prints, arbs: prints, rules: prints};
+fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
 
 end;
