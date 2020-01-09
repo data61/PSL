@@ -6,12 +6,12 @@ Term_Table was initially invented for LiFtEr, in which we only needed Full_Path_
 In SeLFiEr, however, 
 
 The overall work-flow is:
-    (term * Proof.state  ==== trm_to_trm_w_prnt =======================================>                      (* in Unique_Node *)
-     trm_w_prnt          ==== trm_w_prnt_to_utrm_w_prnt ===============================>                      (* in Unique_Node *)
-     utrm_w_prnt         ==== utrm_w_prnt_to_futrm_w_prnt =============================>                      (* in Unique_Node *)
-     futrm_w_prnt        ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================>                      (* in Unique_Node *)
-     futrm_w_prnt_n_path ==== futrm_w_prnt_n_path_to_unodes ===========================>                      (* in Unique_Node *)
-     unodes              ==== unodes_to_unode_table ===================================>                      (* in Path_To_Unode  *)
+    (term * Proof.state  ==== trm_to_trm_w_prnt =======================================> (* in Unique_Node   *)
+     trm_w_prnt          ==== trm_w_prnt_to_utrm_w_prnt ===============================> (* in Unique_Node   *)
+     utrm_w_prnt         ==== utrm_w_prnt_to_futrm_w_prnt =============================> (* in Unique_Node   *)
+     futrm_w_prnt        ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================> (* in Unique_Node   *)
+     futrm_w_prnt_n_path ==== futrm_w_prnt_n_path_to_unodes ===========================> (* in Unique_Node   *)
+     unodes              ==== unodes_to_unode_table ===================================> (* in Path_To_Unode *)
      path_to_unode_table)
 *)
 

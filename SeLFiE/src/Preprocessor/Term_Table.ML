@@ -24,7 +24,7 @@ lifter_pst
 signature TERM_TABLE =
 sig
 
-type inner_path_to_unode_table     = UN.unode       Inner_Path_Table.table;
+type inner_path_to_unode_table = UN.unode Inner_Path_Table.table;
 
 val unodes_to_unode_table: UN.unodes -> UN.unode Inner_Path_Table.table;
 
@@ -34,9 +34,9 @@ type print_to_inner_paths_tables = print_to_inner_paths_table list;
 val print_to_inner_paths_table_n_print_to_inner_paths: print_to_inner_paths_table -> UN.print -> UN.inner_paths;
 
 (* location: first sub-goal = Nth_Subg 0. *)
-datatype location       = Nth_Subg of int | Chained_Fact of int;
-type inner_path_n_loc   = UN.inner_path * location;
-type inner_path_n_locs  = inner_path_n_loc list;
+datatype location      = Nth_Subg of int | Chained_Fact of int;
+type inner_path_n_loc  = UN.inner_path * location;
+type inner_path_n_locs = inner_path_n_loc list;
 
 val in_subgoals     : location -> bool;
 val in_chained_facts: location -> bool;
