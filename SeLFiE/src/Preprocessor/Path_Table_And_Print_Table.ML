@@ -34,4 +34,4 @@ fun outer_path_eq (full_p1:outer_path, full_p2:outer_path) = case outer_path_ord
 structure Outer_Path_Table  = Table (type key = outer_path  val ord = outer_path_ord): TABLE;
 
 (*** structure: Print_Table  ***)
-structure Print_Table = Table (type key = SeLFiE_Util.print       val ord = prnt_ord      ): TABLE;
+structure Print_Table = Table (type key = SeLFiE_Util.print val ord = prnt_ord): TABLE;

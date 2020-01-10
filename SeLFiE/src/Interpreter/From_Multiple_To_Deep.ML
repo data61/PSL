@@ -3,7 +3,13 @@
 *)
 functor from_Multiple_to_Deep
  (structure Eval_Outer_Multiple:EVAL_MULTI_ARITY
-  and       Eval_Inner_Multiple:EVAL_MULTI_ARITY): EVAL_DEEP =
+  and       Outer_Path_To_Unode:PATH_TO_UNODE
+  and       Eval_Inner_Multiple:EVAL_MULTI_ARITY
+  and       Inner_Path_To_Unode:PATH_TO_UNODE
+  sharing type Outer_Path_To_Unode.path = Eval_Outer_Multiple.path
+  sharing type Inner_Path_To_Unode.path = Eval_Inner_Multiple.path): EVAL_DEEP =
+(* We need to pass Outer_Path_To_Unode and Inner_Path_To_Unode to convince the type checker
+ * because *)
 struct
 
 structure EOM = Eval_Outer_Multiple;
@@ -259,12 +265,13 @@ fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) =
     command_to_definitions command: terms
   end;
 
-fun outer_literal_to_definitions (pst:Proof.state) (Outer_Literal (Outer_Path outer_path)) =
+fun outer_literal_to_definitions (pst:Proof.state) (term:term) (Outer_Literal (Outer_Path (outer_path))) =
   let
+    val cname = Outer_Path_To_Unode.pst_n_term_n_path_to_cname pst term (outer_path:outer_path)
   in
     [(*TODO*)]:terms
   end
-  | outer_literal_to_definitions _ _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal."
+  | outer_literal_to_definitions _ _ _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal."
 
 fun inner_literal_to_definitions (Inner_Literal _) = [(*TODO*)]:term list
   | inner_literal_to_definitions  _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal."
@@ -282,7 +289,7 @@ fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (out
       | eval_outer' (Dive_In (target, Inner_Lambdas inner_lambda, outer_args)) =
         let
           val inner_args    = map move_in_literal outer_args                        : inner_expression list;
-          val simp_rules    = outer_literal_to_definitions pst target               : term list;
+          val simp_rules    = outer_literal_to_definitions pst trm target           : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
           val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
           val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;

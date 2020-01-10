@@ -36,8 +36,6 @@ datatype assert =
 
 type path_to_unode_table = Path_To_Unode.path_to_unode_table;
 
-val pst_n_term_n_path_to_cname = undefined;
-
 fun eval (term:term) (pst:Proof.state) assert =
   let
     val table  = Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term: path_to_unode_table;

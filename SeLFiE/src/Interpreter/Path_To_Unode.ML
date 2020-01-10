@@ -28,8 +28,22 @@ type path_to_unode_table;
 val table_to_paths  : path_to_unode_table -> path list;
 val lookup          : path_to_unode_table -> path -> UN.unode option;
 val pst_n_trm_to_path_to_unode_table: Proof.state -> term -> path_to_unode_table;
+val pst_n_term_n_path_to_cname      : Proof.state -> term -> path -> string option;
 
 end;
+
+local
+
+fun gen_pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path) (table) (lookup) =
+  let
+    val unode_option  = lookup table path                             : UN.unode option;
+    val print_option  = Option.map #print unode_option                : SeLFiE_Util.print option;
+    val string_option = Option.map SeLFiE_Util.dest_print print_option: string option;
+  in
+    string_option
+  end;
+
+in
 
 (*** Inner_Path_To_Inner_Unode ***)
 structure Inner_Path_To_Unode: PATH_TO_UNODE =
@@ -89,7 +103,7 @@ fun inner_path1_is_nth_arg_of_inner_path2 (inner_path1:UN.inner_path) (n:int) (i
     inner_paths_at_the_same_level inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_nth_arg
   end;
 
-val inner_path_to_unode_table_to_lowest_fvars = undefined: path_to_unode_table -> UN.inner_path list;
+val inner_path_to_unode_table_to_lowest_fvars = undefined: path_to_unode_table -> UN.inner_path list;(*TODO*)
 val inner_path_to_ancestor_inner_paths        = undefined: UN.inner_path -> UN.inner_path list;
 val inner_path_to_descendent_inner_paths      = undefined: UN.inner_path -> UN.inner_path list;
 
@@ -106,9 +120,16 @@ fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) (trm:term) =
     inner_path_to_unode_table: path_to_unode_table
   end;
 
+fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
+  let
+    val table = pst_n_trm_to_path_to_unode_table pst term: path_to_unode_table;
+  in
+    gen_pst_n_term_n_path_to_cname pst term path table lookup
+  end;
+
 end;
 
-(*** Outer_Path_To_Outer_Unode  ***)
+(*** Outer_Path_To_Outer_Unode ***)
 structure Outer_Path_To_Unode: PATH_TO_UNODE =
 struct
 
@@ -228,5 +249,14 @@ fun outer_unode_to_node ({unode,...}:outer_unode) = #node unode: UN.node;
 fun outer_unode2_to_unode2 (fpun1, fpun2) = apply2 outer_unode_to_unode (fpun1, fpun2): (UN.unode * UN.unode);
 
 fun outer_unode2_to_node2 (fpun1, fpun2) = apply2 outer_unode_to_node (fpun1, fpun2): (UN.node * UN.node);
+
+fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
+  let
+    val table = pst_n_trm_to_path_to_unode_table pst term: path_to_unode_table;
+  in
+    gen_pst_n_term_n_path_to_cname pst term path table lookup
+  end;
+
+end;
 
 end;
