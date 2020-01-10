@@ -233,8 +233,6 @@ fun go_away_outer_literal (Outer_Literal outer_param) = EOM.Literal (go_away_out
 fun go_away_inner_literal (Inner_Literal inner_param) = EIM.Literal (go_away_inner_parameter inner_param)
   | go_away_inner_literal  _  = error "go_away_outer_literal in From_Multiple_To_Deep.ML failed. go_away_outer_literal is defined only for Outer_Literal."
 
-val _ = Proof.context_of   : Proof.state -> Proof.context;
-
 fun get_definitions_using_suffix (ctxt:Proof.context) (cname:string) (suffix:string) =
    try (Proof_Context.get_thms ctxt) (cname ^ "." ^ suffix)
 |> these
@@ -265,16 +263,22 @@ fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) =
     command_to_definitions command: terms
   end;
 
-fun outer_literal_to_definitions (pst:Proof.state) (term:term) (Outer_Literal (Outer_Path (outer_path))) =
+fun gen_path_to_definitions (pst:Proof.state) (term:term) path pst_n_term_n_path_to_cname =
   let
-    val cname = Outer_Path_To_Unode.pst_n_term_n_path_to_cname pst term (outer_path:outer_path)
+    val cname       = pst_n_term_n_path_to_cname pst term path                    : string option;
+    val ctxt        = Proof.context_of pst                                        : Proof.context;
+    val definitions = Option.map (ctxt_n_cname_to_definitions ctxt) cname |> these: terms;
   in
-    [(*TODO*)]:terms
-  end
-  | outer_literal_to_definitions _ _ _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal."
+    definitions:terms
+  end;
 
-fun inner_literal_to_definitions (Inner_Literal _) = [(*TODO*)]:term list
-  | inner_literal_to_definitions  _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal."
+fun outer_literal_to_definitions (pst:Proof.state) (term:term) (Outer_Literal (Outer_Path (outer_path))) =
+    gen_path_to_definitions pst term outer_path Outer_Path_To_Unode.pst_n_term_n_path_to_cname
+  | outer_literal_to_definitions _ _ _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal.";
+
+fun inner_literal_to_definitions (pst:Proof.state) (term:term) (Inner_Literal (Inner_Path (inner_path))) =
+    gen_path_to_definitions pst term inner_path Inner_Path_To_Unode.pst_n_term_n_path_to_cname
+  | inner_literal_to_definitions  _ _ _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal.";
 
 fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (outer_expression:outer_expression) (trm:term) =
   let
@@ -314,7 +318,7 @@ and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inn
       | eval_inner' (Inner_Somes   (pairs,  sub_expr )) = eval_eim (EIM.Somes (map (apsnd go_away_inner_qtyp) pairs, eval_inner' sub_expr))
       | eval_inner' (Dive_Deeper (target, Inner_Lambdas inner_lambda, inner_args)) =
         let
-          val simp_rules    = inner_literal_to_definitions target                   : term list;
+          val simp_rules    = inner_literal_to_definitions pst trm target           : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
           val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
           val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;

@@ -22,8 +22,8 @@ It is not ready for use yet.
 - [X] `qtyp_to_qdomain` in `Quantifier_Domain.ML`.
 - [X] `mk_all_numbers` in `Quantifier_Domain.ML`. -> `pst_n_trm_to_numb_domain`.
 - [X] `unode_to_depth` in `Eval_Unode.ML`.
-- [ ] `outer_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `outer_literal_to_definitions`.
-- [ ] `inner_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `inner_literal_to_definitions`.
+- [X] `outer_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `outer_literal_to_definitions`.
+- [X] `inner_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `inner_literal_to_definitions`.
 - [X] `trm_n_pst_to_path_to_unode_table` in `Make_Eval_Path.ML`.
 - [ ] `inner_path1_is_an_arg_of_inner_path2` in `Path_To_Unode.ML`.
 - [ ] `inner_path1_is_nth_arg_of_inner_path2` in `Path_To_Unode.ML`.
@@ -32,3 +32,7 @@ It is not ready for use yet.
 - [ ] `helper` in `Unique_Node.ML`
 - [ ] `eavl` in `Eval_Surface.ML`.
 - [ ] `pst_n_term_n_path_to_cname` in `Make_Eval_Path.ML`.
+- [ ] `command_to_definion` in `From_Multiple_To_Deep.ML`.
+- [ ] `inner_path_to_unode_table_to_lowest_fvars` in `Path_To_Unode.ML`.
+- [ ] `inner_path_to_ancestor_inner_paths` in `Path_To_Unode.ML`.
+- [ ] `inner_path_to_descendent_inner_paths` in `Path_To_Unode.ML`.
