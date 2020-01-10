@@ -22,8 +22,8 @@ It is not ready for use yet.
 - [X] `qtyp_to_qdomain` in `Quantifier_Domain.ML`.
 - [X] `mk_all_numbers` in `Quantifier_Domain.ML`. -> `pst_n_trm_to_numb_domain`.
 - [X] `unode_to_depth` in `Eval_Unode.ML`.
-- [ ] `outer_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`.
-- [ ] `inner_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`.
+- [ ] `outer_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `outer_literal_to_definitions`.
+- [ ] `inner_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `inner_literal_to_definitions`.
 - [ ] `trm_n_pst_to_path_to_unode_table` in `Make_Eval_Path.ML`.
 - [ ] `inner_path1_is_an_arg_of_inner_path2` in `Path_To_Unode.ML`.
 - [ ] `inner_path1_is_nth_arg_of_inner_path2` in `Path_To_Unode.ML`.
