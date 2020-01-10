@@ -27,10 +27,6 @@ sig
 (** term as syntax tree **)
 type print = SeLFiE_Util.print;
 
-val dest_Print    : print -> string;
-val is_subprint_of: print -> print -> bool;
-val same_prints   : print -> print -> bool;
-
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  
   C_Prnt of string     * typ              * print (*Const*)
@@ -158,13 +154,6 @@ struct
 (* print: the printed format of a sub-tree in the syntax tree of a term. *)
 type print = SeLFiE_Util.print;
 open SeLFiE_Util;
-
-(* dest_print *)
-fun dest_Print (Print str) = str;
-
-fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
-
-fun same_prints    (Print p1) (Print p2) = p1 = p2;
 
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  
