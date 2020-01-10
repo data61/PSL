@@ -52,7 +52,6 @@ structure ENMB = Eval_Number;
 
 fun eval trm pst assert parameters =
   let
-
     fun
       (*Eval_Node*)
         eval' Is_Cnst   [Path p] = EPT.eval trm pst (EPT.Is_Cnst   p)

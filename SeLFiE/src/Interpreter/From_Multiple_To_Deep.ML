@@ -215,7 +215,7 @@ fun come_back_inner_expression (EIM.Literal p) = come_back_inner_parameter p |> 
 
 datatype expr = Outer of outer_expression | Inner of inner_expression;
 
-fun move_in_literal (Outer_Literal outer_param) = Inner_Literal (move_in_parameter  outer_param): inner_expression
+fun move_in_literal (Outer_Literal outer_param) = Inner_Literal (move_in_parameter outer_param): inner_expression
   | move_in_literal  _ = error "move_in_literal in From_Multiple_To_Deep.ML failed. move_in_literal is defined only for Outer_Literal.";
 
 fun move_out_literal (Inner_Literal inner_param) = Outer_Literal (move_out_parameter inner_param): outer_expression
@@ -227,20 +227,44 @@ fun go_away_outer_literal (Outer_Literal outer_param) = EOM.Literal (go_away_out
 fun go_away_inner_literal (Inner_Literal inner_param) = EIM.Literal (go_away_inner_parameter inner_param)
   | go_away_inner_literal  _  = error "go_away_outer_literal in From_Multiple_To_Deep.ML failed. go_away_outer_literal is defined only for Outer_Literal."
 
-val _ = Pattern.get_command: Proof.context -> string -> Pattern.command;
 val _ = Proof.context_of   : Proof.state -> Proof.context;
 
-fun get_many (ctxt:Proof.context) (name:string) (getter:term -> term option) : term list =
-   try (Proof_Context.get_thms ctxt) name
+fun get_definitions_using_suffix (ctxt:Proof.context) (cname:string) (suffix:string) =
+   try (Proof_Context.get_thms ctxt) (cname ^ "." ^ suffix)
 |> these
-|> map Thm.prop_of
-|> map getter
-|> Utils.somes;
+|> map Thm.prop_of;
 
-fun ctxt_n_cname_to_simp_rules_for_primrec (ctxt:Proof.context) (cname:string) = ()
+fun ctxt_n_cname_to_definitions_for_inductive (ctxt:Proof.context) (cname:string) =
+   get_definitions_using_suffix ctxt cname "intros": terms;
 
-fun outer_literal_to_definitions (Outer_Literal _) = [(*TODO*)]:term list
-  | outer_literal_to_definitions  _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal."
+fun ctxt_n_cname_to_definitions_for_primrec (ctxt:Proof.context) (cname:string) =
+   get_definitions_using_suffix ctxt cname "simps": terms;
+
+val ctxt_n_cname_to_definitions_for_fun = ctxt_n_cname_to_definitions_for_primrec;
+
+fun ctxt_n_cname_to_definitions_for_function (ctxt:Proof.context) (cname:string) =
+   get_definitions_using_suffix ctxt cname "psimps"
+|> map Logic.strip_imp_concl: terms;
+
+fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) =
+  let
+    val command = Pattern.get_command ctxt cname;
+    fun command_to_definitions Pattern.Definition = [(*TODO*)]
+      | command_to_definitions Pattern.Fun        = ctxt_n_cname_to_definitions_for_fun       ctxt cname
+      | command_to_definitions Pattern.Primrec    = ctxt_n_cname_to_definitions_for_primrec   ctxt cname
+      | command_to_definitions Pattern.Function   = ctxt_n_cname_to_definitions_for_function  ctxt cname
+      | command_to_definitions Pattern.Inductive  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
+      | command_to_definitions Pattern.Unknown    = error "ctxt_n_cname_to_definitions in From_Multiple_To_Deep.ML faild. Unknown pattern!";
+  in
+    command_to_definitions command: terms
+  end;
+
+fun outer_literal_to_definitions (pst:Proof.state) (Outer_Literal (Outer_Path outer_path)) =
+  let
+  in
+    [(*TODO*)]:terms
+  end
+  | outer_literal_to_definitions _ _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal."
 
 fun inner_literal_to_definitions (Inner_Literal _) = [(*TODO*)]:term list
   | inner_literal_to_definitions  _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal."
@@ -258,7 +282,7 @@ fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (out
       | eval_outer' (Dive_In (target, Inner_Lambdas inner_lambda, outer_args)) =
         let
           val inner_args    = map move_in_literal outer_args                        : inner_expression list;
-          val simp_rules    = outer_literal_to_definitions target                   : term list;
+          val simp_rules    = outer_literal_to_definitions pst target               : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
           val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
           val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;

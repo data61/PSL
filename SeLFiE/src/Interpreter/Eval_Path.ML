@@ -28,7 +28,8 @@ datatype assert =
 (*only in path*)
 | Unode_Has_Print        of path * print;
 
-(*val eval: path_to_unode_table -> assert -> Eval_Bool.assert;*)
+val pst_n_term_n_path_to_cname: path -> string option;
+
 val eval: term -> Proof.state -> assert -> Eval_Bool.assert;
 
 end;

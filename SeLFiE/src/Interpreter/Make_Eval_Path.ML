@@ -35,24 +35,16 @@ datatype assert =
 | Unode_Has_Print        of path * print;
 
 type path_to_unode_table = Path_To_Unode.path_to_unode_table;
-val trm_n_pst_to_path_to_unode_table = undefined: term -> Proof.state -> path_to_unode_table;(*TODO*)
 
-(*use local in end;*)
+val pst_n_term_n_path_to_cname = undefined;
 
 fun eval (term:term) (pst:Proof.state) assert =
   let
-    val table = trm_n_pst_to_path_to_unode_table term pst: path_to_unode_table;
+    val table  = Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term: path_to_unode_table;
     type unode = UN.unode;
     fun path_to_unode (p:path) = Path_To_Unode.lookup table p |> Utils.the' "lookup in path_to_unode failed";
     fun path_to_node  (p:path) = path_to_unode p |> #node: UN.node;
     fun path2_to_unode2 (p1:path, p2:path) = apply2 path_to_unode (p1, p2): (UN.unode * UN.unode);
-    (*
-    fun full_path2_to_unode2 (fp1:full_path, fp2:full_path) =
-      apply2 full_path_to_unode (fp1, fp2): UN.unode * UN.unode;
-    
-    fun full_path2_to_fpunode2 (fp1:full_path, fp2:full_path) =
-      apply2 full_path_to_fpunode (fp1, fp2): (fpunode * fpunode);
-    *)
     fun
       (*Eval_Node*)
         eval' (Is_Cnst   p) = path_to_node p |> END.Is_Cnst   |> END.eval
