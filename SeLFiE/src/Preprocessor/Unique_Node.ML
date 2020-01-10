@@ -139,6 +139,8 @@ type unode =
    print      : print,
    inner_path : inner_path};
 
+val unode_to_depth: unode -> int;
+
 (* unodes *)
 type unodes = unode list;
 
@@ -452,6 +454,8 @@ type unode =
   {node       : node,
    print      : print,
    inner_path : inner_path};
+
+fun unode_to_depth (unode:unode) = unode |>  #inner_path |> length;
 
 (* unodes *)
 type unodes = unode list;

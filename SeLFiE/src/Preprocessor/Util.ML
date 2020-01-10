@@ -42,7 +42,7 @@ fun same_normalized_prints (ctxt:Proof.context) (Print p1) (Print p2) =
   in
     norm_p1 = norm_p2
   end;
-
+                                                                              
 fun dest_print (Print str) = str;
 
 fun path_to_string'  []               (acc:string) = acc

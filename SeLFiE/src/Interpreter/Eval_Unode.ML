@@ -40,8 +40,7 @@ infix
   Is_Path_Above
   Is_Same_Path_As;
 
-fun unode_to_depth (unode:unode) = unode |>  #inner_path |> length; (*TODO: move this to Unique_Node*)
-val unode2_to_depth2             = apply2 unode_to_depth: unode * unode -> int * int;
+val unode2_to_depth2             = apply2 Unique_Node.unode_to_depth: unode * unode -> int * int;
 fun unode2_to_print2 (unode2:unode * unode) = apply2 #print unode2;
 fun unode2_to_inner_path2  (unode2:unode * unode) = apply2 #inner_path  unode2;
 
