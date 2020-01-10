@@ -9,8 +9,8 @@ signature PATTERN =
 sig
 
 (** type and operation about command **)
-datatype command                        = Definition | Fun | Function | Inductive | Primrec | Unknown;
-val get_command                         : Proof.context -> string -> command;
+datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
+val  get_command : Proof.context -> string -> command;
 
 end;
 
@@ -56,12 +56,14 @@ fun get_command (ctxt:Proof.context) (trm_name:string) =
     val is_function   = check_suffix suffix_for_function;
     val is_primrec    = check_suffix suffix_for_primrec;
     val is_inductive  = check_suffix suffix_for_inductive;
-    val checks        = [is_primrec, is_fun, is_function, is_inductive]: bool list;
+    val is_definition = check_suffix suffix_for_definition;
+    val checks        = [is_primrec, is_fun, is_function, is_inductive, is_definition]: bool list;
   in
-    (if checks = [true,  false, false, false] then Primrec   else
-     if checks = [false, true,  false, false] then Fun       else
-     if checks = [false, false, true,  false] then Function  else
-     if checks = [false, false, false, true ] then Inductive else
+    (if checks = [true,  false, false, false, false] then Primrec   else
+     if checks = [false, true,  false, false, false] then Fun       else
+     if checks = [false, false, true,  false, false] then Function  else
+     if checks = [false, false, false, true , false] then Inductive else
+     if checks = [false, false, false, false, true ] then Definition else
      Unknown)
   end;
 

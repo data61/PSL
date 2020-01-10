@@ -227,11 +227,23 @@ fun go_away_outer_literal (Outer_Literal outer_param) = EOM.Literal (go_away_out
 fun go_away_inner_literal (Inner_Literal inner_param) = EIM.Literal (go_away_inner_parameter inner_param)
   | go_away_inner_literal  _  = error "go_away_outer_literal in From_Multiple_To_Deep.ML failed. go_away_outer_literal is defined only for Outer_Literal."
 
-fun outer_literal_to_simp_rules (Outer_Literal _) = [(*TODO*)]:term list
-  | outer_literal_to_simp_rules  _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal."
+val _ = Pattern.get_command: Proof.context -> string -> Pattern.command;
+val _ = Proof.context_of   : Proof.state -> Proof.context;
 
-fun inner_literal_to_simp_rules (Inner_Literal _) = [(*TODO*)]:term list
-  | inner_literal_to_simp_rules  _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal."
+fun get_many (ctxt:Proof.context) (name:string) (getter:term -> term option) : term list =
+   try (Proof_Context.get_thms ctxt) name
+|> these
+|> map Thm.prop_of
+|> map getter
+|> Utils.somes;
+
+fun ctxt_n_cname_to_simp_rules_for_primrec (ctxt:Proof.context) (cname:string) = ()
+
+fun outer_literal_to_definitions (Outer_Literal _) = [(*TODO*)]:term list
+  | outer_literal_to_definitions  _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal."
+
+fun inner_literal_to_definitions (Inner_Literal _) = [(*TODO*)]:term list
+  | inner_literal_to_definitions  _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal."
 
 fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (outer_expression:outer_expression) (trm:term) =
   let
@@ -246,7 +258,7 @@ fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (out
       | eval_outer' (Dive_In (target, Inner_Lambdas inner_lambda, outer_args)) =
         let
           val inner_args    = map move_in_literal outer_args                        : inner_expression list;
-          val simp_rules    = outer_literal_to_simp_rules target                    : term list;
+          val simp_rules    = outer_literal_to_definitions target                   : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
           val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
           val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;
@@ -271,7 +283,7 @@ and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inn
       | eval_inner' (Inner_Somes   (pairs,  sub_expr )) = eval_eim (EIM.Somes (map (apsnd go_away_inner_qtyp) pairs, eval_inner' sub_expr))
       | eval_inner' (Dive_Deeper (target, Inner_Lambdas inner_lambda, inner_args)) =
         let
-          val simp_rules    = inner_literal_to_simp_rules target                    : term list;
+          val simp_rules    = inner_literal_to_definitions target                   : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
           val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
           val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;
