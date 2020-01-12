@@ -383,14 +383,9 @@ fun helper (FUC_Prnt (name, typ,      print)) (inner_path:inner_path) = UFC_Prnt
     let
       val arg_len = length  args                                : int;
       val arg_numbs = List.tabulate (arg_len, curry (op +) 1)   : ints;
-      (*TODO: Should "arg_inner_paths" be "map (fn numb => (inner_path @ [0] @ [numb])) arg_numbs"?                         *)
-      (*      I think "func" is always atomic because of Isabelle's automatic beta-reduction and "trm_w_prnt_to_utrm_w_prnt"*)
-      (*      In that case, "arg_numbs" should be "List.tabulate (arg_len, curry (op +) 0)   : ints;"                       *)
-      (*      Probably I should not do this change:                                                                         *)
-      (*      Function application ($) already made the corresponding inner_path longer by one.                             *)
       val arg_inner_paths = map (fn numb => (inner_path @ [numb])) arg_numbs: inner_paths: inner_paths;
-      val func'     = helper func (inner_path @ [0])                         : futrm_w_prnt_n_inner_path;
-      val args'     = map (uncurry helper) (args ~~ arg_inner_paths)         : futrms_w_prnt_n_inner_path;
+      val func'     = helper func (inner_path @ [0])                        : futrm_w_prnt_n_inner_path;
+      val args'     = map (uncurry helper) (args ~~ arg_inner_paths)        : futrms_w_prnt_n_inner_path;
     in
       UFA_Prnt_n_Path ((func', args'), print, inner_path)
     end;

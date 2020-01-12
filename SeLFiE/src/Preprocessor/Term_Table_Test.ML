@@ -68,6 +68,8 @@ val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_tabl
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,0])   |> the) = (SeLFiE_Util.Print "z3"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,1])   |> the) = (SeLFiE_Util.Print "z4"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,2])   |> the) = (SeLFiE_Util.Print "z5"));
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2])         |> the) = (SeLFiE_Util.Print "f (\<lambda>x. x w) z2"));
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,0])       |> the) = (SeLFiE_Util.Print "Trueprop"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,1]  )     |> the) = (SeLFiE_Util.Print "f (\<lambda>x. x w) z2"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,1,0])     |> the) = (SeLFiE_Util.Print "f"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,1,1])     |> the) = (SeLFiE_Util.Print "\<lambda>x. x w"));

@@ -309,8 +309,8 @@ fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (out
 and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inner_expression:inner_expression) (trm:term) =
   let
     val eval_eim = EIM.eval trm pst induct_args;
-    fun eval_inner' (Inner_Variable vname)             = eval_eim (EIM.Variable vname)
-      | eval_inner' (Inner_Lambdas (vnames, sub_expr)) = eval_eim (EIM.Lambdas (vnames, eval_inner' sub_expr))
+    fun eval_inner' (Inner_Variable vname)              = eval_eim (EIM.Variable vname)
+      | eval_inner' (Inner_Lambdas (vnames, sub_expr))  = eval_eim (EIM.Lambdas (vnames, eval_inner' sub_expr))
       | eval_inner' (Inner_Applies (func,   args     )) = eval_eim (EIM.Applies (eval_inner' func, map eval_inner' args))
       | eval_inner' (Inner_Literal  parameter         ) = eval_eim (EIM.Literal (go_away_inner_parameter parameter))
       | eval_inner' (Inner_Assert  (assert, sub_exprs)) = eval_eim (EIM.Assert  (go_away_inner_assert assert, map eval_inner' sub_exprs))

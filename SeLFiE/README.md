@@ -36,6 +36,6 @@ It is not ready for use yet.
    - Maybe it is enough to improve `Eval_Inner/Outer_Path` in `Path_To_Unode.ML`? -> Yes.
 - [ ] `suffix_for_inductive_set` in `Pattern.ML`.
 - [X] `mk_pattern_matrix` in `Pattern.ML`. Probably, I should remove this.
-- [ ] `helper` in `Unique_Node.ML`
+- [X] `helper` in `Unique_Node.ML`
 - [ ] `eavl` in `Eval_Surface.ML`.
 - [ ] `command_to_definion` in `From_Multiple_To_Deep.ML`.
