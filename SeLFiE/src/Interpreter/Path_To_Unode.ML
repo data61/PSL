@@ -25,10 +25,14 @@ val in_or_out: in_or_out;
 type path;
 type path_to_unode_table;
 
-val table_to_paths  : path_to_unode_table -> path list;
-val lookup          : path_to_unode_table -> path -> UN.unode option;
+val table_to_paths                  : path_to_unode_table -> path list;
+val lookup                          : path_to_unode_table -> path -> UN.unode option;
 val pst_n_trm_to_path_to_unode_table: Proof.state -> term -> path_to_unode_table;
 val pst_n_term_n_path_to_cname      : Proof.state -> term -> path -> string option;
+val path_is_in_subgoal              : path -> bool;
+val path_is_in_chained_fact         : path -> bool;
+val path_is_in_nth_subgoal          : path -> Eval_Number.number -> bool;
+val path_is_in_nth_chained_fact     : path -> Eval_Number.number -> bool;
 
 end;
 
@@ -90,6 +94,11 @@ fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
   in
     gen_pst_n_term_n_path_to_cname pst term path table lookup
   end;
+
+fun path_is_in_subgoal          _   = false: bool;
+fun path_is_in_chained_fact     _   = false: bool;
+fun path_is_in_nth_subgoal      _ _ = false: bool;
+fun path_is_in_nth_chained_fact _ _ = false: bool;
 
 end;
 
@@ -220,6 +229,18 @@ fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
   in
     gen_pst_n_term_n_path_to_cname pst term path table lookup
   end;
+
+fun path_is_in_subgoal      ((Subgoal      _, _):path) = true
+  | path_is_in_subgoal        _                        = false: bool;
+
+fun path_is_in_chained_fact ((Chained_Fact _, _):path) = true
+  | path_is_in_chained_fact   _                        = false: bool;
+
+fun path_is_in_nth_subgoal ((Subgoal nth_subg, _):path) (Eval_Number.Number number) = nth_subg = number
+  | path_is_in_nth_subgoal   _                           _                          = false;
+
+fun path_is_in_nth_chained_fact ((Chained_Fact nth_fact, _):path) (Eval_Number.Number number) = nth_fact = number
+  | path_is_in_nth_chained_fact   _                                _                          = false;
 
 end;
 
