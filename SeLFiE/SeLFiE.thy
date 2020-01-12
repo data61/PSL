@@ -16,9 +16,6 @@ begin
 (* pre-processing *)
 ML_file "../src/Utils.ML"
 ML_file "../MeLoId/src/MeLoId_Util.ML"
-ML_file "../LiFtEr/src/Matrix_Sig.ML"
-ML_file "../LiFtEr/src/Matrix_Struct.ML"
-ML_file "../LiFtEr/src/Matrix_Test.ML"
 ML_file "src/Preprocessor/Util.ML"
 ML_file "src/Preprocessor/Pattern.ML"
 ML_file "src/Preprocessor/Unique_Node.ML"

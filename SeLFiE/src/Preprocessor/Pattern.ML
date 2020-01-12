@@ -19,7 +19,6 @@ end;
 structure Pattern:PATTERN =
 struct
 
-open Matrix;
 structure IU = Isabelle_Utils;
 
 (** type: command **)
