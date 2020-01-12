@@ -25,11 +25,17 @@ It is not ready for use yet.
 - [X] `outer_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `outer_literal_to_definitions`.
 - [X] `inner_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `inner_literal_to_definitions`.
 - [X] `trm_n_pst_to_path_to_unode_table` in `Make_Eval_Path.ML`.
-- [ ] `inner_path1_is_an_arg_of_inner_path2` in `Path_To_Unode.ML`.
-- [ ] `inner_path1_is_nth_arg_of_inner_path2` in `Path_To_Unode.ML`.
-- [ ] `inner_path_to_unode_table_to_lowest_fvars` in `Path_To_Unode.ML`.
-- [ ] `inner_path_to_ancestor_inner_paths` in `Path_To_Unode.ML`.
-- [ ] `inner_path_to_descendent_inner_paths` in `Path_To_Unode.ML`.
+- [ ] `inner_path1_is_an_arg_of_inner_path2` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [ ] `inner_path1_is_nth_arg_of_inner_path2` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [ ] `inner_path_to_unode_table_to_lowest_fvars` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [ ] `inner_path_to_ancestor_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [ ] `inner_path_to_descendent_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [ ] develop `is_nth_child (unode, number)` in `Eval_Unode` in `Unique_Unode.ML` and `Eval_Unode.ML`.
+      You will  need this when developing the aforementioned syntactic sugars.
+- [ ] develop a structure to assert properties about `full-path`.
+   - [ ] add it between `Eval_Inner/Outer_Path` and `Eval_Inner/Outer_Parameter.ML`.
+   - [ ] improve `Inner_Path_To_Unode` and `Outer_Path_To_Unode` in `Path_To_Unode.ML` using `in_or_out`.
+   - Maybe it is enough to improve `Eval_Inner/Outer_Path` in `Path_To_Unode.ML`?
 - [ ] `suffix_for_inductive_set` in `Pattern.ML`.
 - [ ] `mk_pattern_matrix` in `Pattern.ML`. Probably, I should remove this.
 - [ ] `helper` in `Unique_Node.ML`

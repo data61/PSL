@@ -103,7 +103,29 @@ fun inner_path1_is_nth_arg_of_inner_path2 (inner_path1:UN.inner_path) (n:int) (i
     inner_paths_at_the_same_level inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_nth_arg
   end;
 
-val inner_path_to_unode_table_to_lowest_fvars = undefined: path_to_unode_table -> UN.inner_path list;(*TODO*)
+fun inner_path_to_unode_table_to_paths_to_deepests inner_path_to_unode_table =
+  let
+    infix >>=;
+    val inner_paths        = table_to_paths inner_path_to_unode_table                : SeLFiE_Util.inner_path list;
+    val lengths            = map length inner_paths                                  : ints;
+    val max_length         = Utils.ints_to_max_option lengths                        : int option;
+    fun is_at_deepest path = max_length <$> equal (length path) |> Utils.is_some_true: bool;
+    val paths_to_deepests  = filter is_at_deepest inner_paths                        : SeLFiE_Util.inner_path list;
+  in
+    paths_to_deepests: UN.inner_path list
+  end;
+
+fun inner_path_to_unode_table_to_lowest_fvars inner_path_to_unode_table =
+  let
+    val inner_paths = table_to_paths inner_path_to_unode_table: SeLFiE_Util.inner_path list;
+    val lengths     = map length inner_paths                  : ints;
+    val max_length  = Utils.ints_to_max_option lengths        : int option;
+    val lowes = ()
+    val _ = ~~
+  in
+   []: UN.inner_path list(*TODO*)
+  end;
+
 val inner_path_to_ancestor_inner_paths        = undefined: UN.inner_path -> UN.inner_path list;
 val inner_path_to_descendent_inner_paths      = undefined: UN.inner_path -> UN.inner_path list;
 
