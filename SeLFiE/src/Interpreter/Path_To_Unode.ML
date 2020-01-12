@@ -71,64 +71,6 @@ type print_to_paths_tables = print_to_paths_table list;
 
 type one_term  = {path_to_unode_table: path_to_unode_table, print_to_paths_table: print_to_paths_table};
 
-fun inner_paths_at_the_same_level (inner_path1:UN.inner_path) (inner_path2:UN.inner_path) =
-  let
-    val lengths = apply2 length (inner_path1, inner_path2): (int * int);
-  in
-    uncurry equal lengths: bool
-  end;
-
-fun inner_path1_is_an_arg_of_inner_path2 (inner_path1:UN.inner_path) (inner_path2:UN.inner_path) =
-  let
-    val inner_path1_last_option = try Utils.last inner_path1: int option;
-    val inner_path2_last_option = try Utils.last inner_path2: int option;
-    (*TODO: This is not always correct. We have to exclude Abstraction by checking the parent node.
-     *      For this, we need the inner_path_to_node table. *)
-    val inner_path2_is_func     = Option.map (      equal 0) inner_path2_last_option |> Utils.is_some_true: bool;
-    val inner_path1_is_arg      = Option.map (not o equal 0) inner_path1_last_option |> Utils.is_some_true: bool;
-  in
-    inner_paths_at_the_same_level inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_arg
-  end;
-
-fun inner_path1_is_nth_arg_of_inner_path2 (inner_path1:UN.inner_path) (n:int) (inner_path2:UN.inner_path) =
-  let
-    val inner_path1_last_option = try Utils.last inner_path1: int option;
-    val inner_path2_last_option = try Utils.last inner_path2: int option;
-    (*TODO: This is not always correct. We have to exclude Abstraction by checking the parent node.
-     *      For this, we need the inner_path_to_node table. *)
-    val inner_path2_is_func    = Option.map (equal 0) inner_path2_last_option |> Utils.is_some_true: bool;
-    (* "n + 1" because the "0" is used for the function (or lambda abstraction).*)
-    val inner_path1_is_nth_arg = Option.map (equal (n + 1)) inner_path1_last_option |> Utils.is_some_true: bool;
-  in
-    inner_paths_at_the_same_level inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_nth_arg
-  end;
-
-fun inner_path_to_unode_table_to_paths_to_deepests inner_path_to_unode_table =
-  let
-    infix >>=;
-    val inner_paths        = table_to_paths inner_path_to_unode_table                : SeLFiE_Util.inner_path list;
-    val lengths            = map length inner_paths                                  : ints;
-    val max_length         = Utils.ints_to_max_option lengths                        : int option;
-    fun is_at_deepest path = max_length <$> equal (length path) |> Utils.is_some_true: bool;
-    val paths_to_deepests  = filter is_at_deepest inner_paths                        : SeLFiE_Util.inner_path list;
-  in
-    paths_to_deepests: UN.inner_path list
-  end;
-
-fun inner_path_to_unode_table_to_lowest_fvars inner_path_to_unode_table =
-  let
-    val inner_paths = table_to_paths inner_path_to_unode_table: SeLFiE_Util.inner_path list;
-    val lengths     = map length inner_paths                  : ints;
-    val max_length  = Utils.ints_to_max_option lengths        : int option;
-    val lowes = ()
-    val _ = ~~
-  in
-   []: UN.inner_path list(*TODO*)
-  end;
-
-val inner_path_to_ancestor_inner_paths        = undefined: UN.inner_path -> UN.inner_path list;
-val inner_path_to_descendent_inner_paths      = undefined: UN.inner_path -> UN.inner_path list;
-
 fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) (trm:term) =
   let
     val ctxt                      = Proof.context_of pst;
