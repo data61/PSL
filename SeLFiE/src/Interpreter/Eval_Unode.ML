@@ -12,7 +12,8 @@ datatype assert =
 | Is_Deeper_Than    of UN.unode * UN.unode
 | Is_Shallower_Than of UN.unode * UN.unode
 | Is_Path_Above     of UN.unode * UN.unode
-| Is_Same_Path_As   of UN.unode * UN.unode;
+| Is_Same_Path_As   of UN.unode * UN.unode
+| Is_Nth_Child      of UN.unode * Eval_Number.number;
 
 val eval: assert -> Eval_Bool.assert;
 
@@ -30,7 +31,8 @@ datatype assert =
 | Is_Deeper_Than    of unode * unode
 | Is_Shallower_Than of unode * unode
 | Is_Path_Above     of unode * unode
-| Is_Same_Path_As   of unode * unode;
+| Is_Same_Path_As   of unode * unode
+| Is_Nth_Child      of unode * Eval_Number.number;
 
 infix
   Has_Same_Prnt_As
@@ -38,7 +40,8 @@ infix
   Is_Deeper_Than
   Is_Shallower_Than
   Is_Path_Above
-  Is_Same_Path_As;
+  Is_Same_Path_As
+  Is_Nth_Child;
 
 val unode2_to_depth2             = apply2 Unique_Node.unode_to_depth: unode * unode -> int * int;
 fun unode2_to_print2 (unode2:unode * unode) = apply2 #print unode2;
@@ -85,6 +88,13 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
       val result_bool    = uncurry UN.are_same_inner_path (inner_path1, inner_path2): bool;
     in
       result_bool
+    end
+  | eval' (unode Is_Nth_Child (Eval_Number.Number number)) =
+    let
+      val last_digit_option = UN.is_nth_child unode: int option;
+      val result_option     = last_digit_option <$> equal number: bool option;
+    in
+      Utils.is_some_true result_option
     end;
 
 fun eval assert = eval' assert |> Eval_Bool.bool_to_assert;

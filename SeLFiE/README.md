@@ -30,7 +30,7 @@ It is not ready for use yet.
 - [ ] `inner_path_to_unode_table_to_lowest_fvars` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
 - [ ] `inner_path_to_ancestor_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
 - [ ] `inner_path_to_descendent_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
-- [ ] develop `is_nth_child (unode, number)` in `Eval_Unode` in `Unique_Unode.ML` and `Eval_Unode.ML`.
+- [X] develop `is_nth_child (unode, number)` in `Eval_Unode` in `Unique_Unode.ML` and `Eval_Unode.ML`.
       You will  need this when developing the aforementioned syntactic sugars.
 - [ ] develop a structure to assert properties about `full-path`.
    - [ ] add it between `Eval_Inner/Outer_Path` and `Eval_Inner/Outer_Parameter.ML`.

@@ -140,6 +140,7 @@ type unode =
    inner_path : inner_path};
 
 val unode_to_depth: unode -> int;
+val is_nth_child  : unode -> int option;
 
 (* unodes *)
 type unodes = unode list;
@@ -455,7 +456,9 @@ type unode =
    print      : print,
    inner_path : inner_path};
 
-fun unode_to_depth (unode:unode) = unode |>  #inner_path |> length;
+fun unode_to_depth (unode:unode) = unode |>  #inner_path |> length: int;
+
+fun is_nth_child (unode:unode) = unode |> #inner_path |> try Utils.last: int option;
 
 (* unodes *)
 type unodes = unode list;
