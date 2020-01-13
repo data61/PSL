@@ -8,6 +8,7 @@ type path;
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
 type command = Pattern.command;
+type qtyp    = SeLFiE_Util.qtyp;
 
 datatype parameter =
   Bool    of bool
@@ -54,8 +55,6 @@ datatype assert =
 | Ands
 | Ors
 | Atomic of atomic_assert;
-
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 
 datatype expr =
   Variable of string

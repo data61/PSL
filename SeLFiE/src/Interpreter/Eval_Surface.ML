@@ -10,7 +10,7 @@ sig
 type print    = SeLFiE_Util.print;
 type number   = Eval_Number.number;
 type command  = Pattern.command;
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
+type qtyp     = SeLFiE_Util.qtyp;
 
 datatype assert =
 (*bool*)
@@ -71,10 +71,9 @@ struct
 
 structure ED = Eval_Deep;
 
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
-
-type print   = SeLFiE_Util.print;
-type number  = Eval_Number.number;
+type print  = SeLFiE_Util.print;
+type number = Eval_Number.number;
+type qtyp   = SeLFiE_Util.qtyp;
 
 datatype assert =
 (*bool*)
@@ -123,13 +122,6 @@ datatype assert =
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert;
 
-fun go_away_qtyp QFull_Path = ED.QFull_Path
-  | go_away_qtyp QPrint     = ED.QPrint
-  | go_away_qtyp QInd       = ED.QInd
-  | go_away_qtyp QArb       = ED.QArb
-  | go_away_qtyp QRule      = ED.QRule
-  | go_away_qtyp QNumber    = ED.QNumber;
-
 fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
     fun ed_eval_outer                    (outer_expr:ED.outer_expression)                    = ED.eval_outer pst induct_args outer_expr term                   : ED.outer_expression;
@@ -173,8 +165,8 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_out (Variable        string)     = ed_eval_outer (ED.Outer_Variable string)
       | eval_out (Lambdas (strings, sub_ass)) = ed_eval_outer (ED.Outer_Lambdas (strings,       eval_out sub_ass ))
       | eval_out (Applies (func,    args))    = ed_eval_outer (ED.Outer_Applies (eval_out func, map eval_out args))
-      | eval_out (Alls    (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Alls    (map (apsnd go_away_qtyp) pairs, eval_out sub_ass))
-      | eval_out (Somes   (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Somes   (map (apsnd go_away_qtyp) pairs, eval_out sub_ass))
+      | eval_out (Alls    (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Alls    (pairs, eval_out sub_ass))
+      | eval_out (Somes   (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Somes   (pairs, eval_out sub_ass))
       | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst induct_args (ED.Dive_In (eval_out target, eval_in inner_ass, map eval_out outer_args)) term
       | eval_out (In_Some_Definitions (target, Lambdas (vnames, body), outer_args)) =
         let
@@ -224,8 +216,8 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_in (Variable        string)     = ed_eval_inner (ED.Inner_Variable string)
       | eval_in (Lambdas (strings, sub_ass)) = ed_eval_inner (ED.Inner_Lambdas (strings,       eval_in sub_ass ))
       | eval_in (Applies (func,    args))    = ed_eval_inner (ED.Inner_Applies (eval_in func, map eval_in args))
-      | eval_in (Alls    (pairs,   sub_ass)) = ed_eval_inner (ED.Inner_Alls    (map (apsnd go_away_qtyp) pairs, eval_in sub_ass))
-      | eval_in (Somes   (pairs,   sub_ass)) = ed_eval_inner (ED.Inner_Somes   (map (apsnd go_away_qtyp) pairs, eval_in sub_ass))
+      | eval_in (Alls    (pairs,   sub_ass)) = ed_eval_inner (ED.Inner_Alls    (pairs, eval_in sub_ass))
+      | eval_in (Somes   (pairs,   sub_ass)) = ed_eval_inner (ED.Inner_Somes   (pairs, eval_in sub_ass))
       | eval_in (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_inner pst induct_args (ED.Dive_Deeper (eval_in target, eval_in inner_ass, map eval_in outer_args)) term
       | eval_in (In_Some_Definitions (target, Lambdas (vnames, body), outer_args)) =
         let

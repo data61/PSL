@@ -9,6 +9,7 @@ type inner_path;
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
 type command = Pattern.command;
+type qtyp    = SeLFiE_Util.qtyp;
 
 datatype outer_parameter =
   Outer_Bool    of bool
@@ -64,8 +65,6 @@ datatype assert =
 | Ands
 | Ors
 | Atomic of atomic_assert;
-
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 
 datatype outer_expression =
   Outer_Variable of string

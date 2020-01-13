@@ -55,7 +55,7 @@ datatype assert =
 | Ors
 | Atomic of atomic_assert;
 
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
+type qtyp = SeLFiE_Util.qtyp;
 
 datatype expr =
   Variable of string

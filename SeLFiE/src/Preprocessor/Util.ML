@@ -24,6 +24,8 @@ val ctxt_n_print_to_cname: Proof.context -> print -> string option;
 datatype induct_arguments = Induct_Arguments of {ons: prints, arbs: prints, rules: prints};
 val dest_induct_arguments: induct_arguments  -> {ons: prints, arbs: prints, rules: prints};
 
+datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
+
 end;
 
 (*** structure SeLFiE_Util ***)
@@ -66,5 +68,7 @@ fun ctxt_n_print_to_cname  (ctxt:Proof.context) (print:print) =
 (*arguments passed to the induct method*)
 datatype induct_arguments = Induct_Arguments of {ons: prints, arbs: prints, rules: prints};
 fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
+
+datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 
 end;

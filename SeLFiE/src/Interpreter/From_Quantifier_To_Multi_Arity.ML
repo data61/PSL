@@ -10,6 +10,7 @@ type path    = EQ.path;
 type print   = SeLFiE_Util.print;
 type number  = Eval_Number.number;
 type command = Pattern.command;
+type qtyp    = SeLFiE_Util.qtyp;
 
 datatype parameter =
   Bool    of bool
@@ -99,15 +100,6 @@ fun convert_assert Not   = EQ.Not
   | convert_assert Ors   = EQ.Ors
   | convert_assert (Atomic assert) = EQ.Atomic (convert_parameter_assert assert);
 
-datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
-
-fun qtyp_go_away QFull_Path = EQ.QFull_Path
-  | qtyp_go_away QPrint     = EQ.QPrint
-  | qtyp_go_away QInd       = EQ.QInd
-  | qtyp_go_away QArb       = EQ.QArb
-  | qtyp_go_away QRule      = EQ.QRule
-  | qtyp_go_away QNumber    = EQ.QNumber
-
 datatype expr =
   Variable of string
 | Lambdas  of strings * expr
@@ -138,7 +130,7 @@ and mk_nested_pair_for_quantifier qtyp pairs expr =
       val quantifier = if qtyp = All then EQ.All else EQ.Some
       fun mk_nested_pair  []                                       (acc:EQ.expr) = acc:EQ.expr
         | mk_nested_pair ((name, typ)::pairs:(string * qtyp) list) (acc:EQ.expr) =
-          mk_nested_pair pairs (quantifier (name, qtyp_go_away typ, acc):EQ.expr)
+          mk_nested_pair pairs (quantifier (name, typ, acc):EQ.expr)
     in
       mk_nested_pair pairs (quantifier_to_multi_arity expr)
     end;
