@@ -39,6 +39,7 @@ It is not ready for use yet.
 - [X] `helper` in `Unique_Node.ML`
 - [X] `eavl` in `Eval_Surface.ML`.
 - [ ] `command_to_definitions` in `From_Multiple_To_Deep.ML`.
+- [ ] define `parameter` and `assert` in `SeLFiE_Util.ML` and use them in many modules.
 - [ ] `Eval_Syntactic_Sugar.ML`
 - [ ] develop the user-interface.
   - [ ] develop an Isar interface
