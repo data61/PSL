@@ -132,7 +132,6 @@ fun go_away_qtyp QFull_Path = ED.QFull_Path
 
 fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
-    val pair_to_list = Utils.pair_to_list;
     fun ed_eval_outer                    (outer_expr:ED.outer_expression)                    = ED.eval_outer pst induct_args outer_expr term                   : ED.outer_expression;
     fun ed_eval_outer_param              (param     :ED.outer_parameter)                     = ed_eval_outer (ED.Outer_Literal param)                          : ED.outer_expression;
     fun ed_eval_outer_assert_one         (ass:ED.assert,          arg:assert)                = ed_eval_outer (ED.Outer_Assert (ass, [eval_out arg]))           : ED.outer_expression
@@ -140,13 +139,14 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
     and ed_eval_outer_assert_pair        (ass:ED.assert,         (arg1:assert, arg2:assert)) = ed_eval_outer (ED.Outer_Assert (ass, map eval_out [arg1, arg2])): ED.outer_expression
     and ed_eval_outer_assert_atomic_pair (atom:ED.atomic_assert, (arg1:assert, arg2:assert)) = ed_eval_outer_assert_pair (ED.Atomic atom, (arg1, arg2))        : ED.outer_expression
     and ed_eval_outer_assert_list        (assert:ED.assert,  args: assert list)              = ed_eval_outer (ED.Outer_Assert (assert, map eval_out args))     : ED.outer_expression
-    and eval (Outermost ass) = eval_out assert
-      | eval _ = error "eval in From_Deep_To_Surface.ML failed. eval is defined only for Outermost."
+    and eval_enter (Outermost ass) = eval_out ass
+      | eval_enter _ = error "eval in From_Deep_To_Surface.ML failed. eval is defined only for Outermost."
     and eval_out True                         = ed_eval_outer_param              (ED.Outer_Bool         true)
       | eval_out False                        = ed_eval_outer_param              (ED.Outer_Bool         false)
       | eval_out (Not               ass)      = ed_eval_outer_assert_one         (ED.Not,               ass)
       | eval_out (And               pair)     = ed_eval_outer_assert_pair        (ED.And,               pair)
       | eval_out (Or                pair)     = ed_eval_outer_assert_pair        (ED.Or,                pair)
+      | eval_out (Nor               pair)     = ed_eval_outer_assert_pair        (ED.Nor,               pair)
       | eval_out (Imply             pair)     = ed_eval_outer_assert_pair        (ED.Imply,             pair)
       | eval_out (Ands              asses)    = ed_eval_outer_assert_list        (ED.Ands,              asses)
       | eval_out (Ors               asses)    = ed_eval_outer_assert_list        (ED.Ors,               asses)
@@ -197,6 +197,7 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_in (Not ass) = ed_eval_inner_assert_one (ED.Not, ass)
       | eval_in (And               pair)     = ed_eval_inner_assert_pair        (ED.And,               pair)
       | eval_in (Or                pair)     = ed_eval_inner_assert_pair        (ED.Or,                pair)
+      | eval_in (Nor               pair)     = ed_eval_inner_assert_pair        (ED.Nor,               pair)
       | eval_in (Imply             pair)     = ed_eval_inner_assert_pair        (ED.Imply,             pair)
       | eval_in (Ands              asses)    = ed_eval_inner_assert_list        (ED.Ands,              asses)
       | eval_in (Ors               asses)    = ed_eval_inner_assert_list        (ED.Ors,               asses)
@@ -236,9 +237,7 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_in (In_Some_Definitions _) = error "eval_in in From_Deep_To_Surface.ML failed. The inner part of In_Some_Definitions has to be a lambda abstraction."
       | eval_in (Outermost _)           = error "eval_in in From_Deep_To_Surface.ML failed. eval_in is not defined for Outermost."
   in
-      error "TODO"
+      eval_enter assert
   end
-
-val eval = undefined: Proof.state -> term -> assert -> assert;
 
 end;
