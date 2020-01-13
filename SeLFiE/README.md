@@ -38,4 +38,4 @@ It is not ready for use yet.
 - [X] `mk_pattern_matrix` in `Pattern.ML`. Probably, I should remove this.
 - [X] `helper` in `Unique_Node.ML`
 - [ ] `eavl` in `Eval_Surface.ML`.
-- [ ] `command_to_definion` in `From_Multiple_To_Deep.ML`.
+- [ ] `command_to_definitions` in `From_Multiple_To_Deep.ML`.

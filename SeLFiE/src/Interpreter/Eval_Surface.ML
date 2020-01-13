@@ -50,11 +50,11 @@ datatype assert =
 | Print  of print
 | Number of number
 (*expr*)
-| Variable of string
-| Lambdas  of strings * assert
-| Applies  of assert  * assert list
-| Alls     of (string * qtyp) list * assert
-| Somes    of (string * qtyp) list * assert
+| Variable            of string
+| Lambdas             of strings * assert
+| Applies             of assert  * assert list
+| Alls                of (string * qtyp) list * assert
+| Somes               of (string * qtyp) list * assert
 | In_All_Definitions  of (assert * assert * assert list)
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert;
@@ -114,21 +114,21 @@ datatype assert =
 | Print  of print
 | Number of number
 (*expr*)
-| Variable of string
-| Lambdas  of strings * assert
-| Applies  of assert  * assert list
-| Alls     of (string * qtyp) list * assert
-| Somes    of (string * qtyp) list * assert
+| Variable            of string
+| Lambdas             of strings * assert
+| Applies             of assert  * assert list
+| Alls                of (string * qtyp) list * assert
+| Somes               of (string * qtyp) list * assert
 | In_All_Definitions  of (assert * assert * assert list)
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert;
 
-fun go_away_outer_qtyp QFull_Path = ED.QFull_Path
-  | go_away_outer_qtyp QPrint     = ED.QPrint
-  | go_away_outer_qtyp QInd       = ED.QInd
-  | go_away_outer_qtyp QArb       = ED.QArb
-  | go_away_outer_qtyp QRule      = ED.QRule
-  | go_away_outer_qtyp QNumber    = ED.QNumber;
+fun go_away_qtyp QFull_Path = ED.QFull_Path
+  | go_away_qtyp QPrint     = ED.QPrint
+  | go_away_qtyp QInd       = ED.QInd
+  | go_away_qtyp QArb       = ED.QArb
+  | go_away_qtyp QRule      = ED.QRule
+  | go_away_qtyp QNumber    = ED.QNumber;
 
 fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
@@ -168,13 +168,13 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_out (Are_Same_Number   pair)     = ed_eval_outer_assert_atomic_pair (ED.Are_Same_Number,   pair)
       | eval_out (Is_Less_Than      pair)     = ed_eval_outer_assert_atomic_pair (ED.Is_Less_Than,      pair)
       | eval_out (Is_Int            pair)     = ed_eval_outer_assert_atomic_pair (ED.Is_Int,            pair)
-      | eval_out (Print            print)     = ed_eval_outer_param              (ED.Outer_Print   print)
-      | eval_out (Number          number)     = ed_eval_outer_param              (ED.Outer_Number number)
+      | eval_out (Print            print)     = ed_eval_outer_param              (ED.Outer_Print        print)
+      | eval_out (Number          number)     = ed_eval_outer_param              (ED.Outer_Number       number)
       | eval_out (Variable        string)     = ed_eval_outer (ED.Outer_Variable string)
       | eval_out (Lambdas (strings, sub_ass)) = ed_eval_outer (ED.Outer_Lambdas (strings,       eval_out sub_ass ))
       | eval_out (Applies (func,    args))    = ed_eval_outer (ED.Outer_Applies (eval_out func, map eval_out args))
-      | eval_out (Alls    (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Alls    (map (apsnd go_away_outer_qtyp) pairs, eval_out sub_ass))
-      | eval_out (Somes   (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Somes   (map (apsnd go_away_outer_qtyp) pairs, eval_out sub_ass))
+      | eval_out (Alls    (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Alls    (map (apsnd go_away_qtyp) pairs, eval_out sub_ass))
+      | eval_out (Somes   (pairs,   sub_ass)) = ed_eval_outer (ED.Outer_Somes   (map (apsnd go_away_qtyp) pairs, eval_out sub_ass))
       | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst induct_args (ED.Dive_In (eval_out target, eval_in inner_ass, map eval_out outer_args)) term
       | eval_out (In_Some_Definitions (target, Lambdas (vnames, body), outer_args)) =
         let
@@ -195,6 +195,46 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
     and eval_in True      = ed_eval_inner_param (ED.Inner_Bool true)
       | eval_in False     = ed_eval_inner_param (ED.Inner_Bool false)
       | eval_in (Not ass) = ed_eval_inner_assert_one (ED.Not, ass)
+      | eval_in (And               pair)     = ed_eval_inner_assert_pair        (ED.And,               pair)
+      | eval_in (Or                pair)     = ed_eval_inner_assert_pair        (ED.Or,                pair)
+      | eval_in (Imply             pair)     = ed_eval_inner_assert_pair        (ED.Imply,             pair)
+      | eval_in (Ands              asses)    = ed_eval_inner_assert_list        (ED.Ands,              asses)
+      | eval_in (Ors               asses)    = ed_eval_inner_assert_list        (ED.Ors,               asses)
+      | eval_in (Is_Cnst           ass)      = ed_eval_inner_assert_atomic_one  (ED.Is_Cnst,           ass)
+      | eval_in (Is_Free           ass)      = ed_eval_inner_assert_atomic_one  (ED.Is_Free,           ass)
+      | eval_in (Is_Var            ass)      = ed_eval_inner_assert_atomic_one  (ED.Is_Var,            ass)
+      | eval_in (Is_Bound          ass)      = ed_eval_inner_assert_atomic_one  (ED.Is_Bound,          ass)
+      | eval_in (Is_Lambda         ass)      = ed_eval_inner_assert_atomic_one  (ED.Is_Lambda,         ass)
+      | eval_in (Is_App            ass)      = ed_eval_inner_assert_atomic_one  (ED.Is_App,            ass)
+      | eval_in (Has_Same_Prnt_As  pair)     = ed_eval_inner_assert_atomic_pair (ED.Has_Same_Prnt_As,  pair)
+      | eval_in (Is_In_Trm_Prnt    pair)     = ed_eval_inner_assert_atomic_pair (ED.Is_In_Trm_Prnt,    pair)
+      | eval_in (Is_Deeper_Than    pair)     = ed_eval_inner_assert_atomic_pair (ED.Is_Deeper_Than,    pair)
+      | eval_in (Is_Shallower_Than pair)     = ed_eval_inner_assert_atomic_pair (ED.Is_Shallower_Than, pair)
+      | eval_in (Is_Path_Above     pair)     = ed_eval_inner_assert_atomic_pair (ED.Is_Path_Above,     pair)
+      | eval_in (Is_Same_Path_As   pair)     = ed_eval_inner_assert_atomic_pair (ED.Is_Same_Path_As,   pair)
+      | eval_in (Are_Same_Prints   pair)     = ed_eval_inner_assert_atomic_pair (ED.Are_Same_Prints,   pair)
+      | eval_in (Is_Printed_As     pair)     = ed_eval_inner_assert_atomic_pair (ED.Is_Printed_As,     pair)
+      | eval_in (Unode_Has_Print   pair)     = ed_eval_inner_assert_atomic_pair (ED.Unode_Has_Print,   pair)
+      | eval_in (Are_Same_Number   pair)     = ed_eval_inner_assert_atomic_pair (ED.Are_Same_Number,   pair)
+      | eval_in (Is_Less_Than      pair)     = ed_eval_inner_assert_atomic_pair (ED.Is_Less_Than,      pair)
+      | eval_in (Is_Int            pair)     = ed_eval_inner_assert_atomic_pair (ED.Is_Int,            pair)
+      | eval_in (Print            print)     = ed_eval_inner_param              (ED.Inner_Print        print)
+      | eval_in (Number          number)     = ed_eval_inner_param              (ED.Inner_Number       number)
+      | eval_in (Variable        string)     = ed_eval_inner (ED.Inner_Variable string)
+      | eval_in (Lambdas (strings, sub_ass)) = ed_eval_inner (ED.Inner_Lambdas (strings,       eval_in sub_ass ))
+      | eval_in (Applies (func,    args))    = ed_eval_inner (ED.Inner_Applies (eval_in func, map eval_in args))
+      | eval_in (Alls    (pairs,   sub_ass)) = ed_eval_inner (ED.Inner_Alls    (map (apsnd go_away_qtyp) pairs, eval_in sub_ass))
+      | eval_in (Somes   (pairs,   sub_ass)) = ed_eval_inner (ED.Inner_Somes   (map (apsnd go_away_qtyp) pairs, eval_in sub_ass))
+      | eval_in (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_inner pst induct_args (ED.Dive_Deeper (eval_in target, eval_in inner_ass, map eval_in outer_args)) term
+      | eval_in (In_Some_Definitions (target, Lambdas (vnames, body), outer_args)) =
+        let
+          val sugar = (ED.Dive_Deeper (eval_in target, ED.Inner_Assert (ED.Not, [eval_in (Lambdas (vnames, Not body))]), map eval_in outer_args))
+        in
+          ED.eval_inner pst induct_args sugar term
+        end
+      | eval_in (In_All_Definitions  _) = error "eval_in in From_Deep_To_Surface.ML failed. The inner part of In_All_Definitions has to be a lambda abstraction."
+      | eval_in (In_Some_Definitions _) = error "eval_in in From_Deep_To_Surface.ML failed. The inner part of In_Some_Definitions has to be a lambda abstraction."
+      | eval_in (Outermost _)           = error "eval_in in From_Deep_To_Surface.ML failed. eval_in is not defined for Outermost."
   in
       error "TODO"
   end
