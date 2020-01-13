@@ -32,7 +32,11 @@ datatype assert =
 | Is_Path_Above          of path * path
 | Is_Same_Path_As        of path * path
 (*only in path*)
-| Unode_Has_Print        of path * print;
+| Unode_Has_Print        of path * print
+| Is_In_Subgoal          of path
+| Is_In_Chained_Fact     of path
+| Is_In_Nth_Subgoal      of path * number
+| Is_In_Nth_Chained_Fact of path * number;
 
 fun eval (term:term) (pst:Proof.state) assert =
   let
@@ -64,6 +68,10 @@ fun eval (term:term) (pst:Proof.state) assert =
           in
             SeLFiE_Util.same_prints this_print unode_print |> Eval_Bool.bool_to_assert
           end
+      | eval' (Is_In_Subgoal          path) = Path_To_Unode.path_is_in_subgoal path                  |> Eval_Bool.bool_to_assert
+      | eval' (Is_In_Chained_Fact     path) = Path_To_Unode.path_is_in_chained_fact path             |> Eval_Bool.bool_to_assert
+      | eval' (Is_In_Nth_Subgoal      pair) = uncurry Path_To_Unode.path_is_in_nth_subgoal pair      |> Eval_Bool.bool_to_assert
+      | eval' (Is_In_Nth_Chained_Fact pair) = uncurry Path_To_Unode.path_is_in_nth_chained_fact pair |> Eval_Bool.bool_to_assert;
   in eval' assert end;
 
 end;

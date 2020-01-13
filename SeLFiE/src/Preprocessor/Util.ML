@@ -26,6 +26,35 @@ val dest_induct_arguments: induct_arguments  -> {ons: prints, arbs: prints, rule
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 
+datatype atomic_assert =
+(*Eval_Node*)
+  Is_Cnst
+| Is_Free
+| Is_Var
+| Is_Bound
+| Is_Lambda
+| Is_App
+(*Eval_Unode*)
+| Has_Same_Prnt_As
+| Is_In_Trm_Prnt
+| Is_Deeper_Than
+| Is_Shallower_Than
+| Is_Path_Above
+| Is_Same_Path_As
+(*Eval_Print*)
+| Are_Same_Prints
+| Is_Printed_As
+(*Eval_Path*)
+| Unode_Has_Print
+| Is_In_Subgoal
+| Is_In_Chained_Fact
+| Is_In_Nth_Subgoal
+| Is_In_Nth_Chained_Fact
+(*Eval_Number*)
+| Are_Same_Number
+| Is_Less_Than
+| Is_Int;
+
 end;
 
 (*** structure SeLFiE_Util ***)
@@ -70,5 +99,34 @@ datatype induct_arguments = Induct_Arguments of {ons: prints, arbs: prints, rule
 fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
+
+datatype atomic_assert =
+(*Eval_Node*)
+  Is_Cnst
+| Is_Free
+| Is_Var
+| Is_Bound
+| Is_Lambda
+| Is_App
+(*Eval_Unode*)
+| Has_Same_Prnt_As
+| Is_In_Trm_Prnt
+| Is_Deeper_Than
+| Is_Shallower_Than
+| Is_Path_Above
+| Is_Same_Path_As
+(*Eval_Print*)
+| Are_Same_Prints
+| Is_Printed_As
+(*Eval_Path*)
+| Unode_Has_Print
+| Is_In_Subgoal
+| Is_In_Chained_Fact
+| Is_In_Nth_Subgoal
+| Is_In_Nth_Chained_Fact
+(*Eval_Number*)
+| Are_Same_Number
+| Is_Less_Than
+| Is_Int;
 
 end;

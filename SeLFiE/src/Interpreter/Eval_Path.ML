@@ -9,6 +9,7 @@ sig
 type connective = Eval_Bool.assert;
 type path;
 type print      = SeLFiE_Util.print;
+type number     = Eval_Number.number;
 
 datatype assert =
 (*Eval_Node*)
@@ -26,7 +27,11 @@ datatype assert =
 | Is_Path_Above          of path * path
 | Is_Same_Path_As        of path * path
 (*only in path*)
-| Unode_Has_Print        of path * print;
+| Unode_Has_Print        of path * print
+| Is_In_Subgoal          of path
+| Is_In_Chained_Fact     of path
+| Is_In_Nth_Subgoal      of path * number
+| Is_In_Nth_Chained_Fact of path * number;
 
 val eval: term -> Proof.state -> assert -> Eval_Bool.assert;
 

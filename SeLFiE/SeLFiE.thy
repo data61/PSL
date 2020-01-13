@@ -96,6 +96,7 @@ ML_file "src/Interpreter/Eval_Deep.ML"
 ML_file "src/Interpreter/From_Multiple_To_Deep.ML"
 
 ML_file "src/Interpreter/Eval_Surface.ML"
+ML_file "src/Interpreter/Eval_Syntactic_Sugar.ML"
 
 (* auxiliary stuff *)
 ML\<open>

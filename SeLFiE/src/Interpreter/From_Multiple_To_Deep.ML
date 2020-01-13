@@ -40,30 +40,7 @@ datatype inner_parameter =
 | Inner_Int     of int
 | Inner_Command of command;
 
-datatype atomic_assert =
-(*Eval_Node*)
-  Is_Cnst
-| Is_Free
-| Is_Var
-| Is_Bound
-| Is_Lambda
-| Is_App
-(*Eval_Unode*)
-| Has_Same_Prnt_As
-| Is_In_Trm_Prnt
-| Is_Deeper_Than
-| Is_Shallower_Than
-| Is_Path_Above
-| Is_Same_Path_As
-(*Eval_Print*)
-| Are_Same_Prints
-| Is_Printed_As
-(*Eval_Path*)
-| Unode_Has_Print
-(*Eval_Number*)
-| Are_Same_Number
-| Is_Less_Than
-| Is_Int;
+type atomic_assert = SeLFiE_Util.atomic_assert;
 
 datatype assert =
   Not
@@ -123,44 +100,6 @@ fun move_out_parameter (Inner_Bool    b) = Outer_Bool b
   | move_out_parameter (Inner_Int     i) = Outer_Int i
   | move_out_parameter (Inner_Command c) = Outer_Command c;
 
-fun go_away_outer_atomic Is_Cnst           = EOM.Is_Cnst
-  | go_away_outer_atomic Is_Free           = EOM.Is_Free
-  | go_away_outer_atomic Is_Var            = EOM.Is_Var
-  | go_away_outer_atomic Is_Bound          = EOM.Is_Bound
-  | go_away_outer_atomic Is_Lambda         = EOM.Is_Lambda
-  | go_away_outer_atomic Is_App            = EOM.Is_App
-  | go_away_outer_atomic Has_Same_Prnt_As  = EOM.Has_Same_Prnt_As
-  | go_away_outer_atomic Is_In_Trm_Prnt    = EOM.Is_In_Trm_Prnt
-  | go_away_outer_atomic Is_Deeper_Than    = EOM.Is_Deeper_Than
-  | go_away_outer_atomic Is_Shallower_Than = EOM.Is_Shallower_Than
-  | go_away_outer_atomic Is_Path_Above     = EOM.Is_Path_Above
-  | go_away_outer_atomic Is_Same_Path_As   = EOM.Is_Same_Path_As
-  | go_away_outer_atomic Are_Same_Prints   = EOM.Are_Same_Prints
-  | go_away_outer_atomic Is_Printed_As     = EOM.Is_Printed_As
-  | go_away_outer_atomic Unode_Has_Print   = EOM.Unode_Has_Print
-  | go_away_outer_atomic Are_Same_Number   = EOM.Are_Same_Number
-  | go_away_outer_atomic Is_Less_Than      = EOM.Is_Less_Than
-  | go_away_outer_atomic Is_Int            = EOM.Is_Int;
-
-fun go_away_inner_atomic Is_Cnst           = EIM.Is_Cnst
-  | go_away_inner_atomic Is_Free           = EIM.Is_Free
-  | go_away_inner_atomic Is_Var            = EIM.Is_Var
-  | go_away_inner_atomic Is_Bound          = EIM.Is_Bound
-  | go_away_inner_atomic Is_Lambda         = EIM.Is_Lambda
-  | go_away_inner_atomic Is_App            = EIM.Is_App
-  | go_away_inner_atomic Has_Same_Prnt_As  = EIM.Has_Same_Prnt_As
-  | go_away_inner_atomic Is_In_Trm_Prnt    = EIM.Is_In_Trm_Prnt
-  | go_away_inner_atomic Is_Deeper_Than    = EIM.Is_Deeper_Than
-  | go_away_inner_atomic Is_Shallower_Than = EIM.Is_Shallower_Than
-  | go_away_inner_atomic Is_Path_Above     = EIM.Is_Path_Above
-  | go_away_inner_atomic Is_Same_Path_As   = EIM.Is_Same_Path_As
-  | go_away_inner_atomic Are_Same_Prints   = EIM.Are_Same_Prints
-  | go_away_inner_atomic Is_Printed_As     = EIM.Is_Printed_As
-  | go_away_inner_atomic Unode_Has_Print   = EIM.Unode_Has_Print
-  | go_away_inner_atomic Are_Same_Number   = EIM.Are_Same_Number
-  | go_away_inner_atomic Is_Less_Than      = EIM.Is_Less_Than
-  | go_away_inner_atomic Is_Int            = EIM.Is_Int;
-
 fun go_away_outer_assert Not                    = EOM.Not
   | go_away_outer_assert And                    = EOM.And
   | go_away_outer_assert Or                     = EOM.Or
@@ -168,7 +107,7 @@ fun go_away_outer_assert Not                    = EOM.Not
   | go_away_outer_assert Imply                  = EOM.Imply
   | go_away_outer_assert Ands                   = EOM.Ands
   | go_away_outer_assert Ors                    = EOM.Ors
-  | go_away_outer_assert (Atomic atomic_assert) = EOM.Atomic (go_away_outer_atomic atomic_assert);
+  | go_away_outer_assert (Atomic atomic_assert) = EOM.Atomic atomic_assert;
 
 fun go_away_inner_assert Not                    = EIM.Not
   | go_away_inner_assert And                    = EIM.And
@@ -177,7 +116,7 @@ fun go_away_inner_assert Not                    = EIM.Not
   | go_away_inner_assert Imply                  = EIM.Imply
   | go_away_inner_assert Ands                   = EIM.Ands
   | go_away_inner_assert Ors                    = EIM.Ors
-  | go_away_inner_assert (Atomic atomic_assert) = EIM.Atomic (go_away_inner_atomic atomic_assert);
+  | go_away_inner_assert (Atomic atomic_assert) = EIM.Atomic atomic_assert;
 
 datatype outer_expression =
   Outer_Variable of string

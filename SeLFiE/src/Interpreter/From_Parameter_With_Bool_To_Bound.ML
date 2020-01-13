@@ -40,49 +40,7 @@ fun there_to_here (EPWB.Bool b)    = Bool b
   | there_to_here (EPWB.Int i)     = Int i
   | there_to_here (EPWB.Command i) = Command i;
 
-datatype atomic_assert =
-(*Eval_Node*)
-  Is_Cnst
-| Is_Free
-| Is_Var
-| Is_Bound
-| Is_Lambda
-| Is_App
-(*Eval_Unode*)
-| Has_Same_Prnt_As
-| Is_In_Trm_Prnt
-| Is_Deeper_Than
-| Is_Shallower_Than
-| Is_Path_Above
-| Is_Same_Path_As
-(*Eval_Print*)
-| Are_Same_Prints
-| Is_Printed_As
-(*Eval_Path*)
-| Unode_Has_Print
-(*Eval_Number*)
-| Are_Same_Number
-| Is_Less_Than
-| Is_Int;
-
-fun convert_parameter_assert Is_Cnst           = EPWB.Is_Cnst
-  | convert_parameter_assert Is_Free           = EPWB.Is_Free
-  | convert_parameter_assert Is_Var            = EPWB.Is_Var
-  | convert_parameter_assert Is_Bound          = EPWB.Is_Bound
-  | convert_parameter_assert Is_Lambda         = EPWB.Is_Lambda
-  | convert_parameter_assert Is_App            = EPWB.Is_App
-  | convert_parameter_assert Has_Same_Prnt_As  = EPWB.Has_Same_Prnt_As
-  | convert_parameter_assert Is_In_Trm_Prnt    = EPWB.Is_In_Trm_Prnt
-  | convert_parameter_assert Is_Deeper_Than    = EPWB.Is_Deeper_Than
-  | convert_parameter_assert Is_Shallower_Than = EPWB.Is_Shallower_Than
-  | convert_parameter_assert Is_Path_Above     = EPWB.Is_Path_Above
-  | convert_parameter_assert Is_Same_Path_As   = EPWB.Is_Same_Path_As
-  | convert_parameter_assert Are_Same_Prints   = EPWB.Are_Same_Prints
-  | convert_parameter_assert Is_Printed_As     = EPWB.Is_Printed_As
-  | convert_parameter_assert Unode_Has_Print   = EPWB.Unode_Has_Print
-  | convert_parameter_assert Are_Same_Number   = EPWB.Are_Same_Number
-  | convert_parameter_assert Is_Less_Than      = EPWB.Is_Less_Than
-  | convert_parameter_assert Is_Int            = EPWB.Is_Int;
+type atomic_assert = SeLFiE_Util.atomic_assert;
 
 datatype assert =
   Not
@@ -101,7 +59,7 @@ fun convert_assert Not   = EPWB.Not
   | convert_assert Imply = EPWB.Imply
   | convert_assert Ands  = EPWB.Ands
   | convert_assert Ors   = EPWB.Ors
-  | convert_assert (Atomic assert) = EPWB.Atomic (convert_parameter_assert assert);
+  | convert_assert (Atomic assert) = EPWB.Atomic assert;
 
 datatype expr =
   Bound      of int

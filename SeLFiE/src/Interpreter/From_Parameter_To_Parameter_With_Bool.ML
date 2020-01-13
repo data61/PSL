@@ -27,49 +27,7 @@ datatype parameter =
 
 type parameters = parameter list;
 
-datatype atomic_assert =
-(*Eval_Node*)
-  Is_Cnst
-| Is_Free
-| Is_Var
-| Is_Bound
-| Is_Lambda
-| Is_App
-(*Eval_Unode*)
-| Has_Same_Prnt_As
-| Is_In_Trm_Prnt
-| Is_Deeper_Than
-| Is_Shallower_Than
-| Is_Path_Above
-| Is_Same_Path_As
-(*Eval_Print*)
-| Are_Same_Prints
-| Is_Printed_As
-(*Eval_Path*)
-| Unode_Has_Print
-(*Eval_Number*)
-| Are_Same_Number
-| Is_Less_Than
-| Is_Int;
-
-fun convert_parameter_assert Is_Cnst          = EP.Is_Cnst
-  | convert_parameter_assert Is_Free          = EP.Is_Free
-  | convert_parameter_assert Is_Var           = EP.Is_Var
-  | convert_parameter_assert Is_Bound         = EP.Is_Bound
-  | convert_parameter_assert Is_Lambda        = EP.Is_Lambda
-  | convert_parameter_assert Is_App           = EP.Is_App
-  | convert_parameter_assert Has_Same_Prnt_As = EP.Has_Same_Prnt_As
-  | convert_parameter_assert Is_In_Trm_Prnt   = EP.Is_In_Trm_Prnt
-  | convert_parameter_assert Is_Deeper_Than   = EP.Is_Deeper_Than
-  | convert_parameter_assert Is_Shallower_Than= EP.Is_Shallower_Than
-  | convert_parameter_assert Is_Path_Above    = EP.Is_Path_Above
-  | convert_parameter_assert Is_Same_Path_As  = EP.Is_Same_Path_As
-  | convert_parameter_assert Are_Same_Prints  = EP.Are_Same_Prints
-  | convert_parameter_assert Is_Printed_As    = EP.Is_Printed_As
-  | convert_parameter_assert Unode_Has_Print  = EP.Unode_Has_Print
-  | convert_parameter_assert Are_Same_Number  = EP.Are_Same_Number
-  | convert_parameter_assert Is_Less_Than     = EP.Is_Less_Than
-  | convert_parameter_assert Is_Int           = EP.Is_Int;
+type atomic_assert = SeLFiE_Util.atomic_assert;
 
 datatype assert =
   Not
@@ -109,7 +67,7 @@ fun eval (trm:term) (pst:Proof.state) (assert:assert) (parameters:parameter list
       | eval' Ands  ands               = EB.eval (EB.Ands  (map de_bool_to_connect ands))
       | eval' Ors   ors                = EB.eval (EB.Ors   (map de_bool_to_connect ors ))
       (*Eval_Unode_Core*)
-      | eval' (Atomic atomic_assert) params = EP.eval trm pst (convert_parameter_assert atomic_assert) (map convert_param params)
+      | eval' (Atomic atomic_assert) params = EP.eval trm pst atomic_assert (map convert_param params)
       | eval' _ _ = error "eval' in From_Parameter_To_Expression.ML failed."
     val ec_result = eval' assert parameters: Eval_Bool.assert;
     val result    = ec_result |> EB.assert_to_bool |> Bool;
