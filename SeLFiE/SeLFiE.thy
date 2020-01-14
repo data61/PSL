@@ -87,12 +87,6 @@ ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structur
 ML\<open> structure Eval_Inner_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Inner_Quantifier): EVAL_MULTI_ARITY; \<close>
 ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Outer_Quantifier): EVAL_MULTI_ARITY; \<close>
 
-(* We should have Sugar before Deep because it is not possible to represent two levels of corresponding 
- * constructs using the same constructor in Deep. For example, we need two True in Depp:
- * one for outermost layer and the other one for inner layers.*)
-(* Maybe this was wrong:
- * Multiple \<rightarrow> Deep \<rightarrow> Surface was the right order without Sugar? *)
-
 ML_file "src/Interpreter/Eval_Deep.ML"
 ML_file "src/Interpreter/From_Multiple_To_Deep.ML"
 

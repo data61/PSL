@@ -15,7 +15,18 @@ It is not ready for use yet.
 6. analyze how each constant is defined in the relevant context and attach semantic information to it for the atomic assertion “Pattern” described in 
 
 ### Interpreter
-- TODO
+1. evals for each type of term occurrence: `bool`, `node`, `number`, and `unode`.
+2. evals for `path` (`inner_path` and `outer_path`).
+3. evals for each type of term: `print`, and `induct_argument`.
+4. evals for parameter without bool.
+5. evals for assert (= parameter with bool).
+6. evals for lambda expression (with bound variable).
+7. evals for lambda expression (with named variable).
+8. evals for lambda expression (with quantifiers).
+9. evals for uncurried lambda expression.
+10. eval for the semantic-aware logical feature extractor (= SeLFiE's core language).
+11. eval for the surface language.
+12. eval for the sytnax sugars.
 
 ### TODOs
 - [X]  remove most of things from `SeLFiEsrc/Preprocessor/Pattern.ML` except for `get_command`.
