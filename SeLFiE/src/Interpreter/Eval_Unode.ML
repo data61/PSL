@@ -50,14 +50,14 @@ fun unode2_to_inner_path2  (unode2:unode * unode) = apply2 #inner_path  unode2;
 fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     let
       val (print1, print2) = unode2_to_print2 (unode1, unode2);
-      val result_bool      = SeLFiE_Util.same_prints print1 print2;
+      val result_bool      = print1 = print2;
     in
       result_bool
     end
   | eval' (unode1 Is_In_Trm_Prnt unode2) =
     let
       val (print1, print2) = unode2_to_print2 (unode1, unode2);
-      val result_bool      = SeLFiE_Util.is_subprint_of print1 print2;
+      val result_bool      = String.isSubstring print1 print2;
     in
       result_bool
     end

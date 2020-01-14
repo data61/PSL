@@ -25,28 +25,27 @@ signature UNIQUE_NODE =
 sig
 
 (** term as syntax tree **)
-type print = SeLFiE_Util.print;
 
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  
-  C_Prnt of string     * typ              * print (*Const*)
-| F_Prnt of string     * typ              * print (*Free*)
-| V_Prnt of indexname  * typ              * print (*Var*)
-| B_Prnt of int        * typ              * print (*Bound*)
-| L_Prnt of string     * typ * trm_w_prnt * print (*Abs (Lambda Abstraction)*)
-| A_Prnt of trm_w_prnt * trm_w_prnt       * print;(*$   (Application)*)
+  C_Prnt of string     * typ              * string (*Const*)
+| F_Prnt of string     * typ              * string (*Free*)
+| V_Prnt of indexname  * typ              * string (*Var*)
+| B_Prnt of int        * typ              * string (*Bound*)
+| L_Prnt of string     * typ * trm_w_prnt * string (*Abs (Lambda Abstraction)*)
+| A_Prnt of trm_w_prnt * trm_w_prnt       * string;(*$   (Application)*)
 
 (* trm_to_trm_w_prnt *)
 val trm_to_trm_w_prnt: Proof.context -> term -> trm_w_prnt;
 
-(* utrm_w_prnt: un-curried term with print *)
+(* utrm_w_prnt: un-curried term with string *)
 datatype utrm_w_prnt =
-  UC_Prnt of string      * typ               * print
-| UF_Prnt of string      * typ               * print
-| UV_Prnt of indexname   * typ               * print
-| UB_Prnt of int         * typ               * print
-| UL_Prnt of string      * typ * utrm_w_prnt * print
-| UA_Prnt of utrm_w_prnt * utrm_w_prnt list  * print;
+  UC_Prnt of string      * typ               * string
+| UF_Prnt of string      * typ               * string
+| UV_Prnt of indexname   * typ               * string
+| UB_Prnt of int         * typ               * string
+| UL_Prnt of string      * typ * utrm_w_prnt * string
+| UA_Prnt of utrm_w_prnt * utrm_w_prnt list  * string;
 
 (* utrms_w_prnt *)
 type utrms_w_prnt = utrm_w_prnt list;
@@ -62,14 +61,14 @@ val trm_w_prnt_to_utrm_w_prnt: trm_w_prnt -> utrm_w_prnt;
  * requires uncurried terms.
  *)
 
-(* futrm_w_prnt: un-curried folded term with print *)
+(* futrm_w_prnt: un-curried folded term with string *)
 datatype futrm_w_prnt =
-  FUC_Prnt of string       * typ                 * print
-| FUF_Prnt of string       * typ                 * print
-| FUV_Prnt of indexname    * typ                 * print
-| FUB_Prnt of int          * typ                 * print
-| FUL_Prnt of string       * typ  * futrm_w_prnt * print
-| FUA_Prnt of futrm_w_prnt * futrm_w_prnt list   * print;
+  FUC_Prnt of string       * typ                 * string
+| FUF_Prnt of string       * typ                 * string
+| FUV_Prnt of indexname    * typ                 * string
+| FUB_Prnt of int          * typ                 * string
+| FUL_Prnt of string       * typ  * futrm_w_prnt * string
+| FUA_Prnt of futrm_w_prnt * futrm_w_prnt list   * string;
 
 (* utrm_w_prnt_to_futrm_w_prnt *)
 val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
@@ -91,19 +90,19 @@ type inner_paths = inner_path list;
 (* inner_path_ord *)
 val inner_path_ord: (inner_path * inner_path) -> order;
 
-(* futrm_w_prnt_n_inner_path: un-curried folded term with print and inner_path to each node*)
+(* futrm_w_prnt_n_inner_path: un-curried folded term with string and inner_path to each node*)
 datatype futrm_w_prnt_n_inner_path =
-  UFC_Prnt_n_Path of (string    * typ                                           ) * print * inner_path
-| UFF_Prnt_n_Path of (string    * typ                                           ) * print * inner_path
-| UFV_Prnt_n_Path of (indexname * typ                                           ) * print * inner_path
-| UFB_Prnt_n_Path of (int       * typ                                           ) * print * inner_path
-| UFL_Prnt_n_Path of (string    * typ           * futrm_w_prnt_n_inner_path     ) * print * inner_path
-| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * print * inner_path;
+  UFC_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
+| UFF_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
+| UFV_Prnt_n_Path of (indexname * typ                                           ) * string * inner_path
+| UFB_Prnt_n_Path of (int       * typ                                           ) * string * inner_path
+| UFL_Prnt_n_Path of (string    * typ           * futrm_w_prnt_n_inner_path     ) * string * inner_path
+| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * string * inner_path;
 
 (* futrm_w_prnt_to_futrm_w_prnt_n_inner_path *)
 val futrm_w_prnt_to_futrm_w_prnt_n_inner_path: futrm_w_prnt -> futrm_w_prnt_n_inner_path;
 
-(* node: un-curried folded term without print. This constitutes a part of unode (unique_node). *)
+(* node: un-curried folded term without string. This constitutes a part of unode (unique_node). *)
 datatype node =
   NC of (string    * typ) (*Const*)
 | NF of (string    * typ) (*Free*)
@@ -136,7 +135,7 @@ val node_to_node_typ_str: node -> string;
 (* unode: unode has inner_path inside for better performance *)
 type unode =
   {node       : node,
-   print      : print,
+   print      : string,
    inner_path : inner_path};
 
 val unode_to_depth: unode -> int;
@@ -154,18 +153,16 @@ end;
 structure Unique_Node: UNIQUE_NODE  =
 struct
 
-(* print: the printed format of a sub-tree in the syntax tree of a term. *)
-type print = SeLFiE_Util.print;
 open SeLFiE_Util;
 
-(* trm_w_prnt: term with print *)
+(* trm_w_prnt: term with string *)
 datatype trm_w_prnt =  
-  C_Prnt of string     * typ              * print (*Const*)
-| F_Prnt of string     * typ              * print (*Free*)
-| V_Prnt of indexname  * typ              * print (*Var*)
-| B_Prnt of int        * typ              * print (*Bound*)
-| L_Prnt of string     * typ * trm_w_prnt * print (*Abs (Lambda Abstraction)*)
-| A_Prnt of trm_w_prnt * trm_w_prnt       * print;(*$   (Application)*)
+  C_Prnt of string     * typ              * string (*Const*)
+| F_Prnt of string     * typ              * string (*Free*)
+| V_Prnt of indexname  * typ              * string (*Var*)
+| B_Prnt of int        * typ              * string (*Bound*)
+| L_Prnt of string     * typ * trm_w_prnt * string (*Abs (Lambda Abstraction)*)
+| A_Prnt of trm_w_prnt * trm_w_prnt       * string;(*$   (Application)*)
 
 type trm_w_prnts = trm_w_prnt list;
 
@@ -177,7 +174,7 @@ type trm_w_prnts = trm_w_prnt list;
 (* trm_to_trm_w_prnt *)
 fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
   let
-    val trm_to_string' = Print o Isabelle_Utils.trm_to_string ctxt;
+    val trm_to_string' = Isabelle_Utils.trm_to_string ctxt;
     fun trm_to_trm_w_prnt' (Const _) (trm_wo_bound as Const (name,     typ)) = (C_Prnt (name,     typ, trm_to_string' trm_wo_bound))
       | trm_to_trm_w_prnt' (Free  _) (trm_wo_bound as Free  (name,     typ)) = (F_Prnt (name,     typ, trm_to_string' trm_wo_bound))
       | trm_to_trm_w_prnt' (Var   _) (trm_wo_bound as Var   (idx_name, typ)) = (V_Prnt (idx_name, typ, trm_to_string' trm_wo_bound))
@@ -186,7 +183,7 @@ fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
         let
           (*Note that Term.dest_abs replaces the outermost (Bound i) with a free variable.*)
           val (_, abs_free_subtrm) = Term.dest_abs trip                       : (string * term);
-          val print                = trm_to_string' (Abs trip)                : print;
+          val print                = trm_to_string' (Abs trip)                : string;
           val subtrm_w_print       = trm_to_trm_w_prnt' subtrm abs_free_subtrm: trm_w_prnt;
         in
           L_Prnt (name, typ, subtrm_w_print, print)
@@ -195,7 +192,7 @@ fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
         let
           val trm1_w_print = trm_to_trm_w_prnt' orig_trm1 trm1_w_less_bound: trm_w_prnt;
           val trm2_w_print = trm_to_trm_w_prnt' orig_trm2 trm2_w_less_bound: trm_w_prnt;
-          val print    = trm_to_string' (trm1_w_less_bound $ trm2_w_less_bound);
+          val print        = trm_to_string' (trm1_w_less_bound $ trm2_w_less_bound);
         in
           A_Prnt (trm1_w_print, trm2_w_print, print)
         end
@@ -206,12 +203,12 @@ fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
 
 (* utrm_w_prnt: un-curried term with print *)
 datatype utrm_w_prnt =
-  UC_Prnt of string      * typ               * print
-| UF_Prnt of string      * typ               * print
-| UV_Prnt of indexname   * typ               * print
-| UB_Prnt of int         * typ               * print
-| UL_Prnt of string      * typ * utrm_w_prnt * print
-| UA_Prnt of utrm_w_prnt * utrm_w_prnt list  * print;
+  UC_Prnt of string      * typ               * string
+| UF_Prnt of string      * typ               * string
+| UV_Prnt of indexname   * typ               * string
+| UB_Prnt of int         * typ               * string
+| UL_Prnt of string      * typ * utrm_w_prnt * string
+| UA_Prnt of utrm_w_prnt * utrm_w_prnt list  * string;
 
 type utrms_w_prnt = utrm_w_prnt list;
 
@@ -244,12 +241,12 @@ fun trm_w_prnt_to_utrm_w_prnt (C_Prnt  c : trm_w_prnt                 ) = UC_Prn
  *)
 (* futrm_w_prnt: un-curried folded term with print *)
 datatype futrm_w_prnt =
-  FUC_Prnt of string       * typ                 * print
-| FUF_Prnt of string       * typ                 * print
-| FUV_Prnt of indexname    * typ                 * print
-| FUB_Prnt of int          * typ                 * print
-| FUL_Prnt of string       * typ  * futrm_w_prnt * print
-| FUA_Prnt of futrm_w_prnt * futrm_w_prnt list   * print;
+  FUC_Prnt of string       * typ                 * string
+| FUF_Prnt of string       * typ                 * string
+| FUV_Prnt of indexname    * typ                 * string
+| FUB_Prnt of int          * typ                 * string
+| FUL_Prnt of string       * typ  * futrm_w_prnt * string
+| FUA_Prnt of futrm_w_prnt * futrm_w_prnt list   * string;
 
 (* utrm_w_prnt_to_futrm_w_prnt *)
 local
@@ -267,13 +264,13 @@ fun map_fs_xs ([]      :('a -> 'b) list) ([]       :'a list) = []
 
 type utrms_w_prnt = utrm_w_prnt list;
 
-fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
- |  helper (_    : print) (_:utrms_w_prnt) (UF_Prnt content) = FUF_Prnt content
- |  helper (_    : print) (_:utrms_w_prnt) (UV_Prnt content) = FUV_Prnt content
- |  helper (_    : print) (_:utrms_w_prnt) (UB_Prnt content) = FUB_Prnt content
- |  helper (_    : print) (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt, print)) =
+fun helper (_    :string) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
+ |  helper (_    :string) (_:utrms_w_prnt) (UF_Prnt content) = FUF_Prnt content
+ |  helper (_    :string) (_:utrms_w_prnt) (UV_Prnt content) = FUV_Prnt content
+ |  helper (_    :string) (_:utrms_w_prnt) (UB_Prnt content) = FUB_Prnt content
+ |  helper (_    :string) (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt, print)) =
       FUL_Prnt (name, typ, helper (utrm_w_prnt_to_prnt utrm_w_prnt) [] utrm_w_prnt, print)
- |  helper (imp_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], _)) =
+ |  helper (imp_p: string) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], _)) =
     let
       val one_more_imp = case conclusion of UA_Prnt (UC_Prnt ("Pure.imp", _, _), _, _) => true | _ => false;
       val result = if one_more_imp
@@ -281,7 +278,7 @@ fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
         else
           let
             val args            = acc @ [premise, conclusion] : utrm_w_prnt list;
-            val prints_for_args = map utrm_w_prnt_to_prnt args: print list;
+            val prints_for_args = map utrm_w_prnt_to_prnt args: strings;
             val helpers         = map helper prints_for_args  : (utrm_w_prnt list -> utrm_w_prnt -> futrm_w_prnt) list;
             val helpers'        = Utils.map_arg [] helpers    : (utrm_w_prnt -> futrm_w_prnt) list;
             val futrm_w_prnts   = map_fs_xs helpers' args     : futrm_w_prnt list;
@@ -291,7 +288,7 @@ fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
     in
       result
     end
- |  helper (cnj_p: print) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conjunction", name, typ)), [left, right], _)) =
+ |  helper (cnj_p: string) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.conjunction", name, typ)), [left, right], _)) =
     let
       (*For the moment, I ignore nested calls of &&& on the left hand side of a &&&.
         Intuitively, ignoring such &&&s is okay because they do not really appear in practice.
@@ -303,7 +300,7 @@ fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
         else
           let
             val args            = acc @ [left, right]         : utrm_w_prnt list;
-            val prints_for_args = map utrm_w_prnt_to_prnt args: print list;
+            val prints_for_args = map utrm_w_prnt_to_prnt args: strings;
             val helpers         = map helper prints_for_args  : (utrm_w_prnt list -> utrm_w_prnt -> futrm_w_prnt) list;
             val helpers'        = Utils.map_arg [] helpers    : (utrm_w_prnt -> futrm_w_prnt) list;
             val futrm_w_prnts   = map_fs_xs helpers' args     : futrm_w_prnt list;
@@ -313,7 +310,7 @@ fun helper (_    : print) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
     in
       result
     end
- |  helper (_    : print) (_:utrms_w_prnt) (UA_Prnt (func, args, print)) =
+ |  helper (_    : string) (_:utrms_w_prnt) (UA_Prnt (func, args, print)) =
       FUA_Prnt (helper print [] func, map (helper print []) args, print);
 
 in
@@ -357,12 +354,12 @@ fun inner_path_ord (xs, ys) =
 
 (* futrm_w_prnt_n_inner_path: un-curried folded term with print and inner_path to each node*)
 datatype futrm_w_prnt_n_inner_path =
-  UFC_Prnt_n_Path of (string    * typ                                           ) * print * inner_path
-| UFF_Prnt_n_Path of (string    * typ                                           ) * print * inner_path
-| UFV_Prnt_n_Path of (indexname * typ                                           ) * print * inner_path
-| UFB_Prnt_n_Path of (int       * typ                                           ) * print * inner_path
-| UFL_Prnt_n_Path of (string    * typ * futrm_w_prnt_n_inner_path               ) * print * inner_path
-| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * print * inner_path;
+  UFC_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
+| UFF_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
+| UFV_Prnt_n_Path of (indexname * typ                                           ) * string * inner_path
+| UFB_Prnt_n_Path of (int       * typ                                           ) * string * inner_path
+| UFL_Prnt_n_Path of (string    * typ * futrm_w_prnt_n_inner_path               ) * string * inner_path
+| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * string * inner_path;
 
 type futrms_w_prnt_n_inner_path = futrm_w_prnt_n_inner_path list;
 
@@ -448,7 +445,7 @@ fun node_to_node_typ_str (NC _) = "NC"
 (* unode *)
 type unode =
   {node       : node,
-   print      : print,
+   print      : string,
    inner_path : inner_path};
 
 fun unode_to_depth (unode:unode) = unode |>  #inner_path |> length: int;

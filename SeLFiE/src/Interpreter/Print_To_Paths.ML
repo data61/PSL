@@ -10,7 +10,7 @@ type path;
 type path_to_unode_table;
 type print_to_paths_table;
 
-val print_to_paths_table_to_prints: print_to_paths_table -> SeLFiE_Util.print list;
+val print_to_paths_table_to_prints: print_to_paths_table -> strings;
 val path_to_unode_table_to_print_to_paths_table: path_to_unode_table -> print_to_paths_table;
 
 end;
@@ -27,8 +27,8 @@ fun print_to_paths_table_to_prints table = Print_Table.keys table;
 fun path_to_unode_table_to_print_to_paths_table (inner_path_to_unode_table:UN.unode Path_Table.table) =
   let
     val path_n_unode_list    = Path_Table.dest inner_path_to_unode_table: (Path_Table.key * UN.unode) list;
-    val path_n_print_list    = List.map (apsnd #print) path_n_unode_list: (Path_Table.key * UN.print) list;
-    val print_n_path_list    = map swap path_n_print_list               : (UN.print * Path_Table.key) list;
+    val path_n_print_list    = List.map (apsnd #print) path_n_unode_list: (Path_Table.key * string) list;
+    val print_n_path_list    = map swap path_n_print_list               : (string * Path_Table.key) list;
     val print_to_paths_table = Print_Table.make_list print_n_path_list  : print_to_paths_table;
   in
     print_to_paths_table: print_to_paths_table

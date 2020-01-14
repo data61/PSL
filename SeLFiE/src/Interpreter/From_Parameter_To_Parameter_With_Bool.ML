@@ -13,13 +13,12 @@ structure SU = SeLFiE_Util;
 
 type connective = Eval_Bool.assert;
 type path       = EP.path;
-type print      = SeLFiE_Util.print;
 type command    = Pattern.command;
 
 datatype parameter =
   Bool    of bool
 | Path    of path
-| Print   of print
+| Print   of string
 | String  of string(*redundant?*)
 | Number  of int
 | Int     of int

@@ -9,8 +9,7 @@ sig
 datatype assert =
   Connective       of Eval_Bool.assert
 | Are_Same_Number  of int  * int
-| Is_Less_Than     of int  * int
-| Is_Int           of int  * int;
+| Is_Less_Than     of int  * int;
 
 val eval: assert -> Eval_Bool.assert;
 
@@ -26,8 +25,7 @@ datatype assert =
 (*We we really need Connective? We do not have syntactic sugars for Number.*)
   Connective      of Eval_Bool.assert
 | Are_Same_Number of int  * int
-| Is_Less_Than    of int  * int
-| Is_Int          of int  * int;
+| Is_Less_Than    of int  * int;
 
 infix
   Is_Less_Than
@@ -35,7 +33,6 @@ infix
 
 fun eval' (Are_Same_Number (numb1, numb2)) = numb1 = numb2
   | eval' (numb1 Is_Less_Than numb2)       = numb1 < numb2
-  | eval' (numb Is_Int int)                = numb = int
   | eval'  _                               = error "eval' in Eval_Number_Struct failed!";
 
 fun eval (Connective assert_connective) = EB.eval assert_connective

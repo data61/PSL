@@ -9,20 +9,15 @@ signature SELFIE_UTIL =
 sig
 
 type     inner_path   = ints;
-(*print: the printed format of a sub-tree in the syntax tree of a term.*)
-datatype print  = Print of string;
-type     prints = print list;
-val same_prints           : print -> print -> bool;
-val same_normalized_prints: Proof.context -> print -> print -> bool;
+
+val same_strings_when_normalized: Proof.context -> string -> string -> bool;
 val inner_path_to_string  : inner_path -> string;
 
-val dest_print           : print -> string;
-val is_subprint_of       : print -> print -> bool;
-val ctxt_n_print_to_cname: Proof.context -> print -> string option;
+val ctxt_n_string_to_cname: Proof.context -> string -> string option;
 
 (*arguments passed to the induct method*)
-datatype induct_arguments = Induct_Arguments of {ons: prints, arbs: prints, rules: prints};
-val dest_induct_arguments: induct_arguments  -> {ons: prints, arbs: prints, rules: prints};
+datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: strings};
+val dest_induct_arguments: induct_arguments  -> {ons: strings, arbs: strings, rules: strings};
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
 
@@ -52,8 +47,7 @@ datatype atomic_assert =
 | Is_In_Nth_Chained_Fact
 (*Eval_Number*)
 | Are_Same_Number
-| Is_Less_Than
-| Is_Int;
+| Is_Less_Than;
 
 datatype assert =
   Not
@@ -72,20 +66,15 @@ structure SeLFiE_Util: SELFIE_UTIL =
 struct
 
 type     inner_path   = ints;
-(*print: the printed format of a sub-tree in the syntax tree of a term.*)
-datatype print  = Print of string;
-type     prints = print list;
-fun same_prints (Print p1) (Print p2) = p1 = p2;
-fun same_normalized_prints (ctxt:Proof.context) (Print p1) (Print p2) =
+
+fun same_strings_when_normalized (ctxt:Proof.context) st1 st2 =
   let
     val normalize          = Isabelle_Utils.normalize_trm_as_string ctxt;
-    val (norm_p1, norm_p2) = apply2 normalize (p1, p2);
+    val (norm_p1, norm_p2) = apply2 normalize (st1, st2);
   in
     norm_p1 = norm_p2
   end;
                                                                               
-fun dest_print (Print str) = str;
-
 fun path_to_string'  []               (acc:string) = acc
   | path_to_string' (step::path:ints) (acc:string)= path_to_string' path (acc ^ "," ^ Int.toString step);
 
@@ -94,18 +83,16 @@ fun inner_path_to_string  []               = ""
 
 infix isSubstring;
 
-fun is_subprint_of (Print p1) (Print p2) = String.isSubstring p1 p2;
-
-fun ctxt_n_print_to_cname  (ctxt:Proof.context) (print:print) =
+fun ctxt_n_string_to_cname  (ctxt:Proof.context) (str:string) =
   let
-    val trm_option = try dest_print print >>= try (Syntax.read_term ctxt): term   option;
-    val trm_cname  = trm_option >>= try Term.dest_Const <$> fst          : string option;
+    val trm_option = try (Syntax.read_term ctxt) str           : term   option;
+    val trm_cname  = trm_option >>= try Term.dest_Const <$> fst: string option;
   in
     trm_cname
   end;
 
 (*arguments passed to the induct method*)
-datatype induct_arguments = Induct_Arguments of {ons: prints, arbs: prints, rules: prints};
+datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: strings};
 fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
 
 datatype qtyp = QFull_Path | QPrint | QInd | QArb | QRule | QNumber;
@@ -136,8 +123,7 @@ datatype atomic_assert =
 | Is_In_Nth_Chained_Fact
 (*Eval_Number*)
 | Are_Same_Number
-| Is_Less_Than
-| Is_Int;
+| Is_Less_Than;
 
 datatype assert =
   Not

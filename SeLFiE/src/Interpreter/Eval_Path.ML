@@ -25,7 +25,7 @@ datatype assert =
 | Is_Path_Above          of path * path
 | Is_Same_Path_As        of path * path
 (*only in path*)
-| Unode_Has_Print        of path * SeLFiE_Util.print
+| Unode_Has_Print        of path * string
 | Is_In_Subgoal          of path
 | Is_In_Chained_Fact     of path
 | Is_In_Nth_Subgoal      of path * int

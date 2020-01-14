@@ -7,12 +7,11 @@ functor from_Path_to_Parameter (Eval_Path:EVAL_PATH): EVAL_PARAMETER =
 struct
 
 type path    = Eval_Path.path;
-type print   = SeLFiE_Util.print;
 type command = Pattern.command;
 
 datatype parameter =
   Path      of path
-| Print     of print
+| Print     of string
 | String    of string(*redundant?*)
 | Number    of int
 | Int       of int
@@ -46,11 +45,9 @@ fun eval trm pst assert parameters =
       | eval' SU.Is_Same_Path_As   [Path p1, Path p2] = EPT.eval trm pst (EPT.Is_Same_Path_As   (p1, p2))
      (*Eval_Print*)
       | eval' SU.Are_Same_Prints [Print p1, Print p2] = EPR.eval (EPR.Are_Same_Prints (p1, p2))
-      | eval' SU.Is_Printed_As   [Print p,  String s] = EPR.eval (EPR.Is_Printed_As   (p, s))
       (*Eval_Number*)
       | eval' SU.Are_Same_Number [Number numb1,  Number numb2] = ENMB.eval (ENMB.Are_Same_Number (numb1, numb2))
       | eval' SU.Is_Less_Than    [Number numb1,  Number numb2] = ENMB.eval (ENMB.Is_Less_Than    (numb1, numb2))
-      | eval' SU.Is_Int          [Number numb,   Int    int  ] = ENMB.eval (ENMB.Is_Int          (numb,    int))
       | eval' _ _ = error "eval' in Eval_Parameters_Struct.ML failed!"
   in
     eval' assert parameters: Eval_Bool.assert

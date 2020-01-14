@@ -6,11 +6,8 @@
 signature EVAL_PRINT =
 sig
 
-type print = SeLFiE_Util.print;
-
 datatype assert =
-  Are_Same_Prints      of print * print
-| Is_Printed_As        of print * string;
+  Are_Same_Prints      of string * string
 
 val eval: assert -> Eval_Bool.assert;
 
@@ -23,15 +20,11 @@ struct
 structure EB = Eval_Bool;
 structure SU = SeLFiE_Util;
 
-type print = SU.print;
-
 datatype assert =
-  Are_Same_Prints of print * print
-| Is_Printed_As   of print * string;
+  Are_Same_Prints of string * string
 
 infix Is_Printed_As;
 
-fun eval (Are_Same_Prints print_pair)                = print_pair |> uncurry SU.same_prints |> EB.bool_to_assert
-  | eval (SU.Print printed_str Is_Printed_As string) = EB.bool_to_assert (printed_str = string);
+fun eval (Are_Same_Prints (prnt1, prnt2)) = prnt1 = prnt2 |> EB.bool_to_assert
 
 end;

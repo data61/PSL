@@ -9,7 +9,7 @@ type path;
 datatype parameter =
   Bool    of bool
 | Path    of path
-| Print   of SeLFiE_Util.print
+| Print   of string
 | String  of string
 | Number  of int
 | Int     of int

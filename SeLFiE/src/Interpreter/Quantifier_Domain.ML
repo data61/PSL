@@ -15,7 +15,7 @@ type path_to_node_table;
 type print_to_paths_table;
 
 val mk_all_paths:  Proof.state -> term -> path list;
-val mk_all_prints: Proof.state -> term -> SeLFiE_Util.prints;
+val mk_all_prints: Proof.state -> term -> strings;
 
 end;
 

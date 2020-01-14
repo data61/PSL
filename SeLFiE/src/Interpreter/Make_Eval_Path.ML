@@ -7,7 +7,6 @@ functor make_Eval_Path (Path_To_Unode:PATH_TO_UNODE): EVAL_PATH =
 struct
 
 type connective = Eval_Bool.assert;
-type print      = SeLFiE_Util.print;
 type path       = Path_To_Unode.path;
 
 structure END = Eval_Node;
@@ -31,7 +30,7 @@ datatype assert =
 | Is_Path_Above          of path * path
 | Is_Same_Path_As        of path * path
 (*only in path*)
-| Unode_Has_Print        of path * print
+| Unode_Has_Print        of path * string
 | Is_In_Subgoal          of path
 | Is_In_Chained_Fact     of path
 | Is_In_Nth_Subgoal      of path * int
@@ -60,12 +59,11 @@ fun eval (term:term) (pst:Proof.state) assert =
       | eval' (Is_Path_Above     pair) = path2_to_unode2 pair |> EU.Is_Path_Above     |> EU.eval
       | eval' (Is_Same_Path_As   pair) = path2_to_unode2 pair |> EU.Is_Same_Path_As   |> EU.eval
       (*only in path*)
-      | eval' (Unode_Has_Print pair) =
+      | eval' (Unode_Has_Print (path, print)) =
           let
-            val this_print  = snd pair;
-            val unode_print = pair |> fst |> path_to_unode |> #print: SeLFiE_Util.print;
+            val unode = path_to_unode path: UN.unode;
           in
-            SeLFiE_Util.same_prints this_print unode_print |> Eval_Bool.bool_to_assert
+            print = #print unode |> Eval_Bool.bool_to_assert
           end
       | eval' (Is_In_Subgoal          path) = Path_To_Unode.path_is_in_subgoal path                  |> Eval_Bool.bool_to_assert
       | eval' (Is_In_Chained_Fact     path) = Path_To_Unode.path_is_in_chained_fact path             |> Eval_Bool.bool_to_assert

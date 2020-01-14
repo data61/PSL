@@ -8,13 +8,12 @@ structure EB = Eval_Bound;
 structure SU = SeLFiE_Util;
 
 type path    = EB.path;
-type print   = SeLFiE_Util.print;
 type command = Pattern.command;
 
 datatype parameter =
   Bool    of bool
 | Path    of path
-| Print   of print
+| Print   of string
 | String  of string
 | Number  of int
 | Int     of int

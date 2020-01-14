@@ -40,9 +40,8 @@ datatype assert =
 (*Eval_Number*)
 | Are_Same_Number of assert * assert
 | Is_Less_Than    of assert * assert
-| Is_Int          of assert * assert
 (*Parameter*)
-| Print  of SeLFiE_Util.print
+| Print  of string
 | Number of int
 (*expr*)
 | Variable            of string
@@ -66,9 +65,6 @@ struct
 
 structure ED = Eval_Deep;
 structure SU = SeLFiE_Util;
-
-type print  = SeLFiE_Util.print;
-type qtyp   = SeLFiE_Util.qtyp;
 
 datatype assert =
 (*bool*)
@@ -103,16 +99,15 @@ datatype assert =
 (*Eval_Number*)
 | Are_Same_Number of assert * assert
 | Is_Less_Than    of assert * assert
-| Is_Int          of assert * assert
 (*Parameter*)
-| Print  of print
+| Print  of string
 | Number of int
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert
 | Applies             of assert  * assert list
-| Alls                of (string * qtyp) list * assert
-| Somes               of (string * qtyp) list * assert
+| Alls                of (string * SU.qtyp) list * assert
+| Somes               of (string * SU.qtyp) list * assert
 | In_All_Definitions  of (assert * assert * assert list)
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert;
@@ -154,7 +149,6 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_out (Unode_Has_Print   pair)     = ed_eval_outer_assert_atomic_pair (SU.Unode_Has_Print,   pair)
       | eval_out (Are_Same_Number   pair)     = ed_eval_outer_assert_atomic_pair (SU.Are_Same_Number,   pair)
       | eval_out (Is_Less_Than      pair)     = ed_eval_outer_assert_atomic_pair (SU.Is_Less_Than,      pair)
-      | eval_out (Is_Int            pair)     = ed_eval_outer_assert_atomic_pair (SU.Is_Int,            pair)
       | eval_out (Print            print)     = ed_eval_outer_param              (ED.Outer_Print        print)
       | eval_out (Number          number)     = ed_eval_outer_param              (ED.Outer_Number       number)
       | eval_out (Variable        string)     = ed_eval_outer (ED.Outer_Variable string)
@@ -205,7 +199,6 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_in (Unode_Has_Print   pair)     = ed_eval_inner_assert_atomic_pair (SU.Unode_Has_Print,   pair)
       | eval_in (Are_Same_Number   pair)     = ed_eval_inner_assert_atomic_pair (SU.Are_Same_Number,   pair)
       | eval_in (Is_Less_Than      pair)     = ed_eval_inner_assert_atomic_pair (SU.Is_Less_Than,      pair)
-      | eval_in (Is_Int            pair)     = ed_eval_inner_assert_atomic_pair (SU.Is_Int,            pair)
       | eval_in (Print            print)     = ed_eval_inner_param              (ED.Inner_Print        print)
       | eval_in (Number          number)     = ed_eval_inner_param              (ED.Inner_Number       number)
       | eval_in (Variable        string)     = ed_eval_inner (ED.Inner_Variable string)

@@ -38,13 +38,12 @@ end;
 
 local
 
-fun gen_pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path) (table) (lookup) =
+fun path_n_table_to_cname (path) (table) (lookup) =
   let
-    val unode_option  = lookup table path                             : UN.unode option;
-    val print_option  = Option.map #print unode_option                : SeLFiE_Util.print option;
-    val string_option = Option.map SeLFiE_Util.dest_print print_option: string option;
+    val unode_option  = lookup table path             : UN.unode option;
+    val print_option  = Option.map #print unode_option: string option;
   in
-    string_option
+    print_option
   end;
 
 in
@@ -92,7 +91,7 @@ fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
   let
     val table = pst_n_trm_to_path_to_unode_table pst term: path_to_unode_table;
   in
-    gen_pst_n_term_n_path_to_cname pst term path table lookup
+    path_n_table_to_cname path table lookup
   end;
 
 fun path_is_in_subgoal          _   = false: bool;
@@ -215,19 +214,11 @@ fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) _: path_to_unode_table =
     outer_path_to_unode_table
   end;
 
-fun outer_unode_to_unode ({unode,...}:outer_unode) = unode;
-
-fun outer_unode_to_node ({unode,...}:outer_unode) = #node unode: UN.node;
-
-fun outer_unode2_to_unode2 (fpun1, fpun2) = apply2 outer_unode_to_unode (fpun1, fpun2): (UN.unode * UN.unode);
-
-fun outer_unode2_to_node2 (fpun1, fpun2) = apply2 outer_unode_to_node (fpun1, fpun2): (UN.node * UN.node);
-
 fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
   let
     val table = pst_n_trm_to_path_to_unode_table pst term: path_to_unode_table;
   in
-    gen_pst_n_term_n_path_to_cname pst term path table lookup
+    path_n_table_to_cname path table lookup
   end;
 
 fun path_is_in_subgoal      ((Subgoal      _, _):path) = true

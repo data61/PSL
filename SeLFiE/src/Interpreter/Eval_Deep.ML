@@ -10,7 +10,7 @@ type inner_path;
 datatype outer_parameter =
   Outer_Bool    of bool
 | Outer_Path    of outer_path
-| Outer_Print   of SeLFiE_Util.print
+| Outer_Print   of string
 | Outer_String  of string
 | Outer_Number  of int
 | Outer_Int     of int
@@ -19,7 +19,7 @@ datatype outer_parameter =
 datatype inner_parameter =
   Inner_Bool    of bool
 | Inner_Path    of inner_path
-| Inner_Print   of SeLFiE_Util.print
+| Inner_Print   of string
 | Inner_String  of string
 | Inner_Number  of int
 | Inner_Int     of int

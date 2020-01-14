@@ -9,15 +9,13 @@ SeLFiE: Semantic Logical Feature Extractor.
 signature EVAL_INDUCT_ARGUMENT =
 sig
 
-type print  = SeLFiE_Util.print;
-
 datatype assert =
   Connective       of Eval_Bool.assert
-| Is_Nth_Induct    of print * int
-| Is_Nth_Arbitrary of print * int
-| Is_Induct        of print
-| Is_Arbitrary     of print
-| Is_Rule          of print;
+| Is_Nth_Induct    of string * int
+| Is_Nth_Arbitrary of string * int
+| Is_Induct        of string
+| Is_Arbitrary     of string
+| Is_Rule          of string;
 
 val eval: assert -> SeLFiE_Util.induct_arguments -> Eval_Bool.assert;
 
@@ -31,15 +29,13 @@ structure SU = SeLFiE_Util;
 structure EB = Eval_Bool;
 structure EN = Eval_Number;
 
-type print  = SeLFiE_Util.print;
-
 datatype assert =
   Connective       of Eval_Bool.assert
-| Is_Nth_Induct    of print * int
-| Is_Nth_Arbitrary of print * int
-| Is_Induct        of print
-| Is_Arbitrary     of print
-| Is_Rule          of print;
+| Is_Nth_Induct    of string * int
+| Is_Nth_Arbitrary of string * int
+| Is_Induct        of string
+| Is_Arbitrary     of string
+| Is_Rule          of string;
 
 fun eval' (assert:assert) (SU.Induct_Arguments {ons, arbs, rules}: SU.induct_arguments) =
   let
