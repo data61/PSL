@@ -14,24 +14,13 @@ structure SU  = SeLFiE_Util;
 type path    = EV.path;
 type command = Pattern.command;
 
-datatype parameter =
-  Bool    of bool
-| Path    of path
-| Print   of string
-| Number  of int
-| Command of command;
+datatype parameter = Path of path | Non_Path of SeLFiE_Util.non_path_parameter;
 
-fun here_to_there (Bool b)    = EV.Bool b
-  | here_to_there (Path p)    = EV.Path p
-  | here_to_there (Print p)   = EV.Print p
-  | here_to_there (Number n)  = EV.Number n
-  | here_to_there (Command i) = EV.Command i;
+fun here_to_there (Path     p ) = EV.Path p
+  | here_to_there (Non_Path np) = EV.Non_Path np;
 
-fun there_to_here (EV.Bool b)    = Bool b
-  | there_to_here (EV.Path p)    = Path p
-  | there_to_here (EV.Print p)   = Print p
-  | there_to_here (EV.Number n)  = Number n
-  | there_to_here (EV.Command i) = Command i;
+fun there_to_here (EV.Path     p ) = Path p
+  | there_to_here (EV.Non_Path np) = Non_Path np;
 
 datatype expr =
   Variable of string

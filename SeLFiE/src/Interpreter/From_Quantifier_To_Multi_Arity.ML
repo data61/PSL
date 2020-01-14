@@ -10,24 +10,13 @@ structure SU = SeLFiE_Util;
 type path    = EQ.path;
 type command = Pattern.command;
 
-datatype parameter =
-  Bool    of bool
-| Path    of path
-| Print   of string
-| Number  of int
-| Command of command;
+datatype parameter = Path of path | Non_Path of SeLFiE_Util.non_path_parameter;
 
-fun here_to_there (Bool b)    = EQ.Bool b
-  | here_to_there (Path p)    = EQ.Path p
-  | here_to_there (Print p)   = EQ.Print p
-  | here_to_there (Number n)  = EQ.Number n
-  | here_to_there (Command i) = EQ.Command i;
+fun here_to_there (Path     p ) = EQ.Path p
+  | here_to_there (Non_Path np) = EQ.Non_Path np;
 
-fun there_to_here (EQ.Bool b)    = Bool b
-  | there_to_here (EQ.Path p)    = Path p
-  | there_to_here (EQ.Print p)   = Print p
-  | there_to_here (EQ.Number n)  = Number n
-  | there_to_here (EQ.Command i) = Command i;
+fun there_to_here (EQ.Path     p ) = Path p
+  | there_to_here (EQ.Non_Path np) = Non_Path np;
 
 datatype expr =
   Variable of string

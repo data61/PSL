@@ -16,8 +16,9 @@ begin
 (* pre-processing *)
 ML_file "../src/Utils.ML"
 ML_file "../MeLoId/src/MeLoId_Util.ML"
-ML_file "src/Preprocessor/Util.ML"
 ML_file "src/Preprocessor/Pattern.ML"
+ML_file "src/Preprocessor/Util.ML"
+
 ML_file "src/Preprocessor/Unique_Node.ML"
 ML_file "src/Preprocessor/Unique_Node_Test.ML"
 ML_file "src/Preprocessor/Path_Table_And_Print_Table.ML"

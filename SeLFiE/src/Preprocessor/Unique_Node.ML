@@ -466,18 +466,6 @@ fun futrm_w_prnt_n_inner_path_to_unodes (UFC_Prnt_n_Path (ctnt, prnt, inner_path
     {node = NA, print = prnt, inner_path = inner_path} ::
     futrm_w_prnt_n_inner_path_to_unodes func @ maps futrm_w_prnt_n_inner_path_to_unodes args;
 
-fun node_to_const_name (NC (cname, _)) = SOME (cname:string)
-  | node_to_const_name  _              = NONE;
-
-fun pst_n_node_to_cmmnd (pst:Proof.state) (node:node) =
-  let
-    val ctxt           = Proof.context_of pst                     : Proof.context;
-    val cname_option   = node_to_const_name node                  : string option;
-    val command_otpion = cname_option <$> Pattern.get_command ctxt: Pattern.command option;
-  in
-    command_otpion
-  end;
-
 end;
 
 structure UN = Unique_Node;

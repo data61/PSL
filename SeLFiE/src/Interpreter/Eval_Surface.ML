@@ -110,8 +110,8 @@ datatype assert =
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert;
 
-fun come_back_expression (ED.Outer_Literal (ED.Outer_Bool bool)) = if bool then True else False
-  | come_back_expression  _                                      = error "come_back_expression in Eval_Surface.ML failed."
+fun come_back_expression (ED.Outer_Literal (ED.Outer_Non_Path (SU.Bool bool))) = if bool then True else False
+  | come_back_expression  _                                                    = error "come_back_expression in Eval_Surface.ML failed."
 
 fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
@@ -124,8 +124,8 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
     and ed_eval_outer_assert_list        (assert:SU.assert,  args: assert list)              = ed_eval_outer (ED.Outer_Assert (assert, map eval_out args))     : ED.outer_expression
     and eval_enter (Outermost ass) = eval_out ass
       | eval_enter _ = error "eval in From_Deep_To_Surface.ML failed. eval is defined only for Outermost."
-    and eval_out True                         = ed_eval_outer_param              (ED.Outer_Bool         true)
-      | eval_out False                        = ed_eval_outer_param              (ED.Outer_Bool         false)
+    and eval_out True                         = ed_eval_outer_param              (ED.Outer_Non_Path (SU.Bool true ))
+      | eval_out False                        = ed_eval_outer_param              (ED.Outer_Non_Path (SU.Bool false))
       | eval_out (Not               ass)      = ed_eval_outer_assert_one         (SU.Not,               ass)
       | eval_out (And               pair)     = ed_eval_outer_assert_pair        (SU.And,               pair)
       | eval_out (Or                pair)     = ed_eval_outer_assert_pair        (SU.Or,                pair)
@@ -149,8 +149,8 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_out (Unode_Has_Print   pair)     = ed_eval_outer_assert_atomic_pair (SU.Unode_Has_Print,   pair)
       | eval_out (Are_Same_Number   pair)     = ed_eval_outer_assert_atomic_pair (SU.Are_Same_Number,   pair)
       | eval_out (Is_Less_Than      pair)     = ed_eval_outer_assert_atomic_pair (SU.Is_Less_Than,      pair)
-      | eval_out (Print            print)     = ed_eval_outer_param              (ED.Outer_Print        print)
-      | eval_out (Number          number)     = ed_eval_outer_param              (ED.Outer_Number       number)
+      | eval_out (Print            print)     = ed_eval_outer_param              (ED.Outer_Non_Path (SU.Print  print ))
+      | eval_out (Number          number)     = ed_eval_outer_param              (ED.Outer_Non_Path (SU.Number number))
       | eval_out (Variable        string)     = ed_eval_outer (ED.Outer_Variable string)
       | eval_out (Lambdas (strings, sub_ass)) = ed_eval_outer (ED.Outer_Lambdas (strings,       eval_out sub_ass ))
       | eval_out (Applies (func,    args))    = ed_eval_outer (ED.Outer_Applies (eval_out func, map eval_out args))
@@ -173,8 +173,8 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
     and ed_eval_inner_assert_pair        (ass:SU.assert,         (arg1:assert, arg2:assert)) = ed_eval_inner (ED.Inner_Assert (ass, map eval_in [arg1, arg2])) : ED.inner_expression
     and ed_eval_inner_assert_atomic_pair (atom:SU.atomic_assert, (arg1:assert, arg2:assert)) = ed_eval_inner_assert_pair (SU.Atomic atom, (arg1, arg2))        : ED.inner_expression
     and ed_eval_inner_assert_list        (assert:SU.assert,  args: assert list)              = ed_eval_inner (ED.Inner_Assert (assert, map eval_in args))      : ED.inner_expression
-    and eval_in True      = ed_eval_inner_param (ED.Inner_Bool true)
-      | eval_in False     = ed_eval_inner_param (ED.Inner_Bool false)
+    and eval_in True      = ed_eval_inner_param (ED.Inner_Non_Path (SU.Bool true ))
+      | eval_in False     = ed_eval_inner_param (ED.Inner_Non_Path (SU.Bool false))
       | eval_in (Not ass) = ed_eval_inner_assert_one (SU.Not, ass)
       | eval_in (And               pair)     = ed_eval_inner_assert_pair        (SU.And,               pair)
       | eval_in (Or                pair)     = ed_eval_inner_assert_pair        (SU.Or,                pair)
@@ -198,8 +198,8 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_in (Unode_Has_Print   pair)     = ed_eval_inner_assert_atomic_pair (SU.Unode_Has_Print,   pair)
       | eval_in (Are_Same_Number   pair)     = ed_eval_inner_assert_atomic_pair (SU.Are_Same_Number,   pair)
       | eval_in (Is_Less_Than      pair)     = ed_eval_inner_assert_atomic_pair (SU.Is_Less_Than,      pair)
-      | eval_in (Print            print)     = ed_eval_inner_param              (ED.Inner_Print        print)
-      | eval_in (Number          number)     = ed_eval_inner_param              (ED.Inner_Number       number)
+      | eval_in (Print            print)     = ed_eval_inner_param              (ED.Inner_Non_Path (SU.Print  print ))
+      | eval_in (Number          number)     = ed_eval_inner_param              (ED.Inner_Non_Path (SU.Number number))
       | eval_in (Variable        string)     = ed_eval_inner (ED.Inner_Variable string)
       | eval_in (Lambdas (strings, sub_ass)) = ed_eval_inner (ED.Inner_Lambdas (strings,       eval_in sub_ass ))
       | eval_in (Applies (func,    args))    = ed_eval_inner (ED.Inner_Applies (eval_in func, map eval_in args))

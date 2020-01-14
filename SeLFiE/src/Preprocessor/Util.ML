@@ -8,10 +8,9 @@ Helper functions for SeLFiE.
 signature SELFIE_UTIL =
 sig
 
-type     inner_path   = ints;
-
+type inner_path = ints;
 val same_strings_when_normalized: Proof.context -> string -> string -> bool;
-val inner_path_to_string  : inner_path -> string;
+val inner_path_to_string        : inner_path -> string;
 
 val ctxt_n_string_to_cname: Proof.context -> string -> string option;
 
@@ -58,6 +57,12 @@ datatype assert =
 | Ands
 | Ors
 | Atomic of atomic_assert;
+
+datatype non_path_parameter =
+  Bool    of bool
+| Print   of string
+| Number  of int
+| Command of Pattern.command;
 
 end;
 
@@ -134,5 +139,11 @@ datatype assert =
 | Ands
 | Ors
 | Atomic of atomic_assert;
+
+datatype non_path_parameter =
+  Bool    of bool
+| Print   of string
+| Number  of int
+| Command of Pattern.command;
 
 end;

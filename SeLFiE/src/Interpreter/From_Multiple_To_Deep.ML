@@ -21,55 +21,26 @@ type inner_path = EIM.path;
 type command    = Pattern.command;
 type qtyp       = SeLFiE_Util.qtyp;
 
-datatype outer_parameter =
-  Outer_Bool    of bool
-| Outer_Path    of outer_path
-| Outer_Print   of string
-| Outer_Number  of int
-| Outer_Command of command;
+datatype outer_parameter = Outer_Path of outer_path | Outer_Non_Path of SeLFiE_Util.non_path_parameter;
+datatype inner_parameter = Inner_Path of inner_path | Inner_Non_Path of SeLFiE_Util.non_path_parameter;
 
-datatype inner_parameter =
-  Inner_Bool    of bool
-| Inner_Path    of inner_path
-| Inner_Print   of string
-| Inner_Number  of int
-| Inner_Command of command;
+fun go_away_outer_parameter (Outer_Path     p ) = EOM.Path p
+  | go_away_outer_parameter (Outer_Non_Path np) = EOM.Non_Path np;
 
-fun go_away_outer_parameter (Outer_Bool    b) = EOM.Bool b
-  | go_away_outer_parameter (Outer_Path    p) = EOM.Path p
-  | go_away_outer_parameter (Outer_Print   p) = EOM.Print p
-  | go_away_outer_parameter (Outer_Number  n) = EOM.Number n
-  | go_away_outer_parameter (Outer_Command c) = EOM.Command c;
+fun come_back_outer_parameter (EOM.Path     p ) = Outer_Path     p
+  | come_back_outer_parameter (EOM.Non_Path np) = Outer_Non_Path np;
 
-fun come_back_outer_parameter (EOM.Bool    b) = Outer_Bool    b
-  | come_back_outer_parameter (EOM.Path    p) = Outer_Path    p
-  | come_back_outer_parameter (EOM.Print   p) = Outer_Print   p
-  | come_back_outer_parameter (EOM.Number  n) = Outer_Number  n
-  | come_back_outer_parameter (EOM.Command c) = Outer_Command c;
+fun go_away_inner_parameter (Inner_Path     p ) = EIM.Path p
+  | go_away_inner_parameter (Inner_Non_Path np) = EIM.Non_Path np;
 
-fun go_away_inner_parameter (Inner_Bool b)    = EIM.Bool b
-  | go_away_inner_parameter (Inner_Path p)    = EIM.Path p
-  | go_away_inner_parameter (Inner_Print p)   = EIM.Print p
-  | go_away_inner_parameter (Inner_Number n)  = EIM.Number n
-  | go_away_inner_parameter (Inner_Command i) = EIM.Command i;
+fun come_back_inner_parameter (EIM.Path     p ) = Inner_Path     p
+  | come_back_inner_parameter (EIM.Non_Path np) = Inner_Non_Path np;
 
-fun come_back_inner_parameter (EIM.Bool    b) = Inner_Bool    b
-  | come_back_inner_parameter (EIM.Path    p) = Inner_Path    p
-  | come_back_inner_parameter (EIM.Print   p) = Inner_Print   p
-  | come_back_inner_parameter (EIM.Number  n) = Inner_Number  n
-  | come_back_inner_parameter (EIM.Command c) = Inner_Command c;
+fun move_in_parameter (Outer_Non_Path np) = Inner_Non_Path np
+  | move_in_parameter (Outer_Path     _)  = error "move_in_parameter in From_Multiple_To_Deep.ML failed. move_in_parameter is not defined for Outer_Path";
 
-fun move_in_parameter (Outer_Bool    b) = Inner_Bool b
-  | move_in_parameter (Outer_Path    _) = error "move_in_parameter in From_Multiple_To_Deep.ML failed. move_in_parameter is not defined for Outer_Path"
-  | move_in_parameter (Outer_Print   p) = Inner_Print p
-  | move_in_parameter (Outer_Number  n) = Inner_Number n
-  | move_in_parameter (Outer_Command c) = Inner_Command c;
-
-fun move_out_parameter (Inner_Bool    b) = Outer_Bool b
-  | move_out_parameter (Inner_Path    _) = error "move_out_parameter in From_Multiple_To_Deep.ML failed. move_out_parameter is not defined for Inner_Path"
-  | move_out_parameter (Inner_Print   p) = Outer_Print p
-  | move_out_parameter (Inner_Number  n) = Outer_Number n
-  | move_out_parameter (Inner_Command c) = Outer_Command c;
+fun move_out_parameter (Inner_Non_Path np) = Outer_Non_Path np
+  | move_out_parameter (Inner_Path    _) = error "move_out_parameter in From_Multiple_To_Deep.ML failed. move_out_parameter is not defined for Inner_Path";
 
 datatype outer_expression =
   Outer_Variable of string

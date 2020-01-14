@@ -14,24 +14,13 @@ structure SU   = SeLFiE_Util;
 type path    = EPWB.path;
 type command = Pattern.command;
 
-datatype parameter =
-  Bool    of bool
-| Path    of path
-| Print   of string
-| Number  of int
-| Command of command;
+datatype parameter = Path of path | Non_Path of SeLFiE_Util.non_path_parameter;
 
-fun here_to_there (Bool b)    = EPWB.Bool b
-  | here_to_there (Path p)    = EPWB.Path p
-  | here_to_there (Print p)   = EPWB.Print p
-  | here_to_there (Number n)  = EPWB.Number n
-  | here_to_there (Command i) = EPWB.Command i;
+fun here_to_there (Path     p ) = EPWB.Path     p
+  | here_to_there (Non_Path np) = EPWB.Non_Path np;
 
-fun there_to_here (EPWB.Bool b)    = Bool b
-  | there_to_here (EPWB.Path p)    = Path p
-  | there_to_here (EPWB.Print p)   = Print p
-  | there_to_here (EPWB.Number n)  = Number n
-  | there_to_here (EPWB.Command i) = Command i;
+fun there_to_here (EPWB.Path     p )   = Path p
+  | there_to_here (EPWB.Non_Path np)   = Non_Path np;
 
 datatype expr =
   Bound      of int

@@ -64,16 +64,6 @@ fun unodes_to_unode_table (unodes:UN.unodes) =
 type print_to_inner_paths_table  = Unique_Node.inner_path list Print_Table.table;
 type print_to_inner_paths_tables = print_to_inner_paths_table list;
 
-fun gen_trm_table_to_print_to_inner_paths_table (trm_table:'a Inner_Path_Table.table) (get_print:'a -> string) =
-  let
-    val inner_path_n_unode_s       = Inner_Path_Table.dest trm_table;
-    val inner_path_n_print_s       = List.map (apsnd get_print) inner_path_n_unode_s;
-    val print_n_inner_path_s       = map swap inner_path_n_print_s;
-    val print_to_inner_paths_table = Print_Table.make_list print_n_inner_path_s;
-  in
-    print_to_inner_paths_table: print_to_inner_paths_table
-  end;
-
 fun print_to_inner_paths_table_n_print_to_inner_paths (print_to_inner_paths_table:print_to_inner_paths_table) (print: string) =
   Print_Table.lookup_list print_to_inner_paths_table print;
 

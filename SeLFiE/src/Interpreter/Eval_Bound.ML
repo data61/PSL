@@ -6,12 +6,7 @@ sig
 
 type path;
 
-datatype parameter =
-  Bool    of bool
-| Path    of path
-| Print   of string
-| Number  of int
-| Command of Pattern.command;
+datatype parameter = Path of path | Non_Path of SeLFiE_Util.non_path_parameter;
 
 datatype expr =
   Bound      of int

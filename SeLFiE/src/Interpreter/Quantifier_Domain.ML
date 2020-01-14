@@ -64,15 +64,15 @@ fun pst_to_numb_of_max_arity (pst:Proof.state) =
 
 fun pst_n_trm_to_max_numb    (pst:Proof.state) (trm:term) = Int.max (pst_n_trm_to_numb_of_pahts pst trm, pst_to_numb_of_max_arity pst): int;
 
-fun pst_n_trm_to_numb_domain (pst:Proof.state) (trm:term) = List.tabulate (pst_n_trm_to_max_numb pst trm, Eval_Variable.Number): Eval_Variable.parameter list;
+fun pst_n_trm_to_numb_domain (pst:Proof.state) (trm:term) = List.tabulate (pst_n_trm_to_max_numb pst trm, Eval_Variable.Non_Path o SU.Number): Eval_Variable.parameter list;
 
-val map_Print = map Eval_Variable.Print;
+val map_Non_Path_Print = map (Eval_Variable.Non_Path o SU.Print);
 
 fun qtyp_to_qdomain SU.QNumber    pst trm _ = pst_n_trm_to_numb_domain pst trm
   | qtyp_to_qdomain SU.QFull_Path pst trm _ = mk_all_paths  pst trm |> map Eval_Variable.Path
-  | qtyp_to_qdomain SU.QPrint     pst trm _ = mk_all_prints pst trm |> map_Print
-  | qtyp_to_qdomain SU.QInd       _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Print ons
-  | qtyp_to_qdomain SU.QArb       _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Print arbs
-  | qtyp_to_qdomain SU.QRule      _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Print rules
+  | qtyp_to_qdomain SU.QPrint     pst trm _ = mk_all_prints pst trm |> map_Non_Path_Print
+  | qtyp_to_qdomain SU.QInd       _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Non_Path_Print ons
+  | qtyp_to_qdomain SU.QArb       _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Non_Path_Print arbs
+  | qtyp_to_qdomain SU.QRule      _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Non_Path_Print rules
 
 end;
