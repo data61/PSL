@@ -5,6 +5,7 @@ functor from_Bound_to_Variable (Eval_Bound:EVAL_BOUND): EVAL_VARIABLE  =
 struct
 
 structure EB = Eval_Bound;
+structure SU = SeLFiE_Util;
 
 type path    = EB.path;
 type print   = SeLFiE_Util.print;
@@ -36,33 +37,12 @@ fun there_to_here (EB.Bool b)    = Bool b
   | there_to_here (EB.Int i)     = Int i
   | there_to_here (EB.Command i) = Command i;
 
-type atomic_assert = SeLFiE_Util.atomic_assert;
-
-datatype assert =
-  Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
-| Atomic of atomic_assert;
-
-fun convert_assert Not   = EB.Not
-  | convert_assert And   = EB.And
-  | convert_assert Or    = EB.Or
-  | convert_assert Nor   = EB.Nor
-  | convert_assert Imply = EB.Imply
-  | convert_assert Ands  = EB.Ands
-  | convert_assert Ors   = EB.Ors
-  | convert_assert (Atomic assert) = EB.Atomic assert;
-
 datatype expr =
   Variable   of string
 | Lambda     of string * expr
 | Apply      of expr   * expr
 | Literal    of parameter
-| Assert     of assert * expr list;
+| Assert     of SU.assert * expr list;
 
 type environment = (string * int) list; (*map a variable name to a de-Bruijn index*)
 
@@ -76,7 +56,7 @@ fun var_to_bound env (Variable   vname           ) = EB.Bound (lookup env vname)
   | var_to_bound env (Lambda    (name,  sub_expr)) = EB.Lambda (var_to_bound (increment_then_update_with_0 name env) sub_expr)
   | var_to_bound env (Apply     (expr1, expr2   )) = EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
   | var_to_bound _   (Literal    param           ) = EB.Literal (here_to_there param)
-  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (convert_assert assert, map (var_to_bound env) params);
+  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params);
 
 fun convert_result (EB.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ =

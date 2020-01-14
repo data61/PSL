@@ -127,22 +127,22 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
   let
     fun ed_eval_outer                    (outer_expr:ED.outer_expression)                    = ED.eval_outer pst induct_args outer_expr term                   : ED.outer_expression;
     fun ed_eval_outer_param              (param     :ED.outer_parameter)                     = ed_eval_outer (ED.Outer_Literal param)                          : ED.outer_expression;
-    fun ed_eval_outer_assert_one         (ass:ED.assert,          arg:assert)                = ed_eval_outer (ED.Outer_Assert (ass, [eval_out arg]))           : ED.outer_expression
-    and ed_eval_outer_assert_atomic_one  (atom:ED.atomic_assert,  arg:assert)                = ed_eval_outer_assert_one (ED.Atomic atom, arg)                  : ED.outer_expression
-    and ed_eval_outer_assert_pair        (ass:ED.assert,         (arg1:assert, arg2:assert)) = ed_eval_outer (ED.Outer_Assert (ass, map eval_out [arg1, arg2])): ED.outer_expression
-    and ed_eval_outer_assert_atomic_pair (atom:ED.atomic_assert, (arg1:assert, arg2:assert)) = ed_eval_outer_assert_pair (ED.Atomic atom, (arg1, arg2))        : ED.outer_expression
-    and ed_eval_outer_assert_list        (assert:ED.assert,  args: assert list)              = ed_eval_outer (ED.Outer_Assert (assert, map eval_out args))     : ED.outer_expression
+    fun ed_eval_outer_assert_one         (ass:SU.assert,          arg:assert)                = ed_eval_outer (ED.Outer_Assert (ass, [eval_out arg]))           : ED.outer_expression
+    and ed_eval_outer_assert_atomic_one  (atom:SU.atomic_assert,  arg:assert)                = ed_eval_outer_assert_one (SU.Atomic atom, arg)                  : ED.outer_expression
+    and ed_eval_outer_assert_pair        (ass:SU.assert,         (arg1:assert, arg2:assert)) = ed_eval_outer (ED.Outer_Assert (ass, map eval_out [arg1, arg2])): ED.outer_expression
+    and ed_eval_outer_assert_atomic_pair (atom:SU.atomic_assert, (arg1:assert, arg2:assert)) = ed_eval_outer_assert_pair (SU.Atomic atom, (arg1, arg2))        : ED.outer_expression
+    and ed_eval_outer_assert_list        (assert:SU.assert,  args: assert list)              = ed_eval_outer (ED.Outer_Assert (assert, map eval_out args))     : ED.outer_expression
     and eval_enter (Outermost ass) = eval_out ass
       | eval_enter _ = error "eval in From_Deep_To_Surface.ML failed. eval is defined only for Outermost."
     and eval_out True                         = ed_eval_outer_param              (ED.Outer_Bool         true)
       | eval_out False                        = ed_eval_outer_param              (ED.Outer_Bool         false)
-      | eval_out (Not               ass)      = ed_eval_outer_assert_one         (ED.Not,               ass)
-      | eval_out (And               pair)     = ed_eval_outer_assert_pair        (ED.And,               pair)
-      | eval_out (Or                pair)     = ed_eval_outer_assert_pair        (ED.Or,                pair)
-      | eval_out (Nor               pair)     = ed_eval_outer_assert_pair        (ED.Nor,               pair)
-      | eval_out (Imply             pair)     = ed_eval_outer_assert_pair        (ED.Imply,             pair)
-      | eval_out (Ands              asses)    = ed_eval_outer_assert_list        (ED.Ands,              asses)
-      | eval_out (Ors               asses)    = ed_eval_outer_assert_list        (ED.Ors,               asses)
+      | eval_out (Not               ass)      = ed_eval_outer_assert_one         (SU.Not,               ass)
+      | eval_out (And               pair)     = ed_eval_outer_assert_pair        (SU.And,               pair)
+      | eval_out (Or                pair)     = ed_eval_outer_assert_pair        (SU.Or,                pair)
+      | eval_out (Nor               pair)     = ed_eval_outer_assert_pair        (SU.Nor,               pair)
+      | eval_out (Imply             pair)     = ed_eval_outer_assert_pair        (SU.Imply,             pair)
+      | eval_out (Ands              asses)    = ed_eval_outer_assert_list        (SU.Ands,              asses)
+      | eval_out (Ors               asses)    = ed_eval_outer_assert_list        (SU.Ors,               asses)
       | eval_out (Is_Cnst           ass)      = ed_eval_outer_assert_atomic_one  (SU.Is_Cnst,           ass)
       | eval_out (Is_Free           ass)      = ed_eval_outer_assert_atomic_one  (SU.Is_Free,           ass)
       | eval_out (Is_Var            ass)      = ed_eval_outer_assert_atomic_one  (SU.Is_Var,            ass)
@@ -171,7 +171,7 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst induct_args (ED.Dive_In (eval_out target, eval_in inner_ass, map eval_out outer_args)) term
       | eval_out (In_Some_Definitions (target, Lambdas (vnames, body), outer_args)) =
         let
-          val sugar = (ED.Dive_In (eval_out target, ED.Inner_Assert (ED.Not, [eval_in (Lambdas (vnames, Not body))]), map eval_out outer_args))
+          val sugar = (ED.Dive_In (eval_out target, ED.Inner_Assert (SU.Not, [eval_in (Lambdas (vnames, Not body))]), map eval_out outer_args))
         in
           ED.eval_outer pst induct_args sugar term
         end
@@ -180,20 +180,20 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_out (Outermost _)           = error "eval_out in From_Deep_To_Surface.ML failed. eval_out is not defined for Outermost."
     and ed_eval_inner                    (inner_expr:ED.inner_expression)                    = ED.eval_inner pst induct_args inner_expr term                   : ED.inner_expression
     and ed_eval_inner_param              (param     :ED.inner_parameter)                     = ed_eval_inner (ED.Inner_Literal param)                          : ED.inner_expression
-    and ed_eval_inner_assert_one         (ass:ED.assert,          arg:assert)                = ed_eval_inner (ED.Inner_Assert (ass, [eval_in arg]))            : ED.inner_expression
-    and ed_eval_inner_assert_atomic_one  (atom:ED.atomic_assert,  arg:assert)                = ed_eval_inner_assert_one (ED.Atomic atom, arg)                  : ED.inner_expression
-    and ed_eval_inner_assert_pair        (ass:ED.assert,         (arg1:assert, arg2:assert)) = ed_eval_inner (ED.Inner_Assert (ass, map eval_in [arg1, arg2])) : ED.inner_expression
-    and ed_eval_inner_assert_atomic_pair (atom:ED.atomic_assert, (arg1:assert, arg2:assert)) = ed_eval_inner_assert_pair (ED.Atomic atom, (arg1, arg2))        : ED.inner_expression
-    and ed_eval_inner_assert_list        (assert:ED.assert,  args: assert list)              = ed_eval_inner (ED.Inner_Assert (assert, map eval_in args))      : ED.inner_expression
+    and ed_eval_inner_assert_one         (ass:SU.assert,          arg:assert)                = ed_eval_inner (ED.Inner_Assert (ass, [eval_in arg]))            : ED.inner_expression
+    and ed_eval_inner_assert_atomic_one  (atom:SU.atomic_assert,  arg:assert)                = ed_eval_inner_assert_one (SU.Atomic atom, arg)                  : ED.inner_expression
+    and ed_eval_inner_assert_pair        (ass:SU.assert,         (arg1:assert, arg2:assert)) = ed_eval_inner (ED.Inner_Assert (ass, map eval_in [arg1, arg2])) : ED.inner_expression
+    and ed_eval_inner_assert_atomic_pair (atom:SU.atomic_assert, (arg1:assert, arg2:assert)) = ed_eval_inner_assert_pair (SU.Atomic atom, (arg1, arg2))        : ED.inner_expression
+    and ed_eval_inner_assert_list        (assert:SU.assert,  args: assert list)              = ed_eval_inner (ED.Inner_Assert (assert, map eval_in args))      : ED.inner_expression
     and eval_in True      = ed_eval_inner_param (ED.Inner_Bool true)
       | eval_in False     = ed_eval_inner_param (ED.Inner_Bool false)
-      | eval_in (Not ass) = ed_eval_inner_assert_one (ED.Not, ass)
-      | eval_in (And               pair)     = ed_eval_inner_assert_pair        (ED.And,               pair)
-      | eval_in (Or                pair)     = ed_eval_inner_assert_pair        (ED.Or,                pair)
-      | eval_in (Nor               pair)     = ed_eval_inner_assert_pair        (ED.Nor,               pair)
-      | eval_in (Imply             pair)     = ed_eval_inner_assert_pair        (ED.Imply,             pair)
-      | eval_in (Ands              asses)    = ed_eval_inner_assert_list        (ED.Ands,              asses)
-      | eval_in (Ors               asses)    = ed_eval_inner_assert_list        (ED.Ors,               asses)
+      | eval_in (Not ass) = ed_eval_inner_assert_one (SU.Not, ass)
+      | eval_in (And               pair)     = ed_eval_inner_assert_pair        (SU.And,               pair)
+      | eval_in (Or                pair)     = ed_eval_inner_assert_pair        (SU.Or,                pair)
+      | eval_in (Nor               pair)     = ed_eval_inner_assert_pair        (SU.Nor,               pair)
+      | eval_in (Imply             pair)     = ed_eval_inner_assert_pair        (SU.Imply,             pair)
+      | eval_in (Ands              asses)    = ed_eval_inner_assert_list        (SU.Ands,              asses)
+      | eval_in (Ors               asses)    = ed_eval_inner_assert_list        (SU.Ors,               asses)
       | eval_in (Is_Cnst           ass)      = ed_eval_inner_assert_atomic_one  (SU.Is_Cnst,           ass)
       | eval_in (Is_Free           ass)      = ed_eval_inner_assert_atomic_one  (SU.Is_Free,           ass)
       | eval_in (Is_Var            ass)      = ed_eval_inner_assert_atomic_one  (SU.Is_Var,            ass)
@@ -222,7 +222,7 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_in (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_inner pst induct_args (ED.Dive_Deeper (eval_in target, eval_in inner_ass, map eval_in outer_args)) term
       | eval_in (In_Some_Definitions (target, Lambdas (vnames, body), outer_args)) =
         let
-          val sugar = (ED.Dive_Deeper (eval_in target, ED.Inner_Assert (ED.Not, [eval_in (Lambdas (vnames, Not body))]), map eval_in outer_args))
+          val sugar = (ED.Dive_Deeper (eval_in target, ED.Inner_Assert (SU.Not, [eval_in (Lambdas (vnames, Not body))]), map eval_in outer_args))
         in
           ED.eval_inner pst induct_args sugar term
         end

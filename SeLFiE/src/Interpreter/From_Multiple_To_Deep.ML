@@ -14,6 +14,7 @@ struct
 
 structure EOM = Eval_Outer_Multiple;
 structure EIM = Eval_Inner_Multiple;
+structure SU  = SeLFiE_Util;
 
 type outer_path = EOM.path;
 type inner_path = EIM.path;
@@ -39,18 +40,6 @@ datatype inner_parameter =
 | Inner_Number  of number
 | Inner_Int     of int
 | Inner_Command of command;
-
-type atomic_assert = SeLFiE_Util.atomic_assert;
-
-datatype assert =
-  Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
-| Atomic of atomic_assert;
 
 fun go_away_outer_parameter (Outer_Bool    b) = EOM.Bool b
   | go_away_outer_parameter (Outer_Path    p) = EOM.Path p
@@ -100,30 +89,12 @@ fun move_out_parameter (Inner_Bool    b) = Outer_Bool b
   | move_out_parameter (Inner_Int     i) = Outer_Int i
   | move_out_parameter (Inner_Command c) = Outer_Command c;
 
-fun go_away_outer_assert Not                    = EOM.Not
-  | go_away_outer_assert And                    = EOM.And
-  | go_away_outer_assert Or                     = EOM.Or
-  | go_away_outer_assert Nor                    = EOM.Nor
-  | go_away_outer_assert Imply                  = EOM.Imply
-  | go_away_outer_assert Ands                   = EOM.Ands
-  | go_away_outer_assert Ors                    = EOM.Ors
-  | go_away_outer_assert (Atomic atomic_assert) = EOM.Atomic atomic_assert;
-
-fun go_away_inner_assert Not                    = EIM.Not
-  | go_away_inner_assert And                    = EIM.And
-  | go_away_inner_assert Or                     = EIM.Or
-  | go_away_inner_assert Nor                    = EIM.Nor
-  | go_away_inner_assert Imply                  = EIM.Imply
-  | go_away_inner_assert Ands                   = EIM.Ands
-  | go_away_inner_assert Ors                    = EIM.Ors
-  | go_away_inner_assert (Atomic atomic_assert) = EIM.Atomic atomic_assert;
-
 datatype outer_expression =
   Outer_Variable of string
 | Outer_Lambdas  of strings * outer_expression
 | Outer_Applies  of outer_expression * outer_expression list
 | Outer_Literal  of outer_parameter
-| Outer_Assert   of assert * outer_expression list
+| Outer_Assert   of SU.assert * outer_expression list
 | Outer_Alls     of (string * qtyp) list * outer_expression
 | Outer_Somes    of (string * qtyp) list * outer_expression
 | Dive_In        of (outer_expression * inner_expression * outer_expression list)
@@ -132,7 +103,7 @@ and inner_expression =
 | Inner_Lambdas  of strings * inner_expression
 | Inner_Applies  of inner_expression    * inner_expression list
 | Inner_Literal  of inner_parameter
-| Inner_Assert   of assert * inner_expression list
+| Inner_Assert   of SU.assert * inner_expression list
 | Inner_Alls     of (string * qtyp) list * inner_expression
 | Inner_Somes    of (string * qtyp) list * inner_expression
 | Dive_Deeper    of (inner_expression * inner_expression * inner_expression list);
@@ -211,7 +182,7 @@ fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (out
       | eval_outer' (Outer_Lambdas (vnames, sub_expr )) = eval_eom (EOM.Lambdas (vnames, eval_outer' sub_expr))
       | eval_outer' (Outer_Applies (func,   args     )) = eval_eom (EOM.Applies (eval_outer' func, map eval_outer' args))
       | eval_outer' (Outer_Literal  parameter         ) = eval_eom (EOM.Literal (go_away_outer_parameter parameter))
-      | eval_outer' (Outer_Assert  (assert, sub_exprs)) = eval_eom (EOM.Assert  (go_away_outer_assert assert, map eval_outer' sub_exprs))
+      | eval_outer' (Outer_Assert  (assert, sub_exprs)) = eval_eom (EOM.Assert  (assert, map eval_outer' sub_exprs))
       | eval_outer' (Outer_Alls    (pairs,  sub_expr )) = eval_eom (EOM.Alls    (pairs, eval_outer' sub_expr))
       | eval_outer' (Outer_Somes   (pairs,  sub_expr )) = eval_eom (EOM.Somes   (pairs, eval_outer' sub_expr))
       | eval_outer' (Dive_In (target, Inner_Lambdas inner_lambda, outer_args)) =
@@ -220,7 +191,7 @@ fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (out
           val simp_rules    = outer_literal_to_definitions pst trm target           : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
           val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
-          val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;
+          val inner_ands    = Inner_Assert (SU.Ands, inner_results)                 : inner_expression;
           val inner_result  = eval_inner pst induct_args inner_ands Term.dummy      : inner_expression;
           val outer_result  = move_out_literal inner_result                         : outer_expression;
         in
@@ -237,7 +208,7 @@ and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inn
       | eval_inner' (Inner_Lambdas (vnames, sub_expr))  = eval_eim (EIM.Lambdas (vnames, eval_inner' sub_expr))
       | eval_inner' (Inner_Applies (func,   args     )) = eval_eim (EIM.Applies (eval_inner' func, map eval_inner' args))
       | eval_inner' (Inner_Literal  parameter         ) = eval_eim (EIM.Literal (go_away_inner_parameter parameter))
-      | eval_inner' (Inner_Assert  (assert, sub_exprs)) = eval_eim (EIM.Assert  (go_away_inner_assert assert, map eval_inner' sub_exprs))
+      | eval_inner' (Inner_Assert  (assert, sub_exprs)) = eval_eim (EIM.Assert  (assert, map eval_inner' sub_exprs))
       | eval_inner' (Inner_Alls    (pairs,  sub_expr )) = eval_eim (EIM.Alls    (pairs, eval_inner' sub_expr))
       | eval_inner' (Inner_Somes   (pairs,  sub_expr )) = eval_eim (EIM.Somes   (pairs, eval_inner' sub_expr))
       | eval_inner' (Dive_Deeper (target, Inner_Lambdas inner_lambda, inner_args)) =
@@ -245,7 +216,7 @@ and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inn
           val simp_rules    = inner_literal_to_definitions pst trm target           : term list;
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
           val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
-          val inner_ands    = Inner_Assert (Ands, inner_results)                    : inner_expression;
+          val inner_ands    = Inner_Assert (SU.Ands, inner_results)                 : inner_expression;
           val inner_result  = eval_inner pst induct_args inner_ands Term.dummy      : inner_expression;
         in
           go_away_inner_literal inner_result

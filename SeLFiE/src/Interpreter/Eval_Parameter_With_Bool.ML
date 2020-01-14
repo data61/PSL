@@ -23,20 +23,6 @@ datatype parameter =
 
 type parameters = parameter list;
 
-type atomic_assert = SeLFiE_Util.atomic_assert;
-
-(* The data-type constructors for boolean operations have to be declared in this signature.
- * because we need them i`n From_Var_To_Quantifier.*)
-datatype assert =
-  Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
-| Atomic of atomic_assert;
-
-val eval: term -> Proof.state -> assert -> parameters -> parameter;
+val eval: term -> Proof.state -> SeLFiE_Util.assert -> parameters -> parameter;
 
 end;

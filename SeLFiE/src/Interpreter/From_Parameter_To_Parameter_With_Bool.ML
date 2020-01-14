@@ -9,6 +9,7 @@ functor from_Parameter_to_Parameter_With_Bool (Eval_Parameter:EVAL_PARAMETER): E
 struct
 
 structure EP = Eval_Parameter;
+structure SU = SeLFiE_Util;
 
 type connective = Eval_Bool.assert;
 type path       = EP.path;
@@ -27,18 +28,6 @@ datatype parameter =
 
 type parameters = parameter list;
 
-type atomic_assert = SeLFiE_Util.atomic_assert;
-
-datatype assert =
-  Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
-| Atomic of atomic_assert;
-
 structure EB = Eval_Bool;
 
 fun de_Bool (Bool c) = c
@@ -48,7 +37,7 @@ val bool_to_connect    = EB.bool_to_assert;
 val bools_to_connects  = Utils.map_pair bool_to_connect;
 val de_bool_to_connect = bool_to_connect o de_Bool;
 
-fun eval (trm:term) (pst:Proof.state) (assert:assert) (parameters:parameter list) =
+fun eval (trm:term) (pst:Proof.state) (assert:SU.assert) (parameters:parameter list) =
   let
     fun convert_param (Bool       _) = error "convert_param in Eval_Expression_Struct failed."
       | convert_param (Path       p) = EP.Path p
@@ -59,15 +48,15 @@ fun eval (trm:term) (pst:Proof.state) (assert:assert) (parameters:parameter list
       | convert_param (Command    c) = EP.Command c;
     fun
       (*Eval_Connective*)
-        eval' Not   [Bool b]           = EB.eval (EB.Not   (bool_to_connect    b      ))
-      | eval' And   [Bool b1, Bool b2] = EB.eval (EB.And   (bools_to_connects (b1, b2)))
-      | eval' Or    [Bool b1, Bool b2] = EB.eval (EB.Or    (bools_to_connects (b1, b2)))
-      | eval' Nor   [Bool b1, Bool b2] = EB.eval (EB.Nor   (bools_to_connects (b1, b2)))
-      | eval' Imply [Bool b1, Bool b2] = EB.eval (EB.Imply (bools_to_connects (b1, b2)))
-      | eval' Ands  ands               = EB.eval (EB.Ands  (map de_bool_to_connect ands))
-      | eval' Ors   ors                = EB.eval (EB.Ors   (map de_bool_to_connect ors ))
+        eval' SU.Not   [Bool b]           = EB.eval (EB.Not   (bool_to_connect    b      ))
+      | eval' SU.And   [Bool b1, Bool b2] = EB.eval (EB.And   (bools_to_connects (b1, b2)))
+      | eval' SU.Or    [Bool b1, Bool b2] = EB.eval (EB.Or    (bools_to_connects (b1, b2)))
+      | eval' SU.Nor   [Bool b1, Bool b2] = EB.eval (EB.Nor   (bools_to_connects (b1, b2)))
+      | eval' SU.Imply [Bool b1, Bool b2] = EB.eval (EB.Imply (bools_to_connects (b1, b2)))
+      | eval' SU.Ands  ands               = EB.eval (EB.Ands  (map de_bool_to_connect ands))
+      | eval' SU.Ors   ors                = EB.eval (EB.Ors   (map de_bool_to_connect ors ))
       (*Eval_Unode_Core*)
-      | eval' (Atomic atomic_assert) params = EP.eval trm pst atomic_assert (map convert_param params)
+      | eval' (SU.Atomic atomic_assert) params = EP.eval trm pst atomic_assert (map convert_param params)
       | eval' _ _ = error "eval' in From_Parameter_To_Expression.ML failed."
     val ec_result = eval' assert parameters: Eval_Bool.assert;
     val result    = ec_result |> EB.assert_to_bool |> Bool;

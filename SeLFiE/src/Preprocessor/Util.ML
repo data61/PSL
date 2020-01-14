@@ -55,6 +55,16 @@ datatype atomic_assert =
 | Is_Less_Than
 | Is_Int;
 
+datatype assert =
+  Not
+| And
+| Or
+| Nor
+| Imply
+| Ands
+| Ors
+| Atomic of atomic_assert;
+
 end;
 
 (*** structure SeLFiE_Util ***)
@@ -128,5 +138,15 @@ datatype atomic_assert =
 | Are_Same_Number
 | Is_Less_Than
 | Is_Int;
+
+datatype assert =
+  Not
+| And
+| Or
+| Nor
+| Imply
+| Ands
+| Ors
+| Atomic of atomic_assert;
 
 end;

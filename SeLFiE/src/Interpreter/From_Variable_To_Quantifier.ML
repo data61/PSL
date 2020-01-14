@@ -9,6 +9,7 @@ struct
 
 structure EV  = Eval_Variable;
 structure QD  = Quantifier_Domain;
+structure SU  = SeLFiE_Util;
 
 type path    = EV.path;
 type print   = SeLFiE_Util.print;
@@ -40,37 +41,14 @@ fun there_to_here (EV.Bool b)    = Bool b
   | there_to_here (EV.Int i)     = Int i
   | there_to_here (EV.Command i) = Command i;
 
-type atomic_assert = SeLFiE_Util.atomic_assert;
-
-datatype assert =
-  Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
-| Atomic of atomic_assert;
-
-fun convert_assert Not   = EV.Not
-  | convert_assert And   = EV.And
-  | convert_assert Or    = EV.Or
-  | convert_assert Nor   = EV.Nor
-  | convert_assert Imply = EV.Imply
-  | convert_assert Ands  = EV.Ands
-  | convert_assert Ors   = EV.Ors
-  | convert_assert (Atomic assert) = EV.Atomic assert;
-
-type qtyp = SeLFiE_Util.qtyp;
-
 datatype expr =
   Variable of string
 | Lambda   of string * expr
 | Apply    of expr   * expr
 | Literal  of parameter
-| Assert   of assert * expr list
-| All      of string * qtyp * expr
-| Some     of string * qtyp * expr;
+| Assert   of SU.assert * expr list
+| All      of string * SU.qtyp * expr
+| Some     of string * SU.qtyp * expr;
 
 type path_to_node_table   = QD.path_to_node_table;
 type print_to_paths_table = QD.print_to_paths_table;
@@ -80,7 +58,7 @@ fun convert_result (EV.Literal ee_bool) = Literal (there_to_here ee_bool)
 
 fun eval(trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
-    fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:qtyp) (ands_or_ors:assert) =
+    fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) =
       let
         val params = QD.qtyp_to_qdomain qtyp pst trm induct_args: QD.parameter list;
         val apps = map (fn param => Apply (Lambda (vname, subexpr), Literal (there_to_here param))) params: expr list;
@@ -91,10 +69,10 @@ fun eval(trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) 
       | eval' (Lambda (vname, subexpr))     = EV.eval trm pst (EV.Lambda (vname, eval' subexpr))
       | eval' (Apply   pair           )     = EV.eval trm pst (EV.Apply (apply2 eval' pair))
       | eval' (Literal ps             )     = EV.eval trm pst (EV.Literal (here_to_there ps))
-      | eval' (Assert (assrt, ps))          = EV.eval trm pst (EV.Assert (convert_assert assrt, map eval' ps))
-      | eval' (All  (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp Ands)
+      | eval' (Assert (assrt, ps))          = EV.eval trm pst (EV.Assert (assrt, map eval' ps))
+      | eval' (All  (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp SU.Ands)
       (*Note that we cannot treat Some as a syntax sugar for All because Not has to take Literals due to the restriction imposed in From_Parameter_To_Parameter_With_Bool.ML.*)
-      | eval' (Some (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp Ors)
+      | eval' (Some (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp SU.Ors)
     val ev_result  = eval' expr              : EV.expr;
     val result     = convert_result ev_result: expr;
   in

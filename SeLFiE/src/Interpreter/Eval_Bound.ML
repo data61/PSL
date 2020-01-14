@@ -18,26 +18,12 @@ datatype parameter =
 | Int     of int
 | Command of command;
 
-type atomic_assert = SeLFiE_Util.atomic_assert;
-
-(* The data-type constructors for boolean operations have to be declared in this signature.
- * because we need them in From_Var_To_Quantifier.*)
-datatype assert =
-  Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
-| Atomic of atomic_assert;
-
 datatype expr =
   Bound      of int
 | Lambda     of expr
 | Apply      of expr * expr
 | Literal    of parameter
-| Assert     of assert * expr list;
+| Assert     of SeLFiE_Util.assert * expr list;
 
 val eval: term -> Proof.state -> expr -> expr;
 

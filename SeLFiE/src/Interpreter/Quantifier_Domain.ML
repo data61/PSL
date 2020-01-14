@@ -6,10 +6,9 @@
 signature QUANTIFIER_DOMAIN =
 sig
 
-type qtyp = SeLFiE_Util.qtyp;
 type parameter;
 
-val  qtyp_to_qdomain: qtyp -> Proof.state -> term -> SeLFiE_Util.induct_arguments-> parameter list;
+val  qtyp_to_qdomain: SeLFiE_Util.qtyp -> Proof.state -> term -> SeLFiE_Util.induct_arguments-> parameter list;
 
 type path;
 type path_to_node_table;
@@ -30,7 +29,8 @@ functor make_Quantifier_Domain
    sharing type Print_To_Paths.path_to_unode_table = Path_To_Unode.path_to_unode_table): QUANTIFIER_DOMAIN =
 struct
 
-type qtyp      = SeLFiE_Util.qtyp;
+structure SU = SeLFiE_Util;
+
 type parameter = Eval_Variable.parameter;
 
 type path                 = Print_To_Paths.path;
@@ -68,11 +68,11 @@ fun pst_n_trm_to_numb_domain (pst:Proof.state) (trm:term) = List.tabulate (pst_n
 
 val map_Print = map Eval_Variable.Print;
 
-fun qtyp_to_qdomain QNumber    pst trm _ = pst_n_trm_to_numb_domain pst trm
-  | qtyp_to_qdomain QFull_Path pst trm _ = mk_all_paths  pst trm |> map Eval_Variable.Path
-  | qtyp_to_qdomain QPrint     pst trm _ = mk_all_prints pst trm |> map_Print
-  | qtyp_to_qdomain QInd       _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Print ons
-  | qtyp_to_qdomain QArb       _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Print arbs
-  | qtyp_to_qdomain QRule      _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Print rules
+fun qtyp_to_qdomain SU.QNumber    pst trm _ = pst_n_trm_to_numb_domain pst trm
+  | qtyp_to_qdomain SU.QFull_Path pst trm _ = mk_all_paths  pst trm |> map Eval_Variable.Path
+  | qtyp_to_qdomain SU.QPrint     pst trm _ = mk_all_prints pst trm |> map_Print
+  | qtyp_to_qdomain SU.QInd       _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Print ons
+  | qtyp_to_qdomain SU.QArb       _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Print arbs
+  | qtyp_to_qdomain SU.QRule      _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Print rules
 
 end;

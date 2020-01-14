@@ -9,6 +9,7 @@ functor from_Parameter_With_Bool_to_Bound (Eval_Parameter_With_Bool:EVAL_PARAMET
 struct
 
 structure EPWB = Eval_Parameter_With_Bool;
+structure SU   = SeLFiE_Util;
 
 type path    = EPWB.path;
 type print   = SeLFiE_Util.print;
@@ -40,33 +41,12 @@ fun there_to_here (EPWB.Bool b)    = Bool b
   | there_to_here (EPWB.Int i)     = Int i
   | there_to_here (EPWB.Command i) = Command i;
 
-type atomic_assert = SeLFiE_Util.atomic_assert;
-
-datatype assert =
-  Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
-| Atomic of atomic_assert;
-
-fun convert_assert Not   = EPWB.Not
-  | convert_assert And   = EPWB.And
-  | convert_assert Or    = EPWB.Or
-  | convert_assert Nor   = EPWB.Nor
-  | convert_assert Imply = EPWB.Imply
-  | convert_assert Ands  = EPWB.Ands
-  | convert_assert Ors   = EPWB.Ors
-  | convert_assert (Atomic assert) = EPWB.Atomic assert;
-
 datatype expr =
   Bound      of int
 | Lambda     of expr
 | Apply      of expr * expr
 | Literal    of parameter
-| Assert     of assert * expr list;
+| Assert     of SU.assert * expr list;
 
 fun shift 0 _ u                     = u
   | shift i d (Bound j)             = if j >= d then Bound (j+i) else Bound j
@@ -99,7 +79,7 @@ fun eval (trm:term) (pst:Proof.state) (expr:expr) =
              * param_exprs eagerly.*)
             val params = map eval_prim param_exprs: EPWB.parameters;
           in
-            EPWB.eval trm pst (convert_assert assert) params |> there_to_here |> Literal
+            EPWB.eval trm pst assert params |> there_to_here |> Literal
           end
       | eval' t = t
   in

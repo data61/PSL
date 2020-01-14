@@ -29,26 +29,12 @@ datatype inner_parameter =
 | Inner_Int     of int
 | Inner_Command of command;
 
-type atomic_assert = SeLFiE_Util.atomic_assert;
-
-(* The data-type constructors for boolean operations have to be declared in this signature.
- * because we need them in From_Var_To_Quantifier.*)
-datatype assert =
-  Not
-| And
-| Or
-| Nor
-| Imply
-| Ands
-| Ors
-| Atomic of atomic_assert;
-
 datatype outer_expression =
   Outer_Variable of string
 | Outer_Lambdas  of strings * outer_expression
 | Outer_Applies  of outer_expression * outer_expression list
 | Outer_Literal  of outer_parameter
-| Outer_Assert   of assert * outer_expression list
+| Outer_Assert   of SeLFiE_Util.assert * outer_expression list
 | Outer_Alls     of (string * qtyp) list * outer_expression
 | Outer_Somes    of (string * qtyp) list * outer_expression
 | Dive_In        of (outer_expression * inner_expression * outer_expression list)
@@ -57,7 +43,7 @@ and inner_expression =
 | Inner_Lambdas  of strings * inner_expression
 | Inner_Applies  of inner_expression    * inner_expression list
 | Inner_Literal  of inner_parameter
-| Inner_Assert   of assert * inner_expression list
+| Inner_Assert   of SeLFiE_Util.assert * inner_expression list
 | Inner_Alls     of (string * qtyp) list * inner_expression
 | Inner_Somes    of (string * qtyp) list * inner_expression
 | Dive_Deeper    of (inner_expression * inner_expression * inner_expression list);
