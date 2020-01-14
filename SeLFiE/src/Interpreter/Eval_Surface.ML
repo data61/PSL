@@ -7,11 +7,6 @@
 signature EVAL_SURFACE =
 sig
 
-type print    = SeLFiE_Util.print;
-type number   = Eval_Number.number;
-type command  = Pattern.command;
-type qtyp     = SeLFiE_Util.qtyp;
-
 datatype assert =
 (*bool*)
   True
@@ -47,14 +42,14 @@ datatype assert =
 | Is_Less_Than    of assert * assert
 | Is_Int          of assert * assert
 (*Parameter*)
-| Print  of print
-| Number of number
+| Print  of SeLFiE_Util.print
+| Number of Eval_Number.number
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert
 | Applies             of assert  * assert list
-| Alls                of (string * qtyp) list * assert
-| Somes               of (string * qtyp) list * assert
+| Alls                of (string * SeLFiE_Util.qtyp) list * assert
+| Somes               of (string * SeLFiE_Util.qtyp) list * assert
 | In_All_Definitions  of (assert * assert * assert list)
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert;
