@@ -8,7 +8,6 @@ struct
 
 type connective = Eval_Bool.assert;
 type print      = SeLFiE_Util.print;
-type number     = Eval_Number.number;
 type path       = Path_To_Unode.path;
 
 structure END = Eval_Node;
@@ -35,8 +34,8 @@ datatype assert =
 | Unode_Has_Print        of path * print
 | Is_In_Subgoal          of path
 | Is_In_Chained_Fact     of path
-| Is_In_Nth_Subgoal      of path * number
-| Is_In_Nth_Chained_Fact of path * number;
+| Is_In_Nth_Subgoal      of path * int
+| Is_In_Nth_Chained_Fact of path * int;
 
 fun eval (term:term) (pst:Proof.state) assert =
   let

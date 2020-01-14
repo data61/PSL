@@ -19,7 +19,6 @@ structure SU  = SeLFiE_Util;
 type outer_path = EOM.path;
 type inner_path = EIM.path;
 type print      = SeLFiE_Util.print;
-type number     = Eval_Number.number;
 type command    = Pattern.command;
 type qtyp       = SeLFiE_Util.qtyp;
 
@@ -28,7 +27,7 @@ datatype outer_parameter =
 | Outer_Path    of outer_path
 | Outer_Print   of print
 | Outer_String  of string
-| Outer_Number  of number
+| Outer_Number  of int
 | Outer_Int     of int
 | Outer_Command of command;
 
@@ -37,7 +36,7 @@ datatype inner_parameter =
 | Inner_Path    of inner_path
 | Inner_Print   of print
 | Inner_String  of string
-| Inner_Number  of number
+| Inner_Number  of int
 | Inner_Int     of int
 | Inner_Command of command;
 

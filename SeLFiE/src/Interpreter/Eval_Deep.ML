@@ -12,7 +12,7 @@ datatype outer_parameter =
 | Outer_Path    of outer_path
 | Outer_Print   of SeLFiE_Util.print
 | Outer_String  of string
-| Outer_Number  of Eval_Number.number
+| Outer_Number  of int
 | Outer_Int     of int
 | Outer_Command of Pattern.command;
 
@@ -21,7 +21,7 @@ datatype inner_parameter =
 | Inner_Path    of inner_path
 | Inner_Print   of SeLFiE_Util.print
 | Inner_String  of string
-| Inner_Number  of Eval_Number.number
+| Inner_Number  of int
 | Inner_Int     of int
 | Inner_Command of Pattern.command;
 

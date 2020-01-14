@@ -64,7 +64,7 @@ fun pst_to_numb_of_max_arity (pst:Proof.state) =
 
 fun pst_n_trm_to_max_numb    (pst:Proof.state) (trm:term) = Int.max (pst_n_trm_to_numb_of_pahts pst trm, pst_to_numb_of_max_arity pst): int;
 
-fun pst_n_trm_to_numb_domain (pst:Proof.state) (trm:term) = List.tabulate (pst_n_trm_to_max_numb pst trm, Eval_Variable.Number o Eval_Number.Number): Eval_Variable.parameter list;
+fun pst_n_trm_to_numb_domain (pst:Proof.state) (trm:term) = List.tabulate (pst_n_trm_to_max_numb pst trm, Eval_Variable.Number): Eval_Variable.parameter list;
 
 val map_Print = map Eval_Variable.Print;
 

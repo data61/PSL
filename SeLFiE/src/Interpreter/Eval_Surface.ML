@@ -43,7 +43,7 @@ datatype assert =
 | Is_Int          of assert * assert
 (*Parameter*)
 | Print  of SeLFiE_Util.print
-| Number of Eval_Number.number
+| Number of int
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert
@@ -68,7 +68,6 @@ structure ED = Eval_Deep;
 structure SU = SeLFiE_Util;
 
 type print  = SeLFiE_Util.print;
-type number = Eval_Number.number;
 type qtyp   = SeLFiE_Util.qtyp;
 
 datatype assert =
@@ -107,7 +106,7 @@ datatype assert =
 | Is_Int          of assert * assert
 (*Parameter*)
 | Print  of print
-| Number of number
+| Number of int
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert

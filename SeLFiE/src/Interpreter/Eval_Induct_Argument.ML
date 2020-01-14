@@ -9,13 +9,12 @@ SeLFiE: Semantic Logical Feature Extractor.
 signature EVAL_INDUCT_ARGUMENT =
 sig
 
-type number = Eval_Number.number;
 type print  = SeLFiE_Util.print;
 
 datatype assert =
   Connective       of Eval_Bool.assert
-| Is_Nth_Induct    of print * number
-| Is_Nth_Arbitrary of print * number
+| Is_Nth_Induct    of print * int
+| Is_Nth_Arbitrary of print * int
 | Is_Induct        of print
 | Is_Arbitrary     of print
 | Is_Rule          of print;
@@ -32,25 +31,24 @@ structure SU = SeLFiE_Util;
 structure EB = Eval_Bool;
 structure EN = Eval_Number;
 
-type number = Eval_Number.number;
 type print  = SeLFiE_Util.print;
 
 datatype assert =
   Connective       of Eval_Bool.assert
-| Is_Nth_Induct    of print * number
-| Is_Nth_Arbitrary of print * number
+| Is_Nth_Induct    of print * int
+| Is_Nth_Arbitrary of print * int
 | Is_Induct        of print
 | Is_Arbitrary     of print
 | Is_Rule          of print;
 
 fun eval' (assert:assert) (SU.Induct_Arguments {ons, arbs, rules}: SU.induct_arguments) =
   let
-    fun ev (Is_Nth_Induct    (print, EN.Number n)) = nth ons  n = print
-      | ev (Is_Nth_Arbitrary (print, EN.Number n)) = nth arbs n = print
-      | ev (Is_Induct         print              ) = member (op =) ons   print
-      | ev (Is_Arbitrary      print              ) = member (op =) arbs  print
-      | ev (Is_Rule           print              ) = member (op =) rules print
-      | ev (Connective        _                  ) = error "ev in Eval_Induct_Argument.ML failed."
+    fun ev (Is_Nth_Induct    (print, n)) = nth ons  n = print
+      | ev (Is_Nth_Arbitrary (print, n)) = nth arbs n = print
+      | ev (Is_Induct         print    ) = member (op =) ons   print
+      | ev (Is_Arbitrary      print    ) = member (op =) arbs  print
+      | ev (Is_Rule           print    ) = member (op =) rules print
+      | ev (Connective        _        ) = error "ev in Eval_Induct_Argument.ML failed."
   in ev assert end;
 
 fun eval (Connective assert_connective) (_       :SU.induct_arguments) = EB.eval assert_connective

@@ -9,7 +9,6 @@ structure SU = SeLFiE_Util;
 
 type path    = EB.path;
 type print   = SeLFiE_Util.print;
-type number  = Eval_Number.number;
 type command = Pattern.command;
 
 datatype parameter =
@@ -17,7 +16,7 @@ datatype parameter =
 | Path    of path
 | Print   of print
 | String  of string
-| Number  of number
+| Number  of int
 | Int     of int
 | Command of command;
 

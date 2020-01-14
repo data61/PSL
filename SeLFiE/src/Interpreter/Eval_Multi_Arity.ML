@@ -11,7 +11,7 @@ datatype parameter =
 | Path    of path
 | Print   of SeLFiE_Util.print
 | String  of string
-| Number  of Eval_Number.number
+| Number  of int
 | Int     of int
 | Command of Pattern.command;
 

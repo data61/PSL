@@ -5,18 +5,15 @@ signature EVAL_BOUND =
 sig
 
 type path;
-type print   = SeLFiE_Util.print;
-type number  = Eval_Number.number;
-type command = Pattern.command;
 
 datatype parameter =
   Bool    of bool
 | Path    of path
-| Print   of print
+| Print   of SeLFiE_Util.print
 | String  of string
-| Number  of number
+| Number  of int
 | Int     of int
-| Command of command;
+| Command of Pattern.command;
 
 datatype expr =
   Bound      of int
