@@ -90,8 +90,16 @@ ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eva
 ML_file "src/Interpreter/Eval_Deep.ML"
 ML_file "src/Interpreter/From_Multiple_To_Deep.ML"
 
+ML\<open> structure Eval_Deep =(*This does not have to be a functor. A structure will do.*)
+from_Multiple_to_Deep (
+  structure Eval_Outer_Multiple = Eval_Outer_Multi_Arity
+  and       Outer_Path_To_Unode = Outer_Path_To_Unode
+  and       Eval_Inner_Multiple = Eval_Inner_Multi_Arity
+  and       Inner_Path_To_Unode = Inner_Path_To_Unode);\<close>
+
 ML_file "src/Interpreter/Eval_Surface.ML"
 ML_file "src/Interpreter/Eval_Syntactic_Sugar.ML"
+ML_file "src/Interface/Apply_SeLFiE.ML"
 
 (* auxiliary stuff *)
 ML\<open>

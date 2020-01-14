@@ -1,7 +1,7 @@
 (*  Title:      PSL/SeLFeE/src/From_Quantifier_To_Multi_Arity.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-functor from_Multiple_to_Deep
+functor from_Multiple_to_Deep (*This does not have to be a functor. A structure will do.*)
  (structure Eval_Outer_Multiple:EVAL_MULTI_ARITY
   and       Outer_Path_To_Unode:PATH_TO_UNODE
   and       Eval_Inner_Multiple:EVAL_MULTI_ARITY

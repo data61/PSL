@@ -77,7 +77,7 @@ bracket
  
 end;
 
-val aa = exists (fn _ => true) []doooo
+val aa = exists (fn _ => true) []
 \<close>
 
 end

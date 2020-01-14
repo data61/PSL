@@ -1,4 +1,4 @@
-(*  Title:      PSL/SeLFiE/src/Interpreter/From_Deep_To_Surface.ML
+(*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Surface.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
 *)
@@ -56,10 +56,10 @@ val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> assert -> asser
 
 end;
 
-(*** functor: from_Deep_to_Surface ***)
+(*** Eval_Surface ***)
 (* Note that it is not possible to take Surface as merely syntactic sugar
  * because *)
-functor from_Deep_to_Surface (Eval_Deep:EVAL_DEEP): EVAL_SURFACE =
+structure Eval_Surface =
 struct
 
 structure ED = Eval_Deep;
