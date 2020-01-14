@@ -12,9 +12,7 @@ type command = Pattern.command;
 datatype parameter =
   Path      of path
 | Print     of string
-| String    of string(*redundant?*)
 | Number    of int
-| Int       of int
 | Command   of command;
 
 type parameters = parameter list;

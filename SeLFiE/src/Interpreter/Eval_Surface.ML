@@ -34,7 +34,6 @@ datatype assert =
 | Is_Same_Path_As   of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
-| Is_Printed_As     of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print   of assert * assert
 (*Eval_Number*)
@@ -60,7 +59,7 @@ end;
 (*** functor: from_Deep_to_Surface ***)
 (* Note that it is not possible to take Surface as merely syntactic sugar
  * because *)
-functor from_Deep_to_Surface (Eval_Deep:EVAL_DEEP)  =
+functor from_Deep_to_Surface (Eval_Deep:EVAL_DEEP): EVAL_SURFACE =
 struct
 
 structure ED = Eval_Deep;
@@ -93,7 +92,6 @@ datatype assert =
 | Is_Same_Path_As   of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
-| Is_Printed_As     of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print   of assert * assert
 (*Eval_Number*)
@@ -111,6 +109,9 @@ datatype assert =
 | In_All_Definitions  of (assert * assert * assert list)
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert;
+
+fun come_back_expression (ED.Outer_Literal (ED.Outer_Bool bool)) = if bool then True else False
+  | come_back_expression  _                                      = error "come_back_expression in Eval_Surface.ML failed."
 
 fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
@@ -145,7 +146,6 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_out (Is_Path_Above     pair)     = ed_eval_outer_assert_atomic_pair (SU.Is_Path_Above,     pair)
       | eval_out (Is_Same_Path_As   pair)     = ed_eval_outer_assert_atomic_pair (SU.Is_Same_Path_As,   pair)
       | eval_out (Are_Same_Prints   pair)     = ed_eval_outer_assert_atomic_pair (SU.Are_Same_Prints,   pair)
-      | eval_out (Is_Printed_As     pair)     = ed_eval_outer_assert_atomic_pair (SU.Is_Printed_As,     pair)
       | eval_out (Unode_Has_Print   pair)     = ed_eval_outer_assert_atomic_pair (SU.Unode_Has_Print,   pair)
       | eval_out (Are_Same_Number   pair)     = ed_eval_outer_assert_atomic_pair (SU.Are_Same_Number,   pair)
       | eval_out (Is_Less_Than      pair)     = ed_eval_outer_assert_atomic_pair (SU.Is_Less_Than,      pair)
@@ -195,7 +195,6 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_in (Is_Path_Above     pair)     = ed_eval_inner_assert_atomic_pair (SU.Is_Path_Above,     pair)
       | eval_in (Is_Same_Path_As   pair)     = ed_eval_inner_assert_atomic_pair (SU.Is_Same_Path_As,   pair)
       | eval_in (Are_Same_Prints   pair)     = ed_eval_inner_assert_atomic_pair (SU.Are_Same_Prints,   pair)
-      | eval_in (Is_Printed_As     pair)     = ed_eval_inner_assert_atomic_pair (SU.Is_Printed_As,     pair)
       | eval_in (Unode_Has_Print   pair)     = ed_eval_inner_assert_atomic_pair (SU.Unode_Has_Print,   pair)
       | eval_in (Are_Same_Number   pair)     = ed_eval_inner_assert_atomic_pair (SU.Are_Same_Number,   pair)
       | eval_in (Is_Less_Than      pair)     = ed_eval_inner_assert_atomic_pair (SU.Is_Less_Than,      pair)
@@ -217,7 +216,7 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_in (In_Some_Definitions _) = error "eval_in in From_Deep_To_Surface.ML failed. The inner part of In_Some_Definitions has to be a lambda abstraction."
       | eval_in (Outermost _)           = error "eval_in in From_Deep_To_Surface.ML failed. eval_in is not defined for Outermost."
   in
-      eval_enter assert
+      eval_enter assert |> come_back_expression
   end
 
 end;

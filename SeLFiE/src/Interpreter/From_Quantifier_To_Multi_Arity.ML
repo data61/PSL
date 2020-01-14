@@ -14,25 +14,19 @@ datatype parameter =
   Bool    of bool
 | Path    of path
 | Print   of string
-| String  of string
 | Number  of int
-| Int     of int
 | Command of command;
 
 fun here_to_there (Bool b)    = EQ.Bool b
   | here_to_there (Path p)    = EQ.Path p
   | here_to_there (Print p)   = EQ.Print p
-  | here_to_there (String s)  = EQ.String s
   | here_to_there (Number n)  = EQ.Number n
-  | here_to_there (Int i)     = EQ.Int i
   | here_to_there (Command i) = EQ.Command i;
 
 fun there_to_here (EQ.Bool b)    = Bool b
   | there_to_here (EQ.Path p)    = Path p
   | there_to_here (EQ.Print p)   = Print p
-  | there_to_here (EQ.String s)  = String s
   | there_to_here (EQ.Number n)  = Number n
-  | there_to_here (EQ.Int i)     = Int i
   | there_to_here (EQ.Command i) = Command i;
 
 datatype expr =

@@ -11,9 +11,7 @@ type path;
 datatype parameter =
   Path      of path
 | Print     of string
-| String    of string
 | Number    of int
-| Int       of int
 | Command   of Pattern.command;
 
 type parameters = parameter list;

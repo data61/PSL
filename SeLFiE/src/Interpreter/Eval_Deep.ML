@@ -11,18 +11,14 @@ datatype outer_parameter =
   Outer_Bool    of bool
 | Outer_Path    of outer_path
 | Outer_Print   of string
-| Outer_String  of string
 | Outer_Number  of int
-| Outer_Int     of int
 | Outer_Command of Pattern.command;
 
 datatype inner_parameter =
   Inner_Bool    of bool
 | Inner_Path    of inner_path
 | Inner_Print   of string
-| Inner_String  of string
 | Inner_Number  of int
-| Inner_Int     of int
 | Inner_Command of Pattern.command;
 
 datatype outer_expression =

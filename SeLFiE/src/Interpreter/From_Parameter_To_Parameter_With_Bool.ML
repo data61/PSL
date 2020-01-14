@@ -19,9 +19,7 @@ datatype parameter =
   Bool    of bool
 | Path    of path
 | Print   of string
-| String  of string(*redundant?*)
 | Number  of int
-| Int     of int
 | Command of command;
 
 type parameters = parameter list;
@@ -40,9 +38,7 @@ fun eval (trm:term) (pst:Proof.state) (assert:SU.assert) (parameters:parameter l
     fun convert_param (Bool       _) = error "convert_param in Eval_Expression_Struct failed."
       | convert_param (Path       p) = EP.Path p
       | convert_param (Print      p) = EP.Print p
-      | convert_param (String     s) = EP.String s
       | convert_param (Number     n) = EP.Number n
-      | convert_param (Int        i) = EP.Int i
       | convert_param (Command    c) = EP.Command c;
     fun
       (*Eval_Connective*)
