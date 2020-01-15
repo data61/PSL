@@ -34,6 +34,6 @@ val eval_outer: Proof.state -> SeLFiE_Util.induct_arguments -> outer_expression 
 
 datatype expr = Outer of outer_expression | Inner of inner_expression;
 
-val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
+val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;

@@ -97,7 +97,7 @@ fun ctxt_n_cname_to_definitions_for_function (ctxt:Proof.context) (cname:string)
    get_definitions_using_suffix ctxt cname "psimps"
 |> map Logic.strip_imp_concl: terms;
 
-fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) =
+fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) :terms =
   let
     val command = Pattern.get_command ctxt cname;
     fun command_to_definitions Pattern.Definition = [(*TODO*)]
@@ -178,7 +178,13 @@ and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inn
     eval_inner' inner_expression |> come_back_inner_expression
   end;
 
-fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (Outer outer_expr) = eval_outer pst induct_args outer_expr term |> Outer
-  | eval _ _ _ _ = error "eval in From_Multiple_To_Deep.ML failed. eval is defined only for Outer.";
+fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (Outer outer_expr) =
+  let
+    val thm      = Isabelle_Utils.proof_state_to_thm pst: thm;
+    val thm_term = Thm.prop_of thm                      : term;
+  in
+    Outer (eval_outer pst induct_args outer_expr thm_term)
+  end
+  | eval  _ _ _ = error "eval in From_Multiple_To_Deep.ML failed. eval is defined only for Outer.";
 
 end;

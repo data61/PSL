@@ -37,7 +37,7 @@ type print_to_paths_table = QD.print_to_paths_table;
 fun convert_result (EV.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ = error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
 
-fun eval(trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
+fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
     fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) =
       let
