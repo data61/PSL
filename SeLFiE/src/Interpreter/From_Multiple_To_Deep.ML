@@ -8,8 +8,7 @@ functor from_Multiple_to_Deep (*This does not have to be a functor. A structure 
   and       Inner_Path_To_Unode:PATH_TO_UNODE
   sharing type Outer_Path_To_Unode.path = Eval_Outer_Multiple.path
   sharing type Inner_Path_To_Unode.path = Eval_Inner_Multiple.path): EVAL_DEEP =
-(* We need to pass Outer_Path_To_Unode and Inner_Path_To_Unode to convince the type checker
- * because *)
+
 struct
 
 structure EOM = Eval_Outer_Multiple;

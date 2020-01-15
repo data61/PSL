@@ -57,9 +57,7 @@ val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> assert -> asser
 end;
 
 (*** Eval_Surface ***)
-(* Note that it is not possible to take Surface as merely syntactic sugar
- * because *)
-structure Eval_Surface =
+structure Eval_Surface: EVAL_SURFACE =
 struct
 
 structure ED = Eval_Deep;

@@ -7,9 +7,9 @@ SeLFiE: Semantic Logical Feature Extractor.
 *)
 theory SeLFiE
   imports "../PSL"
+  keywords "assert_SeLFiE"      :: diag
 (*
-  keywords "assert_SeLFiE_true" :: diag
-   and     "assert_SeLFiE_false":: diag
+   and     "test_all_LiFtErs"   :: diag
 *)
 begin
 
@@ -100,6 +100,7 @@ from_Multiple_to_Deep (
 ML_file "src/Interpreter/Eval_Surface.ML"
 ML_file "src/Interpreter/Eval_Syntactic_Sugar.ML"
 ML_file "src/Interface/Apply_SeLFiE.ML"
+ML\<open> Apply_SeLFiE.activate (); \<close>
 
 (* auxiliary stuff *)
 ML\<open>
