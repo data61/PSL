@@ -5,7 +5,7 @@ LiFtEr:   Logical Feature Extractor.
 *)
 
 (*** LiFtEr_Assertion ***)
-structure LiFtEr_Assertion =
+structure LiFtEr_Assertion' =
 struct
 
 type assertions = (string * LiFtEr.assrt) list;

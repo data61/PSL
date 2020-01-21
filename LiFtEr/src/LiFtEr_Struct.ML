@@ -50,6 +50,7 @@ datatype assrt   =
 | Trm_Occ_Is_Of_Trm       of trm_occ * trm
 | Are_Same_Trm            of trm     * trm
 | Are_Same_Numb           of numb    * numb
+| Are_Same_Rule           of rule    * rule
 | Are_Same_Str            of trm_occ * trm_occ (*trm*)
 | Is_In_Trm_Loc           of trm_occ * trm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
 | Is_In_Trm_Str           of trm_occ * trm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)
@@ -559,6 +560,15 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val numb1_option    = alist_lookup_eq numb_name_space n1 >>= dest_ID_Numb: int option;
           val numb2_option    = alist_lookup_eq numb_name_space n2 >>= dest_ID_Numb: int option;
           val result          = opt_equal (numb1_option, numb2_option)             : bool;
+        in
+          result
+        end
+      | eval' (Are_Same_Rule (Rule n1, Rule n2)) (Name_Space ns:name_space) =
+        let
+          val rule_name_space = #rule ns                                                              : name_subspace;
+          val rule1_option    = alist_lookup_eq rule_name_space n1 >>= dest_ID_Rule >>= dest_Rule_Name: string option;
+          val rule2_option    = alist_lookup_eq rule_name_space n2 >>= dest_ID_Rule >>= dest_Rule_Name: string option;
+          val result          = opt_equal (rule1_option, rule2_option)                                : bool;
         in
           result
         end

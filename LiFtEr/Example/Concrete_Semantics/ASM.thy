@@ -73,22 +73,22 @@ setup\<open> Apply_LiFtEr.update_ind_mod "alt_prf_for_exec_append"   alt_prf_for
 (* test LiFtEr assertions *)
 lemma exec_append:
   "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"
-  assert_LiFtEr_true  example_1a model_prf_for_exec_append
-  assert_LiFtEr_true  example_1a alt_prf_for_exec_append
-  assert_LiFtEr_true  example_1b model_prf_for_exec_append
-  assert_LiFtEr_true  example_1b alt_prf_for_exec_append
-  assert_LiFtEr_true  example_2  model_prf_for_exec_append
-  assert_LiFtEr_true  example_2  alt_prf_for_exec_append
-  assert_LiFtEr_true  example_3  model_prf_for_exec_append
-  assert_LiFtEr_true  example_3  alt_prf_for_exec_append
-  assert_LiFtEr_true  example_4  model_prf_for_exec_append
-  assert_LiFtEr_true  example_4  alt_prf_for_exec_append
-  assert_LiFtEr_true  example_5  model_prf_for_exec_append
-  assert_LiFtEr_true  example_5  alt_prf_for_exec_append
-  assert_LiFtEr_true  example_6a model_prf_for_exec_append
-  assert_LiFtEr_true  example_6a alt_prf_for_exec_append
-  assert_LiFtEr_true  example_6b model_prf_for_exec_append
-  assert_LiFtEr_true  example_6b alt_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_1a model_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_1a alt_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_1b model_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_1b alt_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_2  model_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_2  alt_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_3  model_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_3  alt_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_4  model_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_4  alt_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_5  model_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_5  alt_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_6a model_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_6a alt_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_6b model_prf_for_exec_append
+  assert_LiFtEr_true  heuristic_6b alt_prf_for_exec_append
   oops
 
 subsection "Compilation"

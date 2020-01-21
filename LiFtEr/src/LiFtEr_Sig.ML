@@ -41,6 +41,7 @@ datatype assrt   =
 | Trm_Occ_Is_Of_Trm       of trm_occ * trm
 | Are_Same_Trm            of trm     * trm
 | Are_Same_Numb           of numb    * numb
+| Are_Same_Rule           of rule    * rule
 | Are_Same_Str            of trm_occ * trm_occ (*trm*)
 | Is_In_Trm_Loc           of trm_occ * trm_occ (*sub-tree-1 is within sub-tree-2 location-wise*)
 | Is_In_Trm_Str           of trm_occ * trm_occ (*sub-tree-1 is within sub-tree-2 string-wise*)

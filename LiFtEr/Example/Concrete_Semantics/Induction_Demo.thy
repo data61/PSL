@@ -8,7 +8,7 @@
  *
  *)
 theory Induction_Demo
-  imports Main "../../LiFtEr" "../../../PaMpeR/PaMpeR"
+  imports Main "../../LiFtEr"
 begin
 
 (* HINT FOR ONLINE DEMO

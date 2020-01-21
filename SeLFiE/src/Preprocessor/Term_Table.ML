@@ -89,6 +89,14 @@ fun inner_paths_at_the_same_level (inner_path1:UN.inner_path) (inner_path2:UN.in
     uncurry equal lengths: bool
   end;
 
+fun same_inits (path1:UN.path) (path2:UN.path) =
+  let
+    val init1_option = try Utils.init path1;
+    val init2_option = try Utils.init path2;
+  in
+    Utils.opt_equal (init1_option, init2_option): bool
+  end;
+
 fun inner_path1_is_an_arg_of_inner_path2 (inner_path1:UN.inner_path) (inner_path2:UN.inner_path) =
   let
     val inner_path1_last_option = try Utils.last inner_path1: int option;
@@ -98,7 +106,7 @@ fun inner_path1_is_an_arg_of_inner_path2 (inner_path1:UN.inner_path) (inner_path
     val inner_path2_is_func     = Option.map (      equal 0) inner_path2_last_option |> Utils.is_some_true: bool;
     val inner_path1_is_arg      = Option.map (not o equal 0) inner_path1_last_option |> Utils.is_some_true: bool;
   in
-    inner_paths_at_the_same_level inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_arg
+    same_inits inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_arg
   end;
 
 fun inner_path1_is_nth_arg_of_inner_path2 (inner_path1:UN.inner_path) (n:int) (inner_path2:UN.inner_path) =
@@ -111,7 +119,7 @@ fun inner_path1_is_nth_arg_of_inner_path2 (inner_path1:UN.inner_path) (n:int) (i
     (* "n + 1" because the "0" is used for the function (or lambda abstraction).*)
     val inner_path1_is_nth_arg = Option.map (equal (n + 1)) inner_path1_last_option |> Utils.is_some_true: bool;
   in
-    inner_paths_at_the_same_level inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_nth_arg
+    same_inits inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_nth_arg
   end;
 
 val inner_path_to_unode_table_to_lowest_fvars = undefined: inner_path_to_unode_table -> Unique_Node.inner_path list;
