@@ -122,11 +122,21 @@ fun path_to_unode_aux_table_to_depth (path_to_unode_aux_table:path_to_unode_aux_
     depth_option
   end;
 
+(*TODO: I should not use this in path1_is_an_arg_of_path2 or path1_is_nth_arg_of_path2!
+        Checking at the same level or not is not enough. We have to check the path.*)
 fun paths_at_the_same_level (path1:UN.path) (path2:UN.path) =
   let
     val lengths = apply2 length (path1, path2): (int * int);
   in
     uncurry equal lengths: bool
+  end;
+
+fun same_inits (path1:UN.path) (path2:UN.path) =
+  let
+    val init1_option = try Utils.init path1;
+    val init2_option = try Utils.init path2;
+  in
+    Utils.opt_equal (init1_option, init2_option): bool
   end;
 
 fun path1_is_an_arg_of_path2 (path1:UN.path) (path2:UN.path) =
@@ -138,7 +148,7 @@ fun path1_is_an_arg_of_path2 (path1:UN.path) (path2:UN.path) =
     val path2_is_func     = Option.map (      equal 0) path2_last_option |> Utils.is_some_true: bool;
     val path1_is_arg      = Option.map (not o equal 0) path1_last_option |> Utils.is_some_true: bool;
   in
-    paths_at_the_same_level path1 path2 andalso path2_is_func andalso path1_is_arg
+    same_inits path1 path2 andalso path2_is_func andalso path1_is_arg
   end;
 
 fun path1_is_nth_arg_of_path2 (path1:UN.path) (n:int) (path2:UN.path) =
@@ -151,7 +161,7 @@ fun path1_is_nth_arg_of_path2 (path1:UN.path) (n:int) (path2:UN.path) =
     (* "n + 1" because the "0" is used for the function (or lambda abstraction).*)
     val path1_is_nth_arg = Option.map (equal (n + 1)) path1_last_option |> Utils.is_some_true: bool;
   in
-    paths_at_the_same_level path1 path2 andalso path2_is_func andalso path1_is_nth_arg
+    same_inits path1 path2 andalso path2_is_func andalso path1_is_nth_arg
   end;
 
 val path_to_unode_table_to_lowest_fvars = undefined: path_to_unode_table -> Unique_Node.path list;
