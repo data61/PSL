@@ -212,6 +212,7 @@ step:  "r x y \<Longrightarrow> star r y z \<Longrightarrow> star r x z"
 
 lemma star_trans:
   "star r x y \<Longrightarrow> star r y z \<Longrightarrow> star r x z"
+smart_induct
 apply(induction rule: star.induct)
 apply(assumption)
 apply(rename_tac u x y)
