@@ -49,6 +49,7 @@ datatype assrt   =
 | Is_Rule_Of              of rule    * trm_occ
 | Trm_Occ_Is_Of_Trm       of trm_occ * trm
 | Are_Same_Trm            of trm     * trm
+| Are_At_Same_Loc         of trm_occ * trm_occ
 | Are_Same_Numb           of numb    * numb
 | Are_Same_Rule           of rule    * rule
 | Are_Same_Str            of trm_occ * trm_occ (*trm*)
@@ -78,7 +79,8 @@ datatype assrt   =
 | Is_At_Depth             of trm_occ * numb
 | Is_Printed_As           of trm     * string
 (* TODO: pattern *)
-| Pattern                 of numb * trm_occ * pattern (*In the definition of trm, the numb-th argument has this pattern.*)
+| Pattern                 of numb * trm_occ * pattern  (*In the definition of trm, the numb-th argument has this pattern.*)
+| Is_Defined_With         of trm_occ * command
 (*syntax sugars*)
 | Are_Diff_Numb           of numb    * numb           (*Not & Are_Same_Numb*)
 | Are_Diff_Str            of trm_occ * trm_occ        (*Not & Are_Same_Str*)
@@ -482,7 +484,7 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
                                 For_Numb_N (nth_arg_numb, nth_arg,
                                     Is_Nth_Arg_Of (premise_occ, nth_arg_numb, meta_imp_occ)
                                   And
-                                    Is_In_Trm_Str (trm_occ, premise_occ)
+                                    Is_In_Trm_Loc (trm_occ, premise_occ)
                                 )
                               )
                           );
@@ -549,10 +551,18 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val print1_option   = alist_lookup_eq trm_name_space t1 >>= dest_ID_Trm      : print option;
           val print2_option   = alist_lookup_eq trm_name_space t2 >>= dest_ID_Trm      : print option;
           val prints_option   = Utils.mk_option_pair (print1_option, print2_option)    :(print * print) option;
-          val result          = prints_option <$> uncurry (same_normalized_prints ctxt)
+          val result          = prints_option >>= (try o uncurry) (same_normalized_prints ctxt)
                              |> Utils.is_some_true                                     :bool;
         in
           result
+        end
+      | eval' (Are_At_Same_Loc  (Trm_Occ to1, Trm_Occ to2)) (ns:name_space) =
+        let
+          val trm_occ1_path_n_loc = name_space_n_trm_occ_id_to_path_n_loc ns (Trm_Occ to1): path_n_loc option;
+          val trm_occ2_path_n_loc = name_space_n_trm_occ_id_to_path_n_loc ns (Trm_Occ to2): path_n_loc option;
+          val option_pair = Utils.mk_option_pair (trm_occ1_path_n_loc, trm_occ2_path_n_loc): (path_n_loc * path_n_loc) option;  
+        in
+          Option.map (uncurry same_path_n_loc) option_pair |> Utils.is_some_true
         end
       | eval' (Are_Same_Numb (Numb n1, Numb n2)) (Name_Space ns:name_space) =
         let
@@ -599,8 +609,6 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
           val occ1_occ2_print_option       = Utils.mapPartial2 path_n_loc_to_print occ1_occ2_path_n_loc_option                               : (UN.print * UN.print) option;
           val result_option                = occ1_occ2_print_option <$> uncurry is_subprint_of                                               : bool option;
           val result                       = Utils.is_some_true result_option                                                                : bool;
-          val _ = tracing (if is_none result_option then "None" else "Some");
-          val _ = tracing (if result then "result is True" else "result is False");
         in
           result
         end
@@ -633,8 +641,8 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           result
         end
-      | eval' (Is_In_Prems  (trm_occ:trm_occ)) (name_space:name_space) = eval'_in_imp trm_occ name_space 1(*TODO:FIXME: not always true*)
-      | eval' (Is_In_Cnclsn (trm_occ:trm_occ)) (name_space:name_space) = eval'_in_imp trm_occ name_space 2(*TODO:FIXME: not always true*)
+      | eval' (Is_In_Prems  (trm_occ:trm_occ)) (name_space:name_space) = eval'_in_imp trm_occ name_space 0
+      | eval' (Is_In_Cnclsn (trm_occ:trm_occ)) (name_space:name_space) = eval'_in_imp trm_occ name_space 1
       | eval' (Is_Const_Of_Name (trm_occ, const_name:string)) (name_space:name_space) =
         let
           val cname_option            = name_space_n_trm_occ_id_to_cname name_space trm_occ : string option;
@@ -763,6 +771,14 @@ fun eval (pstate: Proof.state, assert: assrt, Ind_Mods mods:ind_mods) =
         in
           Utils.is_some_true result_option
         end (*TODO: improve this clause.*)
+      | eval' (Is_Defined_With (trm_occ:trm_occ, cmmnd:command)) (name_space as Name_Space nspace:name_space) =
+        let
+          val cname_option          = name_space_n_trm_occ_id_to_cname name_space trm_occ  : string option;
+          val cname_command         = Option.map (Pattern.get_command ctxt) cname_option   : command option;
+          val result                = Option.map (equal cmmnd) cname_command |> Utils.is_some_true: bool;
+        in
+          result
+        end
       (*syntax sugars*)
       | eval' (Is_Atom trm_occ)                                  (name_space:name_space) = eval' (Is_Cnst trm_occ Or Is_Free trm_occ Or Is_Bound trm_occ)   name_space
       | eval' (Are_Diff_Numb (numb1, numb2))                     (name_space:name_space) = eval' (Not (Are_Same_Numb (numb1, numb2)))                                name_space

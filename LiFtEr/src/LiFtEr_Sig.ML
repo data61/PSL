@@ -40,6 +40,7 @@ datatype assrt   =
 | Is_Rule_Of              of rule    * trm_occ
 | Trm_Occ_Is_Of_Trm       of trm_occ * trm
 | Are_Same_Trm            of trm     * trm
+| Are_At_Same_Loc         of trm_occ * trm_occ
 | Are_Same_Numb           of numb    * numb
 | Are_Same_Rule           of rule    * rule
 | Are_Same_Str            of trm_occ * trm_occ (*trm*)
@@ -70,6 +71,7 @@ datatype assrt   =
 | Is_Printed_As           of trm     * string
 (* TODO: pattern *)
 | Pattern                 of numb * trm_occ * pattern  (*In the definition of trm, the numb-th argument has this pattern.*)
+| Is_Defined_With         of trm_occ * command
 (*syntax sugars*)
 | Are_Diff_Numb           of numb    * numb           (*Not & Are_Same_Numb*)
 | Are_Diff_Str            of trm_occ * trm_occ        (*Not & Are_Same_Str*)

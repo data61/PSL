@@ -9,7 +9,6 @@ begin
 ML\<open> structure Dynamic_Induct =
 struct
 
-(* Induct_Seed: The seed to make the tactic-generator for the induct method. *)
 structure Induct_Seed  =
 struct
 
@@ -47,7 +46,7 @@ fun mods_have_more_than_one_rule mods = mods_have_two_rules' mods 0 > 1;
 fun filter_out_mods_w_too_many_rules (modss:modifiers Seq.seq) =
     Seq.filter (not o mods_have_more_than_one_rule) modss: modifiers Seq.seq;
 
-fun mods_to_string (mods:modifiers) =
+fun mods_to_string (mods:modifiers): string =
   let 
     val prefix_if_nonnil = Utils.prefix_if_nonempty;
   in
@@ -96,17 +95,128 @@ fun pst_to_modifiers (state:Proof.state) =
                       |> Seq.map Seq.of_list
                       |> Seq.flat
                       |> Induct_Seed.filter_out_mods_w_too_many_rules
-                      |> Seq.chop 300 |> fst : ITG.modifiers list;
+                      |> Seq.chop 10000 |> fst : ITG.modifiers list;
     val _ = tracing ("smart_induct produced " ^ Int.toString (length all_modifierss) ^ " combinations of arguments for the induct method." )
   in
     all_modifierss: ITG.modifiers list
   end;
 
-end;
-\<close>
+structure IS = Induct_Seed;
 
-ML\<open> fun modifiers_to_str (mods: Dynamic_Induct.Induct_Seed.modifiers) : string =
-  enclose "apply (" ")" ("induct" ^ Dynamic_Induct.Induct_Seed.mods_to_string mods);
+
+
+
+fun modifiers_to_str (mods: IS.modifiers) : string =
+  enclose "apply (" ")" ("induct" ^ IS.mods_to_string mods);
+
+structure DU = Dynamic_Utils;
+structure IU = Isabelle_Utils;
+
+fun str_to_nontac (meth:string) : DU.state DU.nontac =
+  IU.TIMEOUT_in 3.0 (Utils.try_with (K Seq.empty) DU.string_to_nontac_on_pstate meth);
+
+fun state_to_nontacs (pst:DU.state): DU.state DU.nontac list = pst
+  |> pst_to_modifiers
+  |> map (fn mods => "induct" ^ IS.mods_to_string mods)
+  |> map (try str_to_nontac)
+  |> Utils.somes;
+
+fun get_fst_result (pst:Proof.state) (nontac: Proof.state DU.nontac) : DU.state option =
+      (try nontac pst: DU.state Seq.seq option)
+  >>= (try Seq.hd: DU.state Seq.seq -> Dynamic_Utils.state option);
+
+fun mods_return_something (pst:Proof.state) (mods: IS.modifiers) =
+  Option.isSome (get_fst_result pst (str_to_nontac ("induct " ^ IS.mods_to_string mods)));
+
+fun pst_to_functioning_modifiers (pst:Proof.state) =
+  let
+    val modifierss     = pst_to_modifiers pst                         : ITG.modifiers list;
+    fun tag_mods mods  = (mods_return_something pst mods, mods)       : (bool * ITG.modifiers);
+    val tagged_modss   = Par_List.map tag_mods modifierss             : (bool * ITG.modifiers) list;
+    val filtered_modss = filter (fst) tagged_modss |> map snd         : ITG.modifiers list;
+    val _              = tracing ("... out of which " ^ Int.toString (length filtered_modss) ^ " of them return some results.");
+  in
+    filtered_modss
+  end;
+
+fun mods_to_returned_thm_option (pst:Proof.state) (mods:IS.modifiers) =
+  let
+    val returned_pst_option = get_fst_result pst (str_to_nontac ("induct " ^ IS.mods_to_string mods)): Proof.state option;
+    val returend_thm_option = Option.map IU.proof_state_to_thm returned_pst_option: thm option;
+  in
+    returend_thm_option
+  end;
+
+fun post_is_in_pre_when_printed (pst:Proof.state) (mods:IS.modifiers) =
+let
+  val ctxt              = Proof.context_of pst                       : Proof.context;
+  val trm_to_string     = IU.trm_to_string ctxt                      : term -> string;
+  val no_local_assms    = Isabelle_Utils.pstate_to_usings pst |> null: bool;
+  val pre_subgoals      = IU.pst_to_subgs pst                        : term list;
+  val numb_pre_subgoals = length pre_subgoals                        : int;  
+  val pre_fst_goal_opt      = IU.pst_to_fst_subg pst                 : term option;
+  val pre_fst_goal_str_opt  = Option.map trm_to_string pre_fst_goal_opt: string option;
+  val pre_subgoals          = IU.pst_to_subgs pst                      : terms;
+  val pre_subgoals_str      = map trm_to_string pre_subgoals           : strings;
+  
+  fun is_not_in_them (inn:string) (them:strings) = exists (String.isSubstring inn) them |> not;
+
+  val pre_fst_goal_str_opt  = Option.map trm_to_string pre_fst_goal_opt                              : string option;
+  val pre_fst_goal_str      = Utils.try_with "empty_string_because_no_term" the pre_fst_goal_str_opt : string;
+
+  val post_fst_goal_pst = get_fst_result pst (str_to_nontac ("induct " ^ IS.mods_to_string mods)): Proof.state option;
+  val post_subgoals_trm  = Option.map IU.pst_to_subgs post_fst_goal_pst |> these: term list;
+  val numb_post_subgoals = length post_subgoals_trm: int; 
+  val post_subgoals_str  = map trm_to_string post_subgoals_trm: strings;
+  val numb_new_subgoals  = numb_post_subgoals - numb_pre_subgoals + 1;
+  val new_subgoals_trm   = take numb_new_subgoals post_subgoals_trm: terms;
+  val new_subgoals_have_duplicates = has_duplicates (op =) new_subgoals_trm: bool;
+  val new_subgoals_str   = take numb_new_subgoals post_subgoals_str: strings;
+  val pre_fst_goal_is_in_new_post_subgoals = forall (String.isSubstring ("\<Longrightarrow> " ^ pre_fst_goal_str)) new_subgoals_str;
+(*
+  val pre_fst_goal_is_in_new_post_subgoals = exists (String.isSubstring (*pre_fst_goal_str*)"is_filter") new_subgoals_str;
+*)
+  fun opt_substring  (SOME inner:string option) (SOME outer:string option) = String.isSubstring inner outer
+    | opt_substring   _                          _                         = false;
+(*
+val _ = if pre_fst_goal_is_in_new_post_subgoals then tracing (("pre_fst_goal_is_in_new_post_subgoals    induct" ^ IS.mods_to_string mods)) else ();
+val _ = if new_subgoals_have_duplicates then tracing         (("new_subgoals_have_duplicates            induct" ^ IS.mods_to_string mods)) else ();
+*)
+  val result = (if no_local_assms then pre_fst_goal_is_in_new_post_subgoals else false) orelse new_subgoals_have_duplicates;
+(*opt_substring pre_fst_goal_str post_fst_goal_str;
+*)
+in
+  result
+end;
+
+fun no_sch_in_pre_but_in_post (pst:Proof.state) (mods:IS.modifiers) =
+let              
+  val pre_fst_goal      = IU.pst_to_fst_subg pst                                                 : term option;
+  val post_fst_goal_pst = get_fst_result pst (str_to_nontac ("induct " ^ IS.mods_to_string mods)): Proof.state option;
+  val post_fst_goal_trm = Option.mapPartial IU.pst_to_fst_subg post_fst_goal_pst                 : term option;
+  fun no_sche_in trm    = Term.add_var_names trm [] |> null                                      : bool;
+  val no_shce_in_post   = Option.map no_sche_in post_fst_goal_trm |> Utils.is_some_true          : bool;
+  val no_sche_in_pre    = Option.map no_sche_in pre_fst_goal      |> Utils.is_some_true          : bool;
+  val result            = if no_sche_in_pre then no_shce_in_post else true                       : bool;
+val _ = if not result then tracing         (("schematic variable was introduced       induct" ^ IS.mods_to_string mods)) else ();
+in
+  result
+end;
+
+fun pst_to_promising_modss (pst:Proof.state) =
+let
+  val functioning_modifiers  = pst_to_functioning_modifiers pst: ITG.modifiers list;
+  val non_is_substring_modss = filter_out (post_is_in_pre_when_printed pst) functioning_modifiers: ITG.modifiers list;
+  val _                      = tracing ("... out of which only " ^ Int.toString (length non_is_substring_modss) ^ " of them return a first goal that does not contain the original first goal as its sub-term.");
+  val no_sche_introducing_modss = filter (no_sch_in_pre_but_in_post pst) non_is_substring_modss: ITG.modifiers list;
+  val _                         = tracing ("... out of which only " ^ Int.toString (length no_sche_introducing_modss) ^ " of them return a first goal that does not newly introduce a schematic variable.");
+  val first_modss    = take 1000 no_sche_introducing_modss                      : ITG.modifiers list;
+  val _ = tracing ("LiFtEr assertions are evaluating the first " ^ Int.toString (length first_modss) ^ " of them.");
+in
+  first_modss
+end;
+
+end;
 \<close>
 
 ML\<open> (* Example assertions in LiFtEr. *)
@@ -114,24 +224,19 @@ local
 
 open LiFtEr_Util LiFtEr;
 infix And Imply Is_An_Arg_Of Is_Rule_Of Is_Nth_Ind Is_In_Trm_Loc Is_In_Trm_Str;
+infix Or Trm_Occ_Is_Of_Trm Is_Const_Of_Name Is_Printed_As Is_At_Depth Is_Defined_With;
 
 in
 
-(* Example 1-a *)
+(* heuristic_1 *)
 val all_ind_term_are_non_const_wo_syntactic_sugar =
  All_Ind (Trm 1,
    Some_Trm_Occ (Trm_Occ 1,
-       Trm_Occ_Is_Of_Trm (Trm_Occ 1, Trm 1)
+       (Trm_Occ 1 Trm_Occ_Is_Of_Trm Trm 1)
      And
        Not (Is_Cnst (Trm_Occ 1)))): assrt;
 
-(* Example 1-b *)
-val all_ind_term_are_non_const_with_syntactic_sugar =
- All_Ind (Trm 1,
-   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-     Not (Is_Cnst (Trm_Occ 1)))): assrt;
-
-(* Example 2 *)
+(* heuristic_2 *)
 val all_ind_terms_have_an_occ_as_variable_at_bottom =
  All_Ind (Trm 1,
    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
@@ -139,23 +244,35 @@ val all_ind_terms_have_an_occ_as_variable_at_bottom =
      Imply
        Is_At_Deepest (Trm_Occ 1)));
 
-(* Example 3 *)
+(* heuristic_3 *)
 val all_ind_vars_are_arguments_of_a_recursive_function =
 Some_Trm (Trm 1,
   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
     All_Ind (Trm 2,
       Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
-           Is_Recursive_Cnst (Trm_Occ 1)
+         (((Trm_Occ 1 Is_Defined_With Fun)
+          Or
+           (Trm_Occ 1 Is_Defined_With Function)
+          Or
+           (Trm_Occ 1 Is_Defined_With Inductive)
+          Or
+           (Trm_Occ 1 Is_Defined_With  Primrec))
          And
-           (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 1)))));
+           (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 1))))));
 
-(* Example 4 *)
+(* heuristic_4 *)
 val all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete =
  Not (Some_Rule (Rule 1, True))
 Imply
  Some_Trm (Trm 1,
   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-    Is_Recursive_Cnst (Trm_Occ 1)
+    ((Trm_Occ 1 Is_Defined_With Fun)
+    Or
+     (Trm_Occ 1 Is_Defined_With  Function)
+    Or
+     (Trm_Occ 1 Is_Defined_With Inductive)
+    Or
+     (Trm_Occ 1 Is_Defined_With  Primrec))
    And
     All_Ind (Trm 2,
       Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
@@ -164,7 +281,7 @@ Imply
         And
          Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1))))));
 
-(* Example 5 *)
+(* heuristic_5 *)
 val all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order =
  Some_Rule (Rule 1, True)
 Imply
@@ -180,30 +297,22 @@ Imply
         And
         (Trm 2 Is_Nth_Ind Numb 1)))))))));
 
-(* Example 6-a *)
+(* heuristic_6 and heuristic_18 *)
 val ind_is_not_arb =
 All_Arb (Trm 1,
  Not (Some_Ind (Trm 2,
   Are_Same_Trm (Trm 1, Trm 2))));
 
-(* Example 6-b *)
-val vars_in_ind_terms_are_generalized =
- Some_Ind (Trm 1,
-  Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-   (All_Trm (Trm 2,
-     Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
-       ((Trm_Occ 2 Is_In_Trm_Loc Trm_Occ 1)
-       And
-        Is_Free (Trm_Occ 2))
-      Imply
-       Some_Arb (Trm 3,
-        Are_Same_Trm (Trm 2, Trm 3)))))));
-
-val Example6 = ind_is_not_arb And vars_in_ind_terms_are_generalized;
-
+(* heuristic_7 *)
 val at_least_one_recursive_term =
   Some_Trm_Occ (Trm_Occ 1,
-    Is_Recursive_Cnst (Trm_Occ 1))
+    (Trm_Occ 1 Is_Defined_With Fun)
+   Or
+    (Trm_Occ 1 Is_Defined_With Function)
+   Or
+    (Trm_Occ 1 Is_Defined_With Inductive)
+   Or
+    (Trm_Occ 1 Is_Defined_With Primrec))
 Imply
   Some_Trm (Trm 1,
     Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
@@ -211,20 +320,29 @@ Imply
         Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
           Some_Ind (Trm 3,
             Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
-                 Is_Recursive_Cnst (Trm_Occ 1)
+                ((Trm_Occ 1 Is_Defined_With Fun)
+                Or
+                 (Trm_Occ 1 Is_Defined_With Function)
+                Or
+                 (Trm_Occ 1 Is_Defined_With Inductive)
+                Or
+                 (Trm_Occ 1 Is_Defined_With Primrec))
                And
                  (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 1)
                And
                   Are_Same_Trm (Trm 2, Trm 3)))))));
 
+(* heuristic_8 *)
 val at_least_one_on = Some_Ind (Trm 1, True);
 
+(* heuristic_9 *)
 val one_on_is_deepest =
   Some_Ind (Trm 1, True)
 Imply
   Some_Ind (Trm 1,
     Some_Trm_Occ_Of (Trm_Occ 1, Trm 1, Is_At_Deepest (Trm_Occ 1)));
 
+(* heuristic_10 *)
 val ons_and_arbs_share_func =
 All_Ind (Trm 1,
  All_Arb (Trm 2,
@@ -235,8 +353,7 @@ All_Ind (Trm 1,
      And
       ((Trm_Occ 2) Is_An_Arg_Of (Trm_Occ 3))))))));
 
-infix Or Trm_Occ_Is_Of_Trm Is_Const_Of_Name Is_Printed_As;
-
+(* heuristic_11 *)
 val all_args_of_rule_as_ons =
  Some_Rule (Rule 1, True)
 Imply
@@ -252,6 +369,7 @@ Imply
 ))
 ));
 
+(* heuristic_12 *)
 val arb_share_parent_with_ind =
  Some_Arb (Trm 1, True)
 Imply
@@ -265,6 +383,7 @@ Imply
        (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 3)
 )))));
 
+(* heuristic_13 and heuristic_19 *)
 val no_arb_should_be_at_the_same_loc_as_ind =
  Some_Arb (Trm 1, True)
 Imply
@@ -282,32 +401,214 @@ Imply
             (Is_Nth_Arg_Of (Trm_Occ 2, Numb 4, Trm_Occ 32))
 ))))))))))))))));
 
+(* heuristic_14 *)
 val only_one_rule =
  Some_Rule (Rule 1, True)
 Imply
   (All_Rule (Rule 1,
     All_Rule (Rule 2,
-     (Are_Same_Rule (Rule 1, Rule 2)))))
+     (Are_Same_Rule (Rule 1, Rule 2)))));
+
+(* heuristic_15 *)
+val inner_rec_const_rule =
+ Some_Rule (Rule 1,
+   Some_Trm_Occ (Trm_Occ 1,
+      ((Trm_Occ 1 Is_Defined_With Fun)
+      Or
+       (Trm_Occ 1 Is_Defined_With Function)
+      Or
+       (Trm_Occ 1 Is_Defined_With Inductive)
+      Or
+       (Trm_Occ 1 Is_Defined_With Primrec))
+    And
+     Some_Trm_Occ (Trm_Occ 2,
+        ((Trm_Occ 2 Is_Defined_With Fun)
+        Or
+         (Trm_Occ 2 Is_Defined_With Function)
+        Or
+         (Trm_Occ 2 Is_Defined_With Inductive)
+        Or
+         (Trm_Occ 2 Is_Defined_With Primrec))
+      And
+       Are_Diff_Str (Trm_Occ 1, Trm_Occ 2)
+      And
+       Some_Trm_Occ (Trm_Occ 3,
+        (Trm_Occ 3 Is_An_Arg_Of Trm_Occ 1)
+        And
+        (Trm_Occ 2 Is_In_Trm_Loc Trm_Occ 3)
+        And
+         All_Ind (Trm 4,
+          All_Trm_Occ_Of (Trm_Occ 4, Trm 4,
+           Is_Atom (Trm_Occ 4)))))))
+Imply
+ Some_Rule (Rule 1,
+   Some_Trm_Occ (Trm_Occ 1,
+      ((Trm_Occ 1 Is_Defined_With Fun)
+      Or
+       (Trm_Occ 1 Is_Defined_With Function)
+      Or
+       (Trm_Occ 1 Is_Defined_With Inductive)
+      Or
+       (Trm_Occ 1 Is_Defined_With Primrec))
+    And
+     Some_Trm_Occ (Trm_Occ 2,
+        ((Trm_Occ 2 Is_Defined_With Fun)
+        Or
+         (Trm_Occ 2 Is_Defined_With Function)
+        Or
+         (Trm_Occ 2 Is_Defined_With Inductive)
+        Or
+         (Trm_Occ 2 Is_Defined_With Primrec))
+      And
+       Some_Trm_Occ (Trm_Occ 3,
+        (Trm_Occ 3 Is_An_Arg_Of Trm_Occ 1)
+        And
+        (Trm_Occ 2 Is_In_Trm_Loc Trm_Occ 3)
+        And
+        (Rule 1 Is_Rule_Of Trm_Occ 2)))));
+
+(* heuristic_16 *)
+val no_ind_at_nth_arg_if_two_occ_of_recs =
+ (Not (Some_Rule (Rule 1, True))
+ And
+  Some_Ind (Trm 1, True))
+Imply
+ Not
+ (Some_Trm (Trm 1,
+   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+     ((Trm_Occ 1 Is_Defined_With Fun)
+     Or
+      (Trm_Occ 1 Is_Defined_With Function)
+     Or
+      (Trm_Occ 1 Is_Defined_With Inductive)
+     Or
+      (Trm_Occ 1 Is_Defined_With Primrec))
+    And
+      Some_Trm (Trm 2,
+        Are_Same_Trm (Trm 1, Trm 2)
+       And
+       (Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+          Not (Are_At_Same_Loc (Trm_Occ 1, Trm_Occ 2))
+         And
+          Some_Numb (Numb 3,
+           Some_Trm_Occ (Trm_Occ 3,
+            (Is_Nth_Arg_Of (Trm_Occ 1, Numb 3, Trm_Occ 4)
+           And
+             Is_Nth_Arg_Of (Trm_Occ 2, Numb 3, Trm_Occ 4)
+           And
+            Some_Ind (Trm 5,
+              ((Trm_Occ 1 Trm_Occ_Is_Of_Trm Trm 5)
+              And
+               (Trm_Occ 1 Trm_Occ_Is_Of_Trm Trm 5))
+))))))))));
+
+(* heuristic_17 *)
+val no_diff_var_at_same_pos_for_diff_occ_of_rec =
+ Not (Some_Rule (Rule 1, True))
+Imply
+ ((Some_Ind (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+     Some_Trm (Trm 2,
+      Some_Trm_Occ_Of (Trm_Occ 21, Trm 2,
+        ((Trm_Occ 21 Is_Defined_With Fun)
+        Or
+         (Trm_Occ 21 Is_Defined_With Function)
+        Or
+         (Trm_Occ 21 Is_Defined_With Inductive)
+        Or
+         (Trm_Occ 21 Is_Defined_With Primrec))
+       And
+        Some_Numb (Numb 5,
+          Is_Nth_Arg_Of(Trm_Occ 1, Numb 5, Trm_Occ 21)
+         And
+          Some_Trm_Occ_Of (Trm_Occ 22, Trm 2,
+            Some_Numb (Numb 6,
+              (Trm_Occ 21 Is_At_Depth Numb 6)
+             And
+              (Trm_Occ 21 Is_At_Depth Numb 6))
+           And
+            Some_Trm (Trm 3,
+              Not (Are_Same_Trm (Trm 1, Trm 3))
+             And
+              Some_Trm_Occ_Of (Trm_Occ 3, Trm 3,
+               Is_Nth_Arg_Of (Trm_Occ 3, Numb 5, Trm_Occ 22))))))))))
+ Imply
+  Some_Ind (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+     Some_Trm (Trm 2,
+      Some_Trm_Occ_Of (Trm_Occ 21, Trm 2,
+        ((Trm_Occ 21 Is_Defined_With Fun)
+        Or
+         (Trm_Occ 21 Is_Defined_With Function)
+        Or
+         (Trm_Occ 21 Is_Defined_With Inductive)
+        Or
+         (Trm_Occ 21 Is_Defined_With Primrec))
+       And
+        Some_Numb (Numb 5,
+          Is_Nth_Arg_Of(Trm_Occ 1, Numb 5, Trm_Occ 21)
+         And
+          Pattern (Numb 5, Trm_Occ 21, All_Constr)
+         And
+          Some_Trm_Occ_Of (Trm_Occ 22, Trm 2,
+            Some_Numb (Numb 6,
+              (Trm_Occ 21 Is_At_Depth Numb 6)
+             And
+              (Trm_Occ 21 Is_At_Depth Numb 6))
+           And
+            Some_Trm (Trm 3,
+              Not (Are_Same_Trm (Trm 1, Trm 3))
+             And
+              Some_Trm_Occ_Of (Trm_Occ 3, Trm 3,
+               Is_Nth_Arg_Of (Trm_Occ 3, Numb 5, Trm_Occ 22)
+               And
+                Pattern (Numb 5, Trm_Occ 22, All_Constr))))))))))
+
+
+(* heuristic_20 *)
+val rule_inversion_on_premise =
+ (  Some_Rule (Rule 1, True)
+  And
+    Some_Trm_Occ (Trm_Occ 1,
+       (Trm_Occ 1 Is_Defined_With Inductive)
+      And
+       (Is_In_Prems (Trm_Occ 1))
+    )
+  )
+Imply
+  Some_Rule (Rule 2,
+    Some_Trm_Occ (Trm_Occ 2,
+       (Trm_Occ 2 Is_Defined_With Inductive)
+      And
+       (Is_In_Prems (Trm_Occ 2))
+      And
+       (Rule 2 Is_Rule_Of Trm_Occ 2)
+    )
+  );
 
 end;
 \<close>
 
-setup\<open> Apply_LiFtEr.update_assert "heuristic_1a" all_ind_term_are_non_const_wo_syntactic_sugar                           \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_1" all_ind_term_are_non_const_wo_syntactic_sugar                           \<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_2"  all_ind_terms_have_an_occ_as_variable_at_bottom                         \<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_3"  all_ind_vars_are_arguments_of_a_recursive_function                      \<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete\<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order     \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_6a" ind_is_not_arb                                                          \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_6a2" ind_is_not_arb                                                          \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_6"  ind_is_not_arb                                                          \<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_7" at_least_one_recursive_term                                              \<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_8" at_least_one_on                                                          \<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_9" one_on_is_deepest                                                        \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_10" ons_and_arbs_share_func                         \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_11" all_args_of_rule_as_ons                         \<close>
-setup\<open> Apply_LiFtEr.update_assert "arb_share_parent_with_ind" arb_share_parent_with_ind          \<close>
-setup\<open> Apply_LiFtEr.update_assert "no_arb_should_be_at_the_same_loc_as_ind" no_arb_should_be_at_the_same_loc_as_ind \<close>
-setup\<open> Apply_LiFtEr.update_assert "no_arb_should_be_at_the_same_loc_as_ind2" no_arb_should_be_at_the_same_loc_as_ind \<close>
-setup\<open> Apply_LiFtEr.update_assert "only_one_rule" only_one_rule \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_10" ons_and_arbs_share_func \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_11" all_args_of_rule_as_ons \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_12" arb_share_parent_with_ind \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_13" no_arb_should_be_at_the_same_loc_as_ind \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_14" only_one_rule \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_15" inner_rec_const_rule \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_16" no_ind_at_nth_arg_if_two_occ_of_recs \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_17" no_diff_var_at_same_pos_for_diff_occ_of_rec \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_18" ind_is_not_arb \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_19" no_arb_should_be_at_the_same_loc_as_ind \<close> 
+setup\<open> Apply_LiFtEr.update_assert "heuristic_20" rule_inversion_on_premise \<close> 
 
 ML\<open>
 local
@@ -344,7 +645,7 @@ fun pst_n_ind_mods_to_result_pair (pst:Proof.state) (ind_mod:ind_mods) =
          val clean_rules = map (string_to_induct_rule o normalize_rule_as_string o induct_rule_to_string) rules: induct_rule list;
       in
         Ind_Mods {ons = clean_ons, arbs = clean_arbs, rules = clean_rules}: ind_mods
-      end;
+      end;                                           
     fun apply_assrt (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
         LiFtEr.eval (pst, assrt, ind_mods): bool;
     fun run_test (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
@@ -389,17 +690,28 @@ val smart_induct_cmd =
     let
       val _ = tracing "started extracting features logically";
       val state                      = Toplevel.proof_of top                                   : Proof.state;
-      val psl_modifierss             = Dynamic_Induct.pst_to_modifiers state                   : Dynamic_Induct.Induct_Seed.modifier list list;
+      val psl_modifierss             = Dynamic_Induct.pst_to_promising_modss state             : Dynamic_Induct.Induct_Seed.modifier list list;
       val lifter_modifierss          = map psl_ind_mods_to_lifter_ind_mods psl_modifierss      : LiFtEr_Util.ind_mods list;
       fun ind_mods_to_pair ind_mods  = ((pst_n_ind_mods_to_result_pair state ind_mods), ind_mods): (int * ind_mods);
       val pairs                      = Par_List.map ind_mods_to_pair lifter_modifierss                  : (int * LiFtEr_Util.ind_mods) list;
       val sorted_pairs               = sort (fn (p1, p2) => Int.compare (fst p1, fst p2)) pairs |> rev: (int * LiFtEr_Util.ind_mods) list;
-      val _                = tracing "Try these inductions!": unit;
-      val best_pairs       = List.take (sorted_pairs, 20);
-      fun mk_message (i, mods) = (modifiers_to_str o lifter_ind_mods_to_psl_ind_mods) mods ^ " (* The score is " ^ Int.toString i ^ ". *)";
+      val _                   = tracing "Try these 10 most promising inductions!": unit;
+      val best_pairs          = take 10 sorted_pairs;
+      val fst_and_snd = ["1st candidate is ", "2nd candidate is "]
+      val third_till_tenth = List.tabulate (11, I) |> map Int.toString |> drop 3 |> map (fn rank => rank ^ "th candidate is ");
+      val fst_till_tenth   = fst_and_snd @ third_till_tenth;
+      val ctxt                = Proof.context_of state            : Proof.context;
+      val all_asserts         = (Symtab.dest o LiFtEr_Assertion.get) (Context.Proof ctxt);
+      val numb_of_all_asserts = length all_asserts: int;
+      fun ind_mdos_to_sendback ind_mods = lifter_ind_mods_to_psl_ind_mods ind_mods
+                                       |> Dynamic_Induct.modifiers_to_str 
+                                       |> Active.sendback_markup_properties [Markup.padding_command]: string;
+      fun mk_message (i, mods) = ind_mdos_to_sendback mods ^
+                                " (* The score is " ^ Int.toString i ^ " out of " ^ Int.toString numb_of_all_asserts ^ ". *)";
       val best_messages  = map mk_message best_pairs: strings;
-      val sendback         = Active.sendback_markup_properties [Markup.padding_command]: string -> string;
-      val _                = map (tracing o sendback) best_messages;
+      val numb_of_best_messages = length best_messages
+      val best_mess_w_ranks = take numb_of_best_messages fst_till_tenth ~~ best_messages |>  map (op ^);
+      val _                = map tracing best_mess_w_ranks;
     in () end);
 
 end;
@@ -409,149 +721,8 @@ ML\<open>
 val _ = Outer_Syntax.command @{command_keyword smart_induct} "recommend which method to use." (Scan.succeed smart_induct_cmd);
 \<close>
 
-primrec rev :: "'a list \<Rightarrow> 'a list" where
-  "rev []       = []" |
-  "rev (x # xs) = rev xs @ [x]"
-
-fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
-  "itrev []     ys = ys" |
-  "itrev (x#xs) ys = itrev xs (x#ys)"
-
-lemma "itrev xs ys = rev xs @ ys"
-  assert_LiFtEr heuristic_11  [on["xs", "ys"],arb[],rule["Smart_Induct.itrev.induct"]]
-  assert_LiFtEr only_one_rule [on["xs", "ys"],arb[],rule["Smart_Induct.itrev.induct"]]
-  (*This should fail:
-   assert_LiFtEr heuristic_11 [on["xs"],      arb[],rule["Smart_Induct.itrev.induct"]]*)
-  assert_LiFtEr no_arb_should_be_at_the_same_loc_as_ind [on["xs"],arb["ys"],rule[]]
+lemma "True"
+  apply induct
   oops
 
-fun sep :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list" where
-  "sep a [] = []" |
-  "sep a [x] = [x]" |
-  "sep a (x#y#zs) = x # a # sep a (y#zs)"
-
-lemma "map f (sep a xs) = sep (f a) (map f xs)"
-
-  assert_LiFtEr no_arb_should_be_at_the_same_loc_as_ind [on["xs"],arb["a"],rule[]]
-  apply (induct a xs rule: Smart_Induct.sep.induct)
-  apply auto
-  done
-
-type_synonym vname = string
-type_synonym val = int
-type_synonym state = "vname \<Rightarrow> val"
-
-datatype aexp = N int | V vname | Plus aexp aexp
-
-fun aval :: "aexp \<Rightarrow> state \<Rightarrow> val" where
-  "aval (N n) s = n" |
-  "aval (V x) s = s x" |
-  "aval (Plus a\<^sub>1 a\<^sub>2) s = aval a\<^sub>1 s + aval a\<^sub>2 s"
-
-value "aval (Plus (V ''x'') (N 5)) (\<lambda>x. if x = ''x'' then 7 else 0)"
-
-text {* The same state more concisely: *}
-value "aval (Plus (V ''x'') (N 5)) ((\<lambda>x. 0) (''x'':= 7))"
-
-text {* A little syntax magic to write larger states compactly: *}
-
-definition null_state ("<>") where
-  "null_state \<equiv> \<lambda>x. 0"
-syntax 
-  "_State" :: "updbinds => 'a" ("<_>")
-translations
-  "_State ms" == "_Update <> ms"
-  "_State (_updbinds b bs)" <= "_Update (_State b) bs"
-
-text {* \noindent
-  We can now write a series of updates to the function @{text "\<lambda>x. 0"} compactly:
-*}
-lemma "<a := 1, b := 2> = (<> (a := 1)) (b := (2::int))"
-  by (rule refl)
-
-value "aval (Plus (V ''x'') (N 5)) <''x'' := 7>"
-
-
-text {* In  the @{term[source] "<a := b>"} syntax, variables that are not mentioned are 0 by default:
-*}
-value "aval (Plus (V ''x'') (N 5)) <''y'' := 7>"
-
-text{* Note that this @{text"<\<dots>>"} syntax works for any function space
-@{text"\<tau>\<^sub>1 \<Rightarrow> \<tau>\<^sub>2"} where @{text "\<tau>\<^sub>2"} has a @{text 0}. *}
-
-
-subsection "Constant Folding"
-
-text{* Evaluate constant subexpressions: *}
-
-fun asimp_const :: "aexp \<Rightarrow> aexp" where
-  "asimp_const (N n) = N n" |
-  "asimp_const (V x) = V x" |
-  "asimp_const (Plus a\<^sub>1 a\<^sub>2) =
-  (case (asimp_const a\<^sub>1, asimp_const a\<^sub>2) of
-    (N n\<^sub>1, N n\<^sub>2) \<Rightarrow> N(n\<^sub>1+n\<^sub>2) |
-    (b\<^sub>1,b\<^sub>2) \<Rightarrow> Plus b\<^sub>1 b\<^sub>2)"
-
-theorem aval_asimp_const:
-  "aval (asimp_const a) s = aval a s"
-  apply(induction a)
-    apply (auto split: aexp.split)
-  done
-
-text{* Now we also eliminate all occurrences 0 in additions. The standard
-method: optimized versions of the constructors: *}
-
-fun plus :: "aexp \<Rightarrow> aexp \<Rightarrow> aexp" where
-  "plus (N i\<^sub>1) (N i\<^sub>2) = N(i\<^sub>1+i\<^sub>2)" |
-  "plus (N i) a = (if i=0 then a else Plus (N i) a)" |
-  "plus a (N i) = (if i=0 then a else Plus a (N i))" |
-  "plus a\<^sub>1 a\<^sub>2 = Plus a\<^sub>1 a\<^sub>2"
-
-lemma aval_plus [simp]:
-  "aval (plus a1 a2) s = aval a1 s + aval a2 s"
-  apply(induction a1 a2 rule: plus.induct)
-              apply auto
-  done
-
-fun asimp :: "aexp \<Rightarrow> aexp" where
-  "asimp (N n) = N n" |
-  "asimp (V x) = V x" |
-  "asimp (Plus a\<^sub>1 a\<^sub>2) = plus (asimp a\<^sub>1) (asimp a\<^sub>2)"
-
-
-text{* Note that in @{const asimp_const} the optimized constructor was
-inlined. Making it a separate function @{const plus} improves modularity of
-the code and the proofs. *}
-
-value "asimp (Plus (Plus (N 0) (N 0)) (Plus (V ''x'') (N 0)))"
-
-theorem aval_asimp[simp]:
-  "aval (asimp a) s = aval a s"
-
-  apply(induction a)
-    apply auto
-  done
-
-datatype instr = LOADI val | LOAD vname | ADD
-
-type_synonym stack = "val list"
-
-fun exec1 :: "instr \<Rightarrow> state \<Rightarrow> stack \<Rightarrow> stack" where
-  "exec1 (LOADI n) _ stk  =  n # stk" |
-  "exec1 (LOAD x) s stk  =  s(x) # stk" |
-  "exec1  ADD _ (j#i#stk)  =  (i + j) # stk"
-
-fun exec :: "instr list \<Rightarrow> state \<Rightarrow> stack \<Rightarrow> stack" where
-  "exec [] _ stk = stk" |
-  "exec (i#is) s stk = exec is s (exec1 i s stk)"
-
-value "exec [LOADI 5, LOAD ''y'', ADD] <''x'' := 42, ''y'' := 43> [50]"
-
-lemma exec_append_model_prf[simp]:
-  "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"
-
-  apply (induct is2 arbitrary: s) (* The score is 16. *)
-  apply auto
-  apply (induct is1 arbitrary: s stk) (* The score is 16. *)
-  oops
 end

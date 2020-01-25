@@ -11,28 +11,34 @@
  *
  *)
 theory Test_Smart_Induct
-imports Smart_Induct
+  imports Smart_Induct
 begin
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
- "rev []       = []" |
- "rev (x # xs) = rev xs @ [x]"
+  "rev []       = []" |
+  "rev (x # xs) = rev xs @ [x]"
 print_theorems
 
 fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
- "itrev []     ys = ys" |
- "itrev (x#xs) ys = itrev xs (x#ys)"
+  "itrev []     ys = ys" |
+  "itrev (x#xs) ys = itrev xs (x#ys)"
 print_theorems
 
 lemma "itrev xs ys = rev xs @ ys"
-  oops
-
-lemma "itrev xs ys = rev xs @ ys"
-  assert_LiFtEr heuristic_11  [on["xs", "ys"],arb[],rule["Smart_Induct.itrev.induct"]]
-  assert_LiFtEr only_one_rule [on["xs", "ys"],arb[],rule["Smart_Induct.itrev.induct"]]
-  (*This should fail:
-   assert_LiFtEr heuristic_11 [on["xs"],      arb[],rule["Smart_Induct.itrev.induct"]]*)
-  assert_LiFtEr no_arb_should_be_at_the_same_loc_as_ind [on["xs"],arb["ys"],rule[]]
+  smart_induct
+  apply(induct ys)
+   apply(subgoal_tac "\<And> xs ys. itrev xs ys = rev xs @ ys")
+    apply fastforce
+   apply(subgoal_tac "\<And>xs. \<forall> ys. itrev xs ys = Test_Smart_Induct.rev xs @ ys")
+    apply fastforce
+   apply (induct_tac xsa)
+    apply fastforce+
+  apply(subgoal_tac "\<And>xs ys. itrev xs ys = Test_Smart_Induct.rev xs @ ys")
+   apply fastforce+
+  apply(subgoal_tac "\<And>xs. \<forall> ys. itrev xs ys = Test_Smart_Induct.rev xs @ ys")
+   apply fastforce
+  apply(induct_tac xsaa)
+   apply auto
   oops
 
 fun sep :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list" where
@@ -42,8 +48,9 @@ fun sep :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list" where
 
 lemma "map f (sep a xs) = sep (f a) (map f xs)"
   smart_induct
-  assert_LiFtEr no_arb_should_be_at_the_same_loc_as_ind [on["xs"],arb["a"],rule[]]
-  oops
+  apply (induct a xs rule: Test_Smart_Induct.sep.induct)
+    apply auto
+    done 
 
 type_synonym vname = string
 type_synonym val = int
@@ -94,6 +101,7 @@ fun plus :: "aexp \<Rightarrow> aexp \<Rightarrow> aexp" where
 
 lemma aval_plus [simp]:
   "aval (plus a1 a2) s = aval a1 s + aval a2 s"
+  smart_induct
   apply(induction a1 a2 rule: plus.induct)
               apply auto
   done
@@ -106,6 +114,8 @@ fun asimp :: "aexp \<Rightarrow> aexp" where
 theorem aval_asimp[simp]:
   "aval (asimp a) s = aval a s"
   smart_induct
+(* schematic variable introduction
+   apply(induct rule: Test_Smart_Induct.aval.induct )*)
   apply(induction a)
     apply auto
   done
@@ -125,7 +135,88 @@ fun exec :: "instr list \<Rightarrow> state \<Rightarrow> stack \<Rightarrow> st
 
 lemma exec_append_model_prf[simp]:
   "exec (is1 @ is2) s stk = exec is2 s (exec is1 s stk)"
+smart_induct  apply (induct is1 s stk rule: Test_Smart_Induct.exec.induct)
+   apply auto
+  done
+
+subsection{*Inductive definition of the even numbers*}
+
+inductive ev :: "nat \<Rightarrow> bool" where
+ev0: "ev 0" |
+evSS: "ev n \<Longrightarrow> ev (Suc(Suc n))"
+print_theorems
+
+thm ev0 evSS
+thm ev.intros
+
+text{* Using the introduction rules: *}
+lemma "ev (Suc(Suc(Suc(Suc 0))))"
+apply(rule evSS)
+apply(rule evSS)
+apply(rule ev0)
+done
+
+thm evSS[OF evSS[OF ev0]]
+
+text{* A recursive definition of evenness: *}
+fun evn :: "nat \<Rightarrow> bool" where
+"evn 0 = True" |
+"evn (Suc 0) = False" |
+"evn (Suc(Suc n)) = evn n"
+
+text{*A simple example of rule induction: *}
+lemma "ev n \<Longrightarrow> evn n"
   smart_induct
-  oops
+  assert_LiFtEr heuristic_20 [on[],arb[],rule["Test_Smart_Induct.ev.induct"]]
+apply(induction rule: ev.induct)
+ apply(simp)
+apply(simp)
+done
+
+text{* An induction on the computation of evn: *}
+lemma "evn n \<Longrightarrow> ev n"
+  smart_induct
+  assert_LiFtEr heuristic_20 [on[],arb[],rule["Test_Smart_Induct.ev.induct"]]
+apply(induction n rule: evn.induct)
+  apply (simp add: ev0)
+ apply simp
+apply(simp add: evSS)
+done
+
+text{* No problem with termination because the premises are always smaller
+than the conclusion: *}
+declare ev.intros[simp,intro]
+
+text{* A shorter proof: *}
+lemma "evn n \<Longrightarrow> ev n"
+  smart_induct
+apply(induction n rule: evn.induct)
+apply(simp_all)
+done
+
+text{* The power of arith: *}
+lemma "ev n \<Longrightarrow> \<exists>k. n = 2*k"
+  smart_induct 
+apply(induction rule: ev.induct)
+ apply(simp)
+apply arith
+done
+
+subsection{*Inductive definition of the reflexive transitive closure *}
+
+inductive
+  star :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool"
+for r where
+refl:  "star r x x" |
+step:  "r x y \<Longrightarrow> star r y z \<Longrightarrow> star r x z"
+
+lemma star_trans:
+  "star r x y \<Longrightarrow> star r y z \<Longrightarrow> star r x z"
+apply(induction rule: star.induct)
+apply(assumption)
+apply(rename_tac u x y)
+apply(metis step)
+done
+
 
 end
