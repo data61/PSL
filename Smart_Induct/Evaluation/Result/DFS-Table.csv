@@ -1,0 +1,11 @@
+Theory name;Line;Theorem name;Produced combinations;After first stage screening;After second stage screening;After third stage screening;Nth candidate;score;Functional?;Generalization?
+DFS.thy;27;nexts_set;128;16;12;12;2;20;0;0
+DFS.thy;42;-;20;8;4;4;2;20;0;0
+DFS.thy;87;df2_invariant;256;40;32;32;-;-;1;0
+DFS.thy;126;dfs_app;3210;590;576;576;1;20;1;0
+DFS.thy;131;-;384;144;136;136;2;20;1;0
+DFS.thy;137;visit_subset_dfs;384;144;136;136;1;20;1;0
+DFS.thy;140;next_subset_dfs;384;144;136;136;1;20;1;0
+DFS.thy;161;nextss_closed_dfs’;384;144;136;136;1;20;1;0
+DFS.thy;176;Image_closed_trancl;20;8;8;8;1;18;0;0
+DFS.thy;206;dfs_subset_reachable_visit_nodes;384;144;136;136;1;20;1;0
