@@ -66,9 +66,9 @@ fun pst_to_promising_modss (pst:Proof.state) =
 let
   val functioning_modifiers  = pst_to_functioning_modifiers pst: ITG.modifiers list;
   val non_is_substring_modss = filter_out (post_is_in_pre_when_printed pst) functioning_modifiers: ITG.modifiers list;
-  val _                      = tracing ("... out of which only " ^ Int.toString (length non_is_substring_modss) ^ " of them return a first goal that does not contain the original first goal as its sub-term.");
+  (*val _                      = tracing ("... out of which only " ^ Int.toString (length non_is_substring_modss) ^ " of them return a first goal that does not contain the original first goal as its sub-term.");*)
   val no_sche_introducing_modss = filter (no_sch_in_pre_but_in_post pst) non_is_substring_modss: ITG.modifiers list;
-  val _                         = tracing ("... out of which only " ^ Int.toString (length no_sche_introducing_modss) ^ " of them return a first goal that does not newly introduce a schematic variable.");
+  val _                         = tracing ("... out of which only " ^ Int.toString (length no_sche_introducing_modss) ^ " of them passes the second screening stage.");
   val first_modss    = take 1000 no_sche_introducing_modss                      : ITG.modifiers list;
   val _ = tracing ("LiFtEr assertions are evaluating the first " ^ Int.toString (length first_modss) ^ " of them.");
 in

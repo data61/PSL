@@ -81,7 +81,7 @@ fun lifter_ind_mods_to_psl_ind_mods (Ind_Mods {ons, arbs, rules}) =
 val smart_induct_cmd =
   Toplevel.keep_proof (fn top: Toplevel.state =>
     let
-      val _ = tracing "started extracting features logically";
+      val _ = tracing "smart_induct started producing combinations of induction arguments.";
       val state                      = Toplevel.proof_of top                                   : Proof.state;
       val psl_modifierss             = Dynamic_Induct.pst_to_promising_modss state             : Dynamic_Induct.Induct_Seed.modifier list list;
       val lifter_modifierss          = map psl_ind_mods_to_lifter_ind_mods psl_modifierss      : LiFtEr_Util.ind_mods list;
