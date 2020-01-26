@@ -1,4 +1,7 @@
-- *New!* The directory `LiFtEr` contains a working prototype of our domain-specific language to implement induction heuristics.
+Dear IJCAR reviewers,
+Please have a look at the release (v0.1.5-alpha) indicated in the paper.
+We are often experimenting new (dangerou) ideas in the master branch in GitHub.
+Our running example explained in the paper resides in PSL/Smart_Induct/Example/Induction_Demo.thy.
 
 # PSL
 
