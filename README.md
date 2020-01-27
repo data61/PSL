@@ -1,6 +1,6 @@
 Dear IJCAR reviewers,
-Please have a look at the release (v0.1.5-alpha) indicated in the paper.
-We are often experimenting new (dangerou) ideas in the master branch in GitHub.
+Please have a look at [the release indicated in the paper](https://github.com/data61/PSL/releases/tag/v0.1.5-alpha).
+We are often experimenting new (dangerous) ideas in the master branch in GitHub.
 Our running example explained in the paper resides in PSL/Smart_Induct/Example/Induction_Demo.thy.
 
 # PSL
