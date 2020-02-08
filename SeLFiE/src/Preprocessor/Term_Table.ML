@@ -89,7 +89,7 @@ fun inner_paths_at_the_same_level (inner_path1:UN.inner_path) (inner_path2:UN.in
     uncurry equal lengths: bool
   end;
 
-fun same_inits (path1:UN.path) (path2:UN.path) =
+fun same_inits (path1:UN.inner_path) (path2:UN.inner_path) =
   let
     val init1_option = try Utils.init path1;
     val init2_option = try Utils.init path2;
