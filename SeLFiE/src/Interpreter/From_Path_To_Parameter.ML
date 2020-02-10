@@ -41,6 +41,7 @@ fun eval trm pst assert parameters =
       | eval' SU.Is_Shallower_Than [Path p1, Path p2] = EPT.eval trm pst (EPT.Is_Shallower_Than (p1, p2))
       | eval' SU.Is_Path_Above     [Path p1, Path p2] = EPT.eval trm pst (EPT.Is_Path_Above     (p1, p2))
       | eval' SU.Is_Same_Path_As   [Path p1, Path p2] = EPT.eval trm pst (EPT.Is_Same_Path_As   (p1, p2))
+      | eval' SU.Is_Nth_Child      [Path p, Number n] = EPT.eval trm pst (EPT.Is_Nth_Child      (p,  n ))
      (*Eval_Print*)
       | eval' SU.Are_Same_Prints [Print p1, Print p2] = EPR.eval (EPR.Are_Same_Prints (p1, p2))
       (*Eval_Number*)

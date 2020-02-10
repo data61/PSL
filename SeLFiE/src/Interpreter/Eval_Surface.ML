@@ -1,6 +1,5 @@
 (*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Surface.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
-
 *)
 
 (*** signature: EVAL_SURFACE ***)
@@ -32,13 +31,14 @@ datatype assert =
 | Is_Shallower_Than of assert * assert
 | Is_Path_Above     of assert * assert
 | Is_Same_Path_As   of assert * assert
+| Is_Nth_Child      of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print   of assert * assert
 (*Eval_Number*)
-| Are_Same_Number of assert * assert
-| Is_Less_Than    of assert * assert
+| Are_Same_Number   of assert * assert
+| Is_Less_Than      of assert * assert
 (*Parameter*)
 | Print  of string
 | Number of int
@@ -88,6 +88,7 @@ datatype assert =
 | Is_Shallower_Than of assert * assert
 | Is_Path_Above     of assert * assert
 | Is_Same_Path_As   of assert * assert
+| Is_Nth_Child      of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 (*Eval_Path*)

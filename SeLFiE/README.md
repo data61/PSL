@@ -36,11 +36,11 @@ It is not ready for use yet.
 - [X] `outer_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `outer_literal_to_definitions`.
 - [X] `inner_literal_to_simp_rules` in `From_Multiple_To_Deep.ML`. -> rename to `inner_literal_to_definitions`.
 - [X] `trm_n_pst_to_path_to_unode_table` in `Make_Eval_Path.ML`.
-- [ ] `inner_path1_is_an_arg_of_inner_path2` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
-- [ ] `inner_path1_is_nth_arg_of_inner_path2` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
-- [ ] `inner_path_to_unode_table_to_lowest_fvars` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
-- [ ] `inner_path_to_ancestor_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
-- [ ] `inner_path_to_descendent_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [X] `inner_path1_is_an_arg_of_inner_path2` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [X] `inner_path1_is_nth_arg_of_inner_path2` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [X] `inner_path_to_unode_table_to_lowest_fvars` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [X] `inner_path_to_ancestor_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
+- [X] `inner_path_to_descendent_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
 - [X] develop `is_nth_child (unode, number)` in `Eval_Unode` in `Unique_Unode.ML` and `Eval_Unode.ML`.
       You will  need this when developing the aforementioned syntactic sugars.
 - [X] develop a structure to assert properties about `full-path`. -> No need for that.
@@ -50,7 +50,7 @@ It is not ready for use yet.
 - [X] `helper` in `Unique_Node.ML`
 - [X] `eavl` in `Eval_Surface.ML`.
 - [ ] `command_to_definitions` in `From_Multiple_To_Deep.ML`.
-- [ ] define `parameter` and `assert` in `SeLFiE_Util.ML` and use them in many modules.
+- [X] define `parameter` and `assert` in `Preprocessor/Util.ML` and use them in many modules.
 - [ ] `Eval_Syntactic_Sugar.ML`
 - [ ] develop the user-interface.
   - [ ] develop an Isar interface

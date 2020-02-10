@@ -24,6 +24,7 @@ datatype assert =
 | Is_Shallower_Than      of path * path
 | Is_Path_Above          of path * path
 | Is_Same_Path_As        of path * path
+| Is_Nth_Child           of path * int
 (*only in path*)
 | Unode_Has_Print        of path * string
 | Is_In_Subgoal          of path

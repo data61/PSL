@@ -29,6 +29,7 @@ datatype assert =
 | Is_Shallower_Than      of path * path
 | Is_Path_Above          of path * path
 | Is_Same_Path_As        of path * path
+| Is_Nth_Child           of path * int
 (*only in path*)
 | Unode_Has_Print        of path * string
 | Is_In_Subgoal          of path
@@ -52,12 +53,13 @@ fun eval (term:term) (pst:Proof.state) assert =
       | eval' (Is_Lambda p) = path_to_node p |> END.Is_Lambda |> END.eval
       | eval' (Is_App    p) = path_to_node p |> END.Is_App    |> END.eval
       (*Eval_Unode*)
-      | eval' (Has_Same_Prnt_As  pair) = path2_to_unode2 pair |> EU.Has_Same_Prnt_As  |> EU.eval
-      | eval' (Is_In_Trm_Prnt    pair) = path2_to_unode2 pair |> EU.Is_In_Trm_Prnt    |> EU.eval
-      | eval' (Is_Deeper_Than    pair) = path2_to_unode2 pair |> EU.Is_Deeper_Than    |> EU.eval
-      | eval' (Is_Shallower_Than pair) = path2_to_unode2 pair |> EU.Is_Shallower_Than |> EU.eval
-      | eval' (Is_Path_Above     pair) = path2_to_unode2 pair |> EU.Is_Path_Above     |> EU.eval
-      | eval' (Is_Same_Path_As   pair) = path2_to_unode2 pair |> EU.Is_Same_Path_As   |> EU.eval
+      | eval' (Has_Same_Prnt_As  pair) = path2_to_unode2 pair    |> EU.Has_Same_Prnt_As  |> EU.eval
+      | eval' (Is_In_Trm_Prnt    pair) = path2_to_unode2 pair    |> EU.Is_In_Trm_Prnt    |> EU.eval
+      | eval' (Is_Deeper_Than    pair) = path2_to_unode2 pair    |> EU.Is_Deeper_Than    |> EU.eval
+      | eval' (Is_Shallower_Than pair) = path2_to_unode2 pair    |> EU.Is_Shallower_Than |> EU.eval
+      | eval' (Is_Path_Above     pair) = path2_to_unode2 pair    |> EU.Is_Path_Above     |> EU.eval
+      | eval' (Is_Same_Path_As   pair) = path2_to_unode2 pair    |> EU.Is_Same_Path_As   |> EU.eval
+      | eval' (Is_Nth_Child (path, i)) = (path_to_unode path, i) |> EU.Is_Nth_Child      |> EU.eval
       (*only in path*)
       | eval' (Unode_Has_Print (path, print)) =
           let
