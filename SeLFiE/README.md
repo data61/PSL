@@ -43,6 +43,7 @@ It is not ready for use yet.
 - [X] `inner_path_to_descendent_inner_paths` in `Path_To_Unode.ML`. -> This should be defined as a syntactic sugar after `Eval_Deep`.
 - [X] develop `is_nth_child (unode, number)` in `Eval_Unode` in `Unique_Unode.ML` and `Eval_Unode.ML`.
       You will  need this when developing the aforementioned syntactic sugars.
+- [X] syntactic sugar for Some_Term_Occurrence_Of_Term.
 - [X] develop a structure to assert properties about `full-path`. -> No need for that.
    - Maybe it is enough to improve `Eval_Inner/Outer_Path` in `Path_To_Unode.ML`? -> Yes.
 - [ ] `suffix_for_inductive_set` in `Pattern.ML`.

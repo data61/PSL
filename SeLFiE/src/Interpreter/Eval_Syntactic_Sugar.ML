@@ -57,9 +57,11 @@ datatype assert =
 | Is_Child_Of         of assert * assert
 | Is_An_Arg_Of        of assert * assert
 | Is_Nth_Arg_Of       of assert * assert * assert
-| Is_At_Deepest       of assert;
+| Is_At_Deepest       of assert
+| Somes_Of            of (string * assert) list * assert
+| Alls_Of             of (string * assert) list * assert;
 
-val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> bool;
+val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> assert -> Eval_Surface.assert;
 
 end;
 
@@ -119,7 +121,9 @@ datatype assert =
 | Is_Child_Of         of assert * assert
 | Is_An_Arg_Of        of assert * assert
 | Is_Nth_Arg_Of       of assert * assert * assert
-| Is_At_Deepest       of assert;
+| Is_At_Deepest       of assert
+| Somes_Of            of (string * assert) list * assert
+| Alls_Of             of (string * assert) list * assert;
 
 structure ES = Eval_Surface;
 structure SU = SeLFiE_Util;
@@ -151,10 +155,12 @@ and convert  True                    = ES.True
   | convert (Is_Lambda ass)          = ES.Is_Lambda (convert ass)
   | convert (Is_App    ass)          = ES.Is_App (convert ass)
   | convert (Has_Same_Prnt_As  pair) = ES.Has_Same_Prnt_As  (convert_pair pair)
+  | convert (Is_In_Trm_Prnt    pair) = ES.Is_In_Trm_Prnt    (convert_pair pair)
   | convert (Is_Deeper_Than    pair) = ES.Is_Deeper_Than    (convert_pair pair)
   | convert (Is_Shallower_Than pair) = ES.Is_Shallower_Than (convert_pair pair)
   | convert (Is_Path_Above     pair) = ES.Is_Path_Above     (convert_pair pair)
   | convert (Is_Same_Path_As   pair) = ES.Is_Same_Path_As   (convert_pair pair)
+  | convert (Is_Nth_Child      pair) = ES.Is_Nth_Child      (convert_pair pair)
   | convert (Are_Same_Prints   pair) = ES.Are_Same_Prints   (convert_pair pair)
   | convert (Unode_Has_Print   pair) = ES.Unode_Has_Print   (convert_pair pair)
   | convert (Are_Same_Number   pair) = ES.Are_Same_Number   (convert_pair pair)
@@ -229,8 +235,23 @@ and convert  True                    = ES.True
       (Not
        (Somes ([(non_exist_str, SU.QFull_Path)],
          Is_Path_Above (assert, non_exist))))
-    end;
+    end
+  | convert (Somes_Of ([], _)) = error "convert in Eval_Syntactic_Sugar.ML failed at Some_Occurrences_Of with an empty list."
+  | convert (Somes_Of ((occ:string, prnt:assert)::[], inner_assert)) =
+    convert
+     (Somes ([(occ, SU.QFull_Path)],
+          Unode_Has_Print (Variable occ, prnt)
+        And
+          inner_assert))
+  | convert (Somes_Of ((occ:string, prnt:assert)::pairs, inner_assert)) =
+    convert
+     (Somes ([(occ, SU.QFull_Path)],
+          Unode_Has_Print (Variable occ, prnt)
+        And
+          (Somes_Of (pairs, inner_assert))))
+  | convert (Alls_Of (pairs, inner_assert)) = convert (Not (Somes_Of (pairs, Not inner_assert)))
 
-val eval = undefined: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> bool;
+fun eval (term:term) (pst:Proof.state) (ind_args:SU.induct_arguments) (assert:assert) =
+    ES.eval term pst ind_args (convert assert);
 
 end;
