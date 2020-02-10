@@ -142,7 +142,7 @@ and convert_list list = map convert list
 and convert  True                    = ES.True
   | convert  False                   = ES.False
   | convert (Not    ass)             = ES.Not   (convert       ass)
-  | convert (And   pair)             = ES.And   (convert_pair pair)
+  | convert (ass1 And ass2)          = ES.And   (convert_pair (ass1, ass2))
   | convert (Or    pair)             = ES.Or    (convert_pair pair)
   | convert (Nor   pair)             = ES.Nor   (convert_pair pair)
   | convert (Imply pair)             = ES.Imply (convert_pair pair)
@@ -172,11 +172,14 @@ and convert  True                    = ES.True
   | convert (Applies   (func, args)) = ES.Applies (convert func, convert_list args)
   | convert (Alls   (pairs, assert)) = ES.Alls    (pairs, convert assert)
   | convert (Somes  (pairs, assert)) = ES.Somes   (pairs, convert assert)
-  | convert (In_All_Definitions  (target, inner_fun, outer_args)) = ES.In_All_Definitions  (convert target, convert inner_fun, convert_list outer_args)
-  | convert (In_Some_Definitions (target, inner_fun, outer_args)) = ES.In_Some_Definitions (convert target, convert inner_fun, convert_list outer_args)
+  | convert (In_All_Definitions  (target, inner_fun, outer_args)) =
+      ES.In_All_Definitions  (convert target, convert inner_fun, convert_list outer_args)
   | convert (Outermost assert)       = ES.Outermost (convert assert)
   (*syntax sugar*)
-  | convert (Is_Atomic assert)       =
+  | convert (In_Some_Definitions (target, Lambdas (strings, ass), outer_args)) =
+    convert (Not (In_All_Definitions (target, Lambdas (strings, Not ass), outer_args)))
+  | convert (In_Some_Definitions _) = error "convert in Eval_Syntactic_Sugar.ML failed at In_Some_Definitions"
+  | convert (Is_Atomic assert) =
     convert
      (Ors
        [Is_Cnst assert,

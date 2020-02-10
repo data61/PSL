@@ -228,7 +228,7 @@ fun path_is_in_chained_fact ((Chained_Fact _, _):path) = true
   | path_is_in_chained_fact   _                        = false: bool;
 
 fun path_is_in_nth_subgoal ((Subgoal nth_subg, _):path) (number) = nth_subg = number
-  | path_is_in_nth_subgoal   _                           _                          = false;
+  | path_is_in_nth_subgoal   _                           _       = false;
 
 fun path_is_in_nth_chained_fact ((Chained_Fact nth_fact, _):path) number = nth_fact = number
   | path_is_in_nth_chained_fact   _                                _     = false;

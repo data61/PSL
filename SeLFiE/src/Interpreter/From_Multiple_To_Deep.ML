@@ -169,7 +169,7 @@ and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inn
           val inner_apps    = Inner_Applies (Inner_Lambdas inner_lambda, inner_args): inner_expression;
           val inner_results = map (eval_inner pst induct_args inner_apps) simp_rules: inner_expression list;
           val inner_ands    = Inner_Assert (SU.Ands, inner_results)                 : inner_expression;
-          val inner_result  = eval_inner pst induct_args inner_ands Term.dummy      : inner_expression;
+          val inner_result  = eval_inner pst induct_args inner_ands trm             : inner_expression;
         in
           go_away_inner_literal inner_result
         end
