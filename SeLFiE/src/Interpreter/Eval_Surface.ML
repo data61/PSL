@@ -58,7 +58,7 @@ datatype assert =
 *)
 | Outermost           of assert;
 
-val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
+val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
 end;
 
@@ -121,9 +121,11 @@ datatype assert =
 fun come_back_expression (ED.Outer_Literal (ED.Outer_Non_Path (SU.Bool bool))) = if bool then True else False
   | come_back_expression  _                                                    = error "come_back_expression in Eval_Surface.ML failed."
 
-fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
+fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
-    fun ed_eval_outer                    (outer_expr:ED.outer_expression)                    = ED.eval_outer pst induct_args outer_expr term                   : ED.outer_expression;
+    val thm     = Isabelle_Utils.proof_state_to_thm pst: thm;
+    val thm_trm = Thm.prop_of thm                      : term;
+    fun ed_eval_outer                    (outer_expr:ED.outer_expression)                    = ED.eval_outer pst induct_args outer_expr thm_trm                : ED.outer_expression;
     fun ed_eval_outer_param              (param     :ED.outer_parameter)                     = ed_eval_outer (ED.Outer_Literal param)                          : ED.outer_expression;
     fun ed_eval_outer_assert_one         (ass:SU.assert,          arg:assert)                = ed_eval_outer (ED.Outer_Assert (ass, [eval_out arg]))           : ED.outer_expression
     and ed_eval_outer_assert_atomic_one  (atom:SU.atomic_assert,  arg:assert)                = ed_eval_outer_assert_one (SU.Atomic atom, arg)                  : ED.outer_expression
@@ -169,58 +171,58 @@ fun eval (term:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments
       | eval_out (Applies (func,    args))       = ed_eval_outer (ED.Outer_Applies (eval_out func, map eval_out args))
       | eval_out (Alls    (pairs,   sub_ass))    = ed_eval_outer (ED.Outer_Alls    (pairs, eval_out sub_ass))
       | eval_out (Somes   (pairs,   sub_ass))    = ed_eval_outer (ED.Outer_Somes   (pairs, eval_out sub_ass))
-      | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst induct_args (ED.Dive_In (eval_out target, eval_in inner_ass, map eval_out outer_args)) term
-      | eval_out (In_All_Definitions  _) = error "eval_out in From_Deep_To_Surface.ML failed. The inner part of In_All_Definitions has to be a lambda abstraction."
-      | eval_out (Outermost _)           = error "eval_out in From_Deep_To_Surface.ML failed. eval_out is not defined for Outermost."
-    and ed_eval_inner                    (inner_expr:ED.inner_expression)                    = ED.eval_inner pst induct_args inner_expr term                   : ED.inner_expression
-    and ed_eval_inner_param              (param     :ED.inner_parameter)                     = ed_eval_inner (ED.Inner_Literal param)                          : ED.inner_expression
-    and ed_eval_inner_assert_one         (ass:SU.assert,          arg:assert)                = ed_eval_inner (ED.Inner_Assert (ass, [eval_in arg]))            : ED.inner_expression
-    and ed_eval_inner_assert_atomic_one  (atom:SU.atomic_assert,  arg:assert)                = ed_eval_inner_assert_one (SU.Atomic atom, arg)                  : ED.inner_expression
-    and ed_eval_inner_assert_pair        (ass:SU.assert,         (arg1:assert, arg2:assert)) = ed_eval_inner (ED.Inner_Assert (ass, map eval_in [arg1, arg2])) : ED.inner_expression
-    and ed_eval_inner_assert_atomic_pair (atom:SU.atomic_assert, (arg1:assert, arg2:assert)) = ed_eval_inner_assert_pair (SU.Atomic atom, (arg1, arg2))        : ED.inner_expression
-    and ed_eval_inner_assert_list        (assert:SU.assert,  args: assert list)              = ed_eval_inner (ED.Inner_Assert (assert, map eval_in args))      : ED.inner_expression
-    and eval_in True      = ed_eval_inner_param (ED.Inner_Non_Path (SU.Bool true ))
-      | eval_in False     = ed_eval_inner_param (ED.Inner_Non_Path (SU.Bool false))
-      | eval_in (Not ass) = ed_eval_inner_assert_one (SU.Not, ass)
-      | eval_in (And                    pair)  = ed_eval_inner_assert_pair        (SU.And,                    pair)
-      | eval_in (Or                     pair)  = ed_eval_inner_assert_pair        (SU.Or,                     pair)
-      | eval_in (Nor                    pair)  = ed_eval_inner_assert_pair        (SU.Nor,                    pair)
-      | eval_in (Imply                  pair)  = ed_eval_inner_assert_pair        (SU.Imply,                  pair)
-      | eval_in (Ands                   asses) = ed_eval_inner_assert_list        (SU.Ands,                   asses)
-      | eval_in (Ors                    asses) = ed_eval_inner_assert_list        (SU.Ors,                    asses)
-      | eval_in (Is_Cnst                ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Cnst,                ass)
-      | eval_in (Is_Free                ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Free,                ass)
-      | eval_in (Is_Var                 ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Var,                 ass)
-      | eval_in (Is_Bound               ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Bound,               ass)
-      | eval_in (Is_Lambda              ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Lambda,              ass)
-      | eval_in (Is_App                 ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_App,                 ass)
-      | eval_in (Has_Same_Prnt_As       pair)  = ed_eval_inner_assert_atomic_pair (SU.Has_Same_Prnt_As,       pair)
-      | eval_in (Is_In_Trm_Prnt         pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_In_Trm_Prnt,         pair)
-      | eval_in (Is_Deeper_Than         pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Deeper_Than,         pair)
-      | eval_in (Is_Shallower_Than      pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Shallower_Than,      pair)
-      | eval_in (Is_Path_Above          pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Path_Above,          pair)
-      | eval_in (Is_Same_Path_As        pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Same_Path_As,        pair)
-      | eval_in (Is_Nth_Child           pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Nth_Child,           pair)
-      | eval_in (Are_Same_Prints        pair)  = ed_eval_inner_assert_atomic_pair (SU.Are_Same_Prints,        pair)
-      | eval_in (Unode_Has_Print        pair)  = ed_eval_inner_assert_atomic_pair (SU.Unode_Has_Print,        pair)
-      | eval_in (Is_In_Subgoal          ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_In_Subgoal,          ass)
-      | eval_in (Is_In_Chained_Fact     ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_In_Chained_Fact,     ass)
-      | eval_in (Is_In_Nth_Subgoal      pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_In_Nth_Subgoal,      pair)
-      | eval_in (Is_In_Nth_Chained_Fact pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_In_Nth_Chained_Fact, pair)
-      | eval_in (Are_Same_Number   pair)       = ed_eval_inner_assert_atomic_pair (SU.Are_Same_Number,        pair)
-      | eval_in (Is_Less_Than      pair)       = ed_eval_inner_assert_atomic_pair (SU.Is_Less_Than,           pair)
-      | eval_in (Print            print)       = ed_eval_inner_param              (ED.Inner_Non_Path (SU.Print  print ))
-      | eval_in (Number          number)       = ed_eval_inner_param              (ED.Inner_Non_Path (SU.Number number))
-      | eval_in (Variable        string)       = ed_eval_inner                    (ED.Inner_Variable  string)
-      | eval_in (Lambdas (strings, sub_ass))   = ed_eval_inner                    (ED.Inner_Lambdas  (strings, eval_in sub_ass ))
-      | eval_in (Applies (func,    args))      = ed_eval_inner                    (ED.Inner_Applies  (eval_in func, map eval_in args))
-      | eval_in (Alls    (pairs,   sub_ass))   = ed_eval_inner                    (ED.Inner_Alls     (pairs, eval_in sub_ass))
-      | eval_in (Somes   (pairs,   sub_ass))   = ed_eval_inner                    (ED.Inner_Somes    (pairs, eval_in sub_ass))
-      | eval_in (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) =
-        ED.eval_inner pst induct_args (ED.Dive_Deeper (eval_in target, eval_in inner_ass, map eval_in outer_args)) term
+      | eval_out (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) = ED.eval_outer pst induct_args (ED.Dive_In (eval_out target, eval_in thm_trm inner_ass, map eval_out outer_args)) thm_trm
+      | eval_out (In_All_Definitions  _)         = error "eval_out in From_Deep_To_Surface.ML failed. The inner part of In_All_Definitions has to be a lambda abstraction."
+      | eval_out (Outermost _)                   = error "eval_out in From_Deep_To_Surface.ML failed. eval_out is not defined for Outermost."
+    and ed_eval_inner                    (inner_expr:ED.inner_expression)                    (in_trm:term) = ED.eval_inner pst induct_args inner_expr (in_trm:term)                                            : ED.inner_expression
+    and ed_eval_inner_param              (param     :ED.inner_parameter)                     (in_trm:term) = ed_eval_inner             (ED.Inner_Literal param)                                   (in_trm:term): ED.inner_expression
+    and ed_eval_inner_assert_one         (ass:SU.assert,          arg:assert)                (in_trm:term) = ed_eval_inner             (ED.Inner_Assert (ass, [eval_in in_trm arg]))              (in_trm:term): ED.inner_expression
+    and ed_eval_inner_assert_atomic_one  (atom:SU.atomic_assert,  arg:assert)                (in_trm:term) = ed_eval_inner_assert_one  (SU.Atomic atom, arg)                                      (in_trm:term): ED.inner_expression
+    and ed_eval_inner_assert_pair        (ass:SU.assert,         (arg1:assert, arg2:assert)) (in_trm:term) = ed_eval_inner             (ED.Inner_Assert (ass, map (eval_in in_trm) [arg1, arg2])) (in_trm:term): ED.inner_expression
+    and ed_eval_inner_assert_atomic_pair (atom:SU.atomic_assert, (arg1:assert, arg2:assert)) (in_trm:term) = ed_eval_inner_assert_pair (SU.Atomic atom, (arg1, arg2))                             (in_trm:term): ED.inner_expression
+    and ed_eval_inner_assert_list        (assert:SU.assert,  args: assert list)              (in_trm:term) = ed_eval_inner             (ED.Inner_Assert (assert, map (eval_in in_trm) args))      (in_trm:term): ED.inner_expression
+    and eval_in (in_trm:term) True                           = ed_eval_inner_param              (ED.Inner_Non_Path (SU.Bool true ))                                  in_trm
+      | eval_in (in_trm:term) False                          = ed_eval_inner_param              (ED.Inner_Non_Path (SU.Bool false))                                  in_trm
+      | eval_in (in_trm:term) (Not ass)                      = ed_eval_inner_assert_one         (SU.Not, ass)                                                        in_trm
+      | eval_in (in_trm:term) (And                    pair)  = ed_eval_inner_assert_pair        (SU.And,                    pair)                                    in_trm
+      | eval_in (in_trm:term) (Or                     pair)  = ed_eval_inner_assert_pair        (SU.Or,                     pair)                                    in_trm
+      | eval_in (in_trm:term) (Nor                    pair)  = ed_eval_inner_assert_pair        (SU.Nor,                    pair)                                    in_trm
+      | eval_in (in_trm:term) (Imply                  pair)  = ed_eval_inner_assert_pair        (SU.Imply,                  pair)                                    in_trm
+      | eval_in (in_trm:term) (Ands                   asses) = ed_eval_inner_assert_list        (SU.Ands,                   asses)                                   in_trm
+      | eval_in (in_trm:term) (Ors                    asses) = ed_eval_inner_assert_list        (SU.Ors,                    asses)                                   in_trm
+      | eval_in (in_trm:term) (Is_Cnst                ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Cnst,                ass)                                     in_trm
+      | eval_in (in_trm:term) (Is_Free                ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Free,                ass)                                     in_trm
+      | eval_in (in_trm:term) (Is_Var                 ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Var,                 ass)                                     in_trm
+      | eval_in (in_trm:term) (Is_Bound               ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Bound,               ass)                                     in_trm
+      | eval_in (in_trm:term) (Is_Lambda              ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_Lambda,              ass)                                     in_trm
+      | eval_in (in_trm:term) (Is_App                 ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_App,                 ass)                                     in_trm
+      | eval_in (in_trm:term) (Has_Same_Prnt_As       pair)  = ed_eval_inner_assert_atomic_pair (SU.Has_Same_Prnt_As,       pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_In_Trm_Prnt         pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_In_Trm_Prnt,         pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_Deeper_Than         pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Deeper_Than,         pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_Shallower_Than      pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Shallower_Than,      pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_Path_Above          pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Path_Above,          pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_Same_Path_As        pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Same_Path_As,        pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_Nth_Child           pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_Nth_Child,           pair)                                    in_trm
+      | eval_in (in_trm:term) (Are_Same_Prints        pair)  = ed_eval_inner_assert_atomic_pair (SU.Are_Same_Prints,        pair)                                    in_trm
+      | eval_in (in_trm:term) (Unode_Has_Print        pair)  = ed_eval_inner_assert_atomic_pair (SU.Unode_Has_Print,        pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_In_Subgoal          ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_In_Subgoal,          ass)                                     in_trm
+      | eval_in (in_trm:term) (Is_In_Chained_Fact     ass)   = ed_eval_inner_assert_atomic_one  (SU.Is_In_Chained_Fact,     ass)                                     in_trm
+      | eval_in (in_trm:term) (Is_In_Nth_Subgoal      pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_In_Nth_Subgoal,      pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_In_Nth_Chained_Fact pair)  = ed_eval_inner_assert_atomic_pair (SU.Is_In_Nth_Chained_Fact, pair)                                    in_trm
+      | eval_in (in_trm:term) (Are_Same_Number   pair)       = ed_eval_inner_assert_atomic_pair (SU.Are_Same_Number,        pair)                                    in_trm
+      | eval_in (in_trm:term) (Is_Less_Than      pair)       = ed_eval_inner_assert_atomic_pair (SU.Is_Less_Than,           pair)                                    in_trm
+      | eval_in (in_trm:term) (Print            print)       = ed_eval_inner_param              (ED.Inner_Non_Path (SU.Print  print ))                               in_trm
+      | eval_in (in_trm:term) (Number          number)       = ed_eval_inner_param              (ED.Inner_Non_Path (SU.Number number))                               in_trm
+      | eval_in (in_trm:term) (Variable        string)       = ed_eval_inner                    (ED.Inner_Variable  string)                                          in_trm
+      | eval_in (in_trm:term) (Lambdas (strings, sub_ass))   = ed_eval_inner                    (ED.Inner_Lambdas  (strings, eval_in in_trm sub_ass ))               in_trm
+      | eval_in (in_trm:term) (Applies (func,    args))      = ed_eval_inner                    (ED.Inner_Applies  (eval_in in_trm func, map (eval_in in_trm) args)) in_trm
+      | eval_in (in_trm:term) (Alls    (pairs,   sub_ass))   = ed_eval_inner                    (ED.Inner_Alls     (pairs, eval_in in_trm sub_ass))                  in_trm
+      | eval_in (in_trm:term) (Somes   (pairs,   sub_ass))   = ed_eval_inner                    (ED.Inner_Somes    (pairs, eval_in in_trm sub_ass))                  in_trm
+      | eval_in (in_trm:term) (In_All_Definitions  (target, inner_ass as Lambdas _, outer_args)) =
+        ED.eval_inner pst induct_args (ED.Dive_Deeper (eval_in in_trm target, eval_in in_trm inner_ass, map (eval_in in_trm) outer_args)) in_trm
         (*TODO: Double-check if I can really use this term.*)
-      | eval_in (In_All_Definitions  _) = error "eval_in in From_Deep_To_Surface.ML failed. The inner part of In_All_Definitions has to be a lambda abstraction."
-      | eval_in (Outermost _)           = error "eval_in in From_Deep_To_Surface.ML failed. eval_in is not defined for Outermost."
+      | eval_in (_:term) (In_All_Definitions  _) = error "eval_in in From_Deep_To_Surface.ML failed. The inner part of In_All_Definitions has to be a lambda abstraction."
+      | eval_in (_:term) (Outermost _)           = error "eval_in in From_Deep_To_Surface.ML failed. eval_in is not defined for Outermost."
   in
       eval_enter assert |> come_back_expression
   end

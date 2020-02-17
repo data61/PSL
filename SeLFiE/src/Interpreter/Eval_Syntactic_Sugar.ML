@@ -61,7 +61,7 @@ datatype assert =
 | Somes_Of            of (string * assert) list * assert
 | Alls_Of             of (string * assert) list * assert;
 
-val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> assert -> Eval_Surface.assert;
+val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> Eval_Surface.assert;
 
 end;
 
@@ -254,7 +254,7 @@ and convert  True                    = ES.True
           (Somes_Of (pairs, inner_assert))))
   | convert (Alls_Of (pairs, inner_assert)) = convert (Not (Somes_Of (pairs, Not inner_assert)))
 
-fun eval (term:term) (pst:Proof.state) (ind_args:SU.induct_arguments) (assert:assert) =
-    ES.eval term pst ind_args (convert assert);
+fun eval (pst:Proof.state) (ind_args:SU.induct_arguments) (assert:assert) =
+    ES.eval pst ind_args (convert assert);
 
 end;

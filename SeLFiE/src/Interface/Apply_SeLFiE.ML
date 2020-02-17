@@ -20,6 +20,7 @@ structure SU  = SeLFiE_Util;
 structure UN  = Unique_Node;
 structure DI  = Dynamic_Induct;
 structure IU  = Isabelle_Utils;
+structure ES  = Eval_Surface;
 structure ESS = Eval_Syntactic_Sugar;
 
 structure SeLFiE_Assertion = Generic_Data
@@ -78,8 +79,10 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_m
       in
         SU.Induct_Arguments {ons = clean_ons, arbs = clean_arbs, rules = clean_rules}: SU.induct_arguments
       end;
+    fun bool_to_ES_assert (true :bool) = ES.True
+      | bool_to_ES_assert (false:bool) = ES.False;
     fun run_test (assrt:ESS.assert) (pst:Proof.state) (ind_mods:SU.induct_arguments) =
-        ESS.eval pst (mk_clean_mods ind_mods) assrt = should_b_true_or_false
+        ESS.eval pst (mk_clean_mods ind_mods) assrt = bool_to_ES_assert should_b_true_or_false;
     val _ = @{assert} (
             let
               val result = run_test assert pst (mk_clean_mods ind_mod)
