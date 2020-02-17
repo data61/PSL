@@ -55,16 +55,18 @@ datatype assert =
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert
 (*Syntactic Sugar*)
-| Is_Atomic            of assert
-| Is_Path_Below        of assert * assert
-| Is_Parent_Of         of assert * assert
-| Is_Child_Of          of assert * assert
-| Is_An_Arg_Of         of assert * assert
-| Is_Nth_Arg_Of        of assert * assert * assert
-| Are_In_Same_Location of (assert * assert)
-| Is_At_Deepest        of assert
-| Somes_Of             of (string * assert) list * assert
-| Alls_Of              of (string * assert) list * assert;
+| Is_Atomic                          of assert
+| Is_Path_Below                      of assert * assert
+| Is_Parent_Of                       of assert * assert
+| Is_Child_Of                        of assert * assert
+| Is_An_Arg_Of                       of assert * assert
+| Is_Nth_Arg_Of                      of assert * assert * assert
+| Are_In_Same_Location               of (assert * assert)
+| Is_Deeper_Than_In_Same_Location    of (assert * assert)
+| Is_Shallower_Than_In_Same_Location of (assert * assert)
+| Is_At_Deepest_In_A_Location        of assert
+| Somes_Of                           of (string * assert) list * assert
+| Alls_Of                            of (string * assert) list * assert;
 
 val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> Eval_Surface.assert;
 
@@ -124,16 +126,18 @@ datatype assert =
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert
 (*Syntactic Sugar*)
-| Is_Atomic            of assert
-| Is_Path_Below        of assert * assert
-| Is_Parent_Of         of assert * assert
-| Is_Child_Of          of assert * assert
-| Is_An_Arg_Of         of assert * assert
-| Is_Nth_Arg_Of        of assert * assert * assert
-| Are_In_Same_Location of (assert * assert)
-| Is_At_Deepest        of assert
-| Somes_Of             of (string * assert) list * assert
-| Alls_Of              of (string * assert) list * assert;
+| Is_Atomic                          of assert
+| Is_Path_Below                      of assert * assert
+| Is_Parent_Of                       of assert * assert
+| Is_Child_Of                        of assert * assert
+| Is_An_Arg_Of                       of assert * assert
+| Is_Nth_Arg_Of                      of assert * assert * assert
+| Are_In_Same_Location               of (assert * assert)
+| Is_Deeper_Than_In_Same_Location    of (assert * assert)
+| Is_Shallower_Than_In_Same_Location of (assert * assert)
+| Is_At_Deepest_In_A_Location        of assert
+| Somes_Of                           of (string * assert) list * assert
+| Alls_Of                            of (string * assert) list * assert;
 
 structure ES = Eval_Surface;
 structure SU = SeLFiE_Util;
@@ -251,30 +255,36 @@ and
             Is_Nth_Child (number, func_app),
             Is_App (func_app)]))
     end
-  | convert (Is_At_Deepest assert) =(*TODO: Double-check! This Is_At_Deepest is not different from Is_Atom. Is this really what I want?*)
-    let
-      val non_exist_str = get_new_name [assert] : string;
-      val non_exist     = Variable non_exist_str: assert;
-    in
-    convert
-      (Not
-       (Somes ([(non_exist_str, SU.QFull_Path)],
-         Is_Path_Above (assert, non_exist))))
-    end
   | convert (Are_In_Same_Location (ass1, ass2)) =
     let
       val non_exist_str = get_new_name [ass1, ass2] : string;
       val non_exist     = Variable non_exist_str: assert;
     in
+      convert
+        (Somes ([(non_exist_str, SU.QNumber)],
+             ((non_exist Is_In_Nth_Subgoal ass1)
+             And
+              (non_exist Is_In_Nth_Subgoal ass2))
+           Or
+             ((non_exist Is_In_Nth_Chained_Fact ass1)
+             And
+              (non_exist Is_In_Nth_Chained_Fact ass2))))
+    end
+  | convert (Is_Deeper_Than_In_Same_Location (deep, shallow)) =
     convert
-      (Somes ([(non_exist_str, SU.QNumber)],
-           ((non_exist Is_In_Nth_Subgoal ass1)
-           And
-            (non_exist Is_In_Nth_Subgoal ass2))
-         Or
-           ((non_exist Is_In_Nth_Chained_Fact ass1)
-           And
-            (non_exist Is_In_Nth_Chained_Fact ass2))))
+       (Are_In_Same_Location (deep, shallow)
+      And
+        Is_Deeper_Than (deep, shallow))
+  | convert (Is_Shallower_Than_In_Same_Location (shallow, deep)) = convert (Is_Deeper_Than_In_Same_Location (deep, shallow))
+  | convert (Is_At_Deepest_In_A_Location assert) =
+    let
+      val non_exist_str = get_new_name [assert] : string;
+      val non_exist     = Variable non_exist_str: assert;
+    in
+      convert
+        (Not
+          (Somes ([(non_exist_str, SU.QFull_Path)],
+            Is_Deeper_Than_In_Same_Location (non_exist, assert))))
     end
   | convert (Somes_Of ([], _)) = error "convert in Eval_Syntactic_Sugar.ML failed at Some_Occurrences_Of with an empty list."
   | convert (Somes_Of ((occ:string, prnt:assert)::[], inner_assert)) =
