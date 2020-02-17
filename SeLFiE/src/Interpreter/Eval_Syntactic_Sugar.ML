@@ -55,15 +55,16 @@ datatype assert =
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert
 (*Syntactic Sugar*)
-| Is_Atomic           of assert
-| Is_Path_Below       of assert * assert
-| Is_Parent_Of        of assert * assert
-| Is_Child_Of         of assert * assert
-| Is_An_Arg_Of        of assert * assert
-| Is_Nth_Arg_Of       of assert * assert * assert
-| Is_At_Deepest       of assert
-| Somes_Of            of (string * assert) list * assert
-| Alls_Of             of (string * assert) list * assert;
+| Is_Atomic            of assert
+| Is_Path_Below        of assert * assert
+| Is_Parent_Of         of assert * assert
+| Is_Child_Of          of assert * assert
+| Is_An_Arg_Of         of assert * assert
+| Is_Nth_Arg_Of        of assert * assert * assert
+| Are_In_Same_Location of (assert * assert)
+| Is_At_Deepest        of assert
+| Somes_Of             of (string * assert) list * assert
+| Alls_Of              of (string * assert) list * assert;
 
 val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> Eval_Surface.assert;
 
@@ -123,20 +124,19 @@ datatype assert =
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert
 (*Syntactic Sugar*)
-| Is_Atomic           of assert
-| Is_Path_Below       of assert * assert
-| Is_Parent_Of        of assert * assert
-| Is_Child_Of         of assert * assert
-| Is_An_Arg_Of        of assert * assert
-| Is_Nth_Arg_Of       of assert * assert * assert
-| Is_At_Deepest       of assert
-| Somes_Of            of (string * assert) list * assert
-| Alls_Of             of (string * assert) list * assert;
+| Is_Atomic            of assert
+| Is_Path_Below        of assert * assert
+| Is_Parent_Of         of assert * assert
+| Is_Child_Of          of assert * assert
+| Is_An_Arg_Of         of assert * assert
+| Is_Nth_Arg_Of        of assert * assert * assert
+| Are_In_Same_Location of (assert * assert)
+| Is_At_Deepest        of assert
+| Somes_Of             of (string * assert) list * assert
+| Alls_Of              of (string * assert) list * assert;
 
 structure ES = Eval_Surface;
 structure SU = SeLFiE_Util;
-
-infix And;
 
 fun get_new_name' acc []                    = acc
   | get_new_name' acc (Variable name::vars) = get_new_name' (acc ^ name) vars
@@ -144,6 +144,8 @@ fun get_new_name' acc []                    = acc
 
  (*For atomic assertions, we have to avoid a name collisions with the arguments to the assertion only.*)
 val get_new_name = get_new_name' "";
+
+infix And Or Imply Is_In_Nth_Subgoal Is_In_Nth_Chained_Fact;
 
 fun convert_pair pair = Utils.map_pair convert pair
 and convert_list list = map convert list
@@ -153,9 +155,9 @@ and
   | convert  False                   = ES.False
   | convert (Not    ass)             = ES.Not   (convert       ass)
   | convert (ass1 And ass2)          = ES.And   (convert_pair (ass1, ass2))
-  | convert (Or    pair)             = ES.Or    (convert_pair pair)
+  | convert (ass1 Or ass2)           = ES.Or    (convert_pair (ass1, ass2))
   | convert (Nor   pair)             = ES.Nor   (convert_pair pair)
-  | convert (Imply pair)             = ES.Imply (convert_pair pair)
+  | convert (prem Imply concl)             = ES.Imply (convert_pair (prem, concl))
   | convert (Ands  list)             = ES.Ands  (convert_list list)
   | convert (Ors   list)             = ES.Ors   (convert_list list)
   (*Eval_Node*)
@@ -175,11 +177,11 @@ and
   (*Eval_Path*)
   | convert (Is_Nth_Child      pair) = ES.Is_Nth_Child      (convert_pair pair)
   | convert (Are_Same_Prints   pair) = ES.Are_Same_Prints   (convert_pair pair)
-  | convert (Unode_Has_Print        pair) = ES.Unode_Has_Print        (convert_pair pair)
-  | convert (Is_In_Subgoal          ass)  = ES.Is_In_Subgoal          (convert ass)
-  | convert (Is_In_Chained_Fact     ass)  = ES.Is_In_Chained_Fact     (convert ass)
-  | convert (Is_In_Nth_Subgoal      pair) = ES.Is_In_Nth_Subgoal      (convert_pair pair)
-  | convert (Is_In_Nth_Chained_Fact pair) = ES.Is_In_Nth_Chained_Fact (convert_pair pair)
+  | convert (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair pair)
+  | convert (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert ass)
+  | convert (Is_In_Chained_Fact         ass)  = ES.Is_In_Chained_Fact     (convert ass)
+  | convert (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair (ass, numb))
+  | convert (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair (ass, numb))
   (*Eval_Number*)
   | convert (Are_Same_Number   pair) = ES.Are_Same_Number   (convert_pair pair)
   | convert (Is_Less_Than      pair) = ES.Is_Less_Than      (convert_pair pair)
@@ -249,7 +251,7 @@ and
             Is_Nth_Child (number, func_app),
             Is_App (func_app)]))
     end
-  | convert (Is_At_Deepest assert) =
+  | convert (Is_At_Deepest assert) =(*TODO: Double-check! This Is_At_Deepest is not different from Is_Atom. Is this really what I want?*)
     let
       val non_exist_str = get_new_name [assert] : string;
       val non_exist     = Variable non_exist_str: assert;
@@ -258,6 +260,21 @@ and
       (Not
        (Somes ([(non_exist_str, SU.QFull_Path)],
          Is_Path_Above (assert, non_exist))))
+    end
+  | convert (Are_In_Same_Location (ass1, ass2)) =
+    let
+      val non_exist_str = get_new_name [ass1, ass2] : string;
+      val non_exist     = Variable non_exist_str: assert;
+    in
+    convert
+      (Somes ([(non_exist_str, SU.QNumber)],
+           ((non_exist Is_In_Nth_Subgoal ass1)
+           And
+            (non_exist Is_In_Nth_Subgoal ass2))
+         Or
+           ((non_exist Is_In_Nth_Chained_Fact ass1)
+           And
+            (non_exist Is_In_Nth_Chained_Fact ass2))))
     end
   | convert (Somes_Of ([], _)) = error "convert in Eval_Syntactic_Sugar.ML failed at Some_Occurrences_Of with an empty list."
   | convert (Somes_Of ((occ:string, prnt:assert)::[], inner_assert)) =
