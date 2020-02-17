@@ -34,7 +34,11 @@ datatype assert =
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 (*Eval_Path*)
-| Unode_Has_Print   of assert * assert
+| Unode_Has_Print        of assert * assert
+| Is_In_Subgoal          of assert
+| Is_In_Chained_Fact     of assert
+| Is_In_Nth_Subgoal      of assert * assert
+| Is_In_Nth_Chained_Fact of assert * assert
 (*Eval_Number*)
 | Are_Same_Number of assert * assert
 | Is_Less_Than    of assert * assert
@@ -98,7 +102,11 @@ datatype assert =
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 (*Eval_Path*)
-| Unode_Has_Print   of assert * assert
+| Unode_Has_Print        of assert * assert
+| Is_In_Subgoal          of assert
+| Is_In_Chained_Fact     of assert
+| Is_In_Nth_Subgoal      of assert * assert
+| Is_In_Nth_Chained_Fact of assert * assert
 (*Eval_Number*)
 | Are_Same_Number of assert * assert
 | Is_Less_Than    of assert * assert
@@ -139,7 +147,9 @@ val get_new_name = get_new_name' "";
 
 fun convert_pair pair = Utils.map_pair convert pair
 and convert_list list = map convert list
-and convert  True                    = ES.True
+and
+  (*bool*)
+    convert  True                    = ES.True
   | convert  False                   = ES.False
   | convert (Not    ass)             = ES.Not   (convert       ass)
   | convert (ass1 And ass2)          = ES.And   (convert_pair (ass1, ass2))
@@ -148,25 +158,35 @@ and convert  True                    = ES.True
   | convert (Imply pair)             = ES.Imply (convert_pair pair)
   | convert (Ands  list)             = ES.Ands  (convert_list list)
   | convert (Ors   list)             = ES.Ors   (convert_list list)
+  (*Eval_Node*)
   | convert (Is_Cnst   ass)          = ES.Is_Cnst   (convert ass)
   | convert (Is_Free   ass)          = ES.Is_Free   (convert ass)
   | convert (Is_Var    ass)          = ES.Is_Var    (convert ass)
   | convert (Is_Bound  ass)          = ES.Is_Bound  (convert ass)
   | convert (Is_Lambda ass)          = ES.Is_Lambda (convert ass)
   | convert (Is_App    ass)          = ES.Is_App (convert ass)
+  (*Eval_Unode*)
   | convert (Has_Same_Prnt_As  pair) = ES.Has_Same_Prnt_As  (convert_pair pair)
   | convert (Is_In_Trm_Prnt    pair) = ES.Is_In_Trm_Prnt    (convert_pair pair)
   | convert (Is_Deeper_Than    pair) = ES.Is_Deeper_Than    (convert_pair pair)
   | convert (Is_Shallower_Than pair) = ES.Is_Shallower_Than (convert_pair pair)
   | convert (Is_Path_Above     pair) = ES.Is_Path_Above     (convert_pair pair)
   | convert (Is_Same_Path_As   pair) = ES.Is_Same_Path_As   (convert_pair pair)
+  (*Eval_Path*)
   | convert (Is_Nth_Child      pair) = ES.Is_Nth_Child      (convert_pair pair)
   | convert (Are_Same_Prints   pair) = ES.Are_Same_Prints   (convert_pair pair)
-  | convert (Unode_Has_Print   pair) = ES.Unode_Has_Print   (convert_pair pair)
+  | convert (Unode_Has_Print        pair) = ES.Unode_Has_Print        (convert_pair pair)
+  | convert (Is_In_Subgoal          ass)  = ES.Is_In_Subgoal          (convert ass)
+  | convert (Is_In_Chained_Fact     ass)  = ES.Is_In_Chained_Fact     (convert ass)
+  | convert (Is_In_Nth_Subgoal      pair) = ES.Is_In_Nth_Subgoal      (convert_pair pair)
+  | convert (Is_In_Nth_Chained_Fact pair) = ES.Is_In_Nth_Chained_Fact (convert_pair pair)
+  (*Eval_Number*)
   | convert (Are_Same_Number   pair) = ES.Are_Same_Number   (convert_pair pair)
   | convert (Is_Less_Than      pair) = ES.Is_Less_Than      (convert_pair pair)
+  (*Parameter*)
   | convert (Print           string) = ES.Print string
   | convert (Number             int) = ES.Number int
+  (*expr*)
   | convert (Variable        string) = ES.Variable string
   | convert (Lambdas (strings, ass)) = ES.Lambdas (strings, convert ass)
   | convert (Applies   (func, args)) = ES.Applies (convert func, convert_list args)
