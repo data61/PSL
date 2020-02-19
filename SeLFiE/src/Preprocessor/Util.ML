@@ -47,7 +47,13 @@ datatype atomic_assert =
 | Is_In_Nth_Chained_Fact
 (*Eval_Number*)
 | Are_Same_Number
-| Is_Less_Than;
+| Is_Less_Than
+(*Eval_Induct_Argument*)
+| Is_Nth_Induct
+| Is_Nth_Arbitrary
+| Is_Induct
+| Is_Arbitrary
+| Is_Rule;
 
 datatype assert =
   Not
@@ -130,7 +136,13 @@ datatype atomic_assert =
 | Is_In_Nth_Chained_Fact
 (*Eval_Number*)
 | Are_Same_Number
-| Is_Less_Than;
+| Is_Less_Than
+(*Eval_Induct_Argument*)
+| Is_Nth_Induct
+| Is_Nth_Arbitrary
+| Is_Induct
+| Is_Arbitrary
+| Is_Rule;
 
 datatype assert =
   Not
