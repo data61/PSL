@@ -23,9 +23,11 @@ structure EPT  = Eval_Path;
 structure EPR  = Eval_Print;
 structure ENMB = Eval_Number;
 structure SU   = SeLFiE_Util;
+structure EIA  = Eval_Induct_Argument;
 
 fun eval trm pst assert parameters =
   let
+    val induct_args = error "TODO: get it from pst":SU.induct_arguments;
     fun
       (*Eval_Node*)
         eval' SU.Is_Cnst   [Path p] = EPT.eval trm pst (EPT.Is_Cnst   p)
@@ -48,12 +50,18 @@ fun eval trm pst assert parameters =
       | eval' SU.Is_In_Chained_Fact     [Path p]            = EPT.eval trm pst (EPT.Is_In_Chained_Fact p)
       | eval' SU.Is_In_Nth_Subgoal      [Path p, Number n]  = EPT.eval trm pst (EPT.Is_In_Nth_Subgoal (p, n))
       | eval' SU.Is_In_Nth_Chained_Fact [Path p, Number n]  = EPT.eval trm pst (EPT.Is_In_Nth_Chained_Fact (p, n))
-     (*Eval_Print*)
+      (*Eval_Print*)
       | eval' SU.Are_Same_Prints [Print p1, Print p2] = EPR.eval (EPR.Are_Same_Prints (p1, p2))
       (*Eval_Number*)
       | eval' SU.Are_Same_Number [Number numb1,  Number numb2] = ENMB.eval (ENMB.Are_Same_Number (numb1, numb2))
       | eval' SU.Is_Less_Than    [Number numb1,  Number numb2] = ENMB.eval (ENMB.Is_Less_Than    (numb1, numb2))
-      | eval' _ _ = error "eval' in Eval_Parameters_Struct.ML failed!"
+      (*Eval_Induct_Argument*)
+      | eval' SU.Is_Nth_Induct    [Print p, Number n] = EIA.eval (EIA.Is_Nth_Induct (p, n))    induct_args
+      | eval' SU.Is_Nth_Arbitrary [Print p, Number n] = EIA.eval (EIA.Is_Nth_Arbitrary (p, n)) induct_args
+      | eval' SU.Is_Induct        [Print p]           = EIA.eval (EIA.Is_Induct p)             induct_args
+      | eval' SU.Is_Arbitrary     [Print p]           = EIA.eval (EIA.Is_Arbitrary p)          induct_args
+      | eval' SU.Is_Rule          [Print p]           = EIA.eval (EIA.Is_Rule p)               induct_args
+      | eval' _ _ = error "eval' in From_Path_to_Parameter.ML failed!"
   in
     eval' assert parameters: Eval_Bool.assert
   end;
