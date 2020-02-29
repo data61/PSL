@@ -1,10 +1,17 @@
 (*  Title:      PSL/SeLFiE/SeLFiE.thy
-    Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
-
-MeLoId: Machine Learning Induction for Isabelle/HOL, and
-LiFtEr: Logical Feature Extractor.
-SeLFiE: Semantic Logical Feature Extractor.
-*)
+ *  Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
+ *
+ * Examples about rev and itrev were originally developed by Tobias Nipkow and Gerwin Klein
+ * as Isabelle theory files accompanying their book "Concrete Semantics".
+ *
+ * The PDF file of the book and the original Isabelle theory files are available
+ * at the following website:
+ *   http://concrete-semantics.org/index.html
+ *
+ * MeLoId: Machine Learning Induction for Isabelle/HOL, and
+ * LiFtEr: Logical Feature Extractor.
+ *SeLFiE: Semantic Logical Feature Extractor.
+ *)
 theory SeLFiE
   imports "../PSL"
   keywords "assert_SeLFiE"      :: diag
@@ -95,12 +102,42 @@ from_Multiple_to_Deep (
   structure Eval_Outer_Multiple = Eval_Outer_Multi_Arity
   and       Outer_Path_To_Unode = Outer_Path_To_Unode
   and       Eval_Inner_Multiple = Eval_Inner_Multi_Arity
-  and       Inner_Path_To_Unode = Inner_Path_To_Unode);\<close>
+  and       Inner_Path_To_Unode = Inner_Path_To_Unode); \<close>
 
 ML_file "src/Interpreter/Eval_Surface.ML"
+ML_file "src/Interpreter/Eval_Surface_Two.ML"
 ML_file "src/Interpreter/Eval_Syntactic_Sugar.ML"
 ML_file "src/Interface/Apply_SeLFiE.ML"
+
+definition "func x \<equiv> x"
+thm func_def
+ML\<open>
+val func_thm = @{thm func_def};
+val func_term = Thm.cprop_of func_thm |> Thm.term_of;
+
+val eq = @{term "1 \<equiv> 1"};
+val eq2 = Isabelle_Utils.flatten_trm eq |> (fn trms => nth trms 0);
+Isabelle_Utils.trm_to_string @{context} eq2
+\<close>
+
+ML_file "src/Interface/SeLFiE_Assertion.ML"
 ML\<open> Apply_SeLFiE.activate (); \<close>
+
+setup\<open> Apply_SeLFiE.update_assert "heuristic_1a" SeLFiE_Assertion.heuristic_1a \<close>
+
+ primrec rev :: "'a list \<Rightarrow> 'a list" where
+  "rev []       = []" |
+  "rev (x # xs) = rev xs @ [x]"
+ print_theorems
+
+ fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+  "itrev []     ys = ys" |
+  "itrev (x#xs) ys = itrev xs (x#ys)"
+ print_theorems
+
+lemma "itrev xs ys = rev xs @ ys"
+  assert_SeLFiE heuristic_1a [on["xs"], arb["ys"],rule[]]
+  apply(induct xs arbitrary: ys) apply auto done
 
 (* auxiliary stuff *)
 ML\<open>

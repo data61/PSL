@@ -135,7 +135,7 @@ fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (out
       | eval_outer' (Outer_Applies (func,   args     )) = eval_eom (EOM.Applies (eval_outer' func, map eval_outer' args))
       | eval_outer' (Outer_Literal  parameter         ) = eval_eom (EOM.Literal (go_away_outer_parameter parameter))
       | eval_outer' (Outer_Assert  (assert, sub_exprs)) = eval_eom (EOM.Assert  (assert, map eval_outer' sub_exprs))
-      | eval_outer' (Outer_Alls    (pairs,  sub_expr )) = eval_eom (EOM.Alls    (pairs, eval_outer' sub_expr))
+      | eval_outer' (Outer_Alls    (pairs,  sub_expr )) = (tracing "eval_outer' Outer_Alls in From_Multiple_To_Deep" eval_eom (EOM.Alls    (pairs, eval_outer' sub_expr)))
       | eval_outer' (Outer_Somes   (pairs,  sub_expr )) = eval_eom (EOM.Somes   (pairs, eval_outer' sub_expr))
       | eval_outer' (Dive_In (target, Inner_Lambdas inner_lambda, outer_args)) =
         let

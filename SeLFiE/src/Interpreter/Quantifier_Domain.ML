@@ -47,7 +47,10 @@ fun mk_all_prints pst term =
     Print_To_Paths.print_to_paths_table_to_prints print_to_paths_table
   end;
 
-fun pst_n_trm_to_numb_of_pahts (pst:Proof.state) (trm:term) = mk_all_paths pst trm |> length: int;
+fun pst_n_trm_to_numb_of_pahts (pst:Proof.state) (trm:term) = mk_all_paths pst trm |> length
+|> (fn len => (tracing "psn_to_trm_to_numb_of_paths is ";Int.toString len |> tracing;
+     tracing ("term in pst_n_trm_to_numb_of_paths is " ^ )
+;len)): int;
 
 fun pst_to_numb_of_max_arity (pst:Proof.state) =
   let
@@ -62,15 +65,15 @@ fun pst_to_numb_of_max_arity (pst:Proof.state) =
     max_arity
   end;
 
-fun pst_n_trm_to_max_numb    (pst:Proof.state) (trm:term) = Int.max (pst_n_trm_to_numb_of_pahts pst trm, pst_to_numb_of_max_arity pst): int;
+fun pst_n_trm_to_max_numb    (pst:Proof.state) (trm:term) = Int.max (pst_n_trm_to_numb_of_pahts pst trm |> (fn i => ("pst_n_trm_to_numb_of_paths is "^(Int.toString i) |> tracing ; i)), pst_to_numb_of_max_arity pst |> (fn i => (Int.toString i |> tracing ; i))): int;
 
 fun pst_n_trm_to_numb_domain (pst:Proof.state) (trm:term) = List.tabulate (pst_n_trm_to_max_numb pst trm, Eval_Variable.Non_Path o SU.Number): Eval_Variable.parameter list;
 
 val map_Non_Path_Print = map (Eval_Variable.Non_Path o SU.Print);
 
 fun qtyp_to_qdomain SU.QNumber    pst trm _ = pst_n_trm_to_numb_domain pst trm
-  | qtyp_to_qdomain SU.QFull_Path pst trm _ = mk_all_paths  pst trm |> map Eval_Variable.Path
-  | qtyp_to_qdomain SU.QPrint     pst trm _ = mk_all_prints pst trm |> map_Non_Path_Print
+  | qtyp_to_qdomain SU.QFull_Path pst trm _ = (tracing "qtyp_to_qdomain QFull_Path in Quantifier_Domain";mk_all_paths  pst trm |> (fn list => (tracing ("qtyp_to_qdomain in Quantifier_Domain. The length of list is " ^ Int.toString (length list));list))|> map Eval_Variable.Path)
+  | qtyp_to_qdomain SU.QPrint     pst trm _ = (tracing "qtyp_to_qdomain QPrint     in Quantifier_Domain";mk_all_prints pst trm |> (fn list => (tracing ("qtyp_to_qdomain in Quantifier_Domain. The length of list is " ^ Int.toString (length list));list))|> map_Non_Path_Print )
   | qtyp_to_qdomain SU.QInd       _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Non_Path_Print ons
   | qtyp_to_qdomain SU.QArb       _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Non_Path_Print arbs
   | qtyp_to_qdomain SU.QRule      _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Non_Path_Print rules

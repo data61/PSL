@@ -19,8 +19,8 @@ datatype parameter = Path of path | Non_Path of SeLFiE_Util.non_path_parameter;
 fun here_to_there (Path     p ) = EV.Path p
   | here_to_there (Non_Path np) = EV.Non_Path np;
 
-fun there_to_here (EV.Path     p ) = Path p
-  | there_to_here (EV.Non_Path np) = Non_Path np;
+fun variable_to_quantifier (EV.Path     p ) = Path p
+  | variable_to_quantifier (EV.Non_Path np) = Non_Path np;
 
 datatype expr =
   Variable of string
@@ -34,7 +34,7 @@ datatype expr =
 type path_to_node_table   = QD.path_to_node_table;
 type print_to_paths_table = QD.print_to_paths_table;
 
-fun convert_result (EV.Literal ee_bool) = Literal (there_to_here ee_bool)
+fun convert_result (EV.Literal ee_bool) = Literal (variable_to_quantifier ee_bool)
   | convert_result  _ = error "eval in Eval_Quantifier_Struct failed. Evaluation is not complete.";
 
 fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
@@ -42,7 +42,9 @@ fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments)
     fun vname_n_subexpr_n_qtyp_to_apps (vname:string) (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) =
       let
         val params = QD.qtyp_to_qdomain qtyp pst trm induct_args: QD.parameter list;
-        val apps = map (fn param => Apply (Lambda (vname, subexpr), Literal (there_to_here param))) params: expr list;
+val _ = tracing ("term passed to eval in From_Variable_To_Quantifier is " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm);
+val _ = tracing ("Number of params in eval in From_Variable_To_Quantifier is " ^ (Int.toString (length params)))
+        val apps = map (fn param => Apply (Lambda (vname, subexpr), Literal (variable_to_quantifier param))) params: expr list;
       in
         Assert (ands_or_ors, apps): expr
       end;
@@ -51,7 +53,8 @@ fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments)
       | eval' (Apply   pair           )     = EV.eval trm pst (EV.Apply (apply2 eval' pair))
       | eval' (Literal ps             )     = EV.eval trm pst (EV.Literal (here_to_there ps))
       | eval' (Assert (assrt, ps))          = EV.eval trm pst (EV.Assert (assrt, map eval' ps))
-      | eval' (All  (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp SU.Ands)
+      | eval' (All  (vname, qtyp, subexpr)) = (tracing ("eval' All in From_Variable_To_Quantifier. vname is " ^ vname);
+        eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp SU.Ands))
       (*Note that we cannot treat Some as a syntax sugar for All because Not has to take Literals due to the restriction imposed in From_Parameter_To_Parameter_With_Bool.ML.*)
       | eval' (Some (vname, qtyp, subexpr)) = eval' (vname_n_subexpr_n_qtyp_to_apps vname subexpr qtyp SU.Ors)
     val ev_result  = eval' expr              : EV.expr;

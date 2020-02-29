@@ -50,10 +50,12 @@ fun eval'  True                = true
   | eval' (ass1 Or    ass2)    = eval' ass1 orelse  eval' ass2
   | eval' (ass1 Nor   ass2)    = not (eval' ass1) andalso not (eval' ass2)
   | eval' (ass1 Imply ass2)    = if eval' ass1 then eval' ass2 else true
-  | eval' (Ands []        )    = error "eval' in Eval_Connective failed for Ands."
+  | eval' (Ands []        )    = error "eval' in Eval_Bool failed for Ands. Empty list."
+  | eval' (Ands [ass])         = eval' ass
   | eval' (Ands [ass1, ass2])  = eval' (ass1 And ass2)
   | eval' (Ands (ass1::asses)) = eval' ass1 andalso eval' (Ands asses)
-  | eval' (Ors []        )     = error "eval' in Eval_Connective failed for Ors."
+  | eval' (Ors []        )     = error "eval' in Eval_Bool failed for Ors. Empty list."
+  | eval' (Ors [ass])          = eval' ass
   | eval' (Ors [ass1, ass2])   = eval' (ass1 And ass2)
   | eval' (Ors (ass1::asses))  = eval' ass1 andalso eval' (Ands asses);
 

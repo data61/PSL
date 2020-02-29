@@ -27,26 +27,52 @@ datatype expr =
 
 type environment = (string * int) list; (*map a variable name to a de-Bruijn index*)
 
-fun lookup (env:environment) name = AList.lookup (op =) env name |> Utils.the' "lookup in Eval_Var failed.": int;
+fun lookup (env:environment) name = AList.lookup (op =) env name 
+|> (fn x => (tracing name; x))
+|> (fn x => (tracing ("The length of env is " ^ Int.toString (length env)); x))
+|> Utils.the' "lookup in Eval_Var failed.": int;
 val update                        = AList.update (op =): (string * int) -> environment -> environment;
 fun increment (alist:environment) = map (apsnd (curry (op +) 1)) alist: environment;
 fun update_with_0 var_name env    = update (var_name, 0) env: environment;
-fun increment_then_update_with_0 var_name env = env |> increment |> update_with_0 var_name: environment;
+fun update_with_0 var_name env    = (tracing "update_with_0";(var_name, 0)::env);
+fun increment_then_update_with_0 var_name env = 
+(tracing "increment_then_update_with_0";
+env |> increment |> update_with_0 var_name: environment
+);
 
-fun var_to_bound env (Variable   vname           ) = EB.Bound (lookup env vname)
-  | var_to_bound env (Lambda    (name,  sub_expr)) = EB.Lambda (var_to_bound (increment_then_update_with_0 name env) sub_expr)
-  | var_to_bound env (Apply     (expr1, expr2   )) = EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
-  | var_to_bound _   (Literal    param           ) = EB.Literal (here_to_there param)
-  | var_to_bound env (Assert    (assert, params) ) = EB.Assert (assert, map (var_to_bound env) params);
+fun var_to_bound env (Variable   vname           ) = 
+(tracing "var_to_bound in From_Bound_To_Variable for Variable";
+EB.Bound (lookup env vname)
+)
+  | var_to_bound env (Lambda    (name,  sub_expr)) = 
+(tracing "var_to_bound in From_Bound_To_Variable for Lambda";
+EB.Lambda (var_to_bound (increment_then_update_with_0 name env) sub_expr)
+)
+  | var_to_bound env (Apply     (expr1, expr2   )) = 
+(tracing "var_to_bound in From_Bound_To_Variable for Apply";
+EB.Apply (apply2 (var_to_bound env) (expr1, expr2))
+)
+  | var_to_bound _   (Literal    param           ) = 
+(tracing "var_to_bound in From_Bound_To_Variable for Literal";
+EB.Literal (here_to_there param)
+)
+  | var_to_bound env (Assert    (assert, params) ) = 
+(tracing "var_to_bound in From_Bound_To_Variable for Assert";
+EB.Assert (assert, map (var_to_bound env) params)
+);
 
-fun convert_result (EB.Literal ee_bool) = Literal (there_to_here ee_bool)
-  | convert_result  _ =
-    error "eval in Eval_Var_Struct failed. Evaluation is not complete.";
+fun bound_to_var (EB.Literal bound_bool) = Literal (there_to_here bound_bool)
+  | bound_to_var (EB.Bound _) = error "---EB.Bound"
+  | bound_to_var (EB.Lambda _) = error "---EBB.Lambda"
+  | bound_to_var (EB.Apply _) = error "---EB.Apply"
+  | bound_to_var  _ =
+    error "convert_result in from_Bound_to_Variable failed. Evaluation is not complete.";
 
 fun eval (trm:term) (pst:Proof.state) (expr:expr) =
   let
     val eb_result  = EB.eval trm pst (var_to_bound [] expr): Eval_Bound.expr;
-    val result     = convert_result eb_result          : expr;
+val _ = tracing "eb_result is "
+    val result     = bound_to_var eb_result          : expr;
   in
     result
   end;

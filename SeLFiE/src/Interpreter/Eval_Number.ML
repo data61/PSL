@@ -24,8 +24,8 @@ structure EB = Eval_Bool;
 datatype assert =
 (*We we really need Connective? We do not have syntactic sugars for Number.*)
   Connective      of Eval_Bool.assert
-| Are_Same_Number of int  * int
-| Is_Less_Than    of int  * int;
+| Are_Same_Number of int * int
+| Is_Less_Than    of int * int;
 
 infix
   Is_Less_Than

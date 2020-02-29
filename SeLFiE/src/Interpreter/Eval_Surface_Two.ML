@@ -1,5 +1,8 @@
 (*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Surface.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
+
+In Eval_Surface_Two, I try to implement the conversion between Surface and Deep
+by considering Surface as a syntactic sugar of Deep.
 *)
 
 (*** signature: EVAL_SURFACE ***)
@@ -120,6 +123,29 @@ datatype assert =
 | In_All_Definitions  of (assert * assert * assert list)
 | Outermost           of assert;
 
+datatype tag = Syntax | Semantics;
+fun outer_surf_to_outer_deep_pair p = Utils.map_pair outer_surf_to_outer_deep p
+and (*bool*)
+    outer_surf_to_outer_deep  True        = ED.Outer_Literal (ED.Outer_Non_Path (SU.Bool true))
+  | outer_surf_to_outer_deep  False       = ED.Outer_Literal (ED.Outer_Non_Path (SU.Bool false))
+  | outer_surf_to_outer_deep (Not   arg)  = ED.Outer_Assert  (SU.Not, [outer_surf_to_outer_deep arg])
+(*
+  | outer_surf_to_outer_deep And   args = ED.Outer_Assert (And  ,  args
+  | outer_surf_to_outer_deep Or    args = ED.Outer_Assert (Or   ,  args
+  | outer_surf_to_outer_deep Nor   args = ED.Outer_Assert (Nor  ,  args
+  | outer_surf_to_outer_deep Imply args = ED.Outer_Assert (Imply,  args
+  | outer_surf_to_outer_deep Ands  args = ED.Outer_Assert (Ands ,  args
+  | outer_surf_to_outer_deep Ors   args = ED.Outer_Assert (Ors  ,  args
+;
+*)
+fun inner_surf_to_inner_deep _ = error "TODO";
+
+fun surf_to_deep' Syntax    expr = outer_surf_to_outer_deep expr
+  | surf_to_deep' Semantics expr = inner_surf_to_inner_deep expr;
+
+fun surf_to_deep (Outermost expr) = surf_to_deep' Syntax expr
+  | surf_to_deep _ = error "surf_to_deep in Eval_Surface_Two failed. The outermost construct has to be Outermost.";
+
 fun come_back_expression (ED.Outer_Literal (ED.Outer_Non_Path (SU.Bool bool))) = if bool then True else False
   | come_back_expression  _                                                    = error "come_back_expression in Eval_Surface.ML failed."
 
@@ -173,7 +199,8 @@ fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:as
       | eval_out (Lambdas (strings, sub_ass))    = 
 (tracing "Lambdas in ed_eval in Eval_Surface";
 (*TODO: FIXME: We should not call eval_out inside the sub-term.
-  because we do not have an environment for the variables there yet.*)
+  because we do not have an environment for the variables there yet.
+  But if eval_out has In_All_Definitions, we cannot simply take it as a syntactic sugar, can't we? *)
         ed_eval_outer (ED.Outer_Lambdas (strings,       eval_out sub_ass ))
 )
       | eval_out (Applies (func,    args))       = ed_eval_outer (ED.Outer_Applies (eval_out func, map eval_out args))

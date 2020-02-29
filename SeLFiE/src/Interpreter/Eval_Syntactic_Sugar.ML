@@ -24,13 +24,14 @@ datatype assert =
 | Is_Lambda  of assert
 | Is_App     of assert
 (*Eval_Unode*)
-| Has_Same_Prnt_As  of assert * assert
-| Is_In_Trm_Prnt    of assert * assert
-| Is_Deeper_Than    of assert * assert
-| Is_Shallower_Than of assert * assert
-| Is_Path_Above     of assert * assert
-| Is_Same_Path_As   of assert * assert
-| Is_Nth_Child      of assert * assert
+| Has_Same_Prnt_As       of assert * assert
+| Is_In_Trm_Prnt         of assert * assert
+| Is_Deeper_Than         of assert * assert
+| Is_Shallower_Than      of assert * assert
+| Is_Path_Above          of assert * assert
+| Is_Same_Path_As        of assert * assert
+| Is_Nth_Child           of assert * assert
+| Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 (*Eval_Path*)
@@ -59,8 +60,11 @@ datatype assert =
 | Is_Path_Below                      of assert * assert
 | Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
+| Is_Nth_Child_Of                    of assert * assert * assert
+| Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
+| Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Are_In_Same_Location               of (assert * assert)
 | Is_Deeper_Than_In_Same_Location    of (assert * assert)
 | Is_Shallower_Than_In_Same_Location of (assert * assert)
@@ -95,13 +99,14 @@ datatype assert =
 | Is_Lambda  of assert
 | Is_App     of assert
 (*Eval_Unode*)
-| Has_Same_Prnt_As  of assert * assert
-| Is_In_Trm_Prnt    of assert * assert
-| Is_Deeper_Than    of assert * assert
-| Is_Shallower_Than of assert * assert
-| Is_Path_Above     of assert * assert
-| Is_Same_Path_As   of assert * assert
-| Is_Nth_Child      of assert * assert
+| Has_Same_Prnt_As       of assert * assert
+| Is_In_Trm_Prnt         of assert * assert
+| Is_Deeper_Than         of assert * assert
+| Is_Shallower_Than      of assert * assert
+| Is_Path_Above          of assert * assert
+| Is_Same_Path_As        of assert * assert
+| Is_Nth_Child           of assert * assert
+| Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 (*Eval_Path*)
@@ -130,8 +135,11 @@ datatype assert =
 | Is_Path_Below                      of assert * assert
 | Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
+| Is_Nth_Child_Of                    of assert * assert * assert
+| Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
+| Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Are_In_Same_Location               of (assert * assert)
 | Is_Deeper_Than_In_Same_Location    of (assert * assert)
 | Is_Shallower_Than_In_Same_Location of (assert * assert)
@@ -172,15 +180,17 @@ and
   | convert (Is_Lambda ass)          = ES.Is_Lambda (convert ass)
   | convert (Is_App    ass)          = ES.Is_App (convert ass)
   (*Eval_Unode*)
-  | convert (Has_Same_Prnt_As  pair) = ES.Has_Same_Prnt_As  (convert_pair pair)
-  | convert (Is_In_Trm_Prnt    pair) = ES.Is_In_Trm_Prnt    (convert_pair pair)
-  | convert (Is_Deeper_Than    pair) = ES.Is_Deeper_Than    (convert_pair pair)
-  | convert (Is_Shallower_Than pair) = ES.Is_Shallower_Than (convert_pair pair)
-  | convert (Is_Path_Above     pair) = ES.Is_Path_Above     (convert_pair pair)
-  | convert (Is_Same_Path_As   pair) = ES.Is_Same_Path_As   (convert_pair pair)
-  (*Eval_Path*)
-  | convert (Is_Nth_Child      pair) = ES.Is_Nth_Child      (convert_pair pair)
+  | convert (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair pair)
+  | convert (Is_In_Trm_Prnt         pair) = ES.Is_In_Trm_Prnt         (convert_pair pair)
+  | convert (Is_Deeper_Than         pair) = ES.Is_Deeper_Than         (convert_pair pair)
+  | convert (Is_Shallower_Than      pair) = ES.Is_Shallower_Than      (convert_pair pair)
+  | convert (Is_Path_Above          pair) = ES.Is_Path_Above          (convert_pair pair)
+  | convert (Is_Same_Path_As        pair) = ES.Is_Same_Path_As        (convert_pair pair)
+  | convert (Is_Nth_Child           pair) = ES.Is_Nth_Child           (convert_pair pair)
+  | convert (Is_N_Plus_One_th_Child pair) = ES.Is_N_Plus_One_th_Child (convert_pair pair)
+  (*Eval_Prnt*)
   | convert (Are_Same_Prints   pair) = ES.Are_Same_Prints   (convert_pair pair)
+  (*Eval_Path*)
   | convert (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair pair)
   | convert (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert ass)
   | convert (Is_In_Chained_Fact         ass)  = ES.Is_In_Chained_Fact     (convert ass)
@@ -208,11 +218,11 @@ and
   | convert (Is_Atomic assert) =
     convert
      (Ors
-       [Is_Cnst assert,
-        Is_Free assert,
-        Is_Var  assert,
+       [Is_Cnst  assert,
+        Is_Free  assert,
+        Is_Var   assert,
         Is_Bound assert])
-  | convert (Is_Path_Below (anscestor, descendent)) = convert (Is_Path_Above (descendent, anscestor))
+  | convert (Is_Path_Below (descendent, anscestor)) = convert (Is_Path_Above (anscestor, descendent))
   | convert (Is_Parent_Of (parent, child)) =
     let
       val non_exist = get_new_name [parent, child];
@@ -227,10 +237,27 @@ and
                 Is_Path_Below (Variable non_exist, parent))))
     end
   | convert (Is_Child_Of (child, parent)) = convert (Is_Parent_Of (parent, child))
-  | convert (Is_An_Arg_Of (func, arg)) =
+  | convert (Is_Nth_Child_Of (child, number, parent)) =
+    convert
+      (Ands
+         [Is_Parent_Of (parent, child),
+          Is_Nth_Child (number, child)])
+  | convert (Is_Nth_Child_Or_Below_Nth_Child_Of (child_or_in_child, number, parent)) =
     let
-      val func_app_str = get_new_name [func, arg]: string;
-      val func_app     = Variable func_app_str   : assert;
+      val nth_child_str = get_new_name [child_or_in_child, number, parent]: string;
+      val nth_child     = Variable nth_child_str                          : assert;
+    in
+      convert
+        (Ors
+          [Is_Nth_Child_Of (child_or_in_child, number, parent),
+           Somes ([(nth_child_str, SU.QFull_Path)],
+             Is_Path_Below (child_or_in_child, nth_child))
+           ])
+    end
+  | convert (Is_An_Arg_Of (arg, func)) =
+    let
+      val func_app_str = get_new_name [func,arg]: string;
+      val func_app     = Variable func_app_str  : assert;
     in
       convert
        (Somes ([(func_app_str, SU.QFull_Path)],
@@ -241,19 +268,33 @@ and
             Not (Is_Nth_Child (func_app, Number 0)),
             Is_App func_app]))
     end
-  | convert (Is_Nth_Arg_Of (func, number, arg)) =
+  | convert (Is_Nth_Arg_Of (arg, number, func)) =
     let
-      val func_app_str = get_new_name [func, arg]: string;
-      val func_app     = Variable func_app_str   : assert;
+      val func_app_str = get_new_name [func, number, arg]: string;
+      val func_app     = Variable func_app_str           : assert;
     in
+     (*Note helper to define futrm_w_prnt_to_futrm_w_prnt_n_inner_path in Unique_Node.ML*)
       convert
        (Somes ([(func_app_str, SU.QFull_Path)],
           Ands
            [Is_Parent_Of (func_app, func),
             Is_Nth_Child (Number 0, func_app),
             Is_Parent_Of (func_app, arg),
-            Is_Nth_Child (number, func_app),
-            Is_App (func_app)]))
+            Is_N_Plus_One_th_Child (arg, number),
+            Is_App func_app]))
+    end
+  | convert (Is_Nth_Arg_Or_Below_Nth_Arg_Of (arg_or_in_arg, number, func)) =
+    let
+      val nth_arg_str = get_new_name [func, number, arg_or_in_arg]: string;
+      val nth_arg     = Variable nth_arg_str                      : assert;
+    in
+      convert
+       (Ors
+         [Is_Nth_Arg_Of (func, number, arg_or_in_arg),
+          Somes ([(nth_arg_str, SU.QFull_Path)],
+            Ands
+              [Is_Nth_Arg_Of (func, number, nth_arg),
+               Is_Path_Above (nth_arg, arg_or_in_arg)])])
     end
   | convert (Are_In_Same_Location (ass1, ass2)) =
     let

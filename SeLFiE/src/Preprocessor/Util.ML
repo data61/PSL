@@ -36,6 +36,7 @@ datatype atomic_assert =
 | Is_Path_Above
 | Is_Same_Path_As
 | Is_Nth_Child
+| Is_N_Plus_One_th_Child
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Printed_As
@@ -125,6 +126,7 @@ datatype atomic_assert =
 | Is_Path_Above
 | Is_Same_Path_As
 | Is_Nth_Child
+| Is_N_Plus_One_th_Child
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Printed_As

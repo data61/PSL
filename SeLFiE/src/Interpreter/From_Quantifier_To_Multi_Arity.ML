@@ -41,25 +41,25 @@ fun quantifier_to_multi_arity (Variable vname)        = EQ.Variable vname
     end
   | quantifier_to_multi_arity (Literal param)        = EQ.Literal (here_to_there param)
   | quantifier_to_multi_arity (Assert (ass, exprs))  = EQ.Assert (ass, map quantifier_to_multi_arity exprs)
-  | quantifier_to_multi_arity (Alls   (pairs, expr)) = mk_nested_pair_for_quantifier All  pairs expr
+  | quantifier_to_multi_arity (Alls   (pairs, expr)) = (tracing "quantifier_to_multi_arity Alls in From_Quantifier_To_Multi_Arity"; mk_nested_pair_for_quantifier All  pairs expr)
   | quantifier_to_multi_arity (Somes  (pairs, expr)) = mk_nested_pair_for_quantifier Some pairs expr
 and mk_nested_pair_for_quantifier qtyp pairs expr =
     let
       val quantifier = if qtyp = All then EQ.All else EQ.Some
       fun mk_nested_pair  []                                          (acc:EQ.expr) = acc:EQ.expr
         | mk_nested_pair ((name, typ)::pairs:(string * SU.qtyp) list) (acc:EQ.expr) =
-          mk_nested_pair pairs (quantifier (name, typ, acc):EQ.expr)
+          mk_nested_pair pairs (quantifier (name, typ, acc):EQ.expr): EQ.expr
     in
       mk_nested_pair pairs (quantifier_to_multi_arity expr)
     end;
 
 fun convert_result (EQ.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ =
-    error "eval in Eval_Var_Struct failed. Evaluation is not complete.";
+    error "convert_result in from_Quantifier_to_Multi_Arity failed. Evaluation is not complete.";
 
 fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
-    val eq_result  = EQ.eval trm pst induct_args (quantifier_to_multi_arity expr): EQ.expr;
+    val eq_result  = (tracing "eval in From_Quantifier_To_Multi_Arity";EQ.eval trm pst induct_args (quantifier_to_multi_arity expr)): EQ.expr;
     val result     = convert_result eq_result                                    : expr;
   in
     result
