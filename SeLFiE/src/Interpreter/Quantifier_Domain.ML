@@ -48,8 +48,8 @@ fun mk_all_prints pst term =
   end;
 
 fun pst_n_trm_to_numb_of_pahts (pst:Proof.state) (trm:term) = mk_all_paths pst trm |> length
-|> (fn len => (tracing "psn_to_trm_to_numb_of_paths is ";Int.toString len |> tracing;
-     tracing ("term in pst_n_trm_to_numb_of_paths is " ^ )
+|> (fn len => (tracing "===psn_to_trm_to_numb_of_paths is ";Int.toString len |> tracing;
+     tracing ("---term in pst_n_trm_to_numb_of_paths is " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm)
 ;len)): int;
 
 fun pst_to_numb_of_max_arity (pst:Proof.state) =

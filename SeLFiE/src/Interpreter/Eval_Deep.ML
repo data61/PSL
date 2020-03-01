@@ -18,7 +18,7 @@ datatype outer_expression =
 | Outer_Assert   of SeLFiE_Util.assert * outer_expression list
 | Outer_Alls     of (string * SeLFiE_Util.qtyp) list * outer_expression
 | Outer_Somes    of (string * SeLFiE_Util.qtyp) list * outer_expression
-| Dive_In        of (outer_expression * inner_expression * outer_expression list)
+| Dive_In        of (outer_expression * inner_expression * outer_expression list)(*target, Inner_Lambdas inner_lambda, outer_args*)
 and inner_expression =
   Inner_Variable of string
 | Inner_Lambdas  of strings * inner_expression

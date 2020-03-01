@@ -150,7 +150,7 @@ fun come_back_expression (ED.Outer_Literal (ED.Outer_Non_Path (SU.Bool bool))) =
   | come_back_expression  _                                                    = error "come_back_expression in Eval_Surface.ML failed."
 
 fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
-  let
+  let                                   
     val thm     = Isabelle_Utils.proof_state_to_thm pst: thm;
     val thm_trm = Thm.prop_of thm                      : term;
     fun ed_eval_outer                    (outer_expr:ED.outer_expression)                    = ED.eval_outer pst induct_args outer_expr thm_trm                : ED.outer_expression;

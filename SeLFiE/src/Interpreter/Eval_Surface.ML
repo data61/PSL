@@ -173,7 +173,8 @@ fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:as
       | eval_out (Lambdas (strings, sub_ass))    = 
 (tracing "Lambdas in ed_eval in Eval_Surface";
 (*TODO: FIXME: We should not call eval_out inside the sub-term.
-  because we do not have an environment for the variables there yet.*)
+  because we do not have an environment for the variables there yet.
+  But if eval_out has In_All_Definitions, we cannot simply take it as a syntactic sugar, can't we? *)
         ed_eval_outer (ED.Outer_Lambdas (strings,       eval_out sub_ass ))
 )
       | eval_out (Applies (func,    args))       = ed_eval_outer (ED.Outer_Applies (eval_out func, map eval_out args))
