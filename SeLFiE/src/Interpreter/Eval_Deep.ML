@@ -36,7 +36,9 @@ datatype expr = Outer of outer_expression | Inner of inner_expression;
 
 (*TODO: Double-check if we really need eval.
   Note that we have to use both eval_inner and eval_outer in Eval_Surface.ML.
-  Therefore, there is little meaning to provide this abstraction.*)
+  Therefore, there is little meaning to provide this abstraction.
+  But eval produces the necessary term internally, which will be passed to eval_outer.
+  So, it is okay to have eval and eval_outer separately.*)
 val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;

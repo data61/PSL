@@ -11,14 +11,6 @@ theory Induction_Demo
 imports Main "../Smart_Induct"
 begin
 
-(* HINT FOR ONLINE DEMO
-   Start your first proof attempt with
-   itrev xs [] = rev xs
-   then generalize by introducing ys, and finally quantify over ys.
-   Each generalization should be motivated by the previous failed
-   proof attempt.
-*)
-
 fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
 "itrev [] ys = ys" |
 "itrev (x#xs) ys = itrev xs (x#ys)"
@@ -27,7 +19,6 @@ lemma "itrev xs ys = rev xs @ ys" smart_induct
 apply(induction xs arbitrary: ys)
 apply(auto)
 done
-
 
 subsection "Computation Induction"
 

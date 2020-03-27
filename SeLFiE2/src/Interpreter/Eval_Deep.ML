@@ -1,14 +1,52 @@
-(*  Title:      PSL/SeLFeE/src/From_Quantifier_To_Multi_Arity.ML
+(*  Title:      PSL/SeLFiE/src/Interpreter/Eval_Deep.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-functor from_Multiple_to_Deep (*This does not have to be a functor. A structure will do.*)
- (structure Eval_Outer_Multiple:EVAL_MULTI_ARITY
-  and       Outer_Path_To_Unode:PATH_TO_UNODE
-  and       Eval_Inner_Multiple:EVAL_MULTI_ARITY
-  and       Inner_Path_To_Unode:PATH_TO_UNODE
-  sharing type Outer_Path_To_Unode.path = Eval_Outer_Multiple.path
-  sharing type Inner_Path_To_Unode.path = Eval_Inner_Multiple.path): EVAL_DEEP =
+(*** signature: EVAL_DEEP ***)
+signature EVAL_DEEP =
+sig
 
+type outer_path;
+type inner_path;
+
+datatype outer_parameter = Outer_Path of outer_path | Outer_Non_Path of SeLFiE_Util.non_path_parameter;
+datatype inner_parameter = Inner_Path of inner_path | Inner_Non_Path of SeLFiE_Util.non_path_parameter;
+
+datatype outer_expression =
+  Outer_Bound    of int
+| Outer_Lambdas  of int * outer_expression (*(0, exp) means one lambda abstraction, and (1, exp) means two lambda abstractions.*)
+| Outer_Applies  of outer_expression * outer_expression list
+| Outer_Literal  of outer_parameter
+| Outer_Assert   of SeLFiE_Util.assert * outer_expression list
+| Outer_All      of SeLFiE_Util.qtyp * outer_expression
+| Outer_Some     of SeLFiE_Util.qtyp * outer_expression
+| Dive_In        of outer_expression * inner_expression * outer_expression list
+                   (*target, Inner_Lambdas inner_lambda, outer_args*)
+and inner_expression =
+  Inner_Bound    of int
+| Inner_Lambdas  of int * inner_expression (*(0, exp) means one lambda abstraction, and (1, exp) means two lambda abstractions.*)
+| Inner_Applies  of inner_expression * inner_expression list
+| Inner_Literal  of inner_parameter
+| Inner_Assert   of SeLFiE_Util.assert * inner_expression list
+| Inner_All      of SeLFiE_Util.qtyp * inner_expression
+| Inner_Some     of SeLFiE_Util.qtyp * inner_expression
+| Dive_Deeper    of inner_expression * inner_expression * inner_expression list;
+
+val eval_inner: Proof.state -> SeLFiE_Util.induct_arguments -> inner_expression -> term -> inner_expression;
+val eval_outer: Proof.state -> SeLFiE_Util.induct_arguments -> outer_expression -> term -> outer_expression;
+
+datatype expr = Outer of outer_expression | Inner of inner_expression;
+
+(*TODO: Double-check if we really need eval.
+  Note that we have to use both eval_inner and eval_outer in Eval_Surface.ML.
+  Therefore, there is little meaning to provide this abstraction.
+  But eval produces the necessary term internally, which will be passed to eval_outer.
+  So, it is okay to have eval and eval_outer separately.*)
+val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
+
+end;
+
+(*** structure: Eval_Deep ***)
+structure Eval_Deep: EVAL_DEEP =
 struct
 
 structure EOM = Eval_Outer_Multiple;
@@ -41,28 +79,37 @@ fun move_in_parameter (Outer_Non_Path np) = Inner_Non_Path np
 fun move_out_parameter (Inner_Non_Path np) = Outer_Non_Path np
   | move_out_parameter (Inner_Path    _) = error "move_out_parameter in From_Multiple_To_Deep.ML failed. move_out_parameter is not defined for Inner_Path";
 
+
+type qtyps = SeLFiE_Util.qtyp list;
+
 datatype outer_expression =
-  Outer_Variable of string
-| Outer_Lambdas  of strings * outer_expression
+  Outer_Bound    of int
+| Outer_Lambdas  of int * outer_expression (*(0, exp) means one lambda abstraction, and (1, exp) means two lambda abstractions.*)
 | Outer_Applies  of outer_expression * outer_expression list
 | Outer_Literal  of outer_parameter
-| Outer_Assert   of SU.assert * outer_expression list
-| Outer_Alls     of (string * qtyp) list * outer_expression
-| Outer_Somes    of (string * qtyp) list * outer_expression
-| Dive_In        of (outer_expression * inner_expression * outer_expression list)
-                   (*target,            inner_lambda,      outer_args*)
+| Outer_Assert   of SeLFiE_Util.assert * outer_expression list
+| Outer_All      of SeLFiE_Util.qtyp * outer_expression
+| Outer_Some     of SeLFiE_Util.qtyp * outer_expression
+| Dive_In        of outer_expression * inner_expression * outer_expression list
+                   (*target, Inner_Lambdas inner_lambda, outer_args*)
 and inner_expression =
-  Inner_Variable of string
-| Inner_Lambdas  of strings * inner_expression
-| Inner_Applies  of inner_expression    * inner_expression list
+  Inner_Bound    of int
+| Inner_Lambdas  of int * inner_expression
+| Inner_Applies  of inner_expression * inner_expression list
 | Inner_Literal  of inner_parameter
-| Inner_Assert   of SU.assert * inner_expression list
-| Inner_Alls     of (string * qtyp) list * inner_expression
-| Inner_Somes    of (string * qtyp) list * inner_expression
-| Dive_Deeper    of (inner_expression * inner_expression * inner_expression list);
+| Inner_Assert   of SeLFiE_Util.assert * inner_expression list
+| Inner_All      of SeLFiE_Util.qtyp * inner_expression
+| Inner_Some     of SeLFiE_Util.qtyp * inner_expression
+| Dive_Deeper    of inner_expression * inner_expression * inner_expression list;
 
-fun come_back_outer_expression (EOM.Literal p) = come_back_outer_parameter p |> Outer_Literal
-  | come_back_outer_expression _ = error "come_back_outer_expression in From_Multiple_To_Deep.ML failed."
+fun come_back_outer_expression (EOM.Bound   i) = Outer_Bound i
+  | come_back_outer_expression (EOM.Literal p) = come_back_outer_parameter p |> Outer_Literal
+  | come_back_outer_expression (EOM.Lambdas _) = error "==come_back_outer_expression in Eval_Deep.ML failed with Lambdas."
+  | come_back_outer_expression (EOM.Applies _) = error "come_back_outer_expression in Eval_Deep.ML failed with Applies."
+  | come_back_outer_expression (EOM.Assert  _) = error "come_back_outer_expression in Eval_Deep.ML failed with Assert."
+  | come_back_outer_expression (EOM.All     _) = error "come_back_outer_expression in Eval_Deep.ML failed with All."
+  | come_back_outer_expression (EOM.Some    _) = error "come_back_outer_expression in Eval_Deep.ML failed with Some."
+  | come_back_outer_expression _ = error "come_back_outer_expression in Eval_Deep.ML failed at something."
 
 fun come_back_inner_expression (EIM.Literal p) = come_back_inner_parameter p |> Inner_Literal
   | come_back_inner_expression _ = error "come_back_inner_expression in From_Multiple_To_Deep.ML failed."
@@ -130,19 +177,14 @@ fun inner_literal_to_definitions (pst:Proof.state) (term:term) (Inner_Literal (I
 
 fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (outer_expression:outer_expression) (trm:term) =
   let
-    val eval_eom = EOM.eval trm pst induct_args;
-    fun eval_outer' (Outer_Variable vname             ) = eval_eom (EOM.Variable vname)
-      (*FIXME: No.... we cannot compute sub_expr without updating the environment.*)
-      | eval_outer' (Outer_Lambdas (vnames, sub_expr )) = eval_eom (tracing "eval_eom Outer_Lambdas";
-                                                                    EOM.Lambdas (vnames, eval_outer' sub_expr))
+    val eval_eom = EOM.eval trm pst induct_args: EOM.expr -> EOM.expr;
+    fun eval_outer' (Outer_Bound    i                 ) = eval_eom (EOM.Bound i)
+      | eval_outer' (Outer_Lambdas (i, sub_expr      )) = eval_eom (EOM.Lambdas (i, eval_outer' sub_expr))
       | eval_outer' (Outer_Applies (func,   args     )) = eval_eom (EOM.Applies (eval_outer' func, map eval_outer' args))
       | eval_outer' (Outer_Literal  parameter         ) = eval_eom (EOM.Literal (go_away_outer_parameter parameter))
       | eval_outer' (Outer_Assert  (assert, sub_exprs)) = eval_eom (EOM.Assert  (assert, map eval_outer' sub_exprs))
-      (*FIXME: No.... we cannot compute sub_expr without updating the environment.*)
-      | eval_outer' (Outer_Alls    (pairs,  sub_expr )) = (tracing "eval_outer' Outer_Alls in From_Multiple_To_Deep"; eval_eom (EOM.Alls    (pairs, eval_outer' sub_expr)))
-      (*FIXME: No.... we cannot compute sub_expr without updating the environment.*)
-      | eval_outer' (Outer_Somes   (pairs,  sub_expr )) = eval_eom (EOM.Somes   (pairs, eval_outer' sub_expr))
-      (*FIXME? Can we call eval inside without updating environment?.*)
+      | eval_outer' (Outer_All     (pairs,  sub_expr )) = eval_eom (EOM.All     (pairs, eval_outer' sub_expr))
+      | eval_outer' (Outer_Some    (pairs,  sub_expr )) = eval_eom (EOM.Some    (pairs, eval_outer' sub_expr))
       | eval_outer' (Dive_In (target, Inner_Lambdas inner_lambda, outer_args)) =
         let
           val inner_args    = map move_in_literal outer_args                        : inner_expression list;
@@ -162,17 +204,13 @@ fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (out
 and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inner_expression:inner_expression) (trm:term) =
   let
     val eval_eim = EIM.eval trm pst induct_args;
-    fun eval_inner' (Inner_Variable vname)              = eval_eim (EIM.Variable vname)
-      (*FIXME: No.... we cannot compute sub_expr without updating the environment.*)
-      | eval_inner' (Inner_Lambdas (vnames, sub_expr))  = eval_eim (EIM.Lambdas (vnames, eval_inner' sub_expr))
+    fun eval_inner' (Inner_Bound    i                )  = eval_eim (EIM.Bound i)
+      | eval_inner' (Inner_Lambdas (i,      sub_expr))  = eval_eim (EIM.Lambdas (i,                eval_inner' sub_expr))
       | eval_inner' (Inner_Applies (func,   args     )) = eval_eim (EIM.Applies (eval_inner' func, map eval_inner' args))
       | eval_inner' (Inner_Literal  parameter         ) = eval_eim (EIM.Literal (go_away_inner_parameter parameter))
       | eval_inner' (Inner_Assert  (assert, sub_exprs)) = eval_eim (EIM.Assert  (assert, map eval_inner' sub_exprs))
-      (*FIXME: No.... we cannot compute sub_expr without updating the environment.*)
-      | eval_inner' (Inner_Alls    (pairs,  sub_expr )) = eval_eim (EIM.Alls    (pairs, eval_inner' sub_expr))
-      (*FIXME: No.... we cannot compute sub_expr without updating the environment.*)
-      | eval_inner' (Inner_Somes   (pairs,  sub_expr )) = eval_eim (EIM.Somes   (pairs, eval_inner' sub_expr))
-      (*FIXME? Can we call eval inside without updating environment?.*)
+      | eval_inner' (Inner_All     (pairs,  sub_expr )) = eval_eim (EIM.All     (pairs, eval_inner' sub_expr))
+      | eval_inner' (Inner_Some    (pairs,  sub_expr )) = eval_eim (EIM.Some    (pairs, eval_inner' sub_expr))
       | eval_inner' (Dive_Deeper (target, Inner_Lambdas inner_lambda, inner_args)) =
         let
           val simp_rules    = inner_literal_to_definitions pst trm target           : term list;
@@ -188,17 +226,8 @@ and eval_inner (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (inn
     eval_inner' inner_expression |> come_back_inner_expression
   end;
 
-fun print_expr (Outer_Variable str) = "Variable " ^ str ^ " \n"
-  | print_expr (Outer_Lambdas (vname, expr)) = "Lambdas " ^ hd vname ^ "\n" ^ print_expr expr
-  | print_expr (Outer_Applies (exp1, exp2)) = "Applies \n" ^ print_expr exp1 ^ "\n" ^ (fold (curry (op ^)) (map print_expr exp2) "")
-  | print_expr (Outer_Literal _) = "Literal \n"
-  | print_expr (Outer_Assert (_, expres)) = "Assert \n" ^ (fold (curry (op ^)) (map print_expr expres) "")
-  | print_expr (Outer_Alls _) = "Alls \n"
-  | print_expr (Outer_Somes _) = "Some \n"
-
 fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (Outer outer_expr) =
   let
-val _ = tracing ("Pretty print in From_Multiple_To_Deep \n" ^ print_expr outer_expr)
     val thm      = Isabelle_Utils.proof_state_to_thm pst: thm;
     val thm_term = Thm.prop_of thm                      : term;
   in

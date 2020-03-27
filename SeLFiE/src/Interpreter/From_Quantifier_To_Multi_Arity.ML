@@ -57,8 +57,17 @@ fun convert_result (EQ.Literal ee_bool) = Literal (there_to_here ee_bool)
   | convert_result  _ =
     error "convert_result in from_Quantifier_to_Multi_Arity failed. Evaluation is not complete.";
 
+fun print_expr (Variable str) = "Variable " ^ str ^ " \n"
+  | print_expr (Lambdas (vname, expr)) = "Lambdas " ^ hd vname ^ "\n" ^ print_expr expr
+  | print_expr (Applies (exp1, exp2)) = "Applies " ^ print_expr exp1 ^ "\n" ^ (fold (curry (op ^)) (map print_expr exp2) "")
+  | print_expr (Literal _) = "Literal \n"
+  | print_expr (Assert (_, expres)) = "Assert \n" ^ (fold (curry (op ^)) (map print_expr expres) "")
+  | print_expr (Alls _) = "Alls \n"
+  | print_expr (Somes _) = "Some \n"
+
 fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
+val _ = tracing ("Pretty printing in From_Quantifier_To_Multi_Arity \n"  ^ print_expr expr);
     val eq_result  = (tracing "eval in From_Quantifier_To_Multi_Arity";EQ.eval trm pst induct_args (quantifier_to_multi_arity expr)): EQ.expr;
     val result     = convert_result eq_result                                    : expr;
   in

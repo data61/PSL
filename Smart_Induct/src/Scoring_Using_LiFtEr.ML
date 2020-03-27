@@ -79,7 +79,9 @@ fun lifter_ind_mods_to_psl_ind_mods (Ind_Mods {ons, arbs, rules}) =
     map (rule_construct o dest_induct_rule) rules;
 
 val smart_induct_cmd =
-  Toplevel.keep_proof (fn top: Toplevel.state =>
+  Toplevel.keep_proof 
+  (Timeout.apply (seconds 300.0)
+  (fn top: Toplevel.state =>
     let
       val _ = tracing "smart_induct started producing combinations of induction arguments.";
       val state                      = Toplevel.proof_of top                                   : Proof.state;
@@ -99,13 +101,14 @@ val smart_induct_cmd =
                                        |> Dynamic_Induct.modifiers_to_str 
                                        |> Active.sendback_markup_properties [Markup.padding_command]: string;
       fun mk_message (i, mods) = ind_mdos_to_sendback mods ^
-                                " (* The score is " ^ Int.toString i ^ " out of " ^ Int.toString numb_of_all_asserts ^ ". *)";
+                                "\n  (* The score is " ^ Int.toString i ^ " out of " ^ Int.toString numb_of_all_asserts ^ ". *)";
       val best_messages  = map mk_message best_pairs: strings;
       val numb_of_best_messages = length best_messages
       val _                   = tracing ("Try these " ^ Int.toString numb_of_best_messages ^ " most promising inductions!"): unit;
       val best_mess_w_ranks = take numb_of_best_messages fst_till_tenth ~~ best_messages |>  map (op ^);
       val _                = map tracing best_mess_w_ranks;
-    in () end);
+    in () end)
+    );
 
 end;
 

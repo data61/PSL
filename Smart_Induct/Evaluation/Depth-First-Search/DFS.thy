@@ -7,6 +7,7 @@ section "Depth-First Search"
 
 theory DFS
   imports Main
+"../../../PSL"
 "../../Smart_Induct"
 begin
 
@@ -24,7 +25,7 @@ definition nextss :: "[graph, node list] \<Rightarrow> node set"
   where "nextss g xs = set g `` set xs"
 
 lemma nexts_set: "y \<in> set (nexts g x) = ((x,y) \<in> set g)"
-  smart_induct by (induct g) auto
+  try_hard  by (induct g) auto
 
 lemma nextss_Cons: "nextss g (x#xs) = set (nexts g x) \<union> nextss g xs" 
   unfolding nextss_def by (auto simp add:Image_def nexts_set)
@@ -39,7 +40,7 @@ definition nodes_of :: "graph \<Rightarrow> node set"
   where "nodes_of g = set (map fst g @ map snd g)"
 
 lemma [simp]: "x \<notin> nodes_of g \<Longrightarrow> nexts g x = []"
-  smart_induct by (induct g) (auto simp add: nodes_of_def)
+  try_hard  by (induct g) (auto simp add: nodes_of_def)
 
 lemma [simp]: "finite (nodes_of g - set ys)"  
 proof(rule finite_subset)
@@ -84,7 +85,7 @@ where
   by pat_completeness auto
 
 lemma dfs2_invariant: "dfs2_dom (g, xs, ys) \<Longrightarrow> set ys \<subseteq> set (dfs2 g xs ys)"
-  smart_induct
+  try_hard 
   by (induct g xs ys rule: dfs2.pinduct) (force simp add: dfs2.psimps)+
 
 termination dfs2
@@ -123,21 +124,22 @@ qed
 *)
 
 lemma dfs_app: "dfs g (xs@ys) zs = dfs g ys (dfs g xs zs)"
-  smart_induct
+  try_hard 
   assert_LiFtEr heuristic_15 [on["g","xs","zs"],arb[],rule["dfs.induct"]]
   by (induct g xs zs rule: dfs.induct) auto
 
 lemma "dfs2 g xs ys = dfs g xs ys" 
-  smart_induct by (induct g xs ys rule: dfs2.induct) (auto simp add: dfs_app)
+  try_hard  by (induct g xs ys rule: dfs2.induct) (auto simp add: dfs_app)
 
 
 subsection "Basic Properties"
 
 lemma visit_subset_dfs: "set ys \<subseteq> set (dfs g xs ys)"
-  smart_induct by (induct g xs ys rule: dfs.induct) auto
+  try_hard  by (induct g xs ys rule: dfs.induct) auto
 
 lemma next_subset_dfs: "set xs \<subseteq> set (dfs g xs ys)"
-smart_induct proof(induct g xs ys rule:dfs.induct)
+  try_hard 
+proof(induct g xs ys rule:dfs.induct)
   case(2 g x xs ys) 
   show ?case
   proof(cases "x \<in> set ys")
@@ -158,7 +160,7 @@ qed(simp)
 
 lemma nextss_closed_dfs'[rule_format]: 
  "nextss g ys \<subseteq> set xs \<union> set ys \<longrightarrow> nextss g (dfs g xs ys) \<subseteq> set (dfs g xs ys)"
- smart_induct
+ try_hard 
   by (induct g xs ys rule:dfs.induct, auto simp add:nextss_Cons List.member_def)
 
 lemma nextss_closed_dfs: "nextss g (dfs g xs []) \<subseteq> set (dfs g xs [])"
@@ -173,7 +175,7 @@ proof
       assume y: "y \<in> X"
       assume "(y,x) \<in> r\<^sup>*"
       then have "x \<in> X"
-        smart_induct
+        try_hard 
         by (induct) (insert assms y, auto simp add: Image_def)
     }
     then show ?thesis unfolding Image_def by auto
@@ -203,7 +205,7 @@ lemma reachable_append: "reachable g (xs @ ys) = reachable g xs \<union> reachab
 
 
 lemma dfs_subset_reachable_visit_nodes: "set (dfs g xs ys) \<subseteq> reachable g xs \<union> set ys"
-  smart_induct proof(induct g xs ys rule: dfs.induct)
+  try_hard  proof(induct g xs ys rule: dfs.induct)
   case 1
   then show ?case by simp
 next
