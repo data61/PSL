@@ -28,7 +28,7 @@ val bool_to_connect    = EB.bool_to_assert;
 val bools_to_connects  = Utils.map_pair bool_to_connect;
 val de_bool_to_connect = bool_to_connect o de_Bool;
 
-fun eval (trm:term) (pst:Proof.state) (assert:SU.assert) (parameters:parameter list) =
+fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:SU.assert) (parameters:parameter list) =
   let
     fun convert_param (Path                 p ) = EP.Path p
       | convert_param (Non_Path (SU.Bool    _)) = error "convert_param in Eval_Expression_Struct failed."
@@ -45,7 +45,7 @@ fun eval (trm:term) (pst:Proof.state) (assert:SU.assert) (parameters:parameter l
       | eval' SU.Ands  ands                                           = EB.eval (EB.Ands  (map de_bool_to_connect ands))
       | eval' SU.Ors   ors                                            = EB.eval (EB.Ors   (map de_bool_to_connect ors ))
       (*Eval_Unode_Core*)
-      | eval' (SU.Atomic atomic_assert) params = EP.eval trm pst atomic_assert (map convert_param params)
+      | eval' (SU.Atomic atomic_assert) params = EP.eval trm pst induct_args atomic_assert (map convert_param params)
       | eval' _ _ = error "eval' in From_Parameter_To_Expression.ML failed."
     val ec_result = eval' assert parameters: Eval_Bool.assert;
     val result    = ec_result |> EB.assert_to_bool |> SU.Bool |> Non_Path;

@@ -13,6 +13,6 @@ datatype parameter = Path of path | Non_Path of SeLFiE_Util.non_path_parameter;
 
 type parameters = parameter list;
 
-val eval: term -> Proof.state -> SeLFiE_Util.assert -> parameters -> parameter;
+val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.assert -> parameters -> parameter;
 
 end;

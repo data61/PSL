@@ -25,9 +25,8 @@ structure ENMB = Eval_Number;
 structure SU   = SeLFiE_Util;
 structure EIA  = Eval_Induct_Argument;
 
-fun eval trm pst assert parameters =
+fun eval trm pst induct_args assert parameters =
   let
-    val induct_args = error "TODO: get it from pst":SU.induct_arguments;
     fun
       (*Eval_Node*)
         eval' SU.Is_Cnst   [Path p] = EPT.eval trm pst (EPT.Is_Cnst   p)
@@ -61,7 +60,7 @@ fun eval trm pst assert parameters =
       | eval' SU.Is_Induct        [Print p]           = EIA.eval (EIA.Is_Induct p)             induct_args
       | eval' SU.Is_Arbitrary     [Print p]           = EIA.eval (EIA.Is_Arbitrary p)          induct_args
       | eval' SU.Is_Rule          [Print p]           = EIA.eval (EIA.Is_Rule p)               induct_args
-      | eval' _ _ = error "eval' in From_Path_to_Parameter.ML failed!"
+      | eval' assert _ = error ("eval' in From_Path_to_Parameter.ML failed at " ^ SU.print_atomic_assert assert);
   in
     eval' assert parameters: Eval_Bool.assert
   end;

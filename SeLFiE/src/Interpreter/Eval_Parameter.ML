@@ -18,6 +18,6 @@ type parameters = parameter list;
 
 type atomic_assert = SeLFiE_Util.atomic_assert;
 
-val eval: term -> Proof.state -> atomic_assert -> parameters -> Eval_Bool.assert;
+val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> atomic_assert -> parameters -> Eval_Bool.assert;
 
 end;

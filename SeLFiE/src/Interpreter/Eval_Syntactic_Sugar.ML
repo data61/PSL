@@ -50,8 +50,8 @@ datatype assert =
 | Variable            of string
 | Lambdas             of strings * assert
 | Applies             of assert  * assert list
-| Alls                of (string * SeLFiE_Util.qtyp) list * assert
-| Somes               of (string * SeLFiE_Util.qtyp) list * assert
+| All                 of string * SeLFiE_Util.qtyp * assert
+| Some                of string * SeLFiE_Util.qtyp * assert
 | In_All_Definitions  of (assert * assert * assert list)
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert
@@ -65,12 +65,12 @@ datatype assert =
 | Is_An_Arg_Of                       of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
-| Are_In_Same_Location               of (assert * assert)
-| Is_Deeper_Than_In_Same_Location    of (assert * assert)
-| Is_Shallower_Than_In_Same_Location of (assert * assert)
+| Are_In_Same_Location               of assert * assert
+| Is_Deeper_Than_In_Same_Location    of assert * assert
+| Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_At_Deepest_In_A_Location        of assert
-| Somes_Of                           of (string * assert) list * assert
-| Alls_Of                            of (string * assert) list * assert;
+| Some_Of                            of string * assert * assert
+| All_Of                             of string * assert * assert;
 
 val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> Eval_Surface.assert;
 
@@ -125,8 +125,8 @@ datatype assert =
 | Variable            of string
 | Lambdas             of strings * assert
 | Applies             of assert  * assert list
-| Alls                of (string * SeLFiE_Util.qtyp) list * assert
-| Somes               of (string * SeLFiE_Util.qtyp) list * assert
+| All                 of string * SeLFiE_Util.qtyp * assert
+| Some                of string * SeLFiE_Util.qtyp * assert
 | In_All_Definitions  of (assert * assert * assert list)
 | In_Some_Definitions of (assert * assert * assert list)
 | Outermost           of assert
@@ -140,12 +140,12 @@ datatype assert =
 | Is_An_Arg_Of                       of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
-| Are_In_Same_Location               of (assert * assert)
-| Is_Deeper_Than_In_Same_Location    of (assert * assert)
-| Is_Shallower_Than_In_Same_Location of (assert * assert)
+| Are_In_Same_Location               of assert * assert
+| Is_Deeper_Than_In_Same_Location    of assert * assert
+| Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_At_Deepest_In_A_Location        of assert
-| Somes_Of                           of (string * assert) list * assert
-| Alls_Of                            of (string * assert) list * assert;
+| Some_Of                            of string * assert * assert
+| All_Of                             of string * assert * assert;
 
 structure ES = Eval_Surface;
 structure SU = SeLFiE_Util;
@@ -206,8 +206,8 @@ and
   | convert (Variable        string) = ES.Variable string
   | convert (Lambdas (strings, ass)) = ES.Lambdas (strings, convert ass)
   | convert (Applies   (func, args)) = ES.Applies (convert func, convert_list args)
-  | convert (Alls   (pairs, assert)) = ES.Alls    (pairs, convert assert)
-  | convert (Somes  (pairs, assert)) = ES.Somes   (pairs, convert assert)
+  | convert (All    (vname, typ, assert)) = ES.All  (vname, typ, convert assert)
+  | convert (Some   (vname, typ, assert)) = ES.Some (vname, typ, convert assert)
   | convert (In_All_Definitions  (target, inner_fun, outer_args)) =
       ES.In_All_Definitions  (convert target, convert inner_fun, convert_list outer_args)
   | convert (Outermost assert)       = ES.Outermost (convert assert)
@@ -231,7 +231,7 @@ and
           Is_Path_Above (parent, child)
         And
           Not
-           (Somes ([(non_exist, SeLFiE_Util.QFull_Path)],
+           (Some (non_exist, SeLFiE_Util.QFull_Path,
                 Is_Path_Above (Variable non_exist, child)
               And
                 Is_Path_Below (Variable non_exist, parent))))
@@ -250,7 +250,7 @@ and
       convert
         (Ors
           [Is_Nth_Child_Of (child_or_in_child, number, parent),
-           Somes ([(nth_child_str, SU.QFull_Path)],
+           Some (nth_child_str, SU.QFull_Path,
              Is_Path_Below (child_or_in_child, nth_child))
            ])
     end
@@ -260,7 +260,7 @@ and
       val func_app     = Variable func_app_str  : assert;
     in
       convert
-       (Somes ([(func_app_str, SU.QFull_Path)],
+       (Some (func_app_str, SU.QFull_Path,
           Ands
            [Is_Parent_Of (func_app, func),
             Is_Nth_Child (Number 0, func_app),
@@ -275,7 +275,7 @@ and
     in
      (*Note helper to define futrm_w_prnt_to_futrm_w_prnt_n_inner_path in Unique_Node.ML*)
       convert
-       (Somes ([(func_app_str, SU.QFull_Path)],
+       (Some (func_app_str, SU.QFull_Path,
           Ands
            [Is_Parent_Of (func_app, func),
             Is_Nth_Child (Number 0, func_app),
@@ -291,7 +291,7 @@ and
       convert
        (Ors
          [Is_Nth_Arg_Of (func, number, arg_or_in_arg),
-          Somes ([(nth_arg_str, SU.QFull_Path)],
+          Some (nth_arg_str, SU.QFull_Path,
             Ands
               [Is_Nth_Arg_Of (func, number, nth_arg),
                Is_Path_Above (nth_arg, arg_or_in_arg)])])
@@ -302,7 +302,7 @@ and
       val non_exist     = Variable non_exist_str: assert;
     in
       convert
-        (Somes ([(non_exist_str, SU.QNumber)],
+        (Some (non_exist_str, SU.QNumber,
              ((non_exist Is_In_Nth_Subgoal ass1)
              And
               (non_exist Is_In_Nth_Subgoal ass2))
@@ -324,23 +324,16 @@ and
     in
       convert
         (Not
-          (Somes ([(non_exist_str, SU.QFull_Path)],
+          (Some (non_exist_str, SU.QFull_Path,
             Is_Deeper_Than_In_Same_Location (non_exist, assert))))
     end
-  | convert (Somes_Of ([], _)) = error "convert in Eval_Syntactic_Sugar.ML failed at Some_Occurrences_Of with an empty list."
-  | convert (Somes_Of ((occ:string, prnt:assert)::[], inner_assert)) =
+  | convert (Some_Of (occ:string, prnt:assert, inner_assert)) =
     convert
-     (Somes ([(occ, SU.QFull_Path)],
+     (Some (occ, SU.QFull_Path,
           Unode_Has_Print (Variable occ, prnt)
         And
           inner_assert))
-  | convert (Somes_Of ((occ:string, prnt:assert)::pairs, inner_assert)) =
-    convert
-     (Somes ([(occ, SU.QFull_Path)],
-          Unode_Has_Print (Variable occ, prnt)
-        And
-          (Somes_Of (pairs, inner_assert))))
-  | convert (Alls_Of (pairs, inner_assert)) = convert (Not (Somes_Of (pairs, Not inner_assert)))
+  | convert (All_Of (occ, prnt, inner_assert)) = convert (Not (Some_Of (occ, prnt, Not inner_assert)))
 
 fun eval (pst:Proof.state) (ind_args:SU.induct_arguments) (assert:assert) =
     ES.eval pst ind_args (convert assert);

@@ -34,25 +34,25 @@ datatype expr =
 type path_to_node_table   = QD.path_to_node_table;
 type print_to_paths_table = QD.print_to_paths_table;
 
-fun print_expr (Bound i) = "EQ.Bound " ^ Int.toString i
-  | print_expr (Lambda expr) = "EQ.Lambda ("  ^ "\n" ^ print_expr expr
-  | print_expr (Apply (exp1, exp2)) = print_expr exp1 ^ "\n" ^ print_expr exp2
-  | print_expr (Literal _) = "EQ.QLiteral"
-  | print_expr (Assert (_, expres)) = "EQ.Assert \n" ^ (fold (curry (op ^)) (map print_expr expres) "")
-  | print_expr (All _) = "EQ.All \n"
-  | print_expr (Some _) = "EQ.Some \n"
+fun print_expr (Bound i) = "EQ.Bound " ^ Int.toString i ^ " "
+  | print_expr (Lambda expr) = "EQ.Lambda ( " ^ print_expr expr ^ " )"
+  | print_expr (Apply (exp1, exp2)) = "EQ.Apply " ^ print_expr exp1 ^ " " ^ print_expr exp2 ^ " )"
+  | print_expr (Literal _) = "EQ.Literal "
+  | print_expr (Assert (_, expres)) = "EQ.Assert " ^ (fold (curry (op ^)) (map print_expr expres) "")
+  | print_expr (All _) = "EQ.All "
+  | print_expr (Some _) = "EQ.Some "
 
-fun print_expr_eb (EB.Bound i) = "Bound " ^ Int.toString i ^ " \n"
-  | print_expr_eb (EB.Lambda expr) = "Lambda ("  ^ "\n" ^ print_expr_eb expr
-  | print_expr_eb (EB.Apply (exp1, exp2)) = print_expr_eb exp1 ^ "\n" ^ print_expr_eb exp2
-  | print_expr_eb (EB.Literal p) = "BLiteral " ^ (case p of
+fun print_expr_eb (EB.Bound i) = "Bound " ^ Int.toString i ^ " "
+  | print_expr_eb (EB.Lambda expr) = "Lambda ( " ^ print_expr_eb expr ^ " )"
+  | print_expr_eb (EB.Apply (exp1, exp2)) = "EQ.Apply " ^ print_expr_eb exp1 ^ " " ^ print_expr_eb exp2 ^ " )"
+  | print_expr_eb (EB.Literal p) = "Literal " ^ (case p of
        EB.Path _ => "path"
      | EB.Non_Path non_path  => case non_path of
          SU.Bool b => if b then "True" else "False"
-       | SU.Print   p => "print!"
-       | SU.Number  n => "number!"
-       | SU.Command c => "command!")
-  | print_expr_eb (EB.Assert (_, expres)) = "Assert \n" ^ (fold (curry (op ^)) (map print_expr_eb expres) "")
+       | SU.Print   p => "print "
+       | SU.Number  n => "number "
+       | SU.Command c => "command ")
+  | print_expr_eb (EB.Assert (_, expres)) = "Assert " ^ (fold (curry (op ^)) (map print_expr_eb expres) "")
 
 fun convert_result (EB.Literal ee_bool) = Literal (param_to_quantifier ee_bool)
   | convert_result (EB.Bound   i      ) = Bound i
@@ -79,8 +79,12 @@ fun eval (trm:term) (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments)
       | quantifier_to_bound (Literal ps             ) = EB.Literal (here_to_there ps)
       | quantifier_to_bound (Assert (assrt, ps     )) = EB.Assert  (assrt, map quantifier_to_bound ps)
       | quantifier_to_bound (All    (qtyp,  subexpr)) = quantifier_to_bound (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands)
-      | quantifier_to_bound (Some   (qtyp,  subexpr)) = quantifier_to_bound (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands)
-    val eb_result  = EB.eval trm pst (quantifier_to_bound expr): EB.expr;
+      | quantifier_to_bound (Some   (qtyp,  subexpr)) = quantifier_to_bound (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors)
+
+val _ = tracing ("Print expr of Quantifier"; print_expr expr);
+val _ = tracing ("Print expr of Bound in Q"; print_expr_eb (quantifier_to_bound expr));
+
+    val eb_result  = EB.eval trm pst induct_args (quantifier_to_bound expr): EB.expr;
     val result     = convert_result eb_result: expr;
   in
     result

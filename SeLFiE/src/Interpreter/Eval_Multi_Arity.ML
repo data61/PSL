@@ -9,13 +9,13 @@ type path;
 datatype parameter = Path of path | Non_Path of SeLFiE_Util.non_path_parameter;
 
 datatype expr =
-  Variable of string
-| Lambdas  of strings * expr
-| Applies  of expr    * expr list
+  Bound    of int
+| Lambdas  of int * expr (*(0, exp) means one lambda abstraction, and (1, exp) means two lambda abstractions.*)
+| Applies  of expr   * expr list
 | Literal  of parameter
 | Assert   of SeLFiE_Util.assert * expr list
-| Alls     of (string * SeLFiE_Util.qtyp) list * expr
-| Somes    of (string * SeLFiE_Util.qtyp) list * expr;
+| All      of SeLFiE_Util.qtyp * expr
+| Some     of SeLFiE_Util.qtyp * expr;
 
 val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 

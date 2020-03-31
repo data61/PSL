@@ -41,6 +41,18 @@ datatype assert =
 | Ands  of assert list
 | Ors   of assert list;
 
+fun print_asserts (True   ) = "True"
+  | print_asserts (False  ) = "False"
+  | print_asserts (Not   _) = "Not"
+  | print_asserts (And   _) = "And"
+  | print_asserts (Or    _) = "Or"
+  | print_asserts (Nor   _) = "Nor"
+  | print_asserts (Imply _) = "Imply"
+  | print_asserts (Ands  _) = "Ands"
+  | print_asserts (Ors   _) = "Ors"
+
+val _ = print_asserts;
+
 infix And Or Nor Imply;
 
 fun eval'  True                = true
@@ -50,14 +62,14 @@ fun eval'  True                = true
   | eval' (ass1 Or    ass2)    = eval' ass1 orelse  eval' ass2
   | eval' (ass1 Nor   ass2)    = not (eval' ass1) andalso not (eval' ass2)
   | eval' (ass1 Imply ass2)    = if eval' ass1 then eval' ass2 else true
-  | eval' (Ands []        )    = error "eval' in Eval_Bool failed for Ands. Empty list."
+  | eval' (Ands []        )    = true
   | eval' (Ands [ass])         = eval' ass
   | eval' (Ands [ass1, ass2])  = eval' (ass1 And ass2)
   | eval' (Ands (ass1::asses)) = eval' ass1 andalso eval' (Ands asses)
-  | eval' (Ors []        )     = error "eval' in Eval_Bool failed for Ors. Empty list."
+  | eval' (Ors []        )     = false
   | eval' (Ors [ass])          = eval' ass
-  | eval' (Ors [ass1, ass2])   = eval' (ass1 And ass2)
-  | eval' (Ors (ass1::asses))  = eval' ass1 andalso eval' (Ands asses);
+  | eval' (Ors [ass1, ass2])   = eval' (ass1 Or ass2)
+  | eval' (Ors (ass1::asses))  = eval' ass1 orelse eval' (Ors asses);
 
 fun eval assert_connective = if eval' assert_connective then True else False;
 

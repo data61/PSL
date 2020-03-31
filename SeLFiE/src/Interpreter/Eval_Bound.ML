@@ -15,6 +15,6 @@ datatype expr =
 | Literal    of parameter
 | Assert     of SeLFiE_Util.assert * expr list;
 
-val eval: term -> Proof.state -> expr -> expr;
+val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;

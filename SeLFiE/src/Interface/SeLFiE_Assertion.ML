@@ -18,7 +18,7 @@ val is_meta_equation =
   is_function returns false for "c" when applied to "c"*)
 val is_function =
   Lambdas (["func"],
-    Somes ([("func_app", QFull_Path)],
+    Some ("func_app", QFull_Path,
       Ands
         [Is_App (Variable "func_app"),
          Is_Nth_Child_Of (Variable "func", Number 0, Variable "func_app")
@@ -29,7 +29,7 @@ val is_constant =
 
 val is_on_the_rhs_of_meta_eq =
   Lambdas (["constant"],
-    Somes ([("meta_eq", QFull_Path)],
+    Some ("meta_eq", QFull_Path,
       Ands
         [Is_Cnst (Variable "meta_eq"),
          Are_Same_Prints (Variable "meta_eq", Print "(\<equiv>)"),
@@ -40,25 +40,59 @@ val is_on_the_rhs_of_meta_eq =
     )
   );
 
-val is_recursive_equation = ()
-
-(*
-Lambdas ([("rec_const")],
- In_Some_Definitions
-  (Variable "rec_const",
-   ))
-*)
-
-val heuristic_1a =
+val heuristic_1 =
 Outermost (
-  Applies (Lambdas (["true"], Variable "true"), [True]) 
+  Ands
+   [Applies (Lambdas (["x","y","z","w"], Variable "y"), [False, True, False, False]),
+    True]
+);
 
+val heuristic_2 =
+Outermost (
+ Not (Some ("x", QRule, True)))
 
+val heuristic_3 =
+Outermost (
+ All ("x", QInd,
+  Some ("x", QPrint, True)))
+
+val heuristic_4 =
+Outermost (
+ (Some ("x", QRule, True)))
+
+val heuristic_5 =
+Outermost (
+ (Some ("x", QInd, True)));
+
+val heuristic_6 =
+Outermost (
+ (Some ("x", QArb, True)));
+
+val heuristic_7 =
+Outermost (
+ (All ("x", QFull_Path,
+   Are_Same_Prints (Print "SeLFiE.itrev", Print "SeLFiE.itrev"))));
+
+val heuristic_8 =
+Outermost (
+ (Some ("x", QFull_Path,
+   Unode_Has_Print (Variable "x", Print "SeLFiE.itrev"))));
+
+val heuristic_8 =
+Outermost (
+ Applies (
+  Lambdas (["x"], 
+           Unode_Has_Print (Variable "x", Print "SeLFiE.itrev")),
+  [Print "SeLFiE.itrev"]));
+(*
+Outermost (
+ (Some ("hol_eq", QFull_Path,
+  Unode_Has_Print (Variable "hol_eq", Print "SeLFiE.itrev"))));
+*)
 (*
   Alls ([("ind_trm", QPrint)],
     True)
 *)
-)
 (*
   Alls ([("ind_trm", QPrint)],
     Somes ([("ind_trm_occ", QFull_Path)],

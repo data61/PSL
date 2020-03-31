@@ -45,22 +45,48 @@ fun subst i u (Bound j) =
   | subst _ _ (Literal param)       = Literal param
   | subst i u (Assert (ass, exprs)) = Assert (ass, map (subst i u) exprs);
 
-fun eval_prim (Literal param) = here_to_there param
-  | eval_prim  _              = error "eval_prim in Eval_Bound_Struct failed!"
+fun print_expr (Bound i) = " B.Bound " ^ Int.toString i
+  | print_expr (Lambda expr) = " B.Lambda (" ^ print_expr expr ^ " )"
+  | print_expr (Apply (exp1, exp2)) = "B.Apply (" ^ print_expr exp1 ^ ", " ^ print_expr exp2 ^ ")"
+  | print_expr (Literal p) = " B.Literal " ^ (case p of
+       Path _ => "path"
+     | Non_Path non_path  => case non_path of
+         SU.Bool    b => if b then "True" else "False"
+       | SU.Print   _ => "print!"
+       | SU.Number  _ => "number!"
+       | SU.Command _ => "command!")
+  | print_expr (Assert (_, expres)) = "EB.Assert " ^ (fold (curry (op ^)) (map print_expr expres) "")
 
-fun eval (trm:term) (pst:Proof.state) (expr:expr) =
+fun param_with_bool_to_bound (Literal param) = here_to_there param
+  | param_with_bool_to_bound  expr           =
+    let
+      val mssg = print_expr expr;
+    in
+      error ("eval_prim in Eval_Bound failed with " ^ mssg)
+    end;
+
+fun eval (trm:term) (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
   let
-    fun eval' (Apply (trm1, trm2)) = (case eval' trm1 of
-          Lambda u => eval' (subst 0 (eval' trm2) u)
-        | u1       => Apply (u1, eval' trm2))
+    fun eval' (Apply (trm1, trm2)) =
+         (case eval' trm1 of
+          Lambda  u => (tracing "LAMBDA";eval' (subst 0 (eval' trm2) u))
+        | Literal l => (tracing "LITERAL";Literal l)
+        | Bound   i => (tracing "BOUND";Bound i)
+        | u1        => (tracing ("       Apply in Apply" ^
+                       (case u1 of _  =>  " with something"));
+                       Apply (u1, eval' trm2)))
       | eval' (Assert (assert, param_exprs)) =
           let
             (* Note that param_exprs are always Literal at this point
-             * because the evaluation function in From_Variable_To_Quantifier evaluated
+             * because the evaluation function in From_Bound_To_Quantifier evaluated
              * param_exprs eagerly.*)
-            val params = map eval_prim param_exprs: EPWB.parameters;
+(*
+            val _ = tracing (print_expr (Assert (assert, param_exprs)));
+            val _ = map (tracing o print_expr) param_exprs;             
+*)
+            val params = map (param_with_bool_to_bound o eval') param_exprs
           in
-            EPWB.eval trm pst assert params |> there_to_here |> Literal
+            EPWB.eval trm pst induct_args assert params |> there_to_here |> Literal
           end
       | eval' t = t
   in

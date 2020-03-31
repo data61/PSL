@@ -56,6 +56,8 @@ datatype atomic_assert =
 | Is_Arbitrary
 | Is_Rule;
 
+val print_atomic_assert: atomic_assert -> string;
+
 datatype assert =
   Not
 | And
@@ -145,6 +147,36 @@ datatype atomic_assert =
 | Is_Induct
 | Is_Arbitrary
 | Is_Rule;
+
+fun print_atomic_assert (Is_Cnst               ) = "Is_Cnst"
+  | print_atomic_assert (Is_Free               ) = "Is_Free"
+  | print_atomic_assert (Is_Var                ) = "Is_Var"
+  | print_atomic_assert (Is_Bound              ) = "Is_Bound"
+  | print_atomic_assert (Is_Lambda             ) = "Is_Lambda"
+  | print_atomic_assert (Is_App                ) = "Is_App"
+  | print_atomic_assert (Has_Same_Prnt_As      ) = "Has_Same_Prnt_As"
+  | print_atomic_assert (Is_In_Trm_Prnt        ) = "Is_In_Trm_Prnt"
+  | print_atomic_assert (Is_Deeper_Than        ) = "Is_Deeper_Than"
+  | print_atomic_assert (Is_Shallower_Than     ) = "Is_Shallower_Than"
+  | print_atomic_assert (Is_Path_Above         ) = "Is_Path_Above"
+  | print_atomic_assert (Is_Same_Path_As       ) = "Is_Same_Path_As"
+  | print_atomic_assert (Is_Nth_Child          ) = "Is_Nth_Child"
+  | print_atomic_assert (Is_N_Plus_One_th_Child) = "Is_N_Plus_One_th_Child"
+  | print_atomic_assert (Are_Same_Prints       ) = "Are_Same_Prints"
+  | print_atomic_assert (Is_Printed_As         ) = "Is_Printed_As"
+  | print_atomic_assert (Unode_Has_Print       ) = "Unode_Has_Print"
+  | print_atomic_assert (Is_In_Subgoal         ) = "Is_In_Subgoal"
+  | print_atomic_assert (Is_In_Chained_Fact    ) = "Is_In_Chained_Fact"
+  | print_atomic_assert (Is_In_Nth_Subgoal     ) = "Is_In_Nth_Subgoal"
+  | print_atomic_assert (Is_In_Nth_Chained_Fact) = "Is_In_Nth_Chained_Fact"
+  | print_atomic_assert (Are_Same_Number       ) = "Are_Same_Number"
+  | print_atomic_assert (Is_Less_Than          ) = "Is_Less_Than"
+  | print_atomic_assert (Is_Nth_Induct         ) = "Is_Nth_Induct"
+  | print_atomic_assert (Is_Nth_Arbitrary      ) = "Is_Nth_Arbitrary"
+  | print_atomic_assert (Is_Induct             ) = "Is_Induct"
+  | print_atomic_assert (Is_Arbitrary          ) = "Is_Arbitrary"
+  | print_atomic_assert (Is_Rule               ) = "Is_Rule"
+
 
 datatype assert =
   Not

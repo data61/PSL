@@ -46,7 +46,7 @@ ML_file "src/Interpreter/Eval_Induct_Argument.ML"
 ML_file "src/Interpreter/Eval_Parameter.ML"
 ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/Eval_Bound.ML"
-ML_file "src/Interpreter/Eval_Variable.ML"
+
 ML_file "src/Interpreter/Eval_Quantifier.ML"
 ML_file "src/Interpreter/Eval_Multi_Arity.ML"
 
@@ -60,9 +60,9 @@ ML_file "src/Interpreter/Make_Eval_Path.ML"
 ML_file "src/Interpreter/From_Path_To_Parameter.ML"
 ML_file "src/Interpreter/From_Parameter_To_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/From_Parameter_With_Bool_To_Bound.ML"
-ML_file "src/Interpreter/From_Bound_To_Variable.ML"
+
 ML_file "src/Interpreter/Quantifier_Domain.ML"
-ML_file "src/Interpreter/From_Variable_To_Quantifier.ML"
+ML_file "src/Interpreter/From_Bound_To_Quantifier.ML"
 ML_file "src/Interpreter/From_Quantifier_To_Multi_Arity.ML"
 
 ML\<open> structure Eval_Inner_Path = make_Eval_Path (Inner_Path_To_Unode): EVAL_PATH; \<close>
@@ -77,39 +77,31 @@ ML\<open> structure Eval_Outer_Parameter_With_Bool = from_Parameter_to_Parameter
 ML\<open> structure Eval_Inner_Bound = from_Parameter_With_Bool_to_Bound (Eval_Inner_Parameter_With_Bool): EVAL_BOUND; \<close>
 ML\<open> structure Eval_Outer_Bound = from_Parameter_With_Bool_to_Bound (Eval_Outer_Parameter_With_Bool): EVAL_BOUND; \<close>
 
-ML\<open> structure Eval_Inner_Variable = from_Bound_to_Variable (Eval_Inner_Bound): EVAL_VARIABLE; \<close>
-ML\<open> structure Eval_Outer_Variable = from_Bound_to_Variable (Eval_Outer_Bound): EVAL_VARIABLE; \<close>
-
 ML\<open> structure Inner_Quantifier_Domain = make_Quantifier_Domain
      (structure Print_To_Paths = Print_To_Inner_Paths
             and Path_To_Unode  = Inner_Path_To_Unode
-            and Eval_Variable  = Eval_Inner_Variable): QUANTIFIER_DOMAIN \<close>
+            and Eval_Bound     = Eval_Inner_Bound): QUANTIFIER_DOMAIN \<close>
 
 ML\<open> structure Outer_Quantifier_Domain = make_Quantifier_Domain
      (structure Print_To_Paths = Print_To_Outer_Paths
             and Path_To_Unode  = Outer_Path_To_Unode
-            and Eval_Variable  = Eval_Outer_Variable): QUANTIFIER_DOMAIN \<close>
+            and Eval_Bound     = Eval_Outer_Bound): QUANTIFIER_DOMAIN \<close>
 
-ML\<open> structure Eval_Inner_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Inner_Variable and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
-ML\<open> structure Eval_Outer_Quantifier = from_Variable_to_Quantifier(structure Eval_Variable = Eval_Outer_Variable and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
+ML\<open> structure Eval_Inner_Quantifier = from_Bound_to_Quantifier
+  (structure Eval_Bound        = Eval_Inner_Bound
+         and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
 
-ML\<open> structure Eval_Inner_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Inner_Quantifier): EVAL_MULTI_ARITY; \<close>
-ML\<open> structure Eval_Outer_Multi_Arity = from_Quantifier_to_Multi_Arity (Eval_Outer_Quantifier): EVAL_MULTI_ARITY; \<close>
+ML\<open> structure Eval_Outer_Quantifier = from_Bound_to_Quantifier
+  (structure Eval_Bound        = Eval_Outer_Bound
+         and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
+
+ML\<open> structure Eval_Inner_Multiple = from_Quantifier_to_Multi_Arity (Eval_Inner_Quantifier): EVAL_MULTI_ARITY; \<close>
+ML\<open> structure Eval_Outer_Multiple = from_Quantifier_to_Multi_Arity (Eval_Outer_Quantifier): EVAL_MULTI_ARITY; \<close>
 
 ML_file "src/Interpreter/Eval_Deep.ML"
-ML_file "src/Interpreter/From_Multiple_To_Deep.ML"
+ML_file "src/Interpreter/Eval_Variable.ML"
 
-ML\<open> structure Eval_Deep =(*This does not have to be a functor. A structure will do.*)
-from_Multiple_to_Deep (
-  structure Eval_Outer_Multiple = Eval_Outer_Multi_Arity
-  and       Outer_Path_To_Unode = Outer_Path_To_Unode
-  and       Eval_Inner_Multiple = Eval_Inner_Multi_Arity
-  and       Inner_Path_To_Unode = Inner_Path_To_Unode); \<close>
-
-(*
 ML_file "src/Interpreter/Eval_Surface.ML"
-*)
-ML_file "src/Interpreter/Eval_Surface_Two.ML"
 ML_file "src/Interpreter/Eval_Syntactic_Sugar.ML"
 ML_file "src/Interface/Apply_SeLFiE.ML"
 
@@ -127,9 +119,16 @@ Isabelle_Utils.trm_to_string @{context} eq2
 ML_file "src/Interface/SeLFiE_Assertion.ML"
 ML\<open> Apply_SeLFiE.activate (); \<close>
 
-setup\<open> Apply_SeLFiE.update_assert "heuristic_1a" SeLFiE_Assertion.heuristic_1a \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_1" SeLFiE_Assertion.heuristic_1 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_2" SeLFiE_Assertion.heuristic_2 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_3" SeLFiE_Assertion.heuristic_3 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_4" SeLFiE_Assertion.heuristic_4 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_5" SeLFiE_Assertion.heuristic_5 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_6" SeLFiE_Assertion.heuristic_6 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_7" SeLFiE_Assertion.heuristic_7 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_8" SeLFiE_Assertion.heuristic_8 \<close>
 
- primrec rev :: "'a list \<Rightarrow> 'a list" where
+primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
   "rev (x # xs) = rev xs @ [x]"
  print_theorems
@@ -139,8 +138,38 @@ setup\<open> Apply_SeLFiE.update_assert "heuristic_1a" SeLFiE_Assertion.heuristi
   "itrev (x#xs) ys = itrev xs (x#ys)"
  print_theorems
 
+ML\<open>(*test*)
+local
+open Eval_Outer_Bound;
+open SeLFiE_Util;
+val t = Literal (Non_Path (Bool true));
+val f = Literal (Non_Path (Bool false));
+in
+
+val expr =
+ Apply (
+  Apply (
+   Lambda (
+    Lambda (Bound 0)),
+   f),
+  t);
+
+val result1 = eval @{term "True"} (Proof.init @{context}) 
+  (SeLFiE_Util.Induct_Arguments {ons=[], arbs=[], rules=[]}) expr
+end;
+
+fold 
+\<close>
+
 lemma "itrev xs ys = rev xs @ ys"
-  assert_SeLFiE heuristic_1a [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_1 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_2 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_3 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_4 [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE heuristic_5 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_6 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_7 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_8 [on["xs"], arb["ys"],rule[]]
   apply(induct xs arbitrary: ys) apply auto done
 
 (* auxiliary stuff *)

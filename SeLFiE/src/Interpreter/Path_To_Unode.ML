@@ -214,10 +214,6 @@ val _ = tracing ("Length of outer_path_to_outer_unode_table_list is " ^ Int.toSt
 fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) _: path_to_unode_table =
   let
 val _ = tracing "From pst_n_trm_to_path_to_unode_table"
-(*
-val _ = tracing "++++++++++";
-val _ = tracing ("Number of nodes in pst_n_trm_to_path_to_unode_table is "^ Int.toString (length unodes));
-*)
     val outer_path_to_outer_unode_table = pst_n_trm_to_path_to_outer_unode_table pst ();
     val outer_path_to_unode_table       = Path_Table.map (fn _ => fn {unode, ...}:outer_unode => unode) outer_path_to_outer_unode_table
   in
