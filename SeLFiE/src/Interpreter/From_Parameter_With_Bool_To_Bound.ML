@@ -10,23 +10,15 @@ struct
 
 structure EPWB = Eval_Parameter_With_Bool;
 structure SU   = SeLFiE_Util;
+structure EP   = Eval_Parameter;
 
-type path    = EPWB.path;
 type command = Pattern.command;
-
-datatype parameter = Path of path | Non_Path of SeLFiE_Util.non_path_parameter;
-
-fun here_to_there (Path     p ) = EPWB.Path     p
-  | here_to_there (Non_Path np) = EPWB.Non_Path np;
-
-fun there_to_here (EPWB.Path     p )   = Path p
-  | there_to_here (EPWB.Non_Path np)   = Non_Path np;
 
 datatype expr =
   Bound      of int
 | Lambda     of expr
 | Apply      of expr * expr
-| Literal    of parameter
+| Literal    of Eval_Parameter.literal
 | Assert     of SU.assert * expr list;
 
 fun shift 0 _ u                     = u
@@ -45,19 +37,20 @@ fun subst i u (Bound j) =
   | subst _ _ (Literal param)       = Literal param
   | subst i u (Assert (ass, exprs)) = Assert (ass, map (subst i u) exprs);
 
-fun print_expr (Bound i) = " B.Bound " ^ Int.toString i
-  | print_expr (Lambda expr) = " B.Lambda (" ^ print_expr expr ^ " )"
+fun print_expr (Bound i)            = "B.Bound " ^ Int.toString i
+  | print_expr (Lambda expr)        = "B.Lambda (" ^ print_expr expr ^ " )"
   | print_expr (Apply (exp1, exp2)) = "B.Apply (" ^ print_expr exp1 ^ ", " ^ print_expr exp2 ^ ")"
   | print_expr (Literal p) = " B.Literal " ^ (case p of
-       Path _ => "path"
-     | Non_Path non_path  => case non_path of
-         SU.Bool    b => if b then "True" else "False"
-       | SU.Print   _ => "print!"
-       | SU.Number  _ => "number!"
-       | SU.Command _ => "command!")
-  | print_expr (Assert (_, expres)) = "EB.Assert " ^ (fold (curry (op ^)) (map print_expr expres) "")
+       EP.Outer_Path _ => "Outer_Path"
+     | EP.Inner_Path _ => "Inner_Path"
+     | EP.Non_Path non_path  => case non_path of
+         EP.Bool    b => if b then "True" else "False"
+       | EP.Print   _ => "print!"
+       | EP.Number  _ => "number!"
+       | EP.Command _ => "command!")
+  | print_expr (Assert (_, expres)) = "B.Assert " ^ (fold (curry (op ^)) (map print_expr expres) "")
 
-fun param_with_bool_to_bound (Literal param) = here_to_there param
+fun param_with_bool_to_bound (Literal param) = param
   | param_with_bool_to_bound  expr           =
     let
       val mssg = print_expr expr;
@@ -86,7 +79,7 @@ fun eval (trm:term) (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:ex
 *)
             val params = map (param_with_bool_to_bound o eval') param_exprs
           in
-            EPWB.eval trm pst induct_args assert params |> there_to_here |> Literal
+            EPWB.eval trm pst induct_args assert params |> Literal
           end
       | eval' t = t
   in

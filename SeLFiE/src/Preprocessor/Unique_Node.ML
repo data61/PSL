@@ -74,7 +74,9 @@ datatype futrm_w_prnt =
 val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
 
 (* path *)
-type inner_path = SeLFiE_Util.inner_path;
+type inner_path = ints;
+
+val  inner_path_to_string        : inner_path -> string;
 
 val are_same_inner_path: inner_path -> inner_path -> bool;
 
@@ -320,7 +322,13 @@ fun utrm_w_prnt_to_futrm_w_prnt (utrm_w_prnt) = helper (utrm_w_prnt_to_prnt utrm
 end;
 
 (* inner_path *)
-type inner_path  = SeLFiE_Util.inner_path;
+
+type inner_path   = ints;
+fun path_to_string'  []               (acc:string) = acc
+  | path_to_string' (step::path:ints) (acc:string)= path_to_string' path (acc ^ "," ^ Int.toString step);
+
+fun inner_path_to_string  []               = ""
+  | inner_path_to_string (step::path:ints) = "Path is " ^ Int.toString step ^ path_to_string' path "";
 
 fun are_same_inner_path (inner_path1:inner_path) (inner_path2:inner_path) = forall (op =) (inner_path1 ~~ inner_path2);
 

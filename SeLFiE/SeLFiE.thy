@@ -35,38 +35,37 @@ ML_file "src/Preprocessor/Term_Table.ML"
 ML_file "src/Preprocessor/Term_Table_Test.ML"
 ML_file "src/Preprocessor/Dynamic_Induct.ML"
 
-(* bootstrapping interpreter *)
 ML_file "src/Interpreter/Eval_Bool.ML"
 ML_file "src/Interpreter/Eval_Node.ML"
 ML_file "src/Interpreter/Eval_Number.ML"
 ML_file "src/Interpreter/Eval_Unode.ML"
 ML_file "src/Interpreter/Eval_Path.ML"
 ML_file "src/Interpreter/Eval_Print.ML"
-ML_file "src/Interpreter/Eval_Induct_Argument.ML"
-ML_file "src/Interpreter/Eval_Parameter.ML"
-ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
-ML_file "src/Interpreter/Eval_Bound.ML"
-
-ML_file "src/Interpreter/Eval_Quantifier.ML"
-ML_file "src/Interpreter/Eval_Multi_Arity.ML"
 
 ML_file "src/Interpreter/Path_To_Unode.ML"  (*The bifurcation of "inner" and "outer" starts here.*)
 ML_file "src/Interpreter/Print_To_Paths.ML"
 
 ML\<open> structure Print_To_Inner_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Inner_Path_Table): PRINT_TO_PATHS; \<close>
 ML\<open> structure Print_To_Outer_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Outer_Path_Table): PRINT_TO_PATHS; \<close>
-
 ML_file "src/Interpreter/Make_Eval_Path.ML"
+
+ML_file "src/Interpreter/Eval_Induct_Argument.ML"
+ML_file "src/Interpreter/Eval_Parameter.ML"
+
 ML_file "src/Interpreter/From_Path_To_Parameter.ML"
+
+ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
+ML_file "src/Interpreter/Eval_Bound.ML"
+
+ML_file "src/Interpreter/Eval_Quantifier.ML"
+ML_file "src/Interpreter/Eval_Multi_Arity.ML"
+
 ML_file "src/Interpreter/From_Parameter_To_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/From_Parameter_With_Bool_To_Bound.ML"
 
 ML_file "src/Interpreter/Quantifier_Domain.ML"
 ML_file "src/Interpreter/From_Bound_To_Quantifier.ML"
 ML_file "src/Interpreter/From_Quantifier_To_Multi_Arity.ML"
-
-ML\<open> structure Eval_Inner_Path = make_Eval_Path (Inner_Path_To_Unode): EVAL_PATH; \<close>
-ML\<open> structure Eval_Outer_Path = make_Eval_Path (Outer_Path_To_Unode): EVAL_PATH; \<close>
 
 ML\<open> structure Eval_Inner_Parameter = from_Path_to_Parameter(Eval_Inner_Path): EVAL_PARAMETER; \<close>
 ML\<open> structure Eval_Outer_Parameter = from_Path_to_Parameter(Eval_Outer_Path): EVAL_PARAMETER; \<close>

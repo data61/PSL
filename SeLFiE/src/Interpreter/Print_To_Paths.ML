@@ -15,6 +15,7 @@ val path_to_unode_table_to_print_to_paths_table: path_to_unode_table -> print_to
 
 end;
 
+(*** functor from_Path_Table_and_Path_To_Unode_to_Print_To_Paths ***)
 functor from_Path_Table_and_Path_To_Unode_to_Print_To_Paths (Path_Table: TABLE): PRINT_TO_PATHS =
 struct
 
