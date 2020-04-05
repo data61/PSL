@@ -1,6 +1,7 @@
 (*  Title:      PSL/SeLFeE/src/Interpreter/Eval_Deep_Bound.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
+(*** EVAL_DEEP_BOUND ***)
 signature EVAL_DEEP_BOUND =
 sig
 
@@ -17,6 +18,7 @@ val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
+(*** Eval_Deep_Bound ***)
 structure Eval_Deep_Bound: EVAL_DEEP_BOUND =
 struct
 
