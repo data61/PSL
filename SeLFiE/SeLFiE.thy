@@ -57,31 +57,6 @@ ML_file "src/Interpreter/Quantifier_Domain.ML"
 ML_file "src/Interpreter/Eval_Quantifier.ML"
 ML_file "src/Interpreter/Eval_Multi_Arity.ML"
 
-ML_file "src/Interpreter/From_Bound_To_Quantifier.ML"
-ML_file "src/Interpreter/From_Quantifier_To_Multi_Arity.ML"
-(*
-ML\<open> structure Inner_Quantifier_Domain = make_Quantifier_Domain
-     (structure Print_To_Paths = Print_To_Inner_Paths
-            and Path_To_Unode  = Inner_Path_To_Unode
-            and Eval_Bound     = Eval_Inner_Bound): QUANTIFIER_DOMAIN \<close>
-
-ML\<open> structure Outer_Quantifier_Domain = make_Quantifier_Domain
-     (structure Print_To_Paths = Print_To_Outer_Paths
-            and Path_To_Unode  = Outer_Path_To_Unode
-            and Eval_Bound     = Eval_Outer_Bound): QUANTIFIER_DOMAIN \<close>
-*)
-ML\<open> structure Eval_Inner_Quantifier = from_Bound_to_Quantifier
-  (structure Eval_Bound        = Eval_Inner_Bound
-         and Quantifier_Domain = Inner_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
-
-ML\<open> structure Eval_Outer_Quantifier = from_Bound_to_Quantifier
-  (structure Eval_Bound        = Eval_Outer_Bound
-         and Quantifier_Domain = Outer_Quantifier_Domain): EVAL_QUANTIFIER; \<close>
-
-ML\<open> structure Eval_Inner_Multiple = from_Quantifier_to_Multi_Arity (Eval_Inner_Quantifier): EVAL_MULTI_ARITY; \<close>
-ML\<open> structure Eval_Outer_Multiple = from_Quantifier_to_Multi_Arity (Eval_Outer_Quantifier): EVAL_MULTI_ARITY; \<close>
-
-ML_file "src/Interpreter/Eval_Deep.ML"
 ML_file "src/Interpreter/Eval_Variable.ML"
 
 ML_file "src/Interpreter/Eval_Surface.ML"
