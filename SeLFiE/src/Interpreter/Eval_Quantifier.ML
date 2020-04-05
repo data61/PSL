@@ -15,6 +15,4 @@ datatype expr =
 
 val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
-(*val eval: term -> Proof.state -> expr -> expr;*)
-
 end;

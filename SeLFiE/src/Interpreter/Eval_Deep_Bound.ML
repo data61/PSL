@@ -1,11 +1,23 @@
-(*  Title:      PSL/SeLFeE/src/Interpreter/From_Parameter_With_Bool_To_Bound.ML
+(*  Title:      PSL/SeLFeE/src/Interpreter/Eval_Deep_Bound.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
-
-    This file contains signatures, structures, and functors to support lambda abstraction in SeLFiE.
-    The three functions (shift, subst, and eval) in this file are inspired by the functions of the 
-    same names found in "ML for the Working Programmer" written by Larry C. Paulson.
 *)
-functor from_Parameter_With_Bool_to_Bound (Eval_Parameter_With_Bool:EVAL_PARAMETER_WITH_BOOL): EVAL_BOUND =
+signature EVAL_DEEP_BOUND =
+sig
+
+datatype expr =
+  Bound      of int
+| Lambda     of expr
+| Apply      of expr * expr
+| Literal    of Eval_Parameter.literal
+| Assert     of SeLFiE_Util.assert * expr list
+| Dive_In    of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
+| Deep_Dive  of expr * expr * expr list(*outer target, inner lambda, outer arguments*);
+
+val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
+
+end;
+
+structure Eval_Deep_Bound: EVAL_DEEP_BOUND =
 struct
 
 structure EPWB = Eval_Parameter_With_Bool;
