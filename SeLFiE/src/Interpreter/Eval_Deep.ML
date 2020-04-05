@@ -79,7 +79,6 @@ fun move_in_parameter (Outer_Non_Path np) = Inner_Non_Path np
 fun move_out_parameter (Inner_Non_Path np) = Outer_Non_Path np
   | move_out_parameter (Inner_Path    _) = error "move_out_parameter in From_Multiple_To_Deep.ML failed. move_out_parameter is not defined for Inner_Path";
 
-
 type qtyps = SeLFiE_Util.qtyp list;
 
 datatype outer_expression =
@@ -136,6 +135,8 @@ fun go_away_outer_literal (Outer_Literal outer_param) = EOM.Literal (go_away_out
 fun go_away_inner_literal (Inner_Literal inner_param) = EIM.Literal (go_away_inner_parameter inner_param)
   | go_away_inner_literal  _  = error "go_away_outer_literal in From_Multiple_To_Deep.ML failed. go_away_outer_literal is defined only for Outer_Literal."
 
+local
+
 fun get_definitions_using_suffix (ctxt:Proof.context) (cname:string) (suffix:string) =
    try (Proof_Context.get_thms ctxt) (cname ^ "." ^ suffix)
 |> these
@@ -175,6 +176,8 @@ fun gen_path_to_definitions (pst:Proof.state) (term:term) path pst_n_term_n_path
     definitions:terms
   end;
 
+in
+
 fun outer_literal_to_definitions (pst:Proof.state) (term:term) (Outer_Literal (Outer_Path (outer_path))) =
     gen_path_to_definitions pst term outer_path Outer_Path_To_Unode.pst_n_term_n_path_to_cname
   | outer_literal_to_definitions _ _ _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal.";
@@ -182,6 +185,8 @@ fun outer_literal_to_definitions (pst:Proof.state) (term:term) (Outer_Literal (O
 fun inner_literal_to_definitions (pst:Proof.state) (term:term) (Inner_Literal (Inner_Path (inner_path))) =
     gen_path_to_definitions pst term inner_path Inner_Path_To_Unode.pst_n_term_n_path_to_cname
   | inner_literal_to_definitions  _ _ _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal.";
+
+end;
 
 fun eval_outer (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (outer_expression:outer_expression) (trm:term) =
   let

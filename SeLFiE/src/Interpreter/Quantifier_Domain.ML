@@ -77,8 +77,8 @@ fun qtyp_to_qdomain SU.QInner_Number pst trm _ = pst_n_trm_to_inner_numb_domain 
   | qtyp_to_qdomain SU.QOuter_Path   pst trm _ = mk_all_outer_paths pst trm |> map EP.Outer_Path
   | qtyp_to_qdomain SU.QInner_Print  pst trm _ = mk_all_inner_prints pst trm |> (fn list => (tracing ("qtyp_to_qdomain in Quantifier_Domain. The length of list is " ^ Int.toString (length list));list))|> map_Non_Path_Print
   | qtyp_to_qdomain SU.QOuter_Print  pst trm _ = mk_all_outer_prints pst trm |> (fn list => (tracing ("qtyp_to_qdomain in Quantifier_Domain. The length of list is " ^ Int.toString (length list));list))|> map_Non_Path_Print
-  | qtyp_to_qdomain SU.QInd        _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Non_Path_Print ons
-  | qtyp_to_qdomain SU.QArb        _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Non_Path_Print arbs
-  | qtyp_to_qdomain SU.QRule       _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) =  map_Non_Path_Print rules
+  | qtyp_to_qdomain SU.QInd  _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Non_Path_Print ons
+  | qtyp_to_qdomain SU.QArb  _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Non_Path_Print arbs
+  | qtyp_to_qdomain SU.QRule _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Non_Path_Print rules
 
 end;
