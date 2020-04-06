@@ -6,15 +6,17 @@ signature EVAL_DEEP_BOUND =
 sig
 
 datatype expr =
-  Bound      of int
-| Lambda     of expr
-| Apply      of expr * expr
-| Literal    of Eval_Parameter.literal
-| Assert     of SeLFiE_Util.assert * expr list
-| Dive_In    of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
-| Deep_Dive  of expr * expr * expr list(*outer target, inner lambda, outer arguments*);
+  Bound     of int
+| Lambda    of expr
+| Apply     of expr * expr
+| Literal   of Eval_Parameter.literal
+| Assert    of SeLFiE_Util.assert * expr list
+| Dive_In   of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
+| Deep_Dive of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
+| All       of SeLFiE_Util.qtyp * expr
+| Some      of SeLFiE_Util.qtyp * expr;
 
-val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
+val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
@@ -29,13 +31,15 @@ structure EP   = Eval_Parameter;
 type command = Pattern.command;
 
 datatype expr =
-  Bound      of int
-| Lambda     of expr
-| Apply      of expr * expr
-| Literal    of Eval_Parameter.literal
-| Assert     of SU.assert * expr list
-| Dive_In    of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
-| Deep_Dive  of expr * expr * expr list(*outer target, inner lambda, outer arguments*);
+  Bound     of int
+| Lambda    of expr
+| Apply     of expr * expr
+| Literal   of Eval_Parameter.literal
+| Assert    of SU.assert * expr list
+| Dive_In   of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
+| Deep_Dive of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
+| All       of SeLFiE_Util.qtyp * expr
+| Some      of SeLFiE_Util.qtyp * expr;
 
 local
 
@@ -97,7 +101,9 @@ fun shift 0 _ u                     = u
   | shift _ _ (Literal param)       = Literal param
   | shift i d (Assert (ass, exprs)) = Assert (ass, map (shift i d) exprs)
   | shift _ _ (Dive_In _)           = error "shift is not defined for Dive_In"
-  | shift _ _ (Deep_Dive _)         = error "shift is not defined for Deep_Dive";
+  | shift _ _ (Deep_Dive _)         = error "shift is not defined for Deep_Dive"
+  | shift _ _ (All _)               = error "shift is not defined for All"
+  | shift _ _ (Some _)              = error "shift is not defined for Some";
 
 fun subst i u (Bound j) =
       if      j < i then Bound j (*locally bound*)
@@ -108,7 +114,9 @@ fun subst i u (Bound j) =
   | subst _ _ (Literal param)       = Literal param
   | subst i u (Assert (ass, exprs)) = Assert (ass, map (subst i u) exprs)
   | subst _ _ (Dive_In _)           = error "subst is not defined for Dive_In"
-  | subst _ _ (Deep_Dive _)         = error "subst is not defined for Deep_Dive";
+  | subst _ _ (Deep_Dive _)         = error "subst is not defined for Deep_Dive"
+  | subst _ _ (All _)               = error "subst is not defined for All"
+  | subst _ _ (Some _)              = error "subst is not defined for Some";
 
 fun print_expr (Bound i)            = "B.Bound " ^ Int.toString i
   | print_expr (Lambda expr)        = "B.Lambda (" ^ print_expr expr ^ " )"
@@ -124,6 +132,8 @@ fun print_expr (Bound i)            = "B.Bound " ^ Int.toString i
   | print_expr (Assert (_, expres)) = "B.Assert " ^ (fold (curry (op ^)) (map print_expr expres) "")
   | print_expr (Dive_In   (target, lambda, args)) = "B.Dive_In ( "   ^ print_expr target ^ ", " ^ print_expr lambda ^ ", " ^ (String.concat o map print_expr) args ^ ")"
   | print_expr (Deep_Dive (target, lambda, args)) = "B.Deep_Dive ( " ^ print_expr target ^ ", " ^ print_expr lambda ^ ", " ^ (String.concat o map print_expr) args ^ ")"
+  | print_expr (All (_, expr)) = "B.All ( " ^ print_expr expr ^ " )"
+  | print_expr (Some (_, expr)) = "B.All ( " ^ print_expr expr ^ " )";
 
 fun param_with_bool_to_bound (Literal param) = param
   | param_with_bool_to_bound  expr           =
@@ -149,34 +159,41 @@ fun mk_inner_expr (lamb as Lambda _) (arguments:expr list) =
     mk_nested_app (mk_nested_lamb lamb (length arguments)) arguments
   | mk_inner_expr _ _ = error "mk_inner_expr failed!"
 
-fun eval (trm:term) (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
+fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
   let
+    fun subexpr_n_qtyp_to_apps (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) (trm:term) =
+      let
+        val params = Quantifier_Domain.qtyp_to_qdomain qtyp pst trm induct_args    : Eval_Parameter.literals;
+        val apps   = map (fn param => Apply (Lambda subexpr, Literal param)) params: expr list;
+      in
+        Assert (ands_or_ors, apps): expr
+      end;
+    val thm      = Isabelle_Utils.proof_state_to_thm pst: thm;
+    val thm_term = Thm.prop_of thm                      : term;
     fun tracing' mssg = if true then () else tracing mssg;
-    fun eval' (Apply (trm1, trm2)) _ =
-         (case eval' trm1 trm of
-          Lambda  u => (tracing' "LAMBDA";  eval' (subst 0 (eval' trm2 trm) u) trm)
+    fun eval' (Apply (func, arg)) term =
+         (case eval' func term of
+          Lambda  u => (tracing' "LAMBDA";  eval' (subst 0 (eval' arg term) u) term)
         | Literal l => (tracing' "LITERAL"; Literal l)
         | Bound   i => (tracing' "BOUND";   Bound i)
         | Dive_In t => (tracing' "Deep";    Dive_In t)
         | Deep_Dive t => (tracing' "Deep";  Deep_Dive t)
         | u1        => (tracing' ("Apply in Apply" ^
                        (case u1 of _  =>  " with something"));
-                       Apply (u1, eval' trm2 trm)))
-      | eval' (Assert (assert, param_exprs)) _ =
+                       Apply (u1, eval' arg term)))
+      | eval' (Assert (assert, param_exprs)) term =
           let
             (* Note that param_exprs are always Literal at this point
              * because the evaluation function in From_Bound_To_Quantifier evaluated
              * param_exprs eagerly.*)
-(*
-            val _ = tracing (print_expr (Assert (assert, param_exprs)));
-            val _ = map (tracing o print_expr) param_exprs;
-*)
-            val params = map (param_with_bool_to_bound o (fn param => eval' param trm)) param_exprs;
+            val params = map (param_with_bool_to_bound o (fn param => eval' param term)) param_exprs;
           in
-            EPWB.eval trm pst induct_args assert params |> Literal
+            EPWB.eval term pst induct_args assert params |> Literal
           end
-      | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) trm = dive triple trm outer_literal_to_definitions
-      | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) trm = dive triple trm inner_literal_to_definitions
+      | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) term = dive triple term outer_literal_to_definitions
+      | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) term = dive triple term inner_literal_to_definitions
+      | eval' (All  (qtyp, subexpr)) term  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands term) term
+      | eval' (Some (qtyp, subexpr)) term  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors  term) term
       | eval' expr _ = expr
     and dive (Literal path, Lambda lambda, args) trm (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) =
         let
@@ -191,7 +208,7 @@ fun eval (trm:term) (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:ex
         end
       | dive _ _ _ = error "dive failed."
   in
-    eval' expr trm
+    eval' expr thm_term
   end;
 
 end;

@@ -51,12 +51,9 @@ ML_file "src/Interpreter/Eval_Path.ML"
 ML_file "src/Interpreter/Eval_Induct_Argument.ML"
 ML_file "src/Interpreter/Eval_Parameter.ML"
 ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
-ML_file "src/Interpreter/Eval_Deep_Bound.ML"
-
 ML_file "src/Interpreter/Quantifier_Domain.ML"
-ML_file "src/Interpreter/Eval_Quantifier.ML"
+ML_file "src/Interpreter/Eval_Unary.ML"
 ML_file "src/Interpreter/Eval_Multi_Arity.ML"
-
 ML_file "src/Interpreter/Eval_Variable.ML"
 
 ML_file "src/Interpreter/Eval_Surface.ML"
