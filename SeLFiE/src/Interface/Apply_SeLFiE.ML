@@ -79,8 +79,8 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_m
       in
         SU.Induct_Arguments {ons = clean_ons, arbs = clean_arbs, rules = clean_rules}: SU.induct_arguments
       end;
-    fun bool_to_ES_assert (true :bool) = ES.True
-      | bool_to_ES_assert (false:bool) = ES.False;
+    fun bool_to_ES_assert (true :bool) = ESS.True
+      | bool_to_ES_assert (false:bool) = ESS.False;
     fun run_test (assrt:ESS.assert) (pst:Proof.state) (ind_mods:SU.induct_arguments) =
         ESS.eval pst (mk_clean_mods ind_mods) assrt = bool_to_ES_assert should_b_true_or_false;
     val _ = @{assert} (

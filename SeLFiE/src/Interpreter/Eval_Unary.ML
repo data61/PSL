@@ -2,7 +2,7 @@
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
 (*** EVAL_DEEP_BOUND ***)
-signature EVAL_DEEP_BOUND =
+signature EVAL_UNARY =
 sig
 
 datatype expr =
@@ -21,7 +21,7 @@ val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 end;
 
 (*** Eval_Deep_Bound ***)
-structure Eval_Deep_Bound: EVAL_DEEP_BOUND =
+structure Eval_Unary: EVAL_UNARY =
 struct
 
 structure EPWB = Eval_Parameter_With_Bool;
@@ -109,14 +109,14 @@ fun subst i u (Bound j) =
       if      j < i then Bound j (*locally bound*)
       else if j = i then shift i 0 u
       else               Bound (j-1)
-  | subst i u (Lambda t)            = Lambda (subst (i+1) u t)
-  | subst i u (Apply (t1, t2))      = Apply (subst i u t1, subst i u t2)
-  | subst _ _ (Literal param)       = Literal param
-  | subst i u (Assert (ass, exprs)) = Assert (ass, map (subst i u) exprs)
-  | subst _ _ (Dive_In _)           = error "subst is not defined for Dive_In"
-  | subst _ _ (Deep_Dive _)         = error "subst is not defined for Deep_Dive"
-  | subst _ _ (All _)               = error "subst is not defined for All"
-  | subst _ _ (Some _)              = error "subst is not defined for Some";
+  | subst i u (Lambda t)               = Lambda (subst (i+1) u t)
+  | subst i u (Apply (t1, t2))         = Apply (subst i u t1, subst i u t2)
+  | subst _ _ (Literal param)          = Literal param
+  | subst i u (Assert (ass, exprs))    = Assert (ass, map (subst i u) exprs)
+  | subst i u (Dive_In   (t, l, args)) = Dive_In   (subst i u t, subst i u l, map (subst i u) args)
+  | subst i u (Deep_Dive (t, l, args)) = Deep_Dive (subst i u t, subst i u l, map (subst i u) args)
+  | subst i u (All  (typ, expr))       = All  (typ, subst i u expr)
+  | subst i u (Some (typ, expr))       = Some (typ, subst i u expr)
 
 fun print_expr (Bound i)            = "B.Bound " ^ Int.toString i
   | print_expr (Lambda expr)        = "B.Lambda (" ^ print_expr expr ^ " )"

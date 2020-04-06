@@ -5,6 +5,8 @@
 signature EVAL_SYNTACTIC_SUGAR =
 sig
 
+datatype out_or_in = Out | Inn;
+
 datatype assert =
 (*bool*)
   True
@@ -33,7 +35,7 @@ datatype assert =
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
-| Are_Same_Prints   of assert * assert
+| Are_Same_Prints of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -52,8 +54,8 @@ datatype assert =
 | Applies             of assert  * assert list
 | All                 of string * SeLFiE_Util.qtyp * assert
 | Some                of string * SeLFiE_Util.qtyp * assert
-| In_All_Definitions  of (assert * assert * assert list)
-| In_Some_Definitions of (assert * assert * assert list)
+| In_All_Definitions  of assert * assert * assert list
+| In_Some_Definitions of assert * assert * assert list
 | Outermost           of assert
 (*Syntactic Sugar*)
 | Is_Atomic                          of assert
@@ -72,13 +74,15 @@ datatype assert =
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert;
 
-val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> Eval_Surface.assert;
+val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
 end;
 
 (*** Eval_Syntactic_Sugar ***)
 structure Eval_Syntactic_Sugar: EVAL_SYNTACTIC_SUGAR =
 struct
+
+datatype out_or_in = Out | Inn;
 
 datatype assert =
 (*bool*)
@@ -127,8 +131,8 @@ datatype assert =
 | Applies             of assert  * assert list
 | All                 of string * SeLFiE_Util.qtyp * assert
 | Some                of string * SeLFiE_Util.qtyp * assert
-| In_All_Definitions  of (assert * assert * assert list)
-| In_Some_Definitions of (assert * assert * assert list)
+| In_All_Definitions  of assert * assert * assert list
+| In_Some_Definitions of assert * assert * assert list
 | Outermost           of assert
 (*Syntactic Sugar*)
 | Is_Atomic                          of assert
@@ -159,108 +163,110 @@ val get_new_name = get_new_name' "";
 
 infix And Or Imply Is_In_Nth_Subgoal Is_In_Nth_Chained_Fact;
 
-fun convert_pair pair = Utils.map_pair convert pair
-and convert_list list = map convert list
+fun convert_pair loc pair = Utils.map_pair (convert loc) pair
+and convert_list loc list = map (convert loc) list
 and
   (*bool*)
-    convert  True                    = ES.True
-  | convert  False                   = ES.False
-  | convert (Not    ass)             = ES.Not   (convert       ass)
-  | convert (ass1 And ass2)          = ES.And   (convert_pair (ass1, ass2))
-  | convert (ass1 Or ass2)           = ES.Or    (convert_pair (ass1, ass2))
-  | convert (Nor   pair)             = ES.Nor   (convert_pair pair)
-  | convert (prem Imply concl)             = ES.Imply (convert_pair (prem, concl))
-  | convert (Ands  list)             = ES.Ands  (convert_list list)
-  | convert (Ors   list)             = ES.Ors   (convert_list list)
+    convert _    True              = ES.True
+  | convert _    False             = ES.False
+  | convert loc (Not    ass)       = ES.Not   (convert loc ass)
+  | convert loc (ass1 And ass2)    = ES.And   (convert_pair loc (ass1, ass2))
+  | convert loc (ass1 Or ass2)     = ES.Or    (convert_pair loc (ass1, ass2))
+  | convert loc (Nor   pair)       = ES.Nor   (convert_pair loc pair)
+  | convert loc (prem Imply concl) = ES.Imply (convert_pair loc (prem, concl))
+  | convert loc (Ands  list)       = ES.Ands  (convert_list loc list)
+  | convert loc (Ors   list)       = ES.Ors   (convert_list loc list)
   (*Eval_Node*)
-  | convert (Is_Cnst   ass)          = ES.Is_Cnst   (convert ass)
-  | convert (Is_Free   ass)          = ES.Is_Free   (convert ass)
-  | convert (Is_Var    ass)          = ES.Is_Var    (convert ass)
-  | convert (Is_Bound  ass)          = ES.Is_Bound  (convert ass)
-  | convert (Is_Lambda ass)          = ES.Is_Lambda (convert ass)
-  | convert (Is_App    ass)          = ES.Is_App (convert ass)
+  | convert loc (Is_Cnst   ass) = ES.Is_Cnst   (convert loc ass)
+  | convert loc (Is_Free   ass) = ES.Is_Free   (convert loc ass)
+  | convert loc (Is_Var    ass) = ES.Is_Var    (convert loc ass)
+  | convert loc (Is_Bound  ass) = ES.Is_Bound  (convert loc ass)
+  | convert loc (Is_Lambda ass) = ES.Is_Lambda (convert loc ass)
+  | convert loc (Is_App    ass) = ES.Is_App    (convert loc ass)
   (*Eval_Unode*)
-  | convert (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair pair)
-  | convert (Is_In_Trm_Prnt         pair) = ES.Is_In_Trm_Prnt         (convert_pair pair)
-  | convert (Is_Deeper_Than         pair) = ES.Is_Deeper_Than         (convert_pair pair)
-  | convert (Is_Shallower_Than      pair) = ES.Is_Shallower_Than      (convert_pair pair)
-  | convert (Is_Path_Above          pair) = ES.Is_Path_Above          (convert_pair pair)
-  | convert (Is_Same_Path_As        pair) = ES.Is_Same_Path_As        (convert_pair pair)
-  | convert (Is_Nth_Child           pair) = ES.Is_Nth_Child           (convert_pair pair)
-  | convert (Is_N_Plus_One_th_Child pair) = ES.Is_N_Plus_One_th_Child (convert_pair pair)
+  | convert loc (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
+  | convert loc (Is_In_Trm_Prnt         pair) = ES.Is_In_Trm_Prnt         (convert_pair loc pair)
+  | convert loc (Is_Deeper_Than         pair) = ES.Is_Deeper_Than         (convert_pair loc pair)
+  | convert loc (Is_Shallower_Than      pair) = ES.Is_Shallower_Than      (convert_pair loc pair)
+  | convert loc (Is_Path_Above          pair) = ES.Is_Path_Above          (convert_pair loc pair)
+  | convert loc (Is_Same_Path_As        pair) = ES.Is_Same_Path_As        (convert_pair loc pair)
+  | convert loc (Is_Nth_Child           pair) = ES.Is_Nth_Child           (convert_pair loc pair)
+  | convert loc (Is_N_Plus_One_th_Child pair) = ES.Is_N_Plus_One_th_Child (convert_pair loc pair)
   (*Eval_Prnt*)
-  | convert (Are_Same_Prints   pair) = ES.Are_Same_Prints   (convert_pair pair)
+  | convert loc (Are_Same_Prints pair) = ES.Are_Same_Prints (convert_pair loc pair)
   (*Eval_Path*)
-  | convert (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair pair)
-  | convert (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert ass)
-  | convert (Is_In_Chained_Fact         ass)  = ES.Is_In_Chained_Fact     (convert ass)
-  | convert (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair (ass, numb))
-  | convert (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair (ass, numb))
+  | convert loc (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair loc pair)
+  | convert loc (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert loc ass)
+  | convert loc (Is_In_Chained_Fact         ass)  = ES.Is_In_Chained_Fact     (convert loc ass)
+  | convert loc (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair loc (ass, numb))
+  | convert loc (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair loc (ass, numb))
   (*Eval_Number*)
-  | convert (Are_Same_Number   pair) = ES.Are_Same_Number   (convert_pair pair)
-  | convert (Is_Less_Than      pair) = ES.Is_Less_Than      (convert_pair pair)
+  | convert loc (Are_Same_Number pair) = ES.Are_Same_Number (convert_pair loc pair)
+  | convert loc (Is_Less_Than    pair) = ES.Is_Less_Than    (convert_pair loc pair)
   (*Parameter*)
-  | convert (Print           string) = ES.Print string
-  | convert (Number             int) = ES.Number int
+  | convert _ (Print  string) = ES.Print string
+  | convert _ (Number    int) = ES.Number int
   (*expr*)
-  | convert (Variable        string) = ES.Variable string
-  | convert (Lambdas (strings, ass)) = ES.Lambdas (strings, convert ass)
-  | convert (Applies   (func, args)) = ES.Applies (convert func, convert_list args)
-  | convert (All    (vname, typ, assert)) = ES.All  (vname, typ, convert assert)
-  | convert (Some   (vname, typ, assert)) = ES.Some (vname, typ, convert assert)
-  | convert (In_All_Definitions  (target, inner_fun, outer_args)) =
-      ES.In_All_Definitions  (convert target, convert inner_fun, convert_list outer_args)
-  | convert (Outermost assert)       = ES.Outermost (convert assert)
+  | convert _   (Variable        string) = ES.Variable string
+  | convert loc (Lambdas (strings, ass)) = ES.Lambdas (strings, convert loc ass)
+  | convert loc (Applies   (func, args)) = ES.Applies (convert loc func, convert_list loc args)
+  | convert loc (All    (vname, typ, assert)) = ES.All  (vname, typ, convert loc assert)
+  | convert loc (Some   (vname, typ, assert)) = ES.Some (vname, typ, convert loc assert)
+  | convert Out (In_All_Definitions (target, inner_fun, outer_args)) = ES.Dive_In   (convert Out target, convert Inn inner_fun, convert_list Out outer_args)
+  | convert Inn (In_All_Definitions (target, inner_fun, outer_args)) = ES.Deep_Dive (convert Inn target, convert Inn inner_fun, convert_list Inn outer_args)
   (*syntax sugar*)
-  | convert (In_Some_Definitions (target, Lambdas (strings, ass), outer_args)) =
-    convert (Not (In_All_Definitions (target, Lambdas (strings, Not ass), outer_args)))
-  | convert (In_Some_Definitions _) = error "convert in Eval_Syntactic_Sugar.ML failed at In_Some_Definitions"
-  | convert (Is_Atomic assert) =
-    convert
+  | convert Out (In_Some_Definitions (target, Lambdas (strings, ass), outer_args)) = convert Out (Not (In_All_Definitions (target, Lambdas (strings, Not ass), outer_args)))
+  | convert In  (In_Some_Definitions (target, Lambdas (strings, ass), outer_args)) = convert In  (Not (In_All_Definitions (target, Lambdas (strings, Not ass), outer_args)))
+  | convert _   (In_Some_Definitions _) = error "convert in Eval_Syntactic_Sugar.ML failed at In_Some_Definitions"
+  | convert loc (Is_Atomic assert) =
+    convert loc
      (Ors
        [Is_Cnst  assert,
         Is_Free  assert,
         Is_Var   assert,
         Is_Bound assert])
-  | convert (Is_Path_Below (descendent, anscestor)) = convert (Is_Path_Above (anscestor, descendent))
-  | convert (Is_Parent_Of (parent, child)) =
+  | convert loc (Is_Path_Below (descendent, anscestor)) = convert loc (Is_Path_Above (anscestor, descendent))
+  | convert loc (Is_Parent_Of (parent, child)) =
     let
       val non_exist = get_new_name [parent, child];
+      val path_typ  = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
-      convert(
+      convert loc (
           Is_Path_Above (parent, child)
         And
           Not
-           (Some (non_exist, SeLFiE_Util.QFull_Path,
+           (Some (non_exist, path_typ,
                 Is_Path_Above (Variable non_exist, child)
               And
                 Is_Path_Below (Variable non_exist, parent))))
     end
-  | convert (Is_Child_Of (child, parent)) = convert (Is_Parent_Of (parent, child))
-  | convert (Is_Nth_Child_Of (child, number, parent)) =
-    convert
+  | convert loc (Is_Child_Of (child, parent))             = convert loc (Is_Parent_Of (parent, child))
+  | convert loc (Is_Nth_Child_Of (child, number, parent)) =
+    convert loc
       (Ands
          [Is_Parent_Of (parent, child),
           Is_Nth_Child (number, child)])
-  | convert (Is_Nth_Child_Or_Below_Nth_Child_Of (child_or_in_child, number, parent)) =
+  | convert loc (Is_Nth_Child_Or_Below_Nth_Child_Of (child_or_in_child, number, parent)) =
     let
       val nth_child_str = get_new_name [child_or_in_child, number, parent]: string;
       val nth_child     = Variable nth_child_str                          : assert;
+      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
-      convert
+      convert loc
         (Ors
           [Is_Nth_Child_Of (child_or_in_child, number, parent),
-           Some (nth_child_str, SU.QFull_Path,
+           Some (nth_child_str, path_typ,
              Is_Path_Below (child_or_in_child, nth_child))
            ])
     end
-  | convert (Is_An_Arg_Of (arg, func)) =
+  | convert loc (Is_An_Arg_Of (arg, func)) =
     let
       val func_app_str = get_new_name [func,arg]: string;
       val func_app     = Variable func_app_str  : assert;
+      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
-      convert
-       (Some (func_app_str, SU.QFull_Path,
+      convert loc
+       (Some (func_app_str, path_typ,
           Ands
            [Is_Parent_Of (func_app, func),
             Is_Nth_Child (Number 0, func_app),
@@ -268,14 +274,15 @@ and
             Not (Is_Nth_Child (func_app, Number 0)),
             Is_App func_app]))
     end
-  | convert (Is_Nth_Arg_Of (arg, number, func)) =
+  | convert loc (Is_Nth_Arg_Of (arg, number, func)) =
     let
       val func_app_str = get_new_name [func, number, arg]: string;
       val func_app     = Variable func_app_str           : assert;
+      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
      (*Note helper to define futrm_w_prnt_to_futrm_w_prnt_n_inner_path in Unique_Node.ML*)
-      convert
-       (Some (func_app_str, SU.QFull_Path,
+      convert loc
+       (Some (func_app_str, path_typ,
           Ands
            [Is_Parent_Of (func_app, func),
             Is_Nth_Child (Number 0, func_app),
@@ -283,26 +290,28 @@ and
             Is_N_Plus_One_th_Child (arg, number),
             Is_App func_app]))
     end
-  | convert (Is_Nth_Arg_Or_Below_Nth_Arg_Of (arg_or_in_arg, number, func)) =
+  | convert loc (Is_Nth_Arg_Or_Below_Nth_Arg_Of (arg_or_in_arg, number, func)) =
     let
       val nth_arg_str = get_new_name [func, number, arg_or_in_arg]: string;
       val nth_arg     = Variable nth_arg_str                      : assert;
+      val path_typ    = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
-      convert
+      convert loc
        (Ors
          [Is_Nth_Arg_Of (func, number, arg_or_in_arg),
-          Some (nth_arg_str, SU.QFull_Path,
+          Some (nth_arg_str, path_typ,
             Ands
               [Is_Nth_Arg_Of (func, number, nth_arg),
                Is_Path_Above (nth_arg, arg_or_in_arg)])])
     end
-  | convert (Are_In_Same_Location (ass1, ass2)) =
+  | convert loc (Are_In_Same_Location (ass1, ass2)) =
     let
       val non_exist_str = get_new_name [ass1, ass2] : string;
       val non_exist     = Variable non_exist_str: assert;
+      val numb_typ      = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number;
     in
-      convert
-        (Some (non_exist_str, SU.QNumber,
+      convert loc
+        (Some (non_exist_str, numb_typ,
              ((non_exist Is_In_Nth_Subgoal ass1)
              And
               (non_exist Is_In_Nth_Subgoal ass2))
@@ -311,31 +320,40 @@ and
              And
               (non_exist Is_In_Nth_Chained_Fact ass2))))
     end
-  | convert (Is_Deeper_Than_In_Same_Location (deep, shallow)) =
-    convert
+  | convert loc (Is_Deeper_Than_In_Same_Location (deep, shallow)) =
+    convert loc
        (Are_In_Same_Location (deep, shallow)
       And
         Is_Deeper_Than (deep, shallow))
-  | convert (Is_Shallower_Than_In_Same_Location (shallow, deep)) = convert (Is_Deeper_Than_In_Same_Location (deep, shallow))
-  | convert (Is_At_Deepest_In_A_Location assert) =
+  | convert loc (Is_Shallower_Than_In_Same_Location (shallow, deep)) = convert loc (Is_Deeper_Than_In_Same_Location (deep, shallow))
+  | convert loc (Is_At_Deepest_In_A_Location assert) =
     let
       val non_exist_str = get_new_name [assert] : string;
       val non_exist     = Variable non_exist_str: assert;
+      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
-      convert
+      convert loc
         (Not
-          (Some (non_exist_str, SU.QFull_Path,
+          (Some (non_exist_str, path_typ,
             Is_Deeper_Than_In_Same_Location (non_exist, assert))))
     end
-  | convert (Some_Of (occ:string, prnt:assert, inner_assert)) =
-    convert
-     (Some (occ, SU.QFull_Path,
-          Unode_Has_Print (Variable occ, prnt)
-        And
-          inner_assert))
-  | convert (All_Of (occ, prnt, inner_assert)) = convert (Not (Some_Of (occ, prnt, Not inner_assert)))
+  | convert loc (Some_Of (occ:string, prnt:assert, inner_assert)) =
+    let
+      val path_typ = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+    in
+      convert loc
+       (Some (occ, path_typ,
+            Unode_Has_Print (Variable occ, prnt)
+          And
+            inner_assert))
+    end
+  | convert loc (All_Of (occ, prnt, inner_assert)) = convert loc (Not (Some_Of (occ, prnt, Not inner_assert)))
+
+fun surf_to_sugar ES.True  = True
+  | surf_to_sugar ES.False = False
+  | surf_to_sugar _ = error "surf_to_sugar failed."
 
 fun eval (pst:Proof.state) (ind_args:SU.induct_arguments) (assert:assert) =
-    ES.eval pst ind_args (convert assert);
+    ES.eval pst ind_args (convert Out assert) |> surf_to_sugar;
 
 end;

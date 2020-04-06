@@ -95,8 +95,10 @@ primrec rev :: "'a list \<Rightarrow> 'a list" where
 
 ML\<open>(*test*)
 local
-open Eval_Outer_Bound;
+open Eval_Parameter;
+open Eval_Unary;
 open SeLFiE_Util;
+
 val t = Literal (Non_Path (Bool true));
 val f = Literal (Non_Path (Bool false));
 in
@@ -109,11 +111,9 @@ val expr =
    f),
   t);
 
-val result1 = eval @{term "True"} (Proof.init @{context}) 
+val result1 = eval (Proof.init @{context}) 
   (SeLFiE_Util.Induct_Arguments {ons=[], arbs=[], rules=[]}) expr
 end;
-
-fold 
 \<close>
 
 lemma "itrev xs ys = rev xs @ ys"
