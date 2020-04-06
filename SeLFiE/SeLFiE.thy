@@ -55,8 +55,8 @@ ML_file "src/Interpreter/Quantifier_Domain.ML"
 ML_file "src/Interpreter/Eval_Unary.ML"
 ML_file "src/Interpreter/Eval_Multi_Arity.ML"
 ML_file "src/Interpreter/Eval_Variable.ML"
-
 ML_file "src/Interpreter/Eval_Surface.ML"
+
 ML_file "src/Interpreter/Eval_Syntactic_Sugar.ML"
 ML_file "src/Interface/Apply_SeLFiE.ML"
 
