@@ -72,7 +72,7 @@ val heuristic_8 =
 val heuristic_8 =
  Applies (
   Lambdas (["x"], 
-           Unode_Has_Print (Variable "x", Print "SeLFiE.itrev")),
+           Are_Same_Prints (Variable "x", Print "SeLFiE.itrev")),
   [Print "SeLFiE.itrev"]);
 (*
 Outermost (

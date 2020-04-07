@@ -80,12 +80,18 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Is_Path_Above     [Inner_Path p1, Inner_Path p2]       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Path_Above     (p1, p2)))
       | eval' SU.Is_Same_Path_As   [Inner_Path p1, Inner_Path p2]       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Same_Path_As   (p1, p2)))
       | eval' SU.Is_Nth_Child      [Inner_Path p,  Non_Path (Number n)] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Nth_Child      (p,  n )))
-      (*Eval_Path*)
+      (*Eval_Path (Outer)*)
       | eval' SU.Unode_Has_Print        [Outer_Path p, Non_Path (Print str)] = EPT.eval trm pst (EPT.Outer_Assert (PA.Unode_Has_Print        (p, str)))
       | eval' SU.Is_In_Subgoal          [Outer_Path p]                       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Subgoal           p    ))
       | eval' SU.Is_In_Chained_Fact     [Outer_Path p]                       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Chained_Fact      p    ))
       | eval' SU.Is_In_Nth_Subgoal      [Outer_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Nth_Subgoal      (p, n)))
       | eval' SU.Is_In_Nth_Chained_Fact [Outer_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Nth_Chained_Fact (p, n)))
+      (*Eval_Path (Inner)*)
+      | eval' SU.Unode_Has_Print        [Inner_Path p, Non_Path (Print str)] = EPT.eval trm pst (EPT.Inner_Assert (PA.Unode_Has_Print        (p, str)))
+      | eval' SU.Is_In_Subgoal          [Inner_Path p]                       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Subgoal           p    ))
+      | eval' SU.Is_In_Chained_Fact     [Inner_Path p]                       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Chained_Fact      p    ))
+      | eval' SU.Is_In_Nth_Subgoal      [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Subgoal      (p, n)))
+      | eval' SU.Is_In_Nth_Chained_Fact [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Chained_Fact (p, n)))
       (*Eval_Print*)
       | eval' SU.Are_Same_Prints [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2))
       (*Eval_Number*)
@@ -97,7 +103,7 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Is_Induct        [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Induct p)             induct_args
       | eval' SU.Is_Arbitrary     [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Arbitrary p)          induct_args
       | eval' SU.Is_Rule          [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Rule p)               induct_args
-      | eval' assert _ = error ("eval' in From_Path_to_Parameter.ML failed at " ^ SU.print_atomic_assert assert);
+      | eval' assert _ = error ("- eval' in From_Path_to_Parameter.ML failed at " ^ SU.print_atomic_assert assert);
   in
     eval' assert literals: Eval_Bool.assert
   end;

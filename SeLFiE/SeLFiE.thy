@@ -93,29 +93,6 @@ primrec rev :: "'a list \<Rightarrow> 'a list" where
   "itrev (x#xs) ys = itrev xs (x#ys)"
  print_theorems
 
-ML\<open>(*test*)
-local
-open Eval_Parameter;
-open Eval_Unary;
-open SeLFiE_Util;
-
-val t = Literal (Non_Path (Bool true));
-val f = Literal (Non_Path (Bool false));
-in
-
-val expr =
- Apply (
-  Apply (
-   Lambda (
-    Lambda (Bound 0)),
-   f),
-  t);
-
-val result1 = eval (Proof.init @{context}) 
-  (SeLFiE_Util.Induct_Arguments {ons=[], arbs=[], rules=[]}) expr
-end;
-\<close>
-
 lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE heuristic_1 [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_2 [on["xs"], arb["ys"],rule[]]
