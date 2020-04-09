@@ -11,6 +11,7 @@ sig
 (** type and operation about command **)
 datatype command = Definition | Fun | Function | Inductive | Primrec | Unknown;
 val  get_command : Proof.context -> string -> command;
+val print_command: command -> string;
 
 end;
 
@@ -65,5 +66,10 @@ fun get_command (ctxt:Proof.context) (trm_name:string) =
      if checks = [false, false, false, false, true ] then Definition else
      Unknown)
   end;
+
+fun print_command Fun       = "Fun"
+  | print_command Function  = "Function"
+  | print_command Inductive = "Inductive"
+  | print_command Primrec   = "Primrec"
 
 end;

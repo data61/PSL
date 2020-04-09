@@ -106,12 +106,12 @@ val futrm_w_prnt_to_futrm_w_prnt_n_inner_path: futrm_w_prnt -> futrm_w_prnt_n_in
 
 (* node: un-curried folded term without string. This constitutes a part of unode (unique_node). *)
 datatype node =
-  NC of (string    * typ) (*Const*)
-| NF of (string    * typ) (*Free*)
-| NV of (indexname * typ) (*Var*)
-| NB of (int       * typ) (*Bound*)
-| NL of (string    * typ) (*Abs (Lambda Abstraction)*)
-| NA                      (*$   (Application)*)
+  NC of (string    * typ * Pattern.command) (*Const*)
+| NF of (string    * typ)                   (*Free*)
+| NV of (indexname * typ)                   (*Var*)
+| NB of (int       * typ)                   (*Bound*)
+| NL of (string    * typ)                   (*Abs (Lambda Abstraction)*)
+| NA                                        (*$   (Application)*)
 
 datatype node_typ = Node_Typ_NC | Node_Typ_NF | Node_Typ_NV | Node_Typ_NB | Node_Typ_NL | Node_Typ_NA;
 
@@ -121,8 +121,9 @@ val is_NV: node -> bool;
 val is_NB: node -> bool;
 val is_NL: node -> bool;
 val is_NA: node -> bool;
+val is_defined_by: node -> Pattern.command -> bool;
 
-val dest_NC: node -> (string    * typ) option;
+val dest_NC: node -> (string    * typ * Pattern.command) option;
 val dest_NF: node -> (string    * typ) option;
 val dest_NV: node -> (indexname * typ) option;
 val dest_NB: node -> (int       * typ) option;
@@ -146,8 +147,8 @@ val is_nth_child  : unode -> int option;
 (* unodes *)
 type unodes = unode list;
 
-(* futrm_w_prnt_n_inner_path_to_unodes *)
-val futrm_w_prnt_n_inner_path_to_unodes: futrm_w_prnt_n_inner_path -> unodes;
+(* futrm_w_prnt_n_inner_path_n_ctxt_to_unodes *)
+val futrm_w_prnt_n_inner_path_n_ctxt_to_unodes: futrm_w_prnt_n_inner_path -> Proof.context -> unodes;
 
 end;
 
@@ -403,12 +404,12 @@ end;
 
 (** term as Table  **)
 datatype node =
-  NC of (string    * typ) (*Const*)
-| NF of (string    * typ) (*Free*)
-| NV of (indexname * typ) (*Var*)
-| NB of (int       * typ) (*Bound*)
-| NL of (string    * typ) (*Abs (Lambda Abstraction)*)
-| NA                      (*$   (Application)*)
+  NC of (string    * typ * Pattern.command) (*Const*)
+| NF of (string    * typ)                   (*Free*)
+| NV of (indexname * typ)                   (*Var*)
+| NB of (int       * typ)                   (*Bound*)
+| NL of (string    * typ)                   (*Abs (Lambda Abstraction)*)
+| NA                                        (*$   (Application)*)
 
 datatype node_typ = Node_Typ_NC | Node_Typ_NF | Node_Typ_NV | Node_Typ_NB | Node_Typ_NL | Node_Typ_NA;
 
@@ -419,22 +420,30 @@ fun is_NB (NB _) = true | is_NB _ = false;
 fun is_NL (NL _) = true | is_NL _ = false;
 fun is_NA (NA  ) = true | is_NA _ = false;
 
-fun dest_NC (NC (name, typ)) = SOME (name, typ)
-  | dest_NC  _               = NONE;
-fun dest_NF (NF (name, typ)) = SOME (name, typ)
-  | dest_NF  _               = NONE;
-fun dest_NV (NV (name, typ)) = SOME (name, typ)
-  | dest_NV  _               = NONE;
-fun dest_NB (NB (int,  typ)) = SOME (int,  typ)
-  | dest_NB  _               = NONE;
-fun dest_NL (NL (name, typ)) = SOME (name, typ)
-  | dest_NL  _               = NONE;
+fun is_defined_by (NC (_,_,Pattern.Definition)) Pattern.Definition = true
+  | is_defined_by (NC (_,_,Pattern.Fun       )) Pattern.Fun = true
+  | is_defined_by (NC (_,_,Pattern.Function  )) Pattern.Function = true
+  | is_defined_by (NC (_,_,Pattern.Inductive )) Pattern.Inductive = true
+  | is_defined_by (NC (_,_,Pattern.Primrec   )) Pattern.Primrec = true
+  | is_defined_by (NC (_,_,Pattern.Unknown   )) Pattern.Unknown = true
+  | is_defined_by _ _ = false;
 
-fun node_to_atoms_typ (NC (_, typ)) = SOME typ
-  | node_to_atoms_typ (NF (_, typ)) = SOME typ
-  | node_to_atoms_typ (NV (_, typ)) = SOME typ
-  | node_to_atoms_typ (NB (_, typ)) = SOME typ
-  | node_to_atoms_typ  _            = NONE
+fun dest_NC (NC (name, typ, cmd)) = SOME (name, typ, cmd)
+  | dest_NC  _                    = NONE;
+fun dest_NF (NF (name, typ     )) = SOME (name, typ)
+  | dest_NF  _                    = NONE;
+fun dest_NV (NV (name, typ     )) = SOME (name, typ)
+  | dest_NV  _                    = NONE;
+fun dest_NB (NB (int,  typ     )) = SOME (int,  typ)
+  | dest_NB  _                    = NONE;
+fun dest_NL (NL (name, typ     )) = SOME (name, typ)
+  | dest_NL  _                    = NONE;
+
+fun node_to_atoms_typ (NC (_, typ, _)) = SOME typ
+  | node_to_atoms_typ (NF (_, typ   )) = SOME typ
+  | node_to_atoms_typ (NV (_, typ   )) = SOME typ
+  | node_to_atoms_typ (NB (_, typ   )) = SOME typ
+  | node_to_atoms_typ  _               = NONE
 
 fun node_typ_to_checker Node_Typ_NC = is_NC
   | node_typ_to_checker Node_Typ_NF = is_NF
@@ -464,15 +473,15 @@ fun is_nth_child (unode:unode) = unode |> #inner_path |> try Utils.last: int opt
 type unodes = unode list;
 
 (* futrm_w_prnt_n_inner_path_to_unodes *)
-fun futrm_w_prnt_n_inner_path_to_unodes (UFC_Prnt_n_Path (ctnt, prnt, inner_path)) = [{node = NC ctnt, print = prnt, inner_path = inner_path}]
-  | futrm_w_prnt_n_inner_path_to_unodes (UFF_Prnt_n_Path (ctnt, prnt, inner_path)) = [{node = NF ctnt, print = prnt, inner_path = inner_path}]
-  | futrm_w_prnt_n_inner_path_to_unodes (UFV_Prnt_n_Path (ctnt, prnt, inner_path)) = [{node = NV ctnt, print = prnt, inner_path = inner_path}]
-  | futrm_w_prnt_n_inner_path_to_unodes (UFB_Prnt_n_Path (ctnt, prnt, inner_path)) = [{node = NB ctnt, print = prnt, inner_path = inner_path}]
-  | futrm_w_prnt_n_inner_path_to_unodes (UFL_Prnt_n_Path ((name, typ, trm), prnt, inner_path)) =
-      {node = NL (name, typ), print = prnt, inner_path = inner_path} :: futrm_w_prnt_n_inner_path_to_unodes trm
-  | futrm_w_prnt_n_inner_path_to_unodes (UFA_Prnt_n_Path ((func, args), prnt, inner_path)) =
+fun futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFC_Prnt_n_Path ((cname,typ), prnt, inner_path)) (ctxt:Proof.context) = [{node = NC (cname, typ, Pattern.get_command ctxt cname), print = prnt, inner_path = inner_path}]
+  | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFF_Prnt_n_Path (ctnt, prnt, inner_path)) _ = [{node = NF ctnt, print = prnt, inner_path = inner_path}]
+  | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFV_Prnt_n_Path (ctnt, prnt, inner_path)) _ = [{node = NV ctnt, print = prnt, inner_path = inner_path}]
+  | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFB_Prnt_n_Path (ctnt, prnt, inner_path)) _ = [{node = NB ctnt, print = prnt, inner_path = inner_path}]
+  | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFL_Prnt_n_Path ((name, typ, trm), prnt, inner_path)) ctxt =
+      {node = NL (name, typ), print = prnt, inner_path = inner_path} :: futrm_w_prnt_n_inner_path_n_ctxt_to_unodes trm ctxt
+  | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFA_Prnt_n_Path ((func, args), prnt, inner_path)) ctxt =
     {node = NA, print = prnt, inner_path = inner_path} ::
-    futrm_w_prnt_n_inner_path_to_unodes func @ maps futrm_w_prnt_n_inner_path_to_unodes args;
+    futrm_w_prnt_n_inner_path_n_ctxt_to_unodes func ctxt @ maps (fn arg => futrm_w_prnt_n_inner_path_n_ctxt_to_unodes arg ctxt) args;
 
 end;
 

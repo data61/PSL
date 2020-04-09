@@ -19,12 +19,13 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst    of assert
-| Is_Free    of assert
-| Is_Var     of assert
-| Is_Bound   of assert
-| Is_Lambda  of assert
-| Is_App     of assert
+| Is_Cnst         of assert
+| Is_Free         of assert
+| Is_Var          of assert
+| Is_Bound        of assert
+| Is_Lambda       of assert
+| Is_App          of assert
+| Is_Defined_With of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -46,8 +47,9 @@ datatype assert =
 | Are_Same_Number of assert * assert
 | Is_Less_Than    of assert * assert
 (*Parameter*)
-| Print  of string
-| Number of int
+| Print   of string
+| Number  of int
+| Command of Pattern.command
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert
@@ -96,12 +98,13 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst    of assert
-| Is_Free    of assert
-| Is_Var     of assert
-| Is_Bound   of assert
-| Is_Lambda  of assert
-| Is_App     of assert
+| Is_Cnst         of assert
+| Is_Free         of assert
+| Is_Var          of assert
+| Is_Bound        of assert
+| Is_Lambda       of assert
+| Is_App          of assert
+| Is_Defined_With of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -123,8 +126,9 @@ datatype assert =
 | Are_Same_Number of assert * assert
 | Is_Less_Than    of assert * assert
 (*Parameter*)
-| Print  of string
-| Number of int
+| Print   of string
+| Number  of int
+| Command of Pattern.command
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert
@@ -177,12 +181,13 @@ and
   | convert loc (Ands  list)       = ES.Ands  (convert_list loc list)
   | convert loc (Ors   list)       = ES.Ors   (convert_list loc list)
   (*Eval_Node*)
-  | convert loc (Is_Cnst   ass) = ES.Is_Cnst   (convert loc ass)
-  | convert loc (Is_Free   ass) = ES.Is_Free   (convert loc ass)
-  | convert loc (Is_Var    ass) = ES.Is_Var    (convert loc ass)
-  | convert loc (Is_Bound  ass) = ES.Is_Bound  (convert loc ass)
-  | convert loc (Is_Lambda ass) = ES.Is_Lambda (convert loc ass)
-  | convert loc (Is_App    ass) = ES.Is_App    (convert loc ass)
+  | convert loc (Is_Cnst         ass)   = ES.Is_Cnst         (convert loc ass)
+  | convert loc (Is_Free         ass)   = ES.Is_Free         (convert loc ass)
+  | convert loc (Is_Var          ass)   = ES.Is_Var          (convert loc ass)
+  | convert loc (Is_Bound        ass)   = ES.Is_Bound        (convert loc ass)
+  | convert loc (Is_Lambda       ass)   = ES.Is_Lambda       (convert loc ass)
+  | convert loc (Is_App          ass)   = ES.Is_App          (convert loc ass)
+  | convert loc (Is_Defined_With asses) = ES.Is_Defined_With (convert_pair loc asses)
   (*Eval_Unode*)
   | convert loc (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
   | convert loc (Is_In_Trm_Prnt         pair) = ES.Is_In_Trm_Prnt         (convert_pair loc pair)
@@ -206,6 +211,7 @@ and
   (*Parameter*)
   | convert _ (Print  string) = ES.Print string
   | convert _ (Number    int) = ES.Number int
+  | convert _ (Command   cmd) = ES.Command cmd
   (*expr*)
   | convert _   (Variable        string) = ES.Variable string
   | convert loc (Lambdas (strings, ass)) = ES.Lambdas (strings, convert loc ass)

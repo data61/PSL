@@ -116,41 +116,34 @@ All ("induct", QInd,
       Not (Is_Cnst (Variable "var_occ"))));
 
 val lifter_2 =
-(*
 All ("xs", QInd,
   Some_Of ("xs_occ", Variable "xs",
-*)
-Some ("xs_occ", QOuter_Path,
-(*
       Is_Atomic (Variable "xs_occ")
     Imply
-*)
-(*
       Is_At_Deepest_In_A_Location (Variable "xs_occ")
-*)
-  Are_In_Same_Location (Variable "xs_occ", Variable "xs_occ")
-  );
+  ));
+
+val lifter_3 =
+  Some ("var_occ", QOuter_Path,
+      Is_Defined_With (Variable "var_occ", Command Pattern.Primrec)
+);
+
 (*
-    Not (Is_Cnst (Variable "var_occ"))));
-*)
-(*
-Outermost (
- (Some ("hol_eq", QFull_Path,
-  Unode_Has_Print (Variable "hol_eq", Print "SeLFiE.itrev"))));
-*)
-(*
-  Alls ([("ind_trm", QPrint)],
-    True)
-*)
-(*
-  Alls ([("ind_trm", QPrint)],
-    Somes ([("ind_trm_occ", QFull_Path)],
-      Ands
-        [(*Unode_Has_Print (Variable "ind_trm_occ", Variable "ind_trm"),
-         Not (Is_Cnst (Variable "ind_trm_occ"))*)
-         True
-         ]
-)));
+(* heuristic_3 *)
+val all_ind_vars_are_arguments_of_a_recursive_function =
+Some_Trm (Trm 1,
+  Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    All_Ind (Trm 2,
+      Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+         (((Trm_Occ 1 Is_Defined_With Fun)
+          Or
+           (Trm_Occ 1 Is_Defined_With Function)
+          Or
+           (Trm_Occ 1 Is_Defined_With Inductive)
+          Or
+           (Trm_Occ 1 Is_Defined_With  Primrec))
+         And
+           (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 1))))));
 *)
 
 

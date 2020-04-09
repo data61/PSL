@@ -18,12 +18,13 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst    of assert
-| Is_Free    of assert
-| Is_Var     of assert
-| Is_Bound   of assert
-| Is_Lambda  of assert
-| Is_App     of assert
+| Is_Cnst         of assert
+| Is_Free         of assert
+| Is_Var          of assert
+| Is_Bound        of assert
+| Is_Lambda       of assert
+| Is_App          of assert
+| Is_Defined_With of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -45,8 +46,9 @@ datatype assert =
 | Are_Same_Number   of assert * assert
 | Is_Less_Than      of assert * assert
 (*Parameter*)
-| Print  of string
-| Number of int
+| Print   of string
+| Number  of int
+| Command of Pattern.command 
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert
@@ -80,12 +82,13 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst    of assert
-| Is_Free    of assert
-| Is_Var     of assert
-| Is_Bound   of assert
-| Is_Lambda  of assert
-| Is_App     of assert
+| Is_Cnst         of assert
+| Is_Free         of assert
+| Is_Var          of assert
+| Is_Bound        of assert
+| Is_Lambda       of assert
+| Is_App          of assert
+| Is_Defined_With of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -107,8 +110,9 @@ datatype assert =
 | Are_Same_Number of assert * assert
 | Is_Less_Than    of assert * assert
 (*Parameter*)
-| Print  of string
-| Number of int
+| Print   of string
+| Number  of int
+| Command of Pattern.command
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert
@@ -132,12 +136,13 @@ and (*bool*)
   | surf_to_var (Ands  args)  = EV.Assert  (SU.Ands,  surf_to_var_list args)
   | surf_to_var (Ors   args)  = EV.Assert  (SU.Ors,   surf_to_var_list args)
   (*Eval_Node*)
-  | surf_to_var (Is_Cnst   arg) = EV.Assert  (SU.Atomic SU.Is_Cnst,   surf_to_var_singleton arg)
-  | surf_to_var (Is_Free   arg) = EV.Assert  (SU.Atomic SU.Is_Free,   surf_to_var_singleton arg)
-  | surf_to_var (Is_Var    arg) = EV.Assert  (SU.Atomic SU.Is_Var,    surf_to_var_singleton arg)
-  | surf_to_var (Is_Bound  arg) = EV.Assert  (SU.Atomic SU.Is_Bound,  surf_to_var_singleton arg)
-  | surf_to_var (Is_Lambda arg) = EV.Assert  (SU.Atomic SU.Is_Lambda, surf_to_var_singleton arg)
-  | surf_to_var (Is_App    arg) = EV.Assert  (SU.Atomic SU.Is_App,    surf_to_var_singleton arg)
+  | surf_to_var (Is_Cnst         arg ) = EV.Assert (SU.Atomic SU.Is_Cnst,         surf_to_var_singleton arg)
+  | surf_to_var (Is_Free         arg ) = EV.Assert (SU.Atomic SU.Is_Free,         surf_to_var_singleton arg)
+  | surf_to_var (Is_Var          arg ) = EV.Assert (SU.Atomic SU.Is_Var,          surf_to_var_singleton arg)
+  | surf_to_var (Is_Bound        arg ) = EV.Assert (SU.Atomic SU.Is_Bound,        surf_to_var_singleton arg)
+  | surf_to_var (Is_Lambda       arg ) = EV.Assert (SU.Atomic SU.Is_Lambda,       surf_to_var_singleton arg)
+  | surf_to_var (Is_App          arg ) = EV.Assert (SU.Atomic SU.Is_App,          surf_to_var_singleton arg)
+  | surf_to_var (Is_Defined_With args) = EV.Assert (SU.Atomic SU.Is_Defined_With, surf_to_var_pair_to_list args)
   (*Eval_Unode*)
   | surf_to_var (Has_Same_Prnt_As       args) = EV.Assert (SU.Atomic SU.Has_Same_Prnt_As,       surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Trm_Prnt         args) = EV.Assert (SU.Atomic SU.Is_In_Trm_Prnt,         surf_to_var_pair_to_list args)
@@ -159,8 +164,9 @@ and (*bool*)
   | surf_to_var (Are_Same_Number args) = EV.Assert (SU.Atomic SU.Are_Same_Number, surf_to_var_pair_to_list args)
   | surf_to_var (Is_Less_Than    args) = EV.Assert (SU.Atomic SU.Is_Less_Than,    surf_to_var_pair_to_list args)
   (*parameter*)
-  | surf_to_var (Print  p) = EV.Literal (EP.Non_Path (EP.Print  p))
-  | surf_to_var (Number n) = EV.Literal (EP.Non_Path (EP.Number n))
+  | surf_to_var (Print   p) = EV.Literal (EP.Non_Path (EP.Print   p))
+  | surf_to_var (Number  n) = EV.Literal (EP.Non_Path (EP.Number  n))
+  | surf_to_var (Command c) = EV.Literal (EP.Non_Path (EP.Command c))
   (*expr*)
   | surf_to_var (Variable vname)             = EV.Variable vname
   | surf_to_var (Lambdas (vnames, fbody))    = EV.Lambdas (vnames, surf_to_var fbody)

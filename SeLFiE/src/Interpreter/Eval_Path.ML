@@ -14,6 +14,7 @@ datatype 'path assert =
 | Is_Bound               of 'path
 | Is_Lambda              of 'path
 | Is_App                 of 'path
+| Is_Defined_With        of 'path * Pattern.command
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of 'path * 'path
 | Is_In_Trm_Prnt         of 'path * 'path
@@ -82,6 +83,7 @@ fun eval (term:term) (pst:Proof.state) assert =
       | eval' (PA.Is_Bound  p) = path_to_node p |> END.Is_Bound  |> END.eval
       | eval' (PA.Is_Lambda p) = path_to_node p |> END.Is_Lambda |> END.eval
       | eval' (PA.Is_App    p) = path_to_node p |> END.Is_App    |> END.eval
+      | eval' (PA.Is_Defined_With (p, cmd)) = END.eval (END.Is_Defined_With (path_to_node p, cmd))
       (*Eval_Unode*)
       | eval' (PA.Has_Same_Prnt_As        pair)     = path2_to_unode2 pair    |> EU.Has_Same_Prnt_As      |> EU.eval
       | eval' (PA.Is_In_Trm_Prnt          pair)     = path2_to_unode2 pair    |> EU.Is_In_Trm_Prnt        |> EU.eval

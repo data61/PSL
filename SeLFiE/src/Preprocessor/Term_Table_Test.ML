@@ -36,7 +36,7 @@ fun trm_to_inner_path_to_unode_table (trm:term) =
     val utrm_w_prnt               = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
     val futrm_w_prnt              = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
     val futrm_w_prnt_n_inner_path = UN.futrm_w_prnt_to_futrm_w_prnt_n_inner_path futrm_w_prnt;
-    val unique_nodes              = UN.futrm_w_prnt_n_inner_path_to_unodes futrm_w_prnt_n_inner_path;
+    val unique_nodes              = UN.futrm_w_prnt_n_inner_path_n_ctxt_to_unodes futrm_w_prnt_n_inner_path @{context};
     val term_table                = TT.unodes_to_unode_table unique_nodes: TT.inner_path_to_unode_table;
   in
     term_table: TT.inner_path_to_unode_table

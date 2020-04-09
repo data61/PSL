@@ -75,7 +75,7 @@ fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) (trm:term) =
     val utrm_w_prnt               = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
     val futrm_w_prnt              = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
     val futrm_w_prnt_n_inner_path = UN.futrm_w_prnt_to_futrm_w_prnt_n_inner_path futrm_w_prnt;
-    val unodes                    = UN.futrm_w_prnt_n_inner_path_to_unodes futrm_w_prnt_n_inner_path;
+    val unodes                    = UN.futrm_w_prnt_n_inner_path_n_ctxt_to_unodes futrm_w_prnt_n_inner_path (Proof.context_of pst);
     val inner_path_to_unode_table = unodes_to_unode_table unodes: path_to_unode_table;
   in
     inner_path_to_unode_table: path_to_unode_table
@@ -139,7 +139,7 @@ fun pst_n_location_n_term_list_to_location_n_path_to_unode_table (pst:Proof.stat
           val utrm_w_prnt               = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
           val futrm_w_prnt              = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
           val futrm_w_prnt_n_inner_path = UN.futrm_w_prnt_to_futrm_w_prnt_n_inner_path futrm_w_prnt;
-          val unodes                    = UN.futrm_w_prnt_n_inner_path_to_unodes futrm_w_prnt_n_inner_path;
+          val unodes                    = UN.futrm_w_prnt_n_inner_path_n_ctxt_to_unodes futrm_w_prnt_n_inner_path (Proof.context_of pst);
           val path_to_unode_table = Term_Table.unodes_to_unode_table unodes: UN.unode Inner_Path_Table.table;
         in
           pst_n_location_n_term_list_to_location_n_path_to_unode_table' pairs ((loc, path_to_unode_table)::acc)

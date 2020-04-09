@@ -37,6 +37,7 @@ datatype atomic_assert =
 | Is_Same_Path_As
 | Is_Nth_Child
 | Is_N_Plus_One_th_Child
+| Is_Defined_With
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Printed_As
@@ -119,6 +120,7 @@ datatype atomic_assert =
 | Is_Bound
 | Is_Lambda
 | Is_App
+| Is_Defined_With
 (*Eval_Unode*)
 | Has_Same_Prnt_As
 | Is_In_Trm_Prnt
@@ -175,7 +177,7 @@ fun print_atomic_assert (Is_Cnst               ) = "Is_Cnst"
   | print_atomic_assert (Is_Induct             ) = "Is_Induct"
   | print_atomic_assert (Is_Arbitrary          ) = "Is_Arbitrary"
   | print_atomic_assert (Is_Rule               ) = "Is_Rule"
-
+  | print_atomic_assert (Is_Defined_With       ) = "Is_Defined_With"
 
 datatype assert =
   Not
