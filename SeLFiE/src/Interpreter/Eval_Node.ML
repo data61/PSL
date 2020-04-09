@@ -14,6 +14,7 @@ datatype assert =
 | Is_Lambda of UN.node (*lambda abstraction corresponding to Abs in Term*)
 | Is_App    of UN.node (*function application corresponding to $ in Term*)
 
+val eval': assert -> bool;
 val eval: assert -> Eval_Bool.assert;
 
 end;

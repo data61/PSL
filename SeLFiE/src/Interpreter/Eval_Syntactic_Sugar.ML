@@ -340,6 +340,7 @@ and
   | convert loc (Some_Of (occ:string, prnt:assert, inner_assert)) =
     let
       val path_typ = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+      val _ = tracing ("Qype is " ^ SU.print_qtyp path_typ);
     in
       convert loc
        (Some (occ, path_typ,

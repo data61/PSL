@@ -70,9 +70,19 @@ fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " \n"
   | print_expr (All       _) = "Alls \n"
   | print_expr (Some      _) = "Some \n";
 
+fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " "
+  | print_expr (Lambdas (vnames, expr)) = "Lambdas ( " ^ Int.toString vnames ^ " ,  " ^ print_expr expr ^ " ) "
+  | print_expr (Applies (exp1, exp2)) = "Applies " ^ print_expr exp1 ^ " " ^ (fold (curry (op ^)) (map print_expr exp2) "")
+  | print_expr (Literal _) = "Literal lit"
+  | print_expr (Assert (_, expres)) = "Assert ( assert, " ^ (fold (curry (op ^)) (map print_expr expres) " ) ")
+  | print_expr (Dive_In   _) = "Dive_In ...\n"
+  | print_expr (Deep_Dive _) = "Deep_Dive ...\n"
+  | print_expr (All  (_, expr)) = "All ( "  ^ "type" ^ ", " ^ print_expr expr ^ " )"
+  | print_expr (Some (_, expr)) = "Some ( " ^ "type" ^ ", " ^ print_expr expr ^ " )";
+
 fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
-    val _ = tracing ("Print from From_Quantifier_To_Multi_Arity: " ^ print_expr expr);
+    val _ = tracing ("Print from From_Quantifier_To_Multi_Arity: \n" ^ print_expr expr);
     val eq_result = EB.eval pst induct_args (quantifier_to_multi_arity expr): EB.expr;
     val result    = convert_result eq_result                                : expr;
   in

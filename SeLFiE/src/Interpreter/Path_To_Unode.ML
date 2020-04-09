@@ -189,14 +189,9 @@ fun merge_outer_path_to_fp_unode_tables (tables:outer_path_to_outer_unode_table 
 fun pst_n_trm_to_path_to_outer_unode_table (pst:Proof.state) _: outer_path_to_outer_unode_table =
   let
     val loc_n_trm_list = pst_to_location_n_term_list pst: (location * term) list;
-val _ = tracing "From pst_n_trm_to_path_to_outer_unode_table";
-val _ = tracing ("Length of loc_n_trm_list is " ^ Int.toString (length loc_n_trm_list));
     val loc_path_to_unode_table_list               = pst_n_location_n_term_list_to_location_n_path_to_unode_table pst loc_n_trm_list                                 : (location * Term_Table.inner_path_to_unode_table) list;
-val _ = tracing ("Length of loc_path_to_unode_table_list is " ^ Int.toString (length loc_path_to_unode_table_list));
     val loc_n_outer_path_to_outer_unode_table_list = location_n_path_to_unode_table_list_to_location_n_outer_path_to_fp_unode_table_list loc_path_to_unode_table_list: (location * outer_path_to_outer_unode_table) list;
-val _ = tracing ("Length of loc_n_outer_path_to_outer_unode_table_list is " ^ Int.toString (length loc_n_outer_path_to_outer_unode_table_list));
     val outer_path_to_outer_unode_table_list       = map snd loc_n_outer_path_to_outer_unode_table_list                                                              : outer_path_to_outer_unode_table list;
-val _ = tracing ("Length of outer_path_to_outer_unode_table_list is " ^ Int.toString (length outer_path_to_outer_unode_table_list));
     val outer_path_to_outer_unode_table            = merge_outer_path_to_fp_unode_tables outer_path_to_outer_unode_table_list                                        : outer_path_to_outer_unode_table;
   in
     outer_path_to_outer_unode_table: outer_path_to_outer_unode_table
@@ -204,7 +199,6 @@ val _ = tracing ("Length of outer_path_to_outer_unode_table_list is " ^ Int.toSt
 
 fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) _: path_to_unode_table =
   let
-val _ = tracing "From pst_n_trm_to_path_to_unode_table"
     val outer_path_to_outer_unode_table = pst_n_trm_to_path_to_outer_unode_table pst ();
     val outer_path_to_unode_table       = Path_Table.map (fn _ => fn {unode, ...}:outer_unode => unode) outer_path_to_outer_unode_table
   in

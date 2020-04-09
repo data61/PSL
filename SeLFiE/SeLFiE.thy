@@ -82,6 +82,14 @@ setup\<open> Apply_SeLFiE.update_assert "heuristic_5" SeLFiE_Assertion.heuristic
 setup\<open> Apply_SeLFiE.update_assert "heuristic_6" SeLFiE_Assertion.heuristic_6 \<close>
 setup\<open> Apply_SeLFiE.update_assert "heuristic_7" SeLFiE_Assertion.heuristic_7 \<close>
 setup\<open> Apply_SeLFiE.update_assert "heuristic_8" SeLFiE_Assertion.heuristic_8 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_9" SeLFiE_Assertion.heuristic_9 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_10" SeLFiE_Assertion.heuristic_10 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_11" SeLFiE_Assertion.heuristic_11 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_12" SeLFiE_Assertion.heuristic_12 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_13" SeLFiE_Assertion.heuristic_13 \<close>
+setup\<open> Apply_SeLFiE.update_assert "heuristic_14" SeLFiE_Assertion.heuristic_14 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_1"  SeLFiE_Assertion.lifter_1 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_1b" SeLFiE_Assertion.lifter_1b \<close>
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -102,7 +110,22 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE heuristic_6 [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_7 [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_8 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_9 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_10 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_11 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_12 [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE heuristic_13 [on["xs"], arb["ys"],rule["itrev.induct"]]
+
+  assert_SeLFiE lifter_1 [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
+(*
+  assert_SeLFiE heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
+*)
   apply(induct xs arbitrary: ys) apply auto done
+
+ML\<open>
+@{term "itrev"}
+\<close>
 
 (* auxiliary stuff *)
 ML\<open>

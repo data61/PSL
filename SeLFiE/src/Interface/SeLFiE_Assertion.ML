@@ -66,14 +66,57 @@ val heuristic_7 =
    Are_Same_Prints (Print "SeLFiE.itrev", Print "SeLFiE.itrev")))
 
 val heuristic_8 =
- (Some ("x", QOuter_Print,
-   Unode_Has_Print (Variable "x", Print "SeLFiE.itrev")))
-
-val heuristic_8 =
  Applies (
   Lambdas (["x"], 
            Are_Same_Prints (Variable "x", Print "SeLFiE.itrev")),
   [Print "SeLFiE.itrev"]);
+
+val heuristic_9 =
+ (Some ("x", QOuter_Path,
+   Unode_Has_Print (Variable "x", Print "ys")));
+
+val heuristic_10 =
+ Not
+  (Some ("x", QOuter_Path,
+   Unode_Has_Print (Variable "x", Print "yss")));
+
+val heuristic_11 =
+ (Some ("x", QOuter_Path,
+   Unode_Has_Print (Variable "x", Print "itrev")));
+
+val heuristic_12 =
+  Some ("induct", QInd,
+    Are_Same_Prints (Variable "induct", Print "xs"));
+
+val heuristic_13 =
+  Not (
+    Some ("induct", QArb,
+      Are_Same_Prints (Variable "induct", Print "xs")));
+
+infix And Or;
+
+val heuristic_14 =
+  Some ("var_occ2", QOuter_Path,
+  Some ("var_occ1", QOuter_Path,
+  Some ("var_occ", QOuter_Path,
+    Has_Same_Prnt_As (Variable "var_occ2", Variable "var_occ")
+  )));
+
+val lifter_1 =
+All ("induct", QInd,
+  Some ("var_occ", QOuter_Path,
+      Not (Is_Cnst (Variable "var_occ"))
+    And
+      Unode_Has_Print (Variable "var_occ", Variable "induct")
+));
+
+val lifter_1b =
+All ("induct", QInd,
+  Some_Of ("var_occ", Variable "induct",
+      Not (Is_Cnst (Variable "var_occ"))));
+(*
+    Not (Is_Cnst (Variable "var_occ"))));
+*)
 (*
 Outermost (
  (Some ("hol_eq", QFull_Path,

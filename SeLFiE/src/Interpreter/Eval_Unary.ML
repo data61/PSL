@@ -1,7 +1,7 @@
 (*  Title:      PSL/SeLFeE/src/Interpreter/Eval_Deep_Bound.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-(*** EVAL_DEEP_BOUND ***)
+(*** EVAL_UNARY ***)
 signature EVAL_UNARY =
 sig
 
@@ -20,7 +20,7 @@ val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
-(*** Eval_Deep_Bound ***)
+(*** Eval_Unary ***)
 structure Eval_Unary: EVAL_UNARY =
 struct
 
@@ -115,12 +115,12 @@ fun subst i u (Bound j) =
   | subst i u (Assert (ass, exprs))    = Assert (ass, map (subst i u) exprs)
   | subst i u (Dive_In   (t, l, args)) = Dive_In   (subst i u t, subst i u l, map (subst i u) args)
   | subst i u (Deep_Dive (t, l, args)) = Deep_Dive (subst i u t, subst i u l, map (subst i u) args)
-  | subst i u (All  (typ, expr))       = All  (typ, subst i u expr)
-  | subst i u (Some (typ, expr))       = Some (typ, subst i u expr)
+  | subst i u (All  (typ, expr))       = All  (typ, subst (i+1) u expr)
+  | subst i u (Some (typ, expr))       = Some (typ, subst (i+1) u expr)
 
-fun print_expr (Bound i)            = "B.Bound " ^ Int.toString i
-  | print_expr (Lambda expr)        = "B.Lambda (" ^ print_expr expr ^ " )"
-  | print_expr (Apply (exp1, exp2)) = "B.Apply (" ^ print_expr exp1 ^ ", " ^ print_expr exp2 ^ ")"
+fun print_expr (Bound i)            = "B.Bound " ^ Int.toString i ^ " "
+  | print_expr (Lambda expr)        = "B.Lambda (" ^ print_expr expr ^ " ) "
+  | print_expr (Apply (exp1, exp2)) = "B.Apply (" ^ print_expr exp1 ^ ", " ^ print_expr exp2 ^ ") "
   | print_expr (Literal p) = " B.Literal " ^ (case p of
        EP.Outer_Path _ => "Outer_Path"
      | EP.Inner_Path _ => "Inner_Path"
@@ -129,11 +129,11 @@ fun print_expr (Bound i)            = "B.Bound " ^ Int.toString i
        | EP.Print   _ => "print!"
        | EP.Number  _ => "number!"
        | EP.Command _ => "command!")
-  | print_expr (Assert (_, expres)) = "B.Assert " ^ (fold (curry (op ^)) (map print_expr expres) "")
-  | print_expr (Dive_In   (target, lambda, args)) = "B.Dive_In ( "   ^ print_expr target ^ ", " ^ print_expr lambda ^ ", " ^ (String.concat o map print_expr) args ^ ")"
-  | print_expr (Deep_Dive (target, lambda, args)) = "B.Deep_Dive ( " ^ print_expr target ^ ", " ^ print_expr lambda ^ ", " ^ (String.concat o map print_expr) args ^ ")"
-  | print_expr (All (_, expr)) = "B.All ( " ^ print_expr expr ^ " )"
-  | print_expr (Some (_, expr)) = "B.All ( " ^ print_expr expr ^ " )";
+  | print_expr (Assert (_, expres)) = "B.Assert " ^ (fold_rev (curry (op ^)) (map print_expr expres) " ")
+  | print_expr (Dive_In   (target, lambda, args)) = "B.Dive_In ( "   ^ print_expr target ^ ", " ^ print_expr lambda ^ ", " ^ (String.concat o map print_expr) args ^ ") "
+  | print_expr (Deep_Dive (target, lambda, args)) = "B.Deep_Dive ( " ^ print_expr target ^ ", " ^ print_expr lambda ^ ", " ^ (String.concat o map print_expr) args ^ ") "
+  | print_expr (All (typ, expr)) = "B.All ( "  ^ SU.print_qtyp typ ^ ", " ^ print_expr expr ^ " ) "
+  | print_expr (Some (typ, expr)) = "B.All ( " ^ SU.print_qtyp typ ^ ", " ^ print_expr expr ^ " ) ";
 
 fun param_with_bool_to_bound (Literal param) = param
   | param_with_bool_to_bound  expr           =
@@ -152,7 +152,7 @@ fun mk_nested_app func []          = func
   | mk_nested_app func (arg::args) = mk_nested_app (Apply (func, arg)) args;
 
 fun mk_nested_lamb (Lambda lambda) 0 = Lambda lambda
-  | mk_nested_lamb (Lambda lambda) n = if n < 0 then error "mk_nested_lamb failed." else Lambda (mk_nested_lamb (Lambda lambda) (n - 1))
+  | mk_nested_lamb (Lambda lambda) n = if (tracing (Int.toString n);n < 0) then error "mk_nested_lamb failed." else Lambda (mk_nested_lamb lambda (n - 1))
   | mk_nested_lamb _ _ = error "mk_nested_lamb failed.";
 
 fun mk_inner_expr (lamb as Lambda _) (arguments:expr list) =
@@ -172,8 +172,15 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
     val thm_term = Thm.prop_of thm                      : term;
     fun tracing' mssg = if true then () else tracing mssg;
     fun eval' (Apply (func, arg)) term =
+(
+(*
+val _ = print_expr expr |> tracing;
+tracing "In Apply (func and arg)";
+("func is " ^ print_expr func) |> tracing;
+("arg  is " ^ print_expr arg)  |> tracing;
+*)
          (case eval' func term of
-          Lambda  u => (tracing' "LAMBDA";  eval' (subst 0 (eval' arg term) u) term)
+          Lambda  u => (tracing' ("LAMBDA " ^ print_expr u);  eval' (subst 0 (eval' arg term) u) term)
         | Literal l => (tracing' "LITERAL"; Literal l)
         | Bound   i => (tracing' "BOUND";   Bound i)
         | Dive_In t => (tracing' "Deep";    Dive_In t)
@@ -181,6 +188,7 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
         | u1        => (tracing' ("Apply in Apply" ^
                        (case u1 of _  =>  " with something"));
                        Apply (u1, eval' arg term)))
+)
       | eval' (Assert (assert, param_exprs)) term =
           let
             (* Note that param_exprs are always Literal at this point
@@ -192,8 +200,8 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
           end
       | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) term = dive triple term outer_literal_to_definitions
       | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) term = dive triple term inner_literal_to_definitions
-      | eval' (All  (qtyp, subexpr)) term  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands term) term
-      | eval' (Some (qtyp, subexpr)) term  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors  term) term
+      | eval' (All  (qtyp, subexpr)) term  = (tracing' "ALL";  eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands term) term)
+      | eval' (Some (qtyp, subexpr)) term  = (tracing' "SOME"; eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors  term) term)
       | eval' expr _ = expr
     and dive (Literal path, Lambda lambda, args) trm (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) =
         let

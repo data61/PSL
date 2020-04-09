@@ -18,6 +18,8 @@ val dest_induct_arguments: induct_arguments  -> {ons: strings, arbs: strings, ru
 
 datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;
 
+val print_qtyp: qtyp -> string;
+
 datatype atomic_assert =
 (*Eval_Node*)
   Is_Cnst
@@ -95,6 +97,17 @@ datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, ru
 fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
 
 datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;
+
+fun print_qtyp QOuter_Path = "QOuter_Path"
+  | print_qtyp QInner_Path = "QInner_Path"
+  | print_qtyp QOuter_Print = "QOuter_Print"
+  | print_qtyp QInner_Print = "QInner_Print"
+  | print_qtyp QOuter_Number = "QOuter_Number"
+  | print_qtyp QInner_Number = "QInner_Number"
+  | print_qtyp QInd = "QInd"
+  | print_qtyp QArb = "QArb"
+  | print_qtyp QRule = "QRule";
+
 
 datatype atomic_assert =
 (*Eval_Node*)
