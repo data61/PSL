@@ -159,7 +159,7 @@ fun get_new_name' acc []                    = acc
   | get_new_name' _   (_            ::_   ) = error "get_new_name' in Eval_Syntactic_Sugar.ML failed.";
 
  (*For atomic assertions, we have to avoid a name collisions with the arguments to the assertion only.*)
-val get_new_name = get_new_name' "";
+val get_new_name = get_new_name' "A";
 
 infix And Or Imply Is_In_Nth_Subgoal Is_In_Nth_Chained_Fact;
 
@@ -312,13 +312,13 @@ and
     in
       convert loc
         (Some (non_exist_str, numb_typ,
-             ((non_exist Is_In_Nth_Subgoal ass1)
+             ((ass1 Is_In_Nth_Subgoal non_exist)
              And
-              (non_exist Is_In_Nth_Subgoal ass2))
+              (ass2 Is_In_Nth_Subgoal non_exist))
            Or
-             ((non_exist Is_In_Nth_Chained_Fact ass1)
+             ((ass1 Is_In_Nth_Chained_Fact non_exist)
              And
-              (non_exist Is_In_Nth_Chained_Fact ass2))))
+              (ass2 Is_In_Nth_Chained_Fact non_exist))))
     end
   | convert loc (Is_Deeper_Than_In_Same_Location (deep, shallow)) =
     convert loc

@@ -152,8 +152,8 @@ and (*bool*)
   (*Eval_Path*)
   | surf_to_var (Unode_Has_Print        args) = EV.Assert (SU.Atomic SU.Unode_Has_Print,        surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Subgoal          arg ) = EV.Assert (SU.Atomic SU.Is_In_Subgoal,          surf_to_var_singleton    arg )
-  | surf_to_var (Is_In_Chained_Fact     arg ) = EV.Assert (SU.Atomic SU.Unode_Has_Print,        surf_to_var_singleton    arg )
-  | surf_to_var (Is_In_Nth_Subgoal      args) = EV.Assert (SU.Atomic SU.Unode_Has_Print,        surf_to_var_pair_to_list args)
+  | surf_to_var (Is_In_Chained_Fact     arg ) = EV.Assert (SU.Atomic SU.Is_In_Chained_Fact,     surf_to_var_singleton    arg )
+  | surf_to_var (Is_In_Nth_Subgoal      args) = EV.Assert (SU.Atomic SU.Is_In_Nth_Subgoal,      surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Nth_Chained_Fact args) = EV.Assert (SU.Atomic SU.Is_In_Nth_Chained_Fact, surf_to_var_pair_to_list args)
   (*Eval_Number*)
   | surf_to_var (Are_Same_Number args) = EV.Assert (SU.Atomic SU.Are_Same_Number, surf_to_var_pair_to_list args)
@@ -170,7 +170,7 @@ and (*bool*)
   | surf_to_var (Dive_In (target, inner_lambda, outer_args)) =
     EV.Dive_In (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args)
   | surf_to_var (Deep_Dive (target, inner_lambda, outer_args)) =
-    EV.Dive_In (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args);
+    EV.Deep_Dive (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args);
 
 fun deep_to_surface (EV.Literal (EP.Non_Path (EP.Bool b))) = if b then True else False
   | deep_to_surface (EV.Variable vname) = Variable vname
@@ -180,7 +180,7 @@ fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:as
   let
     val var_expr  = surf_to_var assert              : EV.expr;
     val result_ev = EV.eval pst induct_args var_expr: EV.expr;
-    val result      = deep_to_surface result_ev     : assert;
+    val result    = deep_to_surface result_ev     : assert;
   in
     result
   end;

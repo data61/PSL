@@ -90,6 +90,7 @@ setup\<open> Apply_SeLFiE.update_assert "heuristic_13" SeLFiE_Assertion.heuristi
 setup\<open> Apply_SeLFiE.update_assert "heuristic_14" SeLFiE_Assertion.heuristic_14 \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_1"  SeLFiE_Assertion.lifter_1 \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_1b" SeLFiE_Assertion.lifter_1b \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_2"  SeLFiE_Assertion.lifter_2 \<close>
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -118,6 +119,7 @@ lemma "itrev xs ys = rev xs @ ys"
 
   assert_SeLFiE lifter_1 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE lifter_2 [on["xs"], arb["ys"],rule["itrev.induct"]]
 (*
   assert_SeLFiE heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
 *)

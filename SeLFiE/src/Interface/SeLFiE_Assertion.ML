@@ -93,7 +93,7 @@ val heuristic_13 =
     Some ("induct", QArb,
       Are_Same_Prints (Variable "induct", Print "xs")));
 
-infix And Or;
+infix And Or Imply;
 
 val heuristic_14 =
   Some ("var_occ2", QOuter_Path,
@@ -114,6 +114,22 @@ val lifter_1b =
 All ("induct", QInd,
   Some_Of ("var_occ", Variable "induct",
       Not (Is_Cnst (Variable "var_occ"))));
+
+val lifter_2 =
+(*
+All ("xs", QInd,
+  Some_Of ("xs_occ", Variable "xs",
+*)
+Some ("xs_occ", QOuter_Path,
+(*
+      Is_Atomic (Variable "xs_occ")
+    Imply
+*)
+(*
+      Is_At_Deepest_In_A_Location (Variable "xs_occ")
+*)
+  Are_In_Same_Location (Variable "xs_occ", Variable "xs_occ")
+  );
 (*
     Not (Is_Cnst (Variable "var_occ"))));
 *)

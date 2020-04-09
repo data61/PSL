@@ -103,7 +103,7 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Is_Induct        [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Induct p)             induct_args
       | eval' SU.Is_Arbitrary     [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Arbitrary p)          induct_args
       | eval' SU.Is_Rule          [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Rule p)               induct_args
-      | eval' assert _ = error ("- eval' in From_Path_to_Parameter.ML failed at " ^ SU.print_atomic_assert assert);
+      | eval' assert _ = error ("- eval' in Eval_Parameter.ML failed at " ^ SU.print_atomic_assert assert);
   in
     eval' assert literals: Eval_Bool.assert
   end;

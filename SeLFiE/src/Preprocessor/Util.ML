@@ -68,6 +68,8 @@ datatype assert =
 | Ors
 | Atomic of atomic_assert;
 
+val print_assert: assert -> string;
+
 end;
 
 (*** structure SeLFiE_Util ***)
@@ -184,6 +186,15 @@ datatype assert =
 | Ands
 | Ors
 | Atomic of atomic_assert;
+
+fun print_assert Not   = "Not"
+  | print_assert And   = "And"
+  | print_assert Or    = "Or"
+  | print_assert Nor   = "Nor"
+  | print_assert Imply = "Imply"
+  | print_assert Ands  = "Ands"
+  | print_assert Ors   = "Ors"
+  | print_assert (Atomic ass) = "Atomic " ^   print_atomic_assert ass ^ " "
 
 datatype non_path_literal =
   Bool    of bool

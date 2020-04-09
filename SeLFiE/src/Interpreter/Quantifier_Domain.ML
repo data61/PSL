@@ -41,9 +41,11 @@ val mk_all_outer_prints = mk_all_prints Outer_Path_To_Unode.pst_n_trm_to_path_to
                         : Proof.state -> term -> strings;
 
 fun pst_n_trm_to_numb_of_paths mk_all_paths (pst:Proof.state) (trm:term) = mk_all_paths pst trm |> length
+(*
 |> (fn len => (tracing "psn_to_trm_to_numb_of_paths is ";Int.toString len |> tracing;
      tracing ("---term in pst_n_trm_to_numb_of_paths is " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm)
-;len)): int;
+;len))
+*): int;
 
 val pst_n_trm_to_numb_of_inner_paths = pst_n_trm_to_numb_of_paths mk_all_inner_prints: Proof.state -> term -> int;
 val pst_n_trm_to_numb_of_outer_paths = pst_n_trm_to_numb_of_paths mk_all_outer_prints: Proof.state -> term -> int;
