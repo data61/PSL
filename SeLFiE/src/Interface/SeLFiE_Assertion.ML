@@ -128,6 +128,12 @@ val lifter_3 =
       Is_Defined_With (Variable "var_occ", Command Pattern.Primrec)
 );
 
+val lifter_3 =
+Some ("ind", QInd,
+  Some_Of ("var_occ", Variable "ind",
+    Some ("func_occ", QOuter_Path,
+      Is_An_Arg_Of (Variable "var_occ", Variable "func_occ"))));
+
 (*
 (* heuristic_3 *)
 val all_ind_vars_are_arguments_of_a_recursive_function =

@@ -269,15 +269,25 @@ and
     let
       val func_app_str = get_new_name [func,arg]: string;
       val func_app     = Variable func_app_str  : assert;
-      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+      val path_typ     = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
+    (*Note that we have already transformed the syntax tree structure in Unique_Node.*)
+(*
+datatype futrm_w_prnt_n_inner_path =
+  UFC_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
+| UFF_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
+| UFV_Prnt_n_Path of (indexname * typ                                           ) * string * inner_path
+| UFB_Prnt_n_Path of (int       * typ                                           ) * string * inner_path
+| UFL_Prnt_n_Path of (string    * typ           * futrm_w_prnt_n_inner_path     ) * string * inner_path
+| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * string * inner_path;
+*)
       convert loc
        (Some (func_app_str, path_typ,
           Ands
            [Is_Parent_Of (func_app, func),
-            Is_Nth_Child (Number 0, func_app),
+            Is_Nth_Child (func, Number 0),
             Is_Parent_Of (func_app, arg),
-            Not (Is_Nth_Child (func_app, Number 0)),
+            Not (Is_Nth_Child (arg, Number 0)),
             Is_App func_app]))
     end
   | convert loc (Is_Nth_Arg_Of (arg, number, func)) =
@@ -291,7 +301,7 @@ and
        (Some (func_app_str, path_typ,
           Ands
            [Is_Parent_Of (func_app, func),
-            Is_Nth_Child (Number 0, func_app),
+            Is_Nth_Child (func, Number 0),
             Is_Parent_Of (func_app, arg),
             Is_N_Plus_One_th_Child (arg, number),
             Is_App func_app]))
