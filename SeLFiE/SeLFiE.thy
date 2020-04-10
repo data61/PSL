@@ -104,27 +104,27 @@ primrec rev :: "'a list \<Rightarrow> 'a list" where
  print_theorems
 
 lemma "itrev xs ys = rev xs @ ys"
-  assert_SeLFiE heuristic_1 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_2 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_3 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_4 [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE heuristic_5 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_6 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_7 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_8 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_9 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_1  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_2  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_3  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_4  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE heuristic_5  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_6  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_7  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_8  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE heuristic_9  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_10 [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_11 [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_12 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE heuristic_13 [on["xs"], arb["ys"],rule["itrev.induct"]]
-
-  assert_SeLFiE lifter_1 [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE lifter_3 [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE lifter_2 [on["xs"], arb["ys"],rule["itrev.induct"]]
-(*
   assert_SeLFiE heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
-*)
+
+  assert_SeLFiE lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE lifter_3  [on["xs"], arb["ys"],rule["itrev.induct"]]
+
+
   apply(induct xs arbitrary: ys) apply auto done
 
 ML\<open>

@@ -9,6 +9,7 @@ struct
 
 open SeLFiE_Util;
 open Eval_Syntactic_Sugar;
+open Pattern;
 
 val is_meta_equation =
   Lambdas (["meta_eq"], Are_Same_Prints (Variable "meta_eq", Print "(\<equiv>)"));
@@ -72,11 +73,8 @@ val heuristic_8 =
   [Print "SeLFiE.itrev"]);
 
 val heuristic_9 =
-(*
  (Some ("x", QOuter_Path,
-   Unode_Has_Print (Variable "x", Print "ys")));
-*)
- (Some ("x", QOuter_Path, True));
+   Unode_Has_Print (Variable "x", Print "ys")));;
 
 val heuristic_10 =
  Not
@@ -127,34 +125,16 @@ All ("xs", QInd,
   ));
 
 val lifter_3 =
-  Some ("var_occ", QOuter_Path,
-      Is_Defined_With (Variable "var_occ", Command Pattern.Primrec)
-);
-
-val lifter_3 =
-Some ("ind", QInd,
-  Some_Of ("var_occ", Variable "ind",
-    Some ("func_occ", QOuter_Path,
-      Is_An_Arg_Of (Variable "var_occ", Variable "func_occ"))));
-
-(*
-(* heuristic_3 *)
-val all_ind_vars_are_arguments_of_a_recursive_function =
-Some_Trm (Trm 1,
-  Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-    All_Ind (Trm 2,
-      Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
-         (((Trm_Occ 1 Is_Defined_With Fun)
-          Or
-           (Trm_Occ 1 Is_Defined_With Function)
-          Or
-           (Trm_Occ 1 Is_Defined_With Inductive)
-          Or
-           (Trm_Occ 1 Is_Defined_With  Primrec))
-         And
-           (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 1))))));
-*)
-
-
+Some ("func_occ", QOuter_Path,
+  All("ind", QInd,
+    Some_Of ("ind_occ", Variable "ind",
+        Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
+      And
+        Ors
+         [Is_Defined_With (Variable "func_occ", Command Primrec),
+          Is_Defined_With (Variable "func_occ", Command Fun),
+          Is_Defined_With (Variable "func_occ", Command Function),
+          Is_Defined_With (Variable "func_occ", Command Inductive)
+          ])));
 
 end;

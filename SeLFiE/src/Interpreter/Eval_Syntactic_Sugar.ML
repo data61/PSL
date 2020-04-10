@@ -272,15 +272,6 @@ and
       val path_typ     = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
     (*Note that we have already transformed the syntax tree structure in Unique_Node.*)
-(*
-datatype futrm_w_prnt_n_inner_path =
-  UFC_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
-| UFF_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
-| UFV_Prnt_n_Path of (indexname * typ                                           ) * string * inner_path
-| UFB_Prnt_n_Path of (int       * typ                                           ) * string * inner_path
-| UFL_Prnt_n_Path of (string    * typ           * futrm_w_prnt_n_inner_path     ) * string * inner_path
-| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * string * inner_path;
-*)
       convert loc
        (Some (func_app_str, path_typ,
           Ands

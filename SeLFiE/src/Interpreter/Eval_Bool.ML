@@ -59,7 +59,7 @@ fun eval'  True         = true
   | eval' (Nor asses)   = (case Seq.pull asses of SOME (head1, tail1) => (eval' (Not head1) andalso  eval' (Not (Seq.hd tail1))) | _ => error "Nor in Eval_Bool failed.")
   | eval' (Imply asses) = (case Seq.pull asses of SOME (head1, tail1) => (if eval' head1 then eval' (Seq.hd tail1) else true)    | _ => error "Imply in Eval_Bool failed.")
   | eval' (Ands asses)  = (case Seq.pull asses of SOME (head1, tail1) => (eval' head1 andalso eval' (Ands tail1))                | _ => true)
-  | eval' (Ors  asses)  = (case Seq.pull asses of SOME (head1, tail1) => (tracing "Ors";eval' head1 orelse eval' (Ors tail1))    | _ => false)
+  | eval' (Ors  asses)  = (case Seq.pull asses of SOME (head1, tail1) => (eval' head1 orelse eval' (Ors tail1))                  | _ => false)
 
 fun eval assert_connective = if eval' assert_connective then True else False;
 
