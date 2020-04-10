@@ -194,6 +194,8 @@ tracing "In Apply (func and arg)";
             (* Note that param_exprs are always Literal at this point
              * because the evaluation function in From_Bound_To_Quantifier evaluated
              * param_exprs eagerly.*)
+            (*TODO: FIXME: This strict evaluation here causes unnecessary computation when handling quantifiers.*)
+            (*      Lazy sequence instead of list for arguments (params)?*)
             val params = map (param_with_bool_to_bound o (fn param => eval' param term)) param_exprs;
           in
             EPWB.eval term pst induct_args assert params |> Literal

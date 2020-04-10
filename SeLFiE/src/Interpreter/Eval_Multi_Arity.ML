@@ -35,25 +35,25 @@ datatype expr =
 | Deep_Dive of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
 | All       of SeLFiE_Util.qtyp * expr
 | Some      of SeLFiE_Util.qtyp * expr;
-
-fun quantifier_to_multi_arity (Bound i)              = EB.Bound i
-  | quantifier_to_multi_arity (Lambdas (0, expr))    = EB.Lambda (quantifier_to_multi_arity expr)
-  | quantifier_to_multi_arity (Lambdas (n, expr))    = if n > 0 then EB.Lambda (quantifier_to_multi_arity (Lambdas (n - 1, expr)))
+(* unary_to_multi *)
+fun unary_to_multi (Bound i)              = EB.Bound i
+  | unary_to_multi (Lambdas (0, expr))    = EB.Lambda (unary_to_multi expr)
+  | unary_to_multi (Lambdas (n, expr))    = if n > 0 then EB.Lambda (unary_to_multi (Lambdas (n - 1, expr)))
                                                        else error "quantifier_to_multi_arity failed. negative number of lambda abstractions."
-  | quantifier_to_multi_arity (Applies (f, xs))      =
+  | unary_to_multi (Applies (f, xs))      =
     let
       fun mk_nested_pair  []                  (acc:EB.expr) = acc:EB.expr
-        | mk_nested_pair (arg::args:expr list)(acc:EB.expr) = mk_nested_pair args (EB.Apply (acc, quantifier_to_multi_arity arg)):EB.expr;
+        | mk_nested_pair (arg::args:expr list)(acc:EB.expr) = mk_nested_pair args (EB.Apply (acc, unary_to_multi arg)):EB.expr;
     in
-      mk_nested_pair xs (quantifier_to_multi_arity f)
+      mk_nested_pair xs (unary_to_multi f)
     end
-  | quantifier_to_multi_arity (Dive_In   (t, l, args)) = EB.Dive_In   (quantifier_to_multi_arity t, quantifier_to_multi_arity l, quantifiers_to_multi_arities args)
-  | quantifier_to_multi_arity (Deep_Dive (t, l, args)) = EB.Deep_Dive (quantifier_to_multi_arity t, quantifier_to_multi_arity l, quantifiers_to_multi_arities args)
-  | quantifier_to_multi_arity (Literal l          )    = EB.Literal l
-  | quantifier_to_multi_arity (Assert (ass, exprs))    = EB.Assert (ass, map quantifier_to_multi_arity exprs)
-  | quantifier_to_multi_arity (All    (qtyp, expr))    = EB.All    (qtyp, quantifier_to_multi_arity expr)
-  | quantifier_to_multi_arity (Some   (qtyp, expr))    = EB.Some   (qtyp, quantifier_to_multi_arity expr)
-and quantifiers_to_multi_arities exprs = map quantifier_to_multi_arity exprs
+  | unary_to_multi (Dive_In   (t, l, args)) = EB.Dive_In   (unary_to_multi t, unary_to_multi l, unaries_to_multis args)
+  | unary_to_multi (Deep_Dive (t, l, args)) = EB.Deep_Dive (unary_to_multi t, unary_to_multi l, unaries_to_multis args)
+  | unary_to_multi (Literal l          )    = EB.Literal l
+  | unary_to_multi (Assert (ass, exprs))    = EB.Assert (ass,unaries_to_multis exprs)
+  | unary_to_multi (All    (qtyp, expr))    = EB.All    (qtyp, unary_to_multi expr)
+  | unary_to_multi (Some   (qtyp, expr))    = EB.Some   (qtyp, unary_to_multi expr)
+and unaries_to_multis exprs = map unary_to_multi exprs
 
 fun convert_result (EB.Literal l) = Literal l
   | convert_result (EB.Bound   i) = Bound i
@@ -83,8 +83,8 @@ fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " "
 fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
     val _ = tracing ("Print from From_Quantifier_To_Multi_Arity: \n" ^ print_expr expr);
-    val eq_result = EB.eval pst induct_args (quantifier_to_multi_arity expr): EB.expr;
-    val result    = convert_result eq_result                                : expr;
+    val eq_result = EB.eval pst induct_args (unary_to_multi expr): EB.expr;
+    val result    = convert_result eq_result                     : expr;
   in
     result
   end;
