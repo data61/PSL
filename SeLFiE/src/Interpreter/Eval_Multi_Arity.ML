@@ -60,16 +60,6 @@ fun convert_result (EB.Literal l) = Literal l
   | convert_result (EB.Lambda expr) = Lambdas (0, convert_result expr)
   | convert_result  _ = error "convert_result in Multi_Arity failed. Evaluation is not complete.";
 
-fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " \n"
-  | print_expr (Lambdas (i, expr)) = "Lambdas " ^  Int.toString i ^ " desu " ^ print_expr expr
-  | print_expr (Applies (exp1, exp2)) = "Applies " ^ print_expr exp1 ^ "\n" ^ (fold (curry (op ^)) (map print_expr exp2) "")
-  | print_expr (Literal _) = "Literal \n"
-  | print_expr (Assert (_, expres)) = "Assert \n" ^ (fold (curry (op ^)) (map print_expr expres) "")
-  | print_expr (Dive_In   _) = "Dive_In ...\n"
-  | print_expr (Deep_Dive _) = "Deep_Dive ...\n"
-  | print_expr (All       _) = "Alls \n"
-  | print_expr (Some      _) = "Some \n";
-
 fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " "
   | print_expr (Lambdas (vnames, expr)) = "Lambdas ( " ^ Int.toString vnames ^ " ,  " ^ print_expr expr ^ " ) "
   | print_expr (Applies (exp1, exp2)) = "Applies " ^ print_expr exp1 ^ " " ^ (fold (curry (op ^)) (map print_expr exp2) "")

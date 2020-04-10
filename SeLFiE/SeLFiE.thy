@@ -92,6 +92,8 @@ setup\<open> Apply_SeLFiE.update_assert "lifter_1"  SeLFiE_Assertion.lifter_1 \<
 setup\<open> Apply_SeLFiE.update_assert "lifter_1b" SeLFiE_Assertion.lifter_1b \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_2"  SeLFiE_Assertion.lifter_2 \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_3"  SeLFiE_Assertion.lifter_3 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_4"  SeLFiE_Assertion.lifter_4 \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_dive_in"  SeLFiE_Assertion.test_dive_in \<close>
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -118,11 +120,13 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE heuristic_12 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE heuristic_13 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE test_dive_in  [on["xs"], arb["ys"],rule["itrev.induct"]]
 
   assert_SeLFiE lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_3  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE lifter_4  [on["xs"], arb["ys"],rule["itrev.induct"]]
 
 
   apply(induct xs arbitrary: ys) apply auto done

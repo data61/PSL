@@ -95,7 +95,7 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Is_In_Nth_Subgoal      [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Subgoal      (p, n)))
       | eval' SU.Is_In_Nth_Chained_Fact [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Chained_Fact (p, n)))
       (*Eval_Print*)
-      | eval' SU.Are_Same_Prints [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2))
+      | eval' SU.Are_Same_Prints [Non_Path (Print p1), Non_Path (Print p2)] = (tracing ("========" ^ p1);EPR.eval (EPR.Are_Same_Prints (p1, p2)))
       (*Eval_Number*)
       | eval' SU.Are_Same_Number [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Are_Same_Number (numb1, numb2))
       | eval' SU.Is_Less_Than    [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Is_Less_Than    (numb1, numb2))

@@ -143,20 +143,19 @@ fun param_with_bool_to_bound (Literal param) = param
       error ("eval_prim in Eval_Bound failed with " ^ mssg)
     end;
 
-fun check_all_args_are_non_path_lits  []                             = true
-  | check_all_args_are_non_path_lits (Literal (EP.Outer_Path _)::ls) = check_all_args_are_non_path_lits ls
-  | check_all_args_are_non_path_lits (Literal (EP.Inner_Path _)::ls) = check_all_args_are_non_path_lits ls
-  | check_all_args_are_non_path_lits _ = error "check_all_args_are_non_path_lits only takes paths.";
+fun check_all_args_are_non_path_lits  []                           = true
+  | check_all_args_are_non_path_lits (Literal (EP.Non_Path _)::ls) = check_all_args_are_non_path_lits ls
+  | check_all_args_are_non_path_lits _ = error "check_all_args_are_non_path_lits only takes non_paths.";
 
 fun mk_nested_app func []          = func
   | mk_nested_app func (arg::args) = mk_nested_app (Apply (func, arg)) args;
 
 fun mk_nested_lamb (Lambda lambda) 0 = Lambda lambda
   | mk_nested_lamb (Lambda lambda) n = if (tracing (Int.toString n);n < 0) then error "mk_nested_lamb failed." else Lambda (mk_nested_lamb lambda (n - 1))
-  | mk_nested_lamb _ _ = error "mk_nested_lamb failed.";
+  | mk_nested_lamb expr n = error ("mk_nested_lamb failed with " ^ print_expr expr ^ Int.toString n);
 
 fun mk_inner_expr (lamb as Lambda _) (arguments:expr list) =
-    mk_nested_app (mk_nested_lamb lamb (length arguments)) arguments
+    mk_nested_app (mk_nested_lamb lamb (length arguments - 1)) arguments
   | mk_inner_expr _ _ = error "mk_inner_expr failed!"
 
 fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
@@ -172,13 +171,7 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
     val thm_term = Thm.prop_of thm                      : term;
     fun tracing' mssg = if true then () else tracing mssg;
     fun eval' (Apply (func, arg)) term =
-(
-(*
-val _ = print_expr expr |> tracing;
-tracing "In Apply (func and arg)";
-("func is " ^ print_expr func) |> tracing;
-("arg  is " ^ print_expr arg)  |> tracing;
-*)
+        (
          (case eval' func term of
           Lambda  u => (tracing' ("LAMBDA " ^ print_expr u);  eval' (subst 0 (eval' arg term) u) term)
         | Literal l => (tracing' "LITERAL"; Literal l)
@@ -188,18 +181,13 @@ tracing "In Apply (func and arg)";
         | u1        => (tracing' ("Apply in Apply" ^
                        (case u1 of _  =>  " with something"));
                        Apply (u1, eval' arg term)))
-)
+        )
       | eval' (Assert (assert, param_exprs)) term =
           let
             (* Note that param_exprs are always Literal at this point
              * because the evaluation function in From_Bound_To_Quantifier evaluated
              * param_exprs eagerly.*)
-            (*TODO: FIXME: This strict evaluation here causes unnecessary computation when handling quantifiers.*)
-            (*      Lazy sequence instead of list for arguments (params)?*)
-(*
-            val params = map (param_with_bool_to_bound o (fn param => eval' param term)) param_exprs;
-*)
-            val lazy_param_exprs = Seq.of_list param_exprs: expr Seq.seq
+            val lazy_param_exprs = Seq.of_list param_exprs                                                             : expr Seq.seq
             val lazy_params      = Seq.map (param_with_bool_to_bound o (fn param => eval' param term)) lazy_param_exprs: Eval_Parameter.literal Seq.seq;
           in
             EPWB.eval term pst induct_args assert lazy_params |> Literal

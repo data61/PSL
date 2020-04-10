@@ -126,7 +126,7 @@ All ("xs", QInd,
 
 val lifter_3 =
 Some ("func_occ", QOuter_Path,
-  All("ind", QInd,
+  All ("ind", QInd,
     Some_Of ("ind_occ", Variable "ind",
         Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
       And
@@ -136,5 +136,46 @@ Some ("func_occ", QOuter_Path,
           Is_Defined_With (Variable "func_occ", Command Function),
           Is_Defined_With (Variable "func_occ", Command Inductive)
           ])));
+
+val lifter_4 =
+All("printed", QOuter_Print, Are_Same_Prints (Variable "printed", Variable "printed") And True);
+
+val help_test_dive_in =
+Lambdas (["func"], Are_Same_Prints (Variable "func", Variable "func"))
+(*
+  All("printed", QInner_Print,
+    Are_Same_Prints (Variable "printed", Variable "printed")))
+*);
+
+val test_dive_in =
+All ("func_occ", QOuter_Path,
+    Is_Defined_With (Variable "func_occ", Command Fun)
+  Imply
+    All ("func", QOuter_Print,
+        Unode_Has_Print (Variable "func_occ", Variable "func")
+      Imply
+        In_All_Definitions (Variable "func_occ", help_test_dive_in, [Variable "func"]))
+  )
+(*
+val all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete =
+ Not (Some_Rule (Rule 1, True))
+Imply
+ Some_Trm (Trm 1,
+  Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    ((Trm_Occ 1 Is_Defined_With Fun)
+    Or
+     (Trm_Occ 1 Is_Defined_With  Function)
+    Or
+     (Trm_Occ 1 Is_Defined_With Inductive)
+    Or
+     (Trm_Occ 1 Is_Defined_With  Primrec))
+   And
+    All_Ind (Trm 2,
+      Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+       Some_Numb (Numb 1,
+         Pattern (Numb 1, Trm_Occ 1, All_Constr)
+        And
+         Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1))))));
+*)
 
 end;
