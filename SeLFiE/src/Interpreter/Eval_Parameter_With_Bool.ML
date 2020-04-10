@@ -8,7 +8,7 @@
 signature EVAL_PARAMETER_WITH_BOOL =
 sig
 
-val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.assert -> Eval_Parameter.literals -> Eval_Parameter.literal;
+val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.assert -> Eval_Parameter.literal Seq.seq -> Eval_Parameter.literal;
 
 end;
 
@@ -18,33 +18,27 @@ struct
 
 structure EP = Eval_Parameter;
 structure SU = SeLFiE_Util;
+structure EB = Eval_Bool;
 
 type connective = Eval_Bool.assert;
 type command    = Pattern.command;
 
-structure EB = Eval_Bool;
-
-fun de_Bool (EP.Non_Path (EP.Bool c)) = c
-  | de_Bool  _                        = error "de_Bool in from_Parameter_to_Parameter_With_Bool failed.";
-
-val bool_to_connect    = EB.bool_to_assert;
-val bools_to_connects  = Utils.map_pair bool_to_connect;
-val de_bool_to_connect = bool_to_connect o de_Bool;
-
-fun eval (trm:term) (pst:Proof.state) (induct_args:SU.induct_arguments) (assert:SU.assert) (parameters:EP.literals) =
+fun eval (trm:term) (pst:Proof.state) (induct_args:SU.induct_arguments) (assert:SU.assert) (parameters:EP.literal Seq.seq) =
   let
+    fun take_bool (EP.Non_Path (EP.Bool b)) = b
+      | take_bool  _                        = error "take_bool";
+    val non_path_lit_to_connect = EB.bool_to_assert o take_bool;
     fun
       (*Eval_Connective*)
-        eval' SU.Not   [EP.Non_Path (EP.Bool b)]                            = EB.eval (EB.Not   (bool_to_connect    b      ))
-      | eval' SU.And   [EP.Non_Path (EP.Bool b1), EP.Non_Path (EP.Bool b2)] = EB.eval (EB.And   (bools_to_connects (b1, b2)))
-      | eval' SU.Or    [EP.Non_Path (EP.Bool b1), EP.Non_Path (EP.Bool b2)] = EB.eval (EB.Or    (bools_to_connects (b1, b2)))
-      | eval' SU.Nor   [EP.Non_Path (EP.Bool b1), EP.Non_Path (EP.Bool b2)] = EB.eval (EB.Nor   (bools_to_connects (b1, b2)))
-      | eval' SU.Imply [EP.Non_Path (EP.Bool b1), EP.Non_Path (EP.Bool b2)] = EB.eval (EB.Imply (bools_to_connects (b1, b2)))
-      | eval' SU.Ands   ands                                                = EB.eval (EB.Ands  (map de_bool_to_connect ands))
-      | eval' SU.Ors    ors                                                 = EB.eval (EB.Ors   (map de_bool_to_connect ors ))
+        eval' SU.Not   lazy_params = EB.eval (EB.Not   (non_path_lit_to_connect (Seq.hd lazy_params)))
+      | eval' SU.And   lazy_params = EB.eval (EB.And   (Seq.map non_path_lit_to_connect lazy_params))
+      | eval' SU.Or    lazy_params = EB.eval (EB.Or    (Seq.map non_path_lit_to_connect lazy_params))
+      | eval' SU.Nor   lazy_params = EB.eval (EB.Nor   (Seq.map non_path_lit_to_connect lazy_params))
+      | eval' SU.Imply lazy_params = EB.eval (EB.Imply (Seq.map non_path_lit_to_connect lazy_params))
+      | eval' SU.Ands  lazy_params = EB.eval (EB.Ands  (Seq.map non_path_lit_to_connect lazy_params))
+      | eval' SU.Ors   lazy_params = EB.eval (EB.Ors   (Seq.map non_path_lit_to_connect lazy_params))
       (*Eval_Unode_Core*)
-      | eval' (SU.Atomic atomic_assert) params = EP.eval trm pst induct_args atomic_assert params
-      | eval' _ _ = error "eval' in Parameter_With_Bool failed."
+      | eval' (SU.Atomic atomic_assert) lazy_params = EP.eval trm pst induct_args atomic_assert (Seq.list_of lazy_params)
     val ec_result = eval' assert parameters: Eval_Bool.assert;
     val result    = ec_result |> EB.assert_to_bool |> EP.Bool |> EP.Non_Path;
   in

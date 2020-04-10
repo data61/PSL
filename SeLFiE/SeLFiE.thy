@@ -122,7 +122,6 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_3 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_2 [on["xs"], arb["ys"],rule["itrev.induct"]]
-
 (*
   assert_SeLFiE heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
 *)

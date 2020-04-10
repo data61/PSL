@@ -196,9 +196,13 @@ tracing "In Apply (func and arg)";
              * param_exprs eagerly.*)
             (*TODO: FIXME: This strict evaluation here causes unnecessary computation when handling quantifiers.*)
             (*      Lazy sequence instead of list for arguments (params)?*)
+(*
             val params = map (param_with_bool_to_bound o (fn param => eval' param term)) param_exprs;
+*)
+            val lazy_param_exprs = Seq.of_list param_exprs: expr Seq.seq
+            val lazy_params      = Seq.map (param_with_bool_to_bound o (fn param => eval' param term)) lazy_param_exprs: Eval_Parameter.literal Seq.seq;
           in
-            EPWB.eval term pst induct_args assert params |> Literal
+            EPWB.eval term pst induct_args assert lazy_params |> Literal
           end
       | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) term = dive triple term outer_literal_to_definitions
       | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) term = dive triple term inner_literal_to_definitions

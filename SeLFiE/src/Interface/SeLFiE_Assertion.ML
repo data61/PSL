@@ -72,8 +72,11 @@ val heuristic_8 =
   [Print "SeLFiE.itrev"]);
 
 val heuristic_9 =
+(*
  (Some ("x", QOuter_Path,
    Unode_Has_Print (Variable "x", Print "ys")));
+*)
+ (Some ("x", QOuter_Path, True));
 
 val heuristic_10 =
  Not
