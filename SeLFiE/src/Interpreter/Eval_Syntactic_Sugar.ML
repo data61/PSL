@@ -58,7 +58,6 @@ datatype assert =
 | Some                of string * SeLFiE_Util.qtyp * assert
 | In_All_Definitions  of assert * assert * assert list
 | In_Some_Definitions of assert * assert * assert list
-| Outermost           of assert
 (*Syntactic Sugar*)
 | Is_Atomic                          of assert
 | Is_Path_Below                      of assert * assert
@@ -74,7 +73,9 @@ datatype assert =
 | Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_At_Deepest_In_A_Location        of assert
 | Some_Of                            of string * assert * assert
-| All_Of                             of string * assert * assert;
+| All_Of                             of string * assert * assert
+(*debug*)
+| Debug_Non_Path_Literal of assert;
 
 val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
@@ -137,7 +138,6 @@ datatype assert =
 | Some                of string * SeLFiE_Util.qtyp * assert
 | In_All_Definitions  of assert * assert * assert list
 | In_Some_Definitions of assert * assert * assert list
-| Outermost           of assert
 (*Syntactic Sugar*)
 | Is_Atomic                          of assert
 | Is_Path_Below                      of assert * assert
@@ -153,7 +153,9 @@ datatype assert =
 | Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_At_Deepest_In_A_Location        of assert
 | Some_Of                            of string * assert * assert
-| All_Of                             of string * assert * assert;
+| All_Of                             of string * assert * assert
+(*debug*)
+| Debug_Non_Path_Literal             of assert;
 
 structure ES = Eval_Surface;
 structure SU = SeLFiE_Util;
@@ -356,6 +358,7 @@ and
             inner_assert))
     end
   | convert loc (All_Of (occ, prnt, inner_assert)) = convert loc (Not (Some_Of (occ, prnt, Not inner_assert)))
+  | convert loc (Debug_Non_Path_Literal assert) = ES.Debug_Non_Path_Literal (convert loc assert)
 
 fun surf_to_sugar ES.True  = True
   | surf_to_sugar ES.False = False

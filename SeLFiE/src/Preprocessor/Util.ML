@@ -55,7 +55,9 @@ datatype atomic_assert =
 | Is_Nth_Arbitrary
 | Is_Induct
 | Is_Arbitrary
-| Is_Rule;
+| Is_Rule
+(*debug*)
+| Debug_Non_Path_Literal;
 
 val print_atomic_assert: atomic_assert -> string;
 
@@ -147,7 +149,9 @@ datatype atomic_assert =
 | Is_Nth_Arbitrary
 | Is_Induct
 | Is_Arbitrary
-| Is_Rule;
+| Is_Rule
+(*debug*)
+| Debug_Non_Path_Literal;
 
 fun print_atomic_assert (Is_Cnst               ) = "Is_Cnst"
   | print_atomic_assert (Is_Free               ) = "Is_Free"
@@ -178,6 +182,7 @@ fun print_atomic_assert (Is_Cnst               ) = "Is_Cnst"
   | print_atomic_assert (Is_Arbitrary          ) = "Is_Arbitrary"
   | print_atomic_assert (Is_Rule               ) = "Is_Rule"
   | print_atomic_assert (Is_Defined_With       ) = "Is_Defined_With"
+  | print_atomic_assert (Debug_Non_Path_Literal) = "Debug_Non_Path_Literal";
 
 datatype assert =
   Not

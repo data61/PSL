@@ -95,7 +95,7 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Is_In_Nth_Subgoal      [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Subgoal      (p, n)))
       | eval' SU.Is_In_Nth_Chained_Fact [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Chained_Fact (p, n)))
       (*Eval_Print*)
-      | eval' SU.Are_Same_Prints [Non_Path (Print p1), Non_Path (Print p2)] = (tracing ("========" ^ p1);EPR.eval (EPR.Are_Same_Prints (p1, p2)))
+      | eval' SU.Are_Same_Prints [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2))
       (*Eval_Number*)
       | eval' SU.Are_Same_Number [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Are_Same_Number (numb1, numb2))
       | eval' SU.Is_Less_Than    [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Is_Less_Than    (numb1, numb2))
@@ -105,6 +105,11 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Is_Induct        [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Induct p)             induct_args
       | eval' SU.Is_Arbitrary     [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Arbitrary p)          induct_args
       | eval' SU.Is_Rule          [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Rule p)               induct_args
+      (*debug*)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Bool    b)] = (tracing ("Debug Bool "   ^ (if b then "true" else "false")); Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Print   p)] = (tracing ("Debug Print "  ^ p                              ); Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Number  n)] = (tracing ("Debug Number " ^ Int.toString n                 ); Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Command c)] = (tracing ("Debug Number " ^ Pattern.print_command c        ); Eval_Bool.True)
       | eval' assert _ = error ("- eval' in Eval_Parameter.ML failed at " ^ SU.print_atomic_assert assert);
   in
     eval' assert literals: Eval_Bool.assert

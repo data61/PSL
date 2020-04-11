@@ -141,7 +141,7 @@ val lifter_4 =
 All("printed", QOuter_Print, Are_Same_Prints (Variable "printed", Variable "printed") And True);
 
 val help_test_dive_in =
-Lambdas (["func"], Are_Same_Prints (Variable "func", Variable "func"))
+Lambdas (["func"], Debug_Non_Path_Literal (Variable "func"))
 (*
   All("printed", QInner_Print,
     Are_Same_Prints (Variable "printed", Variable "printed")))
