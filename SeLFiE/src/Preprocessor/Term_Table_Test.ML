@@ -55,21 +55,22 @@ fun unode_wo_inner_path_table_n_inner_path_to_print (table, inner_path) =
 
 in
 
+
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, []     )     |> the) = ("x &&& w &&& ww \<Longrightarrow> f (\<lambda>x. x w) z2 \<Longrightarrow> z1 &&& z2 &&& z3 z4 z5 z6"));
-val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [0]    )     |> the) = ("(\<Longrightarrow>)"));
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [0]    )     |> the) = ("Pure.imp"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [1]    )     |> the) = ("x &&& w &&& ww"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [1,3]  )     |> the) = ("ww"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3]    )     |> the) = ("z1 &&& z2 &&& z3 z4 z5 z6"));
-val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,0]  )     |> the) = ("(&&&)"))
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,0]  )     |> the) = ("Pure.conjunction"))
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,1])       |> the) = ("z1"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3])       |> the) = ("z3 z4 z5 z6"));
-val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,0])     |> the) = ("Trueprop"));
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,0])     |> the) = ("HOL.Trueprop"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1])     |> the) = ("z3 z4 z5 z6"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,0])   |> the) = ("z3"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,1])   |> the) = ("z4"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,2])   |> the) = ("z5"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2])         |> the) = ("f (\<lambda>x. x w) z2"));
-val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,0])       |> the) = ("Trueprop"));
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,0])       |> the) = ("HOL.Trueprop"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,1]  )     |> the) = ("f (\<lambda>x. x w) z2"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,1,0])     |> the) = ("f"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [2,1,1])     |> the) = ("\<lambda>x. x w"));
@@ -109,8 +110,8 @@ val all_f_f_x_table = trm_to_inner_path_to_unode_table all_f_f_x: TT.inner_path_
 val sample_list = @{term "[1,2,3]"};
 val sample_list_table = trm_to_inner_path_to_unode_table sample_list;
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (sample_list_table, [ ])|> the) = "[1, 2, 3]");
-val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (sample_list_table, [0])|> the) = "(#)");
-val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (sample_list_table, [1])|> the) = "1");
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (sample_list_table, [0])|> the) = "List.list.Cons");
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (sample_list_table, [1])|> the) = "Groups.one_class.one");
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (sample_list_table, [2])|> the) = "[2, 3]");
 
 val var_of_type_list = @{term "xs::int list"};

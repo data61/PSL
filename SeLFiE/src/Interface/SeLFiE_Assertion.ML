@@ -167,13 +167,13 @@ All ("func_occ", QOuter_Path,
   )
 
 val print_all_inner_prints_helper =
-Lambdas (["outer_path"],
+Lambdas (["outer_print"],
  All ("printed", QInner_Print,
   Debug_Non_Path_Literal (Variable "printed")));
 
 val print_all_inner_prints =
   All ("outer_path", QOuter_Path,
-    In_All_Definitions (Variable "outer_path", print_all_inner_prints_helper, [Print "outer_path"]));
+    In_All_Definitions (Variable "outer_path", print_all_inner_prints_helper, [Print "outer_print"]));
 
 val print_all_outer_prints =
 All ("printed", QOuter_Print,
@@ -181,7 +181,28 @@ All ("printed", QOuter_Print,
 
 val print_all_unodes =
 All ("unode", QOuter_Path,
-  Debug_Print_Unode (Variable "unode"))
+  Debug_Print_Unode (Variable "unode"));
+
+val print_outer_path_root =
+All ("outpath", QOuter_Path,
+    Is_Root_In_A_Location (Variable "outpath")
+  Imply
+    Debug_Print_Unode (Variable "outpath"));
+
+val print_inner_path_root_help =
+Lambdas (["outer_print"],
+  Some ("inner_path", QInner_Path,
+      Is_Root_In_A_Location (Variable "inner_path")
+    And
+      Debug_Print_Unode (Variable "inner_path")));
+
+val print_inner_roots =
+All ("outer_path", QOuter_Path,
+  Some ("outer_print", QOuter_Print,
+      Unode_Has_Print (Variable "outer_path", Variable "outer_print")
+    And
+      In_All_Definitions (Variable "outer_path", print_inner_path_root_help, [Variable "outer_print"])));
+
 (*
 val all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete =
  Not (Some_Rule (Rule 1, True))

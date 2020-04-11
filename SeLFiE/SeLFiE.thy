@@ -63,6 +63,7 @@ ML_file "src/Interface/Apply_SeLFiE.ML"
 definition "func x \<equiv> x"
 thm func_def
 ML\<open>
+val meta_imp = @{term "1"}
 val func_thm = @{thm func_def};
 val func_term = Thm.cprop_of func_thm |> Thm.term_of;
 
@@ -97,6 +98,9 @@ setup\<open> Apply_SeLFiE.update_assert "test_dive_in"  SeLFiE_Assertion.test_di
 setup\<open> Apply_SeLFiE.update_assert "print_all_outer_prints"  SeLFiE_Assertion.print_all_outer_prints \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_all_inner_prints"  SeLFiE_Assertion.print_all_inner_prints \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_all_unodes"        SeLFiE_Assertion.print_all_unodes \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_outer_path_root"   SeLFiE_Assertion.print_outer_path_root \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_inner_roots"       SeLFiE_Assertion.print_inner_roots \<close>
+
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -127,7 +131,8 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE print_all_outer_prints [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_all_inner_prints [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_all_unodes       [on["xs"], arb["ys"],rule["itrev.induct"]]
-
+  assert_SeLFiE print_outer_path_root  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]
 
   assert_SeLFiE lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]

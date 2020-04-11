@@ -71,6 +71,7 @@ datatype assert =
 | Are_In_Same_Location               of assert * assert
 | Is_Deeper_Than_In_Same_Location    of assert * assert
 | Is_Shallower_Than_In_Same_Location of assert * assert
+| Is_Root_In_A_Location              of assert
 | Is_At_Deepest_In_A_Location        of assert
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert
@@ -152,6 +153,7 @@ datatype assert =
 | Are_In_Same_Location               of assert * assert
 | Is_Deeper_Than_In_Same_Location    of assert * assert
 | Is_Shallower_Than_In_Same_Location of assert * assert
+| Is_Root_In_A_Location              of assert
 | Is_At_Deepest_In_A_Location        of assert
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert
@@ -336,7 +338,22 @@ and
        (Are_In_Same_Location (deep, shallow)
       And
         Is_Deeper_Than (deep, shallow))
-  | convert loc (Is_Shallower_Than_In_Same_Location (shallow, deep)) = convert loc (Is_Deeper_Than_In_Same_Location (deep, shallow))
+  | convert loc (Is_Shallower_Than_In_Same_Location (shallow, deep)) =
+    convert loc
+       (Are_In_Same_Location (deep, shallow)
+      And
+        Is_Shallower_Than (shallow, deep))
+  | convert loc (Is_Root_In_A_Location assert) =
+    let
+      val non_exist_str = get_new_name [assert] : string;
+      val non_exist     = Variable non_exist_str: assert;
+      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+    in
+      convert loc
+        (Not
+          (Some (non_exist_str, path_typ,
+            Is_Shallower_Than_In_Same_Location (non_exist, assert))))
+    end
   | convert loc (Is_At_Deepest_In_A_Location assert) =
     let
       val non_exist_str = get_new_name [assert] : string;
