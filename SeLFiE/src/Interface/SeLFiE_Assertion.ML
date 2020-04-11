@@ -83,7 +83,7 @@ val heuristic_10 =
 
 val heuristic_11 =
  (Some ("x", QOuter_Path,
-   Unode_Has_Print (Variable "x", Print "itrev")));
+   Unode_Has_Print (Variable "x", Print "SeLFiE.itrev")));
 
 val heuristic_12 =
   Some ("induct", QInd,
@@ -140,8 +140,17 @@ Some ("func_occ", QOuter_Path,
 val lifter_4 =
 All("printed", QOuter_Print, Are_Same_Prints (Variable "printed", Variable "printed") And True);
 
+val nth_arg_on_lfs_is_const_or_app =
+ Lambdas (["nth"], Debug_Non_Path_Literal (Variable "func"));
+
 val help_test_dive_in =
-Lambdas (["func"], Debug_Non_Path_Literal (Variable "func"))
+ Lambdas (["func"],
+  All ("printed", QInner_Print,
+   Debug_Non_Path_Literal (Variable "printed")));
+
+(*
+ Debug_Non_Path_Literal (Variable "func"))
+*)
 (*
   All("printed", QInner_Print,
     Are_Same_Prints (Variable "printed", Variable "printed")))
@@ -156,6 +165,23 @@ All ("func_occ", QOuter_Path,
       Imply
         In_All_Definitions (Variable "func_occ", help_test_dive_in, [Variable "func"]))
   )
+
+val print_all_inner_prints_helper =
+Lambdas (["outer_path"],
+ All ("printed", QInner_Print,
+  Debug_Non_Path_Literal (Variable "printed")));
+
+val print_all_inner_prints =
+  All ("outer_path", QOuter_Path,
+    In_All_Definitions (Variable "outer_path", print_all_inner_prints_helper, [Print "outer_path"]));
+
+val print_all_outer_prints =
+All ("printed", QOuter_Print,
+  Debug_Non_Path_Literal (Variable "printed"));
+
+val print_all_unodes =
+All ("unode", QOuter_Path,
+  Debug_Print_Unode (Variable "unode"))
 (*
 val all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete =
  Not (Some_Rule (Rule 1, True))

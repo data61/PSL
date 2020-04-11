@@ -106,10 +106,12 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Is_Arbitrary     [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Arbitrary p)          induct_args
       | eval' SU.Is_Rule          [Non_Path (Print p)]                      = EIA.eval (EIA.Is_Rule p)               induct_args
       (*debug*)
-      | eval' SU.Debug_Non_Path_Literal [Non_Path (Bool    b)] = (tracing ("Debug Bool "   ^ (if b then "true" else "false")); Eval_Bool.True)
-      | eval' SU.Debug_Non_Path_Literal [Non_Path (Print   p)] = (tracing ("Debug Print "  ^ p                              ); Eval_Bool.True)
-      | eval' SU.Debug_Non_Path_Literal [Non_Path (Number  n)] = (tracing ("Debug Number " ^ Int.toString n                 ); Eval_Bool.True)
-      | eval' SU.Debug_Non_Path_Literal [Non_Path (Command c)] = (tracing ("Debug Number " ^ Pattern.print_command c        ); Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Bool    b)] = (tracing ("Debug Bool "   ^ (if b then "true" else "false"));  Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Print   p)] = (tracing ("Debug Print "  ^ p                              );  Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Number  n)] = (tracing ("Debug Number " ^ Int.toString n                 );  Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Command c)] = (tracing ("Debug Number " ^ Pattern.print_command c        );  Eval_Bool.True)
+      | eval' SU.Debug_Print_Unode      [Outer_Path p]         = (EPT.eval trm pst (EPT.Outer_Assert (PA.Debug_Print_Unode p)); Eval_Bool.True)
+      | eval' SU.Debug_Print_Unode      [Inner_Path p]         = (EPT.eval trm pst (EPT.Inner_Assert (PA.Debug_Print_Unode p)); Eval_Bool.True)
       | eval' assert _ = error ("- eval' in Eval_Parameter.ML failed at " ^ SU.print_atomic_assert assert);
   in
     eval' assert literals: Eval_Bool.assert

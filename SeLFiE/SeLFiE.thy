@@ -94,6 +94,9 @@ setup\<open> Apply_SeLFiE.update_assert "lifter_2"  SeLFiE_Assertion.lifter_2 \<
 setup\<open> Apply_SeLFiE.update_assert "lifter_3"  SeLFiE_Assertion.lifter_3 \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_4"  SeLFiE_Assertion.lifter_4 \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_dive_in"  SeLFiE_Assertion.test_dive_in \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_all_outer_prints"  SeLFiE_Assertion.print_all_outer_prints \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_all_inner_prints"  SeLFiE_Assertion.print_all_inner_prints \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_all_unodes"        SeLFiE_Assertion.print_all_unodes \<close>
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -121,6 +124,10 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE heuristic_13 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE test_dive_in  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE print_all_outer_prints [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE print_all_inner_prints [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE print_all_unodes       [on["xs"], arb["ys"],rule["itrev.induct"]]
+
 
   assert_SeLFiE lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
@@ -132,7 +139,8 @@ lemma "itrev xs ys = rev xs @ ys"
   apply(induct xs arbitrary: ys) apply auto done
 
 ML\<open>
-@{term "itrev"}
+@{term "itrev"};
+@{term "(@)"};
 \<close>
 
 (* auxiliary stuff *)

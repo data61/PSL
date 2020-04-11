@@ -38,8 +38,9 @@ datatype expr =
 (* unary_to_multi *)
 fun unary_to_multi (Bound i)              = EB.Bound i
   | unary_to_multi (Lambdas (0, expr))    = EB.Lambda (unary_to_multi expr)
-  | unary_to_multi (Lambdas (n, expr))    = if n > 0 then EB.Lambda (unary_to_multi (Lambdas (n - 1, expr)))
-                                                       else error "quantifier_to_multi_arity failed. negative number of lambda abstractions."
+  | unary_to_multi (Lambdas (n, expr))    = if n > 0  then EB.Lambda (unary_to_multi (Lambdas (n - 1, expr)))
+                                       else if n = ~1 then unary_to_multi expr (*corresponding to no-lambda abstraction.*)
+                                       else error "quantifier_to_multi_arity failed. negative number of lambda abstractions."
   | unary_to_multi (Applies (f, xs))      =
     let
       fun mk_nested_pair  []                  (acc:EB.expr) = acc:EB.expr

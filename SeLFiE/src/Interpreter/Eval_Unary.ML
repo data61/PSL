@@ -151,7 +151,8 @@ fun mk_nested_app func []          = func
   | mk_nested_app func (arg::args) = mk_nested_app (Apply (func, arg)) args;
 
 fun mk_nested_lamb (Lambda lambda) 0 = Lambda lambda
-  | mk_nested_lamb (Lambda lambda) n = if (tracing (Int.toString n);n < 0) then error "mk_nested_lamb failed." else Lambda (mk_nested_lamb lambda (n - 1))
+  | mk_nested_lamb (Lambda lambda) n = if n = ~1 then lambda else
+                                       if n < 0  then error "mk_nested_lamb failed." else Lambda (mk_nested_lamb lambda (n - 1))
   | mk_nested_lamb expr n = error ("mk_nested_lamb failed with " ^ print_expr expr ^ Int.toString n);
 
 fun mk_inner_expr (lamb as Lambda _) (arguments:expr list) =

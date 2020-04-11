@@ -29,7 +29,9 @@ datatype 'path assert =
 | Is_In_Subgoal          of 'path
 | Is_In_Chained_Fact     of 'path
 | Is_In_Nth_Subgoal      of 'path * int
-| Is_In_Nth_Chained_Fact of 'path * int;
+| Is_In_Nth_Chained_Fact of 'path * int
+(*debug*)
+| Debug_Print_Unode      of 'path;
 
 end;
 
@@ -103,7 +105,9 @@ fun eval (term:term) (pst:Proof.state) assert =
       | eval' (PA.Is_In_Subgoal          path) = Path_To_Unode.path_is_in_subgoal path                  |> Eval_Bool.bool_to_assert
       | eval' (PA.Is_In_Chained_Fact     path) = Path_To_Unode.path_is_in_chained_fact path             |> Eval_Bool.bool_to_assert
       | eval' (PA.Is_In_Nth_Subgoal      pair) = uncurry Path_To_Unode.path_is_in_nth_subgoal pair      |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Nth_Chained_Fact pair) = uncurry Path_To_Unode.path_is_in_nth_chained_fact pair |> Eval_Bool.bool_to_assert;
+      | eval' (PA.Is_In_Nth_Chained_Fact pair) = uncurry Path_To_Unode.path_is_in_nth_chained_fact pair |> Eval_Bool.bool_to_assert
+      (*debug*)
+      | eval' (PA.Debug_Print_Unode      path) = path_to_unode path |> EU.Debug_Print_Unode |> EU.eval;
   in eval' assert end;
 
 end;
