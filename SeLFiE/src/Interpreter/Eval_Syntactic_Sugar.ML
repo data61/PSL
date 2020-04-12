@@ -166,7 +166,7 @@ structure SU = SeLFiE_Util;
 
 fun get_new_name' acc []                    = acc
   | get_new_name' acc (Variable name::vars) = get_new_name' (acc ^ name) vars
-  | get_new_name' _   (_            ::_   ) = error "get_new_name' in Eval_Syntactic_Sugar.ML failed.";
+  | get_new_name' acc (_            ::xs  ) = get_new_name' (acc ^ "nonvar") xs;
 
  (*For atomic assertions, we have to avoid a name collisions with the arguments to the assertion only.*)
 val get_new_name = get_new_name' "A";
@@ -257,7 +257,7 @@ and
     convert loc
       (Ands
          [Is_Parent_Of (parent, child),
-          Is_Nth_Child (number, child)])
+          Is_Nth_Child (child, number)])
   | convert loc (Is_Nth_Child_Or_Below_Nth_Child_Of (child_or_in_child, number, parent)) =
     let
       val nth_child_str = get_new_name [child_or_in_child, number, parent]: string;

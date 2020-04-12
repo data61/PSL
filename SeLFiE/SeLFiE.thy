@@ -100,7 +100,7 @@ setup\<open> Apply_SeLFiE.update_assert "print_all_inner_prints"  SeLFiE_Asserti
 setup\<open> Apply_SeLFiE.update_assert "print_all_unodes"        SeLFiE_Assertion.print_all_unodes \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_outer_path_root"   SeLFiE_Assertion.print_outer_path_root \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_inner_roots"       SeLFiE_Assertion.print_inner_roots \<close>
-
+setup\<open> Apply_SeLFiE.update_assert "print_all_inner_lhss"    SeLFiE_Assertion.print_all_inner_lhss \<close>
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -133,6 +133,7 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE print_all_unodes       [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_outer_path_root  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE print_all_inner_lhss   [on["xs"], arb["ys"],rule["itrev.induct"]]
 
   assert_SeLFiE lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
