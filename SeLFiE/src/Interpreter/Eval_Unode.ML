@@ -104,8 +104,7 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
   | eval' (unode Is_N_Plus_One_th_Child number) =
     let
       val last_digit_option   = UN.is_nth_child unode                        : int option;
-      val last_digit_plus_one = Option.map (curry (op +) 1) last_digit_option: int option;
-      val result_option       = last_digit_plus_one <$> equal number         : bool option;
+      val result_option       = last_digit_option <$> equal (number + 1)     : bool option;
     in
       Utils.is_some_true result_option
     end

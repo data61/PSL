@@ -64,6 +64,7 @@ datatype assert =
 | Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
 | Is_Nth_Child_Of                    of assert * assert * assert
+| Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
@@ -146,6 +147,7 @@ datatype assert =
 | Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
 | Is_Nth_Child_Of                    of assert * assert * assert
+| Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
@@ -258,6 +260,11 @@ and
       (Ands
          [Is_Parent_Of (parent, child),
           Is_Nth_Child (child, number)])
+  | convert loc (Is_N_Plus_One_th_Child_Of (child, number, parent)) =
+    convert loc
+      (Ands
+         [Is_Parent_Of (parent, child),
+          Is_N_Plus_One_th_Child (child, number)])
   | convert loc (Is_Nth_Child_Or_Below_Nth_Child_Of (child_or_in_child, number, parent)) =
     let
       val nth_child_str = get_new_name [child_or_in_child, number, parent]: string;

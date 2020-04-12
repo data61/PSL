@@ -84,8 +84,6 @@ fun mult_to_var (EM.Literal l) = Literal l
 
 fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (expr:expr) =
   let
-val _ = tracing "Eval_Variable";
-val _ = tracing (print_expr expr);
     val em_expr     = var_to_mult [] expr            : EM.expr;
     val mult_result = EM.eval pst induct_args em_expr: EM.expr;
   in

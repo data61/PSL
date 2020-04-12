@@ -131,7 +131,8 @@ Some ("func_occ", QOuter_Path,
         Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
       And
         Ors
-         [Is_Defined_With (Variable "func_occ", Command Primrec),
+         [
+          Is_Defined_With (Variable "func_occ", Command Primrec),
           Is_Defined_With (Variable "func_occ", Command Fun),
           Is_Defined_With (Variable "func_occ", Command Function),
           Is_Defined_With (Variable "func_occ", Command Inductive)
@@ -202,20 +203,7 @@ All ("outer_path", QOuter_Path,
       Unode_Has_Print (Variable "outer_path", Variable "outer_print")
     And
       In_All_Definitions (Variable "outer_path", print_inner_path_root_help, [Variable "outer_print"])));
-(*
-val help_print_inner_lhs =
-Lambdas (["outer_print"],
-  Some ("root_path", QInner_Path,
-      Is_Root_In_A_Location (Variable "root_path")
-    And
-      (Some ("root_path_after_trueprop", QInner_Path,
-           Is_Nth_Child_Of (Variable "root_path_after_trueprop", Number 1, Variable "root_path")(*Note that 0th is Trueprop.*)
-         And
-          (Some ("lfs_path", QInner_Path,
-               Is_Nth_Child_Of (Variable "lfs_path", Number 1, Variable "root_path_after_trueprop")
-             And
-               Debug_Print_Unode (Variable "lfs_path")))))));
-*)
+
 val help_print_inner_lhs =
 Lambdas (["outer_print"],
   Some ("root_path", QInner_Path,
@@ -232,6 +220,33 @@ All ("outer_path", QOuter_Path,
       Unode_Has_Print (Variable "outer_path", Variable "outer_print")
     And
       In_All_Definitions (Variable "outer_path", help_print_inner_lhs, [Variable "outer_print"])));
+
+val help_print_n_plus_one_th_param =
+Lambdas (["number"],
+  Some ("root_path", QInner_Path,
+      Is_Root_In_A_Location (Variable "root_path")
+    And
+      Some ("lfs_path", QInner_Path,
+          Is_Nth_Child_Of (Variable "lfs_path", Number 1, Variable "root_path")
+        And
+          Some ("fst_param", QInner_Path,
+              Is_N_Plus_One_th_Child_Of (Variable "fst_param", Variable "number", Variable "lfs_path")
+            And
+              Debug_Print_Unode (Variable "fst_param")
+          )
+      )
+  )
+);
+
+val print_fst_params_of_fun_const =
+Some ("outer_path", QOuter_Path,
+  Some ("outer_print", QOuter_Print,
+    Ands [
+      Unode_Has_Print (Variable "outer_path", Variable "outer_print"),
+      Is_Defined_With (Variable "outer_path", Command Fun),
+      In_All_Definitions (Variable "outer_path", help_print_n_plus_one_th_param, [Number 0])
+      ]));
+
 
 
 (*

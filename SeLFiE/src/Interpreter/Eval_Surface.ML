@@ -179,10 +179,8 @@ and (*bool*)
   | surf_to_var (Applies (func,   args))     = EV.Applies (surf_to_var func, surf_to_var_list args)
   | surf_to_var (All     (vname, typ, body)) = EV.All  (vname, typ, surf_to_var body)
   | surf_to_var (Some    (vname, typ, body)) = EV.Some (vname, typ, surf_to_var body)
-  | surf_to_var (Dive_In (target, inner_lambda, outer_args)) =
-    EV.Dive_In (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args)
-  | surf_to_var (Deep_Dive (target, inner_lambda, outer_args)) =
-    EV.Deep_Dive (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args)
+  | surf_to_var (Dive_In   (target, inner_lambda, outer_args)) = EV.Dive_In   (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args)
+  | surf_to_var (Deep_Dive (target, inner_lambda, outer_args)) = EV.Deep_Dive (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args)
   (*debug*)
   | surf_to_var (Debug_Non_Path_Literal assert) = EV.Assert (SU.Atomic SU.Debug_Non_Path_Literal, surf_to_var_singleton assert)
   | surf_to_var (Debug_Print_Unode      assert) = EV.Assert (SU.Atomic SU.Debug_Print_Unode,      surf_to_var_singleton assert)
