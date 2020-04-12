@@ -202,17 +202,7 @@ All ("outer_path", QOuter_Path,
       Unode_Has_Print (Variable "outer_path", Variable "outer_print")
     And
       In_All_Definitions (Variable "outer_path", print_inner_path_root_help, [Variable "outer_print"])));
-
-val help_print_inner_lhs =
-Lambdas (["outer_print"],
-  Some ("root_path", QInner_Path,
-      Is_Root_In_A_Location (Variable "root_path")
-    And
-      (Some ("lfs_path", QInner_Path,
-           Is_Nth_Arg_Of (Variable "lfs_path", Number 0, Variable "root_path")
-         And
-           Debug_Print_Unode (Variable "lfs_path")))));
-
+(*
 val help_print_inner_lhs =
 Lambdas (["outer_print"],
   Some ("root_path", QInner_Path,
@@ -225,6 +215,16 @@ Lambdas (["outer_print"],
                Is_Nth_Child_Of (Variable "lfs_path", Number 1, Variable "root_path_after_trueprop")
              And
                Debug_Print_Unode (Variable "lfs_path")))))));
+*)
+val help_print_inner_lhs =
+Lambdas (["outer_print"],
+  Some ("root_path", QInner_Path,
+      Is_Root_In_A_Location (Variable "root_path")
+    And
+      Some ("lfs_path", QInner_Path,
+          Is_Nth_Child_Of (Variable "lfs_path", Number 1, Variable "root_path")
+        And
+          Debug_Print_Unode (Variable "lfs_path"))));
 
 val print_all_inner_lhss =
 All ("outer_path", QOuter_Path,
@@ -232,6 +232,8 @@ All ("outer_path", QOuter_Path,
       Unode_Has_Print (Variable "outer_path", Variable "outer_print")
     And
       In_All_Definitions (Variable "outer_path", help_print_inner_lhs, [Variable "outer_print"])));
+
+
 (*
 val all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete =
  Not (Some_Rule (Rule 1, True))

@@ -63,7 +63,17 @@ ML_file "src/Interface/Apply_SeLFiE.ML"
 definition "func x \<equiv> x"
 thm func_def
 ML\<open>
-val meta_imp = @{term "1"}
+val meta_eq = @{term "True \<Longrightarrow> (x \<equiv> y)"}
+val hol_eq = @{term  "True \<Longrightarrow> (x = y)"}
+val hol_imp  = @{term  "f (x \<longrightarrow> y)"}
+val meta_imp = @{term  "f (x \<Longrightarrow> y)"}
+\<close>
+ML\<open>
+val meta_eq_hol_eq = @{term "(x = y) \<Longrightarrow> (z \<equiv> w)"}
+val meta_imp = @{term "1"};
+val meta_imply = @{term "True \<Longrightarrow> True"};
+val meta_imply = @{term "True \<Longrightarrow> (False \<equiv> x)"};
+val meta_imply = @{term "(x \<Longrightarrow> y) \<Longrightarrow> (z \<longrightarrow> w)"};
 val func_thm = @{thm func_def};
 val func_term = Thm.cprop_of func_thm |> Thm.term_of;
 

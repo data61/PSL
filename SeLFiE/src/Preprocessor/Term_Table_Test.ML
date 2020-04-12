@@ -32,6 +32,7 @@ structure TT = Term_Table;
 (*FIXME: TODO: take a context as a parameter.*)
 fun trm_to_inner_path_to_unode_table (trm:term) =
   let
+    (*In this test we did not remove Trueprop.*)
     val trm_w_prnt                = UN.trm_to_trm_w_prnt @{context} trm;
     val utrm_w_prnt               = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
     val futrm_w_prnt              = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;

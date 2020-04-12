@@ -25,6 +25,7 @@ signature UNIQUE_NODE =
 sig
 
 (** term as syntax tree **)
+val remove_Trueprop: term -> term;
 
 (* trm_w_prnt: term with print *)
 datatype trm_w_prnt =  
@@ -157,6 +158,11 @@ structure Unique_Node: UNIQUE_NODE  =
 struct
 
 open SeLFiE_Util;
+
+fun remove_Trueprop (Abs (name, typ, trm)) = Abs (name, typ, remove_Trueprop trm)
+  | remove_Trueprop (Const ("HOL.Trueprop", _) $ trm2) = remove_Trueprop trm2
+  | remove_Trueprop (trm1 $ trm2) = remove_Trueprop trm1 $ remove_Trueprop trm2
+  | remove_Trueprop atom = atom;
 
 (* trm_w_prnt: term with string *)
 datatype trm_w_prnt =  
