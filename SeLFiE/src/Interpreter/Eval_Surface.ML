@@ -41,6 +41,7 @@ datatype assert =
 | Is_Induct         of assert
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
+| Is_Rule_Of        of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -113,6 +114,7 @@ datatype assert =
 | Is_Induct         of assert
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
+| Is_Rule_Of        of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -175,6 +177,7 @@ and (*bool*)
   | surf_to_var (Is_Induct        arg ) = EV.Assert (SU.Atomic SU.Is_Induct,        surf_to_var_singleton    arg )
   | surf_to_var (Is_Arbitrary     arg ) = EV.Assert (SU.Atomic SU.Is_Arbitrary,     surf_to_var_singleton    arg )
   | surf_to_var (Is_Rule          arg ) = EV.Assert (SU.Atomic SU.Is_Rule,          surf_to_var_singleton    arg )
+  | surf_to_var (Is_Rule_Of       args) = EV.Assert (SU.Atomic SU.Is_Rule,          surf_to_var_pair_to_list args)
   (*Eval_Path*)
   | surf_to_var (Unode_Has_Print        args) = EV.Assert (SU.Atomic SU.Unode_Has_Print,        surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Subgoal          arg ) = EV.Assert (SU.Atomic SU.Is_In_Subgoal,          surf_to_var_singleton    arg )

@@ -48,6 +48,7 @@ type literals = literal list;
 
 fun eval trm pst induct_args assert literals =
   let
+    val ctxt = Proof.context_of pst;
     fun
       (*Eval_Node (Outer)*)
         eval' SU.Is_Cnst   [Outer_Path p] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Cnst   p))
@@ -96,12 +97,13 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Is_In_Nth_Subgoal      [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Subgoal      (p, n)))
       | eval' SU.Is_In_Nth_Chained_Fact [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Chained_Fact (p, n)))
       (*Eval_Print*)
-      | eval' SU.Are_Same_Prints [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2)) induct_args
-      | eval' SU.Is_Nth_Induct    [Non_Path (Print p), Non_Path (Number n)] = EPR.eval (EPR.Is_Nth_Induct (p, n))     induct_args
-      | eval' SU.Is_Nth_Arbitrary [Non_Path (Print p), Non_Path (Number n)] = EPR.eval (EPR.Is_Nth_Arbitrary (p, n))  induct_args
-      | eval' SU.Is_Induct        [Non_Path (Print p)]                      = EPR.eval (EPR.Is_Induct p)              induct_args
-      | eval' SU.Is_Arbitrary     [Non_Path (Print p)]                      = EPR.eval (EPR.Is_Arbitrary p)           induct_args
-      | eval' SU.Is_Rule          [Non_Path (Print p)]                      = EPR.eval (EPR.Is_Rule p)                induct_args
+      | eval' SU.Are_Same_Prints  [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2)) induct_args ctxt
+      | eval' SU.Is_Nth_Induct    [Non_Path (Print p),  Non_Path (Number n)] = EPR.eval (EPR.Is_Nth_Induct (p, n))     induct_args ctxt
+      | eval' SU.Is_Nth_Arbitrary [Non_Path (Print p),  Non_Path (Number n)] = EPR.eval (EPR.Is_Nth_Arbitrary (p, n))  induct_args ctxt
+      | eval' SU.Is_Induct        [Non_Path (Print p)]                       = EPR.eval (EPR.Is_Induct p)              induct_args ctxt
+      | eval' SU.Is_Arbitrary     [Non_Path (Print p)]                       = EPR.eval (EPR.Is_Arbitrary p)           induct_args ctxt
+      | eval' SU.Is_Rule          [Non_Path (Print p)]                       = EPR.eval (EPR.Is_Rule p)                induct_args ctxt
+      | eval' SU.Is_Rule_Of       [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Is_Rule_Of (p1, p2))      induct_args ctxt
       (*Eval_Number*)
       | eval' SU.Are_Same_Number [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Are_Same_Number (numb1, numb2))
       | eval' SU.Is_Less_Than    [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Is_Less_Than    (numb1, numb2))

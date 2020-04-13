@@ -45,6 +45,7 @@ datatype atomic_assert =
 | Is_Induct
 | Is_Arbitrary
 | Is_Rule
+| Is_Rule_Of
 (*Eval_Path*)
 | Unode_Has_Print
 | Is_In_Subgoal
@@ -133,6 +134,12 @@ datatype atomic_assert =
 | Is_N_Plus_One_th_Child
 (*Eval_Print*)
 | Are_Same_Prints
+| Is_Nth_Induct
+| Is_Nth_Arbitrary
+| Is_Induct
+| Is_Arbitrary
+| Is_Rule
+| Is_Rule_Of
 (*Eval_Path*)
 | Unode_Has_Print
 | Is_In_Subgoal
@@ -142,12 +149,6 @@ datatype atomic_assert =
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
-(*Eval_Induct_Argument*)
-| Is_Nth_Induct
-| Is_Nth_Arbitrary
-| Is_Induct
-| Is_Arbitrary
-| Is_Rule
 (*debug*)
 | Debug_Non_Path_Literal
 | Debug_Print_Unode;
@@ -179,6 +180,7 @@ fun print_atomic_assert (Is_Cnst                ) = "Is_Cnst"
   | print_atomic_assert (Is_Induct              ) = "Is_Induct"
   | print_atomic_assert (Is_Arbitrary           ) = "Is_Arbitrary"
   | print_atomic_assert (Is_Rule                ) = "Is_Rule"
+  | print_atomic_assert (Is_Rule_Of             ) = "Is_Rule_Of"
   | print_atomic_assert (Is_Defined_With        ) = "Is_Defined_With"
   | print_atomic_assert (Debug_Non_Path_Literal ) = "Debug_Non_Path_Literal"
   | print_atomic_assert (Debug_Print_Unode      ) = "Debug_Print_Unode";

@@ -42,6 +42,7 @@ datatype assert =
 | Is_Induct         of assert
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
+| Is_Rule_Of        of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -131,6 +132,7 @@ datatype assert =
 | Is_Induct         of assert
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
+| Is_Rule_Of        of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -224,6 +226,7 @@ and
   | convert loc (Is_Induct          ass ) = ES.Is_Induct        (convert loc ass)
   | convert loc (Is_Arbitrary       ass ) = ES.Is_Arbitrary     (convert loc ass)
   | convert loc (Is_Rule            ass ) = ES.Is_Rule          (convert loc ass)
+  | convert loc (Is_Rule_Of         pair) = ES.Is_Rule_Of       (convert_pair loc pair)
   (*Eval_Path*)
   | convert loc (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair loc pair)
   | convert loc (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert loc ass)

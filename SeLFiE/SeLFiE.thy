@@ -154,14 +154,7 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_3  [on["xs"], arb["ys"],rule["itrev.induct"]]
 
-
-
   apply(induct xs arbitrary: ys) apply auto done
-
-ML\<open>
-@{term "itrev"};
-@{term "(@)"};
-\<close>
 
 (* auxiliary stuff *)
 ML\<open>
