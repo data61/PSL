@@ -36,6 +36,11 @@ datatype assert =
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
+| Is_Nth_Induct     of assert * assert
+| Is_Nth_Arbitrary  of assert * assert
+| Is_Induct         of assert
+| Is_Arbitrary      of assert
+| Is_Rule           of assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -103,6 +108,11 @@ datatype assert =
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
+| Is_Nth_Induct     of assert * assert
+| Is_Nth_Arbitrary  of assert * assert
+| Is_Induct         of assert
+| Is_Arbitrary      of assert
+| Is_Rule           of assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -159,7 +169,12 @@ and (*bool*)
   | surf_to_var (Is_Nth_Child           args) = EV.Assert (SU.Atomic SU.Is_Nth_Child,           surf_to_var_pair_to_list args)
   | surf_to_var (Is_N_Plus_One_th_Child args) = EV.Assert (SU.Atomic SU.Is_N_Plus_One_th_Child, surf_to_var_pair_to_list args)
   (*Eval_Print*)
-  | surf_to_var (Are_Same_Prints args) = EV.Assert (SU.Atomic SU.Are_Same_Prints, surf_to_var_pair_to_list args)
+  | surf_to_var (Are_Same_Prints  args) = EV.Assert (SU.Atomic SU.Are_Same_Prints,  surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Nth_Induct    args) = EV.Assert (SU.Atomic SU.Is_Nth_Induct,    surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Nth_Arbitrary args) = EV.Assert (SU.Atomic SU.Is_Nth_Arbitrary, surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Induct        arg ) = EV.Assert (SU.Atomic SU.Is_Induct,        surf_to_var_singleton    arg )
+  | surf_to_var (Is_Arbitrary     arg ) = EV.Assert (SU.Atomic SU.Is_Arbitrary,     surf_to_var_singleton    arg )
+  | surf_to_var (Is_Rule          arg ) = EV.Assert (SU.Atomic SU.Is_Rule,          surf_to_var_singleton    arg )
   (*Eval_Path*)
   | surf_to_var (Unode_Has_Print        args) = EV.Assert (SU.Atomic SU.Unode_Has_Print,        surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Subgoal          arg ) = EV.Assert (SU.Atomic SU.Is_In_Subgoal,          surf_to_var_singleton    arg )

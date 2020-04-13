@@ -10,8 +10,7 @@ signature EVAL_INDUCT_ARGUMENT =
 sig
 
 datatype assert =
-  Connective       of Eval_Bool.assert
-| Is_Nth_Induct    of string * int
+  Is_Nth_Induct    of string * int
 | Is_Nth_Arbitrary of string * int
 | Is_Induct        of string
 | Is_Arbitrary     of string
@@ -30,8 +29,7 @@ structure EB = Eval_Bool;
 structure EN = Eval_Number;
 
 datatype assert =
-  Connective       of Eval_Bool.assert
-| Is_Nth_Induct    of string * int
+  Is_Nth_Induct    of string * int
 | Is_Nth_Arbitrary of string * int
 | Is_Induct        of string
 | Is_Arbitrary     of string
@@ -44,10 +42,8 @@ fun eval' (assert:assert) (SU.Induct_Arguments {ons, arbs, rules}: SU.induct_arg
       | ev (Is_Induct         print    ) = member (op =) ons   print
       | ev (Is_Arbitrary      print    ) = member (op =) arbs  print
       | ev (Is_Rule           print    ) = member (op =) rules print
-      | ev (Connective        _        ) = error "ev in Eval_Induct_Argument.ML failed."
   in ev assert end;
 
-fun eval (Connective assert_connective) (_       :SU.induct_arguments) = EB.eval assert_connective
-  | eval  assert                        (ind_args:SU.induct_arguments) = eval' assert ind_args |> EB.bool_to_assert;
+fun eval  assert                        (ind_args:SU.induct_arguments) = eval' assert ind_args |> EB.bool_to_assert;
 
 end;

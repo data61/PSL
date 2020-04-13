@@ -36,7 +36,12 @@ datatype assert =
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
-| Are_Same_Prints of assert * assert
+| Are_Same_Prints   of assert * assert
+| Is_Nth_Induct     of assert * assert
+| Is_Nth_Arbitrary  of assert * assert
+| Is_Induct         of assert
+| Is_Arbitrary      of assert
+| Is_Rule           of assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -121,6 +126,11 @@ datatype assert =
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
+| Is_Nth_Induct     of assert * assert
+| Is_Nth_Arbitrary  of assert * assert
+| Is_Induct         of assert
+| Is_Arbitrary      of assert
+| Is_Rule           of assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -208,7 +218,12 @@ and
   | convert loc (Is_Nth_Child           pair) = ES.Is_Nth_Child           (convert_pair loc pair)
   | convert loc (Is_N_Plus_One_th_Child pair) = ES.Is_N_Plus_One_th_Child (convert_pair loc pair)
   (*Eval_Prnt*)
-  | convert loc (Are_Same_Prints pair) = ES.Are_Same_Prints (convert_pair loc pair)
+  | convert loc (Are_Same_Prints    pair) = ES.Are_Same_Prints  (convert_pair loc pair)
+  | convert loc (Is_Nth_Induct      pair) = ES.Is_Nth_Induct    (convert_pair loc pair)
+  | convert loc (Is_Nth_Arbitrary   pair) = ES.Is_Nth_Arbitrary (convert_pair loc pair)
+  | convert loc (Is_Induct          ass ) = ES.Is_Induct        (convert loc ass)
+  | convert loc (Is_Arbitrary       ass ) = ES.Is_Arbitrary     (convert loc ass)
+  | convert loc (Is_Rule            ass ) = ES.Is_Rule          (convert loc ass)
   (*Eval_Path*)
   | convert loc (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair loc pair)
   | convert loc (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert loc ass)
@@ -377,7 +392,6 @@ and
   | convert loc (Some_Of (occ:string, prnt:assert, inner_assert)) =
     let
       val path_typ = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-      val _ = tracing ("Qype is " ^ SU.print_qtyp path_typ);
     in
       convert loc
        (Some (occ, path_typ,

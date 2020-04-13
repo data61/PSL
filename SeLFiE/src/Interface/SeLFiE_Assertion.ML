@@ -94,7 +94,7 @@ val heuristic_13 =
     Some ("induct", QArb,
       Are_Same_Prints (Variable "induct", Print "xs")));
 
-infix And Or Imply;
+infix And Or Imply Is_Rule_Of;
 
 val heuristic_14 =
   Some ("var_occ2", QOuter_Path,
@@ -255,95 +255,72 @@ Lambdas (["number"],
           Some ("nth_param", QInner_Path,
               Is_N_Plus_One_th_Child_Of (Variable "nth_param", Variable "number", Variable "lfs_path")
             And
-              Debug_Non_Path_Literal (Print "=======")
-            And
-              Debug_Print_Unode (Variable "lfs_path")
-            And
-              Debug_Print_Unode (Variable "nth_param")
-            And
-              Debug_Non_Path_Literal (Variable "number")
-            And
               Ors [
                 Is_Cnst (Variable "nth_param"),
                 Is_App  (Variable "nth_param")
               ]
-            And
-              Debug_Space
           )
       )
   )
 );
 
 val lifter_4 =
-Some ("func", QOuter_Print,
-  Some_Of ("func_occ", Variable "func",
-      Ors [
-        Is_Defined_With (Variable "func_occ", Command Fun),
-        Is_Defined_With (Variable "func_occ", Command Function),
-        Is_Defined_With (Variable "func_occ", Command Primrec),
-        Is_Defined_With (Variable "func_occ", Command Inductive)
-        ]
-    And
-      All ("induct", QInd,
-        Some_Of ("ind_occ", Variable "induct",
-          All ("number", QOuter_Number,
-            Ands [
-              Debug_Non_Path_Literal (Print "######################"),
-              Debug_Non_Path_Literal (Print "When outer number is: "),
-              Debug_Non_Path_Literal (Variable "number"),
-              Debug_Non_Path_Literal (Print "When outer func_occ is: "),
-              Debug_Print_Unode      (Variable "func_occ"),
-              Debug_Non_Path_Literal (Print "When outer ind_occ is: "),
-              Debug_Print_Unode      (Variable "ind_occ"),
+  Not (Some ("rule", QRule, True))
+Imply
+  Some ("func", QOuter_Print,
+    Some_Of ("func_occ", Variable "func",
+        Ors [
+          Is_Defined_With (Variable "func_occ", Command Fun),
+          Is_Defined_With (Variable "func_occ", Command Function),
+          Is_Defined_With (Variable "func_occ", Command Primrec),
+          Is_Defined_With (Variable "func_occ", Command Inductive)
+          ]
+      And
+        All ("induct", QInd,
+          Some_Of ("ind_occ", Variable "induct",
+            All ("number", QOuter_Number,
                 Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ")
               Imply
                 Ands [
                   Debug_Non_Path_Literal (Print "Now we dive in: "),
                   In_All_Definitions (Variable "func_occ", help_lifter_4_nth_arg_is_const_or_app, [Variable "number"])
                 ]
-            ]
-(*
-              Debug_Print_Unode (Variable "func_occ")
-            And
-              Debug_Non_Path_Literal (Variable "number")
-            And
-              Debug_Print_Unode (Variable "ind_occ")
-*)
-
+            )
           )
         )
-      )
-  )
-)
-(*TODO: print out space*)
-(*
-        Ands [
-          Unode_Has_Print (Variable "outer_path", Variable "outer_print"),
-          In_All_Definitions (Variable "outer_path", help_print_n_plus_one_th_param, [Number 0])
-          ])));
-*)
+    )
+  );
 
-
-(*
-val all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete =
- Not (Some_Rule (Rule 1, True))
+val lifter_5 =
+  Not (Some ("rule", QRule, True))
 Imply
- Some_Trm (Trm 1,
-  Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-    ((Trm_Occ 1 Is_Defined_With Fun)
-    Or
-     (Trm_Occ 1 Is_Defined_With  Function)
-    Or
-     (Trm_Occ 1 Is_Defined_With Inductive)
-    Or
-     (Trm_Occ 1 Is_Defined_With  Primrec))
-   And
-    All_Ind (Trm 2,
-      Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+  Some ("func", QOuter_Print,
+    Some ("func_occ", QOuter_Path,
+      Ands [
+(*
+         Variable "rule" Is_Rule_Of Variable "func_occ"
+*)      True
+      ]
+    )
+  );
+
+
+(*
+(* heuristic_5 *)
+val all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order =
+ Some_Rule (Rule 1, True)
+Imply
+ Some_Rule (Rule 1,
+  Some_Trm (Trm 1,
+   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+    (Rule 1 Is_Rule_Of Trm_Occ 1)
+    And
+    (All_Ind (Trm 2,
+     (Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
        Some_Numb (Numb 1,
-         Pattern (Numb 1, Trm_Occ 1, All_Constr)
+         Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1)
         And
-         Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1))))));
+        (Trm 2 Is_Nth_Ind Numb 1)))))))));
 *)
 
 end;

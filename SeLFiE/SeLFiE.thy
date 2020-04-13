@@ -48,7 +48,6 @@ ML\<open> structure Print_To_Inner_Paths = from_Path_Table_and_Path_To_Unode_to_
 ML\<open> structure Print_To_Outer_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Outer_Path_Table): PRINT_TO_PATHS; \<close>
 ML_file "src/Interpreter/Eval_Path.ML"
 
-ML_file "src/Interpreter/Eval_Induct_Argument.ML"
 ML_file "src/Interpreter/Eval_Parameter.ML"
 ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
 ML_file "src/Interpreter/Quantifier_Domain.ML"
@@ -99,19 +98,19 @@ setup\<open> Apply_SeLFiE.update_assert "heuristic_11" SeLFiE_Assertion.heuristi
 setup\<open> Apply_SeLFiE.update_assert "heuristic_12" SeLFiE_Assertion.heuristic_12 \<close>
 setup\<open> Apply_SeLFiE.update_assert "heuristic_13" SeLFiE_Assertion.heuristic_13 \<close>
 setup\<open> Apply_SeLFiE.update_assert "heuristic_14" SeLFiE_Assertion.heuristic_14 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_1"  SeLFiE_Assertion.lifter_1 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_1b" SeLFiE_Assertion.lifter_1b \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_2"  SeLFiE_Assertion.lifter_2 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_3"  SeLFiE_Assertion.lifter_3 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_4"  SeLFiE_Assertion.lifter_4 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_1"      SeLFiE_Assertion.lifter_1 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_1b"     SeLFiE_Assertion.lifter_1b \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_2"      SeLFiE_Assertion.lifter_2 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_3"      SeLFiE_Assertion.lifter_3 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_4"      SeLFiE_Assertion.lifter_4 \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_dive_in"  SeLFiE_Assertion.test_dive_in \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_all_outer_prints"  SeLFiE_Assertion.print_all_outer_prints \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_all_inner_prints"  SeLFiE_Assertion.print_all_inner_prints \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_all_unodes"        SeLFiE_Assertion.print_all_unodes \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_outer_path_root"   SeLFiE_Assertion.print_outer_path_root \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_inner_roots"       SeLFiE_Assertion.print_inner_roots \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_all_inner_lhss"    SeLFiE_Assertion.print_all_inner_lhss \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_fst_params_of_fun_const"    SeLFiE_Assertion.print_fst_params_of_fun_const \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_all_outer_prints"        SeLFiE_Assertion.print_all_outer_prints \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_all_inner_prints"        SeLFiE_Assertion.print_all_inner_prints \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_all_unodes"              SeLFiE_Assertion.print_all_unodes \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_outer_path_root"         SeLFiE_Assertion.print_outer_path_root \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_inner_roots"             SeLFiE_Assertion.print_inner_roots \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_all_inner_lhss"          SeLFiE_Assertion.print_all_inner_lhss \<close>
+setup\<open> Apply_SeLFiE.update_assert "print_fst_params_of_fun_const" SeLFiE_Assertion.print_fst_params_of_fun_const \<close>
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -144,7 +143,7 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE print_all_unodes       [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_outer_path_root  [on["xs"], arb["ys"],rule["itrev.induct"]]
 
-  assert_SeLFiE lifter_4  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE lifter_4  [on["xs"], arb["ys"],rule[]]
 
   assert_SeLFiE print_fst_params_of_fun_const [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]
