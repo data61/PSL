@@ -32,7 +32,8 @@ datatype assert =
 | Is_Nth_Arbitrary of string * int
 | Is_Induct        of string
 | Is_Arbitrary     of string
-| Is_Rule          of string;
+| Is_Rule          of string
+| Is_Rule_Of       of string * string;
 
 infix Is_Printed_As;
 

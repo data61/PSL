@@ -298,8 +298,9 @@ Imply
     Some ("func_occ", QOuter_Path,
       Ands [
 (*
-         Variable "rule" Is_Rule_Of Variable "func_occ"
-*)      True
+        Variable "rule" Is_Rule_Of Variable "func_occ",
+*)
+        True
       ]
     )
   );
