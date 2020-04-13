@@ -73,7 +73,9 @@ fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " "
 
 fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
+(*
     val _ = tracing ("Print from From_Quantifier_To_Multi_Arity: \n" ^ print_expr expr);
+*)
     val eq_result = EB.eval pst induct_args (unary_to_multi expr): EB.expr;
     val result    = convert_result eq_result                     : expr;
   in

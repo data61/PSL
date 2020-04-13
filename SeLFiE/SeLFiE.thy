@@ -144,6 +144,8 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE print_all_unodes       [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_outer_path_root  [on["xs"], arb["ys"],rule["itrev.induct"]]
 
+  assert_SeLFiE lifter_4  [on["xs"], arb["ys"],rule["itrev.induct"]]
+
   assert_SeLFiE print_fst_params_of_fun_const [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_all_inner_lhss   [on["xs"], arb["ys"],rule["itrev.induct"]]
@@ -152,7 +154,7 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE lifter_3  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE lifter_4  [on["xs"], arb["ys"],rule["itrev.induct"]]
+
 
 
   apply(induct xs arbitrary: ys) apply auto done

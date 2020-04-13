@@ -138,9 +138,6 @@ Some ("func_occ", QOuter_Path,
           Is_Defined_With (Variable "func_occ", Command Inductive)
           ])));
 
-val lifter_4 =
-All("printed", QOuter_Print, Are_Same_Prints (Variable "printed", Variable "printed") And True);
-
 val nth_arg_on_lfs_is_const_or_app =
  Lambdas (["nth"], Debug_Non_Path_Literal (Variable "func"));
 
@@ -247,6 +244,84 @@ Some ("outer_path", QOuter_Path,
       In_All_Definitions (Variable "outer_path", help_print_n_plus_one_th_param, [Number 0])
       ]));
 
+val help_lifter_4_nth_arg_is_const_or_app =
+Lambdas (["number"],
+  Some ("root_path", QInner_Path,
+      Is_Root_In_A_Location (Variable "root_path")
+    And
+      Some ("lfs_path", QInner_Path,
+          Is_Nth_Child_Of (Variable "lfs_path", Number 1, Variable "root_path")
+        And
+          Some ("nth_param", QInner_Path,
+              Is_N_Plus_One_th_Child_Of (Variable "nth_param", Variable "number", Variable "lfs_path")
+            And
+              Debug_Non_Path_Literal (Print "=======")
+            And
+              Debug_Print_Unode (Variable "lfs_path")
+            And
+              Debug_Print_Unode (Variable "nth_param")
+            And
+              Debug_Non_Path_Literal (Variable "number")
+            And
+              Ors [
+                Is_Cnst (Variable "nth_param"),
+                Is_App  (Variable "nth_param")
+              ]
+            And
+              Debug_Space
+          )
+      )
+  )
+);
+
+val lifter_4 =
+Some ("func", QOuter_Print,
+  Some_Of ("func_occ", Variable "func",
+      Ors [
+        Is_Defined_With (Variable "func_occ", Command Fun),
+        Is_Defined_With (Variable "func_occ", Command Function),
+        Is_Defined_With (Variable "func_occ", Command Primrec),
+        Is_Defined_With (Variable "func_occ", Command Inductive)
+        ]
+    And
+      All ("induct", QInd,
+        Some_Of ("ind_occ", Variable "induct",
+          All ("number", QOuter_Number,
+            Ands [
+              Debug_Non_Path_Literal (Print "######################"),
+              Debug_Non_Path_Literal (Print "When outer number is: "),
+              Debug_Non_Path_Literal (Variable "number"),
+              Debug_Non_Path_Literal (Print "When outer func_occ is: "),
+              Debug_Print_Unode      (Variable "func_occ"),
+              Debug_Non_Path_Literal (Print "When outer ind_occ is: "),
+              Debug_Print_Unode      (Variable "ind_occ"),
+                Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ")
+              Imply
+                Ands [
+                  Debug_Non_Path_Literal (Print "Now we dive in: "),
+                  In_All_Definitions (Variable "func_occ", help_lifter_4_nth_arg_is_const_or_app, [Variable "number"])
+                ]
+            ]
+(*
+              Debug_Print_Unode (Variable "func_occ")
+            And
+              Debug_Non_Path_Literal (Variable "number")
+            And
+              Debug_Print_Unode (Variable "ind_occ")
+*)
+
+          )
+        )
+      )
+  )
+)
+(*TODO: print out space*)
+(*
+        Ands [
+          Unode_Has_Print (Variable "outer_path", Variable "outer_print"),
+          In_All_Definitions (Variable "outer_path", help_print_n_plus_one_th_param, [Number 0])
+          ])));
+*)
 
 
 (*
