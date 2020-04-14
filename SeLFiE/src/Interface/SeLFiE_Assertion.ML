@@ -319,4 +319,13 @@ Imply
     )
   );
 
+val lifter_6 =
+All ("arbitrary", QArb,
+  Not
+    (Some ("induct", QInd,
+      Are_Same_Prints (Variable "arbitrary", Variable "induct")
+     )
+    )
+);
+
 end;
