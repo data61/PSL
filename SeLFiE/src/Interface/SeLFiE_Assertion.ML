@@ -328,4 +328,69 @@ All ("arbitrary", QArb,
     )
 );
 
+
+val lifter_7 =
+  Some ("func", QOuter_Print,
+    Some_Of ("func_occ", Variable "func",
+        Ors [
+          Is_Defined_With (Variable "func_occ", Command Fun),
+          Is_Defined_With (Variable "func_occ", Command Function),
+          Is_Defined_With (Variable "func_occ", Command Primrec),
+          Is_Defined_With (Variable "func_occ", Command Inductive)
+          ]
+    )
+  )
+Imply
+  Some ("func", QOuter_Print,
+    Some_Of ("func_occ", Variable "func",
+      Ands [
+        Ors [
+          Is_Defined_With (Variable "func_occ", Command Fun),
+          Is_Defined_With (Variable "func_occ", Command Function),
+          Is_Defined_With (Variable "func_occ", Command Primrec),
+          Is_Defined_With (Variable "func_occ", Command Inductive)
+          ],
+          Some ("induct_arg", QInd,
+            Some_Of ("induct_arg_occ", Variable "induct_arg",
+              Ands [
+                Is_An_Arg_Of (Variable "induct_arg_occ", Variable "func_occ"),
+                Debug_Print_Unode (Variable "func_occ"),
+                Debug_Print_Unode (Variable "induct_arg_occ")
+              ]
+            )
+          )
+      ]
+    )
+  )
+(*
+(* heuristic_7 *)
+val at_least_one_recursive_term =
+  Some_Trm_Occ (Trm_Occ 1,
+    (Trm_Occ 1 Is_Defined_With Fun)
+   Or
+    (Trm_Occ 1 Is_Defined_With Function)
+   Or
+    (Trm_Occ 1 Is_Defined_With Inductive)
+   Or
+    (Trm_Occ 1 Is_Defined_With Primrec))
+Imply
+  Some_Trm (Trm 1,
+    Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
+      Some_Trm (Trm 2,
+        Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+          Some_Ind (Trm 3,
+            Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
+                ((Trm_Occ 1 Is_Defined_With Fun)
+                Or
+                 (Trm_Occ 1 Is_Defined_With Function)
+                Or
+                 (Trm_Occ 1 Is_Defined_With Inductive)
+                Or
+                 (Trm_Occ 1 Is_Defined_With Primrec))
+               And
+                 (Trm_Occ 2 Is_An_Arg_Of Trm_Occ 1)
+               And
+                  Are_Same_Trm (Trm 2, Trm 3)))))));
+*)
+
 end;
