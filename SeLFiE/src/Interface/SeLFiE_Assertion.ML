@@ -292,36 +292,31 @@ Imply
   );
 
 val lifter_5 =
-  Not (Some ("rule", QRule, True))
+  Some ("rule", QRule, True)
 Imply
-  Some ("func", QOuter_Print,
-    Some ("func_occ", QOuter_Path,
-      Ands [
-(*
-        Variable "rule" Is_Rule_Of Variable "func_occ",
-*)
-        True
-      ]
+  Some ("rule", QRule,
+    Some ("func", QOuter_Print,
+      Some_Of ("func_occ", Variable "func",
+        Ands [
+          Variable "rule" Is_Rule_Of Variable "func",
+          Debug_Non_Path_Literal (Variable "func"),
+          Debug_Non_Path_Literal (Variable "rule"),
+          All ("ind", QInd,
+            Some_Of ("arg_occ", Variable "ind",
+              Some ("numb", QOuter_Number,
+                Ands [
+                  Is_Nth_Arg_Of (Variable "arg_occ", Variable "numb", Variable "func_occ"),
+                  Is_Nth_Induct (Variable "ind", Variable "numb"),
+                  Debug_Print_Unode (Variable "arg_occ"),
+                  Debug_Non_Path_Literal (Variable "numb"),
+                  Debug_Print_Unode (Variable "func_occ")
+                ]
+              )
+            )
+          )
+        ]
+      )
     )
   );
-
-
-(*
-(* heuristic_5 *)
-val all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order =
- Some_Rule (Rule 1, True)
-Imply
- Some_Rule (Rule 1,
-  Some_Trm (Trm 1,
-   Some_Trm_Occ_Of (Trm_Occ 1, Trm 1,
-    (Rule 1 Is_Rule_Of Trm_Occ 1)
-    And
-    (All_Ind (Trm 2,
-     (Some_Trm_Occ_Of (Trm_Occ 2, Trm 2,
-       Some_Numb (Numb 1,
-         Is_Nth_Arg_Of (Trm_Occ 2, Numb 1, Trm_Occ 1)
-        And
-        (Trm 2 Is_Nth_Ind Numb 1)))))))));
-*)
 
 end;

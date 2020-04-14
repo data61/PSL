@@ -108,7 +108,7 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     in
       Utils.is_some_true result_option
     end
-  | eval' (Debug_Print_Unode {print,...}) = (tracing ("Debug_Print_Unode " ^ print); true);
+  | eval' (Debug_Print_Unode {print,...}) = (tracing ("Debug_Print_Unode: " ^ print); true);
 
 fun eval assert = eval' assert |> Eval_Bool.bool_to_assert;
 
