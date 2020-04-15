@@ -112,6 +112,7 @@ setup\<open> Apply_SeLFiE.update_assert "lifter_10"     SeLFiE_Assertion.lifter_
 setup\<open> Apply_SeLFiE.update_assert "lifter_11"     SeLFiE_Assertion.lifter_11 \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_12"     SeLFiE_Assertion.lifter_12 \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_13"     SeLFiE_Assertion.lifter_13 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_14"     SeLFiE_Assertion.lifter_14 \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_dive_in"  SeLFiE_Assertion.test_dive_in \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_all_outer_prints"        SeLFiE_Assertion.print_all_outer_prints \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_all_inner_prints"        SeLFiE_Assertion.print_all_inner_prints \<close>
@@ -162,6 +163,7 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE lifter_11  [on["xs","ys"], arb[], rule["itrev.induct"]]
   assert_SeLFiE lifter_12  [on["xs"], arb["ys"], rule["itrev.induct"]]
   assert_SeLFiE lifter_13  [on["xs"], arb["ys"], rule["itrev.induct"]]
+  assert_SeLFiE lifter_14  [on["xs"], arb["ys"], rule["itrev.induct"]]
 
   assert_SeLFiE print_fst_params_of_fun_const [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]

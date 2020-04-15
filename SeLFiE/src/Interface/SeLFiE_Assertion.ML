@@ -412,7 +412,7 @@ Imply
     )
   );
 
-(* arbitrary and induction share a function.*)
+(*arbitrary and induction share a function.*)
 val lifter_12 =
   Some ("arb", QArb, True)
 Imply
@@ -431,7 +431,7 @@ Imply
     )
   );
 
-(* no arbitrary is at the same relative location as induction in terms of a function*)
+(*no arbitrary is at the same relative location as induction in terms of a function*)
 val lifter_13 =
   Some ("arb", QArb, True)
 Imply
@@ -456,6 +456,16 @@ Imply
          )
        )
       )
+  );
+
+(*only one rule*)
+val lifter_14 =
+  Some ("rule", QRule, True)
+Imply
+  All ("rule1", QRule,
+    All ("rule2", QRule,
+      Are_Same_Prints (Variable "rule1", Variable "rule2")
+    )
   );
 
 end;
