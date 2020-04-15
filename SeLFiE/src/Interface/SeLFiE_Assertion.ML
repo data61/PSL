@@ -374,4 +374,20 @@ Imply
     )
   );
 
+(*induct and arbitrary share a function*)
+val lifter_10 =
+All ("ind", QInd,
+  All ("arb", QArb,
+    Some_Of ("ind_occ", Variable "ind",
+      Some_Of ("arb_occ", Variable "arb",
+        Some ("func_occ", QOuter_Path,
+            Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
+          And
+            Is_An_Arg_Of (Variable "arb_occ", Variable "func_occ")
+        )
+      )
+    )
+  )
+);
+
 end;
