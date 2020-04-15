@@ -429,6 +429,33 @@ Imply
         )
       )
     )
-  )
+  );
+
+(* no arbitrary is at the same relative location as induction in terms of a function*)
+val lifter_13 =
+  Some ("arb", QArb, True)
+Imply
+  All ("arb", QArb,
+    Not
+      (Some_Of ("arb_occ", Variable "arb",
+         Some ("func", QOuter_Print,
+           Some_Of ("func_occ1", Variable "func",
+             Some ("number", QOuter_Number,
+               Ands [
+                 Is_Nth_Arg_Of (Variable "arb_occ", Variable "number", Variable "func_occ1"),
+                 Some ("ind", QInd,
+                   Some_Of ("ind_occ", Variable "ind",
+                     Some_Of ("func_occ2", Variable "func",
+                       Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ2")
+                     )
+                   )
+                 )
+               ]
+             )
+           )
+         )
+       )
+      )
+  );
 
 end;
