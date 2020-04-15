@@ -94,7 +94,7 @@ val heuristic_13 =
     Some ("induct", QArb,
       Are_Same_Prints (Variable "induct", Print "xs")));
 
-infix And Or Imply Is_Rule_Of;
+infix And Or Imply Is_Rule_Of Is_An_Arg_Of Unode_Has_Print;
 
 val heuristic_14 =
   Some ("var_occ2", QOuter_Path,
@@ -108,7 +108,7 @@ All ("induct", QInd,
   Some ("var_occ", QOuter_Path,
       Not (Is_Cnst (Variable "var_occ"))
     And
-      Unode_Has_Print (Variable "var_occ", Variable "induct")
+      (Variable "var_occ" Unode_Has_Print Variable "induct")
 ));
 
 val lifter_1b =
@@ -128,7 +128,7 @@ val lifter_3 =
 Some ("func_occ", QOuter_Path,
   All ("ind", QInd,
     Some_Of ("ind_occ", Variable "ind",
-        Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
+        (Variable "ind_occ" Is_An_Arg_Of Variable "func_occ")
       And
         Ors
          [
@@ -159,7 +159,7 @@ All ("func_occ", QOuter_Path,
     Is_Defined_With (Variable "func_occ", Command Fun)
   Imply
     All ("func", QOuter_Print,
-        Unode_Has_Print (Variable "func_occ", Variable "func")
+        (Variable "func_occ" Unode_Has_Print Variable "func")
       Imply
         In_All_Definitions (Variable "func_occ", help_test_dive_in, [Variable "func"]))
   )
@@ -197,7 +197,7 @@ Lambdas (["outer_print"],
 val print_inner_roots =
 All ("outer_path", QOuter_Path,
   Some ("outer_print", QOuter_Print,
-      Unode_Has_Print (Variable "outer_path", Variable "outer_print")
+      (Variable "outer_path" Unode_Has_Print Variable "outer_print")
     And
       In_All_Definitions (Variable "outer_path", print_inner_path_root_help, [Variable "outer_print"])));
 
@@ -214,7 +214,7 @@ Lambdas (["outer_print"],
 val print_all_inner_lhss =
 All ("outer_path", QOuter_Path,
   Some ("outer_print", QOuter_Print,
-      Unode_Has_Print (Variable "outer_path", Variable "outer_print")
+      (Variable "outer_path" Unode_Has_Print Variable "outer_print")
     And
       In_All_Definitions (Variable "outer_path", help_print_inner_lhs, [Variable "outer_print"])));
 
@@ -239,7 +239,7 @@ val print_fst_params_of_fun_const =
 Some ("outer_path", QOuter_Path,
   Some ("outer_print", QOuter_Print,
     Ands [
-      Unode_Has_Print (Variable "outer_path", Variable "outer_print"),
+      Variable "outer_path" Unode_Has_Print Variable "outer_print",
       Is_Defined_With (Variable "outer_path", Command Fun),
       In_All_Definitions (Variable "outer_path", help_print_n_plus_one_th_param, [Number 0])
       ]));
@@ -353,7 +353,7 @@ Imply
           Some ("induct_arg", QInd,
             Some_Of ("induct_arg_occ", Variable "induct_arg",
               Ands [
-                Is_An_Arg_Of (Variable "induct_arg_occ", Variable "func_occ"),
+                Variable "induct_arg_occ" Is_An_Arg_Of Variable "func_occ",
                 Debug_Print_Unode (Variable "func_occ"),
                 Debug_Print_Unode (Variable "induct_arg_occ")
               ]
@@ -381,13 +381,38 @@ All ("ind", QInd,
     Some_Of ("ind_occ", Variable "ind",
       Some_Of ("arb_occ", Variable "arb",
         Some ("func_occ", QOuter_Path,
-            Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
-          And
-            Is_An_Arg_Of (Variable "arb_occ", Variable "func_occ")
+          Ands [
+            Variable "ind_occ" Is_An_Arg_Of Variable "func_occ",
+            Variable "arb_occ" Is_An_Arg_Of  Variable "func_occ"
+          ]
         )
       )
     )
   )
 );
+
+val lifter_11 =
+  Some ("rule", QRule, True)
+Imply
+  Some ("rule", QRule,
+    Some ("func", QOuter_Print,
+      Ands [
+        Debug_Non_Path_Literal (Variable "rule"),
+        Debug_Non_Path_Literal (Variable "func"),
+        Variable "rule" Is_Rule_Of  Variable "func",
+        Some_Of ("func_occ", Variable "func",
+          Debug_Print_Unode (Variable "func_occ")
+        And
+          All ("arg_occ", QOuter_Path,
+              (Variable "arg_occ" Is_An_Arg_Of Variable "func_occ")
+            Imply
+              Some ("ind", QInd,
+                Variable "arg_occ" Unode_Has_Print Variable "ind"
+              )
+          )
+        )
+      ]
+    )
+  )
 
 end;
