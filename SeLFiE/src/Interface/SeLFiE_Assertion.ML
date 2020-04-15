@@ -391,18 +391,15 @@ All ("ind", QInd,
   )
 );
 
+(*all arguments rule-function are induction variable*)
 val lifter_11 =
   Some ("rule", QRule, True)
 Imply
   Some ("rule", QRule,
     Some ("func", QOuter_Print,
       Ands [
-        Debug_Non_Path_Literal (Variable "rule"),
-        Debug_Non_Path_Literal (Variable "func"),
         Variable "rule" Is_Rule_Of  Variable "func",
         Some_Of ("func_occ", Variable "func",
-          Debug_Print_Unode (Variable "func_occ")
-        And
           All ("arg_occ", QOuter_Path,
               (Variable "arg_occ" Is_An_Arg_Of Variable "func_occ")
             Imply
@@ -412,6 +409,25 @@ Imply
           )
         )
       ]
+    )
+  );
+
+(* arbitrary and induction share a function.*)
+val lifter_12 =
+  Some ("arb", QArb, True)
+Imply
+  Some ("arb", QArb,
+    Some_Of ("arb_occ", Variable "arb",
+      Some ("ind", QInd,
+        Some_Of ("ind_occ", Variable "ind",
+          Some ("func_occ", QOuter_Path,
+            Ands [
+              Variable "arb_occ" Is_An_Arg_Of Variable "func_occ",
+              Variable "ind_occ" Is_An_Arg_Of Variable "func_occ"
+            ]
+          )
+        )
+      )
     )
   )
 
