@@ -38,6 +38,7 @@ datatype atomic_assert =
 | Is_Nth_Child
 | Is_N_Plus_One_th_Child
 | Is_Defined_With
+| Is_Rule_Of_Node
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Nth_Induct
@@ -45,7 +46,7 @@ datatype atomic_assert =
 | Is_Induct
 | Is_Arbitrary
 | Is_Rule
-| Is_Rule_Of
+| Is_Rule_Of_Print
 (*Eval_Path*)
 | Unode_Has_Print
 | Is_In_Subgoal
@@ -72,6 +73,8 @@ datatype assert =
 | Atomic of atomic_assert;
 
 val print_assert: assert -> string;
+
+val rule_to_const_name: Proof.context -> string -> string;
 
 end;
 
@@ -123,6 +126,7 @@ datatype atomic_assert =
 | Is_Lambda
 | Is_App
 | Is_Defined_With
+| Is_Rule_Of_Node
 (*Eval_Unode*)
 | Has_Same_Prnt_As
 | Is_In_Trm_Prnt
@@ -139,7 +143,7 @@ datatype atomic_assert =
 | Is_Induct
 | Is_Arbitrary
 | Is_Rule
-| Is_Rule_Of
+| Is_Rule_Of_Print
 (*Eval_Path*)
 | Unode_Has_Print
 | Is_In_Subgoal
@@ -159,6 +163,8 @@ fun print_atomic_assert (Is_Cnst                ) = "Is_Cnst"
   | print_atomic_assert (Is_Bound               ) = "Is_Bound"
   | print_atomic_assert (Is_Lambda              ) = "Is_Lambda"
   | print_atomic_assert (Is_App                 ) = "Is_App"
+  | print_atomic_assert (Is_Defined_With        ) = "Is_Defined_With"
+  | print_atomic_assert (Is_Rule_Of_Node        ) = "Is_Rule_Of_Node"
   | print_atomic_assert (Has_Same_Prnt_As       ) = "Has_Same_Prnt_As"
   | print_atomic_assert (Is_In_Trm_Prnt         ) = "Is_In_Trm_Prnt"
   | print_atomic_assert (Is_Deeper_Than         ) = "Is_Deeper_Than"
@@ -180,8 +186,7 @@ fun print_atomic_assert (Is_Cnst                ) = "Is_Cnst"
   | print_atomic_assert (Is_Induct              ) = "Is_Induct"
   | print_atomic_assert (Is_Arbitrary           ) = "Is_Arbitrary"
   | print_atomic_assert (Is_Rule                ) = "Is_Rule"
-  | print_atomic_assert (Is_Rule_Of             ) = "Is_Rule_Of"
-  | print_atomic_assert (Is_Defined_With        ) = "Is_Defined_With"
+  | print_atomic_assert (Is_Rule_Of_Print       ) = "Is_Rule_Of_Print"
   | print_atomic_assert (Debug_Non_Path_Literal ) = "Debug_Non_Path_Literal"
   | print_atomic_assert (Debug_Print_Unode      ) = "Debug_Print_Unode";
 
@@ -213,5 +218,16 @@ datatype non_path_literal =
 datatype 'path literal = Path of 'path | Non_Path of non_path_literal;
 
 type 'path literals = 'path literal list;
+
+fun split_using_period x = String.tokens (fn splitter => splitter = #".") x;
+
+fun rule_to_const_name (ctxt:Proof.context) (rule_name:string) =
+  try split_using_period rule_name
+<$> Utils.init
+<$> String.concatWith "."
+<$> Syntax.read_term ctxt
+<$> Term.dest_Const
+<$> fst
+ |> Utils.the' "rule_to_const_name failed.";
 
 end;

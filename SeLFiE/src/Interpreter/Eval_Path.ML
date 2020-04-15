@@ -15,6 +15,7 @@ datatype 'path assert =
 | Is_Lambda              of 'path
 | Is_App                 of 'path
 | Is_Defined_With        of 'path * Pattern.command
+| Is_Rule_Of_Node        of string * 'path
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of 'path * 'path
 | Is_In_Trm_Prnt         of 'path * 'path
@@ -79,36 +80,37 @@ fun eval (term:term) (pst:Proof.state) assert =
     fun path2_to_unode2 (p1:path, p2:path) = apply2 path_to_unode (p1, p2): (UN.unode * UN.unode);
     fun
       (*Eval_Node*)
-        eval' (PA.Is_Cnst   p) = path_to_node p |> END.Is_Cnst   |> END.eval
-      | eval' (PA.Is_Free   p) = path_to_node p |> END.Is_Free   |> END.eval
-      | eval' (PA.Is_Var    p) = path_to_node p |> END.Is_Var    |> END.eval
-      | eval' (PA.Is_Bound  p) = path_to_node p |> END.Is_Bound  |> END.eval
-      | eval' (PA.Is_Lambda p) = path_to_node p |> END.Is_Lambda |> END.eval
-      | eval' (PA.Is_App    p) = path_to_node p |> END.Is_App    |> END.eval
-      | eval' (PA.Is_Defined_With (p, cmd)) = END.eval (END.Is_Defined_With (path_to_node p, cmd))
+        eval' (PA.Is_Cnst   p)               ctxt = END.eval (END.Is_Cnst         (path_to_node p                )) ctxt
+      | eval' (PA.Is_Free   p)               ctxt = END.eval (END.Is_Free         (path_to_node p                )) ctxt
+      | eval' (PA.Is_Var    p)               ctxt = END.eval (END.Is_Var          (path_to_node p                )) ctxt
+      | eval' (PA.Is_Bound  p)               ctxt = END.eval (END.Is_Bound        (path_to_node p                )) ctxt
+      | eval' (PA.Is_Lambda p)               ctxt = END.eval (END.Is_Lambda       (path_to_node p                )) ctxt
+      | eval' (PA.Is_App    p)               ctxt = END.eval (END.Is_App          (path_to_node p                )) ctxt
+      | eval' (PA.Is_Defined_With (p, cmd))  ctxt = END.eval (END.Is_Defined_With (path_to_node p, cmd           )) ctxt
+      | eval' (PA.Is_Rule_Of_Node (rule, p)) ctxt = END.eval (END.Is_Rule_Of_Node (rule,           path_to_node p)) ctxt
       (*Eval_Unode*)
-      | eval' (PA.Has_Same_Prnt_As        pair)     = path2_to_unode2 pair    |> EU.Has_Same_Prnt_As      |> EU.eval
-      | eval' (PA.Is_In_Trm_Prnt          pair)     = path2_to_unode2 pair    |> EU.Is_In_Trm_Prnt        |> EU.eval
-      | eval' (PA.Is_Deeper_Than          pair)     = path2_to_unode2 pair    |> EU.Is_Deeper_Than        |> EU.eval
-      | eval' (PA.Is_Shallower_Than       pair)     = path2_to_unode2 pair    |> EU.Is_Shallower_Than     |> EU.eval
-      | eval' (PA.Is_Path_Above           pair)     = path2_to_unode2 pair    |> EU.Is_Path_Above         |> EU.eval
-      | eval' (PA.Is_Same_Path_As         pair)     = path2_to_unode2 pair    |> EU.Is_Same_Path_As       |> EU.eval
-      | eval' (PA.Is_Nth_Child           (path, i)) = (path_to_unode path, i) |> EU.Is_Nth_Child          |> EU.eval
-      | eval' (PA.Is_N_Plus_One_th_Child (path, i)) = (path_to_unode path, i) |> EU.Is_N_Plus_One_th_Child|> EU.eval
+      | eval' (PA.Has_Same_Prnt_As        pair)     _ = path2_to_unode2 pair    |> EU.Has_Same_Prnt_As      |> EU.eval
+      | eval' (PA.Is_In_Trm_Prnt          pair)     _ = path2_to_unode2 pair    |> EU.Is_In_Trm_Prnt        |> EU.eval
+      | eval' (PA.Is_Deeper_Than          pair)     _ = path2_to_unode2 pair    |> EU.Is_Deeper_Than        |> EU.eval
+      | eval' (PA.Is_Shallower_Than       pair)     _ = path2_to_unode2 pair    |> EU.Is_Shallower_Than     |> EU.eval
+      | eval' (PA.Is_Path_Above           pair)     _ = path2_to_unode2 pair    |> EU.Is_Path_Above         |> EU.eval
+      | eval' (PA.Is_Same_Path_As         pair)     _ = path2_to_unode2 pair    |> EU.Is_Same_Path_As       |> EU.eval
+      | eval' (PA.Is_Nth_Child           (path, i)) _ = (path_to_unode path, i) |> EU.Is_Nth_Child          |> EU.eval
+      | eval' (PA.Is_N_Plus_One_th_Child (path, i)) _ = (path_to_unode path, i) |> EU.Is_N_Plus_One_th_Child|> EU.eval
       (*only in path*)
-      | eval' (PA.Unode_Has_Print (path, print)) =
+      | eval' (PA.Unode_Has_Print (path, print)) _ =
           let
             val unode = path_to_unode path: UN.unode;
           in
             print = #print unode |> Eval_Bool.bool_to_assert
           end
-      | eval' (PA.Is_In_Subgoal          path) = Path_To_Unode.path_is_in_subgoal path                  |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Chained_Fact     path) = Path_To_Unode.path_is_in_chained_fact path             |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Nth_Subgoal      pair) = uncurry Path_To_Unode.path_is_in_nth_subgoal pair      |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Nth_Chained_Fact pair) = uncurry Path_To_Unode.path_is_in_nth_chained_fact pair |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Subgoal          path) _ = Path_To_Unode.path_is_in_subgoal path                  |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Chained_Fact     path) _ = Path_To_Unode.path_is_in_chained_fact path             |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Nth_Subgoal      pair) _ = uncurry Path_To_Unode.path_is_in_nth_subgoal pair      |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Nth_Chained_Fact pair) _ = uncurry Path_To_Unode.path_is_in_nth_chained_fact pair |> Eval_Bool.bool_to_assert
       (*debug*)
-      | eval' (PA.Debug_Print_Unode      path) = path_to_unode path |> EU.Debug_Print_Unode |> EU.eval;
-  in eval' assert end;
+      | eval' (PA.Debug_Print_Unode      path) _ = path_to_unode path |> EU.Debug_Print_Unode |> EU.eval;
+  in eval' assert (Proof.context_of pst) end;
 
 end;
 

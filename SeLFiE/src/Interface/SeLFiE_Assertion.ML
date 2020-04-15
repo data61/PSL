@@ -94,13 +94,14 @@ val heuristic_13 =
     Some ("induct", QArb,
       Are_Same_Prints (Variable "induct", Print "xs")));
 
-infix And Or Imply Is_Rule_Of Is_An_Arg_Of Unode_Has_Print;
+infix And Or Imply Is_Rule_Of_Print Is_An_Arg_Of Unode_Has_Print Has_Same_Prnt_As Is_Path_Below;
+infix Is_Rule_Of_Node;
 
 val heuristic_14 =
   Some ("var_occ2", QOuter_Path,
   Some ("var_occ1", QOuter_Path,
   Some ("var_occ", QOuter_Path,
-    Has_Same_Prnt_As (Variable "var_occ2", Variable "var_occ")
+    Variable "var_occ2" Has_Same_Prnt_As Variable "var_occ"
   )));
 
 val lifter_1 =
@@ -124,19 +125,25 @@ All ("xs", QInd,
       Is_At_Deepest_In_A_Location (Variable "xs_occ")
   ));
 
+(*defined_recursively*)
+fun defined_recursively (func_occ:Eval_Syntactic_Sugar.assert) =
+Ors [
+  Is_Defined_With (func_occ, Command Fun),
+  Is_Defined_With (func_occ, Command Function),
+  Is_Defined_With (func_occ, Command Primrec),
+  Is_Defined_With (func_occ, Command Inductive)
+];
+
 val lifter_3 =
 Some ("func_occ", QOuter_Path,
   All ("ind", QInd,
     Some_Of ("ind_occ", Variable "ind",
         (Variable "ind_occ" Is_An_Arg_Of Variable "func_occ")
       And
-        Ors
-         [
-          Is_Defined_With (Variable "func_occ", Command Primrec),
-          Is_Defined_With (Variable "func_occ", Command Fun),
-          Is_Defined_With (Variable "func_occ", Command Function),
-          Is_Defined_With (Variable "func_occ", Command Inductive)
-          ])));
+        defined_recursively (Variable "func_occ")
+    )
+  )
+);
 
 val nth_arg_on_lfs_is_const_or_app =
  Lambdas (["nth"], Debug_Non_Path_Literal (Variable "func"));
@@ -269,12 +276,7 @@ val lifter_4 =
 Imply
   Some ("func", QOuter_Print,
     Some_Of ("func_occ", Variable "func",
-        Ors [
-          Is_Defined_With (Variable "func_occ", Command Fun),
-          Is_Defined_With (Variable "func_occ", Command Function),
-          Is_Defined_With (Variable "func_occ", Command Primrec),
-          Is_Defined_With (Variable "func_occ", Command Inductive)
-          ]
+        defined_recursively (Variable "func_occ")
       And
         All ("induct", QInd,
           Some_Of ("ind_occ", Variable "induct",
@@ -298,7 +300,7 @@ Imply
     Some ("func", QOuter_Print,
       Some_Of ("func_occ", Variable "func",
         Ands [
-          Variable "rule" Is_Rule_Of Variable "func",
+          Variable "rule" Is_Rule_Of_Print Variable "func",
           Debug_Non_Path_Literal (Variable "func"),
           Debug_Non_Path_Literal (Variable "rule"),
           All ("ind", QInd,
@@ -328,37 +330,26 @@ All ("arbitrary", QArb,
     )
 );
 
-
 val lifter_7 =
   Some ("func", QOuter_Print,
     Some_Of ("func_occ", Variable "func",
-        Ors [
-          Is_Defined_With (Variable "func_occ", Command Fun),
-          Is_Defined_With (Variable "func_occ", Command Function),
-          Is_Defined_With (Variable "func_occ", Command Primrec),
-          Is_Defined_With (Variable "func_occ", Command Inductive)
-          ]
+      defined_recursively (Variable "func_occ")
     )
   )
 Imply
   Some ("func", QOuter_Print,
     Some_Of ("func_occ", Variable "func",
       Ands [
-        Ors [
-          Is_Defined_With (Variable "func_occ", Command Fun),
-          Is_Defined_With (Variable "func_occ", Command Function),
-          Is_Defined_With (Variable "func_occ", Command Primrec),
-          Is_Defined_With (Variable "func_occ", Command Inductive)
-          ],
-          Some ("induct_arg", QInd,
-            Some_Of ("induct_arg_occ", Variable "induct_arg",
-              Ands [
-                Variable "induct_arg_occ" Is_An_Arg_Of Variable "func_occ",
-                Debug_Print_Unode (Variable "func_occ"),
-                Debug_Print_Unode (Variable "induct_arg_occ")
-              ]
-            )
+        defined_recursively (Variable "func_occ"),
+        Some ("induct_arg", QInd,
+          Some_Of ("induct_arg_occ", Variable "induct_arg",
+            Ands [
+              Variable "induct_arg_occ" Is_An_Arg_Of Variable "func_occ",
+              Debug_Print_Unode (Variable "func_occ"),
+              Debug_Print_Unode (Variable "induct_arg_occ")
+            ]
           )
+        )
       ]
     )
   );
@@ -398,7 +389,7 @@ Imply
   Some ("rule", QRule,
     Some ("func", QOuter_Print,
       Ands [
-        Variable "rule" Is_Rule_Of  Variable "func",
+        Variable "rule" Is_Rule_Of_Print  Variable "func",
         Some_Of ("func_occ", Variable "func",
           All ("arg_occ", QOuter_Path,
               (Variable "arg_occ" Is_An_Arg_Of Variable "func_occ")
@@ -467,5 +458,45 @@ Imply
       Are_Same_Prints (Variable "rule1", Variable "rule2")
     )
   );
+
+val lifter_15_assumption =
+  All ("ind", QInd,
+    Some_Of ("ind_occ", Variable "ind",
+      Is_Atomic (Variable "ind_occ")
+    )
+  );
+
+val lifter_15_conclusion =
+  Variable "rule" Is_Rule_Of_Node Variable "func2_occ";
+
+fun lifter_15_shared unique =
+  Some ("rule", QRule,
+    Some ("func1_occ", QOuter_Path,
+      Ands [
+        defined_recursively (Variable "func1_occ"),
+        Variable "rule" Is_Rule_Of_Node Variable "func1_occ",
+        Some ("func2_occ", QOuter_Path,
+          Ands [
+            defined_recursively (Variable "func2_occ"),
+            Variable "rule" Is_Rule_Of_Node Variable "func2_occ",
+            Have_Different_Prnts (Variable "func1_occ", Variable "func2_occ"),
+            Some ("arg_of_func1_occ", QOuter_Path,
+              Ands [
+                Variable "arg_of_func1_occ" Is_An_Arg_Of Variable "func1_occ",
+                Variable "func2_occ" Is_Path_Below Variable "arg_of_func1_occ",
+                unique
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  )
+
+(*functional induction on inner constant*) (*TODO: test*)
+val lifter_15 =
+  lifter_15_shared lifter_15_assumption
+Imply
+  lifter_15_shared lifter_15_conclusion;
 
 end;

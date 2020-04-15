@@ -25,6 +25,7 @@ datatype assert =
 | Is_Lambda       of assert
 | Is_App          of assert
 | Is_Defined_With of assert * assert
+| Is_Rule_Of_Node of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -41,7 +42,7 @@ datatype assert =
 | Is_Induct         of assert
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
-| Is_Rule_Of        of assert * assert
+| Is_Rule_Of_Print  of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -98,6 +99,7 @@ datatype assert =
 | Is_Lambda       of assert
 | Is_App          of assert
 | Is_Defined_With of assert * assert
+| Is_Rule_Of_Node of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -114,7 +116,7 @@ datatype assert =
 | Is_Induct         of assert
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
-| Is_Rule_Of        of assert * assert
+| Is_Rule_Of_Print  of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -161,6 +163,7 @@ and (*bool*)
   | surf_to_var (Is_Lambda       arg ) = EV.Assert (SU.Atomic SU.Is_Lambda,       surf_to_var_singleton arg)
   | surf_to_var (Is_App          arg ) = EV.Assert (SU.Atomic SU.Is_App,          surf_to_var_singleton arg)
   | surf_to_var (Is_Defined_With args) = EV.Assert (SU.Atomic SU.Is_Defined_With, surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Rule_Of_Node pair) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Node, surf_to_var_pair_to_list pair)
   (*Eval_Unode*)
   | surf_to_var (Has_Same_Prnt_As       args) = EV.Assert (SU.Atomic SU.Has_Same_Prnt_As,       surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Trm_Prnt         args) = EV.Assert (SU.Atomic SU.Is_In_Trm_Prnt,         surf_to_var_pair_to_list args)
@@ -177,7 +180,7 @@ and (*bool*)
   | surf_to_var (Is_Induct        arg ) = EV.Assert (SU.Atomic SU.Is_Induct,        surf_to_var_singleton    arg )
   | surf_to_var (Is_Arbitrary     arg ) = EV.Assert (SU.Atomic SU.Is_Arbitrary,     surf_to_var_singleton    arg )
   | surf_to_var (Is_Rule          arg ) = EV.Assert (SU.Atomic SU.Is_Rule,          surf_to_var_singleton    arg )
-  | surf_to_var (Is_Rule_Of       args) = EV.Assert (SU.Atomic SU.Is_Rule_Of,       surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Rule_Of_Print args) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Print, surf_to_var_pair_to_list args)
   (*Eval_Path*)
   | surf_to_var (Unode_Has_Print        args) = EV.Assert (SU.Atomic SU.Unode_Has_Print,        surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Subgoal          arg ) = EV.Assert (SU.Atomic SU.Is_In_Subgoal,          surf_to_var_singleton    arg )

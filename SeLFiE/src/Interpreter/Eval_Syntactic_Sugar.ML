@@ -26,6 +26,7 @@ datatype assert =
 | Is_Lambda       of assert
 | Is_App          of assert
 | Is_Defined_With of assert * assert
+| Is_Rule_Of_Node of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -42,7 +43,7 @@ datatype assert =
 | Is_Induct         of assert
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
-| Is_Rule_Of        of assert * assert
+| Is_Rule_Of_Print  of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -66,6 +67,7 @@ datatype assert =
 | In_Some_Definitions of assert * assert * assert list
 (*Syntactic Sugar*)
 | Is_Atomic                          of assert
+| Have_Different_Prnts               of assert * assert
 | Is_Path_Below                      of assert * assert
 | Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
@@ -73,6 +75,7 @@ datatype assert =
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
+| Is_An_Arg_Or_Below_Arg_Of          of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Are_In_Same_Location               of assert * assert
@@ -116,6 +119,7 @@ datatype assert =
 | Is_Lambda       of assert
 | Is_App          of assert
 | Is_Defined_With of assert * assert
+| Is_Rule_Of_Node of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -132,7 +136,7 @@ datatype assert =
 | Is_Induct         of assert
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
-| Is_Rule_Of        of assert * assert
+| Is_Rule_Of_Print  of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -156,6 +160,7 @@ datatype assert =
 | In_Some_Definitions of assert * assert * assert list
 (*Syntactic Sugar*)
 | Is_Atomic                          of assert
+| Have_Different_Prnts               of assert * assert
 | Is_Path_Below                      of assert * assert
 | Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
@@ -163,6 +168,7 @@ datatype assert =
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
+| Is_An_Arg_Or_Below_Arg_Of          of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Are_In_Same_Location               of assert * assert
@@ -210,6 +216,7 @@ and
   | convert loc (Is_Lambda       ass)   = ES.Is_Lambda       (convert loc ass)
   | convert loc (Is_App          ass)   = ES.Is_App          (convert loc ass)
   | convert loc (Is_Defined_With asses) = ES.Is_Defined_With (convert_pair loc asses)
+  | convert loc (Is_Rule_Of_Node pair)  = ES.Is_Rule_Of_Node (convert_pair loc pair)
   (*Eval_Unode*)
   | convert loc (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
   | convert loc (Is_In_Trm_Prnt         pair) = ES.Is_In_Trm_Prnt         (convert_pair loc pair)
@@ -226,7 +233,7 @@ and
   | convert loc (Is_Induct          ass ) = ES.Is_Induct        (convert loc ass)
   | convert loc (Is_Arbitrary       ass ) = ES.Is_Arbitrary     (convert loc ass)
   | convert loc (Is_Rule            ass ) = ES.Is_Rule          (convert loc ass)
-  | convert loc (Is_Rule_Of         pair) = ES.Is_Rule_Of       (convert_pair loc pair)
+  | convert loc (Is_Rule_Of_Print   pair) = ES.Is_Rule_Of_Print (convert_pair loc pair)
   (*Eval_Path*)
   | convert loc (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair loc pair)
   | convert loc (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert loc ass)
@@ -259,6 +266,7 @@ and
         Is_Free  assert,
         Is_Var   assert,
         Is_Bound assert])
+  | convert loc (Have_Different_Prnts pair) = convert loc (Not (Has_Same_Prnt_As pair))
   | convert loc (Is_Path_Below (descendent, anscestor)) = convert loc (Is_Path_Above (anscestor, descendent))
   | convert loc (Is_Parent_Of (parent, child)) =
     let
@@ -314,6 +322,20 @@ and
             Not (Is_Nth_Child (arg, Number 0)),
             Is_App func_app]))
     end
+  | convert loc (Is_An_Arg_Or_Below_Arg_Of (arg_or_in_arg, func)) =
+    let
+      val arg_str  = get_new_name [func, arg_or_in_arg]: string;
+      val arg      = Variable arg_str                  : assert;
+      val path_typ = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+    in
+      convert loc
+       (Ors
+         [Is_An_Arg_Of (arg_or_in_arg, func),
+          Some (arg_str, path_typ,
+            Ands
+              [Is_An_Arg_Of (arg, func),
+               Is_Path_Above (arg, arg_or_in_arg)])])
+    end
   | convert loc (Is_Nth_Arg_Of (arg, number, func)) =
     let
       val func_app_str = get_new_name [func, number, arg]: string;
@@ -338,10 +360,10 @@ and
     in
       convert loc
        (Ors
-         [Is_Nth_Arg_Of (func, number, arg_or_in_arg),
+         [Is_Nth_Arg_Of (arg_or_in_arg, number, func),
           Some (nth_arg_str, path_typ,
             Ands
-              [Is_Nth_Arg_Of (func, number, nth_arg),
+              [Is_Nth_Arg_Of (nth_arg, number, func),
                Is_Path_Above (nth_arg, arg_or_in_arg)])])
     end
   | convert loc (Are_In_Same_Location (ass1, ass2)) =

@@ -13,7 +13,7 @@ datatype assert =
 | Is_Induct        of string
 | Is_Arbitrary     of string
 | Is_Rule          of string
-| Is_Rule_Of       of string * string;
+| Is_Rule_Of_Print of string * string;
 
 val eval: assert -> SeLFiE_Util.induct_arguments -> Proof.context -> Eval_Bool.assert;
 
@@ -34,18 +34,7 @@ datatype assert =
 | Is_Induct        of string
 | Is_Arbitrary     of string
 | Is_Rule          of string
-| Is_Rule_Of       of string * string;
-
-fun split_using_period x = String.tokens (fn splitter => splitter = #".") x;
-
-fun rule_to_const_name (ctxt:Proof.context) (rule:string) =
-  try split_using_period rule 
-<$> Utils.init
-<$> String.concatWith "."
-<$> Syntax.read_term ctxt
-<$> Term.dest_Const
-<$> fst
- |> Utils.the' "rule_to_const_name failed.";
+| Is_Rule_Of_Print of string * string;
 
 infix Is_Printed_As;
 
@@ -55,7 +44,7 @@ fun eval' (Are_Same_Prints (prnt1, prnt2))  _                                   
   | eval' (Is_Induct         print    )    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _    = member (op =) ons   print
   | eval' (Is_Arbitrary      print    )    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _    = member (op =) arbs  print
   | eval' (Is_Rule           print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _    = member (op =) rules print
-  | eval' (Is_Rule_Of       (rule, cname))  _                                                      ctxt = rule_to_const_name ctxt rule = cname
+  | eval' (Is_Rule_Of_Print (rule, cname))  _                                                      ctxt = SU.rule_to_const_name ctxt rule = cname
 
 fun eval  assert (ind_args:SU.induct_arguments) ctxt = eval' assert ind_args ctxt |> EB.bool_to_assert;
 
