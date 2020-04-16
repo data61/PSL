@@ -499,4 +499,29 @@ val lifter_15 =
 Imply
   lifter_15_shared lifter_15_conclusion;
 
+(*rule inversion on a function in a premise*)(*TODO: test*)
+val lifter_20 =
+Ands [
+  Some ("rule", QRule, True),
+  Some ("inductive_occ", QOuter_Path,
+    Ands [
+      Is_Defined_With (Variable "inductive_occ",  Command Inductive)
+    ]
+  )
+];
+
+val test_is_a_meta_premise =
+  All ("ind", QInd,
+    Some_Of ("ind_occ", Variable "ind",
+      Is_A_Meta_Premise (Variable "ind_occ")
+    )
+  );
+
+val test_is_a_meta_conclusion =
+  All ("ind", QInd,
+    Some_Of ("ind_occ", Variable "ind",
+      Is_A_Meta_Conclusion (Variable "ind_occ")
+    )
+  );
+
 end;

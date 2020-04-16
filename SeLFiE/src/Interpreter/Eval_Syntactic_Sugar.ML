@@ -83,6 +83,8 @@ datatype assert =
 | Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_Root_In_A_Location              of assert
 | Is_At_Deepest_In_A_Location        of assert
+| Is_A_Meta_Premise                  of assert
+| Is_A_Meta_Conclusion               of assert
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert
 (*debug*)
@@ -176,6 +178,8 @@ datatype assert =
 | Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_Root_In_A_Location              of assert
 | Is_At_Deepest_In_A_Location        of assert
+| Is_A_Meta_Premise                  of assert
+| Is_A_Meta_Conclusion               of assert
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert
 (*debug*)
@@ -413,6 +417,57 @@ and
         (Not
           (Some (non_exist_str, path_typ,
             Is_Deeper_Than_In_Same_Location (non_exist, assert))))
+    end
+  | convert loc (Is_A_Meta_Premise premise) =
+    let
+      val imp_name            = get_new_name [premise];
+      val imp                 = Variable imp_name;
+      val conclusion_name     = get_new_name [premise, imp];
+      val conclusion          = Variable conclusion_name;
+      val nth_premise_name    = get_new_name [premise, imp, conclusion];
+      val nth_premise         = Variable nth_premise_name;
+      val nth_conclusion_name = get_new_name [premise, imp, conclusion, nth_premise];
+      val nth_conclusion      = Variable nth_conclusion_name;
+      val path_typ            = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+      val numb_typ            = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number;
+    in
+      convert loc (
+        Some (imp_name, path_typ,
+          Ands [
+            Is_An_Arg_Of (premise, imp),
+            Some (nth_premise_name, numb_typ,
+              Ands [
+                Is_Nth_Arg_Of (premise, nth_premise, imp),
+                Some (conclusion_name, path_typ,
+                  Ands [
+                    Is_An_Arg_Of (conclusion, imp),
+                    Not (Is_Same_Path_As (premise, conclusion)),
+                    Some (nth_conclusion_name, numb_typ,
+                      Ands [
+                        Is_Nth_Arg_Of (conclusion, nth_conclusion, imp),
+                        Is_Less_Than (nth_premise, nth_conclusion)
+                      ]
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        )
+      )
+    end
+  | convert loc (Is_A_Meta_Conclusion conclusion) =
+    let
+      val imp_name            = get_new_name [conclusion];
+      val imp                 = Variable imp_name;
+      val path_typ            = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+    in
+      convert loc (
+        Ands [
+          Some (imp_name, path_typ, Is_An_Arg_Of (conclusion, imp)),
+          Not (Is_A_Meta_Premise (conclusion))
+        ]
+      )
     end
   | convert loc (Some_Of (occ:string, prnt:assert, inner_assert)) =
     let

@@ -277,14 +277,14 @@ Imply
          And
           Some_Numb (Numb 3,
            Some_Trm_Occ (Trm_Occ 3,
-            (Is_Nth_Arg_Of (Trm_Occ 1, Numb 3, Trm_Occ 4)
+            (Is_Nth_Arg_Of (Trm_Occ 1, Numb 3, Trm_Occ 4)(*FIXME? What is Trm_Occ 4? It should be Trm_Occ 3? Trm_occ 1 and Trm_occ 4 should be swapped?*)
            And
              Is_Nth_Arg_Of (Trm_Occ 2, Numb 3, Trm_Occ 4)
            And
             Some_Ind (Trm 5,
               ((Trm_Occ 1 Trm_Occ_Is_Of_Trm Trm 5)
               And
-               (Trm_Occ 1 Trm_Occ_Is_Of_Trm Trm 5))
+               (Trm_Occ 1 Trm_Occ_Is_Of_Trm Trm 5))(*FIXME? The first argument should be Trm_Occ2?*)
 ))))))))));
 
 (* heuristic_17 *)
@@ -333,7 +333,7 @@ Imply
         Some_Numb (Numb 5,
           Is_Nth_Arg_Of(Trm_Occ 1, Numb 5, Trm_Occ 21)
          And
-          Pattern (Numb 5, Trm_Occ 21, All_Constr)
+          Pattern (Numb 5, Trm_Occ 21, All_Constr)(*!*)
          And
           Some_Trm_Occ_Of (Trm_Occ 22, Trm 2,
             Some_Numb (Numb 6,
@@ -347,7 +347,7 @@ Imply
               Some_Trm_Occ_Of (Trm_Occ 3, Trm 3,
                Is_Nth_Arg_Of (Trm_Occ 3, Numb 5, Trm_Occ 22)
                And
-                Pattern (Numb 5, Trm_Occ 22, All_Constr))))))))))
+                Pattern (Numb 5, Trm_Occ 22, All_Constr))))))))))(*!*)
 
 
 (* heuristic_20 *)

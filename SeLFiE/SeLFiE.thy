@@ -123,6 +123,14 @@ setup\<open> Apply_SeLFiE.update_assert "print_inner_roots"             SeLFiE_A
 setup\<open> Apply_SeLFiE.update_assert "print_all_inner_lhss"          SeLFiE_Assertion.print_all_inner_lhss \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_fst_params_of_fun_const" SeLFiE_Assertion.print_fst_params_of_fun_const \<close>
 
+setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_premise"    SeLFiE_Assertion.test_is_a_meta_premise \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_conclusion" SeLFiE_Assertion.test_is_a_meta_conclusion \<close>
+
+lemma "xs \<Longrightarrow> ys \<Longrightarrow> zs"
+  assert_SeLFiE test_is_a_meta_premise    [on["xs"], arb[],rule[]]
+  assert_SeLFiE test_is_a_meta_conclusion [on["zs"], arb[],rule[]]
+  oops
+
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
