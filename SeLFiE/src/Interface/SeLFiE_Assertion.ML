@@ -524,4 +524,20 @@ val test_is_a_meta_conclusion =
     )
   );
 
+val test_is_more_than = Is_More_Than (Number 5, Number 4);
+
+val test_is_a_meta_premise_or_below =
+  All ("ind", QInd,
+    Some_Of ("ind_occ", Variable "ind",
+      Is_A_Meta_Premise_Or_Below (Variable "ind_occ")
+    )
+  );
+
+val test_is_a_meta_conclusion_or_below =
+  All ("ind", QInd,
+    Some_Of ("ind_occ", Variable "ind",
+      Is_A_Meta_Conclusion_Or_Below (Variable "ind_occ")
+    )
+  );
+
 end;

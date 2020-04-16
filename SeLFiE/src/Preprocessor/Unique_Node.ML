@@ -338,7 +338,10 @@ fun path_to_string'  []               (acc:string) = acc
 fun inner_path_to_string  []               = ""
   | inner_path_to_string (step::path:ints) = "Path is " ^ Int.toString step ^ path_to_string' path "";
 
-fun are_same_inner_path (inner_path1:inner_path) (inner_path2:inner_path) = forall (op =) (inner_path1 ~~ inner_path2);
+fun are_same_inner_path (inner_path1:inner_path) (inner_path2:inner_path) =
+  if length inner_path1 = length inner_path2
+  then forall (op =) (inner_path1 ~~ inner_path2)
+  else false;
 
 fun inner_path1_is_above_inner_path2 (x::xs:inner_path) (y::ys:inner_path) = if x = y then inner_path1_is_above_inner_path2 xs ys else false
   | inner_path1_is_above_inner_path2 ([]   :inner_path) (_::_ :inner_path) = true

@@ -125,10 +125,16 @@ setup\<open> Apply_SeLFiE.update_assert "print_fst_params_of_fun_const" SeLFiE_A
 
 setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_premise"    SeLFiE_Assertion.test_is_a_meta_premise \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_conclusion" SeLFiE_Assertion.test_is_a_meta_conclusion \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_premise_or_below"    SeLFiE_Assertion.test_is_a_meta_premise_or_below \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_conclusion_or_below" SeLFiE_Assertion.test_is_a_meta_conclusion_or_below \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.test_is_more_than \<close>
 
-lemma "xs \<Longrightarrow> ys \<Longrightarrow> zs"
-  assert_SeLFiE test_is_a_meta_premise    [on["xs"], arb[],rule[]]
-  assert_SeLFiE test_is_a_meta_conclusion [on["zs"], arb[],rule[]]
+lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
+  assert_SeLFiE test_is_a_meta_premise    [on["f x"], arb[],rule[]]
+  assert_SeLFiE test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
+  assert_SeLFiE test_is_a_meta_premise_or_below    [on["x"], arb[],rule[]]
+  assert_SeLFiE test_is_a_meta_conclusion_or_below [on["z"], arb[],rule[]]
+  assert_SeLFiE test_is_more_than [on["zs"], arb[],rule[]]
   oops
 
 
