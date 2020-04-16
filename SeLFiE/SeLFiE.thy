@@ -114,6 +114,7 @@ setup\<open> Apply_SeLFiE.update_assert "lifter_12"     SeLFiE_Assertion.lifter_
 setup\<open> Apply_SeLFiE.update_assert "lifter_13"     SeLFiE_Assertion.lifter_13 \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_14"     SeLFiE_Assertion.lifter_14 \<close>
 setup\<open> Apply_SeLFiE.update_assert "lifter_15"     SeLFiE_Assertion.lifter_15 \<close>
+setup\<open> Apply_SeLFiE.update_assert "lifter_20"     SeLFiE_Assertion.lifter_20 \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_dive_in"  SeLFiE_Assertion.test_dive_in \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_all_outer_prints"        SeLFiE_Assertion.print_all_outer_prints \<close>
 setup\<open> Apply_SeLFiE.update_assert "print_all_inner_prints"        SeLFiE_Assertion.print_all_inner_prints \<close>

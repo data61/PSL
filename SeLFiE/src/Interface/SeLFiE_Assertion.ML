@@ -501,14 +501,25 @@ Imply
 
 (*rule inversion on a function in a premise*)(*TODO: test*)
 val lifter_20 =
-Ands [
-  Some ("rule", QRule, True),
-  Some ("inductive_occ", QOuter_Path,
-    Ands [
-      Is_Defined_With (Variable "inductive_occ",  Command Inductive)
-    ]
-  )
-];
+  Ands [
+    Some ("rule", QRule, True),
+    Some ("inductive_occ", QOuter_Path,
+      Ands [
+        Is_Defined_With (Variable "inductive_occ",  Command Inductive),
+        Is_A_Meta_Premise_Or_Below (Variable "inductive_occ")
+      ]
+    )
+  ]
+Imply
+  Some ("rule", QRule,
+    Some ("inductive_occ", QOuter_Path,
+      Ands [
+        Is_Defined_With (Variable "inductive_occ",  Command Inductive),
+        Is_A_Meta_Premise_Or_Below (Variable "inductive_occ"),
+        Variable "rule" Is_Rule_Of_Node Variable "induct_occ"
+      ]
+    )
+  );
 
 val test_is_a_meta_premise =
   All ("ind", QInd,
