@@ -551,4 +551,116 @@ val test_is_a_meta_conclusion_or_below =
     )
   );
 
+val helper_is_defined_recursively_on_nth =
+Lambdas (["func", "number"],
+  Ands [
+    Some ("root_path", QInner_Path,
+      Ands [
+        Is_Root_In_A_Location (Variable "root_path"),
+        Some ("lhs_path", QInner_Path,
+            Is_Nth_Child_Of (Variable "lhs_path", Number 1, Variable "root_path")
+          And
+            Some ("part_of_nth_param_on_lhs", QInner_Path,
+              Ands [
+                Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs", Variable "number", Variable "lhs_path"),
+                Some ("rhs_path", QInner_Path,
+                  Ands [
+                    Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
+                    Debug_Non_Path_Literal (Print "================"),
+                    Debug_Non_Path_Literal (Print "== root_path is:"),
+                    Debug_Print_Unode (Variable "root_path"),
+                    Debug_Non_Path_Literal (Print "== part_of_nth_param_on_lhs is:"),
+                    Debug_Print_Unode (Variable "part_of_nth_param_on_lhs"),
+                    Debug_Non_Path_Literal (Print "== RHS is"),
+                    Debug_Print_Unode (Variable "rhs_path"),
+                    Some_Of ("func_occ_on_rhs", Variable "func",
+                      Ands [
+                        Variable "func_occ_on_rhs" Is_Path_Below Variable "rhs_path",
+                        Some ("part_of_nth_param_on_rhs", QInner_Path,
+                          Ands [
+                            Variable "part_of_nth_param_on_rhs" Has_Same_Prnt_As Variable "part_of_nth_param_on_lhs",
+                            Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "part_of_nth_param_on_rhs", Variable "number", Variable "func_occ_on_rhs"),
+                            Debug_Non_Path_Literal (Print "On the RHS, part_of_nth_param_on_rhs is:"),
+                            Debug_Print_Unode (Variable "part_of_nth_param_on_rhs")
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                )
+              ]
+            )
+        )
+      ]
+    )
+  ]
+);
+
+val print_inner_path_root_help2 =
+Lambdas (["outer_print", "number"],
+  Some ("inner_path", QInner_Path,
+      Is_Root_In_A_Location (Variable "inner_path")
+    And
+      Debug_Print_Unode (Variable "inner_path")));
+
+val is_defined_recursively_on_nth =
+  Not (Some ("rule", QRule, True))
+Imply
+  Some ("func", QOuter_Print,
+    Some_Of ("func_occ", Variable "func",
+        defined_recursively (Variable "func_occ")
+      And
+        Debug_Non_Path_Literal (Print "++++++++")
+      And
+        Debug_Print_Unode (Variable "func_occ")
+      And
+        All ("induct", QInd,
+          Some_Of ("ind_occ", Variable "induct",
+            Debug_Print_Unode (Variable "ind_occ")
+           And
+            Some ("number", QOuter_Number,
+              Ands [
+                Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ"),
+                Debug_Non_Path_Literal (Print "#### Number is: "),
+                Debug_Non_Path_Literal (Variable "number"),
+                Debug_Non_Path_Literal (Print "#### func_occ is: "),
+                Debug_Print_Unode (Variable "func_occ"),
+                Debug_Non_Path_Literal (Print "Now we dive in: "),
+                In_Some_Definitions (Variable "func_occ", helper_is_defined_recursively_on_nth, [Variable "func", Variable "number"])
+              ]
+            )
+          )
+        )
+    )
+  );
+(*
+val print_fst_params_of_fun_const =
+Some ("outer_path", QOuter_Path,
+  Some ("outer_print", QOuter_Print,
+    Ands [
+      Variable "outer_path" Unode_Has_Print Variable "outer_print",
+      Is_Defined_With (Variable "outer_path", Command Fun),
+      In_All_Definitions (Variable "outer_path", help_print_n_plus_one_th_param, [Number 0])
+      ]));
+
+val help_lifter_4_nth_arg_is_const_or_app =
+Lambdas (["number"],
+  Some ("root_path", QInner_Path,
+      Is_Root_In_A_Location (Variable "root_path")
+    And
+      Some ("lfs_path", QInner_Path,
+          Is_Nth_Child_Of (Variable "lfs_path", Number 1, Variable "root_path")
+        And
+          Some ("nth_param", QInner_Path,
+              Is_N_Plus_One_th_Child_Of (Variable "nth_param", Variable "number", Variable "lfs_path")
+            And
+              Ors [
+                Is_Cnst (Variable "nth_param"),
+                Is_App  (Variable "nth_param")
+              ]
+          )
+      )
+  )
+);
+*)
 end;

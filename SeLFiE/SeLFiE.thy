@@ -130,6 +130,9 @@ setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_premise_or_below"    SeL
 setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_conclusion_or_below" SeLFiE_Assertion.test_is_a_meta_conclusion_or_below \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.test_is_more_than \<close>
 
+setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth" SeLFiE_Assertion.is_defined_recursively_on_nth \<close>
+
+(*
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE test_is_a_meta_premise    [on["f x"], arb[],rule[]]
   assert_SeLFiE test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
@@ -137,7 +140,7 @@ lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE test_is_a_meta_conclusion_or_below [on["z"], arb[],rule[]]
   assert_SeLFiE test_is_more_than [on["zs"], arb[],rule[]]
   oops
-
+*)
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -150,6 +153,7 @@ primrec rev :: "'a list \<Rightarrow> 'a list" where
  print_theorems
 
 lemma "itrev xs ys = rev xs @ ys"
+  assert_SeLFiE is_defined_recursively_on_nth  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_1  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_2  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE heuristic_3  [on["xs"], arb["ys"],rule[]]

@@ -74,6 +74,7 @@ datatype assert =
 | Is_Nth_Child_Of                    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
+| Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
 | Is_An_Arg_Or_Below_Arg_Of          of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
@@ -174,6 +175,7 @@ datatype assert =
 | Is_Nth_Child_Of                    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
+| Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
 | Is_An_Arg_Or_Below_Arg_Of          of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
@@ -317,8 +319,31 @@ and
         (Ors
           [Is_Nth_Child_Of (child_or_in_child, number, parent),
            Some (nth_child_str, path_typ,
-             Is_Path_Below (child_or_in_child, nth_child))
-           ])
+             Ands [
+               Is_Nth_Child_Of (nth_child, number, parent),
+               Is_Path_Below (child_or_in_child, nth_child)
+             ]
+           )
+          ]
+        )
+    end
+  | convert loc (Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)) =
+    let
+      val n_plus_one_th_child_str = get_new_name [child_or_in_child, number, parent]: string;
+      val n_plus_one_th_child     = Variable n_plus_one_th_child_str                : assert;
+      val path_typ                = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+    in
+      convert loc
+        (Ors
+          [Is_N_Plus_One_th_Child_Of (child_or_in_child, number, parent),
+           Some (n_plus_one_th_child_str, path_typ,
+             Ands [
+               Is_N_Plus_One_th_Child_Of (n_plus_one_th_child, number, parent),
+               Is_Path_Below (child_or_in_child, n_plus_one_th_child)
+             ]
+           )
+          ]
+        )
     end
   | convert loc (Is_An_Arg_Of (arg, func)) =
     let
