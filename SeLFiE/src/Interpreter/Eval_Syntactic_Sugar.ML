@@ -96,7 +96,6 @@ datatype assert =
 (*debug*)
 | Debug_Non_Path_Literal             of assert
 | Debug_Print_Unode                  of assert
-| Debug_Space;
 
 val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
@@ -197,7 +196,6 @@ datatype assert =
 (*debug*)
 | Debug_Non_Path_Literal             of assert
 | Debug_Print_Unode                  of assert
-| Debug_Space;
 
 structure ES = Eval_Surface;
 structure SU = SeLFiE_Util;
@@ -629,7 +627,6 @@ and
   | convert loc (All_Of (occ, prnt, inner_assert)) = convert loc (Not (Some_Of (occ, prnt, Not inner_assert)))
   | convert loc (Debug_Non_Path_Literal assert) = ES.Debug_Non_Path_Literal (convert loc assert)
   | convert loc (Debug_Print_Unode      assert) = ES.Debug_Print_Unode (convert loc assert)
-  | convert loc (Debug_Space                  ) = convert loc (tracing "\n"; True);
 
 fun surf_to_sugar ES.True  = True
   | surf_to_sugar ES.False = False

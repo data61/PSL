@@ -170,19 +170,14 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
       end;
     val thm      = Isabelle_Utils.proof_state_to_thm pst: thm;
     val thm_term = Thm.prop_of thm                      : term;
-    fun tracing' mssg = if true then () else tracing mssg;
     fun eval' (Apply (func, arg)) term =
-        (
          (case eval' func term of
-          Lambda  u => (tracing' ("LAMBDA " ^ print_expr u);  eval' (subst 0 (eval' arg term) u) term)
-        | Literal l => (tracing' "LITERAL"; Literal l)
-        | Bound   i => (tracing' "BOUND";   Bound i)
-        | Dive_In t => (tracing' "Deep";    Dive_In t)
-        | Deep_Dive t => (tracing' "Deep";  Deep_Dive t)
-        | u1        => (tracing' ("Apply in Apply" ^
-                       (case u1 of _  =>  " with something"));
-                       Apply (u1, eval' arg term)))
-        )
+          Lambda  u   => eval' (subst 0 (eval' arg term) u) term
+        | Literal l   => Literal l
+        | Bound   i   => Bound i
+        | Dive_In t   => Dive_In t
+        | Deep_Dive t => Deep_Dive t
+        | u1          => Apply (u1, eval' arg term))
       | eval' (Assert (assert, param_exprs)) term =
           let
             (* Note that param_exprs are always Literal at this point
@@ -195,8 +190,8 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
           end
       | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) term = dive triple term outer_literal_to_definitions
       | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) term = dive triple term inner_literal_to_definitions
-      | eval' (All  (qtyp, subexpr)) term  = (tracing' "ALL";  eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands term) term)
-      | eval' (Some (qtyp, subexpr)) term  = (tracing' "SOME"; eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors  term) term)
+      | eval' (All  (qtyp, subexpr)) term  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands term) term
+      | eval' (Some (qtyp, subexpr)) term  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors  term) term
       | eval' expr _ = expr
     and dive (Literal path, Lambda lambda, args) trm (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) =
         let

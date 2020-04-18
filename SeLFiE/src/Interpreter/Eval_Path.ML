@@ -73,7 +73,7 @@ structure PA  = Path_Assert;
 
 fun eval (term:term) (pst:Proof.state) assert =
   let
-    val table  = Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term: Path_To_Unode.path_to_unode_table;
+    val table  = (tracing "construct a table"; Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term: Path_To_Unode.path_to_unode_table);
     type unode = UN.unode;
     fun path_to_unode (p:path) = Path_To_Unode.lookup table p |> Utils.the' "lookup in path_to_unode failed";
     fun path_to_node  (p:path) = path_to_unode p |> #node: UN.node;
