@@ -1,12 +1,7 @@
-Dear IJCAR reviewers,
-Please have a look at [the release indicated in the paper](https://github.com/data61/PSL/releases/tag/v0.1.5-alpha).
-We are often experimenting new (dangerous) ideas in the master branch in GitHub.
-Our running example explained in the paper resides in PSL/Smart_Induct/Example/Induction_Demo.thy.
-
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for [Isabelle201**9**](https://isabelle.in.tum.de) not [Isabelle201**8**](https://isabelle.in.tum.de/website-Isabelle2018/index.html).
+**try_hard**, for [Isabelle20**20**](https://isabelle.in.tum.de). Previous versions of Isabelle, such as Isabelle2019, are no longer supported.
 
 ## Installation
 1. Install [Isabelle2019](https://isabelle.in.tum.de).
