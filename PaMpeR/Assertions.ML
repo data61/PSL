@@ -117,10 +117,10 @@ fun is_fun_not_fully_applied (trm:term) = Term.type_of trm |> Term.size_of_typ |
 (* FIXME: fst_subg_is_classified_as roughly classifies the first subgoal *)
 fun fst_subg_is_classified_as  (goal:thm) (ctxt:context) (rclass:Spec_Rules.rough_classification) =
   let
-    val fst_subg         = Isabelle_Utils.get_1st_subg goal: term option;
-    val classifications  = Option.map (Spec_Rules.retrieve ctxt) fst_subg |> these;
-    val rough_classes    = map fst classifications: Spec_Rules.rough_classification list;
-    val is_classified_as = exists (equal rclass) rough_classes: bool;
+    val fst_subg         = Isabelle_Utils.get_1st_subg goal                       : term option;
+    val classifications  = Option.map (Spec_Rules.retrieve ctxt) fst_subg |> these: Spec_Rules.spec_rule list;
+    val rough_classes    = map #rough_classification classifications              : Spec_Rules.rough_classification list;
+    val is_classified_as = exists (equal rclass) rough_classes                    : bool;
   in
     is_classified_as
   end;
