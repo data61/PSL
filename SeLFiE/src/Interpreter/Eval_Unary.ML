@@ -159,6 +159,13 @@ fun mk_inner_expr (lamb as Lambda _) (arguments:expr list) =
     mk_nested_app (mk_nested_lamb lamb (length arguments - 1)) arguments
   | mk_inner_expr _ _ = error "mk_inner_expr failed!"
 
+(*TODO? Maybe we do not have to call OPTU or IPTU here.*)
+structure OPTU = Outer_Path_To_Unode;
+structure IPTU = Inner_Path_To_Unode;
+structure OPTP = Print_To_Outer_Paths;
+structure IPTP = Print_To_Inner_Paths;
+structure GP2U = Gen_Path_To_Unode;
+
 fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
   let
     fun subexpr_n_qtyp_to_apps (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) (trm:term) =
@@ -168,45 +175,50 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
       in
         Assert (ands_or_ors, apps): expr
       end;
-    val thm      = Isabelle_Utils.proof_state_to_thm pst: thm;
-    val thm_term = Thm.prop_of thm                      : term;
-    fun eval' (Apply (func, arg)) term =
-         (case eval' func term of
-          Lambda  u   => eval' (subst 0 (eval' arg term) u) term
+    val thm               = Isabelle_Utils.proof_state_to_thm pst                            : thm;
+    val thm_term          = Thm.prop_of thm                                                  : term;
+    val outer_path_table  = OPTU.pst_n_trm_to_path_to_unode_table pst thm_term               : OPTU.path_to_unode_table;
+    (*TODO: probably we do not have to pass around both term and table.*)
+    fun eval' (Apply (func, arg)) trm table =
+         (case eval' func trm table of
+          Lambda  u   => eval' (subst 0 (eval' arg trm table) u) trm table
         | Literal l   => Literal l
         | Bound   i   => Bound i
         | Dive_In t   => Dive_In t
         | Deep_Dive t => Deep_Dive t
-        | u1          => Apply (u1, eval' arg term))
-      | eval' (Assert (assert, param_exprs)) term =
+        | u1          => Apply (u1, eval' arg trm table))
+      | eval' (Assert (assert, param_exprs)) trm table =
           let
             (* Note that param_exprs are always Literal at this point
              * because the evaluation function in From_Bound_To_Quantifier evaluated
              * param_exprs eagerly.*)
-            val lazy_param_exprs = Seq.of_list param_exprs                                                             : expr Seq.seq
-            val lazy_params      = Seq.map (param_with_bool_to_bound o (fn param => eval' param term)) lazy_param_exprs: Eval_Parameter.literal Seq.seq;
+            val lazy_param_exprs = Seq.of_list param_exprs                                                                  : expr Seq.seq
+            val lazy_params      = Seq.map (param_with_bool_to_bound o (fn param => eval' param trm table)) lazy_param_exprs: Eval_Parameter.literal Seq.seq;
           in
-            EPWB.eval term pst induct_args assert lazy_params |> Literal
+            EPWB.eval pst table induct_args assert lazy_params |> Literal
           end
-      | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) term = dive triple term outer_literal_to_definitions
-      | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) term = dive triple term inner_literal_to_definitions
-      | eval' (All  (qtyp, subexpr)) term  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands term) term
-      | eval' (Some (qtyp, subexpr)) term  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors  term) term
-      | eval' expr _ = expr
-    and dive (Literal path, Lambda lambda, args) trm (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) =
+      | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) trm table = dive triple trm table outer_literal_to_definitions
+      | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) trm table = dive triple trm table inner_literal_to_definitions
+      | eval' (All  (qtyp, subexpr)) trm table  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands trm) trm table
+      | eval' (Some (qtyp, subexpr)) trm table  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors  trm) trm table
+      | eval' expr _ _ = expr
+    and dive (Literal path, Lambda lambda, args) trm table (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) =
         let
           val _             = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
           val simp_rules    = literal_to_definitions pst trm path: terms;
-          val curried_expr  = mk_inner_expr (Lambda lambda) args : expr;
-          val inner_results = map (eval' curried_expr) simp_rules: expr list;
-          val ands          = Assert (SU.Ands, inner_results)    : expr;
-          val result        = eval' ands trm                     : expr;
+          val simp_rule_unode_table        = map (Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) simp_rules: IPTU.path_to_unode_table list;
+          val simp_rule_tables             = map GP2U.Inner_Path_To_Unode simp_rule_unode_table                       : GP2U.gen_path_to_unode_table list;
+          val curried_expr  = mk_inner_expr (Lambda lambda) args       : expr;
+          (*TODO: use simp_rule_tables instead of simp_rules.*)
+          val inner_results = map (fn (trm, table) => eval' curried_expr trm table) (simp_rules ~~ simp_rule_tables): expr list;
+          val ands          = Assert (SU.Ands, inner_results)          : expr;
+          val result        = eval' ands trm table                     : expr;
         in
           result
         end
-      | dive _ _ _ = error "dive failed."
+      | dive _ _ _ _ = error "dive failed."
   in
-    eval' expr thm_term
+    eval' expr thm_term (GP2U.Outer_Path_To_Unode outer_path_table)
   end;
 
 end;

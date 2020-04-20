@@ -19,6 +19,9 @@ The overall work-flow is:
 signature PATH_TO_UNODE =
 sig
 
+datatype table_type = Inner_Table | Outer_Table;
+val      table_type: table_type;
+
 type path;
 type path_to_unode_table;
 
@@ -26,10 +29,6 @@ val table_to_paths                  : path_to_unode_table -> path list;
 val lookup                          : path_to_unode_table -> path -> UN.unode option;
 val pst_n_trm_to_path_to_unode_table: Proof.state -> term -> path_to_unode_table;
 val pst_n_term_n_path_to_cname      : Proof.state -> term -> path -> string option;
-val path_is_in_subgoal              : path -> bool;
-val path_is_in_chained_fact         : path -> bool;
-val path_is_in_nth_subgoal          : path -> int -> bool;
-val path_is_in_nth_chained_fact     : path -> int -> bool;
 
 end;
 
@@ -54,6 +53,9 @@ structure Path_Table = Inner_Path_Table;
 val table_to_paths = Path_Table.keys;
 
 structure UN  = Unique_Node;
+
+datatype table_type = Inner_Table | Outer_Table;
+val      table_type = Inner_Table;
 
 type path                = UN.inner_path;
 type path_to_unode_table = UN.unode Path_Table.table;
@@ -89,11 +91,6 @@ fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
     path_n_table_to_cname path table lookup
   end;
 
-fun path_is_in_subgoal          _   = false: bool;
-fun path_is_in_chained_fact     _   = false: bool;
-fun path_is_in_nth_subgoal      _ _ = false: bool;
-fun path_is_in_nth_chained_fact _ _ = false: bool;
-
 end;
 
 (*** Outer_Path_To_Outer_Unode ***)
@@ -103,6 +100,9 @@ struct
 structure Path_Table = Outer_Path_Table;
 
 val table_to_paths = Path_Table.keys;
+
+datatype table_type = Inner_Table | Outer_Table;
+val      table_type = Outer_Table;
 
 type path = outer_path;
 
@@ -214,18 +214,62 @@ fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
     path_n_table_to_cname path table lookup
   end;
 
-fun path_is_in_subgoal      ((Subgoal      _, _):path) = true
-  | path_is_in_subgoal        _                        = false: bool;
-
-fun path_is_in_chained_fact ((Chained_Fact _, _):path) = true
-  | path_is_in_chained_fact   _                        = false: bool;
-
-fun path_is_in_nth_subgoal ((Subgoal nth_subg, _):path) (number) = nth_subg = number
-  | path_is_in_nth_subgoal   _                           _       = false;
-
-fun path_is_in_nth_chained_fact ((Chained_Fact nth_fact, _):path) number = nth_fact = number
-  | path_is_in_nth_chained_fact   _                                _     = false;
+end;
 
 end;
+
+signature GEN_PATH_TO_UNODE =
+sig
+
+structure Inner_Path_To_Unode: PATH_TO_UNODE;
+structure Outer_Path_To_Unode: PATH_TO_UNODE;
+
+datatype path_type = Inner_Path_Type | Outer_Path_Type;
+datatype gen_path  = Inner_Path of UN.inner_path | Outer_Path of outer_path;
+
+datatype gen_path_to_unode_table =
+  Inner_Path_To_Unode of Inner_Path_To_Unode.path_to_unode_table
+| Outer_Path_To_Unode of Outer_Path_To_Unode.path_to_unode_table;
+
+val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.unode;
+
+val path_is_in_subgoal              : gen_path -> bool;
+val path_is_in_chained_fact         : gen_path -> bool;
+val path_is_in_nth_subgoal          : gen_path -> int -> bool;
+val path_is_in_nth_chained_fact     : gen_path -> int -> bool;
+
+end;
+
+structure Gen_Path_To_Unode: GEN_PATH_TO_UNODE =
+struct
+
+structure Inner_Path_To_Unode = Inner_Path_To_Unode;
+structure Outer_Path_To_Unode = Outer_Path_To_Unode;
+
+datatype path_type = Inner_Path_Type | Outer_Path_Type;
+datatype gen_path  = Inner_Path of UN.inner_path | Outer_Path of outer_path;
+datatype gen_path_to_unode_table =
+  Inner_Path_To_Unode of Inner_Path_To_Unode.path_to_unode_table
+| Outer_Path_To_Unode of Outer_Path_To_Unode.path_to_unode_table;
+
+fun gen_table_n_gen_path_to_unode (Inner_Path_To_Unode table) (Inner_Path path) =  Inner_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Inner_Path"
+  | gen_table_n_gen_path_to_unode (Outer_Path_To_Unode table) (Outer_Path path) =  Outer_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Outer_Path"
+  | gen_table_n_gen_path_to_unode _ _ = error "gen_table_n_gen_path_to_unode failed."
+
+fun path_is_in_subgoal          (Outer_Path (Subgoal _, _)) = true : bool
+  | path_is_in_subgoal          (Outer_Path  _            ) = false
+  | path_is_in_subgoal          (Inner_Path  _            ) = false: bool
+
+fun path_is_in_chained_fact     (Outer_Path (Chained_Fact _, _)) = true : bool
+  | path_is_in_chained_fact     (Outer_Path  _                 ) = false
+  | path_is_in_chained_fact     (Inner_Path  _                 ) = false: bool;
+
+fun path_is_in_nth_subgoal      (Outer_Path (Subgoal nth_subg, _)) number = nth_subg = number
+  | path_is_in_nth_subgoal      (Outer_Path  _                   ) _      = false
+  | path_is_in_nth_subgoal      (Inner_Path  _                   ) _      = false: bool;
+
+fun path_is_in_nth_chained_fact (Outer_Path (Chained_Fact nth_fact, _)) number = nth_fact = number
+  | path_is_in_nth_chained_fact (Outer_Path  _                        ) _      = false
+  | path_is_in_nth_chained_fact (Inner_Path  _                        ) _      = false: bool;
 
 end;

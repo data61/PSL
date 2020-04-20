@@ -8,7 +8,7 @@
 signature EVAL_PARAMETER_WITH_BOOL =
 sig
 
-val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.assert -> Eval_Parameter.literal Seq.seq -> Eval_Parameter.literal;
+val eval: Proof.state -> Gen_Path_To_Unode.gen_path_to_unode_table -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.assert -> Eval_Parameter.literal Seq.seq -> Eval_Parameter.literal;
 
 end;
 
@@ -23,7 +23,7 @@ structure EB = Eval_Bool;
 type connective = Eval_Bool.assert;
 type command    = Pattern.command;
 
-fun eval (trm:term) (pst:Proof.state) (induct_args:SU.induct_arguments) (assert:SU.assert) (parameters:EP.literal Seq.seq) =
+fun eval (pst:Proof.state) (term_tables:Gen_Path_To_Unode.gen_path_to_unode_table) (induct_args:SU.induct_arguments) (assert:SU.assert) (parameters:EP.literal Seq.seq) =
   let
     fun take_bool (EP.Non_Path (EP.Bool b)) = b
       | take_bool  _                        = error "take_bool";
@@ -38,7 +38,7 @@ fun eval (trm:term) (pst:Proof.state) (induct_args:SU.induct_arguments) (assert:
       | eval' SU.Ands  lazy_params = EB.eval (EB.Ands  (Seq.map non_path_lit_to_connect lazy_params))
       | eval' SU.Ors   lazy_params = EB.eval (EB.Ors   (Seq.map non_path_lit_to_connect lazy_params))
       (*Eval_Unode_Core*)
-      | eval' (SU.Atomic atomic_assert) lazy_params = EP.eval trm pst induct_args atomic_assert (Seq.list_of lazy_params)
+      | eval' (SU.Atomic atomic_assert) lazy_params = EP.eval pst term_tables induct_args atomic_assert (Seq.list_of lazy_params)
     val ec_result = eval' assert parameters: Eval_Bool.assert;
     val result    = ec_result |> EB.assert_to_bool |> EP.Bool |> EP.Non_Path;
   in

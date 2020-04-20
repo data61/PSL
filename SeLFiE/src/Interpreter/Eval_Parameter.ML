@@ -19,7 +19,7 @@ datatype literal =
 
 type literals = literal list;
 
-val eval: term -> Proof.state -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.atomic_assert -> literals -> Eval_Bool.assert;
+val eval: Proof.state -> Gen_Path_To_Unode.gen_path_to_unode_table -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.atomic_assert -> literals -> Eval_Bool.assert;
 
 end;
 
@@ -32,6 +32,7 @@ structure EPT  = Eval_Path;
 structure EPR  = Eval_Print;
 structure ENMB = Eval_Number;
 structure SU   = SeLFiE_Util;
+structure GP2U = Gen_Path_To_Unode;
 
 datatype non_path_literal =
   Bool    of bool
@@ -46,58 +47,58 @@ datatype literal =
 
 type literals = literal list;
 
-fun eval trm pst induct_args assert literals =
+fun eval pst term_tables induct_args assert literals =
   let
     val ctxt = Proof.context_of pst;
     fun
       (*Eval_Node (Outer)*)
-        eval' SU.Is_Cnst   [Outer_Path p] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Cnst   p))
-      | eval' SU.Is_Free   [Outer_Path p] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Free   p))
-      | eval' SU.Is_Var    [Outer_Path p] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Var    p))
-      | eval' SU.Is_Bound  [Outer_Path p] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Bound  p))
-      | eval' SU.Is_Lambda [Outer_Path p] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Lambda p))
-      | eval' SU.Is_App    [Outer_Path p] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_App    p))
-      | eval' SU.Is_Defined_With [Outer_Path path,       Non_Path (Command cmd)] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Defined_With (path, cmd)))
-      | eval' SU.Is_Rule_Of_Node [Non_Path (Print rule), Outer_Path path       ] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Rule_Of_Node (rule, path)))
+        eval' SU.Is_Cnst   [Outer_Path p] = EPT.eval pst term_tables (PA.Is_Cnst   (GP2U.Outer_Path p))
+      | eval' SU.Is_Free   [Outer_Path p] = EPT.eval pst term_tables (PA.Is_Free   (GP2U.Outer_Path p))
+      | eval' SU.Is_Var    [Outer_Path p] = EPT.eval pst term_tables (PA.Is_Var    (GP2U.Outer_Path p))
+      | eval' SU.Is_Bound  [Outer_Path p] = EPT.eval pst term_tables (PA.Is_Bound  (GP2U.Outer_Path p))
+      | eval' SU.Is_Lambda [Outer_Path p] = EPT.eval pst term_tables (PA.Is_Lambda (GP2U.Outer_Path p))
+      | eval' SU.Is_App    [Outer_Path p] = EPT.eval pst term_tables (PA.Is_App    (GP2U.Outer_Path p))
+      | eval' SU.Is_Defined_With [Outer_Path path,       Non_Path (Command cmd)] = EPT.eval pst term_tables (PA.Is_Defined_With (GP2U.Outer_Path path, cmd))
+      | eval' SU.Is_Rule_Of_Node [Non_Path (Print rule), Outer_Path path       ] = EPT.eval pst term_tables (PA.Is_Rule_Of_Node (rule, GP2U.Outer_Path path))
       (*Eval_Node (Inner)*)
-      | eval' SU.Is_Cnst   [Inner_Path p] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Cnst   p))
-      | eval' SU.Is_Free   [Inner_Path p] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Free   p))
-      | eval' SU.Is_Var    [Inner_Path p] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Var    p))
-      | eval' SU.Is_Bound  [Inner_Path p] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Bound  p))
-      | eval' SU.Is_Lambda [Inner_Path p] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Lambda p))
-      | eval' SU.Is_App    [Inner_Path p] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_App    p))
-      | eval' SU.Is_Defined_With [Inner_Path path,       Non_Path (Command cmd)] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Defined_With (path, cmd)))
-      | eval' SU.Is_Rule_Of_Node [Non_Path (Print rule), Inner_Path path       ] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Rule_Of_Node (rule, path)))
+      | eval' SU.Is_Cnst   [Inner_Path p] = EPT.eval pst term_tables (PA.Is_Cnst   (GP2U.Inner_Path p))
+      | eval' SU.Is_Free   [Inner_Path p] = EPT.eval pst term_tables (PA.Is_Free   (GP2U.Inner_Path p))
+      | eval' SU.Is_Var    [Inner_Path p] = EPT.eval pst term_tables (PA.Is_Var    (GP2U.Inner_Path p))
+      | eval' SU.Is_Bound  [Inner_Path p] = EPT.eval pst term_tables (PA.Is_Bound  (GP2U.Inner_Path p))
+      | eval' SU.Is_Lambda [Inner_Path p] = EPT.eval pst term_tables (PA.Is_Lambda (GP2U.Inner_Path p))
+      | eval' SU.Is_App    [Inner_Path p] = EPT.eval pst term_tables (PA.Is_App    (GP2U.Inner_Path p))
+      | eval' SU.Is_Defined_With [Inner_Path path,       Non_Path (Command cmd)] = EPT.eval pst term_tables (PA.Is_Defined_With ((GP2U.Inner_Path path, cmd)))
+      | eval' SU.Is_Rule_Of_Node [Non_Path (Print rule), Inner_Path path       ] = EPT.eval pst term_tables (PA.Is_Rule_Of_Node ((rule, GP2U.Inner_Path path)))
       (*Eval_Unode (Outer)*)
-      | eval' SU.Has_Same_Prnt_As       [Outer_Path p1, Outer_Path p2]       = EPT.eval trm pst (EPT.Outer_Assert (PA.Has_Same_Prnt_As       (p1, p2)))
-      | eval' SU.Is_In_Trm_Prnt         [Outer_Path p1, Outer_Path p2]       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Trm_Prnt         (p1, p2)))
-      | eval' SU.Is_Deeper_Than         [Outer_Path p1, Outer_Path p2]       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Deeper_Than         (p1, p2)))
-      | eval' SU.Is_Shallower_Than      [Outer_Path p1, Outer_Path p2]       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Shallower_Than      (p1, p2)))
-      | eval' SU.Is_Path_Above          [Outer_Path p1, Outer_Path p2]       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Path_Above          (p1, p2)))
-      | eval' SU.Is_Same_Path_As        [Outer_Path p1, Outer_Path p2]       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Same_Path_As        (p1, p2)))
-      | eval' SU.Is_Nth_Child           [Outer_Path p,  Non_Path (Number n)] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_Nth_Child           (p,  n )))
-      | eval' SU.Is_N_Plus_One_th_Child [Outer_Path p,  Non_Path (Number n)] = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_N_Plus_One_th_Child (p,  n )))
+      | eval' SU.Has_Same_Prnt_As       [Outer_Path p1, Outer_Path p2]       = EPT.eval pst term_tables (PA.Has_Same_Prnt_As       (GP2U.Outer_Path p1, GP2U.Outer_Path p2))
+      | eval' SU.Is_In_Trm_Prnt         [Outer_Path p1, Outer_Path p2]       = EPT.eval pst term_tables (PA.Is_In_Trm_Prnt         (GP2U.Outer_Path p1, GP2U.Outer_Path p2))
+      | eval' SU.Is_Deeper_Than         [Outer_Path p1, Outer_Path p2]       = EPT.eval pst term_tables (PA.Is_Deeper_Than         (GP2U.Outer_Path p1, GP2U.Outer_Path p2))
+      | eval' SU.Is_Shallower_Than      [Outer_Path p1, Outer_Path p2]       = EPT.eval pst term_tables (PA.Is_Shallower_Than      (GP2U.Outer_Path p1, GP2U.Outer_Path p2))
+      | eval' SU.Is_Path_Above          [Outer_Path p1, Outer_Path p2]       = EPT.eval pst term_tables (PA.Is_Path_Above          (GP2U.Outer_Path p1, GP2U.Outer_Path p2))
+      | eval' SU.Is_Same_Path_As        [Outer_Path p1, Outer_Path p2]       = EPT.eval pst term_tables (PA.Is_Same_Path_As        (GP2U.Outer_Path p1, GP2U.Outer_Path p2))
+      | eval' SU.Is_Nth_Child           [Outer_Path p,  Non_Path (Number n)] = EPT.eval pst term_tables (PA.Is_Nth_Child           (GP2U.Outer_Path p,  n ))
+      | eval' SU.Is_N_Plus_One_th_Child [Outer_Path p,  Non_Path (Number n)] = EPT.eval pst term_tables (PA.Is_N_Plus_One_th_Child (GP2U.Outer_Path p,  n ))
       (*Eval_Unode (Inner)*)
-      | eval' SU.Has_Same_Prnt_As       [Inner_Path p1, Inner_Path p2]       = EPT.eval trm pst (EPT.Inner_Assert (PA.Has_Same_Prnt_As       (p1, p2)))
-      | eval' SU.Is_In_Trm_Prnt         [Inner_Path p1, Inner_Path p2]       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Trm_Prnt         (p1, p2)))
-      | eval' SU.Is_Deeper_Than         [Inner_Path p1, Inner_Path p2]       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Deeper_Than         (p1, p2)))
-      | eval' SU.Is_Shallower_Than      [Inner_Path p1, Inner_Path p2]       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Shallower_Than      (p1, p2)))
-      | eval' SU.Is_Path_Above          [Inner_Path p1, Inner_Path p2]       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Path_Above          (p1, p2)))
-      | eval' SU.Is_Same_Path_As        [Inner_Path p1, Inner_Path p2]       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Same_Path_As        (p1, p2)))
-      | eval' SU.Is_Nth_Child           [Inner_Path p,  Non_Path (Number n)] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_Nth_Child           (p,  n )))
-      | eval' SU.Is_N_Plus_One_th_Child [Inner_Path p,  Non_Path (Number n)] = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_N_Plus_One_th_Child (p,  n)))
+      | eval' SU.Has_Same_Prnt_As       [Inner_Path p1, Inner_Path p2]       = EPT.eval pst term_tables (PA.Has_Same_Prnt_As       (GP2U.Inner_Path p1, GP2U.Inner_Path p2))
+      | eval' SU.Is_In_Trm_Prnt         [Inner_Path p1, Inner_Path p2]       = EPT.eval pst term_tables (PA.Is_In_Trm_Prnt         (GP2U.Inner_Path p1, GP2U.Inner_Path p2))
+      | eval' SU.Is_Deeper_Than         [Inner_Path p1, Inner_Path p2]       = EPT.eval pst term_tables (PA.Is_Deeper_Than         (GP2U.Inner_Path p1, GP2U.Inner_Path p2))
+      | eval' SU.Is_Shallower_Than      [Inner_Path p1, Inner_Path p2]       = EPT.eval pst term_tables (PA.Is_Shallower_Than      (GP2U.Inner_Path p1, GP2U.Inner_Path p2))
+      | eval' SU.Is_Path_Above          [Inner_Path p1, Inner_Path p2]       = EPT.eval pst term_tables (PA.Is_Path_Above          (GP2U.Inner_Path p1, GP2U.Inner_Path p2))
+      | eval' SU.Is_Same_Path_As        [Inner_Path p1, Inner_Path p2]       = EPT.eval pst term_tables (PA.Is_Same_Path_As        (GP2U.Inner_Path p1, GP2U.Inner_Path p2))
+      | eval' SU.Is_Nth_Child           [Inner_Path p,  Non_Path (Number n)] = EPT.eval pst term_tables (PA.Is_Nth_Child           (GP2U.Inner_Path p,  n ))
+      | eval' SU.Is_N_Plus_One_th_Child [Inner_Path p,  Non_Path (Number n)] = EPT.eval pst term_tables (PA.Is_N_Plus_One_th_Child (GP2U.Inner_Path p,  n))
       (*Eval_Path (Outer)*)
-      | eval' SU.Unode_Has_Print        [Outer_Path p, Non_Path (Print str)] = EPT.eval trm pst (EPT.Outer_Assert (PA.Unode_Has_Print        (p, str)))
-      | eval' SU.Is_In_Subgoal          [Outer_Path p]                       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Subgoal           p    ))
-      | eval' SU.Is_In_Chained_Fact     [Outer_Path p]                       = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Chained_Fact      p    ))
-      | eval' SU.Is_In_Nth_Subgoal      [Outer_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Nth_Subgoal      (p, n)))
-      | eval' SU.Is_In_Nth_Chained_Fact [Outer_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Outer_Assert (PA.Is_In_Nth_Chained_Fact (p, n)))
+      | eval' SU.Unode_Has_Print        [Outer_Path p, Non_Path (Print str)] = EPT.eval pst term_tables (PA.Unode_Has_Print        (GP2U.Outer_Path p, str))
+      | eval' SU.Is_In_Subgoal          [Outer_Path p]                       = EPT.eval pst term_tables (PA.Is_In_Subgoal          (GP2U.Outer_Path p))
+      | eval' SU.Is_In_Chained_Fact     [Outer_Path p]                       = EPT.eval pst term_tables (PA.Is_In_Chained_Fact     (GP2U.Outer_Path p))
+      | eval' SU.Is_In_Nth_Subgoal      [Outer_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Subgoal      (GP2U.Outer_Path p, n))
+      | eval' SU.Is_In_Nth_Chained_Fact [Outer_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Chained_Fact (GP2U.Outer_Path p, n))
       (*Eval_Path (Inner)*)
-      | eval' SU.Unode_Has_Print        [Inner_Path p, Non_Path (Print str)] = EPT.eval trm pst (EPT.Inner_Assert (PA.Unode_Has_Print        (p, str)))
-      | eval' SU.Is_In_Subgoal          [Inner_Path p]                       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Subgoal           p    ))
-      | eval' SU.Is_In_Chained_Fact     [Inner_Path p]                       = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Chained_Fact      p    ))
-      | eval' SU.Is_In_Nth_Subgoal      [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Subgoal      (p, n)))
-      | eval' SU.Is_In_Nth_Chained_Fact [Inner_Path p, Non_Path (Number n)]  = EPT.eval trm pst (EPT.Inner_Assert (PA.Is_In_Nth_Chained_Fact (p, n)))
+      | eval' SU.Unode_Has_Print        [Inner_Path p, Non_Path (Print str)] = EPT.eval pst term_tables (PA.Unode_Has_Print        (GP2U.Inner_Path p, str))
+      | eval' SU.Is_In_Subgoal          [Inner_Path p]                       = EPT.eval pst term_tables (PA.Is_In_Subgoal          (GP2U.Inner_Path p))
+      | eval' SU.Is_In_Chained_Fact     [Inner_Path p]                       = EPT.eval pst term_tables (PA.Is_In_Chained_Fact     (GP2U.Inner_Path p))
+      | eval' SU.Is_In_Nth_Subgoal      [Inner_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Subgoal      (GP2U.Inner_Path p, n))
+      | eval' SU.Is_In_Nth_Chained_Fact [Inner_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Chained_Fact (GP2U.Inner_Path p, n))
       (*Eval_Print*)
       | eval' SU.Are_Same_Prints  [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2))  induct_args ctxt
       | eval' SU.Is_Nth_Induct    [Non_Path (Print p),  Non_Path (Number n)] = EPR.eval (EPR.Is_Nth_Induct (p, n))      induct_args ctxt
@@ -114,8 +115,8 @@ fun eval trm pst induct_args assert literals =
       | eval' SU.Debug_Non_Path_Literal [Non_Path (Print   p)] = (tracing ("Debug Print      : " ^ p                              );  Eval_Bool.True)
       | eval' SU.Debug_Non_Path_Literal [Non_Path (Number  n)] = (tracing ("Debug Number     : " ^ Int.toString n                 );  Eval_Bool.True)
       | eval' SU.Debug_Non_Path_Literal [Non_Path (Command c)] = (tracing ("Debug Number     : " ^ Pattern.print_command c        );  Eval_Bool.True)
-      | eval' SU.Debug_Print_Unode      [Outer_Path p]         = (EPT.eval trm pst (EPT.Outer_Assert (PA.Debug_Print_Unode p)); Eval_Bool.True)
-      | eval' SU.Debug_Print_Unode      [Inner_Path p]         = (EPT.eval trm pst (EPT.Inner_Assert (PA.Debug_Print_Unode p)); Eval_Bool.True)
+      | eval' SU.Debug_Print_Unode      [Outer_Path p]         = (EPT.eval pst term_tables (PA.Debug_Print_Unode (GP2U.Outer_Path p)); Eval_Bool.True)
+      | eval' SU.Debug_Print_Unode      [Inner_Path p]         = (EPT.eval pst term_tables (PA.Debug_Print_Unode (GP2U.Inner_Path p)); Eval_Bool.True)
       | eval' assert _ = error ("- eval' in Eval_Parameter.ML failed at " ^ SU.print_atomic_assert assert);
   in
     eval' assert literals: Eval_Bool.assert

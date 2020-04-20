@@ -23,6 +23,8 @@ type outer_path_to_node_table = Outer_Path_To_Unode.path_to_unode_table;
 type print_to_inner_paths_table = Print_To_Inner_Paths.print_to_paths_table;
 type print_to_outer_paths_table = Print_To_Outer_Paths.print_to_paths_table;
 
+(*TODO: Probably, I should avoid calling these mk_all_*_paths too many times.*)
+(*      These unnecessary calls probably slow down the SeLFiE interpreter when it processes nested quantifiers.*)
 fun mk_all_inner_paths  pst term = Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term |> Inner_Path_To_Unode.table_to_paths: UN.inner_paths;
 fun mk_all_outer_paths  pst term = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term |> Outer_Path_To_Unode.table_to_paths: outer_paths;
 
@@ -40,12 +42,7 @@ val mk_all_inner_prints = mk_all_prints Inner_Path_To_Unode.pst_n_trm_to_path_to
 val mk_all_outer_prints = mk_all_prints Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table Print_To_Outer_Paths.path_to_unode_table_to_print_to_paths_table Print_To_Outer_Paths.print_to_paths_table_to_prints
                         : Proof.state -> term -> strings;
 
-fun pst_n_trm_to_numb_of_paths mk_all_paths (pst:Proof.state) (trm:term) = mk_all_paths pst trm |> length
-(*
-|> (fn len => (tracing "psn_to_trm_to_numb_of_paths is ";Int.toString len |> tracing;
-     tracing ("---term in pst_n_trm_to_numb_of_paths is " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm)
-;len))
-*): int;
+fun pst_n_trm_to_numb_of_paths mk_all_paths (pst:Proof.state) (trm:term) = mk_all_paths pst trm |> length: int;
 
 val pst_n_trm_to_numb_of_inner_paths = pst_n_trm_to_numb_of_paths mk_all_inner_prints: Proof.state -> term -> int;
 val pst_n_trm_to_numb_of_outer_paths = pst_n_trm_to_numb_of_paths mk_all_outer_prints: Proof.state -> term -> int;
@@ -75,6 +72,7 @@ val map_Non_Path_Print = map (EP.Non_Path o EP.Print);
 
 val tracing' = if true then K () else tracing;
 
+(*TODO: Check if we are calling this function too many times unnecessarily.*)
 fun qtyp_to_qdomain SU.QInner_Number pst trm _ = pst_n_trm_to_inner_numb_domain pst trm
   | qtyp_to_qdomain SU.QOuter_Number pst trm _ = pst_n_trm_to_outer_numb_domain pst trm
   | qtyp_to_qdomain SU.QInner_Path   pst trm _ = mk_all_inner_paths pst trm |> map EP.Inner_Path

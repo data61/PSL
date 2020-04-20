@@ -6,43 +6,35 @@
 structure Path_Assert =
 struct
 
-datatype 'path assert =
+type gen_path = Gen_Path_To_Unode.gen_path;
+
+datatype assert =
 (*Eval_Node*)
-  Is_Cnst                of 'path
-| Is_Free                of 'path
-| Is_Var                 of 'path
-| Is_Bound               of 'path
-| Is_Lambda              of 'path
-| Is_App                 of 'path
-| Is_Defined_With        of 'path * Pattern.command
-| Is_Rule_Of_Node        of string * 'path
+  Is_Cnst                of gen_path
+| Is_Free                of gen_path
+| Is_Var                 of gen_path
+| Is_Bound               of gen_path
+| Is_Lambda              of gen_path
+| Is_App                 of gen_path
+| Is_Defined_With        of gen_path * Pattern.command
+| Is_Rule_Of_Node        of string * gen_path
 (*Eval_Unode*)
-| Has_Same_Prnt_As       of 'path * 'path
-| Is_In_Trm_Prnt         of 'path * 'path
-| Is_Deeper_Than         of 'path * 'path
-| Is_Shallower_Than      of 'path * 'path
-| Is_Path_Above          of 'path * 'path
-| Is_Same_Path_As        of 'path * 'path
-| Is_Nth_Child           of 'path * int
-| Is_N_Plus_One_th_Child of 'path * int
+| Has_Same_Prnt_As       of gen_path * gen_path
+| Is_In_Trm_Prnt         of gen_path * gen_path
+| Is_Deeper_Than         of gen_path * gen_path
+| Is_Shallower_Than      of gen_path * gen_path
+| Is_Path_Above          of gen_path * gen_path
+| Is_Same_Path_As        of gen_path * gen_path
+| Is_Nth_Child           of gen_path * int
+| Is_N_Plus_One_th_Child of gen_path * int
 (*only in path*)
-| Unode_Has_Print        of 'path * string
-| Is_In_Subgoal          of 'path
-| Is_In_Chained_Fact     of 'path
-| Is_In_Nth_Subgoal      of 'path * int
-| Is_In_Nth_Chained_Fact of 'path * int
+| Unode_Has_Print        of gen_path * string
+| Is_In_Subgoal          of gen_path
+| Is_In_Chained_Fact     of gen_path
+| Is_In_Nth_Subgoal      of gen_path * int
+| Is_In_Nth_Chained_Fact of gen_path * int
 (*debug*)
-| Debug_Print_Unode      of 'path;
-
-end;
-
-(*** signature EVAL_EACH_PATH ***)
-signature EVAL_EACH_PATH =
-sig
-
-type path;
-
-val eval: term -> Proof.state -> path Path_Assert.assert -> Eval_Bool.assert;
+| Debug_Print_Unode      of gen_path;
 
 end;
 
@@ -50,34 +42,29 @@ end;
 signature EVAL_PATH =
 sig
 
-datatype gen_assert =
-  Outer_Assert of outer_path    Path_Assert.assert
-| Inner_Assert of UN.inner_path Path_Assert.assert;
-
-val eval: term -> Proof.state -> gen_assert -> Eval_Bool.assert;
+val eval: Proof.state -> Gen_Path_To_Unode.gen_path_to_unode_table -> Path_Assert.assert -> Eval_Bool.assert;
 
 end;
 
-(*** functor make_Each_Eval_Path: PATH_TO_UNODE -> EVAL_PATH ***)
-functor make_Each_Eval_Path (Path_To_Unode:PATH_TO_UNODE): EVAL_EACH_PATH =
+(*** structure Each_Path: EVAL_PATH ***)
+structure Eval_Path: EVAL_PATH =
 struct
-
-type connective = Eval_Bool.assert;
-type path       = Path_To_Unode.path;
 
 structure END = Eval_Node;
 structure EU  = Eval_Unode;
 structure EIP = Eval_Print;
 structure ENB = Eval_Number;
 structure PA  = Path_Assert;
+structure GP2U = Gen_Path_To_Unode;
 
-fun eval (term:term) (pst:Proof.state) assert =
+type connective = Eval_Bool.assert;
+type gen_path   = Gen_Path_To_Unode.gen_path;
+
+fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) assert =
   let
-    val table  = (tracing "construct a table"; Path_To_Unode.pst_n_trm_to_path_to_unode_table pst term: Path_To_Unode.path_to_unode_table);
-    type unode = UN.unode;
-    fun path_to_unode (p:path) = Path_To_Unode.lookup table p |> Utils.the' "lookup in path_to_unode failed";
-    fun path_to_node  (p:path) = path_to_unode p |> #node: UN.node;
-    fun path2_to_unode2 (p1:path, p2:path) = apply2 path_to_unode (p1, p2): (UN.unode * UN.unode);
+    val path_to_unode                              = GP2U.gen_table_n_gen_path_to_unode path_to_unode_table: gen_path -> UN.unode;
+    fun path_to_node    (p:gen_path)               = path_to_unode p |> #node: UN.node;
+    fun path2_to_unode2 (p1:gen_path, p2:gen_path) = apply2 path_to_unode (p1, p2): (UN.unode * UN.unode);
     fun
       (*Eval_Node*)
         eval' (PA.Is_Cnst   p)               ctxt = END.eval (END.Is_Cnst         (path_to_node p                )) ctxt
@@ -104,29 +91,12 @@ fun eval (term:term) (pst:Proof.state) assert =
           in
             print = #print unode |> Eval_Bool.bool_to_assert
           end
-      | eval' (PA.Is_In_Subgoal          path) _ = Path_To_Unode.path_is_in_subgoal path                  |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Chained_Fact     path) _ = Path_To_Unode.path_is_in_chained_fact path             |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Nth_Subgoal      pair) _ = uncurry Path_To_Unode.path_is_in_nth_subgoal pair      |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Nth_Chained_Fact pair) _ = uncurry Path_To_Unode.path_is_in_nth_chained_fact pair |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Subgoal          path) _ = GP2U.path_is_in_subgoal path                  |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Chained_Fact     path) _ = GP2U.path_is_in_chained_fact path             |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Nth_Subgoal      pair) _ = uncurry GP2U.path_is_in_nth_subgoal pair      |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Nth_Chained_Fact pair) _ = uncurry GP2U.path_is_in_nth_chained_fact pair |> Eval_Bool.bool_to_assert
       (*debug*)
       | eval' (PA.Debug_Print_Unode      path) _ = path_to_unode path |> EU.Debug_Print_Unode |> EU.eval;
   in eval' assert (Proof.context_of pst) end;
-
-end;
-
-(*** structure: Eval_Inner_Path and Eval_Outer_Path ***)
-structure Eval_Inner_Path = make_Each_Eval_Path (Inner_Path_To_Unode): EVAL_EACH_PATH;
-structure Eval_Outer_Path = make_Each_Eval_Path (Outer_Path_To_Unode): EVAL_EACH_PATH;
-
-(*** structure: EVAL_PATH ***)
-structure Eval_Path: EVAL_PATH =
-struct
-
-datatype gen_assert =
-  Outer_Assert of outer_path    Path_Assert.assert
-| Inner_Assert of UN.inner_path Path_Assert.assert;
-
-fun eval trm pst (Inner_Assert assert) = Eval_Inner_Path.eval trm pst assert
-  | eval trm pst (Outer_Assert assert) = Eval_Outer_Path.eval trm pst assert
 
 end;
