@@ -55,7 +55,7 @@ type trm_w_prnts = trm_w_prnt list;
 fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
   let
     val trm_to_string' = Print o Isabelle_Utils.trm_to_string ctxt;
-    fun trm_to_trm_w_prnt' (Const _) (trm_wo_bound as Const (name,     typ)) = (C_Prnt (name,     typ, trm_to_string' trm_wo_bound))
+    fun trm_to_trm_w_prnt' (Const _) (Const (name,     typ)) = (C_Prnt (name, typ, LiFtEr_Util.Print name))
       | trm_to_trm_w_prnt' (Free  _) (trm_wo_bound as Free  (name,     typ)) = (F_Prnt (name,     typ, trm_to_string' trm_wo_bound))
       | trm_to_trm_w_prnt' (Var   _) (trm_wo_bound as Var   (idx_name, typ)) = (V_Prnt (idx_name, typ, trm_to_string' trm_wo_bound))
       | trm_to_trm_w_prnt' (Bound i) (trm_wo_bound as Free  (_,        typ)) = (B_Prnt (i,        typ, trm_to_string' trm_wo_bound))

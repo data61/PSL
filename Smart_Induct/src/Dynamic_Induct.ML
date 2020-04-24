@@ -56,11 +56,29 @@ fun get_all_modifiers (state:Proof.state) =
   let
     val {context: Proof.context, goal: thm,...} = Proof.goal state;
     val free_var_names   = Isabelle_Utils.get_free_var_names_in_1st_subg goal;
-    val induct_rules     = Find_Theorems2.get_induct_rule_names context goal : string list;
-    val all_induct_mods  = get_ons free_var_names @ get_arbs free_var_names @ get_rules induct_rules;
-  in
-    all_induct_mods : modifiers
-  end;
+
+    val maybe_fst_subg = Isabelle_Utils.pst_to_fst_subg state: term option;
+    fun pst_n_trm_to_prints (pst:Proof.state) (trm:term) =
+      let
+        val ctxt                    = Proof.context_of pst;
+        val trm_w_prnt              = UN.trm_to_trm_w_prnt ctxt trm;
+        val utrm_w_prnt             = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
+        val futrm_w_prnt            = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
+        val futrm_w_prnt_n_path     = UN.futrm_w_prnt_to_futrm_w_prnt_n_path futrm_w_prnt;
+        val unodes                  = UN.futrm_w_prnt_n_path_to_unodes futrm_w_prnt_n_path: UN.unodes;
+        fun is_var_or_bound unode   = UN.is_NF (#node unode) orelse UN.is_NV (#node unode);
+        val filtered_unodes         = filter is_var_or_bound unodes;
+        val prints                  = map #print filtered_unodes |> map LiFtEr_Util.dest_print |> distinct (op =);
+      in
+        prints
+      end;
+      val prints = Option.map (pst_n_trm_to_prints state) maybe_fst_subg |> Utils.the' "get_all_modifiers in Dynamic_Induct.ML failed. It could not fetch the first sub-goal."
+
+        val induct_rules     = Find_Theorems2.get_induct_rule_names context goal : string list;
+        val all_induct_mods  = get_ons prints(*free_var_names*) @ get_arbs prints(*free_var_names*) @ get_rules induct_rules;
+      in
+        all_induct_mods : modifiers
+      end;
 
 val pick_vars = filter     (fn modi => case modi of On _ => true | _ => false);
 val dump_vars = filter_out (fn modi => case modi of On _ => true | _ => false);

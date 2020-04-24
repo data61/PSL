@@ -371,6 +371,95 @@ Imply
     )
   );
 
+(* heuristic_21 *)
+val rule_inversion_on_a_member_if_inductive_set_in_a_premise =
+ (  Some_Rule (Rule 1, True)
+  And
+    Some_Trm_Occ (Trm_Occ 1,
+       (Trm_Occ 1 Is_Defined_With Inductive_Set)
+      And
+       (Is_In_Prems (Trm_Occ 1))
+      And
+        Some_Trm_Occ (Trm_Occ 2,
+            (Trm_Occ 2 Is_Const_Of_Name "Set.member")
+          And
+            Some_Trm_Occ (Trm_Occ 3, (*RHS of \<in>*)
+              For_Numb_N (Numb 1, 1,
+                  Is_Nth_Arg_Of (Trm_Occ 3, Numb 1, Trm_Occ 2)
+                And
+                  (Trm_Occ 1 Is_In_Trm_Loc  Trm_Occ 3)
+                And
+                  Some_Trm_Occ (Trm_Occ 4, (*LHS of \<in>*)
+                    For_Numb_N (Numb 2, 0,
+                        Is_Nth_Arg_Of (Trm_Occ 4, Numb 2, Trm_Occ 2)
+                      And
+                        (
+                          (Is_Free (Trm_Occ 4) Or Is_Bound (Trm_Occ 4) Or Is_Var (Trm_Occ 4))
+(*
+                        Or
+                          Some_Trm_Occ (Trm_Occ 5, (*a variable in LHS of \<in>*)
+                              (Trm_Occ 5 Is_In_Trm_Loc  Trm_Occ 4)
+                            And
+                              (Is_Free (Trm_Occ 5) Or Is_Bound (Trm_Occ 5) Or Is_Var (Trm_Occ 5))
+                          )
+*)
+                        )
+                    )
+                  )
+              )
+            )
+        )
+    )
+  )
+Imply
+ (  (*Some_Rule (Rule 1, True)
+  And*)
+    Some_Trm_Occ (Trm_Occ 1,
+       (Trm_Occ 1 Is_Defined_With Inductive_Set)
+      And
+       Some_Rule (Rule 1, (Rule 1 Is_Rule_Of Trm_Occ 1))
+      And
+       (Is_In_Prems (Trm_Occ 1))
+      And
+        Some_Trm_Occ (Trm_Occ 2,
+            (Trm_Occ 2 Is_Const_Of_Name "Set.member")
+          And
+            Some_Trm_Occ (Trm_Occ 3, (*RHS of \<in>*)
+              For_Numb_N (Numb 1, 1,
+                  Is_Nth_Arg_Of (Trm_Occ 3, Numb 1, Trm_Occ 2)
+                And
+                  (Trm_Occ 1 Is_In_Trm_Loc  Trm_Occ 3)
+                And
+                  Some_Trm_Occ (Trm_Occ 4, (*LHS of \<in>*)
+                    For_Numb_N (Numb 2, 0,
+                        Is_Nth_Arg_Of (Trm_Occ 4, Numb 2, Trm_Occ 2)
+                      And
+                        (
+                          (  Is_Free (Trm_Occ 4) Or Is_Bound (Trm_Occ 4) Or Is_Var (Trm_Occ 4)
+                           (*Imply*)And
+                             Some_Ind (Trm 4, Trm_Occ 4 Trm_Occ_Is_Of_Trm Trm 4)
+                           )
+                        And (*!*)(*because of Imply*)
+(*
+                          Some_Trm_Occ (Trm_Occ 5, (*a variable in LHS of \<in>*)
+                              (
+                                (Trm_Occ 5 Is_In_Trm_Loc  Trm_Occ 4)
+                              And
+                                (Is_Free (Trm_Occ 5) Or Is_Bound (Trm_Occ 5) Or Is_Var (Trm_Occ 5))
+                              )
+                            Imply
+                              Some_Ind (Trm 5, Trm_Occ 5 Trm_Occ_Is_Of_Trm Trm 5)
+                          )
+*)True
+                        )
+                    )
+                  )
+              )
+            )
+        )
+    )
+  );
+
 end;
 
 end;

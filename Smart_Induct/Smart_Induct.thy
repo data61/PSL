@@ -31,6 +31,17 @@ setup\<open> Apply_LiFtEr.update_assert "heuristic_18" LiFtEr_Heuristics.ind_is_
 setup\<open> Apply_LiFtEr.update_assert "heuristic_19" LiFtEr_Heuristics.no_arb_should_be_at_the_same_loc_as_ind \<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_20" LiFtEr_Heuristics.rule_inversion_on_premise \<close>
 
+setup\<open> Apply_LiFtEr.update_assert "heuristic_21" LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_22" LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_23" LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_24" LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_27" LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_28" LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise \<close>
+
+setup\<open> Apply_LiFtEr.update_assert "heuristic_25"  LiFtEr_Heuristics.at_least_one_on \<close>
+(*
+setup\<open> Apply_LiFtEr.update_assert "heuristic_24" LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise \<close>
+*)
 ML_file "src/Scoring_Using_LiFtEr.ML"
 
 ML\<open> val _ = Outer_Syntax.command @{command_keyword smart_induct} "recommend which method to use." (Scan.succeed Scoring_Using_LiFtEr.smart_induct_cmd); \<close>

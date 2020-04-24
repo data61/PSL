@@ -12,7 +12,7 @@ open Matrix;
 structure IU = Isabelle_Utils;
 
 (** type: command **)
-datatype command  = Definition | Fun | Function | Inductive | Primrec | Unknown;
+datatype command  = Definition | Fun | Function | Inductive | Inductive_Set | Primrec | Unknown;
 
 (** operation: command **)
 fun has_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:string) =
@@ -20,6 +20,14 @@ fun has_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:string)
 
 fun has_no_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:string) =
   can (Proof_Context.get_thms ctxt) (cnst_name ^ "." ^ suffix) |> not;
+
+fun has_set_member (trm:term) = Term.exists_Const (equal "Set.member" o fst) trm: bool;
+fun always_has_set_mbmer (trms: terms) = forall has_set_member trms: bool;
+fun is_defined_with_inductive_set (ctxt:Proof.context) (cname:string) =
+   try (Proof_Context.get_thms ctxt) (cname ^ ".intros")
+|> these
+|> map Thm.prop_of
+|> always_has_set_mbmer;
 
 (*TODO*)val suffix_for_definition = (["_def"], ["cases", "elims", "induct", "simps", "intros"]);
 val suffix_for_fun =       (["cases", "elims", "induct", "pelims", "simps"], ["inducts", "intros"]);(*The "fun" keyword produces psimps.*)
@@ -50,7 +58,8 @@ fun get_command (ctxt:Proof.context) (trm_name:string) =
     (if checks = [true,  false, false, false] then Primrec   else
      if checks = [false, true,  false, false] then Fun       else
      if checks = [false, false, true,  false] then Function  else
-     if checks = [false, false, false, true ] then Inductive else
+     if checks = [false, false, false, true ] andalso is_defined_with_inductive_set ctxt trm_name then Inductive_Set else
+     if checks = [false, false, false, true ]then Inductive else
      Unknown)
   end;
 

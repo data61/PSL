@@ -9,7 +9,7 @@ signature PATTERN =
 sig
 
 (** type and operation about command **)
-datatype command                        = Definition | Fun | Function | Inductive | Primrec | Unknown;
+datatype command  = Definition | Fun | Function | Inductive | Inductive_Set | Primrec | Unknown;
 val get_command                         : Proof.context -> string -> command;
 
 (** pattern **)
