@@ -14,12 +14,16 @@
  *)
 theory SeLFiE
   imports "../PSL"
-  keywords "assert_SeLFiE"      :: diag
+  keywords "assert_SeLFiE_true"      :: diag
+  and      "assert_SeLFiE_false"     :: diag
 (*
    and     "test_all_LiFtErs"   :: diag
 *)
 begin
 
+ML\<open>
+val t1 = Time.now ();
+\<close>
 find_theorems name:"wf_induct"
 
 (* pre-processing *)
@@ -63,8 +67,8 @@ ML_file "src/Interface/Apply_SeLFiE.ML"
 definition "func x \<equiv> x"
 thm func_def
 ML\<open>
-val meta_eq = @{term "True \<Longrightarrow> (x \<equiv> y)"}
-val hol_eq = @{term  "True \<Longrightarrow> (x = y)"}
+val meta_eq  = @{term "True \<Longrightarrow> (x \<equiv> y)"}
+val hol_eq   = @{term  "True \<Longrightarrow> (x = y)"}
 val hol_imp  = @{term  "f (x \<longrightarrow> y)"}
 val meta_imp = @{term  "f (x \<Longrightarrow> y)"}
 \<close>
@@ -135,11 +139,11 @@ setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth" SeLFiE_A
 
 (*
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
-  assert_SeLFiE test_is_a_meta_premise    [on["f x"], arb[],rule[]]
-  assert_SeLFiE test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
-  assert_SeLFiE test_is_a_meta_premise_or_below    [on["x"], arb[],rule[]]
-  assert_SeLFiE test_is_a_meta_conclusion_or_below [on["z"], arb[],rule[]]
-  assert_SeLFiE test_is_more_than [on["zs"], arb[],rule[]]
+  assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
+  assert_SeLFiE_true test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
+  assert_SeLFiE_true test_is_a_meta_premise_or_below    [on["x"], arb[],rule[]]
+  assert_SeLFiE_true test_is_a_meta_conclusion_or_below [on["z"], arb[],rule[]]
+  assert_SeLFiE_true test_is_more_than [on["zs"], arb[],rule[]]
   oops
 *)
 
@@ -154,48 +158,48 @@ primrec rev :: "'a list \<Rightarrow> 'a list" where
  print_theorems
 
 lemma "itrev xs ys = rev xs @ ys"
-  assert_SeLFiE is_defined_recursively_on_nth  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_1  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_2  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_3  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_4  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE heuristic_5  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_6  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_7  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_8  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_9  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_10 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_11 [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE heuristic_12 [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE heuristic_13 [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE test_dive_in  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE print_all_outer_prints [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE print_all_inner_prints [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE print_all_unodes       [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE print_outer_path_root  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE lifter_4  [on["xs"], arb["ys"], rule[]]
-  assert_SeLFiE lifter_5  [on["xs","ys"], arb[], rule["itrev.induct"]]
-  assert_SeLFiE lifter_6  [on["xs"], arb["ys"], rule[]]
-  assert_SeLFiE lifter_7  [on["xs"], arb["ys"], rule[]]
-  assert_SeLFiE lifter_8  [on["xs"], arb["ys"], rule[]]
-  assert_SeLFiE lifter_9  [on["xs"], arb["ys"], rule[]]
-  assert_SeLFiE lifter_10  [on["xs"], arb["ys"], rule[]]
-  assert_SeLFiE lifter_11  [on["xs","ys"], arb[], rule["itrev.induct"]]
-  assert_SeLFiE lifter_12  [on["xs"], arb["ys"], rule["itrev.induct"]]
-  assert_SeLFiE lifter_15  [on["xs"], arb["ys"], rule["rev.induct"]]
-  assert_SeLFiE lifter_13  [on["xs"], arb["ys"], rule["itrev.induct"]]
-  assert_SeLFiE lifter_14  [on["xs"], arb["ys"], rule["itrev.induct"]]
+  assert_SeLFiE_true is_defined_recursively_on_nth  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_1  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_2  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_3  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_4  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true heuristic_5  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_6  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_7  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_8  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_9  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_10 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_11 [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_true heuristic_12 [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true heuristic_13 [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true test_dive_in  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true print_all_outer_prints [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true print_all_inner_prints [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true print_all_unodes       [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true print_outer_path_root  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_4  [on["xs"], arb["ys"], rule[]]
+  assert_SeLFiE_true lifter_5  [on["xs","ys"], arb[], rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_6  [on["xs"], arb["ys"], rule[]]
+  assert_SeLFiE_true lifter_7  [on["xs"], arb["ys"], rule[]]
+  assert_SeLFiE_true lifter_8  [on["xs"], arb["ys"], rule[]]
+  assert_SeLFiE_true lifter_9  [on["xs"], arb["ys"], rule[]]
+  assert_SeLFiE_true lifter_10  [on["xs"], arb["ys"], rule[]]
+  assert_SeLFiE_true lifter_11  [on["xs","ys"], arb[], rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_12  [on["xs"], arb["ys"], rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_15  [on["xs"], arb["ys"], rule["rev.induct"]]
+  assert_SeLFiE_true lifter_13  [on["xs"], arb["ys"], rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_14  [on["xs"], arb["ys"], rule["itrev.induct"]]
 
 
-  assert_SeLFiE print_fst_params_of_fun_const [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE print_all_inner_lhss   [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true print_fst_params_of_fun_const [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true print_all_inner_lhss   [on["xs"], arb["ys"],rule["itrev.induct"]]
 
-  assert_SeLFiE lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE lifter_3  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_3  [on["xs"], arb["ys"],rule["itrev.induct"]]
   apply(induct xs arbitrary: ys) apply auto done
 
 (* auxiliary stuff *)
@@ -265,6 +269,12 @@ thm List.list.case
 datatype alpha = A | B | C | D
 ML\<open>
 @{term "case x of A \<Rightarrow> a | B \<Rightarrow> b"};
+type t = Time.time;
+val t1' = t1;
+val t2 = Time.now ();
+val time_diff = Time.- (t2, t1);
+val time_real = Time.toMilliseconds time_diff |> Int.toString |> tracing;
+type asd = LargeReal.real;
 (*
   Const ("LiFtEr.alpha.case_alpha", "'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> alpha \<Rightarrow> 'a")
 $ Free  ("a", "'a")

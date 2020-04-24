@@ -175,9 +175,9 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
       in
         Assert (ands_or_ors, apps): expr
       end;
-    val thm               = Isabelle_Utils.proof_state_to_thm pst                            : thm;
-    val thm_term          = Thm.prop_of thm                                                  : term;
-    val outer_path_table  = OPTU.pst_n_trm_to_path_to_unode_table pst thm_term               : OPTU.path_to_unode_table;
+    val thm               = Isabelle_Utils.proof_state_to_thm pst             : thm;
+    val thm_term          = Thm.prop_of thm                                   : term;
+    val outer_path_table  = OPTU.pst_n_trm_to_path_to_unode_table pst thm_term: OPTU.path_to_unode_table;
     (*TODO: probably we do not have to pass around both term and table.*)
     fun eval' (Apply (func, arg)) trm table =
          (case eval' func trm table of
@@ -190,8 +190,7 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
       | eval' (Assert (assert, param_exprs)) trm table =
           let
             (* Note that param_exprs are always Literal at this point
-             * because the evaluation function in From_Bound_To_Quantifier evaluated
-             * param_exprs eagerly.*)
+             * because of the strict evaluation of Standard ML.*)
             val lazy_param_exprs = Seq.of_list param_exprs                                                                  : expr Seq.seq
             val lazy_params      = Seq.map (param_with_bool_to_bound o (fn param => eval' param trm table)) lazy_param_exprs: Eval_Parameter.literal Seq.seq;
           in
@@ -204,15 +203,15 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
       | eval' expr _ _ = expr
     and dive (Literal path, Lambda lambda, args) trm table (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) =
         let
-          val _             = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
-          val simp_rules    = literal_to_definitions pst trm path: terms;
-          val simp_rule_unode_table        = map (Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) simp_rules: IPTU.path_to_unode_table list;
-          val simp_rule_tables             = map GP2U.Inner_Path_To_Unode simp_rule_unode_table                       : GP2U.gen_path_to_unode_table list;
-          val curried_expr  = mk_inner_expr (Lambda lambda) args       : expr;
+          val _                     = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
+          val simp_rules            = literal_to_definitions pst trm path: terms;
+          val simp_rule_unode_table = map (Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) simp_rules: IPTU.path_to_unode_table list;
+          val simp_rule_tables      = map GP2U.Inner_Path_To_Unode simp_rule_unode_table                       : GP2U.gen_path_to_unode_table list;
+          val curried_expr          = mk_inner_expr (Lambda lambda) args       : expr;
           (*TODO: use simp_rule_tables instead of simp_rules.*)
-          val inner_results = map (fn (trm, table) => eval' curried_expr trm table) (simp_rules ~~ simp_rule_tables): expr list;
-          val ands          = Assert (SU.Ands, inner_results)          : expr;
-          val result        = eval' ands trm table                     : expr;
+          val inner_results         = map (fn (trm, table) => eval' curried_expr trm table) (simp_rules ~~ simp_rule_tables): expr list;
+          val ands                  = Assert (SU.Ands, inner_results)          : expr;
+          val result                = eval' ands trm table                     : expr;
         in
           result
         end

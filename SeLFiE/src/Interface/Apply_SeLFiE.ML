@@ -94,6 +94,7 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_m
 : trans_trans;
 
 val get_trans_trans_true  = get_trans_trans_gen true
+val get_trans_trans_false = get_trans_trans_gen false
 
 local
 
@@ -160,17 +161,25 @@ val invocation_parser = PC.token SeLFiE_parser: (string * SeLFiE_Util.induct_arg
 
 val get_trans_trans_to_token_parser = PSL_Interface.parser_to_trans_trans_parser invocation_parser;
 
-val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true : trans_trans Token.parser;
+val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true  : trans_trans Token.parser;
+
+val token_parser_false = get_trans_trans_to_token_parser get_trans_trans_false : trans_trans Token.parser;
 
 in
 
 fun activate _ =
   let
     val _ =
-      Outer_Syntax.command @{command_keyword assert_SeLFiE}
+      Outer_Syntax.command @{command_keyword assert_SeLFiE_true}
         ("check if the given combination of arguments to the induct method is compatible with " ^
          "the heuristic implemented by the SeLFiE assertion.")
         token_parser_true;
+
+    val _ =
+      Outer_Syntax.command @{command_keyword assert_SeLFiE_false}
+        ("check if the given combination of arguments to the induct method is compatible with " ^
+         "the heuristic implemented by the SeLFiE assertion.")
+        token_parser_false;
   in () end;
 
 end;
