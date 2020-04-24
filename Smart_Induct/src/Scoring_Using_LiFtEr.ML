@@ -80,7 +80,7 @@ fun lifter_ind_mods_to_psl_ind_mods (Ind_Mods {ons, arbs, rules}) =
 
 val smart_induct_cmd =
   Toplevel.keep_proof 
-  (Timeout.apply (seconds 300.0)
+  (Timeout.apply (seconds 3000.0)
   (fn top: Toplevel.state =>
     let
       val _ = tracing "smart_induct started producing combinations of induction arguments.";
