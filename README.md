@@ -4,7 +4,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 **try_hard**, for [Isabelle20**20**](https://isabelle.in.tum.de). Previous versions of Isabelle, such as Isabelle2019, are no longer supported.
 
 ## Installation
-1. Install [Isabelle2019](https://isabelle.in.tum.de).
+1. Install [Isabelle2020](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Then, Users can install PSL and try_hard by importing *.PSL.thy* to their theory files
    with the Isabelle keyword, **imports**.
@@ -23,7 +23,7 @@ PSL's runtime tactic generation can result in a large number of messages in Isab
 This might cause Isabelle/jEdit to pause PSL's proof search after reaching its default upper limit for tracing messages.
 - One can circumvent this situation by changing the upper limit to an extreamly large number, say 99999999.
 - One can change the upper limit for tracing messages via jEdit's menus:
-  Plugin Options => Isabelle => General => Editor Reactivity => Editor Tracing Messages.
+  Plugins => Plugin Options => Isabelle => General => Editor Tracing Messages.
 ![Screenshot](./image/tracing_messages.png)
 
 ## Contents
