@@ -209,7 +209,7 @@ setup\<open> Apply_LiFtEr.update_ind_mod "induct_on_xs_ys_rule_itrev_induct"    
   assert_LiFtEr_true  heuristic_6a induct_on_itrev_arbitrary_ys (*This is a little unfortunate: heuristic_6a alone cannot detect induct_on_itrev_arbitrary_ys is inappropriate.*)
   assert_LiFtEr_true  heuristic_6a induct_on_xs_ys_rule_itrev_induct
   assert_LiFtEr_true  heuristic_6b induct_on_xs_arbitrary_ys
-  assert_LiFtEr_true  heuristic_6b induct_on_itrev_arbitrary_ys (*This is a little unfortunate: heuristic_6b alone cannot detect bad_non_prf is inappropriate.*)
+  assert_LiFtEr_false heuristic_6b induct_on_itrev_arbitrary_ys
   assert_LiFtEr_true  heuristic_6b induct_on_xs_ys_rule_itrev_induct
   oops
 
