@@ -1,0 +1,31 @@
+(* 
+*)
+
+(* Session name, add to AFP group, list base session: *)
+session "Evaluation" (psl) in "." = Smart_Induct +
+
+(* Timeout (in sec) in case of non-termination problems *)
+options [timeout = 60000]
+sessions
+  "HOL-Data_Structures"
+  "HOL-Analysis"
+
+(* To suppress document generation of some theories: *)
+(*
+  theories [document = false]
+    This_Theory
+    That_Theory
+*)
+
+(* The top-level theories of the submission: *)
+theories
+    "Nearest_Neighbors"
+    "Goodstein_Lambda"
+    "DFS"
+    "PST_RBT"
+    "Challenge1A"
+
+(* Dependencies on document source files: *)
+  document_files
+    "root.bib"
+    "root.tex"
