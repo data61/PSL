@@ -2,13 +2,14 @@
     Author:     Yutaka Nagashima, CIIRC, CTU, University of Innsbruck
 *)
 theory Smart_Induct
-  imports  "../LiFtEr/LiFtEr"
+  imports  "LiFtEr.LiFtEr"
   keywords "smart_induct" :: diag
 begin
 
-ML_file "src/Dynamic_Induct.ML"
-ML_file "src/Multi_Stage_Screening.ML"
-ML_file "src/LiFtEr_Heuristics.ML"
+ML_file "Dynamic_Induct.ML"
+ML_file "Multi_Stage_Screening.ML"
+ML_file "LiFtEr_Heuristics.ML"
+ML_file "Scoring_Using_LiFtEr.ML"
 
 setup\<open> Apply_LiFtEr.update_assert "heuristic_1"  LiFtEr_Heuristics.all_ind_term_are_non_const_wo_syntactic_sugar \<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_2"  LiFtEr_Heuristics.all_ind_terms_have_an_occ_as_variable_at_bottom \<close>
@@ -42,7 +43,6 @@ setup\<open> Apply_LiFtEr.update_assert "heuristic_25"  LiFtEr_Heuristics.at_lea
 (*
 setup\<open> Apply_LiFtEr.update_assert "heuristic_24" LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise \<close>
 *)
-ML_file "src/Scoring_Using_LiFtEr.ML"
 
 ML\<open> val _ = Outer_Syntax.command @{command_keyword smart_induct} "recommend which method to use." (Scan.succeed Scoring_Using_LiFtEr.smart_induct_cmd); \<close>
 

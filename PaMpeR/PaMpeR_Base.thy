@@ -13,8 +13,8 @@ theory PaMpeR_Base
   and    "build_fast_feature_extractor" :: thy_decl
 begin
 
-ML_file "./Assertions.ML"
-ML_file "../src/Parser_Combinator.ML"
-ML_file "./PaMpeR_Interface.ML"
+ML_file "Assertions.ML"
+ML_file "../PSL/Parser_Combinator.ML"
+ML_file "PaMpeR_Interface.ML"
 
 end

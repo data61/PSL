@@ -1,5 +1,5 @@
 theory Test_Base
-imports Main "../../PSL"
+imports Main "../../PSL/PSL"
 begin
 
 strategy DIndTac = Thens [Dynamic (InductTac), Auto, IsSolved]

@@ -1,0 +1,7 @@
+session "PaMpeR" = "PSL" +
+  options [(*document = pdf, document_output = "output",*) timeout = 600]
+  theories [document = false]
+    "PaMpeR"
+  document_files
+    "root.tex"
+    "root.bib"

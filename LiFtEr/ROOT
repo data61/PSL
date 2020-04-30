@@ -1,0 +1,7 @@
+session "LiFtEr" = "PSL" +
+  options [(*document = pdf, document_output = "output",*) timeout = 600]
+  theories [document = false]
+    "LiFtEr"
+  document_files
+    "root.tex"
+    "root.bib"

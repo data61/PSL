@@ -7,8 +7,7 @@ theory Decision_Tree
   imports "../Read_Databases"
 begin
 
-ML_file "../../src/Utils.ML"
-ML_file "../../src/Parser_Combinator.ML"
+ML_file "../../PSL/Parser_Combinator.ML"
 
 (* Let us assume that the feature vector is a vector of boolean values for now. *)
 ML\<open> signature REGRESSION_TREE =

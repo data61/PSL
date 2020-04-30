@@ -13,7 +13,7 @@
  * SeLFiE: Semantic Logical Feature Extractor.
  *)
 theory SeLFiE
-  imports "../PSL"
+  imports "../PSL/PSL"
   keywords "assert_SeLFiE_true"      :: diag
   and      "assert_SeLFiE_false"     :: diag
 (*

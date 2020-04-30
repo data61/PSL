@@ -1,0 +1,7 @@
+session Smart_Induct (psl) = LiFtEr +
+  options [timeout = 3000]
+  theories
+    Smart_Induct
+  document_files
+    "root.tex"
+    "root.bib"
