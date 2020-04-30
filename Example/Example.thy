@@ -7,7 +7,7 @@ See other files from AFP for more involved examples.
 *)
 
 theory Example
-imports "../PSL" "~~/src/HOL/Eisbach/Eisbach" 
+imports "../PSL/PSL" "~~/src/HOL/Eisbach/Eisbach"
 begin
 
 (* The "Hammer" strategy invokes sledgehammer as a sub-tool. *)
