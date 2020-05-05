@@ -6,6 +6,7 @@ imports
   "HOL-Data_Structures.Isin2"
   "HOL-Data_Structures.Lookup2"
   PST_General
+  Evaluate_Smart_Induct
 begin
   
 text \<open>
@@ -166,11 +167,11 @@ by(cases "(l,a,r)" rule: baldR.cases) auto
 
 lemma inorder_combine[simp]:
   "inorder(combine l r) = inorder l @ inorder r"
-by (induction l r rule: combine.induct) (auto split: tree.split tcolor.split)
+by2 (induction l r rule: combine.induct) (auto split: tree.split tcolor.split)
 
 lemma inorder_upd:
   "sorted1(inorder t) \<Longrightarrow> inorder(upd x y t) = upd_list x y (inorder t)"
-by(induction x y t rule: upd.induct)
+by2 (induction x y t rule: upd.induct)
   (auto simp: upd_list_simps)
 
 lemma inorder_update:
@@ -179,7 +180,7 @@ by(simp add: update_def inorder_upd)
 
 lemma inorder_del:
  "sorted1(inorder t) \<Longrightarrow>  inorder(del x t) = del_list x (inorder t)"
-by(induction x t rule: del.induct)
+by2 (induction x t rule: del.induct)
   (auto simp: del_list_simps)
 
 lemma inorder_delete:
@@ -220,11 +221,11 @@ subsubsection \<open>Update\<close>
 
 lemma invc_baliL:
   "\<lbrakk>invc2 l; invc r\<rbrakk> \<Longrightarrow> invc (baliL l a r)"
-by (induct l a r rule: baliL.induct) auto
+by2 (induct l a r rule: baliL.induct) auto
 
 lemma invc_baliR:
   "\<lbrakk>invc l; invc2 r\<rbrakk> \<Longrightarrow> invc (baliR l a r)"
-by (induct l a r rule: baliR.induct) auto
+by2 (induct l a r rule: baliR.induct) auto
 
 lemma bheight_mkRB[simp]:
   "bheight (mkR l a r) = bheight l"
@@ -233,11 +234,11 @@ lemma bheight_mkRB[simp]:
 
 lemma bheight_baliL:
   "bheight l = bheight r \<Longrightarrow> bheight (baliL l a r) = Suc (bheight l)"
-by (induct l a r rule: baliL.induct) auto
+by2 (induct l a r rule: baliL.induct) auto
 
 lemma bheight_baliR:
   "bheight l = bheight r \<Longrightarrow> bheight (baliR l a r) = Suc (bheight l)"
-by (induct l a r rule: baliR.induct) auto
+by2 (induct l a r rule: baliR.induct) auto
 
 lemma invh_mkNode[simp]:
   "invh (mkNode c l a r) \<longleftrightarrow> invh l \<and> invh r \<and> bheight l = bheight r"
@@ -245,23 +246,23 @@ by (simp add: mkNode_def)
 
 lemma invh_baliL:
   "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk> \<Longrightarrow> invh (baliL l a r)"
-by (induct l a r rule: baliL.induct) auto
+by2 (induct l a r rule: baliL.induct) auto
 
 lemma invh_baliR:
   "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk> \<Longrightarrow> invh (baliR l a r)"
-by (induct l a r rule: baliR.induct) auto
+by2 (induct l a r rule: baliR.induct) auto
 
 
 lemma invc_upd: assumes "invc t"
   shows "color t = Black \<Longrightarrow> invc (upd x y t)" "invc2 (upd x y t)"
 using assms
-by (induct x y t rule: upd.induct) 
+by2 (induct x y t rule: upd.induct) 
    (auto simp: invc_baliL invc_baliR invc2I mkNode_def)
 
 lemma invh_upd: assumes "invh t"
   shows "invh (upd x y t)" "bheight (upd x y t) = bheight t"
 using assms
-by(induct x y t rule: upd.induct)
+by2 (induct x y t rule: upd.induct)
   (auto simp: invh_baliL invh_baliR bheight_baliL bheight_baliR)
 
 
@@ -275,7 +276,7 @@ lemma invpst_baliL: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invps
 by (cases "(l,a,r)" rule: baliL.cases) auto
 
 lemma invpst_upd: "invpst t \<Longrightarrow> invpst (upd x y t)"
-by (induct x y t rule: upd.induct) (auto simp: invpst_baliR invpst_baliL)
+by2 (induct x y t rule: upd.induct) (auto simp: invpst_baliR invpst_baliL)
 
 
 theorem rbt_update: "rbt t \<Longrightarrow> rbt (update x y t)"
@@ -292,38 +293,38 @@ by (cases t) auto
 lemma invh_baldL_invc:
   "\<lbrakk> invh l;  invh r;  bheight l + 1 = bheight r;  invc r \<rbrakk>
    \<Longrightarrow> invh (baldL l a r) \<and> bheight (baldL l a r) = bheight l + 1"
-by (induct l a r rule: baldL.induct)
+by2 (induct l a r rule: baldL.induct)
    (auto simp: invh_baliR invh_paint bheight_baliR bheight_paint_Red)
 
 lemma invh_baldL_Black:
   "\<lbrakk> invh l;  invh r;  bheight l + 1 = bheight r;  color r = Black \<rbrakk>
    \<Longrightarrow> invh (baldL l a r) \<and> bheight (baldL l a r) = bheight r"
-by (induct l a r rule: baldL.induct) (auto simp add: invh_baliR bheight_baliR)
+by2 (induct l a r rule: baldL.induct) (auto simp add: invh_baliR bheight_baliR)
 
 lemma invc_baldL: "\<lbrakk>invc2 l; invc r; color r = Black\<rbrakk> \<Longrightarrow> invc (baldL l a r)"
-by (induct l a r rule: baldL.induct) (auto simp: invc_baliR invc2I mkNode_def)
+by2 (induct l a r rule: baldL.induct) (auto simp: invc_baliR invc2I mkNode_def)
 
 lemma invc2_baldL: "\<lbrakk> invc2 l; invc r \<rbrakk> \<Longrightarrow> invc2 (baldL l a r)"
-by (induct l a r rule: baldL.induct) 
+by2 (induct l a r rule: baldL.induct) 
    (auto simp: invc_baliR paint_invc2 invc2I mkNode_def)
 
 lemma invh_baldR_invc:
   "\<lbrakk> invh l;  invh r;  bheight l = bheight r + 1;  invc l \<rbrakk>
   \<Longrightarrow> invh (baldR l a r) \<and> bheight (baldR l a r) = bheight l"
-by(induct l a r rule: baldR.induct)
+by2 (induct l a r rule: baldR.induct)
   (auto simp: invh_baliL bheight_baliL invh_paint bheight_paint_Red)
 
 lemma invc_baldR: "\<lbrakk>invc a; invc2 b; color a = Black\<rbrakk> \<Longrightarrow> invc (baldR a x b)"
-by (induct a x b rule: baldR.induct) (simp_all add: invc_baliL mkNode_def)
+by2 (induct a x b rule: baldR.induct) (simp_all add: invc_baliL mkNode_def)
 
 lemma invc2_baldR: "\<lbrakk> invc l; invc2 r \<rbrakk> \<Longrightarrow>invc2 (baldR l x r)"
-by (induct l x r rule: baldR.induct) 
+by2 (induct l x r rule: baldR.induct) 
    (auto simp: invc_baliL paint_invc2 invc2I mkNode_def)
 
 lemma invh_combine:
   "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk>
   \<Longrightarrow> invh (combine l r) \<and> bheight (combine l r) = bheight l"
-by (induct l r rule: combine.induct)
+by2 (induct l r rule: combine.induct)
    (auto simp: invh_baldL_Black split: tree.splits tcolor.splits)
 
 lemma invc_combine:
@@ -331,7 +332,7 @@ lemma invc_combine:
   shows "color l = Black \<Longrightarrow> color r = Black \<Longrightarrow> invc (combine l r)"
          "invc2 (combine l r)"
 using assms
-by (induct l r rule: combine.induct)
+by2 (induct l r rule: combine.induct)
    (auto simp: invc_baldL invc2I mkNode_def split: tree.splits tcolor.splits)
 
 lemma neq_LeafD: "t \<noteq> Leaf \<Longrightarrow> \<exists>l x c r. t = Node l (x,c) r"
@@ -340,7 +341,7 @@ by(cases t) auto
 lemma del_invc_invh: "invh t \<Longrightarrow> invc t \<Longrightarrow> invh (del x t) \<and>
    (color t = Red \<and> bheight (del x t) = bheight t \<and> invc (del x t) \<or>
     color t = Black \<and> bheight (del x t) = bheight t - 1 \<and> invc2 (del x t))"
-proof (induct x t rule: del.induct)
+proof2 (induct x t rule: del.induct)
 case (2 x _ y _ c)
   have "x = y \<or> x < y \<or> x > y" by auto
   thus ?case proof (elim disjE)
@@ -371,11 +372,11 @@ lemma invpst_baldL: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invps
 by (cases "(l,a,r)" rule: baldL.cases) (auto simp: invpst_baliR)
 
 lemma invpst_combine: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invpst (combine l r)"
-by(induction l r rule: combine.induct)
+by2 (induction l r rule: combine.induct)
   (auto split: tree.splits tcolor.splits simp: invpst_baldR invpst_baldL)
 
 lemma invpst_del: "invpst t \<Longrightarrow> invpst (del x t)"
-by(induct x t rule: del.induct)
+by2 (induct x t rule: del.induct)
   (auto simp: invpst_baldR invpst_baldL invpst_combine)
 
 theorem rbt_delete: "rbt t \<Longrightarrow> rbt (delete k t)"

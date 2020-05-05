@@ -8,8 +8,8 @@ LiFtEr:   Logical Feature Extractor.
 structure LiFtEr_Assertion' =
 struct
 
-type assertions = (string * LiFtEr.assrt) list;
-fun register_assertions (asserts: assertions) = map (uncurry Apply_LiFtEr.update_assert) asserts;
+type assertion_pairs = (string * (LiFtEr.assrt * int)) list;
+fun register_assertions (asserts: assertion_pairs) = map (uncurry Apply_LiFtEr.update_assert) asserts;
 
 open LiFtEr LiFtEr_Util;
 infix

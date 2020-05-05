@@ -1,7 +1,7 @@
 (*  Title:      Smart_Induct/src/Multi_Stage_Screening.thy
     Author:     Yutaka Nagashima, CIIRC, CTU, University of Innsbruck
 *)
-structure Dynamic_Induct =
+structure Multi_Stage_Screening =
 struct
 
 open Dynamic_Induct

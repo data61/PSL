@@ -7,7 +7,7 @@ section \<open>Nearest Neighbor Search on the \<open>k\<close>-d Tree\<close>
 
 theory Nearest_Neighbors
 imports
-  KD_Tree
+  KD_Tree Evaluate_Smart_Induct
 begin
 
 text \<open>
@@ -33,8 +33,8 @@ definition sorted_wrt_dist :: "('k::finite) point \<Rightarrow> 'k point list \<
   "sorted_wrt_dist p \<equiv> sorted_wrt (\<lambda>p\<^sub>0 p\<^sub>1. dist p\<^sub>0 p \<le> dist p\<^sub>1 p)"
 
 lemma sorted_wrt_dist_insort_key:
-  "sorted_wrt_dist p ps \<Longrightarrow> sorted_wrt_dist p (insort_key (\<lambda>q. dist q p) q ps)"
-  by (induction ps) (auto simp: sorted_wrt_dist_def set_insort_key)
+  "sorted_wrt_dist p ps \<Longrightarrow> sorted_wrt_dist p (insort_key (\<lambda>q. dist q p) q ps)" smart_induct
+  by2 (induction ps) (auto simp: sorted_wrt_dist_def set_insort_key)
 
 lemma sorted_wrt_dist_take_drop:
   assumes "sorted_wrt_dist p ps"
@@ -44,12 +44,12 @@ lemma sorted_wrt_dist_take_drop:
 lemma sorted_wrt_dist_last_take_mono:
   assumes "sorted_wrt_dist p ps" "n \<le> length ps" "0 < n"
   shows "dist (last (take n ps)) p \<le> dist (last ps) p"
-  using assms unfolding sorted_wrt_dist_def by (induction ps arbitrary: n) (auto simp add: take_Cons')
+  using assms unfolding sorted_wrt_dist_def smart_induct by2 (induction ps arbitrary: n) (auto simp add: take_Cons')
 
 lemma sorted_wrt_dist_last_insort_key_eq:
   assumes "sorted_wrt_dist p ps" "insort_key (\<lambda>q. dist q p) q ps \<noteq> ps @ [q]"
   shows "last (insort_key (\<lambda>q. dist q p) q ps) = last ps"
-  using assms unfolding sorted_wrt_dist_def by (induction ps) (auto)
+  using assms unfolding sorted_wrt_dist_def smart_induct by2 (induction ps) (auto)
 
 lemma sorted_wrt_dist_last:
   assumes "sorted_wrt_dist p ps"
@@ -181,24 +181,24 @@ qed
 subsection \<open>The Main Theorems\<close>
 
 lemma set_nns:
-  "set (nearest_nbors n ps p kdt) \<subseteq> set_kdt kdt \<union> set ps"
-  apply (induction kdt arbitrary: ps)
+  "set (nearest_nbors n ps p kdt) \<subseteq> set_kdt kdt \<union> set ps" smart_induct
+  apply2 (induction kdt arbitrary: ps)
   apply (auto simp: Let_def upd_nbors_def set_insort_key)
   using in_set_takeD set_insort_key by fastforce
 
 lemma length_nns:
-  "length (nearest_nbors n ps p kdt) = min n (size_kdt kdt + length ps)"
-  by (induction kdt arbitrary: ps) (auto simp: Let_def upd_nbors_def)
+  "length (nearest_nbors n ps p kdt) = min n (size_kdt kdt + length ps)" smart_induct
+  by2 (induction kdt arbitrary: ps) (auto simp: Let_def upd_nbors_def)
 
 lemma length_nns_gt_0:
-  "0 < n \<Longrightarrow> 0 < length (nearest_nbors n ps p kdt)"
-  by (induction kdt arbitrary: ps) (auto simp: Let_def upd_nbors_def)
+  "0 < n \<Longrightarrow> 0 < length (nearest_nbors n ps p kdt)" smart_induct
+  by2 (induction kdt arbitrary: ps) (auto simp: Let_def upd_nbors_def)
 
 lemma length_nns_n:
   assumes "(set_kdt kdt \<union> set ps) - set (nearest_nbors n ps p kdt) \<noteq> {}"
   shows "length (nearest_nbors n ps p kdt) = n"
-  using assms
-proof (induction kdt arbitrary: ps)
+  using assms smart_induct
+proof2 (induction kdt arbitrary: ps)
   case (Node k v l r)
   let ?nnsl = "nearest_nbors n ps p l"
   let ?nnsr = "nearest_nbors n ps p r"
@@ -235,13 +235,13 @@ qed (auto simp: upd_nbors_def min_def set_insort_key)
 
 lemma sorted_nns:
   "sorted_wrt_dist p ps \<Longrightarrow> sorted_wrt_dist p (nearest_nbors n ps p kdt)"
-  using sorted_wrt_dist_nbors by (induction kdt arbitrary: ps) (auto simp: Let_def)
+  using sorted_wrt_dist_nbors smart_induct by2 (induction kdt arbitrary: ps) (auto simp: Let_def)
 
 lemma distinct_nns:
   assumes "invar kdt" "distinct ps" "set ps \<inter> set_kdt kdt = {}"
   shows "distinct (nearest_nbors n ps p kdt)"
-  using assms
-proof (induction kdt arbitrary: ps)
+  using assms smart_induct
+proof2 (induction kdt arbitrary: ps)
   case (Node k v l r)
   let ?nnsl = "nearest_nbors n ps p l"
   let ?nnsr = "nearest_nbors n ps p r"
@@ -260,8 +260,8 @@ qed (auto simp: upd_nbors_def distinct_insort)
 lemma last_nns_mono:
   assumes "invar kdt" "sorted_wrt_dist p ps" "n \<le> length ps" "0 < n"
   shows "dist (last (nearest_nbors n ps p kdt)) p \<le> dist (last ps) p"
-  using assms
-proof (induction kdt arbitrary: ps)
+  using assms smart_induct
+proof2 (induction kdt arbitrary: ps)
   case (Node k v l r)
   let ?nnsl = "nearest_nbors n ps p l"
   let ?nnsr = "nearest_nbors n ps p r"
@@ -280,8 +280,8 @@ qed (auto simp: sorted_wrt_dist_last_upd_nbors_mono)
 theorem dist_nns:
   assumes "invar kdt" "sorted_wrt_dist p ps" "set ps \<inter> set_kdt kdt = {}" "distinct ps" "0 < n"
   shows "\<forall>q \<in> set_kdt kdt \<union> set ps - set (nearest_nbors n ps p kdt). dist (last (nearest_nbors n ps p kdt)) p \<le> dist q p"
-  using assms
-proof (induction kdt arbitrary: ps)
+  using assms smart_induct
+proof2 (induction kdt arbitrary: ps)
   case (Node k v l r)
 
   let ?nnsl = "nearest_nbors n ps p l"

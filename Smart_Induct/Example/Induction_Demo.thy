@@ -8,7 +8,7 @@
  *
  *)
 theory Induction_Demo
-imports Main "../Smart_Induct"
+imports Main "Smart_Induct.Smart_Induct"
 begin
 
 fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where

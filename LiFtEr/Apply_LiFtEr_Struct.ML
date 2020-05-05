@@ -22,7 +22,7 @@ structure IU = Isabelle_Utils;
 
 structure LiFtEr_Assertion = Generic_Data
 (
-  type T = LiFtEr.assrt Symtab.table;
+  type T = (LiFtEr.assrt * int) Symtab.table;
   val empty  = Symtab.empty : T;
   val extend = I;
   val merge  = Symtab.merge (K true);
@@ -33,12 +33,12 @@ fun update_assert k v  = Symtab.update_new (k, v)
  |> LiFtEr_Assertion.map
  |> Context.theory_map: theory -> theory;
 
-fun get_assrt (ctxt:Proof.context) (assert_name:string): LiFtEr.assrt =
+fun get_assrt (ctxt:Proof.context) (assert_name:string): (LiFtEr.assrt * int) =
   let
-    val some_assrt = lookup_assert ctxt assert_name : LiFtEr.assrt option;
-    val assertion = Utils.the' (assert_name ^ "?\nDid you really define such an assertion?") some_assrt : LiFtEr.assrt;
+    val some_assrt = lookup_assert ctxt assert_name : (LiFtEr.assrt * int) option;
+    val assertion_pair = Utils.the' (assert_name ^ "?\nDid you really define such an assertion?") some_assrt : (LiFtEr.assrt * int);
   in
-    assertion: LiFtEr.assrt
+    assertion_pair: (LiFtEr.assrt * int)
   end;
 
 structure LiFtEr_Ind_Mod = Generic_Data
@@ -93,9 +93,9 @@ type trans_trans = Toplevel.transition -> Toplevel.transition;
 fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_mod_name:string) =
   Toplevel.keep_proof (fn top: Toplevel.state =>
   let
-    val pst     = Toplevel.proof_of top        : Proof.state;
-    val ctxt    = Toplevel.context_of top      : Proof.context;                          
-    val assert  = get_assrt ctxt assert_name   : LiFtEr.assrt;
+    val pst     = Toplevel.proof_of top              : Proof.state;
+    val ctxt    = Toplevel.context_of top            : Proof.context;                          
+    val (assert, weight) = get_assrt ctxt assert_name: (LiFtEr.assrt * int);
     val ind_mod = get_ind_mod ctxt ind_mod_name: LU.ind_mods;
     fun apply_assrt (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
         LiFtEr.eval (pst, assrt, ind_mods): bool;
@@ -146,9 +146,9 @@ in
 fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_mod(*:ind_mods(*ind_mod_name:string*)*)) =
   Toplevel.keep_proof (fn top: Toplevel.state =>
   let
-    val pst     = Toplevel.proof_of top        : Proof.state;
-    val ctxt    = Toplevel.context_of top      : Proof.context;                          
-    val assert  = get_assrt ctxt assert_name   : LiFtEr.assrt;
+    val pst              = Toplevel.proof_of top        : Proof.state;
+    val ctxt             = Toplevel.context_of top      : Proof.context;                          
+    val (assert, weight) = get_assrt ctxt assert_name: (LiFtEr.assrt * int);
     fun mk_clean_mods (ind_mods:LU.ind_mods) =
       let
         val normalize = IU.normalize_trm_as_string ctxt;
@@ -289,8 +289,9 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (ind_mod(*:ind_mods(*ind_m
   let
     val pst     = Toplevel.proof_of top        : Proof.state;
     val ctxt    = Toplevel.context_of top      : Proof.context;
-    val all_asserts = (Symtab.dest o LiFtEr_Assertion.get) (Context.Proof ctxt) |> map snd: LiFtEr.assrt list;
-    val numb_of_all_asserts = length all_asserts: int;
+    val all_assert_pairs = (Symtab.dest o LiFtEr_Assertion.get) (Context.Proof ctxt) |> map snd: (LiFtEr.assrt * int) list;
+    val numb_of_all_asserts = length all_assert_pairs: int;
+    val maximum_point = fold (curry (op +)) (map snd all_assert_pairs) 0: int;
     fun mk_clean_mods (ind_mods:LU.ind_mods) =
       let
         val normalize = IU.normalize_trm_as_string ctxt;
@@ -311,18 +312,16 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (ind_mod(*:ind_mods(*ind_m
       in
         LU.Ind_Mods {ons = clean_ons, arbs = clean_arbs, rules = clean_rules}: LU.ind_mods
       end;
-(*
-    val ind_mod = get_ind_mod ctxt ind_mod_name: LU.ind_mods;
-*)
+
     fun apply_assrt (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
         LiFtEr.eval (pst, assrt, ind_mods): bool;
     fun run_test (assrt:LiFtEr.assrt) (pst:Proof.state) (ind_mods:LiFtEr.ind_mods) =
         apply_assrt assrt pst ind_mods = should_b_true_or_false;
-    val succeeded_assrts = filter (fn assrt => apply_assrt assrt pst (mk_clean_mods ind_mod)) all_asserts: LiFtEr.assrt list;
+    val succeeded_assrts = filter (fn assrt_pair => apply_assrt (fst assrt_pair) pst (mk_clean_mods ind_mod)) all_assert_pairs: (LiFtEr.assrt * int) list;
     val numb_of_succeeded_assrts = length succeeded_assrts: int;
-
+    val score = fold (curry (op +)) (map snd succeeded_assrts) 0: int;
     val _ = tracing ("Out of " ^ Int.toString numb_of_all_asserts ^ " assertions, " ^
-                     Int.toString numb_of_succeeded_assrts ^ " assertions succeeded.");
+                     Int.toString score ^ " assertions succeeded.");
   in
     ()
   end)
