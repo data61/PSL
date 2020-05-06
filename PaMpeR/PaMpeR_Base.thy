@@ -2,7 +2,7 @@
     Author:     Yutaka Nagashima, CIIRC, CTU    
 *)
 theory PaMpeR_Base
-  imports "Build_Regression_Tree/Decision_Tree"
+  imports "Decision_Tree"
   keywords "which_method" :: diag
   and    "why_method" :: diag
   and    "rank_method" :: diag

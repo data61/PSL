@@ -27,7 +27,7 @@ val t1 = Time.now ();
 find_theorems name:"wf_induct"
 
 (* pre-processing *)
-ML_file "../src/Utils.ML"
+ML_file "../PSL/Utils.ML"
 ML_file "../MeLoId/src/MeLoId_Util.ML"
 ML_file "src/Preprocessor/Pattern.ML"
 ML_file "src/Preprocessor/Util.ML"
