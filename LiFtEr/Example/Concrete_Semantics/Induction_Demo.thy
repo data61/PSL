@@ -135,14 +135,14 @@ val Example6 = ind_is_not_arb And vars_in_ind_terms_are_generalized;
 end;
 \<close>
 
-setup\<open> Apply_LiFtEr.update_assert "heuristic_1a" all_ind_term_are_non_const_wo_syntactic_sugar                           \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_1b" all_ind_term_are_non_const_with_syntactic_sugar                         \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_2"  all_ind_terms_have_an_occ_as_variable_at_bottom                         \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_3"  all_ind_vars_are_arguments_of_a_recursive_function                      \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_4"  all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete\<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_5"  all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order     \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_6a" ind_is_not_arb                                                          \<close>
-setup\<open> Apply_LiFtEr.update_assert "heuristic_6b" vars_in_ind_terms_are_generalized                                       \<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_1a" (all_ind_term_are_non_const_wo_syntactic_sugar                           , 1)\<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_1b" (all_ind_term_are_non_const_with_syntactic_sugar                         , 1)\<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_2"  (all_ind_terms_have_an_occ_as_variable_at_bottom                         , 1)\<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_3"  (all_ind_vars_are_arguments_of_a_recursive_function                      , 1)\<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_4"  (all_ind_vars_are_arguments_of_a_rec_func_where_pattern_match_is_complete, 1)\<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_5"  (all_ind_terms_are_arguments_of_a_const_with_a_related_rule_in_order     , 1)\<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_6a" (ind_is_not_arb                                                          , 1)\<close>
+setup\<open> Apply_LiFtEr.update_assert "heuristic_6b" (vars_in_ind_terms_are_generalized                                       , 1)\<close>
 
 ML\<open> (*Arguments for the induct method to attack "itrev xs ys = rev xs @ ys". *)
 local
