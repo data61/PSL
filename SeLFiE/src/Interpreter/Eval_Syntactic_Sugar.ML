@@ -19,14 +19,16 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst         of assert
-| Is_Free         of assert
-| Is_Var          of assert
-| Is_Bound        of assert
-| Is_Lambda       of assert
-| Is_App          of assert
-| Is_Defined_With of assert * assert
-| Is_Rule_Of_Node of assert * assert
+| Is_Cnst                     of assert
+| Is_Free                     of assert
+| Is_Var                      of assert
+| Is_Bound                    of assert
+| Is_Lambda                   of assert
+| Is_App                      of assert
+| Is_Defined_With             of assert * assert
+| Is_Rule_Of_Node             of assert * assert
+| Takes_N_Arguments           of assert * assert
+| Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -74,6 +76,7 @@ datatype assert =
 | Is_Nth_Child_Of                    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
+| Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
 | Is_An_Arg_Or_Below_Arg_Of          of assert * assert
@@ -119,14 +122,16 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst         of assert
-| Is_Free         of assert
-| Is_Var          of assert
-| Is_Bound        of assert
-| Is_Lambda       of assert
-| Is_App          of assert
-| Is_Defined_With of assert * assert
-| Is_Rule_Of_Node of assert * assert
+| Is_Cnst                     of assert
+| Is_Free                     of assert
+| Is_Var                      of assert
+| Is_Bound                    of assert
+| Is_Lambda                   of assert
+| Is_App                      of assert
+| Is_Defined_With             of assert * assert
+| Is_Rule_Of_Node             of assert * assert
+| Takes_N_Arguments           of assert * assert
+| Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -174,6 +179,7 @@ datatype assert =
 | Is_Nth_Child_Of                    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
+| Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
 | Is_An_Arg_Of                       of assert * assert
 | Is_An_Arg_Or_Below_Arg_Of          of assert * assert
@@ -223,14 +229,16 @@ and
   | convert loc (Ands  list)       = ES.Ands  (convert_list loc list)
   | convert loc (Ors   list)       = ES.Ors   (convert_list loc list)
   (*Eval_Node*)
-  | convert loc (Is_Cnst         ass)   = ES.Is_Cnst         (convert loc ass)
-  | convert loc (Is_Free         ass)   = ES.Is_Free         (convert loc ass)
-  | convert loc (Is_Var          ass)   = ES.Is_Var          (convert loc ass)
-  | convert loc (Is_Bound        ass)   = ES.Is_Bound        (convert loc ass)
-  | convert loc (Is_Lambda       ass)   = ES.Is_Lambda       (convert loc ass)
-  | convert loc (Is_App          ass)   = ES.Is_App          (convert loc ass)
-  | convert loc (Is_Defined_With asses) = ES.Is_Defined_With (convert_pair loc asses)
-  | convert loc (Is_Rule_Of_Node pair)  = ES.Is_Rule_Of_Node (convert_pair loc pair)
+  | convert loc (Is_Cnst                     ass)   = ES.Is_Cnst                     (convert      loc ass)
+  | convert loc (Is_Free                     ass)   = ES.Is_Free                     (convert      loc ass)
+  | convert loc (Is_Var                      ass)   = ES.Is_Var                      (convert      loc ass)
+  | convert loc (Is_Bound                    ass)   = ES.Is_Bound                    (convert      loc ass)
+  | convert loc (Is_Lambda                   ass)   = ES.Is_Lambda                   (convert      loc ass)
+  | convert loc (Is_App                      ass)   = ES.Is_App                      (convert      loc ass)
+  | convert loc (Is_Defined_With             asses) = ES.Is_Defined_With             (convert_pair loc asses)
+  | convert loc (Is_Rule_Of_Node             pair)  = ES.Is_Rule_Of_Node             (convert_pair loc pair)
+  | convert loc (Takes_N_Arguments           pair)  = ES.Takes_N_Arguments           (convert_pair loc pair)
+  | convert loc (Takes_Less_Than_N_Arguments pair)  = ES.Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Unode*)
   | convert loc (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
   | convert loc (Is_In_Trm_Prnt         pair) = ES.Is_In_Trm_Prnt         (convert_pair loc pair)
@@ -325,24 +333,28 @@ and
           ]
         )
     end
-  | convert loc (Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)) =
+  | convert loc (Is_Below_N_Plus_One_th_Child_Of (in_child, number, parent)) =
     let
-      val n_plus_one_th_child_str = get_new_name [child_or_in_child, number, parent]: string;
+      val n_plus_one_th_child_str = get_new_name [in_child, number, parent]: string;
       val n_plus_one_th_child     = Variable n_plus_one_th_child_str                : assert;
       val path_typ                = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
     in
       convert loc
-        (Ors
-          [Is_N_Plus_One_th_Child_Of (child_or_in_child, number, parent),
-           Some (n_plus_one_th_child_str, path_typ,
-             Ands [
-               Is_N_Plus_One_th_Child_Of (n_plus_one_th_child, number, parent),
-               Is_Path_Below (child_or_in_child, n_plus_one_th_child)
-             ]
-           )
-          ]
+        (Some (n_plus_one_th_child_str, path_typ,
+           Ands [
+             Is_N_Plus_One_th_Child_Of (n_plus_one_th_child, number, parent),
+             Is_Path_Below (in_child, n_plus_one_th_child)
+           ]
+         )
         )
     end
+  | convert loc (Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)) =
+      convert loc
+        (Ors
+          [Is_N_Plus_One_th_Child_Of (child_or_in_child, number, parent),
+           Is_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)
+          ]
+        )
   | convert loc (Is_An_Arg_Of (arg, func)) =
     let
       val func_app_str = get_new_name [func,arg]: string;

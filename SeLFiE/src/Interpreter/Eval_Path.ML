@@ -10,31 +10,33 @@ type gen_path = Gen_Path_To_Unode.gen_path;
 
 datatype assert =
 (*Eval_Node*)
-  Is_Cnst                of gen_path
-| Is_Free                of gen_path
-| Is_Var                 of gen_path
-| Is_Bound               of gen_path
-| Is_Lambda              of gen_path
-| Is_App                 of gen_path
-| Is_Defined_With        of gen_path * Pattern.command
-| Is_Rule_Of_Node        of string * gen_path
+  Is_Cnst                     of gen_path
+| Is_Free                     of gen_path
+| Is_Var                      of gen_path
+| Is_Bound                    of gen_path
+| Is_Lambda                   of gen_path
+| Is_App                      of gen_path
+| Is_Defined_With             of gen_path * Pattern.command
+| Is_Rule_Of_Node             of string * gen_path
+| Takes_N_Arguments           of gen_path * int
+| Takes_Less_Than_N_Arguments of gen_path * int
 (*Eval_Unode*)
-| Has_Same_Prnt_As       of gen_path * gen_path
-| Is_In_Trm_Prnt         of gen_path * gen_path
-| Is_Deeper_Than         of gen_path * gen_path
-| Is_Shallower_Than      of gen_path * gen_path
-| Is_Path_Above          of gen_path * gen_path
-| Is_Same_Path_As        of gen_path * gen_path
-| Is_Nth_Child           of gen_path * int
-| Is_N_Plus_One_th_Child of gen_path * int
+| Has_Same_Prnt_As            of gen_path * gen_path
+| Is_In_Trm_Prnt              of gen_path * gen_path
+| Is_Deeper_Than              of gen_path * gen_path
+| Is_Shallower_Than           of gen_path * gen_path
+| Is_Path_Above               of gen_path * gen_path
+| Is_Same_Path_As             of gen_path * gen_path
+| Is_Nth_Child                of gen_path * int
+| Is_N_Plus_One_th_Child      of gen_path * int
 (*only in path*)
-| Unode_Has_Print        of gen_path * string
-| Is_In_Subgoal          of gen_path
-| Is_In_Chained_Fact     of gen_path
-| Is_In_Nth_Subgoal      of gen_path * int
-| Is_In_Nth_Chained_Fact of gen_path * int
+| Unode_Has_Print             of gen_path * string
+| Is_In_Subgoal               of gen_path
+| Is_In_Chained_Fact          of gen_path
+| Is_In_Nth_Subgoal           of gen_path * int
+| Is_In_Nth_Chained_Fact      of gen_path * int
 (*debug*)
-| Debug_Print_Unode      of gen_path;
+| Debug_Print_Unode           of gen_path;
 
 end;
 
@@ -67,14 +69,16 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
     fun path2_to_unode2 (p1:gen_path, p2:gen_path) = apply2 path_to_unode (p1, p2): (UN.unode * UN.unode);
     fun
       (*Eval_Node*)
-        eval' (PA.Is_Cnst   p)               ctxt = END.eval (END.Is_Cnst         (path_to_node p                )) ctxt
-      | eval' (PA.Is_Free   p)               ctxt = END.eval (END.Is_Free         (path_to_node p                )) ctxt
-      | eval' (PA.Is_Var    p)               ctxt = END.eval (END.Is_Var          (path_to_node p                )) ctxt
-      | eval' (PA.Is_Bound  p)               ctxt = END.eval (END.Is_Bound        (path_to_node p                )) ctxt
-      | eval' (PA.Is_Lambda p)               ctxt = END.eval (END.Is_Lambda       (path_to_node p                )) ctxt
-      | eval' (PA.Is_App    p)               ctxt = END.eval (END.Is_App          (path_to_node p                )) ctxt
-      | eval' (PA.Is_Defined_With (p, cmd))  ctxt = END.eval (END.Is_Defined_With (path_to_node p, cmd           )) ctxt
-      | eval' (PA.Is_Rule_Of_Node (rule, p)) ctxt = END.eval (END.Is_Rule_Of_Node (rule,           path_to_node p)) ctxt
+        eval' (PA.Is_Cnst                      p       ) ctxt = END.eval (END.Is_Cnst                     (path_to_node p                )) ctxt
+      | eval' (PA.Is_Free                      p       ) ctxt = END.eval (END.Is_Free                     (path_to_node p                )) ctxt
+      | eval' (PA.Is_Var                       p       ) ctxt = END.eval (END.Is_Var                      (path_to_node p                )) ctxt
+      | eval' (PA.Is_Bound                     p       ) ctxt = END.eval (END.Is_Bound                    (path_to_node p                )) ctxt
+      | eval' (PA.Is_Lambda                    p       ) ctxt = END.eval (END.Is_Lambda                   (path_to_node p                )) ctxt
+      | eval' (PA.Is_App                       p       ) ctxt = END.eval (END.Is_App                      (path_to_node p                )) ctxt
+      | eval' (PA.Is_Defined_With             (p,  cmd)) ctxt = END.eval (END.Is_Defined_With             (path_to_node p, cmd           )) ctxt
+      | eval' (PA.Is_Rule_Of_Node             (rule, p)) ctxt = END.eval (END.Is_Rule_Of_Node             (rule,           path_to_node p)) ctxt
+      | eval' (PA.Takes_N_Arguments           (p,    n)) ctxt = END.eval (END.Takes_N_Arguments           (path_to_node p, n             )) ctxt
+      | eval' (PA.Takes_Less_Than_N_Arguments (p,    n)) ctxt = END.eval (END.Takes_Less_Than_N_Arguments (path_to_node p, n             )) ctxt
       (*Eval_Unode*)
       | eval' (PA.Has_Same_Prnt_As        pair)     _ = path2_to_unode2 pair    |> EU.Has_Same_Prnt_As      |> EU.eval
       | eval' (PA.Is_In_Trm_Prnt          pair)     _ = path2_to_unode2 pair    |> EU.Is_In_Trm_Prnt        |> EU.eval

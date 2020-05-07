@@ -132,6 +132,8 @@ val dest_NL: node -> (string    * typ) option;
 
 val node_to_atoms_typ: node -> typ option;
 
+val node_to_numb_of_arguments: node -> int;
+
 val node_typ_to_checker: node_typ -> node-> bool;
 
 val node_to_node_typ_str: node -> string;
@@ -454,6 +456,11 @@ fun node_to_atoms_typ (NC (_, typ, _)) = SOME typ
   | node_to_atoms_typ (NV (_, typ   )) = SOME typ
   | node_to_atoms_typ (NB (_, typ   )) = SOME typ
   | node_to_atoms_typ  _               = NONE
+
+fun node_to_numb_of_arguments node =
+    node_to_atoms_typ node
+<$> Isabelle_Utils.count_numb_of_args_of_fun_typ
+ |> Utils.try_with 0 the;
 
 fun node_typ_to_checker Node_Typ_NC = is_NC
   | node_typ_to_checker Node_Typ_NF = is_NF

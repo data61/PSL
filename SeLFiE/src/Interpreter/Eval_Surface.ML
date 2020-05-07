@@ -18,14 +18,16 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst         of assert
-| Is_Free         of assert
-| Is_Var          of assert
-| Is_Bound        of assert
-| Is_Lambda       of assert
-| Is_App          of assert
-| Is_Defined_With of assert * assert
-| Is_Rule_Of_Node of assert * assert
+| Is_Cnst                     of assert
+| Is_Free                     of assert
+| Is_Var                      of assert
+| Is_Bound                    of assert
+| Is_Lambda                   of assert
+| Is_App                      of assert
+| Is_Defined_With             of assert * assert
+| Is_Rule_Of_Node             of assert * assert
+| Takes_N_Arguments           of assert * assert
+| Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -92,14 +94,16 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst         of assert
-| Is_Free         of assert
-| Is_Var          of assert
-| Is_Bound        of assert
-| Is_Lambda       of assert
-| Is_App          of assert
-| Is_Defined_With of assert * assert
-| Is_Rule_Of_Node of assert * assert
+| Is_Cnst                     of assert
+| Is_Free                     of assert
+| Is_Var                      of assert
+| Is_Bound                    of assert
+| Is_Lambda                   of assert
+| Is_App                      of assert
+| Is_Defined_With             of assert * assert
+| Is_Rule_Of_Node             of assert * assert
+| Takes_N_Arguments           of assert * assert
+| Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_In_Trm_Prnt         of assert * assert
@@ -156,14 +160,16 @@ and (*bool*)
   | surf_to_var (Ands  args)  = EV.Assert  (SU.Ands,  surf_to_var_list args)
   | surf_to_var (Ors   args)  = EV.Assert  (SU.Ors,   surf_to_var_list args)
   (*Eval_Node*)
-  | surf_to_var (Is_Cnst         arg ) = EV.Assert (SU.Atomic SU.Is_Cnst,         surf_to_var_singleton arg)
-  | surf_to_var (Is_Free         arg ) = EV.Assert (SU.Atomic SU.Is_Free,         surf_to_var_singleton arg)
-  | surf_to_var (Is_Var          arg ) = EV.Assert (SU.Atomic SU.Is_Var,          surf_to_var_singleton arg)
-  | surf_to_var (Is_Bound        arg ) = EV.Assert (SU.Atomic SU.Is_Bound,        surf_to_var_singleton arg)
-  | surf_to_var (Is_Lambda       arg ) = EV.Assert (SU.Atomic SU.Is_Lambda,       surf_to_var_singleton arg)
-  | surf_to_var (Is_App          arg ) = EV.Assert (SU.Atomic SU.Is_App,          surf_to_var_singleton arg)
-  | surf_to_var (Is_Defined_With args) = EV.Assert (SU.Atomic SU.Is_Defined_With, surf_to_var_pair_to_list args)
-  | surf_to_var (Is_Rule_Of_Node pair) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Node, surf_to_var_pair_to_list pair)
+  | surf_to_var (Is_Cnst                     arg ) = EV.Assert (SU.Atomic SU.Is_Cnst,                     surf_to_var_singleton    arg)
+  | surf_to_var (Is_Free                     arg ) = EV.Assert (SU.Atomic SU.Is_Free,                     surf_to_var_singleton    arg)
+  | surf_to_var (Is_Var                      arg ) = EV.Assert (SU.Atomic SU.Is_Var,                      surf_to_var_singleton    arg)
+  | surf_to_var (Is_Bound                    arg ) = EV.Assert (SU.Atomic SU.Is_Bound,                    surf_to_var_singleton    arg)
+  | surf_to_var (Is_Lambda                   arg ) = EV.Assert (SU.Atomic SU.Is_Lambda,                   surf_to_var_singleton    arg)
+  | surf_to_var (Is_App                      arg ) = EV.Assert (SU.Atomic SU.Is_App,                      surf_to_var_singleton    arg)
+  | surf_to_var (Is_Defined_With             args) = EV.Assert (SU.Atomic SU.Is_Defined_With,             surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Rule_Of_Node             pair) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Node,             surf_to_var_pair_to_list pair)
+  | surf_to_var (Takes_N_Arguments           pair) = EV.Assert (SU.Atomic SU.Takes_N_Arguments,           surf_to_var_pair_to_list pair)
+  | surf_to_var (Takes_Less_Than_N_Arguments pair) = EV.Assert (SU.Atomic SU.Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list pair)
   (*Eval_Unode*)
   | surf_to_var (Has_Same_Prnt_As       args) = EV.Assert (SU.Atomic SU.Has_Same_Prnt_As,       surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Trm_Prnt         args) = EV.Assert (SU.Atomic SU.Is_In_Trm_Prnt,         surf_to_var_pair_to_list args)
