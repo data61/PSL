@@ -607,6 +607,13 @@ Imply
     )
   );
 
+fun is_variable var =
+  Ors [
+    Is_Free  var,
+    Is_Var   var,
+    Is_Bound var
+  ]
+
 val nth_parameter_is_used_in_mth_argument_in_recursive_call =
 Lambdas (["func", "recursive_on_nth", "mth"],
   Ands [
@@ -621,6 +628,7 @@ Lambdas (["func", "recursive_on_nth", "mth"],
                 Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
                 Some ("part_of_nth_param_on_lhs_that_causes_ind", QInner_Path,
                   Ands [
+                    is_variable (Variable "part_of_nth_param_on_lhs_that_causes_ind"),
                     (*Maybe it is better to use Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of instead?*)
                     Is_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs_that_causes_ind", Variable "recursive_on_nth", Variable "lhs_path"),
                     Debug_Non_Path_Literal (Print "part_of_nth_param_on_lhs is"),
@@ -637,6 +645,7 @@ Lambdas (["func", "recursive_on_nth", "mth"],
                                 Variable "func_occ_on_rhs_that_causes_arb" Is_Path_Below Variable "rhs_path",
                                 Some ("part_of_nth_param_on_lhs_that_causes_arb", QInner_Path,
                                   Ands [
+                                    is_variable (Variable "part_of_nth_param_on_lhs_that_causes_arb"),
                                     Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs_that_causes_arb", Variable "recursive_on_nth", Variable "lhs_path"),
                                     Some ("part_of_nth_param_on_rhs_that_causes_arb", QInner_Path,
                                       Ands [
@@ -725,8 +734,7 @@ Imply
                   ]
                 )
               ]
-            ),
-            Debug_Non_Path_Literal (Print "Assumption is done.")
+            )
           ]
         )
       )
