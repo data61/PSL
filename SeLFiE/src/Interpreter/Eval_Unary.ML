@@ -41,6 +41,8 @@ datatype expr =
 | All       of SeLFiE_Util.qtyp * expr
 | Some      of SeLFiE_Util.qtyp * expr;
 
+type exprs = expr list;
+
 local
 
 fun get_definitions_using_suffix (ctxt:Proof.context) (cname:string) (suffix:string) =
@@ -155,7 +157,7 @@ fun mk_nested_lamb (Lambda lambda) 0 = Lambda lambda
                                        if n < 0  then error "mk_nested_lamb failed." else Lambda (mk_nested_lamb lambda (n - 1))
   | mk_nested_lamb expr n = error ("mk_nested_lamb failed with " ^ print_expr expr ^ Int.toString n);
 
-fun mk_inner_expr (lamb as Lambda _) (arguments:expr list) =
+fun mk_inner_expr (lamb as Lambda _) (arguments:exprs) =
     mk_nested_app (mk_nested_lamb lamb (length arguments - 1)) arguments
   | mk_inner_expr _ _ = error "mk_inner_expr failed!"
 
@@ -166,58 +168,88 @@ structure OPTP = Print_To_Outer_Paths;
 structure IPTP = Print_To_Inner_Paths;
 structure GP2U = Gen_Path_To_Unode;
 
+type literals = Eval_Parameter.literals;
+type domains = {number: literals, path: literals, print: literals, ind: literals, arb: literals, rule: literals};
+fun domains_n_qtyp_to_domain (domains:domains) SU.QOuter_Path   = #path   domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QInner_Path   = #path   domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QOuter_Print  = #print  domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QInner_Print  = #print  domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QOuter_Number = #number domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QInner_Number = #number domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QInd          = #ind    domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QArb          = #arb    domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QRule         = #rule   domains
+
 fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
   let
-    fun subexpr_n_qtyp_to_apps (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) (trm:term) =
+    fun subexpr_n_qtyp_n_domains_to_apps (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) (domains:domains) =
       let
-        val params = Quantifier_Domain.qtyp_to_qdomain qtyp pst trm induct_args    : Eval_Parameter.literals;
-        val apps   = map (fn param => Apply (Lambda subexpr, Literal param)) params: expr list;
+        val params = domains_n_qtyp_to_domain domains qtyp                         : Eval_Parameter.literals;
+        val apps   = map (fn param => Apply (Lambda subexpr, Literal param)) params: exprs;
       in
         Assert (ands_or_ors, apps): expr
       end;
-    val thm               = Isabelle_Utils.proof_state_to_thm pst             : thm;
-    val thm_term          = Thm.prop_of thm                                   : term;
-    val outer_path_table  = OPTU.pst_n_trm_to_path_to_unode_table pst thm_term: OPTU.path_to_unode_table;
+    val thm              = Isabelle_Utils.proof_state_to_thm pst             : thm;
+    val thm_term         = Thm.prop_of thm                                   : term;
+    (*TODO: should I focus on the first sub-goal?*)
+    val outer_path_table = OPTU.pst_n_trm_to_path_to_unode_table pst thm_term: OPTU.path_to_unode_table;
+    val outer_domains    = {number = Quantifier_Domain.qtyp_to_qdomain SU.QOuter_Number pst thm_term induct_args: literals,
+                            path   = Quantifier_Domain.qtyp_to_qdomain SU.QOuter_Path   pst thm_term induct_args: literals,
+                            print  = Quantifier_Domain.qtyp_to_qdomain SU.QOuter_Print  pst thm_term induct_args: literals,
+                            ind    = Quantifier_Domain.qtyp_to_qdomain SU.QInd          pst thm_term induct_args: literals,
+                            arb    = Quantifier_Domain.qtyp_to_qdomain SU.QArb          pst thm_term induct_args: literals,
+                            rule   = Quantifier_Domain.qtyp_to_qdomain SU.QRule         pst thm_term induct_args: literals
+                            }: domains;
     (*TODO: probably we do not have to pass around both term and table.*)
-    fun eval' (Apply (func, arg)) trm table =
-         (case eval' func trm table of
-          Lambda  u   => eval' (subst 0 (eval' arg trm table) u) trm table
+    fun eval' (Apply (func, arg)) trm table (domains:domains) =
+         (case eval' func trm table domains of
+          Lambda  u   => eval' (subst 0 (eval' arg trm table domains) u) trm table domains
         | Literal l   => Literal l
         | Bound   i   => Bound i
         | Dive_In t   => Dive_In t
         | Deep_Dive t => Deep_Dive t
-        | u1          => Apply (u1, eval' arg trm table))
-      | eval' (Assert (assert, param_exprs)) trm table =
+        | u1          => Apply (u1, eval' arg trm table domains))
+      | eval' (Assert (assert, param_exprs)) trm table domains =
           let
-            (* Note that param_exprs are always Literal at this point
-             * because of the strict evaluation of Standard ML.*)
-            val lazy_param_exprs = Seq.of_list param_exprs                                                                  : expr Seq.seq
-            val lazy_params      = Seq.map (param_with_bool_to_bound o (fn param => eval' param trm table)) lazy_param_exprs: Eval_Parameter.literal Seq.seq;
+            (* Note that param_exprs are always Literal at this point because of the strict evaluation of Standard ML.*)
+            val lazy_param_exprs = Seq.of_list param_exprs                                                                          : expr Seq.seq
+            val lazy_params      = Seq.map (param_with_bool_to_bound o (fn param => eval' param trm table domains)) lazy_param_exprs: Eval_Parameter.literal Seq.seq;
           in
             EPWB.eval pst table induct_args assert lazy_params |> Literal
           end
-      | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) trm table = dive triple trm table outer_literal_to_definitions
-      | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) trm table = dive triple trm table inner_literal_to_definitions
-      | eval' (All  (qtyp, subexpr)) trm table  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ands trm) trm table
-      | eval' (Some (qtyp, subexpr)) trm table  = eval' (subexpr_n_qtyp_to_apps subexpr qtyp SU.Ors  trm) trm table
-      | eval' expr _ _ = expr
-    and dive (Literal path, Lambda lambda, args) trm table (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) =
+      | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) trm table domains = dive triple trm table outer_literal_to_definitions domains
+      | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) trm table domains = dive triple trm table inner_literal_to_definitions domains
+      | eval' (All  (qtyp, subexpr)) trm table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ands domains) trm table domains
+      | eval' (Some (qtyp, subexpr)) trm table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ors  domains) trm table domains
+      | eval' expr _ _ _ = expr
+    and dive (Literal path, Lambda lambda, args) trm table (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) domains =
         let
           val _                     = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
           val simp_rules            = literal_to_definitions pst trm path: terms;
-          val simp_rule_unode_table = map (Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) simp_rules: IPTU.path_to_unode_table list;
-          val simp_rule_tables      = map GP2U.Inner_Path_To_Unode simp_rule_unode_table                       : GP2U.gen_path_to_unode_table list;
-          val curried_expr          = mk_inner_expr (Lambda lambda) args       : expr;
+          val curried_expr          = mk_inner_expr (Lambda lambda) args                                       : expr;
           (*TODO: use simp_rule_tables instead of simp_rules.*)
-          val inner_results         = map (fn (trm, table) => eval' curried_expr trm table) (simp_rules ~~ simp_rule_tables): expr list;
-          val ands                  = Assert (SU.Ands, inner_results)          : expr;
-          val result                = eval' ands trm table                     : expr;
+          fun trm_to_inner_domains in_trm = {number = Quantifier_Domain.qtyp_to_qdomain SU.QInner_Number pst in_trm induct_args: literals,
+                                             path   = Quantifier_Domain.qtyp_to_qdomain SU.QInner_Path   pst in_trm induct_args: literals,
+                                             print  = Quantifier_Domain.qtyp_to_qdomain SU.QInner_Print  pst in_trm induct_args: literals,
+                                             ind    = Quantifier_Domain.qtyp_to_qdomain SU.QInd          pst in_trm induct_args: literals,
+                                             arb    = Quantifier_Domain.qtyp_to_qdomain SU.QArb          pst in_trm induct_args: literals,
+                                             rule   = Quantifier_Domain.qtyp_to_qdomain SU.QRule         pst in_trm induct_args: literals
+                                             }: domains;
+          val inner_results         = map (fn trm =>
+                                      let
+                                        val table   = (GP2U.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) trm: Gen_Path_To_Unode.gen_path_to_unode_table;
+                                        val domains = trm_to_inner_domains trm                                                                 : domains;
+                                      in
+                                        eval' curried_expr trm table domains
+                                      end) simp_rules: exprs;
+          val ands                  = Assert (SU.Ands, inner_results)                                                                     : expr;
+          val result                = eval' ands trm table domains                                                                        : expr;
         in
           result
         end
-      | dive _ _ _ _ = error "dive failed."
+      | dive _ _ _ _ _ = error "dive failed."
   in
-    eval' expr thm_term (GP2U.Outer_Path_To_Unode outer_path_table)
+    eval' expr thm_term (GP2U.Outer_Path_To_Unode outer_path_table) (outer_domains:domains)
   end;
 
 end;

@@ -138,7 +138,6 @@ setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.tes
 setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"          SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
 setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion" SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
 
-(*
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
   assert_SeLFiE_true test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
@@ -146,7 +145,6 @@ lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_conclusion_or_below [on["z"], arb[],rule[]]
   assert_SeLFiE_true test_is_more_than [on["zs"], arb[],rule[]]
   oops
-*)
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
@@ -159,11 +157,11 @@ primrec rev :: "'a list \<Rightarrow> 'a list" where
  print_theorems
 
 lemma "itrev xs ys = rev xs @ ys"
-  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb["xs"],rule[]]
-  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]]
-  assert_SeLFiE_true  is_defined_recursively_on_nth  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE_false is_defined_recursively_on_nth  [on["ys"], arb[],rule[]]
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["xs"], arb["ys"],rule[]](*It used to take 1.196s elapsed time*)
+  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb["xs"],rule[]](*It used to take 2.467s elapsed time*)
+  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]](*It used to take 0.864s elapsed time*)
+  assert_SeLFiE_true  is_defined_recursively_on_nth  [on["xs"], arb["ys"],rule[]](*It used to take 0.703s elapsed time*)
+  assert_SeLFiE_false is_defined_recursively_on_nth  [on["ys"], arb[],rule[]](*It used to take 1.647s elapsed time*)
   assert_SeLFiE_true heuristic_1  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE_true heuristic_2  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE_true heuristic_3  [on["xs"], arb["ys"],rule[]]
