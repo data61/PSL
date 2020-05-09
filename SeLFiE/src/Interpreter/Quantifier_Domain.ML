@@ -8,6 +8,23 @@ sig
 
 val  qtyp_to_qdomain: SeLFiE_Util.qtyp -> Proof.state -> term -> SeLFiE_Util.induct_arguments-> Eval_Parameter.literals;
 
+type domain = Eval_Parameter.literals;
+
+type domains = {
+  number: Eval_Parameter.literals,
+  path  : Eval_Parameter.literals,
+  print : Eval_Parameter.literals,
+  ind   : Eval_Parameter.literals,
+  arb   : Eval_Parameter.literals,
+  rule  : Eval_Parameter.literals
+};
+
+datatype inout = In | Out;
+
+val inout_pst_n_trm_n_induct_args_to_domains: inout -> Proof.state -> term -> SeLFiE_Util.induct_arguments -> domains;
+
+val domains_n_qtyp_to_domain: domains -> SeLFiE_Util.qtyp -> domain;
+
 end;
 
 (*** structure: Quantifier_Domain ***)
@@ -72,7 +89,6 @@ val map_Non_Path_Print = map (EP.Non_Path o EP.Print);
 
 val tracing' = if true then K () else tracing;
 
-(*TODO: Check if we are calling this function too many times unnecessarily.*)
 fun qtyp_to_qdomain SU.QInner_Number pst trm _ = pst_n_trm_to_inner_numb_domain pst trm
   | qtyp_to_qdomain SU.QOuter_Number pst trm _ = pst_n_trm_to_outer_numb_domain pst trm
   | qtyp_to_qdomain SU.QInner_Path   pst trm _ = mk_all_inner_paths pst trm |> map EP.Inner_Path
@@ -81,6 +97,44 @@ fun qtyp_to_qdomain SU.QInner_Number pst trm _ = pst_n_trm_to_inner_numb_domain 
   | qtyp_to_qdomain SU.QOuter_Print  pst trm _ = mk_all_outer_prints pst trm |> (fn list => (tracing' ("qtyp_to_qdomain in Quantifier_Domain. The length of list is " ^ Int.toString (length list));list))|> map_Non_Path_Print
   | qtyp_to_qdomain SU.QInd  _   _  (SeLFiE_Util.Induct_Arguments {ons,...})   = map_Non_Path_Print ons
   | qtyp_to_qdomain SU.QArb  _   _  (SeLFiE_Util.Induct_Arguments {arbs,...})  = map_Non_Path_Print arbs
-  | qtyp_to_qdomain SU.QRule _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Non_Path_Print rules
+  | qtyp_to_qdomain SU.QRule _   _  (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Non_Path_Print rules;
+
+type domain = Eval_Parameter.literals;
+
+type domains = {
+  number: domain,
+  path  : domain,
+  print : domain,
+  ind   : domain,
+  arb   : domain,
+  rule  : domain
+};
+
+datatype inout = In | Out;
+
+fun inout_pst_n_trm_n_induct_args_to_domains (In: inout) (pst:Proof.state) (trm:term) (induct_args) =
+ {number = qtyp_to_qdomain SU.QInner_Number pst trm induct_args: EP.literals,
+  path   = qtyp_to_qdomain SU.QInner_Path   pst trm induct_args: EP.literals,
+  print  = qtyp_to_qdomain SU.QInner_Print  pst trm induct_args: EP.literals,
+  ind    = qtyp_to_qdomain SU.QInd          pst trm induct_args: EP.literals,
+  arb    = qtyp_to_qdomain SU.QArb          pst trm induct_args: EP.literals,
+  rule   = qtyp_to_qdomain SU.QRule         pst trm induct_args: EP.literals}: domains
+  | inout_pst_n_trm_n_induct_args_to_domains (Out: inout) (pst:Proof.state) (trm:term) (induct_args) =
+ {number = qtyp_to_qdomain SU.QOuter_Number pst trm induct_args: EP.literals,
+  path   = qtyp_to_qdomain SU.QOuter_Path   pst trm induct_args: EP.literals,
+  print  = qtyp_to_qdomain SU.QOuter_Print  pst trm induct_args: EP.literals,
+  ind    = qtyp_to_qdomain SU.QInd          pst trm induct_args: EP.literals,
+  arb    = qtyp_to_qdomain SU.QArb          pst trm induct_args: EP.literals,
+  rule   = qtyp_to_qdomain SU.QRule         pst trm induct_args: EP.literals}: domains;
+
+fun domains_n_qtyp_to_domain (domains:domains) SU.QOuter_Path   = #path   domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QInner_Path   = #path   domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QOuter_Print  = #print  domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QInner_Print  = #print  domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QOuter_Number = #number domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QInner_Number = #number domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QInd          = #ind    domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QArb          = #arb    domains
+  | domains_n_qtyp_to_domain (domains:domains) SU.QRule         = #rule   domains
 
 end;
