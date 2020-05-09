@@ -598,6 +598,7 @@ Imply
           Some_Of ("ind_occ", Variable "induct",
             Some ("number", QOuter_Number,
               Ands [
+                Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
                 Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ"),
                 In_Some_Definitions (Variable "func_occ", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
               ]
