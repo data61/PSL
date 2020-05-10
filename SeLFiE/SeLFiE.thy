@@ -29,40 +29,40 @@ find_theorems name:"wf_induct"
 (* pre-processing *)
 ML_file "../PSL/Utils.ML"
 ML_file "../MeLoId/src/MeLoId_Util.ML"
-ML_file "src/Preprocessor/Pattern.ML"
-ML_file "src/Preprocessor/Util.ML"
+ML_file "Pattern.ML"
+ML_file "Util.ML"
 
-ML_file "src/Preprocessor/Unique_Node.ML"
-ML_file "src/Preprocessor/Unique_Node_Test.ML"
-ML_file "src/Preprocessor/Path_Table_And_Print_Table.ML"
-ML_file "src/Preprocessor/Term_Table.ML"
-ML_file "src/Preprocessor/Term_Table_Test.ML"
-ML_file "src/Preprocessor/Dynamic_Induct.ML"
+ML_file "Unique_Node.ML"
+ML_file "Unique_Node_Test.ML"
+ML_file "Path_Table_And_Print_Table.ML"
+ML_file "Term_Table.ML"
+ML_file "Term_Table_Test.ML"
+ML_file "Dynamic_Induct.ML"
 
-ML_file "src/Interpreter/Eval_Bool.ML"
-ML_file "src/Interpreter/Eval_Node.ML"
-ML_file "src/Interpreter/Eval_Number.ML"
-ML_file "src/Interpreter/Eval_Unode.ML"
-ML_file "src/Interpreter/Eval_Print.ML"
+ML_file "Eval_Bool.ML"
+ML_file "Eval_Node.ML"
+ML_file "Eval_Number.ML"
+ML_file "Eval_Unode.ML"
+ML_file "Eval_Print.ML"
 
-ML_file "src/Interpreter/Path_To_Unode.ML"  (*The bifurcation of "inner" and "outer" starts here.*)
-ML_file "src/Interpreter/Print_To_Paths.ML"
+ML_file "Path_To_Unode.ML"  (*The bifurcation of "inner" and "outer" starts here.*)
+ML_file "Print_To_Paths.ML"
 
 ML\<open> structure Print_To_Inner_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Inner_Path_Table): PRINT_TO_PATHS; \<close>
 ML\<open> structure Print_To_Outer_Paths = from_Path_Table_and_Path_To_Unode_to_Print_To_Paths(Outer_Path_Table): PRINT_TO_PATHS; \<close>
 
-ML_file "src/Interpreter/Eval_Path.ML"
+ML_file "Eval_Path.ML"
 
-ML_file "src/Interpreter/Eval_Parameter.ML"
-ML_file "src/Interpreter/Eval_Parameter_With_Bool.ML"
-ML_file "src/Interpreter/Quantifier_Domain.ML"
-ML_file "src/Interpreter/Eval_Unary.ML"
-ML_file "src/Interpreter/Eval_Multi_Arity.ML"
-ML_file "src/Interpreter/Eval_Variable.ML"
-ML_file "src/Interpreter/Eval_Surface.ML"
+ML_file "Eval_Parameter.ML"
+ML_file "Eval_Parameter_With_Bool.ML"
+ML_file "Quantifier_Domain.ML"
+ML_file "Eval_Unary.ML"
+ML_file "Eval_Multi_Arity.ML"
+ML_file "Eval_Variable.ML"
+ML_file "Eval_Surface.ML"
 
-ML_file "src/Interpreter/Eval_Syntactic_Sugar.ML"
-ML_file "src/Interface/Apply_SeLFiE.ML"
+ML_file "Eval_Syntactic_Sugar.ML"
+ML_file "Apply_SeLFiE.ML"
 
 definition "func x \<equiv> x"
 thm func_def
@@ -86,7 +86,7 @@ val eq2 = Isabelle_Utils.flatten_trm eq |> (fn trms => nth trms 0);
 Isabelle_Utils.trm_to_string @{context} eq2
 \<close>
 
-ML_file "src/Interface/SeLFiE_Assertion.ML"
+ML_file "SeLFiE_Assertion.ML"
 ML\<open> Apply_SeLFiE.activate (); \<close>
 
 setup\<open> Apply_SeLFiE.update_assert "heuristic_1" SeLFiE_Assertion.heuristic_1 \<close>
