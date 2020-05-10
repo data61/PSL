@@ -11,7 +11,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
    * `/Applications/Isabelle2020.app/Isabelle/bin/isabelle jedit -d . -l PSL_And_All_That`
 4. Then, You can install PSL and try_hard by importing *.PSL.thy* to their theory files
-   with the Isabelle keyword, **imports**.
+   with the Isabelle keyword, **imports** as ``imports "PSL.PSL"``.
 ![Screenshot](./image/screen_shot_import.png)
 
 If you find it difficult to install our tool, please refer to [the Isabelle System Manual](https://isabelle.in.tum.de/doc/system.pdf). Alternatively, you can just send an email to Yutaka. You can find his email address in the first page of [this paper](https://arxiv.org/pdf/2001.10834.pdf).
@@ -33,20 +33,19 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 ![Screenshot](./image/tracing_messages.png)
 
 ## Contents
-- `.src/Utils.ML` includes various utility functions.
-- `.src/Subtool.ML` treats Isabelle's subtools as state-monad tactics.
-- `.src/Dynamic_Tactic_Generation.ML` facilitates runtime tactic generation.
-- `.src/Constructor_Class.ML/` is a general purpose constructor class library.
-- `.src/Instantiation.ML` instantiates some type constructors as members of constructor classes.
-- `.src/Monadic_Prover.ML` contains the interpreter of PSL.
-- `.src/Parser_Combinator.ML` contains general purpose monadic parser combinators.
-- `.src/PSL_Parser.ML` defines the PSL parser.
-- `.src/Isar_Interface.thy` sets up the Isabelle/Isar interface for PSL.
-- `.src/Try_Hard.thy` defines the default strategy try_hard.
-- `./PSL.thy` reads all the necessary files to use PSL and try_hard.
-- `./Example` presents small example strategies and use cases.
+- `PSL/Utils.ML` includes various utility functions.
+- `PSL/Subtool.ML` treats Isabelle's subtools as state-monad tactics.
+- `PSL/Dynamic_Tactic_Generation.ML` facilitates runtime tactic generation.
+- `PSL/Constructor_Class.ML/` is a general purpose constructor class library.
+- `PSL/Instantiation.ML` instantiates some type constructors as members of constructor classes.
+- `PSL/Monadic_Prover.ML` contains the interpreter of PSL.
+- `PSL/Parser_Combinator.ML` contains general purpose monadic parser combinators.
+- `PSL/PSL_Parser.ML` defines the PSL parser.
+- `PSL/Isar_Interface.thy` sets up the Isabelle/Isar interface for PSL.
+- `PSL/Try_Hard.thy` defines the default strategy try_hard.
+- `PSL/PSL.thy` reads all the necessary files to use PSL and try_hard.
+- `Example/Example.thy` presents small example strategies and use cases.
 - `PaMpeR/` is a tool for **p**roof **m**thod **r**commendation.
-- `PGT/` is our conjecturing mechanism, **p**roof **g**oal **t**ransformer.
 - `MeLoId/` is work in progress.
 - `LiFtEr/` is a language to encode induction heuristics.
 
