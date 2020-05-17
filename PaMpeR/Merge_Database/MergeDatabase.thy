@@ -20,7 +20,7 @@ theory MergeDatabase
 imports Pure
 begin
 
-ML{*
+ML\<open>
 type data = ((string * string) * string) list;
 
 (* Very naive merge algorithm. It assumes that both databases are already sorted. *)
@@ -106,21 +106,20 @@ in
  MyData.dest merged
 end;
 
-*}
+\<close>
 
 
 
-ML{*
+ML\<open>
 val path = (Resources.master_directory @{theory} |> File.platform_path |> (fn name => name ^ "/"));
 val path_to_database_names = path ^ "file_names.txt";
 val file_names = ["ExampleDatabase1", "ExampleDatabase2"];
 val paths = map (fn fname:string => path ^ fname) file_names: string list;
-*}
-ML{*
-val input_files = Par_List.map TextIO.openIn paths: TextIO.instream list;
-*}
 
-ML{*
+val input_files = Par_List.map TextIO.openIn paths: TextIO.instream list;
+\<close>
+
+ML\<open>
 fun input_all (accm:string list) (ins:TextIO.instream) =
   let
     val one_vec = TextIO.inputLine ins;
@@ -135,40 +134,35 @@ fun input_all (accm:string list) (ins:TextIO.instream) =
   in
     result
   end;
-*}
-ML{*
+\<close>
+
+ML\<open>
 val liness = Par_List.map (input_all []) (input_files);
 val _ = length liness |> Int.toString |> tracing;
 val _ = map (tracing o Int.toString o length) liness;
-*}ML{*
+
 fun get_pairs (line:string) = space_explode " " line
   |> (fn [x, y, z] => SOME ((x, y), z)
        | _ => (tracing "not a triple"; NONE) );
-*}ML{*
+
 fun lines_to_pairs (lines:string list) = map get_pairs lines
  |> filter is_some |> map the;
 fun liness_to_pairss (liness: string list list) = map lines_to_pairs liness;
 
 val pairss = liness_to_pairss liness: ((string * string) * string) list list;
-*}
 
-ML{*
 val merged = merge_many pairss;
 val _ = length merged |> Int.toString |> tracing;
-*}
 
-ML{*
 fun mk_one_line ((x:string, y:string), z:string) = x ^ " " ^ y ^ " " ^ z;
-*}ML{*
+
 fun mk_lines (lines:((string * string) * string) list) = map mk_one_line lines |> String.concatWith "\n";
 
 val output_lines = mk_lines (merge_many pairss)
-*}
 
-ML{*
 val outstream = TextIO.openOut (path ^ "output.txt");
 val _ = TextIO.outputSubstr (outstream, Substring.full output_lines);
 val _ = TextIO.flushOut outstream;
-*}
+\<close>
 
 end

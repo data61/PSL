@@ -165,4 +165,8 @@ fun list_to_row (xs:'a list) = Row xs: 'a row;
 
 fun matrix_to_column_of_rows_matrix (xs:'a matrix) = CRMatrix (Column (map list_to_row xs)): 'a column_of_rows_matrix;
 
+fun row_of_columns_matrix_to_matrix (RCMatrix (Row columns):'a row_of_columns_matrix) = map dest_column columns: 'a matrix;
+
+fun column_of_rows_matrix_to_matrix (CRMatrix (Column rows):'a column_of_rows_matrix) = map dest_row    rows   : 'a matrix;;
+
 end;

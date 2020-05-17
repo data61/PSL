@@ -58,4 +58,7 @@ type 'a matrix = 'a list list;
 val matrix_to_row_of_columns_matrix: 'a matrix ->'a row_of_columns_matrix;
 val matrix_to_column_of_rows_matrix: 'a matrix ->'a column_of_rows_matrix;
 
+val row_of_columns_matrix_to_matrix: 'a row_of_columns_matrix -> 'a matrix;
+val column_of_rows_matrix_to_matrix: 'a column_of_rows_matrix -> 'a matrix;
+
 end;

@@ -382,7 +382,7 @@ lemma evalC_sum_list:
   apply2 (induct ns) by auto
 
 lemma sum_list_replicate:
-  "sum_list (replicate n x) = n * x"smart_induct
+  "sum_list (replicate n x) = n * x"
   apply2 (induct n) by auto
 
 lemma base_red:

@@ -29,8 +29,9 @@ setup\<open> Apply_LiFtEr.update_assert "heuristic_15" (LiFtEr_Heuristics.inner_
 setup\<open> Apply_LiFtEr.update_assert "heuristic_16" (LiFtEr_Heuristics.no_ind_at_nth_arg_if_two_occ_of_recs                                    , 1)\<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_17" (LiFtEr_Heuristics.no_diff_var_at_same_pos_for_diff_occ_of_rec                             , 1)\<close>
 setup\<open> Apply_LiFtEr.update_assert "heuristic_20" (LiFtEr_Heuristics.rule_inversion_on_premise                                               , 1)\<close>
+(*
 setup\<open> Apply_LiFtEr.update_assert "heuristic_21" (LiFtEr_Heuristics.rule_inversion_on_a_member_if_inductive_set_in_a_premise                , 6)\<close>
-
+*)
 ML\<open> val _ = Outer_Syntax.command @{command_keyword smart_induct} "recommend which method to use." (Scan.succeed Scoring_Using_LiFtEr.smart_induct_cmd); \<close>
 
 end

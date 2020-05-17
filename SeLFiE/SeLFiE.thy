@@ -21,9 +21,6 @@ theory SeLFiE
 *)
 begin
 
-ML\<open>
-val t1 = Time.now ();
-\<close>
 find_theorems name:"wf_induct"
 
 (* pre-processing *)
