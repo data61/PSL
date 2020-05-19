@@ -1,3 +1,5 @@
+**Message to FMCAD2020 reviewers: This is the branch development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature experiments. For the submitted version with evaluation results, please refer to [this release](https://github.com/data61/PSL/releases/tag/0.1.7-alpha)**
+
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
