@@ -269,12 +269,6 @@ thm List.list.case
 datatype alpha = A | B | C | D
 ML\<open>
 @{term "case x of A \<Rightarrow> a | B \<Rightarrow> b"};
-type t = Time.time;
-val t1' = t1;
-val t2 = Time.now ();
-val time_diff = Time.- (t2, t1);
-val time_real = Time.toMilliseconds time_diff |> Int.toString |> tracing;
-type asd = LargeReal.real;
 (*
   Const ("LiFtEr.alpha.case_alpha", "'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> alpha \<Rightarrow> 'a")
 $ Free  ("a", "'a")
