@@ -15,19 +15,16 @@ It is not ready for use yet.
 
 ### Interpreter
 1. evals for each type of term occurrence: `bool`, `node`, `number`, and `unode`.
-2. evals for `path` (`inner_path` and `outer_path`).
-3. evals for each type of term: `print`, and `induct_argument`.
-4. evals for parameter without bool.
-5. evals for assert (= parameter with bool).
-6. evals for lambda expression (with bound variable).
-7. evals for lambda expression (with named variable).
-8. evals for lambda expression (with quantifiers).
-9. evals for uncurried lambda expression.
-10. eval for the semantic-aware logical feature extractor (= SeLFiE's core language).
-11. eval for the surface language.
-12. eval for the sytnax sugars.
+2. `Eval_Print.ML`: evals for each type of term: `print` (which includes the handling of modifiers).
+3. `Eval_Path.ML`: evals for `path` (`inner_path` and `outer_path`).
+4. `Eval_Parameter.ML`:evals for parameter without bool.
+5. `Eval_Parameter_With_Bool.ML`: evals for assert (= parameter with bool).
+6. `Eval_Unary.ML`: bound variables, dive_in, quantifier, at once.
+7. `Eval_Multi_Arity.ML`: evals for uncurried lambda expression.
+8. `Eval_Variable.ML`: introduce variable names.
+9. `Eval_Surface.ML`: "flattened" datatype `assert` for readability.
+10. `Eval_Syntactic_Sugar.ML`: syntactic sugars.
 
-### TODOs
 - [X]  remove most of things from `SeLFiEsrc/Preprocessor/Pattern.ML` except for `get_command`.
 - [X] `qtyp_to_qdomain` in `Quantifier_Domain.ML`.
 - [X] `mk_all_numbers` in `Quantifier_Domain.ML`. -> `pst_n_trm_to_numb_domain`.
