@@ -268,8 +268,17 @@ thm List.list.case
 
 datatype alpha = A | B | C | D
 ML\<open>
-@{term "case x of A \<Rightarrow> a | B \<Rightarrow> b"};
+@{term "case x of A \<Rightarrow> True | B \<Rightarrow> False"};
 (*
+   Const ("SeLFiE.alpha.case_alpha", "bool \<Rightarrow> bool \<Rightarrow> bool \<Rightarrow> bool \<Rightarrow> alpha \<Rightarrow> bool")
+ $ Const ("HOL.True", "bool")
+ $ Const ("HOL.False", "bool")
+ $ Const ("HOL.undefined", "bool")
+ $ Const ("HOL.undefined", "bool")
+ $ Free ("x", "alpha"):
+ term
+
+
   Const ("LiFtEr.alpha.case_alpha", "'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> alpha \<Rightarrow> 'a")
 $ Free  ("a", "'a")
 $ Free  ("b", "'a")
