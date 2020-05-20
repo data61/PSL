@@ -1,0 +1,58 @@
+This archive contains the Isabelle formalization of the results presented in
+the paper
+
+    A Lambda-Free Higher-Order Recursive Path Order
+    by Jasmin Christian Blanchette, Uwe Waldmann, and Daniel Wand
+
+and in the accompanying report. References to definitions, lemmas, and
+theorems below are given for the report. The corresponding number for the
+paper is given in square brackets when the numbers differ.
+
+The ".thy" files are Isabelle theory files. They can be processed as follows:
+
+    isabelle jedit Lambda_Free_RPOs.thy
+
+The main files are
+
+    Lambda_Free_RPO_Std.thy
+    Lambda_Free_RPO_Optim.thy
+
+Section 2 ("Extension Orders") is formalized in "Extension_Orders.thy":
+
+  * Definition 1 corresponds to "inductive lexext".
+  * Definition 2 corresponds to "definition lenext".
+  * Definition 3 corresponds to "definition msetext_dersh".
+  * Definition 4 corresponds to "definition cwiseext".
+
+Section 3.2 ("The Applicative RPO") is formalized in
+"Lambda_Free_RPO_App.thy":
+
+  * Definition 7 corresponds to "inductive gt".
+
+Section 3.3 ("A Graceful Higher-Order RPO") is formalized in
+"Lambda_Free_RPO_Std.thy":
+
+  * Definition 8 corresponds to "inductive gt".
+
+Section 3.4 ("An Optimized Variant of the Graceful Higher-Order RPO") is
+formalized in "Lambda_Free_RPO_Optim.thy":
+
+  * Definition 10 corresponds to "inductive gt".
+
+Most of Section 4 ("Properties") is formalized in "Lambda_Free_RPO_Std.thy":
+
+  * Lemma 11 corresponds to "lemma gt_imp_vars".
+  * Theorem 12 corresponds to "theorem gt_trans".
+  * Theorem 13 corresponds to "theorem gt_irrefl".
+  * Theorem 14 corresponds to "theorem gt_proper_sub".
+  * Theorem 15 corresponds to "theorem gt_compat_fun_strong".
+  * Theorem 16 corresponds to "theorem gt_diff_same_compat_arg".
+  * Theorem 17 corresponds to "theorem gt_subst".
+  * Theorem 18 corresponds to "theorem gt_wf".
+  * Theorem 19 corresponds to "theorem gt_total_ground".
+
+The rest of Section 4 is formalized in "Lambda_Free_RPO_Optim.thy":
+
+  * Lemma 20 [20(1)] corresponds to "lemma gt_trans".
+  * Lemma 21 [20(2)] corresponds to "lemma gt_sub_fun".
+  * Theorem 22 [21] corresponds to "theorem gt_iff_optim".

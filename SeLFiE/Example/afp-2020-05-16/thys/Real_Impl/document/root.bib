@@ -1,0 +1,1223 @@
+% The command \noopsort is needed to enforce a certain sorting
+% of the references.
+@preamble{"\newcommand{\noopsort}[1]{} "}
+@string{itp4 = "Interactive Theorem Proving"}
+
+@string{TUM = "Department of Informatics, Technical University of Munich"}
+@string{lnai = "LNAI"}
+@string{lncs = "LNCS"}
+@string{ic = "Information and {C}omputation"}
+@string{aaecc = "Appl.\ {A}lgebra in {E}ngineering,
+                   {C}ommunication and {C}omputing"}
+@string{entcs = "ENTCS"}
+@string{tcs = "Theoretical {C}omputer {S}cience"}
+@string{jcss = "Journal of {C}omputer and {S}ystem {S}ciences"}
+@string{jsc = "Journal of {S}ymbolic {C}omputation"}
+@string{jar = "Journal of {A}utomated {R}easoning"}
+
+@string{conf:flops="Proc.\ FLOPS "}
+@string{conf:tphols="Theorem Proving in Higher Order Logics"}
+@string{conf:cpp="Proc.\ CPP "}
+@string{ppdp9 =  "Principles and
+Practice of Declarative Programming"}
+
+@phdthesis{Kurth,
+  author = {W.\ Kurth},
+  title = {Termination und Konfluenz von Semi-Thue-Systemen mit nur einer 
+Regel},
+  school = {Technische Universit\"at Clausthal, Germany},
+  year = {1990}
+} 
+
+@manual{codegen09,
+  author      = {F.\ Haftmann},
+  title       = {Code generation from {Isabelle/HOL} theories},
+  institution = TUM,
+  month       = apr,
+  year        = 2009,
+  note        = {\url{http://isabelle.in.tum.de/doc/codegen.pdf}},
+}
+
+@inproceedings{codegen10,
+  author      = {F.\ Haftmann and T.\ Nipkow},
+  title       = {Code Generation via Higher-Order Rewrite Systems},
+  booktitle   = {Proc.~FLOPS'10},
+  note = "To appear."
+}
+
+
+@inproceedings{Color,
+  author       = {F.\ Blanqui and W.\ Delobel and S.\ {Coupet-Grimal} and S.\ Hinderer and A. Koprowski},
+  title        = {\textsf{CoLoR}, a {Coq} Library on Rewriting and termination},
+  year         = {2006},
+  booktitle    = {Proc.~WST'06},
+  pages        = {69--73},
+  Optnote         = {See also \url{http://color.loria.fr/}.}
+}
+
+@inproceedings{Maximal,
+  author = {C.\ Fuhs and J.\ Giesl and A.\ Middeldorp and P.\ Schneider-Kamp and R.\ Thiemann and H. Zankl},
+  title  = {Maximal Termination},
+  booktitle     = "Proc.\ RTA'08",
+  series        = "LNCS 5117",
+  pages         = "110--125",
+  year          = 2008
+}
+
+@Article{MatrixJAR,
+  author =       {J.~Endrullis and J.~Waldmann and H.~Zantema},
+  title =        {{Matrix Interpretations for Proving Termination of Term Rewriting}},
+  journal =      {Journal of Automated Reasoning},
+  year =         {2008},
+  OPTkey =       {},
+  volume =       {40},
+  number =       {2-3},
+  pages =        {195--220},
+  OPTmonth =     {},
+  OPTnote =      {},
+  OPTannote =    {}
+}
+
+@article{Rational,
+  author    = {S.\ Lucas},
+  title = {Polynomials over the reals in proofs of termination: From theory to practice},
+  journal = {RAIRO Theoretical Informatics and Applications},
+  volume = {39},
+  number = {3},
+  pages = {547--586},
+  year = 2005
+}
+
+@article{Luc06,
+  author    = "S. Lucas",
+  title     = "On the Relative Power of Polynomials with Real, Rational,
+               and Integer Coefficients in Proofs of Termination of
+               Rewriting",
+  journal   = aaecc,
+  volume    = 17,
+  number    = 1,
+  year      = 2006,
+  pages     = "49--73"
+}
+
+@inproceedings{Luc07,
+ author    = "S. Lucas",
+ title     = "Practical Use of Polynomials over the Reals in Proofs of
+              Termination",
+ booktitle = ppdp9,
+ pages     = "39--50",
+ year      = 2007
+}
+
+
+@inproceedings{Arctic,
+  author    = {A.\ Koprowski and J.\ Waldmann},
+  title     = {Arctic Termination {\ldots} Below Zero},
+  booktitle = {Proc.\ RTA'08},
+  year      = {2008},
+  pages     = {202--216},
+  series = "LNCS 5117"
+}
+
+
+@inproceedings{A3PAT2,
+  author = {\'E.\ Contejean and P.\ Courtieu and J.\ Forest and A.\ Paskevich and O.\ Pons and X.\ Urbain},
+  title = {{A3PAT}, an Approach for Certified Automated Termination Proofs},
+  booktitle = {Proc.~PEPM'10},
+  note = "To appear."
+} 
+
+@inproceedings{A3PAT,
+  author = {\'E.\ Contejean and P.\ Courtieu and J.\ Forest and O.\ Pons and X.\ Urbain},
+  title  = {Certification of automated termination proofs},
+  booktitle = {Proc.~FroCoS'07},
+  series = "LNAI 4720",
+  pages = {148--162},
+  year = 2007,
+  Optnote = {See also \url{http://www3.iie.cnam.fr/~urbain/a3pat/}.}
+}
+
+@inproceedings{A3PatGraph,
+  author = {P.\ Courtieu and J.\ Forest and X.\ Urbain},
+  title  = {Certifying a Termination Criterion Based on Graphs, without Graphs},
+  booktitle = {Proc.~TPHOLs'08},
+  series = "LNCS 5170",
+  pages = {183--198},
+  year = 2008,
+  Optnote = {See also \url{http://www3.iie.cnam.fr/~urbain/a3pat/}.}
+}
+
+@inproceedings{CeTA,
+  author    = {R.~Thiemann and C.~Sternagel},
+  title     = {Certification of Termination Proofs using \ceta},
+  booktitle = conf:tphols,
+  series    = {LNCS 5674},
+  year      = 2009,
+  pages     = {452--468}
+}
+
+@inproceedings{MatrixCoq,
+  author    = {P.\ Courtieu and
+               G.\ Gbedo and
+               O.\ Pons},
+  title     = {Improved Matrix Interpretation},
+  year      = {2010},
+  pages     = {283--295},
+  booktitle     = {Proc.\ SOFSEM'10},
+  series        = {LNCS 5901}
+}
+
+
+@inproceedings{SOFSEM09,
+  author        = "R.~Thiemann",
+  title         = {From outermost termination to innermost termination},
+  booktitle     = {Proc.\ SOFSEM'09},
+  series        = lncs,
+  year          = 2009,
+  note          = "To appear."
+}
+
+@article{MM82,
+  author      = "A.~Martelli and U.~Montanari",
+  title       = "An efficient unification algorithm",
+  journal     = "ACM Transactions on Programming Languages and Systems",
+  volume      = 4,
+  number      = "2",
+  pages       = "258--282",
+  year        = 1982
+}
+
+@Book{Isabelle,
+  author      = {T.\ Nipkow and L.C.\ Paulson and M.\ Wenzel},
+  title       = {Isabelle/HOL: A Proof Assistant for Higher-Order Logic},
+  publisher   = {Springer},
+  series      = "LNCS 2283",
+  year        = 2002
+}
+
+
+@article{Luc00,
+  author = {S.~Lucas},
+  title = {Context-sensitive computations in functional and functional logic programs},
+  journal = {Journal of Functional and Logic Programming},
+  volume = 1,
+  pages = {1--61},
+  year = 1998
+}
+
+@inproceedings{RTA08,
+  author        = "R.~Thiemann and J.~Giesl and P.~Schneider-Kamp",
+  title         = {Deciding Innermost Loops},
+  booktitle     = {Proc.\ RTA'08},
+  series        = "LNCS 5117",
+  pages         = "366--380",
+  year          = 2008
+}
+
+@inproceedings{AotoYamadaRTA03,
+  author        = "T.~Aoto and T.~Yamada",
+  title         = "Termination of Simply Typed Term Rewriting Systems by Translation and Labelling",
+  booktitle     = {Proc.\ RTA'03},
+  series        = "LNCS 2706",
+  year          = 2003,
+ pages          = "380--394"
+}
+
+
+@inproceedings{Arts00,
+  author        = "T. Arts",
+  title         = "System Description: The Dependency Pair Method",
+  booktitle     = "Proc.\ RTA'00",
+  series          = "LNCS 1833",
+  year          = 2000,
+  editor        = "L. Bachmair",
+  address       = "Norwich, UK",
+  pages         = "261--264"
+}
+
+
+@article{AG00,
+  author        = "T.\ Arts and J.\ Giesl",
+  title         = "Termination of Term Rewriting Using Dependency
+                   Pairs",
+  journal       = tcs,
+  volume        = 236,
+  year          = 2000,
+  pages         = "133--178"
+}
+
+
+@techreport{ExampleReport,
+  author        = "T. Arts and J. Giesl",
+  title         = "A Collection
+                   of Examples for Termination of Term Rewriting Using
+                   Dependency Pairs",
+  year          = 2001,
+  number        = "AIB-2001-09\footnotemark",
+  institution   = "RWTH Aachen",
+  OPTnote          = "Available from
+                   \url{http://aib.informatik.rwth-aachen.de}"
+}
+
+@book{BN98,
+  author        = "F.\ Baader and T.\ Nipkow",
+  title         = "Term Rewriting and All That",
+  publisher     = "Cambridge University Press",
+  year          = 1998
+}
+
+@inproceedings{BFR00,
+  author        = "C. Borralleras and M. Ferreira and A. Rubio",
+  title         = "Complete Monotonic Semantic Path Orderings",
+  booktitle     = "Proc.\ CADE'00",
+  series        = "LNAI 1831",
+  year          = "2000",
+  editor        = "D. McAllester",
+  address       = "Pittsburgh, PA, USA",
+  pages         = "346--364"
+}
+
+
+@Misc{cime,
+  OPTkey =   {},
+  author =   {E. Contejean and C. March\'e and B. Monate and X. Urbain},
+  title =    {\cime},
+  OPThowpublished = {},
+  OPTmonth =     {},
+  OPTyear =      {2000},
+  note =     {\url{http://cime.lri.fr}},
+  OPTannote =    {}
+}
+
+@article{U04,
+  author = "X.~Urbain",
+  title = "Modular \& Incremental Automated Termination Proofs",
+  journal = jar,
+  year = 2004,
+  volume = 32,
+  number = 4,
+  pages = "315--355"
+}
+
+@article{D87,
+  author        = "N.\ Dershowitz",
+  title         = "Termination of Rewriting",
+  journal       = "J.\ Symb.\ Comp.",
+  year          = 1987,
+  volume        = 3,
+  pages         = "69--116"
+}
+
+@inproceedings{D95,
+  author        = "N. Dershowitz",
+  title         = "33 examples of termination",
+  booktitle     = "Proc.\ French Spring School of Theoretical Computer Science",
+  OPTeditor        = "H. Comon and J.-P. Jouannaud",
+  address       = "Font Romeux",
+  series        = {LNCS 909},
+  year          = 1995,
+  pages         = "16--26"
+}
+
+@inproceedings{D03,
+ author         = {N. Dershowitz},
+ title          = {Termination Dependencies},
+ booktitle      = {Proc.\ WST'03},
+ year           = 2003,
+ pages          = {27--30}
+}
+
+@InProceedings{Frocos05,   
+  author        = "J.~Giesl\noopsort{2} and R.~Thiemann and P.~{Schneider-Kamp}",
+  title         = "Proving and Disproving Termination of Higher-Order Functions",
+  booktitle     = {Proc.\ FroCoS'05},
+  series        = {LNAI 3717},
+  pages         = {216--231},
+  year          = 2005
+} 
+
+
+
+
+@inproceedings{DershowitzICLP,
+  author        = "N. Dershowitz",
+  title         = "Termination by Abstraction",
+  booktitle     = "Proc.\ ICLP'04",
+  OPTeditor        = "C. Kirchner",
+  OPTaddress       = "St.\ Malo, France",
+  series     = {LNCS 3132},
+  year          = 2004,
+  pages         = "1--18"
+}
+
+
+
+
+@Book{Dro89,
+  author =   {K.~Drosten},
+  ALTeditor =    {},
+  title =    {Termersetzungssysteme: {G}rundlagen der {P}rototyp-{G}enerierung algebraischer {S}pezifikationen},
+  publisher =    {Springer},
+  year =     {1989},
+  OPTkey =   {},
+  OPTvolume =    {},
+  OPTnumber =    {},
+  OPTseries =    {},
+  OPTaddress =   {},
+  OPTedition =   {},
+  OPTmonth =     {},
+  OPTnote =      {},
+  OPTannote =    {}
+}
+
+
+
+@Misc{Jambox,
+  OPTkey = 	 {},
+  author = 	 {J.\ Endrullis},
+  title = 	 {\textsf{Jambox}},
+  OPThowpublished = {},
+  OPTmonth = 	 {},
+  OPTyear = 	 {},
+  note = 	 {Available at \url{http://joerg.endrullis.de}},
+  OPTannote = 	 {}
+}
+
+@inproceedings{TTTT,
+  author    = {M.\ Korp and C.\ Sternagel and H.\ Zankl and
+               A.\ Middeldorp},
+  title     = {{Tyrolean Termination Tool 2}},
+  booktitle = {Proc.\ RTA'09},
+  series    = LNCS,
+  year      = 2009,
+  volume    = 5595,
+  pages     = {295--304},
+}
+
+
+
+@inproceedings{FGK02,
+  author        = "O. Fissore and I. Gnaedig and H. Kirchner",
+  title         = "{\sf Cariboo}: An induction based proof tool for termination
+                   with strategies",
+  booktitle     = "Proc.\ PPDP'02",
+  editor        = "C. Kirchner",
+  address       = "Pittsburgh, PA, USA",
+  publisher     = {ACM Press},
+  year          = 2002,
+  pages         = "62--73"
+}
+
+@unpublished{DaronVroon,
+  author = {D.~Vroon},
+  year   = 2007,
+  note   = "Personal communication"
+}
+
+
+@inproceedings{matchbounds,
+   author    = {A.~Geser and D.~Hofbauer and J.~Waldmann},
+   title     = {Match-bounded String Rewriting Systems},
+   booktitle = {Proc.\ MFCS'03},
+   year      = {2003},
+   pages     = {449--459},
+   series    = {LNCS 2747}
+}
+
+
+@article{GA01,
+  author        = "J. Giesl and T. Arts",
+  title         = "Verification of {E}rlang Processes by Dependency
+                   Pairs",
+  journal       = "Appl.\ {A}lgebra in {E}ngineering,
+                   {C}ommunication and {C}omputing",
+  volume        = "12",
+  number        = "1,2",
+  pages         = "39--72",
+  year          = "2001"
+}
+
+@article{GAO02,
+  author        = "J. Giesl and T. Arts and E. Ohlebusch",
+  title         = "Modular Termination Proofs for Rewriting Using
+                   Dependency Pairs",
+  journal       = "Journal of Symbolic Computation",
+  volume        = "34",
+  number        = "1",
+  pages         = "21--58",
+  year          = "2002"
+}
+
+
+
+@inproceedings{GZ03,
+  author        = "J. Giesl and H. Zantema",
+  title         = "Liveness in Rewriting",
+  booktitle     = "Proc.\ RTA'03",
+  OPTpublisher = {Springer},
+  series        = "LNCS 2706",
+  pages         = "321--336",
+  editor        = "R. Nieuwenhuis",
+  address       = "Valencia, Spain",
+  year          = 2003
+}
+
+
+
+@inproceedings{LPAR,
+  author        = "J. Giesl\noopsort{1} and R. Thiemann and P. Schneider-Kamp and S. Falke",
+  title         = "Improving Dependency Pairs",
+  booktitle     = "Proc.\ LPAR'03",
+  OPTpublisher = {Springer},
+  series        = "LNAI 2850",
+  pages         = "165--179",
+  OPTeditor        = "Vardi and Voronkov",
+  OPTaddress       = "Almaty, Kazakhstan",
+  year          = 2003
+}
+
+
+@techreport{JAR03Report,
+  author        = "J. Giesl and R. Thiemann and P. Schneider-Kamp and S. Falke",
+  title         = "Mechanizing Dependency Pairs",
+  year          = 2003,
+  number        = "AIB-2003-08\addtocounter{footnote}{-1}\footnotemark\footnotetext{Available from
+                  \url{http://aib.informatik.rwth-aachen.de}}",
+  institution   = "RWTH Aachen",
+  address       = "Germany"
+}
+
+
+@inproceedings{RTA04,
+  author        = "J. Giesl\noopsort{2} and R. Thiemann and P. Schneider-Kamp and S. Falke",
+  title         = {Automated Termination Proofs With \aprove{}},
+  booktitle     = "Proc.\ RTA'04",
+  series        = "LNCS 3091",
+  pages         = "210--220",
+  OPTeditor        = "v. Oostrom",
+  OPTaddress       = "Aachen",
+  year          = 2004
+}
+
+
+@inproceedings{LPAR04,
+  author        = "J.~Giesl\noopsort{1} and R.~Thiemann and P.~{Schneider-Kamp}",
+  title         = "The Dependency Pair Framework: Combining
+                   Techniques for Automated Termination Proofs",
+  booktitle     = "Proc.\ LPAR'04",
+  series        = "LNAI 3452",
+  pages         = "301--331",
+  year          = "2005"
+  }
+
+
+
+@article{JAR06,
+  author        = "J. Giesl\noopsort{Z} and R. Thiemann and P. Schneider-Kamp and S. Falke",
+  title         = "Mechanizing and Improving Dependency Pairs",
+  journal       = "Journal of Automated Reasoning",
+  year          = 2006,
+  volume        = 37,
+  number        = 3,
+  pages         = "155--203"
+}
+
+
+@article{G95,
+  author        = "B.\ Gramlich",
+  title         = "Abstract Relations between Restricted Termination and
+                   Confluence Properties of Rewrite Systems",
+  journal       = "Fundamenta {I}nformaticae",
+  year          = 1995,
+  volume        = 24,
+  pages         = "3--23"
+}
+
+
+@inproceedings{TTT-RTA,
+  author        = "N. Hirokawa and A. Middeldorp",
+  title         = "Tsukuba Termination Tool",
+  booktitle     = "Proc.\ RTA'03",
+  series        = "LNCS 2706",
+  editor        = "R. Nieuwenhuis",
+  address       = "Valencia, Spain",
+  year          = 2003,
+  pages         = "311--320"
+}
+
+@article{HM05,
+  author    = {N. Hirokawa and A. Middeldorp},
+  title     = {Automating the Dependency Pair Method},
+  journal   = ic,
+  volume    = {199},
+  number    = {1-2},
+  year      = {2005},
+  pages     = {172--199},
+  ee        = {https://doi.org/10.1016/j.ic.2004.10.004},
+  bibsource = {DBLP,http://dblp.uni-trier.de}
+}
+
+@article{M02,
+  author    = {Aart Middeldorp},
+  title     = {Approximations for Strategies and Termination},
+  journal   = entcs,
+  volume    = {70},
+  number    = {6},
+  year      = {2002},
+  ee        =
+  {http://www.elsevier.com/gej-ng/31/29/23/125/47/show/Products/notes/index.htt\#002},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@article{haskell98,
+  author = {S. {Peyton Jones} and others},
+  title = {The {Haskell} 98 Language and Libraries: The Revised Report},
+  journal = {Journal of Functional Programming},
+  volume = 13,
+  number = 1,
+  pages = {0--255},
+  month = {Jan},
+  year = 2003,
+  optnote = {\url{http://www.haskell.org/definition/}}
+}
+
+
+@inproceedings{DPRevisited,
+  author        = "N. Hirokawa and A. Middeldorp",
+  title         = "Dependency Pairs Revisited",
+  booktitle     = "Proc.\  RTA'04",
+  series        = "LNCS 3091",
+  OPTeditor        = "V. van Oostrom",
+  OPTaddress       = "Aachen, Germany",
+  year          = 2004,
+  pages         = "249--268"
+}
+
+@inproceedings{NegativePolynomials,
+  author        = "N.~Hirokawa and A.~Middeldorp",
+  title         = "Polynomial Interpretations with Negative Coefficients",
+  booktitle     = "Proc.\  AISC'04",
+  series        = "LNAI 3249",
+  year          = "2004",
+  pages         = "185--198"
+}
+
+
+
+@inproceedings{TTT-RTA05,
+  author        = "N. Hirokawa and A. Middeldorp",
+  title         = "Tyrolean {T}ermination {T}ool",
+  booktitle     = "Proc.\ RTA'05",
+  series        = "LNCS 3467",
+    year          = 2005,
+  note         = "To appear."
+}
+
+
+
+
+
+@Article{HM07,
+  author = 	 {N.~Hirokawa and A.~Middeldorp.},
+  title = 	 {\textsf{Tyrolean Termination Tool}: Techniques and features},
+  journal = 	 {Information and Computation},
+  year = 	 {2007},
+  OPTkey = 	 {},
+  volume = 	 {205},
+  number = 	 {4},
+  pages = 	 {474--511},
+  OPTmonth = 	 {},
+  OPTnote = 	 {},
+  OPTannote = 	 {}
+}
+
+@unpublished{KL80,
+  author        = "S. Kamin and J.~J. L{\'{e}}vy",
+  title         = "Two Generalizations of the Recursive Path Ordering",
+  note          = "Unpublished Manuscript, University of Illinois, IL,
+                   USA",
+  year          = "1980"
+}
+
+@article{deVries,
+   author    = {R. Kennaway and J.~W.~Klop and R.~Sleep and F.-J.~{de Vries}},
+   title     = {Comparing Curried and Uncurried Rewriting},
+   journal   = {Journal of Symbolic Computation},
+   year      = {1996},
+   volume    = {21},
+   number    = {1},
+   pages     = {15-39}
+}
+
+@incollection{KB70,
+  author        = "D. Knuth and P. Bendix",
+  title         = "Simple Word Problems in Universal Algebras",
+  booktitle     = "Computational Problems in Abstract Algebra",
+  OPTpublisher     = "Pergamon",
+  OPTyear          = "1970",
+  editor        = "J.~Leech",
+  pages         = "263-297, 1970"
+}
+
+@inproceedings{KNT99,
+  author        = "K. Kusakari and M. Nakamura and Y. Toyama",
+  title         = "Argument Filtering Transformation",
+  booktitle     = "Proc.\ PPDP'99",
+  OPTeditor        = "G. Nadathur",
+  OPTaddress       = "Paris",
+  series       = "LNCS 1702",
+  year          = "1999",
+  pages         = "48--62"
+}
+
+@Article{Kusakari,
+  author =   {K.~Kusakari\noopsort{1}},
+  title =    {On Proving Termination of Term Rewriting Systems with Higher-Order Variables},
+  journal =      { IPSJ Transactions on Programming},
+  volume = {42},
+  number = {SIG 7 (PRO 11)},
+  year =     {2001},
+  pages =         {35--45}
+}
+
+
+@inproceedings{JR99,
+  author        = "J.-P.~Jouannaud and A.~Rubio",
+  title         = "Higher-Order Recursive Path Orderings",
+  booktitle     = "Proc.\ LICS'99",
+  year          = "1999",
+  pages         = "402-411",
+  OPTpublisher     = "IEEE"
+}
+
+@techreport{L79,
+  author        = "D. Lankford",
+  title         = "On Proving Term Rewriting Systems are {N}oetherian",
+  institution   = "Louisiana Technical University",
+  year          = "1979",
+  number        = "MTP-3",
+  address       = "Ruston, LA, USA"
+}
+
+@article{GM04,
+  author = {J.~Giesl and A.~Middeldorp},
+  title = {Transformation Techniques for Context-Sensitive Rewrite Systems},
+  journal = {Journal of Functional Programming},
+  volume = 14,
+  number = 4,
+  year = 2004,
+  pages = "379-427"
+}
+
+
+@InProceedings{Lifantsev,
+  author =   {M.~Lifantsev and L.~Bachmair},
+  title =    {An {LPO}-based Termination Ordering for Higher-Order Terms without $\lambda$-abstraction},
+  booktitle =    {Proc.\ TPHOLs'98},
+  OPTpages =    {277-293},
+  year =     {1998},
+  series =   {LNCS 1479}
+}
+
+@unpublished{AartGramlich,
+  author      = "Aart Middeldorp",
+  title       = "A Simple Proof to a Result of {B}ernhard {G}ramlich",
+  note        = "Presented at\linebreak the 5th Japanese Term Rewriting Meeting,
+                 Tsukuba, 1994. Available from \url{http://informatik.uibk.ac.at/users/ami/research/papers/bg.pdf}",
+  OPTyear        = 1994
+}
+
+@Book{OhlebuschBook,
+  author =   {E. Ohlebusch},
+  title =    {Advanced Topics in Term Rewriting},
+  publisher =    {Springer},
+  year =     {2002}
+}
+
+
+
+@article{Ohlebusch01,
+   author    = {E.~Ohlebusch},
+   title     = {Termination of Logic Programs: Transformational Methods Revisited},
+   journal   = {Applicable Algebra in Engineering, Communication and Computing},
+   year      = {2001},
+   volume    = {12},
+   number    = {1-2},
+   pages     = {73-116}
+}
+
+
+
+@article{Reynolds,
+   author    = {J.~C.~Reynolds},
+   title     = {Definitional Interpreters for Higher-Order Programming Languages},
+   journal   = {Higher-Order and Symbolic Computing},
+   year      = {1998},
+   volume    = {11},
+   number    = 4,
+   pages     = {363-397},
+   note      = {Reprinted from the Proceedings of the 25th ACM National Conference, 1972.}
+}
+
+@inproceedings{RubioLPAR01,
+  author        = "C.~Borralleras and A.~Rubio",
+  title         = "A Monotonic Higher-Order Semantic Path Ordering",
+  booktitle     = "Proc.\  LPAR'01",
+  series        = "LNAI 2250",
+  year          = "2001",
+  pages         = "531-547"
+}
+
+
+@article{Sakai,
+   author    = {M.~Sakai and Y.~Watanabe and T.~Sakabe},
+   title     = {An Extension of Dependency Pair Method for Proving Termination of Higher-Order Rewrite Systems},
+   journal   = {IEICE Trans. on Information and Systems},
+   volume    = {E84-D},
+   number    = {8},
+   pages = {1025-1032},
+   year      = {2001}
+}
+
+@article{KusakariSakai,
+   author    = {M.~Sakai\noopsort{b} and K.~Kusakari},
+   title     = {On Dependency Pair Method for Proving Termination of Higher-Order Rewrite Systems},
+   journal   = {IEICE Trans. on Inf.\ \& Sys.},
+   year      = {2005},
+     note      = {To appear.}
+}
+
+@inproceedings{stei95a,
+   author    = "J. Steinbach",
+   title     = "Automatic Termination Proofs with Transformation Orderings",
+  booktitle     = "Proc.\ RTA'95",
+  series        = "LNCS 914",
+  year          = 1995,
+  pages         = "11-25",
+  editor        = "J. Hsiang",
+  address       = "Kaiserslautern, Germany",
+  note          = "Full version in Technical Report SR-92-23,
+                   Universit{\"a}t Kaiserslautern."
+}
+
+@article{stei95b,
+   author    = {J. Steinbach},
+   title     = {Simplification Orderings: History of Results},
+   journal   = {Fund.\ I.},
+   year      = {1995},
+   volume    = {24},
+   pages     = {47-87}
+}
+
+@Misc{TPDB,
+  OPTkey =   {},
+  OPTauthor =    {},
+  author =   {{Termination Problem Data Base (TPDB)}},
+  OPThowpublished = {},
+  OPTmonth =     {},
+  OPTyear =      {},
+  note =     {Available from \url{http://www.lri.fr/~marche/wst2004-competition/tpdb.html}},
+  OPTannote =    {}
+}
+
+
+@inproceedings{TG03,
+  author        = "R. Thiemann and J. Giesl",
+  title         = "Size-Change Termination for Term Rewriting",
+  booktitle     = "Proc.\ RTA'03",
+  series        = "LNCS 2706",
+  year          = 2003,
+  editor        = "R. Nieu\-wenhuis",
+  address       = "Valencia, Spain",
+  pages         = "264-278"
+}
+
+
+@inproceedings{IJCAR04,
+  author        = "R. Thiemann and J. Giesl and P. Schneider-Kamp",
+  title         = "Improved Modular Termination Proofs Using Dependency Pairs",
+  booktitle     = "Proc.\ IJCAR'04",
+  series        = "LNAI 3097",
+  year          = 2004,
+  OPTeditor        = "D. Basin and M. Rusinowitch",
+  OPTaddress       = "Cork, Ireland",
+  pages         = "75--90"
+}
+
+
+
+
+@article{T87,
+  author        = "Y. Toyama",
+  title         = "Counterexamples to the Termination for the Direct Sum of Term Rewriting
+                   Systems",
+  journal       = "Information Processing Letters",
+  year          = 1987,
+  volume        = 25,
+  pages         = "141-143"
+}
+
+@inproceedings{ToyamaRTA04,
+   author    = "Y.~Toyama",
+   title     = "Termination of {S}-Expression Rewriting Systems: Lexicographic Path Ordering for Higher-Order Terms",
+  booktitle     = "Proc.\ RTA'04",
+  series        = "LNCS 3091",
+  year          = "2004",
+  pages         = "40-54"
+}
+
+@article{GKM83,
+  author = "J.~Guttag and D.~Kapur and D.~Musser",
+  title  = "On proving uniform termination and restricted termination
+            of rewriting systems",
+  journal = "SIAM J.~Computation",
+  volume  = 12,
+  pages = "189--214",
+  year = 1983
+}
+
+
+@inproceedings{Pay06,
+  author  = {\'E.\ Payet},
+  title   = {Detecting Non-Termination of Term Rewriting 
+             Systems Using an Unfolding Operator},
+  booktitle = {Proc.\ LOPSTR'06}, 
+  OPTaddress = {Venice, Italy}, 
+  series = {LNCS 4407},
+  pages  = {194--209},
+  year   = 2006
+}      
+
+@article{Pay08,
+ author  = {{\'E}tienne Payet},
+ title   = {Loop detection in term rewriting using the eliminating unfoldings},
+ journal = tcs,
+ volume  = {403},
+ number  = {2-3},
+ year    = {2008},
+ pages   = {307-327},
+}
+
+
+
+@InProceedings{MZ07,
+  author = 	 {C.~March{\'e} and H.~Zantema},
+  title = 	 {The Termination Competition},
+  booktitle = 	 {Proc.\ RTA'07},
+  pages = 	 {303--313},
+  year = 	 {2007},
+  series = 	 {LNCS 4533}
+  }
+
+@article{Zhang,
+  author = {X.~Zhang},
+  title = {Overlap Closures do not Suffice for Termination of General Term Rewriting Systems},
+  journal = "Information Processing Letters",
+  year = 1991,
+  volume = "37",
+  number = 1,
+  pages = {9--11}
+}
+
+
+@unpublished{LM78,
+  author        = "D.~Lankford and D.~Musser",
+  title         = "A finite termination criterion",
+  note   = "Unpublished Draft. USC Information Sciences Institute",
+  year          = "1978",
+  address       = "Marina Del Rey, CA, USA"
+}
+
+
+
+@inproceedings{Urbain01,
+   author    = {X. Urbain},
+   title     = {Automated incremental termination proofs for
+hierarchically defined term rewriting systems},
+   booktitle = {Proc.\ IJCAR'01},
+   year      = {2001},
+   OPTaddress   = {Siena, Italy},
+   OPTeditor    = {R. Gor\'{e} and A. Leitsch and T. Nipkow},
+   pages     = {485--498},
+   series    = {LNAI 2083},
+   note      = {Full version to appear in the \emph{Journal of Automated Reasoning}.}
+}
+
+
+
+
+@Article{Z95,
+  author =   {H. Zantema},
+  title =    {Termination of Term Rewriting by Semantic Labelling},
+  journal =      {Fundamenta Informaticae},
+  year =     {1995},
+  volume =   {24},
+  pages =    {89--105}
+}
+
+@inproceedings{TORPA,
+  author        = "H. Zantema",
+  title         = "{\sf TORPA}: Termination of Rewriting Proved Automatically",
+   booktitle = {Proc.\ RTA'04},
+   year      = {2004},
+   address   = {Aachen},
+   series    = {LNCS},
+   note      = {Full version in TU/e CS-Report 03-14, TU Eindhoven}
+}
+
+@article{TORPA_JAR,
+author      = "H.~Zantema",
+title       = "Termination of String Rewriting Proved Automatically",
+journal     = jar,
+volume = 34,
+year        = "2005",
+pages={105--139}
+}
+
+@inproceedings{MATCHBOX,
+  author        = "J.\ Waldmann",
+  title         = "{\sf Matchbox}: A Tool for Match-Bounded String Rewriting",
+   booktitle = {Proc.\ RTA'04},
+   year      = {2004},
+   OPTaddress   = {Aachen},
+   series    = {LNCS 3091},
+   pages = {85--94}
+}
+
+@inproceedings{OS98,
+  author        = "A. Oliart and W. Snyder",
+  title         = "A Fast Algorithm for Uniform Semi-Unification",
+  booktitle     = "Proc.\ CADE'98",
+  series        = "LNCS 1421",
+  year          = "1998",
+  OPTeditor        = "C. Kirchner and H. Kirchner",
+  OPTaddress       = "Lindau, Germany",
+  pages         = "239-253"
+}
+
+@article{GZ99,
+  author        = "A. Geser and H. Zantema",
+  title         = "Non-Looping String Rewriting",
+  journal    = "RAIRO Theoretical Informatics and Applications",
+  volume        = {33},
+  year          = {1999},
+  number        = {3},
+  pages         = "279-302"
+}
+
+
+
+@inproceedings{Plaisted,
+  author        = "D. A. Plaisted",
+  title         = "A simple
+non-termination test for the {K}nuth-{B}endix
+method",
+  booktitle     = "Proc.\ CADE'86",
+  series        = "LNCS 230",
+  year          = "1986",
+  pages         = "79-88"
+}
+
+@article{SemiUnif,
+  author        = "D. Kapur and D. Musser and P. Narendran and J. Stillman",
+  title         = "Semi-Unification",
+  journal    = "Theoretical Computer Science",
+  volume        = {81},
+  year          = {1991},
+  number        = {2},
+  pages         = "169--187"
+}
+
+
+
+@InCollection{Haaskell98,
+  author =   {{\noopsort{Haskell}{\sf Haskell} Standard Prelude}},
+  OPTtitle =     {},
+  booktitle =    {{\sf Haskell98}  Languages and Libraries: The revised report},
+  OPTcrossref =  {},
+  OPTkey =   {},
+  OPTpages =     {},
+  publisher = {Cambridge University Press},
+  year =     {2003},
+  editor =   {S.~{Peyton Jones}},
+  OPTvolume =    {},
+  OPTnumber =    {},
+  OPTseries =    {},
+  OPTtype =      {},
+  OPTchapter =   {},
+  OPTaddress =   {},
+  OPTedition =   {},
+  OPTmonth =     {},
+  OPTnote =      {},
+  OPTannote =    {}
+}
+
+
+
+@Book{Bird,
+  author =   {R.~Bird},
+  title =    {Introduction to Functional Programming using {\sf Haskell}},
+  publisher =    {Prentice Hall},
+  year =     {1998},
+  OPTkey =   {},
+  OPTeditor =    {},
+  OPTvolume =    {},
+  OPTnumber =    {},
+  OPTseries =    {},
+  OPTaddress =   {},
+  OPTedition =   {},
+  OPTmonth =     {},
+  OPTnote =      {},
+  OPTannote =    {}
+}
+
+@phdthesis{PhD,
+  author      = "R.\ Thiemann",
+  title       = "The DP Framework for Proving Termination of Term Rewriting",
+  school = "RWTH Aachen University",
+  year        = "2007",
+  note        = "Available as Technical Report AIB-2007-17, 
+  \href{http://aib.informatik.rwth-aachen.de/2007/2007-17.pdf}{\texttt{http://aib.informatik.}}
+  \href{http://aib.informatik.rwth-aachen.de/2007/2007-17.pdf}{\texttt{rwth-aachen.de/2007/2007-17.pdf}}"
+}
+  
+
+@inproceedings{aprove,
+  author        = "J.~Giesl\noopsort{4} and  P.~{Schneider-Kamp} and R.~Thiemann",
+  title         = "\textsf{AProVE 1.2}: Automatic termina\-tion proofs 
+                   in the {DP} framework",
+  series = "LNAI 4130",
+  pages = {281--286},
+  booktitle = {Proc.\ IJCAR'06},
+  year = 	 {2006}
+}
+
+
+
+@Book{ACL2,
+  author = 	 {M.\ Kaufmann and P.\ Manolios and J~S.~Moore},
+  title = 	 {Computer-Aided Reasoning: An Approach},
+  publisher = 	 {Kluwer},
+  year = 	 {2000},
+}
+
+@article{Kruskal,
+  author = {J.~B.~Kruskal},
+  title  = {Well-quasi-orderings, the {T}ree {T}heorem, and {V}azsonyi's conjecture},
+  year   = 1960,
+  pages  = {210--223},
+  volume = 95,
+  journal = {Transactions of the American Mathematical Society}
+}
+
+@inproceedings{RTA06,
+  author        = "J.~Giesl\noopsort{4} and S.~Swiderski and P.~{Schneider-Kamp} and R.~Thiemann",
+  title         = "Automated Termination Analysis for \textsf{Haskell}: From Term Rewriting to Programming Languages",
+  series = "LNCS 4098",
+  pages = {297--312},
+  booktitle = {Proc.\ RTA'06},
+  year = 	 {2006}
+}
+
+@inproceedings{LOPSTR06,
+  author        = "P.~{Schneider-Kamp} and J.~Giesl\noopsort{4} and A.~Serebrenik and R.~Thiemann",
+  title         = "Automated Termination Analysis for Logic Programs by Term Rewriting",
+  series = "LNCS 4407",
+  pages = {177--193},
+  booktitle = {Proc. LOPSTR'06},
+  year = 	 {2007}
+}
+
+@inproceedings{LOPSTR07,
+  author        = "M.~T.~Nguyen and J.~Giesl and P.~{Schneider-Kamp} and D.~{De Schreye}",
+  title         = "Termination Analysis of Logic Programs based on Dependency Graphs",
+  series = "LNCS 4915",
+  pages = {8--22},
+  booktitle = {Proc. LOPSTR'07},
+  year = 	 {2008}
+}
+
+@inproceedings{LPAR09,
+  author      = "Harald Zankl and Aart Middeldorp",
+  title       = "Satisfiability of Non-Linear (Ir)rational Arithmetic",
+  booktitle   = "Logic for Programming and Automated Reasoning",
+  volume      = 6355,
+  pages       = "481--500",
+  year        = 2010
+}
+
+@inproceedings{SCSS10,
+  author = "H. Zankl and  R. Thiemann and A. Middeldorp",
+  title  = "Satisfiability of Non-Linear Arithmetic over Algebraic Numbers",
+  booktitle = "Symbolic Computation in Software Science",
+  pages = "19-24",
+  year = 2010,
+  series = "RISC-Linz Technical Report",
+  volume = "10-10",
+  optpublisher = "University of Linz"
+}
+
+@inproceedings{Loc13,
+  author    = {Andreas Lochbihler},
+  title     = {Light-Weight Containers for {I}sabelle: Efficient, Extensible,
+               Nestable},
+  booktitle = itp4,
+  year      = {2013},
+  pages     = {116-132},
+  series    = lncs,
+  volume    = 7998,
+}
+
+@inproceedings{codegen,
+  author={F. Haftmann and T. Nipkow},
+  title={Code Generation via Higher-Order Rewrite Systems},
+  booktitle=conf:flops # "2010",
+  opteditor={Matthias Blume and Naoki Kobayashi and Germ{\'a}n Vidal},
+  year=2010,
+  volume=6009,
+  pages={103-117},
+  optpublisher=pub:spr,
+  series=lncs,
+  optnote={\doi{10.1007/978-3-642-12251-4_9}}
+}
+
+
+@inproceedings{datarefinement,
+	Author = {Florian Haftmann and Alexander Krauss and Ond\v{r}ej Kun\v{c}ar and Tobias Nipkow},
+	Booktitle = {Interactive Theorem Proving},
+	optEditor = {Sandrine Blazy and Christine Paulin-Mohring and David Pichardie},
+	Isbn = {978-3-642-39633-5},
+	Pages = {100--115},
+	Series = lncs,
+	Title = {Data Refinement in {Isabelle/HOL}},
+	Volume = {7998},
+	Year = {2013}}
+
+
+@inproceedings{lifting,
+  author    = {B. Huffman and
+               O. Kuncar},
+  title     = {Lifting and Transfer: A Modular Design for Quotients in
+               {I}sabelle/{HOL}},
+  booktitle = conf:cpp # "'13",
+  year      = {2013},
+  pages     = {131-146},
+  series    = lncs,
+  volume    = {8307},
+  ee        = {https://doi.org/10.1007/978-3-319-03545-1_9},
+}
+
+@inproceedings{BoundedIncrease,
+  author      = "Ren{\'e} Thiemann",
+  title       = "Formalizing Bounded Increase",
+  booktitle   = "Proceedings of the 4th International Conference on
+                 Interactive Theorem Proving",
+  series      = lncs,
+  volume      = 7998,
+  pages       = "245--260",
+  publisher   = "Springer-Verlag",
+  year        = 2013,
+  doi         = "10.1007/978-3-642-39634-2_19"
+}
+
+\end{thebibliography}

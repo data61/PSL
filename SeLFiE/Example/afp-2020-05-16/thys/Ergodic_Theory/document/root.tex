@@ -1,0 +1,55 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\begin{document}
+
+\title{Ergodic theory in Isabelle}
+\author{Sebastien Gouezel}
+\date{}
+\maketitle
+
+\begin{abstract}
+Ergodic theory is the branch of mathematics that studies the behaviour of
+measure preserving transformations, in finite or infinite measure. It
+interacts both with probability theory (mainly through measure theory) and
+with geometry as a lot of interesting examples are from geometric origin.
+We implement the first definitions and theorems of ergodic theory,
+including notably Poincar\'e recurrence theorem for finite measure
+preserving systems (together with the notion of conservativity in general),
+induced maps, Kac's theorem, Birkhoff theorem (arguably the most important
+theorem in ergodic theory), and variations around it such as conservativity
+of the corresponding skew product, or Atkinson lemma, and Kingman theorem.
+Using this material, we formalize completely the proof of the main theorems
+of~\cite{gouezel_karlsson} and~\cite{gouezel_normalizing_sequences}.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{amsalpha}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

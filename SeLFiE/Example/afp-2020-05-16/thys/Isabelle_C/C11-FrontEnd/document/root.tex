@@ -1,0 +1,139 @@
+%% Copyright (c) 2019 University of Exeter
+%%               2018-2019 University of Paris-Saclay
+%%               2018-2019 The University of Sheffield
+%%
+%% License:
+%%   This program can be redistributed and/or modified under the terms
+%%   of the LaTeX Project Public License Distributed from CTAN
+%%   archives in directory macros/latex/base/lppl.txt; either
+%%   version 1.3c of the License, or (at your option) any later version.
+%%   OR
+%%   The 2-clause BSD-style license.
+%%
+%%   SPDX-License-Identifier: LPPL-1.3c+ OR BSD-2-Clause
+
+%%   2019/09/21 Unreleased/Isabelle2019
+
+%% Warning: Do Not Edit!
+%% =====================
+%% This is the root file for the Isabelle/DOF using the scrreprt class.
+%%
+%% All customization and/or additional packages should be added to the file
+%% preamble.tex.
+
+\RequirePackage{ifvtex}
+\documentclass[fontsize=11pt,paper=a4,open=right,twoside,abstract=true]{scrreprt}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\bibliographystyle{abbrvnat}
+\usepackage[english]{babel}
+\RequirePackage[caption]{subfig}
+\usepackage{isabelle}
+\usepackage{isabellesym}
+\usepackage{ifthen}
+\usepackage{railsetup}
+
+\input{ontologies}
+\input{preamble.tex}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\setcounter{tocdepth}{2} 
+\hypersetup{%
+   bookmarksdepth=3
+  ,pdfpagelabels
+  ,pageanchor=true
+  ,bookmarksnumbered
+  ,plainpages=false
+} % more detailed digital TOC (aka bookmarks)
+\sloppy
+\allowdisplaybreaks[4]
+\urlstyle{rm}
+\isabellestyle{it}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Overrides the (rightfully issued) warning by Koma Script that \rm
+%%% etc. should not be used (they are deprecated since more than a
+%%% decade)
+  \DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+  \DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+  \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+  \DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+  \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{frontmatter}{}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% command
+
+\newenvironment{matharray}[1]{\[\begin{array}{#1}}{\end{array}\]} % from 'iman.sty'
+\newcommand{\indexdef}[3]%
+{\ifthenelse{\equal{}{#1}}{\index{#3 (#2)|bold}}{\index{#3 (#1\ #2)|bold}}} % from 'isar.sty'
+\newcommand{\isactrlurl}{$\oplus$}
+\newcommand{\isactrlC}{{\isacommand C}}
+
+%
+
+\renewcommand{\chapterautorefname}{Chapter}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Section}
+\renewcommand{\subsubsectionautorefname}{Section}
+\newcommand{\subtableautorefname}{\tableautorefname}
+\newcommand{\subfigureautorefname}{\figureautorefname}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\title{Isabelle/C}
+\begin{frontmatter}
+\vspace{-2cm}
+\publishers{%
+  \mbox{LRI, CNRS, CentraleSup\'elec, Universit\'e Paris-Saclay} \\
+  b\^at. 650 Ada Lovelace, 91405 Orsay, France \texorpdfstring{\\}{}
+    \href{mailto:"Frederic Tuong"
+    <frederic.tuong@lri.fr>}{frederic.tuong@lri.fr} \hspace{4.5em}
+    \href{mailto:"Burkhart Wolff"
+    <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr}
+\vspace{3cm}
+\begin{center}
+\textbf{In case that you consider citing Isabelle/C, \\ please refer to \cite{Tuong-IsabelleC:2019}.}
+\end{center}
+}
+\maketitle
+
+\tableofcontents
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{A Conceptual Description of the Isabelle/C Package}
+\input{paper.tex}
+
+\input{C_Ast.tex}
+\input{C_Lexer_Language.tex}
+\input{C_Environment.tex}
+\input{C_Parser_Language.tex}
+\input{C_Lexer_Annotation.tex}
+\input{C_Parser_Annotation.tex}
+\input{C_Eval.tex}
+\input{C_Command.tex}
+\input{C_Document.tex}
+\input{C_Main.tex}
+
+% \input{C0.tex} % not included by default
+\input{C1.tex}
+\input{C2.tex}
+\input{C_paper.tex}
+
+\input{C_Appendices.tex}
+
+\bibliography{root}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

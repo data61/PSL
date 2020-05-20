@@ -1,0 +1,15 @@
+chapter AFP
+
+session LTL_Normal_Form (AFP) = "LTL" +
+  options [timeout = 600]
+  sessions
+    LTL_Master_Theorem
+  theories
+    "Normal_Form"
+    "Normal_Form_Complexity"
+    "Normal_Form_Code_Export"
+  document_files
+    "root.tex"
+    "root.bib"
+  export_files (in ".") [1]
+    "LTL_Normal_Form.Normal_Form_Code_Export:**"

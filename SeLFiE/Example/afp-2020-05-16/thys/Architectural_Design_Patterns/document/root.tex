@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[nointegrals]{wasysym}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fullpage}
+\usepackage{standalone}
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning}
+
+%\usepackage{xr}
+%\externaldocument{C:/Users/Diego/dmarmsoler/Artikel/PatternHierarchy/trunk/main}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\newcommand{\repeatisanl}[1]
+{\ifnum#1=0\else\isanewline\repeatisanl{\numexpr#1-1}\fi}
+\newcommand{\snip}[4]{\repeatisanl#2#4\repeatisanl#3}
+\begin{document}
+
+\title{A Theory of Architectural Design Patterns}
+\author{Diego Marmsoler}
+\maketitle
+
+\begin{abstract}
+	The following document formalizes and verifies several architectural design patterns~\cite{Buschmann1996}.
+	Each pattern specification is formalized in terms of a locale where the locale assumptions correspond to the assumptions which a pattern poses on an architecture.
+	Thus, pattern specifications may build on top of each other by interpreting the corresponding locale.
+	A pattern is verified using the framework provided by the AFP entry \textit{Dynamic Architectures}~\cite{Marmsoler2017d}.
+	
+	Currently, the document consists of formalizations of $4$ different patterns:
+	the singleton, the publisher subscriber, the blackboard pattern, and the blockchain pattern.
+	Thereby, the publisher component of the publisher subscriber pattern is modeled as an instance of the singleton pattern and the blackboard pattern is modeled as an instance of the publisher subscriber pattern.
+	
+	In general, this entry provides the first steps towards an overall theory of architectural design patterns~\cite{Marmsoler2014}.
+\end{abstract}
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

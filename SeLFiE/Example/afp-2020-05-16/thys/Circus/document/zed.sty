@@ -1,0 +1,558 @@
+% -- zed.sty version 2 -------------------------------------------------
+
+% usual common sense conditions apply - see for example the LaTeX
+% public license - try to avoid editing this file; if you do edit it,
+% change the filename; comments, complaints, and suggestions to
+%
+%   Jim.Davies@comlab.ox.ac.uk 
+%
+% but all gratitude and appreciation to Mike Spivey.  
+
+% This might be seen as a prototype; the functionality is there, but
+% the implementation and documentation leave something to be
+% desired---if anyone who _really_ knows what they are doing
+% w.r.t. 2e internals wants to suggest revisions, then please do.
+
+% The times option uses composite arrows (I mean, _really_ composite)
+% and doesn't give the upharpoon symbol for filter and project - you
+% get an \uparrow instead.  If you want the AMS versions of the
+% symbols, then you'll need to define them yourself.  
+
+% Actually, the mathtime fonts leave quite a lot to desired, if you're
+% setting Z documents.  No disrespect intended, but the fontset is
+% clearly aimed at traditional textbook mathematics, not software
+% engineering.  
+
+% changes:
+%
+% 14 July 2001: improved \surj in Lucida; removed \vcenter@enlarge
+% from arrow definitions; \where and other zskips now use hbox's to
+% handle color changes
+
+% -- interface ---------------------------------------------------------
+
+\def\fileversion{2.0} \def\filedate{2001/07/14}
+
+\NeedsTeXFormat{LaTeX2e}
+
+\ProvidesPackage{zed}[{\filedate\space\fileversion\space zed package}]
+
+% --  options ----------------------------------------------------------
+
+\newif\if@cm@ \@cm@false
+\newif\if@lucida@ \@lucida@false
+\newif\if@times@ \@times@false
+\newif\if@color@ \@color@false
+\newif\if@zed@ \@zed@false
+\newif\if@csp@ \@csp@false
+
+\DeclareOption{cm}{\@cm@true\@lucida@false\@times@false}
+\DeclareOption{lucida}{\@cm@false\@lucida@true\@times@false}
+\DeclareOption{times}{\@cm@false\@lucida@false\@times@true}
+\DeclareOption{color}{\@color@true}
+\DeclareOption{zed}{\@zed@true}
+\DeclareOption{csp}{\@csp@true}
+\DeclareOption{nolines}{}
+
+\ExecuteOptions{cm} \ProcessOptions
+
+\newif\if@zedsyntax@ \@zedsyntax@true
+
+\@ifpackageloaded{csp}{%
+  \if@zed@\else\@zedsyntax@false\fi
+  }{%
+  \if@csp@\RequirePackageWithOptions{csp}\fi
+  }
+
+% -- color -------------------------------------------------------------
+
+\if@color@
+  \@ifpackageloaded{color}{\relax}{%
+    \RequirePackage[dvipsnames,usenames]{color}}
+  \definecolor{ZedBoxColor}{cmyk}{1,1,1,1}
+  %\definecolor{ZedBoxColor}{cmyk}{0,0.61,0.87,0}
+  \definecolor{AnnotationColor}{cmyk}{1,1,1,1}
+  \definecolor{ZedColor}{cmyk}{1,1,1,1}
+\else
+  \@ifpackageloaded{color}{\relax}{\def\color#1{\relax}}%
+\fi
+
+% -- fonts -------------------------------------------------------------
+
+\DeclareMathVersion{zed}
+
+\if@lucida@
+  \@ifpackageloaded{lucidabr}{%
+    }{%
+    \RequirePackage{texnansi}
+    \RequirePackage[expert,altbullet]{lucidabr}}
+\fi
+
+\if@times@
+  \@ifpackageloaded{mathtime}{%
+    }{%
+    \RequirePackage{texnansi}
+    \RequirePackage[LY1]{mathtime}}
+  \SetSymbolFont{operators}   {zed}{\operator@encoding}{ptm}{m}{n}
+  \SetSymbolFont{letters}     {zed}{MY1}{mtt}{m}{it}
+  \SetSymbolFont{symbols}     {zed}{MY2}{mtt}{m}{n}
+  \SetSymbolFont{largesymbols}{zed}{MY3}{mtt}{m}{n}
+  \SetMathAlphabet{\mathrm}{zed}{\encodingdefault}{\rmdefault}{m}{n}%
+  \SetMathAlphabet{\mathbf}{zed}{\encodingdefault}{\rmdefault}{bx}{n}%
+  \SetMathAlphabet{\mathsf}{zed}{\encodingdefault}{\sfdefault}{m}{n}%
+  \SetMathAlphabet{\mathtt}{zed}{\encodingdefault}{\ttdefault}{m}{n}
+  \let\mathbb=\mathbf
+  \let\smallfrown\undefined
+  \DeclareMathSymbol\smallfrown{\mathrel}{symbols}{065}
+  \let\vartriangleright\triangleleft
+  \let\vartriangleleft\triangleright
+  \def\sqsubset{\setbox0=\hbox{$\sqsubseteq$}%
+    \ooalign{\vrule width 0.4pt height \ht0 depth 0pt\hfil\cr%
+      \vbox to \ht0{%
+        \hrule width\wd0 height 0.2pt depth 0.2pt
+        \vss
+        \hrule width\wd0 height 0.2pt depth 0.2pt}
+      \hfil\cr}}
+\fi
+
+\if@cm@
+  \DeclareSymbolFontAlphabet{\mathrm}{operators}
+  \DeclareSymbolFontAlphabet{\mathit}{letters}
+  \DeclareSymbolFontAlphabet{\mathcal}{symbols}
+  \SetMathAlphabet{\mathrm}{zed}{\encodingdefault}{\rmdefault}{m}{n}
+  \SetMathAlphabet{\mathbf}{zed}{\encodingdefault}{\rmdefault}{bx}{n}
+  \SetMathAlphabet{\mathsf}{zed}{\encodingdefault}{\sfdefault}{m}{n}
+  \SetMathAlphabet{\mathtt}{zed}{\encodingdefault}{\ttdefault}{m}{n}
+  %%
+  \DeclareSymbolFont{AMSa}{U}{msa}{m}{n}
+  \DeclareSymbolFont{AMSb}{U}{msb}{m}{n}
+  \DeclareSymbolFontAlphabet{\mathbb}{AMSb}
+  \let\twoheadrightarrow\undefined
+  \let\upharpoonright\undefined
+  \let\upharpoonleft\undefined
+  \let\rightarrowtail\undefined
+  \let\sqsubset\undefined
+  \let\smallfrown\undefined
+  \let\vartriangleright\undefined
+  \let\vartriangleleft\undefined
+  \DeclareMathSymbol\twoheadrightarrow{\mathrel}{AMSa}{"10}
+  \DeclareMathSymbol\upharpoonright{\mathrel}{AMSa}{"16}
+  \DeclareMathSymbol\upharpoonleft{\mathrel}{AMSa}{"18}
+  \DeclareMathSymbol\rightarrowtail{\mathrel}{AMSa}{"1A}
+  \DeclareMathSymbol\sqsubset{\mathrel}{AMSa}{"40}
+  \DeclareMathSymbol\smallfrown{\mathrel}{AMSa}{"61}
+  \DeclareMathSymbol\vartriangleright{\mathrel}{AMSa}{"42}
+  \DeclareMathSymbol\vartriangleleft{\mathrel}{AMSa}{"43}
+\fi
+
+\mathversion{zed}
+
+% -- math codes and symbol definitions ---------------------------------
+
+\DeclareSymbolFont{italics}{\encodingdefault}{\rmdefault}{m}{it}
+
+\def\@setmcodes#1#2#3{{\count0=#1 \count1=#3
+    \loop \global\mathcode\count0=\count1 \ifnum \count0<#2
+    \advance\count0 by1 \advance\count1 by1 \repeat}}
+\@setmcodes{`A}{`Z}{"7\hexnumber@\symitalics41}% 
+\@setmcodes{`a}{`z}{"7\hexnumber@\symitalics61}% 
+
+\def~{\ifmmode\,\else\penalty\@M\ \fi}
+
+\let\@mc=\mathchardef \mathcode`\;="8000 {\catcode`\;=\active
+  \gdef;{\semicolon\;}} \@mc\semicolon="603B
+
+\def\_{\leavevmode \ifmmode\else\kern0.06em\fi \vbox{\hrule
+    width0.5em}} 
+
+\mathcode`\"="8000 \def\@kwote#1"{\hbox{\it #1}} {\catcode`\"=\active
+  \global\let"=\@kwote}
+
+\mathchardef\spot="320F
+
+\mathcode`\|=\mid
+
+\def\simple@enlarge#1{\mathchoice{%
+    \hbox{\large$#1$}}{\hbox{\large$#1$}}{\hbox{\small$#1$}%
+    }{\hbox{\small$#1$}}}
+\def\simple@Enlarge#1{\mathchoice{%
+    \hbox{\Large$#1$}}{\hbox{\Large$#1$}}{\hbox{\normalsize$#1$}%
+    }{\hbox{\normalsize$#1$}}}
+\def\vcenter@enlarge#1{\mathchoice{%
+    \vcenter{\hbox{\large$#1$}}}{\vcenter{\hbox{\large$#1$}}%
+    }{\vcenter{\hbox{\small$#1$}}}{\vcenter{\hbox{\small$#1$}}}}
+
+\def\strut@op#1{\mathop{\mathstrut{#1}}\nolimits}
+
+\let\lambda@sym=\lambda
+\let\mu@sym=\mu 
+\let\forall@sym=\forall 
+\let\exists@sym=\exists
+
+\def\uminus@sym{\setbox0=\hbox{$\cup$}\rlap{\hbox 
+    to\wd0{\hss\raise0.3ex\hbox{$\scriptscriptstyle{-}$}\hss}}\box0}
+
+\if@cm@
+  \def\comp@sym{\raise 0.6ex\hbox{\small\oalign{\hfil%
+        $\scriptscriptstyle\mathrm{o}$\hfil%
+        \cr\hfil$\scriptscriptstyle\mathrm{9}$\hfil}}}
+  \def\lbag@sym{{[}\mkern-2mu{[}}
+  \def\rbag@sym{{]}\mkern-2mu{]}}
+  \def\extract@sym{\upharpoonleft}
+  \def\project@sym{\upharpoonright}
+  \let\dres@sym\vartriangleleft
+  \let\rres@sym\vartriangleright
+  \def\ndres@sym{\rlap{\raise.05ex\hbox{$-$}}{\vartriangleleft}}
+  \def\nrres@sym{\rlap{\raise.05ex\hbox{$-$}}{\vartriangleright}}
+  \def\inv@sym{\sim}
+  \def\cat@sym{\smash{\raise 0.8ex\hbox{$\smallfrown$}}}
+  \def\inbag@sym{\rlap{\hbox{$-$}}{\sqsubset}}
+  %
+  \def\@p#1{\mathrel{\ooalign{\hfil$\mapstochar\mkern 5mu$\hfil\cr$#1$}}} 
+  \def\@f#1{\mathrel{\ooalign{\hfil$\mapstochar\mkern 3mu%
+    \mapstochar\mkern 5mu$\hfil\cr$#1$}}}
+  %
+  \let\rel\leftrightarrow
+  \let\fun\rightarrow
+  \let\inj\rightarrowtail
+  \def\surj{\mathrel{\ooalign{$\fun$\hfil\cr$\mkern4mu\fun$}}}
+  \def\bij{\mathrel{\ooalign{$\inj$\hfil\cr$\mkern5mu\fun$}}}
+  \def\pfun{\@p\fun}
+  \def\pinj{\@p\inj}
+  \def\psurj{\@p\surj}
+  \def\pbij{\@p\bij}
+  \def\ffun{\@f\fun}
+  \def\finj{\@f\inj}
+\fi
+
+\if@times@
+  \def\comp@sym{\raise 0.6ex\hbox{\small\oalign{\hfil%
+        $\scriptscriptstyle\mathrm{o}$\hfil%
+        \cr\hfil$\scriptscriptstyle\mathrm{9}$\hfil}}}
+  \def\lbag@sym{{[}\mkern-2mu{[}}
+  \def\rbag@sym{{]}\mkern-2mu{]}}
+  \def\extract@sym{\upharpoonleft}
+  \def\project@sym{\upharpoonright}
+  \def\dres@sym{\simple@Enlarge\vartriangleleft}
+  \def\rres@sym{\simple@Enlarge\vartriangleright}
+  \def\ndres@sym{%
+    \rlap{\raise.08ex\hbox{$-$}}{\simple@Enlarge\vartriangleleft}}
+  \def\nrres@sym{%
+    \rlap{\raise.08ex\hbox{$-$}}{\simple@Enlarge\vartriangleright}}
+  \def\inv@sym{\sim}
+  \def\cat@sym{\mkern-6mu{\smallfrown}\mkern3mu}
+  \def\inbag@sym{\setbox0=\hbox{$\sqsubseteq$}%
+    \ooalign{\vrule width 0.4pt height \ht0 depth 0pt\hfil\cr%
+      \vbox to \ht0{%
+        \hrule width\wd0 height 0.2pt depth 0.2pt
+        \vss
+        \hrule width\wd0 height 0.2pt depth 0.2pt
+        \vss
+        \hrule width\wd0 height 0.2pt depth 0.2pt}
+      \hfil\cr}}
+  %
+  \def\@p#1{\mathrel{\ooalign{$\mkern 16mu\mapstochar$\hfil\cr$#1$}}} 
+  \def\@f#1{\mathrel{\ooalign{$\mkern 15mu\mapstochar\mkern 2mu%
+    \mapstochar$\hfil\cr$#1$}}}
+  %
+  \def\extract@sym{\simple@enlarge{\uparrow}}
+  \def\project@sym{\simple@enlarge{\uparrow}}
+  \def\long@line@sym{$\mkern 6mu$---$\mkern -10.5mu$---}
+  \def\short@line@sym{$\mkern 11mu$---$\mkern -16mu$---}
+  \def\rel{%
+    \mathrel{\ooalign{\long@line@sym\hfil\cr%
+        \raise0.1pt\hbox{${\prec}\mkern 10mu{\succ}$}}}}
+  \def\fun{%
+    \mathrel{\ooalign{\long@line@sym\hfil\cr%
+        \raise0.1pt\hbox{$\mkern 24mu\succ$\hfil}}}}
+  \def\inj{%
+    \mathrel{\ooalign{\short@line@sym\hfil\cr%
+        \raise0.1pt\hbox{${\succ}\mkern 10mu{\succ}$\hfil}}}}
+  \def\surj{%
+    \mathrel{\ooalign{\long@line@sym\hfil\cr%
+        \raise0.1pt\hbox{$\mkern 21mu{\succ}\mkern -10mu{\succ}$\hfil}}}}
+  \def\bij{%
+    \mathrel{\ooalign{\short@line@sym\hfil\cr%
+        \raise0.1pt\hbox{%
+          ${\succ}\mkern 7mu{\succ}\mkern -10mu{\succ}$\hfil}}}}
+  \def\pfun{\@p\fun}
+  \def\pinj{\@p\inj}
+  \def\psurj{\@p\surj}
+  \def\pbij{\@p\bij}
+  \def\ffun{\@f\fun}
+  \def\finj{\@f\inj}
+\fi
+
+\if@lucida@
+  \def\@p#1{\ooalign{\hfil$\mapstochar\mkern 8mu$\hfil\cr$#1$}}
+  \def\@f#1{\ooalign{\hfil$\mapstochar\mkern 2mu%
+    \mapstochar\mkern 6mu$\hfil\cr$#1$}}
+  \DeclareMathSymbol{\pinj@sym}{\mathbin}{arrows}{146}
+  \def\surj@sym{\ooalign{$\rightarrow$\hfil\cr$\mkern 2.4mu\rightarrow$}}
+  \def\bij@sym{\ooalign{$\rightarrowtail$\hfil\cr$\mkern 2.4mu\rightarrow$}}
+  %
+  \def\rel{\mathbin{\simple@enlarge{\leftrightarrow}}}
+  \def\fun{\mathbin{\simple@enlarge{\rightarrow}}}
+  \def\inj{\mathbin{\simple@enlarge{\rightarrowtail}}}
+  \def\surj{\mathbin{\simple@enlarge{\surj@sym}}}
+  \def\bij{\mathbin{\simple@enlarge{\bij@sym}}}
+  \def\pinj{\mathbin{\simple@enlarge{\pinj@sym}}}
+  \def\pfun{\mathbin{\simple@enlarge{\@p\rightarrow}}}
+  \def\psurj{\mathbin{\simple@enlarge{\@p\surj@sym}}}
+  \def\pbij{\mathbin{\simple@enlarge{\@p\bij@sym}}}
+  \def\ffun{\mathbin{\simple@enlarge{\@f\rightarrow}}}
+  \def\finj{\mathbin{\simple@enlarge{\@f\rightarrowtail}}}
+  %
+  \let\mapsto@sym\mapsto
+  \def\mapsto{\mathbin{\simple@enlarge{\mapsto@sym}}}
+  % 
+  \def\comp@sym{\raise 0.6ex\hbox{\oalign{\hfil%
+        $\scriptscriptstyle\mathtt{o}$\hfil%
+        \cr\hfil$\scriptscriptstyle\mathtt{9}$\hfil}}}
+  \def\lbag@sym{\ldbrack}
+  \def\rbag@sym{\rdbrack}
+  \def\extract@sym{\simple@enlarge{\upharpoonleft}}
+  \def\project@sym{\simple@enlarge{\upharpoonright}}
+  \let\dres@sym\vartriangleleft
+  \let\rres@sym\vartriangleright
+  \DeclareMathSymbol{\ndres@sym}{\mathbin}{arrows}{17}
+  \DeclareMathSymbol{\nrres@sym}{\mathbin}{arrows}{18}
+  \def\cat@sym{\smash{\raise 0.8ex\hbox{$\smallfrown$}}}
+  \def\inv@sym{^{\simple@enlarge{\sim}}}
+  \def\inbag@sym{\rlap{\hbox{$-$}}{\sqsubset}}
+\fi
+
+% -- mathematical notation ---------------------------------------------
+
+\def\ELSE{\mathrel{\mathbf{else}}}
+\def\IF{{\mathbf{if}}\;}
+\def\IN{{\mathbf{in}}\;}
+\def\LET{{\mathbf{let}}\;}
+\def\THEN{\mathrel{\mathbf{then}}}
+\def\bag{\mathop{\mathrm{bag}}}
+\def\bcount{\mathbin{\sharp}}
+\def\cat{\mathbin{\cat@sym}}
+\def\comp{\mathrel{\comp@sym}}
+\def\cross{\mathrel{\times}}
+\def\dcat{\mathop{\cat/}}
+\def\defs{\mathrel{\widehat=}}
+\def\disjoint{{\mathsf{disjoint}}\;}
+\def\div{\mathbin{\mathsf{div}}}
+\def\dom{\mathop{\mathrm{dom}}}
+\def\dres{\mathbin{\dres@sym}}
+\def\exists{\strut@op{\exists@sym}}
+\def\extract{\mathrel{\extract@sym}} 
+\def\filter{\mathbin{\project}}
+\def\finset{\strut@op{{\mathbb{F}}}}
+\def\forall{\strut@op{\forall@sym}}
+\def\hide{\mathrel{\backslash}}
+\def\id{\mathop{\mathrm{id}}}
+\def\iff{\mathrel{\Leftrightarrow}}
+\def\zimplies{\mathrel{\Rightarrow}}
+\def\inbag{\mathrel{\inbag@sym}}
+\def\inseq{\mathrel{\mathsf{in}}}
+\def\inv{^{\inv@sym}}
+\def\iseq{\mathop{\mathrm{iseq}}}
+\def\lambda{\strut@op{\lambda@sym}}
+\def\land{\mathrel{\wedge}}
+\def\lbag{\lbag@sym}
+\def\lblot{{\langle}\mkern -3.5mu{|}}
+\let\lbind\lblot
+\def\ldata{\langle\!\langle}
+\def\limg{(\mskip-4.5mu|}
+\def\lnot{\neg\;}
+\def\lor{\mathrel{\vee}}
+\def\zmod{\mathbin{\mathsf{mod}}}
+\def\mu{\strut@op{\mu@sym}}
+\def\nat{{\mathbb{N}}}
+\def\ndres{\mathbin{\ndres@sym}}
+\def\nrres{\mathbin{\nrres@sym}}
+\def\num{{\mathbb{Z}}}
+\def\partition{\mathrel{\mathsf{partition}}}
+\def\pipe{\mathord>\!\!\mathord>}
+\def\plus{^+}
+\def\power{\strut@op{\mathbb{P}}}
+\def\prefix{\mathrel{\mathsf{prefix}}}
+\def\pre{{\mathrm{pre}}\;}
+\def\project{\mathrel{\project@sym}}
+\def\ran{\mathop{\mathrm{ran}}}
+\def\rbag{\rbag@sym}
+\def\rblot{{|}\mkern -3.5mu{\rangle}}
+\let\rbind\rblot
+\def\rdata{\rangle\!\rangle}
+\def\rimg{|\mskip-4.5mu)}
+\def\rres{\mathbin{\rres@sym}}
+\def\semi{\mathrel{\comp}}
+\def\seq{\mathop{\mathrm{seq}}}
+\def\shows{\mathrel{\vdash}}
+\def\star{^*}
+\def\subbageq{\mathrel{\sqsubseteq}}
+\def\suffix{\mathrel{\mathsf{suffix}}}
+\def\uminus{\mathrel{\uminus@sym}}
+\def\upto{\mathbin{\ldotp\ldotp}}
+
+% -- zed syntax --------------------------------------------------------
+
+% any conditional _must_ be declared
+
+\newif\ifzt@p           \zt@pfalse
+
+\if@zedsyntax@
+
+\def\bsup#1 \esup{^{#1}}
+\def\inrel#1{\mathrel{\underline{#1}}}
+
+\newdimen\zedindent \zedindent=\leftmargini%
+\newdimen\zedleftsep \zedleftsep=1em%
+\newdimen\zedtab \zedtab=2em%
+\newdimen\zedbar \zedbar=6em%
+\newskip\zedskip \zedskip=0.5\baselineskip plus0.333333\baselineskip% 
+                                minus0.333333\baselineskip%
+\def\zedsize{}%
+
+\newcount\interzedlinepenalty \interzedlinepenalty=10000%
+\newcount\preboxpenalty \preboxpenalty=0%
+
+\def\@jot{0.5\zedskip}
+
+\def\@narrow{\advance\linewidth by-\zedindent}
+
+\def\@zrulefill{\leaders\hrule height\arrayrulewidth\hfill}
+
+\def\@topline#1{\hbox to\linewidth{%
+    \color{ZedBoxColor}%
+    \vrule height\arrayrulewidth width\arrayrulewidth
+    \vrule height0pt depth\@jot width0pt
+    \hbox to\zedleftsep{\@zrulefill\thinspace}%
+    {\color{ZedColor}#1}\thinspace\@zrulefill}}
+
+\def\@zedline{\omit\hbox to 0pt{\color{ZedBoxColor}\vrule
+    height\arrayrulewidth width\linewidth\hss} \cr}
+
+\def\where{\@zskip\@jot
+  \omit\hbox{\color{ZedBoxColor}\vrule height\arrayrulewidth width\zedbar} \cr
+  \@zskip\@jot}
+
+\def\also{\crcr \noalign{\penalty\interdisplaylinepenalty
+    \vskip\zedskip}} 
+\def\@zskip#1{\crcr \omit \hbox{\color{ZedBoxColor}\vrule height#1
+    width\arrayrulewidth} \cr} 
+\def\@zlign{\tabskip\z@skip\everycr{}} 
+
+\let\tie=\t
+\def\t#1{\afterassignment\@t\count@=#1}
+\def\@t{\hskip\count@\zedtab}
+
+\def\@setzsize{\let\next=\@nomath\def\@nomath##1{}%
+  \skip0=\abovedisplayskip\skip1=\belowdisplayskip
+  \zedsize \let\@nomath=\next 
+  \abovedisplayskip=\skip0\belowdisplayskip=\skip1}
+
+\def\@zed{\ifvmode\@zleavevmode\fi%
+  $$\global\zt@ptrue
+  \@setzsize
+  \advance\linewidth by-\zedindent
+  \advance\displayindent by\zedindent
+  \def\\{\crcr}% Must have \def and not \let for nested alignments.
+  \let\par=\relax
+  \tabskip=0pt}
+
+\def\zed{%
+  \@zed\@znoskip\halign to\linewidth\bgroup%
+  {\strut$\color{ZedColor}\@zlign##$}\hfil\tabskip=0pt
+  plus1fil\cr}%  
+\def\endzed{\crcr\egroup$$\global\@ignoretrue}
+
+\def\@znoskip{%
+  \offinterlineskip
+  \everycr={%
+    \noalign{%
+      \ifzt@p\relax\global\zt@pfalse%
+        \ifdim\prevdepth>-1000pt\relax%
+          \skip0=\normalbaselineskip%
+          \advance\skip0by-\prevdepth%
+          \advance\skip0by-\ht\strutbox%
+          \ifdim\skip0<\normallineskiplimit\relax%
+            \vskip\normallineskip%
+          \else%
+            \vskip\skip0%
+          \fi%
+        \fi%
+      \else%
+        \penalty\interzedlinepenalty%
+      \fi%
+      }}}
+
+\def\[{\begingroup\zed}
+\def\]{\crcr\egroup$$\endgroup\ignorespaces}
+
+\def\axdef{\def\also{\@zskip\zedskip}%
+  \predisplaypenalty=\preboxpenalty%
+  \@zed\@znoskip%
+  \halign to\linewidth\bgroup%
+    \strut{\color{ZedBoxColor}\vrule width\arrayrulewidth}\hskip\zedleftsep%
+    {$\color{ZedColor}\@zlign##$}\hfil \tabskip=0pt plus1fil\cr}
+\let\endaxdef=\endzed
+
+\def\schema#1{\@ifnextchar[{\@schema{#1}}{\@nschema{#1}}}
+\def\@schema#1[#2]{\@nschema{#1[#2]}}
+\def\@nschema#1{\@narrow\axdef\omit\@topline{$\strut#1$}\cr}
+\def\endschema{\@zskip\@jot\@zedline\endzed}
+
+\@namedef{schema*}{\@narrow\axdef\@zedline\@zskip\@jot}
+\expandafter\let\csname endschema*\endcsname=\endschema
+
+\def\gendef{\@ifnextchar[{\@gendef}{\@ngendef}}
+\def\@gendef[#1]{\@narrow\axdef\omit \setbox0=\hbox{$\strut[#1]$}%
+  \rlap{\raise\doublerulesep\@topline{\hskip\wd0}}\@topline{\box0}\cr}
+\def\@ngendef{\@narrow\axdef \@zedline \omit \hbox to\linewidth{\vrule
+    height\doublerulesep width\arrayrulewidth \@zrulefill}\cr
+  \@zskip\@jot
+  } 
+\let\endgendef=\endschema
+
+\def\argue{%
+  \@zed\interzedlinepenalty=\interdisplaylinepenalty
+  \openup\@jot \halign to\linewidth\bgroup
+  \strut%
+  $\color{ZedColor}\@zlign##$\hfil \tabskip=0pt plus1fil
+  &\hbox to0pt{%
+    \color{AnnotationColor}\hss[\@zlign##\unskip]}\tabskip=0pt\cr%
+  \noalign{\vskip-\@jot}}
+\let\endargue=\endzed
+
+\def\zbecause#1{\noalign{\vskip-\jot}&{\color{AnnotationColor}#1}\cr}
+
+\def\syntax{\@zed\@znoskip \halign\bgroup
+  \strut$\color{ZedColor}\@zlign##$\hfil
+  &\hfil$\color{ZedColor}\@zlign{}##{}$\hfil 
+  &$\color{ZedColor}\@zlign##$\hfil\cr}
+\let\endsyntax=\endzed
+
+\def\infrule{\@zed\@znoskip \halign\bgroup
+  \strut\quad$\color{ZedColor}\@zlign##$\quad\hfil&\quad\@zlign##\hfil\cr}
+\let\endinfrule=\endzed
+
+\def\derive{\crcr \noalign{\vskip\@jot} \omit\@zrulefill
+  \@ifnextchar[{\@xderive}{\@yderive}}
+\def\@xderive[#1]{%
+  &$\smash{%
+    \lower 0.5ex\hbox{%
+      \color{AnnotationColor}$[\;#1\;]$}}$\cr\noalign{\vskip\@jot}}
+\def\@yderive{\cr \noalign{\vskip\@jot}}
+
+\def\@zleavevmode{\if@inlabel \indent
+  \else\if@noskipsec \indent
+  \else\if@nobreak \global\@nobreakfalse
+  \everypar={}\abovedisplayskip=0pt\fi
+  {\parskip=0pt\noindent}\fi\fi}
+
+\fi
+
+% finally, block
+
+\def\block{\@ifnextchar[{\@block}{\@block[t]}}
+\def\@block[#1]{\array[#1]{@{}l@{}}}
+\let\endblock=\endarray
+
+\endinput

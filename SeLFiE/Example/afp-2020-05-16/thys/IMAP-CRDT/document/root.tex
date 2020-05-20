@@ -1,0 +1,235 @@
+\documentclass[11pt,a4paper, DIV=11]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fullpage}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage{amsmath,amsfonts}
+
+\renewcommand{\bf}{\normalfont\bfseries}
+\renewcommand{\rm}{\normalfont\rmfamily}
+\renewcommand{\it}{\normalfont\itshape}
+
+\usepackage{pdfsetup}
+
+\hypersetup{
+  pdfinfo={
+    Title={The IMAP CmRDT},
+    Subject={},
+    Keywords={IMAP, Isabelle, CRDT},
+    Author={Tim Jungnickel, Lennart Oldenburg, Matthias Loibl},
+    Creator={}
+  },
+  bookmarksopen=true,
+  bookmarksnumbered,
+  bookmarksopenlevel=2,
+  bookmarksdepth=3
+}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\isastyle}{\isastyleminor}
+
+\usepackage{algorithm} % for CRDT translation
+\usepackage[noend]{algpseudocode} % for CRDT translation
+\usepackage{amssymb} % for correct math symbols
+
+\newcommand{\create}{\textit{create}}
+\newcommand{\delete}{\textit{delete}}
+\newcommand{\store}{\textit{store}}
+\newcommand{\append}{\textit{append}}
+\newcommand{\expunge}{\textit{expunge}}
+
+\newcommand{\session}{\textit{session}}
+
+
+\title{The IMAP CmRDT}
+\author{Tim Jungnickel, Lennart Oldenburg, Matthias Loibl}
+\date{\today}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+We provide our Isabelle/HOL formalization of a Conflict-free Replicated Data Type
+for Internet Message Access Protocol commands. To this end, we show that Strong
+Eventual Consistency (SEC) is guaranteed by proving the commutativity of concurrent
+operations. We base our formalization on the recently proposed "framework for
+establishing Strong Eventual Consistency for Conflict-free Replicated Datatypes"
+(AFP.CRDT) by Gomes et al{.} Hence, we provide an additional example of how the
+recently proposed framework can be used to design and prove CRDTs.
+\end{abstract}
+
+
+\tableofcontents
+%\newpage
+
+
+\section{Preface}
+
+A Conflict-free Replicated Data Type (CRDT) \cite{shapiro_crdt} ensures
+convergence of replicas without requiring a central coordination server or
+even a distributed coordination system based on consensus or locking.
+Despite the fact that Shapiro et al{.} provide a comprehensive collection
+of definitions for the most useful data types such as registers, sets, and
+lists \cite{shapiro_report}, we observe that the use of CRDTs in standard IT
+services is rather uncommon. Therefore, we use the Internet Message Access
+Protocol (IMAP)---the de-facto standard protocol to retrieve and manipulate mail
+messages on an email server---as an example to show the feasibility of using
+CRDTs for replicating state of a standard IT service to achieve planetary scale.
+
+Designing a \emph{correct} CRDT is a challenging task. A CmRDT, the
+operation-based variant of a CRDT, requires all operations to commute.
+To this end, Gomes et al{.} recently published a CmRDT verification
+framework \cite{gomes_crdtafp} in Isabelle/HOL.
+
+In our most recent work \cite{pluto}, we presented \emph{pluto}, our research
+prototype of a planetary-scale IMAP service. To achieve the claimed
+planet-scale, we designed a CmRDT that provides multi-leader replication
+of mailboxes without the need of synchronous operations. In order to ensure
+the correctness of our proposed IMAP CmRDT, we implemented it in the
+verification framework proposed by Gomes et al{.}
+
+In this work, we present our Isabelle/HOL proof of the necessary properties and
+show that our CmRDT indeed guarantees Strong Eventual Consistency (SEC).
+We contribute not only the certainty that our CmRDT design is correct,
+but also provide one more example of how the verification framework
+can be used to prove the correctness of a CRDT.
+
+
+\subsection{The IMAP CmRDT}
+
+In the rest of this work, we show how we modeled our IMAP CmRDT in Isabelle/HOL.
+We start by presenting the original IMAP CmRDT, followed by the implementation
+details of the Isabelle/HOL formalization. The presentation of our CmRDT in
+Spec.~\ref{spec:imap} is based on the syntax introduced in \cite{shapiro_report}.
+We highly recommend reading the foundational work by Shapiro et al{.} prior to
+following our proof documentation.
+
+In essence, the IMAP CmRDT represents the state of a mailbox, containing folders
+(of type $\mathcal{N}$) and messages (of type $\mathcal{M}$). Moreover, we introduce
+metadata in form of tags (of type $\texttt{ID}$). All modeling details and a more
+detailed description of the CmRDT are provided in the original paper \cite{pluto}.
+
+\begin{algorithm}[t]
+  \floatname{algorithm}{Specification}
+  \caption{The IMAP CmRDT} \label{spec:imap}
+  \algsetblock{payload}{}{1}{0.5cm}
+  \algsetblock{update}{}{2}{0.5cm}
+
+  \algsetblockdefx{atsourceone}{}{1}{0.5cm}[1][]{\textbf{atSource} #1}{}
+  \algsetblockdefx{atsourcetwo}{}{2}{0.5cm}[1][]{\textbf{atSource} #1}{}
+  \algsetblockdefx{downstreamone}{}{1}{0.5cm}[1][]{\textbf{downstream} #1}{}
+
+  \begin{algorithmic}[1]
+    \payload \ map $u: \mathcal{N} \rightarrow \mathcal{P}(\texttt{ID}) \times
+    \mathcal{P}(\mathcal{M})$ \Comment{$\{\text{foldername}\ f
+    \mapsto (\{\text{tag}\ t\}, \{\text{msg}\ m\}), \dots \}$}
+      \State initial $\left(\lambda x . (\varnothing, \varnothing)\right)$
+      \vspace{0.3em}
+    \update \ \create\ $(\text{foldername}\ f)$
+      \atsourceone{}
+        \State let $\alpha = \textit{unique}()$
+      \downstreamone{$(f, \alpha)$}
+        \State $u(f) \mapsto (u(f)_1 \cup \{\alpha\}, u(f)_2)$ \vspace{0.3em}
+    \update \ \delete\ $(\text{foldername}\ f)$
+      \atsourcetwo{$(f)$}
+        \State let $R_1 = u(f)_1$
+        \State let $R_2 = u(f)_2$
+      \downstreamone{$(f, R_1, R_2)$}
+        \State $u(f) \mapsto (u(f)_1 \setminus R_1, u(f)_2 \setminus R_2)$
+        \update \ \append\ $(\text{foldername}\ f, \text{message}\ m)$
+    \atsourceone{$(m)$}
+      \State \textbf{pre} $m$ is globally unique
+    \downstreamone{$(f, m)$}
+      \State $u(f) \mapsto (u(f)_1, u(f)_2 \cup \{m\})$ \vspace{0.3em}
+    \update \ \expunge\ $(\text{foldername}\ f, \text{message}\ m)$
+      \atsourcetwo{$(f, m)$}
+        \State \textbf{pre} $m \in u(f)_2$
+        \State let $\alpha = \textit{unique}()$
+      \downstreamone{$(f, m, \alpha)$}
+        \State $u(f) \mapsto (u(f)_1 \cup \{\alpha\}, u(f)_2 \setminus \{m\})$ \vspace{0.3em}
+    \update \ \store\ $(\text{foldername}\ f, \text{message}\ m_\text{old},
+    \text{message}\ m_\text{new})$
+      \atsourcetwo{$(f, m_\textit{old}, m_\textit{new})$}
+        \State \textbf{pre} $m_\text{old} \in u(f)_2$
+        \State \textbf{pre} $m_\text{new}$ is globally unique
+      \downstreamone{$(f, m_\text{old}, m_\text{new})$}
+        \State $u(f) \mapsto (u(f)_1, (u(f)_2 \setminus \{m_\text{old}\}) \cup
+      \{m_\text{new}\})$
+\end{algorithmic}
+\end{algorithm}
+
+The only notable difference between the presented specification and our Isabelle/HOL
+formalization is, that we no longer distinguish between sets $\texttt{ID}$ and
+$\mathcal{M}$ and that the generated tags of \create\ and \expunge\ are handled
+explicitly. This makes the formalization slightly easier, because less type variables
+are introduced. The concrete definition can be found in the \textit{IMAP-CRDT Definitions}
+section of the \texttt{IMAP-def.thy} file.
+
+
+\subsection{Proof Guide}
+
+\textit{Hint:} In our proof, we build on top of the definitions given by Gomes et al{.}
+in \cite{gomes_crdtisabelle}. We strongly recommend to read their paper first before
+following our proof. In fact, in our formalization we reuse the \textit{locales} of the
+proposed framework and therefore this work cannot be compiled without the reference
+to \cite{gomes_crdtafp}.
+
+Operation-based CRDTs require all concurrent operations to commute in order to ensure
+convergence. Therefore, we begin our verification by proving the commutativity of every
+combination of possible concurrent operations. Initially, we used \textit{nitpick} to
+identify corner cases in our implementation. We prove the commutativity in Section 3
+of the \texttt{IMAP-proof-commute.thy} file. The \textit{critical conditions} to satisfy
+in order to commute, can be summarized as follows:
+\begin{itemize}
+  \item The tags of a \create\ and \expunge\ operation or the messages of an
+  \append\ and \store\ operation are never in the removed-set of a concurrent
+  \delete\ operation.
+  \item The message of an \append\ operation is never the message that is
+  deleted by a concurrent \store\ or \expunge\ operation.
+  \item The message inserted by a \store\ operation is never the message
+  that is deleted by a concurrent \store\ or \expunge\ operation.
+\end{itemize}
+
+The identified conditions obviously hold in regular traces of our system, because
+an item that has been inserted by one operation cannot be deleted by a concurrent
+operation. It simply cannot be present at the time of the initiation of the
+concurrent operation.
+
+Next, we show that the identified conditions actually hold for all concurrent
+operations. Because all tags and all inserted messages are globally unique, it can
+easily be shown that all conditions are satisfied. In Isabelle/HOL, showing this fact
+takes some effort. Fortunately, we were able to reuse parts of the Isabelle/HOL implementation
+of the OR-Set proof in \cite{gomes_crdtafp}. The Isabelle/HOL proofs for the
+\textit{critical conditions} are encapsulated in the \texttt{IMAP-proof-independent.thy} file.
+
+With the introduced lemmas, we prove the final theorem that states that convergence
+is guaranteed. Due to all operations being commutative in case the \textit{critical conditions}
+are satisfied and the \textit{critical conditions} indeed are holding for all concurrent updates,
+all concurrent operations commute. The Isabelle/HOL proof is contained in the
+\texttt{IMAP-proof.thy} file.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

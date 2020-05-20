@@ -1,0 +1,39 @@
+Lightweight Java (LJ)
+=====================
+
+Making definitions from Ott source files
+----------------------------------------
+
+a) Get Ott source, make its native executable, and put it in your PATH. The
+   source can be downloaded here:
+
+      http://www.cl.cam.ac.uk/~pes20/ott/
+
+   (The source Ott source files here were tested against version 0.20.3.)
+
+b) Go into directory where Ott source files are located, and run "make". If you
+   do not have the "make" command, run the following commands (assuming ott and
+   pdflatex are in your PATH):
+
+      ott -tex_wrap false -isabelle_inductive true \
+          -merge true -o lj_included.tex -o Lightweight_Java_Definition.thy \
+          lj_common.ott lj_base.ott lj.ott
+      pdflatex lj.tex
+
+c) Generated files:
+   - lj_included.tex
+      LaTeX output of Ott. It is included in lj.tex, which is then compiled
+      with pdflatex. (We do not generate a wrapped LaTex document directly,
+      since some of our tex homs are context dependent.)
+   - lj.pdf
+      PDF version of the LJ's definition.
+   - Lightweight_Java_Definition.thy
+      A valid Isabelle2011 source containing Isabelle definition of LJ.
+
+
+More Information
+----------------
+
+More information and related documents can be found at:
+
+  http://rok.strnisa/lj/

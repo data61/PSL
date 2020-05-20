@@ -1,0 +1,19 @@
+chapter AFP
+
+session Concurrent_Ref_Alg (AFP) = HOL +
+  description "Concurrent refinement algebra and rely quotient"
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Refinement_Lattice
+    Sequential
+    Parallel
+    Conjunction
+    CRA
+    Galois_Connections
+    Iteration
+    Rely_Quotient
+ document_files
+    "root.tex"
+    "root.bib"

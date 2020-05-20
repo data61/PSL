@@ -1,0 +1,11 @@
+chapter AFP
+
+session "POPLmark-deBruijn" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    POPLmark
+    POPLmarkRecordCtxt
+    Execute
+  document_files
+    "root.bib"
+    "root.tex"

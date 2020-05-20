@@ -1,0 +1,13 @@
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/mlton.mlb 
+
+local
+    Unsynchronized.sml
+    ann "nonexhaustiveMatch ignore" in
+      NDFS_Benchmark_export.sml
+    end
+in
+    structure NDFS_Benchmark
+end
+
+NDFS_Benchmark.sml

@@ -1,0 +1,10 @@
+chapter AFP
+
+session "Recursion-Addition" (AFP) = ZF +
+  options [timeout = 300]
+  theories
+    recursion
+
+  document_files
+    "root.tex"
+

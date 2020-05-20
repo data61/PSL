@@ -1,0 +1,41 @@
+chapter AFP
+
+session AWN (AFP) = HOL +
+  description "Mechanization of the Algebra for Wireless Networks (AWN)"
+  options [timeout = 600]
+  theories
+    Lib
+    TransitionSystems
+    Invariants
+    OInvariants
+
+    AWN
+    AWN_SOS
+    AWN_Labels
+    AWN_SOS_Labels
+    AWN_Cterms
+    Pnet
+    Closed
+    OAWN_SOS
+    OAWN_SOS_Labels
+    OPnet
+    OClosed_Lifting
+    Inv_Cterms
+    AWN_Invariants
+    OAWN_Invariants
+    OAWN_Convert
+    Qmsg
+    Qmsg_Lifting
+    ONode_Lifting
+    OPnet_Lifting
+    OClosed_Transfer
+    AWN_Main
+    Toy
+
+  theories [document = false]
+    AWN_Term_Graph
+
+  document_files
+    "mathpartir.sty"
+    "root.bib"
+    "root.tex"

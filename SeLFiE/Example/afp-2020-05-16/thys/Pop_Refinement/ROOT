@@ -1,0 +1,14 @@
+chapter AFP
+
+session Pop_Refinement (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Definition
+    First_Example
+    Second_Example
+    General_Remarks
+    Related_Work
+    Future_Work
+  document_files
+    "root.tex"
+    "root.bib"

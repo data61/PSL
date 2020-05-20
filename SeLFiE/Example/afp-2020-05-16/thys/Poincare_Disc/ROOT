@@ -1,0 +1,21 @@
+chapter AFP
+
+session Poincare_Disc (AFP) = Complex_Geometry +
+  options [timeout = 1200]
+  sessions
+    "Complex_Geometry"
+  theories
+    Hyperbolic_Functions
+    Tarski
+    Poincare_Lines
+    Poincare_Lines_Ideal_Points
+    Poincare_Distance
+    Poincare_Circles
+    Poincare_Between
+    Poincare_Lines_Axis_Intersections
+    Poincare_Perpendicular
+    Poincare
+    Poincare_Tarski
+  document_files
+    "root.bib"
+    "root.tex"

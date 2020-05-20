@@ -1,0 +1,11 @@
+$(SML_LIB)/basis/basis.mlb
+Prelude.sml
+ann
+	"nonexhaustiveBind ignore"
+	"nonexhaustiveMatch ignore"
+	"redundantBind ignore"
+	"redundantMatch ignore"
+in
+	Complementation.sml
+end
+Autool.sml

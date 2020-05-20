@@ -1,0 +1,11 @@
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/mlton.mlb 
+
+Basic.sml
+Syntax.sml
+Lexer.sml
+Expression.sml
+Statement.sml
+Module.sml
+
+Main.sml

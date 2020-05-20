@@ -1,0 +1,16 @@
+chapter AFP
+
+session Green (AFP) = "HOL-Analysis" +
+ description "Green's theorem"
+ options [timeout = 600]
+ theories
+  CircExample
+  DiamExample
+  Green
+  Paths
+  Derivs
+  General_Utils
+  Integrals
+  SymmetricR2Shapes
+ document_files
+   "root.tex"

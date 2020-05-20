@@ -1,0 +1,9 @@
+chapter AFP
+
+session "PropResPI" (AFP)  = "HOL" +
+  options [timeout = 300]
+  theories
+    Propositional_Resolution
+    Prime_Implicates
+  document_files
+    "root.tex"

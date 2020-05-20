@@ -1,0 +1,53 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{amssymb}
+
+% Bibliography
+\usepackage[authoryear,sort]{natbib}
+\bibpunct();A{},
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Stern-Brocot Tree}
+\author{Peter Gammie \and Andreas Lochbihler}
+\maketitle
+
+\begin{abstract}
+  The Stern-Brocot tree contains all rational numbers exactly once and in their lowest terms.
+  We formalise the Stern-Brocot tree as a coinductive tree using recursive and iterative specifications,
+  which we have proven equivalent, and show that it indeed contains all the numbers as stated.
+  Following Hinze, we prove that the Stern-Brocot tree can be linearised looplessly into Stern's
+  diatonic sequence (also known as Dijkstra's fusc function) and that it is a permutation of the
+  Bird tree.
+
+  The reasoning stays at an abstract level by appealing to the uniqueness of solutions of
+  guarded recursive equations and lifting algebraic laws point-wise to trees and streams using
+  applicative functors.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\paragraph{Acknowledgements}
+Thanks to Dave Cock for a fruitful discussion about unique fixed points.
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{plainnat}
+\bibliography{root}
+%\addcontentsline{toc}{section}{References}
+
+\end{document}

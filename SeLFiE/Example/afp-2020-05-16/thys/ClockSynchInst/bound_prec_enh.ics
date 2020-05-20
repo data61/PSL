@@ -1,0 +1,359 @@
+% Translation from bound_prec_enh6.cvc
+% It not stop :(
+
+sig np: int.
+sig khl: int.
+
+
+sig maxreducf: real.
+sig minreducf: real.
+sig maxreducg: real.
+sig minreducg: real.
+
+sig x: real.
+sig y: real.
+
+sig f_pmaxf: real.
+sig f_pmaxg: real.
+sig f_pminf: real.
+sig f_pming: real.
+sig f_sbfg: real.
+sig f_sbgf: real.
+
+sig g_pmaxf: real.
+sig g_pmaxg: real.
+sig g_pminf: real.
+sig g_pming: real.
+sig g_sbfg: real.
+sig g_sbgf: real.
+
+% f : PROC -> REAL;
+% g : PROC -> REAL;
+% pmaxf, pmaxg, pminf, pming : PROC;
+% sbfg, sbgf: PROC;
+
+% PR, C : SETPROC;
+
+sig card_C : int.
+
+% INCL : (SETPROC,SETPROC) -> BOOLEAN;
+% INSET : (PROC, SETPROC) -> BOOLEAN;
+
+
+prop constants_ax := 2*khl < np & khl >= 0.
+prop hC := INCL_C_PR.
+prop hnp := np <= card_C + khl & 3*khl < np.
+prop hcard := card_C >= 0.
+
+prop uboundmaxf := 
+      [INCL_C_PR &  np <= card_C + khl]
+               => [INSET_pmaxf_C  & maxreducf <= f_pmaxf].
+
+prop uboundmaxg := 
+      [INCL_C_PR &  np <= card_C + khl]
+               => [INSET_pmaxg_C & maxreducg <= g_pmaxg].
+
+prop lboundminf := 
+      [INCL_C_PR &  np <= card_C + khl]
+               => [INSET_pminf_C  & minreducf >= f_pminf].
+
+prop lboundming := 
+      [INCL_C_PR &  np <= card_C + khl]
+               => [INSET_pming_C & minreducg >= g_pming].
+
+prop same_bound_f_g := 
+      [INCL_C_PR &  np <= card_C + khl & 3*khl < np]
+               => [INSET_sbfg_C  & minreducf <= f_sbfg
+				 & maxreducg >= g_sbfg].
+
+prop same_bound_g_f:= 
+      [INCL_C_PR &  np <= card_C + khl & 3*khl < np]
+               => [INSET_sbgf_C & minreducg <= g_sbgf
+				& maxreducf >= f_sbgf].
+
+prop hbx_pmaxf := INSET_pmaxf_C => abs_f_pmaxf_g_pmaxf <= x.
+prop hbx_pmaxg := INSET_pmaxg_C => abs_f_pmaxg_g_pmaxg <= x.
+prop hbx_pminf := INSET_pminf_C => abs_f_pminf_g_pminf <= x.
+prop hbx_pming := INSET_pming_C => abs_f_pming_g_pming <= x.
+prop hbx_sbfg := INSET_sbfg_C => abs_f_sbfg_g_sbfg <= x.
+prop hbx_sbgf := INSET_sbgf_C => abs_f_sbgf_g_sbgf <= x.
+
+prop hby1_pmaxf_pmaxg := INSET_pmaxf_C => 
+                   [INSET_pmaxg_C => abs_f_pmaxf_f_pmaxg <= y].
+prop hby1_pmaxf_pminf := INSET_pmaxf_C => 
+                   [INSET_pminf_C => abs_f_pmaxf_f_pminf <= y].
+prop hby1_pmaxf_pming := INSET_pmaxf_C => 
+                   [INSET_pming_C => abs_f_pmaxf_f_pming <= y].
+prop hby1_pmaxf_sbfg := INSET_pmaxf_C => 
+                   [INSET_sbfg_C => abs_f_pmaxf_f_sbfg <= y].
+prop hby1_pmaxf_sbgf := INSET_pmaxf_C => 
+                   [INSET_sbgf_C => abs_f_pmaxf_f_sbgf <= y].
+
+prop hby1_pmaxg_pminf := INSET_pmaxg_C => 
+                   [INSET_pminf_C => abs_f_pmaxg_f_pminf <= y].
+prop hby1_pmaxg_pming := INSET_pmaxg_C => 
+                   [INSET_pming_C => abs_f_pmaxg_f_pming <= y].
+prop hby1_pmaxg_sbfg := INSET_pmaxg_C => 
+                   [INSET_sbfg_C => abs_f_pmaxg_f_sbfg <= y].
+prop hby1_pmaxg_sbgf := INSET_pmaxg_C => 
+                   [INSET_sbgf_C => abs_f_pmaxg_f_sbgf <= y].
+
+prop hby1_pminf_pming := INSET_pminf_C => 
+                   [INSET_pming_C => abs_f_pminf_f_pming <= y].
+prop hby1_pminf_sbfg := INSET_pminf_C => 
+                   [INSET_sbfg_C => abs_f_pminf_f_sbfg <= y].
+prop hby1_pminf_sbgf := INSET_pminf_C => 
+                   [INSET_sbgf_C => abs_f_pminf_f_sbgf <= y].
+
+prop hby1_pming_sbfg := INSET_pming_C => 
+                   [INSET_sbfg_C => abs_f_pming_f_sbfg <= y].
+prop hby1_pming_sbgf := INSET_pming_C => 
+                   [INSET_sbgf_C => abs_f_pming_f_sbgf <= y].
+
+prop hby1_sbfg_sbgf := INSET_sbfg_C => 
+                   [INSET_sbgf_C => abs_f_sbfg_f_sbgf <= y].
+
+
+prop hby2_pmaxf_pmaxg := INSET_pmaxf_C => 
+                   [INSET_pmaxg_C => abs_g_pmaxf_g_pmaxg <= y].
+prop hby2_pmaxf_pminf := INSET_pmaxf_C => 
+                   [INSET_pminf_C => abs_g_pmaxf_g_pminf <= y].
+prop hby2_pmaxf_pming := INSET_pmaxf_C => 
+                   [INSET_pming_C => abs_g_pmaxf_g_pming <= y].
+prop hby2_pmaxf_sbfg := INSET_pmaxf_C => 
+                   [INSET_sbfg_C => abs_g_pmaxf_g_sbfg <= y].
+prop hby2_pmaxf_sbgf := INSET_pmaxf_C => 
+                   [INSET_sbgf_C => abs_g_pmaxf_g_sbgf <= y].
+
+prop hby2_pmaxg_pminf := INSET_pmaxg_C => 
+                   [INSET_pminf_C => abs_g_pmaxg_g_pminf <= y].
+prop hby2_pmaxg_pming := INSET_pmaxg_C => 
+                   [INSET_pming_C => abs_g_pmaxg_g_pming <= y].
+prop hby2_pmaxg_sbfg := INSET_pmaxg_C => 
+                   [INSET_sbfg_C => abs_g_pmaxg_g_sbfg <= y].
+prop hby2_pmaxg_sbgf := INSET_pmaxg_C => 
+                   [INSET_sbgf_C => abs_g_pmaxg_g_sbgf <= y].
+
+prop hby2_pminf_pming := INSET_pminf_C => 
+                   [INSET_pming_C => abs_g_pminf_g_pming <= y].
+prop hby2_pminf_sbfg := INSET_pminf_C => 
+                   [INSET_sbfg_C => abs_g_pminf_g_sbfg <= y].
+prop hby2_pminf_sbgf := INSET_pminf_C => 
+                   [INSET_sbgf_C => abs_g_pminf_g_sbgf <= y].
+
+prop hby2_pming_sbfg := INSET_pming_C => 
+                   [INSET_sbfg_C => abs_g_pming_g_sbfg <= y].
+prop hby2_pming_sbgf := INSET_pming_C => 
+                   [INSET_sbgf_C => abs_g_pming_g_sbgf <= y].
+
+prop hby2_sbfg_sbgf := INSET_sbfg_C => 
+                   [INSET_sbgf_C => abs_g_sbfg_g_sbgf <= y].
+
+
+% abs: REAL -> REAL = LAMBDA (x:REAL): IF x>=0 THEN x ELSE (-x) ENDIF;
+
+prop p_abs_f_pmaxf_g_pmaxf := if [ f_pmaxf - g_pmaxf >= 0 ] 
+	                      then abs_f_pmaxf_g_pmaxf = f_pmaxf - g_pmaxf
+                              else abs_f_pmaxf_g_pmaxf = -(f_pmaxf - g_pmaxf)
+                              end.
+prop p_abs_f_pmaxg_g_pmaxg := if [ f_pmaxg - g_pmaxg >= 0 ] 
+	                      then abs_f_pmaxg_g_pmaxg = f_pmaxg - g_pmaxg
+                              else abs_f_pmaxg_g_pmaxg = -(f_pmaxg - g_pmaxg)
+                              end.
+prop p_abs_f_pminf_g_pminf := if [ f_pminf - g_pminf >= 0 ] 
+	                      then abs_f_pminf_g_pminf = f_pminf - g_pminf
+                              else abs_f_pminf_g_pminf = -(f_pminf - g_pminf)
+                              end.
+prop p_abs_f_pming_g_pming := if [ f_pming - g_pming >= 0 ] 
+	                      then abs_f_pming_g_pming = f_pming - g_pming
+                              else abs_f_pming_g_pming = -(f_pming - g_pming)
+                              end.
+prop p_abs_f_sbfg_g_sbfg := if [ f_sbfg - g_sbfg >= 0 ] 
+	                      then abs_f_sbfg_g_sbfg = f_sbfg - g_sbfg
+                              else abs_f_sbfg_g_sbfg = -(f_sbfg - g_sbfg)
+                              end.
+prop p_abs_f_sbgf_g_sbgf := if [ f_sbgf - g_sbgf >= 0 ] 
+	                      then abs_f_sbgf_g_sbgf = f_sbgf - g_sbgf
+                              else abs_f_sbgf_g_sbgf = -(f_sbgf - g_sbgf)
+                              end.
+
+
+prop p_abs_f_pmaxf_f_pmaxg := if [ f_pmaxf - f_pmaxg >= 0 ] 
+	                      then abs_f_pmaxf_f_pmaxg = f_pmaxf - f_pmaxg
+                              else abs_f_pmaxf_f_pmaxg = -(f_pmaxf - f_pmaxg)
+                              end.
+prop p_abs_f_pmaxf_f_pminf := if [ f_pmaxf - f_pminf >= 0 ] 
+	                      then abs_f_pmaxf_f_pminf = f_pmaxf - f_pminf
+                              else abs_f_pmaxf_f_pminf = -(f_pmaxf - f_pminf)
+                              end.
+prop p_abs_f_pmaxf_f_pming := if [ f_pmaxf - f_pming >= 0 ] 
+	                      then abs_f_pmaxf_f_pming = f_pmaxf - f_pming
+                              else abs_f_pmaxf_f_pming = -(f_pmaxf - f_pming)
+                              end.
+prop p_abs_f_pmaxf_f_sbfg := if [ f_pmaxf - f_sbfg >= 0 ] 
+	                      then abs_f_pmaxf_f_sbfg = f_pmaxf - f_sbfg
+                              else abs_f_pmaxf_f_sbfg = -(f_pmaxf - f_sbfg)
+                              end.
+prop p_abs_f_pmaxf_f_sbgf := if [ f_pmaxf - f_sbgf >= 0 ] 
+	                      then abs_f_pmaxf_f_sbgf = f_pmaxf - f_sbgf
+                              else abs_f_pmaxf_f_sbgf = -(f_pmaxf - f_sbgf)
+                              end.
+
+prop p_abs_f_pmaxg_f_pminf := if [ f_pmaxg - f_pminf >= 0 ] 
+	                      then abs_f_pmaxg_f_pminf = f_pmaxg - f_pminf
+                              else abs_f_pmaxg_f_pminf = -(f_pmaxg - f_pminf)
+                              end.
+prop p_abs_f_pmaxg_f_pming := if [ f_pmaxg - f_pming >= 0 ] 
+	                      then abs_f_pmaxg_f_pming = f_pmaxg - f_pming
+                              else abs_f_pmaxg_f_pming = -(f_pmaxg - f_pming)
+                              end.
+prop p_abs_f_pmaxg_f_sbfg := if [ f_pmaxg - f_sbfg >= 0 ] 
+	                      then abs_f_pmaxg_f_sbfg = f_pmaxg - f_sbfg
+                              else abs_f_pmaxg_f_sbfg = -(f_pmaxg - f_sbfg)
+                              end.
+prop p_abs_f_pmaxg_f_sbgf := if [ f_pmaxg - f_sbgf >= 0 ] 
+	                      then abs_f_pmaxg_f_sbgf = f_pmaxg - f_sbgf
+                              else abs_f_pmaxg_f_sbgf = -(f_pmaxg - f_sbgf)
+                              end.
+
+prop p_abs_f_pminf_f_pming := if [ f_pminf - f_pming >= 0 ] 
+	                      then abs_f_pminf_f_pming = f_pminf - f_pming
+                              else abs_f_pminf_f_pming = -(f_pminf - f_pming)
+                              end.
+prop p_abs_f_pminf_f_sbfg := if [ f_pminf - f_sbfg >= 0 ] 
+	                      then abs_f_pminf_f_sbfg = f_pminf - f_sbfg
+                              else abs_f_pminf_f_sbfg = -(f_pminf - f_sbfg)
+                              end.
+prop p_abs_f_pminf_f_sbgf := if [ f_pminf - f_sbgf >= 0 ] 
+	                      then abs_f_pminf_f_sbgf = f_pminf - f_sbgf
+                              else abs_f_pminf_f_sbgf = -(f_pminf - f_sbgf)
+                              end.
+
+prop p_abs_f_pming_f_sbfg := if [ f_pming - f_sbfg >= 0 ] 
+	                      then abs_f_pming_f_sbfg = f_pming - f_sbfg
+                              else abs_f_pming_f_sbfg = -(f_pming - f_sbfg)
+                              end.
+prop p_abs_f_pming_f_sbgf := if [ f_pming - f_sbgf >= 0 ] 
+	                      then abs_f_pming_f_sbgf = f_pming - f_sbgf
+                              else abs_f_pming_f_sbgf = -(f_pming - f_sbgf)
+                              end.
+
+prop p_abs_f_sbfg_f_sbgf := if [ f_sbfg - f_sbgf >= 0 ] 
+	                      then abs_f_sbfg_f_sbgf = f_sbfg - f_sbgf
+                              else abs_f_sbfg_f_sbgf = -(f_sbfg - f_sbgf)
+                              end.
+
+% *************************** %
+
+prop p_abs_g_pmaxf_g_pmaxg := if [ g_pmaxf - g_pmaxg >= 0 ] 
+	                      then abs_g_pmaxf_g_pmaxg = g_pmaxf - g_pmaxg
+                              else abs_g_pmaxf_g_pmaxg = -(g_pmaxf - g_pmaxg)
+                              end.
+prop p_abs_g_pmaxf_g_pminf := if [ g_pmaxf - g_pminf >= 0 ] 
+	                      then abs_g_pmaxf_g_pminf = g_pmaxf - g_pminf
+                              else abs_g_pmaxf_g_pminf = -(g_pmaxf - g_pminf)
+                              end.
+prop p_abs_g_pmaxf_g_pming := if [ g_pmaxf - g_pming >= 0 ] 
+	                      then abs_g_pmaxf_g_pming = g_pmaxf - g_pming
+                              else abs_g_pmaxf_g_pming = -(g_pmaxf - g_pming)
+                              end.
+prop p_abs_g_pmaxf_g_sbfg := if [ g_pmaxf - g_sbfg >= 0 ] 
+	                      then abs_g_pmaxf_g_sbfg = g_pmaxf - g_sbfg
+                              else abs_g_pmaxf_g_sbfg = -(g_pmaxf - g_sbfg)
+                              end.
+prop p_abs_g_pmaxf_g_sbgf := if [ g_pmaxf - g_sbgf >= 0 ] 
+	                      then abs_g_pmaxf_g_sbgf = g_pmaxf - g_sbgf
+                              else abs_g_pmaxf_g_sbgf = -(g_pmaxf - g_sbgf)
+                              end.
+
+prop p_abs_g_pmaxg_g_pminf := if [ g_pmaxg - g_pminf >= 0 ] 
+	                      then abs_g_pmaxg_g_pminf = g_pmaxg - g_pminf
+                              else abs_g_pmaxg_g_pminf = -(g_pmaxg - g_pminf)
+                              end.
+prop p_abs_g_pmaxg_g_pming := if [ g_pmaxg - g_pming >= 0 ] 
+	                      then abs_g_pmaxg_g_pming = g_pmaxg - g_pming
+                              else abs_g_pmaxg_g_pming = -(g_pmaxg - g_pming)
+                              end.
+prop p_abs_g_pmaxg_g_sbfg := if [ g_pmaxg - g_sbfg >= 0 ] 
+	                      then abs_g_pmaxg_g_sbfg = g_pmaxg - g_sbfg
+                              else abs_g_pmaxg_g_sbfg = -(g_pmaxg - g_sbfg)
+                              end.
+prop p_abs_g_pmaxg_g_sbgf := if [ g_pmaxg - g_sbgf >= 0 ] 
+	                      then abs_g_pmaxg_g_sbgf = g_pmaxg - g_sbgf
+                              else abs_g_pmaxg_g_sbgf = -(g_pmaxg - g_sbgf)
+                              end.
+
+prop p_abs_g_pminf_g_pming := if [ g_pminf - g_pming >= 0 ] 
+	                      then abs_g_pminf_g_pming = g_pminf - g_pming
+                              else abs_g_pminf_g_pming = -(g_pminf - g_pming)
+                              end.
+prop p_abs_g_pminf_g_sbfg := if [ g_pminf - g_sbfg >= 0 ] 
+	                      then abs_g_pminf_g_sbfg = g_pminf - g_sbfg
+                              else abs_g_pminf_g_sbfg = -(g_pminf - g_sbfg)
+                              end.
+prop p_abs_g_pminf_g_sbgf := if [ g_pminf - g_sbgf >= 0 ] 
+	                      then abs_g_pminf_g_sbgf = g_pminf - g_sbgf
+                              else abs_g_pminf_g_sbgf = -(g_pminf - g_sbgf)
+                              end.
+
+prop p_abs_g_pming_g_sbfg := if [ g_pming - g_sbfg >= 0 ] 
+	                      then abs_g_pming_g_sbfg = g_pming - g_sbfg
+                              else abs_g_pming_g_sbfg = -(g_pming - g_sbfg)
+                              end.
+prop p_abs_g_pming_g_sbgf := if [ g_pming - g_sbgf >= 0 ] 
+	                      then abs_g_pming_g_sbgf = g_pming - g_sbgf
+                              else abs_g_pming_g_sbgf = -(g_pming - g_sbgf)
+                              end.
+
+prop p_abs_g_sbfg_g_sbgf := if [ g_sbfg - g_sbgf >= 0 ] 
+	                      then abs_g_sbfg_g_sbgf = g_sbfg - g_sbgf
+                              else abs_g_sbfg_g_sbgf = -(g_sbfg - g_sbgf)
+                              end.
+
+prop p_abs_maxf_minf_maxg_ming := 
+	if [ maxreducf + minreducf - maxreducg - minreducg >= 0 ]
+	then abs_maxf_minf_maxg_ming =  
+		maxreducf + minreducf - maxreducg - minreducg
+	else abs_maxf_minf_maxg_ming =
+		-(maxreducf + minreducf - maxreducg - minreducg)
+	end.
+
+
+sat ~[ [hcard & constants_ax & hC & hnp &
+	uboundmaxf & uboundmaxg & lboundminf & lboundming &
+	same_bound_f_g & same_bound_g_f &
+        hbx_pmaxf & hbx_pmaxg & hbx_pminf & 
+        hbx_pming & hbx_sbfg & hbx_sbgf &
+	hby1_pmaxf_pmaxg & hby1_pmaxf_pminf & hby1_pmaxf_pming &
+	hby1_pmaxf_sbfg & hby1_pmaxf_sbgf & 
+	hby1_pmaxg_pminf & hby1_pmaxg_pming &
+ 	hby1_pmaxg_sbfg & hby1_pmaxg_sbgf &
+	hby1_pminf_pming & hby1_pminf_sbfg & hby1_pminf_sbgf &
+        hby1_pming_sbfg & hby1_pming_sbgf & hby1_sbfg_sbgf &
+	hby2_pmaxf_pmaxg & hby2_pmaxf_pminf & hby2_pmaxf_pming &
+	hby2_pmaxf_sbfg & hby2_pmaxf_sbgf & 
+	hby2_pmaxg_pminf & hby2_pmaxg_pming &
+ 	hby2_pmaxg_sbfg & hby2_pmaxg_sbgf &
+	hby2_pminf_pming & hby2_pminf_sbfg & hby2_pminf_sbgf &
+        hby2_pming_sbfg & hby2_pming_sbgf & hby2_sbfg_sbgf &
+	p_abs_f_pmaxf_g_pmaxf & p_abs_f_pmaxg_g_pmaxg & 
+	p_abs_f_pminf_g_pminf & p_abs_f_pming_g_pming & 
+	p_abs_f_sbfg_g_sbfg & p_abs_f_sbgf_g_sbgf & 
+	p_abs_f_pmaxf_f_pmaxg & p_abs_f_pmaxf_f_pminf & 
+	p_abs_f_pmaxf_f_pming & p_abs_f_pmaxf_f_sbfg & 
+	p_abs_f_pmaxf_f_sbgf & p_abs_f_pmaxg_f_pminf & 
+	p_abs_f_pmaxg_f_pming & p_abs_f_pmaxg_f_sbfg & 
+	p_abs_f_pmaxg_f_sbgf & p_abs_f_pminf_f_pming & 
+	p_abs_f_pminf_f_sbfg & p_abs_f_pminf_f_sbgf & 
+	p_abs_f_pming_f_sbfg & p_abs_f_pming_f_sbgf & 
+	p_abs_f_sbfg_f_sbgf & p_abs_g_pmaxf_g_pmaxg & 
+	p_abs_g_pmaxf_g_pminf & p_abs_g_pmaxf_g_pming & 
+	p_abs_g_pmaxf_g_sbfg & p_abs_g_pmaxf_g_sbgf & 
+	p_abs_g_pmaxg_g_pminf & p_abs_g_pmaxg_g_pming & 
+	p_abs_g_pmaxg_g_sbfg & p_abs_g_pmaxg_g_sbgf & 
+	p_abs_g_pminf_g_pming & p_abs_g_pminf_g_sbfg & 
+	p_abs_g_pminf_g_sbgf & p_abs_g_pming_g_sbfg & 
+	p_abs_g_pming_g_sbgf & p_abs_g_sbfg_g_sbgf & 
+	p_abs_maxf_minf_maxg_ming 
+    ] => abs_maxf_minf_maxg_ming <= y + 2 * x ].
+

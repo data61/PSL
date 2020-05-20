@@ -1,0 +1,36 @@
+chapter AFP
+
+session Algebraic_VCs (AFP) = KAT_and_DRA +
+  options [timeout = 1200]
+  sessions
+    "HOL-Eisbach"
+    "HOL-Hoare"
+    KAD
+  directories
+    "AVC_KAD"
+    "AVC_KAT"
+  theories
+    "AVC_KAT/VC_KAT_scratch"
+    "AVC_KAD/VC_KAD_scratch"
+    P2S2R
+    "AVC_KAT/VC_KAT"
+    "AVC_KAT/VC_KAT_Examples"
+    "AVC_KAT/VC_KAT_Examples2"
+    RKAT
+    RKAT_Models
+    "AVC_KAT/VC_RKAT"
+    "AVC_KAT/VC_RKAT_Examples"
+    "AVC_KAD/VC_KAD"
+    "AVC_KAD/VC_KAD_Examples"
+    "AVC_KAD/VC_KAD_Examples2"
+    "AVC_KAD/VC_KAD_dual"
+    "AVC_KAD/VC_KAD_dual_Examples"
+    "AVC_KAD/VC_KAD_wf"
+    "AVC_KAD/VC_KAD_wf_Examples"
+    "AVC_KAD/Path_Model_Example"
+    "AVC_KAD/Pointer_Examples"
+    KAD_is_KAT
+    Domain_Quantale
+  document_files
+    "root.tex"
+    "root.bib"

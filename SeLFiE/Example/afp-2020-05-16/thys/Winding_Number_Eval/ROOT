@@ -1,0 +1,16 @@
+chapter AFP
+
+session "Winding_Number_Eval" (AFP) = "HOL-Complex_Analysis" +
+  options [timeout = 600]
+  sessions
+    "HOL-Analysis"
+    "HOL-Computational_Algebra"
+    "HOL-Eisbach"
+    "Sturm_Tarski"
+    "Budan_Fourier"
+  theories
+    Winding_Number_Eval
+    Winding_Number_Eval_Examples
+  document_files
+    "root.tex"
+    "root.bib"

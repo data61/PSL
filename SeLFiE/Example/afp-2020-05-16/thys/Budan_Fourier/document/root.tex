@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Budan-Fourier Theorem and Counting Real Roots with Multiplicity}
+\author{Wenda Li}
+\maketitle
+
+\begin{abstract}
+	This entry is mainly about counting and approximating real roots (of a polynomial) with multiplicity.
+	We have first formalised the Budan-Fourier theorem: given a polynomial with real coefficients, we can calculate sign variations on Fourier sequences to over-approximate the number of real roots (counting multiplicity) within an interval. When all roots are known to be real, the over-approximation becomes tight: we can utilise this theorem to count real roots exactly. It is also worth noting that Descartes' rule of sign is a direct consequence of the Budan-Fourier theorem, and has been included in this entry. In addition, we have extended previous formalised Sturm's theorem to count real roots with multiplicity, while the original Sturm's theorem only counts distinct real roots. Compared to the Budan-Fourier theorem, our extended Sturm's theorem always counts roots exactly but may suffer from greater computational cost.
+\end{abstract}
+
+Many problems in real algebraic geometry is about counting or approximating roots of a polynomial. Previous formalised results are mainly about counting distinct real roots (i.e. Sturm's theorem in Isabelle/HOL \cite{Sturm_Tarski-AFP,Sturm_Sequences-AFP}, HOL Light \cite{harrison-poly}, PVS \cite{Narkawicz:2015do} and Coq \cite{Mahboubi:2012gg}) and limited support for multiple real roots (i.e. Descartes' rule of signs in Isabelle/HOL \cite{Descartes_Sign_Rule-AFP}, HOL Light and ProofPower\footnote{According to Freek Wiedijk's "Formalising 100 Theorems" (\url{http://www.cs.ru.nl/~freek/100/index.html})}). In comparison, this entry provides more comprehensive support for reasoning about multiple real roots.
+
+The main motivation of this entry is to cope with the roots-on-the-border issue when counting complex roots \cite{li_evaluate_cauchy,Count_Complex_Roots-AFP}, but the results here should be beneficial to other developments.
+
+Our proof of the Budan-Fourier theorem mainly follows Theorem 2.35 in the book by Basu et al. \cite{Basu:2006bo} and that of the extended Sturm's theorem is inspired by Theorem 10.5.6 in Rahman and Schmeisser's book \cite{Rahman:2016us}.
+
+%\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\section{Acknowledgements}
+The work was supported by the ERC Advanced Grant ALEXANDRIA (Project 742178), funded by the European Research Council
+and led by Professor Lawrence Paulson at the University of Cambridge, UK.
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

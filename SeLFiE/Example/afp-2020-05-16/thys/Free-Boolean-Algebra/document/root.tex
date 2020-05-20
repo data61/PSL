@@ -1,0 +1,31 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Free Boolean Algebra}
+\author{Brian Huffman}
+\maketitle
+
+\begin{abstract}
+This theory defines a type constructor representing the free Boolean
+algebra over a set of generators.  Values of type
+$(\alpha)\mathit{formula}$ represent propositional formulas with
+uninterpreted variables from type $\alpha$, ordered by implication.
+In addition to all the standard Boolean algebra operations, the
+library also provides a function for building homomorphisms to any
+other Boolean algebra type.
+\end{abstract}
+
+% include generated text of all theories
+\input{session}
+
+\end{document}

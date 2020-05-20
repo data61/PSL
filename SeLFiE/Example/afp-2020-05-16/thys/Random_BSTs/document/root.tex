@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+\usepackage{upgreek}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Expected Shape of Random Binary Search Trees}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This entry contains proofs for the textbook results about the distributions of the height and internal path length of random binary search trees (BSTs), i.\,e.\ BSTs that are formed by taking an empty BST and inserting elements from a fixed set in random order.
+
+In particular, we prove a logarithmic upper bound on the expected height and the $\Theta(n \log n)$ closed-form solution for the expected internal path length in terms of the harmonic numbers. We also show how the internal path length relates to the average-case cost of a lookup in a BST.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\begingroup
+\raggedright
+\bibliographystyle{abbrv}
+\bibliography{root}
+\endgroup
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

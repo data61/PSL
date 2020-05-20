@@ -1,0 +1,10 @@
+chapter AFP
+
+session InformationFlowSlicing (AFP) = "Slicing" +
+  options [timeout = 600]
+  theories
+    LiftingIntra
+    NonInterferenceWhile
+  document_files
+    "root.bib"
+    "root.tex"

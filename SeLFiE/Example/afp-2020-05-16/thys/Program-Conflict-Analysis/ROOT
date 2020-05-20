@@ -1,0 +1,12 @@
+chapter AFP
+
+session "Program-Conflict-Analysis" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories [document = false]
+    Misc
+    Interleave
+  theories
+    MainResult
+  document_files
+    "root.bib"
+    "root.tex"

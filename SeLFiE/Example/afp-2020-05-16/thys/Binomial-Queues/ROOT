@@ -1,0 +1,10 @@
+chapter AFP
+
+session "Binomial-Queues" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    PQ_Implementation
+  document_files
+    "haftmann.sty"
+    "llncs.cls"
+    "root.tex"

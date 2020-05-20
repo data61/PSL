@@ -1,0 +1,34 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Verified Approximation Algorithms}
+\author{Robin E{\ss}mann, Tobias Nipkow and Simon Robillard}
+\maketitle
+
+\begin{abstract}
+We present the first formal verifications of approximation algorithms
+for NP-complete optimization problems:
+vertex cover, independent set, load balancing, and bin packing.
+The proofs correct incompletnesses in existing proofs
+and improve the approximation ratio in one case.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

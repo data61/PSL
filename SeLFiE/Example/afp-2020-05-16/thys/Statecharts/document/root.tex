@@ -1,0 +1,89 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Formalizing Statecharts using Hierarchical Automata}
+\author{Steffen Helke and Florian Kamm\"uller}
+\maketitle
+
+\begin{abstract}
+We formalize in Isabelle/HOL the abtract syntax and a synchronous step
+semantics for the specification language Statecharts \cite{HN96}. The
+formalization is based on Hierarchical Automata \cite{MLS97} 
+which allow a structural decomposition of Statecharts into Sequential
+Automata. To support the composition of Statecharts, we introduce 
+calculating operators to construct a Hierarchical Automaton in a 
+stepwise manner \cite{HK01}. Furthermore, we present a complete
+semantics of Statecharts including a theory of data spaces, which enables 
+the modelling of racing effects \cite{HK05}. We also adapt CTL for 
+Statecharts to build a bridge for future combinations with
+model checking. However the main motivation of this work is to provide a 
+sound and complete basis for reasoning on
+Statecharts. As a central meta theorem we prove that the 
+well-formedness of a Statechart is preserved by the 
+semantics \cite{Hel07}.    
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+
+\begin{thebibliography}{MLSH99}
+
+\bibitem[HN96]{HN96}
+D.~Harel and D.~Naamad.
+\newblock {A STATEMATE semantics for statecharts}.
+\newblock {\em ACM Transactions on Software Engineering and Methodology},
+  5(4):293--333, Oct 1996.
+
+\bibitem[MLS97]{MLS97}
+E.~Mikk, Y.~Lakhnech, and M.~Siegel.
+\newblock {Hierarchical automata as model for statecharts}.
+\newblock In {\em Asian Computing Science Conference (ASIAN'97)},
+\newblock \textit{Springer LNCS}, \textbf{1345}, 1997.
+ 
+\bibitem[HK01]{HK01}
+S.~Helke and F.~Kamm{\"u}ller.
+\newblock {Representing Hierarchical Automata in Interactive Theorem Provers}.
+\newblock In R. J. Boulton, P. B. Jackson, editors, {\em Theorem
+Proving in Higher Order Logics, TPHOLs 2001}, \textit{Springer LNCS},
+\textbf{2152}, 2001.
+
+\bibitem[HK05]{HK05}
+S.~Helke and F.~Kamm{\"u}ller.
+\newblock {Structure Preserving Data Abstractions for Statecharts}.
+\newblock In F. Wang, editors, {\em  Formal Techniques
+  for Networked and Distributed Systems, FORTE 2005}, \textit{Springer LNCS},
+\textbf{3731}, 2005.
+
+\bibitem[Hel07]{Hel07}
+S.~Helke.
+\newblock {\em Verification of Statecharts using Structure- and
+  Property-Preserving Data Abstraction {$[$}german{$]$} }.
+\newblock PhD thesis, Fakult{\"a}t IV, Technische Universit{\"a}t Berlin, Germany, 2007.
+
+\end{thebibliography}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

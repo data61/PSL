@@ -1,0 +1,15 @@
+chapter AFP
+
+session "Saturation_Framework" (AFP) = Ordered_Resolution_Prover +
+  options [timeout=300]
+  sessions
+    Well_Quasi_Orders
+  theories
+    Consequence_Relations_and_Inference_Systems
+    Calculi
+    Lifting_to_Non_Ground_Calculi
+    Labeled_Lifting_to_Non_Ground_Calculi
+    Prover_Architectures
+  document_files
+    "root.tex"
+    "root.tex"

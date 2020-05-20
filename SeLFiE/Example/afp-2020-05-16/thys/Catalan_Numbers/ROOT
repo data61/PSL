@@ -1,0 +1,11 @@
+chapter AFP
+
+session Catalan_Numbers (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  sessions
+    Landau_Symbols
+  theories
+    Catalan_Numbers
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,10 @@
+chapter AFP
+
+session BinarySearchTree (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    BinaryTree
+    BinaryTree_Map
+    BinaryTree_TacticStyle
+  document_files
+    "root.tex"

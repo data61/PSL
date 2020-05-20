@@ -1,0 +1,462 @@
+% -- csp.sty version 2 -------------------------------------------------
+
+% usual common sense conditions apply - see for example the LaTeX
+% public license - try to avoid editing this file; if you do edit it,
+% change the filename; comments, complaints, and suggestions to
+%
+%   Jim.Davies@comlab.ox.ac.uk 
+%
+% but all gratitude and appreciation to Mike Spivey.  
+
+% This might be seen as a prototype; the functionality is there, but
+% the implementation and documentation leave something to be
+% desired---if anyone who _really_ knows what they are doing
+% w.r.t. 2e internals wants to suggest revisions, then please do.
+
+% -- csp.sty -----------------------------------------------------------
+
+\def\fileversion{2.0} 
+\def\filedate{01/05/07} 
+
+\NeedsTeXFormat{LaTeX2e}
+
+\ProvidesPackage{csp}[{\filedate\space\fileversion\space csp package}]
+
+% -- options -----------------------------------------------------------
+
+\newif\if@cm@ \@cm@false
+\newif\if@lucida@ \@lucida@false
+\newif\if@times@ \@times@false
+\newif\if@color@ \@color@false
+\newif\if@zed@ \@zed@false
+\newif\if@csp@ \@csp@false
+\newif\if@nolines@ \@nolines@false
+
+\DeclareOption{cm}{\@cm@true\@lucida@false\@times@false}
+\DeclareOption{lucida}{\@cm@false\@lucida@true\@times@false}
+\DeclareOption{times}{\@cm@false\@lucida@false\@times@true}
+\DeclareOption{color}{\@color@true}
+\DeclareOption{zed}{\@zed@true}
+\DeclareOption{csp}{\@csp@true}
+\DeclareOption{nolines}{\@nolines@true}
+
+\ExecuteOptions{cm} \ProcessOptions
+
+\@ifpackageloaded{zed}{\relax}{%
+  \RequirePackageWithOptions{zed}}
+
+% -- color -------------------------------------------------------------
+
+\if@color@
+  \@ifpackageloaded{color}{\relax}{%
+    \RequirePackage[dvipsnames,usenames]{color}}
+  \definecolor{CSPBoxColor}{cmyk}{1,0,1,0}% Green
+  \definecolor{MetaColor}{cmyk}{0,0.61,0.87,0}% Orange
+  \definecolor{CSPColor}{cmyk}{0.50,1,0,0}% Plum
+  \else
+  \@ifpackageloaded{color}{\relax}{\def\color#1{\relax}}
+\fi
+
+% -- symbols -----------------------------------------------------------
+
+\if@cm@
+  \let\Box\undefined
+  \DeclareMathSymbol\tick{\mathord}{AMSa}{"58}
+  \DeclareSymbolFont{lasy}{U}{lasy}{m}{n}
+  \DeclareMathSymbol{\Box}{\mathord}{lasy}{"32}
+  \def\lchan@sym{{\{}\mkern-3.5mu{|}}
+  \def\rchan@sym{{|}\mkern-3.5mu{\}}}
+  \def\lseq@sym{\langle}
+  \def\rseq@sym{\rangle}
+  \def\lren@sym{[}
+  \def\rren@sym{]}
+  \def\llink@sym{\langle\mkern-4mu\langle}
+  \def\rlink@sym{\rangle\mkern-4mu\rangle}
+  \let\then@sym\rightarrow
+  \let\parallel@sym\parallel 
+  \let\cpar@sym\mid
+  \def\guard@sym{\&}
+  \let\becomes@sym\leftarrow
+  \let\linksto@sym\leftrightarrow
+  \let\extchoice@sym\Box
+  \let\intchoice@sym\sqcap
+  \let\interrupt@sym\triangle
+  \let\timeout@sym\triangleright
+  \def\lpar@sym{{|}\mkern -2mu{[}\mkern-1mu}
+  \def\rpar@sym{\mkern-1mu{]}\mkern -2mu{|}}
+  \def\interleave@sym{{|}\mkern-2mu{|}\mkern-2mu{|}}
+  \let\circ@sym=\circ
+  \let\hide@sym\backslash
+  \def \ldbrack{{[}\mkern-3mu{[}}
+  \def \rdbrack{{]}\mkern-3mu{]}}
+\fi
+
+\if@times@
+  \let\bar@sym=\mid
+  \let\hide@sym=\backslash
+  \DeclareMathSymbol{[}{\mathopen}{symbols}{84}
+  \DeclareMathSymbol{]}{\mathclose}{symbols}{85}
+  \let\tick=\surd
+  \def\lchan@sym{{\{}\mkern-4mu{|}}
+  \def\rchan@sym{{|}\mkern-4mu{\}}}
+  \def\lseq@sym{\langle}
+  \def\rseq@sym{\rangle}
+  \def\lren@sym{[}
+  \def\rren@sym{]}
+  \def\llink@sym{\langle\mkern-4mu\langle}
+  \def\rlink@sym{\rangle\mkern-4mu\rangle}
+  \def\then@sym{\simple@enlarge{\rightarrow}}
+  \def\parallel@sym{\bar@sym\bar@sym}
+  \def\guard@sym{\&}
+  \def\becomes@sym{\simple@enlarge{\leftarrow}}
+  \def\linksto@sym{\simple@enlarge{\leftrightarrow}}
+  \def\extchoice@sym{%
+    \setbox0=\hbox{$\sqcap$}\rlap{\hbox to \wd0{\hss\vrule width 0.5em
+        height 0.1ex\hss}}\box0}
+  \let\intchoice@sym\sqcap
+  \let\interrupt@sym\triangle
+  \let\timeout@sym\triangleright
+  \let\cpar@sym\bar@sym
+  \def\lpar@sym{{\bar@sym}\mkern -2mu{[}\mkern-1mu}
+  \def\rpar@sym{\mkern-1mu{]}\mkern -2mu{\bar@sym}}
+  \def\interleave@sym{\bar@sym\bar@sym\bar@sym}
+  \let\circ@sym=\circ
+  \def \ldbrack{{[}\mkern-3mu{[}}
+  \def \rdbrack{{]}\mkern-3mu{]}}
+\fi
+
+\if@lucida@
+  \DeclareMathSymbol{\tick}{0}{arrows}{"AC}
+  \DeclareSymbolFont{roman}{\encodingdefault}{\rmdefault}{m}{n}
+  \DeclareMathSymbol{\bar@sym}{\mathord}{roman}{124}
+  \DeclareMathSymbol{\hide@sym}{\mathord}{roman}{092}
+  \def\lchan@sym{{\{}\mkern-5mu{|}}
+  \def\rchan@sym{{|}\mkern-5mu{\}}}
+  \def\lseq@sym{\langle}
+  \def\rseq@sym{\rangle}
+  \def\lren@sym{[}
+  \def\rren@sym{]}
+  \def\llink@sym{\langle\mkern-4mu\langle}
+  \def\rlink@sym{\rangle\mkern-4mu\rangle}
+  \def\then@sym{\simple@enlarge{\rightarrow}}
+  \def\parallel@sym{\bar@sym\bar@sym}
+  \def\guard@sym{\&}
+  \def\becomes@sym{\simple@enlarge{\leftarrow}}
+  \def\linksto@sym{\simple@enlarge{\leftrightarrow}}
+  \let\extchoice@sym\Box
+  \let\intchoice@sym\sqcap
+  \let\interrupt@sym\triangle
+  \let\timeout@sym\triangleright
+  \let\cpar@sym\bar@sym
+  \def\lpar@sym{{\bar@sym}\mkern -2mu{[}\mkern-1mu}
+  \def\rpar@sym{\mkern-1mu{]}\mkern -2mu{\bar@sym}}
+  \def\interleave@sym{\bar@sym\bar@sym\bar@sym}
+  \let\circ@sym=\circ
+\fi
+
+% -- mathematical sublanguage ------------------------------------------
+
+\def\Empty#1{#1 = \emptyset}
+\def\Nil#1{#1 = \nil}
+\def\elem#1{\mathrel{\in \ran} #1}
+\def\lseq{\mathord{\lseq@sym}}
+\def\lset{\{}
+\def\nil{\langle\rangle}
+\def\range{\upto}
+\def\rseq{\mathord{\rseq@sym}}
+\def\rset{\}}
+
+\def\If{\mathrel{\mathrm{if}}}
+\def\Then{\mathrel{\mathrm{then}}}
+\def\Else{\mathrel{\mathrm{else}}}
+
+\def\lchan{\mathord{\lchan@sym}}
+\def\rchan{\mathord{\rchan@sym}}
+\def\productions{\mathop{\mathrm{productions}}}
+\def\extensions{\mathop{\mathrm{extensions}}}
+
+% -- process language --------------------------------------------------
+
+\def\then{\mathrel{\then@sym}}
+\def\intchoice{\mathrel{\intchoice@sym}}
+\def\extchoice{\mathrel{\extchoice@sym}}
+
+\def\guard{\mathrel{\guard@sym}}
+
+\def\lren{\mathord{\lren@sym}}
+\def\rren{\mathord{\rren@sym}}
+\def\becomes{\mathbin{\becomes@sym}}
+
+\def\llink{\mathbin{\llink@sym}}
+\def\rlink{\mathbin{\rlink@sym}}
+\def\linksto{\mathbin{\linksto@sym}}
+
+\def\interrupt{\mathrel{\interrupt@sym}}
+\def\timeout{\mathrel{\timeout@sym}}
+
+\def\hide{\mathrel{\hide@sym}}
+
+\def\parallel{\@ifnextchar[{\@parallel}{\mathrel{\parallel@sym}}}
+\def\@parallel[#1]{%
+  \@ifnextchar[{\@@parallel[#1]}{\lpar #1 \rpar}}
+\def\@@parallel[#1][#2]{\lpar #1 \cpar #2 \rpar}
+
+\def\cpar{\mathbin{\cpar@sym}}
+\def\lpar{\mathbin{\lpar@sym}}
+\def\rpar{\mathbin{\rpar@sym}}
+
+\def\interleave{\mathrel{\interleave@sym}}
+
+\def\linking{\@ifnextchar[{\@linking}{\@linking[]}}
+\def\@linking[#1]{\llink #1 \rlink}
+
+% -- indexed operators -------------------------------------------------
+
+\def\indexed@op#1{%
+  \mathop{\vcenter@enlarge{\mathstrut#1}}\nolimits}
+
+\def\indexed@bin#1{\mathbin{\vcenter@enlarge{\mathstrut#1}}}
+
+\def\circ{\mathrel{\circ@sym}}
+
+\def\Intchoice{\indexed@op{\intchoice@sym}}
+\def\Extchoice{\indexed@op{\extchoice@sym}}
+\def\Parallel{\indexed@op{\parallel@sym}}
+\def\Interleave{\indexed@op{\interleave@sym}}
+\def\Comp{\indexed@op{\comp@sym\,}}
+
+\def\Linking{\@ifnextchar[{\@Linking}{\@Linking[]}}
+\def\@Linking[#1]{\indexed@bin{\llink} #1 \indexed@bin{\rlink}}
+  
+% -- properties --------------------------------------------------------
+
+\def\Deterministic{%
+  \@ifnextchar[{%
+    \@deterministic}{%
+    \@deterministic[FD]}}
+\def\@deterministic[#1]{\mathop{\mathrm{deterministic}_{#1}~}}
+
+\def\DeadlockFree{%
+  \@ifnextchar[{%
+    \@deadlockfree}{%
+    \@deadlockfree[FD]}}
+\def\@deadlockfree[#1]{\mathop{\mathrm{deadlock\;free}_{#1}~}}
+
+\def\DivergenceFree{%
+  \mathop{\mathrm{divergence\;free}~}}
+
+\def\refinedby{%
+  \@ifnextchar[{\@refinedby}{\mathrel{\sqsubseteq}}}
+
+\def\@refinedby[#1]{\mathrel{\sqsubseteq_{#1}}}
+
+% -- displayed mathematics ---------------------------------------------
+
+\newdimen\cspindent \cspindent=\leftmargini
+\newdimen\cspleftsep \cspleftsep=1em
+\newdimen\csptab \csptab=1em
+
+\newskip\cspskip \cspskip=0.5\baselineskip plus0.333333\baselineskip% 
+                                minus0.333333\baselineskip%
+
+\def\@cspjot{0.5\cspskip}
+
+\newcount\intercsplinepenalty \intercsplinepenalty=10000%
+\newcount\preboxpenalty \preboxpenalty=0%
+
+\let\cedilla=\c
+\def\c#1{\afterassignment\@c\count@=#1}
+\def\@c{\hskip\count@\csptab}
+
+\newdimen\csprulewidth 
+\newcount\cspindentdepth
+
+\if@nolines@
+  \csprulewidth=0pt 
+  \cspindentdepth=0
+\else
+  \csprulewidth=\arrayrulewidth
+  \cspindentdepth=1
+\fi
+
+\def\@cspnarrow{\advance\linewidth by-\cspindent}
+\def\@csprulefill{\leaders\hrule height\csprulewidth\hfill}
+
+\def\cspdisplayindent{\hskip\cspindentdepth\csptab}
+
+\def\csp@topline#1{\hbox to\linewidth{%
+    \color{CSPBoxColor}%
+    \vrule height\csprulewidth width\csprulewidth
+    \vrule height0pt depth\@cspjot width0pt
+    \@csprulefill\thinspace{\color{CSPColor}#1}\thinspace%
+    \hbox to\cspleftsep{\@csprulefill}}}
+
+\def\@cspline{\omit \vrule height\csprulewidth width\linewidth \cr}
+
+\def\@cspskip#1{\crcr \omit \vrule height#1 width\csprulewidth \cr}
+
+\newif\if@in@csp@display@ \@in@csp@display@false
+
+\def\@csp{\ifvmode\@cspleavevmode\fi$$
+  \advance\linewidth by-\cspindent
+  \advance\displayindent by\cspindent 
+  \def\\{\cr}%
+  \@in@csp@display@true
+  \let\par=\relax
+  \tabskip=0pt}
+
+\def\@cspskip#1{\crcr \omit \vrule height#1 width\arrayrulewidth \cr}
+
+\def\also{\crcr \noalign{\penalty\interdisplaylinepenalty
+    \vskip\cspskip}} 
+\def\Also{\crcr \noalign{\penalty\interdisplaylinepenalty
+    \vskip2\cspskip}} 
+
+\def\@csplign{\tabskip\z@skip\everycr{}} 
+
+\def\csp{\@csp\halign to\linewidth\bgroup%
+  {\color{CSPColor}\strut$\@csplign##$}\hfil
+  \tabskip=0pt plus1fil\cr}
+\def\endcsp{\crcr\egroup$$\global\@ignoretrue}
+
+\def\barcsp{\def\also{\@cspskip\cspskip}\def\Also{\@cspskip{2\cspskip}}%
+  \color{CSPBoxColor}%
+  \@csp\offinterlineskip\halign to\linewidth\bgroup
+  \strut \vrule width\csprulewidth\cspdisplayindent%
+  {\color{CSPColor}$\@csplign##$}\hfil
+  \tabskip=0pt plus1fil\cr} 
+\def\endbarcsp{\crcr\egroup$$\global\@ignoretrue}
+
+\def\@cspleavevmode{\if@inlabel \indent
+  \else\if@noskipsec \indent
+  \else\if@nobreak \global\@nobreakfalse
+  \everypar={}\abovedisplayskip=0pt\fi
+  {\parskip=0pt\noindent}\fi\fi}
+
+\def\block{\@ifnextchar[{\@block}{\@block[t]}}
+\def\@block[#1]{\array[#1]{@{}l@{}}}
+\let\endblock=\endarray
+
+% -- contexts and declarations -----------------------------------------
+
+\def\extends{\mathrel{\mathrm{extends}}}
+\def\uses{\mathrel{\mathrm{uses}}}
+
+\def\declarationname{}
+
+\def\innerdeclarationlabel{\declarationname\\ \hskip\csptab}
+\def\innerdeclaration{\block\innerdeclarationlabel\block}
+\def\endinnerdeclaration{\endblock\endblock}
+
+\def\outerdeclarationlabel{\global\advance\cspindentdepth
+  by 1\declarationname\cr}
+
+\def\outerdeclaration{%
+  \@ifnextchar[{\boxdeclaration}{\linedeclaration}}
+\def\boxdeclaration[#1]{%
+  \def\endouterdeclaration{\global\advance\cspindentdepth
+    by -1\@cspskip\@cspjot\@cspline\endbarcsp}%
+  \@cspnarrow\barcsp%
+  \omit\csp@topline{$\strut#1$}\cr\@cspskip\@cspjot\outerdeclarationlabel}
+\def\linedeclaration{%
+  \def\endouterdeclaration{\global\advance\cspindentdepth
+  by -1\@cspskip\@cspjot\endbarcsp}
+  \barcsp\@cspskip\@cspjot\outerdeclarationlabel}
+
+% -- called by @declaration
+
+\if@color@
+  \def\@declaration@font{\color{MetaColor}\mathrm}
+\else
+  \def\@declaration@font{\mathsf}
+\fi
+
+\def\@declare#1{\mathop{{\@declaration@font{#1}~}}}
+
+\def\@declaration#1{%
+  \def\declarationname{{\@declaration@font{#1}}}%
+  \@ifnextchar[{\opt@dec}{\plain@dec}}
+
+\def\plain@dec{%
+  \if@in@csp@display@
+  \def\finish@dec{\endinnerdeclaration}%
+  \innerdeclaration
+  \else 
+  \def\finish@dec{\endouterdeclaration}%
+  \outerdeclaration
+  \fi}
+
+\def\opt@dec[#1]{%
+  \if@in@csp@display@
+  \def\finish@dec{\endinnerdeclaration}%
+  \innerdeclaration
+  \else 
+  \def\finish@dec{\endouterdeclaration}%
+  \outerdeclaration[#1]%
+  \fi}
+
+\def\end@declaration{\finish@dec}
+
+\def\newdeclaration#1#2#3{%
+  \global\@namedef{#1}{\@declaration{#3}}%
+  \global\@namedef{end#1}{\end@declaration}%
+  \global\@namedef{#2}{\@declare{#3}}}
+
+\newdeclaration{assertion}{Assertion}{assert}
+\newdeclaration{channel}{Channel}{channel}
+\newdeclaration{context}{Context}{context}
+\newdeclaration{datatype}{Datatype}{datatype}
+\newdeclaration{external}{External}{external}
+\newdeclaration{function}{Function}{function}
+\newdeclaration{nametype}{Nametype}{nametype}
+\newdeclaration{process}{Process}{process}
+\newdeclaration{set}{Set}{set}
+\newdeclaration{subtype}{Subtype}{subtype}
+\newdeclaration{transparent}{Transparent}{transparent}
+\newdeclaration{within}{Within}{within}
+
+% -- \declaration is an exception to the rule 
+
+\def\declaration{%
+  \def\declarationname{{\@declaration@font{let}}}%
+  \def\outerdeclarationlabel{}
+  \@ifnextchar[{\optdeclaration}{\plaindeclaration}}
+
+\def\plaindeclaration{%
+  \if@in@csp@display@%
+  \def\finishdeclaration{\endinnerdeclaration}%
+  \innerdeclaration%
+  \else %
+  \def\finishdeclaration{%
+    \global\advance\cspindentdepth
+    by 1\endouterdeclaration}%
+  \outerdeclaration \fi}
+
+\def\optdeclaration[#1]{%
+  \if@in@csp@display@
+  \def\finishdeclaration{\endinnerdeclaration}%
+  \innerdeclaration%
+  \else 
+  \def\finishdeclaration{%
+    \global\advance\cspindentdepth
+  by 1\endouterdeclaration}%
+  \outerdeclaration[#1]%
+  \fi}
+
+\def\enddeclaration{\finishdeclaration}
+
+\def\Let{\@declare{let}}
+
+% -- semantics ---------------------------------------------------------
+
+\def\newsemantics#1#2{%
+  \@namedef{#1}{#2\@ifnextchar[{\@semapp}{\relax}}}
+\def\@semapp[#1]{\,\ldbrack #1 \rdbrack}
+
+\newsemantics{traces}{traces}
+\newsemantics{divergences}{divergences}
+\newsemantics{failures}{failures}
+
+% -- csp.sty -----------------------------------------------------------
+
+\endinput

@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,amsmath}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{wasysym}
+\usepackage{booktabs}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Multi-Party Computation}
+\author{David Aspinall and David Butler}
+\maketitle
+
+\begin{abstract}
+We use CryptHOL~\cite{Basin2017, Lochbihler2017AFP} to consider Multi-Party Computation (MPC) protocols. MPC was first considered in \cite{Yao_MPC} and recent advances in efficiency and an increased demand mean it is now deployed in the real world. Security is considered using the real/ideal world paradigm. We first define security in the semi-honest security setting where parties are assumed not to deviate from the protocol transcript. In this setting we prove multiple Oblivious Transfer (OT) protocols secure and then show security for the gates of the GMW protocol \cite{DBLP:conf/stoc/GoldreichMW87}. We then define malicious security, this is a stronger notion of security where parties are assumed to be fully corrupted by an adversary. In this setting we again consider OT.
+
+\end{abstract}
+
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+

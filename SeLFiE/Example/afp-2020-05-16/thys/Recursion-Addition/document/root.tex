@@ -1,0 +1,36 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Recursion Theorem}
+\author{Georgy Dunaev}
+\maketitle
+
+\begin{abstract}
+  This document contains a proof of the recursion theorem.
+  This is a mechanization of the proof of the recursion theorem from 
+  the text \textit{Introduction to Set Theory}, by Karel Hrbacek 
+  and Thomas Jech. This implementation may be used as the basis for 
+  a model of Peano Arithmetic in ZF\@. While recursion and the natural
+  numbers are already available in ZF, this clean development
+  is much easier to follow.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

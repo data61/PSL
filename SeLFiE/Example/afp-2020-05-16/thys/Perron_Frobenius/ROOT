@@ -1,0 +1,27 @@
+chapter AFP
+
+session "Perron_Frobenius" (AFP) = Jordan_Normal_Form + 
+  options [timeout = 1800]
+  sessions
+    "HOL-Types_To_Sets"
+    "HOL-Real_Asymp"
+    Polynomial_Factorization
+    Rank_Nullity_Theorem
+    Sturm_Sequences
+  theories [document = false]
+    "HOL-Analysis.Brouwer_Fixpoint"
+    "HOL-Analysis.Determinants"
+    "HOL-Eisbach.Eisbach"
+    "HOL-Types_To_Sets.Types_To_Sets"
+    Polynomial_Factorization.Square_Free_Factorization
+    Rank_Nullity_Theorem.Miscellaneous
+    Sturm_Sequences.Sturm_Method
+  theories
+    Cancel_Card_Constraint
+    HMA_Connect
+    Perron_Frobenius_General
+    Spectral_Radius_Theory
+    Check_Matrix_Growth
+  document_files
+    "root.bib"
+    "root.tex"

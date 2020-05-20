@@ -1,0 +1,13 @@
+chapter AFP
+
+session Farkas (AFP) = Simplex +
+  options [timeout = 600]
+  sessions
+    Jordan_Normal_Form
+  theories
+    Farkas
+    Matrix_Farkas
+    Simplex_for_Reals
+  document_files
+    "root.bib"
+    "root.tex"

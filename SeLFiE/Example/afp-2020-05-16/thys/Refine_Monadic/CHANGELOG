@@ -1,0 +1,180 @@
+Changes of Refinement Framework since 2011-12-24:
+
+2014-11 Peter Lammich
+  * le-or-fail relation (leof)
+  * while-invariants via (leof), and modular reasoning about invariants
+
+2014-07 Peter Lammich
+  * Now defining total correct recursion via flat domain. Renamed some rules, 
+    changed RECT_eq_REC-rules. 
+    INCOMPATIBILITIES: 
+      - Renamed preconditions of REC[T]_rule[_arb] from \Phi to pre.
+      - Introduced "trimono" predicate. Used in mono-rules instead of mono.
+        Use thm trimonoD_mono to get back "mono"-predicate.
+  * Changed the notion of refinement to conc_fun R (RES X) = RES (R^-1 `` X).
+    INCOMPATIBILITIES: 
+      - For single-valued R, this definition matches the old one.
+      - For non single-valued case, the new definition allows for more convenient 
+        rules. Removed many single-valued assumptions from refinement rules.
+
+
+2014-06 Peter Lammich
+  * Strengthened RECT_eq_REC - rule.
+  * Added vc_solve method
+  * Fine-tuned rcg/vcg setup for ASSERT/ASSUME
+  * Added more convenience lemmas
+  * VCG-rules for nfoldli
+  * Improved Autoref-setup for FOREACH-loops
+
+2013-09 Peter Lammich
+  * Made this dependent on Automatic_Refinement
+
+2012-11-30 Peter Lammich
+  * Added eq_assume_tac to Refine.post_tac
+
+2012-11-06 Peter Lammich
+  * Added knowledge that invar holds for initial state to WHILE refinement rules
+
+2012-10-05 Peter Lammich
+  * New autoref framework. MAJOR INCOMPATIBILITY
+    The new framework, although a prototype, is aimed at producing reasonable
+    translations with as few required configuration as possible. See examples
+    in ex/ directory for usage.
+  * Definitions of relators are now in lemm collection refine_rel_defs.
+    No longer in refine_hsimp. INCOMPATIBILITY
+
+2012-08-31 Peter Lammich
+  * Adaptions to new ICF v2
+  * Stronger REC/RECT rules: 
+  * Added abbreviations xx.R == br \alpha invar to ICF interfaces
+
+2012-07-10 Peter Lammich
+  * Maintenance changes
+  * Added fo_rule - method that applies theorems using first-order matching.
+    Works particular well with arg_cong, fun_cong.
+  * Removed definitions of standard relation combinators 
+    (rprod, map_set_rel, etc.) from standard simpset. They are now all in the
+    theorems collection refine_rel_defs. INCOMPATIBILITY: Add refine_rel_defs
+    to the simpset, but first try whether adding refine_hsimp does the job.
+  * Introduced ropt relation combinator, and changed setup for autoref_ex. 
+    Maybe INCOMPATIBILITY.
+
+2012-07-02 Peter Lammich
+  * Changed map_set_rel to pose additional invariant on concrete set: All 
+    elements must actually be mapped.
+  * Added nested-DFS algorithm with witness generation as example. The algorithm
+    uses the RECT-combinator to implement a nested DFS search for an accepting
+    cycle in a Buechi-automaton. It is a quite complex example that 
+    demonstrates how to use the RECT-combinators and automatic refinement.
+
+2012-06-25 Peter Lammich
+  * WHILExx_refine_genR and FOREACHxxx_refine_genR rules that allow to exploit
+    that the condition does not hold when the loop terminates.
+  * Changes imported from Neumann's Refine_Addition theory:
+      - Added REC(T)_rule_arbN for N=2,3
+      - Added bind2letRETURN_refine rules as [refine2], to account for pattern
+        RETURN (Let _ _) <= \<Down> R bind _ _
+
+2012-06-21 Peter Lammich
+  * Fine-tuned standard refinement setup: intro_spec_refine and bind_refine_RES
+    MAYBE INCOMPATIBILITY, but in most cases it should just do the right thing.
+  * Improved concrete_definition command. Now also exports a lemma 
+    name.refine.
+  * Added prepare_code_thms command, that processes a set of definition 
+    theorems, and declares code lemmas, handling recursion combinators.
+
+2012-06-18 Peter Lammich
+  * Added first version of concrete_definition command, that saves the user
+    from copy-pasting when making definitions out of refinement theorems.
+    See userguide for an example. 
+    INCOMPATIBILITY: In order to make the new command work under ProofGeneral,
+    you need to copy the keyword file Libs/Refine_Monadic/isar-keywords.el to
+    some appropriate directory, e.g. ~/.isabelle/etc
+
+2012-06-12 Peter Lammich:
+  * Bugfix: FOREACHc_rule was to weak (probably a typo).
+  * Added alternative FOREACH??i_rule', that allow for less redundant proofs
+    in some cases.
+  * Added support for option_case.
+  * More general proof rules for recursion combinator:
+    RECT_rule_arb and REC_rule_arb now allow for generalizing over variables
+    that occur in the specification, but not in the program.
+  * Improved rprems_tac such that it can cope with schematic type variables.
+    Now refine_autoref works with REC-combinators more cleanly.
+
+2012-04-23 Thomas Tuerk: Ordered FOREACH.
+
+2012-03-20 Thomas Tuerk: Adaption to changed iterator interface in Collection Framework
+
+2012-02-21
+  * Declared RETURN_SPEC_refine_sv as standard [refine]-rule.
+    Potential INCOMPATIBILITY.
+
+2012-02-20
+  * Modified automatic refinement: Using Method.assm_tac to discharge
+    by assumption. Potential INCOMPATIBILITY, but should be limited to very
+    rare cases, where one tried to work around the non-discharged assumption.
+
+2012-01-28
+  * Added parameters to refine_transfer, refine_rcg, and refine_autoref.
+    Usage:
+      refine_transfer trans_thms
+      refine_rcg refine_thms
+      refine_autoref spec_thms
+  * "refine_dref_type_only" is now "refine_dref_type (nopost)". INCOMPATIBILITY.
+  * Added "refine_dref_type (trace)"
+  * "refine_autoref_ss" is now "refine_autoref (trace) (ss)". INCOMPATIBILITY.
+  * Changed determinization for iterators. An additional wrapper-function 
+    occurs in generated function. INCOMPATIBILITY if generated function was copied.
+  
+
+
+2012-01-26
+  * Added monotonicity prover (refine_mono - method), and integrated it
+    with refine_rcg tactic. Maybe INCOMPATIBILITY, however, it only changes
+    mono-goals that it can completely solve.
+  * Automatic Refinement. Examples are in: 
+      (ex/Automatic_Determinization, ex/Recursion, 
+       ../Dijkstra/Dijkstra_Impl_Aref).
+  * Example for use of REC and RECT combinators (ex/Recursion)
+
+2012-01-16 [Release to Cava-Repo]
+  * Changed definition of conc_fun (\Down), such that \Up and \Down always form
+    a Galois-Connection. Equivalent in the single valued case, INCOMPATIBILITY
+    in the non-single-valued case. Currently, refinement rules for WHILE assume 
+    singe-valued relations, thus had to disable WHILEI_invisible_refine example.
+    Generalizing to general case remains future work.
+  * Total correct recursion is now expressed by greatest fixed points rather than
+    least fixed points with asserted variant. Rules remain the same for 
+    WHILE-loops, INCOMPATIBILITY for arbitrary recursion. 
+    Introduced REC and RECT combinators, that should be used for recursion 
+    (formerly lfp and lfpT). 
+  * Changed code generation. INCOMPATIBILITY. Partial correct code now is inside 
+    a monad with a flat complete lattice domain, rather than the option monad.
+    The embedding function is nres_of (formerly: EMBED).
+    The actual translation is done by the refine_transfer method 
+    (formerly: (rule refine_cgt / refine_cgp)+), that handles both, goals of the
+    form "RETURN ?f <= S" and "nres_of ?f <= S"
+    Also the attribute names changed: [refine_cgp] and [refine_cgt] are both
+    [refine_transfer] now. 
+
+2011-12-31
+  * Added WHILEI_invisible_refine rule, that supports refinement with invisible
+    concrete steps for partial correct WHILE-loops. Also added example to ex/ 
+    subdirectory.
+  * Fixed bind2let_refine rule, the assumption was to strong.
+  * Renamed le_ASSERTI_pres -> ref_ASSERTI_pres
+
+2011-12-30:
+  * Added FOREACH-refine rules with stronger coupling invariants.
+  * Added conditions to step-refine assumptions of conditional foreach rules.
+
+2011-12-29:
+  * Added nofail/inres predicates and related lemmas.
+  * Arbitrary recursion via lfp. Changed basis of while-combinator to
+    use that. Also a well-founded variant lfpT. 
+    INCOMPATIBILITIES:
+      WINV is now WI_reach, and definition of while-loop has changed completely.
+  
+
+

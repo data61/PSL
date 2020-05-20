@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{wasysym}%Needed for next (circle)
+\usepackage{fullpage}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Dynamic Architectures%
+%\thanks{The final publication is available at the Archive of Formal Proofs via \url{http://isa-afp.org/entries/DynamicArchitectures.shtml}.}%
+}
+\author{Diego Marmsoler}
+\maketitle
+
+\begin{abstract}
+	%Context
+	The architecture of a system describes the system's overall organization into components and connections between those components.
+	With the emergence of mobile computing, dynamic architectures have become increasingly important.
+	In such architectures, components may appear or disappear, and connections may change over time.
+	%Problem
+	In the following we mechanize a theory of dynamic architectures and verify the soundness of a corresponding calculus.
+	%Approach
+	Therefore, we first formalize the notion of configuration traces~\cite{Marmsoler2016} as a model for dynamic architectures.
+	Then, the behavior of single components is formalized in terms of behavior traces and an operator is introduced and studied to extract the behavior of a single component out of a given configuration trace.
+	Then, behavior trace assertions are introduced as a temporal specification technique to specify behavior of components.
+	Reasoning about component behavior in a dynamic context is formalized in terms of a calculus for dynamic architectures~\cite{Marmsoler2017c}.
+	Finally, the soundness of the calculus is verified by introducing an alternative interpretation for behavior trace assertions over configuration traces and proving the rules of the calculus.
+	Since projection may lead to finite as well as infinite behavior traces, they are formalized in terms of coinductive lists.
+	Thus, our theory is based on Lochbihler's~\cite{Lochbihler2010} formalization of coinductive lists.
+	%Implications
+	The theory may be applied to verify properties for dynamic architectures.
+\end{abstract}
+\newpage
+
+\tableofcontents
+\newpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

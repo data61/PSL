@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+
+%drawing a graph in Service_Matrix.thy
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usetikzlibrary{arrows,decorations.markings}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Simple Firewall}
+\author{Cornelius Diekmann, Julius Michaelis, Max Haslbeck}
+\maketitle
+
+\begin{abstract}  
+  We present a simple model of a firewall. 
+  The firewall can accept or drop a packet and can match on interfaces, IP addresses, protocol, and ports. 
+  It was designed to feature nice mathematical properties: 
+  The type of match expressions was carefully crafted such that the conjunction of two match expressions is only one match expression. 
+  
+  This model is too simplistic to mirror all aspects of the real world. 
+  In the upcoming entry ``Iptables Semantics'', we will translate the Linux firewall iptables to this model. 
+  
+  For a fixed service (e.g.\ ssh, http), this entry provides an algorithm to compute an overview of the firewall's filtering behavior. 
+  The algorithm computes minimal service matrices, i.e.\ graphs which partition the complete IPv4 and IPv6 address space and visualize the allowed accesses between partitions. 
+
+For a detailed description, see \cite{diekmann2016networking}. 
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

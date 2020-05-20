@@ -1,0 +1,78 @@
+\documentclass{report}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\newcommand{\chapref}[1]{Chapter~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+
+
+\begin{document}
+
+\title{Pop-Refinement}
+
+\author{Alessandro Coglio\\
+        \ \\
+        Kestrel Institute\\
+        \url{http://www.kestrel.edu/~coglio}}
+
+\maketitle
+
+\begin{abstract}
+
+\noindent
+Pop-refinement is an approach to stepwise refinement,
+carried out inside an interactive theorem prover
+by constructing a monotonically decreasing sequence
+of predicates over deeply embedded target programs.
+The sequence
+starts with a predicate
+that characterizes the possible implementations,
+and ends with a predicate
+that characterizes a unique program in explicit syntactic form.
+
+Compared to existing refinement approaches,
+pop-refinement enables more requirements
+(e.g.\ program-level and non-functional)
+to be captured in the initial specification
+and preserved through refinement.
+Security requirements expressed as hyperproperties
+(i.e.\ predicates over sets of traces)
+are always preserved by pop-refinement,
+unlike the popular notion of refinement as trace set inclusion.
+
+After introducing the concept of pop-refinement,
+two simple examples in Isabelle/HOL are presented,
+featuring
+program-level requirements, non-functional requirements, and hyperproperties.
+General remarks about pop-refinement follow.
+Finally, related and future work are discussed.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}

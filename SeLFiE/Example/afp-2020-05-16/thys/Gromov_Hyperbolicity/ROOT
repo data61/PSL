@@ -1,0 +1,24 @@
+chapter AFP
+
+session "Gromov_Hyperbolicity" (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  sessions
+    "HOL-Cardinals"
+    "HOL-Decision_Procs"
+    Ergodic_Theory
+  theories
+    Library_Complements
+    Eexp_Eln
+    Metric_Completion
+    Hausdorff_Distance
+    Isometries
+    Gromov_Hyperbolicity
+    Morse_Gromov_Theorem
+    Bonk_Schramm_Extension
+    Gromov_Boundary
+    Boundary_Extension
+    Busemann_Function
+    Isometries_Classification
+  document_files
+    "root.tex"
+    "root.bib"

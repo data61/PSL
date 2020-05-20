@@ -1,0 +1,43 @@
+chapter AFP
+
+session Modular_Assembly_Kit_Security (AFP) = HOL +
+  description "
+    An Isabelle/HOL Formalization of the Modular Assembly Kit for Security Properties
+
+    Author: Oliver Bracevac, TU Darmstadt
+    Author: Richard Gay, TU Darmstadt
+    Author: Sylvia Grewe, TU Darmstadt
+    Author: Heiko Mantel, TU Darmstadt
+    Author: Henning Sudbrock, TU Darmstadt
+    Author: Markus Tasch, TU Darmstadt
+  "
+  options [timeout = 600]
+  directories
+    "Basics"
+    "SystemSpecification"
+    "SecuritySpecification"
+    "Verification/Basics"
+    "Verification/Unwinding"
+    "Verification/Compositionality"
+  theories
+    "Basics/Projection"
+    "Basics/Prefix"
+    "SystemSpecification/EventSystems"
+    "SystemSpecification/StateEventSystems"
+    "SecuritySpecification/Views"
+    "SecuritySpecification/FlowPolicies"
+    "SecuritySpecification/InformationFlowProperties"
+    "SecuritySpecification/BasicSecurityPredicates"
+    "SecuritySpecification/PropertyLibrary"
+    "Verification/Basics/BSPTaxonomy"
+    "Verification/Basics/SecureSystems"
+    "Verification/Unwinding/UnwindingConditions"
+    "Verification/Unwinding/AuxiliaryLemmas"
+    "Verification/Unwinding/UnwindingResults"
+    "Verification/Compositionality/CompositionBase"
+    "Verification/Compositionality/CompositionSupport"
+    "Verification/Compositionality/GeneralizedZippingLemma"
+    "Verification/Compositionality/CompositionalityResults"
+  document_files
+    "root.bib"
+    "root.tex"

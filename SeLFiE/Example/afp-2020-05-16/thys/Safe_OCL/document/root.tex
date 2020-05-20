@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{book}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage{caption} 
+\usepackage[flushleft]{threeparttable}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\captionsetup[table]{skip=10pt}
+
+\makeatletter
+\newenvironment{abstract}{%
+  \small
+  \begin{center}%
+    {\bfseries \abstractname\vspace{-.5em}\vspace{\z@}}%
+  \end{center}%
+  \quotation}{\endquotation}
+\makeatother
+
+% HACK: It's required to align multiline definitions and lemmas
+\renewcommand{\isachardoublequoteopen}{\ }
+\renewcommand{\isachardoublequoteclose}{\ }
+
+\begin{document}
+
+\title{Safe OCL}
+\author{Denis Nikiforov}
+\maketitle
+
+\begin{abstract}
+  The theory is a formalization of the OCL type system,
+  its abstract syntax and expression typing rules~\cite{OCL24}.
+  The theory does not define a concrete syntax and a semantics.
+  In contrast to Featherweight OCL~\cite{Featherweight_OCL-AFP},
+  it is based on a deep embedding approach. The type system is defined
+  from scratch, it is not based on the Isabelle HOL type system.
+
+  The Safe OCL distincts nullable and non-nullable types. Also
+  the theory gives a formal definition of safe navigation
+  operations~\cite{DBLP:conf/models/Willink15}. The Safe OCL typing rules
+  are much stricter than rules given in the OCL specification.
+  It allows one to catch more errors on a type checking phase.
+
+  The type theory presented is four-layered: classes, basic types,
+  generic types, errorable types. We introduce the following new types:
+  non-nullable types (\isa{{\isasymtau}{\isacharbrackleft}{\isadigit{1}}{\isacharbrackright}}),
+  nullable types (\isa{{\isasymtau}{\isacharbrackleft}{\isacharquery}{\isacharbrackright}}),
+  \isa{OclSuper}. \isa{OclSuper} is a supertype of all other types
+  (basic types, collections, tuples). This type allows us to define
+  a total supremum function, so types form an upper semilattice.
+  It allows us to define rich expression typing rules in an elegant manner.
+
+  The Preliminaries Section of the theory defines a number of
+  helper lemmas for transitive closures and tuples. It defines also
+  a generic object model independent from OCL. It allows one to use
+  the theory as a reference for formalization of analogous languages.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{ieeetr}
+\bibliography{root}
+
+\end{document}

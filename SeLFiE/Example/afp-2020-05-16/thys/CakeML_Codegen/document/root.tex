@@ -1,0 +1,46 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{isabelle}
+\usepackage{isabellesym}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{A Verified Code Generator from Isabelle/HOL to CakeML}
+\author{Lars Hupel}
+\maketitle
+
+\tableofcontents
+
+\clearpage
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{session_graph.pdf}
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

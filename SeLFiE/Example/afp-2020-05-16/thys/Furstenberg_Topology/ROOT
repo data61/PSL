@@ -1,0 +1,13 @@
+chapter AFP
+
+session Furstenberg_Topology (AFP) = "HOL-Analysis" +
+  options [timeout = 1200]
+  sessions
+    "HOL-Number_Theory"
+    "HOL-Real_Asymp"
+  theories
+    Furstenberg_Topology
+  document_files
+    "root.tex"
+    "root.bib"
+

@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Power Sum Polynomials\\ and the Girard--Newton Theorem}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This article provides a formalisation of the symmetric multivariate polynomials known as \emph{power sum polynomials}. These are of the form $p_n(X_1,\ldots, X_k) = X_1 ^ n + \ldots + X_k ^ n$. A formal proof of the Girard--Newton Theorem is also given. This theorem relates the power sum polynomials to the elementary symmetric polynomials $s_k$ in the form of a recurrence relation $(-1)^k k s_k = \sum_{i=0}^{k-1} (-1)^i s_i p_{k-i}$\ .
+
+As an application, this is then used to solve a generalised form of a puzzle given as an exercise in Dummit and Foote's \emph{Abstract Algebra}: For $k$ complex unknowns $x_1, \ldots, x_k$, define $p_j := x_1^j + \ldots + x_k^j$. Then for each vector $a\in\mathbb{C}^k$, show that there is exactly one solution to the system $p_1 = a_1, \ldots, p_k = a_k$ up to permutation of the $x_i$ and determine the value of $p_i$ for $i>k$.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

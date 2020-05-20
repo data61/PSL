@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+%\usepackage{graphicx}
+%\usepackage{alltt}  
+%\usepackage{url}
+%\usepackage{hyperref}
+%\usepackage{mathptmx}
+%\include{myCommands}
+%\include{tikzlib}
+\usepackage[all]{xy}
+%\usepackage{cite}
+
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Possibilistic Noninterference\thanks{Supported by the DFG project Ni 491/13--1 (part of the DFG priority program RS3) and the DFG RTG 1480.}
+}
+\author{Andrei Popescu \hspace*{10ex} Johannes H\"{o}lzl}
+%\institute{1: Technische Universit\"{a}t M\"{u}nchen 
+%           \hspace*{2ex} 2: Institute of Mathematics Simion Stoilow, Romania          
+%           }
+
+\maketitle
+
+\begin{abstract}
+We formalize a wide variety of Volpano/Smith-style 
+noninterference notions for a while language with parallel composition.  
+We systematize and classify these notions according to compositionality w.r.t.~the language constructs.  
+Compositionality yields sound syntactic criteria (a.k.a.~type systems) in a uniform way.  
+\end{abstract}
+
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\input{intro}
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

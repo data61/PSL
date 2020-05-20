@@ -1,0 +1,14 @@
+chapter AFP
+
+session Falling_Factorial_Sum (AFP) = "HOL-Library" +
+  options [timeout = 300]
+  sessions
+    Discrete_Summation
+    Card_Partitions
+  theories
+    Falling_Factorial_Sum_Combinatorics
+    Falling_Factorial_Sum_Induction
+    Falling_Factorial_Sum_Vandermonde
+  document_files
+    "root.bib"
+    "root.tex"

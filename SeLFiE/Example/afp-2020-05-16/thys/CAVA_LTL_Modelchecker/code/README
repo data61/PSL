@@ -1,0 +1,48 @@
+CAVA -- Model Checker
+=====================
+
+Building
+--------
+
+To compile the CAVA Model Checker, you need to have the following
+prerequisites installed:
+
+* MLton -- at least version 20100608
+* mllex and mlyacc (most often included with MLton)
+* gcc
+
+If these are installed, building is done with
+
+> ./build
+
+This is a simple shell-script. So if you need details or want to tweak it,
+go forward.
+
+When the build has been finished, you find a "CAVA" symlink in the current dir,
+that points to ./bin/CAVA_mlton.
+
+Running
+-------
+
+To get an overview of the available options, run ./CAVA without arguments.
+
+LTL Formulas
+------------
+
+The syntax of the LTL formula should cover most known varieties:
+
+- True: true
+- False: false
+- Not: ~, !
+- And: /\, &&, &
+- Or: \/, || , |
+- Implication: -->, ->
+- Equivalence: <-->, <->
+- Globally: G, []
+- Finally: F, <>
+- Until: U
+- Next: X
+- Release: R, V
+
+LTL formulas can refer to any global variable in the model and support
+normal operations (<, >, >=, =<, ==, !=, array index).

@@ -1,0 +1,15 @@
+chapter AFP
+
+session Buchi_Complementation (AFP) = "Transition_Systems_and_Automata" +
+  options [timeout = 1200]
+  theories
+    "Complementation"
+    "Complementation_Implement"
+    "Complementation_Final"
+  theories [condition = ISABELLE_MLTON]
+    "Complementation_Build"
+  document_files
+    "root.tex"
+    "root.bib"
+  export_files (in ".") [1]
+    "Buchi_Complementation.Complementation_Build:**"

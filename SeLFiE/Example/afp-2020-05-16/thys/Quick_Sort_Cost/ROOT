@@ -1,0 +1,15 @@
+chapter AFP
+
+session Quick_Sort_Cost (AFP) = "HOL-Probability" +
+  options [timeout = 300]
+  sessions
+    "List-Index"
+    "Regular-Sets"
+    Comparison_Sort_Lower_Bound
+    Landau_Symbols
+  theories
+    Randomised_Quick_Sort
+    Quick_Sort_Average_Case
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,29 @@
+chapter AFP
+
+session Dependent_SIFUM_Type_Systems (AFP) = HOL +
+  description "
+    An Isabelle/HOL formalization of a Value-Dependent extension to
+    Assumptions and Guarantees for Compositional Noninterference
+
+    Authors: Toby Murray, Robert Sison, Edward Pierzchalski, Christine Rizkallah
+
+    The original SIFUM_Type_Systems entry was authored by:
+    Sylvia Grewe, TU Darmstadt
+    Heiko Mantel, TU Darmstadt
+    Daniel Schoepe
+  "
+  options [timeout = 600]
+  sessions
+    "HOL-Eisbach"
+  directories
+    "Examples"
+  theories
+    TypeSystem
+    LocallySoundModeUse
+  theories [document = false]
+    "Examples/Example"
+    "Examples/Example_TypeSystem"
+    "Examples/Example_Swap_Add"
+  document_files
+    "root.bib"
+    "root.tex"

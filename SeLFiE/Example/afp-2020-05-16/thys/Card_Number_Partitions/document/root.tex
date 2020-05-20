@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Cardinality of Number Partitions}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+This entry provides a basic library for number partitions, defines the
+two-argument partition function through its recurrence relation and relates
+this partition function to the cardinality of number partitions. The main
+proof shows that the recursively-defined partition function with arguments
+$n$ and $k$ equals the cardinality of number partitions of $n$ with exactly
+$k$ parts. The combinatorial proof follows the proof sketch of Theorem~2.4.1
+in Mazur's textbook ``Combinatorics: A Guided Tour''~\cite{mazur-2010}. This
+entry can serve as starting point for various more intrinsic properties about
+number partitions, the partition function and related recurrence relations.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\nocite{*}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+
+%semantic rules printing
+\usepackage{mathpartir}
+
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Iptables-Semantics}
+\author{Cornelius Diekmann, Lars Hupel}
+\maketitle
+
+\begin{abstract}  
+  We present a big step semantics of the filtering behavior of the Linux/netfilter iptables firewall. 
+  We provide algorithms to simplify complex iptables rulests to a simple firewall model (c.f.\ AFP entry Simple\_Firewall) and to verify spoofing protection of a ruleset. 
+  Internally, we embed our semantics into ternary logic, ultimately supporting every iptables match condition by abstracting over unknowns. 
+  Using this AFP entry and all entries it depends on, we created an easy-to-use, stand-alone haskell tool called \emph{fffuu} (\url{http://iptables.isabelle.systems}). 
+  The tool does not require any input ---except for the \texttt{iptables-save} dump of the analyzed firewall--- and presents interesting results about the user's ruleset. 
+  Real-Word firewall errors have been uncovered, as well as the correctness of rulesets has been proven with the help of our tool. 
+  
+For a detailed description, see \cite{diekmann2015fm,diekmann2015cnsm,diekmann2016networking,diekmann2015congress}. 
+\end{abstract}
+
+\paragraph*{Acknowledgements}
+This entry would not have been possible without the help of Julius Michaelis, Max Haslbeck, Stephan-A.\ Posselt, Lars Noschinski, Manuel Eberl, Gerwin Klein, the Isabelle group Munich, and Georg Carle.
+\bigskip
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

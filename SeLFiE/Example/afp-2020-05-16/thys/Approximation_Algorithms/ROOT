@@ -1,0 +1,15 @@
+chapter AFP
+
+session Approximation_Algorithms (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "HOL-Hoare"
+  theories
+    Approx_VC_Hoare
+    Approx_MIS_Hoare
+    Approx_LB_Hoare
+    Approx_BP_Hoare
+  document_files
+    "root.bib"
+    "root.tex"

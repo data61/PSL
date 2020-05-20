@@ -1,0 +1,172 @@
+
+\definecolor{OliveGreen}    {cmyk}{0.64,0,0.95,0.40}
+\definecolor{BrickRed}      {cmyk}{0,0.89,0.94,0.28}
+\definecolor{Blue}          {cmyk}{1,1,0,0}
+\definecolor{CornflowerBlue}{cmyk}{0.65,0.13,0,0}
+
+%%%\lst@BeginAspect[keywords]{isar}
+\gdef\lst@tagtypes{s}
+\gdef\lst@TagKey#1#2{%
+    \lst@Delim\lst@tagstyle #2\relax
+        {Tag}\lst@tagtypes #1%
+                     {\lst@BeginTag\lst@EndTag}%
+        \@@end\@empty{}}
+\lst@Key{tag}\relax{\lst@TagKey\@empty{#1}}
+\lst@Key{tagstyle}{}{\def\lst@tagstyle{#1}}
+\lst@AddToHook{EmptyStyle}{\let\lst@tagstyle\@empty}
+\gdef\lst@BeginTag{%
+    \lst@DelimOpen
+        \lst@ifextags\else
+        {\let\lst@ifkeywords\iftrue
+         \lst@ifmarkfirstintag \lst@firstintagtrue \fi}}
+\lst@AddToHookExe{ExcludeDelims}{\let\lst@ifextags\iffalse}
+\gdef\lst@EndTag{\lst@DelimClose\lst@ifextags\else}
+\lst@Key{usekeywordsintag}t[t]{\lstKV@SetIf{#1}\lst@ifusekeysintag}
+\lst@Key{markfirstintag}f[t]{\lstKV@SetIf{#1}\lst@ifmarkfirstintag}
+\gdef\lst@firstintagtrue{\global\let\lst@iffirstintag\iftrue}
+\global\let\lst@iffirstintag\iffalse
+ \lst@AddToHook{PostOutput}{\lst@tagresetfirst}
+ \lst@AddToHook{Output}
+     {\gdef\lst@tagresetfirst{\global\let\lst@iffirstintag\iffalse}}
+ \lst@AddToHook{OutputOther}{\gdef\lst@tagresetfirst{}}
+\lst@AddToHook{Output}
+    {\ifnum\lst@mode=\lst@tagmode
+         \lst@iffirstintag \let\lst@thestyle\lst@gkeywords@sty \fi
+         \lst@ifusekeysintag\else \let\lst@thestyle\lst@gkeywords@sty\fi
+     \fi}
+\lst@NewMode\lst@tagmode
+\gdef\lst@Tag@s#1#2\@empty#3#4#5{%
+    \lst@CArg #1\relax\lst@DefDelimB {}{}%
+        {\ifnum\lst@mode=\lst@tagmode \expandafter\@gobblethree \fi}%
+        #3\lst@tagmode{#5}%
+    \lst@CArg #2\relax\lst@DefDelimE {}{}{}#4\lst@tagmode}%
+\gdef\lst@BeginCDATA#1\@empty{%
+    \lst@TrackNewLines \lst@PrintToken
+    \lst@EnterMode\lst@GPmode{}\let\lst@ifmode\iffalse
+    \lst@mode\lst@tagmode #1\lst@mode\lst@GPmode\relax\lst@modetrue}
+%%\lst@EndAspect
+
+
+
+% \gdef\lst@BeginTag{%
+%     \lst@DelimOpen
+%     \lst@ifextags\else
+%         {\let\lst@ifkeywords\iftrue
+%          \lst@ifmarkfirstintag\lst@firstintagtrue\fi\color{green}}}
+% \gdef\lst@EndTag{\lst@DelimClose\lst@ifextags\else\color{green}}
+
+\def\beginlstdelim#1#2#3%
+{%
+    \def\endlstdelim{\texttt{\textbf{\color{black!60}#2}}\egroup}%
+    \ttfamily\textbf{\color{black!60}#1}\bgroup\rmfamily\color{#3}\aftergroup\endlstdelim%
+}
+\newcommand{\subscr}[1]{\ensuremath{_{\mbox{#1}}}}
+\newcommand{\supscr}[1]{\ensuremath{^{\mbox{#1}}}}
+\lstdefinestyle{ISAR}{%
+  language=%
+  ,basicstyle=\ttfamily%
+  ,showspaces=false%
+  ,showlines=false%
+  ,columns=flexible%
+  ,morecomment=[s]{(*}{*)}%
+  % ,moredelim=*[s][\rmfamily]{\{*}{*\}}%
+  ,moredelim = **[is][\beginlstdelim{\{*}{*\}}{black}]{\{*}{*\}}
+  ,showstringspaces=false%
+  ,moredelim=*[is][\supscr]{\\<^bsup>}{\\<^esup>}%
+  ,literate={%
+    {...}{\,\ldots\,}3%
+    {\\<Open>}{\ensuremath{\isacartoucheopen}}1%
+    {\\at}{@}1%
+    {\\AT}{@}1%
+    {\\<Close>}{\ensuremath{\isacartoucheclose}}1%
+    {\\<Gamma>}{\ensuremath{\Gamma}}1%
+    {\\<times>}{\ensuremath{\times}}1%
+    {\\<rbrakk>}{\ensuremath{\mathclose{\rbrack\mkern-3mu\rbrack}}}1%
+    {\\<rbrace>}{\ensuremath{\mathclose{\mid\mkern-4.5mu\rbrace}}}1%
+    {\\<lbrakk>}{\ensuremath{\mathopen{\lbrack\mkern-3mu\lbrack}}}1%
+    {\\<lbrace>}{\ensuremath{\mathopen{\lbrace\mkern-4.5mu\mid}}}1%
+    {\\<Rightarrow>}{\ensuremath{\Rightarrow}}1%
+    {\{*}{\raise.3ex\hbox{$\scriptscriptstyle\langle$}}1%
+    {*\}}{\raise.3ex\hbox{$\scriptscriptstyle\rangle$}}1%
+    {\\<open>}{\raise.3ex\hbox{$\scriptscriptstyle\langle$}}1%
+    {\\<close>}{\raise.3ex\hbox{$\scriptscriptstyle\rangle$}}1%
+    {\\<alpha>}{\ensuremath{\alpha}}1%
+    {\\<beta>}{\ensuremath{\beta}}1%
+    {\\<sigma>}{\ensuremath{\sigma}}1%
+    {\\<in>}{\ensuremath{\in~}}1%
+    {\\<or>}{\ensuremath{\lor~}}1%
+    {\\<and>}{\ensuremath{\land~}}1%
+    {\\<noteq>}{\ensuremath{\neq~}}1%
+    {\\<box>}{\ensuremath{\isasymbox~}}1%
+    {\\<sqinter>}{\ensuremath{\sqcap~}}1%
+    {\\<equiv>}{\ensuremath{\equiv~}}1%
+    {\\<longrightarrow>}{\ensuremath{\longrightarrow~}}1%
+    {\\<subseteq>}{\ensuremath{\subseteq~}}1%
+    {\\<union>}{\ensuremath{\cup~}}1%
+    {\\<inter>}{\ensuremath{\cap~}}1%
+    {\\<forall>}{\ensuremath{\forall}}1%
+    {\\<exists>}{\ensuremath{\exists}}1%
+    {\\<Forall>}{\ensuremath{\bigwedge\,}}1%
+    {\\<le>}{\ensuremath{\leq~\,}}1%
+    {\\<lambda>}{\ensuremath{\lambda\,}}1%
+  }%
+  % % Defining "tags" (text-antiquotations) based on 1-keywords
+   ,tag=**[s]{@\{}{\}}%
+   ,tagstyle=\color{CornflowerBlue}%
+   ,markfirstintag=true%
+   ,keywordstyle=\bfseries%
+   ,keywords={}
+   % Defining 2-keywords
+   ,keywordstyle=[2]{\color{Blue!60}\bfseries}%
+   ,alsoletter={*,-}
+   ,morekeywords=[2]{theory,imports,keywords,and,C,C_file,begin,end,ML,section,subsection,paragraph,chapter,text,record,definition,where,pre,post,funct,global_vars,local_vars,returns,val,fun}%
+   %,moredelim=[s][\textit]{<}{>}
+   % Defining 3-keywords
+   ,keywordstyle=[3]{\color{OliveGreen!60}\bfseries}%
+   ,morekeywords=[3]{doc_class,declare_reference,update_instance*,
+     open_monitor*, close_monitor*, figure*, title*, subtitle*,declare_reference*,section*,text*}%
+   % Defining 4-keywords
+   ,keywordstyle=[4]{\color{black!60}\bfseries}%
+   ,morekeywords=[4]{where, imports}%
+   % Defining 5-keywords
+   ,keywordstyle=[5]{\color{BrickRed!70}\bfseries}%
+   ,morekeywords=[5]{datatype, typedecl, consts, theorem}%
+   % Defining 6-keywords
+   ,keywordstyle=[6]{\itshape}%
+   ,morekeywords=[6]{meta-args, ref, expr, class_id}%
+  % 
+}%
+%% 
+\lstnewenvironment{isar}[1][]{\lstset{style=ISAR,
+    backgroundcolor=\color{black!2},
+    frame=lines,
+    mathescape=true,
+    basicstyle=\footnotesize\ttfamily,#1}}{}
+%%% 
+\def\inlineisar{\lstinline[style=ISAR,breaklines=true,mathescape,breakatwhitespace=true,basicstyle=\small\ttfamily]}
+
+\lstnewenvironment{out}[1][]{\lstset{
+    backgroundcolor=\color{green!2},
+    frame=lines,mathescape,breakatwhitespace=true
+    ,columns=flexible%
+    ,basicstyle=\footnotesize\rmfamily,#1}}{}
+
+
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+\lstloadlanguages{ML}
+\lstdefinestyle{sml}{basicstyle=\ttfamily,%
+                     commentstyle=\itshape,%
+                     keywordstyle=\bfseries\color{CornflowerBlue},%
+                     ndkeywordstyle=\color{red},%
+                     language=ML,
+                      ,keywordstyle=[6]{\itshape}%
+                      ,morekeywords=[6]{args_type}%
+                    }%
+
+\lstnewenvironment{sml}[1][]{\lstset{style=sml,
+    backgroundcolor=\color{Blue!4},
+    frame=lines,
+    basicstyle=\footnotesize\ttfamily,#1}}{}
+%%% 
+\def\inlinesml{\lstinline[style=sml,breaklines=true,mathescape,breakatwhitespace=true,basicstyle=\small\ttfamily]}

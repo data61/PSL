@@ -1,0 +1,14 @@
+chapter AFP
+
+session Skip_Lists (AFP) = "HOL-Probability" +
+  options [timeout = 300]
+  sessions
+    Monad_Normalisation
+  theories
+    Pi_pmf
+    Misc
+    Geometric_PMF
+    Skip_List
+  document_files
+    "root.tex"
+    "root.bib"

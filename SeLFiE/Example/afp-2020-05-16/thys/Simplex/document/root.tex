@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{An Incremental Simplex Algorithm with Unsatisfiable Core Generation\footnote{%
+Supported by the Serbian Ministry of Education and Science grant 174021, 
+by the SNF grant SCOPES IZ73Z0127979/1, and
+by FWF (Austrian Science Fund) project Y757.
+The authors are listed in alphabetical order regardless of individual
+contributions or seniority.}}
+\author{Filip Mari\'c \and Mirko Spasi\'c \and Ren\'e Thiemann}
+
+\maketitle
+
+\begin{abstract}
+We present an Isabelle/HOL formalization and total correctness
+proof for the incremental version of the Simplex algorithm which is
+used in most state-of-the-art SMT solvers. It supports extraction of satisfying
+assignments, extraction of minimal unsatisfiable cores, incremental assertion of constraints
+and backtracking. The formalization relies on
+stepwise program refinement, starting from a simple specification,
+going through a number of refinement steps, and ending up in a fully
+executable functional implementation. Symmetries present in the algorithm
+are handled with special care. 
+\end{abstract}
+
+
+\tableofcontents
+
+\section{Introduction}
+
+This formalization closely follows the simplex algorithm as it is described by 
+Dutertre and de~Moura~\cite{simplex-rad}. 
+
+The original formalization has been developed and is extensively described 
+by Spasi\'c and Mari\'c~\cite{SpasicMaric}.
+It features a front-end that for a given set of constraints either returns
+a satisfying assignment or the information that it is unsatisfiable.
+
+The original formalization was extended by Thiemann in three different ways.
+\begin{itemize}
+\item The extended simplex method returns a minimal unsatisfiable core instead
+  of just a bit ``unsatisfiable''.
+\item The extension also contains an incremental interface to the simplex
+  method where one can dynamically assert and retract linear constraints.
+  In contrast, the original simplex formalization only offered an 
+  interface which demands all constraints as input and which restarts
+  the computation from scratch on every input.
+\item The optimization of eliminating unused variables in the preprocessing 
+  phase~\cite[Section~3]{simplex-rad} has been integrated in the formalization.
+\end{itemize}
+The first two of these extensions
+required the introduction of \emph{indexed} constraints in combination with
+generalised lemmas. In these generalisations, global constraints had to be replaced by arbitrary (indexed) subsets of constraints. 
+
+
+
+
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

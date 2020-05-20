@@ -1,0 +1,14 @@
+chapter AFP
+
+session BNF_CC (AFP) = HOL +
+  options [timeout=600]
+  sessions
+    "HOL-Library"
+  theories
+    Preliminaries
+    Operation_Examples
+    Concrete_Examples
+    DDS
+  document_files
+    root.tex
+    root.bib

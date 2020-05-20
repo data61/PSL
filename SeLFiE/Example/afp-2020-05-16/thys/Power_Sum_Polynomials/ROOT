@@ -1,0 +1,13 @@
+chapter AFP
+
+session Power_Sum_Polynomials (AFP) = Symmetric_Polynomials +
+  options [timeout = 600]
+  sessions
+    "HOL-Computational_Algebra"
+    Polynomial_Factorization
+  theories
+    Power_Sum_Puzzle
+  document_files
+    "root.tex"
+    "root.bib"
+

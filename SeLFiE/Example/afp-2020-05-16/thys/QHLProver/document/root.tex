@@ -1,0 +1,37 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Quantum Hoare Logic}
+
+\author{Junyi Liu, Bohua Zhan, Shuling Wang, Shenggang Ying,\\
+  Tao Liu, Yangjia Li, Mingsheng Ying, and Naijun Zhan}
+
+\maketitle
+
+\begin{abstract}
+  We formalize quantum Hoare logic as given in \cite{Ying12}. In
+  particular, we specify the syntax and denotational semantics of a
+  simple model of quantum programs. Then, we write down the rules of
+  quantum Hoare logic for partial correctness, and show the soundness
+  and completeness of the resulting proof system. As an application,
+  we verify the correctness of Grover's algorithm.
+\end{abstract}
+
+\tableofcontents
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,21 @@
+chapter AFP
+
+session Universal_Turing_Machine (AFP) = HOL +
+  options [timeout = 1200]
+  sessions
+    "HOL-Library"
+  theories
+    "Turing"
+    "Turing_Hoare"
+    "Uncomputable"
+    "Abacus_Mopup"
+    "Abacus"
+    "Abacus_Defs"
+    "Rec_Def"
+    "Recursive"
+    "Recs"
+    "UF"
+    "UTM"
+  document_files
+    "root.bib"
+    "root.tex"

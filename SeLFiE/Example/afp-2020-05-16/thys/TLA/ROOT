@@ -1,0 +1,25 @@
+chapter AFP
+
+(*  Title:       A Definitional Encoding of TLA in Isabelle/HOL
+    Authors:     Gudmund Grov <ggrov at inf.ed.ac.uk>
+                 Stephan Merz <Stephan.Merz at loria.fr>
+    Year:        2011
+    Maintainer:  Gudmund Grov <ggrov at inf.ed.ac.uk>
+*)
+
+session TLA (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Sequence
+    Intensional
+    Semantics
+    PreFormulas
+    Rules
+    Liveness
+    State
+    Even
+    Inc
+    Buffer
+  document_files
+    "root.bib"
+    "root.tex"

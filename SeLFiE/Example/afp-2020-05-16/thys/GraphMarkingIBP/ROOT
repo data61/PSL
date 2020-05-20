@@ -1,0 +1,11 @@
+chapter AFP
+
+session GraphMarkingIBP (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    DataRefinementIBP
+  theories
+    DSWMark
+  document_files
+    "root.bib"
+    "root.tex"

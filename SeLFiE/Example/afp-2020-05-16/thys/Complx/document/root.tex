@@ -1,0 +1,56 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[french,english]{babel}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{tt}
+
+\newcommand{\simpl}{\sloppy \textsc{Simpl}}
+\newcommand{\complx}{\sloppy \textsc{Complx}}
+
+\begin{document}
+
+\title{\complx: a Verification Framework for Concurrent Imperative Programs}
+\author{Sidney Amani, June Andronick, Maksym Bortin,\\
+       Corey Lewis, Christine Rizkallah, Joseph Tuong}
+\maketitle
+
+\begin{abstract}  
+We propose a concurrency reasoning framework for imperative programs, based on
+the Owicki-Gries (OG) foundational shared-variable concurrency method.
+Our framework combines the approaches of Hoare-Parallel, a formalisation
+of OG in Isabelle/HOL for a simple while-language, and \simpl, a generic
+imperative language embedded in Isabelle/HOL, allowing formal reasoning
+on C programs.
+
+We define the \complx{} language, extending the syntax and semantics of
+\simpl{} with support for parallel composition and synchronisation.
+We additionally define an OG logic, which we prove sound
+w.r.t. the  semantics, and a verification condition generator, 
+both supporting involved low-level imperative constructs such as function
+calls and abrupt termination. We illustrate our framework on 
+an example that features exceptions, guards and function
+calls.
+We aim to then target concurrent operating systems, such as the
+interruptible eChronos embedded operating system for which we already
+have a model-level OG proof using Hoare-Parallel.
+
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

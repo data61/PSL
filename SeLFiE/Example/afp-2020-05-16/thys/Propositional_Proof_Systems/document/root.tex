@@ -1,0 +1,92 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage[x11names, rgb]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{snakes,arrows,shapes}
+\usepackage{amsmath}
+\DeclareUnicodeCharacter{2192}{$\rightarrow$}
+\DeclareUnicodeCharacter{2194}{$\leftrightarrow$}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+%\renewcommand{\isasymdots}{\dots}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Propositional Proof Systems}
+\author{Julius Michaelis and Tobias Nipkow}
+\maketitle
+\begin{abstract}
+We present a formalization of Sequent Calculus, Natural Deduction, Hilbert Calculus, and Resolution using a deep embedding of propositional formulas. 
+We provide proofs of many of the classical results, including Cut Elimination, Craig's Interpolation, proof transformation between all calculi, and soundness and completeness.
+Additionally, we formalize the Model Existence Theorem.
+\end{abstract}
+
+\tableofcontents
+\vspace{1em}
+
+The files of this entry are organized as a web of results that should allow loading only that part of the formalization that the user is interested in.
+Special care was taken not to mix proofs that require semanics and proofs that talk about transformation between proof systems.
+An overview of the different theory files and their dependencies can be found in figures \ref{fig:prooftran} and \ref{fig:sema}.
+
+% ./overview.sh tex sema >document/fig_sema.tex && ./overview.sh tex prooftran >document/fig_tran.tex
+\begin{figure}
+	\centering
+	\input{fig_tran}
+	\caption{Overview of results considering Proof Transformation}
+	\label{fig:prooftran}
+\end{figure}
+\begin{figure}
+	\centering
+	\scalebox{0.8}{\input{fig_sema}}
+	\caption{Overview of results considering Semantics}
+	\label{fig:sema}
+\end{figure}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

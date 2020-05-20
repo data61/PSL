@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Noninterference Security in\\Communicating Sequential Processes}
+\author{Pasquale Noce\\Security Certification Specialist at Arjo Systems - Gep S.p.A.\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at arjowiggins-it dot com}
+\maketitle
+
+\begin{abstract}
+An extension of classical noninterference security for deterministic state
+machines, as introduced by Goguen and Meseguer and elegantly formalized by
+Rushby, to nondeterministic systems should satisfy two fundamental requirements:
+it should be based on a mathematically precise theory of nondeterminism, and
+should be equivalent to (or at least not weaker than) the classical notion in
+the degenerate deterministic case.
+
+This paper proposes a definition of noninterference security applying to Hoare's
+Communicating Sequential Processes (CSP) in the general case of a possibly
+intransitive noninterference policy, and proves the equivalence of this security
+property to classical noninterference security for processes representing
+deterministic state machines.
+
+Furthermore, McCullough's generalized noninterference security is shown to be
+weaker than both the proposed notion of CSP noninterference security for a
+generic process, and classical noninterference security for processes
+representing deterministic state machines. This renders CSP noninterference
+security preferable as an extension of classical noninterference security to
+nondeterministic systems.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

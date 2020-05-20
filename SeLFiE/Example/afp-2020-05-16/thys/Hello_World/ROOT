@@ -1,0 +1,14 @@
+chapter AFP
+
+session Hello_World (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    IO
+    HelloWorld
+    HelloWorld_Proof
+  theories [document = false]
+    RunningCodeFromIsabelle
+  document_files
+    "root.tex"

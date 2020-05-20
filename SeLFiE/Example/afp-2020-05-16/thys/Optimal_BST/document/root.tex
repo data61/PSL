@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\isacharunderscore}{\_}
+\renewcommand{\isacharunderscorekeyword}{\_}
+\renewcommand{\isadigit}[1]{{\rm #1}}
+
+\begin{document}
+
+\title{Optimal Binary Search Trees}
+\author{Tobias Nipkow and D\'aniel Somogyi\\
+  Technical University Munich}
+
+\maketitle
+
+\begin{abstract}
+This article formalizes recursive algorithms for the construction
+of optimal binary search trees given fixed access frequencies.
+We follow Knuth~\cite{Knuth71}, Yao~\cite{Yao80} and
+Mehlhorn~\cite{Mehlhorn84}.
+
+The algorithms are memoized with the help of an AFP entry for
+memoization~\cite{Monad_Memo_DP-AFP}, thus yielding dynamic programming algorithms.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+These theories formalize algorithms for the construction of optimal binary search trees
+from fixed access frequencies for a fixed list of items. The work is based on the original
+article by Knuth~\cite{Knuth71} and the textbook by Mehlhorn \cite[Part III, Chapter 4]{Mehlhorn84}.
+
+Initially the algorithms are expressed as naive recursive functions
+and have exponential complexity. Nevertheless we already refer to them
+as the cubic (Section~\ref{sec:cubic}) and the quadratic algorithm
+(Section~\ref{sec:quadratic}), their running times of their fully memoized
+dynamic programming versions. In Section~\ref{sec:memo} the algorithms
+are memoized with the help of an existing framework \cite{Monad_Memo_DP-AFP}.
+
+\subsection{Data Representation}
+
+Instead of labeling our BSTs with (ascending) keys $x_i < \dots < x_j$ we label them with
+the indices of the actual keys, some interval of integers.
+Functions taking two integer arguments $i$ and $j$ construct or analyze trees such that
+$\textit{inorder}\ t = [i..j]$.
+
+The access frequencies are given by two tables (functions) $a$ and $b$:
+\begin{description}
+\item[$a\, k$] ($i \le k \le j+1$) is the frequency of (failing) searches with a key in the interval
+  $(x_{k-1},x_k)$.
+\item[$b\, k$] ($i \le k \le j$) is the frequency of (successful) searches with key $x_k$.
+\end{description}
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

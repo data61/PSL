@@ -1,0 +1,22 @@
+chapter AFP
+
+session "UPF_Firewall" (AFP) = UPF +
+  description "Formal Network Models and Their Application to Firewall Policies"
+  options [timeout = 600]
+  directories
+    "Examples"
+    "Examples/DMZ"
+    "Examples/NAT-FW"
+    "Examples/PersonalFirewall"
+    "Examples/Transformation"
+    "Examples/Voice_over_IP"
+    "FWNormalisation"
+    "NAT"
+    "PacketFilter"
+    "StatefulFW"
+  theories
+    "Examples/Examples"
+  document_files
+    "root.tex"
+    "introduction.tex"
+    "root.bib"

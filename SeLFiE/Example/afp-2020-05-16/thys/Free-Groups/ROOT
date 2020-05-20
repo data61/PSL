@@ -1,0 +1,15 @@
+chapter AFP
+
+session "Free-Groups" (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Computational_Algebra"
+    "HOL-Algebra"
+    "HOL-Cardinals"
+    Applicative_Lifting
+  theories
+    FreeGroups
+    Isomorphisms
+    PingPongLemma
+  document_files
+    "root.tex"

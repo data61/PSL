@@ -1,0 +1,13 @@
+chapter AFP
+
+session Budan_Fourier (AFP) = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  sessions
+    Sturm_Tarski
+  theories
+    Budan_Fourier
+    Sturm_Multiple_Roots
+    Descartes_Roots_Test
+  document_files
+    "root.tex"
+    "root.bib"

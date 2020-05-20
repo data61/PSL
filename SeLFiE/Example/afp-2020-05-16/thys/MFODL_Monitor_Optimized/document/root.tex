@@ -1,0 +1,58 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{a4wide}
+\usepackage[english]{babel}
+\usepackage{eufrak}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{literal}
+
+
+\begin{document}
+
+\title{Formalization of an Optimized Monitoring Algorithm for\\ Metric First-Order Dynamic Logic with Aggregations}
+\author{Thibault Dardinier \and Lukas Heimes \and Martin Raszyk \and Joshua Schneider \and Dmitriy Traytel}
+
+\maketitle
+
+\begin{abstract}
+A monitor is a runtime verification tool that solves the following problem: Given a stream
+of time-stamped events and a policy formulated in a specification language, decide
+whether the policy is satisfied at every point in the stream. We verify the correctness
+of an executable monitor for specifications given as formulas in metric first-order
+dynamic logic (MFODL), which combines the features of metric first-order temporal logic
+(MFOTL)~\cite{BasinKMZ-JACM15} and metric dynamic logic~\cite{BasinKT-RV17}. Thus, MFODL
+supports real-time constraints, first-order parameters, and regular expressions.
+Additionally, the monitor supports aggregation operations such as count and sum. This
+formalization, which is described in a forthcoming paper at IJCAR
+2020~\cite{BasinDHKRST2020IJCAR}, significantly extends
+\href{https://www.isa-afp.org/entries/MFOTL_Monitor.html}{previous work on a verified
+monitor} for MFOTL~\cite{SchneiderBKT2019RV}. Apart from the addition of regular
+expressions and aggregations, we implemented
+\href{https://www.isa-afp.org/entries/Generic_Join.html}{multi-way joins} and
+a specialized sliding window algorithm to further optimize the monitor.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

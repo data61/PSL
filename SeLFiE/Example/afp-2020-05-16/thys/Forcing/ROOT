@@ -1,0 +1,19 @@
+chapter AFP
+
+session Forcing (AFP) =  "ZF-Constructible" +
+  description "
+    Formalization of Forcing in Isabelle/ZF
+
+    We formalize the theory of forcing in the set theory framework of
+    Isabelle/ZF. Under the assumption of the existence of a countable
+    transitive model of ZFC, we construct a proper generic extension
+    and show that the latter also satisfies ZFC.
+  "
+  options [timeout=300]
+  theories
+    "Rasiowa_Sikorski"
+    "Forcing_Main"
+  document_files
+    "root.tex"
+    "root.bib"
+    "root.bst"

@@ -1,0 +1,19 @@
+chapter AFP
+
+session Differential_Game_Logic (AFP) = "HOL-Analysis" +
+  options [timeout = 1200]
+  theories
+    "Lib"
+    "Identifiers"
+    "Syntax"
+    "Denotational_Semantics"
+    "Static_Semantics"
+    "Coincidence"
+    "USubst"
+    "Ids"
+    "Axioms"
+    "Differential_Game_Logic"
+  document_files
+    "root.tex"
+    "root.bib"
+  

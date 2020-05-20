@@ -1,0 +1,15 @@
+chapter AFP
+
+session Incredible_Proof_Machine (AFP) = "HOL-Library" +
+  description "The meta theory of the Incredible Proof Machine"
+  options [timeout = 600]
+  sessions
+    "HOL-Eisbach"
+    Abstract_Completeness
+  theories
+    Incredible_Everything
+    Incredible_Propositional_Tasks
+    Incredible_Predicate_Tasks
+  document_files
+    "root.bib"
+    "root.tex"

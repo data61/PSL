@@ -1,0 +1,25 @@
+chapter AFP
+
+session LTL_Master_Theorem (AFP) = "Transition_Systems_and_Automata" +
+  options [timeout = 600]
+  sessions
+    LTL
+    Deriving
+  directories
+    "Logical_Characterization"
+    "LTL_to_DRA"
+  theories
+    "Logical_Characterization/Master_Theorem"
+    "Logical_Characterization/Asymmetric_Master_Theorem"
+    "Logical_Characterization/Restricted_Master_Theorem"
+
+    "LTL_to_DRA/DRA_Construction"
+    "LTL_to_DRA/DRA_Instantiation"
+    "LTL_to_DRA/DRA_Implementation"
+
+    Code_Export
+  document_files
+    "root.tex"
+    "root.bib"
+  export_files (in ".") [1]
+    "LTL_Master_Theorem.Code_Export:**"

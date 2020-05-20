@@ -1,0 +1,132 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym,latexsym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Gr\"obner Bases Theory}
+\author{Fabian Immler and Alexander Maletzky\thanks{Supported by the Austrian 
+Science Fund (FWF): grant no. W1214-N15 (project DK1) and grant no. P 29498-N31}}
+\maketitle
+
+\begin{abstract}
+This formalization is concerned with the theory of Gr\"obner bases in 
+(commutative) multivariate polynomial rings over fields, originally developed 
+by Buchberger in his 1965 PhD thesis. Apart from the statement and proof of the 
+main theorem of the theory, the formalization also implements algorithms for actually computing 
+Gr\"obner bases, thus allowing to effectively decide ideal membership in finitely generated 
+polynomial ideals. Furthermore, all functions can be executed on a concrete 
+representation of multivariate polynomials as association lists.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\newpage
+\section{Introduction}
+
+The theory of Gr\"obner bases, invented by Buchberger in~\cite{Buchberger1965,Buchberger1970}, is 
+ubiquitous in many areas of 
+computer algebra and beyond, as it allows to effectively solve a multitude of 
+interesting, non-trivial problems of polynomial ideal theory. Since its 
+invention in the mid-sixties, the theory has already seen a whole range of 
+extensions and generalizations, some of which are present in this formalization:
+\begin{itemize}
+ \item Following~\cite{Kreuzer2000}, the theory is formulated for vector-polynomials instead of 
+ordinary scalar polynomials, thus allowing to compute Gr\"obner bases of syzygy modules.
+ 
+ \item Besides Buchberger's original algorithm, the formalization also features Faug\`ere's $F_4$ 
+algorithm~\cite{Faugere1999} for computing Gr\"obner bases.
+
+ \item All algorithms for computing Gr\"obner bases incorporate criteria to avoid useless pairs; 
+see~\cite{Buchberger1979} for details.
+
+ \item Reduced Gr\"obner bases have been formalized and can be computed by a formally verified 
+algorithm, too.
+\end{itemize}
+
+For further information about Gr\"obner bases theory the interested reader may consult the 
+introductory paper~\cite{Buchberger1998a} or literally any book on 
+commutative/computer algebra, e.\,g.~\cite{Adams1994,Kreuzer2000}.
+
+\subsection{Related Work}
+
+The theory of Gr\"obner bases has already been formalized in a couple of other 
+proof assistants, listed below in alphabetical order:
+\begin{itemize}
+ \item ACL2~\cite{Medina-Bulo2010},
+ \item Coq~\cite{Thery2001,Jorge2009},
+ \item Mizar~\cite{Schwarzweller2006}, and
+ \item Theorema~\cite{Buchberger2003,Maletzky2016b}.
+\end{itemize}
+
+Please note that this formalization must not be confused with the 
+\textit{algebra} proof method based on Gr\"obner bases~\cite{Chaieb2007}, which 
+is a completely independent piece of work: our results could in principle be 
+used to formally prove the correctness and, to some extent, completeness of 
+said proof method.
+
+\subsection{Future Work}
+
+This formalization can be extended in several ways:
+\begin{itemize}
+ \item One could formalize signature-based algorithms for computing Gr\"obner bases, as for 
+instance Faug\`ere's $F_5$ algorithm~\cite{Faugere2002}. Such algorithms are typically more 
+efficient than Buchberger's algorithm.
+
+ \item One could establish the connection to \emph{elimination theory}, 
+exploiting the well-known \emph{elimination property} of Gr\"obner bases 
+w.\,r.\,t. certain term-orders (e.\,g. the purely lexicographic one). This 
+would enable the effective simplification (and even solution, in some sense) of
+systems of algebraic equations.
+
+ \item One could generalize the theory further to cover also \emph{non-commutative} Gr\"obner 
+bases~\cite{Mora1994}.
+\end{itemize}
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

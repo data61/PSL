@@ -1,0 +1,3 @@
+ #!/bin/bash
+ find . -type f -name "*.tex" -exec sed -n '/DefineSnippet/,/EndSnippet/p' {} + > ../snippets.tex
+ touch ../document.pdf

@@ -1,0 +1,17 @@
+chapter AFP
+
+session Treaps (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    Random_BSTs
+    Comparison_Sort_Lower_Bound
+    "HOL-Library"
+  theories [document = false]
+    "Random_BSTs.Random_BSTs"
+    "Comparison_Sort_Lower_Bound.Linorder_Relations"
+    "HOL-Library.Tree"
+  theories
+    Random_Treap
+  document_files
+    "root.tex"
+    "root.bib"

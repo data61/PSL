@@ -1,0 +1,53 @@
+Title:
+======
+POSIX Lexing with Derivatives of Regular Expressions
+
+
+Authors:
+========
+Fahad Ausaf <fahad.ausaf at icloud.com>, 2016
+Roy Dyckhoff <roy.dyckhoff at st-andrews.ac.uk>, 2016
+Christian Urban <christian.urban at kcl.ac.uk>, 2016
+
+
+Abstract:
+=========
+
+Brzozowski introduced the notion of derivatives for regular
+expressions. They can be used for a very simple regular expression
+matching algorithm. Sulzmann and Lu cleverly extended this algorithm
+in order to deal with POSIX matching, which is the underlying
+disambiguation strategy for regular expressions needed in
+lexers. Sulzmann and Lu have made available on-line what they call a
+``rigorous proof'' of the correctness of their algorithm w.r.t. their
+specification; regrettably, it appears to us to have unfillable
+gaps. In the first part of this paper we give our inductive definition
+of what a POSIX value is and show (i) that such a value is unique (for
+given regular expression and string being matched) and (ii) that
+Sulzmann and Lu's algorithm always generates such a value (provided
+that the regular expression matches the string). We also prove the
+correctness of an optimised version of the POSIX matching
+algorithm. Our definitions and proof are much simpler than those by
+Sulzmann and Lu and can be easily formalised in Isabelle/HOL. In the
+second part we analyse the correctness argument by Sulzmann and Lu and
+explain why the gaps in this argument cannot be filled easily.
+
+
+New Theories:
+=============
+
+ Lexer.thy
+ Simplifying.thy
+
+The repository can be checked using Isabelle 2016.
+
+ isabelle build -c -v -d . Posix-Lexing
+
+
+  
+
+
+
+
+
+

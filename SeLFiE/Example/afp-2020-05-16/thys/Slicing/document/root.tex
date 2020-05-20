@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper,notitlepage]{report}
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{wasysym}
+\usepackage{graphicx}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\setisabellecontext}[1]{\markright{#1}}
+
+\begin{document}
+
+\title{Towards Certified Slicing}
+\author{Daniel Wasserrab}
+\maketitle
+
+\begin{abstract}
+Slicing is a widely-used technique with applications in e.g. compiler
+technology and software security. Thus verification of
+algorithms in these areas is often based on the correctness of slicing,
+which should ideally be proven independent of concrete programming
+languages and with the help of well-known verifying techniques such as
+proof assistants. As a first step in this direction, this contribution
+presents a framework for dynamic \cite{WasserrabL:08} 
+and static intraprocedural slicing \cite{WasserrabLS:09}
+based on control flow and program dependence graphs.
+Abstracting from concrete syntax we base the framework on a graph
+representation of the program fulfilling certain structural
+and well-formedness properties.
+
+We provide two instantiations to show the validity of the framework:
+a simple While language and the sophisticated object-oriented byte code
+language from Jinja \cite{KleinN:06}. 
+\end{abstract}
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\begin{thebibliography}{10}
+
+\bibitem{WasserrabLS:09}
+Daniel Wasserrab and Denis Lohner and Gregor Snelting
+\newblock On PDG-Based Noninterference and its Modular Proof
+\newblock In {\em Proc. of PLAS'09}, pages 31--44. ACM, 2009.
+
+\bibitem{WasserrabL:08}
+Daniel Wasserrab and Andreas Lochbihler.
+\newblock Formalizing a framework for dynamic slicing of program dependence
+  graphs in {Isabelle/HOL}.
+\newblock In {\em Proc. of TPHOLS'08}, pages 294--309. Springer-Verlag, 2008.
+
+\bibitem{KleinN:06}
+Gerwin Klein and Tobias Nipkow.
+\newblock {A Machine-Checked Model for a Java-Like Language, Virtual Machine
+  and Compiler}.
+\newblock {\em ACM Transactions on Programming Languages and Systems},
+  28(4):619--695, 2006.
+
+\end{thebibliography}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

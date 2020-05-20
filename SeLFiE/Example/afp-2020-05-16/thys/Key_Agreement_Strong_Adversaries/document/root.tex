@@ -1,0 +1,56 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Project: Refining Authenticated Key Agreement with Strong Adversaries
+%
+%  Module:  document/root.tex (Isabelle/HOL 2016-1)
+%  ID:      $Id: root.tex 132885 2016-12-23 18:41:32Z csprenge $
+%  Author:  Christoph Sprenger, ETH Zurich <sprenger@inf.ethz.ch>
+%  
+%  root file for generation of PDF document
+%
+%  Copyright (c) 2015-2016 Christoph Sprenger 
+%  Licence: LGPL
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% additional packages
+\usepackage{graphicx}       % to display session graph
+\usepackage{a4wide}
+
+% have each section start on a fresh page
+\renewcommand{\isamarkupsection}[1]{\newpage\section{#1}}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Refining Authenticated Key Agreement with Strong Adversaries}
+\author{Joseph Lallemand, Christoph Sprenger, and David Basin}
+\maketitle
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% display the theory dependency graph
+\include{session_graph}
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+

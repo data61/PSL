@@ -1,0 +1,12 @@
+chapter AFP
+
+session "Attack_Trees" (AFP) = "HOL" +
+  options [timeout = 300]
+theories
+  "MC"
+  "AT"
+  "Infrastructure"
+  "GDPRhealthcare"
+document_files
+     "root.bib"
+     "root.tex"

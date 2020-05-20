@@ -1,0 +1,86 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[a4paper]{geometry}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{authblk}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{OpSets: Sequential Specifications for Replicated Datatypes\\Proof Document}
+\author[1]{Martin Kleppmann}
+\author[1]{Victor B.\ F.\ Gomes}
+\author[2]{Dominic P.\ Mulligan}
+\author[1]{Alastair R.\ Beresford}
+\date{}
+\affil[1]{Department of Computer Science and Technology, University of Cambridge, UK}
+\affil[2]{Security Research Group, Arm Research, Cambridge, UK}
+
+\maketitle
+
+\abstract{We introduce OpSets, an executable framework for specifying and
+reasoning about the semantics of replicated datatypes that provide eventual
+consistency in a distributed system, and for mechanically verifying algorithms
+that implement these datatypes. Our approach is simple but expressive, allowing
+us to succinctly specify a variety of abstract datatypes, including maps, sets,
+lists, text, graphs, trees, and registers. Our datatypes are also composable,
+enabling the construction of complex data structures.  To demonstrate the
+utility of OpSets for analysing replication algorithms, we highlight an
+important correctness property for collaborative text editing that has
+traditionally been overlooked; algorithms that do not satisfy this property can
+exhibit awkward interleaving of text.  We use OpSets to specify this
+correctness property and prove that although one existing replication algorithm
+satisfies this property, several other published algorithms do not.}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

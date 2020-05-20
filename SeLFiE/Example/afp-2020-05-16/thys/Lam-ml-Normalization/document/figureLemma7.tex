@@ -1,0 +1,27 @@
+\begin{figure}[p]
+	\setlength{\fboxsep}{1em}
+	\framebox{
+	\begin{minipage}{\textwidth}
+	\begin{lemma}(Lemma 7)
+		Let $p, n$ be terms and $K$ a stack such that $\SN(p)$ and $\SN(n[x::=p] \star K)$. Then $\SN(([p] \cto x n) \star K)$
+	\end{lemma}
+	\textit{Proof.} We show by induction on $|K| + max(n \star K) + max(p)$ that the reducts of $([p] \cto x n) \star K$ are all strongly normalizing. The interesting reductions are as follows:
+	\begin{itemize}
+		\item $T.\beta$ giving $n[x::=p] \star K$ which is strongly normalizing by hypothesis.
+		\item $T.\eta$ when $n = [x]$ giving $[p]\star K$. But $[p]\star K = n[x::=p] \star K$ which is again strongly normalizing by hypothesis
+		\item $T.assoc$ in the case where $K = [y]m\gg K'$ with $x \notin \mathit{fv}(m)$; giving the reduct $([p] \cto x (n \cto y m)) \star K$. We aim to apply the induction hypothesis with $K'$ and $(n \cto y m)$ for $K$ and $n$ respectively. Now
+		\begin{align*}
+			(n \cto y m)[x::=p]\star K' &= (n[x::=p] \cto y m)\star K' \\
+										&= n[x::=p] \star K
+		\end{align*}
+		which is strongly normalizing by induction hypothesis. Also
+		$$|K'| + max((n \cto y m)\star K') + max(p) < |K| + max(n \star K) + max(p)$$
+		as $|K'| < |K|$ and $(n \cto y m)\star K' = n \star K$. This last equation explains the use of $max(n \star K)$; it remains fixed under $T.assoc$ unlike $max(K)$ and $max(n)$. Applying the induction hypothesis gives $SN(([p] \cto x (n \cto y m)) \star K)$ as required.
+	\end{itemize}
+	Other reductions are confined to $K$, $n$ or $p$ and can be treated by the induction hypothesis, decreasing either $max(n \star K)$ or $max(p)$.
+	\end{minipage}}
+% \\ 
+% \hrule
+\caption{Proof of Lemma 7 as in \cite{TT-lifting}}
+\label{fig:lemma7}
+\end{figure}

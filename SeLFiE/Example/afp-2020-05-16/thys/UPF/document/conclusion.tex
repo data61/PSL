@@ -1,0 +1,40 @@
+\chapter{Conclusion and Related Work}
+\section{Related Work}
+With \citet{barker:next:2009}, our UPF shares the observation
+that a broad range of access control models can be reduced to a
+surprisingly small number of primitives together with a set of
+combinators or relations to build more complex policies. We also share
+the vision that the semantics of access control models should be
+formally defined.  In contrast to \cite{barker:next:2009}, UPF
+uses higher-order constructs and, more importantly, is geared towards
+machine support for (formally) transforming policies and supporting
+model-based test case generation approaches.
+
+\section{Conclusion Future Work}
+We have presented a uniform framework for modelling security
+policies. This might be regarded as merely an interesting academic
+exercise in the art of abstraction, especially given the fact that
+underlying core concepts are logically equivalent, but presented
+remarkably different from---apparently simple---security textbook
+formalisations.  However, we have successfully used the framework to
+model fully the large and complex information governance policy of a
+national health-care record system as described in the official
+documents~\cite{brucker.ea:model-based:2011} as well as network
+policies~\cite{brucker.ea:formal-fw-testing:2014}. Thus, we have shown
+the framework being able to accommodate relatively conventional
+RBAC~\cite{sandhu.ea:role-based:1996} mechanisms alongside less common
+ones such as Legitimate Relationships. These security concepts are
+modelled separately and combined into one global access control
+mechanism.  Moreover, we have shown the practical relevance of our
+model by using it in our test generation system
+\testgen~\cite{brucker.ea:theorem-prover:2012}, translating informal
+security requirements into formal test specifications to be processed
+to test sequences for a distributed system consisting of applications
+accessing a central record storage system.
+
+Besides applying our framework to other access control models, we plan
+to develop specific test case generation algorithms. Such
+domain-specific algorithms allow, by exploiting knowledge about the
+structure of access control models, respectively the UPF, for a
+deeper exploration of the test space. Finally, this results in an
+improved test coverage.

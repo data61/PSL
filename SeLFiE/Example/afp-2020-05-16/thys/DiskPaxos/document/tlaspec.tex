@@ -1,0 +1,83 @@
+\begin{module}{Synod}
+\EXTENDS Naturals
+
+%\textsc{extends}\ Naturals
+
+\CONSTANT N, Inputs
+
+\ASSUME $(N \in Nat) /\ (N>0)$
+
+$Proc == 1 .. N$
+
+$NotAnInput == \CHOOSE c : c\not\in Inputs$
+
+$\VARIABLES inputs, output$
+
+\vs{1.2}
+
+\begin{submodule}{Inner}
+$\VARIABLES allInput, chosen$
+
+\midbar
+
+\vs{1}
+
+$IInit ==$ 
+  \begin{conj} 
+    input  \in [Proc \rightarrow Inputs] \\
+    output  = [p \in Proc \mapsto NotAnInput]\\
+    chosen  = NotAnInput \\
+    allInput  = {input[p]: p \in Proc}
+  \end{conj}
+
+\vs{1.2}
+
+$IChoose(p) == $
+\s{1.2} \begin{conj}
+    output[p] = NotAnInput \\
+    \begin{noj}
+      \IF{chosen = NotAnInput} \\
+        \THEN ip \in allInput : 
+          \begin{conj}
+            chosen' = ip \\
+            output' = [output \EXCEPT ![p] = ip]
+          \end{conj}
+        \ELSE \begin{conj}
+                 output' = [output \EXCEPT ![p]=chosen] \\
+                 \UNCHANGED chosen
+               \end{conj}
+      \FI
+    \end{noj} \\
+    \UNCHANGED \langle input, allInput \rangle 
+  \end{conj}
+    
+\vs{1.2}
+
+$IFail(p) ==$
+  \begin{conj}
+    output' = [output \EXCEPT ![p]=NotAnInput] \\
+    \E ip \in Inputs : \begin{conj}
+                         input' = [input \EXCEPT ![p] = ip]\\
+                         allInput' = allInput \cup \{ip\}
+                       \end{conj}
+  \end{conj}
+
+\vs{1.2}
+
+$INext == \E p \in Proc : IChoose(p) \/ IFail(p)$
+
+$ISpec == IInit /\ [] [INext]_{\langle input,output,chosen,allInput \rangle}$
+
+\end{submodule} 
+
+\vs{1.2}
+
+$IS(chosen,allInput) == \INSTANCE Inner$
+
+$SynodSpec == \EE chosen, allInput : IS(chosen, allInput)!ISpec$
+\end{module}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End: 

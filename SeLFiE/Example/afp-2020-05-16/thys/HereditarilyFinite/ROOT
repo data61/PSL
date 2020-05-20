@@ -1,0 +1,13 @@
+chapter AFP
+
+session HereditarilyFinite (AFP) = "HOL-Library" +
+  description "The Hereditarily Finite Sets"
+  options [timeout = 600]
+  theories
+    Rank
+    Finite_Automata
+    Finitary
+    OrdArith
+  document_files
+    "root.bib"
+    "root.tex"

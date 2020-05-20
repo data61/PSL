@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Decreasing-Diagrams-II}
+\author{By Bertram Felgenhauer}
+\maketitle
+
+\begin{abstract}
+This theory formalizes a commutation version of decreasing diagrams for Church-Rosser modulo.
+The proof follows Felgenhauer and van Oostrom (RTA 2013). The theory also provides important
+specializations, in particular van Oostrom's conversion version (TCS 2008) of decreasing diagrams.
+\end{abstract}
+
+We follow the development described in~\cite{FvO13}: Conversions are mapped to Greek strings, and
+we prove that whenever a local peak (or cliff) is replaced by a joining sequence from a locally
+decreasing diagram, then the corresponding Greek strings become smaller in a specially crafted
+well-founded order on Greek strings. Once there are no more local peaks or cliffs are left, the
+result is a valley that establishes the Church-Rosser modulo property.
+
+As special cases we provide non-commutation versions and the conversion version of decreasing
+diagrams by van Oostrom~\cite{vO08a}. We also formalize extended decreasingness~\cite{HM10}.
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

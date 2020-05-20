@@ -1,0 +1,20 @@
+chapter AFP
+
+session "Ergodic_Theory" (AFP) = "HOL-Probability" +
+  options [timeout = 900]
+  theories
+    SG_Library_Complement
+    Fekete
+    Asymptotic_Density
+    Measure_Preserving_Transformations
+    Recurrence
+    Invariants
+    Ergodicity
+    Kingman
+    Gouezel_Karlsson
+    Kohlberg_Neyman_Karlsson
+    Transfer_Operator
+    Normalizing_Sequences
+  document_files
+    "root.tex"
+    "root.bib"

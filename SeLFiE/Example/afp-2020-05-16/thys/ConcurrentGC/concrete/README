@@ -1,0 +1,52 @@
+This directory contains the following three files.
+
+- Main.hs
+- WriteDotFile.hs
+- input_heap.txt
+
+Main.hs and WriteDotFile.hs generates an executable that takes
+an input file and returns an output file whose extention is .dot.
+
+input_heap.txt is an example of input file.
+
+Input files are converted to pdf files by using Graphviz.
+Suppose the executable has generated output.dot, and Graphviz is
+installed properly, Graphviz generates a pdf file whose name is
+output.pdf from the following command:
+
+  dot -Tpdf input.dot -o output.pdf
+
+The input file for the executable should follow the specific format
+that described in the following.
+
+The input file consists of two parts.
+The first part describes the mutators and the lines starting from
+mutators.
+
+  0 1 2 3
+  1 3
+  2 2 5
+
+stands for the following:
+There are three mutators called 0, 1, 2, respectively. The mutator 1
+has references to the object 1, 2, and 3. The mutator 1 has a
+reference to the object 3. The mutator 2 has references to the
+object 2 and 5.
+
+The first and second parts are split by "--".
+
+The second part describes the objects and the lines starting from
+obejcts.
+
+  0
+  1
+  2
+  3 0 1 1 2
+  4
+  5
+
+stands for the following:
+There are six objects called 0, 1, 2, 3, 4, 5, respectively. The
+objecct 3 has two fields called 0 and 1 respecitvely. In the field
+0, a reference to the object 1 is stored, while the field 1 contains
+a reference to the object 2.

@@ -1,0 +1,10 @@
+chapter AFP
+
+session Card_Equiv_Relations (AFP) = Bell_Numbers_Spivey +
+  options [timeout=600]
+  theories
+    Card_Equiv_Relations
+    Card_Partial_Equiv_Relations
+  document_files
+    "root.bib"
+    "root.tex"

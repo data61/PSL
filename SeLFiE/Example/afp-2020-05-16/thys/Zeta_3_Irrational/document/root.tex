@@ -1,0 +1,37 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{The Irrationality of $\zeta(3)$}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This article provides a formalisation of Beukers's straightforward analytic proof~\cite{beukers} that $\zeta(3)$ is irrational.
+This was first proven by Ap\'{e}ry~\cite{apery} (which is why this result is also often called `Ap\'{e}ry's Theorem') using a more algebraic approach. This formalisation follows Filaseta's presentation of Beukers's proof~\cite{filaseta}.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

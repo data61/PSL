@@ -1,0 +1,19 @@
+chapter AFP
+
+session Encodability_Process_Calculi (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Relations
+    ProcessCalculi
+    SimulationRelations
+    Encodings
+    SourceTargetRelation
+    SuccessSensitiveness
+    DivergenceReflection
+    OperationalCorrespondence
+    FullAbstraction
+    CombinedCriteria
+  document_files
+    "root.tex"

@@ -1,0 +1,81 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Kleene Algebra}
+\author{Alasdair Armstrong, Victor B. F. Gomes, Georg Struth and Tjark Weber}
+
+\maketitle
+
+\begin{abstract}
+  Variants of Dioids and Kleene algebras are formalised together with
+  their most important models in Isabelle/HOL.  The Kleene algebras
+  presented include process algebras based on bisimulation equivalence
+  (near Kleene algebras), simulation equivalence (pre-Kleene algebras)
+  and language equivalence (Kleene algebras), as well as algebras with
+  ambiguous finite or infinite iteration (Conway algebras), possibly
+  infinite iteration (demonic refinement algebras), infinite iteration
+  (omega algebras) and residuated variants (action algebras).  Models
+  implemented include binary relations, (regular) languages, sets of
+  paths and traces, power series and matrices.  Finally, min-plus and
+  max-plus algebras as well as generalised Hoare logics for Kleene
+  algebras and demonic refinement algebras are provided for applications.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introductory Remarks}
+
+These theory files are intended as a reference formalisation of
+variants of Kleene algebras and as a basis for other variants, such as
+Kleene algebras with tests~\cite{kat} and modal Kleene
+algebras~\cite{kad}, which are useful for program correctness and
+verification. To that end we have aimed at making proof accessible to
+readers at textbook granularity instead of fully automating them.  In
+that sense, these files can be considered a machine-checked
+introduction to reasoning in Kleene algebra.
+
+Beyond that, the theories are only sparsely commented. Additional
+information on the hierarchy of Kleene algebras and its formalisation
+in Isabelle/HOL can be found in a tutorial
+paper~\cite{fosterstruthweber11tutorial} or an overview
+article~\cite{guttmannstruthweber11tarskikleene}. While these papers
+focus on the automation of algebraic reasoning, the present
+formalisation presents readable proofs whenever these are interesting
+and instructive.
+
+Expansions of the hierarchy to modal Kleene algebras, Kleene algebras
+with tests and Hoare logics as well as infinitary and higher-order
+Kleene
+algebras~\cite{guttmannstruthweber11algmeth,armstrongstruth12hoka},
+and an alternative hierarchy of regular algebras and Kleene
+algebras~\cite{fosterstruth12regalg}---orthogonal to the present
+one---have also been implemented in the Archive of Formal
+Proofs~\cite{regalg,kad,kat,rel}.
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,14 @@
+chapter AFP
+
+session "Posix-Lexing" (AFP) = "Regular-Sets" +
+
+  options [timeout = 600]
+
+  theories
+    Lexer 
+    Simplifying
+    
+  document_files
+    "root.bib"
+    "root.tex"
+

@@ -1,0 +1,11 @@
+chapter AFP
+
+session PseudoHoops (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    LatticeProperties
+  theories
+    Examples
+  document_files
+    "root.bib"
+    "root.tex"

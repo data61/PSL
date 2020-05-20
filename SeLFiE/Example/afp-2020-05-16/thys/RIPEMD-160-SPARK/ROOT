@@ -1,0 +1,9 @@
+chapter AFP
+
+session "RIPEMD-160-SPARK" (AFP) = "HOL-SPARK-Examples" +
+  options [timeout = 600]
+  theories
+    RIPEMD_160_SPARK
+  document_files
+    "root.bib"
+    "root.tex"

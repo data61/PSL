@@ -1,0 +1,16 @@
+chapter AFP
+
+session Probabilistic_Noninterference (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    Coinductive
+    Markov_Models
+  theories [document = false]
+    Interface
+  theories
+    Trace_Based
+    Concrete
+  document_files
+    "root.tex"
+    "root.bib"
+

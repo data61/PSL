@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{textcomp}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Perfect Number Theorem}
+\author{Mark IJbema}
+\maketitle
+\begin{abstract}
+This document presents the formal proof of the Perfect Number
+Theorem. The result can also be found as number 70 on the list of ``top
+100 mathematical theorems''~\cite{Wiedijk100}. This document was
+produced as result of a B.Sc. Thesis under supervision of Jaap Top and
+Wim H. Hesselink (University of Groningen) in 2009.
+\end{abstract}
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{PerfectBasics}
+\input{Sigma}
+\input{Perfect}
+
+% optional bibliography
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,17 @@
+chapter AFP
+
+session EdmondsKarp_Maxflow (AFP) = "Flow_Networks" +
+  options [timeout = 600]
+  theories
+    FordFulkerson_Algo
+    EdmondsKarp_Termination_Abstract
+    EdmondsKarp_Algo
+    Augmenting_Path_BFS
+    EdmondsKarp_Impl
+    Edka_Checked_Impl
+  theories [document = false]
+    Edka_Benchmark_Export
+  document_files
+    "root.tex"
+    "root.bib"
+

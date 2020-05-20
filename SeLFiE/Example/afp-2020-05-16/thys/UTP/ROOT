@@ -1,0 +1,41 @@
+(******************************************************************************)
+(* Project: The Isabelle/UTP Proof System                                     *)
+(* File: ROOT                                                                 *)
+(* Authors: Simon Foster and Frank Zeyda (University of York, UK)             *)
+(* Emails: simon.foster@york.ac.uk and frank.zeyda@york.ac.uk                 *)
+(******************************************************************************)
+
+chapter AFP
+
+(* UTP Mathematical Toolkit *)
+
+session "UTP-Toolkit" (AFP) in "toolkit" = "HOL-Algebra" +
+  options [timeout = 600]
+  sessions
+    Optics
+  theories
+    utp_toolkit
+  document_files
+    "root.tex"
+    "root.bib"
+    "document.sty"
+
+(* Core UTP Framework *)
+
+session "UTP" (AFP) = "UTP-Toolkit" +
+  options [timeout = 600]
+  directories
+    "utp"
+    "utp/examples"
+  theories [document = false]
+    "utp/utp_parser_utils"
+  theories 
+    "utp/utp"
+    "utp/utp_full"
+    "utp/utp_easy_parser"
+    "utp/examples/sum_list"
+    "utp/examples/utp_simple_time"
+  document_files
+    "root.bib"
+    "root.tex"
+    "document.sty"

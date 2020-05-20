@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{An Under-Approximate Relational Logic}
+\author{Toby Murray}
+\maketitle
+
+\begin{abstract}
+  Recently, authors have proposed \emph{under-approximate} logics for
+  reasoning about programs~\cite{OHearn_19,deVries_Koutavas_11}.
+  So far, all such logics have been confined to
+  reasoning about individual program behaviours. Yet there exist many
+  over-approximate \emph{relational} logics for reasoning about pairs of
+  programs and relating their behaviours.
+
+  We present the first under-approximate relational
+  logic, for the simple imperative language IMP.
+  We prove our logic
+  is both sound and complete.
+  Additionally,
+  we show how reasoning in this logic
+  can be decomposed into non-relational reasoning in an under-approximate
+  Hoare logic, mirroring Beringer's result for over-approximate
+  relational logics.
+  We illustrate the application of our logic on some small
+  examples in which we provably demonstrate the presence of insecurity.
+
+  These proofs accompany a paper~\cite{murray2020underapproximate}
+  that explains the results in more detail.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

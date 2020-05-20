@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Open Induction}
+\author{Mizuhito Ogawa
+\and Christian Sternagel\thanks{%
+  The research was partly funded by the Austrian Science Fund (FWF): J3202.}}
+\maketitle
+
+\begin{abstract}
+A proof of the open induction schema based on \cite{Raoult1988}.
+\end{abstract}
+
+\tableofcontents
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

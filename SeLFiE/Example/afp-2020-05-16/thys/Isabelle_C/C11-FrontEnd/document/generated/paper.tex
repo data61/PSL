@@ -1,0 +1,1573 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{paper}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isadelimML
+%
+\endisadelimML
+%
+\isatagML
+%
+\endisatagML
+{\isafoldML}%
+%
+\isadelimML
+%
+\endisadelimML
+%
+\begin{isamarkuptext*}%
+[label = {abs},type = {scholarly_paper.abstract}, args={label = {abs},type = {scholarly_paper.abstract}, scholarly_paper.abstract.keywordlist = {{User Interface, Integrated Development, Program Verification, Shallow Embedding}}}]We present a framework for C code in C11 syntax deeply integrated into the Isabelle/PIDE
+  development environment. Our framework provides an abstract interface for verification back-ends
+  to be plugged-in independently. Thus, various techniques such as deductive program verification or
+  white-box testing can be applied to the same source, which is part of an integrated PIDE document
+  model. Semantic back-ends are free to choose the supported C fragment and its semantics. In
+  particular, they can differ on the chosen memory model or the specification mechanism
+  for framing conditions.
+
+  Our framework supports semantic annotations of C sources in the form of comments. Annotations
+  serve to locally control back-end settings, and can express the term focus to which
+  an annotation refers. Both the logical and the syntactic context are available when semantic
+  annotations are evaluated. As a consequence, a formula in an annotation can refer both 
+  to  HOL or C variables.
+
+  Our approach demonstrates the degree of maturity and expressive power the Isabelle/PIDE subsystem
+  has achieved in recent years. Our integration technique employs Lex and Yacc style grammars to 
+  ensure efficient deterministic parsing. We present two case studies for the integration of 
+  (known) semantic back-ends in order to validate the design decisions for our
+  back-end interface.%
+\end{isamarkuptext*}\isamarkuptrue%
+%
+\begin{isamarkupsection*}%
+[label = {intro},type = {scholarly_paper.introduction}, args={label = {intro},type = {scholarly_paper.introduction}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}}]Introduction%
+\end{isamarkupsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext*}%
+[label = {introtext},type = {scholarly_paper.introduction}, args={label = {introtext},type = {scholarly_paper.introduction}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}}]\noindent{}Recent successes like the Microsoft Hypervisor project \cite{DBLP:conf/fm/LeinenbachS09},
+the verified CompCert compiler \cite{DBLP:journals/cacm/Leroy09}
+and the seL4 microkernel \cite{DBLP:conf/sosp/KleinEHACDEEKNSTW09,DBLP:journals/tocs/KleinAEMSKH14} 
+show that the verification of low-level systems code has become feasible.
+However, a closer look at the underlying verification engines  
+VCC \cite{DBLP:conf/tphol/CohenDHLMSST09}, 
+or Isabelle/AutoCorres \cite{DBLP:conf/pldi/GreenawayLAK14}
+show that the road is still bumpy: the  empirical cost evaluation  of the L4.verified project 
+\cite{DBLP:journals/tocs/KleinAEMSKH14} reveals that a very substantial part  of the overall 
+effort of about one third of the 28 man years went into the development of libraries and the 
+associated tool-chain. Accordingly, the project authors \cite{DBLP:journals/tocs/KleinAEMSKH14} 
+express the hope that these overall investments will not have to be repeated for 
+``similar projects''.
+
+In fact, none of these verifying compiler tool-chains capture all aspects of ``real life'' 
+programming languages such as C. The variety of supported language fragments seem to contradict 
+the assumption that we will all converge to one comprehensive tool-chain soon. There are so many 
+different choices concerning memory models, non-standard control flow, and execution models 
+that a generic framework is desirable: in which verified compilers, deductive verification, 
+static analysis and test techniques (such as \cite{DBLP:conf/tap/Keller18}, 
+\cite{DBLP:conf/itp/AissatVW16}) can be developed and used inside the Isabelle platform
+as part of an integrated document.
+
+In this paper we present Isabelle/C~\footnote{The current developer snapshot is provided in
+  \url{https://gitlri.lri.fr/ftuong/isabelle_c}.}, a generic framework in
+spirit similar to Frama-C \cite{frama-c-home-page}. In contrast to the latter, Isabelle/C is
+deeply integrated into the Isabelle/PIDE document model \cite{DBLP:conf/itp/Wenzel14}. Based on
+the C11 standard (ISO/IEC 9899:2011), Isabelle/C parses C11 code inside a rich IDE supporting static
+scoping. SML user-programmed extensions can benefit from the parallel evaluation techniques of
+Isabelle. The plug-in mechanism of Isabelle/C can integrate diverse semantic representations,
+including those already made available in Isabelle/HOL \cite{DBLP:books/sp/NipkowPW02}: AutoCorres
+\cite{DBLP:conf/pldi/GreenawayLAK14}, IMP2 \cite{DBLP:journals/afp/LammichW19},
+Orca \cite{bockenek:hal-02069705}, or Clean \cite{journals/afp/TuongW19}. A particular advantage of
+the overall approach compared to systems like Frama-C or VCC is that all these semantic
+theories are conservative extensions of HOL, hence no axiom-generators are used that produce the
+"background theory" and the verification conditions passed to automated provers. Isabelle/C provides
+a general infrastructure for semantic annotations specific for back-ends, i.e. modules that generate
+from the C source a set of definitions and derive automatically theorems over them.
+Last but not least, navigation features of annotations make the logical context explicit in which 
+theorems and proofs are interpreted.%
+\end{isamarkuptext*}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {C-sample},type = {Isa_COL.figure}, args={label = {C-sample},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {60}, Isa_COL.figure.src = {figures/A-C-Source}, Isa_COL.figure.spawn_columns = {True}}]A C11 sample in Isabelle/jEdit%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The heart of Isabelle/C, the new \isa{\isacommand{C}{\isacartoucheopen}\ {\isachardot}{\isachardot}\ {\isacartoucheclose}} command, is shown in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample}. 
+Analogously to the existing \isa{\isacommand{ML}{\isacartoucheopen}\ {\isachardot}{\isachardot}\ {\isacartoucheclose}} command, it allows for editing C
+sources inside the \isa{{\isacartoucheopen}\ {\isachardot}{\isachardot}\ {\isacartoucheclose}} brackets, where C code is
+parsed on the fly in a ``continuous check, continuous build'' manner. A parsed source is coloured
+according to the usual conventions applying for Isabelle/HOL variables and keywords. A static
+scoping analysis makes the bindings inside the source explicit such that editing gestures like
+hovering and clicking may allow the user to reveal the defining variable occurrences and C type
+information (see yellow sub-box in the screenshot \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample}). The C source
+may contain comments to set up semantic back-ends. Isabelle/C turns out to be sufficiently efficient
+for C sources such as the seL4 project.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+This paper proceeds as follows: in \csname isaDof.ref\endcsname[type={text}]{background}, we
+briefly introduce Isabelle/PIDE and its document model, into which our framework is integrated. In
+\csname isaDof.ref\endcsname[type={text}]{frontend_arch} and
+\csname isaDof.ref\endcsname[type={text}]{ctests}, we discuss the build process and present some experimental results 
+on the integrated parser. The handling of semantic annotations comments --- a vital part for 
+back-end developers --- is discussed in \csname isaDof.ref\endcsname[type={text}]{annotations}, while in
+\csname isaDof.ref\endcsname[type={text}]{backends} we present some techniques to integrate back-ends
+into our framework at the hand of examples.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsection*}%
+[label = {background},type = {scholarly_paper.technical}, args={label = {background},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Background: PIDE and the Isabelle Document Model%
+\end{isamarkupsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+\noindent{}The Isabelle system is based on a generic document model allowing for
+efficient, highly-parallelized evaluation and checking of its document content (cf. 
+\cite{DBLP:conf/itp/Wenzel14,DBLP:journals/corr/Wenzel14,DBLP:conf/mkm/BarrasGHRTWW13}
+for the fairly innovative technologies underlying the Isabelle architecture).
+These technologies allow for scaling up to fairly large  documents: we have seen documents
+with 150 files be loaded in about 4 min, and individual files
+--- like the x86 model generated from Antony Fox' L3 specs --- have 80~kLoC and were loaded in 
+about the same time.\footnote{On a modern 6-core MacBook Pro with 32Gb memory,
+these loading times were counted \emph{excluding} proof checking.}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {docmodel1},type = {Isa_COL.figure}, args={label = {docmodel1},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {20}, Isa_COL.figure.src = {figures/document-model1}, Isa_COL.figure.spawn_columns = {True}}]PIDE interaction%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {docmodel2},type = {Isa_COL.figure}, args={label = {docmodel2},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {24}, Isa_COL.figure.src = {figures/document-model2}, Isa_COL.figure.spawn_columns = {True}}]PIDE document model%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+%% \begin{wrapfigure}{r}{0.2\textwidth}
+%%   \includegraphics[width=0.2\textwidth]{figures/document-model1}
+%%   \vspace{-20pt}
+%% \end{wrapfigure}
+The PIDE (prover IDE) layer in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{docmodel1} consists of a part written in SML
+and another in Scala. Roughly speaking, PIDE implements ``continuous build and continuous check''
+functionality over a textual albeit generic document model. It transforms user modifications of text
+elements in an instance of this model into increments --- \emph{edits} --- and
+communicates them to the Isabelle system. The latter reacts by the creation of a multitude of
+light-weight reevaluation threads resulting in an asynchronous stream of
+\emph{reports} containing \emph{markup} that is used to annotate
+text elements in the editor front-end. For example, such markup is used to highlight variables or
+keywords with specific colours, to hyperlink bound variables to their defining occurrences, or to
+annotate type information to terms which become displayed by specific user gestures on demand (such
+as hovering). Note that PIDE is not an editor, it is the framework that coordinates these
+asynchronous information streams and optimizes their evaluation to a certain extent: outdated markup
+referring to modified text is dropped, and corresponding re-calculations are oriented to the user
+focus, for example. For PIDE, several editor applications have been developed, where Isabelle/jEdit
+(\url{https://www.jedit.org}) is the most commonly known. More
+experimental alternatives based on Eclipse or Visual Studio Code exist.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{The PIDE Document Model%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+%% \begin{wrapfigure}{r}{0.24\textwidth}
+%%   \vspace{-12pt}
+%%   \includegraphics[width=0.24\textwidth]{figures/document-model2}
+%%   \vspace{-18pt}
+%% \end{wrapfigure}
+The document model foresees a number of atomic sub-documents (files), which are organized in the
+form of an acyclic graph in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{docmodel2}.
+%% \begin{wrapfigure}{r}{0.33\textwidth}
+\begin{figure}
+  \centering
+\begin{minipage}{0.33\textwidth}
+\begin{isar}
+theory C_Command
+  imports C_Eval
+  keywords "C" :: thy_decl
+       and "C_file" :: thy_load
+\end{isar}
+\end{minipage}
+  \caption{Header of a theory file in the Isabelle/C project}
+  \label{fig:thy}
+\end{figure}
+%% \end{wrapfigure}
+Such graphs can be grouped into sub-graphs called \emph{sessions} which can be compiled to binaries in 
+order to avoid long compilation times --- Isabelle/C as such is a session. Sub-documents have a 
+unique  name (the mapping to file paths in an underlying file-system is done in an integrated build 
+management). The primary format of atomic sub-documents is \isatt{.thy} (historically for
+``theory''), secondary formats can be \isatt{.sty}, \isatt{.tex}, \isatt{.c} or other sub-documents processed 
+by Isabelle and listed in a configuration of the build system. 
+
+A \isatt{.thy} file as in \autoref{fig:thy} consists of a \emph{context
+definition} and a body consisting of a sequence of \emph{commands}. The
+context definition includes the sections \isa{\isakeyword{imports}} and
+\isa{\isakeyword{keywords}}.  For example our context definition states that
+\isa{C{\isacharunderscore}Command} is the name of the sub-document depending on
+\isa{C{\isacharunderscore}Eval} which transitively includes the parser sources as (ML files)
+sub-documents, as well as the C environment and the infrastructure for defining C level
+annotations. \emph{Keywords} like \isa{\isacommand{C}} or
+\isa{\isacommand{C{\isacharunderscore}file}} must be declared before use.
+
+For this work, it is vital that predefined commands allow for the dynamic creation of
+\emph{user-defined} commands similarly to the definition of new functions in a shell
+interpreter. Semantically, commands are transition functions $\sigma \rightarrow \sigma$ where
+$\sigma$ represents the system state called \emph{logical context}. The logical context in 
+interactive provers contains --- among many other things --- the declarations of types, constant
+symbols as well as the database with the definitions and established theorems.
+A command starts with a pre-declared keyword followed by the specific syntax of this command; an
+\emph{evaluation} of a command parses the input till the next command, and transfers
+the parsed input to a transition function, which can be configured in a late binding table. Thus,
+the evaluation of the generic document model allows for user programmed extensions including IDE and
+document generation. 
+
+Note that the Isabelle platform supports multiple syntax embeddings, i.e. the possibility
+of nesting different language syntaxes inside the upper command syntax, using the
+\isa{{\isacartoucheopen}\ {\isachardot}{\isachardot}\ {\isacartoucheclose}} brackets (such parsing techniques will be exploited in \csname isaDof.ref\endcsname[type={text}]{annotations}).  Accordingly, these syntactic sub-contexts may be
+nested. In particular, in most of these sub-contexts, there may be a kind of semantic macro ---
+called antiquotation and syntactically denoted in the format
+\inlineisar+\at{name \<Open> .. \<Close>}+ --- that has access to the underlying logical context.
+Similar to commands, user-defined antiquotations may be registered in a late-binding table. For
+example, the standard \emph{term}-antiquotation in
+\isa{\isacommand{ML}}\inlineisar|\<Open> val t = \at{term "3 +"} \<Close>| parses the argument \inlineisar|"3 +"| with
+the Isabelle/HOL term parser, attempts to construct a $\lambda$-term in the internal
+term representation and to bind it to \isatt{t}; however, this fails (the plus operation is
+declared infix in logical context) and therefore the entire command fails.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{Some Basics of PIDE Programming%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+%% \begin{wrapfigure}{r}{0.47\textwidth}
+%%   \vspace{-5pt}
+\begin{figure}
+  \centering
+\begin{minipage}{0.47\textwidth}
+\begin{isar}
+ML\<Open> val pos = \at{here};
+    val markup = Position.here pos;
+    writeln ("And a link to the declaration\
+              \ of 'here' is " ^ markup) \<Close>
+\end{isar}
+\end{minipage}
+  \caption{Referring to an editing source position with the ML antiquotation \isatt{@{\char`\{}here{\char`\}}}}
+  \label{fig:ml-pos}
+\end{figure}
+%%   \vspace{-15pt}
+%% \end{wrapfigure}
+A basic data-structure relevant for PIDE is \emph{positions}; beyond the usual line
+and column information they can represent ranges, list of continuous ranges, and the name of the
+atomic sub-document in which they are contained. It is straightforward in \autoref{fig:ml-pos} to
+use the antiquotation \inlineisar|\at{here}| to infer from the system lexer the actual position of
+the antiquotation in the global document. The system converts the position to a markup
+representation (a string representation) and sends the result via \isatt{writeln} to
+the interface.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {hyplinkout},type = {Isa_COL.figure}, args={label = {hyplinkout},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {40}, Isa_COL.figure.src = {figures/markup-demo}, Isa_COL.figure.spawn_columns = {True}}]Output window showing the evaluation result of \autoref{fig:ml-pos} (the anchor of this
+hyperlink $\protect\house$ targets at the position marked by
+\isatt{@{\char`\{}here{\char`\}}})%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+%% \begin{wrapfigure}{r}{0.4\textwidth}
+%%   \vspace{-8pt}
+%%   \includegraphics[width=0.4\textwidth]{figures/markup-demo}
+%%   \vspace{-20pt}
+%% \end{wrapfigure}
+In return, the PIDE output window in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{hyplinkout} shows the little house-like
+symbol $\house$, which is actually hyperlinked to the position of \inlineisar|\at{here}|. The ML
+structures \isatt{Markup} and \isatt{Properties}
+represent the basic libraries for annotation data which is part of the protocol sent from Isabelle
+to the front-end. They are qualified as ``quasi-abstract'', which means they are intended to be an
+abstraction of the serialized, textual presentation of the protocol. A markup must be tagged with a
+unique id; this is done by the library \isatt{serial} function. Typical code for taking
+a string \isatt{cid} from the editing window, together with its position
+\isatt{pos}, and sending a specific markup referring to this in the editing window
+managed by PIDE looks like this:
+\begin{isar}
+ML\<Open> fun report_def_occur pos cid = Position.report pos (my_markup true cid (serial ()) pos) \<Close>
+\end{isar}
+Note that \isatt{my{\char`\_}markup} (not shown here) generates the layout attributes of the link and 
+that the \isatt{true} flag is used for markup declaring \isatt{cid} as a defining occurrence, i.e. 
+as \emph{target} (rather than the \emph{source}) in the hyperlink animation in PIDE.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsection*}%
+[label = {frontend_arch},type = {scholarly_paper.technical}, args={label = {frontend_arch},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]The C11 Parser Generation Process and Architecture%
+\end{isamarkupsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Isabelle uses basically two parsing technologies:
+
+%
+\begin{enumerate}%
+\item Earley parsing \cite{DBLP:journals/cacm/Earley70}
+intensively used for mixfix-syntax denoting $\lambda$-terms in mathematical notation,
+
+\item combinator parsing \cite{DBLP:journals/jfp/Hutton92} typically used for high-level 
+command syntax.%
+\end{enumerate}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Both technologies offer the dynamic extensibility necessary for Isabelle as an
+interactive platform geared towards incremental development and sophisticated mathematical
+notations. However, since it is our goal to support \emph{programming languages} in
+a fast parse-check-eval cycle inside an IDE, we opt for a Lex and Yacc deterministic grammar
+approach. It turns out the resulting automata based parser performs well enough for our purpose; the
+gain in performance is discussed in the next section.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+In the following, we describe a novel technique for the construction and integration of
+this type of parser into the Isabelle platform. Since it is mostly relevant for integrators copying
+our process to similar languages such as JavaScript or Rust \footnote{E.g.
+\url{http://hackage.haskell.org/package/language-javascript} or
+\url{http://hackage.haskell.org/package/language-rust}}, users of the
+Isabelle/C platform may skip this section: for them, the take-home message is that the overall
+generation process takes about 1 hour, the compilation of the generated files takes 15s, and that
+the generated files should be fairly portable to future Isabelle versions.\footnote{In our
+  experiments, files generated with a version $i$ of Isabelle natively work when loaded with a more
+  recent version $j$, for at least any versions $i$ and $j$ satisfying $2016 \leq i \leq j \leq
+  2019$ (at the time of writing).}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+We base our work on the C11 parsing library
+  \url{http://hackage.haskell.org/package/language-c} implemented in Haskell by
+Huber, Chakravarty, Coutts and Felgenhauer; we particularly focus on its open-source Haskell Yacc
+grammar as our starting point. We would like to emphasize that this is somewhat arbitrary, our build
+process can be easily adapted to more recent versions when available.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {architecture},type = {Isa_COL.figure}, args={label = {architecture},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {70}, Isa_COL.figure.src = {figures/C11-Package-Architecture}, Isa_COL.figure.spawn_columns = {True}}]The architecture of Isabelle/C%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The diagram in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{architecture} presents the architecture of
+Isabelle/C. The original Haskell library was not modified, it is presented in blue together with
+generated sources, in particular the final two blue boxes represent about 11~kLoC. In output, the
+glue code in brown constitutes the core implementation of Isabelle/C, amounting to 6~kLoC (without
+yet considering semantic back-ends).%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {arch1},type = {scholarly_paper.technical}, args={label = {arch1},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Generating the AST%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+In the following, we refer to \emph{languages} by $\mathcal{L}$,
+$\mathcal{I}$. The notation $\text{AST}^{\mathcal{L}}_{\mathcal{I}}$ refers to abstract syntaxes for
+language $\mathcal{L}$ implemented in language $\mathcal{I}$. For example, we refer by
+$\text{AST}^{\text{C11}}_{\text{ML}}$ to an AST implementation of C11 implemented in SML. Indices
+will be dropped when no confusion arises, or to highlight the fact that our approach is
+sufficiently generic.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+For our case, we exploit that from a given Haskell source $\text{AST}_{\text{HS}}$,
+Haskabelle generates to a maximum extent an Isabelle/HOL theory. Via the Isabelle code generator, an
+$\text{AST}_{\text{ML}}$ can be obtained from a constructive $\text{AST}_{\text{HOL}}$
+representation. Ultimately, the process to compile $\text{AST}_{\text{HS}}$ to $\text{AST}_{\text{ML}}$
+is done only once at build time, it comprises:
+
+%
+\begin{enumerate}%
+\item the generation of $\text{AST}_{\text{HOL}}$ from $\text{AST}_{\text{HS}}$, represented as a
+collection of \isa{\isacommand{datatype}},
+
+\item the execution of the \isa{\isacommand{datatype}} theory for $\text{AST}_{\text{HOL}}$ and checking of all their
+proofs,
+
+\item the generation of an $\text{AST}_{\text{ML}}$ from $\text{AST}_{\text{HOL}}$.%
+\end{enumerate}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The choice on getting an Isabelle/HOL theory in the intermediate step allows us to make
+additional checks on the imported AST (e.g. non-emptiness of the imported types), as well as to use
+it as a first trusted basis point for further translations and reasoning activities (in \csname isaDof.ref\endcsname[type={text}]{parser_validation}). However, relying on an intermediate $\text{AST}_{\text{HOL}}$
+in the above process is technically challenging for practical reasons. This is related to the
+prerequisites any HOL types must satisfy before being integrated in Isabelle: proofs of generated
+rules might take some time, or additional theorems must be proved before one can invoke the ML code
+generator on the types...
+
+We present in the next descriptions below the main encountered corner cases, and how we solved
+them.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsubsection{Maintenance of Haskabelle%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+The generation time for Step 1 involving Haskabelle is almost irrelevant (a few
+seconds), but first requires to significantly update Haskabelle from an abandoned Isabelle2016
+distribution.\footnote{See
+  e.g. \url{https://lists.cam.ac.uk/mailman/htdig/cl-isabelle-users/2016-December/msg00096.html}
+  and
+  \url{https://mailmanbroy.informatik.tu-muenchen.de/pipermail/isabelle-dev/2016-October/015677.html}.}
+
+Haskabelle is implemented in Haskell and mainly relies on a meta-programming library
+haskell-src-exts.\footnote{\url{https://hackage.haskell.org/package/haskell-src-exts}} The
+design of this library drastically changed in 2016, making a new port of Haskabelle proportionally
+difficult. This sole reason has motivated the Isabelle developers of not maintaining anymore
+Haskabelle in the Isabelle distributions (it is discarded since Isabelle2016). The interested reader
+can find near our Isabelle/C source our renovated version of Haskabelle compatible with the latest
+official versions of Isabelle.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsubsection{Limitation of Haskabelle on certain $\text{AST}_{\text{HS}}$%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+Since the support of Haskabelle on Haskell source is not complete, there would possibly
+remain Haskell construction features used by $\text{AST}_{\text{HS}}$ left for an additional
+implementation task. For example, for the case of $\text{AST}^{\text{C11}}$, we have brought support
+for handling mutually recursive type declarations, particularly in the case where such type
+declarations are made by interleaving several Haskell keywords \isatt{type} and
+\isatt{data}. (The case of a mutually type declarations performed by only using
+several \isatt{data} was already supported.)%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsubsection{Resources needed to execute the generated HOL datatype theory%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+To our knowledge, our chosen $\text{AST}^{\text{C11}}$ as importation has the most
+enormous size among any existing ASTs, e.g., ever published in the Isabelle AFP repository (more
+than 350 generated constants). Even if the generation with Haskabelle in Step 1 just takes a few
+seconds, Step 2 becomes much longer to execute: the generated
+\isa{\isacommand{datatype}}-theory correctly terminates only after 17 hours of elapsed
+time (or 70 hours of cpu time, with a gain factor of 4). Alternatively, one can skip the execution
+of proofs by activating the Isabelle \isa{quick{\isacharminus}and{\isacharminus}dirty} option: this makes the resulting
+theory taking 40~min. A main reason for the resource issue is the 20 mutually recursive
+sub-definitions of $\text{AST}_{\text{HOL}}$ (leading meanwhile to 6275 generated theorems). It is
+well known that large mutually recursive datatypes are impacting the resource performance, other
+projects encountered similar difficulties, see for instance
+\url{https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2016-March/msg00034.html}
+and
+\url{https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2017-April/msg00000.html}.
+
+Of course, in the best scenario one could imagine the generator at Step 1 executing a more optimized
+algorithm to automatically remove any problematic mutual recursions as far as it is decidable (after
+the execution of Haskabelle, or possibly during its call). In general, we are tending towards
+generic solutions targeting modifications on the generator side (at Step 1), rather than modifying
+the AST or grammar sources by hand.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsubsection{The extraction of HOL constructors versus the extraction of HOL constants%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+The code generator of Isabelle generates in ML all
+\isa{\isacommand{datatype}} constructors in a cartesian products form, while regular HOL
+\isa{\isacommand{definition}} constants are extracted as curried. Since an interoperable
+form is important for grammar composition in \csname isaDof.ref\endcsname[type={text}]{parser}; combining Haskabelle
+with Citadelle~\cite{DBLP:journals/afp/TuongW15} in Step 1 allows for configuring Citadelle to
+curry all constructors, based on Haskabelle's output. For example, the last two definitions are the
+lines automatically added by Citadelle (for each \isa{\isacommand{datatype}} received
+from Haskabelle):
+\begin{gather*}
+\begin{tabular}{lll}
+\isa{datatype\ {\isacharprime}a\ CStatement} & \isa{{\isacharequal}} & \isa{CLabel{\isadigit{0}}\ Ident\ {\isachardoublequote}{\isacharprime}a\ CStatement{\isachardoublequote}\ {\isachardoublequote}{\isacharprime}a\ CAttributes{\isachardoublequote}\ {\isacharprime}a} \\
+                         & \isa{{\isacharbar}} & \isa{CGoto{\isadigit{0}}\ Ident\ {\isacharprime}a} \\
+\isa{definition\ {\isachardoublequote}CLabel}    & \isa{{\isacharequal}} & \isa{CLabel{\isadigit{0}}{\isachardoublequote}} \\
+\isa{definition\ {\isachardoublequote}CGoto}    & \isa{{\isacharequal}} & \isa{CGoto{\isadigit{0}}{\isachardoublequote}}
+\end{tabular}
+\end{gather*}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsubsection{Time to generate to SML%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+We conclude with Step 3 by using the Isabelle code generator. This takes about 20~min:
+its generation time is depending in a major part on respective theorems generated by the
+\isa{\isacommand{datatype}}-theory.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {lexer},type = {scholarly_paper.technical}, args={label = {lexer},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Constructing a Lexer for C11%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+We decided against the option of importing the equivalent Haskell lexer, as it is
+coming under-developed compared to the existing PIDE lexer library, natively
+supporting Unicode-like symbols (mostly for annotations). Using a more expressive position
+data-structure, our C lexer is also compatible with the native ML lexer regarding the handling of
+errors and backtracking (hence the perfect fit when nesting one language inside the other). Overall,
+the modifications essentially boil down to taking an extreme care of comments and directives which
+have intricate lexical conventions (see \csname isaDof.ref\endcsname[type={text}]{lexer_ex}).%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {parser},type = {scholarly_paper.technical}, args={label = {parser},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Generating the Shift-Reduce Parser from the Grammar%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+In the original C11 library, together with $\text{AST}_{\text{HS}}$, there is a Yacc
+grammar file $\text{G}_{\text{HS-YACC}}$ included, which we intend to use to conduct the C
+parsing. However due to technical limitations of Haskabelle (and advanced Haskell constructs in the
+associated $\text{G}_{\text{HS}}$), we do not follow the same approach as \csname isaDof.ref\endcsname[type={text}]{arch1}. Instead, an ultimate grammar $\text{G}_{\text{ML}}$ is obtained by letting
+ML-Yacc participate in the generation process. In a nutshell, the overall grammar translation chain
+becomes: $\text{G}_{\text{HS-YACC}} \longrightarrow_{\text{HS}} \text{G}_{\text{ML-YACC}}
+\longrightarrow_{\text{ML}} \text{G}_{\text{ML}}$.
+
+$\longrightarrow_{\text{HS}}$ is implemented by modifying the Haskell parser generator Happy,
+because Happy is already natively supporting the whole $\mathcal{L}_{\text{HS-YACC}}$. Due to the
+close connection between Happy and ML-Yacc, the translation is even almost linear. However cares
+must be taken while translating monadic rules of $\text{G}_{\text{HS-YACC}}$, as
+$\mathcal{L}_{\text{ML-YACC}}$ does not support such rules. Indeed, rules of
+$\mathcal{L}_{\text{HS-YACC}}$ can be either defined as being non-monadic (like
+$\mathcal{L}_{\text{ML-YACC}}$), or set to explicitly perform a monadic action.\footnote{Syntactically, the difference relies in the presence of a particular flag before writing
+  the rule code, namely \isatt{{\char`\%}}:
+  \url{https://www.haskell.org/happy/doc/html/sec-monads.html}} In
+$\text{G}^{\text{C11}}$, monadic rules are particularly important for scoping analyses, or while
+building new informative AST nodes (in contrast to disambiguating non-monadic rules, see the
+difference between \isa{{\isacharat}} and \isa{{\isacharampersand}} as used in
+\csname isaDof.ref\endcsname[type={text}]{annotations}).\footnote{To add support of monadic rules in
+  $\mathcal{L}_{\text{ML-YACC}}$, we adopt the same linguistic strategy as
+  $\mathcal{L}_{\text{HS-YACC}}$: by letting the possibility to use a special string prefix in front
+  of each rule code. Furthermore, to not modify the syntactic range of
+  $\mathcal{L}_{\text{ML-YACC}}$, the string prefix can be directly written as
+  \emph{annotated} in rule code, for instance under the form of a special ML comment
+  \isatt{(*{\char`\%}*)}.} Note that $\longrightarrow_{\text{HS}}$ is also in charge of
+translating each rule code from Haskell to ML.
+
+After executing $\longrightarrow_{\text{HS}}$, we obtain $\text{G}_{\text{ML-YACC}}$, but applying
+ML-Yacc $\longrightarrow_{\text{ML}}$ on $\text{G}_{\text{ML-YACC}}$ is not enough: even if the act
+of getting an efficient Shift-Reduce automaton $\text{G}_{\text{ML}}$ is immediate, we needed to
+substantially modify the own grammar interpreter of ML-Yacc to implement all features of
+$\mathcal{L}_{\text{HS-YACC}}$ presented as used in $\text{G}_{\text{HS-YACC}}$.\footnote{For example, for the case of monadic rules, this means to implement the necessary monadic
+  optimization in the grammar interpreter. Globally, the default behavior of ML-Yacc is still
+  preserved, except that we implemented the monadic support in ML-Yacc by overriding how certain
+  native commands of ML-Yacc were functioning: for example \isatt{{\char`\%}arg} is now
+  used to denote an implicit monadic state, and \isatt{{\char`\%}pure} to explicitly
+  trigger the generation of monadic code, see
+  \url{https://www.cs.princeton.edu/~appel/modern/ml/ml-yacc/manual.html\#section12}.}
+Besides the grammar interpreter of ML-Yacc, we also modified $\longrightarrow_{\text{ML}}$ to
+generate additional meta-programming functions recording the types of all intermediate parsing
+values that might be ever present in the parser stack, see \csname isaDof.ref\endcsname[type={text}]{annotations}. Later at parsing time, the necessary generated functions will be
+called to perform automatic cast operations (in \csname isaDof.ref\endcsname[type={text}]{annot2}).%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsection*}%
+[label = {ctests},type = {scholarly_paper.technical}, args={label = {ctests},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Isabelle/C: Syntax Tests and Experimental Results%
+\end{isamarkupsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The question arises, to what extent our construction provides a faithful parser for
+C11, and if Isabelle/C is sufficiently stable and robust to handle real world sources. A related
+question is the treatment of \isatt{cpp} preprocessing directives: while a
+minimal definition of the preprocessor is part of C standards since C99, practical implementations
+vary substantially.  Moreover, \isatt{cpp} comes close to be Turing complete:
+recursive computations can be specified, but the expansion strategy bounds the number of
+unfolding. Therefore, a complete \isatt{cpp} reimplementation contradicts our
+objective to provide efficient IDE support inside Isabelle. Instead, we restrict ourselves to a
+common subset of macro expansions and encourage, whenever possible, Isabelle specific mechanisms
+such as user programmed C annotations. C sources depending critically on a specific
+\isatt{cpp} will have to be processed outside
+Isabelle.\footnote{Isabelle/C has a particular option to activate (or not) an automated
+call to \isatt{cpp} before any in-depth treatment.}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {lexer_ex},type = {scholarly_paper.technical}, args={label = {lexer_ex},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Preprocessing Lexical Conventions: Comments and Newlines%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {C-sample2},type = {Isa_COL.figure}, args={label = {C-sample2},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {42}, Isa_COL.figure.src = {figures/A-C-Source2}, Isa_COL.figure.spawn_columns = {True}}]Lexing convention for comments, illustrated in the CPP documentation%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+A very basic standard example taken from the GCC / CPP documentation~\footnote{\url{https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html}}
+in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample2} shows the quite intricate mixing of comment styles that
+represents a challenge for our C lexer. A further complication is that it is allowed and common
+practice to use backslash-newlines \isa{{\isacharbackslash}{\isasymnewline}} \emph{anywhere} in C
+sources, be it inside comments, string denotations, or even regular C keywords like
+\isa{i{\isacharbackslash}{\isasymnewline}n{\isacharbackslash}{\isasymnewline}t} (see also \autoref{fig:clean}).
+
+%% \begin{wrapfigure}{r}{0.42\textwidth}
+%%   \vspace{-12pt}
+%%   \includegraphics[width=0.42\textwidth]{figures/A-C-Source2}
+%%   \vspace{-20pt}
+%% \end{wrapfigure}
+In fact, many C processing tools assume that all comments have already been removed via
+\isatt{cpp} before they start any processing. However, annotations in comments carry relevant information 
+for back-ends as shown in  \csname isaDof.ref\endcsname[type={text}]{annotations}. Consequently, they must be explicitly 
+represented in $\text{AST}^{\text{C11}}_{\text{ML}}$,
+whereas the initial $\text{AST}^{\text{C11}}_{\text{HS}}$ 
+is not designed to carry such extra information. 
+Annotations inside comments may again contain structured information like programming code, formulas,
+and proofs, which implies the need for nested syntax. Fortunately, Isabelle is designed to
+manage multiple parsing layers with the technique of \emph{cascade sources}~\footnote{\url{http://isabelle.in.tum.de/repos/isabelle/file/83774d669b51/src/Pure/General/source.ML}}
+(see also \csname isaDof.ref\endcsname[type={text}]{C-sample3}). We exploit this infrastructure to integrate
+back-end specific syntax and annotation semantics based on the parsing technologies available.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{Preprocessing Side-Effects: Antiquoting Directives vs. Pure Annotations%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+For the mentioned reasons, we present how directives are classified and how some basic
+support can be implemented. As directives and preprocessing constitute a major chapter in the C
+standard, we only support very specific usages, but do not exclude statically typed alternatives to
+directives via user-programmed antiquotations. Still, in comparison with
+\emph{comments} which can be safely removed without affecting the meaning of C code,
+\emph{directives} are semantically relevant for compilation and evaluation.
+
+%
+\begin{enumerate}%
+\item Classical directives: \isa{{\isacharhash}define\ x\ TOKS} makes any incoming C identifier
+\isa{x} be replaced by some \emph{arbitrary} tokens \isa{TOKS},
+even when included via the \isa{{\isacharhash}include} directive.
+
+\item Typed (pseudo-)directives as commands: It is easy to overload or implement a new
+\isa{{\isacharhash}define{\isacharprime}} acting only on a decided subset of well-formed \isa{TOKS}. There
+are actually no differences between Isabelle/C directives and Isabelle commands: both are
+internally of type $\sigma \rightarrow \sigma$ (see \csname isaDof.ref\endcsname[type={text}]{background}).
+
+\item Non-expanding annotations: Isabelle/C annotations
+$\isa{{\isacharslash}{\isacharasterisk}{\isacharat}}~\mathcal{L}_\text{annot}~\isa{{\isacharasterisk}{\isacharslash}}$ or
+$\isa{{\isacharslash}{\isacharslash}{\isacharat}}~\mathcal{L}_\text{annot}$ can be freely intertwined between other tokens, even
+inside directives. In contrast to (antiquoting) directives and similarly as C comments, their
+designed intent is to not modify the surrounding parsing code. In \csname isaDof.ref\endcsname[type={text}]{annotations}, we will address the issue of separation and interaction of
+plugged-in annotations, as well as the possibility of nesting annotations.%
+\end{enumerate}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+A limitation of Isabelle and its current document model is that there is no way for user
+programmed extensions to exploit implicit dependencies between
+sub-documents. Thus, a sub-document referred to via \isa{{\isacharhash}include\ {\isacharless}some{\isacharunderscore}file{\isachargreater}} will not
+lead to a reevaluation of a \isa{\isacommand{C}{\isacartoucheopen}\ {\isachardot}{\isachardot}\ {\isacartoucheclose}} command whenever modified. (The only 
+workaround is to open all transitively required sub-documents  \emph{by hand}.)%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {parser_validation},type = {scholarly_paper.technical}, args={label = {parser_validation},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]A Validation via the seL4 Test Suite%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The AutoCorres environment contains a C99 parser developed by Michael Norrish \cite{DBLP:conf/sosp/KleinEHACDEEKNSTW09}. Besides a parser test-suite, there is the entire seL4
+codebase (written in C99) which has been used for the code verification part of the seL4
+project. While the parser in itself represents a component belonging to the trusted base of the
+environment, it is arguably the most tested parser for a semantically well-understood translation in
+a proof environment today.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+It is therefore a valuable reference for a comparison test, especially since
+$\text{AST}^\text{C99}$ and $\text{AST}^\text{C11}$ are available in the same implementation
+language. From $\text{AST}^\text{C11}_{\text{HOL}}$ to $\text{AST}^\text{C99}_{\text{HOL}}$ we
+construct an abstraction function $C^\downarrow$. Its definition is rather straightforward but
+tedious and long: the main problem is the handling of C \isa{struct}s where some thoughts
+have to be spent on the flattening of the recursive tree structure. A detailed description of
+$C^\downarrow$ is out of the scope of this paper; we would like to mention that it was 4 man-months
+of work due to the richness of $\text{AST}^\text{C11}$. This HOL function can be used for formal
+proofs over a preserving subset translation; however, so far, we only use it for code reflection
+into ML. As such, the abstraction function $C^\downarrow$ is at the heart of the AutoCorres
+integration into our framework described in \csname isaDof.ref\endcsname[type={text}]{autocorres}. Note that
+$\text{AST}^{\text{C99}}$ seems to be already an abstraction compared to the C99 standard. This
+gives rise to a particular testing methodology: we can compile the test suites as well as the seL4
+source files by both ML parsers $\text{PARSE}_{\text{\emph{stop}}}^{\text{C99}}$ and
+$\text{PARSE}_{\text{\emph{report}}}^{\text{C11}}$, abstract the output of the latter via
+$C^\downarrow$ and compare the results.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Our test establishes that both parsers agree on the entire seL4 codebase. However
+trying to compare the two parsers using other criteria is not possible, for example we had to limit
+ourselves to C programs written in a subset of C99. Fundamentally, the two parsers are achieving
+different tasks: the one of $\text{PARSE}_{\text{\emph{stop}}}$ is to just return a parsed AST. In
+contrast, $\text{PARSE}_{\text{\emph{report}}}$ intends to maximize markup reporting, irrespective
+of a final parsing success or failure, and reports are provided in parallel during its (monadic)
+parsing activity. Thus, in the former scenario, the full micro-kernel written in 26~kLoC can be
+parsed in 0.1s. In the latter, all reports we have thought helpful to implement are totally rendered
+before 20s. Applying $C^\downarrow$ takes 0.02 seconds, so our $\text{PARSE}_{\text{\emph{report}}}$
+gives an average of 2s for a 2-3~kLoC source. By interweaving a source with proofs referring to the
+code elements, the responsiveness of PIDE should therefore be largely sufficient. In principle,
+there is an important potential for further optimizations by more incremental forms of reporting
+that follow the current focus of a user window. However we adopted the same strategy of reporting as
+\isa{\isacommand{ML}} and general Isabelle commands, for which incremental operations
+seem to be limited inside the atomic level of a command.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsection*}%
+[label = {annotations},type = {scholarly_paper.technical}, args={label = {annotations},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Generic Semantic Annotations for C%
+\end{isamarkupsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+With respect to interaction with the underlying proof-engine, there are essentially two
+lines of thought in the field of deductive verification techniques:
+
+%
+\begin{enumerate}%
+\item either programs and specifications --- i.e. the pre- and post-condition contracts --- are clearly 
+separated, or
+
+\item the program is annotated with the specification, typically by using some form of formal
+comment.%
+\end{enumerate}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Of course, it is possible to inject the essence of annotated specifications directly
+into proofs, e.g. by instantiating the \isa{while} rule of the Hoare calculus by the needed
+invariant inside the proof script. The resulting clear separation of programs from proofs may be
+required by organisational structures in development projects. However, in many cases, modelling
+information may be interesting for programmers, too. Thus, having pre- and post-conditions locally
+in the source close to its point of relevance increases its maintainability. It became therefore
+common practice to design languages with annotations, i.e. structured comments
+\emph{inside} a programming source. Examples are ACSL standardized by ANSI/ISO (see
+\url{https://frama-c.com/download/acsl.pdf}) or UML/OCL \cite{DBLP:journals/afp/BruckerTW14} for static analysis tools. When tackling with concurrency \cite{DBLP:conf/tacas/SananZHZTL17}, other forms of annotation support are required, possibly in
+assembly code included in C11 code.\footnote{See for example the Securify project:
+  \url{http://securify.sce.ntu.edu.sg/}} Isabelle/C supports both the
+inject-into-proof style and annotate-the-source style in its document model; while the former is
+kind of the default, we address in this section the necessary technical infrastructure for the
+latter.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{Binding Space of Annotation Environment%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkupfigure*}%
+[label = {C-sample6},type = {Isa_COL.figure}, args={label = {C-sample6},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {56}, Isa_COL.figure.src = {figures/A-C-Source6}, Isa_COL.figure.spawn_columns = {True}}]C11 code enriched with HOL proofs%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Generally speaking, a generic annotation mechanism which is sufficiently expressive to
+capture idioms used in, e.g., Frama-C, Why3, or VCC is more problematic than one might think.
+Consider this:
+\begin{isar}
+     for (int i = 0; i < n; i++) a+= a*i /*@ annotation */
+\end{isar}
+To which part of the AST does the annotation refer? To \isa{i}? \isa{a{\isacharasterisk}i}? The
+assignment? The loop? Some verification tools use prefix annotations (as in Why3 for procedure
+contracts), others even a kind of parenthesis of the form:
+\begin{isar}
+     /*@ annotation_begin */ ...  /*@ annotation_end */
+\end{isar}
+The matter gets harder since the C environment --- a table mapping C identifiers to their type and
+status --- changes according to the reference point in the AST. This means that the context relevant
+to type-check an annotation such as \isa{{\isacharslash}{\isacharasterisk}{\isacharat}\ assert\ {\isasymopen}a\ {\isachargreater}\ i{\isasymclose}\ {\isacharasterisk}{\isacharslash}} strongly
+differs depending on the annotation's position. And the matter gets even further complicated since
+Isabelle/C lives inside a proof environment; here, local theory development (rather than bold ad-hoc
+axiomatizations) is a major concern.
+
+%% \begin{wrapfigure}{r}{0.56\textwidth}
+%%   \vspace{-10pt}
+%%   \includegraphics[width=0.56\textwidth]{figures/A-C-Source6}
+%%   \vspace{-20pt}
+%% \end{wrapfigure}
+The desire for fast impact analysis resulting from changes may inspire one to annotate local proofs
+near directives, which is actually what is implemented in our Isabelle/C/AutoCorres example
+(\csname isaDof.ref\endcsname[type={text}]{backends}), and shown again in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample6}. In the example, the semantic back-end converts the
+\isatt{cpp} macro into a HOL \emph{definition}, i.e. an extension
+of the underlying theory context by the conservative axiom
+\isa{SQRT{\isacharunderscore}UINT{\isacharunderscore}MAX\ {\isasymequiv}\ {\isadigit{6}}{\isadigit{5}}{\isadigit{5}}{\isadigit{3}}{\isadigit{6}}{\isacharcolon}{\isacharcolon}{\isacharprime}a} bound to the name
+\isa{SQRT{\isacharunderscore}UINT{\isacharunderscore}MAX{\isacharunderscore}def}. This information is used in the subsequent proof
+establishing a new theory context containing the lemma \isa{uint{\isacharunderscore}max{\isacharunderscore}factor}
+configured to be used as rewrite rule whenever possible in future proofs. This local lemma
+establishes a relation of \isa{SQRT{\isacharunderscore}UINT{\isacharunderscore}MAX} to the maximally representable number
+\isa{UINT{\isacharunderscore}MAX} for an unsigned integer according to the underlying memory model.
+
+Obviously, the scheduling of these transformations of the underlying theory contexts is
+non-trivial.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {C-sample3},type = {Isa_COL.figure}, args={label = {C-sample3},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {100}, Isa_COL.figure.src = {figures/A-C-Source3}, Isa_COL.figure.spawn_columns = {True}}]Advanced annotation programming%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {navigation},type = {scholarly_paper.technical}, args={label = {navigation},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Navigation for Annotation Commands%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+In order to overcome the problem of syntactic ambiguity of annotations, we slightly
+refine the syntax of semantic annotations by the concept of a navigation expression:
+\begin{isar}
+    $\mathcal{L}_\text{annot}$ $=$ $\varnothing$ | <navigation-expr> <annotation-command> $\mathcal{L}_\text{annot}$ 
+\end{isar}
+
+A {\footnotesize\texttt{<navigation-expr>}} string consists of a sequence of \isa{{\isacharplus}} symbols followed
+by a sequence consisting of \isa{{\isacharat}} or \isa{{\isacharampersand}} symbols. It allows for navigating
+in the syntactic context, by advancing tokens with several \isa{{\isacharplus}}, or taking an ancestor
+AST node with several \isa{{\isacharat}} (or \isa{{\isacharampersand}} which only targets monadic grammar rules). This
+corresponds to a combination of right-movements in the AST, and respectively parent-movements. This
+way, the ``focus'' of an {\footnotesize\texttt{<annotation-command>}} can be modified to denote any C
+fragment of interest.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+As a relevant example for debugging, consider \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample3}.
+The annotation command \isa{\isacommand{highlight}} is a predefined Isabelle/C ML-library function that is
+interpreted as C annotation. Its code is implicitly parameterized by the syntactical context,
+represented by \isatt{stack{\char`\_}top} whose type is a subset of
+$\text{AST}^\text{C11}$, and the lexical environment \isatt{env} containing the
+lexical class of identifiers, scopes, positions and serials for markup. The navigation string before
+\isa{\isacommand{highlight}} particularly influences which
+\isatt{stack{\char`\_}top} value gets ultimately selected. The third screenshot in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample3} demonstrates the influence of the static environment: an Isabelle/C
+predefined command \isa{\isacommand{{\isasymsimeq}setup}} allows for ``recursively'' calling the C
+environment itself. This results in the export of definitions in the surrounding logical context,
+where the propagation effect may be controlled with options like
+\isa{C{\isacharunderscore}starting{\isacharunderscore}env}. \isa{\isacommand{{\isasymsimeq}setup}} actually
+mimics standard Isabelle \isa{\isacommand{setup}} command, but extends it by
+\isatt{stack{\char`\_}top} and \isatt{env} \footnote{cf. \url{https://isabelle.in.tum.de/doc/isar-ref.pdf}}. In the
+example, the first recursive call uses \isatt{env} allowing it to detect that
+\isa{b} is a local parameter, while the second ignores it which results in a treatment as a
+free global variable. Note that bound global variables are not green but depicted in black.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {annot1},type = {scholarly_paper.technical}, args={label = {annot1},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Defining Annotation Commands%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Extending the default configuration of commands, text and code antiquotations from the
+Isabelle platform to Isabelle/C is straightforward. For example, the central Isabelle command
+definition:
+\begin{isar}
+    Outer_Syntax.command: $K_\text{\emph{cmd}}$ -> ($\sigma$ -> $\sigma$) parser -> unit
+\end{isar}
+establishes the dynamic binding between a command keyword $K_\text{\emph{cmd}} =
+\isa{\isacommand{definition}} \isatt{|}
+\isa{\isacommand{lemma}} \isatt{|} \dots $ and a parser, whose value is
+a system transition on $\sigma$. The \isatt{parser} type stems from the
+aforementioned parser combinator library: \isatt{{\char`\'}a\ parser}
+\isatt{=} \isatt{Token.T\ list\ {\char`\-}{\char`\>}\ {\char`\'}a\ *\ Token.T\ list}.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Analogously, Isabelle/C provides an internal late-binding table for
+\emph{annotation commands}:
+\begin{isar}
+    C_Annotation.command : $K_\text{\emph{cmd}}$ -> ($\text{<navigation-expr>}$ -> $R_\text{\emph{cmd}}$ c_parser) -> unit
+    C_Annotation.command': $K_\text{\emph{cmd}}$ -> ($\text{<navigation-expr>}$ -> $R_\text{\emph{cmd}}$ c_parser) -> $\sigma$ -> $\sigma$
+    C_Token.syntax': 'a parser -> 'a c_parser
+\end{isar}
+where in this paper we define $R_\text{\emph{cmd}} = \sigma~\isatt{{\char`\-}{\char`\>}}~\sigma$ as
+above. It represents the registration of a chain of several consecutive actions.\footnote{In
+  some parallel work, we focus on running commands in native efficient speed with
+  $R_\text{\emph{cmd}} = \isatt{(} K_\text{\emph{cmd}} \isatt{*}
+  \isatt{(}\sigma \isatt{{\char`\-}{\char`\>}} \sigma \isatt{)}
+  \isatt{)} \isatt{list}$ \cite{DBLP:journals/afp/TuongW15}. Actually, $\sigma$ has the internal Isabelle type
+  \isatt{Toplevel.transition}, and
+  \isatt{Toplevel.transition\ {\char`\-}{\char`\>}\ Toplevel.transition} has nothing to do with a
+  hypothetical composition of commands, but only with a characterization of the backtracking effect
+  for erroneous (proof) commands. This is one reason why in this definition of
+  $R_\text{\emph{cmd}}$, we used the type \isatt{list} to model a collection of
+  elements. (Another reason is that the use of a functional type instead of a list seems to
+  complicate the underlying scheduling implementation.) Note that for presentation purposes, we
+  oversimplified the definition of $K_\text{\emph{cmd}}$. Normally, the smooth execution of a list
+  of commands requires to know how to optimize a given command, for mostly future-delaying
+  pure-computational (proofs) execution (even if a command can always launch several computing
+  threads). Such information is ``encoded in its kind''; such as \isa{thy{\isacharunderscore}decl},
+  \isa{thy{\isacharunderscore}load}, \isa{thy{\isacharunderscore}defn}, etc., for example we should have defined
+  $K_\text{\emph{cmd}}$ as: $K_\text{\emph{cmd}} = \isa{\isacommand{definition}\ {\isacharcolon}{\isacharcolon}\ thy{\isacharunderscore}defn} \isatt{|} \isa{\isacommand{lemma}\ {\isacharcolon}{\isacharcolon}\ thy{\isacharunderscore}goal{\isacharunderscore}stmt}
+  \isatt{|} \dots $}
+
+Since the type \isatt{c{\char`\_}parser} is isomorphic to \isatt{parser},
+but accepting C tokens, one can use \isatt{C{\char`\_}Token.syntax{\char`\'}} to translate and carry
+the default Isar commands \emph{inside} the \isa{\isacommand{C}{\isacartoucheopen}\ {\isachardot}{\isachardot}\ {\isacartoucheclose}} scope, such as \isa{\isacommand{lemma}} or
+\isa{\isacommand{by}}. Using \isa{\isacommand{{\isasymsimeq}setup}}, one can even
+define an annotation command \isa{\isacommand{C}} taking a C code as argument, as the ML
+code of \isa{\isacommand{{\isasymsimeq}setup}} has type
+$\alpha^{\text{AST}}~\isatt{{\char`\-}{\char`\>}\ env\ {\char`\-}{\char`\>}}~R_\text{\emph{cmd}}$ (which is enough for
+calling \isatt{C{\char`\_}Annotation.command{\char`\'}} in the ML code). Here, whereas the type
+\isatt{env} is always the same, the type $\alpha^{\text{AST}} \subseteq
+\text{AST}^\text{C11}$ varies depending on {\footnotesize\texttt{<navigation-expr>}} (see \csname isaDof.ref\endcsname[type={text}]{annot2}).%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Note, however, that the user experience of the IDE changes when nesting commands too
+deeply. In terms of error handling and failure treatment, there are some noteworthy implementation
+differences between the outermost commands and C annotation commands. Naturally, the PIDE toplevel
+has been optimized to maximize the error recovery and parallel execution. Inside a command, the
+possibilities to mimic this behaviour are somewhat limited. Whereas the failure of an outermost
+command must always be treated as an anomaly, in $\mathcal{L}_\text{annot}$, we are supposed to be
+editing in a comment space: an error should be reported but not too much interruptive, because a
+comment can contain for good reasons human narrative sentences. On the other hand, an error masking
+itself shyly as warning can be overlooked easily, so a form of per-case compromise has to be found
+to control the locally permissive set of errors. As a workaround useful during development and
+debugging, we offer a further pragma for a global annotation, namely \isa{{\isacharasterisk}}
+(in complement to the violet \isa{{\isacharat}}), that controls a switch between a
+strict and a permissive error handling for nested annotation commands:
+\begin{isar}
+    <annotation-comment> $=$ // $[$ * $|$ @ $]^*$ $\mathcal{L}_\text{annot}$
+    <annotation-comment> $=$ /* $[$ * $|$ @ $]^*$ $\mathcal{L}_\text{annot}$ */
+\end{isar}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {annot2},type = {scholarly_paper.technical}, args={label = {annot2},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Evaluation Order%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {C-sample5},type = {Isa_COL.figure}, args={label = {C-sample5},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {62}, Isa_COL.figure.src = {figures/A-C-Source5}, Isa_COL.figure.spawn_columns = {True}}]Creating and nesting C annotations: the importance of evaluation order in annotations%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+We will now explain why positional languages are affecting the evaluation time of
+annotation commands in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample3}. This requires a little zoom on how the
+parsing is actually executed.
+
+The LALR parsing of our implemented C11 parser can be summarized as a sequence of alternations
+between Shift and Reduce actions. By definition of LALR, whereas a unique Shift action is performed
+for each C token read from left to right, some unlimited number of Reduce actions are happening
+between two Shifts. Internally, the parser manages a stack-like data-structure called
+$\alpha^{\text{AST}}$~\isatt{list} representing all already encountered Shift and
+Reduce actions (SR). A given $\alpha^{\text{AST}}$~\isatt{list} can be seen as a
+\emph{forest of SR nodes}: all leafs are tagged with a Shift, and any other parent
+node is a Reduce node (see for example \csname isaDof.ref\endcsname[type={text}]{forest}). After a
+certain point in the parsing history, the top stack element $\alpha^{\text{AST}}$ (cast with the
+right type) is returned to \isa{\isacommand{{\isasymsimeq}setup}}.
+
+Since a SR-forest is a list of SR-trees, it is possible to go forward and backward at will in the
+actually unparsed SR-history, and execute a sequence of SR parsing steps only when needed. While
+every annotation command like \isa{\isacommand{{\isasymsimeq}setup}} is by default attached to
+a closest previous Shift leaf, navigation expressions modify the attached node, making the
+presentation of $\alpha^{\text{AST}}$ referring to another term focus.
+
+%% \begin{wrapfigure}{r}{0.62\textwidth}
+%%   \vspace{-22pt}
+%%   \begin{center}
+%%     \includegraphics[width=0.62\textwidth]{figures/A-C-Source5}
+%%   \end{center}
+%%   \vspace{-20pt}
+%% \end{wrapfigure}
+Instead of visiting the AST in the default bottom-up direction during parsing, it is possible to
+store the intermediate results, so that it can be revisited by using another direction strategy, for
+example top-down after parsing (where a parent node is executed before any of its children, and
+knows how they have been parsed thanks to $\alpha^{\text{AST}}$). This enables commands to decide if
+they want to be executed during parsing, or after the full AST has been built. This gives rise to
+the implementation of different versions of annotation commands that are executed at different
+moments, relative to the parsing process. For example in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample5}, the
+annotation command \isa{\isacommand{{\isasymsimeq}setup}} has been defined for being executed
+at bottom-up time, whereas the execution of the variant
+\isa{\isacommand{{\isasymsimeq}setup{\isasymDown}}} happens at top-down time. In the above example,
+\isa{\isacommand{C{\isadigit{1}}}} is a new command defined by \isatt{C{\char`\_}def}, a
+shorthand antiquotation for \isatt{C{\char`\_}Annotation.command{\char`\'}}. Since
+\isa{\isacommand{C{\isadigit{1}}}} is meant to be executed during bottom-up time (during parsing), it
+is executed before \isa{\isacommand{C{\isadigit{2}}}} is defined (which is directly after parsing).
+
+Note that the C11 grammar has enough scoping structure for the full inference of the C environment
+\isatt{env} be at bottom-up time. In terms of efficiency, we use specific
+\emph{static} rule wrappers having the potential of overloading default grammar rules (see \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{architecture}), to assign a wrapper to be always executed as soon as a Shift-Reduce
+rule node of interest is encountered. The advantage of this construction is that the wrappers are
+statically compiled, which results in a very efficient reporting of C type information.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsection*}%
+[label = {backends},type = {scholarly_paper.technical}, args={label = {backends},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Semantic Back-Ends%
+\end{isamarkupsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+In this section, we briefly present two integrations of verification back-ends for C. We
+chose Clean \cite{journals/afp/TuongW19}~\footnote{Stemming from recent HOL-TestGen distributions:
+    \url{https://www.brucker.ch/projects/hol-testgen/index.en.html}} used
+for program-based test generation \cite{DBLP:conf/tap/Keller18}, and AutoCorres \cite{DBLP:conf/pldi/GreenawayLAK14}, arguably the most developed deductive verification environment
+for machine-oriented C available at present.
+
+Note that we were focusing on keeping modifications of integrated components minimal, particularly
+for the case of AutoCorres. Certain functionalities like position propagation of HOL terms in
+annotations, or ``automatic'' incremental declarations~\footnote{\url{https://github.com/seL4/l4v/blob/master/tools/autocorres/tests/examples/Incremental.thy}}
+may require internal revisions on the back-end side. This is out of the scope of this paper.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {clean},type = {scholarly_paper.technical}, args={label = {clean},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]A Simple Typed Memory Model: Clean%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Clean (pronounced as: ``C lean'' or ``Céline'' [selin]) is based on a simple,
+shallow-style execution model for an imperative target language.
+Importing Clean into a theory with its activated back-end proceeds as in \autoref{fig:clean}.
+For a deep presentation of Clean, the reader is referred to the published AFP document \cite{journals/afp/TuongW19}.
+
+\begin{figure}
+  \centering
+  \begin{minipage}{0.53\linewidth}
+  \includegraphics[width=0.96\textwidth]{figures/A-C-Source7}
+  \end{minipage}
+  \begin{minipage}{0.45\linewidth}
+\begin{isar}
+prime$_{\text{C}}$_core_def: "prime$_{\text{C}}$_core n \<equiv>
+  if$_{\text{Clean}}$ \<Open> (n < 2) \<Close> then return 0 else skip;-
+  \<Open> i := 2 \<Close>;-
+  while$_{\text{Clean}}$ \<Open> i < SQRT_UINT_MAX \<and> i * i \<le> n\<Close>
+    (if$_{\text{Clean}}$ \<Open>n mod i = 0\<Close>
+      then return 0 else skip;
+     \<Open>k:=k+1\<Close>; assert \<Open> k\<le>UINT_MAX \<Close>
+     \<Open>i:=i+1\<Close>; assert \<Open> i\<le>UINT_MAX \<Close>) ;-
+  return 1"
+
+prime$_{\text{C}}$_def: "prime$_{\text{C}}$ n \<equiv>
+  block$_{\text{Clean}}$ push_local_prime$_{\text{C}}$_state
+             (is_prime_core n)
+             pop_local_prime$_{\text{C}}$_state"
+\end{isar}
+  \end{minipage}
+  \caption{Activating the Isabelle/C/Clean back-end \\ 
+           triggers the generation of theorems}
+  \label{fig:clean}
+\end{figure}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupfigure*}%
+[label = {C-sample10},type = {Isa_COL.figure}, args={label = {C-sample10},type = {Isa_COL.figure}, Isa_COL.figure.relative_width = {40}, Isa_COL.figure.src = {figures/A-C-Source10}, Isa_COL.figure.spawn_columns = {True}}]Registering new C annotation commands%
+\end{isamarkupfigure*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+%% \begin{wrapfigure}{r}{0.4\textwidth}
+%%   \vspace{-14pt}
+%%   \includegraphics[width=0.4\textwidth]{figures/A-C-Source10}
+%% \end{wrapfigure}
+Finally, we will have a glance at the code for the registration of the annotation commands presented
+in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample10}, and used in the example of \autoref{fig:clean}. Thanks to
+Isabelle/C's function \isatt{C{\char`\_}Annotation.command{\char`\'}}, the registration of
+user-defined annotations is very similar to the registration of ordinary commands in the Isabelle
+platform.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {autocorres},type = {scholarly_paper.technical}, args={label = {autocorres},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]The Case of AutoCorres%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The AutoCorres environment consists of a C99 parser, compiling to a deepish embedding
+of a generic imperative core programming language, over a refined machine word oriented memory
+model, and a translator of this presentation into a shallow language based on another Monad for
+non-deterministic computations. This translator has been described in \cite{DBLP:conf/pldi/GreenawayLAK14,DBLP:conf/tphol/WinwoodKSACN09} in detail. However, the
+original use of AutoCorres implies a number of protocol rules to follow (e.g., calling the command
+\isa{\isacommand{install{\isacharunderscore}C{\isacharunderscore}file}} before the command
+\isa{\isacommand{autocorres}}), and is only loosely integrated into the Isabelle document
+model, which complicates the workflow substantially.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+%% \begin{wrapfigure}{r}{0.48\textwidth}
+\begin{figure}
+  \centering
+\begin{minipage}{0.48\textwidth}
+%% \vspace{5pt}
+\includegraphics[width=\textwidth]{figures/A-C-Source80}\vspace{-3pt}\hfill\allowbreak%
+\vspace{0pt}$\quad\vdots$\vspace{2pt}\hfill\allowbreak%
+\includegraphics[width=\textwidth]{figures/A-C-Source8}\vspace{-3pt}\hfill\allowbreak%
+\vspace{0pt}$\quad\vdots$\vspace{2pt}\hfill\allowbreak%
+\end{minipage}
+  \caption{Isabelle/C/AutoCorres: integrating an HOL correctness \\
+           proof as annotation \emph{inside} C code}
+  \label{fig:autocorres-c}
+\end{figure}
+%% \end{wrapfigure}
+Our running example \isa{prime\isactrlsub C} for Isabelle/C/AutoCorres in \autoref{fig:autocorres-c} basically differs in what
+the theory is importing in its header. Similarly to Clean, AutoCorres constructs a memory model and
+represents the program as a monadic operation on it. Actually, it generates even two presentations,
+one on a very precise word-level memory model taking aspects of the underlying processor
+architecture into account, and another one more abstract, then it automatically proves the
+correspondence in our concrete example. Both representations become the definitions
+\isa{prime\isactrlsub C{\isacharunderscore}def} and \isa{prime\isactrlsub C{\isacharprime}{\isacharunderscore}def}. A Hoare-calculus plus
+a derived verification generator \isa{wp} from the AutoCorres package
+leverage finally the correctness proof.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Note that the integration of AutoCorres crucially depends on the conversion
+$\text{AST}^\text{C11}~\isa{{\isasymRightarrow}}~\text{AST}^\text{C99}$ of $C^\downarrow$
+discussed in \csname isaDof.ref\endcsname[type={text}]{parser_validation}. In particular, for the overall seL4
+annotations
+\isa{\isacommand{INVARIANT}},
+\isa{\isacommand{INV}},
+\isa{\isacommand{FNSPEC}},
+\isa{\isacommand{RELSPEC}},
+\isa{\isacommand{MODIFIES}},
+\isa{\isacommand{DONT{\isacharunderscore}TRANSLATE}},
+\isa{\isacommand{AUXUPD}},
+\isa{\isacommand{GHOSTUPD}},
+\isa{\isacommand{SPEC}},
+\isa{\isacommand{END{\isacharminus}SPEC}},
+\isa{\isacommand{CALLS}}, and
+\isa{\isacommand{OWNED{\isacharunderscore}BY}},
+we have extended our implementation of $C^\downarrow$ in such a way that the conversion places the
+information at the right position in the target AST. Obviously, this works even when navigation is
+used, as in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample3} left.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {securify},type = {scholarly_paper.technical}, args={label = {securify},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Yet Another C Back-End: Securify%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+In the Securify project at the Nanyang Technological University \cite{DBLP:conf/tacas/SananZHZTL17,DBLP:conf/itp/HouSTL17}, an extension of L4.verified is in
+active development which attempts to integrate concurrency and some form of non-coherent memory into
+the verification framework. This ongoing project is already profiting from the overall Isabelle/C
+framework, including the integrated parser $\text{PARSE}_{\text{\emph{report}}}^{\text{C11}}$. Note,
+however, that the XtratuM micro-kernel \cite{DBLP:journals/sigbed/CarrascosaCMBC14} in study is
+using certain advance features of C11 not found in seL4 (including nested functions, or particular
+arrangement of assembly code). The project is actively working on developing dedicated semantic
+back-ends for respective features, to be separately or concurrently loaded with the AutoCorres one
+presented in \csname isaDof.ref\endcsname[type={text}]{autocorres}.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsection*}%
+[label = {concl},type = {scholarly_paper.conclusion}, args={label = {concl},type = {scholarly_paper.conclusion}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.text_section.main_author = {}}]Conclusions%
+\end{isamarkupsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+We presented Isabelle/C a novel, generic front-end for a deep integration of C11 code into the 
+Isabelle/PIDE framework. Based on open-source Lex and Yacc style grammars, we presented a build process 
+that constructs key components for this front-end: the lexer, the parser, and a framework for 
+user-defined annotations including user-defined annotation commands. 
+While the generation process is relatively long, the generated complete library can be loaded in a 
+few seconds constructing an environment similar to the usual \isa{\isacommand{ML}} environment for 
+Isabelle itself. 20~kLoC large  C sources can be parsed and decorated in PIDE within  seconds.
+
+Our framework allows for the deep integration of the C source into a global document model in which 
+literate programming style documentation, modelling as well as static program analysis and verification 
+co-exist.  In particular, information from the different tools realized as plugin in the Isabelle 
+platform  can flow freely, but based on a clean management of their semantic context and within a 
+framework based on conservative theory development. This substantially increases the development agility 
+of such type of sources and may be  attractive to  conventional developers, in particular when 
+targeting formal certification \cite{DBLP:conf/mkm/BruckerACW18}.
+
+Isabelle/C also forms a basis for future semantically well-understood combinations of back-ends 
+based on different semantic interpretations: inside Isabelle, bridge lemmas can be derived 
+that describe the precise conditions under which results from one back-end can be re-interpreted
+and used in another. Future tactic processes based on these bridge lemmas may open up novel ways 
+for semantically safe tool combinations.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\paragraph*{Acknowledgments.}
+\begin{isamarkuptext}%
+The authors warmly thank David Sanán and Yang Liu for encouraging the development and reuse of
+$C^\downarrow$, initially started in the Securify project \cite{DBLP:conf/tacas/SananZHZTL17}
+(\url{http://securify.sce.ntu.edu.sg/}).
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsection*}%
+[label = {appendix},type = {scholarly_paper.technical}, args={label = {appendix},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Appendix%
+\end{isamarkupsection*}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{Portability of Isabelle/C's Generated Files%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+To evaluate the portability of the generated files in \csname isaDof.ref\endcsname[type={Isa_COL.figure}]{architecture}, we recall that:
+
+%
+\begin{itemize}%
+\item the generation of $\text{AST}^{\text{C11}}$ depends on Haskabelle, Citadelle and the
+Isabelle code generator,
+
+\item and the generated $\text{G}_{\text{ML}}$ depends on the two respective ASTs of Happy and
+ML-Yacc.%
+\end{itemize}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+As we assume the Isabelle code generator maintained by the Isabelle developers, and a
+substantial part of Citadelle already maintained in the Isabelle AFP, the discussion remains on the
+other tools used for generating $\text{AST}^{\text{C11}}$ and $\text{G}_{\text{ML}}$. For the case
+of Happy and ML-Yacc, their own grammar languages have not significantly evolved in the last years,
+and are still maintained in \url{https://github.com/simonmar/happy} and
+\url{https://github.com/MLton/mlton}. For the case of Haskabelle, it has been
+dropped from the Isabelle distribution, because it is critically relying on
+haskell-src-exts~\url{http://hackage.haskell.org/package/haskell-src-exts}, and the
+AST of haskell-src-exts received a drastic replacement from version 1.17.1 to 1.18.0.\footnote{See \url{http://hackage.haskell.org/package/haskell-src-exts-1.17.1} and
+  \url{http://hackage.haskell.org/package/haskell-src-exts-1.18.0}. Actually, the
+  default AST of haskell-src-exts was duplicated and enhanced in 2009 between 1.1.1 to 1.1.3 for a
+  parsed source to carry additional position information in all its parsing nodes. Ultimately, the
+  two ASTs was merged together while releasing version 1.18.0.} Consequently, upgrading
+Haskabelle to use the new 1.18.0 represents an entire challenge. Hopefully, it is a task we already
+completed while integrating Haskabelle's output with Citadelle's input. Otherwise, we have not
+encountered any problems in upgrading Haskabelle from 1.18.0 to more recent versions (such as 1.20.1
+which was straightforward).%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{A Zoom on Citadelle's HOL Generator%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+In the generation process of the parsers for Isabelle/C, the Citadelle system~\cite{DBLP:journals/afp/TuongW15} plays a vital role. In particular, it is used to convert Haskell AST
+presentations into HOL AST presentations through an initial call to Haskabelle. However, the
+resulting output can be run natively in order to increase efficiency via Citadelle.
+
+In more detail, combining Haskabelle and Citadelle is almost direct, as Haskabelle's output AST and
+Citadelle's input AST are already both subset models of a rich Isar/HOL interface, where the latter
+model is still up-to-date and maintained~\cite{DBLP:journals/afp/TuongW15}. Note that one can
+configure Citadelle to generate an $\text{AST}_{\text{HOL}}$ built with
+\isa{\isacommand{old{\isacharunderscore}datatype}} commands instead of
+\isa{\isacommand{datatype}}. This results in a gain of 10~min on the shallow-reflected
+evaluation with the option \isa{quick{\isacharminus}and{\isacharminus}dirty} activated.
+
+In the following, we show how we proceeded: we implemented a command
+\isa{\isacommand{Haskell{\isacharunderscore}file}} that accepts various options:~\footnote{Note that
+  \isa{\isacommand{old{\isacharunderscore}datatype}} is a command, whereas
+  \isa{\isakeyword{datatype{\isacharunderscore}old}} is an option provided to the command
+  \isa{\isacommand{Haskell{\isacharunderscore}file}}.}
+\begin{gather*}
+\begin{tabular}{ll}
+\isa{\isacommand{Haskell{\isacharunderscore}file}} & \isa{\isakeyword{datatype{\isacharunderscore}old}\ \isakeyword{try{\isacharunderscore}import}\ \isakeyword{only{\isacharunderscore}types}\ \isakeyword{concat{\isacharunderscore}modules}} \\
+                & \isa{\isakeyword{base{\isacharunderscore}path}\ {\isachardoublequoteopen}{\isachardollar}HASKABELLE{\isacharunderscore}HOME{\isacharslash}ex{\isacharslash}language{\isacharminus}c{\isacharslash}src{\isachardoublequoteclose}} \\
+                & \isa{{\isacharbrackleft}Prelude\ {\isasymrightharpoonup}\ C{\isacharunderscore}Model{\isacharunderscore}init{\isacharcomma}\ Int{\isacharcomma}\ String{\isacharcomma}\ Option\ {\isasymrightharpoonup}\ C{\isacharunderscore}Model{\isacharunderscore}init{\isacharbrackright}} \\
+                & \isa{} \\
+                & \isa{{\isachardoublequoteopen}{\isachardollar}HASKABELLE{\isacharunderscore}HOME{\isacharslash}ex{\isacharslash}language{\isacharminus}c{\isacharslash}src{\isacharslash}Language{\isacharslash}C{\isacharslash}Syntax{\isacharslash}AST{\isachardot}hs{\isachardoublequoteclose}}
+\end{tabular}
+\end{gather*}
+
+This construction has the advantage to allow immediate code value transformations obtained from
+Haskabelle: operationally, \isa{\isacommand{Haskell{\isacharunderscore}file}} makes an implicit call to
+Haskabelle, translates the output of Haskabelle to HOL input, and lets the Citadelle framework
+execute the generated theorems and proofs in parallel. For the latter, we use an Isabelle version
+that has been especially modified for this purpose.\footnote{The use of a modified Isabelle
+  is just an optimization: the whole Citadelle framework can also be configured to run on a standard
+  Isabelle version, albeit with a significantly higher execution time.}
+
+On the one hand, the execution of the $\text{AST}_{\text{HOL}}$ mostly consisting of
+\isa{\isacommand{datatype}} commands is not improving when being generated and executed
+by our Citadelle infrastructure, because the blocking point is located in just
+\emph{one} problematic mutually recursive \isa{\isacommand{datatype}}
+command (which is not interacting with other commands). On the other hand, the question of advanced
+parallelisation techniques in the \isa{\isacommand{datatype}} package is actually opening
+an interesting topic of future experiments --- i.e., whenever mutually recursive constructions could
+be expressed with \emph{several} commands. The Citadelle infrastructure offers a
+number of mechanisms to address this task.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkupsubsection*}%
+[label = {forest},type = {scholarly_paper.technical}, args={label = {forest},type = {scholarly_paper.technical}, Isa_COL.text_element.level = {}, Isa_COL.text_element.referentiable = {False}, Isa_COL.text_element.variants = {{STR ''outline'', STR ''document''}}, scholarly_paper.text_section.main_author = {}, scholarly_paper.text_section.fixme_list = {}, Isa_COL.text_element.level = {}, scholarly_paper.technical.definition_list = {}}]Shift-Reduce Forest of a Parsing Execution%
+\end{isamarkupsubsection*}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+By activating a specific option in Isabelle/C, one can dump the complete Shift-Reduce
+forest of a parsing execution. For example, the SR-forest associated to the left sub-window of
+\csname isaDof.ref\endcsname[type={Isa_COL.figure}]{C-sample3} is provided below:
+\begin{isar}
+REDUCE 0 X $\house$ $\house$ start_happy1  ( ( CTranslUnit, (CExtDecl, (CStat, (CExpr, unit) either) either) either )  either) 
+ SHIFT $\house$ $\house$ 
+ REDUCE 4 O $\house$ $\house$ translation_unit  (CTranslUnit) 
+  REDUCE 7 X $\house$ $\house$ ext_decl_list3  ( ( CExtDecl list )  Reversed) 
+   REDUCE 5 X $\house$ $\house$ ext_decl_list1  ( ( CExtDecl list )  Reversed) 
+   REDUCE 8 X $\house$ $\house$ external_declaration1  (CExtDecl) 
+    REDUCE 15 O $\house$ $\house$ function_definition4  (CFunDef) 
+     REDUCE 127 X $\house$ $\house$ type_specifier1  (CDeclSpec list) 
+      REDUCE 147 X $\house$ $\house$ basic_type_specifier1  ( ( CDeclSpec list )  Reversed) 
+       REDUCE 133 O $\house$ $\house$ basic_type_name4  (CTypeSpec) 
+        SHIFT $\house$ $\house$ 
+     REDUCE 26 X $\house$ $\house$ function_declarator  (CDeclr) 
+      REDUCE 260 X $\house$ $\house$ identifier_declarator1  (CDeclrR) 
+       REDUCE 262 X $\house$ $\house$ unary_identifier_declarator1  (CDeclrR) 
+        REDUCE 267 X $\house$ $\house$ postfix_identifier_declarator1  (CDeclrR) 
+         REDUCE 272 O $\house$ $\house$ paren_identifier_declarator1  (CDeclrR) 
+          SHIFT $\house$ $\house$ 
+         REDUCE 312 O $\house$ $\house$ postfixing_abstract_declarator2  ( ( CDeclrR -> CDeclrR ) ) 
+          SHIFT $\house$ $\house$ 
+          REDUCE 283 X $\house$ $\house$ parameter_type_list2  ( ( CDecl list * Bool ) ) 
+           REDUCE 285 X $\house$ $\house$ parameter_list1  ( ( CDecl list )  Reversed) 
+            REDUCE 296 O $\house$ $\house$ parameter_declaration10  (CDecl) 
+             REDUCE 127 X $\house$ $\house$ type_specifier1  (CDeclSpec list) 
+              REDUCE 147 X $\house$ $\house$ basic_type_specifier1  ( ( CDeclSpec list )  Reversed) 
+               REDUCE 133 O $\house$ $\house$ basic_type_name4  (CTypeSpec) 
+                SHIFT $\house$ $\house$ 
+             REDUCE 261 X $\house$ $\house$ identifier_declarator2  (CDeclrR) 
+              REDUCE 272 O $\house$ $\house$ paren_identifier_declarator1  (CDeclrR) 
+               SHIFT $\house$ $\house$ 
+             REDUCE 471 X $\house$ $\house$ attrs_opt1  (CAttr list) 
+          SHIFT $\house$ $\house$ 
+     REDUCE 38 O $\house$ $\house$ compound_statement1  (CStat) 
+      SHIFT $\house$ $\house$ 
+      REDUCE 40 X $\house$ $\house$ enter_scope  (unit) 
+      REDUCE 43 X $\house$ $\house$ block_item_list2  ( ( CBlockItem list )  Reversed) 
+       REDUCE 43 X $\house$ $\house$ block_item_list2  ( ( CBlockItem list )  Reversed) 
+        REDUCE 42 X $\house$ $\house$ block_item_list1  ( ( CBlockItem list )  Reversed) 
+        REDUCE 44 X $\house$ $\house$ block_item1  (CBlockItem) 
+         REDUCE 31 X $\house$ $\house$ statement5  (CStat) 
+          REDUCE 61 O $\house$ $\house$ iteration_statement1  (CStat) 
+           SHIFT $\house$ $\house$ 
+           SHIFT $\house$ $\house$ 
+           REDUCE 452 X $\house$ $\house$ expression1  (CExpr) 
+            REDUCE 439 X $\house$ $\house$ assignment_expression1  (CExpr) 
+             REDUCE 436 X $\house$ $\house$ conditional_expression1  (CExpr) 
+              REDUCE 434 X $\house$ $\house$ logical_or_expression1  (CExpr) 
+               REDUCE 432 X $\house$ $\house$ logical_and_expression1  (CExpr) 
+                REDUCE 430 X $\house$ $\house$ inclusive_or_expression1  (CExpr) 
+                 REDUCE 428 X $\house$ $\house$ exclusive_or_expression1  (CExpr) 
+                  REDUCE 426 X $\house$ $\house$ and_expression1  (CExpr) 
+                   REDUCE 423 X $\house$ $\house$ equality_expression1  (CExpr) 
+                    REDUCE 419 O $\house$ $\house$ relational_expression2  (CExpr) 
+                     REDUCE 418 X $\house$ $\house$ relational_expression1  (CExpr) 
+                      REDUCE 415 X $\house$ $\house$ shift_expression1  (CExpr) 
+                       REDUCE 412 X $\house$ $\house$ additive_expression1  (CExpr) 
+                        REDUCE 408 X $\house$ $\house$ multiplicative_expression1  (CExpr) 
+                         REDUCE 406 X $\house$ $\house$ cast_expression1  (CExpr) 
+                          REDUCE 388 X $\house$ $\house$ unary_expression1  (CExpr) 
+                           REDUCE 376 X $\house$ $\house$ postfix_expression1  (CExpr) 
+                            REDUCE 360 O $\house$ $\house$ primary_expression1  (CExpr) 
+                             SHIFT $\house$ $\house$ 
+                     SHIFT $\house$ $\house$ 
+                     REDUCE 415 X $\house$ $\house$ shift_expression1  (CExpr) 
+                      REDUCE 412 X $\house$ $\house$ additive_expression1  (CExpr) 
+                       REDUCE 408 X $\house$ $\house$ multiplicative_expression1  (CExpr) 
+                        REDUCE 406 X $\house$ $\house$ cast_expression1  (CExpr) 
+                         REDUCE 388 X $\house$ $\house$ unary_expression1  (CExpr) 
+                          REDUCE 376 X $\house$ $\house$ postfix_expression1  (CExpr) 
+                           REDUCE 361 X $\house$ $\house$ primary_expression2  (CExpr) 
+                            REDUCE 461 O $\house$ $\house$ constant1  (CConst) 
+                             SHIFT $\house$ $\house$ 
+           SHIFT $\house$ $\house$ 
+           REDUCE 28 X $\house$ $\house$ statement2  (CStat) 
+            REDUCE 38 O $\house$ $\house$ compound_statement1  (CStat) 
+             SHIFT $\house$ $\house$ 
+             REDUCE 40 X $\house$ $\house$ enter_scope  (unit) 
+             REDUCE 43 X $\house$ $\house$ block_item_list2  ( ( CBlockItem list )  Reversed) 
+              REDUCE 42 X $\house$ $\house$ block_item_list1  ( ( CBlockItem list )  Reversed) 
+              REDUCE 44 X $\house$ $\house$ block_item1  (CBlockItem) 
+               REDUCE 29 X $\house$ $\house$ statement3  (CStat) 
+                REDUCE 57 O $\house$ $\house$ expression_statement2  (CStat) 
+                 REDUCE 452 X $\house$ $\house$ expression1  (CExpr) 
+                  REDUCE 440 O $\house$ $\house$ assignment_expression2  (CExpr) 
+                   REDUCE 388 X $\house$ $\house$ unary_expression1  (CExpr) 
+                    REDUCE 376 X $\house$ $\house$ postfix_expression1  (CExpr) 
+                     REDUCE 360 O $\house$ $\house$ primary_expression1  (CExpr) 
+                      SHIFT $\house$ $\house$ 
+                   REDUCE 441 O $\house$ $\house$ assignment_operator1  (CAssignOp Located) 
+                    SHIFT $\house$ $\house$ 
+                   REDUCE 439 X $\house$ $\house$ assignment_expression1  (CExpr) 
+                    REDUCE 436 X $\house$ $\house$ conditional_expression1  (CExpr) 
+                     REDUCE 434 X $\house$ $\house$ logical_or_expression1  (CExpr) 
+                      REDUCE 432 X $\house$ $\house$ logical_and_expression1  (CExpr) 
+                       REDUCE 430 X $\house$ $\house$ inclusive_or_expression1  (CExpr) 
+                        REDUCE 428 X $\house$ $\house$ exclusive_or_expression1  (CExpr) 
+                         REDUCE 426 X $\house$ $\house$ and_expression1  (CExpr) 
+                          REDUCE 423 X $\house$ $\house$ equality_expression1  (CExpr) 
+                           REDUCE 418 X $\house$ $\house$ relational_expression1  (CExpr) 
+                            REDUCE 415 X $\house$ $\house$ shift_expression1  (CExpr) 
+                             REDUCE 413 O $\house$ $\house$ additive_expression2  (CExpr) 
+                              REDUCE 412 X $\house$ $\house$ additive_expression1  (CExpr) 
+                               REDUCE 408 X $\house$ $\house$ multiplicative_expression1  (CExpr) 
+                                REDUCE 406 X $\house$ $\house$ cast_expression1  (CExpr) 
+                                 REDUCE 388 X $\house$ $\house$ unary_expression1  (CExpr) 
+                                  REDUCE 376 X $\house$ $\house$ postfix_expression1  (CExpr) 
+                                   REDUCE 360 O $\house$ $\house$ primary_expression1  (CExpr) 
+                                    SHIFT $\house$ $\house$ 
+                              SHIFT $\house$ $\house$ 
+                              REDUCE 408 X $\house$ $\house$ multiplicative_expression1  (CExpr) 
+                               REDUCE 406 X $\house$ $\house$ cast_expression1  (CExpr) 
+                                REDUCE 388 X $\house$ $\house$ unary_expression1  (CExpr) 
+                                 REDUCE 376 X $\house$ $\house$ postfix_expression1  (CExpr) 
+                                  REDUCE 361 X $\house$ $\house$ primary_expression2  (CExpr) 
+                                   REDUCE 461 O $\house$ $\house$ constant1  (CConst) 
+                                    SHIFT $\house$ $\house$ 
+                 SHIFT $\house$ $\house$ 
+             REDUCE 41 X $\house$ $\house$ leave_scope  (unit) 
+             SHIFT $\house$ $\house$ 
+       REDUCE 44 X $\house$ $\house$ block_item1  (CBlockItem) 
+        REDUCE 32 X $\house$ $\house$ statement6  (CStat) 
+         REDUCE 69 O $\house$ $\house$ jump_statement5  (CStat) 
+          SHIFT $\house$ $\house$ 
+          REDUCE 457 X $\house$ $\house$ expression_opt2  (CExpr Maybe) 
+           REDUCE 452 X $\house$ $\house$ expression1  (CExpr) 
+            REDUCE 439 X $\house$ $\house$ assignment_expression1  (CExpr) 
+             REDUCE 436 X $\house$ $\house$ conditional_expression1  (CExpr) 
+              REDUCE 434 X $\house$ $\house$ logical_or_expression1  (CExpr) 
+               REDUCE 432 X $\house$ $\house$ logical_and_expression1  (CExpr) 
+                REDUCE 430 X $\house$ $\house$ inclusive_or_expression1  (CExpr) 
+                 REDUCE 428 X $\house$ $\house$ exclusive_or_expression1  (CExpr) 
+                  REDUCE 426 X $\house$ $\house$ and_expression1  (CExpr) 
+                   REDUCE 423 X $\house$ $\house$ equality_expression1  (CExpr) 
+                    REDUCE 418 X $\house$ $\house$ relational_expression1  (CExpr) 
+                     REDUCE 415 X $\house$ $\house$ shift_expression1  (CExpr) 
+                      REDUCE 412 X $\house$ $\house$ additive_expression1  (CExpr) 
+                       REDUCE 408 X $\house$ $\house$ multiplicative_expression1  (CExpr) 
+                        REDUCE 406 X $\house$ $\house$ cast_expression1  (CExpr) 
+                         REDUCE 388 X $\house$ $\house$ unary_expression1  (CExpr) 
+                          REDUCE 376 X $\house$ $\house$ postfix_expression1  (CExpr) 
+                           REDUCE 360 O $\house$ $\house$ primary_expression1  (CExpr) 
+                            SHIFT $\house$ $\house$ 
+          SHIFT $\house$ $\house$ 
+      REDUCE 41 X $\house$ $\house$ leave_scope  (unit) 
+      SHIFT $\house$ $\house$ 
+VOID  
+\end{isar}%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%

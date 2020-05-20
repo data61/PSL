@@ -1,0 +1,195 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,amsmath,stmaryrd}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\SLE{\sqsubseteq}
+\newcommand\Nat{\mathbb{N}}
+
+
+\makeatletter
+
+\def\tp@#1#2{\@ifnextchar[{\tp@@{#1}{#2}}{\tp@@@{#1}{#2}}}
+\def\tp@@#1#2[#3]#4{#3#1\def\mid{\mathrel{#3|}}#4#3#2}
+\def\tp@@@#1#2#3{\bgroup\left#1\def\mid{\;\middle|\;}#3\right#2\egroup}
+\def\pa{\tp@()}
+\def\tp{\tp@\langle\rangle}
+\def\set{\tp@\{\}}
+
+\makeatother
+
+
+\begin{document}
+
+\title{Complete Non-Orders and Fixed Points}
+\author{Akihisa Yamada and Jérémy Dubut}
+\maketitle
+
+\begin{abstract}
+  We develop an Isabelle/HOL library of order-theoretic concepts, such as various completeness conditions and
+   fixed-point theorems. We keep our formalization as general as possible: we reprove several well-known results 
+   about complete orders, often without any properties of ordering, thus complete non-orders. In particular, we 
+   generalize the Knaster--Tarski theorem so that we ensure the existence of a quasi-fixed point of monotone maps 
+   over complete non-orders, and show that the set of quasi-fixed points is complete under a mild condition---%
+   attractivity---which is implied by either antisymmetry or transitivity. This result generalizes and strengthens a result
+    by Stauti and Maaden. Finally, we recover Kleene's fixed-point theorem for omega-complete non-orders, again 
+    using attractivity to prove that Kleene's fixed points are least quasi-fixed points.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+The main driving force towards mechanizing mathematics using proof assistants
+has been the reliability they offer,
+exemplified prominently by~\cite{4color},~\cite{flyspeck},~\cite{sel4}, etc.
+In this work, we utilize another aspect of Isabelle/JEdit~\cite{isabelle/jedit}
+as engineering tools for developing mathematical theories.
+We formalize order-theoretic concepts and results,
+adhering to an \emph{as-general-as-possible} approach:
+most results concerning order-theoretic completeness and fixed-point theorems
+are proved without assuming the underlying relations to be orders (non-orders).
+In particular, we provide the following:
+\begin{itemize}
+\item
+A locale-based library for binary relations,
+as partly depicted in Figure~\ref{fig:non-orders}.
+\item
+Various completeness results that generalize known theorems in order theory:
+Actually most relationships and duality of completeness conditions are proved without
+\emph{any} properties of the underlying relations.
+\item Existence of fixed points:
+We show that a relation-preserving mapping $f : A \to A$
+over a complete non-order $\tp{A,\SLE}$
+admits a \emph{quasi-fixed point} $f(x) \sim x$,
+meaning $x \SLE f(x) \wedge f(x) \SLE x$.
+Clearly if $\SLE$ is antisymmetric then this implies the existence of fixed points $f(x) = x$.
+\item Completeness of the set of fixed points:
+We further show that
+if $\SLE$ satisfies a mild condition, which we call \emph{attractivity} and
+which is implied by either transitivity or antisymmetry,
+then the set of quasi-fixed points is complete.
+Furthermore, we also show that if $\SLE$ is antisymmetric,
+then the set of \emph{strict} fixed points $f(x) = x$ is complete.
+\item Kleene-style fixed-point theorems:
+For an $\omega$-complete non-order $\tp{A,\SLE}$ with a bottom element $\bot \in A$ (not necessarily unique)
+and for every $\omega$-continuous map $f : A \to A$,
+a supremum exists for the set $\set{ f^n(\bot) \mid n \in \Nat}$,
+and it is a quasi-fixed point.
+If $\SLE$ is attractive, then
+the quasi-fixed points obtained this way are precisely the least quasi-fixed points.
+\end{itemize}
+We remark that all these results would have required much more effort than we spent
+(if possible at all),
+if we were not with the smart assistance by Isabelle.
+Our workflow was often the following: first we formalize existing proofs, try relaxing assumptions, see where proof breaks,
+and at some point ask for a counterexample.
+
+\begin{figure}
+\small
+\centering
+\def\isa#1{\textsf{#1}}
+\def\t{-1.8}
+\def\a{3.6}
+\def\at{1.8}
+\def\s{-3.6}
+\def\st{-5.4}
+\begin{tikzpicture}
+\tikzstyle{every node}=[draw,ellipse]
+\tikzstyle{every edge}=[draw]
+\draw
+ (0,0) node[fill] (rel) {}
+ (\t,1) node (trans) {\isa{transitive}}
+ (0,-2) node (refl) {\isa{reflexive}}
+ (0,2) node (irr) {\isa{irreflexive}}
+ (\s,0) node (sym) {\isa{symmetric}}
+ (\a,0) node (anti) {\isa{antisymmetric}}
+ (\at,1) node (near) {\isa{near\_order}}
+ (\a,2) node (asym) {\isa{asymmetric}}
+ (\a,-2) node (pso) {\isa{pseudo\_order}}
+ (\at,-1) node (po) {\isa{partial\_order}}
+ (\t,-1) node (qo) {\isa{quasi\_order}}
+ (0,3) node (str) {\hspace{3em}\isa{strict\_order}\mbox{\hspace{3em}}}
+ (\st,-1) node (equiv) {\isa{equivalence}}
+ (\st,1) node (peq) {\hspace{-.8em}\isa{partial\_equivalence}\mbox{\hspace{-.8em}}}
+ (\st,3) node (emp) {$\emptyset$}
+ (\s,-2) node (tol) {\isa{tolerance}}
+ (\s,2) node (ntol) {$\neg$\isa{tolerance}}
+ ;
+\draw[->]
+ (near) edge[color=blue] ([xshift=51,yshift=-7]str)
+ (irr) edge[color=red] ([xshift=-46,yshift=-8]str)
+ (trans) edge[color=blue] ([xshift=-51,yshift=-7]str)
+ (asym) edge[color=red] ([xshift=55,yshift=-7]str)
+ (trans) edge[color=green] (near)
+ (anti) edge[color=red] (near)
+ (irr) edge[color=green] (asym)
+ (anti) edge[color=blue] (asym)
+ (anti) edge[color=blue] (pso)
+ (near) edge[color=blue] (po)
+ (pso) edge[color=red] (po)
+ (refl) edge[color=green] (pso)
+ (trans) edge[color=blue] (qo)
+ (refl) edge[color=red] (qo)
+ (qo) edge[color=green] (po)
+ (qo) edge[color=green] (equiv)
+ (peq) edge[color=blue] (equiv)
+ (trans) edge[color=green] (peq)
+ (peq) edge[color=blue] (emp)
+ (str) edge[color=green] (emp)
+ (sym) edge[color=red] (peq)
+ (sym) edge[color=blue] (tol)
+ (sym) edge[color=blue] (ntol)
+ (irr) edge[color=green] (ntol)
+ (refl) edge[color=green] (tol)
+ (ntol) edge[color=red] (emp)
+ (tol) edge[color=red] (equiv)
+ (rel) edge[color=red, line width=1.5pt] (trans)
+ (rel) edge[color=blue, line width=1.5pt] (irr)
+ (rel) edge[color=blue, line width=1.5pt] (refl)
+ (rel) edge[color=green, line width=1.5pt] (sym)
+ (rel) edge[color=green, line width=1.5pt] (anti)
+ ;
+\end{tikzpicture}
+\caption{\label{fig:non-orders}
+Combinations of basic properties.
+The black dot around the center represents arbitrary binary relations,
+and the five outgoing arrows indicate atomic assumptions.
+We do not present the combination
+of \isa{reflexive} and \isa{irreflexive}, which is empty,
+and one of \isa{symmetric} and \isa{antisymmetric},
+which is a subset of equality.
+Node ``$\neg$\isa{tolerance}'' indicates the negated relation is \isa{tolerance},
+and ``$\emptyset$'' is the empty relation.
+}
+\end{figure}
+
+\paragraph*{Related Work}
+Many attempts have been made to generalize the notion of completeness for lattices, conducted in different directions: by relaxing the notion of order itself, removing transitivity (pseudo-orders \cite{trellis}); by relaxing the notion of lattice, considering minimal upper bounds instead of least upper bounds ($\chi$-posets \cite{LN83}); by relaxing the notion of completeness, requiring the existence of least upper bounds for restricted classes of subsets (e.g., directed complete and $\omega$-complete, see \cite{davey02} for a textbook). Considering those generalizations, it was natural to prove new versions of classical fixed-point theorems for maps preserving those structures, e.g., existence of least fixed points for monotone maps on (weak chain) complete pseudo-orders \cite{Bhatta05, SM13}, construction of least fixed points for $\omega$-continuous functions for $\omega$-complete lattices \cite{mashburn83}, (weak chain) completeness of the set of fixed points for monotone functions on (weak chain) complete pseudo-orders \cite{PG11}.
+
+Concerning Isabelle formalization,
+one can easily find several formalizations of complete partial orders or lattices in Isabelle's standard library.
+They are, however, defined on partial orders, either in form of classes or locales,
+and thus not directly reusable for non-orders.
+Nevertheless we tried to make our formalization compatible with the existing ones,
+and various correspondences are ensured.
+
+This work has been published in the conference paper \cite{YamadaD2019}.
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

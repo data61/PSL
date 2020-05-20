@@ -1,0 +1,47 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{a4wide}
+\usepackage[english]{babel}
+\usepackage{eufrak}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{literal}
+
+
+\begin{document}
+
+\title{Formalization of Multiway-Join Algorithms}
+\author{Thibault Dardinier}
+
+\maketitle
+
+\begin{abstract}
+Worst-case optimal multiway-join algorithms are recent seminal achievement of the database community.
+These algorithms compute the natural join of multiple relational databases and improve in the worst case over traditional query plan optimizations of nested binary joins.
+In 2014, Ngo, R\'e, and Rudra \cite{Ngo:2014:SSB:2590989.2590991} gave a unified presentation of different multi-way join algorithms.
+We formalized and proved correct their "Generic Join" algorithm and extended it to support negative joins.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

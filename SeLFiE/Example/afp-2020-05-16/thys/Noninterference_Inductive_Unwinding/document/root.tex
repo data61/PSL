@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Inductive Unwinding Theorem\\for CSP Noninterference Security}
+\author{Pasquale Noce\\Security Certification Specialist at Arjo Systems - Gep S.p.A.\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at arjowiggins-it dot com}
+\maketitle
+
+\begin{abstract}
+The necessary and sufficient condition for CSP noninterference security stated
+by the Ipurge Unwinding Theorem is expressed in terms of a pair of event lists
+varying over the set of process traces. This does not render it suitable for the
+subsequent application of rule induction in the case of a process defined
+inductively, since rule induction may rather be applied to a single variable
+ranging over an inductively defined set.
+
+Starting from the Ipurge Unwinding Theorem, this paper derives a necessary and
+sufficient condition for CSP noninterference security that involves a single
+event list varying over the set of process traces, and is thus suitable for rule
+induction; hence its name, Inductive Unwinding Theorem. Similarly to the Ipurge
+Unwinding Theorem, the new theorem only requires to consider individual accepted
+and refused events for each process trace, and applies to the general case of a
+possibly intransitive noninterference policy. Specific variants of this theorem
+are additionally proven for deterministic processes and trace set processes.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,19 @@
+chapter AFP
+
+session Jinja (AFP) = "HOL-Library" +
+  options [timeout = 1200]
+  sessions
+    "List-Index"
+  directories
+    "BV"
+    "Common"
+    "Compiler"
+    "DFA"
+    "J"
+    "JVM"
+  theories
+    Jinja
+  document_files
+    "introduction.tex"
+    "root.bib"
+    "root.tex"

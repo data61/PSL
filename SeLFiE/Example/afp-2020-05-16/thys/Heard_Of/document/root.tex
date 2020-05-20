@@ -1,0 +1,198 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\nat}{\mathbb{N}}
+\newcommand{\ute}{\ensuremath{\mathcal{U}_{T,E,\alpha}}}
+\newcommand{\ate}{\ensuremath{\mathcal{A}_{T,E,\alpha}}}
+\newcommand{\eigbyz}{\textit{EIGByz}\ensuremath{_f}}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\begin{document}
+
+\title{
+  Verifying Fault-Tolerant Distributed Algorithms In The Heard-Of Model\thanks{%
+    Bernadette Charron-Bost introduced us to the Heard-Of model and
+    accompanied this work by suggesting algorithms to study, providing
+    or simplifying hand proofs, and giving most valuable feedback on
+    our formalizations. Mouna Chaouch-Saad contributed an initial
+    draft formalization of the reduction theorem.
+  }
+}
+\author{
+  Henri Debrat\textsuperscript{1} and Stephan Merz\textsuperscript{2}\\
+  \mbox{}\textsuperscript{1} Universit\'e de Lorraine \& LORIA\\
+  \mbox{}\textsuperscript{2} Inria Nancy Grand-Est \& LORIA\\
+  Villers-l\`es-Nancy, France
+}
+\maketitle
+
+Distributed computing is inherently based on replication, promising
+increased tolerance to failures of individual computing nodes or
+communication channels. Realizing this promise, however, involves
+quite subtle algorithmic mechanisms, and requires precise statements
+about the kinds and numbers of faults that an algorithm tolerates (such
+as process crashes, communication faults or corrupted values).  The
+landmark theorem due to Fischer, Lynch, and Paterson shows that it is
+impossible to achieve Consensus among $N$ asynchronously communicating
+nodes in the presence of even a single permanent failure. Existing
+solutions must rely on assumptions of ``partial synchrony''.
+
+Indeed, there have been numerous misunderstandings on what exactly a given
+algorithm is supposed to realize in what kinds of environments. Moreover, the
+abundance of subtly different computational models complicates comparisons
+between different algorithms. Charron-Bost and Schiper introduced the Heard-Of
+model for representing algorithms and failure assumptions in a uniform
+framework, simplifying comparisons between algorithms.
+
+In this contribution, we represent the Heard-Of model in Isabelle/HOL. We define
+two semantics of runs of algorithms with different unit of atomicity and relate
+these through a \emph{reduction theorem} that allows us to verify algorithms in the
+coarse-grained semantics (where proofs are easier) and infer their correctness
+for the fine-grained one (which corresponds to actual executions). We
+instantiate the framework by verifying six Consensus algorithms that differ in
+the underlying algorithmic mechanisms and the kinds of faults they tolerate.
+
+
+\tableofcontents
+
+\section{Introduction}
+
+We are interested in the verification of fault-tolerant distributed
+algorithms.  The archetypical problem in this area is the
+\emph{Consensus} problem that requires a set of distributed nodes to
+achieve agreement on a common value in the presence of faults.
+Such algorithms are notoriously hard to design and to
+get right. This is particularly true in the presence of asynchronous
+communication: the landmark theorem by Fischer, Lynch, and
+Paterson~\cite{FLP85} shows that there is no algorithm solving the
+Consensus problem for asynchronous systems in the presence of even a
+single, permanent fault. Existing solutions therefore rely on assumptions
+of ``partial synchrony''~\cite{dwork:consensus}.
+
+Different computational models, and different concepts for specifying
+the kinds and numbers of faults such algorithms must tolerate, have
+been introduced in the literature on distributed computing. This
+abundance of subtly different notions makes it very difficult to
+compare different algorithms, and has sometimes even led to
+misunderstandings and misinterpretations of what an algorithm claims
+to achieve. The general lack of rigorous, let alone formal,
+correctness proofs for this class of algorithms makes it even harder
+to understand the field.
+
+In this contribution, we formalize in Isabelle/HOL the \emph{Heard-Of}
+(HO) model, originally introduced by Charron-Bost and
+Schiper~\cite{charron:heardof}. This model can represent algorithms
+that operate in communication-closed rounds, which is true of
+virtually all known fault-tolerant distributed algorithms. Assumptions
+on failures tolerated by an algorithm are expressed by
+\emph{communication predicates} that impose bounds on the set of
+messages that are not received during executions. Charron-Bost and
+Schiper show how the known failure hypotheses from the literature can
+be represented in this format. The Heard-Of model therefore makes an
+interesting target for formalizing different algorithms, and for
+proving their correctness, in a uniform way. In particular, different
+assumptions can be compared, and the suitability of an algorithm for a
+particular situation can be evaluated.
+
+The HO model has subsequently been extended~\cite{biely:tolerating} to
+encompass algorithms designed to tolerate value (also known as
+malicious or Byzantine) faults. In the present work, we propose a
+generic framework in Isabelle/HOL that encompasses the different
+variants of HO algorithms, including resilience to
+benign or value faults, as well as coordinated and non-coordinated
+algorithms.
+
+A fundamental design decision when modeling distributed algorithm is
+to determine the unit of atomicity. We formally relate in Isabelle two
+definitions of runs: we first define ``coarse-grained'' executions, in
+which entire rounds are executed atomically, and then define
+``fine-grained'' executions that correspond to conventional
+interleaving representations of asynchronous networks. We formally
+prove that every fine-grained execution corresponds to a certain
+coarse-grained execution, such that every process observes the same
+sequence of local states in the two executions, up to stuttering. As
+a corollary, a large class of correctness properties, including
+Consensus, can be transferred from coarse-grained to fine-grained
+executions.
+
+We then apply our framework for verifying six different distributed
+Consensus algorithms w.r.t. their respective communication predicates.
+The first three algorithms, \emph{One-Third Rule}, \emph{UniformVoting},
+and \emph{LastVoting}, tolerate benign failures. The three remaining
+algorithms, \ute{}, \ate{}, and \eigbyz{}, are designed to tolerate
+value failures, and solve a weaker variant of the Consensus problem.
+
+A preliminary report on the formalization of the \emph{LastVoting}
+algorithm in the HO model appeared in~\cite{charron:formal}.
+The paper~\cite{saad:reduction} contains a paper-and-pencil proof of the
+reduction theorem relating coarse-grained and fine-grained executions,
+and~\cite{charron:formal-malicious} reports on the formal verification
+of the \ute{}, \ate{}, and \eigbyz{} algorithms.
+
+\bigskip
+
+% generated text of all theories
+\input{session}
+
+
+\section{Conclusion}
+
+In this contribution we have formalized the Heard-Of model in the
+proof assistant Isabelle/HOL. We have established a formal framework,
+in which fault-tolerant distributed algorithms can be represented, and
+that caters for different variants (benign or malicious faults,
+coordinated and uncoordinated algorithms). We have formally proved a
+reduction theorem that relates fine-grained (asynchronous)
+interleaving executions and coarse-grained executions, in which an entire
+round constitutes the unit of atomicity. As a corollary, many
+correctness properties, including Consensus, can be transferred from
+the coarse-grained to the fine-grained representation.
+
+We have applied this framework to give formal proofs in Isabelle/HOL
+for six different Consensus algorithms known from the literature. 
+Thanks to the reduction theorem, it is enough to verify the algorithms
+over coarse-grained runs, and this keeps the effort manageable. For
+example, our \emph{LastVoting} algorithm is similar to the DiskPaxos
+algorithm verified in~\cite{jaskelioff:diskpaxos}, but our proof here
+is an order of magnitude shorter, although we prove safety and
+liveness properties, whereas only safety was considered
+in~\cite{jaskelioff:diskpaxos}.
+
+We also emphasize that the uniform characterization of fault
+assumptions via communication predicates in the HO model lets us
+consider the effects of transient failures, contrary to standard
+models that consider only permanent failures. For example, our
+correctness proof for the \eigbyz{} algorithm establishes a stronger
+result than that claimed by the designers of the algorithm. The
+uniform presentation also paves the way towards comparing assumptions
+of different algorithms.
+
+The encoding of the HO model as Isabelle/HOL theories is quite
+straightforward, and we find our Isar proofs quite readable, although
+they necessarily contain the full details that are often glossed over
+in textbook presentations. We believe that our framework allows
+algorithm designers to study different fault-tolerant distributed
+algorithms, their assumptions, and their proofs, in a clear, rigorous
+and uniform way.
+
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,33 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{latexsym}
+\usepackage{isabelle,isabellesym}
+
+\newcommand{\qt}[1]{`#1'}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Expressiveness of Deep Learning}
+\author{Alexander Bentkamp}
+\maketitle
+
+\begin{abstract}
+Deep learning has had a profound impact on computer science in recent years, with applications to search engines, image recognition and language processing, bioinformatics, and more. Recently, Cohen et al.\ \cite{cohen2015} provided theoretical evidence for the superiority of deep learning over shallow learning. For my master's thesis \cite{bentkamp2016}, I formalized their mathematical proof using Isabelle/HOL. This formalization simplifies and generalizes the original proof, while working around the limitations of the Isabelle type system. To support the formalization, I developed reusable libraries of formalized mathematics, including results about the matrix rank, the Lebesgue measure, and multivariate polynomials, as well as a library for tensor analysis. 
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

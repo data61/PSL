@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+\renewcommand{\isamarkupchapter}[1]{\section{#1}}
+\renewcommand{\isamarkupsection}[1]{\subsection{#1}}
+\renewcommand{\isamarkupsubsection}[1]{\subsubsection{#1}}
+\renewcommand{\isamarkupsubsubsection}[1]{\paragraph{#1}}
+
+\begin{document}
+
+\title{Timed Automata}
+\author{Simon Wimmer}
+
+\maketitle
+\begin{abstract}
+  Timed automata are a widely used formalism for modeling real-time systems, which is employed
+  in a class of successful model checkers such as UPPAAL \cite{Larsen1997},
+  HyTech \cite{Henzinger97hytech} or Kronos \cite{Kronos97}.
+  This work formalizes the theory for the subclass of diagonal-free timed automata, which is
+  sufficient to model many interesting problems.
+  We first define the basic concepts and semantics of diagonal-free timed automata.
+  Based on this, we prove two types of decidability results for the language emptiness problem.
+
+  The first is the classic result of Alur and Dill \cite{alur_automata_1990,alur_theory_1994},
+  which uses a finite partitioning of the state space into so-called \textit{regions}.
+
+  Our second result focuses on an approach based on \textit{Difference Bound Matrices (DBMs)},
+  which is practically used by model checkers.
+  We prove the correctness of the basic forward analysis operations on DBMs.
+  One of these operations is the Floyd-Warshall algorithm for the all-pairs
+  shortest paths problem.
+  To obtain a finite
+  search space, a widening operation has to be used for this kind of analysis.
+  We use Patricia Bouyer's \cite{Bou_Forward_Analysis} approach to prove that this widening operation
+  is correct in the sense that DBM-based forward analysis in combination with the widening operation
+  also decides language emptiness. The interesting property of this proof is that the first
+  decidability result is reused to obtain the second one.
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

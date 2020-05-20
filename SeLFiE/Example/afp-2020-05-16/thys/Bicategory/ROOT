@@ -1,0 +1,10 @@
+chapter AFP
+
+session Bicategory (AFP slow) = MonoidalCategory +
+  options [timeout = 10800, names_unique = false]
+  theories
+    BicategoryOfSpans
+  document_files
+    "root.bib"
+    "root.tex"
+    "triangle_right_implies_left.png"

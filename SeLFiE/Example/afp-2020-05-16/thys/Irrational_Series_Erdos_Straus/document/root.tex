@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Irrationality Criteria for Series by Erd\H{o}s and Straus}
+\author{Angeliki Koutsoukou-Argyraki and Wenda Li}
+\maketitle
+
+\begin{abstract}
+We formalise certain irrationality criteria for infinite series of the form:
+\[
+\sum_n\frac{b_n}{\prod_{i \leq n} a_i} 
+\]
+where $b_n$, $a_i$ are integers. The result is due to P. Erd\H{o}s and E.G. Straus \cite{erdHos1974irrationality}, and in particular we formalise Theorem 2.1, Corollary 2.10 and Theorem 3.1. The latter is an application of Theorem 2.1 involving the prime numbers.
+\end{abstract}
+
+
+\tableofcontents
+
+\input{session}
+
+\nocite{apostol1976analytic}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,30 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\isabellestyle{it}
+ 
+\begin{document}
+
+\title{Compositional properties of crypto-based components}
+\author{Maria Spichkova}
+\maketitle
+
+
+\begin{abstract}
+This paper presents an Isabelle/HOL~\cite{npw} set of theories which allows  to specify
+crypto-based components and to verify their composition properties wrt.\ cryptographic aspects.  
+We introduce a formalisation of the security property of data secrecy, 
+the corresponding definitions and proofs. 
+A part of these definitions is based on  \cite{sj_TB08}.\\
+Please note that here we import the Isabelle/HOL theory ListExtras.thy, presented in \cite{FocusStreamsCaseStudies-AFP}.
+\end{abstract}
+
+\tableofcontents
+ 
+\newpage
+\input{session}
+ 
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+

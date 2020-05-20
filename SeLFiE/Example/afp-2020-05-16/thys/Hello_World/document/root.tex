@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{marvosym} % world symbol
+\newcommand{\isactrlurl}[0]{\Mundus}
+
+\usepackage{verbatim}
+
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Hello World}
+\author{Cornelius Diekmann, Lars Hupel}
+\maketitle
+
+\begin{abstract}
+In this article, we present a formalization of the well-known ``Hello, World!'' code, including a formal framework for reasoning about IO.
+Our model is inspired by the handling of IO in Haskell.
+We start by formalizing the \isactrlurl{} and embrace the IO monad afterwards.
+Then we present a sample \verb~main :: IO ()~, followed by its proof of correctness.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

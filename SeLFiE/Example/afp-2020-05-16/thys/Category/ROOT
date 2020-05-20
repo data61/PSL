@@ -1,0 +1,16 @@
+chapter AFP
+
+session Category (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Cat
+    SetCat
+    Functors
+    HomFunctors
+    NatTrans
+    Yoneda
+  document_files
+    "root.bib"
+    "root.tex"

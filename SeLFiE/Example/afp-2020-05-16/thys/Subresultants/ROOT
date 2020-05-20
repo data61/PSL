@@ -1,0 +1,12 @@
+chapter AFP
+
+session Subresultants (AFP) = "Jordan_Normal_Form" +
+  description "Subresultants"
+  options [timeout = 600]
+  sessions
+    Polynomial_Factorization
+  theories
+    Subresultant_Gcd
+  document_files
+    "root.bib"
+    "root.tex"

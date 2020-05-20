@@ -1,0 +1,10 @@
+chapter AFP
+
+session "Cayley_Hamilton" (AFP) = "HOL-Analysis" +
+  description "The Cayley-Hamilton theorem"
+  options [show_question_marks = false, timeout = 600]
+  theories
+    Cayley_Hamilton
+  document_files
+    "root.bib"
+    "root.tex"

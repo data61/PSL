@@ -1,0 +1,51 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[english]{babel}
+\usepackage{eufrak}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Regular Expression Equivalence}
+\author{Tobias Nipkow \and Dmitriy Traytel}
+\maketitle
+
+\begin{abstract}
+  We formalize a unified framework for verified decision procedures for regular
+  expression equivalence. Five recently published formalizations of such
+  decision procedures (three based on derivatives, two on marked regular
+  expressions) can be obtained as instances of the framework. We discover that
+  the two approaches based on marked regular expressions, which were previously
+  thought to be the same, are different, and one seems to produce uniformly
+  smaller automata.  The common framework makes it possible to compare the
+  performance of the different decision procedures in a meaningful way.
+
+  The formalization is also described in a submitted paper draft
+  \cite{NipkowT-urexp}.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

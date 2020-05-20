@@ -1,0 +1,273 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[ruled,noend]{algorithm2e}
+\DontPrintSemicolon
+
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\complex{\mathbb{C}}
+
+\newcommand\GFpp[1]{\ensuremath{\text{GF}(#1)}}
+\newcommand\GFp{\GFpp{p}}
+\newcommand\ring[1][p^k]{\ensuremath{\ints/{#1}\ints}\xspace}
+\newcommand\tint{\isa{int}}
+\newcommand\tlist{\isa{list}}
+\newcommand\tpoly{\isa{poly}}
+\newcommand\tto{\Rightarrow}
+\newcommand\sqfree{\isa{square\_free}\xspace}
+\newcommand\assumes{\isakeyword{assumes}\xspace}
+\newcommand\idegree{\isa{degree}}
+\newcommand\iand{\isakeyword{and}\xspace}
+\newcommand\shows{\isakeyword{shows}}
+\newcommand\bz{\isa{berlekamp\_zassenhaus\_factorization}\xspace}
+\newcommand\fs{\mathit{fs}}
+\newcommand\listprod{\isa{prod\_list}}
+\newcommand\set{\isa{set}}
+\newcommand\irred{\isa{irreducible}}
+\newcommand\rTH[1]{Theorem~\ref{#1}}
+
+
+
+\makeatletter
+\protected\def\myDot{%
+ \@ifnextchar.{}{.%
+  \@ifnextchar,{}{%
+   \@ifnextchar:{}{%
+    \@ifnextchar;{}{%
+     \@ifnextchar~{}{\ }
+}}}}}
+\makeatother
+
+\newcommand\etal{{et~al}\myDot}
+
+
+\newtheorem{theorem}{Theorem}
+
+\begin{document}
+
+\title{The Factorization Algorithm of Berlekamp and Zassenhaus \footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author{Jose Divas\'on \and
+  Sebastiaan Joosten \and
+  Ren\'e Thiemann \and
+  Akihisa Yamada}
+\maketitle
+
+\begin{abstract}
+We formalize the Berlekamp-Zassenhaus algorithm for factoring 
+square-free integer polynomials in Isabelle/HOL.
+We further adapt an existing formalization of
+Yun's square-free factorization algorithm
+to integer polynomials, and thus
+provide an efficient and certified factorization
+algorithm for arbitrary univariate polynomials.
+
+The algorithm first performs a factorization in the prime field GF($p$)
+and then performs computations in the integer ring modulo $p^k$,
+where both $p$ and $k$ are determined at runtime.
+Since a natural modeling of these structures via dependent types is
+not possible in Isabelle/HOL,
+we formalize the whole algorithm using Isabelle's recent 
+addition of local type definitions. 
+
+Through experiments we verify that
+our algorithm factors polynomials of degree 100 within seconds.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+Modern algorithms to factor integer polynomials
+-- following Berlekamp and Zassenhaus --
+work via polynomial factorization over prime fields $\GFp$ and quotient rings \ring
+\cite{Berlekamp,CZ81}.
+Algorithm~\ref{bz} illustrates the basic structure of such an algorithm.\footnote{Our 
+algorithm starts with step \ref{p:prime}, so that
+section numbers and step-numbers coincide.}
+
+\begin{algorithm}[h]
+\caption{A modern factorization algorithm\label{bz}}
+\setcounter{AlgoLine}{3} % start at the number after this line
+\KwIn{Square-free integer polynomial $f$.}
+\KwOut{Irreducible factors $f_1,\dots,f_n$ such that
+$f = f_1 \cdot \ldots \cdot f_n$.}
+%
+\lnl{p:prime} Choose a suitable prime $p$ depending on $f$.\;
+\lnl{p:berlekamp}
+  Factor $f$ in \GFp: $f \equiv g_1 \cdot\ldots\cdot g_m \pmod p$.\;
+\lnl{p:exp} Determine a suitable bound $d$ on the degree, depending on $g_1,\ldots,g_m$.
+  Choose an exponent $k$ such that every coefficient of a factor of a given multiple of $f$ in $\ints$ 
+  with degree at most $d$ can be uniquely represent by a number below $p^k$. \;
+\lnl{p:hensel}
+ From step \ref{p:berlekamp} compute the
+  unique factorization $f \equiv h_1 \cdot \ldots \cdot h_m \pmod {p^k}$ via the Hensel lifting.\;
+\lnl{p:integer}
+ Construct a factorization $f = f_1 \cdot \ldots \cdot f_n$ 
+  over the integers where each $f_i$ corresponds to the product of one or more $h_j$.
+\end{algorithm}
+
+In previous work on algebraic numbers \cite{TY16}, we implemented
+Algorithm~\ref{bz} in Isabelle/HOL \cite{Isabelle} as a 
+function of type $\tint\ \tpoly \tto \tint\ \tpoly\ \tlist$,
+where we chose Berlekamp's algorithm in step \ref{p:berlekamp}.
+However, the algorithm was available only as an oracle,
+and thus a validity check on the result factorization had to be performed.
+
+In this work we fully formalize the correctness of our implementation.
+
+\begin{theorem}[Berlekamp-Zassenhaus' Algorithm]
+\label{thm:bz}
+\begin{align*}
+& \assumes\ \sqfree\ (f :: \tint\ \tpoly) \\
+& \quad\iand\ \idegree\ f \neq 0 \\
+& \quad\iand\ \bz\ f = \fs \\
+& \shows\ f = \listprod\ \fs\ \\
+& \quad\iand\ \forall f_i \in \set\ \fs.\ \irred\ f_i
+\end{align*}
+\end{theorem}
+
+%
+% 
+%now provide full proofs  changes the previous implementation  correctness of the implementation is not yet formalized in Isabelle/HOL.
+%Hence it is invoked in a certified wrapper which takes
+%an arbitrary integer polynomial as input, performs the desired preprocessing,
+%i.e., square-free and content-free factorization, and passes each
+%preliminary factor $f$ to $\oracle$. 
+%It finally tests the validity of the obtained factorizations
+%$f = f_1 \cdot \ldots \cdot f_n$, but it does not test optimality, i.e.,
+%irreducibility of the resulting factors.   
+%
+%The current work is a significant step forward to formally proving the\linebreak soundness 
+%of $\oracle$, namely by formally proving the soundness of Berlekamp's algorithm
+%in step~\ref{p:berlekamp}. 
+
+To obtain \rTH{thm:bz} we perform the following tasks.
+
+\begin{itemize}
+\item
+  We introduce two formulations of $\GFp$ and $\ring$.
+  We first define a 
+  type to represent these domains, 
+  employing ideas from HOL multivariate analysis. 
+  This is essential
+  for reusing many type-based algorithms from the Isabelle distribution
+  and the AFP (archive of formal proofs).
+  At some points in our developement,
+  the type-based setting is still too restrictive.
+  Hence we also introduce a second formulation which is \emph{locale-based}.
+
+\item The prime $p$ in step \ref{p:prime} must be chosen so that $f$ remains square-free
+  in $\GFp$.
+  For the termination of the algorithm, we prove that such a prime always
+  exists. 
+
+\item
+  We explain Berlekamp's algorithm that factors polynomials over prime fields,
+  and formalize its correctness using the type-based representation.
+  Since Isabelle's code generation does not work for the type-based representation of prime fields,
+  we define an implementation of Berlekamp's algorithm which avoids
+  type-based polynomial algorithms and type-based prime fields.
+  The soundness of this implementation is proved via the transfer package \cite{lifting}:
+  we transform the type-based soundness statement of Berlekamp's algorithm
+  into a statement which speaks solely about integer polynomials.
+  Here, we crucially rely upon local type definitions 
+  \cite{KP16} to eliminate the presence of the type for the prime field $\GFp$.
+    
+\item For step \ref{p:exp} we need to find a bound on the coefficients of 
+  the factors of a polynomial.
+  For this purpose, we formalize Mignotte's factor bound.
+  During this formalization task
+  we detected a bug in our previous oracle implementation,
+  which computed improper bounds on the degrees of factors.
+  
+\item We formalize the Hensel lifting.
+  As for Berlekamp's algorithm,
+  we first formalize basic operations in the type-based setting.
+  Unfortunately, however, this result cannot be extended to the full Hensel lifting.
+  Therefore, we model the Hensel lifting in a locale-based way so that
+  modulo operation is explicitly applied on polynomials.
+  
+\item For the reconstruction in step \ref{p:integer} we closely
+  follow the description of Knuth \cite[page~452]{Knuth}. Here, we use the same
+  representation of polynomials over $\ring$ as for the Hensel lifting.
+  
+
+\item We adapt an existing square-free factorization algorithm from
+  $\rats$ to $\ints$. In combination with the previous results this leads to a factorization algorithm
+  for arbitrary integer and rational polynomials. 
+
+%\item Moreover, we formalize (efficient) division algorithms for non-field polynomials
+%  that are applied within the oracle,
+%  and also optimize the existing division algorithm for field polynomials (\rSC{polydiv}).
+%  The improvements are now integrated in the Isabelle distribution as code equations
+%  \cite{DataRefinement,codegen}.
+%  
+%\item A comparison of the trusted code with the one from $\oracle$ revealed two
+%  mistakes which are now repaired (\rSC{compare oracle}).
+%
+%\item Mignotte-bound (somewhere)
+%\item Hensel-lifting (somewhere)
+%\item Reconstruction (somewhere)
+\end{itemize}
+
+%Related work:
+To our knowledge, this is the first formalization of the Berlekamp-Zassenhaus algorithm.
+For instance, Barthe \etal report that there is no formalization of an efficient factorization algorithm over $\GFp$ available in Coq \cite[Section 6, note 3 on formalization]{NoCoqFactorization}.
+
+Some key theorems leading to the algorithm have already been
+formalized in Isabelle or other proof assistants.
+In ACL2, for instance, polynomials over a field are shown to be a unique factorization domain
+(UFD)~\cite{cowles2006unique}.
+A more general result,
+namely that polynomials over UFD are also UFD,
+was already developed in Isabelle/HOL for implementing algebraic numbers \cite{TY16}
+and an independent development by Eberl is now available in the Isabelle distribution.
+
+An Isabelle formalization of Hensel's lemma is provided by Kobayashi \etal \cite{Kobayashi2005},
+who defined the valuations of polynomials via Cauchy sequences, and used this setup to prove the lemma.
+Consequently, their result requires a `valuation ring' as precondition in their formalization.
+While this extra precondition is theoretically met in our setting,
+we did not attempt to reuse their results,
+because the type of polynomials in their formalization (from HOL-Algebra) differs 
+from the polynomials in our development (from HOL/Library).
+Instead, we formalize a direct proof for Hensel's lemma.
+Our formalizations are incomparable:
+On the one hand, Kobayashi \etal did not consider only integer polynomials as we do.
+On the other hand, we additionally formalize the quadratic Hensel lifting~\cite{Zassenhaus69},
+extend the lifting from binary to $n$-ary factorizations,
+and prove a uniqueness result,
+which is required for proving the soundness of \rTH{thm:bz}.
+
+A Coq formalization of Hensel's lemma is also available, %~\cite{Martin-Dorel:2011aa},
+which is used for certifying integral roots and `hardest-to-round computation'~\cite{Martin-Dorel2015}.
+If one is interested in certifying a factorization,
+rather than a certified algorithm that performs it,
+it suffices to test that all the found factors are irreducible.
+Kirkels \cite{kirkels2004} formalized a sufficient criterion for this test in Coq:
+when a polynomial is irreducible modulo some prime, it is also irreducible in $\mathbb{Z}$.
+Both formalizations are in Coq, and we did not attempt to reuse them.
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

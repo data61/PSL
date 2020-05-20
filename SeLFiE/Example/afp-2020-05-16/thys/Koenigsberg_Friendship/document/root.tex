@@ -1,0 +1,30 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+\newcommand{\koni}{\textrm{K\"{o}nigsberg}\ }
+
+\begin{document}
+
+\title{The \koni Bridge Problem and the Friendship Theorem}
+\author{Wenda Li}
+\maketitle
+
+\begin{abstract}
+  This development provides a formalization of undirected graphs and simple graphs, which are based on Benedikt Nordhoff and  Peter Lammich's simple formalization of labelled directed graphs \cite{website:isabelle_archive_shortest_path} in the archive. Then, with our formalization of graphs, we have shown both necessary and sufficient conditions for Eulerian trails and circuits \cite{koni_proof_lecture_notes} as well as the fact that the \koni Bridge problem does not have a solution. In addition, we have also shown the Friendship Theorem in simple graphs\cite{friend_combitorial,mertzios2008friendship}.  
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

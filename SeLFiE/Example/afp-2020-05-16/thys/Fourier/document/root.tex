@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{mathtools,url}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\bibliographystyle{plain}
+
+\begin{document}
+
+\title{Fourier Series}
+\author{Lawrence C Paulson}
+\date{}
+\maketitle
+
+\begin{abstract}
+This development formalises the square integrable functions over the reals and the basics of Fourier series. It culminates with a proof that every well-behaved periodic function can be approximated by a Fourier series. The material is ported from HOL Light.\footnote{\url{https://github.com/jrh13/hol-light/blob/master/100/fourier.ml}}
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+
+\section{Acknowledgements}
+The author was supported by the ERC Advanced Grant ALEXANDRIA (Project 742178) funded by the European Research Council.
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

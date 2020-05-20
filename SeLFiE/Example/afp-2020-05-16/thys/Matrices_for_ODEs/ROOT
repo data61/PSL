@@ -1,0 +1,11 @@
+chapter AFP
+
+session "Matrices_for_ODEs" (AFP) = "HOL-Analysis" +
+  options [timeout = 1800]
+  sessions
+    Hybrid_Systems_VCs
+  theories
+    MTX_Examples
+  document_files
+    "root.bib"
+    "root.tex"

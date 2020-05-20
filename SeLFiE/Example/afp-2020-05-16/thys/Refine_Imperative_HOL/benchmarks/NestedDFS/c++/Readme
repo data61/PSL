@@ -1,0 +1,105 @@
+This archive contains a test bench for accepting cycle algorithms.
+
+Copyright (C) 2004 Stefan Schwoon
+
+############################################################################
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
+
+############################################################################
+
+Prerequisites:
+
+You will need a C++ compiler, Perl, and Spin. The tools were tested with
+g++ version 3.2.2, Perl version 5.8.0, and Spin version 4.1.2.
+
+############################################################################
+
+Contents:
+
+dfs.c
+couvreur.c
+gmz.c
+gv.c
+hpy.c
+newdfs.c
+
+The algorithms and a main program. To compile, type "g++ dfs.c -o dfs".
+To run, type "./dfs", or "./dfs -c" to get counterexamples.
+The program reads a graph from standard input, then runs all five
+algorithms on that graph. The format of the graph is:
+<number of nodes in the graph>
+<list of accepting node numbers (starting at 0), followed by -1>
+<list of node pairs, representing directed edges, followed by -1>
+
+Sample graphs can be created using the following scripts:
+
+ess.pl	[Extract state space]
+
+Usage:
+	./ess.pl <promela model> <formula>
+Running ess.pl requires Spin. The script translates the negation
+of <formula> to a Büchi automaton, then runs Spin with debugging
+output to extract the product state space with <promela model>.
+The output is a graph in the format described above, written to
+standard output.
+
+	./ess.pl <promela model> <formula> | ./dfs
+
+Example models:
+
+eeaean1.pml
+eeaean2.pml
+
+Two promela models are included. These are variations of the leader
+election protocol with extinction from Tel, Introduction to Distributed
+Algorithms, 1994, Chapter 7. The network in the model consists of three
+nodes. In Variant 1, the same node wins every time, in Variant 2, each
+node gets a turn at winning the election.
+
+eeforms.ltl
+
+Sample properties for the leader election protocols. These are taken
+from Geldenhuys and Valmari, Tarjan's Algorithm Makes On-the-Fly LTL
+Verification More Efficient, Proc. TACAS 2004, LNCS 2988, p. 205-219.
+
+############################################################################
+
+Example:
+
+To check, e.g. whether formula B (i.e. the second line in eeforms.ltl) holds
+on the first variant of the leader election protocol, run the following:
+
+	./ess.pl eeaean1.pml '<>[](noLeader U threeLeads)' | ./dfs
+
+The output should be that all five algorithms report an accepting cycle,
+and some statistics about their behaviour.
+
+############################################################################
+
+History:
+
+18.10.2004: Initial version released
+
+############################################################################
+
+Contact:
+
+Questions or comments should be directed to Stefan Schwoon
+<schwoosn@fmi.uni-stuttgart.de>.
+
+############################################################################
+
+Stuttgart, 18.10.2004

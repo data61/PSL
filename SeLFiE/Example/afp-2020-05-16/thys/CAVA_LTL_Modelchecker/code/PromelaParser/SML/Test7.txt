@@ -1,0 +1,11 @@
+bool toggle=true; /*globalvariables */
+short	cnt;active proctype A() provided (toggle == true) {L:cnt++;	/* means: cnt = cnt+1 */
+
+printf("A: cnt=%d\n", cnt); 
+toggle = false; /* yield control to B*/ 
+goto L 	/* do it again */
+}
+active proctype B() provided (toggle == false) {L:cnt--;	/* means: cnt = cnt-1 */ 
+printf("B: cnt=%d\n", cnt); 
+toggle = true; /* yield control to A */ 
+goto L}

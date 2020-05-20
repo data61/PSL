@@ -1,0 +1,65 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{The Incompatibility of \textit{SD}-Efficiency and \textit{SD}-Strategy-Proofness}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This formalisation contains the proof that there is no anonymous and neutral Social Decision Scheme for at least four voters and alternatives that fulfils both \textit{SD}-Efficiency and \textit{SD}-Strategy-Proofness. The proof is a fully structured and quasi-human-redable one. It was derived from the (unstructured) SMT proof of the case for exactly four voters and alternatives by Brandl\ \textit{et~al.}~\cite{smt}.
+
+Their proof relies on an unverified translation of the original problem to SMT, and the proof that lifts the argument for exactly four voters and alternatives to the general case is also not machine-checked.
+
+In this Isabelle proof, on the other hand, all of these steps are also fully proven and machine-checked. This is particularly important seeing as a previously published informal proof of a weaker statement contained a mistake in precisely this lifting step.~\cite{extendrd}
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+\newpage
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

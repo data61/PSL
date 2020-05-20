@@ -1,0 +1,11 @@
+chapter AFP
+
+session "Interval_Arithmetic_Word32" (AFP) = Word_Lib +
+  options [timeout = 600]
+  theories
+    Interval_Word32
+    Finite_String
+    Interpreter
+  document_files
+    "root.tex"
+    "root.bib"

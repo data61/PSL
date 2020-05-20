@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Linear-Programming}
+\author{Julian Parsert}
+
+\maketitle
+
+\begin{abstract}
+We use the previous formalization of the general simplex algorithm to
+formulate an algorithm for solving linear programs.
+We encode the linear programs using only linear constraints.
+Solving these constraints also solves the original linear program.
+This algorithm is proven to be sound by applying the weak duality theorem which is also part of this formalization~\cite{schrijver1998theory}.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Related work}
+Our work is based on a formalization of the
+general simplex algorithm described
+in~\cite{SimplexAFP,Spasic:FormIncrSimplex}. However, the general
+simplex algorithm lacks the ability to optimize a function. Boulmé and
+Maréchal~\cite{Sylvain:CoqTacForEqualityLinArith} describe a
+formalization and implementation of Coq tactics for linear integer
+programming and linear arithmetic over rationals. More closely related
+is the formalization by Allamigeon et
+al.~\cite{Allamigeon:FormCvxPolyhedraSimplex} which formalizes the
+simplex method and related results. As part of Flyspeck project Obua
+and Nipkow~\cite{Obua2009} created a verification mechanism for linear
+programs using the HOL computing library and external solvers.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

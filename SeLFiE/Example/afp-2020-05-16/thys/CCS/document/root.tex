@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Calculus of Communicating Systems}
+\author{Jesper Bengtson}
+\maketitle
+
+\begin{abstract}
+We formalise a large portion of CCS as described in Milner's book 'Communication and Concurrency' using the nominal datatype package in Isabelle. Our results include many of the standard theorems of bisimulation equivalence and congruence, for both weak and strong versions. One main goal of this formalisation is to keep the machine-checked proofs as close to their pen-and-paper counterpart as possible.
+\end{abstract}
+
+\tableofcontents
+
+\section{Overview}
+
+These theories formalise the following  results from Milner's book Communication and Concurrency.
+
+\begin{itemize}
+\item strong bisimilarity is a congruence
+\item strong bisimilarity respects the laws of structural congruence
+\item weak bisimilarity is preserved by all operators except sum
+\item weak congruence is a congruence
+\item all strongly bisimilar agents are also weakly congruent which in turn
+ are weakly bisimilar. As a corollary, weak bisimilarity and weak
+ congruence respect the laws of structural congruence.
+\end{itemize}
+
+The file naming convention is hopefully self explanatory, where the
+prefixes \emph{Strong} and \emph{Weak} denote that the file covers theories
+required to formalise properties of strong and weak bisimilarity
+respectively; if the file name contains \emph{Sim} the theories
+cover simulation, file names containing \emph{Bisim} cover bisimulation,
+and file names containing \emph{Cong} cover weak congruence; files with the
+suffix \emph{Pres} deal with theories that reason about preservation
+properties of operators such as a certain simulation or bisimulation
+being preserved by a certain operator; files with the suffix \emph{SC} reason
+about structural congruence.
+
+For a complete exposition of all theories, please consult Bengtson's
+Ph. D. thesis \cite{bengtson:thesis}.
+
+% include generated text of all theories
+\section{Formalisation}
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

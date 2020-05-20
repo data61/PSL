@@ -1,0 +1,116 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Verification of the Deutsch-Schorr-Waite Graph Marking Algorithm using Data Refinement}
+
+\author{Viorel Preoteasa and Ralph-Johan Back}
+
+\maketitle
+
+\begin{abstract}
+The verification of the Deutsch-Schorr-Waite graph marking algorithm is used as a 
+benchmark in many formalizations of pointer programs. The main purpose of this 
+mechanization is to show how data refinement of invariant based programs
+can be used in verifying practical algorithms. The verification starts
+with an abstract algorithm working on a graph given by a relation {\em next}
+on nodes. Gradually the abstract program is refined into Deutsch-Schorr-Waite
+graph marking algorithm where only one bit per graph node of additional memory
+is used for marking. 
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+The verification of the Deutsch-Schorr-Waite (DSW) \cite{schorr:waite:1967,knuth:1997} 
+graph marking algorithm is used as a benchmark in many formalizations
+of pointer programs \cite{mehta:nipkow:2003,Abrial:2003}. The main purpose of this 
+mechanization is to show how data refinement \cite{preoteasa:back:2009} of invariant 
+based programs \cite{Back80:invariants,Back83:invariants,aBack08,back:preoteasa:2008}
+can be used in verifying practical algorithms.
+
+The DSW algorithm marks all nodes in a graph that are reachable from a {\em root} node. 
+The marking is achieved using only one extra bit of memory for every node. The 
+graph is given by two pointer functions, {\em left} and {\em right}, which for any given 
+node return its left and right successors, respectively. While marking, the 
+left and right functions are altered to represent a stack that describes the 
+path from the root to the current node in the graph. On completion the original 
+graph structure is restored. We construct the DSW algorithm by a sequence of 
+three successive data refinement steps. One step in these refinements is
+a generalization of the DSW algorithm to an algorithm which marks a
+graph given by a family of pointer functions instead of left and right only.
+
+Invariant based programming is an approach to construct correct programs 
+where we start by identifying all basic situations (pre- and post-conditions, and loop 
+invariants) that could arise during the execution of the algorithm. 
+These situations are determined and described before any code is written. 
+After that, we identify the transitions between the situations, which 
+together determine the flow of control in the program. The transitions 
+are verified at the same time as they are constructed. The correctness 
+of the program is thus established as part of the construction process. 
+
+Data refinement \cite{hoare:1972,back-1980,back:vonwright:2000,deroever:1999} 
+is a technique of building correct programs working on concrete data structures 
+as refinements of more abstract programs working on abstract data structures. 
+The correctness of the final program follows from the correctness of the abstract 
+program and from the correctness of the data refinement.
+
+Both the semantics and the data refinement of invariant based programs were 
+formalized in \cite{preoteasa:back:afp:2010}, and this verification is based on them.
+
+We use a simple model of pointers where addresses (pointers, nodes) are 
+the elements of a set and pointer fields are global pointer functions from
+addresses to addresses. Pointer updates ($x.\mathit{left} := y$) are done
+by modifying the global pointer function $\mathit{left} := \mathit{left}(x := y)$. 
+Because of the nature of the marking algorithm where no allocation and 
+disposal of memory are needed we do not treat these operations.
+
+A number of Isabelle techniques are used here. The class mechanism is used
+for extending the complete lattice theories as well as for introducing 
+well founded and transitive relations. The polimorphism is used for the
+state of the computation. In \cite{preoteasa:back:afp:2010} the state of computation 
+was introduced as a type variable, or even more generaly, state predicates were introduced
+as elements of a complete (boolean) lattice.
+Here the state of the computation is instantiated with various tuples ranging
+from the abstract data in the first algorithm to the concrete data
+in the final refinement. The locale mechanism of Isabelle is used to
+introduce the specification variables and their invariants. These
+specification variables are used for example to prove that the main variables
+are restored to their initial values when the algorithm terminates.
+The locale extension and partial instantiation mechanisms turn out
+to be also very useful in the data refinements of DSW. We start with
+a locale which fixes the abstract graph as a relation {\em next} on
+nodes. This locale is first partially interpreted into a locale
+which replaces {\em next} by a union of a family of pointer functions. 
+In the final refinement step the locale of the pointer functions is
+interpreted into a locale with only two pointer functions, {\em left} and 
+{\em right}.
+
+
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

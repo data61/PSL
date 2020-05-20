@@ -1,0 +1,17 @@
+chapter AFP
+
+session Regex_Equivalence (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "Regular-Sets"
+    "Efficient-Mergesort"
+    Spec_Check
+  theories
+    Regex_Equivalence
+  theories [document = false]
+    Examples
+    Benchmark
+  document_files
+    "root.tex"
+    "root.bib"

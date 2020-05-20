@@ -1,0 +1,11 @@
+chapter AFP
+
+session Matrix (AFP) = "Abstract-Rewriting" +
+  options [timeout = 600]
+  sessions
+    "HOL-Algebra"
+  theories
+    Matrix_Legacy
+  document_files
+    "root.bib"
+    "root.tex"

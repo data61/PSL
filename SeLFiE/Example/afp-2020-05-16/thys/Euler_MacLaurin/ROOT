@@ -1,0 +1,13 @@
+chapter AFP
+
+session Euler_MacLaurin (AFP) = Bernoulli +
+  options [timeout = 600]
+  sessions
+    "HOL-Complex_Analysis"
+    Landau_Symbols
+  theories
+    Euler_MacLaurin
+    Euler_MacLaurin_Landau
+  document_files
+    "root.tex"
+    "root.bib"

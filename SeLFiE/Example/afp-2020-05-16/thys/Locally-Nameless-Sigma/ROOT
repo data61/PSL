@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Locally-Nameless-Sigma" (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    Applicative_Lifting
+  directories
+    "preliminary"
+    "Sigma"
+  theories
+    Locally_Nameless_Sigma
+  document_files
+    "root.tex"

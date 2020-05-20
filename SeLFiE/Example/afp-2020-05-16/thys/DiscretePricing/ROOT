@@ -1,0 +1,18 @@
+chapter AFP
+
+session "DiscretePricing" (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+
+  theories
+    Generated_Subalgebra
+    Filtration
+    Martingale
+    Geometric_Random_Walk
+    Disc_Cond_Expect
+    Infinite_Coin_Toss_Space
+    Fair_Price
+    CRR_Model
+	Option_Price_Examples
+
+  document_files
+    "root.tex"

@@ -1,0 +1,9 @@
+chapter AFP
+
+session Lifting_Definition_Option (AFP) = HOL +
+  options [timeout = 300]
+  theories
+    Lifting_Definition_Option_Examples
+  document_files
+    "root.bib"
+    "root.tex"

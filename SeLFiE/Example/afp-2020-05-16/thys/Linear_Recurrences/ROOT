@@ -1,0 +1,24 @@
+chapter AFP
+
+session Linear_Recurrences (AFP) = Count_Complex_Roots +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "HOL-Computational_Algebra"
+    "HOL-Analysis"
+    "HOL-Real_Asymp"
+    Polynomial_Factorization
+  theories
+    Linear_Homogenous_Recurrences
+    Linear_Inhomogenous_Recurrences
+    Rational_FPS_Asymptotics
+  document_files
+    "root.tex"
+
+session Linear_Recurrences_Solver (AFP) in "Solver" = Berlekamp_Zassenhaus +
+  options [timeout = 1200]
+  sessions
+    Algebraic_Numbers
+    Linear_Recurrences
+  theories
+    Linear_Recurrences_Test

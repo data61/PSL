@@ -1,0 +1,12 @@
+chapter AFP
+
+session "List-Infinite" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  directories
+    "CommonArith"
+    "CommonSet"
+    "ListInf"
+  theories
+    ListInfinite
+  document_files
+    "root.tex"

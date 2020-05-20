@@ -1,0 +1,195 @@
+% Document Class
+%------------------------------------------------------------------------------
+\documentclass[11pt,a4paper]{article}
+%------------------------------------------------------------------------------
+
+% Import Packages
+%------------------------------------------------------------------------------
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+%------------------------------------------------------------------------------
+
+% Set Styles
+%------------------------------------------------------------------------------
+\urlstyle{rm}
+\isabellestyle{it}
+%------------------------------------------------------------------------------
+
+\renewcommand{\isasymlless}{\isamath{\lessdot}}
+
+% Include Macros
+%------------------------------------------------------------------------------
+% Agent Macros
+\newcommand{\Agent}[1]{\mathsf{#1}}
+\newcommand{\agent}[2]{\Agent{#1} \mapsto \bigA{#2}}
+% Algebra Macros
+\newcommand{\A}{{\mathcal{A}}}
+\newcommand{\semiring}[5]{\big(#1, #2, #3, #4, #5\big)}
+\newcommand{\Lsemimodule}[3]{\big(_{#1}#2, #3\big)}
+\newcommand{\Rsemimodule}[3]{\big(#2_{#1}, #3\big)}
+% Basic Math Macros
+\newcommand{\bigP}[1]{\big( #1 \big)}
+\newcommand{\bigA}[1]{\big\langle #1 \big\rangle}
+% C2KA Macros
+\newcommand{\CKAabbrv}{\textup{CKA}\@\xspace}
+\newcommand{\cka}{{\mathcal K}}
+\newcommand{\CKAset}{K}
+\newcommand{\CKAbasic}{\CKAset_{b}}
+\newcommand{\KAstar}[1]{{#1}^*}
+\newcommand{\CKApar}{*}
+\newcommand{\CKAseq}{\raise.3ex\hbox{\,\rm;\,}}
+\newcommand{\CKAiterSeqOp}{\text{\scriptsize \raise.3ex\hbox{\,\rm;\,}}}
+\newcommand{\CKAiterParOp}{\text{\scriptsize \raise-.75ex\hbox{\,*\,}}}
+\newcommand{\CKAiterSeq}[1]{{#1}^\CKAiterSeqOp}
+\newcommand{\CKAiterPar}[1]{{#1}^\CKAiterParOp}
+\newcommand{\CKAstructure}{\bigP{\CKAset, +, \CKApar, \CKAseq, \CKAiterPar{}, \CKAiterSeq{}, 0, 1}}
+\newcommand{\CKAle}{\le_{\cka}}
+\newcommand{\CKAsim}{\sim_{\cka}}
+\newcommand{\stim}{{\mathcal S}}
+\newcommand{\STIMset}{S}
+\newcommand{\STIMbasic}{\STIMset_{b}}
+\newcommand{\STIMplus}{\oplus}
+\newcommand{\STIMdot}{\odot}
+\newcommand{\Nstim}{\mathfrak{n}}
+\newcommand{\Dstim}{\mathfrak{d}}
+\newcommand{\STIMstructure}{\bigP{\STIMset, \STIMplus, \STIMdot, \Dstim, \Nstim}}
+\newcommand{\STIMle}{\le_{\stim}}
+\newcommand{\STIMsim}{\sim_{\stim}}
+\newcommand{\rightAct}[1]{right~$#1$-act\@\xspace}
+\newcommand{\leftAct}[1]{left~$#1$-act\@\xspace}
+\newcommand{\rightSemimodule}[1]{right~$#1$-semimodule\@\xspace}
+\newcommand{\leftSemimodule}[1]{left~$#1$-semimodule\@\xspace}
+\newcommand{\ract}[2]{{#1}_{#2}}
+\newcommand{\lact}[2]{_{#2}{#1}}
+\newcommand{\lSact}{\lact{\CKAset}{\stim}}
+\newcommand{\rKact}{\ract{\STIMset}{\cka}}
+\newcommand{\actOp}{\circ}
+\newcommand{\lAct}[2]{{#2} \actOp {#1}}
+\newcommand{\outOp}{\lambda}
+\newcommand{\lOut}[2]{\outOp(#2,#1)}
+\newcommand{\stab}[1]{\mathrm{Stab}(#1)}
+\newcommand{\fix}[2]{\mathrm{Fix}_{#1}(#2)}
+\newcommand{\orb}[1]{\mathrm{Orb}(#1)}
+\newcommand{\orbS}[1]{\mathrm{Orb_{S}}(#1)}
+\newcommand{\CCKA}{Communicating Concurrent Kleene Algebra\@\xspace}
+\newcommand{\CCKAabbrv}{\textup{C$^2$KA}\@\xspace}
+\newcommand{\CCKAstructure}{\bigP{\stim, \cka}}
+\newcommand{\ActSemimodule}{\Lsemimodule{\stim}{\CKAset}{+}}
+\newcommand{\OutSemimodule}{\Rsemimodule{\cka}{\STIMset}{\STIMplus}}
+\newcommand{\CKAorb}[1]{{\cka}\text{-}\orb{#1}}
+\newcommand{\STIMorb}[1]{{\stim}\text{-}\orb{#1}}
+\newcommand{\CKAstab}[1]{{\cka}\text{-}\stab{#1}}
+\newcommand{\STIMstab}[1]{{\stim}\text{-}\stab{#1}}
+\newcommand{\enc}{\lessdot}
+\newcommand{\CKAenc}{\enc_{\cka}}
+\newcommand{\CKAencompass}[2]{#1 \CKAenc #2}
+\newcommand{\STIMenc}{\enc_{\stim}}
+\newcommand{\STIMencompass}[2]{#1 \STIMenc #2}
+\newcommand{\ind}{\lhd}
+\newcommand{\induced}[2]{#2 \ind #1}
+\newcommand{\notInduced}[2]{\neg(\induced{#1}{#2})}
+% Logic Macros
+\newcommand{\Not}{\neg}
+\newcommand{\Ors}{\;\mathrel{\vee}\;}
+\newcommand{\nAnd}{\;\mathrel{\wedge}\;}
+\newcommand{\mImp}{\;\Longrightarrow\;}   
+\newcommand{\mIff}{\;\Longleftrightarrow\;} 
+\newcommand{\lnotation}[4]{
+	\def\third:{#3} 
+	\def\possiblyone:{} 
+	\def\possiblytwo:{~}
+	\def\possiblythree:{ }
+	\def\divide{\;#1\hspace*{-0pt}( #2\; \mid: \; #4 \, )}
+	\def\nodivide{\;#1\hspace*{-0pt}( #2\;\mid\; #3\;:\;#4 \, )}
+	\ifx\third\possiblyone\divide
+		\else\ifx\third\possiblytwo\divide
+		\else \ifx\third\possiblythree\divide
+		\else \nodivide\fi\fi\fi}
+\newcommand{\biglnotation}[4]{
+	\def\third:{#3} 
+	\def\possiblyone:{} 
+	\def\possiblytwo:{~}
+	\def\possiblythree:{ }
+	\def\divide{\;#1\hspace*{-0pt}\big( #2\; \mid: \; #4 \, \big)}
+	\def\nodivide{\;#1\hspace*{-0pt}\big( #2\;\mid\; #3\;:\;#4 \, \big)}
+	\ifx\third\possiblyone\divide
+		\else\ifx\third\possiblytwo\divide
+		\else \ifx\third\possiblythree\divide
+		\else \nodivide\fi\fi\fi}
+% PFC Macros
+\newcommand{\comm}[2]{\mathrel{{\to}_{#1}^{#2}}}
+\newcommand{\STIMcommD}[2]{#1 \comm{\stim}{} #2}
+\newcommand{\STIMcommN}[3]{#1 \comm{\stim}{#3} #2}
+\newcommand{\STIMcomm}[2]{\STIMcommN{#1}{#2}{+}}
+\newcommand{\notSTIMcomm}[2]{\Not(\STIMcomm{#1}{#2})}
+\newcommand{\notSTIMcommD}[2]{\Not(\STIMcommD{#1}{#2})}
+\newcommand{\env}{{\mathcal{E}}}
+\newcommand{\ENVcommD}[2]{#1 \comm{\env}{} #2}
+\newcommand{\ENVcommN}[3]{#1 \comm{\env}{#3} #2}
+\newcommand{\ENVcomm}[2]{\ENVcommN{#1}{#2}{+}}
+\newcommand{\notENVcomm}[2]{\Not(\ENVcomm{#1}{#2})}
+\newcommand{\notENVcommD}[2]{\Not(\ENVcommD{#1}{#2})}
+\newcommand{\pfcD}[2]{#1 \leadsto #2}
+\newcommand{\pfcN}[2]{#1  \leadsto^{n} #2}
+\newcommand{\pfc}[2]{#1  \leadsto^{+} #2}
+\newcommand{\notpfc}[2]{\Not(\pfc{#1}{#2})}
+\newcommand{\depOp}{\mathrm{R}}
+\newcommand{\depOpTC}{\depOp^{+}}
+\newcommand{\dep}[2]{#2 \,\depOp\, #1}
+\newcommand{\depTC}[2]{#2 \,\depOpTC\, #1}
+% Set Macros
+\newcommand{\STbot}{\emptyset}
+\newcommand{\STleq}{\subseteq}
+\newcommand{\STdiff}{\backslash}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\sets}[2]{\{#1\; \mid \; #2\}}
+%------------------------------------------------------------------------------
+
+%------------------------------------------------------------------------------
+\begin{document}
+
+\sloppy
+
+% Title and Authorship
+\title{Communicating Concurrent Kleene Algebra for Distributed Systems Specification}
+\author{Maxime Buyse and Jason Jaskolka}
+\maketitle
+
+% Abstract
+\begin{abstract}
+\CCKA~(\CCKAabbrv) is a mathematical framework for capturing the communicating and concurrent behaviour of agents in distributed systems. It extends Hoare et al.'s\linebreak Concurrent Kleene Algebra (\CKAabbrv) with communication actions through the notions of stimuli and shared environments. \CCKAabbrv has applications in studying system-level properties of distributed systems such as safety, security, and reliability. In this work, we formalize results about \CCKAabbrv and its application for distributed systems specification. We first formalize the stimulus structure and behaviour structure (\CKAabbrv). Next, we combine them to formalize \CCKAabbrv and its properties. Then, we formalize notions and properties related to the topology of distributed systems and the potential for communication via stimuli and via shared environments of agents, all within the algebraic setting of~\CCKAabbrv. 
+\end{abstract}
+
+% Table of Contents
+\tableofcontents
+
+
+% Paragraph Settings
+\parindent 0pt
+\parskip 1ex
+
+\section{Introduction}
+\label{sec:introduction}
+% Begin Section
+Most complex distributed systems participate in intensive communication and exchange with their environment, which often includes other systems. For example, many systems need input in terms of energy, resources, information, etc. As a result, the interactions between a system and its environment need to be carefully taken into account when modeling such systems. 
+
+In a distributed system, agents can communicate via their shared environments in the form of shared-variable communication where they transfer information through a shared medium (e.g., variables, buffers, etc.) and through their local communication channels in the form of message-passing communication where they transfer information explicitly through the exchange of data structures. However, the agents in the system may also be influenced by external stimuli. From the perspective of behaviourism, a \emph{stimulus} constitutes the basis for behaviour. In this way, agent behaviour can, in some situations, be explained without the need to consider the internal states of an agent. A \emph{closed system} is one that does not receive any stimuli that affect its behaviour and that does not share any environment. A system that is not a closed system is called an \emph{open system}. When dealing with open systems, external stimuli are required to initiate agent behaviours. Such external stimuli result from systems outside the boundaries of the considered system and may impact the way in which the system agents behave. It is important to note that every stimulus \emph{invokes a response} from an agent. When the behaviour of an agent changes as a result of the response, we say that the stimulus \emph{influences} the behaviour of the agent. 
+
+\emph{\CCKA}~(\CCKAabbrv)~\cite{Jaskolka2015ab,Jaskolka2014aa} is a mathematical framework for capturing the communicating and concurrent behaviour of agents in distributed systems. In this work, the term \emph{agent} is used to refer to any system, component, or process whose behaviour consists of discrete actions and each interaction, direct or indirect, of an agent with its neighbouring agents is called a \emph{communication} as in~\cite{Milner1989aa}. \CCKAabbrv extends the algebraic model of Concurrent Kleene Algebra~\cite{Hoare2011aa}, with communication actions through the notions of stimuli and shared environments. It offers an algebraic setting capable of capturing both the influence of stimuli on agent behaviour as well as the communication and concurrency of agents in a system and its environment at an abstract algebraic level, thereby allowing it to capture the dynamic behaviour of complex distributed systems.
+
+In this work, we follow Jaskolka's doctoral dissertation~\cite{Jaskolka2015ab} which provides a full treatment of \CCKAabbrv and its related notions and properties. Section~\ref{sec:stimulus_structure} and Section~\ref{sec:behaviour_structure} formalize the stimulus structure and behaviour structure, respectively. These structures comprise the two primary components of a \CCKAabbrv. Section~\ref{sec:ccka} then combines these notions to formalize \CCKAabbrv and its properties. Section~\ref{sec:topology} follows this by presenting a formalization of the notions of orbits, stabilisers, and fixed points to establish an understanding of the topology of a distributed system specified using \CCKAabbrv. Finally, Section~\ref{sec:communication} formalizes results regarding the potential for communication via stimuli and via shared environments of distributed system agents within the algebraic setting of \CCKAabbrv.
+% End Section
+
+% Include ROOT session
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+%------------------------------------------------------------------------------

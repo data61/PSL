@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Fisher--Yates shuffle}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This work defines and proves the correctness of the Fisher--Yates shuffle~\cite{fisheryates,taocp,wikipedia} for shuffling -- i.\,e.\ producing a random permutation -- of a list. 
+The algorithm proceeds by traversing the list and in each step swapping the current element with a random element from the remaining list.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\newpage
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

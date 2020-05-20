@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{Isa\kern-0.15exF\kern-0.15exo\kern-0.15exR}}
+\newcommand\ceta{\textsf{C\kern-0.15exe\kern-0.45exT\kern-0.45exA}}
+
+\begin{document}
+
+\title{A Formalization of Knuth--Bendix Orders\footnote{Supported by FWF (Austrian Science Fund) projects P27502 and Y757.}}
+\author{Christian Sternagel and Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+We define a generalized version of Knuth--Bendix orders, including
+subterm coefficient functions. For these orders we formalize several
+properties such as strong normalization, the subterm property, closure properties
+under substitutions and contexts, as well as ground totality.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+In their seminal paper \cite{KB70}, Knuth and Bendix introduced two important
+concepts: a procedure that allows us to solve certain instances of the word
+problem -- (Knuth--Bendix) completion -- as well as a specific
+order on terms that is useful to orient equations in the aforementioned
+procedure -- the Knuth--Bendix order (or KBO, for short).
+
+This AFP-entry is about the formalization of KBO.
+Note that there are several variants of KBO~\cite{KB70,DKM90,LW07,ZHM09,S89}, e.g., incorporating quasi-precedences,
+infinite signatures, subterm coefficient functions, and generalized 
+weight functions. In fact, not for all of these variants well-foundedness has been
+proven.
+We give
+the first well-foundedness proof for a variant of KBO that combines 
+infinite signatures, quasi-precedences, and subterm coefficient functions.
+Our proof is direct, i.e., it does not depend on Kruskal's tree
+theorem.
+
+This formalization is used in the \isafor/\ceta project~\cite{TS09b} for certifying untrusted
+termination and confluence proofs. For more details we refer to our RTA paper \cite{paper}.
+
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+

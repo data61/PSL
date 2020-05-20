@@ -1,0 +1,10 @@
+chapter AFP
+
+session Lucas_Theorem (AFP) = "HOL-Computational_Algebra" + 
+  options [timeout = 600]
+  theories
+    Lucas_Theorem
+  document_files
+    "root.bib"
+    "root.tex"
+

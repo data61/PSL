@@ -1,0 +1,136 @@
+\documentclass[11pt,a4paper,DIV=11]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath,amsfonts}
+\usepackage[standard]{ntheorem}
+
+\renewcommand{\bf}{\normalfont\bfseries}
+\renewcommand{\rm}{\normalfont\rmfamily}
+\renewcommand{\it}{\normalfont\itshape}
+
+\usepackage{pdfsetup}
+
+\hypersetup{
+  pdfinfo={
+    Title={Menger's Theorem},
+    Subject={},
+    Keywords={Formal Proof, Graph Theory, Menger's Theorem},
+    Author={Christoph Dittmann},
+    Creator={}
+  },
+  bookmarksopen=true,
+  bookmarksnumbered,
+  bookmarksopenlevel=2,
+  bookmarksdepth=3
+}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Menger's Theorem}
+\author{Christoph Dittmann\\isabelle@christoph-d.de}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+  We present a formalization of Menger's Theorem for directed and
+  undirected graphs in Isabelle/HOL.  This well-known result shows
+  that if two non-adjacent distinct vertices $u,v$ in a directed graph
+  have no separator smaller than $n$, then there exist $n$ internally
+  vertex-disjoint paths from $u$ to $v$.
+
+  The version for undirected graphs follows immediately because
+  undirected graphs are a special case of directed graphs.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+Given two non-adjacent distinct vertices $u, v$ in a finite directed
+graph, a \emph{$u$-$v$-separator} is a set of vertices $S$ with $u
+\notin S, v \notin S$ such that every $u$-$v$-path visits a vertex of
+$S$.  Two $u$-$v$-paths are \emph{internally vertex-disjoint} if their
+intersection is exactly $\{u,v\}$.
+
+A famous classical result of graph theory relates the size of a
+minimum separator to the maximal number of internally vertex-disjoint
+paths.
+
+\begin{theorem}[Menger \cite{Menger1927}]\label{thm:menger}
+  Let $u,v$ be two non-adjacent distinct vertices. Then the size of a
+  minimum $u$-$v$-separator equals the maximal number of pairwise
+  internally vertex-disjoint $u$-$v$-paths.
+\end{theorem}
+
+This theorem has many proofs, but as far as the author is aware, there
+was no formalized proof.  We follow a proof given by William McCuaig,
+who calls it ``A simple proof of Menger's
+theorem''~\cite{DBLP:journals/jgt/McCuaig84}.  His proof is roughly
+one page in length.  Our formalization is significantly longer than
+that because we had to fill in a lot of details.
+
+Most of the work goes into showing the following theorem, which proves
+one direction of Theorem~\ref{thm:menger}.
+
+\begin{theorem}
+  Let $u,v$ be two non-adjacent distinct vertices.  If every
+  $u$-$v$-separator has size at least $n$, then there exists $n$
+  pairwise internally vertex-disjoint $u$-$v$-paths.
+\end{theorem}
+
+Compared to this, the other direction of Theorem~\ref{thm:menger} is
+easy because the existence of $n$ internally vertex-disjoint paths
+implies that every separator needs to cut at least these paths, so
+every separator needs to have size at least $n$.
+
+\section{Relation to Min-Cut Max-Flow}
+
+Another famous result of graph theory is the Min-Cut Max-Flow Theorem,
+stating that the size of a minimum $u$-$v$-cut equals the value of a
+maximum $u$-$v$-flow.  There exists a formalization of a very general
+version of this theorem for countable graphs in the Archive of Formal
+Proofs, written by Andreas Lochbihler~\cite{MFMC_Countable-AFP}.
+
+Technically, our version of Menger's Theorem should follow from
+Lochbihler's very general result.  However, the author was of the
+opinion that a fresh formalization of Menger's Theorem was warranted
+given the complexity of the Min-Cut Max-Flow formalization.  Our
+formalization is about a sixth of the size of the Min-Cut Max-Flow
+formalization (not counting comments).  It may also be easier to grasp
+by readers who are unfamiliar with the intricacies of countable
+networks.
+
+Let us also note that the Min-Cut Max-Flow Theorem considers
+\emph{edge cuts} whereas Menger's Theorem works with \emph{vertex
+  cuts}.  This is a minor difference because one can be reduced to the
+other, but it makes Menger's Theorem not a trivial corollary of the
+Min-Cut Max-Flow formalization.
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Bibliography}
+\bibliographystyle{alphaurl}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

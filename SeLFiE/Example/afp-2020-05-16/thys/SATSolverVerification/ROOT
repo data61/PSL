@@ -1,0 +1,12 @@
+chapter AFP
+
+session SATSolverVerification (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    BasicDPLL
+    NieuwenhuisOliverasTinelli
+    KrsticGoel
+    FunctionalImplementation
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,107 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{authblk}
+
+
+
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+
+\newtheorem{theorem}{Theorem}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+
+\begin{document}
+
+\title{Linear Inequalities\footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author[1]{Ralph Bottesch}
+\author[2]{Alban Reynaud}
+\author[1]{Ren\'e Thiemann}
+\affil[1]{University of Innsbruck}
+\affil[2]{ENS Lyon}
+
+\maketitle
+
+\begin{abstract}
+  We formalize results about linear inqualities, mainly from Schrijver's book
+  \cite{schrijver1998theory}.
+  The main results are the proof of the fundamental theorem on linear
+  inequalities, Farkas' lemma, Carath\'eodory's theorem, 
+  the Farkas-Minkowsky-Weyl theorem, 
+  the decomposition theorem of
+  polyhedra, and Meyer's result that the integer hull of a polyhedron is a
+  polyhedron itself. Several theorems include bounds on the appearing
+  numbers, and in particular we provide an a-priori bound
+  on mixed-integer solutions of linear inequalities. 
+
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+The motivation for this formalization is the aim of developing a verified theory solver
+for linear integer arithmetic. Such a solver can be a combination of a simplex-implementation within
+a branch-and-bound approach, that might also utilize Gomory cuts \cite[Section 4 of the extended version]{incremental_simplex}. 
+However, the branch-and-bound algorithm does
+not terminate in general, since the search space in infinite. To solve this latter problem, one can use
+results of Papadimitriou: he showed that whenever a set of linear inequalities has an integer
+solution, then it also has a small solution, where the bound on such a solution can be computed
+easily from the input \cite{Papad}.
+
+In this entry, we therefore formalize several results on linear inequalities which are required
+to obtain the desired bound, by following the proofs of Schrijver's 
+textbook~\cite[Sections 7 and 16]{schrijver1998theory}.
+
+We start with basic definitions and results on cones, convex hulls, and polyhedra.
+Next, we verify the fundamental theorem of linear inequalities, which in
+our formalization shows the equivalence of four statements to describe a cone. 
+From this theorem, one easily derives Farkas' Lemma and Carath\'eodory's theorem.
+Moreover we verify the Farkas-Minkowsky-Weyl theorem, that a convex cone is polyhedral if and only if
+it is finitely generated, and use this result to obtain 
+the decomposition theorem for polyhedra, i.e., that a polyhedron can always be decomposed into
+a polytope and a finitely generated cone. 
+For most of the previously mentioned results, we include bounds, so that in particular we have a
+quantitative version of the decomposition theorem, which provides bounds on the vectors that construct
+the polytope and the cone, and where these bounds are 
+computed directly from the input polyhedron that should be decomposed.
+
+We further prove the decomposition theorem also for the integer hull of a polyhedron, using the same bounds,
+which gives rise to small integer solutions for linear inequalities. We finally formalize a direct proof
+for the more general case of mixed integer solutions, where we also permit both strict and non-strict 
+linear inequalities. 
+
+\begin{theorem}
+\label{thm}
+Consider  
+$A_1 \in \ints^{m_1 \times n}, b_1 \in \ints^{m_1}, A_2 \in \ints^{m_2 \times n}, b_2 \in \ints^{m_2}$.
+Let $\beta$ be a bound on $A_1,b_1,A_2,b_2$, i.e., $\beta \geq |z|$ for all numbers $z$ that occur within $A_1,b_1,A_2,b_2$. Let $n = n_1+n_2$.
+Then if $x \in \ints^{n_1} \times \reals^{n_2} \subseteq \reals^n$ is a mixed integer solution of the linear inequalities, i.e., 
+$A_1x \leq b_1$ and $A_2x < b_2$, then there also exists a mixed integer solution 
+$y \in \ints^{n_1} \times \reals^{n_2}$ where 
+$|y_i| \leq (n+1)! \cdot \beta^n$ for each entry $y_i$ of $y$.
+\end{theorem}
+
+The verified bound in Theorem~\ref{thm} in particular implies that integer-satisfiability
+of linear-inqualities with integer coefficients is in NP.
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

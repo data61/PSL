@@ -1,0 +1,11 @@
+chapter AFP
+
+session Psi_Calculi (AFP) = "HOL-Nominal" +
+  options [timeout = 1800]
+  theories
+    Weak_Bisim_Subst
+    Tau_Laws_Weak
+    Tau_Laws_No_Weak
+  document_files
+    "root.bib"
+    "root.tex"

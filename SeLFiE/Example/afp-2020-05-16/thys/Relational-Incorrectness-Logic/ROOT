@@ -1,0 +1,10 @@
+chapter AFP
+
+session "Relational-Incorrectness-Logic" (AFP) = "HOL-IMP" +
+  options [timeout = 600]
+  theories
+      RelationalIncorrectness
+
+  document_files
+      "root.bib"
+      "root.tex"

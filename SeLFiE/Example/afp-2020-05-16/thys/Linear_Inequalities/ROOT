@@ -1,0 +1,17 @@
+chapter AFP
+
+session "Linear_Inequalities" (AFP) = "LLL_Basis_Reduction" +
+  options [timeout = 600]
+  theories
+    Missing_Matrix
+    Missing_VS_Connect
+  theories
+    Cone
+    Convex_Hull
+  theories
+    Farkas_Lemma
+    Mixed_Integer_Solutions
+    Integer_Hull
+  document_files
+    "root.bib"
+    "root.tex"

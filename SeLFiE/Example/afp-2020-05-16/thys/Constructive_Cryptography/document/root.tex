@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,amsmath}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{wasysym}
+\usepackage{booktabs}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Constructive Cryptography in HOL}
+\author{Andreas Lochbihler and S. Reza Sefidgar}
+\maketitle
+
+\begin{abstract}
+  Inspired by Abstract Cryptography~\cite{Maurer2011}, we
+  extend CryptHOL~\cite{Basin2017, Lochbihler2017AFP}, a
+  framework for formalizing game-based proofs, with an
+  abstract model of Random Systems~\cite{Maurer2002} and
+  provide proof rules about their composition and equality.
+  This foundation facilitates the formalization of
+  Constructive Cryptography~\cite{Maurer2011a} proofs, where
+  the security of a cryptographic scheme is realized as a
+  special form of construction in which a complex random
+  system is built from simpler ones.  This is a first step
+  towards a fully-featured compositional framework, similar
+  to Universal Composability framework~\cite{Canetti2001},
+  that supports formalization of simulation-based
+  proofs~\cite{Goldwasser1989}. 
+\end{abstract}
+
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

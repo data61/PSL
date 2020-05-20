@@ -1,0 +1,85 @@
+chapter AFP
+
+session CakeML_Codegen (AFP) = CakeML +
+  options [timeout = 3600]
+  sessions
+    Constructor_Funs
+    Dict_Construction
+    Higher_Order_Terms
+    "HOL-Data_Structures"
+    Huffman
+    Pairing_Heap
+    Root_Balanced_Tree
+    Show
+
+  directories
+    "Utils"
+    "Doc"
+    "Terms"
+    "CupCakeML"
+    "Rewriting"
+    "Preproc"
+    "Backend"
+    "Compiler"
+    "Test"
+
+  theories [document = false]
+    "Utils/ML_Utils"
+    "Utils/Compiler_Utils"
+    "Utils/Code_Utils"
+    "Utils/CakeML_Utils"
+    "Utils/Test_Utils"
+
+  theories
+    "Doc/Doc_Terms"
+    "Terms/Terms_Extras"
+    "Terms/HOL_Datatype"
+    "Terms/Constructors"
+    "Terms/Consts"
+    "Terms/Strong_Term"
+    "Terms/Sterm"
+    "Terms/Pterm"
+    "Terms/Term_as_Value"
+    "Terms/Value"
+
+    "Doc/Doc_CupCake"
+    "CupCakeML/CupCake_Env"
+    "CupCakeML/CupCake_Semantics"
+
+    "Doc/Doc_Rewriting"
+    "Rewriting/Rewriting_Term"
+    "Rewriting/Rewriting_Nterm"
+    "Rewriting/Rewriting_Pterm_Elim"
+    "Rewriting/Rewriting_Pterm"
+    "Rewriting/Rewriting_Sterm"
+    "Rewriting/Big_Step_Sterm"
+    "Rewriting/Big_Step_Value"
+    "Rewriting/Big_Step_Value_ML"
+
+    "Doc/Doc_Preproc"
+    "Preproc/Eval_Class"
+    "Preproc/Embed"
+    "Preproc/Eval_Instances"
+
+    "Doc/Doc_Backend"
+    "Backend/CakeML_Setup"
+    "Backend/CakeML_Backend"
+    "Backend/CakeML_Correctness"
+    "Backend/CakeML_Byte"
+
+    "Doc/Doc_Compiler"
+    "Compiler/Composition"
+    "Compiler/Compiler"
+
+  theories [document = false]
+    "Test/Test_Composition"
+    "Test/Test_Print"
+    "Test/Test_Embed_Data"
+    "Test/Test_Embed_Data2"
+    "Test/Test_Embed_Tree"
+
+  theories [condition = "ISABELLE_CAKEML_HOME,ISABELLE_CC", document = false]
+    "Test/Test_Datatypes"
+
+  document_files
+    "root.tex"

@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper,fleqn]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{cancel}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{An Efficient Generalization of Counting Sort\\for Large, possibly Infinite Key Ranges}
+\author{Pasquale Noce\\Software Engineer at HID Global, Italy\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at hidglobal dot com}
+\maketitle
+
+\begin{abstract}
+Counting sort is a well-known algorithm that sorts objects of any kind mapped to
+integer keys, or else to keys in one-to-one correspondence with some subset of
+the integers (e.g. alphabet letters). However, it is suitable for direct use,
+viz. not just as a subroutine of another sorting algorithm (e.g. radix sort),
+only if the key range is not significantly larger than the number of the objects
+to be sorted.
+
+This paper describes a tail-recursive generalization of counting sort making use
+of a bounded number of counters, suitable for direct use in case of a large, or
+even infinite key range of any kind, subject to the only constraint of being a
+subset of an arbitrary linear order. After performing a pen-and-paper analysis
+of how such algorithm has to be designed to maximize its efficiency, this paper
+formalizes the resulting generalized counting sort (GCsort) algorithm and then
+formally proves its correctness properties, namely that (a) the counters' number
+is maximized never exceeding the fixed upper bound, (b) objects are conserved,
+(c) objects get sorted, and (d) the algorithm is stable.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

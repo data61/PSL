@@ -1,0 +1,15 @@
+chapter AFP
+
+session "Certification_Monads" (AFP) = "HOL" +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    Partial_Function_MR
+    Show
+  theories
+    Check_Monad
+    Strict_Sum
+    Parser_Monad
+    Misc
+  document_files
+    "root.tex"

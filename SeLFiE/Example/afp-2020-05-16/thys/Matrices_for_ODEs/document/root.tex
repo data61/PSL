@@ -1,0 +1,76 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\renewcommand{\isasymlonglonglongrightarrow}{$\longrightarrow$}
+
+
+\begin{document}
+
+\title{Matrices for ODEs}
+\author{Jonathan Juli\'an Huerta y Munive}
+\maketitle
+
+\begin{abstract}
+  Our theories formalise various matrix properties that serve to establish 
+  existence, uniqueness and characterisation of the solution to affine 
+  systems of ordinary differential equations (ODEs). In particular, we
+  formalise the operator and maximum norm of matrices. Then we use 
+  them to prove that square matrices form a Banach space, and in this 
+  setting, we show an instance of Picard-Lindel\"of's theorem for affine
+  systems of ODEs. Finally, we apply this formalisation by verifying three 
+  simple hybrid programs.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introductory Remarks}
+
+Affine systems of ordinary differential equations (ODEs) are those whose associated vector fields are linear transformations. That is, if there is a matrix-valued function $A:\mathbb{R}\to M_{n\times n}(\mathbb{R})$ and vector function $B:\mathbb{R}\to\mathbb{R}^n$ such that the system of ODEs $x'\, t=f\, (t,x\, t)$ can be rewritten as $x'\, t=A\cdot (x\, t)+B\, t$, then the system is affine. Similarly, the associated linear system of ODEs is $x'\, t=A\cdot (x\, t)$ for matrix-vector multiplication $\cdot$. Our theories formalise affine (hence linear) systems of ordinary differential equations. For this purpose, we extend the ODE libraries of~\cite{ImmlerH12a} and linear algebra in HOL-Analysis. We add to them various results about invertibility of matrices, their diagonalisation, their operator and maximum norms, and properties relating them with vectors. We also define a new type of square matrices and prove that this is a Banach space. Then we obtain results about derivatives of matrix-vector multiplication and use them to prove Picard-Lindel\"of's theorem as formalised in~\cite{afp:hybrid}. The Banach space instance allows us to characterise the general solution to affine systems of ODEs in terms of the matrix-exponential. Finally, we use the components of~\cite{afp:hybrid} to do three simple verification examples in the style of differential dynamic logic~\cite{Platzer10} as showcased in~\cite{ArmstrongGS16,FosterMS19,MuniveS19}. A paper with a detailed overview of the various contributions that this formalisation adds to the verification components will be available soon in ArXiv.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,13 @@
+chapter AFP
+
+session Lambda_Free_KBOs (AFP) = Nested_Multisets_Ordinals +
+  options [timeout = 600]
+  sessions
+    "HOL-Cardinals"
+    "Regular-Sets"
+    Lambda_Free_RPOs
+    Polynomials
+  theories
+    Lambda_Free_KBOs
+  document_files
+    "root.tex"

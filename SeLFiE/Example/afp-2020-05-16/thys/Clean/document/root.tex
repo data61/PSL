@@ -1,0 +1,112 @@
+\documentclass[fontsize=11pt,paper=a4,open=right,twoside,abstract=true]{scrreprt}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage{isabelle,isabellesym}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{ifthen}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{lstisadof}
+\IfFileExists{railsetup.sty}{\usepackage{railsetup}}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% command
+
+\newenvironment{matharray}[1]{\[\begin{array}{#1}}{\end{array}\]} % from 'iman.sty'
+\newcommand{\indexdef}[3]%
+{\ifthenelse{\equal{}{#1}}{\index{#3 (#2)|bold}}{\index{#3 (#1\ #2)|bold}}} % from 'isar.sty'
+\newcommand{\isactrlC}{{\bf C}}
+
+%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fix for package declaration to be at the end
+\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% document
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\HOL}{HOL}
+\newcommand{\eg}{e.g.}
+\newcommand{\ie}{i.e.}
+
+\begin{document}
+
+\title{Clean - An Abstract Imperative Programming Language and its Theory}
+\author{%
+  \href{https://www.lri.fr/~ftuong/}{Fr\'ed\'eric Tuong}
+  \and
+  \href{https://www.lri.fr/~wolff/}{Burkhart Wolff} \\
+  \and
+  (with Contributions by \href{https://www.lri.fr/~keller/}{Chantal Keller})}
+\publishers{%
+  \mbox{LRI, Univ. Paris-Sud, CNRS, Universit\'e Paris-Saclay} \\
+  b\^at. 650 Ada Lovelace, 91405 Orsay, France \texorpdfstring{\\}{}
+}
+
+\maketitle
+
+\begin{abstract}
+Clean is based on a simple, abstract execution model for an imperative target language. ``Abstract''
+is understood as contrast to ``Concrete Semantics''; alternatively, the term ``shallow-style
+embedding'' could be used. It strives for a type-safe notation of program-variables, an incremental
+construction of the typed state-space, support of incremental verification, and 
+open-world extensibility of new type definitions being intertwined with the program
+definitions.
+
+Clean is based on a ``no-frills'' state-exception monad with the usual definitions of \isa{bind} and
+\isa{unit} for the compositional glue of state-based computations. Clean offers conditionals and
+loops supporting C-like control-flow operators such as \isa{break} and \isa{return}. The state-space
+construction is based on the extensible record package. Direct recursion of procedures is supported.
+
+Clean's design strives for extreme simplicity. It is geared towards symbolic execution and proven
+correct verification tools. The underlying libraries of this package, however, deliberately restrict
+themselves to the most elementary infrastructure for these tasks. The package is intended to serve
+as demonstrator semantic backend for Isabelle/C~\cite{TuongWolff19}, or for the test-generation
+techniques described in~\cite{DBLP:conf/tap/Keller18}.
+\end{abstract}
+
+\newpage
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \input{session}
+\newpage
+\input{Clean.tex}
+
+\input{Quicksort_concept.tex}
+\input{SquareRoot_concept.tex}
+
+\newpage
+\chapter{Appendix : Used Monad Libraries}
+\input{MonadSE.tex}
+\input{Seq_MonadSE.tex}
+\input{Symbex_MonadSE.tex}
+\input{Clean_Symbex.tex}
+\input{Test_Clean.tex}
+\input{Hoare_MonadSE.tex}
+\input{Hoare_Clean.tex}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{abbrvnat}
+\bibliography{root}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

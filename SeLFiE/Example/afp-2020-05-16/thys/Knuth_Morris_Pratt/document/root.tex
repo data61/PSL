@@ -1,0 +1,70 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+\usepackage{wasysym}
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{The string search algorithm by Knuth, Morris and Pratt}
+\author{Fabian Hellauer and Peter Lammich}
+\maketitle
+
+\begin{abstract}
+The Knuth-Morris-Pratt algorithm\cite{KMP77} is often used to show that the problem of finding 
+a string $s$ in a text $t$ can be solved deterministically in $O(|s| + |t|)$ time. 
+We use the Isabelle Refinement Framework\cite{Refine_Monadic-AFP} to formulate and verify 
+the algorithm. Via refinement, we apply some optimisations and finally
+use the \textit{Sepref} tool\cite{Refine_Imperative_HOL-AFP} to obtain executable 
+code in \textit{Imperative/HOL}.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

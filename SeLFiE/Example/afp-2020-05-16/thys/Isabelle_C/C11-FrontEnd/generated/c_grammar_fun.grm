@@ -1,0 +1,1006 @@
+open C_Ast open C_Grammar_Rule_Lib
+
+type start_happy = (CTranslUnit, (CExtDecl, (CStat, (CExpr, unit) either) either) either) either
+
+fun start_happy4 (x : start_happy) = case x of Right (Right (Right (Left x))) => SOME x | _ => NONE
+fun start_happy3 (x : start_happy) = case x of Right (Right (Left x)) => SOME x | _ => NONE
+fun start_happy2 (x : start_happy) = case x of Right (Left x) => SOME x | _ => NONE
+fun start_happy1 (x : start_happy) = case x of Left x => SOME x | _ => NONE
+
+%%
+%pure
+%name C_Grammar
+%arg (_) : Header.arg
+%nodefault
+
+%nonterm start_happy of (CTranslUnit, (CExtDecl, (CStat, (CExpr, unit) either) either) either) either
+       | translation_unit of CTranslUnit
+       | ext_decl_list of (CExtDecl list) Reversed
+       | external_declaration of CExtDecl
+       | function_definition of CFunDef
+       | function_declarator of CDeclr
+       | statement of CStat
+       | labeled_statement of CStat
+       | compound_statement of CStat
+       | enter_scope of unit
+       | leave_scope of unit
+       | block_item_list of (CBlockItem list) Reversed
+       | block_item of CBlockItem
+       | nested_declaration of CBlockItem
+       | nested_function_definition of CFunDef
+       | label_declarations of (Ident list) Reversed
+       | expression_statement of CStat
+       | selection_statement of CStat
+       | iteration_statement of CStat
+       | jump_statement of CStat
+       | asm_statement of CAsmStmt
+       | maybe_type_qualifier of CTypeQual Maybe
+       | asm_operands of CAsmOperand list
+       | nonnull_asm_operands of (CAsmOperand list) Reversed
+       | asm_operand of CAsmOperand
+       | asm_clobbers of (CStrLit list) Reversed
+       | declaration of CDecl
+       | declaration_list of (CDecl list) Reversed
+       | default_declaring_list of CDecl
+       | asm_attrs_opt of (CStrLit Maybe * CAttr list)
+       | declaring_list of CDecl
+       | declaration_specifier of CDeclSpec list
+       | declaration_qualifier_list of (CDeclSpec list) Reversed
+       | declaration_qualifier of CDeclSpec
+       | declaration_qualifier_without_types of CDeclSpec
+       | storage_class of CStorageSpec
+       | function_specifier of CFunSpec
+       | alignment_specifier of CAlignSpec
+       | type_specifier of CDeclSpec list
+       | basic_type_name of CTypeSpec
+       | basic_declaration_specifier of (CDeclSpec list) Reversed
+       | basic_type_specifier of (CDeclSpec list) Reversed
+       | sue_declaration_specifier of (CDeclSpec list) Reversed
+       | sue_type_specifier of (CDeclSpec list) Reversed
+       | typedef_declaration_specifier of (CDeclSpec list) Reversed
+       | typedef_type_specifier of (CDeclSpec list) Reversed
+       | elaborated_type_name of CTypeSpec
+       | struct_or_union_specifier of CStructUnion
+       | struct_or_union of CStructTag Located
+       | struct_declaration_list of (CDecl list) Reversed
+       | struct_declaration of CDecl
+       | struct_default_declaring_list of CDecl
+       | struct_declaring_list of CDecl
+       | struct_declarator of (CDeclr Maybe * CExpr Maybe)
+       | struct_identifier_declarator of (CDeclr Maybe * CExpr Maybe)
+       | enum_specifier of CEnum
+       | enumerator_list of (((Ident * CExpr Maybe)) list) Reversed
+       | enumerator of (Ident * CExpr Maybe)
+       | type_qualifier of CTypeQual
+       | type_qualifier_list of (CTypeQual list) Reversed
+       | declarator of CDeclrR
+       | asm_opt of CStrLit Maybe
+       | typedef_declarator of CDeclrR
+       | parameter_typedef_declarator of CDeclrR
+       | clean_typedef_declarator of CDeclrR
+       | clean_postfix_typedef_declarator of CDeclrR
+       | paren_typedef_declarator of CDeclrR
+       | paren_postfix_typedef_declarator of CDeclrR
+       | simple_paren_typedef_declarator of CDeclrR
+       | identifier_declarator of CDeclrR
+       | unary_identifier_declarator of CDeclrR
+       | postfix_identifier_declarator of CDeclrR
+       | paren_identifier_declarator of CDeclrR
+       | function_declarator_old of CDeclr
+       | old_function_declarator of CDeclrR
+       | postfix_old_function_declarator of CDeclrR
+       | parameter_type_list of (CDecl list * Bool)
+       | parameter_list of (CDecl list) Reversed
+       | parameter_declaration of CDecl
+       | identifier_list of (Ident list) Reversed
+       | type_name of CDecl
+       | abstract_declarator of CDeclrR
+       | postfixing_abstract_declarator of (CDeclrR -> CDeclrR)
+       | array_abstract_declarator of (CDeclrR -> CDeclrR)
+       | postfix_array_abstract_declarator of (CDeclrR -> CDeclrR)
+       | unary_abstract_declarator of CDeclrR
+       | postfix_abstract_declarator of CDeclrR
+       | initializer of CInit
+       | initializer_opt of CInit Maybe
+       | initializer_list of CInitList Reversed
+       | designation of CDesignator list
+       | designator_list of (CDesignator list) Reversed
+       | designator of CDesignator
+       | array_designator of CDesignator
+       | primary_expression of CExpr
+       | generic_assoc_list of (((CDecl Maybe * CExpr)) list) Reversed
+       | generic_assoc of (CDecl Maybe * CExpr)
+       | offsetof_member_designator of (CDesignator list) Reversed
+       | postfix_expression of CExpr
+       | argument_expression_list of (CExpr list) Reversed
+       | unary_expression of CExpr
+       | unary_operator of CUnaryOp Located
+       | cast_expression of CExpr
+       | multiplicative_expression of CExpr
+       | additive_expression of CExpr
+       | shift_expression of CExpr
+       | relational_expression of CExpr
+       | equality_expression of CExpr
+       | and_expression of CExpr
+       | exclusive_or_expression of CExpr
+       | inclusive_or_expression of CExpr
+       | logical_and_expression of CExpr
+       | logical_or_expression of CExpr
+       | conditional_expression of CExpr
+       | assignment_expression of CExpr
+       | assignment_operator of CAssignOp Located
+       | expression of CExpr
+       | comma_expression of (CExpr list) Reversed
+       | expression_opt of CExpr Maybe
+       | assignment_expression_opt of CExpr Maybe
+       | constant_expression of CExpr
+       | constant of CConst
+       | string_literal of CStrLit
+       | string_literal_list of (CString list) Reversed
+       | clang_version_literal of ClangCVersion
+       | identifier of Ident
+       | attrs_opt of CAttr list
+       | attrs of CAttr list
+       | attr of CAttr list
+       | attribute_list of (CAttr list) Reversed
+       | attribute of CAttr Maybe
+       | attribute_params of (CExpr list) Reversed
+
+%term start_translation_unit
+    | start_external_declaration
+    | start_statement
+    | start_expression
+    | error
+    | x28 of string
+    | x29 of string
+    | x5b of string
+    | x5d of string
+    | x2d_x3e of string
+    | x2e of string
+    | x21 of string
+    | x7e of string
+    | x2b_x2b of string
+    | x2d_x2d of string
+    | x2b of string
+    | x2d of string
+    | x2a of string
+    | x2f of string
+    | x25 of string
+    | x26 of string
+    | x3c_x3c of string
+    | x3e_x3e of string
+    | x3c of string
+    | x3c_x3d of string
+    | x3e of string
+    | x3e_x3d of string
+    | x3d_x3d of string
+    | x21_x3d of string
+    | x5e of string
+    | x7c of string
+    | x26_x26 of string
+    | x7c_x7c of string
+    | x3f of string
+    | x3a of string
+    | x3d of string
+    | x2b_x3d of string
+    | x2d_x3d of string
+    | x2a_x3d of string
+    | x2f_x3d of string
+    | x25_x3d of string
+    | x26_x3d of string
+    | x5e_x3d of string
+    | x7c_x3d of string
+    | x3c_x3c_x3d of string
+    | x3e_x3e_x3d of string
+    | x2c of string
+    | x3b of string
+    | x7b of string
+    | x7d of string
+    | x2e_x2e_x2e of string
+    | alignof of string
+    | alignas of string
+    | x5f_Atomic of string
+    | asm of string
+    | auto of string
+    | break of string
+    | x5f_Bool of string
+    | case0 of string
+    | char of string
+    | const of string
+    | continue of string
+    | x5f_Complex of string
+    | default of string
+    | do0 of string
+    | double of string
+    | else0 of string
+    | enum of string
+    | extern of string
+    | float of string
+    | for0 of string
+    | x5f_Generic of string
+    | goto of string
+    | if0 of string
+    | inline of string
+    | int of string
+    | x5f_x5f_int_x31_x32_x38 of string
+    | long of string
+    | x5f_x5f_label_x5f_x5f of string
+    | x5f_Noreturn of string
+    | x5f_Nullable of string
+    | x5f_Nonnull of string
+    | register of string
+    | restrict of string
+    | return0 of string
+    | short of string
+    | signed of string
+    | sizeof of string
+    | static of string
+    | x5f_Static_assert of string
+    | struct0 of string
+    | switch of string
+    | typedef of string
+    | typeof of string
+    | x5f_x5f_thread of string
+    | union of string
+    | unsigned of string
+    | void of string
+    | volatile of string
+    | while0 of string
+    | cchar of C_Ast.cChar
+    | cint of C_Ast.cInteger
+    | cfloat of C_Ast.cFloat
+    | cstr of C_Ast.cString
+    | ident of C_Ast.ident
+    | tyident of C_Ast.ident
+    | x5f_x5f_attribute_x5f_x5f of string
+    | x5f_x5f_extension_x5f_x5f of string
+    | x5f_x5f_real_x5f_x5f of string
+    | x5f_x5f_imag_x5f_x5f of string
+    | x5f_x5f_builtin_va_arg of string
+    | x5f_x5f_builtin_offsetof of string
+    | x5f_x5f_builtin_types_compatible_p of string
+    | clangcversion of C_Ast.ClangCVersion
+    | x25_eof
+
+(* fun token_of_string error ty_ClangCVersion ty_cChar ty_cFloat ty_cInteger ty_cString ty_ident ty_string a1 a2 = fn
+    | "(" => x28 (ty_string, a1, a2)
+    | ")" => x29 (ty_string, a1, a2)
+    | "[" => x5b (ty_string, a1, a2)
+    | "]" => x5d (ty_string, a1, a2)
+    | "->" => x2d_x3e (ty_string, a1, a2)
+    | "." => x2e (ty_string, a1, a2)
+    | "!" => x21 (ty_string, a1, a2)
+    | "~" => x7e (ty_string, a1, a2)
+    | "++" => x2b_x2b (ty_string, a1, a2)
+    | "--" => x2d_x2d (ty_string, a1, a2)
+    | "+" => x2b (ty_string, a1, a2)
+    | "-" => x2d (ty_string, a1, a2)
+    | "*" => x2a (ty_string, a1, a2)
+    | "/" => x2f (ty_string, a1, a2)
+    | "%" => x25 (ty_string, a1, a2)
+    | "&" => x26 (ty_string, a1, a2)
+    | "<<" => x3c_x3c (ty_string, a1, a2)
+    | ">>" => x3e_x3e (ty_string, a1, a2)
+    | "<" => x3c (ty_string, a1, a2)
+    | "<=" => x3c_x3d (ty_string, a1, a2)
+    | ">" => x3e (ty_string, a1, a2)
+    | ">=" => x3e_x3d (ty_string, a1, a2)
+    | "==" => x3d_x3d (ty_string, a1, a2)
+    | "!=" => x21_x3d (ty_string, a1, a2)
+    | "^" => x5e (ty_string, a1, a2)
+    | "|" => x7c (ty_string, a1, a2)
+    | "&&" => x26_x26 (ty_string, a1, a2)
+    | "||" => x7c_x7c (ty_string, a1, a2)
+    | "?" => x3f (ty_string, a1, a2)
+    | ":" => x3a (ty_string, a1, a2)
+    | "=" => x3d (ty_string, a1, a2)
+    | "+=" => x2b_x3d (ty_string, a1, a2)
+    | "-=" => x2d_x3d (ty_string, a1, a2)
+    | "*=" => x2a_x3d (ty_string, a1, a2)
+    | "/=" => x2f_x3d (ty_string, a1, a2)
+    | "%=" => x25_x3d (ty_string, a1, a2)
+    | "&=" => x26_x3d (ty_string, a1, a2)
+    | "^=" => x5e_x3d (ty_string, a1, a2)
+    | "|=" => x7c_x3d (ty_string, a1, a2)
+    | "<<=" => x3c_x3c_x3d (ty_string, a1, a2)
+    | ">>=" => x3e_x3e_x3d (ty_string, a1, a2)
+    | "," => x2c (ty_string, a1, a2)
+    | ";" => x3b (ty_string, a1, a2)
+    | "{" => x7b (ty_string, a1, a2)
+    | "}" => x7d (ty_string, a1, a2)
+    | "..." => x2e_x2e_x2e (ty_string, a1, a2)
+    | x => let 
+    val alignof = alignof (ty_string, a1, a2)
+    val alignas = alignas (ty_string, a1, a2)
+    val atomic = x5f_Atomic (ty_string, a1, a2)
+    val asm = asm (ty_string, a1, a2)
+    val auto = auto (ty_string, a1, a2)
+    val break = break (ty_string, a1, a2)
+    val bool = x5f_Bool (ty_string, a1, a2)
+    val case0 = case0 (ty_string, a1, a2)
+    val char = char (ty_string, a1, a2)
+    val const = const (ty_string, a1, a2)
+    val continue = continue (ty_string, a1, a2)
+    val complex = x5f_Complex (ty_string, a1, a2)
+    val default = default (ty_string, a1, a2)
+    val do0 = do0 (ty_string, a1, a2)
+    val double = double (ty_string, a1, a2)
+    val else0 = else0 (ty_string, a1, a2)
+    val enum = enum (ty_string, a1, a2)
+    val extern = extern (ty_string, a1, a2)
+    val float = float (ty_string, a1, a2)
+    val for0 = for0 (ty_string, a1, a2)
+    val generic = x5f_Generic (ty_string, a1, a2)
+    val goto = goto (ty_string, a1, a2)
+    val if0 = if0 (ty_string, a1, a2)
+    val inline = inline (ty_string, a1, a2)
+    val int = int (ty_string, a1, a2)
+    val int128 = x5f_x5f_int_x31_x32_x38 (ty_string, a1, a2)
+    val long = long (ty_string, a1, a2)
+    val label = x5f_x5f_label_x5f_x5f (ty_string, a1, a2)
+    val noreturn = x5f_Noreturn (ty_string, a1, a2)
+    val nullable = x5f_Nullable (ty_string, a1, a2)
+    val nonnull = x5f_Nonnull (ty_string, a1, a2)
+    val register = register (ty_string, a1, a2)
+    val restrict = restrict (ty_string, a1, a2)
+    val return0 = return0 (ty_string, a1, a2)
+    val short = short (ty_string, a1, a2)
+    val signed = signed (ty_string, a1, a2)
+    val sizeof = sizeof (ty_string, a1, a2)
+    val static = static (ty_string, a1, a2)
+    val staticassert = x5f_Static_assert (ty_string, a1, a2)
+    val struct0 = struct0 (ty_string, a1, a2)
+    val switch = switch (ty_string, a1, a2)
+    val typedef = typedef (ty_string, a1, a2)
+    val typeof = typeof (ty_string, a1, a2)
+    val thread = x5f_x5f_thread (ty_string, a1, a2)
+    val union = union (ty_string, a1, a2)
+    val unsigned = unsigned (ty_string, a1, a2)
+    val void = void (ty_string, a1, a2)
+    val volatile = volatile (ty_string, a1, a2)
+    val while0 = while0 (ty_string, a1, a2)
+    val cchar = cchar (ty_cChar, a1, a2)
+    val cint = cint (ty_cInteger, a1, a2)
+    val cfloat = cfloat (ty_cFloat, a1, a2)
+    val cstr = cstr (ty_cString, a1, a2)
+    val ident = ident (ty_ident, a1, a2)
+    val tyident = tyident (ty_ident, a1, a2)
+    val attribute = x5f_x5f_attribute_x5f_x5f (ty_string, a1, a2)
+    val extension = x5f_x5f_extension_x5f_x5f (ty_string, a1, a2)
+    val real = x5f_x5f_real_x5f_x5f (ty_string, a1, a2)
+    val imag = x5f_x5f_imag_x5f_x5f (ty_string, a1, a2)
+    val builtinvaarg = x5f_x5f_builtin_va_arg (ty_string, a1, a2)
+    val builtinoffsetof = x5f_x5f_builtin_offsetof (ty_string, a1, a2)
+    val builtintypescompatiblep = x5f_x5f_builtin_types_compatible_p (ty_string, a1, a2)
+    val clangcversion = clangcversion (ty_ClangCVersion, a1, a2)
+    in case x of
+    (* | _ => error end *)
+*)
+
+%eop x25_eof
+%pos Position.T
+%%
+
+(* production *)
+start_happy : start_translation_unit translation_unit ((Left) translation_unit1)
+            | start_external_declaration external_declaration ((Right o Left) external_declaration1)
+            | start_statement statement ((Right o Right o Left) statement1)
+            | start_expression expression ((Right o Right o Right o Left) expression1)
+
+translation_unit : ext_decl_list ((*%*)(fn happy_var_1 => let val decls = reverse happy_var_1 in case decls of [] => bind (getNewName) (fn n => bind (getCurrentPosition) (fn p => return (CTranslUnit decls (mkNodeInfo' p (p, 0) n)))) | (d :: ds) => withNodeInfo_CExtDecl d (CTranslUnit decls) end) ext_decl_list1)
+
+ext_decl_list :  (empty)
+              | ext_decl_list x3b ((fn happy_var_1 => happy_var_1) ext_decl_list1)
+              | ext_decl_list external_declaration ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) ext_decl_list1 external_declaration1)
+
+external_declaration : function_definition ((fn happy_var_1 => CFDefExt happy_var_1) function_definition1)
+                     | declaration ((fn happy_var_1 => CDeclExt happy_var_1) declaration1)
+                     | x5f_x5f_extension_x5f_x5f external_declaration ((fn happy_var_2 => happy_var_2) external_declaration1)
+                     | asm x28 string_literal x29 x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAsmExt happy_var_3)) asm1 string_literal1) (fn _ => withNodeInfo 0))
+
+function_definition : function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef [] happy_var_1 [] happy_var_2))) function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | attrs function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftCAttrs happy_var_1) happy_var_2 [] happy_var_3))) attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | declaration_specifier function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) declaration_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | type_specifier function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) type_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | declaration_qualifier_list function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 [] happy_var_3))) declaration_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | type_qualifier_list function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 [] happy_var_3))) type_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | type_qualifier_list attrs function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 [] happy_var_4))) type_qualifier_list1 attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | function_declarator_old declaration_list compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CFunDef [] happy_var_1 (reverse happy_var_2) happy_var_3)) function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | attrs function_declarator_old declaration_list compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_2 (CFunDef (liftCAttrs happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) attrs1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 1))
+                    | declaration_specifier function_declarator_old declaration_list compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 (reverse happy_var_3) happy_var_4)) declaration_specifier1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | type_specifier function_declarator_old declaration_list compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 (reverse happy_var_3) happy_var_4)) type_specifier1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | declaration_qualifier_list function_declarator_old declaration_list compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) declaration_qualifier_list1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | type_qualifier_list function_declarator_old declaration_list compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) type_qualifier_list1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0))
+                    | type_qualifier_list attrs function_declarator_old declaration_list compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 (reverse happy_var_4) happy_var_5)) type_qualifier_list1 attrs1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0))
+
+function_declarator : identifier_declarator ((*%*)(fn happy_var_1 => let val declr = reverseDeclr happy_var_1 in enterScope >> doFuncParamDeclIdent declr >> return declr end) identifier_declarator1)
+
+statement : labeled_statement ((fn happy_var_1 => happy_var_1) labeled_statement1)
+          | compound_statement ((fn happy_var_1 => happy_var_1) compound_statement1)
+          | expression_statement ((fn happy_var_1 => happy_var_1) expression_statement1)
+          | selection_statement ((fn happy_var_1 => happy_var_1) selection_statement1)
+          | iteration_statement ((fn happy_var_1 => happy_var_1) iteration_statement1)
+          | jump_statement ((fn happy_var_1 => happy_var_1) jump_statement1)
+          | asm_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAsm happy_var_1)) asm_statement1) (fn _ => withNodeInfo 0))
+
+labeled_statement : identifier x3a attrs_opt statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CLabel happy_var_1 happy_var_4 happy_var_3)) identifier1 attrs_opt1 statement1) (fn _ => withNodeInfo 0))
+                  | case0 constant_expression x3a statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CCase happy_var_2 happy_var_4)) case01 constant_expression1 statement1) (fn _ => withNodeInfo 0))
+                  | default x3a statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CDefault happy_var_3)) default1 statement1) (fn _ => withNodeInfo 0))
+                  | case0 constant_expression x2e_x2e_x2e constant_expression x3a statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CCases happy_var_2 happy_var_4 happy_var_6)) case01 constant_expression1 constant_expression2 statement1) (fn _ => withNodeInfo 0))
+
+compound_statement : x7b enter_scope block_item_list leave_scope x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CCompound [] (reverse happy_var_3))) x7b1 block_item_list1) (fn _ => withNodeInfo 0))
+                   | x7b enter_scope label_declarations block_item_list leave_scope x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CCompound (reverse happy_var_3) (reverse happy_var_4))) x7b1 label_declarations1 block_item_list1) (fn _ => withNodeInfo 0))
+
+enter_scope :  ((*%*)enterScope)
+
+leave_scope :  ((*%*)leaveScope)
+
+block_item_list :  (empty)
+                | block_item_list block_item ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) block_item_list1 block_item1)
+
+block_item : statement ((fn happy_var_1 => CBlockStmt happy_var_1) statement1)
+           | nested_declaration ((fn happy_var_1 => happy_var_1) nested_declaration1)
+
+nested_declaration : declaration ((fn happy_var_1 => CBlockDecl happy_var_1) declaration1)
+                   | nested_function_definition ((fn happy_var_1 => CNestedFunDef happy_var_1) nested_function_definition1)
+                   | x5f_x5f_extension_x5f_x5f nested_declaration ((fn happy_var_2 => happy_var_2) nested_declaration1)
+
+nested_function_definition : declaration_specifier function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) declaration_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                           | type_specifier function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) type_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                           | declaration_qualifier_list function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 [] happy_var_3))) declaration_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                           | type_qualifier_list function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 [] happy_var_3))) type_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+                           | type_qualifier_list attrs function_declarator compound_statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 [] happy_var_4))) type_qualifier_list1 attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0))
+
+label_declarations : x5f_x5f_label_x5f_x5f identifier_list x3b ((fn happy_var_2 => happy_var_2) identifier_list1)
+                   | label_declarations x5f_x5f_label_x5f_x5f identifier_list x3b ((fn happy_var_1 => fn happy_var_3 => rappendr (happy_var_1) (happy_var_3)) label_declarations1 identifier_list1)
+
+expression_statement : x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExpr Nothing)) x3b1) (fn _ => withNodeInfo 0))
+                     | expression x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExpr (Just happy_var_1))) expression1) (fn _ => withNodeInfo 0))
+
+selection_statement : if0 x28 expression x29 statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CIf happy_var_3 happy_var_5 Nothing)) if01 expression1 statement1) (fn _ => withNodeInfo 0))
+                    | if0 x28 expression x29 statement else0 statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => fn happy_var_7 => withNodeInfo happy_var_1 (CIf happy_var_3 happy_var_5 (Just happy_var_7))) if01 expression1 statement1 statement2) (fn _ => withNodeInfo 0))
+                    | switch x28 expression x29 statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CSwitch happy_var_3 happy_var_5)) switch1 expression1 statement1) (fn _ => withNodeInfo 0))
+
+iteration_statement : while0 x28 expression x29 statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CWhile happy_var_3 happy_var_5 False)) while01 expression1 statement1) (fn _ => withNodeInfo 0))
+                    | do0 statement while0 x28 expression x29 x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CWhile happy_var_5 happy_var_2 True)) do01 statement1 expression1) (fn _ => withNodeInfo 0))
+                    | for0 x28 expression_opt x3b expression_opt x3b expression_opt x29 statement ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => fn happy_var_7 => fn happy_var_9 => withNodeInfo happy_var_1 (CFor (Left happy_var_3) happy_var_5 happy_var_7 happy_var_9)) for01 expression_opt1 expression_opt2 expression_opt3 statement1) (fn _ => withNodeInfo 0))
+                    | for0 x28 enter_scope declaration expression_opt x3b expression_opt x29 statement leave_scope ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => fn happy_var_5 => fn happy_var_7 => fn happy_var_9 => withNodeInfo happy_var_1 (CFor (Right happy_var_4) happy_var_5 happy_var_7 happy_var_9)) for01 declaration1 expression_opt1 expression_opt2 statement1) (fn _ => withNodeInfo 0))
+
+jump_statement : goto identifier x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CGoto happy_var_2)) goto1 identifier1) (fn _ => withNodeInfo 0))
+               | goto x2a expression x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CGotoPtr happy_var_3)) goto1 expression1) (fn _ => withNodeInfo 0))
+               | continue x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCont)) continue1) (fn _ => withNodeInfo 0))
+               | break x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CBreak)) break1) (fn _ => withNodeInfo 0))
+               | return0 expression_opt x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CReturn happy_var_2)) return01 expression_opt1) (fn _ => withNodeInfo 0))
+
+asm_statement : asm maybe_type_qualifier x28 string_literal x29 x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 [] [] [])) asm1 maybe_type_qualifier1 string_literal1) (fn _ => withNodeInfo 0))
+              | asm maybe_type_qualifier x28 string_literal x3a asm_operands x29 x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 [] [])) asm1 maybe_type_qualifier1 string_literal1 asm_operands1) (fn _ => withNodeInfo 0))
+              | asm maybe_type_qualifier x28 string_literal x3a asm_operands x3a asm_operands x29 x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => fn happy_var_8 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 happy_var_8 [])) asm1 maybe_type_qualifier1 string_literal1 asm_operands1 asm_operands2) (fn _ => withNodeInfo 0))
+              | asm maybe_type_qualifier x28 string_literal x3a asm_operands x3a asm_operands x3a asm_clobbers x29 x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => fn happy_var_8 => fn happy_var_10 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 happy_var_8 (reverse happy_var_10))) asm1 maybe_type_qualifier1 string_literal1 asm_operands1 asm_operands2 asm_clobbers1) (fn _ => withNodeInfo 0))
+
+maybe_type_qualifier :  (Nothing)
+                     | type_qualifier ((fn happy_var_1 => Just happy_var_1) type_qualifier1)
+
+asm_operands :  ([])
+             | nonnull_asm_operands ((fn happy_var_1 => reverse happy_var_1) nonnull_asm_operands1)
+
+nonnull_asm_operands : asm_operand ((fn happy_var_1 => singleton happy_var_1) asm_operand1)
+                     | nonnull_asm_operands x2c asm_operand ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) nonnull_asm_operands1 asm_operand1)
+
+asm_operand : string_literal x28 expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAsmOperand Nothing happy_var_1 happy_var_3)) string_literal1 expression1) (fn _ => withNodeInfo 0))
+            | x5b ident x5d string_literal x28 expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmOperand (Just happy_var_2) happy_var_4 happy_var_6)) x5b1 ident1 string_literal1 expression1) (fn _ => withNodeInfo 0))
+            | x5b tyident x5d string_literal x28 expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmOperand (Just happy_var_2) happy_var_4 happy_var_6)) x5b1 tyident1 string_literal1 expression1) (fn _ => withNodeInfo 0))
+
+asm_clobbers : string_literal ((fn happy_var_1 => singleton happy_var_1) string_literal1)
+             | asm_clobbers x2c string_literal ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) asm_clobbers1 string_literal1)
+
+declaration : sue_declaration_specifier x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) sue_declaration_specifier1) (fn _ => withNodeInfo 0))
+            | sue_type_specifier x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) sue_type_specifier1) (fn _ => withNodeInfo 0))
+            | declaring_list x3b ((*%*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => withLength at (CDecl declspecs (List.reverse dies))) declaring_list1)
+            | default_declaring_list x3b ((*%*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => withLength at (CDecl declspecs (List.reverse dies))) default_declaring_list1)
+            | x5f_Static_assert x28 constant_expression x2c string_literal x29 x3b ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CStaticAssert happy_var_3 happy_var_5)) x5f_Static_assert1 constant_expression1 string_literal1) (fn _ => withNodeInfo 0))
+
+declaration_list :  (empty)
+                 | declaration_list declaration ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) declaration_list1 declaration1)
+
+default_declaring_list : declaration_qualifier_list identifier_declarator asm_attrs_opt initializer_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = reverse happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) declaration_qualifier_list1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0))
+                       | type_qualifier_list identifier_declarator asm_attrs_opt initializer_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = liftTypeQuals happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) type_qualifier_list1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0))
+                       | type_qualifier_list attrs identifier_declarator asm_attrs_opt initializer_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => let val declspecs = liftTypeQuals happy_var_1 in bind (withAsmNameAttrs happy_var_4 happy_var_3) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat (declspecs @ liftCAttrs happy_var_2) [(Just (reverseDeclr declr), happy_var_5, Nothing)]))) end) type_qualifier_list1 attrs1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0))
+                       | attrs identifier_declarator asm_attrs_opt initializer_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = liftCAttrs happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) attrs1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0))
+                       | default_declaring_list x2c attrs_opt identifier_declarator asm_attrs_opt initializer_opt ((*%*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => fn happy_var_6 => case happy_var_1 of CDecl0 (declspecs,dies,at) => bind (withAsmNameAttrs (fst happy_var_5, snd happy_var_5 @ happy_var_3) happy_var_4) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withLength at (CDecl declspecs ((flat3 (Just (reverseDeclr declr), happy_var_6, Nothing)) :: dies))))) default_declaring_list1 attrs_opt1 identifier_declarator1 asm_attrs_opt1 initializer_opt1)
+
+asm_attrs_opt : asm_opt attrs_opt ((fn happy_var_1 => fn happy_var_2 => (happy_var_1, happy_var_2)) asm_opt1 attrs_opt1)
+
+declaring_list : declaration_specifier declarator asm_attrs_opt initializer_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent happy_var_1 declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr declr), happy_var_4, Nothing)])))) declaration_specifier1 declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0))
+               | type_specifier declarator asm_attrs_opt initializer_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent happy_var_1 declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr declr), happy_var_4, Nothing)])))) type_specifier1 declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0))
+               | declaring_list x2c attrs_opt declarator asm_attrs_opt initializer_opt ((*%*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => fn happy_var_6 => case happy_var_1 of CDecl0 (declspecs,dies,at) => bind (withAsmNameAttrs (fst happy_var_5, snd happy_var_5 @ happy_var_3) happy_var_4) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => return (CDecl declspecs ((flat3 (Just (reverseDeclr declr), happy_var_6, Nothing)) :: dies) at)))) declaring_list1 attrs_opt1 declarator1 asm_attrs_opt1 initializer_opt1)
+
+declaration_specifier : basic_declaration_specifier ((fn happy_var_1 => reverse happy_var_1) basic_declaration_specifier1)
+                      | sue_declaration_specifier ((fn happy_var_1 => reverse happy_var_1) sue_declaration_specifier1)
+                      | typedef_declaration_specifier ((fn happy_var_1 => reverse happy_var_1) typedef_declaration_specifier1)
+
+declaration_qualifier_list : declaration_qualifier_without_types ((fn happy_var_1 => singleton happy_var_1) declaration_qualifier_without_types1)
+                           | attrs declaration_qualifier_without_types ((fn happy_var_1 => fn happy_var_2 => snoc (reverseList (liftCAttrs happy_var_1)) (happy_var_2)) attrs1 declaration_qualifier_without_types1)
+                           | type_qualifier_list declaration_qualifier_without_types ((fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (happy_var_2)) type_qualifier_list1 declaration_qualifier_without_types1)
+                           | type_qualifier_list attrs declaration_qualifier_without_types ((fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc ((rappend (rmap CTypeQual happy_var_1) (liftCAttrs happy_var_2))) (happy_var_3)) type_qualifier_list1 attrs1 declaration_qualifier_without_types1)
+                           | declaration_qualifier_list declaration_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) declaration_qualifier_list1 declaration_qualifier1)
+                           | declaration_qualifier_list attr ((fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) declaration_qualifier_list1 attr1)
+
+declaration_qualifier : storage_class ((fn happy_var_1 => CStorageSpec happy_var_1) storage_class1)
+                      | type_qualifier ((fn happy_var_1 => CTypeQual happy_var_1) type_qualifier1)
+                      | function_specifier ((fn happy_var_1 => CFunSpec happy_var_1) function_specifier1)
+                      | alignment_specifier ((fn happy_var_1 => CAlignSpec happy_var_1) alignment_specifier1)
+
+declaration_qualifier_without_types : storage_class ((fn happy_var_1 => CStorageSpec happy_var_1) storage_class1)
+                                    | function_specifier ((fn happy_var_1 => CFunSpec happy_var_1) function_specifier1)
+                                    | alignment_specifier ((fn happy_var_1 => CAlignSpec happy_var_1) alignment_specifier1)
+
+storage_class : typedef ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTypedef)) typedef1) (fn _ => withNodeInfo 0))
+              | extern ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExtern)) extern1) (fn _ => withNodeInfo 0))
+              | static ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CStatic)) static1) (fn _ => withNodeInfo 0))
+              | auto ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAuto)) auto1) (fn _ => withNodeInfo 0))
+              | register ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CRegister)) register1) (fn _ => withNodeInfo 0))
+              | x5f_x5f_thread ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CThread)) x5f_x5f_thread1) (fn _ => withNodeInfo 0))
+
+function_specifier : inline ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInlineQual)) inline1) (fn _ => withNodeInfo 0))
+                   | x5f_Noreturn ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNoreturnQual)) x5f_Noreturn1) (fn _ => withNodeInfo 0))
+
+alignment_specifier : alignas x28 type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignAsType happy_var_3)) alignas1 type_name1) (fn _ => withNodeInfo 0))
+                    | alignas x28 constant_expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignAsExpr happy_var_3)) alignas1 constant_expression1) (fn _ => withNodeInfo 0))
+
+type_specifier : basic_type_specifier ((fn happy_var_1 => reverse happy_var_1) basic_type_specifier1)
+               | sue_type_specifier ((fn happy_var_1 => reverse happy_var_1) sue_type_specifier1)
+               | typedef_type_specifier ((fn happy_var_1 => reverse happy_var_1) typedef_type_specifier1)
+
+basic_type_name : void ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVoidType)) void1) (fn _ => withNodeInfo 0))
+                | char ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCharType)) char1) (fn _ => withNodeInfo 0))
+                | short ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CShortType)) short1) (fn _ => withNodeInfo 0))
+                | int ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CIntType)) int1) (fn _ => withNodeInfo 0))
+                | long ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CLongType)) long1) (fn _ => withNodeInfo 0))
+                | float ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CFloatType)) float1) (fn _ => withNodeInfo 0))
+                | double ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDoubleType)) double1) (fn _ => withNodeInfo 0))
+                | signed ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CSignedType)) signed1) (fn _ => withNodeInfo 0))
+                | unsigned ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnsigType)) unsigned1) (fn _ => withNodeInfo 0))
+                | x5f_Bool ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CBoolType)) x5f_Bool1) (fn _ => withNodeInfo 0))
+                | x5f_Complex ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CComplexType)) x5f_Complex1) (fn _ => withNodeInfo 0))
+                | x5f_x5f_int_x31_x32_x38 ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInt128Type)) x5f_x5f_int_x31_x32_x381) (fn _ => withNodeInfo 0))
+
+basic_declaration_specifier : declaration_qualifier_list basic_type_name ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) declaration_qualifier_list1 basic_type_name1)
+                            | basic_type_specifier storage_class ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) basic_type_specifier1 storage_class1)
+                            | basic_declaration_specifier declaration_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) basic_declaration_specifier1 declaration_qualifier1)
+                            | basic_declaration_specifier basic_type_name ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) basic_declaration_specifier1 basic_type_name1)
+                            | basic_declaration_specifier attr ((fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) basic_declaration_specifier1 attr1)
+
+basic_type_specifier : basic_type_name ((fn happy_var_1 => singleton (CTypeSpec happy_var_1)) basic_type_name1)
+                     | attrs basic_type_name ((fn happy_var_1 => fn happy_var_2 => snoc ((reverseList (liftCAttrs happy_var_1))) ((CTypeSpec happy_var_2))) attrs1 basic_type_name1)
+                     | type_qualifier_list basic_type_name ((fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (CTypeSpec happy_var_2)) type_qualifier_list1 basic_type_name1)
+                     | type_qualifier_list attrs basic_type_name ((fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec happy_var_3)) type_qualifier_list1 attrs1 basic_type_name1)
+                     | basic_type_specifier type_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) basic_type_specifier1 type_qualifier1)
+                     | basic_type_specifier basic_type_name ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) basic_type_specifier1 basic_type_name1)
+                     | basic_type_specifier attr ((fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) basic_type_specifier1 attr1)
+
+sue_declaration_specifier : declaration_qualifier_list elaborated_type_name ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) declaration_qualifier_list1 elaborated_type_name1)
+                          | sue_type_specifier storage_class ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) sue_type_specifier1 storage_class1)
+                          | sue_declaration_specifier declaration_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) sue_declaration_specifier1 declaration_qualifier1)
+                          | sue_declaration_specifier attr ((fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) sue_declaration_specifier1 attr1)
+
+sue_type_specifier : elaborated_type_name ((fn happy_var_1 => singleton (CTypeSpec happy_var_1)) elaborated_type_name1)
+                   | attrs elaborated_type_name ((fn happy_var_1 => fn happy_var_2 => snoc ((reverseList (liftCAttrs happy_var_1))) ((CTypeSpec happy_var_2))) attrs1 elaborated_type_name1)
+                   | type_qualifier_list elaborated_type_name ((fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (CTypeSpec happy_var_2)) type_qualifier_list1 elaborated_type_name1)
+                   | type_qualifier_list attrs elaborated_type_name ((fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec happy_var_3)) type_qualifier_list1 attrs1 elaborated_type_name1)
+                   | sue_type_specifier type_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) sue_type_specifier1 type_qualifier1)
+                   | sue_type_specifier attr ((fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) sue_type_specifier1 attr1)
+
+typedef_declaration_specifier : typedef_type_specifier storage_class ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) typedef_type_specifier1 storage_class1)
+                              | declaration_qualifier_list tyident ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeDef happy_var_2 at)))) declaration_qualifier_list1 tyident1) (fn _ => withNodeInfo 1))
+                              | declaration_qualifier_list typeof x28 expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeOfExpr happy_var_4 at)))) declaration_qualifier_list1 typeof1 expression1) (fn _ => withNodeInfo 1))
+                              | declaration_qualifier_list typeof x28 type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeOfType happy_var_4 at)))) declaration_qualifier_list1 typeof1 type_name1) (fn _ => withNodeInfo 1))
+                              | typedef_declaration_specifier declaration_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) typedef_declaration_specifier1 declaration_qualifier1)
+                              | typedef_declaration_specifier attr ((fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) typedef_declaration_specifier1 attr1)
+
+typedef_type_specifier : tyident ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeDef happy_var_1 at)))) tyident1) (fn _ => withNodeInfo 0))
+                       | typeof x28 expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeOfExpr happy_var_3 at)))) typeof1 expression1) (fn _ => withNodeInfo 0))
+                       | typeof x28 type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeOfType happy_var_3 at)))) typeof1 type_name1) (fn _ => withNodeInfo 0))
+                       | type_qualifier_list tyident ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeDef happy_var_2 at)))) type_qualifier_list1 tyident1) (fn _ => withNodeInfo 1))
+                       | type_qualifier_list typeof x28 expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeOfExpr happy_var_4 at)))) type_qualifier_list1 typeof1 expression1) (fn _ => withNodeInfo 1))
+                       | type_qualifier_list typeof x28 type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeOfType happy_var_4 at)))) type_qualifier_list1 typeof1 type_name1) (fn _ => withNodeInfo 1))
+                       | attrs tyident ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeDef happy_var_2 at))))) attrs1 tyident1) (fn _ => withNodeInfo 1))
+                       | attrs typeof x28 expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => withNodeInfo happy_var_1 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeOfExpr happy_var_4 at))))) attrs1 expression1) (fn _ => withNodeInfo 0))
+                       | attrs typeof x28 type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeOfType happy_var_4 at))))) attrs1 typeof1 type_name1) (fn _ => withNodeInfo 1))
+                       | type_qualifier_list attrs tyident ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeDef happy_var_3 at)))) type_qualifier_list1 attrs1 tyident1) (fn _ => withNodeInfo 2))
+                       | type_qualifier_list attrs typeof x28 expression x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeOfExpr happy_var_5 at)))) type_qualifier_list1 attrs1 typeof1 expression1) (fn _ => withNodeInfo 2))
+                       | type_qualifier_list attrs typeof x28 type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeOfType happy_var_5 at)))) type_qualifier_list1 attrs1 typeof1 type_name1) (fn _ => withNodeInfo 2))
+                       | typedef_type_specifier type_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) typedef_type_specifier1 type_qualifier1)
+                       | typedef_type_specifier attr ((fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) typedef_type_specifier1 attr1)
+
+elaborated_type_name : struct_or_union_specifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CSUType happy_var_1)) struct_or_union_specifier1) (fn _ => withNodeInfo 0))
+                     | enum_specifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CEnumType happy_var_1)) enum_specifier1) (fn _ => withNodeInfo 0))
+
+struct_or_union_specifier : struct_or_union attrs_opt identifier x7b struct_declaration_list x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) struct_or_union1 attrs_opt1 identifier1 struct_declaration_list1) (fn _ => withNodeInfo 0))
+                          | struct_or_union attrs_opt x7b struct_declaration_list x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) Nothing (Just (reverse happy_var_4)) happy_var_2)) struct_or_union1 attrs_opt1 struct_declaration_list1) (fn _ => withNodeInfo 0))
+                          | struct_or_union attrs_opt identifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) (Just happy_var_3) Nothing happy_var_2)) struct_or_union1 attrs_opt1 identifier1) (fn _ => withNodeInfo 0))
+
+struct_or_union : struct0 ((*%*)(fn L => (fn happy_var_1 => L CStructTag (posOf happy_var_1)) struct01) (fn x => fn _ => L x 0))
+                | union ((*%*)(fn L => (fn happy_var_1 => L CUnionTag (posOf happy_var_1)) union1) (fn x => fn _ => L x 0))
+
+struct_declaration_list :  (empty)
+                        | struct_declaration_list x3b ((fn happy_var_1 => happy_var_1) struct_declaration_list1)
+                        | struct_declaration_list struct_declaration ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) struct_declaration_list1 struct_declaration1)
+
+struct_declaration : struct_declaring_list x3b ((fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => CDecl declspecs (List.reverse dies) at) struct_declaring_list1)
+                   | struct_default_declaring_list x3b ((fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => CDecl declspecs (List.reverse dies) at) struct_default_declaring_list1)
+                   | x5f_x5f_extension_x5f_x5f struct_declaration ((fn happy_var_2 => happy_var_2) struct_declaration1)
+
+struct_default_declaring_list : type_qualifier_list attrs_opt struct_identifier_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (case happy_var_3 of (d,s) => CDecl_flat (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [(d, Nothing, s)])) type_qualifier_list1 attrs_opt1 struct_identifier_declarator1) (fn _ => withNodeInfo 0))
+                              | attrs struct_identifier_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (case happy_var_2 of (d,s) => CDecl_flat (liftCAttrs happy_var_1) [(d, Nothing, s)])) attrs1 struct_identifier_declarator1) (fn _ => withNodeInfo 0))
+                              | struct_default_declaring_list x2c attrs_opt struct_identifier_declarator ((fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => case happy_var_1 of CDecl0 (declspecs,dies,at) => case happy_var_4 of (Some d,s) => CDecl declspecs ((flat3 (Just (appendObjAttrs happy_var_3 d), Nothing, s)) :: dies) at | (None,s) => CDecl declspecs ((flat3 (Nothing, Nothing, s)) :: dies) at) struct_default_declaring_list1 attrs_opt1 struct_identifier_declarator1)
+
+struct_declaring_list : type_specifier struct_declarator attrs_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (case happy_var_2 of (Some d,s) => CDecl_flat happy_var_1 [(Just (appendObjAttrs happy_var_3 d), Nothing, s)] | (None,s) => CDecl_flat happy_var_1 [(Nothing, Nothing, s)])) type_specifier1 struct_declarator1 attrs_opt1) (fn _ => withNodeInfo 0))
+                      | struct_declaring_list x2c attrs_opt struct_declarator attrs_opt ((fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => case happy_var_1 of CDecl0 (declspecs,dies,attr) => case happy_var_4 of (Some d,s) => CDecl declspecs ((flat3 (Just (appendObjAttrs (happy_var_3 @ happy_var_5) d), Nothing, s)) :: dies) attr | (None,s) => CDecl declspecs ((flat3 (Nothing, Nothing, s)) :: dies) attr) struct_declaring_list1 attrs_opt1 struct_declarator1 attrs_opt2)
+                      | type_specifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0))
+
+struct_declarator : declarator ((fn happy_var_1 => (Just (reverseDeclr happy_var_1), Nothing)) declarator1)
+                  | x3a constant_expression ((fn happy_var_2 => (Nothing, Just happy_var_2)) constant_expression1)
+                  | declarator x3a constant_expression ((fn happy_var_1 => fn happy_var_3 => (Just (reverseDeclr happy_var_1), Just happy_var_3)) declarator1 constant_expression1)
+
+struct_identifier_declarator : identifier_declarator ((fn happy_var_1 => (Just (reverseDeclr happy_var_1), Nothing)) identifier_declarator1)
+                             | x3a constant_expression ((fn happy_var_2 => (Nothing, Just happy_var_2)) constant_expression1)
+                             | identifier_declarator x3a constant_expression ((fn happy_var_1 => fn happy_var_3 => (Just (reverseDeclr happy_var_1), Just happy_var_3)) identifier_declarator1 constant_expression1)
+                             | struct_identifier_declarator attr ((fn happy_var_1 => fn happy_var_2 => case happy_var_1 of (None,expr) => (Nothing, expr) | (Some (CDeclr0 (name,derived,asmname,attrs,node)),bsz) => (Just (CDeclr name derived asmname (attrs @ happy_var_2) node), bsz)) struct_identifier_declarator1 attr1)
+
+enum_specifier : enum attrs_opt x7b enumerator_list x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CEnum Nothing (Just (reverse happy_var_4)) happy_var_2)) enum1 attrs_opt1 enumerator_list1) (fn _ => withNodeInfo 0))
+               | enum attrs_opt x7b enumerator_list x2c x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CEnum Nothing (Just (reverse happy_var_4)) happy_var_2)) enum1 attrs_opt1 enumerator_list1) (fn _ => withNodeInfo 0))
+               | enum attrs_opt identifier x7b enumerator_list x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) enum1 attrs_opt1 identifier1 enumerator_list1) (fn _ => withNodeInfo 0))
+               | enum attrs_opt identifier x7b enumerator_list x2c x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) enum1 attrs_opt1 identifier1 enumerator_list1) (fn _ => withNodeInfo 0))
+               | enum attrs_opt identifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) Nothing happy_var_2)) enum1 attrs_opt1 identifier1) (fn _ => withNodeInfo 0))
+
+enumerator_list : enumerator ((fn happy_var_1 => singleton happy_var_1) enumerator1)
+                | enumerator_list x2c enumerator ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) enumerator_list1 enumerator1)
+
+enumerator : identifier ((fn happy_var_1 => (happy_var_1, Nothing)) identifier1)
+           | identifier attrs ((fn happy_var_1 => (happy_var_1, Nothing)) identifier1)
+           | identifier attrs x3d constant_expression ((fn happy_var_1 => fn happy_var_4 => (happy_var_1, Just happy_var_4)) identifier1 constant_expression1)
+           | identifier x3d constant_expression ((fn happy_var_1 => fn happy_var_3 => (happy_var_1, Just happy_var_3)) identifier1 constant_expression1)
+
+type_qualifier : const ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CConstQual)) const1) (fn _ => withNodeInfo 0))
+               | volatile ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVolatQual)) volatile1) (fn _ => withNodeInfo 0))
+               | restrict ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CRestrQual)) restrict1) (fn _ => withNodeInfo 0))
+               | x5f_Nullable ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNullableQual)) x5f_Nullable1) (fn _ => withNodeInfo 0))
+               | x5f_Nonnull ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNonnullQual)) x5f_Nonnull1) (fn _ => withNodeInfo 0))
+               | x5f_Atomic ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAtomicQual)) x5f_Atomic1) (fn _ => withNodeInfo 0))
+
+type_qualifier_list : attrs_opt type_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (reverseList (map CAttrQual happy_var_1)) (happy_var_2)) attrs_opt1 type_qualifier1)
+                    | type_qualifier_list type_qualifier ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) type_qualifier_list1 type_qualifier1)
+                    | type_qualifier_list attrs type_qualifier ((fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc ((rappend (happy_var_1) (map CAttrQual happy_var_2))) (happy_var_3)) type_qualifier_list1 attrs1 type_qualifier1)
+
+declarator : identifier_declarator ((fn happy_var_1 => happy_var_1) identifier_declarator1)
+           | typedef_declarator ((fn happy_var_1 => happy_var_1) typedef_declarator1)
+
+asm_opt :  (Nothing)
+        | asm x28 string_literal x29 ((fn happy_var_3 => Just happy_var_3) string_literal1)
+
+typedef_declarator : paren_typedef_declarator ((fn happy_var_1 => happy_var_1) paren_typedef_declarator1)
+                   | parameter_typedef_declarator ((fn happy_var_1 => happy_var_1) parameter_typedef_declarator1)
+
+parameter_typedef_declarator : tyident ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) tyident1) (fn _ => withNodeInfo 0))
+                             | tyident postfixing_abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => happy_var_2 (mkVarDeclr happy_var_1 at))) tyident1 postfixing_abstract_declarator1) (fn _ => withNodeInfo 0))
+                             | clean_typedef_declarator ((fn happy_var_1 => happy_var_1) clean_typedef_declarator1)
+
+clean_typedef_declarator : clean_postfix_typedef_declarator ((fn happy_var_1 => happy_var_1) clean_postfix_typedef_declarator1)
+                         | x2a parameter_typedef_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 parameter_typedef_declarator1) (fn _ => withNodeInfo 0))
+                         | x2a attrs parameter_typedef_declarator ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 parameter_typedef_declarator1) (fn _ => withAttribute 0))
+                         | x2a type_qualifier_list parameter_typedef_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 parameter_typedef_declarator1) (fn _ => withNodeInfo 0))
+                         | x2a type_qualifier_list attrs parameter_typedef_declarator ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 parameter_typedef_declarator1) (fn _ => withAttribute 0))
+
+clean_postfix_typedef_declarator : x28 clean_typedef_declarator x29 ((fn happy_var_2 => happy_var_2) clean_typedef_declarator1)
+                                 | x28 clean_typedef_declarator x29 postfixing_abstract_declarator ((fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) clean_typedef_declarator1 postfixing_abstract_declarator1)
+                                 | x28 attrs clean_typedef_declarator x29 ((fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 clean_typedef_declarator1)
+                                 | x28 attrs clean_typedef_declarator x29 postfixing_abstract_declarator ((fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 clean_typedef_declarator1 postfixing_abstract_declarator1)
+
+paren_typedef_declarator : paren_postfix_typedef_declarator ((fn happy_var_1 => happy_var_1) paren_postfix_typedef_declarator1)
+                         | x2a x28 simple_paren_typedef_declarator x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 [])) x2a1 simple_paren_typedef_declarator1) (fn _ => withNodeInfo 0))
+                         | x2a type_qualifier_list x28 simple_paren_typedef_declarator x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 simple_paren_typedef_declarator1) (fn _ => withNodeInfo 0))
+                         | x2a type_qualifier_list attrs x28 simple_paren_typedef_declarator x29 ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_5 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 simple_paren_typedef_declarator1) (fn _ => withAttribute 0))
+                         | x2a paren_typedef_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 paren_typedef_declarator1) (fn _ => withNodeInfo 0))
+                         | x2a type_qualifier_list paren_typedef_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 paren_typedef_declarator1) (fn _ => withNodeInfo 0))
+                         | x2a type_qualifier_list attrs paren_typedef_declarator ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 paren_typedef_declarator1) (fn _ => withAttribute 0))
+
+paren_postfix_typedef_declarator : x28 paren_typedef_declarator x29 ((fn happy_var_2 => happy_var_2) paren_typedef_declarator1)
+                                 | x28 simple_paren_typedef_declarator postfixing_abstract_declarator x29 ((fn happy_var_2 => fn happy_var_3 => happy_var_3 happy_var_2) simple_paren_typedef_declarator1 postfixing_abstract_declarator1)
+                                 | x28 paren_typedef_declarator x29 postfixing_abstract_declarator ((fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) paren_typedef_declarator1 postfixing_abstract_declarator1)
+
+simple_paren_typedef_declarator : tyident ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) tyident1) (fn _ => withNodeInfo 0))
+                                | x28 simple_paren_typedef_declarator x29 ((fn happy_var_2 => happy_var_2) simple_paren_typedef_declarator1)
+
+identifier_declarator : unary_identifier_declarator ((fn happy_var_1 => happy_var_1) unary_identifier_declarator1)
+                      | paren_identifier_declarator ((fn happy_var_1 => happy_var_1) paren_identifier_declarator1)
+
+unary_identifier_declarator : postfix_identifier_declarator ((fn happy_var_1 => happy_var_1) postfix_identifier_declarator1)
+                            | x2a identifier_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 identifier_declarator1) (fn _ => withNodeInfo 0))
+                            | x2a attrs identifier_declarator ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 identifier_declarator1) (fn _ => withAttribute 0))
+                            | x2a type_qualifier_list identifier_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 identifier_declarator1) (fn _ => withNodeInfo 0))
+                            | x2a type_qualifier_list attrs identifier_declarator ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 identifier_declarator1) (fn _ => withAttribute 0))
+
+postfix_identifier_declarator : paren_identifier_declarator postfixing_abstract_declarator ((fn happy_var_1 => fn happy_var_2 => happy_var_2 happy_var_1) paren_identifier_declarator1 postfixing_abstract_declarator1)
+                              | x28 unary_identifier_declarator x29 ((fn happy_var_2 => happy_var_2) unary_identifier_declarator1)
+                              | x28 unary_identifier_declarator x29 postfixing_abstract_declarator ((fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) unary_identifier_declarator1 postfixing_abstract_declarator1)
+                              | x28 attrs unary_identifier_declarator x29 ((fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 unary_identifier_declarator1)
+                              | x28 attrs unary_identifier_declarator x29 postfixing_abstract_declarator ((fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 unary_identifier_declarator1 postfixing_abstract_declarator1)
+
+paren_identifier_declarator : ident ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) ident1) (fn _ => withNodeInfo 0))
+                            | x28 paren_identifier_declarator x29 ((fn happy_var_2 => happy_var_2) paren_identifier_declarator1)
+                            | x28 attrs paren_identifier_declarator x29 ((fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 paren_identifier_declarator1)
+
+function_declarator_old : old_function_declarator ((fn happy_var_1 => reverseDeclr happy_var_1) old_function_declarator1)
+
+old_function_declarator : postfix_old_function_declarator ((fn happy_var_1 => happy_var_1) postfix_old_function_declarator1)
+                        | x2a old_function_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 old_function_declarator1) (fn _ => withNodeInfo 0))
+                        | x2a type_qualifier_list old_function_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 old_function_declarator1) (fn _ => withNodeInfo 0))
+
+postfix_old_function_declarator : paren_identifier_declarator x28 identifier_list x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (funDeclr happy_var_1 (Left (reverse happy_var_3)) [])) paren_identifier_declarator1 identifier_list1) (fn _ => withNodeInfo 0))
+                                | x28 old_function_declarator x29 ((fn happy_var_2 => happy_var_2) old_function_declarator1)
+                                | x28 old_function_declarator x29 postfixing_abstract_declarator ((fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) old_function_declarator1 postfixing_abstract_declarator1)
+
+parameter_type_list :  (([], False))
+                    | parameter_list ((fn happy_var_1 => (reverse happy_var_1, False)) parameter_list1)
+                    | parameter_list x2c x2e_x2e_x2e ((fn happy_var_1 => (reverse happy_var_1, True)) parameter_list1)
+
+parameter_list : parameter_declaration ((fn happy_var_1 => singleton happy_var_1) parameter_declaration1)
+               | parameter_list x2c parameter_declaration ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) parameter_list1 parameter_declaration1)
+
+parameter_declaration : declaration_specifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) declaration_specifier1) (fn _ => withNodeInfo 0))
+                      | declaration_specifier abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) declaration_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0))
+                      | declaration_specifier identifier_declarator attrs_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_specifier1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0))
+                      | declaration_specifier parameter_typedef_declarator attrs_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_specifier1 parameter_typedef_declarator1 attrs_opt1) (fn _ => withNodeInfo 0))
+                      | declaration_qualifier_list ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) declaration_qualifier_list1) (fn _ => withNodeInfo 0))
+                      | declaration_qualifier_list abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (reverse happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) declaration_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0))
+                      | declaration_qualifier_list identifier_declarator attrs_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat (reverse happy_var_1) [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_qualifier_list1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0))
+                      | type_specifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0))
+                      | type_specifier abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0))
+                      | type_specifier identifier_declarator attrs_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_specifier1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0))
+                      | type_specifier parameter_typedef_declarator attrs_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_specifier1 parameter_typedef_declarator1 attrs_opt1) (fn _ => withNodeInfo 0))
+                      | type_qualifier_list ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1) [])) type_qualifier_list1) (fn _ => withNodeInfo 0))
+                      | type_qualifier_list attr ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [])) type_qualifier_list1 attr1) (fn _ => withNodeInfo 0))
+                      | type_qualifier_list abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0))
+                      | type_qualifier_list identifier_declarator attrs_opt ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_qualifier_list1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0))
+
+identifier_list : ident ((fn happy_var_1 => singleton happy_var_1) ident1)
+                | identifier_list x2c ident ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) identifier_list1 ident1)
+
+type_name : type_specifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0))
+          | type_specifier abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0))
+          | type_qualifier_list attr ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [])) type_qualifier_list1 attr1) (fn _ => withNodeInfo 0))
+          | type_qualifier_list abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0))
+
+abstract_declarator : unary_abstract_declarator ((fn happy_var_1 => happy_var_1) unary_abstract_declarator1)
+                    | postfix_abstract_declarator ((fn happy_var_1 => happy_var_1) postfix_abstract_declarator1)
+                    | postfixing_abstract_declarator ((fn happy_var_1 => happy_var_1 emptyDeclr) postfixing_abstract_declarator1)
+
+postfixing_abstract_declarator : array_abstract_declarator ((fn happy_var_1 => happy_var_1) array_abstract_declarator1)
+                               | x28 parameter_type_list x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => fn declr => case happy_var_2 of (params,variadic) => funDeclr declr (Right (params, variadic)) [] at)) x281 parameter_type_list1) (fn _ => withNodeInfo 0))
+
+array_abstract_declarator : postfix_array_abstract_declarator ((fn happy_var_1 => happy_var_1) postfix_array_abstract_declarator1)
+                          | array_abstract_declarator postfix_array_abstract_declarator ((fn happy_var_1 => fn happy_var_2 => fn decl => happy_var_2 (happy_var_1 decl)) array_abstract_declarator1 postfix_array_abstract_declarator1)
+
+postfix_array_abstract_declarator : x5b assignment_expression_opt x5d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => fn declr => arrDeclr declr [] False False happy_var_2 at)) x5b1 assignment_expression_opt1) (fn _ => withNodeInfo 0))
+                                  | x5b attrs assignment_expression_opt x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttributePF happy_var_1 happy_var_2 (fn at => fn declr => arrDeclr declr [] False False happy_var_3 at)) x5b1 attrs1 assignment_expression_opt1) (fn _ => withAttributePF 0))
+                                  | x5b type_qualifier_list assignment_expression_opt x5d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False False happy_var_3 at)) x5b1 type_qualifier_list1 assignment_expression_opt1) (fn _ => withNodeInfo 0))
+                                  | x5b type_qualifier_list attrs assignment_expression_opt x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False False happy_var_4 at)) x5b1 type_qualifier_list1 attrs1 assignment_expression_opt1) (fn _ => withAttributePF 0))
+                                  | x5b static attrs_opt assignment_expression x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr [] False True (Just happy_var_4) at)) x5b1 attrs_opt1 assignment_expression1) (fn _ => withAttributePF 0))
+                                  | x5b static type_qualifier_list attrs_opt assignment_expression x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => withAttributePF happy_var_1 happy_var_4 (fn at => fn declr => arrDeclr declr (reverse happy_var_3) False True (Just happy_var_5) at)) x5b1 type_qualifier_list1 attrs_opt1 assignment_expression1) (fn _ => withAttributePF 0))
+                                  | x5b type_qualifier_list attrs_opt static attrs_opt assignment_expression x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => fn happy_var_6 => withAttributePF happy_var_1 (happy_var_3 @ happy_var_5) (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False True (Just happy_var_6) at)) x5b1 type_qualifier_list1 attrs_opt1 attrs_opt2 assignment_expression1) (fn _ => withAttributePF 0))
+                                  | x5b x2a attrs_opt x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr [] True False Nothing at)) x5b1 attrs_opt1) (fn _ => withAttributePF 0))
+                                  | x5b attrs x2a attrs_opt x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withAttributePF happy_var_1 (happy_var_2 @ happy_var_4) (fn at => fn declr => arrDeclr declr [] True False Nothing at)) x5b1 attrs1 attrs_opt1) (fn _ => withAttributePF 0))
+                                  | x5b type_qualifier_list x2a attrs_opt x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_4 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) True False Nothing at)) x5b1 type_qualifier_list1 attrs_opt1) (fn _ => withAttributePF 0))
+                                  | x5b type_qualifier_list attrs x2a attrs_opt x5d ((*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withAttributePF happy_var_1 (happy_var_3 @ happy_var_5) (fn at => fn declr => arrDeclr declr (reverse happy_var_2) True False Nothing at)) x5b1 type_qualifier_list1 attrs1 attrs_opt1) (fn _ => withAttributePF 0))
+
+unary_abstract_declarator : x2a ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (ptrDeclr emptyDeclr [])) x2a1) (fn _ => withNodeInfo 0))
+                          | x2a type_qualifier_list attrs_opt ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_3 (ptrDeclr emptyDeclr (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs_opt1) (fn _ => withAttribute 0))
+                          | x2a abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 abstract_declarator1) (fn _ => withNodeInfo 0))
+                          | x2a type_qualifier_list abstract_declarator ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0))
+                          | x2a attrs ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => withAttribute happy_var_1 happy_var_2 (ptrDeclr emptyDeclr [])) x2a1 attrs1) (fn _ => withAttribute 0))
+                          | x2a attrs abstract_declarator ((*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 abstract_declarator1) (fn _ => withAttribute 0))
+
+postfix_abstract_declarator : x28 unary_abstract_declarator x29 ((fn happy_var_2 => happy_var_2) unary_abstract_declarator1)
+                            | x28 postfix_abstract_declarator x29 ((fn happy_var_2 => happy_var_2) postfix_abstract_declarator1)
+                            | x28 postfixing_abstract_declarator x29 ((fn happy_var_2 => happy_var_2 emptyDeclr) postfixing_abstract_declarator1)
+                            | x28 unary_abstract_declarator x29 postfixing_abstract_declarator ((fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) unary_abstract_declarator1 postfixing_abstract_declarator1)
+                            | x28 attrs unary_abstract_declarator x29 ((fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 unary_abstract_declarator1)
+                            | x28 attrs postfix_abstract_declarator x29 ((fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 postfix_abstract_declarator1)
+                            | x28 attrs postfixing_abstract_declarator x29 ((fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 (happy_var_3 emptyDeclr)) attrs1 postfixing_abstract_declarator1)
+                            | x28 attrs unary_abstract_declarator x29 postfixing_abstract_declarator ((fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 unary_abstract_declarator1 postfixing_abstract_declarator1)
+                            | postfix_abstract_declarator attr ((fn happy_var_1 => fn happy_var_2 => appendDeclrAttrs happy_var_2 happy_var_1) postfix_abstract_declarator1 attr1)
+
+initializer : assignment_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInitExpr happy_var_1)) assignment_expression1) (fn _ => withNodeInfo 0))
+            | x7b initializer_list x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CInitList (reverse happy_var_2))) x7b1 initializer_list1) (fn _ => withNodeInfo 0))
+            | x7b initializer_list x2c x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CInitList (reverse happy_var_2))) x7b1 initializer_list1) (fn _ => withNodeInfo 0))
+
+initializer_opt :  (Nothing)
+                | x3d initializer ((fn happy_var_2 => Just happy_var_2) initializer1)
+
+initializer_list :  (empty)
+                 | initializer ((fn happy_var_1 => singleton ([], happy_var_1)) initializer1)
+                 | designation initializer ((fn happy_var_1 => fn happy_var_2 => singleton (happy_var_1, happy_var_2)) designation1 initializer1)
+                 | initializer_list x2c initializer ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (([], happy_var_3))) initializer_list1 initializer1)
+                 | initializer_list x2c designation initializer ((fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => snoc (happy_var_1) ((happy_var_3, happy_var_4))) initializer_list1 designation1 initializer1)
+
+designation : designator_list x3d ((fn happy_var_1 => reverse happy_var_1) designator_list1)
+            | identifier x3a ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (fn at => [CMemberDesig happy_var_1 at])) identifier1) (fn _ => withNodeInfo 0))
+            | array_designator ((fn happy_var_1 => [happy_var_1]) array_designator1)
+
+designator_list : designator ((fn happy_var_1 => singleton happy_var_1) designator1)
+                | designator_list designator ((fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) designator_list1 designator1)
+
+designator : x5b constant_expression x5d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CArrDesig happy_var_2)) x5b1 constant_expression1) (fn _ => withNodeInfo 0))
+           | x2e identifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CMemberDesig happy_var_2)) x2e1 identifier1) (fn _ => withNodeInfo 0))
+           | array_designator ((fn happy_var_1 => happy_var_1) array_designator1)
+
+array_designator : x5b constant_expression x2e_x2e_x2e constant_expression x5d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CRangeDesig happy_var_2 happy_var_4)) x5b1 constant_expression1 constant_expression2) (fn _ => withNodeInfo 0))
+
+primary_expression : ident ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVar happy_var_1)) ident1) (fn _ => withNodeInfo 0))
+                   | constant ((fn happy_var_1 => CConst happy_var_1) constant1)
+                   | string_literal ((fn happy_var_1 => CConst (liftStrLit happy_var_1)) string_literal1)
+                   | x28 expression x29 ((fn happy_var_2 => happy_var_2) expression1)
+                   | x5f_Generic x28 assignment_expression x2c generic_assoc_list x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CGenericSelection happy_var_3 (reverse happy_var_5))) x5f_Generic1 assignment_expression1 generic_assoc_list1) (fn _ => withNodeInfo 0))
+                   | x28 compound_statement x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CStatExpr happy_var_2)) x281 compound_statement1) (fn _ => withNodeInfo 0))
+                   | x5f_x5f_builtin_va_arg x28 assignment_expression x2c type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinVaArg happy_var_3 happy_var_5)) x5f_x5f_builtin_va_arg1 assignment_expression1 type_name1) (fn _ => withNodeInfo 0))
+                   | x5f_x5f_builtin_offsetof x28 type_name x2c offsetof_member_designator x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinOffsetOf happy_var_3 (reverse happy_var_5))) x5f_x5f_builtin_offsetof1 type_name1 offsetof_member_designator1) (fn _ => withNodeInfo 0))
+                   | x5f_x5f_builtin_types_compatible_p x28 type_name x2c type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinTypesCompatible happy_var_3 happy_var_5)) x5f_x5f_builtin_types_compatible_p1 type_name1 type_name2) (fn _ => withNodeInfo 0))
+
+generic_assoc_list : generic_assoc_list x2c generic_assoc ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) generic_assoc_list1 generic_assoc1)
+                   | generic_assoc ((fn happy_var_1 => singleton happy_var_1) generic_assoc1)
+
+generic_assoc : type_name x3a assignment_expression ((fn happy_var_1 => fn happy_var_3 => (Just happy_var_1, happy_var_3)) type_name1 assignment_expression1)
+              | default x3a assignment_expression ((fn happy_var_3 => (Nothing, happy_var_3)) assignment_expression1)
+
+offsetof_member_designator : identifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (singleton o CMemberDesig happy_var_1)) identifier1) (fn _ => withNodeInfo 0))
+                           | offsetof_member_designator x2e identifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_3 (snoc happy_var_1 o CMemberDesig happy_var_3)) offsetof_member_designator1 identifier1) (fn _ => withNodeInfo 2))
+                           | offsetof_member_designator x5b expression x5d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_3 (snoc happy_var_1 o CArrDesig happy_var_3)) offsetof_member_designator1 expression1) (fn _ => withNodeInfo 2))
+
+postfix_expression : primary_expression ((fn happy_var_1 => happy_var_1) primary_expression1)
+                   | postfix_expression x5b expression x5d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CIndex happy_var_1 happy_var_3)) postfix_expression1 expression1) (fn _ => withNodeInfo 0))
+                   | postfix_expression x28 x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCall happy_var_1 [])) postfix_expression1) (fn _ => withNodeInfo 0))
+                   | postfix_expression x28 argument_expression_list x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CCall happy_var_1 (reverse happy_var_3))) postfix_expression1 argument_expression_list1) (fn _ => withNodeInfo 0))
+                   | postfix_expression x2e identifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CMember happy_var_1 happy_var_3 False)) postfix_expression1 identifier1) (fn _ => withNodeInfo 0))
+                   | postfix_expression x2d_x3e identifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CMember happy_var_1 happy_var_3 True)) postfix_expression1 identifier1) (fn _ => withNodeInfo 0))
+                   | postfix_expression x2b_x2b ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnary CPostIncOp happy_var_1)) postfix_expression1) (fn _ => withNodeInfo 0))
+                   | postfix_expression x2d_x2d ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnary CPostDecOp happy_var_1)) postfix_expression1) (fn _ => withNodeInfo 0))
+                   | x28 type_name x29 x7b initializer_list x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CCompoundLit happy_var_2 (reverse happy_var_5))) x281 type_name1 initializer_list1) (fn _ => withNodeInfo 0))
+                   | x28 type_name x29 x7b initializer_list x2c x7d ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CCompoundLit happy_var_2 (reverse happy_var_5))) x281 type_name1 initializer_list1) (fn _ => withNodeInfo 0))
+
+argument_expression_list : assignment_expression ((fn happy_var_1 => singleton happy_var_1) assignment_expression1)
+                         | argument_expression_list x2c assignment_expression ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) argument_expression_list1 assignment_expression1)
+
+unary_expression : postfix_expression ((fn happy_var_1 => happy_var_1) postfix_expression1)
+                 | x2b_x2b unary_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary CPreIncOp happy_var_2)) x2b_x2b1 unary_expression1) (fn _ => withNodeInfo 0))
+                 | x2d_x2d unary_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary CPreDecOp happy_var_2)) x2d_x2d1 unary_expression1) (fn _ => withNodeInfo 0))
+                 | x5f_x5f_extension_x5f_x5f cast_expression ((fn happy_var_2 => happy_var_2) cast_expression1)
+                 | unary_operator cast_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary (unL happy_var_1) happy_var_2)) unary_operator1 cast_expression1) (fn _ => withNodeInfo 0))
+                 | sizeof unary_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CSizeofExpr happy_var_2)) sizeof1 unary_expression1) (fn _ => withNodeInfo 0))
+                 | sizeof x28 type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CSizeofType happy_var_3)) sizeof1 type_name1) (fn _ => withNodeInfo 0))
+                 | alignof unary_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CAlignofExpr happy_var_2)) alignof1 unary_expression1) (fn _ => withNodeInfo 0))
+                 | alignof x28 type_name x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignofType happy_var_3)) alignof1 type_name1) (fn _ => withNodeInfo 0))
+                 | x5f_x5f_real_x5f_x5f unary_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CComplexReal happy_var_2)) x5f_x5f_real_x5f_x5f1 unary_expression1) (fn _ => withNodeInfo 0))
+                 | x5f_x5f_imag_x5f_x5f unary_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CComplexImag happy_var_2)) x5f_x5f_imag_x5f_x5f1 unary_expression1) (fn _ => withNodeInfo 0))
+                 | x26_x26 identifier ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CLabAddrExpr happy_var_2)) x26_x261 identifier1) (fn _ => withNodeInfo 0))
+
+unary_operator : x26 ((*%*)(fn L => (fn happy_var_1 => L CAdrOp (posOf happy_var_1)) x261) (fn x => fn _ => L x 0))
+               | x2a ((*%*)(fn L => (fn happy_var_1 => L CIndOp (posOf happy_var_1)) x2a1) (fn x => fn _ => L x 0))
+               | x2b ((*%*)(fn L => (fn happy_var_1 => L CPlusOp (posOf happy_var_1)) x2b1) (fn x => fn _ => L x 0))
+               | x2d ((*%*)(fn L => (fn happy_var_1 => L CMinOp (posOf happy_var_1)) x2d1) (fn x => fn _ => L x 0))
+               | x7e ((*%*)(fn L => (fn happy_var_1 => L CCompOp (posOf happy_var_1)) x7e1) (fn x => fn _ => L x 0))
+               | x21 ((*%*)(fn L => (fn happy_var_1 => L CNegOp (posOf happy_var_1)) x211) (fn x => fn _ => L x 0))
+
+cast_expression : unary_expression ((fn happy_var_1 => happy_var_1) unary_expression1)
+                | x28 type_name x29 cast_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CCast happy_var_2 happy_var_4)) x281 type_name1 cast_expression1) (fn _ => withNodeInfo 0))
+
+multiplicative_expression : cast_expression ((fn happy_var_1 => happy_var_1) cast_expression1)
+                          | multiplicative_expression x2a cast_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CMulOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0))
+                          | multiplicative_expression x2f cast_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CDivOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0))
+                          | multiplicative_expression x25 cast_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CRmdOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0))
+
+additive_expression : multiplicative_expression ((fn happy_var_1 => happy_var_1) multiplicative_expression1)
+                    | additive_expression x2b multiplicative_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CAddOp happy_var_1 happy_var_3)) additive_expression1 multiplicative_expression1) (fn _ => withNodeInfo 0))
+                    | additive_expression x2d multiplicative_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CSubOp happy_var_1 happy_var_3)) additive_expression1 multiplicative_expression1) (fn _ => withNodeInfo 0))
+
+shift_expression : additive_expression ((fn happy_var_1 => happy_var_1) additive_expression1)
+                 | shift_expression x3c_x3c additive_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CShlOp happy_var_1 happy_var_3)) shift_expression1 additive_expression1) (fn _ => withNodeInfo 0))
+                 | shift_expression x3e_x3e additive_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CShrOp happy_var_1 happy_var_3)) shift_expression1 additive_expression1) (fn _ => withNodeInfo 0))
+
+relational_expression : shift_expression ((fn happy_var_1 => happy_var_1) shift_expression1)
+                      | relational_expression x3c shift_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLeOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0))
+                      | relational_expression x3e shift_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CGrOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0))
+                      | relational_expression x3c_x3d shift_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLeqOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0))
+                      | relational_expression x3e_x3d shift_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CGeqOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0))
+
+equality_expression : relational_expression ((fn happy_var_1 => happy_var_1) relational_expression1)
+                    | equality_expression x3d_x3d relational_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CEqOp happy_var_1 happy_var_3)) equality_expression1 relational_expression1) (fn _ => withNodeInfo 0))
+                    | equality_expression x21_x3d relational_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CNeqOp happy_var_1 happy_var_3)) equality_expression1 relational_expression1) (fn _ => withNodeInfo 0))
+
+and_expression : equality_expression ((fn happy_var_1 => happy_var_1) equality_expression1)
+               | and_expression x26 equality_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CAndOp happy_var_1 happy_var_3)) and_expression1 equality_expression1) (fn _ => withNodeInfo 0))
+
+exclusive_or_expression : and_expression ((fn happy_var_1 => happy_var_1) and_expression1)
+                        | exclusive_or_expression x5e and_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CXorOp happy_var_1 happy_var_3)) exclusive_or_expression1 and_expression1) (fn _ => withNodeInfo 0))
+
+inclusive_or_expression : exclusive_or_expression ((fn happy_var_1 => happy_var_1) exclusive_or_expression1)
+                        | inclusive_or_expression x7c exclusive_or_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary COrOp happy_var_1 happy_var_3)) inclusive_or_expression1 exclusive_or_expression1) (fn _ => withNodeInfo 0))
+
+logical_and_expression : inclusive_or_expression ((fn happy_var_1 => happy_var_1) inclusive_or_expression1)
+                       | logical_and_expression x26_x26 inclusive_or_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLndOp happy_var_1 happy_var_3)) logical_and_expression1 inclusive_or_expression1) (fn _ => withNodeInfo 0))
+
+logical_or_expression : logical_and_expression ((fn happy_var_1 => happy_var_1) logical_and_expression1)
+                      | logical_or_expression x7c_x7c logical_and_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLorOp happy_var_1 happy_var_3)) logical_or_expression1 logical_and_expression1) (fn _ => withNodeInfo 0))
+
+conditional_expression : logical_or_expression ((fn happy_var_1 => happy_var_1) logical_or_expression1)
+                       | logical_or_expression x3f expression x3a conditional_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CCond happy_var_1 (Just happy_var_3) happy_var_5)) logical_or_expression1 expression1 conditional_expression1) (fn _ => withNodeInfo 0))
+                       | logical_or_expression x3f x3a conditional_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => withNodeInfo happy_var_1 (CCond happy_var_1 Nothing happy_var_4)) logical_or_expression1 conditional_expression1) (fn _ => withNodeInfo 0))
+
+assignment_expression : conditional_expression ((fn happy_var_1 => happy_var_1) conditional_expression1)
+                      | unary_expression assignment_operator assignment_expression ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CAssign (unL happy_var_2) happy_var_1 happy_var_3)) unary_expression1 assignment_operator1 assignment_expression1) (fn _ => withNodeInfo 0))
+
+assignment_operator : x3d ((*%*)(fn L => (fn happy_var_1 => L CAssignOp (posOf happy_var_1)) x3d1) (fn x => fn _ => L x 0))
+                    | x2a_x3d ((*%*)(fn L => (fn happy_var_1 => L CMulAssOp (posOf happy_var_1)) x2a_x3d1) (fn x => fn _ => L x 0))
+                    | x2f_x3d ((*%*)(fn L => (fn happy_var_1 => L CDivAssOp (posOf happy_var_1)) x2f_x3d1) (fn x => fn _ => L x 0))
+                    | x25_x3d ((*%*)(fn L => (fn happy_var_1 => L CRmdAssOp (posOf happy_var_1)) x25_x3d1) (fn x => fn _ => L x 0))
+                    | x2b_x3d ((*%*)(fn L => (fn happy_var_1 => L CAddAssOp (posOf happy_var_1)) x2b_x3d1) (fn x => fn _ => L x 0))
+                    | x2d_x3d ((*%*)(fn L => (fn happy_var_1 => L CSubAssOp (posOf happy_var_1)) x2d_x3d1) (fn x => fn _ => L x 0))
+                    | x3c_x3c_x3d ((*%*)(fn L => (fn happy_var_1 => L CShlAssOp (posOf happy_var_1)) x3c_x3c_x3d1) (fn x => fn _ => L x 0))
+                    | x3e_x3e_x3d ((*%*)(fn L => (fn happy_var_1 => L CShrAssOp (posOf happy_var_1)) x3e_x3e_x3d1) (fn x => fn _ => L x 0))
+                    | x26_x3d ((*%*)(fn L => (fn happy_var_1 => L CAndAssOp (posOf happy_var_1)) x26_x3d1) (fn x => fn _ => L x 0))
+                    | x5e_x3d ((*%*)(fn L => (fn happy_var_1 => L CXorAssOp (posOf happy_var_1)) x5e_x3d1) (fn x => fn _ => L x 0))
+                    | x7c_x3d ((*%*)(fn L => (fn happy_var_1 => L COrAssOp (posOf happy_var_1)) x7c_x3d1) (fn x => fn _ => L x 0))
+
+expression : assignment_expression ((fn happy_var_1 => happy_var_1) assignment_expression1)
+           | assignment_expression x2c comma_expression ((*%*)(fn happy_var_1 => fn happy_var_3 => let val es = reverse happy_var_3 in withNodeInfo_CExpr es (CComma (happy_var_1 :: es)) end) assignment_expression1 comma_expression1)
+
+comma_expression : assignment_expression ((fn happy_var_1 => singleton happy_var_1) assignment_expression1)
+                 | comma_expression x2c assignment_expression ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) comma_expression1 assignment_expression1)
+
+expression_opt :  (Nothing)
+               | expression ((fn happy_var_1 => Just happy_var_1) expression1)
+
+assignment_expression_opt :  (Nothing)
+                          | assignment_expression ((fn happy_var_1 => Just happy_var_1) assignment_expression1)
+
+constant_expression : conditional_expression ((fn happy_var_1 => happy_var_1) conditional_expression1)
+
+constant : cint ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokILit happy_var_1 (fn i => CIntConst i))) cint1) (fn _ => withNodeInfo 0))
+         | cchar ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokCLit happy_var_1 (fn c => CCharConst c))) cchar1) (fn _ => withNodeInfo 0))
+         | cfloat ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokFLit happy_var_1 (fn f => CFloatConst f))) cfloat1) (fn _ => withNodeInfo 0))
+
+string_literal : cstr ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokSLit happy_var_1 (fn s => CStrLit s))) cstr1) (fn _ => withNodeInfo 0))
+               | cstr string_literal_list ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CTokSLit happy_var_1 (fn s => CStrLit (concatCStrings (s :: reverse happy_var_2))))) cstr1 string_literal_list1) (fn _ => withNodeInfo 0))
+
+string_literal_list : cstr ((fn happy_var_1 => CTokSLit happy_var_1 (fn s => singleton s)) cstr1)
+                    | string_literal_list cstr ((fn happy_var_1 => fn happy_var_2 => CTokSLit happy_var_2 (fn s => snoc (happy_var_1) (s))) string_literal_list1 cstr1)
+
+clang_version_literal : clangcversion ((fn happy_var_1 => happy_var_1) clangcversion1)
+
+identifier : ident ((fn happy_var_1 => happy_var_1) ident1)
+           | tyident ((fn happy_var_1 => happy_var_1) tyident1)
+
+attrs_opt :  ([])
+          | attrs ((fn happy_var_1 => happy_var_1) attrs1)
+
+attrs : attr ((fn happy_var_1 => happy_var_1) attr1)
+      | attrs attr ((fn happy_var_1 => fn happy_var_2 => happy_var_1 @ happy_var_2) attrs1 attr1)
+
+attr : x5f_x5f_attribute_x5f_x5f x28 x28 attribute_list x29 x29 ((fn happy_var_4 => reverse happy_var_4) attribute_list1)
+
+attribute_list : attribute ((fn happy_var_1 => case happy_var_1 of None => empty | Some attr => singleton attr) attribute1)
+               | attribute_list x2c attribute ((fn happy_var_1 => fn happy_var_3 => (maybe id (flip snoc) happy_var_3) happy_var_1) attribute_list1 attribute1)
+
+attribute :  (Nothing)
+          | ident ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 [])) ident1) (fn _ => withNodeInfo 0))
+          | const ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr (internalIdent "const") [])) const1) (fn _ => withNodeInfo 0))
+          | ident x28 attribute_params x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 (reverse happy_var_3))) ident1 attribute_params1) (fn _ => withNodeInfo 0))
+          | ident x28 x29 ((*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 [])) ident1) (fn _ => withNodeInfo 0))
+
+attribute_params : constant_expression ((fn happy_var_1 => singleton happy_var_1) constant_expression1)
+                 | unary_expression assignment_operator clang_version_literal (Reversed [])
+                 | unary_expression assignment_operator unary_expression (Reversed [])
+                 | attribute_params x2c constant_expression ((fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) attribute_params1 constant_expression1)
+                 | attribute_params x2c unary_expression assignment_operator unary_expression ((fn happy_var_1 => happy_var_1) attribute_params1)
+                 | attribute_params x2c unary_expression assignment_operator clang_version_literal ((fn happy_var_1 => happy_var_1) attribute_params1)
+
+

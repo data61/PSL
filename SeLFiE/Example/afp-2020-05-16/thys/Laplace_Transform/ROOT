@@ -1,0 +1,8 @@
+chapter AFP
+session "Laplace_Transform" (AFP) = "HOL-Analysis" +
+  options [timeout = 300]
+  theories
+    Laplace_Transform
+  document_files
+    "root.bib"
+    "root.tex"

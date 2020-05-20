@@ -1,0 +1,61 @@
+
+\documentclass[fleqn]{llncs}
+
+\usepackage[english]{babel}
+\usepackage{isabelle}
+\usepackage{isabellesym}
+\usepackage{haftmann}
+\usepackage{stmaryrd}
+\usepackage{tabularx}
+\usepackage{amssymb,amsmath}
+
+
+%% format
+
+\pagestyle{plain}
+\isabellestyle{it}
+\renewcommand{\isastyle}{\isastyleminor} % for uniform font size
+
+
+%% style
+
+% pipe bar with same width as space
+\renewcommand{\isacharbar}{\isamath{\mid}\hspace{0.079em}}
+
+\renewcommand{\isamarkupsubsubsection}[1]{\subsubsection{#1} ~ \\ \par }
+
+
+%% hyphenation
+
+\hyphenation{Isabelle}
+
+
+%% document infos
+
+\title{Verification of Functional Binomial Queues}
+
+\author{Ren\'{e} Neumann}
+\institute{Technische Universit\"at M\"unchen, Institut f\"ur Informatik \\
+  \url{http://www.in.tum.de/~neumannr/}}
+
+
+%% document
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Priority queues are an important data structure and efficient implementations of them are crucial.  We implement a functional variant of binomial queues in Isabelle/HOL and show its functional correctness.  A verification against an abstract reference specification of priority queues has also been attempted, but could not be achieved to the full extent.
+\end{abstract}
+
+\vspace*{1ex}
+
+\input{session}
+
+\vspace*{-3ex}
+
+\bibliographystyle{spmpsci}
+\bibliography{root}
+
+\end{document}

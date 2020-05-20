@@ -1,0 +1,41 @@
+chapter AFP
+
+session Auto2_Imperative_HOL (AFP) = Auto2_HOL +
+  description \<open>
+    Application of auto2 to verify functional and imperative programs.
+  \<close>
+  options [timeout = 2100]
+  sessions
+    "HOL-Library"
+    "HOL-Imperative_HOL"
+  directories
+    "Functional"
+    "Imperative"
+  theories
+    (* Functional programs *)
+    "Functional/BST"
+    "Functional/Lists_Ex"
+    "Functional/Connectivity"
+    "Functional/Dijkstra"
+    "Functional/Interval_Tree"
+    "Functional/Quicksort"
+    "Functional/Indexed_PQueue"
+    "Functional/RBTree"
+    "Functional/Rect_Intersect"
+
+    (* Imperative programs *)
+    "Imperative/GCD_Impl"
+    "Imperative/LinkedList"
+    "Imperative/BST_Impl"
+    "Imperative/RBTree_Impl"
+    "Imperative/Quicksort_Impl"
+    "Imperative/Connectivity_Impl"
+    "Imperative/Dijkstra_Impl"
+    "Imperative/Rect_Intersect_Impl"
+
+  theories [document = false]
+    "Imperative/Sep_Examples"
+
+  document_files
+    "root.tex"
+    "root.bib"

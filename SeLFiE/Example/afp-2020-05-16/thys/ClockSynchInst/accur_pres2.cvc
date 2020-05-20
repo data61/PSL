@@ -1,0 +1,55 @@
+% Version removing de universal quantification over C
+% It work :)
+
+SETPROC : TYPE;
+PROC : TYPE;
+
+np, khl: INT;
+maxreduc: (PROC -> REAL, SETPROC) -> REAL;
+minreduc: (PROC -> REAL, SETPROC) -> REAL;
+
+y : REAL;
+
+f : PROC -> REAL;
+g : PROC -> REAL;
+q : PROC;
+
+PR, C : SETPROC;
+
+card : SETPROC -> INT;
+INCL : (SETPROC,SETPROC) -> BOOLEAN;
+INSET : (PROC, SETPROC) -> BOOLEAN;
+
+abs: REAL -> REAL = LAMBDA (x:REAL): IF x>=0 THEN x ELSE (-x) ENDIF;
+
+constants_ax: BOOLEAN = 2*khl < np AND khl >= 0;
+
+min_le_max : BOOLEAN = minreduc( f, PR) <= maxreduc( f, PR);
+
+uboundmaxf: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl
+      => EXISTS (i:PROC): INSET(i,C)  AND maxreduc( f, PR) <= f(i);
+
+lboundminf: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl
+               => EXISTS (i:PROC): INSET(i,C)  AND minreduc( f, PR) >= f(i);
+
+hC : BOOLEAN = INCL(C,PR);
+hnp : BOOLEAN = np <= card(C) + khl;
+hqC : BOOLEAN = INSET(q,C);
+
+hby : BOOLEAN = FORALL (l:PROC): INSET(l,C) => 
+                   FORALL (m:PROC): INSET(m,C) => abs(f(l) - f(m)) <= y;
+
+
+ASSERT(hC AND hnp AND hqC AND min_le_max AND
+	uboundmaxf AND 
+	lboundminf AND 
+        hby);
+
+
+QUERY( abs(maxreduc(f,PR) + minreduc(f,PR) 
+            - 2 * f(q)) <= 
+                     2 * y ); 
+
+DUMP_PROOF; % 2285 lines

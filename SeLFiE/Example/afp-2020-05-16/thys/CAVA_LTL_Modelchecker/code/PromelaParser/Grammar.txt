@@ -1,0 +1,237 @@
+------------------------------------------------------------------------
+-- 
+-- Module: PromelaParser.Grammar
+-- Author: Dennis Kraft
+--
+-- documentation of the grammar used by the parser
+--
+-- the grammar is a based on http://spinroot.com/spin/Man/grammar.html
+-- and has been modified with respect to operator precedence, 
+-- left recursion and 1 lookahead
+-- 
+------------------------------------------------------------------------
+
+
+program: module [ ';' ] [ module [ ';' ] ] *
+
+
+-- Various -------------------------------------------------------------
+
+
+varRef: identifier [ '[' expr ']' ] [ '.' varRef ]
+
+recvArg: varRef
+   | 'eval' '(' varRef ')'
+   | [ '-' ] constant
+
+recvArgs: recvArg ( [ ',' recvArg ] * | '(' recvArg [ ',' recvArg ] * ')' )
+
+sendArgs: expr ( [ ',' expr ] * | '(' expr [ ',' expr ] * ')' )
+
+opts: '::' seq [ '::' seq ] *
+
+seq: step [ ( ';' , '->' ) step ] * [ ';' ]
+
+-- note: stmntSRALE is only executed if "[ 'hidden' | 'show' ]" is empty
+step : [ 'hidden' | 'show' ] ( decl 
+      | identifier ( udecl | stmntSendRecvAssignExpr [ 'unless' stmnt ] ) )
+   | stmnt [ 'unless' stmnt ]
+   | 'xr' varRef [ ',' varRef ] *
+   | 'xr' varRef [ ',' varRef ] *
+
+decl: intTypename intDecl [ ',' intDecl ] *
+   | 'chan' chanDecl [ ',' chanDecl ] *
+   | 'unsigned' unsignedDecl [ ',' unsignedDecl ] *
+   | 'mtype' mtypeDecl [ ',' mtypeDecl ] *
+
+udecl: intDecl [ ',' intDecl ] *
+
+intDecl: identifier [ '[' constant ']' ] [ '=' expr ]
+
+chanDecl: identifier [ '[' constant ']' ] 
+   [ '=' '[' constant ']' 'of' '{' typename [ ',' typename ] * '}' ]
+
+unsignedDecl: identifier ':' constant [ '=' expr ]
+
+mtypeDecl: identifier [ '[' constant ']' ] [ '=' identifier ]
+
+range: varRef ( ':' expr '..' expr | 'in' varRef )
+
+priority: 'priority' constant
+
+
+-- Module --------------------------------------------------------------
+
+
+module: [ 'active' [ '[' constant ']' ] ] ( proctype | dproctype )
+   | 'init' [ priority ] '{' seq '}'
+   | 'never' '{' seq '}'
+   | 'trace' '{' seq '}'
+   | 'notrace' '{' seq '}'
+   | 'typedef' name '{' decls '}'
+   | 'mtype' ([ '=' ] '{' identifier [ ',' identifier ] * '}' | mtypeDecl)
+   | moduDecl
+
+proctype: 'proctype' identifier '(' [ decls ] ')' [ priority ] 
+   [ provided '(' expr ')' ] '{' seq '}'
+
+dproctype: 'D_proctype' identifier '(' [ decls ] ')' [ priority ] 
+   [ provided '(' expr ')' ] '{' seq '}'
+
+decls: moduDecl [ ';' moduDecl ] * [ ';' ] 
+
+moduDecl: [ 'hidden' | 'show' ] decl
+
+
+-- Statement -----------------------------------------------------------
+
+
+stmnt: identifier stmntSRALE
+   | 'if' opts 'fi'
+   | 'do' opts 'od'
+   | 'for' '(' range ')' '{' seq '}'
+   | 'atomic' '{' seq '}'
+   | 'd_step' '{' seq '}'
+   | 'select' '(' range ')'
+   | '{' seq '}'
+   | 'else'
+   | 'break'
+   | 'goto' identifier
+   | 'printf' '(' string [ ',' expr ] * ')'
+   | 'printm' '(' expr ')'
+   | 'assert' '(' expr ')'
+   | expr
+
+
+-- note: stmntLable is only executed 
+-- if "[ '[' expr ']' ]" and "[ '.' varRef ] " are empty
+stmntSRALE: [ '[' expr ']' ] [ '.' varRef ] ( stmntSend
+      | stmntRecv
+      | stmntAssign
+      | stmntLable
+      | stmntExprOr )
+
+stmntSend: '!' sendArgs | '!!' sendArgs
+
+stmntRecv: '?' recvArgs 
+   | '??' recvArgs 
+   | '?' '<' recvArgs '>'
+   | '??' '<' recvArgs '>'
+
+stmntAssign: '=' expr | '++' | '--'
+
+stmntExprOr: stmntExprAnd [ '||' exprAnd ] *
+
+stmntExprAnd: stmntExprBitOr [ '&&' exprBitOr ] *
+
+stmntExprBitOr: stmntExprBitXor [ '|' exprBitXor ] *
+
+stmntExprBitXor: stmntExprBitAnd [ '^' exprBitAnd ] *
+
+stmntExprBitAnd: stmntExprEq [ '&' exprEq ] * 
+
+stmntExprEq: stmntExprGL [ '==' stmntExprGL | '!=' exprGL ] *
+
+stmntExprGL: stmntExpShift [ '<' expShift 
+   | '<=' expShift 
+   | '>=' expShift 
+   | '>' expShift ] *
+
+stmntExprShift: stmntExprAdd [ '<<' exprAdd | '>>' exprAdd ] *
+
+stmntExprAdd: stmntExprMul [ '+' exprMul | '-' exprMul ] *
+
+-- note: exprRemote is only executed if "[ '.' varRef ]" is empty
+stmntExprMul: ( exprVarPoll | exprRemote ) 
+   [ '*' exprUn | '/' exprUn | '%' exprUn ] *
+
+
+-- Expression ----------------------------------------------------------
+
+
+expr: exprOr
+
+exprOr: exprAnd [ '||' exprAnd ] *
+
+exprAnd: exprBitOr [ '&&' exprBitOr ] *
+
+exprBitOr: exprBitXor [ '|' exprBitXor ] *
+
+exprBitXor: exprBitAnd [ '^' exprBitAnd ] *
+
+exprBitAnd: exprEq [ '&' exprEq ] * 
+
+exprEq: exprGL [ '==' exprGL | '!=' exprGL ] *
+
+exprGL: expShift [ '<' expShift 
+   | '<=' expShift 
+   | '>=' expShift 
+   | '>' expShift ] *
+
+exprShift: exprAdd [ '<<' exprAdd | '>>' exprAdd ] *
+
+exprAdd: exprMul [ '+' exprMul | '-' exprMul ] *
+
+exprMul: exprUn [ '*' exprUn | '/' exprUn | '%' exprUn ] *
+
+exprUn: '!' exprUn | '-' exprUn | '~' exprUn | exprBase
+
+-- note: exprRemote is only executed if "[ '.' varRef ]" is empty
+exprBase: '(' expr [ '->' expr ':' expr ] ')'
+   | identifier [ '[' expr ']' ] [ '.' [ varRef ] ] ( exprVarPoll | exprRemote )
+   | constant
+   | 'len' '(' varRef ')'
+   | 'timeout'
+   | 'np_'
+   | 'enabled' '(' expr ')'
+   | 'pc_value' '(' expr ')'
+   | 'run' identifier '(' [ expr [ ',' expr ] * ] ')' [ priority ]
+   | 'get_priority' '(' chanPollExpr ')'
+   | 'set_priority' '(' chanPollExpr , chanPollExpr ')'
+
+exprVarPoll: [ '?' '[' recvArgs ']' | '??' '[' recvArgs ']' ]
+
+-- note: the use of ':' for remote references is highly ambiguous
+exprRemote: '@' identifier
+
+chanPollExpr: chanPollExprOr
+
+chanPollExprOr: chanPollExprAnd [ '&&' chanPollExprAnd ]
+
+chanPollExprAnd: chanPollExprBase [ '||' chanPollExprBase ]
+
+chanPollExprBase: '(' chanPollExpr ')'
+   | 'full' '(' varRef ')'
+   | 'empty' '(' varRef ')'
+   | 'nfull' '(' varRef ')'
+   | 'nempty' '(' varRef ')'
+   | expr
+
+
+-- Lexer ---------------------------------------------------------------
+
+
+typename: 'bit'
+   | 'bool'
+   | 'byte'
+   | 'pid'
+   | 'short'
+   | 'int'
+   | 'mtype'
+   | 'chan'
+
+intTypename: 'bit'
+   | 'bool'
+   | 'byte'
+   | 'pid'
+   | 'short'
+   | 'int'
+   | 'mtype'
+
+identifier: alpha [ alpha | number ] *
+
+constant: "true" | "false" | "skip" | number [ number ] *
+
+alpha: "a" .. "z" | "A" .. "Z" | "_"
+
+number: "0" .. "9"

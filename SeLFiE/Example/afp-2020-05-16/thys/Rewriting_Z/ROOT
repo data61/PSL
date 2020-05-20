@@ -1,0 +1,14 @@
+chapter AFP
+
+session Rewriting_Z (AFP) = Nominal2 +
+  options [timeout = 600]
+  sessions
+    "HOL-Eisbach"
+    "Abstract-Rewriting"
+  theories
+    Z
+    Lambda_Z
+    CL_Z
+  document_files
+    "root.tex"
+    "root.bib"

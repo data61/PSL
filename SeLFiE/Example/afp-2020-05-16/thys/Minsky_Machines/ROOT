@@ -1,0 +1,12 @@
+chapter AFP
+
+session "Minsky_Machines" (AFP) = "Abstract-Rewriting" +
+  options [timeout = 600]
+  sessions
+    "Recursion-Theory-I"
+  theories
+    Recursive_Inseparability
+    Minsky
+  document_files
+    "root.tex"
+    "root.bib"

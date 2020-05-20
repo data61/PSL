@@ -1,0 +1,12 @@
+chapter AFP
+session "Generic_Join" (AFP) = HOL +
+  options [timeout = 1200]
+  sessions
+	"MFOTL_Monitor"
+  theories
+	Generic_Join
+	Generic_Join_Correctness
+	Examples_Join
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Cardinality of Multisets}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+
+This entry provides three lemmas to count the number of multisets of a
+given size and finite carrier set.
+The first lemma provides a cardinality formula assuming that the
+multiset's elements are chosen from the given carrier set. 
+The latter two lemmas provide formulas assuming that the multiset's
+elements also cover the given carrier set, i.e., each element of the carrier
+set occurs in the multiset at least once.
+
+The proof of the first lemma uses the argument of the recurrence relation for
+counting multisets~\cite{wikipedia:Multiset}. The proof of the second lemma is
+straightforward, and the proof of the third lemma is easily obtained
+using the first cardinality lemma.  
+A challenge for the formalization is the derivation of the required
+induction rule, which is a special combination of the induction
+rules for finite sets and natural numbers. The induction rule is derived
+by defining a suitable inductive predicate and transforming the predicate's
+induction rule.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\nocite{*}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

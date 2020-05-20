@@ -1,0 +1,14 @@
+chapter AFP
+
+session Zeta_3_Irrational (AFP) = Prime_Number_Theorem +
+  options [timeout = 600]
+  sessions
+    E_Transcendental
+    Prime_Distribution_Elementary
+    "HOL-Computational_Algebra"
+  theories
+    Zeta_3_Irrational
+  document_files
+    "root.tex"
+    "root.bib"
+

@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Orbit_Stabiliser" (AFP) = "HOL-Algebra" +
+  options [timeout = 600]
+  theories
+    Tetrahedron
+  document_files
+    "root.tex"
+    "root.bib"

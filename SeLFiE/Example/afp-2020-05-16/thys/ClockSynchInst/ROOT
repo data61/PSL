@@ -1,0 +1,15 @@
+chapter AFP
+
+(*  Title:       Instances of Schneider's generalized protocol of clock synchronization
+    Author:      Damián Barsotti <damian@hal.famaf.unc.edu.ar>, 2006
+    Maintainer:  Damián Barsotti <damian@hal.famaf.unc.edu.ar>
+*)
+
+session ClockSynchInst (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    ICAInstance
+    LynchInstance
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,35 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{stmaryrd}
+\usepackage{isabelle, isabellesym}
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Büchi Complementation}
+\author{Julian Brunner}
+
+\maketitle
+
+\begin{abstract}
+	This entry provides a verified implementation of rank-based Büchi Complementation \cite{complementation}.
+	The verification is done in three steps:
+	\begin{enumerate}
+		\item Definition of odd rankings and proof that an automaton rejects a word iff there exists an odd ranking for it.
+		\item Definition of the complement automaton and proof that it accepts exactly those words for which there is an odd ranking.
+		\item Verified implementation of the complement automaton using the Isabelle Collections Framework.
+	\end{enumerate}
+\end{abstract}
+
+\tableofcontents
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

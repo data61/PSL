@@ -1,0 +1,100 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Algebra of Monotonic Boolean Transformers}
+\author{Viorel Preoteasa}
+\maketitle
+\begin{abstract}
+Algebras of imperative programming languages have 
+been successful in reasoning about programs. In general an 
+algebra of programs is an algebraic structure with programs 
+as elements and with program compositions (sequential composition, 
+choice, skip) as algebra operations. Various versions of these 
+algebras were introduced to model partial correctness, total 
+correctness, refinement, demonic choice, and other aspects. 
+We formalize here an algebra which can be used to model total
+correctness, refinement, demonic and angelic choice. The basic 
+model of this algebra are monotonic Boolean transformers (monotonic 
+functions from a Boolean algebra to itself).
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+Abstract algebra is a useful tool in mathematics. Rather than working with 
+specific models like natural numbers and algebra of truth values, one could 
+reason in a more abstract setting and obtain results which are more general 
+and applicable in different models. Algebras of logics are very important 
+tools in studying various aspects of logical systems. Algebras of programming 
+theories have also a significant contribution to the simplification of 
+reasoning about programs. Programs are elements of an algebra and program 
+compositions and program constants (sequential composition, choice, iteration, 
+skip, fail) are the operations of the algebra. These operations satisfy a number 
+of relations which are used for reasoning about programs. Kleene algebra with 
+tests (KAT) \cite{kozen:1997} is an extension of Kleene algebra and it is suitable 
+for reasoning about programs in a partial correctness framework. Various 
+versions of Kleene algebras have been introduced, ranging from Kleene algebra 
+with domain \cite{desharnais:moller:struth:2006} and concurrent Kleene algebra 
+\cite{hoare:moller:struth:wehrman:2009} to an algebra for separation logic 
+\cite{dang:hofner:moller:2011}. 
+
+Refinement Calculus \cite{back-1978,back-1980,back-wright-98,morgan-90} is a 
+calculus based on (monotonic) predicate transformers suitable for program 
+development in a total correctness framework. Within this calculus various 
+aspects of imperative programming languages can be formalized. These include 
+total correctness, partial correctness, demonic choice, and angelic choice. 
+Demonic refinement algebra (DRA) was introduced in 
+\cite{vonwright:2002,vonwright:2004} as a variation of KAT to allow also reasoning 
+about total correctness. The intended model of DRA is the set of conjunctive 
+predicate transformers and this algebra cannot represent angelic choice. 
+General refinement algebra (GRA) was also introduced in \cite{vonwright:2004}, 
+but few results were proved and they were mostly related to iteration. 
+Although the intended model for GRA is the set of monotonic predicate 
+transformers, GRA does not include the angelic choice operator. GRA has 
+been further extended in \cite{solin:vonwright:2009} with enabledness and 
+termination operators, and it was extended for probabilistic programs in 
+\cite{meinicke:solin:2010}.
+
+This formalization is based on \cite{preoteasa:2011c} where a different
+extension of GRA is introduced. In \cite{preoteasa:2011c}  GRA 
+is extended with a dual operator 
+\cite{guerreiro:82,back:vonwright:1989,back:vonwright:1990,back-wright-98}. 
+The intended model for this algebra is the set of monotonic Boolean transformers 
+(monotonic functions from a Boolean algebra to itself). 
+
+This formalization is structured as follows. Section 2 introduces the monotonic 
+Boolean transformers that are the basic model of the algebra. Section 3 introduces 
+the monotonic Boolean transformers algebra and some of its properties. 
+Section 4 introduces the Boolean algebra of assertions. In section
+5 we introduce standard program statements and we prove their Hoare 
+total correctness rules.
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

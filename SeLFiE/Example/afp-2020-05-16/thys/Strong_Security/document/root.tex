@@ -1,0 +1,167 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{An Isabelle/HOL formalization of Strong Security}
+\author{Sylvia Grewe, Alexander Lux, Heiko Mantel, Jens Sauer}
+\maketitle
+
+\begin{abstract}
+  Research in information-flow security aims at developing methods to
+  identify undesired information leaks within programs from private
+  sources to public sinks. Noninterference captures this
+  intuition. Strong security from \cite{sabelfeld2000probabilistic}
+  formalizes noninterference for concurrent systems.
+
+  We present an Isabelle/HOL formalization of strong security for
+  arbitrary security lattices (\cite{sabelfeld2000probabilistic} uses
+  a two-element security lattice). The formalization includes
+  compositionality proofs for strong security and a soundness proof
+  for a security type system that checks strong security for programs
+  in a simple while language with dynamic thread creation.
+
+  Our formalization of the security type system is abstract in the
+  language for expressions and in the semantic side conditions for
+  expressions. It can easily be instantiated with different syntactic
+  approximations for these side conditions. The soundness proof of
+  such an instantiation boils down to showing that these syntactic
+  approximations imply the semantic side conditions.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+%\input{session}
+
+\section{Preliminary definitions}
+
+\subsection{Type synonyms}
+
+The formalization is parametric in different aspects. Notably, it is
+parametric in the security lattice it supports. 
+
+For better readability, we use the following type synonyms in our formalization:
+
+\input{Types.tex}
+
+\section{Strong security}
+
+\subsection{Definition of strong security}
+
+We define strong security such that it is parametric in a security
+lattice (\textit{'d}). The definition of strong security by itself is
+language-independent, therefore the definition is parametric in a
+programming language (\textit{'com}) in addition.
+
+\input{Strong_Security.tex}
+
+
+\subsection{Proof technique for compositionality results}
+
+For proving compositionality results for strong security, we formalize
+the following ``up-to technique'' and prove it sound:
+
+\input{Up_To_Technique.tex}
+
+
+\subsection{Proof of parallel compositionality}
+
+We prove that strong security is preserved under composition of
+strongly secure threads.
+
+\input{Parallel_Composition.tex}
+
+
+\section{Example language and compositionality proofs}
+
+\subsection{Example language with dynamic thread creation}
+
+As in \cite{sabelfeld2000probabilistic}, we instantiate the language
+with a simple while language that supports dynamic thread creation via
+a fork command (Multi-threaded While Language with fork, MWLf). Note
+that the language is still parametric in the language used for Boolean
+and arithmetic expressions (\textit{'exp}).
+
+\input{MWLf.tex}
+
+\subsection{Proofs of atomic compositionality results}
+
+We prove for each atomic command of our example programming language
+(i.e. a command that is not composed out of other commands) that it is
+strongly secure if the expressions involved are indistinguishable for
+an observer on security level $d$.
+
+\input{Strongly_Secure_Skip_Assign.tex}
+
+\subsection{Proofs of non-atomic compositionality results}
+
+We prove compositionality results for each non-atomic command of our
+example programming language (i.e. a command that is composed out
+of other commands): If the components are strongly secure and the
+expressions involved indistinguishable for an observer on security
+level $d$, then the composed command is also strongly secure.
+
+\input{Language_Composition.tex}
+
+\section{Security type system}
+
+\subsection{Abstract security type system with soundness proof}
+
+We formalize an abstract version of the type system in
+\cite{sabelfeld2000probabilistic} using locales
+\cite{conf/types/Ballarin03}. Our formalization of the type system is
+abstract in the sense that the rules specify abstract semantic side
+conditions on the expressions within a command that satisfy for
+proving the soundness of the rules. That is, it can be instantiated
+with different syntactic approximations for these semantic side
+conditions in order to achieve a type system for a concrete language
+for Boolean and arithmetic expressions. Obtaining a soundness proof
+for such a concrete type system then boils down to proving that the
+concrete type system interprets the abstract type system.
+
+We prove the soundness of the abstract type system by simply applying
+the compositionality results proven before.
+
+\input{Type_System.tex}
+
+\subsection{Example language for Boolean and arithmetic expressions}
+
+As and example, we provide a simple example language for instantiating the parameter
+\textit{'exp} for the language for Boolean and arithmetic expressions.
+
+\input{Expr.tex}
+
+\subsection{Example interpretation of abstract security type system}
+
+Using the example instantiation of the language for Boolean and
+arithmetic expressions, we give an example instantiation of our
+abstract security type system, instantiating the parameter for domains
+\textit{'d} with a two-level security lattice.
+
+\input{Domain_example.tex}
+
+\input{Type_System_example.tex}
+
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

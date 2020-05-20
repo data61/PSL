@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper,notitlepage]{report}
+\usepackage{isabelle,isabellesym}
+
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Purely Functional, Simple, and Efficient Implementation of Prim and Dijkstra}
+\author{Peter Lammich \and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+We verify purely functional, simple and efficient implementations of Prim's and Dijkstra's algorithms.
+This constitutes the first verification of an executable and even efficient version of Prim's algorithm.
+This entry formalizes the second part of our ITP-2019 proof
+pearl \emph{Purely Functional, Simple and Efficient Priority Search Trees and Applications to Prim and Dijkstra}
+~\cite{LaNi19}.
+\end{abstract}
+
+\clearpage
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\clearpage
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

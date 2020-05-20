@@ -1,0 +1,46 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Separation Algebra}
+\author{Gerwin Klein and Rafal Kolanski and Andrew Boyton}
+\maketitle
+
+\begin{abstract}
+We present a generic type class implementation of separation
+algebra for Isabelle/HOL as well as lemmas and generic tactics which can
+be used directly for any instantiation of the type class.
+
+The ex directory contains example instantiations that include structures
+such as a heap or virtual memory.
+
+The abstract separation algebra is based upon ``Abstract Separation
+Logic'' by Calcagno et al. These theories are also the basis of
+``Mechanised Separation Algebra'' by the authors \cite{KleinKB-ITP12}.
+
+The aim of this work is to support and significantly reduce the effort
+for future separation logic developments in Isabelle/HOL by factoring
+out the part of separation logic that can be treated abstractly once
+and for all. This includes developing typical default rule sets for
+reasoning as well as automated tactic support for separation logic.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

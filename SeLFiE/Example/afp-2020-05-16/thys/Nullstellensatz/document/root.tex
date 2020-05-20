@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym,latexsym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Hilbert's Nullstellensatz}
+\author{Alexander Maletzky\thanks{Funded by the Austrian 
+Science Fund (FWF): grant no. P 29498-N31}}
+\maketitle
+
+\begin{abstract}
+This entry formalizes Hilbert's Nullstellensatz, an important theorem in algebraic geometry that can be viewed as the generalization of the Fundamental Theorem of Algebra to multivariate polynomials: If a set of (multivariate) polynomials over an algebraically closed field has no common zero, then the ideal it generates is the entire polynomial ring. The formalization proves several equivalent versions of this celebrated theorem: the weak Nullstellensatz, the strong Nullstellensatz (connecting algebraic varieties and radical ideals), and the field-theoretic Nullstellensatz. The formalization follows Chapter~4.1. of \emph{Ideals, Varieties, and Algorithms} by Cox, Little and O'Shea.
+% https://link.springer.com/book/10.1007/978-0-387-35651-8
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\newpage
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\nocite{CLO}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

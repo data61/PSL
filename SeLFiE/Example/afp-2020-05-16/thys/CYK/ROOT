@@ -1,0 +1,9 @@
+chapter AFP
+
+session CYK (AFP) = HOL +
+  options [timeout = 300]
+  theories
+    CYK
+  document_files
+    "root.bib"
+    "root.tex"

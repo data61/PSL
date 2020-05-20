@@ -1,0 +1,58 @@
+\section{Introduction}
+
+Linearizability~\cite{HerlihyWing90Linearizability} is a key design methodology
+for reasoning about implementations of concurrent abstract data types in both
+shared memory and message passing systems. It presents the illusion that
+operations execute sequentially and fault-free, despite the asynchrony and
+faults that are often present in a concurrent system, especially a distributed
+one.
+
+However, devising complete linearizable objects is very difficult, especially
+in the presence of process crashes and asynchrony, requiring complex algorithms
+(such as Paxos~\cite{Lamport98PartTimeParliament}) to work correctly under
+general circumstances, and often resulting in bad average-case behavior.
+Concurrent algorithm designers therefore resort to speculation, i.e.\ to
+optimizing existing algorithms to handle common scenarios more efficiently.
+More precisely, a speculative systems has a fall-back mode that works in all
+situations and several optimization modes, each of which is very efficient in
+a particular situation but might not work at all in some other situation. By
+observing its execution, a speculative system speculates about which particular
+situation it will be subject to and chooses the most efficient mode for that
+situation. If speculation reveals wrong, a new speculation is made in light of
+newly available observations. Unfortunately, building speculative system ad-hoc
+results in protocols so complex that it is no longer tractable to prove their
+correctness.
+
+We the specification of the SLin (a shorthand for Speculative
+Linearizabibility) I/O-automaton~\cite{Lynch89anintroduction}, which can
+be used to build a speculatively linearizable algorithm out of independent
+modules that each implement the different modes of the speculative
+algorithm. The SLin I/O-automaton is at the heart of the Speculative
+Linearizability framework~\cite{Losa2014,GKL2012SpeculativeLinearizability}.
+The Speculative Linearizability framework first appeared
+in~\cite{GKL2012SpeculativeLinearizability} and was later refined
+in~\cite{Losa2014}. This development is based on the later~\cite{Losa2014}.
+
+The SLin I/O-automaton produces traces that are linearizable with respect to
+a generic type of object. Moreover, the composition of two instances of the
+SLin I/O-automaton behaves like a single instance. Hence it is guaranteed
+that the composition of any number of instances of the SLin I/O-automaton is
+linearizable. In this formal development, we prove the idempotence theorem,
+i.e.\ that the composition of two instances of the SLin I/O-automaton is itself
+an implementation of the SLin I/O-automaton.
+
+The properties stated above simplify the development and analysis of speculative
+systems: Instead of having to reason about an entanglement of complex protocols,
+one can devise several modules with the property that, when taken in isolation,
+each module refines the SLin I/O-automaton. Hence complex protocols can be
+divided into smaller modules that can be analyzed independently of each other.
+In particular, it allows to optimize an existing protocol by creating separate
+optimization modules, prove each optimization correct in isolation, and obtain
+the correctness of the overall protocol from the correctness of the existing
+one.
+
+In this document we define the SLin I/O-automaton and prove the Composition
+Theorem, which states that the composition of two instances of the SLin
+I/O-automaton behaves as a single instance of the SLin I/O-automaton. We use a
+refinement mapping to establish this fact.
+

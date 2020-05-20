@@ -1,0 +1,171 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{verbatim}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Instances of Schneider's generalized protocol\\
+       of clock synchronization.}
+
+\author{Damian Barsotti}
+\maketitle
+
+\begin{abstract}\noindent  
+  Schneider \cite{schneider87understanding} generalizes a number of
+  protocols for Byzantine fault-tolerant clock synchronization and
+  presents a uniform proof for their correctness. In Schneider's
+  schema, each processor maintains a local clock by periodically
+  adjusting each value to one computed by a convergence function
+  applied to the readings of all the clocks. Then, correctness of an
+  algorithm, i.e. that the readings of two clocks at any time are
+  within a fixed bound of each other, is based upon some conditions on
+  the convergence function. To prove that a particular clock
+  synchronization algorithm is correct it suffices to show that the
+  convergence function used by the algorithm meets Schneider's
+  conditions.
+
+  Using the theorem prover Isabelle, we formalize the proofs that the
+  convergence functions of two algorithms, namely, the Interactive
+  Convergence Algorithm (ICA) of Lamport and Melliar-Smith
+  \cite{lamport_cs} and the Fault-tolerant Midpoint algorithm of
+  Lundelius-Lynch \cite{lynch_cs}, meet Schneider's conditions.
+  Furthermore, we experiment on handling some parts of the proofs with
+  fully automatic tools like ICS\cite{ics} and \mbox{CVC-lite}\cite{cvclite}.
+
+  These theories are part of a joint work with Alwen Tiu and Leonor
+  P. Nieto \cite{bars_leon_tiu}. In this work the correctness of
+  Schneider schema was also verified using Isabelle (available at
+  \url{http://isa-afp.org/entries/GenClock.shtml}).
+
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\appendix
+
+\section{CVC-lite and ICS proofs}
+
+\subsection{Lemma abs\_distrib\_div}
+\label{sec:abs_distrib_mult}
+
+In the proof of the Fault-Tolerant Mid Point Algorithm we need to
+prove this simple lemma:
+
+\begin{isabellebody}%
+\isamarkuptrue%
+\isacommand{lemma}\ abs{\isacharunderscore}distrib{\isacharunderscore}div{\isacharcolon}\isanewline
+\ \ {\isachardoublequote}{\isadigit{0}}\ {\isacharless}\ {\isacharparenleft}c{\isacharcolon}{\isacharcolon}real{\isacharparenright}\ \ {\isasymLongrightarrow}\ {\isasymbar}a\ {\isacharslash}\ c\ {\isacharminus}\ b\ {\isacharslash}\ c{\isasymbar}\ {\isacharequal}\ {\isasymbar}a\ {\isacharminus}\ b{\isasymbar}\ {\isacharslash}\ c{\isachardoublequote}\isanewline
+\isamarkupfalse%
+\end{isabellebody}%
+It is not possible to prove this lemma in Isabelle using \emph{arith} nor
+\emph{auto} tactics. Even if we added lemmas to the default simpset of
+HOL. 
+
+In the translation from Isabelle to ICS we need to change the division
+by a multiplication because this tools do not accept formulas with this
+arithmetic operator.  Moreover, to translate the absolute value we
+define e constant for each application of that function.
+In ICS it is proved automatically. 
+
+File \verb|abs_distrib_mult.ics|:
+\verbatiminput{abs_distrib_mult.ics}
+
+It was not possible to find the proof in CVC-lite because the
+formula is not linear. Two proofs where attempted. In the first one we
+use lambda abstraction to define the absolute value. The second one is
+the same translation that we do in ICS.
+
+File \verb|abs_distrib_mult.cvc|:
+\verbatiminput{abs_distrib_mult.cvc}
+
+File \verb|abs_distrib_mult2.cvc|:
+\verbatiminput{abs_distrib_mult2.cvc}
+
+\subsection{Bound for Precision Enhancement property}
+\label{sec:bound_prec_enh}
+
+In order to prove Precision Enhancement for Lynch's algorithm we need
+to prove that:
+
+\begin{isabellebody}%
+\ \ \ \ \ \isacommand{have}\ {\isachardoublequote}{\isasymbar}Max\
+{\isacharparenleft}reduce\ f\ PR{\isacharparenright}\ {\isacharplus}\
+Min\ {\isacharparenleft}reduce\ f\
+PR{\isacharparenright}\ \ {\isacharplus}\ 
+\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ {\isacharminus}\
+Max\
+{\isacharparenleft}reduce\ g\ PR{\isacharparenright}\ {\isacharplus}\ {\isacharminus}\
+Min\ {\isacharparenleft}reduce\ g\
+PR{\isacharparenright}{\isasymbar}\ {\isacharless}{\isacharequal}\ y\
+{\isacharplus}\ {\isadigit{2}}\ {\isacharasterisk}\
+x{\isachardoublequote}
+\end{isabellebody}%
+This is the result of the whole theorem where we multiply by two both
+sides of the inequality.
+
+In order to do the proof we need to translate also the lemmas
+\emph{uboundmax}, \emph{lboundmin}, \emph{same\_bound} (lemmas about
+the existence of some bounds), the axiom \emph{constants\_ax} and the
+assumptions of the theorem.
+
+We make five different translations. In each one we where increasing
+the amount of eliminated quantifiers. 
+
+
+
+File \verb|bound_prec_enh4.cvc|:
+\verbatiminput{bound_prec_enh4.cvc}
+
+Note that we leave quantifiers in some assumptions.
+
+In the next file we also try to do the proof with all quantifiers,
+but CVC cannot find it.
+
+File \verb|bound_prec_enh.cvc|:
+\verbatiminput{bound_prec_enh.cvc}
+
+We also try to do the proof removing all quantifiers and the proof
+was successful.
+
+File \verb|bound_prec_enh7.cvc|:
+\verbatiminput{bound_prec_enh7.cvc}
+
+From this last file we make the translation also for ICS adding a
+constant for each application of the absolute value. In this case ICS
+do not find the proof.
+
+File \verb|bound_prec_enh.ics|:
+\verbatiminput{bound_prec_enh.ics}
+
+\subsection{Accuracy Preservation property}
+\label{sec:accur_pres}
+
+The proof of this property was successful in both tools. Even in
+CVC-lite the proof was find without the need of removing the
+quantifiers.
+
+File \verb|accur_pres.cvc|:
+\verbatiminput{accur_pres.cvc}
+
+File \verb|accur_pres.ics|:
+\verbatiminput{accur_pres.ics}
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

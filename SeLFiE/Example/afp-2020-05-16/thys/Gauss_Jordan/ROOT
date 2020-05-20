@@ -1,0 +1,13 @@
+chapter AFP
+
+session Gauss_Jordan (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  sessions
+    Rank_Nullity_Theorem
+  theories
+    Examples_Gauss_Jordan_Abstract
+    Code_Generation_IArrays_SML
+    Code_Generation_IArrays_Haskell
+  document_files
+    "root.bib"
+    "root.tex"

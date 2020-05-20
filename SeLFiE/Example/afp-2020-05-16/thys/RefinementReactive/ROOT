@@ -1,0 +1,9 @@
+chapter AFP
+
+session RefinementReactive (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Reactive
+  document_files
+    "root.bib"
+    "root.tex"

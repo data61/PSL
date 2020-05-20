@@ -1,0 +1,29 @@
+chapter AFP
+ 
+session Kruskal (AFP) = Sepref_IICF +
+  options [timeout = 600]
+  sessions
+    Refine_Monadic
+    Matroids
+    Collections
+    Refine_Imperative_HOL 
+ 
+  theories [document=false]
+    Kruskal_Misc
+    SeprefUF
+
+  theories
+    MinWeightBasis
+    Kruskal
+    Kruskal_Refine
+    Kruskal_Impl
+
+    UGraph
+    UGraph_Impl
+
+    Graph_Definition
+    Graph_Definition_Aux
+    Graph_Definition_Impl
+    
+  document_files
+    "root.tex"

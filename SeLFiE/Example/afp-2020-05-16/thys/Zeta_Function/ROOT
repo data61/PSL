@@ -1,0 +1,23 @@
+chapter AFP
+
+session Zeta_Function (AFP) = Dirichlet_Series +
+  options [timeout = 600]
+  sessions
+    Euler_MacLaurin
+    Bernoulli
+    "HOL-Library"
+    "HOL-Real_Asymp"
+    Dirichlet_Series
+    Winding_Number_Eval
+  theories [document=false]
+    "Euler_MacLaurin.Euler_MacLaurin"
+    "Bernoulli.Bernoulli_Zeta"
+    "HOL-Library.Landau_Symbols"
+    "Dirichlet_Series.Dirichlet_Series_Analysis"
+  theories
+    Zeta_Function
+    Zeta_Laurent_Expansion
+    Hadjicostas_Chapman
+  document_files
+    "root.tex"
+    "root.bib"

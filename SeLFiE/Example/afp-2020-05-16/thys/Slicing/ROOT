@@ -1,0 +1,14 @@
+chapter AFP
+
+session Slicing (AFP) = Jinja +
+  options [timeout = 3600]
+  directories
+    "Basic"
+    "Dynamic"
+    "JinjaVM"
+    "StaticIntra"
+    "While"
+  theories
+    Slicing
+  document_files
+    "root.tex"

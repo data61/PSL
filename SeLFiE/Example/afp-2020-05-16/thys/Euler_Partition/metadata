@@ -1,0 +1,10 @@
+[Euler_Partition]
+title = Euler's Partition Theorem
+author = Lukas Bulwahn <mailto:lukas.bulwahn@gmail.com>
+date = 2015-11-13
+topic = Mathematics/Combinatorics
+abstract =
+  Euler's Partition Theorem states that the number of partitions with only
+  distinct parts is equal to the number of partitions with only odd parts.
+  The combinatorial proof follows John Harrison's HOL Light formalization.
+  This theorem is the 45th theorem of the Top 100 Theorems list.

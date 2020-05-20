@@ -1,0 +1,95 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb,amsmath}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\complex{\mathbb{C}}
+
+\newcommand\rai{real algebraic number\xspace}
+\newcommand\rais{real algebraic numbers\xspace}
+
+\begin{document}
+
+\title{Polynomial Interpolation\footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author{Ren\'e Thiemann and Akihisa Yamada}
+\maketitle
+
+\begin{abstract}
+We formalized three algorithms for polynomial interpolation over arbitrary fields: 
+Lagrange's explicit expression,
+the recursive algorithm of Neville and Aitken,
+and the Newton interpolation in combination with an efficient implementation of divided differences.
+Variants of these algorithms for integer polynomials are also available,
+where sometimes the interpolation can fail; e.g., there is no
+linear integer polynomial $p$ such that $p(0) = 0$ and $p(2) = 1$. Moreover, for
+the Newton interpolation for integer polynomials, we proved that all intermediate 
+results that are computed during the algorithm must be integers.
+This admits an early failure detection in the implementation.
+Finally, we proved the uniqueness of polynomial interpolation.
+
+The development also contains improved code equations to speed up the division of integers
+in target languages.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+We formalize three basic algorithms for interpolation for univariate 
+field polynomials and integer polynomials which can be found in 
+various textbooks or on Wikipedia. However, this formalization covers 
+only basic results, e.g., compared to a specialized textbook on 
+interpolation \cite{interpolation}, we only cover results of the first of the eight chapters.
+
+Given distinct inputs $x_0,\dots,x_n$ and corresponding outputs $y_0,\dots,y_n$,
+\emph{polynomial interpolation} is to provide a polynomial $p$ (of degree at most $n$)
+such that $p(x_i) = y_i$ for every $i < n$.
+
+The first solution we formalize is Lagrange's explicit expression:
+\[
+	p(x) = \sum_{i<n}
+		\Bigl(y_i \cdot \prod_{\substack{j<n\\j \neq i}}\frac{x-x_j}{x_i-x_j}
+		\Bigr)
+\]
+which is however expensive since the computation involves a number of multiplications and additions of polynomials.
+Hence we formalize other algorithms, namely, the recursive algorithms of Neville and Aitken,
+and the Newton interpolation.
+We also show that a polynomial interpolation of degree at most $n$ is unique.
+
+
+Further, we consider a variant of the interpolation problem where the base type is restricted to \isa{int}.
+In this case the result must be an integer polynomial (i.e., the coefficients are integers),
+which does not necessarily exist even if the specified inputs and outputs are integers.
+For instance, there exists no linear integer polynomial $p$ such that $p(0) = 0$ and $p(2) = 1$.
+
+We prove that, for the Newton interpolation to produce integer polynomials, the intermediate coefficients computed in the procedure must be always integers.
+This result, in practice allows the implementation to detect failure as early as possible,
+and in theory shows that there is no integer polynomial $p$ satisfying $p(0) = 0$ and $p(2) = 1$,
+regardless of the degree of the polynomial.
+
+%TODO: write some more text, also included side-products, like improved code equations for division.
+The formalization also contains an improved code equations for integer division.
+
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

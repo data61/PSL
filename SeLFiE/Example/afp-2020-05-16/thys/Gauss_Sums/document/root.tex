@@ -1,0 +1,45 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Gauss Sums and the P\'olya--Vinogradov Inequality}
+\author{Rodrigo Raya and Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This article provides a full formalisation of Chapter 8 of Apostol's \emph{Introduction to Analytic Number Theory}~\cite{apostol1976analytic}.
+Subjects that are covered are:
+\begin{itemize}
+\item periodic arithmetic functions and their finite Fourier series
+\item (generalised) Ramanujan sums
+\item Gauss sums and separable characters
+\item induced moduli and primitive characters
+\item the P\'olya--Vinogradov inequality
+\end{itemize}
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

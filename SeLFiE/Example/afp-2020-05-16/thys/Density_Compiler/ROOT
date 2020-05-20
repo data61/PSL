@@ -1,0 +1,10 @@
+chapter AFP
+
+session Density_Compiler (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  theories
+    PDF_Transformations
+    PDF_Compiler
+  document_files
+    "root.bib"
+    "root.tex"

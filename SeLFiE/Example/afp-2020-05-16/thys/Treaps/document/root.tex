@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Treaps}
+\author{Max Haslbeck, Manuel Eberl, Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+A Treap~\cite{seidel1996} is a binary tree whose nodes contain pairs consisting of some payload and an associated priority. It must have the search-tree property w.\,r.\,t.\ the payloads and the heap property w.\,r.\,t.\ the priorities. Treaps are an interesting data structure that is related to binary search trees (BSTs) in the following way: if one forgets all the priorities of a treap, the resulting BST is exactly the same as if one had inserted the elements into an empty BST in order of ascending priority. This means that a treap behaves like a BST where we can pretend the elements were inserted in a different order from the one in which they were actually inserted.
+
+In particular, by choosing these priorities at random upon insertion of an element, we can pretend that we inserted the elements in \emph{random order}, so that the shape of the resulting tree is that of a random BST no matter in what order we insert the elements. This is the main result of this formalisation.~\cite{eberl18}
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

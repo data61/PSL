@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Minkowski's Theorem}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+	Minkowski's theorem relates a subset of $\mathbb{R}^n$, the Lebesgue measure, and the integer lattice $\mathbb{Z}^n$: It states that any convex subset of $\mathbb{R}^n$ with volume greater than $2^n$ contains at least one lattice point from $\mathbb{Z}^n\setminus\{0\}$, i.\,e. a non-zero point with integer coefficients.
+
+	A related theorem which directly implies this is Blichfeldt's theorem, which states that any subset of $\mathbb{R}^n$ with a volume greater than 1 contains two different points whose difference vector has integer components.
+
+The entry contains a proof of both theorems.
+\end{abstract}
+\nocite{dummit}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

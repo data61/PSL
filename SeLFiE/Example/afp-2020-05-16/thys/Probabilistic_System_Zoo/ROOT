@@ -1,0 +1,16 @@
+chapter AFP
+
+session "Probabilistic_System_Zoo" (AFP) = "HOL-Probability" +
+  options [timeout = 600, document_variants = "document:outline=/proof,/ML:bnfs:non_bnfs"]
+  sessions
+    "HOL-Eisbach"
+    "HOL-Cardinals"
+  theories
+    Bool_Bounded_Set
+    Finitely_Bounded_Set_Counterexample
+    Nonempty_Bounded_Set
+    Vardi_Counterexample
+  document_files
+    "root.tex"
+    "root_bnfs.tex"
+    "root_non_bnfs.tex"

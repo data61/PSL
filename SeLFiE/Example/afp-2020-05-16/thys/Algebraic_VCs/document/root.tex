@@ -1,0 +1,113 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Program Construction and Verification Components Based on
+  Kleene Algebra}
+\author{Victor B. F. Gomes and Georg Struth}
+\maketitle
+
+\begin{abstract}
+  Variants of Kleene algebra support program construction and
+  verification by algebraic reasoning. This entry provides a
+  verification component for Hoare logic based on Kleene algebra with
+  tests, verification components for weakest preconditions and
+  strongest postconditions based on Kleene algebra with domain and a
+  component for step-wise refinement based on refinement Kleene
+  algebra with tests. In addition to these components for the partial
+  correctness of while programs, a verification component for total
+  correctness based on divergence Kleene algebras and one for
+  (partial correctness) of recursive programs based on domain
+  quantales are provided. Finally we have integrated memory models for
+  programs with pointers and a program trace semantics into the
+  weakest precondition component.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introductory Remarks}
+
+These Isabelle theories provide program construction and verification
+components for simpe while programs based on variants of Kleene
+algebra with tests and Kleene algebra with domain, as well as a
+component for parameterless recursive programs based on domain
+quantales. The general approach consists in using the algebras for
+deriving verification conditions for the control flow of
+programs. They are linked by formal soundness proofs with denotational
+program semantics of the store and data domain---here predominantly
+with a relational semantics.  Assignment laws can then be derived in
+this semantics. Program construction and verification tasks are
+performed within the concrete semantics as well; structured syntax for
+programs could easily be added, but is not provided at the moment.
+
+All components are correct by construction relative to Isabelle's
+small trustworthy core, as our soundness proofs make the axiomatic
+extensions provided by the algebras consistent with respect to it.
+
+The main components  are integrated into previous AFP entries
+for Kleene algebras~\cite{afp:ka}, Kleene algebras with
+tests~\cite{afp:kat} and Kleene algebras with domain~\cite{afp:kad}.
+As an overview and perhaps for educational purposes, we have also
+added two standalone components based on Hoare logic and weakest
+(liberal) preconditions  that use only Isabelle's main libraries.
+
+Background information on the general approach and the first main
+component, which is based on Kleene algebra with tests, can be found
+in~\cite{ArmstrongGS15}. An introduction to Kleene algebra with domain
+is given in~\cite{DesharnaisS11}; a paper describing the corresponding
+verification component in detail is in preparation.
+
+We are planning to add further components and expand and restructure
+the existing ones in the future. We would like to invite anyone
+interested in the algebraic approach to collaborate with us on these
+and contribute to this project.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

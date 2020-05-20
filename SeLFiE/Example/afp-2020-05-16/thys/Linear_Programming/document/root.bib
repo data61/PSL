@@ -1,0 +1,114 @@
+@book{schrijver1998theory,
+  title={Theory of linear and integer programming},
+  author={Schrijver, Alexander},
+  year={1998},
+  publisher={John Wiley \& Sons}
+}
+
+@article{SimplexAFP,
+  author  = {Filip Marić and Mirko Spasić and René Thiemann},
+  title   = {An Incremental Simplex Algorithm with Unsatisfiable Core Generation},
+  journal = {Archive of Formal Proofs},
+  month   = aug,
+  year    = 2018,
+  note    = {\url{http://isa-afp.org/entries/Simplex.html},
+            Formal proof development},
+  ISSN    = {2150-914x},
+}
+@InProceedings{Spasic:FormIncrSimplex,
+  author =       "Spasi{\'{c}}, Mirko and Mari{\'{c}}, Filip",
+  editor =       "Giannakopoulou, Dimitra and M{\'e}ry, Dominique",
+  title =        "Formalization of Incremental Simplex Algorithm by
+                  Stepwise Refinement",
+  booktitle =    "FM 2012: Formal Methods",
+  year =         "2012",
+  publisher =    "Springer Berlin Heidelberg",
+  address =      "Berlin, Heidelberg",
+  pages =        "434--449",
+  abstract =     "We present an Isabelle/HOL formalization and total
+                  correctness proof for the incremental version of the
+                  Simplex algorithm which is used in most
+                  state-of-the-art SMT solvers. Formalization relies
+                  on stepwise program and data refinement, starting
+                  from a simple specification, going through a number
+                  of fine refinement steps, and ending up in a fully
+                  executable functional implementation. Symmetries
+                  present in the algorithm are handled with special
+                  care.",
+  isbn =         "978-3-642-32759-9"
+}
+
+
+
+@InProceedings{Sylvain:CoqTacForEqualityLinArith,
+  author =       "Boulm{\'e}, Sylvain and Mar{\'e}chal, Alexandre",
+  editor =       "Avigad, Jeremy and Mahboubi, Assia",
+  title =        "A {C}oq Tactic for Equality Learning in Linear
+                  Arithmetic",
+  booktitle =    "Interactive Theorem Proving",
+  year =         "2018",
+  publisher =    "Springer International Publishing",
+  address =      "Cham",
+  pages =        "108--125",
+  abstract =     "Coq provides linear arithmetic tactics such as omega
+                  or lia. Currently, these tactics either fully prove
+                  the current goal in progress, or fail. We propose to
+                  improve this behavior: when the goal is not provable
+                  in linear arithmetic, we strengthen the hypotheses
+                  with new equalities discovered from the linear
+                  inequalities. These equalities may help other Coq
+                  tactics to discharge the goal. In other words, we
+                  apply -- in interactive proofs -- a seminal idea of
+                  SMT-solving: combining tactics by exchanging
+                  equalities. The paper describes how we have
+                  implemented equality learning in a new Coq tactic,
+                  dealing with linear arithmetic over rationals. It
+                  also illustrates how this tactic interacts with
+                  other Coq tactics.",
+  isbn =         "978-3-319-94821-8",
+}
+
+@Article{Obua2009,
+  author =       "Obua, Steven and Nipkow, Tobias",
+  title =        "Flyspeck {II}: the basic linear programs",
+  journal =      "Annals of Mathematics and Artificial Intelligence",
+  year =         "2009",
+  month =        "Aug",
+  day =          "01",
+  volume =       "56",
+  number =       "3",
+  pages =        "245--272",
+  abstract =     "We present another step, Flyspeck II, towards a
+                  complete, formal and mechanized proof of the Kepler
+                  Conjecture.",
+  issn =         "1573-7470",
+  doi =          "10.1007/s10472-009-9168-z",
+}
+
+@InProceedings{Allamigeon:FormCvxPolyhedraSimplex,
+  author =       "Allamigeon, Xavier and Katz, Ricardo D.",
+  editor =       "Ayala-Rinc{\'o}n, Mauricio and Mu{\~{n}}oz,
+                  C{\'e}sar A.",
+  title =        "A Formalization of Convex Polyhedra Based on the
+                  Simplex Method",
+  booktitle =    "Interactive Theorem Proving",
+  year =         "2017",
+  publisher =    "Springer International Publishing",
+  address =      "Cham",
+  pages =        "28--45",
+  abstract =     "We present a formalization of convex polyhedra in
+                  the proof assistant Coq. The cornerstone of our work
+                  is a complete implementation of the simplex method,
+                  together with the proof of its correctness and
+                  termination. This allows us to define the basic
+                  predicates over polyhedra in an effective way
+                  (i.e. as programs), and relate them with the
+                  corresponding usual logical counterparts. To this
+                  end, we make an extensive use of the Boolean
+                  reflection methodology. The benefit of this approach
+                  is that we can easily derive the proof of several
+                  essential results on polyhedra, such as Farkas
+                  Lemma, duality theorem of linear programming, and
+                  Minkowski Theorem.",
+  isbn =         "978-3-319-66107-0"
+}

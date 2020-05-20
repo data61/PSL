@@ -1,0 +1,157 @@
+%% Copyright (C) 2018 The University of Sheffield
+%%               2018 The University of Paris-Sud
+%%               2019 The University of Exeter
+%%
+%% License:
+%%   This program can be redistributed and/or modified under the terms
+%%   of the LaTeX Project Public License Distributed from CTAN
+%%   archives in directory macros/latex/base/lppl.txt; either
+%%   version 1 of the License, or any later version.
+%%   OR
+%%   The 2-clause BSD-style license.
+%%  
+%%   SPDX-License-Identifier: LPPL-1.0+ OR BSD-2-Clause
+
+\NeedsTeXFormat{LaTeX2e}\relax
+\ProvidesPackage{DOF-scholarly_paper}
+  [0000/00/00 Unreleased v0.0.0+%
+  Document-Type Support Framework for Isabelle (LNCS).]
+
+\RequirePackage{DOF-COL}
+\RequirePackage{ifthen}
+
+\RequirePackage{ifthen}
+\newboolean{DOF@scholarlypaper@force}
+\DeclareOption{force}{\setboolean{DOF@scholarlypaper@force}{true}}
+
+\ProcessOptions\relax
+
+\ifthenelse{\boolean{DOF@scholarlypaper@force}}{%
+}{%
+\@ifclassloaded{llncs}%
+  {}%
+  {%
+    \@ifclassloaded{scrartcl}%
+    {%
+      \newcommand{\institute}[1]{}%
+      \newcommand{\inst}[1]{}%
+      \newcommand{\orcidID}[1]{}%
+      \newcommand{\email}[1]{}%
+    }%
+    {%
+      \@ifclassloaded{lipics-v2019}%
+      {%
+        \newcommand{\institute}[1]{}%
+        \newcommand{\inst}[1]{}%
+        \newcommand{\orcidID}[1]{}%
+        \newcommand{\email}[1]{}%
+      }%
+      {%
+        \@ifclassloaded{eptcs}%
+        {%
+          \newcommand{\inst}[1]{}%
+          \newcommand{\orcidID}[1]{}%
+        }%
+        {%
+          \PackageError{DOF-scholarly_paper}
+                       {Scholarly Paper only supports LNCS or scrartcl as document class.}
+                       {}\stop%
+        }%
+      }%
+    }
+  }
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: title*
+\NewEnviron{isamarkuptitle*}[1][]{\isaDof[env={title},#1]{\BODY}}
+\newisadof{title.scholarly_paper.title}%
+[label=,type=%
+,scholarly_paper.title.short_title=%
+][1]{%
+  \immediate\write\@auxout{\noexpand\title{#1}}%
+}
+% end: title*
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: subtitle*
+\NewEnviron{isamarkupsubtitle*}[1][]{\isaDof[env={subtitle},#1]{\BODY}}
+\newisadof{subtitle.scholarly_paper.subtitle}%
+[label=,type=%
+,scholarly_paper.subtitle.abbrev=%
+][1]{%
+  \immediate\write\@auxout{\noexpand\subtitle{#1}}%
+}
+% end: subtitle*
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: scholarly_paper.author
+\def\dof@author{}%
+\def\dof@affiliation{}%
+
+\newcommand{\DOFauthor}{\author{\dof@author}}
+\newcommand{\DOFinstitute}{\institute{\dof@affiliation}}
+
+\AtBeginDocument{%
+  \DOFauthor
+  \DOFinstitute
+}
+
+\def\leftadd#1#2{\expandafter\leftaddaux\expandafter{#1}{#2}{#1}}
+\def\leftaddaux#1#2#3{\gdef#3{#1#2}}
+
+\newcounter{dof@cnt@author}
+\newcommand{\addauthor}[1]{%
+  \ifthenelse{\equal{\dof@author}{}}{%
+    \gdef\dof@author{#1}%
+  }{%
+    \leftadd\dof@author{\protect\and #1}%
+  }
+}
+
+\newcommand{\addaffiliation}[1]{%
+  \ifthenelse{\equal{\dof@affiliation}{}}{%
+    \gdef\dof@affiliation{#1}%
+  }{%
+    \leftadd\dof@affiliation{\protect\and #1}%
+  }
+}
+
+\provideisadof{text.scholarly_paper.author}%
+[label=,type=%
+,scholarly_paper.author.email=%
+,scholarly_paper.author.affiliation=%
+,scholarly_paper.author.orcid=%
+,scholarly_paper.author.http_site=%
+][1]{%
+  \stepcounter{dof@cnt@author}
+  \def\dof@a{\commandkey{scholarly_paper.author.affiliation}}
+  \ifthenelse{\equal{\commandkey{scholarly_paper.author.orcid}}{}}{%
+    \immediate\write\@auxout{\noexpand\addauthor{#1\noexpand\inst{\thedof@cnt@author}}}%
+  }{%
+    \immediate\write\@auxout{\noexpand\addauthor{#1\noexpand\inst{\thedof@cnt@author}\orcidID{\commandkey{scholarly_paper.author.orcid}}}}%
+  }
+  \protected@write\@auxout{}{\string\addaffiliation{\dof@a\\\string\email{\commandkey{scholarly_paper.author.email}}}}%
+}
+% end: scholarly_paper.author
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: scholarly_paper.abstract
+\providecommand{\keywords}[1]{\mbox{}\\[2ex]\mbox{}\noindent{\textbf{Keywords:}} #1}
+\newisadof{text.scholarly_paper.abstract}%
+[label=,type=%
+,scholarly_paper.abstract.keywordlist=%
+][1]{%
+  \begin{isamarkuptext}%
+    \begin{abstract}%
+      #1%
+      \ifthenelse{\equal{\commandkey{scholarly_paper.abstract.keywordlist}}{}}{}{%     
+        \keywords{\commandkey{scholarly_paper.abstract.keywordlist}}%
+      }%
+    \end{abstract}%
+  \end{isamarkuptext}%
+}
+% end: scholarly_paper.abstract
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

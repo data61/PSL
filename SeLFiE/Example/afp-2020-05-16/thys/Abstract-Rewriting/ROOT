@@ -1,0 +1,15 @@
+chapter AFP
+
+session "Abstract-Rewriting" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "Regular-Sets"
+  theories
+    Seq
+    Abstract_Rewriting
+    Relative_Rewriting
+    SN_Orders
+    SN_Order_Carrier
+  document_files
+    "root.bib"
+    "root.tex"

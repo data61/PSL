@@ -1,0 +1,9 @@
+chapter AFP 
+
+session "HyperCTL" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    HyperCTL
+  document_files 
+    "root.tex"
+    "intro.tex"

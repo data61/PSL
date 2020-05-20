@@ -1,0 +1,105 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,amsmath,amsthm}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\OSC}{\mathit{OSC}}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+
+\begin{document}
+
+\title{Maximum Cardinality Matching}
+\author{Christine Rizkallah}
+\maketitle
+
+\begin{abstract}
+
+A \emph{matching} in a graph $G$ is a subset $M$ of the edges of $G$ such that 
+no two share an endpoint.  
+A matching has maximum cardinality if its cardinality is at least as large as
+that of any other matching.  
+An \emph{odd-set cover} $\OSC$ of a graph $G$ is a labeling of the nodes of $G$
+with integers such that every edge of $G$ is either incident to a node labeled 1 or connects two nodes labeled with the same number $i \ge 2$.
+
+\begin{theorem}[Edmonds~\cite{Edmonds:matching}]
+
+\label{thm-edm}
+Let $M$ be a matching in a graph $G$ and let $OSC$ be an odd-set cover of $G$.
+For any $i \ge 0$, let $n_i$ be the number of nodes labeled $i$. If 
+$$\abs{M} = n_1 + \sum_{i\ge 2}\lfloor n_i/2 \rfloor$$
+then $M$ is a maximum cardinality matching.
+\end{theorem}
+
+We provide an Isabelle proof of Edmonds theorem. For an explanation of the proof see \cite{VerificationofCertifyingComputations}.
+%\begin{proof} Let $N$ be any matching in $G$. 
+%For $i \ge 2$, let $N_i$ be the edges in $N$ that connect two nodes labeled $i$
+%and let $N_1$ be the remaining edges in $N$. Then, by the definition of odd-set
+%cover, every edge in $N_1$ is incident to a vertex labeled 1. Since edges in a
+%matching do not share endpoints, we have
+%\[\abs{N_1} \le n_1\;\;\text{and}\;\;\abs{N_i} \le \lfloor n_i/2 \rfloor \;\;\text{for
+%$i \ge 2$.}\]
+%Thus $\abs{N} \le  n_1 + \sum_{i\ge 2} \lfloor n_i / 2 \rfloor =
+%\abs{M}$. 
+%\qed
+%\end{proof}
+%In the following we present an  Isabelle/HOL proof of Theorem \ref{thm-edm}.
+%The Isabelle/HOL proof follows the scheme of the informal proof and is split
+%into two main parts. 
+%
+%For $i \ge 2$, let $M_i$ be the edges in $M$ that connect two nodes labeled $i$
+%and let $M_1$ be the remaining edges in $M$. We use the definition of odd-set
+%cover to prove that $M \subseteq  \bigcup_{i\ge1} M_i$ and thus $\abs{M} \le \sum_{i}\abs{M_i}$. 
+%Let $V_i$ be the nodes labeled $i$ and let $n_i = \abs{V_i}$. 
+%We formally prove: $\abs{M_1} \le n_1$ and $\abs{M_i} \le \lfloor n_i/2
+%\rfloor$. 
+%
+%\newcommand{\pinV}{\mathit{endpoint}_{V_1}}
+%
+%In order to prove $\abs{M_1} \le n_1$, we exhibit an injective function from $M_1$
+%to $V_1$. We first prove, using the definition of odd-set cover, that every
+%edge $e \in M_1$ has at least one endpoint in $V_1$. This gives rise to a function
+%$\pinV: M_1 \mapsto V_1$. We then use the fact that edges in
+%a matching do not share endpoints, i.e., are disjoint when interpreted as
+%sets, to conclude that $\pinV$ is injective. This establishes $\abs{M_1} \le
+%\abs{V_i}$. 
+%
+%For $i\ge2$ the proof of the inequality $\abs{M_i} \le \lfloor n_i/2 \rfloor$ is similar,
+%but more involved. $M_i$ is a set of edges.
+%If we represent edges as sets (each has cardinality equals two), then $M_i$ is a collection of sets.
+%We define the set of vertices $V^\prime_i$ to be $\bigcup M_i$ and use the definition of odd-set cover to
+%prove $V^\prime_i \subseteq V_i$. 
+%Then, we use the fact that the edges in a matching are pairwise disjoint to 
+% prove $\abs{V^\prime_i} = 2 * \abs{M_i}$. 
+%Note also that $\abs{V^\prime_i}$ must be even since $\abs{M_i}$ is a natural
+%number. Thus we can prove that $\abs{M_i} \le \lfloor\abs{V^\prime_i}/2\rfloor$ and hence 
+%$\abs{M_i} \le \lfloor\abs{V^\prime_i} / 2\rfloor \le \lfloor \abs{V_i}/2 \rfloor
+%= \lfloor n_i/2 \rfloor$. 
+
+\end{abstract}
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

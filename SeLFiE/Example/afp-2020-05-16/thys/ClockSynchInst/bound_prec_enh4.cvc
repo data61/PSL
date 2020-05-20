@@ -1,0 +1,89 @@
+% Version removing de universal quantification over C
+% and skolemising (creating new variables)
+% and removing universal quantifiers in hbx 
+% It work :)
+
+SETPROC : TYPE;
+PROC : TYPE;
+
+pmaxf, pmaxg, pminf, pming : PROC;
+sbfg, sbgf: PROC;
+
+np, khl: INT;
+maxreduc: (PROC -> REAL, SETPROC) -> REAL;
+minreduc: (PROC -> REAL, SETPROC) -> REAL;
+
+x, y : REAL;
+
+f : PROC -> REAL;
+g : PROC -> REAL;
+
+PR, C : SETPROC;
+
+card : SETPROC -> INT;
+INCL : (SETPROC,SETPROC) -> BOOLEAN;
+INSET : (PROC, SETPROC) -> BOOLEAN;
+
+abs: REAL -> REAL = LAMBDA (x:REAL): IF x>=0 THEN x ELSE (-x) ENDIF;
+
+constants_ax: BOOLEAN = 2*khl < np AND khl >= 0;
+hcard: BOOLEAN = card(C) >= 0;
+
+uboundmaxf: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl
+               => INSET(pmaxf,C)  AND maxreduc( f, PR) <= f(pmaxf);
+
+uboundmaxg: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl
+               => INSET(pmaxg,C)  AND maxreduc( g, PR) <= g(pmaxg);
+
+lboundminf: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl
+               =>  INSET(pminf,C)  AND minreduc( f, PR) >= f(pminf);
+
+lboundming: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl
+               => INSET(pming,C)  AND minreduc( g, PR) >= g(pming);
+
+same_bound_f_g: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl AND 3*khl < np
+               => INSET(sbfg,C)  AND minreduc( f, PR) <= f(sbfg)
+				 AND maxreduc( g, PR) >= g(sbfg);
+
+same_bound_g_f: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl AND 3*khl < np
+               => INSET(sbgf,C)  AND minreduc( g, PR) <= g(sbgf)
+				 AND maxreduc( f, PR) >= f(sbgf);
+
+hC : BOOLEAN = INCL(C,PR);
+
+hnp : BOOLEAN = np <= card(C) + khl AND 3*khl < np;
+
+% hbx : BOOLEAN = FORALL (l:PROC): INSET(l,C) => abs(f(l) - g(l)) <= x;
+
+hbx_pmaxf : BOOLEAN = INSET(pmaxf,C) => abs(f(pmaxf) - g(pmaxf)) <= x;
+hbx_pmaxg : BOOLEAN = INSET(pmaxg,C) => abs(f(pmaxg) - g(pmaxg)) <= x;
+hbx_pminf : BOOLEAN = INSET(pminf,C) => abs(f(pminf) - g(pminf)) <= x;
+hbx_pming : BOOLEAN = INSET(pming,C) => abs(f(pming) - g(pming)) <= x;
+hbx_sbfg : BOOLEAN = INSET(sbfg,C) => abs(f(sbfg) - g(sbfg)) <= x;
+hbx_sbgf : BOOLEAN = INSET(sbgf,C) => abs(f(sbgf) - g(sbgf)) <= x;
+
+hby1 : BOOLEAN = FORALL (l:PROC): INSET(l,C) => 
+                   FORALL (m:PROC): INSET(m,C) => abs(f(l) - f(m)) <= y;
+
+hby2 : BOOLEAN = FORALL (l:PROC): INSET(l,C) => 
+                   FORALL (m:PROC): INSET(m,C) => abs(g(l) - g(m)) <= y;
+
+ASSERT(hcard AND constants_ax AND hC AND hnp AND
+	uboundmaxf AND uboundmaxg AND 
+	lboundminf AND lboundming AND
+	same_bound_f_g AND same_bound_g_f AND
+        hbx_pmaxf AND hbx_pmaxg AND hbx_pminf AND 
+        hbx_pming AND hbx_sbfg AND hbx_sbgf AND 
+        hby1 AND hby2);
+
+QUERY( abs(maxreduc(f,PR) + minreduc(f,PR) 
+            - maxreduc(g,PR) - minreduc(g,PR)) <= 
+                    y + 2 * x); 
+
+% DUMP_PROOF;

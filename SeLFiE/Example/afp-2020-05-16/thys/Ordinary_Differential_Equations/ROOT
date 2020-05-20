@@ -1,0 +1,55 @@
+chapter AFP
+
+session "Ordinary_Differential_Equations" (AFP) = "HOL-Analysis" +
+  options [timeout = 1200]
+  sessions
+    "HOL-Decision_Procs"
+    Triangle
+    "List-Index"
+    Affine_Arithmetic
+  directories
+    "Library"
+    "IVP"
+  theories
+    ODE_Analysis
+  document_files
+    "root.bib"
+    "root.tex"
+
+session "HOL-ODE-Numerics" (AFP) in "Numerics" = Ordinary_Differential_Equations +
+  options [timeout = 10800]
+  sessions
+    Collections
+    Show
+    Affine_Arithmetic
+    Deriving
+    "HOL-Types_To_Sets"
+  directories
+    "../Refinement"
+  theories
+    ODE_Numerics
+
+session "Lorenz_Approximation" (AFP) in "Ex/Lorenz" = "HOL-ODE-Numerics" +
+  options [timeout = 1200]
+  theories
+    Lorenz_Approximation
+
+session "HOL-ODE-Examples" (AFP large) in "Ex" = "HOL-ODE-Numerics" +
+  options [timeout = 7200]
+  theories
+    ODE_Examples
+
+session "HOL-ODE-ARCH-COMP" (AFP) in "Ex/ARCH_COMP" = "HOL-ODE-Numerics" +
+  options [timeout = 7200]
+  theories
+    "Examples_ARCH_COMP"
+
+session "Lorenz_C0" (AFP large) in "Ex/Lorenz/C0" = "Lorenz_Approximation" +
+  options [timeout = 14400]
+  theories
+    Lorenz_C0
+
+session "Lorenz_C1" (AFP large) in "Ex/Lorenz/C1" = "Lorenz_Approximation" +
+  options [timeout = 300 (*360000*)]
+  theories
+    Lorenz_C1

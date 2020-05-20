@@ -1,0 +1,26 @@
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/mlton.mlb 
+
+/usr/local/lib/mlton/sml/mlyacc-lib/base.sig
+/usr/local/lib/mlton/sml/mlyacc-lib/join.sml
+/usr/local/lib/mlton/sml/mlyacc-lib/lrtable.sml
+/usr/local/lib/mlton/sml/mlyacc-lib/stream.sml
+/usr/local/lib/mlton/sml/mlyacc-lib/parser2.sml
+
+ann "nonexhaustiveMatch ignore" 
+    "redundantMatch ignore"
+in
+    LTL_to_DRA_Translator.sml
+end
+
+../../LTL/parser/datatypes.sml
+../../LTL/parser/compiler.sml
+../../LTL/parser/datatypes.sml
+../../LTL/parser/ltl.yacc.sig
+../../LTL/parser/ltl.yacc.sml
+../../LTL/parser/ltl.lex.sml
+../../LTL/parser/glue.sml
+../../LTL/parser/compiler.sml
+
+LTL_to_DRA_CLI.sml
+LTL_to_DRA_mlton.sml

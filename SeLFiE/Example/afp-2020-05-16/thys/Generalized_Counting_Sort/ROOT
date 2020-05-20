@@ -1,0 +1,12 @@
+chapter AFP
+
+session Generalized_Counting_Sort(AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Algorithm
+    Conservation
+    Sorting
+    Stability
+  document_files
+    "root.bib"
+    "root.tex"

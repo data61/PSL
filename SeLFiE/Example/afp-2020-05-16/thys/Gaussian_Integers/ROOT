@@ -1,0 +1,14 @@
+chapter AFP
+
+session Gaussian_Integers (AFP) = "HOL-Number_Theory" +
+  options [timeout = 1200]
+  sessions
+    "HOL-Computational_Algebra"
+    "HOL-Library"
+    Polynomial_Factorization
+  theories
+    Gaussian_Integers_Everything
+  document_files
+    "root.tex"
+    "root.bib"
+

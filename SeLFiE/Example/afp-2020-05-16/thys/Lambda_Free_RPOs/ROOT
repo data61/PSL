@@ -1,0 +1,11 @@
+chapter AFP
+
+session Lambda_Free_RPOs (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-Cardinals"
+    "Nested_Multisets_Ordinals"
+  theories
+    Lambda_Free_RPOs
+  document_files
+    "root.tex"

@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Akra--Bazzi theorem and the Master theorem}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This article contains a formalisation of the Akra--Bazzi method~\cite{akrabazzi} based on a proof by Leighton~\cite{leighton}. It is a generalisation of the well-known Master Theorem for analysing the complexity of Divide \& Conquer algorithms. We also include a generalised version of the Master theorem based on the Akra--Bazzi theorem, which is easier to apply than the Akra--Bazzi theorem itself.
+
+Some proof methods that facilitate applying the Master theorem are also included. For a more detailed explanation of the formalisation and the proof methods, see the accompanying paper (publication forthcoming).
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

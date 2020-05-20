@@ -1,0 +1,9 @@
+chapter AFP
+
+session Jacobson_Basic_Algebra (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+  theories
+    Ring_Theory
+  document_files "root.tex" "root.bib"

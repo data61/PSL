@@ -1,0 +1,107 @@
+\documentclass[11pt,a4paper]{book}
+
+\usepackage{isabelle,isabellesym}
+\usepackage[english]{babel}
+\usepackage{natbib}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[all]{xy}
+\usepackage{lmodern}
+\usepackage[pdftex,colorlinks=true,linkcolor=blue]{hyperref}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+\renewcommand{\chapterautorefname}{Chapter}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Section}
+\renewcommand{\subsubsectionautorefname}{Section}
+\renewcommand{\appendixautorefname}{Appendix}
+\renewcommand{\Hfootnoteautorefname}{Footnote}
+\newcommand{\lemmaautorefname}{Lemma}
+\newcommand{\definitionautorefname}{Definition}
+
+\frontmatter
+
+\title{pGCL for Isabelle}
+\author{David Cock}
+\maketitle
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\mainmatter
+
+\chapter{Overview}
+
+pGCL is both a programming language and a specification language that
+incorporates both probabilistic and nondeterministic choice, in a unified
+manner.  Program verification is by \emph{refinement} or \emph{annotation} (or
+both), using either Hoare triples, or weakest-precondition entailment, in the
+style of GCL \citep{Dijkstra_75}.
+
+This document is divided into three parts: \autoref{c:intro} gives a
+tutorial-style introduction to pGCL, and demonstrates the tools provided by
+the package; \autoref{c:semantics} covers the development of the semantic
+interpretation: \emph{expectation transformers}; and \autoref{c:language}
+covers the formalisation of the language primitives, the associated
+\emph{healthiness} results, and the tools for structured and automated
+reasoning.  This second part follows the technical development of the pGCL
+theory package, in detail.  It is not a great place to start learning pGCL.
+For that, see either the tutorial or \citet{McIver_M_04}.
+
+This formalisation was first presented (as an overview) in \citet{Cock_12}.
+The language has previously been formalised in HOL4 by \citet{Hurd_05}.  Two
+substantial results using this package were presented in \citet{Cock_13},
+\citet{Cock_14} and \citet{Cock_14a}.
+
+\chapter{Introduction to pGCL}
+\label{c:intro}
+\input{Primitives}
+\input{LoopExamples}
+\input{Monty}
+
+\chapter{Semantic Structures}
+\label{c:semantics}
+\input{Expectations}
+\input{Transformers}
+\input{Induction}
+
+\chapter{The pGCL Language}
+\label{c:language}
+\input{Embedding}
+\input{Healthiness}
+\input{Continuity}
+\input{LoopInduction}
+\input{Sublinearity}
+\input{Determinism}
+\input{WellDefined}
+\input{Loops}
+\input{Algebra}
+\input{StructuredReasoning}
+\input{Termination}
+\input{Automation}
+
+\backmatter
+
+\chapter{Additional Material}
+\label{c:additional}
+\input{Misc}
+
+\bibliographystyle{plainnat}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

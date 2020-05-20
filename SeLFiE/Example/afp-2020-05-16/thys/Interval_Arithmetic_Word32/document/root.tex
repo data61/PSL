@@ -1,0 +1,76 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Interval Arithmetic on 32-bit Words}
+\author{Brandon Bohrer}
+\maketitle
+
+\begin{abstract}
+ This article implements conservative interval arithmetic
+ computations, then uses this interval arithmetic to implement a
+ simple programming language where all terms have 32-bit signed word
+ values, with explicit infinities for terms outside the representable
+ bounds. Our target use case is interpreters for languages that must
+ have a well-understood low-level behavior.
+
+ We include a formalization of bounded-length strings which are used
+ for the identifiers of our language. Bounded-length identifiers are
+ useful in some applications, for example the
+ Differential\_Dynamic\_Logic \cite{Differential_Dynamic_Logic-AFP}
+ article, where a Euclidean space indexed by identifiers demands that
+ identifiers are finitely many.
+\end{abstract}
+\newpage
+
+\tableofcontents
+\newpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

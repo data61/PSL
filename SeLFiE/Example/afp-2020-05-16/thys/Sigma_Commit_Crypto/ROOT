@@ -1,0 +1,17 @@
+chapter AFP
+
+session "Sigma_Commit_Crypto" (AFP) = CryptHOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Number_Theory"
+  theories
+    "Pedersen"
+    "Rivest"
+    "Schnorr_Sigma_Commit"
+    "Chaum_Pedersen_Sigma_Commit"
+    "Okamoto_Sigma_Commit"
+    "Sigma_AND"
+    "Sigma_OR"
+  document_files
+    "root.bib"
+    "root.tex"

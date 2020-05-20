@@ -1,0 +1,34 @@
+chapter AFP
+
+session JinjaThreads (AFP slow) = HOL +
+  options [timeout = 28800]
+  sessions
+    "HOL-Word"
+    "Binomial-Heaps"
+    "Finger-Trees"
+    Automatic_Refinement
+    Coinductive
+    Collections
+    FinFun
+    Native_Word
+    Refine_Monadic
+    Trie
+  directories
+    "BV"
+    "Basic"
+    "Common"
+    "Compiler"
+    "DFA"
+    "Examples"
+    "Execute"
+    "Framework"
+    "J"
+    "JVM"
+    "MM"
+  theories [document = false]
+    "Basic/Basic_Main"
+  theories
+    JinjaThreads
+  document_files
+    "root.bib"
+    "root.tex"

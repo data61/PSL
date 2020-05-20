@@ -1,0 +1,25 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Constructor Functions}
+\author{Lars Hupel}
+\maketitle
+
+\begin{abstract}
+  Isabelle's code generator performs various adaptations for target languages. Among others,
+  constructor applications have to be fully saturated. That means that for constructor calls
+  occuring as arguments to higher-order functions, synthetic lambdas have to be inserted. This entry
+  provides tooling to avoid this construction altogether by introducing constructor functions.
+\end{abstract}
+
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\end{document}

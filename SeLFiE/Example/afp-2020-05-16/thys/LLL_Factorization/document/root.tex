@@ -1,0 +1,222 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\lc[1]{\mathsf{lc}(#1)}
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\complex{\mathbb{C}}
+
+\newcommand\GFpp[1]{\ensuremath{\text{GF}(#1)}}
+\newcommand\GFp{\GFpp{p}}
+\newcommand\ring[1][p^k]{\ensuremath{\ints/{#1}\ints}\xspace}
+\newcommand\tint{\isa{int}}
+\newcommand\tlist{\isa{list}}
+\newcommand\tpoly{\isa{poly}}
+\newcommand\tto{\Rightarrow}
+\newcommand\sqfree{\isa{square\_free}\xspace}
+\newcommand\norm[1]{|\!|#1|\!|}
+\newcommand\sqnorm[1]{\norm{#1}^2}
+\newcommand\lemma{\isakeyword{lemma}\xspace}
+\newcommand\assumes{\isakeyword{assumes}\xspace}
+\newcommand\idegree{\isa{degree}}
+\newcommand\iand{\isakeyword{and}\xspace}
+\newcommand\shows{\isakeyword{shows}}
+\newcommand\bz{\isa{berlekamp\_zassenhaus\_factorization}\xspace}
+\newcommand\fs{\mathit{fs}}
+\newcommand\listprod{\isa{prod\_list}}
+\newcommand\set{\isa{set}}
+\newcommand\irred{\isa{irreducible}}
+\newcommand\rTH[1]{Theorem~\ref{#1}}
+\newcommand\base[1]{(#1_0,\ldots,#1_{n-1})}
+\newcommand\Base[2][m]{{#2}_0,\ldots,{#2}_{#1-1}}
+\newcommand\degree[1]{\mathit{degree}(#1)}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemmas}{Lemma}
+\newtheorem{example}{Example}
+\renewcommand\gcd{\mathit{gcd}}
+
+\newcommand\rsub[1]{(\ref{#1})}
+\newcommand\rLE[1]{Lemma~\ref{#1}}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{A verified factorization algorithm for integer polynomials with polynomial complexity\footnote{Supported by FWF (Austrian Science Fund) project Y757.
+Jose Divas\'on is partially funded by the
+Spanish project MTM2017-88804-P.}}
+\author{Jose Divas\'on \and
+  Sebastiaan Joosten \and
+  Ren\'e Thiemann \and
+  Akihisa Yamada}
+\maketitle
+
+
+\begin{abstract}
+Short vectors in lattices and factors of integer polynomials are related. 
+Each factor of an integer polynomial belongs to a certain lattice. 
+When factoring polynomials, the condition that we are looking for an irreducible polynomial
+means that we must look for a \emph{small} element in a lattice, which can be done by a basis reduction algorithm.
+In this development we formalize this connection and thereby one main application of the LLL basis reduction algorithm: an algorithm 
+to factor square-free integer polynomials
+which runs in polynomial time. The work is based on our previous Berlekamp--Zassenhaus development, where the exponential
+reconstruction phase has been replaced by the polynomial-time basis reduction algorithm.
+Thanks to this formalization we found a serious flaw in a textbook. 
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+In order to factor an integer polynomial $f$, we
+may assume a \emph{modular} factorization of $f$ into several monic 
+factors $u_i$: $f \equiv \lc f \cdot \prod_i u_i$ modulo $m$ where $m = p^l$ is some prime power for user-specified
+$l$. 
+In Isabelle, we just reuse our verified modular factorization algorithm~\cite{BZ_CPP17} to obtain the
+modular factorization of $f$.
+
+We briefly explain how to compute non-trivial integer factors of $f$. The key is the following lemma~\cite[Lemma~16.20]{MCA}.
+
+\begin{lemmas}[{\cite[Lemma~16.20]{MCA}}]
+\label{lemma_16.20}
+Let $f,g,u$ be non-constant integer polynomials. Let $u$ be monic.
+If $u$ divides $f$ modulo $m$, $u$ divides $g$ modulo $m$, and 
+$\norm f^{\degree g} \cdot \norm g^{\degree f} < m$, then $h = \gcd(f,g)$ is non-constant.
+\end{lemmas}
+
+Let $f$ be a polynomial of degree $n$. Let $u$ be any degree-$d$ factor of $f$ modulo~$m$.
+Now assume that $f$ is reducible, so $f = f_1 \cdot f_2$ where 
+w.l.o.g., we assume that $u$ divides $f_1$ modulo $m$ and that $0 < \degree{f_1} < n$.
+Let us further assume that
+ a lattice $L_{u,k}$ encodes
+the set of all polynomials of degree below $d+k$ (as vectors of length $d+k$) which are divisible by $u$ modulo~$m$.
+Fix $k = n - d$. Then clearly, $f_1 \in L_{u,k}$.
+
+In order to instantiate \rLE{lemma_16.20}, it now suffices to take $g$ as the polynomial corresponding
+to any short vector in $L_{u,k}$: $u$ will divide $g$ modulo $m$ by definition of $L_{u,k}$
+and moreover $\degree g < n$. 
+The short vector requirement will provide an upper bound to satisfy
+the assumption $\norm f^{\degree g} \cdot \norm g^{\degree f} < m$.
+\begin{align}
+\label{g_ineq} & \norm g  \leq 2^{(n - 1)/2} \cdot \norm{f_1} \leq 2^{(n - 1)/2} \cdot 2^{n-1} \norm f 
+  = 2^{3(n-1)/2} \norm f \\
+\label{full_ineq} \norm f^{\degree g} \cdot & \norm g^{\degree f}
+\leq 
+\norm f^{n-1} \cdot (2^{3(n - 1)/2} \norm f)^{n} = \norm f^{2n-1} \cdot 2^{3n(n - 1)/2}
+\end{align}
+Here, the first inequality in \rsub{g_ineq} is the short vector approximation ($f_1 \in L_{u,k}$).
+The second inequality in \rsub{g_ineq} is Mignotte's factor bound ($f_1$ is a factor of $f$). 
+Finally, \rsub{g_ineq} is used as an approximation of $\norm g$ in \rsub{full_ineq}.
+
+Hence, if $l$ is chosen large enough so that $m = p^l > \norm f^{2n-1} \cdot 2^{3n(n - 1)/2}$ then all
+preconditions of \rLE{lemma_16.20} are satisfied, and $h = \gcd(f,g)$ will be a non-constant 
+factor of $f$. Since the degree of $h$ will be strictly less than $n$, $h$ is also a proper factor
+of $f$, i.e., in particular $h \notin \{1,f\}$.
+
+The textbook~\cite{MCA} also describes the general idea of the factorization algorithm based on 
+the previous lemma in prose, 
+and then presents an algorithm in pseudo-code which slightly extends the idea by
+directly splitting off \emph{irreducible} factors~\cite[Algorithm~16.22]{MCA}. 
+We initially implemented and tried to verify this pseudo-code algorithm (see files \texttt{Factorization\_Algorithm\_16\_22.thy} 
+and \texttt{Modern\_Computer\_Algebra\_Problem.thy}). After some work, 
+we had only one remaining goal to prove: the content of the polynomial $g$ corresponding to the short vector is not
+divisible by the chosen prime $p$.
+However,
+we were unable to figure out how to discharge this goal and then also started to search for inputs
+where the algorithm delivers wrong results. After a while we realized that Algorithm~16.22 indeed
+has a serious flaw as demonstrated in the upcoming example.
+
+\begin{example}
+Consider the square-free and content-free polynomial 
+$f = (1+x) \cdot (1 + x + x^3)$.
+Then according to Algorithm 16.22 we determine 
+\begin{itemize}
+\item the prime $p = 2$
+\item the exponent $l = 61$ \\
+ (our new formalized algorithm uses a tighter bound which results in $l = 41$)
+\item the leading coefficient $b = 1$
+\item the value $B = 96$
+\item the factorization mod $p$ via $h_1 = 1 + x$, $h_2 = 1 + x + x^3$
+\item the factorization mod $p^l$ via $g_1 = 1 + x$, $g_2 = 1 + x + x^3$
+\item $f^* = f$, $T = \{1,2\}$, $G = \emptyset$.
+\item we enter the loop and in the first iteration choose 
+\item $u = 1 + x + x^3$, $d = 3$, $j = 4$
+\item we consider the lattice generated by $(1,1,0,1)$, 
+  $(p^l,0,0,0)$, $(0,p^l,0,0)$, $(0,0,p^l,0)$.
+\item now we obtain a short vector in the lattice:
+  $g^* = (2,2,0,2)$. \\
+  Note that $g^*$ has not really been computed by Algorithm 16.10, but
+  it satisfies the soundness criterion, i.e., it is a sufficiently short vector
+  in the lattice.
+  
+  To see this, note that a shortest vector in the lattice is $(1,1,0,1)$.
+  \[
+  \norm{g^*} = 2 \cdot \sqrt 3 
+  \leq 2 \cdot \sqrt 2 \cdot \sqrt 3 
+  = 2^{(j-1)/2} \cdot \norm{(1,1,0,1)}
+  \]
+  So $g^*$ has the required precision that was assumed by the
+  short-vector calculation.
+\item the problem at this point is that $p$ divides the content of $g^*$. 
+  Consequently, every polynomial divides $g^*$ mod $p$.
+  Thus in step 9 we compute $S = T$, $h = 1$, enter the then-branch and update
+  $T = \emptyset$, $G = G \cup \{1 + x + x^3\}$, $f^* = 1$, $b = 1$.
+\item Then in step 10 we update $G = \{1 + x + x^3, 1\}$ 
+  and finally return that the factorization of $f$ is $(1 + x + x^3) \cdot 1$.
+\end{itemize}
+\end{example}
+
+More details about the bug and some other wrong results presented in the book
+are shown in the file \texttt{Modern\_Computer\_Algebra\_Problem.thy}.
+
+Once we realized the problem, we derived another algorithm based on Lemma~\ref{lemma_16.20}, 
+which also runs in polynomial-time, and prove its soundness in Isabelle/HOL. 
+The corresponding Isabelle statement is as follows:
+
+\begin{theorem}[LLL Factorization Algorithm]
+\label{thm:LLL_factorization}
+\begin{align*}
+& \assumes\ \sqfree\ (f :: \tint\ \tpoly) \\
+& \iand\ \idegree\ f \neq 0 \\
+& \iand\  \isa{LLL\_factorization}\ f = gs \\
+& \shows\ f = \listprod\ gs\ \\
+& \iand\ \forall g_i \in \set\ gs.\ \irred\ g_i
+\end{align*}
+\end{theorem}
+
+Finally, we also have been able to fix Algorithm~16.22 and 
+provide a formal correctness proof of the the slightly modified version. 
+It can be seen as an implementation of the pseudo-code factorization algorithm
+given by Lenstra, Lenstra, and Lov{\'a}sz \cite{LLL}.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

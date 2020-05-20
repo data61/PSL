@@ -1,0 +1,9 @@
+chapter AFP
+
+session Matroids (AFP) = HOL +
+  options [timeout = 300]
+  theories
+    Matroid
+  document_files
+    "root.tex"
+    "root.bib"

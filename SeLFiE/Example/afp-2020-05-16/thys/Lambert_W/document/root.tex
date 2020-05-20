@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+\usepackage{pgfplots}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{The Lambert $W$ Function on the Reals}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+The Lambert $W$ function is a multi-valued function defined as the inverse function of $x \mapsto x e^x$. Besides numerous applications in combinatorics, physics, and engineering, it also frequently occurs when solving equations containing both $e^x$ and $x$, or both $x$ and $\log x$.
+
+This article provides a definition of the two real-valued branches $W_0(x)$ and $W_{-1}(x)$ and proves various properties such as basic identities and inequalities, monotonicity, differentiability, asymptotic expansions, and the MacLaurin series of $W_0(x)$ at $x = 0$.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\nocite{corless96}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

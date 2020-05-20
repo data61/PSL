@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Differential-Game-Logic}
+\author{Andr\'e Platzer}
+\maketitle
+
+\begin{abstract}
+This formalization provides differential game logic (\textsf{dGL}), a logic for proving properties of hybrid game. In addition to the syntax and semantics, it formalizes a uniform substitution calculus for \textsf{dGL}. Church's uniform substitutions substitute a term or formula for a function or predicate symbol everywhere. The uniform substitutions for \textsf{dGL} also substitute hybrid games for a game symbol everywhere. We prove soundness of one-pass uniform substitutions and the axioms of differential game logic with respect to their denotational semantics. One-pass uniform substitutions are faster by postponing soundness-critical admissibility checks with a linear pass homomorphic application and regain soundness by a variable condition at the replacements.
+
+The formalization is based on prior non-mechanized soundness proofs for \textsf{dGL} \cite{DBLP:journals/tocl/Platzer15,DBLP:conf/cade/Platzer18,DBLP:conf/cade/Platzer19,DBLP:journals/tocl/Platzer15,DBLP:journals/corr/Platzer18:usubst}. This AFP entry formalizes the mathematical proofs \cite{DBLP:conf/cade/Platzer19,DBLP:journals/corr/abs-1902-07230} till Theorem 19.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+This formalization provides \emph{Differential Game Logic} \textsf{dGL} \cite{DBLP:journals/corr/abs-1902-07230,DBLP:conf/cade/Platzer19} till Theorem 19,
+including the corresponding results from  \cite{DBLP:conf/cade/Platzer18} till Lemma 13.
+Differential Game Logic originates from \cite{DBLP:journals/tocl/Platzer15}.\\[1em]
+
+
+% generated text of all theories
+\input{session}
+
+\paragraph{Acknowledgment.}
+I very much appreciate all the kind advice of the entire Isabelle Group at TU Munich and Fabian Immler and Brandon Bohrer for how to best formalize the mathematical proofs in Isabelle/HOL.
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

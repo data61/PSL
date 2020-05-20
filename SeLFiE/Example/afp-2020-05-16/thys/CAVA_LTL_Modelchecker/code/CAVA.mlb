@@ -1,0 +1,90 @@
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/mlton.mlb 
+
+local
+    Unsynchronized.sml
+    Miscellaneous.sml
+    ann "nonexhaustiveMatch ignore" 
+        "redundantMatch ignore"
+    in
+        CAVA_Export.sml
+    end
+    
+    $(SML_LIB)/mlyacc-lib/mlyacc-lib.mlb
+    $(SML_LIB)/basis/unsafe.mlb
+
+    ltl/datatypes.sml
+    ltl/compiler.sml
+
+    local
+        ltl/bp/propc.sml
+        ltl/bp/ltl.yacc.sig
+        ltl/bp/ltl.yacc.sml
+        ltl/bp/ltl.lex.sml
+        ltl/glue.sml
+    in
+        structure BPLtl = PropLtl
+    end
+
+    local
+        ltl/promela/propc.sml
+        ltl/promela/ltl.yacc.sig
+        ltl/promela/ltl.yacc.sml
+        ltl/promela/ltl.lex.sml
+        ltl/glue.sml
+    in
+        structure PromelaLtl = PropLtl
+    end
+in
+    structure IsaArith = Arith
+    structure HOLString
+    structure CAVA_Impl
+    structure Statistics
+
+    structure Lasso
+
+    structure LTL_to_GBA_impl
+    structure LTL
+    structure LTL_Rewrite
+    
+    functor Ltl
+    structure BPLtl
+    structure PromelaLtl
+    
+    structure Sum_Type
+    structure BoolProgs_LTL_Conv
+    structure BoolProgs_Programs
+    structure BoolProgs
+
+    structure Promela
+    structure PromelaLTLConv
+    structure PromelaAST
+    structure PromelaUtils
+    structure PromelaStatistics
+end
+
+local
+    PromelaParser/SML/Basic.sml
+    PromelaParser/SML/Syntax.sml
+    PromelaParser/SML/Lexer.sml
+    PromelaParser/SML/Expression.sml
+    PromelaParser/SML/Statement.sml
+    PromelaParser/SML/Module.sml
+    PromelaParser/SML/SyntaxConverter.sml
+
+in
+    structure PromelaParser = Module
+    functor SyntaxConverter
+end
+
+local
+    $(SML_LIB)/basis/c-types.mlb
+    ann "allowFFI true" in
+        CAVA_mlton.sml
+    end
+in
+    structure CAVA_Support
+end
+
+Arith.sml
+CAVA.sml

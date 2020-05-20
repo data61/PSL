@@ -1,0 +1,37 @@
+\section{Conclusion}
+
+We have seen two different specification styles in this case study.
+The state based one is conceptually simpler, but may require auxiliary
+state components which express properties of the trace that lead to
+that state. And it may not be obvious if the definition of the state
+component correctly captures the desired property of the trace. A
+trace based specification expresses those properties directly.  The
+proofs in the state based version are all automatic whereas in the
+trace based setting 4 proofs (out of 15) require special care,
+thus more than doubling the overall proof size. It would be interesting
+to test Isabelle's emerging link with automatic first-order
+provers~\cite{MengQP-IC} on the trace based proofs.
+
+There are two different proof styles in Isabelle: unstructured apply-scripts
+\cite{LNCS2283} and structured Isar proofs~\cite{Wenzel-PhD,Nipkow-TYPES02}.
+Figure~\ref{fig:proof} shows an example of the latter. Even if the
+reader is unfamiliar with Isar, it is easy to see that this proof is
+very close to the version given in the text. Although apply-scripts
+are notoriously obscure, and even the author may not have an intuitive
+grasp of the structure of the proof, in our kind of application they
+also have advantages. In the apply-style, Isabelle's proof methods
+prove as much as possible automatically and leave the remaining cases
+to the user. This leads to much shorter (but more brittle) proofs: The
+(admittedly detailed) proof in Figure~\ref{fig:proof} was obtained
+from an apply-script of less than half the size.
+
+The models given in this paper are very natural but by no means the
+only possible ones. Jackson himself uses an alternative trace based
+one which replaces the list data structure by an explicit notion of
+time. It would be interesting to see further treatments of this problem
+in other formalisms, for example temporal logics.
+
+\paragraph{Acknowledgments}
+Daniel Jackson got me started on this case study,
+Stefano Berardi streamlined my proofs,
+and Larry Paulson commented on the paper at short notice.

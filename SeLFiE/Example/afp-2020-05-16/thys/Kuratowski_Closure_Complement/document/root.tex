@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=1cm,footskip=.5cm]{geometry}
+\usepackage{isabelle,isabellesym}
+\usepackage{tikz}
+
+\usepackage[utf8]{inputenc}
+
+% Bibliography
+\usepackage[authoryear,sort]{natbib}
+\bibpunct();A{},
+
+% Allow pdflatex to do some fancier spacing.
+\usepackage{microtype}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+\renewcommand{\isacharunderscore}{\_}
+
+\begin{document}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\title{The Kuratowski Closure-Complement Theorem}
+\author{Peter Gammie and Gianpaolo Gioiosa}
+\maketitle
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{plainnat}
+\bibliography{root}
+\addcontentsline{toc}{section}{References}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

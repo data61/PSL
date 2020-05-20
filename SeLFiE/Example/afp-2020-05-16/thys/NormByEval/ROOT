@@ -1,0 +1,9 @@
+chapter AFP
+
+session NormByEval (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    NBE
+  document_files
+    "root.bib"
+    "root.tex"

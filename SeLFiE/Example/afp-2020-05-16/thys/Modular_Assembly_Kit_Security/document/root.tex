@@ -1,0 +1,141 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage{csquotes}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+\date{}
+\begin{document}
+
+\title{An Isabelle/HOL Formalization of the Modular Assembly Kit for Security Properties}
+\author{Oliver Bra\v{c}evac, Richard Gay, Sylvia Grewe,\\ Heiko Mantel, Henning Sudbrock, Markus Tasch}
+\maketitle
+
+\begin{abstract}
+	The \enquote{Modular Assembly Kit for Security Properties} (MAKS) is a
+	framework for both the definition and verification of possibilistic
+	information-flow security properties at the specification-level. 
+	MAKS supports the uniform representation of a wide range of
+	possibilistic information-flow properties and provides support for the
+	verification of such properties via unwinding results and compositionality
+	results. We provide a formalization of this framework in Isabelle/HOL. 
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+%\input{session}
+
+\section{Introduction}
+
+This is a formalization of the Modular Assembly Kit for Security Properties (MAKS) {\cite{inp:Mantel2000a,phd:Mantel2003}} in its version from {\cite{phd:Mantel2003}}. We provide a more detailed explanation on how key concepts of MAKS are formalized in Isabelle/HOL in {\cite{tr:GreweMantelTaschGaySudbrock2018a}}.
+
+\section{Basic Definitions}
+In the following, we define the notion of prefixes and the notion of projection.
+These definitions are preliminaries for the remaining parts of the Isabelle/HOL formalization of MAKS.\\
+
+\input{Prefix.tex}
+
+\input{Projection.tex}
+
+\section{System Specification}
+
+\subsection{Event Systems}
+We define the system model of event systems as well as the parallel composition operator for event systems provided as part of MAKS in {\cite{phd:Mantel2003}}.\\
+
+\input{EventSystems.tex}
+
+\subsection{State-Event Systems}
+We define the system model of state-event systems as well as the translation from state-event systems to event systems provided as part of MAKS in {\cite{phd:Mantel2003}}.
+State-event systems are the basis for the unwinding theorems that we prove later in this entry.\\
+
+\input{StateEventSystems.tex}
+
+\section{Security Specification}
+
+\subsection{Views \& Flow Policies}
+We define views, flow policies and how views can be derived from a given flow policy.\\
+
+\input{Views.tex}
+
+\input{FlowPolicies.tex}
+
+\subsection{Basic Security Predicates}
+We define all 14 basic security predicates provided as part of MAKS in {\cite{phd:Mantel2003}}.\\
+
+\input{BasicSecurityPredicates.tex}
+
+\subsection{Information-Flow Properties}
+We define the notion of information-flow properties from {\cite{phd:Mantel2003}}.\\
+
+\input{InformationFlowProperties.tex}
+
+\subsection{Property Library}
+We define the representations of several possibilistic information-flow
+properties from the literature that are provided as part of MAKS in {\cite{phd:Mantel2003}}.\\
+
+\input{PropertyLibrary.tex}
+
+\section{Verification}
+
+\subsection{Basic Definitions}
+We define when an event system and a state-event system are secure given an information-flow property.\\
+
+\input{SecureSystems.tex}
+
+\subsection{Taxonomy Results}
+We prove the taxonomy results from {\cite{phd:Mantel2003}}.\\
+
+\input{BSPTaxonomy.tex}
+
+
+\subsection{Unwinding}
+We define the unwinding conditions provided in {\cite{phd:Mantel2003}} and prove the unwinding theorems from {\cite{phd:Mantel2003}} that use these unwinding conditions.\\
+
+\subsubsection{Unwinding Conditions}
+\input{UnwindingConditions.tex}
+
+\subsubsection{Auxiliary Results}
+\input{AuxiliaryLemmas.tex}
+
+\subsubsection{Unwinding Theorems}
+\input{UnwindingResults.tex}
+
+\subsection{Compositionality}
+We prove the compositionality results from {\cite{phd:Mantel2003}}.
+
+\subsubsection{Auxiliary Definitions \& Results}
+\input{CompositionBase.tex}
+\input{CompositionSupport.tex}
+
+\subsubsection{Generalized Zipping Lemma}
+\input{GeneralizedZippingLemma.tex}
+
+\subsubsection{Compositionality Results}
+\input{CompositionalityResults.tex}
+
+
+\section*{Acknowledgments}
+This work was partially funded by the DFG (German Research Foundation) under the
+projects FM-SecEng (MA 3326/1-2, MA 3326/1-3) and RSCP (MA 3326/4-3). 
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

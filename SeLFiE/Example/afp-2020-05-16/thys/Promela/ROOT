@@ -1,0 +1,18 @@
+chapter AFP
+
+session Promela (AFP) = CAVA_Automata +
+  options [timeout = 600]
+  sessions
+    LTL
+  theories [document = false]
+    PromelaStatistics
+  theories
+    Promela
+    PromelaLTL
+    PromelaLTLConv
+  theories [document = false]
+    All_Of_Promela
+  document_files
+    "root.tex"
+    "intro.tex"
+    "root.bib"

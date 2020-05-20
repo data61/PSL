@@ -1,0 +1,125 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{xspace}
+\usepackage[utf8]{inputenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newtheorem{theorem}{Theorem}%[section]
+\newtheorem{corollary}{Corollary}%[section]
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\complex{\mathbb{C}}
+
+\newcommand\rai{real algebraic number\xspace}
+\newcommand\rais{real algebraic numbers\xspace}
+
+\begin{document}
+
+\title{Perron-Frobenius Theorem for Spectral Radius Analysis\footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author{Jose Divas\'on, Ondřej Kunčar, Ren\'e Thiemann and Akihisa Yamada}
+\maketitle
+
+\begin{abstract}
+The spectral radius of a matrix $A$ is the maximum
+norm of all eigenvalues of $A$. In previous work we already formalized that 
+for a complex matrix $A$, the values in $A^n$ grow polynomially in $n$ if and only if the spectral radius is 
+at most one.
+One problem with the above characterization is the determination of all \emph{complex} eigenvalues.
+In case $A$ contains only non-negative real values, a simplification is possible with the help of
+the Perron-Frobenius theorem, which tells us that 
+it suffices to consider only the \emph{real} eigenvalues of $A$, i.e., 
+applying Sturm's method can decide the polynomial growth of $A^n$.
+
+We formalize the Perron-Frobenius theorem based on a proof via Brouwer's fixpoint theorem, which
+is available in the HOL multivariate analysis (HMA) library. Since the results on the spectral
+radius is based on matrices in the Jordan normal form (JNF) library, we further develop
+a connection which allows us to easily transfer theorems between HMA and JNF. 
+With this connection we derive the combined result: if $A$ is a non-negative real matrix,
+and no real eigenvalue of $A$ is strictly larger than one, then $A^n$ is polynomially bounded in $n$.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+The spectral radius of a matrix $A$ over $\reals$ or $\complex$ 
+is defined as \begin{equation*}
+\rho(A) = \max\,\{|x| .\ \chi_A(x) = 0, x \in \complex\}
+\end{equation*} 
+where
+$\chi_A$ is the characteristic polynomial of $A$. It is a central notion related to the growth rate
+of matrix powers. A matrix $A$ has polynomial growth, i.e., 
+all values of $A^n$ can be bounded polynomially in $n$, if and only if $\rho(A) \leq 1$.
+It is quite easy to see that $\rho(A) \leq 1$ is a  necessary criterion,\footnote{
+Let $\lambda$ and $v$ be some eigenvalue and eigenvector pair such that $|\lambda| > 1$. Then
+$|A^n v| = |\lambda^n v| = |\lambda|^n |v|$ grows exponentially in $n$, where $|w|$ denotes the component-wise
+application of $|\cdot|$ to vector elements of $w$.}
+but it is more complicated to argue about sufficiency.
+In previous work we formalized this statement via Jordan normal forms
+\cite{JNF}.
+
+\begin{theorem}[in JNF]
+\label{sr}
+The values in $A^n$ are polynomially bounded in $n$ if $\rho(A) \leq 1$.
+\end{theorem}
+
+In order to perform the proof via Jordan normal forms, we did not use the HMA library from the distribution
+to represent matrices. The reason is that already the definition of a Jordan normal form is naturally
+expressed via block-matrices, and arbitrary block-matrices are hard to express in HMA, if at all.
+
+The problem in applying Theorem~\ref{sr} in concrete examples is the determination of all
+complex roots of the polynomial $\chi_A$. For instance, one can utilize complex algebraic numbers 
+for this purpose, which however are computationally expensive. To avoid this problem, in this work we 
+formalize the Perron Frobenius theorem. It states that for non-negative real-valued matrices,
+$\rho(A)$ is an eigenvalue of $A$.
+
+\begin{theorem}[in HMA]
+\label{pf}
+If $A \in \reals_{\geq 0}^{k \times k}$, then $\chi_A(\rho(A)) = 0$.
+\end{theorem}
+
+We decided to perform the formalization based on the HMA library, since there is a short proof
+of Theorem~\ref{pf} via Brouwer's fixpoint theorem \cite[Section 5.2]{SerreMatrices}. The latter is a well-known but complex theorem 
+that is available in HMA, but not in the JNF library.
+
+Eventually we want to combine both theorems to obtain:
+\begin{corollary}
+\label{final}
+If $A \in \reals_{\geq 0}^{k \times k}$, then the values in $A^n$ are polynomially bounded in
+$n$ if $\chi_A$ has no real roots in the interval $(1,\infty)$. 
+\end{corollary}
+
+This criterion is computationally far less expensive -- one invocation of Sturm's method 
+on $\chi_A$ suffices. Unfortunately, we cannot immediately combine both theorems. We first have to bridge
+the gap between the HMA-world and the JNF-world. To this end, we develop a setup for the transfer-tool
+which admits to translate theorems from JNF into HMA. Moreover, using a recent extension for local type
+definitions within proofs \cite{LTD}, we also provide a translation from HMA into JNF. 
+
+
+With the help of these translations, we prove Corollary~\ref{final} and make it available in
+both HMA and JNF. (In the formalization the corollary looks a bit more complicated as it also
+contains an estimation of the the degree of the polynomial growth.)
+
+% include generated text of all theories
+\input{session}
+
+\paragraph*{Acknowledgements}
+We thank Fabian Immler for an introduction to continuity proving using HMA.
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,9 @@
+chapter AFP
+session "Fisher_Yates" (AFP) = "HOL-Probability" +
+  options [timeout = 300]
+  theories
+    Fisher_Yates
+  document_files
+    "root.tex"
+    "root.bib"
+

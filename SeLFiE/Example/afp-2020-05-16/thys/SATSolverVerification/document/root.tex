@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{SAT Solver verification}
+\author{By Filip Mari\' c}
+\maketitle
+\abstract{
+This document contains formall correctness proofs of modern SAT solvers. 
+Two different approaches are used --- state-transition systems and 
+shallow embedding into HOL. 
+
+Formalization based on state-transition systems follows 
+\cite{KrsticGoel,NieuwenhuisOliverasTinelli}.
+Several different SAT solver descriptions are given and their partial 
+correctness and termination is proved. These include:
+\begin{enumerate}
+\item a solver based on classical DPLL procedure (based on backtrack-search with unit propagation), 
+\item a very general solver with backjumping and learning (similiar to the description given in 
+      \cite{NieuwenhuisOliverasTinelli}), and 
+\item a solver with a specific conflict analysis algorithm (similiar to the description given 
+      in \cite{KrsticGoel}). 
+\end{enumerate}
+
+Formalization based on shallow embedding into HOL defines a SAT solver 
+as a set or recursive HOL functions. Solver supports most state-of-the 
+art techniques including the two-watch literal propagation scheme.
+
+Within the SAT solver correctness proofs, a large number of lemmas
+about propositional logic and CNF formulae are proved. This theory is
+self-contained and could be used for further exploring of properties of
+CNF based SAT algorithms.  
+}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

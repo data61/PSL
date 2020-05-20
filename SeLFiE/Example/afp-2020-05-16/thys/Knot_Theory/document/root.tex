@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Knot Theory}
+\author{T. V. H. Prathamesh}
+\maketitle
+
+\begin{abstract}
+This work contains a formalization of some topics in knot theory.
+The concepts that were formalized include definitions of tangles, links,
+framed links and link/tangle equivalence. The formalization is based on a
+formulation of links in terms of tangles. We further construct and prove the
+invariance of the Bracket polynomial. Bracket polynomial is an invariant of
+framed links closely linked to the Jones polynomial. This is perhaps the first
+attempt to formalize any aspect of knot theory in an interactive proof assistant.
+
+For further reference, one can refer to the paper "Formalising Knot Theory in
+Isabelle/HOL" in Interactive Theorem Proving, 6th International Conference,
+ITP 2015, Nanjing, China, August 24-27, 2015, Proceedings.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

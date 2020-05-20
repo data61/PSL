@@ -1,0 +1,7 @@
+The Isabelle source files in this directory have been modified
+slightly since submitting the final version of the corresponding
+TOPLAS article. This is a summary of the changes.
+
+The relation $(\leq)$ has disappeared and became part of the object
+conformance check. As a consequence we renamed the relation $(\leq)_w$
+to $(\leq)$.

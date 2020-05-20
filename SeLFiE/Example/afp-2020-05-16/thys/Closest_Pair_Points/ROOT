@@ -1,0 +1,13 @@
+chapter AFP
+
+session Closest_Pair_Points (AFP) = Akra_Bazzi +
+  options [timeout = 600]
+  sessions
+    Root_Balanced_Tree
+  theories
+    "Common"
+    "Closest_Pair"
+    "Closest_Pair_Alternative"
+  document_files
+    "root.bib"
+    "root.tex"

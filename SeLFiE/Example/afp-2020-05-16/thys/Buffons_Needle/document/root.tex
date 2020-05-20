@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Buffon's {N}eedle {P}roblem}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+In the 18th century, Georges-Louis Leclerc, Comte de Buffon posed and later solved the following problem~\cite{ramaley,mathworld}, which is often called the first problem ever solved in geometric probability: Given a floor divided into vertical strips of the same width, what is the probability that a needle thrown onto the floor randomly will cross two strips?
+
+This entry formally defines the problem in the case where the needle's position is chosen uniformly at random in a single strip around the origin (which is equivalent to larger arrangements due to symmetry). It then provides proofs of the simple solution in the case where the needle's length is no greater than the width of the strips and the more complicated solution in the opposite case.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

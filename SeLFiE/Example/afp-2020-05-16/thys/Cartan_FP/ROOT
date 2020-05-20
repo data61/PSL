@@ -1,0 +1,10 @@
+chapter AFP
+
+session Cartan_FP (AFP) = "HOL-Complex_Analysis" +
+  description "The Cartan Fixed Point Theorems"
+  options [timeout = 300]
+  theories
+    Cartan
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,16 @@
+chapter AFP
+
+session Partial_Order_Reduction (AFP) = Transition_Systems_and_Automata +
+  options [timeout = 600]
+  sessions
+    Coinductive
+    Stuttering_Equivalence
+  directories
+    "Basics"
+    "Extensions"
+  theories
+    Ample_Correctness
+    Ample_Analysis
+  document_files
+    "root.tex"
+    "root.bib"

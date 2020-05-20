@@ -1,0 +1,10 @@
+chapter AFP
+
+session FeatherweightJava (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Featherweight_Java
+  document_files
+    "fjsound.pdf"
+    "root.bib"
+    "root.tex"

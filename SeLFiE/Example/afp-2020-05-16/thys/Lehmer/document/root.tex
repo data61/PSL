@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{A Formalisation of Lehmer's Primality Criterion}
+\author{By Simon Wimmer and Lars Noschinski}
+\maketitle
+
+\begin{abstract}
+  In 1927, Lehmer presented criterions for primality, based on the
+  converse of Fermat's litte theorem~\cite{lehmer1927fermat_converse}.
+  This work formalizes the second criterion from Lehmer's paper,
+  a necessary and sufficient condition for primality.
+
+  As a side product we formalize some properties of Euler's $\varphi$-function,
+  the notion of the order of an element of a group, and the cyclicity of the
+  multiplicative group of a finite field.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+Section \ref{sec:simp-rules} provides some technical lemmas about polynomials.
+Section \ref{sec:euler-phi} to \ref{sec:number-roots} formalize some basic number-theoretic
+and algebraic properties: Euler's $\varphi$-function, the order of an element of a group
+and an upper bound of the number of roots of a polynomial. Section \ref{sec:mult-group}
+combines these results to prove that the multiplicative group of a finite field is cyclic.
+Based on that, Section \ref{sec:lehmer} formalizes an extended version of Lehmer's Theorem,
+which gives us necessary and sufficient conditions to decide whether a number is prime.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\nocite{*}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End\dots

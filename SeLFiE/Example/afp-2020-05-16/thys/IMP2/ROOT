@@ -1,0 +1,29 @@
+chapter AFP
+
+session IMP2 (AFP) = HOL +
+  options [timeout = 600]
+  sessions 
+    "HOL-Library" "HOL-Eisbach"
+  directories
+    "automation"
+    "basic"
+    "doc"
+    "lib"
+    "parser"
+  theories [document = false]
+    "lib/IMP2_Aux_Lemmas"
+    "lib/IMP2_Utils"
+    "lib/Named_Simpsets"
+    "lib/Subgoal_Focus_Some"
+  theories
+    "basic/Syntax"
+    "basic/Semantics"
+    "basic/Annotated_Syntax"
+  theories [document = false]
+    "IMP2"
+  theories
+    "doc/Quickstart_Guide"
+    "doc/IMP2_from_IMP"
+    "doc/Examples"
+  document_files
+    "root.tex"

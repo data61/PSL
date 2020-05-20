@@ -1,0 +1,84 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{xspace}
+\usepackage[utf8]{inputenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newtheorem{theorem}{Theorem}%[section]
+\newtheorem{corollary}{Corollary}%[section]
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\complex{\mathbb{C}}
+
+\begin{document}
+
+\title{Irrational Rapidly Convergent Series}
+\author{Angeliki Koutsoukou-Argyraki and Wenda Li}
+\maketitle
+
+\begin{abstract}
+We formalize with Isabelle/HOL a proof of a theorem by J. Han\v cl asserting the irrationality of the sum of a series
+consisting of rational numbers, built up by sequences that fulfill certain properties.
+Even though the criterion is a number theoretic result, the proof makes use only of analytical arguments. 
+We also formalize a corollary of the theorem for a specific series fulfilling the assumptions of the theorem.
+\end{abstract}
+
+\tableofcontents
+
+\section{Main Theorem and Sketch of the Proof}
+We formalize the proof of the following theorem by J. Han\v cl (Theorem 3 in \cite{hancl}) :
+\begin{theorem}(Theorem 3  in \cite{hancl})
+	Let  $A \in \mathbb{R}$ with $A>1$. Let $\{d_n \}^{\infty}_{n=1}  \in \mathbb{R}$ with $d_n >1$ for all $n \in \mathbb{N}$. Let $\{a_n \}^{\infty}_{n=1}  \in \mathbb{Z}^+$,
+	$\{b_n \}^{\infty}_{n=1}  \in \mathbb{Z}^+$ such that :
+	$$(1)~\lim_{n \rightarrow \infty} a_n^{\frac{1}{2^n}} = A , $$
+	for all sufficiently  large $n \in \mathbb{N}$ :
+	$$(2)~\frac{A}{ a_n^{\frac{1}{2^n}}    }  > \prod^{\infty}_{j=n} d_j$$
+	and
+	$$(3)~\lim_{n \rightarrow \infty}\frac{d_n^{2^n}}{b_n} =\infty.  $$
+	Then the series $\alpha = \sum^{\infty}_{n=1} \frac{b_n}{a_n}$ is an irrational number.
+\end{theorem}
+
+The first step is to show that the series $ \sum^{\infty}_{n=1} \frac{b_n}{a_n}$ converges to some $\alpha \in \mathbb{R}$.
+To show that $\alpha \in  \mathbb{R} \setminus \mathbb{Q}$ we argue by proof by contradiction (to this end several auxiliary lemmas are firstly shown).
+In particular, assuming that $\alpha \in \mathbb{Q}$, i.e. that there exist $p, q \in \mathbb{Z}^+$ such that $\alpha = \frac{p}{q}$, we show that
+a quantity $\mathcal{A}(n) \geq 1$ for all $n \in \mathbb{N}$.
+At the same time, we find $n \in \mathbb{N}$ for which  $\mathcal{A}(n) < 1$, yielding a contradiction from which we deduce the irrationality of the sum of the series.
+\\ \\
+For the proof see \cite{hancl}. We note that the proof involves only elementary Analysis (criteria for convergence/divergence for sequences and series and several inequalities)
+and not any arithmetical/number theoretic arguments. Obviously for the formal proof we had to make many intermediate arguments explicit.  Proofs of length of roughly 2 A4 pages
+in the original paper by J. Han\v cl  were formalized in almost 1100 lines of code.
+
+\section{Corollary}
+We moreover formalize the following corollary that asserts the irrationality of the sum of an instance of a series that fulfills the assumptions of the theorem :
+
+\begin{corollary} (Corollary 2 in \cite{hancl}) Let  $A \in \mathbb{R}$ with $A>1$. Let  $\{a_n \}^{\infty}_{n=1}  \in \mathbb{Z}^+$,
+	$\{b_n \}^{\infty}_{n=1}  \in \mathbb{Z}^+$ such that :
+	$$\lim_{n \rightarrow \infty} a_n^{\frac{1}{2^n}} = A  $$ and for all sufficiently  large $n \in \mathbb{N}$
+	(in particular: for $n \geq 6$)
+	$$a_n^{\frac{1}{2^n}} (1+ 4 (2/3)^n)  \leq A $$ and  $$b_n \leq 2^{(4/3)^{n-1}} .$$
+	Then the series $\sum^{\infty}_{n=1} \frac{b_n}{a_n}$ is an irrational number.
+\end{corollary}
+The above corollary is an immediate consequence of the theorem by setting 
+$d_n = 1 + (2/3)^n$. For the formalized proof of the corollary one more auxiliary lemma was required.
+
+\input{session}
+
+\section{Acknowledgements}
+A. K.-A. and W.L. were supported by the ERC Advanced Grant ALEXANDRIA (Project 742178) funded by the European Research Council and led by Professor Lawrence Paulson at the University of Cambridge, UK.
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,44 @@
+chapter AFP
+
+session "Network_Security_Policy_Verification" (AFP) = HOL +
+  options [timeout = 3600]
+  sessions
+    "HOL-Library"
+    "HOL-Lattice"
+    "Transitive-Closure"
+    Automatic_Refinement
+  directories
+    "Lib"
+    "Security_Invariants"
+    "Examples"
+    "Examples/Tainting"
+  theories [document = false]
+    "Lib/ML_GraphViz_Disable"
+    "Lib/FiniteListGraph_Impl"
+    "Lib/FiniteListGraph"
+    "Lib/Efficient_Distinct"
+  theories
+    "Security_Invariants/SINVAR_Subnets2"
+    "Security_Invariants/SINVAR_BLPstrict"
+    "Security_Invariants/Analysis_Tainting"
+    Network_Security_Policy_Verification
+    TopoS_generateCode
+  theories [document = false]
+    attic
+    "Examples/Impl_List_Playground_statefulpolicycompliance"
+    "Examples/Example"
+    "Examples/Example_NetModel"
+    "Examples/Example_Forte14"
+    "Examples/Distributed_WebApp"
+    "Examples/I8_SSH_Landscape"
+    "Examples/Impl_List_Playground"
+    "Examples/Impl_List_Playground_ChairNetwork_statefulpolicy_example"
+    "Examples/Tainting/CryptoDB"
+    "Examples/Tainting/IDEM"
+    "Examples/Tainting/MeasrDroid"
+  theories
+    SINVAR_Examples
+    "Examples/Imaginary_Factory_Network"
+  document_files
+    "root.bib"
+    "root.tex"

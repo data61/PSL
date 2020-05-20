@@ -1,0 +1,31 @@
+chapter AFP
+
+session Heard_Of (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    Stuttering_Equivalence
+  directories
+    "ate"
+    "eigbyz"
+    "lastvoting"
+    "otr"
+    "ute"
+    "uv"
+  theories
+    (* generic model and reduction theorem *)
+    HOModel
+    Reduction
+    (* utility lemmas about majorities *)
+    Majorities
+    (* algorithms for benign faults *)
+    "otr/OneThirdRuleProof"
+    "uv/UvProof"
+    "lastvoting/LastVotingProof"
+    (* algorithms for Byzantine faults *)
+    "ute/UteProof"
+    "ate/AteProof"
+    "eigbyz/EigbyzProof"
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,11 @@
+chapter AFP
+
+session DataRefinementIBP (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    LatticeProperties
+  theories
+    DataRefinement
+  document_files
+    "root.bib"
+    "root.tex"

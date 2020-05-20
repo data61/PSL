@@ -1,0 +1,18 @@
+chapter AFP
+
+session Dirichlet_Series (AFP) = "HOL-Complex_Analysis" +
+  options [timeout = 1200]
+  sessions
+    "HOL-Analysis"
+    "HOL-Number_Theory"
+    "HOL-Computational_Algebra"
+    "HOL-Real_Asymp"
+    "Polynomial_Factorization"
+    "Landau_Symbols"
+    "Euler_MacLaurin"
+  theories
+    Arithmetic_Summatory_Asymptotics
+    Dirichlet_Efficient_Code
+  document_files
+    "root.tex"
+    "root.bib"

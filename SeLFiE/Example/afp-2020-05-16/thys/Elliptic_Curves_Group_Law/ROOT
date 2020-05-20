@@ -1,0 +1,12 @@
+chapter AFP
+
+session "Elliptic_Curves_Group_Law" (AFP) = "HOL-Number_Theory" +
+  options [timeout = 600]
+  sessions
+    "HOL-Decision_Procs"
+  theories
+    Elliptic_Axclass
+    Elliptic_Test
+  document_files
+    "root.tex"
+    "root.bib"

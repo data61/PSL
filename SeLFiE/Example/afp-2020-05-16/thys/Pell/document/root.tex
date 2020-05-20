@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Pell's Equation}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This article gives the basic theory of Pell's equation $x^2 = 1 + D y^2$, where $D\in\mathbb{N}$ is a parameter and $x$, $y$ are integer variables.
+
+The main result that is proven is the following: If $D$ is not a perfect square, then there exists a \emph{fundamental solution} $(x_0, y_0)$ that is not the trivial solution $(1, 0)$ and which generates all other solutions $(x, y)$ in the sense that there exists some $n\in\mathbb{N}$ such that $|x| + |y| \sqrt{D} = (x_0 + y_0 \sqrt{D})^n$. This also implies that the set of solutions is infinite, and it gives us an explicit and executable characterisation of all the solutions.
+
+Based on this, simple executable algorithms for computing the fundamental solution and the infinite sequence of all non-negative solutions are also provided.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

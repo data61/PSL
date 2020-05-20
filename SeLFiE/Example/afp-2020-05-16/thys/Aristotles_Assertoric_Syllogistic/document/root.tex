@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{mathtools,url}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\bibliographystyle{plain}
+
+\begin{document}
+
+\title{Aristotle's Assertoric Syllogistic}
+\author{Angeliki Koutsoukou-Argyraki}
+\maketitle
+
+\begin{abstract}
+	We formalise with Isabelle/HOL some basic elements of Aristotle's assertoric syllogistic following
+	the article from the Stanford Encyclopedia of Philosophy by Robin Smith:
+	\url{https://plato.stanford.edu/entries/aristotle-logic/}.
+	To this end, we use a set theoretic formulation (covering both individual and general predication).
+	In particular, we formalise the deductions in the Figures and after that we present Aristotle's
+	metatheoretical observation that all deductions in the Figures can in fact be reduced to either
+	Barbara or Celarent. As the formal proofs prove to be straightforward, the interest of this entry 
+	lies in illustrating the functionality of Isabelle and high efficiency of Sledgehammer for simple 
+	exercises in philosophy.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}

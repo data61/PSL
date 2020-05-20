@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{german}
+\usepackage{isabelle,isabellesym}
+
+% urls in roman style, theory text in math-similar italics
+% \urlstyle{rm}
+\isabellestyle{it}
+
+\title{Verification of the \texttt{UpDown} scheme}
+\author{Johannes H{\"o}lzl}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+
+The \texttt{UpDown} scheme is a recursive scheme used to compute the stiffness matrix on a special form of
+sparse grids. Usually, when discretizing a Euclidean space of dimension $d$ we need $O(n^d)$ points,
+for $n$ points along each dimension. Sparse grids are a hierarchical representation where the number
+of points is reduced to $O(n\cdot\log(n)^d)$. One disadvantage of such sparse grids is that the
+algorithm now operate recursively in the dimensions and levels of the sparse grid.
+
+The \texttt{UpDown} scheme allows us to compute the stiffness matrix on such a sparse grid. The stiffness
+matrix represents the influence of each representation function on the $L^2$ scalar product.
+For a detailed description see Pfl{\"u}ger's PhD thesis~\cite{pflueger10spatially}. This formalization
+was developed as an interdisciplinary project (IDP) at the TU~M{\"u}nchen~\cite{hoelzl09updown}.
+
+\end{abstract}
+
+\textbf{Note:} This development has two main theories. The correctnes of the UpDown scheme, and
+a verification of an imperative version of it. Both theories can not be merged, as they use
+different orders on the product type.
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

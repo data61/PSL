@@ -1,0 +1,16 @@
+chapter AFP
+
+session ComponentDependencies (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    DataDependenciesConcreteValues
+    DataDependencies
+    DataDependenciesCaseStudy
+  document_files
+    "intro.tex"
+    "root.bib"
+    "root.tex"
+    "fig/L0.pdf"
+    "fig/L1.pdf"
+    "fig/L2a.pdf"
+    "fig/remote.pdf"

@@ -1,0 +1,20 @@
+chapter AFP
+
+session "Tree-Automata" (AFP) = Collections +
+  options [timeout = 1200]
+  sessions
+    Collections_Examples
+  theories
+    (* Tree Automata *)
+    Tree
+    Ta
+    AbsAlgo
+    Ta_impl
+  theories [document = false]
+    (* Code Generation *)
+    Ta_impl_codegen
+  document_files
+    "conclusion.tex"
+    "intro.tex"
+    "root.bib"
+    "root.tex"

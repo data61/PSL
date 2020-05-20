@@ -1,0 +1,98 @@
+%% Copyright (C) 2018 The University of Sheffield
+%%               2018 The University of Paris-Sud
+%%               2019 The University of Exeter
+%%
+%% License:
+%%   This program can be redistributed and/or modified under the terms
+%%   of the LaTeX Project Public License Distributed from CTAN
+%%   archives in directory macros/latex/base/lppl.txt; either
+%%   version 1 of the License, or any later version.
+%%   OR
+%%   The 2-clause BSD-style license.
+%%  
+%%   SPDX-License-Identifier: LPPL-1.0+ OR BSD-2-Clause
+
+\NeedsTeXFormat{LaTeX2e}\relax
+\ProvidesPackage{DOF-COL}
+  [0000/00/00 Unreleased v0.0.0+%
+  Document-Type Support Framework for Isabelle.]
+
+\RequirePackage{DOF-core}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: figure*
+\NewEnviron{isamarkupfigure*}[1][]{\isaDof[env={figure},#1]{\BODY}}
+\newisadof{figure.Isa_COL.figure}%
+[label=,type=%
+,Isa_COL.figure.relative_width=%
+,Isa_COL.figure.placement=%
+,Isa_COL.figure.src=%
+,Isa_COL.figure.spawn_columns=enum False True%
+][1]{%
+  \begin{figure}[]
+    \centering
+    \ifcommandkey{Isa_COL.figure.relative_width}
+    {%
+      \gdef\dof@width{\commandkey{Isa_COL.figure.relative_width}}
+      \gdef\dof@src{\commandkey{Isa_COL.figure.src}}
+      \FPdiv\scale{\dof@width}{100}%
+      \includegraphics[width=\scale\textwidth]{\dof@src}%
+    }{%
+      \gdef\dof@src{\commandkey{Isa_COL.figure.src}}
+      \includegraphics[]{\dof@src}%
+    } 
+    \caption{#1}\label{\commandkey{label}}%
+  \end{figure}
+}
+% end: figure*
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: side_by_side_figure*
+\NewEnviron{isamarkupsideUNDERSCOREbyUNDERSCOREsideUNDERSCOREfigure*}[1][]{\isaDof[env={side_by_side_figure},#1]{\BODY}}
+\newisadof{side_by_side_figure.Isa_COL.side_by_side_figure}%
+[label=,type=%
+,Isa_COL.figure.relative_width=%
+,Isa_COL.figure.src=%
+,Isa_COL.side_by_side_figure.anchor=%
+,Isa_COL.side_by_side_figure.caption=%
+,Isa_COL.side_by_side_figure.relative_width2=%
+,Isa_COL.side_by_side_figure.src2=%
+,Isa_COL.side_by_side_figure.anchor2=%
+,Isa_COL.side_by_side_figure.caption2=%
+,Isa_COL.side_by_side_figure.placement=%
+,Isa_COL.figure.spawn_columns=enum False True%
+][1]{%
+  \begin{figure}[]
+    \subfloat[\label{\commandkey{Isa_COL.side_by_side_figure.anchor}}\commandkey{Isa_COL.side_by_side_figure.caption}]%
+      {\ifcommandkey{Isa_COL.figure.relative_width}%
+       {%
+          \gdef\dof@width{\commandkey{Isa_COL.figure.relative_width}}
+          \gdef\dof@src{\commandkey{Isa_COL.figure.src}}
+          \FPdiv\scale{\dof@width}{100}%
+          \includegraphics[width=\scale\textwidth]{\dof@src}%
+        }{%
+          \gdef\dof@src{\commandkey{Isa_COL.figure.src}}
+          \includegraphics[]{\dof@src}%
+        }% 
+      }%
+      \hfill%
+      \subfloat[\label{\commandkey{Isa_COL.side_by_side_figure.anchor2}}\commandkey{Isa_COL.side_by_side_figure.caption2}]%
+      {\ifcommandkey{Isa_COL.side_by_side_figure.relative_width2}%
+        {%
+          \gdef\dof@width{\commandkey{Isa_COL.side_by_side_figure.relative_width2}}
+          \gdef\dof@src{\commandkey{Isa_COL.side_by_side_figure.src2}}
+          \FPdiv\scale{\dof@width}{100}%
+          \includegraphics[width=\scale\textwidth]{\dof@src}%
+        }{%
+          \gdef\dof@src{\commandkey{Isa_COL.side_by_side_figure.src2}}
+          \includegraphics[]{\dof@src}%
+        }% 
+      }%
+    \caption{#1}\label{\commandkey{label}}%
+  \end{figure}
+}
+% end: side_by_side_figure*
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

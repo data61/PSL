@@ -1,0 +1,229 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=1cm,footskip=.5cm]{geometry}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+\usepackage[utf8]{inputenc}
+
+% Bibliography
+\usepackage[authoryear,sort]{natbib}
+\bibpunct();A{},
+
+% Allow pdflatex to do some fancier spacing.
+\usepackage{microtype}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\title{Stable Matching}
+\author{Peter Gammie}
+\maketitle
+
+\begin{abstract}
+  \noindent We mechanize proofs of several results from the
+  \emph{matching with contracts} literature, which generalize those of
+  the classical two-sided matching scenarios that go by the name of
+  \emph{stable marriage}. Our focus is on game theoretic issues. Along
+  the way we develop executable algorithms for computing optimal
+  stable matches.
+\end{abstract}
+
+\tableofcontents
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+As economists have turned their attention to the design of such
+markets as school enrolments, internships, and housing refugees
+\citep{AnderssonEhlers:2016}, particular \emph{matching} scenarios
+have proven to be useful models. \citet{Roth:2015} defines matching as
+``economist-speak for how we get the many things we choose in life
+that also must choose us,'' and one such two-sided market is now
+colloquially known as the
+\href{https://en.wikipedia.org/wiki/Stable_marriage_problem}{\emph{stable
+    marriage problem}}.  It was initially investigated by
+\citet{GaleShapley:1962}, who introduced the key solution concept of
+\emph{stability}, and the \emph{deferred-acceptance algorithm} that
+efficiently constructs stable matches for it. We refer readers
+unfamiliar with this classical work to \S\ref{sec:sotomayor}, where we
+formalize this scenario and mechanize a non-constructive existence
+proof of stable matches due to \citet{Sotomayor:1996}. Further
+in-depth treatment can be found in the very readable monographs by
+\citet{GusfieldIrving:1989} (algorithmics), \citet{RothSotomayor:1990}
+(economics), and \citet{Manlove:2013}.
+
+Recently \citet{HatfieldMilgrom:2005} (see also
+\citet{Fleiner:2000,Fleiner:2002,Fleiner:2003}) have recast the
+two-sided matching model to incorporate \emph{contracts}, which
+intuitively allow agents to additionally indicate preferences over
+conditions such as salary. By allowing many-to-one matches, some
+aspects of a labour market can be modelled. Their analysis leans
+heavily on the lattice structure of the stable matches, and yields
+pleasingly simple and general algorithms
+(\S\ref{sec:contracts}). Later work trades this structure for
+generality, and the analysis becomes more intricate
+(\S\ref{sec:cop}). The key game-theoretic result is the (one-sided)
+strategy-proofness of the optimal stable match
+(\S\ref{sec:strategic}).
+
+This work was motivated by the difficulty of navigating the literature
+on \emph{matching with contracts} by non-specialists, as observed by
+\citet{VCG-EC:2015,VCG-AFP:2015}. We impose some order by formalizing
+much of it in Isabelle/HOL \citep{Nipkow-Paulson-Wenzel:2002}, a proof
+assistant for a simply-typed higher-order logic. By carefully writing
+definitions that are executable and testable, we avail ourselves of
+Isabelle's automatic tools, specifically \verb!nitpick! and
+\verb!sledgehammer!, to rapidly identify errors when formulating
+assertions. We focus primarily on strategic (game theoretic) issues,
+but our development is also intended to serve as a foundation for
+further results.
+
+The proof assistant forces us to take care of all details, which
+yields a verbosity that may deter some readers. We suggest that most
+will fare best by reading the definitions and
+\isa{\isacommand{lemma}}/\isa{\isacommand{theorem}} statements
+closely, and skipping the proofs. (The important results are labelled
+\isa{\isacommand{theorem}} and \isa{\isacommand{proposition}}, but
+often the \isa{\isacommand{lemma}}s contain the meat.) The material
+in \S\ref{sec:cf} on choice functions is mostly for reference.
+
+This PDF is generated directly from the development's sources and is
+extensively hyperlinked, but for some purposes there is no substitute
+to firing up Isabelle.
+
+
+% generated text of all theories
+\input{session}
+
+
+\section{Concluding remarks}
+
+We conclude with a brief and inexhaustive survey of related work.
+
+\subsection{Related work}
+
+\paragraph{Computer-assisted and formal reasoning.}
+\citet{Bijlsma:1991} gives a formal pencil-and-paper derivation of the
+Gale-Shapley deferred-acceptance algorithm under total strict
+preferences and one-to-one matching (colloquially, a marriage
+market). He provides termination and complexity arguments, and
+discusses representation issues. \citet{HamidCastleberry:2010} treat
+the same algorithm in the Coq proof assistant, give a termination
+proof and show that it always yields a stable match. Both focus more
+on reasoning about programs than the theory of stable
+matches. Intriguingly, the latter claims that Akamai uses (modified)
+stable matching to assign clients to servers in their content
+distribution network.
+
+\citet{DBLP:conf/atal/BrandtG14} use SAT technology to find results in
+social choice theory. They claim that the encodings used by general
+purpose tools like \verb!nitpick!  are too inefficient for their
+application.
+
+\paragraph{Stable matching.} In addition to the monographs
+\citet{GusfieldIrving:1989,RothSotomayor:1990,Manlove:2013},
+\citet{Roth:2008} provides a good overview up to 2007 of open problems
+and other aspects of this topic that we did not explore here.
+\citet{SonmezSwitzer:2013} incorporate quotas and put the COP to work
+at the United States Military Academy. \citet{AnderssonEhlers:2016}
+analyze the possibility of matching of refugees with landlords in
+Sweden (without mentioning matching with contracts).
+
+One of the more famous applications of matching theory is to kidney
+donation \citep{Roth:2015}, a \emph{repugnant market} where the
+economists' basic tool of pricing things is considered verboten. These
+markets are sometimes, but not always, two-sided -- kidneys are often
+exchanged due to compatibility issues, but there are also altruistic
+donations and recipients who cannot reciprocate -- and so the model we
+discussed here is not applicable. Instead generalizations of Gale's
+\emph{top trading cycles} algorithm are pressed into service
+\citep{ShapleyScarf:1974,AbdulkadirogluSonmez:1999,SonmezUnver:2010}.
+Much recent work has hybridized these approaches -- for instance,
+\citet{Dworczak:2016} uses a combination to enumerate all stable
+matches.
+
+\citet{Echenique:2012} shows that the matching with contracts model of
+\S\ref{sec:contracts} is no more general than that of
+\citet{KelsoCrawford:1982} (a job matching market with
+salaries). \citeauthor{Schlegel:2015} generalizes this result to the
+COP setting of \S\ref{sec:cop}, and moreover shows how lattice
+structure can be recovered there, which yields a hospital-proposing
+deferred-acceptance algorithm that relies only on unilaterally
+substitutable hospital choice functions. See
+\citet{HatfieldKominers:2016} for a discussion of the many-to-many
+case.
+
+\citet[Theorem~2.33]{RothSotomayor:1990} point to alternatives to the
+deferred-acceptance algorithm, and to more general matching scenarios
+involving couples and roommates. \citet{Manlove:2013} provides a
+comprehensive survey of matching with preferences.
+
+\paragraph{Further results: COP.} \citet{Afacan:2014} explores the
+following two properties:
+\begin{quote}
+
+  \emph{[Population monotonicity]} says that no doctor is to be worse
+  off whenever some others leave the market. \emph{[Resource
+    monotonicity]}, on the other hand, requires that no doctor should
+  lose whenever hospitals start hiring more doctors.
+
+\end{quote}
+He shows that the COP is population and resource monotonic under
+\emph{irc} and \emph{bilateral\_substitutes}. Also \citet{Afacan:2015}
+characterizes the COP by the properties \emph{truncation proof} (``no
+doctor can ever benefit from truncating his preferences'') and
+\emph{invariant to lower tail preferences change} (``any doctor's
+assignment does not depend on his preferences over worse contracts'');
+that the COP satisfies these properties was demonstrated in
+\S\ref{sec:cop}. See also \citet{HatfieldKominersWestkamp:2016} for
+another set of conditions that characterize the COP.
+
+\citet{HirataKasuya:2016} show how the strategic results can be
+obtained without the rural hospitals theorem, in a setting that
+requires \emph{irc} but not substitutability.
+
+\paragraph{Further results: Strategy.} There are many different ways
+to think about the manipulation of economic mechanisms. Some continue
+in the game-theoretic tradition \citep{Gonczarowski:2014}, and, for
+instance, compare the manipulability of mechanisms that yield stable
+matches \citep{ChenEgesdalPyciaUenmez:2016}. Techniques from computer
+science help refine the notion of strategy-proofness
+\citep{AshlagiGonczarowski:2015} and enable complexity-theoretic
+arguments
+\citep{DBLP:conf/atal/AzizSW15,DengShenTang:2016}. \citet{KojimaPathak:2009}
+have analyzed the scope for manipulation in large matching markets.
+
+
+\section{Acknowledgements}
+
+I thank \href{http://www.dcs.gla.ac.uk/~rwi/}{Rob Irving} for a copy
+of his excellent monograph \citep{GusfieldIrving:1989}, Jasmin
+C. Blanchette for help with nitpick, Andreas Lochbihler for his
+Bourbaki-Witt Fixpoint theory, Orhan Aygün for a helpful discussion of
+\citet{AygunSonmez:2012-WP}, and Roman Werpachowski for general
+comments.
+
+\bibliographystyle{plainnat}
+\bibliography{root}
+\addcontentsline{toc}{section}{References}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

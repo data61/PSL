@@ -1,0 +1,56 @@
+/*#define TT 1
+#define FF 0
+
+#ifndef N
+    #define N 6
+    #define M 6
+#endif
+    #define logN 5*/
+
+bool elected = FF;
+bool error = FF;
+
+byte turn[5] = 0;
+bool b[5] = 0;
+bool c[5] = 0;
+byte curr[5] = 0;
+
+bool L_1[6] = TT;
+bool L_2[6] = FF;
+bool L_3[6] = FF;
+bool L_4[6] = FF;
+bool L_5[6] = FF;
+bool L_8[6] = FF;
+bool L_9[6] = FF;
+
+proctype process(int n) {
+    do 
+        :: atomic { L_1[n] -> turn[curr[n]] = n + 1; L_1[n] = FF; L_2[n] = TT }
+        :: atomic { L_2[n] && ! b[curr[n]] -> L_2[n] = FF; L_3[n] = TT }
+        :: atomic { L_3[n] -> b[curr[n]] = TT; L_3[n] = FF; L_4[n] = TT }
+        :: atomic { L_4[n] -> if
+                                :: turn[curr[n]] == n + 1 -> L_4[n] = FF; L_8[n] = TT
+                                :: turn[curr[n]] != n + 1 -> L_4[n] = FF; L_5[n] = TT
+                              fi }
+        :: atomic { L_5[n] -> c[curr[n]] = TT; b[curr[n]] = FF; L_5[n] = FF }
+        :: atomic { L_8[n] -> if 
+                                :: curr[n] == 0 -> curr[n]++; L_8[n] = FF; L_1[n] = TT
+                                :: curr[n] > 0 && ! c[curr[n] - 1] -> L_8[n] = FF; L_9[n] = TT
+                                :: curr[n] > 0 && c[curr[n] - 1] -> curr[n]++; L_8[n] = FF; L_1[n] = TT
+                              fi }
+        :: atomic { L_9[n] && elected -> error = TT; L_9[n] = FF }
+        :: atomic { L_9[n] -> elected = TT; L_9[n] = FF }
+    od
+}
+
+init {
+    int i;
+
+    atomic {
+        for (i in curr) { run process(i) };
+    }
+}
+
+ltl triv { [] true };
+ltl error { [] (! error) };
+ltl elected { [] <> elected };

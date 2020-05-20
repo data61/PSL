@@ -1,0 +1,32 @@
+chapter AFP
+
+session "FocusStreamsCaseStudies" (AFP) = "HOL" +
+  options [timeout = 300]
+  theories
+    ArithExtras
+    ListExtras
+    arith_hints
+    BitBoolTS
+    stream
+    JoinSplitTime
+    SteamBoiler
+    SteamBoiler_proof
+    FR_types
+    FR
+    FR_proof
+    Gateway_types
+    Gateway
+    Gateway_proof
+  document_files
+    "intro.tex"
+    "macros.tex"
+    "root.tex"
+    "oz.sty"
+    "focus.sty"
+    "fig/BoilerSystemArch.jpg"
+    "fig/flexray.pdf"
+    "fig/gateway.jpg"
+    "fig/gatewaySystem.jpg"
+    "fig/gatewayTSTD.pdf"
+    "root.bib"
+    "biblio2.bib"

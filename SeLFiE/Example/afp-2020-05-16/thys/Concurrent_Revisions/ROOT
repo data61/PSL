@@ -1,0 +1,15 @@
+chapter AFP
+
+session "Concurrent_Revisions" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Data
+    Occurrences
+    Renaming
+    Substitution
+    OperationalSemantics
+    Executions
+    Determinacy
+  document_files
+    "root.bib"
+    "root.tex"

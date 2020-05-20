@@ -1,0 +1,66 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Stuttering Equivalence and Stuttering Invariance}
+\author{
+  Stephan Merz\\
+  Inria Nancy \& LORIA\\
+  Villers-l\`es-Nancy, France
+}
+\maketitle
+
+\noindent%
+Two $\omega$-sequences are stuttering equivalent if they differ only by
+finite repetitions of elements. For example, the two sequences
+\[
+  (abbccca)^{\omega} \qquad\textrm{and}\qquad
+  (aaaabc)^{\omega}
+\]
+are stuttering equivalent, whereas
+\[
+  (abac)^{\omega} \qquad\textrm{and}\qquad
+  (aaaabcc)^{\omega}
+\]
+are not. Stuttering equivalence is a fundamental concept in the theory
+of concurrent and distributed systems. Notably, Lamport~\cite{lamport:what-good}
+argues that refinement notions for such systems should be insensitive to
+finite stuttering. Peled and Wilke~\cite{peled:ltl-x} showed that all PLTL
+(propositional linear-time temporal logic) properties that are insensitive 
+to stuttering equivalence can be expressed without the next-time operator. 
+Stuttering equivalence is also important for certain verification techniques
+such as partial-order reduction for model checking.
+
+We formalize stuttering equivalence in Isabelle/HOL. Our development relies
+on the notion of stuttering sampling functions that may skip blocks of 
+identical sequence elements. We also encode PLTL and prove the theorem
+due to Peled and Wilke~\cite{peled:ltl-x}.
+
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

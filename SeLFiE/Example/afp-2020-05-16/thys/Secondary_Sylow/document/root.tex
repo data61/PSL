@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Secondary Sylow Theorems}
+\author{Jakob von Raumer}
+\maketitle
+
+\begin{abstract}
+These theories extend the existent proof of the first sylow theorem (written by Florian Kammueller and L. C. Paulson)
+by what is often called the second, third and fourth sylow theorem. These theorems state propositions about the number
+of Sylow $p$-subgroups of a group and the fact that they are conjugate to each other. The proofs make use of an implementation
+of group actions and their properties.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,78 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+
+\title{Attack Trees in Isabelle for GDPR compliance of IoT healthcare systems}
+\author{Florian Kamm\"uller}
+
+\maketitle
+
+\begin{abstract}
+In this article, we present a proof theory for Attack Trees. Attack Trees are a well established and 
+useful model for the construction of attacks on systems since they allow a stepwise exploration of 
+high level attacks in application scenarios. Using the expressiveness of Higher Order Logic in Isabelle, 
+we succeed in developing a generic theory of Attack Trees with a state-based semantics based on Kripke 
+structures and CTL (see \cite{kam:16b} for more details). 
+The resulting framework allows mechanically supported logic analysis of the meta-theory 
+of the proof calculus of Attack Trees and at the same time the developed proof theory enables application 
+to case studies. 
+A central correctness and completeness result proved in Isabelle establishes a connection 
+between the notion of Attack tTree validity and CTL. 
+The application is illustrated on the example of a healthcare IoT system and GDPR compliance verification.
+A more detailed account of the Attack Tree formalisation is given in \cite{kam:18b} and the case study 
+is described in detail in \cite{kam:18a}.
+%bla \cite{kk:16}\cite{kp:16}\cite{mw:09}\cite{kk:20}
+\end{abstract}
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

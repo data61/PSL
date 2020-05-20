@@ -1,0 +1,15 @@
+chapter AFP
+
+session Mersenne_Primes (AFP) = "HOL-Algebra" +
+  options [timeout = 1200]
+  sessions
+    "HOL-Library"
+    Pell
+    Native_Word
+    Probabilistic_Prime_Tests
+  theories
+    Lucas_Lehmer_Code
+  document_files
+    "root.tex"
+    "root.bib"
+

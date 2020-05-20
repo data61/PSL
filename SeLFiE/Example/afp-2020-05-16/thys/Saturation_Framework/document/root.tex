@@ -1,0 +1,90 @@
+%Some LaTeX checking: no bad pratices
+%\RequirePackage[l2tabu, orthodox]{nag}
+%\RequirePackage[all,error]{onlyamsmath}
+\RequirePackage{fixltx2e}
+
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+% lualatex
+%\usepackage{spelling}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{comment}
+
+
+\usepackage{mdframed}
+%% Saisie en UTF-8
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{subcaption}
+
+%% Pour composer des mathématiques
+\usepackage{amsmath,amssymb, amsthm}
+\usepackage{nicefrac}
+\usepackage{tikz}
+\usetikzlibrary{decorations, arrows, shapes, automata, mindmap, trees}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+\usepackage{wasysym}
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+\usepackage[english]{babel}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+
+\title{Formalization of a Comprehensive Framework for Saturation Theorem Proving in Isabelle/HOL}
+\author{Sophie Tourret}
+\maketitle
+
+\begin{abstract}
+This Isabelle/HOL formalization is the companion of the technical report ``A comprehensive framework for saturation theorem proving'', itself companion of the eponym IJCAR 2020 paper, written by Uwe Waldmann, Sophie Tourret, Simon Robillard and Jasmin Blanchette.
+It verifies a framework for formal refutational completeness proofs of abstract provers that implement saturation calculi, such as ordered resolution or superposition, and allows to model entire prover architectures in such a way that the static refutational completeness of a calculus immediately implies the dynamic refutational completeness of a prover implementing the calculus using a variant of the given clause loop.
+
+The technical report ``A comprehensive framework for saturation theorem proving'' is available at \url{http://matryoshka.gforge.inria.fr/pubs/satur\_report.pdf}.
+The names of the Isabelle lemmas and theorems corresponding to the results in the report are indicated in the margin of the report.
+\end{abstract}
+
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

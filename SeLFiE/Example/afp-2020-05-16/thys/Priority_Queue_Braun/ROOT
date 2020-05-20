@@ -1,0 +1,12 @@
+chapter AFP
+
+session Priority_Queue_Braun (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-Data_Structures"
+  theories
+    Priority_Queue_Braun2
+    Sorting_Braun
+  document_files
+    "root.tex"
+    "root.bib"

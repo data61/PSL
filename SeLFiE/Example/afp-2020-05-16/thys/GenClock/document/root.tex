@@ -1,0 +1,95 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fullpage}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Formalization of a Generalized Protocol for 
+Clock Synchronization in Isabelle/HOL}
+\author{Alwen Tiu \\
+LORIA - \url{http://qsl.loria.fr}}
+\maketitle
+
+
+\begin{abstract}
+We formalize the generalized Byzantine fault-tolerant clock synchronization 
+protocol of Schneider. 
+This protocol abstracts from particular algorithms or implementations
+for clock synchronization. This abstraction includes several
+assumptions on the behaviors of physical clocks and on general
+properties of concrete algorithms/implementations. Based on these assumptions
+the correctness of the protocol is proved by Schneider. 
+His proof was later verified by Shankar using the theorem prover EHDM
+(precursor to PVS). Our formalization in Isabelle/HOL is based on
+Shankar's formalization. 
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+In certain distributed systems, e.g., real-time process-control
+systems, the existence of a reliable global time source is critical in
+ensuring the correct functioning of the systems.
+This reliable global time source can be implemented using
+several physical clocks distributed on different nodes in the
+distributed system. Since physical clocks are by nature constantly
+drifting away from the ``real time'' and different clocks can have
+different drift rates, in such a scheme, it is important that these
+clocks are regularly adjusted so that they are closely synchronized
+within a certain application-specific safe bound. The design and
+verification of clock synchronization protocols are often complicated
+by the additional requirement that the protocols should work correctly
+under certain types of errors, e.g., failure of some clocks, error in
+communication network or corrupted messages, etc.
+
+There has been a number of fault-tolerant clock synchronization
+algorithms studied in the literature, e.g., the {\em Interactive
+  Convergence Algorithm} ({ICA}) by Lamport and
+Melliar-Smith~\cite{Lamport}, the Lundelius-Lynch algorithm
+\cite{Lundelius}, etc., each with its own degree of fault tolerance.
+One important property that must be satisfied by a clock
+synchronization algorithm is the agreement property, i.e., at any time
+$t$, the difference of the clock readings of any two non-faulty processes must be
+bounded by a constant (which is fixed according to the domain of
+applications).  At the core of these algorithms is the convergence
+function that calculates the adjustment to a clock of a process, based
+on the clock readings of all other processes.
+Schneider~\cite{Schneider87} gives an abstract
+characterization of a wide range of clock synchronization algorithms
+(based on the convergence functions used) and proves the agreement
+property in this abstract framework.  Schneider's proof was later
+verified by Shankar \cite{Shankar92} in the theorem prover EHDM
+(precursor to PVS), where eleven axioms about clocks are explicitly stated. 
+
+We formalize Schneider's proof in Isabelle/HOL, making use of Shankar's formulation of the
+clock axioms. The particular formulation of axioms on clock
+conditions and the statements of the main theorems here are
+essentially those of Shankar's \cite{Shankar92}, with some minor
+changes in syntax. For the full description of the protocol, the
+general structure of the proof and the meaning of the constants and
+function symbols used in this formalization, we refer readers to \cite{Shankar92}.
+
+\paragraph{Acknowledgment} 
+I would like to thank Stephan Merz and Pascal Fontaine for useful tips on using Isabelle
+and particularly the Isar proof language.
+ 
+\section{Isar proof scripts}
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

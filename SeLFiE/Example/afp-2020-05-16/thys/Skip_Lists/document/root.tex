@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Randomised Skip Lists}
+\author{Max W. Haslbeck, Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+Skip lists are sorted linked lists enhanced with shortcuts and are an alternative to binary search trees \cite{pugh1989skip}.
+A skip lists consists of multiple levels of sorted linked lists where a list on level $n$ is a subsequence of the list on level $n - 1$.
+In the ideal case, elements are \emph{skipped} in such a way that a lookup in a skip lists takes $\mathcal{O}(\log{n})$ time.
+In a randomised skip list the skipped elements are choosen randomly.
+
+This entry contains formalized proofs of the textbook results about the expected height and the expected length of a search path in a randomised skip list \cite{motwani1995}.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

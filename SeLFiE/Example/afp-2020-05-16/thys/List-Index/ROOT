@@ -1,0 +1,8 @@
+chapter AFP
+
+session "List-Index" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    List_Index
+  document_files
+    "root.tex"

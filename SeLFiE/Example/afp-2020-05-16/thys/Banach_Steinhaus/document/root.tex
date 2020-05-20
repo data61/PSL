@@ -1,0 +1,30 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath,amssymb}
+
+%this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Banach-Steinhaus theorem}
+\author{Dominique Unruh \and Jos\'e Manuel Rodr\'iguez Caballero}
+\maketitle
+
+\begin{abstract}
+We formalize in Isabelle/HOL a result \cite{Weisstein_UBP} due to S. Banach and H. Steinhaus \cite{banach1927principe} known as Banach-Steinhaus theorem or Uniform boundedness principle: a pointwise-bounded family of continuous linear operators from a Banach space to a normed space is uniformly bounded. Our approach is an adaptation to Isabelle/HOL of a proof due to A. Sokal \cite{sokal2011really}.
+\end{abstract}
+
+\tableofcontents
+
+\input{session}
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

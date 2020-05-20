@@ -1,0 +1,27 @@
+chapter AFP
+
+session Strong_Security (AFP) = HOL +
+  description "
+    An Isabelle/HOL formalization of Strong Security
+
+    Author: Sylvia Grewe, TU Darmstadt
+    Author: Alexander Lux, TU Darmstadt
+    Author: Heiko Mantel, TU Darmstadt
+    Author: Jens Sauer, TU Darmstadt
+  "
+  options [timeout = 600]
+  theories
+    Domain_example
+    Expr 
+    Language_Composition 
+    MWLf 
+    Parallel_Composition 
+    Strongly_Secure_Skip_Assign 
+    Strong_Security 
+    Types 
+    Type_System 
+    Type_System_example 
+    Up_To_Technique
+  document_files
+    "root.bib"
+    "root.tex"

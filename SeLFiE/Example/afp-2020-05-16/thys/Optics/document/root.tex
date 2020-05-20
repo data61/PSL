@@ -1,0 +1,106 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{fullpage}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{graphicx}
+\usepackage{document}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+\usepackage[greek,english]{babel}
+  %option greek for \<euro>
+  %option english (default language) for \<guillemotleft>, \<guillemotright>
+
+\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+\usepackage{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+% Lens operations
+
+\newcommand{\view}{\mathit{V}}
+\newcommand{\src}{\mathit{S}}
+\newcommand{\lsbs}{{L}}
+\newcommand{\lput}{\textit{\textsf{put}}}
+\newcommand{\lget}{\textit{\textsf{get}}}
+\newcommand{\lcreate}{\mathit{create}}
+\newcommand{\lto}{\Longrightarrow}
+\newcommand{\lsubseteq}{\preceq}
+\newcommand{\lsupseteq}{\mathop{\supseteq_\lsbs}}
+\newcommand{\lequiv}{\approx}
+\newcommand{\lcomp}{;_\lsbs}
+\newcommand{\lplus}{+_\lsbs}
+\newcommand{\lquot}{\mathop{/\!_\lsbs}}
+\newcommand{\lindep}{\mathop{\,\bowtie\,}}
+\newcommand{\lone}{\mathbf{1}}
+\newcommand{\lzero}{\mathbf{0}}
+\newcommand{\lfst}{\textit{\textsf{\textbf{fst}}}}
+\newcommand{\lsnd}{\textit{\textsf{\textbf{snd}}}}
+
+\setcounter{topnumber}{1}
+\setcounter{bottomnumber}{1}
+\setcounter{totalnumber}{1}
+
+\begin{document}
+
+\title{Optics in Isabelle/HOL}
+
+\author{Simon Foster and Frank Zeyda \\[.5ex] University of York, UK \\[2ex] \texttt{\small $\{$simon.foster,frank.zeyda$\}$@york.ac.uk}}
+
+\maketitle
+
+\begin{abstract}
+  Lenses provide an abstract interface for manipulating data types through spatially-separated views. They are defined
+  abstractly in terms of two functions, $\lget$, the return a value from the source type, and $\lput$ that updates
+  the value. We mechanise the underlying theory of lenses, in terms of an algebraic hierarchy of lenses, including
+  well-behaved and very well-behaved lenses, each lens class being characterised by a set of lens laws. We also mechanise 
+  a lens algebra in Isabelle that enables their composition and comparison, so as to allow construction of complex lenses.
+  This is accompanied by a large library of algebraic laws. Moreover we also show how the lens classes can be applied by 
+  instantiating them with a number of Isabelle data types. This theory development is based on our recent paper~\cite{Foster16a}, which
+  shows how lenses can be used to unify heterogeneous representations of state-spaces in formalised programs.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\vspace{4ex}
+
+% Acknowledgments 
+\noindent\textbf{Acknowledgements}. This work is partly supported by EU H2020 project \emph{INTO-CPS}, grant agreement
+644047. \url{http://into-cps.au.dk/}. We would also like to thank Prof. Burkhart Wolff and Dr. Achim Brucker
+for their generous and helpful comments on our work, and particurlarly their invaluable advice on Isabelle
+mechanisation and ML coding.
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

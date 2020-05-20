@@ -1,0 +1,99 @@
+\documentclass[11pt,a4paper]{book}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{booktabs}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Tweaks
+\newcounter{TTStweak_tag}
+\setcounter{TTStweak_tag}{0}
+\newcommand{\setTTS}{\setcounter{TTStweak_tag}{1}}
+\newcommand{\resetTTS}{\setcounter{TTStweak_tag}{0}}
+\newcommand{\insertTTS}{\ifnum\value{TTStweak_tag}=1 \ \ \ \fi}
+
+\renewcommand{\isakeyword}[1]{\resetTTS\emph{\bf\def\isachardot{.}\def\isacharunderscore{\isacharunderscorekeyword}\def\isacharbraceleft{\{}\def\isacharbraceright{\}}#1}}
+\renewcommand{\isachardoublequoteopen}{\insertTTS}
+\renewcommand{\isachardoublequoteclose}{\setTTS}
+\renewcommand{\isanewline}{\mbox{}\par\mbox{}\resetTTS}
+
+\renewcommand{\isamarkupcmt}[1]{\hangindent5ex{\isastylecmt --- #1}}
+
+\newcommand{\isaheader}[1]{\section{#1}}
+
+\makeatletter
+\newenvironment{abstract}{%
+  \small
+  \begin{center}%
+    {\bfseries \abstractname\vspace{-.5em}\vspace{\z@}}%
+  \end{center}%
+  \quotation}{\endquotation}
+\makeatother
+
+\begin{document}
+
+\title{Light-Weight Containers}
+\author{Andreas Lochbihler}
+\maketitle
+
+\begin{abstract}
+  This development provides a framework for container types like sets and maps such that generated code implements these containers with different (efficient) data structures.
+  Thanks to type classes and refinement during code generation, this light-weight approach can seamlessly replace Isabelle's default setup for code generation.
+  Heuristics automatically pick one of the available data structures depending on the type of elements to be stored, but users can also choose on their own.
+  The extensible design permits to add more implementations at any time.
+
+  To support arbitrary nesting of sets, we define a linear order on sets based on a linear order of the elements and provide efficient implementations.
+  It even allows to compare complements with non-complements.
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\chapter{Introduction}
+
+This development focuses on generating efficient code for container types like sets and maps.
+It falls into two parts: 
+First, we define linear order on sets (Ch.~\ref{chapter:linear:order:set}) that is efficiently executable given a linear order on the elements.
+Second, we define an extensible framework LC (for light-weight containers) that supports multiple (efficient) implementations of container types (Ch.~\ref{chapter:light-weight:containers}) in generated code.
+Both parts heavily exploit type classes and the refinement features of the code generator \cite{HaftmannKrausKuncarNipkow2013ITP}.
+This way, we are able to implement the HOL types for sets and maps directly, as the name light-weight containers (LC) emphasises.
+
+In comparison with the Isabelle Collections Framework (ICF) \cite{LammichLochbihler2010ITP,Lammich2009AFP}, the style of refinement is the major difference.
+In the ICF, the container types are replaced with the types of the data structures inside the logic.
+Typically, the user has to define his operations that involve maps and sets a second time such that they work on the concrete data structures; then, she has to prove that both definitions agree.
+With LC, the refinement happens inside the code generator.
+Hence, the formalisation can stick with the types $'a\ set$ and $('a, 'b)\ mapping$ and there is no need to duplicate definitions or prove refinement.
+The drawback is that with LC, we can only implement operations that can be fully specified on the abstract container type.
+In particular, the internal representation of the implementations may not affect the result of the operations.
+For example, it is not possible to pick non-deterministically an element from a set or fold a set with a non-commutative operation, i.e., the result depends on the order of visiting the elements.
+
+For more documentation and introductory material refer to the userguide (Chapter~\ref{chapter:Userguide}) and the ITP-2013 paper \cite{Lochbihler2013ITP}.
+
+% generated text of all theories
+\input{session}
+
+%\input{conclusion}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,70 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{xspace}
+\usepackage[utf8]{inputenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newtheorem{theorem}{Theorem}%[section]
+\newtheorem{corollary}{Corollary}%[section]
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\complex{\mathbb{C}}
+
+\begin{document}
+
+\title{Stochastic Matrices and the Perron--Frobenius Theorem\footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author{Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+Stochastic matrices are a convenient way to model discrete-time and finite
+state Markov chains. The Perron--Frobenius theorem tells us something about
+the existence and uniqueness of non-negative eigenvectors of a stochastic matrix.
+
+In this entry, we formalize stochastic matrices, link the formalization 
+to the existing AFP-entry on Markov chains, and apply the Perron--Frobenius
+theorem to prove that stationary distributions always exist, and they are
+unique if the stochastic matrix is irreducible. 
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+In their AFP entry Markov Models \cite{Markov_Models-AFP}, H\"olzl and Nipkow
+provide a framework for specifying discrete- and continuous-time Markov chains.
+
+In the following, we instantiate their framework by formalizing right-stochastic
+matrices and stochastic vectors. These vectors encode probability mass functions
+over a finite set of states, whereas stochastic matrices can be utilized to model 
+discrete-time and finite space Markov chains. 
+
+The formulation of Markov chains as matrices has the 
+advantage that certain concepts
+can easily be expressed via matrices. For instance, a stationary distribution is nothing
+else than a non-negative real eigenvector of the transition matrix for eigenvalue 1.
+As a consequence, we can derive certain properties on Markov chains using results on
+matrices. To be more precise, we utilize the formalization of the Perron--Frobenius theorem
+\cite{Perron_Frobenius-AFP} to prove that a stationary distribution always exists, and that it is unique if
+the transition matrix is irreducible. 
+
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

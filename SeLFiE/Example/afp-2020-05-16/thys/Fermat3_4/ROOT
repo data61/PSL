@@ -1,0 +1,10 @@
+chapter AFP
+
+session Fermat3_4 (AFP) = "HOL-Number_Theory" +
+  options [timeout = 600]
+  theories
+    Fermat4
+    Fermat3
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,11 @@
+chapter AFP
+
+session Partial_Function_MR (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+  theories
+    Partial_Function_MR_Examples
+  document_files
+    "root.bib"
+    "root.tex"

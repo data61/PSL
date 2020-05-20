@@ -1,0 +1,16 @@
+chapter AFP
+
+session Bernoulli (AFP) = "HOL-Complex_Analysis" +
+  options [timeout = 600]
+  sessions
+    "HOL-Analysis"
+    "HOL-Number_Theory"
+    "HOL-Computational_Algebra"
+  theories
+    Bernoulli
+    Periodic_Bernpoly
+    Bernoulli_FPS
+    Bernoulli_Zeta
+  document_files
+    "root.tex"
+    "root.bib"

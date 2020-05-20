@@ -1,0 +1,53 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[english]{babel}
+\usepackage{stmaryrd}
+\usepackage{eufrak}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{A Verified Compiler for\\ Probability Density Functions}
+\author{Manuel Eberl, Johannes H\"olzl and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}%
+%
+Bhat \emph{et al.}\ \cite{bhat13pdf} developed an inductive compiler that computes density functions for
+probability spaces described by programs in a probabilistic functional language. In this work, we
+implement such a compiler for a modified version of this language within the theorem prover Isabelle
+and give a formal proof of its soundness w.r.t.\ the semantics of the source and target language.
+Together with Isabelle's code generation for inductive predicates, this yields a fully verified,
+executable density compiler. The proof is done in two steps: First, an abstract compiler working
+with abstract functions modelled directly in the theorem prover's logic is defined and proved sound.
+Then, this compiler is refined to a concrete version that returns a target-language expression.
+
+A detailed presentation of this work can be found in the first author's master's thesis~\cite{eberl}.
+%
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

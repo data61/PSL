@@ -1,0 +1,79 @@
+\documentclass[8pt,a4paper]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\title{Poincar\'e Disc Model}
+\author{Danijela Simi\'c  \and
+ Filip Mari\'c  \and
+ Pierre Boutry}
+\maketitle
+
+\begin{abstract}
+  We describe formalization of the Poincar\'e disc model of hyperbolic
+  geometry within the Isabelle/HOL proof assistant. The model is
+  defined within the extended complex plane (one dimensional complex
+  projective space $\mathbb{C}P^1$), formalized in the AFP entry
+  ``Complex Geometry'' \cite{afp-complex-geometry}. Points, lines,
+  congruence of pairs of points, betweenness of triples of points,
+  circles, and isometries are defined within the model. It is shown
+  that the model satisfies all Tarski's axioms except the Euclid's
+  axiom. It is shown that it satisfies its negation and the limiting
+  parallels axiom (which proves it to be a model of hyperbolic
+  geometry).
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\clearpage
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\clearpage
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

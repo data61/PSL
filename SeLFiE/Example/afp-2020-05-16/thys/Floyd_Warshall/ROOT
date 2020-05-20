@@ -1,0 +1,11 @@
+chapter AFP
+
+session Floyd_Warshall (AFP) = Refine_Imperative_HOL +
+  options [timeout=600]
+  theories
+    Floyd_Warshall
+    Recursion_Combinators
+    FW_Code
+  document_files
+    "root.tex"
+    "root.bib"

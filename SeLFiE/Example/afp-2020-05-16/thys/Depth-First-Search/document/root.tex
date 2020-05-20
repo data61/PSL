@@ -1,0 +1,34 @@
+
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Depth-First Search}
+\author{Toshiaki Nishihara \and Yasuhiko Minamide}
+\maketitle
+
+\begin{abstract}
+  Depth-first search of a graph is formalized with \texttt{function}. 
+  It is shown that it visits all of the reachable nodes from a given list of 
+  nodes. Executable ML code of depth-first search is obtained with code 
+  generation feature of Isabelle/HOL.
+  The formalization contains two implementations of depth-first search: 
+  one by stack and one by nested recursion. They are shown to be equivalent. 
+  The termination condition of the version with nested-recursion is shown 
+  by the method of inductive invariants.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\end{document}

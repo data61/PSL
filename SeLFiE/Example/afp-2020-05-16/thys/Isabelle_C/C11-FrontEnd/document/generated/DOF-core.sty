@@ -1,0 +1,135 @@
+%% Copyright (C) 2018 The University of Sheffield
+%%               2018 The University of Paris-Sud
+%%               2019 The University of Exeter
+%%
+%% License:
+%%   This program can be redistributed and/or modified under the terms
+%%   of the LaTeX Project Public License Distributed from CTAN
+%%   archives in directory macros/latex/base/lppl.txt; either
+%%   version 1 of the License, or any later version.
+%%   OR
+%%   The 2-clause BSD-style license.
+%%  
+%%   SPDX-License-Identifier: LPPL-1.0+ OR BSD-2-Clause
+
+\NeedsTeXFormat{LaTeX2e}\relax
+\ProvidesPackage{DOF-core}
+  [0000/00/00 Unreleased v0.0.0+%
+  Document-Type Support Framework for Isabelle.]
+
+\RequirePackage{keycommand}
+\RequirePackage{environ}
+\RequirePackage{graphicx}
+\RequirePackage{xspace}
+\RequirePackage{etoolbox}
+\RequirePackage{fp}
+
+\newcommand{\isadof}{Isabelle/DOF\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: newcommand wrapper
+\newcommand\newisadof[1]{\expandafter\newkeycommand\csname isaDof.#1\endcsname}%
+\newcommand\renewisadof[1]{\expandafter\renewkeycommand\csname isaDof.#1\endcsname}%
+\newcommand\provideisadof[1]{\expandafter\providekeycommand\csname isaDof.#1\endcsname}%
+% end: newcommand wrapper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: generic dispatcher
+\newkeycommand+[\|]\isaDof[env={UNKNOWN},label=,type={dummyT},args={}][1]{%
+  \ifcsname isaDof.\commandkey{type}\endcsname%
+      \csname isaDof.\commandkey{type}\endcsname%
+              [label=\commandkey{label},\commandkey{args}]{#1}%
+  \else\relax\fi%
+  \ifcsname isaDof.\commandkey{env}.\commandkey{type}\endcsname%
+      \csname isaDof.\commandkey{env}.\commandkey{type}\endcsname%
+              [label=\commandkey{label},\commandkey{args}]{#1}%
+  \else%
+      \message{Isabelle/DOF: Using default LaTeX representation for concept %
+        "\commandkey{env}.\commandkey{type}".}%
+      \ifcsname isaDof.\commandkey{env}\endcsname%
+         \csname isaDof.\commandkey{env}\endcsname%
+                [label=\commandkey{label}]{#1}%
+      \else%
+      \errmessage{Isabelle/DOF: No LaTeX representation for concept %
+        "\commandkey{env}.\commandkey{type}" defined and no default %
+        definition for "\commandkey{env}" available either.}%
+      \fi%
+  \fi%
+}
+% end: generic dispatcher
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: text*-dispatcher
+\NewEnviron{isamarkuptext*}[1][]{\isaDof[env={text},#1]{\BODY}}
+% end: text*-dispatcher
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: chapter*-dispatcher
+\NewEnviron{isamarkupchapter*}[1][]{\isaDof[env={chapter},#1]{\BODY}}
+% end: chapter*-dispatcher
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: section*-dispatcher
+\NewEnviron{isamarkupsection*}[1][]{\isaDof[env={section},#1]{\BODY}}
+% end: section*-dispatcher
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: subsection*-dispatcher
+\NewEnviron{isamarkupsubsection*}[1][]{\isaDof[env={subsection},#1]{\BODY}}
+% end: subsection*-dispatcher
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: subsubsection*-dispatcher
+\NewEnviron{isamarkupsubsubsection*}[1][]{\isaDof[env={subsubsection},#1]{\BODY}}
+% end: subsubsection*-dispatcher
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: paragraph*-dispatcher
+\NewEnviron{isamarkupparagraph*}[1][]{\isaDof[env={paragraph},#1]{\BODY}}
+% end: paragraph*-dispatcher
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: text default implementation
+\newisadof{text}[label=,type=][1]{%
+  \begin{isamarkuptext}\label{\commandkey{label}}%
+    #1
+  \end{isamarkuptext}%
+}
+% end: text default implementation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: chapter/section default implementations
+\newisadof{chapter}[label=,type=][1]{%
+  \isamarkupfalse\isamarkupchapter{#1}\label{\commandkey{label}}\isamarkuptrue%
+}
+\newisadof{section}[label=,type=][1]{%
+  \isamarkupfalse\isamarkupsection{#1}\label{\commandkey{label}}\isamarkuptrue%
+}
+\newisadof{subsection}[label=,type=][1]{%
+  \isamarkupfalse\isamarkupsubsection{#1}\label{\commandkey{label}}\isamarkuptrue%
+}
+\newisadof{subsubsection}[label=,type=][1]{%
+  \isamarkupfalse\isamarkupsubsubsection{#1}\label{\commandkey{label}}\isamarkuptrue%
+}
+\newisadof{paragraph}[label=,type=][1]{%
+  \isamarkupfalse\isamarkupparagraph{#1}\label{\commandkey{label}}\isamarkuptrue%
+}
+% end: chapter/section default implementations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin: label and ref
+\newisadof{label}[label=,type=][1]{\label{#1}}
+\newisadof{ref}[label=,type=][1]{\autoref{#1}}
+% end: label and ref
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

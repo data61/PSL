@@ -1,0 +1,9 @@
+chapter AFP
+
+session Epistemic_Logic (AFP) = "HOL-Library" +
+  options [timeout = 300]
+  theories
+    Epistemic_Logic
+  document_files
+    "root.tex"
+    "root.bib"

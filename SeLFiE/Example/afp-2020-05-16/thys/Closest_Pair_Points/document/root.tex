@@ -1,0 +1,35 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Closest Pair of Points Algorithms}
+\author{Martin Rau and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+This entry provides two related verified divide-and-conquer algorithms solving
+the fundamental \textit{Closest Pair of Points} problem in Computational Geometry.
+Functional correctness and the optimal running time of $\mathcal{O}(n \log n)$ are proved. 
+Executable code is generated which is empirically competitive with handwritten
+reference implementations.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

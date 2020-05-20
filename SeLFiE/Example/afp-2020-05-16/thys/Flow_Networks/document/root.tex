@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{wasysym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Tweaks
+\newcounter{TTStweak_tag}
+\setcounter{TTStweak_tag}{0}
+\newcommand{\setTTS}{\setcounter{TTStweak_tag}{1}}
+\newcommand{\resetTTS}{\setcounter{TTStweak_tag}{0}}
+\newcommand{\insertTTS}{\ifnum\value{TTStweak_tag}=1 \ \ \ \fi}
+
+\renewcommand{\isakeyword}[1]{\resetTTS\emph{\bf\def\isachardot{.}\def\isacharunderscore{\isacharunderscorekeyword}\def\isacharbraceleft{\{}\def\isacharbraceright{\}}#1}}
+\renewcommand{\isachardoublequoteopen}{\insertTTS}
+\renewcommand{\isachardoublequoteclose}{\setTTS}
+\renewcommand{\isanewline}{\mbox{}\par\mbox{}\resetTTS}
+
+
+
+\renewcommand{\isamarkupcmt}[1]{\hangindent5ex{\isastylecmt --- #1}}
+
+%\newcommand{\isaheader}[1]{\section{#1}}
+
+\newcommand{\DefineSnippet}[2]{#2}
+
+\begin{document}
+
+\title{Flow Networks and the Min-Cut-Max-Flow Theorem}
+\author{Peter Lammich and S.~Reza Sefidgar}
+\maketitle
+
+\begin{abstract}
+We present a formalization of flow networks and the Min-Cut-Max-Flow theorem.
+Our formal proof closely follows a standard textbook proof, and is accessible even without being
+an expert in Isabelle/HOL--- the interactive theorem prover used for the formalization.
+\end{abstract}
+
+\clearpage
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+Computing the maximum flow of a network is an important problem in graph theory.
+Many other problems, like maximum-bipartite-matching, edge-disjoint-paths,
+circulation-demand, as well as various scheduling and resource allocating
+problems can be reduced to it. The Ford-Fulkerson method~\cite{FF56} describes a
+class of algorithms to solve the maximum flow problem. 
+It is based on a corollary of the Min-Cut-Max-Flow theorem~\cite{FF56,EFS56}, which states that a flow 
+is maximal iff there exists no augmenting path. 
+
+In this chapter, we present a formalization of flow networks and prove the Min-Cut-Max-Flow theorem,
+closely following the textbook presentation of Cormen et al.~\cite{CLRS09}.
+We have used the
+Isar~\cite{Wenzel99} proof language to develop human-readable proofs that are 
+accessible even to non-Isabelle experts.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

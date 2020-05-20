@@ -1,0 +1,12 @@
+chapter AFP
+
+session Category2 (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-ZF"
+  theories
+    MonadicEquationalTheory
+    Yoneda
+  document_files
+    "root.bib"
+    "root.tex"

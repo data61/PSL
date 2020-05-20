@@ -1,0 +1,45 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Quantifier Elimination for Linear Arithmetic}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+This article formalizes quantifier elimination procedures for dense
+linear orders, linear real arithmetic and Presburger arithmetic.  In
+each case both a DNF-based non-elementary algorithm and one or more
+(doubly) exponential NNF-based algorithms are formalized, including
+the well-known algorithms by Ferrante and Rackoff and by Cooper. The
+NNF-based algorithms for dense linear orders are new but based on
+Ferrante and Rackoff and on an algorithm by Loos and Weispfenning
+which simulates infinitesimals.
+
+All algorithms are directly executable. In particular, they yield
+reflective quantifier elimination procedures for HOL itself.
+
+The formalization makes heavy use of locales and is therefore highly modular.
+\end{abstract}
+
+\noindent
+For an exposition of the DNF-based procedures see~\cite{Nipkow-MOD2007},
+for the NNF-based procedures see~\cite{Nipkow-IJCAR08}.
+\tableofcontents
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}

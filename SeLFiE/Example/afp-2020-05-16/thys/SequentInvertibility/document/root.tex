@@ -1,0 +1,59 @@
+\documentclass{llncs}
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym,proof,stmaryrd}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Linenumber gubbins
+
+\newcommand{\implies}[2]{#1 \!\supset\! #2}       
+\newcommand{\SSeq}[3]{                  % judgement with stoup
+\mbox{$#1\raisebox{.2mm}{$\,\,\stackrel{{}^{#2}}{\Longrightarrow}\,\,$}#3$}}
+\newcommand{\SC}{uniprincipal }
+\newcommand{\SCCap}{Uniprincipal }
+\newcommand{\eat}[1]{}
+\newcommand{\com}{combinable }
+\newcommand{\Com}{Combinable }
+\newcommand{\commed}{combined }
+\newcommand{\Commed}{Combined }
+\newcommand{\isasymLM}{\isamath{\Lbag}}
+\newcommand{\isasymRM}{\isamath{\Rbag}}
+\newcommand{\isasymEmpt}{\isamath{\emptyset}}
+% Make the comments within proofs the same size as elsewhere
+\renewcommand{\isastyletxt}{\isastyletext}
+\date{}
+\title{Invertibility in Sequent Calculi}
+\author{Peter Chapman}
+\institute{School of Computer Science, University of St Andrews \\
+Email: \texttt{pc@cs.st-andrews.ac.uk}}
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+The invertibility of the rules of a sequent calculus is important for guiding proof search and can be used in some formalised proofs of Cut admissibility.
+We present  sufficient conditions for when a rule is invertible with respect to a calculus.  We illustrate the conditions with  examples.   It must be noted we give purely syntactic criteria; no guarantees are given as to the suitability of the rules.
+\end{abstract}
+% sane default for proof documents
+% \parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

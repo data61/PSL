@@ -1,0 +1,10 @@
+chapter AFP
+
+session "Ramsey-Infinite" (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Ramsey
+  document_files
+    "root.tex"

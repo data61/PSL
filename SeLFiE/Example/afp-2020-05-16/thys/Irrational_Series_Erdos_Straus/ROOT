@@ -1,0 +1,13 @@
+chapter AFP
+
+session Irrational_Series_Erdos_Straus (AFP) = "HOL-Analysis" +
+  options [timeout = 1200]
+  sessions
+    Prime_Number_Theorem
+    Prime_Distribution_Elementary
+  theories
+    Irrational_Series_Erdos_Straus
+  document_files
+    "root.tex"
+    "root.bib"
+

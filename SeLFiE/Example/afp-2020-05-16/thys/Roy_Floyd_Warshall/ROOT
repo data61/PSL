@@ -1,0 +1,9 @@
+chapter AFP
+
+session Roy_Floyd_Warshall (AFP) = HOL +
+  options [timeout = 600]
+  theories Roy_Floyd_Warshall
+  document_files
+    "root.bib"
+    "root.tex"
+

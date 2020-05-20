@@ -1,0 +1,175 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{A Formalization of Declassification with WHAT\&WHERE-Security}
+\author{Sylvia Grewe, Alexander Lux, Heiko Mantel, Jens Sauer}
+\maketitle
+
+\begin{abstract}
+  Research in information-flow security aims at developing methods to
+  identify undesired information leaks within programs from private
+  sources to public sinks. Noninterference captures this intuition by
+  requiring that no information whatsoever flows from private sources
+  to public sinks. However, in practice this definition is often too
+  strict: Depending on the intuitive desired security policy, the
+  controlled declassification of certain private information (WHAT) at
+  certain points in the program (WHERE) might not result in an
+  undesired information leak.
+
+  We present an Isabelle/HOL formalization of such a security property
+  for controlled declassification, namely WHAT\&WHERE-security from
+  \cite{scheduler-independent}. The formalization includes
+  compositionality proofs for and a soundness proof for a security
+  type system that checks for programs in a simple while language with
+  dynamic thread creation.
+
+  Our formalization of the security type system is abstract in the
+  language for expressions and in the semantic side conditions for
+  expressions. It can easily be instantiated with different syntactic
+  approximations for these side conditions. The soundness proof of
+  such an instantiation boils down to showing that these syntactic
+  approximations imply the semantic side conditions.
+
+  This Isabelle/HOL formalization uses theories from the entry
+  Strong-Security (see proof document for details).
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+%\input{session}
+
+\section{Preliminary definitions}
+
+\subsection{Type synonyms}
+
+The formalization is parametric in different aspects. Notably, it is
+parametric in the security lattice it supports. 
+
+For better readability, we use the following type synonyms in our
+formalization (from the entry Strong-Security):
+
+\input{Types.tex}
+
+\section{WHAT\&WHERE-security}
+
+\subsection{Definition of WHAT\&WHERE-security}
+
+The definition of WHAT\&WHERE-security is parametric in a security
+lattice (\textit{'d}) and in a programming language (\textit{'com}).
+
+\input{WHATWHERE_Security.tex}
+
+
+\subsection{Proof technique for compositionality results}
+
+For proving compositionality results for WHAT\&WHERE-security, we formalize
+the following ``up-to technique'' and prove it sound:
+
+\input{Up_To_Technique.tex}
+
+
+\subsection{Proof of parallel compositionality}
+
+We prove that WHAT\&WHERE-security is preserved under composition of
+WHAT\&WHERE-secure threads.
+
+\input{Parallel_Composition.tex}
+
+
+\section{Example language and compositionality proofs}
+
+\subsection{Example language with dynamic thread creation}
+
+As in \cite{scheduler-independent}, we instantiate the language
+with a simple while language that supports dynamic thread creation via
+a spawn command (Multi-threaded While Language with spawn, MWLs). Note
+that the language is still parametric in the language used for Boolean
+and arithmetic expressions (\textit{'exp}).
+
+\input{MWLs.tex}
+
+\subsection{Proofs of atomic compositionality results}
+
+We prove for each atomic command of our example programming language
+(i.e. a command that is not composed out of other commands) that it is
+strongly secure if the expressions involved are indistinguishable for
+an observer on security level $d$.
+
+\input{WHATWHERE_Secure_Skip_Assign.tex}
+
+\subsection{Proofs of non-atomic compositionality results}
+
+We prove compositionality results for each non-atomic command of our
+example programming language (i.e. a command that is composed out
+of other commands): If the components are strongly secure and the
+expressions involved indistinguishable for an observer on security
+level $d$, then the composed command is also strongly secure.
+
+\input{Language_Composition.tex}
+
+\section{Security type system}
+
+\subsection{Abstract security type system with soundness proof}
+
+We formalize an abstract version of the type system in
+\cite{scheduler-independent} using locales
+\cite{conf/types/Ballarin03}. Our formalization of the type system is
+abstract in the sense that the rules specify abstract semantic side
+conditions on the expressions within a command that satisfy for
+proving the soundness of the rules. That is, it can be instantiated
+with different syntactic approximations for these semantic side
+conditions in order to achieve a type system for a concrete language
+for Boolean and arithmetic expressions. Obtaining a soundness proof
+for such a concrete type system then boils down to proving that the
+concrete type system interprets the abstract type system.
+
+We prove the soundness of the abstract type system by simply applying
+the compositionality results proven before.
+
+\input{Type_System.tex}
+
+\subsection{Example language for Boolean and arithmetic expressions}
+
+As and example, we provide a simple example language for instantiating the parameter
+\textit{'exp} for the language for Boolean and arithmetic expressions
+(from the entry Strong-Security).
+
+\input{Expr.tex}
+
+\subsection{Example interpretation of abstract security type system}
+
+Using the example instantiation of the language for Boolean and
+arithmetic expressions, we give an example instantiation of our
+abstract security type system, instantiating the parameter for domains
+\textit{'d} with a two-level security lattice (from the entry Strong-Security).
+
+\input{Domain_example.tex}
+
+\input{Type_System_example.tex}
+
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

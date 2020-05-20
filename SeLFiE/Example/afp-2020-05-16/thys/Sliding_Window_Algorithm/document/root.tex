@@ -1,0 +1,43 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{a4wide}
+\usepackage[english]{babel}
+\usepackage{eufrak}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{literal}
+
+
+\begin{document}
+
+\title{Formalization of an Algorithm for\\ Greedily Computing Associative Aggregations on Sliding Windows}
+\author{Lukas Heimes \and Dmitriy Traytel \and Joshua Schneider}
+
+\maketitle
+
+\begin{abstract}
+Basin et al.'s sliding window algorithm (SWA)~\cite{BASIN2015186} is an algorithm for combining
+the elements of subsequences of a sequence with an associative operator. It is greedy and minimizes
+the number of operator applications. We formalize the algorithm and verify its functional
+correctness. We extend the algorithm with additional operations and provide an alternative interface
+to the slide operation that does not require the entire input sequence.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,56 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Regular Algebras}
+\author{Simon Foster and Georg Struth}
+\maketitle
+
+\begin{abstract}
+  Regular algebras axiomatise the equational theory of regular 
+  expressions as induced by regular language identity.  We use 
+  Isabelle/HOL for a detailed systematic study of regular algebras 
+  given by Boffa, Conway, Kozen and Salomaa. We investigate the 
+  relationships between these classes, formalise a soundness proof for 
+  the smallest class (Salomaa's) and obtain completeness of the 
+  largest one (Boffa's) relative to a deep result by Krob. In 
+  addition we provide a large collection of regular identities 
+  in the general setting of Boffa's axiom. 
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introductory Remarks}
+
+These Isabelle theories complement the article on \emph{On the
+  Fine-Structure of Regular Algebra}~\cite{FosterS15}.  For an
+introduction to the topic, conceptual explanations and references we
+refer to this article. Our regular algebra hierarchy is orthogonal to
+the Kleene algebra hierarchy in the Archive of Formal
+Proofs~\cite{ArmstrongStruthWeberArchive}; we have not aimed at an
+integration for pragmatic reasons.
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

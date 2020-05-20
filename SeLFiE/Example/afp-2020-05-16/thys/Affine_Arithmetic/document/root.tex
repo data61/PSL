@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\title{Affine Arithmetic}
+\author{Fabian Immler}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+We give a formalization of affine forms~\cite{Stolfi2004,Girard2005} as abstract
+representations of zonotopes. We provide affine operations as well as overapproximations of some
+non-affine operations like multiplication and division. Expressions involving those operations can
+automatically be turned into (executable) functions approximating the original expression in
+affine arithmetic.
+
+Moreover we give a verified implementation of a functional algorithm to compute the intersection of
+a zonotope with a hyperplane, as described in the paper~\cite{Immler}.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

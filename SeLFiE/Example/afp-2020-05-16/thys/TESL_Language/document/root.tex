@@ -1,0 +1,98 @@
+\documentclass[10pt,a4paper]{book}
+\usepackage{geometry}
+\usepackage{calc}
+\usepackage{isabelle,isabellesym}
+\usepackage{graphicx}
+\usepackage{color}
+\graphicspath {{figures/}}
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+%\newcommand{\isaminorsize}{\fontsize{10}{12}\selectfont}
+\let\isaminorsize=\relax
+\newcommand{\isafontsize}{\fontsize{8}{10}\selectfont}
+\newcommand{\isascriptsize}{\fontsize{6}{8}\selectfont}
+
+\renewcommand{\isabellestylett}{%
+	\def\isastyle{\isafontsize\normalfont\ttfamily}%
+	\def\isastylett{\isafontsize\normalfont\ttfamily}%
+	\def\isastyleminor{\isaminorsize\normalfont\ttfamily}%
+	\def\isastyleminortt{\isaminorsize\normalfont\ttfamily}%
+	\def\isastylescript{\isascriptsize\normalfont\ttfamily}%
+	\isachardefaults%
+}
+\isabellestylett
+
+\renewcommand{\isamarkupcmt}[1]{{%
+	\vspace{0.2\baselineskip}%
+	\isastylecmt--- \parbox[t]{\linewidth - (\widthof{---} * 2)}{%
+		\vspace*{-.6\baselineskip}\color[gray]{0.25}#1%
+	}%
+	\vspace{0.1\baselineskip}%
+}}
+
+\newcommand{\authorentry}[2]{%
+  \urlstyle{sf}
+	\parbox[t]{0.26\linewidth}{\centering
+		#1\\
+		\makebox[0pt][c]{\small\href{mailto:#2}{\sffamily #2}}\\
+	}%
+}
+\title{A Formal Development of a Polychronous Polytimed Coordination Language}
+\author{%
+	\authorentry{Hai Nguyen Van}{hai.nguyenvan.phie@gmail.com}%
+	\and
+	\authorentry{Fr\'ed\'eric Boulanger}{frederic.boulanger@centralesupelec.fr}%
+	\and
+	\authorentry{Burkhart Wolff}{burkhart.wolff@lri.fr}%
+}
+\maketitle
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

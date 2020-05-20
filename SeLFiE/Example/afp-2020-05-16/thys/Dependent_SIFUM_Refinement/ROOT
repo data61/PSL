@@ -1,0 +1,23 @@
+chapter AFP
+
+session Dependent_SIFUM_Refinement (AFP) = Dependent_SIFUM_Type_Systems +
+  description "
+    An Isabelle/HOL formalization of a Compositional Refinement theory for
+    Value-Dependent SIFUM Security
+
+    Authors: Toby Murray, Robert Sison, Edward Pierzchalski, Christine Rizkallah
+  "
+  options [timeout = 600]
+  sessions
+    "HOL-Eisbach"
+  directories
+    "Examples"
+  theories
+    CompositionalRefinement
+  theories [document = false]
+    "Examples/Eg1RefinementTrivial"
+    "Examples/Eg1Eg2RefinementSimple"
+    "Examples/EgHighBranchRevC"
+  document_files
+    "root.bib"
+    "root.tex"

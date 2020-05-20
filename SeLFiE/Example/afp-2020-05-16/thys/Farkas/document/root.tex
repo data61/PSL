@@ -1,0 +1,96 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Farkas' Lemma and Motzkin's Transposition Theorem\footnote{
+Supported by FWF (Austrian Science Fund) project Y757.
+The authors are listed in alphabetical order regardless of individual
+contributions or seniority.}
+}
+\author{Ralph Bottesch \and Max W.\ Haslbeck \and Ren\'e Thiemann}
+
+\maketitle
+
+\begin{abstract}
+We formalize a proof of Motzkin's transposition theorem and Farkas' lemma
+in Isabelle/HOL.
+Our proof is based on the formalization of the simplex algorithm which, given a
+set of linear constraints, either returns a satisfying assignment to the problem or
+detects unsatisfiability.
+% the unsat core is not relevant for this paper 
+By reusing facts about the simplex algorithm we show that a set of
+linear constraints is unsatisfiable if and only if there is a linear combination
+of the constraints which evaluates to a trivially unsatisfiable inequality.
+
+% Farkas' lemma states that a set of linear constraints is either satisfiable or
+% there exists a linear combination of the constraints which evaluates to an
+% unsatisfiable inequality $0 \leq c$ where $c$ is negative.
+% 
+% Our proof is based on the formalization of the simplex algorithm which, given a
+% set of linear constraints, either returns a assignment to the
+% problem or returns a subset of the constraints which are unsatisfiable. 
+\end{abstract}
+
+
+\tableofcontents
+
+\section{Introduction}
+This formalization augments the existing formalization of the simplex algorithm 
+\cite{simplex-afp,SpasicMaric,Thiemann18}. Given
+a system of linear constraints, the simplex implementation in \cite{simplex-afp} produces 
+either a satisfying assignment or a subset
+of the given constraints that is itself unsatisfiable. Here we prove some variants of Farkas' Lemma.
+In essence, it states that if a set of constraints is unsatisfiable, then there is a linear combination of these
+constraints that evaluates to an unsatisfiable inequality of the form $0 \leq c$, for some negative $c$.
+
+Our proof of Farkas' Lemma \cite[Cor.~7.1e]{LinearProgramming} relies on the formalized simplex algorithm: Under the assumption that the algorithm has detected
+unsatisfiability, we show that there exist coefficients for the above-mentioned linear combination of the input constraints.
+
+Since the formalized algorithm follows the structure of the simplex-algorithm 
+by Dutertre and de Moura \cite{simplex-rad}, it first goes through a number of
+preprocessing phases, before starting the simplex procedure in earnest. These are relevant for proving Farkas' Lemma.
+We distinguish four \emph{layers} of the algorithm; at each layer, it operates on data that is a refinement of the data available at the previous layer.
+
+\begin{itemize}
+\item \emph{Layer 1.} \emph{Data}: the input -- a set of linear constraints with rational coefficients. These can be equalities or strict/non-strict
+inequalities. \emph{Preprocessing}: Each equality is split into two non-strict inequalities, strict inequalities are replaced
+by non-strict inequalities involving $\delta$-rationals.
+\item \emph{Layer 2.} \emph{Data}: a set of linear constraints that are non-strict inequalities with $\delta$-rationals. \emph{Preprocessing}:
+Linear constraints are simplified so that each constraint involves a single variable, by introducing so-called slack variables where necessary.
+The equations defining the slack variables are collected in a \emph{tableau}. The constraints are normalized so that they are of the form
+$y\leq c$ or $y\geq c$ (these are called \emph{atoms}).
+\item \emph{Layer 3.} \emph{Data}: A tableau and a set of atoms. Here the algorithm initializes the simplex algorithm.
+\item \emph{Layer 4.} \emph{Data}: A tableau, a set of atoms and an assignment of the variables. The simplex procedure is run.
+\end{itemize}
+
+At the point in the execution where the simplex algorithm detects unsatisfiability, we can directly obtain
+coefficients for the desired linear combination. However, these coefficients must then be propagated backwards through the different
+layers, where the constraints themselves have been modified, in order to obtain coefficients for a linear combination of \emph{input}
+constraints. These propagation steps make up a large part of the formalized proof, since we must show, at each of the layers 1--3,
+that the existence of coefficients at the layer below translates into the existence of such
+coefficients for the current layer. This means, in particular, that we formulate and prove a version of Farkas' Lemma for each of the four
+layers, in terms of the data available at the respective level. The theorem we obtain at Layer 1 is actually a more general version of
+Farkas' lemma, in the sense that it allows for strict as well as non-strict inequalities, known as Motzkin's Transposition Theorem \cite[Cor.~7.1k]{LinearProgramming} or 
+the Kuhn--Fourier Theorem~\cite[Thm.~1.1.9]{StoerWitzgall}.
+
+Since the implementation of the simplex algorithm in \cite{simplex-afp}, which our work relies on, is restricted to systems of constraints over the rationals, this formalization is
+also subject to the same restriction.
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

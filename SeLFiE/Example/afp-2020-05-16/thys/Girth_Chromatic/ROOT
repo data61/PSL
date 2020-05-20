@@ -1,0 +1,12 @@
+chapter AFP
+
+session Girth_Chromatic (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    "HOL-Decision_Procs"
+    "HOL-Library"
+  theories
+    Girth_Chromatic
+  document_files
+    "root.bib"
+    "root.tex"

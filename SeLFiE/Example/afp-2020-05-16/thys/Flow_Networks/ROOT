@@ -1,0 +1,31 @@
+chapter AFP
+
+session Flow_Networks (AFP) = Sepref_IICF +
+  options [timeout = 1200]
+  sessions
+    "Program-Conflict-Analysis"
+    CAVA_Automata
+    DFS_Framework
+    Refine_Imperative_HOL
+  directories
+    "Lib"
+  theories [document = false]
+    DFS_Framework.DFS_Framework
+    DFS_Framework.Reachable_Nodes
+    "Lib/Fofu_Abs_Base"
+    "Lib/Fofu_Impl_Base"
+    "Lib/Refine_Add_Fofu"
+    Graph
+  theories
+    Network
+    Residual_Graph
+    Augmenting_Flow
+    Augmenting_Path
+    Ford_Fulkerson
+  theories [document = false]
+    Graph_Impl
+    Network_Impl
+    NetCheck
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,5 @@
+% cvcl can't resolve because is a Non-linear arithmetic inequalities
+a, b, c : REAL;
+abs: REAL -> REAL = LAMBDA (x:REAL): IF x>=0 THEN x ELSE (-x) ENDIF;
+
+QUERY (c >= 0 => abs(a*c-b*c) = abs(a-b)*c);

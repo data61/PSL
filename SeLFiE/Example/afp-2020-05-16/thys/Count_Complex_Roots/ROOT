@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Count_Complex_Roots" (AFP) = "HOL-Complex_Analysis" +
+  options [timeout = 600]
+  sessions
+    Sturm_Tarski
+    Winding_Number_Eval
+  theories
+    Count_Complex_Roots
+    Count_Complex_Roots_Examples
+  document_files
+    "root.tex"
+    "root.bib"

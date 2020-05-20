@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,ragged2e}
+\usepackage{pdfsetup}
+
+\isabellestyle{it}
+\renewenvironment{isamarkuptext}{\par\isastyletext\begin{isapar}\justifying\color{blue}}{\end{isapar}}
+\renewcommand\labelitemi{$*$}
+
+\begin{document}
+
+\title{A Hierarchy of Algebras for Boolean Subsets}
+\author{Walter Guttmann and Bernhard M\"oller}
+\maketitle
+
+\begin{abstract}
+  We present a collection of axiom systems for the construction of Boolean subalgebras of larger overall algebras.
+  The subalgebras are defined as the range of a complement-like operation on a semilattice.
+  This technique has been used, for example, with the antidomain operation, dynamic negation and Stone algebras.
+  We present a common ground for these constructions based on a new equational axiomatisation of Boolean algebras.
+\end{abstract}
+
+\tableofcontents
+
+\section{Overview}
+
+A Boolean algebra often arises as a subalgebra of some overall algebra.
+To avoid introducing a separate type for the subalgebra, the overall algebra can be enriched with a special operation leading into the intended subalgebra and axioms to guarantee that the range of this operation has a Boolean structure.
+Examples for this are the antidomain operation in idempotent (left) semirings \cite{DesharnaisStruth2008b,DesharnaisStruth2008a,DesharnaisStruth2011}, dynamic negation \cite{Hollenberg1997}, the operation yielding tests in \cite{Guttmann2012c,GuttmannStruthWeber2011b}, and the pseudocomplement operation in Stone algebras \cite{Frink1962,Graetzer1971,Guttmann2018c}.
+The present development looks at a common ground pattern.
+
+In Sections 2 and 3 we relate various axiomatisations of Boolean algebras from the literature and present a new equational one tailored to our needs.
+Section 4 adapts this for the construction of Boolean subalgebras of larger overall algebras.
+In Section 5 we add successively stronger assumptions to the overall algebra.
+Sections 6, 7 and 8 show how Stone algebras, domain semirings and antidomain semirings fit into this hierarchy.
+
+This Isabelle/HOL theory formally verifies results in \cite{GuttmannMoeller2020}.
+See that paper for further details and related work.
+Some proofs in this theory have been translated from proofs found by Prover9 \cite{McCune2010} using a program we wrote.
+
+\begin{flushleft}
+\input{session}
+\end{flushleft}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+

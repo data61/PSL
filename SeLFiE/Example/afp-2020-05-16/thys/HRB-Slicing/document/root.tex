@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper,notitlepage]{report}
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{wasysym}
+\usepackage{graphicx}
+
+\usepackage{url}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\setisabellecontext}[1]{\markright{#1}}
+
+
+\begin{document}
+
+\title{Backing up Slicing: Verifying the interprocedural two-phase Horwitz-Reps-Binkley Slicer}
+\author{Daniel Wasserrab}
+\maketitle
+
+\begin{abstract}
+Slicing is a widely-used technique with applications in e.g. compiler
+technology and software security. Thus verification of
+algorithms in these areas is often based on the correctness of slicing,
+which should ideally be proven independent of concrete programming
+languages and with the help of well-known verifying techniques such as
+proof assistants. 
+
+After verifying static intraprocedural and dynamic slicing \cite{Wasserrab:08}, we
+focus now on the sophisticated interprocedural two-phase Horwitz-Reps-Binkley slicer
+\cite{HorwitzRB:88}, including summary edges which were added in \cite{RepsHSR:94}.
+
+Again, abstracting from concrete syntax we base our work on a graph
+representation of the program fulfilling certain structural
+and well-formedness properties. The framework is instantiated with a simple 
+While language with procedures, showing its validity.
+\end{abstract}
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\begin{thebibliography}{10}
+
+\bibitem{HorwitzRB:88}
+Susan Horwitz and Thomas Reps and David Binkley.
+\newblock Interprocedural Slicing Using Dependence Graphs.
+\newblock {\em ACM Transactions on Programming Languages and Systems}, 12(1):26--60, 1990.
+
+\bibitem{RepsHSR:94}
+Thomas Reps and Susan Horwitz and Mooly Sagiv and Genevieve Rosay.
+\newblock Speeding up slicing.
+\newblock In {\em Proc. of FSE'94}, pages 11--20. ACM, 1994
+
+\bibitem{Wasserrab:08}
+\newblock Daniel Wasserrab.
+\newblock Towards certified slicing.
+\newblock In G. Klein, T. Nipkow, and L. Paulson, editors, {\em Archive of Formal
+Proofs}.
+\newblock \url{http://isa-afp.org/entries/Slicing.shtml}, September 2008.
+\newblock Formal proof development.
+
+\end{thebibliography}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

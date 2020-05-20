@@ -1,0 +1,33 @@
+chapter AFP
+
+session Decl_Sem_Fun_PL (AFP) = "HOL" +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Lambda
+    SmallStepLam
+    BigStepLam 
+    ValuesFSet
+    ValuesFSetProps
+    RelationalSemFSet
+    DeclSemAsDenotFSet
+    EquivRelationalDenotFSet
+    ChangeEnv
+    DeclSemAsNDInterpFSet
+    InterTypeSystem
+    Values
+    ValueProps
+    DeclSemAsDenot
+    DenotLam5
+    EquivDenotInterTypes
+    DenotSoundFSet
+    DenotCompleteFSet
+    DenotCongruenceFSet
+    DenotEqualitiesFSet
+    Optimizer
+    SystemF
+    MutableRef
+    MutableRefProps
+  document_files
+    "root.tex"

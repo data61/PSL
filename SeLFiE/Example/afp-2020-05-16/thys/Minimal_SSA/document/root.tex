@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{quotmark}
+
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\usetikzlibrary{positioning,calc,arrows}
+
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+\title{Minimal Static Single Assignment Form}
+\author{Max Wagner\and Denis Lohner}
+\maketitle
+
+\newcommand\pf{$\phi$~function}
+
+\begin{abstract}
+This formalization is an extension to \cite{Formal_SSA-AFP}.
+In their work, the authors have shown that Braun~et~al.'s static single assignment (SSA) construction algorithm \cite{braun13cc} produces minimal SSA form for input programs with a reducible control flow graph (CFG).
+However Braun~et~al.\ also proposed an extension to their algorithm that they claim produces minimal SSA form even for irreducible CFGs.
+In this formalization we support that claim by giving a mechanized proof.
+
+As the extension of Braun~et~al.'s algorithm aims for removing so-called \emph{redundant strongly connected components} (sccs) of \pf s, we show that this suffices to guarantee minimality according to Cytron et al. \cite{cytron91}.
+\end{abstract}
+
+\tableofcontents
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

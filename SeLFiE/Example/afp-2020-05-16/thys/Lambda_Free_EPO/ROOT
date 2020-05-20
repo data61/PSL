@@ -1,0 +1,10 @@
+chapter AFP
+
+session Lambda_Free_EPO (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    Lambda_Free_RPOs
+  theories
+    Lambda_Free_EPO
+  document_files
+    "root.tex"

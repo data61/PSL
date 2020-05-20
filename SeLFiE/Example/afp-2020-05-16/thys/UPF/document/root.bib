@@ -1,0 +1,701 @@
+@PREAMBLE{ {\providecommand{\ac}[1]{\textsc{#1}} } 
+	 # {\providecommand{\acs}[1]{\textsc{#1}} } 
+	 # {\providecommand{\acf}[1]{\textsc{#1}} } 
+	 # {\providecommand{\TAP}{T\kern-.1em\lower-.5ex\hbox{A}\kern-.1em P} } 
+	 # {\providecommand{\leanTAP}{\mbox{\sf lean\it\TAP}} } 
+	 # {\providecommand{\holz}{\textsc{hol-z}} } 
+	 # {\providecommand{\holocl}{\textsc{hol-ocl}} } 
+	 # {\providecommand{\isbn}{\textsc{isbn}} } 
+	 # {\providecommand{\Cpp}{C++} } 
+	 # {\providecommand{\Specsharp}{Spec\#} } 
+	 # {\providecommand{\doi}[1]{\href{https://doi.org/#1}{doi:
+	   {\urlstyle{rm}\nolinkurl{#1}}}}} }
+@STRING{conf-sacmat="ACM symposium on access control models and technologies
+		  (SACMAT)" }
+@STRING{j-computer="Computer" }
+@STRING{j-fac	= "Formal Aspects of Computing (FAC)" }
+@STRING{j-stvr	= "Software Testing, Verification \& Reliability (STVR)" }
+@STRING{j-tissec= "ACM Transactions on Information and System Security" }
+@STRING{proc	= "Proceedings of the " }
+@STRING{pub-acm	= {ACM Press} }
+@STRING{pub-acm:adr={New York, NY USA} }
+@STRING{pub-elsevier={Elsevier Science Publishers} }
+@STRING{pub-ieee= {IEEE Computer Society} }
+@STRING{pub-ieee:adr={Los Alamitos, CA, USA} }
+@STRING{pub-springer={Springer-Verlag} }
+@STRING{pub-wiley={John Wiley \& Sons} }
+@STRING{s-lncs	= "Lecture Notes in Computer Science" }
+
+@Article{	  brucker.ea:formal-fw-testing:2014,
+  abstract	= {Firewalls are an important means to secure critical ICT
+		  infrastructures. As configurable off-the-shelf prod\-ucts,
+		  the effectiveness of a firewall crucially depends on both
+		  the correctness of the implementation itself as well as the
+		  correct configuration. While testing the implementation can
+		  be done once by the manufacturer, the configuration needs
+		  to be tested for each application individually. This is
+		  particularly challenging as the configuration, implementing
+		  a firewall policy, is inherently complex, hard to
+		  understand, administrated by different stakeholders and
+		  thus difficult to validate. This paper presents a formal
+		  model of both stateless and stateful firewalls (packet
+		  filters), including NAT, to which a specification-based
+		  conformance test case gen\-eration approach is applied.
+		  Furthermore, a verified optimisation technique for this
+		  approach is presented: starting from a formal model for
+		  stateless firewalls, a collection of semantics-preserving
+		  policy transformation rules and an algorithm that optimizes
+		  the specification with respect of the number of test cases
+		  required for path coverage of the model are derived. We
+		  extend an existing approach that integrates verification
+		  and testing, that is, tests and proofs to support
+		  conformance testing of network policies. The presented
+		  approach is supported by a test framework that allows to
+		  test actual firewalls using the test cases generated on the
+		  basis of the formal model. Finally, a report on several
+		  larger case studies is presented.},
+  address	= {pub-wiley:adr},
+  author	= {Achim D. Brucker and Lukas Br{\"u}gger and Burkhart Wolff},
+  doi		= {10.1002/stvr.1544},
+  journal	= {Software Testing, Verification \& Reliability (STVR)},
+  keywords	= {model-based testing; conformance testing; security
+		  testing; firewall; specification-based testing; testing
+		  cloud infrastructure, transformation for testability;
+		  HOL-TestGen; test and proof; security configuration
+		  testing},
+  language	= {USenglish},
+  pdf		= {http://www.brucker.ch/bibliography/download/2014/brucker.ea-formal-fw-testing-2014.pdf}
+		  ,
+  publisher	= {pub-wiley},
+  title		= {Formal Firewall Conformance Testing: An Application of
+		  Test and Proof Techniques},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-formal-fw-testing-2014}
+		  ,
+  year		= {2014}
+}
+
+@InCollection{	  brucker.ea:hol-testgen-fw:2013,
+  abstract	= {The HOL-TestGen environment is conceived as a system for
+		  modeling and semi-automated test generation with an
+		  emphasis on expressive power and generality. However, its
+		  underlying technical framework Isabelle/HOL supports the
+		  customization as well as the development of highly
+		  automated add-ons working in specific application
+		  domains.\\\\In this paper, we present HOL-TestGen/fw, an
+		  add-on for the test framework HOL-TestGen, that allows for
+		  testing the conformance of firewall implementations to
+		  high-level security policies. Based on generic theories
+		  specifying a security-policy language, we developed
+		  specific theories for network data and firewall policies.
+		  On top of these firewall specific theories, we provide
+		  mechanisms for policy transformations based on derived
+		  rules and adapted code-generators producing test drivers.
+		  Our empirical evaluations shows that HOL-TestGen/fw is a
+		  competitive environment for testing firewalls or high-level
+		  policies of local networks.},
+  address	= {Heidelberg},
+  author	= {Achim D. Brucker and Lukas Br{\"u}gger and Burkhart Wolff},
+  booktitle	= {International Colloquium on Theoretical Aspects of
+		  Computing (ICTAC)},
+  doi		= {10.1007/978-3-642-39718-9_7},
+  editor	= {Zhiming Liu and Jim Woodcock and Huibiao Zhu},
+  isbn		= {978-3-642-39717-2},
+  keywords	= {symbolic test case generations, black box testing, theorem
+		  proving, network security, firewall testing, conformance
+		  testing},
+  language	= {USenglish},
+  location	= {Shanghai},
+  number	= {8049},
+  pages		= {112--121},
+  pdf		= {http://www.brucker.ch/bibliography/download/2013/brucker.ea-hol-testgen-fw-2013.pdf}
+		  ,
+  publisher	= {Springer-Verlag},
+  series	= {Lecture Notes in Computer Science},
+  title		= {{HOL-TestGen/FW:} An Environment for Specification-based
+		  Firewall Conformance Testing},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-hol-testgen-fw-2013}
+		  ,
+  year		= {2013}
+}
+
+@InProceedings{	  brucker.ea:model-based:2011,
+  abstract	= {We present a generic modular policy modelling framework
+		  and instantiate it with a substantial case study for
+		  model-based testing of some key security mechanisms of
+		  applications and services of the NPfIT. NPfIT, the National
+		  Programme for IT, is a very large-scale development project
+		  aiming to modernise the IT infrastructure of the NHS in
+		  England. Consisting of heterogeneous and distributed
+		  applications, it is an ideal target for model-based testing
+		  techniques of a large system exhibiting critical security
+		  features.\\\\We model the four information governance
+		  principles, comprising a role-based access control model,
+		  as well as policy rules governing the concepts of patient
+		  consent, sealed envelopes and legitimate relationship. The
+		  model is given in HOL and processed together with suitable
+		  test specifications in the HOL-TestGen system, that
+		  generates test sequences according to them. Particular
+		  emphasis is put on the modular description of security
+		  policies and their generic combination and its consequences
+		  for model-based testing.},
+  address	= {New York, NY, USA},
+  author	= {Achim D. Brucker and Lukas Br{\"u}gger and Paul Kearney
+		  and Burkhart Wolff},
+  booktitle	= {ACM symposium on access control models and technologies
+		  (SACMAT)},
+  copyright	= {ACM},
+  copyrighturl	= {http://dl.acm.org/authorize?431936},
+  doi		= {10.1145/1998441.1998461},
+  isbn		= {978-1-4503-0688-1},
+  language	= {USenglish},
+  location	= {Innsbruck, Austria},
+  pages		= {133--142},
+  pdf		= {http://www.brucker.ch/bibliography/download/2011/brucker.ea-model-based-2011.pdf}
+		  ,
+  publisher	= {ACM Press},
+  title		= {An Approach to Modular and Testable Security Models of
+		  Real-world Health-care Applications},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-model-based-2011}
+		  ,
+  year		= {2011}
+}
+
+@Article{	  brucker.ea:theorem-prover:2012,
+  abstract	= {HOL-TestGen is a specification and test case generation
+		  environment extending the interactive theorem prover
+		  Isabelle/HOL. As such, HOL-TestGen allows for an integrated
+		  workflow supporting interactive theorem proving, test case
+		  generation, and test data generation.\\\\The HOL-TestGen
+		  method is two-staged: first, the original formula is
+		  partitioned into test cases by transformation into a normal
+		  form called test theorem. Second, the test cases are
+		  analyzed for ground instances (the test data) satisfying
+		  the constraints of the test cases. Particular emphasis is
+		  put on the control of explicit test-hypotheses which can be
+		  proven over concrete programs.\\\\Due to the generality of
+		  the underlying framework, our system can be used for
+		  black-box unit, sequence, reactive sequence and white-box
+		  test scenarios. Although based on particularly clean
+		  theoretical foundations, the system can be applied for
+		  substantial case-studies.},
+  address	= {Heidelberg},
+  author	= {Achim D. Brucker and Burkhart Wolff},
+  doi		= {10.1007/s00165-012-0222-y},
+  issn		= {0934-5043},
+  journal	= {Formal Aspects of Computing},
+  keywords	= {test case generation, domain partitioning, test sequence,
+		  theorem proving, HOL-TestGen},
+  language	= {USenglish},
+  number	= {5},
+  pages		= {683--721},
+  pdf		= {http://www.brucker.ch/bibliography/download/2012/brucker.ea-theorem-prover-2012.pdf}
+		  ,
+  publisher	= {Springer-Verlag},
+  title		= {On Theorem Prover-based Testing},
+  url		= {http://www.brucker.ch/bibliography/abstract/brucker.ea-theorem-prover-2012}
+		  ,
+  volume	= {25},
+  year		= {2013}
+}
+
+@PhDThesis{	  bruegger:generation:2012,
+  author	= {Lukas Br{\"u}gger},
+  title		= {A Framework for Modelling and Testing of Security
+		  Policies},
+  school	= {ETH Zurich},
+  year		= {2012},
+  categories	= {holtestgen},
+  note		= {ETH Dissertation No. 20513.},
+  public	= yes,
+  pdf		= {http://www.brucker.ch/bibliography/download/bruegger-generation-2012.pdf}
+		  ,
+  url		= {http://www.brucker.ch/bibliography/abstract/bruegger-generation-2012}
+		  
+}
+
+@InProceedings{	  barker:next:2009,
+  author	= {Steve Barker},
+  title		= {The next 700 access control models or a unifying
+		  meta-model?},
+  booktitle	= {Proceedings of the 14th ACM symposium on Access control
+		  models and technologies},
+  series	= {SACMAT '09},
+  year		= 2009,
+  isbn		= {978-1-60558-537-6},
+  location	= {Stresa, Italy},
+  pages		= {187--196},
+  numpages	= 10,
+  doi		= {10.1145/1542207.1542238},
+  acmid		= 1542238,
+  publisher	= pub-acm,
+  address	= pub-acm:adr,
+  keywords	= {access control models, access control policies},
+  abstract	= {We address some fundamental questions, which were raised
+		  by Atluri and Ferraiolo at SACMAT'08, on the prospects for
+		  and benefits of a meta-model of access control. We
+		  demonstrate that a meta-model for access control can be
+		  defined and that multiple access control models can be
+		  derived as special cases. An anticipated consequence of the
+		  contribution that we describe is to encourage researchers
+		  to adopt a meta-model view of access control rather than
+		  them developing the next 700 particular instances of access
+		  control models.}
+}
+
+@Article{	  sandhu.ea:role-based:1996,
+  author	= {Ravi S. Sandhu and Edward J. Coyne and Hal L. Feinstein
+		  and Charles E. Youman},
+  title		= {Role-Based Access Control Models},
+  journal	= j-computer,
+  year		= 1996,
+  volume	= 29,
+  number	= 2,
+  address	= pub-ieee:adr,
+  publisher	= pub-ieee,
+  pages		= {38--47},
+  url		= {http://ite.gmu.edu/list/journals/computer/pdf_ver/i94rbac(org).pdf}
+		  ,
+  abstract	= {Abstract This article introduces a family of reference
+		  models for rolebased acce ss control (RBAC) in which
+		  permissions are associated with roles, and users are made
+		  members of appropriate roles. This greatly simplifies
+		  management of permiss ions. Roles are closely related to
+		  the concept of user groups in access control. However, a
+		  role brings together a set of users on one side and a set
+		  of permiss ions on the other, whereas user groups are
+		  typically defined as a set of users o nly.
+		  
+		  The basic concepts of RBAC originated with early multi-user
+		  computer systems. Th e resurgence of interest in RBAC has
+		  been driven by the need for general-purpose customizable
+		  facilities for RBAC and the need to manage the
+		  administration of R BAC itself. As a consequence RBAC
+		  facilities range from simple to complex. This article
+		  describes a novel framework of reference models to
+		  systematically addres s the diverse components of RBAC, and
+		  their interactions.},
+  issn		= {0018-9162},
+  keywords	= {Computational linguistics; Computer control systems;
+		  Computer simulation; Computer software; Data abstraction;
+		  Database systems; Discretionary access control; Encoding
+		  (symbols); Integration; Mandator access control; Role based
+		  access control; Semantics; Software encoding; User
+		  interfaces},
+  acknowledgement={none},
+  bibkey	= {sandhu.ea:role-based:1996}
+}
+
+@Article{	  wainer.ea:dw-rbac:2007,
+  author	= {Jacques Wainer and Akhil Kumar and Paulo Barthelmess},
+  title		= {DW-RBAC: A formal security model of delegation and
+		  revocation in workflow systems},
+  journal	= {Inf. Syst.},
+  year		= 2007,
+  volume	= 32,
+  number	= 3,
+  pages		= {365--384},
+  abstract	= {One reason workflow systems have been criticized as being
+		  inflexible is that they lack support for delegation. This
+		  paper shows how delegation can be introduced in a workflow
+		  system by extending the role-based access control (RBAC)
+		  model. The current RBAC model is a security mechanism to
+		  implement access control in organizations by allowing users
+		  to be assigned to roles and privileges to be associated
+		  with the roles. Thus, users can perform tasks based on the
+		  privileges possessed by their own role or roles they
+		  inherit by virtue of their organizational position.
+		  However, there is no easy way to handle delegations within
+		  this model. This paper tries to treat the issues
+		  surrounding delegation in workflow systems in a
+		  comprehensive way. We show how delegations can be
+		  incorporated into the RBAC model in a simple and
+		  straightforward manner. The new extended model is called
+		  RBAC with delegation in a workflow context (DW-RBAC). It
+		  allows for delegations to be specified from a user to
+		  another user, and later revoked when the delegation is no
+		  longer required. The implications of such specifications
+		  and their subsequent revocations are examined. Several
+		  formal definitions for assertion, acceptance, execution and
+		  revocation are provided, and proofs are given for the
+		  important properties of our delegation framework.},
+  issn		= {0306-4379},
+  doi		= {https://doi.org/10.1016/j.is.2005.11.008},
+  publisher	= pub-elsevier,
+  address	= {Oxford, UK, UK},
+  tags		= {ReadingList, SoKNOS},
+  clearance	= {unclassified},
+  timestap	= {2008-05-26}
+}
+
+@InProceedings{	  sandhu.ea:nist:2000,
+  author	= {Ravi S. Sandhu and David F. Ferraiolo and D. Richard
+		  Kuhn},
+  title		= {The NIST model for role-based access control: towards a
+		  unified standard},
+  booktitle	= {ACM Workshop on Role-Based Access Control},
+  year		= 2000,
+  pages		= {47--63},
+  doi		= {10.1145/344287.344301},
+  tags		= {ReadingList, AccessControl},
+  clearance	= {unclassified},
+  timestap	= {2008-05-26}
+}
+
+@Article{	  samuel.ea:context-aware:2008,
+  author	= {Samuel, A. and Ghafoor, A. and Bertino, E.},
+  title		= {Context-Aware Adaptation of Access-Control Policies},
+  journal	= {Internet Computing, IEEE},
+  year		= 2008,
+  volume	= 12,
+  number	= 1,
+  pages		= {51--54},
+  abstract	= {Today, public-service delivery mechanisms such as
+		  hospitals, police, and fire departments rely on digital
+		  generation, storage, and analysis of vital information. To
+		  protect critical digital resources, these organizations
+		  employ access-control mechanisms, which define rules under
+		  which authorized users can access the resources they need
+		  to perform organizational tasks. Natural or man-made
+		  disasters pose a unique challenge, whereby previously
+		  defined constraints can potentially debilitate an
+		  organization's ability to act. Here, the authors propose
+		  employing contextual parameters - specifically, activity
+		  context in the form of emergency warnings - to adapt
+		  access-control policies according to a priori
+		  configuration.},
+  keywords	= {authorisation, disasters, organisational
+		  aspectsaccess-control policy, context-aware adaptation,
+		  digital resource protection, natural disaster,
+		  organizational task, public-service delivery mechanism},
+  doi		= {10.1109/MIC.2008.6},
+  issn		= {1089-7801},
+  tags		= {ReadingList, AccessControl, SoKNOS},
+  clearance	= {unclassified},
+  timestap	= {2008-05-26}
+}
+
+@Article{	  bertino.ea:trbac:2001,
+  author	= {Elisa Bertino and Piero Andrea Bonatti and Elena Ferrari},
+  title		= {TRBAC: A temporal role-based access control model},
+  journal	= {ACM Trans. Inf. Syst. Secur.},
+  volume	= 4,
+  number	= 3,
+  year		= 2001,
+  issn		= {1094-9224},
+  pages		= {191--233},
+  doi		= {10.1145/501978.501979},
+  publisher	= pub-acm,
+  address	= pub-acm:adr,
+  tags		= {noTAG},
+  clearance	= {unclassified},
+  timestap	= {2008-05-29}
+}
+
+@Article{	  moyer.ea:generalized:2001,
+  title		= {Generalized role-based access control},
+  author	= {Moyer, M.J. and Abamad, M.},
+  journal	= {Distributed Computing Systems, 2001. 21st International
+		  Conference on.},
+  year		= 2001,
+  month		= {Apr},
+  pages		= {391--398},
+  keywords	= {authorisation, distributed processing, transaction
+		  processingGRBAC, JPEG, RBAC, access control, access control
+		  decisions, access control models, environment roles,
+		  environmental information, expressive power, generalized
+		  role based access control, object roles, object type, rich
+		  access control policies, security policy, security-relevant
+		  characteristics, sensitivity level, subject roles},
+  doi		= {10.1109/ICDSC.2001.918969},
+  abstract	= {Generalized Role-Based Access Control (GRBAC) is a new
+		  paradigm for creating and maintaining rich access control
+		  policies. GRBAC leverages and extends the power of
+		  traditional role based access control (RBAC) by
+		  incorporating subject roles, object roles and environment
+		  roles into access control decisions. Subject roles are like
+		  traditional RBAC roles: they abstract the security-relevant
+		  characteristics of subjects into categories that can be
+		  used in defining a security policy. Similarly, object roles
+		  abstract the various properties of objects, such as object
+		  type (e.g., text, JPEG, executable) or sensitivity level
+		  (e.g., classified, top secret) into categories. Environment
+		  roles capture environmental information, such as time of
+		  day or system load so it can be used to mediate access
+		  control. Together, these three types of roles offer
+		  flexibility and expressive power, as well as a degree of
+		  usability not found in current access control models},
+  tags		= {noTAG},
+  clearance	= {unclassified},
+  timestap	= {2008-05-29}
+}
+
+@InProceedings{	  bell.ea:secure:1996,
+  author	= {D. Elliott Bell and Leonard J. LaPadula},
+  title		= {Secure Computer Systems: A Mathematical Model, Volume
+		  {II}},
+  booktitle	= {Journal of Computer Security 4},
+  year		= 1996,
+  pages		= {229--263},
+  note		= {An electronic reconstruction of \emph{Secure Computer
+		  Systems: Mathematical Foundations}, 1973}
+}
+
+@InProceedings{	  bell:looking:2005,
+  title		= {Looking Back at the Bell-La Padula Model},
+  author	= {D. Elliott Bell},
+  journal	= proc
+		# { the 21st Annual Computer Security Applications
+		  Conference},
+  year		= 2005,
+  isbn		= {1063-9527},
+  doi		= {10.1109/CSAC.2005.37},
+  publisher	= {pub-ieee},
+  address	= pub-ieee:adr,
+  pages		= {337--351}
+}
+
+@Booklet{	  oasis:xacml:2005,
+  title		= {{eXtensible Access Control Markup Language (XACML)},
+		  Version 2.0},
+  year		= 2005,
+  url		= {http://docs.oasis-open.org/xacml/2.0/XACML-2.0-OS-NORMATIVE.zip}
+		  ,
+  bibkey	= {oasis:xacml:2005},
+  publisher	= {OASIS},
+  key		= {OASIS},
+  language	= {USenglish},
+  public	= {yes}
+}
+
+
+@InProceedings{	  ferreira.ea:how:2009,
+  author	= {Ana Ferreira and David Chadwick and Pedro Farinha and
+		  Gansen Zhao and Rui Chilro and Ricardo Cruz-Correia and
+		  Luis Antunes},
+  title		= {How to securely break into RBAC: the BTG-RBAC model},
+  booktitle	= {Annual Computer Security Applications Conference (ACSAC)},
+  year		= 2009,
+  abstract	= {Access control models describe frameworks that dictate how
+		  subjects (e.g. users) access resources. In the Role-Based
+		  Access Control (RBAC) model access to resources is based on
+		  the role the user holds within the organization. Although
+		  flexible and easier to manage within large-scale
+		  authorization frameworks, RBAC is usually a static model
+		  where access control decisions have only two output
+		  options: Grant or Deny. Break The Glass (BTG) policies can
+		  be provided in order to break or override the access
+		  controls within an access control policy but in a
+		  controlled and justifiable manner. The main objective of
+		  this paper is to integrate BTG within the NIST/ANSI RBAC
+		  model in a transparent and secure way so that it can be
+		  adopted generically in any domain where unanticipated or
+		  emergency situations may occur. The new proposed model,
+		  called BTG-RBAC, provides a third decision option BTG. This
+		  allows break the glass policies to be implemented in any
+		  application without any major changes to either the
+		  application or the RBAC authorization infrastructure, apart
+		  from the decision engine. Finally, in order to validate the
+		  model, we discuss how the BTG-RBAC model is being
+		  introduced within a Portuguese healthcare institution where
+		  the legislation requires that genetic information must be
+		  accessed by a restricted group of healthcare professionals.
+		  These professionals, advised by the ethical committee, have
+		  required and asked for the implementation of the BTG
+		  concept in order to comply with the said legislation.}
+}
+
+@Manual{	  ansi:rbac:2004,
+  bibkey	= {ansi:rbac:1998},
+  abstract	= {This standard describes RBAC features that have achieved
+		  acceptance in the commercial marketplace. It includes a
+		  reference model and functional specifications for the RBAC
+		  features defined in the reference model. It is intended for
+		  (1) software engineers and product development managers who
+		  design products incorporating access control features; and
+		  (2) managers and procurement officials who seek to acquire
+		  computer security products with features that provide
+		  access control capabilities in accordance with commonly
+		  known and understood terminology and functional
+		  specifications.},
+  note		= {ANSI INCITS 359-2004},
+  title		= {American National Standard for Information Technology --
+		  Role Based Access Control},
+  organization	= {ANSI},
+  year		= 2004,
+  month		= feb,
+  publisher	= {The American National Standards Institute},
+  address	= {New York}
+}
+
+@Article{	  li.ea:critique:2007,
+  author	= {Ninghui Li and JiWon Byun and Elisa Bertino},
+  journal	= {Security Privacy, IEEE},
+  title		= {A Critique of the ANSI Standard on Role-Based Access
+		  Control},
+  year		= 2007,
+  month		= {nov.-dec. },
+  volume	= 5,
+  number	= 6,
+  pages		= {41--49},
+  abstract	= {In 2004, the American National Standards Institute
+		  approved the Role-Based Access Control standard to fulfill
+		  "a need among government and industry purchasers of
+		  information technology products for a consistent and
+		  uniform definition of role based access control (RBAC)
+		  features". Such uniform definitions give IT product vendors
+		  and customers a common and unambiguous terminology for RBAC
+		  features, which can lead to wider adoption of RBAC and
+		  increased productivity. However, the current ANSI RBAC
+		  Standard has several limitations, design flaws, and
+		  technical errors that, it unaddressed, could lead to
+		  confusions among IT product vendors and customers and to
+		  RBAC implementations with different semantics, thus
+		  defeating the standard's purpose.},
+  keywords	= {ANSI standard;IT product vendors;role-based access
+		  control;DP industry;authorisation;standards;},
+  doi		= {10.1109/MSP.2007.158},
+  issn		= {1540-7993}
+}
+
+@Article{	  ardagna.ea:access:2010,
+  title		= {Access control for smarter healthcare using policy
+		  spaces},
+  journal	= {Computers \& Security},
+  year		= 2010,
+  issn		= {0167-4048},
+  doi		= {10.1016/j.cose.2010.07.001},
+  author	= {Claudio A. Ardagna and Sabrina De Capitani di Vimercati
+		  and Sara Foresti and Tyrone W. Grandison and Sushil Jajodia
+		  and Pierangela Samarati},
+  keywords	= {Access control, Break the glass, Policy spaces,
+		  Exceptions, Healthcare systems},
+  abstract	= {A fundamental requirement for the healthcare industry is
+		  that the delivery of care comes first and nothing should
+		  interfere with it. As a consequence, the access control
+		  mechanisms used in healthcare to regulate and restrict the
+		  disclosure of data are often bypassed in case of
+		  emergencies. This phenomenon, called "break the glass", is
+		  a common pattern in healthcare organizations and, though
+		  quite useful and mandatory in emergency situations, from a
+		  security perspective, it represents a serious system
+		  weakness. Malicious users, in fact, can abuse the system by
+		  exploiting the break the glass principle to gain
+		  unauthorized privileges and accesses. In this paper, we
+		  propose an access control solution aimed at better
+		  regulating break the glass exceptions that occur in
+		  healthcare systems. Our solution is based on the definition
+		  of different policy spaces, a language, and a composition
+		  algebra to regulate access to patient data and to balance
+		  the rigorous nature of traditional access control systems
+		  with the "delivery of care comes first" principle.}
+}
+
+@Article{	  sandhu.ea:arbac97:1999,
+  author	= {Ravi Sandhu and Venkata Bhamidipati and Qamar Munawer},
+  title		= {The ARBAC97 model for role-based administration of roles},
+  journal	= j-tissec,
+  volume	= 2,
+  number	= 1,
+  year		= 1999,
+  issn		= {1094-9224},
+  pages		= {105--135},
+  doi		= {10.1145/300830.300839},
+  address	= pub-acm:adr,
+  publisher	= pub-acm,
+  abstract	= { In role-based access control (RBAC), permissions are
+		  associated with roles' and users are made members of roles,
+		  thereby acquiring the roles; permissions. RBAC's motivation
+		  is to simplify administration of authorizations. An
+		  appealing possibility is to use RBAC itself to manage RBAC,
+		  to further provide administrative convenience and
+		  scalability, especially in decentralizing administrative
+		  authority, responsibility, and chores. This paper describes
+		  the motivation, intuition, and formal definition of a new
+		  role-based model for RBAC administration. This model is
+		  called ARBAC97 (administrative RBAC '97) and has three
+		  components: URA97 (user-role assignment '97), RPA97
+		  (permission-role assignment '97), and RRA97 (role-role
+		  assignment '97) dealing with different aspects of RBAC
+		  administration. URA97, PRA97, and an outline of RRA97 were
+		  defined in 1997, hence the designation given to the entire
+		  model. RRA97 was completed in 1998. ARBAC97 is described
+		  completely in this paper for the first time. We also
+		  discusses possible extensions of ARBAC97. }
+}
+
+@Article{	  becker:information:2007,
+  title		= {Information governance in NHS's NPfIT: A case for policy
+		  specification},
+  journal	= {International Journal of Medical Informatics},
+  volume	= 76,
+  number	= {5-6},
+  pages		= {432--437},
+  year		= 2007,
+  mynote	= {"Virtual Biomedical Universities and E-Learning" and
+		  "Secure eHealth: Managing Risk to Patient Data" -
+		  E-Learning and Secure eHealth Double S.I.},
+  issn		= {1386-5056},
+  doi		= {10.1016/j.ijmedinf.2006.09.008},
+  author	= {Moritz Y. Becker},
+  keywords	= {Access control},
+  abstract	= {Purpose The National Health Service's (NHS's) National
+		  Programme for Information Technology (NPfIT) in the UK with
+		  its proposed nation-wide online health record service poses
+		  serious technical challenges, especially with regard to
+		  access control and patient confidentiality. The complexity
+		  of the confidentiality requirements and their constantly
+		  evolving nature (due to changes in law, guidelines and
+		  ethical consensus) make traditional technologies such as
+		  role-based access control (RBAC) unsuitable. Furthermore, a
+		  more formal approach is also needed for debating about and
+		  communicating on information governance, as
+		  natural-language descriptions of security policies are
+		  inherently ambiguous and incomplete. Our main goal is to
+		  convince the reader of the strong benefits of employing
+		  formal policy specification in nation-wide electronic
+		  health record (EHR) projects.Approach Many difficulties
+		  could be alleviated by specifying the requirements in a
+		  formal authorisation policy language such as Cassandra. The
+		  language is unambiguous, declarative and
+		  machine-enforceable, and is based on distributed
+		  constrained Datalog. Cassandra is interpreted within a
+		  distributed Trust Management environment, where digital
+		  credentials are used for establishing mutual trust between
+		  strangers.Results To demonstrate how policy specification
+		  can be applied to NPfIT, we translate a fragment of
+		  natural-language NHS specification into formal Cassandra
+		  rules. In particular, we present policy rules pertaining to
+		  the management of Clinician Sealed Envelopes, the mechanism
+		  by which clinical patient data can be concealed in the
+		  nation-wide EHR service. Our case study exposes ambiguities
+		  and incompletenesses in the informal NHS
+		  documents.Conclusions We strongly recommend the use of
+		  trust management and policy specification technology for
+		  the implementation of nation-wide EHR infrastructures.
+		  Formal policies can be used for automatically enforcing
+		  confidentiality requirements, but also for specification
+		  and communication purposes. Formalising the requirements
+		  also reveals ambiguities and missing details in the
+		  currently used informal specification documents.},
+  publisher	= pub-elsevier
+}
+@InCollection{ brucker.ea:extending:2009,
+	abstract	= 	{Access control models are usually static, i.e., permissions are granted based on a policy that only changes seldom. Especially for scenarios in health care and disaster management, a more flexible support of access control, i.e., the underlying policy, is needed.\\\\Break-glass is one approach for such a flexible support of policies which helps to prevent system stagnation that could harm lives or otherwise result in losses. Today, break-glass techniques are usually added on top of standard access control solutions in an ad-hoc manner and, therefore, lack an integration into the underlying access control paradigm and the systems' access control enforcement architecture.\\\\We present an approach for integrating, in a fine-grained manner, break-glass strategies into standard access control models and their accompanying enforcement architecture. This integration provides means for specifying break-glass policies precisely and supporting model-driven development techniques based on such policies.},
+	address	= 	{New York, NY, USA},
+	author	= 	{Achim D. Brucker and Helmut Petritsch},
+	booktitle	= 	{ACM symposium on access control models and technologies (SACMAT)},
+	copyright	= 	{ACM},
+	copyrighturl	= 	{http://dl.acm.org/authorize?175073},
+	doi	= 	{10.1145/1542207.1542239},
+	editor	= 	{Barbara Carminati and James Joshi},
+	isbn	= 	{978-1-60558-537-6},
+	keywords	= 	{disaster management, access-control, break-glass, model-driven security},
+	location	= 	{Stresa, Italy},
+	pages	= 	{197--206},
+	pdf	= 	{http://www.brucker.ch/bibliography/download/2009/brucker.ea-extending-2009.pdf},
+	publisher	= 	{ACM Press},
+	talk	= 	{talk:brucker.ea:extending:2009},
+	title	= 	{Extending Access Control Models with Break-glass},
+	url	= 	{http://www.brucker.ch/bibliography/abstract/brucker.ea-extending-2009},
+	year	= 	{2009},
+} 

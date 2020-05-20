@@ -1,0 +1,80 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym,latexsym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Gr\"obner Bases, Macaulay Matrices\\and Dub\'e's Degree Bounds}
+\author{Alexander Maletzky\thanks{Funded by the Austrian 
+Science Fund (FWF): grant no. P 29498-N31}}
+\maketitle
+
+\begin{abstract}
+This entry formalizes the connection between Gr\"obner bases and Macaulay matrices (sometimes also referred to as `generalized Sylvester matrices'). In particular, it contains a method for computing Gr\"obner bases, which proceeds by first constructing some Macaulay matrix of the initial set of polynomials, then row-reducing this matrix, and finally converting the result back into a set of polynomials. The output is shown to be a Gr\"obner basis if the Macaulay matrix constructed in the first step is sufficiently large. In order to obtain concrete upper bounds on the size of the matrix (and hence turn the method into an effectively executable algorithm), Dub\'e's degree bounds on Gr\"obner bases are utilized; consequently, they are also part of the formalization.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\newpage
+\section{Introduction}
+
+The formalization consists of two main parts:
+\begin{itemize}
+ \item The connection between Gr\"obner bases and Macaulay matrices (or `generalized Sylvester matrices'), due to Wiesinger-Widi~\cite{Wiesinger-Widi2015}. In particular, this includes a method for computing Gr\"obner bases via Macaulay matrices.
+ 
+ \item Dub\'e's upper bounds on the degrees of Gr\"obner bases~\cite{Dube1990}. These bounds are not only of theoretical interest, but are also necessary to turn the above-mentioned method for computing Gr\"obner bases into an actual algorithm.
+\end{itemize}
+
+For more information about this formalization, see the accompanying papers~\cite{Maletzky2019} (Dub\'e's bound) and~\cite{Maletzky2019b} (Macaulay matrices).
+
+\subsection{Future Work}
+
+This formalization could be extended by formalizing improved degree bounds for special input. For instance, Wiesinger-Widi in~\cite{Wiesinger-Widi2015} obtains much smaller bounds if the initial set of polynomials only consists of two binomials.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

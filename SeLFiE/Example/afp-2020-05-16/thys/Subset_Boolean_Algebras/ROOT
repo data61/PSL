@@ -1,0 +1,13 @@
+chapter AFP
+
+session Subset_Boolean_Algebras (AFP) = Stone_Algebras +
+
+  options [timeout = 600]
+
+  theories
+    Subset_Boolean_Algebras
+
+  document_files
+    "root.tex"
+    "root.bib"
+

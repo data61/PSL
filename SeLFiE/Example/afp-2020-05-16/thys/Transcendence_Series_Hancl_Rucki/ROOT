@@ -1,0 +1,12 @@
+chapter AFP
+
+session Transcendence_Series_Hancl_Rucki (AFP) = "HOL-Complex_Analysis" +
+  options [timeout = 1200]
+  sessions
+    Prime_Number_Theorem
+  theories
+    Transcendence_Series
+  document_files
+    "root.tex"
+    "root.bib"
+

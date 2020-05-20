@@ -1,0 +1,37 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{A General Method for the Proof of Theorems on Tail-recursive Functions}
+\author{Pasquale Noce\\Security Certification Specialist at Arjo Systems - Gep S.p.A.\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at arjowiggins-it dot com}
+\maketitle
+
+\begin{abstract}
+  Tail-recursive function definitions are sometimes more straightforward than
+  alternatives, but proving theorems on them may be roundabout because of the
+  peculiar form of the resulting recursion induction rules.
+
+  This paper describes a proof method that provides a general solution to this
+  problem by means of suitable invariants over inductive sets, and illustrates
+  the application of such method by examining two case studies.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

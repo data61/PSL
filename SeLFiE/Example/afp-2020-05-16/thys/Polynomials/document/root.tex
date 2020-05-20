@@ -1,0 +1,60 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+\newcommand{\qt}[1]{`#1'}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+
+\begin{document}
+
+\title{Executable multivariate polynomials}
+\author{Christian Sternagel and Ren\'e Thiemann and Fabian Immler and Alexander
+Maletzky\thanks{Supported by the Austrian Science Fund (FWF): grant no. W1214-N15, project DK1}}
+\maketitle
+
+\begin{abstract}
+  We define multivariate polynomials over arbitrary (ordered)
+  semirings in combination with (executable) operations like addition, multiplication,
+  and substitution. We also define (weak) monotonicity of polynomials
+  and comparison of polynomials where we provide standard estimations 
+  like absolute positiveness or the more recent
+  approach of \cite{NZM10}. Moreover, it is proven
+  that strongly normalizing (monotone) orders
+  can be lifted to strongly normalizing (monotone) orders over polynomials.
+
+  Our formalization was performed as part of the \isafor/\ceta-system 
+  \cite{CeTA}\footnote{\url{http://cl-informatik.uibk.ac.at/software/ceta}}
+  which
+  contains several termination techniques. The provided theories have been
+  essential to formalize polynomial-interpretations \cite{L79,Rational}.
+
+  This formalization also contains an abstract representation as coefficient functions with finite
+  support and a type of power-products. If this type is ordered by a linear (term) ordering, various
+  additional notions, such as leading power-product, leading coefficient etc., are introduced as
+  well. Furthermore, a lot of generic properties of, and functions on, multivariate polynomials 
+  are formalized, including the substitution and evaluation homomorphisms, embeddings of polynomial 
+  rings into larger rings (i.e. with one additional indeterminate), homogenization and 
+  dehomogenization of polynomials, and the canonical isomorphism between $R[X,Y]$ and $R[X][Y]$.
+\end{abstract}
+
+\tableofcontents
+
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

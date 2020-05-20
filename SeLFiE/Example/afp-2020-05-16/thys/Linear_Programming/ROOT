@@ -1,0 +1,15 @@
+chapter AFP
+
+session Linear_Programming (AFP) = Jordan_Normal_Form +
+  options [timeout = 1200]
+sessions
+    Farkas
+    Linear_Inequalities
+  theories
+    "More_Jordan_Normal_Forms"
+    "Matrix_LinPoly"
+    "LP_Preliminaries"
+    "Linear_Programming"
+  document_files
+    "root.tex"
+    "root.bib"

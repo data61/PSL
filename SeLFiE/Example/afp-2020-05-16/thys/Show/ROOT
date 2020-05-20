@@ -1,0 +1,20 @@
+chapter AFP
+
+session Show (AFP) = Deriving +
+  options [timeout = 600]
+  sessions
+    "HOL-Computational_Algebra"
+  theories
+    Show_Instances
+    Show_Poly
+    Show_Complex
+    Show_Real_Impl
+  document_files
+    "root.bib"
+    "root.tex"
+
+session Old_Datatype_Show (AFP) in "Old_Datatype" = Datatype_Order_Generator +
+  options [timeout = 600]
+  theories
+    Old_Show_Instances
+    Old_Show_Examples

@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{textcomp}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath,amssymb}
+
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Applicative Lifting}
+\author{Andreas Lochbihler \and Joshua Schneider}
+\maketitle
+
+\begin{abstract}
+  Applicative functors augment computations with effects by lifting function application to types
+  which model the effects \cite{mcbride08}.
+  As the structure of the computation cannot depend on the effects, applicative expressions can be
+  analysed statically.
+  This allows us to lift universally quantified equations to the effectful types, as observed by 
+  Hinze \cite{hinze10}.
+  Thus, equational reasoning over effectful computations can be reduced to pure types.
+
+  This entry provides a package for registering applicative functors and two proof methods for
+  lifting of equations over applicative functors.
+  The first method applicative{\isacharunderscore}nf normalises applicative expressions according to
+  the laws of applicative functors.
+  This way, equations whose two sides contain the same list of variables can be lifted to every
+  applicative functor.
+
+  To lift larger classes of equations, the second method applicative{\isacharunderscore}\linebreak lifting
+  exploits a number of additional properties (e.g., commutativity of effects) provided the
+  properties have been declared for the concrete applicative functor at hand upon registration.
+
+  We declare several types from the Isabelle library as applicative functors and illustrate the use of
+  the methods with two examples: the lifting of the arithmetic type class hierarchy to streams and
+  the verification of a relabelling function on binary trees.
+  We also formalise and verify the normalisation algorithm used by the first proof method,
+  as well as the general approach of the second method, which is based on bracket abstraction.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

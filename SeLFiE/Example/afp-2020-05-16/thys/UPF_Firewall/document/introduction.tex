@@ -1,0 +1,154 @@
+\section{Motivation}
+Because of its connected life, the modern world is increasingly
+depending on secure implementations and configurations of network
+infrastructures. As building blocks of the latter, firewalls are
+playing a central role in ensuring the overall \emph{security} of
+networked applications.
+
+Firewalls, routers applying network-address-translation (NAT) and
+similar networking systems suffer from the same quality problems as
+other complex software. Jennifer Rexford mentioned in her keynote at
+POPL 2012 that high-end firewalls consist of more than 20
+million lines of code comprising components written in Ada as well as
+LISP. However, the testing techniques discussed here are of
+wider interest to all network infrastructure operators that need to
+ensure the security and reliability of their infrastructures across
+system changes such as system upgrades or hardware replacements. This
+is because firewalls and routers are active network elements that can
+filter and rewrite network traffic based on configurable rules. The
+\emph{configuration} by appropriate rule sets implements a security
+policy or links networks together.
+
+Thus, it is, firstly, important to test both the implementation of a
+firewall and, secondly, the correct configuration for each use. To
+address this problem, we model firewall policies formally in
+Isabelle/HOL. This formalization is based on the Unified Policy
+Framework (UPF)~\cite{brucker.ea:upf:2014}. This formalization allows
+to express access control policies on the network level using a
+combinator-based language that is close to textbook-style
+specifications of firewall rules. To actually test the implementation
+as well as the configuration of a firewall, we use
+HOL-TestGen~\cite{brucker.ea:interactive:2005,brucker.ea:hol-testgen-fw:2013,brucker.ea:theorem-prover:2012}
+to generate test cases that can be used to validate the compliance of
+real network middleboxes (e.g., firewalls, routers). In this document,
+we focus on the Isabelle formalization of network access control
+policies. For details of the overall approach, we refer the reader
+elsewhere~\cite{brucker.ea:formal-fw-testing:2014}
+
+\section{The Unified Policy Framework (UPF)}
+Our formalization of firewall policies is based on the Unified Policy
+Framework (UPF. In this section, we briefly introduce UPF, for all
+details we refer the reader to)~\cite{brucker.ea:upf:2014}.
+
+UPF is a generic framework for policy modeling with the primary goal
+of being used for test case generation. The interested reader is
+referred to~\cite{brucker.ea:model-based:2011} for an application of
+UPF to large scale access control policies in the health care domain;
+a comprehensive treatment is also contained in the reference manual
+coming with the distribution on the \testgen website
+(\url{http://www.brucker.ch/projects/hol-testgen/}).  UPF is based on
+the following four principles:
+\begin{enumerate}
+\item policies are represented as \emph{functions} (rather than relations),
+\item policy combination avoids conflicts by construction,
+\item the decision type is three-valued (allow, deny, undefined),
+\item the output type does not only contain the decision but also a
+  `slot' for arbitrary result data.
+\end{enumerate}
+
+
+Formally, the concept of a policy is specified as a partial function
+from some input to a decision value and additional some
+output. \emph{Partial} functions are used because elementary policies
+are described by partial system behavior, which are glued together by
+operators such as function override and functional composition.
+\begin{gather*}
+  \types\enspace \alpha \mapsto \beta =
+  \alpha \rightharpoonup \beta \operatorname{decision}
+\end{gather*}
+where the enumeration type $\operatorname{decision}$ is
+\begin{gather*}
+  \datatype \qquad \alpha\ap \operatorname{decision}
+  = \operatorname{allow}\ap \alpha \mid
+  \operatorname{deny}\ap \alpha
+\end{gather*}
+
+As policies are partial functions or `maps', the notions of a
+\emph{domain} $\dom \ap p \ofType \alpha \rightharpoonup \beta
+\Rightarrow \HolSet{\alpha}$ and a \emph{range} $\ran\ap p \ofType
+[\alpha \rightharpoonup \beta] \Rightarrow \HolSet{\beta}$ can be
+inherited from the Isabelle library.
+
+Inspired by the Z notation~\cite{spivey:z-notation:1992}, there is the
+concept of \emph{domain restriction} $\_ \triangleleft \_$ and
+\emph{range restriction} $\_ \triangleright \_$, defined as:
+\begin{gather*}
+  \begin{array}{lrl}
+    \isadefinition &\_ \triangleleft \_&\ofType \HolSet{\alpha}
+           \Rightarrow \alpha \mapsto \beta \Rightarrow \alpha \mapsto \beta\\
+    \where & S \triangleleft p &= \lambda x\spot \HolIf x \in S \HolThen p\ap x
+    \HolElse \bottom \\[.5ex]
+    \isadefinition & \_ \triangleright \_ &\ofType \alpha \mapsto
+    \beta \Rightarrow \HolSet{\beta\ap\operatorname{decision}}
+    \Rightarrow \alpha \mapsto \beta \\ 
+    \where & p \triangleright S &= \lambda x\spot \HolIf
+    \bigl(\operatorname{the}\ap
+    (p\ap x)\bigr) \in S \HolThen p\ap x \HolElse \bottom \\
+  \end{array}
+\end{gather*}
+The operator `$\operatorname{the}$' strips off the $\HolSome$, if it
+exists. Otherwise the range restriction is underspecified.
+
+There are many operators that change the result of applying the
+policy to a particular element. The essential one is the
+\emph{update}:
+\begin{gather*}
+  p(x \mapsto t) = \lambda y\spot \HolIf y = x \HolThen \lfloor
+  t\rfloor \HolElse p\ap y
+\end{gather*}
+
+Next, there are three categories of elementary policies in UPF,
+relating to the three possible decision values:
+\begin{itemize}
+\item The empty policy; undefined for all elements: $\emptyset =
+  \lambda x\spot \bottom$
+\item A policy allowing everything, written as $A_f\ap f$, or $A_U$ if
+  the additional output is unit (defined as $\lambda x\spot \lfloor
+  \operatorname{allow} ()\rfloor$).
+\item A policy denying everything, written as $D_f\ap f$, or $D_U$ if
+  the additional output is unit.
+\end{itemize}
+
+The most often used approach to define individual rules is to define a
+rule as a refinement of one of the elementary policies, by using a
+domain restriction. As an example,
+\begin{gather*}
+\bigl\{(\operatorname{Alice}, \operatorname{obj1},
+\operatorname{read})\bigr\} \triangleleft A_U
+\end{gather*}
+
+Finally, rules can be combined to policies in three different ways:
+\begin{itemize}
+\item Override operators: used for policies of the same type, written
+  as $\_ \oplus_i \_$.
+\item Parallel combination operators: used for the parallel
+  composition of policies of potentially different type, written as
+  $\_ \otimes_i \_$.
+\item Sequential combination operators: used for the sequential
+  composition of policies of potentially different type, written as
+  $\_ \circ_i \_$.
+\end{itemize}
+
+All three combinators exist in four variants, depending on how the
+decisions of the constituent policies are to be combined. For example,
+the $\_ \prodTwo \_$ operator is the parallel combination operator where the
+decision of the second policy is used.
+
+Several interesting algebraic properties are proved for UPF
+operators. For example, distributivity
+\begin{gather*}
+( P_1 \oplus  P_2)  \otimes P_3  = ( P_1  \otimes P_3) \oplus ( P_2 \otimes P_3)
+\end{gather*}
+Other UPF concepts are introduced in this paper on-the-fly when
+needed.
+

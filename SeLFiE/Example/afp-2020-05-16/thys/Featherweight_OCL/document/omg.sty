@@ -1,0 +1,28 @@
+% $Id: omg.sty 3 2014-10-11 14:53:59Z brucker $
+% Contact: adbrucker@0x5f.org
+\usepackage{fixltx2e}
+\usepackage[T1]{fontenc}
+\KOMAoptions{paper=8.28in:11in,fontsize=10pt,twoside=semi,headings=openany}
+\areaset{6.7in}{8in}
+\usepackage{mathptmx} % rm & math
+\usepackage[scaled=0.90]{helvet} % ss
+\usepackage{courier} % tt
+\usepackage[fleqn]{amsmath}
+\usepackage{mathastext}
+\normalfont
+\usepackage[document]{ragged2e}
+% \usepackage[pdfpagelabels, pageanchor=false, bookmarksnumbered, plainpages=false]{hyperref}
+\setcounter{secnumdepth}{4}
+\newcommand{\oclHeadingOne}[1]{\chapter{#1}}%
+\newcommand{\oclHeadingTwo}[1]{\section{#1}}%
+\newcommand{\oclHeadingThree}[1]{\subsection{#1}}%
+\newcommand{\oclHeadingFour}[1]{\subsubsection{#1}}%
+\newcommand{\oclHeadingZero}[1]{\subsubsection*{#1}}%
+\newcommand{\oclEmph}[1]{\emph{#1}}
+%
+\newenvironment{oclDefinition}{\csname gather*\endcsname}{\csname endgather*\endcsname}
+
+\addtokomafont{caption}{\sffamily\bfseries}
+\addtokomafont{captionlabel}{\sffamily\bfseries}
+\renewcommand*{\captionformat}{\ --\ \ }
+\setcapwidth[l]{\textwidth}

@@ -1,0 +1,55 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[T1]{fontenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\isadigit}[1]{\ensuremath{#1}}
+\protected\def\isacharunderscore{\raisebox{2pt}{\_\kern-1.7pt}}
+
+\begin{document}
+
+\title{Weight-Balanced Trees}
+\author{Tobias Nipkow and Stefan Dirix}
+\maketitle
+
+\begin{abstract}
+  This theory provides a verified implementation of weight-balanced trees
+  following the work of Hirai and Yamamoto \cite{HiraiY11} who proved that all
+  parameters in a certain range are valid, i.e. guarantee that insertion and
+  deletion preserve weight-balance.  Instead of a general theorem we provide
+  parameterized proofs of preservation of the invariant that work for many (all?)
+  valid parameters.
+\end{abstract}
+
+\section{Introduction}
+
+Weight-balanced trees (\emph{WB} trees) are a class of binary search trees of logarithmic height.
+They were invented by Nievergelt and Reingold \cite{NievergeltR72,NievergeltR73}
+who called them \emph{trees of bounded balance}. They are parametrized by a constant.
+Parameters are called \emph{valid} if they guarantee that insertion and deletion preserve
+the WB invariant. Blum and Mehlhorn \cite{BlumM80} later discovered that there is a
+flaw in Nievergelt and Reingold's analysis of valid parameters
+and gave a detailed correctness proof for a modified range of parameters.
+Adams \cite{Adams92,Adams93} considered a slightly modified version
+of WB trees and analyzed which parameters are valid.
+The Haskell libraries \texttt{Data.Set} and \texttt{Data.Map} are based on Adams' papers
+but it was found that the implementation did not preserve the invariant. This motivated
+Hirai and Yamamoto \cite{HiraiY11} to verify the valid parameter range for the original
+definition of WB tree formally in Coq.
+They also showed that Adams' analysis is flawed by giving a counterexample to Adams' claimed
+range of valid parameters. Straka \cite{Straka12} analyzes valid parameters for Adam's variant.
+Yet another variant of WB trees was considered by Roura \cite{Roura01}.
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

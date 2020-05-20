@@ -1,0 +1,37 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Splay Tree}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+Splay trees are self-adjusting binary search trees which were
+invented by Sleator and Tarjan~\cite{SleatorT-JACM85}.
+This entry provides executable and verified functional splay trees
+as well as the related splay heaps due to Okasaki~\cite{Okasaki}.
+
+The amortized complexity of splay trees and heaps is analyzed in the AFP entry
+\href{http://isa-afp.org/entries/Amortized_Complexity.shtml}{Amortized Complexity}.
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

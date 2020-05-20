@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage[latin1]{inputenc}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+\usepackage{hyperref}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Probabilistic Noninterference}
+
+\author{Andrei Popescu \hspace*{10ex} Johannes H\"{o}lzl}
+
+\maketitle
+
+\begin{abstract}
+
+We formalize a probabilistic noninterference for a multi-threaded language with
+uniform scheduling, where probabilistic behaviour comes from both the scheduler
+and the individual threads. We define notions probabilistic noninterference 
+in two variants: resumption-based and trace-based. For the resumption-based notions, 
+we prove compositionality w.r.t.\ the language constructs and establish sound
+type-system-like syntactic criteria.  
+
+This is a formalization of the mathematical development presented in the
+papers~\cite{cpp2013,calco2013}. It is the probabilistic variant of the 
+\href{http://isa-afp.org/entries/Possibilistic_Noninterference.shtml}{Possibilistic Noninterference}
+AFP entry.
+
+\end{abstract}
+
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

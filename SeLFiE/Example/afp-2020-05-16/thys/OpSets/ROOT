@@ -1,0 +1,13 @@
+chapter AFP
+
+session OpSets (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    OpSet
+    List_Spec
+    Insert_Spec
+    Interleaving
+    RGA
+  document_files
+    "root.tex"
+    "root.bib"

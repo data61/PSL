@@ -1,0 +1,18 @@
+chapter AFP
+
+session LTL_to_DRA (AFP) = LTL +
+  options [timeout = 600]
+  sessions
+    "List-Index"
+    Boolean_Expression_Checkers
+    KBPs
+  directories
+    "Auxiliary"
+    "Impl"
+  theories
+    LTL_Rabin
+    LTL_Rabin_Unfold_Opt
+    "Impl/Export_Code"
+  document_files
+    "root.tex"
+    "root.bib"

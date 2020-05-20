@@ -1,0 +1,11 @@
+chapter AFP
+
+session "Fourier" (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    Lp
+    "HOL-Real_Asymp"
+  theories
+    Fourier
+  document_files
+    "root.tex"

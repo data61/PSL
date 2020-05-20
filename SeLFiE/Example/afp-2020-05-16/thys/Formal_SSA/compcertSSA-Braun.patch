@@ -1,0 +1,194 @@
+diff --git a/orig/compcertSSA/_tags b/compcertSSA/_tags
+index 27f3e87..9826e18 100644
+--- a/orig/compcertSSA/_tags
++++ b/compcertSSA/_tags
+@@ -1,6 +1,6 @@
+ <**/*.cmx>: debug
+ <**/*.native>: debug
+-<driver/Driver.*{byte,native}>: use_unix,use_str,use_Cparser
++<driver/Driver.*{byte,native}>: use_nums,use_unix,use_str,use_Cparser
+ <exportclight/Clightgen.*{byte,native}>: use_unix,use_str,use_Cparser
+ <checklink/*.ml>: pkg_bitstring,warn_error_A
+ <checklink/Validator.*{byte,native}>: pkg_unix,pkg_str,pkg_bitstring,use_Cparser
+diff --git a/orig/compcertSSA/lib/Camlcoq.ml b/compcertSSA/lib/Camlcoq.ml
+index 929b61e..ccdfa1c 100644
+--- a/orig/compcertSSA/lib/Camlcoq.ml
++++ b/compcertSSA/lib/Camlcoq.ml
+@@ -326,7 +326,6 @@ let camlfloat_of_coqfloat f =
+ 
+ (* Timing facility *)
+ 
+-(*
+ let timers = Hashtbl.create 9
+ 
+ let add_to_timer name time =
+@@ -369,7 +368,6 @@ let print_timers () =
+     timers
+ 
+ let _ = at_exit print_timers
+-*)
+ 
+ (* Heap profiling facility *)
+ 
+diff --git a/orig/compcertSSA/midend/SSA/ExternSSAgen.ml b/compcertSSA/midend/SSA/ExternSSAgen.ml
+index e7367a9..64bb422 100644
+--- a/orig/compcertSSA/midend/SSA/ExternSSAgen.ml
++++ b/compcertSSA/midend/SSA/ExternSSAgen.ml
+@@ -465,8 +465,144 @@ let genSSA_V2 f live =
+   let def = ptmap_to_ptree rename_def in
+     (max_index, def, def_phi)
+ 
+-let genSSA f live = 
++let genSSA_cytron f live = 
+   let (max, def, phi) = genSSA_V2 f live in 
+     ((max, def), phi)
+ 
+ 
++let output_cfg fd succ defs phis name =
++  let oc = open_out name in
++  Printf.fprintf oc "digraph G { node [style=rounded, shape=box] ";
++  PTree.fold (fun () n ins -> 
++		let i = int_of_positive n in
++    Printf.fprintf oc "\"N%d\" [label=\"%d: %s{%s%s} := {%s}\"];\n" i i
++      (match PTree.get n phis with
++       Some n_phis -> Printf.sprintf "phis: %s\n"
++        (String.concat ", " (List.map (fun (x,y) -> Printf.sprintf "%d_%d" (int_of_positive x) (int_of_positive y)) (PTree.elements n_phis)))
++       | None -> "")
++      (String.concat ", " (List.map string_of_int (Ptset.elements (var_def (Some ins)))))
++      (match PTree.get n defs with
++       Some def -> Printf.sprintf "_%d" (int_of_positive def)
++       | None -> "")
++      (String.concat ", " (List.map string_of_int (Ptset.elements (var_use (Some ins)))))
++  ) (fd.RTL.fn_code) ();
++  PTree.fold (fun () n ins -> 
++		let i = int_of_positive n in
++		let succ = succ i in
++		  List.iter (Printf.fprintf oc "\"N%d\" -> \"N%d\"; " i ) succ)
++    (fd.RTL.fn_code) ();
++  Printf.fprintf oc "}\n";
++  close_out oc
++
++open BraunSSA.BraunSSA
++
++let default d opt = match opt with
++  Some x -> x
++| None -> d
++let get opt = match opt with Some x -> x | None -> failwith "get"
++let mapping_fold _A f (Mapping t) = fold _A f t
++
++let equal : 'a equal = {equal = (=)}
++let linorder : 'a linorder = {order_linorder = {preorder_order = {ord_preorder = {less_eq = (<=); less = (<)}}}}
++let empty : 'a set = bot_set linorder
++
++let genSSA_braun f : (Datatypes.nat * positive PTree.t) * positive PTree.t PTree.t =
++  let (entry, in_edges, cfg) = time "Braun prologue" (fun () ->
++    let (defs, uses, split_nodes) = PTree.fold (fun (defs, uses, split_nodes) n ins ->
++      let ni = int_of_positive n in
++      let n_defs =
++        if n = f.fn_entrypoint then
++          set linorder (List.map int_of_positive f.fn_params)
++        else
++          match instr_defs ins with
++            Some d -> set linorder [int_of_positive d]
++          | None -> empty in
++      let n_uses = set linorder (List.map int_of_positive (instr_uses ins)) in
++      let split_nodes =
++        if disjoint linorder n_defs n_uses then split_nodes
++        else Ptset.add ni split_nodes in
++      (Ptmap.add ni n_defs defs, Ptmap.add ni n_uses uses, split_nodes)
++    ) f.fn_code (Ptmap.empty, Ptmap.empty, Ptset.empty) in
++    let defs = function
++      (n,0) -> if Ptset.mem n split_nodes then empty else Ptmap.find n defs
++    | (n,1) -> Ptmap.find n defs in
++    let uses = function
++      (n,0) -> Ptmap.find n uses
++    | (n,1) -> empty in
++    let alphn = List.concat (List.map (fun (n,_) ->
++      let ni = int_of_positive n in
++      if Ptset.mem ni split_nodes then [(ni,0); (ni,1)]
++      else [(ni,0)]
++    ) (PTree.elements f.fn_code)) in
++    let entry = (entry f,0) in
++    let in_edges = PTree.fold (fun t n succs ->
++      let ni = int_of_positive n in
++      List.fold_left (fun t m ->
++        let pred = if Ptset.mem ni split_nodes then (ni,1) else (ni,0) in
++        let mi = int_of_positive m in
++        Ptmap.modify mi (fun xs -> (pred,((),(mi,0)))::default [] xs) t
++      ) t succs
++    ) (RTL.successors_map f) Ptmap.empty in
++    let in_edges' n = if n = entry then [] else match n with
++      (n,0) -> Ptmap.find n in_edges
++    | (n,1) -> [(n,0),((),(n,1))]
++    in
++    (*
++    let pn (n,i) = Printf.sprintf "(%d,%d)" n i in
++    let pns f ns = Printf.sprintf "[%s]" (String.concat ", " (List.map f ns)) in
++    Printf.printf "%s\n in_edges %s\n" (pns pn alphn)
++      (String.concat ", " (List.map (fun n ->
++        Printf.sprintf "%s -> %s" (pn n) (pns (fun (n,((),m)) ->
++          Printf.sprintf "(%s,%s)" (pn n) (pn m))
++        (in_edges' n)))
++      alphn));
++    Printf.printf "defs %s\n"
++      (String.concat ", " (List.map (fun n ->
++        Printf.sprintf "%s -> %s" (pn n) (pns string_of_int (sorted_list_of_set linorder (defs n))))
++      alphn));
++    Printf.printf "uses %s\n"
++      (String.concat ", " (List.map (fun n ->
++        Printf.sprintf "%s -> %s" (pn n) (pns string_of_int (sorted_list_of_set linorder (uses n))))
++      alphn));
++    *)
++    let alphe = bot_set linorder (* unused *) in
++    let cfg = Abs_gen_cfg_wf (Gen_cfg_ext (alphe, alphn, in_edges', entry, defs, uses, ())) in
++    (entry, in_edges, cfg)
++  ) () in
++  let ssa_cfg = time3 "Braun phase I" gen_ssa_cfg_wf linorder linorder cfg in
++  let (uses, phis) = time "Braun phase II" (gen_ssa_wf_notriv_substAll linorder linorder (equal,linorder)) ssa_cfg in
++  time "Braun epilogue" (fun () ->
++    let join_points = PTree.fold (fun t n _ ->
++      let ni = int_of_positive n in
++      if ni <> fst entry && List.length (Ptmap.find ni in_edges) > 1 then PTree.set n PTree.empty t
++      else t
++    ) f.fn_code PTree.empty in
++    let max_idcs = PTree.empty in
++    let (max_idcs,def_idcs) = PTree.fold (fun (max_idcs,def_idcs) n ins ->
++      if n = f.fn_entrypoint then (max_idcs,PTree.set n Coq_xH def_idcs)
++      else match instr_defs ins with
++        Some x -> let i = default 0 (PTree.get x max_idcs) + 1 in
++          (PTree.set x i max_idcs, PTree.set n (positive_of_int i) def_idcs)
++        | None -> (max_idcs, def_idcs)
++      ) f.fn_code (max_idcs,PTree.empty) in
++    let (phi_idcs,max_idcs) = mapping_fold linorder (fun ((n,_),(v,_)) vs (phi_idcs,max_idcs) ->
++      if n = fst entry then
++        (phi_idcs,max_idcs)
++      else
++        let np = positive_of_int n in
++        let vp = positive_of_int v in
++        let n_phis = get (PTree.get np phi_idcs) in
++        let i = default 0 (PTree.get vp max_idcs) + 1 in
++        (PTree.set np (PTree.set vp (positive_of_int i) n_phis) phi_idcs, PTree.set vp i max_idcs)
++    ) phis (join_points, max_idcs) in
++    let max = PTree.fold (fun acc _ max_idx -> Pervasives.max acc max_idx) max_idcs 0 in
++    let max = (Datatypes.S (length_pos (positive_of_int max))) in
++    ((max, def_idcs), phi_idcs)
++  ) ()
++
++let genSSA f (live : positive -> Regset.t) =
++  let ((max, defs), phis) = time2 "Cytron" genSSA_cytron f live in
++  (*output_cfg f succ defs phis "cytron.dot";*)
++  let ((max, defs), phis) = time "Braun" genSSA_braun f in
++  (*output_cfg f succ defs phis "braun.dot";*)
++  ((max, defs), phis)
+diff --git a/orig/compcertSSA/myocamlbuild.ml b/compcertSSA/myocamlbuild.ml
+index 22709d7..393ede4 100644
+--- a/orig/compcertSSA/myocamlbuild.ml
++++ b/compcertSSA/myocamlbuild.ml
+@@ -7,6 +7,7 @@ dispatch begin function
+     (* libraries and syntax extensions accessed via ocamlfind *)
+     flag ["ocaml"; "link"; "pkg_unix"] & S[A"-package"; A "unix"];
+     flag ["ocaml"; "link"; "pkg_str"] & S[A"-package"; A "str"];
++    flag ["ocaml"; "link"; "pkg_nums"] & S[A"-package"; A "nums"];
+     flag ["ocaml"; "compile";  "pkg_bitstring"] & S[A"-package"; A"bitstring,bitstring.syntax"; A"-syntax"; A"bitstring.syntax,camlp4o"];
+     flag ["ocaml"; "ocamldep";  "pkg_bitstring"] & S[A"-package"; A"bitstring,bitstring.syntax"; A"-syntax"; A"bitstring.syntax,camlp4o"];
+     flag ["ocaml"; "link";  "pkg_bitstring"] & S[A"-package"; A"bitstring"]

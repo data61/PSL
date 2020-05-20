@@ -1,0 +1,103 @@
+\section{Introduction}\label{sec:intro}
+This work presents a tree automata library for Isabelle/HOL.
+Using the code-generator of Isabelle/HOL, efficient code for all supported target languages
+can be generated. Currently, code for Standard-ML, OCaml and Haskell is generated.
+
+By using appropriate data structures from the Isabelle Collections Framework\cite{L09_collections}, the algorithms are rather efficient. For some (non-representative) test set (cf. Section~\ref{sec:efficiency}), the Haskell-versions of the algorithms where only about 2-3 times slower than a Java-implementation, and several orders of magnitude faster than the TAML-library \cite{TIMBUK}, that is implemented in OCaml.
+
+The standard-algorithms for non-deterministic tree-automata are available, i.e. membership query, reduction\footnote{Currently only backward (utility) reduction is refined to executable code}, intersection, union, and emptiness check with computation of a witness for non-emptiness.
+The choice of the formalized algorithms was motivated by the requirements for a model-checker for DPNs\cite{BMT05}, that the author is currently working on\cite{L09_kps}. There, only intersection and emptiness check are needed, and a witness for non-emptiness is needed to derive an error-trace.
+
+The algorithms are first formalized using the appropriate Isabelle data-types and specification mechanisms, mainly sets and inductive predicates. However, those algorithms are not efficiently executable. Hence, in a second step, those algorithms are systematically refined to use more efficient data structures from the Isabelle Collections Framework \cite{L09_collections}.
+
+Apart from the executable algorithms, the library also contains a formalization of the class of ranked tree-regular languages and its standard closure properties. Closure under union, intersection, complement and difference is shown.
+
+For an introduction to tree automata and the algorithms used here, see the TATA-book \cite{tata2007}.
+
+\subsection{Submission Structure}
+In this section, we give a brief overview of the structure of this submission and a description of each file and directory.
+\subsubsection{common/}
+  This directory contains a collection of generally useful theories. 
+  \begin{description}
+    \item[Misc.thy] Collection of various lemmas augmenting isabelle's standard library.
+  \end{description}
+
+\subsubsection{common/bugfixes/}
+  This directory contains bugfixes of the Isabelle standard libraries and tools. Currently, just one fix for the OCaml code-generator.
+  \begin{description}
+    \item[Efficient\_Nat.thy] Replaces {\em Library/Efficient\_Nat.thy}. Fixes issue with OCaml code generation. Provided by Florian Haftmann.
+  \end{description}
+
+\subsubsection{./}
+  This is the main directory of the submission, and contains the formalization of tree automata.
+  \begin{description}
+    \item[AbsAlgo.thy] Algorithms on tree automata.
+    \item[Ta\_impl.thy] Executable implementation of tree automata.
+    \item[Ta.thy] Formalization of tree automata and basic properties.
+    \item[Tree.thy] Formalization of trees.
+  \end{description}
+
+  \begin{description}
+    \item[document/] Contains files for latex document creation
+    \item[IsaMakefile] Isabelle makefile to check the proofs and build logic image and latex documents
+    \item[ROOT.ML] Setup for theories to be proofchecked and included into latex documents
+    \item[TODO] Todo list
+  \end{description}
+
+\subsubsection{code/}
+  This directory contains the generated code as well as some test cases for performance measurement.
+
+  The test-cases consists of pairs of medium-sized tree automata (10-100 states, a few hundred rules). The performance test intersects 
+  the automata from each pair and checks the result for emptiness. If the result is not-empty, a tree accepted by both automata is constructed.
+
+  Currently, the tests are restricted to finding witnesses of non-emptiness for intersection, as this is the intended application of this library by the author.
+  \begin{description}
+    \item[doTests.sh] Shell-script to compile all test-cases and start the performance measurement. 
+                      When finnished, the script outputs an overview of the time needed by all supported languages.
+  \end{description}
+
+\subsubsection{code/ml/}
+  This directory contains the SML code. 
+  \begin{description}
+    \item[code/ml/generated/] Contains the file {\em Ta.ML}, created by Isabelle's code generator. This file declares
+                              a module {\em Ta} that contains all functions of the tree automata interface.
+    \item[doTests.sh] Shell script to execute SML performance test
+    \item[Main.ML] This file executes the ML performance tests.
+    \item[pt\_examples.ML] This file contains the input data for the performance test.
+    \item[run.sh] Used by doTests.sh
+    \item[test\_setup.ML] Required by {\em Main.ML}
+  \end{description}
+
+\subsubsection{code/ocaml/}
+  This directory contains the OCaml code.
+  \begin{description}
+    \item[code/ocaml/generated/] Contains the file {\em Ta.ml}, created by Isabelle's code generator. This file declares
+                              a module {\em Ta} that contains all functions of the tree automata interface.
+    \item[doTests.sh] Shell script to compile and execute OCaml performance test.
+    \item[Main.ml] Main file for compiled performance tests.
+    \item[Main\_script.ml] Main file for scripted performance tests.
+    \item[make.sh] Compile performance test files.
+    \item[Pt\_examples.ml] Contains the input data for the performance test.
+    \item[run\_script.sh] Run the performance test in script mode (slow).
+    \item[Test\_setup.ml] Required by {\em Main.ml} and {\em Main\_script.ml}.
+  \end{description}
+
+\subsubsection{code/haskell/}
+  This directory contains the Haskell code.
+
+  \begin{description}
+    \item[code/haskell/generated/] Contains the files generated by Isabelle's code generator.
+      The {\em Ta.hs} declares the module {\em Ta} that contains the tree automata interface. There may be more files in this directory, that declare modules that are imported by {\em Ta}.
+    \item[doTests.sh] Compile and execute performance tests.
+    \item[Main.hs] Source-code of performance tests.
+    \item[make.sh] Compile performance tests.
+    \item[Pt\_examples.hs] Input data for performance tests.
+  \end{description}
+
+\subsubsection{code/taml/}
+  This directory contains the Timbuk/Taml test cases.
+
+  \begin{description}
+    \item[Main.ml] Runs the test-cases. To be executed within the Taml-toplevel.
+    \item[code/taml/tests/] This directory contains Taml input files for the test cases.
+  \end{description}

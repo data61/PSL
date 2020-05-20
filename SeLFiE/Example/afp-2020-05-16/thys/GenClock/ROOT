@@ -1,0 +1,10 @@
+chapter AFP
+
+session GenClock (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    GenClock
+  document_files
+    "fullpage.sty"
+    "root.bib"
+    "root.tex"

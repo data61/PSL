@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\renewcommand{\refname}{Bibliography}
+
+\begin{document}
+
+\title{Chamber complexes, Coxeter systems, and buildings}
+\author{Jeremy Sylvestre \\ University of Alberta, Augustana Campus \\ \href{mailto:jeremy.sylvestre@ualberta.ca}{\url{jeremy.sylvestre@ualberta.ca}}}
+\maketitle
+
+\begin{abstract}
+We provide a basic formal framework for the theory of chamber complexes and Coxeter systems, and for buildings as thick chamber complexes endowed with a system of apartments. Along the way, we develop some of the general theory of abstract simplicial complexes and of groups (relying on the \textit{group{\_}add} class for the basics), including free groups and group presentations, and their universal properties. The main results verified are that the deletion condition is both necessary and sufficient for a group with a set of generators of order two to be a Coxeter system, and that the apartments in a (thick) building are all uniformly Coxeter.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\vspace*{32pt}
+\textit{Note:} A number of the proofs in this theory were modelled on or inspired by proofs in the books on buildings by Abramenko and Brown \cite{Abramenko+Brown:Buildings} and by Garrett \cite{Garrett:Buildings}. As well, some of the definitions, statments, and proofs appearing in the first two sections previously appeared in a submission to the \textit{Archive of Formal Proofs} by the author of the current submission \cite{Sylvestre-AFP15}.
+\vspace*{32pt}
+
+% generated text of all theories
+\input{session}
+
+\clearpage
+
+% optional bibliography
+\nocite{Johnson:GroupPres}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

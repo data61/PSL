@@ -1,0 +1,9 @@
+chapter AFP
+
+session No_FTL_observers (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    SpecRel
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{eufrak}
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{POSIX Lexing with Derivatives of Regular Expressions}
+\author{Fahad Ausaf \and Roy Dyckhoff \and Christian Urban}
+\maketitle
+
+\begin{abstract}
+  Brzozowski introduced the notion of derivatives for regular
+  expressions. They can be used for a very simple regular expression
+  matching algorithm. Sulzmann and Lu \cite{Sulzmann2014} cleverly extended this algorithm
+  in order to deal with POSIX matching, which is the underlying
+  disambiguation strategy for regular expressions needed in
+  lexers. In this entry we give our inductive definition
+  of what a POSIX value is and show (i) that such a value is unique (for
+  given regular expression and string being matched) and (ii) that
+  Sulzmann and Lu's algorithm always generates such a value (provided
+  that the regular expression matches the string). We also prove the
+  correctness of an optimised version of the POSIX matching
+  algorithm. 
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Ptolemy's Theorem}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+
+This entry provides an analytic proof to Ptolemy's Theorem using
+polar form transformation and trigonometric identities.
+In this formalization, we use ideas from John Harrison's HOL Light
+formalization~\cite{Harrison} and the proof sketch on the Wikipedia entry of
+Ptolemy's Theorem~\cite{wiki:PtolemysTheorem-2016}.
+This theorem is the 95th theorem of the Top 100 Theorems list~\cite{Wiedijk}.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

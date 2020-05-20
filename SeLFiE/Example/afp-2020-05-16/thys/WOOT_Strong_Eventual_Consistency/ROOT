@@ -1,0 +1,25 @@
+chapter AFP
+
+session WOOT_Strong_Eventual_Consistency (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    Certification_Monads
+    Datatype_Order_Generator
+  theories
+    ErrorMonad
+    Data
+    BasicAlgorithms
+    CreateAlgorithms
+    IntegrateAlgorithm
+    DistributedExecution
+    SortKeys
+    Psi
+    Sorting
+    CreateConsistent
+    IntegrateInsertCommute
+    StrongConvergence
+    SEC
+    Example
+  document_files
+    "root.tex"
+    "root.bib"

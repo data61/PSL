@@ -1,0 +1,191 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amsmath}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isakwd[1]{\textsf{\isa{#1}}}
+\newcommand\isasimpmp{\isa{simplify-emp-main}}
+\newcommand\parfun{\isakwd{partial-function}}
+\newcommand\vect[1]{\overrightarrow{#1}}
+\newcommand\fs{\isa{fs}}
+\newcommand\xs{\isa{xs}}
+\newcommand\xst{\isa{xs}_t}
+\newcommand\inT{\isa{in}}
+\newcommand\cprod[1]{({#1})}
+\newcommand\outT{\isa{out}}
+\newcommand\monad{\isa{monad}}
+\newcommand\tto\Rightarrow
+\newcommand\ar{\isa{ar}}
+\newcommand\inj{\isa{inj}}
+\newcommand\proj{\isa{proj}}
+\newcommand\mapM{\isa{map-monad}}
+\newcommand\curry{\isa{curry}}
+\newcommand\case{\isakwd{case}}
+\newcommand\of{\isakwd{of}}
+
+\begin{document}
+
+\title{Mutually Recursive Partial Functions\thanks{This research is supported by FWF (Austrian Science Fund) project P22767-N13. 
+We thank Makarius Wenzel for several hints on how to properly localize our wrapper.}}
+\author{Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We provide a wrapper around the partial-function command which supports
+  mutual recursion. 
+  
+  Our results have been used to simplify the development of mutually
+  recursive parsers, e.g., a parser to convert external proofs given in XML 
+  into some mutually recursive datatype within Isabelle/HOL.
+\end{abstract}
+
+
+
+\tableofcontents
+
+\section{Introduction}
+
+The partial function command of Krauss \cite{partial_function} turns monotone monadic function specifications
+into equational theorems. Here, monadic means that the output type of the function must be a monad
+like the option-monad. This is required to prohibit specifications like
+\[
+f\ x = 1 + f\ x
+\]
+which would immediately lead to a contradiction. Since the command produces unconditional 
+equations, it is extremely helpful in writing possibly nonterminating functions which 
+are amenable to code generation. For example, using \parfun, one can  write a 
+recursive parser in Isabelle/HOL and can then use it in several target languages---without having to struggle
+with a tedious termination proof which might have to reason about the internal 
+state of the parser.
+
+Unfortunately, the command currently does not support mutually recursive functions, which however
+would be a convenient feature when writing parsers for mutually recursive datatypes.
+To be more precise, a specification of a partial function has to be of the following shape
+\begin{equation}
+\label{nmr}
+f\ \vect{\xs} = F\ f\ \vect{\xs}
+\end{equation}
+where $\vect{\xs}$ is a sequence of distinct variables and $F$ is an 
+arbitrary monotone functional that may depend on $f$ and $\vect{\xs}$.
+
+For mutually recursive functions we would like to specify functions in the more general form
+\begin{align}
+\notag f_1\ \vect{\xs_1} & = F_1\ \vect{\fs}\ \vect{\xs_1} \\
+\label{mr} & \ \,\vdots \\
+\notag f_n\ \vect{\xs_n} & = F_n\ \vect{\fs}\ \vect{\xs_n} 
+\end{align}
+where $\vect{\fs} = f_1, \ldots, f_n$ and $\vect{\xs_i}$ are the individual arguments to each of
+the functions $f_i$.
+
+In the following, we describe our wrapper around the partial function command which supports 
+mutual recursion. We first 
+synthesize a global function $g$ from the specifications in (\ref{mr}) which itself
+has a defining equation in the form of (\ref{nmr}). 
+Then we register $g$ and derive the defining equation for $g$ as theorem in Isabelle/HOL 
+using $\parfun$. Afterwards,
+it will be easy to define each $f_i$ in terms of $g$, and finally
+derive the equations in (\ref{mr}) as theorems.
+
+Let us now consider the details. Assume each $f_i$ has a type $\inT_{i,1} \tto
+\ldots \tto \inT_{i,\ar(f_i)} \tto \outT_{f_i}\ \monad$, where for each $f$, $\ar(f)$ is the arity of $f$, and $\monad$ is the common monad.
+For $g$ there will only be one input, and this input has type $\cprod{\inT_{f_1}} + \ldots + \cprod{\inT_{f_n}}$:
+each sequence of input types
+$\inT_{i,1}, \ldots, \inT_{i,\ar(f_i)}$ is first transformed into a single argument of 
+type $\cprod{\inT_{f_i}} := \inT_{i,1} \times \ldots \times \inT_{i,\ar(f_i)}$,
+and afterwards the sum type is used to distinguish between the inputs of the individual functions.
+Similarly, the output type of $g$ will be $(\outT_{f_1} + \ldots + \outT_{f_n})\ \monad$.
+Note that we did not choose ${\outT_{f_1}\ \monad} + \ldots + {\outT_{f_n} \monad}$ as output of $g$ 
+as it is not monadic, and thus, $g$ would not be definable via \parfun.
+
+Next, we define $g$ via a single equation which can then be passed to \parfun. Here, 
+we have to 
+\begin{itemize}
+\item convert between tuples and sequences of arguments via currying and uncurrying. 
+  To this end, we use the predefined \curry-function for currying and for uncurrying we
+  perform pattern matching in expressions like $\lambda \cprod{\xs}. h\ \vect{xs}$ which
+  take a tuple of variables as argument and then feed these variables sequentially to 
+  some function $h$.
+\item convert between argument and sum-types. To this end, we use
+  constructors $\inj_i$ of type $\alpha_i \tto \alpha_1 + \ldots + \alpha_i + \ldots \alpha_n$,
+  and destructors $\proj_i$ which work in exactly the opposite direction. Moreover, we perform
+  case-analyses via pattern matching on the $\inj_i$'s. Note that internally each $\inj_i$ is encoded
+  via repeated usage of the constructors $\isa{Inl}$ and $\isa{Inr}$ of Isabelle/HOL's 
+  \isa{sum}-type, and similarly we
+  nest \isa{Projl} and \isa{Projr} to encode arbitrary $\proj_i$-functions.
+\item work within the monad to combine the various result types into a single one. 
+  To this end,
+  we demand that there is some $\mapM$-function which lifts an operation $\alpha \tto \beta$
+  to a function of type $\alpha\ \monad \tto \beta\ \monad$. In general, these mappings may
+  also take several functions as input, depending on the number of type-variables of the 
+  monad-constructor. For each kind of monad that should be supported by our method,
+  a user-defined $\mapM$ function can be registered. It is important, to also register a
+  monotonicity lemma of each $\mapM$ function within the partial function package. Otherwise,
+  monotonicity proofs for $g$ will most likely fail.
+\end{itemize}
+Putting everything together, we setup the following equation
+\begin{align}
+  g\ x = \case\ x\ \of \notag\\
+    \inj_1 \xst & \tto \mapM\ \inj_1\ ((\lambda \cprod{\xs}. F_1\ \vect{\fs'}\ \vect\xs)\ \xst) \notag\\
+   \mid \ldots\hspace{1.8em} \label{gsimp} \\
+   \mid \inj_n \xst & \tto \mapM\ \inj_n\ ((\lambda \cprod{\xs}. F_n\ \vect{\fs'}\ \vect\xs)\ \xst)\notag
+\end{align}
+where $\vect{\fs'}$ is the sequence of abbreviations $f'_1$, \ldots, $f'_n$ and where
+\begin{equation}
+\label{fi'}
+f'_i = \curry\ (\lambda \xst. \ \mapM\ \proj_i\ (g\ (\inj_i\ \xst)))
+\end{equation}
+Once, $g$ has been defined using \parfun, we obtain Equality (\ref{gsimp}) as a theorem.
+Afterwards, it is easy to define
+\begin{equation}
+\label{fi}
+f_i = \curry\ (\lambda \xst.\ \mapM\ \proj_i\ (g\ (\inj_i\ \xst)))
+\end{equation}
+and it remains to derive the equations in (\ref{mr}) as theorems.
+To this end, first note the difference in (\ref{fi'}) and (\ref{fi}). In the former, $g$ is a free
+variable which should be defined as a constant at that point, 
+whereas $g$ is already the newly defined constant in (\ref{fi}). Obviously, at this point one
+can now replace the abbreviations (\ref{fi'}) in Equation (\ref{gsimp}) by the real constants $f_i$ via
+the defining equations (\ref{fi}). This yields the following modified theorem for $g$ 
+where now $\vect{\fs}$ is the sequence $f_1,\dots,f_n$.
+\begin{align}
+  g\ x = \case\ x\ \of \notag\\
+    \inj_1 \xst & \tto \mapM\ \inj_1\ ((\lambda \cprod{\xs}. F_1\ \vect{\fs}\ \vect\xs)\ \xst) \notag\\
+   \mid \ldots\hspace{1.8em} \label{gsimp2} \\
+   \mid \inj_n \xst & \tto \mapM\ \inj_n\ ((\lambda \cprod{\xs}. F_n\ \vect{\fs}\ \vect\xs)\ \xst)\notag
+\end{align}
+Now it is indeed easy to derive the desired equations in (\ref{mr}):
+\begin{align*}
+f_i\ \vect\xs & \stackrel{(\ref{fi})}= (\curry\ (\lambda \xst.\ \mapM\ \proj_i\ (g\ (\inj_i\ \xst)))) \ \vect\xs \\
+& \stackrel{(\star)}= \mapM\ \proj_i\ (g\ (\inj_i\ (\vect\xs)))) \\
+& \stackrel{(\ref{gsimp2})}= \mapM\ \proj_i\ (\mapM\ \inj_i\ (F_i\ \vect{\fs}\ \vect\xs))\\
+& \stackrel{(\star\star)}= F_i\ \vect{\fs}\ \vect\xs
+\end{align*}
+Here, ($\star$) used the definition of \curry\ and splitting of tuples, and for $(\star\star)$
+we demand that $\mapM$ is compositional and that $\mapM$ applied on the identity function is the
+identity function itself.
+
+
+% include generated text of all theories
+\section{Implementation}
+
+\subsection{Known limitations}
+\begin{itemize}
+\item The method does only provide equational theorems. It does not convert
+  the induction rule for the global function $g$ from the partial function command
+  into an induction rule for the set of mutually recursive functions.
+\end{itemize}
+ 
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

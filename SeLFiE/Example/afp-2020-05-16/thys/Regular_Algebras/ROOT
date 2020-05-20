@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Regular_Algebras" (AFP) = "Kleene_Algebra" +
+  options [timeout = 900]
+  theories
+    Dioid_Power_Sum
+    Regular_Algebras
+    Regular_Algebra_Models
+    Pratts_Counterexamples
+    Regular_Algebra_Variants
+  document_files
+    "root.tex"
+    "root.bib"

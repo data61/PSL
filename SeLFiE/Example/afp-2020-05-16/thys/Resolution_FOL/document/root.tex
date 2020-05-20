@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{isabelle,isabellesym}
+
+
+% this should be the last package used!
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Resolution Calculus for First-Order Logic}
+\author{Anders Schlichtkrull}
+\maketitle
+\begin{abstract}
+This theory is a formalization of the resolution calculus for first-order logic. It is proven sound and complete.
+The soundness proof uses the substitution lemma, which shows a correspondence between substitutions and updates to
+an environment. The completeness proof uses semantic trees, i.e. trees whose paths are partial Herbrand interpretations.
+It employs Herbrand's theorem in a formulation which states that an unsatisfiable set of clauses has a finite closed
+semantic tree. It also uses the lifting lemma which lifts resolution derivation steps from the ground world up to the
+first-order world. The theory is presented in a paper in the Journal of Automated Reasoning \cite{schlichtkrull2018}
+which extends a paper presented at the International Conference on Interactive Theorem Proving \cite{schlichtkrull2016}.
+An earlier version was presented in an MSc thesis \cite{thesis}. The formalization mostly follows textbooks by Ben-Ari
+\cite{ben-ari}, Chang and Lee \cite{chang}, and Leitsch \cite{leitsch}. The theory is part of the IsaFoL project
+\cite{isafol}.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

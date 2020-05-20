@@ -1,0 +1,36 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{{\bf Category Theory to Yoneda's Lemma}}
+\author{Greg O'Keefe}
+\maketitle
+
+This development proves Yoneda's lemma and aims to be 
+readable by humans.  It only defines what is needed for 
+the lemma: categories, functors and natural transformations.
+Limits, adjunctions and other important concepts are not 
+included.
+
+There is no explanation or discussion in this document.  See
+\cite{fcat4cats} for this and a survey of category theory
+formalisations.
+\tableofcontents
+\vspace{1cm}
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}

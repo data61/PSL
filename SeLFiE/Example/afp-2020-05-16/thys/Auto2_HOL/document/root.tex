@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Auto2 prover}
+\author{Bohua Zhan}
+\maketitle
+
+\begin{abstract}
+  Auto2 is a saturation-based heuristic prover for higher-order logic,
+  implemented as a tactic in Isabelle.
+
+  This entry contains the instantiation of auto2 for Isabelle/HOL,
+  along with two basic examples: solutions to some of the Pelletier's
+  problems, and elementary number theory of primes.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+Auto2 \cite{zhan16} is a proof automation tool implemented in
+Isabelle. It uses a saturation-based approach to proof search:
+starting with a list of initial assumptions, it iteratively adds facts
+that can be derived from these assumptions, with the aim of ultimately
+deriving a contradiction. Users can add their own proof procedures to
+auto2 in the form of \emph{proof steps}, in order to implement
+domain-specific knowledge. Auto2 can be instantiated to both
+Isabelle/HOL (for ordinary usage) and Isabelle/FOL (for formalization
+of mathematics based on set theory).
+
+This AFP entry contains the instantiation of auto2 to Isabelle/HOL,
+and two basic applications:
+
+\begin{itemize}
+\item Pelletier's problems: solutions to some of the problems in
+  Pelletier's collection of problems for testing automatic theorem
+  provers \cite{pelletier}. Auto2 is not intended to compete with
+  ATPs. In our examples, we merely show how to use the prover to solve
+  some of the problems, sometimes with hints.
+
+\item Elementary number theory: theory of prime numbers up to the
+  infinitude of primes and unique factorization. This example follows
+  the development in HOL/Computational\_Algebra/Primes.thy in the
+  Isabelle distribution.
+
+\end{itemize}
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

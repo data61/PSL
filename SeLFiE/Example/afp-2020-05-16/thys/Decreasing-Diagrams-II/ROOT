@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Decreasing-Diagrams-II" (AFP) = "Abstract-Rewriting" +
+  options [timeout = 600]
+  sessions
+    "HOL-Cardinals"
+    Open_Induction
+    Well_Quasi_Orders
+  theories
+    Decreasing_Diagrams_II
+  document_files
+    "root.tex"
+    "root.bib"

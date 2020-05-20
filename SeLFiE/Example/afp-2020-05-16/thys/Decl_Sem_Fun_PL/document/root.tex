@@ -1,0 +1,87 @@
+
+\documentclass[10pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{fullpage}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Declarative Semantics for Functional Languages}
+\author{Jeremy G. Siek}
+\maketitle
+
+\begin{abstract}
+We present a semantics for an applied call-by-value
+lambda-calculus that is compositional, extensional, and
+elementary. We present four different views of the semantics: 1)
+as a relational (big-step) semantics that is not operational but
+instead declarative, 2) as a denotational semantics that does not
+use domain theory, 3) as a non-deterministic interpreter, and 4)
+as a variant of the intersection type systems of the Torino
+group.  We prove that the semantics is correct by showing that it
+is sound and complete with respect to operational semantics on
+programs and that is sound with respect to contextual
+equivalence. We have not yet investigated whether it is fully
+abstract. We demonstrate that this approach to semantics is
+useful with three case studies. First, we use the semantics to
+prove correctness of a compiler optimization that inlines
+function application. Second, we adapt the semantics to the
+polymorphic lambda-calculus extended with general recursion and
+prove semantic type soundness.  Third, we adapt the semantics to
+the call-by-value lambda-calculus with mutable references.
+The paper that accompanies these Isabelle theories is available
+on arXiv at the following URL: \\
+\url{https://arxiv.org/abs/1707.03762}
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\pagebreak
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

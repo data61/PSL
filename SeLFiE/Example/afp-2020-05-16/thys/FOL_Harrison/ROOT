@@ -1,0 +1,10 @@
+chapter AFP
+
+session FOL_Harrison (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    FOL_Harrison
+  document_files
+    "root.tex"

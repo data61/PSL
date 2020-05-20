@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{wasysym}
+\usepackage{eufrak}
+\usepackage{textcomp}
+%\usepackage{apalike}
+%\usepackage{times}
+
+\usepackage{isabelle,isabellesym} 
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% proper setup for best-style documents
+\urlstyle{rm}   
+\isabellestyle{it}
+
+\hyphenation{Isabelle}
+
+\date{15th May 2003}
+\parindent 0pt\parskip 0.5ex
+
+\begin{document}
+
+
+\title{Formalizing Integration Theory, with an Application to
+  Probabilistic Algorithms}
+
+
+\author{Stefan Richter\\
+  LuFG Theoretische Informatik\\
+  RWTH Aachen\\
+  Ahornstraße 55\\
+  52056 Aachen\\
+  FRG\\
+  \url{richter@informatik.rwth-aachen.de}}
+
+\date{\today}
+      
+\maketitle
+
+\pagestyle{headings}
+\tableofcontents
+
+% include generated text of all theories
+% \input{session}
+\newpage
+\pagestyle{headings}
+\input{intro}
+\input{Sigma_Algebra}  
+\input{MonConv}
+\input{Measure}
+\newpage
+\input{RealRandVar}
+\chapter{Integration}
+\label{cha:integration}
+
+The chapter at hand assumes a central position in the present paper. The Lebesgue
+integral is defined and its characteristics are shown in
+\ref{sec:stepwise-approach}. To illustrate the problems arising in
+doing so, we first look at implementation alternatives that did not
+work out. 
+
+\input{Failure}
+\input{Integral}
+\input{outro} 
+\begin{flushleft}
+\bibliographystyle{plain}
+\bibliography{root}
+\end{flushleft}
+
+\end{document}

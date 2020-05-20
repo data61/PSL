@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Sliding_Window_Algorithm" (AFP) = HOL +
+  options [timeout = 300]
+  theories
+    SWA
+  document_files
+    "root.tex"
+    "root.bib"

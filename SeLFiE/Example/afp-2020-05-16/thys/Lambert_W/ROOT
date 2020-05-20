@@ -1,0 +1,16 @@
+chapter AFP
+
+session Lambert_W (AFP) = Bernoulli +
+  options [timeout = 1200]
+  sessions
+    "HOL-Library"
+    "HOL-Computational_Algebra"
+    "HOL-Real_Asymp"
+    Stirling_Formula
+  theories
+    Lambert_W
+    Lambert_W_MacLaurin_Series
+  document_files
+    "root.tex"
+    "root.bib"
+

@@ -1,0 +1,134 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{listings,url}
+%\DeclareUrlCommand\myURL{\def\UrlFont{\rmfamily}}
+\urlstyle{rm}
+\lstset{language=java,showstringspaces=false, mathescape=true,
+morekeywords={member,export,replicating,module,own,as,with},
+flexiblecolumns=false, basicstyle=\footnotesize\ttfamily, stringstyle=\itshape,
+tabsize=2, escapechar=£, frame=lines}
+\newcommand{\ie}{i.e.~}
+\newcommand{\eg}{e.g.~}
+
+%%\usepackage{isabelle,isabellesym}
+%%\usepackage{pdfsetup}
+%%\isabellestyle{it}
+
+\begin{document}
+
+\title{Lightweight Java}
+\author{Rok Strni\v sa \and Matthew Parkinson}
+\maketitle
+
+\begin{abstract}
+Lightweight Java (LJ) is an imperative fragment of Java~\cite{java}. It is
+intended to be as simple as possible while still retaining the feel of Java. LJ
+includes fields, methods, single inheritance, dynamic method dispatch, and
+method overriding. It does not include support for local variables, field
+hiding, interfaces, inner classes, or generics. The accompanying Isabelle
+script proves the type soundness of the Ott-generated LJ definition.
+\end{abstract}
+
+\section{Description}
+
+When designing or reasoning about a language feature or a language analysis,
+researchers try to limit the underlying language to avoid dealing with
+unnecessary details. For example, object-oriented generics were formalised on
+top of Featherweight Java (FJ)~\cite{fj}, a substantially simplified model of
+the Java programming language~\cite{java}.
+
+Many researchers have used FJ as their base language. However, FJ is not always
+suitable, since it is purely functional --- it does not model state; there are
+only expressions, which are evaluated completely locally. Therefore, FJ is a
+poor choice for language analyses or language features that rely on state, \eg
+separation logic~\cite{sl} or mixins~\cite{mixins}.
+
+In this chapter, we present Lightweight Java (LJ), a minimal {\em imperative}
+core of Java. We chose a minimal set of features that still gives a Java-like
+feel to the language, \ie fields, methods, single inheritance, dynamic method
+dispatch, and method overriding. We did not include type casts, local
+variables, field hiding, interfaces, method overloading, or any of the more
+advanced language features mainly due to their apparent orthogonality to the
+Java Module System~\cite{jsr277}, a research topic at the time; however, we
+later realised that, by including type casts and static data, we could formally
+verify properties regarding class cast exceptions (or their lack of) and module
+state independence --- this extension remains future work.
+
+LJ's semantics uses a program heap, and a variable state, but does not model a
+frame stack --- method calls are effectively flattened as they are executed,
+which simplifies the semantics. In spite of this, LJ is a proper subset of
+Java, \ie every LJ program is a valid Java program, while its observable
+semantics exactly corresponds to Java's semantics.
+
+LJ is largely a simplification of Middleweight Java (MJ)~\cite{mj-matt}. In
+addition to the above, MJ models a stack, type casts, and supports expressions
+(not just statements).
+
+LJ is defined rigorously. It is designed in Ott~\cite{ott}, a tool for writing
+definitions of programming languages and calculi. From LJ's Ott code, the tool
+also generates the language definition in Isabelle/HOL~\cite{isabelle}, a tool
+for writing computer-verified maths. Based on this definition, we mechanically
+prove type soundness in Isabelle/HOL, which gives us high confidence in the
+correctness of the results.
+
+Initially, we designed LJ as a base language for modelling the Java Module
+System, Lightweight Java Module System (LJAM)~\cite{ljam}, and its improvement,
+Improved Java Module System (iJAM)~\cite{iJAM} --- in both, we achieved a high
+level of reuse in both the definitions and proof scripts.  Through this
+process, LJ has been abstracted to the point where we think it can be used for
+experimenting with other language features. In fact, LJ has already been used
+by others to formalise ``features'' in Lightweight Feature Java~\cite{lfj}.
+
+\section{Example program}
+
+Here are two Lightweight Java class definitions, which show the use of class fields,
+class methods, class inheritance, method overriding, subtyping, and dynamic
+method dispatch.
+
+\begin{lstlisting}
+class A {                // class definition
+    A f;                 // class field
+    A m(B var) { this.f = var; return var; }    // subtyping
+}
+
+class B extends A {      // class inheritance
+    A m(B var) { this.f = var; return this; }  // overriding
+}
+
+// A a, result; B b;
+a = new B();             // subtyping
+b = new B();
+result = a.m(b);         // dynamic method dispatch (calls B::m)
+\end{lstlisting}
+\lstset{language=caml,morekeywords={match,with,then}}
+
+Due to method overriding, the method call on the last line calls {\tt B}'s
+method {\tt m}. Therefore, when the execution stops,
+both {\tt result} and {\tt a} point to the same heap location.
+
+\section{Extending the language}
+
+The easiest way to extend the language is to modify its Ott source files. To
+prove progress and well-formedness preservation of the extension, you can
+either:
+
+\begin{itemize}
+\item modify the existing Isabelle scripts; or,
+\item prove that any valid program of the extended language can be reduced to a
+program in LJ.
+\end{itemize}
+
+\section{More information}
+
+More information about Lightweight Java's operational semantics, type system,
+type checking, and a detailed walkthrough of the proof of type soundness can be
+found here:
+
+\begin{center} \url{http://rok.strnisa.com/lj/} \end{center}
+
+% include generated text of all theories
+% \input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

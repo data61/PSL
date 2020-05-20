@@ -1,0 +1,131 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym,fullpage}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Partial Semigroups and Convolution Algebras}
+\author{Brijesh Dongol, Victor B F Gomes, Ian J Hayes and Georg
+  Struth}
+
+
+\maketitle
+
+\begin{abstract}
+  Partial Semigroups are relevant to the foundations of quantum
+  mechanics and combinatorics as well as to interval and separation
+  logics. Convolution algebras can be understood either as algebras of
+  generalised binary modalities over ternary Kripke frames, in
+  particular over partial semigroups, or as algebras of
+  quantale-valued functions which are equipped with a
+  convolution-style operation of multiplication that is parametrised
+  by a ternary relation.  Convolution algebras provide algebraic
+  semantics for various substructural logics, including categorial,
+  relevance and linear logics, for separation logic and for interval
+  logics; they cover quantitative and qualitative applications. These
+  mathematical components for partial semigroups and convolution
+  algebras provide uniform foundations from which models of
+  computation based on relations, program traces or pomsets, and
+  verification components for separation or interval temporal logics
+  can be built with little effort.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introductory Remarks}
+
+These mathematical components supply formal proofs for two articles on
+\emph{Convolution Algebras}~\cite{DongolHS17} and \emph{Convolution as
+  a Unifying Concept}~\cite{DongolHS16}.  They are sparsely documented
+and referenced; additional information can be found in these articles,
+and in particular the first one.
+
+The approach generalises previous Isabelle components for covolution
+algebras that were intended for separation logic and used partial
+abelian semigroups and monoids for modelling store-heap
+pairs~\cite{DongolGS15}.  Due to the applications in separation logic,
+a detailed account of cancellative and positive partial abelian
+monoids has been included, as these structures characterise the heap
+succinctly.  Isabelle verification components based on this
+approach will be submitted as a separate AFP entry.
+ 
+Our article on convolution algebras~\cite{DongolHS17} provides a
+detailed account of convolution-based semantics for
+Halpern-Shoham-style interval logics~\cite{HalpernS91,Venema91},
+interval temporal logics~\cite{Moszkowski00} and duration
+calculi~\cite{ZhouH04} based on partial monoids.  While general
+approaches, including modal algebras over semi-infinite intervals, are
+supported by the mathematical components provided, additional work on
+store models and assignments of variables to values is needed in order
+to build verification components for such interval logics.
+
+Convolution-based liftings of partial semigroups of graphs and partial
+orders allow formalisations of models of true concurrency such as
+pomset languages and concurrent Kleene algebras~\cite{HoareMSW11} in
+Isabelle, too.  An AFP entry for these is in preparation.
+
+In all these approaches, the main task is to construct suitable
+partial semigroups or monoids of the computational models intended,
+for instance, closed intervals over the reals under fusion product,
+unions of heaplets (i.e. partial functions) provided their domains are
+disjoint, disjoint unions of graphs as parallel products.  Our
+approach then allows a generic lifting to convolution algebras on
+suitable function spaces with algebraic properties, for instance of
+heaplets to the assertion algebra of separation logic with separating
+conjunction as convolution~\cite{DongolGS15,DongolHS16}, or of
+intervals to algebraic counterparts of interval temporal logics or
+duration calculi with the chop operation as
+convolution~\cite{DongolHS17}.  We believe that this general
+construction supports other applications as well---qualitative and
+quantitative ones.
+
+We would like to thank Alasdair Armstrong for his help with some
+Isabelle proofs and Tony Hoare for many discussions that helped us
+shaping the general approach.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

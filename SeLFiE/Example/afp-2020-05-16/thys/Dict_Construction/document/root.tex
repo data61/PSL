@@ -1,0 +1,36 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym}
+
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Dictionary Construction}
+\author{Lars Hupel}
+\maketitle
+
+\parindent 0pt\parskip 0.5ex
+
+\begin{abstract}
+  Isabelle's code generator natively supports type classes.
+  For targets that do not have language support for classes and instances, it performs
+  the well-known \emph{dictionary translation}, as described by Haftmann and
+  Nipkow~\cite{haftmann2010codegeneration}.
+  This translation happens outside the logic, i.e., there is no guarantee that it is correct,
+  besides the pen-and-paper proof.
+  This work implements a certified dictionary translation that produces new class-free constants and
+  derives equality theorems.
+\end{abstract}
+
+\tableofcontents
+
+\input{session}
+
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,19 @@
+This mechanization was tested with Isabelle 2016-1 which can be
+obtained at the following URL:
+
+  https://www.cl.cam.ac.uk/research/hvg/Isabelle/
+
+To build this Isabelle document, set the current directory as the
+parent directory of DeclSem and run
+
+  isabelle build -D DeclSem
+
+Isabelle will check the proofs and then output the pdf:
+
+  DeclSem/output/document.pdf
+
+To browse the definitions and proofs, we recommend either looking at
+the output document.pdf or use the Isabelle JEdit IDE to view the
+theory files directly (.thy files). We do not recommend reading
+the theory files with other text editors because the math symbols
+may not display properly.

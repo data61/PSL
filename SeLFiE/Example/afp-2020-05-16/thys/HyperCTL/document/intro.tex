@@ -1,0 +1,33 @@
+
+\section{Introduction}
+
+ 
+We formalize HyperCTL$^*$, a temporal logic for expressing security properties 
+introduced in [1,2].  
+We first define a shallow embedding of HyperCTL$^*$, within which we prove 
+inductive and coinductive rules for the operators.  
+Then we show that a HyperCTL$^*$ formula captures Goguen-Meseguer noninterference, a landmark 
+information flow property.  
+We also define a deep embedding and connect it to the shallow embedding 
+by a denotational semantics, for which we prove sanity w.r.t.\ 
+dependence on the free variables.  Finally, we show that under some finiteness assumptions 
+about the model, 
+noninterference is given by a (finitary) syntactic formula.
+
+\par \ \par
+For the semantics of HyperCTL$^*$, we mainly follow the earlier paper [1].  
+The Kripke structure for representing noninterference is essentially that of [1,Appendix B] -- 
+however, instead of using the formula from [1,Appendix B], we further add 
+idle transitions to the Kripke structure and use the simpler formula from [1,Section 2.4].  
+
+
+\par \ \par
+[1] Bernd Finkbeiner, Markus N. Rabe and C\'{e}sar S\'{a}nchez.  
+A Temporal Logic for Hyperproperties. CoRR, abs$/$1306.6657, 2013.
+
+\par \ \par
+[2] Michael R. Clarkson, Bernd Finkbeiner, Masoud Koleini, Kristopher K. Micinski, 
+Markus N. Rabe and C\'{e}sar S\'{a}nchez. 
+Temporal Logics for Hyperproperties. POST 2014, 265-284.  
+
+

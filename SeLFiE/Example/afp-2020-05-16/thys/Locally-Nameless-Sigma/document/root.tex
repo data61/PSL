@@ -1,0 +1,74 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Locally Nameless Sigma Calculus}
+\author{Ludovic Henrio and Florian Kamm\"uller and Bianca Lutz and Henry Sudhof}
+\maketitle
+
+\begin{abstract}
+We present a Theory of Objects based on the original functional
+$\varsigma$-calculus by Abadi and Cardelli \cite{AC96a} but with an
+additional parameter to methods. We prove confluence of the operational
+semantics following the outline of Nipkow's proof of confluence for the
+$\lambda$-calculus reusing his general \texttt{Commutation.thy}
+\cite{nip:01} a generic diamond lemma reduction. 
+We furthermore formalize a simple type system for our $\varsigma$-calculus
+including a proof of type safety.
+The entire development uses the concept of Locally Nameless representation
+for binders \cite{ACPPW:POPL08}. We reuse an earlier proof of confluence
+\cite{HK:FMOODS07} for a simpler $\varsigma$-calculus based on de Bruijn indices
+and lists to represent objects. 
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{entcs}
+\begin{thebibliography}{10}
+\bibitem{AC96a}
+M. Abadi and L. Cardelli.
+\newblock {``A Theory of Objects''}.
+\newblock Springer, New York, 1996.
+
+
+\bibitem{ACPPW:POPL08}
+B. Aydemir, A, Charguéraud, B.~C. Pierce, R. Pollack, and
+  S. Weirich.
+\newblock Engineering formal metatheory.
+\newblock {\em Princ. of Programming Languages, POPL'08}, ACM, 2008. 
+
+\bibitem{HK:FMOODS07}
+L. Henrio and F. Kammüller.
+\newblock A mechanized model of the theory of objects.
+\newblock {\em Formal Methods for Open Object-Based Distributed Systems,}. 
+LNCS \textbf{4468} Springer, 2007.
+
+
+\bibitem{nip:01}
+Tobias Nipkow.
+\newblock{More Church Rosser Proofs.}
+\newblock{\em Journal of Automated Reasoning}. 
+\newblock{\textbf{26}:51--66, 2001.}
+\end{thebibliography}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

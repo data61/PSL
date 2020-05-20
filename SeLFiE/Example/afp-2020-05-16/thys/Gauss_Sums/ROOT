@@ -1,0 +1,15 @@
+chapter AFP
+
+session Gauss_Sums (AFP) = Dirichlet_Series +
+  options [timeout = 600]
+  sessions
+    "HOL-Algebra"
+    "HOL-Real_Asymp"
+    Polynomial_Interpolation
+    Dirichlet_Series
+    Dirichlet_L
+  theories
+    Polya_Vinogradov
+  document_files
+    "root.tex"
+    "root.bib"

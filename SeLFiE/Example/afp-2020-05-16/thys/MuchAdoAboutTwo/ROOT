@@ -1,0 +1,9 @@
+chapter AFP
+
+session MuchAdoAboutTwo (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    MuchAdoAboutTwo
+  document_files
+    "root.bib"
+    "root.tex"

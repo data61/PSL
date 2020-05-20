@@ -1,0 +1,61 @@
+chapter AFP
+
+session Pre_BZ (AFP) in "Pre_BZ" = "Subresultants" +
+  options [timeout = 600]
+  sessions
+    "HOL-Number_Theory"
+    "HOL-Word"
+    "HOL-Types_To_Sets"
+    Polynomial_Factorization
+    Polynomial_Interpolation
+    "Efficient-Mergesort"
+    Show
+  theories
+    Jordan_Normal_Form.Matrix_Kernel
+    Jordan_Normal_Form.Gauss_Jordan_IArray_Impl
+    "Efficient-Mergesort.Efficient_Sort"
+    "HOL-Number_Theory.Residues"
+    "HOL-Types_To_Sets.Types_To_Sets"
+    Native_Word.Uint32
+    Native_Word.Uint64
+    Native_Word.Code_Target_Bits_Int
+    Polynomial_Factorization.Rational_Factorization 
+
+session Berlekamp_Zassenhaus (AFP) = Pre_BZ +
+  description "Berlekamp-Zassenhaus's Factorization Algorithm"
+  options [timeout = 1200]
+  theories
+    (* Arithmetic for Finite Fields *)
+    Finite_Field
+    Finite_Field_Record_Based
+    Arithmetic_Record_Based
+    Matrix_Record_Based
+    Poly_Mod
+    Poly_Mod_Finite_Field
+    Poly_Mod_Finite_Field_Record_Based
+    Polynomial_Record_Based
+    (* Berlekamp's Factorization Algorithm *)
+    Chinese_Remainder_Poly
+    Berlekamp_Type_Based
+    Distinct_Degree_Factorization
+    Finite_Field_Factorization_Record_Based
+    (* Hensel Lifting *)
+    Hensel_Lifting_Type_Based
+    Hensel_Lifting
+    Berlekamp_Hensel
+    (* Zassenhaus Reconstruction *)
+    Square_Free_Int_To_Square_Free_GFp
+    Suitable_Prime
+    Degree_Bound
+    Mahler_Measure
+    Factor_Bound
+    Sublist_Iteration
+    Reconstruction
+    (* An Efficient Algorithm for Integer Polynomials *)
+    Berlekamp_Zassenhaus
+    Square_Free_Factorization_Int
+    Factorize_Int_Poly
+    Factorize_Rat_Poly
+  document_files
+    "root.bib"
+    "root.tex" 

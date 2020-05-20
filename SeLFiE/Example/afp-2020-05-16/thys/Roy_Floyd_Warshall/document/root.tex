@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{isabelle,isabellesym}
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+\renewcommand{\isadigit}[1]{\isamath{#1}}
+
+\isadroptag{theory}
+
+\begin{document}
+
+\title{Transitive closure according to Roy-Floyd-Warshall}
+\author{Makarius Wenzel}
+\maketitle
+
+\begin{abstract}
+This formulation of the Roy-Floyd-Warshall algorithm for the transitive
+closure bypasses matrices and arrays, but uses a more direct mathematical
+model with adjacency functions for immediate predecessors and successors.
+This can be implemented efficiently in functional programming languages and
+is particularly adequate for sparse relations.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

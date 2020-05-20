@@ -1,0 +1,39 @@
+chapter AFP
+
+session Consensus_Refined (AFP) = HOL +
+  options [show_question_marks = false, timeout = 600]
+  sessions
+    "HOL-Library"
+    Heard_Of
+    Stuttering_Equivalence
+  directories
+    "MRU"
+    "Observing"
+    "Voting"
+  theories
+    Infra
+    Consensus_Types
+    Quorums
+    Consensus_Misc
+    Two_Steps
+    "MRU/Three_Steps"
+    Refinement
+    HO_Transition_System
+    Voting
+    Voting_Opt
+    "Voting/OneThirdRule_Proofs"
+    "Voting/Ate_Proofs"
+    Same_Vote
+    Observing_Quorums
+    Observing_Quorums_Opt
+    "Observing/Uv_Proofs"
+    "Observing/BenOr_Proofs"
+    MRU_Vote
+    MRU_Vote_Opt
+    "MRU/New_Algorithm_Proofs"
+    "MRU/Paxos_Proofs"
+    "MRU/CT_Proofs"
+  document_files
+    "root.tex"
+    "root.bib"
+    "ref-tree.pdf"

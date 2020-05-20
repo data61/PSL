@@ -1,0 +1,66 @@
+chapter AFP
+
+session LEM (AFP) in "generated" = "HOL-Word" +
+  options [timeout = 300]
+  theories
+    Lem_pervasives
+    Lem_pervasives_extra
+    Lem_list_extra
+    Lem_set_extra
+    Lem_string
+    Lem_string_extra
+
+session CakeML (AFP) = LEM +
+  options [timeout = 3600]
+  sessions
+    Coinductive
+    IEEE_Floating_Point
+    Show
+  directories
+    "doc"
+    "generated/CakeML"
+    "Tests"
+  theories
+    "doc/Doc_Generated"
+
+    "generated/CakeML/Ast"
+    "generated/CakeML/AstAuxiliary"
+    "generated/CakeML/BigSmallInvariants"
+    "generated/CakeML/BigStep"
+    "generated/CakeML/Evaluate"
+    "generated/CakeML/Lib"
+    "generated/CakeML/LibAuxiliary"
+    "generated/CakeML/Namespace"
+    "generated/CakeML/NamespaceAuxiliary"
+    "generated/CakeML/PrimTypes"
+    "generated/CakeML/SemanticPrimitives"
+    "generated/CakeML/SemanticPrimitivesAuxiliary"
+    "generated/CakeML/SimpleIO"
+    "generated/CakeML/Tokens"
+    "generated/CakeML/TypeSystem"
+    "generated/CakeML/TypeSystemAuxiliary"
+
+    "doc/Doc_Proofs"
+
+    Semantic_Extras
+    Evaluate_Termination
+    Evaluate_Clock
+    Evaluate_Single
+    Big_Step_Determ
+    Big_Step_Fun_Equiv
+    Big_Step_Total
+    Big_Step_Unclocked
+    Big_Step_Unclocked_Single
+    Big_Step_Clocked
+    Matching
+    CakeML_Code
+    CakeML_Quickcheck
+    CakeML_Compiler
+
+  theories [condition = "ISABELLE_CAKEML_HOME,ISABELLE_CC", document = false]
+    "Tests/Compiler_Test"
+  theories [condition = "ISABELLE_GHC", document = false]
+    "Tests/Code_Test_Haskell"
+
+  document_files
+    "root.tex"

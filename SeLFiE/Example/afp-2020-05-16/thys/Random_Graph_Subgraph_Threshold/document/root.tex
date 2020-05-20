@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amsmath,amssymb,amsthm}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newtheoremstyle{normalfont}{ }{ }{\normalfont}{ }{\normalfont\bfseries}{}{ }{}
+\theoremstyle{normalfont}
+\newtheorem*{notation}{Notation}
+
+\newcommand{\flush}{\leavevmode\newline\vspace*{-1.5em}}
+\newcommand{\Ex}{\operatorname{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newenvironment{remark}{\begin{small}$\RHD$ Remark: \itshape}{\end{small}}
+
+\begin{document}
+
+\title{Properties of Random Graphs -- Subgraph Containment}
+\author{Lars Hupel}
+\maketitle
+
+  \begin{abstract}
+    Random graphs are graphs with a fixed number of vertices, where each edge is present with a fixed probability.
+    We are interested in the probability that a random graph contains a certain pattern, for example a cycle or a clique.
+    A very high edge probability gives rise to perhaps too many edges (which degrades performance for many algorithms), whereas a low edge probability might result in a disconnected graph.
+    We prove a theorem about a threshold probability such that a higher edge probability will asymptotically almost surely produce a random graph with the desired subgraph.
+  \end{abstract}
+
+\tableofcontents
+
+\newpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+Random graphs have been introduced by Erd\H{o}s and R\'enyi in \cite{erdos}.
+They describe a probability space where, for a fixed number of vertices, each possible edge is present with a certain probability independent from other edges, but with the same probability for each edge.
+They study what properties emerge when increasing the number of vertices, or as they call it, ``the evolution of such a random graph''.
+The theorem which we will prove here is a slightly different version from that in the first section of that paper.
+
+Here, we are interested in the probability that a random graph contains a certain pattern, for example a cycle or a clique.
+A very high edge probability gives rise to perhaps too many edges, which is usually undesired since it degrades the performance of many algorithms, whereas a low edge probability might result in a disconnected graph.
+The central theorem determines a threshold probability such that a higher edge probability will asymptotically almost surely produce a random graph with the desired subgraph.
+
+The proof is outlined in \cite[\S\ 11.4]{graph-theory} and \cite[\S\ 3]{random-graphs}.
+The work is based on the comprehensive formalization of probability theory in Isabelle/HOL and on a previous definition of graphs in a work by Noschinski \cite{girth-chromatic-afp}.
+There, Noschinski formalized the proof that graphs with arbitrarily large girth and chromatic number exist.
+While the proof in this paper uses a different approach, the definition of a probability space on edges turned out to be quite useful. 
+
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

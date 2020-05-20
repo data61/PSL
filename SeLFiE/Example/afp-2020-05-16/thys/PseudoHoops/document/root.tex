@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[latin1]{inputenc}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Pseudo-hoops}
+
+\author{George Georgescu and Lauren\c tiu Leu\c stean and Viorel Preoteasa}
+
+\maketitle
+
+\begin{abstract}
+Pseudo-hoops are algebraic structures introduced in \cite{bosbach:1969,bosbach:1970} 
+by B. Bosbach under the name of complementary semigroups.
+This is a formalization of the paper \cite{georgescu:leustean:preoteasa:2005}.
+Following \cite{georgescu:leustean:preoteasa:2005}  we prove some properties 
+of pseudo-hoops and we define the basic concepts of filter and normal filter. 
+The lattice of normal filters is isomorphic with the lattice of congruences of 
+a pseudo-hoop. We also study some important classes of pseudo-hoops. Bounded 
+Wajsberg pseudo-hoops are equivalent to pseudo-Wajsberg algebras and bounded 
+basic pseudo-hoops are equiv- alent to pseudo-BL algebras. Some examples of 
+pseudo-hoops are given in the last section of the formalization.
+
+\end{abstract}
+
+\tableofcontents
+
+\section{Overview}
+Section 2 introduces some operations and their infix syntax.
+Section 3 and 4 introduces some facts about residuated and complemented monoids.
+Section 5 introduces the pseudo-hoops and some of their properties. Section 6
+introduces filters and normal filters and proves that the lattice of normal 
+filters and the lattice of congruences are isomorphic. Following 
+\cite{ceterchi:2001}, section 7 introduces pseudo-Waisberg algebras and 
+some of their properties. In Section 8 we investigate some classes of 
+pseudo-hoops. Finally section 9 presents some examples of pseudo-hoops and
+normal filters.
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

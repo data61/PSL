@@ -1,0 +1,37 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Divergence of the Prime Harmonic Series}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+In this work, we prove the lower bound $\ln (H_n) - \ln(\frac{5}{3})$ for the partial sum of the Prime Harmonic series and, based on this, the divergence of the Prime Harmonic Series $\sum_{p=1}^n [p\ \mathrm{prime}] \cdot \frac{1}{p}$. The proof relies on the unique squarefree decomposition of natural numbers. This proof is similar to Euler's original proof (which was highly informal and morally questionable). Its advantage over proofs by contradiction, like the famous one by Paul Erd\H{o}s, is that it provides a relatively good lower bound for the partial sums.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\nocite{*}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

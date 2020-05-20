@@ -1,0 +1,103 @@
+%    Title:       Lifting Definition Option
+%    Author:      René Thiemann       <rene.thiemann@uibk.ac.at>
+%    Maintainer:  René Thiemann
+%    License:     LGPL
+%
+%Copyright 2014 René Thiemann
+%
+%This file is part of IsaFoR/CeTA.
+%
+%IsaFoR/CeTA is free software: you can redistribute it and/or modify it under the
+%terms of the GNU Lesser General Public License as published by the Free Software
+%Foundation, either version 3 of the License, or (at your option) any later
+%version.
+%
+%IsaFoR/CeTA is distributed in the hope that it will be useful, but WITHOUT ANY
+%WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+%PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+%
+%You should have received a copy of the GNU Lesser General Public License along
+%with IsaFoR/CeTA. If not, see <http://www.gnu.org/licenses/>.
+%
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amsmath}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isakwd[1]{\textsf{\isa{#1}}}
+\newcommand\isasimpmp{\isa{simplify-emp-main}}
+\newcommand\parfun{\isakwd{partial-function}}
+\newcommand\vect[1]{\overrightarrow{#1}}
+\newcommand\fs{\isa{fs}}
+\newcommand\xs{\isa{xs}}
+\newcommand\xst{\isa{xs}_t}
+\newcommand\inT{\isa{in}}
+\newcommand\cprod[1]{({#1})}
+\newcommand\outT{\isa{out}}
+\newcommand\monad{\isa{monad}}
+\newcommand\tto\Rightarrow
+\newcommand\ar{\isa{ar}}
+\newcommand\inj{\isa{inj}}
+\newcommand\proj{\isa{proj}}
+\newcommand\mapM{\isa{map-monad}}
+\newcommand\curry{\isa{curry}}
+\newcommand\case{\isakwd{case}}
+\newcommand\of{\isakwd{of}}
+\newcommand\ldo{\isacommand{lift{\isacharunderscore}definition{\isacharunderscore}option}}
+\newcommand\ld{\isacommand{lift{\isacharunderscore}definition}}
+\newcommand\ys{y\isactrlsub {\isadigit{1}}\,\ldots\,y\isactrlsub n}
+
+\newcommand\isafor{\textsf{Isa\kern-0.2exF\kern-0.2exo\kern-0.2exR}\xspace}
+\newcommand\ceta{\textsf{C\kern-0.2exe\kern-0.5exT\kern-0.5exA}\xspace}
+
+
+\begin{document}
+
+\title{Lifting Definition Option\thanks{This research is supported by FWF (Austrian Science Fund) project Y 757.}}
+\author{Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We implemented a command, \ldo, which can be used to easily generate
+  elements of a restricted type  
+  \isa{{\isacharbraceleft}x\ {\isacharcolon}{\isacharcolon}\ {\isacharprime}a{\isachardot}\ P\ x{\isacharbraceright}},
+  provided the definition is of the form
+  \isa{\isasymlambda\ \ys{\isachardot}\ if\ check\ \ys\ then\ Some\ {\isacharparenleft}generate\ \ys\ {\isacharcolon}{\isacharcolon}\ {\isacharprime}a{\isacharparenright}\ else\ None} and
+\isa{check\ \ys\ {\isasymLongrightarrow}\ P\ {\isacharparenleft}generate\ \ys{\isacharparenright}}
+ can be proven.
+
+  In principle,
+  such a definition is also directly possible using one invocation of \ld. However, then
+  this definition will not be suitable for code-generation. To this end, we automated 
+  a more complex construction of Joachim Breitner which is amenable for code-generation,
+  and where the test \isa{check\ \ys} will only be performed once.
+  In the automation, one auxiliary type is created, 
+  and Isabelle's lifting- and transfer-package is invoked several
+  times. 
+\end{abstract} 
+
+\textbf{This entry is outdated as in the meantime the lifting- and transfer-package 
+has the desired functionality in an even more general way. Therefore, only the examples
+are kept.}
+ 
+\tableofcontents
+
+\medskip 
+
+\input{session}
+
+\subsection*{Acknowledgements}
+We thank Andreas Lochbihler for pointing us to Joachim's solution,
+and we thank Makarius Wenzel for explaining us, how we can go back
+from states to local theories within Isabelle/ML. 
+\bibliographystyle{abbrv}
+\bibliography{root}
+\end{document}

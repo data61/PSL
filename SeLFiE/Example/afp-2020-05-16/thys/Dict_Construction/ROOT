@@ -1,0 +1,22 @@
+chapter AFP
+
+session Dict_Construction (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+    Automatic_Refinement
+    Lazy_Case
+    Show
+  directories
+    "Documentation"
+  theories
+    "Documentation/Introduction"
+    "Documentation/Impossibility"
+    Dict_Construction
+    "Documentation/Termination"
+    Test_Dict_Construction
+    Test_Side_Conditions
+    Test_Lazy_Case
+  document_files
+    "root.bib"
+    "root.tex"

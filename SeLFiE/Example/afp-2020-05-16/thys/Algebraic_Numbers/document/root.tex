@@ -1,0 +1,136 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\complex{\mathbb{C}}
+
+\newcommand\rai{real algebraic number\xspace}
+\newcommand\rais{real algebraic numbers\xspace}
+
+\begin{document}
+
+\title{Algebraic Numbers in Isabelle/HOL\footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author{Ren\'e Thiemann, Akihisa Yamada, and Sebastiaan Joosten}
+\maketitle
+
+\begin{abstract}
+Based on existing libraries for matrices, factorization of integer polynomials, 
+and Sturm's theorem,
+we formalized algebraic numbers in Isabelle/HOL. Our development serves
+as an implementation for real and complex numbers, and it admits to compute roots
+and completely factorize real and complex polynomials, provided that all
+coefficients are rational numbers. Moreover, we provide two implementations to display
+algebraic numbers, an injective one that reveals the representing polynomial, or an approximative one that only displays a fixed amount of digits.
+
+To this end, we mechanized several results on resultants.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+Isabelle's previous implementation of irrational numbers was limited:
+it only admitted numbers expressed in the form ``$a+b\sqrt{c}$'' for $a,b,c \in \rats$,
+and even computations like $\sqrt2 \cdot \sqrt3$ led to a runtime error \cite{Real-AFP}.
+
+In this work, we provide full support for the \emph{real algebraic numbers},
+i.e., the real numbers that are expressed as roots of non-zero integer polynomials,
+and we also partially support complex algebraic numbers.
+
+Most of the results on algebraic numbers have been taken from a textbook 
+by Bhubaneswar Mishra \cite{AlgNumbers}.
+Also Wikipedia provided valuable help.
+
+\medskip
+Concerning the real algebraic numbers, we first had to prove that they form a field.
+To show that the addition and multiplication of \rais are also \rais,
+we formalize the theory of \emph{resultants}, which are the determinants of 
+specific matrices, where the size of these matrices depend on the degree of the 
+polynomials.
+To this end, we utilized the matrix library provided in the Jordan-Normal-Form
+AFP-entry \cite{JNF-AFP} where the matrix dimension can arbitrarily be chosen at runtime.
+
+Given \rais $x$ and $y$ expressed as the roots of polynomials,
+we compute a polynomial that has $x+y$ or $x \cdot y$ as its root via resultants.
+In order to guarantee that the resulting polynomial is non-zero, we needed the result
+that multivariate polynomials over fields form a unique factorization domain (UFD).
+To this end, we initially proved that polynomials over some UFD are again a UFD, relying
+upon results in HOL-algebra. 
+
+When performing actual computations with algebraic numbers, it is important to reduce
+the degree of the representing polynomials. To this end, we use the existing
+Berlekamp-Zassenhaus factorization algorithm. This is crucial for the default show-function for real 
+algebraic numbers which requires the unique minimal polynomial representing the algebraic number --
+but an alternative which displays only an approximative value is also available.
+
+In order to support tests on whether a given algebraic number is a rational number, 
+we also make use of the fact that we compute the minimal polynomial.
+
+The formalization of Sturm's method \cite{Sturm-AFP} was crucial to separate the different
+roots of a fixed polynomial. 
+We could nearly use it as it is, and just copied some function definition so
+that Sturm's method now is available to separate the real roots of rational polynomial, where
+all computations are now performed over $\rats$.
+
+With all the mentioned ingredients we implemented all arithmetic operations on real algebraic
+numbers, i.e., addition, subtraction, multiplication, division, comparison, $n$-th root, floor-
+and ceiling, and testing on membership in $\rats$. Moreover, we provide a method
+to create real algebraic numbers from a given rational polynomial, a method which computes
+precisely the set of real roots of a rational polynomial.
+
+\medskip
+
+The absence of an equivalent to Sturm's method for the complex numbers in Isabelle/HOL prevented
+us from having native support for complex algebraic numbers. Instead, we represent complex
+algebraic numbers as their real and imaginary part: note that a complex number is algebraic if
+and only if both the real and the imaginary part are real algebraic numbers.
+This equivalence also admitted us to design an algorithm which computes all complex roots
+of a rational polynomial. It first constructs a set of polynomials which represent all
+real and imaginary parts of all complex roots, yielding a superset of all roots,
+and afterwards the set just is just filtered.
+
+By the fundamental theorem of algebra, we then also have a factorization algorithm for
+polynomials over $\complex$ with rational coefficients.
+
+Finally, for factorizing a rational polynomial over $\reals$, we first factorize it over $\complex$,
+and then combine each pair of complex conjugate roots.
+
+\medskip
+
+As future it would be interesting to include the result that the set of complex algebraic numbers is algebraically
+closed, i.e., at the momemnt we are limited to determine the complex roots of a polynomial over $\rats$, and
+cannot determine the real or complex roots of an polynomial having arbitrary algebraic coefficients.
+
+Finally, an analog to Sturm's method for the complex numbers would be welcome, in order to
+have a smaller representation: for instance, currently the complex roots of $1 + x + x^3$ are
+computed as ``root \#1 of $1 + x + x^3$'', 
+``(root \#1 of $-\frac18 + \frac14x + x^3$)+(root \#1 of $-\frac{31}{64} + \frac{9}{16}x^2 - \frac32x^4 + x^6$)i'', and 
+``(root \#1 of $-\frac18 + \frac14x + x^3$)+(root \#2 of $-\frac{31}{64} + \frac{9}{16}x^2 - \frac32x^4 + x^6$)i''.
+
+\section{Auxiliary Algorithms}
+
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

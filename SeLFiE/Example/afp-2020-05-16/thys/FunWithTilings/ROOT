@@ -1,0 +1,9 @@
+chapter AFP
+
+session FunWithTilings (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Tilings
+  document_files
+    "root.bib"
+    "root.tex"

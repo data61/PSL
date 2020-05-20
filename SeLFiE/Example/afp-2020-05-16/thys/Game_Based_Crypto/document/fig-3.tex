@@ -1,0 +1,104 @@
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[
+  scale=.5, 
+  every node/.style={scale=.5},
+  node distance = 14pt and 40pt,
+  start chain   = going below,
+  emp_b/.style = {
+    draw = none,
+    fill = none,
+    inner sep = 4pt,
+    minimum width = 120pt,
+    minimum height = 50pt,
+    rectangle,
+    on chain
+  },
+  emp_s/.style    = {
+    draw = none,
+    fill = none,
+    inner sep = 4pt,
+    minimum width = 90pt,
+    minimum height = 50pt,
+    rectangle,
+    on chain
+  },
+  prt/.style    = {
+    draw=gray,
+    fill = white,
+    inner sep = 4pt,
+    outer sep = 3pt,
+    minimum width = 84.4pt,
+    minimum height = 44.4pt,
+    rectangle,
+    font=\fontsize{22}{22}\selectfont,
+    on chain
+  },
+  ins/.style    = {
+    draw = none,
+    fill = none,
+    rectangle,
+    minimum width=100pt,
+    minimum height=20pt,
+    text width=100pt,
+    align=right,
+    font=\fontsize{18}{18}\selectfont,
+    on chain
+  }
+]
+%
+\pgfdeclarelayer{bg}
+\pgfsetlayers{bg,main}
+
+\node[emp_b] (e_11) {};
+
+\node[prt, draw=none, fill=none, line width=1pt, right = of e_11] (p_12) {};
+\node[prt, dashed, line width=1pt,] (p_22) {$ \mathcal{A}_1$};
+\node[prt, dashed, line width=1pt,] (p_42) {$\mathcal{A}_2$};
+
+\node[emp_s, right = of p_12] (e_13) {};
+\node[emp_s] (e_23) {};
+\node[emp_s] (e_33) {};
+\node[emp_s] (e_43) {};
+
+\draw[draw=gray, fill=gray!25] 
+  ($(e_13.north west)+(3pt,-3pt)$) 
+    rectangle  node[font=\fontsize{20}{20}\selectfont] (o_13) {ro.oracle} 
+  ($(e_23.south east)+(-3pt,41pt)$);
+
+\node[ins, above = -10pt of e_11] (ins_1) {$\alpha, \beta$};
+\node[ins, below = 4pt of ins_1] (ins_2) {$\beta$};
+\node[ins, below = 4pt of ins_2] (ins_3) {$m_0, m_1, \sigma$};
+\node[ins, below = 4pt of ins_3] (ins_4) {generate $h$;};
+\node[ins, below = 4pt of ins_4] (ins_5) {$(\beta, h), \sigma$};
+\node[ins, below = 4pt of ins_5] (ins_6) {$b', \sigma'$};
+\node[ins, below = 4pt of ins_6] (ins_7) {$dom(\sigma')$};
+
+
+\begin{pgfonlayer}{bg}
+  \draw[draw=gray, pattern=dots, opacity=.5, rounded corners=10pt] 
+    ($(e_11.north west)+(-52pt,36pt)$) 
+      rectangle 
+    ($(p_42.south east)+(184pt,-36pt)$);
+
+  \draw[draw=gray, fill=gray!15, rounded corners=10pt] 
+    ($(e_11.north west)+(-36pt,18pt)$) 
+      rectangle 
+    ($(p_42.south east)+(18pt,-18pt)$);
+\end{pgfonlayer}
+
+\draw[latex-latex] (p_22.east) -| ++(25pt,0) |- ($(o_13.west)+(-3pt,5pt)$);
+\draw[latex-latex] (p_42.east) -| ++(35pt,0) |- ($(o_13.west)+(-3pt,-15pt)$);
+
+\draw[-implies, double, line width=1.5pt] ($(ins_1.west)+(-80pt,0pt)$) - ++(80pt, 0) ;
+
+\draw[-latex] (ins_2.east) -| ++(35pt, 0) |- ($(p_22.west)+(0pt,7pt)$);
+\draw[latex-, line width=1.5pt, name path=line1] (ins_3.east) -| ++(25pt, 0) |- ($(p_22.west)+(0pt,-8pt)$);
+\draw[-latex, line width=1.5pt] (ins_5.east) -| ++(35pt, 0) |- ($(p_42.west)+(0pt,7pt)$);
+\draw[latex-, line width=1.5pt] (ins_6.east) -| ++(25pt, 0) |- ($(p_42.west)+(0pt,-8pt)$);
+\draw[-implies, double, line width=1.5pt] ($(ins_7.west)+(0pt,0pt)$) - ++(-80pt, 0) ;
+
+\end{tikzpicture}
+\caption{The reduction for the Elgamal security proof. }
+\label{fig:3}
+\end{figure}

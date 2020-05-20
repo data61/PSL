@@ -1,0 +1,17 @@
+chapter AFP
+
+session "Flyspeck-Tame" (AFP) = HOL +
+  options [timeout = 1200]
+  sessions
+    "HOL-Library"
+    Trie
+  theories
+    Relative_Completeness
+  document_files
+    "root.bib"
+    "root.tex"
+
+session "Flyspeck-Tame-Computation" (AFP slow very_slow) in "Computation" = "Flyspeck-Tame" +
+  options [timeout = 50400]
+  theories
+    Completeness

@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Elementary Facts About the Distribution of Primes}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This entry is a formalisation of Chapter 4 (and parts of Chapter 3) of Apostol's \emph{Introduction to Analytic Number Theory}. The main topics that are addressed are properties of the distribution of prime numbers that can be shown in an elementary way (i.\,e.\ without the Prime Number Theorem), the various equivalent forms of the PNT (which imply each other in elementary ways), and consequences that follow from the PNT in elementary ways. The latter include bounds for the number of distinct prime factors of $n$, the divisor function $d(n)$, Euler's totient function $\varphi(n)$, and $\text{lcm}(1,\ldots,n)$.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\nocite{apostol1976analytic}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

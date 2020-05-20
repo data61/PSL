@@ -1,0 +1,9 @@
+chapter AFP
+
+session AnselmGod (AFP) = HOL +
+  options [timeout = 300]
+  theories
+    AnselmGod
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,40 @@
+# This configuration file describes the versions of Lem and CakeML used to
+# generate the Isabelle theory files. It is used by the 'bootstrap' script in
+# <https://github.com/larsrh/isabelle-cakeml>.
+
+# Repository versions
+
+LEM_REPOSITORY="https://github.com/larsrh/lem"
+LEM_COMMIT="9db1a4addd9e685059e8ea597e4bad502a12f380" # larsrh-3
+CAKEML_REPOSITORY="https://github.com/larsrh/cakeml"
+CAKEML_COMMIT="96f095e9587084b98331d634154cbbde5a781c29" # v2.0 tag + backports
+
+# Isabelle tools (if not specified in the environment)
+
+#ISABELLE_TOOL="isabelle"
+#AFP="$HOME/afp"
+
+# Lem files to export
+
+CAKEML_LEM_FILES=(
+  "misc/lem_lib_stub/lib.lem"
+  "semantics/alt_semantics/bigStep.lem"
+  "semantics/alt_semantics/proofs/bigSmallInvariants.lem"
+  "semantics/alt_semantics/smallStep.lem"
+  "semantics/ast.lem"
+  "semantics/evaluate.lem"
+  "semantics/ffi/ffi.lem"
+  "semantics/ffi/simpleIO.lem"
+  "semantics/fpSem.lem"
+  "semantics/namespace.lem"
+  "semantics/primTypes.lem"
+  "semantics/semanticPrimitives.lem"
+  "semantics/tokens.lem"
+  "semantics/typeSystem.lem"
+)
+
+# Theories to ignore (e.g. because of failing default termination proofs)
+
+CAKEML_IGNORE_THEORIES=(
+  "EvaluateAuxiliary.thy"
+)

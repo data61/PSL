@@ -1,0 +1,345 @@
+\documentclass[11pt,notitlepage,a4paper]{report}
+\usepackage{isabelle,isabellesym,eufrak}
+\usepackage[english]{babel}
+
+% For graphics files
+\usepackage[pdftex]{graphicx}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% XYPic package, for drawing commutative diagrams.
+\input{xy}
+\xyoption{curve}
+\xyoption{arrow}
+\xyoption{matrix}
+\xyoption{2cell}
+\xyoption{line}
+\UseAllTwocells
+
+% Even though I stayed within the default boundary in the JEdit buffer,
+% some proof lines wrap around in the PDF document.  To minimize this,
+% increase the text width a bit from the default.
+\addtolength\textwidth{60pt}
+\addtolength\oddsidemargin{-30pt}
+\addtolength\evensidemargin{-30pt}
+
+\begin{document}
+
+\title{Bicategories}
+\author{Eugene W. Stark\\[\medskipamount]
+        Department of Computer Science\\
+        Stony Brook University\\
+        Stony Brook, New York 11794 USA}
+\maketitle
+
+\begin{abstract}
+Taking as a starting point the author's previous work
+(\cite{Category3-AFP} \cite{MonoidalCategory-AFP})
+on developing aspects of category theory in Isabelle/HOL, this article gives a
+compatible formalization of the notion of ``bicategory'' and develops a
+framework within which formal proofs of facts about bicategories can be given.
+The framework includes a number of basic results, including the
+Coherence Theorem, the Strictness Theorem, pseudofunctors and biequivalence,
+and facts about internal equivalences and adjunctions in a bicategory.
+As a driving application and demonstration of the utility of the framework,
+it is used to give a formal proof of a theorem, due to Carboni, Kasangian,
+and Street \cite{carboni-et-al}, that characterizes up to biequivalence
+the bicategories of spans in a category with pullbacks.
+The formalization effort necessitated the filling-in of many details
+that were not evident from the brief presentation in the original paper,
+as well as identifying a few minor corrections along the way.
+\end{abstract}
+
+\tableofcontents
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Introduction}
+\chapter*{Introduction}
+
+Bicategories, introduced by B\'{e}nabou \cite{benabou}, are a generalization of categories
+in which the sets of arrows between pairs of objects (\emph{i.e.}~the ``hom-sets'')
+themselves have the structure of categories.  In a typical formulation, the definition of
+bicategories involves three separate kinds of entities: \emph{objects} (or \emph{$0$-cells}),
+\emph{arrows} (or \emph{$1$-cells}), and morphisms between arrows (or \emph{$2$-cells}).
+There are two kinds of composition: \emph{vertical} composition, which composes $2$-cells
+within a single hom-category, and \emph{horizontal} composition, which composes $2$-cells in
+``adjacent'' hom-categories ${\rm hom}(A, B)$ and ${\rm hom}(B, C)$.
+Horizontal composition is required to be functorial with respect to vertical composition;
+the identification of a $1$-cell with the corresponding identity $2$-cell then leads to the
+ability to horizontally compose $1$-cells with $2$-cells (\emph{i.e.}~``whiskering'')
+and to horizontally compose $1$-cells with each other.
+Each hom-category ${\rm hom}(A, A)$ is further equipped with an \emph{identity} $1$-cell
+${\rm id}_A$, which serves as a unit for horizontal composition.
+In a \emph{strict} bicategory, also known as a \emph{$2$-category}, the usual unit and
+associativity laws for horizontal composition are required to hold exactly,
+or (as it is said) ``on the nose''.
+In a general bicategory, these laws are only required to hold ``weakly'';
+that is, up to a collection of (vertical) isomorphisms that satisfy certain
+\emph{coherence conditions}.
+A bicategory, all of whose hom-categories are discrete, is essentially an ordinary category.
+A bicategory with just one object amounts to a monoidal category whose tensor is given by
+horizontal composition.
+Alternatively, we may think of bicategories as a generalization of monoidal categories in
+which the tensor is permitted to be a partial operation, in analogy to the way in which
+ordinary categories can be considered as a generalization of monoids.
+
+A standard example of a bicategory is \textbf{Cat}, the bicategory whose $0$-cells are
+categories, whose $1$-cells are functors, and whose $2$-cells are natural transformations.
+This is in fact a $2$-category; however, as two categories that are related by an equivalence
+of categories have the same ``categorical'' properties, it is often more sensible to
+consider constructions on categories as given up to equivalence, rather than up to
+isomorphism, and this leads to considering \textbf{Cat} as a bicategory and using
+bicategorical constructions rather than as a $2$-category and using $2$-categorical ones.
+This is one reason for the importance of bicategories: as Street \cite{street-fibrations-ii} remarks,
+``In recent years it has become even more obvious that, although the fundamental constructions
+of set theory are categorical, the fundamental constructions of category theory are bicategorical.''
+
+An alternative reason for studying bicategories, which is more aligned with my own
+personal interests and forms a major reason why I chose to pursue the present project,
+is that they provide an elegant framework for theories of generalized relations,
+as has been shown by Carboni, Walters, Street, and others \cite{carboni-et-al}
+\cite{cartesian-bicategories-i} \cite{cartesian-bicategories-ii} \cite{carboni-partial-maps}.
+Indeed, the category of sets and relations becomes a bicategory by taking the inclusions
+between relations as $2$-cells and thereby becomes an exemplar of the notion
+bicategory of relations which itself is a specialization of the notion of
+cartesian bicategory \cite{cartesian-bicategories-i} \cite{cartesian-bicategories-ii}.
+In the study of the semantics of programming languages containing nondeterministic or
+concurrent constructs, it is natural to consider the meaning of a program in such a language
+as some kind of relation between inputs and outputs.  Ordinary relations can be used for
+this purpose in simple situations, but they fail to be adequate for the study of higher-order
+nondeterministic programs or for concurrent programs that engage in interaction with their environment,
+so some sort of notion of generalized relation is needed.  One is therefore led to try to identify
+some kind of bicategories of generalized relations as framework suitable for defining the
+semantics of such programs.  One expects these to be instances of cartesian bicategories.
+
+I attempted for a long time to try to develop a semantic framework for a certain class of
+interactive concurrent programs along the lines outlined above, but ultimately failed to obtain
+the kind of comprehensive understanding that I was seeking.  The basic idea was to try to
+regard a program as denoting a kind of generalized machine, expressed as some sort of
+bimodule or two-sided fibration ({\em cf.}~\cite{street-fibrations-i} \cite{street-fibrations-ii}),
+to be represented as a certain kind of span in an underlying category of ``maps'',
+which would correspond to the meanings of deterministic programs.
+A difficulty with trying to formulate any kind of theory like this is that there quickly gets
+to be a lot of data and a lot of properties to keep track of, and it was certainly more than
+I could handle.
+For example, bicategories have objects, $1$-cells, and $2$-cells, as well as domains, codomains,
+composition and identities for both the horizontal and vertical structure.
+In addition, there are unit and associativity isomorphisms for the weak horizontal composition,
+as well as their associated coherence conditions.
+Cartesian bicategories are symmetric monoidal bicategories, which means that there is an additional
+tensor product, which comes with another set of canonical isomorphisms and coherence conditions.
+Still more canonical morphisms and coherence conditions are associated with the cartesian structure.
+Even worse, in order to give a proper account of the computational ideas I was hoping to capture,
+the underlying category of maps would at least have to be regarded as an ordered category,
+if not a more general $2$-category or bicategory, so the situation starts to become truly daunting.
+
+With so much data and so many properties, it is unusual in the literature to find proofs written
+out in anything approaching complete detail.
+To the extent that proofs are given, they often involve additional assumptions made purely for
+convenience and presentational clarity, such as assuming that the bicategories under consideration
+are strict when actually they are not, and then discharging these assumptions by appeals to informal
+arguments such as ``the result holds in the general case because we can always replace a non-strict
+bicategory by an equivalent strict one.''
+This is perhaps fine if you happen to have finely honed insight, but in my case I am always left
+wondering if something important hasn't been missed or glossed over, and I don't trust very much
+my own ability to avoid gross errors if I were to work at the same level of detail as the proofs
+that I see in the literature.
+So my real motivation for the present project was to try to see whether a proof assistant
+would actually be useful in carrying out fully formalized, machine-checkable proofs of some kind
+of interesting facts about bicategories.  I also hoped in the process to develop a better
+understanding of some concepts that I knew that I hadn't understood very well.
+
+The project described in the present article is divided into two main parts.
+The first part, which comprises Chapter 1, seeks to develop a formalization of the notion of
+bicategory using Isabelle/HOL and to prove various facts about bicategories that are required
+for a subsequent application.  Additional goals here are:
+(1) to be able to make as much use as possible of the formalizations previously created for
+categories \cite{Category3-AFP} and monoidal categories \cite{MonoidalCategory-AFP};
+(2) to create a plausibly useful framework for future extension; and
+(3) to better understand some subtleties involved in the definition of bicategory.
+In this chapter, we give an HOL formalization of bicategories that makes use of and extends the
+formalization of categories given in \cite{Category3-AFP}.  In that previous work, categories
+were formalized in an ``object-free'' style in terms of a suitably defined associative partial
+binary operation of composition on a single type.  Elements of the type that behave as units
+for the composition were called ``identities'' and the ``arrows'' were identified as
+the elements of the type that are composable both on the left and on the right with identities.
+The identities composable in this way with an arrow were then shown to be uniquely determined,
+which permitted domain and codomain functions to be defined.
+This formalization of categories is economical in terms of basic data (only a single partial
+binary operation is required), but perhaps more importantly, functors and natural transformations
+need not be defined as structured objects, but instead can be taken to be ordinary functions
+between types that suitably preserve arrows and composition.
+
+In order to carry forward unchanged the framework developed for categories, for the
+formalization of bicategories we take as a jumping-off point the somewhat offbeat view of
+a bicategory as a single global category under vertical composition (the arrows are
+the $2$-cells), which is then equipped with an additional partial binary operation of
+horizontal composition.  This point of view corresponds to thinking of bicategories as
+generalizations of monoidal categories in which the tensor is allowed to be a partial
+operation.  In a direct generalization of the approach taken for categories,
+we then show that certain \emph{weak units} with respect to the horizontal composition play
+the role of $0$-cells (the identities with respect to vertical composition play the role
+of $1$-cells) and that we can define the \emph{sources} and \emph{targets} of an arrow
+as the sets of weak units horizontally composable on the right and on the left with it.  
+We then define a notion of weak associativity for the horizontal composition and arrive
+at the definition of a \emph{prebicategory}, which consists of a (vertical) category equipped
+with an associative weak (horizontal) composition, subject to the additional assumption
+that every vertical arrow has a nonempty set of sources and targets with respect to
+the horizontal composition.
+We then show that, to obtain from a prebicategory a structure that satisfies a more
+traditional-looking definition of a bicategory, all that is necessary is to choose
+arbitrarily a particular representative source and target for each arrow.
+Moreover, every bicategory determines a prebicategory by simply forgetting the chosen
+sources and targets.
+This development clarifies that an \emph{a priori} assignment of source and target objects
+for each $2$-cell is merely a convenience, rather than an element essential to the notion
+of bicategory.
+
+Additional highlights of Chapter 1 are as follows:
+\begin{itemize}
+\item  As a result of having formalized bicategories essentially as ``monoidal categories with
+  partial tensor'', we are able to generalize to bicategories, in a mostly straightforward way,
+  the proof of the Coherence Theorem we previously gave for monoidal categories in
+  \cite{MonoidalCategory-AFP}.
+  We then develop some machinery that enables us to apply the Coherence Theorem to shortcut
+  certain kinds of reasoning involving canonical isomorphisms.
+%
+\item  Using the syntactic setup developed for the proof of the Coherence Theorem, we also
+  give a proof of the Strictness Theorem, which states that every bicategory is biequivalent
+  to a $2$-category, its so-called ``strictification''.
+%
+\item  We define the notions of internal equivalence and internal adjunction in a bicategory
+  and prove a number of basic facts about these notions, including composition of equivalences
+  and adjunctions, and that every equivalence can be refined to an adjoint equivalence.
+%
+\item  We formalize the notion of a pseudofunctor between bicategories, generalizing the
+  notion of a monoidal functor between monoidal categories and we show that pseudofunctors
+  preserve internal equivalences and adjunctions.
+%
+\item  We define a sub-class of pseudofunctors which we call \emph{equivalence pseudofunctors}.
+  Equivalence pseudofunctors are intended to coincide with those pseudofunctors that can
+  be extended to an equivalence of bicategories, but we do not attempt to give an independent
+  definition equivalence of bicategories in the present development.  Instead, we establish various
+  properties of equivalence pseudofunctors to provide some confidence that the notion has been
+  formalized correctly.  Besides establishing various preservation results, we prove that,
+  given an equivalence pseudofunctor, we may obtain one in the converse direction.
+  For the rest of this article we use the property of two bicategories being connected by an
+  equivalence pseudofunctor as a surrogate for the property of biequivalence,
+  leaving for future work a more proper formulation of equivalence of bicategories and a
+  full verification of the relationship of this notion with equivalence pseudofunctors.
+\end{itemize}
+
+The second part of the project, presented in Chapter 2, is to demonstrate the utility of
+the framework by giving a formalized proof of a nontrivial theorem about bicategories.
+For this part, I chose to tackle a theorem of Carboni, Kasangian, and Street
+(\cite{carboni-et-al}, ``CKS'' for short)
+which gives axioms that characterize up to equivalence those bicategories whose $1$-cells are
+spans of arrows in an underlying category with pullbacks and whose $2$-cells are arrows
+of spans.  The original paper is very short (nine pages in total) and the result I planned to
+formalize (Theorem 4) was given on the sixth page.  I thought I had basically understood this result
+and that the formalization would not take very long to accomplish, but I definitely
+underestimated both my prior understanding of the result and the amount of auxiliary material
+that it would be necessary to formalize before I could complete the main proof.
+Eventually I did complete the formalization, and in the process filled in what seemed to me
+to be significant omissions in Carboni, Kasangian, and Street's presentation, as well as
+correcting some errors of a minor nature.
+
+Highlights of Chapter 2 are the following:
+\begin{itemize}
+\item  A formalization of the notion of a category with chosen pullbacks, a proof that
+  this formalization is in agreement with the general definition of limits we gave
+  previously in \cite{Category3-AFP}, and the development of some basic properties
+  of a category with pullbacks.
+%
+\item  A construction, given a category $C$ with chosen pullbacks, of the ``span bicategory''
+  ${\rm Span}(C)$, whose objects are those of the given category, whose $1$-cells are spans
+  of arrows of $C$, and whose $2$-cells are arrows of spans.
+  We characterize the maps (the \emph{i.e.}~left adjoints) in ${\rm Span}(C)$ as
+  exactly those spans whose ``input leg'' is invertible.
+%
+\item  A formalization of the notion of \emph{tabulation} of a $1$-cell in a bicategory
+  and a development of some of its properties.  Tabulations are a kind of bicategorical
+  limit introduced by CKS, which can be used to define a kind of biuniversal way of factoring
+  a $1$-cell up to isomorphism as the horizontal composition of a map and the adjoint of
+  a map.
+%
+\item  A formalization of \emph{bicategories of spans}, which are bicategories that satisfy
+  three axioms introduced in CKS.  We give a formal proof of CKS Theorem 4,
+  which characterizes the bicategories of spans as those bicategories that are biequivalent
+  to a bicategory ${\rm Span}(C)$ for some category $C$ with pullbacks.
+  One direction of the proof shows that if $C$ is a category with pullbacks,
+  then ${\rm Span}(C)$ satisfies the axioms for a bicategory of spans.
+  Moreover, we show that the notion ``bicategory of spans'' is preserved under equivalence
+  of bicategories, so that in fact any bicategory biequivalent to one of the form ${\rm Span}(C)$
+  is a bicategory of spans.
+  Conversely, we show that if $B$ is a bicategory of spans, then $B$ is biequivalent
+  to ${\rm Span}({\rm Maps}(B))$, where ${\rm Maps}(B)$ is the so-called \emph{classifying category}
+  of the maps in $B$, which has as objects those of $B$ and as arrows the isomorphism classes
+  of maps in $B$.
+
+  In order to formalize the proof of this result, it was necessary to develop a number of
+  details not mentioned by CKS, including ways of composing tabulations vertically and
+  horizontally, and spelling out a way to choose pullbacks in ${\rm Maps}(B)$ so that
+  the tupling of arrows of ${\rm Maps}(B)$ obtained using the chosen pullbacks agrees
+  with that obtained through horizontal composition of tabulations.
+  These details were required in order to give the definition of the compositor for an equivalence
+  pseudofunctor ${\rm SPN}$ from $B$ to ${\rm Span}({\rm Maps}(B))$ and establish the
+  necessary coherence conditions.
+\end{itemize}
+
+In the end, I think it can be concluded that Isabelle/HOL can be used with benefit to formalize
+proofs about bicategories.  It is certainly very helpful for keeping track of the data
+involved and the proof obligations required.  For example, in the formalization given here,
+a total of 99 separate subgoals are involved in proving that a given set of data constitutes
+a bicategory (only 7 subgoals are required for an ordinary category)
+and another 29 subgoals must be proved in order to establish a pseudofunctor between two
+bicategories (only 5 additional subgoals are required for an ordinary functor),
+but the proof assistant assumes the burden of keeping track of these proof obligations and
+presenting them to the human user in a structured, understandable fashion.
+On the other hand, some of the results proved here still required some lengthy equational
+``diagram chases'' for which the proof assistant (at least so far) didn't provide that much help
+(aside from checking their correctness).
+An exception to this was in the case of equational reasoning about expressions constructed
+purely of canonical isomorphisms, which our formulation of the Coherence Theorem permitted
+to be carried out automatically by the simplifier.
+It seems likely, though, that there is still room for more general procedures to be developed
+in order to allow other currently lengthy chains of equational reasoning to be carried out
+automatically.
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Preliminaries}
+\chapter*{Preliminaries}
+
+\input{IsomorphismClass.tex}
+
+\chapter{Bicategories}
+
+\input{Prebicategory.tex}
+\input{Bicategory.tex}
+\input{Coherence.tex}
+\input{CanonicalIsos.tex}
+\input{Subbicategory.tex}
+\input{InternalEquivalence.tex}
+\input{Pseudofunctor.tex}
+\input{Strictness.tex}
+\input{InternalAdjunction.tex}
+
+\chapter{Bicategories of Spans}
+
+\input{CategoryWithPullbacks.tex}
+\input{SpanBicategory.tex}
+\input{Tabulation.tex}
+\input{BicategoryOfSpans.tex}
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

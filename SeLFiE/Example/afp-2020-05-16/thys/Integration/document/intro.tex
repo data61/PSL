@@ -1,0 +1,70 @@
+\chapter{Prologue}
+\label{cha:pro}
+
+
+\begin{quote}
+  Verifying more examples of probabilistic algorithms will inevitably
+  necessitate more formalization; in particular we already can see
+  that a theory of expectation will be required to prove the
+  correctness of probabilistic quicksort. If we can continue our
+  policy of formalizing standard theorems of mathematics to aid
+  verifications, then this will provide long-term benefits to many
+  users of the HOL theorem prover.      
+\end{quote}
+
+This quote from the Future Work section of Joe Hurd's PhD thesis
+``Formal Verification of Probabilistic Algorithms'' (\cite{hurd2002}
+p. 131) 
+served as a starting point for the following work. A theory of
+expectation is nothing but a theory of integration in its probability
+theoretic underpinnings. And though the proof of correctness for
+probabilistic quicksort might not need integration, an average runtime
+analysis certainly will.  
+
+As indicated in the very beginning, integration is needed in some way
+to talk about expectation in probability. The notion that is addressed
+here is a kind of average value of a random variable with respect to a
+(probability) measure. The concept of a \textit{measure} lies at the
+heart of Lebesgue integration. A measure is simply a function
+satisfying a few sanity properties that maps sets to real numbers.
+Because the definition does not employ such concrete entities as
+intervals, it generalizes easily to functions that do not have the
+real numbers as their domain. In particular, the notion of measure is
+very natural in the field of probability theory, where a probability
+measure --- nothing but a measure $P$ with $P(\Omega)=1$ --- gives the
+probability of an event --- a measurable subset of $\Omega$.
+
+This $\Omega$ might, for example, be the set of all infinite sequences
+of boolean values, as in Hurd's thesis\cite{hurd2002}; our integral is
+then just a tool that extends this work in the sense depicted at the
+very beginning of this introduction. 
+
+We begin by declaring some preliminary notions, including
+elementary measure theory and monotone convergence. This leads into
+measurable real-valued functions, also known as random variables. A
+sufficient body of functions is shown to belong to this class. 
+The central chapter is about integration proper. We build the integral
+for increasingly complex functions and prove essential properties,
+discovering the connection with measurability in the end. 
+
+ 
+\chapter{Measurable Functions}
+\label{cha:real-valued-random}
+
+In this chapter, the focus is on the kind of functions to be 
+integrated. As we will see later on, measurability is a
+good characterization for these functions. Moreover, the language of
+measure theory as well as the notion of monotone convergence is used
+frequently in the definition of the integral. So we begin by formalizing
+these necessary tools.
+
+\section{Preliminaries}
+\label{sec:preliminaries}
+
+
+% LocalWords:  quicksort
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End: 

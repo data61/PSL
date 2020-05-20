@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{FingerTrees}
+\author{Benedikt Nordhoff \and Stefan K\"orner \and Peter Lammich}
+
+%\institute{
+%  Institut f\"ur Informatik, 
+%  Westf\"alische Wilhelms-Universit\"at M\"unster, Germany \\
+%  \email{\{b\_nord01,s\_koer03,peter.lammich\}@uni-muenster.de}
+%}
+
+\maketitle
+
+\begin{abstract}
+  We implement and prove correct 2-3 finger trees.
+  Finger trees are a general purpose data structure, that can be used to
+  efficiently implement other data structures, such as priority queues.
+  Intuitively, a finger tree is an annotated sequence, where the annotations are
+  elements of a monoid. Apart from operations to access the ends of the sequence,
+  the main operation is to split the sequence at the point where a 
+  {\em monotone predicate} over the sum of the left part of the sequence 
+  becomes true for the first time.
+  The implementation follows the paper of Hinze and Paterson\cite{HiPa06}.
+  The code generator can be used to get efficient, verified code.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+
+% generated text of all theories
+\input{session}
+
+\section{Related work}
+Finger trees were originally introduced by Hinze and Paterson\cite{HiPa06},
+who give an implementation in Haskell. Our implementation closely follows
+this original implementation.
+
+There is also a machine-checked formalization of 2-3 finger trees in Coq \cite{So07}.
+Like ours, it closely follows the original paper of Hinze and Paterson.
+The main difference is that the Coq-formalization encodes the invariants directly into
+the datatype for finger trees, while we first define the bigger algebraic datatype {\em FingerTreeStruc} 
+along with the predicate {\em ft-invar} that checks the invariant. 
+This bigger type and the {\em ft-invar}-predicate is then wrapped into the 
+datatype {\em FingerTree}, that, however, exposes no algebraic structure any more. 
+Our approach greatly simplifies matters in the context of Isabelle/HOL, as it can be 
+realized with Isabelle's datatype-package.
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

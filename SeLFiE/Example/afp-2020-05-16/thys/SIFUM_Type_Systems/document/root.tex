@@ -1,0 +1,104 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[utf8]{inputenc}  % Input encoding
+\usepackage[american]{babel} % Language
+\usepackage[defblank]{paralist} % for compact lists
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+\usepackage{verbatim}
+\usepackage{dot2texi}
+\usepackage{pdfpages}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newcommand{\definitionautorefname}{Definition}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+%========= DRAFT ONLY ===============
+\makeatletter
+\newcommand\CO[1]{%
+  \@tempdima=\linewidth%
+  \advance\@tempdima by -2\fboxsep%
+  \advance\@tempdima by -2\fboxrule%
+  \leavevmode\par\noindent%
+  \fbox{\parbox{\the\@tempdima}{\small\sf #1}}%
+  \smallskip\par}
+\newcommand\NOTE[2][Note]{%
+    \leavevmode\marginpar{\raggedright\hangindent=1ex\small\textbf{#1: }#2}}
+\newcommand\OLD[1]{%
+    \slshape[\textbf{old: }\ignorespaces #1\unskip]}
+
+%======= END DRAFT ONLY =============
+
+\title{A Formalization of
+Assumptions and Guarantees for Compositional Noninterference}
+\author{Sylvia Grewe, Heiko Mantel, Daniel Schoepe}
+\begin{document}
+\maketitle
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\begin{abstract}
+  Research in information-flow security aims at developing methods to
+  identify undesired information leaks within programs from private
+  (high) sources to public (low) sinks. For a concurrent system, it is
+  desirable to have compositional analysis methods that allow for
+  analyzing each thread independently and that nevertheless guarantee
+  that the parallel composition of successfully analyzed threads
+  satisfies a global security guarantee. However, such a compositional
+  analysis should not be overly pessimistic about what an environment
+  might do with shared resources. Otherwise, the analysis will reject
+  many intuitively secure programs.
+
+  The paper "Assumptions and Guarantees for Compositional
+  Noninterference" by Mantel et. al. \cite{conf/csfw/MantelSS11}
+  presents one solution for this problem: an approach for
+  compositionally reasoning about non-interference in concurrent
+  programs via rely-guarantee-style reasoning.  We present an
+  Isabelle/HOL formalization of the concepts and proofs of this
+  approach.
+
+The formalization includes the following parts:
+
+\begin{compactitem}
+\item Notion of SIFUM-security and preliminary concepts:\\
+  \texttt{Preliminaries.thy}, \texttt{Security.thy}
+\item Compositionality proof: \texttt{Compositionality.thy}
+\item Example language: \texttt{Language.thy}
+\item Type system for ensuring SIFUM-security and soundness proof: \\
+  \texttt{TypeSystem.thy}
+\item Type system for ensuring sound use of modes and soundness proof:
+  \texttt{LocallySoundUseOfModes.thy}
+\end{compactitem}
+
+\end{abstract}
+
+\tableofcontents
+
+\input{Preliminaries.tex}
+
+\input{Security.tex}
+
+\input{Compositionality.tex}
+
+\input{Language.tex}
+
+\input{TypeSystem.tex}
+
+\input{LocallySoundModeUse.tex}
+
+\bibliography{root}
+\bibliographystyle{alpha}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,46 @@
+
+\usepackage{ifthen}
+
+
+% canonical quotes
+\newcommand{\qt}[1]{``{#1}''}
+
+% xdash
+\renewcommand{\=}{\ ---\ }
+
+% ellipsis
+\newcommand{\dotspace}{\kern0.01ex}
+\renewcommand{\isasymdots}{.\dotspace.\dotspace.}
+\renewcommand{\isasymcdots}{$\cdot$\dotspace$\cdot$\dotspace$\cdot$}
+\newcommand{\isasymellipsis}{\isasymdots}
+
+% logical markup
+\newcommand{\strong}[1]{{\upshape\bfseries {#1}}}
+
+% description lists
+\newcommand{\ditem}[1]{\item[\isastyletext #1]}
+
+% quote environment
+\isakeeptag{quote}
+\renewenvironment{quote}
+  {\list{}{\leftmargin2em\rightmargin0pt}\parindent0pt\parskip0pt\item\relax}
+  {\endlist}
+\renewcommand{\isatagquote}{\begin{quote}}
+\renewcommand{\endisatagquote}{\end{quote}}
+\newcommand{\quotebreak}{\\[1.2ex]}
+
+% typographic conventions
+\newcommand{\qn}[1]{\emph{#1}}
+\newcommand{\secref}[1]{\S\ref{#1}}
+\newcommand{\figref}[1]{figure~\ref{#1}}
+
+% plain digits
+\renewcommand{\isadigit}[1]{\isamath{#1}}
+
+% invisibility
+\isadroptag{theory}
+
+% vectors
+\newcommand{\isactrlvec}[1]{\emph{$\overline{#1}$}}
+\newcommand{\isactrlbvec}{\emph\bgroup\begin{math}{}\overline\bgroup\mbox\bgroup\isastylescript}
+\newcommand{\isactrlevec}{\egroup\egroup\end{math}\egroup}

@@ -1,0 +1,9 @@
+chapter AFP
+
+session "DynamicArchitectures" (AFP) = Coinductive +
+  options [timeout = 600]
+  theories
+    Dynamic_Architecture_Calculus
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,13 @@
+This archive contains the Isabelle formalization of the results presented in
+the paper draft
+
+    Nested Multisets, Hereditary Multisets, and Syntactic Ordinals
+    by Jasmin Christian Blanchette, Mathias Fleury, and Dmitriy Traytel
+
+The ".thy" files are Isabelle theory files. They can be processed as follows:
+
+    isabelle jedit Syntactic_Ordinal.thy
+
+A PDF version of the proof is available as
+
+    document.pdf

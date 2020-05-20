@@ -1,0 +1,12 @@
+chapter AFP
+
+session "Szpilrajn" (AFP) = HOL +
+
+  options [timeout = 600]
+
+  theories
+    Szpilrajn
+
+  document_files
+    "root.bib"
+    "root.tex"

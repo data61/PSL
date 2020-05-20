@@ -1,0 +1,11 @@
+chapter AFP
+
+session "Noninterference_Inductive_Unwinding" (AFP) = "HOL" +
+  options [timeout = 600]
+  sessions
+    Noninterference_Ipurge_Unwinding
+  theories
+    InductiveUnwinding
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,8 @@
+chapter AFP
+
+session "Depth-First-Search" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    DFS
+  document_files
+    "root.tex"

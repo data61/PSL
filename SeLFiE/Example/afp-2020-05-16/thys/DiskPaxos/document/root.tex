@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{tla}\notla
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Proving the Correctness of Disk Paxos in Isabelle/HOL}
+\author{Mauro Jaskelioff\and Stephan Merz}
+\maketitle
+
+\begin{abstract}
+  Disk Paxos~\cite{Gafni00disk} is an algorithm for building arbitrary
+  fault-tolerant distributed systems. The specification of Disk Paxos
+  has been proved correct informally and tested using the TLC model
+  checker, but up to now, it has never been fully formally verified.
+  In this work we have formally verified its correctness using the
+  Isabelle theorem prover and the HOL logic
+  system~\cite{Nipkow-Paulson-Wenzel:2002}, showing that Isabelle is a
+  practical tool for verifying properties of TLA$^{+}$ specifications.
+\end{abstract}
+
+\tableofcontents
+
+%%% The body of the paper
+
+\input{body}
+
+%\newpage
+
+\appendix
+
+\section{TLA$^{+}$ correctness specification}
+\label{ap:correctness}
+
+\tla
+\input{tlaspec}
+\notla
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\end{document}

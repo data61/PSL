@@ -1,0 +1,105 @@
+(*******************************************************************************
+
+  Project: Development of Security Protocols by Refinement
+
+  Module:  ROOT file for session building (Isabelle/HOL 2016-1)
+  ID:      $Id: ROOT 134926 2017-05-24 17:53:45Z csprenge $
+  Author:  Christoph Sprenger, ETH Zurich <sprenger@inf.ethz.ch>
+  
+  build command example:
+    isabelle build -v -b -d . <session-name>
+
+  Copyright (c) 2013-2017 Christoph Sprenger 
+  Licence: LGPL
+
+*******************************************************************************)
+
+chapter AFP
+
+session Security_Protocol_Refinement (AFP) = HOL +
+  description "Developing Security Protocols by Stepwise Refinement"
+  options [timeout = 2400]
+  directories
+    "Refinement"
+    "Auth_simple"
+    "Key_establish"
+  theories
+    (* Infrastructure *)
+    "Refinement/Infra"
+    "Refinement/Refinement"
+    "Refinement/Agents"
+    "Refinement/Keys"
+    "Refinement/Atoms"
+    "Refinement/Runs"
+    "Refinement/Channels"
+    "Refinement/Message"
+    "Refinement/s0g_secrecy"
+    "Refinement/a0n_agree"
+    "Refinement/a0i_agree"
+    (* Authentication protocols *)
+    "Auth_simple/m1_auth"
+    "Auth_simple/m2_auth_chan"
+    "Auth_simple/m2_confid_chan"
+    "Auth_simple/m3_sig"
+    "Auth_simple/m3_enc"
+    (* Key establishment protocols *)
+    "Key_establish/m1_keydist"
+    "Key_establish/m1_keydist_iirn"
+    "Key_establish/m1_keydist_inrn"
+    "Key_establish/m1_kerberos"
+    "Key_establish/m2_kerberos"
+    "Key_establish/m3_kerberos_par"
+    "Key_establish/m3_kerberos5"
+    "Key_establish/m3_kerberos4"
+    "Key_establish/m1_nssk"
+    "Key_establish/m2_nssk"
+    "Key_establish/m3_nssk_par"
+    "Key_establish/m3_nssk"
+    "Key_establish/m1_ds"
+    "Key_establish/m2_ds"
+    "Key_establish/m3_ds_par"
+    "Key_establish/m3_ds"
+  document_files
+    "root.tex"
+    "isapreamble.tex"
+    "session_graph.tex"
+
+(* 
+   The following sessions were used for producing the statistics for
+   the JCS journal paper "Refining Security Protocols".
+
+   used command: isabelle build -c -d . <session-name> (without -b)
+*)
+(*
+session Refinement_timing in Refinement = HOL +
+description {* Security protocol refinement infrastructure *}
+options [threads=4]
+theories 
+  Infra Refinement
+  Agents Keys Atoms Runs Channels Message 
+  s0g_secrecy a0n_agree a0i_agree
+
+session KE_Level1 in Key_establish = Refinement +
+description {* general Level 1 models *}
+options [threads=4]
+theories
+  m1_keydist m1_keydist_iirn m1_keydist_inrn
+
+session KE_Kerberos5 in Key_establish = KE_Level1 +
+description {* Kerberos 5 models *}
+options [threads=4]
+theories
+  m1_kerberos m2_kerberos m3_kerberos5 
+
+session KE_NSSK in Key_establish = KE_Level1 +
+description {* NSSK models *}
+options [threads=4]
+theories
+  m1_nssk m2_nssk m3_nssk
+
+session KE_DS in Key_establish = KE_Level1 +
+description {* Denning-Sacco models *}
+options [threads=4]
+theories
+  m1_ds m2_ds m3_ds
+*)

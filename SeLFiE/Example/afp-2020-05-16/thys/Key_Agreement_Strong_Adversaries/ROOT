@@ -1,0 +1,31 @@
+(*******************************************************************************
+
+  Project: Refining Authenticated Key Agreement with Strong Adversaries
+  Author:  Christoph Sprenger, ETH Zurich <sprenger@inf.ethz.ch>
+
+  build command example:
+    isabelle build -v -b -d . <session-name>
+    isabelle build -v -D .
+
+  Copyright (c) 2013-2016 Christoph Sprenger
+  Licence: LGPL
+
+*******************************************************************************)
+
+chapter AFP
+
+session Key_Agreement_Strong_Adversaries (AFP) = HOL +
+  description "Refining Authenticated Key Agreement with Strong Adversaries"
+  options [timeout = 1500]
+  theories
+    Infra Refinement
+    Messages Message_derivation
+    IK Secrecy AuthenticationN AuthenticationI
+    Runs Channels
+    Payloads Implem Implem_lemmas Implem_symmetric Implem_asymmetric
+    pfslvl1 pfslvl2 pfslvl3 pfslvl3_asymmetric pfslvl3_symmetric
+    dhlvl1 dhlvl2 dhlvl3 dhlvl3_asymmetric dhlvl3_symmetric
+    sklvl1 sklvl2 sklvl3 sklvl3_asymmetric sklvl3_symmetric
+  document_files
+    "root.tex"
+    "session_graph.tex"

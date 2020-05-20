@@ -1,0 +1,74 @@
+chapter AFP
+
+session "JNF-AFP-Lib" (AFP) in "Lib" = "HOL-Algebra" +
+  description "Theories from HOL-Library and the Archive of Formal Proofs that are used by this entry"
+  options [timeout = 600]
+  sessions
+    Containers
+    "Abstract-Rewriting"
+    Gauss_Jordan Matrix
+    Polynomial_Interpolation
+    Show
+    VectorSpace
+    "HOL-Cardinals"
+  theories
+    Containers.Set_Impl
+    Matrix.Utility
+    Matrix.Ordered_Semiring
+    "Abstract-Rewriting.SN_Order_Carrier"
+    "Abstract-Rewriting.Relative_Rewriting"
+    Show.Show_Instances
+    VectorSpace.VectorSpace
+    Polynomial_Interpolation.Missing_Polynomial
+    Polynomial_Interpolation.Ring_Hom_Poly
+    "HOL-Library.AList"
+    "HOL-Library.Cardinality"
+    "HOL-Library.Char_ord"
+    "HOL-Library.Code_Binary_Nat"
+    "HOL-Library.Code_Target_Numeral"
+    "HOL-Library.DAList"
+    "HOL-Library.DAList_Multiset"
+    "HOL-Library.Infinite_Set"
+    "HOL-Library.Lattice_Syntax"
+    "HOL-Library.Mapping"
+    "HOL-Library.Monad_Syntax"
+    "HOL-Library.More_List"
+    "HOL-Library.Multiset"
+    "HOL-Library.Permutation"
+    "HOL-Library.Permutations"
+    "HOL-Library.IArray"
+    "HOL-Library.Phantom_Type"
+    "HOL-Library.Ramsey"
+    "HOL-Library.RBT_Impl"
+    "HOL-Library.Simps_Case_Conv"
+    "HOL-Library.While_Combinator"
+    "HOL-Computational_Algebra.Fundamental_Theorem_Algebra"
+    "HOL-Computational_Algebra.Fraction_Field"
+    "HOL-Computational_Algebra.Polynomial"
+    "HOL-Computational_Algebra.Primes"
+    "HOL-Cardinals.Order_Union"
+    "HOL-Cardinals.Wellorder_Extension"
+
+
+session Polynomial_Factorization (AFP) = "JNF-AFP-Lib" + 
+  description "Algebraic Numbers"
+  options [timeout = 600]
+  sessions
+    Partial_Function_MR
+    Polynomial_Interpolation
+    Show
+    Sqrt_Babylonian
+  theories
+    Missing_Multiset
+    Missing_List
+    Precomputation
+    Order_Polynomial
+    Explicit_Roots
+    Dvd_Int_Poly
+    Rational_Root_Test
+    Kronecker_Factorization
+    Square_Free_Factorization
+    Rational_Factorization
+  document_files
+    "root.bib"
+    "root.tex"

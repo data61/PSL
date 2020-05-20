@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,ragged2e}
+\usepackage{pdfsetup}
+
+\isabellestyle{it}
+\renewenvironment{isamarkuptext}{\par\isastyletext\begin{isapar}\justifying\color{blue}}{\end{isapar}}
+\renewcommand\labelitemi{$*$}
+
+\begin{document}
+
+\title{Stone Algebras}
+\author{Walter Guttmann}
+\maketitle
+
+\begin{abstract}
+  A range of algebras between lattices and Boolean algebras generalise the notion of a complement.
+  We develop a hierarchy of these pseudo-complemented algebras that includes Stone algebras.
+  Independently of this theory we study filters based on partial orders.
+  Both theories are combined to prove Chen and Gr\"atzer's construction theorem for Stone algebras.
+  The latter involves extensive reasoning about algebraic structures in addition to reasoning in algebraic structures.
+\end{abstract}
+
+\tableofcontents
+
+\section{Synopsis and Motivation}
+
+This document describes the following four theory files:
+\begin{itemize}
+\item Lattice Basics is a small theory with basic definitions and facts extending Isabelle/HOL's lattice theory.
+      It is used by the following theories.
+\item Pseudocomplemented Algebras contains a hierarchy of algebraic structures between lattices and Boolean algebras.
+      Many results of Boolean algebras can be derived from weaker axioms and are useful for more general models.
+      In this theory we develop a number of algebraic structures with such weaker axioms.
+      The theory has four parts.
+      We first extend lattices and distributive lattices with a pseudocomplement operation to obtain (distributive) p-algebras.
+      An additional axiom of the pseudocomplement operation yields Stone algebras.
+      The third part studies a relative pseudocomplement operation which results in Heyting algebras and Brouwer algebras.
+      We finally show that Boolean algebras instantiate all of the above structures.
+\item Filters contains an order-/lattice-theoretic development of filters.
+      We prove the ultrafilter lemma in a weak setting, several results about the lattice structure of filters and a few further results from the literature.
+      Our selection is due to the requirements of the following theory.
+\item Construction of Stone Algebras contains the representation of Stone algebras as triples and the corresponding isomorphisms \cite{ChenGraetzer1969,Katrinak1973}.
+      It is also a case study of reasoning about algebraic structures.
+      Every Stone algebra is isomorphic to a triple comprising a Boolean algebra, a distributive lattice with a greatest element, and a bounded lattice homomorphism from the Boolean algebra to filters of the distributive lattice.
+      We carry out the involved constructions and explicitly state the functions defining the isomorphisms.
+      A function lifting is used to work around the need for dependent types.
+      We also construct an embedding of Stone algebras to inherit theorems using a technique of universal algebra.
+\end{itemize}
+Algebras with pseudocomplements in general, and Stone algebras in particular, appear widely in mathematical literature; for example, see \cite{BalbesDwinger1974,Birkhoff1967,Blyth2005,Graetzer1971}.
+We apply Stone algebras to verify Prim's minimum spanning tree algorithm in Isabelle/HOL in \cite{Guttmann2016c}.
+
+There are at least two Isabelle/HOL theories related to filters.
+The theory \texttt{HOL/Algebra/Ideal.thy} defines ring-theoretic ideals in locales with a carrier set.
+In the theory \texttt{HOL/Filter.thy} a filter is defined as a set of sets.
+Filters based on orders and lattices abstract from the inner set structure; this approach is used in many texts such as \cite{BalbesDwinger1974,Birkhoff1967,Blyth2005,DaveyPriestley2002,Graetzer1971}.
+Moreover, it is required for the construction theorem of Stone algebras, whence our theory implements filters this way.
+
+Besides proving the results involved in the construction of Stone algebras, we study how to reason about algebraic structures defined as Isabelle/HOL classes without carrier sets.
+The Isabelle/HOL theories \texttt{HOL/Algebra/*.thy} use locales with a carrier set, which facilitates reasoning about algebraic structures but requires assumptions involving the carrier set in many places.
+Extensive libraries of algebraic structures based on classes without carrier sets have been developed and continue to be developed \cite{ArmstrongFosterStruthWeber2016,ArmstrongGomesStruth2016,ArmstrongGomesStruthWeber2016,DivasonAransay2016,FosterStruth2016,FurusawaStruth2016,GeorgescuLeusteanPreoteasa2016,GomesGuttmannHoefnerStruthWeber2016,GomesStruth2016,Guttmann2015a,KleinKolanskiBoyton2016,Preoteasa2016b,Preoteasa2016a,WamplerDoty2016}.
+It is unlikely that these libraries will be converted to carrier-based theories and that carrier-free and carrier-based implementations will be consistently maintained and evolved; certainly this has not happened so far and initial experiments suggest potential drawbacks for proof automation \cite{FosterStruthWeber2011}.
+An improvement of the situation seems to require some form of automation or system support that makes the difference irrelevant.
+
+In the present development, we use classes without carrier sets to reason about algebraic structures.
+To instantiate results derived in such classes, the algebras must be represented as Isabelle/HOL types.
+This is possible to a certain extent, but causes a problem if the definition of the underlying set depends on parameters introduced in a locale; this would require dependent types.
+For the construction theorem of Stone algebras we work around this restriction by a function lifting.
+If the parameters are known, the functions can be specialised to obtain a simple (non-dependent) type that can instantiate classes.
+For the construction theorem this specialisation can be done using an embedding.
+The extent to which this approach can be generalised to other settings remains to be investigated.
+
+\begin{flushleft}
+\input{session}
+\end{flushleft}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+

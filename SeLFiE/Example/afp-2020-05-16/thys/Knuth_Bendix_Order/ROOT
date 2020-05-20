@@ -1,0 +1,12 @@
+chapter AFP
+
+session Knuth_Bendix_Order (AFP) = First_Order_Terms +
+  options [timeout = 600]
+  sessions
+    Matrix
+    Polynomial_Factorization
+  theories
+    KBO
+  document_files
+    "root.bib"
+    "root.tex"

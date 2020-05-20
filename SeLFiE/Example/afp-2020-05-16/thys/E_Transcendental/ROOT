@@ -1,0 +1,11 @@
+chapter AFP
+
+session E_Transcendental (AFP) = "HOL-Complex_Analysis" +
+  options [timeout = 600]
+  sessions
+    "HOL-Number_Theory"
+  theories
+    E_Transcendental
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,8 @@
+chapter AFP
+
+session "Aristotles_Assertoric_Syllogistic" (AFP) = HOL +
+  options [timeout = 300]
+  theories
+    AristotlesAssertoric
+  document_files
+    "root.tex"

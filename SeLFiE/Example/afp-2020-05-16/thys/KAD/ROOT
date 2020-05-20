@@ -1,0 +1,16 @@
+chapter AFP
+
+session KAD (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    Kleene_Algebra
+  theories
+    Domain_Semiring
+    Antidomain_Semiring
+    Range_Semiring
+    Modal_Kleene_Algebra
+    Modal_Kleene_Algebra_Models
+    Modal_Kleene_Algebra_Applications
+   document_files
+    "root.bib"
+    "root.tex"

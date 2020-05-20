@@ -1,0 +1,12 @@
+chapter AFP
+
+session InfPathElimination (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    RB
+  document_files
+    "root.tex"
+    "root.bib"
+    "intro.tex"
+    "summary.tex"
+    "theory_hierarchy.pdf"

@@ -1,0 +1,66 @@
+chapter AFP
+
+session SM_Base (AFP) in "SM_Base" = CAVA_Automata +
+  options [timeout = 1200]
+  sessions
+    Partial_Order_Reduction
+    DFS_Framework
+  theories
+    Partial_Order_Reduction.Ample_Correctness
+    Partial_Order_Reduction.Ample_Analysis
+    DFS_Framework.Feedback_Arcs
+
+session SM (AFP) in "SM" = SM_Base +
+  options [timeout = 1200]
+  sessions
+    Stuttering_Equivalence
+  directories
+    "Analysis"
+    "Impl"
+    "Lib"
+    "Refine"
+    "RefPoint"
+  theories [document = false]
+    "Lib/LTS"
+    "Lib/SOS_Misc_Add"
+  theories
+    "Impl/SM_Wrapup"
+
+session CAVA_Setup (AFP) in "CAVA_Setup" = CAVA_Automata +
+  options [timeout = 3600]
+  sessions
+    LTL_to_GBA
+    Gabow_SCC
+    Promela
+    SM
+  theories
+    LTL_to_GBA.All_Of_LTL_to_GBA
+    Gabow_SCC.All_Of_Gabow_SCC
+    Promela.All_Of_Promela
+    SM.SM_Wrapup
+
+session CAVA_LTL_Modelchecker (AFP) = CAVA_Setup +
+  options [timeout = 1200]
+  directories
+    "Nested_DFS"
+    "BoolProgs"
+    "BoolProgs/Programs"
+    "Examples"
+  theories [document = false]
+    "Nested_DFS/NDFS_SI_Statistics"
+  theories
+    "Nested_DFS/NDFS_SI"
+    CAVA_Abstract
+    "BoolProgs/BoolProgs"
+  theories [document = false]
+    "BoolProgs/BoolProgs_Extras"
+    "BoolProgs/BoolProgs_LTL_Conv"
+    "BoolProgs/Programs/BoolProgs_Programs"
+    "Examples/Mulog"
+  theories
+    CAVA_Impl
+  theories [document = false]
+    All_Of_CAVA_LTL_Modelchecker
+  document_files
+    "root.tex"
+    "root.bib"

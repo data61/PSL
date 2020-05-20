@@ -1,0 +1,15 @@
+chapter AFP
+
+session Aggregation_Algebras (AFP) = Stone_Kleene_Relation_Algebras +
+  options [timeout = 600]
+  theories
+    Semigroups_Big
+    Aggregation_Algebras
+    Matrix_Aggregation_Algebras
+    Linear_Aggregation_Algebras
+    Hoare_Logic
+    Hoare_Logic_Examples
+    Minimum_Spanning_Trees
+  document_files
+    "root.tex"
+    "root.bib"

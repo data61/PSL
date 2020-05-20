@@ -1,0 +1,20 @@
+(* License: LGPL *)
+chapter AFP
+
+session First_Welfare_Theorem (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  directories
+    "Microeconomics"
+  theories
+    Syntax
+    Argmax
+    Preferences
+    Utility_Functions
+    "Microeconomics/Consumers"
+    "Microeconomics/Common"
+    "Microeconomics/Exchange_Economy"
+    "Microeconomics/Private_Ownership_Economy"
+    "Microeconomics/Arrow_Debreu_Model"
+  document_files
+    "root.bib"
+    "root.tex"

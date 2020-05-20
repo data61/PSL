@@ -1,0 +1,9 @@
+chapter AFP
+
+session Dynamic_Tables (AFP) = Amortized_Complexity +
+  options [timeout = 600]
+  theories
+    Tables_nat
+  document_files
+    "root.bib"
+    "root.tex"

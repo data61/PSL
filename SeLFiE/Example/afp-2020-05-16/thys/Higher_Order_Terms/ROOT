@@ -1,0 +1,26 @@
+chapter AFP
+
+session Higher_Order_Terms (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    Datatype_Order_Generator
+    "List-Index"
+    Lambda_Free_RPOs
+    "HOL-ex"
+  theories [document = false]
+    Term_Utils
+    Disjoint_Sets
+    Find_First
+  theories
+    Name
+    Fresh_Monad
+    Fresh_Class
+    Term_Class
+    Term
+    Pats
+    Nterm
+    Term_to_Nterm
+    Lambda_Free_Compat
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,14 @@
+chapter AFP
+
+session Randomised_Social_Choice (AFP) = "HOL-Probability" +
+  options [timeout = 300]
+  sessions
+    "List-Index"
+  directories
+    "Automation"
+  theories
+    Randomised_Social_Choice
+    "Automation/SDS_Automation"
+  document_files
+    "root.tex"
+    "root.bib"

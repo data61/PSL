@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\nats{\mathbb{N}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\fieldext[2]{#1[#2]}
+\newcommand\ratsb{\fieldext\rats{\sqrt b}}
+
+\begin{document}
+
+\title{Implementing field extensions of the form $\ratsb$\thanks{This research is supported by FWF (Austrian Science Fund) project P22767-N13.}}
+\author{Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We apply data refinement to implement the real numbers, where we support
+  all numbers in the field extension $\ratsb$, i.e., all numbers of the 
+  form $p + q \sqrt{b}$ for rational numbers $p$ and $q$ and some fixed natural
+  number $b$. To this end, we also developed algorithms to precisely compute
+  roots of a rational number, and to perform a factorization of natural 
+  numbers which eliminates duplicate prime factors.
+  
+  Our results have been used to certify termination proofs which involve
+  polynomial interpretations over the reals.  
+\end{abstract}
+
+
+
+\tableofcontents
+
+\section{Introduction}
+
+It has been shown that polynomial
+interpretations over the reals are strictly more powerful for termination
+proving than polynomial interpretations over the rationals. To this end,
+also automated termination prover started to generate such interpretations.
+\cite{Rational,Luc06,Luc07,LPAR09,SCSS10}. However, for all current implementations,
+only reals of the form $p + q \cdot \sqrt{b}$ are generated where $b$ is some fixed
+natural number and $p$ and $q$ may be arbitrary rationals, i.e., we get
+numbers within $\ratsb$.
+
+To support these termination proofs in our certifier \ceta\ \cite{CeTA}, 
+we therefore required executable functions on $\ratsb$, which can then
+be used as an implementation type for the reals. Here, we used ideas from
+\cite{datarefinement,Loc13} to provide a sufficiently powerful 
+partial implementations via data refinement.
+
+
+\input{session}
+
+\section*{Acknowledgements}
+We thank Bertram Felgenhauer for interesting discussions and especially
+for mentioning Cauchy's mean theorem during the formalization of
+the algorithms for computing roots.
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

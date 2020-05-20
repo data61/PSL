@@ -1,0 +1,31 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{isabelle, isabellesym}
+\usepackage{pdfsetup}
+\usepackage{stmaryrd}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Partial Order Reduction}
+\author{Julian Brunner}
+
+\maketitle
+
+\begin{abstract}
+	This entry provides a formalization of the abstract theory of ample set partial order reduction as presented in \cite{partial_order_reduction_ample_set_on-the-fly, partial_order_reduction_ample_set_verification_abstract}.
+	The formalization includes transition systems with actions, trace theory, as well as basics on finite, infinite, and lazy sequences.
+	We also provide a basic framework for static analysis on concurrent systems with respect to the ample set condition.
+\end{abstract}
+
+\tableofcontents
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

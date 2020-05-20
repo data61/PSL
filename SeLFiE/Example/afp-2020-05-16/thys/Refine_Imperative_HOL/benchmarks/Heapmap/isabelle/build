@@ -1,0 +1,7 @@
+#!/bin/bash
+
+mlton -verbose 1 -default-type intinf -output heapmap heapmap.mlb
+
+# mlton -verbose 1 -profile time -default-type intinf -output heapmap heapmap.mlb
+
+# mlton -verbose 1 -profile count -default-type intinf -output heapmap heapmap.mlb

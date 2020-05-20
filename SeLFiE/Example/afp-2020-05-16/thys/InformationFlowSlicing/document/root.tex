@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper,notitlepage]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{wasysym}
+\usepackage{graphicx}
+\usepackage{url}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Slicing Guarantees Information Flow Noninterference}
+\author{Daniel Wasserrab}
+\maketitle
+
+\begin{abstract}
+  In this contribution, we show how correctness proofs for intra-
+  \cite{Wasserrab:08} and interprocedural slicing \cite{Wasserrab:09}
+  can be used to prove that slicing is able to guarantee information
+  flow noninterference.  Moreover, we also illustrate how to lift the
+  control flow graphs of the respective frameworks such that they
+  fulfil the additional assumptions needed in the noninterference
+  proofs. A detailed description of the intraprocedural proof and its
+  interplay with the slicing framework can be found in
+  \cite{WasserrabLS:09}.
+\end{abstract}
+
+\section{Introduction}
+Information Flow Control (IFC) encompasses algorithms which determines
+if a given program leaks secret information to public entities. The major 
+group are so called IFC type systems, where well-typed means that the
+respective program is secure. Several IFC type systems have been verified
+in proof assistants, e.g.\ see \cite{BartheN:04,BarthePR:07,Kammueller:08,BeringerH:08,SneltingW:08}.
+
+However, type systems have some drawbacks which can lead to false alarms.
+To overcome this problem, an IFC approach basing on slicing has been developed
+\cite{HammerS:09}, which can significantly reduce the amount of false alarms. 
+This contribution presents the first machine-checked proof
+that slicing is able to guarantee IFC noninterference. It bases on previously
+published machine-checked correctness proofs for slicing 
+\cite{Wasserrab:08,Wasserrab:09}. Details for the intraprocedural case can
+be found in \cite{WasserrabLS:09}.
+
+
+
+%\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

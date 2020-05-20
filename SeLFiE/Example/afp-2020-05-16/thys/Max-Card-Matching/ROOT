@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Max-Card-Matching" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Matching
+  document_files
+    "root.bib"
+    "root.tex"

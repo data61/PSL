@@ -1,0 +1,17 @@
+This folder contains works related to the formalization of
+clock synchronization algorithms in Isabelle/HOL.
+
+Here is the description for each file:
+
+- ICAInstance.thy: this theory file formalizes the proof that
+  the Interactive Convergence Algorithms (ICA) of Lamport and
+  Melliar-Smith satisfies the clock axioms of Schneider's generalized
+  protocol. 
+- LynchInstance.thy: this theory file shows that Lundelius-Lynch
+  algorithm satisfies the clock axioms of Schneider's generalized
+  protocol. 
+- *.ics: ICS proofs.
+- *.cvc: CVC Lite proofs.
+  
+
+

@@ -1,0 +1,22 @@
+chapter AFP
+
+session Adaptive_State_Counting (AFP) = "Transition_Systems_and_Automata" +
+  options [timeout = 1200]
+  sessions
+    "HOL-Hoare"
+  directories
+    "FSM"
+    "ATC"
+    "ASC"
+  theories
+    "FSM"
+    "FSM_Product"
+    "ATC"
+    "ASC_LB"
+    "ASC_Suite"
+    "ASC_Sufficiency"
+    "ASC_Hoare"
+    "ASC_Example"
+  document_files
+    "root.bib"
+    "root.tex"

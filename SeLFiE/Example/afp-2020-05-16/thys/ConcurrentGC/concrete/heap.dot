@@ -1,0 +1,37 @@
+digraph g {
+  graph [rankdir = "LR"];
+  node [fontsize = "10.5" shape = "ellipse"];
+  edge [];
+
+subgraph clusterA{
+
+  mut0 [label = "<f> mut0" shape = "record"];
+  mut1 [label = "<f> mut1" shape = "record"];
+  mut2 [label = "<f> mut2" shape = "record"];
+
+}
+
+
+subgraph clusterB{
+
+  obj0 [label = "<f> obj0 | <f0> 0" shape = "record"];
+  obj1 [label = "<f> obj1" shape = "record"];
+  obj2 [label = "<f> obj2" shape = "record"];
+  obj3 [label = "<f> obj3 | <f0> 0 | <f1> 1" shape = "record"];
+  obj4 [label = "<f> obj4 | <f1> 1" shape = "record"];
+  obj5 [label = "<f> obj5" shape = "record"];
+
+}
+
+"mut0":f -> "obj1":f;
+"mut0":f -> "obj2":f;
+"mut0":f -> "obj3":f;
+"mut1":f -> "obj3":f;
+"mut2":f -> "obj2":f;
+"mut2":f -> "obj5":f;
+
+"obj0":f0 -> "obj5":f;
+"obj3":f0 -> "obj1":f;
+"obj3":f1 -> "obj2":f;
+"obj4":f1 -> "obj0":f;
+}

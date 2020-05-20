@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Generating Cases from Labeled Subgoals}
+\author{Lars Noschinski}
+\maketitle
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\begin{abstract}
+  Isabelle/Isar provides \emph{named cases} to structure proofs. This article contains
+  an implementation of a proof method \texttt{casify}, which can be used to easily extend proof
+  tools with support for named cases. Such a proof tool must produce labeled subgoals, which
+  are then interpreted by \texttt{casify}.
+
+
+As examples, this work contains verification condition generators
+producing named cases for three languages: The Hoare language from
+\texttt{HOL/Library}, a monadic language for computations with failure
+(inspired by the AutoCorres tool), and a language of conditional
+expressions. These VCGs are demonstrated by a number of example programs.
+\end{abstract}
+
+
+% generated text of all theories
+\input{Case_Labeling}
+
+\section{Examples}
+\input{Monadic_Language}
+\input{Conditionals}
+\input{Labeled_Hoare}
+\input{Labeled_Hoare_Examples}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

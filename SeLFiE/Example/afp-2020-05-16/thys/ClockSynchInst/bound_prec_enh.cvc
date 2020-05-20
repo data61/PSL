@@ -1,0 +1,79 @@
+% Version with quantifiers
+% do not work :(
+% Finish saying:
+% Unknown.
+% CVC Lite was incomplete in this example due to:
+%  * Non-linear arithmetic inequalities
+
+SETPROC : TYPE;
+PROC : TYPE;
+
+np, khl: INT;
+maxreduc: (PROC -> REAL, SETPROC) -> REAL;
+minreduc: (PROC -> REAL, SETPROC) -> REAL;
+
+x, y : REAL;
+
+f : PROC -> REAL;
+g : PROC -> REAL;
+
+
+PR, C : SETPROC;
+
+card : SETPROC -> INT;
+INCL : (SETPROC,SETPROC) -> BOOLEAN;
+INSET : (PROC, SETPROC) -> BOOLEAN;
+
+abs: REAL -> REAL = LAMBDA (x:REAL): IF x>=0 THEN x ELSE (-x) ENDIF;
+
+constants_ax: BOOLEAN = 2*khl < np AND khl >= 0;
+hcard: BOOLEAN = card(C) >= 0;
+
+uboundmaxf: BOOLEAN = FORALL (C : SETPROC): 
+      INCL(C,PR) AND np <= card(C) + khl
+               => EXISTS (i:PROC): INSET(i,C)  AND maxreduc( f, PR) <= f(i);
+
+uboundmaxg: BOOLEAN = FORALL (C : SETPROC): 
+      INCL(C,PR) AND np <= card(C) + khl
+               => EXISTS (i:PROC): INSET(i,C)  AND maxreduc( g, PR) <= g(i);
+
+lboundminf: BOOLEAN = FORALL (C : SETPROC): 
+      INCL(C,PR) AND np <= card(C) + khl
+               => EXISTS (i:PROC): INSET(i,C)  AND minreduc( f, PR) >= f(i);
+
+lboundming: BOOLEAN = FORALL (C : SETPROC): 
+      INCL(C,PR) AND np <= card(C) + khl
+               => EXISTS (i:PROC): INSET(i,C)  AND minreduc( g, PR) >= g(i);
+
+same_bound_f_g: BOOLEAN = FORALL (C : SETPROC): 
+      INCL(C,PR) AND np <= card(C) + khl AND 3*khl < np
+               => EXISTS (i:PROC): INSET(i,C)  AND minreduc( f, PR) <= f(i)
+					       AND maxreduc( g, PR) >= g(i);
+
+same_bound_g_f: BOOLEAN = FORALL (C : SETPROC): 
+      INCL(C,PR) AND np <= card(C) + khl AND 3*khl < np
+               => EXISTS (i:PROC): INSET(i,C)  AND minreduc( g, PR) <= g(i)
+					       AND maxreduc( f, PR) >= f(i);
+
+hC : BOOLEAN = INCL(C,PR);
+
+hnp : BOOLEAN = np <= card(C) + khl AND 3*khl < np;
+
+hbx : BOOLEAN = FORALL (l:PROC): INSET(l,C) => abs(f(l) - g(l)) <= x;
+
+hby1 : BOOLEAN = FORALL (l:PROC): INSET(l,C) => 
+                   FORALL (m:PROC): INSET(m,C) => abs(f(l) - f(m)) <= y;
+
+hby2 : BOOLEAN = FORALL (l:PROC): INSET(l,C) => 
+                   FORALL (m:PROC): INSET(m,C) => abs(g(l) - g(m)) <= y;
+
+ASSERT(hcard AND constants_ax AND hC AND hnp AND
+	uboundmaxf AND uboundmaxg AND lboundminf AND lboundming 
+	AND same_bound_f_g AND same_bound_g_f 
+        AND hC AND hbx AND hby1 AND hby2);
+
+
+QUERY( abs(maxreduc(f,PR) + minreduc(f,PR) 
+            - maxreduc(g,PR) - minreduc(g,PR)) <= 
+                    y + 2 * x); 
+

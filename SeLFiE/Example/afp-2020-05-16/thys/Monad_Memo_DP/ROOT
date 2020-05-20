@@ -1,0 +1,20 @@
+chapter AFP
+
+session Monad_Memo_DP (AFP) = HOL +
+  options [timeout = 1200]
+  sessions
+    "HOL-Library"
+    "HOL-Eisbach"
+    "HOL-Imperative_HOL"
+    "Show"
+  directories
+    "example"
+    "heap_monad"
+    "state_monad"
+    "transform"
+    "util"
+  theories
+    "example/All_Examples"
+  document_files
+    "root.tex"
+    "root.bib"

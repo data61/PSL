@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Nominal2" (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    FinFun
+  theories
+    Nominal2
+    Atoms
+    Eqvt
+  document_files
+    "root.tex"

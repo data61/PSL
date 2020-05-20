@@ -1,0 +1,10 @@
+chapter AFP
+
+session SumSquares (AFP) = "HOL-Number_Theory" +
+  options [timeout = 600]
+  theories
+    TwoSquares
+    FourSquares
+  document_files
+    "root.bib"
+    "root.tex"

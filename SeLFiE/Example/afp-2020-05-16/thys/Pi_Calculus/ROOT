@@ -1,0 +1,15 @@
+chapter AFP
+
+session Pi_Calculus (AFP) = "HOL-Nominal" +
+  options [timeout = 1200]
+  theories
+    Strong_Late_Bisim_Subst_Pres
+    Weak_Late_Cong_Subst_SC
+    Weak_Late_Cong_Pres
+    Strong_Early_Bisim_Subst_Pres
+    Weak_Early_Cong_Subst_Pres
+    Strong_Late_Axiomatisation
+    Weak_Early_Bisim_SC
+  document_files
+    "root.bib"
+    "root.tex"

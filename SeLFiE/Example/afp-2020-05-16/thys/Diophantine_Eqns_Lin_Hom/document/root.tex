@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[utf8]{inputenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Diophantine Equations\thanks{%
+  This work is supported by the Austrian Science Fund (FWF): project P27502.}}
+\author{%
+  Florian Meßner \and
+  Julian Parsert \and
+  Jonas Schöpf \and
+  Christian Sternagel}
+\maketitle
+
+\begin{abstract}
+In this entry we formalize Huet's~\cite{Huet1978} bounds for minimal solutions
+of homogenous linear Diophantine equations (HLDEs). Based on these bounds, we
+further provide a certified algorithm for computing the set of all minimal
+solutions of a given HLDE.
+\end{abstract}
+
+\tableofcontents
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+

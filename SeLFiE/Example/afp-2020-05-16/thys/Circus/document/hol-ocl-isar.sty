@@ -1,0 +1,1103 @@
+\NeedsTeXFormat{LaTeX2e}\relax
+\ProvidesClass{hol-ocl-isar}[2007/05/24 Achim D. Brucker ($Rev: 8240 $)]
+
+\RequirePackage{ifthen}
+%
+\newboolean{holocl@nocolor}
+\setboolean{holocl@nocolor}{false}
+\DeclareOption{nocolor}{\setboolean{holocl@nocolor}{true}}
+%
+\newboolean{isar@mnsymbol}
+\setboolean{isar@mnsymbol}{false}
+\DeclareOption{mnsymbol}{\setboolean{isar@mnsymbol}{true}}
+
+\newboolean{isar@isasymonly}
+\setboolean{isar@isasymonly}{false}
+\DeclareOption{isasymonly}{\setboolean{isar@isasymonly}{true}}
+
+\newboolean{holocl@scf}
+\DeclareOption{scf}{\setboolean{holocl@scf}{true}}
+
+
+\newboolean{holocl@nocolortable}
+\DeclareOption{nocolortable}{\setboolean{holocl@nocolortable}{true}}
+
+\newboolean{holocl@noaclist}
+\DeclareOption{noaclist}{\setboolean{holocl@noaclist}{true}}
+
+
+\ProcessOptions\relax
+
+
+\ifthenelse{\boolean{isar@mnsymbol}}{%
+}{%
+  \RequirePackage{amsmath}
+  \RequirePackage{amssymb}
+  \RequirePackage{stmaryrd}
+  \newcommand{\lsem}{\llbracket}
+  \newcommand{\rsem}{\rrbracket}
+}
+
+\usepackage{isabellesym}
+\ifthenelse{\boolean{isar@isasymonly}}{%
+  \usepackage{fixisa}
+}{
+  \usepackage{isabelle}
+  \isabellestyle{it}
+  \usepackage{fixisa}
+}
+
+\renewcommand{\isasymrbrakk}{\isamath{\mathclose{\rsem}}}
+\renewcommand{\isasymlbrakk}{\isamath{\mathopen{\lsem}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% begin: old hol-ocl-ng style 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{xspace}
+%\usepackage{euscript}
+\ifthenelse{\boolean{isar@mnsymbol}}{%
+}{
+  \usepackage{mathrsfs}
+}
+%\IfFileExists{marginnote.sty}{\usepackage{marginnote}}{}
+\usepackage{marginnote}
+\RequirePackage[final]{listings}
+%%
+\newcommand{\ap}{\:}
+%% 
+%% 1.1) Define package options 
+%% =========================
+%% 2) Color Definitions
+%% ======================
+%%%%%%%%%%%%%%%%%
+% color setup
+\ifthenelse{\boolean{holocl@nocolor}}{%
+  \ifthenelse{\boolean{holocl@nocolortable}}{%
+    \usepackage[gray,hyperref,dvipsnames]{xcolor}
+  }{%
+    \usepackage[gray,hyperref,table,dvipsnames]{xcolor}
+  }
+}{%
+  \ifthenelse{\boolean{holocl@nocolortable}}{%
+    \usepackage[hyperref,dvipsnames,cmyk,fixpdftex]{xcolor}
+  }{%
+    \usepackage[hyperref,table,dvipsnames,cmyk,fixpdftex]{xcolor}
+  }
+}
+
+\newcommand{\nc@colorlet}[2]{
+\ifthenelse{\boolean{holocl@nocolor}}{%
+  \colorlet{#1}{Black}
+}{%
+  \colorlet{#1}{#2}
+}}
+
+%
+% MathOCl expressions
+\nc@colorlet{MathOclColor}    {Magenta}
+\newcommand{\MathOclColorName}{\textcolor{MathOclColor}{magenta}\xspace}
+%
+% intermediate HOL-OCL expressions, e.g., lifting
+\nc@colorlet{HolOclColor}     {OliveGreen} %{ForestGreen} % {OliveGreen}
+\newcommand{\HolOclColorName}{\textcolor{HolOclColor}{green}\xspace}
+%
+\nc@colorlet{OclColor}        {Magenta}
+\newcommand{\OclColorName}{\textcolor{OclColor}{magenta}\xspace}
+%
+% Color for stuff not yet supported (mainly used in the syntax table)
+\nc@colorlet{UnsupportedColor}{gray!75}
+\newcommand{\UnsupportedColorName}{\textcolor{UnsupportedColor}{gray}\xspace}
+% Color for extension (mainly used in the syntax table)
+\nc@colorlet{ExtensionColor}{ForestGreen}
+\newcommand{\ExtensionColorName}{\textcolor{ExtensionColor}{green}\xspace}
+%
+% OCL Keywords in \inlineocl{...} and \begin{ocl} ... \end{ocl}
+\nc@colorlet{OclKeywordColor} {MidnightBlue}
+\newcommand{\OclKeywordColorName}{\textcolor{OclKeywordColor}{blue}\xspace}
+%
+% SML Keywords in \inlinesml{...} and \begin{sml}...\end{sml} 
+\nc@colorlet{SmlKeywordColor} {MidnightBlue}
+\newcommand{\SmlKeywordColorName}{\textcolor{SmlKeywordColor}{blue}\xspace}
+%
+% Java Keywords in \inlinejava{...} and \begin{java}...\end{java} 
+\nc@colorlet{JavaKeywordColor} {MidnightBlue}
+\newcommand{\JavaKeywordColorName}{\textcolor{JavaKeywordColor}{blue}\xspace}
+%
+% color for sections and boldface text 
+\nc@colorlet{SectionColor} {MidnightBlue}
+\newcommand{\SectionColorName}{\textcolor{SectionColor}{blue}\xspace}
+%
+% color for HOL-OCL and Isabelle theories. To be consistent with the
+% generated output, this should be the same as "SectionColor"
+\nc@colorlet{HolOclThyColor} {SectionColor}
+\newcommand{\HolOclThyColorName}{\SectionColorName}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 3) Defining environments and commands
+%% =====================================
+%%
+%% 3.1) HOL-OCL contact information
+%% --------------------------------
+\newcommand{\HolOclEmail}{\href{mailto:hol-ocl@brucker.ch}{hol-ocl@brucker.ch}}
+\newcommand{\HolOclWebsite}{\url{http://www.brucker.ch/research/hol-ocl/}}
+\newcommand{\HolOclLogo}{}
+\ifthenelse{\boolean{holocl@scf}}{%
+  \newcommand{\holocl}{\texorpdfstring{\mbox{\textsc{hol-ocl}}}{HOL-OCL}\xspace}%
+}{%
+%\newcommand{\holocl}{\texorpdfstring{\textsmaller{HOL-OCL}}{HOL-OCL}\xpsace}%
+  \newcommand{\holocl}{\texorpdfstring{\mbox{\textsmaller{HOL-OCL}}}{HOL-OCL}\xspace}%
+}
+%%
+%% 3.2) Environments for plain SML and OCL code
+%% --------------------------------------------
+
+\ifthenelse{\boolean{isar@mnsymbol}}{%
+  \newcommand{\theory}[1]{\texttt{#1}}%
+  \newcommand{\tactic}[1]{\texttt{#1}}%
+  \newcommand{\simpset}[1]{\texttt{#1}}%
+}{%
+  \newcommand{\theory}[1]{\textsf{#1}}%
+  \newcommand{\tactic}[1]{\textsf{#1}}%
+  \newcommand{\simpset}[1]{\textsf{#1}}%
+}
+\newcommand{\oclfont}{\ttfamily}
+\newcommand{\mathocl}{\mathtt}
+\newcommand{\smlfont}{\ttfamily}
+\newcommand{\javafont}{\ttfamily}
+\newcommand{\holoclthyfont}{\rmfamily}
+
+\ifthenelse{\boolean{holocl@nocolor}}{%
+  \newcommand{\oclkeywordstyle}{\bfseries}
+  \newcommand{\javakeywordstyle}{\bfseries}
+  \newcommand{\smlkeywordstyle}{\bfseries}
+  \newcommand{\holoclthykeywordstyle}{\bfseries}
+}{%
+  \newcommand{\oclkeywordstyle}{\color{OclKeywordColor}\relax}
+  \newcommand{\javakeywordstyle}{\color{JavaKeywordColor}\relax}
+  \newcommand{\smlkeywordstyle}{\color{SmlKeywordColor}\relax}
+  \newcommand{\holoclthykeywordstyle}{\color{HolOclThyColor}\relax}
+}
+
+\lstloadlanguages{OCL,ML,Java}
+\lstdefinestyle{sml}{basicstyle=\smlfont,%
+                     commentstyle=\itshape,%
+                     keywordstyle=\smlkeywordstyle,%
+                     ndkeywordstyle=\smlkeywordstyle,%
+                     language=ML}%
+
+\lstdefinestyle{displaysml}{style=sml,%
+  floatplacement={tbp},captionpos=b,style=sml,framexleftmargin=10pt,%
+  numbers=left,numberstyle=\tiny,stepnumber=5,basicstyle=\small\smlfont,%
+  backgroundcolor=\color{black!3},frame=lines,%xleftmargin=-8pt,xrightmargin=-8pt%
+}
+                   
+\lstdefinestyle{ocl}{basicstyle=\oclfont,%
+                     commentstyle=\itshape,%
+                     keywordstyle=\oclkeywordstyle,%
+                     ndkeywordstyle=\oclkeywordstyle,%
+                     morekeywords={package,endpackage,%
+                       context,pre,inv,post,init,def,body,derive,%
+                       measurement},%
+                     mathescape=true,
+                     sensitive=t,%
+                     morecomment=[l]--,%
+                     morestring=[d]'%
+                   }%
+
+\lstdefinestyle{java}{language=Java,
+                     basicstyle=\javafont,%
+                     commentstyle=\itshape,%
+                     keywordstyle=\javakeywordstyle,%
+                     ndkeywordstyle=\javakeywordstyle,%
+                   }%
+
+
+\lstdefinestyle{displayjava}{style=java,
+                floatplacement={tbp},captionpos=b,framexleftmargin=10pt,
+                basicstyle=\small\javafont,backgroundcolor=\color{black!3},frame=lines}%
+
+                   
+\lstdefinestyle{displayocl}{style=ocl,
+                %floatplacement={tbp},captionpos=b,framexleftmargin=10pt,
+                floatplacement={tbp},captionpos=b, 
+                basicstyle=\small\oclfont,backgroundcolor=\color{black!3},frame=lines}%
+
+              
+\lstdefinestyle{holocl}{basicstyle=\holoclthyfont,%
+                     commentstyle=\itshape,%
+                     keywordstyle=\holoclthykeywordstyle,%
+                     ndkeywordstyle=\holoclthykeywordstyle,%
+                     language=,
+                     mathescape=true,
+                     classoffset=0,%
+                     morekeywords={shows,assumes,proof,next,qed,case,po,lemma,apply,discharged,analyze_consistency,done,theory,end,imports,begin,refine,import_model,load_xmi},%
+}%
+
+\lstdefinestyle{displayholocl}{style=holocl,
+  floatplacement={tbp},captionpos=b,
+                basicstyle=\small\holoclthyfont,backgroundcolor=\color{black!3},frame=lines}%
+
+
+\lstnewenvironment{ocl}[1][]{\lstset{style=displayocl,#1}}{}%
+\lstnewenvironment{java}[1][]{\lstset{style=displayjava,#1}}{}%
+\lstnewenvironment{sml}[1][]{\lstset{style=displaysml,#1}}{}
+\lstnewenvironment{lstholocl}[1][]{\lstset{style=displayholocl,columns=fullflexible,#1}}{}%
+\def\inlinejava{\lstinline[style=java,columns=fullflexible]}%
+\def\inlinesml{\lstinline[style=sml,columns=fullflexible]}%
+\def\inlineocl{\lstinline[style=ocl,columns=fullflexible]}%
+\def\inlineholocl{\lstinline[style=holocl,columns=fullflexible]}%
+%%
+%% 3.3) Environments for citing ``the'' standard
+%% ------------------------------------------
+% \newsavebox{\oclpage}%
+% \newenvironment{oclspecification}[1]%
+% {\savebox{\oclpage}{\small #1}\begin{quote}}%
+%  {{\small\mbox{}\\\mbox{}\hfill (Object Constraint Language
+%    Specification~\cite{omg:ocl:2003}, %
+%    page \usebox{\oclpage})}\end{quote}}
+
+\newsavebox{\oclpage}%
+\newenvironment{oclspecification}[2][omg:ocl:2003]
+{\sbox\oclpage{\emph{\small(\OCL Specification~\cite{#1}, %
+               page #2)}}%
+           % \begin{quote}}
+	       \begin{addmargin}[2em]{0pt}%
+                 \begin{minipage}{\linewidth}%
+                   \vspace{.6\baselineskip}
+	       \rule{\linewidth}{.5pt}}
+{\hspace*{\fill}\nolinebreak[1]%
+ \quad\hspace*{\fill}%
+ \finalhyphendemerits=0%
+ \usebox{\oclpage}\\%a
+ \rule[.25\baselineskip]{\linewidth}{.5pt}%
+ \vspace{.6\baselineskip}
+ \end{minipage}%
+\end{addmargin}
+}
+ %\end{quote}}
+%%
+%% 3.4) V, Val, and VAL
+%% --------------------
+\newcommand{\V}[2]{\ensuremath{V_{#1}({#2})}}
+\newcommand{\Val}[2]{\ensuremath{V_{#1}({#2})}}
+\newcommand{\VAL}[2]{\ensuremath{\mathit{{Val}}_{#1}({#2})}}
+%%
+%% 3.5) Models
+%% -----------
+%\newcommand{\modelsT}{\mathop{\vDash_{\mathsf{t}}}}
+%\newcommand{\modelsF}{\mathop{\vDash_{\mathsf{f}}}}
+%\newcommand{\modelsU}{\mathop{\vDash_{\mathsf{u}}}}
+\newcommand{\modelsT}{\mathop{\isasymMathOclValid_{\isasymMathOclTrue}}}
+\newcommand{\modelsF}{\mathop{\isasymMathOclValid_{\isasymMathOclFalse}}}
+\newcommand{\modelsU}{\mathop{\isasymMathOclValid_{\isasymMathOclUndefined}}}
+%%
+%% 3.6) Class Diagrams, Universes, etc
+%% -----------------------------------
+\ifthenelse{\boolean{isar@mnsymbol}}{%
+  \newcommand{\universe}[1]{\ensuremath{\text{\textsw{#1}}}} % for universes
+  \newcommand{\domain}[1]{\ensuremath{\text{\textsw{#1}}}} % for domain
+}{%
+  \newcommand{\universe}[1]{\ensuremath{\mathscr{#1}}} % for universes
+  \newcommand{\domain}[1]{\ensuremath{\mathscr{#1}}} % for domain
+}
+\newcommand{\cdiagram}[1]{\ensuremath{\EuScript{#1}}}  % for class diagram
+\newcommand{\typeset}[1]{\mathfrak{#1}}
+\newcommand{\AT}{\typeset{A}}
+\newcommand{\VT}{\typeset{V}}
+\newcommand{\tagTypes}{\typeset{T}}
+\newcommand{\Tref}{\typeset{T}_\text{ref}}
+\newcommand{\Tnonref}{\typeset{T}_\text{nonref}}
+\newcommand{\UTref}{\typeset{U}_\text{ref}}
+\newcommand{\UTnonref}{\typeset{U}_\text{nonref}}
+\newcommand{\UTx}{\typeset{U}_\text{x}}
+\newcommand{\CTref}{\typeset{U}_\text{ref}}
+\newcommand{\CTnonref}{\typeset{U}_\text{nonref}}
+\newcommand{\CTx}{\typeset{U}_\text{x}}
+%%
+%% 3.6) Type Lifting
+%% -----------------
+\newcommand{\tconvR}[1]{\ensuremath{\widehat{#1}}}
+\newcommand{\tconvU}[1]{\ensuremath{\widetilde{#1}}}
+\newcommand{\tconvE}[1]{\ensuremath{\overline{#1}}}
+%%
+%% 3.7) Isabelle specific stuff
+%% ----------------------------
+\newcommand{\Forall}{\isasymAnd}
+\newcommand{\Exists}{\isasymOr}
+\ifthenelse{\boolean{isar@mnsymbol}}{%
+  \newcommand{\meta}[1]{\ensuremath{?\mkern-2mu#1}}%
+}{%
+  \newcommand{\meta}[1]{\ensuremath{?\!#1}}%
+}
+\newcommand{\Implies}{\isasymLongrightarrow}
+\renewcommand{\implies}{\isasymrightarrow}
+\newcommand{\hilbert}{\isasymsome}
+\newcommand{\thm}[1]{``$\mathrm{#1}$''}
+%%
+%% 3.8) HOL-OCL shortcuts
+%% ----------------------
+%\newcommand{\up}[1]{\ensuremath{#1_{\!\bot}}}
+\newcommand{\up}[1]{\ensuremath{#1_{\mkern-5mu\lower.2ex\hbox{$\bot$}}}}
+\newcommand{\lift}[1]{\ensuremath{\isasymHolOclLiftLeft #1\isasymHolOclLiftRight}}
+\newcommand{\drop}[1]{\ensuremath{\isasymHolOclDropLeft #1\isasymHolOclDropRight}}
+\DeclareMathOperator{\liftOp}{lift}
+%%
+%% 3.9) semantics
+%% --------------
+\newcommand{\lsemantics}{\lsem}
+\newcommand{\rsemantics}{\rsem}
+\newcommand{\biglsemantics}{\bigl\lsem}
+\newcommand{\bigrsemantics}{\bigr\rsem}
+\newcommand{\bigglsemantics}{\biggl\lsem}
+\newcommand{\biggrsemantics}{\biggr\rsem}
+\newcommand{\semantics}[1]{\lsem #1 \rsem}
+
+%%
+%% 3.10) Index generation and references
+%% ----------------------
+\newcommand{\emphI}[1]{\emph{#1}\index{#1}}
+\newcommand{\autonameref}[1]{\autoref{#1} ``\nameref{#1}''}
+\newcommand{\vautoref}[1]{\autoref{#1}\vpageref{#1}}
+\newcommand{\vautonameref}[1]{\autoref{#1} ``\nameref{#1}''}
+\newcommand{\definitionautrefname}{definition}
+% \newcommand{\vautonameref}[1]{\autonameref{#1}\vpageref{#1}}
+%%
+%% 3.11) Syntax diagrams and tables
+%% --------------------------------
+\newcommand{\literal}{\mathtt}
+\newcommand{\unsupported}[1]{\textcolor{UnsupportedColor}{#1}}
+\newcommand{\extension}[1]{\textcolor{ExtensionColor}{#1}}
+%%
+%% 3.12) Typographic styles for Datatypes, etc
+%% -------------------------------------------
+%% 3.12.1 HOL Type Constructors
+%% ----------------------------
+\newcommand{\HolBin}[0]{\ensuremath{\mathrm{bin}}}
+\newcommand{\HolNum}[0]{\ensuremath{\mathrm{num}}}
+\newcommand{\HolBoolean}[0]{\ensuremath{\mathrm{bool}}}
+\newcommand{\HolString}[0]{\ensuremath{\mathrm{string}}}
+\newcommand{\HolInteger}[0]{\ensuremath{\mathrm{int}}}
+\newcommand{\HolNat}[0]{\ensuremath{\mathrm{nat}}}
+\newcommand{\HolReal}[0]{\ensuremath{\mathrm{real}}}
+\newcommand{\HolSet}[1]{#1\ap\ensuremath{\mathrm{set}}}
+\newcommand{\HolList}[1]{#1\ap\ensuremath{\mathrm{list}}}
+%\newcommand{\HolOrderedSet}[1]{#1~\ensuremath{\mathrm{orderedset}}}
+\newcommand{\HolMultiset}[1]{#1\ap\ensuremath{\mathrm{multiset}}}
+\newcommand{\classType}[2]{#1\ap\ensuremath{\mathrm{#2}}}
+
+\newcommand{\HolMkSet}[1]{\operatorname{set} #1}
+
+
+
+%% 3.12.2 Lifted HOL Type Constructors
+%% ----------------------------
+\newcommand{\HolBooleanUp}[0]{\ensuremath{\up{\mathrm{bool}}}}
+\newcommand{\HolStringUp}[0]{\ensuremath{up{\mathrm{string}}}}
+\newcommand{\HolIntegerUp}[0]{\ensuremath{\up{\mathrm{int}}}}
+\newcommand{\HolRealUp}[0]{\ensuremath{\up{\mathrm{real}}}}
+\newcommand{\HolSetUp}[1]{#1\ap\ensuremath{\up{\mathrm{set}}}}
+\newcommand{\HolListUp}[1]{#1\ap\ensuremath{\up{\mathrm{list}}}}
+%\newcommand{\HolOrderedSetUp}[1]{#1\ap\ensuremath{\up{\mathrm{OrderedSet}}}}
+\newcommand{\HolMultisetUp}[1]{#1\ap\ensuremath{\up{\mathrm{multiset}}}}
+%% 3.12.3 HOL-OCL Type Constructors
+%% --------------------------------
+\newcommand{\HolOclBoolean}{\ensuremath{\mathtt{Boolean}}}
+\newcommand{\HolOclString}{\ensuremath{\mathtt{String}}}
+\newcommand{\HolOclInteger}{\ensuremath{\mathtt{Integer}}}
+\newcommand{\HolOclReal}{\ensuremath{\mathtt{Real}}}
+\newcommand{\HolOclSet}[1]{#1\ap\ensuremath{\mathtt{Set}}}
+\newcommand{\HolOclOclAny}[1]{#1\ap\ensuremath{\mathtt{OclAny}}}
+
+\newcommand{\HolOclSequence}[1]{#1\ap\ensuremath{\mathtt{Sequence}}}
+\newcommand{\HolOclOrderedSet}[1]{#1\ap\ensuremath{\mathtt{OrderedSet}}}
+\newcommand{\HolOclBag}[1]{#1\ap\ensuremath{\mathtt{Bag}}}
+
+\newcommand{\OclBoolean}[1][\tau]{\ensuremath{\mathtt{Boolean}_{#1}}}
+\newcommand{\OclString}[1][\tau]{\ensuremath{\mathtt{String}_{#1}}}
+\newcommand{\OclInteger}[1][\tau]{\ensuremath{\mathtt{Integer}_{#1}}}
+\newcommand{\OclReal}[1][\tau]{\ensuremath{\mathtt{Real}_{#1}}}
+\newcommand{\OclSet}[2][\tau]{#2\ap\ensuremath{\mathtt{Set}_{#1}}}
+\newcommand{\OclSequence}[2][\tau]{#2\ap\ensuremath{\mathtt{Sequence}_{#1}}}
+\newcommand{\OclOrderedSet}[2][\tau]{#2\ap\ensuremath{\mathtt{OrderedSet}_{#1}}}
+\newcommand{\OclBag}[2][\tau]{#2\ap\ensuremath{\mathtt{Bag}_{#1}}}
+\newcommand{\OclOclAny}[2][\tau]{#2\ap\ensuremath{\mathtt{OclAny}_{#1}}}
+
+
+\newcommand{\HolTrue}{\mathrm{true}}
+\newcommand{\HolFalse}{\mathrm{false}}
+\newcommand{\HolUnit}{\mathrm{unit}}
+\newcommand{\HolUndef}{\isasymbottom}
+\newcommand{\HolWfrec}{\operatorname{wfrec}}
+\newcommand{\OclTrue}{\isasymMathOclTrue}
+\newcommand{\OclFalse}{\isasymMathOclFalse}
+\newcommand{\OclUndef}{\isasymMathOclUndefined}
+
+
+%% 3.12.x misc stuff
+%% -----------------
+\newcommand{\oid}{\mathrm{oid}}
+\newcommand{\ofType}{\mathbin{\isasymColon}}
+\newcommand{\defeq}{\mathrel{\mathop:}=}
+\DeclareMathOperator{\HolInl}{Inl}
+\DeclareMathOperator{\HolNumberOf}{numberOf}
+\newcommand{\self}{\mathit{self}}
+\newcommand{\result}{\mathit{result}}
+\newcommand{\op}{\mathit{op}}
+
+\newcommand{\SemCom}{\mathit{SemCom}}
+
+\DeclareMathOperator{\HolInr}{Inr}
+\DeclareMathOperator{\HolFst}{fst}
+\DeclareMathOperator{\HolSnd}{snd}
+\DeclareMathOperator{\HolOptionCase}{OptionCase}
+\DeclareMathOperator{\HolUpCase}{upCase}
+\DeclareMathOperator{\HolSumCase}{sumCase}
+\DeclareMathOperator{\HolOf}{of}
+\DeclareMathOperator{\HolCase}{case}
+\DeclareMathOperator{\HolIf}{if}
+\DeclareMathOperator{\HolLet}{let}
+\DeclareMathOperator{\HolIn}{in}
+\DeclareMathOperator{\HolThen}{then}
+\DeclareMathOperator{\HolElse}{else}
+
+\DeclareMathOperator{\HolHilbert}{\mathop{\varepsilon}}
+
+\DeclareMathOperator{\HolSome}{Some}
+\DeclareMathOperator{\HolNone}{None}
+\DeclareMathOperator{\HolArbitrary}{arbitrary}
+
+
+\DeclareMathOperator{\HolOclStrictify}{\HolOcl{strictify}}
+\DeclareMathOperator{\HolOclIsStrict}{isStrict}
+\DeclareMathOperator{\HolOclCp}{\HolOcl{cp}}
+\DeclareMathOperator{\HolOclDEF}{def} % DEF
+\DeclareMathOperator{\HolOclSem}{Sem}
+\DeclareMathOperator{\HolOclSmash}{\HolOcl{smash}}
+\DeclareMathOperator{\HolOclInvoke}{\HolOcl{invoke}}
+\DeclareMathOperator{\HolOclInvokeS}{\HolOcl{invokeS}}
+\DeclareMathOperator{\HolOclUnion}{\HolOcl{union}}
+\DeclareMathOperator{\HolOclLeast}{Least}
+\DeclareMathOperator{\HolOclChoose}{\HolOcl{Choose}}
+\DeclareMathOperator{\HolOclCall}{\HolOcl{Call}}
+
+\DeclareMathOperator{\HolOclOidOf}{\HolOcl{OidOf}}
+\DeclareMathOperator{\HolOclModifiedOnly}{\HolOcl{modifiedOnly}}
+
+
+\DeclareMathOperator{\HolOclPre}{pre}
+\DeclareMathOperator{\HolOclPost}{post}
+\DeclareMathOperator{\HolOclTab}{OpTab}
+\DeclareMathOperator{\HolDom}{dom}
+\DeclareMathOperator{\HolRan}{ran}
+
+\newcommand{\Abs}[1]{\operatorname{\HolOcl{Abs_{#1}}}}
+\newcommand{\Rep}[1]{\operatorname{\HolOcl{Rep_{#1}}}}
+
+\DeclareMathOperator{\HolAbsSet}{\HolOcl{Abs_{Set}}}
+\DeclareMathOperator{\HolRepSet}{\HolOcl{Rep_{Set}}}
+
+\DeclareMathOperator{\HolAbsSequence}{\HolOcl{Abs_{Sequence}}}
+\DeclareMathOperator{\HolRepSequence}{\HolOcl{Rep_{Sequence}}}
+
+
+\DeclareMathOperator{\HolUp}{up}
+
+\newcommand{\HolIfThen}[3]{\HolIf #1 \HolThen #2 \HolElse #3}
+\newcommand{\OclIfThen}[3]{\isasymMathOclIf #1 \isasymMathOclThen #2 \isasymMathOclElse #3 \isasymMathOclEndif}
+%%%%
+\newcommand{\Lam}[2]{\mathop{\lambda} #1\spot #2}
+\let\llambda\lambda%
+\renewcommand{\lambda}{\mathop{\llambda}}
+\newcommand{\img}{\mathrel{^\backprime}}
+\DeclareMathOperator{\base}{base}
+\DeclareMathOperator{\HolOclBase}{\base}
+\newcommand{\down}{\mathrm{down}}
+\newcommand{\BT}{\typeset{B}}
+\newcommand{\HolOclSt}[1]{#1\ap\ensuremath{\mathrm{St}}}
+
+
+
+%%
+%%
+%%
+\newcommand{\OCLglitch}[2][]{%
+\ifthenelse{\equal{#1}{noentry}}%
+{}{%
+\ifthenelse{\equal{#1}{}}%
+{%
+\addcontentsline{gli}{glitch}{#2}%
+}{%
+\addcontentsline{gli}{glitch}{#1}%
+}}%
+\mbox{}\marginnote[\small\slshape\raggedleft\hspace{0pt}\mbox{}%
+                                 \scalebox{.2}{\includegraphics{figures/warning}}\mbox{}\\#2]%
+  {\small\raggedright\slshape\hspace{0pt}\mbox{}\scalebox{.2}{\includegraphics{figures/warning}}\mbox{}\\#2}}
+
+\newcommand\listofglitches
+           {\chapter*{List of Glitches}%
+            \addcontentsline{toc}{chapter}{List of Glitches}\@starttoc{gli}}
+\newcommand\l@glitch[2]{\par\noindent#1,~\textit{#2}\par}
+
+%%%
+\newcommand{\OCLextension}[2][]{%
+\ifthenelse{\equal{#1}{noentry}}%
+{}{%
+\ifthenelse{\equal{#1}{}}%
+{%
+\addcontentsline{ext}{extension}{#2}%
+}{%
+\addcontentsline{ext}{extension}{#1}%
+}}%
+\mbox{}\marginnote[\small\slshape\raggedleft\hspace{0pt}\mbox{}%
+                                 \scalebox{.2}{\includegraphics{figures/danger}}\mbox{}\\#2]%
+  {\small\slshape\raggedright\hspace{0pt}\mbox{}\scalebox{.2}{\includegraphics{figures/danger}}\mbox{}\\#2}}
+
+\newcommand\listofextensions
+           {\chapter*{List of Extensions}%
+            \addcontentsline{toc}{chapter}{List of Extensions}\@starttoc{ext}}
+\newcommand\l@extension[2]{\par\noindent#1,~\textit{#2}\par}
+
+
+
+%%
+%% Handling of acronyms
+%% --------------------
+\ifthenelse{\boolean{holocl@scf}}{%
+  \ifthenelse{\boolean{holocl@noaclist}}{%
+    \RequirePackage[printonlyused,nolist,nohyperlinks]{acronym}%
+  }{%
+    \RequirePackage[printonlyused]{acronym}%
+  }
+  \renewcommand{\acsfont}[1]{\textsc{#1}}
+}{%
+  \RequirePackage{relsize}
+  \ifthenelse{\boolean{holocl@noaclist}}{%
+    \RequirePackage[nolist,printonlyused,smaller,nohyperlinks]{acronym}%
+  }{%
+    \RequirePackage[printonlyused,smaller]{acronym}%
+  }
+}
+\DeclareRobustCommand*\textSC[1]{%
+\if b\expandafter\@car\f@series\@nil%
+% we're using a bold font
+\textscale{.75}{\MakeUppercase{#1}}%
+\else\MakeLowercase{\scshape #1}%
+\fi}
+%\renewcommand{\acffont}[1]{#1}
+%\renewcommand{\acfsfont}[1]{#1}
+
+\ifthenelse{\boolean{isar@mnsymbol}}{%
+  \DeclareRobustCommand{\Csharp}{C\raisebox{0.3ex}{\#}\xspace}%
+  \DeclareRobustCommand{\Specsharp}{Spec\raisebox{0.05ex}{\#}\xspace}%
+}{%
+  \DeclareRobustCommand{\Csharp}{C\raisebox{0.3ex}{\#}\xspace}%
+  \DeclareRobustCommand{\Specsharp}{Spec\raisebox{0.3ex}{\#}\xspace}%
+}
+\DeclareRobustCommand{\Cpp}
+{\valign{\vfil\hbox{##}\vfil\cr
+    \textrm{C\kern-.1em}\cr
+    $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
+}
+\ifthenelse{\boolean{holocl@scf}}{%
+  \DeclareRobustCommand{\IMPOO}%
+  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
+        \textrm{\acs{imp}\kern-.1em}\cr%
+        $\hbox{\fontsize{\sf@size}{0}{+\kern-0.05em+}}$\cr}%
+    }{IMP++}}
+}{%
+  \DeclareRobustCommand{\IMPOO}%
+  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
+        \textrm{\textsmaller{IMP}\kern-.1em}\cr%
+        $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
+    }{IMP++}}
+}
+
+\ifthenelse{\boolean{holocl@scf}}{%
+  \DeclareRobustCommand{\VDMpp}%
+  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
+        \textrm{\acs{vdm}\kern-.1em}\cr%
+        $\hbox{\fontsize{\sf@size}{0}{+\kern-0.05em+}}$\cr}%
+    }{VDM++}}
+}{%
+  \DeclareRobustCommand{\VDMpp}%
+  {\texorpdfstring{\valign{\vfil\hbox{##}\vfil\cr%
+        \textrm{\textsmaller{VDM}\kern-.1em}\cr%
+        $\hbox{\fontsize{\sf@size}{0}\textbf{+\kern-0.05em+}}$\cr}%
+    }{VDM++}}
+}
+
+\newcommand{\OCLlight}{$\textrm{OCL}_{\textit{light}}$}
+%\newcommand{\Cpp}{C\nolinebreak\hspace{-.05em}\raisebox{.4ex}{\tiny\bf +}%
+%                   \nolinebreak\hspace{-.10em}\raisebox{.4ex}{\tiny\bf +}}
+%\newcommand{\VDMpp}{\acs{vdm}\nolinebreak\hspace{-.05em}\raisebox{.4ex}{\tiny\bf +}%
+%                       \nolinebreak\hspace{-.10em}\raisebox{.4ex}{\tiny\bf +}}
+%\DeclareRobustCommand\acronym[1]{\textsmaller{\TextUpperCase{#1}}\@}
+%\DeclareRobustCommand\acronym[1]{\ac{#1}}
+\newcommand{\OCL}{\acs{ocl}\xspace}
+\newcommand{\CSP}{\acs{csp}\xspace}
+\newcommand{\UML}{\acs{uml}\xspace}
+\newcommand{\OO}{\acs{oo}\xspace}
+\newcommand{\OMG}{\acs{omg}\xspace}
+\newcommand{\HOL}{\acs{hol}\xspace}
+\newcommand{\VDM}{\acs{vdm}\xspace}
+\newcommand{\DNF}{\acs{dnf}\xspace}
+\newcommand{\TNF}{\acs{tnf}\xspace}
+\newcommand{\SML}{\acs{sml}\xspace}
+\newcommand{\CNF}{\acs{cnf}\xspace}
+\newcommand{\HCNF}{\acs{hcnf}\xspace}
+\newcommand{\SKL}{\acs{skl}\xspace}
+\newcommand{\XMI}{\acs{xmi}\xspace}
+\newcommand{\XML}{\acs{xml}\xspace}
+\newcommand{\CASE}{\acs{case}}
+\newcommand{\ArgoUML}{ArgoUML\xspace}
+\ifthenelse{\boolean{holocl@scf}}{%
+\newcommand{\holz}{{\textsc{hol-z}}\xspace}%
+}{%
+\newcommand{\holz}{{\textsmaller{HOL-Z}}\xspace}%
+}
+
+
+
+%%%
+%%%
+%%% 
+
+%\newcommand{\spot}{.\;}
+\newcommand{\DevelopmentSpot}{\textcolor{black!95}{\bullet}\;}
+\newcommand{\template}[1]{\langle #1\rangle}
+\DeclareMathOperator{\Bot}{\mathrm{bot}}
+\newcommand{\bottom}{\bot}
+\newcommand{\getT}{\operatorname{\mathit{getT}}}
+
+\newcommand{\mkType}[2][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {\operatorname{mk_\text{#2}}}%
+  {\operatorname{mk_\text{#2}^{(#1)}}}%
+}
+\newcommand{\isType}[2][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {\operatorname{isType_\text{#2}}}%
+  {\operatorname{isType_\text{#2}^{(#1)}}}%
+}
+\newcommand{\isKind}[2][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {\operatorname{isKind_\text{#2}}}%
+  {\operatorname{isKind_\text{#2}^{(#1)}}}%
+}
+\newcommand{\isUnivType}[2][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {\operatorname{isUniv_\text{#2}}}%
+  {\operatorname{isUniv_\text{#2}^{(#1)}}}%
+}
+\newcommand{\getType}[2][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {\operatorname{get_\text{#2}}}%
+  {\operatorname{get_\text{#2}^{(#1)}}}%
+}
+
+% \newcommand{\typeCast}[2]{\operatorname{#1\_2\_#2}}
+\newcommand{\typeCast}[3][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {\operatorname{#2_\text{[#3]}}}%
+  {\operatorname{#2_\text{[#3]}^{(#1)}}}%
+}
+
+\newcommand{\getAttrib}[3][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {#2\operatorname{\!.#3}}%
+  {#2\operatorname{\!.#3}^{(#1)}}%
+}
+
+\newcommand{\setAttrib}[4][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {#2\operatorname{\!.set_{#3}}\ap \mathit{#4}}%
+  {#2\operatorname{\!.set_{#3}^{(#1)}}\ap \mathit{#4}}%
+}
+
+\newcommand{\newAttrib}[4][]{%
+  \ifthenelse{\equal{#1}{}}%
+  {#2\operatorname{.new_{#3}}\ap \mathit{#4}}%
+  {#2\operatorname{.new_{#3}^{(#1)}}\ap \mathit{#4}}%
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% end: old hol-ocl-ng style 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+\newcommand{\MathOclStyle}[1]{\color{MathOclColor}#1}
+\newcommand{\HolOclStyle}[1]{\color{HolOclColor} #1}
+\newcommand{\OclStyle}[1]{\upshape\ttfamily\color{OclColor} #1}
+
+
+\newcommand{\MathOcl}[1]{{\MathOclStyle{#1}}}
+\newcommand{\HolOcl}[1]{{\HolOclStyle #1}}
+\newcommand{\Ocl}[1]{\text{\OclStyle{#1}}}
+\newcommand{\newMathOcl}[3]{\expandafter\def\csname isasymMathOcl#1\endcsname{\ensuremath{#2{\MathOcl{#3}}}}}
+\newcommand{\newOcl}[3]{\expandafter\def\csname isasymOcl#1\endcsname{\ensuremath{\operatorname{\Ocl{#3}}}}}
+\newcommand{\newHolOcl}[3]{\expandafter\def\csname isasymHolOcl#1\endcsname{\ensuremath{#2{\HolOcl{#3}}}}}
+\newcommand{\aarrow}{\!-\!>}
+\newcommand{\oP}{\mathopen\MathOcl{\mathtt{(}}}
+\newcommand{\cP}{\mathopen\MathOcl{\mathtt{)}}}
+\newcommand{\OclArg}[1]{\oP #1\cP}
+\newcommand{\OclSpot}{\mathopen\MathOcl{\spot}}
+\newcommand{\OclMid}{\mathop\MathOcl{\mid}}
+\renewcommand{\isasymbullet}{\ensuremath{\OclSpot}}
+
+% ; ******************************
+   %; * Lifting                    *
+   %; ******************************
+
+ \ifthenelse{\boolean{isar@mnsymbol}}{%
+    \newHolOcl{LiftLeft}{\mathopen}{\llcorner}
+    \newHolOcl{LiftRight}{\mathclose}{\lrcorner}
+    \newHolOcl{DropLeft}{\mathopen}{\ulcorner}
+    \newHolOcl{DropRight}{\mathclose}{\urcorner}
+ }{
+   \newHolOcl{LiftLeft}{\mathopen}
+   	{\leavevmode\lower.6ex\hbox{$\llcorner$}\kern-.20em}
+   \newHolOcl{LiftRight}{\mathclose}
+   	{\leavevmode\kern-.20em\lower.6ex\hbox{$\lrcorner$}}
+   \newHolOcl{DropLeft}{\mathopen}
+   	{\leavevmode\lower-.2ex\hbox{$\ulcorner$}\kern-.18em}
+   \newHolOcl{DropRight}{\mathclose}
+   	{\leavevmode\kern-.18em\lower-.2ex\hbox{$\urcorner$}}
+}
+ % \newHolOcl{DropLeft}{\mathopen}{\ulcorner}
+ % \newHolOcl{DropRight}{\mathclose}{\urcorner}
+   %; ******************************
+   %; * OclAny                     *
+   %; ******************************
+   % \newcommand{\isasymMathOclAny}{}
+   \newOcl{IsNew}{\mathbin}{.oclIsNew()}
+       \newMathOcl{IsNew}{\mathbin}{\isasymOclIsNew}
+   \newOcl{AsType}{\mathbin}{.oclAsType}
+       \newMathOcl{AsType}{\mathbin}{\isasymOclAsType}
+   \newOcl{IsTypeOf}{\mathbin}{.oclIsTypeOf}
+       \newMathOcl{IsTypeOf}{\mathbin}{\isasymOclIsTypeOf}
+   \newOcl{IsType}{\mathbin}{.oclIsTypeOf}
+       \newMathOcl{IsType}{\mathbin}{\isasymOclIsType}
+   \newOcl{IsKindOf}{\mathbin}{.oclIsKindOf}
+       \newMathOcl{IsKindOf}{\mathbin}{\isasymOclIsKindOf}
+%   \newOcl{AllInstances}{\mathbin}{.AllInstances()}
+%       \newMathOcl{AllInstances}{\mathbin}{\isasymOclAllInstances}
+   %; ******************************
+   %; * OCL Boolean                *
+   %; ****************************** 
+   \newMathOcl{Valid}{\mathrel}{\vDash}
+       \newOcl{Valid}{\mathrel}{Valid}
+       \newOcl{LocalValid}{\mathrel}{OclValid}
+   \ifthenelse{\boolean{isar@mnsymbol}}{%
+   \newMathOcl{True}{\mathord}{\mathocl{t}}
+       \newOcl{True}{\mathord}{true}
+   \newMathOcl{False}{\mathord}{\mathocl{f}}
+       \newOcl{False}{\mathord}{false}
+   }
+   {%
+   \newMathOcl{True}{\mathord}{\mathocl{T}}
+       \newOcl{True}{\mathord}{true}
+   \newMathOcl{False}{\mathord}{\mathocl{F}}
+       \newOcl{False}{\mathord}{false}
+   }
+   \newMathOcl{Not}{\mathop}{\lnot} 
+       \newOcl{Not}{\mathop}{not\ap} 
+
+   \newMathOcl{And}{\mathbin}{\wedge}
+       \newOcl{And}{\mathbin}{\ap and}
+   \newMathOcl{Or}{\mathbin}{\vee}
+       \newOcl{Or}{\mathbini}{\ap or \ap}
+   \newMathOcl{Xor}{\mathbin}{\oplus}
+       \newOcl{Xor}{\mathbin}{\ap xor\ap}
+
+   \newMathOcl{Sand}{\mathbin}{\dot{\wedge}}
+       \newOcl{Sand}{\mathbin}{\ap sand\ap}
+   \newMathOcl{Sor}{\mathbin}{\dot{\vee}}
+       \newOcl{Sor}{\mathbini}{\ap sor\ap}
+   \newMathOcl{Sxor}{\mathbin}{\dot{\oplus}}
+       \newOcl{Sxor}{\mathbin}{\ap sxor\ap}
+
+   \newMathOcl{If}{\mathop}{\mathocl{if}}
+       \newOcl{If}{\mathopen}{if}
+   \newMathOcl{Then}{\mathop}{\mathocl{then}}
+       \newOcl{Then}{\mathbin}{then}
+   \newMathOcl{Else}{\mathop}{\mathocl{else}}
+       \newOcl{Else}{\mathbin}{else}
+   \newMathOcl{Endif}{\mathop}{\mathocl{endif}}
+       \newOcl{Endif}{\mathclose}{endif}
+   \newMathOcl{Let}{\mathop}{\mathocl{let}}
+       \newOcl{Let}{\mathopen}{let}
+   \newMathOcl{In}{\mathop}{\mathocl{in}}
+       \newOcl{In}{\mathopen}{in}
+   \newMathOcl{End}{\mathop}{\mathocl{end}}
+       \newOcl{End}{\mathopen}{end}
+
+   \newMathOcl{Implies}{\mathbin}{\longrightarrow}
+       \newOcl{Implies}{\mathbin}{\ap implies\ap}
+
+   \newMathOcl{Simplies}{\mathbin}{\dot{\longrightarrow}}
+       \newOcl{Simplies}{\mathbin}{\ap simplies\ap}
+
+   \newMathOcl{VImplies}{\mathbin}{\stackrel{1}{\longrightarrow}}
+       \newOcl{VImplies}{\mathbin}{\ap implies1\ap}
+   \newMathOcl{VVImplies}{\mathbin}{\stackrel{2}{\longrightarrow}}
+       \newOcl{VVImplies}{\mathbin}{\ap implies2\ap}
+   \newMathOcl{IsDefined}{\mathop}{\partial}
+       \newOcl{IsDefined}{\mathop}{.IsDefined()}
+\ifthenelse{\boolean{isar@mnsymbol}}{%
+   \newMathOcl{IsUndefined}{\mathop}{\not\partial}%
+}{%
+   \newMathOcl{IsUndefined}{\mathop}{\not\!\partial}%
+}
+\newOcl{IsUndefined}{\mathop}{.oclIsUndefined()}
+   %; ******************************
+   %; * OCL Real and Integer       *
+   %; ******************************
+   \newOcl{Less}{\mathrel}{\ensuremath{<}}
+       \newMathOcl{Less}{\mathrel}{\isasymOclLess}
+   \newOcl{Le}{\mathrel}{\ensuremath{<=}}
+       \newMathOcl{Le}{\mathrel}{\leq}
+   \newOcl{Greater}{\mathrel}{\ensuremath{>}}
+       \newMathOcl{Greater}{\mathrel}{\isasymOclGreater}
+   \newOcl{Ge}{\mathrel}{\ensuremath{>=}}
+       \newMathOcl{Ge}{\mathrel}{\geq}
+   \newOcl{Abs}{\mathbin}{.abs()}
+       \newMathOcl{AbsLeft}{\mathopen}{\lvert}
+       \newMathOcl{AbsRight}{\mathclose}{\rvert}
+   \newMathOcl{Min}{\mathop}{\mathrm{min}}
+       \newOcl{Min}{\mathrel}{.min}
+   \newMathOcl{Max}{\mathop}{\mathrm{max}}
+       \newOcl{Max}{\mathrel}{.max}
+   \newMathOcl{Mod}{\mathop}{\mathrm{mod}}
+       \newOcl{Mod}{\mathrel}{.mod}
+   \newMathOcl{Div}{\mathop}{\mathrm{div}}
+       \newOcl{Div}{\mathrel}{.div}
+   \newOcl{Floor}{\mathbin}{.floor()}
+       \newMathOcl{FloorLeft}{\mathopen}{\lfloor}
+       \newMathOcl{FloorRight}{\mathclose}{\rfloor}
+    \newOcl{Round}{\mathbin}{.round()}
+       \newMathOcl{RoundLeft}{\mathopen}{\lceil}
+       \newMathOcl{RoundRight}{\mathclose}{\rceil}
+   %; ******************************
+   %; * OclUndefined               *
+   %; ******************************
+   \newMathOcl{Undefined}{\mathord}{\bot}
+       \newOcl{Undefined}{\mathord}{OclUndefined}
+   %; ******************************
+   %; * OCL String                 *
+   %; ******************************
+   \newMathOcl{Concat}{\mathbin}{^\frown}
+       \newOcl{Concat}{\mathbin}{.concat}
+  \newOcl{Substring}{\mathop}{.substring}
+       \newMathOcl{Substring}{\mathop}{\isasymOclSubstring}
+  \newOcl{ToInteger}{\mathop}{.toInteger()}
+       \newMathOcl{ToInteger}{\mathop}{\isasymOclToInteger}
+   \newOcl{ToReal}{\mathop}{.toReal()}
+       \newMathOcl{ToReal}{\mathop}{\isasymOclToReal}
+   \newOcl{ToUpper}{\mathop}{.toUpper()}
+       \newMathOcl{ToUpper}{\mathop}{\isasymOclToUpper}
+   \newOcl{ToLower}{\mathop}{.toLowert()}
+       \newMathOcl{ToLower}{\mathop}{\isasymOclToLower}
+ 
+   %; ******************************
+   %; * OCL Collection             *
+   %; ******************************
+   \newMathOcl{MtSet}{\mathord}{\emptyset}
+       \newOcl{MtSet}{\mathord}{\{\}}
+   \newMathOcl{MtSequence}{\mathord}{[]}
+       \newOcl{MtSequence}{\mathord}{[]}
+   \newMathOcl{MtBag}{\mathord}{\Lbag\Rbag}
+       \newOcl{MtBag}{\mathord}{Bag\{\}}
+   \newMathOcl{MtOrderedSet}{\mathord}{\langle\rangle}
+       \newOcl{MtOrderedSet}{\mathord}{OrderedSet\{\}}
+    \newOcl{Size}{\mathbin}{\aarrow size()}
+       \newMathOcl{SizeLeft}{\mathopen}{\lVert}
+       \newMathOcl{SizeRight}{\mathclose}{\rVert}
+   \newMathOcl{Includes}{\mathbin}{\in}
+       \newOcl{Includes}{\mathbin}{\aarrow includes}
+   \newMathOcl{Excludes}{\mathbin}{\not\in}%\nin}
+       \newOcl{Excludes}{\mathbin}{\aarrow excludes}
+   \newOcl{Flatten}{\mathbin}{\aarrow flatten}
+       \newMathOcl{FlattenLeft}{\mathbin}{\llceil}
+       \newMathOcl{FlattenRight}{\mathbin}{\rrceil}
+   \newOcl{Sum}{\mathbin}{\aarrow sum}
+       \newMathOcl{Sum}{\mathbin}{\isasymOclSum}
+   \newOcl{AsSet}{\mathop}{\aarrow asSet()}
+       \newMathOcl{AsSet}{\mathop}{\isasymOclAsSet}
+   \newOcl{AsSequence}{\mathop}{\aarrow asSequence()}
+       \newMathOcl{AsSequence}{\mathop}{\isasymOclAsSequence}
+   \newOcl{AsBag}{\mathbin}{\aarrow asBag()}
+       \newMathOcl{AsBag}{\mathop}{\isasymOclAsBag}
+   \newOcl{AsOrderedSet}{\mathbin}{\aarrow asOrderedSet()}
+       \newMathOcl{AsOrderedSet}{\mathbin}{\isasymOclAsOrderedSet}
+  \newMathOcl{ForAll}{\mathop}{\forall}
+       \newOcl{ForAll}{\mathbin}{\aarrow forall}
+   \newMathOcl{Exists}{\mathop}{\exists}
+       \newOcl{Exists}{\mathbin}{\aarrow exists}
+   \newOcl{Select}{\mathop}{\aarrow select}
+       \newcommand{\isasymMathOclSelectRight}{\ensuremath{\mathopen{\MathOcl{\rrparenthesis}}}}
+       \newcommand{\isasymMathOclSelectLeft}{\ensuremath{\mathclose{\MathOcl{\llparenthesis}}}}
+   \newOcl{Reject}{\mathop}{\aarrow reject}
+       \newcommand{\isasymMathOclRejectRight}{\ensuremath{\mathopen{\MathOcl{\llparenthesis}}}}
+       \newcommand{\isasymMathOclRejectLeft}{\ensuremath{\mathclose{\MathOcl{\rrparenthesis}}}}
+   \newOcl{Collect}{\mathbin}{\aarrow collect}
+     %  \newMathOcl{Collect}{\mathop}{\isasymOclCollect}
+       \newcommand{\isasymMathOclCollectRight}{\ensuremath{\mathopen{\MathOcl{|\!\}}}}}
+       \newcommand{\isasymMathOclCollectLeft}{\ensuremath{\mathclose{\MathOcl{\{\!|}}}}
+   \newOcl{CollectNested}{\mathbin}{\aarrow collectNested}
+       \newcommand{\isasymMathOclCollectNestedRight}{\ensuremath{\mathopen{\MathOcl{|\!\}\!\}}}}}
+       \newcommand{\isasymMathOclCollectNestedLeft}{\ensuremath{\mathclose{\MathOcl{\{\!\{\!|}}}}
+   \newOcl{Iterate}{\mathbin}{\aarrow iterate}
+       \newMathOcl{Iterate}{\mathop}{\isasymOclIterate}
+   \newOcl{IsUnique}{\mathbin}{\aarrow isUnique}
+       \newMathOcl{IsUnique}{\mathbin}{\isasymOclIsUnique}  
+   \newOcl{One}{\mathbin}{\aarrow one}
+       \newMathOcl{One}{\mathop}{\isasymOclOne}
+   \newOcl{Any}{\mathbin}{\aarrow any}
+       \newMathOcl{Any}{\mathop}{\isasymOclAny}
+   \newOcl{Count}{\mathbin}{\aarrow count}
+       \newMathOcl{Count}{\mathop}{\isasymOclCount}
+   \newOcl{IncludesAll}{\mathbin}{\aarrow includesAll}
+       \newMathOcl{IncludesAll}{\mathop}{\subseteq}
+   \newOcl{ExcludesAll}{\mathbin}{\aarrow excludesAll}
+       \newMathOcl{ExcludesAll}{\mathop}{\supset\kern-0.5em\subset}
+   \newOcl{IsEmpty}{\mathbin}{\aarrow isEmpty()}
+       \newMathOcl{IsEmpty}{\mathop}{\emptyset \isasymMathOclStrictEq}
+   \newOcl{NotEmpty}{\mathbin}{\aarrow notEmpty()}
+       \newMathOcl{NotEmpty}{\mathop}{\emptyset \isasymMathOclStrictNotEq}
+
+   \newOcl{SortedBy}{\mathbin}{\aarrow sortedBy}
+      \newMathOcl{SortedBy}{\mathbin}{\isasymOclSortedBy}
+ 
+
+   \newOcl{Sum}{\mathbin}{\aarrow sum()}
+       \newMathOcl{Sum}{\mathop}{\isasymOclSum}
+   \newOcl{Product}{\mathbin}{\aarrow product}
+       \newMathOcl{Product}{\mathop}{\times}
+
+   \newOcl{Including}{\mathbin}{\aarrow including}
+       \newMathOcl{Including}{\mathop}{\operatorname{insert}}
+   \newOcl{Excluding}{\mathbin}{\aarrow excluding}
+       \newMathOcl{Excluding}{\mathop}{\isasymOclExcluding}
+   \newMathOcl{SymmetricDifference}{\mathbin}{\ominus}
+       \newOcl{SymmetricDifference}{\mathbin}{\aarrow symmetricDiffernce}
+   \newMathOcl{Union}{\mathbin}{\cup}
+       \newOcl{Union}{\mathbin}{\aarrow union}
+
+   \newMathOcl{Intersection}{\mathbin}{\cap}
+       \newOcl{Intersection}{\mathbin}{\aarrow intersection}
+   \newMathOcl{Complement}{\mathop}{^{-1}}
+       \newOcl{Complement}{\mathop}{\aarrow complement()}
+ 
+  \newMathOcl{At}{\mathop}{\natural}
+       \newOcl{At}{\mathop}{\aarrow at}
+  \newMathOcl{First}{\mathop}{\natural 1}
+       \newOcl{First}{\mathop}{\aarrow first()}
+   \newMathOcl{Last}{\mathop}{\natural \$}
+       \newOcl{Last}{\mathop}{\aarrow last()}
+
+
+   \newOcl{IndexOf}{\mathbin}{\aarrow indexOf}
+       \newMathOcl{IndexOf}{\mathop}{\natural ?}
+
+   \newOcl{InsertAt}{\mathbin}{\aarrow insertAt}
+       \newMathOcl{InsertAt}{\mathop}{\isasymOclInsertAt}
+
+   \newOcl{SubOrderedSet}{\mathbin}{\aarrow subOrderedSet}
+       \newMathOcl{SubOrderedSet}{\mathop}{\isasymOclSubOrderedSet}
+   \newOcl{SubSequence}{\mathbin}{\aarrow subSequence}
+       \newMathOcl{SubSequence}{\mathop}{\isasymOclSubSequence}
+ 
+
+
+   %; ******************************
+   %; * OCL Set                    *
+   %; ******************************
+   %; ******************************
+   %; * OCL OrderedSet             *
+   %; ******************************
+   \newMathOcl{Prepend}{\mathop}{\#}
+       \newOcl{Prepend}{\mathop}{\aarrow prepend}
+   \newMathOcl{Append}{\mathop}{@}
+       \newOcl{Append}{\mathop}{\aarrow append}
+
+
+   %; ******************************
+   %; * OCL Bag                    *
+   %; ******************************
+   %; ******************************
+   %; * OCL Sequence               *
+   %; ******************************
+   %; ******************************
+   %; * OCL Logic                  *
+   %; ******************************
+   \newOcl{StrictEq}{\mathrel}{==}
+       \newMathOcl{StrictEq}{\mathrel}{\doteq}
+    \newOcl{StrongEq}{\mathrel}{=}
+       \newMathOcl{StrongEq}{\mathrel}{\triangleq}
+   
+   \newOcl{StrictNotEq}{\mathrel}{<>}
+       \newMathOcl{StrictNotEq}{\mathrel}{\not\isasymMathOclStrictEq}
+
+ 
+   \newOcl{StrictValueEq}{\mathrel}{\ensuremath{\sim==}}
+       \newMathOcl{StrictValueEq}{\mathrel}{\dot{\simeq}}
+   \newOcl{StrongValueEq}{\mathrel}{\ensuremath{\sim=}}
+    \ifthenelse{\boolean{isar@mnsymbol}}{%
+      \newMathOcl{StrongValueEq}{\mathrel}{\stackrel{\smalltriangleup}{\simeq}}%
+    }{%
+      \newMathOcl{StrongValueEq}{\mathrel}{\stackrel{\vartriangle}{\simeq}}%
+    }
+   \newOcl{StrictDeepValueEq}{\mathrel}{\ensuremath{\sim==\sim}}
+       \newMathOcl{StrictDeepValueEq}{\mathrel}{\dot{\approxeq}}
+    \newOcl{StrongDeepValueEq}{\mathrel}{\ensuremath{\sim=\sim}}
+    \ifthenelse{\boolean{isar@mnsymbol}}{%
+      \newMathOcl{StrongDeepValueEq}{\mathrel}{\stackrel{\smalltriangleup}{\approxeq}}%
+    }{%
+      \newMathOcl{StrongDeepValueEq}{\mathrel}{\stackrel{\vartriangle}{\approxeq}}%
+    } 
+   %\newOcl{RefEq}{\mathrel}{~=}
+   %    \newMathOcl{RefEq}{\mathrel}{\simeq}
+   %; ******************************
+   %; * OCL State                  *
+   %; ******************************
+   % \newMathOcl{IsTypeOf}{}
+   % \newMathOcl{Iny/sNew}{}
+   % \newMathOcl{IsKind}{}
+   % \newMathOcl{AsType}{}
+   % \newMathOcl{InState}{} 
+   % \newMathOcl{AllInstances}{}
+   % \newMathOcl{MethodCall}{} 
+   % \newMathOcl{FeatureCall}{}
+
+   \newOcl{ModifiedOnly}{\mathbin}{\aarrow modifiedOnly()}
+       \newMathOcl{ModifiedOnly}{\mathbin}{\isasymOclModifiedOnly}
+
+   \newOcl{AllInstances}{\mathbin}{::allInstances()}
+       \newMathOcl{AllInstances}{\mathbin}{\isasymOclAllInstances}
+   
+   \newOcl{KindSetOf}{\mathbin}{::kindSetOf()}
+       \newMathOcl{KindSetOf}{\mathbin}{\isasymOclKindSetOf}
+
+   \newOcl{TypeSetOf}{\mathbin}{::typeSetOf()}
+       \newMathOcl{TypeSetOf}{\mathbin}{\isasymOclTypeSetOf}
+
+   \newOcl{AllInstancesATpre}{\mathbin}{::allInstances@pre()}
+       \newMathOcl{AllInstancesATpre}{\mathbin}{\isasymOclAllInstancesATpre}
+   
+   \newOcl{ATpre}{\mathbin}{@pre}
+       \newMathOcl{ATpre}{\mathbin}{\isasymOclATpre}
+
+%%% undefining commands that should never be used directly:
+%\let\llcorner\@undefined
+%%%
+\newcommand{\HolOclWfrec}{\mathop\MathOcl{\operatorname{Wfrec}}}
+\endinput

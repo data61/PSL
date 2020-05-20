@@ -1,0 +1,12 @@
+chapter AFP
+
+session Nullstellensatz (AFP) = Groebner_Bases +
+  options [timeout = 3600]
+  sessions
+    "HOL-Types_To_Sets"
+  theories
+    "HOL-Types_To_Sets.Types_To_Sets"
+    Nullstellensatz_Field
+  document_files
+    "root.tex"
+    "root.bib"

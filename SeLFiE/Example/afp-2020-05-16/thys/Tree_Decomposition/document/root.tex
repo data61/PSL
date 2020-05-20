@@ -1,0 +1,130 @@
+\documentclass[11pt,a4paper]{scrartcl}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath,amsfonts}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\typearea{11}
+\renewcommand{\bf}{\normalfont\bfseries}
+\renewcommand{\rm}{\normalfont\rmfamily}
+\renewcommand{\it}{\normalfont\itshape}
+
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Tree Decompositions}
+\author{Christoph Dittmann\\christoph.dittmann@tu-berlin.de}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+  We formalize tree decompositions and tree width in Isabelle/HOL,
+  proving that trees have treewidth~1.  We also show that every edge
+  of a tree decomposition is a separation of the underlying graph.  As
+  an application of this theorem we prove that complete graphs of size
+  $n$ have treewidth $n-1$.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+We follow \cite{diestel2006} in terms of the definition of tree
+decompositions and treewidth.  We write a fairly minimal formalization
+of graphs and trees and then go straight to tree decompositions.
+
+Let $G = (V,E)$ be a graph and $(\mathcal{T},\beta)$ be a tree
+decomposition, where $\mathcal{T}$ is a tree and $\beta:
+V(\mathcal{T}) \to 2^V$ maps bags to sets of vertices.  Our main
+theorem is that if $(s,t) \in V(\mathcal{T})$ is an edge of the tree
+decomposition, then $\beta(s) \cap \beta(t)$ is a separator of $G$,
+separating
+\[ \bigcup_{\text{$u \in V(T)$ is in the left subtree of $\mathcal{T}
+      \setminus (s,t)$}} \beta(u) \] and
+\[ \bigcup_{\text{$u \in V(T)$ is in the right subtree of $\mathcal{T}
+      \setminus (s,t)$}} \beta(u). \]
+
+As an application of this theorem we show that if $K_n$ is the
+complete graph on $n$ vertices, then the treewidth of $K_n$ is $n-1$.
+
+Independent of this theorem, relying only on the basic definitions of
+tree decompositions, we also prove that trees have treewidth 1 if they
+have at least one edge (and treewidth 0 otherwise, which is trivial
+and holds for all graphs).
+
+\subsection{Avoid List Indices}
+
+While this will be obvious for more experienced Isabelle/HOL users,
+what we learned in this work is that working with lists becomes
+significantly easier if we avoid indices.  It turns out that indices
+often trip up Isabelle's automatic proof methods.  Rewriting a proof
+with list indices to a proof without often reduced the length of the
+proof by 50\% or more.
+
+For example, instead of saying ``let $n \in \mathbb{N}$ be maximal
+such that the first $n$ elements of the list all satisfy property
+$P$'', it is better to say ``let $ps$ be a maximal prefix such that
+all elements of $ps$ satisfy $P$''.
+
+\subsection{Future Work}
+
+We have several ideas for future work.  Let us enumerate them in order
+of ascending difficulty (subjectively, of course).
+\begin{enumerate}
+\item The easiest would be a formalization of the fact that treewidth
+  is closed under minors and disjoint union, and that adding a single
+  edge increases the treewidth by at most one.  There are probably
+  many more theorems similar to these.
+\item A more interesting project would be a formalization of the cops
+  and robber game for treewidth, where the number of cops is
+  equivalent to the treewidth plus one.  See \cite{fomin2008} for a
+  survey on these games.
+\item Another interesting project would be a formal proof that the
+  treewidth of a square grid is large.  It seems reasonable to expect
+  that this could profit from a formalization of cops and robber
+  games, but it is no prerequisite.
+\item An ambitious long-term project would be a full formalization of
+  the grid theorem by Robertson and Seymour
+  \cite{robertson_seymour_graphs/V}.  They showed that there exists a
+  function $f: \mathbb{N} \to \mathbb{N}$ such that for every $k \in
+  \mathbb{N}$ it holds that if a graph has treewidth at least $f(k)$,
+  then it contains a $k \times k$ grid as a minor.
+\end{enumerate}
+
+Another more technical point would be to evaluate whether it would be
+good to use the ``Graph Theory'' library \cite{Graph_Theory-AFP} from
+the Archive of Formal Proofs instead of reimplementing graphs here.
+At first glance it seems that the graph theory library would provide a
+lot of helpful lemmas.  On the other hand, it would be a non-trivial
+dependency with its own idiosyncrasies, which could complicate the
+development of tree decomposition proofs.  The author feels that
+overall it is probably a good idea to base this work on the graph
+theory library, but it needs further consideration.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Bibliography}
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

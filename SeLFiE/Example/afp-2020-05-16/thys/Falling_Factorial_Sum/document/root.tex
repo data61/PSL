@@ -1,0 +1,98 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{The Falling Factorial of a Sum}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+
+This entry shows that the falling factorial of a sum can be computed with an expression
+using binomial coefficients and the falling factorial of its summands. The entry provides
+three different proofs: a combinatorial proof, an induction proof and an algebraic proof
+using the Vandermonde identity.
+
+The three formalizations try to follow their informal presentations from a Mathematics Stack
+Exchange page~\cite{mse-1, mse-2, mse-3, mse-4} as close as possible. The induction and
+algebraic formalization end up to be very close to their informal presentation, whereas the
+combinatorial proof first requires the introduction of list interleavings, and significant
+more detail than its informal presentation.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\section{Note on Copyright Licensing}
+
+The initial material of the informal proof for this formalisation is provided
+on Mathematics Stack Exchange under the Creative Commons Attribution-ShareAlike
+3.0 Unported license (CC BY-SA 3.0; \url{https://creativecommons.org/licenses/by-sa/3.0/}),
+which is pointed out on the the Mathematics Stack Exchange terms of use
+at~\url{https://stackexchange.com/legal/terms-of-service}.
+
+The two main proofs, the induction and the algebraic proof in this AFP entry
+are (even textually) very close to the initial material from Mathematics Stack Exchange.
+
+In case the two Isabelle proofs are judged to build upon the main proofs from
+Mathematics Stack Exchange, the CC BY-SA 3.0 license requires that these proofs
+must be available under the same license, and hence, these proofs are consequently
+licensed under CC BY-SA 3.0. In case the two Isabelle proofs are not judged to build
+upon the material from Mathematics Stack Exchange, I as an author provide them under
+the 3-Clause BSD License~(\url{https://opensource.org/licenses/BSD-3-Clause}) to
+allow their seemless integration into the Isabelle repository at any point in time.
+
+All other content that does not build upon the material from Mathematics Stack Exchange
+is licensed under the 3-clause BSD License, and can be copied, moved or integrated in
+other work licensed under the 3-clause BSD License without further consideration of the
+different obligations of the existing copyright licensing.
+
+\nocite{*}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

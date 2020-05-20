@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mlton -verbose 1 -default-type intinf -output NDFS_Benchmark NDFS_Benchmark.mlb
+
+# mlton -verbose 1 -profile time -default-type intinf -output NDFS_Benchmark NDFS_Benchmark.mlb

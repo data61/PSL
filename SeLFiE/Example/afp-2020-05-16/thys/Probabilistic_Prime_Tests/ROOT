@@ -1,0 +1,14 @@
+chapter AFP
+
+session Probabilistic_Prime_Tests (AFP) = "HOL-Probability" +
+  options [timeout = 1500]
+  sessions
+    "HOL-Algebra"
+    "HOL-Computational_Algebra"
+    "HOL-Number_Theory"
+  theories
+    Fermat_Test
+    Miller_Rabin_Test
+    Solovay_Strassen_Test
+  document_files
+    "root.tex"

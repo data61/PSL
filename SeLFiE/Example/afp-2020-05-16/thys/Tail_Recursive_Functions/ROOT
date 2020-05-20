@@ -1,0 +1,11 @@
+chapter AFP
+
+session Tail_Recursive_Functions (AFP) = "HOL-Library" +
+  options [timeout = 3600]
+  theories
+    Method
+    CaseStudy1
+    CaseStudy2
+  document_files
+    "root.bib"
+    "root.tex"

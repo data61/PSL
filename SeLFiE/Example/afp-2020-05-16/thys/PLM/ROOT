@@ -1,0 +1,29 @@
+chapter AFP
+
+session "PLM" (AFP) = "HOL" +
+  options [show_question_marks = false, timeout = 600, names_short = true]
+  sessions
+    "HOL-Eisbach"
+    "HOL-Library"
+  theories
+    TAO_1_Embedding
+    TAO_2_Semantics
+    TAO_3_Quantifiable
+    TAO_4_BasicDefinitions
+    TAO_5_MetaSolver
+    TAO_6_Identifiable
+    TAO_7_Axioms
+    TAO_8_Definitions
+    TAO_9_PLM
+    TAO_10_PossibleWorlds
+    TAO_98_ArtificialTheorems
+    TAO_99_SanityTests
+    TAO_99_Paradox
+    Thesis
+  document_files
+    "root.tex"
+    "root.bib"
+    "external.tex"
+    "aczel-model.pdf"
+    "BNF.pdf"
+    "logo.pdf"

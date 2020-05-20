@@ -1,0 +1,108 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+
+\usepackage{mathtools,amsthm,amssymb}
+\usepackage{isabelle,isabellesym}
+
+\usepackage[T1]{fontenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+% LTL Operators
+
+\newcommand{\true}{{\ensuremath{\mathbf{t\hspace{-0.5pt}t}}}}
+\newcommand{\false}{{\ensuremath{\mathbf{ff}}}}
+\newcommand{\F}{{\ensuremath{\mathbf{F}}}}
+\newcommand{\G}{{\ensuremath{\mathbf{G}}}}
+\newcommand{\X}{{\ensuremath{\mathbf{X}}}}
+\newcommand{\U}{{\ensuremath{\mathbf{U}}}}
+\newcommand{\W}{{\ensuremath{\mathbf{W}}}}
+\newcommand{\M}{{\ensuremath{\mathbf{M}}}}
+\newcommand{\R}{{\ensuremath{\mathbf{R}}}}
+
+% LTL Subformulas
+
+\newcommand{\subf}{\textit{sf}\,}
+
+\newcommand{\sfmu}{{\ensuremath{\mathbb{\mu}}}}
+\newcommand{\sfnu}{{\ensuremath{\mathbb{\nu}}}}
+\newcommand{\setmu}{\ensuremath{M}}
+\newcommand{\setnu}{\ensuremath{N}}
+\newcommand{\setF}{\ensuremath{\mathcal{F}}}
+\newcommand{\setG}{\ensuremath{\mathcal{G}}}
+\newcommand{\setFG}{\ensuremath{\mathcal{F\hspace{-0.1em}G}}}
+\newcommand{\setGF}{\ensuremath{\mathcal{G\hspace{-0.1em}F}\!}}
+
+% LTL Functions
+
+\newcommand{\evalnu}[2]{{#1[#2]^\Pi_1}}
+\newcommand{\evalmu}[2]{{#1[#2]^\Sigma_1}}
+\newcommand{\flatten}[2]{{#1[#2]^\Sigma_2}}
+\newcommand{\flattentwo}[2]{{#1[#2]^\Pi_2}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\begin{document}
+
+\title{An Efficient Normalisation Procedure for Linear Temporal Logic: Isabelle/HOL Formalisation}
+\author{Salomon Sickert}
+
+\maketitle
+
+\begin{abstract}
+In the mid 80s, Lichtenstein, Pnueli, and Zuck proved a classical theorem stating that every formula of Past LTL (the extension of LTL with past operators) is equivalent to a formula of the form $\bigwedge_{i=1}^n \G\F \varphi_i \vee \F\G \psi_i $, where $\varphi_i$ and $\psi_i$ contain only past operators \cite{DBLP:conf/lop/LichtensteinPZ85,XXXX:phd/Zuck86}. Some years later, Chang, Manna, and Pnueli built on this result to derive a similar normal form for LTL \cite{DBLP:conf/icalp/ChangMP92}. Both normalisation procedures have a non-elementary worst-case blow-up, and follow an involved path from formulas to counter-free automata to star-free regular expressions and back to formulas. We improve on both points. We present an executable formalisation of a direct and purely syntactic normalisation procedure for LTL yielding a normal form, comparable to the one by Chang, Manna, and Pnueli, that has only a single exponential blow-up.
+\end{abstract}
+
+\tableofcontents
+
+\section{Overview}
+
+This document contains the formalisation of the central results appearing in \cite[Sections 4-6]{XXXX:conf/lics/SickertE20}. We refer the interested reader to \cite{XXXX:conf/lics/SickertE20} or to the extended version \cite{DBLP:journals/corr/abs-2005-00472} for an introduction to the topic, related work, intuitive explanations of the proofs, and an application of the normalisation procedure, namely, a translation from LTL to deterministic automata.
+
+The central result of this document is the following theorem: 
+
+\begin{theorem}
+Let $\varphi$ be an LTL formula and let $\Delta_2$, $\Sigma_1$, $\Sigma_2$, and $\Pi_1$ be the classes of LTL formulas from Definition \ref{def:future_hierarchy}. Then $\varphi$ is equivalent to the following formula from the class $\Delta_2$:
+\[
+\bigvee_{\substack{\setmu \subseteq \sfmu(\varphi)\\\setnu \subseteq \sfnu(\varphi)}} \left( \flatten{\varphi}{\setmu} \wedge \bigwedge_{\psi \in \setmu} \G\F(\evalmu{\psi}{\setnu}) \wedge \bigwedge_{\psi \in \setnu} \F\G(\evalnu{\psi}{\setmu}) \right)
+\]
+\noindent where $\flatten{\psi}{\setmu}$, $\evalmu{\psi}{\setnu}$, and $\evalnu{\psi}{\setmu}$ are functions mapping $\psi$ to a formula from $\Sigma_2$, $\Sigma_1$, and $\Pi_1$, respectively.
+\end{theorem}
+
+\begin{definition}[Adapted from \cite{DBLP:conf/mfcs/CernaP03}]
+\label{def:future_hierarchy}
+We define the following classes of LTL formulas:
+\begin{itemize}
+	\item The class $\Sigma_0 = \Pi_0 = \Delta_0$ is the least set containing all atomic propositions and their negations, and is closed under the application of conjunction and disjunction.
+	\item The class $\Sigma_{i+1}$ is the least set containing $\Pi_i$ and is closed under the application of conjunction, disjunction, and the $\X$, $\U$, and $\M$ operators.
+	\item The class $\Pi_{i+1}$ is the least set containing $\Sigma_i$ and is closed under the application of conjunction, disjunction, and the $\X$, $\R$, and $\W$ operators.
+	\item The class $\Delta_{i+1}$ is the least set containing $\Sigma_{i+1}$ and $\Pi_{i+1}$ and is closed under the application of conjunction and disjunction.
+\end{itemize}
+\end{definition}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{plainurl}
+\bibliography{root}
+
+\end{document}

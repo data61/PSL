@@ -1,0 +1,36 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Localization of a Commutative Ring}
+\author{Anthony Bordg}
+\maketitle
+
+\begin{abstract}
+We formalize the localization~\cite[II, \S4]{SL-Alg} of a commutative ring $R$ with respect to a multiplicative subset (i.e. a submonoid of $R$ seen as a multiplicative monoid). \\ This localization is itself a commutative ring and we build the natural homomorphism of rings from $R$ to its localization.
+
+\end{abstract}
+
+\tableofcontents
+
+
+\input{session}
+
+\section{Acknowledgements}
+The author was supported by the ERC Advanced Grant ALEXANDRIA (Project 742178) funded by the European Research Council and led by Professor Lawrence Paulson at the University of Cambridge, UK.
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

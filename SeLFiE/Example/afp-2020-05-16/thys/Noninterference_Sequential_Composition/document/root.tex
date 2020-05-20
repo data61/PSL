@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Conservation of CSP Noninterference Security\\under Sequential Composition}
+\author{Pasquale Noce\\Security Certification Specialist at Arjo Systems, Italy\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at arjosystems dot com}
+\maketitle
+
+\begin{abstract}
+In his outstanding work on Communicating Sequential Processes, Hoare has defined
+two fundamental binary operations allowing to compose the input processes into
+another, typically more complex, process: sequential composition and concurrent
+composition. Particularly, the output of the former operation is a process that
+initially behaves like the first operand, and then like the second operand once
+the execution of the first one has terminated successfully, as long as it does.
+
+This paper formalizes Hoare's definition of sequential composition and proves,
+in the general case of a possibly intransitive policy, that CSP noninterference
+security is conserved under this operation, provided that successful termination
+cannot be affected by confidential events and cannot occur as an alternative to
+other events in the traces of the first operand. Both of these assumptions are
+shown, by means of counterexamples, to be necessary for the theorem to hold.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

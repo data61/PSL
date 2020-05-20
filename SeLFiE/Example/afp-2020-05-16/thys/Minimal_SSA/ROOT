@@ -1,0 +1,9 @@
+chapter AFP
+
+session Minimal_SSA (AFP) = Formal_SSA +
+  options [timeout = 600]
+  theories
+    Irreducible
+  document_files
+    "root.tex"
+    "root.bib"

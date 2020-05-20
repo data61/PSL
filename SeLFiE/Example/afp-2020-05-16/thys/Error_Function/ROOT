@@ -1,0 +1,11 @@
+chapter AFP
+
+session Error_Function (AFP) = "HOL-Complex_Analysis" +
+  options [timeout = 300]
+  sessions
+    Landau_Symbols
+  theories
+    Error_Function
+    Error_Function_Asymptotics
+  document_files
+    "root.tex"

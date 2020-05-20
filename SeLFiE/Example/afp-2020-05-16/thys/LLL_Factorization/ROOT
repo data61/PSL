@@ -1,0 +1,15 @@
+chapter AFP
+
+session LLL_Factorization (AFP) = LLL_Basis_Reduction +
+  description "LLL Factorization Algorithm"
+  options [timeout = 300]
+  sessions
+    Perron_Frobenius
+  theories
+    LLL_Factorization_Impl
+    LLL_Factorization
+    Factorization_Algorithm_16_22
+    Modern_Computer_Algebra_Problem
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,14 @@
+chapter AFP
+
+session Stone_Relation_Algebras (AFP) = Stone_Algebras +
+  options [timeout = 600]
+  theories
+    Fixpoints
+    Semirings
+    Relation_Algebras
+    Relation_Subalgebras
+    Matrix_Relation_Algebras
+    Linear_Order_Matrices
+  document_files
+    "root.tex"
+    "root.bib"

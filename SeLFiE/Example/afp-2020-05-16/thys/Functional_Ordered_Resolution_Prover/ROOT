@@ -1,0 +1,16 @@
+chapter AFP
+
+session Functional_Ordered_Resolution_Prover (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    First_Order_Terms
+    Nested_Multisets_Ordinals
+    Ordered_Resolution_Prover
+    Open_Induction
+    Polynomial_Factorization
+  theories
+    Deterministic_FO_Ordered_Resolution_Prover
+    IsaFoR_Term
+    Executable_Subsumption
+  document_files
+    "root.tex"

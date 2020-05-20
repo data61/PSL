@@ -1,0 +1,46 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Euler's Partition Theorem}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+Euler's Partition Theorem states that the number of partitions with only
+distinct parts is equal to the number of partitions with only odd parts.
+The combinatorial proof follows John Harrison's pre-existing HOL Light
+formalization~\cite{Harrison}.
+To understand the rough idea of the proof, I read the lecture notes of
+the MIT course 18.312 on Algebraic Combinatorics~\cite{Musiker-2009}
+by Gregg Musiker.
+This theorem is the 45th theorem of the Top 100 Theorems list.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,amsmath}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{wasysym}
+\usepackage{booktabs}
+\usepackage{authblk}
+\usepackage[inline]{enumitem}
+\usepackage{amsthm}
+\usepackage{mathptmx}
+\usepackage{tikz}
+\usetikzlibrary{%
+  arrows,%
+  arrows.meta,%
+  calc,%
+  chains,%
+  patterns,%
+  decorations.pathreplacing,%
+  fit,%
+  intersections,%
+  positioning,%
+  shapes.multipart,%
+  svg.path,%
+}
+
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\CryptHOL}{CryptHOL}
+%
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+
+\begin{document}
+
+\title{Game-based cryptography in HOL}
+\author{Andreas Lochbihler and S. Reza Sefidgar and Bhargav Bhatt}
+\maketitle
+
+\begin{abstract}
+  In this AFP entry, we show how to specify game-based cryptograph\-ic security notions and formally prove secure
+  several cryptographic constructions from the literature using the CryptHOL framework.
+  Among others, we formalise the notions of a random oracle, a pseudo-random function, an
+  unpredictable function, and of encryption schemes that are indistinguishable under chosen plaintext
+  and/or ciphertext attacks.
+  We prove the random-permutation/random-function switching lemma, security of the Elgamal
+  and hashed Elgamal public-key encryption scheme and correctness and security of several
+  constructions with pseu\-do-random functions.
+
+  Our proofs follow the game-hopping style advocated by Shoup \cite{Shoup2004IACR} and Bellare and
+  Rogaway \cite{BellareRogaway2006EUROCRYPT}, from which most of the examples have been taken.
+  We generalise some of their results such that they can be reused in other proofs.
+  Thanks to CryptHOL's integration with Isabelle's parametricity infrastructure, many simple hops
+  are easily justified using the theory of representation independence.
+\end{abstract}
+
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

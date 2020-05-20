@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Hermite Normal Form}
+\author{By Jose Divas\'on and Jes\'us Aransay\thanks{This research has been funded 
+  by the research grant FPI-UR-12 of the Universidad de La Rioja and by the project MTM2014-54151-P from Ministerio de Econom\'ia y Competitividad
+(Gobierno de Espa\~na).}}
+\maketitle
+
+\begin{abstract}
+The Hermite Normal Form is a canonical matrix analogue of Reduced Echelon Form, but involving matrices over more general rings.
+In this work we formalise an algorithm to compute the Hermite Normal Form of a matrix by means of elementary row operations, 
+taking advantage of the Echelon Form AFP entry. We have proven the correctness of such an algorithm and refined it to immutable arrays.
+Furthermore, we have also formalised the uniqueness of the Hermite Normal Form of a matrix.
+Code can be exported and some examples of execution involving $\mathbb{Z}$-matrices and $\mathbb{K}[x]$-matrices are presented as well.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

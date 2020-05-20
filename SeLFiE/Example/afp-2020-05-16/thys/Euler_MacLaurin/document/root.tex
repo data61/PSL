@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Euler--MacLaurin summation formula}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+The Euler--MacLaurin formula relates the value of a discrete sum 
+$\sum_{i=a}^b f(i)$ to that of the integral $\int_a^b f(x)\,\text{d}x$ in 
+terms of the derivatives of $f$ at $a$ and $b$ and a remainder term. Since the remainder term is often very small as $b$ grows, this can be used 
+to compute asymptotic expansions for sums.
+	
+This entry contains a proof of this formula for functions from the reals to an arbitrary Banach space. Two variants of the formula are given: the standard textbook version and a variant outlined in \emph{Concrete Mathematics}~\cite{GKP_CM} that is more useful for deriving asymptotic estimates. 
+
+As example applications, we use that formula to derive the full asymptotic expansion of the harmonic numbers and the sum of inverse squares.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

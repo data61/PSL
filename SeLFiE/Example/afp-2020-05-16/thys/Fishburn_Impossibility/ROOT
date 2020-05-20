@@ -1,0 +1,11 @@
+chapter AFP
+
+session Fishburn_Impossibility (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    Randomised_Social_Choice
+  theories
+    Fishburn_Impossibility
+  document_files
+    "root.tex"
+    "root.bib"

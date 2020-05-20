@@ -1,0 +1,31 @@
+chapter AFP
+
+session LocalLexing (AFP) = HOL +
+  options [timeout = 300]
+  theories
+    CFG
+    LocalLexing
+    LLEarleyParsing
+    Limit
+    LocalLexingLemmas
+    InductRules
+    ListTools
+    Derivations
+    Validity
+    TheoremD2
+    TheoremD4
+    TheoremD5
+    TheoremD6
+    TheoremD7
+    TheoremD8
+    TheoremD9
+    Ladder
+    TheoremD10
+    TheoremD11
+    TheoremD12
+    TheoremD13
+    TheoremD14
+    PathLemmas
+    MainTheorems
+  document_files
+    "root.tex"

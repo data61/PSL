@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Mersenne primes and the Lucas--Lehmer test}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This article provides formal proofs of basic properties of Mersenne numbers, i.\,e.\ numbers of the form $2^n - 1$, and especially of Mersenne primes.
+In particular, an efficient, verified, and executable version of the Lucas--Lehmer test is developed. This test decides primality for Mersenne numbers in
+time polynomial in $n$.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,92 @@
+(* README FOR EXPLANATION 
+
+This directory contains the Isabelle/HOL theory files (.thy) related to the Vickrey–Clarke–Groves
+(VCG) auction. 
+These are part of the Auction Theory Toolbox (ATT) developed in the ForMaRE project.
+The VCG auction is a generalization of the single-good, second price Vickrey auction to the case of
+a combinatorial auction (multiple goods, from which any participant can bid on each possible
+combination).
+
+The theories CombinatorialAuction.thy, StrictCombinatorialAuction.thy and UniformTieBreaking.thy
+contain the relevant definitions and theorems;  
+CombinatorialAuctionExamples.thy and CombinatorialAuctionCodeExtraction.thy present simple helper
+definitions to run the definitions on given examples and to export them to the Scala language,
+respectively; FirstPrice.thy shows how easy it is to adapt the definitions to the first price
+combinatorial auction. 
+
+The remaining theories contain more general mathematical definitions and theorems.
+More details on our implementation of VCG, and on the overall approach of formal methods to auction
+theory, can be found in the paper `Sound Auction Specification and Implementation', which is
+available at http://www.cs.bham.ac.uk/research/projects/formare/vcg.html.
+
+-   Rationale for developing set theory as replacing one bidder in a second price auction.
+
+Throughout the whole ATT, there is a duality in the way mathematical notions are modeled: either
+through objects typical of lambda calculus and HOL (lambda-abstracted functions and lists, for
+example) or through objects typical of set theory (for example, relations, intersection, union, set
+difference, cartesian product).
+
+This is possible because inside HOL, it is possible to model a simply-typed set theory which,
+although quite restrained if compared to, e.g., ZFC, is powerful enough for many standard
+mathematical purposes.
+
+ATT freely adopts one approach, the other, or a mixture thereof, depending on technical and
+expressive convenience.
+A technical discussion of this topic can be found in the paper 
+"Set Theory or Higher Order Logic to Represent Auction Concepts in Isabelle?" 
+(Intelligent Computer Mathematics, Lecture Notes in Computer Science Volume 8543, 2014, pp 236-251).
+A preprint of this paper is freely available at http://arxiv.org/abs/1406.0774.
+
+-   Bridging
+
+One of the differences between these two approaches is that, commonly (although not always), the
+first approach is better suited to produce Isabelle/HOL definitions which are computable (typically,
+inductive definitions), while the definitions from the second approach are more general (e.g.,
+encompassing infinite sets), closer to pen-and-paper mathematics, but often not computable.
+This means that many theorems are proved with respect definitions of the second type, while we in
+the end want them to apply to definitions of the first type, because we want our theorems to hold
+for the code we will be actually running.
+Hence, bridging theorems are needed, showing that, for the limited portions of objects for which we
+state both kinds of definitions, they are the same.
+
+-   Main theorems
+
+The main theorems about VCG auctions are
+- the definiteness theorem: our definitions grant that there is exactly one solution; this is 
+  ensured by vcgaDefiniteness.
+- PairwiseDisjointAllocations: no good is allocated to more than one participant.
+- onlyGoodsAreAllocated: only the actually available goods are allocated.
+- the adequacy theorem: the solution provided by our algorithm is indeed the one prescribed by
+  standard pen-and-paper definition.
+- NonnegPrices: no participant ends up paying a negative price 
+  (e.g., no participant receives money at the end of the auction).
+- Bridging theorems: as discussed above, such theorems permit to apply the theorems in this 
+  list to the executable code Isabelle generates.
+
+-  Scala code extraction
+
+Isabelle permits to generate, from our definition of VCG, Scala code to run any VCG auction.
+This code is in the form of Scala functions which can be evaluated on any input 
+(e.g., a bidvector) to return the resulting allocation and prices.
+
+One easy way to deploy such functions is to use the provided Scala wrapper (taking care of the
+output and including sample inputs).
+In order to do so, you can evaluate inside Isabelle/JEdit the file
+CombinatorialAuctionCodeExtraction.thy (position the cursor on its last line and wait for
+Isabelle/JEdit to end all its processing).
+This will result in the file /dev/shm/VCG-withoutWrapper.scala, which can be automatically appended
+the wrapper by running the shell script commented out after the end of
+CombinatorialAuctionCodeExtraction.thy.
+
+
+-  External Resources:
+
++   link to EC-2015, 16th ACM Conference on Economics and Computation
+    https://doi.org/10.1145/2764468.2764511
++   link to the CICM-2014
+    http://arxiv.org/abs/1406.0774.
++   link to the VCG description
+    http://www.cs.bham.ac.uk/research/projects/formare/vcg.php
++   link to the Isabelle source code and the corresponding scala files
+    https://github.com/formare/auctions/tree/master/isabelle/Auction/Vcg
+*)

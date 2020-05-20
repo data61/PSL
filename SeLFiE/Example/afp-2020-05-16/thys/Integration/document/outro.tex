@@ -1,0 +1,60 @@
+\chapter{Epilogue}
+\label{cha:epilogue}
+
+To come to a conclusion, a few words shall
+subsume the work done and point out opportunities for future research at the same time.
+
+What has been achieved? After opening with some
+introductory notes, we began translating the language of measure
+theory into machine checkable text. For the material in
+section \ref{sec:preliminaries}, this had been done before. Besides laying the
+foundation for the development, the style of presentation should make it
+noteworthy.  
+
+It is a particularity of the present work that its theories are
+written in the Isar language, a declarative proof language that aims
+to be ``intelligible''. This is not a novelty, nor is it the author's
+merit. Still, giving full formal proofs in a text intended to be read
+by people is in a way experimental. Clearly, it is bound to put some
+strain on the reader. Nevertheless, I hope that we have made a little
+step towards formalizing mathematical knowledge in a way that is
+equally suitable for computation and understanding. One aim of the
+research done has been to demonstrate the viability of this approach.
+Unquestionably, there is plenty room for improvement regarding the
+quality of presentation. The language itself has, in my opinion,
+proven to be fit for a wide range of applications, including the
+classical mathematics we used it for.
+
+Returning to a more content-centered viewpoint, we discussed the
+measurability of real-valued functions in section \ref{sec:realrandvar}. As
+explained there, earlier scholarship has resulted in related theories
+for the MIZAR environment though the development seems to have
+stopped. Anyway, the mathematics covered should be new to HOL-based
+systems. 
+
+More functions could obviously be demonstrated to be random
+variables. We shortly commented on an alternative approach in the
+section just mentioned. It is applicable to continuous functions,
+proving these measurable all at once. Efforts on topological spaces
+would be required, but they constitute an interesting field
+themselves, so it is probably worth the while.
+
+In the third chapter, integration in the Lebesgue style
+has been looked at in depth. To my knowledge, no similar theory had
+been developed in a theorem prover up to this point.  We managed to
+systematically establish the integral of increasingly complex
+functions. Simple or nonnegative functions ought to be treated in
+sufficient detail by now. Of course, the repository of potential
+supplementary facts is vast. Convergence theorems, as well as the
+interrelationship with differentiation or concurrent integral concepts,
+are but a few examples. They leave ample space for subsequent work.
+
+A shortcoming of the present development lies in the lack of
+user assistance. Greater care could be taken to ensure automatic
+application of appropriate simplification rules --- or to design such
+rules in the first place. Likewise, the principal requirement of
+integrability might hinder easy usage of the integral. Fixing a
+default value for undefined integrals could possibly make some case
+distinctions obsolete. Facets like these have not been addressed in
+their due extent.
+
