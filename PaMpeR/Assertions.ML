@@ -1086,9 +1086,9 @@ related_const_rule "unfold" "fixrec",
 related_type_rule "unfold" "domain",
 (*84*) (*fact_fixrec_or_domain*)
 related_const_or_type_rule "unfold" "fixrec" "unfold" "domain",
-(*86*) (*has_nominal_datatype_var1,*)
+(*85*) (*has_nominal_datatype_var1,*)
 related_type_rule "narrowing...simp" "nominal_datatype",
-(*87*) (*has_nominal_datatype_var2,*)
+(*86*) (*has_nominal_datatype_var2,*)
 related_type_rule "constr_rep" "nominal_datatype",
 (*87*) (*has_nominal_datatype_var3*)
 related_type_rule "rec_unique" "nominal_datatype",
