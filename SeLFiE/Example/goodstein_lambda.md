@@ -27,3 +27,14 @@
       proof (induct n arbitrary: ns rule: funC.induct)
       ```
    - `arbitrary: ns` because of `C (n # ns) ∈ hbase_ext (Suc c)`?
+
+- [ ] `lemma goodstein⇩O:` in Line 709
+   - `"goodsteinO c n = goodstein⇩O c ⟨n⟩⇩O"`
+   - `apply (induct n arbitrary: c) by simp_all`
+   - `arbitrary: c` because of
+     ```
+     primrec goodsteinO where
+       "goodsteinO c Z = c"
+     | "goodsteinO c (S n) = goodsteinO (c+1) n"
+     | "goodsteinO c (L f) = goodsteinO c (f (c+2))"
+     ```
