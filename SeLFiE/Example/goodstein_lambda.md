@@ -6,7 +6,7 @@
    - `induct n` because we prefer to apply induction on the left-hand side of the equation.
    - `arbitrary: m` because `n = m` and `induct n`. (and same relative location heuristic w.r.t. `n`. in `m ∈ hbase b` and `evalC b m`.)
    
-- [ ]  `have "addO n (expω m) = addO n' (expω m') ⟹ n = n'` in Line 194
+- [ ] `have "addO n (expω m) = addO n' (expω m') ⟹ n = n'` in Line 194
    - `apply (induct m arbitrary: m'`
    - because of the same reason we used for `evalC_inj_on_hbase`.
      
@@ -19,3 +19,11 @@
     | "goodsteinC c (C (C [] # ns))       = goodsteinC (c+1) (C ns)"
     | "goodsteinC c (C (C (n # ns) # ms)) = goodsteinC c (C (funC (C (n # ns)) (c+2) @ ms))"
     ```
+    
+- [ ] `lemma hbase_funC`
+   - ```
+     "c ≠ 0 ⟹ C (n # ns) ∈ hbase_ext (Suc c) ⟹
+      C (funC n (Suc c) @ ns) ∈ hbase_ext (Suc c)"
+      proof (induct n arbitrary: ns rule: funC.induct)
+      ```
+   - `arbitrary: ns` because of `C (n # ns) ∈ hbase_ext (Suc c)`?
