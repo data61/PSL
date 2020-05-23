@@ -8,6 +8,7 @@ section \<open>Nearest Neighbor Search on the \<open>k\<close>-d Tree\<close>
 theory Nearest_Neighbors
 imports
   KD_Tree
+  "../../../More_SeLFiE_Assertion"
 begin
 
 text \<open>
@@ -34,6 +35,7 @@ definition sorted_wrt_dist :: "('k::finite) point \<Rightarrow> 'k point list \<
 
 lemma sorted_wrt_dist_insort_key:
   "sorted_wrt_dist p ps \<Longrightarrow> sorted_wrt_dist p (insort_key (\<lambda>q. dist q p) q ps)"
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb[],rule[]]
   by (induction ps) (auto simp: sorted_wrt_dist_def set_insort_key)
 
 lemma sorted_wrt_dist_take_drop:
@@ -44,7 +46,9 @@ lemma sorted_wrt_dist_take_drop:
 lemma sorted_wrt_dist_last_take_mono:
   assumes "sorted_wrt_dist p ps" "n \<le> length ps" "0 < n"
   shows "dist (last (take n ps)) p \<le> dist (last ps) p"
-  using assms unfolding sorted_wrt_dist_def by (induction ps arbitrary: n) (auto simp add: take_Cons')
+  using assms unfolding sorted_wrt_dist_def 
+    assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb[],rule[]]
+  by (induction ps arbitrary: n) (auto simp add: take_Cons')
 
 lemma sorted_wrt_dist_last_insort_key_eq:
   assumes "sorted_wrt_dist p ps" "insort_key (\<lambda>q. dist q p) q ps \<noteq> ps @ [q]"

@@ -13,7 +13,7 @@
  * SeLFiE: Semantic Logical Feature Extractor.
  *)
 theory SeLFiE
-  imports "../PSL/PSL"
+  imports "PSL.PSL"
   keywords "assert_SeLFiE_true"      :: diag
   and      "assert_SeLFiE_false"     :: diag
 (*
@@ -33,7 +33,9 @@ ML_file "Unique_Node.ML"
 ML_file "Unique_Node_Test.ML"
 ML_file "Path_Table_And_Print_Table.ML"
 ML_file "Term_Table.ML"
+(* This Term_Table_Test works only in the interactive mode.
 ML_file "Term_Table_Test.ML"
+*)
 ML_file "Dynamic_Induct.ML"
 
 ML_file "Eval_Bool.ML"
