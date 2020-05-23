@@ -75,24 +75,15 @@ fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) :terms =
     command_to_definitions command: terms
   end;
 
-fun gen_path_to_definitions (pst:Proof.state) (term:term) path pst_n_term_n_path_to_cname =
+in
+
+fun pst_n_cname_to_definitions (pst:Proof.state) (cname:string) =
   let
-    val cname       = pst_n_term_n_path_to_cname pst term path                    : string option;
-    val ctxt        = Proof.context_of pst                                        : Proof.context;
-    val definitions = Option.map (ctxt_n_cname_to_definitions ctxt) cname |> these: terms;
+    val ctxt        = Proof.context_of pst                  : Proof.context;
+    val definitions = ctxt_n_cname_to_definitions ctxt cname: terms;
   in
     definitions:terms
   end;
-
-in
-
-fun outer_literal_to_definitions (pst:Proof.state) (term:term) (EP.Outer_Path (outer_path)) =
-    gen_path_to_definitions pst term outer_path Outer_Path_To_Unode.pst_n_term_n_path_to_cname
-  | outer_literal_to_definitions _ _ _ = error "outer_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. outer_literal_to_simp_rules is defined only for Outer_Literal.";
-
-fun inner_literal_to_definitions (pst:Proof.state) (term:term) (EP.Inner_Path (inner_path)) =
-    gen_path_to_definitions pst term inner_path Inner_Path_To_Unode.pst_n_term_n_path_to_cname
-  | inner_literal_to_definitions  _ _ _ = error "inner_literal_to_simp_rules in From_Multiple_To_Deep.ML failed. inner_literal_to_simp_rules is defined only for Outer_Literal.";
 
 end;
 
@@ -202,16 +193,18 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
           in
             EPWB.eval pst table induct_args assert lazy_params |> Literal
           end
-      | eval' (Dive_In   (triple as (Literal (EP.Outer_Path _), Lambda _, _))) trm table domains = dive triple trm table outer_literal_to_definitions domains
-      | eval' (Deep_Dive (triple as (Literal (EP.Inner_Path _), Lambda _, _))) trm table domains = dive triple trm table inner_literal_to_definitions domains
+      | eval' (Dive_In   (triple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _))) trm table domains = dive triple trm table domains
+      | eval' (Dive_In _) _ _ _                                                                           =  error "Dive_In failed in Eval_Unary.ML"
+      | eval' (Deep_Dive (triple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _))) trm table domains = dive triple trm table domains
+      | eval' (Deep_Dive _) _ _ _                                                                         =  error "Deep_Dive failed in Eval_Unary.ML"
       | eval' (All  (qtyp, subexpr)) trm table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ands domains) trm table domains
       | eval' (Some (qtyp, subexpr)) trm table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ors  domains) trm table domains
       | eval' expr _ _ _ = expr
-    and dive (Literal path, Lambda lambda, args) trm table (literal_to_definitions:Proof.state -> term -> EP.literal -> terms) domains =
+    and dive (Literal (EP.Non_Path (EP.Print cname)), Lambda lambda, args) trm table domains =
         let
           val _                     = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
-          val simp_rules            = literal_to_definitions pst trm path: terms;
-          val curried_expr          = mk_inner_expr (Lambda lambda) args : expr;
+          val simp_rules            = pst_n_cname_to_definitions pst cname: terms;
+          val curried_expr          = mk_inner_expr (Lambda lambda) args  : expr;
           (*TODO: use simp_rule_tables instead of simp_rules.*)
           val inner_results         = map (fn trm =>
                                       let
@@ -225,7 +218,7 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
         in
           result
         end
-      | dive _ _ _ _ _ = error "dive failed."
+      | dive _ _ _ _ = error "dive failed."
   in
     eval' expr thm_term (GP2U.Outer_Path_To_Unode outer_path_table) (outer_domains:QD.domains)
   end;

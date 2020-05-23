@@ -165,7 +165,7 @@ All ("func_occ", QOuter_Path,
     All ("func", QOuter_Print,
         Unode_Has_Print (Variable "func_occ", Variable "func")
       Imply
-        In_All_Definitions (Variable "func_occ", help_test_dive_in, [Variable "func"])
+        In_All_Definitions (Variable "func", help_test_dive_in, [Variable "func"])
     )
 )
 
@@ -175,8 +175,8 @@ Lambdas (["outer_print"],
   Debug_Non_Path_Literal (Variable "printed")));
 
 val print_all_inner_prints =
-  All ("outer_path", QOuter_Path,
-    In_All_Definitions (Variable "outer_path", print_all_inner_prints_helper, [Print "outer_print"]));
+  All ("outer_print", QOuter_Print,
+    In_All_Definitions (Variable "outer_print", print_all_inner_prints_helper, [Print "outer_print"]));
 
 val print_all_outer_prints =
 All ("printed", QOuter_Print,
@@ -207,7 +207,7 @@ All ("outer_path", QOuter_Path,
   Some ("outer_print", QOuter_Print,
     Ands [
       Unode_Has_Print (Variable "outer_path", Variable "outer_print"),
-      In_All_Definitions (Variable "outer_path", print_inner_path_root_help, [Variable "outer_print"])
+      In_All_Definitions (Variable "outer_print", print_inner_path_root_help, [Variable "outer_print"])
     ]
   )
 );
@@ -232,7 +232,7 @@ All ("outer_path", QOuter_Path,
   Some ("outer_print", QOuter_Print,
     Ands [
       Unode_Has_Print (Variable "outer_path", Variable "outer_print"),
-      In_All_Definitions (Variable "outer_path", help_print_inner_lhs, [Variable "outer_print"])
+      In_All_Definitions (Variable "outer_print", help_print_inner_lhs, [Variable "outer_print"])
     ]
   )
 );
@@ -263,7 +263,7 @@ Some ("outer_path", QOuter_Path,
     Ands [
       Unode_Has_Print (Variable "outer_path",  Variable "outer_print"),
       Is_Defined_With (Variable "outer_path", Command Fun),
-      In_All_Definitions (Variable "outer_path", help_print_n_plus_one_th_param, [Number 0])
+      In_All_Definitions (Variable "outer_print", help_print_n_plus_one_th_param, [Number 0])
       ]));
 
 val help_lifter_4_nth_arg_is_const_or_app =
@@ -625,7 +625,7 @@ Imply
               Ands [
                 Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
                 Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ"),
-                In_Some_Definitions (Variable "func_occ", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
+                In_Some_Definitions (Variable "func", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
               ]
             )
           )
@@ -717,7 +717,7 @@ val generalize_arguments_used_in_recursion =
                     Debug_Print_Unode (Variable "func_occ"),
                     Debug_Non_Path_Literal (Variable "recursive_on_nth_param"),
                     Debug_Non_Path_Literal (Variable "used_to_update_mth_arg"),
-                    In_Some_Definitions (Variable "func_occ",
+                    In_Some_Definitions (Variable "func",
                                          nth_parameter_is_used_in_mth_argument_in_recursive_call,
                                          [Variable "func", Variable "recursive_on_nth_param", Variable "used_to_update_mth_arg"]
                                          )
@@ -754,7 +754,7 @@ Imply
                     Debug_Print_Unode (Variable "func_occ"),
                     Debug_Non_Path_Literal (Variable "recursive_on_nth_param"),
                     Debug_Non_Path_Literal (Variable "used_to_update_mth_arg"),
-                    In_Some_Definitions (Variable "func_occ",
+                    In_Some_Definitions (Variable "func",
                                          nth_parameter_is_used_in_mth_argument_in_recursive_call,
                                          [Variable "func", Variable "recursive_on_nth_param", Variable "used_to_update_mth_arg"]
                                          )
