@@ -769,4 +769,19 @@ Imply
   )
 ;
 
+val test_Is_If_Then_Else =
+Some ("if_then_else", QOuter_Path,
+  Some ("if_condition", QOuter_Path,
+    Some ("then_clause", QOuter_Path,
+      Some ("else_clause", QOuter_Path,
+        Is_If_Then_Else (
+          Variable "if_then_else",
+          Variable "if_condition",
+          Variable "then_clause",
+          Variable "else_clause")
+      )
+    )
+  )
+);
+
 end;

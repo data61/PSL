@@ -136,6 +136,8 @@ setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.tes
 
 setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"          SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
 setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion" SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                   SeLFiE_Assertion.test_Is_If_Then_Else \<close>
+
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
@@ -143,6 +145,11 @@ lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise_or_below    [on["x"], arb[],rule[]]
   assert_SeLFiE_true test_is_a_meta_conclusion_or_below [on["z"], arb[],rule[]]
   assert_SeLFiE_true test_is_more_than [on["zs"], arb[],rule[]]
+  assert_SeLFiE_false  test_Is_If_Then_Else [on["zs"], arb[],rule[]]
+  oops
+
+lemma "if x then True else False"
+  assert_SeLFiE_true  test_Is_If_Then_Else [on["x"], arb[],rule[]]
   oops
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
@@ -287,6 +294,17 @@ $ Free  ("b", "'a")
 $ Const ("HOL.undefined", "'a")
 $ Const ("HOL.undefined", "'a")
 $ Free  ("x", "alpha")
+*)
+\<close>
+
+ML\<open>
+@{term "if x then y else z"};
+(*
+val it = 
+  Const ("HOL.If", "bool \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a") 
+$ Free ("x", "bool") 
+$ Free ("y", "'a") 
+$ Free ("z", "'a"): term
 *)
 \<close>
 

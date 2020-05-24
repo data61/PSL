@@ -93,6 +93,7 @@ datatype assert =
 | Is_A_Meta_Premise_Or_Below         of assert
 | Is_A_Meta_Conclusion               of assert
 | Is_A_Meta_Conclusion_Or_Below      of assert
+| Is_If_Then_Else                    of assert * assert * assert * assert
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert
 (*debug*)
@@ -195,6 +196,7 @@ datatype assert =
 | Is_A_Meta_Premise_Or_Below         of assert
 | Is_A_Meta_Conclusion               of assert
 | Is_A_Meta_Conclusion_Or_Below      of assert
+| Is_If_Then_Else                    of assert * assert * assert * assert
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert
 (*debug*)
@@ -622,6 +624,27 @@ and
           ]
         )
       )
+    end
+  | convert loc (Is_If_Then_Else (if_then_else, if_condition, then_clase, else_clase)) =
+    let
+      val hol_if_str = get_new_name [if_then_else, if_condition, then_clase, else_clase]: string;
+      val hol_if     = Variable hol_if_str                                              : assert;
+      val path_typ   = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+    in
+    convert loc (
+      Ands [
+        Is_App if_then_else,
+        Some (hol_if_str, path_typ,
+          Ands [
+            Unode_Has_Print (hol_if, Print "HOL.If")(*,
+            Is_Nth_Arg_Of (if_condition, Number 0, hol_if),
+            Is_Nth_Arg_Of (then_clase,   Number 1, hol_if),
+            Is_Nth_Arg_Of (else_clase,   Number 2, hol_if)
+*)
+          ]
+        )
+      ]
+    )
     end
   | convert loc (Some_Of (occ:string, prnt:assert, inner_assert)) =
     let
