@@ -22,7 +22,6 @@ datatype assert =
 | Takes_Less_Than_N_Arguments of gen_path * int
 (*Eval_Unode*)
 | Has_Same_Prnt_As            of gen_path * gen_path
-| Is_In_Trm_Prnt              of gen_path * gen_path
 | Is_Deeper_Than              of gen_path * gen_path
 | Is_Shallower_Than           of gen_path * gen_path
 | Is_Path_Above               of gen_path * gen_path
@@ -81,7 +80,6 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
       | eval' (PA.Takes_Less_Than_N_Arguments (p,    n)) ctxt = END.eval (END.Takes_Less_Than_N_Arguments (path_to_node p, n             )) ctxt
       (*Eval_Unode*)
       | eval' (PA.Has_Same_Prnt_As        pair)     _ = path2_to_unode2 pair    |> EU.Has_Same_Prnt_As      |> EU.eval
-      | eval' (PA.Is_In_Trm_Prnt          pair)     _ = path2_to_unode2 pair    |> EU.Is_In_Trm_Prnt        |> EU.eval
       | eval' (PA.Is_Deeper_Than          pair)     _ = path2_to_unode2 pair    |> EU.Is_Deeper_Than        |> EU.eval
       | eval' (PA.Is_Shallower_Than       pair)     _ = path2_to_unode2 pair    |> EU.Is_Shallower_Than     |> EU.eval
       | eval' (PA.Is_Path_Above           pair)     _ = path2_to_unode2 pair    |> EU.Is_Path_Above         |> EU.eval

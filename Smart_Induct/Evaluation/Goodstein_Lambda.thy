@@ -274,7 +274,7 @@ function (domintros) goodsteinC where
 | "goodsteinC c (C (C (n # ns) # ms)) =
     goodsteinC c (C (funC (C (n # ns)) (c+2) @ ms))"
   by pat_completeness auto
-
+print_theorems
 termination
 proof -
   have "goodsteinC_dom (c, n)" for c n

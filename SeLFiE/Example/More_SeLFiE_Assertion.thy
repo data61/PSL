@@ -112,13 +112,13 @@ Lambdas (["func", "number"],
         Is_Root_In_A_Location (Variable "root_path"),
         Some ("lhs_path", QInner_Path,
           Ands [
-            Is_Nth_Child_Of (Variable "lhs_path", Number 1, Variable "root_path"),
+            Applies (is_lhs_of_root, [Variable "lhs_path", Variable "root_path"]),
             Some ("part_of_nth_param_on_lhs", QInner_Path,
               Ands [
                 Is_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs", Variable "number", Variable "lhs_path"),
                 Some ("rhs_path", QInner_Path,
                   Ands [
-                    Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
+                    Applies (is_rhs_of_root, [Variable "rhs_path", Variable "root_path"]),
                     Some_Of ("func_occ_on_rhs", Variable "func",
                       Ands [
                         Is_Path_Below (Variable "func_occ_on_rhs", Variable "rhs_path"),
@@ -228,12 +228,94 @@ Imply
   )
 ;
 
+
+
+val With_Let_X_Be_Y_In_Z_Inner =
+Lambdas (["x", "y", "z"],
+  Some ("hol_let", QInner_Path,
+    Ands [
+      Unode_Has_Print (Variable "hol_let", Print "HOL.Let"),
+      Takes_N_Arguments (Variable "hol_let", Number 2),
+      Is_Nth_Arg_Of (Variable "y", Number 0, Variable "hol_let")
+    ]
+  )
+);
+(*
+(* futrm_w_prnt_n_inner_path: un-curried folded term with string and inner_path to each node *)
+datatype futrm_w_prnt_n_inner_path =
+  UFC_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
+| UFF_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
+| UFV_Prnt_n_Path of (indexname * typ                                           ) * string * inner_path
+| UFB_Prnt_n_Path of (int       * typ                                           ) * string * inner_path
+| UFL_Prnt_n_Path of (string    * typ           * futrm_w_prnt_n_inner_path     ) * string * inner_path
+| UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * string * inner_path;
+
+*)
+
 end;
 \<close>
 
 ML\<open>
-@{term "let x = True in y"};
-@{term "x y z"};
+@{term "\<lambda>x. x"};
+(*Abs ("x", "'a", Bound 0): term*)
+
+
+
+@{term "let x = True \<and> False in x"};
+(*
+val it = 
+  Const ("HOL.Let", "bool \<Rightarrow> (bool \<Rightarrow> bool) \<Rightarrow> bool")
+$ ( Const ("HOL.conj", "bool \<Rightarrow> bool \<Rightarrow> bool")
+  $ Const ("HOL.True", "bool")
+  $ Const ("HOL.False", "bool")
+  )
+$ Abs ("x", "bool", Bound 0): term
+*)
+
+@{term "let (x1,x2) = y in z"};
+(*
+  Const ("HOL.Let", "'a \<times> 'b \<Rightarrow> ('a \<times> 'b \<Rightarrow> 'c) \<Rightarrow> 'c") 
+$ Free ("y", "'a \<times> 'b") 
+$ ( Const ("Product_Type.prod.case_prod", "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c")
+  $ Abs ("x1", "'a", 
+      Abs ("x2", "'b", 
+        Free ("z", "'c"))))
+:term
+*)
+\<close>
+declare[[ML_print_depth=100]]
+ML\<open>
+@{term "let (x1,  x2,  x3) = y in z"};
+@{term "let (x1, (x2,  x3)) = y in z"};
+@{term "let ((x1, x2), x3) = y in z"};
+\<close>
+
+ML\<open>
+@{term "let x = y in z"};
+(*Easy to identify "y", difficult to separate "x" and "z"*)
+(*
+  Const ("HOL.Let", "'a \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> 'b")
+$ Free ("y", "'a")
+$ Abs ("x", "'a", Free ("z", "'b")): term
+*)
+\<close>
+
+ML\<open>
+@{term "let x = y in (\<lambda>z. w)"};
+\<close>
+
+ML\<open>
+@{term "let x1 = y1; x2 = y2 in (x1, x2)"};
+\<close>
+
+ML\<open>
+@{term "if x then y else z"};
+(*
+  Const ("HOL.If", "bool \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a") 
+$ Free ("x", "bool") 
+$ Free ("y", "'a") 
+$ Free ("z", "'a"): term
+*)
 \<close>
 
 end

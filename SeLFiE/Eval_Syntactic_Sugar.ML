@@ -31,7 +31,6 @@ datatype assert =
 | Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
-| Is_In_Trm_Prnt         of assert * assert
 | Is_Deeper_Than         of assert * assert
 | Is_Shallower_Than      of assert * assert
 | Is_Path_Above          of assert * assert
@@ -134,7 +133,6 @@ datatype assert =
 | Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
-| Is_In_Trm_Prnt         of assert * assert
 | Is_Deeper_Than         of assert * assert
 | Is_Shallower_Than      of assert * assert
 | Is_Path_Above          of assert * assert
@@ -241,7 +239,6 @@ and
   | convert loc (Takes_Less_Than_N_Arguments pair)  = ES.Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Unode*)
   | convert loc (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
-  | convert loc (Is_In_Trm_Prnt         pair) = ES.Is_In_Trm_Prnt         (convert_pair loc pair)
   | convert loc (Is_Deeper_Than         pair) = ES.Is_Deeper_Than         (convert_pair loc pair)
   | convert loc (Is_Shallower_Than      pair) = ES.Is_Shallower_Than      (convert_pair loc pair)
   | convert loc (Is_Path_Above          pair) = ES.Is_Path_Above          (convert_pair loc pair)

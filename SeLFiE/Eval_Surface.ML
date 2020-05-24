@@ -30,7 +30,6 @@ datatype assert =
 | Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
-| Is_In_Trm_Prnt         of assert * assert
 | Is_Deeper_Than         of assert * assert
 | Is_Shallower_Than      of assert * assert
 | Is_Path_Above          of assert * assert
@@ -106,7 +105,6 @@ datatype assert =
 | Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
-| Is_In_Trm_Prnt         of assert * assert
 | Is_Deeper_Than         of assert * assert
 | Is_Shallower_Than      of assert * assert
 | Is_Path_Above          of assert * assert
@@ -172,7 +170,6 @@ and (*bool*)
   | surf_to_var (Takes_Less_Than_N_Arguments pair) = EV.Assert (SU.Atomic SU.Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list pair)
   (*Eval_Unode*)
   | surf_to_var (Has_Same_Prnt_As       args) = EV.Assert (SU.Atomic SU.Has_Same_Prnt_As,       surf_to_var_pair_to_list args)
-  | surf_to_var (Is_In_Trm_Prnt         args) = EV.Assert (SU.Atomic SU.Is_In_Trm_Prnt,         surf_to_var_pair_to_list args)
   | surf_to_var (Is_Deeper_Than         args) = EV.Assert (SU.Atomic SU.Is_Deeper_Than,         surf_to_var_pair_to_list args)
   | surf_to_var (Is_Shallower_Than      args) = EV.Assert (SU.Atomic SU.Is_Shallower_Than,      surf_to_var_pair_to_list args)
   | surf_to_var (Is_Path_Above          args) = EV.Assert (SU.Atomic SU.Is_Path_Above,          surf_to_var_pair_to_list args)

@@ -34,7 +34,6 @@ datatype atomic_assert =
 | Takes_Less_Than_N_Arguments
 (*Eval_Unode*)
 | Has_Same_Prnt_As
-| Is_In_Trm_Prnt
 | Is_Deeper_Than
 | Is_Shallower_Than
 | Is_Path_Above
@@ -133,7 +132,6 @@ datatype atomic_assert =
 | Takes_Less_Than_N_Arguments
 (*Eval_Unode*)
 | Has_Same_Prnt_As
-| Is_In_Trm_Prnt
 | Is_Deeper_Than
 | Is_Shallower_Than
 | Is_Path_Above
@@ -172,7 +170,6 @@ fun print_atomic_assert (Is_Cnst                    ) = "Is_Cnst"
   | print_atomic_assert (Is_Defined_With            ) = "Is_Defined_With"
   | print_atomic_assert (Is_Rule_Of_Node            ) = "Is_Rule_Of_Node"
   | print_atomic_assert (Has_Same_Prnt_As           ) = "Has_Same_Prnt_As"
-  | print_atomic_assert (Is_In_Trm_Prnt             ) = "Is_In_Trm_Prnt"
   | print_atomic_assert (Is_Deeper_Than             ) = "Is_Deeper_Than"
   | print_atomic_assert (Is_Shallower_Than          ) = "Is_Shallower_Than"
   | print_atomic_assert (Is_Path_Above              ) = "Is_Path_Above"

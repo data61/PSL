@@ -8,7 +8,6 @@ sig
 
 datatype assert =
   Has_Same_Prnt_As       of UN.unode * UN.unode
-| Is_In_Trm_Prnt         of UN.unode * UN.unode (*sub-tree-1 is within sub-tree-2 string-wise*)
 | Is_Deeper_Than         of UN.unode * UN.unode
 | Is_Shallower_Than      of UN.unode * UN.unode
 | Is_Path_Above          of UN.unode * UN.unode
@@ -29,7 +28,6 @@ type unode = Unique_Node.unode;
 
 datatype assert =
   Has_Same_Prnt_As       of unode * unode
-| Is_In_Trm_Prnt         of unode * unode (*sub-tree-1 is within sub-tree-2 string-wise*)
 | Is_Deeper_Than         of unode * unode
 | Is_Shallower_Than      of unode * unode
 | Is_Path_Above          of unode * unode
@@ -40,7 +38,6 @@ datatype assert =
 
 infix
   Has_Same_Prnt_As
-  Is_In_Trm_Prnt
   Is_Deeper_Than
   Is_Shallower_Than
   Is_Path_Above
@@ -56,13 +53,6 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     let
       val (print1, print2) = unode2_to_print2 (unode1, unode2);
       val result_bool      = print1 = print2;
-    in
-      result_bool
-    end
-  | eval' (unode1 Is_In_Trm_Prnt unode2) =
-    let
-      val (print1, print2) = unode2_to_print2 (unode1, unode2);
-      val result_bool      = String.isSubstring print1 print2;
     in
       result_bool
     end
