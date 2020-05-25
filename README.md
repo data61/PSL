@@ -16,7 +16,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
    with the Isabelle keyword, **imports** as ``imports "PSL.PSL"``.
 ![Screenshot](./image/screen_shot_import.png)
 
-If you find it difficult to install our tool, please refer to [the Isabelle System Manual](https://isabelle.in.tum.de/doc/system.pdf). Alternatively, you can just send an email to Yutaka. You can find his email address in the first page of [this paper](https://arxiv.org/pdf/2001.10834.pdf).
+If you find it difficult to install our tool, please refer to [the Isabelle System Manual](https://isabelle.in.tum.de/doc/system.pdf). Alternatively, you can just send an email to Yutaka at Yutaka.Nagashima(at)cvut.cz.
 
 ## Basic Commands
 - The keyword **strategy** defines a new strategy.
