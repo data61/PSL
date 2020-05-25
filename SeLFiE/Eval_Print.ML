@@ -8,6 +8,7 @@ sig
 
 datatype assert =
   Are_Same_Prints  of string * string
+| Is_Subprint_Of   of string * string
 | Is_Nth_Induct    of string * int
 | Is_Nth_Arbitrary of string * int
 | Is_Induct        of string
@@ -29,6 +30,7 @@ structure EN = Eval_Number;
 
 datatype assert =
   Are_Same_Prints  of string * string
+| Is_Subprint_Of   of string * string
 | Is_Nth_Induct    of string * int
 | Is_Nth_Arbitrary of string * int
 | Is_Induct        of string
@@ -38,7 +40,8 @@ datatype assert =
 
 infix Is_Printed_As;
 
-fun eval' (Are_Same_Prints (prnt1, prnt2))  _                                                      _    = prnt1 = prnt2
+fun eval' (Are_Same_Prints  (prnt1, prnt2))  _                                                     _    = prnt1 = prnt2
+  | eval' (Is_Subprint_Of   (sub,   full))   _                                                     _    = String.isSubstring sub full
   | eval' (Is_Nth_Induct    (print, n))    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _    = nth ons  n = print
   | eval' (Is_Nth_Arbitrary (print, n))    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _    = nth arbs n = print
   | eval' (Is_Induct         print    )    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _    = member (op =) ons   print

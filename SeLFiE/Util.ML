@@ -42,6 +42,7 @@ datatype atomic_assert =
 | Is_N_Plus_One_th_Child
 (*Eval_Print*)
 | Are_Same_Prints
+| Is_Subprint_Of
 | Is_Nth_Induct
 | Is_Nth_Arbitrary
 | Is_Induct
@@ -140,6 +141,7 @@ datatype atomic_assert =
 | Is_N_Plus_One_th_Child
 (*Eval_Print*)
 | Are_Same_Prints
+| Is_Subprint_Of
 | Is_Nth_Induct
 | Is_Nth_Arbitrary
 | Is_Induct
@@ -177,6 +179,7 @@ fun print_atomic_assert (Is_Cnst                    ) = "Is_Cnst"
   | print_atomic_assert (Is_Nth_Child               ) = "Is_Nth_Child"
   | print_atomic_assert (Is_N_Plus_One_th_Child     ) = "Is_N_Plus_One_th_Child"
   | print_atomic_assert (Are_Same_Prints            ) = "Are_Same_Prints"
+  | print_atomic_assert (Is_Subprint_Of             ) = "Is_Subprint_Of"
   | print_atomic_assert (Unode_Has_Print            ) = "Unode_Has_Print"
   | print_atomic_assert (Is_In_Subgoal              ) = "Is_In_Subgoal"
   | print_atomic_assert (Is_In_Chained_Fact         ) = "Is_In_Chained_Fact"

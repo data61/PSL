@@ -103,6 +103,7 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Is_In_Nth_Chained_Fact [Inner_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Chained_Fact (GP2U.Inner_Path p, n))
       (*Eval_Print*)
       | eval' SU.Are_Same_Prints  [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2))  induct_args ctxt
+      | eval' SU.Is_Subprint_Of   [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Is_Subprint_Of  (p1, p2))  induct_args ctxt
       | eval' SU.Is_Nth_Induct    [Non_Path (Print p),  Non_Path (Number n)] = EPR.eval (EPR.Is_Nth_Induct (p, n))      induct_args ctxt
       | eval' SU.Is_Nth_Arbitrary [Non_Path (Print p),  Non_Path (Number n)] = EPR.eval (EPR.Is_Nth_Arbitrary (p, n))   induct_args ctxt
       | eval' SU.Is_Induct        [Non_Path (Print p)]                       = EPR.eval (EPR.Is_Induct p)               induct_args ctxt

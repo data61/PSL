@@ -137,7 +137,8 @@ setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.tes
 setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"          SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
 setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion" SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                   SeLFiE_Assertion.test_Is_If_Then_Else \<close>
-
+setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_true"               SeLFiE_Assertion.test_Is_Subprint_Of_true \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_false"              SeLFiE_Assertion.test_Is_Subprint_Of_false \<close>
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
@@ -209,6 +210,8 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_true lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true lifter_3  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_true  test_Is_Subprint_Of_true  [on["xs"], arb["ys"],rule["itrev.induct"]]
+  assert_SeLFiE_false test_Is_Subprint_Of_false  [on["xs"], arb["ys"],rule["itrev.induct"]]
   apply(induct xs arbitrary: ys) apply auto done
 
 (* auxiliary stuff *)
@@ -298,14 +301,81 @@ $ Free  ("x", "alpha")
 \<close>
 
 ML\<open>
-@{term "if x then y else z"};
+@{term "case x of B \<Rightarrow> False | A \<Rightarrow> True "};
 (*
-val it = 
-  Const ("HOL.If", "bool \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a") 
-$ Free ("x", "bool") 
-$ Free ("y", "'a") 
-$ Free ("z", "'a"): term
+  Const ("SeLFiE.alpha.case_alpha", "bool \<Rightarrow> bool \<Rightarrow> bool \<Rightarrow> bool \<Rightarrow> alpha \<Rightarrow> bool")
+$ Const ("HOL.True", "bool")
+$ Const ("HOL.False", "bool")
+$ Const ("HOL.undefined", "bool")
+$ Const ("HOL.undefined", "bool")
+$ Free ("x", "alpha")
+: term
 *)
+\<close>
+declare[[ML_print_depth=100]]
+ML\<open>
+@{term "case x of [x] \<Rightarrow> False | [] \<Rightarrow> True | x#xs \<Rightarrow> True"};
+(*
+  Const ("List.list.case_list", "bool \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> bool")
+$ Const ("HOL.True", "bool")
+$ Abs ("x", "'a",
+    Abs ("xs",
+         "'a list",
+           Const ("List.list.case_list", "bool \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> bool")
+         $ Const ("HOL.False", "bool")
+         $ Abs ("a", "'a",
+             Abs ("list", "'a list",
+               Const ("HOL.True", "bool")
+             )
+           )
+         $ Bound 0
+    )
+  )
+$ Free ("x", "'a list")
+: term
+*)
+\<close>
+
+ML\<open>
+@{term "case x of [] \<Rightarrow> True | x#xs \<Rightarrow> False"};
+(*
+  Const ("List.list.case_list", "bool \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> bool")
+$ Const ("HOL.True", "bool")
+$ Abs ("x", "'a", Abs ("xs", "'a list", Const ("HOL.False", "bool")))
+$ Free ("x", "'a list")
+: term
+*)
+\<close>
+
+ML\<open>
+@{term "case x of x#xs \<Rightarrow> False | [] \<Rightarrow> True"};
+(*
+  Const ("List.list.case_list", "bool \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> bool")
+$ Const ("HOL.True", "bool")
+$ Abs ("x", "'a", Abs ("xs", "'a list", Const ("HOL.False", "bool")))
+$ Free ("x", "'a list")
+: term
+*)
+\<close>
+
+ML\<open>
+@{term "case [] of x#xs \<Rightarrow> False | [] \<Rightarrow> True"};
+(*
+  Const ("List.list.case_list", "bool \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> bool")
+$ Const ("HOL.True", "bool")
+$ Abs ("x", "'a", Abs ("xs", "'a list", Const ("HOL.False", "bool")))
+$ Const ("List.list.Nil", "'a list"): term
+*)
+\<close>
+
+ML\<open>
+@{term "case f x of x#xs \<Rightarrow> False | [] \<Rightarrow> True"};
+(*
+  Const ("List.list.case_list", "bool \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> bool")
+$ Const ("HOL.True", "bool")
+$ Abs ("x", "'a", Abs ("xs", "'a list", Const ("HOL.False", "bool")))
+$ (Free ("f", "'b \<Rightarrow> 'a list") $ Free ("x", "'b")): term
+*);
 \<close>
 
 end

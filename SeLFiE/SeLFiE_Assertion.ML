@@ -784,4 +784,7 @@ Some ("if_then_else", QOuter_Path,
   )
 );
 
+val test_Is_Subprint_Of_true  = Is_Subprint_Of (Print "abc", Print "aabcc");
+val test_Is_Subprint_Of_false = Is_Subprint_Of (Print "abc", Print "aacc");
+
 end;

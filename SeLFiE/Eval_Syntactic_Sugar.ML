@@ -47,6 +47,7 @@ datatype assert =
 | Is_Rule_Of_Print  of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
+| Is_Subprint_Of         of assert * assert
 | Is_In_Subgoal          of assert
 | Is_In_Chained_Fact     of assert
 | Is_In_Nth_Subgoal      of assert * assert
@@ -142,6 +143,7 @@ datatype assert =
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
+| Is_Subprint_Of    of assert * assert
 | Is_Nth_Induct     of assert * assert
 | Is_Nth_Arbitrary  of assert * assert
 | Is_Induct         of assert
@@ -249,6 +251,7 @@ and
   | convert loc (Is_N_Plus_One_th_Child pair) = ES.Is_N_Plus_One_th_Child (convert_pair loc pair)
   (*Eval_Prnt*)
   | convert loc (Are_Same_Prints    pair) = ES.Are_Same_Prints  (convert_pair loc pair)
+  | convert loc (Is_Subprint_Of     pair) = ES.Is_Subprint_Of   (convert_pair loc pair)
   | convert loc (Is_Nth_Induct      pair) = ES.Is_Nth_Induct    (convert_pair loc pair)
   | convert loc (Is_Nth_Arbitrary   pair) = ES.Is_Nth_Arbitrary (convert_pair loc pair)
   | convert loc (Is_Induct          ass ) = ES.Is_Induct        (convert loc ass)
@@ -636,11 +639,10 @@ and
         Is_App if_then_else,
         Some (hol_if_str, path_typ,
           Ands [
-            Unode_Has_Print (hol_if, Print "HOL.If")(*,
+            Unode_Has_Print (hol_if, Print "HOL.If"),
             Is_Nth_Arg_Of (if_condition, Number 0, hol_if),
             Is_Nth_Arg_Of (then_clase,   Number 1, hol_if),
             Is_Nth_Arg_Of (else_clase,   Number 2, hol_if)
-*)
           ]
         )
       ]
