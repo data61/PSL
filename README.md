@@ -97,102 +97,20 @@ We also plan to improve the proof automation using evolutionary computation. We 
 
 ## Preferred Citation
 - **PSL**:
-`@InProceedings{10.1007/978-3-319-63046-5_32,
-author="Nagashima, Yutaka
-and Kumar, Ramana",
-editor="de Moura, Leonardo",
-title="A Proof Strategy Language and Proof Script Generation for Isabelle/HOL",
-booktitle="Automated Deduction -- CADE 26",
-year="2017",
-publisher="Springer International Publishing",
-address="Cham",
-pages="528--545",
-abstract="We introduce a language, PSL, designed to capture high level proof strategies in Isabelle/HOL. Given a strategy and a proof obligation, PSL's runtime system generates and combines various tactics to explore a large search space with low memory usage. Upon success, PSL generates an efficient proof script, which bypasses a large part of the proof search. We also present PSL's monadic interpreter to show that the underlying idea of PSL is transferable to other ITPs.",
-isbn="978-3-319-63046-5"
-}`
+`Nagashima Y., Kumar R. (2017) A Proof Strategy Language and Proof Script Generation for Isabelle/HOL. In: de Moura L. (eds) Automated Deduction – CADE 26. CADE 2017. Lecture Notes in Computer Science, vol 10395. Springer, Cham`
 
 - **PGT**:
-`@InProceedings{10.1007/978-3-319-96812-4_19,
-author="Nagashima, Yutaka
-and Parsert, Julian",
-editor="Rabe, Florian
-and Farmer, William M.
-and Passmore, Grant O.
-and Youssef, Abdou",
-title="Goal-Oriented Conjecturing for Isabelle/HOL",
-booktitle="Intelligent Computer Mathematics",
-year="2018",
-publisher="Springer International Publishing",
-address="Cham",
-pages="225--231",
-abstract="We present PGT, a Proof Goal Transformer for Isabelle/HOL. Given a proof goal and its background context, PGT attempts to generate conjectures from the original goal by transforming the original proof goal. These conjectures should be weak enough to be provable by automation but sufficiently strong to identify and prove the original goal. By incorporating PGT into the pre-existing PSL framework, we exploit Isabelle's strong automation to identify and prove such conjectures.",
-isbn="978-3-319-96812-4"
-}`
+`Nagashima Y., Parsert J. (2018) Goal-Oriented Conjecturing for Isabelle/HOL. In: Rabe F., Farmer W., Passmore G., Youssef A. (eds) Intelligent Computer Mathematics. CICM 2018. Lecture Notes in Computer Science, vol 11006. Springer, Cham`
 
 - **PaMpeR**:
-`@inproceedings{Nagashima:2018:PPM:3238147.3238210,
- author = {Nagashima, Yutaka and He, Yilun},
- title = {PaMpeR: Proof Method Recommendation System for Isabelle/HOL},
- booktitle = {Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering},
- series = {ASE 2018},
- year = {2018},
- isbn = {978-1-4503-5937-5},
- location = {Montpellier, France},
- pages = {362--372},
- numpages = {11},
- url = {http://doi.acm.org/10.1145/3238147.3238210},
- doi = {10.1145/3238147.3238210},
- acmid = {3238210},
- publisher = {ACM},
- address = {New York, NY, USA},
- keywords = {Isabelle/HOL, data mining, interactive theorem prover, proof method, recommendation system},
-}`
+`ASE 2018: Proceedings of the 33rd ACM/IEEE International Conference on Automated Software EngineeringSeptember 2018 Pages 362–372 https://doi.org/10.1145/3238147.3238210`
 
 - **Towards Evolutionary Theorem Proving for Isabelle/HOL**:
-`@inproceedings{Nagashima:2019:TET:3319619.3321921,
- author = {Nagashima, Yutaka},
- title = {Towards Evolutionary Theorem Proving for Isabelle/HOL},
- booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference Companion},
- series = {GECCO '19},
- year = {2019},
- isbn = {978-1-4503-6748-6},
- location = {Prague, Czech Republic},
- pages = {419--420},
- numpages = {2},
- url = {http://doi.acm.org/10.1145/3319619.3321921},
- doi = {10.1145/3319619.3321921},
- acmid = {3321921},
- publisher = {ACM},
- address = {New York, NY, USA},
- keywords = {genetic algorithm, isabelle/HOL, theorem proving},
-} 
+`GECCO '19: Proceedings of the Genetic and Evolutionary Computation Conference CompanionJuly 2019 Pages 419–420 https://doi.org/10.1145/3319619.3321921 
 `
 
 - **LiFtEr**:
-`@inproceedings{DBLP:conf/aplas/Nagashima19,
-  author    = {Yutaka Nagashima},
-  title     = {LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL},
-  booktitle = {Programming Languages and Systems - 17th Asian Symposium, {APLAS}
-               2019, Nusa Dua, Bali, Indonesia, December 1-4, 2019, Proceedings},
-  pages     = {266--287},
-  year      = {2019},
-  crossref  = {DBLP:conf/aplas/2019},
-  url       = {https://doi.org/10.1007/978-3-030-34175-6\_14},
-  doi       = {10.1007/978-3-030-34175-6\_14},
-  timestamp = {Tue, 26 Nov 2019 18:31:01 +0100},
-  biburl    = {https://dblp.org/rec/bib/conf/aplas/Nagashima19},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
-}`
-
-- **Position Paper**:
-`@misc{nagashima2017smart,
-    title={Towards Smart Proof Search for Isabelle},
-    author={Yutaka Nagashima},
-    year={2017},
-    eprint={1701.03037},
-    archivePrefix={arXiv},
-    primaryClass={cs.AI}
-}`
+`Nagashima Y. (2019) LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL. In: Lin A. (eds) Programming Languages and Systems. APLAS 2019. Lecture Notes in Computer Science, vol 11893. Springer, Cham`
 
 ## Screenshots
 ![Screenshot](./image/screen_shot_tall.png)
