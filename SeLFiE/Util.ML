@@ -58,6 +58,7 @@ datatype atomic_assert =
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
+| Is_Less_Than_By_One
 (*debug*)
 | Debug_Non_Path_Literal
 | Debug_Print_Unode;
@@ -157,6 +158,7 @@ datatype atomic_assert =
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
+| Is_Less_Than_By_One
 (*debug*)
 | Debug_Non_Path_Literal
 | Debug_Print_Unode;
@@ -187,6 +189,7 @@ fun print_atomic_assert (Is_Cnst                    ) = "Is_Cnst"
   | print_atomic_assert (Is_In_Nth_Chained_Fact     ) = "Is_In_Nth_Chained_Fact"
   | print_atomic_assert (Are_Same_Number            ) = "Are_Same_Number"
   | print_atomic_assert (Is_Less_Than               ) = "Is_Less_Than"
+  | print_atomic_assert (Is_Less_Than_By_One        ) = "Is_Less_Than_By_One"
   | print_atomic_assert (Is_Nth_Induct              ) = "Is_Nth_Induct"
   | print_atomic_assert (Is_Nth_Arbitrary           ) = "Is_Nth_Arbitrary"
   | print_atomic_assert (Is_Induct                  ) = "Is_Induct"

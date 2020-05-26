@@ -791,10 +791,19 @@ val test_Is_Case_Distinct_Of_Trm_With_A_Case =
 Some ("whole_term", QOuter_Path,
   Some ("case_on", QOuter_Path,
     Some ("a_case", QOuter_Path,
-        Is_Case_Distinct_Of_Trm_With_A_Case (
-          Variable "whole_term",
-          Variable "case_on",
-          Variable "a_case")
+        Ands [
+          Is_Case_Distinct_Of_Trm_With_A_Case (
+            Variable "whole_term",
+            Variable "case_on",
+            Variable "a_case"),
+          Unode_Has_Print (Variable "case_on", Print "x"),
+          Some ("in_a_case", QOuter_Path,
+            Ands [
+              Is_Path_Below (Variable "in_a_case", Variable "a_case"),
+              Unode_Has_Print (Variable "in_a_case", Print "y")
+            ]
+          )
+        ]
     )
   )
 );

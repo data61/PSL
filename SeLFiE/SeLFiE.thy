@@ -157,7 +157,7 @@ lemma "if x then True else False"
   assert_SeLFiE_true  test_Is_If_Then_Else [on["x"], arb[],rule[]]
   oops
 
-lemma "case x of [] \<Rightarrow> True | _ \<Rightarrow> False"
+lemma "case x of [y] \<Rightarrow> y | _ \<Rightarrow> False"
   assert_SeLFiE_true test_Is_Case_Distinct_Of_Trm_With_A_Case [on["zs"], arb[],rule[]]
   oops
 

@@ -52,8 +52,9 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 (*Eval_Number*)
-| Are_Same_Number   of assert * assert
-| Is_Less_Than      of assert * assert
+| Are_Same_Number     of assert * assert
+| Is_Less_Than        of assert * assert
+| Is_Less_Than_By_One of assert * assert
 (*Parameter*)
 | Print   of string
 | Number  of int
@@ -128,8 +129,9 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 (*Eval_Number*)
-| Are_Same_Number of assert * assert
-| Is_Less_Than    of assert * assert
+| Are_Same_Number     of assert * assert
+| Is_Less_Than        of assert * assert
+| Is_Less_Than_By_One of assert * assert
 (*Parameter*)
 | Print   of string
 | Number  of int
@@ -194,8 +196,9 @@ and (*bool*)
   | surf_to_var (Is_In_Nth_Subgoal      args) = EV.Assert (SU.Atomic SU.Is_In_Nth_Subgoal,      surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Nth_Chained_Fact args) = EV.Assert (SU.Atomic SU.Is_In_Nth_Chained_Fact, surf_to_var_pair_to_list args)
   (*Eval_Number*)
-  | surf_to_var (Are_Same_Number args) = EV.Assert (SU.Atomic SU.Are_Same_Number, surf_to_var_pair_to_list args)
-  | surf_to_var (Is_Less_Than    args) = EV.Assert (SU.Atomic SU.Is_Less_Than,    surf_to_var_pair_to_list args)
+  | surf_to_var (Are_Same_Number     args) = EV.Assert (SU.Atomic SU.Are_Same_Number,     surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Less_Than        args) = EV.Assert (SU.Atomic SU.Is_Less_Than,        surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Less_Than_By_One args) = EV.Assert (SU.Atomic SU.Is_Less_Than_By_One, surf_to_var_pair_to_list args)
   (*parameter*)
   | surf_to_var (Print   p) = EV.Literal (EP.Non_Path (EP.Print   p))
   | surf_to_var (Number  n) = EV.Literal (EP.Non_Path (EP.Number  n))

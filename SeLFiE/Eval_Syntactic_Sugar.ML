@@ -53,8 +53,9 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 (*Eval_Number*)
-| Are_Same_Number of assert * assert
-| Is_Less_Than    of assert * assert
+| Are_Same_Number     of assert * assert
+| Is_Less_Than        of assert * assert
+| Is_Less_Than_By_One of assert * assert
 (*Parameter*)
 | Print   of string
 | Number  of int
@@ -159,8 +160,9 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 (*Eval_Number*)
-| Are_Same_Number of assert * assert
-| Is_Less_Than    of assert * assert
+| Are_Same_Number     of assert * assert
+| Is_Less_Than        of assert * assert
+| Is_Less_Than_By_One of assert * assert
 (*Parameter*)
 | Print   of string
 | Number  of int
@@ -269,8 +271,9 @@ and
   | convert loc (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair loc (ass, numb))
   | convert loc (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair loc (ass, numb))
   (*Eval_Number*)
-  | convert loc (Are_Same_Number pair) = ES.Are_Same_Number (convert_pair loc pair)
-  | convert loc (Is_Less_Than    pair) = ES.Is_Less_Than    (convert_pair loc pair)
+  | convert loc (Are_Same_Number     pair) = ES.Are_Same_Number     (convert_pair loc pair)
+  | convert loc (Is_Less_Than        pair) = ES.Is_Less_Than        (convert_pair loc pair)
+  | convert loc (Is_Less_Than_By_One pair) = ES.Is_Less_Than_By_One (convert_pair loc pair)
   (*Parameter*)
   | convert _ (Print  string) = ES.Print string
   | convert _ (Number    int) = ES.Number int
@@ -669,14 +672,16 @@ and
     end
   | convert loc (Is_Case_Distinct_Of_Trm_With_A_Case (whole_term, case_on, a_case)) =
     let
-      val case_const_str   = get_new_name [whole_term, case_on, a_case]                          : string;
-      val case_const       = Variable case_const_str                                             : assert;
-      val case_path_typ    = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path           : SU.qtyp;
-      val numb_of_args_str = get_new_name [whole_term, case_on, a_case, case_const]              : string;
-      val numb_of_args     = Variable numb_of_args_str                                           : assert;
-      val nth_case_str     = get_new_name [whole_term, case_on, a_case, case_const, numb_of_args]: string;
-      val nth_case         = Variable nth_case_str                                               : assert;
-      val numb_path_typ    = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number       : SU.qtyp;
+      val case_const_str             = get_new_name [whole_term, case_on, a_case]                                    : string;
+      val case_const                 = Variable case_const_str                                                       : assert;
+      val case_path_typ              = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path                     : SU.qtyp;
+      val numb_of_args_str           = get_new_name [whole_term, case_on, a_case, case_const]                        : string;
+      val numb_of_args               = Variable numb_of_args_str                                                     : assert;
+      val nth_case_str               = get_new_name [whole_term, case_on, a_case, case_const, numb_of_args]          : string;
+      val nth_case                   = Variable nth_case_str                                                         : assert;
+      val numb_path_typ              = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number                 : SU.qtyp;
+      val numb_of_args_minus_one_str = get_new_name [whole_term, case_on, a_case, case_const, numb_of_args, nth_case]: string;
+      val numb_of_args_minus_one     = Variable numb_of_args_minus_one_str                                           : assert;
     in
     convert loc (
       Ands [
@@ -688,10 +693,16 @@ and
             Some (numb_of_args_str, numb_path_typ,
               Ands [
                 Takes_N_Arguments (case_const, numb_of_args),
-                Some (nth_case_str, numb_path_typ,
+                Some (numb_of_args_minus_one_str, numb_path_typ,
                   Ands [
-                    Is_Less_Than (nth_case, numb_of_args),
-                    Is_Nth_Arg_Of (a_case, nth_case, case_const)
+                    Is_Less_Than_By_One (numb_of_args_minus_one, numb_of_args),
+                    Is_Nth_Arg_Of (case_on, numb_of_args_minus_one, case_const),
+                    Some (nth_case_str, numb_path_typ,
+                      Ands [
+                        Is_Less_Than (nth_case, numb_of_args_minus_one),
+                        Is_Nth_Arg_Of (a_case, nth_case, case_const)
+                      ]
+                    )
                   ]
                 )
               ]
