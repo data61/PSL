@@ -70,6 +70,7 @@ datatype assert =
 (*Syntactic Sugar*)
 | Is_Atomic                          of assert
 | Have_Different_Prnts               of assert * assert
+| Unode_Has_As_Subprint              of assert * assert
 | Is_Path_Below                      of assert * assert
 | Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
@@ -95,6 +96,7 @@ datatype assert =
 | Is_A_Meta_Conclusion               of assert
 | Is_A_Meta_Conclusion_Or_Below      of assert
 | Is_If_Then_Else                    of assert * assert * assert * assert
+| Is_Case_Distinct_Of_Trm_With_A_Case of assert * assert * assert
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert
 (*debug*)
@@ -174,6 +176,7 @@ datatype assert =
 (*Syntactic Sugar*)
 | Is_Atomic                          of assert
 | Have_Different_Prnts               of assert * assert
+| Unode_Has_As_Subprint              of assert * assert
 | Is_Path_Below                      of assert * assert
 | Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
@@ -199,6 +202,7 @@ datatype assert =
 | Is_A_Meta_Conclusion               of assert
 | Is_A_Meta_Conclusion_Or_Below      of assert
 | Is_If_Then_Else                    of assert * assert * assert * assert
+| Is_Case_Distinct_Of_Trm_With_A_Case of assert * assert * assert
 | Some_Of                            of string * assert * assert
 | All_Of                             of string * assert * assert
 (*debug*)
@@ -291,6 +295,20 @@ and
         Is_Var   assert,
         Is_Bound assert])
   | convert loc (Have_Different_Prnts pair) = convert loc (Not (Has_Same_Prnt_As pair))
+  | convert loc (Unode_Has_As_Subprint (trm_occ, subprint)) = convert loc (
+    let
+      val print_str = get_new_name [trm_occ, subprint];
+      val print     = Variable print_str;
+      val path_typ  = case loc of Out => SU.QOuter_Print | Inn => SU.QInner_Print;
+    in
+      Some (print_str, path_typ,
+        Ands [
+          Unode_Has_Print (trm_occ, print),
+          Is_Subprint_Of  (subprint, print)
+        ]
+      )
+    end
+    )
   | convert loc (Is_Path_Below (descendent, anscestor)) = convert loc (Is_Path_Above (anscestor, descendent))
   | convert loc (Is_Parent_Of (parent, child)) =
     let
@@ -639,10 +657,45 @@ and
         Is_App if_then_else,
         Some (hol_if_str, path_typ,
           Ands [
+            Is_Nth_Child_Of (hol_if, Number 0, if_then_else),
             Unode_Has_Print (hol_if, Print "HOL.If"),
             Is_Nth_Arg_Of (if_condition, Number 0, hol_if),
             Is_Nth_Arg_Of (then_clase,   Number 1, hol_if),
             Is_Nth_Arg_Of (else_clase,   Number 2, hol_if)
+          ]
+        )
+      ]
+    )
+    end
+  | convert loc (Is_Case_Distinct_Of_Trm_With_A_Case (whole_term, case_on, a_case)) =
+    let
+      val case_const_str   = get_new_name [whole_term, case_on, a_case]                          : string;
+      val case_const       = Variable case_const_str                                             : assert;
+      val case_path_typ    = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path           : SU.qtyp;
+      val numb_of_args_str = get_new_name [whole_term, case_on, a_case, case_const]              : string;
+      val numb_of_args     = Variable numb_of_args_str                                           : assert;
+      val nth_case_str     = get_new_name [whole_term, case_on, a_case, case_const, numb_of_args]: string;
+      val nth_case         = Variable nth_case_str                                               : assert;
+      val numb_path_typ    = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number       : SU.qtyp;
+    in
+    convert loc (
+      Ands [
+        Is_App whole_term,
+        Some (case_const_str, case_path_typ,
+          Ands [
+            Unode_Has_As_Subprint (case_const, Print ".case_"),
+            Is_Nth_Child_Of       (case_const, Number 0, whole_term),
+            Some (numb_of_args_str, numb_path_typ,
+              Ands [
+                Takes_N_Arguments (case_const, numb_of_args),
+                Some (nth_case_str, numb_path_typ,
+                  Ands [
+                    Is_Less_Than (nth_case, numb_of_args),
+                    Is_Nth_Arg_Of (a_case, nth_case, case_const)
+                  ]
+                )
+              ]
+            )
           ]
         )
       ]

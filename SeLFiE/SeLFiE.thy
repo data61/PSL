@@ -134,11 +134,13 @@ setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_premise_or_below"    SeL
 setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_conclusion_or_below" SeLFiE_Assertion.test_is_a_meta_conclusion_or_below \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.test_is_more_than \<close>
 
-setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"          SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
-setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion" SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                   SeLFiE_Assertion.test_Is_If_Then_Else \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_true"               SeLFiE_Assertion.test_Is_Subprint_Of_true \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_false"              SeLFiE_Assertion.test_Is_Subprint_Of_false \<close>
+setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"            SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
+setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion"   SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                     SeLFiE_Assertion.test_Is_If_Then_Else \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_true"                 SeLFiE_Assertion.test_Is_Subprint_Of_true \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_false"                SeLFiE_Assertion.test_Is_Subprint_Of_false \<close>
+setup\<open> Apply_SeLFiE.update_assert "test_Is_Case_Distinct_Of_Trm_With_A_Case" SeLFiE_Assertion.test_Is_Case_Distinct_Of_Trm_With_A_Case \<close>
+
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
@@ -146,11 +148,17 @@ lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise_or_below    [on["x"], arb[],rule[]]
   assert_SeLFiE_true test_is_a_meta_conclusion_or_below [on["z"], arb[],rule[]]
   assert_SeLFiE_true test_is_more_than [on["zs"], arb[],rule[]]
-  assert_SeLFiE_false  test_Is_If_Then_Else [on["zs"], arb[],rule[]]
+  assert_SeLFiE_false test_Is_If_Then_Else [on["zs"], arb[],rule[]]
+  assert_SeLFiE_false test_Is_If_Then_Else [on["x"], arb[],rule[]]
+  assert_SeLFiE_false test_Is_Case_Distinct_Of_Trm_With_A_Case [on["zs"], arb[],rule[]]
   oops
 
 lemma "if x then True else False"
   assert_SeLFiE_true  test_Is_If_Then_Else [on["x"], arb[],rule[]]
+  oops
+
+lemma "case x of [] \<Rightarrow> True | _ \<Rightarrow> False"
+  assert_SeLFiE_true test_Is_Case_Distinct_Of_Trm_With_A_Case [on["zs"], arb[],rule[]]
   oops
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
@@ -200,12 +208,9 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_true lifter_15  [on["xs"], arb["ys"], rule["rev.induct"]]
   assert_SeLFiE_true lifter_13  [on["xs"], arb["ys"], rule["itrev.induct"]]
   assert_SeLFiE_true lifter_14  [on["xs"], arb["ys"], rule["itrev.induct"]]
-
-
   assert_SeLFiE_true print_fst_params_of_fun_const [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true print_all_inner_lhss   [on["xs"], arb["ys"],rule["itrev.induct"]]
-
   assert_SeLFiE_true lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
@@ -348,6 +353,48 @@ $ Free ("x", "'a list")
 \<close>
 
 ML\<open>
+@{term "List.list.case_list"};
+Isabelle_Utils.count_numb_of_args_of_fun_typ;
+
+fun count_numb_of_args_of_fun_typ' (fun_typ:typ) (acc:int) = case try dest_funT fun_typ of
+  NONE => acc
+| SOME (_(*domain_typ*), range_typ) => count_numb_of_args_of_fun_typ' range_typ (acc + 1);
+
+fun count_numb_of_args_of_fun_typ (typ:typ) = count_numb_of_args_of_fun_typ' typ 0;
+
+@{term "List.null"};
+dest_Const @{term "List.null"} |> snd |> dest_funT;
+
+@{term "List.nth"};
+dest_Const @{term "List.nth"} |> snd |> dest_funT |> snd |> dest_funT;
+
+local
+
+fun get_fist_type (fun_typ:typ) =
+    let
+      val (first_typ, _) = dest_funT fun_typ;
+    in
+      first_typ
+    end;
+
+fun remove_first_n_minus_one_typs (fun_typ:typ) (0:int) = fun_typ
+  | remove_first_n_minus_one_typs (fun_typ:typ) (n:int) =
+    let
+      val (_, tail_fun_typ) = dest_funT fun_typ;
+    in
+      remove_first_n_minus_one_typs tail_fun_typ (n - 1)
+    end;
+
+in
+
+fun fun_typ_to_typ_of_nth_arg (fun_typ:typ) (n:int) = (get_fist_type oo remove_first_n_minus_one_typs) fun_typ n;
+
+end;
+
+fun_typ_to_typ_of_nth_arg ((snd o dest_Const) @{term "List.list.case_list"}) 1
+\<close>
+
+ML\<open>
 @{term "case x of x#xs \<Rightarrow> False | [] \<Rightarrow> True"};
 (*
   Const ("List.list.case_list", "bool \<Rightarrow> ('a \<Rightarrow> 'a list \<Rightarrow> bool) \<Rightarrow> 'a list \<Rightarrow> bool")
@@ -376,6 +423,10 @@ $ Const ("HOL.True", "bool")
 $ Abs ("x", "'a", Abs ("xs", "'a list", Const ("HOL.False", "bool")))
 $ (Free ("f", "'b \<Rightarrow> 'a list") $ Free ("x", "'b")): term
 *);
+\<close>
+
+ML\<open>
+@{term "if x then True else False"}
 \<close>
 
 end

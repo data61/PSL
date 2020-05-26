@@ -787,4 +787,16 @@ Some ("if_then_else", QOuter_Path,
 val test_Is_Subprint_Of_true  = Is_Subprint_Of (Print "abc", Print "aabcc");
 val test_Is_Subprint_Of_false = Is_Subprint_Of (Print "abc", Print "aacc");
 
+val test_Is_Case_Distinct_Of_Trm_With_A_Case =
+Some ("whole_term", QOuter_Path,
+  Some ("case_on", QOuter_Path,
+    Some ("a_case", QOuter_Path,
+        Is_Case_Distinct_Of_Trm_With_A_Case (
+          Variable "whole_term",
+          Variable "case_on",
+          Variable "a_case")
+    )
+  )
+);
+
 end;
