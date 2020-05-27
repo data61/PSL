@@ -98,8 +98,9 @@ datatype assert =
 | Is_A_Meta_Conclusion_Or_Below      of assert
 | Is_If_Then_Else                    of assert * assert * assert * assert
 | Is_Case_Distinct_Of_Trm_With_A_Case of assert * assert * assert
-| Some_Of                            of string * assert * assert
-| All_Of                             of string * assert * assert
+| Is_Let_X_Be_Y_In_X                  of assert * assert * assert
+| Some_Of                             of string * assert * assert
+| All_Of                              of string * assert * assert
 (*debug*)
 | Debug_Non_Path_Literal             of assert
 | Debug_Print_Unode                  of assert
@@ -205,8 +206,9 @@ datatype assert =
 | Is_A_Meta_Conclusion_Or_Below      of assert
 | Is_If_Then_Else                    of assert * assert * assert * assert
 | Is_Case_Distinct_Of_Trm_With_A_Case of assert * assert * assert
-| Some_Of                            of string * assert * assert
-| All_Of                             of string * assert * assert
+| Is_Let_X_Be_Y_In_X                  of assert * assert * assert
+| Some_Of                             of string * assert * assert
+| All_Of                              of string * assert * assert
 (*debug*)
 | Debug_Non_Path_Literal             of assert
 | Debug_Print_Unode                  of assert
@@ -707,6 +709,26 @@ and
                 )
               ]
             )
+          ]
+        )
+      ]
+    )
+    end
+  | convert loc (Is_Let_X_Be_Y_In_X (whole_term_occ, let_sth_be_this_occ, bound_and_body_occ)) =
+    let
+      val let_const_str = get_new_name [whole_term_occ, let_sth_be_this_occ, bound_and_body_occ]: string;
+      val let_const     = Variable let_const_str                                                : assert;
+      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
+    in
+    convert loc (
+      Ands [
+        Is_App whole_term_occ,
+        Some (let_const_str, path_typ,
+          Ands [
+            Unode_Has_Print (let_const, Print "HOL.Let"),
+            Is_Nth_Child_Of (let_const, Number 0, whole_term_occ),
+            Is_Nth_Arg_Of   (let_sth_be_this_occ, Number 0, let_const),
+            Is_Nth_Arg_Of   (bound_and_body_occ,  Number 1, let_const)
           ]
         )
       ]

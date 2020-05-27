@@ -140,7 +140,7 @@ setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                  
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_true"                 SeLFiE_Assertion.test_Is_Subprint_Of_true \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_false"                SeLFiE_Assertion.test_Is_Subprint_Of_false \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Case_Distinct_Of_Trm_With_A_Case" SeLFiE_Assertion.test_Is_Case_Distinct_Of_Trm_With_A_Case \<close>
-
+setup\<open> Apply_SeLFiE.update_assert "test_Is_Let_X_Be_Y_In_X"                  SeLFiE_Assertion.test_Is_Let_X_Be_Y_In_X \<close>
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
@@ -158,7 +158,12 @@ lemma "if x then True else False"
   oops
 
 lemma "case x of [y] \<Rightarrow> y | _ \<Rightarrow> False"
-  assert_SeLFiE_true test_Is_Case_Distinct_Of_Trm_With_A_Case [on["zs"], arb[],rule[]]
+  assert_SeLFiE_true  test_Is_Case_Distinct_Of_Trm_With_A_Case [on["zs"], arb[],rule[]]
+  assert_SeLFiE_false test_Is_Let_X_Be_Y_In_X [on["zs"], arb[],rule[]]
+  oops
+
+lemma "let (x1, x2) = y in z < x1"
+  assert_SeLFiE_true test_Is_Let_X_Be_Y_In_X [on["zs"], arb[],rule[]]
   oops
 
 primrec rev :: "'a list \<Rightarrow> 'a list" where
@@ -426,7 +431,37 @@ $ (Free ("f", "'b \<Rightarrow> 'a list") $ Free ("x", "'b")): term
 \<close>
 
 ML\<open>
-@{term "if x then True else False"}
+@{term "let ((x1,  x2),  x3) = (y1, y2) in (y1, x3)"};
+(*
+val it =
+   Const ("HOL.Let", "'a \<times> 'b \<times> 'c \<Rightarrow> ('a \<times> 'b \<times> 'c \<Rightarrow> 'a \<times> 'c) \<Rightarrow> 'a \<times> 'c")
+$ (Const ("Product_Type.Pair", "'a \<Rightarrow> 'b \<times> 'c \<Rightarrow> 'a \<times> 'b \<times> 'c")
+  $ Free ("y1", "'a")
+  $ Free ("y2", "'b \<times> 'c"))
+$ (Const ("Product_Type.prod.case_prod", "('a \<Rightarrow> 'b \<times> 'c \<Rightarrow> 'a \<times> 'c) \<Rightarrow> 'a \<times> 'b \<times> 'c \<Rightarrow> 'a \<times> 'c")
+  $ Abs ("x1", "'a",
+      Const ("Product_Type.prod.case_prod", "('b \<Rightarrow> 'c \<Rightarrow> 'a \<times> 'c) \<Rightarrow> 'b \<times> 'c \<Rightarrow> 'a \<times> 'c")
+     $ Abs ("x2", "'b",
+         Abs ("x3", "'c",
+           Const ("Product_Type.Pair", "'a \<Rightarrow> 'c \<Rightarrow> 'a \<times> 'c")
+          $ Free ("y1", "'a")
+          $ Bound 0
+         )
+       )
+    )
+  )
+
+: term
+Is_Let_X_Be_Y_In_Z.
+Again, we have to count the number of Abs.
+X_Is_Let_Z_Be_Y_In_Z.
+*)
+@{term "Product_Type.Pair"};
+dest_funT;
+\<close>
+
+ML\<open>
+@{term "let x = y in z"};
 \<close>
 
 end

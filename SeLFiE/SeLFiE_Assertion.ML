@@ -808,4 +808,31 @@ Some ("whole_term", QOuter_Path,
   )
 );
 
+val test_Is_Let_X_Be_Y_In_X =
+Some ("whole_term_occ", QOuter_Path,
+  Some ("let_sth_be_this_occ", QOuter_Path,
+    Some ("bound_and_body_occ", QOuter_Path,
+        Ands [
+          Is_Let_X_Be_Y_In_X (
+            Variable "whole_term_occ",
+            Variable "let_sth_be_this_occ",
+            Variable "bound_and_body_occ"),
+          Unode_Has_Print (Variable "let_sth_be_this_occ", Print "y"),
+          Some ("in_bound_and_body_occ", QOuter_Path,
+            Ands [
+              Is_Path_Below (Variable "in_bound_and_body_occ", Variable "bound_and_body_occ"),
+              Unode_Has_Print (Variable "in_bound_and_body_occ", Print "z < x1"),
+              Some ("in_bound_and_body_occ2", QOuter_Path,
+                Ands [
+                  Unode_Has_As_Subprint (Variable "in_bound_and_body_occ2", Print "x2"),
+                  Is_Path_Below (Variable "in_bound_and_body_occ2", Variable "bound_and_body_occ")
+                ]
+              )
+            ]
+          )
+        ]
+    )
+  )
+);
+
 end;
