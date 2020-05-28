@@ -28,19 +28,6 @@ val is_function =
 val is_constant =
   Lambdas (["constant"], Is_Cnst (Variable "constnat"));
 
-val is_on_the_rhs_of_meta_eq =
-  Lambdas (["constant"],
-    Some ("meta_eq", QOuter_Path,
-      Ands
-        [Is_Cnst (Variable "meta_eq"),
-         Are_Same_Prints (Variable "meta_eq", Print "(\<equiv>)"),
-         Ors
-           [(*TODO*)
-            ]
-        ]
-    )
-  );
-
 val heuristic_1 =
   Ands
    [Applies (Lambdas (["x","y","z","w"], Variable "y"), [False, True, False, False]),

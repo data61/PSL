@@ -186,6 +186,10 @@ subsection \<open>The Main Theorems\<close>
 
 lemma set_nns:
   "set (nearest_nbors n ps p kdt) \<subseteq> set_kdt kdt \<union> set ps"
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb["ps"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p", "ps"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["n"],rule[]]
   apply (induction kdt arbitrary: ps)
   apply (auto simp: Let_def upd_nbors_def set_insort_key)
   using in_set_takeD set_insort_key by fastforce
