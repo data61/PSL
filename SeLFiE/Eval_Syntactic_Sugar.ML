@@ -225,8 +225,12 @@ val get_new_name = get_new_name' "A";
 
 infix And Or Imply Is_In_Nth_Subgoal Is_In_Nth_Chained_Fact;
 
+(*TODO: Should I use lazy sequences for pairs as well?*)
 fun convert_pair loc pair = Utils.map_pair (convert loc) pair
 and convert_list loc list = map (convert loc) list
+(*
+and convert_list_to_seq loc list = Seq.map (convert loc) (Seq.of_list list)
+*)
 and
   (*bool*)
     convert _    True              = ES.True
@@ -257,6 +261,7 @@ and
   | convert loc (Is_Same_Path_As        pair) = ES.Is_Same_Path_As        (convert_pair loc pair)
   | convert loc (Is_Nth_Child           pair) = ES.Is_Nth_Child           (convert_pair loc pair)
   | convert loc (Is_N_Plus_One_th_Child pair) = ES.Is_N_Plus_One_th_Child (convert_pair loc pair)
+  | convert loc (Is_Root_In_A_Location  arg ) = ES.Is_Root_In_A_Location  (convert      loc arg )
   (*Eval_Prnt*)
   | convert loc (Are_Same_Prints    pair) = ES.Are_Same_Prints  (convert_pair loc pair)
   | convert loc (Is_Subprint_Of     pair) = ES.Is_Subprint_Of   (convert_pair loc pair)
@@ -466,6 +471,7 @@ and
        (Are_In_Same_Location (deep, shallow)
       And
         Is_Shallower_Than (shallow, deep))
+(*
   | convert loc (Is_Root_In_A_Location assert) =
     let
       val non_exist_str = get_new_name [assert] : string;
@@ -477,6 +483,7 @@ and
           (Some (non_exist_str, path_typ,
             Is_Shallower_Than_In_Same_Location (non_exist, assert))))
     end
+*)
   | convert loc (Is_At_Deepest_In_A_Location assert) =
     let
       val non_exist_str = get_new_name [assert] : string;
@@ -740,9 +747,12 @@ and
     in
       convert loc
        (Some (occ, path_typ,
-            Unode_Has_Print (Variable occ, prnt)
-          And
-            inner_assert))
+          Ands [
+            Unode_Has_Print (Variable occ, prnt),
+            inner_assert
+          ]
+        )
+       )
     end
   | convert loc (All_Of (occ, prnt, inner_assert)) = convert loc (Not (Some_Of (occ, prnt, Not inner_assert)))
   | convert loc (Debug_Non_Path_Literal assert) = ES.Debug_Non_Path_Literal (convert loc assert)

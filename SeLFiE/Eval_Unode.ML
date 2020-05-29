@@ -14,6 +14,7 @@ datatype assert =
 | Is_Same_Path_As        of UN.unode * UN.unode
 | Is_Nth_Child           of UN.unode * int
 | Is_N_Plus_One_th_Child of UN.unode * int
+| Is_Root_In_A_Location  of UN.unode
 | Debug_Print_Unode      of UN.unode;
 
 val eval: assert -> Eval_Bool.assert;
@@ -34,6 +35,7 @@ datatype assert =
 | Is_Same_Path_As        of unode * unode
 | Is_Nth_Child           of unode * int
 | Is_N_Plus_One_th_Child of unode * int
+| Is_Root_In_A_Location  of UN.unode
 | Debug_Print_Unode      of UN.unode;
 
 infix
@@ -98,7 +100,8 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     in
       Utils.is_some_true result_option
     end
-  | eval' (Debug_Print_Unode {print,...}) = (tracing ("Debug_Print_Unode: " ^ print); true);
+  | eval' (Is_Root_In_A_Location {inner_path,...}) = inner_path = []
+  | eval' (Debug_Print_Unode {print,...}) = (tracing ("Debug_Print_Unode: " ^ print); true)
 
 fun eval assert = eval' assert |> Eval_Bool.bool_to_assert;
 

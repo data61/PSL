@@ -36,6 +36,7 @@ datatype assert =
 | Is_Same_Path_As        of assert * assert
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
+| Is_Root_In_A_Location  of assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 | Is_Subprint_Of    of assert * assert
@@ -113,6 +114,7 @@ datatype assert =
 | Is_Same_Path_As        of assert * assert
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
+| Is_Root_In_A_Location  of assert 
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 | Is_Subprint_Of    of assert * assert
@@ -180,6 +182,7 @@ and (*bool*)
   | surf_to_var (Is_Same_Path_As        args) = EV.Assert (SU.Atomic SU.Is_Same_Path_As,        surf_to_var_pair_to_list args)
   | surf_to_var (Is_Nth_Child           args) = EV.Assert (SU.Atomic SU.Is_Nth_Child,           surf_to_var_pair_to_list args)
   | surf_to_var (Is_N_Plus_One_th_Child args) = EV.Assert (SU.Atomic SU.Is_N_Plus_One_th_Child, surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Root_In_A_Location  arg ) = EV.Assert (SU.Atomic SU.Is_Root_In_A_Location , surf_to_var_singleton    arg )
   (*Eval_Print*)
   | surf_to_var (Are_Same_Prints  args) = EV.Assert (SU.Atomic SU.Are_Same_Prints,  surf_to_var_pair_to_list args)
   | surf_to_var (Is_Subprint_Of   args) = EV.Assert (SU.Atomic SU.Is_Subprint_Of ,  surf_to_var_pair_to_list args)

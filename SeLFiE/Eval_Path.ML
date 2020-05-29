@@ -28,6 +28,7 @@ datatype assert =
 | Is_Same_Path_As             of gen_path * gen_path
 | Is_Nth_Child                of gen_path * int
 | Is_N_Plus_One_th_Child      of gen_path * int
+| Is_Root_In_A_Location       of gen_path
 (*only in path*)
 | Unode_Has_Print             of gen_path * string
 | Is_In_Subgoal               of gen_path
@@ -86,6 +87,7 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
       | eval' (PA.Is_Same_Path_As         pair)     _ = path2_to_unode2 pair    |> EU.Is_Same_Path_As       |> EU.eval
       | eval' (PA.Is_Nth_Child           (path, i)) _ = (path_to_unode path, i) |> EU.Is_Nth_Child          |> EU.eval
       | eval' (PA.Is_N_Plus_One_th_Child (path, i)) _ = (path_to_unode path, i) |> EU.Is_N_Plus_One_th_Child|> EU.eval
+      | eval' (PA.Is_Root_In_A_Location   path)     _ = path_to_unode path      |> EU.Is_Root_In_A_Location |> EU.eval
       (*only in path*)
       | eval' (PA.Unode_Has_Print (path, print)) _ =
           let

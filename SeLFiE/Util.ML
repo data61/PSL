@@ -40,6 +40,7 @@ datatype atomic_assert =
 | Is_Same_Path_As
 | Is_Nth_Child
 | Is_N_Plus_One_th_Child
+| Is_Root_In_A_Location
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Subprint_Of
@@ -140,6 +141,7 @@ datatype atomic_assert =
 | Is_Same_Path_As
 | Is_Nth_Child
 | Is_N_Plus_One_th_Child
+| Is_Root_In_A_Location
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Subprint_Of
@@ -180,6 +182,7 @@ fun print_atomic_assert (Is_Cnst                    ) = "Is_Cnst"
   | print_atomic_assert (Is_Same_Path_As            ) = "Is_Same_Path_As"
   | print_atomic_assert (Is_Nth_Child               ) = "Is_Nth_Child"
   | print_atomic_assert (Is_N_Plus_One_th_Child     ) = "Is_N_Plus_One_th_Child"
+  | print_atomic_assert (Is_Root_In_A_Location      ) = "Is_Root_In_A_Location"
   | print_atomic_assert (Are_Same_Prints            ) = "Are_Same_Prints"
   | print_atomic_assert (Is_Subprint_Of             ) = "Is_Subprint_Of"
   | print_atomic_assert (Unode_Has_Print            ) = "Unode_Has_Print"

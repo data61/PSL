@@ -107,42 +107,6 @@ Imply
     )
   );
 
-
-
-
-
-
-
-
-
-
-
-
-
-val mth_arg_of_func_occ_has_different_print =
-Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
-  Some ("print_of_mth_argument", QInner_Print,
-    Some_Of ("mth_arg_occ_of_func_occ1", Variable "print_of_mth_argument",
-      Some_Of ("func_occ1", Variable "func",
-        Ands [
-          Is_Nth_Arg_Of (Variable "mth_arg_occ_of_func_occ1", Variable "mth_arg_of_func_occ_has_arb", Variable "func_occ1"),
-          Some ("mth_arg_occ_of_func_occ2", QInner_Path,
-            Ands [
-              Not (Unode_Has_Print (Variable "mth_arg_occ_of_func_occ2", Variable "print_of_mth_argument")),
-              Some_Of ("func_occ2", Variable "func",
-                Ands [
-                  Not (Is_Same_Path_As (Variable "func_occ1", Variable "func_occ2")),
-                  Is_Nth_Arg_Of (Variable "mth_arg_occ_of_func_occ2", Variable "mth_arg_of_func_occ_has_arb", Variable "func_occ2")
-                ]
-              )
-            ]
-          )
-        ]
-      )
-    )
-  )
-);
-(*slow for some reasons
 val mth_arg_of_func_occ_has_different_print =
 Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
   Some ("root_path", QInner_Path,
@@ -151,7 +115,6 @@ Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
       Some ("lhs_path", QInner_Path,
         Ands [
           Applies (is_lhs_of_root, [Variable "lhs_path", Variable "root_path"]),
-
           Some ("mth_param_on_lhs_path", QInner_Path,
             Ands [
               Is_N_Plus_One_th_Child_Of (Variable "mth_param_on_lhs_path", Variable "mth_arg_of_func_occ_has_arb", Variable "lhs_path"),
@@ -172,13 +135,12 @@ Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
               )
             ]
           )
-
         ]
       )
     ]
   )
 );
-*)
+
 val for_all_arbs_there_should_be_a_change =
 All ("arb_trm", QArb,
     True(*TODO: No syntactic heuristics indicate "arb_trm" should be generalized.*)
@@ -199,7 +161,6 @@ All ("arb_trm", QArb,
                         Takes_Less_Than_N_Arguments (Variable "func_trm_occ", Variable "mth_arg_of_func_occ_has_arb"),
                         Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm_occ"),
                         Not (Are_Same_Number (Variable "func_is_recurse_on_nth", Variable "mth_arg_of_func_occ_has_arb")),
-                        Debug_Non_Path_Literal (Variable "func_trm"),
                         In_Some_Definitions (
                           Variable "func_trm",
                           mth_arg_of_func_occ_has_different_print,
