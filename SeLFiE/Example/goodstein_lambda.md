@@ -4,6 +4,7 @@
       proof2 (induct n arbitrary: m rule: hbase.induct)
       ```
    - `induct n` because we prefer to apply induction on the left-hand side of the equation.
+      - if only one of `n` and `m` is an `Ind` term and both `n` and `m` are arguments of the same `=`, then apply induction on the one which comes as the LHS of the `=`, which is, in this case, `n`.
    - `arbitrary: m` because `n = m` and `induct n`. (and same relative location heuristic w.r.t. `n`. in `m ∈ hbase b` and `evalC b m`.)
    
 - [ ] `have "addO n (expω m) = addO n' (expω m') ⟹ n = n'` in Line 194
