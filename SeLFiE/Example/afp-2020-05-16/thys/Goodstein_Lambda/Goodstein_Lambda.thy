@@ -192,6 +192,20 @@ lemma addO_exp\<omega>_inj:
   shows "n = n'" and "m = m'"
 proof -
   have "addO n (exp\<omega> m) = addO n' (exp\<omega> m') \<Longrightarrow> n = n'"
+  assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["m'"],rule[]]
+  assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m'"], arb["m"],rule[]](*very good*)
+
+  assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["m'"],rule[]]
+  assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m'"], arb["m"],rule[]](*unfortunate because assumption failed.*)
+  assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate because assumption failed.*)
+
+  assert_SeLFiE_true  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["m"], arb["n"],rule[]](*unfortunate*)
+  assert_SeLFiE_true  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["n"], arb["m"],rule[]](*unfortunate*)
+
+  assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["m"], arb["m'"],rule[]]
+  assert_SeLFiE_false  for_all_arbs_there_should_be_a_change [on["m"], arb["n"],rule[]]
+  assert_SeLFiE_true   generalize_arguments_used_in_recursion [on["m"], arb["m'"],rule[]](*It takes 25.656s cpu time*)
+(*if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs*)
     by (induct m arbitrary: m'; case_tac m';
       force simp: \<omega>_def dest!: fun_cong[of _ _ 1])
   moreover have "addO n (exp\<omega> m) = addO n (exp\<omega> m') \<Longrightarrow> m = m'"
@@ -204,6 +218,19 @@ qed
 
 lemma C2O_inj:
   "C2O n = C2O m \<Longrightarrow> n = m"
+  assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["n"], arb["m"],rule[]]
+  assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["n"],rule[]](*very good*)
+
+  assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb["m"],rule[]]
+  assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate because assumption failed.*)
+  assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate because assumption failed.*)
+
+  assert_SeLFiE_false  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["m"], arb["n"],rule[]](*good*)
+  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["n"], arb["m"],rule[]]
+
+  assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["n"], arb["m"],rule[]]
+  assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["m"], arb["n"],rule[]]  (*a little unfortunate*)
+  assert_SeLFiE_true   generalize_arguments_used_in_recursion [on["n"], arb["m"],rule[]]
   by (induct n arbitrary: m rule: C2O.induct; case_tac m rule: C2O.cases)
     (auto dest: addO_exp\<omega>_inj arg_cong[of _ _ "evalO 1"])
 
@@ -441,6 +468,8 @@ lemma evalC_inj_on_hbase:
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate*)
   assert_SeLFiE_false  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["m"], arb["n"],rule[]]
   assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["n"], arb["m"],rule[]]
+  assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["n"], arb["m"],rule[]]
+  assert_SeLFiE_false  for_all_arbs_there_should_be_a_change [on["n"], arb["b"],rule[]]
 proof (induct n arbitrary: m rule: hbase.induct)
   case 1
   then show ?case by (cases m rule: hbase.cases) simp_all

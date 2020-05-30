@@ -139,7 +139,7 @@ setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion"
 setup\<open> Apply_SeLFiE.update_assert "for_all_arbs_there_should_be_a_change"    SeLFiE_Assertion.for_all_arbs_there_should_be_a_change \<close>
 setup\<open> Apply_SeLFiE.update_assert "ind_on_lhs_of_eq_then_arb_on_rhs_of_eq"   SeLFiE_Assertion.ind_on_lhs_of_eq_then_arb_on_rhs_of_eq \<close>
 setup\<open> Apply_SeLFiE.update_assert "if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs" SeLFiE_Assertion.if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs \<close>
-
+setup\<open> Apply_SeLFiE.update_assert "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs" SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs \<close>
 
 setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                     SeLFiE_Assertion.test_Is_If_Then_Else \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_true"                 SeLFiE_Assertion.test_Is_Subprint_Of_true \<close>

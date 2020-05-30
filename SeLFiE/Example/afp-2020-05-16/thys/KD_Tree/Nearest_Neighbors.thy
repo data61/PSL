@@ -47,7 +47,8 @@ lemma sorted_wrt_dist_last_take_mono:
   assumes "sorted_wrt_dist p ps" "n \<le> length ps" "0 < n"
   shows "dist (last (take n ps)) p \<le> dist (last ps) p"
   using assms unfolding sorted_wrt_dist_def 
-    assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb[],rule[]]
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb["n"],rule[]]
+  assert_SeLFiE_false  generalize_arguments_used_in_recursion [on["ps"], arb[],rule[]]
   by (induction ps arbitrary: n) (auto simp add: take_Cons')
 
 lemma sorted_wrt_dist_last_insort_key_eq:

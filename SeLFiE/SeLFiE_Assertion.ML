@@ -641,8 +641,15 @@ All ("arb_trm", QArb,
                     Some ("mth_arg_of_func_occ_has_arb", QOuter_Number,
                       Ands [
                         Takes_Less_Than_N_Arguments (Variable "func_trm_occ", Variable "mth_arg_of_func_occ_has_arb"),
-                        Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm_occ"),
-                        Not (Are_Same_Number (Variable "func_is_recurse_on_nth", Variable "mth_arg_of_func_occ_has_arb")),
+                        Some_Of ("func_trm_occ2", Variable "func_trm", (*we do not always talk about the same occurrence of the function. See addO_exp\<omega>_inj in Goodstein_Lambda.thy where we have to deal with two different occurrences of add0.*)
+                          Ands [
+                          Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm_occ2"),
+                          ( Is_Same_Path_As (Variable "func_trm_occ", Variable "func_trm_occ2")
+                          Imply
+                            Not (Are_Same_Number (Variable "func_is_recurse_on_nth", Variable "mth_arg_of_func_occ_has_arb"))(*We should check this because parameter for recursion is always changing in a recursive call. Maybe we can get rid of this check, and let other heuristics check Inds and Arbs are disjoint.*)
+                          )
+                          ]
+                        ),
                         In_Some_Definitions (
                           Variable "func_trm",
                           mth_arg_of_func_occ_has_different_print,
@@ -1023,6 +1030,61 @@ Imply
                 Some ("ind_trm2", QInd,
                   Some_Of ("ind_occ2", Variable "ind_trm2",
                     Is_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
+                  )
+                )
+              )
+            ]
+          ]
+        )
+      )
+    ]
+  )
+
+val if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs =
+  Some ("hol_eq_occ", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
+      Some ("ind_trm1", QInd,
+        Some_Of ("ind_occ1", Variable "ind_trm1",
+          Ors [
+            Ands [(*induct only on the LHS of the equation*)
+              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
+              Not (
+                Some ("ind_trm2", QInd,
+                  Some_Of ("ind_occ2", Variable "ind_trm2",
+                    Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
+                  )
+                )
+              )
+            ],
+            Ands [(*induct only on the RHS of the equation*)
+              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ1", Number 1, Variable "hol_eq_occ"),
+              Not (
+                Some ("ind_trm2", QInd,
+                  Some_Of ("ind_occ2", Variable "ind_trm2",
+                    Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ2", Number 0, Variable "hol_eq_occ")
+                  )
+                )
+              )
+            ]
+          ]
+        )
+      )
+    ]
+  )
+Imply
+  Some ("hol_eq_occ", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
+      Some ("ind_trm1", QInd,
+        Some_Of ("ind_occ1", Variable "ind_trm1",
+          Ors [
+            Ands [(*induct only on the LHS of the equation*)
+              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
+              Not (
+                Some ("ind_trm2", QInd,
+                  Some_Of ("ind_occ2", Variable "ind_trm2",
+                    Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
                   )
                 )
               )
