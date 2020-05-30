@@ -1,6 +1,6 @@
 # Heuristics useful to predict how to apply induction in Nearest_Neighborst.thy in KD_Tree
 
-- [ ] proof of `set_nns` in line 189  
+- [X] proof of `set_nns` in line 189  
    - `lemma set (nearest_nbors n ps p kdt) ⊆ set_kdt kdt ∪ set ps`
    - `apply (induction kdt arbitrary: ps)`
    - `induction kdt` is obvious.
