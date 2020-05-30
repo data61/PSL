@@ -30,7 +30,7 @@
       ```
    - `arbitrary: ns` because of `C (n # ns) ∈ hbase_ext (Suc c)`?
 
-- [ ] `lemma goodstein⇩O:` in Line 709
+- [X] `lemma goodstein⇩O:` in Line 709 -> done as [this](https://github.com/data61/PSL/blob/8bccbc06716b23192db8f3ff1f912dfdcc163b0b/SeLFiE/Example/afp-2020-05-16/thys/Goodstein_Lambda/Goodstein_Lambda.thy#L741).
    - `"goodsteinO c n = goodstein⇩O c ⟨n⟩⇩O"`
    - `apply (induct n arbitrary: c) by simp_all`
    - `arbitrary: c` because of
