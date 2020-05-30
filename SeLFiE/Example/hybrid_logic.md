@@ -1,4 +1,4 @@
-- [ ] `lemma mapi_rev_nth:` in Line 937
+- [X] `lemma mapi_rev_nth:` in Line 937 -> It is not a good example. We can deal with this proof without generalization.
    - ```
      assumes ‹xs !. v = Some x›
      shows ‹mapi f xs !. v = Some (f v x)›
@@ -12,6 +12,7 @@
      | ‹(x # xs) !. v = (if length xs = v then Some x else xs !. v)›
      ```
      Note that the recursive call `xs !. v` appears after `length xs = v`.
+     No. We did not have to generalize this.
      
 - `lemma ex_witness_list:` in Line 4268
    - ```
