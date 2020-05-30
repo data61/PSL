@@ -1,4 +1,4 @@
-- [ ] `evalC_inj_on_hbase` in Line 440
+- [X] `evalC_inj_on_hbase` in Line 440 -> implemented in [this SeLFiE heuristic](https://github.com/data61/PSL/blob/ae99a769ae676967431ce8ed05ee783f0f8e13a7/SeLFiE/SeLFiE_Assertion.ML#L981).
    - ```
      "n ∈ hbase b ⟹ m ∈ hbase b ⟹ evalC b n = evalC b m ⟹ n = m"
       proof2 (induct n arbitrary: m rule: hbase.induct)
