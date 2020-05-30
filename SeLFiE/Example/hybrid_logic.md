@@ -13,8 +13,27 @@
      ```
      Note that the recursive call `xs !. v` appears after `length xs = v`.
      No. We did not have to generalize this.
-     
-- `lemma ex_witness_list:` in Line 4268
+
+- [ ] `lemma ST_sub':` in Line 1765
+   - ```
+     fixes f :: ‹'b ⇒ 'c›
+     assumes ‹⋀(f :: 'b ⇒ 'c) i A. finite A ⟹ i ∉ A ⟹ ∃j. j ∉ f ` A›
+     shows ‹n ⊢ branch ⟹ ⊢ sub_branch f branch›
+     ```
+   - `proof (induct branch arbitrary: f rule: ST.induct)`
+   - Note that alternatively we can use `proof (induct n branch arbitrary: f rule: ST.induct)` without any observational change.
+   - Because 
+     ```
+     abbreviation ST_ex :: ‹('a, 'b) branch ⇒ bool› (‹⊢ _› [50] 50) where
+     ‹⊢ branch ≡ ∃n. n ⊢ branch›
+     ```
+   - So, `branch` and `sub_branch f branch` appear in the same relative location in terms of `⊢`(Hybrid_Logic.ST).
+   - Furthermore, `f` is a variable with a function type.
+   - Note that "Abbreviations participate in the usual type-inference process, but are expanded before the logic ever sees them. Pretty printing of terms in- volves higher-order rewriting with rules stemming from reverted abbre- viations." according to [the reference manual](https://isabelle.in.tum.de/dist/Isabelle2020/doc/isar-ref.pdf)
+   - Why `induct branch` with `ST.induct` rather than `induct "sub_branch f branch"` with `ST.induct`?
+   - ... because the former appears in the assumption of the meta-implication.
+
+- [ ] `lemma ex_witness_list:` in Line 4268
    - ```
      assumes ‹p ∈. ps› ‹proper_dia p = Some q›
      shows ‹∃i. {❙@ i q, ❙◇ Nom i} ⊆ set (witness_list ps used)›
@@ -34,3 +53,12 @@
                 let i = SOME i. i ∉ used
                 in (❙@ i q) # (❙◇ Nom i) # witness_list ps ({i} ∪ used))›
         ```
+- [ ] `lemma descendants_initial:` in Line 2655
+   - ```
+     assumes ‹descendants k i branch xs›
+     shows ‹∃(v, v') ∈ xs. ∃ps.
+       branch !. v = Some (ps, i) 
+       ∧ ps !. v' = Some (❙◇ Nom k)›
+     using assms by (induct k i branch xs rule: descendants.induct) simp_all
+     ```
+   - Note that `descendants k i branch xs` is a chained-fact.
