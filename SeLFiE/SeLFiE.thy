@@ -136,6 +136,7 @@ setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.tes
 
 setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"            SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
 setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion"   SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
+setup\<open> Apply_SeLFiE.update_assert "for_all_arbs_there_should_be_a_change"    SeLFiE_Assertion.for_all_arbs_there_should_be_a_change \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                     SeLFiE_Assertion.test_Is_If_Then_Else \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_true"                 SeLFiE_Assertion.test_Is_Subprint_Of_true \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_false"                SeLFiE_Assertion.test_Is_Subprint_Of_false \<close>
@@ -180,6 +181,9 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["xs"], arb["ys"],rule[]](*It used to take 1.196s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb["xs"],rule[]](*It used to take 2.467s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]](*It used to take 0.864s elapsed time*)
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change  [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change  [on["xs"], arb["xs"],rule[]]
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change  [on["xs"], arb[],rule[]](*unfortunate result due to the universal quantifier.*)
   assert_SeLFiE_true  is_defined_recursively_on_nth  [on["xs"], arb["ys"],rule[]](*It used to take 0.703s elapsed time*)
   assert_SeLFiE_false is_defined_recursively_on_nth  [on["ys"], arb[],rule[]](*It used to take 1.647s elapsed time*)
   assert_SeLFiE_true heuristic_1  [on["xs"], arb["ys"],rule[]]

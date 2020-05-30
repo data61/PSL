@@ -186,7 +186,10 @@ subsection \<open>The Main Theorems\<close>
 
 lemma set_nns:
   "set (nearest_nbors n ps p kdt) \<subseteq> set_kdt kdt \<union> set ps"
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*It takes 25.656s cpu time*)
+  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb["ps"],rule[]]
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb[],rule[]]     (*unfortunate because of the universal quantifier over generalized terms*)
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p"],rule[]]
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p", "ps"],rule[]]
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["n"],rule[]]
@@ -197,6 +200,14 @@ lemma set_nns:
 
 lemma length_nns:
   "length (nearest_nbors n ps p kdt) = min n (size_kdt kdt + length ps)"
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*It takes 25.656s cpu time*)
+  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb["ps"],rule[]]
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb[],rule[]]     (*unfortunate because of the universal quantifier over generalized terms*)
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p", "ps"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["n"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["n","p"],rule[]]
   by (induction kdt arbitrary: ps) (auto simp: Let_def upd_nbors_def)
 
 lemma length_nns_gt_0:
