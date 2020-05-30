@@ -86,3 +86,14 @@
       ‹mapi_branch f branch ≡ mapi (λv. mapi_block (f v)) branch›  
     ```
    - So, this is the case where deep-dive would be a help!
+
+- [ ] `lemma list_down_induct [consumes 1, case_names Start Cons]:` in Line 2031
+   - ```
+     assumes 
+       ‹∀y ∈ set ys. Q y›
+       ‹P (ys @ xs)›
+       ‹⋀y xs. Q y ⟹ P (y # xs) ⟹ P xs›
+     shows ‹P xs›
+       using assms by (induct ys) auto
+     ```
+   - because of `@`, which appears inside a chained fact.
