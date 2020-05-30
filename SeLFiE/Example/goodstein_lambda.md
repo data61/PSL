@@ -7,10 +7,10 @@
       - if only one of `n` and `m` is an `Ind` term and both `n` and `m` are arguments of the same `=`, then apply induction on the one which comes as the LHS of the `=`, which is, in this case, `n`.
    - `arbitrary: m` because `n = m` and `induct n`. (and same relative location heuristic w.r.t. `n`. in `m ∈ hbase b` and `evalC b m`.)
    
-- [ ] `have "addO n (expω m) = addO n' (expω m') ⟹ n = n'` in Line 194
+- [X] `have "addO n (expω m) = addO n' (expω m') ⟹ n = n'` in Line 194 -> implemented in [this SeLFiE heuristic](https://github.com/data61/PSL/blob/f8c208f96b6ee4bcfda0ad22865bbdc7e13f19bd/SeLFiE/SeLFiE_Assertion.ML#L1043).
    - `apply (induct m arbitrary: m'`
    - because of the same reason we used for `evalC_inj_on_hbase`.
-   - No. Not really. `m` and `m'` appear as sub-terms of arguments to an `=`.
+   - No. Not really. `m` and `m'` appear as sub-terms of arguments to an `=`. -> We used `Is_Nth_Arg_Or_Below_Nth_Arg_Of` instead.
      
 - [ ] `have "goodsteinC_dom (c, n)" for c n`
    - `apply (induct n arbitrary: c rule: C_Ord_induct)`
