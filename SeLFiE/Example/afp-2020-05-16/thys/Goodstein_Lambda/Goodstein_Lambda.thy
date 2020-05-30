@@ -1,7 +1,7 @@
 section \<open>Specification\<close>
 
 theory Goodstein_Lambda
-  imports Main
+  imports Main "../../../More_SeLFiE_Assertion"
 begin
 
 subsection \<open>Hereditary base representation\<close>
@@ -436,6 +436,11 @@ qed
 
 lemma evalC_inj_on_hbase:
   "n \<in> hbase b \<Longrightarrow> m \<in> hbase b \<Longrightarrow> evalC b n = evalC b m \<Longrightarrow> n = m"
+  assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb["m"],rule[]]
+  assert_SeLFiE_false  ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb[],rule[]]
+  assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate*)
+  assert_SeLFiE_false  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["m"], arb["n"],rule[]]
+  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["n"], arb["m"],rule[]]
 proof (induct n arbitrary: m rule: hbase.induct)
   case 1
   then show ?case by (cases m rule: hbase.cases) simp_all

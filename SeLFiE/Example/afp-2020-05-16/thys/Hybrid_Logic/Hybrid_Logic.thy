@@ -1,4 +1,4 @@
-theory Hybrid_Logic imports "HOL-Library.Countable" begin
+theory Hybrid_Logic imports "HOL-Library.Countable" "../../../More_SeLFiE_Assertion" begin
 
 section \<open>Syntax\<close>
 

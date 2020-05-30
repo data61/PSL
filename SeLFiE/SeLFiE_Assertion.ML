@@ -933,4 +933,104 @@ Some ("whole_term_occ", QOuter_Path,
   )
 );
 
+val ind_on_lhs_of_eq_then_arb_on_rhs_of_eq =
+  Some ("hol_eq_occ", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
+      Some ("ind_trm", QInd,
+        Some_Of ("ind_occ", Variable "ind_trm",
+          Ands [
+            Applies (is_variable, [Variable "ind_occ"]),
+            Is_Nth_Arg_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
+            Some ("arb_occ", QOuter_Path,
+              Ands [
+                Applies (is_variable, [Variable "arb_occ"]),
+                Not (Unode_Has_Print (Variable "arb_occ", Variable "ind_trm")),
+                Is_Nth_Arg_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
+              ]
+            )
+          ]
+        )
+      ),
+    Debug_Non_Path_Literal (Print "Assumption is done")
+    ]
+  )
+Imply
+  Some ("hol_eq_occ", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
+      Some ("ind_trm", QInd,
+        Some_Of ("ind_occ", Variable "ind_trm",
+          Ands [
+            Applies (is_variable, [Variable "ind_occ"]),
+            Is_Nth_Arg_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
+            Some ("arb_trm", QArb,(*!*)
+              Some_Of ("arb_occ", Variable "arb_trm",(*!*)
+                Ands [
+                  Is_Nth_Arg_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
+                ]
+              )
+            )
+          ]
+        )
+      )
+    ]
+  )
+;
+
+val if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs =
+  Some ("hol_eq_occ", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
+      Some ("ind_trm1", QInd,
+        Some_Of ("ind_occ1", Variable "ind_trm1",
+          Ors [
+            Ands [(*induct only on the LHS of the equation*)
+              Is_Nth_Arg_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
+              Not (
+                Some ("ind_trm2", QInd,
+                  Some_Of ("ind_occ2", Variable "ind_trm2",
+                    Is_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
+                  )
+                )
+              )
+            ],
+            Ands [(*induct only on the RHS of the equation*)
+              Is_Nth_Arg_Of (Variable "ind_occ1", Number 1, Variable "hol_eq_occ"),
+              Not (
+                Some ("ind_trm2", QInd,
+                  Some_Of ("ind_occ2", Variable "ind_trm2",
+                    Is_Nth_Arg_Of (Variable "ind_occ2", Number 0, Variable "hol_eq_occ")
+                  )
+                )
+              )
+            ]
+          ]
+        )
+      )
+    ]
+  )
+Imply
+  Some ("hol_eq_occ", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
+      Some ("ind_trm1", QInd,
+        Some_Of ("ind_occ1", Variable "ind_trm1",
+          Ors [
+            Ands [(*induct only on the LHS of the equation*)
+              Is_Nth_Arg_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
+              Not (
+                Some ("ind_trm2", QInd,
+                  Some_Of ("ind_occ2", Variable "ind_trm2",
+                    Is_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
+                  )
+                )
+              )
+            ]
+          ]
+        )
+      )
+    ]
+  )
+
 end;
