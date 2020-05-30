@@ -53,6 +53,7 @@
                 let i = SOME i. i ∉ used
                 in (❙@ i q) # (❙◇ Nom i) # witness_list ps ({i} ∪ used))›
         ```
+        
 - [ ] `lemma descendants_initial:` in Line 2655
    - ```
      assumes ‹descendants k i branch xs›
@@ -62,3 +63,26 @@
      using assms by (induct k i branch xs rule: descendants.induct) simp_all
      ```
    - Note that `descendants k i branch xs` is a chained-fact.
+   
+- [ ] `lemma bridge_branch_nominals:` in Line 2543
+   - ```
+     ‹branch_nominals (mapi_branch (bridge k j xs) branch) ∪ {k, j} =
+      branch_nominals branch ∪ {k, j}›
+      proof (induct branch)
+     ```
+   - Note that `mapi_branch` is defined with `definition` by as a syntactic sugar for `mapi` which is defined recursively on the second argument.
+   -
+    ```
+    primrec mapi :: ‹(nat ⇒ 'a ⇒ 'b) ⇒ 'a list ⇒ 'b list› where
+      ‹mapi f [] = []›
+    | ‹mapi f (x # xs) = f (length xs) x # mapi f xs›
+
+    primrec mapi_block ::
+      ‹(nat ⇒ ('a, 'b) fm ⇒ ('a, 'b) fm) ⇒ (('a, 'b) block ⇒ ('a, 'b) block)› where
+      ‹mapi_block f (ps, i) = (mapi f ps, i)›
+
+    definition mapi_branch ::
+      ‹(nat ⇒ nat ⇒ ('a, 'b) fm ⇒ ('a, 'b) fm) ⇒ (('a, 'b) branch ⇒ ('a, 'b) branch)› where
+      ‹mapi_branch f branch ≡ mapi (λv. mapi_block (f v)) branch›  
+    ```
+   - So, this is the case where deep-dive would be a help!
