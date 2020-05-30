@@ -10,6 +10,7 @@
 - [ ] `have "addO n (expω m) = addO n' (expω m') ⟹ n = n'` in Line 194
    - `apply (induct m arbitrary: m'`
    - because of the same reason we used for `evalC_inj_on_hbase`.
+   - No. Not really. `m` and `m'` appear as sub-terms of arguments to an `=`.
      
 - [ ] `have "goodsteinC_dom (c, n)" for c n`
    - `apply (induct n arbitrary: c rule: C_Ord_induct)`
