@@ -16,6 +16,27 @@
      ‹x ∈. xs ≡ x ∈ set xs›
      ```
    - That is, after one step of deep-dive, we see that a part of `block` in `p on block`is an argument of `set` inside the second argument of `∈`.
+
+- [ ] `lemma mapi_branch_mem:` in Line 910
+   - ```
+     assumes ‹(ps, i) ∈. branch›
+     shows ‹∃v. (mapi (f v) ps, i) ∈. mapi_branch f branch›
+     unfolding mapi_branch_def using assms by (induct branch) auto
+     ```
+   - because of unfolding, we have
+   - ```
+     using this:
+       (ps, i) ∈. branch
+     goal (1 subgoal):
+       1. ∃v. (mapi (f v) ps, i) ∈. mapi (λv. mapi_block (f v)) branch
+     ```
+   - where `∈.` is defined as
+   - ```
+     abbreviation member_list :: ‹'a ⇒ 'a list ⇒ bool› (‹_ ∈. _› [51, 51] 50) where
+       ‹x ∈. xs ≡ x ∈ set xs›
+     ```
+   - Therefore, `branch` in `(ps, i) ∈. branch` is passed as the argument to the `set` in `x ∈ set x`.
+   - Note that we do not even need a dive-in, because `∈.` is defined with `abbreviation`.
    
 - [ ] `lemma rev_nth_mapi_block:` in Line 921
    - ```
