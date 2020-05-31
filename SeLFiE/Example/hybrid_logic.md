@@ -1,3 +1,33 @@
+- [ ] `lemma block_nominals:` in Line 279
+   - ```
+     lemma block_nominals:
+     ‹p on block ⟹ i ∈ nominals p ⟹ i ∈ block_nominals block›
+     by (induct block) auto
+     ```
+   - why `induct block`?
+   - because of `p on block` where `on` is defined as
+   - ```
+     primrec on :: ‹('a, 'b) fm ⇒ ('a, 'b) block ⇒ bool› (‹_ on _› [51, 51] 50) where
+     ‹p on (ps, i) = (p ∈. ps ∨ p = Nom i)›
+     ```
+   - and `∈.` is defined as
+   - ```
+     abbreviation member_list :: ‹'a ⇒ 'a list ⇒ bool› (‹_ ∈. _› [51, 51] 50) where
+     ‹x ∈. xs ≡ x ∈ set xs›
+     ```
+   - That is, after one step of deep-dive, we see that a part of `block` in `p on block`is an argument of `set` inside the second argument of `∈`.
+   
+- [ ] `lemma rev_nth_mapi_block:` in Line 921
+   - ```
+     assumes ‹ps !. v' = Some p›
+     shows ‹f v' p on (mapi f ps, a)›
+     using assms by (induct ps) (simp_all, metis option.sel)
+     ```
+   - Why `induct ps`?
+   - Because `mapi` is defined recursively on the second argument.
+   - Because `(mapi f ps, a)` is the second argument of `on` similarly to the case for `lemma block_nominals:`, but we take only `ps` rather than `mapi f ps` maybe because `mapi` is defined recursively,
+   - and `ps` is also the first argument to `!.` where `!.` is defined recursively on the first argument?
+
 - [X] `lemma mapi_rev_nth:` in Line 937 -> It is not a good example. We can deal with this proof without generalization.
    - ```
      assumes ‹xs !. v = Some x›
