@@ -33,36 +33,16 @@
    - Why `induct branch` with `ST.induct` rather than `induct "sub_branch f branch"` with `ST.induct`?
    - ... because the former appears in the assumption of the meta-implication.
 
-- [ ] `lemma ex_witness_list:` in Line 4268
+- [ ] `lemma list_down_induct [consumes 1, case_names Start Cons]:` in Line 2031
    - ```
-     assumes ‹p ∈. ps› ‹proper_dia p = Some q›
-     shows ‹∃i. {❙@ i q, ❙◇ Nom i} ⊆ set (witness_list ps used)›
-     using ‹p ∈. ps›
-     proof (induct ps arbitrary: used)
+     assumes 
+       ‹∀y ∈ set ys. Q y›
+       ‹P (ys @ xs)›
+       ‹⋀y xs. Q y ⟹ P (y # xs) ⟹ P xs›
+     shows ‹P xs›
+       using assms by (induct ys) auto
      ```
-   - `arbitrary: used` because 
-      - `(witness_list ps used)`
-      - `induct ps` , and
-      - ```
-        primrec witness_list :: ‹('a, 'b) fm list ⇒ 'b set ⇒ ('a, 'b) fm list› where
-          ‹witness_list [] _ = []›
-        | ‹witness_list (p # ps) used =
-           (case proper_dia p of
-              None ⇒ witness_list ps used
-            | Some q ⇒
-                let i = SOME i. i ∉ used
-                in (❙@ i q) # (❙◇ Nom i) # witness_list ps ({i} ∪ used))›
-        ```
-        
-- [ ] `lemma descendants_initial:` in Line 2655
-   - ```
-     assumes ‹descendants k i branch xs›
-     shows ‹∃(v, v') ∈ xs. ∃ps.
-       branch !. v = Some (ps, i) 
-       ∧ ps !. v' = Some (❙◇ Nom k)›
-     using assms by (induct k i branch xs rule: descendants.induct) simp_all
-     ```
-   - Note that `descendants k i branch xs` is a chained-fact.
+   - because of `@`, which appears inside a chained fact.
    
 - [ ] `lemma bridge_branch_nominals:` in Line 2543
    - ```
@@ -87,13 +67,33 @@
     ```
    - So, this is the case where deep-dive would be a help!
 
-- [ ] `lemma list_down_induct [consumes 1, case_names Start Cons]:` in Line 2031
+- [ ] `lemma descendants_initial:` in Line 2655
    - ```
-     assumes 
-       ‹∀y ∈ set ys. Q y›
-       ‹P (ys @ xs)›
-       ‹⋀y xs. Q y ⟹ P (y # xs) ⟹ P xs›
-     shows ‹P xs›
-       using assms by (induct ys) auto
+     assumes ‹descendants k i branch xs›
+     shows ‹∃(v, v') ∈ xs. ∃ps.
+       branch !. v = Some (ps, i) 
+       ∧ ps !. v' = Some (❙◇ Nom k)›
+     using assms by (induct k i branch xs rule: descendants.induct) simp_all
      ```
-   - because of `@`, which appears inside a chained fact.
+   - Note that `descendants k i branch xs` is a chained-fact.
+   
+- [ ] `lemma ex_witness_list:` in Line 4268
+   - ```
+     assumes ‹p ∈. ps› ‹proper_dia p = Some q›
+     shows ‹∃i. {❙@ i q, ❙◇ Nom i} ⊆ set (witness_list ps used)›
+     using ‹p ∈. ps›
+     proof (induct ps arbitrary: used)
+     ```
+   - `arbitrary: used` because 
+      - `(witness_list ps used)`
+      - `induct ps` , and
+      - ```
+        primrec witness_list :: ‹('a, 'b) fm list ⇒ 'b set ⇒ ('a, 'b) fm list› where
+          ‹witness_list [] _ = []›
+        | ‹witness_list (p # ps) used =
+           (case proper_dia p of
+              None ⇒ witness_list ps used
+            | Some q ⇒
+                let i = SOME i. i ∉ used
+                in (❙@ i q) # (❙◇ Nom i) # witness_list ps ({i} ∪ used))›
+        ```
