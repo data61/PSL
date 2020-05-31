@@ -48,6 +48,27 @@
    - and if we deep-dive into the definition of `⊨` we can see that the third argument to `⊨` in the recursive calls in the 5th and 6th clauses are not the parameters from the left-hand side of the equations. That is why `g` in the proof goal has to be generalized.
    - This example shows that we sometimes have to deep-dive in the definition even for constants defined with `primrec` especially when the definition has only one clause.
 
+- [ ] `lemma mapi_block_add_oob:` in Line 890
+   - ```
+     assumes ‹length ps ≤ v'›
+     shows
+       ‹mapi_block (mapper f ({(v, v')} ∪ xs) v) (ps, i) = mapi_block (mapper f xs v) (ps, i)›
+     using assms by (induct ps) simp_all
+     ```
+   - why `induct ps`?
+   - because of `ps` is a part of the second argument to both occurrences of `mapi_block`, which is defined as:
+   - ```
+     primrec mapi_block :: ‹(nat ⇒ ('a, 'b) fm ⇒ ('a, 'b) fm) ⇒ (('a, 'b) block ⇒ ('a, 'b) block)› where
+       ‹mapi_block f (ps, i) = (mapi f ps, i)›
+     ```
+   - where `mapi` is defined as
+   - ```
+     primrec mapi :: ‹(nat ⇒ 'a ⇒ 'b) ⇒ 'a list ⇒ 'b list› where
+       ‹mapi f []       = []›
+     | ‹mapi f (x # xs) = f (length xs) x # mapi f xs›
+     ```
+   - which is defined recursively on the second argument. So, we need to deep-dive.
+
 - [ ] `lemma mapi_branch_mem:` in Line 910
    - ```
      assumes ‹(ps, i) ∈. branch›
