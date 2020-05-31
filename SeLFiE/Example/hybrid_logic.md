@@ -17,6 +17,37 @@
      ```
    - That is, after one step of deep-dive, we see that a part of `block` in `p on block`is an argument of `set` inside the second argument of `∈`.
 
+- [ ] `lemma soundness':` in Line 306
+   - ```
+     ‹n ⊢ branch ⟹ M, g ⊨⇩Θ branch ⟹ False›
+     proof (induct branch arbitrary: g rule: ST.induct)
+     ```
+   - Why `arbitrary: g`?
+   - because 
+   - ```
+     abbreviation branch_sat :: ‹('w, 'a) model ⇒ ('b ⇒ 'w) ⇒ ('a, 'b) branch ⇒ bool› (‹_, _ ⊨⇩Θ _› [50, 50] 50) where
+     ‹M, g ⊨⇩Θ branch ≡ ∀(ps, i) ∈ set branch. M, g ⊨⇩B (ps, i)›
+     ```
+   - where `⊨⇩B` is defined as
+   - ```
+     primrec block_sat :: ‹('w, 'a) model ⇒ ('b ⇒ 'w) ⇒ ('a, 'b) block ⇒ bool› (‹_, _ ⊨⇩B _› [50, 50] 50) where
+     ‹(M, g ⊨⇩B (ps, i)) = (∀p on (ps, i). M, g, g i ⊨ p)›
+    ```
+  - where `⊨` is defined as
+  - ```
+    primrec semantics :: ‹('w, 'a) model ⇒ ('b ⇒ 'w) ⇒ 'w ⇒ ('a, 'b) fm ⇒ bool› (‹_, _, _ ⊨ _› [50, 50, 50] 50) where
+       ‹(M, _, w ⊨ Pro x   ) = V M w x›
+     | ‹(_, g, w ⊨ Nom i   ) = (w = g i)›
+     | ‹(M, g, w ⊨ ❙¬ p    ) = (¬ M, g, w ⊨ p)›
+     | ‹(M, g, w ⊨ (p ❙∨ q)) = ((M, g, w ⊨ p) ∨ (M, g, w ⊨ q))›
+     | ‹(M, g, w ⊨ ❙◇ p    ) = (∃v ∈ R M w. M, g, v ⊨ p)›       (*Third argument changes in the recursive call.*)
+     | ‹(M, g, _ ⊨ ❙@ i p  ) = (M, g, g i ⊨ p)›                 (*Third argument changes in the recursive call.*)
+     ```
+   - That is to say, `g` in the proof goal is the second argument to `⊨⇩Θ` which is an abbreviation for `⊨⇩B`,
+     so `g` is in practice both the second argument and a part of the third argument passed to `⊨`,
+   - and if we deep-dive into the definition of `⊨` we can see that the third argument to `⊨` in the recursive calls in the 5th and 6th clauses are not the parameters from the left-hand side of the equations. That is why `g` in the proof goal has to be generalized.
+   - This example shows that we sometimes have to deep-dive in the definition even for constants defined with `primrec` especially when the definition has only one clause.
+
 - [ ] `lemma mapi_branch_mem:` in Line 910
    - ```
      assumes ‹(ps, i) ∈. branch›
