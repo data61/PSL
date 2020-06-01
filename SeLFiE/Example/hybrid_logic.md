@@ -242,6 +242,16 @@
      ```
    - because of `@`, which appears inside a chained fact.
    
+- [ ] `lemma ST_struct_block:` in Line 2268
+   - ```
+     using this:
+       n ⊢ (ps, a) # branch      
+       set ps ⊆ set ps'
+     goal (1 subgoal):
+       1. ⊢ (ps', a) # branch
+     ```
+   - 
+   
 - [ ] `lemma bridge_branch_nominals:` in Line 2543
    - ```
      ‹branch_nominals (mapi_branch (bridge k j xs) branch) ∪ {k, j} =
