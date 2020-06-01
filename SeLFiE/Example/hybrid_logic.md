@@ -161,6 +161,23 @@
    - because of `omit` and `set`.
    - Note that `set` here does not come with `∈`.
 
+- [ ] `lemma ST_add:` in Line 1587
+   - ```
+     lemma ST_add: ‹n ⊢ branch ⟹ m + n ⊢ branch›
+     using ST_Suc by (induct m) auto
+     ```
+   - ```
+     using this:
+       ?n ⊢ ?branch ⟹ Suc ?n ⊢ ?branch
+     goal (1 subgoal):
+       1. n ⊢ branch ⟹ m + n ⊢ branch
+     ```
+   - Why `induct m` instead of `induct n`?
+   - because 
+      - this is a structural induction,
+      - `m` appears only in the conclusion of the meta implication while `n` appears both in the premise and conclusion, and
+      - both the premise and conclusion have the application of `⊢` as the root, and `⊢` is defined inductively.
+
 - [ ] `lemma sub_block_mem:` in Line 1701
    - ```
      ‹p on block ⟹ sub f p on sub_block f block›
