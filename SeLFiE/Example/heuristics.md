@@ -12,13 +12,13 @@
 - the nth parameter in a clause of the definition of `foo` is used as part of the mth argument to a recursive call of `foo` appearing in the same clause,
 - then all non-`xs` variables appearing as part of the mth argument of any `foo` should be generalized.
 - Maybe it is enough to check if the mth arguments of all recursive calls of `foo` are identical to the mth parameters in each clause of the definition.
-- Note that if a proof obligation involve constants defined with the `definition` keyword, it is worth trying to look into the definition. And we might find a recursively defined constants there. In that case, we should take one step further in the ladder of definitions: invetigate how that recursive function is defined.
-   - Example: line 204 in `Berlekamp_Zassenhaus/Arithmetic_Record_Based.thy`.
+- Deep-dive: Note that if a proof obligation involve constants defined with the `definition` keyword, it is worth trying to look into the definition. And we might find a recursively defined constants there. In that case, we should take one step further in the ladder of definitions: invetigate how that recursive function is defined.
+   - [ ] Example: line 204 in `Berlekamp_Zassenhaus/Arithmetic_Record_Based.thy`.
       - `goal (1 subgoal): 1. S (nth_default x xs n) (nth_default y ys n)`
       - `proof (induct arbitrary: n)`
       - But `nth_default` itself is not defined recursively, but its definition involves the `!` operator.
       - And because of the recursive definition of `!`, `n` in the proof goal should be generalized.
-   - Example: line 162 in `Deep_Learning/Tensor.thy`
+   - [ ] Example: line 162 in `Deep_Learning/Tensor.thy`
       - `lemma concat_parts:`
       - `assumes "⋀xs. xs∈set xss ⟹ length xs = d" and "i<length xss"`
       - `shows "fixed_length_sublist (concat xss) d i = xss ! i"`
