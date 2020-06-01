@@ -53,7 +53,7 @@
       - `"t ∙∙ ts ≡ foldl (∙) t ts"`
    - and `foldl` is defined as:
       - `primrec foldl :: "('b ⇒ 'a ⇒ 'b) ⇒ 'b ⇒ 'a list ⇒ 'b" where`
-      - `foldl_Nil:  "foldl f a [] = a" |
+      - `foldl_Nil:  "foldl f a [] = a" |`
       - `foldl_Cons: "foldl f a (x # xs) = foldl f (f a x) xs"`
    
 ## Generalization based on a bound variable in function definitions.
@@ -269,7 +269,7 @@
 - [ ] `lemma is_binqueue_append:`
    - `"is_binqueue l xs ⟹ is_binqueue (length xs + l) ys ⟹ is_binqueue l (xs @ ys)"`
    - `by (induct xs arbitrary: l)`
-- [ ] line 154 in `Bionmial_Queses/Binomial_Queue.thy`.
+- line 154 in `Bionmial_Queses/Binomial_Queue.thy`.
    - The occurrence of `xs` in the conclusion has `@` and `is_binqueue`, and both of them are defined recursively.
 
 ## Terms of (recursive) type constructors are more likely to be inducted on than terms of type variables of function types.
