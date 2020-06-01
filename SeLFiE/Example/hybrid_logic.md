@@ -17,7 +17,7 @@
      ```
    - That is, after one step of deep-dive, we see that a part of `block` in `p on block`is an argument of `set` inside the second argument of `∈`.
 
-- [ ] `lemma soundness':` in Line 306
+- [ ] `lemma soundness':` in Line 306 (Deep-Dive needed.)
    - ```
      ‹n ⊢ branch ⟹ M, g ⊨⇩Θ branch ⟹ False›
      proof (induct branch arbitrary: g rule: ST.induct)
@@ -47,6 +47,12 @@
      so `g` is in practice both the second argument and a part of the third argument passed to `⊨`,
    - and if we deep-dive into the definition of `⊨` we can see that the third argument to `⊨` in the recursive calls in the 5th and 6th clauses are not the parameters from the left-hand side of the equations. That is why `g` in the proof goal has to be generalized.
    - This example shows that we sometimes have to deep-dive in the definition even for constants defined with `primrec` especially when the definition has only one clause.
+
+- [ ] `lemma block_sat:` in Line 416 (Deep-Dive needed.)
+   - similar to `lemma soundness'` in Line 306
+   - Why not `induct p`?
+   - because it does not even return a sub-goal at all
+   - and because `p` is a bound variable.
 
 - [ ] `rev_nth_mem` in Line 822
    - ```
