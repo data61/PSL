@@ -250,7 +250,24 @@
      goal (1 subgoal):
        1. ⊢ (ps', a) # branch
      ```
-   - 
+   - `proof (induct ‹(ps, a) # branch› arbitrary: ps ps' rule: ST.induct)` 
+   - or alternatively `proof (induct n ‹(ps, a) # branch› arbitrary: ps ps' rule: ST.induct)`
+   - Why `induct ‹(ps, a) # branch›`?
+   - because `⊢` is defined with the `inductive` keyword, and
+   - `n ⊢ (ps, a) # branch ` appears as a chained fact.
+   - Why `arbitrary: ps ps'``?
+   - because `ps` is a sub-term of `‹(ps, a) # branch›`, which is an induction term, 
+   - and in the definition of `⊢`, the same relative place is changed: for example,
+   - ```
+     | Nom:
+     ‹p at b in (ps, a) # branch ⟹ Nom i at b in (ps, a) # branch ⟹
+      Nom i at a in (ps, a) # branch ⟹
+      new p a ((ps, a) # branch) ⟹
+      Suc n ⊢ (p # ps, a) # branch ⟹
+      n ⊢ (ps, a) # branch›
+     ```
+   - look at the transition from `p # ps` to `ps`,
+   - and `Suc n` is also changed to `n` as the first argument to `⊢`, but the whole is passed as a single induction term `n` in the proof script, while `‹(ps, a) # branch›` contains the relative part `ps` as a sub-term.
    
 - [ ] `lemma bridge_branch_nominals:` in Line 2543
    - ```
