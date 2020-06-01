@@ -160,12 +160,34 @@
      ‹p on block ⟹ sub f p on sub_block f block›
      by (induct block) auto
      ```
-   - Why by `(induct block)`?
+   - Why `(induct block)`?
    - because 
      ```
      primrec on :: ‹('a, 'b) fm ⇒ ('a, 'b) block ⇒ bool› (‹_ on _› [51, 51] 50) where
        ‹p on (ps, i) = (p ∈. ps ∨ p = Nom i)›
      ```
+
+- [ ] `lemma sub_block_id: ‹sub_block id block = block›` in Line 1720
+   - ```
+     using this: sub_list id ?ps = ?ps
+     goal (1 subgoal):
+       1. sub_block id block = block
+     by (induct block) auto
+     ```
+   - Why `(induct block)`?
+   - because of `block` is the second argument to `sub_block`, which is defined as
+   - ```
+     primrec sub_block :: ‹('b ⇒ 'c) ⇒ ('a, 'b) block ⇒ ('a, 'c) block› where
+       ‹sub_block f (ps, i) = (sub_list f ps, f i)›
+     ```
+   - and `sub_list` is an abbreviation defined as:
+   - ```
+     abbreviation sub_list :: ‹('b ⇒ 'c) ⇒ ('a, 'b) fm list ⇒ ('a, 'c) fm list› where
+       ‹sub_list f ps ≡ map (sub f) ps›
+     ```
+   - So, a part of `block` is mapped over, meaning that a apart of `block` is passed to `map` the second argument. That's why.
+   - Why not `(induct ?ps)`?
+   - because we have `block`, which is a free variable while ?ps is not a free variable. (schematic variable?) 
 
 - [ ] `lemma ST_sub':` in Line 1765
    - ```
