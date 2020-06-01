@@ -48,6 +48,24 @@
    - and if we deep-dive into the definition of `⊨` we can see that the third argument to `⊨` in the recursive calls in the 5th and 6th clauses are not the parameters from the left-hand side of the equations. That is why `g` in the proof goal has to be generalized.
    - This example shows that we sometimes have to deep-dive in the definition even for constants defined with `primrec` especially when the definition has only one clause.
 
+- [ ] `rev_nth_mem` in Line 822
+   - ```
+     assume ‹block ∈. branch›
+     then show ‹∃v. branch !. v = Some block›
+     proof (induct branch)
+     ```
+   - Why `induct branch`?
+   - because of `!.` and `∈.`, which is a syntactic sugar for `‹x ∈. xs ≡ x ∈ set xs›`.  
+
+- [ ] `then show ‹block ∈. branch›` in Line 838
+   - ```
+     assume ‹∃v. branch !. v = Some block›
+     then show ‹block ∈. branch›
+     proof (induct branch)
+     ```
+   - why `induct branch`?
+   - because of `!.` and `∈.`, which is a syntactic sugar for `‹x ∈. xs ≡ x ∈ set xs›`.   
+
 - [ ] `lemma mapi_block_add_oob:` in Line 890
    - ```
      assumes ‹length ps ≤ v'›
@@ -116,6 +134,38 @@
      ```
      Note that the recursive call `xs !. v` appears after `length xs = v`.
      No. We did not have to generalize this.
+
+- [ ] `lemma omit_mem:` in Line 1047
+   - ```
+     ‹ps !. v = Some p ⟹ v ∉ xs ⟹ p ∈. omit xs ps›
+     proof (induct ps)
+     ```
+   - why `induct ps`?
+   - because of
+      - it is the first argument to `!.` in `ps !. v`
+      - it is the second argument to `omit` `p ∈. omit xs ps`
+      - it is part of the second argument to `∈.`, which is an abbreviation of `‹x ∈. xs ≡ x ∈ set xs›`.
+
+- [ ] `lemma omit_set` in Line 1162
+   - ```
+     lemma omit_set: ‹set (omit xs ps) ⊆ set ps›
+     by (induct ps) auto
+     ```
+   - Why by `(induct ps)`?
+   - because of `omit` and `set`.
+   - Note that `set` here does not come with `∈`.
+
+- [ ] `lemma sub_block_mem:` in Line 1701
+   - ```
+     ‹p on block ⟹ sub f p on sub_block f block›
+     by (induct block) auto
+     ```
+   - Why by `(induct block)`?
+   - because 
+     ```
+     primrec on :: ‹('a, 'b) fm ⇒ ('a, 'b) block ⇒ bool› (‹_ on _› [51, 51] 50) where
+       ‹p on (ps, i) = (p ∈. ps ∨ p = Nom i)›
+     ```
 
 - [ ] `lemma ST_sub':` in Line 1765
    - ```
