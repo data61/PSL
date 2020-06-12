@@ -3,9 +3,9 @@ section \<open>Specification\<close>
 theory Goodstein_Lambda
   imports Main "../../../More_SeLFiE_Assertion" "Smart_Induct.Smart_Induct" 
 begin
-
+   
 subsection \<open>Hereditary base representation\<close>
-
+                                 
 text \<open>We define a data type of trees and an evaluation function that sums siblings and
   exponentiates with respect to the given base on nesting.\<close>
 

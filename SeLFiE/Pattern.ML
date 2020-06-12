@@ -42,7 +42,7 @@ fun is_defined_with_inductive_set (ctxt:Proof.context) (cname:string) =
 
 
 
-val suffix_for_definition = ([(*"_def"*)], ["cases", "elims", "induct", "pelims", "simps", "intros"]);
+val suffix_for_definition = (["_def"], ["cases", "elims", "induct", "pelims", "simps", "intros"]);
 val suffix_for_fun =       (["cases", "elims", "induct", "pelims", "simps"], ["inducts", "intros"]);(*The "fun" keyword produces psimps.*)
 val suffix_for_function =  (["cases", "pelims", "psimps"], ["elims", "simps", "intros"]);
 val suffix_for_primrec =   (["simps"], ["cases", "pelims", "psimps","elims", "intros"]);
@@ -78,9 +78,12 @@ fun get_command (ctxt:Proof.context) (trm_name:string) =
      Unknown)
   end;
 
-fun print_command Fun       = "Fun"
-  | print_command Function  = "Function"
-  | print_command Inductive = "Inductive"
-  | print_command Primrec   = "Primrec"
+fun print_command Definition    = "Definition"
+  | print_command Fun           = "Fun"
+  | print_command Function      = "Function"
+  | print_command Inductive     = "Inductive"
+  | print_command Inductive_Set = "Inductive_Set"
+  | print_command Primrec       = "Primrec"
+  | print_command Unknown       = "Unknown";
 
 end;

@@ -45,6 +45,9 @@ type exprs = expr list;
 
 local
 
+fun ctxt_n_cname_to_definition_for_def (ctxt:Proof.context) (cname:string) (suffix:string) =
+  try (Proof_Context.get_thms ctxt) (cname ^ suffix) |> these |> map Thm.prop_of;
+
 fun get_definitions_using_suffix (ctxt:Proof.context) (cname:string) (suffix:string) =
    try (Proof_Context.get_thms ctxt) (cname ^ "." ^ suffix)
 |> these
@@ -65,12 +68,13 @@ fun ctxt_n_cname_to_definitions_for_function (ctxt:Proof.context) (cname:string)
 fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) :terms =
   let
     val command = Pattern.get_command ctxt cname;
-    fun command_to_definitions Pattern.Definition = [(*TODO*)]
+    fun command_to_definitions Pattern.Definition = ctxt_n_cname_to_definition_for_def        ctxt cname "_def"
       | command_to_definitions Pattern.Fun        = ctxt_n_cname_to_definitions_for_fun       ctxt cname
       | command_to_definitions Pattern.Primrec    = ctxt_n_cname_to_definitions_for_primrec   ctxt cname
       | command_to_definitions Pattern.Function   = ctxt_n_cname_to_definitions_for_function  ctxt cname
       | command_to_definitions Pattern.Inductive  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
-      | command_to_definitions Pattern.Unknown    = error "ctxt_n_cname_to_definitions in From_Multiple_To_Deep.ML faild. Unknown pattern!";
+      (*TODO: Inductive_Set*)
+      | command_to_definitions Pattern.Unknown    = [];
   in
     command_to_definitions command: terms
   end;
