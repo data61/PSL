@@ -387,6 +387,8 @@ end;
 signature ISABELLE_UTILS =
 sig
   datatype location = Fst_Subg | Concl | All_Subg;
+  val is_Abs                            : term -> bool;
+  val is_App                            : term -> bool;
   val if_solved                         : thm -> 'a -> 'a -> 'a;
   val fst_qualifier                     : string -> string;
   val get_1st_subg                      : thm -> term option;
@@ -460,6 +462,12 @@ end;
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
 structure Isabelle_Utils : ISABELLE_UTILS  =
 struct
+
+fun is_Abs (Abs _) = true
+  | is_Abs  _      = false;
+
+fun is_App (_ $ _) = true
+  | is_App  _      = false;
 
 fun if_solved (goal:thm) then_clause else_clause =
   if Thm.nprems_of goal = 0 then then_clause else else_clause;

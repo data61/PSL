@@ -46,6 +46,12 @@ datatype assert =
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
 (*Eval_Print for node*)
+| Print_Is_Cnst                     of assert
+| Print_Is_Free                     of assert
+| Print_Is_Var                      of assert
+| Print_Is_Bound                    of assert (*corresponds to Bound in term*)
+| Print_Is_Lambda                   of assert (*lambda abstraction corresponding to Abs in Term*)
+| Print_Is_App                      of assert (*function application corresponding to $ in Term*)
 | Print_Is_Defined_With             of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
@@ -159,6 +165,12 @@ datatype assert =
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
 (*Eval_Print for node*)
+| Print_Is_Cnst                     of assert
+| Print_Is_Free                     of assert
+| Print_Is_Var                      of assert
+| Print_Is_Bound                    of assert (*corresponds to Bound in term*)
+| Print_Is_Lambda                   of assert (*lambda abstraction corresponding to Abs in Term*)
+| Print_Is_App                      of assert (*function application corresponding to $ in Term*)
 | Print_Is_Defined_With             of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
@@ -280,6 +292,12 @@ and
   | convert loc (Is_Rule            ass ) = ES.Is_Rule          (convert loc ass)
   | convert loc (Is_Rule_Of_Print   pair) = ES.Is_Rule_Of_Print (convert_pair loc pair)
   (*Eval_Print for node*)
+  | convert loc (Print_Is_Cnst                     ass ) = ES.Print_Is_Cnst                     (convert      loc ass)
+  | convert loc (Print_Is_Free                     ass ) = ES.Print_Is_Free                     (convert      loc ass)
+  | convert loc (Print_Is_Var                      ass ) = ES.Print_Is_Var                      (convert      loc ass)
+  | convert loc (Print_Is_Bound                    ass ) = ES.Print_Is_Bound                    (convert      loc ass)
+  | convert loc (Print_Is_Lambda                   ass ) = ES.Print_Is_Lambda                   (convert      loc ass)
+  | convert loc (Print_Is_App                      ass ) = ES.Print_Is_App                      (convert      loc ass)
   | convert loc (Print_Is_Defined_With             pair) = ES.Print_Is_Defined_With             (convert_pair loc pair)
   | convert loc (Print_Takes_N_Arguments           pair) = ES.Print_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Print_Takes_Less_Than_N_Arguments pair) = ES.Print_Takes_Less_Than_N_Arguments (convert_pair loc pair)

@@ -47,6 +47,12 @@ datatype assert =
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
 (*Eval_Print for node*)
+| Print_Is_Cnst                     of assert
+| Print_Is_Free                     of assert
+| Print_Is_Var                      of assert
+| Print_Is_Bound                    of assert (*corresponds to Bound in term*)
+| Print_Is_Lambda                   of assert (*lambda abstraction corresponding to Abs in Term*)
+| Print_Is_App                      of assert (*function application corresponding to $ in Term*)
 | Print_Is_Defined_With             of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
@@ -120,6 +126,12 @@ datatype assert =
 | Is_N_Plus_One_th_Child of assert * assert
 | Is_Root_In_A_Location  of assert 
 (*Eval_Print*)
+| Print_Is_Cnst     of assert
+| Print_Is_Free     of assert
+| Print_Is_Var      of assert
+| Print_Is_Bound    of assert (*corresponds to Bound in term*)
+| Print_Is_Lambda   of assert (*lambda abstraction corresponding to Abs in Term*)
+| Print_Is_App      of assert (*function application corresponding to $ in Term*)
 | Are_Same_Prints   of assert * assert
 | Is_Subprint_Of    of assert * assert
 | Is_Nth_Induct     of assert * assert
@@ -201,6 +213,12 @@ and (*bool*)
   | surf_to_var (Is_Rule          arg ) = EV.Assert (SU.Atomic SU.Is_Rule,          surf_to_var_singleton    arg )
   | surf_to_var (Is_Rule_Of_Print args) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Print, surf_to_var_pair_to_list args)
   (*Eval_Print for node*)
+  | surf_to_var (Print_Is_Cnst                     arg ) = EV.Assert (SU.Atomic SU.Print_Is_Cnst,                     surf_to_var_singleton    arg)
+  | surf_to_var (Print_Is_Free                     arg ) = EV.Assert (SU.Atomic SU.Print_Is_Free,                     surf_to_var_singleton    arg)
+  | surf_to_var (Print_Is_Var                      arg ) = EV.Assert (SU.Atomic SU.Print_Is_Var,                      surf_to_var_singleton    arg)
+  | surf_to_var (Print_Is_Bound                    arg ) = EV.Assert (SU.Atomic SU.Print_Is_Bound,                    surf_to_var_singleton    arg)
+  | surf_to_var (Print_Is_Lambda                   arg ) = EV.Assert (SU.Atomic SU.Print_Is_Lambda,                   surf_to_var_singleton    arg)
+  | surf_to_var (Print_Is_App                      arg ) = EV.Assert (SU.Atomic SU.Print_Is_App,                      surf_to_var_singleton    arg)
   | surf_to_var (Print_Is_Defined_With             args) = EV.Assert (SU.Atomic SU.Print_Is_Defined_With,             surf_to_var_pair_to_list args)
   | surf_to_var (Print_Takes_N_Arguments           args) = EV.Assert (SU.Atomic SU.Print_Takes_N_Arguments,           surf_to_var_pair_to_list args)
   | surf_to_var (Print_Takes_Less_Than_N_Arguments args) = EV.Assert (SU.Atomic SU.Print_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list args)

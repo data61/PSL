@@ -51,6 +51,12 @@ datatype atomic_assert =
 | Is_Rule
 | Is_Rule_Of_Print
 (*Eval_Print for node*)
+| Print_Is_Cnst
+| Print_Is_Free
+| Print_Is_Var
+| Print_Is_Bound
+| Print_Is_Lambda
+| Print_Is_App
 | Print_Is_Defined_With
 | Print_Takes_N_Arguments
 | Print_Takes_Less_Than_N_Arguments
@@ -156,6 +162,12 @@ datatype atomic_assert =
 | Is_Rule
 | Is_Rule_Of_Print
 (*Eval_Print for node*)
+| Print_Is_Cnst
+| Print_Is_Free
+| Print_Is_Var
+| Print_Is_Bound
+| Print_Is_Lambda
+| Print_Is_App
 | Print_Is_Defined_With
 | Print_Takes_N_Arguments
 | Print_Takes_Less_Than_N_Arguments
@@ -181,7 +193,7 @@ fun print_atomic_assert (Node_Is_Cnst                    ) = "Is_Cnst"
   | print_atomic_assert (Node_Is_App                     ) = "Is_App"
   | print_atomic_assert (Node_Takes_Less_Than_N_Arguments) = "Takes_Less_Than_N_Arguments"
   | print_atomic_assert (Node_Is_Defined_With            ) = "Is_Defined_With"
-  | print_atomic_assert (Is_Rule_Of_Node            ) = "Is_Rule_Of_Node"
+  | print_atomic_assert (Is_Rule_Of_Node                 ) = "Is_Rule_Of_Node"
   | print_atomic_assert (Node_Takes_N_Arguments          ) = "Takes_N_Arguments"
   | print_atomic_assert (Has_Same_Prnt_As                ) = "Has_Same_Prnt_As"
   | print_atomic_assert (Is_Deeper_Than                  ) = "Is_Deeper_Than"
@@ -208,11 +220,17 @@ fun print_atomic_assert (Node_Is_Cnst                    ) = "Is_Cnst"
   | print_atomic_assert (Is_Rule                         ) = "Is_Rule"
   | print_atomic_assert (Is_Rule_Of_Print                ) = "Is_Rule_Of_Print"
   (*Eval_Print for node*)
+  | print_atomic_assert (Print_Is_Cnst                    ) = "Print_Is_Cnst"
+  | print_atomic_assert (Print_Is_Free                    ) = "Print_Is_Free"
+  | print_atomic_assert (Print_Is_Var                     ) = "Print_Is_Var"
+  | print_atomic_assert (Print_Is_Bound                   ) = "Print_Is_Bound"
+  | print_atomic_assert (Print_Is_Lambda                  ) = "Print_Is_Lambda"
+  | print_atomic_assert (Print_Is_App                     ) = "Print_Is_App"
   | print_atomic_assert (Print_Is_Defined_With            ) = "Print_Is_Defined_With"
   | print_atomic_assert (Print_Takes_N_Arguments          ) = "Print_Takes_N_Arguments"
   | print_atomic_assert (Print_Takes_Less_Than_N_Arguments) = "Print_Takes_Less_Than_N_Arguments"
-  | print_atomic_assert (Debug_Non_Path_Literal          ) = "Debug_Non_Path_Literal"
-  | print_atomic_assert (Debug_Print_Unode               ) = "Debug_Print_Unode";
+  | print_atomic_assert (Debug_Non_Path_Literal           ) = "Debug_Non_Path_Literal"
+  | print_atomic_assert (Debug_Print_Unode                ) = "Debug_Print_Unode";
 
 datatype assert =
   Not

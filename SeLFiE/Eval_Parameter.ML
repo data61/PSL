@@ -113,6 +113,12 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Is_Rule          [Non_Path (Print p)]                       = EPR.eval (EPR.Is_Rule p)                 induct_args ctxt
       | eval' SU.Is_Rule_Of_Print [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Is_Rule_Of_Print (p1, p2)) induct_args ctxt
       (*Eval_Print node*)
+      | eval' SU.Print_Is_Cnst                     [Non_Path (Print print)]                          = EPR.eval (EPR.Print_Is_Cnst   print) induct_args ctxt
+      | eval' SU.Print_Is_Free                     [Non_Path (Print print)]                          = EPR.eval (EPR.Print_Is_Free   print) induct_args ctxt
+      | eval' SU.Print_Is_Var                      [Non_Path (Print print)]                          = EPR.eval (EPR.Print_Is_Var    print) induct_args ctxt
+      | eval' SU.Print_Is_Bound                    [Non_Path (Print print)]                          = EPR.eval (EPR.Print_Is_Bound  print) induct_args ctxt
+      | eval' SU.Print_Is_Lambda                   [Non_Path (Print print)]                          = EPR.eval (EPR.Print_Is_Lambda print) induct_args ctxt
+      | eval' SU.Print_Is_App                      [Non_Path (Print print)]                          = EPR.eval (EPR.Print_Is_App    print) induct_args ctxt
       | eval' SU.Print_Is_Defined_With             [Non_Path (Print print), Non_Path (Command cmd )] = EPR.eval (EPR.Print_Is_Defined_With             (print, cmd )) induct_args ctxt
       | eval' SU.Print_Takes_N_Arguments           [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_N_Arguments           (print, numb)) induct_args ctxt
       | eval' SU.Print_Takes_Less_Than_N_Arguments [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_Less_Than_N_Arguments (print, numb)) induct_args ctxt
