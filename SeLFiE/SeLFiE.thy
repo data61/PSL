@@ -295,7 +295,7 @@ find_consts name:"Product_Type.bool.case_bool"
 find_theorems name:"case" name:"bool"
 find_theorems name:"List.list"
 thm List.list.case
-
+(*
 datatype alpha = A | B | C | D
 ML\<open>
 @{term "case x of A \<Rightarrow> True | B \<Rightarrow> False"};
@@ -317,9 +317,11 @@ $ Const ("HOL.undefined", "'a")
 $ Free  ("x", "alpha")
 *)
 \<close>
-
+*)
 ML\<open>
+(*
 @{term "case x of B \<Rightarrow> False | A \<Rightarrow> True "};
+*)
 (*
   Const ("SeLFiE.alpha.case_alpha", "bool \<Rightarrow> bool \<Rightarrow> bool \<Rightarrow> bool \<Rightarrow> alpha \<Rightarrow> bool")
 $ Const ("HOL.True", "bool")
@@ -470,6 +472,36 @@ dest_funT;
 
 ML\<open>
 @{term "let x = y in z"};
+@{term "(x = y)"};
+Name.skolem;
+Variable.names_of;
+Variable.add_fixes;
+type asdf = term;
+
+
 \<close>
+
+schematic_goal "?x = ?x"
+  apply(tactic \<open>fn x => (
+let
+  val fst_subg = try (hd o Thm.prems_of) x: term option;
+  val _        = if length (Thm.prems_of x) = 0 then tracing "empty" else tracing "no empty";
+  
+  val _ = Option.map (tracing o Isabelle_Utils.trm_to_string @{context}) (fst_subg);
+
+  val _ = if Utils.is_some_true (Option.map (exists_subterm (is_Var)) fst_subg)
+          then tracing "Yes Var!"
+          else tracing "No Var!"
+  val _ = if Utils.is_some_true (Option.map (exists_subterm (is_Bound)) fst_subg)
+          then tracing "Yes Bound!"
+          else tracing "No Bound!"
+
+in
+  Seq.single x
+end) \<close>)
+  ML_prf\<open>
+
+\<close>
+  oops
 
 end

@@ -19,16 +19,16 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst                     of assert
-| Is_Free                     of assert
-| Is_Var                      of assert
-| Is_Bound                    of assert
-| Is_Lambda                   of assert
-| Is_App                      of assert
-| Is_Defined_With             of assert * assert
-| Is_Rule_Of_Node             of assert * assert
-| Takes_N_Arguments           of assert * assert
-| Takes_Less_Than_N_Arguments of assert * assert
+| Node_Is_Cnst                     of assert
+| Node_Is_Free                     of assert
+| Node_Is_Var                      of assert
+| Node_Is_Bound                    of assert
+| Node_Is_Lambda                   of assert
+| Node_Is_App                      of assert
+| Node_Is_Defined_With             of assert * assert
+| Node_Is_Rule_Of_Node             of assert * assert
+| Node_Takes_N_Arguments           of assert * assert
+| Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
@@ -127,16 +127,16 @@ datatype assert =
 | Ands     of assert list
 | Ors      of assert list
 (*Eval_Node*)
-| Is_Cnst                     of assert
-| Is_Free                     of assert
-| Is_Var                      of assert
-| Is_Bound                    of assert
-| Is_Lambda                   of assert
-| Is_App                      of assert
-| Is_Defined_With             of assert * assert
-| Is_Rule_Of_Node             of assert * assert
-| Takes_N_Arguments           of assert * assert
-| Takes_Less_Than_N_Arguments of assert * assert
+| Node_Is_Cnst                     of assert
+| Node_Is_Free                     of assert
+| Node_Is_Var                      of assert
+| Node_Is_Bound                    of assert
+| Node_Is_Lambda                   of assert
+| Node_Is_App                      of assert
+| Node_Is_Defined_With             of assert * assert
+| Node_Is_Rule_Of_Node             of assert * assert
+| Node_Takes_N_Arguments           of assert * assert
+| Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
@@ -243,16 +243,16 @@ and
   | convert loc (Ands  list)       = ES.Ands  (convert_list loc list)
   | convert loc (Ors   list)       = ES.Ors   (convert_list loc list)
   (*Eval_Node*)
-  | convert loc (Is_Cnst                     ass)   = ES.Is_Cnst                     (convert      loc ass)
-  | convert loc (Is_Free                     ass)   = ES.Is_Free                     (convert      loc ass)
-  | convert loc (Is_Var                      ass)   = ES.Is_Var                      (convert      loc ass)
-  | convert loc (Is_Bound                    ass)   = ES.Is_Bound                    (convert      loc ass)
-  | convert loc (Is_Lambda                   ass)   = ES.Is_Lambda                   (convert      loc ass)
-  | convert loc (Is_App                      ass)   = ES.Is_App                      (convert      loc ass)
-  | convert loc (Is_Defined_With             asses) = ES.Is_Defined_With             (convert_pair loc asses)
-  | convert loc (Is_Rule_Of_Node             pair)  = ES.Is_Rule_Of_Node             (convert_pair loc pair)
-  | convert loc (Takes_N_Arguments           pair)  = ES.Takes_N_Arguments           (convert_pair loc pair)
-  | convert loc (Takes_Less_Than_N_Arguments pair)  = ES.Takes_Less_Than_N_Arguments (convert_pair loc pair)
+  | convert loc (Node_Is_Cnst                     ass)   = ES.Node_Is_Cnst                     (convert      loc ass)
+  | convert loc (Node_Is_Free                     ass)   = ES.Node_Is_Free                     (convert      loc ass)
+  | convert loc (Node_Is_Var                      ass)   = ES.Node_Is_Var                      (convert      loc ass)
+  | convert loc (Node_Is_Bound                    ass)   = ES.Node_Is_Bound                    (convert      loc ass)
+  | convert loc (Node_Is_Lambda                   ass)   = ES.Node_Is_Lambda                   (convert      loc ass)
+  | convert loc (Node_Is_App                      ass)   = ES.Node_Is_App                      (convert      loc ass)
+  | convert loc (Node_Is_Defined_With             asses) = ES.Node_Is_Defined_With             (convert_pair loc asses)
+  | convert loc (Node_Is_Rule_Of_Node             pair)  = ES.Node_Is_Rule_Of_Node             (convert_pair loc pair)
+  | convert loc (Node_Takes_N_Arguments           pair)  = ES.Node_Takes_N_Arguments           (convert_pair loc pair)
+  | convert loc (Node_Takes_Less_Than_N_Arguments pair)  = ES.Node_Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Unode*)
   | convert loc (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
   | convert loc (Is_Deeper_Than         pair) = ES.Is_Deeper_Than         (convert_pair loc pair)
@@ -300,10 +300,10 @@ and
   | convert loc (Is_Atomic assert) =
     convert loc
      (Ors
-       [Is_Cnst  assert,
-        Is_Free  assert,
-        Is_Var   assert,
-        Is_Bound assert])
+       [Node_Is_Cnst  assert,
+        Node_Is_Free  assert,
+        Node_Is_Var   assert,
+        Node_Is_Bound assert])
   | convert loc (Have_Different_Prnts pair) = convert loc (Not (Has_Same_Prnt_As pair))
   | convert loc (Unode_Has_As_Subprint (trm_occ, subprint)) = convert loc (
     let
@@ -399,7 +399,7 @@ and
             Is_Nth_Child (func, Number 0),
             Is_Parent_Of (func_app, arg),
             Not (Is_Nth_Child (arg, Number 0)),
-            Is_App func_app]))
+            Node_Is_App func_app]))
     end
   | convert loc (Is_An_Arg_Or_Below_Arg_Of (arg_or_in_arg, func)) =
     let
@@ -429,7 +429,7 @@ and
             Is_Nth_Child (func, Number 0),
             Is_Parent_Of (func_app, arg),
             Is_N_Plus_One_th_Child (arg, number),
-            Is_App func_app]))
+            Node_Is_App func_app]))
     end
   | convert loc (Is_Nth_Arg_Or_Below_Nth_Arg_Of (arg_or_in_arg, number, func)) =
     let
@@ -666,7 +666,7 @@ and
     in
     convert loc (
       Ands [
-        Is_App if_then_else,
+        Node_Is_App if_then_else,
         Some (hol_if_str, path_typ,
           Ands [
             Is_Nth_Child_Of (hol_if, Number 0, if_then_else),
@@ -694,14 +694,14 @@ and
     in
     convert loc (
       Ands [
-        Is_App whole_term,
+        Node_Is_App whole_term,
         Some (case_const_str, case_path_typ,
           Ands [
             Unode_Has_As_Subprint (case_const, Print ".case_"),
             Is_Nth_Child_Of       (case_const, Number 0, whole_term),
             Some (numb_of_args_str, numb_path_typ,
               Ands [
-                Takes_N_Arguments (case_const, numb_of_args),
+                Node_Takes_N_Arguments (case_const, numb_of_args),
                 Some (numb_of_args_minus_one_str, numb_path_typ,
                   Ands [
                     Is_Less_Than_By_One (numb_of_args_minus_one, numb_of_args),
@@ -729,7 +729,7 @@ and
     in
     convert loc (
       Ands [
-        Is_App whole_term_occ,
+        Node_Is_App whole_term_occ,
         Some (let_const_str, path_typ,
           Ands [
             Unode_Has_Print (let_const, Print "HOL.Let"),

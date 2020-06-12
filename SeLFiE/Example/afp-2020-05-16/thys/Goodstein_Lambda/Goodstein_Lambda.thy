@@ -1,7 +1,7 @@
 section \<open>Specification\<close>
 
 theory Goodstein_Lambda
-  imports Main "../../../More_SeLFiE_Assertion"
+  imports Main "../../../More_SeLFiE_Assertion" "Smart_Induct.Smart_Induct" 
 begin
 
 subsection \<open>Hereditary base representation\<close>

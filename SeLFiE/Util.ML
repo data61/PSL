@@ -22,16 +22,16 @@ val print_qtyp: qtyp -> string;
 
 datatype atomic_assert =
 (*Eval_Node*)
-  Is_Cnst
-| Is_Free
-| Is_Var
-| Is_Bound
-| Is_Lambda
-| Is_App
-| Is_Rule_Of_Node
-| Is_Defined_With
-| Takes_N_Arguments
-| Takes_Less_Than_N_Arguments
+  Node_Is_Cnst
+| Node_Is_Free
+| Node_Is_Var
+| Node_Is_Bound
+| Node_Is_Lambda
+| Node_Is_App
+| Node_Is_Rule_Of_Node
+| Node_Is_Defined_With
+| Node_Takes_N_Arguments
+| Node_Takes_Less_Than_N_Arguments
 (*Eval_Unode*)
 | Has_Same_Prnt_As
 | Is_Deeper_Than
@@ -123,16 +123,16 @@ fun print_qtyp QOuter_Path = "QOuter_Path"
 
 datatype atomic_assert =
 (*Eval_Node*)
-  Is_Cnst
-| Is_Free
-| Is_Var
-| Is_Bound
-| Is_Lambda
-| Is_App
-| Is_Rule_Of_Node
-| Is_Defined_With
-| Takes_N_Arguments
-| Takes_Less_Than_N_Arguments
+  Node_Is_Cnst
+| Node_Is_Free
+| Node_Is_Var
+| Node_Is_Bound
+| Node_Is_Lambda
+| Node_Is_App
+| Node_Is_Rule_Of_Node
+| Node_Is_Defined_With
+| Node_Takes_N_Arguments
+| Node_Takes_Less_Than_N_Arguments
 (*Eval_Unode*)
 | Has_Same_Prnt_As
 | Is_Deeper_Than
@@ -165,42 +165,42 @@ datatype atomic_assert =
 | Debug_Non_Path_Literal
 | Debug_Print_Unode;
 
-fun print_atomic_assert (Is_Cnst                    ) = "Is_Cnst"
-  | print_atomic_assert (Is_Free                    ) = "Is_Free"
-  | print_atomic_assert (Is_Var                     ) = "Is_Var"
-  | print_atomic_assert (Is_Bound                   ) = "Is_Bound"
-  | print_atomic_assert (Is_Lambda                  ) = "Is_Lambda"
-  | print_atomic_assert (Is_App                     ) = "Is_App"
-  | print_atomic_assert (Takes_N_Arguments          ) = "Takes_N_Arguments"
-  | print_atomic_assert (Takes_Less_Than_N_Arguments) = "Takes_Less_Than_N_Arguments"
-  | print_atomic_assert (Is_Defined_With            ) = "Is_Defined_With"
-  | print_atomic_assert (Is_Rule_Of_Node            ) = "Is_Rule_Of_Node"
-  | print_atomic_assert (Has_Same_Prnt_As           ) = "Has_Same_Prnt_As"
-  | print_atomic_assert (Is_Deeper_Than             ) = "Is_Deeper_Than"
-  | print_atomic_assert (Is_Shallower_Than          ) = "Is_Shallower_Than"
-  | print_atomic_assert (Is_Path_Above              ) = "Is_Path_Above"
-  | print_atomic_assert (Is_Same_Path_As            ) = "Is_Same_Path_As"
-  | print_atomic_assert (Is_Nth_Child               ) = "Is_Nth_Child"
-  | print_atomic_assert (Is_N_Plus_One_th_Child     ) = "Is_N_Plus_One_th_Child"
-  | print_atomic_assert (Is_Root_In_A_Location      ) = "Is_Root_In_A_Location"
-  | print_atomic_assert (Are_Same_Prints            ) = "Are_Same_Prints"
-  | print_atomic_assert (Is_Subprint_Of             ) = "Is_Subprint_Of"
-  | print_atomic_assert (Unode_Has_Print            ) = "Unode_Has_Print"
-  | print_atomic_assert (Is_In_Subgoal              ) = "Is_In_Subgoal"
-  | print_atomic_assert (Is_In_Chained_Fact         ) = "Is_In_Chained_Fact"
-  | print_atomic_assert (Is_In_Nth_Subgoal          ) = "Is_In_Nth_Subgoal"
-  | print_atomic_assert (Is_In_Nth_Chained_Fact     ) = "Is_In_Nth_Chained_Fact"
-  | print_atomic_assert (Are_Same_Number            ) = "Are_Same_Number"
-  | print_atomic_assert (Is_Less_Than               ) = "Is_Less_Than"
-  | print_atomic_assert (Is_Less_Than_By_One        ) = "Is_Less_Than_By_One"
-  | print_atomic_assert (Is_Nth_Induct              ) = "Is_Nth_Induct"
-  | print_atomic_assert (Is_Nth_Arbitrary           ) = "Is_Nth_Arbitrary"
-  | print_atomic_assert (Is_Induct                  ) = "Is_Induct"
-  | print_atomic_assert (Is_Arbitrary               ) = "Is_Arbitrary"
-  | print_atomic_assert (Is_Rule                    ) = "Is_Rule"
-  | print_atomic_assert (Is_Rule_Of_Print           ) = "Is_Rule_Of_Print"
-  | print_atomic_assert (Debug_Non_Path_Literal     ) = "Debug_Non_Path_Literal"
-  | print_atomic_assert (Debug_Print_Unode          ) = "Debug_Print_Unode";
+fun print_atomic_assert (Node_Is_Cnst                    ) = "Is_Cnst"
+  | print_atomic_assert (Node_Is_Free                    ) = "Is_Free"
+  | print_atomic_assert (Node_Is_Var                     ) = "Is_Var"
+  | print_atomic_assert (Node_Is_Bound                   ) = "Is_Bound"
+  | print_atomic_assert (Node_Is_Lambda                  ) = "Is_Lambda"
+  | print_atomic_assert (Node_Is_App                     ) = "Is_App"
+  | print_atomic_assert (Node_Takes_Less_Than_N_Arguments) = "Takes_Less_Than_N_Arguments"
+  | print_atomic_assert (Node_Is_Defined_With            ) = "Is_Defined_With"
+  | print_atomic_assert (Node_Is_Rule_Of_Node            ) = "Is_Rule_Of_Node"
+  | print_atomic_assert (Node_Takes_N_Arguments          ) = "Takes_N_Arguments"
+  | print_atomic_assert (Has_Same_Prnt_As                ) = "Has_Same_Prnt_As"
+  | print_atomic_assert (Is_Deeper_Than                  ) = "Is_Deeper_Than"
+  | print_atomic_assert (Is_Shallower_Than               ) = "Is_Shallower_Than"
+  | print_atomic_assert (Is_Path_Above                   ) = "Is_Path_Above"
+  | print_atomic_assert (Is_Same_Path_As                 ) = "Is_Same_Path_As"
+  | print_atomic_assert (Is_Nth_Child                    ) = "Is_Nth_Child"
+  | print_atomic_assert (Is_N_Plus_One_th_Child          ) = "Is_N_Plus_One_th_Child"
+  | print_atomic_assert (Is_Root_In_A_Location           ) = "Is_Root_In_A_Location"
+  | print_atomic_assert (Are_Same_Prints                 ) = "Are_Same_Prints"
+  | print_atomic_assert (Is_Subprint_Of                  ) = "Is_Subprint_Of"
+  | print_atomic_assert (Unode_Has_Print                 ) = "Unode_Has_Print"
+  | print_atomic_assert (Is_In_Subgoal                   ) = "Is_In_Subgoal"
+  | print_atomic_assert (Is_In_Chained_Fact              ) = "Is_In_Chained_Fact"
+  | print_atomic_assert (Is_In_Nth_Subgoal               ) = "Is_In_Nth_Subgoal"
+  | print_atomic_assert (Is_In_Nth_Chained_Fact          ) = "Is_In_Nth_Chained_Fact"
+  | print_atomic_assert (Are_Same_Number                 ) = "Are_Same_Number"
+  | print_atomic_assert (Is_Less_Than                    ) = "Is_Less_Than"
+  | print_atomic_assert (Is_Less_Than_By_One             ) = "Is_Less_Than_By_One"
+  | print_atomic_assert (Is_Nth_Induct                   ) = "Is_Nth_Induct"
+  | print_atomic_assert (Is_Nth_Arbitrary                ) = "Is_Nth_Arbitrary"
+  | print_atomic_assert (Is_Induct                       ) = "Is_Induct"
+  | print_atomic_assert (Is_Arbitrary                    ) = "Is_Arbitrary"
+  | print_atomic_assert (Is_Rule                         ) = "Is_Rule"
+  | print_atomic_assert (Is_Rule_Of_Print                ) = "Is_Rule_Of_Print"
+  | print_atomic_assert (Debug_Non_Path_Literal          ) = "Debug_Non_Path_Literal"
+  | print_atomic_assert (Debug_Print_Unode               ) = "Debug_Print_Unode";
 
 datatype assert =
   Not

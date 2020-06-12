@@ -1,4 +1,6 @@
-theory Hybrid_Logic imports "HOL-Library.Countable" "../../../More_SeLFiE_Assertion" begin
+theory Hybrid_Logic imports 
+"../../../../SeLFiE"
+"HOL-Library.Countable" begin
 
 section \<open>Syntax\<close>
 
@@ -275,7 +277,7 @@ abbreviation branch_sat ::
   \<open>M, g \<Turnstile>\<^sub>\<Theta> branch \<equiv> \<forall>(ps, i) \<in> set branch. M, g \<Turnstile>\<^sub>B (ps, i)\<close>
 
 lemma block_nominals:
-  \<open>p on block \<Longrightarrow> i \<in> nominals p \<Longrightarrow> i \<in> block_nominals block\<close>
+  \<open>p on block \<Longrightarrow> i \<in> nominals p \<Longrightarrow> i \<in> block_nominals block\<close>apply(induct block)
   by (induct block) auto
 
 lemma block_sat_fresh:
@@ -1763,7 +1765,7 @@ lemma ST_sub':
   fixes f :: \<open>'b \<Rightarrow> 'c\<close>
   assumes \<open>\<And>(f :: 'b \<Rightarrow> 'c) i A. finite A \<Longrightarrow> i \<notin> A \<Longrightarrow> \<exists>j. j \<notin> f ` A\<close>
   shows \<open>n \<turnstile> branch \<Longrightarrow> \<turnstile> sub_branch f branch\<close>
-proof (induct branch arbitrary: f rule: ST.induct)
+proof (induct n branch arbitrary: f rule: ST.induct)
   case (Close p i branch)
   have \<open>sub f p at f i in sub_branch f branch\<close>
     using Close(1) sub_branch_mem by fastforce
