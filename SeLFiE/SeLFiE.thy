@@ -77,8 +77,8 @@ val meta_imp = @{term "1"};
 val meta_imply = @{term "True \<Longrightarrow> True"};
 val meta_imply = @{term "True \<Longrightarrow> (False \<equiv> x)"};
 val meta_imply = @{term "(x \<Longrightarrow> y) \<Longrightarrow> (z \<longrightarrow> w)"};
-val func_thm = @{thm func_def};
-val func_term = Thm.cprop_of func_thm |> Thm.term_of;
+val func_thm   = @{thm func_def};
+val func_term  = Thm.cprop_of func_thm |> Thm.term_of;
 
 val eq = @{term "1 \<equiv> 1"};
 val eq2 = Isabelle_Utils.flatten_trm eq |> (fn trms => nth trms 0);

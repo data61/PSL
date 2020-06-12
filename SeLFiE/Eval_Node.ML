@@ -14,7 +14,7 @@ datatype assert =
 | Node_Is_Lambda                   of UN.node (*lambda abstraction corresponding to Abs in Term*)
 | Node_Is_App                      of UN.node (*function application corresponding to $ in Term*)
 | Node_Is_Defined_With             of UN.node * Pattern.command
-| Node_Is_Rule_Of_Node             of string  * UN.node
+| Is_Rule_Of_Node                  of string  * UN.node
 | Node_Takes_N_Arguments           of UN.node * int
 | Node_Takes_Less_Than_N_Arguments of UN.node * int;
 
@@ -35,7 +35,7 @@ datatype assert =
 | Node_Is_Lambda                   of UN.node (*lambda abstraction corresponding to Abs in Term*)
 | Node_Is_App                      of UN.node (*function application corresponding to $ in Term*)
 | Node_Is_Defined_With             of UN.node * Pattern.command
-| Node_Is_Rule_Of_Node             of string  * UN.node
+| Is_Rule_Of_Node                  of string  * UN.node
 | Node_Takes_N_Arguments           of UN.node * int
 | Node_Takes_Less_Than_N_Arguments of UN.node * int;
 
@@ -46,8 +46,8 @@ fun eval' (Node_Is_Cnst                      node                      ) _    = 
   | eval' (Node_Is_Lambda                    node                      ) _    = UN.is_NL node
   | eval' (Node_Is_App                       node                      ) _    = UN.is_NA node
   | eval' (Node_Is_Defined_With             (node, cmd)                ) _    = UN.is_defined_by node cmd
-  | eval' (Node_Is_Rule_Of_Node             (rule, UN.NC (cname, _, _))) ctxt = SeLFiE_Util.rule_to_const_name ctxt rule = cname
-  | eval' (Node_Is_Rule_Of_Node                     _)                   _    = error "Is_Rule_Of_Node in Eval_Node failed."
+  | eval' (Is_Rule_Of_Node                  (rule, UN.NC (cname, _, _))) ctxt = SeLFiE_Util.rule_to_const_name ctxt rule = cname
+  | eval' (Is_Rule_Of_Node                   _                         ) _    = error "Is_Rule_Of_Node in Eval_Node failed."
   | eval' (Node_Takes_N_Arguments           (node, n))                   _    = UN.node_to_numb_of_arguments node = n
   | eval' (Node_Takes_Less_Than_N_Arguments (node, n))                   _    = n < UN.node_to_numb_of_arguments node;(*Note the direction.*)
 

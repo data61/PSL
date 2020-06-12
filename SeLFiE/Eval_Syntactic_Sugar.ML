@@ -26,7 +26,7 @@ datatype assert =
 | Node_Is_Lambda                   of assert
 | Node_Is_App                      of assert
 | Node_Is_Defined_With             of assert * assert
-| Node_Is_Rule_Of_Node             of assert * assert
+| Is_Rule_Of_Node                  of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
@@ -134,7 +134,7 @@ datatype assert =
 | Node_Is_Lambda                   of assert
 | Node_Is_App                      of assert
 | Node_Is_Defined_With             of assert * assert
-| Node_Is_Rule_Of_Node             of assert * assert
+| Is_Rule_Of_Node                  of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
@@ -250,7 +250,7 @@ and
   | convert loc (Node_Is_Lambda                   ass)   = ES.Node_Is_Lambda                   (convert      loc ass)
   | convert loc (Node_Is_App                      ass)   = ES.Node_Is_App                      (convert      loc ass)
   | convert loc (Node_Is_Defined_With             asses) = ES.Node_Is_Defined_With             (convert_pair loc asses)
-  | convert loc (Node_Is_Rule_Of_Node             pair)  = ES.Node_Is_Rule_Of_Node             (convert_pair loc pair)
+  | convert loc (Is_Rule_Of_Node                  pair)  = ES.Is_Rule_Of_Node                  (convert_pair loc pair)
   | convert loc (Node_Takes_N_Arguments           pair)  = ES.Node_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Node_Takes_Less_Than_N_Arguments pair)  = ES.Node_Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Unode*)

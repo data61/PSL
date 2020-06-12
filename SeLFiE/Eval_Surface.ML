@@ -25,7 +25,7 @@ datatype assert =
 | Node_Is_Lambda                   of assert
 | Node_Is_App                      of assert
 | Node_Is_Defined_With             of assert * assert
-| Node_Is_Rule_Of_Node             of assert * assert
+| Is_Rule_Of_Node                  of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
@@ -103,7 +103,7 @@ datatype assert =
 | Node_Is_Lambda                   of assert
 | Node_Is_App                      of assert
 | Node_Is_Defined_With             of assert * assert
-| Node_Is_Rule_Of_Node             of assert * assert
+| Is_Rule_Of_Node                  of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
@@ -171,7 +171,7 @@ and (*bool*)
   | surf_to_var (Node_Is_Lambda                   arg ) = EV.Assert (SU.Atomic SU.Node_Is_Lambda,                   surf_to_var_singleton    arg)
   | surf_to_var (Node_Is_App                      arg ) = EV.Assert (SU.Atomic SU.Node_Is_App,                      surf_to_var_singleton    arg)
   | surf_to_var (Node_Is_Defined_With             args) = EV.Assert (SU.Atomic SU.Node_Is_Defined_With,             surf_to_var_pair_to_list args)
-  | surf_to_var (Node_Is_Rule_Of_Node             pair) = EV.Assert (SU.Atomic SU.Node_Is_Rule_Of_Node,             surf_to_var_pair_to_list pair)
+  | surf_to_var (Is_Rule_Of_Node                  pair) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Node,                  surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_N_Arguments           pair) = EV.Assert (SU.Atomic SU.Node_Takes_N_Arguments,           surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_Less_Than_N_Arguments pair) = EV.Assert (SU.Atomic SU.Node_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list pair)
   (*Eval_Unode*)

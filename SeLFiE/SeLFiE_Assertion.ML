@@ -480,18 +480,18 @@ val lifter_15_assumption =
   );
 
 val lifter_15_conclusion =
-  Node_Is_Rule_Of_Node (Variable "rule", Variable "func2_occ");
+  Is_Rule_Of_Node (Variable "rule", Variable "func2_occ");
 
 fun lifter_15_shared unique =
   Some ("rule", QRule,
     Some ("func1_occ", QOuter_Path,
       Ands [
         Applies (defined_recursively, [Variable "func1_occ"]),
-        Node_Is_Rule_Of_Node (Variable "rule", Variable "func1_occ"),
+        Is_Rule_Of_Node (Variable "rule", Variable "func1_occ"),
         Some ("func2_occ", QOuter_Path,
           Ands [
             Applies (defined_recursively, [Variable "func2_occ"]),
-            Node_Is_Rule_Of_Node (Variable "rule", Variable "func2_occ"),
+            Is_Rule_Of_Node (Variable "rule", Variable "func2_occ"),
             Have_Different_Prnts (Variable "func1_occ", Variable "func2_occ"),
             Some ("arg_of_func1_occ", QOuter_Path,
               Ands [
@@ -529,7 +529,7 @@ Imply
       Ands [
         Node_Is_Defined_With (Variable "inductive_occ",  Command Inductive),
         Is_A_Meta_Premise_Or_Below (Variable "inductive_occ"),
-        Node_Is_Rule_Of_Node (Variable "rule", Variable "induct_occ")
+        Is_Rule_Of_Node (Variable "rule", Variable "induct_occ")
       ]
     )
   );
