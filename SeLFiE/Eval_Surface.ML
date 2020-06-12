@@ -46,6 +46,10 @@ datatype assert =
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
+(*Eval_Print for node*)
+| Print_Is_Defined_With             of assert * assert
+| Print_Takes_N_Arguments           of assert * assert
+| Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -124,6 +128,10 @@ datatype assert =
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
+(*Eval_Print for node*)
+| Print_Is_Defined_With             of assert * assert
+| Print_Takes_N_Arguments           of assert * assert
+| Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -192,6 +200,10 @@ and (*bool*)
   | surf_to_var (Is_Arbitrary     arg ) = EV.Assert (SU.Atomic SU.Is_Arbitrary,     surf_to_var_singleton    arg )
   | surf_to_var (Is_Rule          arg ) = EV.Assert (SU.Atomic SU.Is_Rule,          surf_to_var_singleton    arg )
   | surf_to_var (Is_Rule_Of_Print args) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Print, surf_to_var_pair_to_list args)
+  (*Eval_Print for node*)
+  | surf_to_var (Print_Is_Defined_With             args) = EV.Assert (SU.Atomic SU.Print_Is_Defined_With,             surf_to_var_pair_to_list args)
+  | surf_to_var (Print_Takes_N_Arguments           args) = EV.Assert (SU.Atomic SU.Print_Takes_N_Arguments,           surf_to_var_pair_to_list args)
+  | surf_to_var (Print_Takes_Less_Than_N_Arguments args) = EV.Assert (SU.Atomic SU.Print_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list args)
   (*Eval_Path*)
   | surf_to_var (Unode_Has_Print        args) = EV.Assert (SU.Atomic SU.Unode_Has_Print,        surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Subgoal          arg ) = EV.Assert (SU.Atomic SU.Is_In_Subgoal,          surf_to_var_singleton    arg )

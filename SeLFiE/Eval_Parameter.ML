@@ -112,6 +112,10 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Is_Arbitrary     [Non_Path (Print p)]                       = EPR.eval (EPR.Is_Arbitrary p)            induct_args ctxt
       | eval' SU.Is_Rule          [Non_Path (Print p)]                       = EPR.eval (EPR.Is_Rule p)                 induct_args ctxt
       | eval' SU.Is_Rule_Of_Print [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Is_Rule_Of_Print (p1, p2)) induct_args ctxt
+      (*Eval_Print node*)
+      | eval' SU.Print_Is_Defined_With             [Non_Path (Print print), Non_Path (Command cmd )] = EPR.eval (EPR.Print_Is_Defined_With             (print, cmd )) induct_args ctxt
+      | eval' SU.Print_Takes_N_Arguments           [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_N_Arguments           (print, numb)) induct_args ctxt
+      | eval' SU.Print_Takes_Less_Than_N_Arguments [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_Less_Than_N_Arguments (print, numb)) induct_args ctxt
       (*Eval_Number*)
       | eval' SU.Are_Same_Number     [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Are_Same_Number     (numb1, numb2))
       | eval' SU.Is_Less_Than        [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Is_Less_Than        (numb1, numb2))

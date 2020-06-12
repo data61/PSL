@@ -45,6 +45,10 @@ datatype assert =
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
+(*Eval_Print for node*)
+| Print_Is_Defined_With             of assert * assert
+| Print_Takes_N_Arguments           of assert * assert
+| Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_Subprint_Of         of assert * assert
@@ -154,6 +158,10 @@ datatype assert =
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
+(*Eval_Print for node*)
+| Print_Is_Defined_With             of assert * assert
+| Print_Takes_N_Arguments           of assert * assert
+| Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
 | Is_In_Subgoal          of assert
@@ -271,6 +279,10 @@ and
   | convert loc (Is_Arbitrary       ass ) = ES.Is_Arbitrary     (convert loc ass)
   | convert loc (Is_Rule            ass ) = ES.Is_Rule          (convert loc ass)
   | convert loc (Is_Rule_Of_Print   pair) = ES.Is_Rule_Of_Print (convert_pair loc pair)
+  (*Eval_Print for node*)
+  | convert loc (Print_Is_Defined_With             pair) = ES.Print_Is_Defined_With             (convert_pair loc pair)
+  | convert loc (Print_Takes_N_Arguments           pair) = ES.Print_Takes_N_Arguments           (convert_pair loc pair)
+  | convert loc (Print_Takes_Less_Than_N_Arguments pair) = ES.Print_Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Path*)
   | convert loc (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair loc pair)
   | convert loc (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert loc ass)
