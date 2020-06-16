@@ -72,14 +72,9 @@ type one_term  = {path_to_unode_table: path_to_unode_table, print_to_paths_table
 
 fun pst_n_trm_to_path_to_unode_table (pst:Proof.state) (trm:term) =
   let
-    val ctxt                      = Proof.context_of pst;
-    val trm_wo_Trueprop           = UN.remove_Trueprop trm;
-    val trm_w_prnt                = UN.trm_to_trm_w_prnt ctxt trm_wo_Trueprop;
-    val utrm_w_prnt               = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
-    val futrm_w_prnt              = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
-    val futrm_w_prnt_n_inner_path = UN.futrm_w_prnt_to_futrm_w_prnt_n_inner_path futrm_w_prnt;
-    val unodes                    = UN.futrm_w_prnt_n_inner_path_n_ctxt_to_unodes futrm_w_prnt_n_inner_path (Proof.context_of pst);
-    val inner_path_to_unode_table = unodes_to_unode_table unodes: path_to_unode_table;
+    val ctxt                      = Proof.context_of pst                : Proof.context;
+    val unodes                    = UN.context_n_term_to_unodes ctxt trm: UN.unodes;
+    val inner_path_to_unode_table = unodes_to_unode_table unodes        : path_to_unode_table;
   in
     inner_path_to_unode_table: path_to_unode_table
   end;
@@ -136,12 +131,7 @@ fun pst_n_location_n_term_list_to_location_n_path_to_unode_table (pst:Proof.stat
     fun pst_n_location_n_term_list_to_location_n_path_to_unode_table'  [] acc = acc
       | pst_n_location_n_term_list_to_location_n_path_to_unode_table' ((loc, trm)::pairs:(location * term) list) acc =
         let
-          val trm_wo_Trueprop           = UN.remove_Trueprop trm;
-          val trm_w_prnt                = UN.trm_to_trm_w_prnt ctxt trm_wo_Trueprop;
-          val utrm_w_prnt               = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
-          val futrm_w_prnt              = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
-          val futrm_w_prnt_n_inner_path = UN.futrm_w_prnt_to_futrm_w_prnt_n_inner_path futrm_w_prnt;
-          val unodes                    = UN.futrm_w_prnt_n_inner_path_n_ctxt_to_unodes futrm_w_prnt_n_inner_path (Proof.context_of pst);
+          val unodes              = UN.context_n_term_to_unodes ctxt trm   : UN.unodes;
           val path_to_unode_table = Term_Table.unodes_to_unode_table unodes: UN.unode Inner_Path_Table.table;
         in
           pst_n_location_n_term_list_to_location_n_path_to_unode_table' pairs ((loc, path_to_unode_table)::acc)

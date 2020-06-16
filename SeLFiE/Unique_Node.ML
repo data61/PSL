@@ -4,7 +4,7 @@
 The conversion to transform term to a format more amenable to SeLFiE.
 The overall work-flow is:
 Proof.state            ==== pst_to_lifter_pst ================================================>               (* in Term_Table *)
-   (Proof.state & term     ==== pst_n_trm_to_one_term ========================================>               (* in Term_Table *)
+   (Proof.state & term      ==== pst_n_trm_to_one_term ========================================>               (* in Term_Table *)
        (term                      ==== trm_to_trm_w_prnt =======================================>             (* in Unique_Node *)
         trm_w_prnt                ==== trm_w_prnt_to_utrm_w_prnt ===============================>             (* in Unique_Node *)
         utrm_w_prnt               ==== utrm_w_prnt_to_futrm_w_prnt =============================>             (* in Unique_Node *)
@@ -147,6 +147,9 @@ type unodes = unode list;
 
 (* futrm_w_prnt_n_inner_path_n_ctxt_to_unodes *)
 val futrm_w_prnt_n_inner_path_n_ctxt_to_unodes: futrm_w_prnt_n_inner_path -> Proof.context -> unodes;
+
+(* context_n_term_to_unodes *)
+val context_n_term_to_unodes: Proof.context -> term -> unodes;
 
 end;
 
@@ -494,6 +497,18 @@ fun futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFC_Prnt_n_Path ((cname,typ), pr
   | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFA_Prnt_n_Path ((func, args), prnt, inner_path)) ctxt =
     {node = NA, print = prnt, inner_path = inner_path} ::
     futrm_w_prnt_n_inner_path_n_ctxt_to_unodes func ctxt @ maps (fn arg => futrm_w_prnt_n_inner_path_n_ctxt_to_unodes arg ctxt) args;
+
+fun context_n_term_to_unodes (ctxt:Proof.context) (trm:term) =
+  let
+    val trm_wo_Trueprop           = remove_Trueprop trm;
+    val trm_w_prnt                = trm_to_trm_w_prnt ctxt trm_wo_Trueprop;
+    val utrm_w_prnt               = trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
+    val futrm_w_prnt              = utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
+    val futrm_w_prnt_n_inner_path = futrm_w_prnt_to_futrm_w_prnt_n_inner_path futrm_w_prnt;
+    val unodes                    = futrm_w_prnt_n_inner_path_n_ctxt_to_unodes futrm_w_prnt_n_inner_path ctxt;
+  in
+    unodes: unodes
+  end;
 
 end;
 
