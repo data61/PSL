@@ -23,6 +23,7 @@ datatype assert =
 | Print_Is_Lambda                   of string (*lambda abstraction corresponding to Abs in Term*)
 | Print_Is_App                      of string (*function application corresponding to $ in Term*)
 | Print_Is_Defined_With             of string * Pattern.command
+| Print_Is_Defined_With_N_Clauses   of string * int
 | Print_Takes_N_Arguments           of string * int
 | Print_Takes_Less_Than_N_Arguments of string * int;
 
@@ -55,15 +56,16 @@ datatype assert =
 | Print_Is_Lambda                   of string (*lambda abstraction corresponding to Abs in Term*)
 | Print_Is_App                      of string (*function application corresponding to $ in Term*)
 | Print_Is_Defined_With             of string * Pattern.command
+| Print_Is_Defined_With_N_Clauses   of string * int
 | Print_Takes_N_Arguments           of string * int
 | Print_Takes_Less_Than_N_Arguments of string * int;
 
 infix Is_Printed_As;
 
 fun print_n_context_to_numb_of_arguments (print:string) (ctxt:Proof.context) =
-     Syntax.read_term ctxt print
-  |> Term.type_of
-  |> Isabelle_Utils.count_numb_of_args_of_fun_typ: int;
+   Syntax.read_term ctxt print
+|> Term.type_of
+|> Isabelle_Utils.count_numb_of_args_of_fun_typ: int;
 
 fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                                                     _    = prnt1 = prnt2
   | eval' (Is_Subprint_Of        (sub,   full))   _                                                     _    = String.isSubstring sub full
@@ -80,9 +82,10 @@ fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                             
   | eval' (Print_Is_Bound         print    )     _               ctxt = Syntax.read_term ctxt print |> is_Bound
   | eval' (Print_Is_Lambda        print    )     _               ctxt = Syntax.read_term ctxt print |> Isabelle_Utils.is_Abs
   | eval' (Print_Is_App           print    )     _               ctxt = Syntax.read_term ctxt print |> Isabelle_Utils.is_App
-  | eval' (Print_Is_Defined_With   (print, command)) _           ctxt = Pattern.get_command ctxt print = command
+  | eval' (Print_Is_Defined_With           (print, command)) _   ctxt = Pattern.get_command ctxt print = command
+  | eval' (Print_Is_Defined_With_N_Clauses (print, numb))    _   ctxt = SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt print = numb
   | eval' (Print_Takes_N_Arguments (print, numb))    _           ctxt = numb = print_n_context_to_numb_of_arguments print ctxt
-  | eval' (Print_Takes_Less_Than_N_Arguments (print, numb))    _ ctxt = numb < print_n_context_to_numb_of_arguments print ctxt;
+  | eval' (Print_Takes_Less_Than_N_Arguments (print, numb))  _   ctxt = numb < print_n_context_to_numb_of_arguments print ctxt;
 
 fun eval  assert (ind_args:SU.induct_arguments) ctxt = eval' assert ind_args ctxt |> EB.bool_to_assert;
 

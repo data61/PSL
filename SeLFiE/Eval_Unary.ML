@@ -43,54 +43,6 @@ datatype expr =
 
 type exprs = expr list;
 
-local
-
-fun ctxt_n_cname_to_definition_for_def (ctxt:Proof.context) (cname:string) (suffix:string) =
-  try (Proof_Context.get_thms ctxt) (cname ^ suffix) |> these |> map Thm.prop_of;
-
-fun get_definitions_using_suffix (ctxt:Proof.context) (cname:string) (suffix:string) =
-   try (Proof_Context.get_thms ctxt) (cname ^ "." ^ suffix)
-|> these
-|> map Thm.prop_of;
-
-fun ctxt_n_cname_to_definitions_for_inductive (ctxt:Proof.context) (cname:string) =
-   get_definitions_using_suffix ctxt cname "intros": terms;
-
-fun ctxt_n_cname_to_definitions_for_primrec (ctxt:Proof.context) (cname:string) =
-   get_definitions_using_suffix ctxt cname "simps": terms;
-
-val ctxt_n_cname_to_definitions_for_fun = ctxt_n_cname_to_definitions_for_primrec;
-
-fun ctxt_n_cname_to_definitions_for_function (ctxt:Proof.context) (cname:string) =
-   get_definitions_using_suffix ctxt cname "psimps"
-|> map Logic.strip_imp_concl: terms;
-
-fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) :terms =
-  let
-    val command = Pattern.get_command ctxt cname;
-    fun command_to_definitions Pattern.Definition = ctxt_n_cname_to_definition_for_def        ctxt cname "_def"
-      | command_to_definitions Pattern.Fun        = ctxt_n_cname_to_definitions_for_fun       ctxt cname
-      | command_to_definitions Pattern.Primrec    = ctxt_n_cname_to_definitions_for_primrec   ctxt cname
-      | command_to_definitions Pattern.Function   = ctxt_n_cname_to_definitions_for_function  ctxt cname
-      | command_to_definitions Pattern.Inductive  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
-      (*TODO: Inductive_Set*)
-      | command_to_definitions Pattern.Unknown    = [];
-  in
-    command_to_definitions command: terms
-  end;
-
-in
-
-fun pst_n_cname_to_definitions (pst:Proof.state) (cname:string) =
-  let
-    val ctxt        = Proof.context_of pst                  : Proof.context;
-    val definitions = ctxt_n_cname_to_definitions ctxt cname: terms;
-  in
-    definitions:terms
-  end;
-
-end;
-
 fun shift 0 _ u                     = u
   | shift i d (Bound j)             = if j >= d then Bound (j+i) else Bound j
   | shift i d (Lambda t)            = Lambda (shift i (d+1) t)
@@ -207,7 +159,7 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
     and dive (Literal (EP.Non_Path (EP.Print cname)), Lambda lambda, args) table domains =
         let
           val _                     = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
-          val simp_rules            = pst_n_cname_to_definitions pst cname: terms;
+          val simp_rules            = SU.pst_n_cname_to_definitions pst cname: terms;
           val curried_expr          = mk_inner_expr (Lambda lambda) args  : expr;
           (*TODO: use simp_rule_tables instead of simp_rules.*)
           val inner_results         = map (fn trm =>

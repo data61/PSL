@@ -17,6 +17,7 @@ datatype assert =
 | Node_Is_Lambda                   of gen_path
 | Node_Is_App                      of gen_path
 | Node_Is_Defined_With             of gen_path * Pattern.command
+| Node_Is_Defined_With_N_Clauses   of gen_path * int
 | Is_Rule_Of_Node                  of string * gen_path
 | Node_Takes_N_Arguments           of gen_path * int
 | Node_Takes_Less_Than_N_Arguments of gen_path * int
@@ -76,6 +77,7 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
       | eval' (PA.Node_Is_Lambda                    p       ) ctxt = END.eval (END.Node_Is_Lambda                   (path_to_node p                )) ctxt
       | eval' (PA.Node_Is_App                       p       ) ctxt = END.eval (END.Node_Is_App                      (path_to_node p                )) ctxt
       | eval' (PA.Node_Is_Defined_With             (p,  cmd)) ctxt = END.eval (END.Node_Is_Defined_With             (path_to_node p, cmd           )) ctxt
+      | eval' (PA.Node_Is_Defined_With_N_Clauses   (p,    n)) ctxt = END.eval (END.Node_Is_Defined_With_N_Clauses   (path_to_node p, n             )) ctxt
       | eval' (PA.Is_Rule_Of_Node                  (rule, p)) ctxt = END.eval (END.Is_Rule_Of_Node                  (rule,           path_to_node p)) ctxt
       | eval' (PA.Node_Takes_N_Arguments           (p,    n)) ctxt = END.eval (END.Node_Takes_N_Arguments           (path_to_node p, n             )) ctxt
       | eval' (PA.Node_Takes_Less_Than_N_Arguments (p,    n)) ctxt = END.eval (END.Node_Takes_Less_Than_N_Arguments (path_to_node p, n             )) ctxt

@@ -26,6 +26,7 @@ datatype assert =
 | Node_Is_Lambda                   of assert
 | Node_Is_App                      of assert
 | Node_Is_Defined_With             of assert * assert
+| Node_Is_Defined_With_N_Clauses   of assert * assert
 | Is_Rule_Of_Node                  of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
@@ -53,6 +54,7 @@ datatype assert =
 | Print_Is_Lambda                   of assert (*lambda abstraction corresponding to Abs in Term*)
 | Print_Is_App                      of assert (*function application corresponding to $ in Term*)
 | Print_Is_Defined_With             of assert * assert
+| Print_Is_Defined_With_N_Clauses   of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
@@ -144,6 +146,7 @@ datatype assert =
 | Node_Is_Lambda                   of assert
 | Node_Is_App                      of assert
 | Node_Is_Defined_With             of assert * assert
+| Node_Is_Defined_With_N_Clauses   of assert * assert
 | Is_Rule_Of_Node                  of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
@@ -172,6 +175,7 @@ datatype assert =
 | Print_Is_Lambda                   of assert (*lambda abstraction corresponding to Abs in Term*)
 | Print_Is_App                      of assert (*function application corresponding to $ in Term*)
 | Print_Is_Defined_With             of assert * assert
+| Print_Is_Defined_With_N_Clauses   of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
@@ -269,7 +273,9 @@ and
   | convert loc (Node_Is_Bound                    ass)   = ES.Node_Is_Bound                    (convert      loc ass)
   | convert loc (Node_Is_Lambda                   ass)   = ES.Node_Is_Lambda                   (convert      loc ass)
   | convert loc (Node_Is_App                      ass)   = ES.Node_Is_App                      (convert      loc ass)
-  | convert loc (Node_Is_Defined_With             asses) = ES.Node_Is_Defined_With             (convert_pair loc asses)
+  | convert loc (Node_Is_Defined_With             pair)  = ES.Node_Is_Defined_With             (convert_pair loc pair)
+  | convert loc (Node_Is_Defined_With_N_Clauses   pair)  = ES.Node_Is_Defined_With_N_Clauses   (convert_pair loc pair)
+(*| Node_Is_Defined_With_N_Clauses   of assert * assert*)
   | convert loc (Is_Rule_Of_Node                  pair)  = ES.Is_Rule_Of_Node                  (convert_pair loc pair)
   | convert loc (Node_Takes_N_Arguments           pair)  = ES.Node_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Node_Takes_Less_Than_N_Arguments pair)  = ES.Node_Takes_Less_Than_N_Arguments (convert_pair loc pair)
@@ -299,6 +305,7 @@ and
   | convert loc (Print_Is_Lambda                   ass ) = ES.Print_Is_Lambda                   (convert      loc ass)
   | convert loc (Print_Is_App                      ass ) = ES.Print_Is_App                      (convert      loc ass)
   | convert loc (Print_Is_Defined_With             pair) = ES.Print_Is_Defined_With             (convert_pair loc pair)
+  | convert loc (Print_Is_Defined_With_N_Clauses   pair) = ES.Print_Is_Defined_With_N_Clauses   (convert_pair loc pair)
   | convert loc (Print_Takes_N_Arguments           pair) = ES.Print_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Print_Takes_Less_Than_N_Arguments pair) = ES.Print_Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Path*)

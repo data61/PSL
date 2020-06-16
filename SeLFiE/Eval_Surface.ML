@@ -25,6 +25,7 @@ datatype assert =
 | Node_Is_Lambda                   of assert
 | Node_Is_App                      of assert
 | Node_Is_Defined_With             of assert * assert
+| Node_Is_Defined_With_N_Clauses   of assert * assert
 | Is_Rule_Of_Node                  of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
@@ -54,6 +55,7 @@ datatype assert =
 | Print_Is_Lambda                   of assert (*lambda abstraction corresponding to Abs in Term*)
 | Print_Is_App                      of assert (*function application corresponding to $ in Term*)
 | Print_Is_Defined_With             of assert * assert
+| Print_Is_Defined_With_N_Clauses   of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
@@ -113,6 +115,7 @@ datatype assert =
 | Node_Is_Lambda                   of assert
 | Node_Is_App                      of assert
 | Node_Is_Defined_With             of assert * assert
+| Node_Is_Defined_With_N_Clauses   of assert * assert
 | Is_Rule_Of_Node                  of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
@@ -143,6 +146,7 @@ datatype assert =
 (*Eval_Print for node*)
 | Print_Is_Defined_With             of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
+| Print_Is_Defined_With_N_Clauses   of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print        of assert * assert
@@ -191,6 +195,7 @@ and (*bool*)
   | surf_to_var (Node_Is_Lambda                   arg ) = EV.Assert (SU.Atomic SU.Node_Is_Lambda,                   surf_to_var_singleton    arg)
   | surf_to_var (Node_Is_App                      arg ) = EV.Assert (SU.Atomic SU.Node_Is_App,                      surf_to_var_singleton    arg)
   | surf_to_var (Node_Is_Defined_With             args) = EV.Assert (SU.Atomic SU.Node_Is_Defined_With,             surf_to_var_pair_to_list args)
+  | surf_to_var (Node_Is_Defined_With_N_Clauses   args) = EV.Assert (SU.Atomic SU.Node_Is_Defined_With_N_Clauses,   surf_to_var_pair_to_list args)
   | surf_to_var (Is_Rule_Of_Node                  pair) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Node,                  surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_N_Arguments           pair) = EV.Assert (SU.Atomic SU.Node_Takes_N_Arguments,           surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_Less_Than_N_Arguments pair) = EV.Assert (SU.Atomic SU.Node_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list pair)
@@ -220,6 +225,7 @@ and (*bool*)
   | surf_to_var (Print_Is_Lambda                   arg ) = EV.Assert (SU.Atomic SU.Print_Is_Lambda,                   surf_to_var_singleton    arg)
   | surf_to_var (Print_Is_App                      arg ) = EV.Assert (SU.Atomic SU.Print_Is_App,                      surf_to_var_singleton    arg)
   | surf_to_var (Print_Is_Defined_With             args) = EV.Assert (SU.Atomic SU.Print_Is_Defined_With,             surf_to_var_pair_to_list args)
+  | surf_to_var (Print_Is_Defined_With_N_Clauses   args) = EV.Assert (SU.Atomic SU.Print_Is_Defined_With_N_Clauses,   surf_to_var_pair_to_list args)
   | surf_to_var (Print_Takes_N_Arguments           args) = EV.Assert (SU.Atomic SU.Print_Takes_N_Arguments,           surf_to_var_pair_to_list args)
   | surf_to_var (Print_Takes_Less_Than_N_Arguments args) = EV.Assert (SU.Atomic SU.Print_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list args)
   (*Eval_Path*)

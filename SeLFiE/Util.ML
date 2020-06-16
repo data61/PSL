@@ -32,6 +32,7 @@ datatype atomic_assert =
 | Node_Is_Defined_With
 | Node_Takes_N_Arguments
 | Node_Takes_Less_Than_N_Arguments
+| Node_Is_Defined_With_N_Clauses
 (*Eval_Unode*)
 | Has_Same_Prnt_As
 | Is_Deeper_Than
@@ -58,6 +59,7 @@ datatype atomic_assert =
 | Print_Is_Lambda
 | Print_Is_App
 | Print_Is_Defined_With
+| Print_Is_Defined_With_N_Clauses
 | Print_Takes_N_Arguments
 | Print_Takes_Less_Than_N_Arguments
 (*Eval_Path*)
@@ -89,6 +91,12 @@ datatype assert =
 val print_assert: assert -> string;
 
 val rule_to_const_name: Proof.context -> string -> string;
+
+val ctxt_n_cname_to_definitions: Proof.context -> string -> terms;
+
+val pst_n_cname_to_definitions: Proof.state -> string -> terms;
+
+val ctxt_n_cname_to_number_of_defining_clauses: Proof.context -> string -> int;
 
 end;
 
@@ -143,6 +151,7 @@ datatype atomic_assert =
 | Node_Is_Defined_With
 | Node_Takes_N_Arguments
 | Node_Takes_Less_Than_N_Arguments
+| Node_Is_Defined_With_N_Clauses
 (*Eval_Unode*)
 | Has_Same_Prnt_As
 | Is_Deeper_Than
@@ -169,6 +178,7 @@ datatype atomic_assert =
 | Print_Is_Lambda
 | Print_Is_App
 | Print_Is_Defined_With
+| Print_Is_Defined_With_N_Clauses
 | Print_Takes_N_Arguments
 | Print_Takes_Less_Than_N_Arguments
 (*Eval_Path*)
@@ -185,14 +195,16 @@ datatype atomic_assert =
 | Debug_Non_Path_Literal
 | Debug_Print_Unode;
 
-fun print_atomic_assert (Node_Is_Cnst                    ) = "Is_Cnst"
-  | print_atomic_assert (Node_Is_Free                    ) = "Is_Free"
-  | print_atomic_assert (Node_Is_Var                     ) = "Is_Var"
-  | print_atomic_assert (Node_Is_Bound                   ) = "Is_Bound"
-  | print_atomic_assert (Node_Is_Lambda                  ) = "Is_Lambda"
-  | print_atomic_assert (Node_Is_App                     ) = "Is_App"
-  | print_atomic_assert (Node_Takes_Less_Than_N_Arguments) = "Takes_Less_Than_N_Arguments"
-  | print_atomic_assert (Node_Is_Defined_With            ) = "Is_Defined_With"
+fun(*Eval_Node*)
+    print_atomic_assert (Node_Is_Cnst                    ) = "Node_Is_Cnst"
+  | print_atomic_assert (Node_Is_Free                    ) = "Node_Is_Free"
+  | print_atomic_assert (Node_Is_Var                     ) = "Node_Is_Var"
+  | print_atomic_assert (Node_Is_Bound                   ) = "Node_Is_Bound"
+  | print_atomic_assert (Node_Is_Lambda                  ) = "Node_Is_Lambda"
+  | print_atomic_assert (Node_Is_App                     ) = "Node_Is_App"
+  | print_atomic_assert (Node_Takes_Less_Than_N_Arguments) = "Node_Takes_Less_Than_N_Arguments"
+  | print_atomic_assert (Node_Is_Defined_With            ) = "Node_Is_Defined_With"
+  | print_atomic_assert (Node_Is_Defined_With_N_Clauses  ) = "Node_Is_Defined_With_N_Clauses"
   | print_atomic_assert (Is_Rule_Of_Node                 ) = "Is_Rule_Of_Node"
   | print_atomic_assert (Node_Takes_N_Arguments          ) = "Takes_N_Arguments"
   | print_atomic_assert (Has_Same_Prnt_As                ) = "Has_Same_Prnt_As"
@@ -227,6 +239,7 @@ fun print_atomic_assert (Node_Is_Cnst                    ) = "Is_Cnst"
   | print_atomic_assert (Print_Is_Lambda                  ) = "Print_Is_Lambda"
   | print_atomic_assert (Print_Is_App                     ) = "Print_Is_App"
   | print_atomic_assert (Print_Is_Defined_With            ) = "Print_Is_Defined_With"
+  | print_atomic_assert (Print_Is_Defined_With_N_Clauses  ) = "Print_Is_Defined_With_N_Clauses"
   | print_atomic_assert (Print_Takes_N_Arguments          ) = "Print_Takes_N_Arguments"
   | print_atomic_assert (Print_Takes_Less_Than_N_Arguments) = "Print_Takes_Less_Than_N_Arguments"
   | print_atomic_assert (Debug_Non_Path_Literal           ) = "Debug_Non_Path_Literal"
@@ -271,5 +284,60 @@ fun rule_to_const_name (ctxt:Proof.context) (rule_name:string) =
 <$> Term.dest_Const
 <$> fst
  |> Utils.the' "rule_to_const_name failed.";
+
+local
+
+fun ctxt_n_cname_to_definition_for_def (ctxt:Proof.context) (cname:string) (suffix:string) =
+  try (Proof_Context.get_thms ctxt) (cname ^ suffix) |> these |> map Thm.prop_of;
+
+fun get_definitions_using_suffix (ctxt:Proof.context) (cname:string) (suffix:string) =
+   try (Proof_Context.get_thms ctxt) (cname ^ "." ^ suffix)
+|> these
+|> map Thm.prop_of;
+
+fun ctxt_n_cname_to_definitions_for_inductive (ctxt:Proof.context) (cname:string) =
+   get_definitions_using_suffix ctxt cname "intros": terms;
+
+fun ctxt_n_cname_to_definitions_for_primrec (ctxt:Proof.context) (cname:string) =
+   get_definitions_using_suffix ctxt cname "simps": terms;
+
+val ctxt_n_cname_to_definitions_for_fun = ctxt_n_cname_to_definitions_for_primrec;
+
+fun ctxt_n_cname_to_definitions_for_function (ctxt:Proof.context) (cname:string) =
+   get_definitions_using_suffix ctxt cname "psimps"
+|> map Logic.strip_imp_concl: terms;
+
+in
+
+fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) :terms =
+  let
+    val command = Pattern.get_command ctxt cname;
+    fun command_to_definitions Pattern.Definition = ctxt_n_cname_to_definition_for_def        ctxt cname "_def"
+      | command_to_definitions Pattern.Fun        = ctxt_n_cname_to_definitions_for_fun       ctxt cname
+      | command_to_definitions Pattern.Primrec    = ctxt_n_cname_to_definitions_for_primrec   ctxt cname
+      | command_to_definitions Pattern.Function   = ctxt_n_cname_to_definitions_for_function  ctxt cname
+      | command_to_definitions Pattern.Inductive  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
+      (*TODO: Inductive_Set*)
+      | command_to_definitions Pattern.Unknown    = [];
+  in
+    command_to_definitions command: terms
+  end;
+
+fun pst_n_cname_to_definitions (pst:Proof.state) (cname:string) =
+  let
+    val ctxt        = Proof.context_of pst                  : Proof.context;
+    val definitions = ctxt_n_cname_to_definitions ctxt cname: terms;
+  in
+    definitions:terms
+  end;
+
+fun ctxt_n_cname_to_number_of_defining_clauses (ctxt:Proof.context) (cname:string): int =
+  let
+    val terms = ctxt_n_cname_to_definitions ctxt cname: terms;
+  in
+    length terms: int
+  end;
+
+end;
 
 end;

@@ -37,7 +37,7 @@ infix
 fun eval' (Are_Same_Number (numb1, numb2))  = numb1 = numb2
   | eval' (numb1 Is_Less_Than numb2)        = numb1 < numb2
   | eval' (numb1 Is_Less_Than_By_One numb2) = numb1 + 1 = numb2
-  | eval'  _                               = error "eval' in Eval_Number_Struct failed!";
+  | eval'  _                                = error "eval' in Eval_Number_Struct failed!";
 
 fun eval (Connective assert_connective) = EB.eval assert_connective
   | eval  assert                        = eval' assert |> EB.bool_to_assert;

@@ -39,8 +39,8 @@ ML_file "Term_Table_Test.ML"
 ML_file "Dynamic_Induct.ML"
 
 ML_file "Eval_Bool.ML"
-ML_file "Eval_Node.ML"
 ML_file "Eval_Number.ML"
+ML_file "Eval_Node.ML"
 ML_file "Eval_Unode.ML"
 ML_file "Eval_Print.ML"
 
@@ -499,9 +499,6 @@ let
 in
   Seq.single x
 end) \<close>)
-  ML_prf\<open>
-
-\<close>
   oops
 
 end

@@ -59,9 +59,10 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Node_Is_Lambda                   [Outer_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_Lambda                   (GP2U.Outer_Path p))
       | eval' SU.Node_Is_App                      [Outer_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_App                      (GP2U.Outer_Path p))
       | eval' SU.Node_Is_Defined_With             [Outer_Path path,       Non_Path (Command cmd)] = EPT.eval pst term_tables (PA.Node_Is_Defined_With             (GP2U.Outer_Path path, cmd))
+      | eval' SU.Node_Is_Defined_With_N_Clauses   [Outer_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Is_Defined_With_N_Clauses   (GP2U.Outer_Path path, n))
       | eval' SU.Is_Rule_Of_Node                  [Non_Path (Print rule), Outer_Path path       ] = EPT.eval pst term_tables (PA.Is_Rule_Of_Node                  (rule, GP2U.Outer_Path path))
-      | eval' SU.Node_Takes_N_Arguments           [Outer_Path path,       Non_Path (Number n)]    = EPT.eval pst term_tables (PA.Node_Takes_N_Arguments           (GP2U.Outer_Path path, n))
-      | eval' SU.Node_Takes_Less_Than_N_Arguments [Outer_Path path,       Non_Path (Number n)]    = EPT.eval pst term_tables (PA.Node_Takes_Less_Than_N_Arguments (GP2U.Outer_Path path, n))
+      | eval' SU.Node_Takes_N_Arguments           [Outer_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Takes_N_Arguments           (GP2U.Outer_Path path, n))
+      | eval' SU.Node_Takes_Less_Than_N_Arguments [Outer_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Takes_Less_Than_N_Arguments (GP2U.Outer_Path path, n))
       (*Eval_Node (Inner)*)
       | eval' SU.Node_Is_Cnst                     [Inner_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_Cnst                     (GP2U.Inner_Path p))
       | eval' SU.Node_Is_Free                     [Inner_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_Free                     (GP2U.Inner_Path p))
@@ -69,10 +70,11 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Node_Is_Bound                    [Inner_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_Bound                    (GP2U.Inner_Path p))
       | eval' SU.Node_Is_Lambda                   [Inner_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_Lambda                   (GP2U.Inner_Path p))
       | eval' SU.Node_Is_App                      [Inner_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_App                      (GP2U.Inner_Path p))
-      | eval' SU.Node_Is_Defined_With             [Inner_Path path,       Non_Path (Command cmd)] = EPT.eval pst term_tables (PA.Node_Is_Defined_With             ((GP2U.Inner_Path path, cmd)))
-      | eval' SU.Is_Rule_Of_Node                  [Non_Path (Print rule), Inner_Path path       ] = EPT.eval pst term_tables (PA.Is_Rule_Of_Node                  ((rule, GP2U.Inner_Path path)))
-      | eval' SU.Node_Takes_N_Arguments           [Inner_Path path,       Non_Path (Number n)]    = EPT.eval pst term_tables (PA.Node_Takes_N_Arguments           (GP2U.Inner_Path path, n))
-      | eval' SU.Node_Takes_Less_Than_N_Arguments [Inner_Path path,       Non_Path (Number n)]    = EPT.eval pst term_tables (PA.Node_Takes_Less_Than_N_Arguments (GP2U.Inner_Path path, n))
+      | eval' SU.Node_Is_Defined_With             [Inner_Path path,       Non_Path (Command cmd)] = EPT.eval pst term_tables (PA.Node_Is_Defined_With             (GP2U.Inner_Path path, cmd))
+      | eval' SU.Node_Is_Defined_With_N_Clauses   [Inner_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Is_Defined_With_N_Clauses   (GP2U.Inner_Path path,  n))
+      | eval' SU.Is_Rule_Of_Node                  [Non_Path (Print rule), Inner_Path path       ] = EPT.eval pst term_tables (PA.Is_Rule_Of_Node                  (rule, GP2U.Inner_Path path))
+      | eval' SU.Node_Takes_N_Arguments           [Inner_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Takes_N_Arguments           (GP2U.Inner_Path path, n))
+      | eval' SU.Node_Takes_Less_Than_N_Arguments [Inner_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Takes_Less_Than_N_Arguments (GP2U.Inner_Path path, n))
       (*Eval_Unode (Outer)*)
       | eval' SU.Has_Same_Prnt_As       [Outer_Path p1, Outer_Path p2]       = EPT.eval pst term_tables (PA.Has_Same_Prnt_As       (GP2U.Outer_Path p1, GP2U.Outer_Path p2))
       | eval' SU.Is_Deeper_Than         [Outer_Path p1, Outer_Path p2]       = EPT.eval pst term_tables (PA.Is_Deeper_Than         (GP2U.Outer_Path p1, GP2U.Outer_Path p2))
@@ -120,6 +122,7 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Print_Is_Lambda                   [Non_Path (Print print)]                          = EPR.eval (EPR.Print_Is_Lambda print) induct_args ctxt
       | eval' SU.Print_Is_App                      [Non_Path (Print print)]                          = EPR.eval (EPR.Print_Is_App    print) induct_args ctxt
       | eval' SU.Print_Is_Defined_With             [Non_Path (Print print), Non_Path (Command cmd )] = EPR.eval (EPR.Print_Is_Defined_With             (print, cmd )) induct_args ctxt
+      | eval' SU.Print_Is_Defined_With_N_Clauses   [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Is_Defined_With_N_Clauses   (print, numb)) induct_args ctxt
       | eval' SU.Print_Takes_N_Arguments           [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_N_Arguments           (print, numb)) induct_args ctxt
       | eval' SU.Print_Takes_Less_Than_N_Arguments [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_Less_Than_N_Arguments (print, numb)) induct_args ctxt
       (*Eval_Number*)
