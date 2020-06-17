@@ -1,4 +1,4 @@
-- [ ] `lemma block_nominals:` in Line 279 (~Deep-Dive needed.~ No. `abbreviation` is automatically expanded.)
+- [X] `lemma block_nominals:` in Line 279 (~Deep-Dive needed.~ No. `abbreviation` is automatically expanded.)
    - ```
      lemma block_nominals:
      ‹p on block ⟹ i ∈ nominals p ⟹ i ∈ block_nominals block›
