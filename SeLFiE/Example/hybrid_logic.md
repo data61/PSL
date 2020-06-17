@@ -15,7 +15,7 @@
      abbreviation member_list :: ‹'a ⇒ 'a list ⇒ bool› (‹_ ∈. _› [51, 51] 50) where
      ‹x ∈. xs ≡ x ∈ set xs›
      ```
-   - That is, after one step of deep-dive, we see that a part of `block` in `p on block`is an argument of `set` inside the second argument of `∈`.
+   - That is, after one step of dive-in, we see that a part of `block` in `p on block`is an argument of `set` inside the second argument of `∈`.
 
 - [ ] `lemma soundness':` in Line 306 (Deep-Dive needed.)
    - ```
