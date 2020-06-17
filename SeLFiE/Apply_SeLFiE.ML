@@ -17,8 +17,6 @@ struct
 
 structure PC  = Parser_Combinator;
 structure SU  = SeLFiE_Util;
-structure UN  = Unique_Node;
-structure DI  = Dynamic_Induct;
 structure IU  = Isabelle_Utils;
 structure ES  = Eval_Surface;
 structure ESS = Eval_Syntactic_Sugar;
