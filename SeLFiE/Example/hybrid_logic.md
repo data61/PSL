@@ -1,4 +1,4 @@
-- [ ] `lemma block_nominals:` in Line 279
+- [ ] `lemma block_nominals:` in Line 279 (Deep-Dive needed.)
    - ```
      lemma block_nominals:
      ‹p on block ⟹ i ∈ nominals p ⟹ i ∈ block_nominals block›
@@ -72,7 +72,7 @@
    - why `induct branch`?
    - because of `!.` and `∈.`, which is a syntactic sugar for `‹x ∈. xs ≡ x ∈ set xs›`.   
 
-- [ ] `lemma mapi_block_add_oob:` in Line 890
+- [ ] `lemma mapi_block_add_oob:` in Line 890 (Deep-Dive needed.)
    - ```
      assumes ‹length ps ≤ v'›
      shows
