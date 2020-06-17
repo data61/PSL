@@ -20,7 +20,9 @@ theory SeLFiE
    and     "test_all_LiFtErs"   :: diag
 *)
 begin
-
+ML\<open>
+@{term "x \<in> y"}
+\<close>
 find_theorems name:"wf_induct"
 
 (* pre-processing *)
@@ -146,6 +148,8 @@ setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_true"              
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_false"                SeLFiE_Assertion.test_Is_Subprint_Of_false \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Case_Distinct_Of_Trm_With_A_Case" SeLFiE_Assertion.test_Is_Case_Distinct_Of_Trm_With_A_Case \<close>
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Let_X_Be_Y_In_X"                  SeLFiE_Assertion.test_Is_Let_X_Be_Y_In_X \<close>
+
+setup\<open> Apply_SeLFiE.update_assert "outer_induct_on_arg_of_set_member_n_set_outer" SeLFiE_Assertion.outer_induct_on_arg_of_set_member_n_set_outer \<close>
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]

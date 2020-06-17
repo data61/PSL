@@ -277,7 +277,10 @@ abbreviation branch_sat ::
   \<open>M, g \<Turnstile>\<^sub>\<Theta> branch \<equiv> \<forall>(ps, i) \<in> set branch. M, g \<Turnstile>\<^sub>B (ps, i)\<close>
 
 lemma block_nominals:
-  \<open>p on block \<Longrightarrow> i \<in> nominals p \<Longrightarrow> i \<in> block_nominals block\<close>apply(induct block)
+  \<open>p on block \<Longrightarrow> i \<in> nominals p \<Longrightarrow> i \<in> block_nominals block\<close>
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],      arb[],rule[]]
+  assert_SeLFiE_false outer_induct_on_arg_of_set_member_n_set_outer [on["p"],          arb[],rule[]]
+  assert_SeLFiE_false outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"], arb[],rule[]]
   by (induct block) auto
 
 lemma block_sat_fresh:

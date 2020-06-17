@@ -186,7 +186,7 @@ type trm_w_prnts = trm_w_prnt list;
 (* trm_to_trm_w_prnt *)
 fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
   let
-    val trm_to_string' = Isabelle_Utils.trm_to_string ctxt;
+    val trm_to_string' = Isabelle_Utils.trm_to_string (Proof_Context.set_mode Proof_Context.mode_abbrev ctxt);
     fun trm_to_trm_w_prnt' (Const _) (Const (name,     typ)) = (C_Prnt (name, typ, name))
         (*We should not use trm_to_string' for constants. Think what would happen if we call trm_to_string' for List.append and try to search for List.append using the output from trm_to_string'. *)
       | trm_to_trm_w_prnt' (Free  _) (trm_wo_bound as Free  (name,     typ)) = (F_Prnt (name,     typ, trm_to_string' trm_wo_bound))

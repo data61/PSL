@@ -1115,6 +1115,168 @@ Imply
         )
       )
     ]
+  );
+
+val todo =
+Lambdas (["nth", "func"],
+  Some ("root_path", QInner_Path,
+    Ands [
+      Is_Root_In_A_Location (Variable "root_path"),
+      Some ("lhs_path", QInner_Path,
+        Ands [
+          Is_Nth_Child_Of (Variable "lhs_path", Number 1, Variable "root_path"),
+          Debug_Print_Unode (Variable "lhs_path"),
+          Some ("nth_param_lhs_path", QInner_Path,
+            Ands [
+              Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "nth_param_lhs_path", Variable "nth", Variable "lhs_path"),
+              Some ("rhs_path", QInner_Path,
+                Ands [
+                  Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
+                  Some ("to_be_deep_dived_in_print", QInner_Print,
+                    Ands [
+                      Print_Is_Cnst              (Variable "to_be_deep_dived_in_print"),
+                      Not (Print_Is_Defined_With (Variable "to_be_dived_in_print", Command Inductive_Set)),
+                      Not (Print_Is_Defined_With (Variable "to_be_dived_in_print", Command Inductive    )),
+                      Some_Of ("to_be_deep_dived_in_path", Variable "to_be_deep_dived_in_print",
+                        Ands [
+                          Is_Child_Of (Variable "to_be_deep_dived_in_path", Variable "rhs_path"),
+                          Some ("nth_param_rhs_path", QInner_Path,
+                            Ands [
+                              Has_Same_Prnt_As (Variable "nth_param_lhs_path", Variable "nth_param_rhs_path"),
+                              Some ("nth_param_rhs_path_is_mth_arg_to_tobe_deep_dived_in_path", QInner_Number,
+                                Ands [
+                                  Print_Takes_Less_Than_N_Arguments (Variable "to_be_deep_dived_in_print", Variable "nth_param_rhs_path_is_mth_arg_to_tobe_deep_dived_in_path"),
+                                  Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "nth_param_rhs_path", Variable "nth_param_rhs_path_is_mth_arg_to_tobe_deep_dived_in_path", Variable "to_be_deep_dived_in_path"),
+True
+(*
+                                  In_All_Definitions (
+                                    Variable "to_be_deep_dived_in_print",
+                                    is_in_arg_of_set_inner,
+                                    [Variable ""]
+                                  )
+*)
+                                  (*TODO: *)
+                                ]
+                              )
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
   )
+);
+
+(*
+Print_Is_Defined_With_N_Clauses (Variable "to_be_dived_in_print", Number 1),
+*)
+
+val induct_on_arg_of_setmember_n_set_inner =
+Lambdas (["nth"],
+  Some ("root_path", QInner_Path,
+    Ands [
+      Is_Root_In_A_Location (Variable "root_path"),
+      Some ("lhs_path", QInner_Path,
+        Ands [
+          Is_Nth_Child_Of (Variable "lhs_path", Number 1, Variable "root_path"),
+          Some ("nth_param_on_lhs_path", QInner_Path,
+            Ands [
+              Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "nth_param_on_lhs_path", Variable "nth", Variable "lhs_path"),
+              Some ("rhs_path", QInner_Path,
+                Ands [
+                  Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
+                  Some ("nth_param_on_rhs_path", QInner_Path,
+                    Ands [
+                      Is_Path_Below (Variable "nth_param_on_rhs_path", Variable "rhs_path"),
+                      Has_Same_Prnt_As (Variable "nth_param_on_lhs_path", Variable "nth_param_on_rhs_path"),
+                      Some ("set_member", QInner_Path,
+                        Ands [
+                          Unode_Has_Print (Variable "set_member", Print "Set.member"),
+                          Some ("set", QInner_Path,
+                            Ands [
+                              Unode_Has_Print (Variable "set", Print "List.list.set"),
+                              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "set", Number 1, Variable "set_member"),
+                              Is_An_Arg_Or_Below_Arg_Of      (Variable "nth_param_on_rhs_path", Variable "set")
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  )
+);
+
+val has_set_and_set_member_in_definition =
+Lambdas (["to_be_ignored"],
+  Ands [
+    Some ("set",        QInner_Print, Are_Same_Prints (Variable "set",        Print "List.list.set")),
+    Some ("set_member", QInner_Print, Are_Same_Prints (Variable "set_member", Print "Set.member"   ))
+  ]
+);
+
+val outer_induct_on_arg_of_set_member_n_set_outer =
+  Ands [
+    Some ("ind", QInd, True),
+    Not (Some ("rule", QRule, True)),
+    Some ("func", QOuter_Print,
+        Ands [
+          Print_Is_Cnst (Variable "func"),
+          In_Some_Definitions (
+            Variable "func",
+            has_set_and_set_member_in_definition,
+            [Variable "func"]
+          )
+        ]
+    )
+  ]
+Imply
+  Some ("func", QOuter_Print,
+    Ands [
+      Print_Is_Cnst (Variable "func"),
+      In_Some_Definitions (
+        Variable "func",
+        has_set_and_set_member_in_definition,
+        []
+      ),
+      All ("ind", QInd, (*!*)
+        Ands [
+          Some_Of ("func_occ", Variable "func",
+            Ands [
+              Some_Of ("ind_occ", Variable "ind",
+                Ands [
+                  Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ", Variable "func_occ"),
+                  Some ("ind_occ_is_in_nth_arg_of_func_occ", QOuter_Number,
+                    Ands [
+                      Print_Takes_Less_Than_N_Arguments (Variable "func", Variable "ind_occ_is_in_nth_arg_of_func_occ"),
+                      Is_Nth_Arg_Or_Below_Nth_Arg_Of    (Variable "ind_occ", Variable "ind_occ_is_in_nth_arg_of_func_occ", Variable "func_occ"),
+                      In_Some_Definitions (
+                        Variable "func",
+                        induct_on_arg_of_setmember_n_set_inner,
+                        [Variable "ind_occ_is_in_nth_arg_of_func_occ"]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  );
 
 end;
