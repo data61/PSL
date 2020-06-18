@@ -184,6 +184,7 @@
       - For example, in the clause corresponding to `Nom`,
       - `blabla ⟹ Suc n ⊢ (p # ps, a) # branch ⟹ n ⊢ (ps, a) # branch›` where
       - `n` is a strict sub-term of `Suc n`.
+      - On the other hand, the second parameter never satisfies this condition.
 
 - [X] `lemma sub_block_mem:` in Line 1701
    - ```
