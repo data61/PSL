@@ -150,6 +150,7 @@ setup\<open> Apply_SeLFiE.update_assert "test_Is_Case_Distinct_Of_Trm_With_A_Cas
 setup\<open> Apply_SeLFiE.update_assert "test_Is_Let_X_Be_Y_In_X"                  SeLFiE_Assertion.test_Is_Let_X_Be_Y_In_X \<close>
 
 setup\<open> Apply_SeLFiE.update_assert "outer_induct_on_arg_of_set_member_n_set_outer" SeLFiE_Assertion.outer_induct_on_arg_of_set_member_n_set_outer \<close>
+setup\<open> Apply_SeLFiE.update_assert "induct_on_arg_of_set_member_n_set_syntax_only" SeLFiE_Assertion.induct_on_arg_of_set_member_n_set_syntax_only \<close>
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]

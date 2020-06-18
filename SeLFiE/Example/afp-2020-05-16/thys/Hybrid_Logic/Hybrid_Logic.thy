@@ -826,6 +826,12 @@ lemma rev_nth_mem: \<open>block \<in>. branch \<longleftrightarrow> (\<exists>v.
 proof
   assume \<open>block \<in>. branch\<close>
   then show \<open>\<exists>v. branch !. v = Some block\<close>
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],      arb[],rule[]](*okay, but irrelevant*)
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["v"],          arb[],rule[]](*a little unfortunate, but okay*)
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"], arb[],rule[]](*a little unfortunate, but okay*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["branch"],      arb[],rule[]](*good*)
+  assert_SeLFiE_false induct_on_arg_of_set_member_n_set_syntax_only [on["v"],          arb[],rule[]] (*good*)
+  assert_SeLFiE_false induct_on_arg_of_set_member_n_set_syntax_only [on["branch", "i"], arb[],rule[]](*good*)
   proof (induct branch)
     case (Cons block' branch)
     then show ?case
@@ -840,6 +846,12 @@ proof
 next
   assume \<open>\<exists>v. branch !. v = Some block\<close>
   then show \<open>block \<in>. branch\<close>
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],      arb[],rule[]](*okay, but irrelevant*)
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["v"],          arb[],rule[]](*a little unfortunate, but okay*)
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"], arb[],rule[]](*a little unfortunate, but okay*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["branch"],      arb[],rule[]](*good*)
+  assert_SeLFiE_false induct_on_arg_of_set_member_n_set_syntax_only [on["v"],          arb[],rule[]] (*good*)
+  assert_SeLFiE_false induct_on_arg_of_set_member_n_set_syntax_only [on["branch", "i"], arb[],rule[]](*good*)
   proof (induct branch)
     case (Cons block' branch)
     then show ?case
@@ -913,7 +925,16 @@ lemma mapi_branch_head_add_oob:
 lemma mapi_branch_mem:
   assumes \<open>(ps, i) \<in>. branch\<close>
   shows \<open>\<exists>v. (mapi (f v) ps, i) \<in>. mapi_branch f branch\<close>
-  unfolding mapi_branch_def using assms by (induct branch) auto
+  unfolding mapi_branch_def using assms 
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],       arb[],rule[]](*okay, but irrelevant*)
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["v"],           arb[],rule[]](*a little unfortunate, but okay*)
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"],  arb[],rule[]](*a little unfortunate, but okay*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["branch"],      arb[],rule[]](*good*)
+  assert_SeLFiE_false induct_on_arg_of_set_member_n_set_syntax_only [on["i"],           arb[],rule[]](*good*)
+  assert_SeLFiE_false induct_on_arg_of_set_member_n_set_syntax_only [on["ps"],          arb[],rule[]](*good*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["f"],           arb[],rule[]](*Because of \<open>mapi_branch f branchmapi_branch f branch\<close>. This is a little unfortunate, but okay*)
+  assert_SeLFiE_false induct_on_arg_of_set_member_n_set_syntax_only [on["branch", "i"], arb[],rule[]](*good*)
+  by (induct branch) auto
 
 lemma rev_nth_mapi_branch:
   assumes \<open>branch !. v = Some (ps, a)\<close>

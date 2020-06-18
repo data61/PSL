@@ -1279,4 +1279,33 @@ Imply
     ]
   );
 
+val induct_on_arg_of_set_member_n_set_syntax_only =
+  Ands [
+    Some ("ind", QInd, True),
+    Not (Some ("rule", QRule, True)),
+    Some ("set",        QOuter_Print, Are_Same_Prints (Variable "set",        Print "List.list.set")),
+    Some ("set_member", QOuter_Print, Are_Same_Prints (Variable "set_member", Print "Set.member"   ))
+  ]
+Imply
+  Ands [
+    Some ("set_member_occ", QOuter_Path,
+      Ands [
+        Unode_Has_Print (Variable "set_member_occ", Print "Set.member"),
+        Some ("set_occ", QOuter_Path,
+          Ands [
+            Unode_Has_Print (Variable "set_occ", Print "List.list.set"),
+            Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "set_occ", Number 1, Variable "set_member_occ"),
+            All ("ind", QInd, (*!*)
+              Some_Of ("ind_occ", Variable "ind",
+                Ands [
+                  Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ", Variable "set_occ")
+                ]
+              )
+            )
+          ]
+        )
+      ]
+    )
+  ];
+
 end;

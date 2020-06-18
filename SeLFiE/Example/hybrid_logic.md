@@ -54,7 +54,7 @@
    - because it does not even return a sub-goal at all
    - and because `p` is a bound variable.
 
-- [ ] `rev_nth_mem` in Line 822
+- [X] `rev_nth_mem` in Line 822
    - ```
      assume ‹block ∈. branch›
      then show ‹∃v. branch !. v = Some block›
@@ -63,7 +63,7 @@
    - Why `induct branch`?
    - because of `!.` and `∈.`, which is a syntactic sugar for `‹x ∈. xs ≡ x ∈ set xs›`.  
 
-- [ ] `then show ‹block ∈. branch›` in Line 838
+- [X] `then show ‹block ∈. branch›` in Line 838
    - ```
      assume ‹∃v. branch !. v = Some block›
      then show ‹block ∈. branch›
