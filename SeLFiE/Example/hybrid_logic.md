@@ -177,6 +177,13 @@
       - this is a structural induction,
       - `m` appears only in the conclusion of the meta implication while `n` appears both in the premise and conclusion, and
       - both the premise and conclusion have the application of `⊢` as the root, and `⊢` is defined inductively.
+   - Why `induct m` instead of `induct branch`?
+   - because
+      - In the definitions of `ST`, which is `ST.intros`, there is a clause where 
+      - the first argument of `⊢` in the conclusion of `Pure.imp` is a strict sub-term of the first argument of `⊢` in an assumption.
+      - For example, in the clause corresponding to `Nom`,
+      - `blabla ⟹ Suc n ⊢ (p # ps, a) # branch ⟹ n ⊢ (ps, a) # branch›` where
+      - `n` is a strict sub-term of `Suc n`.
 
 - [X] `lemma sub_block_mem:` in Line 1701
    - ```
