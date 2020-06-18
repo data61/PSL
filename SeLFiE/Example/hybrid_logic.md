@@ -93,7 +93,7 @@
      ```
    - which is defined recursively on the second argument. So, we need to deep-dive.
 
-- [ ] `lemma mapi_branch_mem:` in Line 910
+- [X] `lemma mapi_branch_mem:` in Line 910
    - ```
      assumes ‹(ps, i) ∈. branch›
      shows ‹∃v. (mapi (f v) ps, i) ∈. mapi_branch f branch›
@@ -178,7 +178,7 @@
       - `m` appears only in the conclusion of the meta implication while `n` appears both in the premise and conclusion, and
       - both the premise and conclusion have the application of `⊢` as the root, and `⊢` is defined inductively.
 
-- [ ] `lemma sub_block_mem:` in Line 1701
+- [X] `lemma sub_block_mem:` in Line 1701
    - ```
      ‹p on block ⟹ sub f p on sub_block f block›
      by (induct block) auto
@@ -208,7 +208,7 @@
      abbreviation sub_list :: ‹('b ⇒ 'c) ⇒ ('a, 'b) fm list ⇒ ('a, 'c) fm list› where
        ‹sub_list f ps ≡ map (sub f) ps›
      ```
-   - So, a part of `block` is mapped over, meaning that a apart of `block` is passed to `map` the second argument. That's why.
+   - So, a part of `block` is mapped over, meaning that a part of `block` is passed to `map` as the second argument. That's why.
    - Why not `(induct ?ps)`?
    - because we have `block`, which is a free variable while ?ps is not a free variable. (schematic variable?) 
 
