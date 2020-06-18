@@ -1356,4 +1356,135 @@ Imply
     ]
   );
 
+val structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp =
+  Some ("ind", QInd,
+    Ands [
+      Not (Some ("rule", QRule, True)),
+      Some ("root", QOuter_Path,
+        Ands [
+          Is_Root_In_A_Location (Variable "root"),
+          Some ("pure_imp", QOuter_Path,
+            Ands [
+              Unode_Has_Print (Variable "pure_imp", Print "Pure.imp"),
+              Is_Child_Of     (Variable "pure_imp", Variable "root"),
+              Some ("inductive_trm", QOuter_Print,
+                Ands [
+                  Ors [
+                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive    ),
+                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive_Set)
+                  ],
+                  Some ("pure_imp_has_n_args", QOuter_Number,
+                    Ands [
+                      Some ("nth_arg_of_pure_imp", QOuter_Path,
+                        Ands [
+                          Is_Nth_Arg_Of (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args", Variable "pure_imp"),
+                          All ("pure_imp_has_more_than_m_args", QOuter_Number,
+                            Ands [
+                              All ("mth_arg_of_pure_imp", QOuter_Path,
+                                Ands [
+                                    Is_Nth_Arg_Of (Variable "mth_arg_of_pure_imp", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
+                                  Imply
+                                    Is_Less_Than_Or_Equal (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
+                                ]
+                              )
+                            ]
+                          ),
+                          Some ("ind_occ_in_meta_cncl", QOuter_Path,
+                            Ands [
+                              Node_Is_Free (Variable "ind_occ_in_meta_cncl"),
+                              Is_Path_Below (Variable "ind_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp"),
+                              All ("pure_imp_has_more_than_m_args", QOuter_Number,
+                                Ands [
+                                    Is_Less_Than (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
+                                  Imply
+                                    Not (
+                                      Some ("ind_occ_in_assumption", QOuter_Path,
+                                        Ands [
+                                          Has_Same_Prnt_As (Variable "ind_occ_in_meta_cncl", Variable "ind_occ_in_assumption"),
+                                          Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ_in_assumption", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
+                                        ]
+                                      )
+                                    )
+                                ]
+                              )
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  )
+Imply
+  All ("ind", QInd,(*!*)
+    Ands [
+      Not (Some ("rule", QRule, True)),
+      Some ("root", QOuter_Path,
+        Ands [
+          Is_Root_In_A_Location (Variable "root"),
+          Some ("pure_imp", QOuter_Path,
+            Ands [
+              Unode_Has_Print (Variable "pure_imp", Print "Pure.imp"),
+              Is_Child_Of     (Variable "pure_imp", Variable "root"),
+              Some ("inductive_trm", QOuter_Print,
+                Ands [
+                  Ors [
+                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive    ),
+                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive_Set)
+                  ],
+                  Some ("pure_imp_has_n_args", QOuter_Number,
+                    Ands [
+                      Some ("nth_arg_of_pure_imp", QOuter_Path,
+                        Ands [
+                          Is_Nth_Arg_Of (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args", Variable "pure_imp"),
+                          All ("pure_imp_has_more_than_m_args", QOuter_Number,
+                            Ands [
+                              All ("mth_arg_of_pure_imp", QOuter_Path,
+                                Ands [
+                                    Is_Nth_Arg_Of (Variable "mth_arg_of_pure_imp", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
+                                  Imply
+                                    Is_Less_Than_Or_Equal (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
+                                ]
+                              )
+                            ]
+                          ),
+                          Some_Of ("ind_occ_in_meta_cncl", Variable "ind",
+                            Ands [
+                              Node_Is_Free (Variable "ind_occ_in_meta_cncl"),
+                              Is_Path_Below (Variable "ind_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp"),
+                              All ("pure_imp_has_more_than_m_args", QOuter_Number,
+                                Ands [
+                                    Is_Less_Than (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
+                                  Imply
+                                    Not (
+                                      Some_Of ("ind_occ_in_assumption", Variable "ind",
+                                        Ands [
+                                          Has_Same_Prnt_As (Variable "ind_occ_in_meta_cncl", Variable "ind_occ_in_assumption"),
+                                          Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ_in_assumption", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
+                                        ]
+                                      )
+                                    )
+                                ]
+                              )
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  );
+
 end;

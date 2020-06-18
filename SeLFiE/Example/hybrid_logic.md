@@ -172,12 +172,12 @@
      goal (1 subgoal):
        1. n ⊢ branch ⟹ m + n ⊢ branch
      ```
-   - Why `induct m` instead of `induct n`?
+   - [X] Why `induct m` instead of `induct n`?
    - because 
       - this is a structural induction,
       - `m` appears only in the conclusion of the meta implication while `n` appears both in the premise and conclusion, and
       - both the premise and conclusion have the application of `⊢` as the root, and `⊢` is defined inductively.
-   - Why `induct m` instead of `induct branch`?
+   - [ ] Why `induct m` instead of `induct branch`?
    - because
       - In the definitions of `ST`, which is `ST.intros`, there is a clause where 
       - the first argument of `⊢` in the conclusion of `Pure.imp` is a strict sub-term of the first argument of `⊢` in an assumption.

@@ -20,8 +20,9 @@ theory SeLFiE
    and     "test_all_LiFtErs"   :: diag
 *)
 begin
+
 ML\<open>
-@{term "map"}
+@{term "z \<Longrightarrow> v"}
 \<close>
 find_theorems name:"wf_induct"
 
@@ -151,6 +152,8 @@ setup\<open> Apply_SeLFiE.update_assert "test_Is_Let_X_Be_Y_In_X"               
 setup\<open> Apply_SeLFiE.update_assert "outer_induct_on_arg_of_set_member_n_set_outer" SeLFiE_Assertion.outer_induct_on_arg_of_set_member_n_set_outer \<close>
 setup\<open> Apply_SeLFiE.update_assert "induct_on_arg_of_set_member_n_set_syntax_only" SeLFiE_Assertion.induct_on_arg_of_set_member_n_set_syntax_only \<close>
 setup\<open> Apply_SeLFiE.update_assert "induct_on_2nd_arg_of_map_outer"                SeLFiE_Assertion.induct_on_2nd_arg_of_map_outer \<close>
+
+setup\<open> Apply_SeLFiE.update_assert "structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp" SeLFiE_Assertion.structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp \<close>
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]

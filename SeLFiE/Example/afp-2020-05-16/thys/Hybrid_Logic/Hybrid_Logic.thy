@@ -925,7 +925,7 @@ lemma mapi_branch_head_add_oob:
 lemma mapi_branch_mem:
   assumes \<open>(ps, i) \<in>. branch\<close>
   shows \<open>\<exists>v. (mapi (f v) ps, i) \<in>. mapi_branch f branch\<close>
-  unfolding mapi_branch_def using assms 
+  unfolding mapi_branch_def using assms
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],       arb[],rule[]](*okay, but irrelevant*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["v"],           arb[],rule[]](*a little unfortunate, but okay*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"],  arb[],rule[]](*a little unfortunate, but okay*)
@@ -1609,7 +1609,12 @@ qed
 subsection \<open>Unrestricted rules\<close>
 
 lemma ST_add: \<open>n \<turnstile> branch \<Longrightarrow> m + n \<turnstile> branch\<close>
-  using ST_Suc by (induct m) auto
+  using ST_Suc
+  assert_SeLFiE_false structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp [on["m","n"], arb[],rule[]]
+  assert_SeLFiE_false structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp [on["n"],     arb[],rule[]]
+  assert_SeLFiE_true  structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp [on["m"],     arb[],rule[]]
+  by (induct m) auto
+thm ST.intros
 
 lemma ST_le: \<open>n \<turnstile> branch \<Longrightarrow> n \<le> m \<Longrightarrow> m \<turnstile> branch\<close>
   using ST_add by (metis le_add_diff_inverse2)
