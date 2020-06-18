@@ -208,7 +208,7 @@
      abbreviation sub_list :: ‹('b ⇒ 'c) ⇒ ('a, 'b) fm list ⇒ ('a, 'c) fm list› where
        ‹sub_list f ps ≡ map (sub f) ps›
      ```
-   - So, a part of `block` is mapped over, meaning that a apart of `block` is passed to `map` the second argument. That's why.
+   - So, a part of `block` is mapped over, meaning that a part of `block` is passed to `map` as the second argument. That's why.
    - Why not `(induct ?ps)`?
    - because we have `block`, which is a free variable while ?ps is not a free variable. (schematic variable?) 
 
