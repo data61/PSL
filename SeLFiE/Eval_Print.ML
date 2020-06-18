@@ -62,6 +62,8 @@ datatype assert =
 
 infix Is_Printed_As;
 
+fun read_term ctxt print = try (Syntax.read_term ctxt) print;
+
 fun print_n_context_to_numb_of_arguments (print:string) (ctxt:Proof.context) =
    Syntax.read_term ctxt print
 |> Term.type_of
@@ -76,7 +78,7 @@ fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                             
   | eval' (Is_Rule                print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _    = member (op =) rules print
   | eval' (Is_Rule_Of_Print      (rule, cname))  _               ctxt = SU.rule_to_const_name ctxt rule = cname
   (*node*)
-  | eval' (Print_Is_Cnst          print    )     _               ctxt = Syntax.read_term ctxt print |> is_Const
+  | eval' (Print_Is_Cnst          print    )     _               ctxt = read_term ctxt print <$> is_Const |> Utils.is_some_true
   | eval' (Print_Is_Free          print    )     _               ctxt = Syntax.read_term ctxt print |> is_Free
   | eval' (Print_Is_Var           print    )     _               ctxt = Syntax.read_term ctxt print |> is_Var
   | eval' (Print_Is_Bound         print    )     _               ctxt = Syntax.read_term ctxt print |> is_Bound

@@ -190,7 +190,7 @@
        ‹p on (ps, i) = (p ∈. ps ∨ p = Nom i)›
      ```
 
-- [ ] `lemma sub_block_id: ‹sub_block id block = block›` in Line 1720
+- [X] `lemma sub_block_id: ‹sub_block id block = block›` in Line 1720
    - ```
      using this: sub_list id ?ps = ?ps
      goal (1 subgoal):

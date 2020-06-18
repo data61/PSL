@@ -1723,6 +1723,13 @@ definition sub_branch :: \<open>('b \<Rightarrow> 'c) \<Rightarrow> ('a, 'b) bra
   \<open>sub_branch f blocks \<equiv> map (sub_block f) blocks\<close>
 
 lemma sub_block_mem: \<open>p on block \<Longrightarrow> sub f p on sub_block f block\<close>
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],       arb[],rule[]](*good*)
+  assert_SeLFiE_false outer_induct_on_arg_of_set_member_n_set_outer [on["v"],           arb[],rule[]](*good*)
+  assert_SeLFiE_false outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"],  arb[],rule[]](*good*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["i"],           arb[],rule[]](*This is a little unfortunate, but okay*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["ps"],          arb[],rule[]](*This is a little unfortunate, but okay*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["f"],           arb[],rule[]](*This is a little unfortunate, but okay*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["branch", "i"], arb[],rule[]](*This is a little unfortunate, but okay*)
   by (induct block) auto
 
 lemma sub_branch_mem:
@@ -1742,7 +1749,14 @@ lemma sub_list_id: \<open>sub_list id ps = ps\<close>
   using sub_id by (induct ps) auto
 
 lemma sub_block_id: \<open>sub_block id block = block\<close>
-  using sub_list_id by (induct block) auto
+  using sub_list_id
+  assert_SeLFiE_true  induct_on_2nd_arg_of_map_outer                                          [on["block"],       arb[], rule[]](*very good*)
+  assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs [on["block"],       arb[], rule[]](*okay*)
+  assert_SeLFiE_true  ind_on_lhs_of_eq_then_arb_on_rhs_of_eq                                  [on["block"],       arb[], rule[]](*okay*)
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change                                   [on["block"],       arb[], rule[]](*okay*)
+  assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer                           [on["block", "i"],  arb[], rule[]](*okay*)
+  assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only                           [on["i"],           arb[], rule[]](*okay*)
+  by (induct block) auto
 
 lemma sub_branch_id: \<open>sub_branch id branch = branch\<close>
   unfolding sub_branch_def using sub_block_id by (induct branch) auto

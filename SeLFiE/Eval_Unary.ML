@@ -158,19 +158,19 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
       | eval' expr _ _ = expr
     and dive (Literal (EP.Non_Path (EP.Print cname)), Lambda lambda, args) table domains =
         let
-          val _                     = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
-          val simp_rules            = SU.pst_n_cname_to_definitions pst cname: terms;
-          val curried_expr          = mk_inner_expr (Lambda lambda) args  : expr;
+          val _             = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
+          val simp_rules    = SU.pst_n_cname_to_definitions pst cname: terms;
+          val curried_expr  = mk_inner_expr (Lambda lambda) args  : expr;
           (*TODO: use simp_rule_tables instead of simp_rules.*)
-          val inner_results         = map (fn trm =>
-                                      let
-                                        val table   = (GP2U.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) trm: Gen_Path_To_Unode.gen_path_to_unode_table;
-                                        val domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In pst trm induct_args                    : QD.domains;
-                                      in
-                                        eval' curried_expr table domains
-                                      end) simp_rules                : exprs;
-          val ands                  = Assert (SU.Ands, inner_results): expr;
-          val result                = eval' ands table domains       : expr;
+          val inner_results = map (fn trm =>
+                              let
+                                val table   = (GP2U.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) trm: Gen_Path_To_Unode.gen_path_to_unode_table;
+                                val domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In pst trm induct_args                    : QD.domains;
+                              in
+                                eval' curried_expr table domains
+                              end) simp_rules                : exprs;
+          val ands          = Assert (SU.Ands, inner_results): expr;
+          val result        = eval' ands table domains       : expr;
         in
           result
         end

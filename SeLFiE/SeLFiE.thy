@@ -21,7 +21,7 @@ theory SeLFiE
 *)
 begin
 ML\<open>
-@{term "x \<in> y"}
+@{term "map"}
 \<close>
 find_theorems name:"wf_induct"
 
@@ -140,7 +140,6 @@ setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"         
 setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion"   SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
 setup\<open> Apply_SeLFiE.update_assert "for_all_arbs_there_should_be_a_change"    SeLFiE_Assertion.for_all_arbs_there_should_be_a_change \<close>
 setup\<open> Apply_SeLFiE.update_assert "ind_on_lhs_of_eq_then_arb_on_rhs_of_eq"   SeLFiE_Assertion.ind_on_lhs_of_eq_then_arb_on_rhs_of_eq \<close>
-setup\<open> Apply_SeLFiE.update_assert "if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs" SeLFiE_Assertion.if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs \<close>
 setup\<open> Apply_SeLFiE.update_assert "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs" SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs \<close>
 
 setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                     SeLFiE_Assertion.test_Is_If_Then_Else \<close>
@@ -151,6 +150,7 @@ setup\<open> Apply_SeLFiE.update_assert "test_Is_Let_X_Be_Y_In_X"               
 
 setup\<open> Apply_SeLFiE.update_assert "outer_induct_on_arg_of_set_member_n_set_outer" SeLFiE_Assertion.outer_induct_on_arg_of_set_member_n_set_outer \<close>
 setup\<open> Apply_SeLFiE.update_assert "induct_on_arg_of_set_member_n_set_syntax_only" SeLFiE_Assertion.induct_on_arg_of_set_member_n_set_syntax_only \<close>
+setup\<open> Apply_SeLFiE.update_assert "induct_on_2nd_arg_of_map_outer"                SeLFiE_Assertion.induct_on_2nd_arg_of_map_outer \<close>
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]

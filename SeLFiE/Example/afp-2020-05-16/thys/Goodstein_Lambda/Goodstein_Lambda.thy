@@ -199,9 +199,6 @@ proof -
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m'"], arb["m"],rule[]](*unfortunate because assumption failed.*)
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate because assumption failed.*)
 
-  assert_SeLFiE_true  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["m"], arb["n"],rule[]](*unfortunate*)
-  assert_SeLFiE_true  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["n"], arb["m"],rule[]](*unfortunate*)
-
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["m"], arb["m'"],rule[]]
   assert_SeLFiE_false  for_all_arbs_there_should_be_a_change [on["m"], arb["n"],rule[]]
   assert_SeLFiE_true   generalize_arguments_used_in_recursion [on["m"], arb["m'"],rule[]](*It takes 25.656s cpu time*)
@@ -218,15 +215,12 @@ qed
 
 lemma C2O_inj:
   "C2O n = C2O m \<Longrightarrow> n = m"
-  assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["n"], arb["m"],rule[]]
+  assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["n"], arb["m"],rule[]](*good*)
   assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["n"],rule[]](*very good*)
 
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb["m"],rule[]]
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate because assumption failed.*)
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate because assumption failed.*)
-
-  assert_SeLFiE_false  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["m"], arb["n"],rule[]](*good*)
-  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["n"], arb["m"],rule[]]
 
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["n"], arb["m"],rule[]]
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["m"], arb["n"],rule[]]  (*a little unfortunate*)
@@ -466,8 +460,6 @@ lemma evalC_inj_on_hbase:
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb["m"],rule[]]
   assert_SeLFiE_false  ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb[],rule[]]
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate*)
-  assert_SeLFiE_false  if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["m"], arb["n"],rule[]]
-  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs [on["n"], arb["m"],rule[]]
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["n"], arb["m"],rule[]]
   assert_SeLFiE_false  for_all_arbs_there_should_be_a_change [on["n"], arb["b"],rule[]]
 proof (induct n arbitrary: m rule: hbase.induct)
@@ -741,23 +733,17 @@ abbreviation (input) goodstein\<^sub>O where
 lemma goodstein\<^sub>O:
   "goodsteinO c n = goodstein\<^sub>O c \<langle>n\<rangle>\<^sub>O"
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq                                  [on["n"], arb["c"],rule[]]
-  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs                  [on["n"], arb["c"],rule[]]
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change                                   [on["n"], arb["c"],rule[]]
-  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs                  [on["n"], arb["c"],rule[]]
   assert_SeLFiE_true   if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs [on["n"], arb["c"],rule[]]
   assert_SeLFiE_true   generalize_arguments_used_in_recursion                                  [on["n"], arb["c"],rule[]]
 
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq                                   [on["n"], arb[],rule[]](*a little unfortunate*)
-  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs                   [on["n"], arb[],rule[]](*a little unfortunate*)
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change                                    [on["n"], arb[],rule[]](*a little unfortunate*)
-  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs                   [on["n"], arb[],rule[]](*a little unfortunate*)
   assert_SeLFiE_true   if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs  [on["n"], arb[],rule[]](*a little unfortunate*)
   assert_SeLFiE_false  generalize_arguments_used_in_recursion                                   [on["n"], arb[],rule[]]
 
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq                                  [on["c"], arb["n"],rule[]](*a little unfortunate*)
-  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs                  [on["c"], arb["n"],rule[]](*a little unfortunate*)
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change                                   [on["c"], arb["n"],rule[]](*a little unfortunate*)
-  assert_SeLFiE_true   if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs                  [on["c"], arb["n"],rule[]](*a little unfortunate*)
   assert_SeLFiE_true   if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs [on["c"], arb["n"],rule[]](*a little unfortunate*)
   assert_SeLFiE_false  generalize_arguments_used_in_recursion                                  [on["c"], arb["n"],rule[]]
 (*

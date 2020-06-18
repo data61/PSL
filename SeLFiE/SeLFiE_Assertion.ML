@@ -1007,90 +1007,40 @@ Imply
   )
 ;
 
-val if_one_of_lhs_n_rhs_of_eq_is_induct_then_induct_on_lhs =
-  Some ("hol_eq_occ", QOuter_Path,
-    Ands [
-      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
-      Some ("ind_trm1", QInd,
-        Some_Of ("ind_occ1", Variable "ind_trm1",
-          Ors [
-            Ands [(*induct only on the LHS of the equation*)
-              Is_Nth_Arg_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
-              Not (
-                Some ("ind_trm2", QInd,
-                  Some_Of ("ind_occ2", Variable "ind_trm2",
-                    Is_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
-                  )
-                )
-              )
-            ],
-            Ands [(*induct only on the RHS of the equation*)
-              Is_Nth_Arg_Of (Variable "ind_occ1", Number 1, Variable "hol_eq_occ"),
-              Not (
-                Some ("ind_trm2", QInd,
-                  Some_Of ("ind_occ2", Variable "ind_trm2",
-                    Is_Nth_Arg_Of (Variable "ind_occ2", Number 0, Variable "hol_eq_occ")
-                  )
-                )
-              )
-            ]
-          ]
-        )
-      )
-    ]
-  )
-Imply
-  Some ("hol_eq_occ", QOuter_Path,
-    Ands [
-      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
-      Some ("ind_trm1", QInd,
-        Some_Of ("ind_occ1", Variable "ind_trm1",
-          Ors [
-            Ands [(*induct only on the LHS of the equation*)
-              Is_Nth_Arg_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
-              Not (
-                Some ("ind_trm2", QInd,
-                  Some_Of ("ind_occ2", Variable "ind_trm2",
-                    Is_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
-                  )
-                )
-              )
-            ]
-          ]
-        )
-      )
-    ]
-  )
-
 val if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs =
-  Some ("hol_eq_occ", QOuter_Path,
+  Some ("hol_eq_occ1", QOuter_Path,
     Ands [
-      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
-      Some ("ind_trm1", QInd,
-        Some_Of ("ind_occ1", Variable "ind_trm1",
-          Ors [
-            Ands [(*induct only on the LHS of the equation*)
-              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
-              Not (
-                Some ("ind_trm2", QInd,
-                  Some_Of ("ind_occ2", Variable "ind_trm2",
-                    Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
+      Unode_Has_Print (Variable "hol_eq_occ1", Print "HOL.eq"),
+      Some ("hol_eq_occ2", QOuter_Path,
+        Ands [
+          Unode_Has_Print (Variable "hol_eq_occ2", Print "HOL.eq"),
+          Some ("ind_trm1", QInd,
+            Some_Of ("ind_occ1", Variable "ind_trm1",
+              Ors [
+                Ands [(*induct only on the LHS of the equation*)
+                  Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ1"),
+                  Not (
+                    Some ("ind_trm2", QInd,
+                      Some_Of ("ind_occ2", Variable "ind_trm2",
+                        Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ2")
+                      )
+                    )
                   )
-                )
-              )
-            ],
-            Ands [(*induct only on the RHS of the equation*)
-              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ1", Number 1, Variable "hol_eq_occ"),
-              Not (
-                Some ("ind_trm2", QInd,
-                  Some_Of ("ind_occ2", Variable "ind_trm2",
-                    Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ2", Number 0, Variable "hol_eq_occ")
+                ],
+                Ands [(*induct only on the RHS of the equation*)
+                  Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ1", Number 1, Variable "hol_eq_occ1"),
+                  Not (
+                    Some ("ind_trm2", QInd,
+                      Some_Of ("ind_occ2", Variable "ind_trm2",
+                        Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ2", Number 0, Variable "hol_eq_occ2")
+                      )
+                    )
                   )
-                )
-              )
-            ]
-          ]
-        )
+                ]
+              ]
+            )
+          )
+        ]
       )
     ]
   )
@@ -1307,5 +1257,103 @@ Imply
       ]
     )
   ];
+
+val induct_on_2nd_arg_of_map_inner =
+Lambdas (["nth"],
+  Some ("root_path", QInner_Path,
+    Ands [
+      Is_Root_In_A_Location (Variable "root_path"),
+      Some ("lhs_path", QInner_Path,
+        Ands [
+          Is_Nth_Child_Of (Variable "lhs_path", Number 1, Variable "root_path"),
+          Some ("nth_param_on_lhs_path", QInner_Path,
+            Ands [
+              Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "nth_param_on_lhs_path", Variable "nth", Variable "lhs_path"),
+              Some ("rhs_path", QInner_Path,
+                Ands [
+                  Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
+                  Some ("nth_param_on_rhs_path", QInner_Path,
+                    Ands [
+                      Is_Path_Below (Variable "nth_param_on_rhs_path", Variable "rhs_path"),
+                      Has_Same_Prnt_As (Variable "nth_param_on_lhs_path", Variable "nth_param_on_rhs_path"),
+                      Some ("map", QInner_Path,
+                        Ands [
+                          Unode_Has_Print (Variable "map", Print "List.list.map"),
+                          Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "nth_param_on_rhs_path", Number 1, Variable "map")
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  )
+);
+
+val has_map_in_definition =
+Lambdas (["to_be_ignored"],
+  Ands [
+    Some ("map", QInner_Print,
+      Ands [
+        Are_Same_Prints (Variable "map", Print "List.list.map")
+      ]
+    )
+  ]
+);
+
+val induct_on_2nd_arg_of_map_outer =
+  Ands [
+    Some ("ind", QInd, True),
+    Not (Some ("rule", QRule, True)),
+    Some ("func", QOuter_Print,
+        Ands [
+          Print_Is_Cnst (Variable "func"),
+          In_Some_Definitions (
+            Variable "func",
+            has_map_in_definition,
+            [Variable "func"]
+          )
+        ]
+    )
+  ]
+Imply
+  Some ("func", QOuter_Print,
+    Ands [
+      Print_Is_Cnst (Variable "func"),
+      In_Some_Definitions (
+        Variable "func",
+        has_map_in_definition,
+        [Variable "func"]
+      ),
+      All ("ind", QInd, (*!*)
+        Ands [
+          Some_Of ("func_occ", Variable "func",
+            Ands [
+              Some_Of ("ind_occ", Variable "ind",
+                Ands [
+                  Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ", Variable "func_occ"),
+                  Some ("ind_occ_is_in_nth_arg_of_func_occ", QOuter_Number,
+                    Ands [
+                      Print_Takes_Less_Than_N_Arguments (Variable "func",    Variable "ind_occ_is_in_nth_arg_of_func_occ"),
+                      Is_Nth_Arg_Or_Below_Nth_Arg_Of    (Variable "ind_occ", Variable "ind_occ_is_in_nth_arg_of_func_occ", Variable "func_occ"),
+                      In_Some_Definitions (
+                        Variable "func",
+                        induct_on_2nd_arg_of_map_inner,
+                        [Variable "ind_occ_is_in_nth_arg_of_func_occ"]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  );
 
 end;
