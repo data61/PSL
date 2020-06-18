@@ -93,7 +93,7 @@
      ```
    - which is defined recursively on the second argument. So, we need to deep-dive.
 
-- [ ] `lemma mapi_branch_mem:` in Line 910
+- [X] `lemma mapi_branch_mem:` in Line 910
    - ```
      assumes ‹(ps, i) ∈. branch›
      shows ‹∃v. (mapi (f v) ps, i) ∈. mapi_branch f branch›
@@ -178,7 +178,7 @@
       - `m` appears only in the conclusion of the meta implication while `n` appears both in the premise and conclusion, and
       - both the premise and conclusion have the application of `⊢` as the root, and `⊢` is defined inductively.
 
-- [ ] `lemma sub_block_mem:` in Line 1701
+- [X] `lemma sub_block_mem:` in Line 1701
    - ```
      ‹p on block ⟹ sub f p on sub_block f block›
      by (induct block) auto
