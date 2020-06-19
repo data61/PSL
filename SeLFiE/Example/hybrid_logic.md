@@ -161,7 +161,7 @@
    - because of `omit` and `set`.
    - Note that `set` here does not come with `∈`.
 
-- [ ] `lemma ST_add:` in Line 1587
+- [X] `lemma ST_add:` in Line 1587
    - ```
      lemma ST_add: ‹n ⊢ branch ⟹ m + n ⊢ branch›
      using ST_Suc by (induct m) auto
@@ -177,7 +177,7 @@
       - this is a structural induction,
       - `m` appears only in the conclusion of the meta implication while `n` appears both in the premise and conclusion, and
       - both the premise and conclusion have the application of `⊢` as the root, and `⊢` is defined inductively.
-   - [ ] Why `induct m` instead of `induct branch`?
+   - [X] Why `induct m` instead of `induct branch`?
    - because
       - In the definitions of `ST`, which is `ST.intros`, there is a clause where 
       - the first argument of `⊢` in the conclusion of `Pure.imp` is a strict sub-term of the first argument of `⊢` in an assumption.
@@ -185,6 +185,7 @@
       - `blabla ⟹ Suc n ⊢ (p # ps, a) # branch ⟹ n ⊢ (ps, a) # branch›` where
       - `n` is a strict sub-term of `Suc n`.
       - On the other hand, the second parameter never satisfies this condition.
+         - Wrong! `GoTo: ‹blablabla ⟹ n ⊢ ([], i) # branch ⟹ Suc n ⊢ branch›`
 
 - [X] `lemma sub_block_mem:` in Line 1701
    - ```

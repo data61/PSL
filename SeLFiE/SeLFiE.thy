@@ -155,6 +155,8 @@ setup\<open> Apply_SeLFiE.update_assert "induct_on_2nd_arg_of_map_outer"        
 
 setup\<open> Apply_SeLFiE.update_assert "structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp" SeLFiE_Assertion.structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp \<close>
 
+setup\<open> Apply_SeLFiE.update_assert "structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer" SeLFiE_Assertion.structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer \<close>
+
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
   assert_SeLFiE_true test_is_a_meta_conclusion [on["h z"], arb[],rule[]]

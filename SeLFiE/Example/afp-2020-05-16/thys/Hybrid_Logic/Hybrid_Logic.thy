@@ -1611,10 +1611,12 @@ subsection \<open>Unrestricted rules\<close>
 lemma ST_add: \<open>n \<turnstile> branch \<Longrightarrow> m + n \<turnstile> branch\<close>
   using ST_Suc
   assert_SeLFiE_false structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp [on["m","n"], arb[],rule[]]
+  assert_SeLFiE_false structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp [on["branch"], arb[],rule[]]
   assert_SeLFiE_false structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp [on["n"],     arb[],rule[]]
   assert_SeLFiE_true  structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp [on["m"],     arb[],rule[]]
+  assert_SeLFiE_true  structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer [on["m"], arb[],rule[]](*okay*)
+  assert_SeLFiE_true  structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer [on["branch"], arb[],rule[]](*unfortunate*)
   by (induct m) auto
-thm ST.intros
 
 lemma ST_le: \<open>n \<turnstile> branch \<Longrightarrow> n \<le> m \<Longrightarrow> m \<turnstile> branch\<close>
   using ST_add by (metis le_add_diff_inverse2)

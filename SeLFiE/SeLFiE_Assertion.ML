@@ -1454,7 +1454,7 @@ Imply
                               )
                             ]
                           ),
-                          Some_Of ("ind_occ_in_meta_cncl", Variable "ind",
+                          Some_Of ("ind_occ_in_meta_cncl", Variable "ind",(*!*)
                             Ands [
                               Node_Is_Free (Variable "ind_occ_in_meta_cncl"),
                               Is_Path_Below (Variable "ind_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp"),
@@ -1463,7 +1463,7 @@ Imply
                                     Is_Less_Than (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
                                   Imply
                                     Not (
-                                      Some_Of ("ind_occ_in_assumption", Variable "ind",
+                                      Some_Of ("ind_occ_in_assumption", Variable "ind",(*!*)
                                         Ands [
                                           Has_Same_Prnt_As (Variable "ind_occ_in_meta_cncl", Variable "ind_occ_in_assumption"),
                                           Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ_in_assumption", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
@@ -1486,5 +1486,150 @@ Imply
       )
     ]
   );
+
+(*This is not good. To be removed? nth_arg_shrinks_from_assm_to_cncl_of_pure_imp_occ_inner*)
+val nth_arg_shrinks_from_assm_to_cncl_of_pure_imp_occ_inner =
+  Lambdas (["lth_arg_to_inductive_shrinks"(*number*),"inductive_trm"],
+    Ands [
+      Some ("root", QInner_Path,
+        Ands [
+          Is_Root_In_A_Location (Variable "root"),
+          Some ("pure_imp_occ", QInner_Path,
+            Ands [
+              Unode_Has_Print (Variable "pure_imp_occ", Print "Pure.imp"),
+              Is_Child_Of     (Variable "pure_imp_occ", Variable "root"),
+              Some ("pure_imp_occ_has_n_args", QOuter_Number,
+                Ands [
+                  Some ("nth_arg_of_pure_imp_occ", QInner_Path,
+                    Ands [
+                      Is_Nth_Arg_Of (Variable "nth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_n_args", Variable "pure_imp_occ"),
+                      All ("pure_imp_occ_has_more_than_m_args", QOuter_Number,
+                        Ands [
+                          All ("mth_arg_of_pure_imp_occ", QInner_Path,
+                            Ands [
+                                Is_Nth_Arg_Of (Variable "mth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ")
+                              Imply
+                                Is_Less_Than_Or_Equal (Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ_has_n_args")
+                            ]
+                          )
+                        ]
+                      ),
+                      Some_Of ("inductive_occ_in_meta_cncl", Variable "inductive_trm",
+                        Ands [
+                          Is_Child_Of (Variable "inductive_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp_occ"),
+                          Some ("lth_arg_occ_to_inductive_occ_in_meta_cncl", QInner_Path,
+                            Ands [
+                              Is_Nth_Arg_Of (Variable "lth_arg_occ_to_inductive_occ_in_meta_cncl", Variable "lth_arg_to_inductive_shrinks", Variable "inductive_occ_in_meta_cncl"),
+                              Some ("k_is_less_than_n", QInner_Number,
+                                Ands [
+                                  Is_Less_Than (Variable "k_is_less_than_n", Variable "pure_imp_occ_has_n_args"),
+                                  Some ("kth_prem_occ_of_pure_imp_occ", QInner_Path,
+                                    Ands [
+                                      Is_Nth_Arg_Of (Variable "kth_prem_occ_of_pure_imp_occ", Variable "k_is_less_than_n", Variable "pure_imp_occ"),
+                                      Some_Of ("inductive_occ_in_kth_prem_occ_of_pure_imp_occ", Variable "inductive_trm",
+                                        Ands [
+                                          Is_Child_Of (Variable "inductive_occ_in_kth_prem_occ_of_pure_imp_occ", Variable "kth_prem_occ_of_pure_imp_occ"),
+                                          Some ("lth_arg_occ_to_inductive_occ_in_kth_prem_occ_of_pure_imp_occ", QInner_Path,
+                                            Ands [
+                                              Is_Nth_Arg_Of (Variable "lth_arg_occ_to_inductive_occ_in_kth_prem_occ_of_pure_imp_occ",
+                                                             Variable "lth_arg_to_inductive_shrinks",
+                                                             Variable "inductive_occ_in_kth_prem_occ_of_pure_imp_occ"),
+                                              Some ("subtrm_occ_of_inductive_occ_in_kth_prem_occ_of_pure_imp_occ", QInner_Path,
+                                                Ands [
+                                                  Is_Path_Below (Variable "subtrm_occ_of_inductive_occ_in_kth_prem_occ_of_pure_imp_occ", Variable "lth_arg_occ_to_inductive_occ_in_kth_prem_occ_of_pure_imp_occ"),
+                                                  Has_Same_Prnt_As (Variable "subtrm_occ_of_inductive_occ_in_kth_prem_occ_of_pure_imp_occ", Variable "lth_arg_occ_to_inductive_occ_in_meta_cncl")
+                                                ]
+                                              )
+                                            ]
+                                          )
+                                        ]
+                                      )
+                                    ]
+                                  )
+                                ]
+                              )
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  )
+
+(*This is not good. To be removed? structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer*)
+val structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer =
+  Some ("ind", QInd,
+    Ands [
+      Not (Some ("rule", QRule, True)),
+      Some ("root", QOuter_Path,
+        Ands [
+          Is_Root_In_A_Location (Variable "root"),
+          Some ("pure_imp_occ", QOuter_Path,
+            Ands [
+              Unode_Has_Print (Variable "pure_imp_occ", Print "Pure.imp"),
+              Is_Child_Of     (Variable "pure_imp_occ", Variable "root"),
+              Some ("inductive_trm", QOuter_Print,
+                Ands [
+                  Ors [
+                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive    ),
+                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive_Set)
+                  ],
+                  Some ("pure_imp_occ_has_n_args", QOuter_Number,
+                    Ands [
+                      Some ("nth_arg_of_pure_imp_occ", QOuter_Path,
+                        Ands [
+                          Is_Nth_Arg_Of (Variable "nth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_n_args", Variable "pure_imp_occ"),
+                          All ("pure_imp_occ_has_more_than_m_args", QOuter_Number,
+                            Ands [
+                              All ("mth_arg_of_pure_imp_occ", QOuter_Path,
+                                Ands [
+                                    Is_Nth_Arg_Of (Variable "mth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ")
+                                  Imply
+                                    Is_Less_Than_Or_Equal (Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ_has_n_args")
+                                ]
+                              )
+                            ]
+                          ),
+                          Some_Of ("inductively_defined_cnst_occ_in_pure_imp_cncl", Variable "inductive_trm",
+                            Ands [
+                              Is_Child_Of (Variable "inductively_defined_cnst_occ_in_pure_imp_cncl", Variable "nth_arg_of_pure_imp_occ"),
+                              Some_Of ("ind_occ_appears_as_lth_arg_of_inductively_defined_const_in_pure_imp_cncl", Variable "ind",
+                                Ands [
+                                  Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ_appears_as_lth_arg_of_inductively_defined_const_in_pure_imp_cncl", Variable "inductively_defined_cnst_occ_in_pure_imp_cncl"),
+                                 Some ("ind_occ_is_lth_arg_of_inductively_defined_const_in_pure_imp_cncl", QOuter_Number,
+                                    Ands [
+                                      Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ_appears_as_lth_arg_of_inductively_defined_const_in_pure_imp_cncl",
+                                                                      Variable "ind_occ_is_lth_arg_of_inductively_defined_const_in_pure_imp_cncl",
+                                                                      Variable "inductively_defined_cnst_occ_in_pure_imp_cncl"),
+                                      In_Some_Definitions (
+                                        Variable "inductive_trm",
+                                        nth_arg_shrinks_from_assm_to_cncl_of_pure_imp_occ_inner,
+                                        [Variable "ind_occ_is_lth_arg_of_inductively_defined_const_in_pure_imp_cncl", Variable "inductive_trm"]
+                                      )
+                                    ]
+                                  )
+                                ]
+                              )
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  )
 
 end;
