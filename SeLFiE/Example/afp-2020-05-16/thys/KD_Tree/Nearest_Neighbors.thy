@@ -36,6 +36,12 @@ definition sorted_wrt_dist :: "('k::finite) point \<Rightarrow> 'k point list \<
 lemma sorted_wrt_dist_insort_key:
   "sorted_wrt_dist p ps \<Longrightarrow> sorted_wrt_dist p (insort_key (\<lambda>q. dist q p) q ps)"
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb[],rule[]]
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb["q"],rule[]](*a little unfortunate, but okay*)
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb["p"],rule[]](*a little unfortunate, but okay*)
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["ps"], arb["p"],rule[]]      (*very good*)
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["ps"], arb["p", "q"],rule[]] (*very good*)
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["ps"], arb["q"],rule[]]
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["ps"], arb[],rule[]] (*good*)
   by (induction ps) (auto simp: sorted_wrt_dist_def set_insort_key)
 
 lemma sorted_wrt_dist_take_drop:
@@ -187,12 +193,13 @@ subsection \<open>The Main Theorems\<close>
 
 lemma set_nns:
   "set (nearest_nbors n ps p kdt) \<subseteq> set_kdt kdt \<union> set ps"
-  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*It takes 25.656s cpu time*)
-  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*very good.It takes 2.385s elapsed time, 13.012s cpu time, 0.196s GC time*)
+  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]    (*very good*)
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["p", "ps"],rule[]](*a little unfortunate*)
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb["ps"],rule[]]
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb[],rule[]]     (*unfortunate because of the universal quantifier over generalized terms*)
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p"],rule[]]
-  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p", "ps"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p", "ps"],rule[]](*very good*)
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["n"],rule[]]
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["n","p"],rule[]]
   apply (induction kdt arbitrary: ps)
@@ -201,12 +208,13 @@ lemma set_nns:
 
 lemma length_nns:
   "length (nearest_nbors n ps p kdt) = min n (size_kdt kdt + length ps)"
-  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*It takes 25.656s cpu time*)
-  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*very good. It takes 1.706s elapsed time, 4.520s cpu time, 0.064s GC time*)
+  assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]    (*very good*)
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["p", "ps"],rule[]](*a little unfortunate*)(*1.793s elapsed time, 5.413s cpu time, 0.180s GC time*)
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb["ps"],rule[]]
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["kdt"], arb[],rule[]]     (*unfortunate because of the universal quantifier over generalized terms*)
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p"],rule[]]
-  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p", "ps"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p", "ps"],rule[]](*very good*)
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["n"],rule[]]
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["n","p"],rule[]]
   by (induction kdt arbitrary: ps) (auto simp: Let_def upd_nbors_def)

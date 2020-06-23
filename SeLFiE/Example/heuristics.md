@@ -93,7 +93,7 @@
    - `apply (induct eq' l1' l2' arbitrary: (*eq*) l1 l2 rule: list_eq.induct)`
    - `eq'`, `l1'`, and `l2'` are arguments of `local.list_eq`. 
    - `eq`, `l1`, and `l2` are arguments of a different occurrence of `local.list_eq`.
-- [ ] `lemma cf_similarI: assumes "x ∈ CF" "y ∈ CF" and "opaque x = opaque y" and "CF_pure x ↔ CF_pure y" shows "x ≅ y"`
+- [X] `lemma cf_similarI: assumes "x ∈ CF" "y ∈ CF" and "opaque x = opaque y" and "CF_pure x ↔ CF_pure y" shows "x ≅ y"`
    - `using assms proof (induction (*x*) arbitrary: y)` where `x` is optional (did not appear in the original script).
    - Well... it turned out that this proof goes through without `arbitrary:y`.
 - [ ] `lemma mono_step': "S ⊑ S' ⟹ c ⊑ c' ⟹ step' S c ⊑ step' S' c'"`

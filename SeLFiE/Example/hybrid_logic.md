@@ -278,7 +278,7 @@
    - look at the transition from `p # ps` to `ps`,
    - and `Suc n` is also changed to `n` as the first argument to `⊢`, but the whole is passed as a single induction term `n` in the proof script, while `‹(ps, a) # branch›` contains the relative part `ps` as a sub-term.
    
-- [ ] `lemma bridge_branch_nominals:` in Line 2543
+- [ ] `lemma bridge_branch_nominals:` in Line 2543 (Deep-Dive)
    - ```
      ‹branch_nominals (mapi_branch (bridge k j xs) branch) ∪ {k, j} =
       branch_nominals branch ∪ {k, j}›
