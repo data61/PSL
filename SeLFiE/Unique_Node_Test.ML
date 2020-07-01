@@ -3,16 +3,14 @@
 
 The conversion to transform term to a format more amenable to SeLFiE.
 The overall work-flow is:
-Proof.state            ==== pst_to_lifter_pst ================================================>               (* in Term_Table *)
-   (Proof.state & term     ==== pst_n_trm_to_one_term ========================================>               (* in Term_Table *)
-       (term                      ==== trm_to_trm_w_prnt =======================================>             (* in Unique_Node *)
-        trm_w_prnt                ==== trm_w_prnt_to_utrm_w_prnt ===============================>             (* in Unique_Node *)
-        utrm_w_prnt               ==== utrm_w_prnt_to_futrm_w_prnt =============================>             (* in Unique_Node *)
-        futrm_w_prnt              ==== futrm_w_prnt_to_futrm_w_prnt_n_inner_path =====================>       (* in Unique_Node *)
-        futrm_w_prnt_n_inner_path ==== futrm_w_prnt_n_inner_path_to_unodes ===========================>       (* in Unique_Node *)
-        unodes                    ==== pst_n_trm_to_path_to_unode_table ===================================>  (* in Inner_Path_To_Unode and Outer_Path_To_Unode *)
-        unode_table)
-    )
+Proof.state & term ==== pst_n_trm_to_path_to_unode_table ====> (*Path_To_Unode.ML*)
+    (term * Proof.state  ==== trm_to_trm_w_prnt =======================================> (* in Unique_Node   *)
+     trm_w_prnt          ==== trm_w_prnt_to_utrm_w_prnt ===============================> (* in Unique_Node   *)
+     utrm_w_prnt         ==== utrm_w_prnt_to_futrm_w_prnt =============================> (* in Unique_Node   *)
+     futrm_w_prnt        ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================> (* in Unique_Node   *)
+     futrm_w_prnt_n_path ==== futrm_w_prnt_n_path_to_unodes ===========================> (* in Unique_Node   *)
+     unodes              ==== unodes_to_unode_table ===================================> (* in Path_To_Unode *)
+     path_to_unode_table)
 *)
 
 (*** Unique_Node ***)

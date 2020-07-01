@@ -15,6 +15,7 @@ val ctxt_n_string_to_cname: Proof.context -> string -> string option;
 (*arguments passed to the induct method*)
 datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: strings};
 val dest_induct_arguments: induct_arguments  -> {ons: strings, arbs: strings, rules: strings};
+val induct_arguments_to_string: induct_arguments -> string;
 
 datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;
 
@@ -125,6 +126,16 @@ fun ctxt_n_string_to_cname  (ctxt:Proof.context) (str:string) =
 (*arguments passed to the induct method*)
 datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: strings};
 fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
+
+fun induct_arguments_to_string (Induct_Arguments {ons, arbs, rules}) =
+  let
+    val on    = String.concatWith " " ons: string;
+    val arb   = if null arbs  then "" else " arbitrary:" ^ String.concatWith " " arbs : string;
+    val rule  = if null rules then "" else " rule:"      ^ String.concatWith " " rules: string;
+    val apply = "apply (" ^ on ^ arb ^ rule ^ " )"
+  in
+    apply
+  end;
 
 datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;
 

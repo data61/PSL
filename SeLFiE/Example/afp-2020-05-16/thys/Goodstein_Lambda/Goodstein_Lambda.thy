@@ -201,7 +201,7 @@ proof -
 
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["m"], arb["m'"],rule[]]
   assert_SeLFiE_false  for_all_arbs_there_should_be_a_change [on["m"], arb["n"],rule[]]
-  assert_SeLFiE_true   generalize_arguments_used_in_recursion [on["m"], arb["m'"],rule[]](*It takes 25.656s cpu time*)
+  assert_SeLFiE_true   generalize_arguments_used_in_recursion [on["m"], arb["m'"],rule[]]
 (*if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs*)
     by (induct m arbitrary: m'; case_tac m';
       force simp: \<omega>_def dest!: fun_cong[of _ _ 1])

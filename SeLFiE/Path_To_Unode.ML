@@ -6,6 +6,7 @@ Term_Table was initially invented for LiFtEr, in which we only needed Full_Path_
 In SeLFiEr, however, 
 
 The overall work-flow is:
+Proof.state & term ==== pst_n_trm_to_path_to_unode_table ====> (*Path_To_Unode.ML*)
     (term * Proof.state  ==== trm_to_trm_w_prnt =======================================> (* in Unique_Node   *)
      trm_w_prnt          ==== trm_w_prnt_to_utrm_w_prnt ===============================> (* in Unique_Node   *)
      utrm_w_prnt         ==== utrm_w_prnt_to_futrm_w_prnt =============================> (* in Unique_Node   *)

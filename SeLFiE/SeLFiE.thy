@@ -22,7 +22,7 @@ theory SeLFiE
 begin
 
 ML\<open>
-@{term "z \<Longrightarrow> v"}
+val d = ~~; ["a","b"];
 \<close>
 find_theorems name:"wf_induct"
 
@@ -140,6 +140,8 @@ setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.tes
 setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"            SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
 setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion"   SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
 setup\<open> Apply_SeLFiE.update_assert "for_all_arbs_there_should_be_a_change"    SeLFiE_Assertion.for_all_arbs_there_should_be_a_change \<close>
+setup\<open> Apply_SeLFiE.update_assert "for_all_arbs_there_should_be_a_change_simplified_for_presentation" SeLFiE_Assertion.for_all_arbs_there_should_be_a_change_simplified_for_presentation \<close>
+
 setup\<open> Apply_SeLFiE.update_assert "ind_on_lhs_of_eq_then_arb_on_rhs_of_eq"   SeLFiE_Assertion.ind_on_lhs_of_eq_then_arb_on_rhs_of_eq \<close>
 setup\<open> Apply_SeLFiE.update_assert "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs" SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs \<close>
 
@@ -156,6 +158,10 @@ setup\<open> Apply_SeLFiE.update_assert "induct_on_2nd_arg_of_map_outer"        
 setup\<open> Apply_SeLFiE.update_assert "structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp" SeLFiE_Assertion.structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp \<close>
 
 setup\<open> Apply_SeLFiE.update_assert "structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer" SeLFiE_Assertion.structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer \<close>
+
+setup\<open> Apply_SeLFiE.update_assert "generalize_all_free_var_not_inducted_on" SeLFiE_Assertion.generalize_all_free_var_not_inducted_on \<close>
+
+
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
@@ -197,6 +203,8 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]](*It used to take 0.864s elapsed time*)
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change  [on["xs"], arb["xs"],rule[]]
+  assert_SeLFiE_true  for_all_arbs_there_should_be_a_change_simplified_for_presentation [on["xs"], arb["ys"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change_simplified_for_presentation [on["xs"], arb["xs"],rule[]]
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change  [on["xs"], arb[],rule[]](*unfortunate result due to the universal quantifier.*)
   assert_SeLFiE_true  is_defined_recursively_on_nth  [on["xs"], arb["ys"],rule[]](*It used to take 0.703s elapsed time*)
   assert_SeLFiE_false is_defined_recursively_on_nth  [on["ys"], arb[],rule[]](*It used to take 1.647s elapsed time*)
