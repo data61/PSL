@@ -75,7 +75,8 @@ datatype atomic_assert =
 | Is_Less_Than_By_One
 (*debug*)
 | Debug_Non_Path_Literal
-| Debug_Print_Unode;
+| Debug_Print_Unode
+| Dummy;
 
 val print_atomic_assert: atomic_assert -> string;
 
@@ -132,7 +133,7 @@ fun induct_arguments_to_string (Induct_Arguments {ons, arbs, rules}) =
     val on    = String.concatWith " " ons: string;
     val arb   = if null arbs  then "" else " arbitrary:" ^ String.concatWith " " arbs : string;
     val rule  = if null rules then "" else " rule:"      ^ String.concatWith " " rules: string;
-    val apply = "apply (" ^ on ^ arb ^ rule ^ " )"
+    val apply = "(" ^ on ^ arb ^ rule ^ " )"
   in
     apply
   end;
@@ -204,7 +205,8 @@ datatype atomic_assert =
 | Is_Less_Than_By_One
 (*debug*)
 | Debug_Non_Path_Literal
-| Debug_Print_Unode;
+| Debug_Print_Unode
+| Dummy;
 
 fun(*Eval_Node*)
     print_atomic_assert (Node_Is_Cnst                    ) = "Node_Is_Cnst"
@@ -254,7 +256,8 @@ fun(*Eval_Node*)
   | print_atomic_assert (Print_Takes_N_Arguments          ) = "Print_Takes_N_Arguments"
   | print_atomic_assert (Print_Takes_Less_Than_N_Arguments) = "Print_Takes_Less_Than_N_Arguments"
   | print_atomic_assert (Debug_Non_Path_Literal           ) = "Debug_Non_Path_Literal"
-  | print_atomic_assert (Debug_Print_Unode                ) = "Debug_Print_Unode";
+  | print_atomic_assert (Debug_Print_Unode                ) = "Debug_Print_Unode"
+  | print_atomic_assert (Dummy                            ) = "Dummy";
 
 datatype assert =
   Not

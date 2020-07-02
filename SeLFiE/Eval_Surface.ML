@@ -82,7 +82,8 @@ datatype assert =
 | Deep_Dive           of assert * assert * assert list
 (*debug*)
 | Debug_Non_Path_Literal of assert
-| Debug_Print_Unode      of assert;
+| Debug_Print_Unode      of assert
+| Dummy;
 
 val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
@@ -172,7 +173,8 @@ datatype assert =
 | Deep_Dive           of assert * assert * assert list
 (*debug*)
 | Debug_Non_Path_Literal of assert
-| Debug_Print_Unode      of assert;
+| Debug_Print_Unode      of assert
+| Dummy;
 
 fun surf_to_var_pair_to_list p = Utils.map_pair surf_to_var p |> Utils.pair_to_list
 and surf_to_var_list ps = map surf_to_var ps
@@ -253,6 +255,7 @@ and (*bool*)
   (*debug*)
   | surf_to_var (Debug_Non_Path_Literal assert) = EV.Assert (SU.Atomic SU.Debug_Non_Path_Literal, surf_to_var_singleton assert)
   | surf_to_var (Debug_Print_Unode      assert) = EV.Assert (SU.Atomic SU.Debug_Print_Unode,      surf_to_var_singleton assert)
+  | surf_to_var  Dummy                          = EV.Assert (SU.Atomic SU.Dummy,                  []                          )
 
 fun deep_to_surface (EV.Literal (EP.Non_Path (EP.Bool b))) = if b then True else False
   | deep_to_surface (EV.Variable vname) = Variable vname

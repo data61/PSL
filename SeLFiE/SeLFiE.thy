@@ -91,77 +91,67 @@ Isabelle_Utils.trm_to_string @{context} eq2
 ML_file "SeLFiE_Assertion.ML"
 ML\<open> Apply_SeLFiE.activate (); \<close>
 
-setup\<open> Apply_SeLFiE.update_assert "heuristic_1" SeLFiE_Assertion.heuristic_1 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_2" SeLFiE_Assertion.heuristic_2 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_3" SeLFiE_Assertion.heuristic_3 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_4" SeLFiE_Assertion.heuristic_4 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_5" SeLFiE_Assertion.heuristic_5 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_6" SeLFiE_Assertion.heuristic_6 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_7" SeLFiE_Assertion.heuristic_7 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_8" SeLFiE_Assertion.heuristic_8 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_9" SeLFiE_Assertion.heuristic_9 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_10" SeLFiE_Assertion.heuristic_10 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_11" SeLFiE_Assertion.heuristic_11 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_12" SeLFiE_Assertion.heuristic_12 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_13" SeLFiE_Assertion.heuristic_13 \<close>
-setup\<open> Apply_SeLFiE.update_assert "heuristic_14" SeLFiE_Assertion.heuristic_14 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_1"      SeLFiE_Assertion.lifter_1 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_1b"     SeLFiE_Assertion.lifter_1b \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_2"      SeLFiE_Assertion.lifter_2 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_3"      SeLFiE_Assertion.lifter_3 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_4"      SeLFiE_Assertion.lifter_4 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_5"      SeLFiE_Assertion.lifter_5 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_6"      SeLFiE_Assertion.lifter_6 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_7"      SeLFiE_Assertion.lifter_7 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_8"      SeLFiE_Assertion.lifter_8 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_9"      SeLFiE_Assertion.lifter_9 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_10"     SeLFiE_Assertion.lifter_10 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_11"     SeLFiE_Assertion.lifter_11 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_12"     SeLFiE_Assertion.lifter_12 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_13"     SeLFiE_Assertion.lifter_13 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_14"     SeLFiE_Assertion.lifter_14 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_15"     SeLFiE_Assertion.lifter_15 \<close>
-setup\<open> Apply_SeLFiE.update_assert "lifter_20"     SeLFiE_Assertion.lifter_20 \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_dive_in"  SeLFiE_Assertion.test_dive_in \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_all_outer_prints"        SeLFiE_Assertion.print_all_outer_prints \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_all_inner_prints"        SeLFiE_Assertion.print_all_inner_prints \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_all_unodes"              SeLFiE_Assertion.print_all_unodes \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_outer_path_root"         SeLFiE_Assertion.print_outer_path_root \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_inner_roots"             SeLFiE_Assertion.print_inner_roots \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_all_inner_lhss"          SeLFiE_Assertion.print_all_inner_lhss \<close>
-setup\<open> Apply_SeLFiE.update_assert "print_fst_params_of_fun_const" SeLFiE_Assertion.print_fst_params_of_fun_const \<close>
-
-setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_premise"    SeLFiE_Assertion.test_is_a_meta_premise \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_conclusion" SeLFiE_Assertion.test_is_a_meta_conclusion \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_premise_or_below"    SeLFiE_Assertion.test_is_a_meta_premise_or_below \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_is_a_meta_conclusion_or_below" SeLFiE_Assertion.test_is_a_meta_conclusion_or_below \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_is_more_than" SeLFiE_Assertion.test_is_more_than \<close>
-
-setup\<open> Apply_SeLFiE.update_assert "is_defined_recursively_on_nth"            SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
-setup\<open> Apply_SeLFiE.update_assert "generalize_arguments_used_in_recursion"   SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
-setup\<open> Apply_SeLFiE.update_assert "for_all_arbs_there_should_be_a_change"    SeLFiE_Assertion.for_all_arbs_there_should_be_a_change \<close>
-setup\<open> Apply_SeLFiE.update_assert "for_all_arbs_there_should_be_a_change_simplified_for_presentation" SeLFiE_Assertion.for_all_arbs_there_should_be_a_change_simplified_for_presentation \<close>
-
-setup\<open> Apply_SeLFiE.update_assert "ind_on_lhs_of_eq_then_arb_on_rhs_of_eq"   SeLFiE_Assertion.ind_on_lhs_of_eq_then_arb_on_rhs_of_eq \<close>
-setup\<open> Apply_SeLFiE.update_assert "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs" SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs \<close>
-
-setup\<open> Apply_SeLFiE.update_assert "test_Is_If_Then_Else"                     SeLFiE_Assertion.test_Is_If_Then_Else \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_true"                 SeLFiE_Assertion.test_Is_Subprint_Of_true \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_Is_Subprint_Of_false"                SeLFiE_Assertion.test_Is_Subprint_Of_false \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_Is_Case_Distinct_Of_Trm_With_A_Case" SeLFiE_Assertion.test_Is_Case_Distinct_Of_Trm_With_A_Case \<close>
-setup\<open> Apply_SeLFiE.update_assert "test_Is_Let_X_Be_Y_In_X"                  SeLFiE_Assertion.test_Is_Let_X_Be_Y_In_X \<close>
-
-setup\<open> Apply_SeLFiE.update_assert "outer_induct_on_arg_of_set_member_n_set_outer" SeLFiE_Assertion.outer_induct_on_arg_of_set_member_n_set_outer \<close>
-setup\<open> Apply_SeLFiE.update_assert "induct_on_arg_of_set_member_n_set_syntax_only" SeLFiE_Assertion.induct_on_arg_of_set_member_n_set_syntax_only \<close>
-setup\<open> Apply_SeLFiE.update_assert "induct_on_2nd_arg_of_map_outer"                SeLFiE_Assertion.induct_on_2nd_arg_of_map_outer \<close>
-
-setup\<open> Apply_SeLFiE.update_assert "structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp" SeLFiE_Assertion.structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp \<close>
-
-setup\<open> Apply_SeLFiE.update_assert "structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer" SeLFiE_Assertion.structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer \<close>
-
-setup\<open> Apply_SeLFiE.update_assert "generalize_all_free_var_not_inducted_on" SeLFiE_Assertion.generalize_all_free_var_not_inducted_on \<close>
-
-
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_1"                                                                                                                        ) SeLFiE_Assertion.heuristic_1 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_2"                                                                                                                        ) SeLFiE_Assertion.heuristic_2 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_3"                                                                                                                        ) SeLFiE_Assertion.heuristic_3 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_4"                                                                                                                        ) SeLFiE_Assertion.heuristic_4 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_5"                                                                                                                        ) SeLFiE_Assertion.heuristic_5 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_6"                                                                                                                        ) SeLFiE_Assertion.heuristic_6 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_7"                                                                                                                        ) SeLFiE_Assertion.heuristic_7 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_8"                                                                                                                        ) SeLFiE_Assertion.heuristic_8 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_9"                                                                                                                        ) SeLFiE_Assertion.heuristic_9 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_10"                                                                                                                       ) SeLFiE_Assertion.heuristic_10 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_11"                                                                                                                       ) SeLFiE_Assertion.heuristic_11 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_12"                                                                                                                       ) SeLFiE_Assertion.heuristic_12 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_13"                                                                                                                       ) SeLFiE_Assertion.heuristic_13 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "heuristic_14"                                                                                                                       ) SeLFiE_Assertion.heuristic_14 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_1"                                                                                                                           ) SeLFiE_Assertion.lifter_1 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_1b"                                                                                                                          ) SeLFiE_Assertion.lifter_1b \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_2"                                                                                                                           ) SeLFiE_Assertion.lifter_2 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_3"                                                                                                                           ) SeLFiE_Assertion.lifter_3 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_4"                                                                                                                           ) SeLFiE_Assertion.lifter_4 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_5"                                                                                                                           ) SeLFiE_Assertion.lifter_5 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_6"                                                                                                                           ) SeLFiE_Assertion.lifter_6 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_7"                                                                                                                           ) SeLFiE_Assertion.lifter_7 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_8"                                                                                                                           ) SeLFiE_Assertion.lifter_8 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_9"                                                                                                                           ) SeLFiE_Assertion.lifter_9 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_10"                                                                                                                          ) SeLFiE_Assertion.lifter_10 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_11"                                                                                                                          ) SeLFiE_Assertion.lifter_11 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_12"                                                                                                                          ) SeLFiE_Assertion.lifter_12 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_13"                                                                                                                          ) SeLFiE_Assertion.lifter_13 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_14"                                                                                                                          ) SeLFiE_Assertion.lifter_14 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_15"                                                                                                                          ) SeLFiE_Assertion.lifter_15 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "lifter_20"                                                                                                                          ) SeLFiE_Assertion.lifter_20 \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_dive_in"                                                                                                                       ) SeLFiE_Assertion.test_dive_in \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "print_all_outer_prints"                                                                                                             ) SeLFiE_Assertion.print_all_outer_prints \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "print_all_inner_prints"                                                                                                             ) SeLFiE_Assertion.print_all_inner_prints \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "print_all_unodes"                                                                                                                   ) SeLFiE_Assertion.print_all_unodes \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "print_outer_path_root"                                                                                                              ) SeLFiE_Assertion.print_outer_path_root \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "print_inner_roots"                                                                                                                  ) SeLFiE_Assertion.print_inner_roots \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "print_all_inner_lhss"                                                                                                               ) SeLFiE_Assertion.print_all_inner_lhss \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "print_fst_params_of_fun_const"                                                                                                      ) SeLFiE_Assertion.print_fst_params_of_fun_const \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_is_a_meta_premise"                                                                                                             ) SeLFiE_Assertion.test_is_a_meta_premise \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_is_a_meta_conclusion"                                                                                                          ) SeLFiE_Assertion.test_is_a_meta_conclusion \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_is_a_meta_premise_or_below"                                                                                                    ) SeLFiE_Assertion.test_is_a_meta_premise_or_below \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_is_a_meta_conclusion_or_below"                                                                                                 ) SeLFiE_Assertion.test_is_a_meta_conclusion_or_below \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_is_more_than"                                                                                                                  ) SeLFiE_Assertion.test_is_more_than \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "is_defined_recursively_on_nth"                                                                                                      ) SeLFiE_Assertion.is_defined_recursively_on_nth_outer \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "generalize_arguments_used_in_recursion"                                                                                             ) SeLFiE_Assertion.generalize_arguments_used_in_recursion \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "for_all_arbs_there_should_be_a_change"                                                                                              ) SeLFiE_Assertion.for_all_arbs_there_should_be_a_change \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "for_all_arbs_there_should_be_a_change_simplified_for_presentation"                                                                  ) SeLFiE_Assertion.for_all_arbs_there_should_be_a_change_simplified_for_presentation \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "ind_on_lhs_of_eq_then_arb_on_rhs_of_eq"                                                                                             ) SeLFiE_Assertion.ind_on_lhs_of_eq_then_arb_on_rhs_of_eq \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs"                                                            ) SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_Is_If_Then_Else"                                                                                                               ) SeLFiE_Assertion.test_Is_If_Then_Else \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_Is_Subprint_Of_true"                                                                                                           ) SeLFiE_Assertion.test_Is_Subprint_Of_true \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_Is_Subprint_Of_false"                                                                                                          ) SeLFiE_Assertion.test_Is_Subprint_Of_false \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_Is_Case_Distinct_Of_Trm_With_A_Case"                                                                                           ) SeLFiE_Assertion.test_Is_Case_Distinct_Of_Trm_With_A_Case \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "test_Is_Let_X_Be_Y_In_X"                                                                                                            ) SeLFiE_Assertion.test_Is_Let_X_Be_Y_In_X \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "outer_induct_on_arg_of_set_member_n_set_outer"                                                                                      ) SeLFiE_Assertion.outer_induct_on_arg_of_set_member_n_set_outer \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "induct_on_arg_of_set_member_n_set_syntax_only"                                                                                      ) SeLFiE_Assertion.induct_on_arg_of_set_member_n_set_syntax_only \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "induct_on_2nd_arg_of_map_outer"                                                                                                     ) SeLFiE_Assertion.induct_on_2nd_arg_of_map_outer \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp"                                              ) SeLFiE_Assertion.structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer") SeLFiE_Assertion.structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,    "generalize_all_free_var_not_inducted_on"                                                                                            ) SeLFiE_Assertion.generalize_all_free_var_not_inducted_on \<close>
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]

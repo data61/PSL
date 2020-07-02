@@ -12,6 +12,8 @@ val activate      : unit -> unit;
 
 end;
 
+datatype heuristic_typ = Induction_Heuristic | Generalization_Heuristic | Test_Heuristic;
+
 structure Apply_SeLFiE =
 struct
 
@@ -21,26 +23,60 @@ structure IU  = Isabelle_Utils;
 structure ES  = Eval_Surface;
 structure ESS = Eval_Syntactic_Sugar;
 
+fun heuristic_typ_ord (Induction_Heuristic,      Induction_Heuristic     ) = EQUAL
+  | heuristic_typ_ord (Induction_Heuristic,      _                       ) = LESS
+  | heuristic_typ_ord (Generalization_Heuristic, Generalization_Heuristic) = EQUAL
+  | heuristic_typ_ord (Generalization_Heuristic, _                       ) = LESS
+  | heuristic_typ_ord (Test_Heuristic,           Test_Heuristic          ) = EQUAL
+  | heuristic_typ_ord (_,                        _                       ) = GREATER;
+
+val str_n_heutyp_ord = prod_ord heuristic_typ_ord fast_string_ord;
+
+structure Strng_N_HeuTyp_Tab = Table(type key = (heuristic_typ * string) val ord = str_n_heutyp_ord);
+
+(*We assume that no induction heuristic can have a name taken by some generalization heuristic and vice verse.*)
+
 structure SeLFiE_Assertion = Generic_Data
 (
-  type T     = ESS.assert Symtab.table;
-  val empty  = Symtab.empty : T;
+  type T     = ESS.assert Strng_N_HeuTyp_Tab.table;
+  val empty  = Strng_N_HeuTyp_Tab.empty : T;
   val extend = I;
-  val merge  = Symtab.merge (K true);
+  val merge  = Strng_N_HeuTyp_Tab.merge (K true);
 );
 
-fun lookup_assert ctxt = (Symtab.lookup o SeLFiE_Assertion.get) (Context.Proof ctxt);
-fun update_assert k v  = Symtab.update_new (k, v)
- |> SeLFiE_Assertion.map
- |> Context.theory_map: theory -> theory;
+fun lookup_assert ctxt = (Strng_N_HeuTyp_Tab.lookup o SeLFiE_Assertion.get) (Context.Proof ctxt);
 
 fun get_assrt (ctxt:Proof.context) (assert_name:string): ESS.assert =
   let
-    val some_assrt = lookup_assert ctxt assert_name : ESS.assert option;
-    val assertion = Utils.the' (assert_name ^ "?\nDid you really define such an assertion?") some_assrt : ESS.assert;
+    val some_ind_heuristic  = lookup_assert ctxt (Induction_Heuristic,      assert_name) : ESS.assert option;
+    val some_gen_heuristic  = lookup_assert ctxt (Generalization_Heuristic, assert_name) : ESS.assert option;
+    val some_test_heuristic = lookup_assert ctxt (Test_Heuristic,           assert_name) : ESS.assert option;
+    val heuristic =
+           if is_some some_ind_heuristic  andalso not (ESS.Dummy = the some_ind_heuristic ) then the some_ind_heuristic
+      else if is_some some_gen_heuristic  andalso not (ESS.Dummy = the some_gen_heuristic ) then the some_gen_heuristic
+      else if is_some some_test_heuristic andalso not (ESS.Dummy = the some_test_heuristic) then the some_test_heuristic
+      else error "?\nDid you really define such an assertion?";
   in
-    assertion: ESS.assert
+    heuristic: ESS.assert
   end;
+
+fun update_assert' k v  = Strng_N_HeuTyp_Tab.update_new (k, v)
+ |> SeLFiE_Assertion.map
+ |> Context.theory_map: theory -> theory;
+
+fun update_assert (p as (Induction_Heuristic, heuristic_name:string)) value =
+    update_assert' p value
+  o update_assert' (Generalization_Heuristic, heuristic_name) ESS.Dummy
+  o update_assert' (Test_Heuristic          , heuristic_name) ESS.Dummy
+  | update_assert (p as (Generalization_Heuristic, heuristic_name:string)) value =
+    update_assert' p value
+  o update_assert' (Induction_Heuristic, heuristic_name) ESS.Dummy
+  o update_assert' (Test_Heuristic,      heuristic_name) ESS.Dummy
+  | update_assert (p as (Test_Heuristic, heuristic_name:string)) value =
+    update_assert' p value
+  o update_assert' (Induction_Heuristic,      heuristic_name) ESS.Dummy
+  o update_assert' (Generalization_Heuristic, heuristic_name) ESS.Dummy
+: theory -> theory;
 
 local
 
