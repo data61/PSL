@@ -38,7 +38,7 @@ structure Strng_N_HeuTyp_Tab = Table(type key = (heuristic_typ * string) val ord
 
 structure SeLFiE_Assertion = Generic_Data
 (
-  type T     = ESS.assert Strng_N_HeuTyp_Tab.table;
+  type T     = (ESS.assert * int) Strng_N_HeuTyp_Tab.table;
   val empty  = Strng_N_HeuTyp_Tab.empty : T;
   val extend = I;
   val merge  = Strng_N_HeuTyp_Tab.merge (K true);
@@ -46,18 +46,18 @@ structure SeLFiE_Assertion = Generic_Data
 
 fun lookup_assert ctxt = (Strng_N_HeuTyp_Tab.lookup o SeLFiE_Assertion.get) (Context.Proof ctxt);
 
-fun get_assrt (ctxt:Proof.context) (assert_name:string): ESS.assert =
+fun get_assrt (ctxt:Proof.context) (assert_name:string): (ESS.assert * int) =
   let
-    val some_ind_heuristic  = lookup_assert ctxt (Induction_Heuristic,      assert_name) : ESS.assert option;
-    val some_gen_heuristic  = lookup_assert ctxt (Generalization_Heuristic, assert_name) : ESS.assert option;
-    val some_test_heuristic = lookup_assert ctxt (Test_Heuristic,           assert_name) : ESS.assert option;
+    val some_ind_heuristic  = lookup_assert ctxt (Induction_Heuristic,      assert_name) : (ESS.assert * int) option;
+    val some_gen_heuristic  = lookup_assert ctxt (Generalization_Heuristic, assert_name) : (ESS.assert * int) option;
+    val some_test_heuristic = lookup_assert ctxt (Test_Heuristic,           assert_name) : (ESS.assert * int) option;
     val heuristic =
-           if is_some some_ind_heuristic  andalso not (ESS.Dummy = the some_ind_heuristic ) then the some_ind_heuristic
-      else if is_some some_gen_heuristic  andalso not (ESS.Dummy = the some_gen_heuristic ) then the some_gen_heuristic
-      else if is_some some_test_heuristic andalso not (ESS.Dummy = the some_test_heuristic) then the some_test_heuristic
+           if is_some some_ind_heuristic  andalso not (ESS.Dummy = (fst (the some_ind_heuristic ))) then the some_ind_heuristic
+      else if is_some some_gen_heuristic  andalso not (ESS.Dummy = (fst (the some_gen_heuristic ))) then the some_gen_heuristic
+      else if is_some some_test_heuristic andalso not (ESS.Dummy = (fst (the some_test_heuristic))) then the some_test_heuristic
       else error "?\nDid you really define such an assertion?";
   in
-    heuristic: ESS.assert
+    heuristic: (ESS.assert * int)
   end;
 
 fun update_assert' k v  = Strng_N_HeuTyp_Tab.update_new (k, v)
@@ -66,17 +66,16 @@ fun update_assert' k v  = Strng_N_HeuTyp_Tab.update_new (k, v)
 
 fun update_assert (p as (Induction_Heuristic, heuristic_name:string)) value =
     update_assert' p value
-  o update_assert' (Generalization_Heuristic, heuristic_name) ESS.Dummy
-  o update_assert' (Test_Heuristic          , heuristic_name) ESS.Dummy
+  o update_assert' (Generalization_Heuristic, heuristic_name) (ESS.Dummy, 0)
+  o update_assert' (Test_Heuristic          , heuristic_name) (ESS.Dummy, 0)
   | update_assert (p as (Generalization_Heuristic, heuristic_name:string)) value =
     update_assert' p value
-  o update_assert' (Induction_Heuristic, heuristic_name) ESS.Dummy
-  o update_assert' (Test_Heuristic,      heuristic_name) ESS.Dummy
+  o update_assert' (Induction_Heuristic, heuristic_name) (ESS.Dummy, 0)
+  o update_assert' (Test_Heuristic,      heuristic_name) (ESS.Dummy, 0)
   | update_assert (p as (Test_Heuristic, heuristic_name:string)) value =
     update_assert' p value
-  o update_assert' (Induction_Heuristic,      heuristic_name) ESS.Dummy
-  o update_assert' (Generalization_Heuristic, heuristic_name) ESS.Dummy
-: theory -> theory;
+  o update_assert' (Induction_Heuristic,      heuristic_name) (ESS.Dummy, 0)
+  o update_assert' (Generalization_Heuristic, heuristic_name) (ESS.Dummy, 0): theory -> theory;
 
 local
 
@@ -90,9 +89,9 @@ in
 fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_mod(*:ind_mods(*ind_mod_name:string*)*)) =
   Toplevel.keep_proof (fn top: Toplevel.state =>
   let
-    val pst     = Toplevel.proof_of top        : Proof.state;
-    val ctxt    = Toplevel.context_of top      : Proof.context;
-    val assert  = get_assrt ctxt assert_name   : ESS.assert;
+    val pst            = Toplevel.proof_of top     : Proof.state;
+    val ctxt           = Toplevel.context_of top   : Proof.context;
+    val (assrt, score) = get_assrt ctxt assert_name: (ESS.assert * int);
     fun mk_clean_mods (ind_mods:SU.induct_arguments) =
       let
         val normalize = IU.normalize_trm_as_string ctxt;
@@ -119,7 +118,7 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_m
         ESS.eval pst (mk_clean_mods ind_mods) assrt = bool_to_ES_assert should_b_true_or_false;
     val _ = @{assert} (
             let
-              val result = run_test assert pst (mk_clean_mods ind_mod)
+              val result = run_test assrt pst (mk_clean_mods ind_mod)
               val _      = tracing ("Assertion " ^ (if result then "succeeded." else "failed."));
             in result end);
   in

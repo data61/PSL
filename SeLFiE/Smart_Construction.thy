@@ -88,6 +88,9 @@ ML_file "Multi_Stage_Screening_For_SeLFiE.ML"
 ML\<open>
 (*
  * 1. apply all induction heuristics and give points to each result
+ * 1a. collect all the modifier combinations for induction without generalization.
+ * 1b. apply all induction heuristics to each of them and count scores. Use some code base for smart_induct
+ *     (fst o Multi_Stage_Screening.proof_state_to_promising_induct_argumentss_n_resultss) pst
  * 2. apply all generalization heuristics and give points to each result
  *)
 infix 1 >>= <$> <|> <*>;
