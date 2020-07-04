@@ -26,7 +26,8 @@ structure ESS = Eval_Syntactic_Sugar;
 fun heuristic_typ_ord (Induction_Heuristic,      Induction_Heuristic     ) = EQUAL
   | heuristic_typ_ord (Induction_Heuristic,      _                       ) = LESS
   | heuristic_typ_ord (Generalization_Heuristic, Generalization_Heuristic) = EQUAL
-  | heuristic_typ_ord (Generalization_Heuristic, _                       ) = LESS
+  | heuristic_typ_ord (Generalization_Heuristic, Induction_Heuristic     ) = GREATER
+  | heuristic_typ_ord (Generalization_Heuristic, Test_Heuristic          ) = LESS
   | heuristic_typ_ord (Test_Heuristic,           Test_Heuristic          ) = EQUAL
   | heuristic_typ_ord (_,                        _                       ) = GREATER;
 
@@ -52,10 +53,10 @@ fun get_assrt (ctxt:Proof.context) (assert_name:string): (ESS.assert * int) =
     val some_gen_heuristic  = lookup_assert ctxt (Generalization_Heuristic, assert_name) : (ESS.assert * int) option;
     val some_test_heuristic = lookup_assert ctxt (Test_Heuristic,           assert_name) : (ESS.assert * int) option;
     val heuristic =
-           if is_some some_ind_heuristic  andalso not (ESS.Dummy = (fst (the some_ind_heuristic ))) then the some_ind_heuristic
-      else if is_some some_gen_heuristic  andalso not (ESS.Dummy = (fst (the some_gen_heuristic ))) then the some_gen_heuristic
-      else if is_some some_test_heuristic andalso not (ESS.Dummy = (fst (the some_test_heuristic))) then the some_test_heuristic
-      else error "?\nDid you really define such an assertion?";
+           if is_some some_ind_heuristic  andalso not (tracing "asdf1";ESS.Dummy = (fst (the some_ind_heuristic ))) then the some_ind_heuristic
+      else if is_some some_gen_heuristic  andalso not (tracing "asdf2";ESS.Dummy = (fst (the some_gen_heuristic ))) then the some_gen_heuristic
+      else if is_some some_test_heuristic andalso not (tracing "asdf3";ESS.Dummy = (fst (the some_test_heuristic))) then the some_test_heuristic
+      else error (assert_name ^ "?\nDid you really define such an assertion?");
   in
     heuristic: (ESS.assert * int)
   end;

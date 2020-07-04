@@ -327,18 +327,13 @@ Imply
       Some_Of ("func_occ", Variable "func",
         Ands [
           Is_Rule_Of_Print (Variable "rule", Variable "func"),
-          Debug_Non_Path_Literal (Variable "func"),
-          Debug_Non_Path_Literal (Variable "rule"),
           All ("ind", QInd,
             Some_Of ("arg_occ", Variable "ind",
               Some ("numb", QOuter_Number,
                 Ands [
                   Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "numb"),
                   Is_Nth_Arg_Of (Variable "arg_occ", Variable "numb", Variable "func_occ"),
-                  Is_Nth_Induct (Variable "ind", Variable "numb"),
-                  Debug_Print_Unode (Variable "arg_occ"),
-                  Debug_Non_Path_Literal (Variable "numb"),
-                  Debug_Print_Unode (Variable "func_occ")
+                  Is_Nth_Induct (Variable "ind", Variable "numb")
                 ]
               )
             )
@@ -370,9 +365,7 @@ Imply
           Some ("induct_arg", QInd,
             Some_Of ("induct_arg_occ", Variable "induct_arg",
               Ands [
-                Is_An_Arg_Of (Variable "induct_arg_occ",  Variable "func_occ"),
-                Debug_Print_Unode (Variable "func_occ"),
-                Debug_Print_Unode (Variable "induct_arg_occ")
+                Is_An_Arg_Of (Variable "induct_arg_occ",  Variable "func_occ")
               ]
             )
           )
@@ -392,7 +385,23 @@ Imply
     )
   );
 
-(*induct and arbitrary share a function*)
+val lifter_9_improved =
+  Ands [
+    Some ("induct_arg", QInd, True),
+    All ("induct_arg", QInd,
+      Some_Of ("induct_arg_occ", Variable "induct_arg",
+        Is_Atomic (Variable "induct_arg_occ")
+      )
+    )
+  ]
+Imply
+  Some ("induct_arg", QInd,
+    Some_Of ("induct_arg_occ", Variable "induct_arg",
+      Is_At_Deepest_In_A_Location (Variable "induct_arg_occ")
+    )
+  );
+
+(*all inducts share a function with all arbitrary-s*)
 val lifter_10 =
 All ("ind", QInd,
   All ("arb", QArb,

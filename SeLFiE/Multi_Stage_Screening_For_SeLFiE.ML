@@ -63,7 +63,7 @@ fun proof_state_to_promising_induct_argumentss_n_resultss (pst:Proof.state) =
                           : (SU.induct_arguments * bool * Proof.state Seq.seq) list;
     val promising_args    = filter     (fn (_, b, _) => b) raw_triples |> map (fn (a, _, c) => (a, c))
                           : (SU.induct_arguments * Proof.state Seq.seq) list;
-    val _ = tracing ("Only " ^ Int.toString (length promising_args) ^ " combinations survivsed Step 2.");
+    val _ = tracing ("Only " ^ Int.toString (length promising_args) ^ " combinations survivsed.");
   in
     promising_args: (SU.induct_arguments * Proof.state Seq.seq) list
   end;
