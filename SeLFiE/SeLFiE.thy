@@ -14,15 +14,21 @@
  *)
 theory SeLFiE
   imports "PSL.PSL"
-  keywords "assert_SeLFiE_true"      :: diag
-  and      "assert_SeLFiE_false"     :: diag
+  keywords "assert_SeLFiE_true" :: diag
+  and      "assert_SeLFiE_false":: diag
+  and      "semantic_induct"    :: diag
 (*
    and     "test_all_LiFtErs"   :: diag
 *)
 begin
-
 ML\<open>
-val d = ~~; ["a","b"];
+
+val _= Char.toString;
+val asdf = #"\""  |> Char.toString ;
+
+val fdsa = asdf ^ "asdf";
+val aa = tracing  "\"xs ys\"";
+val LL = enclose "\"" "\"" "asdf";
 \<close>
 find_theorems name:"wf_induct"
 
@@ -59,34 +65,15 @@ ML_file "Eval_Parameter.ML"
 ML_file "Eval_Parameter_With_Bool.ML"
 ML_file "Quantifier_Domain.ML"
 ML_file "Eval_Unary.ML"
-ML_file "Eval_Multi_Arity.ML"
+ML_file "Eval_Multi_Arity.ML"      
 ML_file "Eval_Variable.ML"
 ML_file "Eval_Surface.ML"
 
 ML_file "Eval_Syntactic_Sugar.ML"
+
+ML_file "Smart_Construction.ML"
+ML_file "Multi_Stage_Screening_For_SeLFiE.ML"
 ML_file "Apply_SeLFiE.ML"
-
-definition "func x \<equiv> x"
-thm func_def
-ML\<open>
-val meta_eq  = @{term "True \<Longrightarrow> (x \<equiv> y)"}
-val hol_eq   = @{term  "True \<Longrightarrow> (x = y)"}
-val hol_imp  = @{term  "f (x \<longrightarrow> y)"}
-val meta_imp = @{term  "f (x \<Longrightarrow> y)"}
-\<close>
-ML\<open>
-val meta_eq_hol_eq = @{term "(x = y) \<Longrightarrow> (z \<equiv> w)"}
-val meta_imp = @{term "1"};
-val meta_imply = @{term "True \<Longrightarrow> True"};
-val meta_imply = @{term "True \<Longrightarrow> (False \<equiv> x)"};
-val meta_imply = @{term "(x \<Longrightarrow> y) \<Longrightarrow> (z \<longrightarrow> w)"};
-val func_thm   = @{thm func_def};
-val func_term  = Thm.cprop_of func_thm |> Thm.term_of;
-
-val eq = @{term "1 \<equiv> 1"};
-val eq2 = Isabelle_Utils.flatten_trm eq |> (fn trms => nth trms 0);
-Isabelle_Utils.trm_to_string @{context} eq2
-\<close>
 
 ML_file "SeLFiE_Assertion.ML"
 ML\<open> Apply_SeLFiE.activate (); \<close>
@@ -141,7 +128,7 @@ setup\<open> Apply_SeLFiE.update_assert (Generalization_Heuristic, "generalize_a
 setup\<open> Apply_SeLFiE.update_assert (Generalization_Heuristic, "for_all_arbs_there_should_be_a_change"                                                                                              ) (SeLFiE_Assertion.for_all_arbs_there_should_be_a_change                                                                                              , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "for_all_arbs_there_should_be_a_change_simplified_for_presentation"                                                                  ) (SeLFiE_Assertion.for_all_arbs_there_should_be_a_change_simplified_for_presentation                                                                  , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Generalization_Heuristic, "ind_on_lhs_of_eq_then_arb_on_rhs_of_eq"                                                                                             ) (SeLFiE_Assertion.ind_on_lhs_of_eq_then_arb_on_rhs_of_eq                                                                                             , 1) \<close>
-setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs"                                                            ) (SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs                                                            , 1) \<close>
+setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs"                                                            ) (SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs                                                            , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "test_Is_If_Then_Else"                                                                                                               ) (SeLFiE_Assertion.test_Is_If_Then_Else                                                                                                               , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "test_Is_Subprint_Of_true"                                                                                                           ) (SeLFiE_Assertion.test_Is_Subprint_Of_true                                                                                                           , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "test_Is_Subprint_Of_false"                                                                                                          ) (SeLFiE_Assertion.test_Is_Subprint_Of_false                                                                                                          , 1) \<close>
@@ -155,6 +142,7 @@ setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,(*no good*)"structural_i
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "generalize_all_free_var_not_inducted_on" (*bad*)                                                                                    ) (SeLFiE_Assertion.generalize_all_free_var_not_inducted_on                                                                                            , 1) \<close>
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
+  semantic_induct
   assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
   assert_SeLFiE_true test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
   assert_SeLFiE_true test_is_a_meta_premise_or_below    [on["x"], arb[],rule[]]
@@ -166,6 +154,7 @@ lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   oops
 
 lemma "if x then True else False"
+  semantic_induct
   assert_SeLFiE_true  test_Is_If_Then_Else [on["x"], arb[],rule[]]
   oops
 
@@ -187,8 +176,9 @@ primrec rev :: "'a list \<Rightarrow> 'a list" where
   "itrev []     ys = ys" |
   "itrev (x#xs) ys = itrev xs (x#ys)"
  print_theorems
-
+ML\<open> Term.dest_Const @{term "(=)"}\<close>
 lemma "itrev xs ys = rev xs @ ys"
+  semantic_induct
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["xs"], arb["ys"],rule[]](*It used to take 1.196s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb["xs"],rule[]](*It used to take 2.467s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]](*It used to take 0.864s elapsed time*)

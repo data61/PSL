@@ -8,7 +8,7 @@ section \<open>Nearest Neighbor Search on the \<open>k\<close>-d Tree\<close>
 theory Nearest_Neighbors
 imports
   KD_Tree
-  "../../../More_SeLFiE_Assertion"
+  "../../../../SeLFiE"
 begin
 
 text \<open>
@@ -35,6 +35,7 @@ definition sorted_wrt_dist :: "('k::finite) point \<Rightarrow> 'k point list \<
 
 lemma sorted_wrt_dist_insort_key:
   "sorted_wrt_dist p ps \<Longrightarrow> sorted_wrt_dist p (insort_key (\<lambda>q. dist q p) q ps)"
+  semantic_induct
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb[],rule[]]
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb["q"],rule[]](*a little unfortunate, but okay*)
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb["p"],rule[]](*a little unfortunate, but okay*)
@@ -53,6 +54,7 @@ lemma sorted_wrt_dist_last_take_mono:
   assumes "sorted_wrt_dist p ps" "n \<le> length ps" "0 < n"
   shows "dist (last (take n ps)) p \<le> dist (last ps) p"
   using assms unfolding sorted_wrt_dist_def 
+  semantic_induct
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb["n"],rule[]]
   assert_SeLFiE_false  generalize_arguments_used_in_recursion [on["ps"], arb[],rule[]]
   by (induction ps arbitrary: n) (auto simp add: take_Cons')
@@ -193,6 +195,7 @@ subsection \<open>The Main Theorems\<close>
 
 lemma set_nns:
   "set (nearest_nbors n ps p kdt) \<subseteq> set_kdt kdt \<union> set ps"
+  semantic_induct
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*very good.It takes 2.385s elapsed time, 13.012s cpu time, 0.196s GC time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]    (*very good*)
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["p", "ps"],rule[]](*a little unfortunate*)
@@ -208,6 +211,7 @@ lemma set_nns:
 
 lemma length_nns:
   "length (nearest_nbors n ps p kdt) = min n (size_kdt kdt + length ps)"
+  semantic_induct
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*very good. It takes 1.706s elapsed time, 4.520s cpu time, 0.064s GC time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]    (*very good*)
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["p", "ps"],rule[]](*a little unfortunate*)(*1.793s elapsed time, 5.413s cpu time, 0.180s GC time*)
@@ -221,6 +225,7 @@ lemma length_nns:
 
 lemma length_nns_gt_0:
   "0 < n \<Longrightarrow> 0 < length (nearest_nbors n ps p kdt)"
+  semantic_induct
   by (induction kdt arbitrary: ps) (auto simp: Let_def upd_nbors_def)
 
 lemma length_nns_n:

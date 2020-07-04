@@ -1,7 +1,7 @@
 section \<open>Specification\<close>
 
 theory Goodstein_Lambda
-  imports Main "../../../More_SeLFiE_Assertion" "Smart_Induct.Smart_Induct" 
+  imports Main "../../../../SeLFiE"
 begin
    
 subsection \<open>Hereditary base representation\<close>
@@ -122,15 +122,15 @@ value "map (\<lambda>n. evalO (n+2) (g4O n)) [0..<10]"
 subsection \<open>Properties of evaluation\<close>
 
 lemma evalO_addO [simp]:
-  "evalO b (addO n m) = evalO b n + evalO b m"
+  "evalO b (addO n m) = evalO b n + evalO b m" semantic_induct
   by (induct m) auto
 
 lemma evalO_mulO [simp]:
-  "evalO b (mulO n m) = evalO b n * evalO b m"
+  "evalO b (mulO n m) = evalO b n * evalO b m" semantic_induct(*!*)
   by (induct m) auto
 
 lemma evalO_n [simp]:
-  "evalO b ((S ^^ n) Z) = n"
+  "evalO b ((S ^^ n) Z) = n"semantic_induct
   by (induct n) auto
 
 lemma evalO_\<omega> [simp]:
@@ -138,7 +138,7 @@ lemma evalO_\<omega> [simp]:
   by (auto simp: \<omega>_def)
 
 lemma evalO_exp\<omega> [simp]:
-  "evalO b (exp\<omega> n) = b^(evalO b n)"
+  "evalO b (exp\<omega> n) = b^(evalO b n)"semantic_induct
   by (induct n) auto
 
 text \<open>Note that evaluation is useful for proving that @{type "Ord"} values are distinct:\<close>
@@ -149,23 +149,23 @@ end
 subsection \<open>Arithmetic properties\<close>
 
 lemma addO_Z [simp]:
-  "addO Z n = n"
+  "addO Z n = n"semantic_induct
   by (induct n) auto
 
 lemma addO_assoc [simp]:
-  "addO n (addO m p) = addO (addO n m) p"
+  "addO n (addO m p) = addO (addO n m) p"semantic_induct
   by (induct p) auto
 
 lemma mul0_distrib [simp]:
-  "mulO n (addO p q) = addO (mulO n p) (mulO n q)"
+  "mulO n (addO p q) = addO (mulO n p) (mulO n q)"semantic_induct
   by (induct q) auto
 
 lemma mulO_assoc [simp]:
-  "mulO n (mulO m p) = mulO (mulO n m) p"
+  "mulO n (mulO m p) = mulO (mulO n m) p"semantic_induct
   by (induct p) auto
 
 lemma exp\<omega>_addO [simp]:
-  "exp\<omega> (addO n m) = mulO (exp\<omega> n) (exp\<omega> m)"
+  "exp\<omega> (addO n m) = mulO (exp\<omega> n) (exp\<omega> m)"semantic_induct
   by (induct m) auto
 
 
@@ -192,6 +192,7 @@ lemma addO_exp\<omega>_inj:
   shows "n = n'" and "m = m'"
 proof -
   have "addO n (exp\<omega> m) = addO n' (exp\<omega> m') \<Longrightarrow> n = n'"
+  semantic_induct
   assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["m'"],rule[]]
   assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m'"], arb["m"],rule[]](*very good*)
 
@@ -215,6 +216,7 @@ qed
 
 lemma C2O_inj:
   "C2O n = C2O m \<Longrightarrow> n = m"
+  semantic_induct
   assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["n"], arb["m"],rule[]](*good*)
   assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["n"],rule[]](*very good*)
 
@@ -237,11 +239,11 @@ lemma O2C_Z [simp]:
   using O2C_C2O[of "C []", unfolded C2O.simps] .
 
 lemma C2O_replicate:
-  "C2O (C (replicate i n)) = mulO (exp\<omega> (C2O n)) ((S ^^ i) Z)"
+  "C2O (C (replicate i n)) = mulO (exp\<omega> (C2O n)) ((S ^^ i) Z)" semantic_induct
   by (induct i) auto
 
 lemma C2O_app:
-  "C2O (C (xs @ ys)) = addO (C2O (C ys)) (C2O (C xs))"
+  "C2O (C (xs @ ys)) = addO (C2O (C ys)) (C2O (C xs))" semantic_induct
   by (induct xs arbitrary: ys) auto
 
 subsection \<open>Evaluation\<close>
@@ -392,15 +394,15 @@ lemma hbase_tl:
 lemmas hbase_tl' [dest] = hbase_tl[of "n # ns" for n ns, simplified]
 
 lemma hbase_elt [dest]:
-  "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"
+  "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"semantic_induct
   by (induct ns) auto
 
 lemma evalC_sum_list:
-  "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"
+  "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"semantic_induct(*!*)
   by (induct ns) auto
 
 lemma sum_list_replicate:
-  "sum_list (replicate n x) = n * x"
+  "sum_list (replicate n x) = n * x"semantic_induct
   by (induct n) auto
 
 lemma base_red:
@@ -409,7 +411,7 @@ lemma base_red:
   and m: "\<And>m'. m' \<in> set ms \<Longrightarrow> m < m'" "j < b" "j \<noteq> 0"
   and s: "i * b^n + sum_list (map (\<lambda>n. b^n) ns) = j * b^m + sum_list (map (\<lambda>n. b^n) ms)"
   shows "i = j \<and> n = m"
-  using n(1) m(1) s
+  using n(1) m(1) s semantic_induct
 proof (induct n arbitrary: m ns ms)
   { fix ns ms :: "nat list" and i j m :: nat
     assume n': "\<And>n'. n' \<in> set ns \<Longrightarrow> 0 < n'" "i < b" "i \<noteq> 0"
@@ -456,7 +458,7 @@ proof (induct n arbitrary: m ns ms)
 qed
 
 lemma evalC_inj_on_hbase:
-  "n \<in> hbase b \<Longrightarrow> m \<in> hbase b \<Longrightarrow> evalC b n = evalC b m \<Longrightarrow> n = m"
+  "n \<in> hbase b \<Longrightarrow> m \<in> hbase b \<Longrightarrow> evalC b n = evalC b m \<Longrightarrow> n = m"semantic_induct(*!*)
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb["m"],rule[]]
   assert_SeLFiE_false  ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb[],rule[]]
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate*)
@@ -587,6 +589,7 @@ qed
 
 lemma hbase_mono:
   "n \<in> hbase b \<Longrightarrow> n \<in> hbase (Suc b)"
+  semantic_induct
   by (induct n rule: hbase.induct) (auto 0 3 intro: hbase.intros hbase_evalC_mono)
 
 subsection \<open>Conversion to and from @{type nat}\<close>
@@ -724,7 +727,7 @@ abbreviation (input) exp\<omega>\<^sub>O where
   "exp\<omega>\<^sub>O n \<equiv> (\<lambda>z s l. n s (\<lambda>x z. l (\<lambda>n. \<langle>n\<rangle>\<^sub>N x z)) (\<lambda>f z. l (\<lambda>n. f n z)) z)"
 
 lemma exp\<omega>\<^sub>O:
-  "\<langle>exp\<omega> n\<rangle>\<^sub>O = exp\<omega>\<^sub>O \<langle>n\<rangle>\<^sub>O"
+  "\<langle>exp\<omega> n\<rangle>\<^sub>O = exp\<omega>\<^sub>O \<langle>n\<rangle>\<^sub>O"semantic_induct
   by (induct n) (simp_all add: mul\<^sub>O \<omega>\<^sub>O)
 
 abbreviation (input) goodstein\<^sub>O where
@@ -732,6 +735,7 @@ abbreviation (input) goodstein\<^sub>O where
 
 lemma goodstein\<^sub>O:
   "goodsteinO c n = goodstein\<^sub>O c \<langle>n\<rangle>\<^sub>O"
+  semantic_induct
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq                                  [on["n"], arb["c"],rule[]]
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change                                   [on["n"], arb["c"],rule[]]
   assert_SeLFiE_true   if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs [on["n"], arb["c"],rule[]]

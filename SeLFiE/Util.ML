@@ -109,9 +109,9 @@ struct
 fun same_strings_when_normalized (ctxt:Proof.context) st1 st2 =
   let
     val normalize          = Isabelle_Utils.normalize_trm_as_string ctxt;
-    val (norm_p1, norm_p2) = apply2 normalize (st1, st2);
+    val (norm_p1, norm_p2) = apply2 (try normalize) (st1, st2);
   in
-    norm_p1 = norm_p2
+    Utils.opt_equal (norm_p1, norm_p2)
   end;
 
 infix isSubstring;
@@ -130,10 +130,11 @@ fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
 
 fun induct_arguments_to_string (Induct_Arguments {ons, arbs, rules}) =
   let
-    val on    = String.concatWith " " ons: string;
+    val ons'  = map (enclose "\"" "\"") ons;
+    val on    = String.concatWith " " ons': string;
     val arb   = if null arbs  then "" else " arbitrary:" ^ String.concatWith " " arbs : string;
     val rule  = if null rules then "" else " rule:"      ^ String.concatWith " " rules: string;
-    val apply = "(" ^ on ^ arb ^ rule ^ " )"
+    val apply = "(induct " ^ on ^ arb ^ rule ^ ")"
   in
     apply
   end;
@@ -294,10 +295,10 @@ fun rule_to_const_name (ctxt:Proof.context) (rule_name:string) =
   try split_using_period rule_name
 <$> Utils.init
 <$> String.concatWith "."
-<$> Syntax.read_term ctxt
-<$> Term.dest_Const
+>>= try (Syntax.read_term ctxt)
+>>= try Term.dest_Const
 <$> fst
- |> Utils.the' "rule_to_const_name failed.";
+ |> (fn opt => Option.getOpt (opt, "fake_name"));
 
 local
 

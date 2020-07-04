@@ -42,13 +42,13 @@ primrec sub :: \<open>('b \<Rightarrow> 'c) \<Rightarrow> ('a, 'b) fm \<Rightarr
 | \<open>sub f (\<^bold>\<diamond> p) = (\<^bold>\<diamond> sub f p)\<close>
 | \<open>sub f (\<^bold>@ i p) = (\<^bold>@ (f i) (sub f p))\<close>
 
-lemma sub_nominals: \<open>nominals (sub f p) = f ` nominals p\<close>
+lemma sub_nominals: \<open>nominals (sub f p) = f ` nominals p\<close>semantic_induct
   by (induct p) auto
 
-lemma sub_id: \<open>sub id p = p\<close>
+lemma sub_id: \<open>sub id p = p\<close>semantic_induct
   by (induct p) simp_all
 
-lemma sub_upd_fresh: \<open>i \<notin> nominals p \<Longrightarrow> sub (f(i := j)) p = sub f p\<close>
+lemma sub_upd_fresh: \<open>i \<notin> nominals p \<Longrightarrow> sub (f(i := j)) p = sub f p\<close>semantic_induct
   by (induct p) auto
 
 section \<open>Semantics\<close>
@@ -75,7 +75,7 @@ lemma \<open>M, g, w \<Turnstile> \<^bold>\<top>\<close>
   by simp
 
 lemma semantics_fresh:
-  \<open>i \<notin> nominals p \<Longrightarrow> (M, g, w \<Turnstile> p) = (M, g(i := v), w \<Turnstile> p)\<close>
+  \<open>i \<notin> nominals p \<Longrightarrow> (M, g, w \<Turnstile> p) = (M, g(i := v), w \<Turnstile> p)\<close>semantic_induct
   by (induct p arbitrary: w) auto
 
 subsection \<open>Examples\<close>
@@ -235,7 +235,7 @@ inductive ST :: \<open>nat \<Rightarrow> ('a, 'b) branch \<Rightarrow> bool\<clo
 abbreviation ST_ex :: \<open>('a, 'b) branch \<Rightarrow> bool\<close> (\<open>\<turnstile> _\<close> [50] 50) where
   \<open>\<turnstile> branch \<equiv> \<exists>n. n \<turnstile> branch\<close>
 
-lemma ST_Suc: \<open>n \<turnstile> branch \<Longrightarrow> Suc n \<turnstile> branch\<close>
+lemma ST_Suc: \<open>n \<turnstile> branch \<Longrightarrow> Suc n \<turnstile> branch\<close>semantic_induct
   by (induct n branch rule: ST.induct) (simp_all add: ST.intros)
 
 text \<open>A verified derivation in the calculus.\<close>
@@ -270,14 +270,14 @@ text \<open>
 primrec block_sat :: \<open>('w, 'a) model \<Rightarrow> ('b \<Rightarrow> 'w) \<Rightarrow> ('a, 'b) block \<Rightarrow> bool\<close>
   (\<open>_, _ \<Turnstile>\<^sub>B _\<close> [50, 50] 50) where
   \<open>(M, g \<Turnstile>\<^sub>B (ps, i)) = (\<forall>p on (ps, i). M, g, g i \<Turnstile> p)\<close>
-
+term "Hybrid_Logic.on"
 abbreviation branch_sat ::
   \<open>('w, 'a) model \<Rightarrow> ('b \<Rightarrow> 'w) \<Rightarrow> ('a, 'b) branch \<Rightarrow> bool\<close>
   (\<open>_, _ \<Turnstile>\<^sub>\<Theta> _\<close> [50, 50] 50) where
   \<open>M, g \<Turnstile>\<^sub>\<Theta> branch \<equiv> \<forall>(ps, i) \<in> set branch. M, g \<Turnstile>\<^sub>B (ps, i)\<close>
 
 lemma block_nominals:
-  \<open>p on block \<Longrightarrow> i \<in> nominals p \<Longrightarrow> i \<in> block_nominals block\<close>
+  \<open>p on block \<Longrightarrow> i \<in> nominals p \<Longrightarrow> i \<in> block_nominals block\<close>semantic_induct
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],      arb[],rule[]]
   assert_SeLFiE_false outer_induct_on_arg_of_set_member_n_set_outer [on["p"],          arb[],rule[]]
   assert_SeLFiE_false outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"], arb[],rule[]]
@@ -286,7 +286,7 @@ lemma block_nominals:
 lemma block_sat_fresh:
   assumes \<open>M, g \<Turnstile>\<^sub>B block\<close> \<open>i \<notin> block_nominals block\<close>
   shows \<open>M, g(i := v) \<Turnstile>\<^sub>B block\<close>
-  using assms
+  using assms semantic_induct
 proof (induct block)
   case (Pair ps a)
   then have \<open>\<forall>p on (ps, a). i \<notin> nominals p\<close>
@@ -306,7 +306,7 @@ lemma branch_sat_fresh:
 
 text \<open>If a branch has a derivation then it cannot be satisfied.\<close>
 
-lemma soundness': \<open>n \<turnstile> branch \<Longrightarrow> M, g \<Turnstile>\<^sub>\<Theta> branch \<Longrightarrow> False\<close>
+lemma soundness': \<open>n \<turnstile> branch \<Longrightarrow> M, g \<Turnstile>\<^sub>\<Theta> branch \<Longrightarrow> False\<close>semantic_induct(*!*)
 proof (induct branch arbitrary: g rule: ST.induct)
   case (Close p i branch)
   then have \<open>M, g, g i \<Turnstile> p\<close> \<open>M, g, g i \<Turnstile> \<^bold>\<not> p\<close>

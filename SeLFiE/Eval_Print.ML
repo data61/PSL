@@ -69,21 +69,31 @@ fun print_n_context_to_numb_of_arguments (print:string) (ctxt:Proof.context) =
 |> Term.type_of
 |> Isabelle_Utils.count_numb_of_args_of_fun_typ: int;
 
+fun print_is_nth_of (print:string) (n:int) (ons_or_arb) =
+    try (nth ons_or_arb) n
+<$> equal print
+ |> Utils.is_some_true;
+
+fun read_term_then_check_term (ctxt:Proof.context) (print:string) (checker: term -> bool) =
+    try (Syntax.read_term ctxt) print
+<$> checker
+ |> Utils.is_some_true
+
 fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                                                     _    = prnt1 = prnt2
   | eval' (Is_Subprint_Of        (sub,   full))   _                                                     _    = String.isSubstring sub full
-  | eval' (Is_Nth_Induct         (print, n))    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _    = nth ons  n = print
-  | eval' (Is_Nth_Arbitrary      (print, n))    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _    = nth arbs n = print
+  | eval' (Is_Nth_Induct         (print, n))    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _    = print_is_nth_of print n ons
+  | eval' (Is_Nth_Arbitrary      (print, n))    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _    = print_is_nth_of print n arbs
   | eval' (Is_Induct              print    )    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _    = member (op =) ons   print
   | eval' (Is_Arbitrary           print    )    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _    = member (op =) arbs  print
   | eval' (Is_Rule                print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _    = member (op =) rules print
   | eval' (Is_Rule_Of_Print      (rule, cname))  _               ctxt = SU.rule_to_const_name ctxt rule = cname
   (*node*)
   | eval' (Print_Is_Cnst          print    )     _               ctxt = read_term ctxt print <$> is_Const |> Utils.is_some_true
-  | eval' (Print_Is_Free          print    )     _               ctxt = Syntax.read_term ctxt print |> is_Free
-  | eval' (Print_Is_Var           print    )     _               ctxt = Syntax.read_term ctxt print |> is_Var
-  | eval' (Print_Is_Bound         print    )     _               ctxt = Syntax.read_term ctxt print |> is_Bound
-  | eval' (Print_Is_Lambda        print    )     _               ctxt = Syntax.read_term ctxt print |> Isabelle_Utils.is_Abs
-  | eval' (Print_Is_App           print    )     _               ctxt = Syntax.read_term ctxt print |> Isabelle_Utils.is_App
+  | eval' (Print_Is_Free          print    )     _               ctxt = read_term_then_check_term ctxt print is_Free
+  | eval' (Print_Is_Var           print    )     _               ctxt = read_term_then_check_term ctxt print is_Var
+  | eval' (Print_Is_Bound         print    )     _               ctxt = read_term_then_check_term ctxt print is_Bound
+  | eval' (Print_Is_Lambda        print    )     _               ctxt = read_term_then_check_term ctxt print Isabelle_Utils.is_Abs
+  | eval' (Print_Is_App           print    )     _               ctxt = read_term_then_check_term ctxt print Isabelle_Utils.is_App
   | eval' (Print_Is_Defined_With           (print, command)) _   ctxt = Pattern.get_command ctxt print = command
   | eval' (Print_Is_Defined_With_N_Clauses (print, numb))    _   ctxt = SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt print = numb
   | eval' (Print_Takes_N_Arguments (print, numb))    _           ctxt = numb = print_n_context_to_numb_of_arguments print ctxt

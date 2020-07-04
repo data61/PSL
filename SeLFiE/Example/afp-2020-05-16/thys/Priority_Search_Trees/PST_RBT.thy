@@ -6,6 +6,7 @@ imports
   "HOL-Data_Structures.Isin2"
   "HOL-Data_Structures.Lookup2"
   PST_General
+  "../../../../SeLFiE"
 begin
   
 text \<open>
@@ -165,7 +166,7 @@ lemma inorder_baldR[simp]:
 by(cases "(l,a,r)" rule: baldR.cases) auto
 
 lemma inorder_combine[simp]:
-  "inorder(combine l r) = inorder l @ inorder r"
+  "inorder(combine l r) = inorder l @ inorder r"semantic_induct
 by (induction l r rule: combine.induct) (auto split: tree.split tcolor.split)
 
 lemma inorder_upd:
@@ -183,7 +184,7 @@ by(induction x t rule: del.induct)
   (auto simp: del_list_simps)
 
 lemma inorder_delete:
-  "sorted1(inorder t) \<Longrightarrow> inorder(delete x t) = del_list x (inorder t)"
+  "sorted1(inorder t) \<Longrightarrow> inorder(delete x t) = del_list x (inorder t)"semantic_induct
 by(simp add: delete_def inorder_del)
 
 

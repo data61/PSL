@@ -5,6 +5,7 @@ structure Multi_Stage_Screening =
 struct
 
 structure IU = Isabelle_Utils;
+structure SU = SeLFiE_Util;
 
 fun induction_arguments_to_tactic_on_proof_state (ind_args:SU.induct_arguments) (proof_state:Proof.state) =
   let
@@ -24,20 +25,20 @@ fun induction_arguments_to_tactic_on_proof_state (ind_args:SU.induct_arguments) 
     filtered_results
   end;
 
-fun induction_arguments_to_tactic_on_proof_state_w_timeout (ind_args:SU.induct_arguments) =
+fun induction_arguments_to_tactic_on_proof_state_w_timeout (ind_args:SU.induct_arguments) pst =
   let
-    val tactic_on_proof_state = induction_arguments_to_tactic_on_proof_state ind_args
-    val result                = IU.TIMEOUT_in 3.0 (Utils.try_with Seq.empty tactic_on_proof_state);
+    fun tactic_on_proof_state_result pst = Seq2.try_seq (induction_arguments_to_tactic_on_proof_state ind_args) pst;
+    fun get_result                   pst = IU.TIMEOUT_in 3.0 (tactic_on_proof_state_result) pst;
   in
-    result
+    get_result pst
   end;
 
 fun if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal:term, post_fst_goal:term) =
   let
     fun no_sche_in trm    = Term.add_var_names trm [] |> null               : bool;
-    val no_shce_in_post   = no_sche_in post_fst_goal                        : bool;
+    val no_sche_in_post   = no_sche_in post_fst_goal                        : bool;
     val no_sche_in_pre    = no_sche_in pre_fst_goal                         : bool;
-    val result            = if no_sche_in_pre then no_shce_in_post else true: bool;
+    val result            = if no_sche_in_pre then no_sche_in_post else true: bool;
   in
     result
   end;
@@ -45,7 +46,8 @@ fun if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal:term, post_fs
 fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (ind_args:SU.induct_arguments) =
   let
     val pre_first_goal_opt    = IU.pst_to_fst_subg pst                                             : term option;
-    val tactic_results_pst    = induction_arguments_to_tactic_on_proof_state_w_timeout ind_args pst: Proof.state Seq.seq;
+    val tactic_results_pst    = IU.TIMEOUT_in 3.0 (Seq2.try_seq (induction_arguments_to_tactic_on_proof_state_w_timeout ind_args)) pst
+                              : Proof.state Seq.seq;
     val post_proof_state_opt  = try Seq.hd tactic_results_pst                                      : Proof.state option;
     val post_first_goal_opt   = post_proof_state_opt >>= IU.pst_to_fst_subg                        : term option;
     val option_pair           = Utils.mk_option_pair (pre_first_goal_opt, post_first_goal_opt)     : (term * term) option;
@@ -58,12 +60,14 @@ fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (ind_args:SU
 
 fun proof_state_to_promising_induct_argumentss_n_resultss (pst:Proof.state) =
   let
-    val induct_argumentss = proof_state_to_induct_argumentss pst: SU.induct_arguments list;
+    val induct_argumentss = Smart_Construction.proof_state_to_induct_argumentss pst
+                          : SU.induct_arguments list;
     val raw_triples       = map (induct_arguments_is_promising_for_proof_state pst) induct_argumentss
                           : (SU.induct_arguments * bool * Proof.state Seq.seq) list;
     val promising_args    = filter     (fn (_, b, _) => b) raw_triples |> map (fn (a, _, c) => (a, c))
                           : (SU.induct_arguments * Proof.state Seq.seq) list;
     val _ = tracing ("Only " ^ Int.toString (length promising_args) ^ " combinations survivsed.");
+val _ = map (tracing o SU.induct_arguments_to_string o fst) promising_args 
   in
     promising_args: (SU.induct_arguments * Proof.state Seq.seq) list
   end;

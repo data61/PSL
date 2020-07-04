@@ -552,7 +552,7 @@ Imply
       Ands [
         Node_Is_Defined_With (Variable "inductive_occ",  Command Inductive),
         Is_A_Meta_Premise_Or_Below (Variable "inductive_occ"),
-        Is_Rule_Of_Node (Variable "rule", Variable "induct_occ")
+        Is_Rule_Of_Node (Variable "rule", Variable "inductive_occ")
       ]
     )
   );

@@ -53,9 +53,9 @@ fun get_assrt (ctxt:Proof.context) (assert_name:string): (ESS.assert * int) =
     val some_gen_heuristic  = lookup_assert ctxt (Generalization_Heuristic, assert_name) : (ESS.assert * int) option;
     val some_test_heuristic = lookup_assert ctxt (Test_Heuristic,           assert_name) : (ESS.assert * int) option;
     val heuristic =
-           if is_some some_ind_heuristic  andalso not (tracing "asdf1";ESS.Dummy = (fst (the some_ind_heuristic ))) then the some_ind_heuristic
-      else if is_some some_gen_heuristic  andalso not (tracing "asdf2";ESS.Dummy = (fst (the some_gen_heuristic ))) then the some_gen_heuristic
-      else if is_some some_test_heuristic andalso not (tracing "asdf3";ESS.Dummy = (fst (the some_test_heuristic))) then the some_test_heuristic
+           if is_some some_ind_heuristic  andalso not (ESS.Dummy = (fst (the some_ind_heuristic ))) then the some_ind_heuristic
+      else if is_some some_gen_heuristic  andalso not (ESS.Dummy = (fst (the some_gen_heuristic ))) then the some_gen_heuristic
+      else if is_some some_test_heuristic andalso not (ESS.Dummy = (fst (the some_test_heuristic))) then the some_test_heuristic
       else error (assert_name ^ "?\nDid you really define such an assertion?");
   in
     heuristic: (ESS.assert * int)
@@ -87,48 +87,106 @@ type trans_trans = Toplevel.transition -> Toplevel.transition;
 
 in
 
-fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_mod(*:ind_mods(*ind_mod_name:string*)*)) =
+fun mk_clean_mods (ctxt:Proof.context) (ind_mods:SU.induct_arguments) =
+  let
+    val normalize = IU.normalize_trm_as_string ctxt;
+    val {ons, arbs, rules} = SU.dest_induct_arguments ind_mods;
+    fun normalize_rule_as_string (rule_as_string:string) =
+      let
+        val short_cname_option = try (space_explode ".") rule_as_string
+                             <$> Utils.init 
+                             <$> String.concatWith "."(*<$> Utils.last*): string option;
+        val long_name_option = short_cname_option <$> normalize: string option;
+        val clean_rule_name  = long_name_option <$> curry (op ^) <*> SOME ".induct";
+        val result           = if is_some clean_rule_name then the clean_rule_name else "";
+      in
+        result
+      end;
+     val clean_ons   = (map normalize               ) ons  : strings;
+     val clean_arbs  = (map normalize               ) arbs : strings;
+     val clean_rules = (map normalize_rule_as_string) rules: strings;
+  in
+    SU.Induct_Arguments {ons = clean_ons, arbs = clean_arbs, rules = clean_rules}: SU.induct_arguments
+  end;
+
+fun bool_to_ES_assert (true :bool) = ESS.True
+  | bool_to_ES_assert (false:bool) = ESS.False;
+
+fun run_assertion (pst:Proof.state) (ind_mods:SU.induct_arguments) (assrt:ESS.assert) =
+    ESS.eval pst ind_mods assrt = bool_to_ES_assert true;
+
+fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_mod) =
   Toplevel.keep_proof (fn top: Toplevel.state =>
   let
-    val pst            = Toplevel.proof_of top     : Proof.state;
-    val ctxt           = Toplevel.context_of top   : Proof.context;
-    val (assrt, score) = get_assrt ctxt assert_name: (ESS.assert * int);
-    fun mk_clean_mods (ind_mods:SU.induct_arguments) =
-      let
-        val normalize = IU.normalize_trm_as_string ctxt;
-        val {ons, arbs, rules} = SU.dest_induct_arguments ind_mods;
-        fun normalize_rule_as_string (rule_as_string:string) =
-          let
-            val short_cname_option = try (space_explode ".") rule_as_string
-                                 <$> Utils.init <$> Utils.last: string option;
-            val long_name_option = short_cname_option <$> normalize: string option;
-            val clean_rule_name  = long_name_option <$> curry (op ^) <*> SOME ".induct";
-            val result           = if is_some clean_rule_name then the clean_rule_name else "";
-          in
-            result
-          end;
-         val clean_ons   = (map normalize               ) ons  : strings;
-         val clean_arbs  = (map normalize               ) arbs : strings;
-         val clean_rules = (map normalize_rule_as_string) rules: strings;
-      in
-        SU.Induct_Arguments {ons = clean_ons, arbs = clean_arbs, rules = clean_rules}: SU.induct_arguments
-      end;
-    fun bool_to_ES_assert (true :bool) = ESS.True
-      | bool_to_ES_assert (false:bool) = ESS.False;
-    fun run_test (assrt:ESS.assert) (pst:Proof.state) (ind_mods:SU.induct_arguments) =
-        ESS.eval pst (mk_clean_mods ind_mods) assrt = bool_to_ES_assert should_b_true_or_false;
+    val pst        = Toplevel.proof_of top     : Proof.state;
+    val ctxt       = Toplevel.context_of top   : Proof.context;
+    val (assrt, _) = get_assrt ctxt assert_name: (ESS.assert * int);
+    val clean_mods = mk_clean_mods ctxt ind_mod: SU.induct_arguments;
     val _ = @{assert} (
             let
-              val result = run_test assrt pst (mk_clean_mods ind_mod)
+              val result = run_assertion pst clean_mods assrt = should_b_true_or_false;
               val _      = tracing ("Assertion " ^ (if result then "succeeded." else "failed."));
             in result end);
   in
     ()
-  end)
-: trans_trans;
+  end): trans_trans;
 
 val get_trans_trans_true  = get_trans_trans_gen true
 val get_trans_trans_false = get_trans_trans_gen false
+
+fun heuristic_typ_n_pst_to_best_pairs_n_maximum_point (heuristic_typ:heuristic_typ) (pst:Proof.state) =
+  let
+    val ctxt           = Proof.context_of pst: Proof.context;
+    val dest_table     = (Strng_N_HeuTyp_Tab.dest o SeLFiE_Assertion.get) (Context.Proof ctxt)
+                       : ((heuristic_typ * string) * (ESS.assert * int)) list;
+    val dest_table_2   = map (fn ((htyp, ass_name), (ass, point)) => (htyp, {name = ass_name, assertion = ass, point = point})) dest_table;
+    fun is_same_heuristic_typ (typ:heuristic_typ) (htyp, {assertion,...}) = if typ = htyp andalso not (assertion = ESS.Dummy) then true else false;
+    val input          = (filter (is_same_heuristic_typ heuristic_typ) dest_table_2) |> map snd
+                       : {assertion: Eval_Syntactic_Sugar.assert, name: string, point: int} list;
+    val maximum_point  = fold (curry (op +)) (map #point input) 0: int;
+    fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
+      let
+        val clean_mods     = mk_clean_mods ctxt ind_mod: SU.induct_arguments;
+        val success_scores = filter (fn {assertion, name,...} => (run_assertion pst clean_mods assertion)) input
+                           |> map #point: int list;
+        val score          = fold (curry (op +)) success_scores 0: int;
+      in score end;
+    val ind_mods           = Smart_Construction.proof_state_to_induct_argumentss pst: SU.induct_arguments list;
+    val promising_ind_mods_n_result = Multi_Stage_Screening.proof_state_to_promising_induct_argumentss_n_resultss pst
+                           : (SU.induct_arguments * Proof.state Seq.seq) list;
+    val ind_mod_n_scores   = map (fn (ind_mod, result) => {score = ind_mod_to_score ind_mod, modifiers = ind_mod, result = result}) promising_ind_mods_n_result
+                           : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
+    val sorted_pairs       = sort (fn (p1, p2) => Int.compare (#score p1, #score p2)) ind_mod_n_scores |> rev
+                           : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
+    val best_pairs         = take 10 sorted_pairs;
+  in
+    (best_pairs, maximum_point)
+  end;
+
+val semantic_induct_cmd =
+  Toplevel.keep_proof
+  (Timeout.apply (seconds 3000.0)
+  (fn top: Toplevel.state =>
+  let
+    val _              = tracing "smart_induct started producing combinations of induction arguments.";
+    val fst_and_snd        = ["1st candidate is ", "2nd candidate is "]
+    val third_till_tenth   = List.tabulate (11, I) |> map Int.toString |> drop 3 |> map (fn rank => rank ^ "th candidate is ");
+    val fst_till_tenth     = fst_and_snd @ third_till_tenth;
+    fun ind_args_to_sendb ind_args = SU.induct_arguments_to_string ind_args
+                                  |> Active.sendback_markup_properties [Markup.padding_command]: string;
+    val pst                       = Toplevel.proof_of top: Proof.state;
+    val (best_records, max_point) = heuristic_typ_n_pst_to_best_pairs_n_maximum_point Induction_Heuristic pst;
+    fun mk_message record = ind_args_to_sendb (#modifiers record) ^
+                             "\n  (* The score is " ^ Int.toString (#score record) ^ " out of " ^ Int.toString max_point ^ ". *)";
+    val best_messages      = map mk_message best_records: strings;
+    val _                  = tracing "Try these promising inductions!";
+    val best_mssg_w_ranks  = take (length best_messages) fst_till_tenth ~~ best_messages |>  map (op ^);
+    val _                  = map tracing best_mssg_w_ranks;
+  in
+    ()
+  end)
+  )
+: trans_trans;
 
 local
 
@@ -214,6 +272,11 @@ fun activate _ =
         ("check if the given combination of arguments to the induct method is compatible with " ^
          "the heuristic implemented by the SeLFiE assertion.")
         token_parser_false;
+
+    val _ =
+     Outer_Syntax.command @{command_keyword semantic_induct} "recommend which method to use." 
+       (Scan.succeed semantic_induct_cmd); 
+
   in () end;
 
 end;

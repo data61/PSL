@@ -265,7 +265,7 @@ fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:as
   let
     val var_expr  = surf_to_var assert              : EV.expr;
     val result_ev = EV.eval pst induct_args var_expr: EV.expr;
-    val result    = deep_to_surface result_ev     : assert;
+    val result    = deep_to_surface result_ev       : assert;
   in
     result
   end;
