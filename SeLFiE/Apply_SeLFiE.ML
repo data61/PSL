@@ -61,22 +61,9 @@ fun get_assrt (ctxt:Proof.context) (assert_name:string): (ESS.assert * int) =
     heuristic: (ESS.assert * int)
   end;
 
-fun update_assert' k v  = Strng_N_HeuTyp_Tab.update_new (k, v)
+fun update_assert k v  = Strng_N_HeuTyp_Tab.update_new (k, v)
  |> SeLFiE_Assertion.map
  |> Context.theory_map: theory -> theory;
-
-fun update_assert (p as (Induction_Heuristic, heuristic_name:string)) value =
-    update_assert' p value
-  o update_assert' (Generalization_Heuristic, heuristic_name) (ESS.Dummy, 0)
-  o update_assert' (Test_Heuristic          , heuristic_name) (ESS.Dummy, 0)
-  | update_assert (p as (Generalization_Heuristic, heuristic_name:string)) value =
-    update_assert' p value
-  o update_assert' (Induction_Heuristic, heuristic_name) (ESS.Dummy, 0)
-  o update_assert' (Test_Heuristic,      heuristic_name) (ESS.Dummy, 0)
-  | update_assert (p as (Test_Heuristic, heuristic_name:string)) value =
-    update_assert' p value
-  o update_assert' (Induction_Heuristic,      heuristic_name) (ESS.Dummy, 0)
-  o update_assert' (Generalization_Heuristic, heuristic_name) (ESS.Dummy, 0): theory -> theory;
 
 local
 
@@ -131,8 +118,31 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_m
     ()
   end): trans_trans;
 
-val get_trans_trans_true  = get_trans_trans_gen true
-val get_trans_trans_false = get_trans_trans_gen false
+val get_trans_trans_true  = get_trans_trans_gen true;
+val get_trans_trans_false = get_trans_trans_gen false;
+
+fun get_trans_trans_for_all_asserts_gen (heuristic_typ:heuristic_typ) (ind_mod: SU.induct_arguments) =
+  Toplevel.keep_proof (fn top: Toplevel.state =>
+  let
+    val pst         = Toplevel.proof_of top     : Proof.state;
+    val ctxt        = Toplevel.context_of top   : Proof.context;
+    val key_n_vals  = (Strng_N_HeuTyp_Tab.dest o SeLFiE_Assertion.get) (Context.Proof ctxt)
+                    : ((heuristic_typ * string) * (ESS.assert * int)) list;
+    val key_n_vals' = filter (fn ((typ,_),(_,_)) => typ = heuristic_typ) key_n_vals
+                    : ((heuristic_typ * string) * (ESS.assert * int)) list;
+    val ass_names   = map (snd o fst) key_n_vals' |> distinct (op =): string list;
+    val ass_n_point = map (fn ass_name => (ass_name, get_assrt ctxt ass_name)) ass_names
+                    : (string * (ESS.assert * int)) list;
+    val clean_mods = mk_clean_mods ctxt ind_mod: SU.induct_arguments;
+    fun prnt_one_result (ass_name, (ass, _)) =
+        let
+          val result = run_assertion pst clean_mods ass: bool;
+          val _      = tracing ("Assertion " ^ ass_name ^ (if result then " succeeded." else " failed."));
+        in result end;
+    val _ = map prnt_one_result ass_n_point;
+  in
+    ()
+  end): trans_trans;
 
 fun heuristic_typ_n_pst_to_best_pairs_n_maximum_point (heuristic_typ:heuristic_typ) (pst:Proof.state) =
   let
@@ -251,11 +261,29 @@ val SeLFiE_parser =
 
 val invocation_parser = PC.token SeLFiE_parser: (string * SeLFiE_Util.induct_arguments) PC.parser;
 
-val get_trans_trans_to_token_parser = PSL_Interface.parser_to_trans_trans_parser invocation_parser;
+val get_trans_trans_to_token_parser = PSL_Interface.parser_to_trans_trans_parser invocation_parser
+ : (string * SU.induct_arguments -> trans_trans) -> trans_trans Token.parser;
 
 val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true  : trans_trans Token.parser;
 
 val token_parser_false = get_trans_trans_to_token_parser get_trans_trans_false : trans_trans Token.parser;
+
+(*for check_all_SeLFiE*)
+val check_all_SeLFiE_parser =
+  PC.bind (parse_bracket ()) (fn ind_mods:SU.induct_arguments =>
+  PC.result ind_mods)
+: SU.induct_arguments PC.parser;
+
+val get_trans_trans_to_token_parser_for_check_all = PSL_Interface.parser_to_trans_trans_parser check_all_SeLFiE_parser
+ : (SU.induct_arguments -> trans_trans) -> trans_trans Token.parser;;
+
+val token_parser_check_all_induction_heuristic =
+    get_trans_trans_to_token_parser_for_check_all (get_trans_trans_for_all_asserts_gen Induction_Heuristic)
+  : trans_trans Token.parser;
+
+val token_parser_check_all_generalization_heuristic =
+    get_trans_trans_to_token_parser_for_check_all (get_trans_trans_for_all_asserts_gen Generalization_Heuristic)
+  : trans_trans Token.parser;
 
 in
 
@@ -276,6 +304,14 @@ fun activate _ =
     val _ =
      Outer_Syntax.command @{command_keyword semantic_induct} "recommend which method to use." 
        (Scan.succeed semantic_induct_cmd); 
+
+    val _ =
+     Outer_Syntax.command @{command_keyword all_induction_heuristic} "check all induction heuristics."
+       token_parser_check_all_induction_heuristic;
+
+    val _ =
+     Outer_Syntax.command @{command_keyword all_generalization_heuristic} "check all generalization heuristics."
+       token_parser_check_all_generalization_heuristic;
 
   in () end;
 

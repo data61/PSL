@@ -14,9 +14,11 @@
  *)
 theory SeLFiE
   imports "PSL.PSL"
-  keywords "assert_SeLFiE_true" :: diag
-  and      "assert_SeLFiE_false":: diag
-  and      "semantic_induct"    :: diag
+  keywords "assert_SeLFiE_true"          :: diag
+  and      "assert_SeLFiE_false"         :: diag
+  and      "semantic_induct"             :: diag
+  and      "all_induction_heuristic"     :: diag
+  and      "all_generalization_heuristic":: diag
 (*
    and     "test_all_LiFtErs"   :: diag
 *)
@@ -179,6 +181,8 @@ primrec rev :: "'a list \<Rightarrow> 'a list" where
 ML\<open> Term.dest_Const @{term "(=)"}\<close>
 lemma "itrev xs ys = rev xs @ ys"
   semantic_induct
+  all_induction_heuristic [on["xs"], arb["ys"],rule[]]
+  all_induction_heuristic [on["xs","ys"], arb[],rule["itrev.induct"]]
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["xs"], arb["ys"],rule[]](*It used to take 1.196s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb["xs"],rule[]](*It used to take 2.467s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]](*It used to take 0.864s elapsed time*)
