@@ -6,7 +6,7 @@
 section "Depth-First Search"
 
 theory DFS
-imports Main
+  imports Main "../../../../SeLFiE"
 begin
 
 subsection "Definition of Graphs"

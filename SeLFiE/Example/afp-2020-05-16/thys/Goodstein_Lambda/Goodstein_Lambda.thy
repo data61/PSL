@@ -123,14 +123,17 @@ subsection \<open>Properties of evaluation\<close>
 
 lemma evalO_addO [simp]:
   "evalO b (addO n m) = evalO b n + evalO b m" semantic_induct
+  assert_SeLFiE_true is_defined_recursively_on_nth_n_mth_by_two_funs   [on["m"], arb[],rule[]]
+  assert_SeLFiE_false is_defined_recursively_on_nth_n_mth_by_two_funs  [on["n"], arb[],rule[]]
   by (induct m) auto
 
 lemma evalO_mulO [simp]:
-  "evalO b (mulO n m) = evalO b n * evalO b m" semantic_induct(*!*)
+  "evalO b (mulO n m) = evalO b n * evalO b m" semantic_induct
   by (induct m) auto
 
 lemma evalO_n [simp]:
   "evalO b ((S ^^ n) Z) = n"semantic_induct
+  all_induction_heuristic [on["n"], arb[],rule[]]
   by (induct n) auto
 
 lemma evalO_\<omega> [simp]:
@@ -297,13 +300,13 @@ function (domintros) goodsteinC where
 
 termination
 proof -
-  have "goodsteinC_dom (c, n)" for c n
+  have "goodsteinC_dom (c, n)" for c n semantic_induct
     by (induct n arbitrary: c rule: C_Ord_induct) (auto intro: goodsteinC.domintros)
   then show ?thesis by simp
 qed
 
 lemma goodsteinC_def':
-  "goodsteinC c n = goodsteinO c (C2O n)"
+  "goodsteinC c n = goodsteinO c (C2O n)"semantic_induct
   by (induct c n rule: goodsteinC.induct) (simp_all add: C2O_cons del: C2O.simps(2))
 
 function (domintros) stepC where
@@ -315,7 +318,8 @@ function (domintros) stepC where
 
 termination
 proof -
-  have "stepC_dom (c, n)" for c n
+  have "stepC_dom (c, n)" for c n semantic_induct
+    apply(induction "(c, n)")
     by (induct n arbitrary: c rule: C_Ord_induct) (auto intro: stepC.domintros)
   then show ?thesis by simp
 qed
@@ -329,7 +333,7 @@ value "map (\<lambda>n. evalC (n+2) (g4C n)) [0..<10]"
 subsection \<open>Properties\<close>
 
 lemma stepC_def':
-  "stepC c n = O2C (stepO c (C2O n))"
+  "stepC c n = O2C (stepO c (C2O n))"semantic_induct
   by (induct c n rule: stepC.induct) (simp_all add: C2O_cons del: C2O.simps(2))
 
 lemma funC_ne [simp]:
@@ -337,11 +341,11 @@ lemma funC_ne [simp]:
   by (cases m rule: funC.cases) simp_all
 
 lemma evalC_funC [simp]:
-  "evalC b (C (funC n b)) = evalC b (C [n])"
+  "evalC b (C (funC n b)) = evalC b (C [n])"semantic_induct
   by (induct n rule: funC.induct) simp_all
 
 lemma stepC_app [simp]:
-  "n \<noteq> C [] \<Longrightarrow> stepC c (C (unC n @ ns)) = C (unC (stepC c n) @ ns)"
+  "n \<noteq> C [] \<Longrightarrow> stepC c (C (unC n @ ns)) = C (unC (stepC c n) @ ns)"semantic_induct
   by (induct n arbitrary: ns rule: stepC.induct) simp_all
 
 lemma stepC_cons [simp]:
@@ -736,6 +740,7 @@ abbreviation (input) goodstein\<^sub>O where
 lemma goodstein\<^sub>O:
   "goodsteinO c n = goodstein\<^sub>O c \<langle>n\<rangle>\<^sub>O"
   semantic_induct
+  all_induction_heuristic [on["n"], arb["c"],rule[]]
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq                                  [on["n"], arb["c"],rule[]]
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change                                   [on["n"], arb["c"],rule[]]
   assert_SeLFiE_true   if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs [on["n"], arb["c"],rule[]]

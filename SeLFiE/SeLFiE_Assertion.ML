@@ -114,7 +114,38 @@ All ("xs", QInd,
       Is_Atomic (Variable "xs_occ")
     Imply
       Is_At_Deepest_In_A_Location (Variable "xs_occ")
-  ));
+  )
+);
+
+val condition_to_deepest_heuristic =
+  Not (
+    Some ("set", QOuter_Print,
+      Ands [
+        Are_Same_Prints (Variable "set", Print "List.list.set"),
+        Some ("hol_quantifier", QOuter_Print,
+          Ors [
+            Are_Same_Prints (Variable "hol_quantifier", Print "HOL.All"),
+            Are_Same_Prints (Variable "hol_quantifier", Print "HOL.Ex" ),
+            Are_Same_Prints (Variable "hol_quantifier", Print "Set.Ball"),
+            Are_Same_Prints (Variable "hol_quantifier", Print "Set.Bex" ),
+            Are_Same_Prints (Variable "hol_quantifier", Print "Set.Bex1"),
+            Are_Same_Prints (Variable "hol_quantifier", Print "Set.Bleast")
+          ]
+        )
+      ]
+    )
+  );
+
+val lifter2_improved =
+  condition_to_deepest_heuristic
+Imply
+All ("xs", QInd,
+  Some_Of ("xs_occ", Variable "xs",
+      Is_Atomic (Variable "xs_occ")
+    Imply
+      Is_At_Deepest_In_A_Location (Variable "xs_occ")
+  )
+);
 
 (*defined_recursively*)
 val print_defined_recursively =
@@ -150,6 +181,34 @@ Some ("func_occ", QOuter_Path,
     )
   ]
 );
+
+val print_defined_inductively =
+Lambdas (["func_term"],
+  Ors [
+    Print_Is_Defined_With (Variable "func_term", Command Inductive),
+    Print_Is_Defined_With (Variable "func_term", Command Inductive_Set)
+  ]
+);
+
+val lifter_3_improved =
+  Not (
+    Some ("inductively_defined_term", QOuter_Print,
+      Applies (print_defined_inductively, [Variable "inductively_defined_term"])
+    )
+  )
+Imply
+  Some ("func_occ", QOuter_Path,
+    Ands [
+      Applies (node_defined_recursively, [Variable "func_occ"]),
+      All ("ind", QInd,
+        Some_Of ("ind_occ", Variable "ind",
+          Ands [
+            Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
+          ]
+        )
+      )
+    ]
+  );
 
 val nth_arg_on_lfs_is_const_or_app =
  Lambdas (["nth"], Debug_Non_Path_Literal (Variable "func"));
@@ -353,9 +412,16 @@ All ("arbitrary", QArb,
 );
 
 val lifter_7 =
-  Some ("func", QOuter_Print,
-    Applies (print_defined_recursively, [Variable "func"])
-  )
+  Ands [
+    Not (
+      Some ("inductively_defined_term", QOuter_Print,
+        Applies (print_defined_inductively, [Variable "inductively_defined_term"])
+      )
+    ),
+    Some ("func", QOuter_Print,
+      Applies (print_defined_recursively, [Variable "func"])
+    )
+  ]
 Imply
   Some ("func", QOuter_Print,
     Ands [
@@ -387,6 +453,7 @@ Imply
 
 val lifter_9_improved =
   Ands [
+    condition_to_deepest_heuristic,
     Some ("induct_arg", QInd, True),
     All ("induct_arg", QInd,
       Some_Of ("induct_arg_occ", Variable "induct_arg",
@@ -428,7 +495,10 @@ Imply
         Is_Rule_Of_Print (Variable "rule",  Variable "func"),
         Some_Of ("func_occ", Variable "func",
           All ("arg_occ", QOuter_Path,
-              Is_An_Arg_Of (Variable "arg_occ", Variable "func_occ")
+              Ands [
+                Are_In_Same_Location (Variable "arg_occ", Variable "func_occ"),
+                Is_An_Arg_Of (Variable "arg_occ", Variable "func_occ")
+              ]
             Imply
               Some ("ind", QInd,
                 Unode_Has_Print (Variable "arg_occ", Variable "ind")
@@ -791,6 +861,74 @@ Imply
       )
     ]
   );
+
+val is_defined_recursively_on_nth_n_mth_by_two_funs =
+  Ands [
+    Not (Some ("rule", QRule, True)),
+    Some ("func1_term", QOuter_Print,
+      Ands [
+        Applies (print_defined_recursively, [Variable "func1_term"]),
+        Some ("func2_occ_is_below_nth_arg_of_func1_occ", QOuter_Number,
+          Ands [
+            Print_Takes_Less_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
+            In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
+            Some_Of ("func1_occ", Variable "func1_term",
+              Ands [
+                Some ("func2_term", QOuter_Print,
+                  Ands [
+                    Applies (print_defined_recursively, [Variable "func2_term"]),
+                    Some_Of ("func2_occ", Variable "func2_term",
+                      Ands [
+                        Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ")
+                      ]
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  ]
+Imply
+    Some ("func1_term", QOuter_Print,
+      Ands [
+        Applies (print_defined_recursively, [Variable "func1_term"]),
+        Some ("func2_occ_is_below_nth_arg_of_func1_occ", QOuter_Number,
+          Ands [
+            Print_Takes_Less_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
+            In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
+            Some_Of ("func1_occ", Variable "func1_term",
+              Ands [
+                Some ("func2_term", QOuter_Print,
+                  Ands [
+                    Applies (print_defined_recursively, [Variable "func2_term"]),
+                    Some ("ind_occ_is_below_nth_arg_of_func2_occ", QOuter_Number,
+                      Ands [
+                        Print_Takes_Less_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
+                        In_Some_Definitions (Variable "func2_term", is_defined_recursively_on_nth, [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"]),
+                        Some_Of ("func2_occ", Variable "func2_term",
+                          Ands [
+                            Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ"),
+                            All ("ind_term", QInd,
+                              Some_Of ("ind_occ", Variable "ind_term",
+                                Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ", Variable "ind_occ_is_below_nth_arg_of_func2_occ", Variable "func2_occ")
+                              )
+                            )
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+;
 
 val nth_parameter_is_used_in_mth_argument_in_recursive_call =
 Lambdas (["func", "recursive_on_nth", "mth"],
@@ -1660,5 +1798,94 @@ All ("free_var_trm", QOuter_Print,
       Are_Same_Prints (Variable "free_var_trm", Variable "arb_trm")
     )
 );
+
+val rule_inversion_using_the_deepest_const =
+  Ands [
+    condition_to_deepest_heuristic,
+    Some ("rule", QRule,
+      Some ("rec_occ1", QOuter_Path,
+        Ands [
+          Node_Is_Cnst (Variable "rec_occ1"),
+          Is_Rule_Of_Node (Variable "rule", Variable "rec_occ1"),
+          Some ("rec_occ2", QOuter_Path,
+            Ands [
+              Applies (node_defined_recursively, [Variable "rec_occ2"]),
+              Are_In_Same_Location (Variable "rec_occ1", Variable "rec_occ2"),
+              Not (Has_Same_Prnt_As (Variable "rec_occ1", Variable "rec_occ2"))
+            ]
+          )
+        ]
+      )
+    )
+  ]
+Imply
+  Ands [
+    Some ("rule", QRule,
+      Some ("rec_occ1", QOuter_Path,
+        Ands [
+          Is_Rule_Of_Node (Variable "rule", Variable "rec_occ1"),
+          All ("rec_occ2", QOuter_Path,(*!*)
+              Ands [
+                Applies (node_defined_recursively, [Variable "rec_occ2"]),
+                Are_In_Same_Location (Variable "rec_occ1", Variable "rec_occ2"),
+                Not (Has_Same_Prnt_As (Variable "rec_occ1", Variable "rec_occ2"))
+              ]
+            Imply
+              Ands [
+                Not (Is_Deeper_Than (Variable "rec_occ2", Variable "rec_occ1"))
+              ]
+          )
+        ]
+      )
+    )
+  ];
+
+val complex_lhs_causes_functional_induction_inner =
+Lambdas (["_"],
+  Ands [
+    Some ("root_occ", QInner_Path,
+      Ands [
+        Is_Root_In_A_Location (Variable "root_occ"),
+        Some ("lhs_occ", QInner_Path,
+          Ands [
+            Applies (is_lhs_of_root, [Variable "lhs_occ", Variable "root_occ"]),
+            Some ("below_lhs_occ", QInner_Path,
+              Ands [
+                Node_Is_App (Variable "below_lhs_occ"),
+                Is_Child_Of (Variable "below_lhs_occ", Variable "lhs_occ"),
+                Some ("below_below_lhs_occ", QInner_Path,
+                  Ands [
+                    Node_Is_App (Variable "below_below_lhs_occ"),
+                    Is_Child_Of (Variable "below_below_lhs_occ", Variable "below_lhs_occ")
+                  ]
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  ]
+);
+
+val complex_lhs_causes_functional_induction_inner =
+  Some ("func_term", QOuter_Print,
+    Ands [
+      Print_Is_Cnst (Variable "func_term"),
+      In_Some_Definitions (Variable "func_term", complex_lhs_causes_functional_induction_inner, [Variable "func_term"])
+    ]
+  )
+Imply
+  Some ("rule", QRule,
+    Ands [
+      Some ("func_term", QOuter_Print,
+        Ands [
+          Print_Is_Cnst (Variable "func_term"),
+          Is_Rule_Of_Print (Variable "rule", Variable "func_term"),
+          In_Some_Definitions (Variable "func_term", complex_lhs_causes_functional_induction_inner, [Variable "func_term"])
+        ]
+      )
+    ]
+  );
 
 end;

@@ -19,7 +19,8 @@ fun induction_arguments_to_tactic_on_proof_state (ind_args:SU.induct_arguments) 
     val checked_src      = Dynamic_Utils.check_src ctxt src                                    : Token.src;
     val text             = Method.Source checked_src                                           : Method.text;
     val text_range       = (text, (Position.none, Position.none))                              : Method.text_range;
-    val results          = Seq2.try_seq (Proof.apply text_range) proof_state                   : Proof.state Seq.result Seq.seq;
+    val applied_text_range = Proof.apply text_range;
+    val results          = applied_text_range proof_state                                      : Proof.state Seq.result Seq.seq;
     val filtered_results = Seq.filter_results results                                          : Proof.state Seq.seq;
   in
     filtered_results
@@ -27,10 +28,10 @@ fun induction_arguments_to_tactic_on_proof_state (ind_args:SU.induct_arguments) 
 
 fun induction_arguments_to_tactic_on_proof_state_w_timeout (ind_args:SU.induct_arguments) pst =
   let
-    fun tactic_on_proof_state_result pst = Seq2.try_seq (induction_arguments_to_tactic_on_proof_state ind_args) pst;
-    fun get_result                   pst = IU.TIMEOUT_in 3.0 (tactic_on_proof_state_result) pst;
+    val tactic_on_proof_state_result = Seq2.try_seq (IU.TIMEOUT_in 3.0 (induction_arguments_to_tactic_on_proof_state ind_args)) pst;
+    val result                       = (tactic_on_proof_state_result);
   in
-    get_result pst
+    result
   end;
 
 fun if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal:term, post_fst_goal:term) =
@@ -43,6 +44,9 @@ fun if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal:term, post_fs
     result
   end;
 
+fun pre_to_post_transition_is_promising (pre_fst_goal:term, post_fst_goal:term) =
+  if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal, post_fst_goal) andalso not (pre_fst_goal = post_fst_goal);
+
 fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (ind_args:SU.induct_arguments) =
   let
     val pre_first_goal_opt    = IU.pst_to_fst_subg pst                                             : term option;
@@ -52,7 +56,7 @@ fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (ind_args:SU
     val post_first_goal_opt   = post_proof_state_opt >>= IU.pst_to_fst_subg                        : term option;
     val option_pair           = Utils.mk_option_pair (pre_first_goal_opt, post_first_goal_opt)     : (term * term) option;
     val is_promising          = if   is_some pre_first_goal_opt
-                                then Utils.is_some_true (option_pair <$> if_no_schematic_in_pre_then_no_schematic_in_post)
+                                then Utils.is_some_true (option_pair <$> pre_to_post_transition_is_promising)
                                 else false: bool;
   in
     (ind_args, is_promising, tactic_results_pst): (SU.induct_arguments * bool * Proof.state Seq.seq)(*true is good*)
@@ -67,7 +71,6 @@ fun proof_state_to_promising_induct_argumentss_n_resultss (pst:Proof.state) =
     val promising_args    = filter     (fn (_, b, _) => b) raw_triples |> map (fn (a, _, c) => (a, c))
                           : (SU.induct_arguments * Proof.state Seq.seq) list;
     val _ = tracing ("Only " ^ Int.toString (length promising_args) ^ " combinations survivsed.");
-val _ = map (tracing o SU.induct_arguments_to_string o fst) promising_args 
   in
     promising_args: (SU.induct_arguments * Proof.state Seq.seq) list
   end;

@@ -416,7 +416,7 @@ next
     using Nom(6) by blast
 qed
 
-lemma block_sat: \<open>\<forall>p on block. M, g, w \<Turnstile> p \<Longrightarrow> M, g \<Turnstile>\<^sub>B block\<close>
+lemma block_sat: \<open>\<forall>p on block. M, g, w \<Turnstile> p \<Longrightarrow> M, g \<Turnstile>\<^sub>B block\<close>semantic_induct
   by (induct block) auto
 
 lemma branch_sat:
@@ -477,7 +477,7 @@ next
 qed
 
 lemma ST_nonempty:
-  \<open>n \<turnstile> left @ right \<Longrightarrow> Suc m \<turnstile> filter nonempty left @ right\<close>
+  \<open>n \<turnstile> left @ right \<Longrightarrow> Suc m \<turnstile> filter nonempty left @ right\<close>semantic_induct
 proof (induct n \<open>left @ right\<close> arbitrary: left right rule: ST.induct)
   case (Close p i n)
   have \<open>(\<^bold>\<not> p) at i in filter nonempty left @ right\<close>
@@ -789,22 +789,22 @@ primrec rev_nth :: \<open>'a list \<Rightarrow> nat \<Rightarrow> 'a option\<clo
   \<open>[] !. v = None\<close>
 | \<open>(x # xs) !. v = (if length xs = v then Some x else xs !. v)\<close>
 
-lemma rev_nth_last: \<open>xs !. 0 = Some x \<Longrightarrow> last xs = x\<close>
+lemma rev_nth_last: \<open>xs !. 0 = Some x \<Longrightarrow> last xs = x\<close>semantic_induct
   by (induct xs) auto
 
-lemma rev_nth_zero: \<open>(xs @ [x]) !. 0 = Some x\<close>
+lemma rev_nth_zero: \<open>(xs @ [x]) !. 0 = Some x\<close>semantic_induct
   by (induct xs) auto
 
-lemma rev_nth_snoc: \<open>(xs @ [x]) !. Suc v = Some y \<Longrightarrow> xs !. v = Some y\<close>
+lemma rev_nth_snoc: \<open>(xs @ [x]) !. Suc v = Some y \<Longrightarrow> xs !. v = Some y\<close>semantic_induct
   by (induct xs) auto
 
-lemma rev_nth_Suc: \<open>(xs @ [x]) !. Suc v = xs !. v\<close>
+lemma rev_nth_Suc: \<open>(xs @ [x]) !. Suc v = xs !. v\<close>semantic_induct
   by (induct xs) auto
 
-lemma rev_nth_bounded: \<open>v < length xs \<Longrightarrow> \<exists>x. xs !. v = Some x\<close>
+lemma rev_nth_bounded: \<open>v < length xs \<Longrightarrow> \<exists>x. xs !. v = Some x\<close>semantic_induct
   by (induct xs) simp_all
 
-lemma rev_nth_Cons: \<open>xs !. v = Some y \<Longrightarrow> (x # xs) !. v = Some y\<close>
+lemma rev_nth_Cons: \<open>xs !. v = Some y \<Longrightarrow> (x # xs) !. v = Some y\<close>semantic_induct
 proof (induct xs arbitrary: v rule: rev_induct)
   case (snoc a xs)
   then show ?case
@@ -825,7 +825,7 @@ lemma rev_nth_append: \<open>xs !. v = Some y \<Longrightarrow> (ys @ xs) !. v =
 lemma rev_nth_mem: \<open>block \<in>. branch \<longleftrightarrow> (\<exists>v. branch !. v = Some block)\<close>
 proof
   assume \<open>block \<in>. branch\<close>
-  then show \<open>\<exists>v. branch !. v = Some block\<close>
+  then show \<open>\<exists>v. branch !. v = Some block\<close>semantic_induct
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],      arb[],rule[]](*okay, but irrelevant*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["v"],          arb[],rule[]](*a little unfortunate, but okay*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"], arb[],rule[]](*a little unfortunate, but okay*)
@@ -845,7 +845,7 @@ proof
   qed simp
 next
   assume \<open>\<exists>v. branch !. v = Some block\<close>
-  then show \<open>block \<in>. branch\<close>
+  then show \<open>block \<in>. branch\<close>semantic_induct
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],      arb[],rule[]](*okay, but irrelevant*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["v"],          arb[],rule[]](*a little unfortunate, but okay*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"], arb[],rule[]](*a little unfortunate, but okay*)
@@ -862,7 +862,7 @@ qed
 lemma rev_nth_on: \<open>p on (ps, i) \<longleftrightarrow> (\<exists>v. ps !. v = Some p) \<or> p = Nom i\<close>
   by (simp add: rev_nth_mem)
 
-lemma rev_nth_Some: \<open>xs !. v = Some y \<Longrightarrow> v < length xs\<close>
+lemma rev_nth_Some: \<open>xs !. v = Some y \<Longrightarrow> v < length xs\<close>semantic_induct
 proof (induct xs arbitrary: v rule: rev_induct)
   case (snoc x xs)
   then show ?case
@@ -925,7 +925,7 @@ lemma mapi_branch_head_add_oob:
 lemma mapi_branch_mem:
   assumes \<open>(ps, i) \<in>. branch\<close>
   shows \<open>\<exists>v. (mapi (f v) ps, i) \<in>. mapi_branch f branch\<close>
-  unfolding mapi_branch_def using assms
+  unfolding mapi_branch_def using assms semantic_induct
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],       arb[],rule[]](*okay, but irrelevant*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["v"],           arb[],rule[]](*a little unfortunate, but okay*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"],  arb[],rule[]](*a little unfortunate, but okay*)
@@ -2744,7 +2744,9 @@ qed
 lemma descendants_block:
   assumes \<open>descendants k i ((ps, a) # branch) xs\<close>
   shows \<open>descendants k i ((ps' @ ps, a) # branch) xs\<close>
-  using assms
+  using assms semantic_induct
+  all_induction_heuristic [on["k", "i", "(ps, a) # branch", "xs"], arb[],rule["Hybrid_Logic.descendants.induct"]]
+  assert_SeLFiE_true lifter_11 [on["k", "i", "(ps, a) # branch", "xs"], arb[],rule["Hybrid_Logic.descendants.induct"]]
 proof (induct k i \<open>(ps, a) # branch\<close> xs arbitrary: ps a branch rule: descendants.induct)
   case (Initial v qs i v' k)
   have
@@ -2813,7 +2815,7 @@ lemma descendants_types:
     \<open>descendants k i branch xs\<close> \<open>(v, v') \<in> xs\<close>
     \<open>branch !. v = Some (ps, a)\<close> \<open>ps !. v' = Some p\<close>
   shows \<open>p = (\<^bold>\<diamond> Nom k) \<or> (\<exists>q. p = (\<^bold>\<not> (\<^bold>@ k q)))\<close>
-  using assms by (induct k i branch xs arbitrary: v v' ps a) fastforce+
+  using assms semantic_induct by (induct k i branch xs arbitrary: v v' ps a) fastforce+
 
 lemma descendants_oob_head':
   assumes \<open>descendants k i ((ps, a) # branch) xs\<close>
@@ -2841,7 +2843,7 @@ lemma ST_bridge':
     \<open>descendants k i ((ps, a) # branch) xs\<close>
     \<open>Nom j at c in branch\<close> \<open>Nom k at c in branch\<close>
   shows \<open>\<turnstile> mapi_branch (bridge k j xs) ((ps, a) # branch)\<close>
-  using assms(2-)
+  using assms(2-) semantic_induct
 proof (induct n \<open>(ps, a) # branch\<close> arbitrary: ps a branch xs rule: ST.induct)
   case (Close p i')
   let ?f = \<open>bridge k j xs\<close>
@@ -2868,7 +2870,7 @@ proof (induct n \<open>(ps, a) # branch\<close> arbitrary: ps a branch xs rule: 
     then have \<open>p on (mapi (?f v) qs, i')\<close>
       using qs bridge_on_Nom by fast
     moreover have \<open>(\<^bold>\<not> p) on (mapi (?f w) rs, i')\<close>
-      using rs(2) True by (induct rs) auto
+      using rs(2) True semantic_induct by (induct rs) auto
     ultimately show ?thesis
       using v w ST.Close by fast
   next
@@ -3681,7 +3683,7 @@ lemma hintikka_model:
   assumes \<open>hintikka H\<close>
   shows
     \<open>p at i in' H \<Longrightarrow> Model (reach H) (val H), assign H, assign H i \<Turnstile> p\<close>
-    \<open>(\<^bold>\<not> p) at i in' H \<Longrightarrow> \<not> Model (reach H) (val H), assign H, assign H i \<Turnstile> p\<close>
+    \<open>(\<^bold>\<not> p) at i in' H \<Longrightarrow> \<not> Model (reach H) (val H), assign H, assign H i \<Turnstile> p\<close>semantic_induct
 proof (induct p arbitrary: i)
   fix i
   case (Pro x)
@@ -3912,7 +3914,7 @@ definition Extend ::
 lemma extend_chain: \<open>extend S f n \<subseteq> extend S f (Suc n)\<close>
   by auto
 
-lemma extend_mem: \<open>S \<subseteq> extend S f n\<close>
+lemma extend_mem: \<open>S \<subseteq> extend S f n\<close>semantic_induct
   by (induct n) auto
 
 lemma Extend_mem: \<open>S \<subseteq> Extend S f\<close>
@@ -3960,7 +3962,7 @@ lemma witness_list_used:
   fixes i :: 'b
   assumes inf: \<open>infinite (UNIV :: 'b set)\<close> and \<open>finite used\<close> \<open>i \<notin> list_nominals ps\<close>
   shows \<open>i \<notin> list_nominals (witness_list ps ({i} \<union> used))\<close>
-  using assms(2-)
+  using assms(2-)semantic_induct
 proof (induct ps arbitrary: used)
   case (Cons p ps)
   then show ?case
@@ -4005,14 +4007,14 @@ lemma witness_used:
   assumes inf: \<open>infinite (UNIV :: 'b set)\<close> and
     \<open>finite used\<close> \<open>i \<notin> block_nominals block\<close>
   shows \<open>i \<notin> block_nominals (witness block ({i} \<union> used))\<close>
-  using assms witness_list_used by (induct block) fastforce
+  using assms witness_list_used semantic_induct by (induct block) fastforce
 
 lemma consistent_witness_list:
   fixes a :: 'b
   assumes inf: \<open>infinite (UNIV :: 'b set)\<close> and \<open>consistent S\<close>
     \<open>(ps, a) \<in> S\<close> \<open>finite used\<close> \<open>(\<Union> (block_nominals ` S)) \<subseteq> used\<close>
   shows \<open>consistent ({(witness_list ps used, a)} \<union> S)\<close>
-  using assms(2-)
+  using assms(2-) semantic_induct
 proof (induct ps arbitrary: used S)
   case Nil
   then have \<open>{(witness_list [] used, a)} \<union> S = S\<close>
@@ -4165,18 +4167,18 @@ qed
 lemma finite_nominals_extend:
   assumes \<open>finite (\<Union> (block_nominals ` S))\<close>
   shows \<open>finite (\<Union> (block_nominals ` extend S f n))\<close>
-  using assms by (induct n) (simp_all add: finite_block_nominals)
+  using assms semantic_induct by (induct n) (simp_all add: finite_block_nominals)
 
 lemma consistent_extend':
   fixes S :: \<open>('a, 'b) block set\<close>
   assumes inf: \<open>infinite (UNIV :: 'b set)\<close> and \<open>consistent S\<close> \<open>finite (\<Union> (block_nominals ` S))\<close>
   shows \<open>consistent (extend S f n)\<close>
-  using assms by (induct n) (simp, metis consistent_extend finite_nominals_extend)
+  using assms semantic_induct by (induct n) (simp, metis consistent_extend finite_nominals_extend)
 
 lemma UN_finite_bound:
   assumes \<open>finite A\<close> \<open>A \<subseteq> (\<Union>n. f n)\<close>
   shows \<open>\<exists>m :: nat. A \<subseteq> (\<Union>n \<le> m. f n)\<close>
-  using assms
+  using assms semantic_induct
 proof (induct A rule: finite_induct)
   case (insert x A)
   then obtain m where \<open>A \<subseteq> (\<Union>n \<le> m. f n)\<close>
@@ -4191,7 +4193,7 @@ proof (induct A rule: finite_induct)
     by blast
 qed simp
 
-lemma extend_bound: \<open>(\<Union>n \<le> m. extend S f n) = extend S f m\<close>
+lemma extend_bound: \<open>(\<Union>n \<le> m. extend S f n) = extend S f m\<close>semantic_induct
 proof (induct m)
   case (Suc m)
   have \<open>\<Union> (extend S f ` {..Suc m}) = \<Union> (extend S f ` {..m}) \<union> extend S f (Suc m)\<close>
@@ -4275,7 +4277,8 @@ definition saturated :: \<open>('a, 'b) block set \<Rightarrow> bool\<close> whe
     (\<exists>j. (\<^bold>@ j p) at i in' S \<and> (\<^bold>\<diamond> Nom j) at i in' S)\<close>
 
 lemma witness_list_append:
-  \<open>\<exists>extra. witness_list (ps @ qs) used = witness_list ps used @ witness_list qs (extra \<union> used)\<close>
+  \<open>\<exists>extra. witness_list (ps @ qs) used = witness_list ps used @ witness_list qs (extra \<union> used)\<close>semantic_induct
+  all_induction_heuristic [on["ps"],arb[],rule[]]
 proof (induct ps arbitrary: used)
   case Nil
   then show ?case
@@ -4315,10 +4318,10 @@ qed
 lemma ex_witness_list:
   assumes \<open>p \<in>. ps\<close> \<open>proper_dia p = Some q\<close>
   shows \<open>\<exists>i. {\<^bold>@ i q, \<^bold>\<diamond> Nom i} \<subseteq> set (witness_list ps used)\<close>
-  using \<open>p \<in>. ps\<close>
+  using \<open>p \<in>. ps\<close>semantic_induct
 proof (induct ps arbitrary: used)
   case (Cons a ps)
-  then show ?case
+  then show ?case semantic_induct
   proof (induct \<open>a = p\<close>)
     case True
     then have

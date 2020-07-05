@@ -14,8 +14,9 @@ val ctxt_n_string_to_cname: Proof.context -> string -> string option;
 
 (*arguments passed to the induct method*)
 datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: strings};
-val dest_induct_arguments: induct_arguments  -> {ons: strings, arbs: strings, rules: strings};
+val dest_induct_arguments     : induct_arguments  -> {ons: strings, arbs: strings, rules: strings};
 val induct_arguments_to_string: induct_arguments -> string;
+val sort_induct_argumentss    : induct_arguments list -> induct_arguments list;
 
 datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;
 
@@ -138,6 +139,13 @@ fun induct_arguments_to_string (Induct_Arguments {ons, arbs, rules}) =
   in
     apply
   end;
+
+fun numb_of_args (Induct_Arguments {ons, arbs, rules}) = length ons + length arbs + length rules: int;
+
+fun ord_induct_arguments (args1, args2) = (Int.compare (numb_of_args args1, numb_of_args args2)): order;
+
+fun sort_induct_argumentss (induct_argumentss:induct_arguments list) = sort ord_induct_arguments induct_argumentss
+  : induct_arguments list;
 
 datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;
 

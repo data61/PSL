@@ -325,7 +325,9 @@
 
 # Computation induction heuristics (a.k.a. recursion induction or functional induction)
 
-## Let f be a recursive function. If the definition of f is more complicated than having one equation for each constructor of some datatype, then properties of f are best proved via f.induct. (This heuristics appears in Concrete Semantics.)
+## Done: Let f be a recursive function. If the definition of f is more complicated than having one equation for each constructor of some datatype, then properties of f are best proved via f.induct. (This heuristics appears in Concrete Semantics.)
+
+### Done as `complex_lhs_causes_functional_induction_inner`.
 
 ### Example
 - [ ] `Binomial-Queues/Binomial_Queue.thy` line 269.
