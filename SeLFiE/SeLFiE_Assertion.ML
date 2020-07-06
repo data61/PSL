@@ -51,13 +51,13 @@ val heuristic_6 =
 
 val heuristic_7 =
  (All ("x", QOuter_Print,
-   Are_Same_Prints (Print "SeLFiE.itrev", Print "SeLFiE.itrev")))
+   Are_Same_Prints (Print "Test_SeLFiE.itrev", Print "Test_SeLFiE.itrev")))
 
 val heuristic_8 =
  Applies (
   Lambdas (["x"], 
-           Are_Same_Prints (Variable "x", Print "SeLFiE.itrev")),
-  [Print "SeLFiE.itrev"]);
+           Are_Same_Prints (Variable "x", Print "Test_SeLFiE.itrev")),
+  [Print "Test_SeLFiE.itrev"]);
 
 val heuristic_9 =
  (Some ("x", QOuter_Path,
@@ -70,7 +70,7 @@ val heuristic_10 =
 
 val heuristic_11 =
  (Some ("x", QOuter_Path,
-   Unode_Has_Print (Variable "x", Print "SeLFiE.itrev")));
+   Unode_Has_Print (Variable "x", Print "Test_SeLFiE.itrev")));
 
 val heuristic_12 =
   Some ("induct", QInd,
