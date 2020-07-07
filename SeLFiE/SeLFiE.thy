@@ -23,7 +23,12 @@ theory SeLFiE
    and     "test_all_LiFtErs"   :: diag
 *)
 begin
+
+lemma ab: "(\<And>a b. True) \<Longrightarrow> (\<And>a b. a \<or> True \<or> b)" by auto
+lemma ba: "(\<And>b a. True) \<Longrightarrow> (\<And>b a. a \<or> True \<or> b)" by auto
 ML\<open>
+val test= Thm.eq_thm (@{thm ab}, @{thm ba});
+;
 val asdf =  Term.add_free_names @{term "\<exists>x \<in> X. x"} [];
 val asfd = @{term "\<exists>x \<in> X. x"};
 val _ = @{term "Set.Bex"}
@@ -33,6 +38,16 @@ val asdf = #"\""  |> Char.toString ;
 val fdsa = asdf ^ "asdf";
 val aa = tracing  "\"xs ys\"";
 val LL = enclose "\"" "\"" "asdf";
+
+fun powerset (xs:'a list) =
+  let
+    fun poset ([]        , base) = [base]
+      | poset (head::tail, base) = (poset (tail, base)) @ (poset (tail, base @ [head]))
+  in
+    poset (xs, [])
+  end;
+
+val asdf = powerset [1,2,3]
 \<close>
 find_theorems name:"wf_induct"
 
@@ -106,13 +121,13 @@ setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "lifter_4"   
 setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "lifter_5"     (*may be obsolete due to smart_construction, may be harmful for lacking generalization *)                             ) (SeLFiE_Assertion.lifter_5                                                                                                                           , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Generalization_Heuristic, "lifter_6"                                                                                                                           ) (SeLFiE_Assertion.lifter_6                                                                                                                           , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "lifter_7"                                                                                                                           ) (SeLFiE_Assertion.lifter_7                                                                                                                           , 1) \<close>
-setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "lifter_8"                                                                                                                           ) (SeLFiE_Assertion.lifter_8                                                                                                                           , 1) \<close>
+setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "lifter_8"                                                                                                                           ) (SeLFiE_Assertion.lifter_8                                                                                                                           , 5) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "lifter_9"                                                                                                                           ) (SeLFiE_Assertion.lifter_9                                                                                                                           , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "lifter_9_improved"                                                                                                                  ) (SeLFiE_Assertion.lifter_9_improved                                                                                                                  , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Generalization_Heuristic, "lifter_10"                                                                                                                          ) (SeLFiE_Assertion.lifter_10                                                                                                                          , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "lifter_11"    (*may be harmful*)                                                                                                    ) (SeLFiE_Assertion.lifter_11                                                                                                                          , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Generalization_Heuristic, "lifter_12"                                                                                                                          ) (SeLFiE_Assertion.lifter_12                                                                                                                          , 1) \<close>
-setup\<open> Apply_SeLFiE.update_assert (Generalization_Heuristic, "lifter_13"    (*may be harmful: no arbitrary is at the same relative location as induction in terms of a function*)                 ) (SeLFiE_Assertion.lifter_13                                                                                                                          , 1) \<close>
+setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "lifter_13"    (*may be harmful: no arbitrary is at the same relative location as induction in terms of a function. See sorted_wrt_dist_take_drop in Nearest_Neighbors.thy, for example.*)) (SeLFiE_Assertion.lifter_13                                                                     , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "lifter_14"    (*obsolete because of smart construction*)                                                                            ) (SeLFiE_Assertion.lifter_14                                                                                                                          , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "lifter_15"    (*TODO: test the heuristic*)                                                                                          ) (SeLFiE_Assertion.lifter_15                                                                                                                          , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "lifter_20"    (*rule inversion on a function in a premise*)(*TODO: test*)                                                           ) (SeLFiE_Assertion.lifter_20                                                                                                                          , 1) \<close>
@@ -147,7 +162,11 @@ setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "structural_i
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,(*no good*)"structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer") (SeLFiE_Assertion.structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer, 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Test_Heuristic,           "generalize_all_free_var_not_inducted_on" (*bad*)                                                                                    ) (SeLFiE_Assertion.generalize_all_free_var_not_inducted_on                                                                                            , 1) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "rule_inversion_using_the_deepest_const"                                                                                             ) (SeLFiE_Assertion.rule_inversion_using_the_deepest_const                                                                                             , 1) \<close>
-setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "complex_lhs_causes_functional_induction_inner"                                                                                      ) (SeLFiE_Assertion.complex_lhs_causes_functional_induction_inner                                                                                      , 1) \<close>
-setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "is_defined_recursively_on_nth_n_mth_by_two_funs"                                                                                    ) (SeLFiE_Assertion.is_defined_recursively_on_nth_n_mth_by_two_funs                                                                                    , 1) \<close>
+(*setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "complex_lhs_causes_functional_induction_inner"                                                                                      ) (SeLFiE_Assertion.complex_lhs_causes_functional_induction_outer                                                                                    , 1) \<close>*)
+setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "is_defined_recursively_on_nth_n_mth_by_two_funs"                                                                                    ) (SeLFiE_Assertion.is_defined_recursively_on_nth_n_mth_by_two_funs                                                                                    , 2) \<close>
+setup\<open> Apply_SeLFiE.update_assert (Generalization_Heuristic, "if_rule_induction_then_no_generalization"                                                                                           ) (SeLFiE_Assertion.if_rule_induction_then_no_generalization                                                                                           , 1) \<close>
+setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "function_induction_only_if_there_is_a_complex_lhs"                                                                                  ) (SeLFiE_Assertion.function_induction_only_if_there_is_a_complex_lhs                                                                                  , 2) \<close>
+setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs"                                                  ) (SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs                                                  , 2) \<close>
+setup\<open> Apply_SeLFiE.update_assert (Induction_Heuristic,      "all_ind_should_be_atom"                                                                                                             ) (SeLFiE_Assertion.all_ind_should_be_atom                                                                                                             , 2) \<close>
 
 end

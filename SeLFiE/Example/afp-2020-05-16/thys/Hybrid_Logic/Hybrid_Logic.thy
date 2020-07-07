@@ -939,23 +939,23 @@ lemma mapi_branch_mem:
 lemma rev_nth_mapi_branch:
   assumes \<open>branch !. v = Some (ps, a)\<close>
   shows \<open>(mapi (f v) ps, a) \<in>. mapi_branch f branch\<close>
-  unfolding mapi_branch_def using assms
+  unfolding mapi_branch_def using assms semantic_induct
   by (induct branch) (simp_all, metis mapi_block.simps option.inject)
 
 lemma rev_nth_mapi_block:
   assumes \<open>ps !. v' = Some p\<close>
   shows \<open>f v' p on (mapi f ps, a)\<close>
-  using assms by (induct ps) (simp_all, metis option.sel)
+  using assms semantic_induct by (induct ps) (simp_all, metis option.sel)
 
 lemma mapi_append:
-  \<open>mapi f (xs @ ys) = mapi (\<lambda>v. f (v + length ys)) xs @ mapi f ys\<close>
+  \<open>mapi f (xs @ ys) = mapi (\<lambda>v. f (v + length ys)) xs @ mapi f ys\<close>semantic_induct
   by (induct xs) simp_all
 
-lemma mapi_block_id: \<open>mapi_block (mapper f {} v) (ps, i) = (ps, i)\<close>
+lemma mapi_block_id: \<open>mapi_block (mapper f {} v) (ps, i) = (ps, i)\<close>semantic_induct
   by (induct ps) auto
 
 lemma mapi_branch_id: \<open>mapi_branch (mapper f {}) branch = branch\<close>
-  unfolding mapi_branch_def using mapi_block_id by (induct branch) auto
+  unfolding mapi_branch_def using mapi_block_id semantic_induct by (induct branch) auto
 
 lemma length_mapi: \<open>length (mapi f xs) = length xs\<close>
   by (induct xs) auto

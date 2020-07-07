@@ -77,6 +77,19 @@ in
   induct_arguments: SU.induct_arguments list
 end;
 
-val induct_arguments = Term.add_free_names;
+fun terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs (trms:terms) (score, SU.Induct_Arguments {ons, rules,...}) =
+  let
+    val free_names        = fold Term.add_free_names trms []  |> distinct (op =)          : strings;
+    val fnames_not_in_ons = filter_out (member (op =) ons) free_names                     : strings;
+    val arbss             = powerset fnames_not_in_ons                                    : strings list;
+    fun mk_new_pair arbs  = (score, SU.Induct_Arguments {ons=ons, arbs=arbs, rules=rules}): (int * SU.induct_arguments);
+    val induct_argss      = map mk_new_pair arbss                                         : (int * SU.induct_arguments) list;
+  in
+    induct_argss: (int * SU.induct_arguments) list
+  end;
+
+fun terms_n_induct_argumentss_to_induct_argumentss_w_arbs (trms:terms) (score_n_argss:(int * SU.induct_arguments) list) =
+   map (fn score_n_args => terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs trms score_n_args) score_n_argss
+|> flat:  (int * SeLFiE_Util.induct_arguments) list;
 
 end;

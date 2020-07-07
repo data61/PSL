@@ -8,7 +8,6 @@ section \<open>Nearest Neighbor Search on the \<open>k\<close>-d Tree\<close>
 theory Nearest_Neighbors
 imports
   KD_Tree
-  "../../../../SeLFiE"
 begin
 
 text \<open>
@@ -43,6 +42,8 @@ lemma sorted_wrt_dist_insort_key:
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["ps"], arb["p", "q"],rule[]] (*very good*)
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["ps"], arb["q"],rule[]]
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change [on["ps"], arb[],rule[]] (*good*)
+  all_induction_heuristic      [on["ps"], arb[],rule[]]
+  all_generalization_heuristic [on["ps"], arb[],rule[]]
   by (induction ps) (auto simp: sorted_wrt_dist_def set_insort_key)
 
 lemma sorted_wrt_dist_take_drop:
@@ -57,6 +58,8 @@ lemma sorted_wrt_dist_last_take_mono:
   semantic_induct
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["ps"], arb["n"],rule[]]
   assert_SeLFiE_false  generalize_arguments_used_in_recursion [on["ps"], arb[],rule[]]
+  all_induction_heuristic      [on["ps"], arb["n"],rule[]]
+  all_generalization_heuristic [on["ps"], arb["n"],rule[]]
   by (induction ps arbitrary: n) (auto simp add: take_Cons')
 
 lemma sorted_wrt_dist_last_insort_key_eq:
@@ -231,7 +234,7 @@ lemma length_nns_gt_0:
 lemma length_nns_n:
   assumes "(set_kdt kdt \<union> set ps) - set (nearest_nbors n ps p kdt) \<noteq> {}"
   shows "length (nearest_nbors n ps p kdt) = n"
-  using assms
+  using assms semantic_induct
 proof (induction kdt arbitrary: ps)
   case (Node k v l r)
   let ?nnsl = "nearest_nbors n ps p l"
@@ -274,7 +277,7 @@ lemma sorted_nns:
 lemma distinct_nns:
   assumes "invar kdt" "distinct ps" "set ps \<inter> set_kdt kdt = {}"
   shows "distinct (nearest_nbors n ps p kdt)"
-  using assms
+  using assms semantic_induct
 proof (induction kdt arbitrary: ps)
   case (Node k v l r)
   let ?nnsl = "nearest_nbors n ps p l"
@@ -294,7 +297,7 @@ qed (auto simp: upd_nbors_def distinct_insort)
 lemma last_nns_mono:
   assumes "invar kdt" "sorted_wrt_dist p ps" "n \<le> length ps" "0 < n"
   shows "dist (last (nearest_nbors n ps p kdt)) p \<le> dist (last ps) p"
-  using assms
+  using assms semantic_induct
 proof (induction kdt arbitrary: ps)
   case (Node k v l r)
   let ?nnsl = "nearest_nbors n ps p l"
@@ -314,7 +317,7 @@ qed (auto simp: sorted_wrt_dist_last_upd_nbors_mono)
 theorem dist_nns:
   assumes "invar kdt" "sorted_wrt_dist p ps" "set ps \<inter> set_kdt kdt = {}" "distinct ps" "0 < n"
   shows "\<forall>q \<in> set_kdt kdt \<union> set ps - set (nearest_nbors n ps p kdt). dist (last (nearest_nbors n ps p kdt)) p \<le> dist q p"
-  using assms
+  using assms semantic_induct
 proof (induction kdt arbitrary: ps)
   case (Node k v l r)
 

@@ -161,10 +161,38 @@ fun heuristic_typ_n_pst_to_best_pairs_n_maximum_point (heuristic_typ:heuristic_t
                            |> map #point: int list;
         val score          = fold (curry (op +)) success_scores 0: int;
       in score end;
-    val ind_mods           = Smart_Construction.proof_state_to_induct_argumentss pst: SU.induct_arguments list;
     val promising_ind_mods_n_result = Multi_Stage_Screening.proof_state_to_promising_induct_argumentss_n_resultss pst
                            : (SU.induct_arguments * Proof.state Seq.seq) list;
     val ind_mod_n_scores   = map (fn (ind_mod, result) => {score = ind_mod_to_score ind_mod, modifiers = ind_mod, result = result}) promising_ind_mods_n_result
+                           : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
+    val sorted_pairs       = sort (fn (p1, p2) => Int.compare (#score p1, #score p2)) ind_mod_n_scores |> rev
+                           : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
+    val best_pairs         = take 7 sorted_pairs;
+  in
+    (best_pairs, maximum_point)
+  end;
+
+(*for generalization: TODO: refactor this with heuristic_typ_n_pst_to_best_pairs_n_maximum_point.*)
+fun score_n_induct_argss_n_proof_state_to_best_pairs (old_maximum_point:int) (score_n_induct_argss:(int * SU.induct_arguments) list) (pst:Proof.state) =
+  let
+    val ctxt           = Proof.context_of pst: Proof.context;
+    val dest_table     = (Strng_N_HeuTyp_Tab.dest o SeLFiE_Assertion.get) (Context.Proof ctxt)
+                       : ((heuristic_typ * string) * (ESS.assert * int)) list;
+    val dest_table_2   = map (fn ((htyp, ass_name), (ass, point)) => (htyp, {name = ass_name, assertion = ass, point = point})) dest_table;
+    fun is_same_heuristic_typ (typ:heuristic_typ) (htyp, {assertion,...}) = if typ = htyp andalso not (assertion = ESS.Dummy) then true else false;
+    val input          = (filter (is_same_heuristic_typ Generalization_Heuristic(*!*)) dest_table_2) |> map snd
+                       : {assertion: Eval_Syntactic_Sugar.assert, name: string, point: int} list;
+    val maximum_point  = fold (curry (op +)) (map #point input) 0 + old_maximum_point: int;
+    fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
+      let
+        val clean_mods     = mk_clean_mods ctxt ind_mod: SU.induct_arguments;
+        val success_scores = filter (fn {assertion, name,...} => (run_assertion pst clean_mods assertion)) input
+                           |> map #point: int list;
+        val score          = fold (curry (op +)) success_scores 0: int;
+      in score end;
+    val promising_ind_mods_n_result = Multi_Stage_Screening.induct_argumentss_n_proof_state_to_promising_induct_argumentss_n_resultss score_n_induct_argss pst
+                           : (int * SU.induct_arguments * Proof.state Seq.seq) list;
+    val ind_mod_n_scores   = map (fn (old_score, ind_mod, result) => {score = old_score + ind_mod_to_score ind_mod, modifiers = ind_mod, result = result}) promising_ind_mods_n_result
                            : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
     val sorted_pairs       = sort (fn (p1, p2) => Int.compare (#score p1, #score p2)) ind_mod_n_scores |> rev
                            : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
@@ -185,13 +213,27 @@ val semantic_induct_cmd =
     fun ind_args_to_sendb ind_args = SU.induct_arguments_to_string ind_args
                                   |> Active.sendback_markup_properties [Markup.padding_command]: string;
     val pst                       = Toplevel.proof_of top: Proof.state;
-    val (best_records, max_point) = heuristic_typ_n_pst_to_best_pairs_n_maximum_point Induction_Heuristic pst;
+    val (ind_best_records, ind_max_point) = heuristic_typ_n_pst_to_best_pairs_n_maximum_point Induction_Heuristic pst;
+(*
     fun mk_message record = ind_args_to_sendb (#modifiers record) ^
-                             "\n  (* The score is " ^ Int.toString (#score record) ^ " out of " ^ Int.toString max_point ^ ". *)";
-    val best_messages      = map mk_message best_records: strings;
-    val _                  = tracing "Try these promising inductions!";
-    val best_mssg_w_ranks  = take (length best_messages) fst_till_tenth ~~ best_messages |>  map (op ^);
-    val _                  = map tracing best_mssg_w_ranks;
+                             "\n  (* The score is " ^ Int.toString (#score record) ^ " out of " ^ Int.toString ind_max_point ^ ". *)";
+    val best_ind_messages     = map mk_message ind_best_records: strings;
+    val _                     = tracing "Try these promising inductions!";
+    val best_ind_mssg_w_ranks = take (length best_ind_messages) fst_till_tenth ~~ best_ind_messages |>  map (op ^);
+*)
+    fun record_to_pair {score, modifiers,...} = (score, modifiers);
+    val best_pairs            = map record_to_pair ind_best_records: (int * SU.induct_arguments) list;
+    val arb_pairs             = Smart_Construction.terms_n_induct_argumentss_to_induct_argumentss_w_arbs (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs:  (int * SU.induct_arguments) list;
+    val (arb_best_records, arb_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs pst;
+(*
+    val _                     = map tracing best_ind_mssg_w_ranks;
+*)
+    fun mk_arb_message record = ind_args_to_sendb (#modifiers record) ^
+                             "\n  (* The score is " ^ Int.toString (#score record) ^ " out of " ^ Int.toString arb_max_point ^ ". *)";
+    val best_arb_messages      = map mk_arb_message arb_best_records: strings;
+    val best_arb_mssg_w_ranks  = take (length best_arb_messages) fst_till_tenth ~~ best_arb_messages |> map (op ^);
+    val _                      = tracing "\n\nTry these promising inductions with generalization!";
+    val _                      = map tracing best_arb_mssg_w_ranks;
   in
     ()
   end)

@@ -403,13 +403,56 @@ Imply
   );
 
 val lifter_6 =
-All ("arbitrary", QArb,
-  Not
-    (Some ("induct", QInd,
-      Are_Same_Prints (Variable "arbitrary", Variable "induct")
-     )
+  Some ("ind_term", QInd,
+    Print_Is_App (Variable "ind_term")
+  )
+Imply
+  All ("ind_term", QInd,
+      Print_Is_App (Variable "ind_term")
+    Imply
+      All ("fvar_in_ind_term", QOuter_Print,
+          Ands [
+            Print_Is_Free (Variable "fvar_in_ind_term"),
+            Is_Subprint_Of (Variable "fvar_in_ind_term", Variable "ind_term"),
+              Some_Of ("ind_occ", Variable "ind_term",
+                Ands [
+                  Some_Of ("fvar_in_ind_occ", Variable "fvar_in_ind_term",
+                    Ands [
+                      Are_In_Same_Location (Variable "ind_occ", Variable "fvar_in_ind_occ"),
+                      Is_Path_Below (Variable "fvar_in_ind_occ", Variable "ind_occ")
+                    ]
+                  )
+                ]
+              )
+          ]
+        Imply
+          Some ("arb_term", QArb,
+            Are_Same_Prints (Variable "arb_term", Variable "fvar_in_ind_term")
+          )
+      )
+  );
+
+val lifter_6_lambda_over_arb =
+Lambdas (["arb_term"],
+    Some ("ind_term", QInd,
+      Print_Is_App (Variable "ind_term")
     )
-);
+  Imply
+    Some ("ind_term", QInd,
+        Print_Is_App (Variable "ind_term")
+      Imply
+        Some_Of ("arb_occ", Variable "arb_term",
+          Ands [
+            Some_Of ("ind_occ", Variable "ind_term",
+              Ands [
+                Are_In_Same_Location (Variable "ind_occ", Variable "arb_occ"),
+                Is_Path_Below (Variable "arb_occ", Variable "ind_occ")
+              ]
+            )
+          ]
+        )
+    )
+  );
 
 val lifter_7 =
   Ands [
@@ -468,22 +511,47 @@ Imply
     )
   );
 
-(*all inducts share a function with all arbitrary-s*)
-val lifter_10 =
-All ("ind", QInd,
-  All ("arb", QArb,
-    Some_Of ("ind_occ", Variable "ind",
-      Some_Of ("arb_occ", Variable "arb",
-        Some ("func_occ", QOuter_Path,
-          Ands [
-            Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ"),
-            Is_An_Arg_Of (Variable "arb_occ", Variable "func_occ")
-          ]
-        )
+val condition_for_sharing_function_by_ind_term_and_arb_term =
+Not (
+  Some ("ind_term", QInd,
+    Ands [
+      Some_Of ("ind_occ", Variable "ind_term",
+        Ands [
+          Some ("hol_eq_occ", QOuter_Path,
+            Ands [
+               Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
+               Is_An_Arg_Of (Variable "ind_occ", Variable "hol_eq_occ")
+            ]
+          )
+        ]
       )
-    )
+    ]
   )
 );
+
+(*all inducts share a function with all arbitrary-s*)
+val lifter_10 =
+  Ands [
+    condition_for_sharing_function_by_ind_term_and_arb_term,
+    Not (Some ("ind_term", QInd, Print_Is_App (Variable "ind_term")))
+  ]
+Imply
+  All ("ind", QInd,
+      Not (Print_Is_App (Variable "ind"))
+    Imply
+      All ("arb", QArb,
+          Some_Of ("ind_occ", Variable "ind",
+            Some_Of ("arb_occ", Variable "arb",
+              Some ("func_occ", QOuter_Path,
+                Ands [
+                  Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ"),
+                  Is_An_Arg_Of (Variable "arb_occ", Variable "func_occ")
+                ]
+              )
+            )
+          )
+      )
+  );
 
 (*all arguments rule-function are induction variable*)
 val lifter_11 =
@@ -511,19 +579,24 @@ Imply
 
 (*arbitrary and induction share a function.*)
 val lifter_12 =
-  Some ("arb", QArb, True)
+  Ands [
+    Some ("arb", QArb, True),
+    condition_for_sharing_function_by_ind_term_and_arb_term
+  ]
 Imply
   Some ("arb", QArb,
     Some_Of ("arb_occ", Variable "arb",
       Some ("ind", QInd,
-        Some_Of ("ind_occ", Variable "ind",
-          Some ("func_occ", QOuter_Path,
-            Ands [
-              Is_An_Arg_Of (Variable "arb_occ", Variable "func_occ"),
-              Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
-            ]
+          Not (Print_Is_App (Variable "ind"))
+        Imply
+          Some_Of ("ind_occ", Variable "ind",
+            Some ("func_occ", QOuter_Path,
+              Ands [
+                Is_An_Arg_Of (Variable "arb_occ", Variable "func_occ"),
+                Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
+              ]
+            )
           )
-        )
       )
     )
   );
@@ -725,50 +798,52 @@ Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
 
 (*what should not be generalized.*)
 val for_all_arbs_there_should_be_a_change =
-All ("arb_trm", QArb,
-    True(*TODO: No syntactic heuristics indicate "arb_trm" should be generalized.*)
-  Imply
-    Some ("ind_trm", QInd,
-      Some_Of ("ind_occ", Variable "ind_trm",
-        Some ("func_trm", QOuter_Print,
-          Ands [
-            Applies (print_defined_recursively, [Variable "func_trm"]),
-            Some_Of ("func_trm_occ", Variable "func_trm",
-              Ands [
-                Some ("func_is_recurse_on_nth", QOuter_Number,
-                  Ands [
-                    Node_Takes_Less_Than_N_Arguments (Variable "func_trm_occ", Variable "func_is_recurse_on_nth"),                  (*Does this actually harm us?*)
-                    Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ", Variable "func_is_recurse_on_nth", Variable "func_trm_occ"),(*Does this actually harm us?*)
-                    Some_Of ("arb_trm_occ", Variable "arb_trm",
-                      Some ("mth_arg_of_func_occ_has_arb", QOuter_Number,
-                        Ands [
-                          Node_Takes_Less_Than_N_Arguments (Variable "func_trm_occ", Variable "mth_arg_of_func_occ_has_arb"),
-                          Some_Of ("func_trm_occ2", Variable "func_trm", (*we do not always talk about the same occurrence of the function. See addO_exp\<omega>_inj in Goodstein_Lambda.thy where we have to deal with two different occurrences of add0.*)
-                            Ands [
-                            Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm_occ2"),
-                            ( Is_Same_Path_As (Variable "func_trm_occ", Variable "func_trm_occ2")
-                            Imply
-                              Not (Are_Same_Number (Variable "func_is_recurse_on_nth", Variable "mth_arg_of_func_occ_has_arb"))(*We should check this because parameter for recursion is always changing in a recursive call. Maybe we can get rid of this check, and let other heuristics check Inds and Arbs are disjoint.*)
+  Not (Some ("rule", QRule, True))
+Imply
+  All ("arb_trm", QArb,
+      Not (Applies (lifter_6_lambda_over_arb, [Variable "arb_trm"]))(*TODO: No syntactic heuristics indicate "arb_trm" should be generalized.*)
+    Imply
+      Some ("ind_trm", QInd,
+        Some_Of ("ind_occ", Variable "ind_trm",
+          Some ("func_trm", QOuter_Print,
+            Ands [
+              Applies (print_defined_recursively, [Variable "func_trm"]),
+              Some_Of ("func_trm_occ", Variable "func_trm",
+                Ands [
+                  Some ("func_is_recurse_on_nth", QOuter_Number,
+                    Ands [
+                      Node_Takes_Less_Than_N_Arguments (Variable "func_trm_occ", Variable "func_is_recurse_on_nth"),                  (*Does this actually harm us?*)
+                      Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ", Variable "func_is_recurse_on_nth", Variable "func_trm_occ"),(*Does this actually harm us?*)
+                      Some_Of ("arb_trm_occ", Variable "arb_trm",
+                        Some ("mth_arg_of_func_occ_has_arb", QOuter_Number,
+                          Ands [
+                            Node_Takes_Less_Than_N_Arguments (Variable "func_trm_occ", Variable "mth_arg_of_func_occ_has_arb"),
+                            Some_Of ("func_trm_occ2", Variable "func_trm", (*we do not always talk about the same occurrence of the function. See addO_exp\<omega>_inj in Goodstein_Lambda.thy where we have to deal with two different occurrences of add0.*)
+                              Ands [
+                              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm_occ2"),
+                              ( Is_Same_Path_As (Variable "func_trm_occ", Variable "func_trm_occ2")
+                              Imply
+                                Not (Are_Same_Number (Variable "func_is_recurse_on_nth", Variable "mth_arg_of_func_occ_has_arb"))(*We should check this because parameter for recursion is always changing in a recursive call. Maybe we can get rid of this check, and let other heuristics check Inds and Arbs are disjoint.*)
+                              )
+                              ]
+                            ),
+                            In_Some_Definitions (
+                              Variable "func_trm",
+                              mth_arg_of_func_occ_has_different_print,
+                              [Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm"]
                             )
-                            ]
-                          ),
-                          In_Some_Definitions (
-                            Variable "func_trm",
-                            mth_arg_of_func_occ_has_different_print,
-                            [Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm"]
-                          )
-                        ]
+                          ]
+                        )
                       )
-                    )
-                  ]
-                )
-              ]
-            )
-          ]
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
         )
       )
-    )
-);
+  );
 
 (*what should not be generalized. Simplified version for easier presentation.*)
 val for_all_arbs_there_should_be_a_change_simplified_for_presentation =
@@ -1114,27 +1189,29 @@ Some ("whole_term_occ", QOuter_Path,
 );
 
 val ind_on_lhs_of_eq_then_arb_on_rhs_of_eq =
-  Some ("hol_eq_occ", QOuter_Path,
-    Ands [
-      Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
-      Some ("ind_trm", QInd,
-        Some_Of ("ind_occ", Variable "ind_trm",
-          Ands [
-            Applies (is_variable, [Variable "ind_occ"]),
-            Is_Nth_Arg_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
-            Some ("arb_occ", QOuter_Path,
-              Ands [
-                Applies (is_variable, [Variable "arb_occ"]),
-                Not (Unode_Has_Print (Variable "arb_occ", Variable "ind_trm")),
-                Is_Nth_Arg_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
-              ]
-            )
-          ]
+  Ands [
+    Not (Some ("rule", QRule, True)),
+    Some ("hol_eq_occ", QOuter_Path,
+      Ands [
+        Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
+        Some ("ind_trm", QInd,
+          Some_Of ("ind_occ", Variable "ind_trm",
+            Ands [
+              Applies (is_variable, [Variable "ind_occ"]),
+              Is_Nth_Arg_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
+              Some ("arb_occ", QOuter_Path,
+                Ands [
+                  Applies (is_variable, [Variable "arb_occ"]),
+                  Not (Unode_Has_Print (Variable "arb_occ", Variable "ind_trm")),
+                  Is_Nth_Arg_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
+                ]
+              )
+            ]
+          )
         )
-      ),
-    Debug_Non_Path_Literal (Print "Assumption is done")
-    ]
-  )
+      ]
+    )
+  ]
 Imply
   Some ("hol_eq_occ", QOuter_Path,
     Ands [
@@ -1868,7 +1945,7 @@ Lambdas (["_"],
   ]
 );
 
-val complex_lhs_causes_functional_induction_inner =
+val complex_lhs_causes_functional_induction_outer =
   Some ("func_term", QOuter_Print,
     Ands [
       Print_Is_Cnst (Variable "func_term"),
@@ -1887,5 +1964,116 @@ Imply
       )
     ]
   );
+
+val function_induction_only_if_there_is_a_complex_lhs =
+  Ands [
+    Some ("rule", QRule, True),
+    Not (
+      Some ("defined_inductively", QOuter_Print,
+        Applies (print_defined_inductively, [Variable "defined_inductively"])
+      )
+    )
+  ]
+Imply
+  Some ("func_term", QOuter_Print,
+    Ands [
+      Print_Is_Cnst (Variable "func_term"),
+      In_Some_Definitions (Variable "func_term", complex_lhs_causes_functional_induction_inner, [Variable "func_term"])
+    ]
+  );
+
+val if_rule_induction_then_no_generalization =
+  Some ("rule", QRule, True)
+Imply
+  Not (Some ("arb", QArb, True));
+
+val if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs =
+  Ands [
+    Some ("rule", QRule, True),
+    Some ("hol_eq_occ1", QOuter_Path,
+      Ands [
+        Unode_Has_Print (Variable "hol_eq_occ1", Print "HOL.eq"),
+        Some ("hol_eq_occ2", QOuter_Path,
+          Ands [
+            Unode_Has_Print (Variable "hol_eq_occ2", Print "HOL.eq"),
+            Some ("rule", QRule,
+              Some ("rec_fun_term", QOuter_Print,
+                Ands [
+                  Is_Rule_Of_Print (Variable "rule", Variable "rec_fun_term"),
+                  Some_Of ("rec_fun1_occ", Variable "rec_fun_term",
+                    Ands [
+                      Ors [
+                        Ands [(*induct only on the LHS of the equation*)
+                          Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "rec_fun1_occ", Number 0, Variable "hol_eq_occ1")(*,
+                          Not (
+                            Some_Of ("rec_fun2_occ", Variable "rec_fun_term",
+                              Ands [
+                                Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "rec_fun2_occ", Number 1, Variable "hol_eq_occ2")
+                              ]
+                            )
+                          )
+*)
+                        ],
+                        Ands [(*induct only on the RHS of the equation*)
+                          Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "rec_fun1_occ", Number 1, Variable "hol_eq_occ1")(*,
+                          Not (
+                            Some_Of ("rec_fun2_occ", Variable "rec_fun_term",
+                              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "rec_fun2_occ", Number 0, Variable "hol_eq_occ2")
+                            )
+                          )
+*)
+                        ]
+                      ]
+                    ]
+                  )
+                ]
+              )
+            )
+          ]
+        )
+      ]
+    )
+  ]
+Imply
+    Some ("hol_eq_occ1", QOuter_Path,
+      Ands [
+        Unode_Has_Print (Variable "hol_eq_occ1", Print "HOL.eq"),
+        Some ("hol_eq_occ2", QOuter_Path,
+          Ands [
+            Unode_Has_Print (Variable "hol_eq_occ2", Print "HOL.eq"),
+            Some ("rule", QRule,
+              Some ("rec_fun_term", QOuter_Print,
+                Ands [
+                  Is_Rule_Of_Print (Variable "rule", Variable "rec_fun_term"),
+                  Some_Of ("rec_fun1_occ", Variable "rec_fun_term",
+                    Ands [
+                      Ors [
+                        Ands [(*induct only on the LHS of the equation*)
+                          Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "rec_fun1_occ", Number 0, Variable "hol_eq_occ1")(*,
+                          Not (
+                            Some_Of ("rec_fun2_occ", Variable "rec_fun_term",
+                              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "rec_fun2_occ", Number 1, Variable "hol_eq_occ2")
+                            )
+                          )
+*)
+                        ]
+                      ]
+                    ]
+                  )
+                ]
+              )
+            )
+          ]
+        )
+      ]
+    );
+
+val all_ind_should_be_atom =
+All ("ind_term", QInd,
+  Ors [
+    Print_Is_Free  (Variable "ind_term"),
+    Print_Is_Bound (Variable "ind_term")
+  ]
+)
 
 end;

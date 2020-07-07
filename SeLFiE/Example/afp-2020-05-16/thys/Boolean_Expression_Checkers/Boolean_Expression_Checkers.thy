@@ -5,6 +5,7 @@
 
 theory Boolean_Expression_Checkers
   imports Main "HOL-Library.Mapping"
+  "../../../../SeLFiE"
 begin
 
 section \<open>Tautology (etc) Checking via Binary Decision Trees\<close>
@@ -62,7 +63,7 @@ where
   None \<Rightarrow> taut_test_rec t1 (Mapping.update x True env) \<and> taut_test_rec t2 (Mapping.update x False env))"
 
 lemma taut_test_rec: 
-  "taut_test_rec t env = (\<forall>s. agree s env \<longrightarrow> val_ifex t s)"
+  "taut_test_rec t env = (\<forall>s. agree s env \<longrightarrow> val_ifex t s)"semantic_induct
 proof (induction t arbitrary: env)
   case Falseif
     have "agree (\<lambda>x. the (Mapping.lookup env x)) env" 
@@ -120,13 +121,13 @@ lemma val_mkIF:
   by (auto simp: mkIF_def Let_def)
 
 theorem val_reduce: 
-  "agree s env \<Longrightarrow> val_ifex (reduce env t) s = val_ifex t s"
+  "agree s env \<Longrightarrow> val_ifex (reduce env t) s = val_ifex t s"semantic_induct
   by (induction t arbitrary: s env)
      (auto simp: map_of_eq_None_iff val_mkIF agree_Cons Let_def keys_is_none_rep
            dest: agreeDT agreeDF split: option.splits) 
 
 lemma val_normif: 
-  "agree s env \<Longrightarrow> val_ifex (normif env t t1 t2) s = val_ifex (if val_ifex t s then t1 else t2) s"
+  "agree s env \<Longrightarrow> val_ifex (normif env t t1 t2) s = val_ifex (if val_ifex t s then t1 else t2) s"semantic_induct
   by (induct t arbitrary: t1 t2 s env)
      (auto simp: val_reduce val_mkIF agree_Cons map_of_eq_None_iff keys_is_none_rep
            dest: agreeDT agreeDF split: option.splits)   
@@ -141,7 +142,7 @@ fun reduced :: "'a ifex \<Rightarrow> 'a set \<Rightarrow> bool" where
 "reduced _ _ = True"
 
 lemma reduced_antimono: 
-  "X \<subseteq> Y \<Longrightarrow> reduced t Y \<Longrightarrow> reduced t X"
+  "X \<subseteq> Y \<Longrightarrow> reduced t Y \<Longrightarrow> reduced t X"semantic_induct
   by (induction t arbitrary: X Y)
      (auto, (metis insert_mono)+)
 
@@ -150,7 +151,7 @@ lemma reduced_mkIF:
   by (auto simp: mkIF_def intro:reduced_antimono)
 
 lemma reduced_reduce:
-  "reduced (reduce env t) (Mapping.keys env)"
+  "reduced (reduce env t) (Mapping.keys env)"semantic_induct
 proof(induction t arbitrary: env)
   case (IF x t1 t2)
     thus ?case 
@@ -160,7 +161,7 @@ proof(induction t arbitrary: env)
 qed auto
 
 lemma reduced_normif:
-  "reduced (normif env t t1 t2) (Mapping.keys env)"
+  "reduced (normif env t t1 t2) (Mapping.keys env)"semantic_induct
 proof(induction t arbitrary: t1 t2 env)
   case (IF x s1 s2)
   thus ?case using IF.IH
@@ -205,11 +206,13 @@ text \<open>Proof that reduced if-expressions are @{const Trueif}, @{const False
 or can evaluate to both @{const True} and @{const False}.\<close>
 
 lemma same_val_if_reduced:
-  "reduced t X \<Longrightarrow> \<forall>x. x \<notin> X \<longrightarrow> s1 x = s2 x \<Longrightarrow> val_ifex t s1 = val_ifex t s2"
+  "reduced t X \<Longrightarrow> \<forall>x. x \<notin> X \<longrightarrow> s1 x = s2 x \<Longrightarrow> val_ifex t s1 = val_ifex t s2"semantic_induct
+  all_induction_heuristic      [on[], arb[],rule[]]
+  all_generalization_heuristic [on[], arb[],rule[]]
   by (induction t arbitrary: X) auto
 
 lemma reduced_IF_depends: 
-  "\<lbrakk> reduced t X; t \<noteq> Trueif; t \<noteq> Falseif \<rbrakk> \<Longrightarrow> \<exists>s1 s2. val_ifex t s1 \<noteq> val_ifex t s2"
+  "\<lbrakk> reduced t X; t \<noteq> Trueif; t \<noteq> Falseif \<rbrakk> \<Longrightarrow> \<exists>s1 s2. val_ifex t s1 \<noteq> val_ifex t s2"semantic_induct
 proof(induction t arbitrary: X)
   case (IF x t1 t2)
   let ?t = "IF x t1 t2"
@@ -341,7 +344,7 @@ theorem val_ifex:
   by (induct_tac b) (auto simp: val_normif agree_Nil Let_def)
 
 theorem reduced_ifex: 
-  "reduced (ifex_of b) {}"
+  "reduced (ifex_of b) {}"semantic_induct
   by (induction b) (simp add: Let_def; metis keys_empty reduced_normif)+
 
 definition "bool_taut_test \<equiv> taut_test ifex_of"

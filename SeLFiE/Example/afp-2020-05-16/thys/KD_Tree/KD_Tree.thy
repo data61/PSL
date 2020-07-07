@@ -10,6 +10,7 @@ imports
   Complex_Main
   "HOL-Analysis.Finite_Cartesian_Product"
   "HOL-Analysis.Topology_Euclidean_Space"
+  "../../../../SeLFiE"
 begin
 
 
@@ -142,7 +143,7 @@ lemma eq_0_min_height[simp]:
   by (cases kdt) auto
 
 lemma size_height:
-  "size_kdt kdt \<le> 2 ^ height kdt"
+  "size_kdt kdt \<le> 2 ^ height kdt"semantic_induct
 proof(induction kdt)
   case (Node k v l r)
   show ?case
@@ -164,11 +165,11 @@ proof(induction kdt)
 qed simp
 
 lemma min_height_le_height:
-  "min_height kdt \<le> height kdt"
+  "min_height kdt \<le> height kdt"semantic_induct
   by (induction kdt) auto
 
 lemma min_height_size:
-  "2 ^ min_height kdt \<le> size_kdt kdt"
+  "2 ^ min_height kdt \<le> size_kdt kdt"semantic_induct
 proof(induction kdt)
   case (Node k v l r)
   have "(2::nat) ^ min_height (Node k v l r) \<le> 2 ^ min_height l + 2 ^ min_height r"
@@ -178,18 +179,18 @@ proof(induction kdt)
 qed simp
 
 lemma complete_iff_height:
-  "complete kdt \<longleftrightarrow> (min_height kdt = height kdt)"
+  "complete kdt \<longleftrightarrow> (min_height kdt = height kdt)"semantic_induct
   apply (induction kdt)
   apply simp
   apply (simp add: min_def max_def)
   by (metis le_antisym le_trans min_height_le_height)
 
 lemma size_if_complete:
-  "complete kdt \<Longrightarrow> size_kdt kdt = 2 ^ height kdt"
+  "complete kdt \<Longrightarrow> size_kdt kdt = 2 ^ height kdt"semantic_induct
   by (induction kdt) auto
 
 lemma complete_if_size_height:
-  "size_kdt kdt = 2 ^ height kdt \<Longrightarrow> complete kdt"
+  "size_kdt kdt = 2 ^ height kdt \<Longrightarrow> complete kdt"semantic_induct
 proof (induction "height kdt" arbitrary: kdt)
   case 0 thus ?case by auto
 next
@@ -232,7 +233,9 @@ next
 qed
 
 lemma complete_if_size_min_height:
-  "size_kdt kdt = 2 ^ min_height kdt \<Longrightarrow> complete kdt"
+  "size_kdt kdt = 2 ^ min_height kdt \<Longrightarrow> complete kdt"semantic_induct
+  all_induction_heuristic      [on[ "min_height kdt"], arb["kdt"],rule[]]
+  all_generalization_heuristic [on[ "min_height kdt"], arb["kdt"],rule[]]
 proof (induct "min_height kdt" arbitrary: kdt)
   case 0 thus ?case by auto
 next

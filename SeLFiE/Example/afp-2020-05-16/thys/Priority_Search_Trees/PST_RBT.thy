@@ -166,12 +166,12 @@ lemma inorder_baldR[simp]:
 by(cases "(l,a,r)" rule: baldR.cases) auto
 
 lemma inorder_combine[simp]:
-  "inorder(combine l r) = inorder l @ inorder r"semantic_induct
+  "inorder(combine l r) = inorder l @ inorder r"semantic_induct(*64.667s elapsed time, 206.087s cpu time, 5.078s GC time*)
   all_induction_heuristic [on["l","r"], arb["ys"],rule[]]
 by (induction l r rule: combine.induct) (auto split: tree.split tcolor.split)
 
 lemma inorder_upd:
-  "sorted1(inorder t) \<Longrightarrow> inorder(upd x y t) = upd_list x y (inorder t)"semantic_induct
+  "sorted1(inorder t) \<Longrightarrow> inorder(upd x y t) = upd_list x y (inorder t)"semantic_induct(*88.764s elapsed time, 510.256s cpu time, 7.921s GC time*)
   all_induction_heuristic [on["x","y","t"], arb[],rule["upd.induct"]]
   all_induction_heuristic [on["x","y","Tree2.inorder t"], arb[],rule["upd_list.induct"]]
   by(induction x y t rule: upd.induct)
@@ -182,12 +182,12 @@ lemma inorder_update:
 by(simp add: update_def inorder_upd)
 
 lemma inorder_del:
- "sorted1(inorder t) \<Longrightarrow>  inorder(del x t) = del_list x (inorder t)"semantic_induct
+ "sorted1(inorder t) \<Longrightarrow>  inorder(del x t) = del_list x (inorder t)"semantic_induct(*50.495s elapsed time, 290.232s cpu time, 4.377s GC time*)
 by(induction x t rule: del.induct)
   (auto simp: del_list_simps)
 
 lemma inorder_delete:
-  "sorted1(inorder t) \<Longrightarrow> inorder(delete x t) = del_list x (inorder t)"semantic_induct
+  "sorted1(inorder t) \<Longrightarrow> inorder(delete x t) = del_list x (inorder t)"
 by(simp add: delete_def inorder_del)
 
 
@@ -264,7 +264,7 @@ by (induct x y t rule: upd.induct)
 
 lemma invh_upd: assumes "invh t"
   shows "invh (upd x y t)" "bheight (upd x y t) = bheight t"
-using assms
+using assms semantic_induct
 by(induct x y t rule: upd.induct)
   (auto simp: invh_baliL invh_baliR bheight_baliL bheight_baliR)
 
