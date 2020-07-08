@@ -1,0 +1,13 @@
+chapter AFP
+
+session Priority_Search_Trees (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Data_Structures"
+    "HOL-Eisbach"
+  theories
+    Prio_Map_Specs
+    PST_RBT
+  document_files
+    "root.tex"
+    "root.bib"

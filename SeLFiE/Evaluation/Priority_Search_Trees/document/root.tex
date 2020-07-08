@@ -1,0 +1,87 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Priority Search Trees}
+\author{Peter Lammich \and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+We present a new, purely functional, simple and efficient data structure
+combining a search tree and a priority queue, which we call a \emph{priority search tree}.
+The salient feature of priority search trees is that they offer
+a decrease-key operation, something that is missing from other simple, purely functional priority queue
+implementations. Priority search trees can be implemented on top of any search tree.
+This entry does the implementation for red-black trees.
+
+This entry formalizes the first part of our ITP-2019 proof
+pearl \emph{Purely Functional, Simple and Efficient Priority Search Trees and Applications to Prim and Dijkstra}
+~\cite{LaNi19}.
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\section{Related Work}
+Our priority map ADT is close to Hinze's \cite{DBLP:conf/icfp/Hinze01} \emph{priority search queue}
+interface, except that he also supports a few further operations that we could easily add but do not
+need for our applications. However, it is not clear if his implementation technique is the same as
+our priority search tree because his description employs a plethora of concepts, e.g.\
+\emph{priority search pennants}, \emph{tournament trees}, \emph{semi-heaps}, and multiple
+\emph{views} of data types that obscure a direct comparison. We claim that at the very least our
+presentation is new because it is much simpler; we encourage the reader to compare the two.
+
+As already observed by Hinze, McCreight's \cite{McCreight85} priority search trees support range
+queries more efficiently than our trees. However, we can support the same range queries as Hinze
+efficiently, but that is outside the scope of this entry.
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

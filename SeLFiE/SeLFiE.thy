@@ -27,7 +27,9 @@ begin
 lemma ab: "(\<And>a b. True) \<Longrightarrow> (\<And>a b. a \<or> True \<or> b)" by auto
 lemma ba: "(\<And>b a. True) \<Longrightarrow> (\<And>b a. a \<or> True \<or> b)" by auto
 ML\<open>
-val test= Thm.eq_thm (@{thm ab}, @{thm ba});
+val test= Thm.equiv_thm @{theory} (@{thm ab}, @{thm ba});
+val _ = is_equal;
+Nitpick_Util.all_permutations [1,2,3];
 ;
 val asdf =  Term.add_free_names @{term "\<exists>x \<in> X. x"} [];
 val asfd = @{term "\<exists>x \<in> X. x"};
