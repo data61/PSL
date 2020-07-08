@@ -161,13 +161,13 @@ fun heuristic_typ_n_pst_to_best_pairs_n_maximum_point (heuristic_typ:heuristic_t
                            |> map #point: int list;
         val score          = fold (curry (op +)) success_scores 0: int;
       in score end;
-    val promising_ind_mods_n_result = Multi_Stage_Screening.proof_state_to_promising_induct_argumentss_n_resultss pst
+    val promising_ind_mods_n_result = Multi_Stage_Screening_SeLFiE.proof_state_to_promising_induct_argumentss_n_resultss pst
                            : (SU.induct_arguments * Proof.state Seq.seq) list;
     val ind_mod_n_scores   = map (fn (ind_mod, result) => {score = ind_mod_to_score ind_mod, modifiers = ind_mod, result = result}) promising_ind_mods_n_result
                            : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
     val sorted_pairs       = sort (fn (p1, p2) => Int.compare (#score p1, #score p2)) ind_mod_n_scores |> rev
                            : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
-    val best_pairs         = take 7 sorted_pairs;
+    val best_pairs         = take 6 sorted_pairs;
   in
     (best_pairs, maximum_point)
   end;
@@ -190,7 +190,7 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs (old_maximum_point:int) (sc
                            |> map #point: int list;
         val score          = fold (curry (op +)) success_scores 0: int;
       in score end;
-    val promising_ind_mods_n_result = Multi_Stage_Screening.induct_argumentss_n_proof_state_to_promising_induct_argumentss_n_resultss score_n_induct_argss pst
+    val promising_ind_mods_n_result = Multi_Stage_Screening_SeLFiE.induct_argumentss_n_proof_state_to_promising_induct_argumentss_n_resultss score_n_induct_argss pst
                            : (int * SU.induct_arguments * Proof.state Seq.seq) list;
     val ind_mod_n_scores   = map (fn (old_score, ind_mod, result) => {score = old_score + ind_mod_to_score ind_mod, modifiers = ind_mod, result = result}) promising_ind_mods_n_result
                            : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
@@ -203,7 +203,7 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs (old_maximum_point:int) (sc
 
 val semantic_induct_cmd =
   Toplevel.keep_proof
-  (Timeout.apply (seconds 3000.0)
+  (Timeout.apply (seconds 1000.0)
   (fn top: Toplevel.state =>
   let
     val _              = tracing "smart_induct started producing combinations of induction arguments.";

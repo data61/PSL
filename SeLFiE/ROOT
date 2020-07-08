@@ -1,0 +1,7 @@
+session SeLFiE (psl) = PSL +
+  options [timeout = 30000]
+  theories
+    SeLFiE
+  document_files
+    "root.tex"
+    "root.bib"

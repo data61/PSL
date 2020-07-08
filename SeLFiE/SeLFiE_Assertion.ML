@@ -435,12 +435,8 @@ Imply
 val lifter_6_lambda_over_arb =
 Lambdas (["arb_term"],
     Some ("ind_term", QInd,
-      Print_Is_App (Variable "ind_term")
-    )
-  Imply
-    Some ("ind_term", QInd,
-        Print_Is_App (Variable "ind_term")
-      Imply
+      Ands [
+        Print_Is_App (Variable "ind_term"),
         Some_Of ("arb_occ", Variable "arb_term",
           Ands [
             Some_Of ("ind_occ", Variable "ind_term",
@@ -451,6 +447,7 @@ Lambdas (["arb_term"],
             )
           ]
         )
+      ]
     )
   );
 
@@ -801,8 +798,8 @@ val for_all_arbs_there_should_be_a_change =
   Not (Some ("rule", QRule, True))
 Imply
   All ("arb_trm", QArb,
-      Not (Applies (lifter_6_lambda_over_arb, [Variable "arb_trm"]))(*TODO: No syntactic heuristics indicate "arb_trm" should be generalized.*)
-    Imply
+    Ors [
+      Applies (lifter_6_lambda_over_arb, [Variable "arb_trm"])(*TODO: No syntactic heuristics indicate "arb_trm" should be generalized.*),
       Some ("ind_trm", QInd,
         Some_Of ("ind_occ", Variable "ind_trm",
           Some ("func_trm", QOuter_Print,
@@ -821,7 +818,10 @@ Imply
                             Some_Of ("func_trm_occ2", Variable "func_trm", (*we do not always talk about the same occurrence of the function. See addO_exp\<omega>_inj in Goodstein_Lambda.thy where we have to deal with two different occurrences of add0.*)
                               Ands [
                               Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm_occ2"),
-                              ( Is_Same_Path_As (Variable "func_trm_occ", Variable "func_trm_occ2")
+                              ( Ands [
+                                  Is_Same_Path_As (Variable "func_trm_occ", Variable "func_trm_occ2"),
+                                  Are_In_Same_Location (Variable "func_trm_occ", Variable "func_trm_occ2")
+                                ]
                               Imply
                                 Not (Are_Same_Number (Variable "func_is_recurse_on_nth", Variable "mth_arg_of_func_occ_has_arb"))(*We should check this because parameter for recursion is always changing in a recursive call. Maybe we can get rid of this check, and let other heuristics check Inds and Arbs are disjoint.*)
                               )
@@ -843,6 +843,7 @@ Imply
           )
         )
       )
+    ]
   );
 
 (*what should not be generalized. Simplified version for easier presentation.*)
@@ -914,7 +915,27 @@ Lambdas (["func", "number"],
 );
 
 val is_defined_recursively_on_nth_outer =
-  Not (Some ("rule", QRule, True))
+  Ands [
+    Not (Some ("rule", QRule, True)),
+    Some ("func", QOuter_Print,
+      Ands [
+        Applies (print_defined_recursively, [Variable "func"]),
+        Some_Of ("func_occ", Variable "func",
+          Ands [
+            Some ("arg_occ", QOuter_Path,
+              Some ("number", QOuter_Number,
+                Ands [
+                  Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
+                  Is_Nth_Arg_Of (Variable "arg_occ", Variable "number", Variable "func_occ"),
+                  In_Some_Definitions (Variable "func", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
+                ]
+              )
+            )
+          ]
+        )
+      ]
+    )
+  ]
 Imply
   Some ("func", QOuter_Print,
     Ands [
@@ -949,12 +970,30 @@ val is_defined_recursively_on_nth_n_mth_by_two_funs =
             In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
             Some_Of ("func1_occ", Variable "func1_term",
               Ands [
+(*
                 Some ("func2_term", QOuter_Print,
                   Ands [
                     Applies (print_defined_recursively, [Variable "func2_term"]),
                     Some_Of ("func2_occ", Variable "func2_term",
                       Ands [
                         Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ")
+                      ]
+                    )
+                  ]
+                )
+*)
+                Some ("func2_term", QOuter_Print,
+                  Ands [
+                    Applies (print_defined_recursively, [Variable "func2_term"]),
+                    Some ("ind_occ_is_below_nth_arg_of_func2_occ", QOuter_Number,
+                      Ands [
+                        Print_Takes_Less_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
+                        In_Some_Definitions (Variable "func2_term", is_defined_recursively_on_nth, [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"]),
+                        Some_Of ("func2_occ", Variable "func2_term",
+                          Ands [
+                            Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ")
+                          ]
+                        )
                       ]
                     )
                   ]
@@ -1003,6 +1042,53 @@ Imply
         )
       ]
     )
+(*
+    All ("func1_term", QOuter_Print,
+      Ands [
+          Applies (print_defined_recursively, [Variable "func1_term"])
+        Imply
+          All ("func2_occ_is_below_nth_arg_of_func1_occ", QOuter_Number,
+            Ands [
+                Ands [
+                  Print_Takes_Less_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
+                  In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"])
+                ]
+              Imply
+                All_Of ("func1_occ", Variable "func1_term",
+                  Ands [
+                    All ("func2_term", QOuter_Print,
+                      Ands [                                                        
+                          Applies (print_defined_recursively, [Variable "func2_term"])
+                        Imply
+                          All ("ind_occ_is_below_nth_arg_of_func2_occ", QOuter_Number,
+                            Ands [
+                                Ands [
+                                  Print_Takes_Less_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
+                                  In_Some_Definitions (Variable "func2_term", is_defined_recursively_on_nth, [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"])
+                                ]
+                              Imply
+                                All_Of ("func2_occ", Variable "func2_term",
+                                  Ands [
+                                      Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ")
+                                    Imply
+                                      All ("ind_term", QInd,
+                                        Some_Of ("ind_occ", Variable "ind_term",
+                                          Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ", Variable "ind_occ_is_below_nth_arg_of_func2_occ", Variable "func2_occ")
+                                        )
+                                      )
+                                  ]
+                                )
+                            ]
+                          )
+                      ]
+                    )
+                  ]
+                )
+            ]
+          )
+      ]
+    )
+*)
 ;
 
 val nth_parameter_is_used_in_mth_argument_in_recursive_call =

@@ -12,16 +12,18 @@ val get_lines = split_lines o TextIO.inputAll o TextIO.openIn;
 type datapoint =
  {file_name                       :string,
   numb_of_candidates_after_step_1 : int,
-  numb_of_candidates_after_step_2a: int,
-  numb_of_candidates_after_step_2b: int,
+  numb_of_candidates_after_step_2 : int,
+  numb_of_candidates_after_step_3 : int,
+  numb_of_candidates_after_step_4 : int,
+  numb_of_candidates_after_step_5 : int,
   line_number                     : int,
   rank                            : int option,
   score                           : int,
-  execution_time                  : int,
+  execution_time                  : int(*,
   arbitrary                       : bool,
   rule                            : bool,
   hand_writte_rule                : bool,
-  induct_on_subterm               : bool
+  induct_on_subterm               : bool*)
   };
 
 type datapoints = datapoint list;
@@ -39,14 +41,16 @@ fun read_one_line (line:string) =
            line_number                      = nth numbers_as_ints 0 |> the,
            rank                             = nth numbers_as_ints 1,
            numb_of_candidates_after_step_1  = nth numbers_as_ints 2  |> the,
-           numb_of_candidates_after_step_2a = nth numbers_as_ints 3  |> the,
-           numb_of_candidates_after_step_2b = nth numbers_as_ints 4  |> the,
-           score                            = nth numbers_as_ints 5  |> the,
-           execution_time                   = nth numbers_as_ints 6  |> the,
+           numb_of_candidates_after_step_2  = nth numbers_as_ints 3  |> the,
+           numb_of_candidates_after_step_3  = nth numbers_as_ints 4  |> the,
+           numb_of_candidates_after_step_4  = nth numbers_as_ints 5  |> the,
+           numb_of_candidates_after_step_5  = nth numbers_as_ints 6  |> the,
+           score                            = nth numbers_as_ints 7  |> the,
+           execution_time                   = nth numbers_as_ints 8  |> the(*,
            arbitrary                        = nth numbers_as_ints 7  |> the |> int_to_bool,
            rule                             = nth numbers_as_ints 8  |> the |> int_to_bool,
            hand_writte_rule                 = nth numbers_as_ints 9  |> the |> int_to_bool,
-           induct_on_subterm                = nth numbers_as_ints 10 |> the |> int_to_bool
+           induct_on_subterm                = nth numbers_as_ints 10 |> the |> int_to_bool*)
            };
   in
     result
@@ -86,7 +90,8 @@ fun get_coincidence_rate_top_n (points:datapoints) (top_n:int) =
   in
     (numb_of_points_among_top / numb_of_points): real
   end;
-
+\<close>
+ML\<open>
 fun get_coincidence_rate_for_file_for_top_n (points:datapoints) (file_name:string) (top_n:int) =
   let
     val datapoints_in_file                 = points_in_file file_name points
@@ -99,10 +104,13 @@ fun datapoints_to_all_file_names (points:datapoints) = map #file_name points |> 
 fun datapoints_to_coincidence_rates (points:datapoints) (top_ns:ints) = map (get_coincidence_rate_top_n points) top_ns: real list;
 
 fun attach_file_name_to_coincidence_rates (file_name:string) (rates) = map (fn rate => (file_name, rate)) rates;
-
+\<close>
+ML\<open>
 fun datapoints_to_coincidence_rate_pairs_for_one_file (points:datapoints) (file_name:string) (top_ns:ints) =
   map (fn top_n => (file_name, get_coincidence_rate_for_file_for_top_n points file_name top_n)) top_ns: (string * real) list;
+\<close>
 
+ML\<open>
 fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
   let
     val file_names                      = datapoints_to_all_file_names points;
@@ -114,6 +122,7 @@ fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
   end;
 \<close>
 
+(*
 ML\<open>(*result*)
 fun file_name_to_proportion_of_rule (points:datapoints) (file_name:string) =
   let
@@ -124,7 +133,8 @@ fun file_name_to_proportion_of_rule (points:datapoints) (file_name:string) =
   in
     (numb_of_datapoints_in_file_with_rule / numb_of_datapoints_in_file)
   end;
-
+*)
+(*
 fun points_to_proportions_of_rules (points:datapoints) =
 let
   val file_names = datapoints_to_all_file_names points: strings;
@@ -133,7 +143,8 @@ let
 in
   line
 end;
-
+*)
+(*
 fun file_name_to_proportion_of_arbitrary (points:datapoints) (file_name:string) =
   let
     val datapoints_in_file                   = points_in_file file_name points;
@@ -143,7 +154,8 @@ fun file_name_to_proportion_of_arbitrary (points:datapoints) (file_name:string) 
   in
     (numb_of_datapoints_in_file_with_rule / numb_of_datapoints_in_file)
   end;
-
+*)
+(*
 fun points_to_proportions_of_arbs (points:datapoints) =
 let
   val file_names = datapoints_to_all_file_names points: strings;
@@ -152,10 +164,13 @@ let
 in
   line
 end;
-
+*)
+(*
 val _ = tracing (points_to_proportions_of_rules lines);
 val _ = tracing (points_to_proportions_of_arbs  lines);
 \<close>
+*)
+
 
 ML\<open> val tikz_for_coincidence_rates = get_coincidence_rate_for_file_for_top_n lines "~/Workplace/PSL/Smart_Induct/Evaluation/DFS.thy" 1;\<close>
 
@@ -178,7 +193,7 @@ val coincidence_rates_for_files =
 \addplot coordinates {(Challenge, 75.0) (DFS, 80.0) (Goodstein, 80.8) (NN, 63.6) (PST, 100.0) (overall, 82.6)};
 *)
 \<close>
-
+(*
 ML\<open>
 fun datapoints_to_points_for_functional_induction (points:datapoints) = filter (#rule) points;
 fun datapoints_to_points_with_generalisation (points:datapoints) = filter (#arbitrary) points;
@@ -204,7 +219,8 @@ in
    wo_rule_wo_arb = wo_rule_wo_arb: datapoints}: four_types           
 end;
 \<close>
-
+*)
+(*
 ML\<open> (*result*)
 local
 val four_types_of_points = datapoints_to_four_types lines;
@@ -232,7 +248,8 @@ end
 \addplot coordinates {(w-rule-w-arb, 33.3) (wo-rule-w-arb, 50.0) (w-rule-wo-arb, 90.9) (wo-rule-wo-arb, 96.8)};
 *)
 \<close>
-
+*)
+(*
 ML\<open> (*result for Goodstein*)
 local
 (*val four_types_of_points = datapoints_to_four_types (filter (fn point => #file_name point = "Goodstein") lines);*)
@@ -267,7 +284,8 @@ end;
 \addplot coordinates {(w-rule-w-arb, 33.3) (wo-rule-w-arb, 50.0) (w-rule-wo-arb, 90.9) (wo-rule-wo-arb, 96.8) (w-rule, 82.8) (wo-rule, 82.2)};
 *)
 \<close>
-
+*)
+(*
 ML\<open> (*result for non-Goodstein*)
 local
 val four_types_of_points = datapoints_to_four_types (filter_out (fn point => #file_name point = "Goodstein") lines);
@@ -290,7 +308,8 @@ in
 val _ = from_pair_matrix_to_tikz_barplot transposed_m
 end
 \<close>
-
+*)
+(*
 ML\<open>(*result*)
 fun datapoints_to_proportion (points:datapoints) =
 let
@@ -317,6 +336,7 @@ end;
 
 datapoints_to_proportion lines;                                      
 \<close>
+*)
 (*
 DFS.thy, Challenge1A.thy, Goodstein_Lambda.thy, PST_RBT.thy, Nearest_Neighbors.thy
 \addplot coordinates {(DFS, 50) (Challenge1A, 75) (Goodstein, 27) (PST, 100) (NN, 9) (overall, 49)};
@@ -326,7 +346,7 @@ DFS.thy, Challenge1A.thy, Goodstein_Lambda.thy, PST_RBT.thy, Nearest_Neighbors.t
 \addplot coordinates {(DFS, 80) (Challenge1A, 75) (Goodstein, 79) (PST, 100) (NN, 64) (overall, 82)};
  
 *)
-
+(*
 ML\<open>(*result*)
 fun datapoints_to_proportion_of_induct_on_subterm (points:datapoints) =
 let
@@ -357,7 +377,8 @@ end;
 
 datapoints_to_proportion_of_induct_on_subterm lines;                                      
 \<close>
-
+*)
+(*
 ML\<open>(*result*)
 fun datapoints_to_proportion_of_hand_writte_rule (points:datapoints) =
 let
@@ -379,14 +400,15 @@ end;
 
 datapoints_to_proportion_of_hand_writte_rule lines;                                      
 \<close>
-
+*)
+(*
 ML\<open>(*result*)
 fun datapoints_to_handwritten_and_subterm (points:datapoints) =
   points |> filter #hand_writte_rule |> filter #induct_on_subterm;
 
 datapoints_to_handwritten_and_subterm lines |> length;
 \<close>
-
+*)
 declare [[ML_print_depth=200]]
 
 ML\<open>(*result*)
@@ -413,7 +435,7 @@ fun print_pairs_real pairs = map (fn (index, time) => "(" ^ Int.toString index ^
 print_pairs_real pairs_of_successful_points;
 print_pairs_real pairs_of_failure_points;
 \<close>
-
+(*
 ML\<open>
 fun datapoints_with_indices_sorted_wrt_numb_of_candidates (points:datapoints) =
   let
@@ -424,7 +446,8 @@ fun datapoints_with_indices_sorted_wrt_numb_of_candidates (points:datapoints) =
     indexed: (int * datapoint) list
   end;
 \<close>
-
+*)
+(*
 ML\<open>(*result*)
 fun print_pairs_int pairs = map (fn (index, time) => "(" ^ Int.toString index ^ ", " ^ Int.toString time ^ ")") pairs |> String.concatWith " ";
 
@@ -450,7 +473,7 @@ fun five_types_of_pairs (points:datapoints) =
 
 five_types_of_pairs lines;
 \<close>
-
+*)
 ML\<open>
 val numb_of_Challenge = 12.0;
 val numb_of_DFS       = 10.0;

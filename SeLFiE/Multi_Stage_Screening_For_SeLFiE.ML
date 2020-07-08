@@ -1,7 +1,7 @@
 (*  Title:      SeLFiE/Multi_Stage_Screening_For_SeLFiE.thy
     Author:     Yutaka Nagashima, CIIRC, CTU, University of Innsbruck
 *)
-structure Multi_Stage_Screening =
+structure Multi_Stage_Screening_SeLFiE =
 struct
 
 structure IU = Isabelle_Utils;
@@ -103,9 +103,12 @@ fun induct_argumentss_n_proof_state_to_promising_induct_argumentss_n_resultss
                           : (int * SU.induct_arguments * bool * Proof.state Seq.seq) list;
     val promising_args    = filter     (fn (_, _, b, _) => b) raw_triples |> map (fn (score, a, _, c) => (score, a, c))
                           : (int * SU.induct_arguments * Proof.state Seq.seq) list;
+    fun ord_triple ((_, args1, _), (_, args2, _)) = SU.ord_induct_arguments (args1, args2): order;
+    val sorted_promisings = sort ord_triple promising_args
+                      
     val _ = tracing ("Only " ^ Int.toString (length promising_args) ^ " combinations survived Step 4.");
   in
-    promising_args: (int * SU.induct_arguments * Proof.state Seq.seq) list
+    sorted_promisings: (int * SU.induct_arguments * Proof.state Seq.seq) list
   end;
 
 end;

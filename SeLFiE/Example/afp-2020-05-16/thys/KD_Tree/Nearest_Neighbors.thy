@@ -8,6 +8,7 @@ section \<open>Nearest Neighbor Search on the \<open>k\<close>-d Tree\<close>
 theory Nearest_Neighbors
 imports
   KD_Tree
+  "../../../../SeLFiE"
 begin
 
 text \<open>
@@ -214,7 +215,6 @@ lemma set_nns:
 
 lemma length_nns:
   "length (nearest_nbors n ps p kdt) = min n (size_kdt kdt + length ps)"
-  semantic_induct
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*very good. It takes 1.706s elapsed time, 4.520s cpu time, 0.064s GC time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]    (*very good*)
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["p", "ps"],rule[]](*a little unfortunate*)(*1.793s elapsed time, 5.413s cpu time, 0.180s GC time*)
@@ -228,13 +228,21 @@ lemma length_nns:
 
 lemma length_nns_gt_0:
   "0 < n \<Longrightarrow> 0 < length (nearest_nbors n ps p kdt)"
-  semantic_induct
+  all_induction_heuristic      [on["n"], arb["ps"],rule[]]
+  all_generalization_heuristic [on["n"], arb["ps"],rule[]]
+  all_induction_heuristic      [on["kdt"], arb["ps"],rule[]]
+  all_generalization_heuristic [on["kdt"], arb["ps"],rule[]]
+  all_generalization_heuristic [on["kdt"], arb["ps","p","n"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p"],rule[]]
   by (induction kdt arbitrary: ps) (auto simp: Let_def upd_nbors_def)
 
 lemma length_nns_n:
   assumes "(set_kdt kdt \<union> set ps) - set (nearest_nbors n ps p kdt) \<noteq> {}"
   shows "length (nearest_nbors n ps p kdt) = n"
   using assms semantic_induct
+  all_induction_heuristic      [on["kdt"], arb["ps","p","n"],rule[]]
+  all_generalization_heuristic [on["kdt"], arb["ps","p","n"],rule[]]
+  assert_SeLFiE_false for_all_arbs_there_should_be_a_change [on["kdt"], arb["p"],rule[]](*!*)
 proof (induction kdt arbitrary: ps)
   case (Node k v l r)
   let ?nnsl = "nearest_nbors n ps p l"

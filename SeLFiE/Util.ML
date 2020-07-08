@@ -16,6 +16,7 @@ val ctxt_n_string_to_cname: Proof.context -> string -> string option;
 datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: strings};
 val dest_induct_arguments     : induct_arguments  -> {ons: strings, arbs: strings, rules: strings};
 val induct_arguments_to_string: induct_arguments -> string;
+val ord_induct_arguments      : induct_arguments * induct_arguments -> order;
 val sort_induct_argumentss    : induct_arguments list -> induct_arguments list;
 
 datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;

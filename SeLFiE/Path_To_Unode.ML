@@ -249,18 +249,18 @@ fun gen_table_n_gen_path_to_unode (Inner_Path_To_Unode table) (Inner_Path path) 
 
 fun path_is_in_subgoal          (Outer_Path (Subgoal _, _)) = true : bool
   | path_is_in_subgoal          (Outer_Path  _            ) = false
-  | path_is_in_subgoal          (Inner_Path  _            ) = false: bool
+  | path_is_in_subgoal          (Inner_Path  _            ) = true: bool(*because Are_In_Same_Location is used for Is_Deeper_Than in Eval_Syntactic_Sugar.ML*)
 
 fun path_is_in_chained_fact     (Outer_Path (Chained_Fact _, _)) = true : bool
   | path_is_in_chained_fact     (Outer_Path  _                 ) = false
-  | path_is_in_chained_fact     (Inner_Path  _                 ) = false: bool;
+  | path_is_in_chained_fact     (Inner_Path  _                 ) = true: bool;(*because Are_In_Same_Location is used for Is_Deeper_Than in Eval_Syntactic_Sugar.ML*)
 
 fun path_is_in_nth_subgoal      (Outer_Path (Subgoal nth_subg, _)) number = nth_subg = number
   | path_is_in_nth_subgoal      (Outer_Path  _                   ) _      = false
-  | path_is_in_nth_subgoal      (Inner_Path  _                   ) _      = false: bool;
+  | path_is_in_nth_subgoal      (Inner_Path  _                   ) _      = true: bool;(*because Are_In_Same_Location is used for Is_Deeper_Than in Eval_Syntactic_Sugar.ML*)
 
 fun path_is_in_nth_chained_fact (Outer_Path (Chained_Fact nth_fact, _)) number = nth_fact = number
   | path_is_in_nth_chained_fact (Outer_Path  _                        ) _      = false
-  | path_is_in_nth_chained_fact (Inner_Path  _                        ) _      = false: bool;
+  | path_is_in_nth_chained_fact (Inner_Path  _                        ) _      = true: bool;(*because Are_In_Same_Location is used for Is_Deeper_Than in Eval_Syntactic_Sugar.ML*)
 
 end;
