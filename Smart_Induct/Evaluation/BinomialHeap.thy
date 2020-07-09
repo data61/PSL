@@ -2,7 +2,7 @@ section "Binomial Heaps"
 
 theory BinomialHeap
   imports Main "HOL-Library.Multiset"
-  "Evaluation"
+  "Evaluate_Smart_Induct"
 begin
 
 locale BinomialHeapStruc_loc

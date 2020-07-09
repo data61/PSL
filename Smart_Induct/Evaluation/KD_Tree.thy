@@ -10,7 +10,7 @@ imports
   Complex_Main
   "HOL-Analysis.Finite_Cartesian_Product"
   "HOL-Analysis.Topology_Euclidean_Space"
-  Evaluation
+  Evaluate_Smart_Induct
 begin
 
 

@@ -19,11 +19,16 @@ sessions
 
 (* The top-level theories of the submission: *)
 theories
+    "Evaluate_Smart_Induct"
+    "KD_Tree"
     "Nearest_Neighbors"
     "Goodstein_Lambda"
     "DFS"
     "PST_RBT"
     "Challenge1A"
+    "Hybrid_Logic"
+    "Boolean_Expression_Checkers"
+    "BinomialHeap"
 
 (* Dependencies on document source files: *)
   document_files

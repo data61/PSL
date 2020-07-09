@@ -237,12 +237,15 @@ fun model_meth_n_pst_to_fst_thm (model_meth:Method.text_range) (pst:Proof.state)
 ML\<open> type triple_result = {nth_candidate: int, score: int, ind_mods: LiFtEr_Util.ind_mods, coincide:bool}; \<close>
 
 ML\<open> fun pst_n_model_meth_n_triple_to_triple_result (pst:Dynamic_Utils.state) (model_meth:Method.text_range)
-  {nth_candidate, score, ind_mods} =
+  {nth_candidate, score, ind_mods as LiFtEr_Util.Ind_Mods {ons, arbs, rules}} =
 let
-  val smart_induct_result = state_n_lifter_ind_mods_to_fst_thm pst ind_mods: thm;
-
+  fun mk_new_ind_mods new_arbs = LiFtEr_Util.Ind_Mods {ons = ons, arbs = new_arbs, rules = rules}: LiFtEr_Util.ind_mods;
+  val arbss_permutated         = Nitpick_Util.all_permutations arbs                              : LiFtEr_Util.induct_arb list list;
+  val ind_mods_permutateds     = map mk_new_ind_mods arbss_permutated
+  
+  val smart_induct_results     = map (state_n_lifter_ind_mods_to_fst_thm pst) ind_mods_permutateds: thms;
   val model_result        = model_meth_n_pst_to_fst_thm model_meth pst     : thm;
-  val coincide            = Thm.eq_thm (model_result, smart_induct_result) : bool;
+  val coincide            = exists (fn smart_result => Thm.eq_thm (model_result, smart_result)) smart_induct_results: bool;
 in
   {nth_candidate = nth_candidate, score = score, ind_mods = ind_mods, coincide = coincide}
 end;

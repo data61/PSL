@@ -1,4 +1,4 @@
-theory Hybrid_Logic imports "HOL-Library.Countable" Evaluation begin
+theory Hybrid_Logic imports "HOL-Library.Countable" Evaluate_Smart_Induct begin
 
 section \<open>Syntax\<close>
 

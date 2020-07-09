@@ -5,7 +5,7 @@
 
 theory Boolean_Expression_Checkers
   imports Main "HOL-Library.Mapping"
-"Evaluation"
+"Evaluate_Smart_Induct"
 begin
 
 section \<open>Tautology (etc) Checking via Binary Decision Trees\<close>
