@@ -16,6 +16,14 @@ datatype expr =
 | All       of SeLFiE_Util.qtyp * expr
 | Some      of SeLFiE_Util.qtyp * expr;
 
+type cached_val  = expr;
+type inner_key   = (expr * expr * expr list);
+type inner_alist = (inner_key * cached_val) list;
+type outer_key   = term;
+type outer_alist = (outer_key * inner_alist) list;
+val cache_term_to_alist: outer_alist Unsynchronized.ref;
+val cache_for_dive_in: ((term * (expr * expr * expr list)) * expr) list Unsynchronized.ref;
+
 val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
@@ -118,6 +126,16 @@ structure QD   = Quantifier_Domain;
 
 type literals = Eval_Parameter.literals;
 
+type cached_val  = expr;
+type inner_key   = (expr * expr * expr list);
+type inner_alist = (inner_key * cached_val) list;
+type outer_key   = term;
+type outer_alist = (outer_key * inner_alist) list;
+val cache_term_to_alist = Unsynchronized.ref []: outer_alist Unsynchronized.ref;
+
+type triple = (expr * expr * expr list);
+val cache_for_dive_in = Unsynchronized.ref ([]:((term * triple) * expr) list);
+
 fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
   let
     fun subexpr_n_qtyp_n_domains_to_apps (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) (domains:QD.domains) =
@@ -149,7 +167,52 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
           in
             EPWB.eval pst table induct_args assert lazy_params |> Literal
           end
-      | eval' (Dive_In   (triple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _))) table domains = dive triple table domains
+      | eval' (Dive_In   (triple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _))) table domains =
+        let
+        val old_cache = !cache_term_to_alist;
+        val cached_inner_alist_opt = AList.lookup (op =) old_cache thm_term: inner_alist option;
+        val cached_result_opt      = cached_inner_alist_opt >>= (fn alist => AList.lookup (op =) alist triple): cached_val option;
+        in
+          if   is_some cached_inner_alist_opt
+          then (*some inner associative list*)
+            let
+              val cached_inner_alist = the cached_inner_alist_opt: inner_alist;
+            in
+              if  is_some cached_result_opt
+              then (*some result in cache*)
+                the cached_result_opt
+              else (*no result in cache*)
+                let
+                  val new_result      = dive triple table domains                                                                         : cached_val;
+                  val new_inner_alist = AList.update (op =) (triple, new_result) cached_inner_alist                                       : inner_alist;
+                  val _               = Unsynchronized.:= (cache_term_to_alist, AList.update (op =) (thm_term, new_inner_alist) old_cache): unit;
+                in
+                  new_result
+                end
+            end
+          else(*no inner associative list*)
+            let
+              val new_result = dive triple table domains;
+              val _          = Unsynchronized.:= (cache_term_to_alist, AList.update (op =) (thm_term, [(triple, new_result)]) old_cache): unit;
+            in
+              new_result
+            end
+        end
+(*
+          val old_cache         = !cache_for_dive_in                                : ((term * triple) * expr) list;
+          val cached_result_opt = (AList.lookup (op =) old_cache (thm_term, triple)): expr option;
+        in
+          if is_some cached_result_opt
+          then the cached_result_opt
+          else
+            let
+              val new_result = dive triple table domains;
+              val _          = Unsynchronized.:= (cache_for_dive_in, AList.update (op =) ((thm_term, triple), new_result) old_cache)
+            in
+              new_result
+            end
+        end
+*)
       | eval' (Dive_In _) _ _                                                                         =  error "Dive_In failed in Eval_Unary.ML"
       | eval' (Deep_Dive (triple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _))) table domains = dive triple table domains
       | eval' (Deep_Dive _) _ _                                                                       =  error "Deep_Dive failed in Eval_Unary.ML"

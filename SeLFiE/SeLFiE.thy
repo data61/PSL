@@ -27,13 +27,61 @@ begin
 lemma ab: "(\<And>a b. True) \<Longrightarrow> (\<And>a b. a \<or> True \<or> b)" by auto
 lemma ba: "(\<And>b a. True) \<Longrightarrow> (\<And>b a. a \<or> True \<or> b)" by auto
 ML\<open>
+
+fun caching_map _ []      _         = []
+  | caching_map f (x::xs) old_cache =
+    let
+       val pair as (new_cache, _) = f (old_cache, x);
+    in
+      pair :: caching_map f xs new_cache: ('a * 'b) list
+    end;
+
+fun lazy_caching_map (f:('a * 'b) -> ('a * 'b)) (xq:'b Seq.seq) (old_cache:'a): ('a * 'b) Seq.seq =
+  Seq.make (fn () =>
+    (case Seq.pull xq of
+      NONE => NONE
+    | SOME (x, xs) =>
+        let
+          val pair as (new_cache, _) = f (old_cache, x);
+          
+        in
+          SOME (pair, lazy_caching_map f xs new_cache)
+        end
+    )
+  ): ('a * 'b) Seq.seq;
+val sdaf = Synchronized.var;
+val sdfa = Unsynchronized.ref;
+
+
+val new_atable  = Unsynchronized.ref (AList.update (op =) ("key", "value") []);
+val new_atable2 = !new_atable;
+Unsynchronized.:= (new_atable,
+let
+  val old_alist = !new_atable 
+in
+  AList.update (op =) ("key", "value2") old_alist
+end);
+
+val new_atable = !new_atable;
+\<close>
+
+ML\<open>
 val test= Thm.equiv_thm @{theory} (@{thm ab}, @{thm ba});
 val _ = is_equal;
 Nitpick_Util.all_permutations [1,2,3];
 ;
+
+
+val _ = prod_ord Thm.thm_ord fast_string_ord;
+val _ = list_ord;
+val _ = prod_ord
+
+
+val _ = AList.lookup: ('a * 'b -> bool) -> ('b * 'c) list -> 'a -> 'c option;
+val _ = AList.update;
 val asdf =  Term.add_free_names @{term "\<exists>x \<in> X. x"} [];
 val asfd = @{term "\<exists>x \<in> X. x"};
-val _ = @{term "Set.Bex"}
+val TRUEEE = (@{term "Set.Bex"},@{term "Set.Bex"}) = (@{term "Set.Bex"},@{term "Set.Bex"});
 val _= Char.toString;
 val asdf = #"\""  |> Char.toString ;
 
@@ -50,6 +98,7 @@ fun powerset (xs:'a list) =
   end;
 
 val asdf = powerset [1,2,3]
+val dive_in_table = ()
 \<close>
 find_theorems name:"wf_induct"
 
