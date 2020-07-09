@@ -6,7 +6,7 @@ ML_file  "../../../LiFtEr/Matrix_sig.ML"
 ML_file  "../../../LiFtEr/Matrix_Struct.ML"
 
 ML\<open>
-val path = File.platform_path (Resources.master_directory @{theory}) ^ "/POPL2020.csv";
+val path = File.platform_path (Resources.master_directory @{theory}) ^ "/POPL2020_Semantic_Induct.csv";
 val get_lines = split_lines o TextIO.inputAll o TextIO.openIn;
 
 type datapoint =
@@ -181,16 +181,20 @@ fun from_pair_matrix_to_tikz_barplot (pairs) = pairs
 |> String.concat
 |> tracing;
 
+val _ = lines;
+
 val coincidence_rates_for_files = 
-   datapoints_to_coincidence_rate_pairs lines [1,3,5,8,10]
+   datapoints_to_coincidence_rate_pairs lines [1,2,3,5,8,10]
 |> from_pair_matrix_to_tikz_barplot;
 
 (*
-\addplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 75.0) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 54.5) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 38.0) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 22.2) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 58.8) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 100.0) (overall, 51.8)};
-\addplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 75.0) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 68.0) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 44.4) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 70.0) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 100.0) (overall, 68.9)};
-\addplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 75.0) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 72.0) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 44.4) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 76.2) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 100.0) (overall, 73.2)};
-\adplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 83.3) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 72.0) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 44.4) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 80.0) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 100.0) (overall, 75.6)};
-\addplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 83.3) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 76.0) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 44.4) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 81.2) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 100.0) (overall, 77.4)};
+ddplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 75.0) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 54.5) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 37.3) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 44.4) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 59.0) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 25.6) (~/Workplace/PSL/SeLFiE/Evaluation/PST_RBT.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/KD_Tree.thy, 77.8) (~/Workplace/PSL/SeLFiE/Evaluation/Nearest_Neighbors.thy, 18.2) (overall, 52.0)};
+ddplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 75.0) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 60.8) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 77.8) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 69.2) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 41.0) (~/Workplace/PSL/SeLFiE/Evaluation/PST_RBT.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/KD_Tree.thy, 77.8) (~/Workplace/PSL/SeLFiE/Evaluation/Nearest_Neighbors.thy, 81.8) (overall, 67.6)};
+ddplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 75.0) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 68.6) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 88.9) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 70.5) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 66.7) (~/Workplace/PSL/SeLFiE/Evaluation/PST_RBT.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/KD_Tree.thy, 77.8) (~/Workplace/PSL/SeLFiE/Evaluation/Nearest_Neighbors.thy, 81.8) (overall, 74.2)};
+ddplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 75.0) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 72.5) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 88.9) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 78.2) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 66.7) (~/Workplace/PSL/SeLFiE/Evaluation/PST_RBT.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/KD_Tree.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/Nearest_Neighbors.thy, 100.0) (overall, 79.1)};
+ddplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 83.3) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 72.5) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 88.9) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 82.1) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 69.2) (~/Workplace/PSL/SeLFiE/Evaluation/PST_RBT.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/KD_Tree.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/Nearest_Neighbors.thy, 100.0) (overall, 81.1)};
+ddplot coordinates {(~/Workplace/PSL/SeLFiE/Evaluation/Challenge1A.thy, 83.3) (~/Workplace/PSL/SeLFiE/Evaluation/DFS.thy, 72.7) (~/Workplace/PSL/SeLFiE/Evaluation/Goodstein_Lambda.thy, 76.5) (~/Workplace/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers.thy, 88.9) (~/Workplace/PSL/SeLFiE/Evaluation/Hybrid_Logic.thy, 83.3) (~/Workplace/PSL/SeLFiE/Evaluation/BinomialHeap.thy, 71.8) (~/Workplace/PSL/SeLFiE/Evaluation/PST_RBT.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/KD_Tree.thy, 100.0) (~/Workplace/PSL/SeLFiE/Evaluation/Nearest_Neighbors.thy, 100.0) (overall, 82.8)};
+ 
 *)
 \<close>
 (*

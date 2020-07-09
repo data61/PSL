@@ -45,7 +45,7 @@ fun pst_to_numb_of_combinations (pst:Proof.state) =
     val numb_of_combs_after_step3         = length ind_best_records :int;
     fun record_to_pair {score, modifiers,...} = (score, modifiers);
     val best_pairs                        = map record_to_pair ind_best_records: (int * SeLFiE_Util.induct_arguments) list;
-    val arb_pairs                         = Smart_Construction.terms_n_induct_argumentss_to_induct_argumentss_w_arbs (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs:  (int * SeLFiE_Util.induct_arguments) list;
+    val arb_pairs                         = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs:  (int * SeLFiE_Util.induct_arguments) list;
     val numb_of_combs_after_step4         = length arb_pairs;
     val numb_of_combs_after_step5         = Multi_Stage_Screening_SeLFiE.induct_argumentss_n_proof_state_to_promising_induct_argumentss_n_resultss best_pairs pst |> length: int;
   in
@@ -62,7 +62,7 @@ fun pst_to_top_10_mods (pst:Proof.state) =
     val (ind_best_records, ind_max_point)     = Apply_SeLFiE.heuristic_typ_n_pst_to_best_pairs_n_maximum_point Induction_Heuristic pst;
     fun record_to_pair {score, modifiers,...} = (score, modifiers);
     val best_pairs                            = map record_to_pair ind_best_records: (int * SeLFiE_Util.induct_arguments) list;
-    val arb_pairs                             = Smart_Construction.terms_n_induct_argumentss_to_induct_argumentss_w_arbs (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs:  (int * SeLFiE_Util.induct_arguments) list;
+    val arb_pairs                             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs:  (int * SeLFiE_Util.induct_arguments) list;
     val (arb_best_records, _)                 = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs pst;
     val enumerated_arb_bests  = enumerate arb_best_records
                               :(int * {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} ) list;
@@ -189,7 +189,7 @@ local
 (*Method.text_range = text * Position.range;*)
 fun state_to_unit  (pst:Proof.state) (m) =
   let
-    val message = Timeout.apply (seconds 1200.0) (evaluate pst) m;
+    val message = Timeout.apply (seconds 5000.0) (evaluate pst) m;
     val _ = tracing message;
     val path = Resources.master_directory @{theory} |> File.platform_path : string;
     val path_to_database  = path ^ "/Database.txt" : string;

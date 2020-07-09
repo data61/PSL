@@ -214,7 +214,7 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
         end
 *)
       | eval' (Dive_In _) _ _                                                                         =  error "Dive_In failed in Eval_Unary.ML"
-      | eval' (Deep_Dive (triple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _))) table domains = dive triple table domains
+      | eval' (Deep_Dive (triple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _))) table domains = dive triple table domains(*TODO: use cache*)
       | eval' (Deep_Dive _) _ _                                                                       =  error "Deep_Dive failed in Eval_Unary.ML"
       | eval' (All  (qtyp, subexpr)) table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ands domains) table domains
       | eval' (Some (qtyp, subexpr)) table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ors  domains) table domains

@@ -122,17 +122,17 @@ value "map (\<lambda>n. evalO (n+2) (g4O n)) [0..<10]"
 subsection \<open>Properties of evaluation\<close>
 
 lemma evalO_addO [simp]:
-  "evalO b (addO n m) = evalO b n + evalO b m" semantic_induct
+  "evalO b (addO n m) = evalO b n + evalO b m" 
   assert_SeLFiE_true is_defined_recursively_on_nth_n_mth_by_two_funs   [on["m"], arb[],rule[]]
   assert_SeLFiE_false is_defined_recursively_on_nth_n_mth_by_two_funs  [on["n"], arb[],rule[]]
   by (induct m) auto
 
 lemma evalO_mulO [simp]:
-  "evalO b (mulO n m) = evalO b n * evalO b m" semantic_induct
+  "evalO b (mulO n m) = evalO b n * evalO b m" 
   by (induct m) auto
 
 lemma evalO_n [simp]:
-  "evalO b ((S ^^ n) Z) = n"semantic_induct
+  "evalO b ((S ^^ n) Z) = n"
   all_induction_heuristic [on["n"], arb[],rule[]]
   by (induct n) auto
 
@@ -141,7 +141,7 @@ lemma evalO_\<omega> [simp]:
   by (auto simp: \<omega>_def)
 
 lemma evalO_exp\<omega> [simp]:
-  "evalO b (exp\<omega> n) = b^(evalO b n)"semantic_induct
+  "evalO b (exp\<omega> n) = b^(evalO b n)"
   by (induct n) auto
 
 text \<open>Note that evaluation is useful for proving that @{type "Ord"} values are distinct:\<close>
@@ -152,23 +152,23 @@ end
 subsection \<open>Arithmetic properties\<close>
 
 lemma addO_Z [simp]:
-  "addO Z n = n"semantic_induct
+  "addO Z n = n"
   by (induct n) auto
 
 lemma addO_assoc [simp]:
-  "addO n (addO m p) = addO (addO n m) p"semantic_induct
+  "addO n (addO m p) = addO (addO n m) p"
   by (induct p) auto
 
 lemma mul0_distrib [simp]:
-  "mulO n (addO p q) = addO (mulO n p) (mulO n q)"semantic_induct
+  "mulO n (addO p q) = addO (mulO n p) (mulO n q)"
   by (induct q) auto
 
 lemma mulO_assoc [simp]:
-  "mulO n (mulO m p) = mulO (mulO n m) p"semantic_induct
+  "mulO n (mulO m p) = mulO (mulO n m) p"
   by (induct p) auto
 
 lemma exp\<omega>_addO [simp]:
-  "exp\<omega> (addO n m) = mulO (exp\<omega> n) (exp\<omega> m)"semantic_induct
+  "exp\<omega> (addO n m) = mulO (exp\<omega> n) (exp\<omega> m)"
   by (induct m) auto
 
 
@@ -195,7 +195,7 @@ lemma addO_exp\<omega>_inj:
   shows "n = n'" and "m = m'"
 proof -
   have "addO n (exp\<omega> m) = addO n' (exp\<omega> m') \<Longrightarrow> n = n'"
-  semantic_induct
+  
   assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["m'"],rule[]]
   assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m'"], arb["m"],rule[]](*very good*)
 
@@ -221,7 +221,7 @@ qed
 
 lemma C2O_inj:
   "C2O n = C2O m \<Longrightarrow> n = m"
-  semantic_induct
+  
   assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["n"], arb["m"],rule[]](*good*)
   assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["n"],rule[]](*very good*)
 
@@ -244,13 +244,13 @@ lemma O2C_Z [simp]:
   using O2C_C2O[of "C []", unfolded C2O.simps] .
 
 lemma C2O_replicate:
-  "C2O (C (replicate i n)) = mulO (exp\<omega> (C2O n)) ((S ^^ i) Z)" semantic_induct
+  "C2O (C (replicate i n)) = mulO (exp\<omega> (C2O n)) ((S ^^ i) Z)" 
   all_induction_heuristic      [on["i"], arb[],rule[]]
   all_generalization_heuristic [on["i"], arb[],rule[]]
   by (induct i) auto
 
 lemma C2O_app:
-  "C2O (C (xs @ ys)) = addO (C2O (C ys)) (C2O (C xs))" semantic_induct
+  "C2O (C (xs @ ys)) = addO (C2O (C ys)) (C2O (C xs))" 
   all_induction_heuristic      [on["xs"], arb["ys"],rule[]]
   all_generalization_heuristic [on["xs"], arb["ys"],rule[]]
   by (induct xs arbitrary: ys) auto
@@ -267,7 +267,7 @@ lemma evalC_app [simp]:
 
 lemma evalC_replicate [simp]:
   "evalC b (C (replicate c n)) = c * evalC b (C [n])"
-  semantic_induct
+  
   all_induction_heuristic      [on["c"], arb[],rule[]]
   all_generalization_heuristic [on["c"], arb[],rule[]]
   by (induct c) auto
@@ -281,7 +281,7 @@ fun funC where \<comment> \<open>@{term funC} computes the fundamental sequence 
 
 lemma C2O_cons:
   "C2O (C (n # ns)) =
-    (if n = C [] then S (C2O (C ns)) else L (\<lambda>i. C2O (C (funC n i @ ns))))"semantic_induct
+    (if n = C [] then S (C2O (C ns)) else L (\<lambda>i. C2O (C (funC n i @ ns))))"
   by (induct n arbitrary: ns rule: funC.induct)
     (simp_all add: \<omega>_def C2O_replicate C2O_app flip: exp\<omega>_addO)
 
@@ -309,13 +309,13 @@ function (domintros) goodsteinC where
 
 termination
 proof -
-  have "goodsteinC_dom (c, n)" for c n semantic_induct
+  have "goodsteinC_dom (c, n)" for c n 
     by (induct n arbitrary: c rule: C_Ord_induct) (auto intro: goodsteinC.domintros)
   then show ?thesis by simp
 qed
 
 lemma goodsteinC_def':
-  "goodsteinC c n = goodsteinO c (C2O n)"semantic_induct
+  "goodsteinC c n = goodsteinO c (C2O n)"
   by (induct c n rule: goodsteinC.induct) (simp_all add: C2O_cons del: C2O.simps(2))
 
 function (domintros) stepC where
@@ -327,7 +327,7 @@ function (domintros) stepC where
 
 termination
 proof -
-  have "stepC_dom (c, n)" for c n semantic_induct
+  have "stepC_dom (c, n)" for c n 
     apply(induction "(c, n)")
     by (induct n arbitrary: c rule: C_Ord_induct) (auto intro: stepC.domintros)
   then show ?thesis by simp
@@ -342,7 +342,7 @@ value "map (\<lambda>n. evalC (n+2) (g4C n)) [0..<10]"
 subsection \<open>Properties\<close>
 
 lemma stepC_def':
-  "stepC c n = O2C (stepO c (C2O n))"semantic_induct
+  "stepC c n = O2C (stepO c (C2O n))"
   all_induction_heuristic      [on["c", "n"], arb[],rule["stepC.induct"]]
   all_generalization_heuristic [on["c", "n"], arb[],rule["stepC.induct"]]
   by (induct c n rule: stepC.induct) (simp_all add: C2O_cons del: C2O.simps(2))
@@ -352,11 +352,11 @@ lemma funC_ne [simp]:
   by (cases m rule: funC.cases) simp_all
 
 lemma evalC_funC [simp]:
-  "evalC b (C (funC n b)) = evalC b (C [n])"semantic_induct
+  "evalC b (C (funC n b)) = evalC b (C [n])"
   by (induct n rule: funC.induct) simp_all
 
 lemma stepC_app [simp]:
-  "n \<noteq> C [] \<Longrightarrow> stepC c (C (unC n @ ns)) = C (unC (stepC c n) @ ns)"semantic_induct
+  "n \<noteq> C [] \<Longrightarrow> stepC c (C (unC n @ ns)) = C (unC (stepC c n) @ ns)"
   by (induct n arbitrary: ns rule: stepC.induct) simp_all
 
 lemma stepC_cons [simp]:
@@ -364,11 +364,11 @@ lemma stepC_cons [simp]:
   using stepC_app[of "C[n]" c ns] by simp
 
 lemma stepC_dec:
-  "n \<noteq> C [] \<Longrightarrow> Suc (evalC (Suc (Suc c)) (stepC c n)) = evalC (Suc (Suc c)) n"semantic_induct
+  "n \<noteq> C [] \<Longrightarrow> Suc (evalC (Suc (Suc c)) (stepC c n)) = evalC (Suc (Suc c)) n"
   by (induct c n rule: stepC.induct) simp_all
 
 lemma stepC_dec':
-  "n \<noteq> C [] \<Longrightarrow> evalC (c+3) (stepC c n) < evalC (c+3) n"semantic_induct
+  "n \<noteq> C [] \<Longrightarrow> evalC (c+3) (stepC c n) < evalC (c+3) n"
 proof (induct c n rule: stepC.induct)
   case (3 c n ns ms)
   have "evalC (c+3) (C (funC (C (n # ns)) (Suc (Suc c)))) \<le>
@@ -409,15 +409,15 @@ lemma hbase_tl:
 lemmas hbase_tl' [dest] = hbase_tl[of "n # ns" for n ns, simplified]
 
 lemma hbase_elt [dest]:
-  "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"semantic_induct
+  "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"
   by (induct ns) auto
 
 lemma evalC_sum_list:
-  "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"semantic_induct(*!*)
+  "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"(*!*)
   by (induct ns) auto
 
 lemma sum_list_replicate:
-  "sum_list (replicate n x) = n * x"semantic_induct
+  "sum_list (replicate n x) = n * x"
   by (induct n) auto
 
 lemma base_red:
@@ -473,7 +473,7 @@ proof (induct n arbitrary: m ns ms)
 qed
 
 lemma evalC_inj_on_hbase:
-  "n \<in> hbase b \<Longrightarrow> m \<in> hbase b \<Longrightarrow> evalC b n = evalC b m \<Longrightarrow> n = m"semantic_induct(*!*)
+  "n \<in> hbase b \<Longrightarrow> m \<in> hbase b \<Longrightarrow> evalC b n = evalC b m \<Longrightarrow> n = m"(*!*)
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb["m"],rule[]]
   assert_SeLFiE_false  ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["n"], arb[],rule[]]
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate*)

@@ -98,7 +98,7 @@ fun induct_arguments_is_promising_for_proof_state_arbitrary (pst:Proof.state) (s
 (*for generalization: TODO: refactor with with proof_state_to_promising_induct_argumentss_n_resultss*)
 fun induct_argumentss_n_proof_state_to_promising_induct_argumentss_n_resultss
   (score_n_induct_argumentss:(int * SU.induct_arguments) list) (pst:Proof.state) =
-  let
+  let                                                         
     val raw_triples       = Par_List.map (induct_arguments_is_promising_for_proof_state_arbitrary pst) score_n_induct_argumentss
                           : (int * SU.induct_arguments * bool * Proof.state Seq.seq) list;
     val promising_args    = filter     (fn (_, _, b, _) => b) raw_triples |> map (fn (score, a, _, c) => (score, a, c))

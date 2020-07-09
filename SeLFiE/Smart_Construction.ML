@@ -64,32 +64,45 @@ fun proof_state_to_induct_argumentss (pst:Proof.state) =
 let
   val ctxt             = Proof.context_of pst;
   val terms            = Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst: term list;
+  val pretty_printed_terms = map (Isabelle_Utils.trm_to_string (Proof_Context.set_mode Proof_Context.mode_default ctxt)) terms |> String.concat: string;
+  fun is_string_of_const (cname:string) = try (Syntax.read_term ctxt) cname <$> Term.is_Const |> Utils.is_some_true: bool;
   fun is_wellfounded (SU.Induct_Arguments {rules,...}) = rules = ["Wellfounded.accp.induct"];(*TODO: FIXME: termination proof for  goodsteinC in Goodstein.thy*)
+  fun is_const_or_unabbreviated (on:string) = is_string_of_const on orelse String.isSubstring on pretty_printed_terms;
+  fun all_ons_meet_condition (SU.Induct_Arguments {ons,...}) = (forall is_const_or_unabbreviated ons) andalso not (null ons): bool
   val induct_arguments = map (context_n_term_to_argument_powersets ctxt) terms
                       |> flat
                       |> distinct (op =)
                       |> powerset_to_induct_arguments
                       |> distinct (op =)
                       |> SU.sort_induct_argumentss
+                      |> filter all_ons_meet_condition (*TODO: we should do something better than this.*)
                       |> filter_out is_wellfounded: SeLFiE_Util.induct_arguments list;
   val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");
 in
   induct_arguments: SU.induct_arguments list
 end;
 
-fun terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs (trms:terms) (score, SU.Induct_Arguments {ons, rules,...}) =
+fun proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score, SU.Induct_Arguments {ons, rules,...}) =
   let
-    val free_names        = fold Term.add_free_names trms []  |> distinct (op =)          : strings;
-    val fnames_not_in_ons = filter_out (member (op =) ons) free_names                     : strings;
-    val arbss             = powerset fnames_not_in_ons                                    : strings list;
+    val free_names           = fold Term.add_free_names trms []  |> distinct (op =)          : strings;
+    val fnames_not_in_ons    = filter_out (member (op =) ons) free_names                     : strings;
+    val ctxt                 = Proof.context_of pst;
+    val terms                = Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst         : term list;
+    val pretty_printed_terms = map (Isabelle_Utils.trm_to_string (Proof_Context.set_mode Proof_Context.mode_default ctxt)) terms |> String.concat: string;
+    fun fname_appears_in_terms (fvar_name:string) = String.isSubstring (fvar_name ^ " ") pretty_printed_terms
+                                             orelse String.isSubstring (" " ^ fvar_name) pretty_printed_terms
+                                             orelse String.isSubstring ("(" ^ fvar_name) pretty_printed_terms
+                                             orelse String.isSubstring (fvar_name ^ ")") pretty_printed_terms;
+    val arbss             = powerset fnames_not_in_ons
+                         |> filter (forall fname_appears_in_terms)                        : strings list;(*TODO: we can do better than this. refactor with proof_state_to_induct_argumentss.*)
     fun mk_new_pair arbs  = (score, SU.Induct_Arguments {ons=ons, arbs=arbs, rules=rules}): (int * SU.induct_arguments);
     val induct_argss      = map mk_new_pair arbss                                         : (int * SU.induct_arguments) list;
   in
     induct_argss: (int * SU.induct_arguments) list
   end;
 
-fun terms_n_induct_argumentss_to_induct_argumentss_w_arbs (trms:terms) (score_n_argss:(int * SU.induct_arguments) list) =
-   map (fn score_n_args => terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs trms score_n_args) score_n_argss
+fun proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score_n_argss:(int * SU.induct_arguments) list) =
+   map (fn score_n_args => proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs pst trms score_n_args) score_n_argss
 |> flat:  (int * SeLFiE_Util.induct_arguments) list;
 
 end;

@@ -166,12 +166,12 @@ lemma inorder_baldR[simp]:
 by(cases "(l,a,r)" rule: baldR.cases) auto
 
 lemma inorder_combine[simp]:
-  "inorder(combine l r) = inorder l @ inorder r"semantic_induct(*64.667s elapsed time, 206.087s cpu time, 5.078s GC time*)
+  "inorder(combine l r) = inorder l @ inorder r"
   all_induction_heuristic [on["l","r"], arb["ys"],rule[]]
 by (induction l r rule: combine.induct) (auto split: tree.split tcolor.split)
 
 lemma inorder_upd:
-  "sorted1(inorder t) \<Longrightarrow> inorder(upd x y t) = upd_list x y (inorder t)"semantic_induct(*88.764s elapsed time, 510.256s cpu time, 7.921s GC time*)
+  "sorted1(inorder t) \<Longrightarrow> inorder(upd x y t) = upd_list x y (inorder t)"(*88.764s elapsed time, 510.256s cpu time, 7.921s GC time*)
   all_induction_heuristic [on["x","y","t"], arb[],rule["upd.induct"]]
   all_induction_heuristic [on["x","y","Tree2.inorder t"], arb[],rule["upd_list.induct"]]
   by(induction x y t rule: upd.induct)
@@ -182,7 +182,7 @@ lemma inorder_update:
 by(simp add: update_def inorder_upd)
 
 lemma inorder_del:
- "sorted1(inorder t) \<Longrightarrow>  inorder(del x t) = del_list x (inorder t)"semantic_induct(*50.495s elapsed time, 290.232s cpu time, 4.377s GC time*)
+ "sorted1(inorder t) \<Longrightarrow>  inorder(del x t) = del_list x (inorder t)"(*50.495s elapsed time, 290.232s cpu time, 4.377s GC time*)
 by(induction x t rule: del.induct)
   (auto simp: del_list_simps)
 
@@ -223,11 +223,11 @@ by (simp_all add: mkNode_def)
 subsubsection \<open>Update\<close>
 
 lemma invc_baliL:
-  "\<lbrakk>invc2 l; invc r\<rbrakk> \<Longrightarrow> invc (baliL l a r)"semantic_induct
+  "\<lbrakk>invc2 l; invc r\<rbrakk> \<Longrightarrow> invc (baliL l a r)"
 by (induct l a r rule: baliL.induct) auto
 
 lemma invc_baliR:
-  "\<lbrakk>invc l; invc2 r\<rbrakk> \<Longrightarrow> invc (baliR l a r)"semantic_induct
+  "\<lbrakk>invc l; invc2 r\<rbrakk> \<Longrightarrow> invc (baliR l a r)"
 by (induct l a r rule: baliR.induct) auto
 
 lemma bheight_mkRB[simp]:
@@ -236,11 +236,11 @@ lemma bheight_mkRB[simp]:
   by (simp_all add: mkNode_def)
 
 lemma bheight_baliL:
-  "bheight l = bheight r \<Longrightarrow> bheight (baliL l a r) = Suc (bheight l)"semantic_induct
+  "bheight l = bheight r \<Longrightarrow> bheight (baliL l a r) = Suc (bheight l)"
 by (induct l a r rule: baliL.induct) auto
 
 lemma bheight_baliR:
-  "bheight l = bheight r \<Longrightarrow> bheight (baliR l a r) = Suc (bheight l)"semantic_induct
+  "bheight l = bheight r \<Longrightarrow> bheight (baliR l a r) = Suc (bheight l)"
 by (induct l a r rule: baliR.induct) auto
 
 lemma invh_mkNode[simp]:
@@ -248,23 +248,23 @@ lemma invh_mkNode[simp]:
 by (simp add: mkNode_def)
 
 lemma invh_baliL:
-  "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk> \<Longrightarrow> invh (baliL l a r)"semantic_induct
+  "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk> \<Longrightarrow> invh (baliL l a r)"
 by (induct l a r rule: baliL.induct) auto
 
 lemma invh_baliR:
-  "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk> \<Longrightarrow> invh (baliR l a r)"semantic_induct
+  "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk> \<Longrightarrow> invh (baliR l a r)"
 by (induct l a r rule: baliR.induct) auto
 
 
 lemma invc_upd: assumes "invc t"
   shows "color t = Black \<Longrightarrow> invc (upd x y t)" "invc2 (upd x y t)"
-using assms semantic_induct
+using assms 
 by (induct x y t rule: upd.induct) 
    (auto simp: invc_baliL invc_baliR invc2I mkNode_def)
 
 lemma invh_upd: assumes "invh t"
   shows "invh (upd x y t)" "bheight (upd x y t) = bheight t"
-using assms semantic_induct
+using assms 
 by(induct x y t rule: upd.induct)
   (auto simp: invh_baliL invh_baliR bheight_baliL bheight_baliR)
 
@@ -278,7 +278,7 @@ by (cases "(l,a,r)" rule: baliR.cases) auto
 lemma invpst_baliL: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invpst (baliL l a r)"
 by (cases "(l,a,r)" rule: baliL.cases) auto
 
-lemma invpst_upd: "invpst t \<Longrightarrow> invpst (upd x y t)"semantic_induct
+lemma invpst_upd: "invpst t \<Longrightarrow> invpst (upd x y t)"
 by (induct x y t rule: upd.induct) (auto simp: invpst_baliR invpst_baliL)
 
 
@@ -320,13 +320,13 @@ by(induct l a r rule: baldR.induct)
 lemma invc_baldR: "\<lbrakk>invc a; invc2 b; color a = Black\<rbrakk> \<Longrightarrow> invc (baldR a x b)"
 by (induct a x b rule: baldR.induct) (simp_all add: invc_baliL mkNode_def)
 
-lemma invc2_baldR: "\<lbrakk> invc l; invc2 r \<rbrakk> \<Longrightarrow>invc2 (baldR l x r)"semantic_induct
+lemma invc2_baldR: "\<lbrakk> invc l; invc2 r \<rbrakk> \<Longrightarrow>invc2 (baldR l x r)"
 by (induct l x r rule: baldR.induct) 
    (auto simp: invc_baliL paint_invc2 invc2I mkNode_def)
 
 lemma invh_combine:
   "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk>
-  \<Longrightarrow> invh (combine l r) \<and> bheight (combine l r) = bheight l"semantic_induct
+  \<Longrightarrow> invh (combine l r) \<and> bheight (combine l r) = bheight l"
 by (induct l r rule: combine.induct)
    (auto simp: invh_baldL_Black split: tree.splits tcolor.splits)
 
@@ -334,7 +334,7 @@ lemma invc_combine:
   assumes "invc l" "invc r"
   shows "color l = Black \<Longrightarrow> color r = Black \<Longrightarrow> invc (combine l r)"
          "invc2 (combine l r)"
-using assms semantic_induct
+using assms 
 by (induct l r rule: combine.induct)
    (auto simp: invc_baldL invc2I mkNode_def split: tree.splits tcolor.splits)
 
@@ -374,11 +374,11 @@ by (cases "(l,a,r)" rule: baldR.cases) (auto simp: invpst_baliL)
 lemma invpst_baldL: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invpst (baldL l a r)"
 by (cases "(l,a,r)" rule: baldL.cases) (auto simp: invpst_baliR)
 
-lemma invpst_combine: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invpst (combine l r)"semantic_induct
+lemma invpst_combine: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invpst (combine l r)"
 by(induction l r rule: combine.induct)
   (auto split: tree.splits tcolor.splits simp: invpst_baldR invpst_baldL)
 
-lemma invpst_del: "invpst t \<Longrightarrow> invpst (del x t)"semantic_induct
+lemma invpst_del: "invpst t \<Longrightarrow> invpst (del x t)"
 by(induct x t rule: del.induct)
   (auto simp: invpst_baldR invpst_baldL invpst_combine)
 
