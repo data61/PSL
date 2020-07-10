@@ -5,7 +5,7 @@
 session "Evaluation" (psl) in "." = SeLFiE +
 
 (* Timeout (in sec) in case of non-termination problems *)
-options [timeout = 600000]
+options [timeout = 60000000]
 sessions
   "HOL-Data_Structures"
   "HOL-Analysis"

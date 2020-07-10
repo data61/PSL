@@ -63,7 +63,7 @@ fun pst_to_top_10_mods (pst:Proof.state) =
     fun record_to_pair {score, modifiers,...} = (score, modifiers);
     val best_pairs                            = map record_to_pair ind_best_records: (int * SeLFiE_Util.induct_arguments) list;
     val arb_pairs                             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs:  (int * SeLFiE_Util.induct_arguments) list;
-    val (arb_best_records, _)                 = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs pst;
+    val (arb_best_records, _)                 = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs pst;
     val enumerated_arb_bests  = enumerate arb_best_records
                               :(int * {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} ) list;
     fun transform (rank, {modifiers, score,...}) = {nth_candidate = rank, score = score, ind_mods = modifiers};
@@ -189,7 +189,7 @@ local
 (*Method.text_range = text * Position.range;*)
 fun state_to_unit  (pst:Proof.state) (m) =
   let
-    val message = Timeout.apply (seconds 5000.0) (evaluate pst) m;
+    val message = Timeout.apply (seconds 50000.0) (evaluate pst) m;
     val _ = tracing message;
     val path = Resources.master_directory @{theory} |> File.platform_path : string;
     val path_to_database  = path ^ "/Database.txt" : string;
