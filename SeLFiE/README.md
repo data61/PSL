@@ -46,10 +46,10 @@ It is not ready for use yet.
 - [X] `mk_pattern_matrix` in `Pattern.ML`. Probably, I should remove this.
 - [X] `helper` in `Unique_Node.ML`
 - [X] `eavl` in `Eval_Surface.ML`.
-- [ ] `command_to_definitions` in `From_Multiple_To_Deep.ML`.
+- [X] `command_to_definitions` in `From_Multiple_To_Deep.ML`.
 - [X] define `parameter` and `assert` in `Preprocessor/Util.ML` and use them in many modules.
-- [ ] `Eval_Syntactic_Sugar.ML`
-- [ ] develop the user-interface.
-  - [ ] develop an Isar interface
-  - [ ] create many combinations of induction arguements up to a certain limit (1000 for example)
-  - [ ] apply SeLFiE assertions to examine each of the combinations.
+- [X] `Eval_Syntactic_Sugar.ML`
+- [X] develop the user-interface.
+  - [X] develop an Isar interface
+  - [X] create many combinations of induction arguements up to a certain limit (1000 for example)
+  - [X] apply SeLFiE assertions to examine each of the combinations.
