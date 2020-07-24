@@ -53,3 +53,13 @@ It is not ready for use yet.
   - [X] develop an Isar interface
   - [X] create many combinations of induction arguements up to a certain limit (1000 for example)
   - [X] apply SeLFiE assertions to examine each of the combinations.
+
+# TODOs to polish my draft
+
+- [ ] measure execution time to compute induction heuristics only
+- [ ] write one example for deep-dive
+- [ ] compute the correlation between the coincidence rates and the proportions of induct tactics with generalisation.
+- [ ] compute the correaltion between execution times and term sizes
+- [ ] add a section about implementation
+   - [ ] evaluation strategy
+   - [ ] caching results
