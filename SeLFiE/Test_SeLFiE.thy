@@ -365,5 +365,11 @@ in
 end) \<close>)
   oops
 
+lemma helper: "itrev xs ys = rev xs @ ys"
+  apply (induct xs arbitrary: ys)
+  by auto
+
+lemma equivalence: "itrev xs [] = rev xs"
+  by (simp add: helper)
 
 end

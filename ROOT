@@ -1,7 +1,7 @@
-session PSL_And_All_That (psl) = HOL +
+session Smart_Isabelle (psl) = HOL +
   options [timeout = 30000]
   theories
-    PSL_And_All_That
+    Smart_Isabelle
   document_files
     "root.tex"
     "root.bib"
@@ -37,7 +37,7 @@ session Smart_Induct (psl) in Smart_Induct = "LiFtEr" +
   document_files
     "root.tex"
     "root.bib"
-
+(*
 session Evaluation (psl) in "Smart_Induct/Evaluation" = "Smart_Induct" +
   options [timeout = 300000]
   sessions
@@ -53,3 +53,4 @@ session Evaluation (psl) in "Smart_Induct/Evaluation" = "Smart_Induct" +
   document_files
     "root.tex"
     "root.bib"
+*)

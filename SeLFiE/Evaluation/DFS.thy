@@ -157,7 +157,7 @@ lemma nextss_closed_dfs'[rule_format]:
   by2 (induct g xs ys rule:dfs.induct, auto simp add:nextss_Cons List.member_def)
 
 lemma nextss_closed_dfs: "nextss g (dfs g xs []) \<subseteq> set (dfs g xs [])"
-  by2 (rule nextss_closed_dfs', simp add: nextss_def)
+  by (rule nextss_closed_dfs', simp add: nextss_def)
 
 lemma Image_closed_trancl: assumes "r `` X \<subseteq> X" shows "r\<^sup>* `` X = X"
 proof

@@ -1,4 +1,4 @@
-theory Hybrid_Logic imports "HOL-Library.Countable" begin
+theory Hybrid_Logic imports "HOL-Library.Countable" "SeLFiE.SeLFiE" "../Evaluation" begin
 
 section \<open>Syntax\<close>
 
@@ -1678,8 +1678,8 @@ lemma Nom':
 
 section \<open>Substitution\<close>
 
-lemma finite_nominals: \<open>finite (nominals p)\<close>
-  by (induct p) simp_all
+lemma finite_nominals: \<open>finite (nominals p)\<close>semantic_induct
+  by2 (induct p) simp_all
 
 lemma finite_block_nominals: \<open>finite (block_nominals block)\<close>
   using finite_nominals by (induct block) auto

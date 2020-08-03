@@ -1,4 +1,4 @@
-theory PSL_And_All_That
+theory Smart_Isabelle
   imports Main
 begin
 

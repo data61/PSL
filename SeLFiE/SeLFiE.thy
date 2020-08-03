@@ -24,8 +24,11 @@ theory SeLFiE
 *)
 begin
 
-lemma ab: "(\<And>a b. True) \<Longrightarrow> (\<And>a b. a \<or> True \<or> b)" by auto
-lemma ba: "(\<And>b a. True) \<Longrightarrow> (\<And>b a. a \<or> True \<or> b)" by auto
+lemma ab: "(\<And>a b. a \<and> True \<and> b) \<Longrightarrow> (\<And>a b. a \<or> True \<or> b)" by auto
+lemma ba: "(\<And>b a. a \<and> True \<and> b) \<Longrightarrow> (\<And>b a. a \<or> True \<or> b)" by auto
+ML\<open>
+Thm.eq_thm (@{thm ab}, @{thm ba})
+\<close>
 ML\<open>
 
 fun caching_map _ []      _         = []

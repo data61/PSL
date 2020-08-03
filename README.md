@@ -9,9 +9,9 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 1. Install [Isabelle2020](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
-   * `(path to the Isabelle binary)isabelle jedit -d (path to the directory that contains this README file) -l PSL_And_All_That`
+   * `(path to the Isabelle binary)isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
-   * `/Applications/Isabelle2020.app/Isabelle/bin/isabelle jedit -d . -l PSL_And_All_That`
+   * `/Applications/Isabelle2020.app/Isabelle/bin/isabelle jedit -d . -l Smart_Isabelle`
 4. Then, You can install PSL and try_hard by importing *.PSL.thy* to their theory files
    with the Isabelle keyword, **imports** as ``imports "PSL.PSL"``.
 ![Screenshot](./image/screen_shot_import.png)
