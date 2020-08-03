@@ -341,8 +341,6 @@ Name.skolem;
 Variable.names_of;
 Variable.add_fixes;
 type asdf = term;
-
-
 \<close>
 
 schematic_goal "?x = ?x"
