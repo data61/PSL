@@ -168,8 +168,8 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
         val score          = fold (curry (op +)) success_scores 0: int;
       in score end;
 
-    fun get_promising_ind_mods_n_result (Induction_Heuristic     : heuristic_typ) = Multi_Stage_Screening_SeLFiE.proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss pst                                        : (int * SU.induct_arguments * Proof.state Seq.seq) list
-      | get_promising_ind_mods_n_result (Generalization_Heuristic: heuristic_typ) = Multi_Stage_Screening_SeLFiE.induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss score_n_induct_argss pst: (int * SU.induct_arguments * Proof.state Seq.seq) list
+    fun get_promising_ind_mods_n_result (Induction_Heuristic     : heuristic_typ) = Screening.proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss pst                                        : (int * SU.induct_arguments * Proof.state Seq.seq) list
+      | get_promising_ind_mods_n_result (Generalization_Heuristic: heuristic_typ) = Screening.induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss score_n_induct_argss pst: (int * SU.induct_arguments * Proof.state Seq.seq) list
       | get_promising_ind_mods_n_result _ = error "failed in Apply_SeLFiE.ML";
 
     val promising_ind_mods_n_result = get_promising_ind_mods_n_result heuristic_typ: (int * SU.induct_arguments * Proof.state Seq.seq) list;

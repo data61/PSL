@@ -1,7 +1,7 @@
 (*  Title:      SeLFiE/Multi_Stage_Screening_For_SeLFiE.thy
     Author:     Yutaka Nagashima, CIIRC, CTU, University of Innsbruck
 *)
-structure Multi_Stage_Screening_SeLFiE =
+structure Screening =
 struct
 
 structure IU = Isabelle_Utils;
