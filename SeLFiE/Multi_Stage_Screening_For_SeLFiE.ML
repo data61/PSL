@@ -47,47 +47,14 @@ fun if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal:term, post_fs
 fun pre_to_post_transition_is_promising (pre_fst_goal:term, post_fst_goal:term) =
   if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal, post_fst_goal) andalso not (pre_fst_goal = post_fst_goal);
 
-fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (ind_args:SU.induct_arguments) =
+fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (score:int, ind_args:SU.induct_arguments) =
   let
-    val pre_first_goal_opt    = IU.pst_to_fst_subg pst                                             : term option;
-    val tactic_results_pst    = IU.TIMEOUT_in 3.0 (Seq2.try_seq (induction_arguments_to_tactic_on_proof_state_w_timeout ind_args)) pst
-                              : Proof.state Seq.seq;
-    val post_proof_state_opt  = try Seq.hd tactic_results_pst                                      : Proof.state option;
-    val post_first_goal_opt   = post_proof_state_opt >>= IU.pst_to_fst_subg                        : term option;
-    val option_pair           = Utils.mk_option_pair (pre_first_goal_opt, post_first_goal_opt)     : (term * term) option;
-    val is_promising          = if   is_some pre_first_goal_opt
-                                then Utils.is_some_true (option_pair <$> pre_to_post_transition_is_promising)
-                                else false: bool;
-  in
-    (ind_args, is_promising, tactic_results_pst): (SU.induct_arguments * bool * Proof.state Seq.seq)(*true is good*)
-  end;
-
-fun proof_state_to_promising_induct_argumentss_n_resultss (pst:Proof.state) =
-  let
-    val induct_argumentss = Smart_Construction.proof_state_to_induct_argumentss pst
-                          : SU.induct_arguments list;
-    val raw_triples       = Par_List.map (induct_arguments_is_promising_for_proof_state pst) induct_argumentss
-                          : (SU.induct_arguments * bool * Proof.state Seq.seq) list;
-    val promising_args    = filter     (fn (_, b, _) => b) raw_triples |> map (fn (a, _, c) => (a, c))
-                          : (SU.induct_arguments * Proof.state Seq.seq) list;
-    val _ = tracing ("Only " ^ Int.toString (length promising_args) ^ " combinations survivsed Step 2.");
-  in
-    promising_args: (SU.induct_arguments * Proof.state Seq.seq) list
-  end;
-
-
-
-
-
-(*for generalization: TODO: re-factor this with induct_arguments_is_promising_for_proof_state*)
-fun induct_arguments_is_promising_for_proof_state_arbitrary (pst:Proof.state) (score:int, ind_args:SU.induct_arguments) =
-  let
-    val pre_first_goal_opt    = IU.pst_to_fst_subg pst                                             : term option;
-    val tactic_results_pst    = IU.TIMEOUT_in 3.0 (Seq2.try_seq (induction_arguments_to_tactic_on_proof_state_w_timeout ind_args)) pst
-                              : Proof.state Seq.seq;
-    val post_proof_state_opt  = try Seq.hd tactic_results_pst                                      : Proof.state option;
-    val post_first_goal_opt   = post_proof_state_opt >>= IU.pst_to_fst_subg                        : term option;
-    val option_pair           = Utils.mk_option_pair (pre_first_goal_opt, post_first_goal_opt)     : (term * term) option;
+    val pre_first_goal_opt    = IU.pst_to_fst_subg pst                                                        : term option;
+    val tactic_w_timeout      = Seq2.try_seq (induction_arguments_to_tactic_on_proof_state_w_timeout ind_args): Proof.state -> Proof.state Seq.seq;
+    val tactic_results_pst    = IU.TIMEOUT_in 3.0 tactic_w_timeout pst                                        : Proof.state Seq.seq;
+    val post_proof_state_opt  = try Seq.hd tactic_results_pst                                                 : Proof.state option;
+    val post_first_goal_opt   = post_proof_state_opt >>= IU.pst_to_fst_subg                                   : term option;
+    val option_pair           = Utils.mk_option_pair (pre_first_goal_opt, post_first_goal_opt)                : (term * term) option;
     val is_promising          = if   is_some pre_first_goal_opt
                                 then Utils.is_some_true (option_pair <$> pre_to_post_transition_is_promising)
                                 else false: bool;
@@ -95,20 +62,44 @@ fun induct_arguments_is_promising_for_proof_state_arbitrary (pst:Proof.state) (s
     (score, ind_args, is_promising, tactic_results_pst): (int * SU.induct_arguments * bool * Proof.state Seq.seq)(*true is good*)
   end;
 
-(*for generalization: TODO: refactor with with proof_state_to_promising_induct_argumentss_n_resultss*)
-fun induct_argumentss_n_proof_state_to_promising_induct_argumentss_n_resultss
+local
+
+type quadruple  =  (int * SeLFiE_Util.induct_arguments * bool * Proof.state Seq.seq);
+type quadruples = quadruple list;
+
+fun show_how_many_survived (numb_combs:int) (numb_of_step:int) =
+  tracing ("Only " ^ Int.toString numb_combs ^ " combinations survived Step " ^ Int.toString numb_of_step);
+
+fun pst_n_score_n_induct_argumentss_to_quadruples (pst:Proof.state) (score_n_induct_argumentss:(int * SU.induct_arguments) list) =
+  Par_List.map (induct_arguments_is_promising_for_proof_state pst) score_n_induct_argumentss
+
+in
+
+fun proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss (pst:Proof.state) =
+  let
+    val induct_argumentss        = Smart_Construction.proof_state_to_induct_argumentss pst : SU.induct_arguments list;
+    val zero_w_induct_argumentss = map (fn induct_arg => (0, induct_arg)) induct_argumentss: (int * SU.induct_arguments) list;
+    val quadruples               = pst_n_score_n_induct_argumentss_to_quadruples pst zero_w_induct_argumentss: quadruples;
+    val promising_args           = filter (fn (_, _, b, _) => b) quadruples |> map (fn (score, a, _, c) => (score, a, c))
+                                 : (int * SU.induct_arguments * Proof.state Seq.seq) list;
+    val _ = show_how_many_survived (length promising_args) 2: unit;
+  in
+    promising_args: (int * SU.induct_arguments * Proof.state Seq.seq) list
+  end;
+
+fun induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss
   (score_n_induct_argumentss:(int * SU.induct_arguments) list) (pst:Proof.state) =
-  let                                                         
-    val raw_triples       = Par_List.map (induct_arguments_is_promising_for_proof_state_arbitrary pst) score_n_induct_argumentss
-                          : (int * SU.induct_arguments * bool * Proof.state Seq.seq) list;
-    val promising_args    = filter     (fn (_, _, b, _) => b) raw_triples |> map (fn (score, a, _, c) => (score, a, c))
+  let
+    val quadruples        = pst_n_score_n_induct_argumentss_to_quadruples pst score_n_induct_argumentss: quadruples;
+    val promising_args    = filter (fn (_, _, b, _) => b) quadruples |> map (fn (score, a, _, c) => (score, a, c))
                           : (int * SU.induct_arguments * Proof.state Seq.seq) list;
     fun ord_triple ((_, args1, _), (_, args2, _)) = SU.ord_induct_arguments (args1, args2): order;
-    val sorted_promisings = sort ord_triple promising_args
-                      
-    val _ = tracing ("Only " ^ Int.toString (length promising_args) ^ " combinations survived Step 4.");
+    val sorted_promisings = sort ord_triple promising_args;
+    val _                 = show_how_many_survived (length promising_args) 4: unit;
   in
     sorted_promisings: (int * SU.induct_arguments * Proof.state Seq.seq) list
   end;
+
+end;
 
 end;
