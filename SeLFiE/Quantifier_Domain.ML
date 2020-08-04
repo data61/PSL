@@ -59,38 +59,14 @@ val mk_all_inner_prints = mk_all_prints Inner_Path_To_Unode.pst_n_trm_to_path_to
 val mk_all_outer_prints = mk_all_prints Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table Print_To_Outer_Paths.path_to_unode_table_to_print_to_paths_table Print_To_Outer_Paths.print_to_paths_table_to_prints
                         : Proof.state -> term -> strings;
 
-fun pst_n_trm_to_numb_of_paths mk_all_paths (pst:Proof.state) (trm:term) = mk_all_paths pst trm |> length: int;
-
-val pst_n_trm_to_numb_of_inner_paths = pst_n_trm_to_numb_of_paths mk_all_inner_prints: Proof.state -> term -> int;
-val pst_n_trm_to_numb_of_outer_paths = pst_n_trm_to_numb_of_paths mk_all_outer_prints: Proof.state -> term -> int;
-
-(*TODO: FIXME: This is only for Outer.*)
-fun pst_to_numb_of_max_arity (pst:Proof.state) =
-  let
-    val subgoals      = Isabelle_Utils.pst_to_subgs pst                         : terms;
-    val chained_terms = Isabelle_Utils.pstate_to_chained_facts_as_terms pst     : terms;
-    val types         = map (fn trm => Term.add_consts trm []) (subgoals @ chained_terms)
-                     |> flat |> map snd                                         : typ list;
-    val arities       = map Isabelle_Utils.count_numb_of_args_of_fun_typ types  : ints;
-    val max_arity_opt = Utils.ints_to_max_option arities: int option            : int option;
-    val max_arity     = if is_none max_arity_opt then 0 else the max_arity_opt: int;
-  in
-    max_arity
-  end;
-
-fun pst_n_trm_to_max_numb_inner (pst:Proof.state) (trm:term) = Int.max (pst_n_trm_to_numb_of_inner_paths pst trm, pst_to_numb_of_max_arity pst(*TODO: FIXME: We need this for Inner.*)): int;
-fun pst_n_trm_to_max_numb_outer (pst:Proof.state) (trm:term) = Int.max (pst_n_trm_to_numb_of_outer_paths pst trm, pst_to_numb_of_max_arity pst): int;
-
-fun gen_pst_n_trm_to_numb_domain pst_n_trm_to_max_numb (pst:Proof.state) (trm:term) = List.tabulate (pst_n_trm_to_max_numb pst trm, EP.Non_Path o EP.Number): EP.literals;
-fun pst_n_trm_to_inner_numb_domain (pst:Proof.state) (trm:term) = gen_pst_n_trm_to_numb_domain pst_n_trm_to_max_numb_inner pst trm: EP.literals;
-fun pst_n_trm_to_outer_numb_domain (pst:Proof.state) (trm:term) = gen_pst_n_trm_to_numb_domain pst_n_trm_to_max_numb_outer pst trm: EP.literals;
+val numb_domain = List.tabulate ((*10 is a magic number here*)10, EP.Non_Path o EP.Number): EP.literals;
 
 val map_Non_Path_Print = map (EP.Non_Path o EP.Print);
 
 val tracing' = if true then K () else tracing;
 
-fun qtyp_to_qdomain SU.QInner_Number pst trm _ = pst_n_trm_to_inner_numb_domain pst trm
-  | qtyp_to_qdomain SU.QOuter_Number pst trm _ = pst_n_trm_to_outer_numb_domain pst trm
+fun qtyp_to_qdomain SU.QInner_Number _   _   _ = numb_domain
+  | qtyp_to_qdomain SU.QOuter_Number _   _   _ = numb_domain
   | qtyp_to_qdomain SU.QInner_Path   pst trm _ = mk_all_inner_paths pst trm |> map EP.Inner_Path
   | qtyp_to_qdomain SU.QOuter_Path   pst trm _ = mk_all_outer_paths pst trm |> map EP.Outer_Path
   | qtyp_to_qdomain SU.QInner_Print  pst trm _ = mk_all_inner_prints pst trm |> (fn list => (tracing' ("qtyp_to_qdomain in Quantifier_Domain. The length of list is " ^ Int.toString (length list));list))|> map_Non_Path_Print
