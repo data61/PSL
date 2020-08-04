@@ -24,7 +24,7 @@ type outer_alist = (outer_key * inner_alist) list;
 val cache_term_to_alist: outer_alist Unsynchronized.ref;
 val cache_for_dive_in: ((term * (expr * expr * expr list)) * expr) list Unsynchronized.ref;
 
-val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
@@ -136,7 +136,7 @@ val cache_term_to_alist = Unsynchronized.ref []: outer_alist Unsynchronized.ref;
 type triple = (expr * expr * expr list);
 val cache_for_dive_in = Unsynchronized.ref ([]:((term * triple) * expr) list);
 
-fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
+fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (induct_args:SU.induct_arguments) (expr:expr) =
   let
     fun subexpr_n_qtyp_n_domains_to_apps (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) (domains:QD.domains) =
       let
@@ -147,10 +147,7 @@ fun eval (pst:Proof.state) (induct_args:SU.induct_arguments) (expr:expr) =
       end;
     val thm              = Isabelle_Utils.proof_state_to_thm pst                                      : thm;
     val thm_term         = Thm.prop_of thm                                                            : term;
-    (*TODO: should I focus on the first sub-goal?*)
-    val outer_path_table = OPTU.pst_n_trm_to_path_to_unode_table pst thm_term                         : OPTU.path_to_unode_table;
     val outer_domains    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out pst thm_term induct_args: QD.domains;
-    (*TODO: probably we do not have to pass around both term and table.*)
     fun eval' (Apply (func, arg)) table (domains:QD.domains) =
          (case eval' func table domains of
           Lambda  u   => eval' (subst 0 (eval' arg table domains) u) table domains

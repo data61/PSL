@@ -118,7 +118,7 @@ datatype assert =
 | Debug_Print_Unode                  of assert
 | Dummy
 
-val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
 end;
 
@@ -802,7 +802,7 @@ fun surf_to_sugar ES.True  = True
   | surf_to_sugar ES.False = False
   | surf_to_sugar _ = error "surf_to_sugar failed."
 
-fun eval (pst:Proof.state) (ind_args:SU.induct_arguments) (assert:assert) =
-    ES.eval pst ind_args (convert Out assert) |> surf_to_sugar;
+fun eval (pst:Proof.state) (path_to_unode_table: Outer_Path_To_Unode.path_to_unode_table) (ind_args:SU.induct_arguments) (assert:assert) =
+    ES.eval pst path_to_unode_table ind_args (convert Out assert) |> surf_to_sugar;
 
 end;

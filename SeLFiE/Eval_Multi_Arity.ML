@@ -15,7 +15,7 @@ datatype expr =
 | All        of SeLFiE_Util.qtyp * expr
 | Some       of SeLFiE_Util.qtyp * expr;
 
-val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
@@ -23,7 +23,7 @@ structure Eval_Multi_Arity: EVAL_MULTI_ARITY  =
 struct
 
 structure SU = SeLFiE_Util;
-structure EB = Eval_Unary;(*TODO*)
+structure EU = Eval_Unary;
 
 datatype expr =
   Bound     of int
@@ -36,29 +36,29 @@ datatype expr =
 | All       of SeLFiE_Util.qtyp * expr
 | Some      of SeLFiE_Util.qtyp * expr;
 (* unary_to_multi *)
-fun unary_to_multi (Bound i)              = EB.Bound i
-  | unary_to_multi (Lambdas (0, expr))    = EB.Lambda (unary_to_multi expr)
-  | unary_to_multi (Lambdas (n, expr))    = if n > 0  then EB.Lambda (unary_to_multi (Lambdas (n - 1, expr)))
+fun unary_to_multi (Bound i)              = EU.Bound i
+  | unary_to_multi (Lambdas (0, expr))    = EU.Lambda (unary_to_multi expr)
+  | unary_to_multi (Lambdas (n, expr))    = if n > 0  then EU.Lambda (unary_to_multi (Lambdas (n - 1, expr)))
                                        else if n = ~1 then unary_to_multi expr (*corresponding to no-lambda abstraction.*)
                                        else error "quantifier_to_multi_arity failed. negative number of lambda abstractions."
   | unary_to_multi (Applies (f, xs))      =
     let
-      fun mk_nested_pair  []                  (acc:EB.expr) = acc:EB.expr
-        | mk_nested_pair (arg::args:expr list)(acc:EB.expr) = mk_nested_pair args (EB.Apply (acc, unary_to_multi arg)):EB.expr;
+      fun mk_nested_pair  []                  (acc:EU.expr) = acc:EU.expr
+        | mk_nested_pair (arg::args:expr list)(acc:EU.expr) = mk_nested_pair args (EU.Apply (acc, unary_to_multi arg)):EU.expr;
     in
       mk_nested_pair xs (unary_to_multi f)
     end
-  | unary_to_multi (Dive_In   (t, l, args)) = EB.Dive_In   (unary_to_multi t, unary_to_multi l, unaries_to_multis args)
-  | unary_to_multi (Deep_Dive (t, l, args)) = EB.Deep_Dive (unary_to_multi t, unary_to_multi l, unaries_to_multis args)
-  | unary_to_multi (Literal l          )    = EB.Literal l
-  | unary_to_multi (Assert (ass, exprs))    = EB.Assert (ass,unaries_to_multis exprs)
-  | unary_to_multi (All    (qtyp, expr))    = EB.All    (qtyp, unary_to_multi expr)
-  | unary_to_multi (Some   (qtyp, expr))    = EB.Some   (qtyp, unary_to_multi expr)
+  | unary_to_multi (Dive_In   (t, l, args)) = EU.Dive_In   (unary_to_multi t, unary_to_multi l, unaries_to_multis args)
+  | unary_to_multi (Deep_Dive (t, l, args)) = EU.Deep_Dive (unary_to_multi t, unary_to_multi l, unaries_to_multis args)
+  | unary_to_multi (Literal l          )    = EU.Literal l
+  | unary_to_multi (Assert (ass, exprs))    = EU.Assert (ass,unaries_to_multis exprs)
+  | unary_to_multi (All    (qtyp, expr))    = EU.All    (qtyp, unary_to_multi expr)
+  | unary_to_multi (Some   (qtyp, expr))    = EU.Some   (qtyp, unary_to_multi expr)
 and unaries_to_multis exprs = map unary_to_multi exprs
 
-fun convert_result (EB.Literal l) = Literal l
-  | convert_result (EB.Bound   i) = Bound i
-  | convert_result (EB.Lambda expr) = Lambdas (0, convert_result expr)
+fun convert_result (EU.Literal l) = Literal l
+  | convert_result (EU.Bound   i) = Bound i
+  | convert_result (EU.Lambda expr) = Lambdas (0, convert_result expr)
   | convert_result  _ = error "convert_result in Multi_Arity failed. Evaluation is not complete.";
 
 fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " "
@@ -71,13 +71,10 @@ fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " "
   | print_expr (All  (_, expr)) = "All ( "  ^ "type" ^ ", " ^ print_expr expr ^ " )"
   | print_expr (Some (_, expr)) = "Some ( " ^ "type" ^ ", " ^ print_expr expr ^ " )";
 
-fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) expr =
+fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
-(*
-    val _ = tracing ("Print from From_Quantifier_To_Multi_Arity: \n" ^ print_expr expr);
-*)
-    val eq_result = EB.eval pst induct_args (unary_to_multi expr): EB.expr;
-    val result    = convert_result eq_result                     : expr;
+    val eq_result = EU.eval pst path_to_unode_table induct_args (unary_to_multi expr): EU.expr;
+    val result    = convert_result eq_result                                         : expr;
   in
     result
   end;

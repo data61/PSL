@@ -85,7 +85,7 @@ datatype assert =
 | Debug_Print_Unode      of assert
 | Dummy;
 
-val eval: Proof.state -> SeLFiE_Util.induct_arguments -> assert -> assert;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
 end;
 
@@ -261,11 +261,11 @@ fun deep_to_surface (EV.Literal (EP.Non_Path (EP.Bool b))) = if b then True else
   | deep_to_surface (EV.Variable vname) = Variable vname
   | deep_to_surface _ = error "deep_to_surface failed.";
 
-fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
+fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
-    val var_expr  = surf_to_var assert              : EV.expr;
-    val result_ev = EV.eval pst induct_args var_expr: EV.expr;
-    val result    = deep_to_surface result_ev       : assert;
+    val var_expr  = surf_to_var assert                                  : EV.expr;
+    val result_ev = EV.eval pst path_to_unode_table induct_args var_expr: EV.expr;
+    val result    = deep_to_surface result_ev                           : assert;
   in
     result
   end;

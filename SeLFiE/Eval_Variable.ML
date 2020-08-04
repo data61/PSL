@@ -16,7 +16,7 @@ datatype expr =
 | All        of string * SeLFiE_Util.qtyp * expr
 | Some       of string * SeLFiE_Util.qtyp * expr;
 
-val eval: Proof.state -> SeLFiE_Util.induct_arguments -> expr -> expr;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
@@ -82,10 +82,10 @@ fun var_to_mult scope (Variable vname        ) = EM.Bound (lookup scope vname)
 fun mult_to_var (EM.Literal l) = Literal l
   | mult_to_var _ = error "mult_to_var is defined only for Literal!"
 
-fun eval (pst:Proof.state) (induct_args:SeLFiE_Util.induct_arguments) (expr:expr) =
+fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (induct_args:SeLFiE_Util.induct_arguments) (expr:expr) =
   let
-    val em_expr     = var_to_mult [] expr            : EM.expr;
-    val mult_result = EM.eval pst induct_args em_expr: EM.expr;
+    val em_expr     = var_to_mult [] expr                                : EM.expr;
+    val mult_result = EM.eval pst path_to_unode_table induct_args em_expr: EM.expr;
   in
     mult_to_var mult_result
   end;

@@ -100,7 +100,13 @@ fun bool_to_ES_assert (true :bool) = ESS.True
   | bool_to_ES_assert (false:bool) = ESS.False;
 
 fun run_assertion (pst:Proof.state) (ind_mods:SU.induct_arguments) (assrt:ESS.assert) =
-    ESS.eval pst ind_mods assrt = bool_to_ES_assert true;
+  let
+    val thm                 = Isabelle_Utils.proof_state_to_thm pst                            : thm;
+    val thm_term            = Thm.prop_of thm                                                  : term;
+    val path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
+  in
+    ESS.eval pst path_to_unode_table ind_mods assrt = bool_to_ES_assert true
+  end;
 
 fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_mod) =
   Toplevel.keep_proof (fn top: Toplevel.state =>
@@ -153,11 +159,11 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
   (pst                    : Proof.state) =
   let
     val ctxt           = Proof.context_of pst: Proof.context;
-    val dest_table     = (Strng_N_HeuTyp_Tab.dest o SeLFiE_Assertion.get) (Context.Proof ctxt)
+    val assertions'    = (Strng_N_HeuTyp_Tab.dest o SeLFiE_Assertion.get) (Context.Proof ctxt)
                        : ((heuristic_typ * string) * (ESS.assert * int)) list;
-    val dest_table_2   = map (fn ((htyp, ass_name), (ass, point)) => (htyp, {name = ass_name, assertion = ass, point = point})) dest_table;
+    val assertions     = map (fn ((htyp, ass_name), (ass, point)) => (htyp, {name = ass_name, assertion = ass, point = point})) assertions';
     fun is_same_heuristic_typ (typ:heuristic_typ) (htyp, {assertion,...}) = if typ = htyp andalso not (assertion = ESS.Dummy) then true else false;
-    val input          = (filter (is_same_heuristic_typ heuristic_typ) dest_table_2) |> map snd
+    val input          = (filter (is_same_heuristic_typ heuristic_typ) assertions) |> map snd
                        : {assertion: Eval_Syntactic_Sugar.assert, name: string, point: int} list;
     val maximum_point  = fold (curry (op +)) (map #point input) 0 + old_maximum_point: int;
     fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
