@@ -71,6 +71,8 @@ datatype atomic_assert =
 | Is_In_Chained_Fact
 | Is_In_Nth_Subgoal
 | Is_In_Nth_Chained_Fact
+| Is_A_Meta_Premise
+| Is_A_Meta_Conclusion
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
@@ -209,6 +211,8 @@ datatype atomic_assert =
 | Is_In_Chained_Fact
 | Is_In_Nth_Subgoal
 | Is_In_Nth_Chained_Fact
+| Is_A_Meta_Premise
+| Is_A_Meta_Conclusion
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
@@ -245,6 +249,8 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_In_Chained_Fact              ) = "Is_In_Chained_Fact"
   | print_atomic_assert (Is_In_Nth_Subgoal               ) = "Is_In_Nth_Subgoal"
   | print_atomic_assert (Is_In_Nth_Chained_Fact          ) = "Is_In_Nth_Chained_Fact"
+  | print_atomic_assert (Is_A_Meta_Premise               ) = "Is_A_Meta_Premise"
+  | print_atomic_assert (Is_A_Meta_Conclusion            ) = "Is_A_Meta_Conclusion"
   | print_atomic_assert (Are_Same_Number                 ) = "Are_Same_Number"
   | print_atomic_assert (Is_Less_Than                    ) = "Is_Less_Than"
   | print_atomic_assert (Is_Less_Than_By_One             ) = "Is_Less_Than_By_One"

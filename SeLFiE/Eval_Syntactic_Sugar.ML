@@ -185,6 +185,8 @@ datatype assert =
 | Is_In_Chained_Fact     of assert
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
+| Is_A_Meta_Premise      of assert
+| Is_A_Meta_Conclusion   of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -225,9 +227,7 @@ datatype assert =
 | Is_Less_Than_Or_Equal              of assert * assert
 | Is_More_Than_Or_Equal              of assert * assert
 | Is_More_Than                       of assert * assert
-| Is_A_Meta_Premise                  of assert
 | Is_A_Meta_Premise_Or_Below         of assert
-| Is_A_Meta_Conclusion               of assert
 | Is_A_Meta_Conclusion_Or_Below      of assert
 | Is_If_Then_Else                    of assert * assert * assert * assert
 | Is_Case_Distinct_Of_Trm_With_A_Case of assert * assert * assert
@@ -316,6 +316,8 @@ and
   | convert loc (Is_In_Chained_Fact         ass)  = ES.Is_In_Chained_Fact     (convert loc ass)
   | convert loc (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair loc (ass, numb))
   | convert loc (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair loc (ass, numb))
+  | convert loc (Is_A_Meta_Premise          ass) = ES.Is_A_Meta_Premise      (convert loc ass)
+  | convert loc (Is_A_Meta_Conclusion       ass) = ES.Is_A_Meta_Conclusion   (convert loc ass)
   (*Eval_Number*)
   | convert loc (Are_Same_Number     pair) = ES.Are_Same_Number     (convert_pair loc pair)
   | convert loc (Is_Less_Than        pair) = ES.Is_Less_Than        (convert_pair loc pair)
@@ -510,19 +512,6 @@ and
        (Are_In_Same_Location (deep, shallow)
       And
         Is_Shallower_Than (shallow, deep))
-(*
-  | convert loc (Is_Root_In_A_Location assert) =
-    let
-      val non_exist_str = get_new_name [assert] : string;
-      val non_exist     = Variable non_exist_str: assert;
-      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-    in
-      convert loc
-        (Not
-          (Some (non_exist_str, path_typ,
-            Is_Shallower_Than_In_Same_Location (non_exist, assert))))
-    end
-*)
   | convert loc (Is_At_Deepest_In_A_Location assert) =
     let
       val non_exist_str = get_new_name [assert] : string;
@@ -537,45 +526,6 @@ and
   | convert loc (Is_Less_Than_Or_Equal (less, more)) = convert loc (Is_Less_Than (less, more) Or Are_Same_Number (less, more))
   | convert loc (Is_More_Than_Or_Equal (more, less)) = convert loc (Not (Is_Less_Than (more, less)))
   | convert loc (Is_More_Than (more, less)) = convert loc (Is_Less_Than (less, more))
-  | convert loc (Is_A_Meta_Premise premise) =
-    let
-      val imp_name            = get_new_name [premise];
-      val imp                 = Variable imp_name;
-      val conclusion_name     = get_new_name [premise, imp];
-      val conclusion          = Variable conclusion_name;
-      val nth_premise_name    = get_new_name [premise, imp, conclusion];
-      val nth_premise         = Variable nth_premise_name;
-      val nth_conclusion_name = get_new_name [premise, imp, conclusion, nth_premise];
-      val nth_conclusion      = Variable nth_conclusion_name;
-      val path_typ            = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-      val numb_typ            = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number;
-    in
-      convert loc (
-        Some (imp_name, path_typ,
-          Ands [
-            Unode_Has_Print (imp, Print "Pure.imp"),
-            Is_An_Arg_Of (premise, imp),
-            Some (nth_premise_name, numb_typ,
-              Ands [
-                Is_Nth_Arg_Of (premise, nth_premise, imp),
-                Some (conclusion_name, path_typ,
-                  Ands [
-                    Is_An_Arg_Of (conclusion, imp),
-                    Not (Is_Same_Path_As (premise, conclusion)),
-                    Some (nth_conclusion_name, numb_typ,
-                      Ands [
-                        Is_Less_Than (nth_premise, nth_conclusion),
-                        Is_Nth_Arg_Of (conclusion, nth_conclusion, imp)
-                      ]
-                    )
-                  ]
-                )
-              ]
-            )
-          ]
-        )
-      )
-    end
   | convert loc (Is_A_Meta_Premise_Or_Below premise) =
     let
       val imp_name            = get_new_name [premise];
@@ -608,47 +558,6 @@ and
                       ]
                     )
                   ]
-                )
-              ]
-            )
-          ]
-        )
-      )
-    end
-  | convert loc (Is_A_Meta_Conclusion conclusion) =(*FIXME: a conclusion can be a premise, too!*)
-    let
-      val imp_name            = get_new_name [conclusion];
-      val imp                 = Variable imp_name;
-      val premise_name        = get_new_name [conclusion, imp];
-      val premise             = Variable premise_name;
-      val nth_premise_name    = get_new_name [conclusion, imp, premise];
-      val nth_premise         = Variable nth_premise_name;
-      val nth_conclusion_name = get_new_name [conclusion, imp, premise, nth_premise];
-      val nth_conclusion      = Variable nth_conclusion_name;
-      val path_typ            = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-      val numb_typ            = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number;
-    in
-      convert loc (
-        Some (imp_name, path_typ,
-          Ands [
-            Unode_Has_Print (imp, Print "Pure.imp"),
-            Is_An_Arg_Of (conclusion, imp),
-            Some (nth_conclusion_name, numb_typ,
-              Ands [
-                Is_Nth_Arg_Of (conclusion, nth_conclusion, imp),
-                Not (
-                  Some (premise_name, path_typ,
-                    Ands [
-                      Is_An_Arg_Of (premise, imp),
-                      Not (Is_Same_Path_As (premise, conclusion)),
-                      Some (nth_premise_name, numb_typ,
-                        Ands [
-                          Is_Less_Than (nth_conclusion, nth_premise),
-                          Is_Nth_Arg_Of (premise, nth_premise, imp)
-                        ]
-                      )
-                    ]
-                  )
                 )
               ]
             )

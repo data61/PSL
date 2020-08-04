@@ -224,6 +224,9 @@ datatype gen_path_to_unode_table =
 
 val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.unode;
 
+val path_to_its_parent_path         : gen_path -> gen_path;
+val is_parent_path_of               : (gen_path * gen_path) -> bool;
+val is_last_child_of                : gen_path_to_unode_table -> (gen_path * gen_path) -> bool;
 val path_is_in_subgoal              : gen_path -> bool;
 val path_is_in_chained_fact         : gen_path -> bool;
 val path_is_in_nth_subgoal          : gen_path -> int -> bool;
@@ -246,6 +249,36 @@ datatype gen_path_to_unode_table =
 fun gen_table_n_gen_path_to_unode (Inner_Path_To_Unode table) (Inner_Path path) =  Inner_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Inner_Path"
   | gen_table_n_gen_path_to_unode (Outer_Path_To_Unode table) (Outer_Path path) =  Outer_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Outer_Path"
   | gen_table_n_gen_path_to_unode _ _ = error "gen_table_n_gen_path_to_unode failed."
+
+fun path_to_its_parent_path (Inner_Path []         :gen_path) = error "path_to_its_parent_path failed in Path_To_Unode.ML: already root."
+  | path_to_its_parent_path (Inner_Path ints       :gen_path) = Inner_Path (Utils.init ints)
+  | path_to_its_parent_path (Outer_Path (_, [])    :gen_path) = error "path_to_its_parent_path failed in Path_To_Unode.ML: already root."
+  | path_to_its_parent_path (Outer_Path (loc, ints):gen_path) = Outer_Path (loc, Utils.init ints);
+
+fun is_parent_path_of (parent_path, child_path) = parent_path = path_to_its_parent_path child_path: bool;
+
+fun is_last_child_of (Inner_Path_To_Unode table) (Inner_Path last_arg_path, Inner_Path app_path) =
+  not (null last_arg_path) andalso
+  is_parent_path_of (Inner_Path app_path, Inner_Path last_arg_path) andalso
+  let
+    val last_digit_of_arg_path      = Utils.last last_arg_path: int;
+    val path_to_none_existing_child = Utils.init last_arg_path @ [last_digit_of_arg_path + 1]: UN.inner_path;
+    val doesnt_exist_such_child     = Inner_Path_To_Unode.lookup table path_to_none_existing_child |> is_none: bool;
+  in
+    doesnt_exist_such_child
+  end
+| is_last_child_of (Outer_Path_To_Unode table) (Outer_Path (last_arg_loc, last_arg_path), Outer_Path (app_loc, app_path)) =
+  not (null last_arg_path) andalso
+  last_arg_loc = app_loc andalso
+  is_parent_path_of (Outer_Path (app_loc, app_path), Outer_Path (last_arg_loc, last_arg_path)) andalso
+  let
+    val last_digit_of_arg_path      = Utils.last last_arg_path: int;
+    val path_to_none_existing_child = (last_arg_loc, Utils.init last_arg_path @ [last_digit_of_arg_path + 1]): outer_path;
+    val doesnt_exist_such_child     = Outer_Path_To_Unode.lookup table path_to_none_existing_child |> is_none: bool;
+  in
+    doesnt_exist_such_child
+  end
+| is_last_child_of _ _ = error "is_last_child_of in Path_To_Unde failed";
 
 fun path_is_in_subgoal          (Outer_Path (Subgoal _, _)) = true : bool
   | path_is_in_subgoal          (Outer_Path  _            ) = false

@@ -669,7 +669,7 @@ proof (relation "measure (\<lambda>(c, n). goodsteinC c (N2H (c+1) n) - c)", goa
 qed simp
 
 lemma goodstein_def':
-  "c \<noteq> 0 \<Longrightarrow> goodstein c n = goodsteinC c (N2H (c+1) n)"
+  "c \<noteq> 0 \<Longrightarrow> goodstein c n = goodsteinC c (N2H (c+1) n)"semantic_induct
   by (induct c n rule: goodstein.induct) (simp_all add: goodstein_aux eval_nat_numeral)
 
 lemma goodstein_impl:

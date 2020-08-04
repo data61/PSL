@@ -36,6 +36,9 @@ datatype assert =
 | Is_In_Chained_Fact          of gen_path
 | Is_In_Nth_Subgoal           of gen_path * int
 | Is_In_Nth_Chained_Fact      of gen_path * int
+| Is_Parent_Of                of gen_path * gen_path
+| Is_A_Meta_Premise           of gen_path
+| Is_A_Meta_Conclusion        of gen_path
 (*debug*)
 | Debug_Print_Unode           of gen_path;
 
@@ -53,6 +56,7 @@ end;
 structure Eval_Path: EVAL_PATH =
 struct
 
+structure EB  = Eval_Bool;
 structure END = Eval_Node;
 structure EU  = Eval_Unode;
 structure EIP = Eval_Print;
@@ -61,7 +65,7 @@ structure PA  = Path_Assert;
 structure GP2U = Gen_Path_To_Unode;
 
 type connective = Eval_Bool.assert;
-type gen_path   = Gen_Path_To_Unode.gen_path;
+type gen_path   = GP2U.gen_path;
 
 fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) assert =
   let
@@ -97,10 +101,29 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
           in
             print = #print unode |> Eval_Bool.bool_to_assert
           end
-      | eval' (PA.Is_In_Subgoal          path) _ = GP2U.path_is_in_subgoal path                  |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Chained_Fact     path) _ = GP2U.path_is_in_chained_fact path             |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Nth_Subgoal      pair) _ = uncurry GP2U.path_is_in_nth_subgoal pair      |> Eval_Bool.bool_to_assert
-      | eval' (PA.Is_In_Nth_Chained_Fact pair) _ = uncurry GP2U.path_is_in_nth_chained_fact pair |> Eval_Bool.bool_to_assert
+      | eval' (PA.Is_In_Subgoal          path) _ = GP2U.path_is_in_subgoal path                  |> EB.bool_to_assert
+      | eval' (PA.Is_In_Chained_Fact     path) _ = GP2U.path_is_in_chained_fact path             |> EB.bool_to_assert
+      | eval' (PA.Is_In_Nth_Subgoal      pair) _ = uncurry GP2U.path_is_in_nth_subgoal pair      |> EB.bool_to_assert
+      | eval' (PA.Is_In_Nth_Chained_Fact pair) _ = uncurry GP2U.path_is_in_nth_chained_fact pair |> EB.bool_to_assert
+      | eval' (PA.Is_Parent_Of           pair) _ = GP2U.is_parent_path_of pair |> EB.bool_to_assert
+      | eval' (PA.Is_A_Meta_Premise      path) ctxt = EB.bool_to_assert (
+        not (EU.eval (EU.Is_Root_In_A_Location (path_to_unode path)) |> EB.assert_to_bool) andalso
+        let
+          val parent_path   = GP2U.path_to_its_parent_path path: gen_path                  : gen_path;
+          val parent_is_app = eval' (PA.Node_Is_App parent_path) ctxt |> EB.assert_to_bool : bool;
+          val is_conclusion = GP2U.is_last_child_of path_to_unode_table (path, parent_path): bool;
+        in
+          parent_is_app andalso not (is_conclusion)
+        end)
+      | eval' (PA.Is_A_Meta_Conclusion      path) ctxt = EB.bool_to_assert (
+        not (EU.eval (EU.Is_Root_In_A_Location (path_to_unode path)) |> EB.assert_to_bool) andalso
+        let
+          val parent_path   = GP2U.path_to_its_parent_path path: gen_path                  : gen_path;
+          val parent_is_app = eval' (PA.Node_Is_App parent_path) ctxt |> EB.assert_to_bool : bool;
+          val is_conclusion = GP2U.is_last_child_of path_to_unode_table (path, parent_path): bool;
+        in
+          parent_is_app andalso is_conclusion
+        end)
       (*debug*)
       | eval' (PA.Debug_Print_Unode      path) _ = path_to_unode path |> EU.Debug_Print_Unode |> EU.eval;
   in eval' assert (Proof.context_of pst) end;

@@ -99,12 +99,16 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Is_In_Chained_Fact     [Outer_Path p]                       = EPT.eval pst term_tables (PA.Is_In_Chained_Fact     (GP2U.Outer_Path p))
       | eval' SU.Is_In_Nth_Subgoal      [Outer_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Subgoal      (GP2U.Outer_Path p, n))
       | eval' SU.Is_In_Nth_Chained_Fact [Outer_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Chained_Fact (GP2U.Outer_Path p, n))
+      | eval' SU.Is_A_Meta_Premise      [Outer_Path p]                       = EPT.eval pst term_tables (PA.Is_A_Meta_Premise      (GP2U.Outer_Path p))
+      | eval' SU.Is_A_Meta_Conclusion   [Outer_Path p]                       = EPT.eval pst term_tables (PA.Is_A_Meta_Conclusion   (GP2U.Outer_Path p))
       (*Eval_Path (Inner)*)
       | eval' SU.Unode_Has_Print        [Inner_Path p, Non_Path (Print str)] = EPT.eval pst term_tables (PA.Unode_Has_Print        (GP2U.Inner_Path p, str))
       | eval' SU.Is_In_Subgoal          [Inner_Path p]                       = EPT.eval pst term_tables (PA.Is_In_Subgoal          (GP2U.Inner_Path p))
       | eval' SU.Is_In_Chained_Fact     [Inner_Path p]                       = EPT.eval pst term_tables (PA.Is_In_Chained_Fact     (GP2U.Inner_Path p))
       | eval' SU.Is_In_Nth_Subgoal      [Inner_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Subgoal      (GP2U.Inner_Path p, n))
       | eval' SU.Is_In_Nth_Chained_Fact [Inner_Path p, Non_Path (Number n)]  = EPT.eval pst term_tables (PA.Is_In_Nth_Chained_Fact (GP2U.Inner_Path p, n))
+      | eval' SU.Is_A_Meta_Premise      [Inner_Path p]                       = EPT.eval pst term_tables (PA.Is_A_Meta_Premise      (GP2U.Inner_Path p))
+      | eval' SU.Is_A_Meta_Conclusion   [Inner_Path p]                       = EPT.eval pst term_tables (PA.Is_A_Meta_Conclusion   (GP2U.Inner_Path p))
       (*Eval_Print*)
       | eval' SU.Are_Same_Prints  [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2))  induct_args ctxt
       | eval' SU.Is_Subprint_Of   [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Is_Subprint_Of  (p1, p2))  induct_args ctxt
