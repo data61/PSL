@@ -426,7 +426,7 @@ lemma base_red:
   and m: "\<And>m'. m' \<in> set ms \<Longrightarrow> m < m'" "j < b" "j \<noteq> 0"
   and s: "i * b^n + sum_list (map (\<lambda>n. b^n) ns) = j * b^m + sum_list (map (\<lambda>n. b^n) ms)"
   shows "i = j \<and> n = m"
-  using n(1) m(1) s semantic_induct
+  using n(1) m(1) s (*semantic_induct slow*)
 proof (induct n arbitrary: m ns ms)
   { fix ns ms :: "nat list" and i j m :: nat
     assume n': "\<And>n'. n' \<in> set ns \<Longrightarrow> 0 < n'" "i < b" "i \<noteq> 0"
@@ -479,6 +479,7 @@ lemma evalC_inj_on_hbase:
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate*)
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["n"], arb["m"],rule[]]
   assert_SeLFiE_false  for_all_arbs_there_should_be_a_change [on["n"], arb["b"],rule[]]
+  semantic_induct
 proof (induct n arbitrary: m rule: hbase.induct)
   case 1
   then show ?case by (cases m rule: hbase.cases) simp_all
@@ -662,7 +663,7 @@ qed
 termination goodstein
 proof (relation "measure (\<lambda>(c, n). goodsteinC c (N2H (c+1) n) - c)", goal_cases _ 1)
   case (1 c n)
-  have *: "goodsteinC c n \<ge> c" for c n
+  have *: "goodsteinC c n \<ge> c" for c n semantic_induct
     by (induct c n rule: goodsteinC.induct) simp_all
   show ?case by (simp add: goodstein_aux eval_nat_numeral) (meson Suc_le_eq diff_less_mono2 lessI *)
 qed simp

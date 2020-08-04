@@ -145,9 +145,10 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (induct_a
       in
         Assert (ands_or_ors, apps): expr
       end;
-    val thm              = Isabelle_Utils.proof_state_to_thm pst                                      : thm;
-    val thm_term         = Thm.prop_of thm                                                            : term;
-    val outer_domains    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out pst thm_term induct_args: QD.domains;
+    val thm              = Isabelle_Utils.proof_state_to_thm pst                                                     : thm;
+    val thm_term         = Thm.prop_of thm                                                                           : term;
+    val gen_path_table   = SOME (Gen_Path_To_Unode.Outer_Path_To_Unode outer_path_table)                             : Gen_Path_To_Unode.gen_path_to_unode_table option;
+    val outer_domains    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out gen_path_table pst thm_term induct_args: QD.domains;
     fun eval' (Apply (func, arg)) table (domains:QD.domains) =
          (case eval' func table domains of
           Lambda  u   => eval' (subst 0 (eval' arg table domains) u) table domains
@@ -211,7 +212,7 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (induct_a
           val inner_results = map (fn trm =>
                               let
                                 val table   = (GP2U.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) trm: Gen_Path_To_Unode.gen_path_to_unode_table;
-                                val domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In pst trm induct_args                    : QD.domains;
+                                val domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In NONE pst trm induct_args               : QD.domains;
                               in
                                 eval' curried_expr table domains
                               end) simp_rules                : exprs;

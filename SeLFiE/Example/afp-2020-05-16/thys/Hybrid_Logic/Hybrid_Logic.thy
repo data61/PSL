@@ -1616,6 +1616,7 @@ lemma ST_add: \<open>n \<turnstile> branch \<Longrightarrow> m + n \<turnstile> 
   assert_SeLFiE_true  structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp [on["m"],     arb[],rule[]]
   assert_SeLFiE_true  structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer [on["m"], arb[],rule[]](*okay*)
   assert_SeLFiE_true  structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_of_meta_imp_if_nth_arg_shrinks_in_def_of_constant_outer [on["branch"], arb[],rule[]](*unfortunate*)
+  semantic_induct
   by (induct m) auto
 
 lemma ST_le: \<open>n \<turnstile> branch \<Longrightarrow> n \<le> m \<Longrightarrow> m \<turnstile> branch\<close>
@@ -1737,6 +1738,7 @@ lemma sub_block_mem: \<open>p on block \<Longrightarrow> sub f p on sub_block f 
   assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["ps"],          arb[],rule[]](*This is a little unfortunate, but okay*)
   assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["f"],           arb[],rule[]](*This is a little unfortunate, but okay*)
   assert_SeLFiE_true  induct_on_arg_of_set_member_n_set_syntax_only [on["branch", "i"], arb[],rule[]](*This is a little unfortunate, but okay*)
+  semantic_induct
   by (induct block) auto
 
 lemma sub_branch_mem:
@@ -1810,6 +1812,7 @@ lemma ST_sub':
   fixes f :: \<open>'b \<Rightarrow> 'c\<close>
   assumes \<open>\<And>(f :: 'b \<Rightarrow> 'c) i A. finite A \<Longrightarrow> i \<notin> A \<Longrightarrow> \<exists>j. j \<notin> f ` A\<close>
   shows \<open>n \<turnstile> branch \<Longrightarrow> \<turnstile> sub_branch f branch\<close>
+semantic_induct
 proof (induct n branch arbitrary: f rule: ST.induct)
   case (Close p i branch)
   have \<open>sub f p at f i in sub_branch f branch\<close>
@@ -2535,11 +2538,11 @@ abbreviation bridge ::
   \<open>bridge k j \<equiv> mapper (bridge' k j)\<close>
 
 lemma bridge_on_Nom:
-  \<open>Nom i on (ps, a) \<Longrightarrow> Nom i on (mapi (bridge k j xs v) ps, a)\<close>
+  \<open>Nom i on (ps, a) \<Longrightarrow> Nom i on (mapi (bridge k j xs v) ps, a)\<close>semantic_induct
   by (induct ps) auto
 
 lemma bridge'_nominals:
-  \<open>nominals (bridge' k j p) \<union> {k, j} = nominals p \<union> {k, j}\<close>
+  \<open>nominals (bridge' k j p) \<union> {k, j} = nominals p \<union> {k, j}\<close>semantic_induct
 proof (induct p)
   case (Neg p)
   then show ?case by (cases p) auto
