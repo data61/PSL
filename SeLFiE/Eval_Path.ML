@@ -25,8 +25,6 @@ datatype assert =
 | Has_Same_Prnt_As            of gen_path * gen_path
 | Is_Deeper_Than              of gen_path * gen_path
 | Is_Shallower_Than           of gen_path * gen_path
-| Is_Path_Above               of gen_path * gen_path
-| Is_Same_Path_As             of gen_path * gen_path
 | Is_Nth_Child                of gen_path * int
 | Is_N_Plus_One_th_Child      of gen_path * int
 | Is_Root_In_A_Location       of gen_path
@@ -37,6 +35,8 @@ datatype assert =
 | Is_In_Nth_Subgoal             of gen_path * int
 | Is_In_Nth_Chained_Fact        of gen_path * int
 | Is_Parent_Of                  of gen_path * gen_path
+| Is_Path_Above                 of gen_path * gen_path
+| Is_Same_Path_As               of gen_path * gen_path
 | Is_An_Argument_Of             of gen_path * gen_path
 | Is_A_Meta_Premise             of gen_path(*These assertions about the meta implication cannot be in Eval_Unode because we need a table to get its parent node.*)
 | Is_A_Meta_Conclusion          of gen_path
@@ -92,8 +92,6 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
       | eval' (PA.Has_Same_Prnt_As        pair)     _ = path2_to_unode2 pair    |> EU.Has_Same_Prnt_As      |> EU.eval
       | eval' (PA.Is_Deeper_Than          pair)     _ = path2_to_unode2 pair    |> EU.Is_Deeper_Than        |> EU.eval
       | eval' (PA.Is_Shallower_Than       pair)     _ = path2_to_unode2 pair    |> EU.Is_Shallower_Than     |> EU.eval
-      | eval' (PA.Is_Path_Above           pair)     _ = path2_to_unode2 pair    |> EU.Is_Path_Above         |> EU.eval
-      | eval' (PA.Is_Same_Path_As         pair)     _ = path2_to_unode2 pair    |> EU.Is_Same_Path_As       |> EU.eval
       | eval' (PA.Is_Nth_Child           (path, i)) _ = (path_to_unode path, i) |> EU.Is_Nth_Child          |> EU.eval
       | eval' (PA.Is_N_Plus_One_th_Child (path, i)) _ = (path_to_unode path, i) |> EU.Is_N_Plus_One_th_Child|> EU.eval
       | eval' (PA.Is_Root_In_A_Location   path)     _ = path_to_unode path      |> EU.Is_Root_In_A_Location |> EU.eval
@@ -108,13 +106,15 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
       | eval' (PA.Is_In_Chained_Fact     path          ) _    = GP2U.path_is_in_chained_fact path             |> EB.bool_to_assert
       | eval' (PA.Is_In_Nth_Subgoal      pair          ) _    = uncurry GP2U.path_is_in_nth_subgoal pair      |> EB.bool_to_assert
       | eval' (PA.Is_In_Nth_Chained_Fact pair          ) _    = uncurry GP2U.path_is_in_nth_chained_fact pair |> EB.bool_to_assert
-      | eval' (PA.Is_Parent_Of          (parent, child)) _    = GP2U.is_parent_path_of parent child           |> EB.bool_to_assert
+      | eval' (PA.Is_Parent_Of          (parent, child)) _    = GP2U.is_parent_of parent child                |> EB.bool_to_assert
+      | eval' (PA.Is_Path_Above         (above,  below)) _    = GP2U.is_above above below                     |> EB.bool_to_assert
+      | eval' (PA.Is_Same_Path_As       (path1,  path2)) _    = GP2U.is_same_path_as path1 path2              |> EB.bool_to_assert
       | eval' (PA.Is_An_Argument_Of     (arg,    func )) ctxt = EB.bool_to_assert (
         let
           val parent_path_opt = GP2U.path_to_its_parent_path arg: gen_path option;
           val parent_is_app   = Option.map (fn p => eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool) parent_path_opt
                              |> Utils.is_some_true: bool;
-          fun is_its_child  c = Option.map (Utils.flip GP2U.is_parent_path_of c) parent_path_opt
+          fun is_its_child  c = Option.map (Utils.flip GP2U.is_parent_of c) parent_path_opt
                              |> Utils.is_some_true: bool;
           fun is_fst_child c  = Option.map (GP2U.is_fst_child_of c) parent_path_opt
                              |> Utils.is_some_true: bool;
@@ -151,9 +151,6 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
         end)
       | eval' (PA.Is_A_Meta_Premise_Or_Below prem) ctxt = EB.bool_to_assert ((*TODO*)
 (*
- * 1. Implement Is_An_Arg_Of first
- * 2. move Is_Path_Above   from Eval_Unode to Eval_Path
- * 3  move Is_Same_Path_As from Eval_Unode to Eval_Path
  * 3. Implement get_all_ancestors_of (w/o user-interface)
  * 2. Implement Is_An_Arg_Or_Below_Arg_Of using Is_An_Arg_Of and get_all_ancestors_of
  * 4. For an ancestor,

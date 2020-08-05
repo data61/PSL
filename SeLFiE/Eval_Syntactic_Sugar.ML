@@ -34,8 +34,6 @@ datatype assert =
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
 | Is_Shallower_Than      of assert * assert
-| Is_Path_Above          of assert * assert
-| Is_Same_Path_As        of assert * assert
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
@@ -65,6 +63,8 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 | Is_Parent_Of           of assert * assert
+| Is_Path_Above          of assert * assert
+| Is_Same_Path_As        of assert * assert
 | Is_An_Argument_Of      of assert * assert
 | Is_A_Meta_Premise      of assert
 | Is_A_Meta_Conclusion   of assert
@@ -155,8 +155,6 @@ datatype assert =
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
 | Is_Shallower_Than      of assert * assert
-| Is_Path_Above          of assert * assert
-| Is_Same_Path_As        of assert * assert
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
@@ -186,6 +184,8 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 | Is_Parent_Of           of assert * assert
+| Is_Path_Above          of assert * assert
+| Is_Same_Path_As        of assert * assert
 | Is_An_Argument_Of      of assert * assert
 | Is_A_Meta_Premise      of assert
 | Is_A_Meta_Conclusion   of assert
@@ -285,8 +285,6 @@ and
   | convert loc (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
   | convert loc (Is_Deeper_Than         pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Deeper_Than         (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
   | convert loc (Is_Shallower_Than      pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Shallower_Than      (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
-  | convert loc (Is_Path_Above          pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Path_Above          (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
-  | convert loc (Is_Same_Path_As        pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Same_Path_As        (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
   | convert loc (Is_Nth_Child           pair) = ES.Is_Nth_Child           (convert_pair loc pair)
   | convert loc (Is_N_Plus_One_th_Child pair) = ES.Is_N_Plus_One_th_Child (convert_pair loc pair)
   | convert loc (Is_Root_In_A_Location  arg ) = ES.Is_Root_In_A_Location  (convert      loc arg )
@@ -317,6 +315,8 @@ and
   | convert loc (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair loc (ass, numb))
   | convert loc (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair loc (ass, numb))
   | convert loc (Is_Parent_Of               pair) = ES.Is_Parent_Of           (convert_pair loc pair)
+  | convert loc (Is_Path_Above              pair) = ES.Is_Path_Above          (convert_pair loc pair)
+  | convert loc (Is_Same_Path_As            pair) = ES.Is_Same_Path_As        (convert_pair loc pair)
   | convert loc (Is_An_Argument_Of          pair) = ES.Is_An_Argument_Of      (convert_pair loc pair)
   | convert loc (Is_A_Meta_Premise          ass)  = ES.Is_A_Meta_Premise      (convert loc ass)
   | convert loc (Is_A_Meta_Conclusion       ass)  = ES.Is_A_Meta_Conclusion   (convert loc ass)

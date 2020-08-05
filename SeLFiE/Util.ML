@@ -40,8 +40,6 @@ datatype atomic_assert =
 | Has_Same_Prnt_As
 | Is_Deeper_Than
 | Is_Shallower_Than
-| Is_Path_Above
-| Is_Same_Path_As
 | Is_Nth_Child
 | Is_N_Plus_One_th_Child
 | Is_Root_In_A_Location
@@ -72,6 +70,8 @@ datatype atomic_assert =
 | Is_In_Nth_Subgoal
 | Is_In_Nth_Chained_Fact
 | Is_Parent_Of
+| Is_Path_Above
+| Is_Same_Path_As
 | Is_An_Argument_Of
 | Is_A_Meta_Premise
 | Is_A_Meta_Conclusion
@@ -184,8 +184,6 @@ datatype atomic_assert =
 | Has_Same_Prnt_As
 | Is_Deeper_Than
 | Is_Shallower_Than
-| Is_Path_Above
-| Is_Same_Path_As
 | Is_Nth_Child
 | Is_N_Plus_One_th_Child
 | Is_Root_In_A_Location
@@ -216,6 +214,8 @@ datatype atomic_assert =
 | Is_In_Nth_Subgoal
 | Is_In_Nth_Chained_Fact
 | Is_Parent_Of
+| Is_Path_Above
+| Is_Same_Path_As
 | Is_An_Argument_Of
 | Is_A_Meta_Premise
 | Is_A_Meta_Conclusion
@@ -245,8 +245,6 @@ fun(*Eval_Node*)
   | print_atomic_assert (Has_Same_Prnt_As                ) = "Has_Same_Prnt_As"
   | print_atomic_assert (Is_Deeper_Than                  ) = "Is_Deeper_Than"
   | print_atomic_assert (Is_Shallower_Than               ) = "Is_Shallower_Than"
-  | print_atomic_assert (Is_Path_Above                   ) = "Is_Path_Above"
-  | print_atomic_assert (Is_Same_Path_As                 ) = "Is_Same_Path_As"
   | print_atomic_assert (Is_Nth_Child                    ) = "Is_Nth_Child"
   | print_atomic_assert (Is_N_Plus_One_th_Child          ) = "Is_N_Plus_One_th_Child"
   | print_atomic_assert (Is_Root_In_A_Location           ) = "Is_Root_In_A_Location"
@@ -258,6 +256,8 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_In_Nth_Subgoal               ) = "Is_In_Nth_Subgoal"
   | print_atomic_assert (Is_In_Nth_Chained_Fact          ) = "Is_In_Nth_Chained_Fact"
   | print_atomic_assert (Is_Parent_Of                    ) = "Is_Parent_Of"
+  | print_atomic_assert (Is_Path_Above                   ) = "Is_Path_Above"
+  | print_atomic_assert (Is_Same_Path_As                 ) = "Is_Same_Path_As"
   | print_atomic_assert (Is_An_Argument_Of               ) = "Is_An_Argument_Of"
   | print_atomic_assert (Is_A_Meta_Premise               ) = "Is_A_Meta_Premise"
   | print_atomic_assert (Is_A_Meta_Conclusion            ) = "Is_A_Meta_Conclusion"

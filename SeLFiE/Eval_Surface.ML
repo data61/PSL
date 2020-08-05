@@ -33,8 +33,6 @@ datatype assert =
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
 | Is_Shallower_Than      of assert * assert
-| Is_Path_Above          of assert * assert
-| Is_Same_Path_As        of assert * assert
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
 | Is_Root_In_A_Location  of assert
@@ -65,6 +63,8 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 | Is_Parent_Of           of assert * assert
+| Is_Path_Above          of assert * assert
+| Is_Same_Path_As        of assert * assert
 | Is_An_Argument_Of      of assert * assert
 | Is_A_Meta_Premise      of assert
 | Is_A_Meta_Conclusion   of assert
@@ -128,8 +128,6 @@ datatype assert =
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
 | Is_Shallower_Than      of assert * assert
-| Is_Path_Above          of assert * assert
-| Is_Same_Path_As        of assert * assert
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
 | Is_Root_In_A_Location  of assert 
@@ -160,6 +158,8 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 | Is_Parent_Of           of assert * assert
+| Is_Path_Above          of assert * assert
+| Is_Same_Path_As        of assert * assert
 | Is_An_Argument_Of      of assert * assert
 | Is_A_Meta_Premise      of assert
 | Is_A_Meta_Conclusion   of assert
@@ -213,8 +213,6 @@ and (*bool*)
   | surf_to_var (Has_Same_Prnt_As       args) = EV.Assert (SU.Atomic SU.Has_Same_Prnt_As,       surf_to_var_pair_to_list args)
   | surf_to_var (Is_Deeper_Than         args) = EV.Assert (SU.Atomic SU.Is_Deeper_Than,         surf_to_var_pair_to_list args)
   | surf_to_var (Is_Shallower_Than      args) = EV.Assert (SU.Atomic SU.Is_Shallower_Than,      surf_to_var_pair_to_list args)
-  | surf_to_var (Is_Path_Above          args) = EV.Assert (SU.Atomic SU.Is_Path_Above,          surf_to_var_pair_to_list args)
-  | surf_to_var (Is_Same_Path_As        args) = EV.Assert (SU.Atomic SU.Is_Same_Path_As,        surf_to_var_pair_to_list args)
   | surf_to_var (Is_Nth_Child           args) = EV.Assert (SU.Atomic SU.Is_Nth_Child,           surf_to_var_pair_to_list args)
   | surf_to_var (Is_N_Plus_One_th_Child args) = EV.Assert (SU.Atomic SU.Is_N_Plus_One_th_Child, surf_to_var_pair_to_list args)
   | surf_to_var (Is_Root_In_A_Location  arg ) = EV.Assert (SU.Atomic SU.Is_Root_In_A_Location , surf_to_var_singleton    arg )
@@ -245,6 +243,8 @@ and (*bool*)
   | surf_to_var (Is_In_Nth_Subgoal      args) = EV.Assert (SU.Atomic SU.Is_In_Nth_Subgoal,      surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Nth_Chained_Fact args) = EV.Assert (SU.Atomic SU.Is_In_Nth_Chained_Fact, surf_to_var_pair_to_list args)
   | surf_to_var (Is_Parent_Of           args) = EV.Assert (SU.Atomic SU.Is_Parent_Of,           surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Path_Above          args) = EV.Assert (SU.Atomic SU.Is_Path_Above,          surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Same_Path_As        args) = EV.Assert (SU.Atomic SU.Is_Same_Path_As,        surf_to_var_pair_to_list args)
   | surf_to_var (Is_An_Argument_Of      args) = EV.Assert (SU.Atomic SU.Is_An_Argument_Of,      surf_to_var_pair_to_list args)
   | surf_to_var (Is_A_Meta_Premise      arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Premise,      surf_to_var_singleton    arg )
   | surf_to_var (Is_A_Meta_Conclusion   arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Conclusion,   surf_to_var_singleton    arg )

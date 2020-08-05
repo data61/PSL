@@ -167,13 +167,16 @@ by(cases "(l,a,r)" rule: baldR.cases) auto
 
 lemma inorder_combine[simp]:
   "inorder(combine l r) = inorder l @ inorder r"
-  all_induction_heuristic [on["l","r"], arb["ys"],rule[]]
+  all_induction_heuristic [on["l","r"], arb["ys"],rule[]] semantic_induct
 by (induction l r rule: combine.induct) (auto split: tree.split tcolor.split)
 
 lemma inorder_upd:
-  "sorted1(inorder t) \<Longrightarrow> inorder(upd x y t) = upd_list x y (inorder t)"(*88.764s elapsed time, 510.256s cpu time, 7.921s GC time*)
+  "sorted1(inorder t) \<Longrightarrow> inorder(upd x y t) = upd_list x y (inorder t)"
+  (*  88.764s elapsed time, 510.256s cpu time, 7.921s GC time*)
+  (*\<rightarrow> 2.222s elapsed time, 14.496s cpu time, 0.979s GC time*)
   all_induction_heuristic [on["x","y","t"], arb[],rule["upd.induct"]]
   all_induction_heuristic [on["x","y","Tree2.inorder t"], arb[],rule["upd_list.induct"]]
+  semantic_induct
   by(induction x y t rule: upd.induct)
   (auto simp: upd_list_simps)
 
@@ -182,7 +185,10 @@ lemma inorder_update:
 by(simp add: update_def inorder_upd)
 
 lemma inorder_del:
- "sorted1(inorder t) \<Longrightarrow>  inorder(del x t) = del_list x (inorder t)"(*50.495s elapsed time, 290.232s cpu time, 4.377s GC time*)
+ "sorted1(inorder t) \<Longrightarrow>  inorder(del x t) = del_list x (inorder t)"
+(*    50.495s elapsed time, 290.232s cpu time, 4.377s GC time
+ * \<rightarrow> 1.455s elapsed time, 10.788s cpu time, 0.096s GC time*)
+semantic_induct
 by(induction x t rule: del.induct)
   (auto simp: del_list_simps)
 
@@ -224,10 +230,12 @@ subsubsection \<open>Update\<close>
 
 lemma invc_baliL:
   "\<lbrakk>invc2 l; invc r\<rbrakk> \<Longrightarrow> invc (baliL l a r)"
+  semantic_induct
 by (induct l a r rule: baliL.induct) auto
 
 lemma invc_baliR:
   "\<lbrakk>invc l; invc2 r\<rbrakk> \<Longrightarrow> invc (baliR l a r)"
+  semantic_induct
 by (induct l a r rule: baliR.induct) auto
 
 lemma bheight_mkRB[simp]:
@@ -237,10 +245,12 @@ lemma bheight_mkRB[simp]:
 
 lemma bheight_baliL:
   "bheight l = bheight r \<Longrightarrow> bheight (baliL l a r) = Suc (bheight l)"
+semantic_induct
 by (induct l a r rule: baliL.induct) auto
 
 lemma bheight_baliR:
   "bheight l = bheight r \<Longrightarrow> bheight (baliR l a r) = Suc (bheight l)"
+semantic_induct
 by (induct l a r rule: baliR.induct) auto
 
 lemma invh_mkNode[simp]:
@@ -249,6 +259,7 @@ by (simp add: mkNode_def)
 
 lemma invh_baliL:
   "\<lbrakk> invh l; invh r; bheight l = bheight r \<rbrakk> \<Longrightarrow> invh (baliL l a r)"
+semantic_induct
 by (induct l a r rule: baliL.induct) auto
 
 lemma invh_baliR:

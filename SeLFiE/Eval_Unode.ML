@@ -10,8 +10,6 @@ datatype assert =
   Has_Same_Prnt_As       of UN.unode * UN.unode
 | Is_Deeper_Than         of UN.unode * UN.unode
 | Is_Shallower_Than      of UN.unode * UN.unode
-| Is_Path_Above          of UN.unode * UN.unode
-| Is_Same_Path_As        of UN.unode * UN.unode
 | Is_Nth_Child           of UN.unode * int
 | Is_N_Plus_One_th_Child of UN.unode * int
 | Is_Root_In_A_Location  of UN.unode
@@ -31,8 +29,6 @@ datatype assert =
   Has_Same_Prnt_As       of unode * unode
 | Is_Deeper_Than         of unode * unode
 | Is_Shallower_Than      of unode * unode
-| Is_Path_Above          of unode * unode
-| Is_Same_Path_As        of unode * unode
 | Is_Nth_Child           of unode * int
 | Is_N_Plus_One_th_Child of unode * int
 | Is_Root_In_A_Location  of UN.unode
@@ -69,20 +65,6 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     let
       val (depth1, depth2) = unode2_to_depth2 (unode1, unode2): (int * int);
       val result_bool      = depth1 < depth2;
-    in
-      result_bool
-    end
-  | eval' (unode1 Is_Path_Above unode2) =
-    let
-      val (inner_path1, inner_path2) = unode2_to_inner_path2 (unode1, unode2)                    : (UN.inner_path * UN.inner_path);
-      val result_bool    = uncurry UN.inner_path1_is_above_inner_path2 (inner_path1, inner_path2): bool;
-    in
-      result_bool
-    end
-  | eval' (unode1 Is_Same_Path_As unode2) =
-    let
-      val (inner_path1, inner_path2) = unode2_to_inner_path2 (unode1, unode2)       : (UN.inner_path * UN.inner_path);
-      val result_bool    = uncurry UN.are_same_inner_path (inner_path1, inner_path2): bool;
     in
       result_bool
     end
