@@ -74,6 +74,8 @@ datatype atomic_assert =
 | Is_Parent_Of
 | Is_A_Meta_Premise
 | Is_A_Meta_Conclusion
+| Is_A_Meta_Premise_Or_Below
+| Is_A_Meta_Conclusion_Or_Below
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
@@ -215,6 +217,8 @@ datatype atomic_assert =
 | Is_Parent_Of
 | Is_A_Meta_Premise
 | Is_A_Meta_Conclusion
+| Is_A_Meta_Premise_Or_Below
+| Is_A_Meta_Conclusion_Or_Below
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
@@ -254,6 +258,8 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_Parent_Of                    ) = "Is_Parent_Of"
   | print_atomic_assert (Is_A_Meta_Premise               ) = "Is_A_Meta_Premise"
   | print_atomic_assert (Is_A_Meta_Conclusion            ) = "Is_A_Meta_Conclusion"
+  | print_atomic_assert (Is_A_Meta_Premise_Or_Below      ) = "Is_A_Meta_Premise"
+  | print_atomic_assert (Is_A_Meta_Conclusion_Or_Below   ) = "Is_A_Meta_Conclusion"
   | print_atomic_assert (Are_Same_Number                 ) = "Are_Same_Number"
   | print_atomic_assert (Is_Less_Than                    ) = "Is_Less_Than"
   | print_atomic_assert (Is_Less_Than_By_One             ) = "Is_Less_Than_By_One"
