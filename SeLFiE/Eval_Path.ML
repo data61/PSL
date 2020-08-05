@@ -106,23 +106,25 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
       | eval' (PA.Is_In_Nth_Subgoal      pair) _ = uncurry GP2U.path_is_in_nth_subgoal pair      |> EB.bool_to_assert
       | eval' (PA.Is_In_Nth_Chained_Fact pair) _ = uncurry GP2U.path_is_in_nth_chained_fact pair |> EB.bool_to_assert
       | eval' (PA.Is_Parent_Of           pair) _ = GP2U.is_parent_path_of pair |> EB.bool_to_assert
-      | eval' (PA.Is_A_Meta_Premise      path) ctxt = EB.bool_to_assert (
-        not (EU.eval (EU.Is_Root_In_A_Location (path_to_unode path)) |> EB.assert_to_bool) andalso
+      | eval' (PA.Is_A_Meta_Premise      prem) ctxt = EB.bool_to_assert (
+        not (EU.eval (EU.Is_Root_In_A_Location (path_to_unode prem)) |> EB.assert_to_bool) andalso
         let
-          val parent_path   = GP2U.path_to_its_parent_path path: gen_path                  : gen_path;
-          val parent_is_app = eval' (PA.Node_Is_App parent_path) ctxt |> EB.assert_to_bool : bool;
-          val is_conclusion = GP2U.is_last_child_of path_to_unode_table (path, parent_path): bool;
+          val parent_path_opt = GP2U.path_to_its_parent_path prem                  : gen_path option;
+          fun is_app  p       = eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool : bool;
+          fun is_cncl p       = GP2U.is_last_child_of path_to_unode_table (prem,  p): bool;
         in
-          parent_is_app andalso not (is_conclusion)
+          Utils.is_some_true (Option.map is_app parent_path_opt) andalso
+          not (Utils.is_some_true (Option.map is_cncl parent_path_opt))
         end)
-      | eval' (PA.Is_A_Meta_Conclusion      path) ctxt = EB.bool_to_assert (
-        not (EU.eval (EU.Is_Root_In_A_Location (path_to_unode path)) |> EB.assert_to_bool) andalso
+      | eval' (PA.Is_A_Meta_Conclusion      cncl) ctxt = EB.bool_to_assert ((*TODO: refactor with Is_A_Meta_Premise?*)
+        not (EU.eval (EU.Is_Root_In_A_Location (path_to_unode cncl)) |> EB.assert_to_bool) andalso
         let
-          val parent_path   = GP2U.path_to_its_parent_path path: gen_path                  : gen_path;
-          val parent_is_app = eval' (PA.Node_Is_App parent_path) ctxt |> EB.assert_to_bool : bool;
-          val is_conclusion = GP2U.is_last_child_of path_to_unode_table (path, parent_path): bool;
+          val parent_path_opt = GP2U.path_to_its_parent_path cncl                  : gen_path option;
+          fun is_app  p       = eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool : bool;
+          fun is_cncl p       = GP2U.is_last_child_of path_to_unode_table (cncl, p): bool;
         in
-          parent_is_app andalso is_conclusion
+          Utils.is_some_true (Option.map is_app parent_path_opt) andalso
+          Utils.is_some_true (Option.map is_cncl parent_path_opt)
         end)
       (*debug*)
       | eval' (PA.Debug_Print_Unode      path) _ = path_to_unode path |> EU.Debug_Print_Unode |> EU.eval;

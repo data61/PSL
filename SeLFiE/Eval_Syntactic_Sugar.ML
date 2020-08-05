@@ -64,6 +64,9 @@ datatype assert =
 | Is_In_Chained_Fact     of assert
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
+| Is_Parent_Of           of assert * assert
+| Is_A_Meta_Premise      of assert
+| Is_A_Meta_Conclusion   of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -85,7 +88,6 @@ datatype assert =
 | Have_Different_Prnts               of assert * assert
 | Unode_Has_As_Subprint              of assert * assert
 | Is_Path_Below                      of assert * assert
-| Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
 | Is_Nth_Child_Of                    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
@@ -104,9 +106,7 @@ datatype assert =
 | Is_Less_Than_Or_Equal              of assert * assert
 | Is_More_Than_Or_Equal              of assert * assert
 | Is_More_Than                       of assert * assert
-| Is_A_Meta_Premise                  of assert
 | Is_A_Meta_Premise_Or_Below         of assert
-| Is_A_Meta_Conclusion               of assert
 | Is_A_Meta_Conclusion_Or_Below      of assert
 | Is_If_Then_Else                    of assert * assert * assert * assert
 | Is_Case_Distinct_Of_Trm_With_A_Case of assert * assert * assert
@@ -185,6 +185,7 @@ datatype assert =
 | Is_In_Chained_Fact     of assert
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
+| Is_Parent_Of           of assert * assert
 | Is_A_Meta_Premise      of assert
 | Is_A_Meta_Conclusion   of assert
 (*Eval_Number*)
@@ -208,7 +209,6 @@ datatype assert =
 | Have_Different_Prnts               of assert * assert
 | Unode_Has_As_Subprint              of assert * assert
 | Is_Path_Below                      of assert * assert
-| Is_Parent_Of                       of assert * assert
 | Is_Child_Of                        of assert * assert
 | Is_Nth_Child_Of                    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
@@ -316,8 +316,9 @@ and
   | convert loc (Is_In_Chained_Fact         ass)  = ES.Is_In_Chained_Fact     (convert loc ass)
   | convert loc (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair loc (ass, numb))
   | convert loc (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair loc (ass, numb))
-  | convert loc (Is_A_Meta_Premise          ass) = ES.Is_A_Meta_Premise      (convert loc ass)
-  | convert loc (Is_A_Meta_Conclusion       ass) = ES.Is_A_Meta_Conclusion   (convert loc ass)
+  | convert loc (Is_Parent_Of               pair) = ES.Is_Parent_Of           (convert_pair loc pair)
+  | convert loc (Is_A_Meta_Premise          ass)  = ES.Is_A_Meta_Premise      (convert loc ass)
+  | convert loc (Is_A_Meta_Conclusion       ass)  = ES.Is_A_Meta_Conclusion   (convert loc ass)
   (*Eval_Number*)
   | convert loc (Are_Same_Number     pair) = ES.Are_Same_Number     (convert_pair loc pair)
   | convert loc (Is_Less_Than        pair) = ES.Is_Less_Than        (convert_pair loc pair)
@@ -361,20 +362,6 @@ and
     end
     )
   | convert loc (Is_Path_Below (descendent, anscestor)) = convert loc (Is_Path_Above (anscestor, descendent))
-  | convert loc (Is_Parent_Of (parent, child)) =
-    let
-      val non_exist = get_new_name [parent, child];
-      val path_typ  = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-    in
-      convert loc (
-          Is_Path_Above (parent, child)
-        And
-          Not
-           (Some (non_exist, path_typ,
-                Is_Path_Above (Variable non_exist, child)
-              And
-                Is_Path_Below (Variable non_exist, parent))))
-    end
   | convert loc (Is_Child_Of (child, parent))             = convert loc (Is_Parent_Of (parent, child))
   | convert loc (Is_Nth_Child_Of (child, number, parent)) =
     convert loc

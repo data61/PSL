@@ -224,7 +224,7 @@ datatype gen_path_to_unode_table =
 
 val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.unode;
 
-val path_to_its_parent_path         : gen_path -> gen_path;
+val path_to_its_parent_path         : gen_path -> gen_path option;
 val is_parent_path_of               : (gen_path * gen_path) -> bool;
 val is_last_child_of                : gen_path_to_unode_table -> (gen_path * gen_path) -> bool;
 val path_is_in_subgoal              : gen_path -> bool;
@@ -250,12 +250,14 @@ fun gen_table_n_gen_path_to_unode (Inner_Path_To_Unode table) (Inner_Path path) 
   | gen_table_n_gen_path_to_unode (Outer_Path_To_Unode table) (Outer_Path path) =  Outer_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Outer_Path"
   | gen_table_n_gen_path_to_unode _ _ = error "gen_table_n_gen_path_to_unode failed."
 
-fun path_to_its_parent_path (Inner_Path []         :gen_path) = error "path_to_its_parent_path failed in Path_To_Unode.ML: already root."
-  | path_to_its_parent_path (Inner_Path ints       :gen_path) = Inner_Path (Utils.init ints)
-  | path_to_its_parent_path (Outer_Path (_, [])    :gen_path) = error "path_to_its_parent_path failed in Path_To_Unode.ML: already root."
-  | path_to_its_parent_path (Outer_Path (loc, ints):gen_path) = Outer_Path (loc, Utils.init ints);
+fun path_to_its_parent_path (Inner_Path []         :gen_path) = NONE
+  | path_to_its_parent_path (Inner_Path ints       :gen_path) = SOME (Inner_Path (Utils.init ints))
+  | path_to_its_parent_path (Outer_Path (_, [])    :gen_path) = NONE
+  | path_to_its_parent_path (Outer_Path (loc, ints):gen_path) = SOME (Outer_Path (loc, Utils.init ints));
 
-fun is_parent_path_of (parent_path, child_path) = parent_path = path_to_its_parent_path child_path: bool;
+fun is_parent_path_of (parent_path, child_path) =
+  (Option.map (equal parent_path)) (path_to_its_parent_path child_path)
+|> Utils.is_some_true: bool;
 
 fun is_last_child_of (Inner_Path_To_Unode table) (Inner_Path last_arg_path, Inner_Path app_path) =
   not (null last_arg_path) andalso
