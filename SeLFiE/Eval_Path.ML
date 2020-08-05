@@ -37,6 +37,7 @@ datatype assert =
 | Is_In_Nth_Subgoal             of gen_path * int
 | Is_In_Nth_Chained_Fact        of gen_path * int
 | Is_Parent_Of                  of gen_path * gen_path
+| Is_An_Argument_Of             of gen_path * gen_path
 | Is_A_Meta_Premise             of gen_path(*These assertions about the meta implication cannot be in Eval_Unode because we need a table to get its parent node.*)
 | Is_A_Meta_Conclusion          of gen_path
 | Is_A_Meta_Premise_Or_Below    of gen_path
@@ -103,11 +104,30 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
           in
             print = #print unode |> Eval_Bool.bool_to_assert
           end
-      | eval' (PA.Is_In_Subgoal          path) _ = GP2U.path_is_in_subgoal path                  |> EB.bool_to_assert
-      | eval' (PA.Is_In_Chained_Fact     path) _ = GP2U.path_is_in_chained_fact path             |> EB.bool_to_assert
-      | eval' (PA.Is_In_Nth_Subgoal      pair) _ = uncurry GP2U.path_is_in_nth_subgoal pair      |> EB.bool_to_assert
-      | eval' (PA.Is_In_Nth_Chained_Fact pair) _ = uncurry GP2U.path_is_in_nth_chained_fact pair |> EB.bool_to_assert
-      | eval' (PA.Is_Parent_Of           pair) _ = GP2U.is_parent_path_of pair |> EB.bool_to_assert
+      | eval' (PA.Is_In_Subgoal          path          ) _    = GP2U.path_is_in_subgoal path                  |> EB.bool_to_assert
+      | eval' (PA.Is_In_Chained_Fact     path          ) _    = GP2U.path_is_in_chained_fact path             |> EB.bool_to_assert
+      | eval' (PA.Is_In_Nth_Subgoal      pair          ) _    = uncurry GP2U.path_is_in_nth_subgoal pair      |> EB.bool_to_assert
+      | eval' (PA.Is_In_Nth_Chained_Fact pair          ) _    = uncurry GP2U.path_is_in_nth_chained_fact pair |> EB.bool_to_assert
+      | eval' (PA.Is_Parent_Of          (parent, child)) _    = GP2U.is_parent_path_of parent child           |> EB.bool_to_assert
+      | eval' (PA.Is_An_Argument_Of     (arg,    func )) ctxt = EB.bool_to_assert (
+        let
+          val parent_path_opt = GP2U.path_to_its_parent_path arg: gen_path option;
+          val parent_is_app   = Option.map (fn p => eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool) parent_path_opt
+                             |> Utils.is_some_true: bool;
+          fun is_its_child  c = Option.map (Utils.flip GP2U.is_parent_path_of c) parent_path_opt
+                             |> Utils.is_some_true: bool;
+          fun is_fst_child c  = Option.map (GP2U.is_fst_child_of c) parent_path_opt
+                             |> Utils.is_some_true: bool;
+          fun is_not_fst_child c = Option.map (GP2U.is_fst_child_of c) parent_path_opt
+                             |> Utils.is_some_false: bool;
+        in
+                  parent_is_app
+          andalso is_its_child func
+          andalso is_fst_child func
+          andalso is_its_child arg
+          andalso is_not_fst_child arg
+        end
+        )
       (*TODO for all atomic assertions about the meta-implication. Check if the first child of the parent node is the meta implication.*)
       | eval' (PA.Is_A_Meta_Premise      prem) ctxt = EB.bool_to_assert (
         let
@@ -132,6 +152,8 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
       | eval' (PA.Is_A_Meta_Premise_Or_Below prem) ctxt = EB.bool_to_assert ((*TODO*)
 (*
  * 1. Implement Is_An_Arg_Of first
+ * 2. move Is_Path_Above   from Eval_Unode to Eval_Path
+ * 3  move Is_Same_Path_As from Eval_Unode to Eval_Path
  * 3. Implement get_all_ancestors_of (w/o user-interface)
  * 2. Implement Is_An_Arg_Or_Below_Arg_Of using Is_An_Arg_Of and get_all_ancestors_of
  * 4. For an ancestor,

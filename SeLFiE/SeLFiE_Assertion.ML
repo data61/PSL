@@ -82,7 +82,7 @@ val heuristic_13 =
       Are_Same_Prints (Variable "induct", Print "xs")));
 infix Imply;
 (*
-infix And Or  Is_Rule_Of_Print Is_An_Arg_Of Unode_Has_Print Has_Same_Prnt_As Is_Path_Below;
+infix And Or  Is_Rule_Of_Print Is_An_Argument_Of Unode_Has_Print Has_Same_Prnt_As Is_Path_Below;
 infix Is_Rule_Of_Node;
 *)
 
@@ -175,7 +175,7 @@ Some ("func_occ", QOuter_Path,
     All ("ind", QInd,
       Some_Of ("ind_occ", Variable "ind",
         Ands [
-          Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
+          Is_An_Argument_Of (Variable "ind_occ", Variable "func_occ")
         ]
       )
     )
@@ -203,7 +203,7 @@ Imply
       All ("ind", QInd,
         Some_Of ("ind_occ", Variable "ind",
           Ands [
-            Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
+            Is_An_Argument_Of (Variable "ind_occ", Variable "func_occ")
           ]
         )
       )
@@ -471,7 +471,7 @@ Imply
           Some ("induct_arg", QInd,
             Some_Of ("induct_arg_occ", Variable "induct_arg",
               Ands [
-                Is_An_Arg_Of (Variable "induct_arg_occ",  Variable "func_occ")
+                Is_An_Argument_Of (Variable "induct_arg_occ",  Variable "func_occ")
               ]
             )
           )
@@ -517,7 +517,7 @@ Not (
           Some ("hol_eq_occ", QOuter_Path,
             Ands [
                Unode_Has_Print (Variable "hol_eq_occ", Print "HOL.eq"),
-               Is_An_Arg_Of (Variable "ind_occ", Variable "hol_eq_occ")
+               Is_An_Argument_Of (Variable "ind_occ", Variable "hol_eq_occ")
             ]
           )
         ]
@@ -541,8 +541,8 @@ Imply
             Some_Of ("arb_occ", Variable "arb",
               Some ("func_occ", QOuter_Path,
                 Ands [
-                  Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ"),
-                  Is_An_Arg_Of (Variable "arb_occ", Variable "func_occ")
+                  Is_An_Argument_Of (Variable "ind_occ", Variable "func_occ"),
+                  Is_An_Argument_Of (Variable "arb_occ", Variable "func_occ")
                 ]
               )
             )
@@ -562,7 +562,7 @@ Imply
           All ("arg_occ", QOuter_Path,
               Ands [
                 Are_In_Same_Location (Variable "arg_occ", Variable "func_occ"),
-                Is_An_Arg_Of (Variable "arg_occ", Variable "func_occ")
+                Is_An_Argument_Of (Variable "arg_occ", Variable "func_occ")
               ]
             Imply
               Some ("ind", QInd,
@@ -589,8 +589,8 @@ Imply
           Some_Of ("ind_occ", Variable "ind",
             Some ("func_occ", QOuter_Path,
               Ands [
-                Is_An_Arg_Of (Variable "arb_occ", Variable "func_occ"),
-                Is_An_Arg_Of (Variable "ind_occ", Variable "func_occ")
+                Is_An_Argument_Of (Variable "arb_occ", Variable "func_occ"),
+                Is_An_Argument_Of (Variable "ind_occ", Variable "func_occ")
               ]
             )
           )
@@ -658,7 +658,7 @@ fun lifter_15_shared unique =
             Have_Different_Prnts (Variable "func1_occ", Variable "func2_occ"),
             Some ("arg_of_func1_occ", QOuter_Path,
               Ands [
-                Is_An_Arg_Of (Variable "arg_of_func1_occ", Variable "func1_occ"),
+                Is_An_Argument_Of (Variable "arg_of_func1_occ", Variable "func1_occ"),
                 Is_Path_Below (Variable "func2_occ", Variable "arg_of_func1_occ"),
                 unique
               ]

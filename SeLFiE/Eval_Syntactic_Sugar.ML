@@ -65,6 +65,7 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 | Is_Parent_Of           of assert * assert
+| Is_An_Argument_Of      of assert * assert
 | Is_A_Meta_Premise      of assert
 | Is_A_Meta_Conclusion   of assert
 (*Eval_Number*)
@@ -94,7 +95,6 @@ datatype assert =
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
-| Is_An_Arg_Of                       of assert * assert
 | Is_An_Arg_Or_Below_Arg_Of          of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
@@ -186,6 +186,7 @@ datatype assert =
 | Is_In_Nth_Subgoal      of assert * assert
 | Is_In_Nth_Chained_Fact of assert * assert
 | Is_Parent_Of           of assert * assert
+| Is_An_Argument_Of      of assert * assert
 | Is_A_Meta_Premise      of assert
 | Is_A_Meta_Conclusion   of assert
 (*Eval_Number*)
@@ -215,7 +216,6 @@ datatype assert =
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
-| Is_An_Arg_Of                       of assert * assert
 | Is_An_Arg_Or_Below_Arg_Of          of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
@@ -317,6 +317,7 @@ and
   | convert loc (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair loc (ass, numb))
   | convert loc (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair loc (ass, numb))
   | convert loc (Is_Parent_Of               pair) = ES.Is_Parent_Of           (convert_pair loc pair)
+  | convert loc (Is_An_Argument_Of          pair) = ES.Is_An_Argument_Of      (convert_pair loc pair)
   | convert loc (Is_A_Meta_Premise          ass)  = ES.Is_A_Meta_Premise      (convert loc ass)
   | convert loc (Is_A_Meta_Conclusion       ass)  = ES.Is_A_Meta_Conclusion   (convert loc ass)
   (*Eval_Number*)
@@ -413,22 +414,6 @@ and
            Is_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)
           ]
         )
-  | convert loc (Is_An_Arg_Of (arg, func)) =
-    let
-      val func_app_str = get_new_name [func,arg]: string;
-      val func_app     = Variable func_app_str  : assert;
-      val path_typ     = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-    in
-    (*Note that we have already transformed the syntax tree structure in Unique_Node.*)
-      convert loc
-       (Some (func_app_str, path_typ,
-          Ands
-           [Is_Parent_Of (func_app, func),
-            Is_Nth_Child (func, Number 0),
-            Is_Parent_Of (func_app, arg),
-            Not (Is_Nth_Child (arg, Number 0)),
-            Node_Is_App func_app]))
-    end
   | convert loc (Is_An_Arg_Or_Below_Arg_Of (arg_or_in_arg, func)) =
     let
       val arg_str  = get_new_name [func, arg_or_in_arg]: string;
@@ -437,10 +422,10 @@ and
     in
       convert loc
        (Ors
-         [Is_An_Arg_Of (arg_or_in_arg, func),
+         [Is_An_Argument_Of (arg_or_in_arg, func),
           Some (arg_str, path_typ,
             Ands
-              [Is_An_Arg_Of (arg, func),
+              [Is_An_Argument_Of (arg, func),
                Is_Path_Above (arg, arg_or_in_arg)])])
     end
   | convert loc (Is_Nth_Arg_Of (arg, number, func)) =
@@ -536,7 +521,7 @@ and
                 Is_Nth_Arg_Or_Below_Nth_Arg_Of (premise, nth_premise, imp),(*!*)
                 Some (conclusion_name, path_typ,
                   Ands [
-                    Is_An_Arg_Of (conclusion, imp),
+                    Is_An_Argument_Of (conclusion, imp),
                     Not (Is_Same_Path_As (premise, conclusion)),
                     Some (nth_conclusion_name, numb_typ,
                       Ands [
@@ -575,7 +560,7 @@ and
                   Is_Nth_Arg_Or_Below_Nth_Arg_Of (conclusion, nth_conclusion, imp),(*!*)
                   All (premise_name, path_typ,
                       Ands [
-                        Is_An_Arg_Of (premise, imp),
+                        Is_An_Argument_Of (premise, imp),
                         Not (Is_Path_Above (premise, conclusion)),(*!*)
                         Not (Is_Same_Path_As (premise, conclusion))
                       ]

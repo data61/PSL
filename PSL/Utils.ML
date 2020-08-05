@@ -26,6 +26,7 @@ sig
   val bool_to_real                            : bool -> real;
   val bool_to_int                             : bool -> int;
   val is_some_true                            : bool option -> bool;
+  val is_some_false                           : bool option -> bool;
   val is_some_null                            : 'a list option -> 'a list;
   val opt_app                                 : ('a -> 'b) option -> 'a option -> 'b option;
   val eq                                      : ''a -> ''a -> bool;
@@ -98,6 +99,9 @@ fun bool_to_real b = if b then 1.0 else 0.0;
 fun bool_to_int b = if b then 1 else 0;
 
 fun is_some_true maybe = Option.getOpt (maybe, false);
+
+fun is_some_false  NONE    = false
+  | is_some_false (SOME b) = not b;
 
 fun is_some_null maybe = Option.getOpt (maybe, []);
 

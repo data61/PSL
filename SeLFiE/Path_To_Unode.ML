@@ -225,7 +225,8 @@ datatype gen_path_to_unode_table =
 val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.unode;
 
 val path_to_its_parent_path         : gen_path -> gen_path option;
-val is_parent_path_of               : (gen_path * gen_path) -> bool;
+val is_parent_path_of               : gen_path -> gen_path -> bool;
+val is_fst_child_of                 : gen_path -> gen_path -> bool;
 val is_last_child_of                : gen_path_to_unode_table -> (gen_path * gen_path) -> bool;
 val path_is_in_subgoal              : gen_path -> bool;
 val path_is_in_chained_fact         : gen_path -> bool;
@@ -255,13 +256,25 @@ fun path_to_its_parent_path (Inner_Path []         :gen_path) = NONE
   | path_to_its_parent_path (Outer_Path (_, [])    :gen_path) = NONE
   | path_to_its_parent_path (Outer_Path (loc, ints):gen_path) = SOME (Outer_Path (loc, Utils.init ints));
 
-fun is_parent_path_of (parent_path, child_path) =
+fun is_parent_path_of parent_path child_path =
   (Option.map (equal parent_path)) (path_to_its_parent_path child_path)
 |> Utils.is_some_true: bool;
 
-fun is_last_child_of (Inner_Path_To_Unode table) (Inner_Path last_arg_path, Inner_Path app_path) =
-  not (null last_arg_path) andalso
-  is_parent_path_of (Inner_Path app_path, Inner_Path last_arg_path) andalso
+fun is_fst_child_of (Inner_Path fst_child_path) (Inner_Path parent_path) =
+          not (null fst_child_path)
+  andalso is_parent_path_of (Inner_Path parent_path) (Inner_Path fst_child_path)
+  andalso Utils.last fst_child_path = 0
+| is_fst_child_of (Outer_Path (fst_child_loc, fst_child_path)) (Outer_Path (app_loc, parent_path)) =
+          not (null fst_child_path)
+  andalso fst_child_loc = app_loc
+  andalso is_parent_path_of (Outer_Path (app_loc, parent_path)) (Outer_Path (fst_child_loc, fst_child_path))
+  andalso Utils.last fst_child_path = 0
+| is_fst_child_of _ _ = error "is_fst_child_of in Path_To_Unde failed";
+
+fun is_last_child_of (Inner_Path_To_Unode table) (Inner_Path last_arg_path, Inner_Path parent_path) =
+          not (null last_arg_path)
+  andalso is_parent_path_of (Inner_Path parent_path) (Inner_Path last_arg_path)
+  andalso
   let
     val last_digit_of_arg_path      = Utils.last last_arg_path: int;
     val path_to_none_existing_child = Utils.init last_arg_path @ [last_digit_of_arg_path + 1]: UN.inner_path;
@@ -269,10 +282,11 @@ fun is_last_child_of (Inner_Path_To_Unode table) (Inner_Path last_arg_path, Inne
   in
     doesnt_exist_such_child
   end
-| is_last_child_of (Outer_Path_To_Unode table) (Outer_Path (last_arg_loc, last_arg_path), Outer_Path (app_loc, app_path)) =
-  not (null last_arg_path) andalso
-  last_arg_loc = app_loc andalso
-  is_parent_path_of (Outer_Path (app_loc, app_path), Outer_Path (last_arg_loc, last_arg_path)) andalso
+| is_last_child_of (Outer_Path_To_Unode table) (Outer_Path (last_arg_loc, last_arg_path), Outer_Path (app_loc, parent_path)) =
+          not (null last_arg_path)
+  andalso last_arg_loc = app_loc
+  andalso is_parent_path_of (Outer_Path (app_loc, parent_path)) (Outer_Path (last_arg_loc, last_arg_path))
+  andalso
   let
     val last_digit_of_arg_path      = Utils.last last_arg_path: int;
     val path_to_none_existing_child = (last_arg_loc, Utils.init last_arg_path @ [last_digit_of_arg_path + 1]): outer_path;
