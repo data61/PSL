@@ -69,7 +69,8 @@ sig
   val alist_add                               : (''a * 'a) list -> (''a * 'a) -> (''a * 'a) list;
   val alist_lookup_eq                         : (''a * 'a) list -> ''a -> 'a option;
   val opt_equal                               : (''a option * ''a option) -> bool;
-  val ints_to_max_option                      : int list -> int option;
+  val ints_to_max_option                      : ints -> int option;
+  val mk_ints                                 : int -> ints;
 end;
 
 (*** Utils : Utility functions not specific to Isabelle/HOL. ***)
@@ -281,6 +282,8 @@ fun ints_to_max' ([]:ints)    acc = acc
 
 fun ints_to_max_option  []          = NONE
   | ints_to_max_option (i::is:ints) = SOME (ints_to_max' is i)
+
+fun mk_ints (n:int) = List.tabulate (n, I);
 
 end;
 

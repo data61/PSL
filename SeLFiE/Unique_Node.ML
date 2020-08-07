@@ -71,12 +71,12 @@ val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
 type inner_path  = ints;
 type inner_paths = inner_path list;
 
-val inner_path_to_string            : inner_path -> string;
-val are_same_inner_path             : inner_path -> inner_path -> bool;
-val inner_path1_is_above_inner_path2: inner_path -> inner_path -> bool;
-val have_same_ancestors_only        : inner_path -> inner_path -> bool;
-val inner_path_to_its_ancestors     : inner_path -> inner_paths;
-val is_nth_arg_of                   : inner_path -> int -> inner_path -> bool;
+val inner_path_to_string               : inner_path -> string;
+val are_same_inner_path                : inner_path -> inner_path -> bool;
+val inner_path1_is_above_inner_path2   : inner_path -> inner_path -> bool;
+val have_same_ancestors_only           : inner_path -> inner_path -> bool;
+val inner_path_to_its_ancestors_paths  : inner_path -> inner_paths;
+val is_nth_arg_of                      : inner_path -> int -> inner_path -> bool;
 
 (* inner_path_ord *)
 val inner_path_ord: (inner_path * inner_path) -> order;
@@ -350,11 +350,11 @@ fun have_same_ancestors_only     []      []  = false
   | have_same_ancestors_only (x::xs) (y::ys) = x = y andalso have_same_ancestors_only xs ys
   | have_same_ancestors_only      _       _  = false;
 
-fun inner_path_to_its_ancestors' ([]:inner_path) (acc:inner_paths) = acc
-  | inner_path_to_its_ancestors' (ps:inner_path) (acc:inner_paths) =
-    inner_path_to_its_ancestors' (Utils.init ps) (ps::acc:inner_paths)
+fun inner_path_to_its_ancestors_paths' ([]:inner_path) (acc:inner_paths) = acc
+  | inner_path_to_its_ancestors_paths' (ps:inner_path) (acc:inner_paths) =
+    inner_path_to_its_ancestors_paths' (Utils.init ps) (ps::acc:inner_paths)
 
-fun inner_path_to_its_ancestors (ps:inner_path) = inner_path_to_its_ancestors' ps [];
+fun inner_path_to_its_ancestors_paths (ps:inner_path) = inner_path_to_its_ancestors_paths' ps [];
 
 fun is_nth_arg_of (inner_path1:inner_path) (n:int) (inner_path2) =
   if   have_same_ancestors_only inner_path1 inner_path2 andalso (not o null) inner_path1 andalso (not o null) inner_path2

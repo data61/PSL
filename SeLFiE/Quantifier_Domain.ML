@@ -59,7 +59,7 @@ val mk_all_inner_prints = mk_all_prints Inner_Path_To_Unode.pst_n_trm_to_path_to
 val mk_all_outer_prints = mk_all_prints Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table Print_To_Outer_Paths.path_to_unode_table_to_print_to_paths_table Print_To_Outer_Paths.print_to_paths_table_to_prints
                         : Proof.state -> term -> strings;
 
-val numb_domain = List.tabulate ((*10 is a magic number here*)10, EP.Non_Path o EP.Number): EP.literals;
+val numb_domain = List.tabulate ((*10 is a magic number here*)SU.max_int, EP.Non_Path o EP.Number): EP.literals;
 
 val map_Non_Path_Print = map (EP.Non_Path o EP.Print);
 

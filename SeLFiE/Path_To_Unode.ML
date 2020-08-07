@@ -28,6 +28,7 @@ type path_to_unode_table;
 
 val table_to_paths                  : path_to_unode_table -> path list;
 val lookup                          : path_to_unode_table -> path -> UN.unode option;
+val defined                         : path_to_unode_table -> path -> bool;
 val pst_n_trm_to_path_to_unode_table: Proof.state -> term -> path_to_unode_table;
 val pst_n_term_n_path_to_cname      : Proof.state -> term -> path -> string option;
 
@@ -62,6 +63,8 @@ type path                = UN.inner_path;
 type path_to_unode_table = UN.unode Path_Table.table;
 
 fun lookup (table:path_to_unode_table) (path:path) = Inner_Path_Table.lookup table path: UN.unode option;
+
+fun defined (table:path_to_unode_table) (path:path) = Inner_Path_Table.defined table path: bool;
 
 fun unodes_to_unode_table (unodes:UN.unodes) =
    List.map (fn unode => (#inner_path unode, unode)) unodes |> Path_Table.make;
@@ -109,6 +112,8 @@ type outer_unode =
 type path_to_unode_table = UN.unode Outer_Path_Table.table;
 
 fun lookup (table:path_to_unode_table) (path:path) = Outer_Path_Table.lookup table path: UN.unode option;
+
+fun defined (table:path_to_unode_table) (path:path) = Outer_Path_Table.defined table path: bool;
 
 type outer_path_to_outer_unode_table = outer_unode Outer_Path_Table.table;
 
@@ -227,6 +232,7 @@ val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.uno
 
 val path_to_its_parent_path         : gen_path -> gen_path option;
 val path_to_its_ancestors_paths     : gen_path -> gen_path list;
+val path_to_its_descendents_paths   : gen_path_to_unode_table -> gen_path -> gen_path list;
 val is_parent_of                    : gen_path -> gen_path -> bool;
 val is_above                        : gen_path -> gen_path -> bool;
 val is_same_path_as                 : gen_path -> gen_path -> bool;
@@ -252,8 +258,8 @@ datatype gen_path_to_unode_table =
   Inner_Path_To_Unode of Inner_Path_To_Unode.path_to_unode_table
 | Outer_Path_To_Unode of Outer_Path_To_Unode.path_to_unode_table;
 
-fun gen_table_n_gen_path_to_unode (Inner_Path_To_Unode table) (Inner_Path path) =  Inner_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Inner_Path"
-  | gen_table_n_gen_path_to_unode (Outer_Path_To_Unode table) (Outer_Path path) =  Outer_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Outer_Path"
+fun gen_table_n_gen_path_to_unode (Inner_Path_To_Unode table) (Inner_Path path) = Inner_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Inner_Path"
+  | gen_table_n_gen_path_to_unode (Outer_Path_To_Unode table) (Outer_Path path) = Outer_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Outer_Path"
   | gen_table_n_gen_path_to_unode _ _ = error "gen_table_n_gen_path_to_unode failed."
 
 fun path_to_its_parent_path (Inner_Path []         :gen_path) = NONE
@@ -269,6 +275,57 @@ fun path_to_its_ancestors_paths (Inner_Path    inner_paths:gen_path) = map Inner
     in
      ancestors_gen_path
     end;
+
+local
+
+fun parents_to_children_n_parent (remove_non_existing_paths: UN.inner_paths -> UN.inner_paths) (parents:UN.inner_paths) =
+  let
+    val possible_last_digits                            = Utils.mk_ints SeLFiE_Util.max_int: ints;
+    fun parent_to_possible_children_paths (parent:ints) = map (fn last_digit => parent @ [last_digit]) possible_last_digits: UN.inner_paths;
+    fun parent_to_children (remove_non_existing_paths: UN.inner_paths -> UN.inner_paths) (parent:ints) =
+      let
+        val possible_children = parent_to_possible_children_paths parent   : UN.inner_paths;
+        val existing_children = remove_non_existing_paths possible_children: UN.inner_paths;
+      in
+        existing_children
+      end;
+  in
+      parents @ ((flat o map (parent_to_children remove_non_existing_paths)) parents): Inner_Path_To_Unode.path list
+  end;
+
+fun fix (f:''a -> ''a) (x:''a) =
+  let
+    val next_val = f x;
+  in
+    (if next_val = x then x else fix f next_val):''a
+  end;
+
+in
+
+fun path_to_its_descendents_paths (Inner_Path_To_Unode table) (Inner_Path path) =
+  let
+    fun remove_non_existing_paths (paths:UN.inner_paths) = filter (Inner_Path_To_Unode.defined table) paths                   : Inner_Path_To_Unode.path list;
+    val inner_paths                                      = fix (parents_to_children_n_parent remove_non_existing_paths) [path]: UN.inner_paths;
+  in
+    map Inner_Path inner_paths: gen_path list
+  end
+  | path_to_its_descendents_paths (Outer_Path_To_Unode table) (Outer_Path (loc, in_path):gen_path) =
+  let
+    fun inner_path_to_outer_path  (inner_path:UN.inner_path) = (loc, inner_path): outer_path;
+    fun remove_non_existing_paths (paths:UN.inner_paths)     =
+      let
+        val possible_outer_paths = map inner_path_to_outer_path paths                              : outer_paths;
+        val existing_outer_paths = filter (Outer_Path_To_Unode.defined table) possible_outer_paths : outer_paths;
+      in
+        map snd existing_outer_paths (*We can ditch the location because we have the fixed location in this clause.*)
+      end;
+    val inner_paths = fix (parents_to_children_n_parent remove_non_existing_paths) [in_path]: UN.inner_paths;
+  in
+    map (Outer_Path o inner_path_to_outer_path) inner_paths
+  end
+  | path_to_its_descendents_paths _ _ = error "path_to_its_descendents_paths failed!"
+
+end;
 
 fun is_parent_of parent_path child_path =
   (Option.map (equal parent_path)) (path_to_its_parent_path child_path)

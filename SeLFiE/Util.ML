@@ -8,6 +8,8 @@ Helper functions for SeLFiE.
 signature SELFIE_UTIL =
 sig
 
+val max_int: int;
+
 val same_strings_when_normalized: Proof.context -> string -> string -> bool;
 
 val ctxt_n_string_to_cname: Proof.context -> string -> string option;
@@ -113,6 +115,8 @@ end;
 (*** structure SeLFiE_Util ***)
 structure SeLFiE_Util: SELFIE_UTIL =
 struct
+
+val max_int = 10: int;
 
 fun same_strings_when_normalized (ctxt:Proof.context) st1 st2 =
   let
