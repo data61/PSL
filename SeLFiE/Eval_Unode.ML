@@ -45,7 +45,6 @@ infix
 
 val unode2_to_depth2                              = apply2 Unique_Node.unode_to_depth: unode * unode -> int * int;
 fun unode2_to_print2 (unode2:unode * unode)       = apply2 #print unode2;
-fun unode2_to_inner_path2  (unode2:unode * unode) = apply2 #inner_path  unode2;
 
 fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     let

@@ -121,7 +121,7 @@ structure OPTU = Outer_Path_To_Unode;
 structure IPTU = Inner_Path_To_Unode;
 structure OPTP = Print_To_Outer_Paths;
 structure IPTP = Print_To_Inner_Paths;
-structure GP2U = Gen_Path_To_Unode;
+structure GP   = Gen_Path;
 structure QD   = Quantifier_Domain;
 
 type literals = Eval_Parameter.literals;
@@ -147,7 +147,7 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (induct_a
       end;
     val thm              = Isabelle_Utils.proof_state_to_thm pst                                                     : thm;
     val thm_term         = Thm.prop_of thm                                                                           : term;
-    val gen_path_table   = SOME (Gen_Path_To_Unode.Outer_Path_To_Unode outer_path_table)                             : Gen_Path_To_Unode.gen_path_to_unode_table option;
+    val gen_path_table   = SOME (GP.Outer_Path_To_Unode outer_path_table)                                            : GP.gen_path_to_unode_table option;
     val outer_domains    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out gen_path_table pst thm_term induct_args: QD.domains;
     fun eval' (Apply (func, arg)) table (domains:QD.domains) =
          (case eval' func table domains of
@@ -211,8 +211,8 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (induct_a
           (*TODO: use simp_rule_tables instead of simp_rules.*)
           val inner_results = map (fn trm =>
                               let
-                                val table   = (GP2U.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) trm: Gen_Path_To_Unode.gen_path_to_unode_table;
-                                val domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In NONE pst trm induct_args               : QD.domains;
+                                val table   = (GP.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) trm: GP.gen_path_to_unode_table;
+                                val domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In NONE pst trm induct_args             : QD.domains;
                               in
                                 eval' curried_expr table domains
                               end) simp_rules                : exprs;
@@ -223,7 +223,7 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (induct_a
         end
       | dive _ _ _ = error "dive failed."
   in
-    eval' expr (GP2U.Outer_Path_To_Unode outer_path_table) (outer_domains:QD.domains)
+    eval' expr (GP.Outer_Path_To_Unode outer_path_table) (outer_domains:QD.domains)
   end;
 
 end;

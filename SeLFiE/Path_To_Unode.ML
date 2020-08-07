@@ -45,7 +45,7 @@ fun path_n_table_to_cname (path) (table) (lookup) =
 
 in
 
-(*** Inner_Path_To_Inner_Unode ***)
+(*** structure Inner_Path_To_Inner_Unode ***)
 structure Inner_Path_To_Unode: PATH_TO_UNODE =
 struct
 
@@ -89,7 +89,7 @@ fun pst_n_term_n_path_to_cname (pst:Proof.state) (term:term) (path:path) =
 
 end;
 
-(*** Outer_Path_To_Outer_Unode ***)
+(*** structure Outer_Path_To_Outer_Unode ***)
 structure Outer_Path_To_Unode: PATH_TO_UNODE =
 struct
 
@@ -209,7 +209,8 @@ end;
 
 end;
 
-signature GEN_PATH_TO_UNODE =
+(*** signature GEN_PATH ***)
+signature GEN_PATH =
 sig
 
 structure Inner_Path_To_Unode: PATH_TO_UNODE;
@@ -225,6 +226,7 @@ datatype gen_path_to_unode_table =
 val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.unode;
 
 val path_to_its_parent_path         : gen_path -> gen_path option;
+val path_to_its_ancestors_paths     : gen_path -> gen_path list;
 val is_parent_of                    : gen_path -> gen_path -> bool;
 val is_above                        : gen_path -> gen_path -> bool;
 val is_same_path_as                 : gen_path -> gen_path -> bool;
@@ -237,7 +239,8 @@ val path_is_in_nth_chained_fact     : gen_path -> int -> bool;
 
 end;
 
-structure Gen_Path_To_Unode: GEN_PATH_TO_UNODE =
+(*** structure Gen_Path_To_Unode ***)
+structure Gen_Path: GEN_PATH =
 struct
 
 structure Inner_Path_To_Unode = Inner_Path_To_Unode;
@@ -257,6 +260,15 @@ fun path_to_its_parent_path (Inner_Path []         :gen_path) = NONE
   | path_to_its_parent_path (Inner_Path ints       :gen_path) = SOME (Inner_Path (Utils.init ints))
   | path_to_its_parent_path (Outer_Path (_, [])    :gen_path) = NONE
   | path_to_its_parent_path (Outer_Path (loc, ints):gen_path) = SOME (Outer_Path (loc, Utils.init ints));
+
+fun path_to_its_ancestors_paths (Inner_Path    inner_paths:gen_path) = map Inner_Path (UN.inner_path_to_its_ancestors_paths inner_paths)
+  | path_to_its_ancestors_paths (Outer_Path (loc, in_path):gen_path) =
+    let
+      val ancestors_inner_paths = UN.inner_path_to_its_ancestors_paths in_path: UN.inner_paths;
+      val ancestors_gen_path    = map (fn in_path => Outer_Path (loc, in_path)) ancestors_inner_paths: gen_path list;
+    in
+     ancestors_gen_path
+    end;
 
 fun is_parent_of parent_path child_path =
   (Option.map (equal parent_path)) (path_to_its_parent_path child_path)

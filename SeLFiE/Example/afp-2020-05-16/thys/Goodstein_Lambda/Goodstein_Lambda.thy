@@ -409,15 +409,15 @@ lemma hbase_tl:
 lemmas hbase_tl' [dest] = hbase_tl[of "n # ns" for n ns, simplified]
 
 lemma hbase_elt [dest]:
-  "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"
+  "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"semantic_induct
   by (induct ns) auto
 
 lemma evalC_sum_list:
-  "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"(*!*)
+  "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"(*!*)semantic_induct
   by (induct ns) auto
 
 lemma sum_list_replicate:
-  "sum_list (replicate n x) = n * x"
+  "sum_list (replicate n x) = n * x" semantic_induct
   by (induct n) auto
 
 lemma base_red:
@@ -426,7 +426,7 @@ lemma base_red:
   and m: "\<And>m'. m' \<in> set ms \<Longrightarrow> m < m'" "j < b" "j \<noteq> 0"
   and s: "i * b^n + sum_list (map (\<lambda>n. b^n) ns) = j * b^m + sum_list (map (\<lambda>n. b^n) ms)"
   shows "i = j \<and> n = m"
-  using n(1) m(1) s (*semantic_induct slow*)
+  using n(1) m(1) s semantic_induct (*21.321s elapsed time, 193.864s cpu time, 13.175s GC time*)
 proof (induct n arbitrary: m ns ms)
   { fix ns ms :: "nat list" and i j m :: nat
     assume n': "\<And>n'. n' \<in> set ns \<Longrightarrow> 0 < n'" "i < b" "i \<noteq> 0"

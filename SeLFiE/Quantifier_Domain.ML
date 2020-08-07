@@ -6,7 +6,7 @@
 signature QUANTIFIER_DOMAIN =
 sig
 
-val  qtyp_to_qdomain: SeLFiE_Util.qtyp -> Proof.state -> term -> Gen_Path_To_Unode.gen_path_to_unode_table option -> SeLFiE_Util.induct_arguments-> Eval_Parameter.literals;
+val  qtyp_to_qdomain: SeLFiE_Util.qtyp -> Proof.state -> term -> Gen_Path.gen_path_to_unode_table option -> SeLFiE_Util.induct_arguments-> Eval_Parameter.literals;
 
 type domain = Eval_Parameter.literals;
 
@@ -21,7 +21,7 @@ type domains = {
 
 datatype inout = In | Out;
 
-val inout_pst_n_trm_n_induct_args_to_domains: inout -> Gen_Path_To_Unode.gen_path_to_unode_table option ->Proof.state -> term -> SeLFiE_Util.induct_arguments -> domains;
+val inout_pst_n_trm_n_induct_args_to_domains: inout -> Gen_Path.gen_path_to_unode_table option ->Proof.state -> term -> SeLFiE_Util.induct_arguments -> domains;
 
 val domains_n_qtyp_to_domain: domains -> SeLFiE_Util.qtyp -> domain;
 
@@ -31,9 +31,9 @@ end;
 structure Quantifier_Domain: QUANTIFIER_DOMAIN =
 struct
 
-structure SU   = SeLFiE_Util;
-structure EP   = Eval_Parameter;
-structure GPTU = Gen_Path_To_Unode;
+structure SU = SeLFiE_Util;
+structure EP = Eval_Parameter;
+structure GP = Gen_Path;
 
 type inner_path_to_node_table = Inner_Path_To_Unode.path_to_unode_table;
 type outer_path_to_node_table = Outer_Path_To_Unode.path_to_unode_table;
@@ -68,7 +68,7 @@ val tracing' = if true then K () else tracing;
 fun qtyp_to_qdomain SU.QInner_Number _   _   _                 _                                         = numb_domain
   | qtyp_to_qdomain SU.QOuter_Number _   _   _                 _                                         = numb_domain
   | qtyp_to_qdomain SU.QInner_Path   pst trm _                 _                                         = mk_all_inner_paths pst trm |> map EP.Inner_Path
-  | qtyp_to_qdomain SU.QOuter_Path   _   _   (SOME (GPTU.Outer_Path_To_Unode outer_path_table)) _        = outer_path_table |> Outer_Path_To_Unode.table_to_paths |> map EP.Outer_Path
+  | qtyp_to_qdomain SU.QOuter_Path   _   _   (SOME (GP.Outer_Path_To_Unode outer_path_table)) _          = outer_path_table |> Outer_Path_To_Unode.table_to_paths |> map EP.Outer_Path
   | qtyp_to_qdomain SU.QOuter_Path   _   _   _                 _                                         = error "qtyp_to_qdomain failed in Quantifier_Domain.ML"
   | qtyp_to_qdomain SU.QInner_Print  pst trm _                 _                                         = mk_all_inner_prints pst trm |> (fn list => (tracing' ("qtyp_to_qdomain in Quantifier_Domain. The length of list is " ^ Int.toString (length list));list))|> map_Non_Path_Print
   | qtyp_to_qdomain SU.QOuter_Print  pst trm _                 _                                         = mk_all_outer_prints pst trm |> (fn list => (tracing' ("qtyp_to_qdomain in Quantifier_Domain. The length of list is " ^ Int.toString (length list));list))|> map_Non_Path_Print
@@ -89,7 +89,7 @@ type domains = {
 
 datatype inout = In | Out;
 
-fun inout_pst_n_trm_n_induct_args_to_domains (In: inout) (NONE:GPTU.gen_path_to_unode_table option) (pst:Proof.state) (trm:term) (induct_args) =
+fun inout_pst_n_trm_n_induct_args_to_domains (In: inout) (NONE:GP.gen_path_to_unode_table option) (pst:Proof.state) (trm:term) (induct_args) =
  {number = qtyp_to_qdomain SU.QInner_Number pst trm NONE induct_args: EP.literals,
   path   = qtyp_to_qdomain SU.QInner_Path   pst trm NONE induct_args: EP.literals,
   print  = qtyp_to_qdomain SU.QInner_Print  pst trm NONE induct_args: EP.literals,
@@ -97,7 +97,7 @@ fun inout_pst_n_trm_n_induct_args_to_domains (In: inout) (NONE:GPTU.gen_path_to_
   arb    = qtyp_to_qdomain SU.QArb          pst trm NONE induct_args: EP.literals,
   rule   = qtyp_to_qdomain SU.QRule         pst trm NONE induct_args: EP.literals}: domains
   | inout_pst_n_trm_n_induct_args_to_domains (In: inout) _ _ _ _ = error "inout_pst_n_trm_n_induct_args_to_domains failed"
-  | inout_pst_n_trm_n_induct_args_to_domains (Out: inout) (SOME gen_path_table:GPTU.gen_path_to_unode_table option)
+  | inout_pst_n_trm_n_induct_args_to_domains (Out: inout) (SOME gen_path_table:GP.gen_path_to_unode_table option)
    (pst:Proof.state) (trm:term) (induct_args) =
  {number = qtyp_to_qdomain SU.QOuter_Number pst trm (SOME gen_path_table) induct_args: EP.literals,
   path   = qtyp_to_qdomain SU.QOuter_Path   pst trm (SOME gen_path_table) induct_args: EP.literals,

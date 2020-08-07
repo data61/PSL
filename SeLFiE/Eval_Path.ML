@@ -6,7 +6,7 @@
 structure Path_Assert =
 struct
 
-type gen_path = Gen_Path_To_Unode.gen_path;
+type gen_path = Gen_Path.gen_path;
 
 datatype assert =
 (*Eval_Node*)
@@ -51,7 +51,7 @@ end;
 signature EVAL_PATH =
 sig
 
-val eval: Proof.state -> Gen_Path_To_Unode.gen_path_to_unode_table -> Path_Assert.assert -> Eval_Bool.assert;
+val eval: Proof.state -> Gen_Path.gen_path_to_unode_table -> Path_Assert.assert -> Eval_Bool.assert;
 
 end;
 
@@ -65,14 +65,14 @@ structure EU  = Eval_Unode;
 structure EIP = Eval_Print;
 structure ENB = Eval_Number;
 structure PA  = Path_Assert;
-structure GP2U = Gen_Path_To_Unode;
+structure GP  = Gen_Path;
 
 type connective = Eval_Bool.assert;
-type gen_path   = GP2U.gen_path;
+type gen_path   = GP.gen_path;
 
-fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) assert =
+fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) assert =
   let
-    val path_to_unode                              = GP2U.gen_table_n_gen_path_to_unode path_to_unode_table: gen_path -> UN.unode;
+    val path_to_unode                              = GP.gen_table_n_gen_path_to_unode path_to_unode_table: gen_path -> UN.unode;
     fun path_to_node    (p:gen_path)               = path_to_unode p |> #node: UN.node;
     fun path2_to_unode2 (p1:gen_path, p2:gen_path) = apply2 path_to_unode (p1, p2): (UN.unode * UN.unode);
     fun
@@ -102,23 +102,23 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
           in
             print = #print unode |> Eval_Bool.bool_to_assert
           end
-      | eval' (PA.Is_In_Subgoal          path          ) _    = GP2U.path_is_in_subgoal path                  |> EB.bool_to_assert
-      | eval' (PA.Is_In_Chained_Fact     path          ) _    = GP2U.path_is_in_chained_fact path             |> EB.bool_to_assert
-      | eval' (PA.Is_In_Nth_Subgoal      pair          ) _    = uncurry GP2U.path_is_in_nth_subgoal pair      |> EB.bool_to_assert
-      | eval' (PA.Is_In_Nth_Chained_Fact pair          ) _    = uncurry GP2U.path_is_in_nth_chained_fact pair |> EB.bool_to_assert
-      | eval' (PA.Is_Parent_Of          (parent, child)) _    = GP2U.is_parent_of parent child                |> EB.bool_to_assert
-      | eval' (PA.Is_Path_Above         (above,  below)) _    = GP2U.is_above above below                     |> EB.bool_to_assert
-      | eval' (PA.Is_Same_Path_As       (path1,  path2)) _    = GP2U.is_same_path_as path1 path2              |> EB.bool_to_assert
+      | eval' (PA.Is_In_Subgoal          path          ) _    = GP.path_is_in_subgoal path                  |> EB.bool_to_assert
+      | eval' (PA.Is_In_Chained_Fact     path          ) _    = GP.path_is_in_chained_fact path             |> EB.bool_to_assert
+      | eval' (PA.Is_In_Nth_Subgoal      pair          ) _    = uncurry GP.path_is_in_nth_subgoal pair      |> EB.bool_to_assert
+      | eval' (PA.Is_In_Nth_Chained_Fact pair          ) _    = uncurry GP.path_is_in_nth_chained_fact pair |> EB.bool_to_assert
+      | eval' (PA.Is_Parent_Of          (parent, child)) _    = GP.is_parent_of parent child                |> EB.bool_to_assert
+      | eval' (PA.Is_Path_Above         (above,  below)) _    = GP.is_above above below                     |> EB.bool_to_assert
+      | eval' (PA.Is_Same_Path_As       (path1,  path2)) _    = GP.is_same_path_as path1 path2              |> EB.bool_to_assert
       | eval' (PA.Is_An_Argument_Of     (arg,    func )) ctxt = EB.bool_to_assert (
         let
-          val parent_path_opt = GP2U.path_to_its_parent_path arg: gen_path option;
+          val parent_path_opt = GP.path_to_its_parent_path arg: gen_path option;
           val parent_is_app   = Option.map (fn p => eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool) parent_path_opt
                              |> Utils.is_some_true: bool;
-          fun is_its_child  c = Option.map (Utils.flip GP2U.is_parent_of c) parent_path_opt
+          fun is_its_child  c = Option.map (Utils.flip GP.is_parent_of c) parent_path_opt
                              |> Utils.is_some_true: bool;
-          fun is_fst_child c  = Option.map (GP2U.is_fst_child_of c) parent_path_opt
+          fun is_fst_child c  = Option.map (GP.is_fst_child_of c) parent_path_opt
                              |> Utils.is_some_true: bool;
-          fun is_not_fst_child c = Option.map (GP2U.is_fst_child_of c) parent_path_opt
+          fun is_not_fst_child c = Option.map (GP.is_fst_child_of c) parent_path_opt
                              |> Utils.is_some_false: bool;
         in
                   parent_is_app
@@ -131,9 +131,9 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
       (*TODO for all atomic assertions about the meta-implication. Check if the first child of the parent node is the meta implication.*)
       | eval' (PA.Is_A_Meta_Premise      prem) ctxt = EB.bool_to_assert (
         let
-          val parent_path_opt = GP2U.path_to_its_parent_path prem                  : gen_path option;
+          val parent_path_opt = GP.path_to_its_parent_path prem                  : gen_path option;
           fun is_app  p       = eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool : bool;
-          fun is_cncl p       = GP2U.is_last_child_of path_to_unode_table (prem, p): bool;
+          fun is_cncl p       = GP.is_last_child_of path_to_unode_table (prem, p): bool;
           (*TODO: check if the premise is not the first child of the parent node
                   because the first child of the parent node should be the meta-implication.*)
         in
@@ -142,16 +142,15 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP2U.gen_path_to_unode_table) as
         end)
       | eval' (PA.Is_A_Meta_Conclusion      cncl) ctxt = EB.bool_to_assert ((*TODO: refactor with Is_A_Meta_Premise?*)
         let
-          val parent_path_opt = GP2U.path_to_its_parent_path cncl                  : gen_path option;
+          val parent_path_opt = GP.path_to_its_parent_path cncl                  : gen_path option;
           fun is_app  p       = eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool : bool;
-          fun is_cncl p       = GP2U.is_last_child_of path_to_unode_table (cncl, p): bool;
+          fun is_cncl p       = GP.is_last_child_of path_to_unode_table (cncl, p): bool;
         in
           Utils.is_some_true (Option.map is_app parent_path_opt) andalso
           Utils.is_some_true (Option.map is_cncl parent_path_opt)
         end)
       | eval' (PA.Is_A_Meta_Premise_Or_Below prem) ctxt = EB.bool_to_assert ((*TODO*)
 (*
- * 3. Implement get_all_ancestors_of (w/o user-interface)
  * 2. Implement Is_An_Arg_Or_Below_Arg_Of using Is_An_Arg_Of and get_all_ancestors_of
  * 4. For an ancestor,
           that ancestor is function application

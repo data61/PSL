@@ -8,7 +8,7 @@
 signature EVAL_PARAMETER_WITH_BOOL =
 sig
 
-val eval: Proof.state -> Gen_Path_To_Unode.gen_path_to_unode_table -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.assert -> Eval_Parameter.literal Seq.seq -> Eval_Parameter.literal;
+val eval: Proof.state -> Gen_Path.gen_path_to_unode_table -> SeLFiE_Util.induct_arguments -> SeLFiE_Util.assert -> Eval_Parameter.literal Seq.seq -> Eval_Parameter.literal;
 
 end;
 
@@ -23,7 +23,7 @@ structure EB = Eval_Bool;
 type connective = Eval_Bool.assert;
 type command    = Pattern.command;
 
-fun eval (pst:Proof.state) (term_tables:Gen_Path_To_Unode.gen_path_to_unode_table) (induct_args:SU.induct_arguments) (assert:SU.assert) (parameters:EP.literal Seq.seq) =
+fun eval (pst:Proof.state) (term_tables:Gen_Path.gen_path_to_unode_table) (induct_args:SU.induct_arguments) (assert:SU.assert) (parameters:EP.literal Seq.seq) =
   let
     fun take_bool (EP.Non_Path (EP.Bool b)) = b
       | take_bool  _                        = error "take_bool";
