@@ -70,6 +70,7 @@ datatype assert =
 | Is_A_Meta_Premise                   of assert
 | Is_A_Meta_Conclusion                of assert
 | Is_A_Meta_Premise_Or_Below          of assert
+| Is_A_Meta_Conclusion_Or_Below       of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -167,6 +168,7 @@ datatype assert =
 | Is_A_Meta_Premise                   of assert
 | Is_A_Meta_Conclusion                of assert
 | Is_A_Meta_Premise_Or_Below          of assert
+| Is_A_Meta_Conclusion_Or_Below       of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -254,6 +256,7 @@ and (*bool*)
   | surf_to_var (Is_A_Meta_Premise                   arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Premise,                   surf_to_var_singleton    arg )
   | surf_to_var (Is_A_Meta_Conclusion                arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Conclusion,                surf_to_var_singleton    arg )
   | surf_to_var (Is_A_Meta_Premise_Or_Below          arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Premise_Or_Below,          surf_to_var_singleton    arg )
+  | surf_to_var (Is_A_Meta_Conclusion_Or_Below       arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Conclusion_Or_Below,       surf_to_var_singleton    arg )
   (*Eval_Number*)
   | surf_to_var (Are_Same_Number     args) = EV.Assert (SU.Atomic SU.Are_Same_Number,     surf_to_var_pair_to_list args)
   | surf_to_var (Is_Less_Than        args) = EV.Assert (SU.Atomic SU.Is_Less_Than,        surf_to_var_pair_to_list args)

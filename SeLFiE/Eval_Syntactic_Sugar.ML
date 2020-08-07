@@ -309,19 +309,20 @@ and
   | convert loc (Print_Takes_N_Arguments           pair) = ES.Print_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Print_Takes_Less_Than_N_Arguments pair) = ES.Print_Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Path*)
-  | convert loc (Unode_Has_Print            pair)          = ES.Unode_Has_Print                     (convert_pair loc pair)
-  | convert loc (Is_In_Subgoal              ass)           = ES.Is_In_Subgoal                       (convert loc ass)
-  | convert loc (Is_In_Chained_Fact         ass)           = ES.Is_In_Chained_Fact                  (convert loc ass)
-  | convert loc (ass Is_In_Nth_Subgoal      numb)          = ES.Is_In_Nth_Subgoal                   (convert_pair loc (ass, numb))
-  | convert loc (ass Is_In_Nth_Chained_Fact numb)          = ES.Is_In_Nth_Chained_Fact              (convert_pair loc (ass, numb))
-  | convert loc (Is_Parent_Of               pair)          = ES.Is_Parent_Of                        (convert_pair loc pair)
-  | convert loc (Is_Path_Above              pair)          = ES.Is_Path_Above                       (convert_pair loc pair)
-  | convert loc (Is_Same_Path_As            pair)          = ES.Is_Same_Path_As                     (convert_pair loc pair)
-  | convert loc (Is_An_Argument_Of          pair)          = ES.Is_An_Argument_Of                   (convert_pair loc pair)
+  | convert loc (Unode_Has_Print                     pair) = ES.Unode_Has_Print                     (convert_pair loc pair)
+  | convert loc (Is_In_Subgoal                       ass)  = ES.Is_In_Subgoal                       (convert loc ass)
+  | convert loc (Is_In_Chained_Fact                  ass)  = ES.Is_In_Chained_Fact                  (convert loc ass)
+  | convert loc (ass Is_In_Nth_Subgoal               numb) = ES.Is_In_Nth_Subgoal                   (convert_pair loc (ass, numb))
+  | convert loc (ass Is_In_Nth_Chained_Fact          numb) = ES.Is_In_Nth_Chained_Fact              (convert_pair loc (ass, numb))
+  | convert loc (Is_Parent_Of                        pair) = ES.Is_Parent_Of                        (convert_pair loc pair)
+  | convert loc (Is_Path_Above                       pair) = ES.Is_Path_Above                       (convert_pair loc pair)
+  | convert loc (Is_Same_Path_As                     pair) = ES.Is_Same_Path_As                     (convert_pair loc pair)
+  | convert loc (Is_An_Argument_Of                   pair) = ES.Is_An_Argument_Of                   (convert_pair loc pair)
   | convert loc (Is_An_Argument_Or_Below_Argument_Of pair) = ES.Is_An_Argument_Or_Below_Argument_Of (convert_pair loc pair)
-  | convert loc (Is_A_Meta_Premise          ass)           = ES.Is_A_Meta_Premise                   (convert loc ass)
-  | convert loc (Is_A_Meta_Conclusion       ass)           = ES.Is_A_Meta_Conclusion                (convert loc ass)
-  | convert loc (Is_A_Meta_Premise_Or_Below ass)           = ES.Is_A_Meta_Premise_Or_Below          (convert loc ass)
+  | convert loc (Is_A_Meta_Premise                   ass)  = ES.Is_A_Meta_Premise                   (convert loc ass)
+  | convert loc (Is_A_Meta_Conclusion                ass)  = ES.Is_A_Meta_Conclusion                (convert loc ass)
+  | convert loc (Is_A_Meta_Premise_Or_Below          ass)  = ES.Is_A_Meta_Premise_Or_Below          (convert loc ass)
+  | convert loc (Is_A_Meta_Conclusion_Or_Below       ass)  = ES.Is_A_Meta_Conclusion_Or_Below       (convert loc ass)
   (*Eval_Number*)
   | convert loc (Are_Same_Number     pair) = ES.Are_Same_Number     (convert_pair loc pair)
   | convert loc (Is_Less_Than        pair) = ES.Is_Less_Than        (convert_pair loc pair)
@@ -486,47 +487,6 @@ and
   | convert loc (Is_Less_Than_Or_Equal (less, more)) = convert loc (Is_Less_Than (less, more) Or Are_Same_Number (less, more))
   | convert loc (Is_More_Than_Or_Equal (more, less)) = convert loc (Not (Is_Less_Than (more, less)))
   | convert loc (Is_More_Than (more, less)) = convert loc (Is_Less_Than (less, more))
-  | convert loc (Is_A_Meta_Conclusion_Or_Below conclusion) =
-    let
-      val imp_name            = get_new_name [conclusion];
-      val imp                 = Variable imp_name;
-      val premise_name        = get_new_name [conclusion, imp];
-      val premise             = Variable premise_name;
-      val nth_premise_name    = get_new_name [conclusion, imp, premise];
-      val nth_premise         = Variable nth_premise_name;
-      val nth_conclusion_name = get_new_name [conclusion, imp, premise, nth_premise];
-      val nth_conclusion      = Variable nth_conclusion_name;
-      val path_typ            = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-      val numb_typ            = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number;
-    in
-      convert loc (
-        Some (imp_name, path_typ,
-          Ands [
-            Unode_Has_Print (imp, Print "Pure.imp"),
-            Is_An_Argument_Or_Below_Argument_Of (conclusion, imp),(*!*)
-            Some (nth_conclusion_name, numb_typ,
-              Ands [
-                  Is_Nth_Arg_Or_Below_Nth_Arg_Of (conclusion, nth_conclusion, imp),(*!*)
-                  All (premise_name, path_typ,
-                      Ands [
-                        Is_An_Argument_Of (premise, imp),
-                        Not (Is_Path_Above (premise, conclusion)),(*!*)
-                        Not (Is_Same_Path_As (premise, conclusion))
-                      ]
-                    Imply
-                      Some (nth_premise_name, numb_typ,
-                        Ands [
-                          Is_Less_Than (nth_premise, nth_conclusion),
-                          Is_Nth_Arg_Of (premise, nth_premise, imp)
-                        ]
-                      )
-                  )
-              ]
-            )
-          ]
-        )
-      )
-    end
   | convert loc (Is_If_Then_Else (if_then_else, if_condition, then_clase, else_clase)) =
     let
       val hol_if_str = get_new_name [if_then_else, if_condition, then_clase, else_clase]: string;
