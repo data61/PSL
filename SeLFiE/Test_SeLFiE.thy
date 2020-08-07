@@ -4,9 +4,11 @@ begin
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   semantic_induct
-  assert_SeLFiE_true test_is_a_meta_premise    [on["f x"], arb[],rule[]]
-  assert_SeLFiE_true test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
-  assert_SeLFiE_true test_is_a_meta_premise_or_below    [on["x"], arb[],rule[]]
+  assert_SeLFiE_true  test_is_a_meta_premise    [on["f x"], arb[],rule[]]
+  assert_SeLFiE_false test_is_a_meta_premise    [on["h z"], arb[],rule[]]
+  assert_SeLFiE_true  test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
+  assert_SeLFiE_true  test_is_a_meta_premise_or_below    [on["x"], arb[],rule[]]
+  assert_SeLFiE_false test_is_a_meta_premise_or_below    [on["z"], arb[],rule[]]
   assert_SeLFiE_true test_is_a_meta_conclusion_or_below [on["z"], arb[],rule[]]
   assert_SeLFiE_true test_is_more_than [on["zs"], arb[],rule[]]
   assert_SeLFiE_false test_Is_If_Then_Else [on["zs"], arb[],rule[]]

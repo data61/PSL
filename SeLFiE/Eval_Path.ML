@@ -147,36 +147,50 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
       (*TODO for all atomic assertions about the meta-implication. Check if the first child of the parent node is the meta implication.*)
       | eval' (PA.Is_A_Meta_Premise      prem) ctxt = EB.bool_to_assert (
         let
-          val parent_path_opt = GP.path_to_its_parent_path prem                  : gen_path option;
-          fun is_app  p       = eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool : bool;
-          fun is_cncl p       = GP.is_last_child_of path_to_unode_table (prem, p): bool;
+          val parent_path_opt   = GP.path_to_its_parent_path prem                  : gen_path option;
+          fun is_app  p         = eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool : bool;
+          fun prem_is_cncl_of p = GP.is_last_child_of path_to_unode_table (prem, p): bool;
           (*TODO: check if the premise is not the first child of the parent node
                   because the first child of the parent node should be the meta-implication.*)
         in
           Utils.is_some_true (Option.map is_app parent_path_opt) andalso
-          not (Utils.is_some_true (Option.map is_cncl parent_path_opt))
+          not (Utils.is_some_true (Option.map prem_is_cncl_of parent_path_opt))
         end)
       | eval' (PA.Is_A_Meta_Conclusion      cncl) ctxt = EB.bool_to_assert ((*TODO: refactor with Is_A_Meta_Premise?*)
         let
-          val parent_path_opt = GP.path_to_its_parent_path cncl                  : gen_path option;
-          fun is_app  p       = eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool : bool;
-          fun is_cncl p       = GP.is_last_child_of path_to_unode_table (cncl, p): bool;
+          val parent_path_opt   = GP.path_to_its_parent_path cncl                  : gen_path option;
+          fun is_app  p         = eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool : bool;
+          fun prem_is_cncl_of p = GP.is_last_child_of path_to_unode_table (cncl, p): bool;
         in
           Utils.is_some_true (Option.map is_app parent_path_opt) andalso
-          Utils.is_some_true (Option.map is_cncl parent_path_opt)
+          Utils.is_some_true (Option.map prem_is_cncl_of parent_path_opt)
         end)
-      | eval' (PA.Is_A_Meta_Premise_Or_Below prem) ctxt = EB.bool_to_assert ((*TODO*)
-(*
- * 4. For an ancestor,
-          that ancestor is function application
-        and
-          the first child of the ancestor is the meta-implication
-        and
-          the part-of-a-premise is not the first child of the ancestor
-        and
-          not (the part-of-a-premise is_an_argument_or_below_argument_of the last child of the ancestor.
- *)
-        true)
+      | eval' (PA.Is_A_Meta_Premise_Or_Below part_of_prem) ctxt = EB.bool_to_assert ((*TODO*)
+        let
+          val ancestors = GP.path_to_its_ancestors_paths part_of_prem: GP.gen_path list;
+          fun for_an_ancestor (ancestor:GP.gen_path) =
+          let
+            val ancestor_is_app       = eval' (PA.Node_Is_App ancestor) ctxt |> EB.assert_to_bool : bool;
+            val func_opt              = GP.path_to_its_fst_child_path path_to_unode_table ancestor: GP.gen_path option;
+            val func_unode            = func_opt >>= try path_to_unode                            : UN.unode option;
+            val func_print_opt        = func_unode <$> #print                                     : string option;
+            val func_is_meta_imp      = func_print_opt <$> equal "Pure.imp" |> Utils.is_some_true : bool;
+            val func_is_fst_child     = func_opt <$> (Utils.flip GP.is_fst_child_of ancestor)
+                                     |> Utils.is_some_true                                        : bool;
+            val ancestor_is_above_prem = GP.is_above ancestor part_of_prem                        : bool;
+            fun ancestors_are_never_part_of_last_child_of_ancestor func_app =
+                not (exists (fn prem => GP.is_last_child_of path_to_unode_table (prem, func_app)) ancestors): bool;
+          in
+                     ancestor_is_app 
+             andalso func_is_meta_imp
+             andalso func_is_fst_child
+             andalso ancestor_is_above_prem
+             andalso ancestors_are_never_part_of_last_child_of_ancestor ancestor
+           end;
+        in
+          exists for_an_ancestor ancestors
+        end
+        )
       | eval' (PA.Is_A_Meta_Conclusion_Or_Below prem) ctxt = EB.bool_to_assert ((*TODO*)
         true)
       (*debug*)

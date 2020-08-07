@@ -228,9 +228,10 @@ datatype gen_path_to_unode_table =
   Inner_Path_To_Unode of Inner_Path_To_Unode.path_to_unode_table
 | Outer_Path_To_Unode of Outer_Path_To_Unode.path_to_unode_table;
 
-val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.unode;
+val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.unode;(*TODO: option type*)
 
 val path_to_its_parent_path         : gen_path -> gen_path option;
+val path_to_its_fst_child_path      : gen_path_to_unode_table -> gen_path -> gen_path option;
 val path_to_its_ancestors_paths     : gen_path -> gen_path list;
 val path_to_its_descendents_paths   : gen_path_to_unode_table -> gen_path -> gen_path list;(*TODO: I did not need this?*)
 val is_parent_of                    : gen_path -> gen_path -> bool;
@@ -260,12 +261,19 @@ datatype gen_path_to_unode_table =
 
 fun gen_table_n_gen_path_to_unode (Inner_Path_To_Unode table) (Inner_Path path) = Inner_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Inner_Path"
   | gen_table_n_gen_path_to_unode (Outer_Path_To_Unode table) (Outer_Path path) = Outer_Path_To_Unode.lookup table path |> Utils.the' "gen_table_path_to_unode_failed with Outer_Path"
-  | gen_table_n_gen_path_to_unode _ _ = error "gen_table_n_gen_path_to_unode failed."
+  | gen_table_n_gen_path_to_unode _ _ = error "gen_table_n_gen_path_to_unode failed in Path_To_Unode.ML."
 
 fun path_to_its_parent_path (Inner_Path []         :gen_path) = NONE
   | path_to_its_parent_path (Inner_Path ints       :gen_path) = SOME (Inner_Path (Utils.init ints))
   | path_to_its_parent_path (Outer_Path (_, [])    :gen_path) = NONE
   | path_to_its_parent_path (Outer_Path (loc, ints):gen_path) = SOME (Outer_Path (loc, Utils.init ints));
+
+fun path_to_its_fst_child_path (Inner_Path_To_Unode table) (Inner_Path path) =
+    Inner_Path_To_Unode.lookup table (path @ [0]) <$> #inner_path <$> Inner_Path
+  | path_to_its_fst_child_path (Outer_Path_To_Unode table) (Outer_Path (loc, path)) =
+    Outer_Path_To_Unode.lookup table (loc, path @ [0])
+    <$> #inner_path <$> (fn in_path => (loc, in_path)) <$> Outer_Path
+  | path_to_its_fst_child_path _ _ = error "path_to_its_fst_child_path failed in Path_To_Unode.ML.";
 
 fun path_to_its_ancestors_paths (Inner_Path    inner_paths:gen_path) = map Inner_Path (UN.inner_path_to_its_ancestors_paths inner_paths)
   | path_to_its_ancestors_paths (Outer_Path (loc, in_path):gen_path) =
@@ -357,11 +365,11 @@ fun is_last_child_of (Inner_Path_To_Unode table) (Inner_Path last_arg_path, Inne
   andalso is_parent_of (Inner_Path parent_path) (Inner_Path last_arg_path)
   andalso
   let
-    val last_digit_of_arg_path      = Utils.last last_arg_path: int;
-    val path_to_none_existing_child = Utils.init last_arg_path @ [last_digit_of_arg_path + 1]: UN.inner_path;
-    val doesnt_exist_such_child     = Inner_Path_To_Unode.lookup table path_to_none_existing_child |> is_none: bool;
+    val last_digit_of_arg_path      = Utils.last last_arg_path                                     : int;
+    val path_to_none_existing_child = Utils.init last_arg_path @ [last_digit_of_arg_path + 1]      : UN.inner_path;
+    val exist_such_child            = Inner_Path_To_Unode.defined table path_to_none_existing_child: bool;
   in
-    doesnt_exist_such_child
+   not exist_such_child
   end
 | is_last_child_of (Outer_Path_To_Unode table) (Outer_Path (last_arg_loc, last_arg_path), Outer_Path (app_loc, parent_path)) =
           not (null last_arg_path)
@@ -369,11 +377,11 @@ fun is_last_child_of (Inner_Path_To_Unode table) (Inner_Path last_arg_path, Inne
   andalso is_parent_of (Outer_Path (app_loc, parent_path)) (Outer_Path (last_arg_loc, last_arg_path))
   andalso
   let
-    val last_digit_of_arg_path      = Utils.last last_arg_path: int;
+    val last_digit_of_arg_path      = Utils.last last_arg_path                                               : int;
     val path_to_none_existing_child = (last_arg_loc, Utils.init last_arg_path @ [last_digit_of_arg_path + 1]): outer_path;
-    val doesnt_exist_such_child     = Outer_Path_To_Unode.lookup table path_to_none_existing_child |> is_none: bool;
+    val exist_such_child            = Outer_Path_To_Unode.defined table path_to_none_existing_child          : bool;
   in
-    doesnt_exist_such_child
+     not exist_such_child
   end
 | is_last_child_of _ _ = error "is_last_child_of in Path_To_Unde failed";
 

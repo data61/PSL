@@ -2542,7 +2542,9 @@ lemma bridge_on_Nom:
   by (induct ps) auto
 
 lemma bridge'_nominals:
-  \<open>nominals (bridge' k j p) \<union> {k, j} = nominals p \<union> {k, j}\<close>semantic_induct(*13.498s elapsed time, 73.286s cpu time, 9.176s GC time*)
+  \<open>nominals (bridge' k j p) \<union> {k, j} = nominals p \<union> {k, j}\<close>semantic_induct
+(*13.498s elapsed time, 73.286s cpu time, 9.176s GC time*)
+(*\<rightarrow> 8.011s elapsed time, 46.025s cpu time, 0.603s GC time*)
 proof (induct p)
   case (Neg p)
   then show ?case by (cases p) auto
