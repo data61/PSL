@@ -2538,11 +2538,11 @@ abbreviation bridge ::
   \<open>bridge k j \<equiv> mapper (bridge' k j)\<close>
 
 lemma bridge_on_Nom:
-  \<open>Nom i on (ps, a) \<Longrightarrow> Nom i on (mapi (bridge k j xs v) ps, a)\<close>semantic_induct
+  \<open>Nom i on (ps, a) \<Longrightarrow> Nom i on (mapi (bridge k j xs v) ps, a)\<close>semantic_induct(*228.318s elapsed time, 1273.885s cpu time, 97.495s GC time*)
   by (induct ps) auto
 
 lemma bridge'_nominals:
-  \<open>nominals (bridge' k j p) \<union> {k, j} = nominals p \<union> {k, j}\<close>semantic_induct
+  \<open>nominals (bridge' k j p) \<union> {k, j} = nominals p \<union> {k, j}\<close>semantic_induct(*13.498s elapsed time, 73.286s cpu time, 9.176s GC time*)
 proof (induct p)
   case (Neg p)
   then show ?case by (cases p) auto

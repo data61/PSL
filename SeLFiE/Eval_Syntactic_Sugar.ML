@@ -38,6 +38,7 @@ datatype assert =
 | Is_N_Plus_One_th_Child of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
+| Is_Subprint_Of    of assert * assert
 | Is_Nth_Induct     of assert * assert
 | Is_Nth_Arbitrary  of assert * assert
 | Is_Induct         of assert
@@ -56,18 +57,18 @@ datatype assert =
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
-| Unode_Has_Print        of assert * assert
-| Is_Subprint_Of         of assert * assert
-| Is_In_Subgoal          of assert
-| Is_In_Chained_Fact     of assert
-| Is_In_Nth_Subgoal      of assert * assert
-| Is_In_Nth_Chained_Fact of assert * assert
-| Is_Parent_Of           of assert * assert
-| Is_Path_Above          of assert * assert
-| Is_Same_Path_As        of assert * assert
-| Is_An_Argument_Of      of assert * assert
-| Is_A_Meta_Premise      of assert
-| Is_A_Meta_Conclusion   of assert
+| Unode_Has_Print                     of assert * assert
+| Is_In_Subgoal                       of assert
+| Is_In_Chained_Fact                  of assert
+| Is_In_Nth_Subgoal                   of assert * assert
+| Is_In_Nth_Chained_Fact              of assert * assert
+| Is_Parent_Of                        of assert * assert
+| Is_Path_Above                       of assert * assert
+| Is_Same_Path_As                     of assert * assert
+| Is_An_Argument_Of                   of assert * assert
+| Is_An_Argument_Or_Below_Argument_Of of assert * assert
+| Is_A_Meta_Premise                   of assert
+| Is_A_Meta_Conclusion                of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -95,7 +96,6 @@ datatype assert =
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
-| Is_An_Arg_Or_Below_Arg_Of          of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Are_In_Same_Location               of assert * assert
@@ -178,17 +178,18 @@ datatype assert =
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Path*)
-| Unode_Has_Print        of assert * assert
-| Is_In_Subgoal          of assert
-| Is_In_Chained_Fact     of assert
-| Is_In_Nth_Subgoal      of assert * assert
-| Is_In_Nth_Chained_Fact of assert * assert
-| Is_Parent_Of           of assert * assert
-| Is_Path_Above          of assert * assert
-| Is_Same_Path_As        of assert * assert
-| Is_An_Argument_Of      of assert * assert
-| Is_A_Meta_Premise      of assert
-| Is_A_Meta_Conclusion   of assert
+| Unode_Has_Print                     of assert * assert
+| Is_In_Subgoal                       of assert
+| Is_In_Chained_Fact                  of assert
+| Is_In_Nth_Subgoal                   of assert * assert
+| Is_In_Nth_Chained_Fact              of assert * assert
+| Is_Parent_Of                        of assert * assert
+| Is_Path_Above                       of assert * assert
+| Is_Same_Path_As                     of assert * assert
+| Is_An_Argument_Of                   of assert * assert
+| Is_An_Argument_Or_Below_Argument_Of of assert * assert
+| Is_A_Meta_Premise                   of assert
+| Is_A_Meta_Conclusion                of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -216,7 +217,6 @@ datatype assert =
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
-| Is_An_Arg_Or_Below_Arg_Of          of assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Are_In_Same_Location               of assert * assert
@@ -309,17 +309,18 @@ and
   | convert loc (Print_Takes_N_Arguments           pair) = ES.Print_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Print_Takes_Less_Than_N_Arguments pair) = ES.Print_Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Path*)
-  | convert loc (Unode_Has_Print            pair) = ES.Unode_Has_Print        (convert_pair loc pair)
-  | convert loc (Is_In_Subgoal              ass)  = ES.Is_In_Subgoal          (convert loc ass)
-  | convert loc (Is_In_Chained_Fact         ass)  = ES.Is_In_Chained_Fact     (convert loc ass)
-  | convert loc (ass Is_In_Nth_Subgoal      numb) = ES.Is_In_Nth_Subgoal      (convert_pair loc (ass, numb))
-  | convert loc (ass Is_In_Nth_Chained_Fact numb) = ES.Is_In_Nth_Chained_Fact (convert_pair loc (ass, numb))
-  | convert loc (Is_Parent_Of               pair) = ES.Is_Parent_Of           (convert_pair loc pair)
-  | convert loc (Is_Path_Above              pair) = ES.Is_Path_Above          (convert_pair loc pair)
-  | convert loc (Is_Same_Path_As            pair) = ES.Is_Same_Path_As        (convert_pair loc pair)
-  | convert loc (Is_An_Argument_Of          pair) = ES.Is_An_Argument_Of      (convert_pair loc pair)
-  | convert loc (Is_A_Meta_Premise          ass)  = ES.Is_A_Meta_Premise      (convert loc ass)
-  | convert loc (Is_A_Meta_Conclusion       ass)  = ES.Is_A_Meta_Conclusion   (convert loc ass)
+  | convert loc (Unode_Has_Print            pair)          = ES.Unode_Has_Print                     (convert_pair loc pair)
+  | convert loc (Is_In_Subgoal              ass)           = ES.Is_In_Subgoal                       (convert loc ass)
+  | convert loc (Is_In_Chained_Fact         ass)           = ES.Is_In_Chained_Fact                  (convert loc ass)
+  | convert loc (ass Is_In_Nth_Subgoal      numb)          = ES.Is_In_Nth_Subgoal                   (convert_pair loc (ass, numb))
+  | convert loc (ass Is_In_Nth_Chained_Fact numb)          = ES.Is_In_Nth_Chained_Fact              (convert_pair loc (ass, numb))
+  | convert loc (Is_Parent_Of               pair)          = ES.Is_Parent_Of                        (convert_pair loc pair)
+  | convert loc (Is_Path_Above              pair)          = ES.Is_Path_Above                       (convert_pair loc pair)
+  | convert loc (Is_Same_Path_As            pair)          = ES.Is_Same_Path_As                     (convert_pair loc pair)
+  | convert loc (Is_An_Argument_Of          pair)          = ES.Is_An_Argument_Of                   (convert_pair loc pair)
+  | convert loc (Is_An_Argument_Or_Below_Argument_Of pair) = ES.Is_An_Argument_Or_Below_Argument_Of (convert_pair loc pair)
+  | convert loc (Is_A_Meta_Premise          ass)           = ES.Is_A_Meta_Premise                   (convert loc ass)
+  | convert loc (Is_A_Meta_Conclusion       ass)           = ES.Is_A_Meta_Conclusion                (convert loc ass)
   (*Eval_Number*)
   | convert loc (Are_Same_Number     pair) = ES.Are_Same_Number     (convert_pair loc pair)
   | convert loc (Is_Less_Than        pair) = ES.Is_Less_Than        (convert_pair loc pair)
@@ -414,20 +415,6 @@ and
            Is_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)
           ]
         )
-  | convert loc (Is_An_Arg_Or_Below_Arg_Of (arg_or_in_arg, func)) =
-    let
-      val arg_str  = get_new_name [func, arg_or_in_arg]: string;
-      val arg      = Variable arg_str                  : assert;
-      val path_typ = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-    in
-      convert loc
-       (Ors
-         [Is_An_Argument_Of (arg_or_in_arg, func),
-          Some (arg_str, path_typ,
-            Ands
-              [Is_An_Argument_Of (arg, func),
-               Is_Path_Above (arg, arg_or_in_arg)])])
-    end
   | convert loc (Is_Nth_Arg_Of (arg, number, func)) =
     let
       val func_app_str = get_new_name [func, number, arg]: string;
@@ -515,7 +502,7 @@ and
         Some (imp_name, path_typ,
           Ands [
             Unode_Has_Print (imp, Print "Pure.imp"),
-            Is_An_Arg_Or_Below_Arg_Of (premise, imp),(*!*)
+            Is_An_Argument_Or_Below_Argument_Of (premise, imp),(*!*)
             Some (nth_premise_name, numb_typ,
               Ands [
                 Is_Nth_Arg_Or_Below_Nth_Arg_Of (premise, nth_premise, imp),(*!*)
@@ -554,7 +541,7 @@ and
         Some (imp_name, path_typ,
           Ands [
             Unode_Has_Print (imp, Print "Pure.imp"),
-            Is_An_Arg_Or_Below_Arg_Of (conclusion, imp),(*!*)
+            Is_An_Argument_Or_Below_Argument_Of (conclusion, imp),(*!*)
             Some (nth_conclusion_name, numb_typ,
               Ands [
                   Is_Nth_Arg_Or_Below_Nth_Arg_Of (conclusion, nth_conclusion, imp),(*!*)

@@ -29,19 +29,20 @@ datatype assert =
 | Is_N_Plus_One_th_Child      of gen_path * int
 | Is_Root_In_A_Location       of gen_path
 (*only in path*)
-| Unode_Has_Print               of gen_path * string
-| Is_In_Subgoal                 of gen_path
-| Is_In_Chained_Fact            of gen_path
-| Is_In_Nth_Subgoal             of gen_path * int
-| Is_In_Nth_Chained_Fact        of gen_path * int
-| Is_Parent_Of                  of gen_path * gen_path
-| Is_Path_Above                 of gen_path * gen_path
-| Is_Same_Path_As               of gen_path * gen_path
-| Is_An_Argument_Of             of gen_path * gen_path
-| Is_A_Meta_Premise             of gen_path(*These assertions about the meta implication cannot be in Eval_Unode because we need a table to get its parent node.*)
-| Is_A_Meta_Conclusion          of gen_path
-| Is_A_Meta_Premise_Or_Below    of gen_path
-| Is_A_Meta_Conclusion_Or_Below of gen_path
+| Unode_Has_Print                     of gen_path * string
+| Is_In_Subgoal                       of gen_path
+| Is_In_Chained_Fact                  of gen_path
+| Is_In_Nth_Subgoal                   of gen_path * int
+| Is_In_Nth_Chained_Fact              of gen_path * int
+| Is_Parent_Of                        of gen_path * gen_path
+| Is_Path_Above                       of gen_path * gen_path
+| Is_Same_Path_As                     of gen_path * gen_path
+| Is_An_Argument_Of                   of gen_path * gen_path
+| Is_An_Argument_Or_Below_Argument_Of of gen_path * gen_path
+| Is_A_Meta_Premise                   of gen_path(*These assertions about the meta implication cannot be in Eval_Unode because we need a table to get its parent node.*)
+| Is_A_Meta_Conclusion                of gen_path
+| Is_A_Meta_Premise_Or_Below          of gen_path
+| Is_A_Meta_Conclusion_Or_Below       of gen_path
 (*debug*)
 | Debug_Print_Unode           of gen_path;
 
@@ -122,10 +123,25 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
                              |> Utils.is_some_false: bool;
         in
                   parent_is_app
-          andalso is_its_child func
           andalso is_fst_child func
           andalso is_its_child arg
           andalso is_not_fst_child arg
+        end
+        )
+      | eval' (PA.Is_An_Argument_Or_Below_Argument_Of (part_of_arg, func)) ctxt = EB.bool_to_assert (
+        let
+          val ancestors = GP.path_to_its_ancestors_paths part_of_arg: GP.gen_path list;
+          fun for_an_ancestor (ancestor:GP.gen_path) =
+          let
+            val ancestor_is_app       = eval' (PA.Node_Is_App ancestor) ctxt |> EB.assert_to_bool: bool;
+            val func_is_fst_child     = GP.is_fst_child_of func ancestor                         : bool;
+            val arg_is_not_fst_child  = not (GP.is_fst_child_of part_of_arg ancestor)            : bool;
+            val ancestor_is_above_arg = GP.is_above ancestor part_of_arg                         : bool;
+           in
+             ancestor_is_app andalso func_is_fst_child andalso arg_is_not_fst_child andalso ancestor_is_above_arg
+           end;
+        in
+          exists for_an_ancestor ancestors
         end
         )
       (*TODO for all atomic assertions about the meta-implication. Check if the first child of the parent node is the meta implication.*)
@@ -151,7 +167,6 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
         end)
       | eval' (PA.Is_A_Meta_Premise_Or_Below prem) ctxt = EB.bool_to_assert ((*TODO*)
 (*
- * 2. Implement Is_An_Arg_Or_Below_Arg_Of using Is_An_Arg_Of and get_all_ancestors_of
  * 4. For an ancestor,
           that ancestor is function application
         and

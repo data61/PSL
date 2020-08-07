@@ -352,7 +352,7 @@ fun have_same_ancestors_only     []      []  = false
 
 fun inner_path_to_its_ancestors_paths' ([]:inner_path) (acc:inner_paths) = acc
   | inner_path_to_its_ancestors_paths' (ps:inner_path) (acc:inner_paths) =
-    inner_path_to_its_ancestors_paths' (Utils.init ps) (ps::acc:inner_paths)
+    inner_path_to_its_ancestors_paths' (Utils.init ps) (Utils.init ps::acc:inner_paths)
 
 fun inner_path_to_its_ancestors_paths (ps:inner_path) = inner_path_to_its_ancestors_paths' ps [];
 

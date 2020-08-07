@@ -188,7 +188,7 @@ lemma inorder_del:
  "sorted1(inorder t) \<Longrightarrow>  inorder(del x t) = del_list x (inorder t)"
 (*    50.495s elapsed time, 290.232s cpu time, 4.377s GC time
  * \<rightarrow> 1.455s elapsed time, 10.788s cpu time, 0.096s GC time*)
-semantic_induct
+  semantic_induct
 by(induction x t rule: del.induct)
   (auto simp: del_list_simps)
 
@@ -385,11 +385,11 @@ by (cases "(l,a,r)" rule: baldR.cases) (auto simp: invpst_baliL)
 lemma invpst_baldL: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invpst (baldL l a r)"
 by (cases "(l,a,r)" rule: baldL.cases) (auto simp: invpst_baliR)
 
-lemma invpst_combine: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invpst (combine l r)"
+lemma invpst_combine: "invpst l \<Longrightarrow> invpst r \<Longrightarrow> invpst (combine l r)" semantic_induct
 by(induction l r rule: combine.induct)
   (auto split: tree.splits tcolor.splits simp: invpst_baldR invpst_baldL)
 
-lemma invpst_del: "invpst t \<Longrightarrow> invpst (del x t)"
+lemma invpst_del: "invpst t \<Longrightarrow> invpst (del x t)"semantic_induct
 by(induct x t rule: del.induct)
   (auto simp: invpst_baldR invpst_baldL invpst_combine)
 

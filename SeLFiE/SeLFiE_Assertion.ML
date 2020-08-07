@@ -1161,7 +1161,7 @@ Imply
         Ands [
           All_Of ("func_occ", Variable "func",
             Ands [
-                Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ", Variable "func_occ")
+                Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ", Variable "func_occ")
               Imply
                 All ("recursive_on_nth_param", QOuter_Number,
                     Ands [
@@ -1466,8 +1466,8 @@ Lambdas (["nth"],
                           Some ("set", QInner_Path,
                             Ands [
                               Unode_Has_Print (Variable "set", Print "List.list.set"),
-                              Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "set", Number 1, Variable "set_member"),
-                              Is_An_Arg_Or_Below_Arg_Of      (Variable "nth_param_on_rhs_path", Variable "set")
+                              Is_Nth_Arg_Or_Below_Nth_Arg_Of      (Variable "set", Number 1, Variable "set_member"),
+                              Is_An_Argument_Or_Below_Argument_Of (Variable "nth_param_on_rhs_path", Variable "set")
                             ]
                           )
                         ]
@@ -1522,7 +1522,7 @@ Imply
             Ands [
               Some_Of ("ind_occ", Variable "ind",
                 Ands [
-                  Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ", Variable "func_occ"),
+                  Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ", Variable "func_occ"),
                   Some ("ind_occ_is_in_nth_arg_of_func_occ", QOuter_Number,
                     Ands [
                       Print_Takes_Less_Than_N_Arguments (Variable "func", Variable "ind_occ_is_in_nth_arg_of_func_occ"),
@@ -1562,7 +1562,7 @@ Imply
             All ("ind", QInd, (*!*)
               Some_Of ("ind_occ", Variable "ind",
                 Ands [
-                  Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ", Variable "set_occ")
+                  Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ", Variable "set_occ")
                 ]
               )
             )
@@ -1649,7 +1649,7 @@ Imply
             Ands [
               Some_Of ("ind_occ", Variable "ind",
                 Ands [
-                  Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ", Variable "func_occ"),
+                  Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ", Variable "func_occ"),
                   Some ("ind_occ_is_in_nth_arg_of_func_occ", QOuter_Number,
                     Ands [
                       Print_Takes_Less_Than_N_Arguments (Variable "func",    Variable "ind_occ_is_in_nth_arg_of_func_occ"),
@@ -1916,7 +1916,7 @@ val structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_
                               Is_Child_Of (Variable "inductively_defined_cnst_occ_in_pure_imp_cncl", Variable "nth_arg_of_pure_imp_occ"),
                               Some_Of ("ind_occ_appears_as_lth_arg_of_inductively_defined_const_in_pure_imp_cncl", Variable "ind",
                                 Ands [
-                                  Is_An_Arg_Or_Below_Arg_Of (Variable "ind_occ_appears_as_lth_arg_of_inductively_defined_const_in_pure_imp_cncl", Variable "inductively_defined_cnst_occ_in_pure_imp_cncl"),
+                                  Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ_appears_as_lth_arg_of_inductively_defined_const_in_pure_imp_cncl", Variable "inductively_defined_cnst_occ_in_pure_imp_cncl"),
                                  Some ("ind_occ_is_lth_arg_of_inductively_defined_const_in_pure_imp_cncl", QOuter_Number,
                                     Ands [
                                       Is_Nth_Arg_Or_Below_Nth_Arg_Of (Variable "ind_occ_appears_as_lth_arg_of_inductively_defined_const_in_pure_imp_cncl",

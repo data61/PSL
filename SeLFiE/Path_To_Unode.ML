@@ -232,7 +232,7 @@ val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.uno
 
 val path_to_its_parent_path         : gen_path -> gen_path option;
 val path_to_its_ancestors_paths     : gen_path -> gen_path list;
-val path_to_its_descendents_paths   : gen_path_to_unode_table -> gen_path -> gen_path list;
+val path_to_its_descendents_paths   : gen_path_to_unode_table -> gen_path -> gen_path list;(*TODO: I did not need this?*)
 val is_parent_of                    : gen_path -> gen_path -> bool;
 val is_above                        : gen_path -> gen_path -> bool;
 val is_same_path_as                 : gen_path -> gen_path -> bool;
