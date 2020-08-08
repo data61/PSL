@@ -29,23 +29,24 @@ datatype assert =
 | Is_N_Plus_One_th_Child      of gen_path * int
 | Is_Root_In_A_Location       of gen_path
 (*only in path*)
-| Unode_Has_Print                     of gen_path * string
-| Is_In_Subgoal                       of gen_path
-| Is_In_Chained_Fact                  of gen_path
-| Is_In_Nth_Subgoal                   of gen_path * int
-| Is_In_Nth_Chained_Fact              of gen_path * int
-| Are_In_Same_Location                of gen_path * gen_path
-| Is_Parent_Of                        of gen_path * gen_path
-| Is_Path_Above                       of gen_path * gen_path
-| Is_Same_Path_As                     of gen_path * gen_path
-| Is_An_Argument_Of                   of gen_path * gen_path
-| Is_An_Argument_Or_Below_Argument_Of of gen_path * gen_path
-| Is_Nth_Child_Or_Below_Nth_Child_Of  of gen_path * int * gen_path
-| Is_Nth_Argument_Of                  of gen_path * int * gen_path
-| Is_A_Meta_Premise                   of gen_path(*These assertions about the meta implication cannot be in Eval_Unode because we need a table to get its parent node.*)
-| Is_A_Meta_Conclusion                of gen_path
-| Is_A_Meta_Premise_Or_Below          of gen_path
-| Is_A_Meta_Conclusion_Or_Below       of gen_path
+| Unode_Has_Print                          of gen_path * string
+| Is_In_Subgoal                            of gen_path
+| Is_In_Chained_Fact                       of gen_path
+| Is_In_Nth_Subgoal                        of gen_path * int
+| Is_In_Nth_Chained_Fact                   of gen_path * int
+| Are_In_Same_Location                     of gen_path * gen_path
+| Is_Parent_Of                             of gen_path * gen_path
+| Is_Path_Above                            of gen_path * gen_path
+| Is_Same_Path_As                          of gen_path * gen_path
+| Is_An_Argument_Of                        of gen_path * gen_path
+| Is_An_Argument_Or_Below_Argument_Of      of gen_path * gen_path
+| Is_Nth_Child_Or_Below_Nth_Child_Of       of gen_path * int * gen_path
+| Is_Nth_Argument_Of                       of gen_path * int * gen_path
+| Is_Nth_Argument_Or_Below_Nth_Argument_Of of gen_path * int * gen_path
+| Is_A_Meta_Premise                        of gen_path(*These assertions about the meta implication cannot be in Eval_Unode because we need a table to get its parent node.*)
+| Is_A_Meta_Conclusion                     of gen_path
+| Is_A_Meta_Premise_Or_Below               of gen_path
+| Is_A_Meta_Conclusion_Or_Below            of gen_path
 (*debug*)
 | Debug_Print_Unode           of gen_path;
 
@@ -163,18 +164,40 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
           val parent_path_opt = GP.path_to_its_parent_path nth_arg: gen_path option;
           val parent_is_app   = Option.map (fn p => eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool) parent_path_opt
                              |> Utils.is_some_true: bool;
+(*
           fun is_its_child c  = Option.map (Utils.flip GP.is_parent_of c) parent_path_opt
                              |> Utils.is_some_true: bool;
+*)
           fun is_fst_child c  = Option.map (GP.is_fst_child_of c) parent_path_opt
                              |> Utils.is_some_true: bool;
           fun is_its_n_plus1_th_child c = eval' (PA.Is_Nth_Child  (c, numb + 1(*!*))) ctxt  |> EB.assert_to_bool;
         in
                   parent_is_app
           andalso is_fst_child func
-          andalso is_its_child nth_arg
+(*        andalso is_its_child nth_arg*)
           andalso is_its_n_plus1_th_child nth_arg
         end
         )
+      | eval' (PA.Is_Nth_Argument_Or_Below_Nth_Argument_Of (part_of_nth_arg, numb, func)) ctxt = EB.bool_to_assert ((*TODO: refactor with Is_An_Argument_Or_Below_Argument_Of and Is_Nth_Argument_Of*)
+        let
+          val ancestors = GP.path_to_its_ancestors_paths part_of_nth_arg: GP.gen_path list;
+          fun for_an_ancestor (ancestor:GP.gen_path) =
+            let
+              val parent_of_ancestor_opt       = GP.path_to_its_parent_path ancestor: gen_path option;
+              val parent_of_ancestor_is_app    = Option.map (fn p => eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool) parent_of_ancestor_opt |> Utils.is_some_true: bool;
+              val part_of_nth_arg_is_fst_child_of_parent_of_ancestor
+                                               = Option.map (GP.is_fst_child_of func) parent_of_ancestor_opt |> Utils.is_some_true: bool;
+              val ancestor_is_n_plus1_th_child = eval' (PA.Is_Nth_Child (ancestor, numb + 1(*!*))) ctxt  |> EB.assert_to_bool;
+             in
+                       parent_of_ancestor_is_app
+               andalso part_of_nth_arg_is_fst_child_of_parent_of_ancestor
+               andalso ancestor_is_n_plus1_th_child
+             end;
+        in
+          exists for_an_ancestor (part_of_nth_arg::ancestors)
+        end
+        )
+
       | eval' (PA.Is_A_Meta_Premise      prem) ctxt = EB.bool_to_assert ((*TODO: refactoring with Is_A_Meta_Conclusion*)
         let
           val parent_path_opt   = GP.path_to_its_parent_path prem                                      : gen_path option;

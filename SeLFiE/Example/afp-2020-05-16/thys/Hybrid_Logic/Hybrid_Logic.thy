@@ -2568,7 +2568,7 @@ qed simp
 
 lemma bridge_block_nominals:
   \<open>block_nominals (mapi_block (bridge k j xs v) (ps, a)) \<union> {k, j} =
-   block_nominals (ps, a) \<union> {k, j}\<close>
+   block_nominals (ps, a) \<union> {k, j}\<close>semantic_induct
 proof (induct ps)
   case Nil
   then show ?case
@@ -2595,7 +2595,7 @@ qed
 
 lemma bridge_branch_nominals:
   \<open>branch_nominals (mapi_branch (bridge k j xs) branch) \<union> {k, j} =
-   branch_nominals branch \<union> {k, j}\<close>
+   branch_nominals branch \<union> {k, j}\<close> semantic_induct
 proof (induct branch)
   case Nil
   then show ?case

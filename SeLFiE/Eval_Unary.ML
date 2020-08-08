@@ -211,6 +211,7 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (induct_a
           (*TODO: use simp_rule_tables instead of simp_rules.*)
           val inner_results = map (fn trm =>
                               let
+                                (*TODO: We should avoid constructing tables too many times here. Use a reference to an association list of (term * (table * domain) list.*)
                                 val table   = (GP.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) trm: GP.gen_path_to_unode_table;
                                 val domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In NONE pst trm induct_args             : QD.domains;
                               in
