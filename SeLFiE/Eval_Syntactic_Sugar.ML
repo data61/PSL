@@ -68,6 +68,7 @@ datatype assert =
 | Is_Same_Path_As                     of assert * assert
 | Is_An_Argument_Of                   of assert * assert
 | Is_An_Argument_Or_Below_Argument_Of of assert * assert
+| Is_Nth_Child_Or_Below_Nth_Child_Of  of assert * assert * assert
 | Is_Nth_Argument_Of                  of assert * assert * assert
 | Is_A_Meta_Premise                   of assert
 | Is_A_Meta_Conclusion                of assert
@@ -96,7 +97,6 @@ datatype assert =
 | Is_Child_Of                        of assert * assert
 | Is_Nth_Child_Of                    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
-| Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
@@ -189,6 +189,7 @@ datatype assert =
 | Is_Same_Path_As                     of assert * assert
 | Is_An_Argument_Of                   of assert * assert
 | Is_An_Argument_Or_Below_Argument_Of of assert * assert
+| Is_Nth_Child_Or_Below_Nth_Child_Of  of assert * assert * assert
 | Is_Nth_Argument_Of                  of assert * assert * assert
 | Is_A_Meta_Premise                   of assert
 | Is_A_Meta_Conclusion                of assert
@@ -217,7 +218,6 @@ datatype assert =
 | Is_Child_Of                        of assert * assert
 | Is_Nth_Child_Of                    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
-| Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
@@ -322,6 +322,7 @@ and
   | convert loc (Is_Same_Path_As                     pair) = ES.Is_Same_Path_As                     (convert_pair loc pair)
   | convert loc (Is_An_Argument_Of                   pair) = ES.Is_An_Argument_Of                   (convert_pair loc pair)
   | convert loc (Is_An_Argument_Or_Below_Argument_Of pair) = ES.Is_An_Argument_Or_Below_Argument_Of (convert_pair loc pair)
+  | convert loc (Is_Nth_Child_Or_Below_Nth_Child_Of  pair) = ES.Is_Nth_Child_Or_Below_Nth_Child_Of  (convert_trip loc pair)
   | convert loc (Is_Nth_Argument_Of                  trip) = ES.Is_Nth_Argument_Of                  (convert_trip loc trip)
   | convert loc (Is_A_Meta_Premise                   ass)  = ES.Is_A_Meta_Premise                   (convert loc ass)
   | convert loc (Is_A_Meta_Conclusion                ass)  = ES.Is_A_Meta_Conclusion                (convert loc ass)
@@ -381,24 +382,6 @@ and
       (Ands
          [Is_Parent_Of (parent, child),
           Is_N_Plus_One_th_Child (child, number)])
-  | convert loc (Is_Nth_Child_Or_Below_Nth_Child_Of (child_or_in_child, number, parent)) =
-    let
-      val nth_child_str = get_new_name [child_or_in_child, number, parent]: string;
-      val nth_child     = Variable nth_child_str                          : assert;
-      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-    in
-      convert loc
-        (Ors
-          [Is_Nth_Child_Of (child_or_in_child, number, parent),
-           Some (nth_child_str, path_typ,
-             Ands [
-               Is_Nth_Child_Of (nth_child, number, parent),
-               Is_Path_Below (child_or_in_child, nth_child)
-             ]
-           )
-          ]
-        )
-    end
   | convert loc (Is_Below_N_Plus_One_th_Child_Of (in_child, number, parent)) =
     let
       val n_plus_one_th_child_str = get_new_name [in_child, number, parent]: string;

@@ -231,6 +231,7 @@ datatype gen_path_to_unode_table =
 val gen_table_n_gen_path_to_unode: gen_path_to_unode_table -> gen_path -> UN.unode;(*TODO: option type*)
 
 val path_to_its_parent_path         : gen_path -> gen_path option;
+val path_to_its_nth_child_path      : gen_path_to_unode_table -> gen_path -> int -> gen_path option;
 val path_to_its_fst_child_path      : gen_path_to_unode_table -> gen_path -> gen_path option;
 val path_to_its_ancestors_paths     : gen_path -> gen_path list;
 val path_to_its_descendents_paths   : gen_path_to_unode_table -> gen_path -> gen_path list;(*TODO: I did not need this?*)
@@ -268,6 +269,10 @@ fun path_to_its_parent_path (Inner_Path []         :gen_path) = NONE
   | path_to_its_parent_path (Inner_Path ints       :gen_path) = SOME (Inner_Path (Utils.init ints))
   | path_to_its_parent_path (Outer_Path (_, [])    :gen_path) = NONE
   | path_to_its_parent_path (Outer_Path (loc, ints):gen_path) = SOME (Outer_Path (loc, Utils.init ints));
+
+fun path_to_its_nth_child_path (Inner_Path_To_Unode table) (Inner_Path  path      ) (n:int) = if Inner_Path_To_Unode.defined table (     path @ [n]) then SOME (Inner_Path (path @ [n])) else NONE
+  | path_to_its_nth_child_path (Outer_Path_To_Unode table) (Outer_Path (loc, path)) (n:int) = if Outer_Path_To_Unode.defined table (loc, path @ [n]) then SOME (Outer_Path (loc, path @ [n])) else NONE
+  | path_to_its_nth_child_path _ _ _ = error "path_to_its_nth_child_path failed in Path_To_Unode.ML";
 
 fun path_to_its_fst_child_path (Inner_Path_To_Unode table) (Inner_Path path) =
     Inner_Path_To_Unode.lookup table (path @ [0]) <$> #inner_path <$> Inner_Path
@@ -340,10 +345,8 @@ fun is_parent_of parent_path child_path =
   (Option.map (equal parent_path)) (path_to_its_parent_path child_path)
 |> Utils.is_some_true: bool;
 
-fun is_above (Inner_Path above) (Inner_Path below) =
-    UN.inner_path1_is_above_inner_path2 above below
-  | is_above (Outer_Path (above_loc, above_path)) (Outer_Path (below_loc, below_path)) =
-    above_loc = below_loc andalso UN.inner_path1_is_above_inner_path2 above_path below_path
+fun is_above (Inner_Path  above                 ) (Inner_Path  below                 ) = UN.inner_path1_is_above_inner_path2 above below
+  | is_above (Outer_Path (above_loc, above_path)) (Outer_Path (below_loc, below_path)) = above_loc = below_loc andalso UN.inner_path1_is_above_inner_path2 above_path below_path
   | is_above _ _ = error "is_above in Path_To_Unode.ML failed."
 
 fun is_same_path_as (Inner_Path  above                 ) (Inner_Path  below                 ) = above = below

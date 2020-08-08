@@ -221,7 +221,7 @@ qed
 
 lemma C2O_inj:
   "C2O n = C2O m \<Longrightarrow> n = m"
-  
+  semantic_induct
   assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["n"], arb["m"],rule[]](*good*)
   assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["n"],rule[]](*very good*)
 
@@ -244,7 +244,7 @@ lemma O2C_Z [simp]:
   using O2C_C2O[of "C []", unfolded C2O.simps] .
 
 lemma C2O_replicate:
-  "C2O (C (replicate i n)) = mulO (exp\<omega> (C2O n)) ((S ^^ i) Z)" 
+  "C2O (C (replicate i n)) = mulO (exp\<omega> (C2O n)) ((S ^^ i) Z)" semantic_induct
   all_induction_heuristic      [on["i"], arb[],rule[]]
   all_generalization_heuristic [on["i"], arb[],rule[]]
   by (induct i) auto

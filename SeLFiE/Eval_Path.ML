@@ -40,6 +40,7 @@ datatype assert =
 | Is_Same_Path_As                     of gen_path * gen_path
 | Is_An_Argument_Of                   of gen_path * gen_path
 | Is_An_Argument_Or_Below_Argument_Of of gen_path * gen_path
+| Is_Nth_Child_Or_Below_Nth_Child_Of  of gen_path * int * gen_path
 | Is_Nth_Argument_Of                  of gen_path * int * gen_path
 | Is_A_Meta_Premise                   of gen_path(*These assertions about the meta implication cannot be in Eval_Unode because we need a table to get its parent node.*)
 | Is_A_Meta_Conclusion                of gen_path
@@ -147,6 +148,16 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
           exists for_an_ancestor ancestors
         end
         )
+      | eval' (PA.Is_Nth_Child_Or_Below_Nth_Child_Of (part_of_nth_child, i, parent)) ctxt = EB.bool_to_assert (
+        let
+          val nth_child_opt      = GP.path_to_its_nth_child_path path_to_unode_table parent i: GP.gen_path option;
+          val is_nth_child       = nth_child_opt <$> (fn nth_child => eval' (PA.Is_Same_Path_As (part_of_nth_child, nth_child)) ctxt |> EB.assert_to_bool)
+                                |> Utils.is_some_true: bool;
+          val is_below_nth_child = nth_child_opt <$> (fn nth_child => eval' (PA.Is_Path_Above (nth_child, part_of_nth_child)) ctxt |> EB.assert_to_bool)
+                                |> Utils.is_some_true: bool;
+        in
+            is_nth_child orelse is_below_nth_child
+         end)
       | eval' (PA.Is_Nth_Argument_Of (nth_arg, numb, func)) ctxt = EB.bool_to_assert ((*TODO: refactor with Is_An_Argument_Of*)
         let
           val parent_path_opt = GP.path_to_its_parent_path nth_arg: gen_path option;
