@@ -34,6 +34,7 @@ datatype assert =
 | Is_In_Chained_Fact                  of gen_path
 | Is_In_Nth_Subgoal                   of gen_path * int
 | Is_In_Nth_Chained_Fact              of gen_path * int
+| Are_In_Same_Location                of gen_path * gen_path
 | Is_Parent_Of                        of gen_path * gen_path
 | Is_Path_Above                       of gen_path * gen_path
 | Is_Same_Path_As                     of gen_path * gen_path
@@ -107,6 +108,7 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
       | eval' (PA.Is_In_Chained_Fact     path          ) _    = GP.path_is_in_chained_fact path             |> EB.bool_to_assert
       | eval' (PA.Is_In_Nth_Subgoal      pair          ) _    = uncurry GP.path_is_in_nth_subgoal pair      |> EB.bool_to_assert
       | eval' (PA.Is_In_Nth_Chained_Fact pair          ) _    = uncurry GP.path_is_in_nth_chained_fact pair |> EB.bool_to_assert
+      | eval' (PA.Are_In_Same_Location   pair          ) _    = uncurry GP.are_in_same_location  pair       |> EB.bool_to_assert
       | eval' (PA.Is_Parent_Of          (parent, child)) _    = GP.is_parent_of parent child                |> EB.bool_to_assert
       | eval' (PA.Is_Path_Above         (above,  below)) _    = GP.is_above above below                     |> EB.bool_to_assert
       | eval' (PA.Is_Same_Path_As       (path1,  path2)) _    = GP.is_same_path_as path1 path2              |> EB.bool_to_assert

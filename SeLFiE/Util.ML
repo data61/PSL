@@ -71,6 +71,7 @@ datatype atomic_assert =
 | Is_In_Chained_Fact
 | Is_In_Nth_Subgoal
 | Is_In_Nth_Chained_Fact
+| Are_In_Same_Location
 | Is_Parent_Of
 | Is_Path_Above
 | Is_Same_Path_As
@@ -218,6 +219,7 @@ datatype atomic_assert =
 | Is_In_Chained_Fact
 | Is_In_Nth_Subgoal
 | Is_In_Nth_Chained_Fact
+| Are_In_Same_Location
 | Is_Parent_Of
 | Is_Path_Above
 | Is_Same_Path_As
@@ -261,6 +263,7 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_In_Chained_Fact              ) = "Is_In_Chained_Fact"
   | print_atomic_assert (Is_In_Nth_Subgoal               ) = "Is_In_Nth_Subgoal"
   | print_atomic_assert (Is_In_Nth_Chained_Fact          ) = "Is_In_Nth_Chained_Fact"
+  | print_atomic_assert (Are_In_Same_Location            ) = "Are_In_Same_Location"
   | print_atomic_assert (Is_Parent_Of                    ) = "Is_Parent_Of"
   | print_atomic_assert (Is_Path_Above                   ) = "Is_Path_Above"
   | print_atomic_assert (Is_Same_Path_As                 ) = "Is_Same_Path_As"

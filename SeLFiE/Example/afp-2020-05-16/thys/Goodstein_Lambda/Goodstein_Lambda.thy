@@ -328,7 +328,6 @@ function (domintros) stepC where
 termination
 proof -
   have "stepC_dom (c, n)" for c n 
-    apply(induction "(c, n)")
     by (induct n arbitrary: c rule: C_Ord_induct) (auto intro: stepC.domintros)
   then show ?thesis by simp
 qed
@@ -342,7 +341,7 @@ value "map (\<lambda>n. evalC (n+2) (g4C n)) [0..<10]"
 subsection \<open>Properties\<close>
 
 lemma stepC_def':
-  "stepC c n = O2C (stepO c (C2O n))"
+  "stepC c n = O2C (stepO c (C2O n))" semantic_induct
   all_induction_heuristic      [on["c", "n"], arb[],rule["stepC.induct"]]
   all_generalization_heuristic [on["c", "n"], arb[],rule["stepC.induct"]]
   by (induct c n rule: stepC.induct) (simp_all add: C2O_cons del: C2O.simps(2))
@@ -352,11 +351,11 @@ lemma funC_ne [simp]:
   by (cases m rule: funC.cases) simp_all
 
 lemma evalC_funC [simp]:
-  "evalC b (C (funC n b)) = evalC b (C [n])"
+  "evalC b (C (funC n b)) = evalC b (C [n])" semantic_induct
   by (induct n rule: funC.induct) simp_all
 
 lemma stepC_app [simp]:
-  "n \<noteq> C [] \<Longrightarrow> stepC c (C (unC n @ ns)) = C (unC (stepC c n) @ ns)"
+  "n \<noteq> C [] \<Longrightarrow> stepC c (C (unC n @ ns)) = C (unC (stepC c n) @ ns)" semantic_induct
   by (induct n arbitrary: ns rule: stepC.induct) simp_all
 
 lemma stepC_cons [simp]:
@@ -364,7 +363,7 @@ lemma stepC_cons [simp]:
   using stepC_app[of "C[n]" c ns] by simp
 
 lemma stepC_dec:
-  "n \<noteq> C [] \<Longrightarrow> Suc (evalC (Suc (Suc c)) (stepC c n)) = evalC (Suc (Suc c)) n"
+  "n \<noteq> C [] \<Longrightarrow> Suc (evalC (Suc (Suc c)) (stepC c n)) = evalC (Suc (Suc c)) n" semantic_induct
   by (induct c n rule: stepC.induct) simp_all
 
 lemma stepC_dec':
@@ -372,7 +371,7 @@ lemma stepC_dec':
 proof (induct c n rule: stepC.induct)
   case (3 c n ns ms)
   have "evalC (c+3) (C (funC (C (n # ns)) (Suc (Suc c)))) \<le>
-      (c+3) ^ ((c+3) ^ evalC (c+3) n + evalC (c+3) (C ns))"
+      (c+3) ^ ((c+3) ^ evalC (c+3) n + evalC (c+3) (C ns))" semantic_induct
     by (induct n rule: funC.induct) (simp_all add: distrib_right)
   then show ?case using 3 by simp
 qed simp_all

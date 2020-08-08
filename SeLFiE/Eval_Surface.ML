@@ -62,6 +62,7 @@ datatype assert =
 | Is_In_Chained_Fact                  of assert
 | Is_In_Nth_Subgoal                   of assert * assert
 | Is_In_Nth_Chained_Fact              of assert * assert
+| Are_In_Same_Location                of assert * assert
 | Is_Parent_Of                        of assert * assert
 | Is_Path_Above                       of assert * assert
 | Is_Same_Path_As                     of assert * assert
@@ -160,6 +161,7 @@ datatype assert =
 | Is_In_Chained_Fact                  of assert
 | Is_In_Nth_Subgoal                   of assert * assert
 | Is_In_Nth_Chained_Fact              of assert * assert
+| Are_In_Same_Location                of assert * assert
 | Is_Parent_Of                        of assert * assert
 | Is_Path_Above                       of assert * assert
 | Is_Same_Path_As                     of assert * assert
@@ -248,6 +250,7 @@ and (*bool*)
   | surf_to_var (Is_In_Chained_Fact                  arg ) = EV.Assert (SU.Atomic SU.Is_In_Chained_Fact,                  surf_to_var_singleton    arg )
   | surf_to_var (Is_In_Nth_Subgoal                   args) = EV.Assert (SU.Atomic SU.Is_In_Nth_Subgoal,                   surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Nth_Chained_Fact              args) = EV.Assert (SU.Atomic SU.Is_In_Nth_Chained_Fact,              surf_to_var_pair_to_list args)
+  | surf_to_var (Are_In_Same_Location                args) = EV.Assert (SU.Atomic SU.Are_In_Same_Location,                surf_to_var_pair_to_list args)
   | surf_to_var (Is_Parent_Of                        args) = EV.Assert (SU.Atomic SU.Is_Parent_Of,                        surf_to_var_pair_to_list args)
   | surf_to_var (Is_Path_Above                       args) = EV.Assert (SU.Atomic SU.Is_Path_Above,                       surf_to_var_pair_to_list args)
   | surf_to_var (Is_Same_Path_As                     args) = EV.Assert (SU.Atomic SU.Is_Same_Path_As,                     surf_to_var_pair_to_list args)

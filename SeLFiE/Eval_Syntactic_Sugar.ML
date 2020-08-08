@@ -62,6 +62,7 @@ datatype assert =
 | Is_In_Chained_Fact                  of assert
 | Is_In_Nth_Subgoal                   of assert * assert
 | Is_In_Nth_Chained_Fact              of assert * assert
+| Are_In_Same_Location                of assert * assert
 | Is_Parent_Of                        of assert * assert
 | Is_Path_Above                       of assert * assert
 | Is_Same_Path_As                     of assert * assert
@@ -99,7 +100,6 @@ datatype assert =
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
-| Are_In_Same_Location               of assert * assert
 | Is_Deeper_Than_In_Same_Location    of assert * assert
 | Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_Root_In_A_Location              of assert
@@ -183,6 +183,7 @@ datatype assert =
 | Is_In_Chained_Fact                  of assert
 | Is_In_Nth_Subgoal                   of assert * assert
 | Is_In_Nth_Chained_Fact              of assert * assert
+| Are_In_Same_Location                of assert * assert
 | Is_Parent_Of                        of assert * assert
 | Is_Path_Above                       of assert * assert
 | Is_Same_Path_As                     of assert * assert
@@ -220,7 +221,6 @@ datatype assert =
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
 | Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
-| Are_In_Same_Location               of assert * assert
 | Is_Deeper_Than_In_Same_Location    of assert * assert
 | Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_Root_In_A_Location              of assert
@@ -314,6 +314,7 @@ and
   | convert loc (Is_In_Chained_Fact                  ass)  = ES.Is_In_Chained_Fact                  (convert loc ass)
   | convert loc (ass Is_In_Nth_Subgoal               numb) = ES.Is_In_Nth_Subgoal                   (convert_pair loc (ass, numb))
   | convert loc (ass Is_In_Nth_Chained_Fact          numb) = ES.Is_In_Nth_Chained_Fact              (convert_pair loc (ass, numb))
+  | convert loc (Are_In_Same_Location                pair) = ES.Are_In_Same_Location                (convert_pair loc pair)
   | convert loc (Is_Parent_Of                        pair) = ES.Is_Parent_Of                        (convert_pair loc pair)
   | convert loc (Is_Path_Above                       pair) = ES.Is_Path_Above                       (convert_pair loc pair)
   | convert loc (Is_Same_Path_As                     pair) = ES.Is_Same_Path_As                     (convert_pair loc pair)
@@ -446,22 +447,6 @@ and
             Ands
               [Is_Nth_Arg_Of (nth_arg, number, func),
                Is_Path_Above (nth_arg, arg_or_in_arg)])])
-    end
-  | convert loc (Are_In_Same_Location (ass1, ass2)) =
-    let
-      val non_exist_str = get_new_name [ass1, ass2] : string;
-      val non_exist     = Variable non_exist_str: assert;
-      val numb_typ      = case loc of Out => SU.QOuter_Number | Inn => SU.QInner_Number;
-    in
-      convert loc
-        (Some (non_exist_str, numb_typ,
-             ((ass1 Is_In_Nth_Subgoal non_exist)
-             And
-              (ass2 Is_In_Nth_Subgoal non_exist))
-           Or
-             ((ass1 Is_In_Nth_Chained_Fact non_exist)
-             And
-              (ass2 Is_In_Nth_Chained_Fact non_exist))))
     end
   | convert loc (Is_Deeper_Than_In_Same_Location (deep, shallow)) =
     convert loc

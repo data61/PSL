@@ -237,6 +237,7 @@ val path_to_its_descendents_paths   : gen_path_to_unode_table -> gen_path -> gen
 val is_parent_of                    : gen_path -> gen_path -> bool;
 val is_above                        : gen_path -> gen_path -> bool;
 val is_same_path_as                 : gen_path -> gen_path -> bool;
+val are_in_same_location            : gen_path -> gen_path -> bool;
 val is_fst_child_of                 : gen_path -> gen_path -> bool;
 val is_last_child_of                : gen_path_to_unode_table -> (gen_path * gen_path) -> bool;
 val path_is_in_subgoal              : gen_path -> bool;
@@ -348,6 +349,10 @@ fun is_above (Inner_Path above) (Inner_Path below) =
 fun is_same_path_as (Inner_Path  above                 ) (Inner_Path  below                 ) = above = below
   | is_same_path_as (Outer_Path (above_loc, above_path)) (Outer_Path (below_loc, below_path)) = above_loc = below_loc andalso above_path = below_path
   | is_same_path_as _ _ = error "is_above in Path_To_Unode.ML failed."
+
+fun are_in_same_location (Inner_Path  _       ) (Inner_Path  _       ) = true (*because Are_In_Same_Location is used for Is_Deeper_Than in Eval_Syntactic_Sugar.ML*)
+  | are_in_same_location (Outer_Path (loc1, _)) (Outer_Path (loc2, _)) = loc1 = loc2
+  | are_in_same_location  _                      _                     = error "are_in_same_location failed in Path_To_Unode.ML"
 
 fun is_fst_child_of (Inner_Path fst_child_path) (Inner_Path parent_path) =
           not (null fst_child_path)
