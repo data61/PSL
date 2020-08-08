@@ -103,7 +103,7 @@ We also plan to improve the proof automation using evolutionary computation. We 
 `Nagashima Y., Parsert J. (2018) Goal-Oriented Conjecturing for Isabelle/HOL. In: Rabe F., Farmer W., Passmore G., Youssef A. (eds) Intelligent Computer Mathematics. CICM 2018. Lecture Notes in Computer Science, vol 11006. Springer, Cham`
 
 - **PaMpeR**:
-`ASE 2018: Proceedings of the 33rd ACM/IEEE International Conference on Automated Software EngineeringSeptember 2018 Pages 362–372 https://doi.org/10.1145/3238147.3238210`
+`Yutaka Nagashima and Yilun He. 2018. PaMpeR: proof method recommendation system for Isabelle/HOL. In Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering (ASE 2018). Association for Computing Machinery, New York, NY, USA, 362–372. DOI:https://doi.org/10.1145/3238147.3238210`
 
 - **Towards Evolutionary Theorem Proving for Isabelle/HOL**:
 `Yutaka Nagashima. 2019. Towards evolutionary theorem proving for Isabelle/HOL. In Proceedings of the Genetic and Evolutionary Computation Conference Companion (GECCO ’19). Association for Computing Machinery, New York, NY, USA, 419–420. DOI:https://doi.org/10.1145/3319619.3321921`
