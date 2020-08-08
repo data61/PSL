@@ -99,7 +99,6 @@ datatype assert =
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
-| Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Is_Deeper_Than_In_Same_Location    of assert * assert
 | Is_Shallower_Than_In_Same_Location of assert * assert
@@ -221,7 +220,6 @@ datatype assert =
 | Is_Nth_Child_Or_Below_Nth_Child_Of of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
-| Is_Nth_Arg_Of                      of assert * assert * assert
 | Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Is_Deeper_Than_In_Same_Location    of assert * assert
 | Is_Shallower_Than_In_Same_Location of assert * assert
@@ -423,22 +421,6 @@ and
            Is_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)
           ]
         )
-  | convert loc (Is_Nth_Arg_Of (arg, number, func)) =
-    let
-      val func_app_str = get_new_name [func, number, arg]: string;
-      val func_app     = Variable func_app_str           : assert;
-      val path_typ      = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-    in
-     (*Note helper to define futrm_w_prnt_to_futrm_w_prnt_n_inner_path in Unique_Node.ML*)
-      convert loc
-       (Some (func_app_str, path_typ,
-          Ands
-           [Is_Parent_Of (func_app, func),
-            Is_Nth_Child (func, Number 0),
-            Is_Parent_Of (func_app, arg),
-            Is_N_Plus_One_th_Child (arg, number),
-            Node_Is_App func_app]))
-    end
   | convert loc (Is_Nth_Arg_Or_Below_Nth_Arg_Of (arg_or_in_arg, number, func)) =
     let
       val nth_arg_str = get_new_name [func, number, arg_or_in_arg]: string;
@@ -447,10 +429,10 @@ and
     in
       convert loc
        (Ors
-         [Is_Nth_Arg_Of (arg_or_in_arg, number, func),
+         [Is_Nth_Argument_Of (arg_or_in_arg, number, func),
           Some (nth_arg_str, path_typ,
             Ands
-              [Is_Nth_Arg_Of (nth_arg, number, func),
+              [Is_Nth_Argument_Of (nth_arg, number, func),
                Is_Path_Above (nth_arg, arg_or_in_arg)])])
     end
   | convert loc (Is_Deeper_Than_In_Same_Location (deep, shallow)) =
@@ -490,9 +472,9 @@ and
           Ands [
             Is_Nth_Child_Of (hol_if, Number 0, if_then_else),
             Unode_Has_Print (hol_if, Print "HOL.If"),
-            Is_Nth_Arg_Of (if_condition, Number 0, hol_if),
-            Is_Nth_Arg_Of (then_clase,   Number 1, hol_if),
-            Is_Nth_Arg_Of (else_clase,   Number 2, hol_if)
+            Is_Nth_Argument_Of (if_condition, Number 0, hol_if),
+            Is_Nth_Argument_Of (then_clase,   Number 1, hol_if),
+            Is_Nth_Argument_Of (else_clase,   Number 2, hol_if)
           ]
         )
       ]
@@ -524,11 +506,11 @@ and
                 Some (numb_of_args_minus_one_str, numb_path_typ,
                   Ands [
                     Is_Less_Than_By_One (numb_of_args_minus_one, numb_of_args),
-                    Is_Nth_Arg_Of (case_on, numb_of_args_minus_one, case_const),
+                    Is_Nth_Argument_Of (case_on, numb_of_args_minus_one, case_const),
                     Some (nth_case_str, numb_path_typ,
                       Ands [
                         Is_Less_Than (nth_case, numb_of_args_minus_one),
-                        Is_Nth_Arg_Of (a_case, nth_case, case_const)
+                        Is_Nth_Argument_Of (a_case, nth_case, case_const)
                       ]
                     )
                   ]
@@ -551,10 +533,10 @@ and
         Node_Is_App whole_term_occ,
         Some (let_const_str, path_typ,
           Ands [
-            Unode_Has_Print (let_const, Print "HOL.Let"),
-            Is_Nth_Child_Of (let_const, Number 0, whole_term_occ),
-            Is_Nth_Arg_Of   (let_sth_be_this_occ, Number 0, let_const),
-            Is_Nth_Arg_Of   (bound_and_body_occ,  Number 1, let_const)
+            Unode_Has_Print    (let_const, Print "HOL.Let"),
+            Is_Nth_Child_Of    (let_const, Number 0, whole_term_occ),
+            Is_Nth_Argument_Of (let_sth_be_this_occ, Number 0, let_const),
+            Is_Nth_Argument_Of (bound_and_body_occ,  Number 1, let_const)
           ]
         )
       ]

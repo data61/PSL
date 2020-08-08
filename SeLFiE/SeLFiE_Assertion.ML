@@ -363,7 +363,7 @@ Imply
               All ("number", QOuter_Number,
                   Ands [
                     Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
-                    Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ")
+                    Is_Nth_Argument_Of (Variable "ind_occ", Variable "number", Variable "func_occ")
                   ]
                 Imply
                   Ands [
@@ -391,7 +391,7 @@ Imply
               Some ("numb", QOuter_Number,
                 Ands [
                   Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "numb"),
-                  Is_Nth_Arg_Of (Variable "arg_occ", Variable "numb", Variable "func_occ"),
+                  Is_Nth_Argument_Of (Variable "arg_occ", Variable "numb", Variable "func_occ"),
                   Is_Nth_Induct (Variable "ind", Variable "numb")
                 ]
               )
@@ -609,11 +609,11 @@ Imply
            Some_Of ("func_occ1", Variable "func",
              Some ("number", QOuter_Number,
                Ands [
-                 Is_Nth_Arg_Of (Variable "arb_occ", Variable "number", Variable "func_occ1"),
+                 Is_Nth_Argument_Of (Variable "arb_occ", Variable "number", Variable "func_occ1"),
                  Some ("ind", QInd,
                    Some_Of ("ind_occ", Variable "ind",
                      Some_Of ("func_occ2", Variable "func",
-                       Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ2")
+                       Is_Nth_Argument_Of (Variable "ind_occ", Variable "number", Variable "func_occ2")
                      )
                    )
                  )
@@ -776,7 +776,7 @@ Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
                       Not (Has_Same_Prnt_As (Variable "mth_param_on_rhs_path", Variable "mth_param_on_lhs_path")),
                       Some_Of ("func_occ_on_rhs", Variable "func",
                         Ands [
-                          Is_Nth_Arg_Of (Variable "mth_param_on_rhs_path", Variable "mth_arg_of_func_occ_has_arb", Variable "func_occ_on_rhs")
+                          Is_Nth_Argument_Of (Variable "mth_param_on_rhs_path", Variable "mth_arg_of_func_occ_has_arb", Variable "func_occ_on_rhs")
                         ]
                       )
                     ]
@@ -900,7 +900,7 @@ Lambdas (["func", "number"],
                     Some ("part_of_nth_param_on_rhs", QInner_Path,
                       Ands [
                         Has_Same_Prnt_As (Variable "part_of_nth_param_on_rhs", Variable "part_of_nth_param_on_lhs"),
-                        (*Is_Nth_Arg_Or_Below_Nth_Arg_Of*)Is_Nth_Arg_Of (Variable "part_of_nth_param_on_rhs", Variable "number", Variable "func_occ_on_rhs")
+                        (*Is_Nth_Arg_Or_Below_Nth_Arg_Of*)Is_Nth_Argument_Of (Variable "part_of_nth_param_on_rhs", Variable "number", Variable "func_occ_on_rhs")
                       ]
                     )
                   ]
@@ -926,7 +926,7 @@ val is_defined_recursively_on_nth_outer =
               Some ("number", QOuter_Number,
                 Ands [
                   Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
-                  Is_Nth_Arg_Of (Variable "arg_occ", Variable "number", Variable "func_occ"),
+                  Is_Nth_Argument_Of (Variable "arg_occ", Variable "number", Variable "func_occ"),
                   In_Some_Definitions (Variable "func", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
                 ]
               )
@@ -947,7 +947,7 @@ Imply
               Some ("number", QOuter_Number,
                 Ands [
                   Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
-                  Is_Nth_Arg_Of (Variable "ind_occ", Variable "number", Variable "func_occ"),
+                  Is_Nth_Argument_Of (Variable "ind_occ", Variable "number", Variable "func_occ"),
                   In_Some_Definitions (Variable "func", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
                 ]
               )
@@ -1284,12 +1284,12 @@ val ind_on_lhs_of_eq_then_arb_on_rhs_of_eq =
           Some_Of ("ind_occ", Variable "ind_trm",
             Ands [
               Applies (is_variable, [Variable "ind_occ"]),
-              Is_Nth_Arg_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
+              Is_Nth_Argument_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
               Some ("arb_occ", QOuter_Path,
                 Ands [
                   Applies (is_variable, [Variable "arb_occ"]),
                   Not (Unode_Has_Print (Variable "arb_occ", Variable "ind_trm")),
-                  Is_Nth_Arg_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
+                  Is_Nth_Argument_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
                 ]
               )
             ]
@@ -1306,11 +1306,11 @@ Imply
         Some_Of ("ind_occ", Variable "ind_trm",
           Ands [
             Applies (is_variable, [Variable "ind_occ"]),
-            Is_Nth_Arg_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
+            Is_Nth_Argument_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
             Some ("arb_trm", QArb,(*!*)
               Some_Of ("arb_occ", Variable "arb_trm",(*!*)
                 Ands [
-                  Is_Nth_Arg_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
+                  Is_Nth_Argument_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
                 ]
               )
             )
@@ -1691,12 +1691,12 @@ val structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of
                     Ands [
                       Some ("nth_arg_of_pure_imp", QOuter_Path,
                         Ands [
-                          Is_Nth_Arg_Of (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args", Variable "pure_imp"),
+                          Is_Nth_Argument_Of (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args", Variable "pure_imp"),
                           All ("pure_imp_has_more_than_m_args", QOuter_Number,
                             Ands [
                               All ("mth_arg_of_pure_imp", QOuter_Path,
                                 Ands [
-                                    Is_Nth_Arg_Of (Variable "mth_arg_of_pure_imp", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
+                                    Is_Nth_Argument_Of (Variable "mth_arg_of_pure_imp", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
                                   Imply
                                     Is_Less_Than_Or_Equal (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
                                 ]
@@ -1756,12 +1756,12 @@ Imply
                     Ands [
                       Some ("nth_arg_of_pure_imp", QOuter_Path,
                         Ands [
-                          Is_Nth_Arg_Of (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args", Variable "pure_imp"),
+                          Is_Nth_Argument_Of (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args", Variable "pure_imp"),
                           All ("pure_imp_has_more_than_m_args", QOuter_Number,
                             Ands [
                               All ("mth_arg_of_pure_imp", QOuter_Path,
                                 Ands [
-                                    Is_Nth_Arg_Of (Variable "mth_arg_of_pure_imp", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
+                                    Is_Nth_Argument_Of (Variable "mth_arg_of_pure_imp", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
                                   Imply
                                     Is_Less_Than_Or_Equal (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
                                 ]
@@ -1816,12 +1816,12 @@ val nth_arg_shrinks_from_assm_to_cncl_of_pure_imp_occ_inner =
                 Ands [
                   Some ("nth_arg_of_pure_imp_occ", QInner_Path,
                     Ands [
-                      Is_Nth_Arg_Of (Variable "nth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_n_args", Variable "pure_imp_occ"),
+                      Is_Nth_Argument_Of (Variable "nth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_n_args", Variable "pure_imp_occ"),
                       All ("pure_imp_occ_has_more_than_m_args", QOuter_Number,
                         Ands [
                           All ("mth_arg_of_pure_imp_occ", QInner_Path,
                             Ands [
-                                Is_Nth_Arg_Of (Variable "mth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ")
+                                Is_Nth_Argument_Of (Variable "mth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ")
                               Imply
                                 Is_Less_Than_Or_Equal (Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ_has_n_args")
                             ]
@@ -1833,19 +1833,19 @@ val nth_arg_shrinks_from_assm_to_cncl_of_pure_imp_occ_inner =
                           Is_Child_Of (Variable "inductive_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp_occ"),
                           Some ("lth_arg_occ_to_inductive_occ_in_meta_cncl", QInner_Path,
                             Ands [
-                              Is_Nth_Arg_Of (Variable "lth_arg_occ_to_inductive_occ_in_meta_cncl", Variable "lth_arg_to_inductive_shrinks", Variable "inductive_occ_in_meta_cncl"),
+                              Is_Nth_Argument_Of (Variable "lth_arg_occ_to_inductive_occ_in_meta_cncl", Variable "lth_arg_to_inductive_shrinks", Variable "inductive_occ_in_meta_cncl"),
                               Some ("k_is_less_than_n", QInner_Number,
                                 Ands [
                                   Is_Less_Than (Variable "k_is_less_than_n", Variable "pure_imp_occ_has_n_args"),
                                   Some ("kth_prem_occ_of_pure_imp_occ", QInner_Path,
                                     Ands [
-                                      Is_Nth_Arg_Of (Variable "kth_prem_occ_of_pure_imp_occ", Variable "k_is_less_than_n", Variable "pure_imp_occ"),
+                                      Is_Nth_Argument_Of (Variable "kth_prem_occ_of_pure_imp_occ", Variable "k_is_less_than_n", Variable "pure_imp_occ"),
                                       Some_Of ("inductive_occ_in_kth_prem_occ_of_pure_imp_occ", Variable "inductive_trm",
                                         Ands [
                                           Is_Child_Of (Variable "inductive_occ_in_kth_prem_occ_of_pure_imp_occ", Variable "kth_prem_occ_of_pure_imp_occ"),
                                           Some ("lth_arg_occ_to_inductive_occ_in_kth_prem_occ_of_pure_imp_occ", QInner_Path,
                                             Ands [
-                                              Is_Nth_Arg_Of (Variable "lth_arg_occ_to_inductive_occ_in_kth_prem_occ_of_pure_imp_occ",
+                                              Is_Nth_Argument_Of (Variable "lth_arg_occ_to_inductive_occ_in_kth_prem_occ_of_pure_imp_occ",
                                                              Variable "lth_arg_to_inductive_shrinks",
                                                              Variable "inductive_occ_in_kth_prem_occ_of_pure_imp_occ"),
                                               Some ("subtrm_occ_of_inductive_occ_in_kth_prem_occ_of_pure_imp_occ", QInner_Path,
@@ -1899,12 +1899,12 @@ val structural_induction_on_nt_arg_of_inductively_defined_constant_in_the_concl_
                     Ands [
                       Some ("nth_arg_of_pure_imp_occ", QOuter_Path,
                         Ands [
-                          Is_Nth_Arg_Of (Variable "nth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_n_args", Variable "pure_imp_occ"),
+                          Is_Nth_Argument_Of (Variable "nth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_n_args", Variable "pure_imp_occ"),
                           All ("pure_imp_occ_has_more_than_m_args", QOuter_Number,
                             Ands [
                               All ("mth_arg_of_pure_imp_occ", QOuter_Path,
                                 Ands [
-                                    Is_Nth_Arg_Of (Variable "mth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ")
+                                    Is_Nth_Argument_Of (Variable "mth_arg_of_pure_imp_occ", Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ")
                                   Imply
                                     Is_Less_Than_Or_Equal (Variable "pure_imp_occ_has_more_than_m_args", Variable "pure_imp_occ_has_n_args")
                                 ]

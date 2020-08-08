@@ -425,7 +425,9 @@ lemma base_red:
   and m: "\<And>m'. m' \<in> set ms \<Longrightarrow> m < m'" "j < b" "j \<noteq> 0"
   and s: "i * b^n + sum_list (map (\<lambda>n. b^n) ns) = j * b^m + sum_list (map (\<lambda>n. b^n) ms)"
   shows "i = j \<and> n = m"
-  using n(1) m(1) s semantic_induct (*21.321s elapsed time, 193.864s cpu time, 13.175s GC time*)
+  using n(1) m(1) s semantic_induct
+(*21.321s elapsed time, 193.864s cpu time, 13.175s GC time*)
+(*\<rightarrow> 8.978s elapsed time, 99.331s cpu time, 0.804s GC time after working on Is_Nth_Argument_Of*)
 proof (induct n arbitrary: m ns ms)
   { fix ns ms :: "nat list" and i j m :: nat
     assume n': "\<And>n'. n' \<in> set ns \<Longrightarrow> 0 < n'" "i < b" "i \<noteq> 0"
@@ -793,7 +795,7 @@ text \<open>The following is essentially the free theorem for Church-encoded @{t
 
 lemma freeOrd:
   assumes "\<And>n. h (s n) = s' (h n)" and "\<And>f. h (l f) = l' (\<lambda>i. h (f i))"
-  shows "h (\<langle>n\<rangle>\<^sub>O z s l) = \<langle>n\<rangle>\<^sub>O (h z) s' l'"
+  shows "h (\<langle>n\<rangle>\<^sub>O z s l) = \<langle>n\<rangle>\<^sub>O (h z) s' l'"semantic_induct
   by (induct n) (simp_all add: assms)
 
 text \<open>Each of the following proofs first states a naive definition of the corresponding function
@@ -803,7 +805,7 @@ text \<open>Each of the following proofs first states a naive definition of the 
 lemma add\<^sub>O':
   "\<langle>addO n m\<rangle>\<^sub>O = add\<^sub>O \<langle>n\<rangle>\<^sub>O \<langle>m\<rangle>\<^sub>O"
 proof -
-  have [simp]: "\<langle>addO n m\<rangle>\<^sub>O = \<langle>m\<rangle>\<^sub>O \<langle>n\<rangle>\<^sub>O S\<^sub>O L\<^sub>O"
+  have [simp]: "\<langle>addO n m\<rangle>\<^sub>O = \<langle>m\<rangle>\<^sub>O \<langle>n\<rangle>\<^sub>O S\<^sub>O L\<^sub>O"semantic_induct
     by (induct m) simp_all
   show ?thesis
     by (intro ext) (simp add: freeOrd[where h = "\<lambda>n. n _ _ _"])
@@ -821,7 +823,7 @@ qed
 lemma exp\<omega>\<^sub>O':
   "\<langle>exp\<omega> n\<rangle>\<^sub>O = exp\<omega>\<^sub>O \<langle>n\<rangle>\<^sub>O"
 proof -
-  have [simp]: "\<langle>exp\<omega> n\<rangle>\<^sub>O = \<langle>n\<rangle>\<^sub>O (S\<^sub>O Z\<^sub>O) (\<lambda>m. mul\<^sub>O m \<omega>\<^sub>O) L\<^sub>O"
+  have [simp]: "\<langle>exp\<omega> n\<rangle>\<^sub>O = \<langle>n\<rangle>\<^sub>O (S\<^sub>O Z\<^sub>O) (\<lambda>m. mul\<^sub>O m \<omega>\<^sub>O) L\<^sub>O"semantic_induct
     by (induct n) (simp_all add: mul\<^sub>O \<omega>\<^sub>O)
   show ?thesis
     by (intro ext) (simp add: fun_cong[OF freeOrd[where h = "\<lambda>n z. n z _ _"]])
