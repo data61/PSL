@@ -1,4 +1,4 @@
-**Message to FMCAD2020 reviewers: This master branch is the development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature ideas. For the submitted version with evaluation results, please refer to [this release](https://github.com/data61/PSL/releases/tag/0.1.7-alpha)**
+**This is the development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature ideas. The latest stable release is [here](https://github.com/data61/PSL/releases/tag/0.1.7-alpha).**
 
 # PSL
 
