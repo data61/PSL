@@ -68,6 +68,7 @@ datatype assert =
 | Is_Same_Path_As                     of assert * assert
 | Is_An_Argument_Of                   of assert * assert
 | Is_An_Argument_Or_Below_Argument_Of of assert * assert
+| Is_Nth_Argument_Of                  of assert * assert * assert
 | Is_A_Meta_Premise                   of assert
 | Is_A_Meta_Conclusion                of assert
 | Is_A_Meta_Premise_Or_Below          of assert
@@ -189,6 +190,7 @@ datatype assert =
 | Is_Same_Path_As                     of assert * assert
 | Is_An_Argument_Of                   of assert * assert
 | Is_An_Argument_Or_Below_Argument_Of of assert * assert
+| Is_Nth_Argument_Of                  of assert * assert * assert
 | Is_A_Meta_Premise                   of assert
 | Is_A_Meta_Conclusion                of assert
 | Is_A_Meta_Premise_Or_Below          of assert
@@ -252,7 +254,9 @@ val get_new_name = get_new_name' "A";
 infix And Or Imply Is_In_Nth_Subgoal Is_In_Nth_Chained_Fact;
 
 (*TODO: Should I use lazy sequences for pairs as well?*)
+fun map_trip f (a,b,c) = (f a, f b, f c);
 fun convert_pair loc pair = Utils.map_pair (convert loc) pair
+and convert_trip loc (a,b,c) = map_trip (convert loc) (a,b,c)
 and convert_list loc list = map (convert loc) list
 (*
 and convert_list_to_seq loc list = Seq.map (convert loc) (Seq.of_list list)
@@ -320,6 +324,7 @@ and
   | convert loc (Is_Same_Path_As                     pair) = ES.Is_Same_Path_As                     (convert_pair loc pair)
   | convert loc (Is_An_Argument_Of                   pair) = ES.Is_An_Argument_Of                   (convert_pair loc pair)
   | convert loc (Is_An_Argument_Or_Below_Argument_Of pair) = ES.Is_An_Argument_Or_Below_Argument_Of (convert_pair loc pair)
+  | convert loc (Is_Nth_Argument_Of                  trip) = ES.Is_Nth_Argument_Of                  (convert_trip loc trip)
   | convert loc (Is_A_Meta_Premise                   ass)  = ES.Is_A_Meta_Premise                   (convert loc ass)
   | convert loc (Is_A_Meta_Conclusion                ass)  = ES.Is_A_Meta_Conclusion                (convert loc ass)
   | convert loc (Is_A_Meta_Premise_Or_Below          ass)  = ES.Is_A_Meta_Premise_Or_Below          (convert loc ass)

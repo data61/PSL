@@ -77,6 +77,7 @@ datatype atomic_assert =
 | Is_Same_Path_As
 | Is_An_Argument_Of
 | Is_An_Argument_Or_Below_Argument_Of
+| Is_Nth_Argument_Of
 | Is_A_Meta_Premise
 | Is_A_Meta_Conclusion
 | Is_A_Meta_Premise_Or_Below
@@ -225,6 +226,7 @@ datatype atomic_assert =
 | Is_Same_Path_As
 | Is_An_Argument_Of
 | Is_An_Argument_Or_Below_Argument_Of
+| Is_Nth_Argument_Of
 | Is_A_Meta_Premise
 | Is_A_Meta_Conclusion
 | Is_A_Meta_Premise_Or_Below
@@ -269,6 +271,7 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_Same_Path_As                 ) = "Is_Same_Path_As"
   | print_atomic_assert (Is_An_Argument_Of               ) = "Is_An_Argument_Of"
   | print_atomic_assert (Is_An_Argument_Or_Below_Argument_Of) = "Is_An_Argument_Or_Below_Argument_Of"
+  | print_atomic_assert (Is_Nth_Argument_Of              ) = "Is_Nth_Argument_Of"
   | print_atomic_assert (Is_A_Meta_Premise               ) = "Is_A_Meta_Premise"
   | print_atomic_assert (Is_A_Meta_Conclusion            ) = "Is_A_Meta_Conclusion"
   | print_atomic_assert (Is_A_Meta_Premise_Or_Below      ) = "Is_A_Meta_Premise"
