@@ -176,21 +176,21 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
         val score          = fold (curry (op +)) success_scores 0: int;
       in score end;
 
-    fun get_promising_ind_mods_n_result (Induction_Heuristic     : heuristic_typ) = Screening.proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss pst                                        : (int * SU.induct_arguments * Proof.state Seq.seq) list
-      | get_promising_ind_mods_n_result (Generalization_Heuristic: heuristic_typ) = Screening.induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss score_n_induct_argss pst: (int * SU.induct_arguments * Proof.state Seq.seq) list
+    fun get_promising_ind_mods_n_result (Induction_Heuristic     : heuristic_typ) = Screening.proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss pst                                        : (int * SU.induct_arguments) list
+      | get_promising_ind_mods_n_result (Generalization_Heuristic: heuristic_typ) = Screening.induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss score_n_induct_argss pst: (int * SU.induct_arguments) list
       | get_promising_ind_mods_n_result _ = error "failed in Apply_SeLFiE.ML";
 
-    val promising_ind_mods_n_result = get_promising_ind_mods_n_result heuristic_typ: (int * SU.induct_arguments * Proof.state Seq.seq) list;
-    fun get_ind_mod_n_scores _  = Par_List.map (fn (old_score, ind_mod, result) => ((*tracing ("checking " ^ SeLFiE_Util.induct_arguments_to_string ind_mod);*)
-                                      {score = old_score + ind_mod_to_score ind_mod, modifiers = ind_mod, result = result})) promising_ind_mods_n_result
-                             : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
+    val promising_ind_mods_n_result = get_promising_ind_mods_n_result heuristic_typ: (int * SU.induct_arguments) list;
+    fun get_ind_mod_n_scores _  = Par_List.map (fn (old_score, ind_mod) => ((*tracing ("checking " ^ SeLFiE_Util.induct_arguments_to_string ind_mod);*)
+                                      {score = old_score + ind_mod_to_score ind_mod, modifiers = ind_mod})) promising_ind_mods_n_result
+                             : {modifiers: SeLFiE_Util.induct_arguments,score: int} list;
     val ind_mod_n_scores_opt = try (Timeout.apply (seconds 3000.0) get_ind_mod_n_scores) promising_ind_mods_n_result
-                             : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list option;
-    fun mk_record_wo_arb  (score:int, ind_args:SU.induct_arguments) = {modifiers = ind_args, result = Seq.empty (*dummy values*), score = score};
+                             : {modifiers: SeLFiE_Util.induct_arguments, score: int} list option;
+    fun mk_record_wo_arb  (score:int, ind_args:SU.induct_arguments) = {modifiers = ind_args, score = score};
     fun mk_records_wo_arb (pairs:(int * SU.induct_arguments) list) = map mk_record_wo_arb pairs;
     val ind_mod_n_scores     = Option.getOpt (ind_mod_n_scores_opt, mk_records_wo_arb score_n_induct_wo_argss);
     val sorted_pairs         = sort (fn (p1, p2) => Int.compare (#score p1, #score p2)) ind_mod_n_scores |> rev
-                             : {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} list;
+                             : {modifiers: SeLFiE_Util.induct_arguments, score: int} list;
     val best_pairs           = take take_top_n sorted_pairs;
   in
     (best_pairs, maximum_point)
