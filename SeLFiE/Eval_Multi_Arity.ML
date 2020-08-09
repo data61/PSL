@@ -5,17 +5,17 @@ signature EVAL_MULTI_ARITY =
 sig
 
 datatype expr =
-  Bound      of int
-| Lambdas    of int * expr (*(0, exp) means one lambda abstraction, and (1, exp) means two lambda abstractions.*)
-| Applies    of expr * expr list
-| Literal    of Eval_Parameter.literal
-| Assert     of SeLFiE_Util.assert * expr list
-| Dive_In    of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
-| Deep_Dive  of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
-| All        of SeLFiE_Util.qtyp * expr
-| Some       of SeLFiE_Util.qtyp * expr;
+  Bound     of int
+| Lambdas   of int * expr (*(0, exp) means one lambda abstraction, and (1, exp) means two lambda abstractions.*)
+| Applies   of expr * expr list
+| Literal   of Eval_Parameter.literal
+| Assert    of SeLFiE_Util.assert * expr list
+| Dive_In   of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
+| Deep_Dive of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
+| All       of SeLFiE_Util.qtyp * expr
+| Some      of SeLFiE_Util.qtyp * expr;
 
-val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> expr -> expr;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> Quantifier_Domain.domains -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
@@ -31,8 +31,8 @@ datatype expr =
 | Applies   of expr * expr list
 | Literal   of Eval_Parameter.literal
 | Assert    of SeLFiE_Util.assert * expr list
-| Dive_In   of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
-| Deep_Dive of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
+| Dive_In   of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
+| Deep_Dive of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
 | All       of SeLFiE_Util.qtyp * expr
 | Some      of SeLFiE_Util.qtyp * expr;
 (* unary_to_multi *)
@@ -48,8 +48,8 @@ fun unary_to_multi (Bound i)              = EU.Bound i
     in
       mk_nested_pair xs (unary_to_multi f)
     end
-  | unary_to_multi (Dive_In   (t, l, args)) = EU.Dive_In   (unary_to_multi t, unary_to_multi l, unaries_to_multis args)
-  | unary_to_multi (Deep_Dive (t, l, args)) = EU.Deep_Dive (unary_to_multi t, unary_to_multi l, unaries_to_multis args)
+  | unary_to_multi (Dive_In   (t, l, args, ands_ors)) = EU.Dive_In   (unary_to_multi t, unary_to_multi l, unaries_to_multis args, ands_ors)
+  | unary_to_multi (Deep_Dive (t, l, args, ands_ors)) = EU.Deep_Dive (unary_to_multi t, unary_to_multi l, unaries_to_multis args, ands_ors)
   | unary_to_multi (Literal l          )    = EU.Literal l
   | unary_to_multi (Assert (ass, exprs))    = EU.Assert (ass,unaries_to_multis exprs)
   | unary_to_multi (All    (qtyp, expr))    = EU.All    (qtyp, unary_to_multi expr)
@@ -71,10 +71,10 @@ fun print_expr (Bound i) = "Bound " ^ Int.toString i ^ " "
   | print_expr (All  (_, expr)) = "All ( "  ^ "type" ^ ", " ^ print_expr expr ^ " )"
   | print_expr (Some (_, expr)) = "Some ( " ^ "type" ^ ", " ^ print_expr expr ^ " )";
 
-fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (induct_args:SeLFiE_Util.induct_arguments) expr =
+fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (domains:Quantifier_Domain.domains) (induct_args:SeLFiE_Util.induct_arguments) expr =
   let
-    val eq_result = EU.eval pst path_to_unode_table induct_args (unary_to_multi expr): EU.expr;
-    val result    = convert_result eq_result                                         : expr;
+    val eq_result = EU.eval pst path_to_unode_table domains induct_args (unary_to_multi expr): EU.expr;
+    val result    = convert_result eq_result                                                 : expr;
   in
     result
   end;

@@ -89,14 +89,14 @@ datatype assert =
 | Applies             of assert  * assert list
 | All                 of string * SeLFiE_Util.qtyp * assert
 | Some                of string * SeLFiE_Util.qtyp * assert
-| Dive_In             of assert * assert * assert list
-| Deep_Dive           of assert * assert * assert list
+| Dive_In             of assert * assert * assert list * SeLFiE_Util.assert
+| Deep_Dive           of assert * assert * assert list * SeLFiE_Util.assert
 (*debug*)
 | Debug_Non_Path_Literal of assert
 | Debug_Print_Unode      of assert
 | Dummy;
 
-val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> assert -> assert;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> Quantifier_Domain.domains -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
 end;
 
@@ -191,8 +191,8 @@ datatype assert =
 | Applies             of assert  * assert list
 | All                 of string * SU.qtyp * assert
 | Some                of string * SU.qtyp * assert
-| Dive_In             of assert * assert * assert list
-| Deep_Dive           of assert * assert * assert list
+| Dive_In             of assert * assert * assert list * SeLFiE_Util.assert
+| Deep_Dive           of assert * assert * assert list * SeLFiE_Util.assert
 (*debug*)
 | Debug_Non_Path_Literal of assert
 | Debug_Print_Unode      of assert
@@ -284,8 +284,8 @@ and (*bool*)
   | surf_to_var (Applies (func,   args))     = EV.Applies (surf_to_var func, surf_to_var_list args)
   | surf_to_var (All     (vname, typ, body)) = EV.All  (vname, typ, surf_to_var body)
   | surf_to_var (Some    (vname, typ, body)) = EV.Some (vname, typ, surf_to_var body)
-  | surf_to_var (Dive_In   (target, inner_lambda, outer_args)) = EV.Dive_In   (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args)
-  | surf_to_var (Deep_Dive (target, inner_lambda, outer_args)) = EV.Deep_Dive (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args)
+  | surf_to_var (Dive_In   (target, inner_lambda, outer_args, ands_ors)) = EV.Dive_In   (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args, ands_ors)
+  | surf_to_var (Deep_Dive (target, inner_lambda, outer_args, ands_ors)) = EV.Deep_Dive (surf_to_var target, surf_to_var inner_lambda, surf_to_var_list outer_args, ands_ors)
   (*debug*)
   | surf_to_var (Debug_Non_Path_Literal assert) = EV.Assert (SU.Atomic SU.Debug_Non_Path_Literal, surf_to_var_singleton assert)
   | surf_to_var (Debug_Print_Unode      assert) = EV.Assert (SU.Atomic SU.Debug_Print_Unode,      surf_to_var_singleton assert)
@@ -295,11 +295,11 @@ fun deep_to_surface (EV.Literal (EP.Non_Path (EP.Bool b))) = if b then True else
   | deep_to_surface (EV.Variable vname) = Variable vname
   | deep_to_surface _ = error "deep_to_surface failed.";
 
-fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
+fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (domains:Quantifier_Domain.domains) (induct_args:SeLFiE_Util.induct_arguments) (assert:assert) =
   let
-    val var_expr  = surf_to_var assert                                  : EV.expr;
-    val result_ev = EV.eval pst path_to_unode_table induct_args var_expr: EV.expr;
-    val result    = deep_to_surface result_ev                           : assert;
+    val var_expr  = surf_to_var assert                                          : EV.expr;
+    val result_ev = EV.eval pst path_to_unode_table domains induct_args var_expr: EV.expr;
+    val result    = deep_to_surface result_ev                                   : assert;
   in
     result
   end;

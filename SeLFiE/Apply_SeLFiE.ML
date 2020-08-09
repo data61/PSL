@@ -101,11 +101,13 @@ fun bool_to_ES_assert (true :bool) = ESS.True
 
 fun run_assertion (pst:Proof.state) (ind_mods:SU.induct_arguments) (assrt:ESS.assert) =
   let
-    val thm                 = Isabelle_Utils.proof_state_to_thm pst                            : thm;
-    val thm_term            = Thm.prop_of thm                                                  : term;
-    val path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
+    val thm                       = Isabelle_Utils.proof_state_to_thm pst                            : thm;
+    val thm_term                  = Thm.prop_of thm                                                  : term;
+    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
+    val gen_path_table            = SOME (Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table)    : Gen_Path.gen_path_to_unode_table option;
+    val outer_domains             = Quantifier_Domain.inout_pst_n_trm_n_induct_args_to_domains Quantifier_Domain.Out gen_path_table pst thm_term ind_mods: Quantifier_Domain.domains;
   in
-    ESS.eval pst path_to_unode_table ind_mods assrt = bool_to_ES_assert true
+    ESS.eval pst outer_path_to_unode_table outer_domains ind_mods assrt = bool_to_ES_assert true
   end;
 
 fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_mod) =

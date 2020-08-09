@@ -100,7 +100,6 @@ datatype assert =
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
-| Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Is_Deeper_Than_In_Same_Location    of assert * assert
 | Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_Root_In_A_Location              of assert
@@ -119,7 +118,7 @@ datatype assert =
 | Debug_Print_Unode                  of assert
 | Dummy
 
-val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> assert -> assert;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> Quantifier_Domain.domains -> SeLFiE_Util.induct_arguments -> assert -> assert;
 
 end;
 
@@ -222,7 +221,6 @@ datatype assert =
 | Is_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Below_N_Plus_One_th_Child_Of    of assert * assert * assert
 | Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of of assert * assert * assert
-| Is_Nth_Arg_Or_Below_Nth_Arg_Of     of assert * assert * assert
 | Is_Deeper_Than_In_Same_Location    of assert * assert
 | Is_Shallower_Than_In_Same_Location of assert * assert
 | Is_Root_In_A_Location              of assert
@@ -345,11 +343,11 @@ and
   | convert loc (Applies   (func, args)) = ES.Applies (convert loc func, convert_list loc args)
   | convert loc (All    (vname, typ, assert)) = ES.All  (vname, typ, convert loc assert)
   | convert loc (Some   (vname, typ, assert)) = ES.Some (vname, typ, convert loc assert)
-  | convert Out (In_All_Definitions (target, inner_fun, outer_args)) = ES.Dive_In   (convert Out target, convert Inn inner_fun, convert_list Out outer_args)
-  | convert Inn (In_All_Definitions (target, inner_fun, outer_args)) = ES.Deep_Dive (convert Inn target, convert Inn inner_fun, convert_list Inn outer_args)
+  | convert Out (In_All_Definitions (target, inner_fun, outer_args)) = ES.Dive_In   (convert Out target, convert Inn inner_fun, convert_list Out outer_args, SU.Ands)
+  | convert Inn (In_All_Definitions (target, inner_fun, outer_args)) = ES.Deep_Dive (convert Inn target, convert Inn inner_fun, convert_list Inn outer_args, SU.Ands)
   (*syntax sugar*)
-  | convert Out (In_Some_Definitions (target, Lambdas (strings, ass), outer_args)) = convert Out (Not (In_All_Definitions (target, Lambdas (strings, Not ass), outer_args)))
-  | convert In  (In_Some_Definitions (target, Lambdas (strings, ass), outer_args)) = convert In  (Not (In_All_Definitions (target, Lambdas (strings, Not ass), outer_args)))
+  | convert Out (In_Some_Definitions (target, inner_fun, outer_args)) = ES.Dive_In   (convert Out target, convert Inn inner_fun, convert_list Out outer_args, SU.Ors)
+  | convert In  (In_Some_Definitions (target, inner_fun, outer_args)) = ES.Deep_Dive (convert Inn target, convert Inn inner_fun, convert_list Inn outer_args, SU.Ors)
   | convert _   (In_Some_Definitions _) = error "convert in Eval_Syntactic_Sugar.ML failed at In_Some_Definitions"
   | convert loc (Is_Atomic assert) =
     convert loc
@@ -407,20 +405,6 @@ and
            Is_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)
           ]
         )
-  | convert loc (Is_Nth_Arg_Or_Below_Nth_Arg_Of (arg_or_in_arg, number, func)) =
-    let
-      val nth_arg_str = get_new_name [func, number, arg_or_in_arg]: string;
-      val nth_arg     = Variable nth_arg_str                      : assert;
-      val path_typ    = case loc of Out => SU.QOuter_Path | Inn => SU.QInner_Path;
-    in
-      convert loc
-       (Ors
-         [Is_Nth_Argument_Of (arg_or_in_arg, number, func),
-          Some (nth_arg_str, path_typ,
-            Ands
-              [Is_Nth_Argument_Of (nth_arg, number, func),
-               Is_Path_Above (nth_arg, arg_or_in_arg)])])
-    end
   | convert loc (Is_Deeper_Than_In_Same_Location (deep, shallow)) =
     convert loc
        (Are_In_Same_Location (deep, shallow)
@@ -550,7 +534,7 @@ fun surf_to_sugar ES.True  = True
   | surf_to_sugar ES.False = False
   | surf_to_sugar _ = error "surf_to_sugar failed."
 
-fun eval (pst:Proof.state) (path_to_unode_table: Outer_Path_To_Unode.path_to_unode_table) (ind_args:SU.induct_arguments) (assert:assert) =
-    ES.eval pst path_to_unode_table ind_args (convert Out assert) |> surf_to_sugar;
+fun eval (pst:Proof.state) (path_to_unode_table: Outer_Path_To_Unode.path_to_unode_table) (domains:Quantifier_Domain.domains) (ind_args:SU.induct_arguments) (assert:assert) =
+    ES.eval pst path_to_unode_table domains ind_args (convert Out assert) |> surf_to_sugar;
 
 end;

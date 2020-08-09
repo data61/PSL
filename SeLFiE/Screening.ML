@@ -67,8 +67,8 @@ local
 type quadruple  =  (int * SeLFiE_Util.induct_arguments * bool * Proof.state Seq.seq);
 type quadruples = quadruple list;
 
-fun show_how_many_survived (numb_combs:int) (numb_of_step:int) =
-  tracing ("Only " ^ Int.toString numb_combs ^ " combinations survived Step " ^ Int.toString numb_of_step);
+fun show_how_many_survived (numb_surviving_combs:int) (numb_original_combs:int) (numb_of_step:int) =
+  tracing ("Only " ^ Int.toString numb_surviving_combs ^ " combinations survived Step " ^ Int.toString numb_of_step ^ " out of " ^ Int.toString numb_original_combs);
 
 fun pst_n_score_n_induct_argumentss_to_quadruples (pst:Proof.state) (score_n_induct_argumentss:(int * SU.induct_arguments) list) =
   Par_List.map (induct_arguments_is_promising_for_proof_state pst) score_n_induct_argumentss
@@ -82,7 +82,7 @@ fun proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss (pst:Proof.sta
     val quadruples               = pst_n_score_n_induct_argumentss_to_quadruples pst zero_w_induct_argumentss: quadruples;
     val promising_args           = filter (fn (_, _, b, _) => b) quadruples |> map (fn (score, a, _, c) => (score, a, c))
                                  : (int * SU.induct_arguments * Proof.state Seq.seq) list;
-    val _ = show_how_many_survived (length promising_args) 2: unit;
+    val _ = show_how_many_survived (length promising_args) (length induct_argumentss) 2: unit;
   in
     promising_args: (int * SU.induct_arguments * Proof.state Seq.seq) list
   end;
@@ -95,7 +95,7 @@ fun induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resu
                           : (int * SU.induct_arguments * Proof.state Seq.seq) list;
     fun ord_triple ((_, args1, _), (_, args2, _)) = SU.ord_induct_arguments (args1, args2): order;
     val sorted_promisings = sort ord_triple promising_args;
-    val _                 = show_how_many_survived (length promising_args) 4: unit;
+    val _                 = show_how_many_survived (length promising_args) (length score_n_induct_argumentss) 4: unit;
   in
     sorted_promisings: (int * SU.induct_arguments * Proof.state Seq.seq) list
   end;

@@ -11,12 +11,12 @@ datatype expr =
 | Applies    of expr * expr list
 | Literal    of Eval_Parameter.literal
 | Assert     of SeLFiE_Util.assert * expr list
-| Dive_In    of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
-| Deep_Dive  of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
+| Dive_In   of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
+| Deep_Dive of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
 | All        of string * SeLFiE_Util.qtyp * expr
 | Some       of string * SeLFiE_Util.qtyp * expr;
 
-val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> SeLFiE_Util.induct_arguments -> expr -> expr;
+val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> Quantifier_Domain.domains -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
@@ -27,15 +27,15 @@ struct
 structure EM = Eval_Multi_Arity;
 
 datatype expr =
-  Variable   of string
-| Lambdas    of strings * expr (*(0, exp) means one lambda abstraction, and (1, exp) means two lambda abstractions.*)
-| Applies    of expr * expr list
-| Literal    of Eval_Parameter.literal
-| Assert     of SeLFiE_Util.assert * expr list
-| Dive_In    of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
-| Deep_Dive  of expr * expr * expr list(*outer target, inner lambda, outer arguments*)
-| All        of string * SeLFiE_Util.qtyp * expr
-| Some       of string * SeLFiE_Util.qtyp * expr;
+  Variable  of string
+| Lambdas   of strings * expr (*(0, exp) means one lambda abstraction, and (1, exp) means two lambda abstractions.*)
+| Applies   of expr * expr list
+| Literal   of Eval_Parameter.literal
+| Assert    of SeLFiE_Util.assert * expr list
+| Dive_In   of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
+| Deep_Dive of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
+| All       of string * SeLFiE_Util.qtyp * expr
+| Some      of string * SeLFiE_Util.qtyp * expr;
 
 fun print_expr (Variable vname) = "Variable " ^ vname ^ " "
   | print_expr (Lambdas (vnames, expr)) = "Lambdas ( " ^  String.concat vnames ^ " ,  " ^ print_expr expr ^ " ) "
@@ -71,21 +71,21 @@ fun var_to_mult scope (Variable vname        ) = EM.Bound (lookup scope vname)
     in
       EM.Lambdas (acc, var_to_mult new_env expr)
     end
-  | var_to_mult scope (Applies   (expr, exprs))        = EM.Applies (var_to_mult scope expr, map (var_to_mult scope) exprs)
-  | var_to_mult _     (Literal    l)                   = EM.Literal l
-  | var_to_mult scope (Assert    (ass, params))        = EM.Assert (ass, map (var_to_mult scope) params)
-  | var_to_mult scope (Dive_In   (target, lamb, args)) = EM.Dive_In   (var_to_mult scope target, var_to_mult scope lamb, map (var_to_mult scope) args)
-  | var_to_mult scope (Deep_Dive (target, lamb, args)) = EM.Deep_Dive (var_to_mult scope target, var_to_mult scope lamb, map (var_to_mult scope) args)
-  | var_to_mult scope (All       (vname, typ, expr))   = EM.All  (typ, var_to_mult (increment_then_update_with_0_n_times [vname] scope |> fst) expr)
-  | var_to_mult scope (Some      (vname, typ, expr))   = EM.Some (typ, var_to_mult (increment_then_update_with_0_n_times [vname] scope |> fst) expr);
+  | var_to_mult scope (Applies   (expr, exprs))                  = EM.Applies (var_to_mult scope expr, map (var_to_mult scope) exprs)
+  | var_to_mult _     (Literal    l)                             = EM.Literal l
+  | var_to_mult scope (Assert    (ass, params))                  = EM.Assert (ass, map (var_to_mult scope) params)
+  | var_to_mult scope (Dive_In   (target, lamb, args, ands_ors)) = EM.Dive_In   (var_to_mult scope target, var_to_mult scope lamb, map (var_to_mult scope) args, ands_ors)
+  | var_to_mult scope (Deep_Dive (target, lamb, args, ands_ors)) = EM.Deep_Dive (var_to_mult scope target, var_to_mult scope lamb, map (var_to_mult scope) args, ands_ors)
+  | var_to_mult scope (All       (vname, typ, expr))             = EM.All  (typ, var_to_mult (increment_then_update_with_0_n_times [vname] scope |> fst) expr)
+  | var_to_mult scope (Some      (vname, typ, expr))             = EM.Some (typ, var_to_mult (increment_then_update_with_0_n_times [vname] scope |> fst) expr);
 
 fun mult_to_var (EM.Literal l) = Literal l
   | mult_to_var _ = error "mult_to_var is defined only for Literal!"
 
-fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (induct_args:SeLFiE_Util.induct_arguments) (expr:expr) =
+fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (domains:Quantifier_Domain.domains) (induct_args:SeLFiE_Util.induct_arguments) (expr:expr) =
   let
-    val em_expr     = var_to_mult [] expr                                : EM.expr;
-    val mult_result = EM.eval pst path_to_unode_table induct_args em_expr: EM.expr;
+    val em_expr     = var_to_mult [] expr                                        : EM.expr;
+    val mult_result = EM.eval pst path_to_unode_table domains induct_args em_expr: EM.expr;
   in
     mult_to_var mult_result
   end;
