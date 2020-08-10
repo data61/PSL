@@ -38,12 +38,13 @@ fun powerset (xs:'a list) =
 
 fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
   let
-    val futrm_w_prnt    = UN.context_n_term_to_futrm_w_prnt ctxt trm: UN.futrm_w_prnt;
-    val func_args_pairs = futrm_w_prnt_to_arguments futrm_w_prnt    : (string * strings) list;
+    val trm_wo_abb      = Isabelle_Utils.contract_abbrevs ctxt trm         : term;
+    val futrm_w_prnt    = UN.context_n_term_to_futrm_w_prnt ctxt trm_wo_abb: UN.futrm_w_prnt;
+    val func_args_pairs = futrm_w_prnt_to_arguments futrm_w_prnt           : (string * strings) list;
     fun func_args_pair_to_func_powerset_of_args_pair (func:string, args:strings) =
         let
           val powerset_of_args = powerset args |> distinct (op =): strings list;
-          val pairs = map (fn subset => (func, subset)) powerset_of_args: (string * strings) list;
+          val pairs            = map (fn subset => (func, subset)) powerset_of_args: (string * strings) list;
         in
           pairs
         end;
@@ -60,15 +61,14 @@ fun powerset_to_induct_arguments [] = []
  :: SU.Induct_Arguments {ons = args, arbs = [], rules = [func ^ ".induct"]}
  :: powerset_to_induct_arguments pairs;
 
+(*TODO: Do we really want is_not_string_of_const?*)
 fun proof_state_to_induct_argumentss (pst:Proof.state) =
 let
   val ctxt             = Proof.context_of pst;
   val terms            = Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst: term list;
-  val pretty_printed_terms = map (Isabelle_Utils.trm_to_string (Proof_Context.set_mode Proof_Context.mode_default ctxt)) terms |> String.concat: string;
-  fun is_string_of_const (cname:string) = try (Syntax.read_term ctxt) cname <$> Term.is_Const |> Utils.is_some_true: bool;
+  fun is_not_string_of_const (cname:string) = try (Syntax.read_term ctxt) cname <$> Term.is_Const |> Utils.is_some_false: bool;
   fun is_wellfounded (SU.Induct_Arguments {rules,...}) = rules = ["Wellfounded.accp.induct"];(*TODO: FIXME: termination proof for  goodsteinC in Goodstein.thy*)
-  fun is_const_or_unabbreviated (on:string) = is_string_of_const on orelse String.isSubstring on pretty_printed_terms;
-  fun all_ons_meet_condition (SU.Induct_Arguments {ons,...}) = (forall is_const_or_unabbreviated ons) andalso not (null ons): bool
+  fun all_ons_meet_condition (SU.Induct_Arguments {ons,...}) = (forall is_not_string_of_const ons) andalso not (null ons): bool
   val induct_arguments = map (context_n_term_to_argument_powersets ctxt) terms
                       |> flat
                       |> distinct (op =)
@@ -84,17 +84,11 @@ end;
 
 fun proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score, SU.Induct_Arguments {ons, rules,...}) =
   let
-    val free_names           = fold Term.add_free_names trms []  |> distinct (op =)          : strings;
-    val fnames_not_in_ons    = filter_out (member (op =) ons) free_names                     : strings;
-    val ctxt                 = Proof.context_of pst;
-    val terms                = Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst         : term list;
-    val pretty_printed_terms = map (Isabelle_Utils.trm_to_string (Proof_Context.set_mode Proof_Context.mode_default ctxt)) terms |> String.concat: string;
-    fun fname_appears_in_terms (fvar_name:string) = String.isSubstring (fvar_name ^ " ") pretty_printed_terms
-                                             orelse String.isSubstring (" " ^ fvar_name) pretty_printed_terms
-                                             orelse String.isSubstring ("(" ^ fvar_name) pretty_printed_terms
-                                             orelse String.isSubstring (fvar_name ^ ")") pretty_printed_terms;
-    val arbss             = powerset fnames_not_in_ons
-                         |> filter (forall fname_appears_in_terms)                        : strings list;(*TODO: we can do better than this. refactor with proof_state_to_induct_argumentss.*)
+    val ctxt              = Proof.context_of pst;
+    val trms_wo_abb       = map (Isabelle_Utils.contract_abbrevs ctxt) trms               : terms;
+    val free_names        = fold Term.add_free_names trms_wo_abb []  |> distinct (op =)   : strings;
+    val fnames_not_in_ons = filter_out (member (op =) ons) free_names                     : strings;
+    val arbss             = powerset fnames_not_in_ons: strings list;(*TODO: refactor with proof_state_to_induct_argumentss.*)
     fun mk_new_pair arbs  = (score, SU.Induct_Arguments {ons=ons, arbs=arbs, rules=rules}): (int * SU.induct_arguments);
     val induct_argss      = map mk_new_pair arbss                                         : (int * SU.induct_arguments) list;
   in

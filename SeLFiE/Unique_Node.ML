@@ -32,6 +32,8 @@ datatype trm_w_prnt =
 (* trm_to_trm_w_prnt *)
 val trm_to_trm_w_prnt: Proof.context -> term -> trm_w_prnt;
 
+val trm_w_prnt_to_print: trm_w_prnt -> string;
+
 (* utrm_w_prnt: un-curried term with string *)
 datatype utrm_w_prnt =
   UC_Prnt of string      * typ               * string
@@ -175,7 +177,6 @@ type trm_w_prnts = trm_w_prnt list;
  * trm_to_string @{context} (Term.Bound 3);
  * trm_to_string @{context} @{term "s (\<lambda>x. t x u)"}
  *)
-
 (* trm_to_trm_w_prnt *)
 fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
   let
@@ -204,8 +205,16 @@ fun trm_to_trm_w_prnt (ctxt:Proof.context) (trm:term) =
         end
       | trm_to_trm_w_prnt' _ _ = error "trm_to_trm_w_print failed. Undesirable combination."
   in
-    trm_to_trm_w_prnt' trm trm
+    trm_to_trm_w_prnt' (*(contract_abbrevs ctxt trm) (contract_abbrevs ctxt trm) (*TODO*)*)trm trm
   end;
+
+
+fun trm_w_prnt_to_print (C_Prnt (_, _,    string)) = string (*Const*)
+  | trm_w_prnt_to_print (F_Prnt (_, _,    string)) = string (*Free*)
+  | trm_w_prnt_to_print (V_Prnt (_, _,    string)) = string (*Var*)
+  | trm_w_prnt_to_print (B_Prnt (_, _,    string)) = string (*Bound*)
+  | trm_w_prnt_to_print (L_Prnt (_, _, _, string)) = string (*Abs (Lambda Abstraction)*)
+  | trm_w_prnt_to_print (A_Prnt (_, _,    string)) = string;(*$   (Application)*)
 
 (* utrm_w_prnt: un-curried term with print *)
 datatype utrm_w_prnt =

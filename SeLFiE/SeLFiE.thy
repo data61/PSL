@@ -20,7 +20,7 @@ theory SeLFiE
   and      "all_induction_heuristic"     :: diag
   and      "all_generalization_heuristic":: diag
 begin
-
+ML\<open> structure Old_Pattern = Pattern \<close>
 find_theorems name:"wf_induct"
 
 (* pre-processing *)
@@ -36,6 +36,7 @@ ML_file "Term_Table.ML"
 (* This Term_Table_Test works only in the interactive mode.
 ML_file "Term_Table_Test.ML"
 *)
+
 ML_file "Dynamic_Induct.ML"
 
 ML_file "Eval_Bool.ML"

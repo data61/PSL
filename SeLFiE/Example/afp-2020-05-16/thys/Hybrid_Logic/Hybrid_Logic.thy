@@ -925,7 +925,7 @@ lemma mapi_branch_head_add_oob:
 lemma mapi_branch_mem:
   assumes \<open>(ps, i) \<in>. branch\<close>
   shows \<open>\<exists>v. (mapi (f v) ps, i) \<in>. mapi_branch f branch\<close>
-  unfolding mapi_branch_def using assms 
+  unfolding mapi_branch_def using assms semantic_induct
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block"],       arb[],rule[]](*okay, but irrelevant*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["v"],           arb[],rule[]](*a little unfortunate, but okay*)
   assert_SeLFiE_true  outer_induct_on_arg_of_set_member_n_set_outer [on["block", "i"],  arb[],rule[]](*a little unfortunate, but okay*)
@@ -2541,6 +2541,7 @@ lemma bridge_on_Nom:
   \<open>Nom i on (ps, a) \<Longrightarrow> Nom i on (mapi (bridge k j xs v) ps, a)\<close>semantic_induct
 (*228.318s elapsed time, 1273.885s cpu time, 97.495s GC time*)
 (*\<rightarrow> 137.481s elapsed time, 1360.037s cpu time, 70.169s GC time*)
+(*\<rightarrow> 142.748s elapsed time, 761.613s cpu time, 65.074s GC time after removing the screening stage for variable generalisation*)
   by (induct ps) auto
 
 lemma bridge'_nominals:
@@ -2752,7 +2753,7 @@ qed
 lemma descendants_block:
   assumes \<open>descendants k i ((ps, a) # branch) xs\<close>
   shows \<open>descendants k i ((ps' @ ps, a) # branch) xs\<close>
-  using assms 
+  using assms semantic_induct
   all_induction_heuristic [on["k", "i", "(ps, a) # branch", "xs"], arb[],rule["Hybrid_Logic.descendants.induct"]]
   assert_SeLFiE_true lifter_11 [on["k", "i", "(ps, a) # branch", "xs"], arb[],rule["Hybrid_Logic.descendants.induct"]]
 proof (induct k i \<open>(ps, a) # branch\<close> xs arbitrary: ps a branch rule: descendants.induct)
@@ -2823,7 +2824,7 @@ lemma descendants_types:
     \<open>descendants k i branch xs\<close> \<open>(v, v') \<in> xs\<close>
     \<open>branch !. v = Some (ps, a)\<close> \<open>ps !. v' = Some p\<close>
   shows \<open>p = (\<^bold>\<diamond> Nom k) \<or> (\<exists>q. p = (\<^bold>\<not> (\<^bold>@ k q)))\<close>
-  using assms  by (induct k i branch xs arbitrary: v v' ps a) fastforce+
+  using assms semantic_induct by (induct k i branch xs arbitrary: v v' ps a) fastforce+
 
 lemma descendants_oob_head':
   assumes \<open>descendants k i ((ps, a) # branch) xs\<close>

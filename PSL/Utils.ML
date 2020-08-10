@@ -464,6 +464,7 @@ sig
   val has_recursive_simp_about_const_name         : Proof.context -> string -> bool;
   val has_recursive_psimp_about_const_name        : Proof.context -> string -> bool;
   val normalize_trm_as_string                     : Proof.context -> string -> string;
+  val contract_abbrevs                            : Proof.context -> term -> term;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -879,6 +880,17 @@ fun has_recursive_psimp_about_const_name (ctxt:Proof.context) (cname:string) =
 
 fun normalize_trm_as_string (ctxt:Proof.context) (trm_as_string:string) =
     Syntax.read_term ctxt trm_as_string |> trm_to_string ctxt: string;
+
+(*This contract_abbrevs is a modified version of contract_abbrevs in Pure/Isar/proof_context.ML.*)
+fun contract_abbrevs (ctxt:Proof.context) (t:term) =
+  let
+    val thy            = Proof_Context.theory_of ctxt;
+    val consts         = Proof_Context.consts_of ctxt;
+    val retrieve       = Consts.retrieve_abbrevs consts (print_mode_value () @ [""]);
+    fun match_abbrev u = Option.map #1 (get_first (Old_Pattern.match_rew thy u) (retrieve u));
+  in
+    Old_Pattern.rewrite_term_top thy [] [match_abbrev] t
+  end;
 
 end;
 

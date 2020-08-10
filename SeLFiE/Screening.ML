@@ -74,7 +74,7 @@ fun pst_n_score_n_induct_argumentss_to_quadruples (pst:Proof.state) (score_n_ind
   Par_List.map (induct_arguments_is_promising_for_proof_state pst) score_n_induct_argumentss
 
 in
-
+(*TODO: rename some outdated names.*)
 fun proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss (pst:Proof.state) =
   let
     val induct_argumentss        = Smart_Construction.proof_state_to_induct_argumentss pst : SU.induct_arguments list;
