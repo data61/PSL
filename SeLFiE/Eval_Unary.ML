@@ -118,9 +118,6 @@ fun mk_inner_expr (lamb as Lambda _) (arguments:exprs) =
 
 (*TODO? Maybe we do not have to call OPTU or IPTU here.*)
 structure OPTU = Outer_Path_To_Unode;
-structure IPTU = Inner_Path_To_Unode;
-structure OPTP = Print_To_Outer_Paths;
-structure IPTP = Print_To_Inner_Paths;
 structure GP   = Gen_Path;
 structure QD   = Quantifier_Domain;
 
@@ -166,9 +163,9 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:
             EPWB.eval pst table induct_args assert lazy_params |> Literal
           end
       | eval' (Dive_In   (quadruple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _, _))) table domains = check_cache_then_dive_in quadruple table domains
-      | eval' (Dive_In _) _ _                                                                            = error "Dive_In failed in Eval_Unary.ML"
+      | eval' (Dive_In _) _ _                                                                               = error "Dive_In failed in Eval_Unary.ML"
       | eval' (Deep_Dive (quadruple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _, _))) table domains = check_cache_then_dive_in quadruple table domains
-      | eval' (Deep_Dive _) _ _                                                                          = error "Deep_Dive failed in Eval_Unary.ML"
+      | eval' (Deep_Dive _) _ _                                                                             = error "Deep_Dive failed in Eval_Unary.ML"
       | eval' (All  (qtyp, subexpr)) table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ands domains) table domains
       | eval' (Some (qtyp, subexpr)) table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ors  domains) table domains
       | eval' expr _ _ = expr
@@ -184,12 +181,12 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:
           let
             val cached_inner_alist = the cached_inner_alist_opt: inner_alist;
           in
-            if  is_some cached_result_opt
+            if is_some cached_result_opt
             then (*some result in cache*)
               the cached_result_opt
             else (*no result in cache*)
               let
-                val new_result      = dive quadruple table domains                                                                         : cached_val;
+                val new_result      = dive quadruple table domains                                                                      : cached_val;
                 val new_inner_alist = AList.update (op =) (triple, new_result) cached_inner_alist                                       : inner_alist;
                 val _               = Unsynchronized.:= (cache_term_to_alist, AList.update (op =) (thm_term, new_inner_alist) old_cache): unit;
               in
@@ -219,7 +216,6 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:
                                   then the table_n_domain_opt
                                   else
                                     let
-                                    (*TODO: We should avoid constructing tables too many times here. Use a reference to an association list of (term * (table * domain) list.*)
                                       val new_table   = (GP.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) trm: GP.gen_path_to_unode_table;
                                       val new_domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In NONE pst trm induct_args             : QD.domains;
                                       val  _          = Unsynchronized.:= (cache_simp_rule_str_to_tables, Symtab.update_new (trm_str, (new_table, new_domains)) old_cache);

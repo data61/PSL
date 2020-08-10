@@ -428,6 +428,7 @@ lemma base_red:
   using n(1) m(1) s semantic_induct
 (*21.321s elapsed time, 193.864s cpu time, 13.175s GC time*)
 (*\<rightarrow> 8.978s elapsed time, 99.331s cpu time, 0.804s GC time after working on Is_Nth_Argument_Of*)
+(*\<rightarrow> 5.831s elapsed time, 33.797s cpu time, 0.207s GC time after sharing the construction of outer-table and outer-domain w/o resorting to reference.*)
 proof (induct n arbitrary: m ns ms)
   { fix ns ms :: "nat list" and i j m :: nat
     assume n': "\<And>n'. n' \<in> set ns \<Longrightarrow> 0 < n'" "i < b" "i \<noteq> 0"

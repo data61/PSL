@@ -170,10 +170,15 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
     val maximum_point  = fold (curry (op +)) (map #point input) 0 + old_maximum_point: int;
     fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
       let
-        val clean_mods     = mk_clean_mods ctxt ind_mod: SU.induct_arguments;
-        val success_scores = filter (fn {assertion,...} => (run_assertion pst clean_mods assertion)) input
-                           |> map #point: int list;
-        val score          = fold (curry (op +)) success_scores 0: int;
+        val clean_mods                       = mk_clean_mods ctxt ind_mod                                       : SU.induct_arguments;
+        val thm                              = Isabelle_Utils.proof_state_to_thm pst                            : thm;
+        val thm_term                         = Thm.prop_of thm                                                  : term;
+        val outer_path_to_unode_table        = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
+        val outer_path_to_unode_table_as_gen = SOME (Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table)    : Gen_Path.gen_path_to_unode_table option;
+        val outer_domains                    = Quantifier_Domain.inout_pst_n_trm_n_induct_args_to_domains Quantifier_Domain.Out outer_path_to_unode_table_as_gen pst thm_term clean_mods: Quantifier_Domain.domains;
+        fun eval_to_true assert              = ESS.eval pst outer_path_to_unode_table outer_domains clean_mods assert = bool_to_ES_assert true;
+        val success_scores                   = filter (fn {assertion,...} => eval_to_true assertion) input |> map #point: int list;
+        val score                            = fold (curry (op +)) success_scores 0                                     : int;
       in score end;
 
     fun get_promising_ind_mods_n_result (Induction_Heuristic     : heuristic_typ) = Screening.proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss pst                                        : (int * SU.induct_arguments) list
@@ -183,7 +188,7 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
     val promising_ind_mods_n_result = get_promising_ind_mods_n_result heuristic_typ: (int * SU.induct_arguments) list;
     fun get_ind_mod_n_scores _  = Par_List.map (fn (old_score, ind_mod) => ((*tracing ("checking " ^ SeLFiE_Util.induct_arguments_to_string ind_mod);*)
                                       {score = old_score + ind_mod_to_score ind_mod, modifiers = ind_mod})) promising_ind_mods_n_result
-                             : {modifiers: SeLFiE_Util.induct_arguments,score: int} list;
+                             : {modifiers: SeLFiE_Util.induct_arguments, score: int} list;
     val ind_mod_n_scores_opt = try (Timeout.apply (seconds 3000.0) get_ind_mod_n_scores) promising_ind_mods_n_result
                              : {modifiers: SeLFiE_Util.induct_arguments, score: int} list option;
     fun mk_record_wo_arb  (score:int, ind_args:SU.induct_arguments) = {modifiers = ind_args, score = score};

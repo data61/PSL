@@ -2542,6 +2542,7 @@ lemma bridge_on_Nom:
 (*228.318s elapsed time, 1273.885s cpu time, 97.495s GC time*)
 (*\<rightarrow> 137.481s elapsed time, 1360.037s cpu time, 70.169s GC time*)
 (*\<rightarrow> 142.748s elapsed time, 761.613s cpu time, 65.074s GC time after removing the screening stage for variable generalisation*)
+(*\<rightarrow> 24.692s elapsed time, 138.673s cpu time, 4.329s GC time after sharing the construction of outer-table and outer-domain w/o resorting to reference.*)
   by (induct ps) auto
 
 lemma bridge'_nominals:
@@ -2549,6 +2550,7 @@ lemma bridge'_nominals:
 (*13.498s elapsed time, 73.286s cpu time, 9.176s GC time*)
 (*\<rightarrow> 8.011s elapsed time, 46.025s cpu time, 0.603s GC time*)
 (*\<rightarrow> 5.082s elapsed time, 10.333s cpu time, 0.423s GC time*)
+(*\<rightarrow> 0.952s elapsed time, 3.402s cpu time, 0.199s GC time*)
 proof (induct p)
   case (Neg p)
   then show ?case by (cases p) auto
