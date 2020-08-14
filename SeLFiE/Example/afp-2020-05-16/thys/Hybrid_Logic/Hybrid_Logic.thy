@@ -2544,6 +2544,7 @@ lemma bridge_on_Nom:
 (*\<rightarrow> 142.748s elapsed time, 761.613s cpu time, 65.074s GC time after removing the screening stage for variable generalisation*)
 (*\<rightarrow> 24.692s elapsed time, 138.673s cpu time, 4.329s GC time   after sharing the construction of outer-table and outer-domain w/o resorting to reference.*)
 (*\<rightarrow> 17.646s elapsed time, 97.685s cpu time, 6.505s GC time    after stopping constructing path_to_node_tables for inner assertions again and again to compute domains*)
+(*\<rightarrow> 11.747s elapsed time, 62.527s cpu time, 5.282s GC time  after having only one outer-table for many ind_mods in APply_SeLFiE.ML *)
   by (induct ps) auto
 
 lemma bridge'_nominals:
@@ -2552,6 +2553,7 @@ lemma bridge'_nominals:
 (*\<rightarrow> 8.011s elapsed time, 46.025s cpu time, 0.603s GC time*)
 (*\<rightarrow> 5.082s elapsed time, 10.333s cpu time, 0.423s GC time*)
 (*\<rightarrow> 0.952s elapsed time, 3.402s cpu time, 0.199s GC time*)
+(*\<rightarrow> 0.697s elapsed time, 1.989s cpu time, 0.089s GC time*)
 proof (induct p)
   case (Neg p)
   then show ?case by (cases p) auto

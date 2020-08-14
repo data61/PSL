@@ -429,6 +429,7 @@ lemma base_red:
 (*21.321s elapsed time, 193.864s cpu time, 13.175s GC time*)
 (*\<rightarrow> 8.978s elapsed time, 99.331s cpu time, 0.804s GC time after working on Is_Nth_Argument_Of*)
 (*\<rightarrow> 5.831s elapsed time, 33.797s cpu time, 0.207s GC time after sharing the construction of outer-table and outer-domain w/o resorting to reference.*)
+(*\<rightarrow> 4.014s elapsed time, 22.913s cpu time, 0.120s GC time after having only one outer-table for many ind_mods in APply_SeLFiE.ML *)
 proof (induct n arbitrary: m ns ms)
   { fix ns ms :: "nat list" and i j m :: nat
     assume n': "\<And>n'. n' \<in> set ns \<Longrightarrow> 0 < n'" "i < b" "i \<noteq> 0"
