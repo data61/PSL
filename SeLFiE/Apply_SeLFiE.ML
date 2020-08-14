@@ -159,7 +159,8 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
   (score_n_induct_wo_argss: (int * SU.induct_arguments) list)
   (heuristic_typ          : heuristic_typ)
   (take_top_n             : int)
-  (pst                    : Proof.state) =
+  (pst                    : Proof.state)
+  (outer_path_to_unode_table: Outer_Path_To_Unode.path_to_unode_table) =
   let
     val ctxt           = Proof.context_of pst: Proof.context;
     val assertions'    = (Strng_N_HeuTyp_Tab.dest o SeLFiE_Assertion.get) (Context.Proof ctxt)
@@ -168,11 +169,8 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
     fun is_same_heuristic_typ (typ:heuristic_typ) (htyp, {assertion,...}) = if typ = htyp andalso not (assertion = ESS.Dummy) then true else false;
     val input          = (filter (is_same_heuristic_typ heuristic_typ) assertions) |> map snd
                        : {assertion: Eval_Syntactic_Sugar.assert, name: string, point: int} list;
-    val maximum_point  = fold (curry (op +)) (map #point input) 0 + old_maximum_point: int;
-    val thm                              = Isabelle_Utils.proof_state_to_thm pst                                                         : thm;
-    val thm_term                         = Thm.prop_of thm                                                                               : term;
-    val outer_path_to_unode_table        = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term                             : Outer_Path_To_Unode.path_to_unode_table;
-    val outer_path_to_unode_table_as_gen = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table                                        : Gen_Path.gen_path_to_unode_table;
+    val maximum_point  = fold (curry (op +)) (map #point input) 0 + old_maximum_point            : int;
+    val outer_path_to_unode_table_as_gen = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table: Gen_Path.gen_path_to_unode_table; 
     fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
       let
         val clean_mods                       = mk_clean_mods ctxt ind_mod                                                                    : SU.induct_arguments;
@@ -212,15 +210,18 @@ val semantic_induct_cmd =
     val third_till_tenth   = List.tabulate (11, I) |> map Int.toString |> drop 3 |> map (fn rank => rank ^ "th candidate is ");
     val fst_till_tenth     = fst_and_snd @ third_till_tenth;
     fun ind_args_to_sendb ind_args = SU.induct_arguments_to_string ind_args
-                                  |> Active.sendback_markup_properties [Markup.padding_command]: string;
-    val pst                       = Toplevel.proof_of top: Proof.state;
-    val (ind_best_records, ind_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs 0 [] [] Induction_Heuristic 5 pst;
+                                  |> Active.sendback_markup_properties [Markup.padding_command]      : string;
+    val pst                       = Toplevel.proof_of top                                            : Proof.state;
+    val thm                       = Isabelle_Utils.proof_state_to_thm pst                            : thm;
+    val thm_term                  = Thm.prop_of thm                                                  : term;
+    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
+    val (ind_best_records, ind_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs 0 [] [] Induction_Heuristic 5 pst outer_path_to_unode_table;
     fun record_to_pair {score, modifiers,...} = (score, modifiers);
     val best_pairs            = Par_List.map record_to_pair ind_best_records
                               : (int * SU.induct_arguments) list;
     val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs
                               :  (int * SU.induct_arguments) list;
-    val (arb_best_records, arb_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Generalization_Heuristic 10 pst;
+    val (arb_best_records, arb_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Generalization_Heuristic 10 pst outer_path_to_unode_table;
     fun mk_arb_message record = ind_args_to_sendb (#modifiers record) ^
                              "\n  (* The score is " ^ Int.toString (#score record) ^ " out of " ^ Int.toString arb_max_point ^ ". *)";
     val best_arb_messages      = map mk_arb_message arb_best_records: strings;

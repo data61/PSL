@@ -164,17 +164,12 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
           val parent_path_opt = GP.path_to_its_parent_path nth_arg: gen_path option;
           val parent_is_app   = Option.map (fn p => eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool) parent_path_opt
                              |> Utils.is_some_true: bool;
-(*
-          fun is_its_child c  = Option.map (Utils.flip GP.is_parent_of c) parent_path_opt
-                             |> Utils.is_some_true: bool;
-*)
           fun is_fst_child c  = Option.map (GP.is_fst_child_of c) parent_path_opt
                              |> Utils.is_some_true: bool;
           fun is_its_n_plus1_th_child c = eval' (PA.Is_Nth_Child  (c, numb + 1(*!*))) ctxt  |> EB.assert_to_bool;
         in
                   parent_is_app
           andalso is_fst_child func
-(*        andalso is_its_child nth_arg*)
           andalso is_its_n_plus1_th_child nth_arg
         end
         )

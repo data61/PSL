@@ -16,14 +16,12 @@ datatype expr =
 | All       of SeLFiE_Util.qtyp * expr
 | Some      of SeLFiE_Util.qtyp * expr;
 
-type cached_val        = expr;
-type inner_key         = (expr * expr list * SeLFiE_Util.assert);
-type inner_alist       = (inner_key * cached_val) list;
-type outer_key         = string;
-type inner_alist_table = inner_alist Symtab.table;
+type cached_result         = expr;
+type alist_for_each_lambda = ((expr list * SeLFiE_Util.assert) * cached_result) list;
+type key_for_each_lambda   = expr;
+type inner_alist           = (key_for_each_lambda * alist_for_each_lambda) list;
+type inner_alist_table     = inner_alist Symtab.table;
 val cache_term_to_alist: inner_alist_table Unsynchronized.ref;
-val cache_for_dive_in  : ((term * (expr * expr * expr list)) * expr) list Unsynchronized.ref;
-
 val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> Quantifier_Domain.domains -> SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
@@ -123,17 +121,14 @@ structure QD   = Quantifier_Domain;
 
 type literals = Eval_Parameter.literals;
 
-type cached_val  = expr;
-type inner_key   = (expr * expr list * SeLFiE_Util.assert);
-type inner_alist = (inner_key * cached_val) list;
-type outer_key   = string;
-type inner_alist_table = inner_alist Symtab.table;
+type cached_result         = expr;
+type alist_for_each_lambda = ((expr list * SeLFiE_Util.assert) * cached_result) list;
+type key_for_each_lambda   = expr;
+type inner_alist           = (key_for_each_lambda * alist_for_each_lambda) list;
+type inner_alist_table     = inner_alist Symtab.table;
 val cache_term_to_alist = Unsynchronized.ref Symtab.empty: inner_alist_table Unsynchronized.ref;
 
 val cache_simp_rule_str_to_tables  = Unsynchronized.ref Symtab.empty;
-
-type triple = (expr * expr * expr list);
-val cache_for_dive_in = Unsynchronized.ref ([]:((term * triple) * expr) list);
 
 fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:Quantifier_Domain.domains) (induct_args:SU.induct_arguments) (expr:expr) =
   let
@@ -167,35 +162,49 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:
       | eval' (All  (qtyp, subexpr)) table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ands domains) table domains
       | eval' (Some (qtyp, subexpr)) table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ors  domains) table domains
       | eval' expr _ _ = expr
-    and check_cache_then_dive_in (quadruple as (target as Literal (EP.Non_Path (EP.Print target_print)), lambda, args, ands_ors)) table domains =(*TODO: Can this be a little better?*)
+    and check_cache_then_dive_in (quadruple as (Literal (EP.Non_Path (EP.Print target_print)), lambda, args, ands_ors)) table domains =(*TODO: Can this be a little better?*)
       let
-        val triple                 = (lambda, args, ands_ors);
-        val old_cache              = !cache_term_to_alist                                       : inner_alist_table;
-        val cached_inner_alist_opt = Symtab.lookup old_cache target_print: inner_alist option: inner_alist option;
+        val old_cache              = !cache_term_to_alist                : inner_alist_table;
+        val cached_inner_alist_opt = Symtab.lookup old_cache target_print: inner_alist option;
       in
         if   is_some cached_inner_alist_opt
         then (*some inner associative list*)
           let
-            val cached_result_opt  = cached_inner_alist_opt >>= (fn alist => AList.lookup (op =) alist triple): cached_val option;
-            val cached_inner_alist = the cached_inner_alist_opt: inner_alist;
+            val alist_for_this_lambda_opt = cached_inner_alist_opt
+                                  >>= (fn alist => AList.lookup (op =) alist lambda: alist_for_each_lambda option): alist_for_each_lambda option;
+            val cached_result_opt = alist_for_this_lambda_opt
+                                  >>= (fn alist => AList.lookup (op =) alist (args, ands_ors)): cached_result option;
           in
-            if is_some cached_result_opt
+            if is_some alist_for_this_lambda_opt andalso is_some cached_result_opt
             then (*some result in cache*)
               the cached_result_opt
             else (*no result in cache*)
+            if is_some alist_for_this_lambda_opt andalso is_none cached_result_opt
+            then
               let
-                val new_result      = dive quadruple table domains                                                                    : cached_val;
-                val new_inner_alist = AList.update (op =) (triple, new_result) cached_inner_alist                                     : inner_alist;
-                val _               = Unsynchronized.:= (cache_term_to_alist, Symtab.update (target_print, new_inner_alist) old_cache): unit;
+                val new_result                = dive quadruple table domains                                                            : cached_result;
+                val new_alist_for_this_lambda = AList.update (op =) ((args, ands_ors), new_result)       (the alist_for_this_lambda_opt): alist_for_each_lambda;
+                val new_inner_alist           = AList.update (op =) (lambda, new_alist_for_this_lambda)   []                            : inner_alist;
+                val _ = Unsynchronized.:= (cache_term_to_alist, Symtab.update (target_print, new_inner_alist) old_cache)                : unit;
+              in
+                new_result
+              end
+            else(*no inner associative list*)
+              let
+                val new_result                = dive quadruple table domains                                            : cached_result;
+                val new_alist_for_this_lambda = AList.update (op =) ((args, ands_ors), new_result)       []             : alist_for_each_lambda;
+                val new_inner_alist           = AList.update (op =) (lambda, new_alist_for_this_lambda)  []             : inner_alist;
+                val _ = Unsynchronized.:= (cache_term_to_alist, Symtab.update (target_print, new_inner_alist) old_cache): unit;
               in
                 new_result
               end
           end
-        else(*no inner associative list*)
+        else
           let
-            val new_result = dive (target, lambda, args, ands_ors) table domains                                                         : cached_val;
-            val new_inner_alist = AList.update (op =) (triple, new_result) []                                                            : inner_alist;
-                val _               = Unsynchronized.:= (cache_term_to_alist, Symtab.update (target_print, new_inner_alist) old_cache): unit;
+            val new_result                = dive quadruple table domains                                            : cached_result;
+            val new_alist_for_this_lambda = AList.update (op =) ((args, ands_ors), new_result)       []             : alist_for_each_lambda;
+            val new_inner_alist           = AList.update (op =) (lambda, new_alist_for_this_lambda)  []             : inner_alist;
+            val _ = Unsynchronized.:= (cache_term_to_alist, Symtab.update (target_print, new_inner_alist) old_cache): unit;
           in
             new_result
           end
