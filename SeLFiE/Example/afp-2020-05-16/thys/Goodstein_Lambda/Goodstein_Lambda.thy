@@ -768,7 +768,7 @@ lemma goodstein\<^sub>O:
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq                                  [on["c"], arb["n"],rule[]](*a little unfortunate*)
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change                                   [on["c"], arb["n"],rule[]](*a little unfortunate*)
   assert_SeLFiE_true   if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs [on["c"], arb["n"],rule[]](*a little unfortunate*)
-  assert_SeLFiE_false  generalize_arguments_used_in_recursion                                  [on["c"], arb["n"],rule[]]
+  assert_SeLF iE_false  generalize_arguments_used_in_recursion                                  [on["c"], arb["n"],rule[]]
 (*
   assert_SeLFiE_true  if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m"], arb["m'"],rule[]]
   assert_SeLFiE_false if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs[on["m'"], arb["m"],rule[]](*very good*)

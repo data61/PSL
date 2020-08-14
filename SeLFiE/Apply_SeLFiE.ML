@@ -22,6 +22,7 @@ structure SU  = SeLFiE_Util;
 structure IU  = Isabelle_Utils;
 structure ES  = Eval_Surface;
 structure ESS = Eval_Syntactic_Sugar;
+structure QD  = Quantifier_Domain;
 
 fun heuristic_typ_ord (Induction_Heuristic,      Induction_Heuristic     ) = EQUAL
   | heuristic_typ_ord (Induction_Heuristic,      _                       ) = LESS
@@ -101,11 +102,11 @@ fun bool_to_ES_assert (true :bool) = ESS.True
 
 fun run_assertion (pst:Proof.state) (ind_mods:SU.induct_arguments) (assrt:ESS.assert) =
   let
-    val thm                       = Isabelle_Utils.proof_state_to_thm pst                            : thm;
-    val thm_term                  = Thm.prop_of thm                                                  : term;
-    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
-    val gen_path_table            = SOME (Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table)    : Gen_Path.gen_path_to_unode_table option;
-    val outer_domains             = Quantifier_Domain.inout_pst_n_trm_n_induct_args_to_domains Quantifier_Domain.Out gen_path_table pst thm_term ind_mods: Quantifier_Domain.domains;
+    val thm                       = Isabelle_Utils.proof_state_to_thm pst                                     : thm;
+    val thm_term                  = Thm.prop_of thm                                                           : term;
+    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term         : Outer_Path_To_Unode.path_to_unode_table;
+    val gen_path_table            = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table                    : Gen_Path.gen_path_to_unode_table;
+    val outer_domains             = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out gen_path_table ind_mods: QD.domains;
   in
     ESS.eval pst outer_path_to_unode_table outer_domains ind_mods assrt = bool_to_ES_assert true
   end;
@@ -170,12 +171,12 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
     val maximum_point  = fold (curry (op +)) (map #point input) 0 + old_maximum_point: int;
     fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
       let
-        val clean_mods                       = mk_clean_mods ctxt ind_mod                                       : SU.induct_arguments;
-        val thm                              = Isabelle_Utils.proof_state_to_thm pst                            : thm;
-        val thm_term                         = Thm.prop_of thm                                                  : term;
-        val outer_path_to_unode_table        = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
-        val outer_path_to_unode_table_as_gen = SOME (Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table)    : Gen_Path.gen_path_to_unode_table option;
-        val outer_domains                    = Quantifier_Domain.inout_pst_n_trm_n_induct_args_to_domains Quantifier_Domain.Out outer_path_to_unode_table_as_gen pst thm_term clean_mods: Quantifier_Domain.domains;
+        val clean_mods                       = mk_clean_mods ctxt ind_mod                                                                    : SU.induct_arguments;
+        val thm                              = Isabelle_Utils.proof_state_to_thm pst                                                         : thm;
+        val thm_term                         = Thm.prop_of thm                                                                               : term;
+        val outer_path_to_unode_table        = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term                             : Outer_Path_To_Unode.path_to_unode_table;
+        val outer_path_to_unode_table_as_gen = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table                                        : Gen_Path.gen_path_to_unode_table;
+        val outer_domains                    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out outer_path_to_unode_table_as_gen clean_mods: QD.domains;
         fun eval_to_true assert              = ESS.eval pst outer_path_to_unode_table outer_domains clean_mods assert = bool_to_ES_assert true;
         val success_scores                   = filter (fn {assertion,...} => eval_to_true assertion) input |> map #point: int list;
         val score                            = fold (curry (op +)) success_scores 0                                     : int;

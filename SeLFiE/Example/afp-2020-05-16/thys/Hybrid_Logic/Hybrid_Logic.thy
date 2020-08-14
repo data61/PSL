@@ -2542,7 +2542,8 @@ lemma bridge_on_Nom:
 (*228.318s elapsed time, 1273.885s cpu time, 97.495s GC time*)
 (*\<rightarrow> 137.481s elapsed time, 1360.037s cpu time, 70.169s GC time*)
 (*\<rightarrow> 142.748s elapsed time, 761.613s cpu time, 65.074s GC time after removing the screening stage for variable generalisation*)
-(*\<rightarrow> 24.692s elapsed time, 138.673s cpu time, 4.329s GC time after sharing the construction of outer-table and outer-domain w/o resorting to reference.*)
+(*\<rightarrow> 24.692s elapsed time, 138.673s cpu time, 4.329s GC time   after sharing the construction of outer-table and outer-domain w/o resorting to reference.*)
+(*\<rightarrow> 17.646s elapsed time, 97.685s cpu time, 6.505s GC time    after stopping constructing path_to_node_tables for inner assertions again and again to compute domains*)
   by (induct ps) auto
 
 lemma bridge'_nominals:

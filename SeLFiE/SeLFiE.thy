@@ -21,6 +21,7 @@ theory SeLFiE
   and      "all_generalization_heuristic":: diag
 begin
 ML\<open> structure Old_Pattern = Pattern \<close>
+ML\<open>prod_ord; list_ord \<close>
 find_theorems name:"wf_induct"
 
 (* pre-processing *)

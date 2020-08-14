@@ -99,6 +99,9 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_false rule_inversion_using_the_deepest_const [on["xs", "ys"], arb[],rule["itrev.induct"]]
   apply(induct xs arbitrary: ys) apply auto done
 
+lemma "itrev xs ys = rev xs @ ys"
+  semantic_induct
+  oops
 (* auxiliary stuff *)
 ML\<open>
 @{term "let x = 1 in x"};
