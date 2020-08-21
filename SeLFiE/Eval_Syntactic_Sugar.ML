@@ -74,6 +74,7 @@ datatype assert =
 | Is_A_Meta_Premise                        of assert
 | Is_A_Meta_Conclusion                     of assert
 | Is_A_Meta_Premise_Or_Below               of assert
+| Is_A_Meta_Conclusion_Or_Below      of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -107,7 +108,6 @@ datatype assert =
 | Is_Less_Than_Or_Equal              of assert * assert
 | Is_More_Than_Or_Equal              of assert * assert
 | Is_More_Than                       of assert * assert
-| Is_A_Meta_Conclusion_Or_Below      of assert
 | Is_If_Then_Else                    of assert * assert * assert * assert
 | Is_Case_Distinct_Of_Trm_With_A_Case of assert * assert * assert
 | Is_Let_X_Be_Y_In_X                  of assert * assert * assert
@@ -195,6 +195,7 @@ datatype assert =
 | Is_A_Meta_Premise                        of assert
 | Is_A_Meta_Conclusion                     of assert
 | Is_A_Meta_Premise_Or_Below               of assert
+| Is_A_Meta_Conclusion_Or_Below      of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -228,7 +229,6 @@ datatype assert =
 | Is_Less_Than_Or_Equal              of assert * assert
 | Is_More_Than_Or_Equal              of assert * assert
 | Is_More_Than                       of assert * assert
-| Is_A_Meta_Conclusion_Or_Below      of assert
 | Is_If_Then_Else                    of assert * assert * assert * assert
 | Is_Case_Distinct_Of_Trm_With_A_Case of assert * assert * assert
 | Is_Let_X_Be_Y_In_X                  of assert * assert * assert
@@ -284,12 +284,16 @@ and
   | convert loc (Node_Takes_N_Arguments           pair)  = ES.Node_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Node_Takes_Less_Than_N_Arguments pair)  = ES.Node_Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Unode*)
-  | convert loc (Has_Same_Prnt_As       pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
-  | convert loc (Is_Deeper_Than         pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Deeper_Than         (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
-  | convert loc (Is_Shallower_Than      pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Shallower_Than      (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
-  | convert loc (Is_Nth_Child           pair) = ES.Is_Nth_Child           (convert_pair loc pair)
-  | convert loc (Is_N_Plus_One_th_Child pair) = ES.Is_N_Plus_One_th_Child (convert_pair loc pair)
-  | convert loc (Is_Root_In_A_Location  arg ) = ES.Is_Root_In_A_Location  (convert      loc arg )
+  | convert loc (Has_Same_Prnt_As              pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
+  | convert loc (Is_Deeper_Than                pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Deeper_Than    (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
+  | convert loc (Is_Shallower_Than             pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Shallower_Than (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
+  | convert loc (Is_Nth_Child                  pair) = ES.Is_Nth_Child                  (convert_pair loc pair)
+  | convert loc (Is_N_Plus_One_th_Child        pair) = ES.Is_N_Plus_One_th_Child        (convert_pair loc pair)
+  | convert loc (Is_Root_In_A_Location         arg ) = ES.Is_Root_In_A_Location         (convert      loc arg )
+  | convert loc (Is_A_Meta_Premise             ass)  = ES.Is_A_Meta_Premise             (convert loc ass)
+  | convert loc (Is_A_Meta_Conclusion          ass)  = ES.Is_A_Meta_Conclusion          (convert loc ass)
+  | convert loc (Is_A_Meta_Premise_Or_Below    ass)  = ES.Is_A_Meta_Premise_Or_Below    (convert loc ass)
+  | convert loc (Is_A_Meta_Conclusion_Or_Below ass)  = ES.Is_A_Meta_Conclusion_Or_Below (convert loc ass)
   (*Eval_Prnt*)
   | convert loc (Are_Same_Prints    pair) = ES.Are_Same_Prints  (convert_pair loc pair)
   | convert loc (Is_Subprint_Of     pair) = ES.Is_Subprint_Of   (convert_pair loc pair)
@@ -323,12 +327,9 @@ and
   | convert loc (Is_An_Argument_Of                        pair) = ES.Is_An_Argument_Of                        (convert_pair loc pair)
   | convert loc (Is_An_Argument_Or_Below_Argument_Of      pair) = ES.Is_An_Argument_Or_Below_Argument_Of      (convert_pair loc pair)
   | convert loc (Is_Nth_Child_Or_Below_Nth_Child_Of       pair) = ES.Is_Nth_Child_Or_Below_Nth_Child_Of       (convert_trip loc pair)
+  | convert loc (Is_Below_N_Plus_One_th_Child_Of          trip) = ES.Is_Below_N_Plus_One_th_Child_Of          (convert_trip loc trip)
   | convert loc (Is_Nth_Argument_Of                       trip) = ES.Is_Nth_Argument_Of                       (convert_trip loc trip)
   | convert loc (Is_Nth_Argument_Or_Below_Nth_Argument_Of trip) = ES.Is_Nth_Argument_Or_Below_Nth_Argument_Of (convert_trip loc trip)
-  | convert loc (Is_A_Meta_Premise                        ass)  = ES.Is_A_Meta_Premise                        (convert loc ass)
-  | convert loc (Is_A_Meta_Conclusion                     ass)  = ES.Is_A_Meta_Conclusion                     (convert loc ass)
-  | convert loc (Is_A_Meta_Premise_Or_Below               ass)  = ES.Is_A_Meta_Premise_Or_Below               (convert loc ass)
-  | convert loc (Is_A_Meta_Conclusion_Or_Below            ass)  = ES.Is_A_Meta_Conclusion_Or_Below            (convert loc ass)
   (*Eval_Number*)
   | convert loc (Are_Same_Number     pair) = ES.Are_Same_Number     (convert_pair loc pair)
   | convert loc (Is_Less_Than        pair) = ES.Is_Less_Than        (convert_pair loc pair)
@@ -347,7 +348,7 @@ and
   | convert Inn (In_All_Definitions (target, inner_fun, outer_args)) = ES.Deep_Dive (convert Inn target, convert Inn inner_fun, convert_list Inn outer_args, SU.Ands)
   (*syntax sugar*)
   | convert Out (In_Some_Definitions (target, inner_fun, outer_args)) = ES.Dive_In   (convert Out target, convert Inn inner_fun, convert_list Out outer_args, SU.Ors)
-  | convert In  (In_Some_Definitions (target, inner_fun, outer_args)) = ES.Deep_Dive (convert Inn target, convert Inn inner_fun, convert_list Inn outer_args, SU.Ors)
+  | convert Inn (In_Some_Definitions (target, inner_fun, outer_args)) = ES.Deep_Dive (convert Inn target, convert Inn inner_fun, convert_list Inn outer_args, SU.Ors)
   | convert _   (In_Some_Definitions _) = error "convert in Eval_Syntactic_Sugar.ML failed at In_Some_Definitions"
   | convert loc (Is_Atomic assert) =
     convert loc
@@ -383,6 +384,7 @@ and
       (Ands
          [Is_Parent_Of (parent, child),
           Is_N_Plus_One_th_Child (child, number)])
+(*
   | convert loc (Is_Below_N_Plus_One_th_Child_Of (in_child, number, parent)) =
     let
       val n_plus_one_th_child_str = get_new_name [in_child, number, parent]: string;
@@ -398,6 +400,7 @@ and
          )
         )
     end
+*)
   | convert loc (Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (child_or_in_child, number, parent)) =
       convert loc
         (Ors

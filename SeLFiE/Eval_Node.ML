@@ -13,7 +13,6 @@ datatype assert =
 | Node_Is_Bound                    of UN.node (*corresponds to Bound in term*)
 | Node_Is_Lambda                   of UN.node (*lambda abstraction corresponding to Abs in Term*)
 | Node_Is_App                      of UN.node (*function application corresponding to $ in Term*)
-| Node_Is_Defined_With             of UN.node * Pattern.command
 | Node_Is_Defined_With_N_Clauses   of UN.node * int
 | Is_Rule_Of_Node                  of string  * UN.node
 | Node_Takes_N_Arguments           of UN.node * int
@@ -35,7 +34,6 @@ datatype assert =
 | Node_Is_Bound                    of UN.node (*corresponds to Bound in term*)
 | Node_Is_Lambda                   of UN.node (*lambda abstraction corresponding to Abs in Term*)
 | Node_Is_App                      of UN.node (*function application corresponding to $ in Term*)
-| Node_Is_Defined_With             of UN.node * Pattern.command
 | Node_Is_Defined_With_N_Clauses   of UN.node * int
 | Is_Rule_Of_Node                  of string  * UN.node
 | Node_Takes_N_Arguments           of UN.node * int
@@ -47,10 +45,9 @@ fun eval' (Node_Is_Cnst                      node                      ) _    = 
   | eval' (Node_Is_Bound                     node                      ) _    = UN.is_NB node
   | eval' (Node_Is_Lambda                    node                      ) _    = UN.is_NL node
   | eval' (Node_Is_App                       node                      ) _    = UN.is_NA node
-  | eval' (Node_Is_Defined_With             (node, cmd)                ) _    = UN.is_defined_by node cmd
-  | eval' (Node_Is_Defined_With_N_Clauses   (UN.NC (cname, _, _),  int)) ctxt = SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt cname = int
+  | eval' (Node_Is_Defined_With_N_Clauses   (UN.NC (cname, _), int))     ctxt = SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt cname = int
   | eval' (Node_Is_Defined_With_N_Clauses    _                         ) _    = false
-  | eval' (Is_Rule_Of_Node                  (rule, UN.NC (cname, _, _))) ctxt = SeLFiE_Util.rule_to_const_name ctxt rule = cname
+  | eval' (Is_Rule_Of_Node                  (rule, UN.NC (cname, _)))    ctxt = SeLFiE_Util.rule_to_const_name ctxt rule = cname
   | eval' (Is_Rule_Of_Node                   _                         ) _    = false
   | eval' (Node_Takes_N_Arguments           (node, n))                   _    = UN.node_to_numb_of_arguments node = n
   | eval' (Node_Takes_Less_Than_N_Arguments (node, n))                   _    = n < UN.node_to_numb_of_arguments node;(*Note the direction.*)

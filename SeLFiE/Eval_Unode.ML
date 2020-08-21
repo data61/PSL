@@ -7,13 +7,18 @@ signature EVAL_UNODE =
 sig
 
 datatype assert =
-  Has_Same_Prnt_As       of UN.unode * UN.unode
-| Is_Deeper_Than         of UN.unode * UN.unode
-| Is_Shallower_Than      of UN.unode * UN.unode
-| Is_Nth_Child           of UN.unode * int
-| Is_N_Plus_One_th_Child of UN.unode * int
-| Is_Root_In_A_Location  of UN.unode
-| Debug_Print_Unode      of UN.unode;
+  Has_Same_Prnt_As              of UN.unode * UN.unode
+| Is_Deeper_Than                of UN.unode * UN.unode
+| Is_Shallower_Than             of UN.unode * UN.unode
+| Is_Nth_Child                  of UN.unode * int
+| Is_N_Plus_One_th_Child        of UN.unode * int
+| Is_Root_In_A_Location         of UN.unode
+| Debug_Print_Unode             of UN.unode
+| Node_Is_Defined_With          of (UN.unode * Pattern.command)
+| Is_A_Meta_Premise             of UN.unode
+| Is_A_Meta_Conclusion          of UN.unode
+| Is_A_Meta_Premise_Or_Below    of UN.unode
+| Is_A_Meta_Conclusion_Or_Below of UN.unode;
 
 val eval: assert -> Eval_Bool.assert;
 
@@ -26,13 +31,18 @@ struct
 type unode = Unique_Node.unode;
 
 datatype assert =
-  Has_Same_Prnt_As       of unode * unode
-| Is_Deeper_Than         of unode * unode
-| Is_Shallower_Than      of unode * unode
-| Is_Nth_Child           of unode * int
-| Is_N_Plus_One_th_Child of unode * int
-| Is_Root_In_A_Location  of UN.unode
-| Debug_Print_Unode      of UN.unode;
+  Has_Same_Prnt_As              of unode * unode
+| Is_Deeper_Than                of unode * unode
+| Is_Shallower_Than             of unode * unode
+| Is_Nth_Child                  of unode * int
+| Is_N_Plus_One_th_Child        of unode * int
+| Is_Root_In_A_Location         of unode
+| Debug_Print_Unode             of unode
+| Node_Is_Defined_With          of (unode * Pattern.command)
+| Is_A_Meta_Premise             of unode
+| Is_A_Meta_Conclusion          of unode
+| Is_A_Meta_Premise_Or_Below    of unode
+| Is_A_Meta_Conclusion_Or_Below of unode;
 
 infix
   Has_Same_Prnt_As
@@ -43,8 +53,8 @@ infix
   Is_Nth_Child
   Is_N_Plus_One_th_Child;
 
-val unode2_to_depth2                              = apply2 Unique_Node.unode_to_depth: unode * unode -> int * int;
-fun unode2_to_print2 (unode2:unode * unode)       = apply2 #print unode2;
+val unode2_to_depth2                        = apply2 Unique_Node.unode_to_depth: unode * unode -> int * int;
+fun unode2_to_print2 (unode2:unode * unode) = apply2 #print unode2;
 
 fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     let
@@ -83,6 +93,11 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
     end
   | eval' (Is_Root_In_A_Location {inner_path,...}) = inner_path = []
   | eval' (Debug_Print_Unode {print,...}) = (tracing ("Debug_Print_Unode: " ^ print); true)
+  | eval' (Node_Is_Defined_With       (unode, cmd)) = UN.is_defined_by unode cmd
+  | eval' (Is_A_Meta_Premise             {tag,...}) = #is_premise    tag
+  | eval' (Is_A_Meta_Conclusion          {tag,...}) = #is_conclusion tag
+  | eval' (Is_A_Meta_Premise_Or_Below    {tag,...}) = #part_of_prem  tag
+  | eval' (Is_A_Meta_Conclusion_Or_Below {tag,...}) = #part_of_cncl  tag;
 
 fun eval assert = eval' assert |> Eval_Bool.bool_to_assert;
 

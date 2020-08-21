@@ -69,6 +69,7 @@ datatype assert =
 | Is_An_Argument_Of                        of assert * assert
 | Is_An_Argument_Or_Below_Argument_Of      of assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of       of assert * assert * assert
+| Is_Below_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Argument_Of                       of assert * assert * assert
 | Is_Nth_Argument_Or_Below_Nth_Argument_Of of assert * assert * assert
 | Is_A_Meta_Premise                        of assert
@@ -171,6 +172,7 @@ datatype assert =
 | Is_An_Argument_Of                        of assert * assert
 | Is_An_Argument_Or_Below_Argument_Of      of assert * assert
 | Is_Nth_Child_Or_Below_Nth_Child_Of       of assert * assert * assert
+| Is_Below_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Argument_Of                       of assert * assert * assert
 | Is_Nth_Argument_Or_Below_Nth_Argument_Of of assert * assert * assert
 | Is_A_Meta_Premise                        of assert
@@ -264,6 +266,7 @@ and (*bool*)
   | surf_to_var (Is_An_Argument_Of                        args) = EV.Assert (SU.Atomic SU.Is_An_Argument_Of,                        surf_to_var_pair_to_list args)
   | surf_to_var (Is_An_Argument_Or_Below_Argument_Of      args) = EV.Assert (SU.Atomic SU.Is_An_Argument_Or_Below_Argument_Of,      surf_to_var_pair_to_list args)
   | surf_to_var (Is_Nth_Child_Or_Below_Nth_Child_Of       args) = EV.Assert (SU.Atomic SU.Is_Nth_Child_Or_Below_Nth_Child_Of,       surf_to_var_trip_to_list args)
+  | surf_to_var (Is_Below_N_Plus_One_th_Child_Of          args) = EV.Assert (SU.Atomic SU.Is_Below_N_Plus_One_th_Child_Of,          surf_to_var_trip_to_list args)
   | surf_to_var (Is_Nth_Argument_Of                       args) = EV.Assert (SU.Atomic SU.Is_Nth_Argument_Of,                       surf_to_var_trip_to_list args)
   | surf_to_var (Is_Nth_Argument_Or_Below_Nth_Argument_Of args) = EV.Assert (SU.Atomic SU.Is_Nth_Argument_Or_Below_Nth_Argument_Of, surf_to_var_trip_to_list args)
   | surf_to_var (Is_A_Meta_Premise                        arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Premise,                        surf_to_var_singleton    arg )

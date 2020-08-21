@@ -2546,6 +2546,7 @@ lemma bridge_on_Nom:
 (*\<rightarrow> 17.646s elapsed time, 97.685s cpu time, 6.505s GC time    after stopping constructing path_to_node_tables for inner assertions again and again to compute domains*)
 (*\<rightarrow> 11.747s elapsed time, 62.527s cpu time, 5.282s GC time    after having only one outer-table for many ind_mods in APply_SeLFiE.ML *)
 (*\<rightarrow> 9.818s elapsed time, 54.830s cpu time, 0.832s GC time     after three levels of nested caching mechanism*)
+(*\<rightarrow> 8.789s elapsed time, 49.853s cpu time, 0.316s GC time     after treating assertions about meta-implications within Unique_Node.ML*)
   by (induct ps) auto
 
 lemma bridge'_nominals:

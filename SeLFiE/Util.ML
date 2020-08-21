@@ -78,6 +78,7 @@ datatype atomic_assert =
 | Is_An_Argument_Of
 | Is_An_Argument_Or_Below_Argument_Of
 | Is_Nth_Child_Or_Below_Nth_Child_Of
+| Is_Below_N_Plus_One_th_Child_Of
 | Is_Nth_Argument_Of
 | Is_Nth_Argument_Or_Below_Nth_Argument_Of
 | Is_A_Meta_Premise
@@ -229,6 +230,7 @@ datatype atomic_assert =
 | Is_An_Argument_Of
 | Is_An_Argument_Or_Below_Argument_Of
 | Is_Nth_Child_Or_Below_Nth_Child_Of
+| Is_Below_N_Plus_One_th_Child_Of
 | Is_Nth_Argument_Of
 | Is_Nth_Argument_Or_Below_Nth_Argument_Of
 | Is_A_Meta_Premise
@@ -276,6 +278,7 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_An_Argument_Of                         ) = "Is_An_Argument_Of"
   | print_atomic_assert (Is_An_Argument_Or_Below_Argument_Of       ) = "Is_An_Argument_Or_Below_Argument_Of"
   | print_atomic_assert (Is_Nth_Child_Or_Below_Nth_Child_Of        ) = "Is_Nth_Child_Or_Below_Nth_Child_Of"
+  | print_atomic_assert (Is_Below_N_Plus_One_th_Child_Of           ) = "Is_Below_N_Plus_One_th_Child_Of"
   | print_atomic_assert (Is_Nth_Argument_Of                        ) = "Is_Nth_Argument_Of"
   | print_atomic_assert (Is_Nth_Argument_Or_Below_Nth_Argument_Of  ) = "Is_Nth_Arg_Or_Below_Nth_Arg_Of"
   | print_atomic_assert (Is_A_Meta_Premise                         ) = "Is_A_Meta_Premise"
