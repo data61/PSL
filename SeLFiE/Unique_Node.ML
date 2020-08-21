@@ -4,12 +4,13 @@
 The conversion to transform term to a format more amenable to SeLFiE.
 The overall work-flow is:
 Proof.state & term ==== pst_n_trm_to_path_to_unode_table ====> (*Path_To_Unode.ML*)
-    (term * Proof.state  ==== trm_to_trm_w_prnt =======================================> (* in Unique_Node   *)
-     trm_w_prnt          ==== trm_w_prnt_to_utrm_w_prnt ===============================> (* in Unique_Node   *)
-     utrm_w_prnt         ==== utrm_w_prnt_to_futrm_w_prnt =============================> (* in Unique_Node   *)
-     futrm_w_prnt        ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================> (* in Unique_Node   *)
-     futrm_w_prnt_n_path ==== futrm_w_prnt_n_path_to_unodes ===========================> (* in Unique_Node   *)
-     unodes              ==== unodes_to_unode_table ===================================> (* in Path_To_Unode *)
+    (term * Proof.state        ==== trm_to_trm_w_prnt =======================================> (* in Unique_Node   *)
+     trm_w_prnt                ==== trm_w_prnt_to_utrm_w_prnt ===============================> (* in Unique_Node   *)
+     utrm_w_prnt               ==== utrm_w_prnt_to_futrm_w_prnt =============================> (* in Unique_Node   *)
+     futrm_w_prnt              ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================> (* in Unique_Node   *)
+     futrm_w_prnt_n_tag        ==== futrm_w_prnt_n_path_to_futrm_w_prnt_n_tag ===============> (* in Unique_Node   *)
+     futrm_w_prnt_n_inner_path ==== futrm_w_prnt_n_tag_to_futrm_w_prnt_n_inner_path =========> (* in Unique_Node   *)
+     unodes                    ==== unodes_to_unode_table ===================================> (* in Path_To_Unode *)
      path_to_unode_table)
 *)
 
@@ -36,12 +37,12 @@ val trm_w_prnt_to_print: trm_w_prnt -> string;
 
 (* utrm_w_prnt: un-curried term with string *)
 datatype utrm_w_prnt =
-  UC_Prnt of string      * typ               * string
-| UF_Prnt of string      * typ               * string
-| UV_Prnt of indexname   * typ               * string
-| UB_Prnt of int         * typ               * string
-| UL_Prnt of string      * typ * utrm_w_prnt * string
-| UA_Prnt of utrm_w_prnt * utrm_w_prnt list  * string;
+  UC_Prnt of  string             * typ              * string
+| UF_Prnt of  string             * typ              * string
+| UV_Prnt of  indexname          * typ              * string
+| UB_Prnt of  int                * typ              * string
+| UL_Prnt of (string * typ) list * utrm_w_prnt      * string
+| UA_Prnt of  utrm_w_prnt        * utrm_w_prnt list * string;
 
 (* utrms_w_prnt *)
 type utrms_w_prnt = utrm_w_prnt list;
@@ -59,16 +60,38 @@ val trm_w_prnt_to_utrm_w_prnt: trm_w_prnt -> utrm_w_prnt;
 
 (* futrm_w_prnt: un-curried folded term with string *)
 datatype futrm_w_prnt =
-  FUC_Prnt of string       * typ                 * string
-| FUF_Prnt of string       * typ                 * string
-| FUV_Prnt of indexname    * typ                 * string
-| FUB_Prnt of int          * typ                 * string
-| FUL_Prnt of string       * typ  * futrm_w_prnt * string
-| FUA_Prnt of futrm_w_prnt * futrm_w_prnt list   * string;
+  FUC_Prnt of  string             * typ               * string
+| FUF_Prnt of  string             * typ               * string
+| FUV_Prnt of  indexname          * typ               * string
+| FUB_Prnt of  int                * typ               * string
+| FUL_Prnt of (string * typ) list * futrm_w_prnt      * string
+| FUA_Prnt of  futrm_w_prnt       * futrm_w_prnt list * string;
 
 (* utrm_w_prnt_to_futrm_w_prnt *)
 val utrm_w_prnt_to_futrm_w_prnt: utrm_w_prnt -> futrm_w_prnt;
+(* TODO:
+datatype tag = Tag of {
+  part_of_prem :bool,
+  part_of_cncl :bool,
+  is_premise   :bool,
+  is_conclusion:bool,
+  defined_with_n_clauses: int option,
+  is_defined_with       : Pattern.command option,
+  take_n_params         : int option
+};
 
+(* futrm_w_prnt_n_tag: un-curried folded term with string *)
+datatype futrm_w_prnt_n_tag =
+  FUC_Prnt_Tag of string       * typ                 * string
+| FUF_Prnt_Tag of string       * typ                 * string
+| FUV_Prnt_Tag of indexname    * typ                 * string
+| FUB_Prnt_Tag of int          * typ                 * string
+| FUL_Prnt_Tag of string       * typ  * futrm_w_prnt * string
+| FUA_Prnt_Tag of futrm_w_prnt * futrm_w_prnt list   * string;
+
+(* utrm_w_prnt_to_futrm_w_prnt *)
+val futrm_w_prnt_n_path_to_futrm_w_prnt_n_tag: utrm_w_prnt -> futrm_w_prnt_n_tag;
+*)
 (* path *)
 type inner_path  = ints;
 type inner_paths = inner_path list;
@@ -89,7 +112,7 @@ datatype futrm_w_prnt_n_inner_path =
 | UFF_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
 | UFV_Prnt_n_Path of (indexname * typ                                           ) * string * inner_path
 | UFB_Prnt_n_Path of (int       * typ                                           ) * string * inner_path
-| UFL_Prnt_n_Path of (string    * typ           * futrm_w_prnt_n_inner_path     ) * string * inner_path
+| UFL_Prnt_n_Path of ((string * typ) list       * futrm_w_prnt_n_inner_path     ) * string * inner_path
 | UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * string * inner_path;
 
 (* futrm_w_prnt_to_futrm_w_prnt_n_inner_path *)
@@ -101,7 +124,7 @@ datatype node =
 | NF of (string    * typ)                   (*Free*)
 | NV of (indexname * typ)                   (*Var*)
 | NB of (int       * typ)                   (*Bound*)
-| NL of (string    * typ)                   (*Abs (Lambda Abstraction)*)
+| NL of (string * typ) list                 (*Abs (Lambda Abstraction)*)
 | NA                                        (*$   (Application)*)
 
 datatype node_typ = Node_Typ_NC | Node_Typ_NF | Node_Typ_NV | Node_Typ_NB | Node_Typ_NL | Node_Typ_NA;
@@ -118,7 +141,7 @@ val dest_NC: node -> (string    * typ * Pattern.command) option;
 val dest_NF: node -> (string    * typ) option;
 val dest_NV: node -> (indexname * typ) option;
 val dest_NB: node -> (int       * typ) option;
-val dest_NL: node -> (string    * typ) option;
+val dest_NL: node -> (string * typ) list option;
 
 val node_to_atoms_typ: node -> typ option;
 
@@ -216,18 +239,25 @@ fun trm_w_prnt_to_print (C_Prnt (_, _,    string)) = string (*Const*)
   | trm_w_prnt_to_print (L_Prnt (_, _, _, string)) = string (*Abs (Lambda Abstraction)*)
   | trm_w_prnt_to_print (A_Prnt (_, _,    string)) = string;(*$   (Application)*)
 
-(* utrm_w_prnt: un-curried term with print *)
+(* utrm_w_prnt: un-curried term with string *)
 datatype utrm_w_prnt =
-  UC_Prnt of string      * typ               * string
-| UF_Prnt of string      * typ               * string
-| UV_Prnt of indexname   * typ               * string
-| UB_Prnt of int         * typ               * string
-| UL_Prnt of string      * typ * utrm_w_prnt * string
-| UA_Prnt of utrm_w_prnt * utrm_w_prnt list  * string;
+  UC_Prnt of  string             * typ              * string
+| UF_Prnt of  string             * typ              * string
+| UV_Prnt of  indexname          * typ              * string
+| UB_Prnt of  int                * typ              * string
+| UL_Prnt of (string * typ) list * utrm_w_prnt      * string
+| UA_Prnt of  utrm_w_prnt        * utrm_w_prnt list * string;
 
 type utrms_w_prnt = utrm_w_prnt list;
 
 (* trm_w_prnt_to_utrm_w_prnt *)
+
+
+fun uncurry_nested_lambdas' (L_Prnt (vname:string, typ:typ, inner_trm, _)) (acc:(string * typ) list) =
+    uncurry_nested_lambdas' inner_trm (acc @ [(vname, typ)])
+  | uncurry_nested_lambdas' trm_w_prnt acc = (acc, trm_w_prnt);
+
+fun uncurry_nested_lambdas (trm_w_prnt:trm_w_prnt) = uncurry_nested_lambdas' trm_w_prnt []: (string * typ) list * trm_w_prnt;
 
 (*flattenflatten_trm_w_prnt' purposefully ignores the nested applications on the right-hand-side of $.*)
 fun flatten_trm_w_prnt' (A_Prnt (trm1, trm2, _)) acc = flatten_trm_w_prnt' trm1 (trm2 :: acc)
@@ -239,7 +269,12 @@ fun trm_w_prnt_to_utrm_w_prnt (C_Prnt  c : trm_w_prnt                 ) = UC_Prn
   | trm_w_prnt_to_utrm_w_prnt (F_Prnt  f                              ) = UF_Prnt f
   | trm_w_prnt_to_utrm_w_prnt (V_Prnt  v                              ) = UV_Prnt v
   | trm_w_prnt_to_utrm_w_prnt (B_Prnt  i                              ) = UB_Prnt i
-  | trm_w_prnt_to_utrm_w_prnt (L_Prnt (name, typ, trm_w_prnt, prnt   )) = UL_Prnt (name, typ, trm_w_prnt_to_utrm_w_prnt trm_w_prnt, prnt)
+  | trm_w_prnt_to_utrm_w_prnt (trm_w_prnt as L_Prnt (_, _, _, prnt)) =
+    let
+      val (vname_typ_pairs, remaining_inner_trm_w_prnt) = uncurry_nested_lambdas trm_w_prnt: (string * typ) list * trm_w_prnt;
+    in
+      UL_Prnt (vname_typ_pairs, trm_w_prnt_to_utrm_w_prnt remaining_inner_trm_w_prnt, prnt)
+    end
   | trm_w_prnt_to_utrm_w_prnt (A_Prnt (trm_w_prnt1, trm_w_prnt2, prnt)) =
     let
       val trm_w_prnts = flatten_trm_w_prnt (A_Prnt (trm_w_prnt1, trm_w_prnt2, prnt)): trm_w_prnts;
@@ -254,24 +289,24 @@ fun trm_w_prnt_to_utrm_w_prnt (C_Prnt  c : trm_w_prnt                 ) = UC_Prn
  * We should flatten terms after introducing uncurrying forms because flattening nested pure-implications
  * requires uncurried terms.
  *)
-(* futrm_w_prnt: un-curried folded term with print *)
+(* futrm_w_prnt: un-curried folded term with string *)
 datatype futrm_w_prnt =
-  FUC_Prnt of string       * typ                 * string
-| FUF_Prnt of string       * typ                 * string
-| FUV_Prnt of indexname    * typ                 * string
-| FUB_Prnt of int          * typ                 * string
-| FUL_Prnt of string       * typ  * futrm_w_prnt * string
-| FUA_Prnt of futrm_w_prnt * futrm_w_prnt list   * string;
+  FUC_Prnt of  string             * typ               * string
+| FUF_Prnt of  string             * typ               * string
+| FUV_Prnt of  indexname          * typ               * string
+| FUB_Prnt of  int                * typ               * string
+| FUL_Prnt of (string * typ) list * futrm_w_prnt      * string
+| FUA_Prnt of  futrm_w_prnt       * futrm_w_prnt list * string;
 
 (* utrm_w_prnt_to_futrm_w_prnt *)
 local
 
-fun utrm_w_prnt_to_prnt (UC_Prnt (_, _,    print)) = print
-  | utrm_w_prnt_to_prnt (UF_Prnt (_, _,    print)) = print
-  | utrm_w_prnt_to_prnt (UV_Prnt (_, _,    print)) = print
-  | utrm_w_prnt_to_prnt (UB_Prnt (_, _,    print)) = print
-  | utrm_w_prnt_to_prnt (UL_Prnt (_, _, _, print)) = print
-  | utrm_w_prnt_to_prnt (UA_Prnt (_, _,    print)) = print;
+fun utrm_w_prnt_to_prnt (UC_Prnt (_, _, print)) = print
+  | utrm_w_prnt_to_prnt (UF_Prnt (_, _, print)) = print
+  | utrm_w_prnt_to_prnt (UV_Prnt (_, _, print)) = print
+  | utrm_w_prnt_to_prnt (UB_Prnt (_, _, print)) = print
+  | utrm_w_prnt_to_prnt (UL_Prnt (_, _, print)) = print
+  | utrm_w_prnt_to_prnt (UA_Prnt (_, _, print)) = print;
 
 fun map_fs_xs ([]      :('a -> 'b) list) ([]       :'a list) = []
   | map_fs_xs (f::funcs:('a -> 'b) list) (arg::args:'a list) = f arg :: map_fs_xs funcs args
@@ -283,8 +318,8 @@ fun helper (_    :string) (_:utrms_w_prnt) (UC_Prnt content) = FUC_Prnt content
  |  helper (_    :string) (_:utrms_w_prnt) (UF_Prnt content) = FUF_Prnt content
  |  helper (_    :string) (_:utrms_w_prnt) (UV_Prnt content) = FUV_Prnt content
  |  helper (_    :string) (_:utrms_w_prnt) (UB_Prnt content) = FUB_Prnt content
- |  helper (_    :string) (_:utrms_w_prnt) (UL_Prnt (name, typ, utrm_w_prnt, print)) =
-      FUL_Prnt (name, typ, helper (utrm_w_prnt_to_prnt utrm_w_prnt) [] utrm_w_prnt, print)
+ |  helper (_    :string) (_:utrms_w_prnt) (UL_Prnt (name_n_typs, utrm_w_prnt, print)) =
+      FUL_Prnt (name_n_typs, helper (utrm_w_prnt_to_prnt utrm_w_prnt) [] utrm_w_prnt, print)
  |  helper (imp_p: string) (acc:utrms_w_prnt) (UA_Prnt ((UC_Prnt ("Pure.imp", name, typ)), [premise, conclusion], _)) =
     let
       val one_more_imp = case conclusion of UA_Prnt (UC_Prnt ("Pure.imp", _, _), _, _) => true | _ => false;
@@ -381,13 +416,13 @@ fun inner_path_ord (xs, ys) =
     ints_compare' xs ys EQUAL: order
   end;
 
-(* futrm_w_prnt_n_inner_path: un-curried folded term with print and inner_path to each node*)
+(* futrm_w_prnt_n_inner_path: un-curried folded term with string and inner_path to each node *)
 datatype futrm_w_prnt_n_inner_path =
   UFC_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
 | UFF_Prnt_n_Path of (string    * typ                                           ) * string * inner_path
 | UFV_Prnt_n_Path of (indexname * typ                                           ) * string * inner_path
 | UFB_Prnt_n_Path of (int       * typ                                           ) * string * inner_path
-| UFL_Prnt_n_Path of (string    * typ * futrm_w_prnt_n_inner_path               ) * string * inner_path
+| UFL_Prnt_n_Path of ((string * typ) list       * futrm_w_prnt_n_inner_path     ) * string * inner_path
 | UFA_Prnt_n_Path of (futrm_w_prnt_n_inner_path * futrm_w_prnt_n_inner_path list) * string * inner_path;
 
 type futrms_w_prnt_n_inner_path = futrm_w_prnt_n_inner_path list;
@@ -395,15 +430,15 @@ type futrms_w_prnt_n_inner_path = futrm_w_prnt_n_inner_path list;
 (* futrm_w_prnt_to_futrm_w_prnt_n_inner_path *)
 local
 
-fun helper (FUC_Prnt (name, typ,      print)) (inner_path:inner_path) = UFC_Prnt_n_Path ((name, typ), print, inner_path)
-  | helper (FUF_Prnt (name, typ,      print)) (inner_path:inner_path) = UFF_Prnt_n_Path ((name, typ), print, inner_path)
-  | helper (FUV_Prnt (idx,  typ,      print)) (inner_path:inner_path) = UFV_Prnt_n_Path ((idx,  typ), print, inner_path)
-  | helper (FUB_Prnt (i,    typ,      print)) (inner_path:inner_path) = UFB_Prnt_n_Path ((i,    typ), print, inner_path)
-  | helper (FUL_Prnt (name, typ, trm, print)) (inner_path:inner_path) =
+fun helper (FUC_Prnt (name,  typ, print)) (inner_path:inner_path) = UFC_Prnt_n_Path ((name, typ), print, inner_path)
+  | helper (FUF_Prnt (name,  typ, print)) (inner_path:inner_path) = UFF_Prnt_n_Path ((name, typ), print, inner_path)
+  | helper (FUV_Prnt (idx,   typ, print)) (inner_path:inner_path) = UFV_Prnt_n_Path ((idx,  typ), print, inner_path)
+  | helper (FUB_Prnt (i,     typ, print)) (inner_path:inner_path) = UFB_Prnt_n_Path ((i,    typ), print, inner_path)
+  | helper (FUL_Prnt (pairs, trm, print)) (inner_path:inner_path) =
     let
       val inner = helper trm (inner_path @ [0]);
     in
-      UFL_Prnt_n_Path ((name, typ, inner), print, inner_path)
+      UFL_Prnt_n_Path ((pairs, inner), print, inner_path)
     end
   | helper (FUA_Prnt (func, args, print)) (inner_path:inner_path) =
     let
@@ -428,7 +463,7 @@ datatype node =
 | NF of (string    * typ)                   (*Free*)
 | NV of (indexname * typ)                   (*Var*)
 | NB of (int       * typ)                   (*Bound*)
-| NL of (string    * typ)                   (*Abs (Lambda Abstraction)*)
+| NL of (string * typ) list                 (*Abs (Lambda Abstraction)*)
 | NA                                        (*$   (Application)*)
 
 datatype node_typ = Node_Typ_NC | Node_Typ_NF | Node_Typ_NV | Node_Typ_NB | Node_Typ_NL | Node_Typ_NA;
@@ -456,7 +491,7 @@ fun dest_NV (NV (name, typ     )) = SOME (name, typ)
   | dest_NV  _                    = NONE;
 fun dest_NB (NB (int,  typ     )) = SOME (int,  typ)
   | dest_NB  _                    = NONE;
-fun dest_NL (NL (name, typ     )) = SOME (name, typ)
+fun dest_NL (NL vname_n_typs    ) = SOME vname_n_typs
   | dest_NL  _                    = NONE;
 
 fun node_to_atoms_typ (NC (_, typ, _)) = SOME typ
@@ -502,8 +537,8 @@ fun futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFC_Prnt_n_Path ((cname,typ), pr
   | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFF_Prnt_n_Path (ctnt, prnt, inner_path)) _ = [{node = NF ctnt, print = prnt, inner_path = inner_path}]
   | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFV_Prnt_n_Path (ctnt, prnt, inner_path)) _ = [{node = NV ctnt, print = prnt, inner_path = inner_path}]
   | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFB_Prnt_n_Path (ctnt, prnt, inner_path)) _ = [{node = NB ctnt, print = prnt, inner_path = inner_path}]
-  | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFL_Prnt_n_Path ((name, typ, trm), prnt, inner_path)) ctxt =
-      {node = NL (name, typ), print = prnt, inner_path = inner_path} :: futrm_w_prnt_n_inner_path_n_ctxt_to_unodes trm ctxt
+  | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFL_Prnt_n_Path ((vname_n_typs, trm), prnt, inner_path)) ctxt =
+      {node = NL vname_n_typs, print = prnt, inner_path = inner_path} :: futrm_w_prnt_n_inner_path_n_ctxt_to_unodes trm ctxt
   | futrm_w_prnt_n_inner_path_n_ctxt_to_unodes (UFA_Prnt_n_Path ((func, args), prnt, inner_path)) ctxt =
     {node = NA, print = prnt, inner_path = inner_path} ::
     futrm_w_prnt_n_inner_path_n_ctxt_to_unodes func ctxt @ maps (fn arg => futrm_w_prnt_n_inner_path_n_ctxt_to_unodes arg ctxt) args;

@@ -6,18 +6,18 @@ struct
 
 open UN
 
-fun futrm_w_prnt_to_print (FUC_Prnt (_, _,    print)) = print
-  | futrm_w_prnt_to_print (FUF_Prnt (_, _,    print)) = print
-  | futrm_w_prnt_to_print (FUV_Prnt (_, _,    print)) = print
-  | futrm_w_prnt_to_print (FUB_Prnt (_, _,    print)) = print
-  | futrm_w_prnt_to_print (FUL_Prnt (_, _, _, print)) = print
-  | futrm_w_prnt_to_print (FUA_Prnt (_, _,    print)) = print;
+fun futrm_w_prnt_to_print (FUC_Prnt (_, _, print)) = print
+  | futrm_w_prnt_to_print (FUF_Prnt (_, _, print)) = print
+  | futrm_w_prnt_to_print (FUV_Prnt (_, _, print)) = print
+  | futrm_w_prnt_to_print (FUB_Prnt (_, _, print)) = print
+  | futrm_w_prnt_to_print (FUL_Prnt (_, _, print)) = print
+  | futrm_w_prnt_to_print (FUA_Prnt (_, _, print)) = print;
 
 fun futrm_w_prnt_to_arguments (FUC_Prnt _) = []
   | futrm_w_prnt_to_arguments (FUF_Prnt _) = []
   | futrm_w_prnt_to_arguments (FUV_Prnt _) = []
   | futrm_w_prnt_to_arguments (FUB_Prnt _) = []
-  | futrm_w_prnt_to_arguments (FUL_Prnt (_, _, subtrm, _)) = futrm_w_prnt_to_arguments subtrm
+  | futrm_w_prnt_to_arguments (FUL_Prnt ( _, subtrm, _)) = futrm_w_prnt_to_arguments subtrm
   | futrm_w_prnt_to_arguments (FUA_Prnt (func, args, _)) =
   let
     val func_print            = futrm_w_prnt_to_print func                : string;

@@ -1,16 +1,5 @@
 (*  Title:      PSL/LiFtEr/src/Term_Table_Test.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
-
-The conversion to transform term to a format more amenable to SeLFiE.
-The overall work-flow is:
-Proof.state & term ==== pst_n_trm_to_path_to_unode_table ====> (*Path_To_Unode.ML*)
-    (term * Proof.state  ==== trm_to_trm_w_prnt =======================================> (* in Unique_Node   *)
-     trm_w_prnt          ==== trm_w_prnt_to_utrm_w_prnt ===============================> (* in Unique_Node   *)
-     utrm_w_prnt         ==== utrm_w_prnt_to_futrm_w_prnt =============================> (* in Unique_Node   *)
-     futrm_w_prnt        ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================> (* in Unique_Node   *)
-     futrm_w_prnt_n_path ==== futrm_w_prnt_n_path_to_unodes ===========================> (* in Unique_Node   *)
-     unodes              ==== unodes_to_unode_table ===================================> (* in Path_To_Unode *)
-     path_to_unode_table)
 *)
 
 (*&&& and \<Longrightarrow> associate to the right*)
