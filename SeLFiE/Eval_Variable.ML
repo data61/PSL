@@ -47,17 +47,23 @@ fun print_expr (Variable vname) = "Variable " ^ vname ^ " "
   | print_expr (All  (vname, _, expr)) = "All ( "  ^ vname ^ ", " ^ print_expr expr ^ " ) "
   | print_expr (Some (vname, _, expr)) = "Some ( " ^ vname ^ ", " ^ print_expr expr ^ " ) ";
 
-type name_scope = (string * int) list; (*map a variable name to a de-Bruijn index*)
+type name_scope = int Symtab.table;(*string \<rightarrow> int*)(*map a variable name to a de-Bruijn index*)
 
 fun print_env' [] = ""
   | print_env' ((vname, i)::pairs) = (" " ^ vname ^ " " ^ Int.toString i ^ "\n") ^ print_env' pairs;
 fun print_env pairs = "Print environment \n" ^ print_env' pairs;
 
-fun lookup (scope:name_scope) name = AList.lookup (op =) scope name |> (Utils.the' ("lookup in Eval_Var failed with " ^ name)): int;
+fun lookup (scope:name_scope) name = Utils.the' "lookup in Eval_Variable.ML failed" (Symtab.lookup scope name);
+
 fun update (new_entry: (string * int)) (scope:name_scope) =
-    map (apsnd (fn x => x + 1)) scope
- |> AList.update (op =) new_entry: name_scope;
-fun update_with_0 var_name scope = update (var_name, 0) scope: name_scope;
+  let
+    val scope_added_1 = Symtab.map (fn _ => fn x => x + 1) scope: name_scope;
+  in
+     Symtab.update new_entry scope_added_1: name_scope
+  end;
+
+fun update_with_0 vname scope = update (vname, 0) scope: name_scope;
+
 fun increment_then_update_with_0_n_times'  []           (scope,                    acc) = (scope, acc)
   | increment_then_update_with_0_n_times' (name::names) (scope,                    acc) =
     increment_then_update_with_0_n_times'  names        (update_with_0 name scope, acc + 1): (name_scope * int);
@@ -84,7 +90,7 @@ fun mult_to_var (EM.Literal l) = Literal l
 
 fun eval (pst:Proof.state) (path_to_unode_table:Outer_Path_To_Unode.path_to_unode_table) (domains:Quantifier_Domain.domains) (induct_args:SeLFiE_Util.induct_arguments) (expr:expr) =
   let
-    val em_expr     = var_to_mult [] expr                                        : EM.expr;
+    val em_expr     = var_to_mult Symtab.empty expr                              : EM.expr;
     val mult_result = EM.eval pst path_to_unode_table domains induct_args em_expr: EM.expr;
   in
     mult_to_var mult_result
