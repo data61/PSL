@@ -109,6 +109,7 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Is_A_Meta_Conclusion                     [Outer_Path p]                                    = EPT.eval pst term_tables (PA.Is_A_Meta_Conclusion                     (GP.Outer_Path p))
       | eval' SU.Is_A_Meta_Premise_Or_Below               [Outer_Path p]                                    = EPT.eval pst term_tables (PA.Is_A_Meta_Premise_Or_Below               (GP.Outer_Path p))
       | eval' SU.Is_A_Meta_Conclusion_Or_Below            [Outer_Path p]                                    = EPT.eval pst term_tables (PA.Is_A_Meta_Conclusion_Or_Below            (GP.Outer_Path p))
+      | eval' SU.Unode_Has_As_Subprint                    [Outer_Path p, Non_Path (Print str)]              = EPT.eval pst term_tables (PA.Unode_Has_As_Subprint                    (GP.Outer_Path p,  str))
       (*Eval_Path (Inner)*)
       | eval' SU.Unode_Has_Print                          [Inner_Path p, Non_Path (Print str)]              = EPT.eval pst term_tables (PA.Unode_Has_Print                          (GP.Inner_Path p, str))
       | eval' SU.Is_In_Subgoal                            [Inner_Path p]                                    = EPT.eval pst term_tables (PA.Is_In_Subgoal                            (GP.Inner_Path p))
@@ -129,6 +130,7 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Is_A_Meta_Conclusion                     [Inner_Path p]                                    = EPT.eval pst term_tables (PA.Is_A_Meta_Conclusion                     (GP.Inner_Path p))
       | eval' SU.Is_A_Meta_Premise_Or_Below               [Inner_Path p]                                    = EPT.eval pst term_tables (PA.Is_A_Meta_Premise_Or_Below               (GP.Inner_Path p))
       | eval' SU.Is_A_Meta_Conclusion_Or_Below            [Inner_Path p]                                    = EPT.eval pst term_tables (PA.Is_A_Meta_Conclusion_Or_Below            (GP.Inner_Path p))
+      | eval' SU.Unode_Has_As_Subprint                    [Inner_Path p, Non_Path (Print str)]              = EPT.eval pst term_tables (PA.Unode_Has_As_Subprint                    (GP.Inner_Path p,  str))
       (*Eval_Print*)
       | eval' SU.Are_Same_Prints  [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Are_Same_Prints (p1, p2))  induct_args ctxt
       | eval' SU.Is_Subprint_Of   [Non_Path (Print p1), Non_Path (Print p2)] = EPR.eval (EPR.Is_Subprint_Of  (p1, p2))  induct_args ctxt

@@ -18,7 +18,8 @@ datatype assert =
 | Is_A_Meta_Premise             of UN.unode
 | Is_A_Meta_Conclusion          of UN.unode
 | Is_A_Meta_Premise_Or_Below    of UN.unode
-| Is_A_Meta_Conclusion_Or_Below of UN.unode;
+| Is_A_Meta_Conclusion_Or_Below of UN.unode
+| Unode_Has_As_Subprint         of UN.unode * string;
 
 val eval: assert -> Eval_Bool.assert;
 
@@ -42,7 +43,8 @@ datatype assert =
 | Is_A_Meta_Premise             of unode
 | Is_A_Meta_Conclusion          of unode
 | Is_A_Meta_Premise_Or_Below    of unode
-| Is_A_Meta_Conclusion_Or_Below of unode;
+| Is_A_Meta_Conclusion_Or_Below of unode
+| Unode_Has_As_Subprint         of unode * string;
 
 infix
   Has_Same_Prnt_As
@@ -92,12 +94,13 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
       Utils.is_some_true result_option
     end
   | eval' (Is_Root_In_A_Location {inner_path,...}) = inner_path = []
-  | eval' (Debug_Print_Unode {print,...}) = (tracing ("Debug_Print_Unode: " ^ print); true)
-  | eval' (Node_Is_Defined_With       (unode, cmd)) = UN.is_defined_by unode cmd
-  | eval' (Is_A_Meta_Premise             {tag,...}) = #is_premise    tag
-  | eval' (Is_A_Meta_Conclusion          {tag,...}) = #is_conclusion tag
-  | eval' (Is_A_Meta_Premise_Or_Below    {tag,...}) = #part_of_prem  tag
-  | eval' (Is_A_Meta_Conclusion_Or_Below {tag,...}) = #part_of_cncl  tag;
+  | eval' (Debug_Print_Unode             {print,...})  = (tracing ("Debug_Print_Unode: " ^ print); true)
+  | eval' (Node_Is_Defined_With          (unode, cmd)) = UN.is_defined_by unode cmd
+  | eval' (Is_A_Meta_Premise             {tag,...})    = #is_premise    tag
+  | eval' (Is_A_Meta_Conclusion          {tag,...})    = #is_conclusion tag
+  | eval' (Is_A_Meta_Premise_Or_Below    {tag,...})    = #part_of_prem  tag
+  | eval' (Is_A_Meta_Conclusion_Or_Below {tag,...})    = #part_of_cncl  tag
+  | eval' (Unode_Has_As_Subprint         ({print,...}, subprint))  = String.isSubstring subprint print;
 
 fun eval assert = eval' assert |> Eval_Bool.bool_to_assert;
 

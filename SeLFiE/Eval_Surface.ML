@@ -36,6 +36,11 @@ datatype assert =
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
 | Is_Root_In_A_Location  of assert
+| Is_A_Meta_Premise                        of assert
+| Is_A_Meta_Conclusion                     of assert
+| Is_A_Meta_Premise_Or_Below               of assert
+| Is_A_Meta_Conclusion_Or_Below            of assert
+| Unode_Has_As_Subprint                    of assert * assert
 (*Eval_Print*)
 | Are_Same_Prints   of assert * assert
 | Is_Subprint_Of    of assert * assert
@@ -72,10 +77,6 @@ datatype assert =
 | Is_Below_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Argument_Of                       of assert * assert * assert
 | Is_Nth_Argument_Or_Below_Nth_Argument_Of of assert * assert * assert
-| Is_A_Meta_Premise                        of assert
-| Is_A_Meta_Conclusion                     of assert
-| Is_A_Meta_Premise_Or_Below               of assert
-| Is_A_Meta_Conclusion_Or_Below            of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -138,8 +139,13 @@ datatype assert =
 | Is_Shallower_Than      of assert * assert
 | Is_Nth_Child           of assert * assert
 | Is_N_Plus_One_th_Child of assert * assert
-| Is_Root_In_A_Location  of assert 
-(*Eval_Print*)
+| Is_Root_In_A_Location  of assert
+| Is_A_Meta_Premise                        of assert
+| Is_A_Meta_Conclusion                     of assert
+| Is_A_Meta_Premise_Or_Below               of assert
+| Is_A_Meta_Conclusion_Or_Below            of assert
+| Unode_Has_As_Subprint                    of assert * assert
+(*Eval_Print*)                
 | Print_Is_Cnst     of assert
 | Print_Is_Free     of assert
 | Print_Is_Var      of assert
@@ -175,10 +181,6 @@ datatype assert =
 | Is_Below_N_Plus_One_th_Child_Of          of assert * assert * assert
 | Is_Nth_Argument_Of                       of assert * assert * assert
 | Is_Nth_Argument_Or_Below_Nth_Argument_Of of assert * assert * assert
-| Is_A_Meta_Premise                        of assert
-| Is_A_Meta_Conclusion                     of assert
-| Is_A_Meta_Premise_Or_Below               of assert
-| Is_A_Meta_Conclusion_Or_Below            of assert
 (*Eval_Number*)
 | Are_Same_Number     of assert * assert
 | Is_Less_Than        of assert * assert
@@ -227,12 +229,17 @@ and (*bool*)
   | surf_to_var (Node_Takes_N_Arguments           pair) = EV.Assert (SU.Atomic SU.Node_Takes_N_Arguments,           surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_Less_Than_N_Arguments pair) = EV.Assert (SU.Atomic SU.Node_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list pair)
   (*Eval_Unode*)
-  | surf_to_var (Has_Same_Prnt_As       args) = EV.Assert (SU.Atomic SU.Has_Same_Prnt_As,       surf_to_var_pair_to_list args)
-  | surf_to_var (Is_Deeper_Than         args) = EV.Assert (SU.Atomic SU.Is_Deeper_Than,         surf_to_var_pair_to_list args)
-  | surf_to_var (Is_Shallower_Than      args) = EV.Assert (SU.Atomic SU.Is_Shallower_Than,      surf_to_var_pair_to_list args)
-  | surf_to_var (Is_Nth_Child           args) = EV.Assert (SU.Atomic SU.Is_Nth_Child,           surf_to_var_pair_to_list args)
-  | surf_to_var (Is_N_Plus_One_th_Child args) = EV.Assert (SU.Atomic SU.Is_N_Plus_One_th_Child, surf_to_var_pair_to_list args)
-  | surf_to_var (Is_Root_In_A_Location  arg ) = EV.Assert (SU.Atomic SU.Is_Root_In_A_Location , surf_to_var_singleton    arg )
+  | surf_to_var (Has_Same_Prnt_As              args) = EV.Assert (SU.Atomic SU.Has_Same_Prnt_As,       surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Deeper_Than                args) = EV.Assert (SU.Atomic SU.Is_Deeper_Than,         surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Shallower_Than             args) = EV.Assert (SU.Atomic SU.Is_Shallower_Than,      surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Nth_Child                  args) = EV.Assert (SU.Atomic SU.Is_Nth_Child,           surf_to_var_pair_to_list args)
+  | surf_to_var (Is_N_Plus_One_th_Child        args) = EV.Assert (SU.Atomic SU.Is_N_Plus_One_th_Child, surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Root_In_A_Location         arg ) = EV.Assert (SU.Atomic SU.Is_Root_In_A_Location , surf_to_var_singleton    arg )
+  | surf_to_var (Is_A_Meta_Premise             arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Premise,                        surf_to_var_singleton    arg )
+  | surf_to_var (Is_A_Meta_Conclusion          arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Conclusion,                     surf_to_var_singleton    arg )
+  | surf_to_var (Is_A_Meta_Premise_Or_Below    arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Premise_Or_Below,               surf_to_var_singleton    arg )
+  | surf_to_var (Is_A_Meta_Conclusion_Or_Below arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Conclusion_Or_Below,            surf_to_var_singleton    arg )
+  | surf_to_var (Unode_Has_As_Subprint         pair) = EV.Assert (SU.Atomic SU.Unode_Has_As_Subprint,                    surf_to_var_pair_to_list pair)   
   (*Eval_Print*)
   | surf_to_var (Are_Same_Prints  args) = EV.Assert (SU.Atomic SU.Are_Same_Prints,  surf_to_var_pair_to_list args)
   | surf_to_var (Is_Subprint_Of   args) = EV.Assert (SU.Atomic SU.Is_Subprint_Of ,  surf_to_var_pair_to_list args)
@@ -269,10 +276,6 @@ and (*bool*)
   | surf_to_var (Is_Below_N_Plus_One_th_Child_Of          args) = EV.Assert (SU.Atomic SU.Is_Below_N_Plus_One_th_Child_Of,          surf_to_var_trip_to_list args)
   | surf_to_var (Is_Nth_Argument_Of                       args) = EV.Assert (SU.Atomic SU.Is_Nth_Argument_Of,                       surf_to_var_trip_to_list args)
   | surf_to_var (Is_Nth_Argument_Or_Below_Nth_Argument_Of args) = EV.Assert (SU.Atomic SU.Is_Nth_Argument_Or_Below_Nth_Argument_Of, surf_to_var_trip_to_list args)
-  | surf_to_var (Is_A_Meta_Premise                        arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Premise,                        surf_to_var_singleton    arg )
-  | surf_to_var (Is_A_Meta_Conclusion                     arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Conclusion,                     surf_to_var_singleton    arg )
-  | surf_to_var (Is_A_Meta_Premise_Or_Below               arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Premise_Or_Below,               surf_to_var_singleton    arg )
-  | surf_to_var (Is_A_Meta_Conclusion_Or_Below            arg ) = EV.Assert (SU.Atomic SU.Is_A_Meta_Conclusion_Or_Below,            surf_to_var_singleton    arg )
   (*Eval_Number*)
   | surf_to_var (Are_Same_Number     args) = EV.Assert (SU.Atomic SU.Are_Same_Number,     surf_to_var_pair_to_list args)
   | surf_to_var (Is_Less_Than        args) = EV.Assert (SU.Atomic SU.Is_Less_Than,        surf_to_var_pair_to_list args)

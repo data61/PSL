@@ -32,6 +32,7 @@ datatype assert =
 | Is_A_Meta_Conclusion          of gen_path
 | Is_A_Meta_Premise_Or_Below    of gen_path
 | Is_A_Meta_Conclusion_Or_Below of gen_path
+| Unode_Has_As_Subprint         of (gen_path * string)
 (*only in path*)
 | Unode_Has_Print                          of gen_path * string
 | Is_In_Subgoal                            of gen_path
@@ -94,17 +95,18 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
       | eval' (PA.Node_Takes_N_Arguments           (p,    n)) ctxt = END.eval (END.Node_Takes_N_Arguments           (path_to_node p, n             )) ctxt
       | eval' (PA.Node_Takes_Less_Than_N_Arguments (p,    n)) ctxt = END.eval (END.Node_Takes_Less_Than_N_Arguments (path_to_node p, n             )) ctxt
       (*Eval_Unode*)
-      | eval' (PA.Has_Same_Prnt_As              pair)     _ = path2_to_unode2 pair    |> EU.Has_Same_Prnt_As              |> EU.eval
-      | eval' (PA.Is_Deeper_Than                pair)     _ = path2_to_unode2 pair    |> EU.Is_Deeper_Than                |> EU.eval
-      | eval' (PA.Is_Shallower_Than             pair)     _ = path2_to_unode2 pair    |> EU.Is_Shallower_Than             |> EU.eval
-      | eval' (PA.Is_Nth_Child                 (path, i)) _ = (path_to_unode path, i) |> EU.Is_Nth_Child                  |> EU.eval
-      | eval' (PA.Is_N_Plus_One_th_Child       (path, i)) _ = (path_to_unode path, i) |> EU.Is_N_Plus_One_th_Child        |> EU.eval
-      | eval' (PA.Is_Root_In_A_Location         path)     _ = path_to_unode path      |> EU.Is_Root_In_A_Location         |> EU.eval
-      | eval' (PA.Node_Is_Defined_With         (p, cmd))  _ = (path_to_unode p, cmd)  |> EU.Node_Is_Defined_With          |> EU.eval
-      | eval' (PA.Is_A_Meta_Premise             path)     _ = path_to_unode path      |> EU.Is_A_Meta_Premise             |> EU.eval
-      | eval' (PA.Is_A_Meta_Conclusion          path)     _ = path_to_unode path      |> EU.Is_A_Meta_Conclusion          |> EU.eval
-      | eval' (PA.Is_A_Meta_Premise_Or_Below    path)     _ = path_to_unode path      |> EU.Is_A_Meta_Premise_Or_Below    |> EU.eval
-      | eval' (PA.Is_A_Meta_Conclusion_Or_Below path)     _ = path_to_unode path      |> EU.Is_A_Meta_Conclusion_Or_Below |> EU.eval
+      | eval' (PA.Has_Same_Prnt_As              pair)     _ = path2_to_unode2 pair        |> EU.Has_Same_Prnt_As              |> EU.eval
+      | eval' (PA.Is_Deeper_Than                pair)     _ = path2_to_unode2 pair        |> EU.Is_Deeper_Than                |> EU.eval
+      | eval' (PA.Is_Shallower_Than             pair)     _ = path2_to_unode2 pair        |> EU.Is_Shallower_Than             |> EU.eval
+      | eval' (PA.Is_Nth_Child                 (path, i)) _ = (path_to_unode path, i)     |> EU.Is_Nth_Child                  |> EU.eval
+      | eval' (PA.Is_N_Plus_One_th_Child       (path, i)) _ = (path_to_unode path, i)     |> EU.Is_N_Plus_One_th_Child        |> EU.eval
+      | eval' (PA.Is_Root_In_A_Location         path)     _ = path_to_unode path          |> EU.Is_Root_In_A_Location         |> EU.eval
+      | eval' (PA.Node_Is_Defined_With         (p, cmd))  _ = (path_to_unode p, cmd)      |> EU.Node_Is_Defined_With          |> EU.eval
+      | eval' (PA.Is_A_Meta_Premise             path)     _ = path_to_unode path          |> EU.Is_A_Meta_Premise             |> EU.eval
+      | eval' (PA.Is_A_Meta_Conclusion          path)     _ = path_to_unode path          |> EU.Is_A_Meta_Conclusion          |> EU.eval
+      | eval' (PA.Is_A_Meta_Premise_Or_Below    path)     _ = path_to_unode path          |> EU.Is_A_Meta_Premise_Or_Below    |> EU.eval
+      | eval' (PA.Is_A_Meta_Conclusion_Or_Below path)     _ = path_to_unode path          |> EU.Is_A_Meta_Conclusion_Or_Below |> EU.eval
+      | eval' (PA.Unode_Has_As_Subprint (p, subprint))    _ = (path_to_unode p, subprint) |> EU.Unode_Has_As_Subprint         |> EU.eval
       (*only in path*)
       | eval' (PA.Unode_Has_Print (path, print)) _ =
           let
@@ -167,8 +169,10 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
       | eval' (PA.Is_Below_N_Plus_One_th_Child_Of (part_of_nth_child, i, parent)) ctxt = EB.bool_to_assert (
         let
           val nth_plus_one_th_child_opt = GP.path_to_its_nth_child_path path_to_unode_table parent (i + 1): GP.gen_path option;
+(*
           val is_n_plus_one_th_child    = nth_plus_one_th_child_opt <$> (fn nth_child => eval' (PA.Is_Same_Path_As (part_of_nth_child, nth_child)) ctxt |> EB.assert_to_bool)
                                 |> Utils.is_some_true: bool;
+*)
           val is_below_n_plus_one_th_child = nth_plus_one_th_child_opt <$> (fn np1th_child => eval' (PA.Is_Path_Above (np1th_child, part_of_nth_child)) ctxt |> EB.assert_to_bool) |> Utils.is_some_true: bool;
         in
             (*is_n_plus_one_th_child orelse*) is_below_n_plus_one_th_child

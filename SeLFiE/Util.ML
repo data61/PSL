@@ -45,6 +45,11 @@ datatype atomic_assert =
 | Is_Nth_Child
 | Is_N_Plus_One_th_Child
 | Is_Root_In_A_Location
+| Is_A_Meta_Premise
+| Is_A_Meta_Conclusion
+| Is_A_Meta_Premise_Or_Below
+| Is_A_Meta_Conclusion_Or_Below
+| Unode_Has_As_Subprint
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Subprint_Of
@@ -81,10 +86,6 @@ datatype atomic_assert =
 | Is_Below_N_Plus_One_th_Child_Of
 | Is_Nth_Argument_Of
 | Is_Nth_Argument_Or_Below_Nth_Argument_Of
-| Is_A_Meta_Premise
-| Is_A_Meta_Conclusion
-| Is_A_Meta_Premise_Or_Below
-| Is_A_Meta_Conclusion_Or_Below
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
@@ -197,6 +198,11 @@ datatype atomic_assert =
 | Is_Nth_Child
 | Is_N_Plus_One_th_Child
 | Is_Root_In_A_Location
+| Is_A_Meta_Premise
+| Is_A_Meta_Conclusion
+| Is_A_Meta_Premise_Or_Below
+| Is_A_Meta_Conclusion_Or_Below
+| Unode_Has_As_Subprint
 (*Eval_Print*)
 | Are_Same_Prints
 | Is_Subprint_Of
@@ -233,10 +239,6 @@ datatype atomic_assert =
 | Is_Below_N_Plus_One_th_Child_Of
 | Is_Nth_Argument_Of
 | Is_Nth_Argument_Or_Below_Nth_Argument_Of
-| Is_A_Meta_Premise
-| Is_A_Meta_Conclusion
-| Is_A_Meta_Premise_Or_Below
-| Is_A_Meta_Conclusion_Or_Below
 (*Eval_Number*)
 | Are_Same_Number
 | Is_Less_Than
@@ -285,6 +287,7 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_A_Meta_Conclusion                      ) = "Is_A_Meta_Conclusion"
   | print_atomic_assert (Is_A_Meta_Premise_Or_Below                ) = "Is_A_Meta_Premise"
   | print_atomic_assert (Is_A_Meta_Conclusion_Or_Below             ) = "Is_A_Meta_Conclusion"
+  | print_atomic_assert (Unode_Has_As_Subprint                     ) = "Unode_Has_As_Subprint"
   | print_atomic_assert (Are_Same_Number                           ) = "Are_Same_Number"
   | print_atomic_assert (Is_Less_Than                              ) = "Is_Less_Than"
   | print_atomic_assert (Is_Less_Than_By_One                       ) = "Is_Less_Than_By_One"

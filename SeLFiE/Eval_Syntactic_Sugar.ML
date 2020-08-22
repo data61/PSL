@@ -294,6 +294,20 @@ and
   | convert loc (Is_A_Meta_Conclusion          ass)  = ES.Is_A_Meta_Conclusion          (convert loc ass)
   | convert loc (Is_A_Meta_Premise_Or_Below    ass)  = ES.Is_A_Meta_Premise_Or_Below    (convert loc ass)
   | convert loc (Is_A_Meta_Conclusion_Or_Below ass)  = ES.Is_A_Meta_Conclusion_Or_Below (convert loc ass)
+  | convert loc (Unode_Has_As_Subprint (trm_occ, subprint)) = convert loc (
+    let
+      val print_str = get_new_name [trm_occ, subprint];
+      val print     = Variable print_str;
+      val path_typ  = case loc of Out => SU.QOuter_Print | Inn => SU.QInner_Print;
+    in
+      Some (print_str, path_typ,
+        Ands [
+          Unode_Has_Print (trm_occ, print),
+          Is_Subprint_Of  (subprint, print)
+        ]
+      )
+    end
+    )
   (*Eval_Prnt*)
   | convert loc (Are_Same_Prints    pair) = ES.Are_Same_Prints  (convert_pair loc pair)
   | convert loc (Is_Subprint_Of     pair) = ES.Is_Subprint_Of   (convert_pair loc pair)
@@ -349,7 +363,6 @@ and
   (*syntax sugar*)
   | convert Out (In_Some_Definitions (target, inner_fun, outer_args)) = ES.Dive_In   (convert Out target, convert Inn inner_fun, convert_list Out outer_args, SU.Ors)
   | convert Inn (In_Some_Definitions (target, inner_fun, outer_args)) = ES.Deep_Dive (convert Inn target, convert Inn inner_fun, convert_list Inn outer_args, SU.Ors)
-  | convert _   (In_Some_Definitions _) = error "convert in Eval_Syntactic_Sugar.ML failed at In_Some_Definitions"
   | convert loc (Is_Atomic assert) =
     convert loc
      (Ors
@@ -358,20 +371,6 @@ and
         Node_Is_Var   assert,
         Node_Is_Bound assert])
   | convert loc (Have_Different_Prnts pair) = convert loc (Not (Has_Same_Prnt_As pair))
-  | convert loc (Unode_Has_As_Subprint (trm_occ, subprint)) = convert loc (
-    let
-      val print_str = get_new_name [trm_occ, subprint];
-      val print     = Variable print_str;
-      val path_typ  = case loc of Out => SU.QOuter_Print | Inn => SU.QInner_Print;
-    in
-      Some (print_str, path_typ,
-        Ands [
-          Unode_Has_Print (trm_occ, print),
-          Is_Subprint_Of  (subprint, print)
-        ]
-      )
-    end
-    )
   | convert loc (Is_Path_Below (descendent, anscestor)) = convert loc (Is_Path_Above (anscestor, descendent))
   | convert loc (Is_Child_Of (child, parent))             = convert loc (Is_Parent_Of (parent, child))
   | convert loc (Is_Nth_Child_Of (child, number, parent)) =
