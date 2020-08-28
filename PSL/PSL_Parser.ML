@@ -58,6 +58,7 @@ val parse_subgoal       = parse_atomic Mi.Subgoal      "Subgoal"      : Mi.str p
 val parse_intro_classes = parse_atomic Mi.IntroClasses "IntroClasses" : Mi.str parser;
 val parse_transfer      = parse_atomic Mi.Transfer     "Transfer"     : Mi.str parser;
 val parse_normalization = parse_atomic Mi.Normalization"Normalization": Mi.str parser;
+val parse_smart_induct  = parse_atomic Mi.Smart_Induct "Smart_Induct" : Mi.str parser;
 (* proof goal transformer *)
 val parse_generalize    = parse_atomic Mi.Generalize   "Generalize"   : Mi.str parser;
 val parse_conjecture    = parse_atomic Mi.Conjecture   "Conjecture"   : Mi.str parser;
@@ -93,6 +94,7 @@ fun parse_strategy () =
      parse_intro_classes,
      parse_transfer,
      parse_normalization,
+     parse_smart_induct,
      parse_generalize,
      parse_conjecture,
      parse_dclarsimp (),

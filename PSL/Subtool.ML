@@ -19,6 +19,7 @@ sig
   val is_solved   : Proof.state Dynamic_Utils.stttac;
   val defer       : Proof.state Dynamic_Utils.stttac;
   val subgoal     : Proof.state Dynamic_Utils.stttac;
+  val smart_induct: Proof.state -> Proof.state Dynamic_Utils.stttac Seq.seq;
 end;
 
 (*** SUBTOOLS: A collection of sub-tools. ***)
@@ -73,7 +74,7 @@ val state_stttac = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac);
 end;
 
 (** Sledgehammer_Tacctic: Sledgehammer as a state monad based tactic. **)
-structure Sledgehammer_Tacctic : SUBTOOL =
+structure Sledgehammer_Tactic : SUBTOOL =
 struct
 
 local
@@ -200,6 +201,105 @@ end;
 
 end;
 
+(** Smart_Induct: Smart_Induct as a state monad based tactic. **)
+structure Smart_Induct_Tactic =
+struct
+
+fun pst_to_smart_induct_output_strs (pst:Proof.state) =
+let
+    val thm                       = Isabelle_Utils.proof_state_to_thm pst                            : thm;
+    val thm_term                  = Thm.prop_of thm                                                  : term;
+    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
+    val (ind_best_records, ind_max_point) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs 0 [] [] Apply_SeLFiE.Induction_Heuristic 5 pst outer_path_to_unode_table;
+    fun record_to_pair {score, modifiers,...} = (score, modifiers);
+    val best_pairs            = Par_List.map record_to_pair ind_best_records
+                              : (int * SeLFiE_Util.induct_arguments) list;
+    val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs
+                              :  (int * SeLFiE_Util.induct_arguments) list;
+    val (arb_best_records, _) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Apply_SeLFiE.Generalization_Heuristic 7 pst outer_path_to_unode_table;
+    fun mk_arb_message (record:{modifiers: SeLFiE_Util.induct_arguments, score: int}) = SeLFiE_Util.induct_arguments_to_string (#modifiers record);
+    val best_arb_messages     = map mk_arb_message arb_best_records: strings;
+    val app_best_arb_messages = map (fn parenthesis => "apply " ^ parenthesis) best_arb_messages
+in
+  app_best_arb_messages:strings
+end;
+
+fun smart_induct_output_to_logtac (sh_output:string) (state:Proof.state) =
+let(*TODO: refine. This has too much code duplication with sh_output_to_sh_logtac*)
+  (*syntax sugars*)
+  val thy           = Proof.theory_of state       : theory;
+  val ctxt          = Proof.context_of state      : Proof.context;
+  val keywords      = Thy_Header.get_keywords thy : Keyword.keywords;
+
+  (*function body*)
+  val op_w_stopper  = sh_output ^ " parserStopsWithMe";
+  val tokens        = Token.explode keywords Position.none op_w_stopper
+                    |> filter_out (fn token:Token.T => Token.is_kind Token.Space token) : Token.T list;
+  val is_using      = String.isPrefix "using " sh_output;
+  val parse_using   = Parse.and_list1 Parse.thms1 : (Facts.ref * Token.src list) list list Token.parser;
+  val parse_method  = Method.parse                 : Method.text_range Token.parser;
+  val parse_one     = Scan.one (K true)            : Token.T list -> Token.T * Token.T list;
+  val parser        = if is_using
+                      then (parse_one |-- parse_using) -- (parse_one |-- parse_method)
+                      else (parse_one |-- parse_method) >> (fn x => ([], x));
+  val p_get_meth    = (parse_one |-- parse_using) -- parse_one
+                    : Token.T list -> ((Facts.ref * Token.src list) list list * Token.T) * Token.T list;
+  fun get_str tkns  = tkns
+                    |> Utils.init (*drops "parserStopsWithMe" slowly.*)
+                    |> map Token.unparse |> String.concatWith " " : string;
+  val methN:string  = if   is_using
+                      then p_get_meth tokens |> snd |> get_str
+                      else parse_one  tokens |> snd |> get_str;
+  val result        = parser tokens
+                    : ((Facts.ref * Token.src list) list list * Method.text_range) * Token.T list;
+  val using_raw     = (#1 o #1) result : (Facts.ref * Token.src list) list list;
+  val text_range    = (#2 o #1) result : Method.text_range;
+  val check_text    = Method.check_text ctxt;
+  val fail_trange   = (Method.Basic (K Method.fail), Position.no_range) : Method.text_range;
+  val checked_range = (apfst check_text text_range handle ERROR _ => fail_trange) : Method.text_range;
+  val using_strings = using_raw |> List.concat |> map (Facts.string_of_ref o #1) handle Empty =>
+                      (if Utils.debug
+                       then tracing "using_strings in sh_output_to_sh_logtac failed." else ();
+                       ["Failed constructing using_strings."])
+                    : string list;
+  val node : Dynamic_Utils.node = Dynamic_Utils.Apply {using = using_strings, methN = methN, back = 0};
+  (*print messages for debugging.*)
+  val _ =
+    let
+      val app = case node of
+        Dynamic_Utils.Apply app_node => app_node
+      | _ => error "app in Sledgehammer_Tactic panics.";
+      fun tracing1 _ = tracing ("methN in node is " ^ #methN app);
+      fun tracing2 _ = tracing "using_strings are ...";
+      fun tracing3 _ = map tracing using_strings;
+    in
+      if Utils.debug then (tracing1 (); tracing2 (); tracing3 (); ()) else ()
+    end;
+    val _ = Basics.try;
+  val state_w_using = Proof.using_cmd using_raw state : Proof.state;
+  val timeout       = Timeout.apply (seconds 10.0)
+  val tac_results   = timeout (Proof.apply checked_range) state_w_using
+                      |> Seq.filter_results
+                     (*Why Seq.try Seq.hd? Because we want to evaluate the head of
+                       sequence strictly here to catch errors immediately.*)
+                      |> Utils.try_with Seq.empty (Seq.try Seq.hd): Proof.state Seq.seq;
+  val results_w_log = Seq.map (fn x => ([node], x)) tac_results : (Dynamic_Utils.log * Proof.state) Seq.seq;
+in
+  results_w_log : (Dynamic_Utils.log * Proof.state) Seq.seq
+end;
+
+fun mk_state_stttac (smart_induct_output_str:string) = Dynamic_Utils.logtac_to_stttac (smart_induct_output_to_logtac smart_induct_output_str);
+
+fun state_stttacs (pst:Proof.state) =
+  let
+    val induct_output_strs = pst_to_smart_induct_output_strs pst: strings;
+    val stttacs            = map mk_state_stttac induct_output_strs:  Proof.state Dynamic_Utils.stttac list;
+  in
+    stttacs
+  end;
+
+end;
+
 val timeout    = Timeout.apply (seconds 5.0)
 
 (** The exposed part of Subtools **)
@@ -207,7 +307,7 @@ val quickcheck = timeout Quickcheck_Tactic.state_stttac;
 
 val nitpick    = timeout Nitpick_Tactic.state_stttac;
 
-val hammer     = timeout Sledgehammer_Tacctic.state_stttac;
+val hammer     = timeout Sledgehammer_Tactic.state_stttac;
 
 val to_stttac  = Dynamic_Utils.log_n_nontac_to_stttac;
 
@@ -222,15 +322,14 @@ fun is_solved_nontac(state:Proof.state) =
     result : Proof.state Seq.seq
   end;
 
-(** is_solved as a state monad tactic **)
 val is_solved = to_stttac ([Dynamic_Utils.Done], is_solved_nontac);
 
-(** defer as a state monad tactic **)
 val defer = to_stttac ([Dynamic_Utils.Defer], Seq.single o (Proof.defer 1));
 
-(** subgoal as a state monad tactic **)
 val subgoal_nontac = Seq.single o #2 o Subgoal.subgoal (Binding.empty, []) NONE (false, []);
 
 val subgoal = to_stttac ([Dynamic_Utils.Subgoal], subgoal_nontac);
+
+fun smart_induct pst = Smart_Induct_Tactic.state_stttacs pst |> Seq.of_list;
 
 end;

@@ -9,19 +9,19 @@ structure SU = SeLFiE_Util;
 
 fun induction_arguments_to_tactic_on_proof_state (ind_args:SU.induct_arguments) (proof_state:Proof.state) =
   let
-    val ctxt             = Proof.context_of proof_state                                        : Proof.context;
-    val meth_as_str      = SU.induct_arguments_to_string ind_args                              : string;
-    val meth             = Utils.rm_parentheses meth_as_str                                    : string;
-    fun split str        = let val strs = space_explode " " str in (hd strs, tl strs) end      : string * string list;
-    val hd_tl            = split meth                                                          : string * string list;
-    val tokens           = Dynamic_Utils.str_to_tokens ctxt (String.concatWith " " (snd hd_tl)): Token.T list;
-    val src              = Token.make_src (fst hd_tl, Position.none) tokens                    : Token.src;
-    val checked_src      = Dynamic_Utils.check_src ctxt src                                    : Token.src;
-    val text             = Method.Source checked_src                                           : Method.text;
-    val text_range       = (text, (Position.none, Position.none))                              : Method.text_range;
-    val applied_text_range = Proof.apply text_range;
-    val results          = applied_text_range proof_state                                      : Proof.state Seq.result Seq.seq;
-    val filtered_results = Seq.filter_results results                                          : Proof.state Seq.seq;
+    val ctxt               = Proof.context_of proof_state                                        : Proof.context;
+    val meth_as_str        = SU.induct_arguments_to_string ind_args                              : string;
+    val meth               = Utils.rm_parentheses meth_as_str                                    : string;
+    fun split str          = let val strs = space_explode " " str in (hd strs, tl strs) end      : string * string list;
+    val hd_tl              = split meth                                                          : string * string list;
+    val tokens             = Dynamic_Utils.str_to_tokens ctxt (String.concatWith " " (snd hd_tl)): Token.T list;
+    val src                = Token.make_src (fst hd_tl, Position.none) tokens                    : Token.src;
+    val checked_src        = Dynamic_Utils.check_src ctxt src                                    : Token.src;
+    val text               = Method.Source checked_src                                           : Method.text;
+    val text_range         = (text, (Position.none, Position.none))                              : Method.text_range;
+    val applied_text_range = Proof.apply text_range                                              : Proof.state -> Proof.state Seq.result Seq.seq;
+    val results            = applied_text_range proof_state                                      : Proof.state Seq.result Seq.seq;
+    val filtered_results   = Seq.filter_results results                                          : Proof.state Seq.seq;
   in
     filtered_results
   end;
@@ -68,7 +68,7 @@ type quadruple  =  (int * SeLFiE_Util.induct_arguments * bool);
 type quadruples = quadruple list;
 
 fun show_how_many_survived (numb_surviving_combs:int) (numb_original_combs:int) (numb_of_step:int) =
-  tracing ("Only " ^ Int.toString numb_surviving_combs ^ " combinations survived Step " ^ Int.toString numb_of_step ^ " out of " ^ Int.toString numb_original_combs);
+  tracing ("smart_induct: only " ^ Int.toString numb_surviving_combs ^ " combinations survived Step " ^ Int.toString numb_of_step ^ " out of " ^ Int.toString numb_original_combs);
 
 fun pst_n_score_n_induct_argumentss_to_quadruples (pst:Proof.state) (score_n_induct_argumentss:(int * SU.induct_arguments) list) =
   Par_List.map (induct_arguments_is_promising_for_proof_state pst) score_n_induct_argumentss

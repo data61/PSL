@@ -21,9 +21,11 @@ fun sep::"'a ⇒ 'a list ⇒ 'a list" where
   "sep a (x#y#zs) = x # a # sep a (y#zs)"
 
 strategy DInd = Thens [Dynamic (Induct), Auto, IsSolved]
+strategy SInd = Thens [Smart_Induct, Auto, IsSolved]
 
 lemma "map f (sep x xs) = sep (f x) (map f xs)"
   find_proof DInd
+  find_proof SInd
   try_hard 
   (* Before PaMpeR *)
   print_methods

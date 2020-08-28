@@ -55,8 +55,6 @@ fun put_strategy (name:string, str:strategy) = update name str
   |> Context.theory_map
   |> Local_Theory.background_theory;
 
-fun tokens_to_string tokens = tokens |> map Token.unparse |> String.concatWith " ";
-
 fun parse_strategy_def_tokens ctxt = Pc.string_parser_to_token_parser (PSL_Parser.strategy_parser ctxt)
   : (string * Mp.str) Token.parser;
 

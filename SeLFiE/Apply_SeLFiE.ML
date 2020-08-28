@@ -4,6 +4,22 @@
 signature APPLY_SELFIE =
 sig
 
+datatype heuristic_typ = Induction_Heuristic | Generalization_Heuristic | Test_Heuristic;
+
+val score_n_induct_argss_n_proof_state_to_best_pairs:
+    int ->
+      (int * SeLFiE_Util.induct_arguments) list ->
+        (int * SeLFiE_Util.induct_arguments) list ->
+          heuristic_typ ->
+            int ->
+              Proof.state ->
+                Outer_Path_To_Unode.path_to_unode_table ->
+                  {modifiers: SeLFiE_Util.induct_arguments,
+                   score: int}
+                  list
+                  *
+                  int;
+
 val update_assert : Inttab.key -> Eval_Syntactic_Sugar.assert -> theory -> theory;
 val update_ind_mod: Inttab.key -> Eval_Syntactic_Sugar.assert -> theory -> theory;
 val get_assert    : Proof.context -> Inttab.key -> Eval_Syntactic_Sugar.assert -> theory -> theory;
@@ -11,8 +27,6 @@ val get_ind_mod   : Proof.context -> Inttab.key -> Eval_Syntactic_Sugar.assert -
 val activate      : unit -> unit;
 
 end;
-
-datatype heuristic_typ = Induction_Heuristic | Generalization_Heuristic | Test_Heuristic;
 
 structure Apply_SeLFiE =
 struct
@@ -23,6 +37,8 @@ structure IU  = Isabelle_Utils;
 structure ES  = Eval_Surface;
 structure ESS = Eval_Syntactic_Sugar;
 structure QD  = Quantifier_Domain;
+
+datatype heuristic_typ = Induction_Heuristic | Generalization_Heuristic | Test_Heuristic;
 
 fun heuristic_typ_ord (Induction_Heuristic,      Induction_Heuristic     ) = EQUAL
   | heuristic_typ_ord (Induction_Heuristic,      _                       ) = LESS
@@ -205,7 +221,7 @@ val semantic_induct_cmd =
   (Timeout.apply (seconds 3000.0)
   (fn top: Toplevel.state =>
   let
-    val _              = tracing "smart_induct started producing combinations of induction arguments.";
+    val _                  = tracing "smart_induct started producing combinations of induction arguments.";
     val fst_and_snd        = ["1st candidate is ", "2nd candidate is "]
     val third_till_tenth   = List.tabulate (11, I) |> map Int.toString |> drop 3 |> map (fn rank => rank ^ "th candidate is ");
     val fst_till_tenth     = fst_and_snd @ third_till_tenth;
@@ -224,10 +240,10 @@ val semantic_induct_cmd =
     val (arb_best_records, arb_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Generalization_Heuristic 10 pst outer_path_to_unode_table;
     fun mk_arb_message record = ind_args_to_sendb (#modifiers record) ^
                              "\n  (* The score is " ^ Int.toString (#score record) ^ " out of " ^ Int.toString arb_max_point ^ ". *)";
-    val best_arb_messages      = map mk_arb_message arb_best_records: strings;
-    val best_arb_mssg_w_ranks  = take (length best_arb_messages) fst_till_tenth ~~ best_arb_messages |> map (op ^);
-    val _                      = tracing "\n\nTry these promising inductions with generalization!";
-    val _                      = map tracing best_arb_mssg_w_ranks;
+    val best_arb_messages     = map mk_arb_message arb_best_records: strings;
+    val best_arb_mssg_w_ranks = take (length best_arb_messages) fst_till_tenth ~~ best_arb_messages |> map (op ^);
+    val _                     = tracing "\n\nTry these promising inductions with generalization!";
+    val _                     = map tracing best_arb_mssg_w_ranks;
   in
     ()
   end)

@@ -14,7 +14,7 @@ sig
                      | CSubgoal;
   datatype cpgt      = CGeneralize | CConjecture;(*proof goal transformer*)
   datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
-                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
+                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule | CSmart_Induct;
   datatype cstatic = CSPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
   datatype cdynamic = CDPrim of cprim_str | CPGT of cpgt;
   datatype catom_str = CSttc of cstatic | CDyn of cdynamic;
@@ -47,7 +47,7 @@ struct
   datatype cpgt     =  CGeneralize | CConjecture;(*proof goal transformer*)
   (*default tactics*)
   datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
-                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule;
+                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule | CSmart_Induct;
   datatype combine = Unique | First;
   datatype cstatic = CSPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
   datatype cdynamic = CDPrim of cprim_str | CPGT of cpgt;
@@ -105,18 +105,19 @@ struct
          | eval (CDyn (CDPrim str)) goal =
            let
              (*Should I factor this out to Monadic_Interpreter_Params?*)
-             fun how_to_combine_results CClarsimp    = Unique
-              |  how_to_combine_results CSimp        = Unique
-              |  how_to_combine_results CBlast       = Unique
-              |  how_to_combine_results CFastforce   = First
-              |  how_to_combine_results CAuto        = Unique
-              |  how_to_combine_results CInduct      = Unique
-              |  how_to_combine_results CInductTac   = Unique
-              |  how_to_combine_results CCoinduction = Unique
-              |  how_to_combine_results CCases       = Unique
-              |  how_to_combine_results CCaseTac     = Unique
-              |  how_to_combine_results CRule        = Unique
-              |  how_to_combine_results CErule       = Unique;
+             fun how_to_combine_results CClarsimp     = Unique
+              |  how_to_combine_results CSimp         = Unique
+              |  how_to_combine_results CBlast        = Unique
+              |  how_to_combine_results CFastforce    = First
+              |  how_to_combine_results CAuto         = Unique
+              |  how_to_combine_results CInduct       = Unique
+              |  how_to_combine_results CInductTac    = Unique
+              |  how_to_combine_results CCoinduction  = Unique
+              |  how_to_combine_results CCases        = Unique
+              |  how_to_combine_results CCaseTac      = Unique
+              |  how_to_combine_results CRule         = Unique
+              |  how_to_combine_results CErule        = Unique
+              |  how_to_combine_results CSmart_Induct = Unique;
              fun rm_useless First  results =
                  (Seq.filter (not o is_mzero) results |> Seq.hd handle Option.Option => mzero)
               |  rm_useless Unique results =
@@ -255,6 +256,7 @@ datatype str =
 | IntroClasses
 | Transfer
 | Normalization
+| Smart_Induct
 | User of string
 (*pgt: proof goal transformer*)
 | Generalize
@@ -331,6 +333,7 @@ datatype str =
 | IntroClasses
 | Transfer
 | Normalization
+| Smart_Induct
 | User of string
 (*pgt: proof goal transformer*)
 | Generalize
@@ -421,6 +424,7 @@ fun desugar Clarsimp        = prim CClarsimp
  |  desugar ParaCaseTac     = dyna CCaseTac
  |  desugar ParaRule        = dyna CRule
  |  desugar ParaErule       = dyna CErule
+ |  desugar Smart_Induct    = dyna CSmart_Induct
     (*monadic strategic*)
  |  desugar Skip            = CSkip
  |  desugar Fail            = CFail
@@ -536,6 +540,7 @@ fun eval_prim (prim:MIC.cstatic) (goal_state:state) =
     | MIC.CSPrim MIC.CCaseTac =>      (show_trace "CCaseTac";       string_to_stttac "case_tac")
     | MIC.CSPrim MIC.CRule   =>       (show_trace "CRule";          string_to_stttac "rule")
     | MIC.CSPrim MIC.CErule  =>       (show_trace "CErule";         string_to_stttac "erule")
+    | MIC.CSPrim MIC.CSmart_Induct => (show_trace "CSmart_Induct";  error "eval_prim failed. Smart_Induct is only for eval_para")
     | MIC.CSpec MIC.CIntroClasses =>  (show_trace "CIntro_Classes"; string_to_stttac "intro_classes")
     | MIC.CSpec MIC.CTransfer =>      (show_trace "CTransfer";      string_to_stttac "transfer")
     | MIC.CSpec MIC.CNormalization => (show_trace "CNormalization"; string_to_stttac "normalization")
