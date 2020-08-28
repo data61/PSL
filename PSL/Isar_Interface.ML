@@ -14,10 +14,6 @@ sig
   type strategy;
   val try_hard_strategy       : Proof.context -> strategy option;
   val try_parallel_strategy   : Proof.context -> strategy option;
-  val string_parser_to_token_parser: 'a Parser_Combinator.parser -> 'a Token.parser;
-  val parser_to_trans_trans_parser:  'a Parser_Combinator.parser ->
-     ('a -> Toplevel.transition -> Toplevel.transition) ->
-     (Toplevel.transition -> Toplevel.transition) Token.parser;
 end;
 
 (*** PSL_Interface: One can define new strategies only through the Isar interface. ***)
@@ -61,16 +57,7 @@ fun put_strategy (name:string, str:strategy) = update name str
 
 fun tokens_to_string tokens = tokens |> map Token.unparse |> String.concatWith " ";
 
-fun string_parser_to_token_parser (symbols_parser:'a Pc.parser) = (fn (tokens:Token.T list) =>
-  tokens
-  |> tokens_to_string
-  |> Symbol.explode
-  |> symbols_parser
-  |> Seq.hd
-  (*This function assumes that the string_parser consumes the entire string.*)
-  |> apsnd (K ([]))) : 'a Token.parser;
-
-fun parse_strategy_def_tokens ctxt = string_parser_to_token_parser (PSL_Parser.strategy_parser ctxt)
+fun parse_strategy_def_tokens ctxt = Pc.string_parser_to_token_parser (PSL_Parser.strategy_parser ctxt)
   : (string * Mp.str) Token.parser;
 
 val parse_and_put_strategy_def : (local_theory -> local_theory) Token.parser = fn tokens =>
@@ -106,7 +93,7 @@ in
 
 fun parser_to_trans_trans_parser (inv_p : 'a Pc.parser)
   (get_trans_trans : 'a -> trans_trans) =
-  string_parser_to_token_parser (inv_p >>= (Pc.result o get_trans_trans)) : trans_trans Token.parser;
+  Pc.string_parser_to_token_parser (inv_p >>= (Pc.result o get_trans_trans)) : trans_trans Token.parser;
 
 end;
 

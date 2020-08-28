@@ -13,36 +13,13 @@
  * SeLFiE: Semantic Logical Feature Extractor.
  *)
 theory SeLFiE
-  imports "PSL.PSL"
+  imports Main
   keywords "assert_SeLFiE_true"          :: diag
   and      "assert_SeLFiE_false"         :: diag
   and      "semantic_induct"             :: diag
   and      "all_induction_heuristic"     :: diag
   and      "all_generalization_heuristic":: diag
 begin
-
-primrec itrev:: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
-  "itrev [] ys = ys" |
-  "itrev (x#xs) ys = itrev xs (x#ys)"
-
-strategy DInd = Thens [Dynamic (Induct), Auto, IsSolved]
-strategy CDInd = Thens [Conjecture, Fastforce, Quickcheck, DInd]
-strategy DInd_Or_CDInd = Ors [DInd, CDInd]
-
-lemma "itrev xs [] = rev xs"
-proof -
-  {
-  fix ys
-  have "itrev xs ys = rev xs @ ys"
-    apply(induct xs arbitrary: ys)
-     apply auto
-    done
-  }
-  from this
-  show "itrev xs [] = rev xs"
-    apply fastforce
-    done
-qed
 
 find_theorems name:"wf_induct"
 
@@ -86,6 +63,8 @@ ML_file "Eval_Syntactic_Sugar.ML"
 
 ML_file "Smart_Construction.ML"
 ML_file "Screening.ML"
+
+ML_file "../PSL/Parser_Combinator.ML"
 ML_file "Apply_SeLFiE.ML"
 ML_file "SeLFiE_Assertion.ML"
 ML\<open> Apply_SeLFiE.activate (); \<close>

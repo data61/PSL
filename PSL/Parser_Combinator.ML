@@ -44,6 +44,11 @@ sig
   val junk   : unit parser;
   val parse  : 'a parser -> 'a parser;
   val token  : 'a parser -> 'a parser;
+
+  (* These two methods riginally resided in Isar_Interface.ML, but migrated to Parser_Combinator.ML
+   * because the SeLFiE interpreter uses them but the interpreter cannot define PSL keywords multiple times.*)
+  val string_parser_to_token_parser: 'a parser -> 'a Token.parser;
+  val parser_to_trans_trans_parser: 'a parser -> ('a -> Toplevel.transition -> Toplevel.transition) -> (Toplevel.transition -> Toplevel.transition) Token.parser;
 end;
 
 (*** Parser_Combinator: monadic parser combinators ***)
@@ -140,6 +145,30 @@ struct
                                token closep >>= (fn _ =>
                                result x)));
   val ints = bracket (symbol "[" |> token) (int sepby1 symbol "," |> token) (symbol "]" |> token);
+
   infix sepby;
   fun p sepby sep = (p sepby1 sep) plus succ_many;
+
+  type trans_trans = Toplevel.transition -> Toplevel.transition;
+
+  local
+
+  fun tokens_to_string tokens = tokens |> map Token.unparse |> String.concatWith " ";
+
+  in
+
+
+  fun string_parser_to_token_parser (symbols_parser:'a parser) = (fn (tokens:Token.T list) =>
+    tokens
+    |> tokens_to_string
+    |> Symbol.explode
+    |> symbols_parser
+    |> Seq.hd
+    (*This function assumes that the string_parser consumes the entire string.*)
+    |> apsnd (K ([]))) : 'a Token.parser;
+
+  fun parser_to_trans_trans_parser (inv_p : 'a parser) (get_trans_trans : 'a -> trans_trans) =
+    string_parser_to_token_parser (inv_p >>= (result o get_trans_trans)) : trans_trans Token.parser;
+
+  end;
 end;
