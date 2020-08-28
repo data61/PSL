@@ -10,7 +10,7 @@ datatype non_path_literal =
   Bool    of bool
 | Print   of string
 | Number  of int
-| Command of Pattern.command;
+| Command of Definition_Pattern.command;
 
 datatype literal =
   Outer_Path of outer_path
@@ -38,7 +38,7 @@ datatype non_path_literal =
   Bool    of bool
 | Print   of string
 | Number  of int
-| Command of Pattern.command;
+| Command of Definition_Pattern.command;
 
 datatype literal =
   Outer_Path of outer_path
@@ -156,10 +156,10 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Is_Less_Than        [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Is_Less_Than        (numb1, numb2))
       | eval' SU.Is_Less_Than_By_One [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Is_Less_Than_By_One (numb1, numb2))
       (*debug*)
-      | eval' SU.Debug_Non_Path_Literal [Non_Path (Bool    b)] = (tracing ("Debug Bool       : " ^ (if b then "true" else "false"));  Eval_Bool.True)
-      | eval' SU.Debug_Non_Path_Literal [Non_Path (Print   p)] = (tracing ("Debug Print      : " ^ p                              );  Eval_Bool.True)
-      | eval' SU.Debug_Non_Path_Literal [Non_Path (Number  n)] = (tracing ("Debug Number     : " ^ Int.toString n                 );  Eval_Bool.True)
-      | eval' SU.Debug_Non_Path_Literal [Non_Path (Command c)] = (tracing ("Debug Number     : " ^ Pattern.print_command c        );  Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Bool    b)] = (tracing ("Debug Bool       : " ^ (if b then "true" else "false"   ));  Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Print   p)] = (tracing ("Debug Print      : " ^ p                                 );  Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Number  n)] = (tracing ("Debug Number     : " ^ Int.toString n                    );  Eval_Bool.True)
+      | eval' SU.Debug_Non_Path_Literal [Non_Path (Command c)] = (tracing ("Debug Number     : " ^ Definition_Pattern.print_command c);  Eval_Bool.True)
       | eval' SU.Debug_Print_Unode      [Outer_Path p]         = (EPT.eval pst term_tables (PA.Debug_Print_Unode (GP.Outer_Path p)); Eval_Bool.True)
       | eval' SU.Debug_Print_Unode      [Inner_Path p]         = (EPT.eval pst term_tables (PA.Debug_Print_Unode (GP.Inner_Path p)); Eval_Bool.True)
       | eval' assert _ = error ("- eval' in Eval_Parameter.ML failed at " ^ SU.print_atomic_assert assert);

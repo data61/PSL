@@ -14,7 +14,7 @@ datatype assert =
 | Is_N_Plus_One_th_Child        of UN.unode * int
 | Is_Root_In_A_Location         of UN.unode
 | Debug_Print_Unode             of UN.unode
-| Node_Is_Defined_With          of (UN.unode * Pattern.command)
+| Node_Is_Defined_With          of (UN.unode * Definition_Pattern.command)
 | Is_A_Meta_Premise             of UN.unode
 | Is_A_Meta_Conclusion          of UN.unode
 | Is_A_Meta_Premise_Or_Below    of UN.unode
@@ -39,7 +39,7 @@ datatype assert =
 | Is_N_Plus_One_th_Child        of unode * int
 | Is_Root_In_A_Location         of unode
 | Debug_Print_Unode             of unode
-| Node_Is_Defined_With          of (unode * Pattern.command)
+| Node_Is_Defined_With          of (unode * Definition_Pattern.command)
 | Is_A_Meta_Premise             of unode
 | Is_A_Meta_Conclusion          of unode
 | Is_A_Meta_Premise_Or_Below    of unode

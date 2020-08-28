@@ -76,7 +76,7 @@ type tag = {
   is_premise            : bool,
   is_conclusion         : bool,
   defined_with_n_clauses: int option,
-  is_defined_with       : Pattern.command option,
+  is_defined_with       : Definition_Pattern.command option,
   take_n_params         : int option
 };
 
@@ -157,7 +157,7 @@ type unode =
    inner_path : inner_path,
    tag        : tag};
 
-val is_defined_by : unode -> Pattern.command -> bool;
+val is_defined_by : unode -> Definition_Pattern.command -> bool;
 val unode_to_depth: unode -> int;
 val is_nth_child  : unode -> int option;
 
@@ -374,7 +374,7 @@ type tag = {
   is_premise            : bool,
   is_conclusion         : bool,
   defined_with_n_clauses: int option,
-  is_defined_with       : Pattern.command option,
+  is_defined_with       : Definition_Pattern.command option,
   take_n_params         : int option
 };
 
@@ -384,7 +384,7 @@ val dummy_tag = {
   is_premise             = true: bool,
   is_conclusion          = true: bool,
   defined_with_n_clauses = NONE: int option,
-  is_defined_with        = NONE: Pattern.command option,
+  is_defined_with        = NONE: Definition_Pattern.command option,
   take_n_params          = NONE: int option
 };
 
@@ -417,7 +417,7 @@ fun acc_to_tag {is_premise, is_conclusion, is_part_of_prem, is_part_of_cncl} = {
   is_premise             = is_premise      : bool,
   is_conclusion          = is_conclusion   : bool,
   defined_with_n_clauses = NONE            : int option,
-  is_defined_with        = NONE            : Pattern.command option,
+  is_defined_with        = NONE            : Definition_Pattern.command option,
   take_n_params          = NONE            : int option
 };
 
@@ -437,7 +437,7 @@ fun futrm_w_prnt_to_futrm_w_prnt_n_tag (ctxt:Proof.context) futrm_w_prnt =
            part_of_prem           = is_part_of_prem,
            part_of_cncl           = is_part_of_cncl,
            defined_with_n_clauses = SOME (SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt cname),
-           is_defined_with        = SOME (Pattern.get_command ctxt cname),
+           is_defined_with        = SOME (Definition_Pattern.get_command ctxt cname),
            take_n_params          = SOME (Isabelle_Utils.count_numb_of_args_of_fun_typ typ)})(*TODO: defined_with+n_clauses and so on*)
       | futrm_w_prnt_to_futrm_w_prnt_n_tag' (FUF_Prnt (str,   typ,   prnt)) acc = FUF_Prnt_Tag (str, typ, prnt, acc_to_tag acc)
       | futrm_w_prnt_to_futrm_w_prnt_n_tag' (FUV_Prnt (str,   typ,   prnt)) acc = FUV_Prnt_Tag (str, typ, prnt, acc_to_tag acc)
@@ -607,12 +607,12 @@ type unode =
    inner_path : inner_path,
    tag        : tag};
 
-fun is_defined_by (unode:unode) Pattern.Definition = Option.map (equal Pattern.Definition) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Pattern.Fun        = Option.map (equal Pattern.Fun       ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Pattern.Function   = Option.map (equal Pattern.Function  ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Pattern.Inductive  = Option.map (equal Pattern.Inductive ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Pattern.Primrec    = Option.map (equal Pattern.Primrec   ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Pattern.Unknown    = Option.map (equal Pattern.Unknown   ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+fun is_defined_by (unode:unode) Definition_Pattern.Definition = Option.map (equal Definition_Pattern.Definition) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Fun        = Option.map (equal Definition_Pattern.Fun       ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Function   = Option.map (equal Definition_Pattern.Function  ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Inductive  = Option.map (equal Definition_Pattern.Inductive ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Primrec    = Option.map (equal Definition_Pattern.Primrec   ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Unknown    = Option.map (equal Definition_Pattern.Unknown   ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
   | is_defined_by _  _ = false;
 
 fun unode_to_depth (unode:unode) = unode |>  #inner_path |> length: int;

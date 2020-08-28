@@ -84,7 +84,7 @@ datatype assert =
 (*Parameter*)
 | Print   of string
 | Number  of int
-| Command of Pattern.command
+| Command of Definition_Pattern.command
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert
@@ -188,7 +188,7 @@ datatype assert =
 (*Parameter*)
 | Print   of string
 | Number  of int
-| Command of Pattern.command
+| Command of Definition_Pattern.command
 (*expr*)
 | Variable            of string
 | Lambdas             of strings * assert

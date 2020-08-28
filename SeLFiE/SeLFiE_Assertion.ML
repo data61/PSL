@@ -9,7 +9,7 @@ struct
 
 open SeLFiE_Util;
 open Eval_Syntactic_Sugar;
-open Pattern;
+open Definition_Pattern;
 
 val is_meta_equation =
   Lambdas (["meta_eq"], Are_Same_Prints (Variable "meta_eq", Print "(\<equiv>)"));

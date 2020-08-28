@@ -21,7 +21,7 @@ structure SU = SeLFiE_Util;
 structure EB = Eval_Bool;
 
 type connective = Eval_Bool.assert;
-type command    = Pattern.command;
+type command    = Definition_Pattern.command;
 
 fun eval (pst:Proof.state) (term_tables:Gen_Path.gen_path_to_unode_table) (induct_args:SU.induct_arguments) (assert:SU.assert) (parameters:EP.literal Seq.seq) =
   let

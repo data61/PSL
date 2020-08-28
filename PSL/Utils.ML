@@ -887,9 +887,9 @@ fun contract_abbrevs (ctxt:Proof.context) (t:term) =
     val thy            = Proof_Context.theory_of ctxt;
     val consts         = Proof_Context.consts_of ctxt;
     val retrieve       = Consts.retrieve_abbrevs consts (print_mode_value () @ [""]);
-    fun match_abbrev u = Option.map #1 (get_first (Old_Pattern.match_rew thy u) (retrieve u));
+    fun match_abbrev u = Option.map #1 (get_first (Pattern.match_rew thy u) (retrieve u));
   in
-    Old_Pattern.rewrite_term_top thy [] [match_abbrev] t
+    Pattern.rewrite_term_top thy [] [match_abbrev] t
   end;
 
 end;

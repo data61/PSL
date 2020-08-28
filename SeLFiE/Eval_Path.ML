@@ -27,7 +27,7 @@ datatype assert =
 | Is_Nth_Child                  of gen_path * int
 | Is_N_Plus_One_th_Child        of gen_path * int
 | Is_Root_In_A_Location         of gen_path
-| Node_Is_Defined_With          of (gen_path * Pattern.command)
+| Node_Is_Defined_With          of (gen_path * Definition_Pattern.command)
 | Is_A_Meta_Premise             of gen_path
 | Is_A_Meta_Conclusion          of gen_path
 | Is_A_Meta_Premise_Or_Below    of gen_path

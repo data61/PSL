@@ -13,7 +13,7 @@ keywords "strategy"     :: thy_decl
      and "try_hard_all" :: diag
      and "try_parallel" :: diag
 begin
-ML\<open> structure Old_Pattern = Pattern \<close>
+
 ML_file "Utils.ML"
 ML_file "Subtool.ML"
 ML_file "PGT.ML"

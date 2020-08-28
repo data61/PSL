@@ -31,7 +31,7 @@ lemma qrev_rev: "qrev y z = x (rev y) z"
   apply(simp add: app_assoc)
   done
 lemma app_nil: "x y nil2 = y" by(induction y, auto)
-lemma rev_app: "rev (x y z) = x (rev z) (rev y)" 
+lemma rev_app: "rev (x y z) = x (rev z) (rev y)"
   apply(induction y, auto)
    apply(simp add: app_nil) 
   using app_assoc apply(auto)

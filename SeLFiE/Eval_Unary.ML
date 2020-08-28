@@ -34,7 +34,7 @@ structure EPWB = Eval_Parameter_With_Bool;
 structure SU   = SeLFiE_Util;
 structure EP   = Eval_Parameter;
 
-type command = Pattern.command;
+type command = Definition_Pattern.command;
 
 datatype expr =
   Bound     of int

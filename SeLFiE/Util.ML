@@ -335,7 +335,7 @@ datatype non_path_literal =
   Bool    of bool
 | Print   of string
 | Number  of int
-| Command of Pattern.command;
+| Command of Definition_Pattern.command;
 
 datatype 'path literal = Path of 'path | Non_Path of non_path_literal;
 
@@ -378,15 +378,15 @@ in
 
 fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) :terms =
   let
-    val command = Pattern.get_command ctxt cname;
-    fun command_to_definitions Pattern.Definition = ctxt_n_cname_to_definition_for_def        ctxt cname "_def"
-      | command_to_definitions Pattern.Fun        = ctxt_n_cname_to_definitions_for_fun       ctxt cname
-      | command_to_definitions Pattern.Primrec    = ctxt_n_cname_to_definitions_for_primrec   ctxt cname
-      | command_to_definitions Pattern.Function   = ctxt_n_cname_to_definitions_for_function  ctxt cname
-      | command_to_definitions Pattern.Inductive  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
+    val command = Definition_Pattern.get_command ctxt cname;
+    fun command_to_definitions Definition_Pattern.Definition = ctxt_n_cname_to_definition_for_def        ctxt cname "_def"
+      | command_to_definitions Definition_Pattern.Fun        = ctxt_n_cname_to_definitions_for_fun       ctxt cname
+      | command_to_definitions Definition_Pattern.Primrec    = ctxt_n_cname_to_definitions_for_primrec   ctxt cname
+      | command_to_definitions Definition_Pattern.Function   = ctxt_n_cname_to_definitions_for_function  ctxt cname
+      | command_to_definitions Definition_Pattern.Inductive  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
       (*TODO: Inductive_Set*)
-      | command_to_definitions Pattern.Inductive_Set  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
-      | command_to_definitions Pattern.Unknown    = [];
+      | command_to_definitions Definition_Pattern.Inductive_Set  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
+      | command_to_definitions Definition_Pattern.Unknown    = [];
   in
     command_to_definitions command: terms
   end;

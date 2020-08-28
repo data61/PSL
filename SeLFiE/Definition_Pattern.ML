@@ -4,8 +4,8 @@
 ML types and operations to describe patterns of constant definitions in Isabelle/HOL.
 *)
 
-(*** signature PATTERN ***)
-signature PATTERN =
+(*** signature DEFINITION_PATTERN ***)
+signature DEFINITION_PATTERN =
 sig
 
 (** type and operation about command **)
@@ -16,8 +16,8 @@ val print_command: command -> string;
 end;
 
 
-(*** structure Pattern ***)
-structure Pattern:PATTERN =
+(*** structure Definition_Pattern ***)
+structure Definition_Pattern:DEFINITION_PATTERN =
 struct
 
 structure IU = Isabelle_Utils;

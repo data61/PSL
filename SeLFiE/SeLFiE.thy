@@ -20,14 +20,36 @@ theory SeLFiE
   and      "all_induction_heuristic"     :: diag
   and      "all_generalization_heuristic":: diag
 begin
-ML\<open> structure Old_Pattern = Pattern \<close>
-ML\<open>prod_ord; list_ord \<close>
+
+primrec itrev:: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+  "itrev [] ys = ys" |
+  "itrev (x#xs) ys = itrev xs (x#ys)"
+
+strategy DInd = Thens [Dynamic (Induct), Auto, IsSolved]
+strategy CDInd = Thens [Conjecture, Fastforce, Quickcheck, DInd]
+strategy DInd_Or_CDInd = Ors [DInd, CDInd]
+
+lemma "itrev xs [] = rev xs"
+proof -
+  {
+  fix ys
+  have "itrev xs ys = rev xs @ ys"
+    apply(induct xs arbitrary: ys)
+     apply auto
+    done
+  }
+  from this
+  show "itrev xs [] = rev xs"
+    apply fastforce
+    done
+qed
+
 find_theorems name:"wf_induct"
 
 (* pre-processing *)
 ML_file "../PSL/Utils.ML"
 ML_file "../MeLoId/src/MeLoId_Util.ML"
-ML_file "Pattern.ML"
+ML_file "Definition_Pattern.ML"
 ML_file "Util.ML"
 
 ML_file "Unique_Node.ML"
