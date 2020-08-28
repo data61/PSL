@@ -139,7 +139,7 @@ let
     end;
     val _ = Basics.try;
   val state_w_using = Proof.using_cmd using_raw state : Proof.state;
-  val timeout       = Timeout.apply (seconds 60.0)
+  val timeout       = Timeout.apply (seconds 10.0)
   val tac_results   = timeout (Proof.apply checked_range) state_w_using
                       |> Seq.filter_results
                      (*Why Seq.try Seq.hd? Because we want to evaluate the head of
@@ -200,12 +200,14 @@ end;
 
 end;
 
+val timeout    = Timeout.apply (seconds 5.0)
+
 (** The exposed part of Subtools **)
-val quickcheck = Quickcheck_Tactic.state_stttac;
+val quickcheck = timeout Quickcheck_Tactic.state_stttac;
 
-val nitpick    = Nitpick_Tactic.state_stttac;
+val nitpick    = timeout Nitpick_Tactic.state_stttac;
 
-val hammer     = Sledgehammer_Tacctic.state_stttac;
+val hammer     = timeout Sledgehammer_Tacctic.state_stttac;
 
 val to_stttac  = Dynamic_Utils.log_n_nontac_to_stttac;
 

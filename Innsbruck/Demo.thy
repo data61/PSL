@@ -3,7 +3,7 @@
                 The definitions of sep and itrev are from Isabelle's tutorial.
 *)
 theory Demo
-  imports Main "../PSL" "../PaMpeR/PaMpeR" "../PSL"
+  imports Main "../PSL/PSL" "../PaMpeR/PaMpeR" "../PSL/PSL"
 begin
 
 (*** Part I ***)
