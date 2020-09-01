@@ -12,6 +12,7 @@ sig
   (* "strategy" and "try_hard_strategy" have to be exposed,
    *  so that Mirabelle can use it without exposing "lookup". *)
   type strategy;
+  val lookup                  : Proof.context -> string -> strategy option;
   val try_hard_strategy       : Proof.context -> strategy option;
   val try_parallel_strategy   : Proof.context -> strategy option;
 end;

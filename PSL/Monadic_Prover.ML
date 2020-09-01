@@ -24,12 +24,12 @@ sig
     CAtom of catom_str
   | CSkip
   | CFail
-  | COr       of (core_str * core_str)
-  | CSeq      of (core_str * core_str)
-  | CAlt      of (core_str * core_str)
-  | CRepBT    of core_str
-  | CRepNB    of core_str
-  | CFails    of core_str (*Fails cannot be defined as just a syntactic sugar as the definition involves goal.*)
+  | COr        of (core_str * core_str)
+  | CSeq       of (core_str * core_str)
+  | CAlt       of (core_str * core_str)
+  | CRepBT     of core_str
+  | CRepNB     of core_str
+  | CFails     of core_str (*Fails cannot be defined as just a syntactic sugar as the definition involves goal.*)
   | CStrategic of (cstrategic * core_str list);
   type 'a stttac;
   type 'a params;
@@ -198,8 +198,7 @@ struct
 end;
 
 (*** Monadic_Interpreter_Core: The core of PSL. ***)
-(** mk_Monadic_Interpreter_Core_from_Monad_0plus_Min: makes the core of PSL from a monoid and a
- monad with a zero and plus **)
+(** mk_Monadic_Interpreter_Core_from_Monad_0plus_Min: makes the core of PSL from a monoid and a monad with a zero and plus **)
 functor mk_Monadic_Interpreter_Core_from_Monad_0plus_Min
  (structure Log : MONOID; structure M0P_Min : MONAD_0PLUS_MIN) =
 let
@@ -571,6 +570,7 @@ fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
       | MIC.CFastforce =>   (show_trace "CPara_Fastforce";   Dynamic_Tactic_Generation.fastforce)
       | MIC.CAuto =>        (show_trace "CPara_Auto";        Dynamic_Tactic_Generation.auto)
       | MIC.CClarsimp =>    (show_trace "CPara_Clarsimp";    Dynamic_Tactic_Generation.clarsimp)
+      | MIC.CSmart_Induct =>(show_trace "CSmart_Induct";     Subtools.smart_induct)
   in
     (*It is okay to use the type list internally,
       as long as the overall monadic interpretation framework is instantiated to Seq.seq for

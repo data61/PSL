@@ -1231,10 +1231,9 @@ local
    |  mk_proof_script1 (Apply n : node) = mk_apply_script1 n;
 in
   fun mk_apply_script (log:log) =
-   (tracing ("Number of lines of commands: " ^ (length log |> Int.toString));
     map mk_proof_script1 log
     |> String.concat
-    |> Active.sendback_markup_properties [Markup.padding_command]) : string;
+    |> Active.sendback_markup_properties [Markup.padding_command] : string;
 end;
 
 end;
