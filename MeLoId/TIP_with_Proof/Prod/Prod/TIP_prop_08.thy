@@ -23,7 +23,7 @@ fun drop :: "Nat => 'a list => 'a list" where
 lemma drop_nil: "drop n nil2 = nil2"
   by(case_tac n, auto)
 
-lemma drop_succ: "drop (S n) (drop m l) = drop n (drop (S m) l)" 
+lemma drop_succ: "drop (S n) (drop m l) = drop n (drop (S m) l)"
   apply(induction l)
    apply(simp add: drop_nil, simp)
   apply(induction m, auto)

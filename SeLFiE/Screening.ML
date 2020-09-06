@@ -67,9 +67,9 @@ local
 type quadruple  =  (int * SeLFiE_Util.induct_arguments * bool);
 type quadruples = quadruple list;
 
-fun show_how_many_survived (numb_surviving_combs:int) (numb_original_combs:int) (numb_of_step:int) =
-  tracing ("smart_induct: only " ^ Int.toString numb_surviving_combs ^ " combinations survived Step " ^ Int.toString numb_of_step ^ " out of " ^ Int.toString numb_original_combs);
-
+fun show_how_many_survived (numb_surviving_combs:int) (numb_original_combs:int) (numb_of_step:int) = ()
+(*tracing ("smart_induct: only " ^ Int.toString numb_surviving_combs ^ " combinations survived Step " ^ Int.toString numb_of_step ^ " out of " ^ Int.toString numb_original_combs);
+ *)
 fun pst_n_score_n_induct_argumentss_to_quadruples (pst:Proof.state) (score_n_induct_argumentss:(int * SU.induct_arguments) list) =
   Par_List.map (induct_arguments_is_promising_for_proof_state pst) score_n_induct_argumentss
 

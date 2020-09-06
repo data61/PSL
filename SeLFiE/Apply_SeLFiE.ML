@@ -221,7 +221,7 @@ val semantic_induct_cmd =
   (Timeout.apply (seconds 3000.0)
   (fn top: Toplevel.state =>
   let
-    val _                  = tracing "smart_induct started producing combinations of induction arguments.";
+(*    val _                  = tracing "smart_induct started producing combinations of induction arguments.";*)
     val fst_and_snd        = ["1st candidate is ", "2nd candidate is "]
     val third_till_tenth   = List.tabulate (11, I) |> map Int.toString |> drop 3 |> map (fn rank => rank ^ "th candidate is ");
     val fst_till_tenth     = fst_and_snd @ third_till_tenth;
@@ -242,7 +242,9 @@ val semantic_induct_cmd =
                              "\n  (* The score is " ^ Int.toString (#score record) ^ " out of " ^ Int.toString arb_max_point ^ ". *)";
     val best_arb_messages     = map mk_arb_message arb_best_records: strings;
     val best_arb_mssg_w_ranks = take (length best_arb_messages) fst_till_tenth ~~ best_arb_messages |> map (op ^);
+(*
     val _                     = tracing "\n\nTry these promising inductions with generalization!";
+*)
     val _                     = map tracing best_arb_mssg_w_ranks;
   in
     ()
