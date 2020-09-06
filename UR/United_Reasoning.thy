@@ -48,16 +48,6 @@ fun psl_strategy_to_monadic_tactic (strategy:MP.str) = fn (proof_state:Proof.sta
     (interpret (MP.eval_prim, MP.eval_para, MP.eval_pgt, MP.eval_strategic, MP.m_equal, MP.iddfc, (5,20))
                 core_tac) proof_state
   end: Proof.state MP.monad;
-
-fun pst_to_proofscript_opt(pst:Proof.state) =
-  let
-    val ur_strategy  = PSL_Interface.lookup (Proof.context_of pst) "ur_strategy" |> the: PSL_Interface.strategy;
-    val result_seq   = psl_strategy_to_monadic_tactic ur_strategy pst []               : (Dynamic_Utils.log * Proof.state) Seq.seq;
-    val result_opt   = try Seq.hd result_seq <$> fst                                   : (Dynamic_Utils.log) option;
-    fun mk_proof_script log = Dynamic_Utils.mk_apply_script log;
-  in
-    Option.map mk_proof_script result_opt: string option
-  end;
 \<close>
 
 ML\<open> fun fst_conjecture_n_lthy_to_some_pst_n_proof  (lthy:local_theory) =(*TODO: Double-check. Probably there is a better way to handle this.*)
@@ -83,14 +73,38 @@ then Subtools.is_solved
 else Subtools.sh_output_to_sh_stttac str;
 \<close>
 
+ML\<open> fun pst_n_conjecture_has_counterexample (pst:Proof.state) (conjecture:{lemma_name:string, lemma_stmt:string}) =
+let
+    val pst_to_be_proved    = Proof.theorem_cmd NONE (K I) [[(#lemma_stmt conjecture, [])]] (Proof.context_of pst)
+    val quickcheck          = PSL_Interface.lookup (Proof.context_of pst) "Quickcheck" |> the: PSL_Interface.strategy;
+    val result_seq          = psl_strategy_to_monadic_tactic quickcheck pst_to_be_proved []   : (Dynamic_Utils.log * Proof.state) Seq.seq;
+in
+  is_none (Seq.pull result_seq)
+end;
+\<close>
+
+ML\<open> fun pst_n_conjectures_to_conjectures_wo_obvious_counterexample (pst:Proof.state) (conjectures:{lemma_name:string, lemma_stmt:string} list) =
+  filter_out (pst_n_conjecture_has_counterexample pst) conjectures: {lemma_name:string, lemma_stmt:string} list;
+\<close>
+
+ML\<open> fun pst_to_proofscript_opt(pst:Proof.state) =
+  let
+    val ur_strategy         = PSL_Interface.lookup (Proof.context_of pst) "ur_strategy" |> the: PSL_Interface.strategy;
+    val result_seq          = psl_strategy_to_monadic_tactic ur_strategy pst []               : (Dynamic_Utils.log * Proof.state) Seq.seq;
+    val result_opt          = try Seq.hd result_seq <$> fst                                   : (Dynamic_Utils.log) option;
+    fun mk_proof_script log = Dynamic_Utils.mk_apply_script log;
+  in
+    Option.map mk_proof_script result_opt: string option
+  end;
+\<close>
+
 ML\<open> fun conjecture_n_pst_to_pst_n_proof (conjecture:{lemma_name:string, lemma_stmt:string}) (pst:Proof.state) =
   let
     val _ = tracing ("trying to prove " ^ #lemma_name conjecture)
-    val binding          = (Binding.name (#lemma_name conjecture), [])              : Attrib.binding;
-    val stmt_elem        = Element.Shows [(binding, [(#lemma_stmt conjecture, [])])]: (string, string) Element.stmt;
-    val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(#lemma_stmt conjecture, [])]] (Proof.context_of pst)
+    val binding          = (Binding.name (#lemma_name conjecture), [])                                         : Attrib.binding;
+    val stmt_elem        = Element.Shows [(binding, [(#lemma_stmt conjecture, [])])]                           : (string, string) Element.stmt;
+    val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(#lemma_stmt conjecture, [])]] (Proof.context_of pst): Proof.state;
     val script_opt       = pst_to_proofscript_opt pst_to_be_proved                                             : string option;
-
     val pst_n_log  = case script_opt of
        NONE                 => (pst, NONE)
      | SOME (script:string) => (
@@ -219,20 +233,23 @@ fun theorem spec descr =
             val _= tracing ("We have " ^ Int.toString (length relevant_binary_funcs) ^ " relevant_binary_funcs");
             val _= tracing ("We have " ^ Int.toString (length pairs_for_distributivity) ^ " pairs_for_distributivity");
             val _= tracing ("We have " ^ Int.toString (length pairs_for_anti_distr_n_homomorphism_2) ^ " pairs_for_anti_distr_n_homomorphism_2");
-            val associativities       = map (ctxt_n_trm_to_associativity lthy) relevant_binary_funcs                        |> flat;
-            val commutativities       = map (ctxt_n_trm_to_commutativity lthy) relevant_binary_funcs                        |> flat;
-            val distributivities      = map (ctxt_n_trms_to_distributivity lthy) pairs_for_distributivity                   |> flat;
-            val anti_distributivities = map (ctxt_n_trms_to_anti_distributivity lthy) pairs_for_anti_distr_n_homomorphism_2 |> flat;
-            val homomorphism_2        = map (ctxt_n_trms_to_homomorphism_2 lthy) pairs_for_anti_distr_n_homomorphism_2      |> flat;
-            val conjectures = associativities @ commutativities @ distributivities @  anti_distributivities @ homomorphism_2;
-            val _= tracing ("We have " ^ Int.toString (length conjectures) ^ " conjectures")
-            val _ = map (tracing o #lemma_stmt) conjectures;
+            val associativities                = map (ctxt_n_trm_to_associativity lthy) relevant_binary_funcs                        |> flat;
+            val commutativities                = map (ctxt_n_trm_to_commutativity lthy) relevant_binary_funcs                        |> flat;
+            val distributivities               = map (ctxt_n_trms_to_distributivity lthy) pairs_for_distributivity                   |> flat;
+            val anti_distributivities          = map (ctxt_n_trms_to_anti_distributivity lthy) pairs_for_anti_distr_n_homomorphism_2 |> flat;
+            val homomorphism_2                 = map (ctxt_n_trms_to_homomorphism_2 lthy) pairs_for_anti_distr_n_homomorphism_2      |> flat;
+            val conjectures                    = associativities @ commutativities @ distributivities @  anti_distributivities @ homomorphism_2;
+            val pst                            = fst_conjecture_n_lthy_to_some_pst_n_proof lthy: Proof.state;
+            val _= tracing ("We have " ^ Int.toString (length conjectures) ^ " conjectures");
+            val conjectures_wo_counter_example = pst_n_conjectures_to_conjectures_wo_obvious_counterexample pst conjectures;
+            val _= tracing ("We have " ^ Int.toString (length conjectures_wo_counter_example) ^ " conjectures_wo_counter_example:");
+            val _ = map (tracing o (fn conj => " " ^ #lemma_name conj)) conjectures_wo_counter_example;
             fun statement_to_conjecture (Element.Shows [((binding, _), [(stmt:string, [])])]) =
                 {lemma_name = Binding.name_of binding: string,
                  lemma_stmt = stmt |> YXML.content_of |> String.explode |> Utils.init |> tl |> String.implode}
               | statement_to_conjecture _ = error "statement_to_conjecture failed.";
-            val pst = fst_conjecture_n_lthy_to_some_pst_n_proof lthy: Proof.state;
-            val ((_, _), prfs2) = conjecture_n_pst_to_pst_n_proof (conjectures @ [statement_to_conjecture concl]) pst
+
+            val ((_, _), prfs2) = conjecture_n_pst_to_pst_n_proof (conjectures_wo_counter_example @ [statement_to_conjecture concl]) pst
               : (Proof.state * conjecture_w_proof list) * conjecture_w_proof list;
             val _ = map (tracing o print_conjecture_w_proof) prfs2;
             fun stmt_to_concl_name (Element.Shows [((binding, _), [(_, _)])]) =  Binding.name_of binding: string
@@ -252,4 +269,5 @@ end;
 \<close>
 
 prove dfd:"((t2 x1 (S x1)) = (S (t2 x1 x1)))"
+
 end

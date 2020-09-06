@@ -297,7 +297,7 @@ fun state_stttacs (pst:Proof.state) =
 
 end;
 
-val timeout    = Timeout.apply (seconds 5.0)
+val timeout    = Timeout.apply (seconds 5.0);
 
 (** The exposed part of Subtools **)
 val quickcheck = timeout Quickcheck_Tactic.state_stttac;
