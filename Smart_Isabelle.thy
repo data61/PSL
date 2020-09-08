@@ -1,5 +1,10 @@
 theory Smart_Isabelle
-  imports Main
+  imports 
+  "SeLFiE.SeLFiE"
+  "PaMpeR.PaMpeR"
+  "PSL.PSL"
+  "LiFtEr.LiFtEr"
+  "Smart_Induct.Smart_Induct" 
 begin
 
 lemma "True"

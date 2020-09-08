@@ -64,11 +64,12 @@ fun get_all_modifiers (state:Proof.state) =
         val trm_w_prnt              = UN.trm_to_trm_w_prnt ctxt trm;
         val utrm_w_prnt             = UN.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
         val futrm_w_prnt            = UN.utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
-        val futrm_w_prnt_n_path     = UN.futrm_w_prnt_to_futrm_w_prnt_n_path futrm_w_prnt;
-        val unodes                  = UN.futrm_w_prnt_n_path_to_unodes futrm_w_prnt_n_path: UN.unodes;
+        val futrm_w_prnt_n_tag      = UN.futrm_w_prnt_to_futrm_w_prnt_n_tag ctxt futrm_w_prnt;
+        val futrm_w_prnt_n_path     = UN.futrm_w_prnt_n_tag_to_futrm_w_prnt_n_tag_n_inner_path futrm_w_prnt_n_tag;
+        val unodes                  = UN.futrm_w_prnt_n_tag_n_inner_path_n_ctxt_to_unodes futrm_w_prnt_n_path ctxt: UN.unodes;
         fun is_var_or_bound unode   = UN.is_NF (#node unode) orelse UN.is_NV (#node unode);
         val filtered_unodes         = filter is_var_or_bound unodes;
-        val prints                  = map #print filtered_unodes |> map LiFtEr_Util.dest_print |> distinct (op =);
+        val prints                  = map #print filtered_unodes |> distinct (op =);
       in
         prints
       end;

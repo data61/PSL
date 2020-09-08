@@ -1,27 +1,27 @@
-session Smart_Isabelle (psl) = HOL +
-  options [timeout = 30000]
-  theories
-    Smart_Isabelle
+session "SeLFiE" (psl) in SeLFiE = HOL +
+  options [timeout = 600]
+  theories [document = false]
+    "SeLFiE"
   document_files
     "root.tex"
     "root.bib"
 
-session "PSL" (psl) in PSL = HOL +
-  options [timeout = 600]
-  theories [document = false]
-    "PSL"
-  document_files
-    "root.tex"
-    "root.bib"
-(*
-session "PaMpeR" (psl) in PaMpeR = "PSL" +
+session "PaMpeR" (psl) in PaMpeR = "SeLFiE" +
   options [timeout = 6000]
   theories [document = false]
     "PaMpeR"
   document_files
     "root.tex"
     "root.bib"
-*)
+
+session "PSL" (psl) in PSL = PaMpeR +
+  options [timeout = 600]
+  theories [document = false]
+    "PSL"
+  document_files
+    "root.tex"
+    "root.bib"
+
 session "LiFtEr" (psl) in LiFtEr = "PSL" +
   options [timeout = 600]
   theories [document = false]
@@ -37,6 +37,16 @@ session Smart_Induct (psl) in Smart_Induct = "LiFtEr" +
   document_files
     "root.tex"
     "root.bib"
+
+session Smart_Isabelle (psl) = "Smart_Induct" +
+  options [timeout = 30000]
+  theories
+    Smart_Isabelle
+  document_files
+    "root.tex"
+    "root.bib"
+
+
 (*
 session Evaluation (psl) in "Smart_Induct/Evaluation" = "Smart_Induct" +
   options [timeout = 300000]

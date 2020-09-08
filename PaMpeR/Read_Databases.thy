@@ -2,7 +2,8 @@ theory Read_Databases
 imports Pure
 begin
 
-ML_file "../PSL/Utils.ML" (*TODO, FIXME: Utils.ML has test cases that involve constants and types defined in Main, but not in Pure*)
+ML_file "../SeLFiE/Definition_Pattern.ML"
+ML_file "../SeLFiE/Util.ML" (*TODO, FIXME: Utils.ML has test cases that involve constants and types defined in Main, but not in Pure*)
 
 ML\<open> signature DATABASE =
 sig

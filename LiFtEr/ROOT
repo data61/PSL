@@ -1,4 +1,4 @@
-session "LiFtEr" = "PSL" +
+session "LiFtEr" = "SeLFiE" +
   options [(*document = pdf, document_output = "output",*) timeout = 600]
   theories [document = false]
     "LiFtEr"

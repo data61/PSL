@@ -77,7 +77,7 @@ let
                       |> SU.sort_induct_argumentss
                       |> filter all_ons_meet_condition (*TODO: we should do something better than this.*)
                       |> filter_out is_wellfounded: SeLFiE_Util.induct_arguments list;
-  val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");
+(*  val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");*)
 in
   induct_arguments: SU.induct_arguments list
 end;

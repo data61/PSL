@@ -24,10 +24,10 @@ begin
 find_theorems name:"wf_induct"
 
 (* pre-processing *)
-ML_file "../PSL/Utils.ML"
-ML_file "../MeLoId/src/MeLoId_Util.ML"
 ML_file "Definition_Pattern.ML"
 ML_file "Util.ML"
+ML_file "../MeLoId/src/MeLoId_Util.ML"
+
 
 ML_file "Unique_Node.ML"
 ML_file "Unique_Node_Test.ML"

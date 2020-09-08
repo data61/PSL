@@ -115,10 +115,10 @@ val get_trans_trans_true  = get_trans_trans_gen true : (string * string) -> tran
 val get_trans_trans_false = get_trans_trans_gen false: (string * string) -> trans_trans;
 
 val invocation_parser = PC.token LiFtEr_parser: (string * string) PC.parser;
-val token_parser      = PSL_Interface.string_parser_to_token_parser invocation_parser: (string * string) Token.parser;
+val token_parser      = Parser_Combinator.string_parser_to_token_parser invocation_parser: (string * string) Token.parser;
 fun get_token_parser_result token = token_parser token |> fst: (string * string);
 
-val get_trans_trans_to_token_parser = PSL_Interface.parser_to_trans_trans_parser invocation_parser;
+val get_trans_trans_to_token_parser = Parser_Combinator.parser_to_trans_trans_parser invocation_parser;
 
 val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true : trans_trans Token.parser;
 val token_parser_false = get_trans_trans_to_token_parser get_trans_trans_false: trans_trans Token.parser;
@@ -261,10 +261,10 @@ val LiFtEr_parser2 =
 *)
 
 val invocation_parser = PC.token LiFtEr_parser2 (*: (string * ind_mods) PC.parser;*)
-val token_parser      = PSL_Interface.string_parser_to_token_parser invocation_parser(*: (string * ind_mods) Token.parser;*)
+val token_parser      = Parser_Combinator.string_parser_to_token_parser invocation_parser(*: (string * ind_mods) Token.parser;*)
 fun get_token_parser_result token = token_parser token |> fst(*: (string * ind_mods);*)
 
-val get_trans_trans_to_token_parser = PSL_Interface.parser_to_trans_trans_parser invocation_parser;
+val get_trans_trans_to_token_parser = Parser_Combinator.parser_to_trans_trans_parser invocation_parser;
 
 val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true : trans_trans Token.parser;
 
@@ -393,10 +393,10 @@ val LiFtEr_parser3 =
   PC.result (ind_mods))
 
 val invocation_parser = PC.token LiFtEr_parser3 (*: (ind_mods) PC.parser;*)
-val token_parser      = PSL_Interface.string_parser_to_token_parser invocation_parser(*: (string * ind_mods) Token.parser;*)
+val token_parser      = Parser_Combinator.string_parser_to_token_parser invocation_parser(*: (string * ind_mods) Token.parser;*)
 fun get_token_parser_result token = token_parser token |> fst(*: (string * ind_mods);*)
 
-val get_trans_trans_to_token_parser = PSL_Interface.parser_to_trans_trans_parser invocation_parser;
+val get_trans_trans_to_token_parser = Parser_Combinator.parser_to_trans_trans_parser invocation_parser;
 
 val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true : trans_trans Token.parser;
 

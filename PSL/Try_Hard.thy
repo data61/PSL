@@ -5,7 +5,7 @@ This file defines the default strategy "TryHard".
 *)
 
 theory Try_Hard
-imports "../SeLFiE/SeLFiE"
+imports "SeLFiE.SeLFiE"
 keywords "strategy"     :: thy_decl
      and "find_proof"   :: diag
      and "try_hard"     :: diag
@@ -14,7 +14,6 @@ keywords "strategy"     :: thy_decl
      and "try_parallel" :: diag
 begin
 
-ML_file "Utils.ML"
 ML_file "PGT.ML"
 ML_file "Dynamic_Tactic_Generation.ML"
 ML_file "Subtool.ML"

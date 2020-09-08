@@ -20,8 +20,6 @@ end;
 structure Definition_Pattern:DEFINITION_PATTERN =
 struct
 
-structure IU = Isabelle_Utils;
-
 (** type: command **)
 datatype command  = Definition | Fun | Function | Inductive | Inductive_Set | Primrec | Unknown;
 
@@ -33,7 +31,7 @@ fun has_no_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:stri
   can (Proof_Context.get_thms ctxt) (cnst_name ^ "." ^ suffix) |> not;
 
 fun has_set_member (trm:term) = Term.exists_Const (equal "Set.member" o fst) trm: bool;
-fun always_has_set_mbmer (trms: terms) = forall has_set_member trms: bool;
+fun always_has_set_mbmer (trms: term list) = forall has_set_member trms: bool;
 fun is_defined_with_inductive_set (ctxt:Proof.context) (cname:string) =
    try (Proof_Context.get_thms ctxt) (cname ^ ".intros")
 |> these

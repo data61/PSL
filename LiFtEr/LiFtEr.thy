@@ -5,14 +5,13 @@ MeLoId: Machine Learning Induction for Isabelle/HOL, and
 LiFtEr: Logical Feature Extractor.
 *)
 theory LiFtEr
-  imports "PSL.PSL"
+  imports "SeLFiE.SeLFiE"
   keywords "assert_LiFtEr_true" :: diag
    and     "assert_LiFtEr_false":: diag
    and     "assert_LiFtEr"      :: diag
    and     "test_all_LiFtErs"   :: diag
 begin
 
-ML_file "../PSL/Utils.ML"
 ML_file "Matrix_Sig.ML"
 ML_file "Matrix_Struct.ML"
 ML_file "Matrix_Test.ML"

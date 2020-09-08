@@ -1,4 +1,4 @@
-session "PaMpeR" = "PSL" +
+session "PaMpeR" = "SeLFiE" +
   options [(*document = pdf, document_output = "output",*) timeout = 600]
   theories [document = false]
     "PaMpeR"

@@ -21,7 +21,7 @@
         from Archive of Formal Proof.
 *)
 theory PaMpeR
-  imports PaMpeR_Base
+  imports Main PaMpeR_Base Main
 begin
 
 read_regression_trees

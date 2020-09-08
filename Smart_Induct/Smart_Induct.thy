@@ -2,7 +2,7 @@
     Author:     Yutaka Nagashima, CIIRC, CTU, University of Innsbruck
 *)
 theory Smart_Induct
-  imports  "LiFtEr.LiFtEr"
+  imports  "PSL.PSL" "LiFtEr.LiFtEr"
   keywords "smart_induct" :: diag
 begin
 
