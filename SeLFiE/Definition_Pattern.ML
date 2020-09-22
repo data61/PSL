@@ -40,7 +40,7 @@ fun is_defined_with_inductive_set (ctxt:Proof.context) (cname:string) =
 
 
 
-val suffix_for_definition = (["_def"], ["cases", "elims", "induct", "pelims", "simps", "intros"]);
+val suffix_for_definition = ([(*"_def"*)], ["cases", "elims", "induct", "pelims", "simps", "intros"]);(*We should not check for "_def" since the definition package can make arbitrary name for the relevant rule.*)
 val suffix_for_fun =       (["cases", "elims", "induct", "pelims", "simps"], ["inducts", "intros"]);(*The "fun" keyword produces psimps.*)
 val suffix_for_function =  (["cases", "pelims", "psimps"], ["elims", "simps", "intros"]);
 val suffix_for_primrec =   (["simps"], ["cases", "pelims", "psimps","elims", "intros"]);

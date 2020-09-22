@@ -307,8 +307,7 @@ Lambdas (["number"],
           Is_Nth_Child_Of (Variable "lfs_path", Number 1, Variable "root_path"),
           Some ("fst_param", QInner_Path,
             Ands [
-              Is_N_Plus_One_th_Child_Of (Variable "fst_param", Variable "number", Variable "lfs_path"),
-              Debug_Print_Unode (Variable "fst_param")
+              Is_N_Plus_One_th_Child_Of (Variable "fst_param", Variable "number", Variable "lfs_path")
             ]
           )
         ]
@@ -1158,24 +1157,39 @@ Imply
       )
     );
 
+val is_defined_with_rec_func_inside =
+Lambdas (["func"],
+  Ands [
+    Some ("root_path", QInner_Path,
+      Ands [
+        Is_Root_In_A_Location (Variable "root_path"),
+        Some ("rhs_path", QInner_Path,
+          Ands [
+            Applies (is_rhs_of_root, [Variable "rhs_path", Variable "root_path"]),
+            Some ("rec_func_path", QInner_Path,
+              Ands [
+                Applies (node_defined_recursively, [Variable "rec_func_path"]),
+                Is_Path_Below (Variable "rec_func_path", Variable "rhs_path")
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  ]
+);
+
 val is_defined_recursively_straw =
 Lambdas (["func"(*Term*)],
   Ands [
     Print_Is_Defined_With_N_Clauses (Variable "func", Number 1),
-    Some ("rec_func", QInner_Print,
-      Applies (print_defined_recursively, [Variable "rec_func"]))
+    In_Some_Definitions (Variable "func", is_defined_with_rec_func_inside, [Variable "func"])
   ]
 );
 
 val mth_arg_of_func_occ_has_different_print_straw =
 Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
   Ands [
-(*
-Debug_Non_Path_Literal (Print "=== Print All From Straw Starts"),
-    All ("mth_param_on_lhs", QInner_Print,
-      Debug_Non_Path_Literal (Variable "mth_param_on_lhs")
-    ),
-*)
     Some ("root_path", QInner_Path,
       Ands [
         Is_Root_In_A_Location (Variable "root_path"),
@@ -1206,6 +1220,13 @@ Debug_Non_Path_Literal (Print "=== Print All From Straw Starts"),
                                     Variable "rec_func_on_rhs",
                                     mth_arg_of_func_occ_has_different_print,
                                     [Variable "lth_arg_of_func_occ_has_arb", Variable "rec_func_on_rhs"]
+                                  ),
+                                  Not (
+                                    In_Some_Definitions (
+                                      Variable "rec_func_on_rhs",
+                                      is_defined_recursively_on_nth,
+                                      [Variable "rec_func_on_rhs", Variable "lth_arg_of_func_occ_has_arb"]
+                                    )
                                   )
                                 ]
                               )
@@ -1227,53 +1248,51 @@ Debug_Non_Path_Literal (Print "=== Print All From Straw Starts"),
 
 (*what should be generalized deep.*)(*Look how this heuristic handles, for example, soundness' in Hybrid_Logic.thy*)
 val generalize_arguments_used_in_recursion_deep =
-(*
-  Not (Some ("rule", QRule, True))
-Imply
-*)
 Ors [
   All ("ind", QInd,
     All ("func", QOuter_Print,
-      Ands [
-        Print_Is_Cnst (Variable "func"),
-        Applies (is_defined_recursively_straw, [Variable "func"])
-      ]
-    Imply
-      Ands [
-        All_Of ("func_occ", Variable "func",
-          Ands [
-            All ("used_to_update_mth_arg", QOuter_Number,
-                Ands [
-                  Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
-                  In_Some_Definitions (
-                    Variable "func",
-                    mth_arg_of_func_occ_has_different_print_straw,
-                    [Variable "used_to_update_mth_arg", Variable "func"]
-                  )
-                ]
-              Imply
-                Ands [
-                  Some_Of ("func_occ2", Variable "func",
-                    Ands [
-                      Some ("arb", QArb,
-                        Imply (
-                          Not (Are_Same_Prints (Variable "ind", Variable "arb")),
-                          Ands [
-                            Some_Of ("arb_occ", Variable "arb",
-                              Ands [
-                                Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "arb_occ", Variable "used_to_update_mth_arg", Variable "func_occ2")
-                              ]
-                            )
-                          ]
+      Imply (
+        Ands [
+          Print_Is_Cnst (Variable "func"),
+          Applies (is_defined_recursively_straw, [Variable "func"])
+        ],
+        Ands [
+          All_Of ("func_occ", Variable "func",
+            Ands [
+              All ("used_to_update_mth_arg", QOuter_Number,
+                  Ands [
+                    Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
+                    In_Some_Definitions (
+                      Variable "func",
+                      mth_arg_of_func_occ_has_different_print_straw,
+                      [Variable "used_to_update_mth_arg", Variable "func"]
+                    )
+                  ]
+                Imply
+                  Ands [
+                    Some_Of ("func_occ2", Variable "func",
+                      Ands [
+                        Some ("arb", QArb,
+                          Imply (
+                            Not (Are_Same_Prints (Variable "ind", Variable "arb")),
+                            Ands [
+                              Some_Of ("arb_occ", Variable "arb",
+                                Ands [
+                                  Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                                   (Variable "arb_occ", Variable "used_to_update_mth_arg", Variable "func_occ2")
+                                ]
+                              )
+                            ]
+                          )
                         )
-                      )
-                    ]
-                  )
-                ]
-            )
-          ]
-        )
-      ]
+                      ]
+                    )
+                  ]
+              )
+            ]
+          )
+        ]
+      )
     )
   )
 ];
@@ -2081,6 +2100,25 @@ val if_rule_induction_then_no_generalization =
   Some ("rule", QRule, True)
 Imply
   Not (Some ("arb", QArb, True));
+
+val no_arb_has_occ_as_argument_of_all_occ_of_functional_induction =
+Not (
+  Some ("arb", QArb,
+    Some ("rule", QRule,
+      Some ("rec_func", QOuter_Print,
+        Ands [
+          Is_Rule_Of_Print (Variable "rule", Variable "rec_func"),
+          Applies (print_defined_recursively, [Variable "rec_func"]),
+          All_Of ("rec_func_occ", Variable "rec_func",
+            Some_Of ("arb_occ", Variable "arb",
+              Is_An_Argument_Or_Below_Argument_Of (Variable "arb_occ", Variable "rec_func_occ")
+            )
+          )
+        ]
+      )
+    )
+  )
+);
 
 val if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs =
   Ands [

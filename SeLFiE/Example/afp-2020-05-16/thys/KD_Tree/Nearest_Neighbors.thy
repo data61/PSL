@@ -199,7 +199,8 @@ subsection \<open>The Main Theorems\<close>
 
 lemma set_nns:
   "set (nearest_nbors n ps p kdt) \<subseteq> set_kdt kdt \<union> set ps"
-  
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["kdt"], arb["ps"], rule[]](*okay*)
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["kdt"], arb[    ], rule[]](*not great, but okay*)
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["ps"],rule[]](*very good.It takes 2.385s elapsed time, 13.012s cpu time, 0.196s GC time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["kdt"], arb[],rule[]]    (*very good*)
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["kdt"], arb["p", "ps"],rule[]](*a little unfortunate*)

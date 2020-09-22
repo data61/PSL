@@ -313,8 +313,8 @@ lemma soundness': \<open>n \<turnstile> branch \<Longrightarrow> M, g \<Turnstil
   all_induction_heuristic      [on["n", "branch"], arb["g"], rule["ST.induct"]]
   all_generalization_heuristic [on["n", "branch"], arb["g"], rule["ST.induct"]](*failed: lifter_10, lifter_12, if_rule_induction_then_no_generalization*)
 (*It is difficult to tell that \<Turnstile>\<^sub>\<Theta> is defined recursively on branch (i.e. the third parameter).*)
-  assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["branch"], arb["g"], rule["ST.induct"]]
-  assert_SeLFiE_false generalize_arguments_used_in_recursion_deep [on["branch"], arb[   ], rule["ST.induct"]]
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["branch"], arb["g"], rule["ST.induct"]](*good*)
+  assert_SeLFiE_false generalize_arguments_used_in_recursion_deep [on["branch"], arb[   ], rule["ST.induct"]](*great*)
 proof (induct n branch arbitrary: g rule: ST.induct)
   case (Close p i branch)
   then have \<open>M, g, g i \<Turnstile> p\<close> \<open>M, g, g i \<Turnstile> \<^bold>\<not> p\<close>

@@ -101,7 +101,12 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_false rule_inversion_using_the_deepest_const [on["xs", "ys"], arb[],rule["itrev.induct"]]
   apply(induct xs arbitrary: ys) apply auto done
 
-lemma "itrev xs ys = rev xs @ ys"
+definition "list_reversal_eq xs ys \<equiv> (itrev xs ys = rev xs @ ys)"
+print_theorems
+
+lemma "list_reversal_eq xs ys"
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb["ys"], rule[]](*good*)
+  assert_SeLFiE_false generalize_arguments_used_in_recursion_deep [on["xs"], arb[    ], rule[]](*Great*)
   semantic_induct
   oops
 (* auxiliary stuff *)
