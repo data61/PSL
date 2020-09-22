@@ -46,6 +46,8 @@ lemma "itrev xs ys = rev xs @ ys"
   all_induction_heuristic [on["xs"], arb["ys"],rule[]]
   all_generalization_heuristic [on["xs"], arb["ys"],rule[]]
   all_induction_heuristic [on["xs","ys"], arb[],rule["itrev.induct"]]
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb["ys"], rule[]]
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb[    ], rule[]](*Not great, but does not harm much.*)
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["xs"], arb["ys"],rule[]](*It used to take 1.196s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb["xs"],rule[]](*It used to take 2.467s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]](*It used to take 0.864s elapsed time*)

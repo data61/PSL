@@ -272,7 +272,6 @@ let(*TODO: refine. This has too much code duplication with sh_output_to_sh_logta
     in
       if Utils.debug then (tracing1 (); tracing2 (); tracing3 (); ()) else ()
     end;
-    val _ = Basics.try;
   val state_w_using = Proof.using_cmd using_raw state : Proof.state;
   val timeout       = Timeout.apply (seconds 10.0)
   val tac_results   = timeout (Proof.apply checked_range) state_w_using

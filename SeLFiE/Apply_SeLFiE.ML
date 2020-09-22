@@ -226,6 +226,7 @@ val semantic_induct_cmd =
     val third_till_tenth   = List.tabulate (11, I) |> map Int.toString |> drop 3 |> map (fn rank => rank ^ "th candidate is ");
     val fst_till_tenth     = fst_and_snd @ third_till_tenth;
     fun ind_args_to_sendb ind_args = SU.induct_arguments_to_string ind_args
+                                  |> (fn induct => "apply " ^ induct)
                                   |> Active.sendback_markup_properties [Markup.padding_command]      : string;
     val pst                       = Toplevel.proof_of top                                            : Proof.state;
     val thm                       = Isabelle_Utils.proof_state_to_thm pst                            : thm;
