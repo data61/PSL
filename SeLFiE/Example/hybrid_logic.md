@@ -75,7 +75,7 @@
    - why `induct branch`?
    - because of `!.` and `∈.`, which is a syntactic sugar for `‹x ∈. xs ≡ x ∈ set xs›`.   
 
-- [ ] `lemma mapi_block_add_oob:` in Line 890 (Deep-Dive needed.)
+- [ ] `lemma mapi_block_add_oob:` in Line 890 (Deep-Dive needed.) -> handling parentheses is tricky.
    - ```
      assumes ‹length ps ≤ v'›
      shows
