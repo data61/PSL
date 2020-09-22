@@ -17,7 +17,7 @@
      ```
    - That is, after one step of dive-in, we see that a part of `block` in `p on block`is an argument of `set` inside the second argument of `∈`.
 
-- [ ] `lemma soundness':` in Line 306 (Deep-Dive needed.)
+- [ ] `lemma soundness':` in Line 306 (Deep-Dive needed.) -> handled by [this deep-dive heuristic](https://github.com/data61/PSL/blob/43a547b1c281b6d6f9707bd691f1f417ef5a92b5/SeLFiE/SeLFiE_Assertion.ML#L1229).
    - ```
      ‹n ⊢ branch ⟹ M, g ⊨⇩Θ branch ⟹ False›
      proof (induct branch arbitrary: g rule: ST.induct)
