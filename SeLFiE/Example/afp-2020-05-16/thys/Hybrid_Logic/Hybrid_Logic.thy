@@ -270,7 +270,7 @@ text \<open>
 primrec block_sat :: \<open>('w, 'a) model \<Rightarrow> ('b \<Rightarrow> 'w) \<Rightarrow> ('a, 'b) block \<Rightarrow> bool\<close>
   (\<open>_, _ \<Turnstile>\<^sub>B _\<close> [50, 50] 50) where
   \<open>(M, g \<Turnstile>\<^sub>B (ps, i)) = (\<forall>p on (ps, i). M, g, g i \<Turnstile> p)\<close>
-term "Hybrid_Logic.on"
+
 abbreviation branch_sat ::
   \<open>('w, 'a) model \<Rightarrow> ('b \<Rightarrow> 'w) \<Rightarrow> ('a, 'b) branch \<Rightarrow> bool\<close>
   (\<open>_, _ \<Turnstile>\<^sub>\<Theta> _\<close> [50, 50] 50) where
@@ -305,9 +305,17 @@ lemma branch_sat_fresh:
   using assms using block_sat_fresh unfolding branch_nominals_def by fast
 
 text \<open>If a branch has a derivation then it cannot be satisfied.\<close>
-
-lemma soundness': \<open>n \<turnstile> branch \<Longrightarrow> M, g \<Turnstile>\<^sub>\<Theta> branch \<Longrightarrow> False\<close>(*!*)
-proof (induct branch arbitrary: g rule: ST.induct)
+ML\<open>
+try (Syntax.read_term @{context}) "?g"
+\<close>
+lemma soundness': \<open>n \<turnstile> branch \<Longrightarrow> M, g \<Turnstile>\<^sub>\<Theta> branch \<Longrightarrow> False\<close>
+  semantic_induct(*!*)
+  all_induction_heuristic      [on["n", "branch"], arb["g"], rule["ST.induct"]]
+  all_generalization_heuristic [on["n", "branch"], arb["g"], rule["ST.induct"]](*failed: lifter_10, lifter_12, if_rule_induction_then_no_generalization*)
+(*It is difficult to tell that \<Turnstile>\<^sub>\<Theta> is defined recursively on branch (i.e. the third parameter).*)
+  assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["branch"], arb["g"], rule["ST.induct"]]
+  assert_SeLFiE_false generalize_arguments_used_in_recursion_deep [on["branch"], arb[   ], rule["ST.induct"]]
+proof (induct n branch arbitrary: g rule: ST.induct)
   case (Close p i branch)
   then have \<open>M, g, g i \<Turnstile> p\<close> \<open>M, g, g i \<Turnstile> \<^bold>\<not> p\<close>
     by fastforce+

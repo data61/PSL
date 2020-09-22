@@ -141,4 +141,7 @@ setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Generalization_Heuristic, 
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs"                                                  ) (SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs                                                  , 2) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      "all_ind_should_be_atom"                                                                                                             ) (SeLFiE_Assertion.all_ind_should_be_atom                                                                                                             , 2) \<close>
 
+
+setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Generalization_Heuristic, "generalize_arguments_used_in_recursion_deep"                                                                                        ) (SeLFiE_Assertion.generalize_arguments_used_in_recursion_deep                                                                                        , 3) \<close>
+
 end

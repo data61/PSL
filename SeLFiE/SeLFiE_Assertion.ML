@@ -743,12 +743,21 @@ Lambdas (["rhs_path", "root_path"],
   ]
 );
 
-val is_variable =
+val node_is_variable =
 Lambdas (["variable"],
-  Ors [
-    Node_Is_Free  (Variable "variable"),
-    Node_Is_Var   (Variable "variable"),
-    Node_Is_Bound (Variable "variable")
+  Ands [
+    Not (Node_Is_Cnst   (Variable "variable")),
+    Not (Node_Is_Lambda (Variable "variable")),
+    Not (Node_Is_App    (Variable "variable"))
+  ]
+);
+
+val print_is_variable =
+Lambdas (["variable"],
+  Ands [
+    Not (Print_Is_Cnst   (Variable "variable")),
+    Not (Print_Is_Lambda (Variable "variable")),
+    Not (Print_Is_App    (Variable "variable"))
   ]
 );
 
@@ -970,18 +979,6 @@ val is_defined_recursively_on_nth_n_mth_by_two_funs =
             In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
             Some_Of ("func1_occ", Variable "func1_term",
               Ands [
-(*
-                Some ("func2_term", QOuter_Print,
-                  Ands [
-                    Applies (print_defined_recursively, [Variable "func2_term"]),
-                    Some_Of ("func2_occ", Variable "func2_term",
-                      Ands [
-                        Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ")
-                      ]
-                    )
-                  ]
-                )
-*)
                 Some ("func2_term", QOuter_Print,
                   Ands [
                     Applies (print_defined_recursively, [Variable "func2_term"]),
@@ -1042,53 +1039,6 @@ Imply
         )
       ]
     )
-(*
-    All ("func1_term", QOuter_Print,
-      Ands [
-          Applies (print_defined_recursively, [Variable "func1_term"])
-        Imply
-          All ("func2_occ_is_below_nth_arg_of_func1_occ", QOuter_Number,
-            Ands [
-                Ands [
-                  Print_Takes_Less_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
-                  In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"])
-                ]
-              Imply
-                All_Of ("func1_occ", Variable "func1_term",
-                  Ands [
-                    All ("func2_term", QOuter_Print,
-                      Ands [                                                        
-                          Applies (print_defined_recursively, [Variable "func2_term"])
-                        Imply
-                          All ("ind_occ_is_below_nth_arg_of_func2_occ", QOuter_Number,
-                            Ands [
-                                Ands [
-                                  Print_Takes_Less_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
-                                  In_Some_Definitions (Variable "func2_term", is_defined_recursively_on_nth, [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"])
-                                ]
-                              Imply
-                                All_Of ("func2_occ", Variable "func2_term",
-                                  Ands [
-                                      Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ")
-                                    Imply
-                                      All ("ind_term", QInd,
-                                        Some_Of ("ind_occ", Variable "ind_term",
-                                          Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ", Variable "ind_occ_is_below_nth_arg_of_func2_occ", Variable "func2_occ")
-                                        )
-                                      )
-                                  ]
-                                )
-                            ]
-                          )
-                      ]
-                    )
-                  ]
-                )
-            ]
-          )
-      ]
-    )
-*)
 ;
 
 val nth_parameter_is_used_in_mth_argument_in_recursive_call =
@@ -1105,7 +1055,7 @@ Lambdas (["func", "recursive_on_nth", "mth"],
                 Applies (is_rhs_of_root, [Variable "rhs_path", Variable "root_path"]),
                 Some ("part_of_nth_param_on_lhs_that_causes_ind", QInner_Path,
                   Ands [
-                    Applies (is_variable, [Variable "part_of_nth_param_on_lhs_that_causes_ind"]),
+                    Applies (node_is_variable, [Variable "part_of_nth_param_on_lhs_that_causes_ind"]),
                     (*Maybe it is better to use Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of instead?*)
                     Is_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs_that_causes_ind", Variable "recursive_on_nth", Variable "lhs_path"),
                     Some_Of ("func_occ_on_rhs_that_causes_ind", Variable "func",
@@ -1120,7 +1070,7 @@ Lambdas (["func", "recursive_on_nth", "mth"],
                                 Is_Path_Below (Variable "func_occ_on_rhs_that_causes_arb", Variable "rhs_path"),
                                 Some ("part_of_nth_param_on_lhs_that_causes_arb", QInner_Path,
                                   Ands [
-                                    Applies (is_variable, [Variable "part_of_nth_param_on_lhs_that_causes_arb"]),
+                                    Applies (node_is_variable, [Variable "part_of_nth_param_on_lhs_that_causes_arb"]),
                                     Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs_that_causes_arb", Variable "recursive_on_nth", Variable "lhs_path"),
                                     Some ("part_of_nth_param_on_rhs_that_causes_arb", QInner_Path,
                                       Ands [
@@ -1208,6 +1158,126 @@ Imply
       )
     );
 
+val is_defined_recursively_straw =
+Lambdas (["func"(*Term*)],
+  Ands [
+    Print_Is_Defined_With_N_Clauses (Variable "func", Number 1),
+    Some ("rec_func", QInner_Print,
+      Applies (print_defined_recursively, [Variable "rec_func"]))
+  ]
+);
+
+val mth_arg_of_func_occ_has_different_print_straw =
+Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
+  Ands [
+(*
+Debug_Non_Path_Literal (Print "=== Print All From Straw Starts"),
+    All ("mth_param_on_lhs", QInner_Print,
+      Debug_Non_Path_Literal (Variable "mth_param_on_lhs")
+    ),
+*)
+    Some ("root_path", QInner_Path,
+      Ands [
+        Is_Root_In_A_Location (Variable "root_path"),
+        Some ("lhs_path", QInner_Path,
+          Ands [
+            Applies (is_lhs_of_root, [Variable "lhs_path", Variable "root_path"]),
+            Some ("mth_param_on_lhs", QInner_Print,
+              Ands [
+                Applies (print_is_variable, [Variable "mth_param_on_lhs"]),
+                Some_Of ("mth_param_on_lhs_path", Variable "mth_param_on_lhs",
+                  Ands [
+                    Is_N_Plus_One_th_Child_Of (Variable "mth_param_on_lhs_path", Variable "mth_arg_of_func_occ_has_arb", Variable "lhs_path"),
+                    Some ("rec_func_on_rhs", QInner_Print,
+                      Ands [
+                        Applies (print_defined_recursively, [Variable "rec_func_on_rhs"]),
+                        Some_Of ("rec_func_on_rhs_path", Variable "rec_func_on_rhs",
+                          Ands [
+                            Some_Of ("mth_param_on_rhs_path", Variable "mth_param_on_lhs",
+                              Some ("lth_arg_of_func_occ_has_arb", QInner_Number,
+                                Ands [
+                                  Node_Takes_Less_Than_N_Arguments (Variable "rec_func_on_rhs_path", Variable "lth_arg_of_func_occ_has_arb"),
+                                  Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                                    (Variable "mth_param_on_rhs_path",
+                                     Variable "lth_arg_of_func_occ_has_arb",
+                                     Variable "rec_func_on_rhs_path"
+                                     ),
+                                  In_Some_Definitions (
+                                    Variable "rec_func_on_rhs",
+                                    mth_arg_of_func_occ_has_different_print,
+                                    [Variable "lth_arg_of_func_occ_has_arb", Variable "rec_func_on_rhs"]
+                                  )
+                                ]
+                              )
+                            )
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  ]
+);
+
+(*what should be generalized deep.*)(*Look how this heuristic handles, for example, soundness' in Hybrid_Logic.thy*)
+val generalize_arguments_used_in_recursion_deep =
+(*
+  Not (Some ("rule", QRule, True))
+Imply
+*)
+Ors [
+  All ("ind", QInd,
+    All ("func", QOuter_Print,
+      Ands [
+        Print_Is_Cnst (Variable "func"),
+        Applies (is_defined_recursively_straw, [Variable "func"])
+      ]
+    Imply
+      Ands [
+        All_Of ("func_occ", Variable "func",
+          Ands [
+            All ("used_to_update_mth_arg", QOuter_Number,
+                Ands [
+                  Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
+                  In_Some_Definitions (
+                    Variable "func",
+                    mth_arg_of_func_occ_has_different_print_straw,
+                    [Variable "used_to_update_mth_arg", Variable "func"]
+                  )
+                ]
+              Imply
+                Ands [
+                  Some_Of ("func_occ2", Variable "func",
+                    Ands [
+                      Some ("arb", QArb,
+                        Imply (
+                          Not (Are_Same_Prints (Variable "ind", Variable "arb")),
+                          Ands [
+                            Some_Of ("arb_occ", Variable "arb",
+                              Ands [
+                                Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "arb_occ", Variable "used_to_update_mth_arg", Variable "func_occ2")
+                              ]
+                            )
+                          ]
+                        )
+                      )
+                    ]
+                  )
+                ]
+            )
+          ]
+        )
+      ]
+    )
+  )
+];
+
 val test_Is_If_Then_Else =
 Some ("if_then_else", QOuter_Path,
   Some ("if_condition", QOuter_Path,
@@ -1283,11 +1353,11 @@ val ind_on_lhs_of_eq_then_arb_on_rhs_of_eq =
         Some ("ind_trm", QInd,
           Some_Of ("ind_occ", Variable "ind_trm",
             Ands [
-              Applies (is_variable, [Variable "ind_occ"]),
+              Applies (node_is_variable, [Variable "ind_occ"]),
               Is_Nth_Argument_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
               Some ("arb_occ", QOuter_Path,
                 Ands [
-                  Applies (is_variable, [Variable "arb_occ"]),
+                  Applies (node_is_variable, [Variable "arb_occ"]),
                   Not (Unode_Has_Print (Variable "arb_occ", Variable "ind_trm")),
                   Is_Nth_Argument_Of (Variable "arb_occ", Number 1, Variable "hol_eq_occ")
                 ]
@@ -1305,7 +1375,7 @@ Imply
       Some ("ind_trm", QInd,
         Some_Of ("ind_occ", Variable "ind_trm",
           Ands [
-            Applies (is_variable, [Variable "ind_occ"]),
+            Applies (node_is_variable, [Variable "ind_occ"]),
             Is_Nth_Argument_Of (Variable "ind_occ", Number 0, Variable "hol_eq_occ"),
             Some ("arb_trm", QArb,(*!*)
               Some_Of ("arb_occ", Variable "arb_trm",(*!*)
@@ -1380,67 +1450,6 @@ Imply
       )
     ]
   );
-
-val todo =
-Lambdas (["nth", "func"],
-  Some ("root_path", QInner_Path,
-    Ands [
-      Is_Root_In_A_Location (Variable "root_path"),
-      Some ("lhs_path", QInner_Path,
-        Ands [
-          Is_Nth_Child_Of (Variable "lhs_path", Number 1, Variable "root_path"),
-          Debug_Print_Unode (Variable "lhs_path"),
-          Some ("nth_param_lhs_path", QInner_Path,
-            Ands [
-              Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "nth_param_lhs_path", Variable "nth", Variable "lhs_path"),
-              Some ("rhs_path", QInner_Path,
-                Ands [
-                  Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
-                  Some ("to_be_deep_dived_in_print", QInner_Print,
-                    Ands [
-                      Print_Is_Cnst              (Variable "to_be_deep_dived_in_print"),
-                      Not (Print_Is_Defined_With (Variable "to_be_dived_in_print", Command Inductive_Set)),
-                      Not (Print_Is_Defined_With (Variable "to_be_dived_in_print", Command Inductive    )),
-                      Some_Of ("to_be_deep_dived_in_path", Variable "to_be_deep_dived_in_print",
-                        Ands [
-                          Is_Child_Of (Variable "to_be_deep_dived_in_path", Variable "rhs_path"),
-                          Some ("nth_param_rhs_path", QInner_Path,
-                            Ands [
-                              Has_Same_Prnt_As (Variable "nth_param_lhs_path", Variable "nth_param_rhs_path"),
-                              Some ("nth_param_rhs_path_is_mth_arg_to_tobe_deep_dived_in_path", QInner_Number,
-                                Ands [
-                                  Print_Takes_Less_Than_N_Arguments (Variable "to_be_deep_dived_in_print", Variable "nth_param_rhs_path_is_mth_arg_to_tobe_deep_dived_in_path"),
-                                  Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "nth_param_rhs_path", Variable "nth_param_rhs_path_is_mth_arg_to_tobe_deep_dived_in_path", Variable "to_be_deep_dived_in_path"),
-True
-(*
-                                  In_All_Definitions (
-                                    Variable "to_be_deep_dived_in_print",
-                                    is_in_arg_of_set_inner,
-                                    [Variable ""]
-                                  )
-*)
-                                  (*TODO: *)
-                                ]
-                              )
-                            ]
-                          )
-                        ]
-                      )
-                    ]
-                  )
-                ]
-              )
-            ]
-          )
-        ]
-      )
-    ]
-  )
-);
-
-(*
-Print_Is_Defined_With_N_Clauses (Variable "to_be_dived_in_print", Number 1),
-*)
 
 val induct_on_arg_of_setmember_n_set_inner =
 Lambdas (["nth"],
@@ -1972,7 +1981,7 @@ val rule_inversion_using_the_deepest_const =
           Is_Rule_Of_Node (Variable "rule", Variable "rec_occ1"),
           Some ("rec_occ2", QOuter_Path,
             Ands [
-              Applies (node_defined_recursively, [Variable "rec_occ2"]),
+              Applies (node_defined_recursively, [Variable "rec_occ2"]),(*TODO: Double-check! This is not really a condition for rule inversion.*)
               Are_In_Same_Location (Variable "rec_occ1", Variable "rec_occ2"),
               Not (Has_Same_Prnt_As (Variable "rec_occ1", Variable "rec_occ2"))
             ]
