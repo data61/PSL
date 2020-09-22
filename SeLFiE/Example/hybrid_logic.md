@@ -50,6 +50,9 @@
 
 - [ ] `lemma block_sat:` in Line 416 (Deep-Dive needed.)
    - similar to `lemma soundness'` in Line 306
+      - No... I think the situation is different here. 
+      - `lemma block_sat` is mostly about `∀p on block. M, g, w ⊨ p` 
+      - where `⊨` is defined recursively on the 4th parameter.
    - Why not `induct p`?
    - because it does not even return a sub-goal at all
    - and because `p` is a bound variable.
