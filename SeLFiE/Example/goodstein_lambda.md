@@ -1,4 +1,8 @@
-- [X] `evalC_inj_on_hbase` in Line 440 -> implemented in [this SeLFiE heuristic](https://github.com/data61/PSL/blob/ae99a769ae676967431ce8ed05ee783f0f8e13a7/SeLFiE/SeLFiE_Assertion.ML#L981).
+- [ ] `evalC_inj_on_hbase` in Line 440 
+   - -> implemented in [this SeLFiE heuristic](https://github.com/data61/PSL/blob/ae99a769ae676967431ce8ed05ee783f0f8e13a7/SeLFiE/SeLFiE_Assertion.ML#L981).
+   - -> It seems that this function is now called ind_on_lhs_of_eq_then_arb_on_rhs_of_eq, but it is not working well...
+   - For example, semantic_induct does not recommend rule induction using hbase.induct here.
+   - Instead of the rule induction using hbase.induct, semantic_induct recommends functional induction using .evalC.induct.
    - ```
      "n ∈ hbase b ⟹ m ∈ hbase b ⟹ evalC b n = evalC b m ⟹ n = m"
       proof2 (induct n arbitrary: m rule: hbase.induct)
