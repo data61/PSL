@@ -105,10 +105,15 @@ definition "list_reversal_eq xs ys \<equiv> (itrev xs ys = rev xs @ ys)"
 print_theorems
 
 lemma "list_reversal_eq xs ys"
+  semantic_induct
   assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb["ys"], rule[]](*good*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion_deep [on["xs"], arb[    ], rule[]](*Great*)
+
   semantic_induct
-  oops
+  apply(induct xs arbitrary: ys)
+   apply(auto simp: list_reversal_eq_def)
+  done
+
 (* auxiliary stuff *)
 ML\<open>
 @{term "let x = 1 in x"};
@@ -382,5 +387,18 @@ lemma helper: "itrev xs ys = rev xs @ ys"
 
 lemma equivalence: "itrev xs [] = rev xs"
   by (simp add: helper)
+
+
+ML\<open>
+(*
+ Try.tool_setup (nitpickN, (50, \<^system_option>\<open>auto_nitpick\<close>, try_nitpick))
+*)
+ Try.tool_setup
+\<close>
+
+lemma "itrev xs ys = rev xs @ ys"
+  apply(induct xs)
+   apply auto
+  apply(induct xs)
 
 end

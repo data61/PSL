@@ -6,7 +6,7 @@
 section "Depth-First Search"
 
 theory DFS
-  imports Main "../../../../SeLFiE"
+  imports Main "Smart_Induct.Smart_Induct"
 begin
 
 subsection "Definition of Graphs"
@@ -132,7 +132,35 @@ subsection "Basic Properties"
 lemma visit_subset_dfs: "set ys \<subseteq> set (dfs g xs ys)"semantic_induct
   by (induct g xs ys rule: dfs.induct) auto
 
-lemma next_subset_dfs: "set xs \<subseteq> set (dfs g xs ys)"semantic_induct
+
+
+
+(* This example was formulated by Toshiaki Nishihara and Yasuhiko Minamide
+ * For more details, visit
+ *   http://isa-afp.org/entries/Depth-First-Search.html *)
+
+lemma next_subset_dfs: "set xs \<subseteq> set (dfs g xs ys)"
+  oops
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 proof(induct g xs ys rule:dfs.induct)
   case(2 g x xs ys) 
   show ?case

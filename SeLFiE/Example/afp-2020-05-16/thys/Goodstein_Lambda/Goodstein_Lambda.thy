@@ -258,7 +258,7 @@ lemma C2O_app:
 subsection \<open>Evaluation\<close>
 
 lemma evalC_def':
-  "evalC b n = evalO b (C2O n)"
+  "evalC b n = evalO b (C2O n)" semantic_induct
   by (induct n rule: C2O.induct) auto
 
 lemma evalC_app [simp]:
@@ -267,7 +267,7 @@ lemma evalC_app [simp]:
 
 lemma evalC_replicate [simp]:
   "evalC b (C (replicate c n)) = c * evalC b (C [n])"
-  
+  semantic_induct
   all_induction_heuristic      [on["c"], arb[],rule[]]
   all_generalization_heuristic [on["c"], arb[],rule[]]
   by (induct c) auto
@@ -281,7 +281,7 @@ fun funC where \<comment> \<open>@{term funC} computes the fundamental sequence 
 
 lemma C2O_cons:
   "C2O (C (n # ns)) =
-    (if n = C [] then S (C2O (C ns)) else L (\<lambda>i. C2O (C (funC n i @ ns))))"
+    (if n = C [] then S (C2O (C ns)) else L (\<lambda>i. C2O (C (funC n i @ ns))))"semantic_induct
   by (induct n arbitrary: ns rule: funC.induct)
     (simp_all add: \<omega>_def C2O_replicate C2O_app flip: exp\<omega>_addO)
 
@@ -292,7 +292,7 @@ lemma C_Ord_induct:
     P (C (C (n # ns) # ms))"
   shows "P n"
 proof -
-  have "\<forall>n. C2O n = m \<longrightarrow> P n" for m
+  have "\<forall>n. C2O n = m \<longrightarrow> P n" for m semantic_induct
     by (induct m; intro allI; case_tac n rule: funC.cases)
       (auto simp: C2O_cons simp del: C2O.simps(2) intro: assms)
   then show ?thesis by simp
@@ -309,13 +309,13 @@ function (domintros) goodsteinC where
 
 termination
 proof -
-  have "goodsteinC_dom (c, n)" for c n 
+  have "goodsteinC_dom (c, n)" for c n semantic_induct
     by (induct n arbitrary: c rule: C_Ord_induct) (auto intro: goodsteinC.domintros)
   then show ?thesis by simp
 qed
 
 lemma goodsteinC_def':
-  "goodsteinC c n = goodsteinO c (C2O n)"
+  "goodsteinC c n = goodsteinO c (C2O n)"semantic_induct
   by (induct c n rule: goodsteinC.induct) (simp_all add: C2O_cons del: C2O.simps(2))
 
 function (domintros) stepC where
@@ -367,11 +367,11 @@ lemma stepC_dec:
   by (induct c n rule: stepC.induct) simp_all
 
 lemma stepC_dec':
-  "n \<noteq> C [] \<Longrightarrow> evalC (c+3) (stepC c n) < evalC (c+3) n"
+  "n \<noteq> C [] \<Longrightarrow> evalC (c+3) (stepC c n) < evalC (c+3) n" semantic_induct
 proof (induct c n rule: stepC.induct)
   case (3 c n ns ms)
   have "evalC (c+3) (C (funC (C (n # ns)) (Suc (Suc c)))) \<le>
-      (c+3) ^ ((c+3) ^ evalC (c+3) n + evalC (c+3) (C ns))" semantic_induct
+      (c+3) ^ ((c+3) ^ evalC (c+3) n + evalC (c+3) (C ns))" semantic_induct(*failed*)
     by (induct n rule: funC.induct) (simp_all add: distrib_right)
   then show ?case using 3 by simp
 qed simp_all
@@ -412,7 +412,7 @@ lemma hbase_elt [dest]:
   by (induct ns) auto
 
 lemma evalC_sum_list:
-  "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"(*!*)semantic_induct
+  "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"(*failed!*)semantic_induct
   by (induct ns) auto
 
 lemma sum_list_replicate:
@@ -482,7 +482,7 @@ lemma evalC_inj_on_hbase:
   assert_SeLFiE_true   ind_on_lhs_of_eq_then_arb_on_rhs_of_eq [on["m"], arb["n"],rule[]] (*unfortunate*)
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["n"], arb["m"],rule[]]
   assert_SeLFiE_false  for_all_arbs_there_should_be_a_change [on["n"], arb["b"],rule[]]
-  semantic_induct
+  semantic_induct(*failed*)
 proof (induct n arbitrary: m rule: hbase.induct)
   case 1
   then show ?case by (cases m rule: hbase.cases) simp_all
@@ -523,7 +523,7 @@ lemmas hbase_ext_tl' [dest] = hbase_ext_tl[of "n # ns" for n ns, simplified]
 
 lemma hbase_funC:
   "c \<noteq> 0 \<Longrightarrow> C (n # ns) \<in> hbase_ext (Suc c) \<Longrightarrow>
-    C (funC n (Suc c) @ ns) \<in> hbase_ext (Suc c)"semantic_induct
+    C (funC n (Suc c) @ ns) \<in> hbase_ext (Suc c)"semantic_induct(*did not fail.but needs attention*)
 proof (induct n arbitrary: ns rule: funC.induct)
   case (2 ms)
   have [simp]: "evalC (Suc c) (C ms) < evalC (Suc c) m'" if "m' \<in> set ns" for m'
@@ -549,7 +549,7 @@ next
 qed auto
 
 lemma stepC_sound:
-  "n \<in> hbase_ext (Suc (Suc c)) \<Longrightarrow> stepC c n \<in> hbase (Suc (Suc c))"semantic_induct
+  "n \<in> hbase_ext (Suc (Suc c)) \<Longrightarrow> stepC c n \<in> hbase (Suc (Suc c))"semantic_induct(*did not fail, but needs attention*)
 proof (induct c n rule: stepC.induct)
   case (3 c n ns ms)
   show ?case using 3(2,1)
@@ -561,7 +561,7 @@ subsection \<open>Surjectivity of @{const evalC}\<close>
 text \<open>Note that the base must be at least @{term "2 :: nat"}.\<close>
 
 lemma evalC_surjective:
-  "\<exists>n' \<in> hbase (Suc (Suc b)). evalC (Suc (Suc b)) n' = n"semantic_induct
+  "\<exists>n' \<in> hbase (Suc (Suc b)). evalC (Suc (Suc b)) n' = n"semantic_induct(*almost failed*)
 proof (induct n)
   case 0 then show ?case by (auto intro: bexI[of _ "C []"] hbase.intros)
 next

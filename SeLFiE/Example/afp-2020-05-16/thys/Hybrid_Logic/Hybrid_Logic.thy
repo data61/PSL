@@ -2555,7 +2555,9 @@ lemma bridge_on_Nom:
 (*\<rightarrow> 11.747s elapsed time, 62.527s cpu time, 5.282s GC time    after having only one outer-table for many ind_mods in APply_SeLFiE.ML *)
 (*\<rightarrow> 9.818s elapsed time, 54.830s cpu time, 0.832s GC time     after three levels of nested caching mechanism*)
 (*\<rightarrow> 8.789s elapsed time, 49.853s cpu time, 0.316s GC time     after treating assertions about meta-implications within Unique_Node.ML*)
-  by (induct ps) auto
+(*\<rightarrow> 21.977s elapsed time, 122.505s cpu time, 8.362s GC time with deep-dive*)
+(*\<rightarrow> 20.309s elapsed time, 112.814s cpu time, 7.563s GC time   after improving Is_Nth_Argument_Or_Below_Nth_Argument_Of*)
+(*\<rightarrow> 9.749s elapsed time, 53.540s cpu time, 3.677s GC time     after removing generalize_arguments_used_in_recursion_deep for speed*)by (induct ps) auto
 
 lemma bridge'_nominals:
   \<open>nominals (bridge' k j p) \<union> {k, j} = nominals p \<union> {k, j}\<close>semantic_induct
@@ -2565,6 +2567,9 @@ lemma bridge'_nominals:
 (*\<rightarrow> 0.952s elapsed time, 3.402s cpu time, 0.199s GC time*)
 (*\<rightarrow> 0.697s elapsed time, 1.989s cpu time, 0.089s GC time*)
 (*\<rightarrow> 0.623s elapsed time, 1.892s cpu time, 0.035s GC time*)
+(*\<rightarrow> 2.117s elapsed time, 11.763s cpu time, 0.271s GC time with deep-dive*)
+(*\<rightarrow> 0.812s elapsed time, 3.115s cpu time, 0.105s GC time after improving Is_Nth_Argument_Or_Below_Nth_Argument_Of*)
+(*\<rightarrow> 0.577s elapsed time, 1.719s cpu time, 0.030s GC time after removing generalize_arguments_used_in_recursion_deep for speed*)
 proof (induct p)
   case (Neg p)
   then show ?case by (cases p) auto

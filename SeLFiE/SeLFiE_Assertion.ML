@@ -1179,6 +1179,18 @@ Lambdas (["func"],
   ]
 );
 
+val is_defined_with_rec_func_inside =
+Lambdas (["func1"],
+  Ands [
+    Some ("func2", QInner_Print,
+      Ands [
+        Not (Are_Same_Prints (Variable "func1", Variable "func2")),
+        Applies (print_defined_recursively, [Variable "func2"])
+      ]
+    )
+  ]
+);
+
 val is_defined_recursively_straw =
 Lambdas (["func"(*Term*)],
   Ands [

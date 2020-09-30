@@ -198,7 +198,7 @@ lemma tree_invar_heap_ordered:
   shows "heap_ordered t"
 proof (cases t)
   case (Node e a nat list)
-  with assms show ?thesis semantic_induct
+  with assms show ?thesis semantic_induct(*!*)
   proof (induct nat arbitrary: t e a list)
     case 0
     then show ?case by simp
@@ -243,7 +243,7 @@ lemma link_length: "size (tree_to_multiset (link t1 t2)) =
 
 lemma tree_rank_estimate:
   "tree_invar (Node e a r ts) \<Longrightarrow> 
-    size (tree_to_multiset (Node e a r ts)) = (2::nat)^r"semantic_induct
+    size (tree_to_multiset (Node e a r ts)) = (2::nat)^r"semantic_induct (*todo!*)(*Node is a data-constructor*)
 proof (induct r arbitrary: e a ts)
   case 0
   then show ?case by simp

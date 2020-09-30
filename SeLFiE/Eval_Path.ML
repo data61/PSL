@@ -145,12 +145,12 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
           val ancestors = GP.path_to_its_ancestors_paths part_of_arg: GP.gen_path list;
           fun for_an_ancestor (ancestor:GP.gen_path) =
           let
-            val ancestor_is_app       = eval' (PA.Node_Is_App ancestor) ctxt |> EB.assert_to_bool: bool;
-            val func_is_fst_child     = GP.is_fst_child_of func ancestor                         : bool;
-            val arg_is_not_fst_child  = not (GP.is_fst_child_of part_of_arg ancestor)            : bool;
-            val ancestor_is_above_arg = GP.is_above ancestor part_of_arg                         : bool;
+            val ancestor_is_app         = eval' (PA.Node_Is_App ancestor) ctxt |> EB.assert_to_bool: bool;
+            fun func_is_fst_child     _ = GP.is_fst_child_of func ancestor                         : bool;
+            fun arg_is_not_fst_child  _ = not (GP.is_fst_child_of part_of_arg ancestor)            : bool;
+            fun ancestor_is_above_arg _ = GP.is_above ancestor part_of_arg                         : bool;
            in
-             ancestor_is_app andalso func_is_fst_child andalso arg_is_not_fst_child andalso ancestor_is_above_arg
+             ancestor_is_app andalso func_is_fst_child () andalso arg_is_not_fst_child () andalso ancestor_is_above_arg ()
            end;
         in
           exists for_an_ancestor ancestors
@@ -158,24 +158,20 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
         )
       | eval' (PA.Is_Nth_Child_Or_Below_Nth_Child_Of (part_of_nth_child, i, parent)) ctxt = EB.bool_to_assert (
         let
-          val nth_child_opt      = GP.path_to_its_nth_child_path path_to_unode_table parent i: GP.gen_path option;
-          val is_nth_child       = nth_child_opt <$> (fn nth_child => eval' (PA.Is_Same_Path_As (part_of_nth_child, nth_child)) ctxt |> EB.assert_to_bool)
-                                |> Utils.is_some_true: bool;
-          val is_below_nth_child = nth_child_opt <$> (fn nth_child => eval' (PA.Is_Path_Above (nth_child, part_of_nth_child)) ctxt |> EB.assert_to_bool)
-                                |> Utils.is_some_true: bool;
+          val nth_child_opt        = GP.path_to_its_nth_child_path path_to_unode_table parent i: GP.gen_path option;
+          val is_nth_child         = nth_child_opt <$> (fn nth_child => eval' (PA.Is_Same_Path_As (part_of_nth_child, nth_child)) ctxt |> EB.assert_to_bool)
+                                  |> Utils.is_some_true: bool;
+          fun is_below_nth_child _ = nth_child_opt <$> (fn nth_child => eval' (PA.Is_Path_Above (nth_child, part_of_nth_child)) ctxt |> EB.assert_to_bool)
+                                  |> Utils.is_some_true: bool;
         in
-            is_nth_child orelse is_below_nth_child
+            is_nth_child orelse is_below_nth_child ()
          end)
       | eval' (PA.Is_Below_N_Plus_One_th_Child_Of (part_of_nth_child, i, parent)) ctxt = EB.bool_to_assert (
         let
           val nth_plus_one_th_child_opt = GP.path_to_its_nth_child_path path_to_unode_table parent (i + 1): GP.gen_path option;
-(*
-          val is_n_plus_one_th_child    = nth_plus_one_th_child_opt <$> (fn nth_child => eval' (PA.Is_Same_Path_As (part_of_nth_child, nth_child)) ctxt |> EB.assert_to_bool)
-                                |> Utils.is_some_true: bool;
-*)
           val is_below_n_plus_one_th_child = nth_plus_one_th_child_opt <$> (fn np1th_child => eval' (PA.Is_Path_Above (np1th_child, part_of_nth_child)) ctxt |> EB.assert_to_bool) |> Utils.is_some_true: bool;
         in
-            (*is_n_plus_one_th_child orelse*) is_below_n_plus_one_th_child
+            is_below_n_plus_one_th_child
          end)
       | eval' (PA.Is_Nth_Argument_Of (nth_arg, numb, func)) ctxt = EB.bool_to_assert ((*TODO: refactor with Is_An_Argument_Of*)
         let
@@ -198,13 +194,13 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
             let
               val parent_of_ancestor_opt       = GP.path_to_its_parent_path ancestor: gen_path option;
               val parent_of_ancestor_is_app    = Option.map (fn p => eval' (PA.Node_Is_App p) ctxt |> EB.assert_to_bool) parent_of_ancestor_opt |> Utils.is_some_true: bool;
-              val part_of_nth_arg_is_fst_child_of_parent_of_ancestor
+              fun part_of_nth_arg_is_fst_child_of_parent_of_ancestor _
                                                = Option.map (GP.is_fst_child_of func) parent_of_ancestor_opt |> Utils.is_some_true: bool;
-              val ancestor_is_n_plus1_th_child = eval' (PA.Is_Nth_Child (ancestor, numb + 1(*!*))) ctxt  |> EB.assert_to_bool;
+              fun ancestor_is_n_plus1_th_child _ = eval' (PA.Is_Nth_Child (ancestor, numb + 1(*!*))) ctxt  |> EB.assert_to_bool;
              in
                        parent_of_ancestor_is_app
-               andalso part_of_nth_arg_is_fst_child_of_parent_of_ancestor
-               andalso ancestor_is_n_plus1_th_child
+               andalso part_of_nth_arg_is_fst_child_of_parent_of_ancestor ()
+               andalso ancestor_is_n_plus1_th_child ()
              end;
         in
           exists for_an_ancestor (part_of_nth_arg::ancestors)
