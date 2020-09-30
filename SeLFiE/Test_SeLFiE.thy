@@ -393,12 +393,18 @@ ML\<open>
 (*
  Try.tool_setup (nitpickN, (50, \<^system_option>\<open>auto_nitpick\<close>, try_nitpick))
 *)
- Try.tool_setup
+ Try.tool_setup;
+
+Term.add_free_names @{term "f (x z) y"} [] |> rev  |> distinct (op =)
 \<close>
 
 lemma "itrev xs ys = rev xs @ ys"
   apply(induct xs)
    apply auto
-  apply(induct xs)
+  apply(subgoal_tac "\<And>xs. \<forall>ys. itrev xs ys = rev xs @ ys")
+  apply fastforce
+  apply(induct_tac xsa)
+   apply auto
+  done
 
 end

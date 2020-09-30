@@ -10,11 +10,10 @@ sig
 datatype modifier = 
   Ind  of string
 | Arb  of string
-| Rule of string;
+| Rule of Definition_Pattern.command * string;
 
 type modifiers = modifier list;
 
-val strs_to_rules             : strings -> modifiers;
 val order                     : modifiers -> (modifiers * modifiers * modifiers);
 val same_mod                  : (modifier  * modifier ) -> bool;
 val same_mods                 : (modifiers * modifiers) -> bool;
@@ -30,13 +29,11 @@ struct
 datatype modifier =
   Ind  of string
 | Arb  of string
-| Rule of string;
+| Rule of Definition_Pattern.command * string;
 
 open Unique_Node;
 
 type modifiers = modifier list;
-
-fun strs_to_rules (strs:strings) = map Rule strs:  modifiers;
 
 fun order (mods:modifiers) =
   let

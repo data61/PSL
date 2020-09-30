@@ -26,8 +26,15 @@ find_theorems name:"wf_induct"
 (* pre-processing *)
 ML_file "Definition_Pattern.ML"
 ML_file "Util.ML"
-ML_file "../MeLoId/src/MeLoId_Util.ML"
-
+ML\<open>
+(* Utilty functions *)
+infix 1 <|> <*>;
+fun (f <*> m) = Utils.opt_app f m;
+fun (NONE   <|> NONE  ) = NONE
+  | (NONE   <|> SOME x) = SOME x
+  | (SOME x <|> NONE  ) = SOME x
+  | (SOME x <|> SOME _) = SOME x;
+\<close>
 
 ML_file "Unique_Node.ML"
 ML_file "Unique_Node_Test.ML"

@@ -167,8 +167,8 @@ type unodes = unode list;
 (* futrm_w_prnt_n_tag_n_inner_path_n_ctxt_to_unodes *)
 val futrm_w_prnt_n_tag_n_inner_path_n_ctxt_to_unodes: futrm_w_prnt_n_tag_n_inner_path -> Proof.context -> unodes;
 
-(* context_n_term_to_futrm_w_prnt *)
-val context_n_term_to_futrm_w_prnt: Proof.context -> term -> futrm_w_prnt;
+(* context_n_term_to_futrm_w_prnt_n_tag *)
+val context_n_term_to_futrm_w_prnt_n_tag: Proof.context -> term -> futrm_w_prnt_n_tag;
 
 (* context_n_term_to_unodes *)
 val context_n_term_to_unodes: Proof.context -> term -> unodes;
@@ -632,20 +632,20 @@ fun futrm_w_prnt_n_tag_n_inner_path_n_ctxt_to_unodes (UFC_Prnt_n_Tag_n_Path ((cn
     {node = NA, print = prnt, inner_path = inner_path, tag = tag} ::
     futrm_w_prnt_n_tag_n_inner_path_n_ctxt_to_unodes func ctxt @ maps (fn arg => futrm_w_prnt_n_tag_n_inner_path_n_ctxt_to_unodes arg ctxt) args;
 
-fun context_n_term_to_futrm_w_prnt (ctxt:Proof.context) (trm:term) =
+fun context_n_term_to_futrm_w_prnt_n_tag (ctxt:Proof.context) (trm:term) =
   let
     val trm_wo_Trueprop           = remove_Trueprop trm;
     val trm_w_prnt                = trm_to_trm_w_prnt ctxt trm_wo_Trueprop;
     val utrm_w_prnt               = trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
     val futrm_w_prnt              = utrm_w_prnt_to_futrm_w_prnt utrm_w_prnt;
+    val futrm_w_prnt_n_tag        = futrm_w_prnt_to_futrm_w_prnt_n_tag ctxt futrm_w_prnt;
   in
-    futrm_w_prnt: futrm_w_prnt
+    futrm_w_prnt_n_tag: futrm_w_prnt_n_tag
   end;
 
 fun context_n_term_to_unodes (ctxt:Proof.context) (trm:term) =
   let
-    val futrm_w_prnt                    = context_n_term_to_futrm_w_prnt ctxt trm: futrm_w_prnt;
-    val futrm_w_prnt_n_tag              = futrm_w_prnt_to_futrm_w_prnt_n_tag ctxt futrm_w_prnt;
+    val futrm_w_prnt_n_tag              = context_n_term_to_futrm_w_prnt_n_tag ctxt trm: futrm_w_prnt_n_tag;
     val futrm_w_prnt_n_tag_n_inner_path = futrm_w_prnt_n_tag_to_futrm_w_prnt_n_tag_n_inner_path futrm_w_prnt_n_tag;
     val unodes                          = futrm_w_prnt_n_tag_n_inner_path_n_ctxt_to_unodes futrm_w_prnt_n_tag_n_inner_path ctxt;
   in

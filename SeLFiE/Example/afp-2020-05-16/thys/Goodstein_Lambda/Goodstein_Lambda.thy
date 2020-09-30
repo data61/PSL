@@ -565,7 +565,7 @@ lemma evalC_surjective:
 proof (induct n)
   case 0 then show ?case by (auto intro: bexI[of _ "C []"] hbase.intros)
 next
-  have [simp]: "Suc x \<le> Suc (Suc b)^x" for x by (induct x) auto
+  have [simp]: "Suc x \<le> Suc (Suc b)^x" for x semantic_induct by (induct x) auto
   case (Suc n)
   then guess n' by (rule bexE)
   then obtain n' j where n': "Suc n \<le> j" "j = evalC (Suc (Suc b)) n'" "n' \<in> hbase (Suc (Suc b))"
@@ -595,7 +595,7 @@ next
   case False
   then obtain b' where [simp]: "b = Suc (Suc b')"
     by (auto simp: numeral_2_eq_2 not_less_eq dest: less_imp_Suc_add)
-  show ?thesis using assms(3,1,2)
+  show ?thesis using assms(3,1,2) semantic_induct
   proof (induct "evalC b n" "evalC b m" arbitrary: n m rule: less_Suc_induct)
     case 1 then show ?case using stepC_sound[of m b', OF hbase_ext.intros(1)]
       stepC_dec[of m b'] stepC_dec'[of m b'] evalC_inj_on_hbase

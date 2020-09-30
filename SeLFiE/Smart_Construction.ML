@@ -6,25 +6,30 @@ struct
 
 open UN
 
-fun futrm_w_prnt_to_print (FUC_Prnt (_, _, print)) = print
-  | futrm_w_prnt_to_print (FUF_Prnt (_, _, print)) = print
-  | futrm_w_prnt_to_print (FUV_Prnt (_, _, print)) = print
-  | futrm_w_prnt_to_print (FUB_Prnt (_, _, print)) = print
-  | futrm_w_prnt_to_print (FUL_Prnt (_, _, print)) = print
-  | futrm_w_prnt_to_print (FUA_Prnt (_, _, print)) = print;
+fun futrm_w_prnt_n_tag_to_tag_n_print (FUC_Prnt_Tag (_, _, print, tag)) = (tag, print)
+  | futrm_w_prnt_n_tag_to_tag_n_print (FUF_Prnt_Tag (_, _, print, tag)) = (tag, print)
+  | futrm_w_prnt_n_tag_to_tag_n_print (FUV_Prnt_Tag (_, _, print, tag)) = (tag, print)
+  | futrm_w_prnt_n_tag_to_tag_n_print (FUB_Prnt_Tag (_, _, print, tag)) = (tag, print)
+  | futrm_w_prnt_n_tag_to_tag_n_print (FUL_Prnt_Tag (_, _, print, tag)) = (tag, print)
+  | futrm_w_prnt_n_tag_to_tag_n_print (FUA_Prnt_Tag (_, _, print, tag)) = (tag, print);
 
-fun futrm_w_prnt_to_arguments (FUC_Prnt _) = []
-  | futrm_w_prnt_to_arguments (FUF_Prnt _) = []
-  | futrm_w_prnt_to_arguments (FUV_Prnt _) = []
-  | futrm_w_prnt_to_arguments (FUB_Prnt _) = []
-  | futrm_w_prnt_to_arguments (FUL_Prnt ( _, subtrm, _)) = futrm_w_prnt_to_arguments subtrm
-  | futrm_w_prnt_to_arguments (FUA_Prnt (func, args, _)) =
+type command_n_print = (Definition_Pattern.command * string);
+
+fun futrm_w_prnt_n_tag_to_arguments (FUC_Prnt_Tag _) = []
+  | futrm_w_prnt_n_tag_to_arguments (FUF_Prnt_Tag _) = []
+  | futrm_w_prnt_n_tag_to_arguments (FUV_Prnt_Tag _) = []
+  | futrm_w_prnt_n_tag_to_arguments (FUB_Prnt_Tag _) = []
+  | futrm_w_prnt_n_tag_to_arguments (FUL_Prnt_Tag ( _, subtrm, _, _)) = futrm_w_prnt_n_tag_to_arguments subtrm
+  | futrm_w_prnt_n_tag_to_arguments (FUA_Prnt_Tag (func, args, _, _)) =
   let
-    val func_print            = futrm_w_prnt_to_print func                : string;
-    val args_print            = map futrm_w_prnt_to_print args            : strings;
-    val results_from_subterms = map futrm_w_prnt_to_arguments args |> flat: (string * strings) list;
+    val func_print_w_opt      = futrm_w_prnt_n_tag_to_tag_n_print func |> apfst #is_defined_with: (Definition_Pattern.command option * string);
+    val func_print            = if is_some (fst func_print_w_opt)
+                                then apfst the func_print_w_opt
+                                else (Definition_Pattern.Unknown, snd func_print_w_opt): command_n_print;
+    val args_print            = map (snd o futrm_w_prnt_n_tag_to_tag_n_print) args: strings;
+    val results_from_subterms = map futrm_w_prnt_n_tag_to_arguments args |> flat: (command_n_print * strings) list;
   in
-    (func_print, args_print)::results_from_subterms: (string * strings) list
+    (func_print, args_print)::results_from_subterms: (command_n_print * strings) list
   end;
 
 (*ordered_set_to_ordered_powerset*)
@@ -38,27 +43,29 @@ fun powerset (xs:'a list) =
 
 fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
   let
-    val trm_wo_abb      = Isabelle_Utils.contract_abbrevs ctxt trm         : term;
-    val futrm_w_prnt    = UN.context_n_term_to_futrm_w_prnt ctxt trm_wo_abb: UN.futrm_w_prnt;
-    val func_args_pairs = futrm_w_prnt_to_arguments futrm_w_prnt           : (string * strings) list;
-    fun func_args_pair_to_func_powerset_of_args_pair (func:string, args:strings) =
+    val trm_wo_abb      = Isabelle_Utils.contract_abbrevs ctxt trm               : term;
+    val futrm_w_prnt    = UN.context_n_term_to_futrm_w_prnt_n_tag ctxt trm_wo_abb: UN.futrm_w_prnt_n_tag;
+    val func_args_pairs = futrm_w_prnt_n_tag_to_arguments futrm_w_prnt           : (command_n_print * strings) list;
+    fun func_args_pair_to_func_powerset_of_args_pair (command_n_print:command_n_print, args:strings) =
         let
-          val powerset_of_args = powerset args |> distinct (op =): strings list;
-          val pairs            = map (fn subset => (func, subset)) powerset_of_args: (string * strings) list;
+          val powerset_of_args = powerset args |> distinct (op =)                             : strings list;
+          val pairs            = map (fn subset => (command_n_print, subset)) powerset_of_args: (command_n_print * strings) list;
         in
           pairs
         end;
-    val func_n_powerset_of_args_pairs = map func_args_pair_to_func_powerset_of_args_pair func_args_pairs |> flat: (string * strings) list;
+    val func_n_powerset_of_args_pairs = map func_args_pair_to_func_powerset_of_args_pair func_args_pairs |> flat: (command_n_print * strings) list;
   in
-    func_n_powerset_of_args_pairs |> distinct (op =) : (string * strings) list
+    func_n_powerset_of_args_pairs |> distinct (op =): (command_n_print * strings) list
   end;
 
 structure SU = SeLFiE_Util;
 
 fun powerset_to_induct_arguments [] = []
-  | powerset_to_induct_arguments ((func, args)::pairs) =
+  | powerset_to_induct_arguments (((command, func), args)::pairs) =
     SU.Induct_Arguments {ons = args, arbs = [], rules = []}
- :: SU.Induct_Arguments {ons = args, arbs = [], rules = [func ^ ".induct"]}
+ :: (case command of Definition_Pattern.Inductive_Set
+         => SU.Induct_Arguments {ons = [],   arbs = [], rules = [func]}
+     | _ => SU.Induct_Arguments {ons = args, arbs = [], rules = [func ^ ".induct"]})
  :: powerset_to_induct_arguments pairs;
 
 (*TODO: Do we really want is_not_string_of_const?*)
