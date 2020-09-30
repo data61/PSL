@@ -1,5 +1,9 @@
 **This is the development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature ideas. The latest stable release is [here](https://github.com/data61/PSL/releases/tag/0.1.7-alpha).**
 
+# YouTube
+
+We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
+
 # PSL
 
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
