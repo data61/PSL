@@ -157,7 +157,6 @@ struct
 
   in
 
-
   fun string_parser_to_token_parser (symbols_parser:'a parser) = (fn (tokens:Token.T list) =>
     tokens
     |> tokens_to_string

@@ -21,8 +21,6 @@ theory SeLFiE
   and      "all_generalization_heuristic":: diag
 begin
 
-find_theorems name:"wf_induct"
-
 (* pre-processing *)
 ML_file "Definition_Pattern.ML"
 ML_file "Util.ML"
@@ -144,7 +142,7 @@ setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      "complex_lhs_causes_functional_induction_outer"                                                                                      ) (SeLFiE_Assertion.complex_lhs_causes_functional_induction_outer                                                                                      , 2) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      "is_defined_recursively_on_nth_n_mth_by_two_funs"                                                                                    ) (SeLFiE_Assertion.is_defined_recursively_on_nth_n_mth_by_two_funs                                                                                    , 2) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Generalization_Heuristic, "if_rule_induction_then_no_generalization"                                                                                           ) (SeLFiE_Assertion.if_rule_induction_then_no_generalization                                                                                           , 0) \<close>
-(*setup\<open> Apply_SeLFiE.update_assertApply_SeLFiE. (Induction_Heuristic,      "function_induction_only_if_there_is_a_complex_lhs"                                                                                  ) (SeLFiE_Assertion.function_induction_only_if_there_is_a_complex_lhs                                                                                , 2) \<close>*)
+(*setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,    "function_induction_only_if_there_is_a_complex_lhs"                                                                                  ) (SeLFiE_Assertion.function_induction_only_if_there_is_a_complex_lhs                                                                                , 2) \<close>*)
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      "if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs"                                                  ) (SeLFiE_Assertion.if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs                                                  , 2) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      "all_ind_should_be_atom"                                                                                                             ) (SeLFiE_Assertion.all_ind_should_be_atom                                                                                                             , 2) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Test_Heuristic (*Generalization_Heuristic but expensive*) , "generalize_arguments_used_in_recursion_deep"                                                                                        ) (SeLFiE_Assertion.generalize_arguments_used_in_recursion_deep                                                                                        , 3) \<close>

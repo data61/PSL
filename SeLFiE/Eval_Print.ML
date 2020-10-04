@@ -79,14 +79,22 @@ fun read_term_then_check_term (ctxt:Proof.context) (print:string) (checker: term
 <$> checker
  |> Utils.is_some_true
 
-fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                                                     _    = prnt1 = prnt2
-  | eval' (Is_Subprint_Of        (sub,   full))   _                                                     _    = String.isSubstring sub full
-  | eval' (Is_Nth_Induct         (print, n))    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _    = print_is_nth_of print n ons
-  | eval' (Is_Nth_Arbitrary      (print, n))    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _    = print_is_nth_of print n arbs
-  | eval' (Is_Induct              print    )    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _    = member (op =) ons   print
-  | eval' (Is_Arbitrary           print    )    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _    = member (op =) arbs  print
-  | eval' (Is_Rule                print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _    = member (op =) rules print
-  | eval' (Is_Rule_Of_Print      (rule, cname))  _               ctxt = SU.rule_to_const_name ctxt rule = cname
+fun get_rule_names' []                                   acc = acc
+  | get_rule_names' ((SU.Ind_Rule rule_name)::ind_rules) acc = get_rule_names' ind_rules (rule_name :: acc)
+  | get_rule_names' ((SU.Ind_Set  _        )::ind_rules) acc = get_rule_names' ind_rules acc;
+
+fun get_rule_names ind_rules = get_rule_names' ind_rules [];
+
+fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                                                     _ = prnt1 = prnt2
+  | eval' (Is_Subprint_Of        (sub,   full))   _                                                     _ = String.isSubstring sub full
+  | eval' (Is_Nth_Induct         (print, n))    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _ = print_is_nth_of print n ons
+  | eval' (Is_Nth_Arbitrary      (print, n))    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _ = print_is_nth_of print n arbs
+  | eval' (Is_Induct              print    )    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _ = member (op =) ons   print
+  | eval' (Is_Arbitrary           print    )    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _ = member (op =) arbs  print
+  | eval' (Is_Rule                print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _ = member (op =) (get_rule_names rules) print
+(*TODO: Is_Set*)
+  | eval' (Is_Rule_Of_Print      (rule, cname))  _               ctxt = SU.rule_to_const_name ctxt rule = cname orelse rule = cname
+(*TODO: Is_Set_Of_Print*)
   (*node*)
   | eval' (Print_Is_Cnst          print    )     _               ctxt = read_term ctxt print <$> is_Const |> Utils.is_some_true
   | eval' (Print_Is_Free          print    )     _               ctxt = read_term_then_check_term ctxt print is_Free

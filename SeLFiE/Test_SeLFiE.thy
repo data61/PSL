@@ -31,19 +31,19 @@ lemma "let (x1, x2) = y in z < x1"
   assert_SeLFiE_true test_Is_Let_X_Be_Y_In_X [on["zs"], arb[],rule[]]
   oops
 
-primrec rev :: "'a list \<Rightarrow> 'a list" where
+ primrec rev :: "'a list \<Rightarrow> 'a list"
+  where
   "rev []       = []" |
   "rev (x # xs) = rev xs @ [x]"
- print_theorems
 
- fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+ fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"
+  where
   "itrev []     ys = ys" |
   "itrev (x#xs) ys = itrev xs (x#ys)"
- print_theorems
 
 lemma "itrev xs ys = rev xs @ ys"
   semantic_induct
-  all_induction_heuristic [on["xs"], arb["ys"],rule[]]
+  all_induction_heuristic      [on["xs"], arb["ys"],rule[]]
   all_generalization_heuristic [on["xs"], arb["ys"],rule[]]
   all_induction_heuristic [on["xs","ys"], arb[],rule["itrev.induct"]]
   assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb["ys"], rule[]]
@@ -101,7 +101,7 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_false rule_inversion_using_the_deepest_const [on["xs", "ys"], arb[],rule["itrev.induct"]]
   apply(induct xs arbitrary: ys) apply auto done
 
-definition "list_reversal_eq xs ys \<equiv> (itrev xs ys = rev xs @ ys)"
+definition "list_reversal_eq xs ys \<equiv> itrev xs ys = rev xs @ ys"
 print_theorems
 
 lemma "list_reversal_eq xs ys"

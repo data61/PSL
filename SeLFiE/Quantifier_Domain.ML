@@ -62,7 +62,7 @@ fun qtyp_to_qdomain SU.QInner_Number  _                                        _
   | qtyp_to_qdomain SU.QOuter_Print   _                                        _                                         = error "qtyp_to_qdomain failed."
   | qtyp_to_qdomain SU.QInd           _                                       (SeLFiE_Util.Induct_Arguments {ons,  ...}) = map_Non_Path_Print ons
   | qtyp_to_qdomain SU.QArb           _                                       (SeLFiE_Util.Induct_Arguments {arbs, ...}) = map_Non_Path_Print arbs
-  | qtyp_to_qdomain SU.QRule          _                                       (SeLFiE_Util.Induct_Arguments {rules,...}) = map_Non_Path_Print rules;
+  | qtyp_to_qdomain SU.QRule          _                                       (SeLFiE_Util.Induct_Arguments {rules,...}) = rules |> map SU.rule_or_set_to_string |> map_Non_Path_Print;
 
 type domain = Eval_Parameter.literals;
 

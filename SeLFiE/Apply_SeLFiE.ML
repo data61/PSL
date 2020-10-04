@@ -95,9 +95,9 @@ fun mk_clean_mods (ctxt:Proof.context) (ind_mods:SU.induct_arguments) =
   let
     val normalize = IU.normalize_trm_as_string ctxt;
     val {ons, arbs, rules} = SU.dest_induct_arguments ind_mods;
-    fun normalize_rule_as_string (rule_as_string:string) =
+    fun normalize_rule_as_string (rule_name:string) =
       let
-        val short_cname_option = try (space_explode ".") rule_as_string
+        val short_cname_option = try (space_explode ".") rule_name
                              <$> Utils.init 
                              <$> String.concatWith "."(*<$> Utils.last*): string option;
         val long_name_option = short_cname_option <$> normalize: string option;
@@ -106,9 +106,11 @@ fun mk_clean_mods (ctxt:Proof.context) (ind_mods:SU.induct_arguments) =
       in
         result
       end;
-     val clean_ons   = (map normalize               ) ons  : strings;
-     val clean_arbs  = (map normalize               ) arbs : strings;
-     val clean_rules = (map normalize_rule_as_string) rules: strings;
+     fun normalize_rule_or_set (SU.Ind_Rule rule_name) = SU.Ind_Rule (normalize_rule_as_string rule_name)
+       | normalize_rule_or_set (SU.Ind_Set  set_name ) = SU.Ind_Set   set_name (*set_name does not have to be normalised. It requires the long name of a constant.*)
+     val clean_ons   = (map normalize            ) ons  : strings;
+     val clean_arbs  = (map normalize            ) arbs : strings;
+     val clean_rules = (map normalize_rule_or_set) rules: SU.rule_or_set list;
   in
     SU.Induct_Arguments {ons = clean_ons, arbs = clean_arbs, rules = clean_rules}: SU.induct_arguments
   end;
@@ -289,9 +291,10 @@ fun parse_list constr name : string list parser =
    parse_list'  delayer >>= (fn strategies : string Seq.seq =>
    strategies |> constr |> result)));
 
-fun parse_ons   ()   = parse_list (Seq.list_of) "on"   plus result []: string list parser;
-fun parse_arbs  ()   = parse_list (Seq.list_of) "arb"  plus result []: string list parser;
-fun parse_rules ()   = parse_list (Seq.list_of) "rule" plus result []: string list parser;
+fun parse_ons   () = parse_list (Seq.list_of) "on"   plus result []: string list parser;
+fun parse_arbs  () = parse_list (Seq.list_of) "arb"  plus result []: string list parser;
+fun parse_rules () = parse_list (Seq.list_of) "rule" plus result []: string list parser;
+fun parse_sets  () = parse_list (Seq.list_of) "set"  plus result []: string list parser;
 
 fun parse_inside_bracket () =
   token
@@ -299,9 +302,14 @@ fun parse_inside_bracket () =
    (string "," |> token)   >>= (fn _     =>
    parse_arbs  () |> token >>= (fn arbs  =>
    (string "," |> token)   >>= (fn _     =>
-   parse_rules () |> token >>= (fn rules =>
-   result
-    (SU.Induct_Arguments {ons = ons, arbs  = arbs, rules = rules})))))));
+   (parse_rules () |> token >>= (fn rules =>
+    result
+     (SU.Induct_Arguments {ons = ons, arbs  = arbs, rules = map SU.Ind_Rule rules}))) plus
+   (parse_sets () |> token >>= (fn sets =>
+    result
+     (SU.Induct_Arguments {ons = ons, arbs  = arbs, rules = map SU.Ind_Set sets})))
+
+   )))));
 
 fun parse_bracket () =
   bracket

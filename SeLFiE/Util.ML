@@ -1250,8 +1250,11 @@ val same_strings_when_normalized: Proof.context -> string -> string -> bool;
 val ctxt_n_string_to_cname: Proof.context -> string -> string option;
 
 (*arguments passed to the induct method*)
-datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: strings};
-val dest_induct_arguments     : induct_arguments  -> {ons: strings, arbs: strings, rules: strings};
+datatype rule_or_set          = Ind_Rule of string | Ind_Set of string;
+type     rule_or_sets         = rule_or_set list;
+val rule_or_set_to_string     : rule_or_set -> string;
+datatype induct_arguments     = Induct_Arguments of {ons: strings, arbs: strings, rules: rule_or_sets};
+val dest_induct_arguments     : induct_arguments -> {ons: strings, arbs: strings, rules: rule_or_sets};
 val induct_arguments_to_string: induct_arguments -> string;
 val ord_induct_arguments      : induct_arguments * induct_arguments -> order;
 val sort_induct_argumentss    : induct_arguments list -> induct_arguments list;
@@ -1269,6 +1272,7 @@ datatype atomic_assert =
 | Node_Is_Lambda
 | Node_Is_App
 | Is_Rule_Of_Node
+| Is_Set_Of_Node
 | Node_Is_Defined_With
 | Node_Takes_N_Arguments
 | Node_Takes_Less_Than_N_Arguments
@@ -1294,6 +1298,8 @@ datatype atomic_assert =
 | Is_Arbitrary
 | Is_Rule
 | Is_Rule_Of_Print
+| Is_Set
+| Is_Set_Of_Print
 (*Eval_Print for node*)
 | Print_Is_Cnst
 | Print_Is_Free
@@ -1379,7 +1385,11 @@ fun ctxt_n_string_to_cname  (ctxt:Proof.context) (str:string) =
   end;
 
 (*arguments passed to the induct method*)
-datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: strings};
+datatype rule_or_set  = Ind_Rule of string | Ind_Set of string;
+type     rule_or_sets = rule_or_set list;
+fun rule_or_set_to_string (Ind_Rule rule_name) = rule_name
+  | rule_or_set_to_string (Ind_Set  set_name ) = set_name;
+datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: rule_or_sets};
 fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
 
 fun induct_arguments_to_string (Induct_Arguments {ons, arbs, rules}) =
@@ -1387,7 +1397,11 @@ fun induct_arguments_to_string (Induct_Arguments {ons, arbs, rules}) =
     val ons'  = map (enclose "\"" "\"") ons;
     val on    = String.concatWith " " ons': string;
     val arb   = if null arbs  then "" else " arbitrary:" ^ String.concatWith " " arbs : string;
-    val rule  = if null rules then "" else " rule:"      ^ String.concatWith " " rules: string;
+    val rule  = case rules of
+         [                  ] => ""
+       | [Ind_Rule rule_name] => " rule:" ^ rule_name
+       | [Ind_Set  set_name ] => " set:"  ^ set_name
+       | _                    => error "induct_arguments_to_string failed.";
     val apply = "(induct " ^ on ^ arb ^ rule ^ ")"
   in
     apply
@@ -1422,6 +1436,7 @@ datatype atomic_assert =
 | Node_Is_Lambda
 | Node_Is_App
 | Is_Rule_Of_Node
+| Is_Set_Of_Node
 | Node_Is_Defined_With
 | Node_Takes_N_Arguments
 | Node_Takes_Less_Than_N_Arguments
@@ -1447,6 +1462,8 @@ datatype atomic_assert =
 | Is_Arbitrary
 | Is_Rule
 | Is_Rule_Of_Print
+| Is_Set
+| Is_Set_Of_Print
 (*Eval_Print for node*)
 | Print_Is_Cnst
 | Print_Is_Free
@@ -1494,6 +1511,7 @@ fun(*Eval_Node*)
   | print_atomic_assert (Node_Is_Defined_With                      ) = "Node_Is_Defined_With"
   | print_atomic_assert (Node_Is_Defined_With_N_Clauses            ) = "Node_Is_Defined_With_N_Clauses"
   | print_atomic_assert (Is_Rule_Of_Node                           ) = "Is_Rule_Of_Node"
+  | print_atomic_assert (Is_Set_Of_Node                            ) = "Is_Set_Of_Node"
   | print_atomic_assert (Node_Takes_N_Arguments                    ) = "Takes_N_Arguments"
   | print_atomic_assert (Has_Same_Prnt_As                          ) = "Has_Same_Prnt_As"
   | print_atomic_assert (Is_Deeper_Than                            ) = "Is_Deeper_Than"
@@ -1532,6 +1550,8 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_Arbitrary                              ) = "Is_Arbitrary"
   | print_atomic_assert (Is_Rule                                   ) = "Is_Rule"
   | print_atomic_assert (Is_Rule_Of_Print                          ) = "Is_Rule_Of_Print"
+  | print_atomic_assert (Is_Set                                    ) = "Is_Set"
+  | print_atomic_assert (Is_Set_Of_Print                           ) = "Is_Set_Of_Print"
   (*Eval_Print for node*)
   | print_atomic_assert (Print_Is_Cnst                             ) = "Print_Is_Cnst"
   | print_atomic_assert (Print_Is_Free                             ) = "Print_Is_Free"
