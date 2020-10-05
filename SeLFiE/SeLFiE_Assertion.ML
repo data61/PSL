@@ -1724,8 +1724,7 @@ val structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of
               Some ("inductive_trm", QOuter_Print,
                 Ands [
                   Ors [
-                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive    ),
-                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive_Set)
+                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive)
                   ],
                   Some ("pure_imp_has_n_args", QOuter_Number,
                     Ands [
@@ -1789,8 +1788,7 @@ Imply
               Some ("inductive_trm", QOuter_Print,
                 Ands [
                   Ors [
-                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive    ),
-                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive_Set)
+                    Print_Is_Defined_With (Variable "inductive_trm", Command Inductive)
                   ],
                   Some ("pure_imp_has_n_args", QOuter_Number,
                     Ands [
@@ -2220,5 +2218,45 @@ All ("ind_term", QInd,
     Print_Is_Bound (Variable "ind_term")
   ]
 )
+
+val if_rule_induct_using_const_defined_with_inductive_set_in_snd_argument_of_membership_then_induct_on_var_in_fst_argument_of_membership =
+Imply (
+  Ands [
+    Some ("induct_set", QRule,
+      True
+    )
+  ],
+  Ands [
+    Not (
+      Some ("ind_arg", QInd, True)
+    )
+  ]
+);
+
+val if_defined_with_inductive_set_in_meta_premise_then_set_induction =
+Imply (
+  Some ("node_defined_as_inductive_set", QOuter_Path,
+    Ands [
+      Node_Is_Defined_With       (Variable "node_defined_as_inductive_set", Command Definition_Pattern.Inductive_Set),
+      Is_A_Meta_Premise_Or_Below (Variable "node_defined_as_inductive_set"),
+      Not ((*To prevent recommending induction on set for cases like "hbase_funC" in Goodstein_Lambda.thy*)
+        Some_Of ("membership", Print "Print Set.member",
+          Ands [
+            Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "node_defined_as_inductive_set", Number 1, Variable "membership"),
+            Some ("rec_node_in_first_arg_of_set_membership", QOuter_Path,
+              Ands [
+                Applies (node_defined_recursively, [Variable "rec_node_in_first_arg_of_set_membership"]),
+                Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "node_defined_as_inductive_set", Number 0, Variable "membership")
+              ]
+            )
+          ]
+        )
+      )
+    ]
+  ),
+  Some ("node_defined_as_inductive_set",
+    QRule, Is_Set (Variable "node_defined_as_inductive_set")
+  )
+);
 
 end;

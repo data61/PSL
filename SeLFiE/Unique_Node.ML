@@ -607,13 +607,13 @@ type unode =
    inner_path : inner_path,
    tag        : tag};
 
-fun is_defined_by (unode:unode) Definition_Pattern.Definition = Option.map (equal Definition_Pattern.Definition) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Definition_Pattern.Fun        = Option.map (equal Definition_Pattern.Fun       ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Definition_Pattern.Function   = Option.map (equal Definition_Pattern.Function  ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Definition_Pattern.Inductive  = Option.map (equal Definition_Pattern.Inductive ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Definition_Pattern.Primrec    = Option.map (equal Definition_Pattern.Primrec   ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by (unode:unode) Definition_Pattern.Unknown    = Option.map (equal Definition_Pattern.Unknown   ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
-  | is_defined_by _  _ = false;
+fun is_defined_by (unode:unode) Definition_Pattern.Definition    = Option.map (equal Definition_Pattern.Definition   ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Fun           = Option.map (equal Definition_Pattern.Fun          ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Function      = Option.map (equal Definition_Pattern.Function     ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Inductive     = Option.map (equal Definition_Pattern.Inductive    ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Inductive_Set = Option.map (equal Definition_Pattern.Inductive_Set) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Primrec       = Option.map (equal Definition_Pattern.Primrec      ) (#is_defined_with (#tag unode)) |> Utils.is_some_true
+  | is_defined_by (unode:unode) Definition_Pattern.Unknown       = Option.map (equal Definition_Pattern.Unknown      ) (#is_defined_with (#tag unode)) |> Utils.is_some_true;
 
 fun unode_to_depth (unode:unode) = unode |>  #inner_path |> length: int;
 

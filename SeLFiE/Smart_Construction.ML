@@ -64,7 +64,7 @@ fun powerset_to_induct_arguments [] = []
   | powerset_to_induct_arguments (((command, func), args)::pairs) =
     SU.Induct_Arguments {ons = args, arbs = [], rules = []}
  :: (case command of Definition_Pattern.Inductive_Set
-         => SU.Induct_Arguments {ons = [],   arbs = [], rules = [SU.Ind_Set (func)]}
+         => (SU.Induct_Arguments {ons = [],   arbs = [], rules = [SU.Ind_Set (func)]} |> (tracing o SU.induct_arguments_to_string); SU.Induct_Arguments {ons = [],   arbs = [], rules = [SU.Ind_Set (func)]})
      | _ => SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Ind_Rule (func ^ ".induct")]})
  :: powerset_to_induct_arguments pairs;
 
@@ -75,7 +75,10 @@ let
   val terms            = Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst: term list;
   fun is_not_string_of_const (cname:string) = try (Syntax.read_term ctxt) cname <$> Term.is_Const |> Utils.is_some_false: bool;
   fun is_wellfounded (SU.Induct_Arguments {rules,...}) = rules = [SU.Ind_Rule "Wellfounded.accp.induct"];(*TODO: FIXME: termination proof for  goodsteinC in Goodstein.thy*)
-  fun all_ons_meet_condition (SU.Induct_Arguments {ons,...}) = (forall is_not_string_of_const ons) andalso not (null ons): bool
+  fun all_ons_meet_condition (SU.Induct_Arguments {ons,rules,...}) = (forall is_not_string_of_const ons) andalso 
+      (case rules of
+         [SU.Ind_Set  _ ] => true
+       |  _               => not (null ons)): bool;
   val induct_arguments = map (context_n_term_to_argument_powersets ctxt) terms
                       |> flat
                       |> distinct (op =)
@@ -84,8 +87,9 @@ let
                       |> SU.sort_induct_argumentss
                       |> filter all_ons_meet_condition (*TODO: we should do something better than this.*)
                       |> filter_out is_wellfounded: SeLFiE_Util.induct_arguments list;
-(*val _ = (map (tracing o SU.induct_arguments_to_string) induct_arguments);
-  val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");*)
+(*
+val _ = (map (tracing o SU.induct_arguments_to_string) induct_arguments);
+val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");*)
 in
   induct_arguments: SU.induct_arguments list
 end;

@@ -32,13 +32,33 @@ fun has_no_rule_with_suffix (ctxt:Proof.context) (cnst_name:string) (suffix:stri
 
 fun has_set_member (trm:term) = Term.exists_Const (equal "Set.member" o fst) trm: bool;
 fun always_has_set_mbmer (trms: term list) = forall has_set_member trms: bool;
+
+fun is_set_type  (typ :typ     ) = try (fst o dest_Type) typ = SOME "Set.set": bool;
+fun has_set_type (typs:typ list) = exists is_set_type typs                   : bool;
+fun is_bool_type (typ: typ     ) = try (fst o dest_Type) typ = SOME "HOL.bool":bool;
+
+fun is_inductive_set_type typ =
+   case try strip_type typ of
+  NONE => false
+| SOME (argument_types, return_type) => has_set_type argument_types andalso is_bool_type return_type;
+
+fun has_inductive_set_type (ctxt:Proof.context) (cname:string) =
+  let
+    val term = Syntax.read_term ctxt cname: term;
+  in
+    if   is_Const term
+    then is_inductive_set_type ((snd o dest_Const) term)
+    else false
+  end;
+
 fun is_defined_with_inductive_set (ctxt:Proof.context) (cname:string) =
-   try (Proof_Context.get_thms ctxt) (cname ^ ".intros")
-|> these
-|> map Thm.prop_of
-|> always_has_set_mbmer;
-
-
+  (try (Proof_Context.get_thms ctxt) (cname ^ ".intros")
+ |> these
+ |> map Thm.prop_of
+ |> always_has_set_mbmer)
+orelse
+  (*Note that this can be defined with the inductive keyword instead of inductive_set.*)
+  has_inductive_set_type ctxt cname;
 
 val suffix_for_definition = ([(*"_def"*)], ["cases", "elims", "induct", "pelims", "simps", "intros"]);(*We should not check for "_def" since the definition package can make arbitrary name for the relevant rule.*)
 val suffix_for_fun =       (["cases", "elims", "induct", "pelims", "simps"], ["inducts", "intros"]);(*The "fun" keyword produces psimps.*)

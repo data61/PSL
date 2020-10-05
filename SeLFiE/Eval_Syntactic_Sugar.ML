@@ -28,6 +28,7 @@ datatype assert =
 | Node_Is_Defined_With             of assert * assert
 | Node_Is_Defined_With_N_Clauses   of assert * assert
 | Is_Rule_Of_Node                  of assert * assert
+| Is_Set_Of_Node                   of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
@@ -45,6 +46,8 @@ datatype assert =
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
+| Is_Set            of assert
+| Is_Set_Of_Print   of assert * assert
 (*Eval_Print for node*)
 | Print_Is_Cnst                     of assert
 | Print_Is_Free                     of assert
@@ -149,6 +152,7 @@ datatype assert =
 | Node_Is_Defined_With             of assert * assert
 | Node_Is_Defined_With_N_Clauses   of assert * assert
 | Is_Rule_Of_Node                  of assert * assert
+| Is_Set_Of_Node                   of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
@@ -166,6 +170,8 @@ datatype assert =
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
+| Is_Set            of assert
+| Is_Set_Of_Print   of assert * assert
 (*Eval_Print for node*)
 | Print_Is_Cnst                     of assert
 | Print_Is_Free                     of assert
@@ -281,6 +287,7 @@ and
   | convert loc (Node_Is_Defined_With_N_Clauses   pair)  = ES.Node_Is_Defined_With_N_Clauses   (convert_pair loc pair)
 (*| Node_Is_Defined_With_N_Clauses   of assert * assert*)
   | convert loc (Is_Rule_Of_Node                  pair)  = ES.Is_Rule_Of_Node                  (convert_pair loc pair)
+  | convert loc (Is_Set_Of_Node                   pair)  = ES.Is_Set_Of_Node                   (convert_pair loc pair)
   | convert loc (Node_Takes_N_Arguments           pair)  = ES.Node_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Node_Takes_Less_Than_N_Arguments pair)  = ES.Node_Takes_Less_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Unode*)
@@ -317,6 +324,8 @@ and
   | convert loc (Is_Arbitrary       ass ) = ES.Is_Arbitrary     (convert loc ass)
   | convert loc (Is_Rule            ass ) = ES.Is_Rule          (convert loc ass)
   | convert loc (Is_Rule_Of_Print   pair) = ES.Is_Rule_Of_Print (convert_pair loc pair)
+  | convert loc (Is_Set             ass ) = ES.Is_Set           (convert loc ass)
+  | convert loc (Is_Set_Of_Print    pair) = ES.Is_Set_Of_Print  (convert_pair loc pair)
   (*Eval_Print for node*)
   | convert loc (Print_Is_Cnst                     ass ) = ES.Print_Is_Cnst                     (convert      loc ass)
   | convert loc (Print_Is_Free                     ass ) = ES.Print_Is_Free                     (convert      loc ass)

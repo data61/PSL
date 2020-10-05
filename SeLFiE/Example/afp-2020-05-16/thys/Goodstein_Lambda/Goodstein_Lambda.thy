@@ -408,7 +408,7 @@ lemma hbase_tl:
 lemmas hbase_tl' [dest] = hbase_tl[of "n # ns" for n ns, simplified]
 
 lemma hbase_elt [dest]:
-  "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"semantic_induct
+  "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"semantic_induct(*almost failed.*)
   by (induct ns) auto
 
 lemma evalC_sum_list:
@@ -483,6 +483,7 @@ lemma evalC_inj_on_hbase:
   assert_SeLFiE_true   for_all_arbs_there_should_be_a_change [on["n"], arb["m"],rule[]]
   assert_SeLFiE_false  for_all_arbs_there_should_be_a_change [on["n"], arb["b"],rule[]]
   semantic_induct(*failed*)
+  assert_SeLFiE_true   if_defined_with_inductive_set_in_meta_premise_then_set_induction [on["n"], arb["m"],set["Goodstein_Lambda.hbase"]]
 proof (induct n arbitrary: m rule: hbase.induct)
   case 1
   then show ?case by (cases m rule: hbase.cases) simp_all

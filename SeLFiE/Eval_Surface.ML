@@ -27,6 +27,7 @@ datatype assert =
 | Node_Is_Defined_With             of assert * assert
 | Node_Is_Defined_With_N_Clauses   of assert * assert
 | Is_Rule_Of_Node                  of assert * assert
+| Is_Set_Of_Node                   of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
@@ -50,6 +51,8 @@ datatype assert =
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
+| Is_Set            of assert
+| Is_Set_Of_Print   of assert * assert
 (*Eval_Print for node*)
 | Print_Is_Cnst                     of assert
 | Print_Is_Free                     of assert
@@ -131,6 +134,7 @@ datatype assert =
 | Node_Is_Defined_With             of assert * assert
 | Node_Is_Defined_With_N_Clauses   of assert * assert
 | Is_Rule_Of_Node                  of assert * assert
+| Is_Set_Of_Node                   of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
@@ -160,6 +164,8 @@ datatype assert =
 | Is_Arbitrary      of assert
 | Is_Rule           of assert
 | Is_Rule_Of_Print  of assert * assert
+| Is_Set            of assert
+| Is_Set_Of_Print   of assert * assert
 (*Eval_Print for node*)
 | Print_Is_Defined_With             of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
@@ -226,6 +232,7 @@ and (*bool*)
   | surf_to_var (Node_Is_Defined_With             args) = EV.Assert (SU.Atomic SU.Node_Is_Defined_With,             surf_to_var_pair_to_list args)
   | surf_to_var (Node_Is_Defined_With_N_Clauses   args) = EV.Assert (SU.Atomic SU.Node_Is_Defined_With_N_Clauses,   surf_to_var_pair_to_list args)
   | surf_to_var (Is_Rule_Of_Node                  pair) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Node,                  surf_to_var_pair_to_list pair)
+  | surf_to_var (Is_Set_Of_Node                   pair) = EV.Assert (SU.Atomic SU.Is_Set_Of_Node,                   surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_N_Arguments           pair) = EV.Assert (SU.Atomic SU.Node_Takes_N_Arguments,           surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_Less_Than_N_Arguments pair) = EV.Assert (SU.Atomic SU.Node_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list pair)
   (*Eval_Unode*)
@@ -249,6 +256,8 @@ and (*bool*)
   | surf_to_var (Is_Arbitrary     arg ) = EV.Assert (SU.Atomic SU.Is_Arbitrary,     surf_to_var_singleton    arg )
   | surf_to_var (Is_Rule          arg ) = EV.Assert (SU.Atomic SU.Is_Rule,          surf_to_var_singleton    arg )
   | surf_to_var (Is_Rule_Of_Print args) = EV.Assert (SU.Atomic SU.Is_Rule_Of_Print, surf_to_var_pair_to_list args)
+  | surf_to_var (Is_Set           arg ) = EV.Assert (SU.Atomic SU.Is_Set,           surf_to_var_singleton    arg )
+  | surf_to_var (Is_Set_Of_Print  args) = EV.Assert (SU.Atomic SU.Is_Set_Of_Print,  surf_to_var_pair_to_list args)
   (*Eval_Print for node*)
   | surf_to_var (Print_Is_Cnst                     arg ) = EV.Assert (SU.Atomic SU.Print_Is_Cnst,                     surf_to_var_singleton    arg)
   | surf_to_var (Print_Is_Free                     arg ) = EV.Assert (SU.Atomic SU.Print_Is_Free,                     surf_to_var_singleton    arg)

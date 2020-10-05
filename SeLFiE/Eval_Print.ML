@@ -15,6 +15,8 @@ datatype assert =
 | Is_Arbitrary     of string
 | Is_Rule          of string
 | Is_Rule_Of_Print of string * string
+| Is_Set           of string
+| Is_Set_Of_Print  of string * string
 (*node*)
 | Print_Is_Cnst                     of string
 | Print_Is_Free                     of string
@@ -48,6 +50,8 @@ datatype assert =
 | Is_Arbitrary     of string
 | Is_Rule          of string
 | Is_Rule_Of_Print of string * string
+| Is_Set           of string
+| Is_Set_Of_Print  of string * string
 (*node*)
 | Print_Is_Cnst                     of string
 | Print_Is_Free                     of string
@@ -85,6 +89,12 @@ fun get_rule_names' []                                   acc = acc
 
 fun get_rule_names ind_rules = get_rule_names' ind_rules [];
 
+fun get_set_names' []                                   acc = acc
+  | get_set_names' ((SU.Ind_Rule _        )::ind_rules) acc = get_set_names' ind_rules acc
+  | get_set_names' ((SU.Ind_Set  set_name )::ind_rules) acc = get_set_names' ind_rules (set_name :: acc);
+
+fun get_set_names ind_sets = (get_set_names' ind_sets [] |> map tracing; get_set_names' ind_sets []);
+
 fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                                                     _ = prnt1 = prnt2
   | eval' (Is_Subprint_Of        (sub,   full))   _                                                     _ = String.isSubstring sub full
   | eval' (Is_Nth_Induct         (print, n))    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _ = print_is_nth_of print n ons
@@ -92,9 +102,9 @@ fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                             
   | eval' (Is_Induct              print    )    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _ = member (op =) ons   print
   | eval' (Is_Arbitrary           print    )    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _ = member (op =) arbs  print
   | eval' (Is_Rule                print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _ = member (op =) (get_rule_names rules) print
-(*TODO: Is_Set*)
-  | eval' (Is_Rule_Of_Print      (rule, cname))  _               ctxt = SU.rule_to_const_name ctxt rule = cname orelse rule = cname
-(*TODO: Is_Set_Of_Print*)
+  | eval' (Is_Rule_Of_Print      (rule, cname))  _                                                   ctxt = SU.rule_to_const_name ctxt rule = cname(* orelse rule = cname*)
+  | eval' (Is_Set                 print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _ = (tracing print; if member (op =) (get_set_names rules) print then (tracing ("TRUE with " ^ print); true) else (tracing ("FALSE with " ^ print); false))
+  | eval' (Is_Set_Of_Print       (set,  cname))  _                                                     _  = set = cname
   (*node*)
   | eval' (Print_Is_Cnst          print    )     _               ctxt = read_term ctxt print <$> is_Const |> Utils.is_some_true
   | eval' (Print_Is_Free          print    )     _               ctxt = read_term_then_check_term ctxt print is_Free
