@@ -5,6 +5,10 @@
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
 **try_hard**, for [Isabelle20**20**](https://isabelle.in.tum.de). Previous versions of Isabelle, such as Isabelle2019, are no longer supported.
 
+## YouTube
+
+We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
+
 ## Installation
 1. Install [Isabelle2020](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
