@@ -103,7 +103,7 @@ fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                             
   | eval' (Is_Arbitrary           print    )    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _ = member (op =) arbs  print
   | eval' (Is_Rule                print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _ = member (op =) (get_rule_names rules) print
   | eval' (Is_Rule_Of_Print      (rule, cname))  _                                                   ctxt = SU.rule_to_const_name ctxt rule = cname(* orelse rule = cname*)
-  | eval' (Is_Set                 print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _ = (tracing print; if member (op =) (get_set_names rules) print then (tracing ("TRUE with " ^ print); true) else (tracing ("FALSE with " ^ print); false))
+  | eval' (Is_Set                 print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _ = member (op =) (get_set_names rules) print
   | eval' (Is_Set_Of_Print       (set,  cname))  _                                                     _  = set = cname
   (*node*)
   | eval' (Print_Is_Cnst          print    )     _               ctxt = read_term ctxt print <$> is_Const |> Utils.is_some_true

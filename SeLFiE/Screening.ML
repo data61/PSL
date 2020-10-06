@@ -47,7 +47,7 @@ fun if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal:term, post_fs
 fun pre_to_post_transition_is_promising (pre_fst_goal:term, post_fst_goal:term) =
   if_no_schematic_in_pre_then_no_schematic_in_post (pre_fst_goal, post_fst_goal) andalso not (pre_fst_goal = post_fst_goal);
 
-fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (score:int, ind_args:SU.induct_arguments) =
+fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (score:real, ind_args:SU.induct_arguments) =
   let
     val pre_first_goal_opt    = IU.pst_to_fst_subg pst                                                        : term option;
     val tactic_w_timeout      = Seq2.try_seq (induction_arguments_to_tactic_on_proof_state_w_timeout ind_args): Proof.state -> Proof.state Seq.seq;
@@ -59,42 +59,41 @@ fun induct_arguments_is_promising_for_proof_state (pst:Proof.state) (score:int, 
                                 then Utils.is_some_true (option_pair <$> pre_to_post_transition_is_promising)
                                 else false: bool;
   in
-    (score, ind_args, is_promising): (int * SU.induct_arguments * bool)(*true is good*)
+    (score, ind_args, is_promising): (real * SU.induct_arguments * bool)(*true is good*)
   end;
 
 local
 
-type quadruple  =  (int * SeLFiE_Util.induct_arguments * bool);
+type quadruple  =  (real * SeLFiE_Util.induct_arguments * bool);
 type quadruples = quadruple list;
 
 fun show_how_many_survived (numb_surviving_combs:int) (numb_original_combs:int) (numb_of_step:int) = ()
 (*tracing ("smart_induct: only " ^ Int.toString numb_surviving_combs ^ " combinations survived Step " ^ Int.toString numb_of_step ^ " out of " ^ Int.toString numb_original_combs);
  *)
-fun pst_n_score_n_induct_argumentss_to_quadruples (pst:Proof.state) (score_n_induct_argumentss:(int * SU.induct_arguments) list) =
+fun pst_n_score_n_induct_argumentss_to_quadruples (pst:Proof.state) (score_n_induct_argumentss:(real * SU.induct_arguments) list) =
   Par_List.map (induct_arguments_is_promising_for_proof_state pst) score_n_induct_argumentss
 
 in
 (*TODO: rename some outdated names.*)
 fun proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss (pst:Proof.state) =
   let
-    val induct_argumentss        = Smart_Construction.proof_state_to_induct_argumentss pst : SU.induct_arguments list;
-    val zero_w_induct_argumentss = map (fn induct_arg => (0, induct_arg)) induct_argumentss: (int * SU.induct_arguments) list;
-    val quadruples               = pst_n_score_n_induct_argumentss_to_quadruples pst zero_w_induct_argumentss: quadruples;
-    val promising_args           = filter (fn (_, _, b) => b) quadruples |> map (fn (score, a, _) => (score, a))
-                                 : (int * SU.induct_arguments) list;
+    val induct_argumentss        = Smart_Construction.proof_state_to_induct_argumentss pst                      : SU.induct_arguments list;
+    val zero_w_induct_argumentss = map (fn induct_arg => (0.0, induct_arg)) induct_argumentss                   : (real * SU.induct_arguments) list;
+    val quadruples               = pst_n_score_n_induct_argumentss_to_quadruples pst zero_w_induct_argumentss   : quadruples;
+    val promising_args           = filter (fn (_, _, b) => b) quadruples |> map (fn (score, a, _) => (score, a)): (real * SU.induct_arguments) list;
     val _ = show_how_many_survived (length promising_args) (length induct_argumentss) 2: unit;
   in
-    promising_args: (int * SU.induct_arguments) list
+    promising_args: (real * SU.induct_arguments) list
   end;
 
 fun induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss
-  (score_n_induct_argumentss:(int * SU.induct_arguments) list) (pst:Proof.state) =
+  (score_n_induct_argumentss:(real * SU.induct_arguments) list) (pst:Proof.state) =
   let
     fun ord_triple ((_, args1), (_, args2)) = SU.ord_induct_arguments (args1, args2): order;
     val sorted_promisings = sort ord_triple score_n_induct_argumentss;
     val _                 = show_how_many_survived (length score_n_induct_argumentss) (length score_n_induct_argumentss) 4: unit;
   in
-    sorted_promisings: (int * SU.induct_arguments) list
+    sorted_promisings: (real * SU.induct_arguments) list
   end;
 
 end;

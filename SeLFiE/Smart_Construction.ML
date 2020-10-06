@@ -101,14 +101,14 @@ fun proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_
     val free_names        = fold Term.add_free_names trms_wo_abb []  |> distinct (op =)   : strings;
     val fnames_not_in_ons = filter_out (member (op =) ons) free_names                     : strings;
     val arbss             = powerset fnames_not_in_ons: strings list;(*TODO: refactor with proof_state_to_induct_argumentss.*)
-    fun mk_new_pair arbs  = (score, SU.Induct_Arguments {ons=ons, arbs=arbs, rules=rules}): (int * SU.induct_arguments);
-    val induct_argss      = map mk_new_pair arbss                                         : (int * SU.induct_arguments) list;
+    fun mk_new_pair arbs  = (score, SU.Induct_Arguments {ons=ons, arbs=arbs, rules=rules}): (real * SU.induct_arguments);
+    val induct_argss      = map mk_new_pair arbss                                         : (real * SU.induct_arguments) list;
   in
-    induct_argss: (int * SU.induct_arguments) list
+    induct_argss: (real * SU.induct_arguments) list
   end;
 
-fun proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score_n_argss:(int * SU.induct_arguments) list) =
+fun proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score_n_argss:(real * SU.induct_arguments) list) =
    map (fn score_n_args => proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs pst trms score_n_args) score_n_argss
-|> flat:  (int * SeLFiE_Util.induct_arguments) list;
+|> flat:  (real * SeLFiE_Util.induct_arguments) list;
 
 end;

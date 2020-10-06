@@ -56,7 +56,7 @@ structure Strng_N_HeuTyp_Tab = Table(type key = (heuristic_typ * string) val ord
 
 structure SeLFiE_Assertion = Generic_Data
 (
-  type T     = (ESS.assert * int) Strng_N_HeuTyp_Tab.table;
+  type T     = (ESS.assert * real) Strng_N_HeuTyp_Tab.table;
   val empty  = Strng_N_HeuTyp_Tab.empty : T;
   val extend = I;
   val merge  = Strng_N_HeuTyp_Tab.merge (K true);
@@ -64,18 +64,18 @@ structure SeLFiE_Assertion = Generic_Data
 
 fun lookup_assert ctxt = (Strng_N_HeuTyp_Tab.lookup o SeLFiE_Assertion.get) (Context.Proof ctxt);
 
-fun get_assrt (ctxt:Proof.context) (assert_name:string): (ESS.assert * int) =
+fun get_assrt (ctxt:Proof.context) (assert_name:string): (ESS.assert * real) =
   let
-    val some_ind_heuristic  = lookup_assert ctxt (Induction_Heuristic,      assert_name) : (ESS.assert * int) option;
-    val some_gen_heuristic  = lookup_assert ctxt (Generalization_Heuristic, assert_name) : (ESS.assert * int) option;
-    val some_test_heuristic = lookup_assert ctxt (Test_Heuristic,           assert_name) : (ESS.assert * int) option;
+    val some_ind_heuristic  = lookup_assert ctxt (Induction_Heuristic,      assert_name) : (ESS.assert * real) option;
+    val some_gen_heuristic  = lookup_assert ctxt (Generalization_Heuristic, assert_name) : (ESS.assert * real) option;
+    val some_test_heuristic = lookup_assert ctxt (Test_Heuristic,           assert_name) : (ESS.assert * real) option;
     val heuristic =
            if is_some some_ind_heuristic  andalso not (ESS.Dummy = (fst (the some_ind_heuristic ))) then the some_ind_heuristic
       else if is_some some_gen_heuristic  andalso not (ESS.Dummy = (fst (the some_gen_heuristic ))) then the some_gen_heuristic
       else if is_some some_test_heuristic andalso not (ESS.Dummy = (fst (the some_test_heuristic))) then the some_test_heuristic
       else error (assert_name ^ "?\nDid you really define such an assertion?");
   in
-    heuristic: (ESS.assert * int)
+    heuristic: (ESS.assert * real)
   end;
 
 fun update_assert k v  = Strng_N_HeuTyp_Tab.update_new (k, v)
@@ -134,7 +134,7 @@ fun get_trans_trans_gen (should_b_true_or_false:bool) (assert_name:string, ind_m
   let
     val pst        = Toplevel.proof_of top     : Proof.state;
     val ctxt       = Toplevel.context_of top   : Proof.context;
-    val (assrt, _) = get_assrt ctxt assert_name: (ESS.assert * int);
+    val (assrt, _) = get_assrt ctxt assert_name: (ESS.assert * real);
     val clean_mods = mk_clean_mods ctxt ind_mod: SU.induct_arguments;
     val _ = @{assert} (
             let
@@ -154,12 +154,12 @@ fun get_trans_trans_for_all_asserts_gen (heuristic_typ:heuristic_typ) (ind_mod: 
     val pst         = Toplevel.proof_of top     : Proof.state;
     val ctxt        = Toplevel.context_of top   : Proof.context;
     val key_n_vals  = (Strng_N_HeuTyp_Tab.dest o SeLFiE_Assertion.get) (Context.Proof ctxt)
-                    : ((heuristic_typ * string) * (ESS.assert * int)) list;
+                    : ((heuristic_typ * string) * (ESS.assert * real)) list;
     val key_n_vals' = filter (fn ((typ,_),(_,_)) => typ = heuristic_typ) key_n_vals
-                    : ((heuristic_typ * string) * (ESS.assert * int)) list;
+                    : ((heuristic_typ * string) * (ESS.assert * real)) list;
     val ass_names   = map (snd o fst) key_n_vals' |> distinct (op =): string list;
     val ass_n_point = map (fn ass_name => (ass_name, get_assrt ctxt ass_name)) ass_names
-                    : (string * (ESS.assert * int)) list;
+                    : (string * (ESS.assert * real)) list;
     val clean_mods = mk_clean_mods ctxt ind_mod: SU.induct_arguments;
     fun prnt_one_result (ass_name, (ass, _)) =
         let
@@ -172,9 +172,9 @@ fun get_trans_trans_for_all_asserts_gen (heuristic_typ:heuristic_typ) (ind_mod: 
   end): trans_trans;
 
 fun score_n_induct_argss_n_proof_state_to_best_pairs
-  (old_maximum_point:int)
-  (score_n_induct_argss   : (int * SU.induct_arguments) list)
-  (score_n_induct_wo_argss: (int * SU.induct_arguments) list)
+  (old_maximum_point:real)
+  (score_n_induct_argss   : (real * SU.induct_arguments) list)
+  (score_n_induct_wo_argss: (real * SU.induct_arguments) list)
   (heuristic_typ          : heuristic_typ)
   (take_top_n             : int)
   (pst                    : Proof.state)
@@ -182,37 +182,37 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
   let
     val ctxt           = Proof.context_of pst: Proof.context;
     val assertions'    = (Strng_N_HeuTyp_Tab.dest o SeLFiE_Assertion.get) (Context.Proof ctxt)
-                       : ((heuristic_typ * string) * (ESS.assert * int)) list;
+                       : ((heuristic_typ * string) * (ESS.assert * real)) list;
     val assertions     = map (fn ((htyp, ass_name), (ass, point)) => (htyp, {name = ass_name, assertion = ass, point = point})) assertions';
     fun is_same_heuristic_typ (typ:heuristic_typ) (htyp, {assertion,...}) = if typ = htyp andalso not (assertion = ESS.Dummy) then true else false;
     val input          = (filter (is_same_heuristic_typ heuristic_typ) assertions) |> map snd
-                       : {assertion: Eval_Syntactic_Sugar.assert, name: string, point: int} list;
-    val maximum_point  = fold (curry (op +)) (map #point input) 0 + old_maximum_point            : int;
+                       : {assertion: Eval_Syntactic_Sugar.assert, name: string, point: real} list;
+    val maximum_point  = fold (curry (op +)) (map #point input) 0.0 + old_maximum_point            : real;
     val outer_path_to_unode_table_as_gen = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table: Gen_Path.gen_path_to_unode_table; 
     fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
       let
-        val clean_mods                       = mk_clean_mods ctxt ind_mod                                                                    : SU.induct_arguments;
-        val outer_domains                    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out outer_path_to_unode_table_as_gen clean_mods: QD.domains;
-        fun eval_to_true assert              = ESS.eval pst outer_path_to_unode_table outer_domains clean_mods assert = bool_to_ES_assert true;
-        val success_scores                   = filter (fn {assertion,...} => eval_to_true assertion) input |> map #point: int list;
-        val score                            = fold (curry (op +)) success_scores 0                                     : int;
+        val clean_mods                       = mk_clean_mods ctxt ind_mod                                                                     : SU.induct_arguments;
+        val outer_domains                    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out outer_path_to_unode_table_as_gen clean_mods : QD.domains;
+        fun eval_to_true assert              = ESS.eval pst outer_path_to_unode_table outer_domains clean_mods assert = bool_to_ES_assert true: bool;
+        val success_scores                   = filter (fn {assertion,...} => eval_to_true assertion) input |> map #point                      : real list;
+        val score                            = fold (curry (op +)) success_scores 0.0                                                         : real;
       in score end;
 
-    fun get_promising_ind_mods_n_result (Induction_Heuristic     : heuristic_typ) = Screening.proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss pst                                        : (int * SU.induct_arguments) list
-      | get_promising_ind_mods_n_result (Generalization_Heuristic: heuristic_typ) = Screening.induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss score_n_induct_argss pst: (int * SU.induct_arguments) list
+    fun get_promising_ind_mods_n_result (Induction_Heuristic     : heuristic_typ) = Screening.proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss pst                                        : (real * SU.induct_arguments) list
+      | get_promising_ind_mods_n_result (Generalization_Heuristic: heuristic_typ) = Screening.induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss score_n_induct_argss pst: (real * SU.induct_arguments) list
       | get_promising_ind_mods_n_result _ = error "failed in Apply_SeLFiE.ML";
 
-    val promising_ind_mods_n_result = get_promising_ind_mods_n_result heuristic_typ: (int * SU.induct_arguments) list;
+    val promising_ind_mods_n_result = get_promising_ind_mods_n_result heuristic_typ: (real * SU.induct_arguments) list;
     fun get_ind_mod_n_scores _  = Par_List.map (fn (old_score, ind_mod) => ((*tracing ("checking " ^ SeLFiE_Util.induct_arguments_to_string ind_mod);*)
                                       {score = old_score + ind_mod_to_score ind_mod, modifiers = ind_mod})) promising_ind_mods_n_result
-                             : {modifiers: SeLFiE_Util.induct_arguments, score: int} list;
+                             : {modifiers: SeLFiE_Util.induct_arguments, score: real} list;
     val ind_mod_n_scores_opt = try (Timeout.apply (seconds 3000.0) get_ind_mod_n_scores) promising_ind_mods_n_result
-                             : {modifiers: SeLFiE_Util.induct_arguments, score: int} list option;
-    fun mk_record_wo_arb  (score:int, ind_args:SU.induct_arguments) = {modifiers = ind_args, score = score};
-    fun mk_records_wo_arb (pairs:(int * SU.induct_arguments) list) = map mk_record_wo_arb pairs;
+                             : {modifiers: SeLFiE_Util.induct_arguments, score: real} list option;
+    fun mk_record_wo_arb  (score:real, ind_args:SU.induct_arguments) = {modifiers = ind_args, score = score};
+    fun mk_records_wo_arb (pairs:(real * SU.induct_arguments) list) = map mk_record_wo_arb pairs;
     val ind_mod_n_scores     = Option.getOpt (ind_mod_n_scores_opt, mk_records_wo_arb score_n_induct_wo_argss);
-    val sorted_pairs         = sort (fn (p1, p2) => Int.compare (#score p1, #score p2)) ind_mod_n_scores |> rev
-                             : {modifiers: SeLFiE_Util.induct_arguments, score: int} list;
+    val sorted_pairs         = sort (fn (p1, p2) => Real.compare (#score p1, #score p2)) ind_mod_n_scores |> rev
+                             : {modifiers: SeLFiE_Util.induct_arguments, score: real} list;
     val best_pairs           = take take_top_n sorted_pairs;
   in
     (best_pairs, maximum_point)
@@ -234,15 +234,15 @@ val semantic_induct_cmd =
     val thm                       = Isabelle_Utils.proof_state_to_thm pst                            : thm;
     val thm_term                  = Thm.prop_of thm                                                  : term;
     val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
-    val (ind_best_records, ind_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs 0 [] [] Induction_Heuristic 5 pst outer_path_to_unode_table;
+    val (ind_best_records, ind_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs 0.0 [] [] Induction_Heuristic 5 pst outer_path_to_unode_table;
     fun record_to_pair {score, modifiers,...} = (score, modifiers);
     val best_pairs            = Par_List.map record_to_pair ind_best_records
-                              : (int * SU.induct_arguments) list;
+                              : (real * SU.induct_arguments) list;
     val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs
-                              :  (int * SU.induct_arguments) list;
+                              :  (real * SU.induct_arguments) list;
     val (arb_best_records, arb_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Generalization_Heuristic 10 pst outer_path_to_unode_table;
     fun mk_arb_message record = ind_args_to_sendb (#modifiers record) ^
-                             "\n  (* The score is " ^ Int.toString (#score record) ^ " out of " ^ Int.toString arb_max_point ^ ". *)";
+                             "\n  (* The score is " ^ Real.toString (#score record) ^ " out of " ^ Real.toString arb_max_point ^ ". *)";
     val best_arb_messages     = map mk_arb_message arb_best_records: strings;
     val best_arb_mssg_w_ranks = take (length best_arb_messages) fst_till_tenth ~~ best_arb_messages |> map (op ^);
 (*
