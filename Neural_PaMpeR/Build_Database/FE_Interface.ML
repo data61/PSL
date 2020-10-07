@@ -17,9 +17,7 @@
         5.add a ML chunk of function call ML{*FE_Interface.FE_activate ()*} in Main
         6.Rebuild Isabelle heap
 
-    By default the extracted feature file would be stored in PSL/PaMpeR/Build_Database.
-    If the import does not work, please add a function call of FE_Interface.activate ()
-    in a ML chunk in Main.thy
+    By default the extracted database be stored in PSL/Neural_PaMpeR/Build_Database.
 *)
 
 
@@ -50,7 +48,8 @@ struct
              (Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some) ^ " " ^
              (get_name o fst) m ^ " " ^ (Assertions.eval_assertion pst) ^ "\n" ^
              "' >> " ^ path_to_database);
-          Proof.apply m pst))))); 
+          Proof.apply m pst)))));
+
     val local_terminal_proof = Toplevel.proof o 
           (fn m => 
             (fn state => 
@@ -62,6 +61,7 @@ struct
                (get_name o fst) (fst m) ^ " " ^ (Assertions.eval_assertion state) ^ "\n" ^
                "' >> " ^ path_to_database);
             Proof.local_future_terminal_proof m state)));
+
     val global_terminal_proof = 
         Toplevel.end_proof o 
         K o 
