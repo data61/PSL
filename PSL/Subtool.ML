@@ -207,14 +207,14 @@ let
     val thm                       = Isabelle_Utils.proof_state_to_thm pst                            : thm;
     val thm_term                  = Thm.prop_of thm                                                  : term;
     val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
-    val (ind_best_records, ind_max_point) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs 0 [] [] Apply_SeLFiE.Induction_Heuristic 5 pst outer_path_to_unode_table;
+    val (ind_best_records, ind_max_point) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs 0.0 [] [] Apply_SeLFiE.Induction_Heuristic 5 pst outer_path_to_unode_table;
     fun record_to_pair {score, modifiers,...} = (score, modifiers);
     val best_pairs            = Par_List.map record_to_pair ind_best_records
-                              : (int * SeLFiE_Util.induct_arguments) list;
+                              : (real * SeLFiE_Util.induct_arguments) list;
     val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs
-                              :  (int * SeLFiE_Util.induct_arguments) list;
+                              :  (real * SeLFiE_Util.induct_arguments) list;
     val (arb_best_records, _) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Apply_SeLFiE.Generalization_Heuristic 7 pst outer_path_to_unode_table;
-    fun mk_arb_message (record:{modifiers: SeLFiE_Util.induct_arguments, score: int}) = SeLFiE_Util.induct_arguments_to_string (#modifiers record);
+    fun mk_arb_message (record:{modifiers: SeLFiE_Util.induct_arguments, score: real}) = SeLFiE_Util.induct_arguments_to_string (#modifiers record);
     val best_arb_messages     = map mk_arb_message arb_best_records: strings;
     val app_best_arb_messages = map (fn parenthesis => "apply " ^ parenthesis) best_arb_messages
 in
