@@ -14,7 +14,7 @@ session "PaMpeR" (psl) in PaMpeR = "SeLFiE" +
     "root.tex"
     "root.bib"
 
-session "PSL" (psl) in PSL = PaMpeR +
+session "PSL" (psl) in PSL = "PaMpeR" +
   options [timeout = 600]
   theories [document = false]
     "PSL"
