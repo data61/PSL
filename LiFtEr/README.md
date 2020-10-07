@@ -11,7 +11,7 @@ LiFtEr is a domain-specific language developed to extract features of promising 
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Build Isabelle/HOL with PaMpeR from Terminal or Command Prompt using the following two commands:
    - move the current directory to the directory containing this README.md file.
-      - `cd (this directory)`
+      - `cd path_to_this_directory`
    - open Isabelle/jEdit with LiFtEr.
       - `path_to_where_you_have_isabelle_in_your_system/Isabelle/bin/isabelle jedit -d . -l LiFtEr`
 
