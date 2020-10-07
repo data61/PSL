@@ -9,9 +9,9 @@ cross-validation framework have not been updated for Isabelle2019 yet.
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Build Isabelle/HOL with PaMpeR from Terminal or Command Prompt using the following two commands:
    - move the current directory to the directory containing this README.md file.
-      - cd (this directory)
+      - `cd (this directory)`
    - open Isabelle/jEdit with PaMpeR.
-      - path_to_where_you_have_isabelle_in_your_system/Isabelle/bin/isabelle jedit -d . -l PaMpeR
+      - `path_to_where_you_have_isabelle_in_your_system/Isabelle/bin/isabelle jedit -d . -l PaMpeR`
 3. Open Example_PaMpeR.thy to check if PaMpeR commands function as expected.
    
 ## Three PaMpeR Commands
