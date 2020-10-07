@@ -9,7 +9,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 
 We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
 
-## Installation
+## Installation (of SeLFiE, PaMpeR, PSL, LiFtEr, and Smart_Induct in one go)
 1. Install [Isabelle2020](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
