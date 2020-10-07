@@ -1,0 +1,116 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+
+%my own packages
+\usepackage{amsmath,amsthm}
+\usepackage{mathpartir}
+\usepackage{xspace}
+\usepackage{multicol}
+
+\usepackage[margin=1.2in]{geometry}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+%Nominal Logic 
+\DeclareMathOperator{\finite}{finite}
+\DeclareMathOperator{\infinite}{infinite}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\supports}{~supports~}
+\newcommand{\fresh}{~\sharp~}
+\newcommand{\A}{\mathbb A}
+\newcommand{\N}{\mathbb N}
+
+
+%Lam_ml notation
+\newcommand{\T}{T\,}
+\newcommand{\cto}[1]{~\mathsf{to}\ #1 \ \mathsf{in}~}
+\newcommand{\+}{+\!\!\!\!+}
+
+\newcommand{\SN}{\ensuremath{\mathit{SN}}}
+\newcommand{\red}[1]{\mathit{RED}_{#1}}
+\newcommand{\sred}[1]{\mathit{SRED}_{#1}}
+\newcommand{\imp}{\Longrightarrow}
+\newcommand{\Imp}{\quad \imp \quad}
+\newcommand{\Land}{\quad \land \quad}
+
+%HOL-Nominal notation
+\newcommand{\pt}{{\textsf{pt}}\ }
+\newcommand{\fs}{{\textsf{fs}}\ }
+
+
+%typesetting for theoremstyle
+\newlength{\rulewidth}
+\newcommand{\twpage}[1]{\begin{minipage}{\textwidth}#1\end{minipage}}
+\newcommand{\rwpage}[1]{\begin{minipage}{\rulewidth}#1\end{minipage}}
+
+%%%%%%%%%%%%%%%%%%%%%%
+%Theorems
+%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition} 
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{property}[theorem]{Property}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{example}[theorem]{Example} 
+\newtheorem{counterexample}[theorem]{Counterexample} 
+
+\theoremstyle{remark}
+\newtheorem*{notation}{Notation}
+\newtheorem*{note}{Note} 
+\newtheorem*{proof-attempt}{Proof Attempt}
+
+
+
+
+\title{Strong Normalization of Moggis's Computational Metalanguage}
+\author{Christian Doczkal \\ \small{Saarland University}}
+
+\begin{document}
+\maketitle
+
+\abstract{
+% alpha/binding issues
+Handling variable binding is one of the main difficulties in formal proofs.
+%
+In this context, Moggi's computational metalanguage serves as an interesting case study. It features monadic types and a commuting conversion rule that rearranges the binding structure. 
+%
+Lindley and Stark have given an elegant proof of strong normalization for this calculus. The key construction in their proof is a notion of relational $\top\top$-lifting, using stacks of elimination contexts to obtain a Girard-Tait style logical relation.
+
+I give a formalization of their proof in Isabelle/HOL-Nominal with a particular emphasis on the treatment of bound variables. 
+}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\section*{Acknowledgments}
+I thank Christian Urban, the Nominal Methods group, and the members of the Isabelle mailing list for their helpful answers to my questions.
+
+
+% optional bibliography
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

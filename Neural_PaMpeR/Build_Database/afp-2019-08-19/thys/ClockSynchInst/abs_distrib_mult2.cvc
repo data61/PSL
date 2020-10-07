@@ -1,0 +1,9 @@
+% cvcl can't resolve because is a Non-linear arithmetic inequalities.
+a, b, c, al, ar : REAL;
+abslhs: BOOLEAN =  IF (a * c - b * c >= 0) THEN (al = a * c - b * c) 
+ELSE (al = -(a * c - b * c))  ENDIF;
+absrhs: BOOLEAN =  IF (a - b >= 0) THEN (ar = a - b) 
+ELSE (ar = -(a - b))  ENDIF;
+
+ASSERT(c >= 0);
+QUERY ((abslhs AND absrhs) => (al = ar * c));

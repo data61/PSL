@@ -1,0 +1,11 @@
+chapter AFP
+
+session Separata (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-Eisbach"
+    Separation_Algebra
+  theories
+    Separata
+  document_files
+    "root.tex"

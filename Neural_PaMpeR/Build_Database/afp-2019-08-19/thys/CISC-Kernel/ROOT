@@ -1,0 +1,28 @@
+chapter AFP
+
+session "CISC-Kernel" (AFP) = HOL +
+  options [timeout=600]
+  theories
+    "trace/Rushby-with-Control/Option_Binders"
+    "trace/Rushby-with-Control/List_Theorems"
+    "trace/Rushby-with-Control/K"
+    "trace/Rushby-with-Control/SK"
+    "trace/Rushby-with-Control/ISK"
+    "trace/Rushby-with-Control/CISK"
+    "step/Step_configuration"
+    "step/Step_policies"
+    "step/Step"
+    "step/Step_invariants"
+    "step/Step_vpeq"
+    "step/Step_vpeq_locally_respects"
+    "step/Step_vpeq_weakly_step_consistent"
+    "trace/Rushby-with-Control/Separation_kernel_model"
+    "trace/Rushby-with-Control/Link_separation_kernel_model_to_CISK"
+  document_files
+    "euromils.sty"
+    "locales.png"
+    "logo/EU-flag.jpg"
+    "logo/EURO-MILS_4C.jpg"
+    "logo/fp7-logo.pdf"
+    "root.bib"
+    "root.tex"

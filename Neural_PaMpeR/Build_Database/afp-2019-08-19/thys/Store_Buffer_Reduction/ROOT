@@ -1,0 +1,13 @@
+chapter AFP
+
+session Store_Buffer_Reduction (AFP) = HOL +
+   options [timeout=600]
+   theories
+     Text
+     PIMP
+     Preliminaries
+   document_files
+     "root.tex"
+     "root.bib"
+     "llncs.cls"
+     "mathpartir.sty"

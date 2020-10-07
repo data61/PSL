@@ -1,0 +1,9 @@
+chapter AFP
+
+session Trie (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Tries
+  document_files
+    "root.bib"
+    "root.tex"

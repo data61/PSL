@@ -1,0 +1,15 @@
+chapter AFP
+session Stochastic_Matrices (AFP) = Markov_Models +
+  description "Stochastic Matrices"
+  options [timeout = 1800]
+  sessions
+    Perron_Frobenius
+    Jordan_Normal_Form
+  theories
+    Jordan_Normal_Form.Jordan_Normal_Form_Uniqueness
+    Perron_Frobenius.Perron_Frobenius_Irreducible
+  theories
+    Stochastic_Matrix_Perron_Frobenius
+  document_files
+    "root.bib"
+    "root.tex"

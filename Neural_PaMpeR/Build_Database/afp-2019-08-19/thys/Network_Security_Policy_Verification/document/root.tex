@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+%make a bit more space
+\addtolength{\hoffset}{-1,5cm}
+\addtolength{\textwidth}{3cm}
+\addtolength{\voffset}{-1cm}
+\addtolength{\textheight}{2cm}  
+
+% needed for complete lattice
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Network Security Policy Verification}
+\author{Cornelius Diekmann}
+\maketitle
+
+\begin{trivlist}
+\item \textbf{Abstract.}
+We present a unified theory for verifying network security policies.
+A security policy is represented as directed graph.
+To check high-level security goals, security invariants over the policy are expressed.
+We cover monotonic security invariants, i.e.\ prohibiting more does not harm security.
+We provide the following contributions for the security invariant theory.
+(\emph{i}) Secure auto-completion of scenario-specific knowledge, which eases usability.
+(\emph{ii}) Security violations can be repaired by tightening the policy iff the security invariants hold for the deny-all policy.
+(\emph{iii}) An algorithm to compute a security policy.
+(\emph{iv}) A formalization of stateful connection semantics in network security mechanisms.
+(\emph{v}) An algorithm to compute a secure stateful implementation of a policy.
+(\emph{vi}) An executable implementation of all the theory.
+(\emph{vii}) Examples, ranging from an aircraft cabin data network to the analysis of a large real-world firewall.
+
+For a detailed description, see \cite{diekmann2015mansdnnfv,diekmann2014forte,diekmann2014esss}. 
+\end{trivlist}
+
+\medskip
+
+\begin{trivlist}
+\item \textbf{Acknowledgements.} This entry contains contributions by Lars Hupel and would not have made it into the AFP without him.
+I want to thank the Isabelle group Munich for always providing valuable help.
+I would like to express my deep gratitude to my supervisor, Georg Carle, for supporting this topic and facilitating further research possibilities in this field.
+\end{trivlist}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\newpage
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

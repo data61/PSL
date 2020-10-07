@@ -1,0 +1,35 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Projective Geometry}
+\author{Anthony Bordg}
+\maketitle
+
+\begin{abstract}
+We formalize the basics of projective geometry. \\ In particular, we give a proof of the so-called Hessenberg's theorem in projective plane geometry (see \cite{Bezem2008} for an alternative proof using a Coherent Logic prover in Prolog which generates Coq proof scripts). \\ We also provide a proof of the so-called Desargues's theorem based on an axiomatization~\cite{Magaud_2012} of (higher) projective space geometry using the notion of rank of a matroid. This last approach allows to handle incidence relations in an homogeneous way dealing only with points and without the need of talking explicitly about lines, planes or any higher entity.
+\end{abstract}
+
+\tableofcontents
+
+
+\input{session}
+
+\section{Acknowledgements}
+The author was supported by the ERC Advanced Grant ALEXANDRIA (Project 742178) funded by the European Research Council and led by Professor Lawrence Paulson at the University of Cambridge, UK.
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

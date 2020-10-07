@@ -1,0 +1,153 @@
+\documentclass[11pt,DIV16,a4paper,parskip=half]{scrartcl}
+\usepackage{isabelle,isabellesym}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% From src/HOL/HOLCF/document/root
+\newcommand{\isasymnotsqsubseteq}{\isamath{\not\sqsubseteq}}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{calc}
+
+\usepackage{floatpag}
+\floatpagestyle{empty}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% silence the KOMA script warnings
+\def\bf{\normalfont\bfseries}
+\def\it{\normalfont\itshape}
+\def\rm{\normalfont\rmfamily}
+
+
+% urls in roman style, theorys in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Isabelle does not like *} in a text {* ... *} block
+% Concrete implemenation thanks to http://www.mrunix.de/forums/showpost.php?p=235085&postcount=5
+\newenvironment{alignstar}{\csname align*\endcsname}{\csname endalign*\endcsname}
+\newenvironment{alignatstar}{\csname alignat*\endcsname}{\csname endalignat*\endcsname}
+
+
+% Entering \ in Isabelle/jEdit has unwanted consequences
+\catcode`\|=0 %
+
+% Unfortunately, _ are the norm for Isabelle file names
+\catcode`\_=12
+
+\begin{document}
+
+\title{The meta theory of the\\ Incredible Proof Machine}
+\author{Joachim Breitner \and Denis Lohner}
+\maketitle
+
+\begin{abstract}
+\noindent
+The Incredible Proof Machine is an interactive visual theorem prover which represents proofs as
+port graphs. We model this proof representation in Isabelle, and prove that it is just
+as powerful as natural deduction.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+The Incredible Proof Machine (\url{http://incredible.pm}) is an educational tool that allows the user to
+prove theorems just by dragging proof blocks (corresponding to proof rules) onto a canvas, and connecting them
+correctly.
+
+In the ITP 2016 paper \cite{incredible} the first author formally describes the
+shape of these graphs, as port graphs, and gives the necessary conditions for
+when we consider such a graph a valid proof graph. The present Isabelle
+formalization implements these definitions in Isabelle, and furthermore proves
+that such proof graphs are just as powerful as natural deduction.
+
+All this happens with regard to an abstract set of formulas (theory
+\isa{Abstract_Formula}) and an abstract set of logic rules (theory
+\isa{Abstract_Rules}) and can thus be instantiated with various logics.
+
+This formalization covers the following aspects:
+\begin{itemize}
+\item We formalize the definition of port graphs, proof graphs and the conditions for such a proof
+      graph to be a valid graph (theory \isa{Incredible_Deduction}).
+\item We provide a formal description of natural deduction (theory \isa{Natural_Deduction}),
+      which connects to the existing theories in the AFP entry “Abstract
+      Completeness” \cite{Abstract_Completeness-AFP}.
+\item For every proof graph, we construct a corresponding natural deduction derivation tree
+      (theory  \isa{Incredible_Correctness}).
+\item Conversely, if we have a natural deduction derivation tree, we can construct a proof graph
+      thereof (theory \isa{Incredible_Completeness}).
+
+      This is the much harder direction, mostly because the freshness side condition for locally
+      fixed constants (such as in the introduction rule for the universal quantifier) is a local
+      check in natural deduction, but a global check in proofs graphs, and thus some elaborate
+      renaming has to occur (\isa{globalize} in \isa{Incredible_Trees}).
+\item To explain our abstract locales, and ensure that the assumptions are consistent, we provide
+      example instantiations for them.
+\end{itemize}
+
+It does not cover the unification procedure and expects that a suitable instantiation is already
+given. It also does not cover the creation and use of custom blocks, which abstract over proofs and thus correspond to lemmas in Isabelle.
+
+
+\subsection*{Acknowledgements}
+
+We would like to thank Andreas Lochbihler for helpful comments.
+
+\bibliographystyle{amsalpha}
+\bibliography{root}
+
+\clearpage
+\newcommand{\theory}[1]{\subsection{#1}\label{sec\string_#1}\input{#1.tex}}
+
+\section{Auxiliary theories}
+\label{ch\string_aux}
+
+\theory{Entailment}
+\theory{Indexed\string_FSet}
+\theory{Rose\string_Tree}
+
+\clearpage
+\section{Abstract formulas, rules and tasks}
+\theory{Abstract\string_Formula}
+\theory{Abstract\string_Rules}
+
+\clearpage
+\section{Incredible Proof Graphs}
+\theory{Incredible\string_Signatures}
+\theory{Incredible\string_Deduction}
+\theory{Abstract\string_Rules\string_To\string_Incredible}
+
+\clearpage
+\section{Natural Deduction}
+\theory{Natural\string_Deduction}
+
+\clearpage
+\section{Correctness}
+\theory{Incredible\string_Correctness}
+
+\clearpage
+\section{Completeness}
+\theory{Incredible\string_Trees}
+\theory{Build\string_Incredible\string_Tree}
+\theory{Incredible\string_Completeness}
+
+\clearpage
+\section{Instantiations}
+
+To ensure that our locale assumption are fulfillable, we instantiate them with
+small examples.
+
+\theory{Propositional\string_Formulas}
+\theory{Incredible\string_Propositional}
+\theory{Incredible\string_Propositional\string_Tasks}
+\theory{Predicate\string_Formulas}
+\theory{Incredible\string_Predicate}
+\theory{Incredible\string_Predicate\string_Tasks}
+
+\end{document}

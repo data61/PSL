@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Noninterference_Generic_Unwinding" (AFP) = "Noninterference_Ipurge_Unwinding" +
+  options [timeout = 600]
+  theories
+    GenericUnwinding
+  document_files
+    "root.bib"
+    "root.tex"

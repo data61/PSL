@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Author: Florian Haftmann, TU Muenchen
+#
+# DESCRIPTION: pie chart with Mercurial churn statistics
+
+ALIAS="$AFP_BASE/etc/user-aliases"
+
+isabelle churn_pie "$ALIAS" "$@"

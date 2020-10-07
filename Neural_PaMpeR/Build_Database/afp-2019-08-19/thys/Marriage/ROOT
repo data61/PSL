@@ -1,0 +1,9 @@
+chapter AFP
+
+session Marriage (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Marriage
+  document_files
+    "root.bib"
+    "root.tex"

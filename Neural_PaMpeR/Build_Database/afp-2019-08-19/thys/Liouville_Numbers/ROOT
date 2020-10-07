@@ -1,0 +1,9 @@
+chapter AFP
+
+session Liouville_Numbers (AFP) = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  theories
+    Liouville_Numbers
+  document_files
+    "root.tex"
+    "root.bib"

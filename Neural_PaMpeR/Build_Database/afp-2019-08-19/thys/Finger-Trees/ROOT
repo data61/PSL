@@ -1,0 +1,16 @@
+chapter AFP
+
+session "Finger-Trees" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+
+  theories
+    (* Finger Trees *)
+    FingerTree
+
+  theories [document = false]
+    (* Do not remove this, as it serves to detect issues with the code generator *)
+    Test
+
+  document_files
+    "root.bib"
+    "root.tex"

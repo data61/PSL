@@ -1,0 +1,37 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{latexsym}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Fun With Tilings}
+\author{Tobias Nipkow and Lawrence Paulson}
+\maketitle
+
+\begin{abstract}
+Tilings are defined inductively. It is shown that one form of mutilated
+chess board cannot be tiled with dominoes, while another one can be tiled
+with L-shaped tiles.
+\end{abstract}
+
+
+Sections 1 and 2 are by Paulson and described elsewhere~\cite{Paulson}.
+Section~3 is by Nipkow and formalizes a well-known argument from the
+literature~\cite{Velleman}.
+
+Please add further fun examples of this kind!
+
+\input{session}
+
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+%\usepackage{amssymb, amsfonts}
+%\usepackage{hyperref}
+\usepackage{wasysym}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{textcomp}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\tlastar}{TLA$^{*}$}
+
+\begin{document}
+
+\title{A Definitional Encoding of TLA in Isabelle/HOL}
+\author{Gudmund Grov \& Stephan Merz}
+\maketitle
+
+\begin{abstract}
+We mechanise the logic \tlastar{} \cite{Merz99}, an extension of Lamport's Temporal Logic of Actions (TLA) \cite{Lamport94} for specifying 
+and reasoning about concurrent and reactive systems. Aiming at a framework for mechanising the verification
+of TLA (or \tlastar{}) specifications, this contribution reuses some elements from a
+previous axiomatic encoding of TLA in Isabelle/HOL by the second author \cite{Merz98}, which has been part of the
+Isabelle distribution. In contrast to that previous work, we give here a shallow, definitional
+embedding, with the following highlights:
+\begin{itemize}
+\item a theory of infinite sequences, including a formalisation of the concepts of stuttering invariance central to TLA and TLA*;
+\item a definition of the semantics of TLA*, which extends TLA by a mutually-recursive definition of formulas and pre-formulas, generalising TLA action formulas;
+\item a substantial set of derived proof rules, including the TLA* axioms and Lamport's proof rules for system verification;
+\item a set of examples illustrating the usage of Isabelle/TLA* for reasoning about systems.
+\end{itemize}
+Note that this work is unrelated to the ongoing development of a proof system for the specification language TLA+, 
+which includes an encoding of TLA+ as a new Isabelle object logic \cite{chaudhuri:tlaps}.
+
+A previous version of this embedding has been used heavily in the work described in \cite{Grov09}. 
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

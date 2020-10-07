@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{quotmark}
+
+\usepackage{amsmath}
+\usepackage{tikz}
+
+\usetikzlibrary{positioning,calc,arrows}
+
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+\title{Verified Construction of Static Single Assignment Form}
+\author{Sebastian Ullrich\and Denis Lohner}
+\maketitle
+
+\newcommand\pf{$\phi$~function}
+
+\begin{abstract}
+  We define a functional variant of the static single assignment (SSA) form construction algorithm described by Braun et~al. \cite{braun13cc}, which combines simplicity and efficiency. The definition is based on a general, abstract control flow graph representation using Isabelle locales. We prove that the algorithm's output is semantically equivalent to the input according to a small-step semantics, and that it is in minimal SSA form for the common special case of reducible inputs. We then show the satisfiability of the locale assumptions by giving instantiations for a simple While language. Furthermore, we use a generic instantiation based on typedefs in order to extract ML code and replace the unverified SSA construction algorithm of the CompCertSSA project~\cite{barthe14} with it.
+\end{abstract}
+
+\tableofcontents
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

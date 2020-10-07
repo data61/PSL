@@ -1,0 +1,20 @@
+bool free[5] = TT; /* fork n is free */
+bool eat[5] = FF; /* phil n eats */
+bool one[5] = FF; /* phil n has taken one fork */
+
+/*#define next (n + 1) % N*/
+
+proctype phil(int n) {
+    do
+        :: atomic { (! eat[n]) && free[n] -> one[n] = TT; free[n] = FF }
+        :: atomic { one[n] && free[next] -> one[n] = FF; free[next] = FF; eat[n] = TT }
+        :: atomic { eat[n] -> free[n] = TT; free[next] = TT; eat[n] = FF }
+    od
+}
+
+init {
+    int i;
+    atomic {
+        for (i in eat) { run phil(i) }
+    }
+}

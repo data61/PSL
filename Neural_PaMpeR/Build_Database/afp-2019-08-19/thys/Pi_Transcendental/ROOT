@@ -1,0 +1,14 @@
+chapter AFP
+
+session Pi_Transcendental (AFP) = E_Transcendental +
+  options [timeout = 600]
+  sessions
+    "HOL-Computational_Algebra"
+    "HOL-Real_Asymp"
+    Symmetric_Polynomials
+  theories
+    Pi_Transcendental
+  document_files
+    "root.tex"
+    "root.bib"
+

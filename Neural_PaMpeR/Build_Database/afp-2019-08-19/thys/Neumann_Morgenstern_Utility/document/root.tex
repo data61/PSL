@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Von Neumann Morgenstern Utility Theorem \thanks{%
+This work is supported by the Austrian Science Fund (FWF) project P26201 and the European Research Council (ERC) grant no 714034 \emph{SMART}.}}
+
+\author{Julian Parsert \and Cezary Kaliszyk}
+
+\maketitle
+
+\begin{abstract}
+Utility functions form an essential part of game theory and
+economics. In order to guarantee the existence of utility
+functions most of the time sufficient properties are assumed in an axiomatic manner.
+One famous and very common set of such assumptions is that of expected utility theory.
+Here, the rationality, continuity, and independence of preferences is assumed.
+The von-Neumann-Morgenstern Utility theorem shows that these assumptions are necessary
+and sufficient for an expected utility function to exists.
+This theorem was proven by Neumann and Morgenstern in ``Theory of Games and Economic Behavior''
+which is regarded as one of the most influential works in game theory.
+
+We formalize these results in Isabelle/HOL. The formalization includes
+formal definitions of the underlying concepts including continuity
+and independence of preferences.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+\input{session}
+
+\section{Related work}
+Formalizations in Social choice theory has been formalized by
+Wiedijk~\cite{Wiedijk2009},
+Nipkow~\cite{DBLP:journals/afp/Nipkow08b}, and Gammie~\cite{SenSocialChoice:AFP,StableMatching:AFP}.
+Vestergaard~\cite{DBLP:journals/ipl/Vestergaard06},
+Le Roux, Martin-Dorel,
+and Soloviev~\cite{DBLP:conf/tphol/Roux09,DBLP:journals/corr/abs-1709-02096} provide formalizations
+of results in game theory.
+A library for algorithmic game theory in Coq is described in\cite{JFR7235}.
+
+Related work in economics includes the verification of financial
+systems~\cite{passmoreInf}, binomial pricing
+models~\cite{DBLP:conf/cade/EchenimP17},
+and VCG-Auctions~\cite{kerber2013developing}. In
+microeconomics we discussed a formalization of two economic models and
+the First Welfare Theorem~\cite{Parsert:2018:FMF:3176245.3167100}.
+
+To our knowledge the only work that uses expected utility theory is
+that of Eberl~\cite{Randomised:Social:ChoiceAFP}.
+Since we focus on the underlying theory of expected utility, we found that
+there is only little overlap.
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,301 @@
+@InProceedings{chen-2014,
+author="Chen, Geng
+and Cohen, Ernie
+and Kovalev, Mikhail",
+editor="Giannakopoulou, Dimitra
+and Kroening, Daniel",
+title="Store Buffer Reduction with {MMU}s",
+booktitle="Verified Software: Theories, Tools and Experiments",
+year="2014",
+publisher="Springer International Publishing",
+address="Cham",
+pages="117--132",
+abstract="A fundamental problem in concurrent system design is to identify flexible programming disciplines under which weak memory models provide sequential consistency. For x86-TSO, a suitable reduction theorem for threads that communicate only through shared memory was given by Cohen and Schirmer [6]. However, this theorem cannot handle programs that edit their own page tables (e.g., memory managers, hypervisors, and some device drivers). The problem lies in the interaction between a program thread and the hardware MMU that provides its address translation: the MMU cannot be treated as a separate thread (since it implicitly communicates with the program thread), nor as part of the program thread itself (since MMU reads do not snoop the store buffer of the program thread). We generalize the Cohen-Schirmer reduction theorem to handle programs that edit their page tables. The added conditions prevent the MMU of a thread from walking page table entries owned by other threads.",
+isbn="978-3-319-12154-3"
+}
+
+@InProceedings{Oberhauser-2016,
+author="Oberhauser, Jonas",
+editor="Gurfinkel, Arie
+and Seshia, Sanjit A.",
+title="A Simpler Reduction Theorem for x86-TSO",
+booktitle="Verified Software: Theories, Tools, and Experiments",
+year="2016",
+publisher="Springer International Publishing",
+address="Cham",
+pages="142--164",
+abstract="The memory model of x86-TSO allows code to run in weakly synchronous fashion, resulting in a smaller memory bottleneck but also possibly causing inconsistent memory effects. Cohen and Schirmer [5] described an efficient software discipline which provably provides sequential consistency. The contribution of this paper is threefold:We extend the Cohen-Schirmer discipline to handle non-triangular races as defined by Owens [10], for which the Cohen-Schirmer discipline introduces unnecessary fences.We describe the discipline in terms of C11 data races and atomic accesses, and conclude that the behaviour of data-race-free programs is unchanged when executed on x86-TSO if no atomic load is issued by a thread whose store buffer contains an atomic store.We give a considerably simpler proof of this fact.",
+isbn="978-3-319-29613-5"
+}
+
+
+
+@inproceedings{Sober,
+ author = {Burckhardt, Sebastian and Musuvathi, Madanlal},
+ title = {Effective Program Verification for Relaxed Memory Models},
+ booktitle = {CAV '08: Proceedings of the 20th international conference on Computer Aided Verification},
+ year = {2008},
+ isbn = {978-3-540-70543-7},
+ pages = {107--120},
+ location = {Princeton, NJ, USA},
+ doi = {http://dx.doi.org/10.1007/978-3-540-70545-1_12},
+ publisher = {Springer-Verlag},
+ address = {Berlin, Heidelberg},
+ }
+
+@techreport{CoSch09, 
+AUTHOR = {Cohen, Ernie and Schirmer, Norbert},
+TITLE = {A Better Reduction Theorem for Store Buffers},
+YEAR = {2009},
+institution = {},
+note = {\url{http://arxiv.org/abs/0909.4637v1}},
+}
+
+@TechReport{Owens-draft,
+  author =       {Scott Owens},
+  title =        {Reasoning about the Implementation of Concurrency Abstractions on {x86-TSO}},
+  institution =  {University of Cambridge},
+  year =         {2009},
+}
+
+
+@inproceedings{Nipkow-FSTTCS-96,author={Tobias Nipkow},
+title={Winskel is (almost) Right: Towards a Mechanized Semantics Textbook},
+booktitle=
+{Foundations of Software Technology and Theoretical Computer Science},
+editor={V. Chandru and V. Vinay},
+publisher=Springer,series=LNCS,volume=1180,year=1996,pages={180--192}}
+
+@InProceedings{Cohen:ITP2010-,
+author = "Ernie Cohen and Bert Schirmer",
+title =  "From Total Store Order to Sequential Consistency: {A} Practical Reduction Theorem",
+Editor = "Matt Kaufmann and Lawrence Paulson and Michael Norrish",
+booktitle = "Interactive Theorem Proving (ITP 2010)",
+address =      "Edinburgh, UK",
+year =         "2010",
+publisher =    "Springer",
+volume    = "6172",
+series =       "Lecture Notes in Computer Science",
+}
+
+@InProceedings{Ballarin:TYPES03-34,
+  author =       "Clemens Ballarin",
+  title =        "Locales and Locale Expressions in {Isabelle/Isar}",
+  booktitle =    "Types for Proofs and Programs, International Workshop,
+                 TYPES 2003, Torino, Italy, April 30 -- May 4, 2003,
+                 Revised Selected Papers",
+  year =         "2003",
+  pages =        "34--50",
+  ee =           "http://springerlink.metapress.com/content/gakaubj0npcynlqn",
+  editor =       "Stefano Berardi and Mario Coppo and Ferruccio
+                 Damiani",
+  publisher =    "Springer",
+  series =       LNCS,
+  volume =       "3085",
+}
+Book: year =         "2004",
+
+@InProceedings{Ballarin:MKM06-31,
+  author =       "Clemens Ballarin",
+  title =        "Interpretation of Locales in {Isabelle}: {Theories}
+                 and Proof Contexts",
+  booktitle =    "Mathematical Knowledge Management, 5th International
+                 Conference, MKM 2006, Wokingham, UK, August 11--12,
+                 2006, Proceedings",
+  year =         "2006",
+  pages =        "31--43",
+  ee =           "http://dx.doi.org/10.1007/11812289_4",
+  editor =       "Jonathan M. Borwein and William M. Farmer",
+  publisher =    "Springer",
+  series =       LNCS,
+  volume =       "4108",
+}
+
+@Book{Paulson:IGTP94,
+  author =       "Lawrence C. Paulson",
+  title =        "{Isabelle}: {A} Generic Theorem Prover",
+  publisher =    "Springer",
+  series =       LNCS,
+  volume =       "828",
+  year =         "1994",
+  doi =          "http://dx.doi.org/10.1007/BFb0030541",
+}
+
+@Book{Nipkow:IHOL02,
+  author =       "Tobias Nipkow and Lawrence C. Paulson and Markus Wenzel",
+  title =        "Isabelle/{HOL}: {A} Proof Assistant for Higher-Order Logic",
+  publisher =    "Springer",
+  series =       LNCS,
+  volume =       "2283",
+  year =         "2002",
+}
+
+@InProceedings{Owens:TPHOL09-?,
+  author =       "Scott Owens and Susmit Sarkar and Peter Sewell",
+  title =        "A better x86 memory model: {x86-TSO}",
+  year =         "2009",
+  series =       LNCS,
+  booktitle =    "22nd International Conference on Theorem Proving in Higher Order Logics (TPHOLs 2009)",
+  publisher =    Springer,
+  editor =       "",
+}
+  TODO has now appeared, complete entry
+
+@InProceedings{conf/tphol/Ridge07,
+  OPTkey = ridge07operational,
+  title =	"Operational Reasoning for Concurrent {Caml} Programs and
+		 Weak Memory Models",
+  author =	"Tom Ridge",
+  bibdate =	"2007-08-29",
+  bibsource =	"DBLP,
+		 http://dblp.uni-trier.de/db/conf/tphol/tphol2007.html#Ridge07",
+  booktitle =	"Theorem Proving in Higher Order Logics, 20th
+		 International Conference, {TPHOL}s 2007,
+		 Kaiserslautern, Germany, September 10-13, 2007,
+		 Proceedings",
+  publisher =	Springer,
+  year = 	"2007",
+  volume =	"4732",
+  editor =	"Klaus Schneider and Jens Brandt",
+  ISBN = 	"978-3-540-74590-7",
+  pages =	"278--293",
+  series =	LNCS,
+  noTeXtra = { <a href="doc/ridge07tphols.pdf">ridge07tphols.pdf</a> }
+}
+
+@inproceedings{DBLP:conf/ecoop/SevcikA08,
+  author    = {Jaroslav Sevc\'{\i}k and
+               David Aspinall},
+  title     = {On Validity of Program Transformations in the {Java} Memory
+               Model},
+  booktitle = {ECOOP},
+  year      = {2008},
+  pages     = {27-51},
+  ee        = {http://dx.doi.org/10.1007/978-3-540-70592-5_3},
+  crossref  = {DBLP:conf/ecoop/2008},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/ecoop/2008,
+  editor    = {Jan Vitek},
+  title     = {ECOOP 2008 - Object-Oriented Programming, 22nd European
+               Conference, Paphos, Cyprus, July 7-11, 2008, Proceedings},
+  booktitle = {ECOOP},
+  publisher = Springer,
+  series    = LNCS,
+  volume    = {5142},
+  year      = {2008},
+  isbn      = {978-3-540-70591-8},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{DBLP:conf/tphol/AspinallS07,
+  author    = {David Aspinall and
+               Jaroslav Sevc\'{\i}k},
+  title     = {Formalising {Java}'s Data Race Free Guarantee},
+  booktitle = {TPHOLs},
+  year      = {2007},
+  pages     = {22-37},
+  ee        = {http://dx.doi.org/10.1007/978-3-540-74591-4_4},
+  crossref  = {DBLP:conf/tphol/2007},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/tphol/2007,
+  editor    = {Klaus Schneider and
+               Jens Brandt},
+  title     = {Theorem Proving in Higher Order Logics, 20th International
+               Conference, TPHOLs 2007, Kaiserslautern, Germany, September
+               10-13, 2007, Proceedings},
+  booktitle = {TPHOLs},
+  publisher = Springer,
+  series    = LNCS,
+  volume    = {4732},
+  year      = {2007},
+  isbn      = {978-3-540-74590-7},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@Article{Adve:Computer-29-12-66,
+        author = "Sarita V. Adve and Kourosh Gharachorloo",
+        title = "Shared Memory Consistency Models: {A} Tutorial",
+        journal = "IEEE Computer",
+        volume = "29",
+        number = "12",
+        year = "1996",
+        ISSN = "0018-9162",
+        pages = "66--76",
+        doi = "http://dx.doi.org/10.1109/2.546611",
+        publisher = "IEEE Computer Society Press",
+}
+
+@inproceedings{DBLP:conf/tphol/Ridge07,
+  author    = {Tom Ridge},
+  title     = {Operational Reasoning for Concurrent {Caml} Programs and Weak
+               Memory Models},
+  booktitle = {TPHOLs},
+  year      = {2007},
+  pages     = {278-293},
+  ee        = {http://dx.doi.org/10.1007/978-3-540-74591-4_21},
+  crossref  = {DBLP:conf/tphol/2007},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@InProceedings{ridge09popl,
+  author =       {Tom Ridge},
+  title =        {Verifying Distributed Systems: the Operational Approach},
+  booktitle = "POPL",
+  OPTeditor =	"TBD",
+  year = "2009",
+  note =        {},
+  noTeXtra = {To appear. <a href="doc/ridge09popl.pdf">ridge09popl.pdf</a>}
+}
+
+
+
+
+@Misc{IntelWhitePaper,
+  author = 	 {Intel},
+  title = 	 {Intel 64 architecture memory ordering white paper},
+  howpublished = {SKU 318147-001},
+  year = 	 {2007},
+
+}
+
+@Book{AMD:AMD64A2006-ALL,
+  author =       "{Advanced Micro Devices (AMD), Inc.}",
+  title =        "{AMD64} Architecture Programmer's Manual:
+                              {Volumes} 1--3",
+  note = "rev. 3.14",
+  month =        sep,
+  year =         "2007",
+
+}
+
+@Book{Intel:IIA2006-ALL,
+  author =       "{Intel Corporation}",
+  title =        "{Intel 64} and {IA-32} Architectures Software Developer's Manual:
+                      {Volumes} 1--3b",
+  note = "rev. 29",
+  month =        march,
+  year =         "2009",
+}
+  publisher =    "Intel Corporation",
+  address =      "Santa Clara, CA, USA",
+
+@inproceedings{weakpaper,
+	abstract = {Multiprocessors are now dominant, but real multiprocessors do not provide the sequentially consistent memory that is assumed by most work on semantics and verification. Instead, they have subtle relaxed (or weak) memory models, usually described only in ambiguous prose, leading to widespread confusion.},
+	address = {New York, NY, USA},
+	author = {Sarkar, Susmit   and Sewell, Peter   and Nardelli, Francesco  Z.  and Owens, Scott   and Ridge, Tom   and Braibant, Thomas   and Myreen, Magnus  O.  and Alglave, Jade  },
+	booktitle = {POPL '09: Proceedings of the 36th annual ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
+	citeulike-article-id = {4065199},
+	doi = {10.1145/1480881.1480929},
+	isbn = {978-1-60558-379-2},
+	keywords = {cache\_coherence, intel, x86},
+	location = {Savannah, GA, USA},
+	pages = {379--391},
+	posted-at = {2009-03-09 17:04:59},
+	priority = {2},
+	publisher = {ACM},
+	title = {The semantics of {x86-CC} multiprocessor machine code},
+	url = {http://dx.doi.org/10.1145/1480881.1480929},
+	year = {2009}
+}

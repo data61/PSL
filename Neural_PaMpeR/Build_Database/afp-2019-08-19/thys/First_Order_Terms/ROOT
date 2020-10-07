@@ -1,0 +1,20 @@
+chapter AFP
+
+session First_Order_Terms (AFP) = "Abstract-Rewriting" +
+  description "First-Order Terms"
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+  theories
+    Transitive_Closure_More
+  theories
+    Seq_More
+    Fun_More
+    Option_Monad
+  theories
+    Matching
+    Unification
+    Subsumption
+  document_files
+    "root.tex"
+    "root.bib"

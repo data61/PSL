@@ -1,0 +1,147 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{A Mechanically Verified, Efficient, Sound and Complete Theorem Prover For First Order Logic}
+\author{Tom Ridge}
+\maketitle
+
+\begin{abstract}
+  Building on work by Wainer and Wallen, formalised by James
+  Margetson, we present soundness and completeness proofs for a system
+  of first order logic. The completeness proofs naturally suggest an
+  algorithm to derive proofs. This algorithm can be implemented in a
+  tail recursive manner. We provide the formalisation in Isabelle/HOL\@.
+  The algorithm can be executed via the rewriting tactics of Isabelle.
+  Alternatively, we transport the definitions to OCaml, to give a
+  directly executable program.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+Wainer and Wallen gave soundness and completeness proofs for first
+order logic in \cite{Wainer:92}. This material was later formalised by
+James Margetson \cite{margetson99completeness}. We ported this to the
+current version of Isabelle in \cite{margetson04completeness}. Drawing
+on some of the proofs in previous versions, especially the proof of
+soundness for the $\forall I$ rule, we formalise modified proofs, for
+a related system. Implicit in \cite{Wainer:92}, and noted by Margetson
+in \cite{margetson99completeness}, is that the proofs of completeness
+suggest a constructive algorithm. We derive this algorithm, which
+turns out to be tail recursive, and this is the origin of our claim
+for efficiency. The algorithm can be executed in Isabelle using the
+rewriting engine. Alternatively, we provide an implementation in
+Ocaml.
+
+\section{Formalisation}
+% include generated text of all theories
+\input{session}
+
+\section{Optimisation and Extension}
+
+There are plenty of obvious optimisations. The first medium level
+optimisation is to avoid the recomputation of newvars by incorporating
+the maxvar into a sequent. At a low level, most of the list operations
+are just moving a pointer along a list: only FConj requires
+duplicating a list. Reporting ``not provable'' on obviously non-provable
+goals would be useful, as would a more efficient choice of witnessing
+terms for existentials.
+
+In terms of extensions, the obvious targets
+are function terms and equality. 
+
+
+
+\section{OCaml Implementation}
+
+\begin{verbatim}
+open List;;
+
+type pred = int;;
+
+type var = int;;
+
+type form = 
+    PAtom of (pred*(var list))
+  | NAtom of (pred*(var list))
+  | FConj of form * form
+  | FDisj of form * form
+  | FAll of form
+  | FEx of form
+;;
+
+let rec preSuc t = match t with
+    [] -> []
+  | (a::list) -> (match a with 0 -> preSuc list | sucn -> (sucn-1::preSuc list));;
+
+let rec fv t = match t with
+    PAtom (p,vs) -> vs
+  | NAtom (p,vs) -> vs
+  | FConj (f,g) -> (fv f)@(fv g)
+  | FDisj (f,g) -> (fv f)@(fv g)
+  | FAll f -> preSuc (fv f)
+  | FEx f -> preSuc (fv f);;
+
+let suc x = x+1;;
+
+let bump phi y = match y with 0 -> 0 | sucn -> suc (phi (sucn-1));;
+
+let rec subst r f = match f with
+    PAtom (p,vs) -> PAtom (p,map r vs)
+  | NAtom (p,vs) -> NAtom (p,map r vs)
+  | FConj (f,g) -> FConj (subst r f, subst r g)
+  | FDisj (f,g) -> FDisj (subst r f, subst r g)
+  | FAll f -> FAll (subst (bump r) f)
+  | FEx f -> FEx (subst (bump r) f);;
+
+let finst body w = subst (fun v -> match v with 0 -> w | sucn -> (sucn-1)) body;;
+
+let s_of_ns ns = map snd ns;;
+
+let sfv s = flatten (map fv s);;
+
+let rec maxvar t = match t with
+    [] -> 0
+  | (a::list) -> max a (maxvar list);;
+
+let newvar vs = suc (maxvar vs);;
+
+let subs t = match t with 
+    [] -> [[]]
+  | (x::xs) -> let (m,f) = x in
+      match f with 
+          PAtom (p,vs) -> if mem (NAtom (p,vs)) (map snd xs) then [] else [xs@[(0,PAtom (p,vs))]]
+        | NAtom (p,vs) -> if mem (PAtom (p,vs)) (map snd xs) then [] else [xs@[(0,NAtom (p,vs))]]
+        | FConj (f,g)  -> [xs@[(0,f)];xs@[(0,g)]]
+        | FDisj (f,g) -> [xs@[(0,f);(0,g)]]
+        | FAll f -> [xs@[(0,finst f (newvar (sfv (s_of_ns (x::xs)))))]]
+        | FEx f -> [xs@[(0,finst f m);(suc m,FEx f)]];;
+
+let rec prove' l = (if l = [] then true else prove' ((fun x -> flatten (map subs x)) l));;
+
+let prove s = prove' [s];;
+
+let my_f = FDisj (
+  (FAll (FConj ((NAtom (0,[0])), (NAtom (1,[0])))),
+  (FDisj ((FEx ((PAtom (1,[0])))),(FEx (PAtom (0,[0])))))));;
+
+prove [(0,my_f)];;
+\end{verbatim}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

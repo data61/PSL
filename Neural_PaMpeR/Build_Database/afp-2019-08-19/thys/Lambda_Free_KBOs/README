@@ -1,0 +1,77 @@
+This archive contains the Isabelle formalization of the results presented in
+the paper
+
+    Transfinite Knuth--Bendix Orders for Lambda-Free Higher-Order Terms
+    by Heiko Becker, Jasmin Christian Blanchette, Uwe Waldmann, and Daniel Wand
+
+and in the accompanying report. References to definitions, lemmas, and
+theorems below are given for the report. The corresponding number for the
+paper is given in square brackets when applicable.
+
+The ".thy" files are Isabelle theory files. They can be processed as follows:
+
+    isabelle jedit Lambda_Free_KBOs.thy
+
+The main files are
+
+    Lambda_Free_KBO_Std.thy
+    Lambda_Free_TKBO_Coefs.thy
+
+Section 2 ("Extension Orders") is formalized in
+"../Lambda_Free_RPO/Extension_Orders.thy":
+
+  * Lemma 1 corresponds to "lemma wf_same_length_if_total".
+  * Lemma 2 corresponds to "lemma wf_bounded_if_total".
+  * Lemma 3 corresponds to "lemma wf_bounded".
+  * Definition 4 corresponds to "inductive lexext".
+  * Definition 5 corresponds to "definition lenext".
+  * Definition 6 corresponds to "definition msetext_huet".
+  * Definition 7 corresponds to "definition cwiseext".
+
+Section 3 ("Ordinals") is formalized in "../Nested_Multisets_Ordinals/".
+
+Section 4.2 ("The Applicative KBO") is formalized in
+"Lambda_Free_KBO_App.thy":
+
+  * Definition 10 corresponds to "inductive gt".
+
+Section 4.3 ("The Graceful Higher-Order Basic KBO") is formalized in
+"Lambda_Free_KBO_Basic.thy":
+
+  * Definition 11 corresponds to "inductive gt".
+
+Section 4.4 ("The Graceful Higher-Order KBO") is formalized in
+"Lambda_Free_KBO_Std.thy":
+
+  * Definition 13 corresponds to "inductive gt".
+
+Section 4.5 ("The Graceful Higher-Order KBO with Argument Coefficients") is
+formalized in "Lambda_Free_TKBO_Coefs.thy":
+
+  * Definition 15 corresponds to "inductive gt".
+
+Section 5 is formalized in "Lambda_Free_TKBO_Coefs.thy":
+
+  * Theorem 18 [16] corresponds to "theorem gt_irrefl".
+  * Lemma 19 corresponds to "lemma gt_imp_wt".
+  * Lemma 20 corresponds to "lemma wt_ge_\<epsilon>\<^sub>h".
+  * Lemma 21(1) corresponds to "lemma wt_App_ge_fun" and
+    "lemma wt_App_ge_arg".
+  * Lemma 21(2) corresponds to "lemma wt_App_fun_\<delta>\<^sub>h",
+    "lemma wt_App_fun_\<delta>\<^sub>h", and
+    "lemma wt_\<delta>\<^sub>h_imp_\<delta>\<^sub>h_eq_\<epsilon>\<^sub>h"
+  * Lemma 22 corresponds to
+    "lemma not_extf_gt_nil_singleton_if_\<delta>\<^sub>h_eq_\<epsilon>\<^sub>h".
+  * Lemma 23 corresponds to "lemma gt_sub_arg".
+  * Theorem 24 [17] corresponds to "theorem gt_trans".
+  * Lemma 25 corresponds to "lemma gt_sub_fun".
+  * Theorem 26 [18] corresponds to "theorem gt_proper_sub".
+  * Theorem 27 [19] corresponds to "theorem gt_compat_fun_strong".
+  * Theorem 28 [20] corresponds to "theorem gt_compat_arg_weak".
+  * Definition 29 [21] corresponds to "primrec subst_zpassign".
+  * Lemma 30 [22] corresponds to "lemma legal_subst_zpassign".
+  * Theorem 31 [23] corresponds to "theorem gt_subst".
+  * Theorem 32 [24] corresponds to "theorem gt_total_ground".
+  * Lemma 33 [25] partly corresponds to
+    "lemma sum_coefs_ge_num_args_if_\<delta>\<^sub>h_eq_0".
+  * Theorem 34 [26] corresponds to "theorem gt_wf".

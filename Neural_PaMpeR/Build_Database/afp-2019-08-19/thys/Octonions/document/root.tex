@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Octonions}
+\author{Angeliki Koutsoukou-Argyraki}
+\maketitle
+
+\begin{abstract}
+We develop the basic theory of Octonions, including various identities and properties of the
+octonions and of the octonionic product, a description of 7D isometries and representations
+of orthogonal transformations. To this end we first develop the theory of the vector cross product 
+in 7 dimensions. The development of the theory of Octonions is inspired by that of the theory of
+Quaternions by Lawrence Paulson. However, we do not work within the type class 
+\textit{real\_algebra\_1} because the octonionic product is not associative.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\noindent\textbf{Acknowledgements.}\ A.K.-A. was supported by the ERC Advanced Grant ALEXANDRIA (Project 742178) funded
+by the European Research Council and led by Professor Lawrence Paulson at the University 
+of Cambridge, UK. Many thanks to Manuel Eberl, Wenda Li and Lawrence Paulson for their
+suggestions and improvements.
+
+
+% include generated text of all theories
+\input{session}
+\nocite{*}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

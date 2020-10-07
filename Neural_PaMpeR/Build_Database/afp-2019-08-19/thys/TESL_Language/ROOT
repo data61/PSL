@@ -1,0 +1,19 @@
+chapter AFP
+session "TESL_Language" (AFP) = HOL + 
+  description "The Tagged Events Specification Language"
+  options [timeout = 1200]
+  theories
+    Introduction
+    TESL
+    Run 
+    Denotational
+    Operational
+    SymbolicPrimitive Corecursive_Prop
+    Hygge_Theory
+    StutteringDefs StutteringLemmas Stuttering
+    Config_Morphisms
+  document_files
+    "root.tex"
+    "root.bib"
+    "figures/glue.pdf"
+    "figures/dilating.pdf"

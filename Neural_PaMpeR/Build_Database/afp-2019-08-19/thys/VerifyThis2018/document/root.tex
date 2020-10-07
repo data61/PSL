@@ -1,0 +1,100 @@
+\documentclass[11pt,a4paper]{book}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+  
+\usepackage{titlesec}
+
+\usepackage{amsmath,amsfonts,amsbsy,amssymb}
+\usepackage[scaled=.82]{beramono}
+\usepackage[scaled=.92]{helvet}
+\usepackage{mathptmx}
+\usepackage{t1enc,textcomp,upquote,listings}
+\usepackage{multicol}
+
+\lstset{basicstyle=\ttfamily,upquote,escapeinside={<@}{@>},
+        frame=none,showstringspaces=false,xleftmargin=\parindent,
+        literate={À}{{\`{A}}}1 {Á}{{\'{A}}}1 {Â}{{\^{A}}}1 {Ä}{{\"{A}}}1
+                 {Ç}{{\c{C}}}1 {È}{{\`{E}}}1 {É}{{\'{E}}}1 {Ê}{{\^{E}}}1
+                 {Ë}{{\"{E}}}1 {Î}{{\^{I}}}1 {Ï}{{\"{I}}}1 {Ô}{{\^{O}}}1
+                 {Ö}{{\"{O}}}1 {Ù}{{\`{U}}}1 {Û}{{\^{U}}}1 {à}{{\`{a}}}1
+                 {á}{{\'{a}}}1 {â}{{\^{a}}}1 {ä}{{\"{a}}}1 {ç}{{\c{c}}}1
+                 {è}{{\`{e}}}1 {é}{{\'{e}}}1 {ê}{{\^{e}}}1 {ë}{{\"{e}}}1
+               {î}{{\^{\i}}}1 {ï}{{\"{\i}}}1 {ô}{{\^{o}}}1 {ö}{{\"{o}}}1
+                 {ù}{{\`{u}}}1 {û}{{\^{u}}}1 {`}{{\symbol{0}}}1 }
+  
+  
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries}{}{0pt}{\huge}
+
+\makeatletter
+\newenvironment{abstract}{%
+  \small
+  \begin{center}%
+    {\bfseries Abstract\vspace{-.5em}\vspace{\z@}}%
+  \end{center}%
+  \quotation}{\endquotation}
+\makeatother
+
+\begin{document}
+
+\title{VerifyThis 2018 - Polished Isabelle Solutions}
+\author{Peter Lammich \and Simon Wimmer}
+\maketitle
+
+\begin{trivlist}
+\item \textbf{Abstract.}
+  VerifyThis 2018 \url{http://www.pm.inf.ethz.ch/research/verifythis.html}
+was a program verification competition associated with
+ETAPS 2018. It was the 7th event in the VerifyThis competition series.
+In this entry, we present polished and completed versions of our solutions that we
+created during the competition.
+\end{trivlist}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

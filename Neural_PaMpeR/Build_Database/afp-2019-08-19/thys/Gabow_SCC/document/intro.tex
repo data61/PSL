@@ -1,0 +1,44 @@
+\section{Introduction}\label{sec:intro}
+A strongly connected component (SCC) of a directed graph is a maximal subset of mutually reachable nodes.
+Finding the SCCs is a standard problem from graph theory with applications in many fields (\cite[Chap.~4.2]{SeWa11}).
+
+This formalization accompanies our conference paper~\cite{La14_ITP}, where 
+we describe the used formalization techniques.
+
+There are several algorithms to partition the nodes of a graph into SCCs, the main ones being the Kosaraju-Sharir algorithm\cite{Sharir81},
+Tarjan's algorithm\cite{Tarjan72}, and the class of path-based algorithms\cite{Purdom70,Munro71,Dijk76,ChMe96,Gabow00}.
+
+In this formalization, we present the verification of Gabow's path-based SCC-algorithm\cite{Gabow00} within the theorem prover Isabelle/HOL\cite{npw02}.
+Using refinement techniques and a collection of efficient verified data structures, we extract Standard ML (SML)\cite{MTHM97} code from
+the formalization. Our verified algorithm has a performance comparable to a reference implementation in Java, taken from Sedgewick and Wayne's textbook on algorithms\cite[Chap.~4.2]{SeWa11}.
+
+Our main interest in SCC-algorithms stems from the fact that they can be used for the emptiness check of generalized B\"uchi automata (GBA),
+a problem that arises in LTL model checking\cite{VaWo94,GeVa05,CDP05}. Towards this end, we extend the algorithm to check the emptiness of generalized B\"uchi automata,
+re-using many of the proofs from the original verification.
+
+\paragraph{Contributions and Related Work}
+Up to our knowledge, we present the first mechanically verified SCC-algorithm, as well as the first mechanically verified SCC-based emptiness check
+for GBA. Path-based algorithms have already been regarded for the emptiness check of GBAs\cite{RDKP13}. However,
+we are the first to use the data structure proposed by Gabow\cite{Gabow00}.\footnote{Although called Gabow-based algorithm in \cite{RDKP13},
+a union-find data structure is used to implement collapsing of nodes, while Gabow proposes a different data structure\cite[pg.~109]{Gabow00}}
+Finally, our development is a case study for using the Isabelle/HOL Monadic Refinement and Collection Frameworks\cite{LL10,LaTu12,La12,La13} to
+engineer a verified, efficient implementation of a quite complex algorithm, while keeping proofs modular and re-usable.
+
+This development is part of the CAVA project\cite{elnn13} to produce a fully verified LTL model checker.
+    
+\paragraph{Outline}
+The rest of this formalization is organized as follows: 
+In Section~\ref{sec:skel}, we define a skeleton algorithm and show preservation
+of some general-purpose invariants. In Section~\ref{sec:scc}, we define 
+and prove correct an algorithm that takes a directed graph and computes a list
+of SCCs in topological order. In Section~\ref{sec:find_path} we provide a simple 
+safety property modelchecker, which tries to find a path to a node violating a
+given property in a graph. This is used in Section~\ref{sec:gbg}, where we
+define an algorithm that checks the language of a given generalized B\"uchi 
+graph\footnote{GBGs are generalized B\"uchi automata without labels.} (GBG)
+for emptiness, and returns a counterexample in case of non-emptiness.
+In the next three sections 
+(\ref{sec:skel_code}, \ref{sec:scc_code}, \ref{sec:find_path_impl},\ref{sec:gbg_code}) we use 
+the Autoref Tool\cite{La13} to refine the above algorithms to efficient 
+data structures, and extract SML code using Isabelle/HOL's code 
+generator\cite{Haft09,HaNi10}.

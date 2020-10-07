@@ -1,0 +1,174 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Properties of Orderings and Lattices}
+\author{Georg Struth}
+
+\maketitle
+
+\begin{abstract}
+  These components add further fundamental order and lattice-theoretic
+  concepts and properties to Isabelle's libraries.  They follow by and
+  large the introductory sections of the \emph{Compendium of
+    Continuous Lattices},  covering directed and filtered sets,
+  down-closed and up-closed sets, ideals and filters, Galois
+  connections, closure and co-closure operators. Some emphasis is on
+  duality and morphisms between structures---as in the Compendium.  To
+  this end, three ad-hoc approaches to duality are compared.
+\end{abstract}
+
+
+\tableofcontents
+
+\section{Introductory Remarks}
+
+Basic order- and lattice-theoretic concepts are well covered in
+Isabelle's libraries, and widely used. More advanced components are
+spread out over various sites
+(e.g.~\cite{Wenzel,Preoteasa11a,Preoteasa11b,ArmstrongS12,GomesS15,Ballarin}).
+
+This formalisation takes the initial steps towards a modern structural
+approach to orderings and lattices, as for instance in
+denotational semantics of programs, algebraic logic or pointfree
+topology.  Building on the components for orderings and lattices in
+Isabelle's main libraries, it follows the classical textbook \emph{A
+  Compendium of Continuous Lattices}~\cite{GierzHKLMS80} and, to a
+lesser extent, Johnstone's monograph on \emph{Stone
+  Spaces}~\cite{Johnstone82}. By integrating material from
+other sources and extending it, a formalisation of undergraduate-level
+textbook material on orderings and lattices might eventually emerge.
+
+In the textbooks mentioned, concepts such as dualities, isomorphisms
+between structures and relationships between categories are
+emphasised.  These are essential to modern mathematics beyond
+orderings and lattices; their formalisation with interactive theorem
+provers is therefore of wider interest. Nevertheless such notions seem
+rather underexplored with Isabelle, and I am not aware of a standard
+way of modelling and using them. The present setting is perhaps the
+simplest one in which their formalisation can be studied.
+
+These components use Isabelle's axiomatic approach without carrier
+sets. This is certainly a limitation, but it can be taken quite
+far. Yet well known facts such as Tarski's theorem---the set of
+fixpoints of an isotone endofunction on a complete lattice forms a
+complete lattice---seem hard to formalise with it (at least without
+using recent experimental extensions~\cite{Kuncar016}).
+
+Firstly, leaner versions of complete lattices are introduced:
+Sup-lattices (and their dual Inf-lattices), in which only Sups (or
+Infs) are axiomatised, whereas the remaining operators, which are
+axiomatised in the standard Isabelle class for complete lattices, are
+defined explicitly.  This not only reduces of proof obligations in
+instantiation or interpretation proofs, it also helps in constructions
+where only suprema are represented faithfully (e.g. using morphisms
+that preserve sups, but not infs, or vice versa).  At the moment,
+Sup-lattices remain rather loosely integrated into Isabelle's lattice
+hierarchy; a tighter one seems rather delicate.
+
+Order and lattice duality is modelled, rather ad hoc, within a type
+class that can be added to those for orderings and lattices.  Duality
+thus becomes a functor that reverses the order and maps Sups to Infs
+and vice versa, as expected. It also maps order-preserving functions
+to order-preserving functions, Sup-preserving to Inf-preserving ones
+and vice versa. This simple approach has not yet been optimised for
+automatic generation of dual statements (which seems hard to achieve
+anyway). It works quite well on simple examples.
+
+The class-based approach to duality is contrasted by an implicit,
+locale-based one (which is quite standard in Isabelle), and Wenzel's
+data-type-based one~\cite{Wenzel}. Wenzel's approach generates many
+properties of the duality functor automatically from Isabelle's data
+type package. However, duality is not involutive, and this limits the
+dualisation of theorems quite severely. The local-based approach
+dualises theorems within the context of a type class or locale highly
+automatically.  But, unlike the present approach, it is limited to
+such contexts. Yet another approach to duality has been taken in
+HOL-Algebra~\cite{Ballarin}, but it is essentially based on set theory
+and therefore beyond the reach of simple axiomatic type classes.
+
+The components presented also cover fundamental concepts such as
+directed and filtered sets, down-closed and up-closed sets, ideals and
+filters, notions of sup-closure and inf-closure, sup-preservation and
+inf-preservation, properties of adjunctions (or Galois connections)
+between orderings and (complete) lattices, fusion theorems for least
+and greatest fixpoints, and basic properties of closure and co-closure
+(kernel) operations, following the Compendium (most of these concepts
+come as dual pairs!). As in this monograph, emphasis lies on
+categorical aspects, but no formal category theory is used. In
+addition, some simple representation theorems have been formalised,
+including Stone's theorem for atomic boolean algebras (objects only).
+The non-atomic case seems possible, but is left for future
+work. Dealing with opposite maps properly, which is essential for
+dualities, remains an issue.
+
+Finally, in Isabelle's main libraries, complete distributive lattices
+and complete boolean algebras are currently based on a very strong
+distributivity law, which makes these structures \emph{completely
+  distributive} and is basically an Axiom of Choice.  While powerset
+algebras satisfy this law, other applications, for instance in
+topology require different axiomatisations.  Complete boolean
+algebras, in particular, are usually defined as complete lattices
+which are also boolean algebras. Hence only a finite distributivity
+law holds. Weaker distributivity laws are also essential for
+axiomatising complete Heyting algebras (aka frames or locales), which
+are relevant for point-free topology~\cite{Johnstone82}.
+
+Many questions remain, in particular on tighter integrations
+of duality and reasoning up to isomorphism with Isabelle and
+beyond. In its present form, duality is often not picked up in the proofs
+of more complex statements. Some statements from the Compendium and
+Johnstone's book had to be ignored due to the absence of carrier sets
+in Isabelle's standard components for orderings and lattices. Whether
+Kuncar and Popescu's new types-to-sets translation~\cite{Kuncar016}
+provides a satisfactory solution remains to be seen.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

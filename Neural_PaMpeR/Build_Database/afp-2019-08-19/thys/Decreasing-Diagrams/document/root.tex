@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{latexsym}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Decreasing-Diagrams}
+\author{Harald Zankl}
+\maketitle
+
+\begin{abstract}
+This theory contains a formalization of decreasing diagrams showing that any
+locally decreasing abstract rewrite system is confluent. We consider the valley
+(van Oostrom, TCS 1994) and the conversion version (van Oostrom, RTA 2008) and
+closely follow the original proofs. As an application we prove Newman's lemma.
+\end{abstract}
+
+A description of this formalization is available in~\cite{Z13}.
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

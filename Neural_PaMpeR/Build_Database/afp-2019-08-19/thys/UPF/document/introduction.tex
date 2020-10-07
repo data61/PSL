@@ -1,0 +1,55 @@
+\chapter{Introduction}
+Access control, \ie, restricting the access to information or
+resources, is an important pillar of today's information security
+portfolio. Thus the large number of access control models
+(\eg,~\cite{moyer.ea:generalized:2001,sandhu.ea:arbac97:1999,
+  sandhu.ea:nist:2000,ansi:rbac:2004,bell:looking:2005,bell.ea:secure:1996,oasis:xacml:2005,li.ea:critique:2007})
+and variants thereof
+(\eg,~\cite{ferreira.ea:how:2009,wainer.ea:dw-rbac:2007,ardagna.ea:access:2010,samuel.ea:context-aware:2008,bertino.ea:trbac:2001,ardagna.ea:access:2010,becker:information:2007})
+is not surprising. On the one hand, this variety of specialized access
+control models allows concise representation of access control
+policies. On the other hand, the lack of a common foundations makes it
+difficult to compare and analyze different access control models
+formally.
+
+We present formalization of the Unified Policy Framework
+(UPF)~\cite{bruegger:generation:2012} that provides a formal semantics
+for the core concepts of access control policiesb. It can serve as a
+meta-model for a large set of well-known access control
+policies and moreover, serve as a framework for analysis and test 
+generation tools addressing common ground in policy models. 
+Thus, UPF for comparing different access control models,
+including a formal correctness proof of a specific embedding, for
+example, implementing a role-based access control policy in terms of a
+discretionary access enforcement architecture. Moreover, defining
+well-known access control models by instantiating a unified policy
+framework allows to re-use tools, such as test-case generators, that
+are already provided for the unified policy framework. As the
+instantiation of a unified policy framework may also define a
+domain-specific (\ie, access control model specific) set of policy
+combinators (syntax), such an approach still provides the usual
+notations and thus a concise representation of access control
+policies.
+
+UPF was already successful used as a basis for large scale access
+control policies in the health care
+domain~\cite{brucker.ea:model-based:2011} as well as in the domain of
+firewall and router
+policies~\cite{brucker.ea:formal-fw-testing:2014}. In both domains,
+the formal policy specifications served as basis for the generation,
+using {HOL-TestGen}~\cite{brucker.ea:theorem-prover:2012}, of test
+cases that can be used for validating the compliance of an
+implementation to the formal model. UPF is based on the following four
+principles:
+\begin{enumerate}
+\item policies are represented as \emph{functions} (rather than relations),
+\item policy combination avoids conflicts by construction,
+\item the decision type is three-valued (allow, deny, undefined),
+\item the output type does not only contain the decision but also a
+      `slot' for arbitrary result data.
+\end{enumerate}
+
+UPF is related to the state-exception monad modeling failing computations; 
+in some cases our UPF model makes explicit use of this connection, although it
+is not central. The used theory for state-exception monads can be found in the 
+appendix.

@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Lazy-Lists-II" (AFP) = Coinductive +
+  options [timeout = 600]
+  theories
+    LList2
+  document_files
+    "root.bib"
+    "root.tex"

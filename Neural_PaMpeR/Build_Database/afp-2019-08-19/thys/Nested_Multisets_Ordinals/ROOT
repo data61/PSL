@@ -1,0 +1,16 @@
+chapter AFP
+
+session Nested_Multisets_Ordinals (AFP) = Ordinal +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "List-Index"
+  theories
+    Signed_Syntactic_Ordinal
+    Syntactic_Ordinal_Bridge
+    McCarthy_91
+    Hydra_Battle
+    Goodstein_Sequence
+    Unary_PCF
+  document_files
+    "root.tex"

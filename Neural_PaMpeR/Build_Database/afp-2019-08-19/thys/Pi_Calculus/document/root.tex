@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The pi-calculus}
+\author{Jesper Bengtson}
+\maketitle
+
+\begin{abstract}
+We formalise the pi-calculus using the nominal datatype package, based on ideas from the nominal logic by Pitts et al., and demonstrate an implementation in Isabelle/HOL. The purpose is to derive powerful induction rules for the semantics in order to conduct machine checkable proofs, closely following the intuitive arguments found in manual proofs. In this way we have covered many of the standard theorems of bisimulation equivalence and congruence, both late and early, and both strong and weak in a uniform manner. We thus provide one of the most extensive formalisations of a the pi-calculus ever done inside a theorem prover.
+
+A significant gain in our formulation is that agents are identified up to alpha-equivalence, thereby greatly reducing the arguments about bound names. This is a normal strategy for manual proofs about the pi-calculus, but that kind of hand waving has previously been difficult to incorporate smoothly in an interactive theorem prover. We show how the nominal logic formalism and its support in Isabelle accomplishes this and thus significantly reduces the tedium of conducting completely formal proofs. This improves on previous work using weak higher order abstract syntax since we do not need extra assumptions to filter out exotic terms and can keep all arguments within a familiar first-order logic.
+\end{abstract}
+
+\tableofcontents
+
+\section{Overview}
+
+The following results of the pi-calculus meta-theory are formalised,
+where the notation (e) means that the results cover the early
+operational semantics and (l) the late one.
+
+\begin{itemize}
+\item strong bisimilarity is preserved by all operators except the
+  input-prefix (e/l)
+\item strong equivalence is a congruence (e/l)
+\item weak bisimilarity is preserved by all operators except the
+  input-prefix and sum (e/l)
+\item weak congruence is a congruence (e/l)
+\item strong equivalence respect the laws of structural congruence (l)
+\item all strongly equivalent agents are also weakly congruent which in
+  turn are weakly bisimilar. Moreover, strongly equivalent agents are
+  also strongly bisimilar (e/l)
+\item all late equivalences are included in their early counterparts.
+\item as a corollary of the last three points, all mentioned equivalences
+  respect the laws of structural congruence
+\item the axiomatisation of the finite fragment of strong late
+  bisimilarity is sound and complete
+\item The Hennessy lemma (l)
+\end{itemize}
+
+The file naming convention is hopefully self-explanatory, where the
+prefixes \emph{Strong} and \emph{Weak} denote that the file covers theories
+required to formalise properties of strong and weak bisimilarity
+respectively; if the file name contians \emph{Early} or \emph{Late} the theories
+work with the early or the late operational semantics of the
+pi-calculus respectively; if the file name contains \emph{Sim} the theories
+cover simulation, file names containing \emph{Bisim} cover bisimulation,
+and file names containing \emph{Cong} cover weak congruence; files with the
+suffix \emph{Pres} deal with theories that reason about preservation
+properties of operators such as a certain simulation or bisimulation
+being preserved by a certain operator; files with the suffix \emph{SC} reason
+about structural congruence.
+
+For a complete exposition of all of theories, please consult Bengtson's
+Ph. D. thesis \cite{bengtson:thesis}. A shorter presentation can be found in our LMCS article
+'Formalising the pi-calculus using nominal logic' from 2009 \cite{bengtson:lmcs09}. A
+recollection of the axiomatisation results can be found in the SOS
+article 'A completeness proof for bisimulation in the pi-calculus
+using Isabelle' from 2007 \cite{bengtson:sos07}.
+
+% include generated text of all theories
+\section{Formalisation}
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

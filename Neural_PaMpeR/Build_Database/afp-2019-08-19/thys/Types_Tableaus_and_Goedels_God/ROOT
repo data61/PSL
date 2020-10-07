@@ -1,0 +1,16 @@
+chapter AFP
+
+session "Types_Tableaus_and_Goedels_God" (AFP) = "HOL" +
+  options [timeout = 300]
+  theories [document = false]
+    Relations
+  theories
+    IHOML
+    IHOML_Examples
+    GoedelProof_P1
+    GoedelProof_P2
+    FittingProof
+    AndersonProof
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Constructor_Funs" (AFP) = "HOL" +
+  options [timeout = 300]
+  theories
+    Constructor_Funs
+    Test_Constructor_Funs
+  document_files
+    "root.tex"

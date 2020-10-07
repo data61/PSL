@@ -1,0 +1,86 @@
+D  specify: union_map, finite_map, iterable_map
+D  specify generic union algorithm
+D  specify union and inter algos for iterable basic sets
+  
+D  Implement map on assoc_list, RBT, hash_map
+D  Implement set on list, RBT (use set_by_map), hash_set (use set_by_map)
+
+D  Implement iterators for hashmap and hashset (use set_by_map)
+
+D  Implement efficient interruptible iterators for rbt and hashmap
+
+-------------------------------------------------- Submission to AFP on 2009-11-26 ---------
+
+D  OrderedMap and OrderedSet functions:
+D    Ordered Iteration
+D    Minimum: min P s
+D    Maximum: max P s
+
+ 
+D Specify List class: 
+
+D Fifo as implementation of List
+D  -> Should we separate fifo-class from implementation? I.e. are there other useful fifo-implementations?
+
+D  Migrate to Isabelle2009-1
+
+skew_invar: Typ anpassen. Andere solche abbreviations suchen
+
+rm_ops: Komischer Typ wird inferiert. Typ explizit angeben! Auch bei anderen omap/oset-defs
+
+Thomas Collections_Add einbauen --> SetGA, MapGA
+
+
+Add surjectivity lemmas for implementations, stating that every abstract value has a corresponding concrete one,
+i.e. ALL a. finite a --> EX c. \alpha c = a && invar c
+
+------- Meeting Andreas,Peter on 2010-03-24  (ETAPS)
+  Select-functions: Use predicate instead of a => b option function.
+      (Why did we introduce function)
+
+  Define one big locale containing only definitions of ADT's standard operations.
+    Specification still in one locale per operation. Advantage when using code-generator,
+      definitions can be done wrt big locale.
+
+  Use typedefs to get rid of explicit invariants. Only works on Isabelle development version.
+    Keep version of ICF that runs on stable Isabelle.
+
+  Unify hashable and hashcode typeclass. Eliminate Code_Numeral, use nat instead.
+    Use hashcode-function with upper bound: hashcode:: nat => 'a => nat
+
+    Use hash-functions from Andreas --> more elaborate
+
+  Arrays: Eliminate Code-Numeral
+      ML-Arrays: Try to integrate without breaking eval
+
+-------
+
+  Implement example for underspecified function 
+    -> by nondeterministic abstract algorithm (See StateSpace-Exploration)
+    -> by parameterized abstract function (Adapt StateSpace-Exploration)
+
+  Fifo: Iterators over Fifo
+
+  Implement Stack, Vector (use Lochbihler's Arrays?) as List-classes
+
+  ListGA:
+     sorting (mergesort)
+     (pseudo) in-situ sorting for arrays
+     binary search (in sorted list)
+
+  Implement toList/fromList-conversion functions using list-interface. When there is a list-interface implementing a stack using standard-list operations,
+    instantiation of toList-operations should be as efficient as directly implemented ones.
+
+  Specify Sequences. A List is a finite sequence. How to handle these two, native representations of lists: (1) From sequence, i.e. an indexing function into the list (2) From List, i.e. a finite Cons ... Nil structure
+
+  Generalize data refinement, such that it becomes applicable for iterators (and related concepts, cf dpn pre* impl)
+
+
+  Generalize ruby instantiation script:
+    Subclasses
+    Reflexive instantiation, (use cost-measure to resolve multiple paths)
+
+  Provide combined find-update operation. This should reduce the overhead for this (very common) operation by a factor of 2.
+
+  Test functional array implementation by fixed-width, fixed-depth trie, like ACL2's "memories".
+

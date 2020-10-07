@@ -1,0 +1,115 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym,amssymb}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Kleene Algebras with Domain}
+\author{Victor B. F. Gomes, Walter Guttmann, Peter H{\"o}fner, \\Georg
+  Struth and Tjark Weber}
+\maketitle
+
+\begin{abstract}
+  Kleene algebras with domain are Kleene algebras endowed with an
+  operation that maps each element of the algebra to its domain of
+  definition (or its complement) in abstract fashion.  They form a
+  simple algebraic basis for Hoare logics, dynamic logics or predicate
+  transformer semantics.  We formalise a modular hierarchy of algebras
+  with domain and antidomain (domain complement) operations in
+  Isabelle/HOL that ranges from domain and antidomain semigroups to
+  modal Kleene algebras and divergence Kleene algebras.  We link these
+  algebras with models of binary relations and program traces.  We
+  include some examples from modal logics, termination and program
+  analysis.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introductory Remarks}
+
+These theory files are intended as a reference formalisation for
+variants of Kleene algebras with domain.  The algebraic hierarchy is
+developed in a modular way from domain and antidomain semigroups to
+modal Kleene algebras in which forward and backward box and diamond
+operators interact via conjugations and Galois connections.
+Throughout the development we have aimed at readable proofs so that
+these theories can be seen as a machine-checked introduction to
+reasoning in this setting.  Apart from that, the Isabelle code is only
+sparsely annotated, and we refer to a series of articles for further
+information.
+
+Our formalisation follows the approaches of Desharnais, Jipsen and
+Struth to domain semigroups~\cite{DesharnaisJipsenStruth} and
+Desharnais and Struth to families of domain semirings and Kleene
+algebras with domain~\cite{DesharnaisStruthSCP,DesharnaisStruthAMAST}.
+The link with modal Kleene algebras, Hoare logics and predicate
+transformers has been elaborated by M{\"o}ller and
+Struth~\cite{MoellerStruth}; a notion of divergence has been added by
+Desharnais, M{\"o}ller and Struth~\cite{DesharnaisMoellerStruthLMCS}.
+A previous stage of this formalisation has been documented in a
+companion article~\cite{guttmannstruthweber11algmeth}.
+
+The target model of these axiomatisations are binary relations, where
+the domain operation represents the set of those elements that are
+related to some other element.  There is a vast amount of literature
+on axiomatising the domain of functions, especially in semigroup
+theory.  The deterministic nature of functions, however, leads to
+different axiom sets.  An integration of these approaches is left for
+future work.
+
+Our Isabelle/HOL formalisation itself is based on a formalisation of
+variants of Kleene algebras~\cite{ka}.  An adaptation of Kleene
+algebras with domain to the setting of concurrent dynamic
+algebra~\cite{FurusawaStruth} can also be found in the Archive of
+Formal Proofs~\cite{multirelations}. A formalisation of the original
+two-sorted approach to Kleene algebra with
+domain~\cite{desharnaismoellerstruth06kad} is left for future work as
+well.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

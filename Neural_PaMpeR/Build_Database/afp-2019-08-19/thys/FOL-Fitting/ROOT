@@ -1,0 +1,12 @@
+chapter AFP
+
+session "FOL-Fitting" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    FOL_Fitting
+  document_files
+    "diag.eps"
+    "diag.fig"
+    "diag.pdf"
+    "root.bib"
+    "root.tex"

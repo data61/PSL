@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{wasysym}
+\usepackage{graphicx}
+\usepackage{isabelle,isabellesym} 
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\urlstyle{rm}   
+\isabellestyle{it}
+
+\hyphenation{Isabelle}
+
+\begin{document}
+
+
+\title{An Operational Semantics and Type Safety Proof for 
+Multiple Inheritance in C++ (CoreC++)}
+
+\author{Daniel Wasserrab\\
+Fakult\"at f\"ur Mathematik und Informatik\\
+Universit\"at Passau\\
+\url{http://www.infosun.fmi.uni-passau.de/st/staff/wasserra/}\\
+\includegraphics{corec++}}
+
+\date{\today}
+      
+\maketitle
+
+\begin{abstract}
+We present an operational semantics and type safety proof for multiple
+inheritance in C++. The semantics models the behavior of method calls, field
+accesses, and two forms of casts.
+For explanations see~\cite{WasserrabNST-OOPSLA06}.
+\end{abstract}
+
+\tableofcontents
+
+\input{session}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Bibliography}
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}

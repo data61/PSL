@@ -1,0 +1,80 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{A Variant of the Superposition Calculus}
+\author{Nicolas Peltier\\ CNRS/University of Grenoble (LIG)}
+\maketitle
+
+\begin{abstract}
+We provide a formalization in Isabelle/Isar of (a variant of) the superposition calculus \cite{BG94,DBLP:books/el/RV01/NieuwenhuisR01}, together with formal proofs of soundness and refutational completeness (w.r.t.\ the usual redundancy criteria based on clause ordering).
+This version of the calculus uses all the standard restrictions of the superposition rules, together with the following refinement, inspired by the basic superposition calculus \cite{DBLP:conf/cade/BachmairGLS92,DBLP:journals/iandc/BachmairGLS95}:
+each clause is associated with a set of terms which are assumed to be in normal form -- thus any application
+of the replacement rule on these terms is blocked.
+The set is initially empty and terms may be added or removed at each inference step.
+The set of terms that are assumed to be in normal form includes 
+any term introduced by previous unifiers as well as any term occurring in the parent clauses at a position that is smaller (according to some given ordering on positions) than a previously replaced term. This
+restriction is slightly weaker than that of the basic superposition calculus (since it is based on terms instead of positions), but
+ it has the advantage that the irreducible terms may be propagated through the inferences (under appropriate conditions), even if they do not occur in the parent clauses. The standard superposition calculus corresponds to the case where the set of irreducible terms is always empty.
+The term representation and unification algorithm are taken from the theory {\tt Unification.thy} provided in Isabelle.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\section{Preliminaries}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

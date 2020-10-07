@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Quadrotor
+gnuplot -c plot_arch_comp.plg out_quadrot  t 0 5 "altitude x_3" -0.6 1.5
+
+# Laub Loomis
+cat out_ll_0{10,05,01}.out > out_ll.out
+gnuplot -c plot_arch_comp.plg out_ll t 0 20 "x_4" 1.5 5
+
+# Van der Pol
+cat out_p1_vdp_mu1_0.out out_p1_vdp_mu2_0.out > out_vdp.out
+gnuplot -c plot_arch_comp.plg out_vdp x -2.5 2.5 y -4 4
+
+# Space Rendezvous
+cat out_space_p2.out | grep -E '0x7f0000|^$' > out_space_p2_pos.out
+cat out_space_p2.out | grep -E '0x0000ff|^$' > out_space_p2_vel.out
+cat {out_space_p1,out_space_p2_pos,out_space_passive}.out > out_space.out
+gnuplot -c plot_arch_comp.plg out_space x -1000 250 y -500 0
+
+echo "$(cat plot_arch_comp.plg),\\" > plot_arch_comp_circle.plg
+echo 'sqrt(9.9-x*x) title "v_x^2 + v_y^2 = 3.3^2"' >> plot_arch_comp_circle.plg
+gnuplot -c plot_arch_comp_circle.plg out_space_p2_vel "v_x" 2 4 "v_y" 0.25 2.25

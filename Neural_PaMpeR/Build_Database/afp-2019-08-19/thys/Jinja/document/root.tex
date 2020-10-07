@@ -1,0 +1,61 @@
+%\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper]{book}
+\usepackage[english]{babel}
+\usepackage{graphicx,latexsym,isabelle,isabellesym,pdfsetup}
+
+% proper setup for best-style documents
+\urlstyle{rm}
+\isabellestyle{it}
+
+\pagestyle{myheadings}
+
+%make a bit more space
+\addtolength{\hoffset}{-1,5cm}
+\addtolength{\textwidth}{3cm}
+\addtolength{\voffset}{-1cm}
+\addtolength{\textheight}{2cm}
+
+\renewcommand{\setisabellecontext}[1]{\markright{Theory~#1}}
+
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\secrefs}[1]{Sections~\ref{#1}}
+\newcommand{\charef}[1]{Chapter~\ref{#1}}
+\newcommand{\charefs}[1]{Chapters~\ref{#1}}
+
+%remove clutter from the toc
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+\begin{document}
+
+\title{A Machine-Checked Model for a Java-like Language,\\
+       Virtual Machine and Compiler}
+\author{Gerwin Klein \and Tobias Nipkow}
+\maketitle
+
+
+\tableofcontents
+
+\input{introduction.tex}
+
+\section{Theory Dependencies}
+
+Figure \ref{theory-deps} shows the dependencies between 
+the Isabelle theories in the following sections.
+
+\begin{figure}[h!t]
+\begin{center}
+  \includegraphics[width=\textwidth]{session_graph}
+\end{center}
+\caption{Theory Dependency Graph\label{theory-deps}}
+\end{figure}
+
+\newpage
+\input{session}
+
+\newpage
+\nocite{*}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

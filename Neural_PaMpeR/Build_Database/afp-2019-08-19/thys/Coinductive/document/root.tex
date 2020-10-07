@@ -1,0 +1,51 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Coinductive}
+\author{Andreas Lochbihler \\ with contributions by Johannes H\"olzl}
+\maketitle
+
+\begin{abstract}
+This article collects formalisations of general-purpose coinductive data
+types and sets. Currently, it contains:
+\begin{itemize}
+\item coinductive natural numbers,
+\item coinductive lists, i.e. lazy lists or streams, and a library of operations on coinductive lists,
+\item coinductive terminated lists, i.e. lazy lists with the stop symbol containing data,
+\item coinductive streams,
+\item coinductive resumptions, and
+\item numerous examples which include a version of K\"onig's lemma and the Hamming stream.
+\end{itemize}
+
+The initial theory was contributed by Paulson and Wenzel.  Extensions
+and other coinductive formalisations of general interest are welcome.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\pagebreak
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

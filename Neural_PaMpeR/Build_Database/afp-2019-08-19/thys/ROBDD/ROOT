@@ -1,0 +1,29 @@
+chapter AFP
+
+session ROBDD (AFP) = Sepref_Prereq +
+  options [timeout = 600]
+  sessions
+    "HOL-Imperative_HOL"
+    "HOL-Library"
+    "HOL-Word"
+    "HOL-ex"
+    Automatic_Refinement
+    Collections
+    Native_Word
+  theories
+    Middle_Impl
+    Bool_Func
+    Conc_Impl
+    Abstract_Impl
+    BDT
+    Pointer_Map_Impl
+    Level_Collapse
+    Array_List
+    BDD_Examples
+    Option_Helpers
+    Pointer_Map
+  theories [condition = ISABELLE_GHC]
+    BDD_Code
+  document_files
+    "root.tex"
+    "root.bib"

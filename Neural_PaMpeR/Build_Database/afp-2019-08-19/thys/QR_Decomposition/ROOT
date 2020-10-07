@@ -1,0 +1,19 @@
+chapter AFP
+
+session "QR_Decomposition" (AFP) = "HOL-Analysis" +
+  options [timeout = 1200]
+  sessions
+    Gauss_Jordan
+    Rank_Nullity_Theorem
+    Real_Impl
+    Sqrt_Babylonian
+  theories
+    Least_Squares_Approximation
+    Examples_QR_Abstract_Float
+    Examples_QR_Abstract_Symbolic
+    Examples_QR_IArrays_Float
+    Examples_QR_IArrays_Symbolic
+    Generalizations2
+    QR_Efficient
+  document_files
+    "root.tex"

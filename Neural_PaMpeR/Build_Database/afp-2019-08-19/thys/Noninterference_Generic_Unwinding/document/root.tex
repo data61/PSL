@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Generic Unwinding Theorem\\for CSP Noninterference Security}
+\author{Pasquale Noce\\Security Certification Specialist at Arjo Systems - Gep S.p.A.\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at arjowiggins-it dot com}
+\maketitle
+
+\begin{abstract}
+The classical definition of noninterference security for a deterministic state
+machine with outputs requires to consider the outputs produced by machine
+actions after any trace, i.e. any indefinitely long sequence of actions, of the
+machine. In order to render the verification of the security of such a machine
+more straightforward, there is a need of some sufficient condition for security
+such that just individual actions, rather than unbounded sequences of actions,
+have to be considered.
+
+By extending previous results applying to transitive noninterference policies,
+Rushby has proven an unwinding theorem that provides a sufficient condition of
+this kind in the general case of a possibly intransitive policy. This condition
+has to be satisfied by a generic function mapping security domains into
+equivalence relations over machine states.
+
+An analogous problem arises for CSP noninterference security, whose definition
+requires to consider any possible future, i.e. any indefinitely long sequence of
+subsequent events and any indefinitely large set of refused events associated to
+that sequence, for each process trace.
+
+This paper provides a sufficient condition for CSP noninterference security,
+which indeed requires to just consider individual accepted and refused events
+and applies to the general case of a possibly intransitive policy. This
+condition follows Rushby's one for classical noninterference security, and has
+to be satisfied by a generic function mapping security domains into equivalence
+relations over process traces; hence its name, Generic Unwinding Theorem.
+Variants of this theorem applying to deterministic processes and trace set
+processes are also proven. Finally, the sufficient condition for security
+expressed by the theorem is shown not to be a necessary condition as well, viz.
+there exists a secure process such that no domain-relation map satisfying the
+condition exists.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

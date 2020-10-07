@@ -1,0 +1,35 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\addtolength{\hoffset}{-1,5cm}
+\addtolength{\textwidth}{3cm}
+
+\begin{document}
+
+\title{MiniML}
+\author{Wolfgang Naraschewski and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+This theory defines the type inference rules and the type inference algorithm
+\emph{W} for MiniML (simply-typed lambda terms with \texttt{let}) due to
+Milner. It proves the soundness and completeness of \emph{W} w.r.t. the
+rules.
+
+A report describing the theory is found in \cite{Naraschewski-Nipkow-TYPES96} and \cite{NaraschewskiN-JAR}.
+\end{abstract}
+
+% \tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

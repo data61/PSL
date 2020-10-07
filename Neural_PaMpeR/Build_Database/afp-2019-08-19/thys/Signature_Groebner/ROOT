@@ -1,0 +1,9 @@
+chapter AFP
+
+session Signature_Groebner (AFP) = Groebner_Bases +
+  options [timeout = 3600]
+  theories
+    Signature_Examples
+  document_files
+    "root.tex"
+    "root.bib"

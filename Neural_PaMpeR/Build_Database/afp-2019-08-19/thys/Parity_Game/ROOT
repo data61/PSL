@@ -1,0 +1,15 @@
+chapter AFP
+
+session Parity_Game (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    Coinductive
+    Graph_Theory
+  theories
+    PositionalDeterminacy
+    AttractorInductive
+    Graph_TheoryCompatibility
+  document_files
+    "root.tex"
+    "root.bib"

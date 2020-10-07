@@ -1,0 +1,138 @@
+
+
+\RequirePackage{ifthen}
+\newboolean{fmdeacro@sc}
+\setboolean{fmdeacro@sc}{false}
+\DeclareOption{sc}{\setboolean{fmdeacro@sc}{true}}
+
+\ProcessOptions\relax
+
+\newcommand{\fmdeacro}[3]{%
+  \ifthenelse{\boolean{fmdeacro@sc}}{%
+    \ifthenelse{\equal{#2}{}}{\acro{#1}{#3}}{\acro{#1}[#2]{#3}}% 
+  }{%
+    \ifthenelse{\equal{#2}{}}{\acro{#1}[\uppercase{#1}]{#3}}{\acro{#1}[#2]{#3}}%
+  }%
+}
+
+\newcommand{\listofacronyms}[1]{%
+\begin{acronym}[#1]
+  \fmdeacro{acm}{}{Association for Computing Machinery}%
+  \fmdeacro{apsec}{}{Asia Pacific Conference in Software Engineering}% 
+  \fmdeacro{atool}{}{Application specific object-oriented theory}%
+  \fmdeacro{bt}{}{}%
+  \fmdeacro{cade}{}{Automated Deduction}%
+  \fmdeacro{case}{}{Computer Aided Software Engineering}%
+  \fmdeacro{cassis}{}{Construction and Analysis of Safe, Secure, and
+    Interoperable Smart Devices}
+  \fmdeacro{cav}{}{Computer Aided Verification}
+  \fmdeacro{ccs}{}{A Calculus of Communicating Systems}
+  \fmdeacro{cnf}{}{conjunctive normal form}
+  \fmdeacro{colog}{}{International Conference on Computer Logic}
+  \fmdeacro{csl}{}{Conference on Computer Science Logic}
+  \fmdeacro{ctl}{}{Computational Tree Logic}
+  \fmdeacro{csp}{}{Communicating Sequential Processes}
+  \fmdeacro{dmz}{}{demilitarized zone}
+  \fmdeacro{dnf}{}{disjunctive normal form}
+  \fmdeacro{eal}{}{Evaluation Assurance Level}
+  \fmdeacro{easst}{}{European Association of Software Science and Technology}
+  \fmdeacro{ebnf}{}{Extended Backus-Naur Form}
+  \fmdeacro{epfl}{}{Eole Polytechnique Fédérale de Lausanne}
+  \fmdeacro{eth}{}{Eidgenössische Technische Hochschule}
+  \fmdeacro{fase08}{}{Fundamental Approaches to Software Engineering}
+  \fmdeacro{fme}{}{Formal Methods Europe}
+  \fmdeacro{fol}{}{first-order logic}
+  \fmdeacro{ftp}{}{file transfer protocol}  
+  \fmdeacro{fxp}{}{Functional \acs{xml} Parser}
+  \fmdeacro{gec}{}{Global Equational Calculus}
+  \fmdeacro{hcnf}{}{Horn-clause normal form}
+  \fmdeacro{hoas}{}{higher-order abstract syntax}
+  \fmdeacro{hol}{}{higher-order logic}
+  \fmdeacro{holcf}{}{\acs{hol} + \acs{lcf}}
+  \fmdeacro{hool}{}{An object-oriented specification and verification environment.}
+  \fmdeacro{hor}{}{higher-order rewriting}
+  \fmdeacro{hug}{}{Higher-Order Logic User's Group}  
+   \fmdeacro{ictac}{}{International Colloquium on Theoretical Aspects of
+     Computing}
+   \fmdeacro{icse}{}{International Conference on Software Engineering}
+  \fmdeacro{ieee}{}{Institute of Electrical and Electronic Engineers}
+  \fmdeacro{ifip}{}{International Federation for Information Processing}
+  \fmdeacro{ijcar}{}{International Joint Conference on Automated Reasoning}
+  \fmdeacro{imp}{}{A simple imperative programming language}
+  \fmdeacro{ip}{}{Information Technology}
+ \fmdeacro{isar}{\mbox{\normalsize Isar}}{Intelligible semi-automated reasoning}
+  \fmdeacro{ismvl}{}{International Symposium on Multiple-Valued Logics}
+  \fmdeacro{isss}{}{Software Security---Theories and Systems}
+   \fmdeacro{it}{}{Information Technology}
+  \fmdeacro{jml}{}{Java Modeling Language}
+  \fmdeacro{jvm}{}{Java virtual machine}
+  \fmdeacro{lcf}{}{Logic for Computable Functions}
+  \fmdeacro{le}{}{Local (Formula) Equivalence}
+  \fmdeacro{lec}{}{Local Equational Calculus}
+  \fmdeacro{lje}{}{Local Judgement Equivalence}
+  \fmdeacro{loop}{}{Logic of Object-Oriented Programming}
+  \fmdeacro{ltc}{}{Local Tableaux Calculus}
+  \fmdeacro{ltl}{}{Linear Temporal Logic}
+  \fmdeacro{mda}{}{Model Driven Architecture}
+  \fmdeacro{mde}{}{Model Driven Engineering}
+  \fmdeacro{mit}{}{Massachusetts Institute of Technology} 
+  \fmdeacro{ml}{}{Meta Language}
+  \fmdeacro{models}{\textsc{MoDELS}}{Model Driven Engineering Languages and Systems}
+  \fmdeacro{nat}{}{network address translation}
+  \fmdeacro{nato}{}{North Atlantic Treaty Organization}
+  \fmdeacro{nj}{}{New Jersey}
+  \fmdeacro{ny}{}{New York}
+  \fmdeacro{ocl}{}{Object Constraint Language}
+  \fmdeacro{ocle}{}{Object Constraint Language Environment}
+  \fmdeacro{oclvp}{oclvp}{Object Constraint Language Verification
+    Platform}
+   \fmdeacro{omg}{}{Object Management Group}
+  \fmdeacro{oopsla}{}{International Conference on Object-oriented
+    Programming Systems, Languages and Applications} 
+  \fmdeacro{pldi}{}{Programming Language Design and
+                  Implementation}
+  \fmdeacro{popl}{}{Symposium on Principles of Programming Languages } 
+  \fmdeacro{pvs}{}{\acs{pvs} Verification System}
+  \fmdeacro{qvt}{}{Query/View/Transformation}
+  \fmdeacro{rbac}{}{Role-based access control}
+  \fmdeacro{SecureUml}{SecureUML}{A modeling language designed to integrate 
+    information relevant to access control into 
+    application models defined with the \acs{uml}}
+  \fmdeacro{sap}{}{}
+  \fmdeacro{sb}{}{}
+  \fmdeacro{skl}{}{Strong Kleene Logic}
+  \fmdeacro{sml}{}{Standard Meta Language}
+  \fmdeacro{smlnj}{sml/NJ}{\acs{sml} of New Jersey}
+  \fmdeacro{soknos}{SoKNOS}{Service-orientierte ArchiteKturen zur Unterstützung von Netzwerken im Rahmen Oeffentlicher Sicherheit
+(Service-Oriented ArchiteCtures Supporting Networks of Public Security)}
+  \fmdeacro{su4sml}{\mbox{\normalsize su4sml}}{SecureUML for \acs{sml}}
+  \fmdeacro{svv}{}{Workshop on Software Verification and Validation} 
+  \fmdeacro{tacas}{}{Tools and Algorithms for the Construction and Analysis of
+                  Systems}
+  \fmdeacro{tcp}{}{Information Technology}
+  \fmdeacro{tnf}{}{testing normal form}
+  \fmdeacro{ts}{}{}
+  \fmdeacro{tc}{}{}
+  \fmdeacro{td}{}{}
+  \fmdeacro{tphols}{}{Theorem Proving in Higher Order Logics}
+  \fmdeacro{types}{}{Types for Proofs and Programs}
+  \fmdeacro{uc}{}{Universal (Formula) Congruence}
+  \fmdeacro{uec}{}{Universal Equational Calculus}
+  \fmdeacro{uje}{}{Universal Judgement Equivalence}  
+  \fmdeacro{uml}{}{Unified Modeling Language}
+  \fmdeacro{usa}{}{United States of America} 
+  \fmdeacro{use}{}{\acs{uml} Specification Environment}
+  \fmdeacro{verify}{}{Verification Workshop}
+  \fmdeacro{vdm}{}{Vienna Development Method}
+  \fmdeacro{voip}{VoIP}{Voice over \acs{ip}}
+  \fmdeacro{xmi}{}{\acs{xml} Metadata Interchange}
+  \fmdeacro{xml}{}{Extensible Markup Language}
+  \fmdeacro{zf}{}{Zermelo-Fraenkel}
+\end{acronym}}
+%%% Local Variables:
+%%% fill-column:80
+%%% x-symbol-8bits:nil
+%%% mode: latex
+%%% ispell-local-dictionary: "american"
+%%% TeX-master: "../brucker-interactive-2007"
+%%% End:

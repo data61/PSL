@@ -1,0 +1,81 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{mathpartir}
+
+% Commuting diagrams
+\usepackage{pb-diagram}
+\usepackage{haskell}
+
+\usepackage{natbib}
+\bibpunct();A{},
+\let\cite=\citep
+
+\newcommand{\isasymnotsqsubseteq}{\isamath{\not\sqsubseteq}}
+
+\usepackage{amssymb}
+
+\newcommand{\isafun}[1]{{\sf #1}}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Mechanising the worker/wrapper transformation}
+\author{Peter Gammie}
+\maketitle
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+This mechanisation of the worker/wrapper theory of
+\citet{GillHutton:2009} was carried out in Isabelle/HOLCF
+\citep{HOLCF:1999, DBLP:conf/tphol/Huffman09}.  It accompanies
+\citet{Gammie:2011}. The reader should note that $oo$ stands for
+function composition, $\Lambda \_ . \_$ for continuous function
+abstraction, $\_\cdot\_$ for continuous function application,
+\textbf{domain} for recursive-datatype definition.
+
+% generated text of all theories
+\input{session}
+
+\section{Concluding remarks}
+
+Gill and Hutton provide two examples of fusion: accumulator
+introduction in their \S4, and the transformation in their \S7 of an
+interpreter for a language with exceptions into one employing
+continuations. Both involve strict \<unwrap\>s and are indeed totally
+correct.
+
+The example in their \S5 demonstrates the unboxing of numerical
+computations using a different worker/wrapper rule and does not
+require fusion. In their \S6 a non-strict \<unwrap\> is used to
+memoise functions over the natural numbers using the rule considered
+here. It should in fact use the same rule as the unboxing example as
+the scheme only correctly memoises strict functions. We can see this
+by considering a base case missing from their inductive proof, viz
+that if \<f :: Nat \to a\> is not strict -- in fact constant, as
+\<Nat\> is a flat domain -- then \<f \bot \not= \bot = (map\ f\
+[0..])\ !!\ \bot\>, where \<xs\ !!\ n\> is the $n$th element of $xs$.
+
+% optional bibliography
+\addcontentsline{toc}{section}{Bibliography}
+%\nocite{*}
+\bibliographystyle{plainnat}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

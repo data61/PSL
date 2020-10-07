@@ -1,0 +1,53 @@
+\section{Conclusion}
+\subsection{Related Works}
+Our work is inspired by Tracer~\cite{DBLP:conf/cav/JaffarMNS12}
+and the more wider class of CEGAR-like systems~\cite{DBLP:journals/sttt/BeyerHJM07,DBLP:conf/tacas/ClarkeKSY05,DBLP:conf/cav/IvancicYGGSA05,DBLP:conf/pldi/GrebenshchikovLPR12,McMillan2006}
+based on predicate abstraction. However, we did not attempt any
+code-verification of these systems and rather opted for their rational
+reconstruction allowing for a clean separation of
+heuristics and fundamental parts. Moreover, our treatment of 
+$\mathrm{Assume}$ and $\mathrm{Assign}$-labels is based on shallow
+encodings for reasons of flexibility and model simplification, 
+which these systems lack.
+  There is a substantial amount of formal developments of graph-theories in HOL,
+most closest is perhaps by Lars Noschinski~\cite{Noschinski2015} in the Isabelle AFP. However, we do not use 
+any deep graph-theory in our work; graphs are just used as a kind of abstract
+syntax allowing sharing and arbitrary cycles in the control-flow.
+And there are a large number of works representing programming languages, be 
+it by shallow or deep embedding; on the Isabelle system alone, there is most
+notably the works on 
+NanoJava\cite{Oheimb:2002:HLN:647541.730154}, 
+Ninja\cite{DBLP:conf/esop/Lochbihler12}, 
+IMP\cite{DBLP:journals/fac/Nipkow98},
+IMP$^{++}$\cite{brucker.ea:extensible:2008} etc. 
+However, these works represent
+the underlying abstract syntax by a free data-type and are not concerned 
+with the introduction of sharing in the program presentation; to our knowledge,
+our work is the first approach that describes optimizations by a series of
+graph transformations on CFGs in HOL.
+
+\subsection{Summary}
+We formally proved the correctness of a set of graph
+transformations used by systems that compute approximations of sets of
+(feasible) paths by building symbolic evaluation graphs with unbounded loops.
+Formalizing all the details needed for a
+machine\hyp{}checked proof was a substantial work.
+%it took us about a year to find a suitable representation of SEGs and to establish the main results. 
+To our knowledge, such formalization was not done before. 
+
+The ATRACER model separates the
+fundamental aspects and the heuristic parts of the algorithm.
+Additional graph transformations for restricting abstractions
+or for computing interpolants or invariants
+can be added to the current framework, reusing the existing machinery
+for graphs, paths, configurations, etc. 
+
+\subsection{Future Work}
+Currently, we are implementing in OCAML a prototype that must not
+only preserve feasible paths but heuristically generate abstractions and 
+subsumptions.
+It would be possible to generate the core operations on red\hyp{}black graphs 
+by the Isabelle code-generator, by introducing un-interpreted function symbols
+for concrete heuristic functions mapped to implementations written by 
+hand. This represents a substantial albeit rewarding effort that has not yet 
+been undertaken.

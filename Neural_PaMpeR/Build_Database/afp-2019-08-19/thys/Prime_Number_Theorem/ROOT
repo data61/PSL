@@ -1,0 +1,14 @@
+chapter AFP
+
+session Prime_Number_Theorem (AFP) = Zeta_Function +
+  options [timeout = 600]
+  sessions
+    "HOL-Real_Asymp"
+    Stirling_Formula
+  theories
+    Prime_Number_Theorem
+    Mertens_Theorems
+  document_files
+    "root.tex"
+    "root.bib"
+

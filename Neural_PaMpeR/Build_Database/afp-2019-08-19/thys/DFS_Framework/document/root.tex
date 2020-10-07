@@ -1,0 +1,90 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{isabelle,isabellesym}
+\usepackage[english]{babel}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{A Framework for Verifying Depth-First Search Algorithms}
+\author{Peter Lammich and Ren\'{e} Neumann}
+\maketitle
+
+\begin{abstract}
+This entry presents a framework for the modular verification of DFS-based 
+algorithms, which is described in our [CPP-2015] paper. 
+It provides a generic DFS algorithm framework, that can be 
+parameterized with user-defined actions on certain events 
+(e.g. discovery of new node). 
+
+It comes with an extensible library of invariants, which can be 
+used to derive invariants of a specific parameterization.
+
+Using refinement techniques, efficient implementations of the algorithms 
+can easily be derived. 
+Here, the framework comes with templates for
+a recursive and a tail-recursive implementation, and also with several 
+templates for implementing the data structures required by the DFS algorithm.
+
+Finally, this entry contains a set of re-usable DFS-based algorithms, which 
+illustrate the application of the framework.
+
+\vfill
+{\footnotesize
+\begin{description}
+\item[{[{CPP-2015}]}] Peter Lammich, Ren\'{e} Neumann: A Framework for Verifying Depth-First Search Algorithms. CPP 2015: 137-146
+\end{description}
+}
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,15 @@
+chapter AFP
+
+session Smooth_Manifolds (AFP) = "HOL-Analysis" +
+  options [timeout = 1200]
+  sessions
+    "HOL-Library"
+    "HOL-Types_To_Sets"
+  theories
+    Cotangent_Space
+    Product_Manifold
+    Sphere
+    Projective_Space
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Probabilistic Primality Testing}
+\author{Daniel Stüwe and Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+The most efficient known primality tests are \emph{probabilistic} in the sense that they use randomness and may, with some probability, mistakenly classify a composite number as prime -- but never a prime number as composite. Examples of this are the Miller--Rabin test, the Solovay--Strassen test, and (in most cases) Fermat's test. 
+
+This entry defines these three tests and proves their correctness. It also develops some of the number-theoretic foundations, such as Carmichael numbers and the Jacobi symbol with an efficient executable algorithm to compute it.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

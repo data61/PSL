@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+\usepackage{amssymb,amsmath,amsthm}
+\newcommand{\real}{\mathbb{R}}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{An Axiomatic Characterization of the Single-Source Shortest Path Problem}
+\author{By Christine Rizkallah}
+\maketitle
+
+\begin{abstract}
+ % We provide an axiomatic characterization of the single-source shortest path problem. 
+ This theory is split into two sections. In the first section, we give a formal proof that a well-known axiomatic characterization of the single-source shortest path problem is correct. Namely, we prove that in a directed graph $G=(V,E)$ with a non-negative cost function on the edges the single-source shortest path function $\mu:V\to\real\cup\{\infty\}$ is the only function that satisfies a set of four axioms. The first axiom states that the distance from the source vertex $s$ to itself should be equal to zero. The second states that the distance from $s$ to a vertex $v\in V$ should be infinity if and only if there is no path from $s$ to $v$. The third axiom is called triangle inequality and states that if there is a path from $s$ to $v$, and an edge $(u,v)\in E$, the distance from $s$ to $v$ is less than or equal to the distance from $s$ to $u$ plus the cost of $(u,v)$. The last axiom is called justification, it states that for every vertex $v$ other than $s$, if there is a path $p$ from $s$ to $v$ in $G$, then there is a predecessor edge $(u,v)$ on $p$ such that the distance from $s$ to $v$ is equal to the distance from $s$ to $u$ plus the cost of $(u,v)$. 
+
+In the second section, we give a formal proof of the correctness of an axiomatic characterization of the single-source shortest path problem for directed graphs with general cost functions $c:E\to\real$. The axioms here are more involved because we have to account for potential negative cycles in the graph. The axioms are summarized in the three isabelle locales. 
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

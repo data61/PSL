@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{The Transcendence of Certain Infinite Series}
+\author{Angeliki Koutsoukou-Argyraki and Wenda Li}
+\maketitle
+
+\begin{abstract}
+We formalize the proofs of two transcendence criteria by J. Han\v{c}l and P. Rucki that
+assert the transcendence of the sums of certain infinite series built up by sequences that 
+fulfil certain properties. 
+Both proofs make use of Roth's celebrated theorem on diophantine approximations to algebraic numbers 
+from 1955  which we implement as an assumption without having formalised its proof.
+
+
+\end{abstract}
+
+
+\tableofcontents
+
+\input{session}
+
+\nocite{apostol1976analytic}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

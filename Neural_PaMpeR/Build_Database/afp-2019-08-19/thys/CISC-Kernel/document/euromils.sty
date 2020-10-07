@@ -1,0 +1,301 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                      %
+% euromils Style       %
+%   file: euromils.sty                                                  %
+%                                                                      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Package instructions (for document editor)
+%  ==========================================
+%
+%  In order to properly set the svn version we use the svn-multi package.
+%  When creating a new document:
+%
+%  1. as soon as all .tex files are available, run: 
+%        svn propset svn:keywords 'Id' *.tex
+%     
+%  2. put the following lines in each .tex file:
+%     %%%%%%%%%%%%%%%%%%%% DON'T TOUCH THIS LINE!!! %%%%%%%%%%%%%%%%%%%%
+%     \svnid{$Id: $}
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{euromils}
+    [2011/07/08 v1.3 EUROMILS 4 LaTeX Emulation (ASO,MTS,PSM)]
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{euromils}}
+\ProcessOptions
+
+% requirements
+\RequirePackage{fancyhdr,lastpage,graphicx,times,courier,setspace,url,xspace}
+
+\usepackage[a4paper,twoside,top=25mm,left=25mm,right=25mm,bottom=25mm]{geometry}
+\RequirePackage[table]{xcolor}
+\RequirePackage[nodayofweek]{datetime}
+\RequirePackage{svn-multi} % requires svn-prov
+
+% set plain to fancy, so chapters and parts also work
+\let\ps@plain\ps@fancy
+
+% change font command (to implement)
+\newcommand{\helv}{} 
+\newcommand{\helvbold}{}
+
+% define euromils colors
+%\definecolor{blueeuromils1}{RGB}{198,217,241}
+\definecolor{blueeuromils1}{RGB}{24, 128, 179}
+\definecolor{blueeuromils2}{RGB}{31,73,125}
+\definecolor{blueeuromils3}{RGB}{228,233,240}
+\definecolor{yelloweuromils}{RGB}{224,229,45}
+
+% define euromils date format
+\newdateformat{euromilsduedate}{\monthname[\THEMONTH]~\THEYEAR}
+
+% define document info (from euromils.sty)
+\def\docnumber#1{\def\@docnumber{#1}}
+\def\doctitle#1{\def\@doctitle{#1}\title{#1}}
+\def\docauthor#1{\def\@docauthor{#1}\author{#1}}
+\def\doceditor#1{\def\@doceditor{#1}}
+\def\docreviewer#1{\def\@docreviewer{#1}}
+\def\docstatus#1{\def\@docstatus{#1}}
+\def\docversion#1{\def\@docversion{#1}}
+\def\docdate#1{\def\@docdate{#1}\date{#1}}
+\def\doctag#1{\def\@doctag{#1}}
+\def\doctype#1{\def\@doctype{#1}}
+\def\docwp#1{\def\@docwp{#1}}
+
+% define document info
+\def\docabstract#1{\def\@docabstract{#1}}
+\def\dockeywords#1{\def\@dockeywords{#1}}
+\def\organisation#1{\def\@organisation{#1}}
+\def\docmonth#1{\def\@docmonth{#1}}
+\def\docactivity#1{\def\@docactivity{#1}}
+\def\docsubmissiondate#1{\def\@docsubmissiondate{#1}}
+\def\docrevision#1{\def\@docrevision{#1}}
+\newcommand{\executivesummary}[1]{\def\@executivesummary{#1}}
+
+% default values (from euromils.sty)
+\docnumber{}
+\doctitle{}
+\docauthor{}
+\doceditor{}
+\docreviewer{}
+\docstatus{Draft}
+\docversion{}
+\docdate{\today}
+\doctag{Internal}
+\doctype{Activity Paper}
+\docwp{}
+
+% default values
+\docabstract{}
+\dockeywords{}
+\organisation{}
+\docmonth{}
+\docactivity{}
+\docsubmissiondate{\today}
+\docrevision{\svnrev}
+\executivesummary{}
+\global\let\@executivesummary\@empty
+
+% header and footer
+\pagestyle{fancy}
+\fancyhf{}
+
+% page header
+\fancyhead[L]{
+    \begin{minipage}
+        {.7\textwidth}\helv \@docnumber~--~\@doctitle
+    \end{minipage}
+}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% page footer
+\fancyfoot[L]{\helv EUROMILS~\@docnumber}
+\fancyfoot[R]{\helv Page~\thepage~of~\pageref{LastPage}}
+\renewcommand{\footrulewidth}{0.4pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Proposal for chapter spacing
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{titlesec}
+\titleformat{\chapter}[display]%
+    {\normalfont\huge\bfseries}%
+    {\chaptertitlename\ \thechapter}%
+    {20pt}%
+    {\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{40pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% define 'euromilscoverpage'
+
+\def\euromilscoverpage{
+
+    \pagenumbering{Roman}
+
+    % set pagestyle for cover-page
+    \thispagestyle{fancy}
+    \fancyhf{}
+
+    % set page header
+    \fancyhead[R]{
+        \includegraphics[height=20mm]{logo/fp7-logo.pdf}}
+    \renewcommand{\headrulewidth}{0.4pt}
+
+    \fancyhead[L] {
+    \includegraphics[height=20mm]{logo/EU-flag.jpg}}
+    \renewcommand{\headrulewidth}{0.4pt}
+
+    \fancyhead[C] {
+    \includegraphics[height=20mm]{logo/EURO-MILS_4C.jpg}}
+    \renewcommand{\headrulewidth}{0.4pt}
+    
+    % set page footer
+    \fancyfoot[L]{}
+    \fancyfoot[R]{}
+    \renewcommand{\footrulewidth}{0pt}
+
+    \setlength{\voffset}{20mm}
+
+    \begin{center}
+        {\helvbold\huge{\color{blueeuromils2}{
+            \vspace*{10mm} \@docnumber \\ \vspace{3mm} \@doctitle}}}
+
+        \vspace{5mm}
+
+        % this table includes fixed values
+        \renewcommand{\arraystretch}{1.2}
+        \begin{tabular}{|m{0.45\textwidth}|m{0.45\textwidth}|}
+            \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Project number:}} & 318353 \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Project acronym:}} & EURO-MILS \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Project title:}} & EURO-MILS: Secure European Virtualisation for Trustworthy
+                Applications in Critical Domains \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Start date of the project:}} & \formatdate{01}{10}{2012} \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Duration:}} & 36 months\\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Programme:}} & FP7/2007-2013\\ \hline
+        \end{tabular}
+        
+        \vspace{4mm}
+
+        % tables below include settable values
+        
+        \begin{tabular}{|m{0.45\textwidth}|m{0.45\textwidth}|}
+            \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Deliverable type:}} & \@doctype \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Deliverable reference number:}} & ICT-318353~/~\@docnumber~/~\@docversion \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Activity and Work package contributing to deliverable:}} & \@docactivity~/~\@docwp \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Due date:}} & \euromilsduedate\@docdate~--~M\@docmonth\\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Actual submission date:}} & \@docsubmissiondate \\ \hline
+        \end{tabular}
+        
+        \vspace{4mm}
+        
+        \begin{tabular}{|m{0.45\textwidth}|m{0.45\textwidth}|}
+            \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Responsible organisation:}} & \@organisation \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Editors:}} & \@doceditor \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Dissemination level:}} & \@doctag \\ \hline
+            \ifx\@docrevision\@empty\relax
+                \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Revision:}} & \@docversion \\ \hline
+            \else
+                \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Revision:}} & \@docversion~(r\@docrevision) \\ \hline
+            \fi
+        \end{tabular}
+        
+        \vspace{4mm}
+        
+        \begin{tabular}{|m{0.45\textwidth}|m{0.45\textwidth}|}
+            \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Abstract:}} & \@docabstract \\ \hline
+            \cellcolor{blueeuromils1} \textcolor{yelloweuromils}{\textbf{Keywords:}} & \@dockeywords \\ \hline
+        \end{tabular}
+
+    \end{center}
+
+    \pagestyle{empty}
+    \addtolength{\textheight}{-3mm}    
+    \addtolength{\footskip}{3mm}
+\newpage
+    \clearpage
+    \setlength{\voffset}{-10mm}
+
+    % reset page counter    
+    \setcounter{page}{1}
+    
+    % reset page header
+    \pagestyle{fancy}
+    \fancyhead{}
+    \fancyhead[L]{
+        \begin{minipage}{.75\textwidth}
+            \helv \@docnumber~--~\@doctitle\vspace*{1mm}
+        \end{minipage}
+    }
+    \renewcommand{\headrulewidth}{0.4pt}
+
+    \fancyhead[R] {
+        \includegraphics[height=8mm]{logo/EURO-MILS_4C.jpg}}
+ \renewcommand{\headrulewidth}{0.4pt}
+    
+    % reset page footer
+    \fancyfoot[L]{\helv EURO-MILS~\@docnumber}
+    \fancyfoot[R]{\helv \thepage}
+    \renewcommand{\footrulewidth}{0.4pt}
+
+    % editor and authors
+    \ifx\@author\@empty
+        \relax
+    \else
+    \begin{spacing}{1.5}
+    \paragraph{Editors}\ \\
+    \@doceditor~(\@organisation)
+    
+    \paragraph{Contributors (ordered according to beneficiary numbers)}\ \\ 
+    \@author
+    
+    \end{spacing}
+
+    % euromils disclaimer
+    \vfill \ \\
+     \paragraph{Acknowledgment}\ \\ 
+    The research leading to these results has received
+   funding from the European Union's Seventh Framework Programme
+    (FP7/2007-2013) under grant agreement n$^\circ$ 318353. \\
+
+    % PS: is this blank page necessary?
+    \fi
+    \clearpage
+
+    % insert executive summary
+    \ifx\@executivesummary\@empty
+        \relax
+    \else
+        \section*{Executive Summary}
+        \@executivesummary
+        \clearpage
+    \fi
+}
+
+\def\euromilsmaketitle{
+    \euromilscoverpage
+    % insert toc,tof,tot
+    \tableofcontents
+    %~ \listoffigures
+    %~ \listoftables
+    \cleardoublepage
+    \fancyfoot[R]{\helv Page~\thepage~of~\pageref{LastPage}}
+    \pagenumbering{arabic}
+}
+
+\def\euromilsmaketitlelists{
+    \euromilscoverpage
+    % insert toc,tof,tot
+    \tableofcontents
+    \fancyfoot[R]{\helv Page~\thepage~of~\pageref{LastPage}}
+    \pagenumbering{arabic}
+}

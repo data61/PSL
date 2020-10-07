@@ -1,0 +1,54 @@
+
+
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\begin{document}
+
+\title{Functional Automata}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+This theory defines deterministic and nondeterministic automata in a
+functional representation: the transition function/relation and the finality
+predicate are just functions. Hence the state space may be infinite.  It is
+shown how to convert regular expressions into such automata. A scanner
+(generator) is implemented with the help of functional automata: the scanner
+chops the input up into longest recognized substrings. Finally we also show
+how to convert a certain subclass of functional automata (essentially the
+finite deterministic ones) into regular sets.
+\end{abstract}
+
+\section{Overview}
+
+The theories are structured as follows:
+\begin{itemize}
+\item Automata:
+ \texttt{AutoProj}, \texttt{NA}, \texttt{NAe}, \texttt{DA}, \texttt{Automata}
+\item Conversion of regular expressions into automata:\\
+  \texttt{RegExp2NA}, \texttt{RegExp2NAe}, \texttt{AutoRegExp}.
+\item Scanning: \texttt{MaxPrefix}, \texttt{MaxChop}, \texttt{AutoMaxChop}.
+\end{itemize}
+For a full description see \cite{Nipkow-TPHOLs98}.
+
+In contrast to that paper, the latest version of the theories provides a
+fully executable scanner generator. The non-executable bits (transitive
+closure) have been eliminated by going from regular expressions directly to
+nondeterministic automata, thus bypassing epsilon-moves.
+
+Not described in the paper is the conversion of certain functional automata
+(essentially the finite deterministic ones) into regular sets contained in
+\texttt{RegSet\_of\_nat\_DA}.
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

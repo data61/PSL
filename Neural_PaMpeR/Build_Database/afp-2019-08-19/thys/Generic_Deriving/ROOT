@@ -1,0 +1,17 @@
+chapter AFP
+
+session "Generic_Deriving" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Derive
+    Tagged_Prod_Sum
+    "tests/Derive_Datatypes"
+    "tests/Derive_Eq"
+    "tests/Derive_Encode"
+    "tests/Derive_Algebra"
+    "tests/Derive_Show"
+    "tests/Derive_Eq_Laws"
+    "tests/Derive_Algebra_Laws"
+  document_files
+    "root.bib"
+    "root.tex"

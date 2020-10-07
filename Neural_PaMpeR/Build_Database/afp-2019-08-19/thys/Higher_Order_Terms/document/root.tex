@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{isabelle}
+\usepackage{isabellesym}
+\usepackage{amssymb}
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{An Algebra for Higher-Order Terms}
+\author{Lars Hupel}
+\maketitle
+
+\begin{abstract}
+  In this formalization, I introduce a higher-order term algebra, generalizing the notions of
+  free variables, matching, and substitution. The need arose from the work on a verified compiler
+  from Isabelle to CakeML \cite{hupel2018compiler}. Terms can be thought of as consisting of a
+  \emph{generic} (free variables, constants, application) and a \emph{specific} part. As example
+  applications, this entry provides instantiations for de-Bruijn terms, terms with named variables,
+  and Blanchette's $\lambda$-free higher-order terms \cite{blanchette2016lambda}. Furthermore, I
+  implement translation functions between de-Bruijn terms and named terms and prove their
+  correctness.
+\end{abstract}
+
+\tableofcontents
+
+\clearpage
+
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,9 @@
+chapter AFP
+
+session "SDS_Impossibility" (AFP) = "Randomised_Social_Choice" +
+  options [timeout = 300]
+  theories
+    SDS_Impossibility
+  document_files
+    "root.tex"
+    "root.bib"

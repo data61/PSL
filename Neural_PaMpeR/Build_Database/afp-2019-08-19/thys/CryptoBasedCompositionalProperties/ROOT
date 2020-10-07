@@ -1,0 +1,15 @@
+chapter AFP
+
+session CryptoBasedCompositionalProperties (AFP) = "HOL" +
+  options [timeout = 600]
+  theories [document = false]
+    ListExtras
+  theories
+    Secrecy_types
+    inout
+    Secrecy
+    CompLocalSecrets
+    KnowledgeKeysSecrets
+  document_files
+    "root.bib"
+    "root.tex"

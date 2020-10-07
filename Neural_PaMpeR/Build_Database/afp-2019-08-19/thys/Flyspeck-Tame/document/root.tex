@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Tame Plane Graphs}
+\author{Gertrud Bauer and Tobias Nipkow}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+  These theories present the verified enumeration of \emph{tame} plane graphs
+  as defined by Thomas C. Hales in his revised proof of the Kepler
+  Conjecture. Compared with his original proof, the notion of tameness has
+  become simpler, there are many more tame graphs, but much of the earlier
+  verification \cite{NipkowBS-IJCAR06} carries over.
+  For more details see \url{http://code.google.com/p/flyspeck/} and
+  the forthcoming book ``Dense Sphere Packings: A Blueprint for Formal Proofs''
+  by Hales.
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Bibliography}
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

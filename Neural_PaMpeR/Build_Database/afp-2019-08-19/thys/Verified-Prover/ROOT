@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Verified-Prover" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Prover
+  document_files
+    "root.bib"
+    "root.tex"

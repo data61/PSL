@@ -1,0 +1,129 @@
+%\documentclass[11pt,a4paper]{article}
+\documentclass[11pt, USenglish, pdftex]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{hyphenat}
+\usepackage{authblk}
+\usepackage[final]{graphicx}
+\usepackage{url}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{\huge Infeasible Paths Elimination by Symbolic Execution Techniques:\\ 
+\large Proof of Correctness and Preservation of Paths}
+
+\author{%
+  %\href{https://www.lri.fr/~aissat/}{
+  	Romain Aissat
+  %}
+  and
+  %\href{https://www.lri.fr/~fv/}{
+  	Fr\'ed\'eric Voisin
+  %}
+  and
+  %\href{https://www.lri.fr/~wolff/}{
+  	Burkhart Wolff
+  %}
+}
+
+\affil{%
+LRI, Univ Paris-Sud, CNRS, CentraleSup\'elec,\\Universit\'e Paris-Saclay, France\\
+\href{mailto:"Romain Aissat"<aissat@lri.fr>}{aissat@lri.fr}, 
+\href{mailto:"Burkhart Wolff"<wolff@lri.fr>}{wolff@lri.fr}
+}
+
+
+\maketitle
+
+\begin{abstract}
+TRACER~\cite{DBLP:conf/cav/JaffarMNS12} is a tool for verifying safety
+properties of sequential C programs. TRACER attempts at building a finite
+symbolic execution graph which over\hyp{}approximates the 
+set of all concrete reachable states and the set of feasible paths.
+ 
+We present an abstract framework for TRACER and similar 
+CEGAR\hyp{}like systems~\cite{DBLP:journals/sttt/BeyerHJM07,DBLP:conf/tacas/ClarkeKSY05,DBLP:conf/cav/IvancicYGGSA05,DBLP:conf/pldi/GrebenshchikovLPR12,McMillan2006}. 
+The framework provides
+1) a graph\hyp{}transformation based method for reducing the feasible paths in 
+   control\hyp{}flow graphs,
+2) a model for symbolic execution, subsumption, predicate abstraction and  
+   invariant generation.
+In this framework we formally prove two key
+properties: correct construction of the symbolic states and preservation of
+feasible paths.
+The framework focuses on core operations, leaving to concrete
+prototypes to ``fit in'' heuristics for combining them.
+
+The accompanying paper (published in ITP 2016) can be found at
+\url{https://www.lri.fr/~wolff/papers/conf/2016-itp-InfPathsNSE.pdf},
+also appeared in\cite{AissatVW2016}.
+
+\bigskip
+\noindent{\textbf{Keywords: TRACER, CEGAR, Symbolic Executions, Feasible Paths, 
+                  Control-Flow Graphs, Graph Transformation}}
+\end{abstract}
+
+\newpage
+   
+\tableofcontents
+
+\newpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\input{intro}
+
+\newpage
+
+% generated text of all theories
+\input{session}
+
+\newpage
+
+\input{summary}
+
+%\newpage
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+\bibliographystyle{IEEEtran}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

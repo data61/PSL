@@ -1,0 +1,14 @@
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/mlton.mlb 
+
+local
+    Unsynchronized.sml
+    ann "nonexhaustiveMatch ignore" in
+      Fofu_Export.sml
+    end
+in
+    structure Fofu
+    structure stat
+end
+
+Fofu_Benchmark.sml

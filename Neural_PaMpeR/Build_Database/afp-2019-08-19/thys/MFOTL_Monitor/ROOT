@@ -1,0 +1,14 @@
+chapter AFP
+
+session MFOTL_Monitor (AFP) = "Containers" +
+  options [timeout = 1200]
+  theories
+    Monitor
+  theories [condition = ISABELLE_OCAMLFIND, document=false]
+    Monitor_Code
+    Examples
+  document_files
+    "root.tex"
+    "root.bib"
+(*  export_files (in ".") [2]
+   "Monitor.Monitor_Code:code/**" *)

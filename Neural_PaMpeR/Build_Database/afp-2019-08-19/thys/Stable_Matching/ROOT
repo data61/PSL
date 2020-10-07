@@ -1,0 +1,15 @@
+chapter AFP
+
+session "Stable_Matching" (AFP) = "HOL-Library" +
+  options [timeout = 600, show_question_marks = false]
+  theories
+    Sotomayor
+    Basis
+    Choice_Functions
+    Contracts
+    COP
+    Bossiness
+    Strategic
+  document_files
+    "root.tex"
+    "root.bib"

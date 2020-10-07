@@ -1,0 +1,49 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{a4wide}
+\usepackage[english]{babel}
+\usepackage{eufrak}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{literal}
+
+
+\begin{document}
+
+\title{Formalization of Generic Authenticated Data Structures}
+\author{Matthias Brun \and Dmitriy Traytel}
+
+\maketitle
+
+\begin{abstract} Authenticated data structures are a technique for outsourcing data storage and maintenance to an untrusted server.
+The server is required to produce an efficiently checkable and cryptographically secure proof that it carried out precisely the
+requested computation. Miller et al.~\cite{adsg} introduced $\lambda\bullet$ (pronounced \emph{lambda auth})---a functional
+programming language with a built-in primitive authentication construct, which supports a wide range of user-specified authenticated
+data structures while guaranteeing certain correctness and security properties for all well-typed programs.
+%
+We formalize $\lambda\bullet$ and prove its correctness and security properties. With Isabelle's help, we uncover and repair several
+mistakes in the informal proofs and lemma statements. Our findings are summarized in a paper draft~\cite{gadsf}.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,283 @@
+\documentclass[fontsize=10pt,DIV12,paper=a4,open=right,twoside,abstract=true]{scrreprt}
+\usepackage{fixltx2e}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage[english]{babel}
+\usepackage{isabelle}
+\isatagannexa
+  \usepackage{omg}
+  \usepackage{draftwatermark}
+  \SetWatermarkAngle{55}
+  \SetWatermarkLightness{.9}
+  \SetWatermarkFontSize{3cm}
+  \SetWatermarkScale{1.4}
+  \SetWatermarkText{\textbf{\textsf{Draft Proposal}}}
+\endisatagannexa
+\usepackage[nocolortable, noaclist,isasymonly,nocolor]{hol-ocl-isar}
+\renewcommand{\lfloor}{\isasymHolOclLiftLeft}
+\renewcommand{\rfloor}{\isasymHolOclLiftRight}
+\renewcommand{\lceil}{\isasymHolOclDropLeft}
+\renewcommand{\rceil}{\isasymHolOclDropRight}
+\renewcommand{\oclkeywordstyle}{\bfseries}
+\renewcommand{\javakeywordstyle}{\bfseries}
+\renewcommand{\smlkeywordstyle}{\bfseries}
+\renewcommand{\holoclthykeywordstyle}{}
+
+\usepackage{lstisar}
+\usepackage{railsetup}
+\usepackage[]{mathtools}
+\usepackage{%
+  multirow,
+  paralist,
+  booktabs,     %       "        "      "
+  threeparttable,
+  longtable,    % Mehrseitige Tabellen 
+}
+
+
+
+\usepackage{graphicx}
+\usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage{chapterbib}
+\usepackage[caption=false]{subfig}
+\usepackage{tabu}
+\usepackage{prooftree}
+%\usepackage[draft]{fixme}
+\usepackage[pdfpagelabels, pageanchor=false, bookmarksnumbered, plainpages=false]{hyperref}
+\graphicspath{{data/},{figures/}}
+\makeatletter
+\renewcommand*\l@section{\bprot@dottedtocline{1}{1.5em}{2.8em}}
+\renewcommand*\l@subsection{\bprot@dottedtocline{2}{3.8em}{3.7em}}
+\renewcommand*\l@subsubsection{\bprot@dottedtocline{3}{7.0em}{5em}}
+\renewcommand*\l@paragraph{\bprot@dottedtocline{4}{10em}{6.2em}}
+%\renewcommand*\l@paragraph{\bprot@dottedtocline{4}{10em}{5.5em}}
+\renewcommand*\l@subparagraph{\bprot@dottedtocline{5}{12em}{7.7em}}
+%\renewcommand*\l@subparagraph{\bprot@dottedtocline{5}{12em}{6.5em}}
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Overall the (rightfully issued) warning by Koma Script that \rm
+%%% etc. should not be used (they are deprecated since more than a
+%%% decade)
+  \DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+  \DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+  \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+  \DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+  \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{tocdepth}{3} % printed TOC not too detailed
+\hypersetup{bookmarksdepth=3} % more detailed digital TOC (aka bookmarks)
+\sloppy
+\allowdisplaybreaks[4]
+\raggedbottom
+
+\newcommand{\HOL}{HOL\xspace}
+\newcommand{\OCL}{OCL\xspace}
+\newcommand{\UML}{UML\xspace}
+\newcommand{\HOLOCL}{HOL-OCL\xspace}
+\newcommand{\FOCL}{Featherweight OCL\xspace}
+\renewcommand{\HolTrue}{\mathrm{true}}
+\renewcommand{\HolFalse}{\mathrm{false}}
+\newcommand{\ptmi}[1]{\using{\mi{#1}}}
+\newcommand{\Lemma}[1]{{\color{BrickRed}%
+    \mathbf{\operatorname{lemma}}}~\text{#1:}\quad}
+\newcommand{\done}{{\color{OliveGreen}\operatorname{done}}}
+\newcommand{\apply}[1]{{\holoclthykeywordstyle%
+    \operatorname{apply}}(\text{#1})}
+\newcommand{\fun} {{\holoclthykeywordstyle\operatorname{fun}}}
+\newcommand{\isardef} {{\holoclthykeywordstyle\operatorname{definition}}}
+\newcommand{\where} {{\holoclthykeywordstyle\operatorname{where}}}
+\newcommand{\datatype} {{\holoclthykeywordstyle\operatorname{datatype}}}
+\newcommand{\types} {{\holoclthykeywordstyle\operatorname{types}}}
+\newcommand{\pglabel}[1]{\text{#1}}
+\renewcommand{\isasymOclUndefined}{\ensuremath{\mathtt{invalid}}}
+\newcommand{\isasymOclNull}{\ensuremath{\mathtt{null}}}
+\newcommand{\isasymOclInvalid}{\isasymOclUndefined}
+\DeclareMathOperator{\inv}{inv}
+\newcommand{\Null}[1]{{\ensuremath{\mathtt{null}_\text{{#1}}}}}
+\newcommand{\testgen}{HOL-TestGen\xspace}
+\newcommand{\HolOption}{\mathrm{option}}
+\newcommand{\ran}{\mathrm{ran}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\typedef}{\mathrm{typedef}}
+\newcommand{\typesynonym}{\mathrm{type\_synonym}}
+\newcommand{\mi}[1]{\,\text{#1}}
+\newcommand{\state}[1]{\ifthenelse{\equal{}{#1}}%
+  {\operatorname{state}}%
+  {\operatorname{\mathit{state}}(#1)}%
+}
+\newcommand{\mocl}[1]{\text{\inlineocl|#1|}}
+\DeclareMathOperator{\TCnull}{null}
+\DeclareMathOperator{\HolNull}{null}
+\DeclareMathOperator{\HolBot}{bot}
+\newcommand{\isaAA}{\mathfrak{A}}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+\newcommand{\ie}{i.\,e.\xspace}
+\newcommand{\eg}{e.\,g.\xspace}
+
+\newenvironment{isamarkuplazy_text}{\par \isacommand{lazy{\isacharunderscore}text}\isamarkupfalse\isacartoucheopen\isastyletext\begin{isapar}}{\end{isapar}\isacartoucheclose}
+\renewcommand{\isasymguillemotleft}{\isatext{\textquotedblleft}}
+\renewcommand{\isasymguillemotright}{\isatext{\textquotedblright}}
+\begin{document}
+\renewcommand{\subsubsectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Section}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\chapterautorefname}{Chapter}
+\newcommand{\subtableautorefname}{\tableautorefname}
+\newcommand{\subfigureautorefname}{\figureautorefname}
+\isatagannexa
+\renewcommand\thepart{\Alph{part}}
+\renewcommand\partname{Annex}
+\endisatagannexa
+
+\newenvironment{matharray}[1]{\[\begin{array}{#1}}{\end{array}\]} % from 'iman.sty'
+\newcommand{\indexdef}[3]%
+{\ifthenelse{\equal{}{#1}}{\index{#3 (#2)|bold}}{\index{#3 (#1\ #2)|bold}}} % from 'isar.sty'
+
+
+
+\isatagafp
+  \title{Featherweight OCL}
+  \subtitle{A Proposal for a Machine-Checked Formal Semantics for OCL 2.5 %\\
+    %\includegraphics[scale=.5]{figures/logo_focl}
+  }
+\endisatagafp
+\isatagannexa
+  \title{A Formal Machine-Checked Semantics for OCL 2.5}
+  \subtitle{A Proposal for the "Annex A" of the OCL Standard}
+\endisatagannexa
+\author{%
+  \href{http://www.brucker.ch/}{Achim D. Brucker}\footnotemark[1]
+  \and
+  \href{https://www.lri.fr/~tuong/}{Fr\'ed\'eric Tuong}\footnotemark[2]~\footnotemark[3]
+  \and
+  \href{https://www.lri.fr/~wolff/}{Burkhart Wolff}\footnotemark[2]~\footnotemark[3]}
+\publishers{%
+  \footnotemark[1]~SAP SE\\
+  Vincenz-Priessnitz-Str. 1, 76131 Karlsruhe,
+  Germany \texorpdfstring{\\}{} \href{mailto:"Achim D. Brucker"
+    <achim.brucker@sap.com>}{achim.brucker@sap.com}\\[2em]
+  %
+  \footnotemark[2]~LRI, Univ. Paris-Sud, CNRS, CentraleSup\'elec, Universit\'e Paris-Saclay \\
+  b\^at. 650 Ada Lovelace, 91405 Orsay, France \texorpdfstring{\\}{}
+    \href{mailto:"Frederic Tuong"
+    <frederic.tuong@lri.fr>}{frederic.tuong@lri.fr} \hspace{4.5em}
+    \href{mailto:"Burkhart Wolff"
+    <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr} \\[2em]
+  %
+  \footnotemark[3]~IRT SystemX\\
+  8 av.~de la Vauve, 91120 Palaiseau, France \texorpdfstring{\\}{}
+    \href{mailto:"Frederic Tuong"
+    <frederic.tuong@irt-systemx.fr>}{frederic.tuong@irt-systemx.fr} \quad
+    \href{mailto:"Burkhart Wolff"
+    <burkhart.wolff@irt-systemx.fr>}{burkhart.wolff@irt-systemx.fr}
+}
+
+
+\maketitle
+\isatagannexa
+\cleardoublepage
+\endisatagannexa
+
+\isatagafp
+  \begin{abstract}
+    The Unified Modeling Language (UML) is one of the few modeling
+    languages that is widely used in industry. While UML is mostly known
+    as diagrammatic modeling language (\eg, visualizing class models),
+    it is complemented by a textual language, called Object Constraint
+    Language (OCL). OCL is a textual annotation language, originally based on a
+    three-valued logic, that turns UML into a formal language.
+    Unfortunately the semantics of this specification language, captured
+    in the ``Annex A'' of the OCL standard, leads to different
+    interpretations of corner cases.  Many of these corner cases had
+    been subject to formal analysis since more than ten years.
+
+    The situation complicated with the arrival of version 2.3 of the OCL 
+    standard. OCL was aligned with the latest version of UML: this led to the 
+    extension of the three-valued logic by a second exception element, called
+    \inlineocl{null}.  While the first exception element
+    \inlineocl{invalid} has a strict semantics, \inlineocl{null} has a
+    non strict interpretation. The combination of these semantic features lead
+    to remarkable confusion for implementors of OCL compilers and
+    interpreters.
+
+    In this paper, we provide a formalization of the core of OCL in
+    HOL\@. It provides denotational definitions, a logical calculus and
+    operational rules that allow for the execution of OCL expressions by
+    a mixture of term rewriting and code compilation. Moreover, we describe
+    a coding-scheme for UML class models that were annotated by 
+    code-invariants and code contracts. An implementation of this coding-scheme
+    has been undertaken: it consists of a kind of compiler that takes a UML class
+    model and translates it into a family of definitions and derived
+    theorems over them capturing the properties of constructors and selectors,
+    tests and casts resulting from the class model. However, this compiler
+    is \emph{not} included in this document.
+
+    Our formalization reveals several inconsistencies and contradictions
+    in the current version of the OCL standard.  They reflect a challenge
+    to define and implement OCL tools in a uniform manner.  Overall, this
+    document is intended to provide the basis for a machine-checked text
+    ``Annex A'' of the OCL standard targeting at tool implementors.
+  \end{abstract}
+  \tableofcontents
+\endisatagafp
+
+\part{Formal Semantics of OCL}
+\input{introduction}
+%\clearpage
+\isatagafp
+\input{session}
+\endisatagafp
+\isatagannexa
+\input{UML_Types.tex}
+\input{UML_Logic.tex}
+\input{UML_PropertyProfiles.tex}
+\input{UML_Boolean.tex}
+\input{UML_Void.tex}
+\input{UML_Integer.tex}
+\input{UML_Real.tex}
+\input{UML_String.tex}
+\input{UML_Pair.tex}
+\input{UML_Bag.tex}
+\input{UML_Set.tex}
+\input{UML_Sequence.tex}
+\input{UML_Library.tex}
+\input{UML_State.tex}
+\input{UML_Contracts.tex}
+%\input{UML_Tools.tex}
+%\input{UML_Main.tex}
+% \input{Design_UML.tex}
+% \input{Design_OCL.tex}
+\input{Analysis_UML.tex}
+\input{Analysis_OCL.tex}
+\part{Bibliography}
+\endisatagannexa
+\isatagafp
+\input{conclusion} %no conclusion for standard document
+\endisatagafp
+\bibliographystyle{abbrvnat}
+\bibliography{root}
+
+\isatagafp
+\appendix
+\part{Appendix}
+\endisatagafp
+\input{FOCL_Syntax}
+
+\isatagannexa
+  \part{Table of Contents}
+  \clearpage {\small \tableofcontents }
+\endisatagannexa
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
+%  LocalWords:  implementors denotational OCL UML

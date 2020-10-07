@@ -1,0 +1,1075 @@
+   \NeedsTeXFormat{LaTeX2e}
+   \RequirePackage{ifthen,amsmath}
+   \RequirePackage{xspace, amssymb,textcomp} % MS: added
+   \ProvidesPackage{focus}
+   \RequirePackage{oz}
+   \RequirePackage{graphicx,color,rotating}
+   \RequirePackage{supertabular,flafter,varioref,booktabs}
+
+\def\@lThebibliography[#1]#2{\chapter{#2}\small\rm
+   \list{\arabic{enumiv}.}{\settowidth\labelwidth{#1}%
+      \leftmargin\labelwidth
+      \advance\leftmargin\labelsep
+      \usecounter{enumiv}%
+      \let\p@enumiv\@empty
+      \def\theenumiv{\arabic{enumiv}}}%
+   \def\newblock{\hskip .11em plus .33em minus .07em}%
+   \sloppy\clubpenalty4000\widowpenalty4000
+   \sfcode`\.=1000\relax}
+
+\def\@Thebibliography#1{\chapter{#1}\small\rm
+   \list{\arabic{enumiv}.}%
+   {\if@bibay
+        \settowidth\labelwidth{\hspace{10\p@}\hskip-\labelsep}%
+      \else
+        \settowidth\labelwidth{\hspace\parindent\hskip-\labelsep}%
+      \fi
+      \usecounter{enumiv}%
+      \let\p@enumiv\@empty
+      \def\theenumiv{\arabic{enumiv}}%
+      \leftmargin\labelwidth
+      \advance\leftmargin\labelsep}
+   \def\newblock{\hskip .11em plus .33em minus .07em}
+   \sloppy\clubpenalty4000\widowpenalty4000
+   \sfcode`\.=1000\relax}
+\zedindent=1em
+\zedtab=1em
+\jot8pt
+\def\gendef#1{\leftnamesfalse\z@inoutbox\z@dbltopline{$\,#1\,$}}
+\def\z@@topline#1[#2]{\hbox to\linewidth{\zstrut\ifleftnames\else
+    \vrule height\zedlinethickness width\zedlinethickness
+    \hbox to\zedleftsep{\z@hrulefill}\fi#1\z@hrulefill
+    \smash{\vrule height\zedlinethickness width\zedlinethickness
+    depth\zedcornerheight}\hbox{\sf #2}%
+    \hbox to\zedleftsep{\z@hrulefill}% inserted
+    }\cr}
+\def\wwhere{\also \omit%
+    \hbox to\zedbar{\z@hrulefill}%
+    \kern-\zedbar%
+    \smash{\vrule height\zedlinethickness width\zedlinethickness
+    depth\doublerulesep}%
+    \kern-\zedlinethickness%
+    \lower\doublerulesep \hbox to\zedbar{\z@hrulefill}%
+    \cr\also}
+\let\SST\wwhere
+\newcommand{\ZD}{\z@hrulefill\hfill\z@hrulefill\hfill\z@hrulefill\hfill}
+\newcommand{\zeddashline}{\also\omit\hbox to\linewidth{\vrule
+\ZD\ZD\ZD\ZD\ZD\ZD\ZD\ZD\ZD\ZD\ZD\ZD\ZD\ZD\z@hrulefill}\also}
+\newenvironment{zedarray}[2][t]{%
+  \renewcommand*{\arraystretch}{1.7}%
+  \begin{array}[#1]{#2}%
+  \null\\[-26pt]
+}{%
+  \end{array}%
+}
+\renewcommand{\circledR}{\ensuremath{\text{\raisebox{1pt}{%
+  \scriptsize\textcircled{\tiny\raisebox{-.4pt}R}}}}}
+\renewcommand{\circledS}{\ensuremath{\text{\raisebox{1pt}{%
+  \scriptsize\textcircled{\tiny\raisebox{-.4pt}S}}}}}
+\newcommand{\circledT}{\ensuremath{\text{\raisebox{1pt}{%
+  \scriptsize\textcircled{\tiny\raisebox{-.4pt}T}}}}}
+\newcommand{\tab}[1]{\makebox[9mm][l]{\textsf{#1}}}
+\newcommand{\tabb}{\tab{}}
+
+\newenvironment{spec}[2]{%
+\ifthenelse{\equal{#2}{}}{\begin{gendef}{\mathrm{#1}}}%
+ {\begin{gendef}{\mathrm{#1}}[~\textsf{%
+  \ifthenelse{\equal{#2}{td}}{timed}{%
+   \ifthenelse{\equal{#2}{un}}{untimed}{%
+    \ifthenelse{\equal{#2}{ts}}{time-synchronous}{%
+     \ifthenelse{\equal{#2}{gb}}{glass-box}{%
+      \ifthenelse{\equal{#2}{bb}}{black-box}{#2}}}}}}~]
+  }}{\end{gendef}}
+  
+    \newenvironment{procF}[3]{%
+\ifthenelse{\equal{#3}{}}{\begin{gendef}{\mathrm{\sname{#1}~(#2)}}}%
+ {\begin{gendef}{\textsf{process}~ \mathrm{\sname{#1}(#2)}}[~\textsf{%
+  \ifthenelse{\equal{#3}{td}}{timed}{%
+   \ifthenelse{\equal{#3}{un}}{untimed}{%
+    \ifthenelse{\equal{#3}{ts}}{time-synchronous}{%
+     \ifthenelse{\equal{#3}{gb}}{glass-box}{%
+      \ifthenelse{\equal{#3}{bb}}{black-box}{#3}}}}}}~]
+  }}{\end{gendef}}
+  
+%\newenvironment{specCobra}[2]{%
+%{\begin{gendef}{\textsf{CobraClass}~ \mathrm{\sname{#1}(#2)} [~\textsf{timed}~] }{\end{gendef}}
+  
+
+      \newenvironment{specCobra}[3]{%
+\ifthenelse{\equal{#3}{}}{\begin{gendef}{\textsf{CobraClass}~ \mathrm{\sname{#1}~(#2)}}}%
+ {\begin{gendef}{\textsf{CobraClass}~ \mathrm{\sname{#1}(#2)}}[~\textsf{%
+  \ifthenelse{\equal{#3}{td}}{timed}{%
+   \ifthenelse{\equal{#3}{un}}{untimed}{%
+    \ifthenelse{\equal{#3}{ts}}{time-synchronous}{%
+     \ifthenelse{\equal{#3}{gb}}{glass-box}{%
+      \ifthenelse{\equal{#3}{bb}}{black-box}{#3}}}}}}~]
+  }}{\end{gendef}}
+  
+      \newenvironment{specF}[3]{%
+\ifthenelse{\equal{#3}{}}{\begin{gendef}{\mathrm{\sname{#1}~(#2)}}}%
+ {\begin{gendef}{\mathrm{\sname{#1}(#2)}}[~\textsf{%
+  \ifthenelse{\equal{#3}{td}}{timed}{%
+   \ifthenelse{\equal{#3}{un}}{untimed}{%
+    \ifthenelse{\equal{#3}{ts}}{time-synchronous}{%
+     \ifthenelse{\equal{#3}{gb}}{glass-box}{%
+      \ifthenelse{\equal{#3}{bb}}{black-box}{#3}}}}}}~]
+  }}{\end{gendef}}
+  
+  \newenvironment{process}[2]{%
+\ifthenelse{\equal{#2}{}}{\begin{gendef}{\mathrm{#1}}}%
+ {\begin{gendef}{\textsf{process}~ \mathrm{#1}}[~\textsf{%
+  \ifthenelse{\equal{#2}{td}}{timed}{%
+   \ifthenelse{\equal{#2}{un}}{untimed}{%
+    \ifthenelse{\equal{#2}{ts}}{time-synchronous}{%
+     \ifthenelse{\equal{#2}{gb}}{glass-box}{%
+      \ifthenelse{\equal{#2}{bb}}{black-box}{#2}}}}}}~]
+  }}{\end{gendef}}
+  
+    \newenvironment{spobject}[2]{%
+\ifthenelse{\equal{#2}{}}{\begin{gendef}{\mathrm{#1}}}%
+ {\begin{gendef}{\colorbox{Dandelion}{\textsf{spObject}}~ \mathrm{#1} ~(#2)} 
+  }}{\end{gendef}}
+  
+    \newenvironment{process2}[2]{%
+\ifthenelse{\equal{#2}{}}{\begin{gendef}{\mathrm{#1}}}%
+ {\begin{gendef}{\textsf{process}~ \mathrm{#1}}[~\textsf{%
+  \ifthenelse{\equal{#2}{td}}{timed}{%
+   \ifthenelse{\equal{#2}{un}}{untimed}{%
+    \ifthenelse{\equal{#2}{ts}}{time-synchronous}{%
+     \ifthenelse{\equal{#2}{gb}}{glass-box}{%
+      \ifthenelse{\equal{#2}{bb}}{black-box}{#2}}}}}}~]
+  }}{\end{gendef}}
+
+\newcommand{\In}[1]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{in}  #1\\[1.5mm]
+\\[-6mm]
+\end{array}\zedline}
+
+\newcommand{\Out}[1]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{out}  #1\\[1.5mm]
+\\[-6mm]
+\end{array}\zedline}
+
+\newcommand{\InOut}[2]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{in}  #1\\[1.5mm]
+\tab{out} #2\\[1.5mm]
+\\[-6mm]
+\end{array}\zedline}
+
+\newcommand{\OutLoc}[2]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{out}  #1\\[1.5mm]
+\tab{loc} #2\\[1.5mm]
+\\[-6mm]
+\end{array}\zedline}
+
+\newcommand{\InOutLoc}[3]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{in}  #1\\[1.5mm]
+\tab{out} #2\\[1.5mm]
+\tab{loc} #3\\[1.5mm]
+\\[-6mm]
+\end{array}\zedline}
+
+\newcommand{\Entry}[1]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{entry}  #1\\[1.5mm]
+\\[-6mm]
+\end{array}\zeddashline}
+
+%\newcommand{\Exit}[1]{%
+%\renewcommand{\arraystretch}{1.0}%
+%\begin{array}{@{}l} \\[-3mm]
+%\tab{exit}  #1\\[1.5mm]
+%\\[-6mm]
+%\end{array}\zeddashline}
+
+\newcommand{\EntryExit}[2]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{entry}  #1\\[1.5mm]
+\tab{exit} #2\\[1.5mm]
+\\[-6mm]
+\end{array}\zeddashline}
+
+\newcommand{\FreeUniv}[2]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{free} #1\\[1.5mm]
+\tab{univ} #2\\[1.5mm]
+\\[-6mm]
+\end{array}\zedline}
+
+\newcommand{\Univ}[1]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{univ} #1\\[1.5mm]
+\\[-6mm]
+\end{array}\zedline}
+
+\newcommand{\InOutNoline}[2]{%
+\renewcommand{\arraystretch}{1.0}%
+\begin{array}{@{}l} \\[-3mm]
+\tab{in}  #1\\[1.5mm]
+\tab{out} #2\\[1.5mm]
+\\[-6mm]
+\end{array}\also}
+
+\def\@endtheorem{\hfill\ensuremath{\Box}\endtrivlist}
+
+\newcounter{rule}
+\def\ruledef#1{\refstepcounter{rule}%
+  \def\ST{\also\omit\smash{\vrule height\zedlinethickness width\zedlinethickness}%
+  \kern27pt\hbox to\zedbar{\z@hrulefill}\cr\also}
+  \def\SST{\also \omit%
+    \kern27pt\hbox to\zedbar{\z@hrulefill}%
+    \kern-\zedbar\kern-27pt%
+    \smash{\vrule height\zedlinethickness width\zedlinethickness
+    depth\doublerulesep}%
+    \kern-\zedlinethickness\kern27pt%
+    \lower\doublerulesep
+    \hbox to\zedbar{\z@hrulefill}%
+    \cr\also}
+  \z@inoutbox\omit%
+  \hbox to2\zedbar{\zstrut%
+    \vrule height\zedlinethickness width\zedlinethickness%
+    \hbox to.4\zedleftsep{\z@hrulefill}\,#1\,\z@hrulefill%
+    \hbox to\zedleftsep{\z@hrulefill}%
+    \smash{\vrule height\zedlinethickness width\zedlinethickness%
+    depth\zedcornerheight}}\cr%
+  \noalign{\kern-\baselineskip%
+    \kern-\zedlinethickness\kern-\doublerulesep\nobreak}%
+  \omit\hbox to2\zedbar{\zstrut%
+    \vrule height\zedlinethickness width\zedlinethickness%
+    \hbox to.4\zedleftsep{\z@hrulefill}\,\hphantom{#1}\,\z@hrulefill%
+    \hbox to\zedleftsep{\z@hrulefill}%
+    \smash{\vrule height\zedlinethickness width\zedlinethickness%
+    depth\zedcornerheight}}\cr\cr\cr%
+  \noalign{\kern-9pt\nobreak}%
+  \hspace{18pt}\z@pushmargin
+  }
+\def\endruledef{\cr\z@popmargin\endzed\z@makeinner
+  \let\ST\where\let\SST\wwhere}
+\newtheorem{nexampl}{Example}[section]
+\newenvironment{ex}[1]{\begin{nexampl}%
+\addcontentsline{loe}{example}{\protect\numberline{\thenexampl}#1}%
+\normalfont\textsf{#1:}
+\newline\rmfamily}{\null\hfill\end{nexampl}}
+\newcommand{\listofexamples}{%
+\chapter*{Examples\@mkboth{Examples}{Examples}}%
+\@starttoc{loe}}
+\newcommand*\l@example[2]{%
+  \addvspace{0pt plus 0.2pt}%
+  \setlength\@tempdima{3.0em}%
+  \begingroup
+    \parindent \z@ \rightskip \@pnumwidth
+    \parfillskip -\@pnumwidth
+    \leavevmode %\bfseries
+    \advance\leftskip\@tempdima
+    \hskip -\leftskip
+    #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+  \endgroup
+}
+\newcounter{exno}[section]
+\renewcommand{\theexno}{\thechapter.\arabic{exno}}
+\newcommand{\exlabel}[1]{%
+  \makebox[\labelwidth][r]{\refstepcounter{exno}\textbf{\theexno}}%
+}
+\newenvironment{exlist}{%
+  \subsection*{Exercises:}
+  \begin{list}{}{%
+    \renewcommand{\makelabel}{\exlabel}%
+    \setlength{\labelsep}{5pt}%
+    \setlength{\labelwidth}{20pt}%
+    \setlength{\leftmargin}{25pt}%
+    \setlength{\itemsep}{4pt plus 2pt minus 1pt}%
+    \setlength{\parsep}{4pt plus 2pt minus 1pt}%
+  }
+}{%
+  \end{list}%
+}
+\let\descline=\description
+\let\enddescline=\enddescription
+\newcommand*{\desclabel}[1]{%
+  \parbox[b]{\labelwidth}{%
+    \makebox[0pt][l]{\hspace\labelsep\normalfont #1}\\
+    \relax
+  }%
+  \hspace\leftmargin
+}
+\renewenvironment{description}{%
+  \begin{list}{}{%
+    \setlength{\labelwidth}{0pt}
+    \setlength{\itemindent}{-\leftmargin}
+    \setlength{\itemsep}{4pt plus 2pt}
+    \let\makelabel\desclabel
+  }
+}{%
+  \end{list}
+}
+\def\itemize{%
+  \ifnum \@itemdepth >\thr@@\@toodeep\else
+    \advance\@itemdepth\@ne
+    \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%
+    \expandafter
+    \list
+      \csname\@itemitem\endcsname
+      {\def\makelabel##1{\hss\llap{##1}}}%
+  \fi}
+\let\enditemize =\endlist
+%%
+\newlength{\glosslabwidth}
+\newcommand{\glosslabel}[1]{%
+  \settowidth{\glosslabwidth}{\textrm{#1:}}%
+  \ifdim\glosslabwidth > \labelwidth
+    \begin{tabular}[b]{@{}l@{}}
+      \makebox[0pt][l]{\textrm{#1:}} \\
+      \rule{\labelwidth}{0pt} \\
+    \end{tabular}%
+  \else
+    \textrm{#1:}%
+  \fi
+  \hfil\relax
+}
+\newenvironment{glosslist}[1][5em]{%
+  \begin{list}{}{%
+    \renewcommand{\makelabel}{\glosslabel}%
+    \setlength{\labelsep}{5pt}%
+    \setlength{\labelwidth}{#1}%
+    \setlength{\leftmargin}{\labelwidth}%
+    \addtolength{\leftmargin}{\labelsep}%
+    \setlength{\itemsep}{4pt plus 2pt minus 1pt}%
+    \setlength{\parsep}{4pt plus 2pt minus 1pt}%
+  }
+}{%
+  \end{list}%
+}
+\newenvironment{zedequation}{%
+    \stepcounter{equation}%
+    \def\@currentlabel{\p@equation\theequation}%
+    \global\@eqnswtrue\m@th
+    \global\@eqcnt\z@
+    \tabskip\zedindent
+    \let\\=\@eqncr
+    \setlength\abovedisplayskip{\topsep}%
+    \ifvmode
+      \addtolength\abovedisplayskip{\partopsep}%
+    \fi
+    \addtolength\abovedisplayskip{\parskip}%
+    \setlength\belowdisplayskip{\abovedisplayskip}%
+    \setlength\belowdisplayshortskip{\abovedisplayskip}%
+    \setlength\abovedisplayshortskip{\abovedisplayskip}%
+    $$\everycr{}\halign to\linewidth% $$
+    \bgroup
+      %\hskip\@centering
+      $\displaystyle\tabskip\z@skip{##}$\hfil\@eqnsel&%
+      \global\@eqcnt\@ne \hskip \tw@\arraycolsep \hfil${##}$\hfil&%
+      \global\@eqcnt\tw@ \hskip \tw@\arraycolsep
+        $\displaystyle{##}$\hfil \tabskip\@centering&%
+      \global\@eqcnt\thr@@
+        \hb@xt@\z@\bgroup\hss##\egroup\tabskip\z@skip\cr}%
+      {\@@eqncr
+    \egroup
+    \global\advance\c@equation\m@ne$$% $$
+    \global\@ignoretrue
+    }
+\newenvironment{highlight}{%
+  \begin{center}\begin{minipage}{.9\linewidth}
+}{
+  \end{minipage}\end{center}
+}
+\newcommand{\INDEX}[2][]{%
+  \emph{#2}%
+  \ifthenelse{\equal{#1}{}}{\index{#2|emph}}{\index{#1|emph}}%
+}
+\newcommand{\Index}[2][]{%
+  {#2}%
+  \ifthenelse{\equal{#1}{}}{\index{#2}}{\index{#1}}%
+}
+\setlength{\arraycolsep}{5pt}
+\renewcommand{\arraystretch}{1.3}
+\let\origmidrule=\midrule
+\let\midrule=\hline
+\newcommand{\nleft}{\mbox{\,[\,}}
+\newcommand{\nright}{\mbox{\,]\,}}
+
+%\newcommand{\ack}{\var{ack}}
+%\newcommand{\req}{\var{req}}
+\newcommand{\ok}{\var{ok}} % MS: changed
+\newcommand{\fail}{\var{fail}} % MS: changed
+\newcommand{\default}{\ensuremath{ {Dflt} }}
+\newcommand{\nreset}{\ensuremath{ {Rst} }}
+\newcommand{\ntimeout}{\ensuremath{ {TiOut}}}
+\newcommand{\nset}[1]{\ensuremath{ {Set}(#1)}}
+\newcommand{\nfilt}{\ensuremath{ \,\circledS\, }}
+\newcommand{\ntfilt}{\ensuremath{ \,\circledR\, }}
+\newcommand{\ucross}{\ensuremath{\,\circledT\,}}
+\newcommand{\var}[1]{\textnormal{\itshape #1}}
+\newcommand{\spc}[1]{\textnormal{#1}}
+% 
+\newcommand{\umax}{\textsf{max}} % MS: changed
+\newcommand{\umin}{\textsf{min}} % MS: changed
+\newcommand{\ufb}{\textsf{fb}}
+\newcommand{\uft}{\textsf{ft}}
+\newcommand{\urt}{\textsf{rt}}
+\newcommand{\ult}{\textsf{lt}}
+\newcommand{\ula}{\textsf{la}}
+\newcommand{\udom}{\textsf{dom}}
+\newcommand{\urng}{\textsf{rng}}
+\newcommand{\usafe}{\textsf{safe}}
+\newcommand{\uasm}{\textsf{asm}}
+\newcommand{\ugar}{\textsf{gar}}
+\newcommand{\urec}{\textsf{rec}}
+\newcommand{\utm}{\textsf{tm}}
+\newcommand{\ufree}{\ensuremath{\mathsf{free}}}
+\newcommand{\Focus}{\textsc{Focus}\xspace}
+\newcommand{\Janus}{\textsc{Janus}\xspace}
+\newcommand{\nint}[2]{\ensuremath{(#1\,{\rhd}\,#2)}}
+\newcommand{\nrepl}[2]{\ensuremath{#1\!\!:\!\!#2}}
+\newcommand{\na}[1]{\ensuremath{A_{#1}}}
+\newcommand{\nb}[1]{\ensuremath{B_{#1}}}
+\newcommand{\nc}[1]{\ensuremath{C_{#1}}}
+\newcommand{\nei}[1]{\ensuremath{I_{#1}}}
+\newcommand{\neo}[1]{\ensuremath{O_{#1}}}
+\newcommand{\neic}[1]{\ensuremath{{i_{#1}}}}
+\newcommand{\neoc}[1]{\ensuremath{{o_{#1}}}}
+\newcommand{\nelc}[1]{\ensuremath{{l_{#1}}}}
+\newcommand{\neit}[1]{\ensuremath{{I_{#1}}}}
+\newcommand{\neot}[1]{\ensuremath{{O_{#1}}}}
+\newcommand{\nelt}[1]{\ensuremath{{L_{#1}}}}
+\newcommand{\nfc}[1]{\ensuremath{\mathcal{C}_{#1}}}
+\newcommand{\nio}[1]{\ensuremath{\mathcal{R}_{#1}}}
+\newcommand{\ninput}[1]{\ensuremath{I_{#1}}}
+\newcommand{\noutput}[1]{\ensuremath{O_{#1}}}
+\newcommand{\nloctype}[1]{\ensuremath{L_{#1}}} % M.S.: new
+\newcommand{\ninchannel}[1]{\ensuremath{i_{#1}}} % M.S.: new
+\newcommand{\noutchannel}[1]{\ensuremath{o_{#1}}} % M.S.: new
+\newcommand{\nlocchannel}[1]{\ensuremath{l_{#1}}} % M.S.: new
+\newcommand{\nbody}[1]{\ensuremath{B_{#1}}} % M.S.: new
+\newcommand{\nf}[1]{\ensuremath{\mathcal{R}_{#1}}}
+% MS: deleted
+%\newcommand{\nntst}[2]{\ensuremath{\overrightarrow{#1_{:\mathcal{#2}}}}}
+%\newcommand{\nntst}[2]{\ensuremath{\overrightarrow{#1_{:{#2}}}}} %
+\newcommand{\nprefix}[1]{\ensuremath{\lfloor #1\rfloor}}
+\newcommand{\ndown}[1]{\ensuremath{\lfloor #1\rfloor}}
+\newcommand{\nup}[1]{\ensuremath{\lceil #1\rceil}}
+\newcommand{\nminusset}[2]{\ensuremath{#1\setminus\{ #2\}}}
+\newcommand{\nplusset}[2]{\ensuremath{#1\cup\{#2\}}}
+\newcommand{\ninterval}[2]{\ensuremath{[\,#1 \dots #2\,]}}
+\newcommand{\npower}[1]{\ensuremath{{\mathbb P}(#1)}}
+\newcommand{\nfpower}[1]{\ensuremath{{\mathbb P}_{\mathrm{fin}}(#1)}}
+\newcommand{\nbag}[1]{\ensuremath{{\mathbb M}(#1)}}
+\newcommand{\nfbag}[1]{\ensuremath{{\mathbb M}_{\mathrm{fin}}(#1)}}
+\newcommand{\nfree}[1]{\ensuremath{\ufree(#1)}}
+\newcommand{\nbool}{\ensuremath{{\mathbb B}\mathrm{ool}}}
+\newcommand{\Bool}{\ensuremath{{\mathbb B}\mathrm{ool}}}
+\newcommand{\nbit}{\ensuremath{{\mathbb B}\mathrm{it}}}
+\newcommand{\Bit}{\ensuremath{{\mathbb B}\mathrm{it}}}
+\newcommand{\nchar}{\ensuremath{{\mathbb C}\mathrm{har}}}
+\newcommand{\nnat}{\ensuremath{\nat}}
+\newcommand{\Nat}{\ensuremath{\nat}}
+\newcommand{\nnatplus}{\ensuremath{\nat_+}}
+\newcommand{\nnatinfty}{\ensuremath{\nat_{\infty}}}
+\newcommand{\nreal}{\ensuremath{\real}}
+\newcommand{\ninteger}{\ensuremath{\integer}}
+\newcommand{\nchid}{\ensuremath{\mathbb{CI}}}
+\newcommand{\nip}{\ensuremath{\mathbb{IF}}}
+\newcommand{\ntd}[1]{\ensuremath{\mathsf{timed}(#1)}}
+\newcommand{\nformula}[1]{\ensuremath{\mathbb F(#1)}}
+\newcommand{\nnst}{\ensuremath{\mathbb{NST}}}
+\newcommand{\ntrue}{\textsf{true}}
+\newcommand{\nfalse}{\textsf{false}}
+% \newcommand{\ncompose}[2]{\ensuremath{#1 \cdot #2}} % MS: changed
+\newcommand{\ncompose}[2]{\ensuremath{#1 \circ #2}}
+\newcommand{\nselect}[2]{\ensuremath{\Pi_{#2}.#1}}
+\newcommand{\nwhere}{\textsf{where}~}
+\newcommand{\nsothat}{\textsf{\ so\ that\ }}
+\newcommand{\ntype}{\textsf{type\;}}
+\newcommand{\nchannel}{\textsf{channel\;}}
+\newcommand{\nconstant}{\textsf{constant\;}}
+\newcommand{\nif}{\textsf{if\ }}
+\newcommand{\nfi}{\textsf{fi\ }}
+\newcommand{\notherwise}{\textsf{otherwise\ }}
+\newcommand{\nelif}{\textsf{else if\ }}
+\newcommand{\nelse}{\textsf{else\ }}
+\newcommand{\nthen}{\textsf{then\ }}
+\newcommand{\nlet}{\textsf{let\ }}
+\newcommand{\nin}{\textsf{in\ }}
+\newcommand{\niff}{\textsf{iff\ }}
+\newcommand{\ndef}{\ensuremath{\ \stackrel{\mathsf{def}}{=}\ }}
+\newcommand{\ndefine}{\ensuremath{\mathbb{DEF}}}
+\newcommand{\nwgarrow}{\ensuremath{\, \stackrel{\mathsf W}{\rightarrow}\, }}
+\newcommand{\nsgarrow}{\ensuremath{\, \stackrel{\mathsf S}{\rightarrow}\, }}
+\newcommand{\ntgarrow}{\ensuremath{\, \stackrel{\mathsf T}{\rightarrow}\, }}
+\newcommand{\nwstrat}[1]{\ensuremath{\mathsf{str_W}(#1)}}
+\newcommand{\nsstrat}[1]{\ensuremath{\mathsf{str_S}(#1)}}
+\newcommand{\ntstrat}[1]{\ensuremath{\mathsf{str_T}(#1)}}
+\newcommand{\nimplies}{\ensuremath{\,\operatorname*{%
+            \overset{_+}{\text{---\kern-.9pt}}\triangleright}\,}}
+\newcommand{\ngimplies}[1]{\ensuremath{\,\nimplies_{\!\!#1}\,}}
+\newcommand{\nmax}[1]{\ensuremath{\umax\{#1\}}}
+\newcommand{\nmin}[1]{\ensuremath{\umin\{#1\}}}
+\newcommand{\nrefine}{\ensuremath{\rightsquigarrow}}
+\newcommand{\ncrefine}[1]{\ensuremath{\,\rightsquigarrow_{#1}\,}} % MS: changed
+\newcommand{\ninterface}[2]{\ensuremath{\,\stackrel{(#1,#2)}{\rightsquigarrow}\,}}
+\newcommand{\ncinterface}[3]{\ensuremath{\,% MS: changed
+\stackrel{(#1,#2)}{\rightsquigarrow}\!\!\!_{#3}\ }}
+\newcommand{\nbirefine}{\ensuremath{\leftrightsquigarrow}}
+\newcommand{\nbiinterface}[2]{\ensuremath{\,\stackrel{(#1,#2)}{\leftrightsquigarrow}\,}}
+%\newcommand{\nden}[1]{\ensuremath{[\![\ #1\ ]\!]}} MS: delete (see \semantics)
+\newcommand{\nsubst}[2]{\ensuremath{[^{#1}_{#2}]}}
+\newcommand{\ntwosubst}[4]{\ensuremath{[^{#1}_{#2}\ ^{#3}_{#4}]}}
+\newcommand{\ndotsubst}[4]{\ensuremath{[{^{#1}_{#2}}\ldots{^{#3}_{#4}}]}}
+\newcommand{\nthreesubst}[6]{\ensuremath{[^{#1}_{#2}\ ^{#3}_{#4}\ ^{#5}_{#6}]}}
+\newcommand{\nfoursubst}[8]{\ensuremath{[^{#1}_{#2}\ ^{#3}_{#4}\ ^{#5}_{#6}\ ^{#7}_{#8}]}}
+\newcommand{\nsafe}[1]{\ensuremath{\mathrm S\mathbb F(#1)}}
+\newcommand{\nbar}{\ensuremath{\,|\,}}
+\newcommand{\nsub}[2]{\ensuremath{#1_{\!#2}}}
+\newcommand{\ncon}[2]{%
+  \ensuremath{\sideset{^{#1\,}}{^{\,#2}}{\mathop{\raisebox{.4ex}{%
+  \fboxsep2pt%
+  \fbox{\ensuremath{\scriptscriptstyle\le}}}}}}}
+\newcommand{\nst}[1]{\ensuremath{#1\,^{\omega}}}
+\newcommand{\nist}[1]{\ensuremath{#1\,^{\infty}}}
+\newcommand{\nfst}[1]{\ensuremath{#1\,^{*}}}
+\newcommand{\ntst}[1]{\ensuremath{#1\,^{\underline{\omega}}}}
+\newcommand{\ntist}[1]{\ensuremath{#1\,^{\underline{\infty}}}}
+\newcommand{\ntfst}[1]{\ensuremath{#1\,^{\underline{*}}}}
+\newcommand{\nfb}[1]{\ufb.#1}
+\newcommand{\nft}[1]{\uft.#1}
+\newcommand{\nrt}[1]{\urt.#1}
+\newcommand{\nlt}[1]{\ult.#1}
+\newcommand{\nla}[1]{\ula.#1}
+\newcommand{\nrts}[2]{\ensuremath{\urt^{#2}(#1)}}
+\newcommand{\ndom}[1]{\udom.#1}
+\newcommand{\nrng}[1]{\urng.#1}
+\newcommand{\angles}[1]{\ensuremath{\langle #1\rangle}}
+\newcommand{\nempty}{\angles{}}
+\newcommand{\nconcat}[2]{\ensuremath{#1\!\stackrel{\frown }{\ }\!#2}}
+\newcommand{\nconc}{\ensuremath{\mathop{\stackrel{\frown}{\ }}}}
+\newcommand{\napp}[2]{\ensuremath{#1\,\&\,#2}}
+\newcommand{\nap}{\ensuremath{\,\&\,}}
+\newcommand{\nsapp}[3]{\ensuremath{#1\,\&_{#2}\,#3}}
+\newcommand{\nfilter}[2]{\ensuremath{#1\nfilt #2}}
+\newcommand{\ntfilter}[3]{\ensuremath{#1\circledR (#2,#3)}} % M.S.: changed to 3 parameters
+\newcommand{\ntm}[2]{\ensuremath{\mathsf{tm}(#1,#2)}}
+\newcommand{\ntimes}[2]{\ensuremath{#1^{#2}}}
+\newcommand{\nlen}[1]{\ensuremath{\# #1}}
+\newcommand{\npre}[2]{\ensuremath{#1\sqsubseteq#2}}
+\newcommand{\nelem}[2]{\ensuremath{#1.#2}}
+\newcommand{\ncut}[2]{\ensuremath{#1\!\!\mid\!\!_{#2}}}
+\newcommand{\ntick}{\ensuremath{\surd}}
+\newcommand{\nupto}[2]{\ensuremath{#1\!\!\downarrow\!\!_{#2}}}
+%\newcommand{\niupto}[2]{\ensuremath{#1\downarrow_{#2}}}
+\newcommand{\ntime}[1]{\ensuremath{\utm.#1}}
+\newcommand{\nuntime}[1]{\ensuremath{\overline{#1}}}
+\newcommand{\nrep}[1]{\ensuremath{\propto\!\!.#1}}
+\newcommand{\ncross}[2]{\mbox{$#1\ucross #2$}}
+\newcommand{\nproject}[2]{\mbox{$#1\!\!\mid_{#2}$}}
+\newcommand{\uts}{\ensuremath{\mathsf{ts}}}
+\newcommand{\nts}[1]{\ensuremath{\mathsf{ts}(#1)}}
+\newcommand{\neven}[1]{\ensuremath{\mathsf{even}(#1)}}
+\newcommand{\nodd}[1]{\ensuremath{\mathsf{odd}(#1)}}
+\newcommand{\umap}{\ensuremath{\mathsf{map}}}
+\newcommand{\uop}{\ensuremath{\mathsf{op}}}
+\newcommand{\nmap}[2]{\ensuremath{\umap(#1,#2)}}
+\newcommand{\nop}[1]{\ensuremath{\uop(#1)}}
+%\newcommand{\uhide}{\ensuremath{\dag}} MS: delete
+\newcommand{\nhide}{\ensuremath{\dag}}
+%\newcommand{\nidsubst}{\textsf{r}} MS: delete
+\newcommand{\nrename}[1]{\ensuremath{\mathsf{r}_{#1}}}
+\newcommand{\ndhide}[1]{\ensuremath{{\dag}_{#1}}}
+%\newcommand{\nseq}{\ensuremath{\subclass}} MS: changed
+%\newcommand{\ngseq}{\ensuremath{\weaksubclass}} MS: changed
+%\newcommand{\nsubclass}{\ensuremath{\subclass}} MS: del
+%\newcommand{\nwsubclass}{\ensuremath{\weaksubclass}} MS: del
+\newcommand{\ufeedback}{\ensuremath{\mu}}
+\newcommand{\nfeedback}[1]{\ensuremath{\mu_{#1}}}
+\newcommand{\nhatotimes}{\ensuremath{\,\hat{\otimes}\,}}
+%\newcommand{\uhatotimes}{\ensuremath{\hat{\otimes}}} MS: delete
+\newcounter{xx}\newcounter{yy}\newcounter{zz}
+
+%% MS: new defs
+\newcommand{\nconst}{\textsf{const\,}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Nplus}{\ensuremath{\mathbb{N}_+}}
+\newcommand{\Ninf}{\ensuremath{\mathbb{N}_{\infty}}}
+\newcommand{\B}{\ensuremath{\mathbb{B}}}
+\newcommand{\PS}{\ensuremath{\mathbb{P}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\ulocal}{\textsf{local}\xspace}
+\newcommand{\uuniv}{\textsf{univ}\xspace}
+\newcommand{\uinit}{\textsf{init}\xspace}
+\newcommand{\uinitP}{\textsf{initProcess}\xspace}
+\newcommand{\uinitC}{\textsf{initCComp}\xspace}
+\newcommand{\uorac}{\textsf{orac}\xspace}
+\newcommand{\ninitP}{\\ \zeddashline \tab{\uinitP}\t2}
+\newcommand{\ninitC}{\\ \zeddashline \tab{\uinitC}\t2}
+\newcommand{\ninit}{\\ \zeddashline \tab{\uinit}}
+\newcommand{\nuniv}{\tab{\uuniv}}
+\newcommand{\nlocal}{\tab{\ulocal}}
+\newcommand{\norac}{\tab{\uorac}}
+\newcommand{\nasm}{\tab{\uasm}\\}
+\newcommand{\nnasm}{\tab{\uasm}}
+\newcommand{\ngar}{\\ \zeddashline \tab{\ugar}\\}
+\newcommand{\nentry}{\textsf{entry}~ }
+\newcommand{\nexit}{\textsf{exit}~~ }
+\newcommand{\sname}[1]{\spc{\spc{#1}}}
+\newcommand{\ngarCalc}{\\ \zeddashline \tab{\ugar (Calculations)}\\}
+\newcommand{\ngarDT}{\\ \zeddashline \tab{\ugar (DoTrigger)}\\}
+%
+\newcommand{\nlangle}{\ensuremath{\langle}}
+\newcommand{\nrangle}{\ensuremath{\rangle}}
+\newcommand{\eset}{\{\}}
+\newcommand{\nunion}[2]{#1 \ensuremath{\cup} #2}
+\newcommand{\intersec}[2]{#1 \ensuremath{\cap} #2}
+\newcommand{\subtract}[2]{#1 \ensuremath{\backslash} #2}
+\newcommand{\eseq}{\ensuremath{\langle \rangle}}
+\newcommand{\neseq}[1]{#1 \ensuremath{\neq \langle \rangle}\xspace}
+\newcommand{\sequ}[1]{\ensuremath{\langle #1 \rangle}\xspace}
+\newcommand{\ssets}{\ensuremath{\sqsubseteq_{sub}}\xspace}
+\newcommand{\sse}[2]{#1 \ensuremath{\subseteq} #2}
+\newcommand{\ssle}[2]{#1 \ensuremath{\le_{subsort}} #2}
+\newcommand{\isin}[2]{#1 \ensuremath{\in} #2}
+\newcommand{\notisin}[2]{#1 \ensuremath{\notin} #2}
+\newcommand{\compl}[1]{\ensuremath{\bar{#1}}}
+\newcommand{\msg}[2]{\textsf{msg}_{#1}(#2)} 
+\newcommand{\ndisjoint}[1]{\textsf{disjoint}(#1)} 
+%\newcommand{\ti}[2]{\textsf{ti}(\ensuremath{#1},\ensuremath{#2})}
+\newcommand{\ti}[2]{\ensuremath{#1}^{\ensuremath{#2}}}
+\newcommand{\Nti}[1]{\textsf{Nti}(\ensuremath{#1})}
+\newcommand{\kti}[3]{\textsf{ti}\ensuremath{^{#3}}(\ensuremath{#1},\ensuremath{#2})}
+\newcommand{\semantics}[1]{\textlbrackdbl\xspace#1\xspace\textrbrackdbl\xspace}
+\newcommand{\semanticsm}[1]{\ensuremath{[\![\ #1\ ]\!]}}
+\newcommand{\npar}[2]{#1\xspace\ensuremath{||}\xspace#2}
+\newcommand{\npipedh}[2]{#1\xspace\ensuremath{\subclass}\xspace#2}
+\newcommand{\npiped}[2]{#1\xspace\ensuremath{\weaksubclass}\xspace#2}
+\newcommand{\nparmf}[2]{#1\ensuremath{\,\otimes\,}#2}
+\newcommand{\titable}{\textsf{tiTable}\xspace}
+\newcommand{\tstd}{\textsf{TSTD}\xspace}
+\newcommand{\ntsplit}[2]{\ensuremath{#1\curlywedgedownarrow_{#2}}}
+\newcommand{\ntjoin}[2]{\ensuremath{#1\curlyveedownarrow_{#2}}}
+\newcommand{\mergeti}[2]{\textsf{merge}\ensuremath{^{ti}}(\ensuremath{#1},\ensuremath{#2})}
+\newcommand{\lastti}[2]{\textsf{last}\ensuremath{^{ti}}(\ensuremath{#1},\ensuremath{#2})}
+\newcommand{\fti}[2]{\ensuremath{#1}^{\ensuremath{#2}}_{\textsf{ft}}}
+\newcommand{\tempty}[1]{\ti{#1}{t} = \nempty}
+\newcommand{\tnempty}[1]{\ti{#1}{t} \neq \nempty}
+\newcommand{\titrue}[1]{\ti{#1}{t} = \angles{\ntrue}}
+\newcommand{\tifalse}[1]{\ti{#1}{t} = \angles{\nfalse}}
+
+
+\newcommand{\lbox}[1]{\colorbox{Goldenrod}{#1}}
+%\newcommand{\gbox}[1]{\colorbox{green}{#1}}
+\newcommand{\cbox}[1]{\colorbox{SpringGreen}{#1}}
+
+\newcommand{\shti}[2]{\textsf{ti}[](\ensuremath{#1},\ensuremath{#2})}
+%% MS: end of new defs
+\newcommand{\nbox}[5]{%
+  \put(#1,#2){\framebox(#3,#4){\parbox{#3 pt}{\centering #5}}}
+}
+
+\newcommand{\ndbox}[6][2]{%
+  \put(#2,#3){\dashbox{#1}(#4,#5){\parbox{#4 pt}{\centering #6}}}
+}
+
+\newcommand{\ngbox}[5]{%
+  \fboxsep0pt
+  \put(#1,#2){\framebox(#3,#4){%
+    \colorbox[gray]{0.70}{\parbox[t][#4 pt][c]{#3 pt}{\centering #5}}}
+  }
+}
+
+\newcommand{\nobox}[5]{%
+  \setcounter{xx}{#3}\setcounter{yy}{#4}
+  \divide \c@xx by 2 \divide \c@yy by 2
+  \addtocounter{xx}{#1}\addtocounter{yy}{#2}
+  \put(\value{xx},\value{yy}){\oval(#3,#4){}}
+  \put(#1,#2){\makebox(#3,#4){\parbox{#3 pt}{\centering #5}}}
+}
+
+\newcommand{\nrbox}[5]{%
+  \setcounter{xx}{#3}\setcounter{zz}{#4}
+  \divide \c@zz by 2\addtocounter{xx}{-\value{zz}}
+  \put(#1,#2){\line(1,0){\value{xx}}}
+  \put(#1,#2){\line(0,1){#4}}
+  \setcounter{yy}{#2}\addtocounter{yy}{#4}
+  \put(#1,\value{yy}){\line(1,0){\value{xx}}}
+  \addtocounter{xx}{#1}
+  \put(\value{xx},#2){\line(1,1){\value{zz}}}
+  \put(\value{xx},\value{yy}){\line(1,-1){\value{zz}}}
+  \put(#1,#2){\makebox(#3,#4){\parbox{#3 pt}{\centering #5}}}
+}
+
+\newcommand{\nboxr}[5]{%
+  \setcounter{zz}{#4}\divide \c@zz by 2
+  \setcounter{xx}{#1}\addtocounter{xx}{#3}
+  \put(#1,#2){\line(1,0){#3}}
+  \put(\value{xx},#2){\line(0,1){#4}}
+  \setcounter{yy}{#2}\addtocounter{yy}{#4}
+  \put(#1,\value{yy}){\line(1,0){#3}}
+  \addtocounter{xx}{#1}
+  \put(#1,#2){\line(1,1){\value{zz}}}
+  \put(#1,\value{yy}){\line(1,-1){\value{zz}}}
+  \put(#1,#2){\makebox(#3,#4){\parbox{#3 pt}{\centering #5}}}
+}
+
+\newcommand{\ncbox}[5]{%
+  \setcounter{zz}{#4}\divide \c@zz by 2
+  \setcounter{yy}{#2}\addtocounter{yy}{\value{zz}}
+  \put(#1,\value{yy}){\line(2,-1){#4}}
+  \put(#1,\value{yy}){\line(2,1){#4}}
+  \setcounter{xx}{#1}\addtocounter{xx}{#4}
+  \setcounter{yy}{#2}\addtocounter{yy}{#4}
+  \setcounter{zz}{#3}\addtocounter{zz}{-#4}\addtocounter{zz}{-#4}
+  \put(\value{xx},#2){\line(1,0){\value{zz}}}
+  \put(\value{xx},\value{yy}){\line(1,0){\value{zz}}}
+  \addtocounter{xx}{\value{zz}}
+  \setcounter{zz}{#4}
+  \put(\value{xx},#2){\line(2,1){#4}}
+  \put(\value{xx},\value{yy}){\line(2,-1){#4}}
+  \put(#1,#2){\makebox(#3,#4){\parbox{#3 pt}{\centering #5}}}
+}
+
+\newcommand{\nsrbox}[5]{%
+  \setcounter{zz}{#4}\divide \c@zz by 2
+  \setcounter{xx}{#1}\addtocounter{xx}{#3}\addtocounter{xx}{-\value{zz}}
+  \put(\value{xx},#2){\line(1,2){\value{zz}}}
+  \put(#1,#2){\line(1,2){\value{zz}}}
+  \setcounter{xx}{#1}\addtocounter{xx}{\value{zz}}
+  \setcounter{yy}{#2}\addtocounter{yy}{#4}
+  \setcounter{zz}{-\value{zz}}\addtocounter{zz}{#3}
+  \put(#1,#2){\line(1,0){\value{zz}}}
+  \put(\value{xx},\value{yy}){\line(1,0){\value{zz}}}
+  \put(#1,#2){\makebox(#3,#4){\parbox{#3 pt}{\centering #5}}}
+}
+
+\newcommand{\ntrarr}[4]{%
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[tl]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{#3}\addtocounter{xx}{-10}
+  \setcounter{yy}{#2}\addtocounter{yy}{5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[tr]}
+
+  \put(#1,#2){\line(0,1){5}}
+  \setcounter{xx}{#1}\addtocounter{xx}{#3}
+  \setcounter{yy}{#2}\addtocounter{yy}{5}
+  \put(\value{xx},\value{yy}){\vector(0,-1){5}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{15}
+  \put(\value{xx},\value{yy}){%
+    \setcounter{xx}{#3}\addtocounter{xx}{-20}%
+    \line(1,0){\value{xx}}
+  }
+
+  \setcounter{yy}{#2}\addtocounter{yy}{18} % 18 = 15+3
+  \put(#1,\value{yy}){\makebox(#3,0)[b]{#4}}
+}
+
+\newcommand{\nblarr}[4]{%
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[bl]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{#3}\addtocounter{xx}{-10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[br]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{#3}
+  \put(\value{xx},#2){\line(0,-1){5}}
+  \setcounter{yy}{#2}\addtocounter{yy}{-5}
+  \put(#1,\value{yy}){\vector(0,1){5}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-15}
+  \put(\value{xx},\value{yy}){%
+    \setcounter{xx}{#3}\addtocounter{xx}{-20}%
+    \line(1,0){\value{xx}}
+  }
+
+  \setcounter{yy}{#2}\addtocounter{yy}{-18} % 18 = 15+3
+  \put(#1,\value{yy}){\makebox(#3,0)[t]{#4}}
+}
+
+\newcommand{\ntrcir}[3]{%
+  \setcounter{yy}{#2}\addtocounter{yy}{7}
+  \put(#1,\value{yy}){\vector(0,-1){7}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[t]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[br]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{18}
+  \put(\value{xx},\value{yy}){\makebox(0,0)[b]{#3}}
+}
+
+\newcommand{\nbrcir}[3]{%
+  \setcounter{yy}{#2}\addtocounter{yy}{-7}
+  \put(#1,\value{yy}){\vector(0,1){7}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[b]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[tr]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-18}
+  \put(\value{xx},\value{yy}){\makebox(0,0)[t]{#3}}
+}
+
+\newcommand{\ntlcir}[3]{%
+  \setcounter{yy}{#2}\addtocounter{yy}{7}
+  \put(#1,\value{yy}){\vector(0,-1){7}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-10}
+  \setcounter{yy}{#2}\addtocounter{yy}{5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[t]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-10}
+  \setcounter{yy}{#2}\addtocounter{yy}{5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[bl]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-10}
+  \setcounter{yy}{#2}\addtocounter{yy}{18}
+  \put(\value{xx},\value{yy}){\makebox(0,0)[b]{#3}}
+}
+
+\newcommand{\nblcir}[3]{%
+  \setcounter{yy}{#2}\addtocounter{yy}{-7}
+  \put(#1,\value{yy}){\vector(0,1){7}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[b]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-5}
+  \put(\value{xx},\value{yy}){\oval(20,20)[tl]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-10}
+  \setcounter{yy}{#2}\addtocounter{yy}{-18}
+  \put(\value{xx},\value{yy}){\makebox(0,0)[t]{#3}}
+}
+
+\newcommand{\nrcir}[3]{%
+  \setcounter{xx}{#1}\addtocounter{xx}{6}
+  \setcounter{yy}{#2}\addtocounter{yy}{7}
+  \put(\value{xx},\value{yy}){\line(-1,0){9}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{6}
+  \put(\value{xx},#2){\oval(14,14)[r]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{6}
+  \setcounter{yy}{#2}\addtocounter{yy}{-7}
+  \put(\value{xx},\value{yy}){\vector(-1,0){9}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{16}
+  \put(\value{xx},#2){\makebox(0,0)[l]{\begin{tabular}{@{}l@{}}#3\end{tabular}}}
+}
+
+\newcommand{\nlcir}[3]{%
+  \setcounter{xx}{#1}\addtocounter{xx}{-6}
+  \setcounter{yy}{#2}\addtocounter{yy}{7}
+  \put(\value{xx},\value{yy}){\line(1,0){9}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-6}
+  \put(\value{xx},#2){\oval(14,14)[l]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-6}
+  \setcounter{yy}{#2}\addtocounter{yy}{-7}
+  \put(\value{xx},\value{yy}){\vector(1,0){9}}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{-16}
+  \put(\value{xx},#2){\makebox(0,0)[r]{\begin{tabular}{@{}l@{}}#3\end{tabular}}}
+}
+
+\newcommand{\ntcir}[3]{%
+  \setcounter{xx}{#1}\addtocounter{xx}{-7}
+  \put(\value{xx},#2){\line(0,1){6}}
+
+  \setcounter{yy}{#2}\addtocounter{yy}{6}
+  \put(#1,\value{yy}){\oval(14,14)[t]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{7}
+  \setcounter{yy}{#2}\addtocounter{yy}{6}
+  \put(\value{xx},\value{yy}){\vector(0,-1){6}}
+
+  \setcounter{yy}{#2}\addtocounter{yy}{18}
+  \put(#1,\value{yy}){\makebox(0,0)[c]{#3}}
+}
+
+\newcommand{\nbcir}[3]{%
+  \setcounter{xx}{#1}\addtocounter{xx}{-7}
+  \put(\value{xx},#2){\line(0,-1){6}}
+
+  \setcounter{yy}{#2}\addtocounter{yy}{-6}
+  \put(#1,\value{yy}){\oval(14,14)[b]}
+
+  \setcounter{xx}{#1}\addtocounter{xx}{7}
+  \setcounter{yy}{#2}\addtocounter{yy}{-6}
+  \put(\value{xx},\value{yy}){\vector(0,1){6}}
+
+  \setcounter{yy}{#2}\addtocounter{yy}{-18}
+  \put(#1,\value{yy}){\makebox(0,0)[c]{#3}}
+}
+
+\newcommand{\ntext}[5]{%
+    \setcounter{xx}{#1}\setcounter{yy}{#2}
+    \ifthenelse{\equal{#4}{l}}{\addtocounter{xx}{3}
+      \put(\value{xx},\value{yy}){\makebox(0,#3)[l]{%
+        \begin{tabular}{@{}l@{}}#5\end{tabular}}}}{}
+    \ifthenelse{\equal{#4}{r}}{\addtocounter{xx}{-3}
+      \put(\value{xx},\value{yy}){\makebox(0,#3)[r]{%
+        \begin{tabular}{@{}r@{}}#5\end{tabular}}}}{}
+    \ifthenelse{\equal{#4}{t}}{\addtocounter{yy}{-2}
+      \put(\value{xx},\value{yy}){\makebox(#3,0)[t]{%
+        \begin{tabular}{@{}l@{}}#5\end{tabular}}}}{}
+    \ifthenelse{\equal{#4}{b}}{\addtocounter{yy}{1}
+      \put(\value{xx},\value{yy}){\makebox(#3,0)[b]{%
+        \begin{tabular}{@{}l@{}}#5\end{tabular}}}}{}
+}
+
+\newcommand{\nvecr}[5]{%
+  % arrow right
+  \put(#1,#2){\vector(1,0){#3}}
+  \ntext{#1}{#2}{#3}{b}{#4}
+  \ntext{#1}{#2}{#3}{t}{#5}
+}
+
+\newcommand{\nvecl}[5]{%
+  % arrow left
+  \setcounter{xx}{#1}\addtocounter{xx}{#3}
+  \put(\value{xx},#2){\vector(-1,0){#3}}
+  \ntext{#1}{#2}{#3}{b}{#4}
+  \ntext{#1}{#2}{#3}{t}{#5}
+}
+
+\newcommand{\ndvecr}[5]{%
+  % dashed arrow right
+  \setcounter{xx}{#1}
+  \setcounter{yy}{#1}\addtocounter{yy}{#3}\addtocounter{yy}{-4}
+  \whiledo{\value{xx}<\value{yy}}{
+    \put(\value{xx},#2){\line(1,0){4}}
+    \addtocounter{xx}{8}
+  }
+  \setcounter{xx}{#1}\addtocounter{xx}{#3}
+  \put(\value{xx},#2){\vector(1,0){0}}
+  \ntext{#1}{#2}{#3}{b}{#4}
+  \ntext{#1}{#2}{#3}{t}{#5}
+}
+
+\newcommand{\ndvecl}[5]{%
+  % dashed arrow left
+  \setcounter{xx}{#1}
+  \setcounter{yy}{#1}\addtocounter{yy}{#3}\addtocounter{yy}{-4}
+  \whiledo{\value{xx}<\value{yy}}{
+    \put(\value{xx},#2){\line(1,0){4}}
+    \addtocounter{xx}{8}
+  }
+  \put(#1,#2){\vector(-1,0){0}}
+  \ntext{#1}{#2}{#3}{b}{#4}
+  \ntext{#1}{#2}{#3}{t}{#5}
+}
+
+\newcommand{\nvecu}[5]{%
+  % arrow up
+  \put(#1,#2){\vector(0,1){#3}}
+  \ntext{#1}{#2}{#3}{r}{#4}
+  \ntext{#1}{#2}{#3}{l}{#5}
+}
+
+\newcommand{\nvecd}[5]{%
+  % arrow down
+  \setcounter{yy}{#2}\addtocounter{yy}{#3}
+  \put(#1,\value{yy}){\vector(0,-1){#3}}
+  \ntext{#1}{#2}{#3}{r}{#4}
+  \ntext{#1}{#2}{#3}{l}{#5}
+}
+
+\newcommand{\ndvecu}[5]{%
+  % dashed arrow up
+  \setcounter{yy}{#2}
+  \setcounter{xx}{#2}\addtocounter{xx}{#3}\addtocounter{xx}{-4}
+  \whiledo{\value{yy}<\value{xx}}{
+    \put(#1,\value{yy}){\line(0,1){4}}
+    \addtocounter{yy}{8}
+  }
+  \setcounter{yy}{#2}\addtocounter{yy}{#3}
+  \put(#1,\value{yy}){\vector(0,1){0}}
+  \ntext{#1}{#2}{#3}{r}{#4}
+  \ntext{#1}{#2}{#3}{l}{#5}
+}
+
+\newcommand{\ndvecd}[5]{%
+  % dashed arrow down
+  \setcounter{yy}{#2}\addtocounter{yy}{#3}
+  \setcounter{xx}{#2}\addtocounter{xx}{4}
+  \whiledo{\value{yy}>\value{xx}}{
+    \put(#1,\value{yy}){\line(0,-1){4}}
+    \addtocounter{yy}{-8}
+  }
+  \put(#1,#2){\vector(0,-1){0}}
+  \ntext{#1}{#2}{#3}{r}{#4}
+  \ntext{#1}{#2}{#3}{l}{#5}
+}
+
+\newcommand{\nlinh}[5]{%
+  % horizontal line
+  \put(#1,#2){\line(1,0){#3}}
+  \ntext{#1}{#2}{#3}{b}{#4}
+  \ntext{#1}{#2}{#3}{t}{#5}
+}
+
+\newcommand{\ndlinh}[5]{%
+  % dashed horizontal line
+  \setcounter{xx}{#1}
+  \setcounter{yy}{#1}\addtocounter{yy}{#3}\addtocounter{yy}{-4}
+  \whiledo{\value{xx}<\value{yy}}{
+    \put(\value{xx},#2){\line(1,0){4}}
+    \addtocounter{xx}{8}
+  }
+  \ntext{#1}{#2}{#3}{b}{#4}
+  \ntext{#1}{#2}{#3}{t}{#5}
+}
+
+\newcommand{\nlinv}[5]{%
+  % vertical line
+  \put(#1,#2){\line(0,1){#3}}
+  \ntext{#1}{#2}{#3}{r}{#4}
+  \ntext{#1}{#2}{#3}{l}{#5}
+}
+
+\newcommand{\ndlinv}[5]{%
+  % dashed vertical line
+  \setcounter{yy}{#2}\addtocounter{yy}{#3}
+  \setcounter{xx}{#2}\addtocounter{xx}{4}
+  \whiledo{\value{yy}>\value{xx}}{
+    \put(#1,\value{yy}){\line(0,-1){4}}
+    \addtocounter{yy}{-8}
+  }
+  \ntext{#1}{#2}{#3}{r}{#4}
+  \ntext{#1}{#2}{#3}{l}{#5}
+}
+\endinput
+
+
+%% End of file `focus.sty'.

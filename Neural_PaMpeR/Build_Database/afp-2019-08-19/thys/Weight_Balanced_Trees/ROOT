@@ -1,0 +1,13 @@
+chapter AFP
+
+session Weight_Balanced_Trees (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "HOL-Data_Structures"
+  theories
+    Weight_Balanced_Trees_log
+    Weight_Balanced_Trees
+  document_files
+    "root.bib"
+    "root.tex"

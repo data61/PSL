@@ -1,0 +1,46 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{QR Decomposition}
+\author{By Jose Divas\'on and Jes\'us Aransay\thanks{This research has been funded 
+  by the research grant FPI-UR-12 of the Universidad de La Rioja and by the project MTM2014-54151-P from Ministerio de Econom\'ia y Competitividad
+(Gobierno de Espa\~na).}}
+\maketitle
+
+
+\begin{abstract}
+In this work we present a formalization of the QR decomposition, an algorithm which decomposes
+a real matrix $A$ in the product of another two matrices $Q$ and $R$, where $Q$ is an orthogonal matrix
+and $R$ is invertible and upper triangular. The algorithm is useful for the least squares problem, 
+i.e. the computation of the best approximation of an unsolvable system of linear equations. 
+As a side-product, the Gram-Schmidt process has also been formalized. A refinement using immutable arrays is presented as well. 
+The development relies, among others, on the AFP entry \emph{Implementing field extensions of the form $\mathbb{Q}[\sqrt{b}]$} by Ren\'e Thiemann,
+which allows to execute the algorithm using symbolic computations. Verified code can be generated and executed using floats as well.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,16 @@
+chapter AFP
+
+session Algebraic_Numbers (AFP) = Berlekamp_Zassenhaus +
+  description "Algebraic Numbers"
+  options [timeout = 3600]
+  sessions
+    Sturm_Sequences
+  theories
+    Real_Factorization
+    Show_Real_Approx
+    Show_Real_Precise
+    Algebraic_Number_Tests
+    Algebraic_Numbers_External_Code
+  document_files
+    "root.bib"
+    "root.tex"

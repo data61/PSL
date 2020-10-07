@@ -1,0 +1,10 @@
+chapter AFP
+
+session Discrete_Summation (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Examples
+  document_files
+    "root.tex"

@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Prime Number Theorem}
+\author{Manuel Eberl and Larry Paulson}
+\maketitle
+
+\begin{abstract}
+This article provides a short proof of the Prime Number Theorem in several equivalent forms, most notably $\pi(x)\sim x / \ln x$ where $\pi(x)$ is the number of primes no larger than $x$. It also defines other basic number-theoretic functions related to primes like Chebyshev's $\vartheta$ and $\psi$ and the ``$n$-th prime number'' function $p_n$. We also show various bounds and relationship between these functions are shown. Lastly, we derive Mertens' First and Second Theorem, i.\,e.\ $\sum_{p\leq x} \frac{\ln p}{p} = \ln x + O(1)$ and $\sum_{p\leq x} \frac{1}{p} = \ln\ln x + M + O(1/\ln x)$. We also give explicit bounds for the remainder terms.
+
+The proof of the Prime Number Theorem builds on a library of Dirichlet series and analytic combinatorics. We essentially follow the presentation by Newman~\cite{newman1998analytic}. The core part of the proof is a Tauberian theorem for Dirichlet series, which is proven using complex analysis and then used to strengthen Mertens' First Theorem to $\sum_{p\leq x} \frac{\ln p}{p} = \ln x + c + o(1)$.
+
+A variant of this proof has been formalised before by Harrison in HOL Light~\cite{harrison-pnt}, and formalisations of Selberg's elementary proof exist both by Avigad \textit{et al.}\ \cite{avigad_pnt}\ in Isabelle and by Carneiro~\cite{carneiro_pnt} in Metamath.
+The advantage of the analytic proof is that, while it requires more powerful mathematical tools, it is considerably shorter and clearer. This article attempts to provide a short and clear formalisation of all components of that proof using the full range of mathematical machinery available in Isabelle, staying as close as possible to Newman's simple paper proof.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

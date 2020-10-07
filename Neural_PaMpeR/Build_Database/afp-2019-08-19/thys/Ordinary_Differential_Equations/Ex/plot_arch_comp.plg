@@ -1,0 +1,19 @@
+# call me with gnuplot -c plot_file.plg infile xlabel xmin xman ylabel ymin ymax
+# requires gnuplot Version 5.0 patchlevel 5
+filename=ARG1
+xl=ARG2
+xmin=ARG3
+xmax=ARG4
+yl=ARG5
+ymin=ARG6
+ymax=ARG7
+infile=filename.".out"
+outfile=filename.".pdf"
+set size ratio 0
+set xrange [xmin : xmax]
+set yrange [ymin : ymax]
+set term pdfcairo size 10cm,10cm
+set output outfile
+set xlabel xl
+set ylabel yl
+plot infile using 1:2:3 w filledcurves closed fillcolor rgb variable notitle fs transparent solid 0.25 border

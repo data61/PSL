@@ -1,0 +1,13 @@
+\section{Introduction}
+In LTL model checking obtaining an equivalent automaton from a linear temporal logic (LTL) formula makes up an important nontrivial part of the whole process.
+Gerth et al.~\cite{Gerth1995} present a simple tableau-based construction, which takes an LTL formula and decomposes it according to its
+structure gaining the desired automaton step-by-step.
+
+In this entry, we formalize Linear Temporal Logic (LTL), some optimizing syntactic rewrite rules on LTL formulas, and
+Gerth's algorithm.
+Using the Isabelle Refinement Framework, we extract efficient code from our formalization.
+
+Moreover, we connect our LTL formalization to the one of Stefan Merz~\cite{Merz12}, adapting the lemma that
+next-free LTL formula cannot distinguish between stuttering equivalent runs to our setting.
+
+This work is part of the CAVA project~\cite{VeriLTLMC13} to implement an executable fully verified LTL model checker.

@@ -1,0 +1,68 @@
+% Version removing de universal quantification over C
+% and skolemising (creating new variables)
+% without any quantification 
+% It work :)
+
+SETPROC : TYPE;
+PROC : TYPE;
+
+np, khl: INT;
+maxreduc: (PROC -> REAL, SETPROC) -> REAL;
+minreduc: (PROC -> REAL, SETPROC) -> REAL;
+
+y : REAL;
+
+f : PROC -> REAL;
+g : PROC -> REAL;
+q : PROC;
+pmaxf, pminf : PROC;
+
+PR, C : SETPROC;
+
+card : SETPROC -> INT;
+INCL : (SETPROC,SETPROC) -> BOOLEAN;
+INSET : (PROC, SETPROC) -> BOOLEAN;
+
+abs: REAL -> REAL = LAMBDA (x:REAL): IF x>=0 THEN x ELSE (-x) ENDIF;
+
+constants_ax: BOOLEAN = 2*khl < np AND khl >= 0;
+
+min_le_max : BOOLEAN = minreduc( f, PR) <= maxreduc( f, PR);
+
+uboundmaxf: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl
+               => INSET(pmaxf,C)  AND maxreduc( f, PR) <= f(pmaxf);
+
+lboundminf: BOOLEAN = 
+      INCL(C,PR) AND np <= card(C) + khl
+               =>  INSET(pminf,C)  AND minreduc( f, PR) >= f(pminf);
+
+hC : BOOLEAN = INCL(C,PR);
+hnp : BOOLEAN = np <= card(C) + khl;
+hqC : BOOLEAN = INSET(q,C);
+
+hby_pmaxf_pminf : BOOLEAN = INSET(pmaxf,C) => 
+                   (INSET(pminf,C) => abs(f(pmaxf) - f(pminf)) <= y);
+hby_pminf_pmaxf : BOOLEAN = INSET(pminf,C) => 
+                   (INSET(pmaxf,C) => abs(f(pminf) - f(pmaxf)) <= y);
+hby_pmaxf_q     : BOOLEAN = INSET(pmaxf,C) => 
+                   (INSET(q    ,C) => abs(f(pmaxf) - f(q    )) <= y);
+hby_q_pmaxf : BOOLEAN = INSET(q    ,C) => 
+                   (INSET(pmaxf,C) => abs(f(q    ) - f(pmaxf)) <= y);
+hby_pminf_q     : BOOLEAN = INSET(pminf,C) => 
+                   (INSET(q    ,C) => abs(f(pminf) - f(q    )) <= y);
+hby_q_pminf : BOOLEAN = INSET(q    ,C) => 
+                   (INSET(pminf,C) => abs(f(q    ) - f(pminf)) <= y);
+
+
+ASSERT(hC AND hnp AND hqC AND min_le_max AND
+	uboundmaxf AND 	lboundminf AND 
+        hby_pmaxf_pminf AND hby_pmaxf_q AND hby_pminf_q AND
+	hby_pminf_pmaxf AND hby_q_pmaxf AND hby_q_pminf);
+
+
+QUERY( abs(maxreduc(f,PR) + minreduc(f,PR) 
+            - 2 * f(q)) <= 
+                     2 * y ); 
+
+DUMP_PROOF; % 2903 lines

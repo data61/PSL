@@ -1,0 +1,13 @@
+chapter AFP
+
+session Comparison_Sort_Lower_Bound (AFP) = Stirling_Formula +
+  options [timeout = 300]
+  sessions
+    "List-Index"
+    Landau_Symbols
+  theories
+    Linorder_Relations
+    Comparison_Sort_Lower_Bound
+  document_files
+    "root.tex"
+    "root.bib"

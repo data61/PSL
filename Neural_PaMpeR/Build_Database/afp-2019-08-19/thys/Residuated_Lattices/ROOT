@@ -1,0 +1,14 @@
+chapter AFP
+
+session Residuated_Lattices (AFP) = Relation_Algebra +
+  options [timeout = 600]
+  theories
+    Residuated_Lattices
+    Residuated_Boolean_Algebras
+    Involutive_Residuated
+    Action_Algebra
+    Action_Algebra_Models
+    Residuated_Relation_Algebra
+  document_files
+    "root.tex"
+    "root.bib"

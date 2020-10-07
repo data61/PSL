@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -e
+
+FORMAT="$1"
+VARIANT="$2"
+
+isabelle logo
+isabelle latex -o sty
+
+if [ "$VARIANT" = "userguide" ]; then
+  ROOT="root_userguide.tex"
+else
+  ROOT="root.tex"
+fi
+
+isabelle latex -o "$FORMAT" "$ROOT"
+isabelle latex -o "$FORMAT" "$ROOT"

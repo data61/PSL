@@ -1,0 +1,9 @@
+chapter AFP
+
+session Menger (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Menger
+  document_files
+    "root.tex"
+    "root.bib"

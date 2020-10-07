@@ -1,0 +1,12 @@
+chapter AFP
+
+session Abstract_Completeness (AFP) = "HOL-Library" +
+  options [timeout = 300]
+  sessions
+    Collections
+  theories
+    Abstract_Completeness
+    Propositional_Logic
+  document_files
+    "root.tex"
+    "root.bib"

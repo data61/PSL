@@ -1,0 +1,29 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{isabelle, isabellesym}
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Transition Systems and Automata}
+\author{Julian Brunner}
+
+\maketitle
+
+\begin{abstract}
+	This entry provides a very abstract theory of transition systems that can be instantiated to express various types of automata.
+	A transition system is typically instantiated by providing a set of initial states, a predicate for enabled transitions, and a transition execution function.
+	From this, it defines the concepts of finite and infinite paths as well as the set of reachable states, among other things.
+	Many useful theorems, from basic path manipulation rules to coinduction and run construction rules, are proven in this abstract transition system context.
+	The library comes with instantiations for DFAs, NFAs, and Büchi automata.
+\end{abstract}
+
+\tableofcontents
+
+\input{session}
+
+\end{document}

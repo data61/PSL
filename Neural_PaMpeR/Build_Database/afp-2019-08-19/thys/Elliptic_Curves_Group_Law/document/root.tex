@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{The Group Law for Elliptic Curves}
+\author{Stefan Berghofer}
+\maketitle
+
+\begin{abstract}
+We prove the group law for elliptic curves in Weierstrass form over fields of
+characteristic greater than 2. In addition to affine coordinates, we also
+formalize projective coordinates, which allow for more efficient computations.
+By specializing the abstract formalization to prime fields, we can apply
+the curve operations to parameters used in standard security protocols.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+Elliptic curves play an important role in cryptography, since they allow to achieve
+a security level that is comparable to that of RSA, while requiring a smaller key
+size and less computation time. The primitive operation on elliptic curves is \emph{point
+addition}. To ensure the proper functioning of cryptographic algorithms based on
+elliptic curves, such as Diffie-Hellman key exchange (ECDH) or digital signatures
+(ECDSA), it is important that the points on the curve form a group with respect
+to point addition.
+
+Our formalization of elliptic curves is based on earlier work by Laurent Th{\'e}ry in
+Coq \cite{Coq-Elliptic}. Like its Coq counterpart, the Isabelle formalization uses decision
+procedures for rings and fields based on reflection, which are executed using Isabelle's
+code generator for efficiency reasons. The decision procedure for rings is due to Gr{\'e}goire
+and Mahboubi \cite{Mahboubi-Gregoire-TPHOLs2005} and was ported from Coq to Isabelle by
+Bernhard Haeupler.
+
+The formalization exists in two flavours: one based on axiomatic type classes, and
+another one based on locales. While the axiomatic type class version is more concise,
+the locale version is more suitable for working with concrete rings or fields like
+prime fields.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Ipurge Unwinding Theorem\\for CSP Noninterference Security}
+\author{Pasquale Noce\\Security Certification Specialist at Arjo Systems - Gep S.p.A.\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at arjowiggins-it dot com}
+\maketitle
+
+\begin{abstract}
+The definition of noninterference security for Communicating Sequential
+Processes requires to consider any possible future, i.e. any indefinitely long
+sequence of subsequent events and any indefinitely large set of refused events
+associated to that sequence, for each process trace. In order to render the
+verification of the security of a process more straightforward, there is a need
+of some sufficient condition for security such that just individual accepted and
+refused events, rather than unbounded sequences and sets of events, have to be
+considered.
+
+Of course, if such a sufficient condition were necessary as well, it would be
+even more valuable, since it would permit to prove not only that a process is
+secure by verifying that the condition holds, but also that a process is not
+secure by verifying that the condition fails to hold.
+
+This paper provides a necessary and sufficient condition for CSP noninterference
+security, which indeed requires to just consider individual accepted and refused
+events and applies to the general case of a possibly intransitive policy. This
+condition follows Rushby's output consistency for deterministic state machines
+with outputs, and has to be satisfied by a specific function mapping security
+domains into equivalence relations over process traces. The definition of this
+function makes use of an intransitive purge function following Rushby's one;
+hence the name given to the condition, Ipurge Unwinding Theorem.
+
+Furthermore, in accordance with Hoare's formal definition of deterministic
+processes, it is shown that a process is deterministic just in case it is a
+trace set process, i.e. it may be identified by means of a trace set alone,
+matching the set of its traces, in place of a failures-divergences pair. Then,
+variants of the Ipurge Unwinding Theorem are proven for deterministic processes
+and trace set processes.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

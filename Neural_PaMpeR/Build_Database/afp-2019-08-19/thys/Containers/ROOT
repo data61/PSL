@@ -1,0 +1,41 @@
+chapter AFP
+
+session Containers (AFP) = "Deriving" +
+  options [timeout = 600]
+  sessions
+    "Finger-Trees"
+    "Regular-Sets"
+    Automatic_Refinement
+    Collections
+  theories
+    Containers_Auxiliary
+    Card_Datatype
+    Set_Linorder
+    Collection_Order
+    List_Proper_Interval
+    Containers
+    Compatibility_Containers_Regular_Sets
+    Containers_Userguide
+  theories [document = false]
+    "Examples/Card_Datatype_Ex"
+    "Examples/Map_To_Mapping_Ex"
+    "Examples/TwoSat_Ex"
+    "Examples/Containers_DFS_Ex"
+    "Examples/Containers_TwoSat_Ex"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "Containers-Benchmarks" (AFP) = Containers +
+  options [timeout = 1200]
+  sessions
+    Trie
+  theories
+    "ITP-2013/Benchmark_Bool"
+    "ITP-2013/Benchmark_LC"
+    "ITP-2013/Benchmark_Default"
+    "ITP-2013/Benchmark_ICF"
+    "ITP-2013/Benchmark_RBT"
+    "ITP-2013/Benchmark_Set_Default"
+    "ITP-2013/Benchmark_Set_LC"
+    "ITP-2013/Clauses"

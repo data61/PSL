@@ -1,0 +1,11 @@
+chapter AFP
+
+session Sqrt_Babylonian (AFP) = Cauchy +
+  options [timeout = 600]
+  theories 
+    Log_Impl
+    NthRoot_Impl
+    Sqrt_Babylonian
+  document_files
+    "root.bib"
+    "root.tex"

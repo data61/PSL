@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Reasoning about Lists via List Interleaving}
+\author{Pasquale Noce\\Security Certification Specialist at Arjo Systems - Gep S.p.A.\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at arjowiggins-it dot com}
+\maketitle
+
+\begin{abstract}
+Among the various mathematical tools introduced in his outstanding work on
+Communicating Sequential Processes, Hoare has defined "interleaves" as the
+predicate satisfied by any three lists such that the first list may be split
+into sublists alternately extracted from the other two ones, whatever is the
+criterion for extracting an item from either one list or the other in each step.
+
+This paper enriches Hoare's definition by identifying such criterion with the
+truth value of a predicate taking as inputs the head and the tail of the first
+list. This enhanced "interleaves" predicate turns out to permit the proof of
+equalities between lists without the need of an induction. Some rules that allow
+to infer "interleaves" statements without induction, particularly applying to
+the addition or removal of a prefix to the input lists, are also proven.
+Finally, a stronger version of the predicate, named "Interleaves", is shown to
+fulfil further rules applying to the addition or removal of a suffix to the
+input lists.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

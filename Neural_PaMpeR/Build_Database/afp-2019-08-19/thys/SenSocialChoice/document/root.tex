@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{a4wide}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Arrow's General Possibility Theorem}
+\author{Peter Gammie\\
+  \texttt{peteg42 at gmail.com}
+}
+\maketitle
+
+\tableofcontents
+
+\section{Overview}
+
+This is a fairly literal encoding of some of Armatya Sen's proofs
+\cite{Sen:70a} in Isabelle/HOL. The author initially wrote it while learning
+to use the proof assistant, and some locutions remain naive. This work is
+somewhat complementary to the mechanisation of more recent proofs of Arrow's
+Theorem and the Gibbard-Satterthwaite Theorem by Tobias Nipkow
+\cite{Nipkow:2008}.
+
+I strongly recommend Sen's book to anyone interested in social choice
+theory; his proofs are quite lucid and accessible, and he situates the
+theory quite well within the broader economic tradition.
+
+% generated text of all theories
+\input{session}
+
+\section{Bibliography}
+
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

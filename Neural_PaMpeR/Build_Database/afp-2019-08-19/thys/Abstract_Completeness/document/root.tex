@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Abstract Completeness}
+\author{Jasmin Christian Blanchette, Andrei Popescu, and Dmitriy Traytel}
+
+\maketitle
+
+\begin{abstract}
+  This is a formalization of an abstract property of possibly infinite
+  derivation trees (modeled by a codatatype), that represents the core of a
+  Beth--Hintikka-style proof of the first-order logic completeness theorem and
+  is independent of the concrete syntax or inference rules. This work is
+  described in detail in a publication by the authors \cite{bla-compl}.
+
+  The abstract proof can be instantiated for a wide range of Gentzen and tableau
+  systems as well as various flavors of FOL---e.g., with or without predicates,
+  equality, or sorts. Here, we give only a toy example instantiation with
+  classical propositional logic. A more serious instance---many-sorted FOL with
+  equality---is described elsewhere \cite{bla-mech}.
+\end{abstract}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

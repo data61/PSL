@@ -1,0 +1,168 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Description:   Lightweight Java (LJ).                                       %
+% Author:        Rok Strnisa <rok@strnisa.com>, 2007-2009                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+grammar
+%%% PROGRAM %%%
+  P :: p_ ::= {{ com program ($\mathit{cld}$ list) }} {{ isa clds }}
+   |  clds  :: M :: def  {{ com def. }} {{ isa [[clds]] }}
+
+%%% CONTEXT %%%
+  ctx :: ctx_ ::=  {{ com context }}
+   |    :: :: def  {{ com no context }}
+
+%%% FORMULA %%%
+  formula :: formula_ ::=  {{ com formulas }}
+   |  distinct ( dcl1 .. dclk )  :: M :: distinct_dcl
+          {{ com class names are distinct }}
+          {{ isa distinct ([[dcl1..dclk]]) }}
+   |  cld in P                   :: M :: cld_in_P
+          {{ com class definition part of the program }}
+          {{ isa [[cld]] \<in> set [[P]] }}
+
+%%% DISTINCT NAMES %%%
+defns
+distinct_names_def :: '' ::=
+
+defn
+distinct_names ( P ) :: :: distinct_names :: dn_
+           {{ com names of type definitions are distinct }} by
+
+P = </cldk//k/>
+</class_name(cldk) = dclk//k/>
+distinct (</dclk//k/>)
+------------------------------ :: def
+distinct_names(P)
+
+%%% FIND CLASS DEFINITION %%%
+defns
+find_cld_def :: '' ::=
+
+defn
+find_cld ( P , ctx , fqn ) = ctxcld_opt :: :: find_cld :: fc_
+           {{ com class lookup }} by
+
+----------------------------- :: empty
+find_cld([], ctx, fqn) = null
+
+P = cld cld2..cldk
+:formula_cldali: cld = class dcl extends cl {fds meth_defs}
+----------------------------------------------------------- :: cons_true
+find_cld(P, ctx, dcl) = (ctx, cld)
+
+:formula_cldali: cld = class dcl' extends cl {fds meth_defs}
+dcl != dcl'
+find_cld(cld2..cldk, ctx, dcl) = ctxcld_opt
+------------------------------------------------------------ :: cons_false
+find_cld(cld cld2..cldk, ctx, dcl) = ctxcld_opt
+
+%%% FIND TYPE %%%
+defns
+find_type_def :: '' ::=
+
+%%% PATH LENGTH %%%
+defns
+path_length_def :: '' ::=
+
+%%% ACYCLIC CLDS %%%
+defns
+acyclic_clds_def :: '' ::=
+
+%%% FIND PATH REC %%%
+defns
+find_path_rec_def :: '' ::=
+
+%%% FIND PATH %%%
+defns
+find_path_def :: '' ::=
+
+%%% FIND PATH (TY) %%%
+defns
+find_path_ty_def :: '' ::=
+
+%%% FIELDS IN PATH %%%
+defns
+fields_in_path_def :: '' ::=
+
+%%% FIELDS %%%
+defns
+fields_def :: '' ::=
+
+%%% METHODS IN PATH %%%
+defns
+methods_in_path_def :: '' ::=
+
+%%% METHODS %%%
+defns
+methods_def :: '' ::=
+
+%%% FTYPE IN FDS %%%
+defns
+ftype_in_fds_def :: '' ::=
+
+%%% FTYPE IN PATH %%%
+defns
+ftype_in_path_def :: '' ::=
+
+%%% FTYPE %%%
+defns
+ftype_def :: '' ::=
+
+%%% FIND METH_DEF IN LIST %%%
+defns
+find_meth_def_in_list_def :: '' ::=
+
+%%% FIND METH_DEF IN PATH %%%
+defns
+find_meth_def_in_path_def :: '' ::=
+
+%%% FIND METH_DEF %%%
+defns
+find_meth_def_def :: '' ::=
+
+%%% MTYPE %%%
+defns
+mtype_def :: '' ::=
+
+%%% STY_ONE %%%
+defns
+sty_one_def :: sty_ ::=
+
+%%% STY_MANY %%%
+defns
+sty_many_def :: sty_ ::=
+
+%%% STY_OPTION %%%
+defns
+sty_option_def :: sty_ ::=
+
+%%% WELL-FORMEDNESS %%%
+defns
+well_formedness :: wf_ ::=
+
+defn
+P |- cld :: :: class :: '' {{ com well-formed class }} by
+
+class dcl extends cl {fds meth_defs} in P
+P |- (dcl, cl, fds, meth_defs)
+----------------------------------------- :: class
+P |- class dcl extends cl {fds meth_defs}
+
+defn
+|- P :: :: program :: '' {{ com well-formed program }} by
+
+P = </cldk//k/>
+distinct_names(P)
+</:wf_class: P |- cldk//k/>
+acyclic_clds P
+----------------------------- :: program
+|- P
+
+%%% VARIABLE TRANSLATION %%%
+defns
+var_trans :: '' ::=
+
+%%% REDUCTION %%%
+defns
+reduction :: r_ ::=

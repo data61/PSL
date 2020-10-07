@@ -1,0 +1,53 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+\usepackage{amsmath}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{color}
+
+\usepackage{custom-macros}
+
+\usepackage[top=3cm,bottom=4.5cm]{geometry}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in isabelle-similar-similar type-writer
+\urlstyle{rm}
+\isabellestyle{tt}
+
+\title{A constructive proof for FLP}
+\author{Benjamin Bisping \and Paul-David Brodmann \and Tim Jungnickel \and
+  Christina Rickmann \and Henning Seidler \and Anke St\"uber  \and Arno Wilhelm-Weidner \and
+ Kirstin Peters \and Uwe Nestmann}
+%
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	The impossibility of distributed consensus with one faulty process is a result with important consequences for real world distributed systems e.g., commits in replicated databases. 
+	Since proofs are not immune to faults and even plausible proofs with a profound formalism can conclude wrong results, we validate the fundamental result named FLP after Fischer, Lynch and Paterson by using the interactive theorem prover Isabelle/HOL.
+	We present a formalization of distributed systems and the aforementioned consensus problem.
+	Our proof is based on Hagen Völzer's paper \emph{A constructive proof for FLP}.
+	In addition to the enhanced confidence in the validity of Völzer's proof, we contribute the missing gaps to show the correctness in Isabelle/HOL. 
+	We clarify the proof details and even prove fairness of the infinite execution that contradicts consensus. 
+	Our Isabelle formalization can also be reused for further proofs of properties of distributed systems.
+\end{abstract}
+In the following we present the Isabelle implementation of the underlying theory as well as all proofs of the results presented in the paper \emph{Mechanical Verification of a Constructive Proof for FLP} as submitted to the Proceedings of the \textit{seventh conference on Interactive Theorem Proving}, ITP 2016, LNCS. 
+\newpage
+
+\tableofcontents
+\newpage
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

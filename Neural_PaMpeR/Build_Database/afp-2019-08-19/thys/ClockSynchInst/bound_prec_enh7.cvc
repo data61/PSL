@@ -1,0 +1,176 @@
+% Version removing de universal quantification over C
+% and skolemising (creating new variables)
+% and removing universal quantifiers in hbx and hby
+% It work :)
+
+SETPROC : TYPE;
+PROC : TYPE;
+
+np, khl: INT;
+maxreduc: (PROC -> REAL, SETPROC) -> REAL;
+minreduc: (PROC -> REAL, SETPROC) -> REAL;
+
+x, y : REAL;
+
+f : PROC -> REAL;
+g : PROC -> REAL;
+pmaxf, pmaxg, pminf, pming : PROC;
+sbfg, sbgf: PROC;
+
+PR, C : SETPROC;
+
+card : SETPROC -> INT;
+INCL : (SETPROC,SETPROC) -> BOOLEAN;
+INSET : (PROC, SETPROC) -> BOOLEAN;
+
+abs: REAL -> REAL = LAMBDA (x:REAL): IF (x>=0) THEN x ELSE (-x) ENDIF;
+
+constants_ax: BOOLEAN = 2*khl < np AND khl >= 0;
+hC : BOOLEAN = INCL(C,PR);
+hnp : BOOLEAN = np <= card(C) + khl AND 3*khl < np;
+hcard: BOOLEAN = card(C) >= 0; % redundant
+
+uboundmaxf: BOOLEAN = 
+      ( maxreduc( f, PR) <= f(pmaxf));
+
+uboundmaxg: BOOLEAN = 
+      (maxreduc( g, PR) <= g(pmaxg));
+
+lboundminf: BOOLEAN = 
+      (minreduc( f, PR) >= f(pminf));
+
+lboundming: BOOLEAN = 
+      ( minreduc( g, PR) >= g(pming));
+
+same_bound_f_g: BOOLEAN = 
+      ( minreduc( f, PR) <= f(sbfg)
+				 AND maxreduc( g, PR) >= g(sbfg));
+
+same_bound_g_f: BOOLEAN = 
+      ( minreduc( g, PR) <= g(sbgf)
+				 AND maxreduc( f, PR) >= f(sbgf));
+
+%hbx : BOOLEAN = FORALL (l:PROC): INSET(l,C) => abs(f(l) - g(l)) <= x;
+
+hbx_pmaxf : BOOLEAN = abs(f(pmaxf) - g(pmaxf)) <= x;
+hbx_pmaxg : BOOLEAN = abs(f(pmaxg) - g(pmaxg)) <= x;
+hbx_pminf : BOOLEAN = abs(f(pminf) - g(pminf)) <= x;
+hbx_pming : BOOLEAN = abs(f(pming) - g(pming)) <= x;
+hbx_sbfg : BOOLEAN = abs(f(sbfg) - g(sbfg)) <= x;
+hbx_sbgf : BOOLEAN = abs(f(sbgf) - g(sbgf)) <= x;
+
+
+%hby1 : BOOLEAN = FORALL (l:PROC): INSET(l,C) => 
+%                   FORALL (m:PROC): INSET(m,C) => abs(f(l) - f(m)) <= y;
+
+hby1_pmaxf_pmaxg : BOOLEAN = (abs(f(pmaxf) - f(pmaxg)) <= y);
+hby1_pmaxf_pminf : BOOLEAN = (abs(f(pmaxf) - f(pminf)) <= y);
+hby1_pmaxf_pming : BOOLEAN = (abs(f(pmaxf) - f(pming)) <= y);
+hby1_pmaxf_sbfg : BOOLEAN = (abs(f(pmaxf) - f(sbfg)) <= y);
+hby1_pmaxf_sbgf : BOOLEAN = (abs(f(pmaxf) - f(sbgf)) <= y);
+
+hby1_pmaxg_pminf : BOOLEAN = (abs(f(pmaxg) - f(pminf)) <= y);
+hby1_pmaxg_pming : BOOLEAN = (abs(f(pmaxg) - f(pming)) <= y);
+hby1_pmaxg_sbfg : BOOLEAN = (abs(f(pmaxg) - f(sbfg)) <= y);
+hby1_pmaxg_sbgf : BOOLEAN = (abs(f(pmaxg) - f(sbgf)) <= y);
+
+hby1_pminf_pming : BOOLEAN = (abs(f(pminf) - f(pming)) <= y);
+hby1_pminf_sbfg : BOOLEAN = (abs(f(pminf) - f(sbfg)) <= y);
+hby1_pminf_sbgf : BOOLEAN = (abs(f(pminf) - f(sbgf)) <= y);
+
+hby1_pming_sbfg : BOOLEAN = (abs(f(pming) - f(sbfg)) <= y);
+hby1_pming_sbgf : BOOLEAN = (abs(f(pming) - f(sbgf)) <= y);
+
+hby1_sbfg_sbgf : BOOLEAN = (abs(f(sbfg) - f(sbgf)) <= y);
+
+
+hby2_pmaxf_pmaxg : BOOLEAN = (abs(g(pmaxf) - g(pmaxg)) <= y);
+hby2_pmaxf_pminf : BOOLEAN = (abs(g(pmaxf) - g(pminf)) <= y);
+hby2_pmaxf_pming : BOOLEAN = (abs(g(pmaxf) - g(pming)) <= y);
+hby2_pmaxf_sbfg : BOOLEAN = (abs(g(pmaxf) - g(sbfg)) <= y);
+hby2_pmaxf_sbgf : BOOLEAN = (abs(g(pmaxf) - g(sbgf)) <= y);
+
+hby2_pmaxg_pminf : BOOLEAN = (abs(g(pmaxg) - g(pminf)) <= y);
+hby2_pmaxg_pming : BOOLEAN = (abs(g(pmaxg) - g(pming)) <= y);
+hby2_pmaxg_sbfg : BOOLEAN = (abs(g(pmaxg) - g(sbfg)) <= y);
+hby2_pmaxg_sbgf : BOOLEAN = (abs(g(pmaxg) - g(sbgf)) <= y);
+
+hby2_pminf_pming : BOOLEAN = (abs(g(pminf) - g(pming)) <= y);
+hby2_pminf_sbfg : BOOLEAN = (abs(g(pminf) - g(sbfg)) <= y);
+hby2_pminf_sbgf : BOOLEAN = (abs(g(pminf) - g(sbgf)) <= y);
+
+hby2_pming_sbfg : BOOLEAN = (abs(g(pming) - g(sbfg)) <= y);
+hby2_pming_sbgf : BOOLEAN = (abs(g(pming) - g(sbgf)) <= y);
+
+hby2_sbfg_sbgf : BOOLEAN = (abs(g(sbfg) - g(sbgf)) <= y);
+
+WHERE;
+PUSH;
+ASSERT( hcard AND constants_ax AND hC AND hnp AND
+	uboundmaxf AND uboundmaxg AND lboundminf AND lboundming AND
+	same_bound_f_g AND same_bound_g_f AND
+        hbx_pmaxf AND hbx_pmaxg AND hbx_pminf AND 
+        hbx_pming AND hbx_sbfg AND hbx_sbgf AND
+	hby1_pmaxf_pmaxg AND hby1_pmaxf_pminf AND hby1_pmaxf_pming AND
+	hby1_pmaxf_sbfg AND hby1_pmaxf_sbgf AND 
+	hby1_pmaxg_pminf AND hby1_pmaxg_pming AND
+ 	hby1_pmaxg_sbfg AND hby1_pmaxg_sbgf AND
+	hby1_pminf_pming AND hby1_pminf_sbfg AND hby1_pminf_sbgf AND
+        hby1_pming_sbfg AND hby1_pming_sbgf AND hby1_sbfg_sbgf AND
+	hby2_pmaxf_pmaxg AND hby2_pmaxf_pminf AND hby2_pmaxf_pming AND
+	hby2_pmaxf_sbfg AND hby2_pmaxf_sbgf AND 
+	hby2_pmaxg_pminf AND hby2_pmaxg_pming AND
+ 	hby2_pmaxg_sbfg AND hby2_pmaxg_sbgf AND
+	hby2_pminf_pming AND hby2_pminf_sbfg AND hby2_pminf_sbgf AND
+        hby2_pming_sbfg AND hby2_pming_sbgf AND hby2_sbfg_sbgf);
+
+QUERY( abs(maxreduc(f,PR) + minreduc(f,PR) 
+            - maxreduc(g,PR) - minreduc(g,PR)) <= 
+         y + 2 * x); 
+POP;
+
+PUSH;
+WHERE;
+
+ASSERT( uboundmaxf AND uboundmaxg AND lboundminf AND lboundming AND
+	same_bound_f_g AND same_bound_g_f AND
+        hbx_pmaxf AND hbx_pmaxg AND hbx_pminf AND 
+        hbx_pming AND hbx_sbfg AND hbx_sbgf AND
+	hby1_pmaxf_pmaxg AND hby1_pmaxf_pminf AND hby1_pmaxf_pming AND
+	hby1_pmaxf_sbfg AND hby1_pmaxf_sbgf AND 
+	hby1_pmaxg_pminf AND hby1_pmaxg_pming AND
+ 	hby1_pmaxg_sbfg AND hby1_pmaxg_sbgf AND
+	hby1_pminf_pming AND hby1_pminf_sbfg AND hby1_pminf_sbgf AND
+        hby1_pming_sbfg AND hby1_pming_sbgf AND hby1_sbfg_sbgf AND
+	hby2_pmaxf_pmaxg AND hby2_pmaxf_pminf AND hby2_pmaxf_pming);
+
+QUERY( abs(maxreduc(f,PR) + minreduc(f,PR) 
+            - maxreduc(g,PR) - minreduc(g,PR)) <= 
+         y + 2 * x); 
+POP;
+
+PUSH;
+WHERE;
+
+% this do not work
+ASSERT( uboundmaxg AND lboundminf AND lboundming AND
+	same_bound_f_g AND same_bound_g_f AND
+        hbx_pmaxf AND hbx_pmaxg AND hbx_pminf AND 
+        hbx_pming AND hbx_sbfg AND hbx_sbgf AND
+	hby1_pmaxf_pmaxg AND hby1_pmaxf_pminf AND hby1_pmaxf_pming AND
+	hby1_pmaxf_sbfg AND hby1_pmaxf_sbgf AND 
+	hby1_pmaxg_pminf AND hby1_pmaxg_pming AND
+ 	hby1_pmaxg_sbfg AND hby1_pmaxg_sbgf AND
+	hby1_pminf_pming AND hby1_pminf_sbfg AND hby1_pminf_sbgf AND
+        hby1_pming_sbfg AND hby1_pming_sbgf AND hby1_sbfg_sbgf AND
+	hby2_pmaxf_pmaxg AND hby2_pmaxf_pminf AND hby2_pmaxf_pming);
+
+QUERY( abs(maxreduc(f,PR) + minreduc(f,PR) 
+            - maxreduc(g,PR) - minreduc(g,PR)) <= 
+         y + 2 * x); 
+POP;
+
+%DUMP_PROOF;
+%WHERE;
+%COUNTEREXAMPLE;
+

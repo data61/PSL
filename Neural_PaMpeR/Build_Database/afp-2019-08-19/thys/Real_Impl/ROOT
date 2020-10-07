@@ -1,0 +1,14 @@
+chapter AFP
+
+session Real_Impl (AFP) = Sqrt_Babylonian +
+  options [timeout = 300]
+  sessions
+    "HOL-Computational_Algebra"
+    Show
+    Deriving
+  theories
+    Real_Impl_Auxiliary
+    Real_Unique_Impl
+  document_files
+    "root.bib"
+    "root.tex"

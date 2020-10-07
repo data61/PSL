@@ -1,0 +1,24 @@
+For correct representation of operator symbols used in the sessions
+List-Infinite, Nat-Interval-Logic, AutoFocus-Stream in generated HTML theory
+documentation.
+
+
+Modifications of src/Pure/Thy/html.ML (the Pure and HOL logics must be rebuild
+afterwards):
+
+  - Additions:
+    ("\\<up>", (1, "<span class=\"largersymbolstyle\">&#x2191;</span>")),
+    ("\\<down>", (1, "<span class=\"largersymbolstyle\">&#x2193;</span>")),
+    ("\\<updown>", (1, "<span class=\"largersymbolstyle\">&#x2195;</span>")),
+    ("\\<Up>", (1, "<span class=\"largersymbolstyle\">&#x21D1;</span>")),
+    ("\\<Down>", (1, "<span class=\"largersymbolstyle\">&#x21D3;</span>")),
+    ("\\<Updown>", (1, "<span class=\"largersymbolstyle\">&#x21D5;</span>")),
+    ("\\<NoMsg>", (1, "&#x03B5;")),
+    ("\\<Msg>", (3, "Msg")),
+
+Addition to lib/html/isabelle.css for correct represenation of some arrow
+operators in generated HTML theory documentation (above operator symbols of the
+form <span class=\"largersymbolstyle\">SYMBOL</span>): Add following line at
+the end of the file:
+
+  .largersymbolstyle, largersymbolstyle {font-size: 150%}

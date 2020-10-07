@@ -1,0 +1,26 @@
+chapter AFP
+
+session Prim_Dijkstra_Simple (AFP) = Priority_Search_Trees +
+  options [timeout=300]
+  sessions
+    "HOL-Data_Structures"
+    "HOL-Eisbach"
+  theories [document=false]
+    Common
+  theories
+    Chapter_Prim
+    Undirected_Graph
+    Undirected_Graph_Specs
+    Prim_Abstract
+    Undirected_Graph_Impl
+    Prim_Impl
+    
+    Chapter_Dijkstra
+    Directed_Graph
+    Directed_Graph_Specs
+    Dijkstra_Abstract
+    Directed_Graph_Impl
+    Dijkstra_Impl
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,24 @@
+chapter AFP
+
+session "IP_Addresses" (AFP) = Word_Lib +
+  options [timeout = 2400]
+  sessions
+    Automatic_Refinement
+    "HOL-ex"
+  theories [document = false]
+    Automatic_Refinement.Misc (* mergesort *)
+    NumberWang_IPv4
+    NumberWang_IPv6
+  theories
+    WordInterval
+    IP_Address
+    IPv4
+    IPv6
+    Prefix_Match
+    CIDR_Split
+    WordInterval_Sorted (* depends on mergesort *)
+    IP_Address_Parser
+    IP_Address_toString
+    Prefix_Match_toString
+  document_files
+    "root.tex"

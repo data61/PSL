@@ -1,0 +1,32 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Cartan Fixed Point Theorems}
+\author{Lawrence C. Paulson}
+\maketitle
+
+\begin{abstract}
+The Cartan fixed point theorems concern the group of holomorphic automorphisms on a connected open set of $\mathbb{C}^n$. Ciolli et al.\ \cite{ciolli-cartan} have formalised the one-dimensional case of these theorems in HOL Light. This entry contains their proofs, ported to Isabelle/HOL\@. Thus it addresses the authors’ remark that ``it would be important to write a formal proof in a language that can be read by both humans and machines.''
+
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{A Verified Solver for Linear Recurrences}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+Linear recurrences with constant coefficients are an interesting class of recurrence equations that can be solved explicitly. The most famous example are certainly the Fibonacci numbers with the equation $f(n) = f(n-1) + f(n-2)$
+and the quite non-obvious closed form \[\frac{1}{\sqrt 5} (\varphi^n - (-\varphi)^{-n})\] where $\varphi$ 
+is the golden ratio.
+
+In this work, I build on existing tools in Isabelle -- such as formal power series and polynomial factorisation algorithms --
+to develop a theory of these recurrences and derive a fully executable solver for them that can be exported to programming languages like Haskell.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

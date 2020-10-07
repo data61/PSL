@@ -1,0 +1,55 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb}
+\usepackage[left=2.25cm,right=2.25cm,top=2.25cm,bottom=2.75cm]{geometry}
+\usepackage{graphicx}
+\usepackage{isabelle}
+\usepackage{isabellesym}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{pdfsetup}
+
+\urlstyle{tt}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\renewcommand{\isacharunderscore}{\_}
+
+
+\begin{document}
+
+\title{Operations on Bounded Natural Functors}
+\author{Jasmin Christian Blanchette \and Andrei Popescu \and Dmitriy Traytel}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+This entry formalizes the closure property of bounded natural functors (BNFs) under seven operations.
+These operations and the corresponding proofs constitute the core of Isabelle's (co)datatype package.
+To be close to the implemented tactics, the proofs are deliberately formulated as detailed apply scripts.
+The (co)datatypes together with (co)induction principles and (co)recursors are byproducts of the fixpoint operations LFP and GFP.
+Composition of BNFs is subdivided into four simpler operations: Compose, Kill, Lift, and Permute.
+The N2M operation provides mutual (co)induction principles and (co)recursors for nested (co)datatypes.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

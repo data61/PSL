@@ -1,0 +1,12 @@
+chapter AFP
+
+session pGCL (AFP) = "HOL-Analysis" +
+  options [timeout = 300]
+  theories
+    pGCL
+    "Tutorial/Primitives"
+    "Tutorial/LoopExamples"
+    "Tutorial/Monty"
+  document_files
+    "root.tex"
+    "root.bib"

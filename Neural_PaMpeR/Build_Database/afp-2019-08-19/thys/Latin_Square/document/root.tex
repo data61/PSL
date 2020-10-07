@@ -1,0 +1,34 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Latin Square}
+\author{Alexander Bentkamp}
+\maketitle
+
+\begin{abstract}
+  A theory about Latin Squares following \cite{aigner}. A Latin Square is a $n \times n$ table filled with
+  integers from 1 to n where each number appears exactly once in each row and each column. A Latin Rectangle
+  is a partially filled $n \times n$ table with $r$ filled rows and $n-r$ empty rows, such that each number
+  appears at most once in each row and each column. The main result of this theory is that any Latin Rectangle
+  can be completed to a Latin Square.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

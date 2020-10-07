@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Catalan Numbers}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+In this work, we define the Catalan numbers $C_n$ and prove several equivalent definitions (including some closed-form formulae). We also show one of their applications (counting the number of binary trees of size $n$), prove the asymptotic growth approximation $C_n \sim \frac{4^n}{\sqrt{\pi}n^{1.5}}$, and provide reasonably efficient executable code to compute them.
+
+The derivation of the closed-form formulae uses algebraic manipulations of the ordinary generating function of the Catalan numbers, and the asymptotic approximation is then done using generalised binomial coefficients and the Gamma function. Thanks to these highly non-elementary mathematical tools, the proofs are very short and simple.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\newpage
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

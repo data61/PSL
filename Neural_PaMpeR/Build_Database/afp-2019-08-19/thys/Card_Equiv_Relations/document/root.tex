@@ -1,0 +1,80 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Cardinality of Equivalence Relations}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+
+This entry provides formulae for counting the number of equivalence relations
+and partial equivalence relations over a finite carrier set with given
+cardinality.
+
+To count the number of equivalence relations, we provide bijections between
+equivalence relations and set partitions~\cite{wiki:equiv-relation}, and then
+transfer the main results of the two AFP entries, Cardinality of Set
+Partitions~\cite{bulwahn-AFP15} and Spivey's Generalized Recurrence for
+Bell Numbers~\cite{bulwahn-AFP16}, to theorems on equivalence relations.
+To count the number of partial equivalence relations, we observe that
+counting partial equivalence relations over a set $A$ is equivalent to counting
+all equivalence relations over all subsets of the set $A$. From this observation
+and the results on equivalence relations, we show that the cardinality of
+partial equivalence relations over a finite set of cardinality $n$ is equal
+to the $n+1$-th Bell number~\cite{bell-numbers}.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\nocite{*}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

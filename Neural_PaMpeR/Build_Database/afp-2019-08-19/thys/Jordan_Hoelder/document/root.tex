@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+
+%\usepackage{biblatex}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Jordan-H\"older Theorem}
+\author{Jakob von Raumer}
+\maketitle
+
+\begin{abstract}
+This submission contains theories that lead to a formalization of the proof of the Jordan-H\"older theorem about composition series of finite groups. The theories formalize the notions of isomorphism classes of groups, simple groups, normal series, composition series, maximal normal subgroups. Furthermore, they provide proofs of the second isomorphism theorem for groups, the characterization theorem for maximal normal subgroups as well as many useful lemmas about normal subgroups and factor groups. The formalization is based on the work work in my first AFP submission \cite{snd-sylow} while the proof of the Jordan-H\"older theorem itself is inspired by course notes of Stuart Rankin \cite{rankin}.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliography{root}
+\bibliographystyle{alpha}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

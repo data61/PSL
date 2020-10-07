@@ -1,0 +1,12 @@
+chapter AFP
+
+session "Shivers-CFA" (AFP) = HOLCF +
+  options [timeout = 600]
+  theories
+    Eval
+    AbsCFCorrect
+    ExCFSV
+    AbsCFComp
+  document_files
+    "root.bib"
+    "root.tex"

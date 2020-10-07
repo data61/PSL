@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Gauss-Jordan algorithm and its applications}
+\author{By Jose Divas\'on and Jes\'us Aransay\thanks{This research has been funded by 
+  the research grant FPIUR12 of the Universidad de La Rioja.}}
+\maketitle
+
+
+\begin{abstract}
+In this contribution, we present a formalization of the well-known Gauss-Jordan algorithm.
+It states that any matrix over a field can be transformed by means of elementary row operations to a
+matrix in reduced row echelon form. The formalization is based on the
+Rank Nullity Theorem entry of the AFP and on the HOL-Multivariate-Analysis session of Isabelle, 
+where matrices are represented as functions over finite types. We have set up properly 
+the code generator to make this representation executable. In order to improve the 
+performance, a refinement to immutable arrays has been carried out. We have formalized some of the applications
+of the Gauss-Jordan algorithm. Thanks to this development, the 
+following facts can be computed over matrices whose elements belong to a field:
+
+\begin{itemize}
+ \item Ranks
+ \item Determinants
+ \item Inverses
+ \item Bases and dimensions of the null space, left null space, column space and row space of a matrix
+ \item Solutions of systems of linear equations (considering any case, 
+   including systems with one solution, multiple solutions and with no solution)
+\end{itemize}
+
+Code can be exported to both SML and Haskell. In addition, we have introduced some serializations 
+(for instance, from \emph{bit} in Isabelle to booleans in SML and Haskell, 
+and from \emph{rat} in Isabelle to the corresponding one in Haskell), that speed up the performance.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

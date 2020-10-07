@@ -1,0 +1,134 @@
+ \documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Transformer Semantics}
+\author{Georg Struth}
+\maketitle
+
+\begin{abstract}
+  These mathematical components formalise predicate transformer
+  semantics for programs, yet currently only for partial correctness
+  and in the absence of faults.  A first part for isotone (or
+  monotone), Sup-preserving and Inf-preserving transformers follows
+  Back and von Wright's approach, with additional emphasis on the
+  quantalic structure of algebras of transformers.  The second part
+  develops Sup-preserving and Inf-preserving predicate transformers
+  from the powerset monad, via its Kleisli category and
+  Eilenberg-Moore algebras, with emphasis on adjunctions and
+  dualities, as well as isomorphisms between relations, state
+  transformers and predicate transformers.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introductory Remarks}
+
+Predicate transformers yield standard denotational semantics for
+imperative programs; they have been investigated for around fifty
+years and are widely used in program verification.  These components
+provide yet another take on this topic with Isabelle (previous
+formalisations in the AFP
+include~\cite{Preoteasa11b,GomesGHSW16,GomesS16}).
+
+The first part, like Preoteasa's work~\cite{Preoteasa11b}, follows by
+and large Back and von Wright's seminal monograph~\cite{BackvW98}.
+Isotone (or monotone), sup-preserving and inf-preserving transformers
+are developed in a categorical setting as morphisms of orderings and
+complete lattices.  The approach is type-driven; concepts are usually
+formalised with the most general suitable types. Due to this, the
+algebras of transformers cannot be captured within Isabelle's type
+classes or locales. They describe algebraic properties of typed
+function spaces (enriched homsets of categories of complete lattices)
+in terms of typed quantales or quantaloids~\cite{Rosenthal90}. Special
+focus is on notions of recursion and iteration in this typed
+setting. In particular, propositional Hoare logics and basic
+refinement calculi---for partial correctness and without assignment
+laws---are derived. For transformers that are endofunctions, instance
+proofs for quantales are given. This brings theorems about quantales
+and from the Kleene algebra hierarchy into scope.
+
+Based on this, the second part presents an alternative, more detailed
+development with sets. It starts from the monad of the powerset
+functor, its Kleisli category and its Eilenberg-Moore algebras; a view
+that has been promoted, for instance, by
+Jacobs~\cite{Jacobs17}. General monads cannot be handled by Isabelle's
+type system, only particular instances can be formalised---at the
+level of exercises in category theory textbooks. With this approach,
+binary relations, state transformers modelled as arrows of the Kleisli
+category of the powerset monad, and predicate transformer algebras,
+Sup-lattices which arise as Eilenberg-Moore algebras of the powerset
+monad, are related like in Jacob's state-effect triangles. In
+particular, the isomorphisms between the quantalic structure of
+relations, that of state transformers and that of various predicate
+transformers is spelled out in detail. In addition, the symmetries and
+dualities between four kinds of predicate transformers (forward and
+backward modal box and diamond operators in the parlance of dynamic
+logic) are formalised. Beyond that, the quantalic structure of state
+transformers is detailed first in a typed setting, and secondly in a
+single-typed one, where state transformers are shown to form quantales
+and hence Kleene algebras.
+
+It should be straightforward to integrate these mathematical
+components into verification components along the lines
+of~\cite{ArmstrongGS16,GomesS16}.  Beyond that, an integration with
+the predicate transformers obtained from modal Kleene
+algebras~\cite{GomesGHSW16} seems interesting for verification
+applications.  Possible extensions and refinements include the
+development of verification conditions for recursion beyond those for
+while-loops, approaches to total correctness and fault semantics, more
+complete (re)encodings of Back and von Wright's approach,
+formalisations of domain theory, links between isotone transformers
+and Isabelle components for multirelational
+semantics~\cite{FurusawaS15} and extensions to probabilistic
+transformers~\cite{McIverM05}.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

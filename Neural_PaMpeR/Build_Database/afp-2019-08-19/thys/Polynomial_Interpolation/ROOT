@@ -1,0 +1,14 @@
+chapter AFP
+
+session "Polynomial_Interpolation" (AFP) = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  sessions
+    Sqrt_Babylonian
+  theories
+    Is_Rat_To_Rat
+    Divmod_Int
+    Improved_Code_Equations
+    Polynomial_Interpolation
+  document_files
+    "root.bib"
+    "root.tex"

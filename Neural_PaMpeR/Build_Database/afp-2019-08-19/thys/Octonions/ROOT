@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Octonions" (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  theories
+    Octonions
+  document_files
+    "root.bib"
+    "root.tex"

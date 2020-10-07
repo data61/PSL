@@ -1,0 +1,17 @@
+chapter AFP
+
+session BNF_Operations (AFP) = HOL +
+  options [timeout = 600]
+  sessions "HOL-Library"
+  theories [document = false]
+    "HOL-Library.BNF_Axiomatization"
+  theories
+    LFP
+    GFP
+    Compose
+    Kill
+    Lift
+    Permute
+    N2M
+  document_files
+    "root.tex"

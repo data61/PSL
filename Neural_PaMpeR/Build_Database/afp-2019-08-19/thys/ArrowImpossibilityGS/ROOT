@@ -1,0 +1,12 @@
+chapter AFP
+
+session ArrowImpossibilityGS (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    "Thys/Arrow_Utility"
+    "Thys/GS"
+  document_files
+    "root.bib"
+    "root.tex"

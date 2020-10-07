@@ -1,0 +1,49 @@
+digraph DFA {
+	rankdir = LR
+	node [shape="circle"]
+	0 [shape="doublecircle"]
+	2 [shape="doublecircle"]
+	3 [shape="doublecircle"]
+	5 [shape="doublecircle"]
+	6 [shape="doublecircle"]
+	9 [shape="doublecircle"]
+	10 [shape="doublecircle"]
+	11 [shape="doublecircle"]
+	12 [shape="doublecircle"]
+	13 [shape="doublecircle"]
+	14 [shape="doublecircle"]
+	init14[label="" width="0.01"];
+	init14 -> 0 [label="FalseFalseFalse"]
+	init15[label="" width="0.01"];
+	init15 -> 1 [label="FalseFalseTrue"]
+	init16[label="" width="0.01"];
+	init16 -> 4 [label="FalseTrueFalse"]
+	init17[label="" width="0.01"];
+	init17 -> 7 [label="FalseTrueTrue"]
+	init18[label="" width="0.01"];
+	init18 -> 9 [label="TrueFalseFalse"]
+	init19[label="" width="0.01"];
+	init19 -> 1 [label="TrueFalseTrue"]
+	init20[label="" width="0.01"];
+	init20 -> 4 [label="TrueTrueFalse"]
+	init21[label="" width="0.01"];
+	init21 -> 7 [label="TrueTrueTrue"]
+	0 -> 0 [label="SayIKnow SayIKnow SayIKnow"]
+	1 -> 2 [label="SayNothing SayNothing SayNothing"]
+	1 -> 3 [label="SayNothing SayNothing SayIKnow"]
+	2 -> 11 [label="SayIKnow SayNothing SayIKnow"]
+	3 -> 11 [label="SayIKnow SayIKnow SayIKnow"]
+	4 -> 5 [label="SayNothing SayNothing SayNothing"]
+	4 -> 6 [label="SayNothing SayIKnow SayNothing"]
+	5 -> 12 [label="SayIKnow SayIKnow SayNothing"]
+	6 -> 12 [label="SayIKnow SayIKnow SayIKnow"]
+	7 -> 8 [label="SayNothing SayNothing SayNothing"]
+	8 -> 13 [label="SayNothing SayNothing SayNothing"]
+	8 -> 13 [label="SayNothing SayIKnow SayIKnow"]
+	9 -> 10 [label="SayIKnow SayNothing SayNothing"]
+	10 -> 14 [label="SayIKnow SayIKnow SayIKnow"]
+	11 -> 1 [label="SayIKnow SayIKnow SayIKnow"]
+	12 -> 4 [label="SayIKnow SayIKnow SayIKnow"]
+	13 -> 7 [label="SayIKnow SayIKnow SayIKnow"]
+	14 -> 9 [label="SayIKnow SayIKnow SayIKnow"]
+}

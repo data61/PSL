@@ -1,0 +1,17 @@
+chapter AFP
+
+session WebAssembly (AFP) = "HOL-Library" +
+  options [timeout=600]
+  sessions
+    "Native_Word"
+  theories
+    "Wasm_Soundness"
+    "Wasm_Checker_Properties"
+    "Wasm_Interpreter_Properties"
+  theories [document = false]
+    "Wasm_Printing/Wasm_Printing"
+    "Wasm_Printing/Wasm_Interpreter_Printing_Pure"
+  document_files
+    "root.bib"
+    "root.tex"
+

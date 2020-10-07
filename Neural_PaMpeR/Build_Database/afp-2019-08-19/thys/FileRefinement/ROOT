@@ -1,0 +1,10 @@
+chapter AFP
+
+session FileRefinement (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    FileRefinement
+  document_files
+    "introduction.tex"
+    "root.bib"
+    "root.tex"

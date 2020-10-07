@@ -1,0 +1,11 @@
+chapter AFP
+
+session Stuttering_Equivalence (AFP) = LTL +
+  options [timeout = 600]
+  theories
+    Samplers
+    StutterEquivalence
+    PLTL
+  document_files
+    "root.bib"
+    "root.tex"

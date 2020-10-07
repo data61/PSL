@@ -1,0 +1,12 @@
+chapter AFP
+
+session Proof_Strategy_Language (AFP) = HOL +
+  options [timeout = 6000]
+  sessions
+    "HOL-Eisbach"
+  theories
+    PSL
+    Example
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,17 @@
+chapter AFP
+
+session Applicative_Lifting (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    "HOL-Nonstandard_Analysis"
+    "HOL-Proofs-Lambda"
+  theories
+    Applicative
+    Applicative_Functor
+    Applicative_Examples
+    Idiomatic_Terms
+  theories [document = false]
+    Applicative_Test
+  document_files
+    "root.tex"
+    "root.bib"

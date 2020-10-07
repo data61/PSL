@@ -1,0 +1,13 @@
+chapter AFP
+
+session C2KA_DistributedSystems (AFP) = HOL +
+  options [timeout = 300]
+  theories
+    Stimuli
+    CKA
+    C2KA
+    Topology_C2KA
+    Communication_C2KA
+  document_files
+    "root.bib"
+    "root.tex"

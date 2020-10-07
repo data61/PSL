@@ -1,0 +1,119 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Description:   Base for Lightweight Java (LJ).                              %
+% Author:        Rok Strnisa <rok@strnisa.com>, 2007-2009                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+grammar
+%%% FULLY QUALIFIED NAME %%%
+  fqn :: fqn_ ::=  {{ com fully-qualified name }}
+   |  dcl  :: :: def  {{ com def. }}
+
+%%% CLASS DEFINITION %%%
+  cld :: cld_ ::=  {{ com class definition }}
+   |  class dcl extends cl { fds meth_defs }  :: :: def  {{ com def. }}
+
+%%% FORMULA %%%
+  formula :: formula_ ::=  {{ com formulas }}
+   |  ( ctx , dcl ) in </ ( ctxk , dclk ) // k />  :: M :: pair_in_list
+          {{ com pair in list }}
+          {{ isa ([[ctx]],[[dcl]]) \<in> set [[ </ ( ctxk , dclk ) // k /> ]] }}
+   |  ALL ctx fqn . formula                        :: M :: all_ctxfqn
+          {{ com for all [[ctx]] and [[fqn]] }}
+          {{ isa \<forall> [[ctx]] [[fqn]]. [[formula]] }}
+
+%%% CLASS NAME %%%
+defns
+class_name_def :: '' ::=
+
+defn
+class_name ( cld ) = dcl :: :: class_name :: ''
+           {{ com extract the class name from a class }} by
+
+----------------------------------------------------- :: class_name
+class_name(class dcl extends cl {fds meth_defs}) = dcl
+
+%%% SUPERCLASS NAME %%%
+defns
+superclass_name_def :: '' ::=
+
+defn
+superclass_name ( cld ) = cl :: :: superclass_name :: ''
+           {{ com extract the name of the superclass from a class }} by
+
+---------------------------------------------------------- :: superclass_name
+superclass_name(class dcl extends cl {fds meth_defs}) = cl
+
+%%% CLASS FIELDS %%%
+defns
+class_fields_def :: '' ::=
+
+defn
+class_fields ( cld ) = fds :: :: class_fields :: ''
+           {{ com extract field declarations from a class }} by
+
+-------------------------------------------------------- :: class_fields
+class_fields(class dcl extends cl {fds meth_defs}) = fds
+
+%%% CLASS METHODS %%%
+defns
+class_methods_def :: '' ::=
+
+defn
+class_methods ( cld ) = meth_defs :: :: class_methods :: ''
+           {{ com extract method definitions from a class }} by
+
+--------------------------------------------------------------- :: class_methods
+class_methods(class dcl extends cl {fds meth_defs}) = meth_defs
+
+%%% METHOD NAME %%%
+defns
+method_name_def :: '' ::=
+
+%%% FIND TYPE %%%
+defns
+find_type_def :: '' ::=
+
+defn
+find_type ( P , ctx , cl ) = ty_opt :: :: find_type :: ft_
+           {{ com type lookup }} by
+
+find_cld(P, ctx, dcl) = (ctx', cld)
+----------------------------------- :: dcl
+find_type (P, ctx, dcl) = ctx'.dcl
+
+%%% ACYCLIC CLDS %%%
+defns
+acyclic_clds_def :: '' ::=
+
+defn
+acyclic_clds P :: :: acyclic_clds :: ac_
+           {{ com the class inheritance hierarchy in [[P]] is acyclic }} by
+
+ALL ctx fqn. ( [multiline] :formula_implies: (EX ctx' cld. find_cld(P, ctx, fqn) = (ctx', cld)) --> [newline] [tab] EX nn. (P, ctx, fqn, nn) in path_length )
+------------------------------------------------------------------------------------------------------ :: def
+acyclic_clds P
+
+%%% FIND PATH (TY) %%%
+defns
+find_path_ty_def :: '' ::=
+
+defn
+find_path ( P , ty ) = ctxclds_opt :: :: find_path_ty :: fpty_
+           {{ com find class hierarchy path }} by
+
+find_path(P, ctx, dcl) = ctxclds_opt
+------------------------------------ :: dcl
+find_path(P, ctx.dcl) = ctxclds_opt
+
+%%% STY_ONE %%%
+defns
+sty_one_def :: sty_ ::=
+
+defn
+P |- ty < ty' :: :: one :: '' {{ com subtyping }} by
+
+find_path(P, ty) = </(ctxk, cldk)//k/>
+</class_name(cldk) = dclk//k/>
+(ctx', dcl') in </(ctxk, dclk)//k/>
+-------------------------------------- :: dcl
+P |- ty < ctx'.dcl'

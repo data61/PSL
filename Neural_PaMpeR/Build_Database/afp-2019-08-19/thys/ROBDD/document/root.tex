@@ -1,0 +1,80 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\usepackage[english]{babel}
+% for \frqq (whatever that actually is)
+
+\begin{document}
+
+\title{An implementation of ROBDDs for Isabelle/HOL}
+\author{Julius Michaelis and Maximilian Haslbeck and Peter Lammich and Lars Hupel}
+\maketitle
+
+\begin{abstract}
+	We present a verified and executable implementation of ROBDDs in Isabelle/HOL.
+	Our implementation relates pointer-based computation in the Heap monad to operations on an abstract definition of boolean functions.
+	Internally, we implemented the if-then-else combinator in a recursive fashion, following the Shannon decomposition of the argument functions.
+	The implementation mixes and adapts known techniques and is built with efficiency in mind.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Preface}
+This work is not the first to deal with BDDs in Isabelle/HOL.
+Ortner and Schirmer have formalized BDDs in~\cite{BDD-AFP} and proved the correctness of an algorithm that transforms arbitrary BDDs to ROBDDs.
+However, their specification does not provide efficiently executable algorithms on BDDs.
+Giorgino and Strecker have presented efficiently executable algorithms for ROBDDs~\cite{giorgino2012correctness} by reducing their arguments to manipulating edges of graphs.
+However, they have, to the best of our knowledge, not made their theory files available.
+Thus, no library for efficient computation on (RO)BDDs in Isabelle/HOL existed.
+Our work is a response to that situation.
+
+The theoretic background of the implementation is mostly based on~\cite{brace1991efficient}.
+
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

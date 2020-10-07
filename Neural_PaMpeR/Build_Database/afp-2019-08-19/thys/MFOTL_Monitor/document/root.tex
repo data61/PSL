@@ -1,0 +1,52 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{a4wide}
+\usepackage[english]{babel}
+\usepackage{eufrak}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{literal}
+
+
+\begin{document}
+
+\title{Formalization of a Monitoring Algorithm for\\ Metric First-Order Temporal Logic}
+\author{Joshua Schneider \and Dmitriy Traytel}
+
+\maketitle
+
+\begin{abstract} A monitor is a runtime verification tool that solves the following
+problem: Given a stream of time-stamped events and a policy formulated in a specification
+language, decide whether the policy is satisfied at every point in the stream. We verify
+the correctness of an executable monitor for specifications given as formulas in metric
+first-order temporal logic (MFOTL)~\cite{BasinKMZ-JACM15}, an expressive extension of
+linear temporal logic with real-time constraints and
+first-order quantification. The verified monitor implements a simplified variant of the algorithm
+used in the efficient MonPoly monitoring tool~\cite{monpoly}. The formalization is presented in a
+forthcoming RV 2019 paper~\cite{SchneiderBKT-RV19}, which also compares the output of the
+verified monitor to that of other monitoring tools on randomly generated inputs. This
+case study revealed several errors in the optimized but unverified tools. \end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,15 @@
+chapter AFP
+
+session Separation_Algebra (AFP) = "HOL-Word" +
+  options [timeout = 600]
+  sessions
+    "HOL-Hoare"
+  theories
+    "ex/Simple_Separation_Example"
+    "ex/Sep_Tactics_Test"
+    "ex/VM_Example"
+    Sep_Eq
+    "ex/capDL/Separation_D"
+  document_files
+    "root.bib"
+    "root.tex"

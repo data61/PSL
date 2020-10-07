@@ -1,0 +1,220 @@
+\documentclass[fontsize=11pt,paper=a4,open=right,twoside,abstract=true]{scrreprt}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage[english]{babel}
+%\usepackage[draft]{fixme}
+\usepackage{graphicx}
+\usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage{amssymb}
+\usepackage{versions}
+\usepackage{isabelle,isabellesym}
+\usepackage{units}
+%\usepackage{eurosym}
+\IfFileExists{railsetup.sty}{\usepackage{railsetup}}{}
+\usepackage{titletoc}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% short vs. long version
+
+%%%% Short Version:
+\includeversion{short}
+\excludeversion{extended}
+
+%%%% Extended Version:
+%\excludeversion{short}
+%\includeversion{extended}
+
+%%%% Misc.:
+\newenvironment{shortspace}[1]{}{} %\processifversion{short}{\vspace{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% command
+
+\graphicspath{{data/},{figures/}}
+
+%%
+
+\newenvironment{matharray}[1]{\[\begin{array}{#1}}{\end{array}\]} % from 'iman.sty'
+\newcommand{\indexdef}[3]%
+{\ifthenelse{\equal{}{#1}}{\index{#3 (#2)|bold}}{\index{#3 (#1\ #2)|bold}}} % from 'isar.sty'
+
+%%
+
+\newcommand\inputif[1]{\IfFileExists{./#1}{\input{#1}}{}}
+\newcommand\chapterif[2]{\IfFileExists{./#1}{\chapter{#2}}{}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fix for package declaration to be at the end
+\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% document
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{A Meta-Model for the Isabelle API}
+\author{%
+  \href{https://www.lri.fr/~tuong/}{Fr\'ed\'eric Tuong}
+  \and
+  \href{https://www.lri.fr/~wolff/}{Burkhart Wolff}}
+\publishers{%
+  \mbox{LRI, Univ. Paris-Sud, CNRS, CentraleSup\'elec, Universit\'e Paris-Saclay} \\
+  b\^at. 650 Ada Lovelace, 91405 Orsay, France \texorpdfstring{\\}{}
+    \href{mailto:"Frederic Tuong"
+    <frederic.tuong@lri.fr>}{frederic.tuong@lri.fr} \hspace{4.5em}
+    \href{mailto:"Burkhart Wolff"
+    <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr} \\[2em]
+  %
+  IRT SystemX\\
+  8 av.~de la Vauve, 91120 Palaiseau, France \texorpdfstring{\\}{}
+    \href{mailto:"Frederic Tuong"
+    <frederic.tuong@irt-systemx.fr>}{frederic.tuong@irt-systemx.fr} \quad
+    \href{mailto:"Burkhart Wolff"
+    <burkhart.wolff@irt-systemx.fr>}{burkhart.wolff@irt-systemx.fr}
+}
+
+\maketitle
+
+\begin{abstract}
+We represent a theory \emph{of} (a fragment of) Isabelle/HOL \emph{in}
+Isabelle/HOL. The purpose of this exercise is to write packages for
+domain-specific specifications such as class models, B-machines,
+\dots, and generally speaking, any domain-specific languages whose
+abstract syntax can be defined by a HOL ``datatype''. On this basis, the
+Isabelle code-generator can then be used to generate code for global
+context transformations as well as tactic code.
+
+Consequently the package is geared towards 
+parsing, printing and code-generation to the Isabelle API.
+It is at the moment not sufficiently rich for doing meta theory on 
+Isabelle itself. Extensions in this direction are possible though.
+
+Moreover, the chosen fragment is fairly rudimentary. However it should be 
+easily adapted to one's needs if a package is written on top of it.
+The supported API contains types, terms, transformation of
+global context like definitions and data-type declarations as well
+as infrastructure for Isar-setups.
+
+This theory is drawn from the Featherweight OCL\cite{brucker.ea:featherweight:2014} project where 
+it is used to construct a package for object-oriented data-type theories
+generated from UML class diagrams. The Featherweight OCL, for example, allows for 
+both the direct execution of compiled tactic code by the Isabelle API
+as well as the generation of \verb|.thy|-files for debugging purposes.
+
+Gained experience from this project shows that the compiled code is sufficiently
+efficient for practical purposes while being based on a formal \emph{model}
+on which properties of the package can be proven such as termination of certain
+transformations, correctness, etc.
+\end{abstract}
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\input{session}
+
+\part{A Meta-Model for the Isabelle API}
+\chapter{Initialization}
+\inputif{Init.tex}
+\inputif{Init_rbt.tex}
+
+\chapter{Defining Meta-Models}
+\inputif{Meta_Pure.tex}
+\inputif{Meta_SML.tex}
+\inputif{Meta_Isabelle.tex}
+\inputif{Meta_Toy.tex} % toy
+\inputif{Meta_Toy_extended.tex} % toy
+\inputif{Meta_META.tex}
+
+%\chapter{Toy Libraries Static} % chapter already declared in this following first file:
+  \inputif{Toy_Library_Static.tex} % toy
+
+%\chapter{Translating Meta-Models} % chapter already declared in this following first file:
+\inputif{Core_init.tex}
+\inputif{Floor1_enum.tex}
+\inputif{Floor1_infra.tex}
+\inputif{Floor1_astype.tex}
+\inputif{Floor1_istypeof.tex}
+\inputif{Floor1_iskindof.tex}
+\inputif{Floor1_allinst.tex}
+\inputif{Floor1_access.tex}
+\inputif{Floor1_examp.tex}
+\inputif{Floor2_examp.tex}
+\inputif{Floor1_ctxt.tex}
+\inputif{Floor2_ctxt.tex}
+\inputif{Core.tex}
+
+\chapter{Parsing Meta-Models}
+\inputif{Parser_init.tex}
+\inputif{Parser_Pure.tex}
+\inputif{Parser_Toy.tex} % toy
+\inputif{Parser_Toy_extended.tex} % toy
+\inputif{Parser_META.tex}
+
+\chapter{Printing Meta-Models}
+\inputif{Printer_init.tex}
+\inputif{Printer_Pure.tex}
+\inputif{Printer_SML.tex}
+\inputif{Printer_Isabelle.tex}
+\inputif{Printer_Toy.tex} % toy
+\inputif{Printer_Toy_extended.tex} % toy
+\inputif{Printer_META.tex}
+\inputif{Printer.tex}
+
+\chapter{Main}
+\inputif{Generator_static.tex}
+\inputif{Generator_dynamic_sequential.tex}
+
+\part{A Toy Example}
+\inputif{Toy_Library.tex} % toy
+\inputif{Design_deep.tex} % toy
+\inputif{Design_shallow.tex} % toy
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{abbrvnat}
+\bibliography{root}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+\part{Appendix}
+\chapter{Grammars of Commands}
+\inputif{Rail.tex}
+
+\chapter{Content of the Directory isabelle\_home}
+
+\section{Extensions for Cartouches}
+
+\begin{itemize}
+\item \verb|./src/HOL/ex/Isabelle_Cartouche_Examples.thy| \hfill \emph{Main0}: \hspace{3em} \\
+Some functions have been generalized for supporting cartouches.
+\end{itemize}
+
+\section{Other Changes}
+
+\begin{itemize}
+\item \verb|./src/Tools/Code/Isabelle_code_runtime.thy| \hfill \emph{Main1}: \hspace{3em} \\
+The option $open$ was introduced in this file for the definition of $code\_reflect'$.
+\item \verb|./src/Tools/Code/Isabelle_code_target.thy| \hfill \emph{Main1}: \hspace{3em} \\
+Some signatures was removed for exposing the main structure,
+we have also defined at the end the implementation of $lazy\_code\_printing$,
+$apply\_code\_printing$ and $apply\_code\_printing\_reflect$.
+\item \verb|./src/Pure/Isar/Isabelle_typedecl.thy| \hfill \emph{Main2}: \hspace{3em} \\
+Short modification of the argument lifting a $binding$ to a $binding$~$option$ with some signatures removed.
+\end{itemize}
+
+\chapter{Content of One Generated File (as example)}
+\inputif{Design_generated_generated.tex}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

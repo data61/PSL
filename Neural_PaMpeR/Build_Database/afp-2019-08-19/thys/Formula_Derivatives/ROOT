@@ -1,0 +1,30 @@
+chapter AFP
+
+session "Formula_Derivatives" (AFP) = "HOL-Library" +
+  options [timeout = 5400]
+  sessions
+    "List-Index"
+    Coinductive_Languages
+    Deriving
+  theories [document = false]
+    While_Default
+    FSet_More
+  theories
+    WS1S_Formula
+    WS1S_Alt_Formula
+    Presburger_Formula
+    WS1S_Presburger_Equivalence
+    WS1S_Nameful
+  document_files (in "document")
+    "root.tex"
+
+session "Formula_Derivatives-Examples" (AFP) = "Formula_Derivatives" +
+  options [timeout = 300]
+  sessions
+    Show
+  theories
+    WS1S_Examples
+    WS1S_Alt_Examples
+    Presburger_Examples
+    WS1S_Presburger_Examples
+    WS1S_Nameful_Examples

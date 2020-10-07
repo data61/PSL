@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<title>Node.removeChild</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="creators.js"></script>
+<body>
+  <div id="log"></div>
+</body>
+<iframe src=about:blank></iframe>
+<script>
+
+test(function() {
+  var doc = document;
+  var s = doc.createElement("div");
+  assert_equals(s.ownerDocument, doc)
+  assert_throws("NOT_FOUND_ERR", function() { document.body.removeChild(s) })
+  assert_equals(s.ownerDocument, doc)
+}, "Passing a detached Element to removeChild should not affect it.")
+
+test(function() {
+  var doc = document;
+  var s = doc.createElement("div");
+  doc.documentElement.appendChild(s)
+  assert_equals(s.ownerDocument, doc)
+  assert_throws("NOT_FOUND_ERR", function() { document.body.removeChild(s) })
+  assert_equals(s.ownerDocument, doc)
+}, "Passing a non-detached Element to removeChild should not affect it.")
+
+test(function() {
+  var doc = document;
+  var s = doc.createElement("div");
+  doc.body.appendChild(s)
+  assert_equals(s.ownerDocument, doc)
+  assert_throws("NOT_FOUND_ERR", function() { s.removeChild(doc) })
+}, "Calling removeChild on an Element with no children should throw NOT_FOUND_ERR.")
+
+test(function() {
+  var doc = document.implementation.createHTMLDocument("");
+  var s = doc.createElement("div");
+  assert_equals(s.ownerDocument, doc)
+  assert_throws("NOT_FOUND_ERR", function() { document.body.removeChild(s) })
+  assert_equals(s.ownerDocument, doc)
+}, "Passing a detached Element to removeChild should not affect it.")
+
+test(function() {
+  var doc = document.implementation.createHTMLDocument("");
+  var s = doc.createElement("div");
+  doc.documentElement.appendChild(s)
+  assert_equals(s.ownerDocument, doc)
+  assert_throws("NOT_FOUND_ERR", function() { document.body.removeChild(s) })
+  assert_equals(s.ownerDocument, doc)
+}, "Passing a non-detached Element to removeChild should not affect it.")
+
+test(function() {
+  var doc = document.implementation.createHTMLDocument("");
+  var s = doc.createElement("div");
+  doc.body.appendChild(s)
+  assert_equals(s.ownerDocument, doc)
+  assert_throws("NOT_FOUND_ERR", function() { s.removeChild(doc) })
+}, "Calling removeChild on an Element with no children should throw NOT_FOUND_ERR.")
+
+test(function() {
+  assert_throws(new TypeError(), function() { document.body.removeChild(null) })
+  //assert_throws(new TypeError(), function() { document.body.removeChild({'a':'b'}) })
+}, "Passing a value that is not a Node reference to removeChild should throw TypeError.")
+</script>

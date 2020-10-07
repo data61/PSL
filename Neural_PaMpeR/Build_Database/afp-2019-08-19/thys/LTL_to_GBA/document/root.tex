@@ -1,0 +1,53 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Converting Linear-Time Temporal Logic to Generalized B\"uchi Automata}
+\author{Alexander Schimpf and Peter Lammich}
+\maketitle
+
+\begin{abstract}
+We formalize linear-time temporal logic (LTL) and the algorithm by Gerth et al.\ to convert LTL formulas to generalized B\"uchi automata.
+We also formalize some syntactic rewrite rules that can be applied to optimize the LTL formula before conversion.
+Moreover, we integrate the Stuttering Equivalence AFP-Entry by Stefan Merz, adapting the lemma that next-free LTL formula cannot distinguish between
+stuttering equivalent runs to our setting.
+
+We use the Isabelle Refinement and Collection framework, as well as the Autoref tool, to obtain a refined version of our algorithm,
+from which efficiently executable code can be extracted.
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\input{intro}
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

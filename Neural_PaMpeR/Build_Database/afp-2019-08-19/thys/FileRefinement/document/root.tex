@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Data refinement of representation of a file}
+\author{Karen Zee and Viktor Kuncak}
+\maketitle
+
+\begin{abstract}
+  This document illustrates the verification of basic file
+  operations (file creation, file read and file write) in
+  Isabelle theorem prover \cite{LNCS2283}.  We describe a
+  file at two levels of abstraction: an abstract file
+  represented as a resizable array, and a concrete file
+  represented using data blocks.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\input{introduction}
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

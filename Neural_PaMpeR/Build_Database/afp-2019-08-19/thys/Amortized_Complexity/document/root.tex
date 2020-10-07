@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\isacharunderscore}{\_}
+\renewcommand{\isacharunderscorekeyword}{\_}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Amortized Complexity Verified}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+A framework for the analysis of the amortized complexity of (functional)
+data structures is formalized in Isabelle/HOL and applied to a number of
+standard examples and to the following non-trivial ones: skew heaps,
+splay trees, splay heaps and pairing heaps. This work is described
+in \cite{Nipkow-ITP15} (except for pairing heaps).
+An extended version (including pairing heaps) is available online
+\cite{Nipkow-Brinkop}.
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,1156 @@
+% pf.sty
+%
+% last modified on Mon Jan 19 18:25:04 PST 1998 by lamport
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                       THE pf STYLE                          %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  CONTENTS
+%    1. Introduction
+%    2. The Basic Commands
+%    3. Different Styles of Numbering 
+%    4. Indentation
+%    5. Assumptions
+%    6. Portions of a Proof
+%    7. Conjunctions and Disjunctions
+%    8. Miscellany
+%    9. List of all Commands and Environments
+%
+%  1. INTRODUCTION
+%
+%    The pf style provides commands and environments for typesetting
+%    hierarchically structured proofs.  Below is an example of what 
+%    such a proof looks like, and the commands that generate it.
+%    The commands are explained individually below.  Then
+%
+%    THE OUTPUT                         THE INPUT
+%    ~~~~~~~~~~                         ~~~~~~~~~
+%    Any text...                        Any text
+%                                       \begin{proof}
+%    1. Text of step 1.                   \step{label-1}{Text of step 1.}
+%                                         \begin{proof}
+%       1.1. Text of step.                  \step{label-1.1}{Text of step}
+%                                            \begin{proof}
+%            Proof: Paragraph                  \pf\ Paragraph proof.~\qed
+%            proof. []                       \end{proof}
+%                                      
+%       1.2. Text of step.                   \step{label-1.2}{Text of step.}
+%                                            \begin{proof}
+%            Proof: Paragraph                  \pf\ Paragraph proof.~\qed
+%            proof. []                       \end{proof}
+%
+%       1.3. QED                             \qedstep
+%                                            \begin{proof}
+%            1.3.1. Text of step               \step{label-1.3.1}{Text...}
+%                   Proof: ... []              \begin{proof} ... \end{proof}
+%                                            
+%            1.3.2. QED                        \qedstep
+%                   Proof: ...                 \begin{proof}...\end{proof}
+%                                            \end{proof}
+%                                         \end{proof}
+%
+%    2. Text of step 2.                   \step{label-2}{Text of step 2.}
+%        Proof: ...                        \begin{proof} \pf\ ... \end{proof}
+%
+%    3. QED                               \qedstep
+%       Proof: ...                        \begin{proof} \pf\ ... \end{proof}
+%     
+%
+%   The best way to read such proofs is hierarchically.  To find out
+%   how, search below for the \pfhidelevel command and the \hideqedproof
+%   command.
+%
+%
+% 2. THE BASIC COMMANDS
+%
+% The proof Environment:
+%   Increments the proof depth, and indents the enclosed text the
+%   appropriate amount.  For example, if the proof environment follows a
+%   \step command that produces step number 2.6.7, then the first \step
+%   command inside the environment will produce step number 2.6.7.1.
+%
+% \step{LABEL}{TEXT}
+%    This command produces a proof step such as
+%        2.6.7.1. TEXT
+%    The step number 2.6.7.1 is determined by the position of the \step
+%    command in the proof.  The LABEL is a symbol label used to refer to the
+%    step number.  A subsequent \stepref{LABEL} command will generate the
+%    step number 2.6.7.1.  The same LABEL may be re-used, but
+%    not in a context where it is legal to refer to a previous step with the
+%    same label.  (See the discussion of step numbering below.)
+%    
+%    This command is equivalent to
+%           \begin{step+}{LABEL}
+%              TEXT
+%           \end{step+}
+%    The step+ environment form is more convenient if TEXT is long or
+%    complicated.
+%
+% \qedstep
+%    This command produces something like
+%    
+%       2.6.7.5. QED
+%    
+%    If the proof of step 2.6.7 is a sequence of steps (rather than a
+%    paragraph proof), then the last step in its proof is normally of this
+%    form.  The "QED" in the statement simply denotes the current
+%    goal---what must be proved to prove step 2.6.7.  The proof of this QED
+%    step will be followed immediately by the
+%    \end{proof} command that ends the proof of step 2.6.7.
+%    
+%    The pf style does not enforce this method of structuring proofs;
+%    the proof of statement 2.6.7 could end with an ordinary \step
+%    command.
+%
+% \pf, \qed
+%    These are simple text-producing commands that normally begin and end a
+%    paragraph-style proof.  However, they are not required.  Remember to
+%    put a "\ " after the \pf command, and to tie the \qed command to the
+%    last word of the proof with a "~".
+%
+% \pfsketch
+%    
+%    An intuitive prook sketch often introduces a multi-step proof, as in
+%    
+%         1.3. All odd numbers are prime.
+%              Proof sketch:  The proof is by induction, with the
+%              base case proved in step 1 and the induction step in
+%              step 2.
+%              1.3.1. The number 1 is a prime.
+%                     Proof: ...
+%              1.3.2. If n is an odd prime, then n+2 is prime.
+%                     Proof: ...
+%              1.3.3. QED
+%                     Proof: 1.3.1, 1.3.2, and mathematical induction.
+%    
+%    This is entered as 
+%    
+%      \step{label-1.3}{All odd numbers  are prime}
+%      \begin{proof}
+%      \pfsketch\ The proof is by induction...
+%       \step{label-1.3.2}{The number 1 is a prime}
+%       ...
+%      \end{proof}
+%    
+%    The \pfsketch command is, like \pf, just produces the text.  It isn't
+%    required by the pf style.
+%    
+%
+%  3. DIFFERENT STYLES OF NUMBERING 
+%
+%    In the long style of proof numbering, a step number is something like
+%    2.6.7.5, meaning that it is the fifth step in the proof of statement
+%    2.6.7, which is the seventh step in the proof of statement 2.6, which
+%    is...  Statement 2.6.7.5 has the short name <4>5, meaning it is the
+%    fifth statement in the current level-4 proof.  Numbering style is
+%    controlled by the commands
+%    
+%      \pfshortnumbers{N} : Use short step numbers for all levels
+%                           >= N (Default is N = 1, using only short
+%                           numbers.
+%    
+%    These are local declarations that obey the usual scoping rules.  Thus,
+%    putting a \pfshortnumbers declarations right after a \begin{proof}
+%    command causes all steps in that proof to have short numbers.
+%
+%    Steps 2.6.7.5, 2.6.6.5, and 4.9.1.5 all have the same short numbers
+%    <4>5.  However, no ambiguity arises from the use of short numbers
+%    because at most one of these steps can be mentioned at any point in a
+%    proof.  Let the ANCESTORS of step 2.6.7.5 be steps 2.6.7, 2.6, and 2.
+%    Let the ELDER SIBLINGS of step 2.6.7.5 be steps 2.6.7.1, 2.6.7.2,
+%    2.6.7.3, and 2.6.7.4.  The proof statement 2.6.7.5 may refer only
+%    to steps in the following two sets:
+%       (i) The elder siblings of itself and of its ancestors.
+%      (ii) Itself and its ancestors.
+%    The steps in (i) are the previously-proved assertions that can be used
+%    in the proof of 2.6.7.5.  The assumptions of the steps in (ii) are the
+%    ones that are being assumed in the proof.  (Assumptions are discussed
+%    below.)
+%    
+%    The command \stepref{LABEL} anywhere in the proof of step 2.6.7.5 (or in
+%    the step itself) produces the step number of a step lying in sets (i)
+%    or (ii) having LABEL as its label (the first argument of its \step
+%    command).  An error message is generated if the \step command has a
+%    label that is the label of a step in set (i) or (ii).
+%    
+%    Note that the last step of a proof is never an elder sibling, so it
+%    can't be in the set (i) for any statement.  A QED-step has no
+%    assumptions, so it can't be in the set (ii) for any statement.  That is
+%    why the \qedstep command does not specify a label.  Actually, \qedstep
+%    is defined to equal \label{qedstepN}{...}, where N is the current
+%.   level number. Thus, an error will be generated if two \qedstep commands 
+%    occur in the same proof, since they will have the same labels.
+
+%
+%    Short step numbers are really nice.  They take up less space and are
+%    easier to read.  They are the preferred form for long proofs.  However,
+%    long step numbers are better for referring to a proof step from outside
+%    the proof.  The pf style allows you to print the long numbers of steps as
+%    marginal notes, something like
+%    
+%       Theorem:  ...
+%       ...
+%     2.4.5.6.         <4>6. All odd numbers greater than 2 are prime.
+%     2.4.5.6.1.             <5>1. The number 3 is prime.
+%       ...
+%    
+%    (The long numbers are printed in a smaller font, so it looks
+%    better than you'd guess from this.)  The relevant commands are:
+%    
+%    \pfsidenumbers{N}{D} 
+%       Print side numbers for proof steps of all levels \geq N, left-aligned 
+%       a distance D to the left of the left margin of the text.
+%    
+%    \pfnosidenumbers  
+%       Do not print side numbers (the default)
+%
+%
+%  4. INDENTATION
+%
+%    There are two styles of indentation:
+%    
+%       Long Style 
+%          1. XXXXX
+%             1.1. XXXXX
+%                  1.1.1. XXXXX
+%                         1.1.1.1. XXXX
+%                                  Proof: ...
+%    
+%       Short Style 
+%          1. XXXXX
+%            1.1. XXXXX
+%              1.1.1. XXXXX
+%                1.1.1.1. XXXX
+%                  Proof: ...
+%    
+%    In the long style, the proof of a statement lines up with the text of
+%    the statement.  In the short form, each level is indented the same
+%    distance from the next higher level.  The relevant declarations
+%    are
+%    
+%    \pflongindent 
+%       Indent proofs to full width of item label
+%    
+%    \pfshortindent 
+%       Indent proofs by the length parameter \pfindent (the default)
+%
+%
+%  5. ASSUMPTIONS
+%
+%    A common form of a step is 
+%        
+%          <4>5. Assume: 1. n is an odd number
+%                        2. n > 2
+%                Prove:  n is prime 
+%    
+%    This asserts that the Prove clause follows from the Assume clause.  The
+%    "QED" at the end of the proof of this step refers to the Prove clause.
+%    The input to produce this is
+%    
+%        \step{label-4.5}{
+%          \assume{\begin{enumerate}
+%                    \item $n$ is an odd number
+%                    \item $n>2$
+%                  \end{enumumerate}}
+%          \prove{$n$ is prime}}
+%    
+%    The relevant command syntax is
+%    
+%       \assume{TEXT}
+%       \prove{TEXT}
+%    
+%    The formatting of the enumerate environment is changed to work
+%    propertly inside a proof environment.  (It is actually redefined
+%    to be the pfenum environment, described far below.)  Note that
+%    \label and \ref command for subitem b of item 3 produces the label
+%    "3b".  Note: there is an enumerate* environment that is like
+%    enumerate, except it indents the items.
+%     
+%    
+%    Another form of assumption is a Case assumption.  The statement
+%    
+%          <5>1. Case: n is of the form 4n+1
+%    
+%    means
+%    
+%          <5>1. Assume: n is of the form 4n+1
+%                Prove:  QED
+%    
+%    where QED is the current goal.  A proof by cases is structured
+%    as follows
+%    
+%          <4>5. Assume: 1. n is an odd number
+%                        2. n > 2
+%                Prove:  n is prime 
+%    
+%               <5>1. Assume: n equals 4m+1 for some m
+%                     Prove:  QED
+%                     Proof:  ... []
+%    
+%               <5>2. Assume: n equals 4m+3 for some m
+%                     Prove:  QED
+%                     Proof: ... []
+%    
+%               <5>3. QED
+%                     Proof: By <5>1, <5>2, and assumption <4>.2 (which 
+%                     states that n is odd), since any odd number has
+%                     the form 4m+1 or 4m+3. []
+%    
+%    A case assumption is produced with a \case command, which works like
+%    \assume and \prove.  It has the syntax
+%    
+%        \case{TEXT}
+%    
+%    Corresponding to the \assume, \prove, and \case commands are
+%    the assume+, prove+, and case+ environments.  For example, \prove{TEXT}
+%    is equivalent to \begin{prove+} TEXT \end{prove+}
+%    
+%    Note the reference, in the proof of <5>3, to the second conjunct of the
+%    Assume clause in statement <4>5 as "assumption <4>.2".  Since a proof
+%    of a step can only use assumptions in that step or its ancestors, a
+%    level number suffices to identify an assumption.  The Assume clause of
+%    statement <4>5 is called "assumption <4>".  The ".2" refers to the
+%    second item in that clause.  As mentioned below, this use of ".2" to
+%    refer to the second component of a conjunction can be used 
+%    in other circumstances as well.
+%    
+%    When long numbering is used, assumptions must be referred to by the
+%    name of the statement containing the assumption.  Thus, "assumption
+%    2.6.7.5.2" could potentially mean either the Assume clause of statement
+%    2.6.7.5.2, or the second item in the Assume clause of 2.6.7.5.  One way
+%    to remove the ambiguity is to use something other than "." in long step
+%    numbers.  The possibilities 2:6:7:5 and 2-6-7-5 don't look too good;
+%    the best alternative to "." seems to be a raised period ($\cdot$).  The
+%    "." is changed by redefining \pfdot, as described below.  Assumptions
+%    are referred to with the following commands:
+%    
+%       \levelref{LABEL}
+%         If \stepref{LABEL} produces <4>5, then \levelref{label} 
+%         produces <4>.
+%         If \stepref{LABEL} produces 2.6.7.5, then \levelref{label} also 
+%         produces 2.6.7.5.
+%
+%       \toplevel
+%         If \stepref{LABEL} produces <4>5, then \toplevel
+%         produces "<0>".
+%         If \stepref{LABEL} produces 2.6.7.5, then \toplevel
+%         produces "0".
+%
+%
+%  6. PORTIONS OF A PROOF
+%
+%    You may want to format only part of a proof--for example, you might
+%    want to write the proof of statement 2.1.3 as a separate proof.  You'd
+%    want something like
+%    
+%    2.1.3. All odd numbers are prime.
+%           2.1.3.1. ...
+%    
+%    To do this, first imagine the shortest proof you can that has a
+%    statement numbered 2.1.3: 
+%    
+%        1. X
+%        2. X
+%           2.1. X
+%                2.1.1. X
+%                2.1.2. X
+%                2.1.3. All odd numbers are prime.
+%                       2.1.3.1. ...
+%    
+%    Write this using the \step command and prove environment.  Now, change
+%    every \step{LABEL}{X} command to \nostep{LABEL}, and change the proof
+%    environments surrounding the proofs of steps 2 and 2.1 by noproof
+%    environments.  This yields
+%    
+%        \begin{proof}
+%          \nostep{label-1}
+%          \nostep{label-2}
+%          \begin{noproof}
+%            \nostep{label-2.1}
+%            \begin{noproof}
+%              \nostep{label-2.1.1}
+%              \nostep{label-2.1.2}
+%        
+%               \step{label-2.1.3} All oddnumbers are prime
+%               \begin{proof}
+%                  \step{label-2.1.3.1} ...
+%               \end{proof}
+%              \end{noproof}
+%            \end{noproof}
+%        \end{proof}
+%    
+%    which produces the desired result.  Note that the labels of the \nostep
+%    commands can be used to refer to the corresponding step numbers.
+%
+%  7. CONJUNCTIONS AND DISJUNCTIONS
+%
+%    It is very convenient to write conjunctions as lists bulleted by \land.
+%    This is done with the conj environment, where
+%    
+%     $X =  \begin{conj}    PRODUCES    X =  /\ A
+%             A \\ B \\ C                    /\ B
+%           \end{conj}$                      /\ C
+%
+%    The conj* environment is similar, except it numbers the conjuncts.
+%    
+%     $X = \begin{conj*}    PRODUCES    X = 1./\ A
+%            A \\ B \\ C                    2./\ B
+%          \end{conj*}$                     3./\ C
+%
+%    If X is defined in this way, then X.2 denotes the formula B.
+%
+%    The disj and disj* environments are similar. Disjuncts
+%    are numbered a, b, c 
+%
+%    These environments are implemented with the array environment.
+%    They should nest properly.  They can be used only in math mode.
+%
+%
+%  8. MISCELLANY
+%
+%    \pfhidelevel : A counter that controls what levels of proof
+%        are shown.  The command \pfhidelevel{2} causes
+%        only level-1 and level-2 steps to be printed, and the proofs
+%        of level-2 steps (including all level-3 and higher steps)
+%        to be omitted.  The default value of the counter is very large.
+%        The value of the counter should always be positive.
+%
+%   \unhideqedproof 
+%   \hideqedproof   : Used in conjunction with the pfhidelevel counter.
+%        The \unhideqedproof command causes one extra level of proof 
+%        to be displayed for the lowest level \qedstep.  The \hideqedproof
+%        returns to the default of not showing this extra level.
+%       
+%    \pflet  : like \prove and \assume, but with keyword "Let"
+%
+%    \kwfont : Selects the font for the keywords "Proof", "Assume",
+%              "Prove", and "Case".  Default is \sc; you can 
+%              change it by something like \renewcommand{\kwfont}{\em}
+%
+%    \pfdot : Defines the "." in long step numbers.  Try
+%             \renewcommand{\pfdot}{\mbox{$\cdot$}} for variety.
+%
+%    \pfindent : The amount by which proof levels are indented in
+%                the short indent option.  Changed with \setlength.
+%                This is a local declaration.
+%
+%    \pfstepnumber{LEVEL}{NUMBER}{LONGNUMBER} :
+%        Generates either <LEVEL>NUMBER or LONGNUMBER, depending
+%        on the numbering style in effect.
+%
+%    \pflevelnumber{LEVEL}{LONGNUMBER} :
+%        Generates either <LEVEL> or LONGNUMBER, depending
+%        on the numbering style in effect.
+%
+%    The following parameters control vertical spacing.  
+%    
+%      \pftopsep  : space above first proof environment
+%      \pfbotsep  : space below first proof environment
+%      \pfsep     : space above and below inner proof environment
+%      \stepsep   : space above and below proof step
+%    
+%    The last two are set to zero, and probably should remain there.  It
+%    might be desirable to have vertical spacing depend more finely on the
+%    level number.  This can be done using the \makefcn command (see far
+%    below), and will be if there seems to be a need.  However,
+%    zero extra vertical spacing seems to be fine.
+%
+%    \pf, \qed, \pfsketch  :  Described above.  Can be changed with 
+%                             \renewcommand
+%
+%
+%  9. LIST OF ALL COMMANDS AND ENVIRONMENTS
+%
+%    Text-Producting Commands            Environments
+%      \pf, \pfsketch                      proof
+%      \qed                                noproof
+%      \step                               step+   [version of \step]        
+%      \nostep                             assume+ [version of \assume]
+%      \qedstep                            prove+  [version of \prove]        
+%      \assume                             case+   [version of \case]        
+%      \prove                              conj, conj*
+%      \pflet                              disj, disj*
+%      \case                               pfenum, enumerate*
+%      \pfdot ["." in long names]          
+%      \stepref, \levelref, \toplevel
+%      \pfstepnumber, \pflevelnumber
+%      
+%    Declarations
+%      \kwfont [keyword font]
+%      \pfshortnumbers
+%      \pfsidenumbers, \pfnosidenumbers
+%      \pflongindent, \pfshortindent
+%      \pfindent
+%      \pftopsep, \pfbotsep  
+%      \pfsep, \stepsep   
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                       SPACING                               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% COMMANDS
+%   \pflongindent == Indent proofs to full width of item label
+%   \pfshortindent == Indent proofs by \pfindent [the default]
+
+\newif\if@pfLongIndent %  true if indent proof to width of label.
+\@pfLongIndentfalse
+\newcommand{\pflongindent}{\@pfLongIndenttrue}
+\newcommand{\pfshortindent}{\@pfLongIndentfalse}
+
+% PARAMETERS
+%  \pfindent   == indentation at beginning of a proof
+%  \pftopsep   == space above first proof environment
+%  \pfbotsep   == space below first proof environment
+%  \pfsep      == space above and below inner proof environment
+%  \stepsep    == space above and below proof step
+%  pfhidelevel == counter, specifying level at which proofs are hidden
+
+\newlength{\pfindent}      
+\newlength{\pftopsep}  
+\newlength{\pfbotsep}  
+\newlength{\pfsep}  
+\newlength{\stepsep}        
+\newbox{\pfbox}
+\newcounter{pfhidelevel}
+\setcounter{pfhidelevel}{9999}
+\newcommand{\pfhidelevel}[1]{\setcounter{pfhidelevel}{#1}}
+
+\setlength{\pfindent}{1em} 
+\setlength{\pftopsep}{1ex}     % space above first proof environment
+\setlength{\pfbotsep}{1ex}     % space below first proof environment
+\setlength{\pfsep}{0pt}        % space above and below inner proof environment
+\setlength{\stepsep}{0pt}      % space above and below proof step
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   STEP NUMBERING                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% COMMANDS
+%   \pfshortnumbers{N} == Use short step numbers for all levels >= N
+%
+%   \pfsidenumbers{N}{D} == print side numbers for proof steps of all
+%                           levels >= N, left-aligned length D 
+%                           to left of left margin
+%   \pfnosidenumbers     == do not print side numbers (the default)
+
+%\newcommand{\pflongnumbers}{\@pfLongNumberstrue}
+\newcommand{\pfshortnumbers}[1]{\pfshortNumberLevel=#1\relax}
+
+\newcount\pfshortNumberLevel \pfshortNumberLevel=0
+
+% \@pfLongNumbersfalse}
+% \newif\if@pfLongNumbers %  true if indent proof to width of label.
+%\@pfLongNumbersfalse
+
+\newcommand{\pfstepnumber}[3]{%
+   \ifnum \pfLevelCount < \pfshortNumberLevel
+       #3%
+     \else $\langle#1\rangle#2$%
+   \fi}
+
+\newcommand{\pflevelnumber}[2]{%
+   \ifnum \pfLevelCount < \pfshortNumberLevel
+       #2%
+     \else $\langle#1\rangle$%
+   \fi}
+
+\newif\if@pfSideNumbers %  true if putting long numbers at margin
+\@pfSideNumbersfalse
+\newcounter{pf@sidenumberdepth}
+\newlength{\pf@sidenumberoutdent}
+\newcommand{\pfsidenumbers}[2]{\@pfSideNumberstrue
+     \setcounter{pf@sidenumberdepth}{#1}%
+     \addtocounter{pf@sidenumberdepth}{-1}%
+     \setlength{\pf@sidenumberoutdent}{#2}}
+\newcommand{\pfnosidenumbers}{\@pfSideNumbersfalse}
+
+
+\newcount\pfLevelCount  \pfLevelCount=0 % current level number
+\newcount\pfStepCount   \pfStepCount=0  % current step number
+\newcommand{\pfLongLevel}{} % The long version of current level--e.g., 2.7.5
+\newcommand{\pfLongStep}{}  % The long version of current step--e.g., 2.7.5.2
+\newcommand{\pfStepName}{}  % {current level name}{current step name} 
+
+% \pfSetName ==  LongStep := current long step name
+%                StepName := current step name
+\newcommand{\pfSetName}{%
+  \edef\pfLongStep{%
+    \ifnum\pfLevelCount>\@ne
+      \pfLongLevel\pfdot\the\pfStepCount
+     \else\the\pfStepCount\fi}%
+  \edef\pfStepName{%
+   \ifnum \pfLevelCount < \pfshortNumberLevel
+    {\pfLongStep}{\pfLongStep}%
+    \else
+     {$\langle\the\pfLevelCount\rangle$}%
+     {$\langle\the\pfLevelCount\rangle\the\pfStepCount$}%
+   \fi}}
+
+% \pfSetRef{foo} ==  IF \pf@foo UNDEFINED
+%                       THEN \pf@foo := StepName 
+%                       ELSE WARNING
+\newcommand{\pfSetRef}[1]{%
+  \@ifundefined{pf@#1}%
+    {\expandafter
+      \edef\csname pf@#1\endcsname{\pfStepName}}%
+    {\typeout{WARNING:
+         proof step "#1" (<\the\pfLevelCount>\the\pfStepCount) 
+        already defined}}%
+    }
+
+
+\newcommand{\pfPrintStepNumber}[2]{#2}
+\newcommand{\pfPrintLevelNumber}[2]{#1}
+
+% \stepref{FOO} == Print \pf@FOO as a step number
+\newcommand{\stepref}[1]{\@ifundefined{pf@#1}{{\bf ??}\typeout{WARNING:
+ proof step "#1" undefined}}{\expandafter\expandafter\expandafter
+ \pfPrintStepNumber\csname pf@#1\endcsname}}
+
+\newcommand{\levelref}[1]{\@ifundefined{pf@#1}{{\bf ??}\typeout{WARNING:
+ proof step #1 undefined}}%
+  {\expandafter\expandafter\expandafter
+ \pfPrintLevelNumber\csname pf@#1\endcsname}}
+
+\newcommand{\toplevel}{\pflevelnumber{0}{0}}
+
+\newlength{\pf@outdent}
+\newcommand{\pfSideNumber}{%
+  \if@pfSideNumbers 
+   \ifnum\pfLevelCount>\value{pf@sidenumberdepth}%
+    \hspace*{-\pf@outdent}%
+    \makebox[0pt][l]{\footnotesize\pfLongStep}%
+    \hspace*{\pf@outdent}%
+    \else\fi
+   \else\fi}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   THE pflist ENVIRONMENT                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%% The pflist environment is the same as list environment except 
+%% it can be nested deeper.
+
+\def\pflist#1#2{\ifnum \@listdepth >15\relax \@toodeep 
+     \else \global\advance\@listdepth\@ne \fi
+  \rightmargin \z@ \listparindent\z@ \itemindent\z@
+  \csname @list\romannumeral\the\@listdepth\endcsname 
+  \def\@itemlabel{#1}\let\makelabel\@mklab \@nmbrlistfalse #2\relax
+  \@trivlist
+  \parskip\parsep \parindent\listparindent
+  \advance\linewidth -\rightmargin \advance\linewidth -\leftmargin
+  \advance\@totalleftmargin \leftmargin
+  \parshape \@ne \@totalleftmargin \linewidth 
+  \ignorespaces}
+
+\def\endpflist{\global\advance\@listdepth\m@ne
+    \endtrivlist}
+
+\let\@listvii=\@listv
+\let\@listviii=\@listv
+\let\@listix=\@listv
+\let\@listx=\@listv
+\let\@listxi=\@listv
+\let\@listxii=\@listv
+\let\@listxiii=\@listv
+\let\@listxiv=\@listv
+\let\@listxv=\@listv
+\let\@listxvi=\@listv
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   THE proof ENVIRONMENT                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+\newenvironment{proof}{%       BEGIN:
+  \edef\pfLongLevel          % LongLevel := 
+   {\ifnum\pfLevelCount>\z@  %    IF LevelCount > 0
+     \ifnum\pfLevelCount>\@ne%     THEN IF LevelCount > 1
+      \pfLongLevel\pfdot\else\fi  %            THEN LongLevel * "." FI
+      \the\pfStepCount       %          * StepCount
+     \else\fi}%              %     ELSE FI
+  \advance\pfLevelCount\@ne  %   LevelCount := LevelCount + 1
+  \@tempcnta=\value{pfhidelevel}%
+  \ifnum\@tempcnta<\@ne
+    \setcounter{pfhidelevel}{1}%
+    \typeout{WARNING: pfhidelevel < 1, setting to 1}%
+    \@tempcnta=\@ne\fi
+  \advance\@tempcnta\@ne
+  \if@qedstep
+    \advance\@tempcnta\@ne
+    \ifnum\pfLevelCount 
+        = \@tempcnta 
+     \sbox{\pfbox}\bgroup\begin{minipage}{\textwidth}\fi
+  \else     
+   \ifnum\pfLevelCount 
+        = \@tempcnta 
+     \sbox{\pfbox}\bgroup\begin{minipage}{\textwidth}\fi\fi
+  \pfStepCount=\z@           %   StepCount  := 0
+  \ifnum\pfLevelCount>\@ne   %   IF LevelCount > 1
+   \begin{pflist}{}{%          %     THEN Begin List with
+    \topsep=\pfsep\relax     %           \topsep     := \pfsep
+    \itemsep=\z@             %           \itemsep    := 0
+    \parsep=\z@              %           \parsep     := 0
+    \partopsep=\z@           %           \partopsep  := 0
+    \if@pfLongIndent         %          IF LongIndent
+     \settowidth{\leftmargin}%%           THEN
+      {\expandafter          %              \leftmargin := width of step name
+       \pfPrintStepNumber    %                             + \labelsep
+       \pfStepName.}%
+     \advance\leftmargin
+     \labelsep 
+    \else                    %           ELSE
+    \leftmargin=\pfindent    %            \leftmargin := \pfindent
+    \fi\relax        
+   }   \item[]
+   \else \par                %     ELSE \par
+    \addvspace{\pftopsep}%   %          addvspace of \pftopsep
+    \parindent=\z@           %          \parindent := 0
+    \parskip = \z@           %          \parskip := 0
+    \@ifundefined{mathindent}{%
+      \abovedisplayskip=\z@ plus .2ex       % set display skips
+      \abovedisplayshortskip=\z@ plus .2ex
+      \belowdisplayskip=\z@ plus .2ex
+      \belowdisplayshortskip=\z@ plus .2ex}{%
+      \mathindent=1em}%
+    \let\enumerate\pfenum       %   enumerate environment <- pfenum
+    \let\endenumerate\endpfenum %
+ \fi
+\@qedstepfalse
+    }%                       % END:
+  {\ifnum\pfLevelCount>\@ne  %   IF LevelCount > 1
+    \end{pflist}%              %     THEN End List
+   \else \par                %     ELSE \par
+     \addvspace{\pfbotsep}%  %          addvspace of \pfbotsep
+   \fi
+  \@tempcnta=\value{pfhidelevel}%
+  \advance\@tempcnta\@ne
+  \if@qedstep
+    \advance\@tempcnta\@ne
+    \ifnum\pfLevelCount 
+        = \@tempcnta 
+     \end{minipage}\egroup\sbox{\pfbox}{}\@qedstepfalse\fi
+  \else 
+      \ifnum\pfLevelCount 
+        =\@tempcnta 
+        \end{minipage} 
+        \egroup\sbox{\pfbox}{}\fi
+ \fi}
+
+
+\newenvironment{noproof}{%   % BEGIN:
+  \edef\pfLongLevel          % LongLevel := 
+   {\ifnum\pfLevelCount>\z@  %    IF LevelCount > 0
+     \ifnum\pfLevelCount>\@ne%     THEN IF LevelCount > 1
+      \pfLongLevel.\else\fi  %            THEN LongLevel * "." FI
+      \the\pfStepCount       %          * StepCount
+     \else\fi}%              %     ELSE FI
+  \advance\pfLevelCount\@ne  %   LevelCount := LevelCount + 1
+  \pfStepCount=\z@           %   StepCount  := 0
+  \par                       %   \par
+  \parindent=\z@             %          \parindent := 0
+  \parskip = \z@             %          \parskip := 0
+  \@ifundefined{mathindent}{%
+      \abovedisplayskip=\z@ plus .2ex       % set display skips
+      \abovedisplayshortskip=\z@ plus .2ex
+      \belowdisplayskip=\z@ plus .2ex
+      \belowdisplayshortskip=\z@ plus .2ex}{%
+      \mathindent=1em}%
+  \let\enumerate\pfenum       %   enumerate environment <- pfenum
+  \let\endenumerate\endpfenum %
+  }%                         % END:
+  {\par}                     %  \par
+
+%% step 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                     \step, \assume, ETC.                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\step}[2]{\begin{step+}{#1}#2\end{step+}}
+\newif\if@qedstep %  true right after a \qedstep if in the scope of an 
+                  %  \unhideqedproof declaration
+\@qedstepfalse
+
+\newif\if@unhideqedstep % set true by \unhideqproof, false by \hideqproof. 
+
+\@unhideqedstepfalse
+\newcommand{\unhideqedproof}{\@unhideqedsteptrue}
+\newcommand{\hideqedproof}{\@unhideqedstepfalse}
+
+\newcommand{\qedstep}{\step{qedstep\the\pfLevelCount}{Q.E.D.}
+\if@unhideqedstep\@qedsteptrue\fi}
+
+\newcommand{\nostep}[1]{% 
+  \advance\pfStepCount\@ne       % StepCount := StepCount + 1
+  \pfSetName                     % SetName
+  \pfSetRef{#1}%                 % SetRef
+  }
+
+\newenvironment{step+}[1]%
+ {\endgroup                      % Move Outside environment scope
+  \advance\pfStepCount\@ne       % StepCount := StepCount + 1
+  \pfSetName                     % SetName
+  \pfSetRef{#1}%                 % SetRef
+ \begingroup\@endpefalse         % Move inside environment scope
+   \def\@currenvir{step+}%       %   by simulating \begin{step+}
+ \begin{pflist}{}{%                % Begin list environment with
+   \setlength
+     {\pf@outdent}{\textwidth}%  %   \pf@outdent = outdent
+   \addtolength                  %                 for side numbers
+    {\pf@outdent}{-\linewidth}%  
+   \addtolength
+    {\pf@outdent}%
+    {\pf@sidenumberoutdent}%
+   \topsep=\stepsep\relax        %   \topsep     := \stepsep
+   \itemsep=\z@                  %   \itemsep    := 0
+   \parsep=\z@                   %   \parsep     := 0
+   \partopsep=\z@                %   \partopsep  := 0
+   \settowidth{\labelwidth}%     %   \labelwidth := width of step name.
+     {\expandafter
+      \pfPrintStepNumber
+      \pfStepName.}%
+   \leftmargin=\labelwidth\relax %   \leftmargin := \labelwidth
+   \advance\leftmargin\labelsep %                   + \labelsep
+   \relax}%
+ \item[\pfSideNumber%               % \item[ \pfSideNumber
+  \expandafter                       %        StepNumber]
+  \pfPrintStepNumber\pfStepName.]}%
+ {\end{pflist}}
+
+%%%%% \assume, \prove, and \case commands
+
+\newenvironment{assume+}{%
+ \begin{pflist}{}{%                % Begin list environment with
+   \topsep=\z@                   %   \topsep     := 0
+   \itemsep=\z@                  %   \itemsep    := 0
+   \parsep=\z@                   %   \parsep     := 0
+   \partopsep=\z@                %   \partopsep  := 0
+   \settowidth{\labelwidth}%     %   \labelwidth := width "Assume:"
+     {{\kwfont Assume\/}:}%
+   \leftmargin=\labelwidth\relax %   \leftmargin := \labelwidth
+   \advance\leftmargin\labelsep  %                   + \labelsep
+   \relax}%
+ \item[{\kwfont Assume\/}:]}%    % \item[Assume:]]
+ {\end{pflist}}
+
+\newcommand{\assume}[1]{\begin{assume+}#1\end{assume+}}
+
+\newcommand{\prove}[1]{\begin{prove+}#1\end{prove+}}
+\newenvironment{prove+}{%
+ \begin{pflist}{}{%                % Begin list environment with
+   \topsep=\z@                   %   \topsep     := 0
+   \itemsep=\z@                  %   \itemsep    := 0
+   \parsep=\z@                   %   \parsep     := 0
+   \partopsep=\z@                %   \partopsep  := 0
+   \settowidth{\labelwidth}%     %   \labelwidth := width "Assume:"
+     {{\kwfont Assume\/}:}%
+   \leftmargin=\labelwidth\relax %   \leftmargin := \labelwidth
+   \advance\leftmargin\labelsep  %                   + \labelsep
+   \relax}%
+ \item[{\kwfont 
+          Prove\/}:\hfill]}%     % \item[Prove:]]
+ {\end{pflist}}
+
+\newcommand{\pflet}[1]{\begin{pflet+}#1\end{pflet+}}
+\newenvironment{pflet+}{%
+ \begin{pflist}{}{%                % Begin list environment with
+   \topsep=\z@                   %   \topsep     := 0
+   \itemsep=\z@                  %   \itemsep    := 0
+   \parsep=\z@                   %   \parsep     := 0
+   \partopsep=\z@                %   \partopsep  := 0
+   \settowidth{\labelwidth}%     %   \labelwidth := width "Assume:"
+     {{\kwfont Let\/}:}%
+   \leftmargin=\labelwidth\relax %   \leftmargin := \labelwidth
+   \advance\leftmargin\labelsep  %                   + \labelsep
+   \relax}%
+ \item[{\kwfont 
+          Let\/}:\hfill]}%     % \item[Let:]]
+ {\end{pflist}}
+
+%\newcommand{\prove}[1]{%
+% \begin{pflist}{}{%                % Begin list environment with
+%   \topsep=\z@                   %   \topsep     := 0
+%   \itemsep=\z@                  %   \itemsep    := 0
+%   \parsep=\z@                   %   \parsep     := 0
+%   \partopsep=\z@                %   \partopsep  := 0
+%   \settowidth{\labelwidth}%     %   \labelwidth := width "Assume:"
+%     {{\kwfont Assume\/}:}%
+%   \leftmargin=\labelwidth\relax %   \leftmargin := \labelwidth
+%   \advance\leftmargin\labelsep  %                   + \labelsep
+%   \relax}%
+% \item[{\kwfont Prove\/}:\hfill]     % \item[Prove:]]
+% #1
+% \end{pflist}}
+
+\newcommand{\case}[1]{%
+ \begin{pflist}{}{%                % Begin list environment with
+   \topsep=\z@                   %   \topsep     := 0
+   \itemsep=\z@                  %   \itemsep    := 0
+   \parsep=\z@                   %   \parsep     := 0
+   \partopsep=\z@                %   \partopsep  := 0
+   \settowidth{\labelwidth}%     %   \labelwidth := width "Case:"
+     {{\kwfont Case\/}:}%
+   \leftmargin=\labelwidth\relax %   \leftmargin := \labelwidth
+   \advance\leftmargin\labelsep  %                   + \labelsep
+   \relax}%
+ \item[{\kwfont
+           Case\/}:]             % \item[Case:]]
+ #1
+ \end{pflist}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                       MISCELLANY                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\pf}{{\kwfont Proof\/}:}
+\newcommand{\pfsketch}{{\kwfont Proof sketch\/}:}
+%\newcommand{\qed}{\rule{.4em}{1.75ex}}
+\newcommand{\qed}{{\fboxsep=\z@\fbox{\rule{.5em}{0pt}\rule{0pt}{2ex}}}}
+\let\kwfont=\sc
+\def\pfdot{.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                        STACKS                               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \@push{\stack}{element}  == \stack := <<element>> :o: \stack
+% \@pop{\stack}{\cmd}  == \cmd := head(\stack)
+%                            \stack := tail(\stack)
+% \newstack{\stack}  == \stack := emptystack
+%
+% \@head{\stack}{\var}  ==  \var := head(\stack)
+%   Note: to push a counter value, use \the\value{ctr}
+%         to push a length \foo, use \the\foo
+
+%
+\def\@push#1#2{{\let\@nil\relax\let\@elt\relax\xdef#1{#2\@elt#1}}}
+\def\@pop#1#2{{\let\@nil\relax\let\@elt\relax
+              \xdef#2{\expandafter\@innerhead#1}
+              \xdef#1{\expandafter\@innerpop#1}}}
+\def\@innerpop#1\@elt#2\@nil{#2\@nil}
+\def\@head#1#2{{\let\@elt\relax\xdef#2{\expandafter\@innerhead#1}}}
+\def\@innerhead#1\@elt#2\@nil{#1}
+\def\newstack#1{\gdef#1{\@nil}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%           LISTS OF CONJUNCTIONS AND DISJUNCTIONS            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%    \begin{conj}       ->   /\ A
+%      A \\ B \\ C           /\ B
+%    \end{conj}              /\ C
+%
+%    \begin{conj*}      ->   1./\ A
+%      A \\ B \\ C           2./\ B
+%    \end{conj*}             3./\ C
+%
+%    The disj and disj* environments are similar. Disjuncts
+%    are numbered a, b, c 
+%
+%    These environments are arrays; they must be used in math mode.
+
+\newcounter{pf@conjCounter}   % counter for conj* and disj*
+\newstack\pf@conj             % stack of counters
+
+\newenvironment{conj}{%
+ \begin{array}[t]{@{\land\;}l@{}}%
+ }{%
+ \end{array}}
+
+\newenvironment{disj}{%
+ \begin{array}[t]{@{\lor\;}l@{}}%
+ }{%
+ \end{array}}
+
+\newenvironment{conj*}{%
+ \@push\pf@conj{\the\value{pf@conjCounter}}%
+ \setcounter{pf@conjCounter}{0}%
+ \begin{array}[t]{@{\addtocounter{pf@conjCounter}{1}%
+   \mbox{\protect\small\protect\arabic{pf@conjCounter}.}
+   \land\;}l@{}}%
+ }{%
+ \end{array}%
+ \@pop\pf@conj\pf@temp
+  \setcounter{pf@conjCounter}{\pf@temp}}
+
+\newenvironment{disj*}{%
+ \@push\pf@conj{\the\value{pf@conjCounter}}%
+ \setcounter{pf@conjCounter}{0}%
+ \begin{array}[t]{@{\addtocounter{pf@conjCounter}{1}%
+   \mbox{\protect\small\protect\alph{pf@conjCounter}.}
+   \lor\;}l@{}}%
+ }{%
+ \end{array}%
+ \@pop\pf@conj\pf@temp
+  \setcounter{pf@conjCounter}{\pf@temp}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                      ENUMERATED LISTS                       %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% pfenum environment : In proofs, the enumerate environment 
+%                      is redefined to be the pfenum environment
+%
+% enumerate* environment : Like pfenum, except with additional
+%                          indentation.
+%
+% \enumindent :  The indentation for enumerate*
+% pfenumdepth  : Depth of current pfenum list
+% pfenum       : pfenum list counter
+%
+% Uses counters pfenumi, ... , pfenumiii just like the
+% ordinary enumerate environment uses counters enumi, ... , enumiv.
+% \pf@setEnumWidth{\cmd} : Sets \cmd to the width of the label of the
+%                          item number 2 for the current enumeration level.
+%
+% \pf@enumLabel : prints the current pfenum label, using the
+%                 pfenumi... counter.
+
+\newcounter{pfenum}
+\newcounter{pfenumdepth}
+\newlength{\enumindent}
+\setlength{\enumindent}{1em}
+
+\@definecounter{pfenumi}
+\@definecounter{pfenumii}
+\@definecounter{pfenumiii}
+%\@definecounter{pfenumiv}
+
+\def\labelpfenumi{\thepfenumi.}    
+\def\thepfenumi{\arabic{pfenumi}}     
+ 
+\def\labelpfenumii{(\thepfenumii)}
+\def\thepfenumii{\alph{pfenumii}}
+\def\p@pfenumii{\thepfenumi}
+
+\def\labelpfenumiii{\thepfenumiii.}
+\def\thepfenumiii{\roman{pfenumiii}}
+\def\p@pfenumiii{\thepfenumi\thepfenumii}
+
+%\def\labelpfenumiv{\thepfenumiv.}
+%\def\thepfenumiv{\Alph{pfenumiv}}     
+%\def\p@pfenumiv{\p@pfenumiii\thepfenumiii}
+
+
+\newcommand{\pf@setEnumWidth}[1]{%
+  \settowidth{#1}{\setcounter{\@pfenumctr}{2}%
+  \csname the\@pfenumctr\endcsname.%
+  \setcounter{\@pfenumctr}{0}}}
+
+
+
+\newcommand{\pf@enumLabel}{%
+  \hfill\makebox[0pt][r]{\csname the\@pfenumctr\endcsname.}}
+
+\newenvironment{pfenum}{%        % BEGIN
+  \ifnum \value{pfenumdepth}>2%  %  IF pfenumdepth > 2
+    \relax\@toodeep \else        %    THEN error
+  \addtocounter{pfenumdepth}{1}% %    ELSE  pfenumdepth := pfenumdepth + 1
+  \edef\@pfenumctr{pfenum%           %          @pfenumctr  := pfenumN
+    \romannumeral\the            %            where N = Roman(pfenumdepth)
+    \value{pfenumdepth}}%        %
+   \fi                           %  FI
+  \begin{pflist}%                  %   Begin list environment with
+  {\pf@enumLabel}{%              %    Default label = pf@enumlabel
+   \labelsep=                    %   \labelsep =
+    \ifcase\value{pfenumdepth}   %     CASE OF pfenumdepth
+      \labelsep                  %        
+     \or .67\labelsep            %       1 -> .67\labelsep
+     \or .67\labelsep            %       2 -> .67\labelsep
+     \else \labelsep             %      >2 -> \labelsep
+     \fi                         %
+   \topsep=\z@                   %    \topsep     := 0
+   \itemsep=\z@                  %    \itemsep    := 0
+   \parsep=\z@                   %    \parsep     := 0
+   \partopsep=\z@                %    \partopsep  := 0
+   \pf@setEnumWidth\labelwidth   %    set \labelwidth with setEnumWidth
+   \leftmargin=\labelwidth\relax %    \leftmargin := \labelwidth
+   \advance\leftmargin\labelsep  %                   + \labelsep
+   \relax
+   \usecounter{\@pfenumctr}%       %    counter @pfenumctr
+ }%
+ }{%                             % END
+   \end{pflist}%                   %   End list
+   \addtocounter{pfenumdepth}{-1}%   pfenumdepth := pfenumdepth - 1
+ }
+
+\newenvironment{enumerate*}{%    % BEGIN
+  \ifnum \value{pfenumdepth}>2%  %  IF pfenumdepth > 2
+    \relax\@toodeep \else        %    THEN error
+  \addtocounter{pfenumdepth}{1}% %    ELSE  pfenumdepth := pfenumdepth + 1
+  \edef\@pfenumctr{pfenum%           %          @pfenumctr  := pfenumN
+    \romannumeral\the            %            where N = Roman(pfenumdepth)
+    \value{pfenumdepth}}%        %
+   \fi                           %  FI
+  \begin{pflist}%                  %   Begin list environment with
+  {\pf@enumLabel}{%              %    Default label = pf@enumlabel
+   \labelsep=                    %   \labelsep =
+    \ifcase\value{pfenumdepth}   %     CASE OF pfenumdepth
+      \labelsep                  %        
+     \or .67\labelsep            %       1 -> .67\labelsep
+     \or .67\labelsep            %       2 -> .67\labelsep
+     \else \labelsep             %      >2 -> \labelsep
+     \fi                         %
+   \topsep=\z@                   %    \topsep     := 0
+   \itemsep=\z@                  %    \itemsep    := 0
+   \parsep=\z@                   %    \parsep     := 0
+   \partopsep=\z@                %    \partopsep  := 0
+   \pf@setEnumWidth\labelwidth   %    set \labelwidth with setEnumWidth
+   \leftmargin=\labelwidth\relax %    \leftmargin := \labelwidth
+   \advance\leftmargin\labelsep  %                   + \labelsep
+   \advance\leftmargin\enumindent%                   + \enumindent
+   \relax
+   \usecounter{\@pfenumctr}%       %    counter @pfenumctr
+ }%
+ }{%                             % END
+   \end{pflist}%                   %   End list
+   \addtocounter{pfenumdepth}{-1}%   pfenumdepth := pfenumdepth - 1
+ }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                        FUNCTIONS                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \makefcn{\FOO}{V0}{{V1}...{Vk}} :
+%      Defines \FOO{n}  ==  CASE  n = 0    -> V0
+%                                 n = 1    -> V1
+%                                 ...
+%                                 n \geq k -> Vk
+%
+%      Useful when Vi is a dimension applying to a depth-i environment
+
+\def\makefcn#1#2#3{{\let\or\relax
+     \gdef\fcn@temp{}%
+     \gdef\fcn@tempb{#2}%
+     \@tfor\foo:=#3\do{\xdef\fcn@temp{\fcn@temp\or\foo}\xdef\fcn@tempb{\foo}}%
+     \let\ifcase\relax\let\else\relax\let\fi\relax
+     \xdef#1##1{\ifcase ##1 #2\fcn@temp\else\fcn@tempb\fi}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                        FUNCTIONS                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \pfif{A}{B}{C} :  if A then B    \pfIF{A}{B}{C} :  if A
+%                        else C                        THEN B
+%                                                      ELSE C
+
+\newcommand{\pfmathdef}[1]{\relax\ifmmode #1\else $#1$\fi}
+\newcommand{\pfif}[3]{{\pfmathdef{%
+ \begin{array}[t]{@{}l@{\;\;}l@{\;\;}l@{}}
+   {\bf if}\;\;#1&{\bf then}&#2\\
+                 &{\bf else}&#3
+   \end{array}}}}
+
+\newcommand{\pfIF}[3]{{\pfmathdef{%
+ \begin{array}[t]{@{}l@{\;\;}l@{}}
+   {\bf if}\;\;#1\\ 
+  \begin{array}[t]{@{\hspace{1em}}l@{\;\;}l@{}}
+     {\bf then}&#2\\
+     {\bf else}&#3
+   \end{array}
+  \end{array}}}}

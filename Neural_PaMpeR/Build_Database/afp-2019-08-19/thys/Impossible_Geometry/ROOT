@@ -1,0 +1,9 @@
+chapter AFP
+
+session Impossible_Geometry (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Impossible_Geometry
+  document_files
+    "root.bib"
+    "root.tex"

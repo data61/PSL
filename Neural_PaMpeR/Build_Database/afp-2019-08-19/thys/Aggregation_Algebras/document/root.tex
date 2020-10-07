@@ -1,0 +1,51 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,ragged2e}
+\usepackage{pdfsetup}
+
+\isabellestyle{it}
+\renewenvironment{isamarkuptext}{\par\isastyletext\begin{isapar}\justifying\color{blue}}{\end{isapar}}
+\renewcommand\labelitemi{$*$}
+
+\begin{document}
+
+\title{Aggregation Algebras}
+\author{Walter Guttmann}
+\maketitle
+
+\begin{abstract}
+  We develop algebras for aggregation and minimisation for weight matrices and for edge weights in graphs.
+  We verify the correctness of Prim's and Kruskal's minimum spanning tree algorithms based on these algebras.
+  We also show numerous instances of these algebras based on linearly ordered commutative semigroups.
+\end{abstract}
+
+\tableofcontents
+
+\section{Overview}
+
+This document describes the following seven theory files:
+\begin{itemize}
+\item Big sums over semigroups generalises parts of Isabelle/HOL's theory of finite summation \texttt{Groups\_Big.thy} from commutative monoids to commutative semigroups with a unit element only on the image of the semigroup operation.
+\item Aggregation Algebras introduces s-algebras, m-algebras and m-Kleene-algebras with operations for aggregating the elements of a weight matrix and finding the edge with minimal weight.
+\item Matrix Aggregation Algebras introduces aggregation orders, aggregation lattices and linear aggregation lattices.
+      Matrices over these structures form s-algebras and m-algebras.
+\item Linear Aggregation Algebras shows numerous instances based on linearly ordered commutative semigroups.
+      They include aggregations used for the minimum weight spanning tree problem and for the minimum bottleneck spanning tree problem, as well as arbitrary t-norms and t-conorms.
+\item Hoare Logic is a light-weight modification of Isabelle/HOL's theory \texttt{Hoare/Hoare\_Logic.thy} for total-correctness proofs.
+\item Hoare Logic Examples gives a few simple total-correctness proof examples.
+\item Minimum Spanning Trees proves total correctness of Kruskal's and Prim's algorithms based on m-Kleene-algebras using Hoare logic.
+\end{itemize}
+The development is based on Stone-Kleene relation algebras \cite{Guttmann2017b,Guttmann2017c}.
+The algebras for aggregation and minimisation, their application to weighted graphs and the verification of Prim's and Kruskal's minimum spanning tree algorithms, and various instances of aggregation are described in \cite{Guttmann2016c,Guttmann2018a,Guttmann2018b}.
+Related work is discussed in these papers.
+
+\begin{flushleft}
+\input{session}
+\end{flushleft}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+

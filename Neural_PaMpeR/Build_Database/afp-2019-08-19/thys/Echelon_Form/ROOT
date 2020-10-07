@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Echelon_Form" (AFP)= "HOL-Analysis" +
+  options [timeout = 2400]
+  sessions
+    Cayley_Hamilton
+    Gauss_Jordan
+    Rank_Nullity_Theorem
+  theories
+    Examples_Echelon_Form_Abstract
+    Examples_Echelon_Form_IArrays
+  document_files
+    "root.tex"

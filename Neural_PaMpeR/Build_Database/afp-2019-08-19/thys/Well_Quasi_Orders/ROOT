@@ -1,0 +1,25 @@
+chapter AFP
+
+session Well_Quasi_Orders (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "Abstract-Rewriting"
+    Open_Induction
+  theories
+    Infinite_Sequences
+    Minimal_Elements
+    Minimal_Bad_Sequences
+    Least_Enum
+    Almost_Full
+    Higman_OI
+    Almost_Full_Relations
+    Well_Quasi_Orders
+    Kruskal
+    Kruskal_Examples
+    Wqo_Instances
+    Multiset_Extension
+    Wqo_Multiset
+  document_files
+    "root.bib"
+    "root.tex"
+

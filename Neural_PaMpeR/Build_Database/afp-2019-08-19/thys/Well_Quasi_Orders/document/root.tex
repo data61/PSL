@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Well-Quasi-Orders}
+\author{Christian Sternagel\thanks{%
+  The research was funded by the Austrian Science Fund (FWF): J3202.}}
+\maketitle
+
+\begin{abstract}
+Based on Isabelle/HOL's type class for preorders, we introduce a type class for
+well-quasi-orders (wqo) which is characterized by the absence of ``bad''
+sequences (our proofs are along the lines of the proof of Nash-Williams
+\cite{N1963}, from which we also borrow terminology).  Our main results are
+instantiations for the product type, the list type, and a type of finite trees,
+which (almost) directly follow from our proofs of (1) Dickson's Lemma, (2)
+Higman's Lemma, and (3) Kruskal's Tree Theorem. More concretely:
+\begin{enumerate}
+\item If the sets $A$ and $B$ are wqo then their Cartesian product is wqo.
+\item If the set $A$ is wqo then the set of finite lists over $A$ is wqo.
+\item If the set $A$ is wqo then the set of finite trees over $A$ is wqo.
+\end{enumerate}
+\end{abstract}
+
+\tableofcontents
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

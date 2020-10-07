@@ -1,0 +1,9 @@
+chapter AFP
+
+session InformationFlowSlicing_Inter (AFP) = "HRB-Slicing" +
+  options [timeout = 600]
+  theories
+    LiftingInter
+  document_files
+    "root.bib"
+    "root.tex"

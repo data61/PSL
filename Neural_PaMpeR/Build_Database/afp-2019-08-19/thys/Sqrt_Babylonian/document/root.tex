@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\nats{\mathbb{N}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\fieldext[2]{#1[#2]}
+\newcommand\ratsb{\fieldext\rats{\sqrt b}}
+
+\begin{document}
+
+\title{Computing N-th Roots using the Babylonian Method\thanks{This research is supported by FWF (Austrian Science Fund) project P22767-N13.}}
+\author{Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We implement the Babylonian method \cite{Babylon} to compute n-th roots of numbers.
+  We provide precise algorithms for naturals, integers and rationals, and
+  offer an approximation algorithm for square roots within linear ordered fields. Moreover, there
+  are precise algorithms to compute the floor and the ceiling of n-th roots. 
+\end{abstract}
+
+\tableofcontents
+
+
+% include generated text of all theories
+\input{session}
+
+\section*{Acknowledgements}
+We thank Bertram Felgenhauer for 
+for mentioning Cauchy's mean theorem during the formalization of
+the algorithms for computing n-th roots.
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,213 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{isabelle}
+\usepackage{isabellesym}
+\usepackage{mathpazo}
+\usepackage{pdfsetup}
+\usepackage{tabularx}
+%\usepackage[scaled=.85]{beramono}
+
+\addtolength{\textwidth}{1cm}
+\addtolength{\oddsidemargin}{-.5cm}
+\addtolength{\evensidemargin}{-.5cm}
+
+\urlstyle{tt}
+\isabellestyle{it}
+
+\newbox\myboxi
+\newbox\myboxii
+\newbox\myboxiii
+\newbox\myboxiv
+
+\newdimen\mydimeni
+\newdimen\mydimenii
+
+\newdimen\myskipamount
+\myskipamount=3\smallskipamount
+\def\myskip{\vskip\myskipamount}
+\def\vvthinspace{\kern+0.041666em}
+\def\vthinspace{\kern+0.083333em}
+
+\renewcommand{\isacharunderscore}{\mbox{\_}\kern.1em}
+\renewcommand{\isacharunderscorekeyword}{\mbox{\_}\kern.1em}
+\renewcommand{\isadigit}[1]{\ensuremath{#1}}
+\renewcommand{\isacharsemicolon}{{\rm ;\,}}
+\renewcommand{\isasymlongrightarrow}{\isamath{\vthinspace\longrightarrow\vthinspace}}
+\renewcommand{\isasymLongrightarrow}{\isamath{\vthinspace\Longrightarrow\vthinspace}}
+\renewcommand{\isacharasterisk}{\isamath{\times}}
+\renewcommand{\isasymequiv}{\isamath{\vthinspace\equiv\vthinspace}}
+\renewcommand{\isasymand}{\isamath{\vthinspace\wedge\vthinspace}}
+\renewcommand{\isasymor}{\isamath{\vthinspace\vee\vthinspace}}
+\renewcommand{\isasymforall}{\isamath{\forall\vthinspace}}
+\renewcommand{\isasymexists}{\isamath{\exists\vthinspace}}
+\renewcommand{\isasymnexists}{\isamath{\nexists\vthinspace}}
+\renewcommand{\isasymnot}{\isamath{\neg}}
+\renewcommand{\isacharquery}{}
+\renewcommand{\isacharhash}{\isamath{\kern-.05em\cdot\kern-.05em}}
+\renewcommand{\isacharat}{\isamath{{}^\frown{}}}
+\renewcommand{\isacharbar}{}
+\renewcommand{\isachardot}{{.}\vthinspace}
+
+% Same size for theory code and text
+\let\isastyletxt=\isastyletext
+\def\isastyle{\normalsize\it}
+
+\newbox\spacebox
+\setbox\spacebox=\hbox{\isastyle\ }
+
+\newif\ifinquotes
+\renewcommand{\isachardoublequoteopen}{\global\inquotestrue}
+\renewcommand{\isachardoublequoteclose}{\global\inquotesfalse}
+\renewcommand{\isanewline}%
+  {\ifvmode\myskip\else\par\ifinquotes\noindent\kern-\wd\spacebox\else\fi\fi}
+\renewcommand{\isabeginpar}{\par\ifisamarkup\relax\else\myskip\fi\noindent}
+\renewcommand{\isaendpar}{\par\myskip}
+
+\renewcommand{\isacommand}[1]{\isakeyword{#1}\vthinspace{}}
+
+\def\justif#1{\hskip 0pt plus1filll(\hbox{#1})}
+\def\extrah{.6ex}
+\def\eq{{=}}
+
+\newenvironment{myitemize}%
+  {\begin{itemize}\topsep=.8\myskipamount\parsep=0pt\itemsep=.35\myskipamount}%
+  {\end{itemize}}
+
+\def\xa{\mathrm{a}}
+\def\xb{\mathrm{b}}
+\def\xc{\mathrm{c}}
+\def\xd{\mathrm{d}}
+\def\xe{\mathrm{e}}
+\def\xf{\mathrm{f}}
+\def\xs{\mathrm{s}}
+\def\xz{\mathrm{z}}
+
+\begin{document}
+
+\title{An Isabelle/HOL Formalization of the Textbook~Proof of
+       Huffman's~Algorithm%
+\thanks{This work was supported by the DFG grant NI 491/11-1.}}
+
+\author{Jasmin Christian Blanchette \\ \small
+Institut f\"ur Informatik, Technische Universit\"at M\"unchen, Germany \\[-.2ex] \small
+\url{blanchette@in.tum.de}}
+
+\maketitle
+
+\begin{quote}
+\begin{center}{\bf\large Abstract}\end{center}
+
+\smallskip
+
+Huffman's algorithm is a procedure for constructing a binary tree with minimum
+weighted path length. This report presents a formal proof of the correctness of
+Huffman's algorithm written using Isabelle/HOL. Our proof closely follows the
+sketches found in standard algorithms textbooks, uncovering a few snags in the
+process. Another distinguishing feature of our formalization is the use of
+custom induction rules to help Isabelle's automatic tactics, leading to very
+short proofs for most of the lemmas.
+\end{quote}
+
+\vskip0pt
+
+\tableofcontents
+
+% generated text
+\input{session}
+
+\section*{Acknowledgments}
+
+I am grateful to several people for their help in producing this report. Tobias
+Nipkow suggested that I cut my teeth on Huffman coding and discussed several
+(sometimes flawed) drafts of the proof. He also provided many insights into
+Isabelle, which led to considerable simplifications. Alexander Krauss answered
+all my Isabelle questions and helped me with the trickier proofs. Thomas Cormen
+and Donald Knuth were both gracious enough to discuss their proofs with me, and
+Donald Knuth also suggested a terminology change. Finally, Mark Summerfield and
+the anonymous reviewers of the corresponding journal paper proposed many textual
+improvements.
+
+\begin{thebibliography}{[9]}
+
+\bibitem{aho-et-al-1983} Alfred V. Aho, John E. Hopcroft, and Jeffrey D.
+Ullman. \textsl{Data Structures and Algorithms}. Addison-Wesley, 1983.
+
+\bibitem{berghofer-nipkow-2004} Stephan Berghofer and Tobias Nipkow.
+Random testing in Isabelle/HOL. In J. Cuellar and Z. Liu, editors,
+{\sl Software Engineering and Formal Methods (SEFM 2004)}, 230--239,
+IEEE Computer Society, 2004. Available online at
+\url{http://isabelle.in.tum.de/~nipkow/pubs/sefm04.html}.
+
+\bibitem{bulwahn-et-al-2007} Lukas Bulwahn and Alexander Krauss.
+Finding lexicographic orders for termination proofs in Isabelle/HOL.
+In K. Schneider and J. Brandt, editors,
+{\sl Theorem Proving in Higher Order Logics (TPHOLs 2007)},
+Volume 4732 of Lecture Notes in Computer Science, 38--53, Springer-Verlag,
+2007. Available online at
+\url{http://www4.in.tum.de/~krauss/lexord/lexord.pdf}.
+
+\bibitem{cormen-et-al-2001} Thomas H. Cormen, Charles E. Leiserson,
+Ronald L. Rivest, and Clifford Stein. {\sl Introduction to Algorithms\/}
+(Second Edition). MIT Press, 2001 and McGraw-Hill, 2002.
+
+\bibitem{gordon-melham-1994} M. J. C. Gordon and T. F. Melham, editors.
+{\sl Introduction to HOL:\ A Theorem Proving Environment for Higher Order
+Logic.} Cambridge University Press, 1993.
+
+\bibitem{haftmann-nipkow-2007} Florian Haftmann and Tobias Nipkow.
+A code generator framework for Isabelle/HOL. In K. Schneider and J. Brandt,
+editors, {\sl Theorem Proving in Higher Order Logics (TPHOLs 2007)},
+Volume 4732 of Lecture Notes in Computer Science, 128--143, Springer-Verlag,
+2007. Available online at
+\url{http://es.cs.uni-kl.de/TPHOLs-2007/proceedings/B-128.pdf}.
+
+\bibitem{huffman-1952} David A. Huffman. A method for the construction of
+minimum-redundancy codes. {\sl Proceedings of the Institute of Radio Engineers}
+{\bf 40}(9):1098--1101, September 1952. Available online at
+\url{http://compression.ru/download/articles/huff/huffman_1952_minimum-redundancy-codes.pdf}.
+
+\bibitem{knuth-1997} Donald E. Knuth. {\sl The Art of Computer Programming},
+Vol.~1: {\sl Fundamental Algorithms\/} (Third Edition). Addison-Wesley, 1997.
+
+\bibitem{krauss-2007} Alexander Krauss. {\sl Defining Recursive Functions in
+Isabelle/HOL.} Department of Informatics, Technische Universit\"at M\"unchen,
+2007. Updated version, \url{http://isabelle.in.tum.de/doc/functions.pdf},
+June 8, 2008.
+
+\bibitem{krauss-2009} Alexander Krauss. {\sl Automating Recursive Definitions
+and Termination Proofs in Higher-Order Logic.} Ph.D.\ thesis, Department of
+Informatics, Technische Universit\"at M\"unchen, 2009.
+
+\bibitem{milner-et-al-1997} Robin Milner, Mads Tofte, Robert Harper, and David
+MacQueen. {\sl The Definition of Standard ML\/} (Revised Edition). MIT Press,
+1997.
+
+\bibitem{nipkow-et-al-2008} Tobias Nipkow, Lawrence C. Paulson, and
+Markus Wenzel. {\sl Is\-a\-belle/HOL:\ A Proof Assistant for
+Higher-Order Logic.} Volume 2283 of Lecture Notes in Computer Science,
+Springer-Verlag, 2002. Updated version,
+\url{http://isabelle.in.tum.de/doc/tutorial.pdf}, June 8, 2008.
+
+\bibitem{rissanen-1976} J. J. Rissanen.
+Generalized Kraft inequality and arithmetic coding. {\sl IBM
+Journal of Research and Development\/} {\bf 20}(3):198--203, May 1976.
+Available online at
+\url{http://www.research.ibm.com/journal/rd/203/ibmrd2003B.pdf}.
+
+\bibitem{thery-2003} Laurent Th\'ery. {\sl A Correctness Proof of Huffman
+Algorithm.} \url{http://coq.inria.fr/contribs/Huffman.html}, October 2003.
+
+\bibitem{thery-2004} Laurent Th\'ery. {\sl Formalising Huffman's Algorithm.}
+Technical report TRCS 034/2004, Department of Informatics, University of
+L'Aquila, 2004.
+
+\bibitem{wenzel-2008} Markus Wenzel. {\sl The Isabelle/Isar Reference Manual.}
+Department of Informatics, Technische Universit\"at M\"unchen, 2002. Updated
+version, \url{http://isabelle.in.tum.de/doc/isar-ref.pdf}, June 8, 2008.
+
+\end{thebibliography}
+
+\end{document}

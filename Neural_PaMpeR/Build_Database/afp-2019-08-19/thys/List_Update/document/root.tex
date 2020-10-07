@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym}
+\usepackage{eufrak}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\isacharunderscore}{\_}
+\renewcommand{\isacharunderscorekeyword}{\_}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+\newcommand{\chapter}[1]{\section{#1}}
+
+\begin{document}
+
+\title{Analysis of List Update Algorithms}
+\author{Maximilian P.L. Haslbeck and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+These theories formalize the quantitative analysis of a number of classical algorithms for the list update problem: 2-competitiveness of move-to-front, the lower bound of 2 for the competitive- ness of deterministic list update algorithms and 1.6-competitiveness of the randomized COMB algorithm, the best randomized list update algorithm known to date.
+
+An informal description is found in an accompanying report \cite{HaslbeckN}.
+The material is based on the first two chapters of the book by Borodin
+and El-Yaniv \cite{BorodinE}.
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}

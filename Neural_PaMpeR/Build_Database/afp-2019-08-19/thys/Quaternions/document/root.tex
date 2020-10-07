@@ -1,0 +1,33 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath,amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Quaternions}
+\author{Lawrence C. Paulson}
+\maketitle
+
+\begin{abstract}
+This theory is inspired by the HOL Light development of quaternions~\cite{gabrielli-quaternions}, but follows its own route. Quaternions are developed coinductively, as in the existing formalisation of the complex numbers. Quaternions are quickly shown to belong to the type classes of real normed division algebras and real inner product spaces. And therefore they inherit a great body of facts involving algebraic laws, limits, continuity, etc., which must be proved explicitly in the HOL Light version. The development concludes with the geometric interpretation of the product of imaginary quaternions.
+
+
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

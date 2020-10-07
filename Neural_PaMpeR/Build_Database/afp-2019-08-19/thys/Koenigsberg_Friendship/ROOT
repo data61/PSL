@@ -1,0 +1,13 @@
+chapter AFP
+
+session Koenigsberg_Friendship (AFP) = "HOL-Number_Theory" +
+  options [timeout = 3600]
+  sessions
+    Dijkstra_Shortest_Path
+  theories
+    MoreGraph
+    KoenigsbergBridge
+    FriendshipTheory
+  document_files
+    "root.bib"
+    "root.tex"

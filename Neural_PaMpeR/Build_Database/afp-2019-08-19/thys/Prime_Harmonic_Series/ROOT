@@ -1,0 +1,10 @@
+chapter AFP
+
+session Prime_Harmonic_Series (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  sessions
+    "HOL-Number_Theory"
+  theories
+    Prime_Harmonic
+  document_files
+    "root.tex"

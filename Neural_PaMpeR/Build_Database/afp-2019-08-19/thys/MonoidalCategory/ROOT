@@ -1,0 +1,9 @@
+chapter AFP
+
+session MonoidalCategory (AFP) = Category3 +
+  options [timeout = 3600, names_unique = false]
+  theories
+    FreeMonoidalCategory
+  document_files
+    "root.bib"
+    "root.tex"

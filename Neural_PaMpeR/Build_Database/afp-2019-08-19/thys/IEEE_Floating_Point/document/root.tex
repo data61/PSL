@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\parindent 0pt\parskip 0.5ex
+
+
+\begin{document}
+
+\title{A Formal Model of IEEE Floating Point Arithmetic}
+\author{Lei Yu}
+\maketitle
+
+\begin{abstract}
+  This development provides a formal model of IEEE-754 floating-point
+  arithmetic. This formalization, including formal specification of the
+  standard and proofs of important properties of floating-point arithmetic,
+  forms the foundation for verifying programs with floating-point computation.
+  There is also a code generation setup for floats so that we can execute
+  programs using this formalization in functional programming languages. The
+  definitions of the IEEE standard in Isabelle is ported from HOL Light
+  \cite{harrison1997floating}.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

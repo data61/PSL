@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Separata: Isabelle tactics for Separation Algebra}
+\author{By Zh\'e H\'ou, David San\'an, Alwen Tiu, Rajeev Gor\'e, Ranald Clouston}
+\maketitle
+
+\begin{abstract}
+We bring the labelled sequent calculus $LS_{PASL}$ for propositional
+abstract separation logic to Isabelle. The tactics given here are
+directly applied on an extension of the separation algebra in the
+AFP. In addition to the cancellative separation algebra, we further
+consider some useful properties in the heap model of separation logic,
+such as indivisible unit, disjointness, and cross-split. The tactics
+are essentially a proof search procedure for the calculus
+$LS_{PASL}$. We wrap the tactics in an Isabelle method called
+separata, and give a few examples of separation logic formulae which
+are provable by separata.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

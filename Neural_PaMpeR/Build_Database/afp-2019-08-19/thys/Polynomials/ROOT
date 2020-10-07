@@ -1,0 +1,22 @@
+chapter AFP
+
+session Polynomials (AFP) = "Abstract-Rewriting" +
+  options [timeout = 1200]
+  sessions
+    Matrix
+    "Show"
+    "Well_Quasi_Orders"
+  theories [document = false]
+    "Abstract-Rewriting.SN_Orders"
+    "Abstract-Rewriting.SN_Order_Carrier"
+    "HOL-Library.AList"
+  theories
+    MPoly_Type_Class_FMap
+    MPoly_Type_Class_OAlist
+    MPoly_PM
+    MPoly_Type_Univariate
+    Show_Polynomials
+    NZM
+  document_files
+    "root.bib"
+    "root.tex"

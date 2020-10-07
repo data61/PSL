@@ -1,0 +1,364 @@
+.. vim: noet sr sw=4 sts=4 ts=4
+
+
+=====
+Setup
+=====
+
+The frontend web server of our example setup can be reached `here: http://amygdala.ip4.net.in.tum.de/fcgi/ <http://amygdala.ip4.net.in.tum.de/fcgi/>`_
+
+The formalization can be found
+`here: https://github.com/diekmann/topoS/blob/master/Network_Security_Policy_Verification/Examples/Distributed_WebApp.thy <https://github.com/diekmann/topoS/blob/master/Network_Security_Policy_Verification/Examples/Distributed_WebApp.thy>`_
+This theory file also generates the scenario-specific Firewall and OpenVSwitch configurations.
+
+Our Setup is based on a single host running Xen, Linux and OpenVSwitch.
+
+Four virtual machines called ``webfrnt``, ``webapp``, ``db`` and ``log`` make
+up our web application.  The host system (Xen dom0) provides internet access
+via the gateway address ``inet``
+
+================= ================= ================= ================= ================= =================
+        .         webfrnt           webapp            db                log               inet
+================= ================= ================= ================= ================= =================
+MAC address       00:16:3e:bf:77:fd 00:16:3e:65:85:64 00:16:3e:d3:66:35 00:16:3e:2e:fe:95 00:16:3e:15:d1:a9
+IPv4 address      10.0.0.1          10.0.2.1          10.0.3.1          10.0.1.1          10.0.4.1
+virtual interface vifwebfrnt        vifwebapp         vifdb             viflog            vifinet
+OF switch port    2                 3                 4                 5                 1
+================= ================= ================= ================= ================= =================
+
+
+
+Host ``inet`` (Dom0)
+====================
+
+File /etc/network/interfaces
+----------------------------
+ ::
+
+	auto lo
+	iface lo inet loopback
+	
+	auto eth1
+	iface eth1 inet dhcp
+
+Xen
+---
+
+Xen is using the ``xl`` toolstack.  The VIF hotplug script just sets up a
+network interface with the requested name and takes ist up but does no further
+configuration.  We achieve this by using ``/etc/xen/scripts/vif-openvswitch``
+without having ``xenbr0`` or giving a bridge name in VM config files.
+
+OpenVSwitch config script
+-------------------------
+.. highlight::  bash
+
+This script is executed after the VMs are started.  It resets the switch
+completely, adds the gateway device for the VMs, and connects each VM's VIF to
+the switch.  If the argument ``open`` is given, the switch will act as a normal
+L2 learning switch without filtering.  Otherwise, a file ``flows`` is expected
+in the same directory as the script, containing flow specifications.  The switch
+will then forward packets only according these specifications and *not* be a
+learning switch.
+
+ ::
+
+	#!/bin/bash
+	
+	# vim: noet sr sw=4 sts=4 ts=4
+	
+	BR=switch0
+	
+	BASENAME="$(readlink -f "$0")"
+	BASEDIR="$(dirname "$BASENAME")"
+	BASENAME="$(basename "$BASENAME")"
+	
+	ovs-vsctl -- emer-reset -- --if-exists del-br $BR -- \
+		add-br $BR -- set-fail-mode $BR secure -- \
+		add-port $BR vifinet -- set Interface vifinet type=internal -- \
+		set Interface vifinet ofport_request=1 -- \
+		set Interface vifinet other-config:hwaddr=00:16:3e:15:d1:a9
+	
+	declare -i i
+	((i=0))
+	for x in vifinet vifwebfrnt vifwebapp vifdb viflog; do
+		((++i))
+		[ -h /sys/class/net/$x ] || continue
+		ovs-vsctl -- --may-exist add-port $BR $x -- \
+			set Interface $x ofport_request=$i
+		ovs-ofctl mod-port $BR $x up
+	done
+	
+	ip addr flush dev vifinet
+	ip link set address 00:16:3e:15:d1:a9 dev vifinet
+	ip addr add 10.0.4.1/16 brd + dev vifinet
+	ip link set vifinet up
+	
+	
+	case "$1" in
+		open)
+			ovs-vsctl -- set-fail-mode $BR standalone
+			;;
+		*)
+			ovs-ofctl add-flows $BR "${BASEDIR}/flows"
+			;;
+	esac	
+
+File ``flows``
+--------------
+ ::
+
+	# ARP Request
+	in_port=3 dl_src=00:16:3e:65:85:64 dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:65:85:64 arp_spa=10.0.2.1/32 arp_tpa=10.0.4.1/32 priority=40000 action=mod_dl_dst:00:16:3e:15:d1:a9,output:1
+	# ARP Reply
+	dl_src=00:16:3e:15:d1:a9 dl_dst=00:16:3e:65:85:64 arp arp_sha=00:16:3e:15:d1:a9 arp_spa=10.0.4.1/32 arp_tpa=10.0.2.1/32 priority=40000 action=output:3
+	# ARP Request
+	in_port=1 dl_src=00:16:3e:15:d1:a9 dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:15:d1:a9 arp_spa=10.0.4.1/32 arp_tpa=10.0.2.1/32 priority=40000 action=mod_dl_dst:00:16:3e:65:85:64,output:3
+	# ARP Reply
+	dl_src=00:16:3e:65:85:64 dl_dst=00:16:3e:15:d1:a9 arp arp_sha=00:16:3e:65:85:64 arp_spa=10.0.2.1/32 arp_tpa=10.0.4.1/32 priority=40000 action=output:1
+	in_port=3 dl_src=00:16:3e:65:85:64 ip nw_src=10.0.2.1/32 nw_dst=* priority=30000 action=mod_dl_dst:00:16:3e:15:d1:a9,output:1
+	in_port=1 dl_src=00:16:3e:15:d1:a9 ip nw_src=* nw_dst=10.0.2.1/32 priority=30000 action=mod_dl_dst:00:16:3e:65:85:64,output:3
+
+	# ARP Request
+	in_port=1 dl_src=00:16:3e:15:d1:a9 dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:15:d1:a9 arp_spa=10.0.4.1/32 arp_tpa=10.0.0.1/32 priority=40000 action=mod_dl_dst:00:16:3e:bf:77:fd,output:2
+	# ARP Reply
+	dl_src=00:16:3e:bf:77:fd dl_dst=00:16:3e:15:d1:a9 arp arp_sha=00:16:3e:bf:77:fd arp_spa=10.0.0.1/32 arp_tpa=10.0.4.1/32 priority=40000 action=output:1
+	# ARP Request
+	in_port=2 dl_src=00:16:3e:bf:77:fd dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:bf:77:fd arp_spa=10.0.0.1/32 arp_tpa=10.0.4.1/32 priority=40000 action=mod_dl_dst:00:16:3e:15:d1:a9,output:1
+	# ARP Reply
+	dl_src=00:16:3e:15:d1:a9 dl_dst=00:16:3e:bf:77:fd arp arp_sha=00:16:3e:15:d1:a9 arp_spa=10.0.4.1/32 arp_tpa=10.0.0.1/32 priority=40000 action=output:2
+	in_port=1 dl_src=00:16:3e:15:d1:a9 ip nw_src=* nw_dst=10.0.0.1/32 priority=30000 action=mod_dl_dst:00:16:3e:bf:77:fd,output:2
+	in_port=2 dl_src=00:16:3e:bf:77:fd ip nw_src=10.0.0.1/32 nw_dst=* priority=30000 action=mod_dl_dst:00:16:3e:15:d1:a9,output:1
+
+
+	# ARP Request
+	in_port=2 dl_src=00:16:3e:bf:77:fd dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:bf:77:fd arp_spa=10.0.0.1/32 arp_tpa=10.0.1.1/32 priority=40000 action=mod_dl_dst:00:16:3e:2e:fe:95,output:5
+	# ARP Reply
+	dl_src=00:16:3e:2e:fe:95 dl_dst=00:16:3e:bf:77:fd arp arp_sha=00:16:3e:2e:fe:95 arp_spa=10.0.1.1/32 arp_tpa=10.0.0.1/32 priority=40000 action=output:2
+	in_port=2 dl_src=00:16:3e:bf:77:fd ip nw_src=10.0.0.1/32 nw_dst=10.0.1.1/32 priority=40000 action=mod_dl_dst:00:16:3e:2e:fe:95,output:5
+
+	# ARP Request
+	in_port=2 dl_src=00:16:3e:bf:77:fd dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:bf:77:fd arp_spa=10.0.0.1/32 arp_tpa=10.0.2.1/32 priority=40000 action=mod_dl_dst:00:16:3e:65:85:64,output:3
+	# ARP Reply
+	dl_src=00:16:3e:65:85:64 dl_dst=00:16:3e:bf:77:fd arp arp_sha=00:16:3e:65:85:64 arp_spa=10.0.2.1/32 arp_tpa=10.0.0.1/32 priority=40000 action=output:2
+	in_port=2 dl_src=00:16:3e:bf:77:fd ip nw_src=10.0.0.1/32 nw_dst=10.0.2.1/32 priority=40000 action=mod_dl_dst:00:16:3e:65:85:64,output:3
+
+	# ARP Request
+	in_port=4 dl_src=00:16:3e:d3:66:35 dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:d3:66:35 arp_spa=10.0.3.1/32 arp_tpa=10.0.1.1/32 priority=40000 action=mod_dl_dst:00:16:3e:2e:fe:95,output:5
+	# ARP Reply
+	dl_src=00:16:3e:2e:fe:95 dl_dst=00:16:3e:d3:66:35 arp arp_sha=00:16:3e:2e:fe:95 arp_spa=10.0.1.1/32 arp_tpa=10.0.3.1/32 priority=40000 action=output:4
+	in_port=4 dl_src=00:16:3e:d3:66:35 ip nw_src=10.0.3.1/32 nw_dst=10.0.1.1/32 priority=40000 action=mod_dl_dst:00:16:3e:2e:fe:95,output:5
+
+	# ARP Request
+	in_port=4 dl_src=00:16:3e:d3:66:35 dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:d3:66:35 arp_spa=10.0.3.1/32 arp_tpa=10.0.2.1/32 priority=40000 action=mod_dl_dst:00:16:3e:65:85:64,output:3
+	# ARP Reply
+	dl_src=00:16:3e:65:85:64 dl_dst=00:16:3e:d3:66:35 arp arp_sha=00:16:3e:65:85:64 arp_spa=10.0.2.1/32 arp_tpa=10.0.3.1/32 priority=40000 action=output:4
+	in_port=4 dl_src=00:16:3e:d3:66:35 ip nw_src=10.0.3.1/32 nw_dst=10.0.2.1/32 priority=40000 action=mod_dl_dst:00:16:3e:65:85:64,output:3
+
+	# ARP Request
+	in_port=3 dl_src=00:16:3e:65:85:64 dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:65:85:64 arp_spa=10.0.2.1/32 arp_tpa=10.0.0.1/32 priority=40000 action=mod_dl_dst:00:16:3e:bf:77:fd,output:2
+	# ARP Reply
+	dl_src=00:16:3e:bf:77:fd dl_dst=00:16:3e:65:85:64 arp arp_sha=00:16:3e:bf:77:fd arp_spa=10.0.0.1/32 arp_tpa=10.0.2.1/32 priority=40000 action=output:3
+	in_port=3 dl_src=00:16:3e:65:85:64 ip nw_src=10.0.2.1/32 nw_dst=10.0.0.1/32 priority=40000 action=mod_dl_dst:00:16:3e:bf:77:fd,output:2
+
+	# ARP Request
+	in_port=3 dl_src=00:16:3e:65:85:64 dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:65:85:64 arp_spa=10.0.2.1/32 arp_tpa=10.0.3.1/32 priority=40000 action=mod_dl_dst:00:16:3e:d3:66:35,output:4
+	# ARP Reply
+	dl_src=00:16:3e:d3:66:35 dl_dst=00:16:3e:65:85:64 arp arp_sha=00:16:3e:d3:66:35 arp_spa=10.0.3.1/32 arp_tpa=10.0.2.1/32 priority=40000 action=output:3
+	in_port=3 dl_src=00:16:3e:65:85:64 ip nw_src=10.0.2.1/32 nw_dst=10.0.3.1/32 priority=40000 action=mod_dl_dst:00:16:3e:d3:66:35,output:4
+
+	# ARP Request
+	in_port=3 dl_src=00:16:3e:65:85:64 dl_dst=ff:ff:ff:ff:ff:ff arp arp_sha=00:16:3e:65:85:64 arp_spa=10.0.2.1/32 arp_tpa=10.0.1.1/32 priority=40000 action=mod_dl_dst:00:16:3e:2e:fe:95,output:5
+	# ARP Reply
+	dl_src=00:16:3e:2e:fe:95 dl_dst=00:16:3e:65:85:64 arp arp_sha=00:16:3e:2e:fe:95 arp_spa=10.0.1.1/32 arp_tpa=10.0.2.1/32 priority=40000 action=output:3
+	in_port=3 dl_src=00:16:3e:65:85:64 ip nw_src=10.0.2.1/32 nw_dst=10.0.1.1/32 priority=40000 action=mod_dl_dst:00:16:3e:2e:fe:95,output:5
+
+
+Host ``webfrnt``
+================
+.. highlight::  python
+
+``xl.cfg``
+----------
+ ::
+
+	ramdisk = '/srv/boot/initrd.img'
+	kernel = '/srv/boot/vmlinuz'
+	vif = ['mac=00:16:3e:bf:77:fd,ip=10.0.0.1/16,vifname=vifwebfrnt']
+	name = 'webfrnt'
+	extra = 'root=LABEL=root ro quiet'
+	on_reboot = 'destroy'
+	on_poweroff = 'destroy'
+	on_crash = 'destroy'
+	vcpus = '2'
+	memory = '2024'
+	disk = ['phy:/dev/vg/webfrnt.root,xvda1,w']
+
+File /etc/network/interfaces
+----------------------------
+ ::
+
+	auto lo
+	iface lo inet loopback
+
+	auto eth0
+	iface eth0 inet static
+	  address 10.0.0.1/16
+	  gateway 10.0.4.1
+
+
+Host ``webapp``
+===============
+
+``xl.cfg``
+----------
+ ::
+
+	ramdisk = '/srv/boot/initrd.img'
+	kernel = '/srv/boot/vmlinuz'
+	vif = ['mac=00:16:3e:65:85:64,ip=10.0.2.1/16,vifname=vifwebapp']
+	name = 'webapp'
+	extra = 'root=LABEL=root ro quiet'
+	on_reboot = 'destroy'
+	on_poweroff = 'destroy'
+	on_crash = 'destroy'
+	vcpus = '2'
+	memory = '2024'
+	disk = ['phy:/dev/vg/webapp.root,xvda1,w']
+
+File /etc/network/interfaces
+----------------------------
+ ::
+
+	auto lo
+	iface lo inet loopback
+	
+	auto eth0
+	iface eth0 inet static
+	  address 10.0.2.1/16
+	  gateway 10.0.4.1
+
+``fcgi.py``
+-----------
+ ::
+
+	#!/usr/bin/env python
+	# -*- coding: UTF-8 -*-
+	
+	from __future__ import print_function
+	from cgi import escape
+	import sys, os, socket
+	from flup.server.fcgi import WSGIServer
+	import urllib, json
+	from pprint import pformat
+	
+	def netcat(hostname, port):
+	    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	    s.connect((hostname, port))
+	    s.shutdown(socket.SHUT_WR)
+	    res=''
+	    while 1:
+	        data = s.recv(1024)
+	        if not data:
+	            break
+	        res+=data
+	    s.close()
+	    return res
+	
+	def getnews():
+	    h = urllib.urlopen("https://ajax.googleapis.com/ajax/services/search/news?v=1.0&q=tum")
+	    t = h.read()
+	    content = json.loads(t)
+	    return pformat(content)
+	
+	def app(environ, start_response):
+	    print('WebApp', file=sys.stderr)
+	    start_response('200 OK', [('Content-Type', 'text/html')])
+	
+	    #print(repr(netcat('10.0.3.1', 9999)), file=sys.stderr)
+	
+	    yield 'get the configs at '
+	    yield '<a href="http://otoro.net.in.tum.de/goals2config/">'
+	    yield 'otoro.net.in.tum.de/goals2config/</a>. '
+	    yield 'Ask questions to Diekmann and Korsten '
+	    yield '(<a href="http://www.net.in.tum.de/en/mitarbeiter/">link</a>)'
+	    yield '<h1>UNIX date: %s</h1>' % netcat('10.0.3.1', 9999).rstrip('\n')
+	    yield '<h1>%s</h1>' % netcat('212.201.68.138', 23).rstrip('\n')
+	    yield '<h1>FastCGI Environment</h1>'
+	    yield '<table>'
+	    for k, v in sorted(environ.items()):
+	        print ("%s %s " % (k,v))
+	        if k == "wsgi.errors":
+	            break
+	        yield '<tr><th>%s</th><td>%s</td></tr>' % (escape(k), escape(v))
+	    yield '</table>'
+	    yield '<br><br><h1>Here are some news by google</h1><br>'
+	    yield '%s' % getnews()
+	    return
+	
+	WSGIServer(app).run()
+
+
+Host ``db``
+===========
+
+``xl.cfg``
+----------
+ ::
+
+	ramdisk = '/srv/boot/initrd.img'
+	kernel = '/srv/boot/vmlinuz'
+	vif = ['mac=00:16:3e:d3:66:35,ip=10.0.3.1/16,vifname=vifdb']
+	name = 'db'
+	extra = 'root=LABEL=root ro quiet'
+	on_reboot = 'destroy'
+	on_poweroff = 'destroy'
+	on_crash = 'destroy'
+	vcpus = '2'
+	memory = '2024'
+	disk = ['phy:/dev/vg/db.root,xvda1,w']
+
+File /etc/network/interfaces
+----------------------------
+ ::
+
+	auto lo
+	iface lo inet loopback
+
+	auto eth0
+	iface eth0 inet static
+	  address 10.0.3.1/16
+	  gateway 10.0.4.1
+
+
+Host ``log``
+============
+
+``xl.cfg``
+----------
+ ::
+
+	ramdisk = '/srv/boot/initrd.img'
+	kernel = '/srv/boot/vmlinuz'
+	vif = ['mac=00:16:3e:2e:fe:95,ip=10.0.1.1/16,vifname=viflog']
+	name = 'log'
+	extra = 'root=LABEL=root ro quiet'
+	on_reboot = 'destroy'
+	on_poweroff = 'destroy'
+	on_crash = 'destroy'
+	vcpus = '2'
+	memory = '2024'
+	disk = ['phy:/dev/vg/log.root,xvda1,w']
+
+File /etc/network/interfaces
+----------------------------
+ ::
+
+	auto lo
+	iface lo inet loopback
+
+	auto eth0
+	iface eth0 inet static
+	  address 10.0.1.1/16
+	  gateway 10.0.4.1
+

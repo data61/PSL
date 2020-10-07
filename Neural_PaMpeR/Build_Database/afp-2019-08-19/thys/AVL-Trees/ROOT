@@ -1,0 +1,9 @@
+chapter AFP
+
+session "AVL-Trees" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    AVL
+    AVL2
+  document_files
+    "root.tex"

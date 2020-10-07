@@ -1,0 +1,11 @@
+This directory contains a generic type class implementation of separation
+algebra for Isabelle/HOL as well as lemmas and generic tactics which can be
+used directly for any instantiation of the type class.
+
+The ex directory contains example instantiations that include structures such
+as a heap or virtual memory.
+
+The abstract separation algebra is based upon "Abstract Separation Logic" by
+Calcagno et al. These theories are also the basis of "Mechanised Separation
+Algebra" by Klein et al.
+

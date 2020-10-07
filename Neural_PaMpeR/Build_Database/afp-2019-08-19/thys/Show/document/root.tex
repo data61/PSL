@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\nats{\mathbb{N}}
+\newcommand\bools{\mathbb{B}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\rats{\mathbb{Q}}
+%\newcommand\isa[1]{\textit{#1}}
+\newcommand\Show{\texttt{Show}}
+
+\begin{document}
+
+\title{Haskell's \Show-Class in Isabelle/HOL\thanks{This research is supported by FWF (Austrian Science Fund) projects J3202 and P22767.}}
+\author{Christian Sternagel \and Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We implemented a type-class for pretty-printing, similar to Haskell's
+  \Show-class \cite{HaskellTutorial}. Moreover, we provide instantiations for Isabelle/HOL's 
+  standard types like $\bools$, \isa{prod}, \isa{sum}, $\nats$, $\ints$, and $\rats$.
+  It is further possible, to automatically derive ``to-string'' functions for
+  arbitrary user defined datatypes similar to Haskell's ``\texttt{deriving Show}''.
+\end{abstract}
+
+
+
+\tableofcontents
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,30 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Boolean Expression Checkers}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+This entry provides executable checkers for the following properties of
+boolean expressions: satisfiability, tautology and equivalence. Internally,
+the checkers operate on binary decision trees and are reasonably efficient
+(for purely functional algorithms).
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\end{document}

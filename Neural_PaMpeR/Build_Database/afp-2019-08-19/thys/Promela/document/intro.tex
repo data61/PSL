@@ -1,0 +1,21 @@
+\section{Introduction}
+
+Promela~\cite{Promela} is a modeling language, mainly used in the model checker SPIN~\cite{Holzmann03}. It offers a C-like syntax and allows to define processes to be run concurrently. Those processes can communicate via shared global variables or by message-passing via channels. Inside a process, constructs exist for non-deterministic choice, starting other processes and enforcing atomicity. It furthermore allows different means for specifying properties:  LTL formulae, assertions in the code, never claims (\ie an automata that explicitly specifies unwanted behavior) and others.
+
+Some constructs found in Promela models, like \texttt{\#include} and \texttt{\#define}, are not part of the language Promela itself, but belong to the language of the C preprocessor. SPIN does not process those, but calls the C compiler internally to process them. We do not deal with them here, but also expect the sources to be preprocessed.
+
+%Though there are approaches for giving a formal semantics of Promela~\cite{Weise:1997:promela,Gallardo:2004:promela,Sharma:2013:promela}, none of them shows that its definition matches reality. Moreover, some refer to outdated versions of the language.
+
+Observing the output of SPIN and examining the generated graphs often is the only way of determining the semantics of a certain construct. This is complicated further by SPIN unconditionally applying optimizations. For the current formalization we chose to copy the semantics of SPIN, including the aforementioned optimizations. For some constructs, we had to restrict the semantics, \ie some models are accepted by SPIN, but not by this formalization. Those deviations are:
+\begin{itemize}
+    \item \texttt{run} is a statement instead of an expression. SPIN here has a complicated set of restrictions unto where \texttt{run} can occur inside an expression. The sole use of it is to be able to get the ID of a spawned process. We omitted this feature to guarantee expressions to be free of side-effects.
+    \item Variable declarations which got jumped over are seen as not existing. In SPIN, such constructs show surprising behavior:\\\texttt{int~i;~goto~L;~i~=~5;~L:~printf("\%d",~i)} yields $0$, while \\\texttt{goto L; int i = 5; L: printf("\%d", i)} yields $5$.\\
+        The latter is forbidden in our formalization (it will get rejected with ``unknown variable~i''), while the first behaves as in SPIN.
+    \item Violating an \texttt{assert} does not abort, but instead sets the variable \texttt{\_\_assert\_\_} to true. This needs to be checked explicitly in the LTL formula. We plan on adding this check in an automatic manner.
+    \item Types are bounded. Except for well-defined types like booleans, overflow is not allowed and will result in an error. The same holds for assigning a value that is outside the bounds. SPIN does not specify any explicit semantics here, but solely refers to the underlying C-compiler and its semantics. This might result in two models behaving differently on different systems when run with SPIN, while this formalization, due to the explicit bounds in the semantics, is not affected.
+\end{itemize}
+
+Additionally, some constructs are currently not supported, and the compilation will abort if they are encountered: \texttt{d\_step}\footnote{This can be safely replaced by \texttt{atomic}, though larger models will be produced then.}, \texttt{typedef}, remote references, bit-operations, \texttt{unsigned}, 
+and property specifications except \texttt{ltl} and \texttt{assert}. Other constructs are accepted but ignored, because they do not change the behavior of a model: advanced variable scoping, \texttt{xr}, \texttt{xs}, \texttt{print*}, priorities, and visibility of variables.
+
+Nonetheless, for models not using those unsupported constructs, we generate the very same number of states as SPIN does. An exception applies for large \texttt{goto} chains and when simultaneous termination of multiple processes is involved, as SPIN's semantics is too vague here.

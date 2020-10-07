@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{A Formalization of Pratt's Primality Certificates}
+\author{By Simon Wimmer and Lars Noschinski}
+\maketitle
+
+\begin{abstract}
+  In 1975, Pratt introduced a proof system for certifying primes
+  \cite{pratt1975certificate}.  He showed that a number $p$ is prime iff a
+  primality certificate for $p$ exists.  By showing a logarithmic upper bound
+  on the length of the certificates in size of the prime number, he concluded
+  that the decision problem for prime numbers is in NP.  This work formalizes
+  soundness and completeness of Pratt's proof system as well as an
+  upper bound for the size of the certificate.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\nocite{*}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End\dots

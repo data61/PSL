@@ -1,0 +1,18 @@
+chapter AFP
+session KAT_and_DRA (AFP) = Kleene_Algebra +
+  options [timeout = 600]
+  theories
+    "SingleSorted/Test_Dioid"
+    "SingleSorted/Conway_Tests"
+    "SingleSorted/KAT"
+    "SingleSorted/DRAT"
+    "SingleSorted/DRA_Models"
+    "SingleSorted/KAT_Models"
+    "SingleSorted/FolkTheorem"
+    "SingleSorted/PHL_KAT"
+    "SingleSorted/PHL_DRAT"
+    "TwoSorted/KAT2"
+    "TwoSorted/DRAT2"
+  document_files
+    "root.tex"
+    "root.bib"

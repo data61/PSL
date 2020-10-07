@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{latexsym}
+\usepackage{eufrak}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\isacharunderscore}{\_}
+\renewcommand{\isacharunderscorekeyword}{\_}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+\newcommand{\chapter}[1]{\section{#1}}
+
+\begin{document}
+
+\title{Hoare Logics for Time Bounds} 
+\author{Maximilian P. L. Haslbeck\and Tobias Nipkow%
+\thanks{Supported by DFG GRK 1480 (PUMA) and Koselleck Grant NI 491/16-1}
+}
+\maketitle
+
+\begin{abstract}
+ We study three different Hoare logics for reasoning about time bounds of
+  imperative programs and formalize them in Isabelle/HOL: a classical Hoare
+  like logic due to Nielson, a logic with potentials due to Carbonneaux \emph{et
+    al.} and a \emph{separation logic} following work by Atkey, Chagu\'erand
+  and Pottier.  These logics are formally shown to be sound and complete.
+  Verification condition generators are developed and are shown sound and
+  complete too.  We also consider variants of the systems where we abstract
+  from multiplicative constants in the running time bounds, thus supporting a
+  big-O style of reasoning.  Finally we compare the expressive power of the
+  three systems.   
+
+An informal description is found in an accompanying report \cite{HaslbeckN-TACAS18}. 
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}

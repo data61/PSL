@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{a4wide}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{eufrak}
+\usepackage{textcomp}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{tt}
+
+\parindent0mm
+
+\begin{document}
+
+\title{More on Lazy Lists}
+\author{Stefan Friedrich}
+\maketitle
+
+\begin{abstract}
+  This theory contains some useful extensions to the LList theory by
+  Larry Paulson, including finite, infinite, and positive llists over
+  an alphabet, as well as the new constants take and drop and the
+  prefix order of llists. Finally, the notions of safety and liveness
+  in the sense of \cite{alpern85:_defin_liven} are defined.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

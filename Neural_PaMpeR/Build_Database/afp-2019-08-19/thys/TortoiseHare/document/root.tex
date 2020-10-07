@@ -1,0 +1,96 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=1cm,footskip=.5cm]{geometry}
+
+\usepackage{isabelle,isabellesym}
+
+\usepackage[utf8]{inputenc}
+
+% Bibliography
+\usepackage[authoryear,sort]{natbib}
+\bibpunct();A{},
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{literal}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\title{The Tortoise and the Hare Algorithm}
+\author{Peter Gammie}
+\maketitle
+
+\begin{abstract}
+  We formalize the
+  \href{http://en.wikipedia.org/wiki/Cycle_detection}{Tortoise and
+    Hare cycle-finding algorithm} ascribed to Floyd by \citet[p7,
+  exercise 6]{DBLP:books/aw/Knuth81}, and an improved version due to
+  \citet{Brent:1980}.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+\citet[p7, exercise 6]{DBLP:books/aw/Knuth81} frames the problem like
+so: given a finite set $X$, an initial value $x_0 \in X$, and a
+function $f : X \rightarrow X$, define the infinite sequence $x$ by
+recursion: $x_{i+1} = f(x_i)$. Show that the sequence is ultimately
+periodic, i.e., that there exist $\lambda$ and $\mu$ where
+$$x_0, x_1, ... x_\mu, ..., x_{\mu + \lambda - 1}$$ are distinct, but
+$x_{n+\lambda} = x_n$ when $n \ge \mu$.
+
+% Knuth exercise: Characterize $f$ that yield max and min vals of mu and lambda.
+
+Secondly (and he ascribes this to Robert W. Floyd), show that there is
+an $\nu > 0$ such that $x_\nu = x_{2\nu}$.
+
+% Knuth observation: the X_n is unique in the sense that if X_n = X_{2n} and X_r = X_{2r}, then X_r = X_n.
+% Doesn't seem essential to the algorithm however.
+
+These facts are supposed to yield the insight required to develop the
+Tortoise and Hare algorithm, which calculates $\lambda$ and $\mu$ for
+any $f$ and $x_0$ using only $O(\lambda + \mu)$ steps and a bounded
+number of memory locations. We fill in the details in \S\ref{sec:th}.
+
+We also show the correctness of \citet{Brent:1980}'s algorithm in
+\S\ref{sec:brent}, which satisfies the same resource bounds and is
+more efficient in practice.
+
+These algorithms have been used to analyze random number generators
+\citep[op. cit.]{DBLP:books/aw/Knuth81} and factor large numbers
+\citep{Brent:1980}. See \citet{DBLP:journals/ipl/Nivasch04} for
+further discussion, and an algorithm that is not constant-space but is
+more efficient in some situations. \citet{DBLP:journals/jam/WangZ12}
+also survey these algorithms and present a new one.
+
+% generated text of all theories
+\input{session}
+
+\section{Concluding remarks}
+
+\citet{DBLP:conf/vmcai/Leino12} uses an SMT solver to verify a
+Tortoise-and-Hare cycle-finder. He finds the parameters \isa{lambda}
+and \isa{mu} initially by using a ``ghost'' depth-first search, while
+we use more economical non-constructive methods.
+
+I thank Christian Griset for patiently discussing the finer details of
+the proofs, and Makarius for many helpful suggestions.
+
+\bibliographystyle{plainnat}
+\bibliography{root}
+\addcontentsline{toc}{section}{References}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

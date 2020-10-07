@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+#
+# Author: Makarius
+#
+# DESCRIPTION: build and manage AFP sessions
+
+
+## diagnostics
+
+PRG="$(basename "$0")"
+
+function usage()
+{
+  echo
+  echo "Usage: isabelle $PRG [OPTIONS] -- [BUILD_ARGS ...]"
+  echo
+  echo "  Options are:"
+  echo "    -A           select all AFP sessions"
+  echo
+  echo "  Build AFP sessions, as front-end for isabelle build with AFP settings."
+  echo "  Further options and arguments after \"--\" are passed to the latter."
+  echo
+  exit 1
+}
+
+function fail()
+{
+  echo "$1" >&2
+  exit 2
+}
+
+
+## process command line
+
+eval "BUILD_OPTS=($AFP_BUILD_OPTIONS)"
+
+BUILD_OPTS["${#BUILD_OPTS[@]}"]="-d"
+BUILD_OPTS["${#BUILD_OPTS[@]}"]="$AFP"
+
+while getopts "A" OPT
+do
+  case "$OPT" in
+    A)
+      BUILD_OPTS["${#BUILD_OPTS[@]}"]="-g"
+      BUILD_OPTS["${#BUILD_OPTS[@]}"]="AFP"
+      ;;
+    \?)
+      usage
+      ;;
+  esac
+done
+
+shift $(($OPTIND - 1))
+
+
+## main
+
+exec "$ISABELLE_TOOL" build "${BUILD_OPTS[@]}" "$@"
+

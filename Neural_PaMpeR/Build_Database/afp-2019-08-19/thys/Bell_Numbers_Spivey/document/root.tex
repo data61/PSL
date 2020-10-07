@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Spivey's Generalized Recurrence for Bell Numbers}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+
+This entry defines the Bell numbers~\cite{bell-numbers} as the cardinality
+of set partitions for a carrier set of given size, and derives Spivey's
+generalized recurrence relation for Bell numbers~\cite{spivey-2008}
+following his elegant and intuitive combinatorial proof.
+
+As the set construction for the combinatorial proof requires construction of
+three intermediate structures, the main difficulty of the formalization is
+handling the overall combinatorial argument in a structured way.
+The introduced proof structure allows us to compose the combinatorial argument
+from its subparts, and supports to keep track how the detailed proof
+steps are related to the overall argument. To obtain this structure, this
+entry uses set monad notation for the set construction's definition,
+introduces suitable predicates and rules, and follows a repeating structure
+in its Isar proof.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\nocite{*}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

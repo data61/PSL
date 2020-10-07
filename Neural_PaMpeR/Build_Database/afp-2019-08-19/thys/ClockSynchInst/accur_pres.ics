@@ -1,0 +1,86 @@
+% It work :)
+
+sig np: int.
+sig khl: int.
+
+
+sig maxreducf: real.
+sig minreducf: real.
+sig maxreducg: real.
+sig minreducg: real.
+
+sig y: real.
+
+sig f_pmaxf: real.
+sig f_pminf: real.
+sig f_q: real.
+
+
+% f : PROC -> REAL;
+% g : PROC -> REAL;
+% pmaxf, pmaxg, pminf, pming : PROC;
+% sbfg, sbgf: PROC;
+
+% PR, C : SETPROC;
+
+sig card_C : int.
+
+% INCL : (SETPROC,SETPROC) -> BOOLEAN;
+% INSET : (PROC, SETPROC) -> BOOLEAN;
+
+
+prop constants_ax := 2*khl < np & khl >= 0.
+prop hC := INCL_C_PR.
+prop hnp := np <= card_C + khl.
+prop hqC := INSET_q_C.
+prop min_le_max := minreducf <= maxreducf.
+
+prop uboundmaxf := 
+      [INCL_C_PR &  np <= card_C + khl]
+               => [INSET_pmaxf_C  & maxreducf <= f_pmaxf].
+
+prop lboundminf := 
+      [INCL_C_PR &  np <= card_C + khl]
+               => [INSET_pminf_C  & minreducf >= f_pminf].
+
+prop hby_pmaxf_pminf := INSET_pmaxf_C => 
+                   [INSET_pminf_C => abs_f_pmaxf_f_pminf <= y].
+prop hby_pmaxf_q := INSET_pmaxf_C => 
+                   [INSET_q_C => abs_f_pmaxf_f_q <= y].
+
+prop hby_pminf_q := INSET_pminf_C => 
+                   [INSET_q_C => abs_f_pminf_f_q <= y].
+
+% abs: REAL -> REAL = LAMBDA (x:REAL): IF x>=0 THEN x ELSE (-x) ENDIF;
+
+prop p_abs_f_pmaxf_f_pminf := if [ f_pmaxf - f_pminf >= 0 ] 
+	                      then abs_f_pmaxf_f_pminf = f_pmaxf - f_pminf
+                              else abs_f_pmaxf_f_pminf = -(f_pmaxf - f_pminf)
+                              end.
+prop p_abs_f_pmaxf_f_q := if [ f_pmaxf - f_q >= 0 ] 
+	                      then abs_f_pmaxf_f_q = f_pmaxf - f_q
+                              else abs_f_pmaxf_f_q = -(f_pmaxf - f_q)
+                              end.
+prop p_abs_f_pminf_f_q := if [ f_pminf - f_q >= 0 ] 
+	                      then abs_f_pminf_f_q = f_pminf - f_q
+                              else abs_f_pminf_f_q = -(f_pminf - f_q)
+                              end.
+
+prop p_abs_maxf_minf_2_f_q := 
+	if [ maxreducf + minreducf - 2 * f_q >= 0 ]
+	then abs_maxf_minf_2_f_q =  
+		maxreducf + minreducf - 2 * f_q
+	else abs_maxf_minf_2_f_q =
+		-(maxreducf + minreducf - 2 * f_q)
+	end.
+
+
+sat ~[ [ hC & hnp & hqC & min_le_max &
+	uboundmaxf & lboundminf &
+	hby_pmaxf_pminf & hby_pmaxf_q &
+	hby_pminf_q &
+	p_abs_f_pmaxf_f_pminf & p_abs_f_pmaxf_f_q &
+	p_abs_f_pminf_f_q &
+	p_abs_maxf_minf_2_f_q
+    ] =>  abs_maxf_minf_2_f_q <= 2 * y ].
+

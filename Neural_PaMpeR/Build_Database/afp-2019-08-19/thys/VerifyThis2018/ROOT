@@ -1,0 +1,15 @@
+chapter AFP
+
+session VerifyThis2018 (AFP) = Sepref_IICF +
+  options [timeout = 600]
+  theories [document = false]
+    "lib/VTcomp"
+    "lib/DF_System"
+    Snippets
+  theories
+    Challenge1
+    Challenge1_short
+    Challenge2
+    Challenge3
+  document_files
+    "root.tex"

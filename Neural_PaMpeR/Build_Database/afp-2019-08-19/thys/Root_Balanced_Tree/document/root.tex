@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Root-Balanced Tree}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+  Andersson~\cite{Andersson89,Andersson99} introduced \emph{general balanced trees},
+  search trees based on the design principle of partial rebuilding:
+  perform update operations naively until the tree becomes too
+  unbalanced, at which point a whole subtree is rebalanced.  This article
+  defines and analyzes a functional version of general balanced trees,
+  which we call \emph{root-balanced trees}.  Using a lightweight model
+  of execution time, amortized logarithmic complexity is verified in
+  the theorem prover Isabelle.
+
+This is the Isabelle formalization of the material decribed in the
+APLAS 2017 article \emph{Verified Root-Balanced Trees} by the same
+author~\cite{Nipkow-APLAS2017} which also presents experimental results that show
+competitiveness of root-balanced with AVL and red-black trees.
+\end{abstract}
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

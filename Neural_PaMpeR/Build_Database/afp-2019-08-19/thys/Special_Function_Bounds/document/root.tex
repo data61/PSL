@@ -1,0 +1,34 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{amsmath}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Real-Valued Special Functions: \\ 
+       Upper and Lower Bounds}
+\author{Lawrence C. Paulson}
+\maketitle
+
+\begin{abstract}
+This development proves upper and lower bounds for several familiar real-valued functions. For $\sin$, $\cos$, $\exp$ and the square root function, it defines and verifies infinite families of upper and lower bounds, mostly based on Taylor series expansions. For $\tan^{-1}$, $\ln$ and $\exp$, it verifies a finite collection of upper and lower bounds, originally obtained from the functions' continued fraction expansions using the computer algebra system Maple. A common theme in these proofs is to take the difference between a function and its approximation, which should be zero at one point, and then consider the sign of the derivative.
+
+The immediate purpose of this development is to verify axioms used by MetiTarski \cite{metitarski-jar}, an automatic theorem prover for real-valued special functions. Crucial to MetiTarski's operation is the provision of upper and lower bounds for each function of interest.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

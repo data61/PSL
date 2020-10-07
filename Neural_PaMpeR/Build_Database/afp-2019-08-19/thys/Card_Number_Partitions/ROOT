@@ -1,0 +1,9 @@
+chapter AFP
+
+session Card_Number_Partitions (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Card_Number_Partitions
+  document_files
+    "root.bib"
+    "root.tex"

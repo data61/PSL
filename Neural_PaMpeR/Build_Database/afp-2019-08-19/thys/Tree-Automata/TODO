@@ -1,0 +1,49 @@
+
+D  Implement (efficient) tree automata algos: decide, intersect
+
+D   Implement: is_empty, backwards reduction
+
+D   Implement Union
+
+D   Implement is_empty with witness
+
+D   Rename Ta_impl3 -> Ta_impl
+
+D   Document interface of Ta_impl
+
+D   Instantiate integer-FTAs from within Isabelle, make reindex-operation to convert FTA with any type of state to Integer-FTA. Use this for Product and Union.
+
+D   Haskell interface
+
+D   Prepare benchmark suite with some examples. 
+      Compare runtimes for same job in Haskell, ML, OCaml and Java.
+      Haskell: Directly export a tree-automaton, do no foldl with build 
+        operations! [Not realistic, do not want to export RB-tree]
+
+D   Notion of tree-regular language --> Use tree-automata on nats along with finite-set as initial segment of nat lemmas and ta_remap.
+
+D   Revisit product automaton algo: How to improve performance of fwd-reducing algo?
+
+D Compare performance to timbuk
+
+   Forward Witness construction ?
+
+
+   Instantiate constraint system stuff with hashmap. Test it for witness computation!
+     We will need to define lattice-structures on our value-domains (Some concrete set, etc.). This probably won't work with typeclasses (?).
+     What's the best work-around?
+   
+
+   Update indices on add-rule, add-state operations instead of deleting them!
+   
+
+   (?) Remove indices from hta-structure. Build indices on demand, and provide variants where index has to be specified:
+        - this is less ML-programmer-friendly, no one cares (but the prover) whether the supplied indices match.
+        + The hta-structure becomes less complex
+
+
+   Try out performance of different witness-algorithms. Omit counters for rules, but check affected rules state-by-state each time.
+      This algo needs not be verified, first simply compare its runtime with the original algo. Only verify it, if runtime significantly improves.
+
+   Implement linkup with isabelle datatypes
+

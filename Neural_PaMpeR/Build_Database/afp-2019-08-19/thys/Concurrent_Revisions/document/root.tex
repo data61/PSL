@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Formalization of Concurrent Revisions}
+\author{Roy Overbeek}
+\maketitle
+
+\begin{abstract}
+\noindent Concurrent revisions is a concurrency control model developed by Microsoft Research \cite{burckhardt2010concurrent}. It has many interesting properties that distinguish it from other well-known models such as transactional memory. One of these properties is \emph{determinacy}: programs written within the model always produce the same outcome, independent of scheduling activity. The concurrent revisions model has an operational semantics, with an informal proof of determinacy \cite{burckhardt2011semantics}. This document contains an Isabelle/HOL formalization of this semantics and the proof of determinacy. It is part of my master's thesis \cite{overbeek2018formalizing}, which describes it in more detail.\footnote{My master's thesis was partially funded by ING, and I would especially like to thank my supervisors Jasmin Blanchette (VU Amsterdam), Robbert van Dalen (ING) and Wan Fokkink (VU Amsterdam) for their useful feedback on this work.
+}
+\end{abstract}
+
+\tableofcontents
+
+\pagebreak
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

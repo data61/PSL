@@ -1,0 +1,46 @@
+\documentclass[a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\isasymcdot}{\isamath{\,\cdot\,}}
+
+\pagestyle{plain}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\begin{document}
+
+\title{Verifying a Hotel Key Card System\thanks{Appeared in proceedings of ICTAC 2006 \cite{Nipkow-ICTAC06}}}
+\author{Tobias Nipkow\\ Institut f\"ur Informatik, TU M\"unchen}
+\maketitle
+
+\begin{abstract}
+Two models of an electronic hotel key card system are contrasted: a
+state based and a trace based one. Both are defined, verified, and
+proved equivalent in the theorem prover Isabelle/HOL. It is shown that
+if a guest follows a certain safety policy regarding her key cards,
+she can be sure that nobody but her can enter her room.
+\end{abstract}
+
+\input{intro}
+\input{session}
+\input{conclu}
+
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

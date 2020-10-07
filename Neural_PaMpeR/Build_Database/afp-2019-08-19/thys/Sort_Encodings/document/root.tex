@@ -1,0 +1,65 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Sound and Complete Sort Encodings \\for First-Order Logic}
+\author{Jasmin Christian Blanchette and Andrei Popescu}
+\date{}
+\maketitle
+
+\begin{abstract}
+This is a formalization of the soundness and completeness properties for
+various efficient encodings of sorts in unsorted first-order logic
+used by Isabelle's Sledgehammer tool.
+
+The results are reported in
+\cite[\S2,3]{blanchette-et-al-2013-types-conf} and the formalization itself
+is presented in \cite[\S3--5]{froc}.
+%
+Essentially, the encodings proceed as follows: a many-sorted problem is
+decorated with (as few as possible) tags or guards that make the problem monotonic;
+then sorts can be soundly erased.
+%
+The proofs rely on monotonicity criteria recently introduced by
+Claessen, Lilliestr{\"o}m and Smallbone \cite{claessen-et-al-2011}.
+
+
+The development employs a formalization of many-sorted first-order logic in clausal
+form (clauses, structures and the basic properties of the satisfaction relation), which could be
+of interest as the starting point for other formalizations of first-order logic metatheory.
+%
+\end{abstract}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\newpage
+\tableofcontents
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

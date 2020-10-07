@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Matroids}
+\author{Jonas Keinholz}
+\maketitle
+
+\begin{abstract}
+This article defines combinatorial structures known as \emph{Independence Systems} and \emph{Matroids} and provides basic concepts and theorems related to them. These structures play an important role in combinatorial optimisation, e.\,g.\ greedy algorithms such as Kruskal's algorithm. The development is based on Oxley's `What is a Matroid?'~\cite{oxley}.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\nocite{oxley}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

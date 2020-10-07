@@ -1,0 +1,9 @@
+chapter AFP
+
+session Ptolemys_Theorem (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  theories
+    Ptolemys_Theorem
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Coinductive_Languages" (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+    "Regular-Sets"
+  theories
+    Coinductive_Language
+    Coinductive_Regular_Set
+    Context_Free_Grammar
+  document_files
+    "root.tex"

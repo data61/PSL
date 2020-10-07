@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+\usepackage[english]{babel}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Certification-Monads\thanks{This research is supported by FWF (Austrian Science Fund) projects J3202 and P22767.}}
+\author{Christian Sternagel and Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+This entry provides several monads intended for the development of stand-alone
+certifiers via code generation from Isabelle/HOL. More specifically, there are
+three flavors of error monads (the sum type, for the case where all monadic
+functions are total; an instance of the former, the so called check monad,
+yielding either success without any further information or an error message; as
+well as a variant of the sum type that accommodates partial functions by
+providing an explicit bottom element) and a parser monad built on top. All of
+this monads are heavily used in the IsaFoR/CeTA project which thus provides many
+examples of their usage. 
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Dirichlet $L$-functions and Dirichlet's Theorem}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This article provides a formalisation of Dirichlet characters and Dirichlet $L$-functions including proofs of their basic properties -- most notably their analyticity, their areas of convergence, and their non-vanishing for $\mathfrak{R}(s)\geq 1$. All of this is built in a very high-level style using Dirichlet series. The proof of the non-vanishing follows a very short and elegant proof by Newman~\cite{newman1998analytic}, which we attempt to reproduce faithfully in a similar level of abstraction in Isabelle.
+
+This also leads to a relatively short proof of Dirichlet's Theorem, which states that, if $h$ and $n$ are coprime, there are infinitely many primes $p$ with $p \equiv h \pmod{n}$.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

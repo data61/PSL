@@ -1,0 +1,25 @@
+(TeX-add-style-hook "root"
+ (lambda ()
+    (LaTeX-add-bibitems
+     "brucker.ea:formal-fw-testing:2014"
+     "brucker.ea:hol-testgen-fw:2013"
+     "brucker.ea:model-based:2011"
+     "brucker.ea:theorem-prover:2012"
+     "bruegger:generation:2012"
+     "barker:next:2009"
+     "sandhu.ea:role-based:1996"
+     "wainer.ea:dw-rbac:2007"
+     "sandhu.ea:nist:2000"
+     "samuel.ea:context-aware:2008"
+     "bertino.ea:trbac:2001"
+     "moyer.ea:generalized:2001"
+     "bell.ea:secure:1996"
+     "bell:looking:2005"
+     "oasis:xacml:2005"
+     "ferreira.ea:how:2009"
+     "ansi:rbac:2004"
+     "li.ea:critique:2007"
+     "ardagna.ea:access:2010"
+     "sandhu.ea:arbac97:1999"
+     "becker:information:2007")))
+

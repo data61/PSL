@@ -1,0 +1,147 @@
+\documentclass[11pt,DIV10,a4paper,twoside=semi,openright,titlepage]{scrreprt}
+\usepackage{fixltx2e}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Overrides the (rightfully issued) warning by Koma Script that \rm
+%%% etc. should not be used (they are deprecated since more than a
+%%% decade)
+  \DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+  \DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+  \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+  \DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+  \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{isabelle,isabellesym}
+\usepackage{stmaryrd}
+\usepackage{paralist}
+\usepackage{xspace}
+\newcommand{\testgen}{HOL-TestGen\xspace}
+\newcommand{\testgenFW}{HOL-TestGen/FW\xspace}
+\usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage{graphicx}
+\usepackage{color}
+\sloppy
+
+\usepackage{amssymb}
+
+
+
+\newcommand{\isasymmodels}{\isamath{\models}}
+\newcommand{\HOL}{HOL}
+
+\newcommand{\ie}{i.\,e.}
+\newcommand{\eg}{e.\,g.}
+
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+\renewcommand{\isastyle}{\isastyleminor}
+
+\pagestyle{empty} 
+\begin{document}
+\renewcommand{\subsubsectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Section}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\chapterautorefname}{Chapter}
+\newcommand{\subtableautorefname}{\tableautorefname}
+\newcommand{\subfigureautorefname}{\figureautorefname}
+
+\title{The Unified Policy Framework\\
+  (UPF)}
+\author{Achim D. Brucker\footnotemark[1] \quad
+        Lukas Br\"ugger\footnotemark[2]  \quad
+        Burkhart Wolff\footnotemark[3]\\[1.5em]
+  \normalsize
+  \normalsize\footnotemark[1]~SAP SE, Vincenz-Priessnitz-Str. 1, 76131 Karlsruhe,
+  Germany \texorpdfstring{\\}{}
+  \normalsize\href{mailto:"Achim D. Brucker"
+    <achim.brucker@sap.com>}{achim.brucker@sap.com}\\[1em]
+  %
+  \normalsize\footnotemark[2]Information Security, ETH Zurich, 8092 Zurich, Switzerland
+  \texorpdfstring{\\}{}
+  \normalsize\href{mailto:"Lukas Bruegger"
+    <lukas.a.bruegger@gmail.com>}{Lukas.A.Bruegger@gmail.com}\\[1em]
+  %
+  \normalsize\footnotemark[3]~Univ. Paris-Sud, Laboratoire LRI,
+  UMR8623, 91405 Orsay, France
+  France\texorpdfstring{\\}{}
+  \normalsize\href{mailto:"Burkhart Wolff" <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr}
+}
+
+\pagestyle{empty}
+\publishers{%
+  \normalfont\normalsize%
+    \centerline{\textsf{\textbf{\large Abstract}}}
+    \vspace{1ex}%
+    \parbox{0.8\linewidth}{%
+      We present the \emph{Unified Policy Framework}
+      (UPF), a generic framework for modelling security
+      (access-control) policies; in Isabelle/\HOL. 
+      %\cite{}.
+      UPF emphasizes the view that a policy is a policy decision
+      function that grants or denies access to resources, permissions,
+      etc. In other words, instead of modelling the
+      relations of permitted or prohibited requests directly, we model
+      the concrete function that implements the policy decision point
+      in a system, seen as an ``aspect'' of ``wrapper'' around the 
+      business logic  % Fachlogik 
+      of a system.
+      In more detail, UPF is based on the following four  principles:
+      \begin{inparaenum}
+       \item Functional representation of policies,
+       \item No conflicts are possible,
+       \item Three-valued decision type (allow, deny, undefined),
+       \item Output type not containing the decision only.
+      \end{inparaenum}
+   }
+}
+
+\maketitle
+\cleardoublepage
+\pagestyle{plain}
+\tableofcontents
+\cleardoublepage
+
+\input{introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% <session>
+  % \input{session}
+  \chapter{The Unified Policy Framework (UPF)}
+  \input{UPFCore}
+  \input{ElementaryPolicies}
+  \input{SeqComposition}
+  \input{ParallelComposition}
+  \input{Analysis}
+  \input{Normalisation}
+  \input{NormalisationTestSpecification}
+  \input{UPF}
+  \chapter{Example}
+  \input{example-intro}
+  \input{Service}
+  \input{ServiceExample}
+% </session>
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{conclusion}
+  
+\chapter{Appendix}
+\input{Monads}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:
+
+
+\nocite{brucker.ea:formal-fw-testing:2014,brucker.ea:hol-testgen-fw:2013,brucker.ea:theorem-prover:2012,brucker.ea:model-based:2011}
+\nocite{bruegger:generation:2012}
+\bibliographystyle{abbrvnat}
+\bibliography{root}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

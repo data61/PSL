@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Abstract Hoare Logics}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+  These therories describe Hoare logics for a number of imperative
+  language constructs, from while-loops to mutually
+  recursive procedures. Both partial and total correctness are
+  treated. In particular a proof system for total correctness of
+  recursive procedures in the presence of unbounded nondeterminism is
+  presented.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+These are the theories underlying the publications
+\cite{Nipkow-MOD2001,Nipkow-CSL02}. They should be consulted for explanatory
+text. The local variable declaration construct in \cite{Nipkow-MOD2001} has
+been generalized; see Section~\ref{sec:lang}.
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

@@ -1,0 +1,12 @@
+chapter AFP
+
+session Tree_Decomposition (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    TreeDecomposition
+    TreewidthTree
+    TreewidthCompleteGraph
+    ExampleInstantiations
+  document_files
+    "root.tex"
+    "root.bib"

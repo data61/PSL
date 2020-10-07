@@ -1,0 +1,587 @@
+\newcommand{\Bdef}[1]{\vspace{1mm} \begin{defin}{\bf :}\begin{rm} #1\\}
+\newcommand{\Edef}{
+
+  \vspace*{-1mm}
+  \hspace*{14.2cm} $\Box$
+  \end{rm}
+  \end{defin}
+  \noindent
+}
+\newcommand{\Btheorem}[1]{\vspace{1mm} \begin{theorem}{\bf :}\begin{rm} #1\\}
+\newcommand{\Etheorem}{
+
+  \vspace*{-1mm}
+  \hspace*{14.2cm} $\Box$
+  \end{rm}
+  \end{theorem}
+  \noindent
+}
+\newcommand{\Bexample}[1]{\vspace{1mm} \begin{example}{\bf :}\begin{rm} #1\\}
+\newcommand{\Eexample}{
+
+  \vspace*{-1mm}
+  \hspace*{14.2cm} $\Box$
+  \end{rm}
+  \end{example}
+  \noindent
+}
+
+\newcommand{\Bpproof}{\[\begin{array}{lll} }
+\newcommand{\Epproof}{\end{array}\] }
+
+
+\newcommand{\Bproof}{\noindent{\bf Proof}\\}
+\newcommand{\Eproof}{\leftline{\hfill{\bf end of proof}}}
+
+% already defined in llncs
+%\newtheorem{lemma}{Lemma}
+%\newcommand{\beginlemma}[1]{\vspace{1mm} \begin{lemma}{\bf :}\rmfamily  #1\\}
+
+\newcommand{\ODB}{\mbox{$[\![$}}
+\newcommand{\CDB}{\mbox{$]\!]$}}
+
+% \newcommand{\}{}
+\newcommand{\mbit}[1]{\mbox{\it #1\,}}
+\newcommand{\sem}{{\it sem}}
+\newcommand{\nsem}[0]{\mbox{\it nsem}}
+\newcommand{\atc}{\mbox{{\tt @}}}
+\newcommand{\turns}{\vdash}
+\newcommand{\pid}{\hspace*{2mm}}
+\newcommand{\osem}[3]{#1:\; \mbox{#2}\; \rightarrow #3}
+
+\newcommand{\SPEC}{{\rm SPEC}}
+\newcommand{\DST}{{\rm DST}}
+\newcommand{\VM}{{\rm VM}}
+\newcommand{\Lo}{{\it L1}}
+\newcommand{\Lt}{{\it L2}}
+\newcommand{\Eo}{{\it E1}}
+\newcommand{\Et}{{\it E2}}
+\newcommand{\Xo}{{\it X1}}
+\newcommand{\Xt}{{\it X2}}
+\newcommand{\LN}{{\it LN}}
+\newcommand{\UN}{{\it UN}}
+\newcommand{\PL}{{\it PL}}
+\newcommand{\RL}{{\it RL}}
+\newcommand{\XS}{{\it XS}}
+\newcommand{\XL}{{\it XL}}
+\newcommand{\YL}{{\it YL}}
+\newcommand{\ZL}{{\it ZL}}
+\newcommand{\SL}{{\it SL}}
+\newcommand{\THIS}{{\it THIS}}
+\newcommand{\OID}{{\it OI}}
+\newcommand{\TID}{{\it TID}}
+\newcommand{\Object}{{\it Object}}
+\newcommand{\ObjEnv}{{\it Obj\-Env}}
+\newcommand{\Location}{{\it Location}}
+\newcommand{\WFF}{{\it WFF}}
+\newcommand{\VAR}{{\it VAR}}
+\newcommand{\FVAR}{{\it FVAR}}
+\newcommand{\BOOL}{{\it BOOL}}
+\newcommand{\INT}{{\it INT}}
+\newcommand{\SIZE}{{\it SIZE}}
+\newcommand{\bool}{{\it bool}}
+\newcommand{\intg}{{\it int}}
+\newcommand{\into}{{\it int}}
+\newcommand{\inte}{{\it inte}}
+\newcommand{\intc}{{\it intc}}
+\newcommand{\Boolean}{{\it Bool}}
+\newcommand{\Integer}{{\it  Integer}}
+\newcommand{\Int}{{\it Int}}
+\newcommand{\Nat}{{\it Nat}}
+\newcommand{\fsig}{{\it fsig}}
+\newcommand{\ct}{{\it ct}}
+\newcommand{\pt}{{\it pt}}
+\newcommand{\at}{{\it at}}
+\newcommand{\LI}{{\rm LI}_c}
+\newcommand{\AR}{{\rm AR_c}}
+\newcommand{\CO}{{\rm CO_a}}
+
+\newcommand{\vis}{{\it vis}}
+\newcommand{\ltyp}{{\it ltyp}}
+\newcommand{\rtyp}{{\it rtyp}}
+\newcommand{\dtyp}{{\it otyp}}
+\newcommand{\void}{{\it null}}
+\newcommand{\static}{{\it static}}
+\newcommand{\init}{{\it init}}
+\newcommand{\object}{{\it mkobj}}
+\newcommand{\obj}{{\it obj}}
+\newcommand{\location}{{\it mkloc}}
+\newcommand{\loc}{{\it loc}}
+%\newcommand{\Type}{{\it Type}}
+\newcommand{\ObjId}{{\it ObjId}}
+\newcommand{\TypId}{{\it TypId}}
+\newcommand{\ModId}{{\it ModId}}
+\newcommand{\ATypId}{{\it ATypId}}
+\newcommand{\AttId}{{\it AttId}}
+\newcommand{\true}{{\it true}}
+\newcommand{\false}{{\it false}}
+\newcommand{\REQ}{{\it REQ}}
+\newcommand{\INV}{{\it INV}}
+\newcommand{\inv}{{\it inv}}
+\newcommand{\PList}{{\it PList}}
+\newcommand{\CList}{{\it CList}}
+\newcommand{\List}{{\it List}}
+\newcommand{\Array}{{\it Array}}
+\newcommand{\ainit}{{\it a\_init}}
+\newcommand{\awrite}{{\it a\_write}}
+\newcommand{\aread}{{\it a\_read}}
+\newcommand{\asize}{{\it a\_size}}
+\newcommand{\aresize}{{\it a\_resize}}
+\newcommand{\aA}{{\it aA}}
+\newcommand{\intarray}{{\it intarray}}
+\newcommand{\app}{{\it app}}
+\newcommand{\fst}{{\it fst}}
+\newcommand{\rst}{{\it rst}}
+\newcommand{\rsem}{\textit{rsem}}
+\newcommand{\rssem}{\textit{rssem}}
+\newcommand{\empt}{{\it empt}}
+\newcommand{\isempt}{{\it isempt}}
+\newcommand{\lng}{{\it lng}}
+\newcommand{\conc}{{\it conc}}
+\newcommand{\plist}{{\it plist}}
+\newcommand{\front}{{\it front}}
+\newcommand{\back}{{\it back}}
+\newcommand{\typ}{\tau}
+\newcommand{\disj}{{\it disj}}
+\newcommand{\dirpart}{{\it dirpart}}
+\newcommand{\prt}{{\it part}}
+\newcommand{\prtN}{\mbox{${\it part}_n$}}
+\newcommand{\alive}{{\it alive}}
+\newcommand{\alien}{{\it alien}}
+\newcommand{\extern}{{\it extern}}
+\newcommand{\reach}{{\it reach}}
+\newcommand{\reachN}{\mbox{${\it reach}_n$}}
+\newcommand{\isnull}{{\it isnull}}
+\newcommand{\new}{{\it new}}
+\newcommand{\pos}{{\it pos}}
+\newcommand{\siz}{{\it siz}}
+\newcommand{\arr}{{\it arr}}
+\newcommand{\pltol}{{\it pltol}}
+\newcommand{\atol}{{\it atol}}
+\newcommand{\length}{{\it length}}
+\newcommand{\aP}{{\it aP}}
+\newcommand{\aC}{{\it aC}}
+\newcommand{\aL}{{\it aL}}
+\newcommand{\aT}{{\it aT}}
+\newcommand{\aI}{{\it aI}}
+\newcommand{\aB}{{\it aB}}
+\newcommand{\wfP}{{\it wfP}}
+\newcommand{\wfC}{{\it wfC}}
+\newcommand{\wfL}{{\it wfL}}
+\newcommand{\minint}{{\it minint}}
+\newcommand{\maxint}{{\it maxint}}
+\newcommand{\typed}{{\it typed}}
+\newcommand{\pvalive}{{\it pv\_alive}}
+\newcommand{\allalive}{{\it all\_alive}}
+\newcommand{\nrloc}{{\it nrloc}}
+\newcommand{\wt}{{\it wt}}
+\newcommand{\wtr}{{\it wtr}}
+\newcommand{\wtp}{{\it wtp}}
+\newcommand{\closed}{{\it closed}}
+\newcommand{\wellformed}{{\it wellformed}}
+\newcommand{\oreach}{{\it oreach}}
+\newcommand{\reacht}{{\it treach}}
+\newcommand{\reachNt}{\mbox{${\it treach}_n$}}
+\newcommand{\asort}{{\it a\_sort}}
+\newcommand{\ds}{{\it DSrt}}
+\newcommand{\us}{{\it USrt}}
+\newcommand{\constr}{{\it constr}}
+\newcommand{\sel}{{\it sel}}
+\newcommand{\styp}{\textit{styp}}
+
+\newcommand{\re}{{\rm e}}
+\newcommand{\ro}{{\rm o}}
+\newcommand{\eli}{{\rm eli}}
+\newcommand{\elemlist}{{\rm elemlist}}
+\newcommand{\rsucc}{{\rm succ}}
+\newcommand{\this}{{\rm this}}
+\newcommand{\att}{{\rm att}}
+\newcommand{\rarr}{{\rm arr}}
+\newcommand{\rpos}{{\rm pos}}
+\newcommand{\rsiz}{{\rm siz}}
+\newcommand{\result}{{\rm result}}
+\newcommand{\ralive}{{\rm alive}}
+\newcommand{\rmtyp}{{\rm typ}}
+\newcommand{\risnull}{{\rm isnull}}
+\newcommand{\rnew}{{\rm new}}
+\newcommand{\robj}{{\rm obj}}
+\newcommand{\robject}{{\rm object}}
+\newcommand{\rTypId}{{\rm TypId}}
+\newcommand{\rObjId}{{\rm ObjId}}
+\newcommand{\rAttId}{{\rm AttId}}
+\newcommand{\rLocation}{{\rm Location}}
+\newcommand{\rObject}{{\rm Object}}
+\newcommand{\rType}{{\rm Type}}
+\newcommand{\rltyp}{{\rm ltyp}}
+\newcommand{\rrtyp}{{\rm typ}}
+\newcommand{\rdtyp}{{\rm otyp}}
+\newcommand{\rnull}{{\rm null}}
+\newcommand{\rstatic}{{\rm static}}
+\newcommand{\rinit}{{\rm init}}
+\newcommand{\rLiv}{{\rm Liv}}
+\newcommand{\rp}{{\rm p}}
+\newcommand{\rpv}{{\rm pv}}
+\newcommand{\rr}{{\rm r}}
+\newcommand{\rmq}{{\rm q}}
+\newcommand{\rw}{{\rm w}}
+\newcommand{\rmt}{{\rm m}}
+\newcommand{\rv}{{\rm v}}
+\newcommand{\riv}{{\rm iv}}
+\newcommand{\rilv}{{\rm ilv}}
+\newcommand{\rav}{{\rm av}}
+\newcommand{\rn}{{\rm n}}
+\newcommand{\rx}{{\rm x}}
+\newcommand{\ry}{{\rm y}}
+\newcommand{\rbv}{{\rm bv}}
+\newcommand{\rlv}{{\rm lv}}
+\newcommand{\rtmp}{{\rm tmp}}
+\newcommand{\rl}{{\rm l}}
+\newcommand{\rlrest}{{\rm lrest}}
+\newcommand{\rlrfst}{{\rm lrfst}}
+\newcommand{\rnv}{{\rm nv}}
+\newcommand{\rO}{{\rm O}}
+\newcommand{\rA}{{\rm A}}
+\newcommand{\rAzero}{{\rm A0}}
+\newcommand{\rM}{{\rm M}}
+\newcommand{\rMzero}{{\rm M0}}
+\newcommand{\rMone}{{\rm M1}}
+\newcommand{\rMtwo}{{\rm M2}}
+\newcommand{\rMsub}[1]{\mbox{${\rm M}_{#1}$}}
+\newcommand{\rSsub}[1]{\mbox{${\rm S}_{#1}$}}
+\newcommand{\rTsub}[1]{\mbox{${\rm T}_{#1}$}}
+\newcommand{\rTAsub}[1]{\mbox{${\rm TA}_{#1}$}}
+\newcommand{\rTCsub}[1]{\mbox{${\rm TC}_{#1}$}}
+\newcommand{\rTEsub}[1]{\mbox{${\rm TE}_{#1}$}}
+\newcommand{\rE}{{\rm E}}
+\newcommand{\rS}{{\rm S}}
+\newcommand{\rT}{{\rm T}}
+\newcommand{\rU}{{\rm U}}
+\newcommand{\rRT}{{\rm RT}}
+\newcommand{\rTP}{{\rm TP}}
+\newcommand{\rTPRIV}{{\rm TPRIV}}
+\newcommand{\rTR}{{\rm TR}}
+\newcommand{\rTPV}{{\rm TPV}}
+\newcommand{\rTRUE}{{\rm TRUE}}
+\newcommand{\rFALSE}{{\rm FALSE}}
+\newcommand{\rUC}{{\rm UC}}
+\newcommand{\rTV}{{\rm TV}}
+\newcommand{\rTD}{{\rm TD}}
+\newcommand{\rTone}{{\rm T1}}
+\newcommand{\rTtwo}{{\rm T2}}
+\newcommand{\rLIST}{{\rm LIST}}
+\newcommand{\rCLIST}{{\rm CLIST}}
+\newcommand{\rPLIST}{{\rm PLIST}}
+\newcommand{\rARRAY}{{\rm ARRAY}}
+\newcommand{\rCREFREFINT}{{\rm CREFREFINT}}
+\newcommand{\rREFOBJ}{{\rm REFOBJ}}
+\newcommand{\rINT}{{\rm INT}}
+\newcommand{\rEXP}{{\rm EXP}}
+\newcommand{\rBOOL}{{\rm BOOL}}
+\newcommand{\rOBJECT}{{\rm OBJECT}}
+\newcommand{\rAMOD}{{\rm ARRAY\_MOD}}
+\newcommand{\rSMOD}{{\rm STD\_MOD}}
+\newcommand{\rLMOD}{{\rm LIST\_MOD}}
+\newcommand{\rCMOD}{{\rm CLIST\_MOD}}
+\newcommand{\rPMOD}{{\rm PLIST\_MOD}}
+\newcommand{\rOMOD}{{\rm SORT\_MOD}}
+%% \newcommand{\rhead}{{\rm head}}
+%% \newcommand{\rtail}{{\rm tail}}
+
+\newcommand{\bP}{\mbox{{\bf P}}}
+\newcommand{\bPP}{\mbox{{\bf PP}}}
+\newcommand{\bPe}{\mbox{{\bf P1}}}
+\newcommand{\bPz}{\mbox{{\bf P2}}}
+\newcommand{\bI}{\mbox{{\bf I}}}
+\newcommand{\bA}{\mbox{{\bf A}}}
+\newcommand{\bTA}{\mbox{{\bf TA}}}
+\newcommand{\bQ}{\mbox{{\bf Q}}}
+\newcommand{\bQQ}{\mbox{{\bf QQ}}}
+\newcommand{\bQe}{\mbox{{\bf Q1}}}
+\newcommand{\bQz}{\mbox{{\bf Q2}}}
+\newcommand{\bSQ}{\mbox{{\bf SQ}}}
+\newcommand{\bR}{\mbox{{\bf R}}}
+\newcommand{\bF}{\mbox{{\bf F}}}
+\newcommand{\Psig}{\mbox{${\bf P}_{\Sigma}$}}
+\newcommand{\Qsig}{\mbox{${\bf Q}_{\Sigma}$}}
+\newcommand{\Pvsb}{\mbox{${\bf P}_{{\it vsb}}$}}
+\newcommand{\Qvsb}{\mbox{${\bf Q}_{{\it vsb}}$}}
+
+\newcommand{\cl}[1]{\mbox{${\cal #1}$}}
+
+\newcommand{\co}{\mbox{$\; , \;$}}
+\newcommand{\stp}{\mbox{$\,\preceq\,$}}
+\newcommand{\pstp}{\mbox{$\,\prec\,$}}
+\newcommand{\nstp}{\mbox{$\,\not\preceq\,$}}
+\newcommand{\sptp}{\mbox{$\,\succeq\,$}}
+\newcommand{\psptp}{\mbox{$\,\succ\,$}}
+\newcommand{\nsptp}{\mbox{$\,\not\succeq\,$}}
+\newcommand{\we}{\mbox{$\;\wedge\;$}}
+\newcommand{\WE}{\mbox{$\;\;\wedge\;\;$}}
+\newcommand{\ve}{\mbox{$\;\vee\;$}}
+\newcommand{\ra}{\mbox{$\;\;\Rightarrow\;\;$}}
+\newcommand{\fa}{\mbox{$\;\;\rightarrow\;\;$}}
+\newcommand{\lra}{\mbox{$\;\;\Leftrightarrow\;\;$}}
+\newcommand{\gdw}{\mbox{$\;\;\Leftrightarrow\;\;$}}
+\newcommand{\gdwi}[1]{\mbox{$\;\;\stackrel{#1}{\Leftrightarrow}\;\;$}}
+\newcommand{\lrad}{\mbox{$\;\Leftrightarrow_{def}\;\;$}}
+\newcommand{\impl}{&&\mbox{$\Rightarrow$}}
+\newcommand{\eqv}[1]{\mbox{$\,\equiv_#1\,$}}
+\newcommand{\LA}{\mbox{$\langle$}}
+\newcommand{\RA}{\mbox{$\rangle$}}
+\newcommand{\vO}{\verb/(/}
+\newcommand{\vC}{\verb/)/}
+\newcommand{\vLA}{\verb/</}
+\newcommand{\vRA}{\verb/>/}
+\newcommand{\vAS}{\verb/:=/}
+\newcommand{\OB}{\mbox{$\{\;$}}
+\newcommand{\CB}{\mbox{$\;\}$}}
+
+\newcommand{\frag}{\mbox{$\;\tit{pp}\;$}}
+\newcommand{\comp}{\mbox{$\;\tit{pp}\;$}}
+\newcommand{\stat}{\mbox{$\;\,{\rm STAT;}\;\,$}}
+\newcommand{\rTm}{\mbox{T::m}}
+\newcommand{\meth}{\mbox{$\;\,$meth T::m$\;\,$}}
+\newcommand{\code}[1]{\mbox{$\;\,$#1$\;\,$}}
+\newcommand{\progt}[1]{\multicolumn{3}{l}{\verb/#1/}}
+\newcommand{\pruled}[1]{\rule[1mm]{#1cm}{0.1mm}\downarrow}
+\newcommand{\pruleu}[1]{\rule[1mm]{#1cm}{0.1mm}\uparrow}
+\newcommand{\prule}[1]{\rule[1mm]{#1cm}{0.1mm}}
+\newcommand{\comm}[1]{\;\;\;\ODB\;\mbox{#1}\;\CDB}
+\newcommand{\lb}{\\[1mm]}
+\newcommand{\tab}{\hspace*{5mm}}
+\newcommand{\tabb}{\tab\tab}
+\newcommand{\tabbb}{\tab\tab\tab}
+\newcommand{\tabbbb}{\tab\tab\tab\tab}
+\newcommand{\tabbbbb}{\tab\tab\tab\tab\tab}
+\newcommand{\tabbbbbb}{\tab\tab\tab\tab\tab\tab}
+\newcommand{\tabbbbbbb}{\tab\tab\tab\tab\tab\tab\tab}
+
+%% additions by Nicole
+\newcommand{\seq}{\ensuremath{\, \bigl| \hspace{-2.6pt}  \vartriangleright}}
+
+
+% a Line may be just plain LaTeX code or may be one of
+\newcommand{\Pair}[2]{%
+\cl{#1} \seq #2 }
+
+\newcommand{\PairPlain}[2]{%
+#1 \seq #2 }
+
+\newcommand{\Triple}[3]{%
+\OB #1 \CB \; #2 \; \OB #3 \CB }
+
+\newcommand{\TripleLarge}[3]{%
+\left\{ \; #1 \; \right\} \; #2 \; \left\{ \; #3 \; \right\}}
+
+
+\newcommand{\SequentEmpty}[3]{%
+\seq \Triple{#1}{#2}{#3}}
+
+\newcommand{\Sequent}[4]{%
+\cl{#1} \seq \OB #2 \CB \; #3 \; \OB #4 \CB }
+
+\newcommand{\SequentLarge}[4]{%
+\cl{#1} \seq \TripleLarge{#2}{#3}{#4} }
+
+% \left\{ \; #2 \; \right\} \; #3 \; \left\{ \; #4 \; \right\} }
+
+\newcommand{\SequentPlain}[4]{%
+#1 \seq \OB #2 \CB \; #3 \; \OB #4 \CB }
+
+\newcommand{\Name}[1]{%
+\textbf{#1} \vspace{0.3em} }
+
+\newcommand{\NameCode}[2]{%
+\textbf{#1} %\hfill \texttt{ #2} 
+\vspace{0.3em}
+}
+
+
+% takes a Line as argument
+\newcommand{\Axiom}[2]{%
+\begin{array}{l}%
+#1 \\[0.5ex]%
+%\hline\\[-1.5ex]%
+#2 %
+\end{array}}
+
+% takes two Lines as arguments
+\newcommand{\RuleA}[2]{%
+\begin{array}{l}%
+#1 \\[0.5ex]%
+\hline\\[-1.5ex]%
+#2 %
+\end{array}}
+
+% takes two Lines as arguments
+\newcommand{\RuleANoLine}[2]{%
+\begin{array}{l}%
+#1 \\
+\\[-1.5ex]%
+#2 %
+\end{array}}
+
+
+% takes three lines as arguments:
+\newcommand{\RuleAA}[3]{%
+\begin{array}{l}%
+#1 \\%
+#2 \\[0.5ex]%
+\hline\\[-1.5ex]%
+#3 %
+\end{array}}
+
+% takes four lines as arguments:
+\newcommand{\RuleAAA}[4]{%
+\begin{array}{l}%
+#1 \\%
+#2 \\%
+#3 \\[0.5ex]%
+\hline\\[-1.5ex]%
+#4 %
+\end{array}}
+
+% takes four lines as arguments:
+\newcommand{\RuleAAAA}[5]{%
+\begin{array}{l}%
+#1 \\%
+#2 \\%
+#3 \\%
+#4 \\[0.5ex]%
+\hline\\[-1.5ex]%
+#5 %
+\end{array}}
+
+
+\newcommand{\Brule}{\begin{footnotesize}\[}
+\newcommand{\Erule}{\begin{footnotesize}\]}
+
+%% substitution in formulas
+\newcommand{\NullPExcSubst}{[\$\langle%
+\mathtt{NullPExc}\rangle/\$,\mathit{new}(\$,\mathtt{NullPExc})/\mathtt{exc}]}
+\newcommand{\CastExcSubst}{[\$\langle%
+\mathtt{CastExc}\rangle/\$,\mathit{new}(\$,\mathtt{CastExc})/\mathtt{exc}]}
+\newcommand{\excnull}{\mathtt{exc} = \mathtt{null}}
+\newcommand{\excnotnull}{\mathtt{exc} \neq \mathtt{null}}
+\newcommand{\wesp}{\; \wedge \;}
+\newcommand{\vesp}{\; \vee \;}
+
+
+\newcommand{\jive}{\textsc{Jive}}
+\newcommand{\jke}{\textsc{Java-KE}}
+\newcommand{\sjive}{\textsc{Sjive}}
+\newcommand{\jc}{\textsc{Java~Card}}
+\newcommand{\djc}{\textsc{Diet Java Card}}
+\newcommand{\pwp}{\emph{pwp}}
+
+\newcommand{\ttt}{\texttt}
+\newcommand{\tit}{\textit}
+\newcommand{\tup}{\textup}
+\newcommand{\trm}{\textrm}
+\newcommand{\mtt}{\mathtt}
+\newcommand{\mrm}{\mathrm}
+\newcommand{\mbf}{\mathbf}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%                               %%%%%%%%%%%%%%%%%%%%%%%
+%%%% Additions by Alexander Wiebel %%%%%%%%%%%%%%%%%%%%%%%
+%%%%                               %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\myrulelength}{12.5cm}
+\newcommand{\proofAnnot}[1]{\\\begin{tabular}{ll}\rule[0.17em]{\myrulelength}{0.5pt}&[#1]\end{tabular}\\}
+
+\newcommand{\myTriple}[3]{%
+\mbox{$\;\;\left\{\begin{array}{l}#1\end{array}\right\}#2\left\{\begin{array}{l}#3\end{array} \right\}$}}
+
+\newcommand{\myLongTriple}[3]{%
+$\hspace*{2mm}\left\{\begin{array}{l}#1\end{array}\right\}\\\hspace*{3mm} #2 \\\hspace*{2mm} \left\{\begin{array}{l}#3\end{array} \right\}$}
+
+\newcommand{\BP}{\\[2ex]}
+\newcommand{\EP}{\\[2ex]}
+
+\newcommand{\tif}{\mbox{$\tt{if}$}}
+\newcommand{\tthis}{\mbox{$\tt{this}$}}
+\newcommand{\tnull}{\mbox{$\tt{null}$}}
+\newcommand{\ttrue}{\mbox{$\tt{true}$}}
+\newcommand{\tfalse}{\mbox{$\tt{false}$}}
+\newcommand{\tpar}{\mbox{$\tt{par}$}}
+\newcommand{\tnew}{\mbox{$\tt{new}$}}
+\newcommand{\texc}{\mbox{$\tt{exc}$}}
+\newcommand{\tres}{\mbox{$\tt{res}$}}
+\newcommand{\telse}{\mbox{$\tt{else}$}}
+\newcommand{\twhile}{\mbox{$\tt{while}$}}
+\newcommand{\ttry}{\mbox{$\tt{try}$}}
+\newcommand{\tcatch}{\mbox{$\tt{catch}$}}
+
+\newcommand{\NullPointExc}{\mbox{$\langle \tt{NullPExc} \rangle$}}
+\newcommand{\tNullPExc}{\mbox{$\tt{NullPExc}$}}
+\newcommand{\tCastExc}{\mbox{$\tt{CastExc}$}}
+
+\newcommand{\AVI}{\mbox{\cl{AVI}}}
+\newcommand{\AI}{\mbox{\cl{AI}}}
+\newcommand{\AV}{\mbox{\cl{AV}}}
+%\newcommand{\AVI}{\mbox{\rm AVI}}
+%\newcommand{\AI}{\mbox{\rm AI}}
+%\newcommand{\AV}{\mbox{\rm AV}}
+
+\newcommand{\mgf}{{\it mgf}}
+\newcommand{\mfg}{{\it mfg}}
+
+\newcommand{\pii}{\mbox{$\pi$}}
+\newcommand{\rhoo}{\mbox{$\rho$}}
+
+\newcommand{\partHeading}[2]{%
+\vspace{1ex}%
+{\bf #1:} #2%
+\\[1ex]%
+}
+\newcommand{\PartHeading}[1]{%
+\vspace{4ex}%
+{\large\bf #1:}%
+\\[1ex]%
+}
+
+\newcommand{\leer}{\mbox{ }}
+
+
+%\newcommand{\isamath}[1]{\emph{$#1$}}
+%\newcommand{\lbrakk}{\isamath{\mathopen{\lbrack\mkern-3mu\lbrack}}}
+%\newcommand{\rbrakk}{\isamath{\mathclose{\rbrack\mkern-3mu\rbrack}}}
+
+% additions by Jean-Marie, 
+% j is short for Jive
+\newcommand{\NEW}{\mathit{new}}
+\newcommand{\EXC}{\mathtt{exc}}
+\newcommand{\NULL}{\ttt{null}}
+
+\newcommand{\UPDATE}[3]{#1 \langle #2 := #3 \rangle}
+\newcommand{\ALLOCATE}[2]{#1 \langle #2 \rangle}
+
+
+\newenvironment{Proofa}{\begin{align*}&}{\end{align*}}
+
+\newcommand{\Implies}[1]{\displaybreak[0]\\
+  \Longrightarrow\,& \lbrakk \textrm{\ #1\ } \rbrakk \\
+&}
+\newcommand{\Iff}[1]{\displaybreak[0]\\
+  \Longleftrightarrow\,& \lbrakk \textrm{\ #1\ } \rbrakk \\
+&}
+
+\newcommand{\todo}[1]{%
+  \typeout{********* TO DO ************}%
+  \typeout{#1}%
+  \typeout{****************************}%
+  {\marginpar{\raggedright{\rule{0.25em}{1.6ex}~\textbf{#1}~\rule{0.25em}%
+        {1.6ex}}}}%
+}
+
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "techrep_logic"
+%%% End: 

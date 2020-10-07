@@ -1,0 +1,37 @@
+An overview of the formalization is given in:
+
+  Achim D. Brucker and Michael Herzberg. A Formal Semantics of the Core DOM 
+  in Isabelle/HOL. In The 2018 Web Conference Companion (WWW). Pages 741-749, 
+  ACM Press, 2018. doi:10.1145/3184558.3185980
+
+A BibTeX entry for LaTeX users is
+@InProceedings{ brucker.ea:core-dom:2018,
+	abstract = {At its core, the Document Object Model (DOM) defines a tree-like           
+                    data structure for representing documents in general and HTML  
+                    documents in particular. It forms the heart of any rendering engine 
+                    of modern web browsers. Formalizing the key concepts of the DOM is 
+                    a pre-requisite for the formal reasoning over client-side JavaScript 
+                    programs as well as for the analysis of security concepts in modern 
+                    web browsers. In this paper, we present a formalization of the core DOM, 
+                    with focus on the node-tree and the operations defined on node-trees, 
+                    in Isabelle/HOL. We use the formalization to verify the functional 
+                    correctness of the most important functions defined in the DOM standard. 
+                    Moreover, our formalization is (1) extensible, i.e., can be extended without 
+                    the need of re-proving already proven properties and (2) executable, i.e., 
+                    we can generate executable code from our specification.},
+	address	 = {New York, NY, USA},
+	author	 = {Achim D. Brucker and Michael Herzberg},
+	booktitle= {The 2018 Web Conference Companion (WWW)},
+	conf_date= {April 23-27, 2018},
+	doi	 = {10.1145/3184558.3185980},
+	editor	 = {Pierre{-}Antoine Champin and Fabien L. Gandon and Mounia Lalmas and Panagiotis G. Ipeirotis},
+	isbn	 = {978-1-4503-5640-4/18/04},
+	keywords = {Document Object Model, DOM, Formal Semantics, Isabelle/HOL},
+	location = {Lyon, France},
+	pages	 = {741--749},
+	pdf	 = {https://www.brucker.ch/bibliography/download/2018/brucker.ea-core-dom-2018.pdf},
+	publisher= {ACM Press},
+	title	 = {A Formal Semantics of the Core {DOM} in {Isabelle/HOL}},
+	url	 = {https://www.brucker.ch/bibliography/abstract/brucker.ea-core-dom-2018},
+	year	 = {2018},
+} 

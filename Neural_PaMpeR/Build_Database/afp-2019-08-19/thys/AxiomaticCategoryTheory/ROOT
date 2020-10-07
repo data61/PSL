@@ -1,0 +1,8 @@
+chapter AFP
+
+session AxiomaticCategoryTheory (AFP) = HOL +
+  options [timeout=600]
+  theories
+    AxiomaticCategoryTheory
+  document_files
+    "root.tex"

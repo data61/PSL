@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{authblk}
+\usepackage{a4wide}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Formalisation and Evaluation of Alan Gewirth's \\
+	Proof for the Principle of Generic Consistency\\
+	in Isabelle/HOL\thanks{Benzm\"uller received support from the
+          Volkswagen Foundation (Project CRAP: Consistent Rational
+          Argumentation in Politics).}}
+\author[1]{David Fuenmayor}
+\author[1,2]{Christoph Benzm\"uller}
+\affil[1]{Freie Universit\"at Berlin, Germany}
+\affil[2]{University of Luxembourg, Luxembourg}
+
+\maketitle
+
+\begin{abstract}
+An ambitious ethical theory ---Alan Gewirth's "Principle of Generic
+Consistency"--- is encoded and analysed in Isabelle/HOL. 
+Gewirth's theory has stirred much attention in philosophy and ethics and has been proposed as a
+potential means to bound the impact of artificial general intelligence.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

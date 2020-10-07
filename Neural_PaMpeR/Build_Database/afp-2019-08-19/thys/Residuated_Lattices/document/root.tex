@@ -1,0 +1,66 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Residuated Lattices}
+\author{Victor B. F. Gomes \and Georg Struth \\
+  Department of Computer Science, University of Sheffield}
+\maketitle
+
+\begin{abstract}
+  The theory of residuated lattices, first proposed by Ward and Dilworth~\cite{Ward39},
+  is formalised in Isabelle/HOL.
+  This includes concepts of residuated functions; their adjoints and conjugates.
+  It also contains necessary and sufficient conditions for the existence of these operations
+  in an arbitrary lattice.
+  The mathematical components for residuated lattices are linked to the AFP entry for relation algebra.
+  In particular, we prove J{\'o}nsson and Tsinakis~\cite{Jonsson93} conditions for a residuated
+  boolean algebra to form a relation algebra.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section {Introduction}
+
+text {*
+  These theory files formalise algebraic residuated structures. They are briefly and sparsely
+  commented. More information can be found in the books by Galatos and \emph{al.}~\cite{Galatos07},
+  or the originals papers by Ward and Dilworth~\cite{Ward39}, 
+  Jonsson and Tsinakis~\cite{Jonsson93}, and Maddux~\cite{Maddux96}.
+  
+  The mathematical components for residuated lattices are linked to the AFP entry for relation algebra.  
+  Residuated lattices are also important in the context of Pratt's action algebras, which are currently
+  formalised whitin the AFP entry for Kleene algebra.
+  We are planning to link Kleene algebras and action algebras with this entry in the future.
+  
+  Isabelle/HOL default notation for lattices is used whenever possible. 
+  Nevertheless, we use $\cdot$ as the multiplicative symbol instead of $*$,
+  which is the one used in Isabelle libraries.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,11 @@
+chapter AFP
+
+session IMO2019 (AFP) = Prime_Distribution_Elementary +
+  options [timeout = 600]
+  theories
+    IMO2019_Q1
+    IMO2019_Q4
+    IMO2019_Q5
+  document_files
+    "root.tex"
+    "root.bib"

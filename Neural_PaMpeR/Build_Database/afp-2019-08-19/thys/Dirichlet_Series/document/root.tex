@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Dirichlet Series}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This entry is a formalisation of much of Chapters 2, 3, and 11 of Apostol's ``Introduction to Analytic Number Theory''~\cite{apostol}. This includes:
+\begin{itemize} 
+	\item Definitions and basic properties for several number-theoretic functions (Euler's $\varphi$, M\"{o}bius $\mu$, Liouville's $\lambda$, the divisor function $\sigma$, von Mangoldt's $\Lambda$)
+\item Executable code for most of these functions, the most efficient implementations using the factoring algorithm by Thiemann\ \emph{et al.}
+\item Dirichlet products and formal Dirichlet series
+\item Analytic results connecting convergent formal Dirichlet series to complex functions
+\item Euler product expansions
+\item Asymptotic estimates of number-theoretic functions including the density of squarefree integers and the average number of divisors of a natural number
+\end{itemize}
+These results are useful as a basis for developing more number-theoretic results, such as the Prime Number Theorem.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{url,amssymb,amsthm}
+
+\usepackage{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Secure information flow and program logics --- Isabelle/HOL sources}
+\author{Lennart Beringer and Martin Hofmann}
+
+\maketitle
+
+\begin{abstract}
+  We present interpretations of type systems for secure
+  information flow in Hoare logic, complementing previous encodings in
+  relational program logics. We first treat the imperative language
+  {\bf IMP}, extended by a simple procedure call mechanism. For this
+  language we consider base-line non-interference in the style of
+  Volpano et al.~\cite{VolpanoSmithIrvine:JCS1996} and the
+  flow-sensitive type system by Hunt and Sands
+  \cite{HuntSands:POPL2006}. In both cases, we show how typing
+  derivations may be used to automatically generate proofs in the
+  program logic that certify the absence of illicit flows. We then add
+  instructions for object creation and manipulation, and derive
+  appropriate proof rules for base-line non-interference. As a
+  consequence of our work, standard verification technology may be
+  used for verifying that a concrete program satisfies the
+  non-interference property.
+
+  The present proof development represents an update of the
+  formalisation underlying our paper~\cite{BeringerHofmann:CSF2007}
+  and is intended to resolve any ambiguities that may be present in
+  the paper.
+\end{abstract}
+
+\tableofcontents
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

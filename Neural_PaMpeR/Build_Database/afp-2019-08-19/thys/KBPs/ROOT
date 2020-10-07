@@ -1,0 +1,19 @@
+chapter AFP
+
+session KBPs (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "Transitive-Closure"
+    Trie
+  theories [document = false]
+    Extra
+    List_local
+  theories [show_question_marks = false, names_short]
+    KBPs_Main
+  document_files
+    "MC.pdf"
+    "Robot.pdf"
+    "robot_clock.pdf"
+    "robot_spr.pdf"
+    "root.bib"
+    "root.tex"

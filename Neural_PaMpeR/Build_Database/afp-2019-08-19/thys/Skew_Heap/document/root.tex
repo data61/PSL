@@ -1,0 +1,36 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Skew Heap}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+  Skew heaps are an amazingly simple and lightweight implementation of
+  priority queues. They were invented by Sleator and
+  Tarjan~\cite{SleatorT-SIAM86} and have logarithmic amortized complexity.
+  This entry provides executable and verified functional skew heaps.
+
+The amortized complexity of skew heaps is analyzed in the AFP entry
+\href{http://isa-afp.org/entries/Amortized_Complexity.shtml}{Amortized Complexity}.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

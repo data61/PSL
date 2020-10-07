@@ -1,0 +1,11 @@
+chapter AFP
+
+session "Tarskis_Geometry" (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  sessions
+    "HOL-Algebra"
+  theories
+    Hyperbolic_Tarski
+  document_files
+    "root.bib"
+    "root.tex"

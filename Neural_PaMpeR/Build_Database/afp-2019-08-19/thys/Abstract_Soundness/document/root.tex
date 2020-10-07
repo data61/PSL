@@ -1,0 +1,45 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Abstract Soundness}
+\author{Jasmin Christian Blanchette, Andrei Popescu, and Dmitriy Traytel}
+
+\maketitle
+
+\begin{abstract}
+This is a formalized coinductive account of the abstract development of
+Brotherston et al.\ \cite{brotherston-et-al-2012}, in a slightly more general
+form since we work with arbitrary infinite proofs, which may be acyclic. This
+work is described in detail in an article by the authors
+\cite{blanchette-et-al-2017-co-methods}. The abstract proof can be
+instantiated for various formalisms, including first-order logic with
+inductive predicates.
+\end{abstract}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

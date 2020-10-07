@@ -1,0 +1,80 @@
+\documentclass[a4paper]{article}
+
+\title{First-Order Logic According to Harrison}
+
+\author{Alexander Birch Jensen, Anders Schlichtkrull \&\\ J{\o}rgen Villadsen, DTU Compute, Denmark}
+
+\date{\isadate\today}
+
+\usepackage[left=15mm,right=15mm,top=20mm,bottom=27mm]{geometry}
+
+\usepackage{datetime,isabelle,isabellesym,parskip}
+
+\newdateformat{isadate}{\THEDAY\ \monthname[\THEMONTH] \THEYEAR}
+
+\usepackage{pdfsetup}
+
+\isabellestyle{tt}
+
+\urlstyle{rm}
+
+%\renewcommand{\isachardoublequote}{}
+%\renewcommand{\isachardoublequoteopen}{}
+%\renewcommand{\isachardoublequoteclose}{}
+
+\renewcommand{\isamarkupchapter}[1]{\clearpage\isamarkupsection{#1}\medskip}
+\renewcommand{\isamarkupsection}[1]{\medskip\section*{#1}\addcontentsline{toc}{section}{#1}\medskip}
+\renewcommand{\isamarkupsubsection}[1]{\medskip\subsection*{#1}\medskip}
+\renewcommand{\isamarkupsubsubsection}[1]{\medskip\subsubsection*{#1}\medskip}
+
+\renewcommand{\isabeginpar}{\par\ifisamarkup\relax\else\bigskip\fi}
+\renewcommand{\isaendpar}{\par\bigskip}
+
+\begin{document}
+
+\makeatletter
+\parbox[t]{\textwidth}{\centering\Huge\bfseries\@title}\par\kern5mm
+\parbox[t]{\textwidth}{\centering\Large\bfseries\@author}\par\kern3mm
+\parbox[t]{\textwidth}{\centering\bfseries\@date}\par\kern8mm
+\makeatother
+
+\begin{abstract}\normalsize\noindent
+We present a certified declarative first-order prover with equality based on John Harrison's
+Handbook of Practical Logic and Automated Reasoning, Cambridge University Press, 2009. ML code
+reflection is used such that the entire prover can be executed within Isabelle as a very simple
+interactive proof assistant. As examples we consider Pelletier's problems 1-46.
+\end{abstract}
+
+\tableofcontents
+
+\isamarkupsection{Preample}
+
+Preliminary formalizations are described here:
+\begin{trivlist}
+\item
+Alexander Birch Jensen:
+\emph{Development and Verification of a Proof Assistant.}
+Master's Thesis, Technical University of Denmark, 2016.
+\url{http://findit.dtu.dk/en/catalog/2345011633}
+\item
+Alexander Birch Jensen, Anders Schlichtkrull \&\ J{\o}rgen Villadsen:
+\emph{Verification of an LCF-Style First-Order Prover with Equality.}
+Isabelle Workshop 2016.
+\url{https://github.com/logic-tools/sml-handbook}
+\end{trivlist}
+
+\clearpage
+
+\input{session}
+
+\clearpage
+
+\isamarkupsection{Acknowledgements}
+
+The SML code is based on the OCaml code accompanying John Harrison's
+Handbook of Practical Logic and Automated Reasoning, Cambridge University Press, 2009
+
+Thanks to Jasmin Blanchette, Andreas Halkj{\ae}r From, John Bruntse Larsen, Andrei Popescu and
+Tom Ridge for discussions.
+
+\end{document}

@@ -1,0 +1,93 @@
+\documentclass[11pt,a4paper,twoside]{article}
+
+\addtolength{\textwidth}{1cm}
+\addtolength{\textheight}{1cm}
+\addtolength{\hoffset}{-.5cm}
+\addtolength{\voffset}{-.5cm}
+\addtolength{\oddsidemargin}{24pt}
+\addtolength{\evensidemargin}{-24pt}
+\usepackage{isabelle,isabellesym}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+
+\pagestyle{fancyplain}
+
+\renewcommand{\headrulewidth}{1.6pt}
+\renewcommand{\sectionmark}[1]{\markboth{\thesection\ #1}{\thesection\ #1}}
+\renewcommand{\subsectionmark}[1]{\markright{\thesubsection\ #1}}
+
+\lhead[\thepage]                                            
+      {\fancyplain{}{\rightmark}}
+
+\chead{}
+
+\rhead[\fancyplain{}{\leftmark}]
+      {\thepage}
+                                      
+\cfoot{}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Exponents 3 and 4 of Fermat's Last Theorem \\ and the Parametrisation of Pythagorean Triples}
+\author{Roelof Oosterhuis\\University of Groningen}
+\maketitle
+
+\begin{abstract}
+This document gives a formal proof of the cases $n=3$ and $n=4$ (and
+all their multiples) of Fermat's Last Theorem: if $n>2$ then for all
+integers $x,y,z$:
+\[ x^n + y^n = z^n \Longrightarrow xyz=0.\]
+Both proofs only use facts about the integers and are developed along
+the lines of the standard proofs (see, for example, sections 1 and 2
+of the book by Edwards~\cite{Edwards}).
+
+First, the framework of `infinite descent' is being formalised and in
+both proofs there is a central role for the lemma
+\[ coprime a b ~\land~ ab=c^n \Longrightarrow \exists ~k: |a| =k^n. \]
+Furthermore, the proof of the case $n=4$ uses a parametrisation of the
+Pythagorean triples. The proof of the case $n=3$ contains a study of
+the quadratic form $x^2 + 3y^2$. This study is completed with a result
+on which prime numbers can be written as $x^2+3y^2$.
+
+The case $n=4$ of FLT, in contrast to the case $n=3$, has already been
+formalised (in the proof assistant Coq) \cite{DelahayeM}. The
+parametrisation of the Pythagorean Triples can be found as number 23
+on the list of `top 100 mathematical theorems' \cite{Wiedijk100}.
+
+This research is part of an M.Sc.~thesis under supervision of Jaap Top
+and Wim H.~Hesselink (RU Groningen). The author wants to thank Clemens
+Ballarin (TU M\"unchen) and Freek Wiedijk (RU Nijmegen) for their
+support. For more information see \cite{Oosterhuis-MSc}.
+\end{abstract}
+\thispagestyle{empty}
+\clearpage
+
+\markboth{Contents}{Contents}
+\tableofcontents
+\markboth{Contents}{Contents}
+
+%\vspace{1cm}
+%\begin{figure}[hb]
+%\centering
+%\includegraphics[scale=0.5]{FLT34.pdf}
+%\caption{The depence on existing files in the Isabelle library.}
+%\end{figure}
+\clearpage
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}

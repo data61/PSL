@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Cardinality of Set Partitions}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+
+The theory's main theorem states that the cardinality of set partitions of
+size $k$ on a carrier set of size $n$ is expressed by Stirling numbers of the
+second kind.
+In Isabelle, Stirling numbers of the second kind are defined in the AFP entry
+`Discrete Summation'~\cite{Discrete_Summation-AFP} through their well-known
+recurrence relation. The main theorem relates them to the alternative
+definition as cardinality of set partitions.
+The proof follows the simple and short explanation in Richard P. Stanley's
+`Enumerative Combinatorics: Volume 1'~\cite{Stanley-2012} and
+Wikipedia~\cite{Wikipedia-Stirling-Numbers-2015}, and unravels the full
+details and implicit reasoning steps of these explanations.
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

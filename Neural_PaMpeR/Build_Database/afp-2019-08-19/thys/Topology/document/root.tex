@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{a4wide}
+\usepackage{amsmath,amssymb}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{eufrak}
+\usepackage{textcomp}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{tt}
+
+\begin{document}
+
+\title{The Topology of Lazy Lists}
+\author{Stefan Friedrich}
+\maketitle
+
+\begin{abstract}
+This directory contains two theories. The first, 
+\isa{Topology}, develops the basic notions of general topology. The second,
+\isa{LList\_Topology}, develops the topology of lazy lists.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

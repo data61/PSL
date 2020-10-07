@@ -1,0 +1,25 @@
+chapter AFP
+
+session WorkerWrapper (AFP) = HOLCF +
+  options [timeout = 600]
+  theories [document = false]
+    LList
+    Maybe
+    Nats
+  theories
+    FixedPointTheorems
+    WorkerWrapper
+    CounterExample
+    WorkerWrapperNew
+    Accumulator
+    UnboxedNats
+    Streams
+    Continuations
+    Backtracking
+    Nub
+    Last
+  document_files
+    "haskell.sty"
+    "mathpartir.sty"
+    "root.bib"
+    "root.tex"

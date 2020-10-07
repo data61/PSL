@@ -1,0 +1,11 @@
+chapter AFP
+
+session "Abstract-Hoare-Logics" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    "While/HoareTotal"
+    "Proc/PHoareTotal"
+    "Procs/PsHoareTotal"
+  document_files
+    "root.bib"
+    "root.tex"

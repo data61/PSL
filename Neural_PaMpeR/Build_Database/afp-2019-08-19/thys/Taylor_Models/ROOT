@@ -1,0 +1,12 @@
+chapter AFP
+
+session "Taylor_Models" (AFP) = "Affine_Arithmetic" +
+  options [timeout = 1200]
+  theories [document=false]
+    Polynomial_Expression
+  theories
+    Float_Topology
+    Taylor_Models
+    Experiments
+  document_files
+    "root.tex"

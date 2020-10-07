@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{The Twelvefold Way}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+
+This entry provides all cardinality theorems of the Twelvefold Way.
+The Twelvefold Way~\cite{bogart-2004, stanley-2012, wikipedia:Twelvefold-Way}
+systematically classifies twelve related combinatorial problems
+concerning two finite sets, which include
+counting permutations, combinations, multisets, set partitions and number partitions.
+This development builds upon the existing formal
+developments~\cite{Card_Partitions-AFP, Card_Multisets-AFP, Card_Number_Partitions-AFP}
+with cardinality theorems for those structures.
+It provides twelve bijections from the various structures to
+different equivalence classes on finite functions, and hence, proves
+cardinality formulae for these equivalence classes on finite functions.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

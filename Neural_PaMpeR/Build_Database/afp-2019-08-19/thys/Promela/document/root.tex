@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[english]{babel}
+\usepackage{amssymb}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\isaheader}[1]{#1}
+\newcommand{\isachapter}[1]{\chapter{#1}}
+\newcommand{\isasection}[1]{\section{#1}}
+
+% General
+\newcommand{\ie}{i.\,e.\ }
+\newcommand{\eg}{e.\,g.\ }
+\newcommand{\wrt}{w.\,r.\,t.\ }
+\newcommand{\cf}{cf.\ }
+
+\begin{document}
+
+\title{Promela Formalization}
+\author{By Ren\'{e} Neumann}
+\maketitle
+
+\begin{abstract}
+    We present an executable formalization of the language Promela, the description language for models of the model checker SPIN. This formalization is part of the work for a completely verified
+    model checker (CAVA), but also serves as a useful (and executable!) description of the semantics of the language itself, something that is currently missing.
+    The formalization uses three steps: It takes an abstract syntax tree generated from an SML parser, removes syntactic sugar and enriches it with type information. This further gets translated into a transition system, on which the semantic engine (read: successor function) operates.
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+\input{intro}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

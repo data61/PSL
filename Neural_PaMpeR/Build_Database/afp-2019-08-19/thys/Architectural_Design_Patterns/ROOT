@@ -1,0 +1,10 @@
+chapter AFP
+
+session Architectural_Design_Patterns (AFP) = DynamicArchitectures +
+  options [timeout = 600]
+  theories
+    Blackboard
+    Blockchain
+  document_files
+    "root.bib"
+    "root.tex"

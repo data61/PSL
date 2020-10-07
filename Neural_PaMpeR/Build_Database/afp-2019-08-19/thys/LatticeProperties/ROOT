@@ -1,0 +1,11 @@
+chapter AFP
+
+session LatticeProperties (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Complete_Lattice_Prop
+    Conj_Disj
+    Lattice_Ordered_Group
+  document_files
+    "root.bib"
+    "root.tex"

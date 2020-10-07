@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+\usepackage{railsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+
+\begin{document}
+
+\title{Deriving class instances for datatypes.\footnote{Supported by FWF (Austrian Science Fund) project P22767-N13.}}
+\author{Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We provide a framework for registering automatic methods 
+  to derive class instances 
+  of datatypes, 
+  as it is possible using Haskell's ``deriving Ord, Show, \ldots'' feature.
+  
+  We further implemented such automatic methods to derive (linear) orders or
+  hash-functions which are required in the 
+  Isabelle Collection Framework \cite{rbt} and the Container Framework \cite{containers}. 
+  Moreover, for the tactic of
+  Huffman and Krauss to show that a datatype is countable, we implemented a 
+  wrapper so that this tactic becomes accessible in our framework.
+  
+  Our formalization was performed as part of the \isafor/\ceta{} project%
+  \footnote{\url{http://cl-informatik.uibk.ac.at/software/ceta}} \cite{CeTA}.
+  With our new tactic we could completely remove 
+  tedious proofs for linear orders of two datatypes.
+\end{abstract}
+
+\tableofcontents
+
+\section{Important Information}
+The described generators are outdated as they are based on the old datatype package.
+Generators for the new datatypes are available in the AFP entry ``Deriving''.
+
+% include generated text of all theories
+\input{session}
+
+\section{Acknowledgements}
+We thank 
+\begin{itemize}
+\item Lukas Bulwahn and Brian Huffman for the discussion on a generic derive command and 
+  the pointer to
+  the tactic for countability.
+\item Alexander Krauss for pointing me to the
+  recursors of the datatype package.
+\item Peter Lammich for the inspiration of developing a hash-function generator.
+\item Andreas Lochbihler for the inspiration of developing generators for the container framework.
+\item Christian Urban for his cookbook about the ML-level of Isabelle.
+\item Stefan Berghofer, Cezary Kaliszyk, and Tobias Nipkow for their explanations
+  on several Isabelle related questions.
+\end{itemize}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

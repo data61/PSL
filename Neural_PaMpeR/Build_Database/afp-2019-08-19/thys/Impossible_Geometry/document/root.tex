@@ -1,0 +1,51 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\isasymsqrt}{\isamath{\sqrt{}}}
+
+
+\begin{document}
+
+\title{Proving the Impossibility of Trisecting an Angle and Doubling the Cube}
+\author{Ralph Romanos and Lawrence Paulson}
+\maketitle
+
+\begin{abstract}
+Squaring the circle, doubling the cube and trisecting an angle, using a compass and 
+straightedge alone, are classic unsolved problems first posed by the ancient Greeks. 
+All three problems were proved to be impossible in the 19th century. The following document 
+presents the proof of the impossibility of solving the latter two problems using Isabelle/HOL, 
+following a proof by Carrega~\cite{Car81}. The proof uses elementary methods: no Galois theory or field 
+extensions. 
+The set of points constructible using a compass and straightedge is defined inductively. 
+Radical expressions, which involve only square roots and arithmetic of rational numbers, 
+are defined, and we find that all constructive points have radical coordinates. Finally, 
+doubling the cube and trisecting certain angles requires solving certain cubic equations 
+that can be proved to have no rational roots. The Isabelle proofs require a great many 
+detailed calculations.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{alpha}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,amsmath}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{wasysym}
+\usepackage{booktabs}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{CryptHOL}
+\author{Andreas Lochbihler}
+\maketitle
+
+\begin{abstract}
+  CryptHOL provides a framework for formalising cryptographic arguments in Isabelle/HOL.
+  It shallowly embeds a probabilistic functional programming language in higher order logic.
+  The language features monadic sequencing, recursion, random sampling, failures and failure handling,
+  and black-box access to oracles. Oracles are probabilistic functions which maintain hidden state
+  between different invocations.  All operators are defined in the new semantic domain of generative
+  probabilistic values, a codatatype.  We derive proof rules for the operators and establish a connection
+  with the theory of relational parametricity.  Thus, the resuting proofs are trustworthy and comprehensible,
+  and the framework is extensible and widely applicable.
+
+  The framework is used in the accompanying AFP entry ``Game-based Cryptography in HOL''.
+  There, we show-case our framework by formalizing different game-based proofs from the literature.
+  This formalisation continues the work described in the author's ESOP 2016 paper \cite{Lochbihler2016ESOP}.
+\end{abstract}
+
+A tutorial in the AFP entry \emph{Game-based cryptography} explains how CryptHOL can be used to formalize game-based cryptography proofs.
+
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

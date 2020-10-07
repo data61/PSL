@@ -1,0 +1,16 @@
+chapter AFP
+
+session DiskPaxos (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    DiskPaxos
+  document_files
+    "DiskPaxos.pdf"
+    "DiskPaxos.ps"
+    "abbrev.sty"
+    "body.tex"
+    "pf.sty"
+    "root.bib"
+    "root.tex"
+    "tla.sty"
+    "tlaspec.tex"

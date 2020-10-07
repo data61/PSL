@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\snip}[4]{}
+
+\begin{document}
+
+\title{Abstract Interpretation of Annotated Commands}
+\author{Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+This is the Isabelle formalization of the material decribed in the
+eponymous  ITP paper~\cite{Nipkow-ITP12}. It develops a generic abstract interpreter for a
+while-language, including widening and narrowing. The collecting
+semantics and the abstract interpreter operate on annotated commands:
+the program is represented as a syntax tree with the semantic
+information directly embedded, without auxiliary labels. The aim of
+the formalization is simplicity, not efficiency or
+precision. This is motivated by the inclusion of the material in a
+theorem prover based course on semantics. A similar (but more
+polished) development is covered in~\cite{Concrete}.
+\end{abstract}
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

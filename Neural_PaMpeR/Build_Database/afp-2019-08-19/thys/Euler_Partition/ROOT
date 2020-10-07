@@ -1,0 +1,12 @@
+chapter AFP
+
+session Euler_Partition (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    Card_Number_Partitions
+  theories
+    Euler_Partition
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,11 @@
+chapter AFP
+
+session Irrationality_J_Hancl (AFP) = "HOL-Analysis" +
+  options [timeout = 300]
+  sessions
+    "HOL-Decision_Procs"
+  theories
+    Irrationality_J_Hancl
+  document_files
+    "root.tex"
+    "root.bib"

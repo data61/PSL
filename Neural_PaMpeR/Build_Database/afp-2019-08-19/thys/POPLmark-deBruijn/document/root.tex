@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\isadroptag{theory}
+
+\newcommand{\fsub}{$\hbox{F}_{<:}$}
+
+\newcommand{\secref}[1]{\S\ref{#1}}
+
+\begin{document}
+
+\title{A Solution to the {\sc PoplMark} Challenge in Isabelle/HOL}
+\author{Stefan Berghofer}
+\maketitle
+
+\begin{abstract}
+We present a solution to the {\sc PoplMark} challenge designed by Aydemir et al.,
+which has as a goal the formalization of the meta-theory of System \fsub{}.
+The formalization is carried out in the theorem prover Isabelle/HOL using an
+encoding based on de Bruijn indices. We start with a relatively simple formalization
+covering only the basic features of System \fsub{}, and explain how it can be extended
+to also cover records and more advanced binding constructs.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

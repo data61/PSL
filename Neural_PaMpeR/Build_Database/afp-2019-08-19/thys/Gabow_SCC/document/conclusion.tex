@@ -1,0 +1,16 @@
+\section{Conclusion}\label{sec:concl}
+  We have presented a verification of two variants of Gabow's algorithm: Computation of the strongly connected components of
+  a graph, and emptiness check of a generalized B\"uchi automaton. We have extracted efficient code with a performance comparable to a
+  reference implementation in Java.
+  
+  We have modularized the formalization in two directions: First, we share most of the proofs between the two variants of the algorithm. Second,
+  we use a stepwise refinement approach to separate the algorithmic ideas and the correctness proof from implementation details.
+  Sharing of the proofs reduced the overall effort of developing both algorithms. Using a stepwise refinement approach allowed us to
+  formalize an efficient implementation, without making the correctness proof complex and unmanageable by cluttering it with implementation details.
+
+  Our development approach is independent of Gabow's algorithm, and can be re-used for the verification of other algorithms.
+
+  \paragraph{Current and Future Work} 
+  An important direction of future work is to fine-tune the implementation of 
+  the emptiness check algorithm for speed, as speed of the checking algorithm
+  directely influences the performance of the modelchecker.

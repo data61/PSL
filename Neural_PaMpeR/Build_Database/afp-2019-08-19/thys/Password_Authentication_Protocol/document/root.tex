@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\renewcommand{\isastyletxt}{\isastyletext}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Verification of a Diffie-Hellman Password-based Authentication Protocol by Extending the Inductive Method}
+\author{Pasquale Noce\\Security Certification Specialist at Arjo Systems, Italy\\pasquale dot noce dot lavoro at gmail dot com\\pasquale dot noce at arjosystems dot com}
+\maketitle
+
+\begin{abstract}
+This paper constructs a formal model of a Diffie-Hellman password-based
+authentication protocol between a user and a smart card, and proves its
+security. The protocol provides for the dispatch of the user's password to the
+smart card on a secure messaging channel established by means of Password
+Authenticated Connection Establishment (PACE), where the mapping method being
+used is Chip Authentication Mapping. By applying and suitably extending
+Paulson's Inductive Method, this paper proves that the protocol establishes
+trustworthy secure messaging channels, preserves the secrecy of users'
+passwords, and provides an effective mutual authentication service. What is
+more, these security properties turn out to hold independently of the secrecy of
+the PACE authentication key.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

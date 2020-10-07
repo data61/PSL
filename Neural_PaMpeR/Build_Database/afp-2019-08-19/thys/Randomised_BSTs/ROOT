@@ -1,0 +1,11 @@
+chapter AFP
+
+session Randomised_BSTs (AFP) = Random_BSTs +
+  options [timeout=300]
+  sessions
+    Monad_Normalisation
+  theories
+    Randomised_BSTs
+  document_files
+    "root.tex"
+    "root.bib"

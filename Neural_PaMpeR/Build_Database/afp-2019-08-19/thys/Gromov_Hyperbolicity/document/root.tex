@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\begin{document}
+
+\title{Gromov hyperbolic spaces in Isabelle}
+\author{Sebastien Gouezel}
+\date{}
+\maketitle
+
+\begin{abstract}
+A geodesic metric space is Gromov hyperbolic if all its geodesic triangles
+are thin, i.e., every side is contained in a fixed thickening of the two
+other sides. While this definition looks innocuous, it has proved extremely
+important and versatile in modern geometry since its introduction by
+Gromov. We formalize the basic classical properties of Gromov hyperbolic
+spaces, notably the Morse lemma asserting that quasigeodesics are close to
+geodesics, the invariance of hyperbolicity under quasi-isometries, we
+define and study the Gromov boundary and its associated distance, and prove
+that a quasi-isometry between Gromov hyperbolic spaces extends to a
+homeomorphism of the boundaries. We also classify the isometries of
+hyperbolic spaces into elliptic, parabolic and loxodromic ones, both in
+terms of translation length and of fixed points at infinity. We also prove
+a less classical theorem, by Bonk and Schramm, asserting that a Gromov
+hyperbolic space embeds isometrically in a geodesic Gromov-hyperbolic
+space. As the original proof uses a transfinite sequence of Cauchy
+completions, this is an interesting formalization exercise. Along the way,
+we introduce basic material on isometries, quasi-isometries, geodesic
+spaces, the Hausdorff distance, the Cauchy completion of a metric space,
+and the exponential on extended real numbers.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{amsalpha}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

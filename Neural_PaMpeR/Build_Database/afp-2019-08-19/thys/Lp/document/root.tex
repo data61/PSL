@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\bibliographystyle{plain}
+
+\begin{document}
+
+\title{$L^p$ spaces in Isabelle}
+\author{Sebastien Gouezel}
+\date{}
+\maketitle
+
+\begin{abstract}
+$L^p$ is the space of functions whose $p$-th power is integrable. It is one
+of the most fundamental Banach spaces that is used in analysis and
+probability. We develop a framework for function spaces, and then implement
+the $L^p$ spaces in this framework using the existing integration theory in
+Isabelle/HOL. Our development contains most fundamental properties of $L^p$
+spaces, notably the H\"older and Minkowski inequalities, completeness of
+$L^p$, duality, stability under almost sure convergence, multiplication of
+functions in $L^p$ and $L^q$, stability under conditional expectation.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

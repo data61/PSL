@@ -1,0 +1,14 @@
+chapter AFP
+
+session Symmetric_Polynomials (AFP) = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    Polynomials
+  theories
+    Symmetric_Polynomials
+    Symmetric_Polynomials_Code
+  document_files
+    "root.tex"
+    "root.bib"
+

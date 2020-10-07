@@ -1,0 +1,55 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath,amssymb}
+\usepackage{stmaryrd}
+
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{A formal proof of the max-flow min-cut theorem for countable networks}
+\author{Andreas Lochbihler}
+\maketitle
+
+\begin{abstract}
+  This article formalises a proof of the maximum-flow minimal-cut theorem for networks with 
+  countably many edges.  A network is a directed graph with non-negative real-valued edge labels
+  and two dedicated vertices, the source and the sink.  A flow in a network assigns non-negative
+  real numbers to the edges such that for all vertices except for the source and the sink, the sum
+  of values on incoming edges equals the sum of values on outgoing edges.  A cut is a subset of the
+  vertices which contains the source, but not the sink.  Our theorem states that in every network,
+  there is a flow and a cut such that the flow saturates all the edges going out of the cut and
+  is zero on all the incoming edges.
+  The proof is based on the paper ``The Max-Flow Min-Cut theorem for countable networks''
+  by Aharoni et al.\ \cite{AharoniBergerGeorgakopoulusPerlsteinSpruessel2011JCT}.
+
+  Additionally, we prove a characterisation of the lifting operation for relations on
+  discrete probability distributions, which leads to a concise proof of its distributivity over
+  relation composition.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,12 @@
+chapter AFP
+
+session "AutoFocus-Stream" (AFP) = "Nat-Interval-Logic" +
+  options [timeout = 600]
+  theories
+    ListSlice
+    AF_Stream
+    AF_Stream_Exec
+    IL_AF_Stream
+    IL_AF_Stream_Exec
+  document_files
+    "root.tex"

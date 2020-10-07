@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{First-Order Terms\footnote{Supported by FWF (Austrian Science Fund) projects Y757 and P27502}}
+\author{Christian Sternagel \and Ren\'e Thiemann}
+\maketitle
+
+
+\begin{abstract}
+We formalize basic results on first-order terms, including a first-order unification algorithm,
+as well as well-foundedness of the subsumption order. 
+This entry is part of the \emph{Isabelle Formalization of Rewriting} \isafor~\cite{isafor},
+where first-order terms are omni-present: the unification algorithm 
+is used to certify several confluence and termination techniques, like
+critical-pair computation and dependency graph approximations; and the subsumption order
+is a crucial ingredient for completion.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+We define first-order terms, substitutions, the subsumption order, and a unification algorithm.
+In all these definitions type-parameters are used to specify variables
+and function symbols, but there is no explicit signature. 
+
+The unification algorithm has been formalized following a textbook on term rewriting~\cite{AllThat}.
+
+The complete \isafor\ library is available at:
+\begin{quote}
+\url{http://cl-informatik.uibk.ac.at/isafor/}
+\end{quote}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

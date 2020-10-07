@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage[only,bigsqcap]{stmaryrd}  % for \<Sqinter>
+\usepackage{isabelle,isabellesym,amsfonts,amsmath,graphicx}
+
+\date{}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+
+\urlstyle{rm}
+\isabellestyle{tt}
+
+
+\begin{document}
+
+\title{Finite Automata using the Hereditarily Finite Sets}
+\author{Prof.\ Lawrence C Paulson\\
+        Computer Laboratory, University of Cambridge}
+\maketitle
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\begin{abstract}
+Finite Automata, both deterministic and non-deterministic, for regular languages.
+  The Myhill-Nerode Theorem. Closure under intersection, concatenation, etc.
+  Regular expressions define regular languages. Closure under reversal;
+  the powerset construction mapping NFAs to DFAs. Left and right languages; minimal DFAs.
+  Brzozowski's minimization algorithm. Uniqueness up to isomorphism of minimal DFAs.
+\end{abstract}
+
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

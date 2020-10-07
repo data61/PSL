@@ -1,0 +1,18 @@
+chapter AFP
+
+session Lowe_Ontological_Argument (AFP) = HOL +
+  options [timeout = 300]
+  theories [document = false]
+    Relations
+  theories
+    QML
+    LoweOntologicalArgument_1
+    LoweOntologicalArgument_2
+    LoweOntologicalArgument_3
+    LoweOntologicalArgument_4
+    LoweOntologicalArgument_5
+    LoweOntologicalArgument_6
+    LoweOntologicalArgument_7
+  document_files
+    "root.tex"
+    "root.bib"

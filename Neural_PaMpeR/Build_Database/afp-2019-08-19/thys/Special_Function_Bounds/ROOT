@@ -1,0 +1,15 @@
+chapter AFP
+
+session Special_Function_Bounds (AFP) = Sturm_Sequences +
+  description "Special_Function_Bounds"
+  options [timeout = 600]
+  theories
+    Atan_CF_Bounds
+    Bounds_Lemmas
+    Exp_Bounds
+    Log_CF_Bounds
+    Sin_Cos_Bounds
+    Sqrt_Bounds
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,9 @@
+chapter AFP
+
+session "IMAP-CRDT" (AFP) = "CRDT" +
+  options [timeout = 300]
+  theories
+    "IMAP-proof"
+  document_files
+    "root.tex"
+    "root.bib"

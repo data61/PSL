@@ -1,0 +1,124 @@
+/* states of clients */
+mtype = { HI_BID, IDLE, USER_BID, GET_BID, SENT_BID};
+/* messages sent to clients */
+mtype = { high_bid, user_bid_request, bid_ok, time_out, ack, end_auction };
+
+/* states of auctioneer */
+mtype = { WAIT, CHECK_OK, SAVE_BID, HIGH_BID, END_ALL };
+/* messages sent to auctioneer */
+mtype = { bidrqst, bidmsg, auction_time_elapse };
+
+chan clientevent = [0] of {mtype};
+chan auctioneerevent = [0] of {mtype};
+
+mtype clientstate;
+mtype auctioneerstate;
+
+int newbid;
+int maxbid = 100;
+
+
+init
+{
+  clientevent!user_bid_request; 
+
+  /* Error 1: newbid == maxbid */
+/*
+   newbid = 100;
+*/
+
+  /* Error 2: End auction */
+/*
+   newbid = 110;
+   if
+     ::auctioneerevent!auction_time_elapse;
+     ::clientevent!timeout;
+   fi
+*/
+}
+
+active proctype client()
+{
+ clientstate = IDLE;
+ do
+ :: clientstate==IDLE ->
+    if
+    ::clientevent?user_bid_request ->
+ 	clientstate = USER_BID;
+    ::clientevent?high_bid->
+ 	clientstate = HI_BID;
+    ::clientevent?end_auction->
+ 	break;
+    fi;
+ 
+ :: clientstate==HI_BID ->
+    printf("Display high bid")->
+    clientstate = IDLE;
+ 
+ :: clientstate==USER_BID-> 	
+    auctioneerevent!bidrqst->
+    clientevent?bid_ok ->
+    clientstate = GET_BID;
+     
+ :: clientstate == GET_BID ->
+    printf("Getting bid amount")->
+    auctioneerevent!bidmsg->
+    clientstate = SENT_BID;
+
+ :: clientstate == SENT_BID ->
+    if
+    :: clientevent?time_out->clientstate = USER_BID;
+    :: clientevent?ack->clientstate = IDLE;
+    fi;
+ od
+}
+
+active proctype auctioneer()
+{
+ auctioneerstate = WAIT;
+ do
+ :: auctioneerstate==WAIT ->
+    if
+    :: auctioneerevent?auction_time_elapse -> 
+       auctioneerstate = END_ALL;
+    :: auctioneerevent?bidrqst ->
+       clientevent!bid_ok ->
+       auctioneerstate = CHECK_OK;
+    fi;
+
+ :: auctioneerstate==CHECK_OK ->
+    if
+    :: auctioneerevent?auction_time_elapse -> 
+       auctioneerstate = END_ALL;
+
+    :: auctioneerevent?bidmsg ->
+       auctioneerstate = SAVE_BID;
+    fi;
+
+ :: auctioneerstate==SAVE_BID ->
+    if
+    :: auctioneerevent?auction_time_elapse -> 
+       auctioneerstate = END_ALL;
+
+    :: clientevent!ack ->
+       if
+         :: newbid > maxbid -> auctioneerstate = HIGH_BID; 
+         :: newbid < maxbid -> auctioneerstate = WAIT;
+       fi;
+    fi;
+
+ :: auctioneerstate==HIGH_BID ->
+	printf("maxbid = newbid") ->
+        maxbid = newbid ->
+        clientevent!high_bid->
+    if
+    :: auctioneerevent?auction_time_elapse -> 
+       auctioneerstate = END_ALL;
+    ::auctioneerstate = WAIT;
+    fi;
+
+ :: auctioneerstate==END_ALL ->
+    clientevent!end_auction ->
+    break;
+ od
+}

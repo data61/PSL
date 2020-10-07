@@ -1,0 +1,19 @@
+chapter AFP
+
+session Inductive_Confidentiality (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    "DolevYao/Message"
+    "DolevYao/Event"
+    "DolevYao/Public"
+    "DolevYao/NS_Public_Bad"
+    "DolevYao/ConfidentialityDY"
+    "GeneralAttacker/MessageGA"
+    "GeneralAttacker/EventGA"
+    "GeneralAttacker/PublicGA"
+    "GeneralAttacker/NS_Public_Bad_GA"
+    "GeneralAttacker/ConfidentialityGA"
+    "GeneralAttacker/Knowledge"
+  document_files
+    "root.bib"
+    "root.tex"

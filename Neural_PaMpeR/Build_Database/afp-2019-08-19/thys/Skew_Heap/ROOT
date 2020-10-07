@@ -1,0 +1,11 @@
+chapter AFP
+
+session Skew_Heap (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-Data_Structures"
+  theories
+    Skew_Heap
+  document_files
+    "root.bib"
+    "root.tex"

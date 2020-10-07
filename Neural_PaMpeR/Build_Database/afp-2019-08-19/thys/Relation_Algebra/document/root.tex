@@ -1,0 +1,55 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Relation Algebra}
+\author{Alasdair Armstrong, Simon Foster, Georg Struth, Tjark Weber}
+\maketitle
+
+\begin{abstract}
+Tarski's algebra of binary relations is formalised along the lines of
+the standard textbooks of Maddux and Schmidt and Str\"ohlein. This
+includes relation-algebraic concepts such as subidentities, vectors
+and a domain operation as well as various notions associated to
+functions. Relation algebras are also expanded by a reflexive
+transitive closure operation, and they are linked with Kleene algebras
+and models of binary relations and Boolean matrices.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introductory Remarks}
+
+These theory files are only sparsely commented. Background information
+can be found in Tarski's original article~\cite{tarski41} and in the
+books by Maddux~\cite{maddux06} and Schmidt and
+Str{\"o}hlein~\cite{schmidt87}. We briefly discuss proof automation
+and the formalisation of direct products in~\cite{armstrong14}.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

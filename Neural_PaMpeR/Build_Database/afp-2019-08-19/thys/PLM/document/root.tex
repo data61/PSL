@@ -1,0 +1,214 @@
+\documentclass[a4paper,enabledeprecatedfontcommands,abstract=on,twoside=true,bibliography=totoc]{scrreprt}
+\usepackage{isabelle,isabellesym}
+\usepackage{url}
+\usepackage[usenames]{color}
+\usepackage{csquotes}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{epigraph}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[all]{nowidow}
+\usepackage[stable]{footmisc}
+\usepackage[ngerman,english]{babel}
+\newcommand{\embeddedstyle}[1]{{\color{blue}#1}}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+
+\input{external.tex}
+
+
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+\usepackage{amsthm}
+
+\usepackage{amsmath}
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+\definecolor{linkcolor}{rgb}{0,0,0}
+\definecolor{citecolor}{rgb}{0,0,0}
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+\renewcommand{\isastyleminor}{\isastyle}
+
+% theorem environments
+\newtheorem*{remark}{Remark}
+% \numberwithin{remark}{chapter}
+\newtheorem{TODO}{TODO}
+\numberwithin{TODO}{chapter}
+\numberwithin{equation}{section}
+
+\title{Representation and Partial Automation of the
+Principia Logico-Metaphysica in Isabelle/HOL}
+\author{Daniel Kirchner}
+
+\begin{document}
+
+\begin{titlepage}
+\vspace{1cm}
+
+\begin{center}
+    \includegraphics[width=0.6\textwidth]{logo}
+    \vspace{1cm}
+
+
+Master's thesis at the institute of mathematics at Freie Universit\"at Berlin
+
+    \vspace{2cm}
+
+
+    \Large{\textsf{Representation and Partial Automation of the Principia Logico-Metaphysica in Isabelle/HOL}}
+
+    \vspace{2cm}
+
+    \large{\textbf{Daniel Kirchner}}
+
+	\vspace{0.25cm}
+
+	\small{Matrikelnummer: 4387161}
+
+    \vspace{2cm}
+
+    \large{\textbf{
+        Supervisors:\\
+Priv.-Doz. Dr.-Ing. Christoph Benzm\"uller\\
+Dr. Edward N. Zalta
+    }}
+
+    \vspace{2cm}
+    \large{Berlin, \today}
+\end{center}
+\end{titlepage}
+
+\cleardoublepage
+
+\begin{abstract}
+	We present an embedding of the second-order fragment of the Theory of Abstract Objects as described in Edward Zalta's
+  upcoming work Principia Logico-Metaphysica (PLM\cite{PM}) in the automated reasoning framework Isabelle/HOL. The Theory of Abstract
+  Objects is a metaphysical theory that reifies property patterns, as they for example occur in the abstract reasoning
+  of mathematics, as \emph{abstract objects} and provides an axiomatic framework that allows to reason about these objects.
+  It thereby serves as a fundamental metaphysical theory that can be used to axiomatize and describe a wide range of philosophical
+  objects, such as Platonic forms or Leibniz' concepts, and has the ambition to function as a foundational theory of mathematics.
+  The target theory of our embedding as described in chapters 7-9 of PLM\cite{PM} employs a modal relational type theory as
+  logical foundation for which a representation in functional type theory is known to be challenging\cite{rtt}.
+  
+  Nevertheless we arrive at a functioning representation of the theory in the functional logic of Isabelle/HOL based on a semantical
+  representation of an Aczel-model of the theory. Based on this representation we construct an implementation of the deductive
+  system of PLM (\cite[Chap. 9]{PM}) which allows to automatically and interactively find and verify theorems of PLM.
+
+  Our work thereby supports the concept of shallow semantical embeddings of
+  logical systems in HOL as a universal tool for logical reasoning as
+  promoted by Christoph Benzm\"uller\cite{UniversalReasoning}.
+
+  The most notable result of the presented work is the discovery of a previously
+  unknown paradox in the formulation of the Theory of Abstract Objects.
+  The embedding of the theory in Isabelle/HOL played a vital
+  part in this discovery. Furthermore it was possible to immediately offer
+  several options to modify the theory to guarantee its consistency.
+  Thereby our work could provide a significant contribution to the
+  development of a proper grounding for object theory.
+\end{abstract}
+
+\cleardoublepage
+
+\tableofcontents
+
+\cleardoublepage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{Thesis}
+
+\newgeometry{margin=1in}
+
+\appendix
+\setcounter{secnumdepth}{3}
+\chapter{Isabelle Theory}
+\input{TAO_1_Embedding}
+\input{TAO_2_Semantics}
+\input{TAO_3_Quantifiable}
+\input{TAO_4_BasicDefinitions}
+\input{TAO_5_MetaSolver}
+\input{TAO_6_Identifiable}
+\input{TAO_7_Axioms}
+\input{TAO_8_Definitions}
+\input{TAO_9_PLM}
+\input{TAO_10_PossibleWorlds}
+\input{TAO_98_ArtificialTheorems}
+\input{TAO_99_SanityTests}
+\input{TAO_99_Paradox}
+
+\restoregeometry
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\cleardoublepage
+
+\chapter*{Selbstst\"andigkeitserkl\"arung}
+\selectlanguage{ngerman}
+
+\begin{center}
+\setlength\extrarowheight{4pt}
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+Name: & Kirchner \\
+\hline
+Vorname: & Daniel \\
+\hline
+geb.am: & 22.05.1989 \\
+\hline
+Matr.Nr.: & 4387161 \\
+\hline
+\end{tabularx}
+\end{center}
+
+Hiermit versichere ich, dass ich die vorliegende Arbeit selbstst\"andig
+verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel
+benutzt habe.
+
+Alle Ausf\"uhrungen, die w\"ortlich oder inhaltlich aus fremden Quellen
+\"ubernommen sind, habe ich als solche kenntlich gemacht.
+
+Diese Arbeit wurde in gleicher oder \"ahnlicher Form noch bei keiner
+anderen Universit\"at als Pr\"ufungsleistung eingereicht und ist auch
+noch nicht ver\"offentlicht.
+
+\vspace{50pt}
+\noindent\hfill\rule{7cm}{.4pt}\par
+   \hfill Daniel Kirchner
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

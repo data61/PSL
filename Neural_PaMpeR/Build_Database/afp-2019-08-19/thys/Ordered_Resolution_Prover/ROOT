@@ -1,0 +1,18 @@
+chapter AFP
+
+session Ordered_Resolution_Prover (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    Coinductive
+    Nested_Multisets_Ordinals
+  theories
+    Map2
+    Lazy_List_Chain
+    Herbrand_Interpretation
+    Abstract_Substitution
+    Inference_System
+    Unordered_Ground_Resolution
+    Ordered_Ground_Resolution
+    FO_Ordered_Resolution_Prover
+  document_files
+    "root.tex"

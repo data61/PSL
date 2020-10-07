@@ -1,0 +1,170 @@
+#!/bin/bash
+
+target=
+name=CAVA
+profile=
+pprofile=
+debug=
+
+mkdir -p bin
+
+die()
+{
+    echo "*** Error: $*"
+    exit 1
+}
+
+exe()
+{
+    in=""
+
+    if [[ $1 == "-in" ]]; then
+        in=" (in dir '$2')"
+        shift 2
+    fi
+
+    echo "*** Executing$in:"
+    echo "> $@"
+
+    # exec
+    "$@"
+}
+
+deprecated()
+{
+    [[ $# == 1 ]] && die "Building for $1 is not supported at the moment."
+}
+
+mklink()
+{
+    cd bin
+    ln -sf $1 $name
+    cd ..
+    ln -sf bin/$name $name
+}
+
+alt_progs()
+{
+    local progs="$@"
+    for p in $progs; do
+        if type -P "$p" 2>/dev/null >/dev/null; then
+            echo $p
+            return
+        fi
+    done
+
+    #die "No suitable program found out of: $progs"
+    return 1
+}
+
+lex_yacc()
+{
+    mllex=`alt_progs "ml-lex" "mllex"`
+    if (( $? )); then echo "No ml-lex found, using compiled file"; return 1; fi
+    
+    mlyacc=`alt_progs "ml-yacc" "mlyacc"`
+    if (( $? )); then echo "No ml-yacc found, using compiled file"; return 1; fi
+
+
+    for ltl in ltl/bp ltl/promela ; do
+        pushd $ltl > /dev/null
+            exe -in $ltl ${mllex} ltl.lex || die "ML-Lex failed"
+            exe -in $ltl ${mlyacc} ltl.yacc || die "ML-Yacc failed"
+        popd > /dev/null
+    done
+}
+
+build_mlton ()
+{
+    if [[ -n $debug && -n $profile ]]; then
+        die "MLton does not support debug and profiling at the same time"
+    fi
+    
+    lex_yacc
+    local out="${name}_mlton"
+    local args=()
+
+    [[ -n $debug ]] && args+=("-const" "Exn.keepHistory true")
+    [[ -n $profile ]] && args+=("-profile" "time")
+    [[ -n $pprofile ]] && args+=("-profile-stack" "true")
+    
+    exe mlton -verbose 1 -default-type intinf "${args[@]}" -output bin/$out ${name}.mlb rusage.c || die "MLton failed"
+    mklink $out
+}
+
+build_poly ()
+{
+    local out="${name}_poly"
+
+    if [[ -n $debug || -n $profile ]]; then
+        echo "*** Warning: PolyML neither supports debugging nor profiling."
+    fi
+
+    exe polyc -o bin/$out ${name}_poly.sml || die "polyc failed"
+    mklink $out
+}
+
+build_ocaml ()
+{
+    deprecated OCaml $1; return
+    local out="${name}_ocaml"
+
+    ocamlbuild -quiet -libs nums,unix,str ${name}.native || die "ocamlbuild failed"
+    cp -L ${name}.native bin/$out
+    ocamlbuild -quiet -clean || die "ocamlbuild -clean failed"
+    mklink $out
+}
+
+build_haskell ()
+{
+    deprecated Haskell $1; return
+    local out="${name}_haskell"
+
+    ghc --make -o bin/$out -O2 -outputdir haskell/obj/ -ihaskell -rtsopts -with-rtsopts=-K80M -main-is ${name} haskell/${name}.hs || die "ghc failed"
+    mklink $out
+}
+
+clean ()
+{
+  rm -rf bin/*
+  rm -f CAVA CAVA_Promela
+#  find ltl ltl_promela -name "*.lex.*" -or -name "*.yacc.*" | xargs rm -f
+}
+
+usage ()
+{
+    echo "$0 [-d|-p|-pp] [mlton|clean]"
+    echo
+    echo "If no target is given, it defaults to mlton."
+    echo "The output is placed into bin/".
+    echo "A link '${name}' points to the executable that was created last (for 'all' this is mlton)."
+    echo "-d Compile in debug mode"
+    echo "-p Compile with profiling"
+    echo "-pp Compile with profiling and profiling for stack"
+}
+
+while true; do
+    case $1 in
+        -d|--debug) debug=1; shift;;
+        -p|--profile) profile=1; shift;;
+        -pp|--really-profile) profile=1; pprofile=1; shift;;
+        -*) die "Unknown argument '$1'";;
+        *) break;;
+    esac
+done
+
+if [[ -z $1 ]]; then
+    target=mlton
+else
+    target=$1
+fi
+
+case $target in
+    m|ml|ML|mlton) build_mlton;;
+#    p|poly|PolyML) build_poly;;
+#    o|ocaml|OCaml) build_ocaml;;
+#    h|hs|haskell|Haskell) build_haskell;;
+#    all) build_haskell a; build_poly a; build_ocaml a; build_mlton a;;
+    clean) clean;;
+    *) usage; exit 1;;
+esac

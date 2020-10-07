@@ -1,0 +1,19 @@
+chapter AFP
+
+session Order_Lattice_Props (AFP) = "HOL-Library" +
+  options [timeout = 600]
+
+  theories
+    Sup_Lattice
+    Order_Duality
+    Order_Lattice_Props
+    Representations
+    Galois_Connections
+    Fixpoint_Fusion
+    Closure_Operators
+    Order_Lattice_Props_Loc
+    Order_Lattice_Props_Wenzel
+
+  document_files
+    "root.tex"
+    "root.bib"

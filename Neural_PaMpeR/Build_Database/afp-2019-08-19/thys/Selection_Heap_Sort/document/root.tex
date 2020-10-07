@@ -1,0 +1,294 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{ Verification of Selection and Heap Sort Using Locales}
+\author{Danijela Petrovi\'c}
+\maketitle
+
+\begin{abstract}
+  Stepwise program refinement techniques can be used to simplify
+  program verification. Programs are better understood since their
+  main properties are clearly stated, and verification of rather
+  complex algorithms is reduced to proving simple statements
+  connecting successive program specifications. Additionally, it is
+  easy to analyze similar algorithms and to compare their properties
+  within a single formalization. Usually, formal analysis is not done
+  in educational setting due to complexity of verification and a lack
+  of tools and procedures to make comparison easy. Verification of an
+  algorithm should not only give correctness proof, but also better
+  understanding of an algorithm. If the verification is based on small
+  step program refinement, it can become simple enough to be
+  demonstrated within the university-level computer science
+  curriculum. In this paper we demonstrate this and give a formal
+  analysis of two well known algorithms (Selection Sort and Heap Sort)
+  using proof assistant Isabelle/HOL and program refinement
+  techniques.
+\end{abstract}
+
+\tableofcontents
+
+% ------------------------------------------------------------------------------
+\section{Introduction}
+% ------------------------------------------------------------------------------
+
+\paragraph*{Using program verification within computer science
+  education.}
+Program verification is usually considered to be too hard and long
+process that acquires good mathematical background. A verification of
+a program is performed using mathematical logic. Having the
+specification of an algorithm inside the logic, its correctness can be
+proved again by using the standard mathematical apparatus (mainly
+induction and equational reasoning). These proofs are commonly complex
+and the reader must have some knowledge about mathematical logic. The
+reader must be familiar with notions such as satisfiability, validity,
+logical consequence, etc. Any misunderstanding leads into a loss of
+accuracy of the verification. These formalizations have common
+disadvantage, they are too complex to be understood by students, and
+this discourage students most of the time. Therefore, programmers and
+their educators rather use traditional (usually trial-and-error)
+methods.
+
+However, many authors claim that nowadays education lacks the formal
+approach and it is clear why many advocate in using proof
+assistants\cite{LSDtrip}. This is also the case with computer science
+education. Students are presented many algorithms, but without formal
+analysis, often omitting to mention when algorithm would not work
+properly. Frequently, the center of a study is implementation of an
+algorithm whereas understanding of its structure and its properties is
+put aside. Software verification can bring more formal approach into
+teaching of algorithms and can have some advantages over traditional
+teaching methods.
+\begin{itemize}
+\item Verification helps to point out what are the requirements and
+  conditions that an algorithm satisfies (pre-conditions,
+  post-conditions and invariant conditions) and then to apply this
+  knowledge during programming. This would help both students and
+  educators to better understand input and output specification and
+  the relations between them.
+\item Though program works in general case, it can happen that it does
+  not work for some inputs and students must be able to detect these
+  situations and to create software that works properly for all
+  inputs.
+\item It is suitable to separate abstract algorithm from its specific
+  implementation. Students can compare properties of different
+  implementations of the same algorithms, to see the benefits of one
+  approach or another. Also, it is possible to compare different
+  algorithms for same purpose (for example, for searching element,
+  sorting, etc.) and this could help in overall understanding of
+  algorithm construction techniques.
+\end{itemize}
+Therefore, lessons learned from formal verification of an algorithm
+can improve someones style of programming.
+
+\paragraph*{Modularity and refinement.}
+The most used languages today are those who can easily be compiled
+into efficient code. Using heuristics and different data types makes
+code more complex and seems to novices like perplex mixture of many
+new notions, definitions, concepts. These techniques and methods in
+programming makes programs more efficient but are rather hard to be
+intuitively understood. On the other hand highly accepted principle in
+nowadays programming is modularity. Adhering to this principle enables
+programmer to easily maintain the code.
+
+The best way to apply modularity on program verification and to make
+verification flexible enough to add new capabilities to the program
+keeping current verification intact is \emph{program
+  refinement}. Program refinement is the verifiable transformation of
+an abstract (high-level) formal specification into a concrete
+(low-level) executable program. It starts from the abstract level,
+describing only the requirements for input and output. Implementation
+is obtained at the end of the verification process (often by means of
+code generation \cite{codegeneration}). Stepwise refinement allows this process to
+be done in stages. There are many benefits of using refinement
+techniques in verification.
+
+\begin{itemize}
+\item It gives a better understanding of programs that are verified.
+\item The algorithm can be analyzed and understood on different level
+  of abstraction.
+\item It is possible to verify different implementations for some part
+  of the program, discussing the benefits of one approach or another.
+\item It can be easily proved that these different implementation
+  share some same properties which are proved before splitting into
+  two directions.
+\item It is easy to maintain the code and the verification. Usually,
+  whenever the implementation of the program changes, the correctness
+  proofs must be adapted to these changes, and if refinement is used,
+  it is not necessary to rewrite entire verification, just add or
+  change small part of it.
+\item Using refinement approach makes algorithm suitable for a case
+  study in teaching. Properties and specifications of the program are
+  clearly stated and it helps teachers and students better to teach or
+  understand them.
+\end{itemize}
+
+We claim that the full potential of refinement comes only when it is
+applied stepwise, and in many small steps. If the program is refined
+in many steps, and data structures and algorithms are introduced
+one-by-one, then proving the correctness between the successive
+specifications becomes easy. Abstracting and separating each
+algorithmic idea and each data-structure that is used to give an
+efficient implementation of an algorithm is very important task in
+programmer education.
+
+As an example of using small step refinement, in this paper we analyze
+two widely known algorithms, Selection Sort and Heap Sort. There are
+many reasons why we decided to use them.
+\begin{itemize}
+\item They are largely studied in different contexts and they are
+  studied in almost all computer science curricula.
+\item They belong to the same family of algorithms and they are good
+  example for illustrating the refinement techniques. They are a nice
+  example of how one can improve on a same idea by introducing more
+  efficient underlying data-structures and more efficient algorithms.
+\item Their implementation uses different programming constructs:
+  loops (or recursion), arrays (or lists), trees, etc. We show how to
+  analyze all these constructs in a formal setting.
+\end{itemize}
+
+There are many formalizations of sorting algorithms that are done both
+automatically or interactively and they undoubtedly proved that these
+algorithms are correct. In this paper we are giving a new approach in
+their verification, that insists on formally analyzing connections
+between them, instead of only proving their correctness (which has
+been well established many times). Our central motivation is that
+these connections contribute to deeper algorithm understanding much
+more than separate verification of each algorithm.
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+
+% ------------------------------------------------------------------------------
+\section{Related work}
+\label{sec:related}
+% ------------------------------------------------------------------------------
+
+To study sorting algorithms from a top down was proposed in
+\cite{meritt}. All sorting algorithms are based on divide-and-conquer
+algorithm and all sorts are divided into two groups:
+hard\_split/easy\_join and easy\_split/hard\_join. Fallowing this idea
+in \cite{dps}, authors described sorting algorithms using
+object-oriented approach. They suggested that this approach could be
+used in computer science education and that presenting sorting
+algorithms from top down will help students to understand them better.
+
+The paper \cite{sortMorp} represent different recursion
+patterns --- catamorphism, anamorphism, hylomorphism and
+paramorphisms. Selection, buble, merge, heap and quick sort are
+expressed using these patterns of recursion and it is shown that there
+is a little freedom left in implementation level. Also, connection
+between different patterns are given and thus a conclusion about
+connection between sorting algorithms can be easily
+conducted. Furthermore, in the paper are generalized tree data types
+-- list, binary trees and binary leaf trees.
+
+Satisfiability procedures for working with arrays was proposed in
+paper ``What is decidable about arrays?''\cite{arrays}. This procedure
+is called $SAT_A$ and can give an answer if two arrays are equal or if
+array is sorted and so on. Completeness and soundness for procedures
+are proved. There are, though, several cases when procedures are
+unsatisfiable. They also studied theory of maps. One of the
+application for these procedures is verification of sorting algorithms
+and they gave an example that insertion sort returns sorted array. 
+
+Tools for program verification are developed by different groups and
+with different results. Some of them are automated and some are
+half-automated.
+
+Ralph-Johan Back and Johannes Eriksson \cite{socos} developed SOCOS,
+tool for program verification based on invariant diagrams. SOCOS
+environment supports interactive and non-interactive checking of
+program correctness. For each program tree types of verification
+conditions are generated: consistency, completeness and termination
+conditions. They described invariant-based programming in SOCOS. In
+\cite{back2011correct} this tool was used to verify heap sort
+algorithm.
+
+There are many tools for Java program developers maid to automatically
+prove program correctness. Krakatoa Modeling Language (KML) is
+described in \cite{spsa} with example of sorting
+algorithms. Refinement is not supported in KML and any refinement
+property could not automatically be proved. The language KML is also
+not formally verified, but some parts are proved by Alt-Ergo, Simplify
+and Yices. The paper proposed some improvements for working with
+permutation and arrays in KML. Why/Krakatoa/Caduceus\cite{krakatoa} is
+a tool for deductive program verification for Java and C. The approach
+is to use Krakatoa and Caduceus to translate Java/C programs into Why
+program. This language is suitable for program verification. The idea
+is to generate verification conditions based on weakest precondition
+calculus.
+
+
+% ------------------------------------------------------------------------------
+\section{Conclusions and Further Work}
+\label{sec:conclusion}
+% ------------------------------------------------------------------------------
+
+In this paper we illustrated a proof management technology. The
+methodology that we use in this paper for the formalization is
+refinement: the formalization begins with a most basic specification,
+which is then refined by introducing more advanced techniques, while
+preserving the correctness. This incremental approach proves to be a
+very natural approach in formalizing complex software systems. It
+simplifies understanding of the system and reduces the overall
+verification effort.
+
+Modularity is very popular in nowadays imperative languages. This
+approach could be used for software verification and Isabelle/HOL
+locales provide means for modular reasoning. They support multiple
+inheritance and this means that locales can imitate connections
+between functions, procedures or objects. It is possible to establish
+some general properties of an algorithm or to compare these
+properties. So, it is possible to compare programs. And this is a
+great advantage in program verification, something that is not done
+very often. This could help in better understanding of an algorithm
+which is essential for computer science education. So apart from being
+able to formalize verification in easier manner, this approach gives
+us opportunity to compare different programs. This was showed on
+Selection and Heap sort example and the connection between these two
+sorts was easy to comprehend. The value of this approach is not so
+much in obtaining a nice implementation of some algorithm, but in
+unraveling its structure. This is very important for computer science
+education and this can help in better teaching and understanding of an
+algorithms.
+
+Using experience from this formalization, we came to conclusion that
+the general principle for refinement in program verification should
+be: {\em divide program into small modules (functions, classes) and
+  verify each modulo separately in order that corresponds to the order
+  in entire program implementation}. Someone may argue that this
+principle was not followed in each step of formalization, for example
+when we implemented {\em Selection sort} or when we defined {\em
+  is\_heap} and {\em multiset} in one step, but we feel that those
+function were simple and deviations in their implementations are
+minimal.
+
+The next step is to formally verify all sorting algorithms and using
+refinement method to formally analyze and compare different sorting
+algorithms.
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

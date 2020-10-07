@@ -1,0 +1,93 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Cayley-Hamilton theorem}
+\author{Stephan Adelsberger \and Stefan Hetzl \and Florian Pollak}
+\maketitle
+
+
+\begin{abstract}
+This document contains a proof of the Cayley-Hamilton theorem based on the development of matrices in HOL/Multivariate\_Analysis.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}\label{subsec:intro}
+
+The Cayley-Hamilton theorem states that every square matrix is a zero of its own characteristic polynomial, in symbols: $\chi_A(A) = 0$.
+It is a central theorem of linear algebra and plays an important role for matrix normal form theory.
+
+In this document we work with matrices over a commutative ring $R$ and give a direct algebraic
+proof of the theorem. The starting point of the proof
+is the following fundamental property of the adjugate matrix
+\begin{equation}
+\mathrm{adj}(B) \cdot B = B \cdot \mathrm{adj}(B) = \mathrm{det}(B) I_n\label{eq_fund_adj}
+\end{equation}
+where $I_n$ denotes the $n\times n$-identity matrix and $\mathrm{det}(B)$ the determinant of $B$. Recall that the characteristic polynomial is defined as
+$\chi_A(X) = \mathrm{det}(X I_n - A)$, i.e. as the determinant of a matrix whose entries are polynomials. Considering
+the adjugate of this matrix we obtain
+\begin{equation}
+(X I_n - A)\cdot\mathrm{adj}(X I_n - A) = \chi_A(X) I_n\label{eq_fund_adj_char_mat}
+\end{equation}
+directly from~(\ref{eq_fund_adj}). Now, $\mathrm{adj}(X I_n - A)$ being a matrix of polynomials of degree at most $n-1$ can be written as
+\begin{equation}
+\mathrm{adj}(X I_n - A) = \sum_{i=0}^{n-1} X^i B_i\ \mbox{for $B_i \in R^{n\times n}$}.\label{eq_basis_adj_mat}
+\end{equation}
+A straightforward calculation starting from~(\ref{eq_fund_adj_char_mat}) using~(\ref{eq_basis_adj_mat}) 
+then shows that
+\begin{equation}
+\chi_A(X) I_n = X^n B_{n-1} + \sum_{i=1}^{n-1} X^i(B_{i-1} - A \cdot B_i) - A\cdot B_0.\label{eq_charpoly_simp}
+\end{equation}
+Now let $c_i$ be the coefficient of $X^i$ in $\chi_A(X)$. Then equating the coefficients in~(\ref{eq_charpoly_simp}) yields
+\begin{eqnarray*}
+B_{n-1} & = & I_n,\\
+B_{i-1} - A \cdot B_i & = & c_i I_n\ \mbox{for $1\leq i \leq n-1$},\ \mbox{and}\\
+-A \cdot B_0 & = & c_0 I_n.
+\end{eqnarray*}
+Multiplying the $i$-th equation with $A^i$ from the left gives
+\begin{eqnarray*}
+A^n \cdot B_{n-1} & = & A^n,\\
+A^i \cdot B_{i-1} - A^{i+1} \cdot B_i & = & c_i A_i\ \mbox{for $1\leq i \leq n-1$},\ \mbox{and}\\
+-A \cdot B_0 & = & c_0 I_n
+\end{eqnarray*}
+which shows that
+\[
+\chi_A(A) I_n = A^n + c_{n-1} A^{n-1} + \cdots + c_1 A + c_0 I_n = 0
+\]
+and hence $\chi_A(A) = 0$ which finishes this proof sketch.
+
+There are numerous other proofs of the Cayley-Hamilton theorem, in particular the one formalized in Coq by Sidi Ould Biha~\cite{Biha08Formalisation,Biha10Composants}.
+This proof also starts with the fundamental property of the adjugate matrix but instead of the above calculation relies
+on the existence of a ring isomorphism between $\mathcal{M}_n(R[X])$, the matrices of polynomials over $R$, and $(\mathcal{M}_n(R))[X]$, the polynomials
+whose coefficients are matrices over $R$. On the upside, this permits a briefer and more abstract argument (once the background theory contains all
+prerequisites) but on the downside one has to deal with the mathematically subtle evaluation of polynomials over the non-commutative({\bf !}) ring $\mathcal{M}_n(R)$. As described
+nicely in~\cite{Biha10Composants} this evaluation is no longer a ring homomorphism. However, its use in the proof of the Cayley-Hamilton theorem is sufficiently
+restricted so that one can work around this problem.
+
+Sections~\ref{sec.poly.ext},~\ref{sec.det.ext}, and~\ref{sec.mat} contain basic results
+about matrices and polynomials which are needed for the proof of the Cayley-Hamilton theorem
+in addition to the results which are available in the library. Section~\ref{sec.mat.poly} contains
+basic results about matrices of polynomials, including the definition of the characteristic
+polynomial and proofs of some of its basic properties. Finally, Section~\ref{sec.ch} contains
+the proof of the Cayley-Hamilton theorem as outlined above.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

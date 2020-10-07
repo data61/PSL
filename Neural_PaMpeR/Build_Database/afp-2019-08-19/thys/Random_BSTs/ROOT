@@ -1,0 +1,12 @@
+chapter AFP
+
+session Random_BSTs (AFP) = Quick_Sort_Cost +
+  options [timeout = 300]
+  sessions
+    "HOL-Data_Structures"
+    Landau_Symbols
+  theories
+    Random_BSTs
+  document_files
+    "root.tex"
+    "root.bib"

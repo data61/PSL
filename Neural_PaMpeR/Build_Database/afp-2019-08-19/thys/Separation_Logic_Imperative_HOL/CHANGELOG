@@ -1,0 +1,121 @@
+Changelog since 2012-03-19
+  2012-11-14 lammich
+    * New directory structure, now have /Tools and /Examples
+    * Added Examples/Idioms.thy
+
+  2012-11-12 lammich
+    * Implemented iterators
+    * Cleanup
+
+  2012-04-18 lammich
+    * Fixed quirk that produced "renamed bound variable" messages
+
+  2012-03-31 lammich
+    * Added union-find datastructure as example
+    * Added "quick method overview" section to Automation.thy 
+
+  2012-03-29 lammich
+    * Unified naming scheme of files. INCOMPATIBILITY.
+    * Polished some documentation
+    * Added IsaMakefile
+    * Now using HashCode directly from Collections Framework, instead of 
+      duplicating it.
+    * Renamed references to refinement framework to Refine_Monadic, to match its
+      afp-name. INCOMPATIBILITY: The refinement framework must be in folder
+      "../Refine_Monadic" now (formerly: "../Refine") .
+
+  2012-03-27 lammich:
+    * Fixed bug in VCG, now also heap rules with preconditions are handled
+      correctly. Maybe INCOMPATIBILITY: The buggy version simply stopped on
+      statements that have a rule with preconditions.
+    * Implemented ICF-like interface for lists. File ImpListSpec.thy.
+    * Factored out the concept of list segments, now used by both, 
+      open and circular linked lists.
+    * Implemented iterator for open linked list. 
+    * Made char-type instance of heap-typeclass
+
+  2012-03-26 lammich:
+    * Redefined pure_assn (former lift) to only match the empty heap. This
+      simplifies things a lot, and makes normal conjunction almost unnecessary.
+      INCOMPATIBILITY: The standard normal form of assertions is now:
+        P1*...*Pn*true*\<up>b
+      By default, the simplifier tries to put assertions into this normal form.
+    * The pre_pure constant (.|=) has become obsolete due to the above change.
+      INCOMPATIBILITY.
+    * Renaming: All rules to be applied to Hoare-triples during 
+      Hoare-style proofs now end with xxx_rule. INCOMPATIBILITY:
+        norm_pre_pure -> norm_pre_pure_rule
+        norm_pre_ex -> norm_pre_ex_rule
+    * Changed default simpset, to contain some safe extraction rules for
+      Hoare-triples and implications. INCOMPATIBILITY: Explicit applications
+      of norm_pre_pure_rule may already have been done by the simplifier. 
+      However, "rule impI" or "clarsimp" may be useful to convert the introduced
+      HOL-Implications to meta-level.
+      Also, the associativity rules are no longer contained in the default 
+      simpset. INCOMPATIBILITY: Use simp add: assn_assoc.
+    * Added Syntax_Match.thy, that provides tags for the simplifier to apply 
+      simprules only if certain patterns are *NOT* matched. See that file for
+      examples, e.g., how to do left-associative ac-rewriting.
+    * Changed and cleaned up the assertion-normalization simproc. It only 
+      matches assertions inside models, entails, or hoare-triples,
+      as well as equations between assertions, and puts
+      them into normal form. It also recognizes patterns where two dereferences
+      of the same pointer are separated by *, and simplifies those cases to 
+      false. INCOMPATIBILITY: If you need to simplify assertions in other
+      contexts, you have to prove the equality as a separate lemma or subgoal.
+    * Removed normalize_assn method. INCOMPATIBILITY: In most cases, the 
+      simplifier will do assertion normalization automatically, otherwise see
+      item above.
+    * (Re-)Added precision statements (formerly called determinism) for llist,
+      lseg, and clist. Precision statements now have the general form 
+        ALL x y. h|=P x * F1 \and_A Q y * F2 --> x=y
+      where P and Q are the data structure predicate for the same data 
+      structure. The lemmas prec_frame and prec_frame' support reasoning
+      with precision statements.
+    * Added forward reasoning rule mod_frame_fwd, analogously to ent_frame_fwd.
+
+  
+  2012-03-20 lammich:
+    * Fine-tuning to simplifier setup, added some missing lemmas
+    * Preprocessor added to sep_auto method. It now applies clarsimp before
+      it tries vcg or solve_entails. INCOMPATIBILITY: If this causes problems,
+      use "sep_auto (nopre)"
+    * Added modes (nopre),(nopost), and (plain) to sep_auto. 
+        nopre: No clarsimp beforehand. 
+        nopost: No auto as last resort. 
+        plain: nopre and nopost.
+    * Added rule ent_frame_fwd for manual forward proof steps in entailments.
+    * Added circular list example with efficient append, prepend, pop, 
+      and rotate operations.
+    * Added "eintros [add/del]" argument to entailment solver and sep_auto,
+      as well as sep_ent_intros theorem collection. Those lemmas control the
+      default introduction rules applied by solve_entails. By default, exI is
+      enabled, if this leads to problems, it can now be disabled globally by
+        declare exI[sep_ent_intros del] 
+      or locally by 
+        "solve_entails eintros del: exI"
+
+  2012-03-19 lammich: 
+    * Renamed Complete_Hoare_Triple -> Hoare_Triple
+    * Renamed most rules, they now end with xxx_rule, instead of beginning
+      with complete_xxx
+    * Assertions are now their own datatype, and proper by definition.
+      Moreover properness now also enforces failing on out-of-range partial 
+      heaps, i.e. those containing adresses beyond the heap limit.
+    * Some changes in automated methods. Most important change: Now, forward
+      return rule (return_sp_rule) is used, and consequence rule is applied
+      on demand.
+    * vcg, sep_auto and solve_entails now 
+      accept modifier arguments:
+      dflt_simps[add/del]: <rules> 
+        Accepted by methods: vcg, sep_auto,solve_entails
+        Modify default simplification rules.
+        
+      decon [add/del]: <rules>  
+        Accepted by methods: vcg, sep_auto  
+        Modify deconstruction rules.
+
+      heap [add/del]: <rules>   
+        Accepted by methods: vcg, sep_auto  
+        Modify heap-rules.
+

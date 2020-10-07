@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Verifying Imperative Programs using Auto2}
+\author{Bohua Zhan}
+\maketitle
+
+\begin{abstract}
+  This entry contains the application of auto2 to verifying functional
+  and imperative programs. Algorithms and data structures that are
+  verified include linked lists, binary search trees, red-black trees,
+  interval trees, priority queue, quicksort, union-find, Dijkstra's
+  algorithm, and a sweep-line algorithm for detecting rectangle
+  intersection. The imperative verification is based on Imperative HOL
+  and its separation logic framework. A major goal of this work is to
+  set up automation in order to reduce the length of proof that the
+  user needs to provide, both for verifying functional programs and
+  for working with separation logic.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+This AFP entry contains the applications of auto2 to verifying
+functional and imperative programs. These examples are published in
+\cite{zhan18a}.
+
+\begin{itemize}
+\item Functional programs (in directory Functional): we verify
+  several functional algorithms and data structures, including: linked
+  lists, binary search trees, red-black trees, interval trees,
+  priority queue, quicksort, union-find, Dijkstra's algorithm, and a
+  sweep-line algorithm for detecting rectangle intersection.
+
+\item Imperative programs (in directory Imperative): we verify
+  imperative versions of the above algorithms and data structures,
+  using Isabelle's Imperative HOL framework \cite{imphol}. We make use
+  of separation logic, following the framework set up by Lammich and
+  Reis \cite{Separation_Logic_Imperative_HOL-AFP}. The general outline
+  of some of the examples also come from there.
+\end{itemize}
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

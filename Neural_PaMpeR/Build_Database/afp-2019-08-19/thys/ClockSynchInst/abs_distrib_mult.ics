@@ -1,0 +1,10 @@
+sig a: real.
+sig b: real.
+sig d: real.
+prop abslhs := if [ a * d - b * d >= 0 ] then AL = a * d - b * d
+                                         else AL = -(a * d - b * d) end.
+prop absrhs := if [ a - b >= 0 ] then AR = a - b 
+                                 else AR = -(a - b) end.
+prop asm := d >= 0.
+prop concl := AL = AR * d.
+sat ~[ [ abslhs & absrhs & asm ] => concl ].

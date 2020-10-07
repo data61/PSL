@@ -1,0 +1,23 @@
+2011-11-4: Update by Ondrej Kuncar
+  - Changes in the monolithic version of formalization:
+  - Added formalization of deletion
+  - The rest (namely formalization of insertion)  was rewritten to Isar => speedup
+  - bal_l and bal_r were replaced by more convenient mkt_bal_l and mkt_bal_r functions
+  - insrt renamed to insert
+
+2006-05-25: Update by Tobias Nipkow
+  - Did AVL trees properly, with height information in each node.
+  - Completely revised code and proofs
+  - Two developments, a monolithic and an incremental one.
+  - Got rid of the "extended tree type" by Brucker et al
+    because it stored the wrong information (bal!) and nothing useful
+    was proved about it.
+
+2004-06-09: Update by Achim Brucker, Burkhart Wolff and Jan Smaus
+  - parameterized the tree definitions
+  - added a "efficient" variant of is-in (is_in_eff)
+  - some proofs about is_ord and is_in_eff
+  - a extended tree type that stores balancing information 
+    in its node and some proofs about it 
+
+2004-03-19: First submission

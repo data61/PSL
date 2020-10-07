@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2cm]{geometry}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage{stmaryrd}
+\usepackage{eufrak}
+\usepackage{wasysym}
+\usepackage{tikz}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+
+\title{Probabilistic Timed Automata}
+\author{Simon Wimmer and Johannes Hölzl}
+\maketitle
+
+\begin{abstract}
+We present a formalization of probabilistic timed automata (PTA) for which we try to follow the formula
+``MDP + TA = PTA'' as far as possible:
+our work starts from our existing formalizations of Markov decision processes (MDP)
+and timed automata (TA) and combines them modularly.
+We prove the fundamental result for probabilistic timed automata:
+the region construction that is known from
+timed automata carries over to the probabilistic setting.
+In particular, this allows us to prove that minimum and maximum reachability probabilities
+can be computed via a reduction to MDP model checking,
+including the case where one wants to disregard unrealizable behavior.
+Further information can be found in our ITP paper \cite{PTA-ITP-2018}.
+
+\end{abstract}
+
+The definition of the PTA semantics can be found in Section~\ref{sem:mdp},
+the region MDP is in Section~\ref{sem:mdprg},
+the bisimulation theorem is in Section~\ref{thm:bisim},
+and the final theorems can be found in Section~\ref{thm:minmax}.
+The background theory we formalize is described in the seminal paper on
+PTA \cite{KNSS2002}.
+
+\tableofcontents
+
+\pagebreak
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

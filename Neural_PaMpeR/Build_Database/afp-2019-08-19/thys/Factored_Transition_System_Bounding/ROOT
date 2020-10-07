@@ -1,0 +1,26 @@
+chapter AFP
+
+session Factored_Transition_System_Bounding (AFP) = HOL +
+  description "Diameter Bounding for Factored Transition Systems"
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    ActionSeqProcess
+    Dependency
+    FactoredSystemLib
+    Invariants
+    SetUtils
+    AcycSspace
+    FSSublist
+    FmapUtils
+    ListUtils
+    SystemAbstraction
+    Acyclicity
+    FactoredSystem
+    HoArithUtils
+    RelUtils
+    TopologicalProps
+  document_files
+    "root.tex"
+    "root.bib"

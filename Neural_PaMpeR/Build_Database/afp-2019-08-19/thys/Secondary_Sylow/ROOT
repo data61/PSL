@@ -1,0 +1,10 @@
+chapter AFP
+
+session Secondary_Sylow (AFP) = "HOL-Algebra" +
+  options [timeout = 600]
+  theories
+    GroupAction
+    SubgroupConjugation
+    SndSylow
+  document_files
+    "root.tex"

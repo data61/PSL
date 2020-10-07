@@ -1,0 +1,16 @@
+chapter AFP
+
+session "Stone_Algebras" (AFP) = HOL +
+
+  options [timeout = 600]
+
+  theories
+    Lattice_Basics
+    P_Algebras
+    Filters
+    Stone_Construction
+
+  document_files
+    "root.tex"
+    "root.bib"
+

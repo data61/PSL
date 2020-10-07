@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Tweaks
+\newcounter{TTStweak_tag}
+\setcounter{TTStweak_tag}{0}
+\newcommand{\setTTS}{\setcounter{TTStweak_tag}{1}}
+\newcommand{\resetTTS}{\setcounter{TTStweak_tag}{0}}
+\newcommand{\insertTTS}{\ifnum\value{TTStweak_tag}=1 \ \ \ \fi}
+
+\renewcommand{\isakeyword}[1]{\resetTTS\emph{\bf\def\isachardot{.}\def\isacharunderscore{\isacharunderscorekeyword}\def\isacharbraceleft{\{}\def\isacharbraceright{\}}#1}}
+\renewcommand{\isachardoublequoteopen}{\insertTTS}
+\renewcommand{\isachardoublequoteclose}{\setTTS}
+\renewcommand{\isanewline}{\mbox{}\par\mbox{}\resetTTS}
+
+\renewcommand{\isamarkupcmt}[1]{\hangindent5ex{\isastylecmt --- #1}}
+
+
+\begin{document}
+
+\title{The CAVA Automata Library}
+\author{Peter Lammich}
+\maketitle
+
+\begin{abstract}
+  We report on the graph and automata library that is used in the fully verified LTL model checker CAVA.
+  As most components of CAVA use some type of graphs or automata,
+  a common automata library simplifies assembly of the components and reduces redundancy.
+
+  The CAVA Automata Library provides a hierarchy of graph and automata classes, together with some standard algorithms.
+  Its object oriented design allows for sharing of algorithms, theorems, and implementations between its classes,
+  and also simplifies extensions of the library.
+  Moreover, it is integrated into the Automatic Refinement Framework, supporting automatic refinement of the abstract automata types
+  to efficient data structures.
+
+  Note that the CAVA Automata Library is work in progress. Currently, it is very specifically tailored towards the requirements of the CAVA model checker.
+  Nevertheless, the formalization techniques presented here allow an extension of the library to a wider scope. Moreover, they are not limited to graph libraries,
+  but apply to class hierarchies in general.
+
+  The CAVA Automata Library is described in the paper: Peter Lammich, The CAVA Automata Library, Isabelle Workshop 2014, to appear.
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\clearpage
+
+% % optional bibliography
+% \bibliographystyle{abbrv}
+% \bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,12 @@
+chapter AFP
+
+session Routing (AFP) = Simple_Firewall +
+  options [timeout = 300]
+  theories
+    Routing_Table
+    Linux_Router
+    IpRoute_Parser
+    Linorder_Helper
+    (*Dependencies: RoutingIpAssmt depends on Iptables_Semantics and is thus in another session*)
+  document_files
+    "root.tex"

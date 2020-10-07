@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{isabelle,isabellesym}
+\usepackage[only,bigsqcap]{stmaryrd}  % for \<Sqinter>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Hereditarily Finite Sets}
+\author{Lawrence C. Paulson}
+\maketitle
+
+\begin{abstract}
+The theory of hereditarily finite sets is formalised, following 
+the development of {\'S}wierczkowski \cite{swierczkowski-finite}.
+An HF set is a finite collection of other HF sets; they enjoy an induction principle
+and satisfy all the axioms of ZF set theory apart from the axiom of infinity, which is negated.
+All constructions that are possible in ZF set theory (Cartesian products, disjoint sums, natural numbers,
+functions) without using infinite sets are possible here.
+The definition of addition for the HF sets follows Kirby \cite{kirby-addition}.
+
+This development forms the foundation for the Isabelle proof of G\"odel's incompleteness theorems,
+which has been formalised separately. 
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

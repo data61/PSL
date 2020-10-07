@@ -1,0 +1,13 @@
+chapter AFP
+
+session Optimal_BST (AFP) = Monad_Memo_DP +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "HOL-Imperative_HOL"
+  theories
+    Optimal_BST_Code
+    Optimal_BST_Memo
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,12 @@
+chapter AFP
+
+session Possibilistic_Noninterference (AFP) = HOL +
+  options [timeout = 600]
+  theories [document = false]
+    Interface
+  theories
+    Concrete
+  document_files
+    "intro.tex"
+    "root.bib"
+    "root.tex"

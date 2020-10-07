@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Perfect-Number-Thm" (AFP) = "HOL-Algebra" +
+  options [timeout = 600]
+  theories
+    Perfect
+  document_files
+    "root.bib"
+    "root.tex"

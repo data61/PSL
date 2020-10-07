@@ -1,0 +1,12 @@
+chapter AFP
+
+session "FLP" (AFP) = "HOL" +
+  description "A constructive proof for FLP"
+  options [timeout = 600]
+  theories
+    FLPExistingSystem
+    FLPTheorem
+  document_files
+    "root.tex"
+    "root.bib"
+    "custom-macros.sty"

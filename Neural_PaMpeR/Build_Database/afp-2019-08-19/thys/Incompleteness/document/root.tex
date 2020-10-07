@@ -1,0 +1,32 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{isabelle,isabellesym}
+\usepackage[only,bigsqcap]{stmaryrd}  % for \<Sqinter>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{G\"odel's Incompleteness Theorems}
+\author{Lawrence C. Paulson}
+\maketitle
+
+\begin{abstract}
+G\"odel's two incompleteness theorems \cite{goedel-I} are formalised, following a careful presentation by {\'S}wierczkowski \cite{swierczkowski-finite}, in the theory of hereditarily finite sets. This represents the first ever machine-assisted proof of the second incompleteness theorem. Compared with traditional formalisations using Peano arithmetic \cite{boolos-provability}, coding is simpler, with no need to formalise the notion of multiplication (let alone that of a prime number) in the formalised calculus upon which the theorem is based. 
+However, other technical problems had to be solved in order to complete the argument.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

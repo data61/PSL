@@ -1,0 +1,159 @@
+\documentclass[11pt,a4paper]{scrartcl}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts,amssymb}
+\usepackage{xspace}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\typearea{11}
+\renewcommand{\bf}{\normalfont\bfseries}
+\renewcommand{\rm}{\normalfont\rmfamily}
+\renewcommand{\it}{\normalfont\itshape}
+
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\newcommand{\Even}{\textsc{Even}\xspace}
+\newcommand{\Odd}{\textsc{Odd}\xspace}
+
+\begin{document}
+
+\title{Positional Determinacy of Parity Games}
+\author{Christoph Dittmann\\christoph.dittmann@tu-berlin.de}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+  We present a formalization of parity games (a two-player game on
+  directed graphs) and a proof of their positional determinacy in
+  Isabelle/HOL.  This proof works for both finite and infinite games.
+  We follow the proof in \cite{kreutzer2015}, which is based on
+  \cite{zielonka1998}.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+Parity games are games played by two players, called \Even and \Odd,
+on labelled directed graphs.  Each node is labelled with their player
+and with a natural number, called its \emph{priority}.
+
+To call this a \emph{parity game}, we only need to assume that the
+number of different priorities is finite.  Of course, this condition
+is only relevant on infinite graphs.
+
+One reason parity games are important is that determining the winner
+is polynomial-time equivalent to the model-checking problem of the
+modal $\mu$-calculus, a logic able to express LTL and CTL* properties
+(\cite{bradfield2007}).
+
+\subsection{Formal Introduction}
+
+Formally, a parity game is $G = (V,E,V_0,\omega)$, where $(V,E)$ is a
+directed graph, $V_0 \subseteq V$ is the set of \Even nodes, and
+$\omega: V \to \mathbb{N}$ is a function with $|f(V)| < \infty$.
+
+A \emph{play} is a maximal path in $G$.  A finite play is winning for
+\Even iff the last node is not in $V_0$.  An infinite play is winning
+for \Even iff the minimum priority occurring infinitely often on the
+path is even.  On an infinite path at least one priority occurs
+infinitely often because there is only a finite number of different
+priorities.
+
+A node $v$ is \emph{winning} for a player~$p$ iff all plays starting
+from $v$ are winning for~$p$.  It is well-known that parity games are
+\emph{determined}, that is, every node is winning for some player.
+
+A more surprising property is that parity games are also
+\emph{positionally determined}.  This means that for every node $v$
+winning for \Even, there is a function $\sigma: V_0 \to V$ such that
+all \Even needs to do in order to win from $v$ is to consult this
+function whenever it is his turn (similarly if $v$ is winning for
+\Odd).  This is also called a \emph{positional strategy} for the
+winning player.
+
+We define the \emph{winning region} of player~$p$ as the set of nodes
+from which player~$p$ has positional winning strategies.  Positional
+determinacy then says that the winning regions of \Even and of \Odd
+partition the graph.
+
+See \cite{automata2002/kuesters} for a modern survey on positional
+determinacy of parity games.  Their proof is based on a proof by
+Zielonka \cite{zielonka1998}.
+
+\subsection{Overview}
+
+Here we formalize the proof from \cite{kreutzer2015} in Isabelle/HOL.
+This proof is similar to the proof in \cite{automata2002/kuesters},
+but we do not explicitly define so-called ``$\sigma$-traps''.  Using
+$\sigma$-traps could be worth exploring, because it has the potential
+to simplify our formalization.
+
+Our proof has no assumptions except those required by every parity
+game.  In particular the parity game
+\begin{itemize}
+\item may have arbitrary cardinality,
+\item may have loops,
+\item may have deadends, that is, nodes with no successors.
+\end{itemize}
+
+The main theorem is in section \ref{subsec:positional_determinacy}.
+
+\subsection{Technical Aspects}
+
+We use a coinductive list of nodes to represent paths in a graph
+because this gives us a uniform representation for finite and infinite
+paths.  We can then express properties such as that a path is maximal
+or conforms to a given strategy directly as coinductive properties.
+We use the coinductive list developed by Lochbihler in
+\cite{Coinductive-AFP}.
+
+We also explored representing paths as functions \isa{nat\
+  {\isasymRightarrow}\ {\isacharprime}a\ option} with the property
+that the domain is an initial segment of \isa{nat} (and where
+\isa{{\isacharprime}a} is the node type).  However, it turned out that
+coinductive lists give simpler proofs.
+
+It is possible to represent a graph as a function
+\isa{{\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}a\
+  {\isasymRightarrow}\ bool}, see for example in the proof of König's
+lemma in \cite{Coinductive-AFP}.  However, we instead go for a record
+which contains a set of nodes and a set of edges explicitly.  By not
+requiring that the set of nodes is \isa{UNIV\ ::\ {\isacharprime}a\
+  set} but rather a subset of \isa{UNIV\ ::\ {\isacharprime}a\ set},
+it becomes easier to reason about subgraphs.
+
+Another point is that we make extensive use of locales, in particular
+to represent maximal paths conforming to a specific strategy.  Thus
+proofs often start with \isa{\isacommand{interpret}\
+  vmc{\isacharunderscore}path\ G\ P\ \ensuremath{v_0}\ p\
+  \isasymsigma} to say that $P$ is a valid maximal path in the graph
+$G$ starting in $v_0$ and conforming to the strategy $\sigma$ for
+player $p$.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Bibliography}
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

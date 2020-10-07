@@ -1,0 +1,64 @@
+\section{Conclusion}\label{sec:conclusion}
+This development formalized basic tree automata algorithms and the class of tree-regular languages.
+Efficient code was generated for all the languages supported by the Isabelle2009 code generator, namely Standard-ML, OCaml, and Haskell.
+
+\subsection{Efficiency of Generated Code}\label{sec:efficiency}
+  The efficiency of the generated code, especially for Haskell, is quite good. On the author's dual-core machine with 2.6GHz and 4GiB memory, the generated code handles automata with several thousands rules and states in a few seconds. The Haskell-code is between 2 and 3 times slower than a 
+  Java-implementation of (approximately) the same algorithms. 
+
+  A comparison to the Taml-library of the Timbuk-project \cite{TIMBUK} is not fair, because it runs in interpreted OCaml-Mode by default, and this is not comparable in speed to, e.g., compiled Haskell. However, the generated OCaml-code of our library can also be run in interpreted mode, to get a fair comparison with Taml:
+
+  The speed was compared for computing whether the intersection of two tree-automata is empty or not. The choice of this test was motivated by the author's requirements.
+
+  While our library also computes a witness for non-emptiness, the
+  Taml-library has no such function. For some examples of non-empty languages, our library was about 14 times faster than Taml. This is mainly because our 
+  emptiness-test stops if the first initial state is found to be accessible, while the Timbuk-implementation always performs a complete reduction.
+  However, even when compared for automata that have an empty language, i.e. where Timbuk and our library have to do the same work, our library was about 2 
+  times faster.
+
+  There are some performance test cases with large, randomly created, automata in the directory {\em code}, that can be run by the script {\em doTests.sh}. These test cases read pairs of automata, intersect them and check the result for emptiness. If the intersection is not empty, a tree accepted by both automata is computed.
+
+  There are significant differences in efficiency between the used languages. Most notably, the Haskell code runs one order of magnitude faster than the SML and OCaml code. Also, using the more elaborated top-down intersection algorithm instead of the brute-forec algorithm brings the least performance gain in Haskell.
+  The author suspects that the Haskell compiler does some optimization, perhaps by lazy-evaluation, that is missed by the ML systems.
+
+\subsection{Future Work}
+There are many starting points for improvement, some of which are mentioned below.
+
+\begin{description}
+  \item[Implemented Algorithms]
+    In this development, only basic algorithms for non-deterministic tree-automata have been formalized. There are many more interesting algorithms and notions that may be formalized, amongst others tree transducers and minimization of (deterministic) tree automata.
+    
+    Actually, the goal when starting this development was to implement, at 
+    least, intersection and emptiness check with witness computation. These algorithms are needed for a DPN\cite{BMT05} model checking algorithm\cite{L09_kps} that the author is currently working on.
+
+  \item[Refinement]
+    The algorithms are first formalized on an abstract level, and then manually refined to become executable.
+    In theory, the abstract algorithms are already executable, as they involve only recursive functions and finite sets.
+    We have experimented with simplifier setups to execute the algorithms in the simplifier, however the performance was quite bad and there where some problems with 
+    termination due to the innermost rewriting-strategy used by the simplifier, that required careful crafting of the simplifier setup.
+
+    The refinement is done in a somewhat systematic way, using the tools provided by the Isabelle Collections Framework (e.g. a data refinement framework for the while-combinator).
+    However, most of the refinement work is done by hand, and the author believes that it should be possible to do the refinement with more tool support.
+
+\end{description}
+
+Another direction of future work would be to use the tree-automata framework developped here for applications. 
+The author is currently working on a model-checker for DPNs that uses tree-automata based techniques \cite{L09_kps}, and plans to use this
+tree automata framework to generate a verified implementation of this model-checker.
+However, there are other interesting applications of tree automata, that could be formalized in Isabelle and, using this framework, be refined to 
+efficient executable algorithms.
+
+\subsection {Trusted Code Base}
+  In this section we shortly characterize on what our formal proof depends, i.e. how to interpret the information contained in this formal proof and the fact that it
+  is accepted by the Isabelle/HOL system.
+
+  First of all, you have to trust the theorem prover and its axiomatization of HOL, the ML-platform, the operating system software and the hardware it runs on.
+  All these components are, in theory, able to cause false theorems to be proven. However, the probability of a false theorem to get proven due to a hardware error 
+  or an error in the operating system software is reasonably low. There are errors in hardware and operating systems, but they will usually cause the system to crash 
+  or exhibit other unexpected behaviour, instead of causing Isabelle to quitely accept a false theorem and behave normal otherwise. The theorem prover itself is a bit more critical in this aspect. However, Isabelle/HOL is implemented in LCF-style, i.e. all the proofs are eventually checked by a small kernel of trusted code, containing rather simple operations. HOL is the logic that is most frequently used with Isabelle, and it is unlikely that it's axiomatization in Isabelle is inconsistent and no one found and reported this inconsistency already.
+
+  The next crucial point is the code generator of Isabelle. We derive executable code from our specifications. The code generator contains another (thin) layer of untrusted code. This layer has some known deficiencies\footnote{For example, the Haskell code generator may generate variables starting with upper-case letters, while the Haskell-specification requires variables to start with lowercase letters. Moreover, the ML code generator does not know the ML value restriction, and may generate code that violates this restriction.} (as of Isabelle2009) in the sense that invalid code is generated. This code is then rejected by the target language's compiler or interpreter, but does not silently compute the wrong thing. 
+
+  Moreover, assuming correctness of the code generator, the generated code is only guaranteed to be {\em partially} correct\footnote{A simple example is the always-diverging function ${\sf f_{div}}::{\sf bool} = {\sf while}~(\lambda x.~{\sf True})~{\sf id}~{\sf True}$ that is definable in HOL. The lemma $\forall x.~ x = {\sf if}~{\sf f_{div}}~{\sf then}~x~{\sf else}~x$ is provable in Isabelle and rewriting based on it could, theoretically, be inserted before the code generation process, resulting in code that always diverges}, i.e. there are no formal termination guarantees.
+
+\paragraph{Acknowledgements} We thank Markus M\"uller-Olm for some interesting discussions. Moreover, we thank the people on the Isabelle mailing list for quickly giving useful answers to any Isabelle-related questions.

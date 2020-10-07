@@ -1,0 +1,125 @@
+
+\section{Introduction}
+
+
+%Isabelle theory names
+\newcommand{\Lang}{\mbox{\rm\textsf{\small Language$\_$Semantics}}}
+\newcommand{\Duri}{\mbox{\rm\textsf{\small During$\_$Execution}}}
+\newcommand{\Afte}{\mbox{\rm\textsf{\small After$\_$Execution}}}
+\newcommand{\Comp}{\mbox{\rm\textsf{\small Compositionality}}}
+\newcommand{\Synt}{\mbox{\rm\textsf{\small Syntactic$\_$Criteria}}}
+\newcommand{\Possib}{\mbox{\rm\textsf{\small Possib}}}
+\newcommand{\Probab}{\mbox{\rm\textsf{\small Prob}}}
+\newcommand{\MyTac}{\mbox{\rm\textsf{\small MyTactics}}}
+\newcommand{\Bisim}{\mbox{\rm\textsf{\small Bisim}}}
+\newcommand{\Conc}{\mbox{\rm\textsf{\small Concrete}}}
+\newcommand{\ind}{\mbox{$\;\sim\;$}}
+
+\newcommand{\bis}{\mbox{$\;\approx\;$}}
+\newcommand{\sbis}{\mbox{$\;\approx_{\tiny \textsf{S}}\,$}}
+\newcommand{\zobis}{\mbox{$\;\approx_{\tiny \textsf{01}}\,$}}
+\newcommand{\zobist}{\mbox{$\;\approx_{\tiny \textsf{01T}}\,$}}
+\newcommand{\wbis}{\mbox{$\;\approx_{\tiny \textsf{W}}\,$}}
+\newcommand{\wbist}{\mbox{$\;\approx_{\tiny \textsf{WT}}\,$}}
+\newcommand{\bist}{\mbox{$\;\approx_{\tiny \textsf{T}}\,$}}
+\newcommand{\LRA}{\Longrightarrow} 
+\newcommand{\Lra}{\Longrightarrow}
+
+\newcommand{\Atm}{\mbox{\rm\textsf{\small Atm}}}
+\newcommand{\AAtm}{\mbox{\scriptsize \rm\textsf{Atm}}}
+\newcommand{\Seq}{\mbox{\rm\textsf{\small Seq}}}
+\newcommand{\SSeq}{\mbox{\scriptsize \rm\textsf{Seq}}}
+\newcommand{\If}{\mbox{\rm\textsf{\small If}}}
+\newcommand{\IIf}{\mbox{\scriptsize \rm\textsf{If}}}
+\newcommand{\Ch}{\mbox{\rm\textsf{\small Ch}}}
+\newcommand{\CCh}{\mbox{\scriptsize \rm\textsf{Ch}}}
+\newcommand{\Par}{\mbox{\rm\textsf{\small Par}}}
+\newcommand{\PPar}{\mbox{\scriptsize \rm\textsf{Par}}}
+\newcommand{\ParT}{\mbox{\rm\textsf{\small Par\hspace{-0.1ex}T}}}
+\newcommand{\PParT}{\mbox{\scriptsize \rm\textsf{ParT}}}
+\newcommand{\While}{\mbox{\rm\textsf{\small While}}}
+\newcommand{\WWhile}{\mbox{\scriptsize \rm\textsf{While}}}
+
+\noindent
+This is a formalization of the mathematical development presented in the paper \cite{pop-pos}: 
+%
+\begin{itemize}
+\item a uniform framework where 
+a wide range of language-based noninterference variants from the literature are expressed and 
+compared w.r.t.~their {\em contracts}: 
+the strength of the security properties they ensure 
+weighed against  
+the harshness of the syntactic conditions they enforce;  
+%
+\item syntactic criteria for proving that a program has a specific noninterference
+property, using only compositionality, which captures uniformly several 
+security type-system results from the literature and suggests a further improved type system.  
+\end{itemize}
+%
+There are two auxiliary theories:
+\begin{itemize}
+\item \MyTac, introducing a few customized tactics; 
+%
+\item \Bisim, describing an abstract notion of bisimilarity relation, namely, the greatest 
+symmetric relation that is a fixpoint of a monotonic operator--this shall be instantiated 
+to several concrete bisimilarity later. 
+\end{itemize}
+
+  
+\begin{figure}
+$$
+\xymatrix@C=0.5pc@R=1pc{
+     \Synt   & \Conc & \Afte   \\
+     \Comp \ar@{-}[u] \ar@{-}[ur] & &   \\
+     & \Duri \ar@{-}[ul] \ar@{-}[uur]& \\
+     &  \Lang \ar@{-}[u]&                 
+}
+$$
+\vspace*{-3ex}
+\caption{Main Theory Structure}
+\label{fig-isabelle}
+\vspace*{-3ex}
+\end{figure} 
+
+The main theories of the development (shown in Fig.~\ref{fig-isabelle}) are 
+organized similarly to the sectionwise structure of \cite{pop-pos}:
+
+\Lang\ corresponds to \S2 in \cite{pop-pos}.  It introduces and customizes the syntax and 
+small-step operational semantics of a 
+while language with parallel composition, using notations very similar to the paper.  
+
+\Duri\footnote{``During-execution" (bisimilarity-based) noninterference should be contrasted with ``after-execution" (trace-based) 
+noninterference according to the distinction made in \cite{pop-pos} at the begining of \S7.} 
+mainly corresponds to \S3 in \cite{pop-pos}, defining the various coinductive notions 
+from there: self isomorphism, discreetness, variations of strong, weak and 01-bisimilarity.  
+Prop.~1 from the paper,  stating implications between these notions, 
+is proved as the theorems bis$\_$imp and siso$\_$bis.\footnote{To help 
+the reader distinguish the main results from the auxiliary lemmas, the former are marked 
+in the scripts with the keyword ``theorem".} The bisimilarity inclusions stated in bis$\_$imp are slightly more general than those in Prop.~1, 
+in that they employ the binary version of the relation,  e.g., $c \sbis d \LRA c \wbist d$ instead of $c \sbis c \LRA c \wbist c$.  
+
+\Comp\ mainly corresponds to the homonymous \S4 in \cite{pop-pos}.  The paper's compositionality result, Prop.~2, is scattered through the theory 
+as theorems with self-explanatory names, indication the compositionality relationship between notions of noninterference and language constructs, 
+e.g., While$\_$WbisT (while versus termination-sensitive weak bisimilarity), Par$\_$ZObis (parallel composition versus $01$-bisimilarity).  
+
+Theories \Duri\ and \Comp\ also include the novel notion of noninterference $\bist$ introduced in \S5 of \cite{pop-pos}, 
+based on the ``must terminate" condition, which is given the same treatment as the other notions: 
+bis$\_$imp in \Duri\ states the implication relationship between $\bist$ and the other bisimilarities (Prop.~3.(1) from \cite{pop-pos}), 
+while various intuitively named theorems from \Lang\ state the compositionality properties of $\bist$ (Prop.~3.(2) from \cite{pop-pos}).  
+
+\Synt\ corresponds to the homonymous \S6 in \cite{pop-pos}.  The syntactic analogues of the semantics notions, 
+indicated in the paper by overlining, e.g., $\overline{\textsf{discr}}$, are in the scripts prefixed by ``SC" (from ``syntactic criterion"), e.g., SC$\_$discr, SC$\_$WbisT.  
+Props.~4 and 5 from the paper (stating the relationship between the syntactic and the semantic notions 
+and the implications between the syntactic notions, respectively) are again scattered through the theory under self-explanatory names.  
+
+\Conc\ contains an instantiation of the 
+indistinguishability relation $\!\!\ind\!\!$ from \cite{pop-pos} to the standard two-level security setting 
+described in the paper's Example 2.  
+
+Finally, \Afte\ corresponds to \S7 in \cite{pop-pos}, dealing with the after-execution guarantees of the during-execution 
+notions of security. Prop.~6 in the paper is stated in the scripts as theorems Sbis$\_$trace, ZObisT$\_$trace and WbisT$\_$trace, 
+Prop.~7 as theorems ZObis$\_$trace and Wbis$\_$trace, and  
+Prop.~8 as theorem BisT$\_$trace.  
+  
+
+     

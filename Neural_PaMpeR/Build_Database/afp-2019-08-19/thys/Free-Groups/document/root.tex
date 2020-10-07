@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{textcomp}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Free Groups}
+\author{Joachim Breitner}
+\maketitle
+
+\begin{abstract}
+  Free Groups are, in a sense, the most generic kind of group. They are defined
+  over a set of generators with no additional relations in between them. They
+  play an important role in the definition of group presentations and in
+  other fields.
+
+  This theory provides the definition of Free Group as the set of fully
+  canceled words in the generators. The universal property is proven, as well as some
+  isomorphisms results about Free Groups.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\end{document}

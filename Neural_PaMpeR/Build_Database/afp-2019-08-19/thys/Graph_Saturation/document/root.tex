@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+%\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Graph Saturation}
+\author{Sebastiaan J. C. Joosten}
+\maketitle
+
+\begin{abstract}
+  This is an Isabelle/HOL formalisation of graph saturation, closely following a paper by the author on graph saturation~\cite{Joosten18}.
+  Nine out of ten lemmas of the original paper are proven in this formalisation.
+  The formalisation additionally includes two theorems that show the main premise of the paper: that consistency and entailment are decided through graph saturation.
+  This formalisation does not give executable code, and it did not implement any of the optimisations suggested in the paper.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+Although the formalisation follows a paper by the author on graph saturation~\cite{Joosten18}, it is foremost a formalisation.
+This document highlights the differences, where applicable.
+Nevertheless, the reader is advised to start by reading~\cite{Joosten18}.
+A copy might be available on \url{http://sjcjoosten.nl/4-publications/joosten18/}.
+
+The first publication of this graph saturation algorithm is in \cite{Joosten17a}.
+While that paper contains a somewhat more category-theoretical view,
+it also has fewer proofs and less rigor.
+Graph Saturation was originally developed to potentially benefit the Ampersand compiler~\cite{Michels11}.
+
+% include generated text of all theories
+\input{session}
+
+\paragraph*{acknowledgements}
+We thank Gerwin Klein for making an example submission in the AFP~\cite{Klein04}, which was of great help in making this submission.
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

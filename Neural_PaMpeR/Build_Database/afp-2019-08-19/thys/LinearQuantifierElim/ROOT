@@ -1,0 +1,20 @@
+chapter AFP
+
+session LinearQuantifierElim (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    "Thys/QEdlo"
+    "Thys/QEdlo_ex"
+    "Thys/QEdlo_fr"
+    "Thys/QEdlo_inf"
+    "Thys/QElin_opt"
+    "Thys/FRE"
+    "Thys/QElin_inf"
+    "Thys/QEpres"
+    "Thys/Cooper"
+  theories [document = false]
+    "Thys/CertDlo"
+    "Thys/CertLin"
+  document_files
+    "root.bib"
+    "root.tex"

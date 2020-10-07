@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Kuratowski_Closure_Complement" (AFP) = "HOL-Analysis" +
+  options [timeout = 300]
+  theories
+    KuratowskiClosureComplementTheorem
+  document_files
+    root.bib
+    root.tex

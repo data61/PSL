@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Binary Multirelations}
+\author{Hitoshi Furusawa and Georg Struth}
+
+\maketitle
+
+\begin{abstract}
+  Binary multirelations associate elements of a set with its subsets;
+  hence they are binary relations of type $A\times 2^A$.  Applications
+  include alternating automata, models and logics for games, program
+  semantics with dual demonic and angelic nondeterministic choices and
+  concurrent dynamic logics.  This proof document supports an arXiv
+  article that formalises the basic algebra of multirelations and
+  proposes axiom systems for them, ranging from weak bi-monoids to
+  weak bi-quantales.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+This proof document contains the formal proofs for an article on
+\emph{Taming Multirelations}~\cite{FurusawaS15a}.  Individual
+cross-references to statements in~\cite{FurusawaS15a} have been added
+to this document so that both can be read in parallel.  The first part
+of this document contains algebraic axiom systems and equational
+proofs.  Some of these proofs are presented in a human-readable style
+to indicate the kind of algebraic reasoning involved.  The second part
+contains set-theoretic reasoning with concrete multirelations.  Its
+main purpose is to justify the algebraic development and to prepare
+the soundness proofs of the algebraic axiomatisations with
+respect to the concrete multirelational model. Set-theoretic
+reasoning with multirelations tends to be very tedious and showing
+detailed proofs has not been the aim.
+
+The algebras of multirelations proposed are based on Peleg's
+multirelational semantics for concurrent dynamic
+logic~\cite{Peleg87}. The most basic axiom systems consider
+multirelations under the operations of sequential and concurrent
+composition with two corresponding units.  These are enriched by
+lattice operations and various fixpoints.  A main source of complexity
+is the set-theoretic definition of sequential composition of
+multirelations, which is based on higher-order logic. Its use often
+requires the Axiom of Choice. In addition, sequential composition is
+not associative.
+
+Part of this formalisation is also relevant to a previous approach to
+concurrent dynamic algebra by Furusawa and
+Struth~\cite{FurusawaS15b}. More material on variants of
+multirelations, game algebras and concurrent dynamic algebras will be
+added in the future.
+
+The authors are indebted to Alasdair Armstrong and Victor Gomes for
+help with some tricky Isabelle proofs.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

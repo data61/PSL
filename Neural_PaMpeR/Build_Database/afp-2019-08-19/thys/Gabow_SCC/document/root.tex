@@ -1,0 +1,76 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Tweaks
+\newcounter{TTStweak_tag}
+\setcounter{TTStweak_tag}{0}
+\newcommand{\setTTS}{\setcounter{TTStweak_tag}{1}}
+\newcommand{\resetTTS}{\setcounter{TTStweak_tag}{0}}
+\newcommand{\insertTTS}{\ifnum\value{TTStweak_tag}=1 \ \ \ \fi}
+
+\renewcommand{\isakeyword}[1]{\resetTTS\emph{\bf\def\isachardot{.}\def\isacharunderscore{\isacharunderscorekeyword}\def\isacharbraceleft{\{}\def\isacharbraceright{\}}#1}}
+\renewcommand{\isachardoublequoteopen}{\insertTTS}
+\renewcommand{\isachardoublequoteclose}{\setTTS}
+\renewcommand{\isanewline}{\mbox{}\par\mbox{}\resetTTS}
+
+\renewcommand{\isamarkupcmt}[1]{\hangindent5ex{\isastylecmt --- #1}}
+
+
+\renewcommand{\isamarkupchapter}[1]{\chapter{#1}}
+\renewcommand{\isamarkupsection}[1]{\subsection{#1}}
+\renewcommand{\isamarkupsubsection}[1]{\subsubsection{#1}}
+\renewcommand{\isamarkupsubsubsection}[1]{\paragraph{#1}}
+
+
+\begin{document}
+
+\title{Verified Efficient Implementation of Gabow's Strongly Connected Components Algorithm}
+\author{Peter Lammich}
+\maketitle
+
+\begin{abstract}
+We present an Isabelle/HOL formalization of Gabow's algorithm for finding the strongly connected components of a directed graph.
+Using data refinement techniques, we extract efficient code that performs comparable to a reference implementation in Java.
+Our style of formalization allows for re-using large parts of the proofs when defining variants of the algorithm. We demonstrate this by verifying an algorithm for
+the emptiness check of generalized B\"uchi automata, re-using most of the existing proofs.
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\input{intro}
+
+% generated text of all theories
+\input{session}
+
+\input{conclusion}
+
+\clearpage
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

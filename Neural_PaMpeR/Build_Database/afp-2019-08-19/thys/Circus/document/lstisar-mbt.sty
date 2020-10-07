@@ -1,0 +1,451 @@
+
+\definecolor{OliveGreen}    {cmyk}{0.64,0,0.95,0.40}
+\definecolor{BrickRed}      {cmyk}{0,0.89,0.94,0.28}
+\definecolor{Blue}          {cmyk}{1,1,0,0}
+\definecolor{CornflowerBlue}{cmyk}{0.65,0.13,0,0}
+\definecolor{DarkBlue}      {rgb}{0.086,0,0.349}
+
+\newcommand{\subscr}[1]{\ensuremath{_{\mbox{#1}}}}
+\newcommand{\supscr}[1]{\ensuremath{^{\mbox{#1}}}}
+
+\lstdefinestyle{ISAR}{language=,%
+    basicstyle=\ttfamily,%
+    showspaces=false,%
+    showlines=false,
+    columns=flexible,%
+    linewidth = \textwidth,%
+    morecomment=[s]{(*}{*)},%
+    morecomment=[s]{\{*}{*\}},%
+    morestring=*[b]",%
+    showstringspaces=false,
+    moredelim=*[is][\subscr]{\\<^bsub>}{\\<^esub>},%
+    moredelim=*[is][\supscr]{\\<^bsup>}{\\<^esup>},%
+    literate={%
+%{\\<ZZ>}{\ensuremath{\mathfrak{Z}}}1%requires eufrak
+%{\\<zz>}{\ensuremath{\mathfrak{z}}}1%requires eufrak
+{\\<zeta>}{\ensuremath{\zeta}}1%
+%{\\<z>}{\ensuremath{\mathrm{z}}}1%
+%{\\<Z>}{\ensuremath{\mathcal{Z}}}1%
+%{\\<YY>}{\ensuremath{\mathfrak{Y}}}1%requires eufrak
+%{\\<yy>}{\ensuremath{\mathfrak{y}}}1%requires eufrak
+%{\\<y>}{\ensuremath{\mathrm{y}}}1%
+%{\\<Y>}{\ensuremath{\mathcal{Y}}}1%
+%{\\<yen>}{\mbox{\yen}}1%requires amssymb,%
+%{\\<XX>}{\ensuremath{\mathfrak{X}}}1%requires eufrak
+%{\\<xx>}{\ensuremath{\mathfrak{x}}}1%requires eufrak
+{\\<Xi>}{\ensuremath{\Xi}}1%
+{\\<xi>}{\ensuremath{\xi}}1%
+%{\\<x>}{\ensuremath{\mathrm{x}}}1%
+%{\\<X>}{\ensuremath{\mathcal{X}}}1%
+%{\\<WW>}{\ensuremath{\mathfrak{W}}}1%requires eufrak
+%{\\<ww>}{\ensuremath{\mathfrak{w}}}1%requires eufrak
+{\\<wrong>}{\ensuremath{\wr}}1%
+{\\<wp>}{\ensuremath{\wp}}1%
+%{\\<w>}{\ensuremath{\mathrm{w}}}1%
+%{\\<W>}{\ensuremath{\mathcal{W}}}1%
+%{\\<VV>}{\ensuremath{\mathfrak{V}}}1%requires eufrak
+%{\\<vv>}{\ensuremath{\mathfrak{v}}}1%requires eufrak
+%{\\<v>}{\ensuremath{\mathrm{v}}}1%
+%{\\<V>}{\ensuremath{\mathcal{V}}}1%
+%{\\<UU>}{\ensuremath{\mathfrak{U}}}1%requires eufrak
+%{\\<uu>}{\ensuremath{\mathfrak{u}}}1%requires eufrak
+{\\<Upsilon>}{\ensuremath{\Upsilon}}1%
+{|)}{\ensuremath{\rrparenthesis}}1%
+{(|}{\ensuremath{\llparenthesis}}1%
+{_i}{\ensuremath{_i}}1%
+{_impl}{\_impl}5%
+{_j}{\ensuremath{_j}}1%
+{_1}{\ensuremath{_1}}1%
+{_2}{\ensuremath{_2}}1%
+{_3}{\ensuremath{_3}}1%
+{_4}{\ensuremath{_4}}1%
+{_5}{\ensuremath{_5}}1%
+{_6}{\ensuremath{_6}}1%
+{_7}{\ensuremath{_7}}1%
+{_8}{\ensuremath{_8}}1%
+{_9}{\ensuremath{_9}}1%
+{_ik}{\ensuremath{_{ik}}}1%
+{_j1}{\ensuremath{_{j1}}}1%
+{_jp}{\ensuremath{_{jp}}}1%
+{_n}{\ensuremath{_n}}1%
+{_no}{\_no}1%
+{_0}{\ensuremath{_0}}1%
+{_obs}{\ensuremath{_\text{obs}}}3%
+{observer2}{\ensuremath{\operatorname{observer}_2}}7%
+{o_c}{\ensuremath{o_c}}2%
+{_SE}{\ensuremath{_\text{SE}}}2%
+{\\<upsilon>}{\ensuremath{\upsilon}}1%
+{\\<uplus>}{\ensuremath{\uplus}}1%
+{\\<Uplus>}{\ensuremath{\biguplus\,}}1%
+{\\<Up>}{\ensuremath{\Uparrow}}1%
+{\\<up>}{\ensuremath{\uparrow}}1%
+{\\<Updown>}{\ensuremath{\Updownarrow}}1%
+{\\<updown>}{\ensuremath{\updownarrow}}1%
+{\\<unrhd>}{\ensuremath{\unrhd}}1%
+{\\<unlhd>}{\ensuremath{\unlhd}}1%
+{\\<union>}{\ensuremath{\cup}}1%
+{\\<Union>}{\ensuremath{\bigcup\,}}1%
+%{\\<u>}{\ensuremath{\mathrm{u}}}1%
+%{\\<U>}{\ensuremath{\mathcal{U}}}1%
+{\\<twosuperior>}{\ensuremath{\mathtwosuperior}}1%requires latin1,%
+{\\<turnstile>}{\ensuremath{\vdash}}1%
+{\\<Turnstile>}{\ensuremath{\models}}1%
+{\\<models>}{\ensuremath{\models}}1%
+{\\<tturnstile>}{\ensuremath{\vdash\!\!\!\vdash}}1%
+{\\<TTurnstile>}{\ensuremath{\mid\!\models}}1%
+%{\\<TT>}{\ensuremath{\mathfrak{T}}}1%requires eufrak
+%{\\<tt>}{\ensuremath{\mathfrak{t}}}1%requires eufrak
+{\\<triangleright>}{\ensuremath{\triangleright}}1%
+{\\<triangleq>}{\ensuremath{\triangleq}}1%requires amssymb,%
+{\\<triangleleft>}{\ensuremath{\triangleleft}}1%
+{\\<triangle>}{\ensuremath{\triangle}}1%
+{\\<top>}{\ensuremath{\top}}1%
+{\\<times>}{\ensuremath{\times}}1%
+{\\<threesuperior>}{\ensuremath{\maththreesuperior}}1%requires latin1,%
+{\\<threequarters>}{\mbox{\rm\textthreequarters}}1%requires latin1,%
+{\\<theta>}{\ensuremath{\vartheta}}1%
+{\\<Theta>}{\ensuremath{\Theta}}1%
+%{\\<t>}{\ensuremath{\mathrm{t}}}1%
+%{\\<T>}{\ensuremath{\mathcal{T}}}1%
+{\\<tau>}{\ensuremath{\tau}}1%
+{\\<surd>}{\ensuremath{\surd}}1%
+{\\<supseteq>}{\ensuremath{\supseteq}}1%
+{\\<supset>}{\ensuremath{\supset}}1%
+{\\<Sum>}{\ensuremath{\sum\,}}1%
+{\\<succeq>}{\ensuremath{\succeq}}1%
+{\\<succ>}{\ensuremath{\succ}}1%
+{\\<subseteq>}{\ensuremath{\subseteq}}1%
+{\\<subset>}{\ensuremath{\subset}}1%
+{\\<struct>}{\ensuremath{\diamond}}1%
+{\\<stileturn>}{\ensuremath{\dashv}}1%
+{\\<star>}{\ensuremath{\star}}1%
+%{\\<SS>}{\ensuremath{\mathfrak{S}}}1%requires eufrak
+%{\\<ss>}{\ensuremath{\mathfrak{s}}}1%requires eufrak
+{\\<squnion>}{\ensuremath{\sqcup}}1%
+{\\<Squnion>}{\ensuremath{\bigsqcup\,}}1%
+%{\\<sqsupseteq>}{\ensuremath{\sqsupseteq}}1%
+%{\\<sqsupset>}{\ensuremath{\sqsupset}}1%requires amssym,%
+{\\<sqsubseteq>}{\ensuremath{\sqsubseteq}}1%
+{\\<sqsubset>}{\ensuremath{\sqsubset}}1%
+{\\<sqinter>}{\ensuremath{\sqcap}}1%
+{\\<Sqinter>}{\ensuremath{\bigsqcap\,}}1%requires masmath,%
+%{\\<spadesuit>}{\ensuremath{\spadesuit}}1%
+%{\\<spacespace>}{\ensuremath{~~}}1%
+%{\\<smile>}{\ensuremath{\smile}}1%
+{\\<simeq>}{\ensuremath{\simeq}}1%
+{\\<sim>}{\ensuremath{\sim}}1%
+{\\<Sigma>}{\ensuremath{\Sigma}}1%
+{\\<sigma>}{\ensuremath{\sigma}}2%
+{\\<sharp>}{\ensuremath{\sharp}}1%
+%{\\<s>}{\ensuremath{\mathrm{s}}}1%
+%{\\<S>}{\ensuremath{\mathcal{S}}}1%
+{\\<section>}{\mbox{\rm\S}}1%
+%{\\<RR>}{\ensuremath{\mathfrak{R}}}1%requires eufrak
+%{\\<rr>}{\ensuremath{\mathfrak{r}}}1%requires eufrak
+{\\<rparr>}{\ensuremath{\mathclose{\mid\mkern-3mu)}}}1%
+{\\<rightleftharpoons>}{\ensuremath{\rightleftharpoons}}2%
+{\\<rightharpoonup>}{\ensuremath{\rightharpoonup}}2%
+{\\<rightharpoondown>}{\ensuremath{\rightharpoondown}}1%
+{\\<Rightarrow>}{\ensuremath{\Rightarrow}}2%
+{\\<rightarrow>}{\ensuremath{\rightarrow}}2%
+{\\<rho>}{\ensuremath{\varrho}}1%
+%{\\<rhd>}{\ensuremath{\rhd}}1%
+{\\<rfloor>}{\ensuremath{\rfloor}}1%
+%{\\<r>}{\ensuremath{\mathrm{r}}}1%
+%{\\<R>}{\ensuremath{\mathcal{R}}}1%
+%{\\<registered>}{\mbox{\rm\textregistered}}1%
+%{\\<Re>}{\ensuremath{\Re}}1%
+%{\\<real>}{\ensuremath{\mathrm{I}\mkern-3.8mu\mathrm{R}}}1%
+{\\<rceil>}{\ensuremath{\rceil}}1%
+{\\<rbrakk>}{\ensuremath{\mathclose{\rbrack\mkern-3mu\rbrack}}}1%
+{\\<rbrace>}{\ensuremath{\mathclose{\mid\mkern-4.5mu\rbrace}}}1%
+%{\\<rat>}{\ensuremath{\mathrm{Q}\mkern-16mu{\phantom{\mathrm{t}}\vrule}\mkern10mu}}1%
+{\\<rangle>}{\ensuremath{\rangle}}1%
+%{\\<questiondown>}{\mbox{\rm\textquestiondown}}1%
+%{\\<QQ>}{\ensuremath{\mathfrak{Q}}}1%requires eufrak
+%{\\<qq>}{\ensuremath{\mathfrak{q}}}1%requires eufrak
+%{\\<q>}{\ensuremath{\mathrm{q}}}1%
+%{\\<Q>}{\ensuremath{\mathcal{Q}}}1%
+{\\<Psi>}{\ensuremath{\Psi}}1%
+{\\<psi>}{\ensuremath{\psi}}1%
+{\\<propto>}{\ensuremath{\propto}}1%
+{\\<Prod>}{\ensuremath{\prod\,}}1%
+{\\<preceq>}{\ensuremath{\preceq}}1%
+{\\<prec>}{\ensuremath{\prec}}1%
+%{\\<PP>}{\ensuremath{\mathfrak{P}}}1%requires eufrak
+%{\\<pp>}{\ensuremath{\mathfrak{p}}}1%requires eufrak
+%{\\<pounds>}{\ensuremath{\pounds}}1%
+{\\<plusminus>}{\ensuremath{\pm}}1%
+{\\<Pi>}{\ensuremath{\Pi}}1%
+{\\<pi>}{\ensuremath{\pi}}1%
+{\\<phi>}{\ensuremath{\varphi}}1%
+{\\<Phi>}{\ensuremath{\Phi}}1%
+%{\\<p>}{\ensuremath{\mathrm{p}}}1%
+%{\\<P>}{\ensuremath{\mathcal{P}}}1%
+{\\<partial>}{\ensuremath{\partial}}1%
+{\\<parallel>}{\ensuremath{\parallel}}1%
+{\\<paragraph>}{\mbox{\rm\P}}1%
+{\\<otimes>}{\ensuremath{\otimes}}1%
+{\\<Otimes>}{\ensuremath{\bigotimes\,}}1%
+%{\\<oslash>}{\ensuremath{\oslash}}1%
+{\\<or>}{\ensuremath{\vee}}1%
+{\\<Or>}{\ensuremath{\bigvee}}1%
+%{\\<ordmasculine>}{\mbox{\rm\textordmasculine}}1%
+%{\\<ordfeminine>}{\mbox{\rm\textordfeminine}}1%
+{\\<oplus>}{\ensuremath{\oplus}}1%
+{\\<Oplus>}{\ensuremath{\bigoplus\,}}1%
+%{\\<OO>}{\ensuremath{\mathfrak{O}}}1%requires eufrak
+%{\\<oo>}{\ensuremath{\mathfrak{o}}}1%requires eufrak
+%{\\<onesuperior>}{\ensuremath{\mathonesuperior}}1%requires latin1,%
+%{\\<onequarter>}{\mbox{\rm\textonequarter}}1%requires latin1,%
+%{\\<onehalf>}{\mbox{\rm\textonehalf}}1%requires latin1,%
+{\\<ominus>}{\ensuremath{\ominus}}1%
+{\\<Omega>}{\ensuremath{\Omega}}1%
+{\\<omega>}{\ensuremath{\omega}}1%
+%{\\<ointegral>}{\ensuremath{\oint\,}}1%
+%{\\<o>}{\ensuremath{\mathrm{o}}}1%
+%{\\<O>}{\ensuremath{\mathcal{O}}}1%
+{\\<odot>}{\ensuremath{\odot}}1%
+{\\<Odot>}{\ensuremath{\bigodot\,}}1%
+{\\<nu>}{\ensuremath{\nu}}1%
+{\\<notin>}{\ensuremath{\notin}}1%
+{\\<noteq>}{\ensuremath{\neq}}1%
+{\\<not>}{\ensuremath{\neg}}1%
+%{\\<NN>}{\ensuremath{\mathfrak{N}}}1%requires eufrak
+%{\\<nn>}{\ensuremath{\mathfrak{n}}}1%requires eufrak
+%{\\<n>}{\ensuremath{\mathrm{n}}}1%
+%{\\<N>}{\ensuremath{\mathcal{N}}}1%
+%{\\<natural>}{\ensuremath{\natural}}1%
+{\\<nat>}{\ensuremath{\mathrm{I}\mkern-3.8mu\mathrm{N}}}1%
+{\\<nabla>}{\ensuremath{\nabla}}1%
+{\\<mu>}{\ensuremath{\mu}}1%
+%{\\<MM>}{\ensuremath{\mathfrak{M}}}1%requires eufrak
+%{\\<mm>}{\ensuremath{\mathfrak{m}}}1%requires eufrak
+{\\<minusplus>}{\ensuremath{\mp}}1%
+{\\<Midarrow>}{\ensuremath{\Relbar}}1%
+{\\<midarrow>}{\ensuremath{\relbar}}1%
+{\\<mho>}{\ensuremath{\mho}}1%requires amssym,%
+%{\\<m>}{\ensuremath{\mathrm{m}}}1%
+%{\\<M>}{\ensuremath{\mathcal{M}}}1%
+{\\<mapsto>}{\ensuremath{\mapsto}}1%
+{\\<lparr>}{\ensuremath{\mathopen{(\mkern-3mu\mid}}}1%
+%{\\<lozenge>}{\ensuremath{\lozenge}}1%requires amssym,%
+{\\<Longrightarrow>}{\ensuremath{\Longrightarrow}}3%
+{\\<longrightarrow>}{\ensuremath{\longrightarrow}}3%
+{\\<implies>}{\ensuremath{\longrightarrow}}4%
+{\\<longmapsto>}{\ensuremath{\longmapsto}}3%
+{\\<Longleftrightarrow>}{\ensuremath{\Longleftrightarrow}}3%
+{\\<longleftrightarrow>}{\ensuremath{\longleftrightarrow}}3%
+{\\<Longleftarrow>}{\ensuremath{\Longleftarrow}}3%
+{\\<longleftarrow>}{\ensuremath{\longleftarrow}}3%
+{\\<lless>}{\ensuremath{\ll}}1%
+%{\\<LL>}{\ensuremath{\mathfrak{L}}}1%requires eufrak
+%{\\<ll>}{\ensuremath{\mathfrak{l}}}1%requires eufrak
+%{\\<lhd>}{\ensuremath{\lhd}}1%
+{\\<lfloor>}{\ensuremath{\lfloor}}1%
+{\\<lesssim>}{\ensuremath{\lesssim}}1%requires amssymb,%
+%{\\<lessapprox>}{\ensuremath{\lessapprox}}1%requires amssymb,%
+%{\\<l>}{\ensuremath{\mathrm{l}}}1%
+%{\\<L>}{\ensuremath{\mathcal{L}}}1%
+{\\<Leftrightarrow>}{\ensuremath{\Leftrightarrow}}1%
+{\\<leftrightarrow>}{\ensuremath{\leftrightarrow}}1%
+{\\<leftharpoonup>}{\ensuremath{\leftharpoonup}}1%
+{\\<leftharpoondown>}{\ensuremath{\leftharpoondown}}1%
+{\\<upharpoonright>}{\ensuremath{\upharpoonright}}1%
+{\\<Leftarrow>}{\ensuremath{\Leftarrow}}1%
+{\\<leftarrow>}{\ensuremath{\leftarrow}}1%
+{\\<le>}{\ensuremath{\le}}1%
+{\\<leadsto>}{\ensuremath{\leadsto}}2%requires amssym,%
+{\\<lceil>}{\ensuremath{\lceil}}1%
+{\\<lbrakk>}{\ensuremath{\mathopen{\lbrack\mkern-3mu\lbrack}}}1%
+{\\<lbrace>}{\ensuremath{\mathopen{\lbrace\mkern-4.5mu\mid}}}1%
+{\\<langle>}{\ensuremath{\langle}}1%
+{\\<Lambda>}{\ensuremath{\Lambda}}1%
+{\\<lambda>}{\ensuremath{\lambda}}1%
+%{\\<KK>}{\ensuremath{\mathfrak{K}}}1%requires eufrak
+%{\\<kk>}{\ensuremath{\mathfrak{k}}}1%requires eufrak
+%{\\<k>}{\ensuremath{\mathrm{k}}}1%
+%{\\<K>}{\ensuremath{\mathcal{K}}}1%
+{\\<kappa>}{\ensuremath{\kappa}}1%
+{\\<Join>}{\ensuremath{\Join}}1%requires amssym,%
+%{\\<JJ>}{\ensuremath{\mathfrak{J}}}1%requires eufrak
+%{\\<jj>}{\ensuremath{\mathfrak{j}}}1%requires eufrak
+%{\\<j>}{\ensuremath{\mathrm{j}}}1%
+%{\\<J>}{\ensuremath{\mathcal{J}}}1%
+{ISABELLE}{\$ISABELLE}8%
+{\\<iota>}{\ensuremath{\iota}}1%
+{\\<inverse>}{\ensuremath{{}^{-1}}}1%
+{\\<inter>}{\ensuremath{\cap}}1%
+{\\<Inter>}{\ensuremath{\bigcap\,}}1%
+{\\<int>}{\ensuremath{\mathsf{Z}\mkern-7.5mu\mathsf{Z}}}1%
+{\\<integral>}{\ensuremath{\int\,}}1%
+{\\<infinity>}{\ensuremath{\infty}}1%
+{\\<in>}{\ensuremath{\in}}1%
+{\\<index>}{\mbox{\i}}1%
+%{\\<Im>}{\ensuremath{\Im}}1%
+%{\\<II>}{\ensuremath{\mathfrak{I}}}1%requires eufrak
+%{\\<ii>}{\ensuremath{\mathfrak{i}}}1%requires eufrak
+%{\\<i>}{\ensuremath{\mathrm{i}}}1%
+%{\\<I>}{\ensuremath{\mathcal{I}}}1%
+%{\\<hyphen>}{\mbox{\rm-}}1%
+%{\\<hungarumlaut>}{\mbox{\H\relax}}1%
+{\\<hookrightarrow>}{\ensuremath{\hookrightarrow}}1%
+{\\<hookleftarrow>}{\ensuremath{\hookleftarrow}}1%
+%{\\<HH>}{\ensuremath{\mathfrak{H}}}1%requires eufrak
+%{\\<hh>}{\ensuremath{\mathfrak{h}}}1%requires eufrak
+%{\\<h>}{\ensuremath{\mathrm{h}}}1%
+%{\\<H>}{\ensuremath{\mathcal{H}}}1%
+%{\\<heartsuit>}{\ensuremath{\heartsuit}}1%
+%{\\<guillemotright>}{\mbox{\frqq}}1%requires babel ,%
+%{\\<guillemotleft>}{\mbox{\flqq}}1%requires babel ,%
+{\\<greatersim>}{\ensuremath{\gtrsim}}1%requires amssymb,%
+{\\<greaterapprox>}{\ensuremath{\gtrapprox}}1%requires amssymb,%
+{\\<ggreater>}{\ensuremath{\gg}}1%
+%{\\<GG>}{\ensuremath{\mathfrak{G}}}1%requires eufrak
+%{\\<gg>}{\ensuremath{\mathfrak{g}}}1%requires eufrak
+%{\\<g>}{\ensuremath{\mathrm{g}}}1%
+%{\\<G>}{\ensuremath{\mathcal{G}}}1%
+{\\<ge>}{\ensuremath{\ge}}1%
+{\\<Gamma>}{\ensuremath{\Gamma}}1%
+{\\<gamma>}{\ensuremath{\gamma}}1%
+{\\<frown>}{\ensuremath{\frown}}1%
+{\\<forall>}{\ensuremath{\forall\,}}1%
+{\\<Forall>}{\ensuremath{\bigwedge\,}}1%
+{\\<flat>}{\ensuremath{\flat}}1%
+%{\\<FF>}{\ensuremath{\mathfrak{F}}}1%requires eufrak
+%{\\<ff>}{\ensuremath{\mathfrak{f}}}1%requires eufrak
+%{\\<f>}{\ensuremath{\mathrm{f}}}1%
+%{\\<F>}{\ensuremath{\mathcal{F}}}1%
+{\\<exists>}{\ensuremath{\exists\,}}1%
+%{\\<exclamdown>}{\mbox{\rm\textexclamdown}}1%
+%{\\<euro>}{\mbox{\textgreek{\euro}}}1%requires greek babel,%
+%{\\<eta>}{\ensuremath{\eta}}1%
+{\\<equiv>}{\ensuremath{\equiv}}1%
+{\\<epsilon>}{\ensuremath{\varepsilon}}1%
+{\\<emptyset>}{\ensuremath{\emptyset}}1%
+%{\\<e>}{\ensuremath{\mathrm{e}}}1%
+%{\\<E>}{\ensuremath{\mathcal{E}}}1%
+%{\\<EE>}{\ensuremath{\mathfrak{E}}}1%requires eufrak
+%{\\<ee>}{\ensuremath{\mathfrak{e}}}1%requires eufrak
+{\\<Down>}{\ensuremath{\Downarrow}}1%
+{\\<down>}{\ensuremath{\downarrow}}1%
+{\\<dots>}{\ensuremath{\dots}}1%
+{\\<doteq>}{\ensuremath{\doteq}}1%
+{\\<div>}{\ensuremath{\div}}1%
+{\\<dieresis>}{\mbox{\"\relax}}1%
+%{\\<diamondsuit>}{\ensuremath{\diamondsuit}}1%
+{\\<diamond>}{\ensuremath{\Diamond}}1%requires amssym,%
+%{\\<d>}{\ensuremath{\mathrm{d}}}1%
+%{\\<D>}{\ensuremath{\mathcal{D}}}1%
+%{\\<Delta>}{\ensuremath{\Delta}}1%
+{\\<delta>}{\ensuremath{\delta}}1%
+{\\<degree>}{\mbox{\rm\textdegree}}1%requires latin1,%
+%{\\<DD>}{\ensuremath{\mathfrak{D}}}1%requires eufrak
+%{\\<dd>}{\ensuremath{\mathfrak{d}}}1%requires eufrak
+{\\<ddagger>}{\ensuremath{\ddagger}}1%
+{\\<dagger>}{\ensuremath{\dagger}}1%
+%{\\<currency>}{\mbox{\textcurrency}}1%requires textcomp,%
+%{\\<copyright>}{\mbox{\rm\copyright}}1%
+{\\<Coprod>}{\ensuremath{\coprod\,}}1%
+{\\<cong>}{\ensuremath{\cong}}1%
+%{\\<complex>}{\ensuremath{\mathrm{C}\mkern-15mu{\phantom{\mathrm{t}}\vrule}\mkern9mu}}1%
+{\\<Colon>}{\ensuremath{\mathrel{::}}}1%
+{\\<clubsuit>}{\ensuremath{\clubsuit}}1%
+{\\<circ>}{\ensuremath{\circ}}1%
+{\\<chi>}{\ensuremath{\chi}}1%
+%{\\<cent>}{\mbox{\textcent}}1%requires textcomp,%
+%{\\<c>}{\ensuremath{\mathrm{c}}}1%
+%{\\<C>}{\ensuremath{\mathcal{C}}}1%
+{\\<cedilla>}{\mbox{\c\relax}}1%
+{\\<ldots>}{\ensuremath{\ldots}}1%
+{\\<cdots>}{\ensuremath{\cdots}}1%
+{\\<vdots>}{\ensuremath{\vdots}}1%
+{\\<cdot>}{\ensuremath{\cdot}}1%
+%{\\<CC>}{\ensuremath{\mathfrak{C}}}1%requires eufrak
+%{\\<cc>}{\ensuremath{\mathfrak{c}}}1%requires eufrak
+{\\<bullet>}{\boldmath\ensuremath{\mathchoice{\displaystyle{\cdot}}{\textstyle{\cdot}}{\scriptstyle{\bullet}}{\scriptscriptstyle{\bullet}}}}1%
+{\\<box>}{\ensuremath{\Box}}1%requires amssym,%
+%{\\<bowtie>}{\ensuremath{\bowtie}}1%
+{\\<bottom>}{\ensuremath{\bot}}1%
+%{\\<bool>}{\ensuremath{\mathrm{I}\mkern-3.8mu\mathrm{B}}}1%
+{\\<beta>}{\ensuremath{\beta}}1%
+%{\\<b>}{\ensuremath{\mathrm{b}}}1%
+%{\\<B>}{\ensuremath{\mathcal{B}}}1%
+%{\\<BB>}{\ensuremath{\mathfrak{B}}}1%requires eufrak
+%{\\<bb>}{\ensuremath{\mathfrak{b}}}1%requires eufrak
+{\\<bar>}{\ensuremath{\mid}}1%
+%{\\<asymp>}{\ensuremath{\asymp}}1%
+{\\<approx>}{\ensuremath{\approx}}1%
+{\\<angle>}{\ensuremath{\angle}}1%
+{\\<and>}{\ensuremath{\wedge}}1%
+{\\<And>}{\ensuremath{\bigwedge}}1%
+%{\\<amalg>}{\ensuremath{\amalg}}1%
+{\\<alpha>}{\ensuremath{\alpha}}1%
+{\\<aleph>}{\ensuremath{\aleph}}1%
+%{\\<a>}{\ensuremath{\mathrm{a}}}1%
+%{\\<A>}{\ensuremath{\mathcal{A}}}1%
+%{\\<acute>}{\mbox{\'\relax}}1%
+%{\\<AA>}{\ensuremath{\mathfrak{A}}}1%requires eufrak
+%{\\<aa>}{\ensuremath{\mathfrak{a}}}1%requires eufrak
+{`}{$`$}1%    
+{``}{$``$}1%   
+	      % non-standard:
+ %	       {\\<evalc>}{$\underset{c}{\longrightarrow}$}1%    
+	       {\\<evalc>}{\raisebox{-.8ex}{$\overrightarrow{\enspace{\mbox{\scriptsize $c$}}\enspace}$}}3%
+	       {<n>}{$n$}1%    
+	       {IF}{\texttt{IF}}4%    
+	       {THEN}{\texttt{THEN}}5%    
+	       {PUT}{\texttt{PUT}}3%    
+	       {ELSE}{\texttt{ELSE}}5%    
+	       {DO}{\texttt{DO}}3%    
+	       {WHILE}{\texttt{WHILE}}7%    
+	       {AWHILE}{\texttt{AWHILE}}8%    
+	       {ASSERT}{\texttt{ASSERT}}8%    
+	       {STOP}{\texttt{STOP}}5%    
+	       {SKIP}{\texttt{SKIP}}5%    
+	       {\\<subn>}{$_n$}1%    
+	       {<rel>}{$\mathit{rule}$}3%    
+	       {<rule>}{$\mathit{rule}$}4%    
+	       {<rules>}{$\mathit{rules}$}5%    
+	       {<term>}{$\mathit{term}$}4%    
+	       {<term1>}{$\mathit{term}_1$}4%    
+	       {<termn>}{$\mathit{term}_n$}4%    
+	       {<function>}{$\mathit{function}$}9%    
+	       {<name>}{$\mathit{name}$}4%    
+	       {<namen>}{$\mathit{name}_n$}4%    
+	       {<name1>}{$\mathit{name}_1$}4%    
+	       {<a1>}{$a_1$}1%    
+	       {<x1>}{$x_1$}1%    
+	       {<an>}{$a_n$}1%    
+	       {<xn>}{$x_n$}1%    
+	       {<C>}{$C$}1%    
+    },%
+    classoffset=0,%
+    keywordstyle=\color{DarkBlue}\textbf,%
+    morekeywords={theory,end,imports,begin},%
+    classoffset=1,%
+    keywordstyle=\color{DarkBlue}\textbf,%
+    morekeywords={text,txt,finally,next,also,with,moreover,ultimately,thus,prefer,defer,declare,sledgehammer,apply,of,OF,THEN,intros,in,fix,assume,from,this,show,have,note,let,hence,where,using},% then, and
+    classoffset=2,%
+    keywordstyle=\color{Blue}\textbf,%
+    morekeywords={axclass,instance,primrec,constdefs,consts_code,types_code,consts,axioms,syntax,typedecl,arities,types,translations,inductive,typedef,datatype,instance,defs,specification,proof,test_spec,lemmas,lemma,assumes,shows,definition,define_pred,abbreviation,fun,function,theorem,case,record, circusprocess, alphabet, channel, schema, action, state},%
+    classoffset=3,%
+    keywordstyle=\color{BrickRed}\textbf,%
+    morekeywords={oops,sorry},%
+    classoffset=4,%
+    keywordstyle=\color{OliveGreen}\textbf,%
+    morekeywords={store_test_thm,qed,done,by},%
+    classoffset=5,%
+    keywordstyle=\textsl,%
+    morekeywords={frule,subst,erule,drule,rule,rule_tac,case_tac,insert,rotate_tac,unfold,fold,assumption,drule_tac},%
+    classoffset=6,%
+    keywordstyle=\color{Blue}\textbf,%
+    morekeywords={binder,infixl},%
+    classoffset=6,%
+    keywordstyle=\color{CornflowerBlue}\textbf,%
+    morekeywords={thm,export_test_data,generate_test_script,generate_code,gen_test_script,gen_test_data,quickcheck,testgen_params,quickcheck_params},%
+}
+\lstnewenvironment{isar}[1][]{\lstset{style=ISAR,#1}}{}
+\lstnewenvironment{smallisar}[1][]{\lstset{style=ISAR,basicstyle=\small,#1}}{}
+\def\inlineisar{\lstinline[style=ISAR,breaklines=true,breakatwhitespace=true]}
+\def\inlineisars{\lstinline[style=ISAR,basicstyle=\ttfamily\footnotesize,breaklines=true,breakatwhitespace=true]}

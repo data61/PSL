@@ -1,0 +1,26 @@
+chapter AFP
+
+session Transition_Systems_and_Automata (AFP) = "Collections" +
+  options [timeout = 2400]
+  sessions
+    "DFS_Framework"
+    "Gabow_SCC"
+  theories
+    "Basic/Basic"
+    "Basic/Sequence"
+    "Basic/Sequence_Zip"
+    "Basic/Sequence_LTL"
+    "Basic/Maps"
+    "Basic/Acceptance"
+    "Transition_Systems/Transition_System"
+    "Transition_Systems/Transition_System_Extra"
+    "Transition_Systems/Transition_System_Construction"
+    "Automata/DFA/DFA"
+    "Automata/NFA/NFA"
+    "Automata/NBA/NBA_Translate"
+    "Automata/DBA/DBA_Combine"
+    "Automata/DCA/DCA_Combine"
+    "Automata/DRA/DRA_Combine"
+    "Automata/DRA/DRA_Translate"
+  document_files
+    "root.tex"

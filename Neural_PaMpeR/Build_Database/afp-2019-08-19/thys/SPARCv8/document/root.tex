@@ -1,0 +1,74 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{A formal model for the SPARCv8 ISA and a proof of non-interference for the LEON3 processor}
+\author{Zh\'e H\'ou, David San\'an, Alwen Tiu and Yang Liu}
+\maketitle
+
+\begin{abstract}
+We formalise the SPARCv8 instruction set architecture (ISA) which is
+used in processors such as LEON3. Our formalisation can be specialised
+to any SPARCv8 CPU, here we use LEON3 as a running example. Our model
+covers the operational semantics for all the instructions in the
+integer unit of the SPARCv8 architecture and it supports Isabelle code
+export, which effectively turns the Isabelle model into a SPARCv8 CPU
+simulator. We prove the language-based non-interference property for
+the LEON3 processor.
+
+Our model is based on deterministic monad, which is a modified version
+of the non-deterministic monad from NICTA/l4v. We also use the Word
+library developed by Jeremy Dawson and Gerwin Klein.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

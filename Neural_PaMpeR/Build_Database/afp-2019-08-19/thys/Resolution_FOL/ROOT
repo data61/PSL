@@ -1,0 +1,18 @@
+chapter AFP
+
+session Resolution_FOL (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    First_Order_Terms
+    "HOL-Library"
+  theories
+    TermsAndLiterals
+    Tree
+    Resolution
+    Completeness
+    Examples
+    Unification_Theorem
+    Completeness_Instance
+  document_files
+    "root.bib"
+    "root.tex"

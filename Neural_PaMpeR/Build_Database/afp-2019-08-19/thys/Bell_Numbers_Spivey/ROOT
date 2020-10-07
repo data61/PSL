@@ -1,0 +1,12 @@
+chapter AFP
+
+session Bell_Numbers_Spivey (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    Card_Partitions
+  theories
+    Card_Partitions.Card_Partitions   (* FIXME document? *)
+    Bell_Numbers
+  document_files
+    "root.bib"
+    "root.tex"

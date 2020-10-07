@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{mdwlist}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bbding} % check marks
+\usepackage{pifont} % arrows
+\usepackage{stmaryrd} % arrows
+\usepackage{graphicx}
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+%macros
+\newcommand{\idep}{\mathbb{I}^\mathcal{D}}
+\newcommand{\odep}{\mathbb{O}^\mathcal{D}}
+\newcommand{\instreams}{\mathbb{I}}
+\newcommand{\outstreams}{\mathbb{O}}
+
+
+\title{Formalisation and Analysis of Component Dependencies}
+\author{Maria Spichkova}
+\maketitle
+
+
+\begin{abstract}
+This set of theories presents a formalisation in Isabelle/HOL~\cite{npw} of data dependencies between components. 
+The approach allows to analyse system structure oriented towards efficient checking of system: 
+it aims at elaborating for a concrete system, which parts of 
+the system (or system model) are necessary to check a given property. 
+\end{abstract}
+\tableofcontents
+
+\newpage
+\input{intro}
+
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\newpage
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

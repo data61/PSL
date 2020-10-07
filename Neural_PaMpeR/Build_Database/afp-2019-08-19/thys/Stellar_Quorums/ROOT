@@ -1,0 +1,9 @@
+chapter AFP
+
+session Stellar_Quorums (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Stellar_Quorums
+  document_files
+    "root.tex"
+    "root.bib"

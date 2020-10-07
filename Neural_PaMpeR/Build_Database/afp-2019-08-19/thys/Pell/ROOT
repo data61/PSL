@@ -1,0 +1,14 @@
+chapter AFP
+
+session Pell (AFP) = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Efficient_Discrete_Sqrt
+    Pell
+    Pell_Algorithm
+    Pell_Algorithm_Test
+  document_files
+    "root.tex"
+    "root.bib"

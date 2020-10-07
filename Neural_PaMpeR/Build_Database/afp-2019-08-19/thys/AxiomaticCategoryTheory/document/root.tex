@@ -1,0 +1,118 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{authblk}
+\usepackage{latexsym,amsmath}
+\usepackage[margin=2cm]{geometry}
+
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+
+\title{Axioms Systems for Category Theory in Free Logic}
+\author[1]{Christoph Benzm\"uller}
+\author[2]{Dana S. Scott}
+\affil[1]{University of Luxemburg, Luxemburg \& Freie Universit\"at Berlin, Germany}
+\affil[2]{Visiting Scholar at University of Califormia, Berkeley,  USA}
+\date{\today}                     %% if you don't need date to appear
+\setcounter{Maxaffil}{0}
+\renewcommand\Affilfont{\itshape\small}
+
+\maketitle
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+% \bibliography{root}
+
+\begin{thebibliography}{1}
+
+\bibitem{C57}
+C.~Benzm{\"u}ller and D.~Scott.
+\newblock Automating free logic in {Isabelle/HOL}.
+\newblock In G.-M. Greuel, T.~Koch, P.~Paule, and A.~Sommese, editors, {\em
+  Mathematical Software -- ICMS 2016, 5th International Congress, Proceedings},
+  volume 9725 of {\em LNCS}, pages 43--50, Berlin, Germany, 2016. Springer.
+
+\bibitem{C67}
+C.~Benzm{\"u}ller and D.~Scott.
+\newblock Some reflections on a computer-aided theory exploration study in
+  category theory (extended abstract).
+\newblock In T.~C. Hales, C.~Kaliszyk, S.~Schulz, and J.~Urban, editors, {\em
+  3rd Conference on Artificial Intelligence and Theorem Proving (AITP 2018),
+  Book of Abstracts}, 2018.
+
+\bibitem{R58}
+C.~Benzm{\"u}ller and D.~S. Scott.
+\newblock Axiomatizing category theory in free logic.
+\newblock Technical report, CoRR, 2016.
+\newblock \url{http://arxiv.org/abs/1609.01493}.
+
+\bibitem{FreydScedrov90}
+P.~J. Freyd and A.~Scedrov.
+\newblock {\em Categories, Allegories}.
+\newblock North Holland, 1990.
+
+\bibitem{MacLane48}
+S.~McLane.
+\newblock Groups, categories and duality.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  34(6):263--267, 1948.
+
+\bibitem{Scott79}
+D.~Scott.
+\newblock Identity and existence in intuitionistic logic.
+\newblock In M.~Fourman, C.~Mulvey, and D.~Scott, editors, {\em Applications of
+  Sheaves: Proceedings of the Research Symposium on Applications of Sheaf
+  Theory to Logic, Algebra, and Analysis, Durham, July 9--21, 1977}, volume 752
+  of {\em Lecture Notes in Mathematics}, pages 660--696. Springer Berlin
+  Heidelberg, 1979.
+
+\end{thebibliography}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

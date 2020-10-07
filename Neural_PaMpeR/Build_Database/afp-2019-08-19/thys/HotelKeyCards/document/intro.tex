@@ -1,0 +1,35 @@
+\section{Introduction}
+
+This paper presents two models for a hotel key card system and the
+verification of their safety (in Isabelle/HOL~\cite{LNCS2283}). The
+models are based on Section~6.2, \emph{Hotel Room Locking}, and
+Appendix~E in the book by Daniel Jackson~\cite{Jackson06}. Jackson
+employs his Alloy system to check that there are no small
+counterexamples to safety. We confirm his conjecture of safety by a
+formal proof.
+
+Most hotels operate a digital key card system. Upon check-in, you
+receive a card with your own key on it (typically a pseudorandom
+number). The lock for each room reads your card and opens the door if
+the key is correct. The system is decentralized,
+i.e.\ each lock is a stand-alone, battery-powered device without
+connection to the computer at reception or to any other device. So
+how does the lock know that your key is correct? There are a number of
+similar systems and we discuss the one described in Appendix~E
+of~\cite{Jackson06}. Here each card carries two keys: the old key of
+the previous occupant of the room ($key_1$), and your own new key
+($key_2$). The lock always holds one key, its ``current'' key. When
+you enter your room for the first time, the lock notices that its
+current key is $key_1$ on your card and recodes itself, i.e.\ it replaces
+its own current key with $key_2$ on your card. When you enter the next
+time, the lock finds that its current key is equal to your $key_2$ and
+opens the door without recoding itself. Your card is never modified by
+the lock. Eventually, a new guest with a new key enters the room,
+recodes the lock, and you cannot enter anymore.
+
+After a short introduction of the notation we discuss two very
+different specifications, a state based and a trace based one, and
+prove their safety and their equivalence. The complete formalization
+is available online in the \emph{Archive of Formal Proofs} at
+\url{isa-afp.org}.
+

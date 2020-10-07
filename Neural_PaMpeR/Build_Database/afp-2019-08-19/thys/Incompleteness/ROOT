@@ -1,0 +1,13 @@
+chapter AFP
+
+session Incompleteness (AFP) = HereditarilyFinite +
+  description "The Incompleteness Theorems"
+  options [timeout = 2400]
+  sessions
+    Nominal2
+  theories
+    Goedel_I
+    Goedel_II
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,45 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Echelon Form}
+\author{By Jose Divas\'on and Jes\'us Aransay\thanks{This research has been funded 
+  by the research grant FPI-UR-12 of the Universidad de La Rioja and by the project MTM2014-54151-P from Ministerio de Econom\'ia y Competitividad
+(Gobierno de Espa\~na).}}
+\maketitle
+
+\begin{abstract}
+In this work we present the formalization of an algorithm to compute the Echelon Form of
+a matrix. We have proved its existence over Bezout domains and we have made it
+executable over Euclidean domains, such as $\mathbb{Z}$ and $\mathbb{K}[x]$. This allows us
+to compute determinants, inverses and characteristic polynomials of matrices.
+The work is based on the \emph{HOL-Multivariate Analysis} library, and on both the Gauss-Jordan 
+and Cayley-Hamilton AFP entries. As a by-product, some algebraic structures have been implemented (principal ideal domains, Bezout domains\dots).
+The algorithm has been refined to immutable arrays and code can be generated to 
+functional languages as well.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

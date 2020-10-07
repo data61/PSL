@@ -1,0 +1,44 @@
+TODO List
+
+D - Done
+O - Obsolete
+
+2012-06-15
+  * Manuel encountered problems with rprod Id Id and set_rel Id not being 
+    simplified to Id (after refine_rcg). Can we fix these?
+
+
+2012-01-28:
+  D* Chapter-Structure for proof document
+  * Automatic definition of generated function. Also search for REC/RECT subterms
+    and generate code equations.
+
+2012-01-26:
+  D* Comment Recursion-Example
+  D* Integrate Autoref in standard framework (Refine.thy)
+  D* Import Collection_Bindings from Autoref_Collection_Binindgs
+  D* Rename ex/Automatic_Determinization
+  D* Userguide: Result extraction from det monad
+  
+
+2011-12-30:
+  * n:m refinement of loops
+  * n:1 refinement for total correctness.
+  D* Heap memory + separation logic ... target ImperativeHOL
+    (see Refine_Imperative_HOL)
+  * Complete PartialFunction package integration. 
+  O* More automatic concretization. Combine concretization and determinization
+     to get semiautomatic procedure.
+  D* Write DFS example with recursive function.
+
+2012-01-03:
+  D* Total correct fixed points are greatest fixed points. Show necessary lemmas
+    by dualization. Crucial lemma is: gfp \le lfp, if body of lfp is asserted
+    to stick to a well-founded relation. Shown by wf-induction for all arguments.
+
+  D* A deterministic program can be translated to a monad with only 
+    SUCCEED, result, FAIL. (A quotient of the nres-monad, with result sets of 
+    maximal cardinality one). This monad is executable, code equations for
+    fixed points can be generated straightforwardly by unfolding. As optimization,
+    we can further translate to the option monad (former cgp) or to a 
+    flat program (former cgt).

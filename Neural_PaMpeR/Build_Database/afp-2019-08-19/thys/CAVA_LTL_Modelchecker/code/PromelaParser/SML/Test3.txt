@@ -1,0 +1,27 @@
+mtype = {M_UP, M_DW};
+chan Chan_data_down = [0] of {mtype};
+chan Chan_data_up   = [0] of {mtype};
+typedef Foo {show byte a, b = 2; short c[3] = 3; hidden chan d [2] = [2] of {bool, int, int};};
+chan x = [0] of {Foo};
+proctype P1 (chan Chan_data_in, Chan_data_out)
+{
+    do
+    ::  Chan_data_in  ? M_UP -> skip;
+    ::  Chan_data_out ! M_DW -> skip;
+    od;
+};
+proctype P2 (chan Chan_data_in, Chan_data_out)
+{
+    do
+    ::  Chan_data_in  ? M_DW -> skip;
+    ::  Chan_data_out ! M_UP -> skip;
+    od;
+};
+init
+{
+    atomic
+    {
+        run P1 (Chan_data_up,   Chan_data_down);
+        run P2 (Chan_data_down, Chan_data_up);
+    }
+}

@@ -1,0 +1,23 @@
+chapter AFP
+
+session Prime_Distribution_Elementary (AFP) = Zeta_Function +
+  options [timeout = 1800]
+  sessions
+    Prime_Number_Theorem
+  theories
+    Prime_Distribution_Elementary_Library
+    More_Dirichlet_Misc
+    Primorial
+    Primes_Omega
+    Lcm_Nat_Upto
+    Moebius_Mu_Sum
+    Elementary_Prime_Bounds
+    Partial_Zeta_Bounds
+    Summatory_Divisor_Sigma_Bounds
+    Shapiro_Tauberian
+    Selberg_Asymptotic_Formula
+    PNT_Consequences
+  document_files
+    "root.tex"
+    "root.bib"
+

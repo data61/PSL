@@ -1,0 +1,9 @@
+chapter AFP
+
+session CCS (AFP) = "HOL-Nominal" +
+  options [timeout = 600]
+  theories
+    Weak_Cong_Pres
+  document_files
+    "root.bib"
+    "root.tex"

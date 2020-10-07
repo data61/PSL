@@ -1,0 +1,11 @@
+chapter AFP
+
+session LambdaMu (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Types
+    Progress
+    Peirce
+  document_files
+    "root.tex"
+    "root.bib"

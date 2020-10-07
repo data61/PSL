@@ -1,0 +1,8 @@
+chapter AFP
+
+session VectorSpace (AFP) = "HOL-Algebra" +
+  options [timeout = 600]
+  theories
+    VectorSpace
+  document_files
+    "root.tex"

@@ -1,0 +1,13 @@
+chapter AFP
+
+session Splay_Tree (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-Data_Structures"
+  theories
+    Splay_Tree
+    Splay_Map
+    Splay_Heap
+  document_files
+    "root.bib"
+    "root.tex"

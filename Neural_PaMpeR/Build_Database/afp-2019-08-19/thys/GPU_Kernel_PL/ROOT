@@ -1,0 +1,9 @@
+chapter AFP
+
+session GPU_Kernel_PL (AFP) = HOL +
+  options [timeout = 600]
+  theories 
+    Kernel_programming_language
+  document_files
+    "root.bib"
+    "root.tex"

@@ -1,0 +1,109 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym,latexsym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Signature-Based Gr\"obner Basis Algorithms}
+\author{Alexander Maletzky\thanks{Supported by the Austrian Science Fund (FWF): P 29498-N31}}
+\maketitle
+
+\begin{abstract}
+This article formalizes signature-based algorithms for computing Gr\"obner bases. Such 
+algorithms are, in general, superior to other algorithms in terms of efficiency, and have not been 
+formalized in any proof assistant so far. The present development is both generic, in the sense that 
+most known variants of signature-based algorithms are covered by it, and effectively executable on 
+concrete input thanks to Isabelle's code generator. Sample computations of benchmark problems show 
+that the verified implementation of signature-based algorithms indeed outperforms the existing 
+implementation of Buchberger's algorithm in Isabelle/HOL.
+
+Besides total correctness of the algorithms, the article also proves that under certain 
+conditions they a-priori detect and avoid all useless zero-reductions, and always return `minimal' 
+(in some sense) Gr\"obner bases if an input parameter is chosen in the right way.
+
+The formalization follows the recent survey article by Eder and Faug\`ere.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\newpage
+\section{Introduction}
+
+Signature-based algorithms~\cite{Faugere2002,Eder2017} play are central role in modern computer 
+algebra systems, as they allow to compute Gr\"obner bases of ideals of multivariate polynomials much 
+more efficiently than other algorithms. Although they also belong to the class of 
+critical-pair/completion algorithms, as almost all algorithms for computing Gr\"obner bases, they 
+nevertheless possess some quite unique features that render a formal development in proof assistants 
+challenging. In fact, this is the first formalization of signature-based algorithms in any proof 
+assistant.
+
+The formalization builds upon the existing formalization of Gr\"obner bases 
+theory~\cite{Immler2016} and closely follows Sections~4--7 of the excellent survey 
+article~\cite{Eder2017}. Some proofs were taken from~\cite{Roune2012,Eder2013}.
+
+Summarizing, the main features of the formalization are as follows:
+\begin{itemize}
+  \item It is \emph{generic}, in the sense that it considers the computation of so-called 
+\emph{rewrite bases} and neither fixes the term order nor the rewrite-order.
+
+  \item It is \emph{efficient}, in the sense that all executable algorithms (e.\,g. 
+\textit{gb-sig}) operate on sig-poly-pairs rather than module elements, and that polynomials are 
+represented efficiently using ordered associative lists.
+
+  \item It proves that if the input is a regular sequence and the term order is a POT order, there
+are no useless zero-reductions (Theorem \textit{gb-sig-no-zero-red}).
+
+  \item It proves that the signature Gr\"obner bases computed w.\,r.\,t. the `ratio' rewrite order 
+are minimal (Theorem \textit{gb-sig-z-is-min-sig-GB}).
+
+  \item It features sample computations of benchmark problems to illustrate the practical usability 
+of the verified algorithms.
+\end{itemize}
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The pi-calculus}
+\author{Jesper Bengtson}
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\tableofcontents
+
+\section{Overview}
+
+These theories formalise the following results for psi-calculi. Note
+that there is only an early semantics for psi-calculi, although a late
+one may appear later. 
+
+\begin{itemize}
+\item strong bisimilarity is preserved by all operators except the
+  input-prefix 
+\item strong equivalence is a congruence
+\item weak bisimilarity is preserved by all operators except case and the
+  input-prefix 
+\item weak congruence is a congruence
+\item strong equivalence respect the laws of structural congruence
+\item all strongly equivalent agents are also weakly congruent which in
+  turn are weakly bisimilar. Moreover, strongly equivalent agents are
+  also strongly bisimilar 
+\item as a corollary of the last two points, all mentioned equivalences
+  respect the law of structural congruence 
+\item for instances of psi-calculi where assertion composition satisfies
+  weakening, the definition of weak bisimilarity can be simplified
+  significantly and proven equivalent to the version that applies when
+  weakening does not hold 
+\item for certain versions of psi-calculi, sum can be encoded
+\item for certain versions of psi-calculi, the tau-prefix can be encoded
+  and when weakening is satisfied, all of the tau-laws hold. 
+\end{itemize}
+
+The file naming convention is hopefully self explanatory, where the
+prefixes \emph{Strong} and \emph{Weak} denote that the file covers theories
+required to formalise properties of strong and weak bisimilarity
+respectively; files with the prefix \emph{Weaken} cover theories where
+weakening holds for the static implication; if the file name contains
+\emph{Sim} the theories cover simulation, file names containing \emph{Bisim}
+cover bisimulation, and file names containing \emph{Cong} cover weak
+congruence; files with the suffix \emph{Pres} deal with theories that
+reason about preservation properties of operators such as a simulation
+or bisimulation being preserved by a certain operator; files with the
+suffix \emph{StructCong} reason about structural congruence.
+
+For a complete exposition of all of theories, please consult Bengtson's
+Ph. D. thesis \cite{bengtson:thesis}. A shorter presentation can be found in our TPHOLs paper
+'Psi-calculi in Isabelle' from 2009 \cite{bengtson:tphols09}. There are also two LICS-papers that focus on the mathematical theories, rather than the Isabelle formalisations \cite{bengtson:lics09, johansson:lics10}.
+
+% include generated text of all theories
+\section{Formalisation}
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

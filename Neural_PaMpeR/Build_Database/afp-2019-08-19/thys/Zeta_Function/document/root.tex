@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{The Hurwitz and Riemann $\zeta$ functions}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This entry builds upon the results about formal and analytic Dirichlet series to define the Hurwitz $\zeta$ function and,
+based on that, the Riemann $\zeta$ function. This is done by first defining them for $\mathfrak{R}(z) > 1$ and then successively
+extending the domain to the left using the Euler--MacLaurin formula.
+
+Some basic results about these functions are also shown, such as their analyticity on $\mathbb{C}\setminus\{1\}$, that they have a simple pole with residue 1 at 1, their non-vanishing for $\mathfrak{R}(s)\geq 1$, their relation to the $\Gamma$ function, and the special values at negative integers and positive even integers -- including the famous $\zeta(-1) = -\frac{1}{12}$ and $\zeta(2) = \frac{\pi^2}{6}$.
+
+Lastly, the entry also contains Euler's analytic proof of the infinitude of primes, based on the fact that $\zeta(s)$ has a pole at $s = 1$.
+\end{abstract}
+
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

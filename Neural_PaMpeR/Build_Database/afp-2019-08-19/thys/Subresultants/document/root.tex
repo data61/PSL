@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\complex{\mathbb{C}}
+
+\newcommand\rai{real algebraic number\xspace}
+\newcommand\rais{real algebraic numbers\xspace}
+
+\begin{document}
+
+\title{Subresultants\footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author{Sebastiaan Joosten, Ren\'e Thiemann and Akihisa Yamada}
+\maketitle
+
+\begin{abstract}
+We formalize the theory of subresultants and the subresultant polynomial
+remainder sequence as described by Brown and Traub. 
+As a result, we obtain efficient certified algorithms for computing the resultant
+and the greatest common divisor of polynomials. 
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+Computing the gcd of two polynomials can be done via the Euclidean algorithm, 
+if the domain of the polynomials is a field. For non-field polynomials, one has to
+replace the modulo operation by the pseudo-modulo operation, which results in
+the exponential growth of coefficients in the gcd algorithm.
+To counter this problem, one may divide the 
+intermediate polynomials by their contents in every iteration of the gcd algorithm. 
+This is precisely the way how currently resultants and gcds are computed in Isabelle.
+
+Computing contents in every iteration is a costly operation, and therefore Brown and
+Traub have developed the subresultant PRS (polynomial remainder sequence) algorithm \cite{Brown,BrownTraub}. 
+It avoids intermediate content computation and at the same time keeps the coefficients small, i.e., the coefficients grow at most polynomially.
+
+The soundness of the subresultant PRS gcd algorithm is in principle similar to the Euclidean algorithm, i.e., 
+the intermediate polynomials that are computed in both algorithms differ only by a constant factor.
+The major problem is to prove that all the performed divisions are indeed exact divisions.
+To this end, we formalize the fundamental theorem of Brown and Traub as well as the resulting algorithms 
+by following the original (condensed) proofs.
+This is in contrast to a similar Coq formalization by Mahboubi \cite{Mahboubi06}, which follows another proof 
+based on polynomial determinants.
+
+As a consequence of the new algorithms, we significantly increased the speed of the algebraic number implementation \cite{AlgebraicNumbers} which
+heavily relies upon the computation of resultants of bivariate polynomials. 
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

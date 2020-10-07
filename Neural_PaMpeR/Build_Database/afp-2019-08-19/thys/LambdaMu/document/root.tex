@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{textcomp}
+\usepackage{amsmath,amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{The $\lambda\mu$-calculus}
+\author{Cristina Matache \and Victor B.~F.~Gomes \and Dominic P.~Mulligan}
+
+\maketitle
+
+\tableofcontents
+
+\abstract{
+  The propositions-as-types correspondence is ordinarily presented as linking
+  the metatheory of typed $\lambda$-calculi and the proof theory of
+  intuitionistic logic. Griffin~\cite{DBLP:conf/popl/Griffin90} observed that
+  this correspondence could be extended to classical logic through the use of
+  control operators. This observation set off a flurry of further research,
+  leading to the development of Parigot’s
+  $\lambda\mu$-calculus~\cite{DBLP:conf/lpar/Parigot92}. In this work, we
+  formalise $\lambda\mu$-calculus in Isabelle/HOL  and prove several
+  metatheoretical properties such as type preservation and progress.
+}
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

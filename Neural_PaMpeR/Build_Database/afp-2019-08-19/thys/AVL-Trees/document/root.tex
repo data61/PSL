@@ -1,0 +1,31 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\addtolength{\hoffset}{-1,5cm}
+\addtolength{\textwidth}{3cm}
+
+\begin{document}
+
+\title{AVL Trees}
+\author{Tobias Nipkow and Cornelia Pusch}
+\maketitle
+
+\begin{abstract}
+  Two formalizations of AVL trees with room for extensions.  The first
+  formalization is monolithic and shorter, the second one in two
+  stages, longer and a bit simpler. The final implementation is the
+  same.  If you are interested in developing this further, please
+  contact \url{<gerwin.klein@nicta.com.au>}.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\end{document}

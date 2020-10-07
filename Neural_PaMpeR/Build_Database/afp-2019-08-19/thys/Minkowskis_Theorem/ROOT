@@ -1,0 +1,9 @@
+chapter AFP
+
+session Minkowskis_Theorem (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  theories
+    Minkowskis_Theorem
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,172 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% additional symbol fonts
+\usepackage{stmaryrd}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+\usepackage{times}
+%\usepackage{a4med}
+
+\newcommand{\isasymiinter}{\isamath{\doublecap}}
+\newcommand{\isasymocirc}{\isamath{\circledcirc}}
+\newcommand{\isasymostar}{\isamath{\varoast}}
+
+\newcommand{\quotient}{\mathbin{//}}
+\newcommand{\Seq}{\mathbin{;}}
+\newcommand{\refsto}{\mathrel{\sqsubseteq}}
+\newcommand{\nondet}{\mathbin{\sqcap}}
+\newcommand{\Nondet}{\mathop{\bigsqcap}}
+\newcommand{\together}{\mathbin{\doublecap}}
+%\newcommand{\parallel}{\mathbin{||}}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Concurrent Refinement Algebra and Rely Quotients}
+\author{Julian Fell and Ian Hayes and Andrius Velykis}
+\maketitle
+
+\begin{abstract}
+The concurrent refinement algebra developed here is designed to provide a 
+foundation for rely/guarantee reasoning about concurrent programs.
+The algebra builds on a complete lattice of commands by providing
+sequential composition, parallel composition and a novel weak conjunction operator.
+The weak conjunction operator coincides with the lattice supremum 
+providing its arguments are non-aborting, but aborts if either of its arguments do.
+Weak conjunction provides an abstract version of a guarantee condition
+as a guarantee process.
+We distinguish between models that distribute sequential composition
+over non-deterministic choice from the left 
+(referred to as being conjunctive in the refinement calculus literature)
+and those that don't.
+Least and greatest fixed points of monotone functions are provided to
+allow recursion and iteration operators to be added to the language.
+Additional iteration laws are available for conjunctive models.
+The rely quotient of processes $c$ and $i$ is the process that, 
+if executed in parallel with $i$ implements $c$.
+It represents an abstract version of a rely condition generalised to a process.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\parindent 0pt\parskip 0.5ex
+
+\newpage
+\section{Overview}
+
+The theories provided here were developed in order to provide support 
+for rely/guarantee concurrency \cite{Jones81d,jon83a}.
+The theories provide a quite general concurrent refinement algebra
+that builds on a complete lattice of commands
+by adding sequential and parallel composition operators
+as well as recursion.
+A novel weak conjunction operator is also added as this allows one to build
+more general specifications.
+The theories are based on the paper by Hayes~\cite{AFfGRGRACP},
+however there are some differences that have been introduced to correct and simplify
+the algebra and make it more widely applicable.
+See the appendix for a summary of the differences.
+
+The basis of the algebra is a complete lattice of commands (Section~\ref{S:lattice}).
+Sections~\ref{S:sequential}, \ref{S:parallel} and \ref{S:conjunction} 
+develop laws for sequential composition, parallel composition and weak conjunction,
+respectively, based on the refinement lattice.
+Section~\ref{S:CRA} brings the above theories together.
+Section~\ref{S:galois} adds least and greatest fixed points and there associated laws,
+which allows finite, possibly infinite and strictly infinite iteration operators to
+be defined in Section~\ref{S:iteration} in terms of fixed points.
+
+The above theories do not assume that sequential composition is conjunctive.
+Section~\ref{S:conjunctive-sequential} adds this assumption and derives a further
+set of laws for sequential composition and iterations.
+
+Section~\ref{S:rely-quotient} builds on the general theory to provide a rely quotient
+operator that can be used to provide a general rely/guarantee framework for 
+reasoning about concurrent programs.
+
+\input{session}
+
+\section{Conclusions}
+
+The theories presented here provide a quite abstract view of the rely/guarantee approach
+to concurrent program refinement.
+A trace semantics for this theory has been developed \cite{DaSMfaWSLwC}.
+The concurrent refinement algebra is general enough to also form the basis of a
+more concrete rely/guarantee approach based on a theory of atomic steps and
+synchronous parallel and weak conjunction operators \cite{FM2016atomicSteps}.
+
+\subparagraph*{Acknowledgements.}
+
+This research was supported by
+Australian Research Council Grant grant
+DP130102901
+and
+EPSRC (UK) Taming Concurrency grant.
+This research has benefited from feedback from
+Robert Colvin,
+Chelsea Edmonds,
+Ned Hoy,
+Cliff Jones,
+Larissa Meinicke,
+and
+Kirsten Winter.
+%but the remaining errors are all courtesy of the authors.
+
+\appendix
+\section{Differences to earlier paper}
+
+This appendix summarises the differences between these Isabelle theories and
+the earlier paper \cite{AFfGRGRACP}.
+We list the changes to the axioms but not all the flow on effects to lemmas.
+
+\begin{enumerate}
+\item
+The earlier paper assumes $c \Seq (d_0 \nondet d_1) = (c \Seq d_0) \nondet (c \Seq d_1)$
+but here we separate the case where this is only a refinement from left to right (Section~\ref{S:sequential})
+from the equality case (Section~\ref{S:conjunctive-sequential}).
+\item\label{diff:distr-par}
+The earlier paper assumes $(\Nondet C) \parallel d = (\Nondet c \in C . c \parallel d)$
+but in Section~\ref{S:parallel}  we assume this only for non-empty $C$ and furthermore assume 
+that parallel is abort strict, i.e. $\bot \parallel c = c$.
+\item
+The earlier paper assumes $c \together (\bigsqcup D) = (\bigsqcup d \in D . c \together d)$.
+In Section~\ref{S:conjunction} that assumption is not made
+because it does not hold for the model we have in mind \cite{DaSMfaWSLwC}
+but we do assume $c \together \bot = \bot$.
+\item
+In Section~\ref{S:CRA} we add the assumption $nil \refsto nil \parallel nil$ to locale sequential-parallel.
+\item
+In Section~\ref{S:CRA} we add the assumption $\top \refsto chaos \parallel \top$.
+\item
+In Section~\ref{S:CRA} we assume only $chaos \refsto chaos \parallel chaos$
+whereas in the paper this is an equality (the reverse direction is straightforward to prove).
+\item
+In Section~\ref{S:CRA} axiom chaos-skip ($chaos \refsto skip$) has been dropped
+because it can be proven as a lemma using the parallel-interchange axiom.
+\item
+In Section~\ref{S:CRA} we add the assumption $chaos \refsto chaos \Seq chaos$.
+\item
+Section~\ref{S:conjunctive-sequential} assumes
+$D \neq \{\} \Rightarrow c \Seq \Nondet D = (\Nondet d \in D . c \Seq d)$.
+This distribution axiom is not considered in the earlier paper.
+\item
+Because here parallel does not distribute over an empty non-deterministic choice
+(see point \ref{diff:distr-par} above)
+in Section~\ref{S:rely-quotient} the theorem rely-quotient needs to assume the interference process $i$
+is non-aborting (refines chaos). This also affects many lemmas in this section that depend on 
+theorem rely-quotient.
+\end{enumerate}
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

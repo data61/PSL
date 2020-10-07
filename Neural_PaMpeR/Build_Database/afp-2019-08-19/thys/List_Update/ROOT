@@ -1,0 +1,18 @@
+chapter AFP
+
+session List_Update (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    "List-Index"
+    "Regular-Sets"
+  theories
+    Move_to_Front
+    Competitive_Analysis
+    BIT
+    TS
+    BIT_pairwise
+    BIT_2comp_on2
+    Comb
+  document_files
+    "root.bib"
+    "root.tex"

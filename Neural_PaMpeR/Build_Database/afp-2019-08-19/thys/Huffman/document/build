@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+FMT="$1"
+VARIANT="$2"
+
+export HUFFMAN_TEX=Huffman.tex
+perl -pi -i.bak -e 's/\{\\isacharprime\}a/\$\\alpha\$/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\{\\isacharprime\}b/\$\\beta\$/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\{\\isacharbraceleft\}\{\\isacharbraceright\}/\{\\ensuremath\{\\emptyset\}\}/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\{\\isacharunderscore\}\{\\isadigit\{([0-9])\}\}/\{\\isacharunderscore\}\{\1\}/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/([a-z]|\{\\isacharparenright\})\{\\isacharplus\}/\1\$\{\}^+\$/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\b(if|then|else(\\ if)?)\\( |isanewline)/\\ensuremath\{\\mathrm\{\1\}\}\\vthinspace\\\3/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\\isactrlisub F/\\isactrlisub\{\\ensuremath\{\\mathsf\{\\scriptscriptstyle F\}\}\}/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/mergeSibling/merge\\-Sibling/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/swapFourSyms/swap\\-Four\\-Syms/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\{\\isasymSum\}(.*)\\ \{\\isasymin\}\\ (.*)\{\\isachardot\}/\\ensuremath\{\\sum_\{\1\\in\2\}\}/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\\sum(.*)\\ \{\\isasymunion\}\\ /\\sum\1\\isasymunion/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\\isacommand\{by\}/\\nopagebreak\\isacommand\{by\}/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/(\{assumes\})\\ /\1\\ \\ /g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/(\{shows\})\\ /\1\\ \\ /g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/(\\isachardoublequoteclose\})\\ (\{\\isachardoublequoteopen\})/\1\\ \\ \\,\2/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/(\{\\isacharparenright\}\{\\isachardoublequoteclose\}\\ )\\ \\,(\{\\isachardoublequoteopen\}\{\\isacharparenleft\})/\1\2/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\\isactrlisub u\\isactrlisub *\{\\isacharprime\}/\\isactrlisub\{u\\isacharprime\}/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\\isanewline$/%\
+\\isanewline/' $HUFFMAN_TEX
+sed '/\\isanewline$/,// s/^\(\(\\ \)*\)/\1\1/' $HUFFMAN_TEX > $HUFFMAN_TEX.bak
+mv $HUFFMAN_TEX.bak $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\{\\isacharcolon\}%/\{\\isacharcolon\}\\nopagebreak%/g' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/\\isakeyword\{where\}/\\isakeyword\{where\}\\nopagebreak/' $HUFFMAN_TEX
+perl -pi -i.bak -e 's/(\{\\isacharbrackleft\})(\{\\isacharbrackright\})/\1\\vthinspace\2/g' $HUFFMAN_TEX
+
+"$ISABELLE_TOOL" latex -o sty
+"$ISABELLE_TOOL" latex -o "$FMT"
+"$ISABELLE_TOOL" latex -o "$FMT"
+

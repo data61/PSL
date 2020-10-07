@@ -1,0 +1,11 @@
+chapter AFP
+
+session Open_Induction (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Restricted_Predicates
+    Open_Induction
+  document_files
+    "root.tex"
+    "root.bib"
+

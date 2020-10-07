@@ -1,0 +1,13 @@
+chapter AFP
+
+session Finite_Automata_HF (AFP) = HOL +
+  description "Finite Automata and Regular Languages in HF Set Theory"
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "Regular-Sets"
+    HereditarilyFinite
+  theories
+    Finite_Automata_HF
+  document_files
+    "root.tex"

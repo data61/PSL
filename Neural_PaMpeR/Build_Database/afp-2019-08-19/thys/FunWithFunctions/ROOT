@@ -1,0 +1,9 @@
+chapter AFP
+
+session FunWithFunctions (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    FunWithFunctions
+  document_files
+    "root.bib"
+    "root.tex"

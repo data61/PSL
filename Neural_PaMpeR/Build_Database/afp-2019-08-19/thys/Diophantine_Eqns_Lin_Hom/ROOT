@@ -1,0 +1,17 @@
+chapter AFP
+
+session Diophantine_Eqns_Lin_Hom (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    List_Vector
+    Linear_Diophantine_Equations
+    Sorted_Wrt
+    Minimize_Wrt
+    Algorithm
+  theories [document = false, condition = ISABELLE_GHC]
+    Solver_Code
+  document_files
+    "root.bib"
+    "root.tex"
+  export_files (in ".") [2]
+    "Diophantine_Eqns_Lin_Hom.Solver_Code:**"

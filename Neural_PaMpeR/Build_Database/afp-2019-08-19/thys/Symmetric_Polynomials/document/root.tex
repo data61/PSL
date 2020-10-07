@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsfonts, amsmath, amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Symmetric Polynomials}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+A symmetric polynomial is a polynomial in variables $X_1, \ldots, X_n$ that does not discriminate between its variables, i.\,e.\ it is invariant under any permutation of them. These polynomials are important in the study of the relationship between the coefficients of a univariate polynomial and its roots in its algebraic closure.
+
+This article provides a definition of symmetric polynomials and the elementary symmetric polynomials $e_1,\ldots, e_n$ and proofs of their basic properties, including three notable ones:
+\begin{itemize}
+\item Vieta's formula, which gives an explicit expression for the $k$-th coefficient of a univariate monic polynomial in terms of its roots $x_1,\ldots,x_n$, namely $c_k = (-1)^{n-k}e_{n-k}(x_1,\ldots,x_n)$.
+\item Second, the Fundamental Theorem of Symmetric Polynomials, which states that any symmetric polynomial is itself a uniquely determined polynomial combination of the elementary symmetric polynomials.
+\item Third, as a corollary of the previous two, that given a polynomial over some ring $R$, any symmetric polynomial combination of its roots is also in $R$ even when the roots are not.
+\end{itemize}
+Both the symmetry property itself and the witness for the Fundamental Theorem are executable.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+\parindent 0pt\parskip 0.5ex
+
+\input{session}
+
+\nocite{blum_smith_coskey13}
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

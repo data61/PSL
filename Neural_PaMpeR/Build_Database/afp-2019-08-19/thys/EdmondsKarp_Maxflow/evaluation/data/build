@@ -1,0 +1,17 @@
+#!/bin/bash
+gcc data-gen.c -o data-gen
+
+mkdir -p samples
+cd samples
+
+test -f g-100-dense.txt || ../data-gen 100 .25 dense 1.4
+
+for ((i=1000;$i<=1450;i+=50)); do
+  test -f g-$i-dense.txt || ../data-gen $i .25 dense 1.4
+done
+
+for ((i=1000;$i<=5500;i+=500)); do
+  test -f g-$i-sparse.txt || ../data-gen $i .02 sparse 1
+done
+
+cd ..

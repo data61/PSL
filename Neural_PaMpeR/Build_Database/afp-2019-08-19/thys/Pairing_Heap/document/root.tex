@@ -1,0 +1,35 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Pairing Heap}
+\author{Hauke Brinkop and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+  This library defines three different versions of pairing heaps: a
+  functional version of the original design based on binary
+  trees~\cite{FredmanSST86}, the version by Okasaki~\cite{Okasaki} and
+  a modified version of the latter that is free of structural invariants.
+
+The amortized complexities of these implementations are analyzed in the AFP article
+\href{http://isa-afp.org/entries/Amortized_Complexity.shtml}{Amortized Complexity}.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

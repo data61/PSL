@@ -1,0 +1,12 @@
+chapter AFP
+
+session Integration (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Integral
+    Failure
+  document_files
+    "intro.tex"
+    "outro.tex"
+    "root.bib"
+    "root.tex"

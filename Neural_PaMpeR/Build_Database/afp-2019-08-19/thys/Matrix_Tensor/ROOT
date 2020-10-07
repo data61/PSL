@@ -1,0 +1,8 @@
+chapter AFP
+
+session Matrix_Tensor (AFP) = Matrix +
+  options [timeout = 600]
+  theories
+    Matrix_Tensor
+  document_files
+    "root.tex"

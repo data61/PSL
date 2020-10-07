@@ -1,0 +1,94 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage{xspace}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\newcommand\rats{\mathbb{Q}}
+\newcommand\ints{\mathbb{Z}}
+\newcommand\nats{\mathbb{N}}
+\newcommand\reals{\mathbb{R}}
+\newcommand\mod{\mathit{mod}}
+\newcommand\complex{\mathbb{C}}
+
+\newcommand\rai{real algebraic number\xspace}
+\newcommand\rais{real algebraic numbers\xspace}
+
+\begin{document}
+
+\title{Polynomial Factorization\footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author{Ren\'e Thiemann and Akihisa Yamada}
+\maketitle
+
+\begin{abstract}
+Based on existing libraries for polynomial interpolation and matrices,
+we formalized several factorization algorithms for polynomials, including
+Kronecker's algorithm for integer polynomials,
+Yun's square-free factorization algorithm for field polynomials, and
+a factorization algorithm which delivers root-free polynomials. 
+
+As side products, we developed division algorithms for polynomials over integral domains,
+as well as primality-testing and prime-factorization algorithms for integers.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+The details of the factorization algorithms have mostly been extracted 
+from Knuth's Art of Computer Programming
+\cite{Knuth}. Also Wikipedia provided valuable help.
+
+\medskip
+As a first fast
+preprocessing for factorization we integrated Yun's factorization algorithm which identifies duplicate
+factors \cite{Yun}. In contrast to the existing formalized result that the GCD of $p$ and $p'$ has no
+duplicate factors (and the same roots as $p$), Yun's algorithm decomposes a polynomial $p$ into
+$p_1^1 \cdot \ldots \cdot p_n^n$ such that no $p_i$ has a duplicate factor and there is no common
+factor of $p_i$ and $p_j$ for $i \neq j$. As a comparison, the GCD of $p$ and $p'$ is exactly
+$p_1 \cdot \ldots \cdot p_n$, but without decomposing this product into the list of $p_i$'s.
+
+Factorization over $\rats$ is reduced to factorization over $\ints$ 
+with the help of Gauss' Lemma.
+
+Kronecker's algorithm for factorization over $\ints$ requires both
+polynomial interpolation over $\ints$ and prime factorization over $\nats$. Whereas the former
+is available as a separate AFP-entry, for prime factorization we mechanized a simple algorithm depicted
+in \cite{Knuth}:
+For a given number $n$,
+the algorithm iteratively checks divisibility by numbers until $\sqrt n$,
+with some optimizations:
+it uses a precomputed set of small primes (all primes up to 1000), 
+and if $n\ \mod\ 30 = 11$, the next test candidates in the range $[n,n+30)$ 
+are only the 8 numbers $n,n+2,n+6,n+8,n+12,n+18,n+20,n+26$.
+
+However, in theory and praxis it turned out that Kronecker's algorithm is too inefficient. 
+Therefore, in a separate AFP-entry we formalized the Berlekamp-Zassenhaus 
+factorization.\footnote{The Berlekamp-Zassenhaus AFP-entry was originally not present 
+and at that time,
+this AFP-entry contained an implementation of Berlekamp-Zassenhaus as a
+non-certified function.}
+
+
+There also is a combined factorization algorithm: For polynomials of degree 2, the 
+closed form for the roots of quadratic polynomials is applied. For polynomials of degree 3, 
+the rational root test determines whether the polynomial is irreducible or not, and finally
+for degree 4 and higher, Kronecker's factorization algorithm is applied.
+
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

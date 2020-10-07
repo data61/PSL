@@ -1,0 +1,13 @@
+chapter AFP
+
+session Root_Balanced_Tree (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    Amortized_Complexity
+    "HOL-Data_Structures"
+    "HOL-Decision_Procs"
+  theories
+    Root_Balanced_Tree_Tab
+  document_files
+    "root.bib"
+    "root.tex"

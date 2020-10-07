@@ -1,0 +1,508 @@
+@STRING{j-fac   = "Formal Aspects of Computing" }
+@STRING{pub-springer={Springer-Verlag} }
+@STRING{pub-springer:adr={Heidelberg} }
+@STRING{s-lncs	= "Lecture Notes in Computer Science" }
+
+@Book{		  nipkow.ea:isabelle:2002,
+  author	= {Tobias Nipkow and Lawrence C. Paulson and Markus Wenzel},
+  title		= {Isabelle/HOL---A Proof Assistant for Higher-Order Logic},
+  publisher	= pub-springer,
+  address	= pub-springer:adr,
+  series	= s-lncs,
+  volume	= 2283,
+  doi		= {10.1007/3-540-45949-9},
+  abstract	= {This book is a self-contained introduction to interactive
+		  proof in higher-order logic (HOL), using the proof
+		  assistant Isabelle2002. It is a tutorial for potential
+		  users rather than a monograph for researchers. The book has
+		  three parts.
+		  
+		  1. Elementary Techniques shows how to model functional
+		  programs in higher-order logic. Early examples involve
+		  lists and the natural numbers. Most proofs are two steps
+		  long, consisting of induction on a chosen variable followed
+		  by the auto tactic. But even this elementary part covers
+		  such advanced topics as nested and mutual recursion. 2.
+		  Logic and Sets presents a collection of lower-level tactics
+		  that you can use to apply rules selectively. It also
+		  describes Isabelle/HOL's treatment of sets, functions and
+		  relations and explains how to define sets inductively. One
+		  of the examples concerns the theory of model checking, and
+		  another is drawn from a classic textbook on formal
+		  languages. 3. Advanced Material describes a variety of
+		  other topics. Among these are the real numbers, records and
+		  overloading. Advanced techniques are described involving
+		  induction and recursion. A whole chapter is devoted to an
+		  extended example: the verification of a security protocol.
+		  },
+  year		= 2002,
+  acknowledgement={brucker, 2007-02-19},
+  bibkey	= {nipkow.ea:isabelle:2002}
+}
+
+@Misc{		  dom-specification,
+  year		= 2016,
+  month		= {DOM Living Standard -- Last Updated 20 October 2016},
+  day		= 20,
+  url		= {https://dom.spec.whatwg.org/},
+  organization	= {Web Hypertext Application Technology Working Group
+		  (WHATWG)},
+  note		= {An archived copy of the version from 20 October 2016 is
+		  available at
+		  \url{https://git.logicalhacking.com/BrowserSecurity/fDOM-idl/}.}
+}
+
+@InProceedings{	  brucker.ea:core-dom:2018,
+  author	= {Achim D. Brucker and Michael Herzberg},
+  title		= {A Formal Semantics of the Core {DOM} in {Isabelle/HOL}},
+  booktitle	= {Proceedings of the Web Programming, Design, Analysis, And
+		  Implementation (WPDAI) track at WWW 2018},
+  location	= {Lyon, France},
+  url		= {https://www.brucker.ch/bibliography/abstract/brucker.ea-fdom-2018},
+  year		= {2018},
+  abstract	= {At its core, the Document Object Model (DOM) defines a
+		  tree-like data structure for representing documents in
+		  general and HTML documents in particular. It forms the
+		  heart of any rendering engine of modern web browsers.
+		  Formalizing the key concepts of the DOM is a pre-requisite
+		  for the formal reasoning over client-side JavaScript
+		  programs as well as for the analysis of security concepts
+		  in modern web browsers. In this paper, we present a
+		  formalization of the core DOM, with focus on the node-tree
+		  and the operations defined on node-trees, in Isabelle/HOL.
+		  We use the formalization to verify the functional
+		  correctness of the most important functions defined in the
+		  DOM standard. Moreover, our formalization is (1)
+		  extensible, i.e., can be extended without the need of
+		  re-proving already proven properties and (2) executable,
+		  i.e., we can generate executable code from our
+		  specification. },
+  keywords	= {Document Object Model, DOM, Formal Semantics,
+		  Isabelle/HOL},
+  classification= {conference},
+  areas		= {formal methods, software},
+  public	= {yes}
+}
+@Article{         klein:operating:2009,
+  author        = {Gerwin Klein},
+  title         = {Operating System Verification --- An Overview},
+  journal       = {S\={a}dhan\={a}},
+  publisher     = pub-springer,
+  year          = 2009,
+  volume        = 34,
+  number        = 1,
+  month         = feb,
+  pages         = {27--69},
+  abstract      = {This paper gives a high-level introduction to the topic of
+                  formal, interactive, machine-checked software verification
+                  in general, and the verification of operating systems code
+                  in particular. We survey the state of the art, the
+                  advantages and limitations of machine-checked code proofs,
+                  and describe two specific ongoing larger-scale verification
+                  projects in more detail.}
+}
+
+
+@InProceedings{   gardner.ea:securing:2009,
+  author        = {Ryan W. Gardner and Sujata Garera and Matthew W. Pagano
+                  and Matthew Green and Aviel D. Rubin},
+  title         = {Securing medical records on smart phones},
+  booktitle     = {ACM workshop on Security and privacy in medical and
+                  home-care systems (SPIMACS)},
+  year          = 2009,
+  isbn          = {978-1-60558-790-5},
+  pages         = {31--40},
+  location      = {Chicago, Illinois, USA},
+  doi           = {10.1145/1655084.1655090},
+  address       = pub-acm:adr,
+  publisher     = pub-acm,
+  abstract      = {There is an inherent conflict between the desire to
+                  maintain privacy of one's medical records and the need to
+                  make those records available during an emergency. To
+                  satisfy both objectives, we introduce a flexible
+                  architecture for the secure storage of medical records on
+                  smart phones. In our system, a person can view her records
+                  at any time, and emergency medical personnel can view the
+                  records as long as the person is present (even if she is
+                  unconscious). Our solution allows for efficient revocation
+                  of access rights and is robust against adversaries who can
+                  access the phone's storage offline.}
+}
+
+@InProceedings{   raad.ea:dom:2016,
+  author        = {Azalea Raad and Jos{\'{e}} Fragoso Santos and Philippa
+                  Gardner},
+  title         = {{DOM:} Specification and Client Reasoning},
+  booktitle     = {Programming Languages and Systems - 14th Asian Symposium,
+                  {APLAS} 2016, Hanoi, Vietnam, November 21-23, 2016,
+                  Proceedings},
+  pages         = {401--422},
+  year          = 2016,
+  crossref      = {igarashi:programming:2016},
+  doi           = {10.1007/978-3-319-47958-3_21},
+  abstract      = {We present an axiomatic specification of a key fragment of
+                  DOM using structural separation logic. This specification
+                  allows us to develop modular reasoning about client
+                  programs that call the DOM.}
+}
+
+
+@InProceedings{   bohannon.ea:featherweight:2010,
+  author        = {Aaron Bohannon and Benjamin C. Pierce},
+  title         = {Featherweight {F}irefox: {F}ormalizing the Core of a Web
+                  Browser},
+  booktitle     = {Usenix Conference on Web Application Development
+                  (WebApps)},
+  year          = 2010,
+  month         = jun,
+  url           = {http://www.cis.upenn.edu/~bohannon/browser-model/},
+  abstract      = {We offer a formal specification of the core functionality
+                  of a web browser in the form of a small-step operational
+                  semantics. The specification accurately models the asyn-
+                  chronous nature of web browsers and covers the basic as-
+                  pects of windows, DOM trees, cookies, HTTP requests and
+                  responses, user input, and a minimal scripting lan- guage
+                  with first-class functions, dynamic evaluation, and AJAX
+                  requests. No security enforcement mechanisms are
+                  included{\^a}instead, the model is intended to serve as a
+                  basis for formalizing and experimenting with different
+                  security policies and mechanisms. We survey the most
+                  interesting design choices and discuss how our model re-
+                  lates to real web browsers.}
+}
+
+@Proceedings{     joyce.ea:higher:1994,
+  editor        = {Jeffrey J. Joyce and Carl-Johan H. Seger},
+  title         = {Higher Order Logic Theorem Proving and Its Applications
+                  (HUG)},
+  booktitle     = {Higher Order Logic Theorem Proving and Its Applications
+                  (HUG)},
+  publisher     = pub-springer,
+  address       = pub-springer:adr,
+  series        = s-lncs,
+  abstract      = {Theorem proving based techniques for formal hardware
+                  verification have been evolving constantly and researchers
+                  are getting able to reason about more complex issues than
+                  it was possible or practically feasible in the past. It is
+                  often the case that a model of a system is built in a
+                  formal logic and then reasoning about this model is carried
+                  out in the logic. Concern is growing on how to consistently
+                  interface a model built in a formal logic with an informal
+                  CAD environment. Researchers have been investigating how to
+                  define the formal semantics of hardware description
+                  languages so that one can formally reason about models
+                  informally dealt with in a CAD environment. At the
+                  University of Cambridge, the embedding of hardware
+                  description languages in a logic is classified in two
+                  categories: deep embedding and shallow embedding. In this
+                  paper we argue that there are degrees of formality in
+                  shallow embedding a language in a logic. The choice of the
+                  degree of formality is a trade-off between the security of
+                  the embedding and the amount and complexity of the proof
+                  effort in the logic. We also argue that the design of a
+                  language could consider this verifiability issue. There are
+                  choices in the design of a language that can make it easier
+                  to improve the degree of formality, without implying
+                  serious drawbacks for the CAD environment.},
+  volume        = 780,
+  year          = 1994,
+  doi           = {10.1007/3-540-57826-9},
+  isbn          = {3-540-57826-9},
+  acknowledgement={brucker, 2007-02-19}
+}
+
+
+@Misc{ whatwg:dom:2017,
+  key={whatwg},
+  author={{WHATWG}},
+  url={https://dom.spec.whatwg.org/commit-snapshots/6253e53af2fbfaa6d25ad09fd54280d8083b2a97/},
+  month=mar,
+  year=2017,
+  day=24,
+  title={{DOM} -- Living Standard},
+  note={Last Updated 24 {March} 2017},
+  institution =  {WHATWG},
+}
+
+@Misc{ whatwg:html:2017,
+  key={whatwg},
+  author={{WHATWG}},
+  url={https://html.spec.whatwg.org/},
+  month=apr,
+  year=2017,
+  day=13,
+  title={{HTML} -- Living Standard},
+  note={Last Updated 13 {April} 2017},
+  institution =  {WHATWG},
+}
+
+
+@Misc{ w3c:dom:2015,
+  key={w3c},
+  author={{W3C}},
+  url={https://www.w3.org/TR/dom/},
+  month=nov,
+  year=2015,
+  day=19,
+  title={{W3C} {DOM4}},
+  institution =  {W3C},
+}
+
+
+@Proceedings{     igarashi:programming:2016,
+  editor        = {Atsushi Igarashi},
+  title         = {Programming Languages and Systems - 14th Asian Symposium,
+                  {APLAS} 2016, Hanoi, Vietnam, November 21-23, 2016,
+                  Proceedings},
+  series        = {Lecture Notes in Computer Science},
+  volume        = 10017,
+  year          = 2016,
+  doi           = {10.1007/978-3-319-47958-3},
+  isbn          = {978-3-319-47957-6}
+}
+
+
+
+
+
+
+@InProceedings{   gardner.ea:dom:2008,
+  author        = {Philippa Gardner and Gareth Smith and Mark J. Wheelhouse
+                  and Uri Zarfaty},
+  title         = {{DOM:} Towards a Formal Specification},
+  booktitle     = {{PLAN-X} 2008, Programming Language Technologies for XML,
+                  An {ACM} {SIGPLAN} Workshop colocated with {POPL} 2008, San
+                  Francisco, California, USA, January 9, 2008},
+  year          = 2008,
+  crossref      = {plan-x:2008},
+  url           = {http://gemo.futurs.inria.fr/events/PLANX2008/papers/p18.pdf},
+  abstract      = {The W3C Document Object Model (DOM) specifies an XML up-
+                  date library. DOM is written in English, and is therefore
+                  not compo- sitional and not complete. We provide a first
+                  step towards a compo- sitional specification of DOM. Unlike
+                  DOM, we are able to work with a minimal set of commands and
+                  obtain a complete reason- ing for straight-line code. Our
+                  work transfers O{\^a}Hearn, Reynolds and Yang{\^a}s
+                  local Hoare reasoning for analysing heaps to XML, viewing
+                  XML as an in-place memory store as does DOM. In par-
+                  ticular, we apply recent work by Calcagno, Gardner and
+                  Zarfaty on local Hoare reasoning about a simple tree-update
+                  language to DOM, showing that our reasoning scales to DOM.
+                  Our reasoning not only formally specifies a significant
+                  subset of DOM Core Level 1, but can also be used to verify
+                  e.g. invariant properties of simple Javascript programs.}
+}
+
+
+
+@InProceedings{   jang.ea:establishing:2012,
+  author        = {Dongseok Jang and Zachary Tatlock and Sorin Lerner},
+  title         = {Establishing Browser Security Guarantees through Formal
+                  Shim Verification},
+  booktitle     = {Proceedings of the 21th {USENIX} Security Symposium,
+                  Bellevue, WA, USA, August 8-10, 2012},
+  pages         = {113--128},
+  year          = 2012,
+  crossref      = {kohno:proceedings:2012},
+  url           = {https://www.usenix.org/conference/usenixsecurity12/technical-sessions/presentation/jang},
+  abstract      = { Web browsers mediate access to valuable private data in
+                  domains ranging from health care to banking. Despite this
+                  critical role, attackers routinely exploit browser
+                  vulnerabilities to exfiltrate private data and take over
+                  the un- derlying system. We present Q UARK , a browser
+                  whose kernel has been implemented and verified in Coq. We
+                  give a specification of our kernel, show that the
+                  implementation satisfies the specification, and finally
+                  show that the specification implies several security
+                  properties, including tab non-interference, cookie
+                  integrity and confidentiality, and address bar integrity.
+                  }
+}
+
+@Proceedings{     kohno:proceedings:2012,
+  editor        = {Tadayoshi Kohno},
+  title         = {Proceedings of the 21th {USENIX} Security Symposium,
+                  Bellevue, WA, USA, August 8-10, 2012},
+  publisher     = {{USENIX} Association},
+  year          = 2012,
+  timestamp     = {Thu, 15 May 2014 09:12:27 +0200}
+}
+
+
+
+@Proceedings{     plan-x:2008,
+  title         = {{PLAN-X} 2008, Programming Language Technologies for XML,
+                  An {ACM} {SIGPLAN} Workshop colocated with {POPL} 2008, San
+                  Francisco, California, USA, January 9, 2008},
+  year          = 2008,
+  timestamp     = {Fri, 18 Jan 2008 13:01:04 +0100}
+}
+
+
+@Article{ brucker.ea:extensible:2008-b,
+	abstract	= 	{We present an extensible encoding of object-oriented data models into HOL. Our encoding is supported by a datatype package that leverages the use of the shallow embedding technique to object-oriented specification and programming languages. The package incrementally compiles an object-oriented data model, i.e., a class model, to a theory containing object-universes, constructors, accessor functions, coercions (casts) between dynamic and static types, characteristic sets, and co-inductive class invariants. The package is conservative, i.e., all properties are derived entirely from constant definitions, including the constraints over object structures. As an application, we use the package for an object-oriented core-language called IMP++, for which we formally prove the correctness of a Hoare-Logic with respect to a denotational semantics.},
+	address	= 	{Heidelberg},
+	author	= 	{Achim D. Brucker and Burkhart Wolff},
+	doi	= 	{10.1007/s10817-008-9108-3},
+	issn	= 	{0168-7433},
+	issue	= 	{3},
+	journal	= 	{Journal of Automated Reasoning},
+	keywords	= 	{object-oriented data models, HOL, theorem proving, verification},
+	language	= 	{USenglish},
+	pages	= 	{219--249},
+	pdf	= 	{https://www.brucker.ch/bibliography/download/2008/brucker.ea-extensible-2008-b.pdf},
+	publisher	= 	{Springer-Verlag},
+	title	= 	{An Extensible Encoding of Object-oriented Data Models in HOL},
+	url	= 	{https://www.brucker.ch/bibliography/abstract/brucker.ea-extensible-2008-b},
+	volume	= 	{41},
+	year	= 	{2008},
+} 
+
+@PhDThesis{ brucker:interactive:2007,
+	abstract	= 	{We present a semantic framework for object-oriented specification languages. We develop this framework as a conservative shallow embedding in Isabelle/HOL. Using only conservative extensions guarantees by construction the consistency of our formalization. Moreover, we show how our framework can be used to build an interactive proof environment, called HOL-OCL, for object-oriented specifications in general and for UML/OCL in particular.\\\\Our main contributions are an extensible encoding of object-oriented data structures in HOL, a datatype package for object-oriented specifications, and the development of several equational and tableaux calculi for object-oriented specifications. Further, we show that our formal framework can be the basis of a formal machine-checked semantics for OCL that is compliant to the OCL 2.0 standard.},
+	abstract_de	= 	{In dieser Arbeit wird ein semantisches Rahmenwerk f{\"u}r objektorientierte Spezifikationen vorgestellt. Das Rahmenwerk ist als konservative, flache Einbettung in Isabelle/HOL realisiert. Durch die Beschr{\"a}nkung auf konservative Erweiterungen kann die logische Konsistenz der Einbettung garantiert werden. Das semantische Rahmenwerk wird verwendet, um das interaktives Beweissystem HOL-OCL f{\"u}r objektorientierte Spezifikationen im Allgemeinen und insbesondere f{\"u}r UML/OCL zu entwickeln.\\\\Die Hauptbeitr{\"a}ge dieser Arbeit sind die Entwicklung einer erweiterbaren Kodierung objektorientierter Datenstrukturen in HOL, ein Datentyp-Paket f{\"u}r objektorientierte Spezifikationen und die Entwicklung verschiedener Kalk{\"u}le f{\"u}r objektorientierte Spezifikationen. Zudem zeigen wir, wie das formale Rahmenwerk verwendet werden kann, um eine formale, maschinell gepr{\"u}fte Semantik f{\"u}r OCL anzugeben, die konform zum Standard f{\"u}r OCL 2.0 ist.},
+	author	= 	{Achim D. Brucker},
+	keywords	= 	{OCL, UML, formal semantics, theorem proving, Isabelle, HOL-OCL},
+	month	= 	{mar},
+	note	= 	{ETH Dissertation No. 17097.},
+	pdf	= 	{https://www.brucker.ch/bibliography/download/2007/brucker-interactive-2007.pdf},
+	school	= 	{ETH Zurich},
+	title	= 	{An Interactive Proof Environment for Object-oriented Specifications},
+	url	= 	{https://www.brucker.ch/bibliography/abstract/brucker-interactive-2007},
+	year	= 	{2007},
+} 
+
+@InCollection{    brucker.ea:standard-compliance-testing:2018,
+  talk          = {talk:brucker.ea:standard-compliance-testing:2018},
+  abstract      = {Most popular technologies are based on informal or
+                  semiformal standards that lack a rigid formal semantics.
+                  Typical examples include web technologies such as the DOM
+                  or HTML, which are defined by the Web Hypertext Application
+                  Technology Working Group (WHATWG) and the World Wide Web
+                  Consortium (W3C). While there might be API specifications
+                  and test cases meant to assert the compliance of a certain
+                  implementation, the actual standard is rarely accompanied
+                  by a formal model that would lend itself for, e.g.,
+                  verifying the security or safety properties of real
+                  systems.
+
+                  Even when such a formalization of a standard exists, two
+                  important questions arise: first, to what extend does the
+                  formal model comply to the standard and, second, to what
+                  extend does the implementation comply to the formal model
+                  and the assumptions made during the verification? In this
+                  paper, we present an approach that brings all three
+                  involved artifacts - the (semi-)formal standard, the
+                  formalization of the standard, and the implementations -
+                  closer together by combining verification, symbolic
+                  execution, and specification based testing.},
+  keywords      = {standard compliance, compliance tests, DOM},
+  location      = {Toulouse, France},
+  author        = {Achim D. Brucker and Michael Herzberg},
+  booktitle     = {{TAP} 2018: Tests And Proofs},
+  language      = {USenglish},
+  publisher     = pub-springer,
+  address       = pub-springer:adr,
+  series        = s-lncs,
+  number        = 10889,
+  editor        = {Cathrine Dubois and Burkhart Wolff},
+  title         = {Formalizing (Web) Standards: An Application of Test and
+                  Proof},
+  categories    = {holtestgen, websecurity},
+  classification= {conference},
+  areas         = {formal methods, software engineering},
+  public        = {yes},
+  year          = 2018,
+  doi           = {10.1007/978-3-319-92994-1_9},
+  pages         = {159--166},
+  isbn          = {978-3-642-38915-3},
+  pdf           = {http://www.brucker.ch/bibliography/download/2018/brucker.ea-standard-compliance-testing-2018.pdf},
+  url           = {http://www.brucker.ch/bibliography/abstract/brucker.ea-standard-compliance-testing-2018}
+}
+
+
+@InCollection{    brucker.ea:interactive:2005,
+  keywords      = {symbolic test case generations, black box testing, white
+                  box testing, theorem proving, interactive testing},
+  abstract      = {HOL-TestGen is a test environment for specification-based
+                  unit testing build upon the proof assistant Isabelle/HOL\@.
+                  While there is considerable skepticism with regard to
+                  interactive theorem provers in testing communities, we
+                  argue that they are a natural choice for (automated)
+                  symbolic computations underlying systematic tests. This
+                  holds in particular for the development on non-trivial
+                  formal test plans of complex software, where some parts of
+                  the overall activity require inherently guidance by a test
+                  engineer. In this paper, we present the underlying methods
+                  for both black box and white box testing in interactive
+                  unit test scenarios. HOL-TestGen can also be understood as
+                  a unifying technical and conceptual framework for
+                  presenting and investigating the variety of unit test
+                  techniques in a logically consistent way. },
+  location      = {Edinburgh},
+  author        = {Achim D. Brucker and Burkhart Wolff},
+  booktitle     = {Formal Approaches to Testing of Software},
+  language      = {USenglish},
+  publisher     = pub-springer,
+  address       = pub-springer:adr,
+  series        = s-lncs,
+  number        = 3997,
+  doi           = {10.1007/11759744_7},
+  isbn          = {3-540-25109-X},
+  editor        = {Wolfgang Grieskamp and Carsten Weise},
+  pdf           = {http://www.brucker.ch/bibliography/download/2005/brucker.ea-interactive-2005.pdf},
+  project       = {CSFMDOS},
+  title         = {Interactive Testing using {HOL}-{TestGen}},
+  classification= {workshop},
+  areas         = {formal methods, software},
+  categories    = {holtestgen},
+  year          = 2005,
+  public        = {yes},
+  url           = {http://www.brucker.ch/bibliography/abstract/brucker.ea-interactive-2005}
+}
+
+
+@Article{         brucker.ea:theorem-prover:2012,
+  author        = {Achim D. Brucker and Burkhart Wolff},
+  journal       = j-fac,
+  publisher     = pub-springer,
+  address       = pub-springer:adr,
+  language      = {USenglish},
+  categories    = {holtestgen},
+  title         = {On Theorem Prover-based Testing},
+  year          = 2013,
+  issn          = {0934-5043},
+  pages         = {683--721},
+  volume        = 25,
+  number        = 5,
+  classification= {journal},
+  areas         = {formal methods, software},
+  public        = {yes},
+  doi           = {10.1007/s00165-012-0222-y},
+  keywords      = {test case generation, domain partitioning, test sequence,
+                  theorem proving, HOL-TestGen},
+  abstract      = {HOL-TestGen is a specification and test case generation
+                  environment extending the interactive theorem prover
+                  Isabelle/HOL. As such, HOL-TestGen allows for an integrated
+                  workflow supporting interactive theorem proving, test case
+                  generation, and test data generation.
+
+                  The HOL-TestGen method is two-staged: first, the original
+                  formula is partitioned into test cases by transformation
+                  into a normal form called test theorem. Second, the test
+                  cases are analyzed for ground instances (the test data)
+                  satisfying the constraints of the test cases. Particular
+                  emphasis is put on the control of explicit test-hypotheses
+                  which can be proven over concrete programs.
+
+                  Due to the generality of the underlying framework, our
+                  system can be used for black-box unit, sequence, reactive
+                  sequence and white-box test scenarios. Although based on
+                  particularly clean theoretical foundations, the system can
+                  be applied for substantial case-studies. },
+  pdf           = {http://www.brucker.ch/bibliography/download/2012/brucker.ea-theorem-prover-2012.pdf},
+  url           = {http://www.brucker.ch/bibliography/abstract/brucker.ea-theorem-prover-2012}
+}
+
+
+

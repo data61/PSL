@@ -1,0 +1,14 @@
+chapter AFP
+
+session Abs_Int_ITP2012 (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-IMP"
+  theories
+    Abs_Int3
+  theories [document = false]
+    Abs_Int1_const
+    Abs_Int1_parity
+  document_files
+    "root.bib"
+    "root.tex"

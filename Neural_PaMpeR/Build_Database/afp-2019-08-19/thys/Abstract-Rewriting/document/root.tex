@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+\begin{document}
+
+\title{Abstract Rewriting}
+\author{Christian Sternagel and Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+We present an Isabelle formalization of abstract rewriting (see, e.g.,
+\cite{BaaderNipkow}). First, we define standard relations like
+\emph{joinability}, \emph{meetability}, \emph{conversion}, etc. Then, we
+formalize important properties of abstract rewrite systems, e.g.,
+confluence and strong normalization. Our main concern is on strong
+normalization, since this formalization is the basis of \cite{CeTA} (which
+is mainly about strong normalization of term rewrite systems; see also
+\isafor/\ceta's
+website\footnote{\url{http://cl-informatik.uibk.ac.at/software/ceta}}).
+Hence lemmas involving strong normalization, constitute by far the biggest
+part of this theory. One of those is Newman's lemma.
+\end{abstract}
+
+\tableofcontents
+
+A description of this formalization will be available in
+\cite{Sternagel2010}.
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+\end{document}

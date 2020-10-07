@@ -1,0 +1,78 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Semantics and Data Refinement of Invariant Based Programs}
+
+\author{Viorel Preoteasa and Ralph-Johan Back}
+
+\maketitle
+
+\begin{abstract}
+The invariant based programming is a technique of constructing
+correct programs by first identifying the basic situations
+(pre- and post-conditions and invariants) that can occur during
+the execution of the program, and then defining the transitions
+and proving that they preserve the invariants. Data refinement is a 
+technique of building correct programs working on concrete datatypes
+as refinements of more abstract programs. In the theories presented here 
+we formalize the predicate transformer semantics for invariant based 
+programs and their data refinement.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+Invariant based programming 
+\cite{Back80:invariants,Back83:invariants,aBack08,back:preoteasa:2008} 
+is an approach to construct correct programs where we start by 
+identifying all basic situations (pre- and post-conditions, and loop 
+invariants) that could arise during the execution of the algorithm. 
+These situations are determined and described before any code is written. 
+After that, we identify the transitions between the situations, which 
+together determine the flow of control in the program. The transitions 
+are verified at the same time as they are constructed. The correctness 
+of the program is thus established as part of the construction process.
+
+These theories present the predicate transformer sematics for invariant based 
+programs and their data refinement. The complete treatment of the sematics of 
+invariant based programs was presented in 
+\cite{back:preoteasa:2008}. There we introduced big and small step semantics, 
+predicate transformer semantics, and we proved complete and correct Hoare
+rules for invariand based programs. These results were also formalized 
+in the PVS theorem prover. In \cite{preoteasa:back:2009} we have studied
+data refinement of invariant based programs, and we outlined the steps
+for proving the Deutsch-Schorr-Waite marking algorithm using data refinement
+of invariant based programs. These theories represent a mechanical 
+formalization of the data refinement results from \cite{preoteasa:back:2009}
+and some of the results from \cite{back:preoteasa:2008}. In another 
+formalization we will show how the theory presented here can be used
+in the complete verification of the marking algorithm.
+
+
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

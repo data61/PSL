@@ -1,0 +1,35 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Kruskal's Algorithm for Minimum Spanning Forest}
+\author{Maximilian P.L. Haslbeck, Peter Lammich, Julian Biendarra}
+\maketitle
+
+\begin{abstract}
+This Isabelle/HOL formalization defines a greedy algorithm for finding a minimum weight basis
+on a weighted matroid and proves its correctness.
+This algorithm is an abstract version of Kruskal's algorithm.
+
+We interpret the abstract algorithm for the cycle matroid (i.e. forests in a graph)
+and refine it to imperative executable code using an efficient union-find data structure. 
+
+Our formalization can be instantiated for different graph representations.
+We provide instantiations for undirected graphs and symmetric directed graphs.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\end{document}

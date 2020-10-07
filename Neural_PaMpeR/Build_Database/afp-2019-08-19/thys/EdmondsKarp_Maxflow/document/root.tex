@@ -1,0 +1,202 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{wasysym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Tweaks
+\newcounter{TTStweak_tag}
+\setcounter{TTStweak_tag}{0}
+\newcommand{\setTTS}{\setcounter{TTStweak_tag}{1}}
+\newcommand{\resetTTS}{\setcounter{TTStweak_tag}{0}}
+\newcommand{\insertTTS}{\ifnum\value{TTStweak_tag}=1 \ \ \ \fi}
+
+\renewcommand{\isakeyword}[1]{\resetTTS\emph{\bf\def\isachardot{.}\def\isacharunderscore{\isacharunderscorekeyword}\def\isacharbraceleft{\{}\def\isacharbraceright{\}}#1}}
+\renewcommand{\isachardoublequoteopen}{\insertTTS}
+\renewcommand{\isachardoublequoteclose}{\setTTS}
+\renewcommand{\isanewline}{\mbox{}\par\mbox{}\resetTTS}
+
+
+
+\renewcommand{\isamarkupcmt}[1]{\hangindent5ex{\isastylecmt --- #1}}
+
+%\newcommand{\isaheader}[1]{\section{#1}}
+
+\newcommand{\DefineSnippet}[2]{#2}
+
+\begin{document}
+
+\title{Formalizing the Edmonds-Karp Algorithm}
+\author{Peter Lammich and S.~Reza Sefidgar}
+\maketitle
+
+\begin{abstract}
+We present a formalization of the Edmonds-Karp algorithm for computing the maximum flow in a network.
+Our formal proof closely follows a standard textbook proof, and is accessible even without being
+an expert in Isabelle/HOL--- the interactive theorem prover used for the formalization.
+We use stepwise refinement to refine a generic formulation of the Ford-Fulkerson method to Edmonds-Karp algorithm, 
+and formally prove its complexity bound of $O(VE^2)$. 
+
+Further refinement yields a verified implementation, whose execution time compares well to an unverified reference implementation in Java.
+
+This entry is based on our ITP-2016 paper with the same title.
+\end{abstract}
+
+\clearpage
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+Computing the maximum flow of a network is an important problem in graph theory.
+Many other problems, like maximum-bipartite-matching, edge-disjoint-paths,
+circulation-demand, as well as various scheduling and resource allocating
+problems can be reduced to it. The Ford-Fulkerson method~\cite{FF56} describes a
+class of algorithms to solve the maximum flow problem. An important instance is
+the Edmonds-Karp algorithm~\cite{EK72}, which was one of the first algorithms to
+solve the maximum flow problem in polynomial time for the general case of
+networks with real valued capacities.
+
+In our paper~\cite{LaSe16}, we present a formal verification of the Edmonds-Karp algorithm
+and its polynomial complexity bound. The formalization is conducted entirely in
+the Isabelle/HOL proof assistant~\cite{NPW02}. This entry contains the complete formalization.
+Stepwise refinement
+techniques~\cite{Wirth71,Back78,BaWr98} allow us to elegantly structure our
+verification into an abstract proof of the Ford-Fulkerson method, its
+instantiation to the Edmonds-Karp algorithm, and finally an efficient
+implementation. The abstract parts of our verification closely follow the
+textbook presentation of Cormen et al.~\cite{CLRS09}. We have used the
+Isar~\cite{Wenzel99} proof language to develop human-readable proofs that are 
+accessible even to non-Isabelle experts.
+
+While there exists another formalization of the Ford-Fulkerson method in
+Mizar~\cite{Lee05}, we are, to the best of our knowledge, the first that verify a
+polynomial maximum flow algorithm, prove the polynomial complexity bound, or
+provide a verified executable implementation. Moreover, this entry is a case
+study on elegantly formalizing algorithms.
+% generated text of all theories
+\input{session}
+
+\section{Conclusion}\label{sec:concl}
+  We have presented a verification of the Edmonds-Karp algorithm, using a
+  stepwise refinement approach. Starting with a proof of the Ford-Fulkerson
+  theorem, we have verified the generic Ford-Fulkerson method, specialized it to
+  the Edmonds-Karp algorithm, and proved the upper bound $O(VE)$ for the number
+  of outer loop iterations. We then conducted several refinement steps to derive
+  an efficiently executable implementation of the algorithm, including a
+  verified breadth first search algorithm to obtain shortest augmenting paths.
+  Finally, we added a verified algorithm to check whether the input is a valid
+  network, and generated executable code in SML. The runtime of our verified
+  implementation compares well to that of an unverified reference implementation
+  in Java. Our formalization has combined several techniques to achieve an
+  elegant and accessible formalization: Using the Isar proof
+  language~\cite{Wenzel99}, we were able to provide a completely rigorous but
+  still accessible proof of the Ford-Fulkerson theorem. The Isabelle Refinement
+  Framework~\cite{LaTu12,La12} and the Sepref tool~\cite{La15,La16} allowed us
+  to present the Ford-Fulkerson method on a level of abstraction that closely
+  resembles pseudocode presentations found in textbooks, and then formally link
+  this presentation to an efficient implementation. Moreover, modularity of
+  refinement allowed us to develop the breadth first search algorithm
+  independently, and later link it to the main algorithm. The BFS algorithm can
+  be reused as building block for other algorithms. The data structures are
+  re-usable, too: although we had to implement the array representation of
+  (capacity) matrices for this project, it will be added to the growing library
+  of verified imperative data structures supported by the Sepref tool, such that
+  it can be re-used for future formalizations. During this project, we have
+  learned some lessons on verified algorithm development: 
+  \begin{itemize} 
+  \item
+  It is important to keep the levels of abstraction strictly separated. For
+  example, when implementing the capacity function with arrays, one needs to
+  show that it is only applied to valid nodes. However, proving that, e.g.,
+  augmenting paths only contain valid nodes is hard at this low level. Instead,
+  one can protect the application of the capacity function by an assertion---
+  already on a high abstraction level where it can be easily discharged. On
+  refinement, this assertion is passed down, and ultimately available for the
+  implementation. Optimally, one wraps the function together with an assertion
+  of its precondition into a new constant, which is then refined independently.
+  \item Profiling has helped a lot in identifying candidates for optimization.
+  For example, based on profiling data, we decided to delay a possible
+  deforestation optimization on augmenting paths, and to first refine the
+  algorithm to operate on residual graphs directly. 
+  \item ``Efficiency bugs''
+  are as easy to introduce as for unverified software. For example, out of
+  convenience, we implemented the successor list computation by \emph{filter}.
+  Profiling then indicated a hot-spot on this function. As the order of
+  successors does not matter, we invested a bit more work to make the
+  computation tail recursive and gained a significant speed-up. Moreover, we
+  realized only lately that we had accidentally implemented and verified
+  matrices with column major ordering, which have a poor cache locality for our
+  algorithm. Changing the order resulted in another significant speed-up.
+  \end{itemize} 
+  We conclude with some statistics: The formalization consists of
+  roughly 8000 lines of proof text, where the graph theory up to the
+  Ford-Fulkerson algorithm requires 3000 lines. The abstract Edmonds-Karp
+  algorithm and its complexity analysis contribute 800 lines, and its
+  implementation (including BFS) another 1700 lines. The remaining lines are
+  contributed by the network checker and some auxiliary theories. The
+  development of the theories required roughly 3 man month, a significant amount
+  of this time going into a first, purely functional version of the
+  implementation, which was later dropped in favor of the faster imperative
+  version. 
+
+  \subsection{Related Work}\label{sec:related_work} 
+  We are only aware
+  of one other formalization of the Ford-Fulkerson method conducted in
+  Mizar~\cite{MaRu05} by Lee. Unfortunately, there seems to be no publication on
+  this formalization except~\cite{Lee05}, which provides a Mizar proof script
+  without any additional comments except that it ``defines and proves
+  correctness of Ford/Fulkerson's Maximum Network-Flow algorithm at the level of
+  graph manipulations''. Moreover, in Lee et al.~\cite{LeRu07}, which is about
+  graph representation in Mizar, the formalization is shortly mentioned, and it
+  is clarified that it does not provide any implementation or data structure
+  formalization. As far as we understood the Mizar proof script, it formalizes
+  an algorithm roughly equivalent to our abstract version of the Ford-Fulkerson
+  method. Termination is only proved for integer valued capacities. Apart from
+  our own work~\cite{La14,NoLa12}, there are several other verifications of
+  graph algorithms and their implementations, using different techniques and
+  proof assistants. Noschinski~\cite{Nosch15} verifies a checker for
+  (non-)planarity certificates using a bottom-up approach. Starting at a C
+  implementation, the AutoCorres tool~\cite{Greenaway15,GAK12} generates a
+  monadic representation of the program in Isabelle. Further abstractions are
+  applied to hide low-level details like pointer manipulations and fixed size
+  integers. Finally, a verification condition generator is used to prove the
+  abstracted program correct. Note that their approach takes the opposite
+  direction than ours: While they start at a concrete version of the algorithm
+  and use abstraction steps to eliminate implementation details, we start at an
+  abstract version, and use concretization steps to introduce implementation
+  details.
+
+  Chargu\'eraud~\cite{char11} also uses a bottom-up approach to verify
+  imperative programs written in a subset of OCaml, amongst them a version of
+  Dijkstra's algorithm: A verification condition generator generates a
+  \emph{characteristic formula}, which reflects the semantics of the program in
+  the logic of the Coq proof assistant~\cite{BeCa10}. 
+
+  \subsection{Future Work}
+  Future work includes the optimization of our implementation, and the
+  formalization of more advanced maximum flow algorithms, like Dinic's
+  algorithm~\cite{Di06} or push-relabel algorithms~\cite{GoTa88}. We expect both
+  formalizing the abstract theory and developing efficient implementations to be
+  challenging but realistic tasks.
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

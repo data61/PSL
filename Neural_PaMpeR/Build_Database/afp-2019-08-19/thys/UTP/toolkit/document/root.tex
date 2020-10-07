@@ -1,0 +1,86 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{fullpage}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{document}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+\usepackage[english]{babel}
+  %option greek for \<euro>
+  %option english (default language) for \<guillemotleft>, \<guillemotright>
+
+\usepackage{stmaryrd}
+  %for \<Sqinter>
+
+\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Mathematical Toolkit for Isabelle/UTP}
+
+\author{Simon Foster \and Pedro Ribeiro \and Frank Zeyda}
+
+\maketitle
+
+\begin{abstract}
+This document describes our mathematical toolkit for Isabelle/UTP, which provides a foundational
+collection of definition, theorems, and proof facilities. This includes extensions to existing
+HOL libraries, such as for list and partial functions, and also new type definitions, theorems, and 
+Isabelle/HOL commands.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+This document contains the description of our mathematical toolkit for 
+Isabelle/UTP~\cite{Feliachi2010,Foster14c,Foster16a,Foster16c}, a mechanisation of Hoare and He's 
+\emph{Unifying Theories of Programming}~\cite{Hoare&98,Cavalcanti&06}. The toolkit provides a 
+foundational collection of additional HOL theorems, new abstract types, and proof facilities, upon 
+which Isabelle/UTP depends. In brief, the toolkit contains the following principal items:
+
+\begin{itemize}
+  \item additional laws and functions for the list, map (partial functions), countable set, and finite set types;
+  \item type definitions for partial and finite functions, together with additional functions and laws
+    derived from the Z mathematical toolkit~\cite{zrm};
+  \item positive subtypes of existing types;
+  \item infinite sequences;
+  \item the ``total recall'' package, which allows us to precisely control overriding of existing syntax 
+    annotations.
+\end{itemize}
+
+A few other theories exist that add smaller utilities and additional laws.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

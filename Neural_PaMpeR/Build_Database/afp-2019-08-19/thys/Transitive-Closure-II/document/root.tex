@@ -1,0 +1,46 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+
+\begin{document}
+
+\title{Executable Transitive Closures\footnote{Supported by FWF (Austrian Science Fund) project P22767-N13.}}
+\author{Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We provide a generic work-list algorithm to compute the (reflexi\-\mbox{ve-)}transitive closure of
+  relations where only successors of newly detected states are generated.
+  In contrast to our previous work \cite{rtrancl_fin}, the relations do not have to be finite, 
+  but each element must only have finitely many (indirect) successors. 
+  Moreover, a subsumption relation can be used instead of pure equality.
+  An executable variant of the algorithm is available where the generic operations are instantiated
+  with list operations.
+    
+    This formalization was performed as part of the \isafor/\ceta{} project%
+  \footnote{\url{http://cl-informatik.uibk.ac.at/software/ceta}} \cite{CeTA},
+  and it has been used to certify size-change 
+  termination proofs where large transitive closures have to be computed.
+\end{abstract}
+
+\tableofcontents
+
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

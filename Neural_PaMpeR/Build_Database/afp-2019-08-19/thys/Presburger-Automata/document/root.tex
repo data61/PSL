@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+\isadroptag{theory}
+
+\renewcommand{\isadigit}[1]{\isamath{#1}}
+
+\begin{document}
+
+\title{Formalizing the Logic-Automaton Connection}
+\author{Markus Reiter \and Stefan Berghofer}
+\maketitle
+
+\begin{abstract}
+This work presents a formalization of a library for automata on bit strings.
+It forms the basis of a reflection-based
+decision procedure for Presburger arithmetic, which is efficiently executable
+thanks to Isabelle's code generator. With this work, we therefore provide a
+mechanized proof of a well-known connection between logic and automata theory.
+The formalization is also described in a publication~\cite{BerghoferR-TPHOLs09}.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\nocite{Boudet-Comon-CAAP96,Klarlund-CSL97}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

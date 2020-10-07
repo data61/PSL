@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Presburger-Automata" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories [document = false]
+    DFS
+  theories
+    Presburger_Automata
+  theories [document = false]
+    Exec (* Code Generation *)
+  document_files
+    "root.bib"
+    "root.tex"

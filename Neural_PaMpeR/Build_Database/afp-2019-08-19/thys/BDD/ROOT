@@ -1,0 +1,10 @@
+chapter AFP
+
+session BDD (AFP) = Simpl +
+  options [timeout = 600]
+  theories
+    EvalProof
+    NormalizeTotalProof
+  document_files
+    "root.bib"
+    "root.tex"

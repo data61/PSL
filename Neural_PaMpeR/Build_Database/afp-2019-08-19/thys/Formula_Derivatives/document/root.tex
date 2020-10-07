@@ -1,0 +1,55 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Derivatives of Logical Formulas}
+\author{Dmitriy Traytel}
+\maketitle
+\begin{abstract}
+  We formalize new decision procedures for WS1S, M2L(Str), and Presburger
+  Arithmetics. Formulas of these logics denote regular languages. Unlike
+  traditional decision procedures, we do \emph{not} translate formulas into
+  automata (nor into regular expressions), at least not explicitly. Instead we
+  devise notions of derivatives (inspired by Brzozowski derivatives for regular
+  expressions) that operate on formulas directly and compute a syntactic
+  bisimulation using these derivatives. The treatment of Boolean connectives and
+  quantifiers is uniform for all mentioned logics and is abstracted into a
+  locale. This locale is then instantiated by different atomic formulas and
+  their derivatives (which may differ even for the same logic under different
+  encodings of interpretations as formal words).
+
+
+  The WS1S instance is described in the draft paper \emph{A Coalgebraic Decision
+    Procedure for WS1S}
+  \footnote{\url{http://www21.in.tum.de/~traytel/papers/ws1s_derivatives/index.html}}
+    by the author.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

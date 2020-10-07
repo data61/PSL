@@ -1,0 +1,18 @@
+\NeedsTeXFormat{LaTeX2e}\relax
+\ProvidesClass{fixisa}[2006/09/09 Achim D. Brucker ($Rev: 6480 $)]
+
+\RequirePackage{ifthen}
+
+\newboolean{fixisa@isasymonly}
+\setboolean{fixisa@isasymonly}{false}
+\DeclareOption{isasymonly}{\setboolean{fixisa@isasymonly}{true}}
+
+\ProcessOptions\relax
+
+\ifthenelse{\boolean{fixisa@isasymonly}}{%
+  \newcommand{\isamath}[1]{#1}
+  \newcommand{\isatext}[1]{\mathit{#1}}
+}{\newcommand{\isakeywordcharunderscore}{\_}}
+\renewcommand{\isasymbullet}{\ensuremath{\centerdot}}
+\renewcommand{\isasymColon}{\ensuremath{\mathbin{\colon\colon}}}
+

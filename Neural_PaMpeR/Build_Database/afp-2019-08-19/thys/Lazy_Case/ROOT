@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Lazy_Case" (AFP) = "HOL" +
+  options [timeout = 300]
+  theories
+    Lazy_Case
+    Test_Lazy_Case
+  document_files
+    "root.tex"

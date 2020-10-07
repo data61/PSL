@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{scrartcl}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath,amssymb}
+\usepackage{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Stream Fusion in HOL}
+\author{Andreas Lochbihler \and Alexandra Maximova}
+\maketitle
+
+\begin{abstract}
+  Stream Fusion is a system for removing intermediate list data structures from functional programs,
+  in particular \href{http://hackage.haskell.org/package/stream-fusion}{Haskell}.
+  This entry adapts stream fusion to Isabelle/HOL and its code generator.
+  We define stream types for finite and possibly infinite lists and stream versions for most of the
+  fusible list functions in the theories \isa{List} and \isa{Coinductive\isacharunderscore List},
+  and prove them correct with respect to the conversion functions between lists and streams.
+  The Stream Fusion transformation itself is implemented as a simproc in the preprocessor of the 
+  code generator.
+
+  Brian Huffman's AFP entry \cite{Huffman2009AFP} formalises stream fusion in HOLCF for the domain of lazy lists to prove the GHC compiler rewrite rules correct.
+  In contrast, this work enables Isabelle's code generator to perform stream fusion itself.
+  To that end, it covers both finite and coinductive lists from the HOL library and the Coinductive entry.
+  The fusible list functions require specification and proof principles different from Huffman's.
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+%\input{conclusion}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

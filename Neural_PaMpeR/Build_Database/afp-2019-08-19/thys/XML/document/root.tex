@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+\usepackage[english]{babel}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Xml\thanks{This research is supported by FWF (Austrian Science Fund) projects J3202 and P22767.}}
+\author{Christian Sternagel and Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+This entry provides an ``XML library'' for Isabelle/HOL. This includes parsing
+and pretty printing of XML trees as well as combinators for transforming XML
+trees into arbitrary user-defined data. The main contribution of this entry is
+an interface (fit for code generation) that allows for communication between
+verified programs formalized in Isabelle/HOL and the outside world via XML. This
+library was developed as part of the IsaFoR/CeTA project to which we refer for
+examples of its usage. 
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

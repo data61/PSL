@@ -1,0 +1,238 @@
+\documentclass[11pt,notitlepage,a4paper]{report}
+\usepackage{isabelle,isabellesym,eufrak}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\input{xy}
+\xyoption{curve}
+\xyoption{arrow}
+\xyoption{matrix}
+\xyoption{2cell}
+\UseAllTwocells
+
+% Even though I stayed within the default boundary in the JEdit buffer,
+% some proof lines wrap around in the PDF document.  To minimize this,
+% increase the text width a bit from the default.
+\addtolength\textwidth{60pt}
+\addtolength\oddsidemargin{-30pt}
+\addtolength\evensidemargin{-30pt}
+
+\begin{document}
+
+\title{Category Theory with Adjunctions and Limits}
+\author{Eugene W. Stark\\[\medskipamount]
+        Department of Computer Science\\
+        Stony Brook University\\
+        Stony Brook, New York 11794 USA}
+\maketitle
+
+\begin{abstract}
+This article attempts to develop a usable framework for doing category theory in Isabelle/HOL.
+Our point of view, which to some extent differs from that of the previous AFP articles
+on the subject, is to try to explore how category theory can be done efficaciously within
+HOL, rather than trying to match exactly the way things are done using a traditional
+approach.  To this end, we define the notion of category in an ``object-free''
+style, in which a category is represented by a single partial composition operation on arrows.
+This way of defining categories provides some advantages in the context of HOL, including
+the ability to avoid the use of records and the possibility of defining functors and
+natural transformations simply as certain functions on arrows, rather than as composite
+objects.  We define various constructions associated with the basic notions,
+including: dual category, product category, functor category, discrete category, free category,
+functor composition, and horizontal and vertical composite of natural transformations.
+A ``set category'' locale is defined that axiomatizes the notion ``category of all sets at
+a type and all functions between them,'' and a fairly extensive set of properties of set
+categories is derived from the locale assumptions.
+The notion of a set category is used to prove the Yoneda Lemma in a general setting
+of a category equipped with a ``hom embedding,'' which maps arrows of the category
+to the ``universe'' of the set category.
+We also give a treatment of adjunctions, defining adjunctions via left and right adjoint
+functors, natural bijections between hom-sets, and unit and counit natural transformations,
+and showing the equivalence of these definitions.
+We also develop the theory of limits, including representations of functors,
+diagrams and cones, and diagonal functors.  We show that right adjoint functors preserve
+limits, and that limits can be constructed via products and equalizers.  We characterize
+the conditions under which limits exist in a set category.  We also examine the case of
+limits in a functor category, ultimately culminating in a proof that the Yoneda embedding
+preserves limits.
+\end{abstract}
+
+\tableofcontents
+
+\chapter{Introduction}
+
+This article attempts to develop a usable framework for doing category theory in Isabelle/HOL.
+Perhaps the main issue that one faces in doing this is how best to represent what is
+essentially a theory of a partially defined operation (composition) in HOL, which is a theory
+of total functions.  The fact that in HOL every function is total means that a value must be
+given for the composition of any pair of arrows of a category, even if those arrows are not
+really composable.  Proofs must constantly concern themselves with whether or not a
+particular term does or does not denote an arrow, and whether particular pairs of arrows
+are or are not composable.  This kind of issue crops up in the most basic situations,
+such as trying to use associativity of composition to prove that two arrows are equal.
+Without some sort of systematic way of dealing with this issue, it is hard to do proofs
+of interesting results, because one is constantly distracted from the main line of
+reasoning by the necessity of proving lemmas that show that various expressions denote
+well-defined arrows, that various pairs of arrows are composable, {\em etc.}
+
+In trying to develop category theory in this setting, one notices fairly soon that some
+of the problem can be solved by creating introduction rules that allow the proof assistant
+to automatically infer, say, that a given term denotes an arrow with a particular
+domain and codomain from similar properties of its proper subterms.  This ``upward''
+reasoning helps, but it goes only so far.  Eventually one faces a situation in which it is
+desired to prove theorems whose hypotheses state that certain terms denote arrows with
+particular domains and codomains, but the proof requires similar lemmas about the proper
+subterms.  Without some way of doing this ``downward'' reasoning, it becomes very
+tedious to establish the necessary lemmas.
+
+Another issue that one faces when trying to formulate category theory within HOL
+is the lack of the set-theoretic universe that is usually assumed in traditional
+developments.  Since there is no ``type of all sets'' in HOL, one cannot construct
+``the'' category {\bf Set} of {\em all} sets and functions between them.
+Instead, the best one can do is consider ``a'' category of all sets and functions at
+a particular type.  Although the lack of set-theoretic universe would likely cause
+complications for some applications of category theory, there are many
+applications for which the lack of a universe is not really a hindrance.
+So one might well adopt a point of view that accepts {\em a priori} the lack of a
+universe and asks instead how much of traditional category theory could be done in
+such a setting.
+
+There have been two previous category theory submissions to the AFP.
+The first \cite{OKeefe-AFP05} is an exploratory work that develops just enough
+category theory to enable the statement and proof of a version of the Yoneda Lemma.
+The main features are: the use of records to define categories and functors,
+construction of a category of all subsets of a given set, where the arrows are
+domain set/codomain set/function triples, and the use of the category
+of all sets of elements of the arrow type of category $C$ as the target for the
+Yoneda functor for $C$.
+The second category theory submission to the AFP \cite{Katovsky-AFP10} is somewhat
+more extensive in its scope, and tries to match more closely a traditional development
+of category theory through the use of a set-theoretic universe obtained by an
+axiomatic extension of HOL.  Categories, functors, and natural transformations
+are defined as multi-component records, similarly to \cite{OKeefe-AFP05}.
+``The'' category of sets is defined, having as its object and arrow type the type ZF,
+which is the axiomatically defined set-theoretic universe.
+Included in \cite{Katovsky-AFP10} is a more extensive development of natural
+transformations, vertical composition, and functor categories than is to be found in
+\cite{OKeefe-AFP05}.  However, as in \cite{OKeefe-AFP05}, the main purely category-theoretic
+result in \cite{Katovsky-AFP10} is the Yoneda Lemma.
+Beyond the use of ``extensional'' functions, which take on a particular default value
+outside of their domains of definition, neither \cite{OKeefe-AFP05} nor \cite{Katovsky-AFP10}
+explicitly describe a systematic approach to the problem of obtaining lemmas that
+establish when the various terms appearing in a proof denote well-defined arrows.
+
+The present development differs in a number of respects from that of
+\cite{OKeefe-AFP05} and \cite{Katovsky-AFP10}, both in style and scope.
+The main stylistic features of the present development are as follows:
+\begin{itemize}
+\item  The notion of a category is defined in an ``object-free'' style,
+  motivated by \cite{AHS}, Sec. 3.52-3.53, in which a category is represented by a
+  single partial composition operation on arrows.
+  This way of defining categories provides some advantages in the context of HOL,
+  including the possibility of avoiding extensive use of composite objects constructed
+  using records.
+  (Katovsky seemed to have had some similar ideas, since he refers in
+  \cite{Katovsky-CatThy10} to a theory ``PartialBinaryAlgebra'' that was also motivated
+  by \cite{AHS}, although this theory did not ultimately become part of his AFP article.)
+\item  Functors and natural transformation are defined simply to be certain
+  functions on arrows, where locale predicates are used to express the conditions
+  that must be satisfied.  This makes it possible to define functors and natural
+  transformations easily using lambda notation without records.
+\item  Rules for reasoning about categories, functors, and natural transformations
+  are defined so that all ``diagrammatic'' hypotheses reduce to conjunctions of
+  assertions, each of which states that a given entity is an arrow, has a particular
+  domain or codomain, or inhabits a particular ``hom-set''.  A system of introduction
+  and elimination rules is established which permits both ``upward'' reasoning,
+  in which such diagrammatic assertions are established for larger terms using corresponding
+  assertions about the proper subterms, as well as ``downward'' reasoning, in which diagrammatic
+  assertions about proper subterms are inferred from such assertions about a larger
+  term, to be carried out automatically.
+\item  Constructions on categories, functors, and natural transformations are defined
+  using locales in a formulaic fashion.
+  As an example, the product category construction is defined using a locale that
+  takes two categories (given by their partial composition operations) as parameters.
+  The partial composition operation for the product category is given by a function
+  ``$comp$'' defined in the locale.  Lemmas proved within the locale include the fact
+  that $comp$ indeed defines a category, as well as characterizations of the basic
+  notions (domain, codomain, identities, composition) in terms of those of the
+  parameter categories.
+  For some constructions, such as the product category, it is possible and convenient
+  to have a ``transparent'' arrow type, which permits reasoning about the construction
+  without having to introduce an elaborate system of constructors, destructors,
+  and associated rules.  For other constructions, such as the functor category,
+  it is more desirable to use an ``opaque'' arrow type that hides the concrete
+  structure, and forces all reasoning to take place using a fixed set of rules.
+\item  Rather than commit to a specific concrete construction of a category of sets and
+  functions a ``set category'' locale is defined which axiomatizes the properties of the
+  category of sets with elements at a particular type and functions between such.
+  In keeping with the definitional approach, the axiomatization is shown consistent by
+  exhibiting a particular interpretation for the locale, however care is taken to
+  to ensure that any proofs making use of the interpretation depend only on the locale
+  assumptions and not on the concrete details of the construction.  The set category
+  axioms are also shown to be categorical, in the sense that a bijection between the sets
+  of terminal objects of two interpretations of the locale extends to an isomorphism of
+  categories.  This supports the idea that the locale axioms are an adequate
+  characterization of the properties of a category of sets and functions and the details
+  of a particular concrete construction can be kept hidden.
+\end{itemize}
+  
+A brief synopsis of the formal mathematical content of the present development is as follows:
+\begin{itemize}
+\item  Definitions are given for the notions: category, functor, and natural transformation.
+\item  Several constructions on categories are given, including: free category,
+  discrete category, dual category, product category, and functor category.
+\item  Composite functor, horizontal and vertical composite of natural transformations
+  are defined, and various properties proved.
+\item  The notion of a ``set category'' is defined and a fairly extensive development
+  of the consequences of the definition is carried out.
+\item  Hom-functors and Yoneda functors are defined and the Yoneda Lemma is proved.
+\item  Adjunctions are defined in several ways, including universal arrows,
+  natural isomorphisms between hom-sets, and unit and counit natural transformations.
+  The relationships between the definitions are established.
+\item  The theory of limits is developed, including the notions of diagram, cone, limit cone,
+  representable functors, products, and equalizers.  It is proved that a category with
+  products at a particular index type has limits of all diagrams at that type.
+  The completeness properties of a set category are established.
+  Limits in functor categories are explored, culminating in a proof that the Yoneda
+  embedding preserves limits.
+\end{itemize}
+
+The present (2018) version of this development is a major revision of the original (2016)
+version.  Although the overall organization and content has remained essentially the same,
+the present version revises the axioms used to define a category, and as a consequence
+many proofs required changes.  The purpose of the revision was to obtain a more organized
+set of basic facts which, when annotated for use in automatic proof, would yield behavior more
+understandable than that of the original version.  In particular, as I gained experience with
+the Isabelle simplifier, I was able to understand better how to avoid some of the vexing
+problems of looping simplifications that sometimes cropped up when using the original rules.
+The new version ``feels'' about as powerful as the original version, or perhaps slightly more so.
+However, the new version uses elimination rules in place of some things that were previously
+done by simplification rules, which means that from time to time it becomes necessary
+to provide guidance to the prover as to where the elimination rules should be invoked.
+
+Another difference between the present version of this document and the original is the
+introduction of some notational syntax, which I intentionally avoided in the original.
+An important reason for not introducing syntax in the original version was that at the time
+I did not have much experience with the notational features of Isabelle, and I was afraid
+of introducing hard-to-remove syntax that would make the development more difficult to read
+and write, rather than easier.  (I tended to find, for example, that the proliferation of
+special syntax introduced in \cite{Katovsky-AFP10} made the presentation seem less readily
+accessible than if the syntax had been omitted.)  In the present revision, I have introduced
+syntax for composition of arrows in a category, and for the notion of ``an arrow inhabiting
+a hom-set.''  The notation for composition eases readability by reducing the number of
+required parentheses, and the notation for asserting that an arrow inhabits a particular
+hom-set gives these assertions a more familiar appearance; making it easier to understand
+them at a glance.
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

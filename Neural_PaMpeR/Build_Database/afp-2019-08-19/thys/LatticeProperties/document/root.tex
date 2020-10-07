@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[latin1]{inputenc}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Lattice Properties}
+
+\author{Viorel Preoteasa}
+
+\maketitle
+
+\begin{abstract}
+This formalization introduces and collects some algebraic
+structures based on lattices and complete lattices for use
+in other developments. The structures introduced are modular, 
+and lattice ordered groups. In addition to the results proved for 
+the new lattices, this formalization also introduces theorems 
+about latices and complete lattices in general.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\section{Overview}
+
+Section 2 introduces well founded and transitive relations.
+Section 3 introduces some properties about fixpoints of
+monotonic application which maps monotonic functions to
+monotonic functions.  The most important property is that 
+such a monotonic application has the least fixpoint monotonic.
+Section 4 introduces conjunctive, disjunctive, universally
+conjunctive, and universally disjunctive functions. 
+In section 5 some simplification lemmas for alttices are proved.
+Section 6 introduces modular lattices and proves some properties
+about them and about distributive lattices. The main result
+of this section is that a lattice is distributive if and only
+if it satisfies
+$$\forall x \; y \; z: x \sqcap z = y \sqcap z \land  x \sqcup z = y \sqcup z \longrightarrow x = y$$
+Section 7 introduces lattice ordered groups and some of their properties.
+The most important is that they are distributive lattices, and
+this property is proved using the results from Section 5.
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

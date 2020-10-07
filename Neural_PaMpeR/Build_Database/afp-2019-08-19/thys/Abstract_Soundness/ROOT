@@ -1,0 +1,9 @@
+chapter AFP
+
+session Abstract_Soundness (AFP) = Abstract_Completeness +
+  options [timeout = 300]
+  theories
+    Infinite_Proof_Soundness
+  document_files
+    "root.tex"
+    "root.bib"

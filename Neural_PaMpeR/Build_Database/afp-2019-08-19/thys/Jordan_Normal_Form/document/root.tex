@@ -1,0 +1,133 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+
+\begin{document}
+
+\title{Matrices, Jordan Normal Forms, and Spectral Radius Theory\footnote{Supported by FWF (Austrian Science Fund) project Y757.}}
+\author{Ren\'e Thiemann and Akihisa Yamada}
+\maketitle
+
+\begin{abstract}
+  Matrix interpretations are useful as measure functions in termination proving.
+  In order to use these interpretations also for complexity analysis, 
+  the growth rate of matrix powers has to examined. Here, we formalized
+  an important result of spectral radius theory, namely that the growth rate
+  is polynomially bounded if and only if the spectral radius of a matrix is at most one. 
+  
+  To formally prove this result we first studied the growth rates of matrices
+  in Jordan normal form, and prove the result that every 
+  complex matrix has a Jordan normal form by means of two algorithms:
+  we first convert matrices into similar ones via Schur decomposition, and
+  then apply a second algorithm which converts an upper-triangular matrix into
+  Jordan normal form. We further showed uniqueness of Jordan normal forms which 
+  then gives rise to a modular algorithm to compute individual blocks of a Jordan
+  normal form. 
+  
+  The whole development is based on a new abstract type for matrices, which is
+  also executable by a suitable setup of the code generator. It 
+  completely subsumes our former AFP-entry on executable matrices 
+  \cite{Matrix-AFP}, and its main advantage is its close connection to the
+  HMA-representation which allowed us to easily adapt existing proofs on 
+  determinants.
+  
+ All the results have been applied to improve \ceta\ \cite{CeTA,CeTAcomplexity},
+ our certifier to validate termination and complexity proof certificates.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+The spectral radius of a square, complex valued matrix $A$ is defined as the 
+largest norm of some eigenvalue $c$ with eigenvector $v$. 
+It is a central notion to estimate how
+the values in $A^n$ for increasing $n$. If the spectral radius is larger
+than $1$, clearly the values grow exponentially, since then 
+$A^n \cdot v = c^n \cdot v$ becomes exponentially large. 
+
+The other results, namely
+that the values in $A^n$ are bounded by a constant, 
+if the spectral radius is smaller
+than $1$, and that there is a polynomial bound if the spectral radius
+is exactly $1$ are only immediate for matrices which have an eigenbasis,
+a precondition which is not satisfied by every matrix.
+
+However, these results are derivable via Jordan normal forms (JNFs): 
+If $J$ is a JNF of $A$, then the growth rates of $A^n$ and $J^n$ are related
+by a constant as $A$ and $J$ are similar matrices. And for the values in $J^n$ 
+there is a closed formula which gives the desired complexity bounds.
+To be more precise, the values in $J^n$ are bounded by 
+${\cal O}(|c|^n \cdot n^{k-1})$ where $k$ is the size of the largest
+block of an eigenvalue $c$ which has maximal norm w.r.t.\ the set of all
+eigenvalues. And since every complex matrix has a JNF, we can derive the 
+polynomial (resp.\ constant bounds), if the spectral radius is 1 (resp.\ smaller
+than 1).
+
+These results are already applied in current complexity tools, and the motivation
+of this development was to extend our certifier \ceta\ to be able to validate
+corresponding complexity proofs. To this end, we formalized
+the  following main results:
+\begin{itemize}
+\item an algorithm to compute the characteristic polynomial, since
+  the eigenvalues are exactly the roots of this polynomial;
+\item the complexity bounds for JNFs; and
+\item an algorithm which computes JNFs for every matrix, provided that the
+  list of eigenvalues is given. With the help of the fundamental theorem
+  of algebra this shows that every complex matrix has a JNF.
+\end{itemize}
+
+Since \ceta\ is generated from Isabelle/HOL via code-generation, all the 
+algorithms and results need to be available at code-generation time. Especially
+there is no possibility to create types on the fly which are chosen to fit 
+the matrix dimensions of the input. To this end, we cannot use the 
+matrix-representation of HOL multivariate analysis (HMA).
+
+Instead, we provide a new matrix library which is based on HOL-algebra with
+its explicit carriers. In contrast to our earlier development \cite{Matrix-AFP}, 
+we do not immediately formalize everything as lists of lists, 
+but use a more mathematical
+notion as triples of the form (dimension, dimension, characteristic-function).
+This makes reasoning very similar to HMA, and a suitable implementation type
+can be chosen afterwards: we provide one via immutable arrays (we use IArray's from
+the HOL library),
+but one can also think of an implementation for sparse matrices, etc.
+Even the infinite carrier itself is executable where we rely upon Lochbihler's
+container framework \cite{Containers-AFP} to have different set representations 
+at the same time.
+
+As a consequence of not using HMA, we could not directly reuse existing 
+algorithms which
+have been formalized for this representation. For instance, we formalized our
+own version of Gauss-Jordan elimination which is not very different to the
+one of Divas\'on and Aransay in \cite{Gauss_Jordan-AFP}: both define row-echelon
+form and apply elementary row transformations. Whereas Gauss-Jordan elimination
+has been developed from scratch as a case-study to see how suitable our matrix
+representation is, in other cases we often just
+copied and adjusted existing proofs from HMA. For instance, most of the library for 
+determinants has been copied from the Isabelle distribution and adapted to our
+matrix representation.
+
+
+As a result of our formalization, \ceta\ is now able to check  
+polynomial bounds for matrix interpretations \cite{MatrixJAR}. 
+
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

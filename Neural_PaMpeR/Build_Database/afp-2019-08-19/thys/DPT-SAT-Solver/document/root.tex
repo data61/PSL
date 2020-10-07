@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{a4wide}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{eufrak}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{tt}
+
+\begin{document}
+
+\title{A Fast SAT Solver for Isabelle in Standard ML}
+\author{Armin Heller}
+\maketitle
+
+\begin{abstract}
+This contribution contains a fast SAT solver for Isabelle written in
+Standard ML.  By loading the theory \isa{DPT\_SAT\_Solver}, the SAT solver
+installs itself (under the name ``dptsat'') and certain Isabelle tools like
+Refute will start using it automatically.
+This is a port of the DPT (Decision Procedure Toolkit) SAT Solver written in
+OCaml.
+
+Theory \isa{DPT\_SAT\_Tests} tests the solver on a few hundred problems.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

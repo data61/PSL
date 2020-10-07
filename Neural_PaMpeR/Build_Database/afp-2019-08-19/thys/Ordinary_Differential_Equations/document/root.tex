@@ -1,0 +1,154 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\etal}{\emph{et al.}}
+\newcommand{\keyword}[1]{\ensuremath{\textsf{\textbf{#1}}}}
+\newcommand{\Klemma}{\keyword{lemma}}
+\newcommand{\Ktheorem}{\keyword{theorem}}
+\newcommand{\Kif}{\keyword{if}}
+\newcommand{\Klet}{\keyword{let}}
+\newcommand{\Kleft}{\boldsymbol \leftarrow}
+\newcommand{\Kdo}{\keyword{do}}
+\newcommand{\Kin}{\keyword{in}}
+\newcommand{\Kthen}{\keyword{then}}
+\newcommand{\Kelse}{\keyword{else}}
+
+\newcommand{\identifier}[1]{\textsl{\textsf{#1}}}
+\newcommand{\Iaexp}{\identifier{aexp}}
+\newcommand{\IAffine}{\identifier{Affine}}
+\newcommand{\IAffines}{\identifier{Affines}}
+\newcommand{\Iaffineofivl}{\identifier{affine-of-ivl}}
+\newcommand{\IAdd}{\identifier{Add}}
+\newcommand{\Iaddaffine}{\identifier{add-affine}}
+\newcommand{\IAddE}{\identifier{AddE}}
+\newcommand{\IBasis}{\identifier{Basis}}
+\newcommand{\Ibinop}{\identifier{binop}}
+\newcommand{\Ibox}{\identifier{box}}
+\newcommand{\Icenter}{\identifier{center}}
+\newcommand{\Icoeff}{\identifier{coeff}}
+\newcommand{\Icoeffs}{\identifier{coeffs}}
+\newcommand{\Iapprox}{\identifier{approx}}
+\newcommand{\ID}{\identifier{D}}
+\newcommand{\Ideg}{\identifier{deg}}
+\newcommand{\Idim}{\identifier{dim}}
+\newcommand{\Idivl}{\identifier{div}^-}
+\newcommand{\Idivr}{\identifier{div}^+}
+\newcommand{\Ieexp}{\identifier{eexp}}
+\newcommand{\IElem}{\identifier{elem}}
+\newcommand{\Ieulerseries}{\identifier{euler-series}}
+\newcommand{\Ieulerstep}{\identifier{euler-step}}
+\newcommand{\Ifalse}{\identifier{False}}
+\newcommand{\Ifilter}{\identifier{filter}}
+\newcommand{\Ifold}{\identifier{fold}}
+\newcommand{\Ifor}{\identifier{for}}
+\newcommand{\Ifst}{\identifier{fst}}
+\newcommand{\IFloat}{\identifier{Float}}
+\newcommand{\Iindices}{\identifier{indices}}
+\newcommand{\IInverse}{\identifier{Inverse}}
+\newcommand{\Iinverseaffine}{\identifier{inverse-affine}}
+\newcommand{\Iivp}{\identifier{ivp}}
+\newcommand{\Ilen}{\identifier{len}}
+\newcommand{\Imap}{\identifier{map}}
+\newcommand{\Imerge}{\identifier{merge}}
+\newcommand{\IMinus}{\identifier{Minus}}
+\newcommand{\Iminusaffine}{\identifier{minus-affine}}
+\newcommand{\IMult}{\identifier{Mult}}
+\newcommand{\Imultaffine}{\identifier{mult-affine}}
+\newcommand{\INone}{\identifier{None}}
+\newcommand{\INum}{\identifier{Num}}
+\newcommand{\Irad}{\identifier{rad}}
+\newcommand{\Iradup}{\identifier{rad}^+}
+\newcommand{\Iround}{\identifier{round}}
+\newcommand{\IScale}{\identifier{Scale}}
+\newcommand{\Iscaleaffine}{\identifier{scale-affine}}
+\newcommand{\Isol}{\identifier{sol}}
+\newcommand{\ISome}{\identifier{Some}}
+\newcommand{\Isplit}{\identifier{split}}
+\newcommand{\Isummarize}{\identifier{summarize}}
+\newcommand{\To}{\Rightarrow}
+\newcommand{\Itrue}{\identifier{True}}
+\newcommand{\Itruncatedown}{\identifier{trunc}^-}
+\newcommand{\Itruncateup}{\identifier{trunc}^+}
+\newcommand{\Iroundbinop}{\identifier{round-binop}}
+\newcommand{\UNIV}[1]{\mathcal{U}_{#1}}
+\newcommand{\Iunzip}{\identifier{unzip}}
+\newcommand{\IVar}{\identifier{Var}}
+\newcommand{\Izip}{\identifier{zip}}
+
+\newcommand{\Tset}[1]{#1\,\identifier{set}}
+\newcommand{\Tlist}[1]{#1\,\identifier{list}}
+\newcommand{\Taffine}[1]{#1\,\identifier{affine}}
+\newcommand{\Toption}[1]{#1\,\identifier{option}}
+\newcommand{\Tbcontfun}[2]{#1\To_{\identifier{bc}}#2}
+\newcommand{\Tfinmap}[2]{#1\rightharpoondown_{\identifier{f}}#2}
+\newcommand{\Tfilter}[1]{#1\,\identifier{filter}}
+
+\newcommand{\Bool}{\ensuremath{\mathbb{B}}}
+\newcommand{\Real}{\ensuremath{\mathbb{R}}}
+\newcommand{\Float}{\ensuremath{\mathbb{F}}}
+\newcommand{\Eucl}[1]{\ensuremath{\mathbb{R}^{#1}}}
+\newcommand{\Complex}{\ensuremath{\mathbb{C}}}
+\newcommand{\Nat}{\ensuremath{\mathbb{N}}}
+\newcommand{\Integer}{\ensuremath{\mathbb{Z}}}
+
+\newcommand{\ToDO}[1]{{\color{red}\textbf{TODO:} #1}}
+\newcommand{\Todo}[1]{{\color{red}[#1]}}
+
+\newcommand{\limseq}{\xrightarrow{\hspace*{2em}}}
+\newcommand{\interpret}[1]{\ensuremath{[\![#1]\!]}}
+
+\title{Ordinary Differential Equations}
+\author{Fabian Immler}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+Session \texttt{Ordinary-Differential-Equations} formalizes ordinary differential equations (ODEs) and initial value
+problems. This work comprises proofs for local and global existence of unique solutions
+(Picard-Lindelöf theorem). Moreover, it contains a formalization of the (continuous or even
+differentiable) dependency of the flow on initial conditions as the \emph{flow} of ODEs.
+
+Not in the generated document are the following sessions:
+\begin{itemize}
+\item \texttt{HOL-ODE-Numerics}:
+  Rigorous numerical algorithms for computing enclosures of solutions based on Runge-Kutta methods
+  and affine arithmetic. Reachability analysis with splitting and reduction at hyperplanes.
+\item \texttt{HOL-ODE-Examples}:
+  Applications of the numerical algorithms to concrete systems of ODEs (e.g., van der Pol and Lorenz
+    attractor).
+\end{itemize}
+
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

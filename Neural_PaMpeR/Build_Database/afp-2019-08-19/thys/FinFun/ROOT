@@ -1,0 +1,10 @@
+chapter AFP
+
+session FinFun (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    FinFunPred
+  document_files
+    "root.tex"

@@ -1,0 +1,14 @@
+chapter AFP
+
+session "Buildings" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Prelim
+    Algebra
+    Simplicial
+    Chamber
+    Coxeter
+    Building
+  document_files
+    "root.tex"
+    "root.bib"

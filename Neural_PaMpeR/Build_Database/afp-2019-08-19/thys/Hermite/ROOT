@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Hermite" (AFP) = "Echelon_Form" +
+  options [timeout = 600]
+  theories
+    Hermite
+    Hermite_IArrays
+  document_files
+    "root.tex"

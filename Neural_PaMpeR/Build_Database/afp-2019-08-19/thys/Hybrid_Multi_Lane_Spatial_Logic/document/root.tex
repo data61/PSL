@@ -1,0 +1,106 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Hybrid Multi-Lane Spatial Logic}
+\author{Sven Linker}
+\maketitle
+
+\begin{abstract}
+We present a semantic embedding of a spatio-temporal multi-modal
+logic, specifically defined to reason about motorway traffic, into Isabelle/HOL. 
+The semantic model is an abstraction of a motorway, 
+emphasising local spatial properties, and parameterised by the types of sensors
+deployed in the vehicles. We use the logic
+to define controller constraints to ensure safety, i.e., the
+absence of collisions on the motorway. 
+After proving safety with a restrictive definition of
+sensors, we relax these assumptions and show how to amend
+the controller constraints to still guarantee safety.
+
+Published in iFM 2017 \cite{Linker2017}.
+\end{abstract}
+
+Formal verification of autonomous vehicles on motorways is a challenging problem, 
+due to the complex interactions between
+dynamical behaviours and controller choices of the vehicles. 
+ To overcome the complexities of proving safety properties, we proposed
+to separate the dynamical behaviour from 
+the concrete changes in space \cite{Hilscher2011}. To that end, we
+defined
+\emph{Multi-Lane Spatial Logic} (MLSL), which  was used to express guards and invariants
+of controller automata defining a protocol for safe lane-change manoeuvres. Under the assumption
+that all vehicles adhere to this protocol, we 
+proved
+that collisions were avoided. 
+Subsequently, we presented an extension of MLSL to 
+reason about 
+changes in space over time, 
+a system of natural deduction,  
+and formally proved 
+a safety theorem \cite{Linker2015a,Linker2015b}.
+This proof was carried out manually and 
+dependent on 
+ strong
+assumptions about the vehicles' sensors. 
+
+We define
+a semantic embedding of a further extension of MLSL, inspired 
+by Hybrid Logic \cite{Brauner2010}. 
+ Subsequently, we show how 
+ the safety theorem can be proved within this embedding.
+Finally, we alter this formal embedding by relaxing the assumptions on the sensors. We show
+that the previously proven safety theorem does \emph{not} ensure
+safety in this case, and how the controller constraints can 
+be strengthened to guarantee safety.
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

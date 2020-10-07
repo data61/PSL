@@ -1,0 +1,75 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{booktabs}
+\usepackage{wasysym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Tweaks
+\newcounter{TTStweak_tag}
+\setcounter{TTStweak_tag}{0}
+\newcommand{\setTTS}{\setcounter{TTStweak_tag}{1}}
+\newcommand{\resetTTS}{\setcounter{TTStweak_tag}{0}}
+\newcommand{\insertTTS}{\ifnum\value{TTStweak_tag}=1 \ \ \ \fi}
+
+\renewcommand{\isakeyword}[1]{\resetTTS\emph{\bf\def\isachardot{.}\def\isacharunderscore{\isacharunderscorekeyword}\def\isacharbraceleft{\{}\def\isacharbraceright{\}}#1}}
+\renewcommand{\isachardoublequoteopen}{\insertTTS}
+\renewcommand{\isachardoublequoteclose}{\setTTS}
+\renewcommand{\isanewline}{\mbox{}\par\mbox{}\resetTTS}
+
+\renewcommand{\isamarkupcmt}[1]{\hangindent5ex{\isastylecmt --- #1}}
+
+\newcommand{\BNFCC}{BNF$\protect\vphantom{F}_{\text{CC}}$}
+
+\begin{document}
+
+\title{Bounded Natural Functors with Covariance and Contravariance}
+\author{Andreas Lochbihler and Joshua Schneider}
+\maketitle
+
+\begin{abstract}
+  Bounded natural functors (BNFs) provide a modular framework for the construction of (co)datatypes in higher-order logic.
+  Their functorial operations, the mapper and relator, are restricted to a subset of the parameters, namely those where recursion can take place.
+  For certain applications, such as free theorems, data refinement, quotients, and generalised rewriting, it is desirable that these operations do not ignore the other parameters.
+  In this article, we formalise the generalisation \BNFCC{}~\cite{LochbihlerSchneider2018ITP} that extends the mapper and relator to covariant and contravariant parameters.
+  We show that 
+  (i)~\BNFCC{}s are closed under functor composition and least and greatest fixpoints,
+  (ii)~subtypes inherit the \BNFCC{} structure under conditions that generalise those for the BNF case, and
+  (iii)~\BNFCC{}s preserve quotients under mild conditions.
+  These proofs are carried out for abstract \BNFCC{}s similar to the AFP entry BNF Operations \cite{BNF_Operations-AFP}.
+  In addition, we apply the \BNFCC{} theory to several concrete functors.
+\end{abstract}
+
+For an informal description of the abstract proofs see \cite{LochbihlerSchneider2018ITP}.
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

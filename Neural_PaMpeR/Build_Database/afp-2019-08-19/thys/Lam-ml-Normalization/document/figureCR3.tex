@@ -1,0 +1,17 @@
+\begin{figure}[t]
+\setlength{\fboxsep}{1em}
+\framebox{
+\begin{minipage}{\textwidth}
+Let $t$ be neutral such that $t' \in \red{\T \sigma}$ whenever $t \mapsto t'$. We have to show that $(t \star k)$ is \SN\ for each $k \in \sred \sigma$. First, we have that $[x] \star k$ is \SN, as $x \in \red \sigma$ by the induction hypothesis. Hence $k$ itself is \SN, and we can work by induction on $\max(k)$. 
+Application $t \star k$ may reduce as follows: 
+\begin{itemize}
+	\item $t' \star k$, where $t \, {\mapsto}\,  t'$, which is \SN\ as $k \,{\in}\, \sred \sigma$ and $t' \,{\in}\, \red{\T \sigma}$.
+	\item $t \star k'$, where $k \, {\mapsto}\,  k'$. For any $s\,{\in}\, \red \sigma$, $[s] \star k$ is \SN\ as $k \,{\in}\, \sred \sigma$; and $[s]\, {\star}\, k \mapsto [s]\, {\star}\, k'$, so $[s] \star k'$ is also \SN. From this we have $k' \,{\in}\, \sred \sigma$ with $\max(k') < \max(k)$, so by induction hypothesis $t \star k'$ is \SN. 
+\end{itemize}
+There are no other possibilities as $t$ is neutral. Hence $t \star k$ is strongly normalizing for every $k \,{\in}\, \sred \sigma$, and so $t\,{\in}\, \red {\T \sigma}$ as required. 
+\end{minipage}}
+\caption{Proof of the case $\T \sigma$ subcase CR3 as in \cite{TT-lifting}}
+\label{fig:cr3}
+\end{figure}
+
+

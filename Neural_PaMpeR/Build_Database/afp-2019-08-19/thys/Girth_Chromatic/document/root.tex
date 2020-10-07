@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{A Probabilistic Proof of the Girth-Chromatic Number Theorem}
+\author{Lars Noschinski}
+\maketitle
+
+\begin{abstract}
+    This works presents a formalization of the Girth-Chromatic number theorem
+    in graph theory, stating that graphs with arbitrarily large girth and
+    chromatic number exist. The proof uses the theory of Random Graphs to
+    prove the existence with probabilistic arguments and is based on
+    \cite{diestel2010graph}.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+%\input{session}
+\input{Girth_Chromatic_Misc}
+\input{Ugraphs}
+\input{Girth_Chromatic}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

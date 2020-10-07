@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper,parskip,abstract]{scrartcl}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand{\isasymbinit}{\isamath{b_0}}
+\newcommand{\isasymabinit}{\isamath{\widehat{b_0}}}
+\newcommand{\isasymPR}{\isamath{\mathcal{PR}}}
+\newcommand{\isasymaPR}{\isamath{\widehat{\mathcal{PR}}}}
+\newcommand{\isasymanb}{\isamath{\widehat{{nb}}}}
+\newcommand{\isasymaA}{\isamath{\widehat{\mathcal{A}}}}
+\newcommand{\isasymaF}{\isamath{\widehat{\mathcal{F}}}}
+\newcommand{\isasymaC}{\isamath{\widehat{\mathcal{C}}}}
+% Types
+\newcommand{\isasymabenv}{\isamath{\widehat{{benv}}}}
+\newcommand{\isasymavenv}{\isamath{\widehat{{venv}}}}
+\newcommand{\isasymaclosure}{\isamath{\widehat{{closure}}}}
+\newcommand{\isasymaproc}{\isamath{\widehat{{proc}}}}
+\newcommand{\isasymad}{\isamath{\widehat{{d}}}}
+\newcommand{\isasymafstate}{\isamath{\widehat{{fstate}}}}
+\newcommand{\isasymacstate}{\isamath{\widehat{{cstate}}}}
+\newcommand{\isasymaccache}{\isamath{\widehat{{ccache}}}}
+\newcommand{\isasymaans}{\isamath{\widehat{{ans}}}}
+
+\newcommand{\isactrlps}[1]{\underline{#1}}
+
+
+\begin{document}
+
+\title{Shivers' Control Flow Analysis}
+\author{Joachim Breitner}
+\maketitle
+
+\begin{abstract}
+  In his dissertation~\cite{Shivers}, Olin Shivers introduces a concept of control flow graphs
+  for functional languages, provides an algorithm to statically derive a safe
+  approximation of the control flow graph and proves this algorithm correct. In
+  this research project~\cite{Studienarbeit}, Shivers' algorithms and proofs are formalized
+  using the HOLCF extension of the logic HOL in the theorem prover Isabelle.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+%\input{session}
+
+\part{The definitions}
+\input{CPSScheme}
+\input{Eval}
+\input{ExCF}
+\input{AbsCF}
+
+\part{The main results}
+\input{ExCFSV}
+\input{AbsCFCorrect}
+\input{Computability}
+\input{AbsCFComp}
+
+\part{The auxiliary theories}
+\input{CPSUtils}
+\input{Utils}
+\input{SetMap}
+\input{MapSets}
+\input{HOLCFUtils}
+\input{FixTransform}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

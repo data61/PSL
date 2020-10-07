@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{CakeML}
+\author{Lars Hupel, Yu Zhang}
+\maketitle
+
+\begin{abstract}
+  CakeML is a functional programming language with a proven-correct compiler and runtime system.
+  This entry contains an unofficial version of the CakeML semantics that has been exported from the Lem specifications to Isabelle.
+  Additionally, there are some hand-written theory files that adapt the exported code to Isabelle and port proofs from the HOL4 formalization, e.g.\ termination and equivalence proofs.
+\end{abstract}
+
+\tableofcontents
+
+\clearpage
+
+\section*{Contributors}
+
+The export script has been written by Lars Hupel.
+Hand-written theory files, including definitions and proofs, have been developed by Lars Hupel and Yu Zhang.
+
+Lem is a project by Peter Sewell et.al.
+Contributors can be found on its project page\footnote{\url{https://www.cl.cam.ac.uk/~pes20/lem/}} and on GitHub.\footnote{\url{https://github.com/rems-project/lem/graphs/contributors}}
+
+CakeML is a project with many developers and contributors that can be found on its project page\footnote{\url{https://cakeml.org/}} and on GitHub.\footnote{\url{https://github.com/CakeML/cakeml/graphs/contributors}}
+
+In particular, Fabian Immler and Johannes \AA{}man Pohjola have contributed Isabelle mappings for constants in the Lem specification of the CakeML semantics.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,amsmath}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{wasysym}
+\usepackage{booktabs}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{Monad Normalisation}
+\author{Joshua Schneider and Manuel Eberl and Andreas Lochbihler}
+\maketitle
+
+\begin{abstract}
+  The usual monad laws can directly be used as rewrite rules for Isabelle's simplifier to normalise
+  monadic HOL terms and decide equivalences.  In a commutative monad, however, the commutativity
+  law is a higher-order permutative rewrite rule that makes the simplifier loop.  This AFP entry
+  implements a simproc that normalises monadic expressions in commutative monads using ordered
+  rewriting.  The simproc can also permute computations across control operators like \textit{if}
+  and \textit{case}.
+\end{abstract}
+
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

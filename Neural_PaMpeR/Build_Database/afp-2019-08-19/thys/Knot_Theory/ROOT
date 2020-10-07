@@ -1,0 +1,16 @@
+chapter AFP
+
+session Knot_Theory (AFP) = "Matrix_Tensor" +
+  options [timeout = 600]
+  theories
+    Example
+    Kauffman_Invariance
+    Kauffman_Matrix
+    Knot_Theory
+    Link_Algebra
+    Preliminaries
+    Tangle_Algebra
+    Tangle_Moves
+    Tangles
+  document_files
+    "root.tex"

@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Randomised Social Choice}
+\author{Manuel Eberl}
+\maketitle
+
+\begin{abstract}
+This work contains a formalisation of basic Randomised Social Choice, including Stochastic Dominance
+and Social Decision Schemes (SDSs) along with some of their most important properties 
+(Anonymity, Neutrality, \textit{SD}-Efficiency, \textit{SD}-Strategy-Proofness) and two particular SDSs -- Random Dictatorship 
+and Random Serial Dictatorship (with proofs of the properties that they satisfy). Many important properties of these 
+concepts are also proven – such as the two equivalent characterisations of Stochastic Dominance and the fact that 
+SD-efficiency of a lottery only depends on the support.
+
+The entry also provides convenient commands to define Preference Profiles, prove their well-formedness, and 
+automatically derive restrictions that sufficiently nice SDSs need to satisfy on the defined profiles. (cf. \cite{smt})
+
+Currently, the formalisation focuses on weak preferences and Stochastic Dominance (\textit{SD}), but it should be easy to extend it 
+to other domains -- such as strict preferences -- or other lottery extensions -- such as Bilinear Dominance or Pairwise Comparison.
+\end{abstract}
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+\newpage
+
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

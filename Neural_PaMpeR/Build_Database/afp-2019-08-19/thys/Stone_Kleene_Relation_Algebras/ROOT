@@ -1,0 +1,17 @@
+chapter AFP
+
+session Stone_Kleene_Relation_Algebras (AFP) = Stone_Relation_Algebras +
+
+  options [timeout = 600]
+
+  theories
+    Iterings
+    Kleene_Algebras
+    Kleene_Relation_Algebras
+    Kleene_Relation_Subalgebras
+    Matrix_Kleene_Algebras
+
+  document_files
+    "root.tex"
+    "root.bib"
+

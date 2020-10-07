@@ -1,0 +1,10 @@
+chapter AFP
+
+session "Core_DOM" (AFP) = "HOL-Library" + 
+  options [timeout = 1200]
+  theories
+    Core_DOM
+    Core_DOM_Tests
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,11 @@
+chapter AFP
+
+session "Lp" (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    Ergodic_Theory
+  theories
+    Functional_Spaces
+    Lp
+  document_files
+    "root.tex"

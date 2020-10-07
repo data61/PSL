@@ -1,0 +1,19 @@
+\begin{thebibliography}{1}
+
+\bibitem{boolos-provability}
+G.~S. Boolos.
+\newblock {\em The Logic of Provability}.
+\newblock Cambridge University Press, 1993.
+
+\bibitem{goedel-I}
+S.~Feferman et~al., editors.
+\newblock {\em {Kurt G\"odel}: Collected Works}, volume~I.
+\newblock Oxford University Press, 1986.
+
+\bibitem{swierczkowski-finite}
+S.~{\'S}wierczkowski.
+\newblock Finite sets and {G{\"o}del's} incompleteness theorems.
+\newblock {\em Dis\-ser\-ta\-tiones Math\-e\-ma\-ti\-cae}, 422:1--58, 2003.
+\newblock \url{http://journals.impan.gov.pl/dm/Inf/422-0-1.html}.
+
+\end{thebibliography}

@@ -1,0 +1,17 @@
+chapter AFP
+
+session "LambdaAuth" (AFP) = Nominal2 +
+  description {* Authenticated Data Structures *}
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Nominal2_Lemmas
+    FMap_Lemmas
+    Syntax
+    Semantics
+    Agreement
+    Results
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,13 @@
+chapter AFP
+
+session Case_Labeling (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Eisbach"
+    "HOL-Hoare"
+  theories
+    Case_Labeling
+    Case_Labeling_Examples
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,20 @@
+chapter AFP
+
+session UpDown_Scheme (AFP) = "HOL-Analysis" +
+  options [timeout = 600]
+  sessions
+    "HOL-Imperative_HOL"
+    Automatic_Refinement
+    Separation_Logic_Imperative_HOL
+  theories
+    Grid_Point
+    Grid
+    Triangular_Function
+    UpDown_Scheme
+    Up
+    Down
+    Up_Down
+    Imperative
+  document_files
+    "root.tex"
+    "root.bib"

@@ -1,0 +1,32 @@
+
+%%%%%%%%%%% Isabelle Formatting %%%%%%%%%%%%
+\definecolor{keyword}{RGB}{0,153,102}
+\definecolor{command}{RGB}{0,102,153}
+\isabellestyle{tt}
+\renewcommand{\isacommand}[1]{\textcolor{command}{\textbf{#1}}}
+\renewcommand{\isakeyword}[1]{\textcolor{keyword}{\textbf{#1}}}
+\newcommand{\DefineSnippet}[2]{%
+\expandafter\newcommand\csname snippet--#1\endcsname{%
+ %\begin{quote}
+ \begin{isabelle}
+   \hrule \vspace*{1mm}
+   %\renewcommand*\rmdefault{iwona}
+   \footnotesize #2
+   \vspace*{1mm}\hrule
+   %\renewcommand*\rmdefault{ppl}
+ \end{isabelle}
+ %\end{quote}
+ }}
+\newcommand{\Snippet}[1]{\csname snippet--#1\endcsname}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%% Text Formatting %%%%%%%%%%%%%%%
+\newcommand{\isb}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\textbf{\texttt{#1}}}
+\newcommand{\var}[1]{\textit{#1}}
+\newcommand{\isbLocale}[1]{\textsc{\texttt{#1}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%% Semantical Formatting %%%%%%%%%%%%%
+\newcommand{\voelzer}[1]{\textit{This corresponds to \textbf{#1} in Völzer's paper.}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

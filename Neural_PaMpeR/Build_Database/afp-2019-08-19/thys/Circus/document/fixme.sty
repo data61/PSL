@@ -1,0 +1,508 @@
+%%
+%% This is file `fixme.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% fixme.dtx 
+%% 
+
+
+%% Copyright (C) 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006 Didier Verna
+
+%% Copyright (C) 2007 Didier Verna
+
+%% This file is part of FiXme.
+
+%% FiXme may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.1
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%% http://www.latex-project.org/lppl.txt
+%% and version 1.1 or later is part of all distributions of LaTeX
+%% version 1999/06/01 or later.
+
+%% FiXme consists of the files listed in the file `README'.
+
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{fixme}[2007/11/28 v3.3
+Insert fixme notes in your documents]
+
+\RequirePackage{ifthen}
+\RequirePackage{verbatim}
+
+\newcommand*\fixmelogo{\textsf{FiXme}}
+
+\let\l@fixme\l@figure
+\newcommand\listoffixmes{}
+\def\listoffixmes@final{}
+\def\listoffixmes@draft{%
+  \IfFileExists{\jobname .lox}{\@listoffixmes@pretoc}{}%
+  \@starttoc{lox}%
+  \IfFileExists{\jobname .lox}{\@listoffixmes@posttoc}{}%
+  }
+
+\def\listoffixmes@draft@ams{\@starttoc{lox}\listfixmename}
+
+\newcommand*\listfixmename{}
+
+\def\@listoffixmes@pretoc@article{%
+  \section*{\listfixmename%
+    \@mkboth{\MakeUppercase\listfixmename}{\MakeUppercase\listfixmename}}%
+  }
+\def\@listoffixmes@posttoc@article{}
+
+\def\@listoffixmes@pretoc@report{%
+  \if@twocolumn
+    \@restonecoltrue\onecolumn
+  \else
+    \@restonecolfalse
+  \fi
+  \chapter*{\listfixmename%
+    \@mkboth{\MakeUppercase\listfixmename}{\MakeUppercase\listfixmename}}%
+  }
+\def\@listoffixmes@posttoc@report{\if@restonecol\twocolumn\fi}
+
+\def\@listoffixmes@pretoc@book{%
+  \if@twocolumn
+    \@restonecoltrue\onecolumn
+  \else
+    \@restonecolfalse
+  \fi
+  \chapter*{\listfixmename%
+    \@mkboth{\MakeUppercase\listfixmename}{\MakeUppercase\listfixmename}}%
+  }
+\def\@listoffixmes@posttoc@book{\if@restonecol\twocolumn\fi}
+
+\newcommand*\lox@heading{\float@listhead{\listfixmename}}
+
+\def\@listoffixmes@pretoc@scrartcl{%
+  \begingroup%
+    \lox@heading%
+    \setparsizes{0}{0}{\z@\@plus 1fil}\par@updaterelative
+  }
+\def\@listoffixmes@posttoc@scrartcl{%
+  \endgroup
+  }
+
+\def\@listoffixmes@pretoc@scrreprt{%
+  \begingroup%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \lox@heading%
+    \setparsizes{0}{0}{\z@\@plus 1fil}\par@updaterelative
+  }
+\def\@listoffixmes@posttoc@scrreprt{%
+    \if@restonecol\twocolumn\fi
+  \endgroup
+  }
+
+\def\@listoffixmes@pretoc@scrbook{%
+  \begingroup%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \lox@heading%
+    \setparsizes{0}{0}{\z@\@plus 1fil}\par@updaterelative
+}
+\def\@listoffixmes@posttoc@scrbook{%
+    \if@restonecol\twocolumn\fi
+  \endgroup
+}
+
+\newcommand\FXInline[2]{%
+  \textbf{#1}: \emph{#2}}
+\newcommand\FXMargin[2]{%
+  \marginpar[\footnotesize\raggedleft\textbf{#1}: \emph{#2}]{%
+    \footnotesize\raggedright\textbf{#1}: \emph{#2}}}
+\newcommand\FXMarginClue[1]{%
+  \marginpar[\footnotesize\raggedleft\textbf{#1}~!]{%
+    \footnotesize\raggedright\textbf{#1}~!}}
+\newcommand\FXFootnote[2]{%
+  \footnote{\textbf{#1}: \emph{#2}}}
+
+\newcommand*\fixmeindexname{}
+\newcommand\FXIndex[1]{%
+  \index{***@\fixmeindexname:!#1}}
+
+\newcommand*\fixmefatalprefix{}
+\newcommand\FiXmeInline[1]{\FXInline{\fixmefatalprefix}{#1}}
+\newcommand\FiXmeMargin[1]{\FXMargin{\fixmefatalprefix}{#1}}
+\newcommand\FiXmeFootnote[1]{\FXFootnote{\fixmefatalprefix}{#1}}
+\newcommand\FiXmeUser[1]{}
+\let\FiXmeUser\empty
+
+\newcommand\FiXmeIndex[1]{\FXIndex{#1}}
+\newcommand\FiXmeInfo[1]{}
+\newcommand\FiXmeWarning[1]{}
+
+\newif\iffixme@inline
+\newif\iffixme@margin
+\newif\iffixme@marginclue
+\newif\iffixme@footnote
+\newif\iffixme@user
+\newif\iffixme@index
+
+\let\fixme@setinline\fixme@inlinetrue
+\def\fixme@setmargin{%
+  \iffixme@marginclue%
+    \PackageWarning{FiXme}{%
+      Marginal notes requested; turning marginal clues off}%
+    \fixme@margincluefalse%
+  \fi%
+  \fixme@margintrue}
+\def\fixme@setmarginclue{%
+  \iffixme@margin%
+    \PackageWarning{FiXme}{%
+      Marginal clues requested; turning marginal notes off}%
+    \fixme@marginfalse%
+  \fi%
+  \fixme@margincluetrue}
+\let\fixme@setfootnote\fixme@footnotetrue
+\let\fixme@setuser\fixme@usertrue
+\let\fixme@setindex\fixme@indextrue
+
+\def\fixme@text#1#2{%
+  \iffixme@inline\FXInline{#1}{#2}\fi%
+  \iffixme@margin\FXMargin{#1}{#2}\fi%
+  \iffixme@marginclue\FXMarginClue{#1}\fi%
+  \iffixme@footnote\FXFootnote{#1}{#2}\fi%
+  \iffixme@user\FXUser{#1}{#2}\fi}
+
+\DeclareOption{inline}{\fixme@setinline}
+\DeclareOption{noinline}{\fixme@inlinefalse}
+\DeclareOption{margin}{\fixme@setmargin}
+\DeclareOption{nomargin}{\fixme@marginfalse}
+\DeclareOption{marginclue}{\fixme@setmarginclue}
+\DeclareOption{nomarginclue}{\fixme@margincluefalse}
+\DeclareOption{footnote}{\fixme@footnotetrue}
+\DeclareOption{nofootnote}{\fixme@footnotefalse}
+\DeclareOption{user}{\fixme@usertrue}
+\DeclareOption{nouser}{\fixme@userfalse}
+\DeclareOption{index}{\fixme@indextrue}
+\DeclareOption{noindex}{\fixme@indexfalse}
+
+\DeclareOption{info}{}
+\DeclareOption{noinfo}{}
+\DeclareOption{warning}{}
+\DeclareOption{nowarning}{}
+
+\newcommand\FXNote[1]{%
+  \GenericInfo{%
+    (FiXme)\@spaces\@spaces\@spaces\@spaces}{%
+    Package FiXme Note: `#1'}}
+\newcommand\FXWarning[1]{%
+  \PackageWarning{FiXme}{`#1'}}
+\newcommand\FXError[1]{%
+  \GenericWarning{%
+    (FiXme)\@spaces\@spaces\@spaces\@spaces}{%
+    Package FiXme Error: `#1'}}
+\newcommand\FXFatal[1]{%
+  \GenericWarning{%
+    (FiXme)\@spaces\@spaces\@spaces\@spaces}{%
+    Package FiXme: `#1'}}
+
+\newif\iffixme@silent
+
+%% Options that control whether to be silent or not:
+\DeclareOption{silent}{\fixme@silenttrue}
+\DeclareOption{nosilent}{\fixme@silentfalse}
+
+\newcounter{fixmecount}
+\newcounter{fixmenotecount}
+\newcounter{fixmewarningcount}
+\newcounter{fixmeerrorcount}
+\newcounter{fixmefatalcount}
+
+\newcommand*\fixmenoteprefix{}
+\newcommand*\fixmenoteindexname{}
+\def\fixme@note@draft#1{%
+  \fixme@text{\fixmenoteprefix}{#1}%
+  \iffixme@index\FXIndex{\fixmenoteindexname\thefixmenotecount: #1}\fi%
+  \iffixme@silent\else\FXNote{#1}\fi%
+  \addcontentsline{lox}{fixme}{\protect\fixmenoteprefix: #1}}
+\def\fixme@note@final#1{%
+  \iffixme@silent\else\FXNote{#1}\fi%
+  \addcontentsline{lox}{fixme}{\protect\fixmenoteprefix: #1}}
+
+\newcommand*\fixmewarningprefix{}
+\newcommand*\fixmewarningindexname{}
+\def\fixme@warning@draft#1{%
+  \fixme@text{\fixmewarningprefix}{#1}%
+  \iffixme@index\FXIndex{\fixmewarningindexname\thefixmewarningcount: #1}\fi%
+  \iffixme@silent\else\FXWarning{#1}\fi%
+  \addcontentsline{lox}{fixme}{\protect\fixmewarningprefix: #1}}
+\def\fixme@warning@final#1{%
+  \iffixme@silent\else\FXWarning{#1}\fi%
+  \addcontentsline{lox}{fixme}{\protect\fixmewarningprefix: #1}}
+
+\newcommand*\fixmeerrorprefix{}
+\newcommand*\fixmeerrorindexname{}
+\def\fixme@error@draft#1{%
+  \fixme@text{\fixmeerrorprefix}{#1}%
+  \iffixme@index\FXIndex{\fixmeerrorindexname\thefixmeerrorcount: #1}\fi%
+  \iffixme@silent\else\FXError{#1}\fi%
+  \addcontentsline{lox}{fixme}{\protect\fixmeerrorprefix: #1}}
+\def\fixme@error@final#1{%
+  \iffixme@silent\else\FXError{#1}\fi%
+  \addcontentsline{lox}{fixme}{\protect\fixmeerrorprefix: #1}}
+
+\newcommand*\fixmefatalindexname{}
+\def\fixme@fatal@draft#1{%
+  \iffixme@inline\FiXmeInline{#1}\fi%
+  \iffixme@margin\FiXmeMargin{#1}\fi%
+  \iffixme@marginclue\FXMarginClue{\fixmefatalprefix}\fi%
+  \iffixme@footnote\FiXmeFootnote{#1}\fi%
+  \iffixme@user\FiXmeUser{#1}\fi%
+  \iffixme@index\FiXmeIndex{%
+    \fixmefatalindexname\thefixmefatalcount: #1}\fi%
+  \iffixme@silent\else\FXFatal{#1}\fi%
+  \addcontentsline{lox}{fixme}{\protect\fixmefatalprefix: #1}}
+\def\fixme@fatal@final#1{%
+  \PackageError{FiXme}{`#1' fixme left in final version}{%
+    You are processing your document in final mode,\MessageBreak
+    but you still have some critical FiXme's left behind.\MessageBreak
+    Type X to quit, fix your document, and rerun LaTeX.}}
+
+\def\@@fixme#1#2{%
+  \stepcounter{fixmecount}%
+  \stepcounter{fixme#1count}%
+  \csname fixme@#1\endcsname{#2}}
+\def\@fixme#1[#2]#3{%
+  \bgroup%
+  \fixme@inlinefalse%
+  \fixme@marginfalse%
+  \fixme@margincluefalse%
+  \fixme@footnotefalse%
+  \fixme@userfalse%
+  \fixme@indexfalse%
+  \@for\fixme@option:=#2\do{%
+    \expandafter\ifx\csname fixme@\fixme@option true\endcsname\relax
+      \PackageError{FiXme}{Unknown layout option `\fixme@option'}{%
+You have given an invalid option to \string\fixme, or an \string\fx %
+command.\MessageBreak
+Valid options are `inline', `margin', `marginclue', `footnote', %
+`user',\MessageBreak
+and `index'.\MessageBreak
+Type X to quit, fix your document, and rerun LaTeX.}%
+      \else%
+      \csname fixme@set\fixme@option\endcsname%
+    \fi}%
+  \@@fixme{#1}{#3}%
+  \egroup}
+\newcommand\fxnote{\@ifnextchar[%]
+  {\@fixme{note}}{\@@fixme{note}}}
+\newcommand\fxwarning{\@ifnextchar[%]
+  {\@fixme{warning}}{\@@fixme{warning}}}
+\newcommand\fxerror{\@ifnextchar[%]
+  {\@fixme{error}}{\@@fixme{error}}}
+\newcommand\fixme{\@ifnextchar[%]
+  {\@fixme{fatal}}{\@@fixme{fatal}}}
+
+\newcommand\FXEnvBegin{\begin{quotation}}
+\newcommand\FXEnvEnd{\end{quotation}}
+
+\def\@fxenvbegin@draft#1#2{%
+  \FXEnvBegin
+  \edef\fixme@args{inline%
+    \iffixme@index,index\fi%
+    \iffixme@marginclue,marginclue\fi}%
+  \csname#1\endcsname[\fixme@args]{#2}}
+\def\@fxenvbegin@final#1#2{
+  \edef\fixme@args{inline%
+    \iffixme@index,index\fi%
+    \iffixme@marginclue,marginclue\fi}%
+  \csname#1\endcsname[\fixme@args]{#2}
+  \comment
+}
+
+\def\@fxenvend@draft{\FXEnvEnd}
+\def\@fxenvend@final{\endcomment}
+
+\newenvironment{anfxnote}[1][]{%
+  \@fxenvbegin{fxnote}{#1}}{%
+  \@fxenvend}
+\newenvironment{anfxwarning}[1][]{%
+  \@fxenvbegin{fxwarning}{#1}}{%
+  \@fxenvend}
+\newenvironment{anfxerror}[1][]{%
+  \@fxenvbegin{fxerror}{#1}}{%
+  \@fxenvend}
+\newenvironment{afixme}[1][]{%
+  \@fxenvbegin{fixme}{#1}}{%
+  \@fxenvend}
+
+\DeclareOption{english}{%
+  \renewcommand*\fixmenoteprefix{\fixmelogo\nobreakspace Note}
+  \renewcommand*\fixmewarningprefix{\fixmelogo\nobreakspace Warning}
+  \renewcommand*\fixmeerrorprefix{\fixmelogo\nobreakspace Error}
+  \renewcommand*\fixmefatalprefix{\fixmelogo}
+  \renewcommand*\fixmeindexname{\fixmelogo}
+  \renewcommand*\fixmenoteindexname{**a@Notes:!}
+  \renewcommand*\fixmewarningindexname{**b@Warnings:!}
+  \renewcommand*\fixmeerrorindexname{**c@Errors:!}
+  \renewcommand*\fixmefatalindexname{}
+  \renewcommand*{\listfixmename}{List of Corrections}}
+\DeclareOption{french}{%
+  \renewcommand*\fixmenoteprefix{\fixmelogo\nobreakspace Note}
+  \renewcommand*\fixmewarningprefix{\fixmelogo\nobreakspace Attention}
+  \renewcommand*\fixmeerrorprefix{\fixmelogo\nobreakspace Erreur}
+  \renewcommand*\fixmefatalprefix{\fixmelogo}
+  \renewcommand*\fixmeindexname{\fixmelogo}
+  \renewcommand*\fixmenoteindexname{**a@Notes:!}
+  \renewcommand*\fixmewarningindexname{**b@Avertissements:!}
+  \renewcommand*\fixmeerrorindexname{**c@Erreurs:!}
+  \renewcommand*\fixmefatalindexname{}
+  \renewcommand*{\listfixmename}{Liste des Corrections}}
+\DeclareOption{francais}{\ExecuteOptions{french}}
+\DeclareOption{spanish}{%
+  \renewcommand*\fixmenoteprefix{\fixmelogo\nobreakspace Nota}
+  \renewcommand*\fixmewarningprefix{\fixmelogo\nobreakspace Aviso}
+  \renewcommand*\fixmeerrorprefix{\fixmelogo\nobreakspace Error}
+  \renewcommand*\fixmefatalprefix{\fixmelogo}
+  \renewcommand*\fixmeindexname{\fixmelogo}
+  \renewcommand*\fixmenoteindexname{**a@Notas:!}
+  \renewcommand*\fixmewarningindexname{**b@Avisos:!}
+  \renewcommand*\fixmeerrorindexname{**c@Errores:!}
+  \renewcommand*\fixmefatalindexname{}
+  \renewcommand*{\listfixmename}{Lista de Correcciones}}
+\DeclareOption{italian}{%
+  \renewcommand*\fixmenoteprefix{\fixmelogo\nobreakspace Nota}
+  \renewcommand*\fixmewarningprefix{\fixmelogo\nobreakspace Avviso}
+  \renewcommand*\fixmeerrorprefix{\fixmelogo\nobreakspace Errore}
+  \renewcommand*\fixmefatalprefix{\fixmelogo}
+  \renewcommand*\fixmeindexname{\fixmelogo}
+  \renewcommand*\fixmenoteindexname{**a@Note:!}
+  \renewcommand*\fixmewarningindexname{**b@Avvisi:!}
+  \renewcommand*\fixmeerrorindexname{**c@Errori:!}
+  \renewcommand*\fixmefatalindexname{}
+  \renewcommand*{\listfixmename}{Corrigenda}}
+\DeclareOption{german}{%
+  \renewcommand*\fixmenoteprefix{\fixmelogo\nobreakspace Anm}
+  \renewcommand*\fixmewarningprefix{\fixmelogo\nobreakspace Warnung}
+  \renewcommand*\fixmeerrorprefix{\fixmelogo\nobreakspace Fehler}
+  \renewcommand*\fixmefatalprefix{\fixmelogo}
+  \renewcommand*\fixmeindexname{\fixmelogo}
+  \renewcommand*\fixmenoteindexname{**a@Anmerkungen:!}
+  \renewcommand*\fixmewarningindexname{**b@Warnungen:!}
+  \renewcommand*\fixmeerrorindexname{**c@Fehler:!}
+  \renewcommand*\fixmefatalindexname{}
+  \renewcommand*{\listfixmename}{Verzeichnis der Korrekturen}}
+\DeclareOption{ngerman}{%
+  \ExecuteOptions{german}}
+\DeclareOption{danish}{%
+  \renewcommand*\fixmenoteprefix{\fixmelogo\nobreakspace Note}
+  \renewcommand*\fixmewarningprefix{\fixmelogo\nobreakspace Advarsel}
+  \renewcommand*\fixmeerrorprefix{\fixmelogo\nobreakspace Fejl}
+  \renewcommand*\fixmefatalprefix{\fixmelogo}
+  \renewcommand*\fixmeindexname{\fixmelogo}
+  \renewcommand*\fixmenoteindexname{**a@Noter:!}
+  \renewcommand*\fixmewarningindexname{**b@Advarsler:!}
+  \renewcommand*\fixmeerrorindexname{**c@Fejl:!}
+  \renewcommand*\fixmefatalindexname{}
+  \renewcommand*{\listfixmename}{Rettelser}}
+\DeclareOption{croatian}{%
+  \renewcommand*\fixmenoteprefix{\fixmelogo\nobreakspace Poruka}
+  \renewcommand*\fixmewarningprefix{\fixmelogo\nobreakspace Upozorenje}
+  \renewcommand*\fixmeerrorprefix{\fixmelogo\nobreakspace Gre\v ska}
+  \renewcommand*\fixmefatalprefix{\fixmelogo}
+  \renewcommand*\fixmeindexname{\fixmelogo}
+  \renewcommand*\fixmenoteindexname{**a@Poruke:!}
+  \renewcommand*\fixmewarningindexname{**b@Upozorenja:!}
+  \renewcommand*\fixmeerrorindexname{**c@Greske:!}
+  \renewcommand*\fixmefatalindexname{}
+  \renewcommand*{\listfixmename}{Popis korekcija}}
+
+\DeclareOption{final}{
+  \let\fixme@note\fixme@note@final
+  \let\fixme@warning\fixme@warning@final
+  \let\fixme@error\fixme@error@final
+  \let\fixme@fatal\fixme@fatal@final
+  \let\@fxenvbegin\@fxenvbegin@final
+  \let\@fxenvend\@fxenvend@final
+  \let\listoffixmes\listoffixmes@final
+  }
+
+\DeclareOption{draft}{
+  \@ifclassloaded{article}{
+    \let\@listoffixmes@pretoc\@listoffixmes@pretoc@article
+    \let\@listoffixmes@posttoc\@listoffixmes@posttoc@article}{
+    \@ifclassloaded{report}{
+      \let\@listoffixmes@pretoc\@listoffixmes@pretoc@report
+      \let\@listoffixmes@posttoc\@listoffixmes@posttoc@report}{
+      \@ifclassloaded{book}{
+\let\@listoffixmes@pretoc\@listoffixmes@pretoc@book
+\let\@listoffixmes@posttoc\@listoffixmes@posttoc@book}{
+\@ifclassloaded{scrartcl}{
+  \let\@listoffixmes@pretoc\@listoffixmes@pretoc@scrartcl
+  \let\@listoffixmes@posttoc\@listoffixmes@posttoc@scrartcl}{
+  \@ifclassloaded{scrreprt}{
+    \let\@listoffixmes@pretoc\@listoffixmes@pretoc@scrreprt
+    \let\@listoffixmes@posttoc\@listoffixmes@posttoc@scrreprt}{
+    \@ifclassloaded{scrbook}{
+      \let\@listoffixmes@pretoc\@listoffixmes@pretoc@scrbook
+      \let\@listoffixmes@posttoc\@listoffixmes@posttoc@scrbook}{
+      \@ifclassloaded{amsbook}{
+\let\listoffixmes@draft\listoffixmes@draft@ams}{
+\@ifclassloaded{amsart}{
+  \let\listoffixmes@draft\listoffixmes@draft@ams}{
+  %% Use the article layout by default.
+  \let\@listoffixmes@pretoc\@listoffixmes@pretoc@article
+  \let\@listoffixmes@posttoc\@listoffixmes@posttoc@article}
+      }
+    }
+  }
+}
+      }
+    }
+  }
+  \let\fixme@note\fixme@note@draft
+  \let\fixme@warning\fixme@warning@draft
+  \let\fixme@error\fixme@error@draft
+  \let\fixme@fatal\fixme@fatal@draft
+  \let\@fxenvbegin\@fxenvbegin@draft
+  \let\@fxenvend\@fxenvend@draft
+  \let\listoffixmes\listoffixmes@draft
+}
+
+\ExecuteOptions{english,final,margin,nosilent}
+\ProcessOptions*
+
+\AtBeginDocument{%
+  \ifx\FiXmeUser\empty
+    \renewcommand\FiXmeUser[1]{\FXUser{\fixmefatalprefix}{#1}}
+  \fi}
+
+\AtEndDocument{%
+  \GenericWarning{%
+    (FiXme)\@spaces\@spaces\@spaces\@spaces
+  }{%
+    Package FiXme Summary: Number of notes: \thefixmenotecount,\MessageBreak%
+    Number of warnings: \thefixmewarningcount,\MessageBreak%
+    Number of errors: \thefixmeerrorcount,\MessageBreak%
+    Number of fatal errors: \thefixmefatalcount,\MessageBreak%
+    Total: \thefixmecount\@gobble%
+  }}
+\endinput
+%%
+%% End of file `fixme.sty'.

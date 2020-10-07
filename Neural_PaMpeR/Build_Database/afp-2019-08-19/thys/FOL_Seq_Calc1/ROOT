@@ -1,0 +1,11 @@
+chapter AFP
+
+session FOL_Seq_Calc1 (AFP) = "FOL-Fitting" +
+  options [timeout = 300]
+  theories
+    Common
+    Tableau
+    Sequent
+  document_files
+    "root.tex"
+    "root.bib"

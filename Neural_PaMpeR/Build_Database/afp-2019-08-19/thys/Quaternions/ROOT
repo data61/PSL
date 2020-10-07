@@ -1,0 +1,10 @@
+chapter AFP
+
+session Quaternions (AFP) = "HOL-Analysis" +
+  description "Quaternions"
+  options [timeout = 300]
+  theories
+    Quaternions
+  document_files
+    "root.bib"
+    "root.tex"

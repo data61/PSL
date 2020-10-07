@@ -1,0 +1,188 @@
+\part{Conclusion}
+
+\chapter{Conclusion}
+
+\section{Lessons Learned and Contributions}
+We provided a typed and type-safe shallow embedding of the core of
+UML~\cite{omg:uml-infrastructure:2011,omg:uml-superstructure:2011} and
+OCL~\cite{omg:ocl:2012}. Shallow embedding means that types of OCL
+were mapped by the embedding one-to-one to types in
+Isabelle/HOL~\cite{nipkow.ea:isabelle:2002}.  We followed the usual
+methodology to build up the theory uniquely by conservative extensions
+of all operators in a denotational style and to derive logical and
+algebraic (execution) rules from them; thus, we can guarantee the
+logical consistency of the library and instances of the class model
+construction. The class models were given a closed-world interpretation 
+as object-oriented datatype theories, as
+long as it follows the described methodology.\footnote{Our two
+  examples of \inlineisar+Employee_AnalysisModel+ and
+  \inlineisar+Employee_DesignModel+ (see
+  \autoref{ex:employee-analysis:uml} and
+  \autoref{ex:employee-analysis:ocl} as well as
+  \autoref{ex:employee-design:uml} and
+  \autoref{ex:employee-design:ocl}) sketch how this construction can
+  be captured by an automated process; its implementation is described 
+  elsewhere.}  Moreover, all derived
+execution rules are by construction type-safe (which would be an
+issue, if we had chosen to use an object universe construction in
+Zermelo-Fraenkel set theory as an alternative approach to subtyping.).
+In more detail, our theory gives answers and concrete solutions to a
+number of open major issues for the UML/OCL standardization:
+\begin{enumerate}
+\item the role of the two exception elements \inlineisar+invalid+ and
+  \inlineisar+null+, the former usually assuming strict evaluation
+  while the latter ruled by non-strict evaluation.
+\item the functioning of the resulting four-valued logic, together
+  with safe rules (for example \inlineisar+foundation9+ --
+  \inlineisar+foundation12+ in \autoref{sec:localVal}) that allow a
+  reduction to two-valued reasoning as required for many automated
+  provers. The resulting logic still enjoys the rules of a strong
+  Kleene Logic in the spirit of the Amsterdam
+  Manifesto~\cite{cook.ea::amsterdam:2002}.
+\item the complicated life resulting from the two necessary
+  equalities: the standard's ``strict weak referential equality'' as
+  default (written \inlineisar+_ \<doteq> _+ throughout this document) and
+  the strong equality (written \inlineisar+_ \<triangleq> _+), which
+  follows the logical Leibniz principle that ``equals can be replaced
+  by equals.''  Which is not necessarily the case if
+  \inlineisar+invalid+ or objects of different states are involved.
+\item a type-safe representation of objects and a clarification of the
+  old idea of a one-to-one correspondence between object
+  representations and object-id's, which became a state invariant.
+\item a simple concept of state-framing via the novel operator
+  \inlineocl+_->oclIsModifiedOnly()+ and its consequences for strong
+  and weak equality.
+\item a semantic view on subtyping clarifying the role of static and
+  dynamic type (aka \emph{apparent} and \emph{actual} type in Java
+  terminology), and its consequences for casts, dynamic type-tests,
+  and static types.
+\item a semantic view on path expressions, that clarify the role of
+  \inlineisar+invalid+ and \inlineisar+null+ as well as the tricky
+  issues related to de-referentiation in pre- and post state.
+\item an optional extension of the OCL semantics by \emph{infinite}
+  sets that provide means to represent ``the set of potential objects
+  or values'' to state properties over them (this will be an important
+  feature if OCL is intended to become a full-blown code annotation
+  language in the spirit of JML~\cite{levens.ea:jml:2007} for semi-automated code verification,
+  and has been considered desirable in the Aachen
+  Meeting~\cite{brucker.ea:summary-aachen:2013}).
+\end{enumerate}
+Moreover, we managed to make our theory in large parts executable,
+which allowed us to include mechanically checked
+\inlineisar+value+-statements that capture numerous corner-cases
+relevant for OCL implementors. Among many minor issues, we thus
+pin-pointed the behavior of \inlineocl+null+ in collections as well
+as in casts and the desired \inlineocl+isKindOf+-semantics of
+\inlineocl+allInstances()+.
+
+
+\section{Lessons Learned}
+While our paper and pencil arguments, given
+in~\cite{brucker.ea:ocl-null:2009}, turned out to be essentially
+correct, there had also been a lesson to be learned: If the logic is
+not defined as a Kleene-Logic, having a structure similar to a
+complete partial order (CPO), reasoning becomes complicated: several
+important algebraic laws break down which makes reasoning in OCL
+inherent messy and a semantically clean compilation of OCL formulae to
+a two-valued presentation, that is amenable to animators like
+KodKod~\cite{torlak.ea:kodkod:2007} or SMT-solvers like
+Z3~\cite{moura.ea:z3:2008} completely impractical. Concretely, if the
+expression \inlineocl{not(null)} is defined \inlineocl{invalid} (as was
+the case in prior versions of the standard~\cite{omg:ocl:2012}), then standard
+involution does not hold, \ie, \inlineocl{not(not(A))} = \inlineocl{A}
+does not hold universally. Similarly, if \inlineocl{null and null} is
+\inlineocl{invalid}, then not even idempotence \inlineocl{X and X} =
+\inlineocl{X} holds. We strongly argue in favor of a lattice-like
+organization, where \inlineocl{null} represents ``more information''
+than \inlineocl{invalid} and the logical operators are monotone with
+respect to this semantical ``information ordering.''
+
+A similar experience with prior paper and pencil arguments was our
+investigation of the object-oriented data-models, in particular
+path-expressions ~\cite{brucker.ea:path-expressions:2013}. The final
+presentation is again essentially correct, but the technical details
+concerning exception handling lead finally to a continuation-passing
+style of the (in future generated) definitions for accessors, casts
+and tests.  Apparently, OCL semantics (as many other ``real''
+programming and specification languages) is meanwhile too complex to
+be treated by informal arguments solely.
+
+Featherweight OCL makes several minor deviations from the standard and
+showed how the previous constructions can be made correct and
+consistent, and the DNF-normalization as well as $\delta$-closure laws
+(necessary for a transition into a two-valued presentation of OCL
+specifications ready for interpretation in SMT solvers
+(see~\cite{brucker.ea:ocl-testing:2010} for details)) are valid in
+Featherweight OCL.
+
+\section{Conclusion and Future Work}
+Featherweight OCL concentrates on formalizing the semantics of a core
+subset of OCL in general and in particular on formalizing the
+consequences of a four-valued logic (\ie, OCL versions that support,
+besides the truth values \inlineocl{true} and \inlineocl{false} also
+the two exception values \inlineocl{invalid} and \inlineocl{null}).
+
+In the following, we outline the following future extensions to use
+Featherweight OCL for a concrete fully fledged tool for OCL.  There are
+essentially five extensions necessary:
+\begin{itemize}
+\item development of a compiler that compiles a textual or CASE
+  tool representation (\eg, using XMI or the textual syntax of
+  the USE tool~\cite{richters:precise:2002}) of class
+  models into an object-oriented data type theory automatically.
+\item Full support of OCL standard syntax in a front-end parser;
+  Such a parser could also generate the necessary casts as well as
+  converting standard OCL to Featherweight OCL as well as providing
+  ``normalizations'' such as converting multiplicities of class
+  attributes to into OCL class invariants.
+\item a setup for translating Featherweight OCL into a two-valued
+  representation as described
+  in~\cite{brucker.ea:ocl-testing:2010}. As, in real-world scenarios,
+  large parts of {UML}/{OCL} specifications are defined (\eg,
+  from the default multiplicity \inlineocl{1} of an attributes
+  \inlineocl{x}, we can directly infer that for all valid states
+  \inlineocl{x} is neither \inlineocl{invalid} nor \inlineocl{null}),
+  such a translation enables both an integration of fast constraint solvers
+  such as Z3 as well as test-case generation scenarios as described in 
+  \cite{brucker.ea:ocl-testing:2010}.
+\item a setup in Featherweight OCL of the Nitpick
+  animator~\cite{blanchette.ea:nitpick:2010}. It remains to be shown
+  that the standard, Kodkod~\cite{torlak.ea:kodkod:2007} based
+  animator in Isabelle can give a similar quality of animation as the
+  OCLexec Tool~\cite{krieger.ea:generative:2010}
+\item a code-generator setup for Featherweight OCL for Isabelle's
+  code generator. For example, the Isabelle code generator supports
+  the generation of F\#, which would allow to use {OCL}
+  specifications for testing arbitrary .net-based applications.
+\end{itemize}
+The first two extensions are sufficient to provide a formal proof
+environment for OCL 2.5 similar to \holocl while the remaining
+extensions are geared towards increasing the degree of proof
+automation and usability as well as providing a tool-supported test
+methodology for {UML}/{OCL}.
+
+
+Our work shows that developing a machine-checked formal semantics of
+recent {OCL} standards still reveals significant
+inconsistencies---even though this type of research is not new. In
+fact, we started our work already with the 1.x series of {OCL}. The
+reasons for this ongoing consistency problems of {OCL} standard are
+manifold. For example, the consequences of adding an additional
+exception value to OCL 2.2 are widespread across the whole language
+and many of them are also quite subtle. Here, a machine-checked formal
+semantics is of great value, as one is forced to formalize all details
+and subtleties.  Moreover, the standardization process of the {OMG},
+in which standards (\eg, the {UML} infrastructure and the {OCL}
+standard) that need to be aligned closely are developed quite
+independently, are prone to ad-hoc changes that attempt to align these
+standards. And, even worse, updating a standard document by voting on
+the acceptance (or rejection) of isolated text changes does not help
+either. Here, a tool for the editor of the standard that helps to
+check the consistency of the whole standard after each and every
+modifications can be of great value as well.
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+

@@ -1,0 +1,15 @@
+chapter AFP
+
+session SuperCalc (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-ex"
+  theories
+    multisets_continued
+    well_founded_continued
+    terms
+    equational_clausal_logic 
+    superposition 
+  document_files
+    "root.tex"
+    "root.bib"

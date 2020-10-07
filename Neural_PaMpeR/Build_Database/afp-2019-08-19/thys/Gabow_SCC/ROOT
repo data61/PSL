@@ -1,0 +1,20 @@
+chapter AFP
+
+session Gabow_SCC (AFP) = CAVA_Automata +
+  options [timeout = 600]
+  theories
+    Gabow_Skeleton
+    Gabow_SCC
+    Find_Path
+    Gabow_GBG
+    Gabow_Skeleton_Code
+    Gabow_SCC_Code
+    Find_Path_Impl
+    Gabow_GBG_Code
+  theories [document = false]
+    All_Of_Gabow_SCC
+  document_files
+    "intro.tex"
+    "root.tex"
+    "conclusion.tex"
+    "root.bib"

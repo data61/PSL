@@ -1,0 +1,65 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath,amssymb}
+\usepackage{pdfsetup}
+\urlstyle{rm}
+\isabellestyle{it}
+\usepackage[left=2cm, right=2cm, top=2cm, bottom=2cm]{geometry}
+
+\begin{document}
+
+\title{Analysing and Comparing Encodability Criteria for Process Calculi (Technical Report)}
+\author{
+	\begin{tabular}{c}
+		Kirstin Peters\thanks{Supported by funding of the Excellence Initiative by the German Federal and State Governments (Institutional Strategy, measure `support the best').}\\
+		\begin{small}
+			TU Dresden, Germany
+		\end{small}
+	\end{tabular}
+	\and
+	\begin{tabular}{c}
+		Rob van Glabbeek\\
+		\begin{small}
+			NICTA\thanks{NICTA is funded by the Australian Government through the Department of Communications and the Australian Research Council through the ICT Centre of Excellence Program.}, Sydney, Australia
+		\end{small}\\
+		\begin{small}
+			Computer Science and Engineering, UNSW, Sydney, Australia
+		\end{small}
+	\end{tabular}
+}
+\date{August 05, 2015}
+\maketitle
+
+\begin{abstract}
+	Encodings or the proof of their absence are the main way to compare process calculi. To analyse the quality of encodings and to rule out trivial or meaningless encodings, they are augmented with quality criteria.
+	There exists a bunch of different criteria and different variants of criteria in order to reason in different settings. This leads to incomparable results.
+	Moreover it is not always clear whether the criteria used to obtain a result in a particular setting do indeed fit to this setting.
+	We show how to formally reason about and compare encodability criteria by mapping them on requirements on a relation between source and target terms that is induced by the encoding function.
+	In particular we analyse the common criteria \emph{full abstraction}, \emph{operational correspondence}, \emph{divergence reflection}, \emph{success sensitiveness}, and \emph{respect of barbs}; e.g.\ we analyse the exact nature of the simulation relation (coupled simulation versus bisimulation) that is induced by different variants of operational correspondence.
+	This way we reduce the problem of analysing or comparing encodability criteria to the better understood problem of comparing relations on processes.
+\end{abstract}
+
+\noindent
+In the following we present the Isabelle implementation of the underlying theory as well as all proofs of the results presented in the paper \emph{Analysing and Comparing Encodability Criteria} as submitted to EXPRESS/SOS'15.
+
+\newpage
+\tableofcontents
+\newpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

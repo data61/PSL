@@ -1,0 +1,39 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb,amsmath}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{An Isabelle/HOL formalisation of Green's Theorem}
+\author{Mohammad Abdulaziz and Lawrence C.\ Paulson}
+\maketitle
+
+\begin{abstract}
+  We formalise a statement of Green’s theorem—the first formalisation to
+  our knowledge—in Isabelle/HOL. The theorem statement that we formalise
+  is enough for most applications, especially in physics and
+  engineering. Our formalisation is made possible by a novel proof that
+  avoids the ubiquitous line integral cancellation argument. This
+  eliminates the need to formalise orientations and region boundaries
+  explicitly with respect to the outwards-pointing normal vector.
+  Instead we appeal to a homological argument about equivalences between
+  paths.
+\end{abstract}
+
+% \tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

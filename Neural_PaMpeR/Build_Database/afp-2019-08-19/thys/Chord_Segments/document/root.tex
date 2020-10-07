@@ -1,0 +1,177 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{gensymb}
+\usepackage{textcomp}
+\usepackage{cite}
+\usepackage{tikz}
+\usetikzlibrary{shadings,intersections}
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% notation and presentation style for geometric expressions
+\newcommand{\length}[1]{\overline{#1}}
+
+\begin{document}
+
+\title{Intersecting Chords Theorem}
+\author{Lukas Bulwahn}
+\maketitle
+
+\begin{abstract}
+
+This entry provides a geometric proof of the intersecting chords theorem.
+The theorem states that when two chords intersect each other inside a circle,
+the products of their segments are equal.
+
+After a short review of existing proofs in the
+literature~\cite{proofwiki:chord-theorem, knorr-1989, birkhoff-beatley-1959, harrison},
+I decided to use a proof approach that employs reasoning about
+lengths of line segments, the orthogonality of two lines and
+Pythagoras Law. Hence, one can understand the formalized
+proof easily with the knowledge of a few general geometric facts
+that are commonly taught in high-school.
+
+This theorem is the 55th theorem of the Top 100 Theorems list.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+The intersecting chords theorem states:
+\begin{quote}
+When two chords intersect each other inside a circle, the products of their segments are equal.
+\end{quote}
+To prove this theorem in Isabelle, I reviewed existing formalizations in theorem provers
+and proofs in the literature~\cite{proofwiki:chord-theorem, knorr-1989, birkhoff-beatley-1959, harrison}.
+At the time of this AFP submission, the formalization of geometry in Isabelle
+is limited to only a few concepts and theorems. Hence, I selected to formalize
+the proof approach that fitted best to the already existing geometry formalizations.
+
+The proof in HOL Light~\cite{harrison} simply unfolds the involved geometric predicates and then
+proves the theorem using only algebraic computations on real numbers. By a quick and
+shallow inspection of the proof script without executing the proof script step by step in
+HOL Light, I could not understand the proof script well enough to re-write the proof
+in Isabelle. As running the script in HOL Light seemed too involved to me, I
+ignored HOL Light's proof approach and considered the other approaches in the literature.
+
+The first proof approach~\cite{proofwiki:chord-theorem} that I found in the
+literature employs similarity of triangles, the inscribed angle theorem,
+and basic reasoning with angles.
+The intersecting chords theorem only consists of two reasoning steps after
+stating the geometric observations about angles.
+However, the proof requires to formalize the concept of similarity of triangles,
+extend the existing formalization of angles, and prove the inscribed angle theorem.
+So, I abandoned this proof approach and considered the second proof
+approach.
+
+The second proof approach~\cite{proofwiki:chord-theorem} needs only
+basic geometric reasoning about lengths of line segments, the orthogonality
+of two lines and Pythagoras Law.
+More specifically, one must prove that the line that goes through
+the apex and the midpoint of the base in an isosceles triangle
+is orthogonal to the base. This is easily derived from the property
+of an isosceles triangle using the congruence properties of triangles,
+which is already formalized in AFP's Triangle entry~\cite{Triangle-AFP}.
+Furthermore, Pythagoras Law is a special case of the
+Law of Cosines, which is already formalized in AFP's Triangle entry.
+
+Ultimately, I decided to use this second proof approach, which I
+sketch in more detail in the next subsection.
+
+\subsection{Informal Proof Sketch}
+
+The proof of the intersecting chords theorem relies on the following observation
+which is depicted in Figure \ref{fig:chord-property}.
+
+\begin{figure}
+\begin{tikzpicture}
+
+\coordinate [label=above:$C$] (C) at (0,0);
+\coordinate [label=below:$S$] (S) at (-4,-3);
+\coordinate [label=below:$T$] (T) at (4,-3);
+\coordinate [label=below:$X$] (X) at (1,-3);
+\coordinate [label=below:$M$] (M) at (0,-3);
+
+\draw (S) -- (T);
+\draw (S) -- (C);
+\draw (T) -- (C);
+\draw (M) -- (C);
+\draw (X) -- (C);
+
+% draw an arc from S T with center C
+% and extend this arc by 10 degrees beyond S and T
+% to show a nicely clipped part of the relevant arc.
+\pgfmathparse{atan2(-3, -4) - 10};
+\pgfmathsetmacro{\startangle}{\pgfmathresult)};
+\pgfmathparse{atan2(-3, 4) + 10};
+\pgfmathsetmacro{\endangle}{\pgfmathresult)};
+\coordinate (S') at (\startangle : 5);
+\draw [dashed] (S') arc ( \startangle : \endangle : 5);
+
+\draw (0.2,-3) arc (0:90:0.2);
+\coordinate [label=right:\tiny{90\textdegree}] (C) at (0.15,-2.8);
+\end{tikzpicture}
+\caption{Key Lemma states $\length{SX} \cdot \length{XT} = \length{SC} ^ 2 - \length{XC} ^ 2$}
+\label{fig:chord-property}
+\end{figure}
+
+Instead of considering \emph{two} arbitrary chords intersecting, consider 
+\emph{one} arbitrary chord with endpoints $S$ and $T$ on a circle with center $C$
+and one arbitrary point $X$ on the chord $ST$.
+This point $X$ on the chord creates two line segments on this chord, the left part $SX$, and
+the right part $XT$. Without loss of generality, we can assume that $SX$ is longer that $XT$,
+as shown in Figure \ref{fig:chord-property}.
+
+The key lemma for the intersecting chords theorem provides 
+a closed expression for the length of these two line segment using
+the distances of the chord endpoints and the point to the center $C$, i.e.,
+the lemma states:
+\begin{quote}
+$\length{SX} \cdot \length{XT} = \length{SC} ^ 2 - \length{XC} ^ 2$.
+\end{quote}
+To prove this fact, we consider the midpoint $M$ of the chord $ST$.
+First, as $M$ is the midpoint, $\length{SM}$ and $\length{TM}$ are equal.
+Second, we observe that the lengths of the line segments $SX$ and $XT$
+are: 
+\begin{quote}
+$\length{SX} = \length{SM} + \length{MX}$ and
+$\length{XT} = \length{TM} - \length{MX} = \length{SM} - \length{MX}$.
+\end{quote}
+Third, the Pythagoras law for the triangles $SMC$ and $XMC$ states:
+\begin{quote}
+$\length{SM} ^ 2 + \length{MC} ^ 2 = \length{SC} ^ 2$ and
+$\length{XM} ^ 2 + \length{MC} ^ 2 = \length{XC} ^ 2$.
+\end{quote}
+Finally, the product can be expressed as:
+\begin{quote}
+$\length{SX} \cdot \length{XT} = (\length{SM} + \length{MX}) \cdot (\length{TM} - \length{MX}) =
+\length{SM} ^ 2 - \length{MX} ^ 2 = (\length{SC} ^ 2 - \length{MC} ^ 2) - (\length{XC} ^ 2 - \length{MC} ^ 2) =
+\length{SC} ^ 2 - \length{XC} ^ 2$.
+\end{quote}
+The intersecting chord theorem now follows directly
+from this lemma:
+as the distances $SC$ and $XC$ for two arbitrary chords
+intersecting at $X$ are equal, also the products
+of the chord segments are equal.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\nocite{*}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,33 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Efficient Mergesort}
+\author{Christian Sternagel}
+\maketitle
+
+\begin{abstract}
+We provide a formalization of the mergesort algorithm as used in GHC's Data.List module, proving correctness and stability. Furthermore, experimental data suggests that generated (Haskell-)code for this algorithm is much faster than for previous algorithms available in the Isabelle distribution.
+\end{abstract}
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+% optional bibliography
+\addcontentsline{toc}{section}{Bibliography}
+%\nocite{*}
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}

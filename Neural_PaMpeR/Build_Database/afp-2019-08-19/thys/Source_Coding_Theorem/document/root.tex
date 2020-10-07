@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{One Part of Shannon's Source Coding Theorem}
+\author{Quentin Hibon}
+\maketitle
+
+\begin{abstract}
+  This document contains a proof of the necessary condition on the code rate of
+  a source code, namely that this code rate is bounded by the entropy of the
+  source. This represents one half of Shannon's source coding theorem, which is
+  itself an equivalence.
+
+  This proof is taken directly from the textbook \cite{ref},
+  and transcribed rather literally into Isabelle. It is thus easier to keep the
+  textbook proof in mind to understand this formal proof.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

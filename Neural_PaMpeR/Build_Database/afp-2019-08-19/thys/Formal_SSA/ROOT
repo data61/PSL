@@ -1,0 +1,28 @@
+chapter AFP
+
+session Formal_SSA (AFP) = Collections +
+  options [timeout = 1200]
+  sessions
+    Dijkstra_Shortest_Path
+    Slicing
+    CAVA_Automata
+  theories
+    FormalSSA_Misc
+    Serial_Rel
+    Mapping_Exts
+    RBT_Mapping_Exts
+    SSA_CFG
+    Minimality
+    Construct_SSA
+    Construct_SSA_notriv
+    SSA_Semantics
+    While_Combinator_Exts
+    SSA_Transfer_Rules
+    Construct_SSA_code
+    Construct_SSA_notriv_code
+    Generic_Interpretation
+    Generic_Extract
+    WhileGraphSSA
+  document_files
+    "root.tex"
+    "root.bib"

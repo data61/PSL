@@ -1,0 +1,17 @@
+chapter AFP
+
+session Groebner_Bases (AFP) = "HOL-Algebra" +
+  options [timeout = 3600]
+  sessions
+    Polynomials
+    Jordan_Normal_Form
+    Deriving
+  theories
+    Buchberger_Examples
+    Reduced_GB_Examples
+    F4_Examples
+    Syzygy_Examples
+    Groebner_PM
+  document_files
+    "root.tex"
+    "root.bib"

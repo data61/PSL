@@ -1,0 +1,13 @@
+chapter AFP
+
+session IEEE_Floating_Point (AFP) = "Word_Lib" +
+  options [timeout = 3600]
+  sessions
+    "HOL-Library"
+  theories
+    IEEE_Properties
+    FP64
+    Double
+  document_files
+    "root.bib"
+    "root.tex"

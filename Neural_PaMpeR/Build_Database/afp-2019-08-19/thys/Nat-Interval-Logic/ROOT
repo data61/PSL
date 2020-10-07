@@ -1,0 +1,10 @@
+chapter AFP
+
+session "Nat-Interval-Logic" (AFP) = "List-Infinite" +
+  options [timeout = 600]
+  theories
+    IL_Interval
+    IL_IntervalOperators
+    IL_TemporalOperators
+  document_files
+    "root.tex"

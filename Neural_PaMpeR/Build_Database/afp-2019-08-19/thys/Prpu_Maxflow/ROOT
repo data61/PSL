@@ -1,0 +1,18 @@
+chapter AFP
+
+session Prpu_Maxflow (AFP) = Flow_Networks +
+  options [timeout = 600]
+  theories
+    Generic_Push_Relabel
+    Prpu_Common_Inst
+    Fifo_Push_Relabel
+    Graph_Topological_Ordering
+    Relabel_To_Front
+    Prpu_Common_Impl
+    Fifo_Push_Relabel_Impl
+    Relabel_To_Front_Impl
+  theories [document = false]
+    Generated_Code_Test
+  document_files
+    "root.tex"
+    "root.bib"

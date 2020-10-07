@@ -1,0 +1,25 @@
+chapter AFP
+
+session Circus (AFP) = HOLCF +
+  description "Circus Denotational Semantics and Refinements"
+  options [timeout = 600]
+  theories
+    Refinement_Example
+  document_files
+    "acronym.sty"
+    "bigfoot.sty"
+    "circus.sty"
+    "csp.sty"
+    "fixisa.sty"
+    "fixme.sty"
+    "fmde-acronyms.sty"
+    "hol-ocl-isar.sty"
+    "lstisar-mbt.sty"
+    "marginnote.sty"
+    "perpage.sty"
+    "prooftree.sty"
+    "root.bib"
+    "root.tex"
+    "suffix.sty"
+    "zed.sty"
+

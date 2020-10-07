@@ -1,0 +1,16 @@
+(* License: LGPL *)
+
+chapter AFP
+
+session Neumann_Morgenstern_Utility (AFP) = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    First_Welfare_Theorem
+  theories
+    Lotteries
+    PMF_Composition
+    Neumann_Morgenstern_Utility_Theorem
+    Expected_Utility
+  document_files
+    "root.bib"
+    "root.tex"

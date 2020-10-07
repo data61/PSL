@@ -1,0 +1,10 @@
+chapter AFP
+
+session "Multirelations" (AFP) = "Kleene_Algebra" +
+  options [timeout = 1200]
+  theories
+    C_Algebras
+    Multirelations
+  document_files
+    "root.tex"
+    "root.bib"

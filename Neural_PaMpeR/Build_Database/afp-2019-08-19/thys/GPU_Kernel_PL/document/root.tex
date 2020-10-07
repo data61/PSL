@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Syntax and semantics of a \\ GPU kernel programming language}
+\author{John Wickerson}
+\maketitle
+
+\begin{abstract}
+This document accompanies the article \emph{The Design and 
+Implementation of a Verification Technique for GPU Kernels} 
+by Adam Betts, Nathan Chong, Alastair F. Donaldson, Jeroen
+Ketema, Shaz Qadeer, Paul Thomson and John Wickerson~\cite{gpuverify}. It
+formalises all of the definitions provided in Sections~3
+and~4 of the article.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

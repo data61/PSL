@@ -1,0 +1,54 @@
+\documentclass[11pt,a4paper,notitlepage]{scrartcl}
+\usepackage{isabelle,isabellesym}
+\usepackage{textcomp}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+\title{The General Triangle Is Unique}
+\author{Joachim Breitner}
+\date{April 1, 2011}
+\begin{document}
+
+\titlehead{
+\begin{center}
+\begin{tikzpicture}
+\draw (0,0) node (a) {} -- (6,0) node (b) {}
+ -- (intersection cs:
+  first line ={(a) -- (45:1cm)},
+  second line ={(b) -- ($(b) + (120:1cm)$) }) node (c) {} -- cycle;
+\draw (a) +(8mm,0) arc (0:45:8mm);  
+\draw (b) +(-8mm,0) arc (180:120:8mm);  
+\draw ($(c) + (225:8mm)$) arc (225:300:8mm);
+\node at ($(a) + (20:5mm)$) {$a$};
+\node at ($(b) + (150:5mm)$) {$b$};
+\node at ($(c) + (265:5mm)$) {$c$};
+\end{tikzpicture}
+\end{center}
+}
+
+\maketitle
+
+\begin{abstract}
+  Some acute-angled triangles are special, e.g.\ right-angled or isosceles
+  triangles. Some are not of this kind, but, without measuring angles, look as
+  if they are. In that sense, there is exactly one general triangle. This
+  well-known fact\cite{Tergan} is proven here formally.
+\end{abstract}
+
+%\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
