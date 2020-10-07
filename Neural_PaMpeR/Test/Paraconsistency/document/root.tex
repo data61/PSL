@@ -1,0 +1,124 @@
+\documentclass[11pt,a4paper]{article}
+
+\title{Paraconsistency}
+
+\author{Anders Schlichtkrull \&\ J{\o}rgen Villadsen, DTU Compute, Denmark}
+
+\date{\isadate\today}
+
+\usepackage{datetime,isabelle,isabellesym,parskip,underscore}
+
+\newdateformat{isadate}{\THEDAY\ \monthname[\THEMONTH] \THEYEAR}
+
+\usepackage[cm]{fullpage}
+
+\usepackage{pdfsetup}
+
+\isabellestyle{tt}
+
+\urlstyle{rm}
+
+\renewcommand{\isachardoublequote}{}
+\renewcommand{\isachardoublequoteopen}{}
+\renewcommand{\isachardoublequoteclose}{}
+
+\renewcommand{\isamarkupchapter}[1]{\clearpage\isamarkupsection{#1}}
+\renewcommand{\isamarkupsection}[1]{\section*{#1}\addcontentsline{toc}{section}{#1}}
+\renewcommand{\isamarkupsubsection}[1]{\medskip\subsection*{#1}}
+\renewcommand{\isamarkupsubsubsection}[1]{\medskip\subsubsection*{#1}}
+
+\renewcommand{\isabeginpar}{\par\ifisamarkup\relax\else\bigskip\fi}
+\renewcommand{\isaendpar}{\par\bigskip}
+
+\begin{document}
+
+\makeatletter
+\parbox[t]{\textwidth}{\centering\Huge\bfseries\@title}\par\kern5mm
+\parbox[t]{\textwidth}{\centering\Large\bfseries\@author}\par\kern3mm
+\parbox[t]{\textwidth}{\centering\bfseries\@date}\par\kern8mm
+\makeatother
+
+\begin{abstract}\normalsize\noindent
+Paraconsistency is about handling inconsistency in a coherent way. In classical and intuitionistic
+logic everything follows from an inconsistent theory. A paraconsistent logic avoids the explosion.
+Quite a few applications in computer science and engineering are discussed in the Intelligent
+Systems Reference Library Volume 110: Towards Paraconsistent Engineering (Springer 2016). We
+formalize a paraconsistent many-valued logic that we motivated and described in a special issue on
+logical approaches to paraconsistency (Journal of Applied Non-Classical Logics 2005). We limit
+ourselves to the propositional fragment of the higher-order logic. The logic is based on so-called
+key equalities and has a countably infinite number of truth values. We prove theorems in the logic
+using the definition of validity. We verify truth tables and also counterexamples for non-theorems.
+We prove meta-theorems about the logic and finally we investigate a case study.
+\end{abstract}
+
+\tableofcontents
+
+\isamarkupsection{Preface}
+
+The present formalization in Isabelle essentially follows our extended abstract \cite{Jensen+12}.
+The Stanford Encyclopedia of Philosophy has a comprehensive overview of logical approaches to
+paraconsistency \cite{Priest+15}. We have elsewhere explained the rationale for our paraconsistent
+many-valued logic and considered applications in multi-agent systems and natural language semantics
+\cite{Villadsen05-JANCL,Villadsen09,Villadsen10,Villadsen14}.
+
+It is a revised and extended version of our formalization \url{https://github.com/logic-tools/mvl}
+that accompany our chapter in a book on partiality published by Cambridge Scholars Press. The GitHub
+link provides more information. We are grateful to the editors --- Henning Christiansen, M. Dolores
+Jim\'{e}nez L\'{o}pez, Roussanka Loukanova and Larry Moss --- for the opportunity to contribute to
+the book.
+
+\input{session}
+
+\clearpage\addcontentsline{toc}{section}{References}
+
+\begin{thebibliography}{0}
+
+\bibitem{Jensen+12}
+A.~S. Jensen and J.~Villadsen.
+\newblock
+\emph{Paraconsistent Computational Logic}.
+\newblock
+In P.~Blackburn, K.~F.~J{\o}rgensen, N.~Jones, and E.~Palmgren, editors, 8th Scandinavian Logic
+Symposium: Abstracts, pages 59--61, Roskilde University, 2012.
+
+\bibitem{Priest+15}
+G.~Priest, K.~Tanaka and Z.~Weber.
+\newblock
+\emph{Paraconsistent Logic}.
+\newblock
+In E.~N. Zalta et~al., editors, Stanford Encyclopedia of Philosophy, Online Entry
+\url{http://plato.stanford.edu/entries/logic-paraconsistent/} Spring Edition, 2015.
+
+\bibitem{Villadsen05-JANCL}
+J.~Villadsen.
+\newblock
+\emph{Supra-logic: Using Transfinite Type Theory with Type Variables for Paraconsistency}.
+\newblock
+Logical Approaches to Paraconsistency, Journal of Applied Non-Classical Logics, 15(1):45--58, 2005.
+
+\bibitem{Villadsen09}
+J.~Villadsen.
+\newblock
+\emph{Infinite-Valued Propositional Type Theory for Semantics}.
+\newblock
+In J.-Y.~B\'{e}ziau and A.~Costa-Leite, editors, Dimensions of Logical Concepts, pages 277--297,
+Unicamp Cole\c{c}.~CLE 54, 2009.
+
+\bibitem{Villadsen10}
+J.~Villadsen.
+\newblock
+\emph{Nabla: A Linguistic System Based on Type Theory}.
+\newblock
+Foundations of Communication and Cognition (New Series), LIT Verlag, 2010.
+
+\bibitem{Villadsen14}
+J.~Villadsen.
+\newblock
+\emph{Multi-dimensional Type Theory: Rules, Categories and Combinators for Syntax and Semantics}.
+\newblock
+In P.~Blache, H.~Christiansen, V.~Dahl, D.~Duchier, and J.~Villadsen, editors, Constraints and
+Language, pages 167--189, Cambridge Scholars Press, 2014.
+
+\end{thebibliography}
+
+\end{document}

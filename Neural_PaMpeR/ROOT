@@ -1,0 +1,15 @@
+session "SeLFiE" (psl) in "../SeLFiE" = HOL +
+  options [timeout = 600]
+  theories [document = false]
+    "SeLFiE"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "PaMpeR" (psl) in "." = "SeLFiE" +
+  options [timeout = 6000]
+  theories [document = false]
+    "PaMpeR"
+  document_files
+    "root.tex"
+    "root.bib"

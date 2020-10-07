@@ -1,0 +1,8 @@
+chapter AFP
+
+session Landau_Symbols (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Landau_More
+  document_files
+    "root.tex"
