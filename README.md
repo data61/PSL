@@ -18,8 +18,10 @@ We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92u
    * `(path to the Isabelle binary)isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
    * `/Applications/Isabelle2020.app/Isabelle/bin/isabelle jedit -d . -l Smart_Isabelle`
-4. Then, You can install PSL and try_hard by importing *.PSL.thy* to their theory files
-   with the Isabelle keyword, **imports** as ``imports "PSL.PSL"``.
+4. Then, You can use SeLFiE/PaMpeR/PSL/LiFtEr/Smart_Induct to your theory files
+   with the Isabelle keyword, **imports** as ``imports "Smart_Isabelle.Smart_Isabelle"``.
+5. Open `Example/Example.thy` to see if the installation is successful.
+
 ![Screenshot](./image/screen_shot_import.png)
 
 If you find it difficult to install our tool, please refer to [the Isabelle System Manual](https://isabelle.in.tum.de/doc/system.pdf). Alternatively, you can just send an email to Yutaka at Yutaka.Nagashima(at)cvut.cz.
