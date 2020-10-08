@@ -1,4 +1,5 @@
-**This is the development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature ideas. The latest stable release is [here](https://github.com/data61/PSL/releases/tag/0.1.7-alpha).**
+**Dear PADL2021 reviewers, the SeLFiE interpreter resides in PSL/SeLFiE.**
+**This is the development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature ideas.*
 
 # Smart_Isabelle
 
@@ -22,6 +23,14 @@ We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92u
 ![Screenshot](./image/screen_shot_import.png)
 
 If you find it difficult to install our tool, please refer to [the Isabelle System Manual](https://isabelle.in.tum.de/doc/system.pdf). Alternatively, you can just send an email to Yutaka at Yutaka.Nagashima(at)cvut.cz.
+
+## Hints
+PSL's runtime tactic generation can result in a large number of messages in Isabelle/jEdit's output panel.
+This might cause Isabelle/jEdit to pause PSL's proof search after reaching its default upper limit for tracing messages.
+- One can circumvent this situation by changing the upper limit to an extreamly large number, say 99999999.
+- One can change the upper limit for tracing messages via jEdit's menus:
+  Plugins => Plugin Options => Isabelle => General => Editor Tracing Messages.
+![Screenshot](./image/tracing_messages.png)
 
 ## Documentations
 We published academic papers describing the ideas implemented in this project.
