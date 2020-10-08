@@ -1,5 +1,5 @@
-**Dear PADL2021 reviewers, the SeLFiE interpreter resides in PSL/SeLFiE.**
-**This is the development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature ideas.*
+- **Dear PADL2021 reviewers, the SeLFiE interpreter resides in PSL/SeLFiE. For reviewing, please refer to [this release](https://github.com/data61/PSL/releases/tag/v0.1.8-alpha).**
+- **This is the development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature ideas.*
 
 # Smart_Isabelle
 
