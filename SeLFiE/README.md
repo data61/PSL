@@ -7,7 +7,7 @@
    * `(path-to-the-Isabelle-binary)isabelle jedit -d (path-to-the-directory-that-contains-this-README-file) -l SeLFiE`
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
    * `/Applications/Isabelle2020.app/Isabelle/bin/isabelle jedit -d . -l SeLFiE`
-4. Then, open `Test_SeLFiE.thy` to check if SeLFiE functions as expected.
+4. Then, open `Test_SeLFiE.thy` to check if SeLFiE works as expected. You can also see some example heuristics in `SeLFiE_Assertion.thy`.
 
 ## Pre-processing in Unique_Node and Term_Table
 0. remove `HOL.Trueprop`
