@@ -3,7 +3,7 @@
                 The definitions of sep and itrev are from Isabelle's tutorial.
 *)
 theory Demo
-  imports Main "../PSL/PSL" "../PaMpeR/PaMpeR" "../PSL/PSL"
+  imports "Smart_Isabelle.Smart_Isabelle" Main
 begin
 
 (*** Part I ***)

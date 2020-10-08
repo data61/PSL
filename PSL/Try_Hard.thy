@@ -5,7 +5,7 @@ This file defines the default strategy "TryHard".
 *)
 
 theory Try_Hard
-imports "SeLFiE.SeLFiE"
+imports "SeLFiE.SeLFiE" Main
 keywords "strategy"     :: thy_decl
      and "find_proof"   :: diag
      and "try_hard"     :: diag

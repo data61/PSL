@@ -1,5 +1,5 @@
 theory Test_SeLFiE
-imports SeLFiE
+imports Main SeLFiE
 begin
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"

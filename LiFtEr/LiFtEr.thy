@@ -5,7 +5,7 @@ MeLoId: Machine Learning Induction for Isabelle/HOL, and
 LiFtEr: Logical Feature Extractor.
 *)
 theory LiFtEr
-  imports "SeLFiE.SeLFiE"
+  imports "SeLFiE.SeLFiE" Main
   keywords "assert_LiFtEr_true" :: diag
    and     "assert_LiFtEr_false":: diag
    and     "assert_LiFtEr"      :: diag
