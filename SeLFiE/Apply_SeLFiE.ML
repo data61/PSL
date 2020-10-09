@@ -327,9 +327,9 @@ val invocation_parser = PC.token SeLFiE_parser: (string * SeLFiE_Util.induct_arg
 val get_trans_trans_to_token_parser = Parser_Combinator.parser_to_trans_trans_parser invocation_parser
  : (string * SU.induct_arguments -> trans_trans) -> trans_trans Token.parser;
 
-val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true  : trans_trans Token.parser;
+val token_parser_true  = get_trans_trans_to_token_parser get_trans_trans_true: trans_trans Token.parser;
 
-val token_parser_false = get_trans_trans_to_token_parser get_trans_trans_false : trans_trans Token.parser;
+val token_parser_false = get_trans_trans_to_token_parser get_trans_trans_false: trans_trans Token.parser;
 
 (*for check_all_SeLFiE*)
 val check_all_SeLFiE_parser =
@@ -338,7 +338,7 @@ val check_all_SeLFiE_parser =
 : SU.induct_arguments PC.parser;
 
 val get_trans_trans_to_token_parser_for_check_all = Parser_Combinator.parser_to_trans_trans_parser check_all_SeLFiE_parser
- : (SU.induct_arguments -> trans_trans) -> trans_trans Token.parser;;
+ : (SU.induct_arguments -> trans_trans) -> trans_trans Token.parser;
 
 val token_parser_check_all_induction_heuristic =
     get_trans_trans_to_token_parser_for_check_all (get_trans_trans_for_all_asserts_gen Induction_Heuristic)

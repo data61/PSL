@@ -2,6 +2,19 @@ theory Test_SeLFiE
 imports Main SeLFiE
 begin
 
+lemma "zip xs ys = zip xs ys"
+  semantic_induct
+  oops
+
+lemma "length xs = length ys \<Longrightarrow> True"
+  semantic_induct
+  oops
+
+lemma "List.list.list_all2 f xs ys \<Longrightarrow> xs = ys"
+  semantic_induct
+  apply(induct xs ys rule:list_all2_induct)
+  oops
+
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   semantic_induct
   assert_SeLFiE_true  test_is_a_meta_premise    [on["f x"], arb[],rule[]]

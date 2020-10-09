@@ -92,6 +92,8 @@ datatype futrm_w_prnt_n_tag =
 (* futrm_w_prnt_to_futrm_w_prnt_n_tag *)
 val futrm_w_prnt_to_futrm_w_prnt_n_tag: Proof.context -> futrm_w_prnt -> futrm_w_prnt_n_tag;
 
+val futrm_w_prnt_n_tag_to_typ: futrm_w_prnt_n_tag -> typ option;
+
 (* path *)
 type inner_path  = ints;
 type inner_paths = inner_path list;
@@ -458,6 +460,13 @@ fun futrm_w_prnt_to_futrm_w_prnt_n_tag (ctxt:Proof.context) futrm_w_prnt =
     futrm_w_prnt_to_futrm_w_prnt_n_tag' futrm_w_prnt first_acc: futrm_w_prnt_n_tag
   end;
 
+fun futrm_w_prnt_n_tag_to_typ (FUC_Prnt_Tag (_, typ, _, _)) = SOME typ
+  | futrm_w_prnt_n_tag_to_typ (FUF_Prnt_Tag (_, typ, _, _)) = SOME typ
+  | futrm_w_prnt_n_tag_to_typ (FUV_Prnt_Tag (_, typ, _, _)) = SOME typ
+  | futrm_w_prnt_n_tag_to_typ (FUB_Prnt_Tag (_, typ, _, _)) = SOME typ
+  | futrm_w_prnt_n_tag_to_typ (FUL_Prnt_Tag  _            ) = NONE
+  | futrm_w_prnt_n_tag_to_typ (FUA_Prnt_Tag  _            ) = NONE;
+
 (* inner_path *)
 
 type inner_path  = ints;
@@ -515,6 +524,13 @@ datatype futrm_w_prnt_n_tag_n_inner_path =
 | UFA_Prnt_n_Tag_n_Path of (futrm_w_prnt_n_tag_n_inner_path * futrm_w_prnt_n_tag_n_inner_path list) * string * tag * inner_path;
 
 type futrms_w_prnt_n_inner_path = futrm_w_prnt_n_tag_n_inner_path list;
+
+fun futrm_w_prnt_n_tag_n_inner_path_to_typ (UFC_Prnt_n_Tag_n_Path ((_, typ), _, _, _)) = SOME typ
+  | futrm_w_prnt_n_tag_n_inner_path_to_typ (UFF_Prnt_n_Tag_n_Path ((_, typ), _, _, _)) = SOME typ
+  | futrm_w_prnt_n_tag_n_inner_path_to_typ (UFV_Prnt_n_Tag_n_Path ((_, typ), _, _, _)) = SOME typ
+  | futrm_w_prnt_n_tag_n_inner_path_to_typ (UFB_Prnt_n_Tag_n_Path ((_, typ), _, _, _)) = SOME typ
+  | futrm_w_prnt_n_tag_n_inner_path_to_typ (UFL_Prnt_n_Tag_n_Path   _                ) = NONE
+  | futrm_w_prnt_n_tag_n_inner_path_to_typ (UFA_Prnt_n_Tag_n_Path   _                ) = NONE;
 
 (* futrm_w_prnt_to_futrm_w_prnt_n_inner_path *)
 local

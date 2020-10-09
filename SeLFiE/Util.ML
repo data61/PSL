@@ -1250,7 +1250,7 @@ val same_strings_when_normalized: Proof.context -> string -> string -> bool;
 val ctxt_n_string_to_cname: Proof.context -> string -> string option;
 
 (*arguments passed to the induct method*)
-datatype rule_or_set          = Ind_Rule of string | Ind_Set of string;
+datatype rule_or_set          = Ind_Rule of string | Ind_Set of string | Hand_Rule of string;
 type     rule_or_sets         = rule_or_set list;
 val rule_or_set_to_string     : rule_or_set -> string;
 datatype induct_arguments     = Induct_Arguments of {ons: strings, arbs: strings, rules: rule_or_sets};
@@ -1385,10 +1385,11 @@ fun ctxt_n_string_to_cname  (ctxt:Proof.context) (str:string) =
   end;
 
 (*arguments passed to the induct method*)
-datatype rule_or_set  = Ind_Rule of string | Ind_Set of string;
+datatype rule_or_set  = Ind_Rule of string | Ind_Set of string | Hand_Rule of string;
 type     rule_or_sets = rule_or_set list;
-fun rule_or_set_to_string (Ind_Rule rule_name) = rule_name
-  | rule_or_set_to_string (Ind_Set  set_name ) = set_name;
+fun rule_or_set_to_string (Ind_Rule  rule_name) = rule_name
+  | rule_or_set_to_string (Ind_Set   set_name ) = set_name
+  | rule_or_set_to_string (Hand_Rule rule_name) = rule_name;
 datatype induct_arguments = Induct_Arguments of {ons: strings, arbs: strings, rules: rule_or_sets};
 fun dest_induct_arguments (Induct_Arguments arguments) = arguments;
 

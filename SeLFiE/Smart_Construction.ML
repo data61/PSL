@@ -13,24 +13,11 @@ fun futrm_w_prnt_n_tag_to_tag_n_print (FUC_Prnt_Tag (_, _, print, tag)) = (tag, 
   | futrm_w_prnt_n_tag_to_tag_n_print (FUL_Prnt_Tag (_, _, print, tag)) = (tag, print)
   | futrm_w_prnt_n_tag_to_tag_n_print (FUA_Prnt_Tag (_, _, print, tag)) = (tag, print);
 
-type command_n_print = (Definition_Pattern.command * string);
-
-fun futrm_w_prnt_n_tag_to_arguments (FUC_Prnt_Tag _) = []
-  | futrm_w_prnt_n_tag_to_arguments (FUF_Prnt_Tag _) = []
-  | futrm_w_prnt_n_tag_to_arguments (FUV_Prnt_Tag _) = []
-  | futrm_w_prnt_n_tag_to_arguments (FUB_Prnt_Tag _) = []
-  | futrm_w_prnt_n_tag_to_arguments (FUL_Prnt_Tag ( _, subtrm, _, _)) = futrm_w_prnt_n_tag_to_arguments subtrm
-  | futrm_w_prnt_n_tag_to_arguments (FUA_Prnt_Tag (func, args, _, _)) =
-  let
-    val func_print_w_opt      = futrm_w_prnt_n_tag_to_tag_n_print func |> apfst #is_defined_with: (Definition_Pattern.command option * string);
-    val func_print            = if is_some (fst func_print_w_opt)
-                                then apfst the func_print_w_opt
-                                else (Definition_Pattern.Unknown, snd func_print_w_opt): command_n_print;
-    val args_print            = map (snd o futrm_w_prnt_n_tag_to_tag_n_print) args: strings;
-    val results_from_subterms = map futrm_w_prnt_n_tag_to_arguments args |> flat: (command_n_print * strings) list;
-  in
-    (func_print, args_print)::results_from_subterms: (command_n_print * strings) list
-  end;
+type func_print                       = string;
+type manually_developed_ind_rule_name = string option;
+type argument_prints                  = strings;
+type seed_quadruple                   = Definition_Pattern.command * func_print * manually_developed_ind_rule_name * argument_prints;
+type seed_quadruples                  = seed_quadruple list;
 
 (*ordered_set_to_ordered_powerset*)
 fun powerset (xs:'a list) =
@@ -45,28 +32,81 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
   let
     val trm_wo_abb      = Isabelle_Utils.contract_abbrevs ctxt trm               : term;
     val futrm_w_prnt    = UN.context_n_term_to_futrm_w_prnt_n_tag ctxt trm_wo_abb: UN.futrm_w_prnt_n_tag;
-    val func_args_pairs = futrm_w_prnt_n_tag_to_arguments futrm_w_prnt           : (command_n_print * strings) list;
-    fun func_args_pair_to_func_powerset_of_args_pair (command_n_print:command_n_print, args:strings) =
+    fun futrm_w_prnt_n_tag_to_arguments (FUC_Prnt_Tag _) = []
+      | futrm_w_prnt_n_tag_to_arguments (FUF_Prnt_Tag _) = []
+      | futrm_w_prnt_n_tag_to_arguments (FUV_Prnt_Tag _) = []
+      | futrm_w_prnt_n_tag_to_arguments (FUB_Prnt_Tag _) = []
+      | futrm_w_prnt_n_tag_to_arguments (FUL_Prnt_Tag ( _, subtrm, _, _)) = futrm_w_prnt_n_tag_to_arguments subtrm
+      | futrm_w_prnt_n_tag_to_arguments (app as FUA_Prnt_Tag (func, args, _, _)) =
+      let
+        fun futrm_w_prnt_n_tag_to_print futrm_w_prnt_n_tag = futrm_w_prnt_n_tag_to_tag_n_print futrm_w_prnt_n_tag |> snd: string;
+        (*quadruple_for_list_induct2*)
+        fun is_length_of (FUA_Prnt_Tag (FUC_Prnt_Tag ("List.length",_,_,_), [arg], _, _)) = SOME (futrm_w_prnt_n_tag_to_print arg)
+          | is_length_of  _                                                               = NONE;
+        fun is_equation_of_lengths_of (FUA_Prnt_Tag (FUC_Prnt_Tag ("HOL.eq",_,_,_), [lhs, rhs], _, _)) =
+            let
+              val lhs_length_of_opt = is_length_of lhs: string option;
+              val rhs_length_of_opt = is_length_of rhs: string option;
+            in
+              if   is_some lhs_length_of_opt andalso is_some rhs_length_of_opt
+              then [the lhs_length_of_opt, the rhs_length_of_opt]
+              else []
+            end
+          | is_equation_of_lengths_of _ = [];
+        val quadruple_for_list_induct2 =
+            if null (is_equation_of_lengths_of app)
+            then []
+            else [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2", is_equation_of_lengths_of app)];
+        (*quadruple_for_list_induct2'*)
+        fun trm_is_of_list trm      = UN.futrm_w_prnt_n_tag_to_typ trm <$> Isabelle_Utils.is_list_typ |> Utils.is_some_true;
+        fun all_trms_are_lists trms = forall (fn trm => trm_is_of_list trm) trms;
+        val quadruple_for_list_induct2' = if length args = 2 andalso all_trms_are_lists args
+            then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2'",  map futrm_w_prnt_n_tag_to_print args)]): seed_quadruples
+            else ([]);
+        (*quadruple_for_list_all2*)
+        val quadruple_for_list_all2 = if futrm_w_prnt_n_tag_to_print func = "List.list.list_all2" (*andalso length args = 3*)
+            then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_all2_induct",  map futrm_w_prnt_n_tag_to_print (drop 1 args))])
+            else ([]);
+        (*standard quadruples*)
+        val func_print_w_opt      = futrm_w_prnt_n_tag_to_tag_n_print func |> apfst #is_defined_with: (Definition_Pattern.command option * string);
+        val (command, func_print) = if is_some (fst func_print_w_opt)
+                                    then apfst the func_print_w_opt
+                                    else (Definition_Pattern.Unknown, snd func_print_w_opt): (Definition_Pattern.command * func_print);
+        val args_print            = map (snd o futrm_w_prnt_n_tag_to_tag_n_print) args: argument_prints;
+        val results_from_subterms = map futrm_w_prnt_n_tag_to_arguments args |> flat: seed_quadruples;
+      in
+        (command, func_print, NONE, args_print)::results_from_subterms
+        @ quadruple_for_list_all2
+        @ quadruple_for_list_induct2
+        @ quadruple_for_list_induct2'
+        : seed_quadruples
+      end;
+    val func_args_pairs = futrm_w_prnt_n_tag_to_arguments futrm_w_prnt: seed_quadruples;
+    fun func_args_pair_to_func_powerset_of_args_pair (command, func_print, ind_rule_opt, args:strings) =
         let
           val powerset_of_args = powerset args |> distinct (op =)                             : strings list;
-          val pairs            = map (fn subset => (command_n_print, subset)) powerset_of_args: (command_n_print * strings) list;
+          val pairs            = map (fn subset => (command, func_print, ind_rule_opt, subset)) powerset_of_args: seed_quadruples;
         in
           pairs
         end;
-    val func_n_powerset_of_args_pairs = map func_args_pair_to_func_powerset_of_args_pair func_args_pairs |> flat: (command_n_print * strings) list;
+    val func_n_powerset_of_args_pairs = map func_args_pair_to_func_powerset_of_args_pair func_args_pairs |> flat: seed_quadruples;
   in
-    func_n_powerset_of_args_pairs |> distinct (op =): (command_n_print * strings) list
+    func_n_powerset_of_args_pairs |> distinct (op =): seed_quadruple list
   end;
 
 structure SU = SeLFiE_Util;
 
-fun powerset_to_induct_arguments [] = []
-  | powerset_to_induct_arguments (((command, func), args)::pairs) =
+fun powerset_to_induct_arguments ([]:seed_quadruples) = []
+  | powerset_to_induct_arguments ((command, func, NONE, args)::quadruples:seed_quadruples) =
     SU.Induct_Arguments {ons = args, arbs = [], rules = []}
  :: (case command of Definition_Pattern.Inductive_Set
-         => (SU.Induct_Arguments {ons = [],   arbs = [], rules = [SU.Ind_Set (func)]} |> (tracing o SU.induct_arguments_to_string); SU.Induct_Arguments {ons = [],   arbs = [], rules = [SU.Ind_Set (func)]})
+         => (SU.Induct_Arguments {ons = [],   arbs = [], rules = [SU.Ind_Set (func)]} |> (tracing o SU.induct_arguments_to_string); SU.Induct_Arguments {ons = [], arbs = [], rules = [SU.Ind_Set (func)]})
      | _ => SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Ind_Rule (func ^ ".induct")]})
- :: powerset_to_induct_arguments pairs;
+ :: powerset_to_induct_arguments quadruples
+  | powerset_to_induct_arguments ((_, _, SOME ind_rule, args)::quadruples) =
+    SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Ind_Rule ind_rule]}
+ :: powerset_to_induct_arguments quadruples
+ : SeLFiE_Util.induct_arguments list;
 
 (*TODO: Do we really want is_not_string_of_const?*)
 fun proof_state_to_induct_argumentss (pst:Proof.state) =

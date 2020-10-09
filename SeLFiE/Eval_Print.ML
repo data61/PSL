@@ -85,13 +85,15 @@ fun read_term_then_check_term (ctxt:Proof.context) (print:string) (checker: term
 
 fun get_rule_names' []                                   acc = acc
   | get_rule_names' ((SU.Ind_Rule rule_name)::ind_rules) acc = get_rule_names' ind_rules (rule_name :: acc)
-  | get_rule_names' ((SU.Ind_Set  _        )::ind_rules) acc = get_rule_names' ind_rules acc;
+  | get_rule_names' ((SU.Ind_Set  _        )::ind_rules) acc = get_rule_names' ind_rules acc
+  | get_rule_names' ((SU.Hand_Rule  _      )::ind_rules) acc = get_rule_names' ind_rules acc;
 
 fun get_rule_names ind_rules = get_rule_names' ind_rules [];
 
 fun get_set_names' []                                   acc = acc
   | get_set_names' ((SU.Ind_Rule _        )::ind_rules) acc = get_set_names' ind_rules acc
-  | get_set_names' ((SU.Ind_Set  set_name )::ind_rules) acc = get_set_names' ind_rules (set_name :: acc);
+  | get_set_names' ((SU.Ind_Set  set_name )::ind_rules) acc = get_set_names' ind_rules (set_name :: acc)
+  | get_set_names' ((SU.Hand_Rule  _      )::ind_rules) acc = get_rule_names' ind_rules acc;
 
 fun get_set_names ind_sets = (get_set_names' ind_sets [] |> map tracing; get_set_names' ind_sets []);
 
