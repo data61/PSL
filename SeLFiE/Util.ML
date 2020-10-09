@@ -1399,10 +1399,11 @@ fun induct_arguments_to_string (Induct_Arguments {ons, arbs, rules}) =
     val on    = String.concatWith " " ons': string;
     val arb   = if null arbs  then "" else " arbitrary:" ^ String.concatWith " " arbs : string;
     val rule  = case rules of
-         [                  ] => ""
-       | [Ind_Rule rule_name] => " rule:" ^ rule_name
-       | [Ind_Set  set_name ] => " set:"  ^ set_name
-       | _                    => error "induct_arguments_to_string failed.";
+         [                   ] => ""
+       | [Ind_Rule  rule_name] => " rule:" ^ rule_name
+       | [Ind_Set   set_name ] => " set:"  ^ set_name
+       | [Hand_Rule rule_name] => " rule:" ^ rule_name
+       |  _                    => error "induct_arguments_to_string failed.";
     val apply = "(induct " ^ on ^ arb ^ rule ^ ")"
   in
     apply

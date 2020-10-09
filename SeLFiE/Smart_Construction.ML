@@ -30,6 +30,20 @@ fun powerset (xs:'a list) =
 
 fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
   let
+    (*quadruple_for_converse_rtranclp_induct*)
+    val const_names  = Term.add_const_names trm [];
+    val has_rtranclp = exists (equal "Transitive_Closure.rtranclp") const_names;
+    val quadruple_for_converse_rtranclp_induct = if has_rtranclp
+        then (tracing "TRUE1";[(Definition_Pattern.Unknown, "dummy", SOME "converse_rtranclp_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_rtranclp_induct2", [])]): seed_quadruples
+        else (tracing "FALSE1";[]);
+    (*quadruple_for_converse_rtrancl_induct*)
+    val has_rtrancl = exists (equal "Transitive_Closure.rtrancl") const_names;
+    val quadruple_for_converse_rtrancl_induct = if has_rtrancl
+        then (tracing "TRUE2";[(Definition_Pattern.Unknown, "dummy", SOME "converse_rtrancl_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_rtrancl_induct2", [])]): seed_quadruples
+        else (tracing "FALSE2";[]);
+
     val trm_wo_abb      = Isabelle_Utils.contract_abbrevs ctxt trm               : term;
     val futrm_w_prnt    = UN.context_n_term_to_futrm_w_prnt_n_tag ctxt trm_wo_abb: UN.futrm_w_prnt_n_tag;
     fun futrm_w_prnt_n_tag_to_arguments (FUC_Prnt_Tag _) = []
@@ -67,6 +81,13 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
         val quadruple_for_list_all2 = if futrm_w_prnt_n_tag_to_print func = "List.list.list_all2" (*andalso length args = 3*)
             then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_all2_induct",  map futrm_w_prnt_n_tag_to_print (drop 1 args))])
             else ([]);
+        (*quadruple_for_inc_induct*)
+        fun is_app_of_less_eq (FUA_Prnt_Tag (FUC_Prnt_Tag ("Orderings.ord_class.less_eq",_,_,_), [lhs, rhs], _, _)) = [lhs, rhs]
+          | is_app_of_less_eq _ = [];
+        val is_app_of_less_eq_on_nat = is_app_of_less_eq app |> map UN.futrm_w_prnt_n_tag_to_typ |> Utils.somes |> exists (Isabelle_Utils.is_typ_of_name "Nat.nat");(*TODO: This may miss out some cases where variables of type "nat" is "hidden" by lambda-abstraction or function application.*)
+        val quadruple_for_inc_induct = if is_app_of_less_eq_on_nat
+            then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "Nat.inc_induct", [])]): seed_quadruples
+            else ([]);
         (*standard quadruples*)
         val func_print_w_opt      = futrm_w_prnt_n_tag_to_tag_n_print func |> apfst #is_defined_with: (Definition_Pattern.command option * string);
         val (command, func_print) = if is_some (fst func_print_w_opt)
@@ -76,6 +97,9 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
         val results_from_subterms = map futrm_w_prnt_n_tag_to_arguments args |> flat: seed_quadruples;
       in
         (command, func_print, NONE, args_print)::results_from_subterms
+        @ quadruple_for_converse_rtranclp_induct
+        @ quadruple_for_converse_rtrancl_induct
+        @ quadruple_for_inc_induct
         @ quadruple_for_list_all2
         @ quadruple_for_list_induct2
         @ quadruple_for_list_induct2'
@@ -104,7 +128,7 @@ fun powerset_to_induct_arguments ([]:seed_quadruples) = []
      | _ => SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Ind_Rule (func ^ ".induct")]})
  :: powerset_to_induct_arguments quadruples
   | powerset_to_induct_arguments ((_, _, SOME ind_rule, args)::quadruples) =
-    SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Ind_Rule ind_rule]}
+    SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Hand_Rule ind_rule]}
  :: powerset_to_induct_arguments quadruples
  : SeLFiE_Util.induct_arguments list;
 
@@ -117,7 +141,8 @@ let
   fun is_wellfounded (SU.Induct_Arguments {rules,...}) = rules = [SU.Ind_Rule "Wellfounded.accp.induct"];(*TODO: FIXME: termination proof for  goodsteinC in Goodstein.thy*)
   fun all_ons_meet_condition (SU.Induct_Arguments {ons,rules,...}) = (forall is_not_string_of_const ons) andalso 
       (case rules of
-         [SU.Ind_Set  _ ] => true
+         [SU.Ind_Set   _] => true
+       | [SU.Hand_Rule _] => true
        |  _               => not (null ons)): bool;
   val induct_arguments = map (context_n_term_to_argument_powersets ctxt) terms
                       |> flat
@@ -127,8 +152,9 @@ let
                       |> SU.sort_induct_argumentss
                       |> filter all_ons_meet_condition (*TODO: we should do something better than this.*)
                       |> filter_out is_wellfounded: SeLFiE_Util.induct_arguments list;
-(*
+
 val _ = (map (tracing o SU.induct_arguments_to_string) induct_arguments);
+(*
 val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");*)
 in
   induct_arguments: SU.induct_arguments list
