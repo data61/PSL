@@ -1,7 +1,7 @@
 section \<open>Specification\<close>
 
 theory Goodstein_Lambda
-  imports Main Evaluation
+  imports Evaluation
 begin
 
 subsection \<open>Hereditary base representation\<close>

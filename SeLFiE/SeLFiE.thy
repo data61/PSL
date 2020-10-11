@@ -155,4 +155,5 @@ setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      "rtrancl_induct"                                                                                                                     ) (SeLFiE_Assertion.rtrancl_induct                                                                                                                       , 3.0) \<close>
 setup\<open> Apply_SeLFiE.update_assert (Apply_SeLFiE.Induction_Heuristic,      "rtranclp_induct"                                                                                                                    ) (SeLFiE_Assertion.rtranclp_induct                                                                                                                      , 3.0) \<close>
 *)
+
 end

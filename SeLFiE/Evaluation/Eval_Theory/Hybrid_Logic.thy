@@ -930,8 +930,11 @@ lemma mapi_block_id: \<open>mapi_block (mapper f {} v) (ps, i) = (ps, i)\<close>
 
 lemma mapi_branch_id: \<open>mapi_branch (mapper f {}) branch = branch\<close>
   unfolding mapi_branch_def using mapi_block_id by2 (induct branch) auto
-
+thm List.list_induct2
+term List.list_all2
+term List.list.list_all2
 lemma length_mapi: \<open>length (mapi f xs) = length xs\<close>
+  semantic_induct
   by2 (induct xs) auto
 
 lemma mapi_rev_nth:

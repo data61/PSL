@@ -193,17 +193,14 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
     fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
       let
         val clean_mods                       = mk_clean_mods ctxt ind_mod                                                                     : SU.induct_arguments;
-(*FIXME TODO: I think the way to produce the outer domain is wrong. We have to include hand-written rules here.*)
         val outer_domains                    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out outer_path_to_unode_table_as_gen clean_mods : QD.domains;
         fun eval_to_true assert              = ESS.eval pst outer_path_to_unode_table outer_domains clean_mods assert = bool_to_ES_assert true: bool;
         val success_scores                   = filter (fn {assertion,...} => eval_to_true assertion) input |> map #point                      : real list;
         val score                            = fold (curry (op +)) success_scores 0.0                                                         : real;
       in score end;
-
     fun get_promising_ind_mods_n_result (Induction_Heuristic     : heuristic_typ) = Screening.proof_state_to_promising_induct_argumentss_wo_arbs_n_resultss pst                                        : (real * SU.induct_arguments) list
       | get_promising_ind_mods_n_result (Generalization_Heuristic: heuristic_typ) = Screening.induct_argumentss_n_proof_state_to_promising_induct_argumentss_w_arbs_n_resultss score_n_induct_argss pst: (real * SU.induct_arguments) list
       | get_promising_ind_mods_n_result _ = error "failed in Apply_SeLFiE.ML";
-
     val promising_ind_mods_n_result = get_promising_ind_mods_n_result heuristic_typ: (real * SU.induct_arguments) list;
     fun get_ind_mod_n_scores promising_ind_mods_n_result  = Par_List.map
                                   (fn (old_score, ind_mod) => ((*tracing ("checking " ^ SeLFiE_Util.induct_arguments_to_string ind_mod);*)

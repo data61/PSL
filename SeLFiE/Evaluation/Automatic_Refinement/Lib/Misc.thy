@@ -22,7 +22,6 @@ imports Main
   "HOL-Library.Option_ord"
   "HOL-Library.Infinite_Set"
   "HOL-Eisbach.Eisbach"
-"../../../../../SeLFiE"
 begin
 text_raw \<open>\label{thy:Misc}\<close>
 
@@ -3586,7 +3585,7 @@ lemma Restr_trancl_mono:
     "\<lbrakk> (a,b)\<in>(r\<union>X\<times>{m})\<^sup>+;
       (a,b)\<in>r\<^sup>+ \<Longrightarrow> P;
        !!x. \<lbrakk> x\<in>X; (a,x)\<in>r\<^sup>*; (m,b)\<in>r\<^sup>* \<rbrakk> \<Longrightarrow> P
-    \<rbrakk> \<Longrightarrow> P"semantic_induct
+    \<rbrakk> \<Longrightarrow> P"
   proof (induct arbitrary: P rule: trancl_induct)
     case (base b) thus ?case by auto
   next

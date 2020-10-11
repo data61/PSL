@@ -1,5 +1,5 @@
 theory Evaluation
-  imports "SeLFiE.SeLFiE"
+  imports Main "../../SeLFiE" Main(*to get Nitpick_Util*)
   keywords "apply2" :: prf_script
    and     "proof2" :: prf_block
    and     "by2"    :: "qed"
@@ -37,35 +37,23 @@ end;
 \<close>
 *)
 
-fun pst_to_numb_of_combinations (pst:Proof.state) =
-  let                             
-    val numb_of_combs_after_step1         = Smart_Construction.proof_state_to_induct_argumentss pst |> length: int;
-    val (ind_best_records, _)             = Apply_SeLFiE.heuristic_typ_n_pst_to_best_pairs_n_maximum_point Induction_Heuristic pst;
-    val numb_of_combs_after_step2         = Multi_Stage_Screening_SeLFiE.proof_state_to_promising_induct_argumentss_n_resultss pst |> length: int;
-    val numb_of_combs_after_step3         = length ind_best_records :int;
-    fun record_to_pair {score, modifiers,...} = (score, modifiers);
-    val best_pairs                        = map record_to_pair ind_best_records: (int * SeLFiE_Util.induct_arguments) list;
-    val arb_pairs                         = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs:  (int * SeLFiE_Util.induct_arguments) list;
-    val numb_of_combs_after_step4         = length arb_pairs;
-    val numb_of_combs_after_step5         = Multi_Stage_Screening_SeLFiE.induct_argumentss_n_proof_state_to_promising_induct_argumentss_n_resultss best_pairs pst |> length: int;
-  in
-    {after_step1 = numb_of_combs_after_step1,
-     after_step2 = numb_of_combs_after_step2,
-     after_step3 = numb_of_combs_after_step3,
-     after_step4 = numb_of_combs_after_step4,
-     after_step5 = numb_of_combs_after_step5
-     }
-  end;
+structure AS = Apply_SeLFiE;
+structure SU = SeLFiE_Util;
 
 fun pst_to_top_10_mods (pst:Proof.state) =
   let
-    val (ind_best_records, ind_max_point)     = Apply_SeLFiE.heuristic_typ_n_pst_to_best_pairs_n_maximum_point Induction_Heuristic pst;
+    val thm                       = Isabelle_Utils.proof_state_to_thm pst                            : thm;
+    val thm_term                  = Thm.prop_of thm                                                  : term;
+    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
+    val (ind_best_records, ind_max_point) = AS.score_n_induct_argss_n_proof_state_to_best_pairs 0.0 [] [] AS.Induction_Heuristic 5 pst outer_path_to_unode_table;
     fun record_to_pair {score, modifiers,...} = (score, modifiers);
-    val best_pairs                            = map record_to_pair ind_best_records: (int * SeLFiE_Util.induct_arguments) list;
-    val arb_pairs                             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs:  (int * SeLFiE_Util.induct_arguments) list;
-    val (arb_best_records, _)                 = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs pst;
+    val best_pairs            = Par_List.map record_to_pair ind_best_records
+                              : (real * SU.induct_arguments) list;
+    val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs
+                              :  (real * SU.induct_arguments) list;
+    val (arb_best_records, arb_max_point) = AS.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs AS.Generalization_Heuristic 10 pst outer_path_to_unode_table;
     val enumerated_arb_bests  = enumerate arb_best_records
-                              :(int * {modifiers: SeLFiE_Util.induct_arguments, result: Proof.state Seq.seq, score: int} ) list;
+                              :(int * {modifiers: SeLFiE_Util.induct_arguments, score: real}) list
     fun transform (rank, {modifiers, score,...}) = {nth_candidate = rank, score = score, ind_mods = modifiers};
   in
     map transform enumerated_arb_bests
@@ -74,36 +62,44 @@ fun pst_to_top_10_mods (pst:Proof.state) =
 type result = {
   location: (string * string),
   top_nth: int option,
+(*
   after_1_screening: int,
   after_2_screening: int,
   after_3_screening: int,
   after_4_screening: int,
   after_5_screening: int,
-  score: int option,
+*)
+  score: real option,
   time : int};
 
 fun result_to_string
  ({location,
    top_nth,
+(*
    after_1_screening,
    after_2_screening,
    after_3_screening,
    after_4_screening,
    after_5_screening,
+*)
    score,
    time}: result) =
 let
   fun print_int_option NONE = "-"
     | print_int_option (SOME n) = Int.toString n;
+  fun print_real_option NONE = "-"
+    | print_real_option (SOME n) = Real.toString n;
   val list =
     [fst location, snd location,
      print_int_option top_nth,
+(*
      Int.toString after_1_screening,
      Int.toString after_2_screening,
      Int.toString after_3_screening,
      Int.toString after_4_screening,
-     Int.toString after_5_screening ,
-     print_int_option score,
+     Int.toString after_5_screening,
+*)
+     print_real_option score,
      Int.toString time
      ];
   val one_line = String.concatWith ";" list;
@@ -129,7 +125,7 @@ ML\<open> fun model_meth_n_pst_to_fst_thm (model_meth:Method.text_range) (pst:Pr
   end;
 \<close>
 
-ML\<open> type triple_result = {nth_candidate: int, score: int, ind_mods: SeLFiE_Util.induct_arguments, coincide:bool}; \<close>
+ML\<open> type triple_result = {nth_candidate: int, score: real, ind_mods: SeLFiE_Util.induct_arguments, coincide:bool}; \<close>
 
 ML\<open> fun pst_n_model_meth_n_triple_to_triple_result (pst:Proof.state) (model_meth:Method.text_range)
   {nth_candidate, score, ind_mods as SeLFiE_Util.Induct_Arguments {ons, arbs, rules}} =
@@ -137,7 +133,7 @@ let
   fun mk_new_ind_mods new_arbs = SeLFiE_Util.Induct_Arguments {ons = ons, arbs = new_arbs, rules = rules}: SeLFiE_Util.induct_arguments;
   val arbss_permutated     = Nitpick_Util.all_permutations arbs                        : strings list;
   val ind_mods_permutateds = map mk_new_ind_mods arbss_permutated                      : SeLFiE_Util.induct_arguments list;
-  val result_psts       = map (fn mods => Multi_Stage_Screening_SeLFiE.induction_arguments_to_tactic_on_proof_state_w_timeout mods pst) ind_mods_permutateds; 
+  val result_psts       = map (fn mods => Screening.induction_arguments_to_tactic_on_proof_state_w_timeout mods pst) ind_mods_permutateds; 
   val result_thms       = map (Isabelle_Utils.proof_state_to_thm o Seq.hd) result_psts                     : thm list;
   val model_result      = model_meth_n_pst_to_fst_thm model_meth pst                                       : thm;
   val coincide          = exists (fn selfie_result => Thm.eq_thm (model_result, selfie_result)) result_thms: bool
@@ -149,13 +145,13 @@ end;
 ML\<open> fun triple_result_ord (t1:triple_result, t2:triple_result) = Int.compare (#nth_candidate t1, #nth_candidate t2): order; \<close>
 
 ML\<open> fun evaluate (pst:Proof.state) (m: Method.text_range) =
-let                 
+let
   val time_before_smart_induct = Time.now();
   val top_10_triples = pst_to_top_10_mods pst
-                     : {ind_mods: SeLFiE_Util.induct_arguments, nth_candidate: int, score: int} list;
+                     : {ind_mods: SeLFiE_Util.induct_arguments, nth_candidate: int, score: real} list;
   val time_after_smart_induct  = Time.now ();
   val duration = Time.toMilliseconds (time_after_smart_induct - time_before_smart_induct);
-  val score          = try (#score o hd) top_10_triples: int option; 
+  val score          = try (#score o hd) top_10_triples: real option; 
   val triple_results = map (pst_n_model_meth_n_triple_to_triple_result pst m) top_10_triples: triple_result list;
   val sorted_triple_results = sort triple_result_ord triple_results: triple_result list;
   val sorted_coincides      = filter (#coincide) sorted_triple_results: triple_result list;
@@ -166,15 +162,9 @@ let
   val location =
      (Method.position (SOME m) |> Position.file_of |> string_some,
       Method.position (SOME m) |> Position.line_of |> Option.map Int.toString |> string_some);
-  val {after_step1, after_step2, after_step3, after_step4, after_step5} = pst_to_numb_of_combinations pst;
   val result =
       {location = location,
        top_nth  = top_nth,
-       after_1_screening = after_step1,
-       after_2_screening = after_step2,
-       after_3_screening = after_step3,
-       after_4_screening = after_step4,
-       after_5_screening = after_step5,
        score             = score,
        time              = duration
        }: result;
@@ -222,7 +212,8 @@ val _ =
               (Proof_Context.print_cases_proof (Proof.context_of state) (Proof.context_of state'));
         in state' end))))
 
-fun pst_to_unit m = (fn toplevel_state => state_to_unit (Toplevel.proof_of toplevel_state) m): Toplevel.state -> unit;  fun get_name (Method.Source src) = ((Token.name_of_src src)|>fst)
+fun pst_to_unit m = (fn toplevel_state => state_to_unit (Toplevel.proof_of toplevel_state) m): Toplevel.state -> unit;
+                     fun get_name (Method.Source src) = ((Token.name_of_src src)|>fst)
 
     fun local_terminal_proof (m1, m2) = (Toplevel.proof o 
           (fn m => 

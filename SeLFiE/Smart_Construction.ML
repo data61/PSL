@@ -78,8 +78,10 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
       let
         fun futrm_w_prnt_n_tag_to_print futrm_w_prnt_n_tag = futrm_w_prnt_n_tag_to_tag_n_print futrm_w_prnt_n_tag |> snd: string;
         (*quadruple_for_list_induct2*)
-        fun is_length_of (FUA_Prnt_Tag (FUC_Prnt_Tag ("List.length",_,_,_), [arg], _, _)) = SOME (futrm_w_prnt_n_tag_to_print arg)
-          | is_length_of  _                                                               = NONE;
+        fun is_unary_func_taking func_name (FUA_Prnt_Tag (FUC_Prnt_Tag (cname,_,_,_), [arg], _, _)) = if cname = func_name then SOME (futrm_w_prnt_n_tag_to_print arg) else NONE
+          | is_unary_func_taking _ _                                                                = NONE;
+        val is_length_of = is_unary_func_taking "List.length";
+        val is_size_of   = is_unary_func_taking "Nat.size_class.size";
         fun is_equation_of_lengths_of (FUA_Prnt_Tag (FUC_Prnt_Tag ("HOL.eq",_,_,_), [lhs, rhs], _, _)) =
             let
               val lhs_length_of_opt = is_length_of lhs: string option;
@@ -87,13 +89,21 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
             in
               if   is_some lhs_length_of_opt andalso is_some rhs_length_of_opt
               then [the lhs_length_of_opt, the rhs_length_of_opt]
-              else []
+              else
+                let
+                  val lhs_size_of_opt = is_size_of lhs: string option;
+                  val rhs_size_of_opt = is_size_of rhs: string option;
+                in
+                  if   is_some lhs_size_of_opt andalso is_some rhs_size_of_opt
+                  then [the lhs_size_of_opt, the rhs_size_of_opt]
+                  else []
+                end
             end
           | is_equation_of_lengths_of _ = [];
         val quadruple_for_list_induct2 =
             if null (is_equation_of_lengths_of app)
             then []
-            else [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2", is_equation_of_lengths_of app)];
+            else [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2", [(*naively specifying induction terms here causes problems for lemma "length_mapi" in Hybrid_Logic.*)])];
         (*quadruple_for_list_induct2'*)
         fun trm_is_of_list trm      = UN.futrm_w_prnt_n_tag_to_typ trm <$> Isabelle_Utils.is_list_typ |> Utils.is_some_true;
         fun all_trms_are_lists trms = forall (fn trm => trm_is_of_list trm) trms;
@@ -164,6 +174,7 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
         @ quadruple_for_nonempty_induct
         : seed_quadruples
       end;
+
     val func_args_pairs = futrm_w_prnt_n_tag_to_arguments futrm_w_prnt: seed_quadruples;
     fun func_args_pair_to_func_powerset_of_args_pair (command, func_print, ind_rule_opt, args:strings) =
         let
@@ -203,12 +214,8 @@ let
          [SU.Ind_Set   _] => true
        | [SU.Hand_Rule _] => true
        |  _               => not (null ons)): bool;
-  fun is_defined rule_name = try (Proof_Context.get_thm ctxt) rule_name |> is_some;
-  fun all_rules_exist (SU.Induct_Arguments {rules,...}) = case rules of
-        [SU.Ind_Rule  rule_name] => is_defined rule_name
-      | [SU.Hand_Rule rule_name] => is_defined rule_name
-      | [SU.Ind_Set   set_name ] => is_defined set_name
-      | _ => false;
+  fun rule_name_is_defined rule_name = try (Proof_Context.get_thm ctxt) rule_name |> is_some;
+  fun all_rules_exist (SU.Induct_Arguments {rules,...}) = forall (rule_name_is_defined o SU.rule_or_set_to_string) rules
   val induct_arguments = map (context_n_term_to_argument_powersets ctxt) terms
                       |> flat
                       |> distinct (op =)
