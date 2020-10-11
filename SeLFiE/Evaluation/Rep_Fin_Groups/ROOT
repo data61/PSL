@@ -1,0 +1,9 @@
+chapter AFP
+
+session Rep_Fin_Groups (AFP) = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  theories
+    Rep_Fin_Groups
+  document_files
+    "root.tex"
+    "root.bib"

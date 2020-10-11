@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Authenticated Data Structures as Functors}
+\author{Andreas Lochbihler \qquad Ognjen Maric \\[1em] Digital Asset}
+
+\maketitle
+
+\begin{abstract}
+  Authenticated data structures allow several systems to convince each other that they are referring to the same data structure,
+  even if each of them knows only a part of the data structure.
+  Using inclusion proofs, knowledgable systems can selectively share their knowledge with other systems
+  and the latter can verify the authenticity of what is being shared.
+
+  In this paper, we show how to modularly define authenticated data structures, their inclusion proofs, and operations thereon
+  as datatypes in Isabelle/HOL, using a shallow embedding.
+  Modularity allows us to construct complicated trees from reusable building blocks, which we call Merkle functors.
+  Merkle functors include sums, products, and function spaces and are closed under composition and least fixpoints.
+
+  As a practical application, we model the hierarchical transactions of Canton,
+  a practical interoperability protocol for distributed ledgers, as authenticated data structures.
+  This is a first step towards formalizing the Canton protocol and verifying its integrity and security guarantees.
+\end{abstract}
+
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

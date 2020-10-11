@@ -1,0 +1,15 @@
+chapter AFP
+
+session PCF (AFP) = "HOLCF-Library" +
+  options [timeout = 600, show_question_marks = false]
+  theories [document = false]
+    Basis
+  theories
+    Logical_Relations
+    PCF
+    OpSem
+    Continuations
+    SmallStep
+  document_files
+    "root.bib"
+    "root.tex"

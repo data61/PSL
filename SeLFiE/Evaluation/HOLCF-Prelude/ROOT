@@ -1,0 +1,31 @@
+chapter AFP
+
+session "HOLCF-Prelude" (AFP) = HOLCF +
+  options [show_question_marks = false, timeout = 3600]
+  sessions
+    "HOL-Computational_Algebra"
+    "HOLCF-Library"
+  directories
+    "examples"
+  theories
+    HOLCF_Main
+    Type_Classes
+    Numeral_Cpo
+    Data_Function
+    Data_Bool
+    Data_Tuple
+    Data_Integer
+    Data_List
+    Data_Maybe
+    Definedness
+    List_Comprehension
+    Num_Class
+    "examples/Fibs"
+    "examples/Sieve_Primes"
+    "examples/GHC_Rewrite_Rules"
+    "examples/HLint"
+  theories [document = false]
+    HOLCF_Prelude
+  document_files
+    "root.bib"
+    "root.tex"
