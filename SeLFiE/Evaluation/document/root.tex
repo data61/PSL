@@ -1,32 +1,50 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage{isabelle,isabellesym}
-
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{wasysym}
+\usepackage{graphicx}
+\usepackage{isabelle,isabellesym} 
 % this should be the last package used
 \usepackage{pdfsetup}
 
-% urls in roman style, theory text in math-similar italics
-\urlstyle{rm}
+\urlstyle{rm}   
 \isabellestyle{it}
 
+\hyphenation{Isabelle}
 
 \begin{document}
 
-\title{Submission Example}
-\author{Gerwin Klein}
+
+\title{An Operational Semantics and Type Safety Proof for 
+Multiple Inheritance in C++ (CoreC++)}
+
+\author{Daniel Wasserrab\\
+Fakult\"at f\"ur Mathematik und Informatik\\
+Universit\"at Passau\\
+\url{http://www.infosun.fmi.uni-passau.de/st/staff/wasserra/}\\
+\includegraphics{corec++}}
+
+\date{\today}
+      
 \maketitle
 
 \begin{abstract}
-  This is an example submission to the Archive of Formal Proofs. It
-  shows submission requirements and explains the structure of a simple
-  typical submission.
+We present an operational semantics and type safety proof for multiple
+inheritance in C++. The semantics models the behavior of method calls, field
+accesses, and two forms of casts.
+For explanations see~\cite{WasserrabNST-OOPSLA06}.
 \end{abstract}
 
 \tableofcontents
 
-% include generated text of all theories
 \input{session}
 
-\bibliographystyle{abbrv}
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Bibliography}
+\bibliographystyle{plain}
 \bibliography{root}
 
 \end{document}

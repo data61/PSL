@@ -22,13 +22,14 @@ imports Main
   "HOL-Library.Option_ord"
   "HOL-Library.Infinite_Set"
   "HOL-Eisbach.Eisbach"
+"../../../../../SeLFiE"
 begin
 text_raw \<open>\label{thy:Misc}\<close>
 
   
 subsection \<open>Isabelle Distribution Move Proposals\<close>  
 
-subsubsection \<open>Pure\<close>  
+subsubsection \<open>Pure\<close>
 lemma TERMI: "TERM x" unfolding Pure.term_def .
   
   
@@ -3585,7 +3586,7 @@ lemma Restr_trancl_mono:
     "\<lbrakk> (a,b)\<in>(r\<union>X\<times>{m})\<^sup>+;
       (a,b)\<in>r\<^sup>+ \<Longrightarrow> P;
        !!x. \<lbrakk> x\<in>X; (a,x)\<in>r\<^sup>*; (m,b)\<in>r\<^sup>* \<rbrakk> \<Longrightarrow> P
-    \<rbrakk> \<Longrightarrow> P"
+    \<rbrakk> \<Longrightarrow> P"semantic_induct
   proof (induct arbitrary: P rule: trancl_induct)
     case (base b) thus ?case by auto
   next

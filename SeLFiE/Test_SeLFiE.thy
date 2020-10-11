@@ -56,6 +56,7 @@ lemma "let (x1, x2) = y in z < x1"
 
 lemma "itrev xs ys = rev xs @ ys"
   semantic_induct
+  all_induction_heuristic      [on[], arb[],rule["List.list_induct2'"]]
   all_induction_heuristic      [on["xs"], arb["ys"],rule[]]
   all_generalization_heuristic [on["xs"], arb["ys"],rule[]]
   all_induction_heuristic [on["xs","ys"], arb[],rule["itrev.induct"]]

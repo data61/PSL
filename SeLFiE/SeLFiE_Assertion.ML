@@ -2259,4 +2259,72 @@ Imply (
   )
 );
 
+val trancl_induct =
+Imply (
+  Some ("trancl", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "trancl", Print "Transitive_Closure.trancl")
+    ]
+  ),
+  Some ("trancl_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "trancl_induct", Print "trancl_induct"),
+      Are_Same_Prints (Variable "trancl_induct", Print "trancl_induct2"),
+      Are_Same_Prints (Variable "trancl_induct", Print "converse_trancl_induct"),
+      Are_Same_Prints (Variable "trancl_induct", Print "converse_trancl_induct2")
+    ]
+  )
+);
+
+val tranclp_induct =
+Imply (
+  Some ("tranclp", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "tranclp", Print "Transitive_Closure.tranclp")
+    ]
+  ),
+  Some ("tranclp_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "tranclp_induct", Print "tranclp_induct"),
+      Are_Same_Prints (Variable "tranclp_induct", Print "tranclp_induct2"),
+      Are_Same_Prints (Variable "tranclp_induct", Print "converse_tranclp_induct"),
+      Are_Same_Prints (Variable "tranclp_induct", Print "converse_tranclp_induct2")
+    ]
+  )
+);
+
+val rtrancl_induct =
+Imply (
+  Some ("rtrancl", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "rtrancl", Print "Transitive_Closure.trancl")
+    ]
+  ),
+  Some ("rtrancl_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "rtrancl_induct", Print "rtrancl_induct"),
+      Are_Same_Prints (Variable "rtrancl_induct", Print "rtrancl_induct2"),
+      Are_Same_Prints (Variable "rtrancl_induct", Print "converse_rtrancl_induct"),
+      Are_Same_Prints (Variable "rtrancl_induct", Print "converse_rtrancl_induct2")
+    ]
+  )
+);
+
+val rtranclp_induct =
+Imply (
+  Some ("rtranclp", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "rtranclp", Print "Transitive_Closure.rtranclp")
+    ]
+  ),
+  Some ("rtranclp_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "rtranclp_induct", Print "rtranclp_induct"),
+      Are_Same_Prints (Variable "rtranclp_induct", Print "rtranclp_induct2"),
+      Are_Same_Prints (Variable "rtranclp_induct", Print "converse_rtranclp_induct"),
+      Are_Same_Prints (Variable "rtranclp_induct", Print "converse_rtranclp_induct2")
+    ]
+  )
+);
+
 end;

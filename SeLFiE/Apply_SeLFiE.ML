@@ -106,8 +106,9 @@ fun mk_clean_mods (ctxt:Proof.context) (ind_mods:SU.induct_arguments) =
       in
         result
       end;
-     fun normalize_rule_or_set (SU.Ind_Rule rule_name) = SU.Ind_Rule (normalize_rule_as_string rule_name)
-       | normalize_rule_or_set (SU.Ind_Set  set_name ) = SU.Ind_Set   set_name (*set_name does not have to be normalised. It requires the long name of a constant.*)
+     fun normalize_rule_or_set (SU.Ind_Rule rule_name)  = SU.Ind_Rule (normalize_rule_as_string rule_name)
+       | normalize_rule_or_set (SU.Ind_Set  set_name )  = SU.Ind_Set   set_name (*set_name does not have to be normalised. It requires the long name of a constant.*)
+       | normalize_rule_or_set (SU.Hand_Rule rule_name) = SU.Hand_Rule rule_name(*I do not see any necessity to normalize hand rules.*)
      val clean_ons   = (map normalize            ) ons  : strings;
      val clean_arbs  = (map normalize            ) arbs : strings;
      val clean_rules = (map normalize_rule_or_set) rules: SU.rule_or_set list;
@@ -192,6 +193,7 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
     fun ind_mod_to_score (ind_mod:SU.induct_arguments) =
       let
         val clean_mods                       = mk_clean_mods ctxt ind_mod                                                                     : SU.induct_arguments;
+(*FIXME TODO: I think the way to produce the outer domain is wrong. We have to include hand-written rules here.*)
         val outer_domains                    = QD.inout_pst_n_trm_n_induct_args_to_domains QD.Out outer_path_to_unode_table_as_gen clean_mods : QD.domains;
         fun eval_to_true assert              = ESS.eval pst outer_path_to_unode_table outer_domains clean_mods assert = bool_to_ES_assert true: bool;
         val success_scores                   = filter (fn {assertion,...} => eval_to_true assertion) input |> map #point                      : real list;
@@ -203,10 +205,16 @@ fun score_n_induct_argss_n_proof_state_to_best_pairs
       | get_promising_ind_mods_n_result _ = error "failed in Apply_SeLFiE.ML";
 
     val promising_ind_mods_n_result = get_promising_ind_mods_n_result heuristic_typ: (real * SU.induct_arguments) list;
-    fun get_ind_mod_n_scores _  = Par_List.map (fn (old_score, ind_mod) => ((*tracing ("checking " ^ SeLFiE_Util.induct_arguments_to_string ind_mod);*)
-                                      {score = old_score + ind_mod_to_score ind_mod, modifiers = ind_mod})) promising_ind_mods_n_result
-                             : {modifiers: SeLFiE_Util.induct_arguments, score: real} list;
+    fun get_ind_mod_n_scores promising_ind_mods_n_result  = Par_List.map
+                                  (fn (old_score, ind_mod) => ((*tracing ("checking " ^ SeLFiE_Util.induct_arguments_to_string ind_mod);*)
+                                      let
+                                        val new_score_opt = Option.map (op +) (Utils.mk_option_pair (SOME old_score, try ind_mod_to_score ind_mod)): real option;
+                                      in
+                                        if is_some new_score_opt then SOME {score = the new_score_opt, modifiers = ind_mod} else NONE
+                                      end))
+                                  promising_ind_mods_n_result
     val ind_mod_n_scores_opt = try (Timeout.apply (seconds 3000.0) get_ind_mod_n_scores) promising_ind_mods_n_result
+                             |> Option.map Utils.somes
                              : {modifiers: SeLFiE_Util.induct_arguments, score: real} list option;
     fun mk_record_wo_arb  (score:real, ind_args:SU.induct_arguments) = {modifiers = ind_args, score = score};
     fun mk_records_wo_arb (pairs:(real * SU.induct_arguments) list) = map mk_record_wo_arb pairs;

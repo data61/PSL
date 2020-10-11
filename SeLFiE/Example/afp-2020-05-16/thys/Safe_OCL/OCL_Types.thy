@@ -314,6 +314,7 @@ proof -
   ultimately show ?thesis
     using assms by auto
 qed
+
 (*
 lemma type_less_x_Optional [elim!]:
   assumes "\<tau> < \<sigma>[?]"

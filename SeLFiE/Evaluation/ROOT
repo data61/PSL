@@ -1,35 +1,10 @@
-(* 
-*)
+chapter AFP
 
-(* Session name, add to AFP group, list base session: *)
-session "Evaluation" (psl) in "." = SeLFiE +
-
-(* Timeout (in sec) in case of non-termination problems *)
-options [timeout = 60000000]
-sessions
-  "HOL-Data_Structures"
-  "HOL-Analysis"
-
-(* To suppress document generation of some theories: *)
-(*
-  theories [document = false]
-    This_Theory
-    That_Theory
-*)
-
-(* The top-level theories of the submission: *)
-theories
-    "KD_Tree"
-    "Nearest_Neighbors"
-    "Goodstein_Lambda"
-    "DFS"
-    "PST_RBT"
-    "Challenge1A"
-    "Hybrid_Logic"
-    "Boolean_Expression_Checkers"
-    "BinomialHeap"
-
-(* Dependencies on document source files: *)
+session "CoreC++" (AFP) = "HOL-Library" +
+  options [timeout = 1200]
+  theories
+    "CoreC++"
   document_files
+    "corec++.png"
     "root.bib"
     "root.tex"

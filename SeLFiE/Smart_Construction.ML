@@ -30,20 +30,43 @@ fun powerset (xs:'a list) =
 
 fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
   let
-    (*quadruple_for_converse_rtranclp_induct*)
+    (*quadruple_for_trancl_induct*)
     val const_names  = Term.add_const_names trm [];
-    val has_rtranclp = exists (equal "Transitive_Closure.rtranclp") const_names;
-    val quadruple_for_converse_rtranclp_induct = if has_rtranclp
-        then (tracing "TRUE1";[(Definition_Pattern.Unknown, "dummy", SOME "converse_rtranclp_induct",  []),
-               (Definition_Pattern.Unknown, "dummy", SOME "converse_rtranclp_induct2", [])]): seed_quadruples
-        else (tracing "FALSE1";[]);
-    (*quadruple_for_converse_rtrancl_induct*)
+    val has_trancl = exists (equal "Transitive_Closure.trancl") const_names;
+    val quadruple_for_trancl_induct = if has_trancl
+        then (
+              [(Definition_Pattern.Unknown, "dummy", SOME "trancl_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "trancl_induct2", []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_trancl_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_trancl_induct2", [])]): seed_quadruples
+        else ([]);
+    (*quadruple_for_tranclp_induct*)
+    val has_tranclp = exists (equal "Transitive_Closure.tranclp") const_names;
+    val quadruple_for_tranclp_induct = if has_tranclp
+        then (
+              [(Definition_Pattern.Unknown, "dummy", SOME "tranclp_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "tranclp_induct2", []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_tranclp_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_tranclp_induct2", [])]): seed_quadruples
+        else ([]);
+    (*quadruple_for_rtrancl_induct*)
     val has_rtrancl = exists (equal "Transitive_Closure.rtrancl") const_names;
-    val quadruple_for_converse_rtrancl_induct = if has_rtrancl
-        then (tracing "TRUE2";[(Definition_Pattern.Unknown, "dummy", SOME "converse_rtrancl_induct",  []),
+    val quadruple_for_rtrancl_induct = if has_rtrancl
+        then (
+              [(Definition_Pattern.Unknown, "dummy", SOME "rtrancl_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "rtrancl_induct2", []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_rtrancl_induct",  []),
                (Definition_Pattern.Unknown, "dummy", SOME "converse_rtrancl_induct2", [])]): seed_quadruples
-        else (tracing "FALSE2";[]);
-
+        else ([]);
+    (*quadruple_for_rtranclp_induct*)
+    val has_rtranclp = exists (equal "Transitive_Closure.rtranclp") const_names;
+    val quadruple_for_rtranclp_induct = if has_rtranclp
+        then (
+              [(Definition_Pattern.Unknown, "dummy", SOME "rtranclp_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "rtranclp_induct2", []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_rtranclp_induct",  []),
+               (Definition_Pattern.Unknown, "dummy", SOME "converse_rtranclp_induct2", [])]): seed_quadruples
+        else ([]);
     val trm_wo_abb      = Isabelle_Utils.contract_abbrevs ctxt trm               : term;
     val futrm_w_prnt    = UN.context_n_term_to_futrm_w_prnt_n_tag ctxt trm_wo_abb: UN.futrm_w_prnt_n_tag;
     fun futrm_w_prnt_n_tag_to_arguments (FUC_Prnt_Tag _) = []
@@ -88,6 +111,22 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
         val quadruple_for_inc_induct = if is_app_of_less_eq_on_nat
             then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "Nat.inc_induct", [])]): seed_quadruples
             else ([]);
+        (*quadruple_for_length_induct*)
+        fun is_less_eq_of_lengths_of (FUA_Prnt_Tag (FUC_Prnt_Tag ("Orderings.ord_class.less_eq",_,_,_), [lhs, rhs], _, _)) =
+            let
+              val lhs_length_of_opt = is_length_of lhs: string option;
+              val rhs_length_of_opt = is_length_of rhs: string option;
+            in
+              if   is_some lhs_length_of_opt andalso is_some rhs_length_of_opt
+              then [the lhs_length_of_opt, the rhs_length_of_opt]
+              else []
+            end
+          | is_less_eq_of_lengths_of _ = [];
+        val quadruple_for_length_induct =
+            if null (is_less_eq_of_lengths_of app)
+            then []
+            else [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.length_induct", is_less_eq_of_lengths_of app)];
+
         (*standard quadruples*)
         val func_print_w_opt      = futrm_w_prnt_n_tag_to_tag_n_print func |> apfst #is_defined_with: (Definition_Pattern.command option * string);
         val (command, func_print) = if is_some (fst func_print_w_opt)
@@ -97,12 +136,15 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
         val results_from_subterms = map futrm_w_prnt_n_tag_to_arguments args |> flat: seed_quadruples;
       in
         (command, func_print, NONE, args_print)::results_from_subterms
-        @ quadruple_for_converse_rtranclp_induct
-        @ quadruple_for_converse_rtrancl_induct
+        @ quadruple_for_trancl_induct
+        @ quadruple_for_tranclp_induct
+        @ quadruple_for_rtrancl_induct
+        @ quadruple_for_rtranclp_induct
         @ quadruple_for_inc_induct
         @ quadruple_for_list_all2
         @ quadruple_for_list_induct2
         @ quadruple_for_list_induct2'
+        @ quadruple_for_length_induct
         : seed_quadruples
       end;
     val func_args_pairs = futrm_w_prnt_n_tag_to_arguments futrm_w_prnt: seed_quadruples;
@@ -124,7 +166,7 @@ fun powerset_to_induct_arguments ([]:seed_quadruples) = []
   | powerset_to_induct_arguments ((command, func, NONE, args)::quadruples:seed_quadruples) =
     SU.Induct_Arguments {ons = args, arbs = [], rules = []}
  :: (case command of Definition_Pattern.Inductive_Set
-         => (SU.Induct_Arguments {ons = [],   arbs = [], rules = [SU.Ind_Set (func)]} |> (tracing o SU.induct_arguments_to_string); SU.Induct_Arguments {ons = [], arbs = [], rules = [SU.Ind_Set (func)]})
+         => SU.Induct_Arguments {ons = [], arbs = [], rules = [SU.Ind_Set (func)]}
      | _ => SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Ind_Rule (func ^ ".induct")]})
  :: powerset_to_induct_arguments quadruples
   | powerset_to_induct_arguments ((_, _, SOME ind_rule, args)::quadruples) =
@@ -144,17 +186,23 @@ let
          [SU.Ind_Set   _] => true
        | [SU.Hand_Rule _] => true
        |  _               => not (null ons)): bool;
+  fun is_defined rule_name = try (Proof_Context.get_thm ctxt) rule_name |> is_some;
+  fun all_rules_exist (SU.Induct_Arguments {rules,...}) = case rules of
+        [SU.Ind_Rule  rule_name] => is_defined rule_name
+      | [SU.Hand_Rule rule_name] => is_defined rule_name
+      | [SU.Ind_Set   set_name ] => is_defined set_name
+      | _ => false;
   val induct_arguments = map (context_n_term_to_argument_powersets ctxt) terms
                       |> flat
                       |> distinct (op =)
                       |> powerset_to_induct_arguments
                       |> distinct (op =)
-                      |> SU.sort_induct_argumentss
                       |> filter all_ons_meet_condition (*TODO: we should do something better than this.*)
-                      |> filter_out is_wellfounded: SeLFiE_Util.induct_arguments list;
-
-val _ = (map (tracing o SU.induct_arguments_to_string) induct_arguments);
+                      |> filter all_rules_exist
+                      |> filter_out is_wellfounded
+                      |> SU.sort_induct_argumentss: SeLFiE_Util.induct_arguments list;
 (*
+val _ = (map (tracing o SU.induct_arguments_to_string) induct_arguments);
 val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");*)
 in
   induct_arguments: SU.induct_arguments list
