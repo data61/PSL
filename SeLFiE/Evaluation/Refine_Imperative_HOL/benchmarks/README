@@ -1,0 +1,12 @@
+Benchmarks for the Sepref tool
+
+Prerequisites: Standard Linux-system with bash, gawk, etc.; MLton; Java; gcc
+
+Each folder contains the following scripts
+  makeall.sh -- compiles sources and generates/fetches examples.
+    Examples are only generated/fetched once, and this may take a while and download several 100 MiB from the internet.
+
+  testall.sh -- Run the tests. The results are written to the screen, and to *.log files
+  
+  pretty_logs.sh -- Pretty-print the log files
+  

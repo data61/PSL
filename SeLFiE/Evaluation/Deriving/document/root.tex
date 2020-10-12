@@ -1,0 +1,65 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+\usepackage{railsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+
+\begin{document}
+
+\title{Deriving class instances for datatypes.\footnote{Supported by FWF (Austrian Science Fund) projects P27502 and Y757.}}
+\author{Christian Sternagel and Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We provide a framework for registering automatic methods 
+  to derive class instances 
+  of datatypes, 
+  as it is possible using Haskell's ``deriving Ord, Show, \ldots'' feature.
+  
+  We further implemented such automatic methods to derive comparators, linear orders, parametrizable equality functions,
+  and hash-functions which are required in the 
+  Isabelle Collection Framework \cite{rbt} and the Container Framework \cite{containers}. 
+  Moreover, for the tactic of Blanchette to show that a datatype is countable, we implemented a 
+  wrapper so that this tactic becomes accessible in our framework. All of the generators are based on 
+  the infrastructure that is provided by the BNF-based datatype package.
+  
+  Our formalization was performed as part of the \isafor/\ceta{} project%
+  \footnote{\url{http://cl-informatik.uibk.ac.at/software/ceta}} \cite{CeTA}.
+  With our new tactics we could remove 
+  several tedious proofs for (conditional) linear orders, and conditional equality operators
+  within \isafor{} and the Container Framework.
+\end{abstract}
+
+\tableofcontents
+
+
+% include generated text of all theories
+\input{session}
+
+\section{Acknowledgements}
+We thank 
+\begin{itemize}
+\item Lukas Bulwahn and Brian Huffman for the discussion on a generic derive command.
+\item Jasmin Blanchette for providing the tactic for countability for BNF-based datatypes.
+\item Jasmin Blanchette and Dmitriy Traytel for adjusting the Isabelle/ML interface of
+  the BNF-based datatypes.
+\item Alexander Krauss for telling us to avoid the function package for this task.
+\item Peter Lammich for the inspiration of developing a hash-function generator.
+\item Andreas Lochbihler for the inspiration of developing generators for the container framework.
+\item Christian Urban for his cookbook on Isabelle/ML.
+\item Stefan Berghofer, Florian Haftmann, Cezary Kaliszyk, Tobias Nipkow, and Makarius Wenzel for their explanations
+  on several Isabelle related questions.
+\end{itemize}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

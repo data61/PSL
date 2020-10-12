@@ -22,7 +22,6 @@ imports Main
   "HOL-Library.Option_ord"
   "HOL-Library.Infinite_Set"
   "HOL-Eisbach.Eisbach"
-"Eval_Base.Eval_Base"
 begin
 text_raw \<open>\label{thy:Misc}\<close>
 

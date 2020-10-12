@@ -1,0 +1,138 @@
+CHANGELOG since afp-2011-1 version
+
+2014-6
+  Peter Lammich:
+    GenCF:
+      * Corrected itype-setup for sets
+      * Added set-to-list patterns
+      * Added optimized impl for inj_image on list_set
+      * Extended relator_props setup for fun_set_rel
+      * Added op_set_cart for cartesian product. Have
+        generic implementation and optimized one for lists.
+      * Added Union-operation.
+      * Added atLeastLessThan for nat.
+
+2013-09
+  Peter Lammich: 
+    * Made this entry dependent on Refine_Monadic
+    * Added Generic Collection Framework
+    * Added Entry Points for the Refinement Framework
+
+2012-08
+  Peter Lammich: Released Collections Version 2. MAJOR INCOMPATIBILITIES
+    The most important (user-visible) changes are:
+      * Iterators are now polymorphic, even inside locales. Dropped the
+        non-polymorphic iterators.
+      * The StdInst theory was dropped, and the structure of generic algorithms
+        has changed. If you need a generic algorithm between more than one 
+        implementation, you have to instantiate it yourself now. This is a 
+        design decision motivated by two facts:
+          * Most of the generic algorithms in StdInst are not used at all
+          * The featured algorithm development is to write generic algorithms,
+            where the instantiation has to be done manually anyway.
+      * The concrete operations are now named xx.opname instead of xx_opname.
+        E.g., we have hs.invar instead of hs_invar. Moreover, we changed
+        list_to_xx to xx.from_list.
+
+    The most important internal changes are:
+      * Locale_Code package, that allows easy generation of code for locale
+        interpretations. This package makes the implementation of generic 
+        algorithms much simpler, and removes lots of boilerplate. It can also 
+        be utilized from the user-level, see examples/itp_2010.
+      * Record_Intf package and Proper_Iterator. The former package is an 
+        inlining tool for records at code generation phase, which is used 
+        to eliminate operation-records from the generated code. The latter 
+        theory allows polymorphic iterators even inside locales, by defining
+        them via to_list-operations, and then doing some unfolding in the
+        code generation phase to recover the efficient iterators.
+
+    There is a theory CollectionsV1, that tries to simplify porting of
+    existing theories by: 
+      * Providing the monomorphic iterator locales
+      * Providing the xx_opname names as (input) abbreviations
+
+    Minor Changes
+      * xxx_no_invar locales, that assume that invariant always holds.
+        Useful for setup of other packages that build on ICF 
+        (like Refine_Monadic)
+      * Function-locales do not import from multiple instances of same locale
+        without explicit prefixes any more. Otherwise, this may cause surprises
+        (dup constant) if one later defines constants/lemmas in those locales.
+
+
+************************ Version 1 *****************************
+
+2012-04-19
+  Thomas Tuerk:
+    Iterators over representations added.
+
+2012-04-18
+  Peter Lammich: 
+    Merged some theories in common/ subdirectory. 
+    Merged OrderedSet into SetSpec, OrderedMap into MapSpec.
+    Created xxx_Chapter.thy files to contain the chapter headers.
+    Created structured documentation for interfaces and implementations.
+  
+
+2012-04-16
+  Peter Lammich: Changed directory structure. Created subdirectories 
+    impl, gen_algo, and spec. Also renamed 
+      AnnotatedListGAPrioImpl -> PrioByAnnotatedList
+      AnnotatedListGAPrioUniqueImpl -> PrioUniqueByAnnotatedList
+    Moved: HashCode to common/
+
+    INCOMPATIBILITY, only if you access parts of the ICF directly. In most
+      cases, just Collections.thy from the main directory should be imported,
+      in which case no modifications to importing theories are required.
+
+2012-03-20
+  Thomas Tuerk: Further changes to to iterators. INCOMPATIBILITY
+
+  - moved iterator-related theories to subdirectory "iterator"
+  - Changed definition of iterators. It is now based on list-iteration.
+  - renamed "set_iterator" to "set_iterator_genord"
+  - renamed "map_iterator" to "map_iterator_genord"
+  - renamed "set_iterator_no_sel" to "set_iterator"
+  - renamed "map_iterator_no_sel" to "map_iterator"
+
+2012-03-17
+  Thomas Tuerk: Mayor changes to iterators. INCOMPATIBILITY
+
+  - unified iterators for sets, maps
+  - argument order of iteratei changed: 
+      "iteratei c f m s0" should now be "iteratei m c f s0" 
+  - iterate removed
+      "iterate f m s0" should now be "iteratei m (lamdba _. True) f s0"
+  - type abbreviation "iteratori" remove
+      "('s,'x,'state) iteratori" should now be "'s => ('x, 'state) set_iterator"   - type abbreviation "map_iteratori" removed
+      "('m,'k,'v,'state) map_iteratori" should now be 
+      "'m => ('k x 'v, 'state) set_iterator" 
+  - map iterators are now implemented as iterators over key / value pairs.
+    As a result, map iterators do not use curried functions any more. Instead the
+    function gets a pair as an argument now. Many functions defined in terms of
+    map iterators changed their interface as well.
+  - several iterators with interruption on lists got unified. They may now have
+    slightly different argument orders or paired instead of curried arguments. Most
+    noticebly "Assoc_List.iteratei_aux" got replaced by "foldli" (no interface change).
+ 
+2012-02-28
+  Peter Lammich: Added indexed array sets (ias,is). 
+  Peter Lammich: Changed abbreviations for indexed array map to iam, im (INCOMPATIBILITY)
+  Peter Lammich: Added exclude-directive to patterns in StdInst.in.thy, to exclude certain implementations
+
+2012-02-23
+  Thomas Tuerk: Added dummy parameter of type unit to empty-operations
+    of set and map, to prevent linearity problems with diff-array
+    implementations. In the former version, it could happen that the empty
+    array was created once and then shared, which results in poor performance.
+    INCOMPATIBILITY: Basically, you have to change empty to (empty ()). To exploit
+      diff-array based implementations that are only efficient for linear usage, do not
+      apply () too early.
+
+  Peter Lammich: Added dummy () parameter to all interfaces. 
+    INCOMPATIBILITY, see above
+
+  Peter Lammich: Added indexed array maps (abbreviations iam, i in 
+    ArrayMapImpl.thy), that map from natural numbers to values, using 
+    an array. They use an exponential growth function, but currently do 
+    never shrink again. 

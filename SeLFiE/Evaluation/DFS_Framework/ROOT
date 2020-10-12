@@ -1,0 +1,33 @@
+chapter AFP
+
+session "DFS_Framework" (AFP) = "CAVA_Automata" +
+  options [timeout = 1200]
+  directories
+    "Examples"
+    "Impl/Data"
+    "Impl/Structural"
+    "Invars"
+    "Misc"
+  theories [document = false]
+    "Misc/DFS_Framework_Refine_Aux"
+    "Misc/Impl_Rev_Array_Stack"
+    "Misc/On_Stack"
+  theories
+    DFS_Chapter_Framework
+    Param_DFS
+    "Invars/DFS_Invars_Basic"
+    "Invars/DFS_Invars_SCC"
+
+    "Impl/Structural/General_DFS_Structure"
+    "Impl/Structural/Tailrec_Impl"
+    "Impl/Structural/Rec_Impl"
+
+    "Impl/Data/Simple_Impl"
+    "Impl/Data/Restr_Impl"
+
+    DFS_Framework
+
+    "Examples/DFS_Chapter_Examples"
+    "Examples/DFS_All_Examples"
+  document_files
+    "root.tex"

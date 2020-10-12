@@ -1,0 +1,12 @@
+chapter AFP
+
+session "Regular-Sets" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Regexp_Method
+    Regexp_Constructions
+    pEquivalence_Checking
+    Equivalence_Checking2
+  document_files
+    "root.bib"
+    "root.tex"

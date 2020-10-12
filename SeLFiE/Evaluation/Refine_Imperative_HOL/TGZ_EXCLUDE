@@ -1,0 +1,10 @@
+*/.*
+*.log
+*/mlmon.out
+*.class
+*/heapmap
+*/NDFS_Benchmark
+*/dijkstra
+*/c++/dfs
+*/c++/dfsO3
+*/c++/dfsO0

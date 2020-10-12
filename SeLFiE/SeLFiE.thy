@@ -13,7 +13,7 @@
  * SeLFiE: Semantic Logical Feature Extractor.
  *)
 theory SeLFiE
-  imports "Pure"
+  imports "Pure" Main
   keywords "assert_SeLFiE_true"          :: diag
   and      "assert_SeLFiE_false"         :: diag
   and      "semantic_induct"             :: diag

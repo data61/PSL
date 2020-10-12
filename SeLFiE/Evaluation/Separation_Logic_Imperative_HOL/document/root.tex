@@ -1,0 +1,108 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+
+\begin{document}
+
+\title{A Separation Logic Framework for Imperative HOL}
+\author{Peter Lammich and Rene Meis}
+\maketitle
+
+\begin{abstract}
+  We provide a framework for separation-logic based correctness proofs of 
+  Imperative HOL programs. Our framework comes with a set of proof methods to
+  automate canonical tasks such as verification condition generation and 
+  frame inference. Moreover, we provide a set of examples that show the 
+  applicability of our framework. The examples include algorithms on lists,
+  hash-tables, and union-find trees. We also provide abstract interfaces for
+  lists, maps, and sets, that allow to develop generic imperative algorithms 
+  and use data-refinement techniques.
+
+  As we target Imperative HOL, our programs can be translated to 
+  efficiently executable code in various target languages, including
+  ML, OCaml, Haskell, and Scala.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+We provide a separation logic framework for Imperative/HOL.
+
+Imperative/HOL \cite{Bulwahn2008} is a framework for imperative monadic programs
+in Isabelle/HOL. It allows to combine imperative and functional concepts, and
+supports generation of efficient, verified code in various target languages, 
+including SML, OCaml, Haskell, and Scala. 
+Thus, it is the ideal platform for writing verified, 
+efficient algorithms. However, it only has rudimentary support for proving
+programs correct. We close this gap by providing a separation logic 
+\cite{OHearn2001} for total correctness, and 
+tools to automate canonical tasks, such as a verification condition generator,
+a frame inference method, and a set of simprocs for assertions. We test the
+applicability of our framework by formalizing various data structures, such as
+linked lists, hash-tables and union-find trees. Moreover, we provide abstract 
+interfaces for lists, maps, and sets in the style of the 
+Isabelle Collection Framework \cite{Lammich2010}. They allow to write 
+generic imperative algorithms and use data refinement techniques. 
+
+\paragraph{Related Work}
+This work is based on the diploma thesis of Rene Meis \cite{Meis2011}, that 
+contains a preliminary version of the framework.
+
+Independently of us, Klein et. al. \cite{Klein2012} formalized a general 
+separation algebra framework in Isabelle/HOL. It also contains a 
+frame-inference algorithm, and is intended to be instantiated to various 
+target languages. However, due to technical issues, we cannot use this 
+framework, as it would require to change the formal foundation of 
+Imperative/HOL, such that partial heaps are properly supported.
+
+Recently several formalizations of separation logic in theorem provers were published. Jesper et. al. \cite{Bengtson2011} formalized separation logic in Coq for object-oriented programs. Tuerk \cite{Tuerk2011} formalized and extended smallfoot \cite{Berdine2005} in his PhD thesis in HOL4. These approaches are based on a deeply embedded programming and assertion language with a fixed finite set of constructs.
+
+\paragraph{Organization of the Entry}
+This entry consists of two parts, the main separation logic framework, and a
+bunch of examples. The theory {\em Sep-Main} is the entry point for the 
+framework. The examples are contained in the {\em Examples}-subdirectory. They 
+serve as documentation and to show the applicability of the framework. 
+Moreover, the {\em Tools}-subdirectory contains some general prerequisites.
+
+\paragraph{Documentation}
+The methods provided by the framework are documented in 
+Section~\ref{sec:auto:overview}. Moreover, Section~\ref{thy:ex:idioms} contains
+some heavily documented examples that show common idioms for using the 
+framework.
+
+% generated text of all theories
+\input{session}
+
+\section{Conclusion}
+We have presented a separation logic framework for Imperative HOL. It provides
+powerful proof methods for reasoning over imperative monadic programs, thus
+rectifying the lack of good proof support in the original Imperative HOL 
+formalization. 
+
+We verified the applicability of our framework by proving algorithms on various
+data structures. Moreover, we showed how to construct an imperative collection
+framework, that supports generic algorithms and data refinement.
+
+\paragraph{Acknowledgments} We thank Thomas Tuerk, the author of Holfoot 
+\cite{Tuerk2011}, for useful discussions on the automation of separation logic.
+Moreover, we thank Lukas Bulwahn and Brian Huffman for help with the Isabelle 
+ML interface.
+
+\clearpage
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

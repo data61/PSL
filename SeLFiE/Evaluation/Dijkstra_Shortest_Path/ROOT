@@ -1,0 +1,20 @@
+chapter AFP
+
+session Dijkstra_Shortest_Path (AFP) = Collections +
+  options [timeout = 600]
+  theories
+    Introduction
+    Dijkstra_Misc
+    Graph
+    Weight
+    Dijkstra
+    GraphSpec
+    GraphGA
+    GraphByMap
+    HashGraphImpl
+    Dijkstra_Impl
+    Dijkstra_Impl_Adet
+    Test
+  document_files
+    "root.bib"
+    "root.tex"

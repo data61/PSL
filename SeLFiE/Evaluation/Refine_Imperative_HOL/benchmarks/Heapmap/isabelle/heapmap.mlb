@@ -1,0 +1,15 @@
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/mlton.mlb 
+$(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
+
+local
+    Unsynchronized.sml
+    ann "nonexhaustiveMatch ignore" in
+      heapmap_export.sml
+    end
+in
+    structure Heapmap
+end
+
+heapmap.sml
+

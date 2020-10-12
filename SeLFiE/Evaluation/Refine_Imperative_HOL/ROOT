@@ -1,0 +1,100 @@
+chapter AFP
+
+session Sepref_Prereq (AFP) in "Sepref_Prereq" = Collections +
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+    "HOL-Imperative_HOL"
+    Separation_Logic_Imperative_HOL
+  theories
+    Separation_Logic_Imperative_HOL.Sep_Examples
+
+session Refine_Imperative_HOL (AFP) = Sepref_Prereq +
+  options [timeout = 1200]
+  sessions
+    Isar_Ref
+    "HOL-Eisbach"
+    "List-Index"
+    Collections_Examples
+    DFS_Framework
+    Dijkstra_Shortest_Path
+  directories
+    "Examples"
+    "Examples/Snippets"
+    "IICF"
+    "IICF/Impl"
+    "IICF/Impl/Heaps"
+    "IICF/Intf"
+    "Lib"
+    "Userguides"
+    "benchmarks"
+    "benchmarks/Dijkstra/isabelle"
+    "benchmarks/Heapmap/isabelle"
+    "benchmarks/NestedDFS/isabelle"
+
+  theories [document = false]
+    "Lib/Concl_Pres_Clarification"
+    "Lib/Named_Theorems_Rev"
+    "Lib/Pf_Add"
+    "Lib/Pf_Mono_Prover"
+    "Lib/PO_Normalizer"
+    "Lib/Sepref_Misc"
+    "Lib/Structured_Apply"
+    "Lib/Term_Synth"
+    "Lib/User_Smashing"
+
+    "HOL-Library.Code_Target_Numeral"
+    DFS_Framework.DFS_Framework_Refine_Aux
+
+    Isar_Ref.Base
+
+  theories
+    Sepref_Chapter_Tool
+      Sepref_Tool
+
+    Sepref_Chapter_Setup
+      Sepref
+
+    "IICF/Sepref_Chapter_IICF"
+      "IICF/IICF"
+
+    "Userguides/Sepref_Chapter_Userguides"
+      "Userguides/Sepref_Guide_Quickstart"
+      "Userguides/Sepref_Guide_Reference"
+      "Userguides/Sepref_Guide_General_Util"
+
+  theories [document = false]
+      Dijkstra_Shortest_Path.Dijkstra
+      Dijkstra_Shortest_Path.Test
+      Collections_Examples.Nested_DFS
+      "Examples/Sepref_WGraph"
+
+  theories
+    "Examples/Sepref_Chapter_Examples"
+      "Examples/Sepref_All_Examples"
+
+    "benchmarks/Sepref_Chapter_Benchmarks"
+      "benchmarks/Heapmap/isabelle/Heapmap_Bench"
+      "benchmarks/Dijkstra/isabelle/Dijkstra_Benchmark"
+      "benchmarks/NestedDFS/isabelle/NDFS_Benchmark"
+
+  document_files
+    "root.tex"
+
+
+(* Smaller Sessions: *)
+session Sepref_Basic (AFP) in "Sepref_Basic" = Sepref_Prereq +
+  options [timeout = 300]
+  sessions
+    "HOL-Eisbach"
+    "List-Index"
+    Refine_Imperative_HOL
+  theories
+    Refine_Imperative_HOL.Sepref
+
+session Sepref_IICF (AFP) in "Sepref_IICF" = Sepref_Basic +
+  options [timeout = 600]
+  sessions
+    Refine_Imperative_HOL
+  theories
+    Refine_Imperative_HOL.IICF

@@ -1,0 +1,30 @@
+\chapter{Conclusion}\label{ch:conclusion}
+
+This work presented the Isabelle Collections Framework, an efficient and extensible collections framework for Isabelle/HOL.
+The framework features data-refinement techniques to refine algorithms to use concrete collection datastructures,
+and is compatible with the Isabelle/HOL code generator, such that efficient code can be generated for all supported target languages.
+Finally, we defined a data refinement framework for the while-combinator, and used it to specify a state-space exploration algorithm
+and stepwise refined the specification to an executable DFS-algorithm using a hashset to store the set of already known states.
+
+Up to now, interfaces for sets and maps are specified and implemented using lists, red-black-trees, and hashing. Moreover, an amortized constant time 
+fifo-queue (based on two stacks) has been implemented. However, the framwork is extensible, i.e. new interfaces, algorithms and implementations can easily be added and integrated with the existing ones.
+
+\section {Trusted Code Base}
+  In this section we shortly characterize on what our formal proofs depend, i.e. how to interpret the information contained in this formal proof and the fact that it
+  is accepted by the Isabelle/HOL system.
+
+  First of all, you have to trust the theorem prover and its axiomatization of HOL, the ML-platform, the operating system software and the hardware it runs on.
+  All these components are, in theory, able to cause false theorems to be proven. However, the probability of a false theorem to get proven due to a hardware error 
+  or an error in the operating system software is reasonably low. There are errors in hardware and operating systems, but they will usually cause the system to crash 
+  or exhibit other unexpected behaviour, instead of causing Isabelle to quitely accept a false theorem and behave normal otherwise. The theorem prover itself is a bit more critical in this aspect. However, Isabelle/HOL is implemented in LCF-style, i.e. all the proofs are eventually checked by a small kernel of trusted code, containing rather simple operations. HOL is the logic that is most frequently used with Isabelle, and it is unlikely that it's axiomatization in Isabelle is inconsistent and no one has found and reported this inconsistency yet.
+
+  The next crucial point is the code generator of Isabelle. We derive executable code from our specifications. The code generator contains another (thin) layer of untrusted code. This layer has some known deficiencies\footnote{For example, the Haskell code generator may generate variables starting with upper-case letters, while the Haskell-specification requires variables to start with lowercase letters. Moreover, the ML code generator does not know the ML value restriction, and may generate code that violates this restriction.} (as of Isabelle2009) in the sense that invalid code is generated. This code is then rejected by the target language's compiler or interpreter, but does not silently compute the wrong thing. 
+
+  Moreover, assuming correctness of the code generator, the generated code is only guaranteed to be {\em partially} correct\footnote{A simple example is the always-diverging function ${\sf f_{div}}::{\sf bool} = {\sf while}~(\lambda x.~{\sf True})~{\sf id}~{\sf True}$ that is definable in HOL. The lemma $\forall x.~ x = {\sf if}~{\sf f_{div}}~{\sf then}~x~{\sf else}~x$ is provable in Isabelle and rewriting based on it could, theoretically, be inserted before the code generation process, resulting in code that always diverges}, i.e. there are no formal termination guarantees.
+
+  Furthermore, manual adaptations of the code generator setup are also part of the trusted code base.
+  For array-based hash maps, the Isabelle Collections Framework provides an ML implementation for arrays with in-place updates that is unverified; for Haskell, we use the DiffArray implementation from the Haskell library.
+  Other than this, the Isabelle Collections Framework does not add any adaptations other than those available in the Isabelle/HOL library, in particular Efficient\_Nat.
+
+\section{Acknowledgement}
+We thank Tobias Nipkow for encouraging us to make the collections framework an independent development. Moreover, we thank Markus M\"uller-Olm for discussion about data-refinement. Finally, we thank the people on the Isabelle mailing list for quick and useful response to any Isabelle-related questions.
