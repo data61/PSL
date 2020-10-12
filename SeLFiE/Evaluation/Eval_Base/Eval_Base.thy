@@ -1,5 +1,5 @@
-theory Evaluation
-  imports Main "../../SeLFiE" Main(*to get Nitpick_Util*)
+theory Eval_Base
+  imports Main "SeLFiE.SeLFiE" Main(*to get Nitpick_Util*)
   keywords "apply2" :: prf_script
    and     "proof2" :: prf_block
    and     "by2"    :: "qed"

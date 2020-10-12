@@ -122,13 +122,12 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
             then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "Nat.inc_induct", [])]): seed_quadruples
             else ([]);
         (*quadruple_for_length_induct*)
-        fun is_less_eq_of_lengths_of (FUA_Prnt_Tag (FUC_Prnt_Tag ("Orderings.ord_class.less_eq",_,_,_), [lhs, rhs], _, _)) =
+        fun is_less_eq_of_lengths_of (FUA_Prnt_Tag (FUC_Prnt_Tag ("Orderings.ord_class.less_eq",_,_,_), [_, rhs], _, _)) =
             let
-              val lhs_length_of_opt = is_length_of lhs: string option;
               val rhs_length_of_opt = is_length_of rhs: string option;
             in
-              if   is_some lhs_length_of_opt andalso is_some rhs_length_of_opt
-              then [the lhs_length_of_opt, the rhs_length_of_opt]
+              if   is_some rhs_length_of_opt
+              then [the rhs_length_of_opt]
               else []
             end
           | is_less_eq_of_lengths_of _ = [];

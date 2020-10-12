@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage[english]{babel}
+\usepackage{stmaryrd}
+\usepackage{eufrak}
+\usepackage{wasysym}
+\usepackage{tikz}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Markov Models}
+\author{Johannes H\"olzl and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+This is a formalization of various Markov models in Isabelle/HOL. It builds on Isabelle's
+probability theory. The available models are currently discrete-time and continuous-time Markov
+chains as well as Markov decision processes. As application of these models we formalize
+probabilistic model checking of pCTL formulas, analysis of IPv4 address allocation in ZeroConf and
+an analysis of the anonymity of the Crowds protocol.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+This is a formalization of probabilistic models in Isabelle/HOL. It builds on Isabelle's probability
+theory (HOL-Probability). It provides formalizations for the following models:
+
+\begin{itemize}
+\item Discrete-time Markov processes with measurable state spaces~\cite{hoelzl2017markovprocesses}
+\item Markov decision processes on discrete spaces~\cite{hoelzl2017mdp}
+\item Continuous-time Markov chains on discrete spaces~\cite{hoelzl2017markovprocesses}
+\end{itemize}
+
+As application of these models we formalize
+\begin{itemize}
+\item a probabilistic model checking of pCTL formulas~\cite{hoelzl2012verifyingpctl},
+\item an analysis of IPv4 address allocation in ZeroConf~\cite{hoelzl2012casestudies},
+\item an analysis of the anonymity of the Crowds protocol~\cite{hoelzl2012casestudies},
+\item the reachability analysis on finite-state MDPs~\cite{hoelzl2017mdp}, and
+\item expected running-time semantics for pGCL~\cite{hoelzl2016exprun}.
+\end{itemize}
+
+The formalization of rewarded DTMCs and pCTL model checking is discussed in
+detail in our paper.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

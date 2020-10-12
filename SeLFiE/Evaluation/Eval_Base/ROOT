@@ -1,31 +1,16 @@
-(* Session name, add to AFP group, list base session: *)
-session "Evaluation" (psl) in "." = SeLFiE +
-
-(* Timeout (in sec) in case of non-termination problems *)
-options [timeout = 60000000]
-sessions
-  "HOL-Data_Structures"
-  "HOL-Analysis"
-
-(* To suppress document generation of some theories: *)
-(*
+session "SeLFiE" (eval) in "../../" = HOL +
+  options [timeout = 600]
   theories [document = false]
-    This_Theory
-    That_Theory
-*)
+    "SeLFiE"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "Eval_Base" (eval) in "." = "SeLFiE" +
 
 (* The top-level theories of the submission: *)
 theories
-    "KD_Tree"
-    "Nearest_Neighbors"
-    "Goodstein_Lambda"
-    "DFS"
-    "PST_RBT"
-    "Challenge1A"
-    "Hybrid_Logic"
-    "Boolean_Expression_Checkers"
-    "BinomialHeap"
-
+    "Eval_Base"
 (* Dependencies on document source files: *)
   document_files
     "root.bib"

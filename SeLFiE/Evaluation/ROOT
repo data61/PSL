@@ -1,0 +1,373 @@
+session "SeLFiE" (psl) in "../" = HOL +
+  options [timeout = 600]
+  theories [document = false]
+    "SeLFiE"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "Eval_Base" (AFP) in "Eval_Base" = "HOL" +
+  options [timeout = 600]
+  sessions
+    "SeLFiE"
+  theories [document = false]
+    Eval_Base
+  document_files
+    "root.bib"
+    "root.tex"
+
+session Automatic_Refinement (AFP) in "Automatic_Refinement"= HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+    "HOL-Eisbach"
+    "HOL-ex"
+    "Eval_Base"
+  directories
+    "Lib"
+    "Parametricity"
+    "Tool"
+  theories [document = false]
+    "Lib/Refine_Lib"
+  theories
+    "Parametricity/Param_Chapter"
+    "Parametricity/Relators"
+    "Parametricity/Parametricity"
+  theories [document = false]
+    "Tool/Autoref_Phases"
+    "Tool/Autoref_Data"
+    "Tool/Autoref_Id_Ops"
+    "Tool/Autoref_Relator_Interface"
+    "Tool/Autoref_Fix_Rel"
+    "Tool/Autoref_Gen_Algo"
+    "Tool/Autoref_Translate"
+  theories
+    "Tool/Autoref_Chapter"
+    "Tool/Autoref_Tool"
+    Autoref_Bindings_HOL
+    Automatic_Refinement
+  document_files
+    "root.tex"
+
+session "Binomial-Heaps" (AFP) in "Binomial-Heaps" = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    BinomialHeap
+    SkewBinomialHeap
+  theories [document = false]
+    (* Keep these in, they are to early detect problems with the code generator *)
+    Test 
+  document_files
+    "root.bib"
+    "root.tex"
+
+session Boolean_Expression_Checkers (AFP) in "Boolean_Expression_Checkers" = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Boolean_Expression_Example
+  document_files
+    "root.tex"
+
+session Coinductive (AFP) in Coinductive = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  sessions
+    "HOL-Analysis"
+  directories
+    "Examples"
+  theories
+    Coinductive
+    Lazy_TLList
+    "Examples/Coinductive_Examples"
+  document_files
+    "root.tex"
+
+session "CoreC++" (AFP) in "CoreC++" = "HOL-Library" +
+  options [timeout = 1200]
+  theories
+    "CoreC++"
+  document_files
+    "corec++.png"
+    "root.bib"
+    "root.tex"
+
+session "Depth-First-Search" (AFP) in "Depth-First-Search" = HOL +
+  options [timeout = 600]
+  theories
+    DFS
+  document_files
+    "root.tex"
+
+session "Finger-Trees" (AFP) in "Finger-Trees" = "HOL-Library" +
+  options [timeout = 600]
+
+  theories
+    (* Finger Trees *)
+    FingerTree
+
+  theories [document = false]
+    (* Do not remove this, as it serves to detect issues with the code generator *)
+    Test
+
+  document_files
+    "root.bib"
+    "root.tex"
+
+session Goodstein_Lambda (AFP) in Goodstein_Lambda = HOL +
+
+options [timeout = 300]
+
+  theories
+    Goodstein_Lambda
+
+  document_files
+    "root.bib"
+    "root.tex"
+
+session "HOLCF-Prelude" (AFP) in "HOLCF-Prelude" = HOLCF +
+  options [show_question_marks = false, timeout = 3600]
+  sessions
+    "HOL-Computational_Algebra"
+    "HOLCF-Library"
+  directories
+    "examples"
+  theories
+    HOLCF_Main
+    Type_Classes
+    Numeral_Cpo
+    Data_Function
+    Data_Bool
+    Data_Tuple
+    Data_Integer
+    Data_List
+    Data_Maybe
+    Definedness
+    List_Comprehension
+    Num_Class
+    "examples/Fibs"
+    "examples/Sieve_Primes"
+    "examples/GHC_Rewrite_Rules"
+    "examples/HLint"
+  theories [document = false]
+    HOLCF_Prelude
+  document_files
+    "root.bib"
+    "root.tex"
+
+session Hybrid_Logic (AFP) in Hybrid_Logic = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Hybrid_Logic
+  document_files
+    "root.tex"
+    "root.bib"
+chapter AFP
+
+session "Gauss-Jordan-Elim-Fun" (AFP) in "Gauss-Jordan-Elim-Fun" = HOL +
+  options [timeout = 600]
+  theories
+    Gauss_Jordan_Elim_Fun
+  document_files
+    "root.tex"
+
+session "KD_Tree" (AFP) in KD_Tree = "HOL-Analysis" +
+  options [timeout = 600]
+  sessions
+    Median_Of_Medians_Selection
+  theories
+    KD_Tree
+    Build
+    Range_Search
+    Nearest_Neighbors
+  document_files
+    "root.tex"
+    "root.bib"
+
+session LTL (AFP) in LTL = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    Boolean_Expression_Checkers
+  directories
+    "example"
+  theories
+    LTL
+    Rewriting
+    Equivalence_Relations
+    Disjunctive_Normal_Form
+    Code_Equations
+    "example/Example"
+  document_files
+    "root.tex"
+    "root.bib"
+  export_files (in "example") [2]
+    "LTL.Example:**"
+
+session Markov_Models (AFP) in Markov_Models = "HOL-Probability" +
+  options [timeout = 600]
+  sessions
+    Coinductive
+    "Gauss-Jordan-Elim-Fun"
+  directories
+    "ex"
+  theories
+    Markov_Models
+    "ex/Example_A"
+    "ex/Example_B"
+    "ex/PCTL"
+    "ex/PGCL"
+    "ex/Crowds_Protocol"
+    "ex/Zeroconf_Analysis"
+    "ex/Gossip_Broadcast"
+    "ex/MDP_RP_Certification"
+  theories [document = false]
+    "ex/MDP_RP"
+  document_files
+    "root.bib"
+    "root.tex"
+
+session "Median_Of_Medians_Selection" (AFP) in Median_Of_Medians_Selection = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+  theories [document = false]
+    "HOL-Library.Multiset"
+  theories
+    Median_Of_Medians_Selection
+  document_files
+    "root.tex"
+    "root.bib"
+
+session NormByEval (AFP) in "NormByEval" = HOL +
+  options [timeout = 600]
+  theories
+    NBE
+  document_files
+    "root.bib"
+    "root.tex"
+
+session PCF (AFP) in "PCF" = "HOLCF-Library" +
+  options [timeout = 600, show_question_marks = false]
+  theories [document = false]
+    Basis
+  theories
+    Logical_Relations
+    PCF
+    OpSem
+    Continuations
+    SmallStep
+  document_files
+    "root.bib"
+    "root.tex"
+
+session Priority_Search_Trees (AFP) in "Priority_Search_Trees" = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Data_Structures"
+    "HOL-Eisbach"
+  theories
+    Prio_Map_Specs
+    PST_RBT
+  document_files
+    "root.tex"
+    "root.bib"
+
+session Probabilistic_Timed_Automata (AFP) in "Probabilistic_Timed_Automata" = "Markov_Models" +
+  options [timeout = 1200]
+  sessions
+    "Timed_Automata"
+    "HOL-Eisbach"
+  directories
+    "library"
+  theories [document = false]
+    "library/Lib"
+  theories
+    "PTA"
+    "PTA_Reachability"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session Rep_Fin_Groups (AFP) in Rep_Fin_Groups = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  theories
+    Rep_Fin_Groups
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "Safe_OCL" (AFP) in Safe_OCL = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Errorable
+    Transitive_Closure_Ext
+    Finite_Map_Ext
+    Tuple
+    Object_Model
+    OCL_Examples
+  document_files
+    "root.bib"
+    "root.tex"
+
+session Simpl (AFP) in Simpl = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "HOL-Statespace"
+  directories
+    "ex"
+  theories
+    Simpl
+  document_files
+    "mathpartir.sty"
+    "root.bib"
+    "root.tex"
+
+session "Timed_Automata" (AFP) in Timed_Automata = HOL +
+  options [timeout = 600]
+  theories
+    Normalized_Zone_Semantics
+  document_files
+    "root.tex"
+    "root.bib"
+
+session VerifyThis2019 (AFP) in VerifyThis2019 = (*Sepref_IICF +*)HOL +
+  options [timeout = 600]
+(*
+  directories
+    "lib"
+  theories [document = false]
+    "lib/VTcomp"
+*)
+  theories
+    Challenge1A
+(*
+    Challenge1B
+    Challenge2A
+    Challenge2B
+    Parallel_Multiset_Fold
+    Challenge3
+*)
+  document_files
+    "root.tex"
+
+session ZFC_in_HOL (AFP) in ZFC_in_HOL = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+    "HOL-Cardinals"
+  theories
+    Cantor_NF
+    ZFC_Typeclasses
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "Evaluation" (AFP) in "." = HOL +
+  sessions
+    "Automatic_Refinement"
+  theories [document = false]
+    "Evaluation"
+  document_files
+    "root.tex"
+    "root.bib" 
