@@ -1,0 +1,17 @@
+chapter AFP
+
+session VerifyThis2019 (AFP) = Sepref_IICF +
+  options [timeout = 600]
+  directories
+    "lib"
+  theories [document = false]
+    "lib/VTcomp"
+  theories
+    Challenge1A
+    Challenge1B
+    Challenge2A
+    Challenge2B
+    Parallel_Multiset_Fold
+    Challenge3
+  document_files
+    "root.tex"

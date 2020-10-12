@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Binomial-Heaps" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    BinomialHeap
+    SkewBinomialHeap
+  theories [document = false]
+    (* Keep these in, they are to early detect problems with the code generator *)
+    Test 
+  document_files
+    "root.bib"
+    "root.tex"

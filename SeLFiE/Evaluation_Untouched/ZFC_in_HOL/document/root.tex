@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Zermelo Fraenkel Set Theory in Higher-Order Logic}
+\author{Lawrence C. Paulson\\ Computer Laboratory\\ University of Cambridge}
+
+\maketitle
+
+\begin{abstract}
+This entry is a new formalisation of ZFC set theory in Isabelle/HOL\@.
+It is logically equivalent to Obua's HOLZF~\cite{obua-partizan-games}; the point is to have the closest possible integration
+with the rest of Isabelle/HOL, minimising the amount of new notations and exploiting type classes.
+
+There is a type \isa{V} of sets and a function
+\isa{elts :: V\ {\isasymRightarrow}\ V\ set} mapping a set to its elements.
+Classes simply have type \isa{V\ set}, and the predicate \isa{small} identifies those classes that correspond to actual sets.
+Type classes connected with orders and lattices are used to minimise the amount of new notation
+for concepts such as the subset relation, union and intersection.
+Basic concepts are formalised: Cartesian products, disjoint sums, natural numbers, functions, etc.
+
+More advanced set-theoretic concepts, such as transfinite induction, ordinals, cardinals
+and the transitive closure of a set, are also provided.
+The definition of addition and multiplication for general sets (not just ordinals) follows Kirby \cite{kirby-addition}.
+The development includes essential results about cardinal arithmetic. It also develops ordinal exponentiation, Cantor normal form and the concept of indecomposable ordinals. There are numerous results about order types.
+
+The theory provides two type classes with the aim of
+facilitating developments that combine \isa{V} with other Isabelle/HOL types:
+\isa{embeddable}, the class of types that can be injected into~\isa{V} (including \isa{V} itself as well as \isa{V*V}, \isa{V\ list}, etc.), and
+\isa{small}, the class of types that correspond to some ZF set.
+\end{abstract}
+
+\newpage
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\newpage
+\input{session}
+
+\section{Acknowledgements}
+The author was supported by the ERC Advanced Grant ALEXANDRIA (Project 742178) funded by the European Research Council.
+
+\bibliographystyle{abbrv}
+\bibliography{root.bib}
+
+\end{document}

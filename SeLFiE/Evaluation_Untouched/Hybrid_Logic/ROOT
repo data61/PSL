@@ -1,0 +1,11 @@
+chapter AFP
+
+session Hybrid_Logic (AFP) = HOL +
+  options [timeout = 600]
+  sessions
+    "HOL-Library"
+  theories
+    Hybrid_Logic
+  document_files
+    "root.tex"
+    "root.bib"
