@@ -137,20 +137,19 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
             else [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.length_induct", is_less_eq_of_lengths_of app)];
 
         (*quadruple_for_list_nonempty_induct_and_rev_nonempty_induct*)
-        fun rhs_is_empty_and_lhs_of_eq_is (FUA_Prnt_Tag (FUC_Prnt_Tag ("HOL.eq",_,_,_), [lhs,rhs], _, _)) =
+        fun rhs_is_empty_and_lhs_of_eq_is (FUA_Prnt_Tag (FUC_Prnt_Tag ("HOL.not_equal",_,_,_), [lhs,rhs], _, _)) =
               if futrm_w_prnt_n_tag_to_print lhs = "List.list.Nil"
               then [futrm_w_prnt_n_tag_to_print rhs] else []
           | rhs_is_empty_and_lhs_of_eq_is  _ = [];
-        fun nonempty_induct (FUA_Prnt_Tag (FUC_Prnt_Tag ("HOL.Not",_,_,_), [equation], _, _)): seed_quadruples =
+        fun nonempty_induct (equation): seed_quadruples =
             let
-              val lhs_of_eq = rhs_is_empty_and_lhs_of_eq_is equation: strings;
+              val rhs_of_eq = rhs_is_empty_and_lhs_of_eq_is equation: strings;
             in
-              case lhs_of_eq of
-                 [lhs] =>  [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_nonempty_induct", [lhs]),
-                            (Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.rev_nonempty_induct", [lhs])]
-              | _ => []
-            end
-          | nonempty_induct _ = []: seed_quadruples;
+              case rhs_of_eq of
+                 [rhs] =>  [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_nonempty_induct", [rhs]),
+                            (Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.rev_nonempty_induct",  [rhs])]
+              | _ => (tracing "FAILLLLL";[])
+            end;
         val quadruple_for_nonempty_induct = nonempty_induct app
         (*standard quadruples*)
         val func_print_w_opt      = futrm_w_prnt_n_tag_to_tag_n_print func |> apfst #is_defined_with: (Definition_Pattern.command option * string);
