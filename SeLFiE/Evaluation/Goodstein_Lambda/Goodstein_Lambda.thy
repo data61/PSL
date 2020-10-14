@@ -1,7 +1,7 @@
 section \<open>Specification\<close>
 
 theory Goodstein_Lambda
-  imports Main
+  imports Main "Eval_Base.Eval_Base"
 begin
 
 subsection \<open>Hereditary base representation\<close>
@@ -123,15 +123,15 @@ subsection \<open>Properties of evaluation\<close>
 
 lemma evalO_addO [simp]:
   "evalO b (addO n m) = evalO b n + evalO b m"
-  by (induct m) auto
+  apply2 (induct m) by auto
 
 lemma evalO_mulO [simp]:
   "evalO b (mulO n m) = evalO b n * evalO b m"
-  by (induct m) auto
+  apply2 (induct m) by auto
 
 lemma evalO_n [simp]:
   "evalO b ((S ^^ n) Z) = n"
-  by (induct n) auto
+  apply2 (induct n) by auto
 
 lemma evalO_\<omega> [simp]:
   "evalO b \<omega> = b"
@@ -139,7 +139,7 @@ lemma evalO_\<omega> [simp]:
 
 lemma evalO_exp\<omega> [simp]:
   "evalO b (exp\<omega> n) = b^(evalO b n)"
-  by (induct n) auto
+  apply2 (induct n) by auto
 
 text \<open>Note that evaluation is useful for proving that @{type "Ord"} values are distinct:\<close>
 notepad begin
@@ -150,23 +150,23 @@ subsection \<open>Arithmetic properties\<close>
 
 lemma addO_Z [simp]:
   "addO Z n = n"
-  by (induct n) auto
+  apply2 (induct n) by auto
 
 lemma addO_assoc [simp]:
   "addO n (addO m p) = addO (addO n m) p"
-  by (induct p) auto
+  apply2 (induct p) by auto
 
 lemma mul0_distrib [simp]:
   "mulO n (addO p q) = addO (mulO n p) (mulO n q)"
-  by (induct q) auto
+  apply2 (induct q) by auto
 
 lemma mulO_assoc [simp]:
   "mulO n (mulO m p) = mulO (mulO n m) p"
-  by (induct p) auto
+  apply2 (induct p) by auto
 
 lemma exp\<omega>_addO [simp]:
   "exp\<omega> (addO n m) = mulO (exp\<omega> n) (exp\<omega> m)"
-  by (induct m) auto
+  apply2 (induct m) by auto
 
 
 section \<open>Cantor normal form\<close>
@@ -192,10 +192,10 @@ lemma addO_exp\<omega>_inj:
   shows "n = n'" and "m = m'"
 proof -
   have "addO n (exp\<omega> m) = addO n' (exp\<omega> m') \<Longrightarrow> n = n'"
-    by (induct m arbitrary: m'; case_tac m';
-      force simp: \<omega>_def dest!: fun_cong[of _ _ 1])
+    apply2 (induct m arbitrary: m') by(case_tac m';
+      force simp: \<omega>_def dest!: fun_cong[of _ _ 1])+
   moreover have "addO n (exp\<omega> m) = addO n (exp\<omega> m') \<Longrightarrow> m = m'"
-    apply (induct m arbitrary: n m'; case_tac m')
+    apply2 (induct m arbitrary: n m'; case_tac m')
     apply (auto 0 3 simp: \<omega>_def intro: rangeI
       dest: arg_cong[of _ _ "evalO 1"] fun_cong[of _ _ 0] fun_cong[of _ _ 1])[8] (* 1 left *)
     by simp (meson ext rangeI)
@@ -204,8 +204,8 @@ qed
 
 lemma C2O_inj:
   "C2O n = C2O m \<Longrightarrow> n = m"
-  by (induct n arbitrary: m rule: C2O.induct; case_tac m rule: C2O.cases)
-    (auto dest: addO_exp\<omega>_inj arg_cong[of _ _ "evalO 1"])
+  apply2 (induct n arbitrary: m rule: C2O.induct; case_tac m rule: C2O.cases)
+    by (auto dest: addO_exp\<omega>_inj arg_cong[of _ _ "evalO 1"])
 
 lemma O2C_C2O [simp]:
   "O2C (C2O n) = n"
@@ -217,25 +217,25 @@ lemma O2C_Z [simp]:
 
 lemma C2O_replicate:
   "C2O (C (replicate i n)) = mulO (exp\<omega> (C2O n)) ((S ^^ i) Z)"
-  by (induct i) auto
+  apply2 (induct i) by auto
 
 lemma C2O_app:
   "C2O (C (xs @ ys)) = addO (C2O (C ys)) (C2O (C xs))"
-  by (induct xs arbitrary: ys) auto
+  apply2 (induct xs arbitrary: ys) by auto
 
 subsection \<open>Evaluation\<close>
 
 lemma evalC_def':
   "evalC b n = evalO b (C2O n)"
-  by (induct n rule: C2O.induct) auto
+  apply2 (induct n rule: C2O.induct) by auto
 
 lemma evalC_app [simp]:
   "evalC b (C (ns @ ms)) = evalC b (C ns) + evalC b (C ms)"
-  by (induct ns) auto
+  apply2 (induct ns) by auto
 
 lemma evalC_replicate [simp]:
   "evalC b (C (replicate c n)) = c * evalC b (C [n])"
-  by (induct c) auto
+  apply2 (induct c) by auto
 
 subsection \<open>Transfer of the @{type Ord} induction principle to @{type C}\<close>
 
@@ -247,8 +247,8 @@ fun funC where \<comment> \<open>@{term funC} computes the fundamental sequence 
 lemma C2O_cons:
   "C2O (C (n # ns)) =
     (if n = C [] then S (C2O (C ns)) else L (\<lambda>i. C2O (C (funC n i @ ns))))"
-  by (induct n arbitrary: ns rule: funC.induct)
-    (simp_all add: \<omega>_def C2O_replicate C2O_app flip: exp\<omega>_addO)
+  apply2 (induct n arbitrary: ns rule: funC.induct)
+  by (simp_all add: \<omega>_def C2O_replicate C2O_app flip: exp\<omega>_addO)
 
 lemma C_Ord_induct:
   assumes "P (C [])"
@@ -258,8 +258,8 @@ lemma C_Ord_induct:
   shows "P n"
 proof -
   have "\<forall>n. C2O n = m \<longrightarrow> P n" for m
-    by (induct m; intro allI; case_tac n rule: funC.cases)
-      (auto simp: C2O_cons simp del: C2O.simps(2) intro: assms)
+    apply2 (induct m; intro allI; case_tac n rule: funC.cases)
+  by (auto simp: C2O_cons simp del: C2O.simps(2) intro: assms)
   then show ?thesis by simp
 qed
 
@@ -275,13 +275,13 @@ function (domintros) goodsteinC where
 termination
 proof -
   have "goodsteinC_dom (c, n)" for c n
-    by (induct n arbitrary: c rule: C_Ord_induct) (auto intro: goodsteinC.domintros)
+    apply2 (induct n arbitrary: c rule: C_Ord_induct) by(auto intro: goodsteinC.domintros)
   then show ?thesis by simp
 qed
 
 lemma goodsteinC_def':
   "goodsteinC c n = goodsteinO c (C2O n)"
-  by (induct c n rule: goodsteinC.induct) (simp_all add: C2O_cons del: C2O.simps(2))
+  apply2 (induct c n rule: goodsteinC.induct) by(simp_all add: C2O_cons del: C2O.simps(2))
 
 function (domintros) stepC where
   "stepC c (C []) = C []"
@@ -293,7 +293,7 @@ function (domintros) stepC where
 termination
 proof -
   have "stepC_dom (c, n)" for c n
-    by (induct n arbitrary: c rule: C_Ord_induct) (auto intro: stepC.domintros)
+    apply2 (induct n arbitrary: c rule: C_Ord_induct) by(auto intro: stepC.domintros)
   then show ?thesis by simp
 qed
 
@@ -307,7 +307,7 @@ subsection \<open>Properties\<close>
 
 lemma stepC_def':
   "stepC c n = O2C (stepO c (C2O n))"
-  by (induct c n rule: stepC.induct) (simp_all add: C2O_cons del: C2O.simps(2))
+  apply2 (induct c n rule: stepC.induct) by(simp_all add: C2O_cons del: C2O.simps(2))
 
 lemma funC_ne [simp]:
   "funC m (Suc n) \<noteq> []"
@@ -315,11 +315,11 @@ lemma funC_ne [simp]:
 
 lemma evalC_funC [simp]:
   "evalC b (C (funC n b)) = evalC b (C [n])"
-  by (induct n rule: funC.induct) simp_all
+  apply2 (induct n rule: funC.induct) by simp_all
 
 lemma stepC_app [simp]:
   "n \<noteq> C [] \<Longrightarrow> stepC c (C (unC n @ ns)) = C (unC (stepC c n) @ ns)"
-  by (induct n arbitrary: ns rule: stepC.induct) simp_all
+  apply2 (induct n arbitrary: ns rule: stepC.induct) by simp_all
 
 lemma stepC_cons [simp]:
   "ns \<noteq> [] \<Longrightarrow> stepC c (C (n # ns)) = C (unC (stepC c (C [n])) @ ns)"
@@ -327,15 +327,15 @@ lemma stepC_cons [simp]:
 
 lemma stepC_dec:
   "n \<noteq> C [] \<Longrightarrow> Suc (evalC (Suc (Suc c)) (stepC c n)) = evalC (Suc (Suc c)) n"
-  by (induct c n rule: stepC.induct) simp_all
+  apply2 (induct c n rule: stepC.induct) by simp_all
 
 lemma stepC_dec':
   "n \<noteq> C [] \<Longrightarrow> evalC (c+3) (stepC c n) < evalC (c+3) n"
-proof (induct c n rule: stepC.induct)
+proof2 (induct c n rule: stepC.induct)
   case (3 c n ns ms)
   have "evalC (c+3) (C (funC (C (n # ns)) (Suc (Suc c)))) \<le>
       (c+3) ^ ((c+3) ^ evalC (c+3) n + evalC (c+3) (C ns))"
-    by (induct n rule: funC.induct) (simp_all add: distrib_right)
+    apply2 (induct n rule: funC.induct) by(simp_all add: distrib_right)
   then show ?case using 3 by simp
 qed simp_all
 
@@ -372,15 +372,15 @@ lemmas hbase_tl' [dest] = hbase_tl[of "n # ns" for n ns, simplified]
 
 lemma hbase_elt [dest]:
   "C ns \<in> hbase b \<Longrightarrow> n \<in> set ns \<Longrightarrow> n \<in> hbase b"
-  by (induct ns) auto
+  apply2 (induct ns) by auto
 
 lemma evalC_sum_list:
   "evalC b (C ns) = sum_list (map (\<lambda>n. b^evalC b n) ns)"
-  by (induct ns) auto
+  apply2 (induct ns) by auto
 
 lemma sum_list_replicate:
   "sum_list (replicate n x) = n * x"
-  by (induct n) auto
+  apply2 (induct n) by auto
 
 lemma base_red:
   fixes b :: nat
@@ -389,7 +389,7 @@ lemma base_red:
   and s: "i * b^n + sum_list (map (\<lambda>n. b^n) ns) = j * b^m + sum_list (map (\<lambda>n. b^n) ms)"
   shows "i = j \<and> n = m"
   using n(1) m(1) s
-proof (induct n arbitrary: m ns ms)
+proof2 (induct n arbitrary: m ns ms)
   { fix ns ms :: "nat list" and i j m :: nat
     assume n': "\<And>n'. n' \<in> set ns \<Longrightarrow> 0 < n'" "i < b" "i \<noteq> 0"
     assume m': "\<And>m'. m' \<in> set ms \<Longrightarrow> m < m'" "j < b" "j \<noteq> 0"
@@ -436,7 +436,7 @@ qed
 
 lemma evalC_inj_on_hbase:
   "n \<in> hbase b \<Longrightarrow> m \<in> hbase b \<Longrightarrow> evalC b n = evalC b m \<Longrightarrow> n = m"
-proof (induct n arbitrary: m rule: hbase.induct)
+proof2 (induct n arbitrary: m rule: hbase.induct)
   case 1
   then show ?case by (cases m rule: hbase.cases) simp_all
 next
@@ -477,7 +477,7 @@ lemmas hbase_ext_tl' [dest] = hbase_ext_tl[of "n # ns" for n ns, simplified]
 lemma hbase_funC:
   "c \<noteq> 0 \<Longrightarrow> C (n # ns) \<in> hbase_ext (Suc c) \<Longrightarrow>
     C (funC n (Suc c) @ ns) \<in> hbase_ext (Suc c)"
-proof (induct n arbitrary: ns rule: funC.induct)
+proof2 (induct n arbitrary: ns rule: funC.induct)
   case (2 ms)
   have [simp]: "evalC (Suc c) (C ms) < evalC (Suc c) m'" if "m' \<in> set ns" for m'
     using 2(2)
@@ -503,7 +503,7 @@ qed auto
 
 lemma stepC_sound:
   "n \<in> hbase_ext (Suc (Suc c)) \<Longrightarrow> stepC c n \<in> hbase (Suc (Suc c))"
-proof (induct c n rule: stepC.induct)
+proof2 (induct c n rule: stepC.induct)
   case (3 c n ns ms)
   show ?case using 3(2,1)
     by (cases rule: hbase_ext.cases; unfold stepC.simps) (auto intro: hbase_funC)
@@ -515,17 +515,17 @@ text \<open>Note that the base must be at least @{term "2 :: nat"}.\<close>
 
 lemma evalC_surjective:
   "\<exists>n' \<in> hbase (Suc (Suc b)). evalC (Suc (Suc b)) n' = n"
-proof (induct n)
+proof2 (induct n)
   case 0 then show ?case by (auto intro: bexI[of _ "C []"] hbase.intros)
 next
-  have [simp]: "Suc x \<le> Suc (Suc b)^x" for x by (induct x) auto
+  have [simp]: "Suc x \<le> Suc (Suc b)^x" for x apply2 (induct x) by auto
   case (Suc n)
   then guess n' by (rule bexE)
   then obtain n' j where n': "Suc n \<le> j" "j = evalC (Suc (Suc b)) n'" "n' \<in> hbase (Suc (Suc b))"
     by (intro that[of _ "C [n']"])
       (auto intro!: intro: hbase.intros(1) dest!: hbaseI2[of 1 "b+2" n' "[]", simplified])
   then show ?case
-  proof (induct rule: inc_induct)
+  proof2 (induct rule: inc_induct)
     case (step m)
     guess n' using step(3)[OF step(4,5)] by (rule bexE)
     then show ?case using stepC_dec[of n' "b"]
@@ -549,7 +549,7 @@ next
   then obtain b' where [simp]: "b = Suc (Suc b')"
     by (auto simp: numeral_2_eq_2 not_less_eq dest: less_imp_Suc_add)
   show ?thesis using assms(3,1,2)
-  proof (induct "evalC b n" "evalC b m" arbitrary: n m rule: less_Suc_induct)
+  proof2 (induct "evalC b n" "evalC b m" arbitrary: n m rule: less_Suc_induct)
     case 1 then show ?case using stepC_sound[of m b', OF hbase_ext.intros(1)]
       stepC_dec[of m b'] stepC_dec'[of m b'] evalC_inj_on_hbase
       by (cases m rule: C2O.cases) (fastforce simp: eval_nat_numeral)+
@@ -561,7 +561,7 @@ qed
 
 lemma hbase_mono:
   "n \<in> hbase b \<Longrightarrow> n \<in> hbase (Suc b)"
-  by (induct n rule: hbase.induct) (auto 0 3 intro: hbase.intros hbase_evalC_mono)
+  apply2 (induct n rule: hbase.induct) by(auto 0 3 intro: hbase.intros hbase_evalC_mono)
 
 subsection \<open>Conversion to and from @{type nat}\<close>
 
@@ -607,7 +607,7 @@ lemma goodstein_aux:
     goodsteinC (c+2) (N2H (c+3) (H2N (c+3) (N2H (c+2) (n+1)) - 1))"
 proof -
   have [simp]: "n \<noteq> C [] \<Longrightarrow> goodsteinC c n = goodsteinC (c+1) (stepC c n)" for c n
-    by (induct c n rule: stepC.induct) simp_all
+    apply2 (induct c n rule: stepC.induct) by simp_all
   have [simp]: "stepC (Suc c) (N2H (Suc (Suc c)) (Suc n)) \<in> hbase (Suc (Suc (Suc c)))"
     by (metis H2N_def N2H_inv evalC_surjective hbase_ext.intros(1) hbase_mono stepC_sound)
   show ?thesis
@@ -619,13 +619,13 @@ termination goodstein
 proof (relation "measure (\<lambda>(c, n). goodsteinC c (N2H (c+1) n) - c)", goal_cases _ 1)
   case (1 c n)
   have *: "goodsteinC c n \<ge> c" for c n
-    by (induct c n rule: goodsteinC.induct) simp_all
+    apply2 (induct c n rule: goodsteinC.induct) by simp_all
   show ?case by (simp add: goodstein_aux eval_nat_numeral) (meson Suc_le_eq diff_less_mono2 lessI *)
 qed simp
 
 lemma goodstein_def':
   "c \<noteq> 0 \<Longrightarrow> goodstein c n = goodsteinC c (N2H (c+1) n)"
-  by (induct c n rule: goodstein.induct) (simp_all add: goodstein_aux eval_nat_numeral)
+  apply2 (induct c n rule: goodstein.induct) by(simp_all add: goodstein_aux eval_nat_numeral)
 
 lemma goodstein_impl:
   "c \<noteq> 0 \<Longrightarrow> goodstein c n = goodsteinO c (C2O (N2H (c+1) n))"
@@ -675,14 +675,14 @@ abbreviation (input) add\<^sub>O where
 
 lemma add\<^sub>O:
   "\<langle>addO n m\<rangle>\<^sub>O = add\<^sub>O \<langle>n\<rangle>\<^sub>O \<langle>m\<rangle>\<^sub>O"
-  by (induct m) simp_all
+  apply2 (induct m) by simp_all
 
 abbreviation (input) mul\<^sub>O where
   "mul\<^sub>O n m \<equiv> (\<lambda>z s l. m z (\<lambda>m. n m s l) l)"
 
 lemma mul\<^sub>O:
   "\<langle>mulO n m\<rangle>\<^sub>O = mul\<^sub>O \<langle>n\<rangle>\<^sub>O \<langle>m\<rangle>\<^sub>O"
-  by (induct m) (simp_all add: add\<^sub>O)
+  apply2 (induct m) by(simp_all add: add\<^sub>O)
 
 abbreviation (input) \<omega>\<^sub>O where
   "\<omega>\<^sub>O \<equiv> (\<lambda>z s l. l (\<lambda>n. \<langle>n\<rangle>\<^sub>N s z))"
@@ -690,7 +690,7 @@ abbreviation (input) \<omega>\<^sub>O where
 lemma \<omega>\<^sub>O:
   "\<langle>\<omega>\<rangle>\<^sub>O = \<omega>\<^sub>O"
 proof -
-  have [simp]: "\<langle>(S ^^ i) Z\<rangle>\<^sub>O z s l = \<langle>i\<rangle>\<^sub>N s z" for i z s l by (induct i) simp_all
+  have [simp]: "\<langle>(S ^^ i) Z\<rangle>\<^sub>O z s l = \<langle>i\<rangle>\<^sub>N s z" for i z s l apply2 (induct i) by simp_all
   show ?thesis by (simp add: \<omega>_def)
 qed
 
@@ -699,14 +699,14 @@ abbreviation (input) exp\<omega>\<^sub>O where
 
 lemma exp\<omega>\<^sub>O:
   "\<langle>exp\<omega> n\<rangle>\<^sub>O = exp\<omega>\<^sub>O \<langle>n\<rangle>\<^sub>O"
-  by (induct n) (simp_all add: mul\<^sub>O \<omega>\<^sub>O)
+  apply2 (induct n) by (simp_all add: mul\<^sub>O \<omega>\<^sub>O)
 
 abbreviation (input) goodstein\<^sub>O where
   "goodstein\<^sub>O \<equiv> (\<lambda>c n. n (\<lambda>x. x) (\<lambda>n m. n (m + 1)) (\<lambda>f m. f (m + 2) m) c)"
 
 lemma goodstein\<^sub>O:
   "goodsteinO c n = goodstein\<^sub>O c \<langle>n\<rangle>\<^sub>O"
-  by (induct n arbitrary: c) simp_all
+  apply2 (induct n arbitrary: c) by simp_all
 
 text \<open>Note that modeling Church encodings with folds is still limited. For example, the meaningful
   expression @{text "\<langle>n\<rangle>\<^sub>N exp\<omega>\<^sub>O Z\<^sub>O"} cannot be typed in Isabelle/HOL, as that would require rank-2
@@ -719,7 +719,7 @@ text \<open>The following is essentially the free theorem for Church-encoded @{t
 lemma freeOrd:
   assumes "\<And>n. h (s n) = s' (h n)" and "\<And>f. h (l f) = l' (\<lambda>i. h (f i))"
   shows "h (\<langle>n\<rangle>\<^sub>O z s l) = \<langle>n\<rangle>\<^sub>O (h z) s' l'"
-  by (induct n) (simp_all add: assms)
+  apply2 (induct n) by(simp_all add: assms)
 
 text \<open>Each of the following proofs first states a naive definition of the corresponding function
   (which is proved correct by induction), from which we then derive the optimized version using
@@ -729,7 +729,7 @@ lemma add\<^sub>O':
   "\<langle>addO n m\<rangle>\<^sub>O = add\<^sub>O \<langle>n\<rangle>\<^sub>O \<langle>m\<rangle>\<^sub>O"
 proof -
   have [simp]: "\<langle>addO n m\<rangle>\<^sub>O = \<langle>m\<rangle>\<^sub>O \<langle>n\<rangle>\<^sub>O S\<^sub>O L\<^sub>O"
-    by (induct m) simp_all
+    apply2 (induct m) by simp_all
   show ?thesis
     by (intro ext) (simp add: freeOrd[where h = "\<lambda>n. n _ _ _"])
 qed
@@ -738,7 +738,7 @@ lemma mul\<^sub>O':
   "\<langle>mulO n m\<rangle>\<^sub>O = mul\<^sub>O \<langle>n\<rangle>\<^sub>O \<langle>m\<rangle>\<^sub>O"
 proof -
   have [simp]: "\<langle>mulO n m\<rangle>\<^sub>O = \<langle>m\<rangle>\<^sub>O Z\<^sub>O (\<lambda>m. add\<^sub>O m \<langle>n\<rangle>\<^sub>O) L\<^sub>O"
-    by (induct m) (simp_all add: add\<^sub>O)
+    apply2 (induct m) by(simp_all add: add\<^sub>O)
   show ?thesis
     by (intro ext) (simp add: freeOrd[where h = "\<lambda>n. n _ _ _"])
 qed
@@ -747,7 +747,7 @@ lemma exp\<omega>\<^sub>O':
   "\<langle>exp\<omega> n\<rangle>\<^sub>O = exp\<omega>\<^sub>O \<langle>n\<rangle>\<^sub>O"
 proof -
   have [simp]: "\<langle>exp\<omega> n\<rangle>\<^sub>O = \<langle>n\<rangle>\<^sub>O (S\<^sub>O Z\<^sub>O) (\<lambda>m. mul\<^sub>O m \<omega>\<^sub>O) L\<^sub>O"
-    by (induct n) (simp_all add: mul\<^sub>O \<omega>\<^sub>O)
+    apply2 (induct n) by(simp_all add: mul\<^sub>O \<omega>\<^sub>O)
   show ?thesis
     by (intro ext) (simp add: fun_cong[OF freeOrd[where h = "\<lambda>n z. n z _ _"]])
 qed

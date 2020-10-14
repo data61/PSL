@@ -96,7 +96,7 @@ inductive_cases subtype_Collection_x [elim!]: "Collection \<tau> \<sqsubset> \<s
 
 lemma subtype_asym:
   "\<tau> \<sqsubset> \<sigma> \<Longrightarrow> \<sigma> \<sqsubset> \<tau> \<Longrightarrow> False"
-  apply (induct rule: subtype.induct)
+  apply2 (induct rule: subtype.induct)
   using basic_subtype_asym apply auto
   using subtuple_antisym by fastforce
 
@@ -110,7 +110,7 @@ lemma Required_bij_on_trancl [simp]:
 
 lemma not_subtype_Optional_Required:
   "subtype\<^sup>+\<^sup>+ \<tau>[?] \<sigma> \<Longrightarrow> \<sigma> = \<rho>[1] \<Longrightarrow> P"
-  by (induct arbitrary: \<rho> rule: tranclp_induct; auto)
+  apply2 (induct arbitrary: \<rho> rule: tranclp_induct) by(auto)
 
 lemma Optional_bij_on_trancl [simp]:
   "bij_on_trancl subtype Optional"
@@ -121,7 +121,7 @@ lemma subtype_tranclp_Collection_x:
   "subtype\<^sup>+\<^sup>+ (Collection \<tau>) \<sigma> \<Longrightarrow>
    (\<And>\<rho>. \<sigma> = Collection \<rho> \<Longrightarrow> subtype\<^sup>+\<^sup>+ \<tau> \<rho> \<Longrightarrow> P) \<Longrightarrow>
    (\<sigma> = OclSuper \<Longrightarrow> P) \<Longrightarrow> P"
-  apply (induct rule: tranclp_induct, auto)
+  apply2 (induct rule: tranclp_induct) apply(auto)
   by (metis subtype_Collection_x subtype_OclSuper_x tranclp.trancl_into_trancl)
 
 lemma Collection_bij_on_trancl [simp]:
@@ -236,7 +236,7 @@ qed
 lemma type_less_x_OclSuper_intro [intro]:
   "\<tau> \<noteq> OclSuper \<Longrightarrow> \<tau> < OclSuper"
   unfolding less_type_def
-proof (induct \<tau>)
+proof2 (induct \<tau>)
   case OclSuper thus ?case by auto
 next
   case (Required \<tau>)
@@ -307,7 +307,7 @@ lemma type_less_x_Required [elim!]:
 proof -
   from assms(1) obtain \<rho> where "\<tau> = \<rho>[1]"
     unfolding less_type_def
-    by (induct rule: converse_tranclp_induct; auto)
+    apply2 (induct rule: converse_tranclp_induct) by (auto)
   moreover have "\<And>\<tau> \<sigma>. \<tau>[1] < \<sigma>[1] \<Longrightarrow> \<tau> < \<sigma>"
     unfolding less_type_def less_basic_type_def
     by (rule reflect_tranclp; auto)
@@ -343,7 +343,7 @@ lemma type_less_x_Optional [elim!]:
    (\<And>\<rho>. \<tau> = \<rho>[1] \<Longrightarrow> \<rho> \<le> \<sigma> \<Longrightarrow> P) \<Longrightarrow> 
    (\<And>\<rho>. \<tau> = \<rho>[?] \<Longrightarrow> \<rho> < \<sigma> \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_type_def
-  apply (induct rule: converse_tranclp_induct)
+  apply2 (induct rule: converse_tranclp_induct)
   apply (metis subtype_x_Optional eq_refl less_basic_type_def tranclp.r_into_trancl)
   apply (erule subtype.cases; auto)
   apply (simp add: converse_rtranclp_into_rtranclp less_eq_basic_type_def)
@@ -357,7 +357,7 @@ lemma type_less_x_Collection [elim!]:
    (\<And>\<rho>. \<tau> = Bag \<rho> \<Longrightarrow> \<rho> \<le> \<sigma> \<Longrightarrow> P) \<Longrightarrow> 
    (\<And>\<rho>. \<tau> = Sequence \<rho> \<Longrightarrow> \<rho> \<le> \<sigma> \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_type_def
-  apply (induct rule: converse_tranclp_induct)
+  apply2 (induct rule: converse_tranclp_induct)
   apply (metis (mono_tags) Nitpick.rtranclp_unfold
           subtype_x_Collection less_eq_type_def tranclp.r_into_trancl)
   by (erule subtype.cases;
@@ -371,7 +371,7 @@ lemma type_less_x_Set [elim!]:
 proof -
   from assms(1) obtain \<rho> where "\<tau> = Set \<rho>"
     unfolding less_type_def
-    by (induct rule: converse_tranclp_induct; auto)
+    apply2 (induct rule: converse_tranclp_induct) by (auto)
   moreover have "\<And>\<tau> \<sigma>. Set \<tau> < Set \<sigma> \<Longrightarrow> \<tau> < \<sigma>"
     unfolding less_type_def
     by (rule reflect_tranclp; auto)
@@ -386,7 +386,7 @@ lemma type_less_x_OrderedSet [elim!]:
 proof -
   from assms(1) obtain \<rho> where "\<tau> = OrderedSet \<rho>"
     unfolding less_type_def
-    by (induct rule: converse_tranclp_induct; auto)
+    apply2 (induct rule: converse_tranclp_induct) by (auto)
   moreover have "\<And>\<tau> \<sigma>. OrderedSet \<tau> < OrderedSet \<sigma> \<Longrightarrow> \<tau> < \<sigma>"
     unfolding less_type_def
     by (rule reflect_tranclp; auto)
@@ -401,7 +401,7 @@ lemma type_less_x_Bag [elim!]:
 proof -
   from assms(1) obtain \<rho> where "\<tau> = Bag \<rho>"
     unfolding less_type_def
-    by (induct rule: converse_tranclp_induct; auto)
+    apply2 (induct rule: converse_tranclp_induct) by (auto)
   moreover have "\<And>\<tau> \<sigma>. Bag \<tau> < Bag \<sigma> \<Longrightarrow> \<tau> < \<sigma>"
     unfolding less_type_def
     by (rule reflect_tranclp; auto)
@@ -416,7 +416,7 @@ lemma type_less_x_Sequence [elim!]:
 proof -
   from assms(1) obtain \<rho> where "\<tau> = Sequence \<rho>"
     unfolding less_type_def
-    by (induct rule: converse_tranclp_induct; auto)
+    apply2 (induct rule: converse_tranclp_induct) by (auto)
   moreover have "\<And>\<tau> \<sigma>. Sequence \<tau> < Sequence \<sigma> \<Longrightarrow> \<tau> < \<sigma>"
     unfolding less_type_def
     by (rule reflect_tranclp; auto)
@@ -436,7 +436,7 @@ lemma type_less_x_Tuple':
 proof -
   from assms(1) obtain \<pi> where "\<tau> = Tuple \<pi>"
     unfolding less_type_def
-    by (induct rule: converse_tranclp_induct; auto)
+    apply2 (induct rule: converse_tranclp_induct) by (auto)
   moreover from assms(2) have
     "\<And>\<pi>. Tuple \<pi> < Tuple \<xi> \<Longrightarrow> strict_subtuple (\<le>) \<pi> \<xi>"
     unfolding less_type_def less_eq_type_def
@@ -457,7 +457,7 @@ subsection \<open>Properties\<close>
 lemma subtype_irrefl:
   "\<tau> < \<tau> \<Longrightarrow> False"
   for \<tau> :: "'a type"
-  apply (induct \<tau>, auto)
+  apply2 (induct \<tau>) apply (auto)
   apply (erule type_less_x_Tuple', auto)
   unfolding less_type_def tranclp_unfold
   by auto
@@ -642,7 +642,18 @@ lemma type_less_left_simps [simp]:
   "Tuple \<pi> < \<sigma> = (\<exists>\<xi>.
       \<sigma> = OclSuper \<or>
       \<sigma> = Tuple \<xi> \<and> strict_subtuple (\<le>) \<pi> \<xi>)"
-  by (induct \<sigma>; auto)+
+(*apply (induct \<sigma>; auto)+*)
+          apply -
+          apply2(induct \<sigma>)apply auto[9]
+         apply2(induct \<sigma>)apply auto[9]
+        apply2(induct \<sigma>)apply auto[9]
+       apply2(induct \<sigma>)apply auto[9]
+  apply2(induct \<sigma>)apply auto[9]
+  apply2(induct \<sigma>)apply auto[9]
+  apply2(induct \<sigma>)apply auto[9]
+  apply2(induct \<sigma>)apply auto[9]
+  apply2(induct \<sigma>)apply auto[9]
+  done
 
 lemma type_less_right_simps [simp]:
   "\<tau> < OclSuper = (\<tau> \<noteq> OclSuper)"
@@ -720,15 +731,15 @@ fun sup_type where
 lemma sup_ge1_type:
   "\<tau> \<le> \<tau> \<squnion> \<sigma>"
   for \<tau> \<sigma> :: "'a type"
-proof (induct \<tau> arbitrary: \<sigma>)
+proof2 (induct \<tau> arbitrary: \<sigma>)
   case OclSuper show ?case by simp
-  case (Required \<tau>) show ?case by (induct \<sigma>; auto)
-  case (Optional \<tau>) show ?case by (induct \<sigma>; auto)
-  case (Collection \<tau>) thus ?case by (induct \<sigma>; auto)
-  case (Set \<tau>) thus ?case by (induct \<sigma>; auto)
-  case (OrderedSet \<tau>) thus ?case by (induct \<sigma>; auto)
-  case (Bag \<tau>) thus ?case by (induct \<sigma>; auto)
-  case (Sequence \<tau>) thus ?case by (induct \<sigma>; auto)
+  case (Required \<tau>) show ?case apply2 (induct \<sigma>) by (auto)
+  case (Optional \<tau>) show ?case apply2 (induct \<sigma>) by (auto)
+  case (Collection \<tau>) thus ?case apply2 (induct \<sigma>) by (auto)
+  case (Set \<tau>) thus ?case apply2 (induct \<sigma>) by (auto)
+  case (OrderedSet \<tau>) thus ?case apply2 (induct \<sigma>) by (auto)
+  case (Bag \<tau>) thus ?case apply2 (induct \<sigma>) by (auto)
+  case (Sequence \<tau>) thus ?case apply2 (induct \<sigma>) by(auto)
 next
   case (Tuple \<pi>)
   moreover have Tuple_less_eq_sup:
@@ -741,7 +752,7 @@ qed
 lemma sup_commut_type:
   "\<tau> \<squnion> \<sigma> = \<sigma> \<squnion> \<tau>"
   for \<tau> \<sigma> :: "'a type"
-proof (induct \<tau> arbitrary: \<sigma>)
+proof2 (induct \<tau> arbitrary: \<sigma>)
   case OclSuper show ?case by (cases \<sigma>; simp add: less_eq_type_def)
   case (Required \<tau>) show ?case by (cases \<sigma>; simp add: sup_commute)
   case (Optional \<tau>) show ?case by (cases \<sigma>; simp add: sup_commute)
@@ -759,7 +770,7 @@ qed
 lemma sup_least_type:
   "\<tau> \<le> \<rho> \<Longrightarrow> \<sigma> \<le> \<rho> \<Longrightarrow> \<tau> \<squnion> \<sigma> \<le> \<rho>"
   for \<tau> \<sigma> \<rho> :: "'a type"
-proof (induct \<rho> arbitrary: \<tau> \<sigma>)
+proof2 (induct \<rho> arbitrary: \<tau> \<sigma>)
   case OclSuper show ?case using eq_refl by auto
 next
   case (Required x) show ?case
@@ -890,27 +901,27 @@ section \<open>Determinism\<close>
 lemma element_type_det:
   "element_type \<tau> \<sigma>\<^sub>1 \<Longrightarrow>
    element_type \<tau> \<sigma>\<^sub>2 \<Longrightarrow> \<sigma>\<^sub>1 = \<sigma>\<^sub>2"
-  by (induct rule: element_type.induct; simp add: element_type.simps)
+  apply2 (induct rule: element_type.induct) apply(simp add: element_type.simps)+ done
 
 lemma update_element_type_det:
   "update_element_type \<tau> \<sigma> \<rho>\<^sub>1 \<Longrightarrow>
    update_element_type \<tau> \<sigma> \<rho>\<^sub>2 \<Longrightarrow> \<rho>\<^sub>1 = \<rho>\<^sub>2"
-  by (induct rule: update_element_type.induct; simp add: update_element_type.simps)
+  apply2 (induct rule: update_element_type.induct) apply(simp add: update_element_type.simps)+ done
 
 lemma to_unique_collection_det:
   "to_unique_collection \<tau> \<sigma>\<^sub>1 \<Longrightarrow>
    to_unique_collection \<tau> \<sigma>\<^sub>2 \<Longrightarrow> \<sigma>\<^sub>1 = \<sigma>\<^sub>2"
-  by (induct rule: to_unique_collection.induct; simp add: to_unique_collection.simps)
+  apply2 (induct rule: to_unique_collection.induct) apply(simp add: to_unique_collection.simps)+ done
 
 lemma to_nonunique_collection_det:
   "to_nonunique_collection \<tau> \<sigma>\<^sub>1 \<Longrightarrow>
    to_nonunique_collection \<tau> \<sigma>\<^sub>2 \<Longrightarrow> \<sigma>\<^sub>1 = \<sigma>\<^sub>2"
-  by (induct rule: to_nonunique_collection.induct; simp add: to_nonunique_collection.simps)
+  apply2 (induct rule: to_nonunique_collection.induct) apply(simp add: to_nonunique_collection.simps)+ done
 
 lemma to_ordered_collection_det:
   "to_ordered_collection \<tau> \<sigma>\<^sub>1 \<Longrightarrow>
    to_ordered_collection \<tau> \<sigma>\<^sub>2 \<Longrightarrow> \<sigma>\<^sub>1 = \<sigma>\<^sub>2"
-  by (induct rule: to_ordered_collection.induct; simp add: to_ordered_collection.simps)
+  apply2 (induct rule: to_ordered_collection.induct) apply(simp add: to_ordered_collection.simps)+ done
 
 (*** Code Setup *************************************************************)
 
@@ -967,7 +978,7 @@ lemma less_type_code [code]:
 proof (intro ext iffI)
   fix \<tau> \<sigma> :: "'a type"
   show "\<tau> < \<sigma> \<Longrightarrow> subtype_fun \<tau> \<sigma>"
-  proof (induct \<tau> arbitrary: \<sigma>)
+  proof2 (induct \<tau> arbitrary: \<sigma>)
     case OclSuper thus ?case by (cases \<sigma>; auto)
   next
     case (Required \<tau>) thus ?case
@@ -994,7 +1005,7 @@ proof (intro ext iffI)
     with Tuple.prems show ?case by (cases \<sigma>; auto)
   qed
   show "subtype_fun \<tau> \<sigma> \<Longrightarrow> \<tau> < \<sigma>"
-  proof (induct \<sigma> arbitrary: \<tau>)
+  proof2 (induct \<sigma> arbitrary: \<tau>)
     case OclSuper thus ?case by (cases \<sigma>; auto)
   next
     case (Required \<sigma>) show ?case

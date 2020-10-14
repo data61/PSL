@@ -1,7 +1,7 @@
 section "Skew Binomial Heaps"
 
 theory SkewBinomialHeap
-imports Main "HOL-Library.Multiset"
+imports Main "HOL-Library.Multiset" "Eval_Base.Eval_Base"
 begin
 
 text \<open>Skew Binomial Queues as specified by Brodal and Okasaki \cite{BrOk96}
@@ -59,7 +59,7 @@ done*)
 
 lemma qtm_conc[simp]: "queue_to_multiset (q@q') 
   = queue_to_multiset q + queue_to_multiset q'"
-  by (induct q) (auto simp add: union_ac)
+  apply2 (induct q) by(auto simp add: union_ac)
 
 subsubsection "Invariant"
 
@@ -224,7 +224,7 @@ lemma tail_invar_cons_down:
 lemma tail_invar_app_single: 
   "\<lbrakk>tail_invar bq; \<forall>t \<in> set bq. rank t < rank t'; tree_invar t'\<rbrakk> 
     \<Longrightarrow> tail_invar (bq @ [t'])" 
-proof (induct bq)
+proof2 (induct bq)
   case Nil
   then show ?case by (simp add: tail_invar_def)
 next
@@ -239,7 +239,7 @@ qed
 lemma invar_app_single: 
   "\<lbrakk>invar bq; \<forall>t \<in> set bq. rank t < rank t'; tree_invar t'\<rbrakk> 
    \<Longrightarrow> invar (bq @ [t'])"
-proof (induct bq)
+proof2 (induct bq)
   case Nil
   then show ?case by (simp add: invar_def)
 next
@@ -262,7 +262,7 @@ qed
 lemma invar_children: 
   assumes "tree_invar ((Node e a r ts)::(('e, 'a::linorder) SkewBinomialTree))"
   shows "queue_invar ts" using assms
-proof (induct r arbitrary: e a ts)
+proof2 (induct r arbitrary: e a ts)
   case 0
   then show ?case by simp
 next
@@ -317,7 +317,7 @@ lemma tree_invar_heap_ordered:
 proof (cases t)
   case (Node e a nat list)
   with assms show ?thesis
-  proof (induct nat arbitrary: t e a list)
+  proof2 (induct nat arbitrary: t e a list)
     case 0
     then show ?case by simp
   next
@@ -370,7 +370,7 @@ done
 lemma tree_rank_estimate_upper: 
   "tree_invar (Node e a r ts) \<Longrightarrow> 
    size (tree_to_multiset (Node e a r ts)) \<le> (2::nat)^(Suc r) - 1"
-proof (induct r arbitrary: e a ts)
+proof2 (induct r arbitrary: e a ts)
   case 0
   then show ?case by simp
 next
@@ -395,7 +395,7 @@ qed
 lemma tree_rank_estimate_lower: 
   "tree_invar (Node e a r ts) \<Longrightarrow> 
    size (tree_to_multiset (Node e a r ts)) \<ge> (2::nat)^r"
-proof (induct r arbitrary: e a ts)
+proof2 (induct r arbitrary: e a ts)
   case 0
   then show ?case by simp
 next
@@ -421,7 +421,7 @@ qed
 
 lemma tree_rank_height:
   "tree_invar (Node e a r ts) \<Longrightarrow> height_tree (Node e a r ts) = r"
-proof (induct r arbitrary: e a ts)
+proof2 (induct r arbitrary: e a ts)
   case 0
   then show ?case by simp
 next
@@ -485,7 +485,7 @@ lemma size_mset_tree_lower: "tree_invar t \<Longrightarrow>
 
 lemma invar_butlast: "invar (bq @ [t]) \<Longrightarrow> invar bq"
   unfolding invar_def
-  apply (induct bq) 
+  apply2 (induct bq) 
   apply simp 
   apply (case_tac bq) 
   apply simp
@@ -495,13 +495,13 @@ lemma invar_butlast: "invar (bq @ [t]) \<Longrightarrow> invar bq"
 lemma invar_last_max: 
   "invar ((b#b'#bq) @ [m]) \<Longrightarrow> \<forall> t \<in> set (b'#bq). rank t < rank m"
   unfolding invar_def
-  apply (induct bq) apply simp apply (case_tac bq) apply simp by simp
+  apply2 (induct bq) apply simp apply (case_tac bq) apply simp by simp
 
 lemma invar_last_max': "invar ((b#b'#bq) @ [m]) \<Longrightarrow> rank b \<le> rank b'" 
   unfolding invar_def by simp
 
 lemma invar_length: "invar bq \<Longrightarrow> length bq \<le> Suc (Suc (rank (last bq)))"
-proof (induct bq rule: rev_induct)
+proof2 (induct bq rule: rev_induct)
   case Nil thus ?case by simp
 next
   case (snoc x xs)
@@ -528,14 +528,14 @@ qed
 
 lemma size_queue_sum_list: 
   "size (queue_to_multiset bq) = sum_list (map (size \<circ> tree_to_multiset) bq)"
-  by (induct bq) simp_all
+  apply2 (induct bq) by simp_all
 
 text \<open>
   A skew binomial heap of length $l$ contains at least $2^{l-1} - 1$ elements. 
 \<close>
 theorem queue_length_estimate_lower: 
   "invar bq \<Longrightarrow> (size (queue_to_multiset bq)) \<ge> 2^(length bq - 1) - 1"
-proof (induct bq rule: rev_induct)
+proof2 (induct bq rule: rev_induct)
   case Nil thus ?case by simp
 next
   case (snoc x xs) thus ?case
@@ -611,15 +611,15 @@ fun insert :: "'e \<Rightarrow> 'a::linorder \<Rightarrow> ('e, 'a) SkewBinomial
 lemma ins_mset: 
   "\<lbrakk>tree_invar t; queue_invar q\<rbrakk> \<Longrightarrow>
    queue_to_multiset (ins t q) = tree_to_multiset t + queue_to_multiset q"
-by (induct q arbitrary: t) (auto simp: union_ac link_tree_invar)
+apply2 (induct q arbitrary: t) by(auto simp: union_ac link_tree_invar)
 
 lemma insert_mset: "queue_invar q \<Longrightarrow> 
   queue_to_multiset (insert e a q) = 
   queue_to_multiset q + {# (e,a) #}"
-by (induct q rule: insert.induct) (auto simp add: union_ac ttm_children)
+apply2 (induct q rule: insert.induct) by (auto simp add: union_ac ttm_children)
 
 lemma ins_queue_invar: "\<lbrakk>tree_invar t; queue_invar q\<rbrakk> \<Longrightarrow> queue_invar (ins t q)"
-proof (induct q arbitrary: t)
+proof2 (induct q arbitrary: t)
   case Nil
   then show ?case by simp
 next
@@ -641,7 +641,7 @@ next
 qed
 
 lemma insert_queue_invar: "queue_invar q \<Longrightarrow> queue_invar (insert e a q)"
-proof (induct q rule: insert.induct)
+proof2 (induct q rule: insert.induct)
   case 1
   then show ?case by simp
 next
@@ -666,7 +666,7 @@ lemma rank_ins2:
   "rank_invar bq \<Longrightarrow> 
     rank t \<le> rank (hd (ins t bq)) 
     \<or> (rank (hd (ins t bq)) = rank (hd bq) \<and> bq \<noteq> [])"
-  apply (induct bq arbitrary: t)
+  apply2 (induct bq arbitrary: t)
   apply auto
 proof goal_cases
   case prems: (1 a bq t)
@@ -754,7 +754,7 @@ lemma invar_uniqify: "queue_invar q \<Longrightarrow> queue_invar (uniqify q)"
 done
 
 lemma invar_meldUniq: "\<lbrakk>queue_invar q; queue_invar q'\<rbrakk> \<Longrightarrow> queue_invar (meldUniq q q')"
-proof (induct q q' rule: meldUniq.induct)
+proof2 (induct q q' rule: meldUniq.induct)
   case 1
   then show ?case by simp
 next
@@ -813,8 +813,8 @@ lemma uniqify_mset: "queue_invar q \<Longrightarrow> queue_to_multiset q = queue
 lemma meldUniq_mset: "\<lbrakk>queue_invar q; queue_invar q'\<rbrakk> \<Longrightarrow> 
   queue_to_multiset (meldUniq q q') = 
   queue_to_multiset q + queue_to_multiset q'"
-by(induct q q' rule: meldUniq.induct)
-  (auto simp: ins_mset link_tree_invar invar_meldUniq union_ac)
+apply2(induct q q' rule: meldUniq.induct)
+  by(auto simp: ins_mset link_tree_invar invar_meldUniq union_ac)
 
 lemma meld_mset:
   "\<lbrakk> queue_invar q; queue_invar q' \<rbrakk> \<Longrightarrow>
@@ -823,7 +823,7 @@ by (simp add: meld_def meldUniq_mset invar_uniqify uniqify_mset[symmetric])
 
 text \<open>Ins operation satisfies rank invariant, see binomial queues\<close>
 lemma rank_ins: "rank_invar bq \<Longrightarrow> rank_invar (ins t bq)"
-proof (induct bq arbitrary: t)
+proof2 (induct bq arbitrary: t)
   case Nil
   then show ?case by simp
 next
@@ -861,7 +861,7 @@ next
 qed
 
 lemma rank_ins_min: "rank_invar bq \<Longrightarrow> rank (hd (ins t bq)) \<ge> min (rank t) (rank (hd bq))"
-proof (induct bq arbitrary: t)
+proof2 (induct bq arbitrary: t)
   case Nil
   then show ?case by simp
 next
@@ -878,13 +878,13 @@ next
 qed
 
 lemma rank_invar_not_empty_hd: "\<lbrakk>rank_invar (t # bq); bq \<noteq> []\<rbrakk> \<Longrightarrow> rank t < rank (hd bq)"
-  by (induct bq arbitrary: t) auto
+  apply2 (induct bq arbitrary: t) by auto
 
 lemma rank_invar_meldUniq_strong: 
   "\<lbrakk>rank_invar bq1; rank_invar bq2\<rbrakk> \<Longrightarrow> 
     rank_invar (meldUniq bq1 bq2) 
     \<and> rank (hd (meldUniq bq1 bq2)) \<ge> min (rank (hd bq1)) (rank (hd bq2))"
-proof (induct bq1 bq2 rule: meldUniq.induct)
+proof2 (induct bq1 bq2 rule: meldUniq.induct)
   case 1
   then show ?case by simp
 next
@@ -1000,7 +1000,7 @@ definition findMin :: "('e, 'a::linorder) SkewBinomialQueue \<Rightarrow> ('e \<
   "findMin bq = (let min = getMinTree bq in (val min, prio min))"
 
 lemma mintree_exists: "(bq \<noteq> []) = (getMinTree bq \<in> set bq)"
-proof (induct bq)
+proof2 (induct bq)
   case Nil
   then show ?case by simp
 next
@@ -1010,7 +1010,7 @@ qed
 
 lemma treehead_in_multiset: 
   "t \<in> set bq \<Longrightarrow> (val t, prio t) \<in># (queue_to_multiset bq)"
-  by (induct bq, simp, cases t, auto)
+  apply2 (induct bq) by (simp, cases t, auto)
 
 lemma heap_ordered_single: 
   "heap_ordered t = (\<forall>x \<in> set_mset (tree_to_multiset t). prio t \<le> snd x)"
@@ -1018,10 +1018,10 @@ lemma heap_ordered_single:
 
 lemma getMinTree_cons: 
   "prio (getMinTree (y # x # xs)) \<le> prio (getMinTree (x # xs))" 
-  by (induct xs rule: getMinTree.induct) simp_all 
+  apply2 (induct xs rule: getMinTree.induct) by simp_all 
 
 lemma getMinTree_min_tree: "t \<in> set bq  \<Longrightarrow> prio (getMinTree bq) \<le> prio t"
-  by (induct bq arbitrary: t rule: getMinTree.induct) (simp, fastforce, simp)
+  apply2 (induct bq arbitrary: t rule: getMinTree.induct) by (simp, fastforce, simp)
 
 lemma getMinTree_min_prio:
   assumes "queue_invar bq"
@@ -1030,7 +1030,7 @@ lemma getMinTree_min_prio:
 proof -
   from assms have "bq \<noteq> []" by (cases bq) simp_all
   with assms have "\<exists>t \<in> set bq. (y \<in> set_mset (tree_to_multiset t))"
-  proof (induct bq)
+  proof2 (induct bq)
     case Nil
     then show ?case by simp
   next
@@ -1091,7 +1091,7 @@ fun remove1Prio :: "'a \<Rightarrow> ('e, 'a::linorder) SkewBinomialQueue \<Righ
 
 lemma remove1Prio_remove1[simp]: 
   "remove1Prio (prio (getMinTree bq)) bq = remove1 (getMinTree bq) bq"
-proof (induct bq)
+proof2 (induct bq)
   case Nil thus ?case by simp
 next
   case (Cons t bq) 
@@ -1104,9 +1104,9 @@ next
     case False
     hence ne: "bq \<noteq> []" by auto
     with False have down: "getMinTree (t # bq) = getMinTree bq" 
-      by (induct bq rule: getMinTree.induct) auto
+      apply2 (induct bq rule: getMinTree.induct) by auto
     from ne False have "prio t \<noteq> prio (getMinTree bq)" 
-      by (induct bq rule: getMinTree.induct) auto
+      apply2 (induct bq rule: getMinTree.induct) by auto
     with down iv False ne show ?thesis by simp 
   qed
 qed
@@ -1126,10 +1126,10 @@ lemma invar_remove1: "queue_invar q \<Longrightarrow> queue_invar (remove1 t q)"
   by (unfold queue_invar_def) (auto)
 
 lemma mset_rev: "queue_to_multiset (rev q) = queue_to_multiset q"
-  by (induct q) (auto simp add: union_ac)
+  apply2 (induct q) by(auto simp add: union_ac)
 
 lemma in_set_subset: "t \<in> set q \<Longrightarrow> tree_to_multiset t \<subseteq># queue_to_multiset q"
-proof (induct q)
+proof2 (induct q)
   case Nil
   then show ?case by simp
 next
@@ -1150,7 +1150,7 @@ qed
 lemma mset_remove1: "t \<in> set q \<Longrightarrow> 
   queue_to_multiset (remove1 t q) = 
   queue_to_multiset q - tree_to_multiset t"
-by (induct q) (auto simp: in_set_subset)
+apply2 (induct q) by (auto simp: in_set_subset)
 
 lemma invar_children':
   assumes "tree_invar t"
@@ -1165,7 +1165,7 @@ lemma invar_filter: "queue_invar q \<Longrightarrow> queue_invar (filter f q)"
   by (unfold queue_invar_def) simp
   
 lemma insertList_queue_invar: "queue_invar q \<Longrightarrow> queue_invar (insertList ts q)"
-proof (induct ts arbitrary: q)
+proof2 (induct ts arbitrary: q)
   case Nil
   then show ?case by simp
 next
@@ -1202,7 +1202,7 @@ lemma mset_insertList:
   "\<lbrakk>\<forall>t \<in> set ts. rank t = 0 \<and> children t = [] ; queue_invar q\<rbrakk> \<Longrightarrow> 
   queue_to_multiset (insertList ts q) = 
   queue_to_multiset ts + queue_to_multiset q"
-proof (induct ts arbitrary: q)
+proof2 (induct ts arbitrary: q)
   case Nil
   then show ?case by simp
 next
@@ -1219,7 +1219,7 @@ qed
 lemma mset_filter: "(queue_to_multiset [t\<leftarrow>q . rank t = 0]) +
   queue_to_multiset [t\<leftarrow>q . 0 < rank t] =
   queue_to_multiset q"
-  by (induct q) (auto simp add: union_ac)
+  apply2 (induct q) by (auto simp add: union_ac)
 
 lemma deleteMin_mset:
   assumes "queue_invar q"
@@ -1262,10 +1262,10 @@ proof -
 qed
 
 lemma rank_insertList: "rank_skew_invar q \<Longrightarrow> rank_skew_invar (insertList ts q)"
-  by (induct ts arbitrary: q) (simp_all add: insert_rank_invar) 
+  apply2 (induct ts arbitrary: q) by (simp_all add: insert_rank_invar) 
 
 lemma insertList_invar: "invar q \<Longrightarrow> invar (insertList ts q)"
-proof (induct ts arbitrary: q)
+proof2 (induct ts arbitrary: q)
   case Nil
   then show ?case by simp
 next
@@ -1290,7 +1290,7 @@ lemma children_rank_less:
 proof (cases t)
   case (Node e a nat list)
   with assms show ?thesis
-  proof (induct nat arbitrary: t e a list) 
+  proof2 (induct nat arbitrary: t e a list) 
     case 0
     then show ?case by simp
   next
@@ -1335,7 +1335,7 @@ lemma strong_rev_children:
 proof (cases t)
   case (Node e a nat list)
   with assms show ?thesis
-  proof (induct "nat" arbitrary: t e a list)
+  proof2 (induct "nat" arbitrary: t e a list)
     case 0
     then show ?case by (simp add: invar_def)
   next
@@ -1411,7 +1411,7 @@ proof (cases t)
 qed
 
 lemma first_less: "rank_invar (t # bq) \<Longrightarrow> \<forall>t' \<in> set bq. rank t < rank t'" 
-  apply(induct bq arbitrary: t) 
+  apply2(induct bq arbitrary: t) 
   apply (simp)
   apply (metis List.set_simps(2) insert_iff not_le_imp_less 
     not_less_iff_gr_or_eq order_less_le_trans rank_invar.simps(3) 
@@ -1420,14 +1420,14 @@ lemma first_less: "rank_invar (t # bq) \<Longrightarrow> \<forall>t' \<in> set b
 
 lemma first_less_eq: 
   "rank_skew_invar (t # bq) \<Longrightarrow> \<forall>t' \<in> set bq. rank t \<le> rank t'" 
-  apply(induct bq arbitrary: t) 
+  apply2(induct bq arbitrary: t) 
   apply (simp)
   apply (metis List.set_simps(2) insert_iff le_trans
     rank_invar_rank_skew rank_skew_invar.simps(3) rank_skew_rank_invar)
   done
 
 lemma remove1_tail_invar: "tail_invar bq \<Longrightarrow> tail_invar (remove1 t bq)" 
-proof (induct bq arbitrary: t) 
+proof2 (induct bq arbitrary: t) 
   case Nil
   then show ?case by simp
 next
@@ -1465,7 +1465,7 @@ lemma invar_cons_down: "invar (t # bq) \<Longrightarrow> invar bq"
     invar_def invar_tail_invar) 
 
 lemma remove1_invar: "invar bq \<Longrightarrow> invar (remove1 t bq)" 
-proof (induct bq arbitrary: t)
+proof2 (induct bq arbitrary: t)
   case Nil
   then show ?case by simp
 next
@@ -1617,7 +1617,7 @@ lemma in_image_msetE:
   assumes "x\<in>#image_mset f M"
   obtains y where "y\<in>#M" "x=f y"
   using assms
-  apply (induct M)
+  apply2 (induct M)
   apply simp
   apply (force split: if_split_asm)
   done
@@ -1627,7 +1627,7 @@ text \<open>Very special lemma for images multisets of pairs, where the second
 lemma mset_image_fst_dep_pair_diff_split:
   "(\<forall>e a. (e,a)\<in>#M \<longrightarrow> a=f e) \<Longrightarrow>
   image_mset fst (M - {#(e, f e)#}) = image_mset fst M - {#e#}"
-proof (induct M)
+proof2 (induct M)
   case empty thus ?case by auto
 next
   case (add x M)
@@ -1756,7 +1756,7 @@ fun ins :: "('e, 'a::linorder) BsSkewBinomialTree \<Rightarrow>
 
 lemma ins_xlate:
   "bsmap (ins t q) = SkewBinomialHeapStruc.ins (bsmapt t) (bsmap q)"
-  by (induct q arbitrary: t) (auto simp add: proj_xlate link_xlate)
+  apply2(induct q arbitrary: t) by(auto simp add: proj_xlate link_xlate)
 
 
 text \<open>Insert an element with priority into a queue using skewlinks.\<close>
@@ -1811,7 +1811,7 @@ lemma uniqify_xlate:
 
 lemma meldUniq_xlate:
   "bsmap (meldUniq q q') = SkewBinomialHeapStruc.meldUniq (bsmap q) (bsmap q')"
-  apply (induct q q' rule: meldUniq.induct)
+  apply2 (induct q q' rule: meldUniq.induct)
   apply (auto simp add: link_xlate proj_xlate uniqify_xlate ins_xlate)
   done
 
@@ -1861,17 +1861,17 @@ definition deleteMin :: "('e, 'a::linorder) BsSkewBinomialQueue \<Rightarrow>
 lemma insertList_xlate:
   "bsmap (insertList q q') 
   = SkewBinomialHeapStruc.insertList (bsmap q) (bsmap q')"
-  apply (induct q arbitrary: q')
+  apply2 (induct q arbitrary: q')
   apply (auto simp add: insert_xlate proj_xlate)
   done
 
 lemma remove1Prio_xlate:
   "bsmap (remove1Prio a q) = SkewBinomialHeapStruc.remove1Prio a (bsmap q)"
-  by (induct q) (auto simp add: proj_xlate)
+  apply2(induct q) by(auto simp add: proj_xlate)
 
 lemma getMinTree_xlate:
   "q\<noteq>[] \<Longrightarrow> bsmapt (getMinTree q) = SkewBinomialHeapStruc.getMinTree (bsmap q)"
-  apply (induct q)
+  apply2 (induct q)
   apply simp
   apply (case_tac q)
   apply (auto simp add: proj_xlate)
@@ -1888,7 +1888,7 @@ lemma findMin_xlate_aux:
   (SkewBinomialHeapStruc.findMin (bsmap q))"
   apply (unfold findMin_def SkewBinomialHeapStruc.findMin_def)
   apply (simp add: proj_xlate Let_def getMinTree_xlate)
-  apply (induct q)
+  apply2 (induct q)
   apply simp
   apply (case_tac q)
   apply (auto simp add: proj_xlate)
@@ -1897,11 +1897,11 @@ lemma findMin_xlate_aux:
 (* TODO: Also possible in generic formulation. Then a candidate for Misc.thy *)
 lemma bsmap_filter_xlate:
   "bsmap [ x\<leftarrow>l . P (bsmapt x) ] = [ x \<leftarrow> bsmap l. P x ]"
-  by (induct l) auto
+  apply2(induct l) by auto
 
 lemma bsmap_rev_xlate:
   "bsmap (rev q) = rev (bsmap q)"
-  by (induct q) auto
+  apply2(induct q) by auto
 
 lemma deleteMin_xlate:
   "q\<noteq>[] \<Longrightarrow> bsmap (deleteMin q) = SkewBinomialHeapStruc.deleteMin (bsmap q)"
@@ -1929,7 +1929,7 @@ lemma bsmap_fs_dep:
   "(e,a)\<in>#SkewBinomialHeapStruc.tree_to_multiset (bsmapt t) \<Longrightarrow> a=eprio e"
   "(e,a)\<in>#SkewBinomialHeapStruc.queue_to_multiset (bsmap q) \<Longrightarrow> a=eprio e"
   thm SkewBinomialHeapStruc.tree_to_multiset_queue_to_multiset.induct
-  apply (induct "bsmapt t" and "bsmap q" arbitrary: t and q
+  apply2 (induct "bsmapt t" and "bsmap q" arbitrary: t and q
     rule: SkewBinomialHeapStruc.tree_to_multiset_queue_to_multiset.induct)
   apply auto
   apply (case_tac t)
@@ -2035,7 +2035,7 @@ fun level where
 lemma level_m:
   "x\<in>#tree_to_multiset t \<Longrightarrow> level x < Suc (tree_level t)"
   "x\<in>#queue_to_multiset q \<Longrightarrow> level x < Suc (queue_level q)"
-  apply (induct t and q rule: tree_level_queue_level.induct)
+  apply2 (induct t and q rule: tree_level_queue_level.induct)
   apply (case_tac [!] x)
   apply (auto simp add: less_max_iff_disj)
   done
@@ -2096,7 +2096,7 @@ lemma meld_correct':
   
 lemma findMin'_min: 
   "\<lbrakk>elem_invar x; y\<in>#elem_to_mset x\<rbrakk> \<Longrightarrow> snd (findMin' x) \<le> snd y"
-proof (induct n\<equiv>"level x" arbitrary: x rule: full_nat_induct)
+proof2 (induct n\<equiv>"level x" arbitrary: x rule: full_nat_induct)
   case 1
   note IH="1.hyps"[rule_format, OF _ refl]
   note PREMS="1.prems"

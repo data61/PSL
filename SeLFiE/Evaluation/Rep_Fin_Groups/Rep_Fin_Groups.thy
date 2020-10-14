@@ -3,7 +3,7 @@ theory Rep_Fin_Groups
 imports
   "HOL-Library.Function_Algebras"
   "HOL-Library.Set_Algebras"
-  "HOL-Computational_Algebra.Polynomial"
+  "HOL-Computational_Algebra.Polynomial" "../Eval_Base/Eval_Base"
 begin
 
 
@@ -49,10 +49,10 @@ subsection \<open>Lists\<close>
 subsubsection \<open>\<open>zip\<close>\<close>
 
 lemma zip_truncate_left : "zip xs ys = zip (take (length ys) xs) ys"
-  by (induct xs ys rule:list_induct2') auto
+  apply2 (induct xs ys rule:list_induct2') by auto
 
 lemma zip_truncate_right : "zip xs ys = zip xs (take (length xs) ys)"
-  by (induct xs ys rule:list_induct2') auto
+  apply2 (induct xs ys rule:list_induct2') by auto
 
 text \<open>
   Lemmas \<open>zip_append1\<close> and \<open>zip_append2\<close> in theory @{theory HOL.List} have unnecessary
@@ -69,29 +69,29 @@ lemma zip_append_right :
 
 lemma length_concat_map_split_zip :
   "length [f x y. (x,y)\<leftarrow>zip xs ys] = min (length xs) (length ys)"
-  by (induct xs ys rule: list_induct2') auto
+  apply2  (induct xs ys rule: list_induct2') by auto
 
 lemma concat_map_split_eq_map_split_zip :
   "[f x y. (x,y)\<leftarrow>zip xs ys] = map (case_prod f) (zip xs ys)"
-  by (induct xs ys rule: list_induct2') auto
+  apply2  (induct xs ys rule: list_induct2') by auto
 
 lemma set_zip_map2 :
   "(a,z) \<in> set (zip xs (map f ys)) \<Longrightarrow> \<exists>b. (a,b) \<in> set (zip xs ys) \<and> z = f b"
-  by (induct xs ys rule: list_induct2') auto
+  apply2  (induct xs ys rule: list_induct2') by auto
 
 subsubsection \<open>\<open>concat\<close>\<close>
 
 lemma concat_eq :
   "list_all2 (\<lambda>xs ys. length xs = length ys) xss yss \<Longrightarrow> concat xss = concat yss
         \<Longrightarrow> xss = yss"
-  by  (induct xss yss rule: list_all2_induct) auto
+  apply2 (induct xss yss rule: list_all2_induct) by auto
 
 lemma match_concat :
   fixes   bss :: "'b list list"
   defines eq_len: "eq_len \<equiv> \<lambda>xs ys. length xs = length ys"
   shows   "\<forall>as::'a list. length as = length (concat bss)
                 \<longrightarrow> (\<exists>css::'a list list. as = concat css \<and> list_all2 eq_len css bss)"
-proof (induct bss)
+proof2 (induct bss)
   from eq_len
     show "\<forall>as. length as = length (concat [])
                 \<longrightarrow> (\<exists>css. as = concat css \<and> list_all2 eq_len css [])"
@@ -121,13 +121,13 @@ subsubsection \<open>\<open>strip_while\<close>\<close>
 
 lemma strip_while_0_nnil :
   "as \<noteq> [] \<Longrightarrow> set as \<noteq> 0 \<Longrightarrow> strip_while ((=) 0) as \<noteq> []"
-  by (induct as rule: rev_nonempty_induct) auto
+  apply2 (induct as rule: rev_nonempty_induct) by auto
 
 subsubsection \<open>\<open>sum_list\<close>\<close>
 
 lemma const_sum_list :
   "\<forall>x \<in> set xs. f x = a \<Longrightarrow> sum_list (map f xs) = a * (length xs)"
-  by (induct xs) auto
+  apply2 (induct xs) by auto
 
 lemma sum_list_prod_cong :
   "\<forall>(x,y) \<in> set xys. f x y = g x y
@@ -136,18 +136,18 @@ lemma sum_list_prod_cong :
 
 lemma sum_list_prod_map2 :
   "(\<Sum>(a,y)\<leftarrow>zip as (map f bs). g a y) = (\<Sum>(a,b)\<leftarrow>zip as bs. g a (f b))"
-  by (induct as bs rule: list_induct2') auto
+  apply2 (induct as bs rule: list_induct2') by auto
 
 lemma sum_list_fun_apply : "(\<Sum>x\<leftarrow>xs. f x) y = (\<Sum>x\<leftarrow>xs. f x y)"
-  by (induct xs) auto
+  apply2 (induct xs) by auto
 
 lemma sum_list_prod_fun_apply : "(\<Sum>(x,y)\<leftarrow>xys. f x y) z = (\<Sum>(x,y)\<leftarrow>xys. f x y z)"
-  by (induct xys) auto
+  apply2 (induct xys) by auto
 
 lemma (in comm_monoid_add) sum_list_plus :
   "length xs = length ys
         \<Longrightarrow> sum_list xs + sum_list ys = sum_list [a+b. (a,b)\<leftarrow>zip xs ys]"
-proof (induct xs ys rule: list_induct2)
+proof2 (induct xs ys rule: list_induct2)
   case Cons thus ?case by (simp add: algebra_simps)
 qed simp
 
@@ -166,12 +166,12 @@ lemma sum_list_mult_const_prod :
 lemma sum_list_update :
   fixes xs :: "'a::ab_group_add list"
   shows "n < length xs \<Longrightarrow> sum_list (xs[n := y]) = sum_list xs - xs!n + y"
-proof (induct xs arbitrary: n)
+proof2 (induct xs arbitrary: n)
   case Cons thus ?case by (cases n) auto
 qed simp
 
 lemma sum_list_replicate0 : "sum_list (replicate n 0) = 0"
-  by (induct n) auto
+  apply2 (induct n) by auto
 
 subsubsection \<open>\<open>listset\<close>\<close>
 
@@ -188,11 +188,11 @@ lemma listset_Cons_conv :
 lemma listset_length : "xs \<in> listset Xs \<Longrightarrow> length xs = length Xs"
   using     listset_ConsD
   unfolding listset_def set_Cons_def
-  by        (induct xs Xs rule: list_induct2') auto
+  apply2 (induct xs Xs rule: list_induct2') by auto
 
 lemma set_sum_list_element :
   "x \<in> (\<Sum>A\<leftarrow>As. A) \<Longrightarrow> \<exists>as \<in> listset As. x = (\<Sum>a\<leftarrow>as. a)"
-proof (induct As arbitrary: x)
+proof2 (induct As arbitrary: x)
   case Nil hence "x = (\<Sum>a\<leftarrow>[]. a)" by simp
   moreover have "[] \<in> listset []" by simp
   ultimately show ?case by fast
@@ -221,7 +221,7 @@ qed
 lemma sum_list_listset : "as \<in> listset As \<Longrightarrow> sum_list as \<in> (\<Sum>A\<leftarrow>As. A)"
 proof-
   have "length as = length As \<Longrightarrow> as \<in> listset As \<Longrightarrow> sum_list as \<in> (\<Sum>A\<leftarrow>As. A)"
-  proof (induct as As rule: list_induct2)
+  proof2 (induct as As rule: list_induct2)
     case Nil show ?case by simp
   next
     case (Cons a as A As) thus ?case
@@ -232,7 +232,7 @@ qed
 
 lemma listsetI_nth :
   "length xs = length Xs \<Longrightarrow> \<forall>n<length xs. xs!n \<in> Xs!n \<Longrightarrow> xs \<in> listset Xs"
-proof (induct xs Xs rule: list_induct2)
+proof2 (induct xs Xs rule: list_induct2)
   case Nil show ?case by simp
 next
   case (Cons x xs X Xs) thus "x#xs \<in> listset (X#Xs)"
@@ -242,7 +242,7 @@ qed
 lemma listsetD_nth : "xs \<in> listset Xs \<Longrightarrow> \<forall>n<length xs. xs!n \<in> Xs!n"
 proof-
   have "length xs = length Xs \<Longrightarrow> xs \<in> listset Xs \<Longrightarrow> \<forall>n<length xs. xs!n \<in> Xs!n"
-  proof (induct xs Xs rule: list_induct2)
+  proof2 (induct xs Xs rule: list_induct2)
      case Nil show ?case by simp
   next
     case (Cons x xs X Xs)
@@ -265,7 +265,7 @@ lemma set_listset_el_subset :
 proof-
   have "\<lbrakk> length xs = length Xs; xs \<in> listset Xs; \<forall>X\<in>set Xs. X \<subseteq> A \<rbrakk> 
               \<Longrightarrow> set xs \<subseteq> A"
-  proof (induct xs Xs rule: list_induct2)
+  proof2 (induct xs Xs rule: list_induct2)
     case Cons thus ?case using listset_ConsD by force
   qed simp
   thus "xs \<in> listset Xs \<Longrightarrow> \<forall>X\<in>set Xs. X \<subseteq> A \<Longrightarrow> set xs \<subseteq> A"
@@ -278,12 +278,12 @@ subsection \<open>Functions\<close>
 subsubsection \<open>Miscellaneous facts\<close>
 
 lemma sum_fun_apply : "finite A \<Longrightarrow> (\<Sum>a\<in>A. f a) x = (\<Sum>a\<in>A. f a x)"
-  by (induct set: finite) auto
+  apply2 (induct set: finite) by auto
 
 lemma sum_single_nonzero :
   "finite A \<Longrightarrow> (\<forall>x\<in>A. \<forall>y\<in>A. f x y = (if y = x then g x else 0)) 
         \<Longrightarrow> (\<forall>x\<in>A. sum (f x) A = g x)"
-proof (induct A rule: finite_induct)
+proof2 (induct A rule: finite_induct)
   case (insert a A)
   show "\<forall>x\<in>insert a A. sum (f x) (insert a A) = g x"
   proof
@@ -538,7 +538,7 @@ lemma aezfun_common_supp_spanning_set' :
   "finite A \<Longrightarrow> \<exists>as. distinct as \<and> set as = A
       \<and> ( \<forall>f::'a \<Rightarrow> 'b::semiring_1. supp f \<subseteq> A
                    \<longrightarrow> (\<exists>bs. length bs = length as \<and> f = (\<Sum>(b,a)\<leftarrow>zip bs as. b \<delta> a)) )"
-proof (induct rule: finite_induct)
+proof2 (induct rule: finite_induct)
   case empty show ?case unfolding supp_def by auto
 next
   case (insert a A)
@@ -873,11 +873,11 @@ qed
 
 lemma sum_list_aezfun_apply [simp] :
   "aezfun (sum_list as) x = (\<Sum>a\<leftarrow>as. aezfun a x)"
-  by (induct as) auto
+  apply2 (induct as) by auto
 
 lemma sum_list_map_aezfun_apply [simp] :
   "aezfun (\<Sum>a\<leftarrow>as. f a) x = (\<Sum>a\<leftarrow>as. aezfun (f a) x)"
-  by (induct as) auto
+  apply2 (induct as) by auto
 
 lemma sum_list_map_aezfun [simp] :
   "aezfun (\<Sum>a\<leftarrow>as. f a) = (\<Sum>a\<leftarrow>as. aezfun (f a))"
@@ -885,7 +885,7 @@ lemma sum_list_map_aezfun [simp] :
 
 lemma sum_list_prod_map_aezfun_apply :  
   "aezfun (\<Sum>(x,y)\<leftarrow>xys. f x y) a = (\<Sum>(x,y)\<leftarrow>xys. aezfun (f x y) a)"
-  by (induct xys) auto
+  apply2 (induct xys) by auto
 
 lemma sum_list_prod_map_aezfun :
   "aezfun (\<Sum>(x,y)\<leftarrow>xys. f x y) = (\<Sum>(x,y)\<leftarrow>xys. aezfun (f x y))"
@@ -907,7 +907,7 @@ qed
 
 lemma sum_aezfun_apply [simp] :
   "finite A \<Longrightarrow> aezfun (\<Sum>A) x = (\<Sum>a\<in>A. aezfun a x)"
-  by (induct set: finite) auto
+  apply2 (induct set: finite) by auto
 
 instantiation aezfun :: (group_add, type) minus
 begin
@@ -1323,7 +1323,7 @@ qed
 
 lemma aezfun_setspan_proj_sum_list : 
   "aezfun_setspan_proj A (\<Sum>x\<leftarrow>xs. f x) = (\<Sum>x\<leftarrow>xs. aezfun_setspan_proj A (f x))"
-proof (induct xs)
+proof2 (induct xs)
   case Nil show ?case using aezfun_setspan_proj_zero by simp
 next
   case (Cons x xs) thus ?case using aezfun_setspan_proj_add[of A "f x"] by simp
@@ -1362,7 +1362,7 @@ lemma pCons_induct2 [case_names 00 lpCons rpCons pCons2]:
   and     pCons2: "\<And>a p b q. a \<noteq> 0 \<or> p \<noteq> 0 \<Longrightarrow> b \<noteq> 0 \<or> q \<noteq> 0 \<Longrightarrow> P p q
                                                                     \<Longrightarrow> P (pCons a p) (pCons b q)"
   shows   "P p q"
-proof (induct p arbitrary: q)
+proof2 (induct p arbitrary: q)
   case 0
   show ?case
   proof (cases q)
@@ -1422,7 +1422,7 @@ lemma add_independentS_double_sum_conv_append :
   "\<lbrakk> \<forall>X\<in>set As. 0 \<in> X; add_independentS As; add_independentS Bs; 
         add_independentS [\<Sum>X\<leftarrow>As. X, \<Sum>X\<leftarrow>Bs. X] \<rbrakk>
           \<Longrightarrow> add_independentS (As@Bs)"
-proof (induct As)
+proof2 (induct As)
   case (Cons A As)
   have "add_independentS [\<Sum>X\<leftarrow>As. X, \<Sum>X\<leftarrow>Bs. X]"
   proof (rule add_independentS_doubleI)
@@ -1461,11 +1461,11 @@ lemma add_independentS_ConsI :
 
 lemma add_independentS_append_reduce_right :
   "add_independentS (As@Bs) \<Longrightarrow> add_independentS Bs"
-  by (induct As) auto
+  apply2 (induct As) by auto
 
 lemma add_independentS_append_reduce_left : 
   "add_independentS (As@Bs) \<Longrightarrow> 0 \<in> (\<Sum>X\<leftarrow>Bs. X) \<Longrightarrow> add_independentS As"
-proof (induct As)
+proof2 (induct As)
   case (Cons A As) show "add_independentS (A#As)"
   proof (rule add_independentS_ConsI)
     from Cons show "add_independentS As" by simp
@@ -1478,7 +1478,7 @@ qed simp
 
 lemma add_independentS_append_conv_double_sum : 
   "add_independentS (As@Bs) \<Longrightarrow> add_independentS [\<Sum>X\<leftarrow>As. X, \<Sum>X\<leftarrow>Bs. X]"
-proof (induct As)
+proof2 (induct As)
   case (Cons A As)
   show "add_independentS [\<Sum>X\<leftarrow>(A#As). X, \<Sum>X\<leftarrow>Bs. X]"
   proof (rule add_independentS_doubleI)
@@ -1632,7 +1632,7 @@ lemma neg_add_closed : "g \<in> G \<Longrightarrow> h \<in> G \<Longrightarrow> 
   using neg_closed add_closed by fast
 
 lemma sum_list_closed : "set (map f as) \<subseteq> G \<Longrightarrow> (\<Sum>a\<leftarrow>as. f a) \<in> G"
-  using zero_closed add_closed by (induct as) auto
+  using zero_closed add_closed apply2 (induct as) by auto
 
 lemma sum_list_closed_prod :
   "set (map (case_prod f) xys) \<subseteq> G \<Longrightarrow> (\<Sum>(x,y)\<leftarrow>xys. f x y) \<in> G"
@@ -1643,11 +1643,11 @@ lemma set_plus_closed : "A \<subseteq> G \<Longrightarrow> B \<subseteq> G \<Lon
 
 lemma zip_add_closed :
   "set as \<subseteq> G \<Longrightarrow> set bs \<subseteq> G \<Longrightarrow> set [a + b. (a,b)\<leftarrow>zip as bs] \<subseteq> G"
-  using add_closed by (induct as bs rule: list_induct2') auto
+  using add_closed apply2 (induct as bs rule: list_induct2') by auto
 
 lemma list_diff_closed :
   "set gs \<subseteq> G \<Longrightarrow> set hs \<subseteq> G \<Longrightarrow> set [x-y. (x,y)\<leftarrow>zip gs hs] \<subseteq> G"
-  using diff_closed by (induct gs hs rule: list_induct2') auto
+  using diff_closed apply2 (induct gs hs rule: list_induct2') by auto
 
 lemma add_closed_converse_right : "g+x \<in> G \<Longrightarrow> g \<in> G \<Longrightarrow> x \<in> G"
   using neg_add_closed add.assoc[of "-g" g x] by fastforce
@@ -1699,7 +1699,7 @@ lemmas add_closed  = add_closed
 lemmas neg_closed  = neg_closed
 
 lemma sum_closed : "finite A \<Longrightarrow> f ` A \<subseteq> G \<Longrightarrow> (\<Sum>a\<in>A. f a) \<in> G"
-proof (induct set: finite)
+proof2 (induct set: finite)
   case empty show ?case using zero_closed by simp
 next
   case (insert a A) thus ?case using add_closed by simp
@@ -2050,7 +2050,7 @@ lemma eq_im_imp_diff_in_Ker : "\<lbrakk> g \<in> G; h \<in> G; T g = T h \<rbrak
 lemma im_sum_list_prod : 
   "set (map (case_prod f) xys) \<subseteq> G
         \<Longrightarrow> T (\<Sum>(x,y)\<leftarrow>xys. f x y) = (\<Sum>(x,y)\<leftarrow>xys. T (f x y))"
-proof (induct xys)
+proof2 (induct xys)
   case Nil
   show ?case using im_zero by simp
 next
@@ -2300,7 +2300,7 @@ proof-
   have "\<lbrakk> length as = length bs; length bs = length Gs;
                 as \<in> listset Gs; bs \<in> listset Gs; \<forall>G\<in>set Gs. Group G\<rbrakk>
                                                 \<Longrightarrow> [a+b. (a,b)\<leftarrow>zip as bs] \<in> listset Gs"
-  proof (induct as bs Gs rule: list_induct3)
+  proof2 (induct as bs Gs rule: list_induct3)
     case (Cons a as b bs G Gs)
     thus "[x+y. (x,y)\<leftarrow>zip (a#as) (b#bs)] \<in> listset (G#Gs)"
       using listset_ConsD[of a] listset_ConsD[of b] Group.add_closed
@@ -2329,11 +2329,11 @@ qed
 lemma AbGroup_sum_list :
   "(\<forall>G\<in>set Gs. AbGroup G) \<Longrightarrow> AbGroup (\<Sum>G\<leftarrow>Gs. G)"
   using trivial_Group AbGroup.intro AbGroup_set_plus
-  by    (induct Gs) auto
+  apply2 (induct Gs) by auto
 
 lemma AbGroup_subset_sum_list :
   "\<forall>G \<in> set Gs. AbGroup G \<Longrightarrow> H \<in> set Gs \<Longrightarrow> H \<subseteq> (\<Sum>G\<leftarrow>Gs. G)"
-proof (induct Gs arbitrary: H)
+proof2 (induct Gs arbitrary: H)
   case (Cons G Gs)
   show "H \<subseteq> (\<Sum>X\<leftarrow>(G#Gs). X)"
   proof (cases "H = G")
@@ -2349,7 +2349,7 @@ qed simp
 lemma independent_AbGroups_pairwise_int0 :
   "\<lbrakk> \<forall>G\<in>set Gs. AbGroup G; add_independentS Gs; G \<in> set Gs; G' \<in> set Gs;
         G \<noteq> G' \<rbrakk> \<Longrightarrow> G \<inter> G' = 0"
-proof (induct Gs arbitrary: G G')
+proof2 (induct Gs arbitrary: G G')
   case (Cons H Hs)
   from Cons(1-3) have "\<And>A B. \<lbrakk> A \<in> set Hs; B \<in> set Hs; A \<noteq> B \<rbrakk> 
                             \<Longrightarrow> A \<inter> B \<subseteq> 0"
@@ -2471,7 +2471,7 @@ qed
 lemma AbGroup_inner_dirsum_el_decomp_ex1 :
   "\<lbrakk> \<forall>G \<in> set Gs. AbGroup G; add_independentS Gs \<rbrakk>
         \<Longrightarrow> \<forall>x \<in> (\<Oplus>G\<leftarrow>Gs. G). \<exists>!gs\<in>listset Gs. x = sum_list gs"
-proof (induct Gs)
+proof2 (induct Gs)
   case Nil
   have "\<And>x::'a. x \<in> (\<Oplus>H\<leftarrow>[]. H) \<Longrightarrow> \<exists>!gs\<in>listset []. x = sum_list gs"
   proof
@@ -2542,7 +2542,7 @@ qed
 lemma AbGroup_inner_dirsum_pairwise_int0 :
   "\<lbrakk> \<forall>G \<in> set Gs. AbGroup G; add_independentS Gs; G \<in> set Gs; G' \<in> set Gs;
         G \<noteq> G' \<rbrakk> \<Longrightarrow> G \<inter> G' = 0"
-proof (induct Gs arbitrary: G G')
+proof2 (induct Gs arbitrary: G G')
   case (Cons H Hs)
   from Cons(1-3) have "\<And>A B. \<lbrakk> A \<in> set Hs; B \<in> set Hs; A \<noteq> B \<rbrakk> 
                             \<Longrightarrow> A \<inter> B \<subseteq> 0"
@@ -3071,7 +3071,7 @@ lemmas sum_closed   = AbGroup.sum_closed[OF AbGroup]
 
 lemma map_smult_closed :
   "r \<in> R \<Longrightarrow> set ms \<subseteq> M \<Longrightarrow> set (map ((\<cdot>) r) ms) \<subseteq> M"
-  using smult_closed by (induct ms) auto
+  using smult_closed apply2 (induct ms) by auto
 
 lemma zero_smult : "m \<in> M \<Longrightarrow> 0 \<cdot> m = 0"
   using R_scalars.zero_closed smult_distrib_right[of 0] add_left_imp_eq by simp
@@ -3104,7 +3104,7 @@ lemma smult_distrib_right_diff :
 lemma smult_sum_distrib :
   assumes "r \<in> R"
   shows   "finite A \<Longrightarrow> f ` A \<subseteq> M \<Longrightarrow> r \<cdot> (\<Sum>a\<in>A. f a) = (\<Sum>a\<in>A. r \<cdot> f a)"
-proof (induct set: finite)
+proof2 (induct set: finite)
   case empty from assms show ?case using smult_zero by simp
 next
   case (insert a A) with assms show ?case using sum_closed[of A] by simp
@@ -3113,7 +3113,7 @@ qed
 lemma sum_smult_distrib :
   assumes "m \<in> M"
   shows   "finite A \<Longrightarrow> f ` A \<subseteq> R \<Longrightarrow> (\<Sum>a\<in>A. f a) \<cdot> m = (\<Sum>a\<in>A. (f a) \<cdot> m)"
-proof (induct set: finite)
+proof2 (induct set: finite)
   case empty from assms show ?case using zero_smult by simp
 next
   case (insert a A) with assms show ?case using R_scalars.sum_closed[of A] by simp
@@ -3121,13 +3121,13 @@ qed
 
 lemma smult_sum_list_distrib :
   "r \<in> R \<Longrightarrow> set ms \<subseteq> M \<Longrightarrow> r \<cdot> (sum_list ms) = (\<Sum>m\<leftarrow>ms. r \<cdot> m)"
-  using smult_zero sum_list_closed[of id] by (induct ms) auto
+  using smult_zero sum_list_closed[of id] apply2 (induct ms) by auto
 
 lemma sum_list_prod_map_smult_distrib :
   "m \<in> M \<Longrightarrow> set (map (case_prod f) xys) \<subseteq> R
         \<Longrightarrow> (\<Sum>(x,y)\<leftarrow>xys. f x y) \<cdot> m = (\<Sum>(x,y)\<leftarrow>xys. f x y \<cdot> m)"
   using zero_smult R_scalars.sum_list_closed_prod[of f]
-  by    (induct xys) auto
+  apply2    (induct xys) by auto
 
 lemma RSubmoduleI :
   assumes "Subgroup N" "\<And>r n. r \<in> R \<Longrightarrow> n \<in> N \<Longrightarrow> r \<cdot> n \<in> N"
@@ -3162,7 +3162,7 @@ proof-
   have "\<lbrakk> length ms = length Ms; ms \<in> listset Ms;
               \<forall>M\<in>set Ms. RModule R smult M; r \<in> R \<rbrakk>
                 \<Longrightarrow> [r \<cdot> m. m\<leftarrow>ms] \<in> listset Ms"
-  proof (induct ms Ms rule: list_induct2)
+  proof2 (induct ms Ms rule: list_induct2)
     case (Cons m ms M Ms) thus ?case
       using listset_ConsD[of m] RModule.smult_closed listset_ConsI[of "r \<cdot> m" M]
       by    fastforce
@@ -3217,7 +3217,7 @@ qed
 lemma RSubmodule_sum_list :
   "(\<forall>N\<in>set Ns. RSubmodule N) \<Longrightarrow> RSubmodule (\<Sum>N\<leftarrow>Ns. N)"
   using trivial_RSubmodule RSubmodule_set_plus
-  by    (induct Ns) auto
+  apply2 (induct Ns) by auto
 
 lemma RSubmodule_inner_dirsum :
   assumes "(\<forall>N\<in>set Ns. RSubmodule N)"
@@ -3291,7 +3291,7 @@ lemma lincomb_append_right :
   using zip_append_right[of rs ms] unfolding lincomb_def by simp
 
 lemma lincomb_conv_take_right : "rs \<bullet>\<cdot> ms = rs \<bullet>\<cdot> take (length rs) ms"
-  using lincomb_Nil lincomb_Cons by (induct rs ms rule: list_induct2') auto
+  using lincomb_Nil lincomb_Cons apply2 (induct rs ms rule: list_induct2') by auto
 
 end (* context scalar_mult *)
 
@@ -3302,7 +3302,7 @@ lemmas lincomb_Nil  = lincomb_Nil
 lemmas lincomb_Cons = lincomb_Cons
 
 lemma lincomb_closed : "set rs \<subseteq> R \<Longrightarrow> set ms \<subseteq> M \<Longrightarrow> rs \<bullet>\<cdot> ms \<in> M"
-proof (induct ms arbitrary: rs)
+proof2 (induct ms arbitrary: rs)
   case Nil show ?case using lincomb_Nil zero_closed by simp
 next
   case (Cons m ms)
@@ -3319,7 +3319,7 @@ qed
 lemma smult_lincomb :
   "\<lbrakk> set rs \<subseteq> R; s \<in> R; set ms \<subseteq> M \<rbrakk> \<Longrightarrow> s \<cdot> (rs \<bullet>\<cdot> ms) = [s*r. r\<leftarrow>rs] \<bullet>\<cdot> ms"
   using lincomb_Nil smult_zero lincomb_Cons smult_closed lincomb_closed
-  by    (induct rs ms rule: list_induct2') auto
+  apply2    (induct rs ms rule: list_induct2') by auto
 
 lemma neg_lincomb :
   "set rs \<subseteq> R \<Longrightarrow> set ms \<subseteq> M \<Longrightarrow> - (rs \<bullet>\<cdot> ms) = [-r. r\<leftarrow>rs] \<bullet>\<cdot> ms"
@@ -3330,7 +3330,7 @@ lemma neg_lincomb :
 lemma lincomb_sum_left :
   "\<lbrakk> set rs \<subseteq> R; set ss \<subseteq> R; set ms \<subseteq> M; length rs \<le> length ss \<rbrakk>
         \<Longrightarrow> [r + s. (r,s)\<leftarrow>zip rs ss] \<bullet>\<cdot> ms = rs \<bullet>\<cdot> ms + (take (length rs) ss) \<bullet>\<cdot> ms"
-proof (induct rs ss arbitrary: ms rule: list_induct2')
+proof2 (induct rs ss arbitrary: ms rule: list_induct2')
   case 1 show ?case using lincomb_Nil by simp
 next
   case (2 r rs)
@@ -3367,7 +3367,7 @@ qed
 lemma lincomb_diff_left :
   "\<lbrakk> set rs \<subseteq> R; set ss \<subseteq> R; set ms \<subseteq> M; length rs \<le> length ss \<rbrakk>
         \<Longrightarrow> [r - s. (r,s)\<leftarrow>zip rs ss] \<bullet>\<cdot> ms = rs \<bullet>\<cdot> ms - (take (length rs) ss) \<bullet>\<cdot> ms"
-proof (induct rs ss arbitrary: ms rule: list_induct2')
+proof2 (induct rs ss arbitrary: ms rule: list_induct2')
   case 1 show ?case using lincomb_Nil by simp
 next
   case (2 r rs)
@@ -3386,7 +3386,7 @@ qed
 
 lemma lincomb_replicate_left : 
   "r \<in> R \<Longrightarrow> set ms \<subseteq> M \<Longrightarrow> (replicate k r) \<bullet>\<cdot> ms = r \<cdot> ( \<Sum>m\<leftarrow>(take k ms). m )"
-proof (induct k arbitrary: ms)
+proof2 (induct k arbitrary: ms)
   case 0 thus ?case using lincomb_Nil smult_zero by simp
 next
   case (Suc k)
@@ -3412,12 +3412,12 @@ qed
 
 lemma lincomb_0coeffs : "set ms \<subseteq> M \<Longrightarrow> \<forall>s\<in>set rs. s = 0 \<Longrightarrow> rs \<bullet>\<cdot> ms = 0"
   using lincomb_Nil lincomb_Cons zero_smult
-  by    (induct rs ms rule: list_induct2') auto
+  apply2    (induct rs ms rule: list_induct2') by auto
 
 lemma delta_scalars_lincomb_eq_nth :
   "set ms \<subseteq> M \<Longrightarrow> n < length ms
         \<Longrightarrow> ((replicate (length ms) 0)[n := 1]) \<bullet>\<cdot> ms = ms!n"
-proof (induct ms arbitrary: n)
+proof2 (induct ms arbitrary: n)
   case (Cons m ms) thus ?case
     using lincomb_Cons lincomb_replicate0_left zero_smult by (cases n) auto
 qed simp
@@ -3426,7 +3426,7 @@ lemma lincomb_obtain_same_length_Rcoeffs :
   "set rs \<subseteq> R \<Longrightarrow> set ms \<subseteq> M
         \<Longrightarrow> \<exists>ss. set ss \<subseteq> R \<and> length ss = length ms
           \<and> take (length rs) ss = take (length ms) rs \<and> rs \<bullet>\<cdot> ms = ss \<bullet>\<cdot> ms"
-proof (induct rs ms rule: list_induct2')
+proof2 (induct rs ms rule: list_induct2')
   case 1 show ?case using lincomb_Nil by simp
 next
   case 2 thus ?case using lincomb_Nil by simp
@@ -3457,7 +3457,7 @@ qed
 lemma lincomb_concat :
   "list_all2 (\<lambda>rs ms. length rs = length ms) rss mss
         \<Longrightarrow> (concat rss) \<bullet>\<cdot> (concat mss) = (\<Sum>(rs,ms)\<leftarrow>zip rss mss. rs \<bullet>\<cdot> ms)"
-  using lincomb_Nil lincomb_append by (induct rss mss rule: list_induct2') auto
+  using lincomb_Nil lincomb_append apply2 (induct rss mss rule: list_induct2') by auto
 
 lemma lincomb_snoc0 : "set ms \<subseteq> M \<Longrightarrow> (as@[0]) \<bullet>\<cdot> ms = as \<bullet>\<cdot> ms"
   using lincomb_append_left set_drop_subset lincomb_replicate0_left[of _ 1] by fastforce
@@ -3465,7 +3465,7 @@ lemma lincomb_snoc0 : "set ms \<subseteq> M \<Longrightarrow> (as@[0]) \<bullet>
 lemma lincomb_strip_while_0coeffs :
   assumes "set ms \<subseteq> M"
   shows   "(strip_while ((=) 0) as) \<bullet>\<cdot> ms = as \<bullet>\<cdot> ms"
-proof (induct as rule: rev_induct)
+proof2 (induct as rule: rev_induct)
   case (snoc a as)
   hence caseassm: "strip_while ((=) 0) as \<bullet>\<cdot> ms = as \<bullet>\<cdot> ms" by fast
   show ?case
@@ -3500,7 +3500,7 @@ lemma RSpan_Cons : "RSpan (m#ms) = RSpan [m] + RSpan ms"
 
 lemma in_RSpan_obtain_same_length_coeffs :
   "n \<in> RSpan ms \<Longrightarrow> \<exists>rs. set rs \<subseteq> R \<and> length rs = length ms \<and> n = rs \<bullet>\<cdot> ms"
-proof (induct ms arbitrary: n)
+proof2 (induct ms arbitrary: n)
   case Nil
   hence "n = 0" by simp
   thus "\<exists>rs. set rs \<subseteq> R \<and> length rs = length [] \<and> n = rs \<bullet>\<cdot> []"
@@ -3536,13 +3536,13 @@ proof
     from this obtain rs where rs: "set rs \<subseteq> R" "length rs = length ms" "x = rs \<bullet>\<cdot> ms"
       by fast
     from rs(2) have "set rs \<subseteq> R \<Longrightarrow> rs \<bullet>\<cdot> ms \<in> RSpan ms"
-      using lincomb_Nil lincomb_Cons by (induct rs ms rule: list_induct2) auto
+      using lincomb_Nil lincomb_Cons apply2 (induct rs ms rule: list_induct2) by auto
     with rs(1,3) show "x \<in> RSpan ms" by fast
   qed
 qed
 
 lemma RSpan_append : "RSpan (ms @ ns) = RSpan ms + RSpan ns"
-proof (induct ms)
+proof2 (induct ms)
   case Nil show ?case using add_0_left[of "RSpan ns"] by simp
 next
   case (Cons m ms) thus ?case
@@ -3591,7 +3591,7 @@ next
 qed
 
 lemma Group_RSpan : "set ms \<subseteq> M \<Longrightarrow> Group (RSpan ms)"
-proof (induct ms)
+proof2 (induct ms)
   case Nil show ?case using trivial_Group by simp
 next
   case (Cons m ms)
@@ -3607,7 +3607,7 @@ lemma RSpanD_lincomb_arb_len_coeffs :
 proof
   show "RSpan ms \<subseteq> { rs \<bullet>\<cdot> ms | rs. set rs \<subseteq> R }" using RSpanD_lincomb by fast
   show "set ms \<subseteq> M \<Longrightarrow> RSpan ms \<supseteq> { rs \<bullet>\<cdot> ms | rs. set rs \<subseteq> R }"
-  proof (induct ms)
+  proof2 (induct ms)
     case Nil show ?case using lincomb_Nil by auto
   next
     case (Cons m ms) show ?case
@@ -3639,7 +3639,7 @@ lemma RSpan_contains_RSpans_append_left :
   by    fast
 
 lemma RSpan_contains_spanset : "set ms \<subseteq> M \<Longrightarrow> set ms \<subseteq> RSpan ms"
-proof (induct ms)
+proof2 (induct ms)
   case Nil show ?case by simp
 next
   case (Cons m ms) thus ?case
@@ -3664,7 +3664,7 @@ lemma RSpan_single_closed : "m \<in> M \<Longrightarrow> RSpan [m] \<subseteq> M
   using RSpan_single smult_closed by auto
 
 lemma RSpan_closed : "set ms \<subseteq> M \<Longrightarrow> RSpan ms \<subseteq> M"
-proof (induct ms)
+proof2 (induct ms)
   case Nil show ?case using zero_closed by simp
 next
   case (Cons m ms) thus ?case 
@@ -3704,7 +3704,7 @@ qed
 lemma RSpan_lincomb_closed :
   "\<lbrakk> set rs \<subseteq> R; set ms \<subseteq> M; set ns \<subseteq> RSpan ms \<rbrakk> \<Longrightarrow> rs \<bullet>\<cdot> ns \<in> RSpan ms"
   using lincomb_Nil RSpan_zero_closed lincomb_Cons RSpan_smult_closed RSpan_add_closed
-  by    (induct rs ns rule: list_induct2') auto
+  apply2    (induct rs ns rule: list_induct2') by auto
 
 lemma RSpanI : "set ms \<subseteq> M \<Longrightarrow> M \<subseteq> RSpan ms \<Longrightarrow> M = RSpan ms"
   using RSpan_closed by fast
@@ -3730,7 +3730,7 @@ next
 qed
 
 lemma RSubmodule_RSpan : "set ms \<subseteq> M \<Longrightarrow> RSubmodule (RSpan ms)"
-proof (induct ms)
+proof2 (induct ms)
   case Nil show ?case using trivial_RSubmodule by simp
 next
   case (Cons m ms)
@@ -3884,7 +3884,7 @@ begin
 lemma R_lin_independent_imp_same_scalars :
   "\<lbrakk> length rs = length ss; length rs \<le> length ms; set rs \<subseteq> R; set ss \<subseteq> R;
         set ms \<subseteq> M; R_lin_independent ms; rs \<bullet>\<cdot> ms = ss \<bullet>\<cdot> ms \<rbrakk> \<Longrightarrow> rs = ss"
-proof (induct rs ss arbitrary: ms rule: list_induct2)
+proof2 (induct rs ss arbitrary: ms rule: list_induct2)
   case (Cons r rs s ss)
   from Cons(3) have "ms \<noteq> []" by auto
   from this obtain n ns where ms: "ms = n#ns"
@@ -3915,7 +3915,7 @@ lemma R_lin_independentI_all_scalars :
   "set ms \<subseteq> M \<Longrightarrow>
         (\<forall>rs. set rs \<subseteq> R \<and> length rs = length ms \<and> rs \<bullet>\<cdot> ms = 0 \<longrightarrow> set rs \<subseteq> 0)
           \<Longrightarrow> R_lin_independent ms"
-proof (induct ms)
+proof2 (induct ms)
   case (Cons m ms) show ?case
   proof (rule R_lin_independent_ConsI)
     have "\<And>rs. \<lbrakk> set rs \<subseteq> R; length rs = length ms; rs \<bullet>\<cdot> ms = 0 \<rbrakk> \<Longrightarrow> set rs \<subseteq> 0"
@@ -3967,7 +3967,7 @@ qed
 lemma R_lin_independentD_all_scalars :
   "\<lbrakk> set rs \<subseteq> R; set ms \<subseteq> M; length rs \<le> length ms; R_lin_independent ms;
         rs \<bullet>\<cdot> ms = 0 \<rbrakk> \<Longrightarrow> set rs \<subseteq> 0"
-proof (induct rs ms rule: list_induct2')
+proof2 (induct rs ms rule: list_induct2')
   case (4 r rs m ms)
   from 4(2,5,6) have "r = 0" by auto
   moreover with 4 have "set rs \<subseteq> 0" using lincomb_Cons zero_smult by simp
@@ -3994,7 +3994,7 @@ qed
 lemma R_lin_dependent_dependence_relation :
   "set ms \<subseteq> M \<Longrightarrow> \<not> R_lin_independent ms
         \<Longrightarrow> \<exists>rs. set rs \<subseteq> R \<and> set rs \<noteq> 0 \<and> length rs = length ms \<and> rs \<bullet>\<cdot> ms = 0"
-proof (induct ms)
+proof2 (induct ms)
   case (Cons m ms) show ?case
   proof (cases "R_lin_independent ms")
     case True
@@ -4030,7 +4030,7 @@ qed simp
 
 lemma R_lin_independent_imp_distinct :
   "set ms \<subseteq> M \<Longrightarrow> R_lin_independent ms \<Longrightarrow> distinct ms"
-proof (induct ms)
+proof2 (induct ms)
   case (Cons m ms)
   have "\<And>n. n \<in> set ms \<Longrightarrow> m \<noteq> n"
   proof
@@ -4049,7 +4049,7 @@ qed simp
 
 lemma R_lin_independent_imp_independent_take : 
   "set ms \<subseteq> M \<Longrightarrow> R_lin_independent ms \<Longrightarrow> R_lin_independent (take n ms)"
-proof (induct ms arbitrary: n)
+proof2 (induct ms arbitrary: n)
   case (Cons m ms) show ?case
   proof (cases n)
     case (Suc k)
@@ -4117,7 +4117,7 @@ lemma R_lin_independent_reduce :
   assumes "n \<in> M"
   shows   "set ms \<subseteq> M \<Longrightarrow> R_lin_independent (ms @ n # ns)
                 \<Longrightarrow> R_lin_independent (ms @ ns)"
-proof (induct ms)
+proof2 (induct ms)
   case (Cons m ms)
   moreover have "\<And>r rs. set (r#rs) \<subseteq> R \<Longrightarrow> (r#rs) \<bullet>\<cdot> (m#ms@ns) = 0
                       \<Longrightarrow> r = 0"
@@ -4163,7 +4163,7 @@ qed
 lemma R_lin_independent_append_imp_independent_RSpans :
   "set ms \<subseteq> M \<Longrightarrow> R_lin_independent (ms@ns)
         \<Longrightarrow> add_independentS [RSpan ms, RSpan ns]"
-proof (induct ms)
+proof2 (induct ms)
   case (Cons m ms)
   show ?case
   proof (rule add_independentS_doubleI)
@@ -4433,7 +4433,7 @@ lemma distrib_lincomb :
   "set rs \<subseteq> R \<Longrightarrow> set ms \<subseteq> M \<Longrightarrow> T (rs \<bullet>\<cdot> ms) = rs \<bullet>\<star> map T ms"
   using Domain.lincomb_Nil im_zero Codomain.lincomb_Nil R_map Domain.lincomb_Cons
         Domain.smult_closed Domain.lincomb_closed additive Codomain.lincomb_Cons
-  by    (induct rs ms rule: list_induct2') auto
+  apply2    (induct rs ms rule: list_induct2') by auto
 
 lemma same_image_on_RSpanset_imp_same_hom :
   assumes "RModuleHom R smult M smult' S" "set ms \<subseteq> M"
@@ -4759,7 +4759,7 @@ lemma build_lin_independent_seq :
   and     indep_us: "lin_independent us"
   shows   "\<exists>ws. set ws \<subseteq> V \<and> lin_independent (ws @ us) \<and> (Span (ws @ us) = V
                 \<or> length ws = n)"
-proof (induct n)
+proof2 (induct n)
   case 0 from indep_us show ?case by force
 next
   case (Suc m)
@@ -4796,7 +4796,7 @@ begin
 
 lemma spanset_contains_basis :
   "set vs \<subseteq> V \<Longrightarrow> \<exists>us. set us \<subseteq> set vs \<and> basis_for (Span vs) us"
-proof (induct vs)
+proof2 (induct vs)
   case Nil show ?case using lin_independent_Nil by simp
 next
   case (Cons v vs)
@@ -4902,7 +4902,7 @@ lemma replace_basis :
   shows   "\<lbrakk> length us \<le> length vs; set us \<subseteq> Span vs; lin_independent us \<rbrakk>
                 \<Longrightarrow> \<exists>pvs. length pvs = length vs \<and> set pvs = set vs
                   \<and> basis_for (Span vs) (take (length vs) (us @ pvs))"
-proof (induct us)
+proof2 (induct us)
   case Nil from closed indep_vs show ?case
     using Span_contains_spanset[of vs] by fastforce
 next
@@ -4965,7 +4965,7 @@ proof-
           theI'[of "\<lambda>ds. length ds = length vs \<and> v' = ds \<bullet>\<cdot> vs"]
     by    auto
   have "length [a+b. (a,b)\<leftarrow>zip as bs] = length (zip as bs)"
-    by (induct as bs rule: list_induct2') auto
+    apply2 (induct as bs rule: list_induct2') by auto
   with vs as' bs'
     have  "length [a+b. (a,b)\<leftarrow>zip as bs]
                 = length vs \<and> v + v' = [a + b. (a,b)\<leftarrow>zip as bs] \<bullet>\<cdot> vs"
@@ -5685,7 +5685,7 @@ definition polymap :: "'f poly \<Rightarrow> ('v\<Rightarrow>'v)"
   where "polymap p \<equiv> (coeffs p) \<bullet>\<cdot>\<cdot> (map endpow [0..<Suc (degree p)])"
 
 lemma VEnd_endpow : "VEnd (endpow n)"
-proof (induct n)
+proof2 (induct n)
   case 0 show ?case using end_idhom by simp
 next
   case (Suc k)
@@ -5701,7 +5701,7 @@ lemma endpow_list_apply_closed :
 
 lemma map_endpow_Suc :
   "map endpow [0..<Suc n] = (id\<down>V) # map ((\<circ>) T) (map endpow [0..<n])"
-proof (induct n)
+proof2 (induct n)
   case (Suc k)
   hence "map endpow [0..<Suc (Suc k)] = id \<down> V
               # map ((\<circ>) T) (map endpow [0..<k]) @ map ((\<circ>) T) [endpow k]"
@@ -5713,7 +5713,7 @@ qed simp
 lemma T_endpow_list_apply_commute :
   "map T (map (\<lambda>S. S v) (map endpow [0..<n]))
         = map (\<lambda>S. S v) (map ((\<circ>) T) (map endpow [0..<n]))"
-  by (induct n) auto
+  apply2 (induct n) by auto
 
 lemma polymap0 : "polymap 0 = 0"
   using polymap_def scalar_mult.lincomb_Nil by force
@@ -5820,7 +5820,7 @@ next
 qed
 
 lemma polymap_plus : "polymap (p + q) = polymap p + polymap q"
-proof (induct p q rule: pCons_induct2)
+proof2 (induct p q rule: pCons_induct2)
   case 00 show ?case using polymap0 by simp
   case lpCons show ?case using polymap0 by simp
   case rpCons show ?case using polymap0 by simp
@@ -5840,7 +5840,7 @@ next
 qed
 
 lemma polymap_polysmult : "polymap (Polynomial.smult a p) = a \<cdot>\<cdot> polymap p"
-proof (induct p)
+proof2 (induct p)
   case 0 show "polymap (Polynomial.smult a 0) = a \<cdot>\<cdot> polymap 0"
     using polymap0 end_smult0 by simp
 next
@@ -5862,7 +5862,7 @@ next
 qed
 
 lemma polymap_times : "polymap (p * q) = (polymap p) \<circ> (polymap q)"
-proof (induct p)
+proof2 (induct p)
   case 0 show ?case using polymap0 by auto
 next
   case (pCons a p)
@@ -5886,7 +5886,7 @@ lemma polymap_apply :
   assumes "v \<in> V"
   shows   "polymap p v = (coeffs p)
                 \<bullet>\<cdot> (map (\<lambda>S. S v) (map endpow [0..<Suc (degree p)]))"
-proof (induct p)
+proof2 (induct p)
   case 0 show ?case
     using lincomb_Nil scalar_mult.lincomb_Nil[of _ _ end_smult] polymap_def
     by    simp
@@ -5965,7 +5965,7 @@ lemma n_inj_polymap_findlinear :
   assumes alg_closed: "\<And>p::'f poly. degree p > 0 \<Longrightarrow> \<exists>c. poly p c = 0"
   shows   "p \<noteq> 0 \<Longrightarrow> \<not> inj_on (polymap p) V
                 \<Longrightarrow> \<exists>c. \<not> inj_on (polymap [:-c, 1:]) V"
-proof (induct n \<equiv> "degree p" arbitrary: p)
+proof2 (induct n \<equiv> "degree p" arbitrary: p)
   case (0 p) thus ?case using polymap_const_inj by simp
 next
   case (Suc n p)
@@ -6109,7 +6109,7 @@ lemma length_concat_negGorbit_list :
 
 lemma negGorbit_list_nth : 
   "\<And>i. i < length gs \<Longrightarrow> (negGorbit_list gs T as)!i = map (Gmult (-gs!i) \<circ> T) as"
-proof (induct gs)
+proof2 (induct gs)
   case (Cons g gs) thus ?case using negGorbit_Cons[of _ _ T] by (cases i) auto
 qed simp
 
@@ -7418,7 +7418,7 @@ qed
 lemma indspace_sum_list_fddh: 
   "\<lbrakk> fhs \<noteq> []; set (map snd fhs) \<subseteq> H; f \<in> indV \<rbrakk>
         \<Longrightarrow> f (\<Sum>(a,h)\<leftarrow>fhs. a \<delta>\<delta> h) = (\<Sum>(a,h)\<leftarrow>fhs. f (a \<delta>\<delta> h))"
-proof (induct fhs rule: list_nonempty_induct)
+proof2 (induct fhs rule: list_nonempty_induct)
   case (single fh) show ?case 
     using split_beta[of "\<lambda>a h. a \<delta>\<delta> h" fh] split_beta[of "\<lambda>a h. f (a \<delta>\<delta> h)" fh] by simp
 next
@@ -7955,7 +7955,7 @@ lemma FinGroupRepresentation_reducible' :
               \<and> n = FGModule.fdim fgsmult V
                 \<Longrightarrow> (\<exists>Us. Ball (set Us) (IrrFinGroupRepresentation G fgsmult)
                   \<and> (0 \<notin> set Us) \<and> V = (\<Oplus>U\<leftarrow>Us. U) )"
-proof (induct n rule: full_nat_induct)
+proof2 (induct n rule: full_nat_induct)
   fix n V
   define GRep IGRep GSubspace GSpan fdim
     where "GRep = FinGroupRepresentation G fgsmult"
@@ -8391,13 +8391,13 @@ primrec remisodups :: "('f::field,'g) aezfun set list \<Rightarrow> ('f,'g) aezf
           then remisodups Us else U # remisodups Us)"
 
 lemma set_remisodups : "set (remisodups Us) \<subseteq> set Us"
-  by (induct Us) auto
+  by2 (induct Us) auto
 
 lemma isodistinct_remisodups :
   "\<lbrakk> \<forall>U\<in>set Us. FGModule G (*) U; V \<in> set (remisodups Us);
         W \<in> set (remisodups Us); V \<noteq> W \<rbrakk>
           \<Longrightarrow> \<not> (FGModule.isomorphic G (*) V (*) W)"
-proof (induct Us arbitrary: V W)
+proof2 (induct Us arbitrary: V W)
   case (Cons U Us)
   show ?case
   proof (cases "\<exists>X\<in>set Us. FGModule.isomorphic G (*) U (*) X")
@@ -8493,7 +8493,7 @@ end (* context Group *)
 lemma (in FGModule) iso_in_list_imp_iso_in_remisodups :
   "\<exists>U\<in>set Us. isomorphic (*) U
         \<Longrightarrow> \<exists>U\<in>set (ActingGroup.remisodups Us). isomorphic (*) U"
-proof (induct Us)
+proof2 (induct Us)
   case (Cons U Us)
   from Cons(2) obtain W where W: "W \<in> set (U#Us)" "isomorphic (*) W"
     by fast

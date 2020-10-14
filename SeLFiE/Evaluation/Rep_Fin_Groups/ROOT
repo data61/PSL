@@ -1,7 +1,9 @@
 chapter AFP
 
 session Rep_Fin_Groups (AFP) = "HOL-Computational_Algebra" +
-  options [timeout = 600]
+  options [timeout = 6000000]
+  sessions
+    Eval_Base
   theories
     Rep_Fin_Groups
   document_files

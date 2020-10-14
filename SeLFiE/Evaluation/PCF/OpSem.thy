@@ -8,7 +8,7 @@ section \<open>Logical relations for computational adequacy\<close>
 theory OpSem
 imports
   Basis
-  PCF
+  PCF "Eval_Base.Eval_Base"
 begin
 
 (* FIXME
@@ -110,20 +110,20 @@ lemma subst_lt: "j < i \<Longrightarrow> (DBVar j)<u/i> = DBVar j"
 
 lemma lift_lift:
     "i < k + 1 \<Longrightarrow> lift (lift t i) (Suc k) = lift (lift t k) i"
-  by (induct t arbitrary: i k) auto
+  apply2 (induct t arbitrary: i k) by auto
 
 lemma lift_subst:
     "j < i + 1 \<Longrightarrow> lift (t<s/j>) i = (lift t (i + 1))<lift s i / j>"
-  by (induct t arbitrary: i j s)
-     (simp_all add: diff_Suc subst_Var lift_lift split: nat.split)
+  apply2 (induct t arbitrary: i j s)
+     by (simp_all add: diff_Suc subst_Var lift_lift split: nat.split)
 
 lemma lift_subst_lt:
     "i < j + 1 \<Longrightarrow> lift (t<s/j>) i = (lift t i)<lift s i / j + 1>"
-  by (induct t arbitrary: i j s) (auto simp: subst_Var lift_lift)
+  apply2 (induct t arbitrary: i j s) by (auto simp: subst_Var lift_lift)
 
 lemma subst_lift:
     "(lift t k)<s/k> = t"
-  by (induct t arbitrary: k s) (simp_all add: subst_eq subst_gt subst_lt)
+  apply2 (induct t arbitrary: k s) by (simp_all add: subst_eq subst_gt subst_lt)
 
 lemmas subst_simps [simp] =
   subst_eq
@@ -134,8 +134,8 @@ lemmas subst_simps [simp] =
 
 lemma subst_subst:
     "i < j + 1 \<Longrightarrow> t<lift v i/Suc j><u<v/j>/i> = t<u/i><v/j>"
-  by (induct t arbitrary: i j u v)
-     (simp_all add: diff_Suc subst_Var lift_lift [symmetric] lift_subst_lt
+  apply2 (induct t arbitrary: i j u v)
+     by (simp_all add: diff_Suc subst_Var lift_lift [symmetric] lift_subst_lt
              split: nat.split)
 
 (*>*)
@@ -163,29 +163,29 @@ where
 (*<*)
 
 lemma subst_not_free [simp]: "\<not> freedb s i \<Longrightarrow> s<t/i> = s<u/i>"
-  by (induct s arbitrary: i t u) (simp_all add: subst_Var)
+  apply2 (induct s arbitrary: i t u) by (simp_all add: subst_Var)
 
 lemma free_lift [simp]:
   "freedb (lift t k) i \<longleftrightarrow> (i < k \<and> freedb t i \<or> k < i \<and> freedb t (i - 1))"
-  by (induct t arbitrary: i k) (auto cong: conj_cong)
+  apply2 (induct t arbitrary: i k) by (auto cong: conj_cong)
 
 lemma free_subst [simp]:
   "freedb (s<t/k>) i \<longleftrightarrow> (freedb s k \<and> freedb t i \<or> freedb s (if i < k then i else i + 1))"
-by (induct s arbitrary: i k t) (auto simp:  subst_Var split: nat.split)
+apply2 (induct s arbitrary: i k t) by (auto simp:  subst_Var split: nat.split)
 
 theorem lift_subst_dummy:
   "\<not> freedb s i \<Longrightarrow> lift (s<dummy/i>) i = s"
-by (induct s arbitrary: i dummy) (simp_all add: not_less_eq if_not_P)
+apply2 (induct s arbitrary: i dummy) by (simp_all add: not_less_eq if_not_P)
 
 lemma closed_lift:
   "\<forall>v. freedb e v \<longrightarrow> v < k \<Longrightarrow> lift e k = e"
-by (induct e arbitrary: k) (simp; metis less_Suc_eq_0_disj nat.exhaust)+
+apply2 (induct e arbitrary: k) by (simp; metis less_Suc_eq_0_disj nat.exhaust)+
 
 lemma closed_subst:
   assumes "\<forall>v. freedb e v \<longrightarrow> v < k"
   shows "e<s/k> = e"
 using assms
-proof(induct e arbitrary: s k)
+proof2(induct e arbitrary: s k)
   case (DBAbsN e) then show ?case by simp (metis lessE not_less_eq)
 next
   case (DBAbsV e) then show ?case by simp (metis lessE not_less_eq)
@@ -277,7 +277,7 @@ lemma evalDdb_env_cong:
   assumes "\<forall>v. freedb e v \<longrightarrow> \<rho>\<cdot>v = \<rho>'\<cdot>v"
   shows "evalDdb e\<cdot>\<rho> = evalDdb e\<cdot>\<rho>'"
 using assms
-proof(induct e arbitrary: \<rho> \<rho>')
+proof2(induct e arbitrary: \<rho> \<rho>')
   case (DBApp e1 e2 \<rho> \<rho>')
   from DBApp.hyps[where \<rho>=\<rho> and \<rho>'=\<rho>'] DBApp.prems show ?case by simp
 next
@@ -375,14 +375,14 @@ where
 
 lemma index_Suc:
   "index \<Gamma> v (Suc i) = Suc (index \<Gamma> v i)"
-  by (induct \<Gamma> arbitrary: i) simp_all
+  apply2 (induct \<Gamma> arbitrary: i) by simp_all
 
 lemma evalD_evalDdb_open:
   assumes "set (free e) \<subseteq> set \<Gamma>"
   assumes "\<forall>v \<in> set \<Gamma>. \<rho>'\<cdot>(index \<Gamma> v 0) = \<rho>\<cdot>v"
   shows "\<lbrakk>e\<rbrakk>\<rho> = evalDdb (transdb e \<Gamma>)\<cdot>\<rho>'"
 using assms
-proof(induct e arbitrary: \<Gamma> \<rho> \<rho>')
+proof2(induct e arbitrary: \<Gamma> \<rho> \<rho>')
   case AbsN then show ?case
     apply (clarsimp simp: cfun_eq_iff)
     apply (subst AbsN.hyps)
@@ -448,7 +448,7 @@ lemma transdb_inv_open:
   assumes "\<forall>v. freedb e v \<longrightarrow> (if k \<le> v then index \<Gamma>' (v - k) 0 = v else index \<Gamma>' (c + k - v - 1) 0 = v)"
   shows "transdb (transdb_inv e \<Gamma> c k) \<Gamma>' = e"
 using assms
-proof(induct e arbitrary: \<Gamma> \<Gamma>' k)
+proof2(induct e arbitrary: \<Gamma> \<Gamma>' k)
   case DBVar then show ?case by (simp split: if_splits)
 next
   case (DBApp e1 e2 \<Gamma> \<Gamma>') then show ?case
@@ -538,7 +538,7 @@ lemma closed_transdb_inv_aux:
   assumes "\<forall>v. freedb e v \<longrightarrow> \<Gamma> v = k - v - 1"
   shows "i \<in> set (free (transdb_inv e \<Gamma> 0 k)) \<longleftrightarrow> (i < k \<and> freedb e (k - i - 1))"
 using assms
-proof(induct e arbitrary: \<Gamma> k)
+proof2(induct e arbitrary: \<Gamma> k)
   case (DBAbsN e \<Gamma> k) then show ?case
     apply -
     apply (drule_tac x="Suc k" in meta_spec)
@@ -676,19 +676,19 @@ inductive_cases evalOP_inv [elim]:
 lemma eval_val:
   assumes "val t"
   shows "t \<Down> t"
-using assms by induct blast+
+using assms apply2 induct by blast+
 
 lemma eval_to [iff]:
   assumes "t \<Down> t'"
   shows "val t'"
-using assms by induct blast+
+using assms apply2 induct by blast+
 
 lemma evalOP_deterministic:
   assumes "P \<Down> V"
   assumes "P \<Down> V'"
   shows "V = V'"
 using assms
-proof(induct arbitrary: V' rule: evalOP.induct)
+proof2(induct arbitrary: V' rule: evalOP.induct)
   case evalOP_AppV then show ?case by (metis db.distinct(47) db.inject(4) evalOP_inv(1))
 qed blast+
 
@@ -697,7 +697,7 @@ lemma evalOP_closed:
   assumes "closed P"
   shows "closed V"
 using assms
-apply induct
+apply2 induct
 apply auto
 using closed_def apply force+
 done
@@ -706,7 +706,7 @@ text\<open>The denotational semantics respects substitution.\<close>
 
 lemma evalDdb_lift [simp]:
   "evalDdb (lift s k)\<cdot>\<rho> = evalDdb s\<cdot>(\<Lambda> i. if i < k then \<rho>\<cdot>i else \<rho>\<cdot>(Suc i))"
-proof(induct s arbitrary: k \<rho>)
+proof2(induct s arbitrary: k \<rho>)
   case DBAbsN then show ?case
     apply (clarsimp simp: cfun_eq_iff env_ext_db_def)
     apply (rule cfun_arg_cong)
@@ -736,7 +736,7 @@ qed simp_all
 
 lemma evalDdb_subst:
   "evalDdb (e<s/x>)\<cdot>\<rho> = evalDdb e\<cdot>(\<Lambda> i. if x < i then \<rho>\<cdot>(i - 1) else if i = x then evalDdb s\<cdot>\<rho> else \<rho>\<cdot>i)"
-proof(induct e arbitrary: s x \<rho>)
+proof2(induct e arbitrary: s x \<rho>)
   case (DBFix e s x \<rho>) then show ?case
     apply (simp only: evalDdb.simps subst.simps)
     apply (rule parallel_fix_ind)
@@ -759,7 +759,7 @@ theorem evalOP_sound:
   shows "evalDdb P\<cdot>\<rho> = evalDdb V\<cdot>\<rho>"
 (*<*)
 using assms
-proof(induct arbitrary: \<rho>)
+proof2(induct arbitrary: \<rho>)
   case evalOP_AppN then show ?case
     by (simp add: evalOP_AppN(4)[symmetric] evalDdb_subst_env_ext_db)
 next
@@ -1134,7 +1134,7 @@ lemma freedb_closing_subst [iff]:
   assumes "\<forall>v. freedb e v \<and> k \<le> v \<longrightarrow> closed (\<Gamma> (v - k))"
   shows "freedb (closing_subst e \<Gamma> k) i \<longleftrightarrow> (freedb e i \<and> i < k)"
   using assms
-  apply (induct e arbitrary: i k)
+  apply2 (induct e arbitrary: i k)
   using Suc_le_D
   apply (auto simp: closed_def not_less_eq diff_Suc split: nat.split)
     apply (subgoal_tac "\<forall>v. freedb e v \<and> Suc k \<le> v \<longrightarrow> (\<forall>j. \<not> freedb (\<Gamma> (v - Suc k)) j)"; use Suc_le_D in force)+
@@ -1151,7 +1151,7 @@ lemma subst_closing_subst:
   assumes "closed X"
   shows "(closing_subst e \<Gamma> (Suc k))<X/k> = closing_subst e (case_nat X \<Gamma>) k"
 using assms
-proof(induct e arbitrary: k)
+proof2(induct e arbitrary: k)
   case DBVar then show ?case
     unfolding closed_def
     by (clarsimp simp: Suc_le_eq closed_subst) (metis Suc_diff_Suc old.nat.simps(5))
@@ -1170,7 +1170,7 @@ lemma closing_subst_closed [intro, simp]:
   assumes "\<forall>v. freedb e v \<longrightarrow> v < k"
   shows "closing_subst e \<Gamma> k = e"
   using assms
-  apply (induct e arbitrary: k)
+  apply2 (induct e arbitrary: k)
   apply (auto simp: closed_def)
   apply (metis gr_implies_not0 nat.exhaust not_less_eq)+
   done
@@ -1179,7 +1179,7 @@ lemma closing_subst_evalDdb_cong:
   assumes "\<forall>v. closed (\<Gamma> v) \<and> closed (\<Gamma>' v)"
   assumes "\<forall>v. evalDdb (\<Gamma> v)\<cdot>env_empty_db = evalDdb (\<Gamma>' v)\<cdot>env_empty_db"
   shows "evalDdb (closing_subst e \<Gamma> k)\<cdot>\<rho> = evalDdb (closing_subst e \<Gamma>' k)\<cdot>\<rho>"
-proof(induct e arbitrary: k \<rho>)
+proof2(induct e arbitrary: k \<rho>)
   case DBVar with assms show ?case
     by (simp; subst (1 2) evalDdb_env_closed[where \<rho>'=env_empty_db]; simp)
 qed auto
@@ -1197,7 +1197,7 @@ lemma ca_open:
   shows "evalDdb e\<cdot>\<rho> \<triangleleft> closing_subst e \<Gamma> 0"
 (*<*)
 using assms
-proof(induct e arbitrary: \<Gamma> \<rho>)
+proof2(induct e arbitrary: \<Gamma> \<rho>)
   case (DBApp e1 e2 \<Gamma> \<rho>)
   from DBApp.prems DBApp.hyps[of \<rho> \<Gamma>] show ?case
     apply simp
@@ -1428,22 +1428,22 @@ lemma have_the_same_form_sound:
   assumes "val v2"
   shows "v1 \<sim> v2"
   using \<open>val v1\<close> D
-  apply (induct rule: val.induct)
+  apply2 (induct rule: val.induct)
   apply simp_all
   using \<open>val v2\<close>
   apply (induct rule: val.induct)
   apply simp_all
   using \<open>val v2\<close>
-  apply (induct rule: val.induct)
+     apply2 (induct rule: val.induct)
   apply simp_all
   using \<open>val v2\<close>
-  apply (induct rule: val.induct)
+    apply2 (induct rule: val.induct)
   apply simp_all
   using \<open>val v2\<close>
-  apply (induct rule: val.induct)
+   apply2 (induct rule: val.induct)
   apply simp_all
   using \<open>val v2\<close>
-  apply (induct rule: val.induct)
+  apply2 (induct rule: val.induct)
   apply simp_all
   done
 

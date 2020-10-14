@@ -619,10 +619,32 @@ local
 (* SINGLE is copied from Tactical.ML, but the types are more general.*)
 fun SINGLE tacf = Option.map fst o Seq.pull o tacf;
 
+(*Very similar to Timeout.apply but with my own release function, my_release.*)
+fun timeout_apply timeout f x =
+  Thread_Attributes.with_attributes Thread_Attributes.no_interrupts (fn orig_atts =>
+    let
+      val self = Thread.self ();
+      val start = Time.now ();
+      val request =
+        Event_Timer.request {physical = false} (start + timeout)
+          (fn () => Standard_Thread.interrupt_unsynchronized self);
+      val result =
+        Exn.capture (fn () => Thread_Attributes.with_attributes orig_atts (fn _ => f x)) ();
+      val stop = Time.now ();
+      val was_timeout = not (Event_Timer.cancel request);
+      val test = Exn.capture Thread_Attributes.expose_interrupt ();
+      fun my_release (Exn.Res rel) = rel
+       |  my_release _ = error "my_release failed"
+    in
+      if was_timeout andalso (Exn.is_interrupt_exn result orelse Exn.is_interrupt_exn test)
+      then (raise Timeout.TIMEOUT (stop - start))
+      else (Exn.release test; my_release result)
+    end);
+
 (* DETERM_TIMEOUT was originally written by Jasmin Blanchette in nitpick_util.ML.
- * This version has exception handling on top of his version.*)
+ * This version has exception handling on top of his version with my own timeout_apply.*)
 fun DETERM_TIMEOUT delay tac st =
-  Seq.of_list (the_list (Timeout.apply delay (fn () => SINGLE tac st) ()
+  Seq.of_list (the_list (timeout_apply delay (fn () => SINGLE tac st) ()
    handle Timeout.TIMEOUT _ => NONE));
 in
 

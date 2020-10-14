@@ -5,7 +5,7 @@
 *)
 chapter \<open>Basic Types\<close>
 theory OCL_Basic_Types
-  imports Main "HOL-Library.FSet" "HOL-Library.Phantom_Type"
+  imports Main "HOL-Library.FSet" "HOL-Library.Phantom_Type" "Eval_Base.Eval_Base"
 begin
 
 (*** Definition *************************************************************)
@@ -63,7 +63,7 @@ inductive_cases basic_subtype_ObjectType_x [elim!]: "\<langle>\<C>\<rangle>\<^su
 
 lemma basic_subtype_asym:
   "\<tau> \<sqsubset>\<^sub>B \<sigma> \<Longrightarrow> \<sigma> \<sqsubset>\<^sub>B \<tau> \<Longrightarrow> False"
-  by (induct rule: basic_subtype.induct, auto)
+  apply2 (induct rule: basic_subtype.induct) by (auto)
 
 (*** Partial Order of Basic Types *******************************************)
 
@@ -90,7 +90,7 @@ proof -
     by (rule_tac ?b="Integer" in tranclp_into_tranclp2; auto)
   ultimately show "\<tau> \<noteq> OclAny \<Longrightarrow> \<tau> < OclAny"
     unfolding less_basic_type_def
-    by (induct \<tau>, auto)
+    apply2 (induct \<tau>) by(auto)
 qed
 
 lemma type_less_OclVoid_x_intro [intro]:
@@ -104,7 +104,7 @@ proof -
     by (rule_tac ?b="Integer" in tranclp.trancl_into_trancl; auto)
   ultimately show "\<tau> \<noteq> OclVoid \<Longrightarrow> OclVoid < \<tau>"
     unfolding less_basic_type_def
-    by (induct \<tau>; auto)
+    apply2 (induct \<tau>) by(auto)
 qed
 
 lemma type_less_x_Real_intro [intro]:
@@ -138,18 +138,18 @@ lemma type_less_x_OclAny [elim!]:
    (\<And>\<E>. \<tau> = Enum \<E> \<Longrightarrow> P) \<Longrightarrow> 
    (\<And>\<C>. \<tau> = \<langle>\<C>\<rangle>\<^sub>\<T> \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_basic_type_def
-  by (induct rule: converse_tranclp_induct; auto)
+  apply2 (induct rule: converse_tranclp_induct) by(auto)
 
 lemma type_less_x_OclVoid [elim!]:
   "\<tau> < OclVoid \<Longrightarrow> P"
   unfolding less_basic_type_def
-  by (induct rule: converse_tranclp_induct; auto)
+  apply2 (induct rule: converse_tranclp_induct) by (auto)
 
 lemma type_less_x_Boolean [elim!]:
   "\<tau> < Boolean \<Longrightarrow>
    (\<tau> = OclVoid \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_basic_type_def
-  by (induct rule: converse_tranclp_induct; auto)
+  apply2 (induct rule: converse_tranclp_induct) by(auto)
 
 lemma type_less_x_Real [elim!]:
   "\<tau> < Real \<Longrightarrow>
@@ -157,33 +157,33 @@ lemma type_less_x_Real [elim!]:
    (\<tau> = UnlimitedNatural \<Longrightarrow> P) \<Longrightarrow>
    (\<tau> = Integer \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_basic_type_def
-  by (induct rule: converse_tranclp_induct; auto)
+  apply2 (induct rule: converse_tranclp_induct) by(auto)
 
 lemma type_less_x_Integer [elim!]:
   "\<tau> < Integer \<Longrightarrow>
    (\<tau> = OclVoid \<Longrightarrow> P) \<Longrightarrow>
    (\<tau> = UnlimitedNatural \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_basic_type_def
-  by (induct rule: converse_tranclp_induct; auto)
+  apply2 (induct rule: converse_tranclp_induct) by(auto)
 
 lemma type_less_x_UnlimitedNatural [elim!]:
   "\<tau> < UnlimitedNatural \<Longrightarrow>
    (\<tau> = OclVoid \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_basic_type_def
-  by (induct rule: converse_tranclp_induct; auto)
+  apply2 (induct rule: converse_tranclp_induct) by(auto)
 
 lemma type_less_x_String [elim!]:
   "\<tau> < String \<Longrightarrow>
    (\<tau> = OclVoid \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_basic_type_def
-  by (induct rule: converse_tranclp_induct; auto)
+  apply2 (induct rule: converse_tranclp_induct) by(auto)
 
 lemma type_less_x_ObjectType [elim!]:
   "\<tau> < \<langle>\<D>\<rangle>\<^sub>\<T> \<Longrightarrow>
    (\<tau> = OclVoid \<Longrightarrow> P) \<Longrightarrow>
    (\<And>\<C>. \<tau> = \<langle>\<C>\<rangle>\<^sub>\<T> \<Longrightarrow> \<C> < \<D> \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_basic_type_def
-  apply (induct rule: converse_tranclp_induct)
+  apply2 (induct rule: converse_tranclp_induct)
   apply auto[1]
   using less_trans by auto
 
@@ -191,7 +191,7 @@ lemma type_less_x_Enum [elim!]:
   "\<tau> < Enum \<E> \<Longrightarrow>
    (\<tau> = OclVoid \<Longrightarrow> P) \<Longrightarrow> P"
   unfolding less_basic_type_def
-  by (induct rule: converse_tranclp_induct; auto)
+  apply2 (induct rule: converse_tranclp_induct) by(auto)
 
 (*** Properties *************************************************************)
 
@@ -345,7 +345,7 @@ lemma basic_type_less_left_simps [simp]:
   "String < \<sigma> = (\<sigma> = OclAny)"
   "ObjectType \<C> < \<sigma> = (\<exists>\<D>. \<sigma> = OclAny \<or> \<sigma> = ObjectType \<D> \<and> \<C> < \<D>)"
   "Enum \<E> < \<sigma> = (\<sigma> = OclAny)"
-  by (induct \<sigma>, auto)
+  apply2 (induct \<sigma>) by(auto)
 
 lemma basic_type_less_right_simps [simp]:
   "\<tau> < OclAny = (\<tau> \<noteq> OclAny)"
@@ -375,7 +375,7 @@ fun sup_basic_type where
 
 lemma sup_ge1_ObjectType:
   "\<langle>\<C>\<rangle>\<^sub>\<T> \<le> \<langle>\<C>\<rangle>\<^sub>\<T> \<squnion> \<sigma>"
-  apply (induct \<sigma>; simp add: basic_subtype.simps
+  apply2 (induct \<sigma>) apply(simp_all add: basic_subtype.simps
         less_eq_basic_type_def r_into_rtranclp)
   by (metis Nitpick.rtranclp_unfold basic_subtype.intros(8)
         le_imp_less_or_eq r_into_rtranclp sup_ge1)
@@ -383,18 +383,37 @@ lemma sup_ge1_ObjectType:
 lemma sup_ge1_basic_type:
   "\<tau> \<le> \<tau> \<squnion> \<sigma>"
   for \<tau> \<sigma> :: "'a basic_type"
-  apply (induct \<tau>, auto)
+  apply2 (induct \<tau>) apply(auto)
   using sup_ge1_ObjectType by auto
 
 lemma sup_commut_basic_type:
   "\<tau> \<squnion> \<sigma> = \<sigma> \<squnion> \<tau>"
-  for \<tau> \<sigma> :: "'a basic_type"
-  by (induct \<tau>; induct \<sigma>; auto simp add: sup.commute)
+  for \<tau> \<sigma> :: "'a basic_type"(*  by (induct \<tau>; induct \<sigma>; auto simp add: sup.commute)*)
+  apply2 (induct \<tau>)
+          apply2 (induct \<sigma>) 
+                  apply(fastforce simp add: sup.commute)+
+          apply2 (induct \<sigma>) 
+                 apply(fastforce simp add: sup.commute)+
+          apply2 (induct \<sigma>) 
+                apply(fastforce simp add: sup.commute)+
+          apply2 (induct \<sigma>) 
+               apply(fastforce simp add: sup.commute)+
+          apply2 (induct \<sigma>) 
+              apply(fastforce simp add: sup.commute)+
+          apply2 (induct \<sigma>) 
+             apply(fastforce simp add: sup.commute)+
+          apply2 (induct \<sigma>) 
+            apply(fastforce simp add: sup.commute)+
+          apply2 (induct \<sigma>) 
+           apply(fastforce simp add: sup.commute)+
+          apply2 (induct \<sigma>) 
+          apply(fastforce simp add: sup.commute)+
+  done
 
 lemma sup_least_basic_type:
   "\<tau> \<le> \<rho> \<Longrightarrow> \<sigma> \<le> \<rho> \<Longrightarrow> \<tau> \<squnion> \<sigma> \<le> \<rho>"
   for \<tau> \<sigma> \<rho> :: "'a basic_type"
-  by (induct \<rho>; auto)
+  apply2 (induct \<rho>) by( auto)
 
 instance
   by standard (auto simp add: sup_ge1_basic_type

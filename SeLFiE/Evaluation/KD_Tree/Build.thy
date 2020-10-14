@@ -8,7 +8,7 @@ section \<open>Building a balanced \<open>k\<close>-d Tree from a List of Points
 theory Build
 imports
   KD_Tree
-  Median_Of_Medians_Selection.Median_Of_Medians_Selection
+  Median_Of_Medians_Selection.Median_Of_Medians_Selection  "Eval_Base.Eval_Base"
 begin
 
 text \<open>
@@ -26,7 +26,7 @@ lemma length_filter_mset_sorted_nth:
   assumes "distinct xs" "n < length xs" "sorted xs"
   shows "{# x \<in># mset xs. x \<le> xs ! n #} = mset (take (n + 1) xs)"
   using assms
-proof (induction xs arbitrary: n rule: list.induct)
+proof2 (induction xs arbitrary: n rule: list.induct)
   case (Cons x xs)
   thus ?case
   proof (cases n)
@@ -81,7 +81,7 @@ lemma calc_spread_spec:
 
 lemma widest_spread_calc_spread:
   "ks \<noteq> [] \<Longrightarrow> (k, s) = widest_spread ks ps \<Longrightarrow> s = calc_spread k ps"
-  by (induction ks ps rule: widest_spread.induct) (auto simp: Let_def split: prod.splits if_splits)
+  apply2 (induction ks ps rule: widest_spread.induct) by (auto simp: Let_def split: prod.splits if_splits)
 
 lemma widest_spread_axis_Un:
   shows "widest_spread_axis k K P \<Longrightarrow> spread k' P \<le> spread k P \<Longrightarrow> widest_spread_axis k (K \<union> { k' }) P"
@@ -90,7 +90,7 @@ lemma widest_spread_axis_Un:
 
 lemma widest_spread_spec:
   "(k, s) = widest_spread ks ps \<Longrightarrow> widest_spread_axis k (set ks) (set ps)"
-proof (induction ks ps arbitrary: k s rule: widest_spread.induct)
+proof2 (induction ks ps arbitrary: k s rule: widest_spread.induct)
   case (3 k\<^sub>0 k\<^sub>1 ks ps)
   obtain K' S' where K'_def: "(K', S') = widest_spread (k\<^sub>1 # ks) ps"
     by (metis surj_pair)
@@ -140,7 +140,7 @@ proof -
         length (filter (\<lambda>p. p$k \<le> sort ?ps ! ?n) ps)"
     unfolding axis_median_def by (auto simp add: Let_def select_def simp del: fast_select.simps)
   also have "... = length (filter (\<lambda>v. v \<le> sort ?ps ! ?n) ?ps)"
-    by (induction ps) (auto, metis comp_apply)
+    apply2 (induction ps) by (auto, metis comp_apply)
   also have "... = ?n + 1"
     using length_filter_sort_nth[OF 1 0] by blast
   finally show ?thesis .
@@ -230,10 +230,10 @@ lemma build_termination:
   assumes "\<forall>k. distinct (map (\<lambda>p. p$k) ps)"
   shows "build_dom (ks, ps)"
   using assms
-proof (induction ps rule: length_induct)
+proof2 (induction ps rule: length_induct)
   case (1 xs)
   consider (A) "xs = []" | (B) "\<exists>x. xs = [x]" | (C) "\<exists>x y zs. xs = x # y # zs"
-    by (induction xs rule: induct_list012) auto
+    apply2 (induction xs rule: induct_list012) by auto
   then show ?case
   proof cases
     case C
@@ -289,7 +289,7 @@ subsection \<open>Main Theorems\<close>
 
 theorem set_build:
   "0 < length ps \<Longrightarrow> \<forall>k. distinct (map (\<lambda>p. p$k) ps) \<Longrightarrow> set ps = set_kdt (build ks ps)"
-proof (induction ps rule: length_induct)
+proof2 (induction ps rule: length_induct)
   case (1 ps)
   show ?case
   proof (cases "1 < length ps")
@@ -325,7 +325,7 @@ qed
 
 theorem invar_build:
   "0 < length ps \<Longrightarrow> \<forall>k. distinct (map (\<lambda>p. p$k) ps) \<Longrightarrow> set ks = UNIV \<Longrightarrow> invar (build ks ps)"
-proof (induction ps rule: length_induct)
+proof2 (induction ps rule: length_induct)
   case (1 ps)
   show ?case
   proof (cases "1 < length ps")
@@ -364,7 +364,7 @@ qed
 
 theorem size_build:
   "0 < length ps \<Longrightarrow> \<forall>k. distinct (map (\<lambda>p. p$k) ps) \<Longrightarrow> size_kdt (build ks ps) = length ps"
-proof (induction ps rule: length_induct)
+proof2 (induction ps rule: length_induct)
   case (1 ps)
   show ?case
   proof (cases "1 < length ps")
@@ -398,7 +398,7 @@ qed
 
 theorem balanced_build:
   "0 < length ps \<Longrightarrow> \<forall>k. distinct (map (\<lambda>p. p$k) ps) \<Longrightarrow> balanced (build ks ps)"
-proof (induction ps rule: length_induct)
+proof2 (induction ps rule: length_induct)
   case (1 ps)
   show ?case
   proof (cases "1 < length ps")

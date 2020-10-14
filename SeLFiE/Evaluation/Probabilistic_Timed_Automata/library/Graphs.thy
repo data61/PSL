@@ -3,7 +3,7 @@ theory Graphs
   imports
     More_List Stream_More
     "HOL-Library.Rewrite"
-    Instantiate_Existentials
+    Instantiate_Existentials "Eval_Base.Eval_Base"
 begin
 
 section \<open>Graphs\<close>
@@ -22,7 +22,7 @@ lemmas [intro] = steps.intros
 
 lemma steps_append:
   "steps (xs @ tl ys)" if "steps xs" "steps ys" "last xs = hd ys"
-  using that by induction (auto 4 4 elim: steps.cases)
+  using that apply2 induction by (auto 4 4 elim: steps.cases)
 
 lemma steps_append':
   "steps xs" if "steps as" "steps bs" "last as = hd bs" "as @ tl bs = xs"
@@ -35,7 +35,7 @@ lemmas [intro] = run.intros
 
 lemma steps_appendD1:
   "steps xs" if "steps (xs @ ys)" "xs \<noteq> []"
-  using that proof (induction xs)
+  using that proof2 (induction xs)
   case Nil
   then show ?case by auto
 next
@@ -46,11 +46,11 @@ qed
 
 lemma steps_appendD2:
   "steps ys" if "steps (xs @ ys)" "ys \<noteq> []"
-  using that by (induction xs) (auto elim: steps.cases)
+  using that apply2 (induction xs) by(auto elim: steps.cases)
 
 lemma steps_appendD3:
   "steps (xs @ [x]) \<and> E x y" if "steps (xs @ [x, y])"
-  using that proof (induction xs)
+  using that proof2 (induction xs)
   case Nil
   then show ?case by (auto elim!: steps.cases)
 next
@@ -70,7 +70,7 @@ lemma steps_alt_induct[consumes 1, case_names Single Snoc]:
     "\<And>y x xs. E y x \<Longrightarrow> steps (xs @ [y]) \<Longrightarrow> P (xs @ [y]) \<Longrightarrow> P (xs @ [y,x])"
   shows "P x"
   using assms(1)
-  proof (induction rule: rev_induct)
+proof2 (induction rule: rev_induct)
     case Nil
     then show ?case by (auto elim: steps.cases)
   next
@@ -81,7 +81,7 @@ lemma steps_alt_induct[consumes 1, case_names Single Snoc]:
 lemma steps_appendI:
   "steps (xs @ [x, y])" if "steps (xs @ [x])" "E x y"
   using that
-proof (induction xs)
+proof2 (induction xs)
   case Nil
   then show ?case by auto
 next
@@ -93,13 +93,13 @@ lemma steps_append_single:
   assumes
     "steps xs" "E (last xs) x" "xs \<noteq> []"
   shows "steps (xs @ [x])"
-  using assms(3,1,2) by (induction xs rule: list_nonempty_induct) (auto 4 4 elim: steps.cases)
+  using assms(3,1,2) apply2 (induction xs rule: list_nonempty_induct) by(auto 4 4 elim: steps.cases)
 
 lemma extend_run:
   assumes
     "steps xs" "E (last xs) x" "run (x ## ys)" "xs \<noteq> []"
   shows "run (xs @- x ## ys)"
-  using assms(4,1-3) by (induction xs rule: list_nonempty_induct) (auto 4 3 elim: steps.cases)
+  using assms(4,1-3) apply2 (induction xs rule: list_nonempty_induct) by(auto 4 3 elim: steps.cases)
 
 lemma run_cycle:
   assumes "steps xs" "E (last xs) (hd xs)" "xs \<noteq> []"
@@ -137,7 +137,7 @@ lemma run_stl:
 
 lemma run_sdrop:
   "run (sdrop n xs)" if "run xs"
-  using that by (induction n arbitrary: xs) (auto intro: run_stl)
+  using that apply2 (induction n arbitrary: xs) by(auto intro: run_stl)
 
 lemma run_reachable':
   assumes "run (x ## xs)" "E\<^sup>*\<^sup>* x\<^sub>0 x"
@@ -152,7 +152,7 @@ lemma run_reachable:
 lemma run_decomp:
   assumes "run (xs @- ys)" "xs \<noteq> []"
   shows "steps xs \<and> run ys \<and> E (last xs) (shd ys)"
-using assms(2,1) proof (induction xs rule: list_nonempty_induct)
+using assms(2,1) proof2 (induction xs rule: list_nonempty_induct)
   case (single x)
   then show ?case by (auto elim: run.cases)
 next
@@ -163,7 +163,7 @@ qed
 lemma steps_decomp:
   assumes "steps (xs @ ys)" "xs \<noteq> []" "ys \<noteq> []"
   shows "steps xs \<and> steps ys \<and> E (last xs) (hd ys)"
-using assms(2,1,3) proof (induction xs rule: list_nonempty_induct)
+using assms(2,1,3) proof2 (induction xs rule: list_nonempty_induct)
   case (single x)
   then show ?case by (auto elim: steps.cases)
 next
@@ -269,7 +269,7 @@ lemma steps_non_empty'[simp]:
 lemma steps_replicate:
   "steps (hd xs # concat (replicate n (tl xs)))" if "last xs = hd xs" "steps xs" "n > 0"
   using that
-proof (induction n)
+proof2 (induction n)
   case 0
   then show ?case by simp
 next
@@ -297,7 +297,7 @@ abbreviation reaches1 ("_ \<rightarrow>\<^sup>+ _" [100, 100] 40) where "reaches
 
 lemma steps_reaches:
   "hd xs \<rightarrow>* last xs" if "steps xs"
-  using that by (induction xs) auto
+  using that apply2 (induction xs) by auto
 
 lemma steps_reaches':
   "x \<rightarrow>* y" if "steps xs" "hd xs = x" "last xs = y"
@@ -306,7 +306,7 @@ lemma steps_reaches':
 lemma reaches_steps:
   "\<exists> xs. hd xs = x \<and> last xs = y \<and> steps xs" if "x \<rightarrow>* y"
   using that
-  apply (induction)
+  apply2 (induction)
    apply force
   apply clarsimp
   subgoal for z xs
@@ -371,7 +371,7 @@ lemma reaches1_steps_append:
 
 lemma steps_last_step:
   "\<exists> a. a \<rightarrow> last xs" if "steps xs" "length xs > 1"
-  using that by induction auto
+  using that apply2 induction by auto
 
 lemmas graphI =
   steps.intros
@@ -401,7 +401,7 @@ lemma reachable_step:
 
 lemma reachable_reaches:
   "reachable b" if "reachable a" "a \<rightarrow>* b"
-  using that(2,1) by induction (auto intro: reachable_step)
+  using that(2,1) apply2 induction by(auto intro: reachable_step)
 
 lemma reachable_steps_append:
   assumes "reachable a" "steps xs" "hd xs = a" "last xs = b"
@@ -433,7 +433,7 @@ qed
 lemma reachable_steps:
   "\<exists> xs. steps xs \<and> hd xs = s\<^sub>0 \<and> last xs = x" if "reachable x"
   using that unfolding reachable_def
-proof induction
+proof2 induction
   case base
   then show ?case by (inst_existentials "[s\<^sub>0]"; force)
 next
@@ -469,7 +469,7 @@ lemma reachable_induct[consumes 1, case_names start step, induct pred: reachable
     and "\<And> a b. reachable a \<Longrightarrow> P a \<Longrightarrow> a \<rightarrow> b \<Longrightarrow> P b"
   shows "P x"
   using assms(1) unfolding reachable_def
-  by induction (auto intro: assms(2-)[unfolded reachable_def])
+  apply2 induction by(auto intro: assms(2-)[unfolded reachable_def])
 
 lemmas graphI_aggressive =
   tranclp_into_rtranclp
@@ -528,7 +528,7 @@ lemma non_subgraph_cycle_decomp:
   "\<exists> c d. G.reaches a c \<and> E c d \<and> \<not> E' c d \<and> G.reaches d b" if
   "G.reaches1 a b" "\<not> G'.reaches1 a b" for a b
     using that
-  proof induction
+  proof2 induction
     case (base y)
     then show ?case
       by auto
@@ -553,11 +553,11 @@ lemma non_subgraph_cycle_decomp:
 
 lemma reaches:
   "G.reaches a b" if "G'.reaches a b"
-  using that by induction (auto intro: rtranclp.intros(2))
+  using that apply2 induction by (auto intro: rtranclp.intros(2))
 
 lemma reaches1:
   "G.reaches1 a b" if "G'.reaches1 a b"
-  using that by induction (auto intro: tranclp.intros(2))
+  using that apply2 induction  by(auto intro: tranclp.intros(2))
 
 end (* Subgraph *)
 
@@ -601,11 +601,11 @@ lemma G'_reaches_V:
 
 lemma G'_steps_V_all:
   "list_all V xs" if "G'.steps xs" "V (hd xs)"
-  using that by induction (auto intro: E'_V2)
+  using that apply2 induction by(auto intro: E'_V2)
 
 lemma G'_steps_V_last:
   "V (last xs)" if "G'.steps xs" "V (hd xs)"
-  using that by induction (auto dest: E'_V2)
+  using that apply2 induction by(auto dest: E'_V2)
 
 lemmas subgraphI = E'_V1 E'_V2 G'_reaches_V
 
@@ -644,20 +644,20 @@ lemma reachable_reaches_equiv: "reaches x y \<longleftrightarrow> x \<rightarrow
   apply standard
   subgoal premises prems
     using prems \<open>reachable x\<close>
-    by induction (auto dest: reachable_supgraph intro: graph_startI graphI_aggressive)
+    apply2 induction by (auto dest: reachable_supgraph intro: graph_startI graphI_aggressive)
   subgoal premises prems
     using prems \<open>reachable x\<close>
-    by induction (auto dest: subgraph)
+    apply2 induction by(auto dest: subgraph)
   done
 
 lemma reachable_reaches1_equiv: "reaches1 x y \<longleftrightarrow> x \<rightarrow>\<^sup>+ y" if "reachable x" for x y
   apply standard
   subgoal premises prems
     using prems \<open>reachable x\<close>
-    by induction (auto dest: reachable_supgraph intro: graph_startI graphI_aggressive)
+    apply2 induction by(auto dest: reachable_supgraph intro: graph_startI graphI_aggressive)
   subgoal premises prems
     using prems \<open>reachable x\<close>
-    by induction (auto dest: subgraph)
+    apply2 induction by(auto dest: subgraph)
   done
 
 lemma reachable_steps_equiv:
@@ -665,9 +665,9 @@ lemma reachable_steps_equiv:
   apply standard
   subgoal premises prems
     using prems \<open>reachable x\<close>
-    by (induction "x # xs" arbitrary: x xs) (auto dest: reachable_supgraph intro: graph_startI)
+    apply2 (induction "x # xs" arbitrary: x xs) by(auto dest: reachable_supgraph intro: graph_startI)
   subgoal premises prems
-    using prems by induction auto
+    using prems apply2 induction by auto
   done
 
 end (* Graph Start Defs *)
@@ -717,11 +717,11 @@ begin
 
 lemma invariant_steps:
   "list_all P as" if "steps (a # as)" "P a"
-  using that by (induction "a # as" arbitrary: as a) (auto intro: invariant)
+  using that apply2 (induction "a # as" arbitrary: as a) by(auto intro: invariant)
 
 lemma invariant_reaches:
   "P b" if "a \<rightarrow>* b" "P a"
-  using that by (induction; blast intro: invariant)
+  using that apply2 (induction) by( blast intro: invariant)+
 
 lemma invariant_run:
   assumes run: "run (x ## xs)" and P: "P x"
@@ -743,7 +743,7 @@ sublocale Post: Graph_Invariant E Q
 
 lemma invariant_steps:
   "list_all Q as" if "steps (a # as)" "P a"
-  using that by (induction "a # as" arbitrary: as a) (auto intro: invariant Q_P)
+  using that apply2 (induction "a # as" arbitrary: as a) by(auto intro: invariant Q_P)
 
 lemma invariant_run:
   assumes run: "run (x ## xs)" and P: "P x"
@@ -752,7 +752,7 @@ lemma invariant_run:
 
 lemma invariant_reaches1:
   "Q b" if "a \<rightarrow>\<^sup>+ b" "P a"
-  using that by (induction; blast intro: invariant Q_P)
+  using that apply2 (induction) by( blast intro: invariant Q_P)+
 
 end (* Graph Invariants *)
 
@@ -781,7 +781,7 @@ sublocale inv: Graph_Invariant by standard (rule invariant)
 
 lemma P_invariant_steps:
   "list_all P as" if "steps (a # as)"
-  using that by (induction "a # as" arbitrary: as a) (auto intro: invariant)
+  using that apply2 (induction "a # as" arbitrary: as a) by (auto intro: invariant)
 
 lemma steps_last_invariant:
   "P (last xs)" if "steps (x # xs)" "xs \<noteq> []"
@@ -791,7 +791,7 @@ lemmas invariant_reaches = inv.invariant_reaches
 
 lemma invariant_reaches1:
   "P b" if "a \<rightarrow>\<^sup>+ b"
-  using that by (induction; blast intro: invariant)
+  using that apply2 (induction) by( blast intro: invariant)+
 
 end (* Graph Invariant *)
 
@@ -812,16 +812,16 @@ begin
 
 lemma simulation_reaches:
   "\<exists> b'. B\<^sup>*\<^sup>* b b' \<and> a' \<sim> b'" if "A\<^sup>*\<^sup>* a a'" "a \<sim> b"
-  using that by (induction rule: rtranclp_induct) (auto intro: rtranclp.intros(2) dest: A_B_step)
+  using that apply2 (induction rule: rtranclp_induct) by (auto intro: rtranclp.intros(2) dest: A_B_step)
 
 lemma simulation_reaches1:
   "\<exists> b'. B\<^sup>+\<^sup>+ b b' \<and> a' \<sim> b'" if "A\<^sup>+\<^sup>+ a a'" "a \<sim> b"
-  using that by (induction rule: tranclp_induct) (auto 4 3 intro: tranclp.intros(2) dest: A_B_step)
+  using that apply2 (induction rule: tranclp_induct) by(auto 4 3 intro: tranclp.intros(2) dest: A_B_step)
 
 lemma simulation_steps:
   "\<exists> bs. B.steps (b # bs) \<and> list_all2 (\<lambda> a b. a \<sim> b) as bs" if "A.steps (a # as)" "a \<sim> b"
   using that
-  apply (induction "a # as" arbitrary: a b as)
+  apply2 (induction "a # as" arbitrary: a b as)
    apply force
   apply (frule A_B_step, auto)
   done
@@ -886,7 +886,7 @@ proof -
   from simulation_steps'[OF that] guess bs by clarify
   note guessed = this
   from this(2) have "bs = map f as"
-    by (induction; simp add: eq)
+    apply2 (induction) by( simp add: eq)+
   with guessed show ?thesis
     by auto
 qed
@@ -981,7 +981,7 @@ begin
 lemma list_all2_inj_map_eq:
   "as = bs" if "list_all2 (\<lambda>a b. a = f b) (map f as) bs" "list_all PB (map f as)" "list_all PA bs"
   using that inj
-  by (induction "map f as" bs arbitrary: as rule: list_all2_induct) (auto simp: inj_on_def)
+  apply2 (induction "map f as" bs arbitrary: as rule: list_all2_induct) by(auto simp: inj_on_def)
 
 lemma steps_map_equiv:
   "A.steps (a # as) \<longleftrightarrow> B.steps (b # map f as)" if "a \<sim> b" "PA a" "PB b"
@@ -994,7 +994,7 @@ proof -
   have "a \<sim> f a" unfolding eq ..
   from B_A.simulation_steps'[OF that(1) this \<open>PB _\<close> \<open>PA _\<close>] guess as by clarify
   from this(2) show ?thesis
-    unfolding eq by (inst_existentials as, induction rule: list_all2_induct, auto)
+    unfolding eq apply (inst_existentials as) apply2( induction rule: list_all2_induct) by( auto)
 qed
 
 lemma reaches_equiv:

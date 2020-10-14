@@ -1,7 +1,7 @@
 section "2-3 Finger Trees" 
 
 theory FingerTree
-imports Main
+imports Main "Eval_Base.Eval_Base"
 begin
 
 text \<open>
@@ -165,7 +165,7 @@ primrec toList :: "('e ,'a) FingerTreeStruc \<Rightarrow> ('e \<times> 'a) list"
   "toList (Deep _ pr m sf) = (digitToList pr) @ (toList m) @ (digitToList sf)"
 
 lemma nodeToList_empty: "nodeToList nd \<noteq> Nil"
-  by (induct nd) auto
+  apply (induct nd) by auto
 
 lemma digitToList_empty: "digitToList d \<noteq> Nil"
   by (cases d, auto simp add: nodeToList_empty)
@@ -174,7 +174,7 @@ text \<open>Auxiliary lemmas\<close>
 lemma gmn_correct:
   assumes "is_measured_node nd"
   shows "gmn nd = sum_list (map snd (nodeToList nd))"
-  by (insert assms, induct nd) (auto simp add: add.assoc)
+  apply(insert assms) apply(induct nd) by(auto simp add: add.assoc)
 
 lemma gmd_correct:
   assumes "is_measured_digit d"
@@ -183,7 +183,7 @@ lemma gmd_correct:
 
 lemma gmft_correct: "is_measured_ftree t 
   \<Longrightarrow> (gmft t) = sum_list (map snd (toList t))"
-  by (induct t, auto simp add: ft_invar_def gmd_correct gmn_correct add.assoc)
+  apply2 (induct t) by( auto simp add: ft_invar_def gmd_correct gmn_correct add.assoc)
 lemma gmft_correct2: "ft_invar t \<Longrightarrow> (gmft t) = sum_list (map snd (toList t))"
   by (simp only: ft_invar_def gmft_correct)
 
@@ -198,7 +198,7 @@ lemma Empty_correct[simp]:
 
 text \<open>Exactly the empty finger tree represents the empty list\<close>
 lemma toList_empty: "toList t = [] \<longleftrightarrow> t = Empty"
-  by (induct t, auto simp add: nodeToList_empty digitToList_empty)
+  apply2 (induct t) by(auto simp add: nodeToList_empty digitToList_empty)
 
 subsubsection \<open>Annotation\<close>
 text "Sum of annotations of all elements of a finger tree"
@@ -249,37 +249,37 @@ fun nrcons :: "('e,'a::monoid_add) FingerTreeStruc
 
 lemma nlcons_invlevel: "\<lbrakk>is_leveln_ftree n t; is_leveln_node n nd\<rbrakk> 
   \<Longrightarrow> is_leveln_ftree n (nlcons nd t)"
-  by (induct t arbitrary: n nd rule: nlcons.induct) 
-(auto simp add: deep_def node3_def)
+  apply2 (induct t arbitrary: n nd rule: nlcons.induct) 
+  by(auto simp add: deep_def node3_def)
 
 lemma nlcons_invmeas: "\<lbrakk>is_measured_ftree t; is_measured_node nd\<rbrakk> 
   \<Longrightarrow> is_measured_ftree (nlcons nd t)"
-  by (induct t arbitrary: nd rule: nlcons.induct) 
-     (auto simp add: deep_def node3_def)
+  apply2 (induct t arbitrary: nd rule: nlcons.induct) 
+  by (auto simp add: deep_def node3_def)
 
 lemmas nlcons_inv = nlcons_invlevel nlcons_invmeas
 
 lemma nlcons_list: "toList (nlcons a t) = (nodeToList a) @ (toList t)"
-  apply (induct t arbitrary: a rule: nlcons.induct)
+  apply2 (induct t arbitrary: a rule: nlcons.induct)
   apply (auto simp add: deep_def toList_def node3_def)
 done
 
 lemma nrcons_invlevel: "\<lbrakk>is_leveln_ftree n t; is_leveln_node n nd\<rbrakk> 
   \<Longrightarrow> is_leveln_ftree n (nrcons t nd)"
-  apply (induct t nd arbitrary: nd n rule:nrcons.induct) 
+  apply2 (induct t nd arbitrary: nd n rule:nrcons.induct) 
   apply(auto simp add: deep_def node3_def)
   done
 
 lemma nrcons_invmeas: "\<lbrakk>is_measured_ftree t; is_measured_node nd\<rbrakk> 
   \<Longrightarrow> is_measured_ftree (nrcons t nd)"
-  apply (induct t nd arbitrary: nd rule:nrcons.induct) 
+  apply2 (induct t nd arbitrary: nd rule:nrcons.induct) 
   apply(auto simp add: deep_def node3_def)
   done
 
 lemmas nrcons_inv = nrcons_invlevel nrcons_invmeas
 
 lemma nrcons_list: "toList (nrcons t a) = (toList t) @ (nodeToList a)"
-  apply (induct t a arbitrary: a rule: nrcons.induct)
+  apply2 (induct t a arbitrary: a rule: nrcons.induct)
   apply (auto simp add: deep_def toList_def node3_def)
 done
 
@@ -328,7 +328,7 @@ primrec toTree :: "('e \<times> 'a::monoid_add) list \<Rightarrow> ('e,'a) Finge
 lemma toTree_correct[simp]:
   "ft_invar (toTree l)"
   "toList (toTree l) = l"
-  apply (induct l)
+  apply2 (induct l)
   apply (simp add: ft_invar_def)
   apply simp
   apply (simp add: toTree_def lcons_list lcons_inv)
@@ -452,7 +452,7 @@ lemma viewLn_inv: "\<lbrakk>
   is_measured_ftree t; is_leveln_ftree n t; viewLn t = Some (nd, s)
   \<rbrakk> \<Longrightarrow> is_measured_ftree s \<and> is_measured_node nd \<and> 
         is_leveln_ftree n s \<and> is_leveln_node n nd"
-  apply(induct t arbitrary: n nd s rule: viewLn.induct)
+  apply2(induct t arbitrary: n nd s rule: viewLn.induct)
   apply(simp add: viewLn_empty)
   apply(simp)
   apply(auto simp add: deep_def)[1]
@@ -501,7 +501,7 @@ qed
 
 lemma viewLn_list: " viewLn t = Some (nd, s) 
   \<Longrightarrow> toList t = (nodeToList nd) @ (toList s)"
-  apply(induct t arbitrary: nd s rule: viewLn.induct)
+  apply2(induct t arbitrary: nd s rule: viewLn.induct)
   apply(simp)
   apply(simp)
   apply(simp)
@@ -554,7 +554,7 @@ lemma viewRn_inv: "\<lbrakk>
   is_measured_ftree t; is_leveln_ftree n t; viewRn t = Some (nd, s)
   \<rbrakk> \<Longrightarrow> is_measured_ftree s \<and> is_measured_node nd \<and> 
        is_leveln_ftree n s \<and> is_leveln_node n nd"
-  apply(induct t arbitrary: n nd s rule: viewRn.induct)
+  apply2(induct t arbitrary: n nd s rule: viewRn.induct)
   apply(simp add: viewRn_empty)
   apply(simp)
   apply(auto simp add: deep_def)[1]
@@ -603,7 +603,7 @@ qed
 
 lemma viewRn_list: "viewRn t = Some (nd, s) 
   \<Longrightarrow> toList t = (toList s) @ (nodeToList nd)"
-  apply(induct t arbitrary: nd s rule: viewRn.induct)
+  apply2(induct t arbitrary: nd s rule: viewRn.induct)
   apply(simp)
   apply(simp)
   apply(simp)
@@ -670,7 +670,7 @@ next
     by (auto simp add: viewLn_inv[of t 0 nd s] viewLn_list[of t])
   with v1 vn have v3: "nodeToList nd = [a]"
     apply (auto simp add: viewL_def )
-    apply (induct nd)
+    apply2 (induct nd)
     apply auto
     done
   with v1 v2
@@ -719,7 +719,7 @@ next
     by (auto simp add: viewRn_inv[of t 0 nd s] viewRn_list[of t])
   with v1 vn have v3: "nodeToList nd = [a]"
     apply (auto simp add: viewR_def )
-    apply (induct nd)
+    apply2 (induct nd)
     apply auto
     done
   with v1 v2
@@ -853,7 +853,7 @@ lemma lconsNlist_inv:
   and "\<forall> x\<in>set xs. (is_leveln_node n x \<and> is_measured_node x)"
   shows 
   "is_leveln_ftree n (lconsNlist xs t) \<and> is_measured_ftree (lconsNlist xs t)"
-  by (insert assms, induct xs, auto simp add: nlcons_invlevel nlcons_invmeas)
+  apply (insert assms) apply2(induct xs) by(auto simp add: nlcons_invlevel nlcons_invmeas)
 
 lemma rconsNlist_inv:
   assumes "is_leveln_ftree n t" 
@@ -861,14 +861,13 @@ lemma rconsNlist_inv:
   and "\<forall> x\<in>set xs. (is_leveln_node n x \<and> is_measured_node x)"
   shows 
   "is_leveln_ftree n (rconsNlist t xs) \<and> is_measured_ftree (rconsNlist t xs)"
-  by (insert assms, induct xs arbitrary: t, 
-      auto simp add: nrcons_invlevel nrcons_invmeas)
+  apply (insert assms) apply2(induct xs arbitrary: t) by(auto simp add: nrcons_invlevel nrcons_invmeas)
 
 lemma nodes_inv:
   assumes "\<forall> x \<in> set ts. is_leveln_node n x \<and> is_measured_node x"
   and "length ts \<ge> 2"
   shows "\<forall> x \<in> set (nodes ts). is_leveln_node (Suc n) x \<and> is_measured_node x"
-proof (insert assms, induct ts rule: nodes.induct)
+  apply (insert assms) proof2(induct ts rule: nodes.induct)
   case (1 a b)
   thus ?case by (simp add: node2_def)
 next
@@ -932,7 +931,7 @@ lemma app3_inv:
   and "is_measured_ftree t2"
   and "\<forall> x\<in>set xs. (is_leveln_node n x \<and> is_measured_node x)"
   shows "is_leveln_ftree n (app3 t1 xs t2) \<and> is_measured_ftree (app3 t1 xs t2)"
-proof (insert assms, induct t1 xs t2 arbitrary: n rule: app3.induct)
+apply (insert assms) proof2(induct t1 xs t2 arbitrary: n rule: app3.induct)
   case (1 xs t n)
   thus ?case using lconsNlist_inv by simp
 next
@@ -990,17 +989,17 @@ primrec nlistToList:: "(('e, 'a) Node) list \<Rightarrow> ('e \<times> 'a) list"
   "nlistToList (x#xs) = (nodeToList x) @ (nlistToList xs)"
 
 lemma nodes_list: "length xs \<ge> 2 \<Longrightarrow> nlistToList (nodes xs) = nlistToList xs"
-  by (induct xs rule: nodes.induct) (auto simp add: node2_def node3_def)
+  apply2 (induct xs rule: nodes.induct) by(auto simp add: node2_def node3_def)
 
 lemma nlistToList_app: 
   "nlistToList (xs@ys) = (nlistToList xs) @ (nlistToList ys)"
-  by (induct xs arbitrary: ys, simp_all)
+  apply2 (induct xs arbitrary: ys) by(simp_all)
 
 lemma nlistListLCons: "toList (lconsNlist xs t) = (nlistToList xs) @ (toList t)"
-  by (induct xs) (auto simp add: nlcons_list)
+  apply2 (induct xs) by(auto simp add: nlcons_list)
  
 lemma nlistListRCons: "toList (rconsNlist t xs) = (toList t) @ (nlistToList xs)"
-  by (induct xs arbitrary: t) (auto simp add: nrcons_list)
+  apply2 (induct xs arbitrary: t) by(auto simp add: nrcons_list)
 
 lemma app3_list_lem1: 
   "nlistToList (nodes (digitToNlist sf1 @ ts @ digitToNlist pr2)) =
@@ -1023,7 +1022,7 @@ qed
 
 lemma app3_list: 
   "toList (app3 t1 xs t2) = (toList t1) @ (nlistToList xs) @ (toList t2)"
-  apply (induct t1 xs t2 rule: app3.induct)
+  apply2 (induct t1 xs t2 rule: app3.induct)
   apply (simp_all add: nlistListLCons nlistListRCons nlcons_list nrcons_list)
   apply (simp add: app3_list_lem1 deep_def)
   done
@@ -1116,8 +1115,8 @@ fun nsplitTree :: "('a::monoid_add \<Rightarrow> bool) \<Rightarrow> 'a \<Righta
 lemma nlistToTree_inv: 
   "\<forall> x \<in> set nl. is_measured_node x \<Longrightarrow> is_measured_ftree (nlistToTree nl)"
   "\<forall> x \<in> set nl. is_leveln_node n x \<Longrightarrow> is_leveln_ftree n (nlistToTree nl)"
-  by (unfold nlistToTree_def, induct nl, auto simp add: nlcons_invmeas)
-     (induct nl, auto simp add: nlcons_invlevel)
+  apply (unfold nlistToTree_def) apply2(induct nl) apply(auto simp add: nlcons_invmeas)
+  apply2(induct nl) by(auto simp add: nlcons_invlevel)
 
 lemma nlistToTree_list: "toList (nlistToTree nl) = nlistToList nl"
   by (auto simp add: nlistToTree_def nlistListLCons)
@@ -1128,7 +1127,7 @@ lemma deepL_inv:
   and "\<forall> x \<in> set pr. (is_measured_node x \<and> is_leveln_node n x) \<and> length pr \<le> 4"
   shows  "is_leveln_ftree n (deepL pr m sf) \<and> is_measured_ftree (deepL pr m sf)"
   apply (insert assms)
-  apply (induct "pr" m sf rule: deepL.induct)
+  apply2 (induct "pr" m sf rule: deepL.induct)
   apply (simp split: viewnres_split)
   apply auto[1]
   apply (simp_all add: digitToTree_inv deep_def)
@@ -1183,7 +1182,7 @@ lemma deepL_list:
   and "is_leveln_digit n sf \<and> is_measured_digit sf"
   and "\<forall> x \<in> set pr. (is_measured_node x \<and> is_leveln_node n x) \<and> length pr \<le> 4"
   shows "toList (deepL pr m sf) = nlistToList pr @ toList m @ digitToList sf"
-proof (insert assms, induct "pr" m sf rule: deepL.induct)
+  apply (insert assms) proof2(induct "pr" m sf rule: deepL.induct)
   case (1 m sf)
   thus ?case
   proof (auto split: viewnres_split simp add: deep_def)
@@ -1215,7 +1214,7 @@ lemma deepR_inv:
   and "\<forall> x \<in> set sf. (is_measured_node x \<and> is_leveln_node n x) \<and> length sf \<le> 4"
   shows "is_leveln_ftree n (deepR pr m sf) \<and> is_measured_ftree (deepR pr m sf)"
   apply (insert assms)
-  apply (induct "pr" m sf rule: deepR.induct)
+  apply2(induct "pr" m sf rule: deepR.induct)
   apply (simp split: viewnres_split)
   apply auto[1]
   apply (simp_all add: digitToTree_inv deep_def)
@@ -1259,7 +1258,7 @@ lemma deepR_list:
   and "is_leveln_digit n pr \<and> is_measured_digit pr"
   and "\<forall> x \<in> set sf. (is_measured_node x \<and> is_leveln_node n x) \<and> length sf \<le> 4"
   shows "toList (deepR pr m sf) = digitToList pr @ toList m @ nlistToList sf"
-proof (insert assms, induct "pr" m sf rule: deepR.induct)
+  apply (insert assms) proof2(induct "pr" m sf rule: deepR.induct)
   case (1 "pr" m)
   thus ?case
   proof (auto split: viewnres_split simp add: deep_def)
@@ -1292,7 +1291,7 @@ primrec gmnl:: "('e, 'a::monoid_add) Node list \<Rightarrow> 'a" where
 lemma gmnl_correct:
   assumes "\<forall> x \<in> set xs. is_measured_node x"
   shows  "gmnl xs = sum_list (map snd (nlistToList xs))"
-  by (insert assms, induct xs) (auto simp add: add.assoc gmn_correct)
+  apply (insert assms) apply2(induct xs) by(auto simp add: add.assoc gmn_correct)
 
 lemma splitNlist_correct:" \<lbrakk>
   \<And>(a::'a) (b::'a). p a \<Longrightarrow> p (a + b);
@@ -1306,7 +1305,7 @@ lemma splitNlist_correct:" \<lbrakk>
   \<and>
   nl = l @ n # r
   "
-proof (induct p i nl arbitrary: l n r rule: splitNlist.induct)
+proof2 (induct p i nl arbitrary: l n r rule: splitNlist.induct)
   case 1 thus ?case by simp
 next
   case (2 p i a v va l n r) note IV = this 
@@ -1471,7 +1470,7 @@ lemma nsplitTree_invpres: "\<lbrakk>
   \<and>
   is_measured_node nd
   "
-proof (induct p i s arbitrary: n l nd r rule: nsplitTree.induct)
+proof2 (induct p i s arbitrary: n l nd r rule: nsplitTree.induct)
   case 1
   thus ?case by auto
 next
@@ -1633,7 +1632,7 @@ lemma nsplitTree_correct: "\<lbrakk>
   \<and>
   is_measured_node nd
   "
-proof (induct p i s arbitrary: n l nd r rule: nsplitTree.induct)
+proof2 (induct p i s arbitrary: n l nd r rule: nsplitTree.induct)
   case 1
   thus ?case by auto
 next
@@ -1962,20 +1961,20 @@ primrec foldr_digit :: "('e \<times> 'a \<Rightarrow> 's \<Rightarrow> 's) \<Rig
 
 lemma foldl_node_correct: 
   "foldl_node f \<sigma> nd = List.foldl f \<sigma> (nodeToList nd)"
-  by (induct nd arbitrary: "\<sigma>") (auto simp add: nodeToList_def)
+  apply2 (induct nd arbitrary: "\<sigma>") by(auto simp add: nodeToList_def)
 
 lemma foldl_digit_correct:
   "foldl_digit f \<sigma> d = List.foldl f \<sigma> (digitToList d)"
-  by (induct d arbitrary: "\<sigma>") (auto 
+  apply2 (induct d arbitrary: "\<sigma>") by(auto 
     simp add: digitToList_def foldl_node_correct)
   
 lemma foldr_node_correct: 
   "foldr_node f nd \<sigma> = List.foldr f (nodeToList nd) \<sigma>"
-by (induct nd arbitrary: "\<sigma>") (auto simp add: nodeToList_def)
+apply2 (induct nd arbitrary: "\<sigma>") by(auto simp add: nodeToList_def)
 
 lemma foldr_digit_correct:
   "foldr_digit f d \<sigma> = List.foldr f (digitToList d) \<sigma>"
-  by (induct d arbitrary: "\<sigma>") (auto 
+  apply2 (induct d arbitrary: "\<sigma>") by(auto 
     simp add: digitToList_def foldr_node_correct)
 
 text "Fold from left"
@@ -1988,7 +1987,7 @@ primrec foldl :: "('s \<Rightarrow> 'e \<times> 'a \<Rightarrow> 's) \<Rightarro
 
 lemma foldl_correct:
   "foldl f \<sigma> t = List.foldl f \<sigma> (toList t)"
-  by (induct t arbitrary: "\<sigma>") (auto 
+  apply2 (induct t arbitrary: "\<sigma>") by(auto 
     simp add: toList_def foldl_node_correct foldl_digit_correct)
 
 text "Fold from right"
@@ -2001,7 +2000,7 @@ primrec foldr :: "('e \<times> 'a \<Rightarrow> 's \<Rightarrow> 's) \<Rightarro
 
 lemma foldr_correct:
   "foldr f t \<sigma> = List.foldr f (toList t) \<sigma>"
-  by (induct t arbitrary: "\<sigma>") (auto 
+  apply2 (induct t arbitrary: "\<sigma>") by(auto 
     simp add: toList_def foldr_node_correct foldr_digit_correct)
 
 subsubsection "Number of elements"
@@ -2020,7 +2019,7 @@ primrec count_digit :: "('e,'a) Digit \<Rightarrow> nat" where
 
 lemma count_node_correct:
   "count_node n = length (nodeToList n)"
-  by (induct n,auto simp add: nodeToList_def count_node_def)
+  apply2 (induct n) by(auto simp add: nodeToList_def count_node_def)
 
 lemma count_digit_correct:
   "count_digit d = length (digitToList d)"
@@ -2033,8 +2032,8 @@ primrec count :: "('e,'a) FingerTreeStruc \<Rightarrow> nat" where
 
 lemma count_correct[simp]:
   "count t = length (toList t)"
-  by (induct t, 
-    auto simp add: toList_def count_def 
+  apply2 (induct t)
+    by(auto simp add: toList_def count_def 
                    count_digit_correct count_node_correct)
 end
 

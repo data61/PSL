@@ -1,4 +1,4 @@
-theory Hybrid_Logic imports "HOL-Library.Countable" begin
+theory Hybrid_Logic imports "HOL-Library.Countable" "Eval_Base.Eval_Base" begin
 
 section \<open>Syntax\<close>
 
@@ -41,13 +41,13 @@ primrec sub :: \<open>('b \<Rightarrow> 'c) \<Rightarrow> ('a, 'b) fm \<Rightarr
 | \<open>sub f (\<^bold>@ i p) = (\<^bold>@ (f i) (sub f p))\<close>
 
 lemma sub_nominals: \<open>nominals (sub f p) = f ` nominals p\<close>
-  by (induct p) auto
+  apply2 (induct p) by auto
 
 lemma sub_id: \<open>sub id p = p\<close>
-  by (induct p) simp_all
+  apply2 (induct p) by simp_all
 
 lemma sub_upd_fresh: \<open>i \<notin> nominals p \<Longrightarrow> sub (f(i := j)) p = sub f p\<close>
-  by (induct p) auto
+  apply2 (induct p) by auto
 
 section \<open>Semantics\<close>
 
@@ -74,7 +74,7 @@ lemma \<open>M, g, w \<Turnstile> \<^bold>\<top>\<close>
 
 lemma semantics_fresh:
   \<open>i \<notin> nominals p \<Longrightarrow> (M, g, w \<Turnstile> p) = (M, g(i := v), w \<Turnstile> p)\<close>
-  by (induct p arbitrary: w) auto
+  apply2 (induct p arbitrary: w) by auto
 
 subsection \<open>Examples\<close>
 
@@ -234,7 +234,7 @@ abbreviation ST_ex :: \<open>('a, 'b) branch \<Rightarrow> bool\<close> (\<open>
   \<open>\<turnstile> branch \<equiv> \<exists>n. n \<turnstile> branch\<close>
 
 lemma ST_Suc: \<open>n \<turnstile> branch \<Longrightarrow> Suc n \<turnstile> branch\<close>
-  by (induct n branch rule: ST.induct) (simp_all add: ST.intros)
+  apply2 (induct n branch rule: ST.induct) by (simp_all add: ST.intros)
 
 text \<open>A verified derivation in the calculus.\<close>
 
@@ -276,13 +276,13 @@ abbreviation branch_sat ::
 
 lemma block_nominals:
   \<open>p on block \<Longrightarrow> i \<in> nominals p \<Longrightarrow> i \<in> block_nominals block\<close>
-  by (induct block) auto
+  apply2 (induct block) by auto
 
 lemma block_sat_fresh:
   assumes \<open>M, g \<Turnstile>\<^sub>B block\<close> \<open>i \<notin> block_nominals block\<close>
   shows \<open>M, g(i := v) \<Turnstile>\<^sub>B block\<close>
   using assms
-proof (induct block)
+proof2 (induct block)
   case (Pair ps a)
   then have \<open>\<forall>p on (ps, a). i \<notin> nominals p\<close>
     using block_nominals by fast
@@ -302,7 +302,7 @@ lemma branch_sat_fresh:
 text \<open>If a branch has a derivation then it cannot be satisfied.\<close>
 
 lemma soundness': \<open>n \<turnstile> branch \<Longrightarrow> M, g \<Turnstile>\<^sub>\<Theta> branch \<Longrightarrow> False\<close>
-proof (induct branch arbitrary: g rule: ST.induct)
+proof2 (induct branch arbitrary: g rule: ST.induct)
   case (Close p i branch)
   then have \<open>M, g, g i \<Turnstile> p\<close> \<open>M, g, g i \<Turnstile> \<^bold>\<not> p\<close>
     by fastforce+
@@ -412,7 +412,7 @@ next
 qed
 
 lemma block_sat: \<open>\<forall>p on block. M, g, w \<Turnstile> p \<Longrightarrow> M, g \<Turnstile>\<^sub>B block\<close>
-  by (induct block) auto
+  apply2 (induct block) by auto
 
 lemma branch_sat:
   assumes \<open>\<forall>(ps, i) \<in> set branch. \<forall>p on (ps, i). M, g, w \<Turnstile> p\<close>
@@ -473,7 +473,7 @@ qed
 
 lemma ST_nonempty:
   \<open>n \<turnstile> left @ right \<Longrightarrow> Suc m \<turnstile> filter nonempty left @ right\<close>
-proof (induct n \<open>left @ right\<close> arbitrary: left right rule: ST.induct)
+proof2 (induct n \<open>left @ right\<close> arbitrary: left right rule: ST.induct)
   case (Close p i n)
   have \<open>(\<^bold>\<not> p) at i in filter nonempty left @ right\<close>
     using Close(2) by fastforce
@@ -785,25 +785,25 @@ primrec rev_nth :: \<open>'a list \<Rightarrow> nat \<Rightarrow> 'a option\<clo
 | \<open>(x # xs) !. v = (if length xs = v then Some x else xs !. v)\<close>
 
 lemma rev_nth_last: \<open>xs !. 0 = Some x \<Longrightarrow> last xs = x\<close>
-  by (induct xs) auto
+  apply2 (induct xs) by auto
 
 lemma rev_nth_zero: \<open>(xs @ [x]) !. 0 = Some x\<close>
-  by (induct xs) auto
+  apply2 (induct xs) by auto
 
 lemma rev_nth_snoc: \<open>(xs @ [x]) !. Suc v = Some y \<Longrightarrow> xs !. v = Some y\<close>
-  by (induct xs) auto
+  apply2 (induct xs) by auto
 
 lemma rev_nth_Suc: \<open>(xs @ [x]) !. Suc v = xs !. v\<close>
-  by (induct xs) auto
+  apply2 (induct xs) by auto
 
 lemma rev_nth_bounded: \<open>v < length xs \<Longrightarrow> \<exists>x. xs !. v = Some x\<close>
-  by (induct xs) simp_all
+  apply2 (induct xs) by simp_all
 
 lemma rev_nth_Cons: \<open>xs !. v = Some y \<Longrightarrow> (x # xs) !. v = Some y\<close>
-proof (induct xs arbitrary: v rule: rev_induct)
+proof2 (induct xs arbitrary: v rule: rev_induct)
   case (snoc a xs)
   then show ?case
-  proof (induct v)
+  proof2 (induct v)
     case (Suc v)
     then have \<open>xs !. v = Some y\<close>
       using rev_nth_snoc by fast
@@ -815,13 +815,13 @@ proof (induct xs arbitrary: v rule: rev_induct)
 qed simp
 
 lemma rev_nth_append: \<open>xs !. v = Some y \<Longrightarrow> (ys @ xs) !. v = Some y\<close>
-  using rev_nth_Cons[where xs=\<open>_ @ xs\<close>] by (induct ys) simp_all
+  using rev_nth_Cons[where xs=\<open>_ @ xs\<close>] apply2 (induct ys) by simp_all
 
 lemma rev_nth_mem: \<open>block \<in>. branch \<longleftrightarrow> (\<exists>v. branch !. v = Some block)\<close>
 proof
   assume \<open>block \<in>. branch\<close>
   then show \<open>\<exists>v. branch !. v = Some block\<close>
-  proof (induct branch)
+  proof2 (induct branch)
     case (Cons block' branch)
     then show ?case
     proof (cases \<open>block = block'\<close>)
@@ -835,7 +835,7 @@ proof
 next
   assume \<open>\<exists>v. branch !. v = Some block\<close>
   then show \<open>block \<in>. branch\<close>
-  proof (induct branch)
+  proof2 (induct branch)
     case (Cons block' branch)
     then show ?case
       by simp (metis option.sel)
@@ -846,10 +846,10 @@ lemma rev_nth_on: \<open>p on (ps, i) \<longleftrightarrow> (\<exists>v. ps !. v
   by (simp add: rev_nth_mem)
 
 lemma rev_nth_Some: \<open>xs !. v = Some y \<Longrightarrow> v < length xs\<close>
-proof (induct xs arbitrary: v rule: rev_induct)
+proof2 (induct xs arbitrary: v rule: rev_induct)
   case (snoc x xs)
   then show ?case
-    by (induct v) (simp_all, metis rev_nth_snoc)
+    apply2 (induct v) by (simp_all, metis rev_nth_snoc)
 qed simp
 
 lemma index_Cons:
@@ -890,14 +890,14 @@ lemma mapi_block_add_oob:
   shows
     \<open>mapi_block (mapper f ({(v, v')} \<union> xs) v) (ps, i) =
      mapi_block (mapper f xs v) (ps, i)\<close>
-  using assms by (induct ps) simp_all
+  using assms apply2 (induct ps) by simp_all
 
 lemma mapi_branch_add_oob:
   assumes \<open>length branch \<le> v\<close>
   shows
     \<open>mapi_branch (mapper f ({(v, v')} \<union> xs)) branch =
      mapi_branch (mapper f xs) branch\<close>
-  unfolding mapi_branch_def using assms by (induct branch) simp_all
+  unfolding mapi_branch_def using assms apply2 (induct branch) by simp_all
 
 lemma mapi_branch_head_add_oob:
   \<open>mapi_branch (mapper f ({(length branch, length ps)} \<union> xs)) ((ps, a) # branch) =
@@ -908,37 +908,37 @@ lemma mapi_branch_head_add_oob:
 lemma mapi_branch_mem:
   assumes \<open>(ps, i) \<in>. branch\<close>
   shows \<open>\<exists>v. (mapi (f v) ps, i) \<in>. mapi_branch f branch\<close>
-  unfolding mapi_branch_def using assms by (induct branch) auto
+  unfolding mapi_branch_def using assms apply2 (induct branch) by auto
 
 lemma rev_nth_mapi_branch:
   assumes \<open>branch !. v = Some (ps, a)\<close>
   shows \<open>(mapi (f v) ps, a) \<in>. mapi_branch f branch\<close>
   unfolding mapi_branch_def using assms
-  by (induct branch) (simp_all, metis mapi_block.simps option.inject)
+  apply2 (induct branch) by (simp_all, metis mapi_block.simps option.inject)
 
 lemma rev_nth_mapi_block:
   assumes \<open>ps !. v' = Some p\<close>
   shows \<open>f v' p on (mapi f ps, a)\<close>
-  using assms by (induct ps) (simp_all, metis option.sel)
+  using assms apply2 (induct ps) by (simp_all, metis option.sel)
 
 lemma mapi_append:
   \<open>mapi f (xs @ ys) = mapi (\<lambda>v. f (v + length ys)) xs @ mapi f ys\<close>
-  by (induct xs) simp_all
+  apply2 (induct xs) by simp_all
 
 lemma mapi_block_id: \<open>mapi_block (mapper f {} v) (ps, i) = (ps, i)\<close>
-  by (induct ps) auto
+  apply2 (induct ps) by auto
 
 lemma mapi_branch_id: \<open>mapi_branch (mapper f {}) branch = branch\<close>
-  unfolding mapi_branch_def using mapi_block_id by (induct branch) auto
+  unfolding mapi_branch_def using mapi_block_id apply2 (induct branch) by auto
 
 lemma length_mapi: \<open>length (mapi f xs) = length xs\<close>
-  by (induct xs) auto
+  apply2 (induct xs) by auto
 
 lemma mapi_rev_nth:
   assumes \<open>xs !. v = Some x\<close>
   shows \<open>mapi f xs !. v = Some (f v x)\<close>
   using assms
-proof (induct xs arbitrary: v)
+proof2 (induct xs arbitrary: v)
   case (Cons y xs)
   have *: \<open>mapi f (y # xs) = f (length xs) y # mapi f xs\<close>
     by simp
@@ -1043,21 +1043,21 @@ definition omit_branch :: \<open>(nat \<times> nat) set \<Rightarrow> ('a, 'b) b
   \<open>omit_branch xs branch \<equiv> mapi (\<lambda>v. omit_block (proj xs v)) branch\<close>
 
 lemma omit_mem: \<open>ps !. v = Some p \<Longrightarrow> v \<notin> xs \<Longrightarrow> p \<in>. omit xs ps\<close>
-proof (induct ps)
+proof2 (induct ps)
   case (Cons q ps)
   then show ?case
     by (cases \<open>v = length ps\<close>) simp_all
 qed simp
 
 lemma omit_id: \<open>omit {} ps = ps\<close>
-  by (induct ps) auto
+  apply2 (induct ps) by auto
 
 lemma omit_block_id: \<open>omit_block {} block = block\<close>
   using omit_id by (cases block) simp
 
 lemma omit_branch_id: \<open>omit_branch {} branch = branch\<close>
   unfolding omit_branch_def proj_def using omit_block_id
-  by (induct branch) fastforce+
+  apply2 (induct branch) by fastforce+
 
 lemma omit_branch_mem_diff_opening:
   assumes \<open>Dup p i branch xs\<close> \<open>(ps, a) \<in>. branch\<close> \<open>i \<noteq> a\<close>
@@ -1158,7 +1158,7 @@ lemma omit_branch_mem:
     omit_branch_mem_diff_formula by fast
 
 lemma omit_set: \<open>set (omit xs ps) \<subseteq> set ps\<close>
-  by (induct ps) auto
+  apply2 (induct ps) by auto
 
 lemma on_omit: \<open>p on (omit xs ps, i) \<Longrightarrow> p on (ps, i)\<close>
   using omit_set by auto
@@ -1189,7 +1189,7 @@ proof -
   have \<open>\<forall>(v, v') \<in> xs. v < length branch \<longrightarrow> is_at p i branch v v'\<close>
     using assms unfolding Dup_def by auto
   then show ?thesis
-  proof (induct branch)
+  proof2 (induct branch)
     case Nil
     then show ?case
       unfolding omit_branch_def by simp
@@ -1310,13 +1310,13 @@ lemma new_omit_branch:
 lemma omit_oob:
   assumes \<open>length ps \<le> v\<close>
   shows \<open>omit ({v} \<union> xs) ps = omit xs ps\<close>
-  using assms by (induct ps) simp_all
+  using assms apply2 (induct ps) by simp_all
 
 lemma omit_branch_oob:
   assumes \<open>length branch \<le> v\<close>
   shows \<open>omit_branch ({(v, v')} \<union> xs) branch = omit_branch xs branch\<close>
   using assms
-proof (induct branch)
+proof2 (induct branch)
   case Nil
   then show ?case
     unfolding omit_branch_def by simp
@@ -1343,7 +1343,7 @@ lemma ST_Dup:
   assumes \<open>n \<turnstile> branch\<close> \<open>Dup q i branch xs\<close>
   shows \<open>n \<turnstile> omit_branch xs branch\<close>
   using assms
-proof (induct n branch)
+proof2 (induct n branch)
   case (Close p i' branch n)
   have \<open>p at i' in omit_branch xs branch\<close>
     using Close(1, 3) omit_branch_mem by fast
@@ -1583,7 +1583,7 @@ qed
 subsection \<open>Unrestricted rules\<close>
 
 lemma ST_add: \<open>n \<turnstile> branch \<Longrightarrow> m + n \<turnstile> branch\<close>
-  using ST_Suc by (induct m) auto
+  using ST_Suc apply2 (induct m) by auto
 
 lemma ST_le: \<open>n \<turnstile> branch \<Longrightarrow> n \<le> m \<Longrightarrow> m \<turnstile> branch\<close>
   using ST_add by (metis le_add_diff_inverse2)
@@ -1679,13 +1679,13 @@ lemma Nom':
 section \<open>Substitution\<close>
 
 lemma finite_nominals: \<open>finite (nominals p)\<close>
-  by (induct p) simp_all
+  apply2 (induct p) by simp_all
 
 lemma finite_block_nominals: \<open>finite (block_nominals block)\<close>
-  using finite_nominals by (induct block) auto
+  using finite_nominals apply2 (induct block) by auto
 
 lemma finite_branch_nominals: \<open>finite (branch_nominals branch)\<close>
-  unfolding branch_nominals_def by (induct branch) (auto simp: finite_block_nominals)
+  unfolding branch_nominals_def apply2 (induct branch) by (auto simp: finite_block_nominals)
 
 abbreviation sub_list :: \<open>('b \<Rightarrow> 'c) \<Rightarrow> ('a, 'b) fm list \<Rightarrow> ('a, 'c) fm list\<close> where
   \<open>sub_list f ps \<equiv> map (sub f) ps\<close>
@@ -1697,7 +1697,7 @@ definition sub_branch :: \<open>('b \<Rightarrow> 'c) \<Rightarrow> ('a, 'b) bra
   \<open>sub_branch f blocks \<equiv> map (sub_block f) blocks\<close>
 
 lemma sub_block_mem: \<open>p on block \<Longrightarrow> sub f p on sub_block f block\<close>
-  by (induct block) auto
+  apply2 (induct block) by auto
 
 lemma sub_branch_mem:
   assumes \<open>(ps, i) \<in>. branch\<close>
@@ -1705,45 +1705,45 @@ lemma sub_branch_mem:
   unfolding sub_branch_def using assms image_iff by fastforce
 
 lemma sub_block_nominals: \<open>block_nominals (sub_block f block) = f ` block_nominals block\<close>
-  by (induct block) (auto simp: sub_nominals)
+  apply2 (induct block) by (auto simp: sub_nominals)
 
 lemma sub_branch_nominals:
   \<open>branch_nominals (sub_branch f branch) = f ` branch_nominals branch\<close>
   unfolding branch_nominals_def sub_branch_def
-  by (induct branch) (auto simp: sub_block_nominals)
+  apply2 (induct branch) by (auto simp: sub_block_nominals)
 
 lemma sub_list_id: \<open>sub_list id ps = ps\<close>
-  using sub_id by (induct ps) auto
+  using sub_id apply2 (induct ps) by auto
 
 lemma sub_block_id: \<open>sub_block id block = block\<close>
-  using sub_list_id by (induct block) auto
+  using sub_list_id apply2 (induct block) by auto
 
 lemma sub_branch_id: \<open>sub_branch id branch = branch\<close>
-  unfolding sub_branch_def using sub_block_id by (induct branch) auto
+  unfolding sub_branch_def using sub_block_id apply2 (induct branch) by auto
 
 lemma sub_block_upd_fresh:
   assumes \<open>i \<notin> block_nominals block\<close>
   shows \<open>sub_block (f(i := j)) block = sub_block f block\<close>
-  using assms by (induct block) (auto simp add: sub_upd_fresh)
+  using assms apply2 (induct block) by (auto simp add: sub_upd_fresh)
 
 lemma sub_branch_upd_fresh:
   assumes \<open>i \<notin> branch_nominals branch\<close>
   shows \<open>sub_branch (f(i := j)) branch = sub_branch f branch\<close>
   using assms unfolding branch_nominals_def sub_branch_def
-  by (induct branch) (auto simp: sub_block_upd_fresh)
+  apply2 (induct branch) by (auto simp: sub_block_upd_fresh)
 
 lemma sub_comp: \<open>sub f (sub g p) = sub (f o g) p\<close>
-  by (induct p) simp_all
+  apply2 (induct p) by simp_all
 
 lemma sub_list_comp: \<open>sub_list f (sub_list g ps) = sub_list (f o g) ps\<close>
-  using sub_comp by (induct ps) auto
+  using sub_comp apply2 (induct ps) by auto
 
 lemma sub_block_comp: \<open>sub_block f (sub_block g block) = sub_block (f o g) block\<close>
-  using sub_list_comp by (induct block) simp_all
+  using sub_list_comp apply2 (induct block) by simp_all
 
 lemma sub_branch_comp:
   \<open>sub_branch f (sub_branch g branch) = sub_branch (f o g) branch\<close>
-  unfolding sub_branch_def using sub_block_comp by (induct branch) fastforce+
+  unfolding sub_branch_def using sub_block_comp apply2 (induct branch) by fastforce+
 
 lemma swap_id: \<open>(id(i := j, j := i)) o (id(i := j, j := i)) = id\<close>
   by auto
@@ -1763,7 +1763,7 @@ lemma ST_sub':
   fixes f :: \<open>'b \<Rightarrow> 'c\<close>
   assumes \<open>\<And>(f :: 'b \<Rightarrow> 'c) i A. finite A \<Longrightarrow> i \<notin> A \<Longrightarrow> \<exists>j. j \<notin> f ` A\<close>
   shows \<open>n \<turnstile> branch \<Longrightarrow> \<turnstile> sub_branch f branch\<close>
-proof (induct branch arbitrary: f rule: ST.induct)
+proof2 (induct branch arbitrary: f rule: ST.induct)
   case (Close p i branch)
   have \<open>sub f p at f i in sub_branch f branch\<close>
     using Close(1) sub_branch_mem by fastforce
@@ -2030,7 +2030,7 @@ lemma list_down_induct [consumes 1, case_names Start Cons]:
   assumes \<open>\<forall>y \<in> set ys. Q y\<close> \<open>P (ys @ xs)\<close>
     \<open>\<And>y xs. Q y \<Longrightarrow> P (y # xs) \<Longrightarrow> P xs\<close>
   shows \<open>P xs\<close>
-  using assms by (induct ys) auto
+  using assms apply2 (induct ys) by auto
 
 text \<open>
   If the last block on a branch has opening nominal \<open>a\<close> and the last formulas on that block
@@ -2044,7 +2044,7 @@ proof -
   have \<open>\<forall>p \<in> set ps. p on (qs, a)\<close>
     using assms(1) by auto
   then show ?thesis
-  proof (induct ps' rule: list_down_induct)
+  proof2 (induct ps' rule: list_down_induct)
     case Start
     then show ?case
       using assms(3) .
@@ -2063,7 +2063,7 @@ lemma ST_drop_block:
     \<open>n \<turnstile> (ps, a) # branch\<close>
   shows \<open>Suc n \<turnstile> branch\<close>
   using assms
-proof (induct branch)
+proof2 (induct branch)
   case Nil
   then show ?case
     by simp
@@ -2110,7 +2110,7 @@ lemma ST_struct:
     \<open>n \<turnstile> branch\<close> \<open>set branch \<subseteq> set branch'\<close>
   shows \<open>\<turnstile> branch'\<close>
   using assms(2-3)
-proof (induct n branch arbitrary: branch' rule: ST.induct)
+proof2 (induct n branch arbitrary: branch' rule: ST.induct)
   case (Close p i branch)
   then show ?case
     using ST.Close by fast
@@ -2270,7 +2270,7 @@ lemma ST_struct_block:
     \<open>n \<turnstile> (ps, a) # branch\<close> \<open>set ps \<subseteq> set ps'\<close>
   shows \<open>\<turnstile> (ps', a) # branch\<close>
   using assms(2-3)
-proof (induct \<open>(ps, a) # branch\<close> arbitrary: ps ps' rule: ST.induct)
+proof2 (induct \<open>(ps, a) # branch\<close> arbitrary: ps ps' rule: ST.induct)
   case (Close p i n ts ts')
   then have \<open>p at i in (ts', a) # branch\<close> \<open>(\<^bold>\<not> p) at i in (ts', a) # branch\<close>
     by auto
@@ -2489,11 +2489,11 @@ abbreviation bridge ::
 
 lemma bridge_on_Nom:
   \<open>Nom i on (ps, a) \<Longrightarrow> Nom i on (mapi (bridge k j xs v) ps, a)\<close>
-  by (induct ps) auto
+  apply2 (induct ps) by auto
 
 lemma bridge'_nominals:
   \<open>nominals (bridge' k j p) \<union> {k, j} = nominals p \<union> {k, j}\<close>
-proof (induct p)
+proof2 (induct p)
   case (Neg p)
   then show ?case by (cases p) auto
 next
@@ -2514,7 +2514,7 @@ qed simp
 lemma bridge_block_nominals:
   \<open>block_nominals (mapi_block (bridge k j xs v) (ps, a)) \<union> {k, j} =
    block_nominals (ps, a) \<union> {k, j}\<close>
-proof (induct ps)
+proof2 (induct ps)
   case Nil
   then show ?case
     by simp
@@ -2541,7 +2541,7 @@ qed
 lemma bridge_branch_nominals:
   \<open>branch_nominals (mapi_branch (bridge k j xs) branch) \<union> {k, j} =
    branch_nominals branch \<union> {k, j}\<close>
-proof (induct branch)
+proof2 (induct branch)
   case Nil
   then show ?case
     unfolding branch_nominals_def mapi_branch_def
@@ -2582,7 +2582,7 @@ proof -
   then obtain l where \<open>(mapi (f l) qs, a) \<in>. mapi_branch f branch\<close>
     using mapi_branch_mem by fast
   moreover have \<open>Nom i on (mapi (f l) qs, a)\<close>
-    unfolding f_def using qs(2) by (induct qs) auto
+    unfolding f_def using qs(2) apply2 (induct qs) by auto
   ultimately show ?thesis
     by blast
 qed
@@ -2612,7 +2612,7 @@ qed
 lemma bridge_proper_dia:
   assumes \<open>\<nexists>a. p = Nom a\<close>
   shows \<open>bridge k j xs v v' (\<^bold>\<diamond> p) = (\<^bold>\<diamond> p)\<close>
-  using assms by (induct p) simp_all
+  using assms apply2 (induct p) by simp_all
 
 lemma bridge_compl_cases:
   fixes k j xs v v' w w' p
@@ -2654,23 +2654,23 @@ lemma descendants_initial:
   assumes \<open>descendants k i branch xs\<close>
   shows \<open>\<exists>(v, v') \<in> xs. \<exists>ps.
     branch !. v = Some (ps, i) \<and> ps !. v' = Some (\<^bold>\<diamond> Nom k)\<close>
-  using assms by (induct k i branch xs rule: descendants.induct) simp_all
+  using assms apply2 (induct k i branch xs rule: descendants.induct) by simp_all
 
 lemma descendants_bounds_fst:
   assumes \<open>descendants k i branch xs\<close> \<open>(v, v') \<in> xs\<close>
   shows \<open>v < length branch\<close>
   using assms rev_nth_Some
-  by (induct k i branch xs rule: descendants.induct) fast+
+  apply2 (induct k i branch xs rule: descendants.induct) by fast+
 
 lemma descendants_bounds_snd:
   assumes \<open>descendants k i branch xs\<close> \<open>(v, v') \<in> xs\<close> \<open>branch !. v = Some (ps, a)\<close>
   shows \<open>v' < length ps\<close>
   using assms
-  by (induct k i branch xs rule: descendants.induct) (auto simp: rev_nth_Some)
+  apply2 (induct k i branch xs rule: descendants.induct) by (auto simp: rev_nth_Some)
 
 lemma descendants_branch:
   \<open>descendants k i branch xs \<Longrightarrow> descendants k i (extra @ branch) xs\<close>
-proof (induct k i branch xs rule: descendants.induct)
+proof2 (induct k i branch xs rule: descendants.induct)
   case (Initial branch v qs i v' k)
   then show ?case
     using rev_nth_append descendants.Initial by fast
@@ -2698,7 +2698,7 @@ lemma descendants_block:
   assumes \<open>descendants k i ((ps, a) # branch) xs\<close>
   shows \<open>descendants k i ((ps' @ ps, a) # branch) xs\<close>
   using assms
-proof (induct k i \<open>(ps, a) # branch\<close> xs arbitrary: ps a branch rule: descendants.induct)
+proof2 (induct k i \<open>(ps, a) # branch\<close> xs arbitrary: ps a branch rule: descendants.induct)
   case (Initial v qs i v' k)
   have
     \<open>((ps' @ ps, a) # branch) !. v = Some (qs, i) \<or>
@@ -2766,7 +2766,7 @@ lemma descendants_types:
     \<open>descendants k i branch xs\<close> \<open>(v, v') \<in> xs\<close>
     \<open>branch !. v = Some (ps, a)\<close> \<open>ps !. v' = Some p\<close>
   shows \<open>p = (\<^bold>\<diamond> Nom k) \<or> (\<exists>q. p = (\<^bold>\<not> (\<^bold>@ k q)))\<close>
-  using assms by (induct k i branch xs arbitrary: v v' ps a) fastforce+
+  using assms apply2 (induct k i branch xs arbitrary: v v' ps a) by fastforce+
 
 lemma descendants_oob_head':
   assumes \<open>descendants k i ((ps, a) # branch) xs\<close>
@@ -2795,7 +2795,7 @@ lemma ST_bridge':
     \<open>Nom j at c in branch\<close> \<open>Nom k at c in branch\<close>
   shows \<open>\<turnstile> mapi_branch (bridge k j xs) ((ps, a) # branch)\<close>
   using assms(2-)
-proof (induct n \<open>(ps, a) # branch\<close> arbitrary: ps a branch xs rule: ST.induct)
+proof2 (induct n \<open>(ps, a) # branch\<close> arbitrary: ps a branch xs rule: ST.induct)
   case (Close p i')
   let ?f = \<open>bridge k j xs\<close>
   let ?branch = \<open>mapi_branch ?f ((ps, a) # branch)\<close>
@@ -2821,7 +2821,7 @@ proof (induct n \<open>(ps, a) # branch\<close> arbitrary: ps a branch xs rule: 
     then have \<open>p on (mapi (?f v) qs, i')\<close>
       using qs bridge_on_Nom by fast
     moreover have \<open>(\<^bold>\<not> p) on (mapi (?f w) rs, i')\<close>
-      using rs(2) True by (induct rs) auto
+      using rs(2) True apply2 (induct rs) by auto
     ultimately show ?thesis
       using v w ST.Close by fast
   next
@@ -3635,7 +3635,7 @@ lemma hintikka_model:
   shows
     \<open>p at i in' H \<Longrightarrow> Model (reach H) (val H), assign H, assign H i \<Turnstile> p\<close>
     \<open>(\<^bold>\<not> p) at i in' H \<Longrightarrow> \<not> Model (reach H) (val H), assign H, assign H i \<Turnstile> p\<close>
-proof (induct p arbitrary: i)
+proof2 (induct p arbitrary: i)
   fix i
   case (Pro x)
   assume \<open>Pro x at i in' H\<close>
@@ -3866,7 +3866,7 @@ lemma extend_chain: \<open>extend S f n \<subseteq> extend S f (Suc n)\<close>
   by auto
 
 lemma extend_mem: \<open>S \<subseteq> extend S f n\<close>
-  by (induct n) auto
+  apply2 (induct n) by auto
 
 lemma Extend_mem: \<open>S \<subseteq> Extend S f\<close>
   unfolding Extend_def using extend_mem by blast
@@ -3907,14 +3907,14 @@ lemma inconsistent_weaken: \<open>\<not> consistent S \<Longrightarrow> S \<subs
   unfolding consistent_def by blast
 
 lemma finite_nominals_set: \<open>finite S \<Longrightarrow> finite (\<Union>block \<in> S. block_nominals block)\<close>
-  by (induct S rule: finite_induct) (simp_all add: finite_block_nominals)
+  apply2 (induct S rule: finite_induct) by (simp_all add: finite_block_nominals)
 
 lemma witness_list_used:
   fixes i :: 'b
   assumes inf: \<open>infinite (UNIV :: 'b set)\<close> and \<open>finite used\<close> \<open>i \<notin> list_nominals ps\<close>
   shows \<open>i \<notin> list_nominals (witness_list ps ({i} \<union> used))\<close>
   using assms(2-)
-proof (induct ps arbitrary: used)
+proof2 (induct ps arbitrary: used)
   case (Cons p ps)
   then show ?case
   proof (cases \<open>proper_dia p\<close>)
@@ -3958,7 +3958,7 @@ lemma witness_used:
   assumes inf: \<open>infinite (UNIV :: 'b set)\<close> and
     \<open>finite used\<close> \<open>i \<notin> block_nominals block\<close>
   shows \<open>i \<notin> block_nominals (witness block ({i} \<union> used))\<close>
-  using assms witness_list_used by (induct block) fastforce
+  using assms witness_list_used apply2 (induct block) by fastforce
 
 lemma consistent_witness_list:
   fixes a :: 'b
@@ -3966,7 +3966,7 @@ lemma consistent_witness_list:
     \<open>(ps, a) \<in> S\<close> \<open>finite used\<close> \<open>(\<Union> (block_nominals ` S)) \<subseteq> used\<close>
   shows \<open>consistent ({(witness_list ps used, a)} \<union> S)\<close>
   using assms(2-)
-proof (induct ps arbitrary: used S)
+proof2 (induct ps arbitrary: used S)
   case Nil
   then have \<open>{(witness_list [] used, a)} \<union> S = S\<close>
     by auto
@@ -4118,19 +4118,19 @@ qed
 lemma finite_nominals_extend:
   assumes \<open>finite (\<Union> (block_nominals ` S))\<close>
   shows \<open>finite (\<Union> (block_nominals ` extend S f n))\<close>
-  using assms by (induct n) (simp_all add: finite_block_nominals)
+  using assms apply2 (induct n) by (simp_all add: finite_block_nominals)
 
 lemma consistent_extend':
   fixes S :: \<open>('a, 'b) block set\<close>
   assumes inf: \<open>infinite (UNIV :: 'b set)\<close> and \<open>consistent S\<close> \<open>finite (\<Union> (block_nominals ` S))\<close>
   shows \<open>consistent (extend S f n)\<close>
-  using assms by (induct n) (simp, metis consistent_extend finite_nominals_extend)
+  using assms apply2 (induct n) by (simp, metis consistent_extend finite_nominals_extend)
 
 lemma UN_finite_bound:
   assumes \<open>finite A\<close> \<open>A \<subseteq> (\<Union>n. f n)\<close>
   shows \<open>\<exists>m :: nat. A \<subseteq> (\<Union>n \<le> m. f n)\<close>
   using assms
-proof (induct A rule: finite_induct)
+proof2 (induct A rule: finite_induct)
   case (insert x A)
   then obtain m where \<open>A \<subseteq> (\<Union>n \<le> m. f n)\<close>
     by fast
@@ -4145,7 +4145,7 @@ proof (induct A rule: finite_induct)
 qed simp
 
 lemma extend_bound: \<open>(\<Union>n \<le> m. extend S f n) = extend S f m\<close>
-proof (induct m)
+proof2 (induct m)
   case (Suc m)
   have \<open>\<Union> (extend S f ` {..Suc m}) = \<Union> (extend S f ` {..m}) \<union> extend S f (Suc m)\<close>
     using atMost_Suc by auto
@@ -4229,7 +4229,7 @@ definition saturated :: \<open>('a, 'b) block set \<Rightarrow> bool\<close> whe
 
 lemma witness_list_append:
   \<open>\<exists>extra. witness_list (ps @ qs) used = witness_list ps used @ witness_list qs (extra \<union> used)\<close>
-proof (induct ps arbitrary: used)
+proof2 (induct ps arbitrary: used)
   case Nil
   then show ?case
     by (metis Un_absorb append_self_conv2 witness_list.simps(1))
@@ -4269,10 +4269,10 @@ lemma ex_witness_list:
   assumes \<open>p \<in>. ps\<close> \<open>proper_dia p = Some q\<close>
   shows \<open>\<exists>i. {\<^bold>@ i q, \<^bold>\<diamond> Nom i} \<subseteq> set (witness_list ps used)\<close>
   using \<open>p \<in>. ps\<close>
-proof (induct ps arbitrary: used)
+proof2 (induct ps arbitrary: used)
   case (Cons a ps)
   then show ?case
-  proof (induct \<open>a = p\<close>)
+  proof2 (induct \<open>a = p\<close>)
     case True
     then have
       \<open>\<exists>i. witness_list (a # ps) used = (\<^bold>@ i q) # (\<^bold>\<diamond> Nom i) #

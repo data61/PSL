@@ -1,7 +1,7 @@
 section \<open>Cantor Normal Form\<close>
 
 theory Cantor_NF
-  imports Ordinal_Exp
+  imports Ordinal_Exp "../Eval_Base/Eval_Base"
 begin
 
 subsection \<open>Cantor normal form\<close>
@@ -38,7 +38,7 @@ lemma Ord_Cantor_sum:
   assumes "List.set \<alpha>s \<subseteq> ON"
   shows "Ord (Cantor_sum \<alpha>s ms)"
   using assms
-proof (induction \<alpha>s arbitrary: ms)
+proof2 (induction \<alpha>s arbitrary: ms)
   case (Cons a \<alpha>s ms)
   then show ?case
     by (cases ms) auto
@@ -55,7 +55,7 @@ lemma cnf_2:
     and "Cantor_dec (\<alpha>#\<alpha>s)"
   shows "\<omega>\<up>\<alpha> > Cantor_sum \<alpha>s ms"
   using assms
-proof (induction ms arbitrary: \<alpha> \<alpha>s)
+proof2 (induction ms arbitrary: \<alpha> \<alpha>s)
   case Nil
   then obtain \<alpha>0 where \<alpha>0: "(\<alpha>#\<alpha>s) = [\<alpha>0]"
     by (metis length_0_conv)
@@ -114,7 +114,7 @@ proposition Cantor_nf_exists:
     and "Cantor_dec \<alpha>s"
     and "\<alpha> = Cantor_sum \<alpha>s ms"
   using assms
-proof (induction \<alpha> arbitrary: thesis rule: Ord_induct)
+proof2 (induction \<alpha> arbitrary: thesis rule: Ord_induct)
   case (step \<alpha>)
   show ?case
   proof (cases "\<alpha> = 0")
@@ -292,7 +292,7 @@ lemma Cantor_sum_0E:
   assumes "Cantor_sum \<alpha>s ms = 0" "List.set \<alpha>s \<subseteq> ON" "list.set ms \<subseteq> {0<..}" "length \<alpha>s = length ms"
   shows "\<alpha>s = []"
   using assms
-proof (induction \<alpha>s arbitrary: ms)
+proof2 (induction \<alpha>s arbitrary: ms)
   case Nil
   then show ?case
     by auto
@@ -318,7 +318,7 @@ lemma Cantor_nf_unique_aux:
     and \<beta>seq: "\<alpha> = Cantor_sum \<beta>s ns"
   shows "\<alpha>s = \<beta>s \<and> ms = ns"
   using assms
-proof (induction \<alpha> arbitrary: \<alpha>s ms \<beta>s ns rule: Ord_induct)
+proof2 (induction \<alpha> arbitrary: \<alpha>s ms \<beta>s ns rule: Ord_induct)
   case (step \<alpha>)
   show ?case
   proof (cases "\<alpha> = 0")
@@ -471,7 +471,7 @@ abbreviation \<omega>_dec :: "V list \<Rightarrow> bool" where
   "\<omega>_dec \<equiv> sorted_wrt (\<ge>)"
 
 lemma Ord_\<omega>_sum [simp]: "List.set \<alpha>s \<subseteq> ON \<Longrightarrow> Ord (\<omega>_sum \<alpha>s)"
-  by (induction \<alpha>s) auto
+  apply2 (induction \<alpha>s) by auto
 
 lemma \<omega>_dec_Cons_iff [simp]: "\<omega>_dec (\<alpha>#\<beta>#\<beta>s) \<longleftrightarrow> \<beta> \<le> \<alpha> \<and> \<omega>_dec (\<beta>#\<beta>s)"
   by auto
@@ -480,7 +480,7 @@ lemma \<omega>_sum_0E:
   assumes "\<omega>_sum \<alpha>s = 0" "List.set \<alpha>s \<subseteq> ON"
   shows "\<alpha>s = []"
   using assms
-by (induction \<alpha>s) auto
+apply2 (induction \<alpha>s) by auto
 
 fun \<omega>_of_Cantor where
   \<omega>_of_Cantor_Nil: "\<omega>_of_Cantor [] ms = []"
@@ -488,21 +488,21 @@ fun \<omega>_of_Cantor where
 | \<omega>_of_Cantor_Cons: "\<omega>_of_Cantor (\<alpha>#\<alpha>s) (m#ms) = replicate m \<alpha> @ \<omega>_of_Cantor \<alpha>s ms"
 
 
-lemma \<omega>_sum_append [simp]: "\<omega>_sum (xs @ ys) = \<omega>_sum xs + \<omega>_sum ys"
-  by (induction xs) (auto simp: add.assoc)
+lemma \<omega>_sum_append [simp]: "\<omega>_sum (xs @ ys) = \<omega>_sum xs + \<omega>_sum ys"(*semantic_induct failed*)
+  apply2 (induction xs) by(auto simp: add.assoc)
 
 lemma \<omega>_sum_replicate [simp]: "\<omega>_sum (replicate m a) = \<omega> \<up> a * ord_of_nat m"
-  by (induction m) (auto simp: mult_succ simp flip: replicate_append_same)
+  apply2 (induction m) by (auto simp: mult_succ simp flip: replicate_append_same)
 
 lemma \<omega>_sum_of_Cantor [simp]: "\<omega>_sum (\<omega>_of_Cantor \<alpha>s ms) = Cantor_sum \<alpha>s ms"
-proof (induction \<alpha>s arbitrary: ms)
+proof2 (induction \<alpha>s arbitrary: ms)
   case (Cons a \<alpha>s ms)
   then show ?case
     by (cases ms) auto
 qed auto
 
 lemma \<omega>_of_Cantor_subset: "List.set (\<omega>_of_Cantor \<alpha>s ms) \<subseteq> List.set \<alpha>s"
-proof (induction \<alpha>s arbitrary: ms)
+proof2 (induction \<alpha>s arbitrary: ms)
   case (Cons a \<alpha>s ms)
   then show ?case
     by (cases ms) auto
@@ -510,14 +510,14 @@ qed auto
 
 
 lemma \<omega>_dec_replicate: "\<omega>_dec (replicate m \<alpha> @ \<alpha>s) = (if m=0 then \<omega>_dec \<alpha>s else \<omega>_dec (\<alpha>#\<alpha>s))"
-  by (induction m arbitrary: \<alpha>s) (simp_all flip: replicate_append_same)
+  apply2 (induction m arbitrary: \<alpha>s) by(simp_all flip: replicate_append_same)
 
 
 lemma \<omega>_dec_of_Cantor_aux:
   assumes "Cantor_dec (\<alpha>#\<alpha>s)" "length \<alpha>s = length ms"
   shows "\<omega>_dec (\<omega>_of_Cantor (\<alpha>#\<alpha>s) (m#ms))"
   using assms
-proof (induction \<alpha>s arbitrary: ms)
+proof2 (induction \<alpha>s arbitrary: ms)
   case Nil
   then show ?case
     using sorted_wrt_iff_nth_less by fastforce
@@ -563,7 +563,7 @@ proof -
 qed
 
 lemma \<omega>_sum_take_drop: "\<omega>_sum \<alpha>s = \<omega>_sum (take k \<alpha>s) + \<omega>_sum (drop k \<alpha>s)"
-proof (induction k arbitrary: \<alpha>s)
+proof2 (induction k arbitrary: \<alpha>s)
   case 0
   then show ?case
     by simp
@@ -585,7 +585,7 @@ lemma in_elts_\<omega>_sum:
   assumes "\<delta> \<in> elts (\<omega>_sum \<alpha>s)"
   shows "\<exists>k<length \<alpha>s. \<exists>\<gamma>\<in>elts (\<omega> \<up> (\<alpha>s!k)). \<delta> = \<omega>_sum (take k \<alpha>s) + \<gamma>"
   using assms
-proof (induction \<alpha>s arbitrary: \<delta>)
+proof2 (induction \<alpha>s arbitrary: \<delta>)
   case (Cons \<alpha> \<alpha>s)
   then have "\<delta> \<in> elts (\<omega> \<up> \<alpha> + \<omega>_sum \<alpha>s)"
     by simp
@@ -601,7 +601,7 @@ proof (induction \<alpha>s arbitrary: \<delta>)
 qed auto
 
 lemma \<omega>_le_\<omega>_sum: "\<lbrakk>k < length \<alpha>s; List.set \<alpha>s \<subseteq> ON\<rbrakk> \<Longrightarrow> \<omega> \<up> (\<alpha>s!k) \<le> \<omega>_sum \<alpha>s"
-proof (induction \<alpha>s arbitrary: k)
+proof2 (induction \<alpha>s arbitrary: k)
   case (Cons a \<alpha>s)
   then obtain "Ord a" "list.set \<alpha>s \<subseteq> ON"
     by simp
@@ -615,7 +615,7 @@ lemma \<omega>_sum_less_self:
   assumes "List.set (\<alpha>#\<alpha>s) \<subseteq> ON" and "\<omega>_dec (\<alpha>#\<alpha>s)"
   shows "\<omega>_sum \<alpha>s < \<omega>\<up>\<alpha> + \<omega>_sum \<alpha>s"
   using assms
-proof (induction \<alpha>s arbitrary: \<alpha>)
+proof2 (induction \<alpha>s arbitrary: \<alpha>)
   case Nil
   then show ?case
     using ZFC_in_HOL.neq0_conv by fastforce
@@ -630,7 +630,7 @@ lemma \<omega>_sum_less_\<omega>_power:
   assumes "\<omega>_dec (\<alpha>#\<alpha>s)" "List.set (\<alpha>#\<alpha>s) \<subseteq> ON"
   shows "\<omega>_sum \<alpha>s < \<omega>\<up>\<alpha> * \<omega>"
   using assms
-proof (induction \<alpha>s)
+proof2 (induction \<alpha>s)
   case Nil
   then show ?case
     by (simp add: \<omega>_gt0)
@@ -659,7 +659,7 @@ lemma \<omega>_sum_nf_unique_aux:
     and \<beta>seq: "\<alpha> = \<omega>_sum \<beta>s"
   shows "\<alpha>s = \<beta>s"
   using assms
-proof (induction \<alpha> arbitrary: \<alpha>s \<beta>s rule: Ord_induct)
+proof2 (induction \<alpha> arbitrary: \<alpha>s \<beta>s rule: Ord_induct)
   case (step \<alpha>)
   show ?case
   proof (cases "\<alpha> = 0")
@@ -976,7 +976,7 @@ theorem indecomposable_imp_type:
     and "elts \<gamma> \<subseteq> (UN b. X b)"
   shows "\<exists>b. ordertype (X b) VWF = \<gamma>"
   using \<gamma> [THEN indecomposable_imp_Ord] assms
-proof (induction arbitrary: X)
+proof2 (induction arbitrary: X)
   case (succ \<beta>)
   show ?case
   proof (cases "\<beta> = 0")
@@ -1354,7 +1354,7 @@ lemma indecomposable_ordertype_finite_eq:
     and \<A>: "finite \<A>" "pairwise disjnt \<A>" "\<Union>\<A> = A" "\<A> \<noteq> {}" "ordertype A VWF = \<alpha>" "small A"
   shows "\<exists>X \<in> \<A>. ordertype X VWF = \<alpha>"
   using \<A>
-proof (induction arbitrary: A)
+proof2 (induction arbitrary: A)
   case (insert X \<A>)
   show ?case
   proof (cases "\<A> = {}")
@@ -1388,7 +1388,7 @@ lemma indecomposable_ordertype_finite_ge:
     and \<A>: "finite \<A>" "A \<subseteq> \<Union>\<A>" "\<A> \<noteq> {}" "ordertype A VWF \<ge> \<alpha>" "small (\<Union>\<A>)"
   shows "\<exists>X \<in> \<A>. ordertype X VWF \<ge> \<alpha>"
   using \<A>
-proof (induction arbitrary: A)
+proof2 (induction arbitrary: A)
   case (insert X \<A>)
   show ?case
   proof (cases "\<A> = {}")

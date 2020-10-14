@@ -1,6 +1,6 @@
 section \<open>Challenge 1.A\<close>
 theory Challenge1A
-imports Main
+imports Main "../Eval_Base/Eval_Base"
 begin
 
 text \<open>Problem definition:
@@ -67,12 +67,12 @@ text \<open>Problem definition:
 
   subsubsection \<open>Property 1: The Exact Sequence is Covered\<close>
   lemma tdconc: "\<exists>ys. xs = take_decr xs @ ys"
-    apply (induction xs rule: take_decr.induct)
+    apply2 (induction xs rule: take_decr.induct)
     apply auto
     done
 
   lemma ticonc: "\<exists>ys. xs = take_incr xs @ ys"
-    apply (induction xs rule: take_incr.induct)
+    apply2 (induction xs rule: take_incr.induct)
     apply auto
     done
 
@@ -82,7 +82,7 @@ text \<open>Problem definition:
     by auto 
   
   theorem concat_cuts: "concat (cuts xs) = xs"
-    apply (induction xs rule: cuts.induct)
+    apply2 (induction xs rule: cuts.induct)
     apply (subst cuts.simps)
     apply (auto simp: take2_def Let_def)
     by (metis append_eq_conv_conj take_conc)  
@@ -102,14 +102,14 @@ text \<open>Problem definition:
   | "decr (x#y#xs) \<longleftrightarrow> x\<ge>y \<and> decr (y#xs)"  
   
   lemma tki: "incr (take_incr xs)"
-    apply (induction xs rule: take_incr.induct)
+    apply2 (induction xs rule: take_incr.induct)
     apply auto
     apply (case_tac xs)
     apply auto
     done
     
   lemma tkd: "decr (take_decr xs)"
-    apply (induction xs rule: take_decr.induct)
+    apply2 (induction xs rule: take_decr.induct)
     apply auto
     apply (case_tac xs)
     apply auto
@@ -121,7 +121,7 @@ text \<open>Problem definition:
     done   
         
   theorem cuts_incr_decr: "\<forall>c\<in>set (cuts xs). incr c \<or> decr c"  
-    apply (induction xs rule: cuts.induct)
+    apply2 (induction xs rule: cuts.induct)
     apply (subst cuts.simps)
     apply (auto simp: take2_def Let_def)
     using icod by blast
@@ -149,13 +149,13 @@ text \<open>Problem definition:
   lemma tdconc': "xs\<noteq>[] \<Longrightarrow> 
     \<exists>ys. xs = take_decr xs @ ys \<and> (ys\<noteq>[] 
       \<longrightarrow> \<not>(last (take_decr xs) \<ge> hd ys))"
-    apply (induction xs rule: take_decr.induct)
+    apply2 (induction xs rule: take_decr.induct)
     apply auto
     apply (case_tac xs) apply (auto split: if_splits)
     done
     
   lemma ticonc': "xs\<noteq>[] \<Longrightarrow> \<exists>ys. xs = take_incr xs @ ys \<and> (ys\<noteq>[] \<longrightarrow> \<not>(last (take_incr xs) < hd ys))"
-    apply (induction xs rule: take_incr.induct)
+    apply2 (induction xs rule: take_incr.induct)
     apply auto
     apply (case_tac xs) apply (auto split: if_splits)
     done
@@ -220,7 +220,7 @@ text \<open>Problem definition:
     by (metis append_eq_conv_conj take_conc)
     
   theorem maximal_cuts: "maxi (cuts xs)" 
-    apply (induction "cuts xs" arbitrary: xs rule: maxi.induct)
+    apply2 (induction "cuts xs" arbitrary: xs rule: maxi.induct)
     subgoal by auto
     subgoal for c xs
       apply (drule sym; simp)
@@ -264,7 +264,7 @@ text \<open>Problem definition:
   begin
 
     lemma idx_spec: "fP xs \<longleftrightarrow> (\<forall>i<length xs - 1. P (xs!i) (xs!Suc i))"
-      apply (induction xs rule: ii_induction.induct)
+      apply2 (induction xs rule: ii_induction.induct)
       using less_Suc_eq_0_disj
       by auto
   
@@ -278,7 +278,7 @@ text \<open>Problem definition:
   begin
 
     lemma idx_spec: "fP xs \<longleftrightarrow> (\<forall>i<length xs. P' (xs!i)) \<and> (\<forall>i<length xs - 1. P (xs!i) (xs!Suc i))"
-      apply (induction xs rule: ii_induction.induct)
+      apply2 (induction xs rule: ii_induction.induct)
       apply auto []
       apply auto []
       apply clarsimp

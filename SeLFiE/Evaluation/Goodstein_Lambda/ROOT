@@ -2,7 +2,9 @@ chapter AFP
 
 session Goodstein_Lambda (AFP) = HOL +
 
-options [timeout = 300]
+  options [timeout = 6000000]
+  sessions
+    Eval_Base
 
   theories
     Goodstein_Lambda

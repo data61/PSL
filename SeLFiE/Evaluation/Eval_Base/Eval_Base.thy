@@ -213,7 +213,7 @@ val _ =
         in state' end))))
 
 fun pst_to_unit m = (fn toplevel_state => state_to_unit (Toplevel.proof_of toplevel_state) m): Toplevel.state -> unit;
-                     fun get_name (Method.Source src) = ((Token.name_of_src src)|>fst)
+fun get_name (Method.Source src) = ((Token.name_of_src src)|>fst)
 
     fun local_terminal_proof (m1, m2) = (Toplevel.proof o 
           (fn m => 

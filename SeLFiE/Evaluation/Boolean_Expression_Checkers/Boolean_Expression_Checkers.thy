@@ -4,7 +4,7 @@
 *)
 
 theory Boolean_Expression_Checkers
-  imports Main "HOL-Library.Mapping"
+  imports Main "HOL-Library.Mapping" "Eval_Base.Eval_Base"
 begin
 
 section \<open>Tautology (etc) Checking via Binary Decision Trees\<close>
@@ -63,7 +63,7 @@ where
 
 lemma taut_test_rec: 
   "taut_test_rec t env = (\<forall>s. agree s env \<longrightarrow> val_ifex t s)"
-proof (induction t arbitrary: env)
+proof2 (induction t arbitrary: env)
   case Falseif
     have "agree (\<lambda>x. the (Mapping.lookup env x)) env" 
       by (auto simp: agree_def)
@@ -121,14 +121,14 @@ lemma val_mkIF:
 
 theorem val_reduce: 
   "agree s env \<Longrightarrow> val_ifex (reduce env t) s = val_ifex t s"
-  by (induction t arbitrary: s env)
-     (auto simp: map_of_eq_None_iff val_mkIF agree_Cons Let_def keys_is_none_rep
+  apply2 (induction t arbitrary: s env)
+  by(auto simp: map_of_eq_None_iff val_mkIF agree_Cons Let_def keys_is_none_rep
            dest: agreeDT agreeDF split: option.splits) 
 
 lemma val_normif: 
   "agree s env \<Longrightarrow> val_ifex (normif env t t1 t2) s = val_ifex (if val_ifex t s then t1 else t2) s"
-  by (induct t arbitrary: t1 t2 s env)
-     (auto simp: val_reduce val_mkIF agree_Cons map_of_eq_None_iff keys_is_none_rep
+  apply2 (induct t arbitrary: t1 t2 s env)
+  by(auto simp: val_reduce val_mkIF agree_Cons map_of_eq_None_iff keys_is_none_rep
            dest: agreeDT agreeDF split: option.splits)   
 
 subsubsection \<open>Reduced If-Expressions\<close>
@@ -142,8 +142,8 @@ fun reduced :: "'a ifex \<Rightarrow> 'a set \<Rightarrow> bool" where
 
 lemma reduced_antimono: 
   "X \<subseteq> Y \<Longrightarrow> reduced t Y \<Longrightarrow> reduced t X"
-  by (induction t arbitrary: X Y)
-     (auto, (metis insert_mono)+)
+  apply2 (induction t arbitrary: X Y)
+  by (auto, (metis insert_mono)+)
 
 lemma reduced_mkIF: 
   "x \<notin> X \<Longrightarrow> reduced t1 (insert x X) \<Longrightarrow> reduced t2 (insert x X) \<Longrightarrow> reduced (mkIF x t1 t2) X"
@@ -151,7 +151,7 @@ lemma reduced_mkIF:
 
 lemma reduced_reduce:
   "reduced (reduce env t) (Mapping.keys env)"
-proof(induction t arbitrary: env)
+proof2(induction t arbitrary: env)
   case (IF x t1 t2)
     thus ?case 
       using IF.IH(1) IF.IH(2)
@@ -161,7 +161,7 @@ qed auto
 
 lemma reduced_normif:
   "reduced (normif env t t1 t2) (Mapping.keys env)"
-proof(induction t arbitrary: t1 t2 env)
+proof2(induction t arbitrary: t1 t2 env)
   case (IF x s1 s2)
   thus ?case using IF.IH
     apply (auto simp: reduced_mkIF map_of_eq_None_iff split: option.split) 
@@ -206,11 +206,11 @@ or can evaluate to both @{const True} and @{const False}.\<close>
 
 lemma same_val_if_reduced:
   "reduced t X \<Longrightarrow> \<forall>x. x \<notin> X \<longrightarrow> s1 x = s2 x \<Longrightarrow> val_ifex t s1 = val_ifex t s2"
-  by (induction t arbitrary: X) auto
+  apply2 (induction t arbitrary: X) by auto
 
 lemma reduced_IF_depends: 
   "\<lbrakk> reduced t X; t \<noteq> Trueif; t \<noteq> Falseif \<rbrakk> \<Longrightarrow> \<exists>s1 s2. val_ifex t s1 \<noteq> val_ifex t s2"
-proof(induction t arbitrary: X)
+proof2(induction t arbitrary: X)
   case (IF x t1 t2)
   let ?t = "IF x t1 t2"
   have 1: "reduced t1 (insert x X)" using IF.prems(1) by simp
@@ -338,11 +338,11 @@ fun ifex_of :: "'a bool_expr \<Rightarrow> 'a ifex" where
 
 theorem val_ifex:
   "val_ifex (ifex_of b) s = val_bool_expr b s"
-  by (induct_tac b) (auto simp: val_normif agree_Nil Let_def)
+  apply2(induct_tac b) by(auto simp: val_normif agree_Nil Let_def)
 
 theorem reduced_ifex: 
   "reduced (ifex_of b) {}"
-  by (induction b) (simp add: Let_def; metis keys_empty reduced_normif)+
+  apply2(induction b) by(simp add: Let_def; metis keys_empty reduced_normif)+
 
 definition "bool_taut_test \<equiv> taut_test ifex_of"
 definition "bool_sat_test \<equiv> sat_test ifex_of"

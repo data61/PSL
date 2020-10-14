@@ -8,7 +8,7 @@ lemma mset_concat:
   "mset (concat xs) = fold (+) (map mset xs) {#}"
 proof -
   have "mset (concat xs) + a = fold (+) (map mset xs) a" for a
-  proof (induction xs arbitrary: a)
+  proof2 (induction xs arbitrary: a)
     case Nil
     then show ?case
       by auto
@@ -37,7 +37,7 @@ lemma merge_correct:
   \<and> mset (merge l1 l2) = mset l1 + mset l2
   \<and> set (merge l1 l2) = set l1 \<union> set l2"
   using assms
-proof (induction l1 arbitrary: l2)
+proof2 (induction l1 arbitrary: l2)
   case Nil thus ?case
     by simp
 next
@@ -46,7 +46,7 @@ next
 
   show ?case
     using Cons.prems
-  proof (induction l2)
+  proof2 (induction l2)
     case Nil then show ?case
       by simp
   next
@@ -76,7 +76,7 @@ shows "
 \<and> mset (merge_list as ls) = mset (concat (as @ ls))
 \<and> set (merge_list as ls) = set (concat (as @ ls))"
 using assms
-proof (induction as ls rule: merge_list.induct)
+proof2 (induction as ls rule: merge_list.induct)
 next
   case (4 la acc2 l)
   then show ?case
@@ -99,12 +99,12 @@ definition
 lemma decr_sorted:
   assumes "decr xs"
   shows "sorted (rev xs)"
-  using assms by (induction xs rule: decr.induct) (auto simp: sorted_append)
+  using assms apply2 (induction xs rule: decr.induct) by(auto simp: sorted_append)
 
 lemma incr_sorted:
   assumes "incr xs"
   shows "sorted xs"
-  using assms by (induction xs rule: incr.induct) auto
+  using assms apply2 (induction xs rule: incr.induct) by auto
 
 lemma reverse_phase_sorted:
   "\<forall>ys \<in> set (map (\<lambda>ys. if decr ys then rev ys else ys) (cuts xs)). sorted ys"
@@ -155,9 +155,10 @@ theorem permutation_ghc_sort:
 corollary elements_ghc_sort: "set (ghc_sort xs) = set xs"
   using permutation_ghc_sort by (metis set_mset_mset)
 
-subsection \<open>Executable Code\<close>  
+subsection \<open>Executable Code\<close>
+(*
 export_code ghc_sort checking SML Scala OCaml? Haskell?
-
+*)
 value [code] "ghc_sort [1,2,7,3,5,6,9,8,4]"
 
 end

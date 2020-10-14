@@ -8,7 +8,7 @@ section \<open>Disjunctive Normal Form of LTL formulas\<close>
 
 theory Disjunctive_Normal_Form
 imports
-  LTL Equivalence_Relations "HOL-Library.FSet"
+  LTL Equivalence_Relations "HOL-Library.FSet" "Eval_Base.Eval_Base"
 begin
 
 text \<open>
@@ -51,7 +51,7 @@ lemma min_set_finite:
 
 lemma min_set_obtains_helper:
   "A \<in> B \<Longrightarrow> \<exists>C. C |\<subseteq>| A \<and> C \<in> min_set B"
-proof (induction "fcard A" arbitrary: A rule: less_induct)
+proof2 (induction "fcard A" arbitrary: A rule: less_induct)
   case less
 
   then have "(\<forall>A'. A' \<notin> B \<or> \<not> A' |\<subseteq>| A \<or> A' = A) \<or> (\<exists>A'. A' |\<subseteq>| A \<and> A' \<in> min_set B)"
@@ -349,12 +349,11 @@ lemma min_product_subseteq:
 
 lemma min_product_set_subseteq:
   "finite X \<Longrightarrow> x \<in> \<Otimes>\<^sub>m X \<Longrightarrow> A \<in> X \<Longrightarrow> \<exists>a \<in> A. a |\<subseteq>| x"
-  by (induction X rule: finite_induct) (blast, metis finite_insert insert_absorb min_product_set_insert min_product_subseteq)
+  apply2 (induction X rule: finite_induct) by (blast, metis finite_insert insert_absorb min_product_set_insert min_product_subseteq)
 
 lemma min_set_product_set:
   "\<Otimes>\<^sub>m A = min_set (\<Otimes> A)"
-  by (cases "finite A", induction A rule: finite_induct) (simp_all add: min_product_set_def product_set_def, metis min_product_def)
-
+  apply(cases "finite A")apply2(induction A rule:finite_induct)by(simp_all add: min_product_set_def product_set_def, metis min_product_def)(*Yutaka rewrote this for use apply2 for evaluation. Originally it was by (cases "finite A", induction A rule: finite_induct) (simp_all add: min_product_set_def product_set_def, metis min_product_def)*)
 
 lemma min_product_min_set[simp]:
   "min_set (A \<otimes>\<^sub>m B) = A \<otimes>\<^sub>m B"
@@ -366,24 +365,24 @@ lemma min_union_min_set[simp]:
 
 lemma min_product_set_min_set[simp]:
   "finite X \<Longrightarrow> min_set (\<Otimes>\<^sub>m X) = \<Otimes>\<^sub>m X"
-  by (induction X rule: finite_induct, auto simp add: min_product_set_def min_set_iff)
+  apply2 (induction X rule: finite_induct) by (auto simp add: min_product_set_def min_set_iff)
 
 lemma min_set_min_product_set[simp]:
   "finite X \<Longrightarrow> \<Otimes>\<^sub>m (min_set ` X) = \<Otimes>\<^sub>m X"
-  by (induction X rule: finite_induct) simp_all
+  apply2 (induction X rule: finite_induct) by simp_all
 
 lemma min_product_set_union[simp]:
   "finite X \<Longrightarrow> finite Y \<Longrightarrow> \<Otimes>\<^sub>m (X \<union> Y) = (\<Otimes>\<^sub>m X) \<otimes>\<^sub>m (\<Otimes>\<^sub>m Y)"
-  by (induction X rule: finite_induct) simp_all
+  apply2 (induction X rule: finite_induct) by simp_all
 
 
 lemma product_set_finite:
   "(\<And>x. x \<in> X \<Longrightarrow> finite x) \<Longrightarrow> finite (\<Otimes> X)"
-  by (cases "finite X", rotate_tac, induction X rule: finite_induct) (simp_all add: product_set_def, insert product_finite, blast)
+  apply (cases "finite X", rotate_tac) apply2(induction X rule: finite_induct) by (simp_all add: product_set_def, insert product_finite, blast)(*Yutaka rewrote this for evaluation. Originally it was: apply (cases "finite X", rotate_tac, induction X rule: finite_induct, simp_all add: product_set_def, insert product_finite, blast)*)
 
 lemma min_product_set_finite:
   "(\<And>x. x \<in> X \<Longrightarrow> finite x) \<Longrightarrow> finite (\<Otimes>\<^sub>m X)"
-  by (cases "finite X", rotate_tac, induction X rule: finite_induct) (simp_all add: min_product_set_def, insert min_product_finite, blast)
+  apply (cases "finite X", rotate_tac) apply2(induction X rule: finite_induct) by (simp_all add: min_product_set_def, insert min_product_finite, blast)(*Yutaka rewrote this for evaluation. Originally it was: by (cases "finite X", rotate_tac, induction X rule: finite_induct, simp_all add: min_product_set_def, insert min_product_finite, blast)*)
 
 
 
@@ -407,15 +406,15 @@ where
 
 lemma dnf_min_set:
   "min_dnf \<phi> = min_set (dnf \<phi>)"
-  by (induction \<phi>) (simp_all, simp_all only: min_product_def min_union_def)
+  apply2 (induction \<phi>) by (simp_all, simp_all only: min_product_def min_union_def)
 
 lemma dnf_finite:
   "finite (dnf \<phi>)"
-  by (induction \<phi>) (auto simp: product_finite)
+  apply2 (induction \<phi>) by (auto simp: product_finite)
 
 lemma min_dnf_finite:
   "finite (min_dnf \<phi>)"
-  by (induction \<phi>) (auto simp: min_product_finite min_union_finite)
+  apply2 (induction \<phi>) by (auto simp: min_product_finite min_union_finite)
 
 lemma dnf_Abs_fset[simp]:
   "fset (Abs_fset (dnf \<phi>)) = dnf \<phi>"
@@ -427,7 +426,7 @@ lemma min_dnf_Abs_fset[simp]:
 
 lemma dnf_prop_atoms:
   "\<Phi> \<in> dnf \<phi> \<Longrightarrow> fset \<Phi> \<subseteq> prop_atoms \<phi>"
-  by (induction \<phi> arbitrary: \<Phi>) (auto simp: product_def, blast+)
+  apply2 (induction \<phi> arbitrary: \<Phi>) by (auto simp: product_def, blast+)
 
 lemma min_dnf_prop_atoms:
   "\<Phi> \<in> min_dnf \<phi> \<Longrightarrow> fset \<Phi> \<subseteq> prop_atoms \<phi>"
@@ -435,7 +434,7 @@ lemma min_dnf_prop_atoms:
 
 lemma min_dnf_atoms_dnf:
   "\<Phi> \<in> min_dnf \<psi> \<Longrightarrow> \<phi> \<in> fset \<Phi> \<Longrightarrow> dnf \<phi> = {{|\<phi>|}}"
-proof (induction \<phi>)
+proof2 (induction \<phi>)
   case True_ltln
   then show ?case
     using min_dnf_prop_atoms prop_atoms_notin(1) by blast
@@ -455,7 +454,7 @@ qed auto
 
 lemma min_dnf_min_set[simp]:
   "min_set (min_dnf \<phi>) = min_dnf \<phi>"
-  by (induction \<phi>) (simp_all add: min_set_def min_product_def min_union_def, blast+)
+  apply2 (induction \<phi>) by (simp_all add: min_set_def min_product_def min_union_def, blast+)
 
 
 lemma min_dnf_iff_prop_assignment_subset:
@@ -464,7 +463,7 @@ proof
   assume "\<A> \<Turnstile>\<^sub>P \<phi>"
 
   then show "\<exists>B. fset B \<subseteq> \<A> \<and> B \<in> min_dnf \<phi>"
-  proof (induction \<phi> arbitrary: \<A>)
+  proof2 (induction \<phi> arbitrary: \<A>)
     case (And_ltln \<phi>\<^sub>1 \<phi>\<^sub>2)
 
     then obtain B\<^sub>1 B\<^sub>2 where 1: "fset B\<^sub>1 \<subseteq> \<A> \<and> B\<^sub>1 \<in> min_dnf \<phi>\<^sub>1" and 2: "fset B\<^sub>2 \<subseteq> \<A> \<and> B\<^sub>2 \<in> min_dnf \<phi>\<^sub>2"
@@ -516,7 +515,7 @@ next
     by auto
 
   then have "fset B \<Turnstile>\<^sub>P \<phi>"
-    by (induction \<phi> arbitrary: B) (auto simp: min_set_def min_product_def product_def min_union_def, blast+)
+    apply2 (induction \<phi> arbitrary: B) by (auto simp: min_set_def min_product_def product_def min_union_def, blast+)
 
   then show "\<A> \<Turnstile>\<^sub>P \<phi>"
     using \<open>fset B \<subseteq> \<A>\<close> by blast
@@ -581,14 +580,14 @@ interpretation dnf_product_thms: Finite_Set.comp_fun_commute "\<lambda>\<phi>. (
 lemma fold_graph_finite:
   assumes "fold_graph f z A y"
   shows "finite A"
-  using assms by induct simp_all
+  using assms apply2 induct by simp_all
 
 
 text \<open>Taking the DNF of @{const And\<^sub>n} and @{const Or\<^sub>n} is the same as folding over the individual DNFs.\<close>
 
 lemma And\<^sub>n_dnf:
   "finite \<Phi> \<Longrightarrow> dnf (And\<^sub>n \<Phi>) = Finite_Set.fold (\<lambda>\<phi>. (\<otimes>) (dnf \<phi>)) {{||}} \<Phi>"
-proof (drule fold_graph_And\<^sub>n, induction rule: fold_graph.induct)
+  apply (drule fold_graph_And\<^sub>n) proof2 (induction rule: fold_graph.induct)(*Yutaka rewrote this for evaluation. Originally, it was: proof (drule fold_graph_And\<^sub>n, induction rule: fold_graph.induct)*)
   case (insertI x A y)
 
   then have "finite A"
@@ -600,7 +599,7 @@ qed simp
 
 lemma Or\<^sub>n_dnf:
   "finite \<Phi> \<Longrightarrow> dnf (Or\<^sub>n \<Phi>) = Finite_Set.fold (\<lambda>\<phi>. (\<union>) (dnf \<phi>)) {} \<Phi>"
-proof (drule fold_graph_Or\<^sub>n, induction rule: fold_graph.induct)
+  apply (drule fold_graph_Or\<^sub>n)proof2(induction rule: fold_graph.induct)(*Yutaka rewrote this for evaluation. Originally, it was: proof (drule fold_graph_Or\<^sub>n, induction rule: fold_graph.induct)*)
   case (insertI x A y)
 
   then have "finite A"
@@ -625,14 +624,14 @@ proof (standard, simp)
   assume "And\<^sub>n x = And\<^sub>n y"
 
   with 1 show "x = y"
-  proof (induction rule: fold_graph.induct)
+  proof2 (induction rule: fold_graph.induct)
     case emptyI
     then show ?case
       using 2 fold_graph.cases by force
   next
     case (insertI x A y)
     with 2 show ?case
-    proof (induction arbitrary: x A y rule: fold_graph.induct)
+    proof2 (induction arbitrary: x A y rule: fold_graph.induct)
       case (insertI x A y)
       then show ?case
         by (metis fold_graph.cases insertI1 ltln.distinct(7) ltln.inject(3))
@@ -652,14 +651,14 @@ proof (standard, simp)
   assume "Or\<^sub>n x = Or\<^sub>n y"
 
   with 1 show "x = y"
-  proof (induction rule: fold_graph.induct)
+  proof2 (induction rule: fold_graph.induct)
     case emptyI
     then show ?case
       using 2 fold_graph.cases by force
   next
     case (insertI x A y)
     with 2 show ?case
-    proof (induction arbitrary: x A y rule: fold_graph.induct)
+    proof2 (induction arbitrary: x A y rule: fold_graph.induct)
       case (insertI x A y)
       then show ?case
         by (metis fold_graph.cases insertI1 ltln.distinct(27) ltln.inject(4))
@@ -836,7 +835,7 @@ qed
 
 lemma subst_clause_funion[simp]:
   "subst_clause (\<Phi> |\<union>| \<Psi>) m = (subst_clause \<Phi> m) \<otimes>\<^sub>m (subst_clause \<Psi> m)"
-proof (induction \<Psi>)
+proof2 (induction \<Psi>)
   case (insert x F)
   then show ?case
     using min_product_set_thms.fun_left_comm by fastforce
@@ -882,11 +881,11 @@ where
 
 lemma list_dnf_to_dnf_list_dnf[simp]:
   "list_dnf_to_dnf (list_dnf \<phi>) = dnf \<phi>"
-  by (induction \<phi>) (simp_all add: list_dnf_to_dnf_def image_Un)
+  apply2 (induction \<phi>) by (simp_all add: list_dnf_to_dnf_def image_Un)
 
 lemma list_dnf_finite:
   "finite (list_dnf \<phi>)"
-  by (induction \<phi>) (simp_all add: list_product_finite)
+  apply2 (induction \<phi>) by (simp_all add: list_product_finite)
 
 
 text \<open>We use this to redefine @{const subst_clause} and @{const subst_dnf} on list DNFs.\<close>
@@ -901,7 +900,7 @@ where
 
 lemma subst_clause'_finite:
   "finite (subst_clause' \<Phi> m)"
-  by (induction \<Phi> rule: rev_induct) (simp_all add: subst_clause'_def list_dnf_finite list_product_finite)
+  apply2 (induction \<Phi> rule: rev_induct) by (simp_all add: subst_clause'_def list_dnf_finite list_product_finite)
 
 lemma subst_clause'_nil[simp]:
   "subst_clause' [] m = {[]}"
@@ -913,7 +912,7 @@ lemma subst_clause'_cons[simp]:
 
 lemma subst_clause'_append[simp]:
   "subst_clause' (A @ B) m = subst_clause' A m \<otimes>\<^sub>l subst_clause' B m"
-proof (induction B rule: rev_induct)
+proof2 (induction B rule: rev_induct)
   case (snoc x xs)
   then show ?case
     by simp (metis append_assoc subst_clause'_cons)
@@ -974,7 +973,7 @@ qed
 
 lemma subst_dnf'_list_dnf:
   "subst_dnf' (list_dnf \<phi>) m = list_dnf (subst \<phi> m)"
-proof (induction \<phi>)
+proof2 (induction \<phi>)
   case (And_ltln \<phi>1 \<phi>2)
   then show ?case
     by (simp add: subst_dnf'_product)
@@ -983,7 +982,7 @@ qed (simp_all add: subst_dnf'_def subst_clause'_def list_product_def)
 
 lemma min_set_Union:
   "finite X \<Longrightarrow> min_set (\<Union> (min_set ` X)) = min_set (\<Union> X)" for X :: "'a fset set set"
-  by (induction X rule: finite_induct) (force, metis Sup_insert image_insert min_set_min_union min_union_def)
+  apply2 (induction X rule: finite_induct) by (force, metis Sup_insert image_insert min_set_min_union min_union_def)
 
 lemma min_set_Union_image:
   "finite X \<Longrightarrow> min_set (\<Union>x \<in> X. min_set (f x)) = min_set (\<Union>x \<in> X. f x)" for f :: "'b \<Rightarrow> 'a fset set"
@@ -999,7 +998,7 @@ qed
 lemma subst_clause_fset_of_list:
   "subst_clause (fset_of_list \<Phi>) m = min_set (list_dnf_to_dnf (subst_clause' \<Phi> m))"
   unfolding list_dnf_to_dnf_def subst_clause'_def
-proof (induction \<Phi> rule: rev_induct)
+proof2 (induction \<Phi> rule: rev_induct)
   case (snoc x xs)
   then show ?case
     by simp (metis (no_types, lifting) dnf_min_set list_dnf_to_dnf_def list_dnf_to_dnf_list_dnf min_product_comm min_product_def min_set_min_product(1))
@@ -1022,25 +1021,25 @@ text \<open>This is almost the lemma we need. However, we need to show that the 
 
 lemma fold_product:
   "Finite_Set.fold (\<lambda>x. (\<otimes>) {{|x|}}) {{||}} (fset x) = {x}"
-  by (induction x) (simp_all add: notin_fset, simp add: product_singleton_singleton)
+  apply2 (induction x) by (simp_all add: notin_fset, simp add: product_singleton_singleton)
 
 lemma fold_union:
   "Finite_Set.fold (\<lambda>x. (\<union>) {x}) {} (fset x) = fset x"
-  by (induction x) (simp_all add: notin_fset comp_fun_idem.fold_insert_idem comp_fun_idem_insert)
+  apply2 (induction x) by (simp_all add: notin_fset comp_fun_idem.fold_insert_idem comp_fun_idem_insert)
 
 lemma fold_union_fold_product:
   assumes "finite X" and "\<And>\<Psi> \<psi>. \<Psi> \<in> X \<Longrightarrow> \<psi> \<in> fset \<Psi> \<Longrightarrow> dnf \<psi> = {{|\<psi>|}}"
   shows "Finite_Set.fold (\<lambda>x. (\<union>) (Finite_Set.fold (\<lambda>\<phi>. (\<otimes>) (dnf \<phi>)) {{||}} (fset x))) {} X = X" (is "?lhs = X")
 proof -
   from assms have "?lhs = Finite_Set.fold (\<lambda>x. (\<union>) (Finite_Set.fold (\<lambda>\<phi>. (\<otimes>) {{|\<phi>|}}) {{||}} (fset x))) {} X"
-  proof (induction X rule: finite_induct)
+  proof2 (induction X rule: finite_induct)
     case (insert \<Phi> X)
 
     from insert.prems have 1: "\<And>\<Psi> \<psi>. \<lbrakk>\<Psi> \<in> X; \<psi> \<in> fset \<Psi>\<rbrakk> \<Longrightarrow> dnf \<psi> = {{|\<psi>|}}"
       by force
 
     from insert.prems have "Finite_Set.fold (\<lambda>\<phi>. (\<otimes>) (dnf \<phi>)) {{||}} (fset \<Phi>) = Finite_Set.fold (\<lambda>\<phi>. (\<otimes>) {{|\<phi>|}}) {{||}} (fset \<Phi>)"
-      by (induction \<Phi>) (force simp: notin_fset)+
+      apply2 (induction \<Phi>) by (force simp: notin_fset)+
 
     with insert 1 show ?case
       by simp

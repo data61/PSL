@@ -8,7 +8,7 @@
 section \<open>Type Safety Proof\<close>
 
 theory TypeSafe
-imports HeapExtension CWellForm
+imports HeapExtension CWellForm "Eval_Base.Eval_Base"
 begin
 
 
@@ -48,7 +48,7 @@ shows red_preserves_hconf:
 and reds_preserves_hconf:
   "P,E \<turnstile> \<langle>es,(h,l)\<rangle> [\<rightarrow>] \<langle>es',(h',l')\<rangle> \<Longrightarrow> (\<And>Ts. \<lbrakk> P,E,h \<turnstile> es [:] Ts; P \<turnstile> h \<surd> \<rbrakk> \<Longrightarrow> P \<turnstile> h' \<surd>)"
 
-proof (induct rule:red_reds_inducts)
+proof2 (induct rule:red_reds_inducts)
   case (RedNew h a h' C E l)
   have new: "new_Addr h = Some a" and h':"h' = h(a \<mapsto> (C, Collect (init_obj P C)))"
     and hconf:"P \<turnstile> h \<surd>" and wt_New:"P,E,h \<turnstile> new C : T" by fact+
@@ -125,7 +125,7 @@ and reds_preserves_lconf:
   "P,E \<turnstile> \<langle>es,(h,l)\<rangle> [\<rightarrow>] \<langle>es',(h',l')\<rangle> \<Longrightarrow>
   (\<And>Ts. \<lbrakk> P,E,h \<turnstile> es[:]Ts; P,h \<turnstile> l (:\<le>)\<^sub>w E; P \<turnstile> E \<surd> \<rbrakk> \<Longrightarrow> P,h' \<turnstile> l' (:\<le>)\<^sub>w E)"
 
-proof(induct rule:red_reds_inducts)
+proof2(induct rule:red_reds_inducts)
   case RedNew thus ?case
     by(fast intro:lconf_hext red_hext_incr[OF red_reds.RedNew])
 next
@@ -221,14 +221,14 @@ few lemmas first.\<close>
 lemma [iff]: "\<And>A. \<lbrakk> length Vs = length Ts; length vs = length Ts\<rbrakk> \<Longrightarrow>
  \<D> (blocks (Vs,Ts,vs,e)) A = \<D> e (A \<squnion> \<lfloor>set Vs\<rfloor>)"
 
-apply(induct Vs Ts vs e rule:blocks_old_induct)
+apply2(induct Vs Ts vs e rule:blocks_old_induct)
 apply(simp_all add:hyperset_defs)
 done
 
 
 lemma red_lA_incr: "P,E \<turnstile> \<langle>e,(h,l)\<rangle> \<rightarrow> \<langle>e',(h',l')\<rangle> \<Longrightarrow> \<lfloor>dom l\<rfloor> \<squnion> \<A> e \<sqsubseteq>  \<lfloor>dom l'\<rfloor> \<squnion> \<A> e'"
   and reds_lA_incr: "P,E \<turnstile> \<langle>es,(h,l)\<rangle> [\<rightarrow>] \<langle>es',(h',l')\<rangle> \<Longrightarrow> \<lfloor>dom l\<rfloor> \<squnion> \<A>s es \<sqsubseteq>  \<lfloor>dom l'\<rfloor> \<squnion> \<A>s es'"
-  apply (induct rule:red_reds_inducts)
+  apply2 (induct rule:red_reds_inducts)
   apply (simp_all del: fun_upd_apply add: hyperset_defs)
   apply blast
   apply blast
@@ -249,7 +249,7 @@ shows red_preserves_defass:
   "P,E \<turnstile> \<langle>e,(h,l)\<rangle> \<rightarrow> \<langle>e',(h',l')\<rangle> \<Longrightarrow> \<D> e \<lfloor>dom l\<rfloor> \<Longrightarrow> \<D> e' \<lfloor>dom l'\<rfloor>"
 and "P,E \<turnstile> \<langle>es,(h,l)\<rangle> [\<rightarrow>] \<langle>es',(h',l')\<rangle> \<Longrightarrow> \<D>s es \<lfloor>dom l\<rfloor> \<Longrightarrow> \<D>s es' \<lfloor>dom l'\<rfloor>"
 
-proof (induct rule:red_reds_inducts)
+proof2 (induct rule:red_reds_inducts)
   case BinOpRed1 thus ?case by (auto elim!: D_mono[OF red_lA_incr])
 next
   case FAssRed1 thus ?case by (auto elim!: D_mono[OF red_lA_incr])
@@ -322,7 +322,7 @@ lemma wt_blocks:
   (P,E(Vs[\<mapsto>]Ts),h \<turnstile> e:T \<and> 
   (\<exists>Ts'. map (P \<turnstile> typeof\<^bsub>h\<^esub>) vs = map Some Ts' \<and> P \<turnstile> Ts' [\<le>] Ts))"
 
-proof(induct Vs Ts vs e rule:blocks_old_induct)
+proof2(induct Vs Ts vs e rule:blocks_old_induct)
   case (5 V Vs T' Ts v vs e)
   have length:"length (V#Vs) = length (T'#Ts)" "length (v#vs) = length (T'#Ts)"
     and type:"\<forall>S \<in> set (T'#Ts). is_type P S"
@@ -377,7 +377,7 @@ shows subject_reduction2: "P,E \<turnstile> \<langle>e,(h,l)\<rangle> \<rightarr
 and subjects_reduction2: "P,E \<turnstile> \<langle>es,(h,l)\<rangle> [\<rightarrow>] \<langle>es',(h',l')\<rangle> \<Longrightarrow>
   (\<And>Ts.\<lbrakk> P,E \<turnstile> (h,l) \<surd>; P,E,h \<turnstile> es [:] Ts \<rbrakk> \<Longrightarrow> types_conf P E h' es' Ts)"
 
-proof (induct rule:red_reds_inducts)
+proof2 (induct rule:red_reds_inducts)
   case (RedNew h a h' C E l)
   have new:"new_Addr h = Some a" and h':"h' = h(a \<mapsto> (C, Collect (init_obj P C)))" 
     and wt:"P,E,h \<turnstile> new C : T" by fact+
@@ -806,7 +806,7 @@ next
     and leq:"P \<turnstile> T'' \<le> T'"
     by (auto dest:sees_field_fun split:if_split_asm)
   from casts eq wtval show ?case
-  proof(induct rule:casts_to.induct)
+  proof2(induct rule:casts_to.induct)
     case (casts_prim T\<^sub>0 w)
     have "T\<^sub>0 = T'" and "\<forall>C. T\<^sub>0 \<noteq> Class C" and wtval':"P,E,h \<turnstile> Val w : T''" by fact+
     with leq have "T' = T''" by(cases T',auto)
@@ -1007,7 +1007,7 @@ next
     and wtes:"P,E,h \<turnstile> map Val vs [:] Ts''" and subs: "P \<turnstile> Ts'' [\<le>] Ts'"
     by(auto dest:wf_sees_method_fun split:if_split_asm)
   from select wf have "is_class P (last Cs')"
-    by(induct rule:SelectMethodDef.induct,
+    apply2(induct rule:SelectMethodDef.induct) by (
        auto intro:Subobj_last_isClass simp:FinalOverriderMethodDef_def 
       OverriderMethodDefs_def MinimalMethodDefs_def LeastMethodDef_def MethodDefs_def)
   with select_method_wf_mdecl[OF wf select]
@@ -1307,7 +1307,7 @@ assumes wf: "wf_C_prog P" and step: "P,E \<turnstile> \<langle>e,s\<rangle> \<ri
 shows "\<And>T. \<lbrakk> P,E,hp s \<turnstile> e : T; P,E \<turnstile> s \<surd> \<rbrakk> \<Longrightarrow> P,E \<turnstile> s' \<surd>"
 
 using step
-proof (induct rule:converse_rtrancl_induct2)
+proof2 (induct rule:converse_rtrancl_induct2)
   case refl show ?case by fact 
 next
   case step
@@ -1326,7 +1326,7 @@ assumes wf: "wf_C_prog P" and step: "P,E \<turnstile> \<langle>es,s\<rangle> [\<
 shows "\<And>Ts. \<lbrakk> P,E,hp s \<turnstile> es [:] Ts; P,E \<turnstile> s \<surd> \<rbrakk> \<Longrightarrow> P,E \<turnstile> s' \<surd>"
 
 using step
-proof (induct rule:converse_rtrancl_induct2)
+proof2 (induct rule:converse_rtrancl_induct2)
   case refl show ?case by fact
 next
   case (step es s es'' s'' Ts)
@@ -1341,11 +1341,11 @@ next
   from reds1 wtes sconf wf have sconf':"P,E \<turnstile> s'' \<surd>" 
     by(fastforce intro:wf_prog_wwf_prog reds_preserves_sconf)
   from type have "\<exists>Ts'. P,E,hp s'' \<turnstile> es'' [:] Ts'"
-  proof (induct Ts arbitrary: es'')
+  proof2 (induct Ts arbitrary: es'')
     fix esi
     assume "types_conf P E (hp s'') esi []"
     thus "\<exists>Ts'. P,E,hp s'' \<turnstile> esi [:] Ts'"
-    proof(induct esi)
+    proof2(induct esi)
       case Nil thus "\<exists>Ts'. P,E,hp s'' \<turnstile> [] [:] Ts'" by simp
     next
       fix ex esx
@@ -1358,7 +1358,7 @@ next
       and IH:"\<And>es''. types_conf P E (hp s'') es'' Ts' \<Longrightarrow>
                       \<exists>Ts''. P,E,hp s'' \<turnstile> es'' [:] Ts''"
     from type' show "\<exists>Ts'. P,E,hp s'' \<turnstile> esi [:] Ts'"
-    proof(induct esi)
+    proof2(induct esi)
       case Nil thus "\<exists>Ts'. P,E,hp s'' \<turnstile> [] [:] Ts'" by simp
     next
       fix ex esx
@@ -1381,7 +1381,7 @@ assumes wf: "wf_C_prog P" and step: "P,E \<turnstile> \<langle>e,s\<rangle> \<ri
 shows "\<D> e \<lfloor>dom(lcl s)\<rfloor> \<Longrightarrow> \<D> e' \<lfloor>dom(lcl s')\<rfloor>"
 
 using step
-proof (induct rule:converse_rtrancl_induct2)
+proof2 (induct rule:converse_rtrancl_induct2)
   case refl thus ?case .
 next
   case (step e s e' s') thus ?case
@@ -1396,7 +1396,7 @@ shows "\<And>T. \<lbrakk> P,E \<turnstile> s \<surd>; P,E,hp s \<turnstile> e:T 
     \<Longrightarrow> P,E,(hp s') \<turnstile> e' :\<^bsub>NT\<^esub> T"
 
 using step
-proof (induct rule:converse_rtrancl_induct2)
+proof2 (induct rule:converse_rtrancl_induct2)
   case refl thus ?case by -(rule wt_same_type_typeconf)
 next
   case (step e s e'' s'' T) thus ?case using wf
@@ -1421,7 +1421,7 @@ where
 
 lemma types_conf_conf_types_conf:
   "\<lbrakk>types_conf P E h es Ts; conformable Ts Ts'\<rbrakk> \<Longrightarrow> types_conf P E h es Ts'"
-proof (induct Ts arbitrary: Ts' es)
+proof2 (induct Ts arbitrary: Ts' es)
   case Nil thus ?case by (cases Ts') (auto split: if_split_asm)
 next
   case (Cons T'' Ts'')
@@ -1444,7 +1444,7 @@ qed
 
 lemma types_conf_Wtrt_conf:
   "types_conf P E h es Ts \<Longrightarrow> \<exists>Ts'. P,E,h \<turnstile> es [:] Ts' \<and> conformable Ts' Ts"
-proof (induct Ts arbitrary: es)
+proof2 (induct Ts arbitrary: es)
   case Nil thus ?case by (cases es) (auto split:if_split_asm)
 next
   case (Cons T'' Ts'')
@@ -1469,7 +1469,7 @@ shows "\<And>Ts. \<lbrakk> P,E \<turnstile> s \<surd>; P,E,hp s \<turnstile> es 
   \<Longrightarrow> types_conf P E (hp s') es' Ts"
   
 using steps
-proof (induct rule:converse_rtrancl_induct2)
+proof2 (induct rule:converse_rtrancl_induct2)
   case refl thus ?case by -(rule wts_same_types_typesconf)
 next
   case (step es s es'' s'' Ts)
@@ -1550,7 +1550,7 @@ assumes wf: "wf_C_prog P" and reds: "P,E \<turnstile> \<langle>e,s\<rangle> \<ri
 shows "\<And>T. P,E,s \<turnstile> e : T \<surd> \<Longrightarrow> P,E,(hp s') \<turnstile> e' :\<^bsub>NT\<^esub> T"
 
 using reds
-proof (induct rule:converse_rtrancl_induct2)
+proof2 (induct rule:converse_rtrancl_induct2)
   case refl thus ?case
     by (fastforce intro:wt_same_type_typeconf simp:wf_config_def)
 next

@@ -1,7 +1,9 @@
 chapter AFP
 
 session PCF (AFP) = "HOLCF-Library" +
-  options [timeout = 600, show_question_marks = false]
+  options [timeout = 6000000, show_question_marks = false]
+  sessions
+    Eval_Base
   theories [document = false]
     Basis
   theories

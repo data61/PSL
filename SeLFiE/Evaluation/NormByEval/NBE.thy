@@ -3,7 +3,7 @@
 Normalization by Evaluation.
 *)
 (*<*)
-theory NBE imports Main begin
+theory NBE imports Main "Eval_Base.Eval_Base" begin
 
 declare [[syntax_ambiguity_warning = false]]
 
@@ -121,11 +121,11 @@ where
 
 lemma depth_At_foldl:
  "depth_At(s \<bullet>\<bullet> ts) = depth_At s + size ts"
-by (induct ts arbitrary: s) simp_all
+  apply2 (induct ts arbitrary: s) by simp_all
 
 lemma foldl_At_eq_lemma: "size ts = size ts' \<Longrightarrow>
  s \<bullet>\<bullet> ts = s' \<bullet>\<bullet> ts' \<longleftrightarrow> s = s' \<and> ts = ts'"
-by (induct arbitrary: s s' rule:list_induct2) simp_all
+apply2 (induct arbitrary: s s' rule:list_induct2) by simp_all
 
 lemma foldl_At_eq_length:
  "s \<bullet>\<bullet> ts = s \<bullet>\<bullet> ts' \<Longrightarrow> length ts = length ts'"
@@ -143,7 +143,7 @@ done
 
 lemma term_eq_foldl_At[simp]:
   "term v = t \<bullet>\<bullet> ts \<longleftrightarrow> t = term v \<and> ts = []"
-by (induct ts arbitrary:t) auto
+apply2 (induct ts arbitrary:t) by auto
 
 lemma At_eq_foldl_At[simp]:
   "r \<bullet> s = t \<bullet>\<bullet> ts \<longleftrightarrow>
@@ -169,11 +169,11 @@ by(metis At_eq_foldl_At)
 
 lemma Lam_eq_foldl_At[simp]:
   "\<Lambda> s = t \<bullet>\<bullet> ts \<longleftrightarrow> t = \<Lambda> s \<and> ts = []"
-by (induct ts arbitrary:t) auto
+apply2 (induct ts arbitrary:t) by auto
 
 lemma foldl_At_eq_Lam[simp]:
   "t \<bullet>\<bullet> ts = \<Lambda> s \<longleftrightarrow> t = \<Lambda> s \<and> ts = []"
-by (induct ts arbitrary:t) auto
+apply2 (induct ts arbitrary:t) by auto
 
 lemma [simp]: "s \<bullet> t \<noteq> s"
 apply(subgoal_tac "size(s \<bullet> t) \<noteq> size s")
@@ -198,10 +198,10 @@ fun args_tm where
 "args_tm(_) = []"
 
 lemma head_tm_foldl_At[simp]: "head_tm(s \<bullet>\<bullet> ts) = head_tm s"
-by(induct ts arbitrary: s) auto
+apply2(induct ts arbitrary: s) by auto
 
 lemma args_tm_foldl_At[simp]: "args_tm(s \<bullet>\<bullet> ts) = args_tm s @ ts"
-by(induct ts arbitrary: s) auto
+apply2(induct ts arbitrary: s) by auto
 
 lemma tm_eq_iff:
   "atomic_tm(head_tm s) \<Longrightarrow> atomic_tm(head_tm t)
@@ -216,13 +216,13 @@ declare
   for h ts
 
 lemma atomic_tm_head_tm: "atomic_tm(head_tm t)"
-by(induct t) auto
+apply2(induct t) by auto
 
 lemma head_tm_idem: "head_tm(head_tm t) = head_tm t"
-by(induct t) auto
+apply2(induct t) by auto
 
 lemma args_tm_head_tm: "args_tm(head_tm t) = []"
-by(induct t) auto
+apply2(induct t) by auto
 
 lemma eta_head_args: "t = head_tm t \<bullet>\<bullet> args_tm t"
 by (subst tm_eq_iff) (auto simp: atomic_tm_head_tm head_tm_idem args_tm_head_tm)
@@ -238,7 +238,7 @@ apply simp_all
 by (metis snoc_eq_iff_butlast)
 
 lemma fv_head_C[simp]: "fv (t \<bullet>\<bullet> ts) = fv t \<union> (\<Union>t\<in>set ts. fv t)"
-by(induct ts arbitrary:t) auto
+apply2(induct ts arbitrary:t) by auto
 
 
 subsection "Lifting and Substitution"
@@ -324,25 +324,25 @@ by(simp add: cons_ML_def split:nat.split)
 
 lemma lift_foldl_At[simp]:
   "lift k (s \<bullet>\<bullet> ts) = (lift k s) \<bullet>\<bullet> (map (lift k) ts)"
-by(induct ts arbitrary:s) simp_all
+apply2(induct ts arbitrary:s) by simp_all
 
 lemma lift_lift_ml: fixes v :: ml shows
   "i < k+1 \<Longrightarrow> lift (Suc k) (lift i v) = lift i (lift k v)"
-by(induct i v rule:lift_ml.induct)
-  simp_all
+apply2(induct i v rule:lift_ml.induct)
+  by simp_all
 lemma lift_lift_tm: fixes t :: tm shows
     "i < k+1 \<Longrightarrow> lift (Suc k) (lift i t) = lift i (lift k t)"
-by(induct t arbitrary: i rule:lift_tm.induct)(simp_all add:lift_lift_ml)
+apply2(induct t arbitrary: i rule:lift_tm.induct) by (simp_all add:lift_lift_ml)
 
 lemma lift_lift_ML:
   "i < k+1 \<Longrightarrow> lift\<^sub>M\<^sub>L (Suc k) (lift\<^sub>M\<^sub>L i v) = lift\<^sub>M\<^sub>L i (lift\<^sub>M\<^sub>L k v)"
-by(induct v arbitrary: i rule:lift_ML.induct)
-  simp_all
+apply2(induct v arbitrary: i rule:lift_ML.induct)
+  by simp_all
 
 lemma lift_lift_ML_comm:
   "lift j (lift\<^sub>M\<^sub>L i v) = lift\<^sub>M\<^sub>L i (lift j v)"
-by(induct v arbitrary: i j rule:lift_ML.induct)
-  simp_all
+apply2(induct v arbitrary: i j rule:lift_ML.induct)
+  by simp_all
 
 lemma V_ML_cons_ML_subst_decr[simp]:
   "V\<^sub>M\<^sub>L 0 ## subst_decr_ML k v = subst_decr_ML (Suc k) (lift\<^sub>M\<^sub>L 0 v)"
@@ -363,7 +363,7 @@ lemma subst_ext: "\<forall>i. \<sigma> i = \<sigma>' i \<Longrightarrow> subst \
 by(metis ext)
 
 lemma lift_Pure_tms[simp]: "pure t \<Longrightarrow> pure(lift k t)"
-by(induct arbitrary:k pred:pure) simp_all
+apply2(induct arbitrary:k pred:pure) by simp_all
 
 lemma cons_ML_V_ML[simp]: "(V\<^sub>M\<^sub>L 0 ## V\<^sub>M\<^sub>L) = V\<^sub>M\<^sub>L"
 by(rule ext) simp
@@ -409,7 +409,7 @@ apply(rule ext, simp)
 done
 
 lemma lift_ML_id[simp]: "closed\<^sub>M\<^sub>L k v \<Longrightarrow> lift\<^sub>M\<^sub>L k v = v"
-by(induct k v rule: lift_ML.induct)(simp_all add:list_eq_iff_nth_eq)
+apply2(induct k v rule: lift_ML.induct) by (simp_all add:list_eq_iff_nth_eq)
 
 lemma subst_ML_id:
   "closed\<^sub>M\<^sub>L k v \<Longrightarrow> \<forall>i<k. \<sigma> i = V\<^sub>M\<^sub>L i \<Longrightarrow> subst\<^sub>M\<^sub>L \<sigma> v = v"
@@ -437,7 +437,7 @@ using subst_ML_id[where k=0] by simp
 
 lemma subst_ML_coincidence:
   "closed\<^sub>M\<^sub>L k v \<Longrightarrow> \<forall>i<k. \<sigma> i = \<sigma>' i \<Longrightarrow> subst\<^sub>M\<^sub>L \<sigma> v = subst\<^sub>M\<^sub>L \<sigma>' v"
-by (induct \<sigma> v arbitrary: k \<sigma>' rule: subst_ML.induct) auto
+apply2 (induct \<sigma> v arbitrary: k \<sigma>' rule: subst_ML.induct) by auto
 
 lemma subst_ML_comp:
   "subst\<^sub>M\<^sub>L \<sigma> (subst\<^sub>M\<^sub>L \<sigma>' v) = subst\<^sub>M\<^sub>L (subst\<^sub>M\<^sub>L \<sigma>  \<circ> \<sigma>') v"
@@ -454,31 +454,31 @@ by(simp add:subst_ML_comp subst_ML_ext)
 
 lemma closed_tm_ML_foldl_At:
   "closed\<^sub>M\<^sub>L k (t \<bullet>\<bullet> ts) \<longleftrightarrow> closed\<^sub>M\<^sub>L k t \<and> (\<forall>t \<in> set ts. closed\<^sub>M\<^sub>L k t)"
-by(induct ts arbitrary: t) simp_all
+apply2(induct ts arbitrary: t) by simp_all
 
 lemma closed_ML_lift[simp]:
   fixes v :: ml shows "closed\<^sub>M\<^sub>L k v \<Longrightarrow> closed\<^sub>M\<^sub>L k (lift m v)"
-by(induct k v arbitrary: m rule: lift_ML.induct)
-  (simp_all add:list_eq_iff_nth_eq)
+apply2(induct k v arbitrary: m rule: lift_ML.induct)
+  by (simp_all add:list_eq_iff_nth_eq)
 
 lemma closed_ML_Suc: "closed\<^sub>M\<^sub>L n v \<Longrightarrow> closed\<^sub>M\<^sub>L (Suc n) (lift\<^sub>M\<^sub>L k v)"
-by (induct k v arbitrary: n rule: lift_ML.induct) simp_all
+apply2 (induct k v arbitrary: n rule: lift_ML.induct) by simp_all
 
 lemma closed_ML_subst_ML:
   "\<forall>i. closed\<^sub>M\<^sub>L k (\<sigma> i) \<Longrightarrow> closed\<^sub>M\<^sub>L k (subst\<^sub>M\<^sub>L \<sigma> v)"
-by(induct \<sigma> v arbitrary: k rule: subst_ML.induct) (auto simp: closed_ML_Suc)
+apply2(induct \<sigma> v arbitrary: k rule: subst_ML.induct) by(auto simp: closed_ML_Suc)
 
 lemma closed_ML_subst_ML2:
   "closed\<^sub>M\<^sub>L k v \<Longrightarrow> \<forall>i<k. closed\<^sub>M\<^sub>L l (\<sigma> i) \<Longrightarrow> closed\<^sub>M\<^sub>L l (subst\<^sub>M\<^sub>L \<sigma> v)"
-by(induct \<sigma> v arbitrary: k l rule: subst_ML.induct)(auto simp: closed_ML_Suc)
+apply2(induct \<sigma> v arbitrary: k l rule: subst_ML.induct) by(auto simp: closed_ML_Suc)
 
 
 lemma subst_foldl[simp]:
  "subst \<sigma> (s \<bullet>\<bullet> ts) = (subst \<sigma> s) \<bullet>\<bullet> (map (subst \<sigma>) ts)"
-by (induct ts arbitrary: s) auto
+apply2 (induct ts arbitrary: s) by auto
 
 lemma subst_V: "pure t \<Longrightarrow> subst V t = t"
-by(induct pred:pure) simp_all
+apply2(induct pred:pure) by simp_all
 
 lemma lift_subst_aux:
   "pure t \<Longrightarrow> \<forall>i<k. \<sigma>' i = lift k (\<sigma> i) \<Longrightarrow>
@@ -596,35 +596,35 @@ where
 declare Reds_tm_list.intros[simp]
 
 lemma Reds_tm_list_refl[simp]: fixes ts :: "tm list" shows "ts \<rightarrow>* ts"
-by(induct ts) auto
+apply2(induct ts) by auto
 
 lemma Red_tm_append: "rs \<rightarrow>* rs' \<Longrightarrow> ts \<rightarrow>* ts' \<Longrightarrow> rs @ ts \<rightarrow>* rs' @ ts'"
-by(induct set: Reds_tm_list) auto
+apply2(induct set: Reds_tm_list) by auto
 
 lemma Red_tm_rev: "ts \<rightarrow>* ts' \<Longrightarrow> rev ts \<rightarrow>* rev ts'"
-by(induct set: Reds_tm_list) (auto simp:Red_tm_append)
+apply2(induct set: Reds_tm_list) by (auto simp:Red_tm_append)
 
 lemma red_Lam[simp]: "t \<rightarrow>* t' \<Longrightarrow> \<Lambda> t \<rightarrow>* \<Lambda> t'"
-apply(induct rule:rtrancl_induct)
+  apply2(induct rule:rtrancl_induct)
 apply(simp_all)
 apply(blast intro: rtrancl_into_rtrancl Red_tm.intros)
 done
 
 lemma red_At1[simp]: "t \<rightarrow>* t' \<Longrightarrow> t \<bullet> s \<rightarrow>* t' \<bullet> s"
-apply(induct rule:rtrancl_induct)
+apply2(induct rule:rtrancl_induct)
 apply(simp_all)
 apply(blast intro: rtrancl_into_rtrancl Red_tm.intros)
 done
 
 lemma red_At2[simp]: "t \<rightarrow>* t' \<Longrightarrow> s \<bullet> t \<rightarrow>* s \<bullet> t'"
-apply(induct rule:rtrancl_induct)
+apply2(induct rule:rtrancl_induct)
 apply(simp_all)
 apply(blast intro:rtrancl_into_rtrancl Red_tm.intros)
 done
 
 lemma Reds_tm_list_foldl_At:
  "ts \<rightarrow>* ts' \<Longrightarrow> s \<rightarrow>* s' \<Longrightarrow> s \<bullet>\<bullet> ts \<rightarrow>* s' \<bullet>\<bullet> ts'"
-apply(induct arbitrary:s s' rule:Reds_tm_list.induct)
+apply2(induct arbitrary:s s' rule:Reds_tm_list.induct)
 apply simp
 apply simp
 apply(blast dest: red_At1 red_At2 intro:rtrancl_trans)
@@ -745,14 +745,14 @@ fun size' :: "ml \<Rightarrow> nat" where
 
 lemma sum_list_size'[simp]:
  "v \<in> set vs \<Longrightarrow> size' v < Suc(sum_list (map size' vs))"
-by(induct vs)(auto)
+apply2(induct vs) by(auto)
 
 corollary cor_sum_list_size'[simp]:
  "v \<in> set vs \<Longrightarrow> size' v < Suc(m + sum_list (map size' vs))"
 using sum_list_size'[of v vs] by arith
 
 lemma size'_lift_ML: "size' (lift\<^sub>M\<^sub>L k v) = size' v"
-apply(induct v arbitrary:k rule:size'.induct)
+apply2(induct v arbitrary:k rule:size'.induct)
 apply simp_all
    apply(rule arg_cong[where f = sum_list])
    apply(rule map_ext)
@@ -770,7 +770,7 @@ done
 
 lemma size'_subst_ML[simp]:
  "\<forall>i j. size'(\<sigma> i) = 1 \<Longrightarrow> size' (subst\<^sub>M\<^sub>L \<sigma> v) = size' v"
-apply(induct v arbitrary:\<sigma> rule:size'.induct)
+apply2(induct v arbitrary:\<sigma> rule:size'.induct)
 apply simp_all
     apply(rule arg_cong[where f = sum_list])
     apply(rule map_ext)
@@ -790,7 +790,7 @@ apply simp
 done
 
 lemma size'_lift[simp]: "size' (lift i v) = size' v"
-apply(induct v arbitrary:i rule:size'.induct)
+apply2(induct v arbitrary:i rule:size'.induct)
 apply simp_all
    apply(rule arg_cong[where f = sum_list])
    apply(rule map_ext)
@@ -831,10 +831,10 @@ abbreviation
   "vs! \<equiv> map kernel vs"
 
 lemma kernel_pure: assumes "pure t" shows "t! = t"
-using assms by (induct) simp_all
+using assms apply2 (induct) by simp_all
 
 lemma kernel_foldl_At[simp]: "(s \<bullet>\<bullet> ts)! = (s!) \<bullet>\<bullet> (map kernelt ts)"
-by (induct ts arbitrary: s) simp_all
+apply2 (induct ts arbitrary: s) by simp_all
 
 lemma kernelt_o_term[simp]: "(kernelt \<circ> term) = kernel"
 by(rule ext) simp
@@ -843,7 +843,7 @@ lemma pure_foldl:
  "pure t \<Longrightarrow> \<forall>t\<in>set ts. pure t \<Longrightarrow> 
  (!!s t. pure s \<Longrightarrow> pure t \<Longrightarrow> pure(f s t)) \<Longrightarrow>
  pure(foldl f t ts)"
-by(induct ts arbitrary: t) simp_all
+apply2(induct ts arbitrary: t) by simp_all
 
 lemma pure_kernel: fixes v :: ml shows "closed\<^sub>M\<^sub>L 0 v \<Longrightarrow> pure(v!)"
 proof(induct v rule:kernel.induct)
@@ -863,7 +863,7 @@ by (metis pure_kernel subst_V)
 
 lemma kernel_lift_tm: fixes v :: ml shows
   "closed\<^sub>M\<^sub>L 0 v \<Longrightarrow> (lift i v)! = lift i (v!)"
-apply(induct v arbitrary: i rule: kernel.induct)
+apply2(induct v arbitrary: i rule: kernel.induct)
 apply (simp_all add:list_eq_iff_nth_eq)
  apply(simp add: rev_nth)
 defer
@@ -901,13 +901,13 @@ fun subst_ml :: "(nat \<Rightarrow> nat) \<Rightarrow> ml \<Rightarrow> ml" wher
 
 lemma lift_ML_subst_ml:
   "lift\<^sub>M\<^sub>L k (subst_ml \<sigma> v) = subst_ml \<sigma> (lift\<^sub>M\<^sub>L k v)"
-apply (induct \<sigma> v arbitrary: k rule:subst_ml.induct)
+apply2 (induct \<sigma> v arbitrary: k rule:subst_ml.induct)
 apply (simp_all add:list_eq_iff_nth_eq)
 done
 
 lemma subst_ml_subst_ML:
   "subst_ml \<sigma> (subst\<^sub>M\<^sub>L \<sigma>' v) = subst\<^sub>M\<^sub>L (subst_ml \<sigma> o \<sigma>') (subst_ml \<sigma> v)"
-apply (induct \<sigma>' v arbitrary: \<sigma> rule: subst_ML.induct)
+apply2 (induct \<sigma>' v arbitrary: \<sigma> rule: subst_ML.induct)
 apply(simp_all add:list_eq_iff_nth_eq)
 apply(subgoal_tac "(subst_ml \<sigma>' \<circ> V\<^sub>M\<^sub>L 0 ## \<sigma>) = V\<^sub>M\<^sub>L 0 ## (subst_ml \<sigma>' \<circ> \<sigma>)")
 apply simp
@@ -918,14 +918,14 @@ done
 
 text\<open>Maybe this should be the def of lift:\<close>
 lemma lift_is_subst_ml: "lift k v = subst_ml (\<lambda>n. if n<k then n else n+1) v"
-by(induct k v rule:lift_ml.induct)(simp_all add:list_eq_iff_nth_eq)
+apply2(induct k v rule:lift_ml.induct) by(simp_all add:list_eq_iff_nth_eq)
 
 lemma subst_ml_comp:  "subst_ml \<sigma> (subst_ml \<sigma>' v) = subst_ml (\<sigma> o \<sigma>') v"
-by(induct \<sigma>' v rule:subst_ml.induct)(simp_all add:list_eq_iff_nth_eq)
+apply2(induct \<sigma>' v rule:subst_ml.induct) by(simp_all add:list_eq_iff_nth_eq)
 
 lemma subst_kernel:
   "closed\<^sub>M\<^sub>L 0 v \<Longrightarrow>  subst (\<lambda>n. V(\<sigma> n)) (v!) = (subst_ml \<sigma> v)!"
-apply (induct v arbitrary: \<sigma> rule:kernel.induct)
+apply2 (induct v arbitrary: \<sigma> rule:kernel.induct)
 apply (simp_all add:list_eq_iff_nth_eq)
  apply(simp add: rev_nth)
 defer
@@ -958,7 +958,7 @@ by simp
 lemma kernel_subst1:
   "closed\<^sub>M\<^sub>L 0 v \<Longrightarrow> closed\<^sub>M\<^sub>L (Suc 0) u \<Longrightarrow>
    kernel(u[v/0]) = (kernel((lift 0 u)[V\<^sub>U 0 []/0]))[v!/0]"
-proof(induct u arbitrary:v rule:kernel.induct)
+proof2(induct u arbitrary:v rule:kernel.induct)
   case (3 w)
   show ?case (is "?L = ?R")
   proof -
@@ -1112,7 +1112,7 @@ abbreviation "comp_fixed t \<equiv> compile t (\<lambda>i. V\<^sub>U i [])"
 text\<open>Compiled rules:\<close>
 
 lemma size_args_less_size_tm[simp]: "s \<in> set (args_tm t) \<Longrightarrow> size s < size t"
-by(induct t) auto
+apply2(induct t) by auto
 
 fun comp_pat where
 "comp_pat t =
@@ -1140,10 +1140,10 @@ end
 
 
 lemma fv_ML_comp_open: "pure t \<Longrightarrow> fv\<^sub>M\<^sub>L(comp_open t) = fv t"
-by(induct t pred:pure) (simp_all add:comp_open_def)
+apply2(induct t pred:pure) by (simp_all add:comp_open_def)
 
 lemma fv_ML_comp_pat: "pattern t \<Longrightarrow> fv\<^sub>M\<^sub>L(comp_pat t) = fv t"
-by(induct t pred:pattern)(simp_all add:comp_open_def)
+apply2(induct t pred:pattern) by (simp_all add:comp_open_def)
 
 lemma fv_compR_aux:
   "(nm,ts,t') : R \<Longrightarrow> x \<in> fv\<^sub>M\<^sub>L (comp_open t')
@@ -1163,7 +1163,7 @@ by(fastforce simp add:compR_def image_def dest: fv_compR_aux)
 
 lemma lift_compile:
   "pure t \<Longrightarrow> \<forall>\<sigma> k. lift k (compile t \<sigma>) = compile t (lift k \<circ> \<sigma>)"
-apply(induct pred:pure)
+apply2(induct pred:pure)
 apply simp_all
 apply clarsimp
 apply(rule_tac f = "compile t" in arg_cong)
@@ -1173,7 +1173,7 @@ done
 
 lemma subst_ML_compile:
   "pure t \<Longrightarrow> subst\<^sub>M\<^sub>L \<sigma>' (compile t \<sigma>) = compile t (subst\<^sub>M\<^sub>L \<sigma>' o \<sigma>)"
-apply(induct arbitrary: \<sigma> \<sigma>' pred:pure)
+apply2(induct arbitrary: \<sigma> \<sigma>' pred:pure)
 apply simp_all
 apply(erule_tac x="V\<^sub>M\<^sub>L 0 ## \<sigma>'" in meta_allE)
 apply(erule_tac x= "V\<^sub>M\<^sub>L 0 ## (lift\<^sub>M\<^sub>L 0 \<circ> \<sigma>)" in meta_allE)
@@ -1184,7 +1184,7 @@ done
 
 theorem kernel_compile:
   "pure t \<Longrightarrow> \<forall>i. \<sigma> i = V\<^sub>U i [] \<Longrightarrow> (compile t \<sigma>)! = t"
-apply(induct arbitrary: \<sigma> pred:pure)
+apply2(induct arbitrary: \<sigma> pred:pure)
 apply simp_all
 apply(subst lift_compile) apply simp
 apply(subst subst_ML_compile) apply simp
@@ -1198,7 +1198,7 @@ done
 lemma kernel_subst_ML_pat:
   "pure t \<Longrightarrow> pattern t \<Longrightarrow> \<forall>i. closed\<^sub>M\<^sub>L 0 (\<sigma> i) \<Longrightarrow>
    (subst\<^sub>M\<^sub>L \<sigma> (comp_pat t))! = subst (kernel \<circ> \<sigma>) t"
-apply(induct arbitrary: \<sigma> pred:pure)
+apply2(induct arbitrary: \<sigma> pred:pure)
 apply simp_all
 apply(frule pattern_At_decomp)
 apply(frule pattern_AtD12)
@@ -1210,7 +1210,7 @@ done
 lemma kernel_subst_ML:
   "pure t \<Longrightarrow> \<forall>i. closed\<^sub>M\<^sub>L 0 (\<sigma> i) \<Longrightarrow>
    (subst\<^sub>M\<^sub>L \<sigma> (comp_open t))! = subst (kernel \<circ> \<sigma>) t"
-proof(induct arbitrary: \<sigma> pred:pure)
+proof2(induct arbitrary: \<sigma> pred:pure)
   case (Lam t)
   have "lift 0 o V\<^sub>M\<^sub>L = V\<^sub>M\<^sub>L" by (simp add:fun_eq_iff)
   hence "(subst\<^sub>M\<^sub>L \<sigma> (comp_open (\<Lambda> t)))! =
@@ -1254,7 +1254,7 @@ theorem fixes v :: ml shows Red_ml_sound:
   "v \<Rightarrow> v' \<Longrightarrow> closed\<^sub>M\<^sub>L 0 v \<Longrightarrow> v! \<rightarrow>* v'! \<and> closed\<^sub>M\<^sub>L 0 v'" and
   "vs \<Rightarrow> vs' \<Longrightarrow> \<forall>v\<in>set vs. closed\<^sub>M\<^sub>L 0 v \<Longrightarrow>
    vs! \<rightarrow>* vs'! \<and> (\<forall>v'\<in>set vs'. closed\<^sub>M\<^sub>L 0 v')"
-proof(induct rule:Red_ml_Red_ml_list.inducts)
+proof2(induct rule:Red_ml_Red_ml_list.inducts)
   fix u v
   let ?v = "A\<^sub>M\<^sub>L (Lam\<^sub>M\<^sub>L u) [v]"
   assume cl: "closed\<^sub>M\<^sub>L 0 (A\<^sub>M\<^sub>L (Lam\<^sub>M\<^sub>L u) [v])"
@@ -1296,7 +1296,7 @@ qed (auto simp:Reds_tm_list_foldl_At Red_tm_rev rev_map[symmetric])
 
 theorem Red_term_sound:
   "t \<Rightarrow> t' \<Longrightarrow> closed\<^sub>M\<^sub>L 0 t \<Longrightarrow> kernelt t \<rightarrow>* kernelt t'  \<and> closed\<^sub>M\<^sub>L 0 t'"
-proof(induct rule:Red_term.inducts)
+proof2(induct rule:Red_term.inducts)
   case term_C thus ?case
     by (auto simp:closed_tm_ML_foldl_At)
 next
@@ -1323,14 +1323,14 @@ qed auto
 
 corollary kernel_inv:
  "(t :: tm) \<Rightarrow>* t' \<Longrightarrow> closed\<^sub>M\<^sub>L 0 t \<Longrightarrow> t! \<rightarrow>* t'! \<and> closed\<^sub>M\<^sub>L 0 t' "
-apply(induct rule: rtrancl.induct)
+  apply2(induct rule: rtrancl.induct)
 apply (metis rtrancl_eq_or_trancl)
 apply (metis Red_term_sound rtrancl_trans)
 done
 
 lemma  closed_ML_compile:
   "pure t \<Longrightarrow> \<forall>i. closed\<^sub>M\<^sub>L n (\<sigma> i) \<Longrightarrow> closed\<^sub>M\<^sub>L n (compile t \<sigma>)"
-proof(induct arbitrary:n \<sigma> pred:pure)
+proof2(induct arbitrary:n \<sigma> pred:pure)
   case (Lam t)
   have 1: "\<forall>i. closed\<^sub>M\<^sub>L (Suc n) ((V\<^sub>M\<^sub>L 0 ## \<sigma>) i)" using Lam(3-)
     by (auto simp: closed_ML_Suc)
@@ -1377,7 +1377,7 @@ fun size_tm :: "tm \<Rightarrow> nat" where
 "size_tm _ = 0"
 
 lemma size_tm_foldl_At: "size_tm(t \<bullet>\<bullet> ts) = size_tm t + size_list size_tm ts"
-by (induct ts arbitrary:t) auto
+apply2 (induct ts arbitrary:t) by auto
 
 lemma termination_no_match:
   "i < length ss \<Longrightarrow> ss ! i = C nm \<bullet>\<bullet> ts
@@ -1408,7 +1408,7 @@ abbreviation
 
 
 lemma no_match: "no_match ps ts \<Longrightarrow> \<not>(\<exists>\<sigma>. map (subst \<sigma>) ps = ts)"
-proof(induct ps ts rule:no_match.induct)
+proof2(induct ps ts rule:no_match.induct)
   case (1 ps ts)
   thus ?case
     apply auto
@@ -1435,21 +1435,21 @@ fun dterm :: "tm \<Rightarrow> tm" where
 "dterm (term v) = dterm\<^sub>M\<^sub>L v"
 
 lemma dterm_pure[simp]: "pure t \<Longrightarrow> dterm t = t"
-by (induct pred:pure) auto
+apply2 (induct pred:pure) by auto
 
 lemma map_dterm_pure[simp]: "\<forall>t\<in>set ts. pure t \<Longrightarrow> map dterm ts = ts"
-by (induct ts) auto
+apply2 (induct ts) by auto
 
 lemma map_dterm_term[simp]: "map dterm (map term vs) = map dterm\<^sub>M\<^sub>L vs"
-by (induct vs) auto
+apply2 (induct vs) by auto
 
 lemma dterm_foldl_At[simp]: "dterm(t \<bullet>\<bullet> ts) = dterm t \<bullet>\<bullet> map dterm ts"
-by(induct ts arbitrary: t) auto
+apply2(induct ts arbitrary: t) by auto
 
 lemma no_match_coincide:
   "no_match\<^sub>M\<^sub>L ps vs \<Longrightarrow>
   no_match (map dterm\<^sub>M\<^sub>L (rev ps)) (map dterm\<^sub>M\<^sub>L (rev vs))"
-apply(induct ps vs rule:no_match_ML.induct)
+  apply2(induct ps vs rule:no_match_ML.induct)
 apply(rotate_tac 1)
 apply(subst (asm) no_match_ML.simps)
 apply (elim exE conjE)
@@ -1481,11 +1481,11 @@ done
 
 lemma dterm_ML_comp_patD:
   "pattern t \<Longrightarrow> dterm\<^sub>M\<^sub>L (comp_pat t) = C nm \<bullet>\<bullet> rs \<Longrightarrow> \<exists>ts. t = C nm \<bullet>\<bullet> ts"
-by(induct pred:pattern) simp_all
+apply2(induct pred:pattern) by simp_all
 
 lemma no_match_R_coincide_aux[rule_format]: "patterns ts \<Longrightarrow>
   no_match (map (dterm\<^sub>M\<^sub>L \<circ> comp_pat) ts) rs \<longrightarrow> no_match ts rs"
-apply(induct ts rs rule:no_match.induct)
+  apply2(induct ts rs rule:no_match.induct)
 apply(subst (1 2) no_match.simps)
 apply clarsimp
 apply(rule_tac x=i in exI)
@@ -1551,24 +1551,24 @@ using C_normal.intros(1)[of "[]" x]
 by simp
 
 lemma [simp]: "dterm (dterm\<^sub>M\<^sub>L v) = dterm\<^sub>M\<^sub>L v"
-apply(induct v rule:dterm_ML.induct)
+  apply2(induct v rule:dterm_ML.induct)
 apply simp_all
 done
 
 lemma "u\<Rightarrow>(v::ml) \<Longrightarrow> True" and
   Red_ml_list_length: "vs \<Rightarrow> vs' \<Longrightarrow> length vs = length vs'"
-by(induct rule: Red_ml_Red_ml_list.inducts) simp_all
+apply2(induct rule: Red_ml_Red_ml_list.inducts) by simp_all
 
 lemma "(v::ml) \<Rightarrow> v' \<Longrightarrow> True" and
   Red_ml_list_nth: "(vs::ml list) \<Rightarrow> vs'
   \<Longrightarrow> \<exists>v' k. k<size vs \<and> vs!k \<Rightarrow> v' \<and> vs' = vs[k := v']"
-apply (induct rule: Red_ml_Red_ml_list.inducts)
+   apply2 (induct rule: Red_ml_Red_ml_list.inducts)
 apply (auto split:nat.splits)
 done
 
 lemma Red_ml_list_pres_no_match:
   "no_match\<^sub>M\<^sub>L ps vs \<Longrightarrow> vs \<Rightarrow> vs' \<Longrightarrow> no_match\<^sub>M\<^sub>L ps vs'"
-proof(induct ps vs arbitrary: vs' rule:no_match_ML.induct)
+proof2(induct ps vs arbitrary: vs' rule:no_match_ML.induct)
   case (1 vs os)
   show ?case using 1(2-3)
 apply-
@@ -1598,7 +1598,7 @@ qed
 lemma no_match_ML_subst_ML[rule_format]:
   "\<forall>v\<in>set vs. \<forall>x\<in>fv\<^sub>M\<^sub>L v. C_normal\<^sub>M\<^sub>L (\<sigma> x) \<Longrightarrow>
    no_match\<^sub>M\<^sub>L ps vs \<longrightarrow> no_match\<^sub>M\<^sub>L ps (map (subst\<^sub>M\<^sub>L \<sigma>) vs)"
-apply(induct ps vs rule:no_match_ML.induct)
+  apply2(induct ps vs rule:no_match_ML.induct)
 apply simp
 apply(subst (1 2) no_match_ML.simps)
 apply clarsimp
@@ -1622,7 +1622,7 @@ by(cases v) auto
 
 lemma no_match_ML_lift_ML:
   "no_match\<^sub>M\<^sub>L ps (map (lift\<^sub>M\<^sub>L k) vs) = no_match\<^sub>M\<^sub>L ps vs"
-apply(induct ps vs rule:no_match_ML.induct)
+  apply2(induct ps vs rule:no_match_ML.induct)
 apply simp
 apply(subst (1 2) no_match_ML.simps)
 apply rule
@@ -1640,7 +1640,7 @@ apply (fastforce simp:rev_nth)
 done
 
 lemma C_normal_ML_lift_ML: "C_normal\<^sub>M\<^sub>L(lift\<^sub>M\<^sub>L k v) = C_normal\<^sub>M\<^sub>L v"
-by(induct v arbitrary: k rule:C_normal_ML.induct)(auto simp:no_match_ML_lift_ML)
+apply2(induct v arbitrary: k rule:C_normal_ML.induct) by (auto simp:no_match_ML_lift_ML)
 
 lemma no_match_compR_Cons:
   "no_match_compR nm vs \<Longrightarrow> no_match_compR nm (v # vs)"
@@ -1655,7 +1655,7 @@ apply (simp add:nth_append)
 done
 
 lemma C_normal_ML_comp_open: "pure t \<Longrightarrow> C_normal\<^sub>M\<^sub>L(comp_open t)"
-by (induct pred:pure) (auto simp:comp_open_def)
+apply2 (induct pred:pure) by (auto simp:comp_open_def)
 
 lemma C_normal_compR_rhs: "(nm, vs, v) \<in> compR \<Longrightarrow> C_normal\<^sub>M\<^sub>L v"
 by(auto simp: compR_def image_def Bex_def pure_R C_normal_ML_comp_open)
@@ -1663,7 +1663,7 @@ by(auto simp: compR_def image_def Bex_def pure_R C_normal_ML_comp_open)
 
 lemma C_normal_ML_subst_ML:
   "C_normal\<^sub>M\<^sub>L (subst\<^sub>M\<^sub>L \<sigma> v) \<Longrightarrow> (\<forall>x\<in>fv\<^sub>M\<^sub>L v. C_normal\<^sub>M\<^sub>L (\<sigma> x))"
-proof(induct \<sigma> v rule:subst_ML.induct)
+proof2(induct \<sigma> v rule:subst_ML.induct)
   case 4 thus ?case
     by(simp del:apply_cons_ML)(force simp add: C_normal_ML_lift_ML)
       (* weird - force suffices in apply style *)
@@ -1671,7 +1671,7 @@ qed auto
 
 lemma C_normal_ML_subst_ML_iff: "C_normal\<^sub>M\<^sub>L v \<Longrightarrow>
   C_normal\<^sub>M\<^sub>L (subst\<^sub>M\<^sub>L \<sigma> v) \<longleftrightarrow> (\<forall>x\<in>fv\<^sub>M\<^sub>L v. C_normal\<^sub>M\<^sub>L (\<sigma> x))"
-proof(induct \<sigma> v rule:subst_ML.induct)
+proof2(induct \<sigma> v rule:subst_ML.induct)
   case 4 thus ?case
     by(simp del:apply_cons_ML)(force simp add: C_normal_ML_lift_ML)
       (* weird - force suffices in apply style *)
@@ -1681,7 +1681,7 @@ qed auto
 
 lemma C_normal_ML_inv: "v \<Rightarrow> v' \<Longrightarrow> C_normal\<^sub>M\<^sub>L v \<Longrightarrow> C_normal\<^sub>M\<^sub>L v'" and
       "vs \<Rightarrow> vs' \<Longrightarrow> \<forall>v\<in>set vs. C_normal\<^sub>M\<^sub>L v \<Longrightarrow> \<forall>v'\<in>set vs'. C_normal\<^sub>M\<^sub>L v'"
-apply(induct rule:Red_ml_Red_ml_list.inducts)
+   apply2(induct rule:Red_ml_Red_ml_list.inducts)
 apply(simp_all add: C_normal_ML_subst_ML_iff)
   apply(metis C_normal_ML_subst_ML C_normal_compR_rhs
         fv_compR C_normal_ML_subst_ML_iff)
@@ -1710,7 +1710,7 @@ assumes "(t::tm) \<Rightarrow> t'"
 shows "P t t'"
 proof-
   { fix ts from assms have "P (t \<bullet>\<bullet> ts) (t' \<bullet>\<bullet> ts)"
-    proof(induct arbitrary: ts rule:Red_term.induct)
+    proof2(induct arbitrary: ts rule:Red_term.induct)
       case term_C thus ?case by metis
     next
       case term_V thus ?case by metis
@@ -1764,7 +1764,7 @@ assumes "(t::tm) \<Rightarrow> t'"
     \<Longrightarrow> t = term v  \<bullet>\<bullet> ts \<Longrightarrow> t' = term v \<bullet>\<bullet> (ts[i:=r']) \<Longrightarrow> P"
 shows "P" using assms
 apply -
-apply(induct rule:Red_term_hnf_induct)
+  apply2(induct rule:Red_term_hnf_induct)
 apply metis+
 done
 
@@ -1784,7 +1784,7 @@ by(fastforce elim: C_normal.cases)
 
 lemma no_match_ML_lift:
   "no_match\<^sub>M\<^sub>L ps vs \<longrightarrow> no_match\<^sub>M\<^sub>L ps (map (lift k) vs)"
-apply(induct ps vs rule:no_match_ML.induct)
+  apply2(induct ps vs rule:no_match_ML.induct)
 apply simp
 apply(subst (1 2) no_match_ML.simps)
 apply clarsimp
@@ -1800,7 +1800,7 @@ lemma no_match_compR_lift:
 by (fastforce simp: no_match_ML_lift)
 
 lemma [simp]: "C_normal\<^sub>M\<^sub>L v \<Longrightarrow> C_normal\<^sub>M\<^sub>L(lift k v)"
-apply(induct v arbitrary:k rule:lift_ml.induct)
+  apply2(induct v arbitrary:k rule:lift_ml.induct)
 apply(simp_all add:no_match_compR_lift)
 done
 
@@ -1809,7 +1809,7 @@ declare [[simp_depth_limit = 10]]
 lemma Red_term_pres_no_match:
   "\<lbrakk>i < length ts; ts ! i \<Rightarrow> t'; no_match ps dts; dts = (map dterm ts)\<rbrakk>
    \<Longrightarrow> no_match ps (map dterm (ts[i := t']))"
-proof(induct ps dts arbitrary: ts i t' rule:no_match.induct)
+proof2(induct ps dts arbitrary: ts i t' rule:no_match.induct)
   case (1 ps dts ts i t')
   from \<open>no_match ps dts\<close> \<open>dts = map dterm ts\<close>
   obtain j nm nm' rs rs' where ob: "j < size ts" "j < size ps"
@@ -1893,7 +1893,7 @@ lemma Red_term_pres_no_match_it:
     size ts' = size ts; size ns = size ts;
     no_match ps (map dterm ts)\<rbrakk>
    \<Longrightarrow> no_match ps (map dterm ts')"
-proof(induct "sum_list ns" arbitrary: ts ns)
+proof2(induct "sum_list ns" arbitrary: ts ns)
   case 0
   hence "\<forall>i < size ts. ns!i = 0" by simp
   with 0 show ?case by simp (metis nth_equalityI)
@@ -1947,7 +1947,7 @@ fun C_U_args :: "tm \<Rightarrow> tm list" ("C\<^sub>U'_args") where
 "C\<^sub>U_args _ = []"
 
 lemma [simp]: "C\<^sub>U_args(C nm \<bullet>\<bullet> ts) = ts"
-by (induct ts rule:rev_induct) auto
+apply2 (induct ts rule:rev_induct) by auto
 
 lemma redts_term_cong: "v \<Rightarrow>* v' \<Longrightarrow> term v \<Rightarrow>* term v'"
 apply(erule converse_rtrancl_induct)
@@ -1961,7 +1961,7 @@ lemma C_Red_term_ML:
       C\<^sub>U_args(term v) [\<Rightarrow>*] C\<^sub>U_args(term v') \<and>
       ts = map dterm (C\<^sub>U_args(term v))" and
   "(vs:: ml list) \<Rightarrow> vs' \<Longrightarrow> i < length vs \<Longrightarrow> vs ! i \<Rightarrow>* vs' ! i"
-apply(induct arbitrary: nm ts and i rule:Red_ml_Red_ml_list.inducts)
+apply2(induct arbitrary: nm ts and i rule:Red_ml_Red_ml_list.inducts)
 apply(simp_all add:Red_ml_list_length del: map_map)
   apply(frule Red_ml_list_length)
   apply(simp add: redts_term_cong rev_nth del: map_map)
@@ -1972,7 +1972,7 @@ done
 
 lemma C_normal_subterm:
   "C_normal t \<Longrightarrow> dterm t = C nm \<bullet>\<bullet> ts \<Longrightarrow> s \<in> set(C\<^sub>U_args t) \<Longrightarrow> C_normal s"
-apply(induct rule: C_normal.induct)
+apply2(induct rule: C_normal.induct)
 apply auto
 apply(case_tac v)
 apply auto
@@ -1980,7 +1980,7 @@ done
 
 lemma C_normal_subterms:
   "C_normal t \<Longrightarrow> dterm t = C nm \<bullet>\<bullet> ts \<Longrightarrow> ts = map dterm (C\<^sub>U_args t)"
-apply(induct rule: C_normal.induct)
+apply2(induct rule: C_normal.induct)
 apply auto
 apply(case_tac v)
 apply auto
@@ -1990,7 +1990,7 @@ lemma C_redt: "t \<Rightarrow> t' \<Longrightarrow> C_normal t \<Longrightarrow>
     C_normal t' \<and> (dterm t = C nm \<bullet>\<bullet> ts \<longrightarrow>
     (\<exists>ts'. ts' = map dterm (C\<^sub>U_args t') \<and> dterm t' = C nm \<bullet>\<bullet> ts' \<and>
      C\<^sub>U_args t [\<Rightarrow>*] C\<^sub>U_args t'))"
-apply(induct arbitrary: ts nm rule:Red_term_hnf_induct)
+apply2(induct arbitrary: ts nm rule:Red_term_hnf_induct)
 apply (simp_all del: map_map)
    apply (metis no_match_R_coincide rev_rev_ident)
   apply clarsimp
@@ -2027,7 +2027,7 @@ lemma C_redts: "t \<Rightarrow>* t' \<Longrightarrow> C_normal t \<Longrightarro
     C_normal t' \<and> (dterm t = C nm \<bullet>\<bullet> ts \<longrightarrow>
     (\<exists>ts'. dterm t' = C nm \<bullet>\<bullet> ts' \<and> C\<^sub>U_args t [\<Rightarrow>*] C\<^sub>U_args t' \<and>
      ts' = map dterm (C\<^sub>U_args t')))"
-apply(induct arbitrary: nm ts rule:converse_rtrancl_induct)
+apply2(induct arbitrary: nm ts rule:converse_rtrancl_induct)
 apply simp
 using tm_vector_cases[of t']
 apply(elim disjE)
@@ -2059,7 +2059,7 @@ done
 lemma no_match_preserved:
   "\<forall>t\<in>set ts. C_normal t \<Longrightarrow> ts [\<Rightarrow>*] ts'
    \<Longrightarrow> no_match ps os \<Longrightarrow> os = map dterm ts \<Longrightarrow> no_match ps (map dterm ts')"
-proof(induct ps os arbitrary: ts ts' rule: no_match.induct)
+proof2(induct ps os arbitrary: ts ts' rule: no_match.induct)
   case (1 ps os)
   obtain i nm nm' ps' os' where a: "ps!i = C nm  \<bullet>\<bullet> ps'" "i < size ps"
       "i < size os" "os!i = C nm' \<bullet>\<bullet> os'" "nm=nm' \<longrightarrow> no_match ps' os'"
@@ -2088,7 +2088,7 @@ qed
 
 lemma Lam_Red_term_itE:
   "(\<Lambda> t, t') : Red_term^^i \<Longrightarrow> \<exists>t''. t' = \<Lambda> t'' \<and> (t,t'') : Red_term^^i"
-apply(induct i arbitrary: t')apply simp
+apply2(induct i arbitrary: t')apply simp
 apply(erule relpow_Suc_E)
 apply(erule Red_term.cases)
 apply (simp_all)
@@ -2099,7 +2099,7 @@ done
 lemma Red_term_it: "(V x \<bullet>\<bullet> rs, r) : Red_term^^i
   \<Longrightarrow> \<exists>ts is. r = V x \<bullet>\<bullet> ts \<and> size ts = size rs & size is = size rs \<and>
        (\<forall>j<size ts. (rs!j, ts!j) : Red_term^^(is!j) \<and> is!j <= i)"
-proof(induct i arbitrary:rs)
+proof2(induct i arbitrary:rs)
   case 0
   moreover
   have "\<exists>is. length is = length rs \<and>
@@ -2114,7 +2114,7 @@ next
   obtain r' where r': "V x \<bullet>\<bullet> rs \<Rightarrow> r'" and "(r',r) \<in> Red_term ^^ i"
     by (metis relpow_Suc_D2)
   from r' have "\<exists>k<size rs. \<exists>s. rs!k \<Rightarrow> s \<and> r' = V x \<bullet>\<bullet> rs[k:=s]"
-  proof(induct rs arbitrary: r' rule:rev_induct)
+  proof2(induct rs arbitrary: r' rule:rev_induct)
     case Nil thus ?case by(fastforce elim: Red_term.cases)
   next
     case (snoc r rs)
@@ -2154,7 +2154,7 @@ qed
 lemma C_Red_term_it:  "(C nm \<bullet>\<bullet> rs, r) : Red_term^^i
   \<Longrightarrow> \<exists>ts is. r = C nm \<bullet>\<bullet> ts \<and> size ts = size rs \<and> size is = size rs \<and>
         (\<forall>j<size ts. (rs!j, ts!j) \<in> Red_term^^(is!j) \<and> is!j \<le> i)"
-proof(induct i arbitrary:rs)
+proof2(induct i arbitrary:rs)
   case 0
   moreover
   have "\<exists>is. length is = length rs \<and>
@@ -2169,7 +2169,7 @@ next
   obtain r' where r': "C nm \<bullet>\<bullet> rs \<Rightarrow> r'" and "(r',r) \<in> Red_term ^^ i"
     by (metis relpow_Suc_D2)
   from r' have "\<exists>k<size rs. \<exists>s. rs!k \<Rightarrow> s \<and> r' = C nm \<bullet>\<bullet> rs[k:=s]"
-  proof(induct rs arbitrary: r' rule:rev_induct)
+  proof2(induct rs arbitrary: r' rule:rev_induct)
     case Nil thus ?case by(fastforce elim: Red_term.cases)
   next
     case (snoc r rs)
@@ -2210,8 +2210,8 @@ qed
 lemma pure_At[simp]: "pure(s \<bullet> t) \<longleftrightarrow> pure s \<and> pure t"
 by(fastforce elim: pure.cases)
 
-lemma pure_foldl_At[simp]: "pure(s \<bullet>\<bullet> ts) \<longleftrightarrow> pure s \<and> (\<forall>t\<in>set ts. pure t)"
-by(induct ts arbitrary: s) auto
+lemma pure_foldl_At[simp]: "pure(s \<bullet>\<bullet> ts) \<longleftrightarrow> pure s \<and> (\<forall>t\<in>set ts. pure t)" (*apply(induct "s \<bullet>\<bullet> ts" rule:NBE2.pure.induct)*)
+  apply2(induct ts arbitrary: s) by auto
 
 lemma nbe_C_normal_ML:
   assumes "term v \<Rightarrow>* t'" "C_normal\<^sub>M\<^sub>L v" "pure t'" shows "normal t'"
@@ -2219,7 +2219,7 @@ proof -
   { fix t t' i v
     assume "(t,t') : Red_term^^i"
     hence "t = term v \<Longrightarrow> C_normal\<^sub>M\<^sub>L v \<Longrightarrow> pure t' \<Longrightarrow> normal t'"
-    proof(induct i arbitrary: t t' v rule:less_induct)
+    proof2(induct i arbitrary: t t' v rule:less_induct)
     case (less k)
     show ?case
     proof (cases k)
@@ -2336,7 +2336,7 @@ qed
 
 lemma C_normal_ML_compile:
   "pure t \<Longrightarrow> \<forall>i. C_normal\<^sub>M\<^sub>L(\<sigma> i) \<Longrightarrow> C_normal\<^sub>M\<^sub>L (compile t \<sigma>)"
-by(induct t arbitrary: \<sigma>) (simp_all add: C_normal_ML_lift_ML)
+  apply2(induct t arbitrary: \<sigma>) by(simp_all add: C_normal_ML_lift_ML)
 
 corollary nbe_normal:
   "pure t \<Longrightarrow> term(comp_fixed t) \<Rightarrow>* t' \<Longrightarrow> pure t' \<Longrightarrow> normal t'"
@@ -2357,7 +2357,7 @@ fun C\<^sub>Us :: "ml \<Rightarrow> bool" where
 "C\<^sub>Us _ = False"
 
 lemma size_foldl_At: "size(C nm \<bullet>\<bullet> ts) = size ts + sum_list(map size ts)"
-by(induct ts rule:rev_induct) auto
+apply2(induct ts rule:rev_induct) by auto
 
 
 lemma termination_linpats:
@@ -2393,10 +2393,10 @@ by (metis nth_equalityI)
 lemma pattern_subst_ML_coincidence:
  "pattern t \<Longrightarrow> \<forall>i\<in>fv t. \<sigma> i = \<sigma>' i
   \<Longrightarrow> subst_ML \<sigma> (comp_pat t) = subst_ML \<sigma>' (comp_pat t)"
-by(induct pred:pattern) auto
+apply2(induct pred:pattern) by auto
 
 lemma linpats_pattern: "linpats ts \<Longrightarrow> patterns ts"
-proof(induct ts rule:linpats.induct)
+proof2(induct ts rule:linpats.induct)
   case (1 ts)
   show ?case
   proof
@@ -2427,7 +2427,7 @@ lemma no_match_ML_aux:
   "\<forall>v \<in> set cvs. C\<^sub>Us v \<Longrightarrow> linpats ps \<Longrightarrow> size ps = size cvs \<Longrightarrow>
   \<forall>\<sigma>. map (subst\<^sub>M\<^sub>L \<sigma>) (map comp_pat ps) \<noteq> cvs \<Longrightarrow>
   no_match\<^sub>M\<^sub>L (map comp_pat ps) cvs"
-apply(induct ps arbitrary: cvs rule:linpats.induct)
+  apply2(induct ps arbitrary: cvs rule:linpats.induct)
 apply(frule linpats_pattern)
 apply(subst (asm) linpats.simps) back
 apply auto
