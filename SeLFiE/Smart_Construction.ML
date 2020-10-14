@@ -138,8 +138,8 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
 
         (*quadruple_for_list_nonempty_induct_and_rev_nonempty_induct*)
         fun rhs_is_empty_and_lhs_of_eq_is (FUA_Prnt_Tag (FUC_Prnt_Tag ("HOL.eq",_,_,_), [lhs,rhs], _, _)) =
-              if futrm_w_prnt_n_tag_to_print rhs = "List.list.Nil"
-              then [futrm_w_prnt_n_tag_to_print lhs] else []
+              if futrm_w_prnt_n_tag_to_print lhs = "List.list.Nil"
+              then [futrm_w_prnt_n_tag_to_print rhs] else []
           | rhs_is_empty_and_lhs_of_eq_is  _ = [];
         fun nonempty_induct (FUA_Prnt_Tag (FUC_Prnt_Tag ("HOL.Not",_,_,_), [equation], _, _)): seed_quadruples =
             let
@@ -224,8 +224,9 @@ let
                       |> filter all_rules_exist
                       |> filter_out is_wellfounded
                       |> SU.sort_induct_argumentss: SeLFiE_Util.induct_arguments list;
-(*
+
 val _ = (map (tracing o SU.induct_arguments_to_string) induct_arguments);
+(*
 val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");*)
 in
   induct_arguments: SU.induct_arguments list
@@ -240,12 +241,14 @@ fun proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_
     val arbss             = powerset fnames_not_in_ons: strings list;(*TODO: refactor with proof_state_to_induct_argumentss.*)
     fun mk_new_pair arbs  = (score, SU.Induct_Arguments {ons=ons, arbs=arbs, rules=rules}): (real * SU.induct_arguments);
     val induct_argss      = map mk_new_pair arbss                                         : (real * SU.induct_arguments) list;
+val _ = tracing "proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs ends"
   in
     induct_argss: (real * SU.induct_arguments) list
   end;
 
 fun proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score_n_argss:(real * SU.induct_arguments) list) =
    map (fn score_n_args => proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs pst trms score_n_args) score_n_argss
+|> (fn input => (tracing "proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs ends" ;input))
 |> flat:  (real * SeLFiE_Util.induct_arguments) list;
 
 end;
