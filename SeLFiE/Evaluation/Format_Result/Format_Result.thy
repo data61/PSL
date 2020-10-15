@@ -6,19 +6,16 @@ ML_file  "../../../LiFtEr/Matrix_sig.ML"
 ML_file  "../../../LiFtEr/Matrix_Struct.ML"
 
 ML\<open>
-val path = File.platform_path (Resources.master_directory @{theory}) ^ "/POPL2020_Semantic_Induct.csv";
+val path = File.platform_path (Resources.master_directory @{theory}) ^ "/Tacas2021.csv";
 val get_lines = split_lines o TextIO.inputAll o TextIO.openIn;
+\<close>
 
+ML\<open>
 type datapoint =
  {file_name                       :string,
-  numb_of_candidates_after_step_1 : int,
-  numb_of_candidates_after_step_2 : int,
-  numb_of_candidates_after_step_3 : int,
-  numb_of_candidates_after_step_4 : int,
-  numb_of_candidates_after_step_5 : int,
   line_number                     : int,
   rank                            : int option,
-  score                           : int,
+  score                           : real,
   execution_time                  : int(*,
   arbitrary                       : bool,
   rule                            : bool,
@@ -35,18 +32,16 @@ fun int_to_bool 1 = true
 fun read_one_line (line:string) =
   let
     val (file_name::numbers_as_strings) = String.tokens (fn c=> str c = ",") line: string list;
-    val numbers_as_ints = map (Int.fromString) numbers_as_strings: int option list;
+    val line_number    = nth numbers_as_strings 0 |> Int.fromString  |> the;
+    val rank           = nth numbers_as_strings 1 |> Int.fromString;
+    val score          = nth numbers_as_strings 2 |> Real.fromString |> the;
+    val execution_time = nth numbers_as_strings 3 |> Int.fromString  |> the;
     val result =
           {file_name                        = file_name,
-           line_number                      = nth numbers_as_ints 0 |> the,
-           rank                             = nth numbers_as_ints 1,
-           numb_of_candidates_after_step_1  = nth numbers_as_ints 2  |> the,
-           numb_of_candidates_after_step_2  = nth numbers_as_ints 3  |> the,
-           numb_of_candidates_after_step_3  = nth numbers_as_ints 4  |> the,
-           numb_of_candidates_after_step_4  = nth numbers_as_ints 5  |> the,
-           numb_of_candidates_after_step_5  = nth numbers_as_ints 6  |> the,
-           score                            = nth numbers_as_ints 7  |> the,
-           execution_time                   = nth numbers_as_ints 8  |> the(*,
+           line_number                      = line_number,
+           rank                             = rank,
+           score                            = score,
+           execution_time                   = execution_time(*
            arbitrary                        = nth numbers_as_ints 7  |> the |> int_to_bool,
            rule                             = nth numbers_as_ints 8  |> the |> int_to_bool,
            hand_writte_rule                 = nth numbers_as_ints 9  |> the |> int_to_bool,
@@ -127,7 +122,7 @@ val _ = tracing (Int.toString (length points));
 \<close>
 
 
-ML\<open> val tikz_for_coincidence_rates = get_coincidence_rate_for_file_for_top_n lines "~/Workplace/PSL/Smart_Induct/Evaluation/DFS.thy" 1;\<close>
+ML\<open> val tikz_for_coincidence_rates = get_coincidence_rate_for_file_for_top_n lines "~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy" 1;\<close>
 
 ML\<open>(*result*)
 fun from_pair_matrix_to_tikz_barplot (pairs) = pairs
