@@ -8,7 +8,9 @@ session ZFC_in_HOL (AFP) = HOL +
     "HOL-Cardinals"
   theories
     Cantor_NF
+(*
     ZFC_Typeclasses
+*)
   document_files
     "root.tex"
     "root.bib"
