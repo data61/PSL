@@ -1,6 +1,6 @@
 section \<open>Challenge 1.A\<close>
 theory Challenge1A
-imports Main "../Eval_Base/Eval_Base"
+imports Main "Eval_Base.Eval_Base"
 begin
 
 text \<open>Problem definition:

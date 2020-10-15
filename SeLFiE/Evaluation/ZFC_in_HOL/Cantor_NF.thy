@@ -1,7 +1,7 @@
 section \<open>Cantor Normal Form\<close>
 
 theory Cantor_NF
-  imports Ordinal_Exp "../Eval_Base/Eval_Base"
+  imports Ordinal_Exp "Eval_Base.Eval_Base"
 begin
 
 subsection \<open>Cantor normal form\<close>

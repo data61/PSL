@@ -1,3 +1,4 @@
+Abstract-Rewriting
 Automatic_Refinement
 Binomial-Heaps
 Boolean_Expression_Checkers
@@ -21,6 +22,7 @@ KD_Tree
 List-Index
 LTL
 Markov_Models
+Matrix
 Median_Of_Medians_Selection
 Native_Word
 NormByEval
@@ -35,6 +37,7 @@ Safe_OCL
 Separation_Logic_Imperative_HOL
 Simpl
 Timed_Automata
+Transitive-Closure
 Trie
 VerifyThis2019
 ZFC_in_HOL

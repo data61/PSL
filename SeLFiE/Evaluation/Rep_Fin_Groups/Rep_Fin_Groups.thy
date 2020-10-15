@@ -3,7 +3,7 @@ theory Rep_Fin_Groups
 imports
   "HOL-Library.Function_Algebras"
   "HOL-Library.Set_Algebras"
-  "HOL-Computational_Algebra.Polynomial" "../Eval_Base/Eval_Base"
+  "HOL-Computational_Algebra.Polynomial" "Eval_Base.Eval_Base"
 begin
 
 

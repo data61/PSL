@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\newcommand\isafor{\textsf{IsaFoR}}
+\newcommand\ceta{\textsf{Ce\kern-.18emT\kern-.18emA}}
+
+\begin{document}
+
+\title{Executable Matrix Operations on Matrices of Arbitrary Dimensions}
+\author{Christian Sternagel and Ren\'e Thiemann}
+\maketitle
+
+\begin{abstract}
+  We provide the operations of matrix addition, multiplication,
+  transposition, and matrix comparisons as executable functions over
+  ordered semirings. Moreover, it is proven that strongly normalizing (monotone) orders 
+  can be lifted to strongly normalizing (monotone) orders over matrices. 
+  
+  We further show that the standard semirings over the naturals, integers, and
+  rationals, as well as the arctic semirings satisfy the axioms that are required
+  by our matrix theory.
+  
+  Our formalization was performed as part of the \isafor/\ceta-system 
+  \cite{CeTA}\footnote{\url{http://cl-informatik.uibk.ac.at/software/ceta}}
+  which
+  contains several termination techniques. The provided theories have been
+  essential to formalize matrix-interpretations \cite{MatrixJAR} and
+  arctic interpretations \cite{Arctic}.
+  A short description of this formalization can be found in \cite{WST10}.
+\end{abstract}
+
+\tableofcontents
+
+
+% include generated text of all theories
+\input{session}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
