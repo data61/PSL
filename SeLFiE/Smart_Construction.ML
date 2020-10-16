@@ -103,13 +103,19 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
         val quadruple_for_list_induct2 =
             if null (is_equation_of_lengths_of app)
             then []
-            else [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2", [(*naively specifying induction terms here causes problems for lemma "length_mapi" in Hybrid_Logic.*)])];
+            else (tracing "TRUEEEE";[(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2", (is_equation_of_lengths_of app)(*[(*naively specifying induction terms here causes problems for lemma "length_mapi" in Hybrid_Logic.*)]*))]);
         (*quadruple_for_list_induct2'*)
         fun trm_is_of_list trm      = UN.futrm_w_prnt_n_tag_to_typ trm <$> Isabelle_Utils.is_list_typ |> Utils.is_some_true;
         fun all_trms_are_lists trms = forall (fn trm => trm_is_of_list trm) trms;
         val quadruple_for_list_induct2' = if length args = 2 andalso all_trms_are_lists args
             then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2'",  map futrm_w_prnt_n_tag_to_print args)]): seed_quadruples
             else ([]);
+        (*quadruple_for_list_induct2'_due_to_map2*)
+        fun is_app_of_map2 (FUA_Prnt_Tag (FUC_Prnt_Tag ("List.map2",_,_,_), [_, fst_arg, snd_arg], _, _)) = map futrm_w_prnt_n_tag_to_print [fst_arg, snd_arg]
+          | is_app_of_map2 _ = [];
+        val quadruple_for_list_induct2'_due_to_map2 = if null (is_app_of_map2 app)
+            then []
+            else ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2'", is_app_of_map2 app)]): seed_quadruples;
         (*quadruple_for_list_all2*)
         val quadruple_for_list_all2 = if futrm_w_prnt_n_tag_to_print func = "List.list.list_all2" (*andalso length args = 3*)
             then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_all2_induct",  map futrm_w_prnt_n_tag_to_print (drop 1 args))])
@@ -168,6 +174,7 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
         @ quadruple_for_list_all2
         @ quadruple_for_list_induct2
         @ quadruple_for_list_induct2'
+        @ quadruple_for_list_induct2'_due_to_map2
         @ quadruple_for_length_induct
         @ quadruple_for_nonempty_induct
         : seed_quadruples
@@ -223,7 +230,6 @@ let
                       |> filter all_rules_exist
                       |> filter_out is_wellfounded
                       |> SU.sort_induct_argumentss: SeLFiE_Util.induct_arguments list;
-
 (*
 val _ = (map (tracing o SU.induct_arguments_to_string) induct_arguments);
 val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");*)

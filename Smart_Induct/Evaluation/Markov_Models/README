@@ -1,0 +1,18 @@
+Markov Models
+=============
+
+This is a formalization of probabilistic models in Isabelle/HOL. It builds on Isabelle's probability
+theory (HOL-Probability). It provides formalizations for the following models:
+
+ * Discrete-time Markov processes with measurable state spaces
+ * Markov decision processes on discrete spaces
+ * Continuous-time Markov chains on discrete spaces
+
+As application of these models we formalize
+ * a probabilistic model checking of pCTL formulas,
+ * an analysis of IPv4 address allocation in ZeroConf,
+ * an analysis of the anonymity of the Crowds protocol,
+ * the reachability analysis on finite-state MDPs, and
+ * expected running-time semantics for pGCL.
+
+For the PCTL model checking we need the AFP entry Gauss-Jordan-Elim-Fun.

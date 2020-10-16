@@ -1,0 +1,84 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{xspace}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage[greek,english]{babel}
+  %option greek for \<euro>
+  %option english (default language) for \<guillemotleft>, \<guillemotright>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+\newcommand\hlint{\texttt{HLint}\xspace}
+
+\begin{document}
+
+\title{Isabelle/HOLCF-Prelude}
+\author{%
+  Joachim Breitner\thanks{Supported by the Deutsche Telekom Stiftung.},
+  Brian Huffman,
+  Neil Mitchell,
+  and
+  Christian Sternagel\thanks{Supported by the Austrian Science Fund (FWF): J3202.}}
+\maketitle
+
+\begin{abstract}
+The Isabelle/HOLCF-Prelude is a formalization of a large part of Haskell's
+standard prelude \cite{haskell-prelude} in Isabelle/HOLCF. We use it to
+\begin{itemize}
+\item prove the correctness of the Eratosthenes' Sieve, in its self-referential implementation commonly used to showcase Haskell's laziness,
+\item prove correctness of GHC's ``fold/build'' rule and related rewrite rules, and
+\item certify a number of hints suggested by \hlint.
+\end{itemize}
+The work was presented at HART 2013~\cite{hart2013}.
+\end{abstract}
+
+\tableofcontents
+
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\section*{Acknowledgments}
+
+We thank Lars Hupel for his help with the final AFP submission.
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+

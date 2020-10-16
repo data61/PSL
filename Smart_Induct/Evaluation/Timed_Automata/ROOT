@@ -1,0 +1,9 @@
+chapter AFP
+
+session "Timed_Automata" (AFP) = HOL +
+  options [timeout = 600]
+  theories
+    Normalized_Zone_Semantics
+  document_files
+    "root.tex"
+    "root.bib"

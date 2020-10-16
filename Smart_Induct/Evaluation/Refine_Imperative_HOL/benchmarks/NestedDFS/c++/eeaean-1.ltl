@@ -1,0 +1,1 @@
+!((<>[](noLeader || zeroLeads || oneLeads || twoLeads)) && (<>[]((zeroLeads -> (zeroLeads U (noLeader U oneLeads))))) && (<>[]((oneLeads -> (oneLeads U (noLeader U twoLeads))))) && (<>[]((twoLeads -> (twoLeads U (noLeader U zeroLeads))))))

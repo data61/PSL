@@ -423,6 +423,7 @@ sig
   val pst_to_fst_subg                   : Proof.state -> term option;
   val pst_to_subgs                      : Proof.state -> term list;
   val mk_proof_obligation               : Proof.context -> string -> thm;
+  val timeout_apply                     : Time.time -> ('a -> 'b) -> 'a -> 'b;
   val TIMEOUT_in                        : real -> ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
   val TIMEOUT                           : ('a -> 'b Seq.seq) -> 'a -> 'b Seq.seq;
   val same_except_for_fst_prem          : thm -> thm -> bool;
@@ -615,10 +616,6 @@ fun mk_proof_obligation ctxt (prop_str:string) =
   |> Thm.cterm_of ctxt
   |> Thm.trivial;
 
-local
-(* SINGLE is copied from Tactical.ML, but the types are more general.*)
-fun SINGLE tacf = Option.map fst o Seq.pull o tacf;
-
 (*Very similar to Timeout.apply but with my own release function, my_release.*)
 fun timeout_apply timeout f x =
   Thread_Attributes.with_attributes Thread_Attributes.no_interrupts (fn orig_atts =>
@@ -640,6 +637,10 @@ fun timeout_apply timeout f x =
       then (raise Timeout.TIMEOUT (stop - start))
       else (Exn.release test; my_release result)
     end);
+
+local
+(* SINGLE is copied from Tactical.ML, but the types are more general.*)
+fun SINGLE tacf = Option.map fst o Seq.pull o tacf;
 
 (* DETERM_TIMEOUT was originally written by Jasmin Blanchette in nitpick_util.ML.
  * This version has exception handling on top of his version with my own timeout_apply.*)

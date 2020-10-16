@@ -6,19 +6,16 @@ ML_file  "../../../LiFtEr/Matrix_sig.ML"
 ML_file  "../../../LiFtEr/Matrix_Struct.ML"
 
 ML\<open>
-val path = File.platform_path (Resources.master_directory @{theory}) ^ "/FMCAD2020.csv";
+val path = File.platform_path (Resources.master_directory @{theory}) ^ "/tacas2021_timeout5.csv";
 val get_lines = split_lines o TextIO.inputAll o TextIO.openIn;
+\<close>
 
+ML\<open>
 type datapoint =
  {file_name                       :string,
-  numb_of_candidates_after_step_1 : int,
-  numb_of_candidates_after_step_2 : int,
-  numb_of_candidates_after_step_3 : int,
-  numb_of_candidates_after_step_4 : int,
-  numb_of_candidates_after_step_5 : int,
   line_number                     : int,
   rank                            : int option,
-  score                           : int,
+  score                           : real option,
   execution_time                  : int(*,
   arbitrary                       : bool,
   rule                            : bool,
@@ -34,19 +31,17 @@ fun int_to_bool 1 = true
 
 fun read_one_line (line:string) =
   let
-    val (file_name::numbers_as_strings) = String.tokens (fn c=> str c = ",") line: string list;
-    val numbers_as_ints = map (Int.fromString) numbers_as_strings: int option list;
+    val (file_name::numbers_as_strings) = String.tokens (fn c=> str c = ";") line: string list;
+    val line_number    = nth numbers_as_strings 0 |> Int.fromString  |> the;
+    val rank           = nth numbers_as_strings 1 |> Int.fromString;
+    val score          = nth numbers_as_strings 2 |> Real.fromString;
+    val execution_time = nth numbers_as_strings 3 |> Int.fromString  |> the;
     val result =
           {file_name                        = file_name,
-           line_number                      = nth numbers_as_ints 0 |> the,
-           rank                             = nth numbers_as_ints 1,
-           numb_of_candidates_after_step_1  = nth numbers_as_ints 2  |> the,
-           numb_of_candidates_after_step_2  = nth numbers_as_ints 3  |> the,
-           numb_of_candidates_after_step_3  = nth numbers_as_ints 4  |> the,
-           numb_of_candidates_after_step_4  = nth numbers_as_ints 5  |> the,
-           numb_of_candidates_after_step_5  = nth numbers_as_ints 6  |> the,
-           score                            = nth numbers_as_ints 7  |> the,
-           execution_time                   = nth numbers_as_ints 8  |> the(*,
+           line_number                      = line_number,
+           rank                             = rank,
+           score                            = score,
+           execution_time                   = execution_time(*
            arbitrary                        = nth numbers_as_ints 7  |> the |> int_to_bool,
            rule                             = nth numbers_as_ints 8  |> the |> int_to_bool,
            hand_writte_rule                 = nth numbers_as_ints 9  |> the |> int_to_bool,
@@ -58,7 +53,10 @@ fun read_one_line (line:string) =
 
 val lines = get_lines path
   |> (map (try read_one_line))
-  |> Utils.somes: datapoints;
+ |> (fn x => (tracing (Int.toString (length x)) ; x))
+  |> Utils.somes
+ |> (fn x => (tracing (Int.toString (length x)) ; x))
+: datapoints
 
 \<close>
 ML\<open>
@@ -113,6 +111,7 @@ fun datapoints_to_coincidence_rate_pairs_for_one_file (points:datapoints) (file_
 ML\<open>
 fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
   let
+val _ = tracing (Int.toString (length points));
     val file_names                      = datapoints_to_all_file_names points;
     val overall_coincidence_rates       = datapoints_to_coincidence_rates points top_ns |> attach_file_name_to_coincidence_rates "overall": (string * real) list;
     val coincidence_rates_for_each_file = map (fn file_name => datapoints_to_coincidence_rate_pairs_for_one_file points file_name top_ns) file_names: (string * real) list list;
@@ -122,57 +121,8 @@ fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
   end;
 \<close>
 
-(*
-ML\<open>(*result*)
-fun file_name_to_proportion_of_rule (points:datapoints) (file_name:string) =
-  let
-    val datapoints_in_file                   = points_in_file file_name points;
-    val datapoints_in_file_with_rule         = filter #rule datapoints_in_file: datapoints;
-    val numb_of_datapoints_in_file           = length datapoints_in_file           |> Real.fromInt: real;
-    val numb_of_datapoints_in_file_with_rule = length datapoints_in_file_with_rule |> Real.fromInt: real;
-  in
-    (numb_of_datapoints_in_file_with_rule / numb_of_datapoints_in_file)
-  end;
-*)
-(*
-fun points_to_proportions_of_rules (points:datapoints) =
-let
-  val file_names = datapoints_to_all_file_names points: strings;
-  val pairs      = map (fn file_name:string => (file_name, file_name_to_proportion_of_rule points file_name)) file_names: (string * real) list;
-  val line       = print_one_line pairs;
-in
-  line
-end;
-*)
-(*
-fun file_name_to_proportion_of_arbitrary (points:datapoints) (file_name:string) =
-  let
-    val datapoints_in_file                   = points_in_file file_name points;
-    val datapoints_in_file_with_rule         = filter #arbitrary datapoints_in_file: datapoints;
-    val numb_of_datapoints_in_file           = length datapoints_in_file           |> Real.fromInt: real;
-    val numb_of_datapoints_in_file_with_rule = length datapoints_in_file_with_rule |> Real.fromInt: real;
-  in
-    (numb_of_datapoints_in_file_with_rule / numb_of_datapoints_in_file)
-  end;
-*)
-(*
-fun points_to_proportions_of_arbs (points:datapoints) =
-let
-  val file_names = datapoints_to_all_file_names points: strings;
-  val pairs      = map (fn file_name:string => (file_name, file_name_to_proportion_of_arbitrary points file_name)) file_names: (string * real) list;
-  val line       = print_one_line pairs;
-in
-  line
-end;
-*)
-(*
-val _ = tracing (points_to_proportions_of_rules lines);
-val _ = tracing (points_to_proportions_of_arbs  lines);
-\<close>
-*)
 
-
-ML\<open> val tikz_for_coincidence_rates = get_coincidence_rate_for_file_for_top_n lines "~/Workplace/PSL/Smart_Induct/Evaluation/DFS.thy" 1;\<close>
+ML\<open> val tikz_for_coincidence_rates = get_coincidence_rate_for_file_for_top_n lines "~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy" 1;\<close>
 
 ML\<open>(*result*)
 fun from_pair_matrix_to_tikz_barplot (pairs) = pairs
@@ -181,240 +131,29 @@ fun from_pair_matrix_to_tikz_barplot (pairs) = pairs
 |> String.concat
 |> tracing;
 
+val _ = lines;
+
 val coincidence_rates_for_files = 
-   datapoints_to_coincidence_rate_pairs lines [1,3,5,8,10]
+   datapoints_to_coincidence_rate_pairs lines [1,2,3,5,8,10]
 |> from_pair_matrix_to_tikz_barplot;
 
 (*
-\addplot coordinates {(Challenge, 75.0) (DFS, 50.0) (Goodstein, 28.8) (NN, 9.1) (PST, 100.0) (overall, 49.5)};
-\addplot coordinates {(Challenge, 75.0) (DFS, 80.0) (Goodstein, 51.9) (NN, 9.1) (PST, 100.0) (overall, 63.3)};
-\addplot coordinates {(Challenge, 75.0) (DFS, 80.0) (Goodstein, 69.2) (NN, 18.2) (PST, 100.0) (overall, 72.5)};
-\addplot coordinates {(Challenge, 75.0) (DFS, 80.0) (Goodstein, 76.9) (NN, 63.6) (PST, 100.0) (overall, 80.7)};
-\addplot coordinates {(Challenge, 75.0) (DFS, 80.0) (Goodstein, 80.8) (NN, 63.6) (PST, 100.0) (overall, 82.6)};
+~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/BinomialHeap.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/CoreC++/TypeSafe.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Depth-First-Search/DFS.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Finger-Trees/FingerTree.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KBPs/Kripke.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Build.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/KD_Tree.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Nearest_Neighbors.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/LTL/Disjunctive_Normal_Form.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/NormByEval/NBE.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/PCF/OpSem.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Priority_Search_Trees/PST_RBT.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Simpl/SmallStep.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1A.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1B.thy, ~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/ZFC_in_HOL/Cantor_NF.thy
+ddplot coordinates {(~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 16.9) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/BinomialHeap.thy, 27.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 28.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 20.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/CoreC++/TypeSafe.thy, 0.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Depth-First-Search/DFS.thy, 40.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Finger-Trees/FingerTree.thy, 19.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 23.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KBPs/Kripke.thy, 0.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Build.thy, 10.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Nearest_Neighbors.thy, 9.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/LTL/Disjunctive_Normal_Form.thy, 17.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/NormByEval/NBE.thy, 16.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/PCF/OpSem.thy, 15.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Priority_Search_Trees/PST_RBT.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 19.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 9.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Simpl/SmallStep.thy, 21.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1A.thy, 72.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1B.thy, 16.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 18.2) (overall, 21.5)};
+ddplot coordinates {(~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 31.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/BinomialHeap.thy, 44.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 49.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/CoreC++/TypeSafe.thy, 5.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Depth-First-Search/DFS.thy, 70.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Finger-Trees/FingerTree.thy, 24.6) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 38.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KBPs/Kripke.thy, 15.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Build.thy, 10.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Nearest_Neighbors.thy, 9.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/LTL/Disjunctive_Normal_Form.thy, 42.9) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/NormByEval/NBE.thy, 26.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/PCF/OpSem.thy, 24.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Priority_Search_Trees/PST_RBT.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 36.6) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 29.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Simpl/SmallStep.thy, 36.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1A.thy, 72.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1B.thy, 33.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 40.9) (overall, 36.3)};
+ddplot coordinates {(~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 39.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/BinomialHeap.thy, 50.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 56.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 70.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/CoreC++/TypeSafe.thy, 5.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Depth-First-Search/DFS.thy, 70.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Finger-Trees/FingerTree.thy, 43.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 46.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KBPs/Kripke.thy, 15.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Build.thy, 10.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Nearest_Neighbors.thy, 9.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/LTL/Disjunctive_Normal_Form.thy, 51.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/NormByEval/NBE.thy, 39.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/PCF/OpSem.thy, 33.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Priority_Search_Trees/PST_RBT.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 41.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 38.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Simpl/SmallStep.thy, 37.9) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1A.thy, 72.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1B.thy, 33.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 50.0) (overall, 44.7)};
+ddplot coordinates {(~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 53.9) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/BinomialHeap.thy, 50.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 59.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 80.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/CoreC++/TypeSafe.thy, 15.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Depth-First-Search/DFS.thy, 70.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Finger-Trees/FingerTree.thy, 43.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 61.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KBPs/Kripke.thy, 30.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Build.thy, 10.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Nearest_Neighbors.thy, 9.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/LTL/Disjunctive_Normal_Form.thy, 57.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/NormByEval/NBE.thy, 47.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/PCF/OpSem.thy, 45.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Priority_Search_Trees/PST_RBT.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 51.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 42.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Simpl/SmallStep.thy, 47.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1A.thy, 72.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1B.thy, 33.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 59.1) (overall, 50.3)};
+ddplot coordinates {(~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 60.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/BinomialHeap.thy, 62.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 67.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 80.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/CoreC++/TypeSafe.thy, 15.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Depth-First-Search/DFS.thy, 70.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Finger-Trees/FingerTree.thy, 50.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 67.3) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KBPs/Kripke.thy, 30.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Build.thy, 10.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Nearest_Neighbors.thy, 18.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/LTL/Disjunctive_Normal_Form.thy, 57.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/NormByEval/NBE.thy, 54.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/PCF/OpSem.thy, 48.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Priority_Search_Trees/PST_RBT.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 61.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 45.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Simpl/SmallStep.thy, 47.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1A.thy, 72.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1B.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 59.1) (overall, 56.2)};
+ddplot coordinates {(~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 64.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/BinomialHeap.thy, 62.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 67.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 80.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/CoreC++/TypeSafe.thy, 15.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Depth-First-Search/DFS.thy, 70.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Finger-Trees/FingerTree.thy, 52.4) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 71.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KBPs/Kripke.thy, 30.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Build.thy, 10.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/KD_Tree/Nearest_Neighbors.thy, 18.2) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/LTL/Disjunctive_Normal_Form.thy, 57.1) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/NormByEval/NBE.thy, 58.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/PCF/OpSem.thy, 48.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Priority_Search_Trees/PST_RBT.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 61.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 45.5) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/Simpl/SmallStep.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1A.thy, 72.7) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/VerifyThis2019/Challenge1B.thy, 50.0) (~/Workplace/PSL_Perform/PSL/Smart_Induct/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 59.1) (overall, 57.4)};
 *)
 \<close>
-(*
-ML\<open>
-fun datapoints_to_points_for_functional_induction (points:datapoints) = filter (#rule) points;
-fun datapoints_to_points_with_generalisation (points:datapoints) = filter (#arbitrary) points;
 
-type four_types =
-  {w_rule_w_arb  : datapoints,
-   w_rule_wo_arb : datapoints,
-   wo_rule_w_arb : datapoints,
-   wo_rule_wo_arb: datapoints}
-
-fun datapoints_to_four_types (points:datapoints) =
-let
-  val w_rule         = filter     #rule      points;
-  val w_rule_w_arb   = filter     #arbitrary w_rule;
-  val w_rule_wo_arb  = filter_out #arbitrary w_rule;
-  val wo_rule        = filter_out #rule      points;
-  val wo_rule_w_arb  = filter     #arbitrary wo_rule;
-  val wo_rule_wo_arb = filter_out #arbitrary wo_rule;
-in
-  {w_rule_w_arb   = w_rule_w_arb  : datapoints,
-   w_rule_wo_arb  = w_rule_wo_arb : datapoints,
-   wo_rule_w_arb  = wo_rule_w_arb : datapoints,
-   wo_rule_wo_arb = wo_rule_wo_arb: datapoints}: four_types           
-end;
-\<close>
-*)
-(*
-ML\<open> (*result*)
-local
-val four_types_of_points = datapoints_to_four_types lines;
-
-fun tag_the_type_name (name:string) (numbs)  = map (fn numb => (name, numb)) numbs: (string * 'a) list;
-val rates_for_w_rule_w_arb   = datapoints_to_coincidence_rates (#w_rule_w_arb   four_types_of_points) [1,3,5,10] |> tag_the_type_name "w-rule-w-arb";
-val rates_for_w_rule_wo_arb  = datapoints_to_coincidence_rates (#w_rule_wo_arb  four_types_of_points) [1,3,5,10] |> tag_the_type_name "w-rule-wo-arb";
-val rates_for_wo_rule_w_arb  = datapoints_to_coincidence_rates (#wo_rule_w_arb  four_types_of_points) [1,3,5,10] |> tag_the_type_name "wo-rule-w-arb";
-val rates_for_wo_rule_wo_arb = datapoints_to_coincidence_rates (#wo_rule_wo_arb four_types_of_points) [1,3,5,10] |> tag_the_type_name "wo-rule-wo-arb";
-
-val m = [
-  rates_for_w_rule_w_arb  ,
-  rates_for_wo_rule_w_arb ,
-  rates_for_w_rule_wo_arb ,
-  rates_for_wo_rule_wo_arb];
-
-val transposed_m = m |> Matrix.matrix_to_row_of_columns_matrix |> Matrix.transpose_rcmatrix |> the |> Matrix.row_of_columns_matrix_to_matrix;
-in
-val _ = from_pair_matrix_to_tikz_barplot transposed_m
-end
-(*
-\addplot coordinates {(w-rule-w-arb, 0.0) (wo-rule-w-arb, 14.3) (w-rule-wo-arb, 78.2) (wo-rule-wo-arb, 29.0)};
-\addplot coordinates {(w-rule-w-arb, 11.1) (wo-rule-w-arb, 21.4) (w-rule-wo-arb, 83.6) (wo-rule-wo-arb, 61.3)};
-\addplot coordinates {(w-rule-w-arb, 22.2) (wo-rule-w-arb, 28.6) (w-rule-wo-arb, 87.3) (wo-rule-wo-arb, 80.6)};
-\addplot coordinates {(w-rule-w-arb, 33.3) (wo-rule-w-arb, 50.0) (w-rule-wo-arb, 90.9) (wo-rule-wo-arb, 96.8)};
-*)
-\<close>
-*)
-(*
-ML\<open> (*result for Goodstein*)
-local
-(*val four_types_of_points = datapoints_to_four_types (filter (fn point => #file_name point = "Goodstein") lines);*)
-val four_types_of_points = datapoints_to_four_types lines;
-
-fun tag_the_type_name (name:string) (numbs)  = map (fn numb => (name, numb)) numbs: (string * 'a) list;
-val rates_for_w_rule_w_arb   = datapoints_to_coincidence_rates (#w_rule_w_arb   four_types_of_points) [1,3,5,10] |> tag_the_type_name "w-rule-w-arb";
-val rates_for_w_rule_wo_arb  = datapoints_to_coincidence_rates (#w_rule_wo_arb  four_types_of_points) [1,3,5,10] |> tag_the_type_name "w-rule-wo-arb";
-val rates_for_wo_rule_w_arb  = datapoints_to_coincidence_rates (#wo_rule_w_arb  four_types_of_points) [1,3,5,10] |> tag_the_type_name "wo-rule-w-arb";
-val rates_for_wo_rule_wo_arb = datapoints_to_coincidence_rates (#wo_rule_wo_arb four_types_of_points) [1,3,5,10] |> tag_the_type_name "wo-rule-wo-arb";
-
-val rates_for_w_rule  = datapoints_to_coincidence_rates (filter     (#rule) lines) [1,3,5,10] |> tag_the_type_name "w-rule";
-val rates_for_wo_rule = datapoints_to_coincidence_rates (filter_out (#rule) lines) [1,3,5,10] |> tag_the_type_name "wo-rule";
-
-val m = [
-  rates_for_w_rule_w_arb  ,
-  rates_for_wo_rule_w_arb ,
-  rates_for_w_rule_wo_arb ,
-  rates_for_wo_rule_wo_arb,
-  rates_for_w_rule,
-  rates_for_wo_rule
-];
-
-val transposed_m = m |> Matrix.matrix_to_row_of_columns_matrix |> Matrix.transpose_rcmatrix |> the |> Matrix.row_of_columns_matrix_to_matrix;
-in
-val _ = from_pair_matrix_to_tikz_barplot transposed_m
-end;
-(*
-\addplot coordinates {(w-rule-w-arb, 0.0) (wo-rule-w-arb, 14.3) (w-rule-wo-arb, 78.2) (wo-rule-wo-arb, 29.0) (w-rule, 67.2) (wo-rule, 24.4)};
-\addplot coordinates {(w-rule-w-arb, 11.1) (wo-rule-w-arb, 21.4) (w-rule-wo-arb, 83.6) (wo-rule-wo-arb, 61.3) (w-rule, 73.4) (wo-rule, 48.9)};
-\addplot coordinates {(w-rule-w-arb, 22.2) (wo-rule-w-arb, 28.6) (w-rule-wo-arb, 87.3) (wo-rule-wo-arb, 80.6) (w-rule, 78.1) (wo-rule, 64.4)};
-\addplot coordinates {(w-rule-w-arb, 33.3) (wo-rule-w-arb, 50.0) (w-rule-wo-arb, 90.9) (wo-rule-wo-arb, 96.8) (w-rule, 82.8) (wo-rule, 82.2)};
-*)
-\<close>
-*)
-(*
-ML\<open> (*result for non-Goodstein*)
-local
-val four_types_of_points = datapoints_to_four_types (filter_out (fn point => #file_name point = "Goodstein") lines);
-
-fun tag_the_type_name (name:string) (numbs)  = map (fn numb => (name, numb)) numbs: (string * 'a) list;
-val rates_for_w_rule_w_arb   = datapoints_to_coincidence_rates (#w_rule_w_arb   four_types_of_points) [1,3,5,10] |> tag_the_type_name "w-rule-w-arb";
-val rates_for_w_rule_wo_arb  = datapoints_to_coincidence_rates (#w_rule_wo_arb  four_types_of_points) [1,3,5,10] |> tag_the_type_name "w-rule-wo-arb";
-val rates_for_wo_rule_w_arb  = datapoints_to_coincidence_rates (#wo_rule_w_arb  four_types_of_points) [1,3,5,10] |> tag_the_type_name "wo-rule-w-arb";
-val rates_for_wo_rule_wo_arb = datapoints_to_coincidence_rates (#wo_rule_wo_arb four_types_of_points) [1,3,5,10] |> tag_the_type_name "wo-rule-wo-arb";
-
-val m = [
-  rates_for_w_rule_w_arb  ,
-  rates_for_w_rule_wo_arb ,
-  rates_for_wo_rule_w_arb ,
-  rates_for_wo_rule_wo_arb
-];
-
-val transposed_m = m |> Matrix.matrix_to_row_of_columns_matrix |> Matrix.transpose_rcmatrix |> the |> Matrix.row_of_columns_matrix_to_matrix;
-in
-val _ = from_pair_matrix_to_tikz_barplot transposed_m
-end
-\<close>
-*)
-(*
-ML\<open>(*result*)
-fun datapoints_to_proportion (points:datapoints) =
-let
-  val numb_of_all_points     = length points                       |> Real.fromInt;
-  val four_types             = datapoints_to_four_types points;
-  val numb_of_w_rule_w_arb   = length (#w_rule_w_arb   four_types) |> Real.fromInt: real;
-  val numb_of_w_rule_wo_arb  = length (#w_rule_wo_arb  four_types) |> Real.fromInt: real;
-  val numb_of_wo_rule_w_arb  = length (#wo_rule_w_arb  four_types) |> Real.fromInt: real;
-  val numb_of_wo_rule_wo_arb = length (#wo_rule_wo_arb four_types) |> Real.fromInt: real;
-  val proportion_of_w_rule_w_arb   = ((numb_of_w_rule_w_arb   / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt)/ 10.0: real;
-  val proportion_of_w_rule_wo_arb  = ((numb_of_w_rule_wo_arb  / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt)/ 10.0: real;
-  val proportion_of_wo_rule_w_arb  = ((numb_of_wo_rule_w_arb  / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt)/ 10.0: real;
-  val proportion_of_wo_rule_wo_arb = ((numb_of_wo_rule_wo_arb / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt)/ 10.0: real;
-in
- (numb_of_w_rule_w_arb,
-  numb_of_w_rule_wo_arb,
-  numb_of_wo_rule_w_arb,
-  numb_of_wo_rule_wo_arb,
-  proportion_of_w_rule_w_arb ,
-  proportion_of_w_rule_wo_arb,
-  proportion_of_wo_rule_w_arb,
-  proportion_of_wo_rule_wo_arb)
-end;
-
-datapoints_to_proportion lines;                                      
-\<close>
-*)
-(*
-DFS.thy, Challenge1A.thy, Goodstein_Lambda.thy, PST_RBT.thy, Nearest_Neighbors.thy
-\addplot coordinates {(DFS, 50) (Challenge1A, 75) (Goodstein, 27) (PST, 100) (NN, 9) (overall, 49)};
-\addplot coordinates {(DFS, 80) (Challenge1A, 75) (Goodstein, 48) (PST, 100) (NN, 9) (overall, 61)};
-\addplot coordinates {(DFS, 80) (Challenge1A, 75) (Goodstein, 65) (PST, 100) (NN, 18) (overall, 71)};
-\addplot coordinates {(DFS, 80) (Challenge1A, 75) (Goodstein, 75) (PST, 100) (NN, 64) (overall, 80)};
-\addplot coordinates {(DFS, 80) (Challenge1A, 75) (Goodstein, 79) (PST, 100) (NN, 64) (overall, 82)};
- 
-*)
-(*
-ML\<open>(*result*)
-fun datapoints_to_proportion_of_induct_on_subterm (points:datapoints) =
-let
-  val numb_of_all_points          = length points |> Real.fromInt            : real;
-  val induct_on_subterms          = filter     #induct_on_subterm points     : datapoints;
-  val induct_on_variables         = filter_out #induct_on_subterm points     : datapoints;
-  val numb_of_induct_on_subterms  = length induct_on_subterms  |> Real.fromInt: real;
-  val numb_of_induct_on_variables = length induct_on_variables |> Real.fromInt: real;
-  val proportion_of_on_subterms   = ((numb_of_induct_on_subterms   / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt)/ 10.0: real;
-  val proportion_of_on_variables  = ((numb_of_induct_on_variables  / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt)/ 10.0: real;
-  val induct_on_hand_writte_rule  = filter     #hand_writte_rule points              : datapoints;
-  val numb_of_handwrittens        = length induct_on_hand_writte_rule |> Real.fromInt: real;
-  val both_handwritten_rule_and_subterm = filter #induct_on_subterm induct_on_hand_writte_rule;
-  val numb_of_both_handwritten_rule_and_subterm = length both_handwritten_rule_and_subterm |> Real.fromInt: real;
-  val numb_of_only_handwritten_rule_not_subterm = numb_of_handwrittens       - numb_of_both_handwritten_rule_and_subterm: real;
-  val numb_of_only_subterm_not_handwritten_rule = numb_of_induct_on_subterms - numb_of_both_handwritten_rule_and_subterm: real;
-  val numb_of_those_in_scope = numb_of_all_points - numb_of_both_handwritten_rule_and_subterm - numb_of_only_handwritten_rule_not_subterm - numb_of_only_subterm_not_handwritten_rule;
-  val prop_of_both_handwritten_rule_and_subterm = ((numb_of_both_handwritten_rule_and_subterm / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt) / 10.0: real;
-  val prop_of_only_handwritten_rule_not_subterm = ((numb_of_only_handwritten_rule_not_subterm / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt) / 10.0: real;
-  val prop_of_only_subterm_not_handwritten_rule = ((numb_of_only_subterm_not_handwritten_rule / numb_of_all_points * 1000.0) |> Real.round |> Real.fromInt) / 10.0: real;
-  val prop_of_those_in_scope = 100.0 - prop_of_both_handwritten_rule_and_subterm - prop_of_only_handwritten_rule_not_subterm - prop_of_only_subterm_not_handwritten_rule;
-in
- ((prop_of_both_handwritten_rule_and_subterm,  numb_of_both_handwritten_rule_and_subterm),
-  (prop_of_only_handwritten_rule_not_subterm,  numb_of_only_handwritten_rule_not_subterm),
-  (prop_of_only_subterm_not_handwritten_rule,  numb_of_only_subterm_not_handwritten_rule),
-  (prop_of_those_in_scope                   ,  numb_of_those_in_scope                   ))
-end;
-
-datapoints_to_proportion_of_induct_on_subterm lines;                                      
-\<close>
-*)
-(*
-ML\<open>(*result*)
-fun datapoints_to_proportion_of_hand_writte_rule (points:datapoints) =
-let
-  val induct_w_rules              = filter #rule points                              : datapoints;
-  val numb_of_induct_w_rules      = length induct_w_rules |> Real.fromInt            : real;
-  val induct_on_hand_writte_rule  = filter     #hand_writte_rule induct_w_rules      : datapoints;
-  val induct_on_generated_rule    = filter_out #hand_writte_rule induct_w_rules      : datapoints;
-  val numb_of_handwrittens        = length induct_on_hand_writte_rule |> Real.fromInt: real;
-  val numb_of_generateds          = length induct_on_generated_rule   |> Real.fromInt: real;
-  val proportion_of_handwrittens  = ((numb_of_handwrittens   / numb_of_induct_w_rules * 1000.0) |> Real.round |> Real.fromInt)/ 10.0: real;
-  val proportion_of_generateds    = ((numb_of_generateds     / numb_of_induct_w_rules * 1000.0) |> Real.round |> Real.fromInt)/ 10.0: real;
-in
- (numb_of_induct_w_rules,
-  numb_of_handwrittens,                                           
-  numb_of_generateds,
-  proportion_of_handwrittens ,
-  proportion_of_generateds)
-end;
-
-datapoints_to_proportion_of_hand_writte_rule lines;                                      
-\<close>
-*)
-(*
-ML\<open>(*result*)
-fun datapoints_to_handwritten_and_subterm (points:datapoints) =
-  points |> filter #hand_writte_rule |> filter #induct_on_subterm;
-
-datapoints_to_handwritten_and_subterm lines |> length;
-\<close>
-*)
-declare [[ML_print_depth=200]]
+declare [[ML_print_depth=2000]]
 
 ML\<open>(*result*)
 fun sort_datapoints_wrt_execution_time (points:datapoints) =
  sort (fn (poin1, poin2) => Int.compare (#execution_time poin1, #execution_time poin2)) points: datapoints;
-
+       
 fun milli_sec_to_sec_with_precision (milli:int) =
   (((Real.fromInt milli) / 100.0) |> Real.round |> Real.fromInt) / 10.0;
 
@@ -435,61 +174,78 @@ fun print_pairs_real pairs = map (fn (index, time) => "(" ^ Int.toString index ^
 print_pairs_real pairs_of_successful_points;
 print_pairs_real pairs_of_failure_points;
 \<close>
-(*
-ML\<open>
-fun datapoints_with_indices_sorted_wrt_numb_of_candidates (points:datapoints) =
-  let
-    val sorted_wrt_step_2b             = sort (fn (point1, point2) => Int.compare (#numb_of_candidates_after_step_2b point1, #numb_of_candidates_after_step_2b point2)) points            : datapoints;
-    val sorted_wrt_step_2b_then_step_1 = sort (fn (point1, point2) => Int.compare (#numb_of_candidates_after_step_1  point1,  #numb_of_candidates_after_step_1 point2)) sorted_wrt_step_2b: datapoints;
-    val indexed                        = Utils.index sorted_wrt_step_2b_then_step_1;
-  in
-    indexed: (int * datapoint) list
-  end;
-\<close>
-*)
-(*
-ML\<open>(*result*)
-fun print_pairs_int pairs = map (fn (index, time) => "(" ^ Int.toString index ^ ", " ^ Int.toString time ^ ")") pairs |> String.concatWith " ";
 
-fun five_types_of_pairs (points:datapoints) =
-  let
-    val indexed_sorted_points         = datapoints_with_indices_sorted_wrt_numb_of_candidates points: (int * datapoint) list;
-    val indexed_sorted_points_success = filter (is_some o #rank o snd) indexed_sorted_points: (int * datapoint) list;
-    val indexed_sorted_points_failure = filter (is_none o #rank o snd) indexed_sorted_points: (int * datapoint) list;
-    
-    val after_step1_success  = map (fn pair => apsnd #numb_of_candidates_after_step_1  pair) indexed_sorted_points_success: (int * int) list;
-    val after_step2b_success = map (fn pair => apsnd #numb_of_candidates_after_step_2b pair) indexed_sorted_points_success: (int * int) list;
-    val after_step1_failure  = map (fn pair => apsnd #numb_of_candidates_after_step_1  pair) indexed_sorted_points_failure: (int * int) list;
-    val after_step2b_failure = map (fn pair => apsnd #numb_of_candidates_after_step_2b pair) indexed_sorted_points_failure: (int * int) list;
-    val rank_success         = map (fn pair => apsnd (the o #rank)                     pair) indexed_sorted_points_success: (int * int) list;
-    val _ = (tracing o print_pairs_int) after_step1_success;
-    val _ = (tracing o print_pairs_int) after_step2b_success;
-    val _ = (tracing o print_pairs_int) after_step1_failure;
-    val _ = (tracing o print_pairs_int) after_step2b_failure;
-    val _ = (tracing o print_pairs_int) rank_success;
-  in
-    ()
-  end;
-
-five_types_of_pairs lines;
-\<close>
-*)
 ML\<open>
 val numb_of_Challenge = 12.0;
 val numb_of_DFS       = 10.0;
 val numb_of_Goodstein = 52.0;
 val numb_of_NN        = 11.0;
 val numb_of_PST       = 24.0;
+
+val numb_of_HL        = 89.0;
+val numb_of_NBE       = 104
+val numb_of_SStep     = 66.0;
+val numb_of_Cantor    = 22.0;
+val numb_of_Skew      = 177.0;
+val numb_of_BinomHeap = 117.0;
+val numb_of_Boolean   = 20.0;
+val numb_of_Core_Type = 20.0;
+val numb_of_DFS       = 10.0;
+val numb_of_FingerTr  = 126.0;
+val numb_of_Goodstein = 52.0;
+val numb_of_Kripke    = 13.0;
+val numb_of_KD_Build  = 10.0;
+val numb_of_KD_KD     = 9.0;
+val numb_of_KD_NN     = 11.0;
+val numb_of_LTL_Disj  = 35.0;
+val numb_of_NBE       = 104;
+val numb_of_PCF_OpSem = 33.0;
+val numb_of_PST_RBT   = 24.0;
+val numb_of_PAuto_Grap= 41.0;
+val numb_of_Rep_Fin_G = 99.0;
+val numb_of_Challeg_1A= 11.0;
+val numb_of_Challeg_1B= 6.0;
+
 val total_numb        = length lines |> Real.fromInt;
-
-
+\<close>
+ML\<open>
 val proportion_of_Challenge = ((Real.fromInt o Real.round) ((numb_of_Challenge / total_numb) * 1000.0)) / 10.0;
+\<close>
+ML\<open>
 val proportion_of_DFS       = ((Real.fromInt o Real.round) ((numb_of_DFS       / total_numb) * 1000.0)) / 10.0;
 val proportion_of_Goodstein = ((Real.fromInt o Real.round) ((numb_of_Goodstein / total_numb) * 1000.0)) / 10.0;
 val proportion_of_NN        = ((Real.fromInt o Real.round) ((numb_of_NN        / total_numb) * 1000.0)) / 10.0;
+\<close>
+ML\<open>
 val proportion_of_PST       = ((Real.fromInt o Real.round) ((numb_of_PST       / total_numb) * 1000.0)) / 10.0;
 val proportion_of_Challenge = ((Real.fromInt o Real.round) ((numb_of_Challenge / total_numb) * 1000.0)) / 10.0;
 val s = 24.0/109.0
 \<close>
+
+(*
+\begin{tikzpicture}
+\begin{axis}[
+    xbar,
+    xmin=0.0,
+    width=1.0\textwidth,
+%    height=4cm,
+    enlarge x limits={rel=0.13,upper},
+    ytick={1,2,3},
+    yticklabels={{Térritmus},{Mozgásritmus},{Formaritmus}},
+    enlarge y limits=0.4,
+    xlabel={The use of \texttt{arbitrary} for \induct{} [\%]},
+    ytick=data,
+    nodes near coords,
+    nodes near coords align=horizontal
+]
+\addplot [draw=black, fill=cyan!40!black] coordinates {
+    (58.3333333333,1)
+    (91.6666666667,2)
+    (90.0,3)
+
+};
+\end{axis}
+\end{tikzpicture}
+*)
 
 end

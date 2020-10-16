@@ -2297,7 +2297,7 @@ val rtrancl_induct =
 Imply (
   Some ("rtrancl", QOuter_Path,
     Ands [
-      Unode_Has_Print (Variable "rtrancl", Print "Transitive_Closure.trancl")
+      Unode_Has_Print (Variable "rtrancl", Print "Transitive_Closure.rtrancl")
     ]
   ),
   Some ("rtrancl_induct", QRule,
@@ -2326,5 +2326,209 @@ Imply (
     ]
   )
 );
+
+val trancl_induct2 =
+Imply (
+  Some ("trancl", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "trancl", Print "Transitive_Closure.trancl")
+    ]
+  ),
+  Some ("trancl_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "trancl_induct", Print "trancl_induct2"),
+      Are_Same_Prints (Variable "trancl_induct", Print "converse_trancl_induct2")
+    ]
+  )
+);
+
+val tranclp_induct2 =
+Imply (
+  Some ("tranclp", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "tranclp", Print "Transitive_Closure.tranclp")
+    ]
+  ),
+  Some ("tranclp_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "tranclp_induct", Print "tranclp_induct2"),
+      Are_Same_Prints (Variable "tranclp_induct", Print "converse_tranclp_induct2")
+    ]
+  )
+);
+
+val rtrancl_induct2 =
+Imply (
+  Some ("rtrancl", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "rtrancl", Print "Transitive_Closure.rtrancl")
+    ]
+  ),
+  Some ("rtrancl_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "rtrancl_induct", Print "rtrancl_induct2"),
+      Are_Same_Prints (Variable "rtrancl_induct", Print "converse_rtrancl_induct2")
+    ]
+  )
+);
+
+val rtranclp_induct2 =
+Imply (
+  Some ("rtranclp", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "rtranclp", Print "Transitive_Closure.rtranclp")
+    ]
+  ),
+  Some ("rtranclp_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "rtranclp_induct", Print "rtranclp_induct2"),
+      Are_Same_Prints (Variable "rtranclp_induct", Print "converse_rtranclp_induct2")
+    ]
+  )
+);
+
+val if_two_occs_of_length_or_size_in_assum_or_chained_fact_then_list_induct2 =
+Imply (
+  Some ("length_or_size", QOuter_Print,
+    Ands [
+      Ors [
+        Are_Same_Prints (Variable "length_or_size", Print "Nat.size_class.size"),
+        Are_Same_Prints (Variable "length_or_size", Print "List.length")
+      ],
+    Some_Of ("length_or_size_occ1", Variable "length_or_size",
+      Ands [
+        Ors [
+          Is_In_Chained_Fact (Variable "length_or_size_occ1"),
+          Is_A_Meta_Premise_Or_Below (Variable "length_or_size_occ1")
+        ],
+        Some_Of ("length_or_size_occ2", Variable "length_or_size",
+          Ands [
+            Not (Is_Same_Path_As (Variable "length_or_size_occ1", Variable "length_or_size_occ2")),
+            Ors [
+              Is_In_Chained_Fact (Variable "length_or_size_occ2"),
+              Is_A_Meta_Premise_Or_Below (Variable "length_or_size_occ2")
+            ]
+          ]
+        )
+      ]
+    )
+    ]
+  ),
+  Some ("list_induct2", QRule,
+    Ors [
+      Are_Same_Prints (Variable "list_induct2", Print "List.list_induct2")
+    ]
+  )
+);
+
+val rule_is_list_induct2' =
+  Some ("rule", QRule,
+    Ors [
+      Are_Same_Prints (Variable "rule", Print "List.list_induct2'")
+    ]
+  );
+
+val if_list_all2_then_list_all2_induct =
+Imply (
+  Some ("list_all2", QOuter_Print,
+    Ors [
+      Are_Same_Prints (Variable "list_all2", Print "List.list.list_all2")
+    ]
+  ),
+  Some ("list_all2_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "list_all2_induct", Print "List.list_all2_induct")
+    ]
+  )
+);
+
+val if_list_induct2'_then_two_induct_terms =
+Imply (
+  Some ("rule", QRule,
+    Ors [
+      Are_Same_Prints (Variable "rule", Print "List.list_induct2'")
+    ]
+  ),
+  Some ("fst_ind_term", QInd,
+    Ands [
+      Is_Nth_Induct (Variable "fst_ind_term", Number 0),
+      Some ("snd_ind_term", QInd,
+        Ands [
+          Is_Nth_Induct (Variable "snd_ind_term", Number 1),
+          Not (
+            Some ("3rd_ind_term", QInd,
+              Ands [
+                Is_Nth_Induct (Variable "3rd_ind_term", Number 2)
+              ]
+            )
+          )
+        ]
+      )
+    ]
+  )
+);
+
+val if_not_equal_in_premise_or_chained_then_rev_nonempty_induct =
+Imply (
+  Some ("nil", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "nil", Print "List.list.Nil"),
+      Ors [
+        Is_In_Chained_Fact (Variable "nil"),
+        Is_A_Meta_Premise_Or_Below (Variable "nil")
+      ],
+      Some ("eq", QOuter_Path,
+        Ands [
+          Unode_Has_Print (Variable "eq", Print "HOL.eq"),
+          Ors [
+            Is_In_Chained_Fact (Variable "eq"),
+            Is_A_Meta_Premise_Or_Below (Variable "eq")
+          ],
+          Is_An_Argument_Of (Variable "nil", Variable "eq"),
+          Some ("not", QOuter_Path,
+            Ands [
+              Unode_Has_Print (Variable "not", Print "HOL.Not"),
+              Ors [
+                Is_In_Chained_Fact (Variable "not"),
+                Is_A_Meta_Premise_Or_Below (Variable "not")
+              ],
+              Is_An_Argument_Or_Below_Argument_Of (Variable "eq", Variable "not")
+            ]
+          )
+        ]
+      )
+    ]
+  ),
+  Some ("nonempty_induct", QRule,
+    Ors [
+      Are_Same_Prints (Variable "nonempty_induct", Print "List.rev_nonempty_induct"),
+      Are_Same_Prints (Variable "nonempty_induct", Print "List.list_nonempty_induct")
+    ]
+  )
+);
+
+val if_less_eq_in_premise_or_chained_but_not_nonempty_induct_then_inc_induct =
+Imply (
+  Some ("less_eq", QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "less_eq", Print "Orderings.ord_class.less_eq"),
+      Ors [
+        Is_In_Chained_Fact (Variable "less_eq"),
+        Is_A_Meta_Premise_Or_Below (Variable "less_eq")
+      ],
+      Not ( 
+        Some ("nonempty_induct", QRule,
+          Ors [
+            Are_Same_Prints (Variable "nonempty_induct", Print "List.rev_nonempty_induct"),
+            Are_Same_Prints (Variable "nonempty_induct", Print "List.list_nonempty_induct")
+          ]
+        )
+      )
+    ]
+  ),
+  Some ("inc_induct", QRule,
+    Are_Same_Prints (Variable "inc_induct", Print "Nat.inc_induct")
+  )
+)
 
 end;

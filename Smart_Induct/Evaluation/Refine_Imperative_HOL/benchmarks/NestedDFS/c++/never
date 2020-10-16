@@ -1,0 +1,11 @@
+never {    /* ![] (one0 -> !eat0) */
+T0_init:
+	if
+	:: ((eat0) && (one0)) -> goto accept_all
+	:: (1) -> goto T0_init
+	fi;
+accept_all:
+	if
+	:: (1) -> goto accept_all
+	fi;
+}

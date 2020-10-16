@@ -1,0 +1,11 @@
+chapter AFP
+
+session ADS_Functor (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    Merkle_Interface
+    ADS_Construction
+    Generic_ADS_Construction
+    Canton_Transaction_Tree
+  document_files
+    "root.tex"

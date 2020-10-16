@@ -10,6 +10,8 @@ fun enumerate' [] _ = []
   | enumerate' (x::xs) acc = (acc, x) :: enumerate' xs (acc + 1)
 
 fun enumerate xs = enumerate' xs 1;
+
+fun timeout f = Isabelle_Utils.timeout_apply (seconds 5.0) f;
 \<close>
 
 ML\<open>
@@ -147,8 +149,9 @@ ML\<open> fun triple_result_ord (t1:triple_result, t2:triple_result) = Int.compa
 ML\<open> fun evaluate (pst:Proof.state) (m: Method.text_range) =
 let
   val time_before_smart_induct = Time.now();
-  val top_10_triples = pst_to_top_10_mods pst
-                     : {ind_mods: SeLFiE_Util.induct_arguments, nth_candidate: int, score: real} list;
+  val top_10_triples' = try (timeout pst_to_top_10_mods) pst
+                     : {ind_mods: SeLFiE_Util.induct_arguments, nth_candidate: int, score: real} list option;
+  val top_10_triples = these top_10_triples';
   val time_after_smart_induct  = Time.now ();
   val duration = Time.toMilliseconds (time_after_smart_induct - time_before_smart_induct);
   val score          = try (#score o hd) top_10_triples: real option; 
@@ -179,7 +182,7 @@ local
 (*Method.text_range = text * Position.range;*)
 fun state_to_unit  (pst:Proof.state) (m) =
   let
-    val message = Timeout.apply (seconds 50000.0) (evaluate pst) m;
+    val message = evaluate pst m;
     val _ = tracing message;
     val path = Resources.master_directory @{theory} |> File.platform_path : string;
     val path_to_database  = path ^ "/Database.txt" : string;

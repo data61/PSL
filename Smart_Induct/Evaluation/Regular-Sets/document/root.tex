@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{eufrak}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Regular Sets, Expressions, Derivatives and Relation Algebra}
+\author{Alexander Krauss, Tobias Nipkow,\\
+  Chunhan Wu, Xingyuan Zhang and Christian Urban}
+\maketitle
+
+\begin{abstract}
+This is a library of constructions on regular expressions and languages.  It
+provides the operations of concatenation, Kleene star and left-quotients of
+languages. A theory of derivatives and partial derivatives is
+provided. Arden's lemma and finiteness of partial derivatives is
+established. A simple regular expression matcher based on Brozowski's
+derivatives is proved to be correct.  An executable equivalence checker for
+regular expressions is verified; it does not need automata but works directly
+on regular expressions. By mapping regular expressions to binary relations, an
+automatic and complete proof method for (in)equalities of binary relations
+over union, concatenation and (reflexive) transitive closure is obtained.
+
+For an exposition of the equivalence checker for regular and relation
+algebraic expressions see the paper by Krauss and Nipkow~\cite{KraussN-JAR}.
+
+Extended regular expressions with complement and intersection
+are also defined and an equivalence checker is provided.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

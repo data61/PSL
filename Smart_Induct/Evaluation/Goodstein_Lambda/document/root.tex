@@ -1,0 +1,177 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+\newcommand{\doi}[1]{doi:\href{https://dx.doi.org/#1}{#1}}
+
+% further packages required for unusual symbols (see also
+% isabellesym.sty), use only when needed
+
+\usepackage{amsmath}
+
+%\usepackage{amssymb}
+  %for \<leadsto>, \<box>, \<diamond>, \<sqsupset>, \<mho>, \<Join>,
+  %\<lhd>, \<lesssim>, \<greatersim>, \<lessapprox>, \<greaterapprox>,
+  %\<triangleq>, \<yen>, \<lozenge>
+
+%\usepackage{eurosym}
+  %for \<euro>
+
+%\usepackage[only,bigsqcap]{stmaryrd}
+  %for \<Sqinter>
+
+%\usepackage{eufrak}
+  %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
+
+%\usepackage{textcomp}
+  %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
+  %\<currency>
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+%\renewcommand{\isastyle}{\isastyleminor}
+
+
+\begin{document}
+
+\title{Implementing the Goodstein Function in $\lambda$-Calculus}
+\author{Bertram Felgenhauer}
+\maketitle
+
+\begin{abstract}
+In this formalization, we develop an implementation of the Goodstein
+function $\mathcal{G}$ in plain $\lambda$-calculus, linked to a
+concise, self-contained specification. The implementation works on a
+Church-encoded representation of countable ordinals. The initial
+conversion to hereditary base $2$ is not covered, but the material is
+sufficient to compute the particular value $\mathcal{G}(16)$, and
+easily extends to other fixed arguments.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+Given a number $n$ and a base $b$, we can write $n$ in
+\emph{hereditary base $b$}, which results from writing $n$ in
+base $b$, and then each exponent in hereditary base $b$ again.
+For example, $7$ in hereditary base $3$ is $3^1 \cdot 2 + 1$.
+Given the hereditary base $b$ representation of $n$,
+we can reinterpret it in base $b+1$
+by replacing all occurrences of $b$ by $b+1$.
+
+The Goodstein sequence starting at $n$ in base $2$ is obtained by
+iteratively taking a number in hereditary base $b$,
+reinterpreting it in base $b+1$, and subtracting $1$.
+The next step is the same with $b$ incremented by $1$, and so on.
+So starting for example at $4$, we compute
+\begin{align*}
+4 = 2^{2^1}
+&\:\to\: 3^{3^1} - 1
+= 26\\
+26 = 3^2 \cdot 2 + 3^1 \cdot 2 + 2
+&\:\to\:
+4^2 \cdot 2 + 4^1 \cdot 2 + 1 \cdot 2 - 1
+= 41\\
+41 =
+4^2 \cdot 2 + 4^1 \cdot 2 + 1
+&\:\to\:
+5^2 \cdot 2 + 5^1 \cdot 2 + 1 - 1
+= 60
+\end{align*}
+and so on.
+We stop when we reach $0$.
+Goodstein's theorem states that this process always terminates~\cite{G44}.
+This result is independent of Peano Arithmetic,
+and is intimately connected to countable ordinals and the
+slow growing hierarchy (e.g., the Hardy function)~\cite{C83}.
+The length of the resulting sequence is the Goodstein function,
+denoted by $\mathcal G(n)$.
+For example, $\mathcal G(3) = 6$.
+
+For this formalization, we are interested in implementing the Goodstein
+function in $\lambda$-calculus.
+More concretely, we want to define the value $\mathcal G(16)$
+(which is huge; for example, it exceeds Graham's number),
+in order to bound its Kolmogorov complexity.
+Our concrete measure of Kolmogorov complexity is the program length
+in the Binary Lambda Calculus~\cite{BLC,T08}.
+It turns out that we can define $\mathcal G(16)$ as follows,
+giving a complexity bound of 195 bits.
+\begin{align*}
+\mathit{exp\omega} &=
+(\lambda z\:s\:l.\:n\:s\:(\lambda x\:z.\:l\:(\lambda n.\:n\:x\:z))\:
+(\lambda f\:z.\:l\:(\lambda n.\:f\:n\:z))\:z)\\
+\mathit{goodstein} &= (\lambda n\:c.\:n\\
+&\phantom{{}=(}(\lambda x.\:x)\\
+&\phantom{{}=(}(\lambda n\:m.\:n\:(\lambda f\:x.\:m\:f\:(f\:x)))\\
+&\phantom{{}=(}(\lambda f\:m.\:f\:(\lambda f\:x.\:m\:f\:(f\:(f\:x)))\:m)\\
+&\phantom{{}=(}c)
+\\
+\mathcal G_{16} &=
+(\lambda e.\:\mathit{goodstein}\:
+(e\:(e\:(e\:(e\:(\lambda z\:s\:l.\:z)))))\:(\lambda x.\:x))\:
+\mathit{exp\omega}
+\end{align*}
+We rely on a shallow embedding of the $\lambda$-calculus throughout
+the formalization, so it turns out that we cannot quite prove this
+claim in Isabelle/HOL; the expression for $\mathcal G_{16}$ cannot
+be typed.
+However, we can prove that the building blocks $\mathit{exp\omega}$
+and $\mathit{goodstein}$ work correctly in the sense that
+\begin{itemize}
+\item $\mathit{exp\omega}^4\:(\lambda z\:s\:l.\:z)$
+  is the hereditary base $2$ representation of $16$; and
+\item $\mathit{goodstein}\:c\:n$ computes the length of a Goodstein
+  sequence given that the hereditary base $c+1$ representation of
+  the $c$-th value in the sequence is equal to $n$.
+\end{itemize}
+The remaining steps are easily verified by a human.
+
+\paragraph{Contributions.}
+Our main contributions are a concise specification of the Goodstein function,
+another proof of Goodstein's theorem,
+and establishing the connection to $\lambda$-calculus as already outlined.
+
+\paragraph{Related work.}
+There is already a formalization of Goodstein's theorem in the
+AFP entry on nested multisets~\cite{NMO},
+which comes with a formalization of ordinal arithmetic.
+Our focus is different,
+since our goal is to obtain an implementation of the Goodstein function
+in $\lambda$-calculus.
+Most notably, the intermediate type $\mathit{Ord}$ that we use to
+represent ordinal numbers has far more structure than the ordinals themselves.
+In particular it can represent arbitrary trees;
+if we were to compute $\omega + 1$, $1 + \omega$ and $\omega$ on this type,
+we would get three different results.
+However, we will use the operations such that $1 + \omega$ is never computed,
+keeping the connection to countable ordinals intact.
+Proving this is a large, albeit hidden, part of our formalization.
+
+\paragraph{Acknowledgement.}
+John Tromp raised the question of a concise $\lambda$-calculus term computing
+$\mathcal{G}(16)$.
+He also provided feedback on a draft version of this document.
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
