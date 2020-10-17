@@ -121,7 +121,6 @@ val _ = tracing (Int.toString (length points));
   end;
 \<close>
 
-
 ML\<open> val tikz_for_coincidence_rates = get_coincidence_rate_for_file_for_top_n lines "~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy" 1;\<close>
 
 ML\<open>(*result*)
@@ -130,8 +129,6 @@ fun from_pair_matrix_to_tikz_barplot (pairs) = pairs
 |> (fn addplots:strings => (String.concatWith ", " (datapoints_to_all_file_names lines) ^ "\n") :: addplots)
 |> String.concat
 |> tracing;
-
-val _ = lines;
 
 val coincidence_rates_for_files = 
    datapoints_to_coincidence_rate_pairs lines [1,2,3,5,8,10]
@@ -181,7 +178,6 @@ val numb_of_DFS       = 10.0;
 val numb_of_Goodstein = 52.0;
 val numb_of_NN        = 11.0;
 val numb_of_PST       = 24.0;
-
 val numb_of_HL        = 89.0;
 val numb_of_NBE       = 104
 val numb_of_SStep     = 66.0;
@@ -208,44 +204,60 @@ val numb_of_Challeg_1B= 6.0;
 
 val total_numb        = length lines |> Real.fromInt;
 \<close>
+
+(*faster smarter*)                              
 ML\<open>
-val proportion_of_Challenge = ((Real.fromInt o Real.round) ((numb_of_Challenge / total_numb) * 1000.0)) / 10.0;
-\<close>
-ML\<open>
-val proportion_of_DFS       = ((Real.fromInt o Real.round) ((numb_of_DFS       / total_numb) * 1000.0)) / 10.0;
-val proportion_of_Goodstein = ((Real.fromInt o Real.round) ((numb_of_Goodstein / total_numb) * 1000.0)) / 10.0;
-val proportion_of_NN        = ((Real.fromInt o Real.round) ((numb_of_NN        / total_numb) * 1000.0)) / 10.0;
-\<close>
-ML\<open>
-val proportion_of_PST       = ((Real.fromInt o Real.round) ((numb_of_PST       / total_numb) * 1000.0)) / 10.0;
-val proportion_of_Challenge = ((Real.fromInt o Real.round) ((numb_of_Challenge / total_numb) * 1000.0)) / 10.0;
-val s = 24.0/109.0
-\<close>
+fun get_coincidence_rate_for_top_ns_for_file (points:datapoints) (top_ns:ints) (file_name:string) =
+  let
+    val datapoints_in_file = points_in_file file_name points
+  in
+    map (get_coincidence_rate_top_n datapoints_in_file) top_ns: real list
+  end;
+
+fun points_in_file_with_overall (file_name:string) (points:datapoints) = 
+  if file_name = "overall"
+  then points
+  else filter (point_is_in_file file_name) points;
+
+fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
+  let
+    val file_names                      = datapoints_to_all_file_names points;
+    val overall_coincidence_rates       = ("overall", datapoints_to_coincidence_rates points top_ns): (string * real list);
+    val coincidence_rates_for_each_file = map (fn file_name => (file_name, get_coincidence_rate_for_top_ns_for_file points top_ns file_name)) file_names: (string * real list) list;
+    fun mk_string (fname, reals)        = String.concatWith " & " (fname :: (Int.toString o length) (points_in_file_with_overall fname points):: (map (fn real => real_to_percentage_with_precision_str real) reals)) ^ " \\"^"\\": string;
+    val _ = map (tracing o mk_string) (coincidence_rates_for_each_file @ [overall_coincidence_rates])
+  in
+    ()
+  end;
+
+val _ = datapoints_to_coincidence_rate_pairs lines [1,3,5,10];
+
 
 (*
-\begin{tikzpicture}
-\begin{axis}[
-    xbar,
-    xmin=0.0,
-    width=1.0\textwidth,
-%    height=4cm,
-    enlarge x limits={rel=0.13,upper},
-    ytick={1,2,3},
-    yticklabels={{Térritmus},{Mozgásritmus},{Formaritmus}},
-    enlarge y limits=0.4,
-    xlabel={The use of \texttt{arbitrary} for \induct{} [\%]},
-    ytick=data,
-    nodes near coords,
-    nodes near coords align=horizontal
-]
-\addplot [draw=black, fill=cyan!40!black] coordinates {
-    (58.3333333333,1)
-    (91.6666666667,2)
-    (90.0,3)
-
-};
-\end{axis}
-\end{tikzpicture}
+Hybrid_Logic.thy & 16.9 & 39.3 & 53.9 & 64.0 
+BinomialHeap.thy & 27.4 & 50.4 & 50.4 & 62.4 
+SkewBinomialHeap.thy & 28.8 & 56.5 & 59.3 & 67.2 
+Boolean_Expression_Checkers.thy & 20.0 & 70.0 & 80.0 & 80.0 
+TypeSafe.thy & 0.0 & 5.0 & 15.0 & 15.0 
+DFS.thy & 40.0 & 70.0 & 70.0 & 70.0 
+FingerTree.thy & 19.0 & 43.7 & 43.7 & 52.4 
+Goodstein_Lambda.thy & 23.1 & 46.2 & 61.5 & 71.2 
+Kripke.thy & 0.0 & 15.4 & 30.8 & 30.8 
+Build.thy & 10.0 & 10.0 & 10.0 & 10.0 
+KD_Tree.thy & 77.8 & 77.8 & 77.8 & 77.8 
+Nearest_Neighbors.thy & 9.1 & 9.1 & 9.1 & 18.2 
+Disjunctive_Normal_Form.thy & 17.1 & 51.4 & 57.1 & 57.1 
+NBE.thy & 16.3 & 39.4 & 47.1 & 58.7 
+OpSem.thy & 15.2 & 33.3 & 45.5 & 48.5 
+PST_RBT.thy & 50.0 & 50.0 & 50.0 & 50.0 
+Graphs.thy & 19.5 & 41.5 & 51.2 & 61.0 
+Rep_Fin_Groups/Rep_Fin_Groups.thy & 9.1 & 38.4 & 42.4 & 45.5 
+SmallStep.thy & 21.2 & 37.9 & 47.0 & 50.0 
+Challenge1A.thy & 72.7 & 72.7 & 72.7 & 72.7 
+Challenge1B.thy & 16.7 & 33.3 & 33.3 & 50.0 
+Cantor_NF.thy & 18.2 & 50.0 & 59.1 & 59.1 
+overall & 21.5 & 44.7 & 50.3 & 57.4 
 *)
+\<close>
 
 end

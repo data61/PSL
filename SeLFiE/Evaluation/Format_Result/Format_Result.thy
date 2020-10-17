@@ -131,8 +131,6 @@ fun from_pair_matrix_to_tikz_barplot (pairs) = pairs
 |> String.concat
 |> tracing;
 
-val _ = lines;
-
 val coincidence_rates_for_files = 
    datapoints_to_coincidence_rate_pairs lines [1,2,3,5,8,10]
 |> from_pair_matrix_to_tikz_barplot;
@@ -175,48 +173,82 @@ print_pairs_real pairs_of_successful_points;
 print_pairs_real pairs_of_failure_points;
 \<close>
 
+(*faster smarter*)                              
 ML\<open>
-val numb_of_Challenge = 12.0;
-val numb_of_DFS       = 10.0;
-val numb_of_Goodstein = 52.0;
-val numb_of_NN        = 11.0;
-val numb_of_PST       = 24.0;
-val total_numb        = length lines |> Real.fromInt;
+fun get_coincidence_rate_for_top_ns_for_file (points:datapoints) (top_ns:ints) (file_name:string) =
+  let
+    val datapoints_in_file = points_in_file file_name points
+  in
+    map (get_coincidence_rate_top_n datapoints_in_file) top_ns: real list
+  end;
 
+fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
+  let
+    val file_names                      = datapoints_to_all_file_names points;
+    val overall_coincidence_rates       = datapoints_to_coincidence_rates points top_ns |> attach_file_name_to_coincidence_rates "overall": (string * real) list;
+    val coincidence_rates_for_each_file = map (fn file_name => (file_name, get_coincidence_rate_for_top_ns_for_file points top_ns file_name)) file_names: (string * real list) list;
+    fun mk_string (fname, reals)        = String.concatWith " & " (fname :: (map (fn real => real_to_percentage_with_precision_str real) reals)) : string;
+    val _ = map (tracing o mk_string) (coincidence_rates_for_each_file)
+  in
+    ()
+  end;
 
-val proportion_of_Challenge = ((Real.fromInt o Real.round) ((numb_of_Challenge / total_numb) * 1000.0)) / 10.0;
-val proportion_of_DFS       = ((Real.fromInt o Real.round) ((numb_of_DFS       / total_numb) * 1000.0)) / 10.0;
-val proportion_of_Goodstein = ((Real.fromInt o Real.round) ((numb_of_Goodstein / total_numb) * 1000.0)) / 10.0;
-val proportion_of_NN        = ((Real.fromInt o Real.round) ((numb_of_NN        / total_numb) * 1000.0)) / 10.0;
-val proportion_of_PST       = ((Real.fromInt o Real.round) ((numb_of_PST       / total_numb) * 1000.0)) / 10.0;
-val proportion_of_Challenge = ((Real.fromInt o Real.round) ((numb_of_Challenge / total_numb) * 1000.0)) / 10.0;
-val s = 24.0/109.0
+val _ = datapoints_to_coincidence_rate_pairs lines [1,3,5,10];
+
 \<close>
 
-(*
-\begin{tikzpicture}
-\begin{axis}[
-    xbar,
-    xmin=0.0,
-    width=1.0\textwidth,
-%    height=4cm,
-    enlarge x limits={rel=0.13,upper},
-    ytick={1,2,3},
-    yticklabels={{Térritmus},{Mozgásritmus},{Formaritmus}},
-    enlarge y limits=0.4,
-    xlabel={The use of \texttt{arbitrary} for \induct{} [\%]},
-    ytick=data,
-    nodes near coords,
-    nodes near coords align=horizontal
-]
-\addplot [draw=black, fill=cyan!40!black] coordinates {
-    (58.3333333333,1)
-    (91.6666666667,2)
-    (90.0,3)
+(*faster smarter*)                              
+ML\<open>
+fun get_coincidence_rate_for_top_ns_for_file (points:datapoints) (top_ns:ints) (file_name:string) =
+  let
+    val datapoints_in_file = points_in_file file_name points
+  in
+    map (get_coincidence_rate_top_n datapoints_in_file) top_ns: real list
+  end;
 
-};
-\end{axis}
-\end{tikzpicture}
+fun points_in_file_with_overall   (file_name:string) (points:datapoints) = 
+  if file_name = "overall"
+  then points
+  else filter (point_is_in_file file_name) points;
+
+fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
+  let
+    val file_names                      = datapoints_to_all_file_names points;
+    val overall_coincidence_rates       = ("overall", datapoints_to_coincidence_rates points top_ns): (string * real list);
+    val coincidence_rates_for_each_file = map (fn file_name => (file_name, get_coincidence_rate_for_top_ns_for_file points top_ns file_name)) file_names: (string * real list) list;
+    fun mk_string (fname, reals)        = String.concatWith " & " (fname :: (Int.toString o length) (points_in_file_with_overall fname points):: (map (fn real => real_to_percentage_with_precision_str real) reals)) ^ " \\"^"\\": string;
+    val _ = map (tracing o mk_string) (coincidence_rates_for_each_file @ [overall_coincidence_rates])
+  in
+    ()
+  end;
+
+val _ = datapoints_to_coincidence_rate_pairs lines [1,3,5,10];
+
+(*
+NBE.thy & 30.8 & 49.0 & 54.8 & 71.2 
+BinomialHeap.thy & 28.2 & 64.1 & 67.5 & 77.8 
+SkewBinomialHeap.thy & 35.6 & 55.9 & 64.4 & 81.4 
+BooleanExpressionCheckers.thy & 60.0 & 80.0 & 90.0 & 100.0 
+TypeSafe.thy & 15.0 & 20.0 & 25.0 & 25.0 
+DFS.thy & 20.0 & 80.0 & 80.0 & 90.0 
+FingerTree.thy & 40.5 & 46.8 & 46.8 & 58.7 
+Goodstein_Lambda.thy & 32.7 & 71.2 & 75.0 & 78.8 
+HybridLogic.thy & 50.6 & 61.8 & 68.5 & 70.8 
+Kripke.thy & 53.8 & 69.2 & 69.2 & 76.9 
+Build.thy & 10.0 & 20.0 & 20.0 & 20.0 
+KDTree.thy & 77.8 & 77.8 & 100.0 & 100.0 
+NearestNeighbors.thy & 72.7 & 81.8 & 90.9 & 90.9 
+Disjunctive_Normal_Form.thy & 60.0 & 62.9 & 65.7 & 68.6 
+OpSem.thy & 45.5 & 66.7 & 78.8 & 81.8 
+PSTRBT.thy & 41.7 & 95.8 & 100.0 & 100.0 
+Graphs.thy & 31.7 & 70.7 & 78.0 & 87.8 
+RepFinGroups.thy & 46.5 & 66.7 & 77.8 & 79.8 
+SmallStep.thy & 45.5 & 75.8 & 77.3 & 77.3 
+Challenge1A.thy & 36.4 & 54.5 & 72.7 & 81.8 
+Challenge1B.thy & 66.7 & 83.3 & 83.3 & 83.3 
+Cantor_NF.thy & 22.7 & 68.2 & 77.3 & 77.3 
+overall & 39.2 & 61.1 & 66.9 & 75.3 
 *)
+\<close>
 
 end

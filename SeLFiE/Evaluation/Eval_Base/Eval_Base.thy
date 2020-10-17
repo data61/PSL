@@ -11,7 +11,7 @@ fun enumerate' [] _ = []
 
 fun enumerate xs = enumerate' xs 1;
 
-fun timeout f = Isabelle_Utils.timeout_apply (seconds 5.0) f;
+fun timeout f = Isabelle_Utils.timeout_apply (seconds 100.0) f;
 \<close>
 
 ML\<open>
