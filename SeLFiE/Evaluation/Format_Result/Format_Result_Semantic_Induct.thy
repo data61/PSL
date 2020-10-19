@@ -1,4 +1,4 @@
-theory Format_Result
+theory Format_Result_Semantic_Induct
   imports "PSL.PSL"
 begin
 
@@ -31,7 +31,7 @@ fun int_to_bool 1 = true
 
 fun read_one_line (line:string) =
   let
-    val (file_name::numbers_as_strings) = String.tokens (fn c=> str c = ";") line: string list;
+    val (file_name::numbers_as_strings) = String.tokens (fn c=> str c = ",") line: string list;
     val line_number    = nth numbers_as_strings 0 |> Int.fromString  |> the;
     val rank           = nth numbers_as_strings 1 |> Int.fromString;
     val score          = nth numbers_as_strings 2 |> Real.fromString;
@@ -58,6 +58,9 @@ val lines = get_lines path
  |> (fn x => (tracing (Int.toString (length x)) ; x))
 : datapoints
 
+\<close>
+ML\<open>
+val median_value_of_execution_time = lines |> map #execution_time |> sort Int.compare |>  Utils.flip nth 547
 \<close>
 ML\<open>
 fun real_to_percentage_with_precision (real:real) = (1000.0 * real |> Real.round |> Real.fromInt) / 10.0: real;
@@ -92,7 +95,7 @@ fun get_coincidence_rate_top_n (points:datapoints) (top_n:int) =
 ML\<open>
 fun get_coincidence_rate_for_file_for_top_n (points:datapoints) (file_name:string) (top_n:int) =
   let
-    val datapoints_in_file                 = points_in_file file_name points
+    val datapoints_in_file = points_in_file file_name points;
   in
     get_coincidence_rate_top_n datapoints_in_file top_n: real
   end;
@@ -175,6 +178,18 @@ print_pairs_real pairs_of_failure_points;
 
 (*faster smarter*)                              
 ML\<open>
+fun get_coincidence_rate_top_n (points:datapoints) (top_n:int) =
+  let
+    val numb_of_points           = points |> length |> Real.fromInt: real;
+    val points_within_timeout = filter (fn point => #execution_time point < 5000) points;
+    val datapoints_among_top_n   = points_among_top_n top_n points_within_timeout;
+    val numb_of_points_among_top = datapoints_among_top_n |> length |> Real.fromInt: real;
+  in
+    (numb_of_points_among_top / numb_of_points): real
+  end;
+
+fun datapoints_to_coincidence_rates (points:datapoints) (top_ns:ints) = map (get_coincidence_rate_top_n points) top_ns: real list;
+
 fun get_coincidence_rate_for_top_ns_for_file (points:datapoints) (top_ns:ints) (file_name:string) =
   let
     val datapoints_in_file = points_in_file file_name points
@@ -193,12 +208,6 @@ fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
     ()
   end;
 
-val _ = datapoints_to_coincidence_rate_pairs lines [1,3,5,10];
-
-\<close>
-
-(*faster smarter*)                              
-ML\<open>
 fun get_coincidence_rate_for_top_ns_for_file (points:datapoints) (top_ns:ints) (file_name:string) =
   let
     val datapoints_in_file = points_in_file file_name points
@@ -206,49 +215,47 @@ fun get_coincidence_rate_for_top_ns_for_file (points:datapoints) (top_ns:ints) (
     map (get_coincidence_rate_top_n datapoints_in_file) top_ns: real list
   end;
 
+fun get_return_rates_for_points (points:datapoints) (timeout:int) =
+  let
+    val numb_of_datapoints = length points |> Real.fromInt: real;
+    val datapoints_in_timeout = filter (fn datapoint => #execution_time datapoint < timeout) points;
+    val numb_of_datapoints_in_timeout = length datapoints_in_timeout |> Real.fromInt: real;
+    val return_rate = (numb_of_datapoints_in_timeout / numb_of_datapoints)
+  in
+    return_rate
+  end;
+
+fun get_return_rate_for_file (points:datapoints) (file_name:string) (timeout:int) =
+  let
+    val datapoints_in_file = points_in_file file_name points;
+    val return_rate = get_return_rates_for_points datapoints_in_file timeout
+  in
+    return_rate
+  end;
+
+fun get_return_rates_for_file (points:datapoints) (timeouts:ints) (file_name:string) =
+  map (get_return_rate_for_file points file_name) timeouts;
+
+val overall_name = "1/2/3/4/5/6/7/overall"
+
 fun points_in_file_with_overall   (file_name:string) (points:datapoints) = 
-  if file_name = "overall"
+  if file_name = overall_name
   then points
   else filter (point_is_in_file file_name) points;
 
-fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
+fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) (timeouts:ints)=
   let
     val file_names                      = datapoints_to_all_file_names points;
-    val overall_coincidence_rates       = ("overall", datapoints_to_coincidence_rates points top_ns): (string * real list);
-    val coincidence_rates_for_each_file = map (fn file_name => (file_name, get_coincidence_rate_for_top_ns_for_file points top_ns file_name)) file_names: (string * real list) list;
-    fun mk_string (fname, reals)        = String.concatWith " & " (fname :: (Int.toString o length) (points_in_file_with_overall fname points):: (map (fn real => real_to_percentage_with_precision_str real) reals)) ^ " \\"^"\\": string;
-    val _ = map (tracing o mk_string) (coincidence_rates_for_each_file @ [overall_coincidence_rates])
+    val overall_coincidence_rates       = (overall_name, datapoints_to_coincidence_rates points top_ns @ map (get_return_rates_for_points points) timeouts): (string * real list);
+    val coincidence_rates_for_each_file = map (fn file_name => (file_name, get_coincidence_rate_for_top_ns_for_file points top_ns file_name @ get_return_rates_for_file points timeouts file_name)) file_names: (string * real list) list;
+    fun mk_string (fname, reals)        = String.concatWith " & " (fname  :: "new" :: (Int.toString o length) (points_in_file_with_overall fname points):: (map (fn real => real_to_percentage_with_precision_str real) reals)) ^ " \\"^"\\": string;
+    val result = map (mk_string) (coincidence_rates_for_each_file @ [overall_coincidence_rates])
   in
-    ()
+    result
   end;
 
-val _ = datapoints_to_coincidence_rate_pairs lines [1,3,5,10];
-
-(*
-NBE.thy & 30.8 & 49.0 & 54.8 & 71.2 
-BinomialHeap.thy & 28.2 & 64.1 & 67.5 & 77.8 
-SkewBinomialHeap.thy & 35.6 & 55.9 & 64.4 & 81.4 
-BooleanExpressionCheckers.thy & 60.0 & 80.0 & 90.0 & 100.0 
-TypeSafe.thy & 15.0 & 20.0 & 25.0 & 25.0 
-DFS.thy & 20.0 & 80.0 & 80.0 & 90.0 
-FingerTree.thy & 40.5 & 46.8 & 46.8 & 58.7 
-Goodstein_Lambda.thy & 32.7 & 71.2 & 75.0 & 78.8 
-HybridLogic.thy & 50.6 & 61.8 & 68.5 & 70.8 
-Kripke.thy & 53.8 & 69.2 & 69.2 & 76.9 
-Build.thy & 10.0 & 20.0 & 20.0 & 20.0 
-KDTree.thy & 77.8 & 77.8 & 100.0 & 100.0 
-NearestNeighbors.thy & 72.7 & 81.8 & 90.9 & 90.9 
-Disjunctive_Normal_Form.thy & 60.0 & 62.9 & 65.7 & 68.6 
-OpSem.thy & 45.5 & 66.7 & 78.8 & 81.8 
-PSTRBT.thy & 41.7 & 95.8 & 100.0 & 100.0 
-Graphs.thy & 31.7 & 70.7 & 78.0 & 87.8 
-RepFinGroups.thy & 46.5 & 66.7 & 77.8 & 79.8 
-SmallStep.thy & 45.5 & 75.8 & 77.3 & 77.3 
-Challenge1A.thy & 36.4 & 54.5 & 72.7 & 81.8 
-Challenge1B.thy & 66.7 & 83.3 & 83.3 & 83.3 
-Cantor_NF.thy & 22.7 & 68.2 & 77.3 & 77.3 
-overall & 39.2 & 61.1 & 66.9 & 75.3 
-*)
+val semantic_induct_result = datapoints_to_coincidence_rate_pairs lines [1,3,5,10] [200,500,1000,2000,5000];
+(*overall & 1095 & 38.2 & 59.3 & 64.5 & 72.7 & 8.8 & 24.7 & 47.8 & 69.8 & 86.8*)
 \<close>
 
 end

@@ -103,7 +103,7 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
         val quadruple_for_list_induct2 =
             if null (is_equation_of_lengths_of app)
             then []
-            else (tracing "TRUEEEE";[(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2", (is_equation_of_lengths_of app)(*[(*naively specifying induction terms here causes problems for lemma "length_mapi" in Hybrid_Logic.*)]*))]);
+            else ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.list_induct2", (is_equation_of_lengths_of app)(*[(*naively specifying induction terms here causes problems for lemma "length_mapi" in Hybrid_Logic.*)]*))]);
         (*quadruple_for_list_induct2'*)
         fun trm_is_of_list trm      = UN.futrm_w_prnt_n_tag_to_typ trm <$> Isabelle_Utils.is_list_typ |> Utils.is_some_true;
         fun all_trms_are_lists trms = forall (fn trm => trm_is_of_list trm) trms;

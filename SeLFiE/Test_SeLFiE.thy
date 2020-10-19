@@ -44,13 +44,11 @@ lemma "let (x1, x2) = y in z < x1"
   assert_SeLFiE_true test_Is_Let_X_Be_Y_In_X [on["zs"], arb[],rule[]]
   oops
 
- primrec rev :: "'a list \<Rightarrow> 'a list"
-  where
+ primrec rev :: "'a list \<Rightarrow> 'a list" where
   "rev []       = []" |
   "rev (x # xs) = rev xs @ [x]"
 
- fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"
-  where
+ fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
   "itrev []     ys = ys" |
   "itrev (x#xs) ys = itrev xs (x#ys)"
 
@@ -60,8 +58,10 @@ lemma "itrev xs ys = rev xs @ ys"
   all_induction_heuristic      [on["xs"], arb["ys"],rule[]]
   all_generalization_heuristic [on["xs"], arb["ys"],rule[]]
   all_induction_heuristic [on["xs","ys"], arb[],rule["itrev.induct"]]
+(*
   assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb["ys"], rule[]]
   assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb[    ], rule[]](*Not great, but does not harm much.*)
+*)
   assert_SeLFiE_true  generalize_arguments_used_in_recursion [on["xs"], arb["ys"],rule[]](*It used to take 1.196s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb["xs"],rule[]](*It used to take 2.467s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]](*It used to take 0.864s elapsed time*)
@@ -120,9 +120,10 @@ print_theorems
 
 lemma "list_reversal_eq xs ys"
   semantic_induct
+(*
   assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb["ys"], rule[]](*good*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion_deep [on["xs"], arb[    ], rule[]](*Great*)
-
+*)
   semantic_induct
   apply(induct xs arbitrary: ys)
    apply(auto simp: list_reversal_eq_def)
