@@ -12,8 +12,8 @@ Prerequisite: Unpack the Artifact
   To use our artifact submission, we have to unpack it first. The submitted ZIP file should contain 
   two directories: Isabelle2020 and PSL. In the following we assume that these directories are 
   stored in Desktop of the virtual machine provided by the Artifact Evalution Committiee as follows.
-  - /home/tacas/Desktop/Yutaka/Isabelle2020
-  - /home/tacas/Desktop/Yutaka/PSL
+  - /home/tacas21/Desktop/Yutaka/Isabelle2020
+  - /home/tacas21/Desktop/Yutaka/PSL
 
 How to see semantic_induct at Work
 
@@ -36,20 +36,20 @@ Phase 0 : Unpack the Artifact.
   Isabelle2020 and PSL. In the following we assume that these directories are stored in Desktop
   of the virtual machine provided by the Artifact Evalution Committiee as follows.
 
-  /home/tacas/Desktop/Yutaka/Isabelle2020
-  /home/tacas/Desktop/Yutaka/PSL
+  /home/tacas21/Desktop/Yutaka/Isabelle2020
+  /home/tacas21/Desktop/Yutaka/PSL
 
 Phase 1: Optional Construction of the Raw Results.
 
 Phase 1 - Step 1.
   We build the raw output file for semantic_induct, our tool presented in the paper.
   The evaluation suite for semantic_induct resides in 
-  /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation
+  /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation
 
   The evaluation target theory files also reside in this directory.
   Therefore, we move our current directory to this directory by typing the following:
 
-  cd /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation
+  cd /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation
 
   Then, we build the raw evaluation result, Database.txt, using the following command:
 
@@ -59,18 +59,18 @@ Phase 1 - Step 1.
   /home/tacas21/Desktop/Yutaka/Isabelle2020.
 
   The results should be appear in 
-  /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt
+  /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt
 
 Phase 1 - Step 2.
   We build the raw output file for smart_induct to compare the performance of semantic_induct.
 
   The evaluation suite for smart_induct resides in 
-  /home/tacas/Desktop/Yutaka/PSL/Semantic_Induct/Evaluation
+  /home/tacas21/Desktop/Yutaka/PSL/Semantic_Induct/Evaluation
 
   The evaluation target theory files also reside in this directory.
   Therefore, we move our current directory to this directory by typing the following:
 
-  cd /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation
+  cd /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation
 
   Then, we build the raw evaluation result, Database.txt, using the following command:
 
@@ -80,7 +80,7 @@ Phase 1 - Step 2.
   /home/tacas21/Desktop/Yutaka/Isabelle2020.
 
   The results should appear in 
-  /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt
+  /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt
 
   This completes Phase 1.
 
