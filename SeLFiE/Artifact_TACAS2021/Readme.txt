@@ -20,7 +20,7 @@ How to see semantic_induct at Work
 We can see semantic_induct at work for the running example presented in our paper in the interactive 
 mode of Isabelle/HOL. The necessary command is the following.
 
-  /home/Desktop/Yutaka/Isabelle2020/bin/isabelle jedit -d /home/Desktop/Yutaka/PSL -l Smart_Isabelle /home/Desktop/Yutaka/PSL/SeLFiE/Test_SeLFiE.thy
+  /home/tacas21/Desktop/Yutaka/Isabelle2020/bin/isabelle jedit -d /home/tacas21/Desktop/Yutaka/PSL -l Smart_Isabelle /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Test_SeLFiE.thy
 
 How to replicate the results.
 
@@ -53,10 +53,10 @@ Phase 1 - Step 1.
 
   Then, we build the raw evaluation result, Database.txt, using the following command:
 
-  /home/Desktop/Yutaka/Isabelle2020/bin/isabelle build -D . -c -j1 -o threads=10
+  /home/tacas21/Desktop/Yutaka/Isabelle2020/bin/isabelle build -D . -c -j1 -o threads=10
 
   This command should use the ROOTS file stored in this directory to run Isabelle2020 stored in
-  /home/Desktop/Yutaka/Isabelle2020.
+  /home/tacas21/Desktop/Yutaka/Isabelle2020.
 
   The results should be appear in 
   /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt
@@ -74,10 +74,10 @@ Phase 1 - Step 2.
 
   Then, we build the raw evaluation result, Database.txt, using the following command:
 
-  /home/Desktop/Yutaka/Isabelle2020/bin/isabelle build -D . -c -j1 -o threads=10
+  /home/tacas21/Desktop/Yutaka/Isabelle2020/bin/isabelle build -D . -c -j1 -o threads=10
 
   This command should use the ROOTS file stored in this directory to run Isabelle2020 stored in
-  /home/Desktop/Yutaka/Isabelle2020.
+  /home/tacas21/Desktop/Yutaka/Isabelle2020.
 
   The results should appear in 
   /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt
@@ -102,7 +102,7 @@ Phase 2 - Step 1:
   file in /home/tacas/Desktop/Yutaka/PSL.
   We can do so by typing the following command.
 
-  /home/Desktop/Isabelle2020/bin/isabelle jedit -d /home/tacas/Desktop/Yutaka/PSL/ -l Smart_Isabelle /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Result/Format_Result_Smart_Induct.thy
+  /home/tacas21/Desktop/Isabelle2020/bin/isabelle jedit -d /home/tacas/Desktop/Yutaka/PSL/ -l Smart_Isabelle /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Result/Format_Result_Smart_Induct.thy
 
   Format_Result_Smart_Induct.thy imports SeLFiE/Evaluation/Format_Result/Format_Result_Semantic_induct.thy,
   which formats the raw file for semantic_induct.
