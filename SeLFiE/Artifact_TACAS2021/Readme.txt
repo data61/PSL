@@ -93,16 +93,16 @@ Phase 2 - Step 1:
   so that the AEC can skip Phase 1.
 
   For semantic_induct
-  cp /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Format_Reulst/tacas2021_timeout5.csv
+  cp /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Format_Reulst/tacas2021_timeout5.csv
 
   For smart_induct
-  cp /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Reulst/tacas2021_timeout5.csv
+  cp /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Reulst/tacas2021_timeout5.csv
 
   Now we open Isabelle/HOL in the interactive mode with semantic_induct and smart_induct using the ROOT
-  file in /home/tacas/Desktop/Yutaka/PSL.
+  file in /home/tacas21/Desktop/Yutaka/PSL.
   We can do so by typing the following command.
 
-  /home/tacas21/Desktop/Isabelle2020/bin/isabelle jedit -d /home/tacas/Desktop/Yutaka/PSL/ -l Smart_Isabelle /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Result/Format_Result_Smart_Induct.thy
+  /home/tacas21/Desktop/Isabelle2020/bin/isabelle jedit -d /home/tacas21/Desktop/Yutaka/PSL/ -l Smart_Isabelle /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Result/Format_Result_Smart_Induct.thy
 
   Format_Result_Smart_Induct.thy imports SeLFiE/Evaluation/Format_Result/Format_Result_Semantic_induct.thy,
   which formats the raw file for semantic_induct.
