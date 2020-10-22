@@ -82,12 +82,9 @@ Phase 1 - Step 2.
   The results should appear in 
   /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt
 
-  This completes Phase 1.
+Phase 1 - Step 3.
 
-Phase 2: Format the Raw Results.
-
-Phase 2 - Step 1:
-  We copy the raw results from Phase 1 to the right locations with the right names, so that theory
+  We copy the raw results to the right locations with the right names, so that theory
   files for formatting the raw results can handle them.
   Note that we have already produced these files at the right locations with the right names,
   so that the AEC can skip Phase 1.
@@ -97,6 +94,8 @@ Phase 2 - Step 1:
 
   For smart_induct
   cp /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Reulst/tacas2021_timeout5.csv
+
+Phase 2: Format the Raw Results.
 
   Now we open Isabelle/HOL in the interactive mode with semantic_induct and smart_induct using the ROOT
   file in /home/tacas21/Desktop/Yutaka/PSL.
