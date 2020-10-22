@@ -1,5 +1,6 @@
 - **Dear PADL2021 reviewers, the SeLFiE interpreter resides in PSL/SeLFiE. For reviewing, please refer to [this release](https://github.com/data61/PSL/releases/tag/v0.1.8-alpha).**
-- **This is the development version of PSL, PaMpeR, LiFtEr, Smart_Induct, and SeLFiE, where we try out possibly immature ideas.*
+- **Dear TACAS2021, reviewers, semantic_induct resides in PSL/SeLFiE. For revieweing, please refer to the accompanying artifact submission.**
+- *This is the development version of PSL, PaMpeR, LiFtEr, smart_induct, SeLFiE, and semantic_induct where we try out possibly immature ideas.*
 
 # Smart_Isabelle
 
@@ -11,7 +12,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 
 We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
 
-## Installation (of SeLFiE, PaMpeR, PSL, LiFtEr, and Smart_Induct in one go)
+## Installation (of SeLFiE, PaMpeR, PSL, LiFtEr, smart_induct, and semantic_induct in one go)
 1. Install [Isabelle2020](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
@@ -68,6 +69,14 @@ We also plan to improve the proof automation using evolutionary computation. We 
 - **Simple Dataset**
 `Nagashima Y. (2020) Simple Dataset for Proof Method Recommendation in Isabelle/HOL. In: Benzmüller C., Miller B. (eds) Intelligent Computer Mathematics. CICM 2020. Lecture Notes in Computer Science, vol 12236. Springer, Cham. https://doi.org/10.1007/978-3-030-53518-6_21`
 
+- **Smart Induction**
+`Yutaka Nagashima. Smart Induction for Isabelle/HOL (Tool Paper). In: Ivrii A., Strichman O. (eds) Proceedings of the 20th Conference on Formal Methods in Computer-Aided Design – FMCAD 2020 DOI:https://doi.org/10.34727/2020/isbn.978-3-85448-042-6_32
+`
+
 ## Screenshots
+- a PSL example
 ![Screenshot](./image/screen_shot_tall.png)
+- a PGT example
 ![Screenshot](./image/screen_shot_pgt.png)
+- a use case of semantic_induct
+![Screenshot](./image/screenshot_semantic_induct.png)
