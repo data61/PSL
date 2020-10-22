@@ -104,7 +104,7 @@ let
      print_real_option score,
      Int.toString time
      ];
-  val one_line = String.concatWith ";" list;
+  val one_line = String.concatWith "," list;
 in
    one_line: string
 end;
