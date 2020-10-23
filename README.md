@@ -1,5 +1,5 @@
 - **Dear PADL2021 reviewers, the SeLFiE interpreter resides in PSL/SeLFiE. For reviewing, please refer to [this release](https://github.com/data61/PSL/releases/tag/v0.1.8-alpha).**
-- **Dear TACAS2021, reviewers, semantic_induct resides in PSL/SeLFiE. For revieweing, please refer to the accompanying artifact submission.**
+- **Dear TACAS2021, reviewers, semantic_induct resides in PSL/SeLFiE. For revieweing, please refer to the accompanying artifact submission or [this release](https://github.com/data61/PSL/releases/tag/v0.2.0-alpha).**
 - *This is the development version of PSL, PaMpeR, LiFtEr, smart_induct, SeLFiE, and semantic_induct where we try out possibly immature ideas.*
 
 # Smart_Isabelle
