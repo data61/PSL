@@ -92,6 +92,7 @@ fun get_coincidence_rate_top_n (points:datapoints) (top_n:int) =
     (numb_of_points_among_top / numb_of_points): real
   end;
 \<close>
+
 ML\<open>
 fun get_coincidence_rate_for_file_for_top_n (points:datapoints) (file_name:string) (top_n:int) =
   let
@@ -106,75 +107,8 @@ fun datapoints_to_coincidence_rates (points:datapoints) (top_ns:ints) = map (get
 
 fun attach_file_name_to_coincidence_rates (file_name:string) (rates) = map (fn rate => (file_name, rate)) rates;
 \<close>
-ML\<open>
-fun datapoints_to_coincidence_rate_pairs_for_one_file (points:datapoints) (file_name:string) (top_ns:ints) =
-  map (fn top_n => (file_name, get_coincidence_rate_for_file_for_top_n points file_name top_n)) top_ns: (string * real) list;
-\<close>
-
-ML\<open>
-fun datapoints_to_coincidence_rate_pairs (points:datapoints) (top_ns:ints) =
-  let
-val _ = tracing (Int.toString (length points));
-    val file_names                      = datapoints_to_all_file_names points;
-    val overall_coincidence_rates       = datapoints_to_coincidence_rates points top_ns |> attach_file_name_to_coincidence_rates "overall": (string * real) list;
-    val coincidence_rates_for_each_file = map (fn file_name => datapoints_to_coincidence_rate_pairs_for_one_file points file_name top_ns) file_names: (string * real) list list;
-    val all_pairs                       = coincidence_rates_for_each_file @ [overall_coincidence_rates]: (string * real) list list;
-  in
-    all_pairs |> Matrix.matrix_to_row_of_columns_matrix |> Matrix.transpose_rcmatrix |> the |> Matrix.row_of_columns_matrix_to_matrix
-  end;
-\<close>
-
-
-ML\<open> val tikz_for_coincidence_rates = get_coincidence_rate_for_file_for_top_n lines "~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy" 1;\<close>
-
-ML\<open>(*result*)
-fun from_pair_matrix_to_tikz_barplot (pairs) = pairs
-|> map print_one_line
-|> (fn addplots:strings => (String.concatWith ", " (datapoints_to_all_file_names lines) ^ "\n") :: addplots)
-|> String.concat
-|> tracing;
-
-val coincidence_rates_for_files = 
-   datapoints_to_coincidence_rate_pairs lines [1,2,3,5,8,10]
-|> from_pair_matrix_to_tikz_barplot;
-
-(*
-~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/NormByEval/NBE.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/BinomialHeap.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/CoreC++/TypeSafe.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Finger-Trees/FingerTree.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KBPs/Kripke.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Build.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/KD_Tree.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Nearest_Neighbors.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/LTL/Disjunctive_Normal_Form.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/PCF/OpSem.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Priority_Search_Trees/PST_RBT.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Simpl/SmallStep.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1A.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1B.thy, ~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/ZFC_in_HOL/Cantor_NF.thy
-ddplot coordinates {(~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/NormByEval/NBE.thy, 30.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/BinomialHeap.thy, 28.2) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 35.6) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 60.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/CoreC++/TypeSafe.thy, 15.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy, 20.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Finger-Trees/FingerTree.thy, 40.5) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 32.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 50.6) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KBPs/Kripke.thy, 53.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Build.thy, 10.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Nearest_Neighbors.thy, 72.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/LTL/Disjunctive_Normal_Form.thy, 60.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/PCF/OpSem.thy, 45.5) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Priority_Search_Trees/PST_RBT.thy, 41.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 31.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 46.5) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Simpl/SmallStep.thy, 45.5) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1A.thy, 36.4) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1B.thy, 66.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 22.7) (overall, 39.2)};
-ddplot coordinates {(~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/NormByEval/NBE.thy, 41.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/BinomialHeap.thy, 53.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 49.2) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 80.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/CoreC++/TypeSafe.thy, 20.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy, 80.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Finger-Trees/FingerTree.thy, 43.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 57.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 60.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KBPs/Kripke.thy, 69.2) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Build.thy, 10.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Nearest_Neighbors.thy, 81.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/LTL/Disjunctive_Normal_Form.thy, 62.9) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/PCF/OpSem.thy, 60.6) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Priority_Search_Trees/PST_RBT.thy, 75.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 68.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 61.6) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Simpl/SmallStep.thy, 65.2) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1A.thy, 54.5) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1B.thy, 83.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 40.9) (overall, 54.6)};
-ddplot coordinates {(~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/NormByEval/NBE.thy, 49.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/BinomialHeap.thy, 64.1) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 55.9) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 80.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/CoreC++/TypeSafe.thy, 20.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy, 80.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Finger-Trees/FingerTree.thy, 46.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 71.2) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 61.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KBPs/Kripke.thy, 69.2) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Build.thy, 20.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/KD_Tree.thy, 77.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Nearest_Neighbors.thy, 81.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/LTL/Disjunctive_Normal_Form.thy, 62.9) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/PCF/OpSem.thy, 66.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Priority_Search_Trees/PST_RBT.thy, 95.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 70.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 66.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Simpl/SmallStep.thy, 75.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1A.thy, 54.5) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1B.thy, 83.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 68.2) (overall, 61.1)};
-ddplot coordinates {(~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/NormByEval/NBE.thy, 54.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/BinomialHeap.thy, 67.5) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 64.4) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 90.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/CoreC++/TypeSafe.thy, 25.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy, 80.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Finger-Trees/FingerTree.thy, 46.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 75.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 68.5) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KBPs/Kripke.thy, 69.2) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Build.thy, 20.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/KD_Tree.thy, 100.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Nearest_Neighbors.thy, 90.9) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/LTL/Disjunctive_Normal_Form.thy, 65.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/PCF/OpSem.thy, 78.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Priority_Search_Trees/PST_RBT.thy, 100.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 78.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 77.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Simpl/SmallStep.thy, 77.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1A.thy, 72.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1B.thy, 83.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 77.3) (overall, 66.9)};
-ddplot coordinates {(~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/NormByEval/NBE.thy, 67.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/BinomialHeap.thy, 70.1) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 78.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 100.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/CoreC++/TypeSafe.thy, 25.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy, 90.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Finger-Trees/FingerTree.thy, 56.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 78.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 70.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KBPs/Kripke.thy, 76.9) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Build.thy, 20.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/KD_Tree.thy, 100.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Nearest_Neighbors.thy, 90.9) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/LTL/Disjunctive_Normal_Form.thy, 68.6) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/PCF/OpSem.thy, 78.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Priority_Search_Trees/PST_RBT.thy, 100.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 87.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 79.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Simpl/SmallStep.thy, 77.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1A.thy, 81.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1B.thy, 83.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 77.3) (overall, 73.2)};
-ddplot coordinates {(~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/NormByEval/NBE.thy, 71.2) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/BinomialHeap.thy, 77.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Binomial-Heaps/SkewBinomialHeap.thy, 81.4) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Boolean_Expression_Checkers/Boolean_Expression_Checkers.thy, 100.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/CoreC++/TypeSafe.thy, 25.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Depth-First-Search/DFS.thy, 90.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Finger-Trees/FingerTree.thy, 58.7) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Goodstein_Lambda/Goodstein_Lambda.thy, 78.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Hybrid_Logic/Hybrid_Logic.thy, 70.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KBPs/Kripke.thy, 76.9) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Build.thy, 20.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/KD_Tree.thy, 100.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/KD_Tree/Nearest_Neighbors.thy, 90.9) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/LTL/Disjunctive_Normal_Form.thy, 68.6) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/PCF/OpSem.thy, 81.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Priority_Search_Trees/PST_RBT.thy, 100.0) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Probabilistic_Timed_Automata/library/Graphs.thy, 87.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Rep_Fin_Groups/Rep_Fin_Groups.thy, 79.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/Simpl/SmallStep.thy, 77.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1A.thy, 81.8) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/VerifyThis2019/Challenge1B.thy, 83.3) (~/Workplace/PSL_Perform/PSL/SeLFiE/Evaluation/ZFC_in_HOL/Cantor_NF.thy, 77.3) (overall, 75.3)};
-*)
-\<close>
 
 declare [[ML_print_depth=2000]]
-
-ML\<open>(*result*)
-fun sort_datapoints_wrt_execution_time (points:datapoints) =
- sort (fn (poin1, poin2) => Int.compare (#execution_time poin1, #execution_time poin2)) points: datapoints;
-       
-fun milli_sec_to_sec_with_precision (milli:int) =
-  (((Real.fromInt milli) / 100.0) |> Real.round |> Real.fromInt) / 10.0;
-
-val pairs_of_successful_points =
-   sort_datapoints_wrt_execution_time lines
-|> Utils.index
-|> filter (is_some o #rank o snd)
-|> map (fn (index, point) => (index, #execution_time point |> milli_sec_to_sec_with_precision));
-
-val pairs_of_failure_points =
-   sort_datapoints_wrt_execution_time lines
-|> Utils.index
-|> filter (is_none o #rank o snd)
-|> map (fn (index, point) => (index, #execution_time point |> milli_sec_to_sec_with_precision));
-
-fun print_pairs_real pairs = map (fn (index, time) => "(" ^ Int.toString index ^ ", " ^ Real.toString time ^ ")") pairs |> String.concatWith " ";
-
-print_pairs_real pairs_of_successful_points;
-print_pairs_real pairs_of_failure_points;
-\<close>
 
 (*faster smarter*)                              
 ML\<open>
