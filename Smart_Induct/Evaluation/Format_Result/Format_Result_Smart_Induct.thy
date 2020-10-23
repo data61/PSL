@@ -1,5 +1,5 @@
 theory Format_Result_Smart_Induct
-  imports "PSL.PSL" "../../../SeLFiE/Evaluation/Format_Result/Format_Result_Semantic_induct"
+  imports "PSL.PSL" "../../../SeLFiE/Evaluation/Format_Result/Format_Result_Semantic_Induct"
 begin
 
 ML_file  "../../../LiFtEr/Matrix_sig.ML"
