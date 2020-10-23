@@ -2,7 +2,7 @@ theory Format_Result_Semantic_Induct
   imports "PSL.PSL"
 begin
 
-ML_file  "../../../LiFtEr/Matrix_sig.ML"
+ML_file  "../../../LiFtEr/Matrix_Sig.ML"
 ML_file  "../../../LiFtEr/Matrix_Struct.ML"
 
 ML\<open>
