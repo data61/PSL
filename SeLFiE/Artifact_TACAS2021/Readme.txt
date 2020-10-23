@@ -12,8 +12,8 @@ Prerequisite: Unpack the Artifact
   To use our artifact submission, we have to unpack it first. The submitted ZIP file should contain 
   two directories: Isabelle2020 and PSL. In the following we assume that these directories are 
   stored in Desktop of the virtual machine provided by the Artifact Evalution Committiee as follows.
-  - /home/tacas/Desktop/Yutaka/Isabelle2020
-  - /home/tacas/Desktop/Yutaka/PSL
+  - /home/tacas21/Desktop/Yutaka/Isabelle2020
+  - /home/tacas21/Desktop/Yutaka/PSL
 
 How to see semantic_induct at Work
 
@@ -36,20 +36,20 @@ Phase 0 : Unpack the Artifact.
   Isabelle2020 and PSL. In the following we assume that these directories are stored in Desktop
   of the virtual machine provided by the Artifact Evalution Committiee as follows.
 
-  /home/tacas/Desktop/Yutaka/Isabelle2020
-  /home/tacas/Desktop/Yutaka/PSL
+  /home/tacas21/Desktop/Yutaka/Isabelle2020
+  /home/tacas21/Desktop/Yutaka/PSL
 
 Phase 1: Optional Construction of the Raw Results.
 
 Phase 1 - Step 1.
   We build the raw output file for semantic_induct, our tool presented in the paper.
   The evaluation suite for semantic_induct resides in 
-  /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation
+  /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation
 
   The evaluation target theory files also reside in this directory.
   Therefore, we move our current directory to this directory by typing the following:
 
-  cd /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation
+  cd /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation
 
   Then, we build the raw evaluation result, Database.txt, using the following command:
 
@@ -59,18 +59,18 @@ Phase 1 - Step 1.
   /home/Desktop/Yutaka/Isabelle2020.
 
   The results should be appear in 
-  /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt
+  /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt
 
 Phase 1 - Step 2.
   We build the raw output file for smart_induct to compare the performance of semantic_induct.
 
   The evaluation suite for smart_induct resides in 
-  /home/tacas/Desktop/Yutaka/PSL/Semantic_Induct/Evaluation
+  /home/tacas21/Desktop/Yutaka/PSL/Semantic_Induct/Evaluation
 
   The evaluation target theory files also reside in this directory.
   Therefore, we move our current directory to this directory by typing the following:
 
-  cd /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation
+  cd /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation
 
   Then, we build the raw evaluation result, Database.txt, using the following command:
 
@@ -80,7 +80,7 @@ Phase 1 - Step 2.
   /home/Desktop/Yutaka/Isabelle2020.
 
   The results should appear in 
-  /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt
+  /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt
 
 Phase 1 - Step 3.
   We copy the raw results from Phase 1 to the right locations with the right names, so that theory
@@ -89,20 +89,20 @@ Phase 1 - Step 3.
   so that the AEC can skip Phase 1.
 
   For semantic_induct
-  cp /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt /home/tacas/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Format_Result/tacas2021_timeout5.csv
+  cp /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Eval_Base/Database.txt /home/tacas21/Desktop/Yutaka/PSL/SeLFiE/Evaluation/Format_Result/tacas2021_timeout5.csv
 
   For smart_induct
-  cp /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Result/tacas2021_timeout5.csv
+  cp /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Eval_Base/Database.txt /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Result/tacas2021_timeout5.csv
 
   This completes Phase 1.
 
 Phase 2: Format the Raw Results.
 
   Now we open Isabelle/HOL in the interactive mode with semantic_induct and smart_induct using the ROOT
-  file in /home/tacas/Desktop/Yutaka/PSL.
+  file in /home/tacas21/Desktop/Yutaka/PSL.
   We can do so by typing the following command.
 
-  /home/Desktop/Yutaka/Isabelle2020/bin/isabelle jedit -d /home/tacas/Desktop/Yutaka/PSL/ -l Smart_Isabelle /home/tacas/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Result/Format_Result_Smart_Induct.thy
+  /home/Desktop/Yutaka/Isabelle2020/bin/isabelle jedit -d /home/tacas21/Desktop/Yutaka/PSL/ -l Smart_Isabelle /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation/Format_Result/Format_Result_Smart_Induct.thy
 
   Format_Result_Smart_Induct.thy imports SeLFiE/Evaluation/Format_Result/Format_Result_Semantic_induct.thy,
   which formats the raw file for semantic_induct.
