@@ -65,7 +65,7 @@ Phase 1 - Step 2.
   We build the raw output file for smart_induct to compare the performance of semantic_induct.
 
   The evaluation suite for smart_induct resides in 
-  /home/tacas21/Desktop/Yutaka/PSL/Semantic_Induct/Evaluation
+  /home/tacas21/Desktop/Yutaka/PSL/Smart_Induct/Evaluation
 
   The evaluation target theory files also reside in this directory.
   Therefore, we move our current directory to this directory by typing the following:
