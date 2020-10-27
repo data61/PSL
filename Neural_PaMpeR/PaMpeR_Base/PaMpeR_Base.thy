@@ -96,10 +96,4 @@ ML\<open>
 FE_Interface.FE_activate ();
 \<close>
 
-lemma
-  assumes "x = x"
-  shows "z \<Longrightarrow> True \<and> (False \<or> (y \<longrightarrow> y))"
-  using assms apply2 auto
-  done
-
 end

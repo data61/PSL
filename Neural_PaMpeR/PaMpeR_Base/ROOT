@@ -1,15 +1,18 @@
 session "SeLFiE" (psl) in "../../SeLFiE" = Pure +
-  options [timeout = 600]
+  options [timeout = 100]
   theories [document = false]
     "SeLFiE"
   document_files
     "root.tex"
     "root.bib"
 
-session "PaMpeR_Base" (psl) in "." = "SeLFiE" +
-  options [timeout = 6000]
+session "PaMpeR_Base" (psl) in "." = "HOL" +
+  options [timeout = 100]
+  sessions
+    SeLFiE
   theories [document = false]
     "PaMpeR_Base"
+    "Test_Dataset_Construction"
   document_files
     "root.tex"
     "root.bib"
