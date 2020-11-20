@@ -5,13 +5,14 @@ This file defines the default strategy "TryHard".
 *)
 
 theory Try_Hard
-imports "SeLFiE.SeLFiE" Main
+  imports "SeLFiE.SeLFiE" "HOL.Nunchaku" (*"HOL.Nitpick" "HOL.Quickcheck_Random"*)
 keywords "strategy"     :: thy_decl
      and "find_proof"   :: diag
      and "try_hard"     :: diag
      and "try_hard_one" :: diag
      and "try_hard_all" :: diag
      and "try_parallel" :: diag
+
 begin
 
 ML_file "PGT.ML"

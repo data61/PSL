@@ -1,0 +1,189 @@
+chapter AFP
+
+session Collections (AFP) = Refine_Monadic +
+  options [timeout = 2100, document_variants = "document:outline=/proof,/ML:userguide"]
+  sessions
+    "Binomial-Heaps"
+    "Finger-Trees"
+    Native_Word
+    Trie
+  directories
+    "GenCF"
+    "GenCF/Gen"
+    "GenCF/Impl"
+    "GenCF/Intf"
+    "ICF"
+    "ICF/gen_algo"
+    "ICF/impl"
+    "ICF/spec"
+    "ICF/tools"
+    "Iterator"
+    "Lib"
+    "Userguides"
+
+  theories [document = false]
+  (* Prerequisites *)
+    "HOL-Library.Code_Target_Numeral"
+    "HOL-Library.While_Combinator"
+    "Binomial-Heaps.BinomialHeap"
+    "Binomial-Heaps.SkewBinomialHeap"
+    "Finger-Trees.FingerTree"
+    Automatic_Refinement.Automatic_Refinement
+    Refine_Monadic.Refine_Monadic
+
+  (* Libraries and Tools *)
+    "Lib/Sorted_List_Operations"
+    "Lib/HashCode"
+    "Lib/Code_Target_ICF"
+    "Lib/RBT_add"
+    "Lib/Dlist_add"
+    "Lib/Assoc_List"
+    "Lib/Diff_Array"
+    "Lib/Partial_Equivalence_Relation"
+    "Lib/Robdd"
+
+    "ICF/tools/Locale_Code"
+    "ICF/tools/ICF_Tools"
+    "ICF/tools/Locale_Code_Ex"
+    "ICF/tools/Record_Intf"
+    "ICF/tools/Ord_Code_Preproc"
+
+  (* Deprecated *)
+    "ICF/DatRef"
+
+  (* Iterators *)
+    "Iterator/Idx_Iterator"
+    "Iterator/SetIteratorOperations"
+    "Iterator/Iterator"
+    "Iterator/Proper_Iterator"
+    "Iterator/Gen_Iterator"
+    "Iterator/SetIteratorGA"
+    "Iterator/SetAbstractionIterator"
+    "Iterator/SetIterator"
+    "Iterator/It_to_It"
+
+  (* GenCF *)
+  theories
+    "GenCF/GenCF_Chapter"
+      "GenCF/Intf/GenCF_Intf_Chapter"
+        "GenCF/Intf/Intf_Map"
+        "GenCF/Intf/Intf_Set"
+        "GenCF/Intf/Intf_Hash"
+        "GenCF/Intf/Intf_Comp"
+
+      "GenCF/Gen/GenCF_Gen_Chapter"
+        "GenCF/Gen/Gen_Set"
+        "GenCF/Gen/Gen_Map"
+        "GenCF/Gen/Gen_Map2Set"
+        "GenCF/Gen/Gen_Comp"
+
+      "GenCF/Impl/GenCF_Impl_Chapter"
+        "GenCF/Impl/Impl_Array_Stack"
+        "GenCF/Impl/Impl_List_Set"
+        "GenCF/Impl/Impl_Array_Hash_Map"
+        "GenCF/Impl/Impl_RBT_Map"
+        "GenCF/Impl/Impl_List_Map"
+        "GenCF/Impl/Impl_Cfun_Set"
+        "GenCF/Impl/Impl_Array_Map"
+
+  theories [document = false]
+      "GenCF/GenCF"
+
+  (* ICF *)
+  theories
+    "ICF/ICF_Chapter"
+      "ICF/spec/ICF_Spec_Chapter"
+        "ICF/spec/MapSpec"
+        "ICF/spec/SetSpec"
+        "ICF/spec/ListSpec"
+        "ICF/spec/AnnotatedListSpec"
+        "ICF/spec/PrioSpec"
+        "ICF/spec/PrioUniqueSpec"
+      "ICF/gen_algo/ICF_Gen_Algo_Chapter"
+        "ICF/gen_algo/MapGA"
+        "ICF/gen_algo/SetGA"
+        "ICF/gen_algo/SetByMap"
+        "ICF/gen_algo/ListGA"
+        "ICF/gen_algo/SetIndex"
+        "ICF/gen_algo/Algos"
+        "ICF/gen_algo/PrioByAnnotatedList"
+        "ICF/gen_algo/PrioUniqueByAnnotatedList"
+      "ICF/impl/ICF_Impl_Chapter"
+        "ICF/impl/MapStdImpl"
+        "ICF/impl/SetStdImpl"
+        "ICF/impl/Fifo"
+        "ICF/impl/BinoPrioImpl"
+        "ICF/impl/SkewPrioImpl"
+        "ICF/impl/FTAnnotatedListImpl"
+        "ICF/impl/FTPrioImpl"
+        "ICF/impl/FTPrioUniqueImpl"
+
+  theories [document = false]  
+      "ICF/ICF_Refine_Monadic"
+      "ICF/ICF_Autoref"
+    
+  theories
+      "ICF/ICF_Entrypoints_Chapter"
+        "ICF/Collections"
+        "ICF/CollectionsV1"
+
+  (* Overall Entry-Points *)
+    Collections_Entrypoints_Chapter
+    Refine_Dflt
+    Refine_Dflt_ICF
+    Refine_Dflt_Only_ICF
+    
+  (* Userguides *)
+    "Userguides/Userguides_Chapter"
+      "Userguides/Refine_Monadic_Userguide"
+      "Userguides/ICF_Userguide"
+
+  document_files
+    "conclusion.tex"
+    "documentation.tex"
+    "intro.tex"
+    "root.bib"
+    "root.tex"
+    "root_userguide.bib"
+    "root_userguide.tex"
+
+
+session Collections_Examples (AFP) in "Examples" = Collections +
+  options [timeout = 1200]
+
+  sessions
+     CAVA_Automata
+     Containers
+
+  directories
+    "Autoref"
+    "Refine_Monadic"
+    "ICF"
+
+  (* Examples *)
+  theories
+    "Examples_Chapter"
+
+    "Autoref/Collection_Autoref_Examples_Chapter"
+    "Autoref/Collection_Autoref_Examples"
+
+    "Refine_Monadic/Refine_Monadic_Examples_Chapter"
+    "Refine_Monadic/Refine_Monadic_Examples"
+
+    "ICF/ICF_Examples_Chapter"
+    "ICF/ICF_Examples"
+
+  theories [document = false]
+    "ICF/PerformanceTest"
+
+  theories [document = false] (* Just in case we forgot something *)
+    "Collection_Examples"
+
+  document_files (in "../document")
+    "conclusion.tex"
+    "documentation.tex"
+    "intro.tex"
+    "root.bib"
+    "root.tex"
+    "root_userguide.bib"
+    "root_userguide.tex"

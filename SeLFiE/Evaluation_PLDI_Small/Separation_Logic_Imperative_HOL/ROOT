@@ -1,0 +1,39 @@
+chapter AFP
+
+session "Separation_Logic_Imperative_HOL" (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "HOL-Imperative_HOL"
+    "HOL-Word"
+    "HOL-ex"
+    Automatic_Refinement
+    Collections
+    Native_Word
+  directories
+    "Tools"
+    "Examples"
+  theories [document = false]
+    "Tools/Imperative_HOL_Add"
+    "Tools/Syntax_Match"
+    Collections.HashCode
+    Collections.Code_Target_ICF
+    Automatic_Refinement.Misc
+  theories
+    Sep_Main
+    "Examples/Imp_List_Spec"
+    "Examples/List_Seg"
+    "Examples/Open_List"
+    "Examples/Circ_List"
+    "Examples/Imp_Map_Spec"
+    "Examples/Hash_Map_Impl"
+    "Examples/Imp_Set_Spec"
+    "Examples/Hash_Set_Impl"
+    "Examples/To_List_GA"
+    "Examples/Union_Find"
+    "Examples/Idioms"
+  theories [document = false]
+    "Examples/Default_Insts"
+    Sep_Examples
+  document_files
+    "root.bib"
+    "root.tex"

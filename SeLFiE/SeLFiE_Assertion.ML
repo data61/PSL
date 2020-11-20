@@ -2507,6 +2507,7 @@ Imply (
   )
 );
 
+(*TODO: we should check for the type Nat.nat to improve the accuracy of this heuristic.*)
 val if_less_eq_in_premise_or_chained_but_not_nonempty_induct_then_inc_induct =
 Imply (
   Some ("less_eq", QOuter_Path,
@@ -2528,6 +2529,33 @@ Imply (
   ),
   Some ("inc_induct", QRule,
     Are_Same_Prints (Variable "inc_induct", Print "Nat.inc_induct")
+  )
+)
+
+val if_less_or_less_eq_in_premise_or_chained_but_not_nonempty_induct_then_less_induct =
+Imply (
+  Some ("less_or_less_eq", QOuter_Path,
+    Ands [
+      Ors [
+        Unode_Has_Print (Variable "less_or_less_eq", Print "Orderings.ord_class.less"),
+        Unode_Has_Print (Variable "less_or_less_eq", Print "Orderings.ord_class.less_eq")
+      ],
+      Ors [
+        Is_In_Chained_Fact (Variable "less_or_less_eq"),
+        Is_A_Meta_Premise_Or_Below (Variable "less_or_less_eq")
+      ],
+      Not ( 
+        Some ("nonempty_induct", QRule,
+          Ors [
+            Are_Same_Prints (Variable "nonempty_induct", Print "List.rev_nonempty_induct"),
+            Are_Same_Prints (Variable "nonempty_induct", Print "List.list_nonempty_induct")
+          ]
+        )
+      )
+    ]
+  ),
+  Some ("less_induct", QRule,
+    Are_Same_Prints (Variable "less_induct", Print "Orderings.wellorder_class..less_induct")
   )
 )
 

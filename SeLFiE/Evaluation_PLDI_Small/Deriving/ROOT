@@ -1,0 +1,27 @@
+chapter AFP
+
+session Deriving (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    Collections
+  directories
+    "Comparator_Generator"
+    "Countable_Generator"
+    "Equality_Generator"
+    "Hash_Generator"
+  theories
+    Derive_Manager
+    Generator_Aux
+    "Comparator_Generator/Compare"
+    "Comparator_Generator/RBT_Compare_Order_Impl"
+    "Comparator_Generator/RBT_Comparator_Impl"
+    "Comparator_Generator/Compare_Order_Instances"
+    "Comparator_Generator/Compare_Rat"
+    "Comparator_Generator/Compare_Real"
+    "Equality_Generator/Equality_Instances"
+    "Hash_Generator/Hash_Instances"
+    "Countable_Generator/Countable_Generator"
+    Derive_Examples
+  document_files
+    "root.bib"
+    "root.tex"

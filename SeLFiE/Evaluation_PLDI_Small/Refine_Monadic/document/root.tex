@@ -1,0 +1,206 @@
+\documentclass[11pt,a4paper]{book}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% Tweaks
+\newcounter{TTStweak_tag}
+\setcounter{TTStweak_tag}{0}
+\newcommand{\setTTS}{\setcounter{TTStweak_tag}{1}}
+\newcommand{\resetTTS}{\setcounter{TTStweak_tag}{0}}
+\newcommand{\insertTTS}{\ifnum\value{TTStweak_tag}=1 \ \ \ \fi}
+
+\renewcommand{\isakeyword}[1]{\resetTTS\emph{\bf\def\isachardot{.}\def\isacharunderscore{\isacharunderscorekeyword}\def\isacharbraceleft{\{}\def\isacharbraceright{\}}#1}}
+\renewcommand{\isachardoublequoteopen}{\insertTTS}
+\renewcommand{\isachardoublequoteclose}{\setTTS}
+\renewcommand{\isanewline}{\mbox{}\par\mbox{}\resetTTS}
+
+
+\renewcommand{\isamarkupcmt}[1]{\hangindent5ex{\isastylecmt --- #1}}
+
+\makeatletter
+\newenvironment{abstract}{%
+  \small
+  \begin{center}%
+    {\bfseries \abstractname\vspace{-.5em}\vspace{\z@}}%
+  \end{center}%
+  \quotation}{\endquotation}
+\makeatother
+
+\begin{document}
+
+\title{Refinement for Monadic Programs}
+\author{Peter Lammich}
+\maketitle
+
+\begin{abstract}
+  We provide a framework for program and data refinement in Isabelle/HOL.
+  The framework is based on a nondeterminism-monad with assertions, i.e.,
+  the monad carries a set of results or an assertion failure.
+  Recursion is expressed by fixed points. For convenience, we also provide
+  while and foreach combinators.
+
+  The framework provides tools to automatize canonical tasks, such as 
+  verification condition generation, finding appropriate data refinement relations,
+  and refine an executable program to a form that is accepted by the 
+  Isabelle/HOL code generator.
+
+  Some basic usage examples can be found in this entry, but most of the examples and 
+  the userguide have been moved to the Collections AFP entry. For more advanced examples,
+  consider the AFP entries that are based on the Refinement Framework.
+\end{abstract}
+
+\clearpage
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+\chapter{Introduction}
+Isabelle/HOL\cite{NPW02} is a higher order logic theorem prover. Recently, we
+started to use it to implement automata algorithms 
+(e.g., \cite{L09_tree_automata}).
+There, we do not only want to specify an algorithm and prove it correct, but
+we also want to obtain efficient executable code from the formalization.
+This can be done with Isabelle/HOL's code generator \cite{Haft09,HaNi10}, that 
+converts
+functional specifications inside Isabelle/HOL to executable programs. In order
+to obtain a uniform interface to efficient data structures, we developed the
+Isabelle Collection Framework (ICF) \cite{L09_collections,LL10}. 
+It provides a uniform interface to various (collection) data structures, as well
+as generic algorithm, that are parametrized over the data structure actually used,
+and can be instantiated for any data structure providing the required operations.
+E.g., a generic algorithm may be parametrized over a set data structure, and then
+instantiated with a hashtable or a red-black tree.
+
+The ICF features a data-refinement approach to prove an algorithm correct:
+First, the algorithm is specified using the abstract data structures. These are
+usually standard datatypes on Isabelle/HOL, and thus enjoy a good tool support
+for proving. Hence, the correctness proof is most conveniently performed on this
+abstract level. In a next step, the abstract algorithm is refined to a 
+concrete algorithm that uses some efficient data structures. Finally, it is 
+shown that the result of the concrete algorithm is related to the result of 
+the abstract algorithm. This last step is usually fairly straightforward.
+
+This approach works well for simple operations. However, it is not 
+applicable when using inherently nondeterministic operations on the abstract level,
+such as choosing an arbitrary element from a non-empty set. In this case, any 
+choice of the element on the abstract level
+over-specifies the algorithm, as it forces the concrete algorithm to choose the
+same element.
+
+One possibility is to initially specify and prove correct the algorithm on 
+the concrete level, possibly using parametrization to leave the concrete
+implementation unspecified. The problem here is, that the correctness proofs
+have to be performed on the concrete level, involving abstraction steps during 
+the proof, which makes it less readable and more tedious. Moreover, this 
+approach does not support stepwise refinement, as all operations have to work on
+the most concrete datatypes.
+
+Another possibility is to use a non-deterministic algorithm on the abstract 
+level, that is then refined to a deterministic algorithm. Here, the 
+correctness proofs may be done on the abstract level, and stepwise refinement is
+properly supported.
+
+However, as Isabelle/HOL  primarily supports functions, not relations,
+formulating   nondeterministic  algorithms   is  more   tedious.  This
+development  provides  a  framework for  formulating  nondeterministic
+algorithms in a  monadic style, and using program  and data refinement
+to  eventually obtain an  executable algorithm.  The monad  is defined
+over a set of results and a special {\em FAIL}-value, that indicates a
+failed assertion.  The framework provides some tools to make reasoning
+about those monadic programs more comfortable.
+
+\section{Related Work}
+Data refinement dates back to Hoare \cite{Hoa72}. Using 
+{\em refinement calculus} for stepwise program refinement, including data
+refinement, was first proposed by Back \cite{Back78}.  In the last
+decades, these topics have been subject to extensive research. Good
+overviews are \cite{BaWr98,RoEn98}, that cover the main concepts on
+which this formalization is based.  There are various formalizations
+of refinement calculus within theorem provers
+\cite{BaWr90,LRW95,RuWr97,Stap99,Preo06}.  All these works focus on
+imperative programs and therefore have to deal with the representation
+of the state space (e.g., local variables, procedure parameters).  In
+our monadic approach, there is no need to formalize state spaces or
+procedures, which makes it quite simple. Note, that we achieve
+modularization by defining constants (or recursive functions), thus
+moving the burden of handling parameters and procedure calls to the
+underlying theorem prover, and at the same time achieving a more
+seamless integration of our framework into the theorem prover. 
+In the seL4-project \cite{CKS08}, a nondeterministic state-exception monad is
+used to refine the abstract specification of the kernel to an
+executable model. The basic concept is closely related to ours.
+However, as the focus is different (Verification of kernel operations vs. 
+verification of model-checking algorithms), there are some major differences in
+the handling of recursion and data refinement. 
+In \cite{SchM98}, {\em refinement monads} are studied. 
+The basic constructions there are similar to ours. However, while we focus on
+data refinement, they focus on introducing commands with side-effects and a 
+predicate-transformer semantics to allow angelic nondeterminism.
+
+% generated text of all theories
+\input{session}
+
+\chapter{Conclusion and Future Work}
+We have presented a framework for program and data refinement.
+The notion of a program is based on a nondeterminism monad, and we provided
+tools for verification condition generation, finding data 
+refinement relations, and for generating executable code by 
+Isabelle/HOL's code generator \cite{Haft09,HaNi10}.
+
+We illustrated the usability of our framework by various examples, among others
+a breadth-first search algorithm, which was our solution to task~5 of the VSTTE 
+2012 verification competition.
+
+There is lots of possible future work. We sketch some major directions here:
+\begin{itemize}
+\item
+Some of our refinement rules (e.g.\ for while-loops) are only applicable for
+single-valued relations. This seems to be related to the monadic structure of
+our programs, which focuses on single values. A direction of future research is
+to understand this connection better, and to develop usable rules for 
+non single-valued abstraction relations.
+\item
+Currently, transfer for partial correct programs is done to a complete-lattice
+domain. However, as assertions need not to be included in the transferred program,
+we could also transfer to a ccpo-domain, as, e.g., the option monad that is 
+integrated into Isabelle/HOL by default. This is, however, only a technical 
+problem, as ccpo and lattice typeclasses are not properly 
+linked\footnote{This has also been fixed in the development version of 
+Isabelle/HOL}.
+Moreover, with the partial function package \cite{Kr10}, 
+Isabelle/HOL has a powerful tool to express arbitrary recursion schemes over 
+monadic programs. Currently, we have done the basic setup for the partial 
+function package, i.e., we can define recursions over our monad. However, 
+induction-rule generation does not yet work, and there is potential for more 
+tool-support regarding refinement and transfer to deterministic programs.
+\item
+Finally, our framework only supports functional programs. However, as shown in
+Imperative/HOL \cite{BKHEM08}, monadic programs are well-suited to 
+express a heap. Hence, a direction of future research is to add a heap to our
+nondeterminism monad. Argumentation about the heap could be done with a 
+separation logic \cite{Rey02} formalism, like the one that we already 
+developed for Imperative/HOL \cite{Meis2011}.
+\end{itemize}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

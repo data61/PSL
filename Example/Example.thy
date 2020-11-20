@@ -7,7 +7,7 @@ See other files from AFP for more involved examples.
 *)
 
 theory Example
-imports "../PSL/PSL" "~~/src/HOL/Eisbach/Eisbach"
+imports "PSL.PSL" "~~/src/HOL/Eisbach/Eisbach"
 begin
 
 (* The "Hammer" strategy invokes sledgehammer as a sub-tool. *)
@@ -130,6 +130,6 @@ oops
 strategy testCut = Thens [Repeat (Cut 10 (Dynamic (Rule))), IsSolved]
 lemma "True \<and> True"
 find_proof testCut
-oops
+  oops
 
 end

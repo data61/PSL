@@ -1,0 +1,54 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[english]{babel}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+\renewcommand{\isamarkupcmt}[1]{\hangindent5ex{\isastylecmt --- #1}}
+
+
+\begin{document}
+
+\title{Dijkstra's Algorithm} 
+
+%\title{A Efficiently Computable Formalisation of 
+%Dijkstra's Algorithm}
+
+\author{Benedikt Nordhoff \and Peter Lammich}
+\maketitle
+
+\begin{abstract}
+  We implement and prove correct Dijkstra's algorithm for the single source 
+  shortest path problem, conceived in
+  1956 by E. Dijkstra. The algorithm is implemented using the data refinement
+  framework for monadic, nondeterministic programs. An efficient 
+  implementation is derived using data structures from the 
+  Isabelle Collection Framework.
+\end{abstract}
+
+\tableofcontents
+
+\clearpage
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

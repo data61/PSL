@@ -15,6 +15,7 @@ sig
   val lookup                  : Proof.context -> string -> strategy option;
   val try_hard_strategy       : Proof.context -> strategy option;
   val try_parallel_strategy   : Proof.context -> strategy option;
+  val get_monad_tactic        : strategy -> Proof.state Monadic_Prover.stttac;
 end;
 
 (*** PSL_Interface: One can define new strategies only through the Isar interface. ***)
@@ -72,9 +73,8 @@ fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
   let
     val core_tac  = Mp.desugar strategy;
     val interpret = Mp.interpret;
-    fun hard_timeout_in (sec:real) = Timeout.apply (seconds sec);
   in
-    hard_timeout_in 60000.0
+    Isabelle_Utils.timeout_apply (seconds 6000000.0)
     (interpret (Mp.eval_prim, Mp.eval_para, Mp.eval_pgt, Mp.eval_strategic, Mp.m_equal, Mp.iddfc, (5,20))
                 core_tac) proof_state
   end : Proof.state Mp.monad;

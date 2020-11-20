@@ -128,19 +128,18 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
             then ([(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "Nat.inc_induct", [])]): seed_quadruples
             else ([]);
         (*quadruple_for_length_induct*)
-        fun is_less_eq_of_lengths_of (FUA_Prnt_Tag (FUC_Prnt_Tag ("Orderings.ord_class.less_eq",_,_,_), [_, rhs], _, _)) =
+        fun is_less_or_less_eq_of_lengths_of (FUA_Prnt_Tag (FUC_Prnt_Tag (cname,_,_,_), [_, rhs], _, _)) =
             let
+              val is_is_less_or_less_eq = (cname = "Orderings.ord_class.less_eq" orelse cname = "Orderings.ord_class.less");
               val rhs_length_of_opt = is_length_of rhs: string option;
             in
-              if   is_some rhs_length_of_opt
-              then [the rhs_length_of_opt]
-              else []
+              if is_some rhs_length_of_opt then [the rhs_length_of_opt] else []
             end
-          | is_less_eq_of_lengths_of _ = [];
+          | is_less_or_less_eq_of_lengths_of _ = [];
         val quadruple_for_length_induct: seed_quadruples =
-            if null (is_less_eq_of_lengths_of app)
+            if null (is_less_or_less_eq_of_lengths_of app)
             then []
-            else [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.length_induct", is_less_eq_of_lengths_of app)];
+            else [(Definition_Pattern.Unknown, futrm_w_prnt_n_tag_to_print func, SOME "List.length_induct", is_less_or_less_eq_of_lengths_of app)];
 
         (*quadruple_for_list_nonempty_induct_and_rev_nonempty_induct*)
         fun rhs_is_empty_and_lhs_of_eq_is (FUA_Prnt_Tag (FUC_Prnt_Tag ("HOL.not_equal",_,_,_), [lhs,rhs], _, _)) =
@@ -193,17 +192,15 @@ fun context_n_term_to_argument_powersets (ctxt:Proof.context) (trm:term) =
     func_n_powerset_of_args_pairs |> distinct (op =): seed_quadruple list
   end;
 
-structure SU = SeLFiE_Util;
-
 fun powerset_to_induct_arguments ([]:seed_quadruples) = []
   | powerset_to_induct_arguments ((command, func, NONE, args)::quadruples:seed_quadruples) =
-    SU.Induct_Arguments {ons = args, arbs = [], rules = []}
+    SeLFiE_Util.Induct_Arguments {ons = args, arbs = [], rules = []}
  :: (case command of Definition_Pattern.Inductive_Set
-         => SU.Induct_Arguments {ons = [], arbs = [], rules = [SU.Ind_Set (func)]}
-     | _ => SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Ind_Rule (func ^ ".induct")]})
+         => SeLFiE_Util.Induct_Arguments {ons = [], arbs = [], rules = [SeLFiE_Util.Ind_Set (func)]}
+     | _ => SeLFiE_Util.Induct_Arguments {ons = args, arbs = [], rules = [SeLFiE_Util.Ind_Rule (func ^ ".induct")]})
  :: powerset_to_induct_arguments quadruples
   | powerset_to_induct_arguments ((_, _, SOME ind_rule, args)::quadruples) =
-    SU.Induct_Arguments {ons = args, arbs = [], rules = [SU.Hand_Rule ind_rule]}
+    SeLFiE_Util.Induct_Arguments {ons = args, arbs = [], rules = [SeLFiE_Util.Hand_Rule ind_rule]}
  :: powerset_to_induct_arguments quadruples
  : SeLFiE_Util.induct_arguments list;
 
@@ -213,14 +210,14 @@ let
   val ctxt             = Proof.context_of pst;
   val terms            = Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst: term list;
   fun is_not_string_of_const (cname:string) = try (Syntax.read_term ctxt) cname <$> Term.is_Const |> Utils.is_some_false: bool;
-  fun is_wellfounded (SU.Induct_Arguments {rules,...}) = rules = [SU.Ind_Rule "Wellfounded.accp.induct"];(*TODO: FIXME: termination proof for  goodsteinC in Goodstein.thy*)
-  fun all_ons_meet_condition (SU.Induct_Arguments {ons,rules,...}) = (forall is_not_string_of_const ons) andalso 
+  fun is_wellfounded (SeLFiE_Util.Induct_Arguments {rules,...}) = rules = [SeLFiE_Util.Ind_Rule "Wellfounded.accp.induct"];(*TODO: FIXME: termination proof for  goodsteinC in Goodstein.thy*)
+  fun all_ons_meet_condition (SeLFiE_Util.Induct_Arguments {ons,rules,...}) = (forall is_not_string_of_const ons) andalso 
       (case rules of
-         [SU.Ind_Set   _] => true
-       | [SU.Hand_Rule _] => true
+         [SeLFiE_Util.Ind_Set   _] => true
+       | [SeLFiE_Util.Hand_Rule _] => true
        |  _               => not (null ons)): bool;
   fun rule_name_is_defined rule_name = try (Proof_Context.get_thm ctxt) rule_name |> is_some;
-  fun all_rules_exist (SU.Induct_Arguments {rules,...}) = forall (rule_name_is_defined o SU.rule_or_set_to_string) rules
+  fun all_rules_exist (SeLFiE_Util.Induct_Arguments {rules,...}) = forall (rule_name_is_defined o SeLFiE_Util.rule_or_set_to_string) rules
   val induct_arguments = map (context_n_term_to_argument_powersets ctxt) terms
                       |> flat
                       |> distinct (op =)
@@ -229,28 +226,28 @@ let
                       |> filter all_ons_meet_condition (*TODO: we should do something better than this.*)
                       |> filter all_rules_exist
                       |> filter_out is_wellfounded
-                      |> SU.sort_induct_argumentss: SeLFiE_Util.induct_arguments list;
+                      |> SeLFiE_Util.sort_induct_argumentss: SeLFiE_Util.induct_arguments list;
 (*
-val _ = (map (tracing o SU.induct_arguments_to_string) induct_arguments);
+val _ = (map (tracing o SeLFiE_Util.induct_arguments_to_string) induct_arguments);
 val _ = tracing ("Smart constuct produced " ^ Int.toString (length induct_arguments) ^ " combinations.");*)
 in
-  induct_arguments: SU.induct_arguments list
+  induct_arguments: SeLFiE_Util.induct_arguments list
 end;
 
-fun proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score, SU.Induct_Arguments {ons, rules,...}) =
+fun proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score, SeLFiE_Util.Induct_Arguments {ons, rules,...}) =
   let
     val ctxt              = Proof.context_of pst;
     val trms_wo_abb       = map (Isabelle_Utils.contract_abbrevs ctxt) trms               : terms;
     val free_names        = fold Term.add_free_names trms_wo_abb []  |> distinct (op =)   : strings;
     val fnames_not_in_ons = filter_out (member (op =) ons) free_names                     : strings;
     val arbss             = powerset fnames_not_in_ons: strings list;(*TODO: refactor with proof_state_to_induct_argumentss.*)
-    fun mk_new_pair arbs  = (score, SU.Induct_Arguments {ons=ons, arbs=arbs, rules=rules}): (real * SU.induct_arguments);
-    val induct_argss      = map mk_new_pair arbss                                         : (real * SU.induct_arguments) list;
+    fun mk_new_pair arbs  = (score, SeLFiE_Util.Induct_Arguments {ons=ons, arbs=arbs, rules=rules}): (real * SeLFiE_Util.induct_arguments);
+    val induct_argss      = map mk_new_pair arbss                                         : (real * SeLFiE_Util.induct_arguments) list;
   in
-    induct_argss: (real * SU.induct_arguments) list
+    induct_argss: (real * SeLFiE_Util.induct_arguments) list
   end;
 
-fun proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score_n_argss:(real * SU.induct_arguments) list) =
+fun proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs (pst:Proof.state) (trms:terms) (score_n_argss:(real * SeLFiE_Util.induct_arguments) list) =
    map (fn score_n_args => proof_state_n_terms_n_score_n_induct_arguments_to_score_n_induct_argumentss_w_arbs pst trms score_n_args) score_n_argss
 |> flat:  (real * SeLFiE_Util.induct_arguments) list;
 

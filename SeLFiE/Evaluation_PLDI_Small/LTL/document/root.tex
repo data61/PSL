@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+
+\usepackage{isabelle,isabellesym}
+\usepackage{amssymb}
+\usepackage[only,bigsqcap]{stmaryrd}
+
+\usepackage[T1]{fontenc}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+% for uniform font size
+\renewcommand{\isastyle}{\isastyleminor}
+
+\begin{document}
+
+\title{Linear Temporal Logic}
+\author{Salomon Sickert}
+\maketitle
+
+\begin{abstract}
+This theory provides a formalisation of linear temporal logic (LTL) and unifies previous formalisations within the AFP. This entry establishes syntax and semantics for this logic and decouples it from existing  entries, yielding a common environment for theories reasoning about LTL. Furthermore a parser written in SML and an executable simplifier are provided.
+\end{abstract}
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

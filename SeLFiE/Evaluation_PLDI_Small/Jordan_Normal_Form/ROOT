@@ -1,0 +1,21 @@
+chapter AFP
+
+session "Jordan_Normal_Form" (AFP) = "JNF-AFP-Lib" +
+  options [timeout = 1200]
+  sessions
+    Polynomial_Factorization
+  theories
+    Missing_Ring
+    Missing_Permutations
+  theories
+    Matrix_Impl
+    Strassen_Algorithm_Code
+    Matrix_Complexity
+    Jordan_Normal_Form_Existence
+    Jordan_Normal_Form_Uniqueness
+    Spectral_Radius
+  theories
+    DL_Rank_Submatrix
+  document_files
+    "root.bib"
+    "root.tex"

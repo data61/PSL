@@ -1,0 +1,253 @@
+TODO
+
+20-05-2016:
+* Better indication if some rule is only not applied because a constraint fails!
+  UPDATE: Currently, failing constraints are only handled after translation phase!
+  UPDATE: CN_FALSE allows to mark constraints as definitely failing.
+
+25-05-2016
+* Translate foreach-loops with iterators: 
+    Analyze whether loop-body modifies collection, and use non-copy iterator 
+    if possible. 
+  Problem: Need to extend hnr-synthesis to keep track of iterators attached 
+    to data structures.
+
+30-05-2016
+* Debug-method to list all matching (expected to match) rules:
+  List rules that match on same constant with same relations, ignoring concrete
+  typing. Perhaps explain why rule actually does not match.
+
+* FCOMP: Warn/error if hr_comp-attribute is not folded! 
+  This prevents subtle bugs, if rules with non-folded relations are 
+  silently registered!
+  UPDATE: sepref_decl_impl has such a warning now.
+
+* Controlled interface registration: Open/Close implementation of certain interface,
+  and only allow sepref-rules of expected format. This would cover 
+  incomplete FCOMP-folding, as well as missing PR_CONST-tags.
+
+31-05-2016
+* Profile sepref on long-taking case (Dijkstra)
+  UPDATE: There was a general backtracking problem, now speed has 
+    considerably increased, but the tool still feels a bit slow.
+    
+* rdomp and vassn_tag: Unify!
+
+02-06-2016
+* to_hnr, SYNTH: Add direct analysis of hfref-rules. 
+  Do everything over hnr_analysis, which is used as primary representation for refinement theorems!
+
+03-06-2016
+* Define heap-versions of set-rel, map-rel:
+  Define *-operator for sets: 
+    *{a_1,...,a_n}P = P a_1 * ... * P a_n
+    *inf-set S P = ALL s:S. is_pure P s & the_pure P s
+
+  Use *-operator to define set-rel, map_rel
+    set_rel A S' S = EX f. *S(%s. A (f s) s) & S' = f`S  
+    map_rel - similar, with f mapping concrete to abstract keys.
+
+  In pure case, these should coincide with map_rel/set_rel!
+
+  Then, these relations can be used to parameterize data structures, including 
+    nested heap data structures! 
+  It still remains unsolved how to extract elements from these data structures, 
+    without giving up the data structure itself. 
+
+07-06-2016
+  * Extend set interface: Select, image, etc...
+    ALREADY DONE: union, diff, pick
+
+20-06-2016
+  * Is it worth to fix refinement assertions prior to translation?
+
+21-06-2016
+  * Try a-posteriori recovering: Equip hn_invalid with a schematic variable that
+    may be instantiated to a copy-operation that gets inserted at the 
+    invalidation location. Remove spurious copy-operations in optimization phase.
+
+    If this scheme works, we can encode invalidated values by "true" again.
+
+20-06-2016
+  * Handle open relations, i.e., relation type variables that remain parametric at end of synthesis,
+    and may get constrained!
+
+18-07-2016
+  * Explore capabilities for combinator rule and generic algorithm generation.
+  * Allow controlled backtracking over sepref_comb_rules, to allow for generic 
+    algorithm schemes that depend on parameter refinements.
+    
+
+19-07-2016
+  * A method that knows the natural preconditions of standard operations,
+      and makes them visible as assertions in the monad would be nice!
+
+      It could be combined with a monadify-step, such that the standard
+      operations would be replaced by (ASSERT pre\<then>RETURN op) or a
+      suitable constant.
+
+      Problem: Relating the original program m and the modified program m' is
+        not that easy! We have "m \<le> m'", but we need a 
+        relation in the opposite direction! We have "leof m' m"!
+
+        So the working approach would be:
+          Define m. Generate m' and "m\<le>m'" and "leof m' m".
+          Show "pre \<Longrightarrow> m'\<le>SPEC post". Immediately get: "pre \<Longrightarrow> m=m'",
+          and thus "pre \<Longrightarrow> m\<le>SPEC post"
+
+22-07-2016
+
+* sepref_to_hoare cannot handle the_pure (pure _)
+
+02-08-2016
+  * Clear guidelines and automation for match and merge rules, considering
+    type structure and invalidation.
+
+DONE
+03-08-2016
+  * Added combinator example using synthesis
+  * Some final cleanup towards AFP-submission
+
+28-07-2016
+  * Added basic well-formedness checks to sepref_fr_rules and sepref_register,
+    checking for correct usage of PR_CONST.
+
+26-07-2016
+  * Fixed monadify. Now handles nested plain higher-order which gets converted  
+    to monadic, like fold.
+
+15-07-2016
+  * Added invalid-propagation into structures, to extend merge capabilities .
+
+14-07-2016
+  * Tested more canonical case_prod rule. Updated datatype-snippet.
+    Frame inference now selectively drops atoms that refer to variables not
+    in scope of frame, and keep the others. 
+  * Structural frame inference and merging, with side-conditions
+  SOLVES:
+    * Test potential of user-defined frame inference for subtyping,
+      e.g., matching nat_rel and nbn_rel ... this probably has to create
+      proof obligations during frame matching!?
+  
+    * Test structural matching and merging for other standard datatypes.
+  
+    * Do we need invalid propagation on frame inference? This would allow us
+      to selectively restore parts of a datastructure, instead the whole data structure.
+
+
+13-07-2016
+  * Some support for manual datatype refinement. Added Snippet.
+
+12-07-2016
+  * Added id-op support for matrix
+  * added "asmtx_assn N A" for array based square matrices. Elements refined by A.
+  * Fix spurious "Term and interface type seem unrelated" warnings from sepref_register, 
+    e.g., on maps.
+    -- Now there is sepref_decl_intf command, that declares interface type together 
+      with associated logical type. sepref_register now causes error when 
+      operation's logical type does not match the associated logical type of the declared
+      interface type.
+
+08-07-2016
+  * Added safe rules and abbreviations to constraint management. 
+    Now working without CONSTRAINT-tags internally, and having checks to reject 
+    schematic heads, as well as safe rules registered as unsafe.
+
+04-07-2016
+  * sepref_decl_impl command. Implemented first version and tested for Array.
+  -->* Add uniform methods to define interfaces, and to lift between mop_xx and op_xx rules
+  -->* Map: Add mop_xxx operations
+
+30-06-2016
+  * Installed Simon's advanced flex-flex smasher after RCALL-resolution
+  * Tested sepref_decl_op on set interface
+
+28-06-2016
+  * Implemented sepref_decl_op command, which combines 
+    definition of op and mop constants, sepref_register, vcg-rule-generation, parametericity rule generation.
+    and tested for decl of list-interface.
+
+25-06-2016
+  * Moved rule based term synthesis to "Lib/Term_Synth", and made rule application deterministic.
+
+21-06-2016
+  * Automatic handling of duplicated parameters (eg. f$x$x) 
+    -- The monadify-phase now inserts COPY-operations.
+
+
+
+20-06-2016
+* Remove dependencies on collection framework and cava code generator setup!
+  -- Now all such dependencies moved to Sepref_ICF_Bindings.
+
+* Optimize sepref-translate step: Only select relevant rules before analysis, etc.
+  Experiment with simplified translation tactics. 
+    Can we get rid of the dynamic CONSTRAINT mechanism? 
+    Is it worth to fix refinement assertions prior to translation?
+  -- This was done with removing linearity analysis. CONSTRAINTs are still there,
+    but treated differently. Refinement assertions are still fixed during translation.  
+
+* Try to remove "* true" from invalid_assn again. 
+  Frame inference should become easier again, without the ent, entt special cases.
+  Moreover, comb-rules need to be less careful to add *true!
+  -- Only using entt now.
+
+* Rename hn_prod_aux --> hn_prod, and use "hn_ctxt hn_prod" where required.
+  The same for the other _aux assertions.
+  -- Now called list_assn, prod_assn, option_assn.
+
+* Enforce naming convention: assn for refinement assertions, rel for relations.
+  Current violations, e.g. "ias.rel". 
+  -- DONE
+
+
+
+17-06-2016
+**************************** Removed linearity analysis
+  * Removed linearity analysis phase.
+  * hn_invalid R x y now has the meaning that there is a heap where R x y holds * true.
+    This allows for recovering (pure) values from hn_invalid - assertions
+  * Restructured frame matching: Using ==>_t instead of ==>_A
+  * Operator translation: first find frame, recover pure, then rule, then side-conds.
+    This allows to handle rule-matching efficiently by network.
+  * Translation tactic: Redesigned translation loop: 
+      Outer layer: Translate combinators and side conditions
+      Inner layer: Translate operators and their side conditions. 
+      Backtracking only to find operator translation with solvable side conditions,
+      otherwise deterministic.
+  * Pattern-matching based side-condition dispatcher tactic, that analyses
+    subgoal and invokes appropriate solver.    
+
+  * Constraint rules: Collecting unsolved constraints in "constraint slot",
+    trying to solve them after translation phase, and must solve them at 
+    end of synthesis. Future: Plan to take unsolved constraints as additional 
+    subgoals, to synthesize generic rules.
+***************************  
+
+
+
+
+06-06-2016
+**************************** 
+  * Ported IRF to Isabelle-2016
+  * Moved out of Cava to own Repo
+****************************
+
+05-06-2016
+* Stronger linearity analysis. "la_connect a (%x. f x)" assumes 
+  that x is connected to a, i.e., lifeness of x will be initialized 
+  with lifeness of a. This matches the wrap-unwrap policy of the 
+  translation rules for let, and prod_case.
+
+01-06-2016
+* to_hfref: Leave constraints and other side-conditions not depending on the parameters as premises
+  -- changed analyze_hnr to separate premises and preconditions. 
+    Also inserted check that no premises depend on concrete parameters.
+  
+31-05-2016
+* Prevent unwanted creation of refinements: Do not register rules for new-operations
+  (empty) by default! 
+  -- Removed all new-operations. Now need to use custom_empty_fold-rules
+
+
+

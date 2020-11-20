@@ -645,13 +645,16 @@ fun SINGLE tacf = Option.map fst o Seq.pull o tacf;
 (* DETERM_TIMEOUT was originally written by Jasmin Blanchette in nitpick_util.ML.
  * This version has exception handling on top of his version with my own timeout_apply.*)
 fun DETERM_TIMEOUT delay tac st =
-  Seq.of_list (the_list (timeout_apply delay (fn () => SINGLE tac st) ()
-   handle Timeout.TIMEOUT _ => NONE));
+let
+  val content = Utils.try_with NONE ((timeout_apply delay) (fn () => SINGLE tac st)) ()
+in
+  Seq.of_list (the_list (content))
+end
 in
 
 fun TIMEOUT_in real tac = DETERM_TIMEOUT (seconds real) tac;
 
-fun TIMEOUT tac         = DETERM_TIMEOUT (seconds 0.3) tac;
+fun TIMEOUT tac         = DETERM_TIMEOUT (seconds 1.5) tac;
 
 fun get_meth_name (Method.Source src) = (fst (Token.name_of_src src))
   | get_meth_name _ = "\n"
@@ -1197,7 +1200,7 @@ fun string_to_nontac_on_pstate meth_name proof_state =
     val checked_src = check_src ctxt src;
     val text        = Method.Source checked_src;
     val text_range  = (text, (Position.none, Position.none)) : Method.text_range;
-    val results     = Seq2.try_seq (Proof.apply text_range) proof_state
+    val results     = Seq2.try_seq (Isabelle_Utils.TIMEOUT_in 30.0 (Proof.apply text_range)) proof_state(*TODO: timeout too long?*)
                     :  Proof.state Seq.result Seq.seq;
     val filtered_results = Seq.filter_results results :  Proof.state Seq.seq;
   in

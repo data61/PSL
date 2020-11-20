@@ -1,0 +1,32 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Tries}
+\author{Andreas Lochbihler and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+  This article formalizes the ``trie'' data structure invented by
+  Fredkin~\cite{Fredkin}. It also provides a specialization where the entries
+  in the trie are lists.
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

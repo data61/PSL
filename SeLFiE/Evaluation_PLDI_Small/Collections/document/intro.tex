@@ -1,0 +1,12 @@
+\chapter{Introduction}
+  This development provides an efficient, extensible, machine checked collections framework for use
+  in Isabelle/HOL. The library adopts the concepts of interface, implementation and generic algorithm
+  known from object oriented (collection) libraries like the C++ Standard Template Library\cite{C++STL} or 
+  the Java Collections Framework\cite{JavaCollFr} and makes them available in the Isabelle/HOL environment.
+
+  The library uses data refinement techniques to refine an abstract specification (in terms of high-level concepts such as sets) to a more concrete implementation (based on collection datastructures like red-black-trees).
+  This allows algorithms to be proven on the abstract level at which proofs are simpler because they are not cluttered with low-level details.
+
+  The code-generator of Isabelle/HOL can be used to generate efficient code in all supported target languages, i.e. Haskell, SML, and OCaml.
+
+  For more documentation and introductory material refer to the userguide (Section~\ref{thy:Userguide}) and the ITP-2010 paper \cite{LammichLochbihler2010ITP}.

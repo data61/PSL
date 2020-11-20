@@ -1,0 +1,34 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Normalization by Evaluation}
+\author{Klaus Aehlig and Tobias Nipkow}
+\maketitle
+
+\begin{abstract}
+This article formalizes normalization by evaluation as implemented in
+Isabelle. Lambda calculus plus term rewriting is compiled into a functional
+program with pattern matching. It is proved that the result of a successful
+evaluation is a) correct, i.e.\ equivalent to the input, and b) in normal
+form.
+\end{abstract}
+
+An earlier version of this theory is described in a paper by Aehlig \emph{et
+al.}~\cite{AehligHN-TPHOLs08}. The normal form proof is not in that paper.
+
+\input{session}
+
+\bibliographystyle{plain}
+\bibliography{root}
+
+\end{document}

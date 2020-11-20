@@ -1,0 +1,13 @@
+chapter AFP
+
+session "Median_Of_Medians_Selection" (AFP) = HOL +
+  options [timeout = 300]
+  sessions
+    "HOL-Library"
+  theories [document = false]
+    "HOL-Library.Multiset"
+  theories
+    Median_Of_Medians_Selection
+  document_files
+    "root.tex"
+    "root.bib"

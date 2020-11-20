@@ -1,0 +1,12 @@
+chapter AFP
+
+session "CoreC++" (AFP) = "HOL-Library" +
+  options [timeout = 6000000]
+  sessions
+    Eval_Base
+  theories
+    "CoreC++"
+  document_files
+    "corec++.png"
+    "root.bib"
+    "root.tex"

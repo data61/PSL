@@ -1,4 +1,4 @@
-session "SeLFiE" (psl) in "." = HOL +
+session "SeLFiE" (psl) in "." = "HOL" +
   options [timeout = 600]
   theories [document = false]
     "SeLFiE"

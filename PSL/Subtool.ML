@@ -135,8 +135,7 @@ fun sh_output_to_sh_logtac (sh_output:string) (state:Proof.state) =
       end;
       val _ = Basics.try;
     val state_w_using = Proof.using_cmd using_raw state : Proof.state;
-    val timeout       = Timeout.apply (seconds 10.0)
-    val tac_results   = timeout (Proof.apply checked_range) state_w_using
+    val tac_results   = Isabelle_Utils.TIMEOUT_in 10.0 (Proof.apply checked_range) state_w_using
                         |> Seq.filter_results
                        (*Why Seq.try Seq.hd? Because we want to evaluate the head of
                          sequence strictly here to catch errors immediately.*)
@@ -213,7 +212,7 @@ let
                               : (real * SeLFiE_Util.induct_arguments) list;
     val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs
                               :  (real * SeLFiE_Util.induct_arguments) list;
-    val (arb_best_records, _) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Apply_SeLFiE.Generalization_Heuristic 7 pst outer_path_to_unode_table;
+    val (arb_best_records, _) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Apply_SeLFiE.Generalization_Heuristic 10 pst outer_path_to_unode_table;
     fun mk_arb_message (record:{modifiers: SeLFiE_Util.induct_arguments, score: real}) = SeLFiE_Util.induct_arguments_to_string (#modifiers record);
     val best_arb_messages     = map mk_arb_message arb_best_records: strings;
     val app_best_arb_messages = map (fn parenthesis => "apply " ^ parenthesis) best_arb_messages
@@ -273,7 +272,7 @@ let(*TODO: refine. This has too much code duplication with sh_output_to_sh_logta
       if Utils.debug then (tracing1 (); tracing2 (); tracing3 (); ()) else ()
     end;
   val state_w_using = Proof.using_cmd using_raw state : Proof.state;
-  val timeout       = Timeout.apply (seconds 10.0)
+  fun timeout f     = Utils.try_with Seq.empty (Isabelle_Utils.timeout_apply (seconds 10.0) f)
   val tac_results   = timeout (Proof.apply checked_range) state_w_using
                       |> Seq.filter_results
                      (*Why Seq.try Seq.hd? Because we want to evaluate the head of
@@ -288,22 +287,22 @@ fun mk_state_stttac (smart_induct_output_str:string) = Dynamic_Utils.logtac_to_s
 
 fun state_stttacs (pst:Proof.state) =
   let
-    val induct_output_strs = pst_to_smart_induct_output_strs pst: strings;
-    val stttacs            = map mk_state_stttac induct_output_strs:  Proof.state Dynamic_Utils.stttac list;
+    val induct_output_strs = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds 30.0) pst_to_smart_induct_output_strs) pst: strings;
+    val stttacs            = Par_List.map mk_state_stttac induct_output_strs:  Proof.state Dynamic_Utils.stttac list;
   in
     stttacs
   end;
 
 end;
 
-val timeout    = Timeout.apply (seconds 5.0);
+val timeout    = Isabelle_Utils.timeout_apply (seconds 5.0);
 
 (** The exposed part of Subtools **)
 val quickcheck = timeout Quickcheck_Tactic.state_stttac;
 
 val nitpick    = timeout Nitpick_Tactic.state_stttac;
 
-val hammer     = timeout Sledgehammer_Tactic.state_stttac;
+val hammer     = Isabelle_Utils.timeout_apply (seconds 10.0) Sledgehammer_Tactic.state_stttac;
 
 val to_stttac  = Dynamic_Utils.log_n_nontac_to_stttac;
 
@@ -326,6 +325,6 @@ val subgoal_nontac = Seq.single o #2 o Subgoal.subgoal (Binding.empty, []) NONE 
 
 val subgoal = to_stttac ([Dynamic_Utils.Subgoal], subgoal_nontac);
 
-fun smart_induct pst = Smart_Induct_Tactic.state_stttacs pst |> Seq.of_list;
+fun smart_induct pst = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds 30.0) Smart_Induct_Tactic.state_stttacs) pst |> Seq.of_list;
 
 end;

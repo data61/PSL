@@ -1,0 +1,26 @@
+chapter AFP
+
+session "CAVA_Base" (AFP) in "CAVA_Base" = "Collections" +
+  options [timeout = 600]
+  sessions
+    Deriving
+  theories
+    Deriving.Derive
+    CAVA_Base
+    Lexord_List
+    All_Of_CAVA_Base
+
+session "CAVA_Automata" (AFP) = "CAVA_Base" +
+  options [timeout = 1200]
+  theories
+    Digraph
+    Automata
+    Lasso
+    Simulation
+    Stuttering_Extension
+    Digraph_Impl
+    Automata_Impl
+  theories [document = false]
+    All_Of_CAVA_Automata
+  document_files
+    "root.tex"

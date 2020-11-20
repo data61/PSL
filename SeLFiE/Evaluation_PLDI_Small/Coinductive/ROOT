@@ -1,0 +1,14 @@
+chapter AFP
+
+session Coinductive (AFP) = "HOL-Computational_Algebra" +
+  options [timeout = 600]
+  sessions
+    "HOL-Analysis"
+  directories
+    "Examples"
+  theories
+    Coinductive
+    Lazy_TLList
+    "Examples/Coinductive_Examples"
+  document_files
+    "root.tex"

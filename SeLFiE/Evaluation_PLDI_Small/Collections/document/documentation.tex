@@ -1,0 +1,21 @@
+% Macros for interface and implementation documentation
+
+\newcommand{\docIntf}[2]{
+
+{\bf Interface} #1 (theory #2)\\}
+
+\newcommand{\docAbstype}[1]{\hspace*{2em}Abstract type: #1\\}
+
+\newcommand{\docDesc}[1]{#1}
+
+\newenvironment{docImpls}{
+
+{\bf Implementations:}
+\begin{description}%
+}{\end{description}}
+
+\newcommand{\docImpl}[1]{\item[#1]}
+
+\newcommand{\docType}[1]{(Type: #1)}
+
+\newcommand{\docAbbrv}[1]{(Abbrv: #1)}

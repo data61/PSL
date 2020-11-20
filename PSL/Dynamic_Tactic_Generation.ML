@@ -81,7 +81,7 @@ sig
 end;
 
 (*** Dynamic_Tactic_Generation ***)
-structure Dynamic_Tactic_Generation =
+structure Dynamic_Tactic_Generation: DYNAMIC_TACTIC_GENERATION =
 struct
 (** Rule_Seed_Base: Shared by Rule_Seed and Erule_Seed. **)
 structure Rule_Seed_Base =
@@ -857,19 +857,19 @@ end;
 
 (** Dynamic_Tactic_Generation: body. **)
 type get_stttacs = Proof.state -> Proof.state Dynamic_Utils.stttac Seq.seq;
-val rule        = Dynamic_Rule.get_state_stttacs;
-val erule       = Dynamic_Erule.get_state_stttacs;
-val simp        = Dynamic_Simp.get_state_stttacs;
-val induct      = Dynamic_Induct.get_state_stttacs;
-val induct_tac  = Dynamic_Induct_Tac.get_state_stttacs;
-val coinduction = Dynamic_Coinduction.get_state_stttacs;
-val cases       = Dynamic_Cases.get_state_stttacs;
-val case_tac    = Dynamic_Case_Tac.get_state_stttacs;
-val clarsimp    = Dynamic_Clarsimp.get_state_stttacs;
-val blast       = Dynamic_Blast.get_state_stttacs;
-val fastforce   = Dynamic_Fastforce.get_state_stttacs;
-val auto        = Dynamic_Auto.get_state_stttacs;
-val generalize  = Generalize.get_state_stttacs;
-val conjecture  = Conjecture.get_state_stttacs;
+val rule        = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Rule.get_state_stttacs;
+val erule       = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Erule.get_state_stttacs;
+val simp        = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Simp.get_state_stttacs;
+val induct      = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Induct.get_state_stttacs;
+val induct_tac  = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Induct_Tac.get_state_stttacs;
+val coinduction = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Coinduction.get_state_stttacs;
+val cases       = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Cases.get_state_stttacs;
+val case_tac    = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Case_Tac.get_state_stttacs;
+val clarsimp    = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Clarsimp.get_state_stttacs;
+val blast       = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Blast.get_state_stttacs;
+val fastforce   = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Fastforce.get_state_stttacs;
+val auto        = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Auto.get_state_stttacs;
+val generalize  = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Generalize.get_state_stttacs;
+val conjecture  = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Conjecture.get_state_stttacs;
 
 end;

@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{Binomial Heaps and Skew Binomial Heaps}
+\author{Rene Meis \and Finn Nielsen \and Peter Lammich}
+\maketitle
+
+\begin{abstract}
+  We implement and prove correct binomial heaps and skew binomial heaps.
+  Both are data-structures for priority queues.
+  While binomial heaps have logarithmic {\em findMin}, {\em deleteMin}, 
+  {\em insert}, and {\em meld }
+  operations,
+  skew binomial heaps have constant time {\em findMin}, {\em insert}, 
+  and {\em meld} operations,
+  and only the {\em deleteMin}-operation is logarithmic. This is achieved by
+  using {\em skew links} to avoid cascading linking on {\em insert}-operations,
+  and {\em data-structural bootstrapping} to get constant-time {\em findMin}
+  and {\em meld} operations.
+  Our implementation follows the paper of Brodal and Okasaki \cite{BrOk96}.
+\end{abstract}
+
+\clearpage
+
+\tableofcontents
+
+% sane default for proof documents
+\parindent 0pt\parskip 0.5ex
+
+% generated text of all theories
+\input{session}
+
+% optional bibliography
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

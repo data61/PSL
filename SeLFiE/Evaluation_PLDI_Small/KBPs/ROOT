@@ -1,0 +1,15 @@
+chapter AFP
+
+session KBPs (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  sessions
+    "Transitive-Closure"
+  theories [document = false]
+    Kripke
+  document_files
+    "MC.pdf"
+    "Robot.pdf"
+    "robot_clock.pdf"
+    "robot_spr.pdf"
+    "root.bib"
+    "root.tex"

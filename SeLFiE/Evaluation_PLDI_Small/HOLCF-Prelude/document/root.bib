@@ -1,0 +1,35 @@
+@preamble("
+  \newcommand{\doi}[1]{%\newline
+    \href{http://dx.doi.org/#1}{doi:\nolinkurl{#1}}}")
+
+@string{work:HASKELL = "the ACM SIGPLAN Haskell Workshop, Haskell"}
+
+@inproceedings{ghc-rewriting,
+  author = {Simon {Peyton Jones} and Andrew Tolmach and Tony Hoare},
+  title = {Playing by the Rules: Rewriting as a practical optimization technique in {GHC}},
+  booktitle = work:HASKELL # "'01",
+  pages = {203-233},
+  year = 2001,
+}
+
+@article{haskell-prelude,
+  author = {Simon {Peyton Jones}},
+  title = {Haskell 98 - {S}tandard {P}relude},
+  journal = {Journal of Functional Programming},
+  year = 2003,
+  volume = 13,
+  number = 1,
+  pages = {103-124},
+  note = {\doi{10.1017/S0956796803001011}},
+}
+
+
+@misc{hart2013,
+  title = {Certified {HLints} with {Isabelle/HOLCF-Prelude}},
+  year = {2013},
+  month = jun,
+  journal = {ArXiv e-prints},
+  author = {Joachim Breitner and Brian Huffman and Neil Mitchell and Christian Sternagel},
+  note = {Haskell And Rewriting Techniques (HART)},
+  url = {http://arxiv.org/abs/1306.1340},
+}
