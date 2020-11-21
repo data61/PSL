@@ -3,8 +3,10 @@
 *)
 
 (*&&& and \<Longrightarrow> associate to the right*)
+
 val _ = @{assert} (@{term "A &&& B &&& C"} = @{term "A &&& (B &&& C) "});
 val _ = @{assert} (@{term "A \<Longrightarrow> B \<Longrightarrow> C"} = @{term "A \<Longrightarrow> (B \<Longrightarrow> C)"});
+val _ = @{term "x \<Longrightarrow> y \<Longrightarrow> P x y"};
 
 local
 
@@ -12,6 +14,7 @@ local
 structure TT = Term_Table;
 
 (*FIXME: TODO: take a context as a parameter.*)
+(*
 fun trm_to_inner_path_to_unode_table (trm:term) =
   let
     (*In this test we did not remove Trueprop.*)
@@ -24,6 +27,10 @@ fun trm_to_inner_path_to_unode_table (trm:term) =
   in
     term_table: TT.inner_path_to_unode_table
   end;
+*)
+
+fun trm_to_inner_path_to_unode_table (trm:term) =
+ UN.context_n_term_to_unodes @{context} trm |> TT.unodes_to_unode_table;
 
 val imp_xyz       = @{term "(x &&& w &&& ww) \<Longrightarrow> f (\<lambda>x. x w) z2 \<Longrightarrow> z1 &&& z2 &&& (z3 z4 z5 z6)"}: term;
 val imp_xyz_table = trm_to_inner_path_to_unode_table imp_xyz: TT.inner_path_to_unode_table;
@@ -47,8 +54,8 @@ val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_tabl
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,0]  )     |> the) = ("Pure.conjunction"))
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,1])       |> the) = ("z1"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3])       |> the) = ("z3 z4 z5 z6"));
-val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,0])     |> the) = ("HOL.Trueprop"));
-val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1])     |> the) = ("z3 z4 z5 z6"));
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,0])     |> the) = ("z3"));
+val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1])     |> the) = ("z4"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,0])   |> the) = ("z3"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,1])   |> the) = ("z4"));
 val _ = @{assert}((unode_wo_inner_path_table_n_inner_path_to_print (imp_xyz_table, [3,3,1,2])   |> the) = ("z5"));
