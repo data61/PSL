@@ -1,5 +1,5 @@
-- **Dear TACAS2021, reviewers, semantic_induct resides in PSL/SeLFiE. For revieweing, please refer to the accompanying artifact submission or [this release](https://github.com/data61/PSL/releases/tag/v0.2.0-alpha).**
 - *This is the development version of PSL, PaMpeR, LiFtEr, smart_induct, SeLFiE, and semantic_induct where we try out possibly immature ideas.*
+- *Note that this is compatible with [Isabelle2020](https://isabelle.in.tum.de/website-Isabelle2020/index.html). We will update this repository for Isabelle2021 soon.*
 
 # Smart_Isabelle
 
