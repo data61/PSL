@@ -22,23 +22,7 @@ session "PSL" (psl) in PSL = "PaMpeR" +
     "root.tex"
     "root.bib"
 
-session "LiFtEr" (psl) in LiFtEr = "PSL" +
-  options [timeout = 600]
-  theories [document = false]
-    "LiFtEr"
-  document_files
-    "root.tex"
-    "root.bib"
-
-session Smart_Induct (psl) in Smart_Induct = "LiFtEr" +
-  options [timeout = 3000]
-  theories
-    Smart_Induct
-  document_files
-    "root.tex"
-    "root.bib"
-
-session Smart_Isabelle (psl) = "Smart_Induct" +
+session Smart_Isabelle (psl) = "PSL" +
   options [timeout = 30000]
   theories
     Smart_Isabelle

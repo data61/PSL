@@ -6,7 +6,7 @@ The authors of that part are Timothy Bourke and Gerwin Klein, NICTA.
 *)
 
 theory Bottom_Up_Conjecturing
-  imports "../PSL/PSL"
+  imports Main "PSL.PSL"
 begin
 
 ML\<open>(* Utility functions. Copy and paste from  Pure/Tools/find_consts.ML

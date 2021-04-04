@@ -1,19 +1,7 @@
 (*  Title:      PSL/SeLFeE/src/Path_To_Unode.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 
-This is an improved version of Term_Table.
-Term_Table was initially invented for LiFtEr, in which we only needed Full_Path_Table.
-In SeLFiEr, however, 
-
-The overall work-flow is:
-Proof.state & term ==== pst_n_trm_to_path_to_unode_table ====> (*Path_To_Unode.ML*)
-    (term * Proof.state  ==== trm_to_trm_w_prnt =======================================> (* in Unique_Node   *)
-     trm_w_prnt          ==== trm_w_prnt_to_utrm_w_prnt ===============================> (* in Unique_Node   *)
-     utrm_w_prnt         ==== utrm_w_prnt_to_futrm_w_prnt =============================> (* in Unique_Node   *)
-     futrm_w_prnt        ==== futrm_w_prnt_to_futrm_w_prnt_n_path =====================> (* in Unique_Node   *)
-     futrm_w_prnt_n_path ==== futrm_w_prnt_n_path_to_unodes ===========================> (* in Unique_Node   *)
-     unodes              ==== unodes_to_unode_table ===================================> (* in Path_To_Unode *)
-     path_to_unode_table)
+This is an improved version of Term_Table, which was initially invented for LiFtEr.
 *)
 
 (*** signature PAHT_TO_UNODE ***)

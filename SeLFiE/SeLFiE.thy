@@ -16,7 +16,7 @@ theory SeLFiE
   imports "Pure"
   keywords "assert_SeLFiE_true"          :: diag
   and      "assert_SeLFiE_false"         :: diag
-  and      "semantic_induct"             :: diag
+  and      "sem_ind"                     :: diag
   and      "all_induction_heuristic"     :: diag
   and      "all_generalization_heuristic":: diag
 begin
@@ -24,16 +24,6 @@ begin
 (* pre-processing *)
 ML_file "Definition_Pattern.ML"
 ML_file "Util.ML"
-ML\<open>
-(* Utilty functions *)
-infix 1 <|> <*>;
-fun (f <*> m) = Utils.opt_app f m;
-fun (NONE   <|> NONE  ) = NONE
-  | (NONE   <|> SOME x) = SOME x
-  | (SOME x <|> NONE  ) = SOME x
-  | (SOME x <|> SOME _) = SOME x;
-\<close>
-
 ML_file "Unique_Node.ML"
 ML_file "Unique_Node_Test.ML"
 ML_file "Path_Table_And_Print_Table.ML"

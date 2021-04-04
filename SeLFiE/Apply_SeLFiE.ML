@@ -101,6 +101,8 @@ fun mk_clean_mods (ctxt:Proof.context) (ind_mods:SU.induct_arguments) =
                              <$> Utils.init 
                              <$> String.concatWith "."(*<$> Utils.last*): string option;
         val long_name_option = short_cname_option <$> normalize: string option;
+        infix <*>;
+        fun (f <*> m) = Utils.opt_app f m;
         val clean_rule_name  = long_name_option <$> curry (op ^) <*> SOME ".induct";
         val result           = if is_some clean_rule_name then the clean_rule_name else "";
       in
@@ -370,7 +372,7 @@ fun activate _ =
         token_parser_false;
 
     val _ =
-     Outer_Syntax.command @{command_keyword semantic_induct} "recommend which method to use." 
+     Outer_Syntax.command @{command_keyword sem_ind} "recommend which method to use." 
        (Scan.succeed semantic_induct_cmd); 
 
     val _ =

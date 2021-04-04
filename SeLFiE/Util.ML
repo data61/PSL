@@ -9,9 +9,13 @@ type strings = string list;
 type ints    = int    list;
 type terms   = term list;
 type thms    = thm list;
-infix 1 >>= <$>;
+infix 1 >>= <$> <|>;
 fun (m >>= f) = Option.mapPartial f m;
 fun (m <$> f) = Option.map f m;
+fun (NONE   <|> NONE  ) = NONE
+  | (NONE   <|> SOME x) = SOME x
+  | (SOME x <|> NONE  ) = SOME x
+  | (SOME x <|> SOME _) = SOME x;
 
 (*** UTILS : Utility functions not specific to Isabelle/HOL. ***)
 signature UTILS =
@@ -624,7 +628,7 @@ fun timeout_apply timeout f x =
       val start = Time.now ();
       val request =
         Event_Timer.request {physical = false} (start + timeout)
-          (fn () => Standard_Thread.interrupt_unsynchronized self);
+          (fn () => Isabelle_Thread.interrupt_unsynchronized self);
       val result =
         Exn.capture (fn () => Thread_Attributes.with_attributes orig_atts (fn _ => f x)) ();
       val stop = Time.now ();

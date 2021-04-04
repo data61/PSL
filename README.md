@@ -1,23 +1,25 @@
-- *This is the development version of PSL, PaMpeR, LiFtEr, smart_induct, SeLFiE, and semantic_induct where we try out possibly immature ideas.*
-- *Note that this is compatible with [Isabelle2020](https://isabelle.in.tum.de/website-Isabelle2020/index.html). We will update this repository for Isabelle2021 soon.*
+# News
+- We updated this repository to Isabelle2021.
+- LiFtEr and Smart_Induct are no-longer supported, since their successors, SeLFiE and sem_ind, have shown superior performance.
+- This is the development version of PSL, PaMpeR, SeLFiE, and sem_ind where we try out possibly immature ideas. In case you find problems, please send your feedback.
 
 # Smart_Isabelle
 
 This repository contains various tools to support interactive theorem proving in Isabelle/HOL using artificial intelligence.
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for [Isabelle20**20**](https://isabelle.in.tum.de). Previous versions of Isabelle, such as Isabelle2019, are no longer supported.
+**try_hard**, for [Isabelle20**21**](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2019, are no longer supported.
 
 ## YouTube
 
 We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
 
 ## Installation (of SeLFiE, PaMpeR, PSL, LiFtEr, smart_induct, and semantic_induct in one go)
-1. Install [Isabelle2020](https://isabelle.in.tum.de).
+1. Install [Isabelle2021](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
    * `(path to the Isabelle binary)isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
-   * `/Applications/Isabelle2020.app/Isabelle/bin/isabelle jedit -d . -l Smart_Isabelle`
+   * `/Applications/Isabelle2021.app/bin/isabelle jedit -d . -l Smart_Isabelle`
 4. Then, You can use SeLFiE/PaMpeR/PSL/LiFtEr/Smart_Induct to your theory files
    with the Isabelle keyword, **imports** as ``imports "Smart_Isabelle.Smart_Isabelle"``.
 5. Open `Example/Example.thy` to see if the installation is successful.

@@ -1,5 +1,5 @@
 theory Top_Down_Conjecturing
-  imports "../PSL/PSL"
+  imports "PSL.PSL"
 begin
 
 ML\<open> signature TOP_DOWN_CONJECTURING =

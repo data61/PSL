@@ -3,20 +3,20 @@ imports Main SeLFiE
 begin
 
 lemma "zip xs ys = zip xs ys"
-  semantic_induct
+  sem_ind
   oops
 
 lemma "length xs = length ys \<Longrightarrow> True"
-  semantic_induct
+  sem_ind
   oops
 
 lemma "List.list.list_all2 f xs ys \<Longrightarrow> xs = ys"
-  semantic_induct
+  sem_ind
   apply(induct xs ys rule:list_all2_induct)
   oops
 
 lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
-  semantic_induct
+  sem_ind
   assert_SeLFiE_true  test_is_a_meta_premise    [on["f x"], arb[],rule[]]
   assert_SeLFiE_false test_is_a_meta_premise    [on["h z"], arb[],rule[]]
   assert_SeLFiE_true  test_is_a_meta_conclusion [on["h z"], arb[],rule[]]
@@ -31,7 +31,7 @@ lemma "f x \<Longrightarrow> g y \<Longrightarrow> h z"
   oops
 
 lemma "if x then True else False"
-  semantic_induct
+  sem_ind
   assert_SeLFiE_true  test_Is_If_Then_Else [on["x"], arb[],rule[]]
   oops
 
@@ -44,20 +44,22 @@ lemma "let (x1, x2) = y in z < x1"
   assert_SeLFiE_true test_Is_Let_X_Be_Y_In_X [on["zs"], arb[],rule[]]
   oops
 
- primrec rev :: "'a list \<Rightarrow> 'a list" where
-  "rev []       = []" |
-  "rev (x # xs) = rev xs @ [x]"
+ primrec rev1 :: "'a list \<Rightarrow> 'a list" where
+  "rev1 []       = []" |
+  "rev1 (x # xs) = rev1 xs @ [x]"
 
- fun itrev :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
-  "itrev []     ys = ys" |
-  "itrev (x#xs) ys = itrev xs (x#ys)"
+ fun rev2 :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
+  "rev2 []     ys = ys" |
+  "rev2 (x#xs) ys = rev2 xs (x#ys)"
 
-lemma "itrev xs ys = rev xs @ ys"
-  semantic_induct
+ lemma "rev2 xs ys = rev1 xs @ ys"
+  apply(induct xs arbitrary: ys)
+
+  sem_ind
   all_induction_heuristic      [on[], arb[],rule["List.list_induct2'"]]
   all_induction_heuristic      [on["xs"], arb["ys"],rule[]]
   all_generalization_heuristic [on["xs"], arb["ys"],rule[]]
-  all_induction_heuristic [on["xs","ys"], arb[],rule["itrev.induct"]]
+  all_induction_heuristic [on["xs","ys"], arb[],rule["rev2.induct"]]
 (*
   assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb["ys"], rule[]]
   assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb[    ], rule[]](*Not great, but does not harm much.*)
@@ -66,7 +68,6 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb["xs"],rule[]](*It used to take 2.467s elapsed time*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion [on["xs"], arb[    ],rule[]](*It used to take 0.864s elapsed time*)
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change  [on["xs"], arb["ys"],rule[]]
-  assert_SeLFiE_false for_all_arbs_there_should_be_a_change  [on["xs"], arb["xs"],rule[]]
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change_simplified_for_presentation [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE_false for_all_arbs_there_should_be_a_change_simplified_for_presentation [on["xs"], arb["xs"],rule[]]
   assert_SeLFiE_true  for_all_arbs_there_should_be_a_change  [on["xs"], arb[],rule[]](*unfortunate result due to the universal quantifier.*)
@@ -82,7 +83,9 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_true heuristic_8  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE_true heuristic_9  [on["xs"], arb["ys"],rule[]]
   assert_SeLFiE_true heuristic_10 [on["xs"], arb["ys"],rule[]]
+(*
   assert_SeLFiE_true heuristic_11 [on["xs"], arb["ys"],rule[]]
+*)
   assert_SeLFiE_true heuristic_12 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true heuristic_13 [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true heuristic_14 [on["xs"], arb["ys"],rule["itrev.induct"]]
@@ -92,39 +95,39 @@ lemma "itrev xs ys = rev xs @ ys"
   assert_SeLFiE_true print_all_unodes       [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true print_outer_path_root  [on["xs"], arb["ys"],rule["itrev.induct"]]
   assert_SeLFiE_true lifter_4  [on["xs"], arb["ys"], rule[]]
-  assert_SeLFiE_true lifter_5  [on["xs","ys"], arb[], rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_5  [on["xs","ys"], arb[], rule["rev2.induct"]]
   assert_SeLFiE_true lifter_6  [on["xs"], arb["ys"], rule[]]
   assert_SeLFiE_true lifter_7  [on["xs"], arb["ys"], rule[]]
   assert_SeLFiE_true lifter_8  [on["xs"], arb["ys"], rule[]]
   assert_SeLFiE_true lifter_9  [on["xs"], arb["ys"], rule[]]
   assert_SeLFiE_true lifter_10  [on["xs"], arb["ys"], rule[]]
-  assert_SeLFiE_true lifter_11  [on["xs","ys"], arb[], rule["itrev.induct"]]
-  assert_SeLFiE_true lifter_12  [on["xs"], arb["ys"], rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_11  [on["xs","ys"], arb[], rule["rev2.induct"]]
+  assert_SeLFiE_true lifter_12  [on["xs"], arb["ys"], rule["rev2.induct"]]
   assert_SeLFiE_true lifter_15  [on["xs"], arb["ys"], rule["rev.induct"]]
-  assert_SeLFiE_true lifter_13  [on["xs"], arb["ys"], rule["itrev.induct"]]
-  assert_SeLFiE_true lifter_14  [on["xs"], arb["ys"], rule["itrev.induct"]]
-  assert_SeLFiE_true print_fst_params_of_fun_const [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_true print_inner_roots      [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_true print_all_inner_lhss   [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_true lifter_1  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_true lifter_1b [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_true lifter_2  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_true lifter_3  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_true  test_Is_Subprint_Of_true  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_false test_Is_Subprint_Of_false  [on["xs"], arb["ys"],rule["itrev.induct"]]
-  assert_SeLFiE_false rule_inversion_using_the_deepest_const [on["xs", "ys"], arb[],rule["itrev.induct"]]
+  assert_SeLFiE_true lifter_13  [on["xs"], arb["ys"], rule["rev2.induct"]]
+  assert_SeLFiE_true lifter_14  [on["xs"], arb["ys"], rule["rev2.induct"]]
+  assert_SeLFiE_true print_fst_params_of_fun_const [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_true print_inner_roots      [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_true print_all_inner_lhss   [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_true lifter_1  [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_true lifter_1b [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_true lifter_2  [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_true lifter_3  [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_true  test_Is_Subprint_Of_true  [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_false test_Is_Subprint_Of_false  [on["xs"], arb["ys"],rule["rev2.induct"]]
+  assert_SeLFiE_false rule_inversion_using_the_deepest_const [on["xs", "ys"], arb[],rule["rev2.induct"]]
   apply(induct xs arbitrary: ys) apply auto done
 
-definition "list_reversal_eq xs ys \<equiv> itrev xs ys = rev xs @ ys"
+definition "list_reversal_eq xs ys \<equiv> rev2 xs ys = rev1 xs @ ys"
 print_theorems
 
 lemma "list_reversal_eq xs ys"
-  semantic_induct
+  sem_ind
 (*
   assert_SeLFiE_true  generalize_arguments_used_in_recursion_deep [on["xs"], arb["ys"], rule[]](*good*)
   assert_SeLFiE_false generalize_arguments_used_in_recursion_deep [on["xs"], arb[    ], rule[]](*Great*)
 *)
-  semantic_induct
+  sem_ind
   apply(induct xs arbitrary: ys)
    apply(auto simp: list_reversal_eq_def)
   done
@@ -396,11 +399,11 @@ in
 end) \<close>)
   oops
 
-lemma helper: "itrev xs ys = rev xs @ ys"
+lemma helper: "rev2 xs ys = rev1 xs @ ys"
   apply (induct xs arbitrary: ys)
   by auto
 
-lemma equivalence: "itrev xs [] = rev xs"
+lemma equivalence: "rev2 xs [] = rev1 xs"
   by (simp add: helper)
 
 
@@ -413,10 +416,10 @@ ML\<open>
 Term.add_free_names @{term "f (x z) y"} [] |> rev  |> distinct (op =)
 \<close>
 
-lemma "itrev xs ys = rev xs @ ys"
+lemma "rev2 xs ys = rev1 xs @ ys"
   apply(induct xs)
    apply auto
-  apply(subgoal_tac "\<And>xs. \<forall>ys. itrev xs ys = rev xs @ ys")
+  apply(subgoal_tac "\<And>xs. \<forall>ys. rev2 xs ys = rev1 xs @ ys")
   apply fastforce
   apply(induct_tac xsa)
    apply auto
