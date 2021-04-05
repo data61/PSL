@@ -3,8 +3,6 @@ theory Smart_Isabelle
   "SeLFiE.SeLFiE"
   "PaMpeR.PaMpeR"
   "PSL.PSL"
-  "LiFtEr.LiFtEr"
-  "Smart_Induct.Smart_Induct" 
 begin
 
 lemma "True"
