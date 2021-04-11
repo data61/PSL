@@ -1,5 +1,5 @@
 theory Kaiserslautern
-imports Smart_Isabelle
+imports Smart_Isabelle.Smart_Isabelle
 begin
 
 primrec rev1::"'a list \<Rightarrow> 'a list" where
@@ -19,16 +19,6 @@ strategy CDInd = Thens [Conjecture, Fastforce, Quickcheck,
 
  lemma "rev2 xs [] = rev1 xs"
    find_proof CDInd
-
   oops 
 
-
-
-(*
-
-strategy CDInd = Thens [Conjecture, Fastforce, Quickcheck,
-                        Dynamic (Induct), Auto, IsSolved]
-  find_proof CDInd
-  oops
-*)
 end
