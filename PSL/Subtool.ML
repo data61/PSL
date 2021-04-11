@@ -20,7 +20,7 @@ sig
   val defer       : Proof.state Dynamic_Utils.stttac;
   val subgoal     : Proof.state Dynamic_Utils.stttac;
   val smart_induct: Proof.state -> Proof.state Dynamic_Utils.stttac Seq.seq;
-  val sh_output_to_sh_stttac: string -> Proof.state Dynamic_Utils.stttac;
+  val sh_output_to_sh_stttac: string -> Proof.state Dynamic_Utils.stttac;(*used in United Reasoning*)
 end;
 
 (*** SUBTOOLS: A collection of sub-tools. ***)
@@ -74,30 +74,29 @@ val state_stttac = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac);
 
 end;
 
-(** sledgehammer output to monadic tactics on proof state **)
-fun sh_output_to_sh_logtac (sh_output:string) (state:Proof.state) =
+(** sledgehammer/sem_ind output to monadic tactics on proof state **)
+fun tool_output_n_timeout_to_logtac (sh_output:string) (to:real) (state:Proof.state) =
   let
     (*syntax sugars*)
-    type text         = Method.text;
-    type text_range   = Method.text_range;
-    type ctxt         = Proof.context;
-    type T            = Token.T;
-    type ref          = Facts.ref;
-    type srcs         = Token.src list;
-    type keywords     = Keyword.keywords;
-    val thy           = Proof.theory_of state       : theory;
-    val ctxt          = Proof.context_of state      : ctxt;
-    val keywords      = Thy_Header.get_keywords thy : keywords;
+    type text_range        = Method.text_range;
+    fun is_using sh_output = String.isPrefix "using " sh_output;
+    val parse_using        = Parse.and_list1 Parse.thms1 : (Facts.ref * Token.src list) list list Token.parser;
+    val parse_method       = Method.parse                 : text_range Token.parser;
+    val parse_one          = Scan.one (K true)            : Token.T list -> Token.T * Token.T list;
+    type ctxt              = Proof.context;
+    type T                 = Token.T;
+    type ref               = Facts.ref;
+    type srcs              = Token.src list;
+    type keywords          = Keyword.keywords;
+    val thy                = Proof.theory_of state       : theory;
+    val ctxt               = Proof.context_of state      : ctxt;
+    val keywords           = Thy_Header.get_keywords thy : keywords;
 
     (*function body*)
     val op_w_stopper  = sh_output ^ " parserStopsWithMe";
     val tokens        = Token.explode keywords Position.none op_w_stopper
                       |> filter_out (fn token:T => Token.is_kind Token.Space token) : T list;
-    val is_using      = String.isPrefix "using " sh_output;
-    val parse_using   = Parse.and_list1 Parse.thms1 : (ref * srcs) list list Token.parser;
-    val parse_method  = Method.parse                 : text_range Token.parser;
-    val parse_one     = Scan.one (K true)            : T list -> T * T list;
-    val parser        = if is_using
+    val parser        = if   is_using sh_output
                         then (parse_one |-- parse_using) -- (parse_one |-- parse_method)
                         else (parse_one |-- parse_method) >> (fn x => ([], x));
     val p_get_meth    = (parse_one |-- parse_using) -- parse_one
@@ -105,7 +104,7 @@ fun sh_output_to_sh_logtac (sh_output:string) (state:Proof.state) =
     fun get_str tkns  = tkns
                       |> Utils.init (*drops "parserStopsWithMe" slowly.*)
                       |> map Token.unparse |> String.concatWith " " : string;
-    val methN:string  = if   is_using
+    val methN:string  = if   is_using sh_output
                         then p_get_meth tokens |> snd |> get_str
                         else parse_one  tokens |> snd |> get_str;
     val result        = parser tokens
@@ -135,7 +134,8 @@ fun sh_output_to_sh_logtac (sh_output:string) (state:Proof.state) =
       end;
       val _ = Basics.try;
     val state_w_using = Proof.using_cmd using_raw state : Proof.state;
-    val tac_results   = Isabelle_Utils.TIMEOUT_in 10.0 (Proof.apply checked_range) state_w_using
+    fun timeout f     = Utils.try_with Seq.empty (Isabelle_Utils.timeout_apply (seconds to) f)
+    val tac_results   = timeout (Proof.apply checked_range) state_w_using
                         |> Seq.filter_results
                        (*Why Seq.try Seq.hd? Because we want to evaluate the head of
                          sequence strictly here to catch errors immediately.*)
@@ -145,7 +145,7 @@ fun sh_output_to_sh_logtac (sh_output:string) (state:Proof.state) =
     results_w_log : (Dynamic_Utils.log * Proof.state) Seq.seq
   end;
 
-fun sh_output_to_sh_stttac (output:string) = Dynamic_Utils.logtac_to_stttac (sh_output_to_sh_logtac output): Proof.state Dynamic_Utils.stttac;
+fun sh_output_to_sh_stttac (output:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac output 10.0 ): Proof.state Dynamic_Utils.stttac;
 
 (** Sledgehammer_Tacctic: Sledgehammer as a state monad based tactic. **)
 structure Sledgehammer_Tactic : SUBTOOL =
@@ -189,7 +189,7 @@ fun hammer_logtac (pstate:Proof.state) =
   in
     if   sh_returned
     then
-      sh_output_to_sh_logtac (valOf apply_script_cntnt) pstate
+      tool_output_n_timeout_to_logtac (valOf apply_script_cntnt) 10.0 pstate
     else Seq.empty : (Dynamic_Utils.log * Proof.state) Seq.seq
   end;
 
@@ -220,70 +220,7 @@ in
   app_best_arb_messages:strings
 end;
 
-fun smart_induct_output_to_logtac (sh_output:string) (state:Proof.state) =
-let(*TODO: refine. This has too much code duplication with sh_output_to_sh_logtac*)
-  (*syntax sugars*)
-  val thy           = Proof.theory_of state       : theory;
-  val ctxt          = Proof.context_of state      : Proof.context;
-  val keywords      = Thy_Header.get_keywords thy : Keyword.keywords;
-
-  (*function body*)
-  val op_w_stopper  = sh_output ^ " parserStopsWithMe";
-  val tokens        = Token.explode keywords Position.none op_w_stopper
-                    |> filter_out (fn token:Token.T => Token.is_kind Token.Space token) : Token.T list;
-  val is_using      = String.isPrefix "using " sh_output;
-  val parse_using   = Parse.and_list1 Parse.thms1 : (Facts.ref * Token.src list) list list Token.parser;
-  val parse_method  = Method.parse                 : Method.text_range Token.parser;
-  val parse_one     = Scan.one (K true)            : Token.T list -> Token.T * Token.T list;
-  val parser        = if is_using
-                      then (parse_one |-- parse_using) -- (parse_one |-- parse_method)
-                      else (parse_one |-- parse_method) >> (fn x => ([], x));
-  val p_get_meth    = (parse_one |-- parse_using) -- parse_one
-                    : Token.T list -> ((Facts.ref * Token.src list) list list * Token.T) * Token.T list;
-  fun get_str tkns  = tkns
-                    |> Utils.init (*drops "parserStopsWithMe" slowly.*)
-                    |> map Token.unparse |> String.concatWith " " : string;
-  val methN:string  = if   is_using
-                      then p_get_meth tokens |> snd |> get_str
-                      else parse_one  tokens |> snd |> get_str;
-  val result        = parser tokens
-                    : ((Facts.ref * Token.src list) list list * Method.text_range) * Token.T list;
-  val using_raw     = (#1 o #1) result : (Facts.ref * Token.src list) list list;
-  val text_range    = (#2 o #1) result : Method.text_range;
-  val check_text    = Method.check_text ctxt;
-  val fail_trange   = (Method.Basic (K Method.fail), Position.no_range) : Method.text_range;
-  val checked_range = (apfst check_text text_range handle ERROR _ => fail_trange) : Method.text_range;
-  val using_strings = using_raw |> List.concat |> map (Facts.string_of_ref o #1) handle Empty =>
-                      (if Utils.debug
-                       then tracing "using_strings in sh_output_to_sh_logtac failed." else ();
-                       ["Failed constructing using_strings."])
-                    : string list;
-  val node : Dynamic_Utils.node = Dynamic_Utils.Apply {using = using_strings, methN = methN, back = 0};
-  (*print messages for debugging.*)
-  val _ =
-    let
-      val app = case node of
-        Dynamic_Utils.Apply app_node => app_node
-      | _ => error "app in Sledgehammer_Tactic panics.";
-      fun tracing1 _ = tracing ("methN in node is " ^ #methN app);
-      fun tracing2 _ = tracing "using_strings are ...";
-      fun tracing3 _ = map tracing using_strings;
-    in
-      if Utils.debug then (tracing1 (); tracing2 (); tracing3 (); ()) else ()
-    end;
-  val state_w_using = Proof.using_cmd using_raw state : Proof.state;
-  fun timeout f     = Utils.try_with Seq.empty (Isabelle_Utils.timeout_apply (seconds 10.0) f)
-  val tac_results   = timeout (Proof.apply checked_range) state_w_using
-                      |> Seq.filter_results
-                     (*Why Seq.try Seq.hd? Because we want to evaluate the head of
-                       sequence strictly here to catch errors immediately.*)
-                      |> Utils.try_with Seq.empty (Seq.try Seq.hd): Proof.state Seq.seq;
-  val results_w_log = Seq.map (fn x => ([node], x)) tac_results : (Dynamic_Utils.log * Proof.state) Seq.seq;
-in
-  results_w_log : (Dynamic_Utils.log * Proof.state) Seq.seq
-end;
-
-fun mk_state_stttac (smart_induct_output_str:string) = Dynamic_Utils.logtac_to_stttac (smart_induct_output_to_logtac smart_induct_output_str);
+fun mk_state_stttac (smart_induct_output_str:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac smart_induct_output_str 30.0);
 
 fun state_stttacs (pst:Proof.state) =
   let
