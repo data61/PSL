@@ -1,8 +1,5 @@
 theory MeLoId
-  imports "../../PSL/PSL"(*MiLkMaId_Example*)
+  imports "../../PSL/PSL"
 begin
-
-ML_file "MeLoId_Util.ML"
-ML_file "Smart_Induct.ML"
 
 end

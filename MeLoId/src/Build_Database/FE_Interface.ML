@@ -23,8 +23,6 @@
            ML_file "~/path_to_PSL/PSL/src/Constructor_Class.ML"
            ML_file "~/path_to_PSL/PSL/src/Instantiation.ML"
            ML_file "~/path_to_PSL/PSL/src/Monadic_Prover.ML"
-           ML_file "~/path_to_PSL/PSL/MeLoId/src/MeLoId_Util.ML"
-           ML_file "~/path_to_PSL/PSL/MeLoId/src/Smart_Induct.ML"
            ML_file "~/path_to_PSL/PSL/MeLoId/src/Build_Database/FE_Interface.ML"
            ML{*FE_Interface.FE_activate ()*}
           Note that the paths to MiLkMaId files have to be adjusted for each machine.
