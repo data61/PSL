@@ -8,7 +8,7 @@
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
 theory TIP_prop_02
-  imports "../../Test_Base" "../../../src/Build_Database/Build_Database"
+  imports "../../Test_Base"
 begin
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
