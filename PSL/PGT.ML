@@ -33,6 +33,7 @@ fun max_opt (NONE, NONE) = NONE
  |  max_opt (SOME i, NONE) = SOME i
  |  max_opt (NONE, SOME i) = SOME i
  |  max_opt (SOME i, SOME j) = SOME (Int.max (i, j));
+
 fun get_max_Bound (Bound i) = SOME i
  |  get_max_Bound (Abs (_,_,trm)) = get_max_Bound trm
  |  get_max_Bound (trm1 $ trm2) = apply2 get_max_Bound (trm1, trm2) |> max_opt
@@ -95,12 +96,6 @@ fun generalize_str (ctxt:Proof.context) (goal:thm) =
 fun get_max' (xs:int list) = fold (curry Int.max) xs;
 fun get_max xs = get_max' xs 0;
 
-(* How to measure how many arguments a function should take? *)
-fun typ_to_arg_numb (Type (name, typs)) = if name = "fun" then 1 + get_max (map typ_to_arg_numb typs) else 0
- |  typ_to_arg_numb _ = 0
-
-val trm_to_arg_numb = typ_to_arg_numb o type_of;
-
 (* How to replace sub-terms? *)
 fun replace_with (trm:term) (subterm:term) (new:term) =
   let
@@ -117,7 +112,7 @@ fun get_new_trms' (func as Const _) (subt:term) (max_bound:int) =
   let
     (*I have to add 1 because max_bound is 0 for \<And>x. x.*)
     val bounds = List.tabulate (max_bound + 1, I):int list;
-    val arg_numb = trm_to_arg_numb func: int;
+    val arg_numb = type_of func |> Term.binder_types |> length: int;
     fun mk_trm (n:int) (cnjct:term) =
       if n > 0
       then

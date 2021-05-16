@@ -6,6 +6,7 @@
     keyword proof, apply and by.
     
     Warning: Requires disabling the duplication check in outer_syntax.ML
+             This file is being updated for Isabelle2021. Not production-ready yet.
     
     To generate Database, please do the following:
 
@@ -25,7 +26,7 @@
            ML_file "~/path_to_PSL/PSL/src/Monadic_Prover.ML"
            ML_file "~/path_to_PSL/PSL/MeLoId/src/Build_Database/FE_Interface.ML"
            ML{*FE_Interface.FE_activate ()*}
-          Note that the paths to MiLkMaId files have to be adjusted for each machine.
+          Note that the paths to MeLoId files have to be adjusted for each machine.
         6.Rebuild Isabelle heap
 
     By default the extracted feature file would be stored in PSL/MiLkMaId/src/Build_Database/Database.

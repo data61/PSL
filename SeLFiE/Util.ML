@@ -876,11 +876,7 @@ fun trm_to_string (ctxt:Proof.context) (trm:term) = Syntax.string_of_term ctxt t
  |> YXML.parse_body
  |> XML.content_of : string;
 
-fun count_numb_of_args_of_fun_typ' (fun_typ:typ) (acc:int) = case try dest_funT fun_typ of
-  NONE => acc
-| SOME (_(*domain_typ*), range_typ) => count_numb_of_args_of_fun_typ' range_typ (acc + 1);
-
-fun count_numb_of_args_of_fun_typ (typ:typ) = count_numb_of_args_of_fun_typ' typ 0;
+val count_numb_of_args_of_fun_typ = length o Term.binder_types;
 
 (* TODO: remove code-duplication with PaMpeR/Assertion.ML *)
 fun is_recursive_eq_about_cosnt_name (_ $ (Term.Const ("HOL.eq",_) $ A $ B)) (cname:string) =
