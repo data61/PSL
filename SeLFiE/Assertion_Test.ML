@@ -1,7 +1,7 @@
 (*  Title:      PSL/SeLFiE/src/Interface/SeLFiE_Assertion.ML
     Author:     Yutaka Nagashima, Czech Technical University in Prague, the University of Innsbruck
 *)
-(*** signature: SELFIE_ASSERTION ***)
+(*** signature: ASSERTION_TEST ***)
 signature ASSERTION_TEST =
 sig
 
@@ -51,7 +51,7 @@ val (*bad*)generalize_all_free_var_not_inducted_on                      : Eval_S
 
 end;
 
-(*** structure: SeLFiE_Assertion ***)
+(*** structure: Assertion_Test ***)
 structure Assertion_Test: ASSERTION_TEST =
 struct
 
