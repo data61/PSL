@@ -1,0 +1,7 @@
+session "SeLFiE" (psl) in "." = "HOL" +
+  options [timeout = 600]
+  theories [document = false]
+    "SeLFiE"
+  document_files
+    "root.tex"
+    "root.bib"
