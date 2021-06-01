@@ -21,7 +21,6 @@ ML_file "Subtool.ML"
 ML_file "Constructor_Class.ML"
 ML_file "Instantiation.ML"
 ML_file "Monadic_Prover.ML"
-ML_file "Parser_Combinator.ML"
 ML_file "PSL_Parser.ML"
 ML_file "Isar_Interface.ML"
 

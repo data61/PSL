@@ -59,7 +59,7 @@ ML_file "Eval_Syntactic_Sugar.ML"
 ML_file "Smart_Construction.ML"
 ML_file "Screening.ML"
 
-ML_file "../PSL/Parser_Combinator.ML"
+ML_file "Parser_Combinator.ML"
 ML_file "Apply_SeLFiE.ML"
 ML_file "Assertion_Test.ML"
 ML_file "Assertion_Induction.ML"
