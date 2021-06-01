@@ -4,8 +4,10 @@ GArPIke is an attempt to improve the weights of `sem_ind` using genetic algorith
 
 ## TODOs
 
-- [ ] Step 1: build a system that checks if an induction candidate is good ignoring variable generalisation. For this we can take some hints from a similar system that was used for sem_ind: the system for sem_ind ignores the order of variables.
-- [ ] Step 2: modify the `induct` tactic and `induction` tactic, so that they produce a datapoint, which consists of triples of (1) location, (2) assertion results (booleans) and (3) a boolean value that represents if it coincides with the choice of human engineer *ignoring* variable generalisation.
+- [ ] Step 1: modify the `induct` tactic and `induction` tactic, so that they produce a datapoint, which consists of triples of (1) location, (2) assertion results (booleans) and (3) a boolean value that represents if it coincides with the choice of human engineer *ignoring* variable generalisation.
+   - [ ] Step 1-1: include the entire AFP.
+   - [ ] Step 1-2: check how to include SeLFiE before loading anything from the AFP. Remember I should have done something similar for PaMpeR. So, the PaMpeR source code might be a help.
+- [ ] Step 2: build a system that checks if an induction candidate is good ignoring variable generalisation. For this we can take some hints from a similar system that was used for sem_ind: the system for sem_ind ignores the order of variables.
 - [ ] Step 3: randomly split the database into the training data and validation data.
 - [ ] Step 4: use genetic algorithm on the weights of each induction assertion.
    - [ ] Step 4-1: build a Python script to read/write weights of assertions from/to CSV files.
