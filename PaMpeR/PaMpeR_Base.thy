@@ -14,7 +14,6 @@ theory PaMpeR_Base
 begin
 
 ML_file "Assertions.ML"
-ML_file "../PSL/Parser_Combinator.ML"
 ML_file "PaMpeR_Interface.ML"
 
 end
