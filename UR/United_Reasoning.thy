@@ -157,7 +157,7 @@ datatype Nat = Z | S "Nat"
 fun t2 :: "Nat => Nat => Nat" where
 "t2 (Z) y = y"
 | "t2 (S z) y = S (t2 z y)"
-
+(*
 lemma t2_succ: "S (t2 n m) = t2 n (S m)"
   by(induct n, auto)
 
@@ -166,7 +166,7 @@ theorem property0 :
   apply(induction x1, auto)
   apply(simp add:t2_succ)
   done
-
+*)
 ML\<open> (*This part (the definitions of long_keyword, long_statement, and short_statement) are from
 by Pure/Pure.thy in Isabelle/HOL's source code.*)
 
@@ -267,6 +267,10 @@ val _ = theorem \<^command_keyword>\<open>prove\<close> "theorem";
 
 end;
 \<close>
+lemma associativity_t2: "t2 var_1 (t2 var_2 var_3) = t2 (t2 var_1 var_2) var_3"
+apply ( induct "var_1" arbitrary : var_2 )
+apply auto
+  done 
 
 prove dfd:"((t2 x1 (S x1)) = (S (t2 x1 x1)))"
 
