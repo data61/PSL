@@ -24,6 +24,7 @@ UR integrates
 - [ ] enrich each proof context by registering proved conjectures.
 - [ ] support `deep` reasoning (nested bottom-up or top-down conjecturing).
 - [ ] evaluation using TIP.
+- [ ] extended definitions of properties for binary functions, such as commutativity.
 
 ## Design decisions made to implement the first working prototype
 - No parallelism for now.
