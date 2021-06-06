@@ -19,6 +19,19 @@ UR integrates
 ## TODOs
 
 - [ ] build bottom-up conjecturing mechanism.
+   - [X] associativity
+   - [ ] idnetity
+   - [ ] invertibility
+   - [X] commutativity
+   - [ ] idempotent_element
+   - [ ] idempotency
+   - [X] distributivity
+   - [X] ant_distributivity
+   - [X] homomorphism_2
+   - [ ] transitivity
+   - [ ] symmetry
+   - [ ] connexity
+   - [ ] reflexivity
 - [ ] build more top-down conjecturing mechanism.
 - [ ] integrate the top-down and bottom-up approaches into one framework. (For each small proof search, we can use PSL.)
 - [ ] enrich each proof context by registering proved conjectures.
