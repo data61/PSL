@@ -63,24 +63,6 @@ val ctxt_n_consts_to_connexity:          Proof.context -> term -> term;
 end;
 \<close>
 
-datatype 'a list = nil2 | cons2 "'a" "'a list"
-
-print_theorems
-
-datatype Nat = Z | S "Nat"
-
-fun qrev :: "'a list => 'a list => 'a list" where
-  "qrev (nil2) y = y"
-| "qrev (cons2 z xs) y = qrev xs (cons2 z y)"
-
-fun x :: "'a list => 'a list => 'a list" where
-  "x (nil2) z = z"
-| "x (cons2 z2 xs) z = cons2 z2 (x xs z)"
-
-fun rev :: "'a list => 'a list" where
-  "rev (nil2) = nil2"
-| "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
-
 ML\<open> structure Bottom_Up_Conjecturing =
 struct
 
@@ -190,11 +172,8 @@ end;
 fun ctxt_n_typ_to_unary_const ctxt typ = try (ctxt_n_typ_to_unary_const' ctxt) typ |> Utils.is_some_null;
 \<close>
 
-ML\<open> ctxt_n_typ_to_unary_const @{context} @{typ "Nat"} \<close>
+ML\<open> datatype direction = Left | Right; \<close>
 
-ML\<open>
-datatype direction = Left | Right;
-\<close>
 (*We assume func is a binary function.*)
 ML\<open> fun ctxt_n_direct_n_trm_to_identity (ctxt:Proof.context) (direct:direction) (func as Const (_, typ):term) =
 (*left identity : f (e, x) = x*)
@@ -340,5 +319,25 @@ then
   end
 else [];
 \<close>
+
+datatype 'a list = nil2 | cons2 "'a" "'a list"
+
+print_theorems
+
+datatype Nat = Z | S "Nat"
+
+fun qrev :: "'a list => 'a list => 'a list" where
+  "qrev (nil2) y = y"
+| "qrev (cons2 z xs) y = qrev xs (cons2 z y)"
+
+fun x :: "'a list => 'a list => 'a list" where
+  "x (nil2) z = z"
+| "x (cons2 z2 xs) z = cons2 z2 (x xs z)"
+
+fun rev :: "'a list => 'a list" where
+  "rev (nil2) = nil2"
+| "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
+
+ML\<open> ctxt_n_typ_to_unary_const @{context} @{typ "Nat"} \<close>
 
 end

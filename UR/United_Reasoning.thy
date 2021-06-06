@@ -102,23 +102,38 @@ ML\<open> fun conjecture_n_pst_to_pst_n_proof (conjecture:{lemma_name:string, le
   let
     val _ = tracing ("trying to prove " ^ #lemma_name conjecture)
     val binding          = (Binding.name (#lemma_name conjecture), [])                                         : Attrib.binding;
-    val stmt_elem        = Element.Shows [(binding, [(#lemma_stmt conjecture, [])])]                           : (string, string) Element.stmt;
     val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(#lemma_stmt conjecture, [])]] (Proof.context_of pst): Proof.state;
     val script_opt       = pst_to_proofscript_opt pst_to_be_proved                                             : string option;
     val pst_n_log  = case script_opt of
        NONE                 => (pst, NONE)
      | SOME (script:string) => (
        let
+         val _ =  #lemma_stmt conjecture |> tracing;
+         val _ = tracing script;
+         val stmt_elem        = Element.Shows [(binding, [(#lemma_stmt conjecture, [])])]: (string, string) Element.stmt;
          val pst_to_be_proved = Specification.theorem_cmd true Thm.theoremK NONE (K I) binding [] [] stmt_elem false (Proof.context_of pst);
-         val proof_scripts    = Utils.init (space_explode "\n" (YXML.content_of script)) |> Utils.init    : strings;
+         val proof_scripts    = Utils.init (space_explode "\n" (YXML.content_of script)) |> Utils.init: strings;
          val stttacs_on_pst   = map string_to_stttac proof_scripts: Proof.state Dynamic_Utils.stttac list;
          (*TODO: Monad fix?*)
+         (*TODO: register proved conjectures with Local_Theory.note.
+                 zip stttacs with lemma names.*)
          fun apply_stttacs_to_pst (pst:Proof.state) []                = (fn _ => Seq.single ([], pst)): Proof.state Monadic_Interpreter_Core.monad
            | apply_stttacs_to_pst (pst:Proof.state) [stttac]          = stttac pst                    : Proof.state Monadic_Interpreter_Core.monad
            | apply_stttacs_to_pst (pst:Proof.state) (stttac::stttacs) = Monadic_Interpreter_Core.bind (stttac pst) (fn new_pst => apply_stttacs_to_pst new_pst stttacs)
          val resulting_pst = apply_stttacs_to_pst pst_to_be_proved stttacs_on_pst [] |> Seq.hd |> snd: Proof.state;
+         val binding = (Binding.name (#lemma_name conjecture), []);
+         val {context: Proof.context, goal: thm} = Proof.simple_goal resulting_pst: {context: Proof.context, goal: thm};
+         val _ = Proof.theorem NONE (fn thms => fn lthy => Local_Theory.note (binding, flat thms) lthy |> snd) []
+               : Proof.context -> Proof.state;
+         val goal_term = Syntax.read_prop context (#lemma_stmt conjecture): term;
+         val vnames = Variable.add_free_names context goal_term [];
+         (*TODO: don't use Skip_Proof.cheat_tac to stay on the safer side.*)
+         val some_thm = (SOME (Goal.prove context vnames [] goal_term (fn {context, prems} => (Skip_Proof.cheat_tac context 1))))
+                        handle ERROR err => (warning (#lemma_name conjecture); warning err; NONE);
+         fun get_ctxt_w_new_lemma _ _ = Local_Theory.note (binding, [the some_thm]) context |> snd: local_theory;
+         val pst_to_return = Proof.theorem NONE (get_ctxt_w_new_lemma) [[(goal_term, [])]] context
        in
-         (resulting_pst, SOME {name = #lemma_name conjecture, stmt = #lemma_stmt conjecture, proof = script})
+         (pst_to_return, SOME {name = #lemma_name conjecture, stmt = #lemma_stmt conjecture, proof = script})
        end);
   in
     pst_n_log: Proof.state * {name: string, proof: string, stmt: string} option
@@ -134,6 +149,7 @@ ML\<open> fun conjectures_n_pst_to_pst_n_proof' [] pst acc = ((pst, []), acc)
      : (Proof.state * conjecture_w_proof list) * conjecture_w_proof list
     end;
 
+(*Fix these overloaded function names*)
 fun conjecture_n_pst_to_pst_n_proof conjectures pst = conjectures_n_pst_to_pst_n_proof' conjectures pst [];
 \<close>
 
@@ -152,21 +168,6 @@ Ors [
   ]
 ]
 
-datatype Nat = Z | S "Nat"
-
-fun t2 :: "Nat => Nat => Nat" where
-"t2 (Z) y = y"
-| "t2 (S z) y = S (t2 z y)"
-(*
-lemma t2_succ: "S (t2 n m) = t2 n (S m)"
-  by(induct n, auto)
-
-theorem property0 :
-  "((t2 x1 (S x1)) = (S (t2 x1 x1)))"
-  apply(induction x1, auto)
-  apply(simp add:t2_succ)
-  done
-*)
 ML\<open> (*This part (the definitions of long_keyword, long_statement, and short_statement) are from
 by Pure/Pure.thy in Isabelle/HOL's source code.*)
 
@@ -267,11 +268,24 @@ val _ = theorem \<^command_keyword>\<open>prove\<close> "theorem";
 
 end;
 \<close>
-lemma associativity_t2: "t2 var_1 (t2 var_2 var_3) = t2 (t2 var_1 var_2) var_3"
-apply ( induct "var_1" arbitrary : var_2 )
-apply auto
-  done 
 
+datatype Nat = Z | S "Nat"
+
+fun t2 :: "Nat => Nat => Nat" where
+"t2 (Z) y = y"
+| "t2 (S z) y = S (t2 z y)"
+(*
+lemma t2_succ: "S (t2 n m) = t2 n (S m)"
+  by(induct n, auto)
+
+theorem property0 :
+  "((t2 x1 (S x1)) = (S (t2 x1 x1)))"
+  apply(induction x1, auto)
+  apply(simp add:t2_succ)
+  done
+*)
+
+(*
 prove dfd:"((t2 x1 (S x1)) = (S (t2 x1 x1)))"
-
+*)
 end
