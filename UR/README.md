@@ -43,3 +43,11 @@ UR integrates
 - No parallelism for now.
 - No multi-level bottom-up conjecturing for now.
 - Support only the top-level theorems instead of aiming at tight integration with Isar.
+- When to do nested top-down conjecturing? Just after applying top-down conjecturing? Or after applying proof by induction?
+- Our abductive reasoning mechanism has to resides ouside PSL to allow for sharing of conjectures. 
+   - How should I orchestrate the entire framework? 
+   - It is still essentially a best-first search or beam search. 
+   - Probably beam search is a better choice here for simpler implementation. 
+   - We can still use PSL for applying `fastforce` and `sledgehammer` using `RepeatN`.
+   - But we need to extract remaining sub-goals from `Proof.state`.
+ 
