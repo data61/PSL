@@ -80,5 +80,3 @@ We also plan to improve the proof automation using evolutionary computation. We 
 ![Screenshot](./image/screen_shot_tall.png)
 - a PGT example
 ![Screenshot](./image/screen_shot_pgt.png)
-- a use case of semantic_induct
-![Screenshot](./image/screenshot_semantic_induct.png)
