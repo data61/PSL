@@ -1,3 +1,5 @@
+**Warning! MiLkMaId is still work in progress! It is not ready for use!**
+
 # MiLkMaId (Machine Learning Mathematical Induction)
 
 This directory contains the experimental implementation of our recommendation system for mathematical induction in Isabelle/HOL.
