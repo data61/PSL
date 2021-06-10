@@ -22,7 +22,7 @@ UR integrates
 
 - [ ] build bottom-up conjecturing mechanism.
    - [X] associativity
-   - [ ] identity
+   - [X] identity
    - [ ] invertibility
    - [X] commutativity
    - [ ] idempotent_element
