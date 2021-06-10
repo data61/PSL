@@ -27,11 +27,20 @@ val top_down               : Proof.state -> record_triple * Proof.state;
 end;
 \<close>
 
-ML\<open> type conjecture_w_proof = {name: string, proof: string, stmt: string};
-\<close>
+ML\<open> type conjecture_w_proof = {name: string, proof: string, stmt: string}; \<close>
 
 ML\<open> fun print_conjecture_w_proof ({name: string, proof: string, stmt: string}:conjecture_w_proof) =
   "lemma " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ "\n" ^ proof: string;
+\<close>
+
+ML\<open> fun ctxt_n_trm_to_conjecture (ctxt:Proof.context) (conjecture_trm:term) =
+let
+(*val consts_str = map (Long_Name.base_name o fst o dest_Const) consts |> String.concatWith "_": string;*)
+  val lemma_name = "lemma_" ^ serial_string (): string;
+  val conjecture_as_string = Isabelle_Utils.trm_to_string ctxt conjecture_trm: string;
+in
+   {lemma_name = lemma_name,  lemma_stmt = conjecture_as_string}
+end;
 \<close>
 
 ML\<open> fun prove_pst_with_strategy (pst:Proof.state) (strategy:Monadic_Prover.str) = ();
@@ -234,16 +243,17 @@ fun theorem spec descr =
             val _= tracing ("We have " ^ Int.toString (length relevant_binary_funcs) ^ " relevant_binary_funcs");
             val _= tracing ("We have " ^ Int.toString (length pairs_for_distributivity) ^ " pairs_for_distributivity");
             val _= tracing ("We have " ^ Int.toString (length pairs_for_anti_distr_n_homomorphism_2) ^ " pairs_for_anti_distr_n_homomorphism_2");
-            val associativities                = map (ctxt_n_trm_to_associativity lthy) relevant_binary_funcs                        |> flat;
-            val commutativities                = map (ctxt_n_trm_to_commutativity lthy) relevant_binary_funcs                        |> flat;
-            val distributivities               = map (ctxt_n_trms_to_distributivity lthy) pairs_for_distributivity                   |> flat;
-            val anti_distributivities          = map (ctxt_n_trms_to_anti_distributivity lthy) pairs_for_anti_distr_n_homomorphism_2 |> flat;
-            val homomorphism_2                 = map (ctxt_n_trms_to_homomorphism_2 lthy) pairs_for_anti_distr_n_homomorphism_2      |> flat;
+            val associativities                = map (Bottom_Up_Conjecturing.ctxt_n_const_to_associativity lthy) relevant_binary_funcs                        |> flat;
+            val commutativities                = map (Bottom_Up_Conjecturing.ctxt_n_const_to_commutativity lthy) relevant_binary_funcs                        |> flat;
+            val distributivities               = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_distributivity lthy) pairs_for_distributivity                   |> flat;
+            val anti_distributivities          = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_anti_distributivity lthy) pairs_for_anti_distr_n_homomorphism_2 |> flat;
+            val homomorphism_2                 = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_homomorphism_2 lthy) pairs_for_anti_distr_n_homomorphism_2      |> flat;
             val conjectures                    = associativities @ commutativities @ distributivities @  anti_distributivities @ homomorphism_2;
             val pst                            = fst_conjecture_n_lthy_to_some_pst_n_proof lthy: Proof.state;
-            val _= tracing ("We have " ^ Int.toString (length conjectures) ^ " conjectures");
-            val conjectures_wo_counter_example = pst_n_conjectures_to_conjectures_wo_obvious_counterexample pst conjectures;
-            val _= tracing ("We have " ^ Int.toString (length conjectures_wo_counter_example) ^ " conjectures_wo_counter_example:");
+            val _ = tracing ("We have " ^ Int.toString (length conjectures) ^ " conjectures");
+            val conjectures_wo_counter_example = map (ctxt_n_trm_to_conjecture (Proof.context_of pst)) conjectures |>
+                                                 pst_n_conjectures_to_conjectures_wo_obvious_counterexample pst;
+            val _ = tracing ("We have " ^ Int.toString (length conjectures_wo_counter_example) ^ " conjectures_wo_counter_example:");
             val _ = map (tracing o (fn conj => " " ^ #lemma_name conj)) conjectures_wo_counter_example;
             fun statement_to_conjecture (Element.Shows [((binding, _), [(stmt:string, [])])]) =
                 {lemma_name = Binding.name_of binding: string,
@@ -285,7 +295,7 @@ theorem property0 :
   done
 *)
 
-(*
+
 prove dfd:"((t2 x1 (S x1)) = (S (t2 x1 x1)))"
-*)
+
 end

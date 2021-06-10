@@ -59,7 +59,7 @@ val ctxt_n_const_to_idempotency:         Proof.context -> term -> term list;
 val ctxt_n_consts_to_distributivity:     Proof.context -> (term * term) -> term list;
 val ctxt_n_consts_to_anti_distributivity:Proof.context -> (term * term) -> term list;
 (*f (g (x, y)) = g (f (x), f (y))*)
-val ctxt_n_trms_to_homomorphism_2:       Proof.context -> (term * term) -> term list;
+val ctxt_n_consts_to_homomorphism_2:       Proof.context -> (term * term) -> term list;
 
 (*bottom_up_for_relations*)
 val ctxt_n_consts_to_symmetry:           Proof.context -> term -> term list;
@@ -112,14 +112,6 @@ fun all_args_are_same_typ (funcs:terms) =(*TODO: rename?*)
   end;
 
 (*bottom_up_for_binary_function*)
-fun ctxt_consts_string_trm_to_conjecture (ctxt:Proof.context) (consts:terms) (conj_typ:string) (conjecture_trm:term) =
-let
-  val consts_str = map (Long_Name.base_name o fst o dest_Const) consts |> String.concatWith "_": string;
-  val lemma_name = conj_typ ^ "_" ^ consts_str: string;
-  val conjecture_as_string = Isabelle_Utils.trm_to_string ctxt conjecture_trm: string;
-in
-   {lemma_name = lemma_name,  lemma_stmt = conjecture_as_string}
-end;
 
 fun mk_eq (lhs:term, rhs:term) = Isabelle_Utils.strip_atyp @{term "HOL.eq"} $ Isabelle_Utils.strip_atyp lhs $ Isabelle_Utils.strip_atyp rhs;
 
@@ -294,20 +286,20 @@ then
     val (unary_wo_typ, binary_wo_typ) = Utils.map_pair Isabelle_Utils.strip_atyp (unary_func, binary_func): (term * term);
     val (var1, var2)                  = Utils.map_pair (mk_free_variable_of_typ dummyT) (1,2)              : (term * term);
     val lhs                           = list_comb (unary_wo_typ, [list_comb (binary_wo_typ, [var1, var2])]): term;
-    val rhs                           = (list_comb
-                                         (binary_wo_typ,
-                                          [list_comb (unary_wo_typ, [var2]),
-                                           list_comb (unary_wo_typ, [var1])
-                                           ]
-                                          )
-                                        );
+    val rhs                           = list_comb
+                                        (binary_wo_typ,
+                                         [list_comb (unary_wo_typ, [var2]),
+                                          list_comb (unary_wo_typ, [var1])
+                                          ]
+                                         )
+                                        ;
     val anti_distributivity           = mk_eq (lhs, rhs) |> Syntax.check_term ctxt: term;
   in
     [anti_distributivity]
   end
 else [];
 
-fun ctxt_n_trms_to_homomorphism_2 (ctxt:Proof.context) (homomorphism:term, preserved_binary:term) =
+fun ctxt_n_consts_to_homomorphism_2 (ctxt:Proof.context) (homomorphism:term, preserved_binary:term) =
 (*f is homomorphism.*)
 (*f (g (x, y)) = g (f (x), f (y))*)
 if Isabelle_Utils.takes_n_arguments homomorphism 1 andalso
@@ -317,7 +309,7 @@ then
   let
     val (homomorphism_wo_typ, preserved_binary_wo_typ) = Utils.map_pair Isabelle_Utils.strip_atyp (homomorphism, preserved_binary): term * term;
     val (var1, var2) = Utils.map_pair (mk_free_variable_of_typ dummyT) (1,2)                                                       : (term * term);
-    val lhs          = (homomorphism_wo_typ $ list_comb (preserved_binary_wo_typ, [var1, var2]))                                   : term;
+    val lhs          = homomorphism_wo_typ $ list_comb (preserved_binary_wo_typ, [var1, var2])                                 : term;
     val rhs          = list_comb (preserved_binary_wo_typ, [homomorphism_wo_typ $ var1, homomorphism_wo_typ $ var2])               : term;
     val proprerty    = mk_eq (lhs, rhs) |> Syntax.check_term ctxt                                                                  : term;
   in
@@ -354,7 +346,5 @@ fun x :: "'a list => 'a list => 'a list" where
 fun rev :: "'a list => 'a list" where
   "rev (nil2) = nil2"
 | "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
-
-ML\<open> ctxt_n_typ_to_unary_const @{context} @{typ "Nat"} \<close>
 
 end
