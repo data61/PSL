@@ -471,6 +471,8 @@ sig
   val has_recursive_psimp_about_const_name        : Proof.context -> string -> bool;
   val normalize_trm_as_string                     : Proof.context -> string -> string;
   val contract_abbrevs                            : Proof.context -> term -> term;
+  val strip_atyp                                  : term -> term;
+  val takes_n_arguments                           : term -> int -> bool;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -918,6 +920,10 @@ fun contract_abbrevs (ctxt:Proof.context) (t:term) =
   in
     Pattern.rewrite_term_top thy [] [match_abbrev] t
   end;
+
+val strip_atyp = Term.map_types (map_atyps (K dummyT)): term -> term;
+
+fun takes_n_arguments (f:term) (n:int) = length (fst (strip_type (type_of f))) = n;
 
 end;
 

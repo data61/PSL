@@ -224,8 +224,8 @@ fun theorem spec descr =
             val defining_terms = (flat o map (SeLFiE_Util.ctxt_n_cname_to_definitions lthy)) cnames_in_cncl: terms;
             val relevant_consts_in_definitinos = map (fn trm => Term.add_consts trm []) defining_terms |> flat |> map Const: terms;
             val relevant_consts = (consts_in_cncl @ relevant_consts_in_definitinos) |> distinct (op =): terms;
-            val relevant_binary_funcs = filter (takes_n_arguments 2) relevant_consts: terms;
-            val relevant_unary_funcs  = filter (takes_n_arguments 1) relevant_consts: terms;
+            val relevant_binary_funcs = filter (fn trm => Isabelle_Utils.takes_n_arguments trm 2) relevant_consts: terms;
+            val relevant_unary_funcs  = filter (fn trm => Isabelle_Utils.takes_n_arguments trm 1) relevant_consts: terms;
             (*TODO: get constants from types*)
 
             val pairs_for_distributivity = termsA_n_termsB_to_AB_pairs relevant_binary_funcs relevant_binary_funcs;
