@@ -1,3 +1,5 @@
+**Warning! GArPIke is still work in progress! It is not ready for use!**
+
 # GArPIke
 
 GArPIke is an attempt to improve the weights of `sem_ind` using genetic algorithm.
