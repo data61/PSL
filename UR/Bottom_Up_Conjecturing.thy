@@ -43,9 +43,8 @@ val ctxt_n_typ_to_consts: Proof.context -> typ -> terms;
 (*f (f (x, y), z) = f (x, f (y, z))*)
 val ctxt_n_const_to_associativity:       Proof.context -> term -> term list;
 (*left identity : f (e, x) = x*)
-val ctxt_n_const_to_left_identity:       Proof.context -> term -> term list;
 (*right identity: f (x, e) = x*)
-val ctxt_n_const_to_right_identity:      Proof.context -> term -> term list;
+val ctxt_n_const_to_identity: Proof.context -> term -> term list;
 (*f (x,y) = e: x is the left inverse of y and y is the right inverse of x*)
 (*These type signatures for invertibility are not great. We should identify *)
 val ctxt_n_const_to_left_invertibility:  Proof.context -> term -> term -> term list;
@@ -129,11 +128,55 @@ then
     [assoc]
     (*[Syntax.check_term ctxt assoc |> ctxt_consts_string_trm_to_conjecture ctxt [func] "associativity"]*)
   end)
-else []: term list
-;
+else []: term list;
 
-val ctxt_n_const_to_left_identity  = undefined:      Proof.context -> term -> term list;
-val ctxt_n_const_to_right_identity = undefined:      Proof.context -> term -> term list;
+fun ctxt_n_typ_to_nullary_const ctxt typ =
+  let
+    fun ctxt_n_typ_to_nullary_const' (ctxt:Proof.context) (typ:typ) =
+      (*as a candidate for the identity element*)
+      let
+        val typ_as_string   = Syntax.string_of_typ ctxt typ
+            |> YXML.parse_body
+            |> XML.content_of : string;
+        val const_typ_pairs = Pretty_Consts.pretty_consts ctxt [(true, Find_Consts.Strict typ_as_string)]: (string * typ) list;
+        val const_names     = map fst const_typ_pairs                                      : strings;
+        val consts_w_dummyT = map (fn cname => Const (cname, dummyT)) const_names          : terms;
+      in
+        consts_w_dummyT: terms
+      end;
+  in try (ctxt_n_typ_to_nullary_const' ctxt) typ |> Utils.is_some_null end;
+
+fun ctxt_n_direct_n_trm_to_identity (ctxt:Proof.context) (direct:direction) (func as Const (_, typ):term) =
+(*left identity : f (e, x) = x*)
+(*right identity: f (x, e) = x*)
+  if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
+  then
+    let
+      val typ_of_arg     = binder_types typ |> (case direct of
+                            Left  =>  List.hd
+                          | Right => (Utils.the' "ctxt_n_trm_to_identity in Bottom_Up_Conjecturing.ML failed"
+                                    o try (fn args => nth args 1)))   : typ;
+      val nullary_consts = ctxt_n_typ_to_nullary_const ctxt typ_of_arg: terms;
+      val func_w_dummyT  = Isabelle_Utils.strip_atyp func            : term;
+      val free_var       = mk_free_variable_of_typ dummyT 1           : term;
+      fun mk_equation (identity_element:term) =
+        let
+          val lhs = case direct of
+              Left  => list_comb (func_w_dummyT, [identity_element, free_var]): term
+            | Right => list_comb (func_w_dummyT, [free_var, identity_element]): term;
+          val rhs = free_var                                                  : term;
+          val eq  = mk_eq (lhs, rhs)                                          : term;
+        in
+          Syntax.check_term ctxt eq
+        end;
+    in
+      map mk_equation nullary_consts
+    end
+  else []
+  | ctxt_n_direct_n_trm_to_identity _ _ _ = [];
+
+fun ctxt_n_const_to_identity ctxt trm =
+  ctxt_n_direct_n_trm_to_identity ctxt Left trm @ ctxt_n_direct_n_trm_to_identity ctxt Right trm
 
 fun ctxt_n_const_to_left_invertibility (ctxt:Proof.context) (identity_element as Const _:term) (func as Const _:term) =
 (*f (x,y) = e: x is the left inverse of y and y is the right inverse of x*)
@@ -167,22 +210,6 @@ then
   in [commutativity] end
 else [];
 
-fun ctxt_n_typ_to_nullary_const ctxt typ =
-  let
-    fun ctxt_n_typ_to_nullary_const' (ctxt:Proof.context) (typ:typ) =
-      (*as a candidate for the identity element*)
-      let
-        val typ_as_string   = Syntax.string_of_typ ctxt typ
-            |> YXML.parse_body
-            |> XML.content_of : string;
-        val const_typ_pairs = Pretty_Consts.pretty_consts ctxt [(true, Find_Consts.Strict typ_as_string)]: (string * typ) list;
-        val const_names     = map fst const_typ_pairs                                      : strings;
-        val consts_w_dummyT = map (fn cname => Const (cname, dummyT)) const_names          : terms;
-      in
-        consts_w_dummyT: terms
-      end;
-  in try (ctxt_n_typ_to_nullary_const' ctxt) typ |> Utils.is_some_null end;
-
 fun ctxt_n_typ_to_unary_const ctxt typ =
   let
     fun ctxt_n_typ_to_unary_const' (ctxt:Proof.context) (typ:typ) =
@@ -201,39 +228,6 @@ fun ctxt_n_typ_to_unary_const ctxt typ =
   in
     try (ctxt_n_typ_to_unary_const' ctxt) typ |> Utils.is_some_null
   end;
-
-fun ctxt_n_direct_n_trm_to_identity (ctxt:Proof.context) (direct:direction) (func as Const (_, typ):term) =
-(*left identity : f (e, x) = x*)
-(*right identity: f (x, e) = x*)
-  if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
-  then
-    let
-      val typ_of_arg     = binder_types typ |> (case direct of
-                            Left  =>  List.hd
-                          | Right => (Utils.the' "ctxt_n_trm_to_identity in Bottom_Up_Conjecturing.ML failed"
-                                    o try (fn args => nth args 1)))   : typ;
-      val nullary_consts = ctxt_n_typ_to_nullary_const ctxt typ_of_arg: terms;
-      val func_w_dummyT  = Isabelle_Utils.strip_atyp func            : term;
-      val free_var       = mk_free_variable_of_typ dummyT 1           : term;
-      fun mk_equation (identity_element:term) =
-        let
-          val lhs = case direct of
-              Left  => list_comb (func_w_dummyT, [identity_element, free_var]): term
-            | Right => list_comb (func_w_dummyT, [free_var, identity_element]): term;
-          val rhs = free_var                                                  : term;
-          val eq  = mk_eq (lhs, rhs)                                          : term;
-        in
-          Syntax.check_term ctxt eq
-        end;
-    in
-      map mk_equation nullary_consts
-    end
-  else []
-  | ctxt_n_direct_n_trm_to_identity _ _ _ = [];
-
-val _ = ctxt_n_direct_n_trm_to_identity @{context} Right @{term "qrev"}
-|> map (Isabelle_Utils.trm_to_string @{context})
-|> map tracing;
 
 (*TODO define these using functions defined above.*)
 val ctxt_n_const_to_idempotent_element = undefined:  Proof.context -> term -> term list;
@@ -346,5 +340,23 @@ fun x :: "'a list => 'a list => 'a list" where
 fun rev :: "'a list => 'a list" where
   "rev (nil2) = nil2"
 | "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
+
+ML\<open>
+val _ = Bottom_Up_Conjecturing.ctxt_n_const_to_identity @{context} @{term "qrev"}
+|> map (Isabelle_Utils.trm_to_string @{context})
+|> map tracing;
+\<close>
+
+lemma "qrev var_1 nil2 = var_1"
+  quickcheck
+  oops
+
+lemma "qrev nil2 var_1 = var_1"
+  try_hard
+  oops
+
+
+lemma "qrev var_1 Bottom_Up_Conjecturing.list.wit_list = var_1 \<Longrightarrow> False"
+  oops
 
 end
