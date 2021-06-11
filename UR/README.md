@@ -25,7 +25,7 @@ UR integrates
    - [X] identity
    - [X] invertibility -> I guess this wouldn't be helpful.
    - [X] commutativity
-   - [ ] idempotent_element
+   - [X] idempotent_element
    - [X] idempotence
    - [X] distributivity
    - [X] ant_distributivity
