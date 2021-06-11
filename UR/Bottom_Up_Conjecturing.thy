@@ -45,10 +45,6 @@ val ctxt_n_const_to_associativity:       Proof.context -> term -> term list;
 (*left identity : f (e, x) = x*)
 (*right identity: f (x, e) = x*)
 val ctxt_n_const_to_identity: Proof.context -> term -> term list;
-(*f (x,y) = e: x is the left inverse of y and y is the right inverse of x*)
-(*These type signatures for invertibility are not great. We should identify *)
-val ctxt_n_const_to_left_invertibility:  Proof.context -> term -> term -> term list;
-val ctxt_n_const_to_right_invertibility: Proof.context -> term -> term -> term list;
 (*f (x, y) = f (y, x)*)
 val ctxt_n_const_to_commutativity:       Proof.context -> term -> term list;
 val ctxt_n_const_to_idempotent_element:  Proof.context -> term -> term list;
@@ -123,10 +119,9 @@ then
     val [var1, var2, var3] = map (mk_free_variable_of_typ dummyT) [1,2,3]: terms;
     val lhs                = list_comb (func_w_dummyT, [var1, list_comb (func_w_dummyT, [var2, var3])]) |> Isabelle_Utils.strip_atyp;
     val rhs                = list_comb (func_w_dummyT, [list_comb (func_w_dummyT, [var1, var2]), var3]) |> Isabelle_Utils.strip_atyp;
-    val assoc              = mk_eq (lhs, rhs): term;
+    val assoc              = mk_eq (lhs, rhs)|> Syntax.check_term ctxt: term;
   in
     [assoc]
-    (*[Syntax.check_term ctxt assoc |> ctxt_consts_string_trm_to_conjecture ctxt [func] "associativity"]*)
   end)
 else []: term list;
 
@@ -178,25 +173,6 @@ fun ctxt_n_direct_n_trm_to_identity (ctxt:Proof.context) (direct:direction) (fun
 fun ctxt_n_const_to_identity ctxt trm =
   ctxt_n_direct_n_trm_to_identity ctxt Left trm @ ctxt_n_direct_n_trm_to_identity ctxt Right trm
 
-fun ctxt_n_const_to_left_invertibility (ctxt:Proof.context) (identity_element as Const _:term) (func as Const _:term) =
-(*f (x,y) = e: x is the left inverse of y and y is the right inverse of x*)
-  if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
-  then
-    let
-      val func_w_dummyT           = Isabelle_Utils.strip_atyp func                                      : term;
-      val (var1, var2)            = Utils.map_pair (mk_free_variable_of_typ dummyT) (1,2): (term * term);
-      val identity_element_wo_typ = Isabelle_Utils.strip_atyp identity_element                          : term;
-      val lhs                     = list_comb (func_w_dummyT, [var1, var2])                             : term;
-      val invertibility           = mk_eq (lhs, identity_element_wo_typ)                                : term;
-    in
-      [invertibility]
-      (*[Syntax.check_term ctxt invertibility: term] |> map (ctxt_consts_string_trm_to_conjecture ctxt [identity_element, func] "invertibility")*)
-    end
-  else []
-| ctxt_n_const_to_left_invertibility _ _ _ = [];
-
-val ctxt_n_const_to_right_invertibility = undefined: Proof.context -> term -> term -> term list;
-
  fun ctxt_n_const_to_commutativity (ctxt:Proof.context) (func:term) =
 (*f (x, y) = f (y, x)*)
 if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
@@ -231,7 +207,20 @@ fun ctxt_n_typ_to_unary_const ctxt typ =
 
 (*TODO define these using functions defined above.*)
 val ctxt_n_const_to_idempotent_element = undefined:  Proof.context -> term -> term list;
-val ctxt_n_const_to_idempotency = undefined:         Proof.context -> term -> term list;
+
+fun ctxt_n_const_to_idempotency (ctxt:Proof.context) (func as Const(_, _)) =
+  (* f (x, x) = x *)
+  if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
+  then
+    let
+      val func_wo_typ                  = Isabelle_Utils.strip_atyp func  : term;
+      val var                          = mk_free_variable_of_typ dummyT 1: term;
+      val idempotency                  =  mk_eq (list_comb (func_wo_typ, [var, var]), var) |> Syntax.check_term ctxt;
+    in
+      [idempotency]
+    end
+  else []
+ | ctxt_n_const_to_idempotency _ _ = [];
 
 (*bottom_up_for_two_functions*)
 fun ctxt_n_consts_to_distributivity (ctxt:Proof.context) (func1, func2) =
@@ -340,12 +329,6 @@ fun x :: "'a list => 'a list => 'a list" where
 fun rev :: "'a list => 'a list" where
   "rev (nil2) = nil2"
 | "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
-
-ML\<open>
-val _ = Bottom_Up_Conjecturing.ctxt_n_const_to_identity @{context} @{term "qrev"}
-|> map (Isabelle_Utils.trm_to_string @{context})
-|> map tracing;
-\<close>
 
 lemma "qrev var_1 nil2 = var_1"
   quickcheck
