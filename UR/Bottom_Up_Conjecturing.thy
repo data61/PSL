@@ -48,13 +48,13 @@ val ctxt_n_const_to_identity: Proof.context -> term -> term list;
 (*f (x, y) = f (y, x)*)
 val ctxt_n_const_to_commutativity:       Proof.context -> term -> term list;
 val ctxt_n_const_to_idempotent_element:  Proof.context -> term -> term list;
-val ctxt_n_const_to_idempotency:         Proof.context -> term -> term list;
+val ctxt_n_const_to_idempotence:         Proof.context -> term -> term list;
 
 (*bottom_up_for_two_functions*)
 val ctxt_n_consts_to_distributivity:     Proof.context -> (term * term) -> term list;
 val ctxt_n_consts_to_anti_distributivity:Proof.context -> (term * term) -> term list;
 (*f (g (x, y)) = g (f (x), f (y))*)
-val ctxt_n_consts_to_homomorphism_2:       Proof.context -> (term * term) -> term list;
+val ctxt_n_consts_to_homomorphism_2:     Proof.context -> (term * term) -> term list;
 
 (*bottom_up_for_relations*)
 val ctxt_n_consts_to_symmetry:           Proof.context -> term -> term list;
@@ -205,22 +205,40 @@ fun ctxt_n_typ_to_unary_const ctxt typ =
     try (ctxt_n_typ_to_unary_const' ctxt) typ |> Utils.is_some_null
   end;
 
-(*TODO define these using functions defined above.*)
-val ctxt_n_const_to_idempotent_element = undefined:  Proof.context -> term -> term list;
+fun ctxt_n_const_to_idempotent_element (ctxt:Proof.context) (func as Const (_, typ): term) =
+  (*f (e, e) = e for some e*)
+  if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
+  then
+    let
+      val typ_of_arg     = binder_types typ |> List.hd                : typ;
+      val nullary_consts = ctxt_n_typ_to_nullary_const ctxt typ_of_arg: terms;
+      val func_w_dummyT  = Isabelle_Utils.strip_atyp func             : term;
+      fun mk_equation (identity_element:term) =
+        let
+          val lhs = list_comb (func_w_dummyT, [identity_element, identity_element]): term;
+          val eq  = mk_eq (lhs, identity_element)                                  : term;
+        in
+          Syntax.check_term ctxt eq
+        end;
+    in
+      map mk_equation nullary_consts
+    end
+  else []
+  | ctxt_n_const_to_idempotent_element _ _ = [];
 
-fun ctxt_n_const_to_idempotency (ctxt:Proof.context) (func as Const(_, _)) =
+fun ctxt_n_const_to_idempotence (ctxt:Proof.context) (func as Const(_, _)) =
   (* f (x, x) = x *)
   if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
   then
     let
-      val func_wo_typ                  = Isabelle_Utils.strip_atyp func  : term;
-      val var                          = mk_free_variable_of_typ dummyT 1: term;
-      val idempotency                  =  mk_eq (list_comb (func_wo_typ, [var, var]), var) |> Syntax.check_term ctxt;
+      val func_wo_typ = Isabelle_Utils.strip_atyp func  : term;
+      val var         = mk_free_variable_of_typ dummyT 1: term;
+      val idempotence =  mk_eq (list_comb (func_wo_typ, [var, var]), var) |> Syntax.check_term ctxt;
     in
-      [idempotency]
+      [idempotence]
     end
   else []
- | ctxt_n_const_to_idempotency _ _ = [];
+ | ctxt_n_const_to_idempotence _ _ = [];
 
 (*bottom_up_for_two_functions*)
 fun ctxt_n_consts_to_distributivity (ctxt:Proof.context) (func1, func2) =
