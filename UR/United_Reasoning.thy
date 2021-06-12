@@ -279,6 +279,10 @@ val _ = theorem \<^command_keyword>\<open>prove\<close> "theorem";
 end;
 \<close>
 
+find_consts name:"refl"
+find_theorems "reflclp"
+thm Transitive_Closure.rtranclp_reflclp_absorb
+
 datatype Nat = Z | S "Nat"
 
 fun t2 :: "Nat => Nat => Nat" where

@@ -57,6 +57,7 @@ val ctxt_n_consts_to_anti_distributivity:Proof.context -> (term * term) -> term 
 val ctxt_n_consts_to_homomorphism_2:     Proof.context -> (term * term) -> term list;
 
 (*bottom_up_for_relations*)
+val term_is_relation:                    term -> bool;
 val ctxt_n_consts_to_symmetry:           Proof.context -> term -> term list;
 val ctxt_n_consts_to_reflexibility:      Proof.context -> term -> term list;
 val ctxt_n_consts_to_transitivity:       Proof.context -> term -> term list;
@@ -67,6 +68,9 @@ end;
 
 ML\<open> structure Bottom_Up_Conjecturing: BOTTOM_UP_CONJECTURING =
 struct
+
+val strip_atyp        = Isabelle_Utils.strip_atyp;
+val takes_n_arguments = Isabelle_Utils.takes_n_arguments;
 
 datatype direction = Left | Right;
 
@@ -94,6 +98,9 @@ val ctxt_n_typ_to_typs = undefined: Proof.context -> typ -> typ list;
 val ctxt_n_typ_to_consts = undefined: Proof.context -> typ -> terms;
 
 fun mk_free_variable_of_typ (typ:typ) (i:int) = Free ("var_" ^ Int.toString i, typ);
+
+fun mk_free_variable_of_dummyT (i:int) = mk_free_variable_of_typ dummyT i;
+
 (*assume binary*)(*TODO: Do not assume.*)
 val list_comb = Term.list_comb;
 
@@ -108,18 +115,18 @@ fun all_args_are_same_typ (funcs:terms) =(*TODO: rename?*)
 
 (*bottom_up_for_binary_function*)
 
-fun mk_eq (lhs:term, rhs:term) = Isabelle_Utils.strip_atyp @{term "HOL.eq"} $ Isabelle_Utils.strip_atyp lhs $ Isabelle_Utils.strip_atyp rhs;
+fun mk_eq (lhs:term, rhs:term) = strip_atyp @{term "HOL.eq"} $ strip_atyp lhs $ strip_atyp rhs;
 
 fun ctxt_n_const_to_associativity (ctxt:Proof.context) (func:term) =
 (*f (f (x, y), z) = f (x, f (y, z))*)
-if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
+if takes_n_arguments func 2 andalso all_args_are_same_typ [func]
 then
  (let
     val func_w_dummyT      = map_types (K dummyT) func                   : term;
-    val [var1, var2, var3] = map (mk_free_variable_of_typ dummyT) [1,2,3]: terms;
-    val lhs                = list_comb (func_w_dummyT, [var1, list_comb (func_w_dummyT, [var2, var3])]) |> Isabelle_Utils.strip_atyp;
-    val rhs                = list_comb (func_w_dummyT, [list_comb (func_w_dummyT, [var1, var2]), var3]) |> Isabelle_Utils.strip_atyp;
-    val assoc              = mk_eq (lhs, rhs)|> Syntax.check_term ctxt: term;
+    val [var1, var2, var3] = map mk_free_variable_of_dummyT [1,2,3]      : terms;
+    val lhs                = list_comb (func_w_dummyT, [var1, list_comb (func_w_dummyT, [var2, var3])]) |> strip_atyp;
+    val rhs                = list_comb (func_w_dummyT, [list_comb (func_w_dummyT, [var1, var2]), var3]) |> strip_atyp;
+    val assoc              = mk_eq (lhs, rhs) |> Syntax.check_term ctxt: term;
   in
     [assoc]
   end)
@@ -144,7 +151,7 @@ fun ctxt_n_typ_to_nullary_const ctxt typ =
 fun ctxt_n_direct_n_trm_to_identity (ctxt:Proof.context) (direct:direction) (func as Const (_, typ):term) =
 (*left identity : f (e, x) = x*)
 (*right identity: f (x, e) = x*)
-  if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
+  if takes_n_arguments func 2 andalso all_args_are_same_typ [func]
   then
     let
       val typ_of_arg     = binder_types typ |> (case direct of
@@ -152,8 +159,8 @@ fun ctxt_n_direct_n_trm_to_identity (ctxt:Proof.context) (direct:direction) (fun
                           | Right => (Utils.the' "ctxt_n_trm_to_identity in Bottom_Up_Conjecturing.ML failed"
                                     o try (fn args => nth args 1)))   : typ;
       val nullary_consts = ctxt_n_typ_to_nullary_const ctxt typ_of_arg: terms;
-      val func_w_dummyT  = Isabelle_Utils.strip_atyp func            : term;
-      val free_var       = mk_free_variable_of_typ dummyT 1           : term;
+      val func_w_dummyT  = strip_atyp func                            : term;
+      val free_var       = mk_free_variable_of_dummyT     1           : term;
       fun mk_equation (identity_element:term) =
         let
           val lhs = case direct of
@@ -175,14 +182,14 @@ fun ctxt_n_const_to_identity ctxt trm =
 
  fun ctxt_n_const_to_commutativity (ctxt:Proof.context) (func:term) =
 (*f (x, y) = f (y, x)*)
-if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
+if takes_n_arguments func 2 andalso all_args_are_same_typ [func]
 then
   let
-    val func_w_dummyT = Isabelle_Utils.strip_atyp func: term;
-    val (var1,var2)   = Utils.map_pair (mk_free_variable_of_typ dummyT) (1,2): (term * term);
-    val lhs           = list_comb (func_w_dummyT, [var1,var2]);
-    val rhs           = list_comb (func_w_dummyT, [var2,var1]);
-    val commutativity = mk_eq (lhs, rhs): term;
+    val func_w_dummyT = strip_atyp func                                : term;
+    val (var1,var2)   = Utils.map_pair mk_free_variable_of_dummyT (1,2): (term * term);
+    val lhs           = list_comb (func_w_dummyT, [var1,var2])         : term;
+    val rhs           = list_comb (func_w_dummyT, [var2,var1])         : term;
+    val commutativity = mk_eq (lhs, rhs)                               : term;
   in [commutativity] end
 else [];
 
@@ -207,12 +214,12 @@ fun ctxt_n_typ_to_unary_const ctxt typ =
 
 fun ctxt_n_const_to_idempotent_element (ctxt:Proof.context) (func as Const (_, typ): term) =
   (*f (e, e) = e for some e*)
-  if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
+  if takes_n_arguments func 2 andalso all_args_are_same_typ [func]
   then
     let
       val typ_of_arg     = binder_types typ |> List.hd                : typ;
       val nullary_consts = ctxt_n_typ_to_nullary_const ctxt typ_of_arg: terms;
-      val func_w_dummyT  = Isabelle_Utils.strip_atyp func             : term;
+      val func_w_dummyT  = strip_atyp func                            : term;
       fun mk_equation (identity_element:term) =
         let
           val lhs = list_comb (func_w_dummyT, [identity_element, identity_element]): term;
@@ -228,12 +235,12 @@ fun ctxt_n_const_to_idempotent_element (ctxt:Proof.context) (func as Const (_, t
 
 fun ctxt_n_const_to_idempotence (ctxt:Proof.context) (func as Const(_, _)) =
   (* f (x, x) = x *)
-  if Isabelle_Utils.takes_n_arguments func 2 andalso all_args_are_same_typ [func]
+  if takes_n_arguments func 2 andalso all_args_are_same_typ [func]
   then
     let
-      val func_wo_typ = Isabelle_Utils.strip_atyp func  : term;
-      val var         = mk_free_variable_of_typ dummyT 1: term;
-      val idempotence =  mk_eq (list_comb (func_wo_typ, [var, var]), var) |> Syntax.check_term ctxt;
+      val func_wo_typ = strip_atyp func                 : term;
+      val var         = mk_free_variable_of_dummyT 1    : term;
+      val idempotence = mk_eq (list_comb (func_wo_typ, [var, var]), var) |> Syntax.check_term ctxt;
     in
       [idempotence]
     end
@@ -245,12 +252,12 @@ fun ctxt_n_consts_to_distributivity (ctxt:Proof.context) (func1, func2) =
 (* left-distributive:  f (x, g (y, z)) = g (f (x, y), f (x, z))
  * right-distributive: f (g (x, y), z) = g (f (x, y), f (x, z))
  *)
-  if Isabelle_Utils.takes_n_arguments func1 2 andalso Isabelle_Utils.takes_n_arguments func2 2 andalso all_args_are_same_typ [func1, func2]
+  if takes_n_arguments func1 2 andalso takes_n_arguments func2 2 andalso all_args_are_same_typ [func1, func2]
   then
     let
-      val (func1_wo_typ, func2_wo_typ) = Utils.map_pair Isabelle_Utils.strip_atyp (func1, func2): (term * term);
-      val [var1, var2, var3]           = map (mk_free_variable_of_typ dummyT) [1,2,3]     : terms;
-      val (left_lhs, right_lhs)        =  (list_comb (func1_wo_typ, [var1,                                  list_comb (func2_wo_typ, [var2, var3])]),
+      val (func1_wo_typ, func2_wo_typ) = Utils.map_pair strip_atyp (func1, func2): (term * term);
+      val [var1, var2, var3]           = map mk_free_variable_of_dummyT [1,2,3]  : terms;
+      val (left_lhs, right_lhs)        =  (list_comb (func1_wo_typ, [var1, list_comb (func2_wo_typ, [var2, var3])]),
                                            list_comb (func1_wo_typ, [list_comb (func2_wo_typ, [var1, var2]), var3])
                                            );
       val (left_rhs, right_rhs)        =  (list_comb
@@ -279,13 +286,13 @@ fun ctxt_n_consts_to_distributivity (ctxt:Proof.context) (func1, func2) =
 fun ctxt_n_consts_to_anti_distributivity (ctxt:Proof.context) (unary_func, binary_func) =
 (*distributivity of f on g*)
 (*f (g (x, y)) = g (f (y), f (x))*)
-if Isabelle_Utils.takes_n_arguments unary_func  1 andalso
-   Isabelle_Utils.takes_n_arguments binary_func 2 andalso
+if takes_n_arguments unary_func  1 andalso
+   takes_n_arguments binary_func 2 andalso
    all_args_are_same_typ [unary_func, binary_func]
 then
   let
-    val (unary_wo_typ, binary_wo_typ) = Utils.map_pair Isabelle_Utils.strip_atyp (unary_func, binary_func): (term * term);
-    val (var1, var2)                  = Utils.map_pair (mk_free_variable_of_typ dummyT) (1,2)              : (term * term);
+    val (unary_wo_typ, binary_wo_typ) = Utils.map_pair strip_atyp (unary_func, binary_func)                : (term * term);
+    val (var1, var2)                  = Utils.map_pair mk_free_variable_of_dummyT (1,2)                    : (term * term);
     val lhs                           = list_comb (unary_wo_typ, [list_comb (binary_wo_typ, [var1, var2])]): term;
     val rhs                           = list_comb
                                         (binary_wo_typ,
@@ -303,16 +310,16 @@ else [];
 fun ctxt_n_consts_to_homomorphism_2 (ctxt:Proof.context) (homomorphism:term, preserved_binary:term) =
 (*f is homomorphism.*)
 (*f (g (x, y)) = g (f (x), f (y))*)
-if Isabelle_Utils.takes_n_arguments homomorphism 1 andalso
-   Isabelle_Utils.takes_n_arguments preserved_binary 2 andalso
+if takes_n_arguments homomorphism 1 andalso
+   takes_n_arguments preserved_binary 2 andalso
    all_args_are_same_typ [homomorphism, preserved_binary]
 then
   let
-    val (homomorphism_wo_typ, preserved_binary_wo_typ) = Utils.map_pair Isabelle_Utils.strip_atyp (homomorphism, preserved_binary): term * term;
-    val (var1, var2) = Utils.map_pair (mk_free_variable_of_typ dummyT) (1,2)                                                       : (term * term);
-    val lhs          = homomorphism_wo_typ $ list_comb (preserved_binary_wo_typ, [var1, var2])                                 : term;
-    val rhs          = list_comb (preserved_binary_wo_typ, [homomorphism_wo_typ $ var1, homomorphism_wo_typ $ var2])               : term;
-    val proprerty    = mk_eq (lhs, rhs) |> Syntax.check_term ctxt                                                                  : term;
+    val (homomorphism_wo_typ, preserved_binary_wo_typ) = Utils.map_pair strip_atyp (homomorphism, preserved_binary) : term * term;
+    val (var1, var2) = Utils.map_pair mk_free_variable_of_dummyT (1,2)                                              : (term * term);
+    val lhs          = homomorphism_wo_typ $ list_comb (preserved_binary_wo_typ, [var1, var2])                      : term;
+    val rhs          = list_comb (preserved_binary_wo_typ, [homomorphism_wo_typ $ var1, homomorphism_wo_typ $ var2]): term;
+    val proprerty    = mk_eq (lhs, rhs) |> Syntax.check_term ctxt                                                   : term;
   in
     [proprerty]
   end
@@ -320,12 +327,77 @@ else [];
 
 (*bottom_up_for_relations*)
 fun term_is_relation (Const (_, typ)) = body_type typ = @{typ "HOL.bool"}
-  | term_is_relation _ = false;
+  | term_is_relation  _               = false;
 
-val ctxt_n_consts_to_symmetry = undefined:           Proof.context -> term -> term list;
-val ctxt_n_consts_to_reflexibility = undefined:      Proof.context -> term -> term list;
-val ctxt_n_consts_to_transitivity = undefined:       Proof.context -> term -> term list;
-val ctxt_n_consts_to_connexity = undefined:          Proof.context -> term -> term list;
+fun condition_for_relation (func:term) =
+  term_is_relation func andalso
+  takes_n_arguments func 2 andalso
+  all_args_are_same_typ [func]
+
+
+fun mk_implies (ctxt:Proof.context) (prem, cncl) =
+   Logic.mk_implies (prem, cncl)
+|> Syntax.check_term ctxt: term;
+
+fun ctxt_n_consts_to_symmetry (ctxt:Proof.context) (func as (Const _):term) =
+    if condition_for_relation func
+    then
+      let
+        val func_wo_typ  = strip_atyp func                                : term;
+        val (var1, var2) = Utils.map_pair mk_free_variable_of_dummyT (1,2): (term * term);
+        val premise      = list_comb (func_wo_typ, [var1, var2])          : term;
+        val conclusion   = list_comb (func_wo_typ, [var2, var1])          : term;
+        val imply        = mk_implies ctxt (premise, conclusion)          : term;
+      in [imply] end
+    else []
+  | ctxt_n_consts_to_symmetry _ _ = [];
+
+fun ctxt_n_consts_to_reflexibility (ctxt:Proof.context) (func as (Const _):term) =
+    if condition_for_relation func
+    then
+      let
+        val func_wo_typ  = strip_atyp func                      : term;
+        val fvar         = mk_free_variable_of_dummyT 1         : term;
+        val premise      = list_comb (func_wo_typ, [fvar, fvar]): term;
+        val imply        = mk_implies ctxt (premise, premise)   : term;
+      in [imply] end
+    else []
+  | ctxt_n_consts_to_reflexibility _ _ = [];
+
+fun list_implies (ctxt:Proof.context) (prems: terms, cncl) =
+   Logic.list_implies (prems, cncl)
+|> Syntax.check_term ctxt: term;
+
+fun ctxt_n_consts_to_transitivity (ctxt:Proof.context) (func as (Const _):term) =
+    if condition_for_relation func
+    then
+      let
+        val func_wo_typ        = strip_atyp func                         : term;
+        val [var1, var2, var3] = map mk_free_variable_of_dummyT [1, 2, 3]: terms;
+        val prem1              = list_comb (func_wo_typ, [var1, var2])   : term;
+        val prem2              = list_comb (func_wo_typ, [var2, var3])   : term;
+        val cncl               = list_comb (func_wo_typ, [var1, var3])   : term;
+        val imply              = list_implies ctxt ([prem1, prem2], cncl): term;
+      in [imply] end
+    else []
+  | ctxt_n_consts_to_transitivity _ _ = [];
+
+val mk_holdisj = HOLogic.mk_disj;
+
+fun ctxt_n_consts_to_connexity (ctxt:Proof.context) (func as (Const _)) =
+    if condition_for_relation func
+    then
+      let
+        val func_wo_typ  = strip_atyp func                                : term;
+        val (var1, var2) = Utils.map_pair mk_free_variable_of_dummyT (1,2): (term * term);
+        val x_R_y        = list_comb (func_wo_typ, [var1, var2])          : term;
+        val y_R_x        = list_comb (func_wo_typ, [var2, var1])          : term;
+        val x_is_y       = HOLogic.mk_eq (var1, var2)                     : term;
+        val disjuncts    = mk_holdisj (mk_holdisj (x_R_y, y_R_x), x_is_y)
+                        |> Syntax.check_term ctxt                         : term;
+      in [disjuncts] end
+    else []
+  | ctxt_n_consts_to_connexity _ _ = [];
 
 end;
 \<close>
