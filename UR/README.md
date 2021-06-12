@@ -30,10 +30,10 @@ UR integrates
    - [X] distributivity
    - [X] ant_distributivity
    - [X] homomorphism_2
-   - [ ] transitivity
-   - [ ] symmetry
-   - [ ] connexity
-   - [ ] reflexivity
+   - [X] transitivity
+   - [X] symmetry
+   - [X] connexity
+   - [X] reflexivity
 - [ ] build more top-down conjecturing mechanism.
 - [ ] integrate the top-down and bottom-up approaches into one framework. (For each small proof search, we can use PSL.)
 - [ ] enrich each proof context by registering proved conjectures.
