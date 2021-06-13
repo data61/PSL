@@ -42,7 +42,7 @@ val ctxt_n_typ_to_binary_const:  Proof.context -> typ -> terms;
 
 (*bottom_up_for_binary_function*)
 (*f (f (x, y), z) = f (x, f (y, z))*)
-val ctxt_n_const_to_associativity:       Proof.context -> term -> term list;
+val ctxt_n_const_to_associativity:Proof.context -> term -> term list;
 (*left identity : f (e, x) = x*)
 (*right identity: f (x, e) = x*)
 val ctxt_n_const_to_identity: Proof.context -> term -> term list;
@@ -56,7 +56,7 @@ val ctxt_n_const_to_idempotence:         Proof.context -> term -> term list;
 val ctxt_n_consts_to_distributivity:     Proof.context -> term -> term list;
 val ctxt_n_consts_to_anti_distributivity:Proof.context -> term -> term list;
 (*f (g (x, y)) = g (f (x), f (y))*)
-val ctxt_n_consts_to_homomorphism_2:     Proof.context -> (term * term) -> term list;
+val ctxt_n_consts_to_homomorphism_2:     Proof.context -> term -> term list;
 
 (*bottom_up_for_relations*)
 val term_is_relation:                    term -> bool;
@@ -310,16 +310,12 @@ fun ctxt_n_consts_to_anti_distributivity (ctxt:Proof.context) (binary_func as (C
   else []
   | ctxt_n_consts_to_anti_distributivity _ _ = [];
 
-fun ctxt_n_consts_to_homomorphism_2 (ctxt:Proof.context) (homomorphism:term, preserved_binary:term) =
-(*f is homomorphism.*)
-(*f (g (x, y)) = g (f (x), f (y))*)
-  if takes_n_arguments homomorphism 1 andalso
-     takes_n_arguments preserved_binary 2 andalso
-     all_args_are_same_typ [homomorphism, preserved_binary]
+fun ctxt_n_consts_to_homomorphism_2' (ctxt:Proof.context) (preserved_binary:term) (homomorphism:term) =
+  if all_args_are_same_typ [homomorphism, preserved_binary]
   then
     let
       val (homomorphism_wo_typ, preserved_binary_wo_typ) = Utils.map_pair strip_atyp (homomorphism, preserved_binary) : term * term;
-      val (var1, var2) = Utils.map_pair mk_free_variable_of_dummyT (1,2)                                              : (term * term);
+      val (var1, var2) = Utils.map_pair mk_free_variable_of_dummyT (1,2)                                              : term * term;
       val lhs          = homomorphism_wo_typ $ list_comb (preserved_binary_wo_typ, [var1, var2])                      : term;
       val rhs          = list_comb (preserved_binary_wo_typ, [homomorphism_wo_typ $ var1, homomorphism_wo_typ $ var2]): term;
       val proprerty    = mk_eq (lhs, rhs) |> Syntax.check_term ctxt                                                   : term;
@@ -327,6 +323,30 @@ fun ctxt_n_consts_to_homomorphism_2 (ctxt:Proof.context) (homomorphism:term, pre
       [proprerty]
     end
   else [];
+
+fun ctxt_n_consts_to_homomorphism_2 (ctxt:Proof.context) (preserved_binary as (Const (_, typ)):term) =
+(*f is homomorphism.*)
+(*f (g (x, y)) = g (f (x), f (y))*)
+  if takes_n_arguments preserved_binary 2 andalso
+     all_args_are_same_typ [preserved_binary]
+  then
+    let
+      val homomorphisms = ctxt_n_typ_to_unary_const ctxt (strip_type typ |> snd)                          : terms;
+      val preserved_binary_wo_typ::homomorphisms_wo_typ = map strip_atyp (preserved_binary::homomorphisms): terms;
+      val (var1, var2) = Utils.map_pair mk_free_variable_of_dummyT (1,2)                                  : term * term;
+      fun get_property (homomorphism_wo_typ:term) =
+        let
+          val lhs       = homomorphism_wo_typ $ list_comb (preserved_binary_wo_typ, [var1, var2])                      : term;
+          val rhs       = list_comb (preserved_binary_wo_typ, [homomorphism_wo_typ $ var1, homomorphism_wo_typ $ var2]): term;
+          val proprerty = mk_eq (lhs, rhs) |> Syntax.check_term ctxt                                                   : term;
+        in
+          proprerty
+        end
+    in
+      map get_property homomorphisms_wo_typ
+    end
+  else []
+  | ctxt_n_consts_to_homomorphism_2 _ _ = [];
 
 (*bottom_up_for_relations*)
 fun term_is_relation (Const (_, typ)) = body_type typ = @{typ "HOL.bool"}
@@ -410,7 +430,7 @@ fun ctxt_n_const_to_all_conjecture_term (ctxt:Proof.context) (func as (Const _))
 @ ctxt_n_const_to_idempotence          ctxt func
 @ ctxt_n_consts_to_distributivity      ctxt func
 @ ctxt_n_consts_to_anti_distributivity ctxt func
-@ ctxt_n_consts_to_homomorphism_2      ctxt (func, func)(*TODO*)
+@ ctxt_n_consts_to_homomorphism_2      ctxt func
 @ ctxt_n_consts_to_symmetry            ctxt func
 @ ctxt_n_consts_to_reflexibility       ctxt func
 @ ctxt_n_consts_to_transitivity        ctxt func
