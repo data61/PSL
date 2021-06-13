@@ -34,16 +34,19 @@ UR integrates
    - [X] symmetry
    - [X] connexity
    - [X] reflexivity
+- [ ] implement an iteration mechanism for bottom-up conjecturing.
 - [ ] build more top-down conjecturing mechanism.
 - [ ] integrate the top-down and bottom-up approaches into one framework. (For each small proof search, we can use PSL.)
-- [ ] enrich each proof context by registering proved conjectures.
+- [X] enrich each proof context by registering proved conjectures.
+- [ ] implement an abductive-reasoning framework outside the tactic language.
+   - [ ] use the `assumes` keyword.
 - [ ] support `deep` reasoning (nested bottom-up or top-down conjecturing).
 - [ ] evaluation using TIP.
 - [ ] extended definitions of properties for binary functions, such as commutativity.
 
 ## Design decisions made to implement the first working prototype
 - No parallelism for now.
-- No multi-level bottom-up conjecturing for now.
+- No multi-level bottom-up conjecturing for now. -> Yes. We should implement it. This shouldn't be too hard.
 - Support only the top-level theorems instead of aiming at tight integration with Isar.
 - When to do nested top-down conjecturing? Just after applying top-down conjecturing? Or after applying proof by induction?
 - Our abductive reasoning mechanism has to resides ouside PSL to allow for sharing of conjectures. 
