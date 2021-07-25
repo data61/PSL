@@ -117,8 +117,11 @@ ML\<open> fun conjecture_n_pst_to_pst_n_proof (conjecture:{lemma_name:string, le
        NONE                 => (pst, NONE)
      | SOME (script:string) => (
        let
+         val _ =  ("proved " ^ #lemma_stmt conjecture) |> tracing;
+(*
          val _ =  #lemma_stmt conjecture |> tracing;
          val _ = tracing script;
+*)
          val stmt_elem        = Element.Shows [(binding, [(#lemma_stmt conjecture, [])])]: (string, string) Element.stmt;
          val pst_to_be_proved = Specification.theorem_cmd true Thm.theoremK NONE (K I) binding [] [] stmt_elem false (Proof.context_of pst);
          val proof_scripts    = Utils.init (space_explode "\n" (YXML.content_of script)) |> Utils.init: strings;
@@ -262,7 +265,10 @@ fun theorem spec descr =
 
             val ((_, _), prfs2) = conjecture_n_pst_to_pst_n_proof (conjectures_wo_counter_example @ [statement_to_conjecture concl]) pst
               : (Proof.state * conjecture_w_proof list) * conjecture_w_proof list;
-            val _ = map (tracing o print_conjecture_w_proof) prfs2;
+            val _ = map (print_conjecture_w_proof) prfs2
+                 |> String.concatWith "\n"
+                 |> Active.sendback_markup_properties [Markup.padding_command]
+                 |> tracing;
             fun stmt_to_concl_name (Element.Shows [((binding, _), [(_, _)])]) =  Binding.name_of binding: string
               | stmt_to_concl_name _ = error "stmt_to_concl_name failed in United_Reasoning";
             fun cocl_is_proved (pst:Proof.state) =
@@ -288,17 +294,22 @@ datatype Nat = Z | S "Nat"
 fun t2 :: "Nat => Nat => Nat" where
 "t2 (Z) y = y"
 | "t2 (S z) y = S (t2 z y)"
-(*
-lemma t2_succ: "S (t2 n m) = t2 n (S m)"
-  by(induct n, auto)
 
-theorem property0 :
-  "((t2 x1 (S x1)) = (S (t2 x1 x1)))"
-  apply(induction x1, auto)
-  apply(simp add:t2_succ)
+lemma helper01:(*generalisation of of the original goal.*)
+  shows "((t2 x1 (S x2)) = (S (t2 x1 x2)))"
+  apply (induct x1)
+   apply auto
   done
-*)
 
+lemma helper00:(*abduction as one separate lemma*)
+  assumes "\<And>x1 x2. ((t2 x1 (S x2)) = (S (t2 x1 x2)))"
+  shows "((t2 x1 (S x1)) = (S (t2 x1 x1)))"
+  using assms apply auto done
+
+lemma "((t2 x1 (S x1)) = (S (t2 x1 x1)))"
+  apply(rule helper00)
+  apply(rule helper01)
+  done
 
 prove dfd:"((t2 x1 (S x1)) = (S (t2 x1 x1)))"
 
