@@ -39,7 +39,13 @@ UR integrates
 - [ ] integrate the top-down and bottom-up approaches into one framework. (For each small proof search, we can use PSL.)
 - [X] enrich each proof context by registering proved conjectures.
 - [ ] implement an abductive-reasoning framework outside the tactic language.
-   - [ ] use the `assumes` keyword.
+   - [X] use the `assumes` keyword. -> Look at [this example](https://github.com/data61/PSL/blob/2a7564209bb412999c44b85081a97f41d90ba976/UR/United_Reasoning.thy#L298).
+   - We can use 
+      - priority queue to implement the best-first search or the breadth-first search,
+      - [stack](https://github.com/seL4/isabelle/blob/b4a0546e568ea7fb667fadabe126d944991b05cc/src/Pure/General/stack.ML#L7) in [Isar](https://github.com/seL4/isabelle/blob/b4a0546e568ea7fb667fadabe126d944991b05cc/src/Pure/Isar/proof.ML#L163) to implement each non-deterministic choice.
+      - How can I share the context with proved auxiliary lemmas and lemmas that are refuted or tried-in-vain?
+      - Record what has been proved in each node, and pass the context around as an argument.
+      - Always keep the orders (/dependencies) of proved lemmas.
 - [ ] support `deep` reasoning (nested bottom-up or top-down conjecturing).
 - [ ] evaluation using TIP.
 - [ ] extended definitions of properties for binary functions, such as commutativity.
