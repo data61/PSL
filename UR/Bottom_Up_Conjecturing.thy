@@ -23,9 +23,9 @@ datatype bottom_up_for_binary_function =
 | Idempotency;
 
 datatype bottom_up_for_two_functions =
-  Distributivity     (*2,2*)
-| Ant_Distributivity (*1,2*)
-| Homomorphism_2;    (*1,2*)
+  Distributivity
+| Ant_Distributivity
+| Homomorphism_2;
 
 datatype bottom_up_for_relations =
   Transitivity
@@ -55,7 +55,7 @@ val ctxt_n_const_to_idempotence:         Proof.context -> term -> term list;
 (*f (x, g (y, z)) = g(f (x, y), f (x, z)) *)
 val ctxt_n_consts_to_distributivity:     Proof.context -> term -> term list;
 val ctxt_n_consts_to_anti_distributivity:Proof.context -> term -> term list;
-(*f (g (x, y)) = g (f (x), f (y))*)
+(*f is homomorphism: f (g (x, y)) = g (f (x), f (y))*)
 val ctxt_n_consts_to_homomorphism_2:     Proof.context -> term -> term list;
 
 (*bottom_up_for_relations*)
