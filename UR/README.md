@@ -16,7 +16,8 @@ UR integrates
 - 1. Apply a PSL strategy to look for a short proof.
 - 2. One-level iterative bottom-up conjecturing till saturate.
    - "one-level" because we do not produce new bottom-up conjectures for constants that newly appear in our scope while investigating the definitions of constants.
-- 3. One-level top-down abductive reasoning
+- 3. First-level top-down abductive reasoning
+- 4. Second-level top-down abductive reasoning
 
 ## TODOs
 
@@ -36,6 +37,11 @@ UR integrates
    - [X] reflexivity
 - [ ] implement an iteration mechanism for bottom-up conjecturing.
 - [ ] build more top-down conjecturing mechanism.
+   - [ ] more variations
+   - [ ] quickcheck and nitpick as a separate lemma.
+   - [ ] abductive reasonoing as a reparate lemma. See [this example](https://github.com/data61/PSL/blob/708fadc98369865447086f3a60878138c94141e6/UR/United_Reasoning.thy#L304)
+   - [ ] build a final proof using auxiliary lemmas. See [this example](https://github.com/data61/PSL/blob/708fadc98369865447086f3a60878138c94141e6/UR/United_Reasoning.thy#L310).
+   - [ ] record which conjectures are alreadh tried out.
 - [ ] integrate the top-down and bottom-up approaches into one framework. (For each small proof search, we can use PSL.)
 - [X] enrich each proof context by registering proved conjectures.
 - [ ] implement an abductive-reasoning framework outside the tactic language.
@@ -51,6 +57,7 @@ UR integrates
 - [ ] extended definitions of properties for binary functions, such as commutativity.
 
 ## Design decisions made to implement the first working prototype
+- Breadth-First Search for now. I want to swtich to a Best-First Search.
 - No parallelism for now.
 - No multi-level bottom-up conjecturing for now. -> Yes. We should implement it. This shouldn't be too hard.
 - Support only the top-level theorems instead of aiming at tight integration with Isar.
