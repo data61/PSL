@@ -40,6 +40,7 @@ UR integrates
    - [ ] more variations
    - [ ] quickcheck and nitpick as a separate lemma.
    - [ ] abductive reasonoing as a reparate lemma. See [this example](https://github.com/data61/PSL/blob/708fadc98369865447086f3a60878138c94141e6/UR/United_Reasoning.thy#L304)
+   - [ ] find out how to implement `assumes` and `shows` at the ML level.
    - [ ] build a final proof using auxiliary lemmas. See [this example](https://github.com/data61/PSL/blob/708fadc98369865447086f3a60878138c94141e6/UR/United_Reasoning.thy#L310).
    - [ ] record which conjectures are alreadh tried out.
 - [ ] integrate the top-down and bottom-up approaches into one framework. (For each small proof search, we can use PSL.)
