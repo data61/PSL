@@ -69,4 +69,7 @@ UR integrates
    - Probably beam search is a better choice here for simpler implementation. 
    - We can still use PSL for applying `fastforce` and `sledgehammer` using `RepeatN`.
    - But we need to extract remaining sub-goals from `Proof.state`.
- 
+-  We should 
+   -  search for a proof of a conjecture in `Proof.state` using `Specification.theorem`, while
+   -  register a proved conjecture in `Proof.context` using `Local_Theory.note` and `Skip_Proof.cheat_tac`.
+   -  This is a good point of compromise: we had to use `Proof.state` to use `sledgehammer` and `quickcheck` even though `Proof.state` is developed for `Isar`-level user interaction that are arranged through the `toplevel` layer to handle parallelism. 
