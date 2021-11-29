@@ -39,7 +39,7 @@ UR integrates
 - [ ] build more top-down conjecturing mechanism.
    - [ ] more variations
    - [ ] quickcheck and nitpick as a separate lemma.
-   - [ ] abductive reasonoing as a reparate lemma. See [this example](https://github.com/data61/PSL/blob/708fadc98369865447086f3a60878138c94141e6/UR/United_Reasoning.thy#L304)
+   - [ ] abductive reasonoing as a separate lemma. See [this example](https://github.com/data61/PSL/blob/708fadc98369865447086f3a60878138c94141e6/UR/United_Reasoning.thy#L304)
    - [ ] find out how to implement `assumes` and `shows` at the ML level.
    - [ ] build a final proof using auxiliary lemmas. See [this example](https://github.com/data61/PSL/blob/708fadc98369865447086f3a60878138c94141e6/UR/United_Reasoning.thy#L310).
    - [ ] record which conjectures are already tried out.
