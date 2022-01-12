@@ -68,4 +68,17 @@ theorem alternative_proof: "((length (rev y)) = (length y))"
    apply auto
   done
 
+lemma aux_0:
+  shows "length rev_y = length_y \<Longrightarrow> length (x rev_y (cons2 x1 nil2)) = S length_y"
+  apply(induct rev_y arbitrary: length_y)
+  by auto
+
+theorem property:
+  "((length (rev y)) = (length y))"
+  apply(induct y)
+   apply fastforce
+  apply clarsimp
+  using aux_0 apply fastforce (*common sub-term generalisation of (length y) and (rev y)*)
+  done
+
 end

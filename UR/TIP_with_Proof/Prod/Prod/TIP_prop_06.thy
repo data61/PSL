@@ -60,5 +60,55 @@ theorem property0 :
   apply(induct rule:x.induct)
    apply auto
   done
+(*
+lemma remove_rev_aux_0_0_0:
+  shows "length (rev_xs) = length_xs \<Longrightarrow> length (x (rev_xs) (cons2 z nil2)) = S (length_xs)"
+  apply(induct rev_xs arbitrary: length_xs)
+  apply auto done
+
+lemma remove_rev_aux_0_0:(*abduction as a separate lemma*)
+(* When the original goal has a meta-implication, we shouldn't add meta-universal quantifiers
+ * in the assumption (conjecture) and use simp instead of fastforce. *)
+  assumes "length (x (rev_xs) (cons2 z nil2)) = S (length_xs)"
+  shows   "length (x (rev xs) (cons2 z nil2)) = S (length xs)"
+  by (simp add: remove_rev_aux_0_0_0)
+*)
+
+lemma remove_rev_aux_0_0_0:
+  shows "length (rev_xs) = length_xs \<Longrightarrow> length (x (rev_xs) (cons2 z nil2)) = S (length_xs)"
+  apply clarsimp
+  apply(induct rev_xs arbitrary: length_xs)
+  apply auto done
+
+lemma remove_rev_aux_0_0:(*abduction as a separate lemma*)
+(* When the original goal has a meta-implication, we shouldn't add meta-universal quantifiers
+ * in the assumption (conjecture) and use simp instead of fastforce. *)
+  assumes "length (rev_xs) = length_xs \<Longrightarrow> length (x (rev_xs) (cons2 z nil2)) = S (length_xs)"
+  shows   "length (rev xs) = length xs \<Longrightarrow> length (x (rev xs) (cons2 z nil2)) = S (length xs)"
+  by (simp add: remove_rev_aux_0_0_0)
+
+lemma remove_rev_aux_0:(*bottom-up conjecturing*)
+  shows "length (rev xs) = length xs"
+  apply(induct rule: length.induct)
+   apply fastforce
+  apply clarsimp
+  using remove_rev_aux_0_0 apply fastforce (*Why I cannot do (rule remove_rev_aux_0_0)?*)
+  done
+
+(*
+lemma remove_rev:(*abduction as a separate lemma*)
+  (*abduction as one separate lemma*)
+  (*top-down conjecturing: unary function removal*)
+  assumes "\<And>x y z. length      (x y z)  = t2 (length y) (length z)"
+  shows   "length (rev (x y z)) = t2 (length y) (length z)"
+  using assms
+  by (simp add: remove_rev_aux_0)
+*)
+theorem property:
+  shows "length (rev (x y z)) = t2 (length y) (length z)"
+  apply(simp only: remove_rev_aux_0)(*Unary function removal*)
+  apply (induct rule: TIP_prop_06.x.induct)
+   apply auto
+  done 
 
 end

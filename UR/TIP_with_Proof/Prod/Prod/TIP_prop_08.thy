@@ -23,6 +23,7 @@ fun drop :: "Nat => 'a list => 'a list" where
 lemma drop_nil: "drop n nil2 = nil2"
   by(case_tac n, auto)
 
+(*
 lemma drop_succ: "drop (S n) (drop m l) = drop n (drop (S m) l)"
   apply(induction l)
    apply(simp add: drop_nil, simp)
@@ -36,5 +37,36 @@ theorem property0 :
   apply(case_tac y, auto)
   apply(simp add: drop_succ)
   done
+*)
+
+lemma bottom_up_nested_drop_and_S:
+  "drop (S n) (drop m l) = drop n (drop (S m) l)"
+  apply(induct l)
+   apply (simp add: drop_nil)
+  apply clarsimp
+  apply(induct m)
+   apply fastforce
+  apply clarsimp
+  apply(case_tac l)(*sledgehammer can solve this as well*)
+   apply(simp add: drop_nil)+
+  done
+
+(* declare [[show_types]] *)
+(* Due to the fixed type variable caused by the "assumes" keyword, we cannot use the standard 
+ * technique for abductive reasoning. *)
+(*
+lemma subgoal_as_a_separate_lemma:
+ (*assumes "TIP_prop_08.drop (S (n::Nat)) (TIP_prop_08.drop (m::Nat) (l::'a TIP_prop_08.list)) = TIP_prop_08.drop n (TIP_prop_08.drop (S m) l)"*)
+  shows "drop    z  (drop y           x3 ) = drop y (drop z x3) \<Longrightarrow>
+         drop (S z) (drop y (cons2 x2 x3)) = drop y (drop z x3)"
+  apply(simp add: bottom_up_nested_drop_and_S)
+  done
+*)
+theorem property: "((drop x (drop y z)) = (drop y (drop x z)))"
+  apply(induct z rule: drop.induct)
+    apply (simp add: drop_nil)
+   apply (simp add: drop_nil)
+  apply clarsimp
+  by (simp add: bottom_up_nested_drop_and_S)
 
 end

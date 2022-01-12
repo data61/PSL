@@ -43,4 +43,38 @@ theorem property0 :
   apply auto[1]
   done
 
+lemma aux2:
+  shows "double x = t2 x x \<Longrightarrow> S (t2 x x) = t2 (S x) x"
+  apply auto done
+
+theorem aux11:
+  shows "t2 x (S y) = t2 (S x) y"
+  apply(induct x)
+  apply auto done
+
+theorem aux1:
+  assumes "\<And>x y. t2 x (S y) = t2 (S x) y"
+  shows "t2 x (S x) = t2 (S x) x"
+  apply(fastforce simp: assms) done
+
+theorem aux0:
+  assumes "(\<And>x. t2 x (S x) = t2 (S x) x)" (*the original term equals the new term whose arguments swapped*)
+          "(\<And>x. double x = t2 x x \<Longrightarrow> S (t2 x x) = t2 (S x) x)" (*swaps two unequal arguments*)
+        shows "double x = t2 x x \<Longrightarrow> S (t2 x x) = t2 x (S x)"
+  using assms
+  apply metis done
+
+theorem property0' :
+  "((double x) = (t2 x x))"
+  apply(induct x)
+   apply clarsimp
+  apply clarsimp
+  apply(rule aux0)
+    apply(rule aux1)
+    apply(rule aux11)
+   apply(rule aux2)
+   apply clarsimp
+  apply clarsimp
+  done
+
 end

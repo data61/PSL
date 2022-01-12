@@ -71,4 +71,37 @@ theorem property0_again :
   apply (induct_tac y rule: TIP_prop_02.length.induct)(*y is optional*)
   apply auto
   done
+
+lemma aux_1_0:
+  "S (TIP_prop_02.length (x z a)) = TIP_prop_02.length (x z (cons2 x1 a))"
+  apply(induct z rule: TIP_prop_02.length.induct)
+   apply clarsimp
+  apply clarsimp
+  done
+
+lemma aux_1:
+  "TIP_prop_02.length (x y z) = TIP_prop_02.length (x z y) \<Longrightarrow> 
+   S (TIP_prop_02.length (x z y)) = TIP_prop_02.length (x z (cons2 x1 y))"
+  apply(induct z)
+   apply clarsimp
+  apply clarsimp
+  apply(rule aux_1_0)
+  done
+
+lemma aux_0:
+  "TIP_prop_02.length z = TIP_prop_02.length (x z nil2)"
+  apply(induct z)
+   apply auto
+  done
+
+theorem property :
+  "((length (x y z)) = (length (x z y)))"
+  apply(induct y)
+   apply clarsimp
+   apply(rule aux_0)(*just a nested induction*)
+  apply clarsimp
+  apply(rule aux_1)(*just a nested induction*)
+  apply assumption
+  done
+
 end

@@ -65,4 +65,35 @@ theorem property0 :
    apply fastforce+
   done
 
+lemma swap_t2_aux_1:
+  "(\<And>m. t2 n m = t2 m n) \<Longrightarrow> t2 (S n) m = t2 m (S n)"
+  apply(induct m)
+   apply fastforce+
+  done
+
+lemma swap_t2_aux_0:
+  "m = t2 m Z"
+  apply(induct m)
+   apply fastforce+
+  done
+
+lemma swap_t2:(*commutative property*)
+  "t2 n m = t2 m n"
+  apply(induct n arbitrary: m)
+   apply clarsimp
+   apply(rule swap_t2_aux_0)(*just a nested induction*)
+  apply(rule swap_t2_aux_1)(*just a nested induction*)
+  apply assumption (*to handle induction hypotheses*)
+  done
+
+theorem property:
+  "((length (x y z)) = (t2 (length z) (length y)))"
+  apply(induct y)
+   apply clarsimp
+  using swap_t2 apply fastforce (*sledgehammer*)
+  apply(cases z)
+   apply fastforce
+  using swap_t2 apply fastforce (*sledgehammer*)
+  done
+
 end

@@ -1,7 +1,7 @@
 - [X] `TIP_prop_01`: `"x (take n xs) (drop n xs) = xs"`
 - [X] `TIP_prop_02`: `t2 (count n xs) (count n ys) = count n (y xs ys)`
 - [X] `TIP_prop_03`:
-- [X] `TIP_prop_04`:
+- [ ] `TIP_prop_04`:
 - [X] `TIP_prop_05`:
 - [X] `TIP_prop_06`:
 - [X] `TIP_prop_07`:

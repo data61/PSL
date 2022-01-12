@@ -30,7 +30,7 @@ val path_to_rtree      = path ^ "/regression_trees.txt";
 val all_method_names =
   let
     val bash_script     = "while read line; do echo -e \"$line\n\"; done <" ^ path_to_meth_names : string;
-    val bash_input      = Bash.process bash_script |> #out : string;
+    val bash_input      = Isabelle_System.bash_output bash_script |> fst : string;
     val dist_meth_names = bash_input |> String.tokens (fn c => c = #"\n") |> distinct  (op =);
   in
     dist_meth_names : string list

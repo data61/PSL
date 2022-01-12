@@ -802,7 +802,7 @@ and trm_to_prop_trms (trm:term) =
     *)
     (*Warning: Logic.dest_all calls Term.dest_abs internally.
       But this helps us identify the names of variables represented by de-Bruijn indices.*)
-    val all         = try Logic.dest_all trm         >>= try snd |> the_list            : terms;
+    val all         = try Logic.dest_all_global trm  >>= try snd |> the_list            : terms;
     val equals      = try Logic.dest_equals trm      >>= try Utils.pair_to_list |> these: terms;
     val implies     = try Logic.dest_implies trm     >>= try Utils.pair_to_list |> these: terms;
     val conjcts     = try Logic.dest_conjunction trm >>= try Utils.pair_to_list |> these: terms;
