@@ -8,7 +8,7 @@
    to make it compatible with Isabelle2017.
    Some proofs were added by Yutaka Nagashima.*)
 theory TIP_prop_07
-  imports "../../Test_Base" "../../../src/Build_Database/Build_Database"
+  imports "../../Test_Base" (*"../../../src/Build_Database/Build_Database"*)
 begin
 
 datatype 'a list = nil2 | cons2 "'a" "'a list"
@@ -51,5 +51,17 @@ theorem property0 :
    apply(induct_tac rule: TIP_prop_07.length.induct)(*Note that "induct" does not work here.*)
     apply fastforce+
   done
+
+lemma aux:
+  "t2 (TIP_prop_07.length x) (S (TIP_prop_07.length y)) = S (t2 (TIP_prop_07.length x) (TIP_prop_07.length y))"
+  apply (induct arbitrary: y)
+   apply auto done
+
+theorem property:
+  "((length (qrev x y)) = (t2 (length x) (length y)))"
+  apply(induct x arbitrary: y)
+   apply fastforce
+  apply clarsimp
+  apply(rule aux) done (*abductive reasoning: remove_assumption.*)
 
 end

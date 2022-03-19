@@ -633,8 +633,8 @@ fun get_fact_names_mesh (state: Proof.state) =
     val keywords    = Thy_Header.get_keywords' context: Keyword.keywords;
     val rule_table  = Sledgehammer_Fact.clasimpset_rule_table_of context
       : ATP_Problem_Generate.status Termtab.table;
-    val all_facts   = Sledgehammer_Fact.all_facts context true true keywords [] facts rule_table
-      : Sledgehammer_Fact.raw_fact list;
+    val all_facts   = Sledgehammer_Fact.all_facts context true keywords [] facts rule_table
+      : Sledgehammer_Fact.lazy_fact list;
     val no_override = Sledgehammer_Fact.no_fact_override: Sledgehammer_Fact.fact_override;
     val relevant_facts : (string * Sledgehammer_MaSh.fact list) list =
       Sledgehammer_MaSh.relevant_facts context params (hd provers) 200 no_override hyps cncl all_facts;

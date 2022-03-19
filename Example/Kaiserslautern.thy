@@ -17,8 +17,8 @@ fun rev2::"'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
 strategy CDInd = Thens [Conjecture, Fastforce, Quickcheck,
                         Dynamic (Induct), Auto, IsSolved]
 
- lemma "rev2 xs [] = rev1 xs"
-   find_proof CDInd
-  oops 
+lemma assumes "True = True"
+  shows "rev2 xs [] = rev1 xs"
+  oops
 
 end

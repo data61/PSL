@@ -1,26 +1,26 @@
 # News
-- We updated this repository to Isabelle2021.
+- We updated this repository to Isabelle2021-1.
 - LiFtEr and Smart_Induct are no-longer supported, since their successors, SeLFiE and sem_ind, have shown superior performance.
 - This is the development version of PSL, PaMpeR, SeLFiE, and sem_ind where we try out possibly immature ideas. In case you find problems, please send your feedback.
-- The main developer of this repository, Yutaka Ng, has taken a full-time position for the [SuSLik](https://github.com/TyGuS/suslik) project at Yale-NUS, and he will work on [PSL and all that](https://github.com/data61/PSL/) only in his spare time. Therefore, the progress of this project, unfortunately, will be slow for the foreseeable future. In case you find problems and requests about data61/PSL, contact Yutaka Ng (email: yutaka.nagashima@cvut.cz, twitter: [YutakangE](https://twitter.com/YutakangE)).
+- The main developer of this repository, Yutaka Ng, has taken a full-time position for the [SuSLik](https://github.com/TyGuS/suslik) project at Yale-NUS, and he will work on [PSL and all that](https://github.com/data61/PSL/) only in his spare time. Therefore, the progress of this project, unfortunately, will be slow for the foreseeable future. In case you find problems and requests about data61/PSL, contact Yutaka Ng (email: yutaka.nagashima@student.uibk.ac.at, twitter: [YutakangE](https://twitter.com/YutakangE)).
 
 # Smart_Isabelle
 
 This repository contains various tools to support interactive theorem proving in Isabelle/HOL using artificial intelligence.
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for [Isabelle20**21**](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2019, are no longer supported.
+**try_hard**, for [Isabelle20**21-1**](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2019, are no longer supported.
 
 ## YouTube
 
 We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
 
 ## Installation (of SeLFiE, PaMpeR, PSL, and sem_ind in one go)
-1. Install [Isabelle2021](https://isabelle.in.tum.de).
+1. Install [Isabelle2021-1](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
    * `(path to the Isabelle binary)isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
-   * `/Applications/Isabelle2021.app/bin/isabelle jedit -d . -l Smart_Isabelle`
+   * `/Applications/Isabelle2021-1.app/bin/isabelle jedit -d . -l Smart_Isabelle`
 4. Then, You can use SeLFiE/PaMpeR/PSL/LiFtEr/Smart_Induct to your theory files
    with the Isabelle keyword, **imports** as ``imports "Smart_Isabelle.Smart_Isabelle"``.
 5. Open `Example/Example.thy` to see if the installation is successful.
