@@ -6,11 +6,13 @@ The author of that part is Makarius Wenzel.
 *)
 
 theory United_Reasoning
-  imports Bottom_Up_Conjecturing Top_Down_Conjecturing
+  imports
+    Bottom_Up_Conjecturing
+    Top_Down_Conjecturing
   keywords "prove" :: thy_goal_stmt
 begin
 
-ML\<open> signature United_Reasoning =
+ML\<open> signature UNITED_REASONING =
 sig
 
 type round = int;
@@ -24,6 +26,8 @@ val bottom_up_one_iteration: Proof.state -> record_triple * Proof.state;
 val bottom_up              : Proof.state -> record_triple * Proof.state;
 val top_down               : Proof.state -> record_triple * Proof.state;
 
+
+
 end;
 \<close>
 
@@ -33,17 +37,7 @@ ML\<open> fun print_conjecture_w_proof ({name: string, proof: string, stmt: stri
   "lemma " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ "\n" ^ proof: string;
 \<close>
 
-ML\<open> fun ctxt_n_trm_to_conjecture (ctxt:Proof.context) (conjecture_trm:term) =
-let
-(*val consts_str = map (Long_Name.base_name o fst o dest_Const) consts |> String.concatWith "_": string;*)
-  val lemma_name = "lemma_" ^ serial_string (): string;
-  val conjecture_as_string = Isabelle_Utils.trm_to_string ctxt conjecture_trm: string;
-in
-   {lemma_name = lemma_name,  lemma_stmt = conjecture_as_string}
-end;
-\<close>
-
-ML\<open> fun prove_pst_with_strategy (pst:Proof.state) (strategy:Monadic_Prover.str) = ();
+ML\<open>
 
 structure MP = Monadic_Prover;
 
@@ -59,23 +53,6 @@ fun psl_strategy_to_monadic_tactic (strategy:MP.str) = fn (proof_state:Proof.sta
   end: Proof.state MP.monad;
 \<close>
 
-ML\<open> fun fst_conjecture_n_lthy_to_some_pst_n_proof  (lthy:local_theory) =(*TODO: Double-check. Probably there is a better way to handle this.*)
-  let
-    val binding    = (Binding.name ("fake_lemma_to_move_to_proof_state"), [])              : Attrib.binding;
-    val stmt_elem  = Element.Shows [(binding, [("True", [])])]: (string, string) Element.stmt;
-    val pst =
-       let
-         val pst_to_be_proved = Specification.theorem_cmd true Thm.theoremK NONE (K I) binding [] [] stmt_elem false lthy;
-         val stttac_on_pst    = Subtools.sh_output_to_sh_stttac "by auto"
-         val resulting_pst    = stttac_on_pst pst_to_be_proved [] |> Seq.hd |> snd: Proof.state;
-       in
-         resulting_pst
-       end;
-  in
-    pst:Proof.state
-  end;
-\<close>
-
 ML\<open> fun string_to_stttac (str:string) =
 if   str = "done"
 then Subtools.is_solved
@@ -84,9 +61,9 @@ else Subtools.sh_output_to_sh_stttac str;
 
 ML\<open> fun pst_n_conjecture_has_counterexample (pst:Proof.state) (conjecture:{lemma_name:string, lemma_stmt:string}) =
 let
-    val pst_to_be_proved    = Proof.theorem_cmd NONE (K I) [[(#lemma_stmt conjecture, [])]] (Proof.context_of pst)
-    val quickcheck          = PSL_Interface.lookup (Proof.context_of pst) "Quickcheck" |> the: PSL_Interface.strategy;
-    val result_seq          = psl_strategy_to_monadic_tactic quickcheck pst_to_be_proved []   : (Dynamic_Utils.log * Proof.state) Seq.seq;
+  val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(#lemma_stmt conjecture, [])]] (Proof.context_of pst)
+  val quickcheck       = PSL_Interface.lookup (Proof.context_of pst) "Quickcheck" |> the: PSL_Interface.strategy;
+  val result_seq       = psl_strategy_to_monadic_tactic quickcheck pst_to_be_proved []  : (Dynamic_Utils.log * Proof.state) Seq.seq;
 in
   is_none (Seq.pull result_seq)
 end;
@@ -123,7 +100,9 @@ ML\<open> fun conjecture_n_pst_to_pst_n_proof (conjecture:{lemma_name:string, le
          val _ = tracing script;
 *)
          val stmt_elem        = Element.Shows [(binding, [(#lemma_stmt conjecture, [])])]: (string, string) Element.stmt;
-         val pst_to_be_proved = Specification.theorem_cmd true Thm.theoremK NONE (K I) binding [] [] stmt_elem false (Proof.context_of pst);
+(*TODO: add elements*)
+(*Wait a sec, am I doing the same thing twice here?*)
+         val pst_to_be_proved = Specification.theorem_cmd true Thm.theoremK NONE (K I) binding [] [(*TODO*)] stmt_elem false (Proof.context_of pst);
          val proof_scripts    = Utils.init (space_explode "\n" (YXML.content_of script)) |> Utils.init: strings;
          val stttacs_on_pst   = map string_to_stttac proof_scripts: Proof.state Dynamic_Utils.stttac list;
          (*TODO: Monad fix?*)
@@ -180,6 +159,23 @@ Ors [
   ]
 ]
 
+ML\<open> fun fst_conjecture_n_lthy_to_some_pst_n_proof  (lthy:local_theory) =(*TODO: Double-check. Probably there is a better way to handle this.*)
+  let
+    val binding    = (Binding.name ("fake_lemma_to_move_to_proof_state"), [])              : Attrib.binding;
+    val stmt_elem  = Element.Shows [(binding, [("True", [])])]: (string, string) Element.stmt;
+    val pst =
+       let
+         val pst_to_be_proved = Specification.theorem_cmd true Thm.theoremK NONE (K I) binding [] [] stmt_elem false lthy;
+         val stttac_on_pst    = Subtools.sh_output_to_sh_stttac "by auto"
+         val resulting_pst    = stttac_on_pst pst_to_be_proved [] |> Seq.hd |> snd: Proof.state;
+       in
+         resulting_pst
+       end;
+  in
+    pst:Proof.state
+  end;
+\<close>
+
 ML\<open> (*This part (the definitions of long_keyword, long_statement, and short_statement) are from
 by Pure/Pure.thy in Isabelle/HOL's source code.*)
 
@@ -221,17 +217,29 @@ fun termsA_n_termsB_to_AB_pairs (binaries:terms) (unaries:terms) =
 
 end;
 
+fun ctxt_n_trm_to_conjecture (ctxt:Proof.context) (conjecture_trm:term) =
+let
+(*val consts_str = map (Long_Name.base_name o fst o dest_Const) consts |> String.concatWith "_": string;*)
+  val lemma_name = "lemma_" ^ serial_string (): string;
+  val conjecture_as_string = Isabelle_Utils.trm_to_string ctxt conjecture_trm: string;
+in
+   {lemma_name = lemma_name,
+    lemma_stmt = conjecture_as_string}
+end;
+
 fun theorem spec descr =
   Outer_Syntax.local_theory @{command_keyword prove} ("state " ^ descr)
-    (((long_statement || short_statement) >> (fn (_, _, _, _, concl) =>
+    (((long_statement || short_statement) >> (fn (_, _, _, elems, concl) =>
        (fn lthy =>
           let
+(*TODO*)
+(*
+            fun get_assms_strs (Element.Assumes ())
+*)
             fun stmt_to_stmt_as_string (Element.Shows [((_, _), [(stmt, _)])]) = stmt: string
               | stmt_to_stmt_as_string _ = error "stmt_to_concl_name failed in United_Reasoning";
-
             val cncl_as_trm    = Syntax.read_term lthy (stmt_to_stmt_as_string concl);
-            val consts_in_cncl = Syntax.read_term lthy (stmt_to_stmt_as_string concl)
-                 |> (fn trm:term => Term.add_consts trm []) |> map Const;
+            val consts_in_cncl = cncl_as_trm |> (fn trm:term => Term.add_consts trm []) |> map Const;
             val cnames_in_cncl = Term.add_const_names cncl_as_trm []: strings;
             val defining_terms = (flat o map (SeLFiE_Util.ctxt_n_cname_to_definitions lthy)) cnames_in_cncl: terms;
             val relevant_consts_in_definitinos = map (fn trm => Term.add_consts trm []) defining_terms |> flat |> map Const: terms;
@@ -246,21 +254,26 @@ fun theorem spec descr =
             val _= tracing ("We have " ^ Int.toString (length relevant_binary_funcs) ^ " relevant_binary_funcs");
             val _= tracing ("We have " ^ Int.toString (length pairs_for_distributivity) ^ " pairs_for_distributivity");
             val _= tracing ("We have " ^ Int.toString (length pairs_for_anti_distr_n_homomorphism_2) ^ " pairs_for_anti_distr_n_homomorphism_2");
-            val associativities                = map (Bottom_Up_Conjecturing.ctxt_n_const_to_associativity lthy) relevant_binary_funcs       |> flat;
-            val commutativities                = map (Bottom_Up_Conjecturing.ctxt_n_const_to_commutativity lthy) relevant_binary_funcs       |> flat;
-            val distributivities               = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_distributivity lthy) relevant_binary_funcs     |> flat;
-            val anti_distributivities          = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_anti_distributivity lthy) relevant_binary_funcs|> flat;
-            val homomorphism_2                 = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_homomorphism_2 lthy) relevant_binary_funcs     |> flat;
-            val conjectures                    = associativities @ commutativities @ distributivities @  anti_distributivities @ homomorphism_2;
-            val pst                            = fst_conjecture_n_lthy_to_some_pst_n_proof lthy: Proof.state;
+            val associativities       = map (Bottom_Up_Conjecturing.ctxt_n_const_to_associativity lthy) relevant_binary_funcs       |> flat;
+            val commutativities       = map (Bottom_Up_Conjecturing.ctxt_n_const_to_commutativity lthy) relevant_binary_funcs       |> flat;
+            val distributivities      = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_distributivity lthy) relevant_binary_funcs     |> flat;
+            val anti_distributivities = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_anti_distributivity lthy) relevant_binary_funcs|> flat;
+            val homomorphism_2        = map (Bottom_Up_Conjecturing.ctxt_n_consts_to_homomorphism_2 lthy) relevant_binary_funcs     |> flat;
+            val conjectures           = associativities @ commutativities @ distributivities @  anti_distributivities @ homomorphism_2;
+            val pst                   = fst_conjecture_n_lthy_to_some_pst_n_proof lthy: Proof.state;
             val _ = tracing ("We have " ^ Int.toString (length conjectures) ^ " conjectures");
             val conjectures_wo_counter_example = map (ctxt_n_trm_to_conjecture (Proof.context_of pst)) conjectures |>
                                                  pst_n_conjectures_to_conjectures_wo_obvious_counterexample pst;
             val _ = tracing ("We have " ^ Int.toString (length conjectures_wo_counter_example) ^ " conjectures_wo_counter_example:");
             val _ = map (tracing o (fn conj => " " ^ #lemma_name conj)) conjectures_wo_counter_example;
-            fun statement_to_conjecture (Element.Shows [((binding, _), [(stmt:string, [])])]) =
+            fun statement_to_conjecture (Element.Shows [((binding, _), [(stmt:string, assumptions_maybe)])]) =
+let
+val _ = tracing "assumptions_maybe is"
+val _ = map tracing assumptions_maybe
+in
                 {lemma_name = Binding.name_of binding: string,
                  lemma_stmt = stmt |> YXML.content_of |> String.explode |> Utils.init |> tl |> String.implode}
+end
               | statement_to_conjecture _ = error "statement_to_conjecture failed.";
 
             val ((_, _), prfs2) = conjecture_n_pst_to_pst_n_proof (conjectures_wo_counter_example @ [statement_to_conjecture concl]) pst
@@ -292,7 +305,7 @@ thm Transitive_Closure.rtranclp_reflclp_absorb
 datatype Nat = Z | S "Nat"
 
 fun t2 :: "Nat => Nat => Nat" where
-"t2 (Z) y = y"
+  "t2 (Z) y = y"
 | "t2 (S z) y = S (t2 z y)"
 
 lemma helper01:(*generalisation of of the original goal.*)
@@ -302,15 +315,27 @@ lemma helper01:(*generalisation of of the original goal.*)
   done
 
 lemma helper00:(*abduction as one separate lemma*)
+(* When the original goal doesn't have a meta-implication, we should add meta-universal quantifiers
+ * in the assumption (conjecture) and use fastforce instead of simp. *)
   assumes "\<And>x1 x2. ((t2 x1 (S x2)) = (S (t2 x1 x2)))"
-  shows "((t2 x1 (S x1)) = (S (t2 x1 x1)))"
-  using assms apply auto done
+  shows "(t2 x1 (S x1)) = (S (t2 x1 x1))"
+  apply(fastforce simp: assms) done
 
 lemma "((t2 x1 (S x1)) = (S (t2 x1 x1)))"
   apply(rule helper00)
   apply(rule helper01)
   done
 
-prove dfd:"((t2 x1 (S x1)) = (S (t2 x1 x1)))"
+
+(*
+prove 
+  assumes "True"
+  shows dfd:"((t2 x1 (S x1)) = (S (t2 x1 x1)))"
+*)
+
+
+ML\<open> 
+
+\<close>
 
 end

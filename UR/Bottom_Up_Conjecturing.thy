@@ -33,6 +33,16 @@ datatype bottom_up_for_relations =
 | Connexity
 | Reflexivity;
 
+(* non-algebraic bottom-up conjecturing involving multiple constants.
+datatype non_algebraic_bottom_up_for_binary_function =
+  Unary_Fun_To_Different_Args
+| Unary_Fun_To_
+*)
+
+(*
+Is_Bottom.
+*)
+
 val ctxt_n_typ_to_typs: Proof.context -> typ -> typ list;
 
 val ctxt_n_typ_to_consts:        Proof.context -> typ -> terms;
