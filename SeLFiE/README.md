@@ -1,7 +1,7 @@
 # SeLFiE
 
 ## Installation (of SeLFiE)
-1. Install [Isabelle2020](https://isabelle.in.tum.de).
+1. Install [Isabelle2021-1](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
    * `(path-to-the-Isabelle-binary)isabelle jedit -d (path-to-the-directory-that-contains-this-README-file) -l SeLFiE`
