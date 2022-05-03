@@ -8,7 +8,7 @@
 
 This repository contains various tools to support interactive theorem proving in Isabelle/HOL using artificial intelligence.
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for [Isabelle20**21-1**](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2019, are no longer supported.
+**try_hard**, for [Isabelle2021-1](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2019, are no longer supported.
 
 ## YouTube
 
