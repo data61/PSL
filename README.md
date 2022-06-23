@@ -27,7 +27,7 @@ We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92u
 
 ![Screenshot](./image/screen_shot_import.png)
 
-If you find it difficult to install our tool, please refer to [the Isabelle System Manual](https://isabelle.in.tum.de/doc/system.pdf). Alternatively, you can just send an email to Yutaka at Yutaka.Nagashima(at)cvut.cz.
+If you find it difficult to install our tool, please refer to [the Isabelle System Manual](https://isabelle.in.tum.de/doc/system.pdf). Alternatively, you can just send an email to Yutaka at **united.reasoning+gmail.com (reaplace + with @)**.
 
 ## Hints
 PSL's runtime tactic generation can result in a large number of messages in Isabelle/jEdit's output panel.
@@ -45,7 +45,7 @@ We published academic papers describing the ideas implemented in this project.
 - LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL at [APLAS2019](https://conf.researchr.org/home/aplas-2019) explains our domain specific language to encode induction heuristics. ([arXiv](https://arxiv.org/abs/1906.08084)/[Springer](https://doi.org/10.1007/978-3-030-34175-6_14))
 - smart_induct: Smart Induction for Isabelle/HOL (Tool Paper) accepted at [FMCAD2020](https://fmcad.forsyte.at/FMCAD20/).  ([TU Wien Academic Press](https://doi.org/10.34727/2020/isbn.978-3-85448-042-6_32)/[Zenodo](https://doi.org/10.5281/zenodo.3960303)/[YouTube](https://youtu.be/iaH0Mx926CU).)
 - Simple Dataset for Proof Method Recommendation in Isabelle/HOL (Dataset Description) at [CICM2020](https://cicm-conference.org/2020/cicm.php). ([arXiv](https://arxiv.org/abs/2004.10667)/[Springer](https://doi.org/10.1007/978-3-030-53518-6_21))
-- sem_ind: Faster Smarter Proof by Induction in Isabelle/HOL at IJCAI2021 explains how sem_ind predicts how to apply proof by induction. ([IJCAI](https://doi.org/10.24963/ijcai.2021/273))
+- sem_ind: Faster Smarter Proof by Induction in Isabelle/HOL at IJCAI2021 explains how sem_ind predicts how to apply proof by induction. ([IJCAI](https://doi.org/10.24963/ijcai.2021/273)/[YouTube](https://youtu.be/4umf8Zhjy7c))
 - SeLFiE: Definitional Quantifiers Realise Semantic Reasoning for Proof by Induction at [TAP2022](https://easychair.org/smart-program/TAP22/) explains the idea and interpreter of SeLFiE, which we developed to implement sem_ind. ([arXiv](https://arxiv.org/abs/2010.10296))
 
 We presented the final goal of this project at [AITP2017](http://aitp-conference.org/2017/). Our position paper "Towards Smart Proof Search for Isabelle" is available at [arXiv](https://arxiv.org/abs/1701.03037).
