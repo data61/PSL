@@ -1,9 +1,0 @@
-session "MergeDatabase" = "HOL" +
-  options [document = pdf, document_output = "output", timeout = 99999999]
-  theories [document = false]
-    "MergeDatabase"
-    (* Bar *)
-  theories
-    (* Baz *)
-  document_files
-    "root.tex"

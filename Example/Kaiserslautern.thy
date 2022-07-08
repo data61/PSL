@@ -1,5 +1,5 @@
 theory Kaiserslautern
-imports Smart_Isabelle.Smart_Isabelle
+imports Main Smart_Isabelle.Smart_Isabelle 
 begin
 
 primrec rev1::"'a list \<Rightarrow> 'a list" where

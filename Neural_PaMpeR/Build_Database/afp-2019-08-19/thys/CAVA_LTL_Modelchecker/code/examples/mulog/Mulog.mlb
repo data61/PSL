@@ -1,5 +1,0 @@
-$(SML_LIB)/basis/basis.mlb
-../../Unsynchronized.sml
-Miscellaneous.sml
-Mulog_Export.sml
-Mulog.sml

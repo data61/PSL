@@ -1,5 +1,0 @@
-$(SML_LIB)/basis/basis.mlb
-Prelude.sml
-Complementation_Export.sml
-Automaton.sml
-Complementation.sml

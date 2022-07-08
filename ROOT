@@ -5,7 +5,7 @@ session "SeLFiE" (psl) in SeLFiE = HOL +
   document_files
     "root.tex"
     "root.bib"
-
+(*
 session "PaMpeR" (psl) in PaMpeR = "SeLFiE" +
   options [timeout = 6000]
   theories [document = false]
@@ -13,8 +13,8 @@ session "PaMpeR" (psl) in PaMpeR = "SeLFiE" +
   document_files
     "root.tex"
     "root.bib"
-
-session "PSL" (psl) in PSL = "PaMpeR" +
+*)
+session "PSL" (psl) in PSL = "SeLFiE" +
   options [timeout = 600]
   theories [document = false]
     "PSL"

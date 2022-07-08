@@ -1,8 +1,0 @@
-chapter AFP
-
-session Ordinals_and_Cardinals (AFP) = "HOL-Cardinals" +
-  options [timeout = 600]
-  theories
-    Cardinal_Order_Relation_discontinued
-  document_files
-    "root.tex"

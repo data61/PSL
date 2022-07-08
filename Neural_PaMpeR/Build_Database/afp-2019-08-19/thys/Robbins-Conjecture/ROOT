@@ -1,8 +1,0 @@
-chapter AFP
-
-session "Robbins-Conjecture" (AFP) = HOL +
-  options [timeout = 600]
-  theories
-    Robbins_Conjecture
-  document_files
-    "root.tex"

@@ -1,8 +1,0 @@
-chapter AFP
-
-session "DPT-SAT-Solver" (AFP) = HOL +
-  options [timeout = 600]
-  theories
-    DPT_SAT_Tests
-  document_files
-    "root.tex"

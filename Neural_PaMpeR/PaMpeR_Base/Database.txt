@@ -1,4 +1,0 @@
-~/Workplace/PSL_Perform/PSL/Neural_PaMpeR/PaMpeR_Base/Test_Dataset_Construction.thy9 auto 1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-~/Workplace/PSL_Perform/PSL/Neural_PaMpeR/PaMpeR_Base/Test_Dataset_Construction.thy9 First_Subgoal z \<Longrightarrow> True \<and> (False \<or> (y \<longrightarrow> y))
-~/Workplace/PSL_Perform/PSL/Neural_PaMpeR/PaMpeR_Base/Test_Dataset_Construction.thy9 Chained_Fact x = x
-~/Workplace/PSL_Perform/PSL/Neural_PaMpeR/PaMpeR_Base/Test_Dataset_Construction.thy9 Chained_Fact y = z \<or> y

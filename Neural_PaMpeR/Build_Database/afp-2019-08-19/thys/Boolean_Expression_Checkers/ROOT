@@ -1,8 +1,0 @@
-chapter AFP
-
-session Boolean_Expression_Checkers (AFP) = "HOL-Library" +
-  options [timeout = 600]
-  theories
-    Boolean_Expression_Example
-  document_files
-    "root.tex"

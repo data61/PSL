@@ -1,8 +1,0 @@
-chapter AFP
-
-session FFT (AFP) = HOL +
-  options [timeout = 600]
-  theories
-    FFT
-  document_files
-    "root.tex"

@@ -1,7 +1,0 @@
-session "Build_Regression_Tree" = "HOL" +
-  options [document = pdf, document_output = "output", timeout = 99999999999]
-  theories [document = false]
-    "Evaluation"
-  theories
-  document_files
-    "root.tex"
