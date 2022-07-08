@@ -1,7 +1,8 @@
 # News
 - We updated this repository to Isabelle2021-1.
 - LiFtEr and Smart_Induct are no-longer supported, since their successors, SeLFiE and sem_ind, have shown superior performance.
-- This is the development version of PSL, PaMpeR, SeLFiE, and sem_ind where we try out possibly immature ideas. In case you find problems, please send your feedback.
+- _PaMpeR is currently not supported either,_ since we want to minimise the cost necessary to maintain this repository. 
+- This is the development version of PSL, SeLFiE, and sem_ind where we try out possibly immature ideas. In case you find problems, please send your feedback.
 - The main developer of this repository, Yutaka, has taken a full-time position at a private company, and he works on [PSL and all that](https://github.com/data61/PSL/) only in his spare time. Therefore, the progress of this project, unfortunately, will be slow for the foreseeable future. In case you find problems and requests about data61/PSL, contact Yutaka (email: united.reasoning+gmail.com (reaplace + with @), twitter: [YutakangE](https://twitter.com/YutakangE)) or open an issue.
 
 # Smart_Isabelle
@@ -14,16 +15,20 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 
 We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
 
-## Installation (of SeLFiE, PaMpeR, PSL, and sem_ind in one go)
+## Installation (of SeLFiE, PSL, and sem_ind in one go) (for MacOS/Lunux users)
 1. Install [Isabelle2021-1](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
    * `(path to the Isabelle binary)isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
    * `/Applications/Isabelle2021-1.app/bin/isabelle jedit -d . -l Smart_Isabelle`
-4. Then, You can use SeLFiE/PaMpeR/PSL/LiFtEr/Smart_Induct to your theory files
+4. Then, You can use SeLFiE/PSL/sem_ind to your theory files
    with the Isabelle keyword, **imports** as ``imports "Smart_Isabelle.Smart_Isabelle"``.
 5. Open `Example/Example.thy` to see if the installation is successful.
+
+### Note on installation for Windows users
+The basic steps are the same as MacOS and Linux. 
+However, instead of using the binary file directly, use `Isabelle2021-1\Cygwin-Terminal` in Command Prompt. Once you start `Isabelle2021-1\Cygwin-Terminal`, you can install our tools by typing `isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`. Note that once you started `Isabelle2021-1\Cygwin-Terminal`, you should not specify the path to the Isabelle binary file. Therefore, the command you need after starting `Isabelle2021-1\Cygwin-Terminal` is something like `isabelle jedit -d . -l Smart_Isabelle`, assuming that your current directory is this one with this README.md/
 
 ![Screenshot](./image/screen_shot_import.png)
 
@@ -41,7 +46,7 @@ This might cause Isabelle/jEdit to pause PSL's proof search after reaching its d
 We published academic papers describing the ideas implemented in this project.
 - A Proof Strategy Language and Proof Script Generation for Isabelle/HOL at [CADE2017](http://www.cse.chalmers.se/~myreen/cade-26/) explains the overall idea of PSL. ([arXiv](https://arxiv.org/abs/1606.02941)/[Springer](https://doi.org/10.1007/978-3-319-63046-5_32))
 - Goal-Oriented Conjecturing for Isabelle/HOL at [CICM2018](https://cicm-conference.org/2018/cicm.php) explains the conjecturing framework implemented as `Generalize` and `Conjecture` in `PSL/PGT`. ([arXiv](https://arxiv.org/abs/1806.04774)/[Springer](https://doi.org/10.1007/978-3-319-96812-4_19))
-- PaMpeR: Proof Method Recommendation System for Isabelle/HOL at [ASE2018](http://ase2018.com) explains the proof method recommendation system implemented in `PSL/PaMpeR`. ([arXiv](https://arxiv.org/abs/1806.07239)/[ACM](http://doi.acm.org/10.1145/3238147.3238210))
+- PaMpeR: Proof Method Recommendation System for Isabelle/HOL at [ASE2018](http://ase2018.com) explains the proof method recommendation system implemented in `PSL/PaMpeR`. ([arXiv](https://arxiv.org/abs/1806.07239)/[ACM](http://doi.acm.org/10.1145/3238147.3238210)) Note that _PaMpeR is currently not supported to minimise the cost to maintain this repository._
 - LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL at [APLAS2019](https://conf.researchr.org/home/aplas-2019) explains our domain specific language to encode induction heuristics. ([arXiv](https://arxiv.org/abs/1906.08084)/[Springer](https://doi.org/10.1007/978-3-030-34175-6_14))
 - smart_induct: Smart Induction for Isabelle/HOL (Tool Paper) accepted at [FMCAD2020](https://fmcad.forsyte.at/FMCAD20/).  ([TU Wien Academic Press](https://doi.org/10.34727/2020/isbn.978-3-85448-042-6_32)/[Zenodo](https://doi.org/10.5281/zenodo.3960303)/[YouTube](https://youtu.be/iaH0Mx926CU).)
 - Simple Dataset for Proof Method Recommendation in Isabelle/HOL (Dataset Description) at [CICM2020](https://cicm-conference.org/2020/cicm.php). ([arXiv](https://arxiv.org/abs/2004.10667)/[Springer](https://doi.org/10.1007/978-3-030-53518-6_21))
