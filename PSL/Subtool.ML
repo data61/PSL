@@ -164,14 +164,14 @@ fun hammer_logtac (pstate:Proof.state) =
     val Auto_Try           = Sledgehammer_Prover.Auto_Try;
     val fact_override      = Sledgehammer_Fact.no_fact_override;
     val run_sledgehammer   = Sledgehammer.run_sledgehammer params Auto_Try NONE 1 fact_override
-                           : Proof.state -> bool * (string * string list);
+                           : Proof.state -> bool * (Sledgehammer.sledgehammer_outcome * string);
     (*function body*)
     val result             = SOME (run_sledgehammer pstate)
                              handle ERROR _ =>
                              (if Utils.debug then tracing "ERROR in result/hammer_logtac" else ();
                               NONE)
-                           : (bool * (string * string list)) option;
-    val orig_string        = result <$> snd <$> snd <$> hd handle Empty =>
+                           : (bool * (Sledgehammer.sledgehammer_outcome * string)) option;
+    val orig_string        = result <$> snd <$> snd  handle Empty =>
                              (if Utils.debug then tracing "Empty in orig_string/hammer_logtac" else (); 
                               NONE) : string option;
     fun did_smt_timeout (out::timed::_) = (Utils.are_same ("out)", out)) andalso

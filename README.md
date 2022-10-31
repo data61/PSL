@@ -1,5 +1,5 @@
 # News
-- We updated this repository to Isabelle2021-1.
+- We updated this repository to Isabelle2022.
 - LiFtEr and Smart_Induct are no-longer supported, since their successors, SeLFiE and sem_ind, have shown superior performance.
 - _PaMpeR is currently not supported either,_ since we want to minimise the cost necessary to maintain this repository. 
 - This is the development version of PSL, SeLFiE, and sem_ind where we try out possibly immature ideas. In case you find problems, please send your feedback.
@@ -9,26 +9,26 @@
 
 This repository contains various tools to support interactive theorem proving in Isabelle/HOL using artificial intelligence.
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for [Isabelle2021-1](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2019, are no longer supported.
+**try_hard**, for [Isabelle2022](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2021-1, are no longer supported.
 
 ## YouTube
 
 We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
 
 ## Installation (of SeLFiE, PSL, and sem_ind in one go) (for MacOS/Lunux users)
-1. Install [Isabelle2021-1](https://isabelle.in.tum.de).
+1. Install [Isabelle2022](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
    * `(path to the Isabelle binary)isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
-   * `/Applications/Isabelle2021-1.app/bin/isabelle jedit -d . -l Smart_Isabelle`
+   * `/Applications/Isabelle2022.app/bin/isabelle jedit -d . -l Smart_Isabelle`
 4. Then, You can use SeLFiE/PSL/sem_ind to your theory files
    with the Isabelle keyword, **imports** as ``imports "Smart_Isabelle.Smart_Isabelle"``.
 5. Open `Example/Example.thy` to see if the installation is successful.
 
 ### Note on installation for Windows users
 The basic steps are the same as MacOS and Linux. 
-However, instead of using the binary file directly, use `Isabelle2021-1\Cygwin-Terminal` in Command Prompt. Once you start `Isabelle2021-1\Cygwin-Terminal`, you can install our tools by typing `isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`. Note that once you started `Isabelle2021-1\Cygwin-Terminal`, you should not specify the path to the Isabelle binary file. Therefore, the command you need after starting `Isabelle2021-1\Cygwin-Terminal` is something like `isabelle jedit -d . -l Smart_Isabelle`, assuming that your current directory is this one with this README.md/
+However, instead of using the binary file directly, use `Isabelle2022\Cygwin-Terminal` in Command Prompt. Once you start `Isabelle2022\Cygwin-Terminal`, you can install our tools by typing `isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`. Note that once you started `Isabelle2022\Cygwin-Terminal`, you should not specify the path to the Isabelle binary file. Therefore, the command you need after starting `Isabelle2022\Cygwin-Terminal` is something like `isabelle jedit -d . -l Smart_Isabelle`, assuming that your current directory is this one with this README.md/
 
 ![Screenshot](./image/screen_shot_import.png)
 
