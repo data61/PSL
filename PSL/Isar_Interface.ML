@@ -73,10 +73,16 @@ fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
   let
     val core_tac  = Mp.desugar strategy;
     val interpret = Mp.interpret;
+    fun rm_warnings (ctxt:Proof.context) = ctxt
+     |> Config.put SMT_Config.verbose false
+     |> Config.put Metis_Generate.verbose false
+     |> Config.put Quickcheck.quiet true
+     |> Context_Position.set_visible false: Proof.context;
+    val pst_wo_warnings = Proof.map_context rm_warnings proof_state: Proof.state;
   in
     Isabelle_Utils.timeout_apply (seconds 6000000.0)
     (interpret (Mp.eval_prim, Mp.eval_para, Mp.eval_pgt, Mp.eval_strategic, Mp.m_equal, Mp.iddfc, (1,20))
-                core_tac) proof_state
+                core_tac) pst_wo_warnings
   end : Proof.state Mp.monad;
 
 type trans_trans = Toplevel.transition -> Toplevel.transition;
