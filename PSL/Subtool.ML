@@ -7,19 +7,19 @@ This file provides utility functions that are useful to generate tactics at run-
 (*** SUBTOOL: The state monad tactic interface for sub-tools. ***)
 signature SUBTOOL =
 sig
-  val state_stttac  : Proof.state Dynamic_Utils.stttac;
+  val state_stttac: real -> Proof.state Dynamic_Utils.stttac;
 end;
 
 (*** SUBTOOLS: A collection of sub-tools. ***)
 signature SUBTOOLS =
 sig
-  val quickcheck  : Proof.state Dynamic_Utils.stttac;
-  val nitpick     : Proof.state Dynamic_Utils.stttac;
-  val hammer      : Proof.state Dynamic_Utils.stttac;
-  val is_solved   : Proof.state Dynamic_Utils.stttac;
-  val defer       : Proof.state Dynamic_Utils.stttac;
-  val subgoal     : Proof.state Dynamic_Utils.stttac;
-  val smart_induct: Proof.state -> Proof.state Dynamic_Utils.stttac Seq.seq;
+  val quickcheck  : real -> Proof.state Dynamic_Utils.stttac;
+  val nitpick     : real -> Proof.state Dynamic_Utils.stttac;
+  val hammer      : real -> Proof.state Dynamic_Utils.stttac;
+  val is_solved   : unit -> Proof.state Dynamic_Utils.stttac;
+  val defer       : unit -> Proof.state Dynamic_Utils.stttac;
+  val subgoal     : unit -> Proof.state Dynamic_Utils.stttac;
+  val smart_induct: real -> Proof.state -> Proof.state Dynamic_Utils.stttac Seq.seq;
   val sh_output_to_sh_stttac: string -> Proof.state Dynamic_Utils.stttac;(*used in United Reasoning*)
 end;
 
@@ -31,7 +31,7 @@ struct
 structure Quickcheck_Tactic : SUBTOOL =
 struct
 
-fun nontac (state:Proof.state) =
+fun nontac (timeout:real) (state:Proof.state) =
   let
     (*do_trace and show_trace are provided for the purpose of debugging.*)
     val do_trace        = false;
@@ -42,14 +42,17 @@ fun nontac (state:Proof.state) =
     fun trace_cexm _    = show_trace "Quickcheck.quickcheck found a  counterexample";
     fun trace_scexn _   = show_trace ("Quickcheck.quickcheck found a potentially spurious " ^
                                       "counterexample due to underspecified functions");
-    fun get_result _    =  (case quickcheck [] 1 state of
+    fun trace_to to     = show_trace ("Quickcheck timed out after " ^ Timeout.print to);
+    val timeout         = Isabelle_Utils.timeout_apply (seconds timeout);
+    fun get_result _    =  (case timeout (quickcheck [] 1) state of
       NONE => (trace_no_cexm (); single)
-    | SOME (genuine, _) => if genuine then (trace_cexm (); Seq.empty) else (trace_scexn (); single));
+    | SOME (genuine, _) => if genuine then (trace_cexm (); Seq.empty) else (trace_scexn (); single))
+    handle Timeout.TIMEOUT to => (trace_to to; single);
   in
     Utils.try_with single get_result state
   end;
 
-val state_stttac = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac);
+fun state_stttac timeout = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac timeout);
 
 end;
 
@@ -57,12 +60,17 @@ end;
 structure Nitpick_Tactic : SUBTOOL =
 struct
 
-fun nontac (state:Proof.state) =
+fun nontac (timeout:real) (state:Proof.state) =
   let
     val single             = Seq.single state;
     val thy:theory         = (Proof.theory_of state);
     val params             = Nitpick_Commands.default_params thy [];
-    val nitpick_result     = Nitpick.pick_nits_in_subgoal state params Nitpick.Normal 1 1;
+    val timeout            = Isabelle_Utils.timeout_apply (seconds timeout);
+    val do_trace           = false;
+    fun show_trace text    = if do_trace then tracing text else ();
+    fun trace_to to        = show_trace ("Nitpick timed out after " ^ Timeout.print to);
+    fun nitpick_result' _  = Nitpick.pick_nits_in_subgoal state params Nitpick.Normal 1 1;
+    val nitpick_result     = timeout nitpick_result' () handle Timeout.TIMEOUT to => (trace_to to; ("timeout", []));
     (*"genuine" means "genuine counter-example".*)
     val nitpick_succeed    = fst nitpick_result = "genuine";
     val nitpick_tac_result = if nitpick_succeed then Seq.empty else single
@@ -70,7 +78,9 @@ fun nontac (state:Proof.state) =
     nitpick_tac_result : Proof.state Seq.seq
   end;
 
-val state_stttac = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac);
+fun timeout f = Utils.try_with Seq.empty (Isabelle_Utils.timeout_apply (seconds 2.0) f);
+
+fun state_stttac timeout = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac timeout);
 
 end;
 
@@ -145,13 +155,14 @@ fun tool_output_n_timeout_to_logtac (sh_output:string) (to:real) (state:Proof.st
     results_w_log : (Dynamic_Utils.log * Proof.state) Seq.seq
   end;
 
-fun sh_output_to_sh_stttac (output:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac output 10.0 ): Proof.state Dynamic_Utils.stttac;
+fun sh_output_to_sh_stttac (output:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac output 10.0 )
+  : Proof.state Dynamic_Utils.stttac;
 
 (** Sledgehammer_Tacctic: Sledgehammer as a state monad based tactic. **)
 structure Sledgehammer_Tactic : SUBTOOL =
 struct
 
-fun hammer_logtac (pstate:Proof.state) =
+fun hammer_logtac (timeout:real) (pstate:Proof.state) =
   let
     (*syntax sugars*)
     infix <$>
@@ -165,10 +176,12 @@ fun hammer_logtac (pstate:Proof.state) =
     val fact_override      = Sledgehammer_Fact.no_fact_override;
     val run_sledgehammer   = Sledgehammer.run_sledgehammer params Auto_Try NONE 1 fact_override
                            : Proof.state -> bool * (Sledgehammer.sledgehammer_outcome * string);
+    val timeout            = Isabelle_Utils.timeout_apply (seconds timeout);
+
     (*function body*)
-    val result             = SOME (run_sledgehammer pstate)
+    val result             = try (timeout run_sledgehammer) pstate
                              handle ERROR _ =>
-                             (if Utils.debug then tracing "ERROR in result/hammer_logtac" else ();
+                             (if Utils.debug then tracing "ERROR in hammer_logtac" else ();
                               NONE)
                            : (bool * (Sledgehammer.sledgehammer_outcome * string)) option;
     val orig_string        = result <$> snd <$> snd  handle Empty =>
@@ -193,7 +206,7 @@ fun hammer_logtac (pstate:Proof.state) =
     else Seq.empty : (Dynamic_Utils.log * Proof.state) Seq.seq
   end;
 
-val state_stttac = Dynamic_Utils.logtac_to_stttac hammer_logtac : Proof.state Dynamic_Utils.stttac;
+fun state_stttac timeout = Dynamic_Utils.logtac_to_stttac (hammer_logtac timeout) : Proof.state Dynamic_Utils.stttac;
 
 end;
 
@@ -222,9 +235,9 @@ end;
 
 fun mk_state_stttac (smart_induct_output_str:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac smart_induct_output_str 30.0);
 
-fun state_stttacs (pst:Proof.state) =
+fun state_stttacs (timeout:real) (pst:Proof.state) =
   let
-    val induct_output_strs = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds 30.0) pst_to_smart_induct_output_strs) pst: strings;
+    val induct_output_strs = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds timeout) pst_to_smart_induct_output_strs) pst: strings;
     val stttacs            = Par_List.map mk_state_stttac induct_output_strs:  Proof.state Dynamic_Utils.stttac list;
   in
     stttacs
@@ -232,14 +245,12 @@ fun state_stttacs (pst:Proof.state) =
 
 end;
 
-val timeout    = Isabelle_Utils.timeout_apply (seconds 5.0);
-
 (** The exposed part of Subtools **)
-val quickcheck = timeout Quickcheck_Tactic.state_stttac;
+fun quickcheck to = Quickcheck_Tactic.state_stttac to;
 
-val nitpick    = timeout Nitpick_Tactic.state_stttac;
+fun nitpick to = Nitpick_Tactic.state_stttac to;
 
-val hammer     = Isabelle_Utils.timeout_apply (seconds 10.0) Sledgehammer_Tactic.state_stttac;
+fun hammer to = Sledgehammer_Tactic.state_stttac to;
 
 val to_stttac  = Dynamic_Utils.log_n_nontac_to_stttac;
 
@@ -254,14 +265,14 @@ fun is_solved_nontac(state:Proof.state) =
     result : Proof.state Seq.seq
   end;
 
-val is_solved = to_stttac ([Dynamic_Utils.Done], is_solved_nontac);
+fun is_solved _ = to_stttac ([Dynamic_Utils.Done], is_solved_nontac);
 
-val defer = to_stttac ([Dynamic_Utils.Defer], Seq.single o (Proof.defer 1));
+fun defer _ = to_stttac ([Dynamic_Utils.Defer], Seq.single o (Proof.defer 1));
 
 val subgoal_nontac = Seq.single o #2 o Subgoal.subgoal (Binding.empty, []) NONE (false, []);
 
-val subgoal = to_stttac ([Dynamic_Utils.Subgoal], subgoal_nontac);
+fun subgoal _ = to_stttac ([Dynamic_Utils.Subgoal], subgoal_nontac);
 
-fun smart_induct pst = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds 30.0) Smart_Induct_Tactic.state_stttacs) pst |> Seq.of_list;
+fun smart_induct to pst = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds to) (Smart_Induct_Tactic.state_stttacs to)) pst |> Seq.of_list;
 
 end;

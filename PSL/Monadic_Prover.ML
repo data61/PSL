@@ -67,22 +67,24 @@ struct
   | CFails    of core_str (*I cannot Fails as a syntactic sugar as the definition involves goal.*)
   | CStrategic of (cstrategic * core_str list);
   type 'a stttac         = 'a -> 'a monad;
-  type 'a eval_prim      = cstatic -> 'a stttac;
+  type timeouts          = {overall: real, hammer: real, quickcheck: real, nitpick: real};
+  type 'a eval_prim      = timeouts -> cstatic -> 'a stttac;
   type 'a eval_para      = cprim_str -> 'a -> 'a stttac Seq.seq;
   type 'a eval_pgt       = cpgt -> 'a -> 'a stttac Seq.seq;
   type 'a eval_strategic = cstrategic * 'a stttac list -> 'a stttac;
   type 'a equal          = 'a monad -> 'a monad -> bool;
   type 'a iddfc          = int -> (catom_str -> 'a stttac) -> (catom_str -> 'a stttac);
   type depths            = (int * int);
-  type 'a params         = ('a eval_prim * 'a eval_para * 'a eval_pgt * 'a eval_strategic * 'a equal * 'a iddfc * depths);
+  type 'a params         = ('a eval_prim * 'a eval_para * 'a eval_pgt * 'a eval_strategic * 'a equal * 'a iddfc * depths * timeouts);
   type 'a interpret      = 'a params -> core_str -> 'a stttac;
 
   (*Interpret function similar to that of "A Monadic Interpretation of Tactics" by A. Martin et. al.*)
-  fun interpret (eval_prim, eval_para, eval_pgt, eval_strategic, m_equal, iddfc, (n_deepenings, n_steps_each))
+  (*TODO: use timeouts*)
+  fun interpret (eval_prim, eval_para, eval_pgt, eval_strategic, m_equal, iddfc, (n_deepenings, n_steps_each), timeouts)
                 (strategy:core_str) goal =
     let
        fun is_mzero monad        = m_equal monad mzero;
-       fun eval (CSttc str) goal = Utils.try_with mzero (eval_prim str) goal
+       fun eval (CSttc str) goal = Utils.try_with mzero (eval_prim timeouts str) goal
          | eval (CDyn (CPGT str)) goal = (*TODO: remove the code duplication with the following clause.*)
            let
              fun how_to_combine_results CGeneralize = Unique
@@ -183,6 +185,9 @@ struct
       in
         inter strategy goal
       end
+
+    (* Yutaka no longer wants to use iteratively deepening depth first search based on this implementation
+     * because this implementation involves too many repetitions. *)
     fun results' 0 = mzero
       | results' m =
           let
@@ -191,7 +196,8 @@ struct
           in
             if not_solved then results' (m - 1) else current_result
           end
-    val results = results' n_deepenings
+    val results = Timeout.apply_physical (seconds (#overall timeouts)) (*results' n_deepenings*)
+                  inter_with_limit (n_deepenings * n_steps_each) handle Timeout.TIMEOUT _ => mzero
   in 
     results
   end
@@ -490,7 +496,8 @@ type 'a seq          = 'a Seq.seq;
 type ctxt            = Proof.context;
 type thms            = thm list;
 type strings         = string list;
-type eval_prim       = MIC.cstatic -> state MIC.stttac;
+type timeouts        = {overall: real, hammer: real, quickcheck: real, nitpick: real};
+type eval_prim       = timeouts -> MIC.cstatic -> state MIC.stttac;
 type eval_para       = MIC.cprim_str -> state -> state MIC.stttac Seq.seq;
 type eval_pgt        = MIC.cpgt -> state -> state MIC.stttac Seq.seq;
 type eval_strategic  = MIC.cstrategic * state MIC.stttac list -> state MIC.stttac;
@@ -499,6 +506,7 @@ type iddfc           = int -> (MIC.catom_str -> state MIC.stttac) -> MIC.catom_s
 type log             = Dynamic_Utils.log;
 type monad           = state Dynamic_Utils.st_monad;
 type monad_tac       = state Dynamic_Utils.stttac;
+type timeouts        = {overall: real, hammer: real, quickcheck: real, nitpick: real};
 (*do_trace and show_trace are for debugging only.*)
 val do_trace         = false;
 fun show_trace text  = if do_trace then tracing text else ();
@@ -522,7 +530,7 @@ end;
 (* eval_prim *)
 (*I cannot move the definition of "eval_prim" into mk_Monadic_Interpreter,
   because its type signature is too specific.*)
-fun eval_prim (prim:MIC.cstatic) (goal_state:state) =
+fun eval_prim (timeouts:timeouts) (prim:MIC.cstatic) (goal_state:state) =
   let
     (*For eval_prim.*)
     val string_to_stttac = Dynamic_Utils.string_to_stttac_on_pstate;
@@ -543,12 +551,12 @@ fun eval_prim (prim:MIC.cstatic) (goal_state:state) =
     | MIC.CSpec MIC.CIntroClasses =>  (show_trace "CIntro_Classes"; string_to_stttac "intro_classes")
     | MIC.CSpec MIC.CTransfer =>      (show_trace "CTransfer";      string_to_stttac "transfer")
     | MIC.CSpec MIC.CNormalization => (show_trace "CNormalization"; string_to_stttac "normalization")
-    | MIC.CSpec MIC.CSubgoal =>       (show_trace "CSubgoal";       Subtools.subgoal)
-    | MIC.CSubt MIC.CHammer =>        (show_trace "CHammer";        Subtools.hammer)
-    | MIC.CSpec MIC.CIsSolved =>      (show_trace "CIs_Solved";     Subtools.is_solved)
-    | MIC.CSubt MIC.CQuickcheck=>     (show_trace "CQuickcheck";    Subtools.quickcheck)
-    | MIC.CSubt MIC.CNitpick   =>     (show_trace "CNitpick";       Subtools.nitpick)
-    | MIC.CSpec MIC.CDefer     =>     (show_trace "CDefer";         Subtools.defer)
+    | MIC.CSpec MIC.CSubgoal =>       (show_trace "CSubgoal";       Subtools.subgoal ())
+    | MIC.CSubt MIC.CHammer =>        (show_trace "CHammer";        Subtools.hammer (#hammer timeouts))
+    | MIC.CSpec MIC.CIsSolved =>      (show_trace "CIs_Solved";     Subtools.is_solved ())
+    | MIC.CSubt MIC.CQuickcheck=>     (show_trace "CQuickcheck";    Subtools.quickcheck (#quickcheck timeouts))
+    | MIC.CSubt MIC.CNitpick   =>     (show_trace "CNitpick";       Subtools.nitpick (#nitpick timeouts))
+    | MIC.CSpec MIC.CDefer     =>     (show_trace "CDefer";         Subtools.defer ())
     | MIC.CUser tac_name =>           (show_trace tac_name;         user_stttac tac_name);
   in
      Utils.try_with MIC.mzero tac_on_proof_state goal_state : state MIC.monad
@@ -570,7 +578,7 @@ fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
       | MIC.CFastforce =>   (show_trace "CPara_Fastforce";   Dynamic_Tactic_Generation.fastforce)
       | MIC.CAuto =>        (show_trace "CPara_Auto";        Dynamic_Tactic_Generation.auto)
       | MIC.CClarsimp =>    (show_trace "CPara_Clarsimp";    Dynamic_Tactic_Generation.clarsimp)
-      | MIC.CSmart_Induct =>(show_trace "CSmart_Induct";     Subtools.smart_induct)
+      | MIC.CSmart_Induct =>(show_trace "CSmart_Induct";     Subtools.smart_induct 30.0)
   in
     (*It is okay to use the type list internally,
       as long as the overall monadic interpretation framework is instantiated to Seq.seq for
