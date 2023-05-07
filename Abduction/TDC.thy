@@ -6,7 +6,7 @@
  *)
 theory TDC
   imports "../TBC/TBC"
-  keywords "top_down_prove" :: thy_goal_stmt
+  keywords "prove" :: thy_goal_stmt
 begin
 
 
@@ -499,7 +499,7 @@ val short_statement =
         Element.Shows shows));
 
 fun theorem _ descr =
-  Outer_Syntax.local_theory @{command_keyword top_down_prove} ("state " ^ descr)
+  Outer_Syntax.local_theory @{command_keyword prove} ("state " ^ descr)
     (((long_statement || short_statement) >> (fn (_, _, _, _(*elems*), concl) =>
        (fn lthy =>
           let
@@ -512,7 +512,6 @@ fun theorem _ descr =
              |> Config.put Metis_Generate.verbose false
              |> Context_Position.set_visible false: Proof.context;
             val pst = Proof.init cxtx_wo_verbose_warnings: Proof.state;
-            val _ = tracing "before top_down_conjecturing";
             val _ = Proof_By_Abduction.top_down_conjecturing pst standardized_cncl;
           in
             lthy
@@ -521,7 +520,7 @@ fun theorem _ descr =
 
 in
 
-val _ = theorem \<^command_keyword>\<open>top_down_prove\<close> "theorem";
+val _ = theorem \<^command_keyword>\<open>prove\<close> "prove";
 
 end;
 \<close>

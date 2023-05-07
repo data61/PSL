@@ -11,7 +11,7 @@ begin
 
 text\<open> Uncomment the following to unleash the power parallelism. \<close>
 
-ML\<open> Multithreading.max_threads_update 28 \<close>
-ML\<open> Multithreading.parallel_proofs := 0; \<close>
+ML\<open> (*Multithreading.max_threads_update 28*) \<close>
+ML\<open> (*Multithreading.parallel_proofs := 0;*) \<close>
 
 end

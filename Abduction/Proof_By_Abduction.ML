@@ -171,8 +171,7 @@ fun loop (counter:int) (pst:state, graph: proof_graph) =
         val keys_worth_expanding       = keys_tobe_expanded_in ctxt graph                     : keys;
         val _ = tracing ("The number of keys worth expanding is:" ^ Int.toString (length keys_worth_expanding));
         val _ = tracing "They are:"
-        fun print_key ctxt key = map (tracing o Isabelle_Utils.trm_to_string ctxt) (snd key);
-        val _ = map (fn k => (tracing ""; print_key ctxt k)) keys_worth_expanding
+        val _ = map (Proof_Graph.print_key ctxt) keys_worth_expanding
         val (_, graph_w_keys_expanded) = fold work_on_ornode_if_original_goral_is_unproved keys_worth_expanding (pst, graph): (state * proof_graph);
         val solved                     = final_goal_proved_completely graph_w_keys_expanded: bool;
         val _                          = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")

@@ -257,17 +257,25 @@ fun goal_as_string (pst:Proof.state) ((Or_N, [term]):key) = Isabelle_Utils.trm_t
 fun keys_tobe_expanded_in (ctxt:Proof.context) (graph:proof_graph): keys =
   let
     val or_keys                        = PGraph.keys graph |> filter is_ornode          : keys;
+(*
 val _ = tracing ("ALL OR_KEYS: ");
 val _ = map (print_key ctxt) or_keys;
+*)
     val orleaf_keys                    = filter_out (is_branch graph) or_keys           : keys
+(*
 val _ = tracing ("ALL orleaf_keys: ");
 val _ = map (print_key ctxt) orleaf_keys;
+*)
     val keys_worth_trying              = filter (is_worth_proving ctxt graph) orleaf_keys: keys;
+(*
 val _ = tracing ("ALL keys_worth_trying: ");
 val _ = map (print_key ctxt) keys_worth_trying;
+*)
     val final_goal_key                 = get_final_goal graph                           : key;
+(*
 val _ = tracing ("FINAL GOAL IS: ");
 val _ =  print_key ctxt final_goal_key;
+*)
     val keys_reachable_from_final_goal = PGraph.all_succs graph [final_goal_key]        : keys;
     val _                              = tracing ("Number of keys_reachable_from_final_goal: " ^ Int.toString (length keys_reachable_from_final_goal));
     val _ = map (print_key ctxt) keys_reachable_from_final_goal
