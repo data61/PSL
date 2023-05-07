@@ -1319,17 +1319,17 @@ fun print_stat (stat:stat): string = String.concatWith ","
 end;
 \<close>
 
-(*** "Property_Based_Conjecturing.ML" ***)
+(*** "Template_Based_Conjecturing.ML" ***)
 ML\<open>
 (*
- * PROPERTY_BASED_CONJECTURING
+ * TEMPLATE_BASED_CONJECTURING
  * Authors:
  *   Yutaka Nagashima, Zijin Xu, Ningli Wang, and Daniel Goc Sebastian
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
 
-(*** signature PROPERTY_BASED_CONJECTURING ***)
-signature PROPERTY_BASED_CONJECTURING =
+(*** signature TEMPLATE_BASED_CONJECTURING ***)
+signature TEMPLATE_BASED_CONJECTURING =
 sig
 
 datatype property =
@@ -1398,8 +1398,8 @@ val ctxt_n_const_to_all_conjecture_term: Proof.context -> term -> (property * te
 
 end;
 
-(*** structure Property_Based_Conjecturing ***)
-structure Property_Based_Conjecturing: PROPERTY_BASED_CONJECTURING =
+(*** structure Template_Based_Conjecturing ***)
+structure Template_Based_Conjecturing: TEMPLATE_BASED_CONJECTURING =
 struct
 
 val strip_atyp        = Isabelle_Utils.strip_atyp;
@@ -2093,7 +2093,7 @@ val short_statement =
       (false, Binding.empty_atts, [], [Element.Fixes fixes, Element.Assumes assumes],
         Element.Shows shows));
 
-structure PBC = Property_Based_Conjecturing;
+structure PBC = Template_Based_Conjecturing;
 
 val zero_timing = {elapsed=Time.zeroTime: Time.time, cpu=Time.zeroTime: Time.time, gc=Time.zeroTime: Time.time};
 fun elapsed_time_in_real (time:Timing.timing) = #elapsed time |> Time.toReal: real;
