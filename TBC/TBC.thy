@@ -1434,30 +1434,26 @@ datatype property =
 | Swap_Unary
 | Composite_Commutativity;
 
-fun property_as_string' Associativity           = "Associativity"
-  | property_as_string' Identity                = "Identity"
-  | property_as_string' Invertibility           = "Invertibility"
-  | property_as_string' Commutativity           = "Commutativity"
-  | property_as_string' Idempotent_Element      = "Idempotent_Element"
-  | property_as_string' Idempotency             = "Idempotency"
-  | property_as_string' Zero_Element            = "Zero_Element"
-  | property_as_string' Distributivity          = "Distributivity"
-  | property_as_string' Ant_Distributivity      = "Ant_Distributivity"
-  | property_as_string' Homomorphism_2          = "Homomorphism_2"
-  | property_as_string' Transitivity            = "Transitivity"
-  | property_as_string' Symmetry                = "Symmetry"
-  | property_as_string' Connexity               = "Connexity"
-  | property_as_string' Reflexivity             = "Reflexivity"
-  | property_as_string' Square                  = "Square"
-  | property_as_string' Square_Root             = "Square_Root"
-  | property_as_string' Projection              = "Projection"
-  | property_as_string' Swap_Constructor        = "Swap_Constructor"
-  | property_as_string' Swap_Unary              = "Swap_Unary"
-  | property_as_string' Composite_Commutativity = "Composite_Commutativity";
-
-fun property_as_string (property:property) = property_as_string' property;
-
-fun const_term_name trm  = fst (dest_Const trm)
+fun property_as_string Associativity           = "Associativity"
+  | property_as_string Identity                = "Identity"
+  | property_as_string Invertibility           = "Invertibility"
+  | property_as_string Commutativity           = "Commutativity"
+  | property_as_string Idempotent_Element      = "Idempotent_Element"
+  | property_as_string Idempotency             = "Idempotency"
+  | property_as_string Zero_Element            = "Zero_Element"
+  | property_as_string Distributivity          = "Distributivity"
+  | property_as_string Ant_Distributivity      = "Ant_Distributivity"
+  | property_as_string Homomorphism_2          = "Homomorphism_2"
+  | property_as_string Transitivity            = "Transitivity"
+  | property_as_string Symmetry                = "Symmetry"
+  | property_as_string Connexity               = "Connexity"
+  | property_as_string Reflexivity             = "Reflexivity"
+  | property_as_string Square                  = "Square"
+  | property_as_string Square_Root             = "Square_Root"
+  | property_as_string Projection              = "Projection"
+  | property_as_string Swap_Constructor        = "Swap_Constructor"
+  | property_as_string Swap_Unary              = "Swap_Unary"
+  | property_as_string Composite_Commutativity = "Composite_Commutativity";
 
 fun pst_n_property_n_trm_to_pnode (pst:Proof.state) (property:property, conjecture_trm:term): TBC_Utils.pnode =
     let
