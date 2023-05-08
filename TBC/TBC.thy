@@ -89,7 +89,7 @@ fun pretty_consts ctxt raw_criteria =
 end;
 \<close>
 
-(*** "PBC_Util.ML" ***)
+(*** "TBC_Util.ML" ***)
 ML\<open>
 signature TOP_DOWN =
 sig
@@ -99,7 +99,7 @@ val top_down_conjectures: Proof.context -> term -> (string * term) list;
 end;
 
 
-signature PBC_UTILS =
+signature TBC_UTILS =
 sig
 
 type theorem_typ;
@@ -124,7 +124,7 @@ val term_has_counterexample_in_pst:           term -> Proof.state-> bool;
 val assume_term_in_ctxt:                      (string * term) -> Proof.context -> local_theory;
 val assume_terms_in_ctxt:                     (string * term) list -> Proof.context -> Proof.context;
 val cheat_lemma_term_in_pst:                  string -> term -> Proof.state -> Proof.state option;
-datatype strategy_for_eval = TAP21 | PBC_Strategy_W_Old_Smart_Induct | PBC_Strategy;
+datatype strategy_for_eval = TAP21 | TBC_Strategy_W_Old_Smart_Induct | TBC_Strategy;
 val pnode_n_pst_to_pst_n_proof:               strategy_for_eval -> real -> pnode -> int -> Proof.state -> Proof.state * pnode;
 val original_goal_is_proved:                  pnodes -> bool;
 val conjectures_n_pst_to_pst_n_proof_w_limit: strategy_for_eval -> int -> int -> pnodes -> Proof.state -> Proof.state * pnodes;
@@ -141,7 +141,7 @@ val Original_Goal:  theorem_typ;
 
 end;
 
-structure PBC_Utils: PBC_UTILS =
+structure TBC_Utils: TBC_UTILS =
 struct
 
 val Short_Hammer = 10.0(*The default is 10.0. 10.0 for Isaplanner and Prod. 5.0 for TIP15.*)
@@ -238,7 +238,7 @@ fun psl_strategy_to_monadic_tactic (timeouts:timeouts) (strategy:MP.str) = fn (p
     val interpret = MP.interpret;
   in
     interpret (MP.eval_prim, MP.eval_para, MP.eval_pgt, MP.eval_strategic, MP.m_equal, MP.iddfc, (1,20), timeouts) core_tac proof_state
-    handle Timeout.TIMEOUT timeout => (tracing ("PBC_Strategy timed out after: " ^ Time.toString timeout ^ "."); K Seq.empty)
+    handle Timeout.TIMEOUT timeout => (tracing ("TBC_Strategy timed out after: " ^ Time.toString timeout ^ "."); K Seq.empty)
   end: Proof.state MP.monad;
 
 
@@ -330,7 +330,7 @@ fun cheat_lemma_term_in_pst (lemma_name:string) (lemma_term:term) (pst:Proof.sta
     pst_w_cheated_lemma
   end;
 
-datatype strategy_for_eval = TAP21 | PBC_Strategy_W_Old_Smart_Induct | PBC_Strategy;
+datatype strategy_for_eval = TAP21 | TBC_Strategy_W_Old_Smart_Induct | TBC_Strategy;
 
 fun pnode_n_pst_to_pst_n_proof (strategy:strategy_for_eval) (hammer_duration:real) (pnode:pnode) (nth_round:int) (pst:Proof.state): Proof.state * pnode =
   if #proved_wo_assmng_cnjctr pnode
@@ -345,8 +345,8 @@ fun pnode_n_pst_to_pst_n_proof (strategy:strategy_for_eval) (hammer_duration:rea
       val timeouts         = {overall = 300.0, hammer = timeout_hammer, quickcheck = 1.0, nitpick = 2.0}   : timeouts;
       val strategy_name    = case strategy of
                              TAP21                           => "TAP_2021"
-                           | PBC_Strategy_W_Old_Smart_Induct => "Old_PBC_Strategy"
-                           | PBC_Strategy                    => "PBC_Strategy";
+                           | TBC_Strategy_W_Old_Smart_Induct => "Old_TBC_Strategy"
+                           | TBC_Strategy                    => "TBC_Strategy";
       val script_opt       = pst_to_proofscript_opt timeouts strategy_name pst_to_be_proved <$> fst         : string option;
       val pst_n_prfnode    = case script_opt of
          NONE                 => (pst, pnode)
@@ -500,9 +500,9 @@ fun get_relevant_constants (ctxt:Proof.context) (goal:term) =
 end;
 \<close>
 
-(*** "PBC_Eval_Util.ML" ***)
+(*** "TBC_Eval_Util.ML" ***)
 ML\<open>
-signature PBC_EVAL_STAT =
+signature TBC_EVAL_STAT =
 sig
 
 type stat =
@@ -552,15 +552,15 @@ val update_because_psl_unsolved_problem:
   {relevant_binary_funcs: terms,
    relevant_consts: terms,
    relevant_unary_funcs: terms,
-   conjectures_w_counterexample: PBC_Utils.pnodes,
-   conjectures_wo_counterexample: PBC_Utils.pnodes,
-   processed_pnodes:PBC_Utils.pnodes} -> stat_morphism;
+   conjectures_w_counterexample: TBC_Utils.pnodes,
+   conjectures_wo_counterexample: TBC_Utils.pnodes,
+   processed_pnodes:TBC_Utils.pnodes} -> stat_morphism;
 
 val print_stat: stat -> string;
 
 end
 
-structure PBC_Eval_Stat: PBC_EVAL_STAT =
+structure TBC_Eval_Stat: TBC_EVAL_STAT =
 struct
 
 type stat =
@@ -1270,9 +1270,9 @@ fun update_because_psl_unsolved_problem
   {relevant_consts              : terms,
    relevant_unary_funcs         : terms,
    relevant_binary_funcs        : terms,
-   conjectures_w_counterexample : PBC_Utils.pnodes,
-   conjectures_wo_counterexample: PBC_Utils.pnodes,
-   processed_pnodes             : PBC_Utils.pnodes}
+   conjectures_w_counterexample : TBC_Utils.pnodes,
+   conjectures_wo_counterexample: TBC_Utils.pnodes,
+   processed_pnodes             : TBC_Utils.pnodes}
   stat_w_thy_name =
   let
     val stat_w_thy_name_w_proved_in_zeroth_round     = update_proved_in_zeroth_round_in_stat                        false                                                                   stat_w_thy_name;
@@ -1281,13 +1281,13 @@ fun update_because_psl_unsolved_problem
     val stat_w_number_of_relevant_binary_constatns   = update_number_of_relevant_binary_constants_in_stat (length relevant_binary_funcs)                                           stat_w_number_of_relevant_unary_constatns;
     val stat_w_number_of_conjectures_produced        = update_number_of_conjectures_produced_in_stat      (length (conjectures_w_counterexample @ conjectures_wo_counterexample )) stat_w_number_of_relevant_binary_constatns;
     val stat_w_number_of_conjectures_refuted         = update_number_of_conjectures_refuted_in_stat       (length conjectures_w_counterexample)                                    stat_w_number_of_conjectures_produced;
-    val stat_w_proved_by_pbc                         = update_proved_by_pbc_in_stat (PBC_Utils.original_goal_is_proved processed_pnodes) stat_w_number_of_conjectures_refuted;
-    val original_goal_was_proved_in_fisrt_round      = PBC_Utils.original_goal_was_proved_in_nth_round processed_pnodes 1;
+    val stat_w_proved_by_pbc                         = update_proved_by_pbc_in_stat (TBC_Utils.original_goal_is_proved processed_pnodes) stat_w_number_of_conjectures_refuted;
+    val original_goal_was_proved_in_fisrt_round      = TBC_Utils.original_goal_was_proved_in_nth_round processed_pnodes 1;
     val stat_w_proved_in_first_round                 = update_proved_in_first_round_in_stat original_goal_was_proved_in_fisrt_round stat_w_proved_by_pbc;
-    val original_goal_was_proved_in_second_round     = PBC_Utils.original_goal_was_proved_in_nth_round processed_pnodes 2;
+    val original_goal_was_proved_in_second_round     = TBC_Utils.original_goal_was_proved_in_nth_round processed_pnodes 2;
     val stat_w_proved_in_second_round                = update_proved_in_second_round_in_stat original_goal_was_proved_in_second_round stat_w_proved_in_first_round;
-    val number_of_conjectures_proved_in_first_round  = PBC_Utils.number_of_conjectures_proved_in_nth_round processed_pnodes 1;
-    val number_of_conjectures_proved_in_second_round = PBC_Utils.number_of_conjectures_proved_in_nth_round processed_pnodes 2;
+    val number_of_conjectures_proved_in_first_round  = TBC_Utils.number_of_conjectures_proved_in_nth_round processed_pnodes 1;
+    val number_of_conjectures_proved_in_second_round = TBC_Utils.number_of_conjectures_proved_in_nth_round processed_pnodes 2;
     val stat_w_numb_of_cjctrs_proved_in_first        = update_number_of_conjectures_proved_in_first_round_in_stat  number_of_conjectures_proved_in_first_round  stat_w_proved_in_second_round
     val stat_w_numb_of_cjctrs_proved_in_second       = update_number_of_conjectures_proved_in_second_round_in_stat number_of_conjectures_proved_in_second_round stat_w_numb_of_cjctrs_proved_in_first
   in
@@ -1363,7 +1363,7 @@ datatype property =
 
 val property_as_string: property -> string;
 
-val pst_n_property_n_trm_to_pnode: Proof.state -> (property * term) -> PBC_Utils.pnode;
+val pst_n_property_n_trm_to_pnode: Proof.state -> (property * term) -> TBC_Utils.pnode;
 
 val ctxt_n_typ_to_typs: Proof.context -> typ -> typ list;
 
@@ -1459,9 +1459,9 @@ fun property_as_string (property:property) = property_as_string' property;
 
 fun const_term_name trm  = fst (dest_Const trm)
 
-fun pst_n_property_n_trm_to_pnode (pst:Proof.state) (property:property, conjecture_trm:term): PBC_Utils.pnode =
+fun pst_n_property_n_trm_to_pnode (pst:Proof.state) (property:property, conjecture_trm:term): TBC_Utils.pnode =
     let
-      val lemma_name = PBC_Utils.mk_lemma_name (Proof.context_of pst) PBC_Utils.Bottom_Up (property_as_string property): string;
+      val lemma_name = TBC_Utils.mk_lemma_name (Proof.context_of pst) TBC_Utils.Bottom_Up (property_as_string property): string;
       val conjecture_as_string = Isabelle_Utils.trm_to_string (Proof.context_of pst) conjecture_trm: string;
     in
       {
@@ -1470,10 +1470,10 @@ fun pst_n_property_n_trm_to_pnode (pst:Proof.state) (property:property, conjectu
         lemma_stmt = conjecture_as_string,
         proof = NONE,
         proof_id = NONE,
-        refuted = PBC_Utils.pst_n_conjecture_has_counterexample pst conjecture_as_string,
+        refuted = TBC_Utils.pst_n_conjecture_has_counterexample pst conjecture_as_string,
         proved_wo_assmng_cnjctr = false,
         proved_in_nth_round = NONE
-      }: PBC_Utils.pnode
+      }: TBC_Utils.pnode
     end;
 
 
@@ -1609,7 +1609,7 @@ fun ctxt_n_const_to_associativity (ctxt:Proof.context) (func:term) =
         val [var1, var2, var3] = map mk_free_variable_of_dummyT [1,2,3]      : terms;
         val lhs                = list_comb (func_w_dummyT, [var1, list_comb (func_w_dummyT, [var2, var3])]) |> strip_atyp;
         val rhs                = list_comb (func_w_dummyT, [list_comb (func_w_dummyT, [var1, var2]), var3]) |> strip_atyp;
-        val assocs             = map mk_eq [(lhs, rhs), (rhs, lhs)]|> map (PBC_Utils.type_check ctxt) |> Utils.somes: terms ;
+        val assocs             = map mk_eq [(lhs, rhs), (rhs, lhs)]|> map (TBC_Utils.type_check ctxt) |> Utils.somes: terms ;
         val cnjctrs            = map (fn trm => (Associativity, trm)) assocs
       in
         cnjctrs: (property * term) list
@@ -1646,7 +1646,7 @@ fun ctxt_n_const_to_zero_or_identity' (z_or_i:zero_or_identity) (ctxt:Proof.cont
           in
             eq: term
           end;
-        val cnjctr_trms = map mk_equation nullary_consts |> map (PBC_Utils.type_check ctxt) |> Utils.somes            : terms;
+        val cnjctr_trms = map mk_equation nullary_consts |> map (TBC_Utils.type_check ctxt) |> Utils.somes            : terms;
         val cnjctrs     = map (fn trm => (Identity, trm)) cnjctr_trms: (property * term) list;
       in
         cnjctrs
@@ -1670,7 +1670,7 @@ fun ctxt_n_const_to_commutativity (ctxt:Proof.context) (func:term) =
         val lhs           = list_comb (func_w_dummyT, [var1,var2])         : term;
         val rhs           = list_comb (func_w_dummyT, [var2,var1])         : term;
         val eq            = mk_eq (lhs, rhs)                               : term;
-        val commutativity = PBC_Utils.type_check ctxt eq                      : term option;
+        val commutativity = TBC_Utils.type_check ctxt eq                      : term option;
       in
         case commutativity of SOME x => [(Commutativity, x)] | _ => []
         
@@ -1690,7 +1690,7 @@ fun ctxt_n_const_to_idempotent_element (ctxt:Proof.context) (func as Const (_, t
             val lhs = list_comb (func_w_dummyT, [identity_element, identity_element]): term;
             val eq  = mk_eq (lhs, identity_element)                                  : term;
           in
-            PBC_Utils.type_check ctxt eq
+            TBC_Utils.type_check ctxt eq
           end;
         val idempotents = map mk_equation nullary_consts |> Utils.somes               
       in
@@ -1706,7 +1706,7 @@ fun ctxt_n_const_to_idempotence (ctxt:Proof.context) (func as Const(_, _)) =
       let
         val func_wo_typ = strip_atyp func                 : term;
         val var         = mk_free_variable_of_dummyT 1    : term;
-        val idempotence = mk_eq (list_comb (func_wo_typ, [var, var]), var) |> PBC_Utils.type_check ctxt;
+        val idempotence = mk_eq (list_comb (func_wo_typ, [var, var]), var) |> TBC_Utils.type_check ctxt;
       in
         case idempotence of SOME x => [(Idempotency, x)] | _ => []
         
@@ -1740,7 +1740,7 @@ fun ctxt_n_consts_to_distributivity' (ctxt:Proof.context) (func1:term) (func2:te
                                              )
                                            );
       val cnjctrs               = [mk_eq (left_lhs, left_rhs), mk_eq (right_lhs, right_rhs)]
-                               |> map (PBC_Utils.type_check ctxt) |> Utils.somes;
+                               |> map (TBC_Utils.type_check ctxt) |> Utils.somes;
     in
       cnjctrs
     end;
@@ -1775,7 +1775,7 @@ fun ctxt_n_consts_to_anti_distributivity' (ctxt:Proof.context) binary_func unary
                                             ]
                                            )
                                           ;
-      val anti_distributivity           = mk_eq (lhs, rhs) |> PBC_Utils.type_check ctxt
+      val anti_distributivity           = mk_eq (lhs, rhs) |> TBC_Utils.type_check ctxt
     in
       case anti_distributivity of SOME x => [(Ant_Distributivity, x)] | _ => []      
     end;
@@ -1801,7 +1801,7 @@ fun ctxt_n_consts_to_composite_commutativity' (ctxt:Proof.context) binary_func u
       val (var1, var2)                  = Utils.map_pair mk_free_variable_of_dummyT (1,2)                    : (term * term);
       val lhs                           = list_comb (unary_wo_typ, [list_comb (binary_wo_typ, [var1, var2])]): term;
       val rhs                           = list_comb (unary_wo_typ, [list_comb (binary_wo_typ, [var2, var1])]): term;
-      val composite_commutativity       = mk_eq (lhs, rhs) |> PBC_Utils.type_check ctxt
+      val composite_commutativity       = mk_eq (lhs, rhs) |> TBC_Utils.type_check ctxt
     in
       case composite_commutativity of SOME x => [(Composite_Commutativity, x)] | _ => []      
     end;
@@ -1864,7 +1864,7 @@ fun ctxt_n_consts_to_homomorphism_2 (ctxt:Proof.context) (preserved_binary as (C
           let
             val lhs       = homomorphism_wo_typ $ list_comb (strip_atyp preserved_binary, [var1, var2])                  : term;
             val rhs       = list_comb (preserved_binary_wo_typ, [homomorphism_wo_typ $ var1, homomorphism_wo_typ $ var2]): term;
-            val property = mk_eq (lhs, rhs) |> PBC_Utils.type_check ctxt                                                   : term option;
+            val property = mk_eq (lhs, rhs) |> TBC_Utils.type_check ctxt                                                   : term option;
           in
             property
           end;
@@ -1892,7 +1892,7 @@ fun ctxt_n_consts_to_square (ctxt:Proof.context) (func:term) =
                 |> (fn xyz => (tracing' "===  before calling Syntax.check_term"; xyz))
                 |> (fn xyz => (tracing' "===  we pass this term sto Syntax.check_term:"; xyz))
                 |> (fn xyz => (tracing' ("===  " ^ Isabelle_Utils.trm_to_string ctxt xyz); xyz))
-                |> PBC_Utils.type_check ctxt:term option;
+                |> TBC_Utils.type_check ctxt:term option;
           val _ = tracing' " :) ctxt_n_consts_to_square almost finished successfully."
       in if is_some square then [(Square, the square)] else []
       end
@@ -1911,7 +1911,7 @@ fun ctxt_n_consts_to_projection (ctxt:Proof.context) (func:term) =
                 Const ("HOL.eq", dummyT )
                   $ (func_wo_typ $ (func_wo_typ $ var1)) 
                   $ (func_wo_typ $ var1)
-                |> PBC_Utils.type_check ctxt:term option;
+                |> TBC_Utils.type_check ctxt:term option;
       in if is_some projection then [(Projection, the projection)] else []
       end
     else []
@@ -1931,7 +1931,7 @@ fun condition_for_relation (func:term) =
 
 fun list_implies (ctxt:Proof.context) (prems: terms, cncl) =
     Logic.list_implies (prems, cncl)
- |> PBC_Utils.type_check ctxt: term option;
+ |> TBC_Utils.type_check ctxt: term option;
 
 fun ctxt_n_consts_to_transitivity (ctxt:Proof.context) (func as (Const _):term): (property * term) list =
 (*x R y \<Longrightarrow> y R z \<Longrightarrow> x R z*)
@@ -1950,7 +1950,7 @@ fun ctxt_n_consts_to_transitivity (ctxt:Proof.context) (func as (Const _):term):
 
 fun mk_implies (ctxt:Proof.context) (prem, cncl) =
    Logic.mk_implies (prem, cncl)
-|> PBC_Utils.type_check ctxt: term option;
+|> TBC_Utils.type_check ctxt: term option;
 
 fun ctxt_n_consts_to_symmetry (ctxt:Proof.context) (func as (Const _):term): (property * term) list =
 (*x R y \<Longrightarrow> y R x*)
@@ -1977,7 +1977,7 @@ fun ctxt_n_consts_to_connexity (ctxt:Proof.context) (func as (Const _)): (proper
         val y_R_x        = list_comb (func_wo_typ, [var2, var1])          : term;
         val x_is_y       = HOLogic.mk_eq (var1, var2)                     : term;
         val disjuncts    = HOLogic.mk_disj (HOLogic.mk_disj (x_R_y, y_R_x), x_is_y)
-                        |> PBC_Utils.type_check ctxt                         : term option;
+                        |> TBC_Utils.type_check ctxt                         : term option;
       in if is_some disjuncts then [(Connexity, the disjuncts)] else [] end
     else []
   | ctxt_n_consts_to_connexity _ _ = [];
@@ -2023,7 +2023,7 @@ fun ctxt_n_const_to_all_conjecture_term (ctxt:Proof.context) (func as (Const _))
 end;
 \<close>
 
-strategy PBC_Strategy =
+strategy TBC_Strategy =
 Ors [
   Thens [Auto, IsSolved],
   PThenOne [Smart_Induct, Thens [Auto, IsSolved]],
@@ -2093,7 +2093,7 @@ val short_statement =
       (false, Binding.empty_atts, [], [Element.Fixes fixes, Element.Assumes assumes],
         Element.Shows shows));
 
-structure PBC = Template_Based_Conjecturing;
+structure TBC = Template_Based_Conjecturing;
 
 val zero_timing = {elapsed=Time.zeroTime: Time.time, cpu=Time.zeroTime: Time.time, gc=Time.zeroTime: Time.time};
 fun elapsed_time_in_real (time:Timing.timing) = #elapsed time |> Time.toReal: real;
@@ -2107,17 +2107,17 @@ fun prove_by_conjecturing _ descr output_to_external_file =
     (((long_statement || short_statement) >> (fn (_, _, _, _(*elems*), concl: (string, string) Element.stmt) =>
        (fn lthy: local_theory =>
           let
-            val stat_w_thy_name = PBC_Eval_Stat.update_theory_name_by_psl_in_stat (Local_Theory.exit_global lthy |> Context.theory_name) PBC_Eval_Stat.default_stat;
+            val stat_w_thy_name = TBC_Eval_Stat.update_theory_name_by_psl_in_stat (Local_Theory.exit_global lthy |> Context.theory_name) TBC_Eval_Stat.default_stat;
             val pst             = Proof.init lthy: Proof.state;
-            val original_goal   = PBC_Utils.statement_to_conjecture pst concl: PBC_Utils.pnode;
+            val original_goal   = TBC_Utils.statement_to_conjecture pst concl: TBC_Utils.pnode;
             val timeout = seconds 3600.0;(*3600.0 for Isaplanner and Prod, 900.0 for TIP15*)
 
             fun gen_old_stat (strategy) (update_proved) (update_execution_time) (stat_to_be_updated) =
               if output_to_external_file
               then
                 let
-                  val _ = PBC_Utils.remove_sledgehammer_mash_file output_to_external_file;
-                  fun run_pbc_str_w_old_smart_induct _ = PBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit strategy 1 0 [original_goal] pst |> snd: PBC_Utils.pnodes
+                  val _ = TBC_Utils.remove_sledgehammer_mash_file output_to_external_file;
+                  fun run_pbc_str_w_old_smart_induct _ = TBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit strategy 1 0 [original_goal] pst |> snd: TBC_Utils.pnodes
 
                   val (execution_time, original_node_by_old_psls) = Timeout.apply_physical timeout (Timing.timing run_pbc_str_w_old_smart_induct) ()
                       handle Timeout.TIMEOUT _ => (zero_timing, [original_goal]);
@@ -2135,55 +2135,55 @@ fun prove_by_conjecturing _ descr output_to_external_file =
 
             (* run TAP_2021 without conjecturing but with the old smart_induct for comparison *)
             val stat_after_tap_2021_w_old_smart_induct =
-                gen_old_stat PBC_Utils.TAP21 PBC_Eval_Stat.update_proved_by_tap21_in_stat
-                PBC_Eval_Stat.update_execution_time_by_tap21_in_stat stat_w_thy_name;
+                gen_old_stat TBC_Utils.TAP21 TBC_Eval_Stat.update_proved_by_tap21_in_stat
+                TBC_Eval_Stat.update_execution_time_by_tap21_in_stat stat_w_thy_name;
  
-            (* run just PBC_Strategy without conjecturing but with the old smart_induct for comparison *)
+            (* run just TBC_Strategy without conjecturing but with the old smart_induct for comparison *)
             val stat_after_pbc_strategy_w_old_smart_induct =
-                gen_old_stat PBC_Utils.PBC_Strategy_W_Old_Smart_Induct
-                PBC_Eval_Stat.update_proved_by_pbc_strategy_w_old_smart_induct_in_stat
-                PBC_Eval_Stat.update_execution_time_of_pbc_str_w_old_smart_induct_in_stat
+                gen_old_stat TBC_Utils.TBC_Strategy_W_Old_Smart_Induct
+                TBC_Eval_Stat.update_proved_by_pbc_strategy_w_old_smart_induct_in_stat
+                TBC_Eval_Stat.update_execution_time_of_pbc_str_w_old_smart_induct_in_stat
                 stat_after_tap_2021_w_old_smart_induct;
 
-            (*run PBC*)
+            (*run TBC*)
             fun measure_execution_time _ =
               let
-                val _ = PBC_Utils.remove_sledgehammer_mash_file output_to_external_file;
-                val (_, processed_nodes_after_0th_round) = PBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit PBC_Utils.PBC_Strategy 1 0 [original_goal] pst: Proof.state * PBC_Utils.pnodes;
+                val _ = TBC_Utils.remove_sledgehammer_mash_file output_to_external_file;
+                val (_, processed_nodes_after_0th_round) = TBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit TBC_Utils.TBC_Strategy 1 0 [original_goal] pst: Proof.state * TBC_Utils.pnodes;
                 val (processed_nodes, stat) =
-                  if PBC_Utils.original_goal_is_proved processed_nodes_after_0th_round
+                  if TBC_Utils.original_goal_is_proved processed_nodes_after_0th_round
                   then
                     let
-                      val _ = tracing (PBC_Utils.print_proved_nodes processed_nodes_after_0th_round);
-                      val stat_w_proved_by_pbc = PBC_Eval_Stat.update_because_psl_solved_problem stat_after_pbc_strategy_w_old_smart_induct;
+                      val _ = tracing (TBC_Utils.print_proved_nodes processed_nodes_after_0th_round);
+                      val stat_w_proved_by_pbc = TBC_Eval_Stat.update_because_psl_solved_problem stat_after_pbc_strategy_w_old_smart_induct;
                     in
                       (processed_nodes_after_0th_round, stat_w_proved_by_pbc)
                     end
                   else
                     let
                       fun stmt_to_stmt_as_string (Element.Shows [((_, _), [(stmt, _)])]) = stmt: string
-                        | stmt_to_stmt_as_string _ = error "stmt_to_concl_name failed in Property_BasedPConjecturing.thy";
+                        | stmt_to_stmt_as_string _ = error "stmt_to_concl_name failed in Template_Based_Conjecturing.thy";
                       val cncl_as_trm = Syntax.read_term lthy (stmt_to_stmt_as_string concl);
-                      val (relevant_consts, relevant_binary_funcs, relevant_unary_funcs) = PBC_Utils.get_relevant_constants lthy cncl_as_trm;
-                      val conjectures_as_tagged_terms = map (PBC.ctxt_n_const_to_all_conjecture_term lthy) (relevant_unary_funcs @ relevant_binary_funcs) |> flat: (PBC.property * term) list
-                      val _ = tracing ("\nWe have " ^ Int.toString (length conjectures_as_tagged_terms) ^ " property-based conjectures:");
+                      val (relevant_consts, relevant_binary_funcs, relevant_unary_funcs) = TBC_Utils.get_relevant_constants lthy cncl_as_trm;
+                      val conjectures_as_tagged_terms = map (TBC.ctxt_n_const_to_all_conjecture_term lthy) (relevant_unary_funcs @ relevant_binary_funcs) |> flat: (TBC.property * term) list
+                      val _ = tracing ("\nWe have " ^ Int.toString (length conjectures_as_tagged_terms) ^ " template-based conjectures:");
                       val _ = map (tracing o (fn str => "  " ^ str) o Isabelle_Utils.trm_to_string lthy o snd) conjectures_as_tagged_terms
-                      val conjectures = map (PBC.pst_n_property_n_trm_to_pnode pst) conjectures_as_tagged_terms: PBC_Utils.pnodes;
-                      val conjectures_w_counterexample  = filter     (fn pnode => #refuted pnode) conjectures: PBC_Utils.pnodes;
-                      val conjectures_wo_counterexample = filter_out (fn pnode => #refuted pnode) conjectures: PBC_Utils.pnodes;
-                      val _ = tracing ("\nWe have " ^ Int.toString (length conjectures_wo_counterexample) ^ " property-based conjectures w/o counterexamples:");
+                      val conjectures = map (TBC.pst_n_property_n_trm_to_pnode pst) conjectures_as_tagged_terms: TBC_Utils.pnodes;
+                      val conjectures_w_counterexample  = filter     (fn pnode => #refuted pnode) conjectures: TBC_Utils.pnodes;
+                      val conjectures_wo_counterexample = filter_out (fn pnode => #refuted pnode) conjectures: TBC_Utils.pnodes;
+                      val _ = tracing ("\nWe have " ^ Int.toString (length conjectures_wo_counterexample) ^ " template-based conjectures w/o counterexamples:");
                       val _ = map (tracing o (fn conj => "  " ^ #lemma_name conj ^ ": " ^ #lemma_stmt conj)) conjectures_wo_counterexample;
-                      val (_, processed_pnodes) = PBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit PBC_Utils.PBC_Strategy 3 1 (conjectures_wo_counterexample @ [original_goal]) pst: (Proof.state * PBC_Utils.pnodes);
-                      val _ = PBC_Utils.print_proved_nodes processed_pnodes |> tracing;
+                      val (_, processed_pnodes) = TBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit TBC_Utils.TBC_Strategy 3 1 (conjectures_wo_counterexample @ [original_goal]) pst: (Proof.state * TBC_Utils.pnodes);
+                      val _ = TBC_Utils.print_proved_nodes processed_pnodes |> tracing;
                       (*produce stats for evaluation*)
                       val stat_input =
                          {relevant_consts               = relevant_consts              : terms,
                           relevant_unary_funcs          = relevant_unary_funcs         : terms,
                           relevant_binary_funcs         = relevant_binary_funcs        : terms,
-                          conjectures_w_counterexample  = conjectures_w_counterexample : PBC_Utils.pnodes,
-                          conjectures_wo_counterexample = conjectures_wo_counterexample: PBC_Utils.pnodes,
-                          processed_pnodes              = processed_pnodes             : PBC_Utils.pnodes};
-                      val stat = PBC_Eval_Stat.update_because_psl_unsolved_problem stat_input stat_w_thy_name: PBC_Eval_Stat.stat;
+                          conjectures_w_counterexample  = conjectures_w_counterexample : TBC_Utils.pnodes,
+                          conjectures_wo_counterexample = conjectures_wo_counterexample: TBC_Utils.pnodes,
+                          processed_pnodes              = processed_pnodes             : TBC_Utils.pnodes};
+                      val stat = TBC_Eval_Stat.update_because_psl_unsolved_problem stat_input stat_w_thy_name: TBC_Eval_Stat.stat;
                     in
                       (processed_pnodes, stat)
                     end;
@@ -2191,13 +2191,13 @@ fun prove_by_conjecturing _ descr output_to_external_file =
                 (processed_nodes, stat)
               end;
 
-            (*run PBC*)
+            (*run TBC*)
             val (execution_time, (processed_nds, stat)) = Timeout.apply_physical timeout (Timing.timing measure_execution_time) ()
                 handle Timeout.TIMEOUT _ => (zero_timing, ([], stat_w_thy_name));
-            val stat_after_pbc = PBC_Eval_Stat.update_execution_time_of_pbc_in_stat (elapsed_time_in_real execution_time) stat;
+            val stat_after_pbc = TBC_Eval_Stat.update_execution_time_of_pbc_in_stat (elapsed_time_in_real execution_time) stat;
             val _ = if output_to_external_file
-                    then (PBC_Utils.write_proof_script_in_result_file pst (PBC_Utils.print_proved_nodes processed_nds);
-                          PBC_Utils.write_one_line_in_result_file pst (PBC_Eval_Stat.print_stat stat_after_pbc))
+                    then (TBC_Utils.write_proof_script_in_result_file pst (TBC_Utils.print_proved_nodes processed_nds);
+                          TBC_Utils.write_one_line_in_result_file pst (TBC_Eval_Stat.print_stat stat_after_pbc))
                     else ();
           in
             lthy

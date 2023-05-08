@@ -144,6 +144,8 @@ fun eq_over_same_func (ctxt:Proof.context) (trm:term) =
   end;
 *)
 
+val _ = Template_Based_Conjecturing.ctxt_n_const_to_all_conjecture_term
+
 fun top_down_conjectures (ctxt:Proof.context) trm =
   let
     val _ = tracing "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
