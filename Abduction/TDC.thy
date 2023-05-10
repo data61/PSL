@@ -142,6 +142,22 @@ fun alpha_eq_over_fvar trm1 trm2 =
   in
     converted1 = converted2
   end;
+
+fun parallel_filter_in_or_out (filter_in:bool) (condition:'a -> bool) (xs:'a list) =
+let
+  val bools          = Par_List.map condition xs: bool list;
+  val pairs          = xs ~~ bools              : ('a * bool) list;
+  val filtered_pairs = if filter_in
+                       then filter     snd pairs
+                       else filter_out snd pairs: ('a * bool) list;
+  val result         = map fst filtered_pairs   : 'a list;
+in
+  result
+end;
+
+fun parallel_filter     (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out true  condition xs;
+fun parallel_filter_out (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out false condition xs;
+
 \<close>
 
 (*** Top_Down_Util ***)
