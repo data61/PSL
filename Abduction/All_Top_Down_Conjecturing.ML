@@ -144,7 +144,18 @@ fun eq_over_same_func (ctxt:Proof.context) (trm:term) =
   end;
 *)
 
-val _ = Template_Based_Conjecturing.ctxt_n_const_to_all_conjecture_term
+
+fun template_conjectures (ctxt:Proof.context) (trm:term): (string * term) list =
+  let
+    val (_, relevant_binary_funcs, relevant_unary_funcs) = TBC_Utils.get_relevant_constants ctxt trm;
+    fun ctxt_n_const_to_all_conjecture_term context tm =
+        Template_Based_Conjecturing.ctxt_n_const_to_all_conjecture_term context tm
+     |> map (apfst Template_Based_Conjecturing.property_as_string);
+    val result = map (ctxt_n_const_to_all_conjecture_term ctxt) (relevant_unary_funcs @ relevant_binary_funcs) |> flat
+      : (string * term) list;
+  in
+    result
+  end;
 
 fun top_down_conjectures (ctxt:Proof.context) trm =
   let
@@ -153,19 +164,21 @@ fun top_down_conjectures (ctxt:Proof.context) trm =
     val results = (
       Remove_Outermost_Assumption.top_down_conjectures ctxt standardized_trm
     (*@ Generalise_By_Renaming.top_down_conjectures ctxt standardized_trm*)
-    @ (Generalise_Then_Extend.top_down_conjectures ctxt standardized_trm       |> filter (fn (_, trm) => has_no_multiple_occ_of_composite_subtrm ctxt trm))
+    @ (Generalise_Then_Extend.top_down_conjectures ctxt standardized_trm
+    |> filter (fn (_, trm) => has_no_multiple_occ_of_composite_subtrm ctxt trm))
     @ Remove_Function.top_down_conjectures ctxt standardized_trm
     @ Abstract_Same_Term.top_down_conjectures ctxt standardized_trm
-    @ Replace_Imp_With_Eq.top_down_conjectures ctxt standardized_trm)
-      |> map (apsnd (simp_non_prop_term ctxt))
-      |> map (apsnd standardize_vnames)
+    @ Replace_Imp_With_Eq.top_down_conjectures ctxt standardized_trm
+    @ template_conjectures ctxt standardized_trm)
+      |> Par_List.map (apsnd (simp_non_prop_term ctxt))
+      |> Par_List.map (apsnd standardize_vnames)
       |> distinct (fn (f, s) => snd f = snd s)
 (*
-      |> filter_out (fn (_, trm) => eq_over_same_func ctxt trm)
+      |> parallel_filter_out (fn (_, trm) => eq_over_same_func ctxt trm)
 *)
-      |> filter_out (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.has_func_with_three_occs_in_a_row trm)
-      |> filter (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.fvars_in_prem_should_appear_in_concl trm)
-      |> filter (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.does_not_have_trivial_equality trm);
+      |> parallel_filter_out (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.has_func_with_three_occs_in_a_row trm)
+      |> parallel_filter (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.fvars_in_prem_should_appear_in_concl trm)
+      |> parallel_filter (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.does_not_have_trivial_equality trm);
     val _ = map (tracing o Isabelle_Utils.trm_to_string ctxt o snd) results: unit list;
     val _ = tracing "[[[[[[[[[[[top_down_conjecture ends]]]]]]]]]]": unit;
   in

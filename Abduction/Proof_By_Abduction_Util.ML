@@ -70,8 +70,8 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
     let
       val ctxt          = Proof.context_of pst;
       val extend_str    = PSL_Interface.lookup ctxt "Extend_Leaf" |> the                     : PSL_Interface.strategy;
-      val timeouts      = {overall = 60.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}   : PBC_Utils.timeouts;
-      val result_seq    = PBC_Utils.psl_strategy_to_monadic_tactic timeouts extend_str pst []: (Dynamic_Utils.log * Proof.state) Seq.seq;
+      val timeouts      = {overall = 60.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}   : TBC_Utils.timeouts;
+      val result_seq    = TBC_Utils.psl_strategy_to_monadic_tactic timeouts extend_str pst []: (Dynamic_Utils.log * Proof.state) Seq.seq;
       val result_list   = Seq.list_of result_seq                                             : (Dynamic_Utils.log * Proof.state) list;
       val script_n_psts = map (apfst Dynamic_Utils.mk_apply_script) result_list              : (string * Proof.state) list;
       fun mk_proof_key_value (pscript, pst) =
@@ -112,7 +112,7 @@ val _ = map (Isabelle_Utils.trm_to_string ctxt) subgs |> map tracing
 (*TODO: for andnodes we can get the result quickly if we use its children (ornodes) -> Maybe it is better to *)
 fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
   let
-    val found_counter_example = exists (fn trm => PBC_Utils.term_has_counterexample_in_pst trm pst) (snd key)
+    val found_counter_example = exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm pst) (snd key)
   in
     if   found_counter_example
     then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
@@ -140,9 +140,9 @@ fun prove_orkey_completely (or_key as (Proof_Graph.Or_N:Proof_Graph.node_type, [
     let
       val lemma_name            = Proof_Graph.lemma_name_of graph or_key                                    : string;
       val pst_to_prove          = mk_pst_to_prove_from_key pst or_key                                       : Proof.state;
-      val timeouts              = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}          : PBC_Utils.timeouts;
-      val maybe_result          = PBC_Utils.pst_to_proofscript_opt timeouts "Attack_On_Or_Node" pst_to_prove: (string * Proof.state) option;
-      val cheated_pst           = PBC_Utils.cheat_lemma_term_in_pst lemma_name lemma_term pst
+      val timeouts              = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}          : TBC_Utils.timeouts;
+      val maybe_result          = TBC_Utils.pst_to_proofscript_opt timeouts "Attack_On_Or_Node" pst_to_prove: (string * Proof.state) option;
+      val cheated_pst           = TBC_Utils.cheat_lemma_term_in_pst lemma_name lemma_term pst
       fun mk_result (script, _) = Option.map (rpair script) cheated_pst;
       val result                = Option.mapPartial mk_result maybe_result: (Proof.state * string) option
     in
@@ -164,8 +164,8 @@ val _ = tracing "start add_or2and";
        | or_key_to_term  _                                = error "or_key_to_term failed.";
      fun mk_name_term_pair (orleaf_key:key) = (Proof_Graph.lemma_name_of graph orleaf_key, or_key_to_term orleaf_key): (string * term);
      val name_term_pairs      = map mk_name_term_pair or_leave_keys: (string * term) list;
-     val pst_w_or_terms_assmd = Proof.map_context (PBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME:*)
-     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: PBC_Utils.timeouts;
+     val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME:*)
+     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
      val how_we_got_andnode   = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof            : string;
 (*     
      val _ = tracing "-"
@@ -182,7 +182,7 @@ val _ = tracing "start add_or2and";
  * But this state is for the and-node.
  * We should send a proof state that is associated with or-node.
  *)
-     val script_opt_gen = PBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst;
+     val script_opt_gen = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst;
      fun mk_script_opt_for_tactic (tactic_script:string) = how_we_got_andnode ^ tactic_script;
      val script_opt =
           if how_we_got_andnode = "" (*explicit conjecturing*)

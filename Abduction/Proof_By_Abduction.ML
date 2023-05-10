@@ -118,7 +118,7 @@ val _ = tracing "Start computing work_on_ornode"
               val graph_w_refuted_andnodes             = fold (Proof_By_Abduction_Util.find_counterexample_update pst) new_andnds_keys graph_w_ornodes
                                                          (*fold one_of_ands_child_nodes_is_refuted new_andnds_keys graph_w_ornodes : proof_graph;*)
 
-              fun seed_is_refuted ({andnode_key,...}:seed_of_andnode) =  Proof_Graph.is_refuted graph_w_refuted_andnodes andnode_key: bool;
+              fun seed_is_refuted ({andnode_key,...}:seed_of_andnode) = Proof_Graph.is_refuted graph_w_refuted_andnodes andnode_key: bool;
               val seeds_not_refuted_yet                = filter_out seed_is_refuted seeds: seeds_of_andnode;
               val seeds_of_newly_added_andnodes        = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds_not_refuted_yet: seeds_of_andnode;
               val graph_w_ornodes_n_or2add_edges       = fold (PBAU.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes               : proof_graph;
