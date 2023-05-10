@@ -65,7 +65,10 @@ fun work_on_andnode (pst:state) (and_key as (And_N, subgoals):key) (graph:proof_
 *)
       val pairs_to_mk_ornodes             = map (mk_ornode false) subgoals                                           : (key * proof_node) list;
       val (new_or_keys, graph_w_ornodes)  = add_ornodes (Proof.context_of pst) pairs_to_mk_ornodes graph             : keys * proof_graph;
-      val graph_w_quickchecked_ornodes    = fold (PBAU.find_counterexample_update pst) new_or_keys graph_w_ornodes   : proof_graph;
+      fun try_to_refute_key (state:Proof.state) (pg:proof_graph) (key:key) =
+          (key, exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm state) (snd key))                     : (key * bool)
+      val pairs = Par_List.map (try_to_refute_key pst graph) new_or_keys: (key * bool) list;
+      val graph_w_quickchecked_ornodes    = fold (PBAU.find_counterexample_update' pst) pairs graph_w_ornodes: proof_graph;
       val graph_w_edges                   = add_edges_from_andnodes_to_ornodes [and_key] graph_w_quickchecked_ornodes: proof_graph;
     in
       graph_w_edges
@@ -115,8 +118,12 @@ val _ = tracing "Start computing work_on_ornode"
               in
                 result_graph
               end;
-              val graph_w_refuted_andnodes             = fold (Proof_By_Abduction_Util.find_counterexample_update pst) new_andnds_keys graph_w_ornodes
-                                                         (*fold one_of_ands_child_nodes_is_refuted new_andnds_keys graph_w_ornodes : proof_graph;*)
+
+              fun try_to_refute_key (state:Proof.state) (pg:proof_graph) (key:key) =
+                  (key, exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm state) (snd key))      : (key * bool)
+              val pairs                    = Par_List.map (try_to_refute_key pst graph) new_andnds_keys       : (key * bool) list;
+              val graph_w_refuted_andnodes = fold (PBAU.find_counterexample_update' pst) pairs graph_w_ornodes: proof_graph;
+                                           (*fold one_of_ands_child_nodes_is_refuted new_andnds_keys graph_w_ornodes : proof_graph;*)
 
               fun seed_is_refuted ({andnode_key,...}:seed_of_andnode) = Proof_Graph.is_refuted graph_w_refuted_andnodes andnode_key: bool;
               val seeds_not_refuted_yet                = filter_out seed_is_refuted seeds: seeds_of_andnode;

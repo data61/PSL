@@ -25,6 +25,7 @@ val print_seed_of_andnode: Proof.context -> seed_of_andnode -> unit list;
 val seed_is_from_tactic: seed_of_andnode -> bool;
 
 val find_counterexample_update                       : Proof.state -> key -> proof_graph -> proof_graph;
+val find_counterexample_update'                      : Proof.state -> (key * bool) -> proof_graph -> proof_graph;
 val mk_pst_to_prove_from_key                         : Proof.state -> key -> Proof.state;
 val prove_orkey_completely                           : key -> proof_graph -> Proof.state -> (Proof.state * string) option;
 (*TODO: apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes is called only once. No need to export it.*)
@@ -109,6 +110,7 @@ val _ = map (Isabelle_Utils.trm_to_string ctxt) subgs |> map tracing
     end;
 
 (* find_counterexample_update *)
+(*TODO: To be removed?*)
 (*TODO: for andnodes we can get the result quickly if we use its children (ornodes) -> Maybe it is better to *)
 fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
   let
@@ -118,6 +120,11 @@ fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
     then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
     else graph
   end;
+
+fun find_counterexample_update' (pst:Proof.state) (key:key, has_counterexample: bool) (graph:proof_graph) =
+    if   has_counterexample
+    then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
+    else graph;
 
 (* mk_pst_to_prove_from_key *)
 (*TODO: Don't ignore local assumptions.*)
