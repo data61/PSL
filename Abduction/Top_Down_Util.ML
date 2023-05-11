@@ -62,7 +62,6 @@ fun check_terms ctxt   = List.mapPartial (try (Syntax.check_term ctxt)): terms -
 fun get_fresh_free_var_name_in_trm' (ctxt:Proof.context) (trm:term) (n:int) =
   let
     val numb_of_fvars = numb_of_distinct_fvars trm + n;
-    fun mk_free_variable_of_typ (typ:typ) (i:int) = Free ("var_" ^ Int.toString i, typ);
     val fst_candidate = mk_free_variable_of_typ dummyT numb_of_fvars |> dest_Free |> fst: string;
     fun is_free_in_ctxt (name:string) = is_Free (Syntax.read_term ctxt name): bool;
     fun get_all_names_in_trm trm =

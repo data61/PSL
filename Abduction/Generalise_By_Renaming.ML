@@ -38,8 +38,6 @@ fun get_intss' (upper_limit:int) (intss_so_far:ints list) =
 
 fun get_intss (upper_limit:int) = get_intss' upper_limit [[1]];
 
-fun mk_free_variable_of_typ (typ:typ) (i:int) = Free ("var_" ^ Int.toString i, typ);
-
 fun replace (Const p) [] = Const p
   | replace (Free (_, typ)) ([int]:ints) = mk_free_variable_of_typ typ int
   | replace (Var p) [] = Var p

@@ -121,11 +121,16 @@ fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:proof_
           val (pst_w_proved_lemma, proof) = the maybe_proved: (state * string);
 
           (*Important tricky part! TODO: make these as one function.*)
-          val updated1      = graph    |> update_proof_n_proof_id proof or_key
-          val updated2      = updated1 |> update_proved_completely_of_graph_because_orleaf_is_proved (Proof.context_of pst) or_key
-          val updated_graph = updated2 |> update_gg_parent_not_finished_in_proof_graph;
+          fun update_graph (g:proof_graph) =
+            let
+              val updated1 = update_proof_n_proof_id proof or_key g;
+              val updated2 = update_proved_completely_of_graph_because_orleaf_is_proved (Proof.context_of pst) or_key updated1;
+              val updated3 = update_gg_parent_not_finished_in_proof_graph updated2;
+            in
+              updated3: proof_graph
+            end;
         in
-           (pst_w_proved_lemma, updated_graph)(*TODO: We are actually not taking advantage of pst_w_proved_lemma. pst seems good enough.*)
+           (pst_w_proved_lemma, update_graph graph)(*TODO: We are actually not taking advantage of pst_w_proved_lemma. pst seems good enough.*)
         end
       else (*if we cannot prove the ornode completely, expand it using Extend_Leaf and conjecturing*)
         let
