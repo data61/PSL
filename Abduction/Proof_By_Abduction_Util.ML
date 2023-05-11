@@ -165,15 +165,16 @@ fun add_or2and_edge
        state      : Proof.state, ...}: seed_of_andnode)(*child nodes*)
    (graph:proof_graph): proof_graph =
    let
-val _ = tracing "start add_or2and";
+     val _ = tracing "start add_or2and";
      val or_leave_keys = PGraph.immediate_succs graph andnode_key: keys;(*these or_leave_keys are gg_children of or_key*)
+     (*TODO: move it to Proof_Graph.ML*)
      fun or_key_to_term (Proof_Graph.Or_N, [orleaf_term]) = orleaf_term
        | or_key_to_term  _                                = error "or_key_to_term failed.";
      fun mk_name_term_pair (orleaf_key:key) = (Proof_Graph.lemma_name_of graph orleaf_key, or_key_to_term orleaf_key): (string * term);
-     val name_term_pairs      = map mk_name_term_pair or_leave_keys: (string * term) list;
+     val name_term_pairs      = map mk_name_term_pair or_leave_keys                                     : (string * term) list;
      val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME:*)
-     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
-     val how_we_got_andnode   = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof            : string;
+     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}        : TBC_Utils.timeouts;
+     val how_we_got_andnode   = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof                    : string;
 (*     
      val _ = tracing "-"
      val _ = tracing "finish_goal_after_assuming_subgoals_n_conjectures. ";
@@ -189,18 +190,18 @@ val _ = tracing "start add_or2and";
  * But this state is for the and-node.
  * We should send a proof state that is associated with or-node.
  *)
-     val script_opt_gen = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst;
-     fun mk_script_opt_for_tactic (tactic_script:string) = how_we_got_andnode ^ tactic_script;
-     val script_opt =
+     val script_opt_gen = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst: string option;
+     fun mk_script_opt_for_tactic (tactic_script:string) = how_we_got_andnode ^ tactic_script: string;
+     val script_opt: string option =
           if how_we_got_andnode = "" (*explicit conjecturing*)
           then                                                                                     
             script_opt_gen
           else
-            (Option.map mk_script_opt_for_tactic script_opt_gen)(*TODO: We have to check if we can prove the remaining goals.*)
+            Option.map mk_script_opt_for_tactic script_opt_gen(*TODO: We have to check if we can prove the remaining goals.*)
      (*TODO: or2and_edge_val is a function on proof_node. It should be encapsulated in Proof_Node.ML.*)
-     val or2and_edge_val      = Proof_Graph_Node.Or_To_And {
-                                   how_to_get_andnodes_from_ornode = proof,
-                                   proof_of_ornode_assmng_andnodes = script_opt}: proof_node;                              
+     val or2and_edge_val     = Proof_Graph_Node.Or_To_And {
+                                 how_to_get_andnodes_from_ornode = proof,
+                                 proof_of_ornode_assmng_andnodes = script_opt}: proof_node;
      val or2and_edge_key     = ((Proof_Graph.O2A_E (serial())), []): key;
      val graph_w_or2and_edge = PGraph.new_node (or2and_edge_key, or2and_edge_val) graph: proof_graph;
      val graph_w_or2and_edge_connected = graph_w_or2and_edge
@@ -239,7 +240,7 @@ fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (pg:proof_graph) 
       val factor = case #proof seed of Or2And_Edge.Tactic _ => 5.0 | _ => 3.0: real;
       val upper_limit     = Real.min (factor * final_goal_size, 45.0): real;
 *)
-val upper_limit = 45.0
+      val upper_limit = 45.0
       fun concl_is_alpha_eq_to trm imp =
         let
           val cncl = Logic.strip_imp_concl imp |> remove_Trueprop: term;
