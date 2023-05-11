@@ -1,10 +1,10 @@
 (*
- * TDC.thy
+ * Abduction.thy
  * Authors:
  *   Yutaka Nagashima, Daniel Goc Sebastian
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
-theory TDC
+theory Abduction
   imports "../TBC/TBC"
   keywords "prove" :: thy_goal_stmt
 begin
