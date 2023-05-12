@@ -37,7 +37,7 @@ fun extension_for_one_lhs (ctxt:Proof.context) (candidate_funcs:terms) (lhs:term
 |> map standardize_vnames
 |> distinct (op =);
 
-open Term_Table_for_Top_Down;
+open Term_Table_for_Abduction;
 
 fun generalise_exactly_one_subterm_str (ctxt:Proof.context) (trm:term) =
   let
@@ -86,12 +86,11 @@ fun mk_fvars   (i:int) = map mk_fvar_of (List.tabulate (i, I));
 
 fun top_down_conjectures (ctxt:Proof.context) (orig_trm:term) =
   let
-    val freevars_in_orig          = get_free_vars_in_trm orig_trm: terms;
-    val standardized_fvars_in_gen = mk_fvars (length freevars_in_orig + 1): terms;
-    val consts                    = get_consts_for_conjecturing ctxt orig_trm                                        : terms;
-    val equality_pairs            = get_both_sides_of_eqs_in_term orig_trm                                           : (term * term) list;
+    val freevars_in_orig          = get_free_vars_in_trm orig_trm                                     : terms;
+    val standardized_fvars_in_gen = mk_fvars (length freevars_in_orig + 1)                            : terms;
+    val consts                    = get_consts_for_conjecturing ctxt orig_trm                         : terms;
+    val equality_pairs            = get_both_sides_of_eqs_in_term orig_trm                            : (term * term) list;
     val cleaned_pairs             = map (apply2 (mk_unbound_bound_vars_free_vars ctxt)) equality_pairs: (term * term) list;
-    fun get_free_vars trm         = get_free_vars_in_trm trm |> map Isabelle_Utils.strip_atyp                        : terms;
     (*TODO: move this filter to mk_extended_rhses*)
     fun is_nullary_const (Const (_, typ)) = Isabelle_Utils.count_numb_of_args_of_fun_typ typ = 0
       | is_nullary_const  _               = false

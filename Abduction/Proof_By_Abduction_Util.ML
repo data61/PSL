@@ -87,7 +87,7 @@ val _ = map (Isabelle_Utils.trm_to_string ctxt) subgs |> map tracing
              |> Syntax.check_term ctxt
              |> Isabelle_Utils.trm_to_string ctxt
              |> Syntax.read_term ctxt
-             |> standardize_vnames;
+             |> Top_Down_Util.standardize_vnames;
 
             fun check_print_read_terms ctxt terms = map (check_print_read ctxt) terms: terms;
             fun pass_check_print_read_terms ctxt terms = try (check_print_read_terms ctxt) terms |> is_some;
@@ -130,13 +130,13 @@ fun find_counterexample_update' (pst:Proof.state) (key:key, has_counterexample: 
 (*TODO: Don't ignore local assumptions.*)
 fun mk_pst_to_prove_from_key (pst:Proof.state) (Proof_Graph.Or_N, [term]) =
     let
-      val prop = if is_prop term then term else HOLogic.mk_Trueprop term;
+      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
     in
       Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
     end
   | mk_pst_to_prove_from_key (pst:Proof.state) (Proof_Graph.And_N, [term]) =
     let
-      val prop = if is_prop term then term else HOLogic.mk_Trueprop term;
+      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
     in
       Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
     end
@@ -245,13 +245,13 @@ fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (pg:proof_graph) 
         let
           val cncl = Logic.strip_imp_concl imp |> remove_Trueprop: term;
         in
-          alpha_eq_over_fvar trm cncl
+          Top_Down_Util.alpha_eq_over_fvar trm cncl
         end;
 
       val trms       = snd (#andnode_key seed)                                    : terms;
       val trms_empty = null trms
       fun too_large _ = exists (fn trm => Real.fromInt (Term.size_of_term trm) > upper_limit) trms: bool;
-      fun eq_to_final_goal _ = exists (alpha_eq_over_fvar final_goal) trms: bool;
+      fun eq_to_final_goal _ = exists (Top_Down_Util.alpha_eq_over_fvar final_goal) trms: bool;
       fun concl_is_eq_to_final_goal _ = exists (concl_is_alpha_eq_to final_goal) trms: bool;
       fun has_func_with_three_occs_in_a_row _ = exists
       (fn trm => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term (Proof.context_of pst) trm) SeLFiE_for_Top_Down.has_func_with_three_occs_in_a_row trm) trms;
@@ -278,7 +278,7 @@ fun conjectures_to_seed_of_andnode (pst:Proof.state) (cnjctr:term): seed_of_andn
 (*TODO: code-duplication with mk_pst_to_prove_from_key*)
 fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term) =
     let
-      val prop = if is_prop term then term else HOLogic.mk_Trueprop term;
+      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
     in
       Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
     end;

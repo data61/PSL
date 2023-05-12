@@ -11,7 +11,7 @@ structure Remove_Function: TOP_DOWN_CONJECTURING =
 struct
 
 open Top_Down_Util;
-open Term_Table_for_Top_Down;
+open Term_Table_for_Abduction;
 
 fun path_is_app (table:table) (path:ints) = Inner_Path_To_Unode.defined table (path @ [1]);
 

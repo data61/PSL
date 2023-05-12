@@ -5,6 +5,7 @@
  *   Yutaka Nagashima, Daniel Goc Sebastian
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
+(*** SeLFiE_for_Top_Down ***)
 structure SeLFiE_for_Top_Down =
 struct
 
@@ -160,7 +161,7 @@ fun template_conjectures (ctxt:Proof.context) (trm:term): (string * term) list =
 fun top_down_conjectures (ctxt:Proof.context) trm =
   let
     val _ = tracing "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
-    val standardized_trm = standardize_vnames trm
+    val standardized_trm = Top_Down_Util.standardize_vnames trm
     val results = (
       Remove_Outermost_Assumption.top_down_conjectures ctxt standardized_trm
     (*@ Generalise_By_Renaming.top_down_conjectures ctxt standardized_trm*)
@@ -171,7 +172,7 @@ fun top_down_conjectures (ctxt:Proof.context) trm =
     @ Replace_Imp_With_Eq.top_down_conjectures ctxt standardized_trm
     @ template_conjectures ctxt standardized_trm)
       |> Par_List.map (apsnd (simp_non_prop_term ctxt))
-      |> Par_List.map (apsnd standardize_vnames)
+      |> Par_List.map (apsnd Top_Down_Util.standardize_vnames)
       |> distinct (fn (f, s) => snd f = snd s)
 (*
       |> parallel_filter_out (fn (_, trm) => eq_over_same_func ctxt trm)

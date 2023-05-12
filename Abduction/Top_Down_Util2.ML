@@ -7,6 +7,13 @@
  *)
 
 (*** Utils ***)
+fun rm_typ (Const (str, _))  = Const (str, dummyT)
+  | rm_typ (Free  (str, _))  = Free  (str, dummyT)
+  | rm_typ (Var   (idx, _))  = Var   (idx, dummyT)
+  | rm_typ (Bound  i      )  = Bound i
+  | rm_typ (Abs (str, _, t)) = Abs   (str, dummyT, t)
+  | rm_typ (tm1 $ tm2)       = rm_typ tm1 $ rm_typ tm2;
+
 fun non_prop_trm_to_dummy_eq (ctxt:Proof.context) (lhs:term) =
   let
 (*
@@ -47,6 +54,29 @@ fun is_in (small:term) (big:term) =
   in
     is_in' (rm_typ small) (rm_typ big)
   end;
+
+fun strip_outermost_meta_quantifier (trm as (quantifier $ abstraction)) =
+   (case quantifier of
+      Const ("Pure.all", _) => (case abstraction of
+        Abs (var_name, var_type, _) =>
+          (let
+             val variable = Term.Free (var_name, var_type)
+           in (true, Term.betapply (abstraction, variable))
+           end)
+      | _ => (false, trm))
+    | _ => (false, trm))
+  | strip_outermost_meta_quantifier trm = (false, trm);
+
+fun strip_outermost_meta_quantifiers (trm:term) =
+    let
+      val (worked, res) = strip_outermost_meta_quantifier trm
+    in
+      if worked
+      then
+        strip_outermost_meta_quantifiers res
+      else
+        res
+    end;
 
 fun mk_extended_rhses (ctxt:Proof.context) (candidate_args:terms) (candidate_func as Const _:term): terms =
   let
@@ -138,6 +168,26 @@ fun replace_redundant_compound_subtrm_with_free_var ctxt (lhs, rhs) =
 |> swap
 |> replace_redundant_compound_subtrm_with_free_var' ctxt
 |> swap;
+
+fun remove_Trueprop (Abs (name, typ, trm)) = Abs (name, typ, remove_Trueprop trm)
+  | remove_Trueprop (Const ("HOL.Trueprop", _) $ trm2) = remove_Trueprop trm2
+  | remove_Trueprop (trm1 $ trm2) = remove_Trueprop trm1 $ remove_Trueprop trm2
+  | remove_Trueprop atom = atom;
+
+fun parallel_filter_in_or_out (filter_in:bool) (condition:'a -> bool) (xs:'a list) =
+let
+  val bools          = Par_List.map condition xs: bool list;
+  val pairs          = xs ~~ bools              : ('a * bool) list;
+  val filtered_pairs = if filter_in
+                       then filter     snd pairs
+                       else filter_out snd pairs: ('a * bool) list;
+  val result         = map fst filtered_pairs   : 'a list;
+in
+  result
+end;
+
+fun parallel_filter     (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out true  condition xs;
+fun parallel_filter_out (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out false condition xs;
 
 (*** signature TOP_DOWN_CONJECTURING ***)
 signature TOP_DOWN_CONJECTURING =

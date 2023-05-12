@@ -91,7 +91,7 @@ fun node_type_compare (Or_N,     Or_N    ) = EQUAL
  |  node_type_compare (O2A_E _,  _       ) = GREATER;
 
 fun term_compare (trm1, trm2) =
-  Term_Ord.term_ord ((standardize_vnames trm1), (standardize_vnames trm2))
+  Term_Ord.term_ord ((Top_Down_Util.standardize_vnames trm1), (Top_Down_Util.standardize_vnames trm2))
 
 (* PGraph_Key *)
 structure PGraph_Key =

@@ -11,7 +11,7 @@ structure Abstract_Same_Term: TOP_DOWN_CONJECTURING =
 struct
 
 open Top_Down_Util;
-open Term_Table_for_Top_Down;
+open Term_Table_for_Abduction;
 
 fun abstract_same_term_str (ctxt:Proof.context) (trm:term) =
   let

@@ -39,7 +39,7 @@ fun get_intss' (upper_limit:int) (intss_so_far:ints list) =
 fun get_intss (upper_limit:int) = get_intss' upper_limit [[1]];
 
 fun replace (Const p) [] = Const p
-  | replace (Free (_, typ)) ([int]:ints) = mk_free_variable_of_typ typ int
+  | replace (Free (_, typ)) ([int]:ints) = Top_Down_Util.mk_free_variable_of_typ typ int
   | replace (Var p) [] = Var p
   | replace (Bound i) [] = Bound i
   | replace (Abs (name, typ, body)) ints =
