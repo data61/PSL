@@ -230,8 +230,6 @@ fun add_or2and_edge
    end
  | add_or2and_edge _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed."
 
-val tracing' = if true then tracing else K ();
-
 fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (pg:proof_graph) (seed:seed_of_andnode) =
     let
       val final_goal      = Proof_Graph.get_final_goal pg |> snd |> hd: term;

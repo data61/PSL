@@ -46,8 +46,6 @@ structure PBAU = Proof_By_Abduction_Util;
 type seed_of_andnode  = PBAU.seed_of_andnode;
 type seeds_of_andnode = seed_of_andnode list;
 
-
-
 fun print_lemma_and_proof_of_key (graph:proof_graph) (pst:state) (key:key) =
     let
       val name  = lemma_name_of graph key : string;
@@ -60,9 +58,6 @@ fun print_lemma_and_proof_of_key (graph:proof_graph) (pst:state) (key:key) =
 (* work_on_andnode *)
 fun work_on_andnode (pst:state) (and_key as (And_N, subgoals):key) (graph:proof_graph) =
     let
-(*
-      val _ = tracing "Start work_on_andnode"
-*)
       val pairs_to_mk_ornodes             = map (mk_ornode false) subgoals                                   : (key * proof_node) list;
       val (new_or_keys, graph_w_ornodes)  = add_ornodes (Proof.context_of pst) pairs_to_mk_ornodes graph     : keys * proof_graph;
       (*TODO: remove code-duplication of try_to_refute_key*)
@@ -97,10 +92,8 @@ fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.sta
 
     val graph_w_refuted_andnodes = fold one_of_ands_child_nodes_is_refuted new_andnds_keys graph_w_ornodes: proof_graph;
 
-                                 (*fold one_of_ands_child_nodes_is_refuted new_andnds_keys graph_w_ornodes : proof_graph;*)
-
-    fun seed_is_refuted ({andnode_key,...}:seed_of_andnode) = Proof_Graph.is_refuted graph_w_refuted_andnodes andnode_key: bool;
-    val seeds_not_refuted_yet                = filter_out seed_is_refuted seeds: seeds_of_andnode;
+    fun seed_is_refuted ({andnode_key,...}:seed_of_andnode) = Proof_Graph.is_refuted graph_w_refuted_andnodes andnode_key                     : bool;
+    val seeds_not_refuted_yet                = filter_out seed_is_refuted seeds                                                               : seeds_of_andnode;
     val seeds_of_newly_added_andnodes        = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds_not_refuted_yet: seeds_of_andnode;
     val graph_w_ornodes_n_or2add_edges       = fold (PBAU.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes               : proof_graph;
   in
