@@ -179,6 +179,7 @@ fun add_or2and_edge
       *)
      (*very expensive*)
      val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst: string option;
+
      val how_we_got_andnode   = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof                    : string;
      fun mk_script_opt_for_tactic (tactic_script:string) = how_we_got_andnode ^ tactic_script: string;
      val script_opt: string option =
@@ -186,12 +187,15 @@ fun add_or2and_edge
           then                                                                                     
             script_opt_gen
           else
-            Option.map mk_script_opt_for_tactic script_opt_gen(*TODO: We have to check if we can prove the remaining goals.*)
+            Option.map mk_script_opt_for_tactic script_opt_gen;
      (*TODO: or2and_edge_val is a function on proof_node. It should be encapsulated in Proof_Node.ML.*)
      val or2and_edge_val     = Proof_Graph_Node.Or_To_And {
                                  how_to_get_andnodes_from_ornode = proof,
                                  proof_of_ornode_assmng_andnodes = script_opt}: proof_node;
      val or2and_edge_key     = ((Proof_Graph.O2A_E (serial())), []): key;
+
+     (* updating proof_graph *)
+     (* TODOL These 3 functions should be executed atomically with Mutex.*)
      val graph_w_or2and_edge = PGraph.new_node (or2and_edge_key, or2and_edge_val) graph: proof_graph;
      val graph_w_or2and_edge_connected = graph_w_or2and_edge
                                       |> Proof_Graph_Util.add_edge_acyclic_if_possible or_key or2and_edge_key
@@ -213,6 +217,7 @@ fun add_or2and_edge
            else PGraph.del_edge (or2and_edge_key, and_key) graph
          end
        else graph;
+
      val result = cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals or2and_edge_key graph_w_or2and_edge_connected;
    in
      if is_some script_opt then result else graph
