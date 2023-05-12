@@ -78,10 +78,6 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
       fun mk_proof_key_value (pscript, pst) =
           let
             val subgs = Isabelle_Utils.pst_to_subgs pst
-(*
-val _ = tracing "------"
-val _ = map (Isabelle_Utils.trm_to_string ctxt) subgs |> map tracing
-*)
             val subgs_wo_meta_uni = map strip_outermost_meta_quantifiers subgs: terms;
             fun check_print_read ctxt term = term
              |> Syntax.check_term ctxt
@@ -174,23 +170,16 @@ fun add_or2and_edge
      val name_term_pairs      = map mk_name_term_pair or_leave_keys                                     : (string * term) list;
      val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME:*)
      val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}        : TBC_Utils.timeouts;
+     (*TODO: FIXME: \<rightarrow> No need to fix?*)
+     (*
+      * The use of pst_w_or_term_assmd is wrong here.
+      * We use a Proof.state to attack the (remaining) of or-node.
+      * But this state is for the and-node.
+      * We should send a proof state that is associated with or-node.
+      *)
+     (*very expensive*)
+     val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst: string option;
      val how_we_got_andnode   = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof                    : string;
-(*     
-     val _ = tracing "-"
-     val _ = tracing "finish_goal_after_assuming_subgoals_n_conjectures. ";
-     val _ = tracing "or-node is: "
-     val _ = (Proof_Graph.print_key (Proof.context_of state) or_key)
-     val _ = tracing "and-node is: "
-     val _ = (Proof_Graph.print_key (Proof.context_of state) andnode_key)
-*)
-(*TODO: FIXME: \<rightarrow> No need to fix?*)
-(*
- * The use of pst_w_or_term_assmd is wrong here.
- * We use a Proof.state to attack the (remaining) of or-node.
- * But this state is for the and-node.
- * We should send a proof state that is associated with or-node.
- *)
-     val script_opt_gen = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst: string option;
      fun mk_script_opt_for_tactic (tactic_script:string) = how_we_got_andnode ^ tactic_script: string;
      val script_opt: string option =
           if how_we_got_andnode = "" (*explicit conjecturing*)

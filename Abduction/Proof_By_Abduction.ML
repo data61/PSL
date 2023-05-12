@@ -60,7 +60,7 @@ fun work_on_andnode (pst:state) (and_key as (And_N, subgoals):key) (graph:proof_
     let
       val pairs_to_mk_ornodes             = map (mk_ornode false) subgoals                                   : (key * proof_node) list;
       val (new_or_keys, graph_w_ornodes)  = add_ornodes (Proof.context_of pst) pairs_to_mk_ornodes graph     : keys * proof_graph;
-      (*TODO: remove code-duplication of try_to_refute_key*)
+      (*expensive*)
       fun try_to_refute_key (state:Proof.state) (key:key) =
           (key, exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm state) (snd key))             : (key * bool)
       val pairs                           = Par_List.map (try_to_refute_key pst) new_or_keys                 : (key * bool) list;
@@ -95,6 +95,7 @@ fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.sta
     fun seed_is_refuted ({andnode_key,...}:seed_of_andnode) = Proof_Graph.is_refuted graph_w_refuted_andnodes andnode_key                     : bool;
     val seeds_not_refuted_yet                = filter_out seed_is_refuted seeds                                                               : seeds_of_andnode;
     val seeds_of_newly_added_andnodes        = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds_not_refuted_yet: seeds_of_andnode;
+    (*add_or2and_edge is very expensive*)
     val graph_w_ornodes_n_or2add_edges       = fold (PBAU.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes               : proof_graph;
   in
     graph_w_ornodes_n_or2add_edges: Proof_Graph_Util.proof_graph
@@ -105,6 +106,7 @@ fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:proof_
     (*TODO: we should check if the node is still worth proving.*)
     let
        val _ = tracing "Start computing work_on_ornode"
+       (*very expensive*)
        val maybe_proved = PBAU.prove_orkey_completely or_key graph pst: (state * string) option;
     in
       if is_some maybe_proved (*ornode was proved completely.*)
@@ -128,6 +130,7 @@ fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:proof_
       else (*if we cannot prove the ornode completely, expand it using Extend_Leaf and conjecturing*)
         let
           val pst_to_prove       = PBAU.mk_pst_to_prove_from_key pst or_key                           : state;
+          (*a little expensive*)
           val seeds_from_tactics = PBAU.apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes pst_to_prove: seeds_of_andnode;
 
           (*conjecturing*)
@@ -135,18 +138,16 @@ fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:proof_
                                     |> map snd (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
                                     |> PBAU.conjectures_to_seeds_of_andnode (pst, pst_to_prove): seeds_of_andnode;
           val filtered_seeds = PBAU.filter_out_bad_seeds_of_andnode lemma_term pst graph (seeds_from_conjectures @ seeds_from_tactics): seeds_of_andnode;
-(*
-val _ = tracing "PRINT FILTERED SEEDS OF AND-NODES"
-val _ = map (Proof_By_Abduction_Util.print_seed_of_andnode ctxt) filtered_seeds
-*)
+
         in
+          (*seeds_to_updated_graph is very expensive*)
           (pst, seeds_to_updated_graph or_key filtered_seeds pst graph)
         end
     end
   | work_on_ornode _ _ = error "work_on_ornode failed. Not an Or_N.";     
 
 fun work_on_ornode_if_original_goral_is_unproved (or_key:key) (pst, graph) =
-  if final_goal_proved_completely graph
+  if   final_goal_proved_completely graph
   then (pst, graph)
   else work_on_ornode or_key (pst, graph)
 
