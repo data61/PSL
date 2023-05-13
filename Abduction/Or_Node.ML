@@ -166,6 +166,7 @@ fun update_proof_n_proof_id (proof:string) ({
   lemma_name             = lemma_name,
   lemma_term             = lemma_term,
   proof                  = SOME proof,
+  (*TODO: This should be synchronized.*)
   proof_id               = (Unsynchronized.inc TBC_Utils.proof_id_counter;
                             SOME (Unsynchronized.! TBC_Utils.proof_id_counter)),
   refuted                = refuted,
