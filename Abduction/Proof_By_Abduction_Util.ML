@@ -24,10 +24,10 @@ type seeds_of_andnode;
 val print_seed_of_andnode: Proof.context -> seed_of_andnode -> unit list;
 val seed_is_from_tactic: seed_of_andnode -> bool;
 
-val find_counterexample_update                       : Proof.state -> key -> proof_graph -> proof_graph;
+val find_counterexample_update                       : Proof.state -> key -> proof_graph -> proof_graph;;(*TODO: to Modify_Proof_Graph*)
 val find_counterexample_update'                      : Proof.state -> (key * bool) -> proof_graph -> proof_graph;
-val mk_pst_to_prove_from_key                         : Proof.state -> key -> Proof.state;
-val prove_orkey_completely                           : key -> proof_graph -> Proof.state -> (Proof.state * string) option;
+val mk_pst_to_prove_from_key                         : Proof.state -> key -> Proof.state;(*TODO: to Proof_Graph*)
+val prove_orkey_completely                           : key -> proof_graph -> Proof.state -> (Proof.state * string) option;(*TODO: to Proof_Graph*)
 (*TODO: apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes is called only once. No need to export it.*)
 val apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes: Proof.state -> seed_of_andnode list;
 val add_or2and_edge                                  : key -> seed_of_andnode -> proof_graph -> proof_graph;
@@ -107,7 +107,6 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
 
 (* find_counterexample_update *)
 (*TODO: To be removed?*)
-(*TODO: for andnodes we can get the result quickly if we use its children (ornodes) -> Maybe it is better to *)
 fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
   let
     val found_counter_example = exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm pst) (snd key)

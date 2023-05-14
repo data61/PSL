@@ -32,7 +32,7 @@ val mk_ornode:  is_final_goal -> term -> (key * proof_node);
 val mk_andnode: terms -> (key * proof_node);
 
 (* initialization *)
-val mk_initial_graph                              : term -> proof_graph;
+val mk_initial_graph                              : term -> proof_graph; (*TODO: Is there any reason to expose this function?*)
 
 (* query on key and graph *)
 val is_branch     : proof_graph -> key -> bool;
@@ -96,7 +96,7 @@ fun term_compare (trm1, trm2) =
 (* PGraph_Key *)
 structure PGraph_Key =
     struct
-      type key = (node_type * terms)
+      type key = (node_type * terms(*normal terms not thms*))
       val  ord = prod_ord node_type_compare (list_ord term_compare)
     end:KEY
 

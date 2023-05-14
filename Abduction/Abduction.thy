@@ -113,4 +113,12 @@ val _ = theorem \<^command_keyword>\<open>prove\<close> "prove";
 end;
 \<close>
 
+ML\<open>
+HOLogic.mk_conj;
+Logic.mk_conjunction;
+Logic.strip_imp_prems;
+strip_imp_prems;
+Synchronized.guarded_access
+\<close>
+
 end

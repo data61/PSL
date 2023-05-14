@@ -4,6 +4,7 @@
 
 (*** structure: Inner_Path_Table ***)
 (*inner_path_ord: This definition is more or less arbitrary.*)
+(*TODO: move this function (inner_path_ord) to SELFIE_UTIL in SeLFiE/Util.ML for clearner name space.*)
 fun inner_path_ord ([],    []   ) = EQUAL
   | inner_path_ord (_,     []   ) = GREATER
   | inner_path_ord ([],     _   ) = LESS

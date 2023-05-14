@@ -187,7 +187,7 @@ fun loop (counter:int) (pst:state, graph: proof_graph) =
       (pst, graph);
 
 (* top_down_conjecturing *)
-fun top_down_conjecturing (pst:state) (term:term) =
+fun top_down_conjecturing (pst:state) (term:(*normal*)term) =
     let
       val initial_graph            = mk_initial_graph term;
       val (final_pst, final_graph) = loop 0 (pst, initial_graph);
