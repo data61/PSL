@@ -1,46 +1,51 @@
 (*
- * Proof_Graph_Util.ML
+ * Update_Proof_Graph.ML
  *
  * Authors:
  *   Yutaka Nagashima, Daniel Goc Sebastian
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
 
-(*** PROOF_GRAPH_UTIL ***)
-signature PROOF_GRAPH_UTIL =
+(*** UPDATE_PROOF_GRAPH ***)
+signature UPDATE_PROOF_GRAPH =
 sig
 
 type proof_graph;
+type update_proof_graph;
 type key;
 type keys;
-type andnode;
 type proof_node;
 
 (* update of proof_graph *)
-val update_gg_parent_not_finished_in_proof_graph       : proof_graph -> proof_graph;
-val update_proof_n_proof_id                            : string -> key -> proof_graph -> proof_graph;
-val update_branch                                      : key -> proof_graph -> proof_graph;
-val update_proved_completely                           : key -> proof_graph -> proof_graph;
+val update_branch                                       : key -> update_proof_graph;(*TODO: no need to expose?*)
+val update_after_proving_ornode                         : (*proof*)string -> (*or*)key -> Proof.context -> update_proof_graph;
 
-(*TODO: maybe update_proved_completely_of_graph_because_orleaf_is_proved should go to Proof_By_Abduction(_Util.ML)*)
-val update_proved_completely_of_graph_because_orleaf_is_proved: Proof.context -> key -> proof_graph -> proof_graph;
+val add_andnodes                                        : (key * proof_node) list -> proof_graph -> keys * proof_graph;
+val add_ornodes                                         : (key * proof_node) list -> proof_graph -> keys * proof_graph;
 
-val add_andnodes                                        : Proof.context -> (key * proof_node) list -> proof_graph -> keys * proof_graph;
-val add_ornodes                                         : Proof.context -> (key * proof_node) list -> proof_graph -> keys * proof_graph;
+val add_edge_acyclic_if_possible                        : key -> key -> update_proof_graph;
+val add_edges_from_andnodes_to_ornodes                  : keys -> update_proof_graph;
 
-val add_edge_acyclic_if_possible                        : key -> key -> proof_graph -> proof_graph;
-val add_edges_from_andnodes_to_ornodes                  : keys -> proof_graph -> proof_graph;
+val find_counterexample_update                          : Proof.state -> key -> update_proof_graph;
+val find_counterexample_update'                         : Proof.state -> (key * bool) -> update_proof_graph;
 
 end;
 
 (*** Proof_Graph_Util ***)
-structure Proof_Graph_Util: PROOF_GRAPH_UTIL =
+structure Update_Proof_Graph: UPDATE_PROOF_GRAPH =
 struct
 
 open Proof_Graph_Node;
 open Proof_Graph;
 
-(** update of proof_node **)
+type update_proof_graph = proof_graph -> proof_graph;
+
+(* update_branch *)
+fun update_branch (key:key) (graph:proof_graph) =
+    PGraph.map_node key Proof_Graph_Node_Util.update_branch graph: proof_graph;
+
+local
+
 (* update_gg_parent_not_finished_in_proof_graph *)
 (* update_gg_parent_not_finished_in_proof_graph assumes that the graph is already updated by
  * update_proved_completely_of_graph_because_orleaf_is_proved. *)
@@ -68,18 +73,12 @@ fun update_gg_parent_not_finished_in_proof_graph (graph:proof_graph) =
 fun update_proof_n_proof_id (proof:string) (key:key) (graph:proof_graph) =
     PGraph.map_node key (Proof_Graph_Node_Util.update_proof_n_proof_id proof) graph: proof_graph;
 
-(* update_branch *)
-fun update_branch (key:key) (graph:proof_graph) =
-    PGraph.map_node key Proof_Graph_Node_Util.update_branch graph: proof_graph;
-
-(* update_proved_completely *)
-fun update_proved_completely (key:key) (graph:proof_graph) =
-    PGraph.map_node key Proof_Graph_Node_Util.update_proved_completely graph: proof_graph;
-
 (* update_proved_completely_of_graph_because_orleaf_is_proved *)
 fun update_proved_completely_of_graph_because_orleaf_is_proved (ctxt:Proof.context) (key as (Or_N, _): key) (graph:proof_graph): proof_graph =
     let
       val tracing' = if true then tracing else K ();
+      fun update_proved_completely (key:key) (graph:proof_graph) =
+          PGraph.map_node key Proof_Graph_Node_Util.update_proved_completely graph: proof_graph;
       fun forall_at_least_one assertion xs = forall assertion xs andalso (length xs > 0);
       val children = PGraph.immediate_succs;
       val parents  = PGraph.immediate_preds;
@@ -193,7 +192,21 @@ fun update_proved_completely_of_graph_because_orleaf_is_proved (ctxt:Proof.conte
   | update_proved_completely_of_graph_because_orleaf_is_proved _ _ _ =
     error "update_proved_completely_of_graph_because_orleaf_is_proved failed.";
 
-fun add_nodes (ctxt:Proof.context) (key_value_pairs: (key * proof_node) list) (graph: proof_graph) (or_and:string) =
+in
+
+(*Important tricky part!*)
+fun update_after_proving_ornode (proof:string) (or_key:key) (ctxt:Proof.context) (g:proof_graph) =
+  let
+    val updated1 = update_proof_n_proof_id proof or_key g;
+    val updated2 = update_proved_completely_of_graph_because_orleaf_is_proved (ctxt) or_key updated1;
+    val updated3 = update_gg_parent_not_finished_in_proof_graph updated2;
+  in
+    updated3: proof_graph
+  end;
+
+end;
+
+fun add_nodes (key_value_pairs: (key * proof_node) list) (graph: proof_graph) (or_and:string) =
     let
       val numb_of_created_keys = length key_value_pairs: int;
 (*
@@ -212,12 +225,12 @@ fun add_nodes (ctxt:Proof.context) (key_value_pairs: (key * proof_node) list) (g
     end;
 
 (* add_andnodes *)
-fun add_andnodes ctxt (key_value_pairs: (key * proof_node) list) (graph: proof_graph) =
-    add_nodes ctxt key_value_pairs graph "and";
+fun add_andnodes (key_value_pairs: (key * proof_node) list) (graph: proof_graph) =
+    add_nodes key_value_pairs graph "and";
 
 (* add_ornodes *)
-fun add_ornodes ctxt (key_value_pairs: (key * proof_node) list) (graph: proof_graph) =
-    add_nodes ctxt key_value_pairs graph "or";
+fun add_ornodes (key_value_pairs: (key * proof_node) list) (graph: proof_graph) =
+    add_nodes key_value_pairs graph "or";
 
 (* add_edge_acyclic_if_possible *)
 fun add_edge_acyclic_if_possible source_key target_key g =
@@ -243,5 +256,21 @@ fun add_edges_from_andnodes_to_ornodes (and_keys:keys) (graph:proof_graph) =
     fold add_edges_from_andnode_to_ornodes and_keys graph: proof_graph;
 
 end;
+
+(* find_counterexample_update *)
+(*TODO: To be removed?*)
+fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
+  let
+    val found_counter_example = exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm pst) (snd key)
+  in
+    if   found_counter_example
+    then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
+    else graph
+  end;
+
+fun find_counterexample_update' (pst:Proof.state) (key:key, has_counterexample: bool) (graph:proof_graph) =
+    if   has_counterexample
+    then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
+    else graph;
 
 end;

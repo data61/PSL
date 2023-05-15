@@ -69,6 +69,9 @@ val goal_as_string                               : Proof.state -> key -> string;
 (* query on proof_graph *)
 val final_goal_proved_completely                 : proof_graph -> bool;
 
+val mk_pst_to_prove_from_key                     : Proof.state -> key -> Proof.state;(*TODO: Is it necessary to expose this function?*)
+val prove_orkey_completely                       : key -> proof_graph -> Proof.state -> (Proof.state * string) option;
+
 end;
 
 (*** Proof_Graph ***)
@@ -302,5 +305,36 @@ fun final_goal_proved_completely (graph:proof_graph) =
   in
     final_goal_proved
   end;
+
+(* mk_pst_to_prove_from_key *)
+(*TODO: Don't ignore local assumptions.*)
+fun mk_pst_to_prove_from_key (pst:Proof.state) (Or_N, [term]) =
+    let
+      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
+    in
+      Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
+    end
+  | mk_pst_to_prove_from_key (pst:Proof.state) (And_N, [term]) =
+    let
+      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
+    in
+      Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
+    end
+  | mk_pst_to_prove_from_key _ _ = error "mk_pst_to_prove_from_key failed!";
+
+(* prove_orkey_completely *)
+fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph:proof_graph) (pst:Proof.state) =
+    let
+      val lemma_name            = lemma_name_of graph or_key                                                : string;
+      val pst_to_prove          = mk_pst_to_prove_from_key pst or_key                                       : Proof.state;
+      val timeouts              = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}          : TBC_Utils.timeouts;
+      val maybe_result          = TBC_Utils.pst_to_proofscript_opt timeouts "Attack_On_Or_Node" pst_to_prove: (string * Proof.state) option;
+      val cheated_pst           = TBC_Utils.cheat_lemma_term_in_pst lemma_name lemma_term pst
+      fun mk_result (script, _) = Option.map (rpair script) cheated_pst;
+      val result                = Option.mapPartial mk_result maybe_result: (Proof.state * string) option
+    in
+      result
+    end
+  | prove_orkey_completely _ _ _ = error "try_to_prove_orkey_completely failed!";
 
 end;

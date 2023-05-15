@@ -24,10 +24,10 @@ ML_file \<open>And_Node.ML\<close>
 ML_file \<open>Or_Node.ML\<close>
 ML_file \<open>Or2And_Edge.ML\<close>
 ML_file \<open>Proof_Graph_Node.ML\<close>
-ML_file \<open>Proof_Graph_Node_Util.ML\<close>
+ML_file \<open>Update_Proof_Graph_Node.ML\<close>
 ML_file \<open>Proof_Graph.ML\<close>
-ML_file \<open>Proof_Graph_Util.ML\<close>
-ML_file \<open>Proof_By_Abduction_Util.ML\<close>
+ML_file \<open>Update_Proof_Graph.ML\<close>
+ML_file \<open>Seed_Of_And_Node.ML\<close>
 ML_file \<open>Proof_By_Abduction.ML\<close>
 
 strategy Extend_Leaf =

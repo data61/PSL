@@ -6,13 +6,12 @@
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
 (*** PROOF_BY_ABDUCTION_UTIL ***)
-signature PROOF_BY_ABDUCTION_UTIL =
+signature SEED_OF_AND_NODE =
 sig
 
 type proof_graph;
 type key;
 type how_to_get_andnodes_from_ornode;
-type andnode;
 type proof_node
 type seed_of_andnode =
      {andnode_key: key,
@@ -24,11 +23,6 @@ type seeds_of_andnode;
 val print_seed_of_andnode: Proof.context -> seed_of_andnode -> unit list;
 val seed_is_from_tactic: seed_of_andnode -> bool;
 
-val find_counterexample_update                       : Proof.state -> key -> proof_graph -> proof_graph;;(*TODO: to Modify_Proof_Graph*)
-val find_counterexample_update'                      : Proof.state -> (key * bool) -> proof_graph -> proof_graph;
-val mk_pst_to_prove_from_key                         : Proof.state -> key -> Proof.state;(*TODO: to Proof_Graph*)
-val prove_orkey_completely                           : key -> proof_graph -> Proof.state -> (Proof.state * string) option;(*TODO: to Proof_Graph*)
-(*TODO: apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes is called only once. No need to export it.*)
 val apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes: Proof.state -> seed_of_andnode list;
 val add_or2and_edge                                  : key -> seed_of_andnode -> proof_graph -> proof_graph;
 
@@ -37,8 +31,8 @@ val conjectures_to_seeds_of_andnode: (Proof.state (*default pst*) * Proof.state 
 
 end;
 
-(*** Proof_By_Abduction ***)
-structure Proof_By_Abduction_Util: PROOF_BY_ABDUCTION_UTIL =
+(*** Seed_Of_And_Node ***)
+structure Seed_Of_And_Node: SEED_OF_AND_NODE =
 struct
 
 structure PGraph = Proof_Graph.PGraph;
@@ -47,7 +41,6 @@ type proof_graph                     = Proof_Graph.proof_graph;
 type key                             = Proof_Graph.key;
 type keys                            = Proof_Graph.keys;
 type how_to_get_andnodes_from_ornode = Or2And_Edge.how_to_get_andnodes_from_ornode;
-type andnode                         = And_Node.andnode;
 type proof_node                      = Proof_Graph_Node.proof_node;
 
 type seed_of_andnode =
@@ -97,60 +90,13 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
             val value = Proof_Graph_Node.And_Node
                    ({subgoals          = nonempty_subgs,
                      proved_completely = false,
-                     refuted           = false}: andnode): proof_node;
+                     refuted           = false}: And_Node.andnode): proof_node;
           in
             {proof = Or2And_Edge.Tactic pscript, andnode_key = key, value = value, state = pst}: seed_of_andnode
           end;
     in
       map mk_proof_key_value script_n_psts: seeds_of_andnode
     end;
-
-(* find_counterexample_update *)
-(*TODO: To be removed?*)
-fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
-  let
-    val found_counter_example = exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm pst) (snd key)
-  in
-    if   found_counter_example
-    then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
-    else graph
-  end;
-
-fun find_counterexample_update' (pst:Proof.state) (key:key, has_counterexample: bool) (graph:proof_graph) =
-    if   has_counterexample
-    then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
-    else graph;
-
-(* mk_pst_to_prove_from_key *)
-(*TODO: Don't ignore local assumptions.*)
-fun mk_pst_to_prove_from_key (pst:Proof.state) (Proof_Graph.Or_N, [term]) =
-    let
-      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
-    in
-      Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
-    end
-  | mk_pst_to_prove_from_key (pst:Proof.state) (Proof_Graph.And_N, [term]) =
-    let
-      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
-    in
-      Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
-    end
-  | mk_pst_to_prove_from_key _ _ = error "mk_pst_to_prove_from_key failed!";
-
-(* prove_orkey_completely *)
-fun prove_orkey_completely (or_key as (Proof_Graph.Or_N:Proof_Graph.node_type, [lemma_term]):key) (graph:proof_graph) (pst:Proof.state) =
-    let
-      val lemma_name            = Proof_Graph.lemma_name_of graph or_key                                    : string;
-      val pst_to_prove          = mk_pst_to_prove_from_key pst or_key                                       : Proof.state;
-      val timeouts              = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}          : TBC_Utils.timeouts;
-      val maybe_result          = TBC_Utils.pst_to_proofscript_opt timeouts "Attack_On_Or_Node" pst_to_prove: (string * Proof.state) option;
-      val cheated_pst           = TBC_Utils.cheat_lemma_term_in_pst lemma_name lemma_term pst
-      fun mk_result (script, _) = Option.map (rpair script) cheated_pst;
-      val result                = Option.mapPartial mk_result maybe_result: (Proof.state * string) option
-    in
-      result
-    end
-  | prove_orkey_completely _ _ _ = error "try_to_prove_orkey_completely failed!";
 
 (* add_or2and_edge *)
 fun add_or2and_edge
@@ -197,8 +143,8 @@ fun add_or2and_edge
      (* TODOL These 3 functions should be executed atomically with Mutex.*)
      val graph_w_or2and_edge = PGraph.new_node (or2and_edge_key, or2and_edge_val) graph: proof_graph;
      val graph_w_or2and_edge_connected = graph_w_or2and_edge
-                                      |> Proof_Graph_Util.add_edge_acyclic_if_possible or_key or2and_edge_key
-                                      |> Proof_Graph_Util.add_edge_acyclic_if_possible or2and_edge_key andnode_key: proof_graph;
+                                      |> Update_Proof_Graph.add_edge_acyclic_if_possible or_key or2and_edge_key
+                                      |> Update_Proof_Graph.add_edge_acyclic_if_possible or2and_edge_key andnode_key: proof_graph;
      (*This cuts the edge that connects or2and_edge_key and andnode.*)
      fun cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals (or2and_edge_key:key) (graph:proof_graph): proof_graph =
        (* If connecting the labelled-edge and and-node would make the graph cyclic, *)

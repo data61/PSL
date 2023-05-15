@@ -15,10 +15,10 @@ type andnode;
 type proof_node;
 type state;
 
-val work_on_andnode      : state -> key -> proof_graph -> proof_graph;
-val work_on_ornode       : key -> (state * proof_graph) -> (state * proof_graph);
-val print_proof_of_graph : state -> proof_graph -> unit;
-val loop                 : int -> (state * proof_graph) -> (state * proof_graph);
+val work_on_andnode      : state -> key -> proof_graph -> proof_graph;(*TODO: Move to Update_Proof_Graph?*)
+val work_on_ornode       : key -> (state * proof_graph) -> (state * proof_graph);(*TODO: No need to expose?*)
+val print_proof_of_graph : state -> proof_graph -> unit;(*TODO: Move to Proof_Graph?*)
+val loop                 : int -> (state * proof_graph) -> (state * proof_graph);(*TODO: No need to expose?*)
 val top_down_conjecturing: state -> term -> unit;
 
 end;
@@ -36,14 +36,14 @@ type proof_node                      = Proof_Graph_Node.proof_node;
 type state                           = Proof.state;
 
 open Proof_Graph;
-open Proof_Graph_Util;
+open Update_Proof_Graph;
 
-structure PBAU = Proof_By_Abduction_Util;
+structure SOAN = Seed_Of_And_Node;
 
 (** functions to expand ornode leaves **)
 
 (* record_to_mk_andnode *)
-type seed_of_andnode  = PBAU.seed_of_andnode;
+type seed_of_andnode  = SOAN.seed_of_andnode;
 type seeds_of_andnode = seed_of_andnode list;
 
 fun print_lemma_and_proof_of_key (graph:proof_graph) (pst:state) (key:key) =
@@ -58,13 +58,13 @@ fun print_lemma_and_proof_of_key (graph:proof_graph) (pst:state) (key:key) =
 (* work_on_andnode *)
 fun work_on_andnode (pst:state) (and_key as (And_N, subgoals):key) (graph:proof_graph) =
     let
-      val pairs_to_mk_ornodes             = map (mk_ornode false) subgoals                                   : (key * proof_node) list;
-      val (new_or_keys, graph_w_ornodes)  = add_ornodes (Proof.context_of pst) pairs_to_mk_ornodes graph     : keys * proof_graph;
+      val pairs_to_mk_ornodes             = map (mk_ornode false) subgoals                                           : (key * proof_node) list;
+      val (new_or_keys, graph_w_ornodes)  = add_ornodes pairs_to_mk_ornodes graph                                    : keys * proof_graph;
       (*expensive*)
       fun try_to_refute_key (state:Proof.state) (key:key) =
-          (key, exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm state) (snd key))             : (key * bool)
-      val pairs                           = Par_List.map (try_to_refute_key pst) new_or_keys                 : (key * bool) list;
-      val graph_w_quickchecked_ornodes    = fold (PBAU.find_counterexample_update' pst) pairs graph_w_ornodes: proof_graph;
+          (key, exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm state) (snd key))                     : (key * bool)
+      val pairs                           = Par_List.map (try_to_refute_key pst) new_or_keys                         : (key * bool) list;
+      val graph_w_quickchecked_ornodes    = fold (find_counterexample_update' pst) pairs graph_w_ornodes             : proof_graph;
       val graph_w_edges                   = add_edges_from_andnodes_to_ornodes [and_key] graph_w_quickchecked_ornodes: proof_graph;
     in
       graph_w_edges
@@ -73,11 +73,11 @@ fun work_on_andnode (pst:state) (and_key as (And_N, subgoals):key) (graph:proof_
 
 fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.state) (graph:proof_graph): proof_graph =
   let
-    val pairs_to_mk_andnodes                 = map (fn {andnode_key, value,...} => (andnode_key, value)) seeds                      : (key * proof_node) list;
-    val graph_w_ornode_is_now_branch         = update_branch or_key graph                                                           : proof_graph;
-    val (new_andnds_keys, graph_w_andnodes)  = add_andnodes (Proof.context_of pst) pairs_to_mk_andnodes graph_w_ornode_is_now_branch: (keys * proof_graph);
+    val pairs_to_mk_andnodes                 = map (fn {andnode_key, value,...} => (andnode_key, value)) seeds: (key * proof_node) list;
+    val graph_w_ornode_is_now_branch         = update_branch or_key graph                                     : proof_graph;
+    val (new_andnds_keys, graph_w_andnodes)  = add_andnodes pairs_to_mk_andnodes graph_w_ornode_is_now_branch : (keys * proof_graph);
     (*expensive*)
-    val graph_w_ornodes                      = fold (work_on_andnode pst) new_andnds_keys graph_w_andnodes                          : proof_graph;
+    val graph_w_ornodes                      = fold (work_on_andnode pst) new_andnds_keys graph_w_andnodes    : proof_graph;
 
     fun one_of_ands_child_nodes_is_refuted (and_key:key) (graph:proof_graph) =
       let
@@ -96,48 +96,38 @@ fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.sta
     val seeds_not_refuted_yet                = filter_out seed_is_refuted seeds                                                               : seeds_of_andnode;
     val seeds_of_newly_added_andnodes        = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds_not_refuted_yet: seeds_of_andnode;
     (*add_or2and_edge is very expensive*)
-    val graph_w_ornodes_n_or2add_edges       = fold (PBAU.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes               : proof_graph;
+    val graph_w_ornodes_n_or2add_edges       = fold (SOAN.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes               : proof_graph;
   in
-    graph_w_ornodes_n_or2add_edges: Proof_Graph_Util.proof_graph
+    graph_w_ornodes_n_or2add_edges: Proof_Graph.proof_graph
   end;
 
 (* work_on_ornode *)
-fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:proof_graph): state * Proof_Graph_Util.proof_graph =
+fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:proof_graph): state * Proof_Graph.proof_graph =
     (*TODO: we should check if the node is still worth proving.*)
     let
        val _ = tracing "Start computing work_on_ornode"
        (*very expensive*)
-       val maybe_proved = PBAU.prove_orkey_completely or_key graph pst: (state * string) option;
+       val maybe_proved = prove_orkey_completely or_key graph pst: (state * string) option;
     in
       if is_some maybe_proved (*ornode was proved completely.*)
       then
         let
           val _ = tracing "We PROVED the work_on_ornode"
           val (pst_w_proved_lemma, proof) = the maybe_proved: (state * string);
-
-          (*Important tricky part! TODO: make these as one function.*)
-          fun update_graph (g:proof_graph) =
-            let
-              val updated1 = update_proof_n_proof_id proof or_key g;
-              val updated2 = update_proved_completely_of_graph_because_orleaf_is_proved (Proof.context_of pst) or_key updated1;
-              val updated3 = update_gg_parent_not_finished_in_proof_graph updated2;
-            in
-              updated3: proof_graph
-            end;
         in
-           (pst_w_proved_lemma, update_graph graph)(*TODO: We are actually not taking advantage of pst_w_proved_lemma. pst seems good enough.*)
+           (pst_w_proved_lemma,  update_after_proving_ornode proof or_key (Proof.context_of pst) graph)(*TODO: We are actually not taking advantage of pst_w_proved_lemma. pst seems good enough.*)
         end
       else (*if we cannot prove the ornode completely, expand it using Extend_Leaf and conjecturing*)
         let
-          val pst_to_prove       = PBAU.mk_pst_to_prove_from_key pst or_key                           : state;
+          val pst_to_prove       = mk_pst_to_prove_from_key pst or_key                                : state;
           (*a little expensive*)
-          val seeds_from_tactics = PBAU.apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes pst_to_prove: seeds_of_andnode;
+          val seeds_from_tactics = SOAN.apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes pst_to_prove: seeds_of_andnode;
 
           (*conjecturing*)
           val seeds_from_conjectures = All_Top_Down_Conjecturing.top_down_conjectures (Proof.context_of pst) lemma_term
                                     |> map snd (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
-                                    |> PBAU.conjectures_to_seeds_of_andnode (pst, pst_to_prove): seeds_of_andnode;
-          val filtered_seeds = PBAU.filter_out_bad_seeds_of_andnode lemma_term pst graph (seeds_from_conjectures @ seeds_from_tactics): seeds_of_andnode;
+                                    |> SOAN.conjectures_to_seeds_of_andnode (pst, pst_to_prove): seeds_of_andnode;
+          val filtered_seeds = SOAN.filter_out_bad_seeds_of_andnode lemma_term pst graph (seeds_from_conjectures @ seeds_from_tactics): seeds_of_andnode;
         in
           (*seeds_to_updated_graph is very expensive*)
           (pst, seeds_to_updated_graph or_key filtered_seeds pst graph)
