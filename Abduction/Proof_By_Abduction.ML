@@ -15,7 +15,7 @@ type andnode;
 type proof_node;
 type state;
 
-val work_on_andnode      : state -> key -> proof_graph -> proof_graph;(*TODO: Move to Update_Proof_Graph?*)
+
 val work_on_ornode       : key -> (state * proof_graph) -> (state * proof_graph);(*TODO: No need to expose?*)
 val print_proof_of_graph : state -> proof_graph -> unit;(*TODO: Move to Proof_Graph?*)
 val loop                 : int -> (state * proof_graph) -> (state * proof_graph);(*TODO: No need to expose?*)
@@ -55,29 +55,14 @@ fun print_lemma_and_proof_of_key (graph:proof_graph) (pst:state) (key:key) =
        "lemma " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ "\n" ^ proof
     end;
 
-(* work_on_andnode *)
-fun work_on_andnode (pst:state) (and_key as (And_N, subgoals):key) (graph:proof_graph) =
-    let
-      val pairs_to_mk_ornodes             = map (mk_ornode false) subgoals                                           : (key * proof_node) list;
-      val (new_or_keys, graph_w_ornodes)  = add_ornodes pairs_to_mk_ornodes graph                                    : keys * proof_graph;
-      (*expensive*)
-      fun try_to_refute_key (state:Proof.state) (key:key) =
-          (key, exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm state) (snd key))                     : (key * bool)
-      val pairs                           = Par_List.map (try_to_refute_key pst) new_or_keys                         : (key * bool) list;
-      val graph_w_quickchecked_ornodes    = fold (find_counterexample_update' pst) pairs graph_w_ornodes             : proof_graph;
-      val graph_w_edges                   = add_edges_from_andnodes_to_ornodes [and_key] graph_w_quickchecked_ornodes: proof_graph;
-    in
-      graph_w_edges
-    end
-  | work_on_andnode _ _ _ = error "work_on_andnode failed! Not an And_N key!";
+
 
 fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.state) (graph:proof_graph): proof_graph =
   let
-    val pairs_to_mk_andnodes                 = map (fn {andnode_key, value,...} => (andnode_key, value)) seeds: (key * proof_node) list;
-    val graph_w_ornode_is_now_branch         = update_branch or_key graph                                     : proof_graph;
-    val (new_andnds_keys, graph_w_andnodes)  = add_andnodes pairs_to_mk_andnodes graph_w_ornode_is_now_branch : (keys * proof_graph);
-    (*expensive*)
-    val graph_w_ornodes                      = fold (work_on_andnode pst) new_andnds_keys graph_w_andnodes    : proof_graph;
+    val pairs_to_mk_andnodes                 = map (fn {andnode_key, value,...} => (andnode_key, value)) seeds                 : (key * proof_node) list;
+    val graph_w_ornode_is_now_branch         = update_branch or_key graph                                                      : proof_graph;
+    val (new_andnds_keys, graph_w_andnodes)  = add_andnodes pairs_to_mk_andnodes graph_w_ornode_is_now_branch                  : (keys * proof_graph);
+    val graph_w_ornodes(*expensive*)         = fold (process_andkey_and_add_child_ornodes pst) new_andnds_keys graph_w_andnodes: proof_graph;
 
     fun one_of_ands_child_nodes_is_refuted (and_key:key) (graph:proof_graph) =
       let

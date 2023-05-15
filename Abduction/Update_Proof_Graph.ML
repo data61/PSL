@@ -17,17 +17,14 @@ type keys;
 type proof_node;
 
 (* update of proof_graph *)
-val update_branch                                       : key -> update_proof_graph;(*TODO: no need to expose?*)
-val update_after_proving_ornode                         : (*proof*)string -> (*or*)key -> Proof.context -> update_proof_graph;
-
-val add_andnodes                                        : (key * proof_node) list -> proof_graph -> keys * proof_graph;
-val add_ornodes                                         : (key * proof_node) list -> proof_graph -> keys * proof_graph;
-
-val add_edge_acyclic_if_possible                        : key -> key -> update_proof_graph;
-val add_edges_from_andnodes_to_ornodes                  : keys -> update_proof_graph;
-
-val find_counterexample_update                          : Proof.state -> key -> update_proof_graph;
-val find_counterexample_update'                         : Proof.state -> (key * bool) -> update_proof_graph;
+val update_branch                       : key -> update_proof_graph;(*TODO: no need to expose?*)
+val update_after_proving_ornode         : (*proof*)string -> (*or*)key -> Proof.context -> update_proof_graph;
+val add_andnodes                        : (key * proof_node) list -> proof_graph -> keys * proof_graph;
+val add_ornodes                         : (key * proof_node) list -> proof_graph -> keys * proof_graph;
+val add_edge_acyclic_if_possible        : key -> key -> update_proof_graph;
+val add_edges_from_andnodes_to_ornodes  : keys -> update_proof_graph;
+val find_counterexample_update          : Proof.state -> key -> update_proof_graph;
+val process_andkey_and_add_child_ornodes: Proof.state -> key -> update_proof_graph;
 
 end;
 
@@ -258,7 +255,6 @@ fun add_edges_from_andnodes_to_ornodes (and_keys:keys) (graph:proof_graph) =
 end;
 
 (* find_counterexample_update *)
-(*TODO: To be removed?*)
 fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
   let
     val found_counter_example = exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm pst) (snd key)
@@ -268,9 +264,17 @@ fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
     else graph
   end;
 
-fun find_counterexample_update' (pst:Proof.state) (key:key, has_counterexample: bool) (graph:proof_graph) =
-    if   has_counterexample
-    then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
-    else graph;
+(* work_on_andnode *)
+fun process_andkey_and_add_child_ornodes (pst:Proof.state) (and_key as (And_N, subgoals):key) (graph:proof_graph) =
+    let
+      val pairs_to_mk_ornodes             = map (mk_ornode false) subgoals                                           : (key * proof_node) list;
+      val (new_or_keys, graph_w_ornodes)  = add_ornodes pairs_to_mk_ornodes graph                                    : keys * proof_graph;
+      (*expensive*)
+      val graph_w_quickchecked_ornodes    = fold (find_counterexample_update pst) new_or_keys graph_w_ornodes        : proof_graph;
+      val graph_w_edges                   = add_edges_from_andnodes_to_ornodes [and_key] graph_w_quickchecked_ornodes: proof_graph;
+    in
+      graph_w_edges
+    end
+  | process_andkey_and_add_child_ornodes _ _ _ = error "work_on_andnode failed! Not an And_N key!";
 
 end;
