@@ -11,15 +11,11 @@ sig
 
 type proof_graph;
 type key;
-type andnode;
-type proof_node;
 type state;
 
-
-val work_on_ornode       : key -> (state * proof_graph) -> (state * proof_graph);(*TODO: No need to expose?*)
-val print_proof_of_graph : state -> proof_graph -> unit;(*TODO: Move to Proof_Graph?*)
-val loop                 : int -> (state * proof_graph) -> (state * proof_graph);(*TODO: No need to expose?*)
-val top_down_conjecturing: state -> term -> unit;
+val work_on_ornode    : key -> (state * proof_graph) -> (state * proof_graph);(*TODO: No need to expose?*)
+val loop              : int -> (state * proof_graph) -> (state * proof_graph);(*TODO: No need to expose?*)
+val proof_by_abduction: state -> term -> unit;
 
 end;
 
@@ -27,13 +23,10 @@ end;
 structure Proof_By_Abduction: PROOF_BY_ABDUCTION  =
 struct
 
-type proof_graph                     = Proof_Graph.proof_graph;
-type key                             = Proof_Graph.key;
-type keys                            = Proof_Graph.keys;
-type how_to_get_andnodes_from_ornode = Or2And_Edge.how_to_get_andnodes_from_ornode;
-type andnode                         = And_Node.andnode;
-type proof_node                      = Proof_Graph_Node.proof_node;
-type state                           = Proof.state;
+type proof_graph = Proof_Graph.proof_graph;
+type key         = Proof_Graph.key;
+type keys        = Proof_Graph.keys;
+type state       = Proof.state;
 
 open Proof_Graph;
 open Update_Proof_Graph;
@@ -45,17 +38,6 @@ structure SOAN = Seed_Of_And_Node;
 (* record_to_mk_andnode *)
 type seed_of_andnode  = SOAN.seed_of_andnode;
 type seeds_of_andnode = seed_of_andnode list;
-
-fun print_lemma_and_proof_of_key (graph:proof_graph) (pst:state) (key:key) =
-    let
-      val name  = lemma_name_of graph key : string;
-      val stmt  = goal_as_string pst key  : string;
-      val proof = proof_of graph key      : string;
-    in
-       "lemma " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ "\n" ^ proof
-    end;
-
-
 
 fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.state) (graph:proof_graph): proof_graph =
   let
@@ -76,7 +58,6 @@ fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.sta
       end;
 
     val graph_w_refuted_andnodes = fold one_of_ands_child_nodes_is_refuted new_andnds_keys graph_w_ornodes: proof_graph;
-
     fun seed_is_refuted ({andnode_key,...}:seed_of_andnode) = Proof_Graph.is_refuted graph_w_refuted_andnodes andnode_key                     : bool;
     val seeds_not_refuted_yet                = filter_out seed_is_refuted seeds                                                               : seeds_of_andnode;
     val seeds_of_newly_added_andnodes        = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds_not_refuted_yet: seeds_of_andnode;
@@ -125,22 +106,6 @@ fun work_on_ornode_if_original_goral_is_unproved (or_key:key) (pst, graph) =
   then (pst, graph)
   else work_on_ornode or_key (pst, graph)
 
-(* print_proof_of_graph *)
-(*topological sort is not good enough due to our use of state.*)
-fun print_proof_of_graph (pst:state) (graph:proof_graph) =
-    let
-      val keys                         = PGraph.keys graph |> filter is_ornode |> rev: keys;
-      val key_prf_id_pairs             = map (fn key => (key, proof_id_of graph key)) keys: (key * int option) list;
-      val key_prf_id_pairs_solved_only = filter (fn (_, id) => is_some id) key_prf_id_pairs: (key * int option) list;
-      val key_prf_id_pairs_wo_opt      = map (apsnd the) key_prf_id_pairs_solved_only: (key * int) list;
-      fun compare ((_, id1), (_, id2)) = Int.compare (id1, id2): order;                        
-      val sorted_keys                  = sort compare key_prf_id_pairs_wo_opt |> map fst: key list;
-      val final_script                 = "\n" ^ (map (print_lemma_and_proof_of_key graph pst) sorted_keys |> String.concatWith "\n");
-      val _ = Active.sendback_markup_properties [Markup.padding_command] final_script |> tracing;
-    in
-      ()
-    end;
-
 (* loop *)
 fun loop (counter:int) (pst:state, graph: proof_graph) =
     if counter < 8
@@ -161,8 +126,8 @@ fun loop (counter:int) (pst:state, graph: proof_graph) =
     else
       (pst, graph);
 
-(* top_down_conjecturing *)
-fun top_down_conjecturing (pst:state) (term:(*normal*)term) =
+(* proof_by_abduction *)
+fun proof_by_abduction (pst:state) (term:(*normal*)term) =
     let
       val initial_graph            = mk_initial_graph term;
       val (final_pst, final_graph) = loop 0 (pst, initial_graph);

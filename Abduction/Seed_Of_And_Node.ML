@@ -21,7 +21,7 @@ type seed_of_andnode =
 type seeds_of_andnode;
 
 val print_seed_of_andnode: Proof.context -> seed_of_andnode -> unit list;
-val seed_is_from_tactic: seed_of_andnode -> bool;
+val seed_is_from_tactic  : seed_of_andnode -> bool;
 
 val apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes: Proof.state -> seed_of_andnode list;
 val add_or2and_edge                                  : key -> seed_of_andnode -> proof_graph -> proof_graph;
@@ -112,9 +112,9 @@ fun add_or2and_edge
      fun or_key_to_term (Proof_Graph.Or_N, [orleaf_term]) = orleaf_term
        | or_key_to_term  _                                = error "or_key_to_term failed.";
      fun mk_name_term_pair (orleaf_key:key) = (Proof_Graph.lemma_name_of graph orleaf_key, or_key_to_term orleaf_key): (string * term);
-     val name_term_pairs      = map mk_name_term_pair or_leave_keys                                     : (string * term) list;
-     val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME:*)
-     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}        : TBC_Utils.timeouts;
+     val name_term_pairs      = map mk_name_term_pair or_leave_keys                                                  : (string * term) list;
+     val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state             : Proof.state;(*TODO: FIXME:*)
+     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}                     : TBC_Utils.timeouts;
      (*TODO: FIXME: \<rightarrow> No need to fix?*)
      (*
       * The use of pst_w_or_term_assmd is wrong here.

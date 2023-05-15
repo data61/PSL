@@ -100,7 +100,7 @@ fun theorem _ descr =
              |> Config.put Metis_Generate.verbose false
              |> Context_Position.set_visible false: Proof.context;
             val pst = Proof.init cxtx_wo_verbose_warnings: Proof.state;
-            val _ = Proof_By_Abduction.top_down_conjecturing pst standardized_cncl;
+            val _ = Proof_By_Abduction.proof_by_abduction pst standardized_cncl;
           in
             lthy
           end)))
@@ -118,7 +118,8 @@ HOLogic.mk_conj;
 Logic.mk_conjunction;
 Logic.strip_imp_prems;
 strip_imp_prems;
-Synchronized.guarded_access
+Synchronized.guarded_access;
+Par_List.map
 \<close>
 
 end

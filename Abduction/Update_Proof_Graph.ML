@@ -25,6 +25,8 @@ val add_edge_acyclic_if_possible        : key -> key -> update_proof_graph;
 val add_edges_from_andnodes_to_ornodes  : keys -> update_proof_graph;
 val find_counterexample_update          : Proof.state -> key -> update_proof_graph;
 val process_andkey_and_add_child_ornodes: Proof.state -> key -> update_proof_graph;
+val print_lemma_and_proof_of_key        : Proof.state -> proof_graph -> key -> string;
+val print_proof_of_graph : Proof.state -> proof_graph -> unit;
 
 end;
 
@@ -255,16 +257,16 @@ fun add_edges_from_andnodes_to_ornodes (and_keys:keys) (graph:proof_graph) =
 end;
 
 (* find_counterexample_update *)
-fun find_counterexample_update (pst:Proof.state) (key:key) (graph:proof_graph) =
+fun find_counterexample_update (pst:Proof.state) (orkey:key) (graph:proof_graph) =
   let
-    val found_counter_example = exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm pst) (snd key)
+    val found_counter_example = exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm pst) (snd orkey)
   in
     if   found_counter_example
-    then PGraph.map_node key Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
+    then PGraph.map_node orkey Proof_Graph_Node_Util.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
     else graph
   end;
 
-(* work_on_andnode *)
+(* process_andkey_and_add_child_ornodes *)
 fun process_andkey_and_add_child_ornodes (pst:Proof.state) (and_key as (And_N, subgoals):key) (graph:proof_graph) =
     let
       val pairs_to_mk_ornodes             = map (mk_ornode false) subgoals                                           : (key * proof_node) list;
@@ -276,5 +278,30 @@ fun process_andkey_and_add_child_ornodes (pst:Proof.state) (and_key as (And_N, s
       graph_w_edges
     end
   | process_andkey_and_add_child_ornodes _ _ _ = error "work_on_andnode failed! Not an And_N key!";
+
+(* print_lemma_and_proof_of_key *)
+fun print_lemma_and_proof_of_key (pst:Proof.state) (graph:proof_graph) (key:key) =
+  let
+    val name  = lemma_name_of graph key: string;
+    val stmt  = goal_as_string pst key : string;
+    val proof = proof_of graph key     : string;
+  in
+     "lemma " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ "\n" ^ proof
+  end;
+
+(* print_proof_of_graph *)(*topological sort is not good enough due to our use of state.*)
+fun print_proof_of_graph (pst:Proof.state) (graph:proof_graph) =
+  let
+    val keys                         = PGraph.keys graph |> filter is_ornode |> rev           : keys;
+    val key_prf_id_pairs             = map (fn key => (key, proof_id_of graph key)) keys      : (key * int option) list;
+    val key_prf_id_pairs_solved_only = filter (fn (_, id) => is_some id) key_prf_id_pairs     : (key * int option) list;
+    val key_prf_id_pairs_wo_opt      = map (apsnd the) key_prf_id_pairs_solved_only           : (key * int) list;
+    fun compare ((_, id1), (_, id2)) = Int.compare (id1, id2)                                 : order;
+    val sorted_keys                  = sort compare key_prf_id_pairs_wo_opt |> map fst        : key list;
+    val final_script                 = "\n" ^ (map (print_lemma_and_proof_of_key pst graph) sorted_keys |> String.concatWith "\n");
+    val _ = Active.sendback_markup_properties [Markup.padding_command] final_script |> tracing;
+  in
+    ()
+  end;
 
 end;
