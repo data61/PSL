@@ -1,86 +1,86 @@
 (*
- * Proof_Graph.ML
+ * Abduction_Graph.ML
  *
  * Authors:
  *   Yutaka Nagashima, Daniel Goc Sebastian
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
-(*** PROOF_GRAPH ***)
-signature PROOF_GRAPH =
+(*** ABDUCTION_GRAPH ***)
+signature ABDUCTION_GRAPH =
 sig
 
-(** proof_graph **)
+(** abduction_graph **)
 (* key, PGraph_Key, and PGraph *)
 datatype node_type = Or_N | And_N | O2A_E of int;
 val node_type_compare: (node_type * node_type) -> order;
 
 structure PGraph: GRAPH
 
-type proof_node;
+type abduction_node;
 
 type key;
 type keys;
 
-val  print_key: Proof.context -> key -> unit list;
-val  equal_keys: (key * key) -> bool;
+val print_key: Proof.context -> key -> unit list;
+val equal_keys: (key * key) -> bool;
 
-type proof_graph;
+type abduction_graph;
 
 (* creation of key_val pair *)
 type is_final_goal = bool;
-val mk_ornode:  is_final_goal -> term -> (key * proof_node);
-val mk_andnode: terms -> (key * proof_node);
+val mk_ornode:  is_final_goal -> term -> (key * abduction_node);
+val mk_andnode: terms -> (key * abduction_node);
 
 (* initialization *)
-val mk_initial_graph                              : term -> proof_graph; (*TODO: Is there any reason to expose this function?*)
+val mk_initial_graph                              : term -> abduction_graph; (*TODO: Is there any reason to expose this function?*)
 
 (* query on key and graph *)
-val is_branch     : proof_graph -> key -> bool;
+val is_branch     : abduction_graph -> key -> bool;
 val is_ornode     : key -> bool;
 val is_andnode    : key -> bool;
 val is_or2and_edge: key -> bool;
 
-(* query on proof_node for ornode and andnode *)
-val is_proved_completely                         : proof_graph -> key -> bool;
-val is_refuted                                   : proof_graph -> key -> bool;
+(* query on abduction_node for ornode and andnode *)
+val is_proved_completely                         : abduction_graph -> key -> bool;
+val is_refuted                                   : abduction_graph -> key -> bool;
 
-(* query on proof_node for ornode *)
-val is_final_goal                                : proof_graph -> key -> bool;
-val lemma_name_of                                : proof_graph -> key -> string;
-val proof_of                                     : proof_graph -> key -> string;
-val proof_id_of                                  : proof_graph -> key -> int option;
+(* query on abduction_node for ornode *)
+val is_final_goal                                : abduction_graph -> key -> bool;
+val lemma_name_of                                : abduction_graph -> key -> string;
+val proof_of                                     : abduction_graph -> key -> string;
+val proof_id_of                                  : abduction_graph -> key -> int option;
 
-val grand_parents                                : proof_graph -> key -> keys;
-val grand_children                               : proof_graph -> key -> keys;
-val all_gg_parents_are_proved                    : proof_graph -> key -> bool;
+val grand_parents                                : abduction_graph -> key -> keys;
+val grand_children                               : abduction_graph -> key -> keys;
+val all_gg_parents_are_proved                    : abduction_graph -> key -> bool;
 
-(* query on proof_node for or2and_edge *)
-val ornode_proved_assmng_andnodes                : proof_graph -> key -> bool;
-val or2and_edge_to_proof                         : proof_graph -> key -> string;
+(* query on abduction_node for or2and_edge *)
+val ornode_proved_assmng_andnodes                : abduction_graph -> key -> bool;
+val or2and_edge_to_proof                         : abduction_graph -> key -> string;
 
-val is_worth_proving                             : Proof.context -> proof_graph -> key -> bool;
+val is_worth_proving                             : Proof.context -> abduction_graph -> key -> bool;
 
 (*TODO: it is a little strange that we have proof_of and or2and_edge_to_proof separately.*)
-val get_final_goal                               : proof_graph -> key;
-val keys_tobe_expanded_in                        : Proof.context -> proof_graph -> keys;
+val get_final_goal                               : abduction_graph -> key;
+val keys_tobe_expanded_in                        : Proof.context -> abduction_graph -> keys;
 
 val goal_as_string                               : Proof.state -> key -> string;
 
-(* query on proof_graph *)
-val final_goal_proved_completely                 : proof_graph -> bool;
+(* query on abduction_graph *)
+val final_goal_proved_completely                 : abduction_graph -> bool;
 
 val mk_pst_to_prove_from_key                     : Proof.state -> key -> Proof.state;(*TODO: Is it necessary to expose this function?*)
-val prove_orkey_completely                       : key -> proof_graph -> Proof.state -> (Proof.state * string) option;
+val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * string) option;
 
 end;
 
-(*** Proof_Graph ***)
-structure Proof_Graph: PROOF_GRAPH =
+(*** Abduction_Graph ***)
+structure Abduction_Graph: ABDUCTION_GRAPH =
 struct
 
-open Proof_Graph_Node_Util;
+open Update_Abduction_Node;
 
-(** proof_graph **)
+(** abduction_graph **)
 (* node_type *)
 datatype node_type = Or_N | And_N | O2A_E of int;
 
@@ -106,8 +106,8 @@ structure PGraph_Key =
 (* PGraph *)
 structure PGraph = Graph (PGraph_Key): GRAPH;
 
-(* proof_graph *)
-type proof_graph = proof_node PGraph.T;
+(* abduction_graph *)
+type abduction_graph = abduction_node PGraph.T;
 
 (* key *)
 type key  = PGraph.key
@@ -130,13 +130,13 @@ type is_final_goal = bool;
 fun mk_ornode (is_final_goal:is_final_goal) (goal:term) =
   (
     (Or_N, [goal]): key,
-    Proof_Graph_Node.mk_ornode is_final_goal goal: Proof_Graph_Node.proof_node
+    Abduction_Node.mk_ornode is_final_goal goal: abduction_node
    );
 
 fun mk_andnode (goals:terms) =
   (
     (And_N, goals): key,
-    Proof_Graph_Node.And_Node {
+     Abduction_Node.And_Node {
       subgoals          = goals,
       proved_completely = false,
       refuted           = false
@@ -145,16 +145,16 @@ fun mk_andnode (goals:terms) =
 (* mk_initial_graph *)
 fun mk_initial_graph (goal:term) =
   let
-    val root_pair = mk_ornode true goal: key * Proof_Graph_Node.proof_node;
-    val empty_graph = PGraph.empty: proof_graph;
+    val root_pair = mk_ornode true goal: key * Abduction_Node.abduction_node;
+    val empty_graph = PGraph.empty: abduction_graph;
   in
     PGraph.new_node root_pair empty_graph
   end;
 
 (** query on key **)
 (* is_branch *)
-fun is_branch (graph:proof_graph) (key:key) =
-  PGraph.get_node graph key |> Proof_Graph_Node.is_branch: bool;
+fun is_branch (graph:abduction_graph) (key:key) =
+  PGraph.get_node graph key |> Abduction_Node.is_branch: bool;
 
 (* is_ornode *)
 fun is_ornode (Or_N, _) = true
@@ -169,19 +169,19 @@ fun is_or2and_edge (O2A_E _, _) = true
   | is_or2and_edge  _           = false;
 
 (* is_proved_completely *)
-fun is_proved_completely (graph:proof_graph) (key:key): bool =
-  PGraph.get_node graph key |> Proof_Graph_Node.is_proved_completely;
+fun is_proved_completely (graph:abduction_graph) (key:key): bool =
+  PGraph.get_node graph key |> Abduction_Node.is_proved_completely;
 
 (* is_refuted *)
-fun is_refuted (graph:proof_graph) (key:key): bool =
-  PGraph.get_node graph key |> Proof_Graph_Node.is_refuted;
+fun is_refuted (graph:abduction_graph) (key:key): bool =
+  PGraph.get_node graph key |> Abduction_Node.is_refuted;
 
 (* lemma_name_of *)
-fun lemma_name_of (graph:proof_graph) (key:key) =
-  PGraph.get_node graph key |> Proof_Graph_Node.lemma_name_of: string;
+fun lemma_name_of (graph:abduction_graph) (key:key) =
+  PGraph.get_node graph key |> Abduction_Node.lemma_name_of: string;
 
 (* grand_relatives *)
-fun grand_relatives (graph:proof_graph) (key:key) (preds_or_succs: proof_graph -> key -> key list): keys =
+fun grand_relatives (graph:abduction_graph) (key:key) (preds_or_succs: abduction_graph -> key -> key list): keys =
   let
     val immediate_keys = preds_or_succs graph key: keys;
     val grand_keys = map (preds_or_succs graph) immediate_keys |> flat |> distinct equal_keys;
@@ -190,13 +190,13 @@ fun grand_relatives (graph:proof_graph) (key:key) (preds_or_succs: proof_graph -
   end;
 
 (* grand_parents *)
-fun grand_parents (graph:proof_graph) (key:key): keys = grand_relatives graph key PGraph.immediate_preds;
+fun grand_parents (graph:abduction_graph) (key:key): keys = grand_relatives graph key PGraph.immediate_preds;
 
 (* grand_children *)
-fun grand_children (graph:proof_graph) (key:key): keys = grand_relatives graph key PGraph.immediate_succs;
+fun grand_children (graph:abduction_graph) (key:key): keys = grand_relatives graph key PGraph.immediate_succs;
 
 (* great_grand_relatives *)
-fun great_grand_relatives (graph:proof_graph) (key:key) (preds_or_succs: proof_graph -> key -> key list): keys =
+fun great_grand_relatives (graph:abduction_graph) (key:key) (preds_or_succs: abduction_graph -> key -> key list): keys =
   let
     val grand_relatives_keys = grand_relatives graph key preds_or_succs: keys;
     val grand_keys = map (preds_or_succs graph) grand_relatives_keys |> flat |> distinct equal_keys;
@@ -205,26 +205,26 @@ fun great_grand_relatives (graph:proof_graph) (key:key) (preds_or_succs: proof_g
   end;
 
 (* great_grand_parents *)
-fun great_grand_parents (graph:proof_graph) (key:key): keys = great_grand_relatives graph key grand_parents;
+fun great_grand_parents (graph:abduction_graph) (key:key): keys = great_grand_relatives graph key grand_parents;
 
 (* all_gg_parents_are_proved *)
-fun all_gg_parents_are_proved (graph:proof_graph) (key as (Or_N, _)): bool = all_great_grandparents_are_proved_for_or key graph
+fun all_gg_parents_are_proved (graph:abduction_graph) (key as (Or_N, _)): bool = all_great_grandparents_are_proved_for_or key graph
   | all_gg_parents_are_proved _ _: bool = error "all_great_grandparents_are_proved failed. And_N"
 and all_great_grandparents_are_proved_for_or key graph =
   let
     val great_grand_parents_keys  = great_grand_parents graph key: keys;
-    val great_grand_parents_nodes = map (PGraph.get_node graph) great_grand_parents_keys: proof_node list;
+    val great_grand_parents_nodes = map (PGraph.get_node graph) great_grand_parents_keys: abduction_node list;
   in
-   null great_grand_parents_keys orelse forall Proof_Graph_Node.is_proved_completely great_grand_parents_nodes
+   null great_grand_parents_keys orelse forall Abduction_Node.is_proved_completely great_grand_parents_nodes
   end;
 
 (* is_final_goal *)
-fun is_final_goal (graph:proof_graph) (key as (Or_N, _): key): bool =
-    PGraph.get_node graph key |> Proof_Graph_Node.is_final_goal
+fun is_final_goal (graph:abduction_graph) (key as (Or_N, _): key): bool =
+    PGraph.get_node graph key |> Abduction_Node.is_final_goal
   | is_final_goal _ _ = false;
 
 (* get_final_goal *)
-fun get_final_goal (graph:proof_graph) =
+fun get_final_goal (graph:abduction_graph) =
   let
     val final_goals = PGraph.keys graph |> filter (is_final_goal graph): keys;
     val final_goal  = if length final_goals = 1
@@ -235,16 +235,16 @@ fun get_final_goal (graph:proof_graph) =
   end;
 
 (* is_worth_proving *)
-fun is_worth_proving (ctxt:Proof.context) (graph:proof_graph) (key:key)  =
-  PGraph.get_node graph key |> Proof_Graph_Node.is_worth_proving ctxt: bool;
+fun is_worth_proving (ctxt:Proof.context) (graph:abduction_graph) (key:key)  =
+  PGraph.get_node graph key |> Abduction_Node.is_worth_proving ctxt: bool;
 
 (* proof_id_of *)
-fun proof_id_of (graph:proof_graph) (key:key) = PGraph.get_node graph key |> Proof_Graph_Node.proof_id_of: int option;
+fun proof_id_of (graph:abduction_graph) (key:key) = PGraph.get_node graph key |> Abduction_Node.proof_id_of: int option;
 
 (* proof_of *)
-fun proof_of (graph:proof_graph) (key:key) =
+fun proof_of (graph:abduction_graph) (key:key) =
   let
-    val maybe_proof = PGraph.get_node graph key |> Proof_Graph_Node.proof_of: string option;
+    val maybe_proof = PGraph.get_node graph key |> Abduction_Node.proof_of: string option;
   in
     if is_some maybe_proof
     then the maybe_proof
@@ -257,7 +257,7 @@ fun goal_as_string (pst:Proof.state) ((Or_N, [term]):key) = Isabelle_Utils.trm_t
   | goal_as_string _ _ = error "goal_as_string in Proof_Graph.ML failed"
 
 (* keys_tobe_expanded_in *)
-fun keys_tobe_expanded_in (ctxt:Proof.context) (graph:proof_graph): keys =
+fun keys_tobe_expanded_in (ctxt:Proof.context) (graph:abduction_graph): keys =
   let
     val or_keys                        = PGraph.keys graph |> filter is_ornode          : keys;
 (*
@@ -290,15 +290,15 @@ val _ =  print_key ctxt final_goal_key;
   end;
 
 (* ornode_proved_assmng_andnodes *)
-fun ornode_proved_assmng_andnodes (graph:proof_graph) (key:key) =
-    Proof_Graph_Node.ornode_proved_assmng_andnodes (PGraph.get_node graph key);
+fun ornode_proved_assmng_andnodes (graph:abduction_graph) (key:key) =
+    Abduction_Node.ornode_proved_assmng_andnodes (PGraph.get_node graph key);
 
 (* or2and_edge_to_proof *)
-fun or2and_edge_to_proof (graph:proof_graph) (key:key) =
-    Proof_Graph_Node.or2and_edge_to_proof (PGraph.get_node graph key);
+fun or2and_edge_to_proof (graph:abduction_graph) (key:key) =
+    Abduction_Node.or2and_edge_to_proof (PGraph.get_node graph key);
 
 (* final_goal_proved_completely *)
-fun final_goal_proved_completely (graph:proof_graph) =
+fun final_goal_proved_completely (graph:abduction_graph) =
   let
     val final_goal_key    = get_final_goal graph                     : key;
     val final_goal_proved = is_proved_completely graph final_goal_key: bool;
@@ -323,7 +323,7 @@ fun mk_pst_to_prove_from_key (pst:Proof.state) (Or_N, [term]) =
   | mk_pst_to_prove_from_key _ _ = error "mk_pst_to_prove_from_key failed!";
 
 (* prove_orkey_completely *)
-fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph:proof_graph) (pst:Proof.state) =
+fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph:abduction_graph) (pst:Proof.state) =
     let
       val lemma_name            = lemma_name_of graph or_key                                                : string;
       val pst_to_prove          = mk_pst_to_prove_from_key pst or_key                                       : Proof.state;

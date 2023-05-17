@@ -1,35 +1,35 @@
 (*
- * Proof_Graph_Node_Util.ML
+ * Update_Abduction_Node.ML
  *
  * Authors:
  *   Yutaka Nagashima, Daniel Goc Sebastian
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
 
-(*** PROOF_GRAPH_NODE ***)
-signature PROOF_GRAPH_NODE_UTIL =
+(*** UPDATE_ABDUCTION_NODE ***)
+signature UPDATE_ABDUCTION_NODE =
 sig
 
-type ornode     = Proof_Graph_Node.ornode;
-type andnode    = Proof_Graph_Node.andnode;
-type proof_node = Proof_Graph_Node.proof_node;
+type ornode;
+type andnode;
+type abduction_node;
 
-(* update of proof_node *)
-val update_gg_parent_not_finished: bool -> proof_node -> proof_node;
-val update_proved_completely     : proof_node -> proof_node;
-val update_proof_n_proof_id      : string -> proof_node -> proof_node;
-val update_refuted               : proof_node -> proof_node;
-val update_branch                : proof_node -> proof_node;
+(* update of abduction_node *)
+val update_gg_parent_not_finished: bool -> abduction_node -> abduction_node;
+val update_proved_completely     : abduction_node -> abduction_node;
+val update_proof_n_proof_id      : string -> abduction_node -> abduction_node;
+val update_refuted               : abduction_node -> abduction_node;
+val update_branch                : abduction_node -> abduction_node;
 
 end;
 
-(*** Proof_Graph_Node_Util ***)
-structure Proof_Graph_Node_Util: PROOF_GRAPH_NODE_UTIL =
+(*** Update_Abduction_Node ***)
+structure Update_Abduction_Node: UPDATE_ABDUCTION_NODE =
 struct
 
-open Proof_Graph_Node;
+open Abduction_Node;
 
-(** update of proof_node **)
+(** update of abduction_node **)
 (* update_gg_parent_not_finished *)
 fun update_gg_parent_not_finished b (Or_Node ornode) = Or_Node.update_gg_parent_not_finished ornode b |> Or_Node
   | update_gg_parent_not_finished _  and_or_edge     = and_or_edge;
