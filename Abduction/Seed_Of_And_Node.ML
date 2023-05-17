@@ -208,23 +208,17 @@ fun conjectures_to_seed_of_andnode (pst:Proof.state) (cnjctr:term): seed_of_andn
   in
      {andnode_key = key                   : key,
       proof       = Or2And_Edge.Conjecture: how_to_get_andnodes_from_ornode,
-      value       = abduction_node            : abduction_node,
+      value       = abduction_node        : abduction_node,
       state       = pst                   : Proof.state}
-  end;
-
-(*TODO: code-duplication with mk_pst_to_prove_from_key*)
-fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term) =
-  let
-    val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
-  in
-    Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
   end;
 
 fun conjectures_to_seeds_of_andnode (pst:Proof.state, pst_to_prove_ornode:Proof.state) (cnjctrs:terms) =
   let
-    fun check_prop (trm:term) = try (Syntax.check_prop (Proof.context_of (mk_pst_to_prove_from_term pst trm))) trm: term option;
+    val ctxt                      = Proof.context_of pst                                               : Proof.context;
+    fun get_ctxt_w_proof_goal trm = Proof.context_of (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm): Proof.context;
+    fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm            : term option;
     val checked_cnjctrs = List.mapPartial check_prop cnjctrs
-    val result = map (fn trm => conjectures_to_seed_of_andnode pst_to_prove_ornode trm) checked_cnjctrs
+    val result          = map (fn trm => conjectures_to_seed_of_andnode pst_to_prove_ornode trm) checked_cnjctrs
   in
     result
   end;

@@ -139,7 +139,7 @@ fun get_fresh_free_var_name_in_trm' (ctxt:Proof.context) (trm:term) (n:int) =
 
 fun is_prop trm = body_type (type_of trm) = @{typ "prop"};
 
-fun mk_pst_to_prove_from_term (ctxt:Proof.context) term =
+fun mk_pst_to_prove_from_term (ctxt:Proof.context) (term:term) =
     let
       val prop = if is_prop term then term else HOLogic.mk_Trueprop term;
     in
