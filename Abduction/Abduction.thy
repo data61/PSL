@@ -27,6 +27,7 @@ ML_file \<open>Abduction_Node.ML\<close>
 ML_file \<open>Update_Abduction_Node.ML\<close>
 ML_file \<open>Abduction_Graph.ML\<close>
 ML_file \<open>Update_Abduction_Graph.ML\<close>
+ML_file \<open>Shared_State.ML\<close>
 ML_file \<open>Seed_Of_And_Node.ML\<close>
 ML_file \<open>Proof_By_Abduction.ML\<close>
 
@@ -119,7 +120,10 @@ Logic.mk_conjunction;
 Logic.strip_imp_prems;
 strip_imp_prems;
 Synchronized.guarded_access;
-Par_List.map
+Par_List.map;
+
+fun prems (term:term) = Logic.strip_imp_prems;
+TBC_Utils.term_has_counterexample_in_pst
 \<close>
 
 end

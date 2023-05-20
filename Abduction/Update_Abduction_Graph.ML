@@ -259,7 +259,7 @@ end;
 (* find_counterexample_update *)
 fun find_counterexample_update (pst:Proof.state) (orkey:key) (graph:abduction_graph) =
   let
-    val found_counter_example = exists (fn trm => TBC_Utils.term_has_counterexample_in_pst trm pst) (snd orkey)
+    val found_counter_example = exists (TBC_Utils.term_has_counterexample_in_pst pst) (snd orkey): bool;
   in
     if   found_counter_example
     then PGraph.map_node orkey Update_Abduction_Node.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)

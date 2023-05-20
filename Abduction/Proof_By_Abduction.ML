@@ -110,7 +110,7 @@ fun loop (counter:int) (pst:state, graph: abduction_graph) =
       let
         val _                          = tracing ("==== In loop. Counter is: " ^ Int.toString counter ^ " =====");
         val ctxt                       = Proof.context_of pst;
-        val orkeys_worth_expanding     = keys_tobe_expanded_in ctxt graph                     : keys;
+        val orkeys_worth_expanding     = keys_tobe_expanded_in ctxt graph: keys;
         val _ = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
         val _ = tracing "They are:"
         val _ = map (print_key ctxt) orkeys_worth_expanding

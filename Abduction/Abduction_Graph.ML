@@ -31,6 +31,9 @@ type is_final_goal = bool;
 val mk_ornode:  is_final_goal -> term -> (key * abduction_node);
 val mk_andnode: terms -> (key * abduction_node);
 
+(* key to term *)
+val orkey_to_term: key -> term;
+
 (* initialization *)
 val mk_initial_graph                              : term -> abduction_graph; (*TODO: Is there any reason to expose this function?*)
 
@@ -61,7 +64,8 @@ val or2and_edge_to_proof                         : abduction_graph -> key -> str
 val is_worth_proving                             : Proof.context -> abduction_graph -> key -> bool;
 
 (*TODO: it is a little strange that we have proof_of and or2and_edge_to_proof separately.*)
-val get_final_goal                               : abduction_graph -> key;
+val get_final_goal_term                          : abduction_graph -> term;
+val get_final_goal_key                           : abduction_graph -> key;
 val keys_tobe_expanded_in                        : Proof.context -> abduction_graph -> keys;
 
 val goal_as_string                               : Proof.state -> key -> string;
@@ -141,6 +145,10 @@ fun mk_andnode (goals:terms) =
       proved_completely = false,
       refuted           = false
    });
+
+(* key to term *)
+fun orkey_to_term (Or_N, [orleaf_term]) = orleaf_term
+  | orkey_to_term  _                    = error "orkey_to_term failed.";
 
 (* mk_initial_graph *)
 fun mk_initial_graph (goal:term) =
@@ -223,15 +231,26 @@ fun is_final_goal (graph:abduction_graph) (key as (Or_N, _): key): bool =
     PGraph.get_node graph key |> Abduction_Node.is_final_goal
   | is_final_goal _ _ = false;
 
-(* get_final_goal *)
-fun get_final_goal (graph:abduction_graph) =
+(* get_final_goal_key *)
+fun get_final_goal_key (graph:abduction_graph) =
   let
     val final_goals = PGraph.keys graph |> filter (is_final_goal graph): keys;
     val final_goal  = if length final_goals = 1
                       then hd final_goals
-                      else error "get_final_goal failed. Not exactly one final_goals.";
+                      else error "get_final_goal_key failed. Not exactly one final_goals.";
   in
     final_goal
+  end;
+
+(* get_final_goal_term *)
+fun get_final_goal_term (graph:abduction_graph) =
+  let
+    val final_goal_key = get_final_goal_key graph: key;
+    val final_goal_term = case final_goal_key of
+        (Or_N, [term]) => term
+      |  _ => error "get_final_goal_term in Abduction_Graph.ML failed";
+  in
+    final_goal_term
   end;
 
 (* is_worth_proving *)
@@ -274,7 +293,7 @@ val _ = map (print_key ctxt) orleaf_keys;
 val _ = tracing ("ALL keys_worth_trying: ");
 val _ = map (print_key ctxt) keys_worth_trying;
 *)
-    val final_goal_key                 = get_final_goal graph                           : key;
+    val final_goal_key                 = get_final_goal_key graph                        : key;
 (*
 val _ = tracing ("FINAL GOAL IS: ");
 val _ =  print_key ctxt final_goal_key;
@@ -300,7 +319,7 @@ fun or2and_edge_to_proof (graph:abduction_graph) (key:key) =
 (* final_goal_proved_completely *)
 fun final_goal_proved_completely (graph:abduction_graph) =
   let
-    val final_goal_key    = get_final_goal graph                     : key;
+    val final_goal_key    = get_final_goal_key graph                 : key;
     val final_goal_proved = is_proved_completely graph final_goal_key: bool;
   in
     final_goal_proved

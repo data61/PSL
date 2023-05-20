@@ -91,14 +91,6 @@ end;
 
 (*** "TBC_Util.ML" ***)
 ML\<open>
-signature TOP_DOWN =
-sig
-
-val top_down_conjectures: Proof.context -> term -> (string * term) list;
-
-end;
-
-
 signature TBC_UTILS =
 sig
 
@@ -120,7 +112,7 @@ val ctxt_n_trm_to_conjecture:                 Proof.context -> term -> {lemma_na
 val psl_strategy_to_monadic_tactic:           timeouts -> Monadic_Prover.str -> Proof.state -> Proof.state Monadic_Prover.monad;
 val pst_to_proofscript_opt:                   timeouts -> string -> Proof.state -> (string * Proof.state) option;
 val pst_n_conjecture_has_counterexample:      Proof.state -> string -> bool;
-val term_has_counterexample_in_pst:           term -> Proof.state-> bool;
+val term_has_counterexample_in_pst:           Proof.state-> term -> bool;
 val assume_term_in_ctxt:                      (string * term) -> Proof.context -> local_theory;
 val assume_terms_in_ctxt:                     (string * term) list -> Proof.context -> Proof.context;
 val cheat_lemma_term_in_pst:                  string -> term -> Proof.state -> Proof.state option;
@@ -266,37 +258,14 @@ fun pst_n_conjecture_has_counterexample (pst:Proof.state) (conjecture:string) =
 
 
 (*used in top-down*)
-fun term_has_counterexample_in_pst (term:term) (pst:Proof.state) =
+fun term_has_counterexample_in_pst (pst:Proof.state) (term:term) =
   let
     val quickpick        = PSL_Interface.lookup (Proof.context_of pst) "Quickcheck" |> the      : PSL_Interface.strategy;
     val pst_to_be_proved = Proof.theorem NONE (K I) [[(term, [])]] (Proof.context_of pst)       : Proof.state;
-    val timeouts         = {overall = 30.0, hammer = 30.0, quickcheck = 100.0, nitpick = 2.0}     : timeouts;
+    val timeouts         = {overall = 30.0, hammer = 30.0, quickcheck = 2.0, nitpick = 2.0}     : timeouts;
     val result_seq       = psl_strategy_to_monadic_tactic timeouts quickpick pst_to_be_proved []: (Dynamic_Utils.log * Proof.state) Seq.seq;
-(*
-
-
-    val do_trace        = true;
-    fun show_trace text = if do_trace then tracing text else ();
-    val quickcheck      = Quickcheck.quickcheck;
-    val single          = Seq.single pst_to_be_proved;
-    fun trace_no_cexm _ = show_trace "Quickcheck.quickcheck found no counterexample";
-    fun trace_cexm _    = show_trace "Quickcheck.quickcheck found a  counterexample";
-    fun trace_scexn _   = show_trace ("Quickcheck.quickcheck found a potentially spurious " ^
-                                      "counterexample due to underspecified functions");
-    fun get_result _    =  (case quickcheck [] 1 pst_to_be_proved of
-      NONE => (trace_no_cexm (); false)
-    | SOME (genuine, _) => if genuine then (trace_cexm (); true) else (trace_scexn (); false));
-
-*)
   in
-    (is_none (Seq.pull result_seq)
- (*TODO: Double-Check
-  * empty sequence means: either
-    - QC found a counter-example or
-    - QC timed out without find a counter-example.
-  *)(*;
-     (Utils.try_with false get_result ())*)
-)
+    is_none (Seq.pull result_seq)
   end;
 
 
