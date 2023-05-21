@@ -25,8 +25,8 @@ val add_edge_acyclic_if_possible        : key -> key -> update_abduction_graph;
 val add_edges_from_andnodes_to_ornodes  : keys -> update_abduction_graph;
 val find_counterexample_update          : Proof.state -> key -> update_abduction_graph;
 val process_andkey_and_add_child_ornodes: Proof.state -> key -> update_abduction_graph;
-val print_lemma_and_proof_of_key        : Proof.state -> abduction_graph -> key -> string;
-val print_proof_of_graph : Proof.state -> abduction_graph -> unit;
+val print_lemma_and_proof_of_key        : Proof.state -> abduction_graph -> key -> string; (*TODO: move this to Abduction_Graph.ML*)
+val print_proof_of_graph : Proof.state -> abduction_graph -> unit; (*TODO: move this to Abduction_Graph.ML*)
 
 end;
 
@@ -213,7 +213,7 @@ fun add_nodes (key_value_pairs: (key * abduction_node) list) (graph: abduction_g
 *)
       fun new_node (k, v) (acc, g:abduction_graph): (keys * abduction_graph) =
           (k :: acc, PGraph.new_node (k, v) g)
-          handle PGraph.DUP _ => ((*tracing ("Duplicated " ^ or_and ^ "-node. We use the existing one, which may have been proved_wo_assmng_cnjctr.");*) (acc, g));
+          handle PGraph.DUP _ => ((*tracing ("Duplicated " ^ or_and ^ "-node. We use the existing one, which may have been proved_wo_assmng_cnjctr.");*) (k :: acc, g));
       val (newly_added_keys, resulting_graph) = fold new_node key_value_pairs ([], graph): keys * abduction_graph;
       val number_of_duplicated_keys = numb_of_created_keys - length newly_added_keys;
 (*
