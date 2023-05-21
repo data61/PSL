@@ -26,8 +26,8 @@ ML_file \<open>Or2And_Edge.ML\<close>
 ML_file \<open>Abduction_Node.ML\<close>
 ML_file \<open>Update_Abduction_Node.ML\<close>
 ML_file \<open>Abduction_Graph.ML\<close>
-ML_file \<open>Update_Abduction_Graph.ML\<close>
 ML_file \<open>Shared_State.ML\<close>
+ML_file \<open>Update_Abduction_Graph.ML\<close>
 ML_file \<open>Seed_Of_And_Node.ML\<close>
 ML_file \<open>Proof_By_Abduction.ML\<close>
 
