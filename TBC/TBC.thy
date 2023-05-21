@@ -444,6 +444,7 @@ fun get_relevant_constants (ctxt:Proof.context) (goal:term) =
                                 relevant_consts: terms;
     val relevant_unary_funcs  = filter (fn trm => Isabelle_Utils.takes_n_arguments trm 1
                                           andalso not (is_defined_in_pure_or_hol trm)) relevant_consts: terms;
+    (*
     (* debug *)
     fun range_name trm  = trm |> type_of |> body_type   |> dest_Type |> fst;
     (* debug *)
@@ -462,6 +463,7 @@ fun get_relevant_constants (ctxt:Proof.context) (goal:term) =
     val _ = print_terms relevant_unary_funcs;
     val _ = we_have_something relevant_binary_funcs " relevant_binary_funcs after filtering:";
     val _ = deep_print relevant_binary_funcs;
+    *)
   in
     (relevant_consts, relevant_binary_funcs, relevant_unary_funcs)
   end;
