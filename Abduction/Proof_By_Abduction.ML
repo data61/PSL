@@ -114,11 +114,11 @@ fun loop (counter:int) (pst:state, graph: abduction_graph) =
         val _ = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
         val _ = tracing "They are:"
         val _ = map (print_key ctxt) orkeys_worth_expanding
-        val (_, graph_w_keys_expanded) = fold work_on_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
+        val (new_pst, graph_w_keys_expanded) = fold work_on_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
         val solved                     = final_goal_proved_completely graph_w_keys_expanded: bool;
         val _                          = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")
       in
-        (if solved then K I else loop) (counter + 1) (pst, graph_w_keys_expanded) 
+        (if solved then K I else loop) (counter + 1) (new_pst, graph_w_keys_expanded)
       end
     else
       (pst, graph);
