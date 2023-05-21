@@ -76,6 +76,9 @@ val final_goal_proved_completely                 : abduction_graph -> bool;
 val mk_pst_to_prove_from_key                     : Proof.state -> key -> Proof.state;(*TODO: Is it necessary to expose this function?*)
 val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * string) option;
 
+val print_lemma_and_proof_of_key        : Proof.state -> abduction_graph -> key -> string; (*TODO: move this to Abduction_Graph.ML*)
+val print_proof_of_graph : Proof.state -> abduction_graph -> unit; (*TODO: move this to Abduction_Graph.ML*)
+
 end;
 
 (*** Abduction_Graph ***)
@@ -279,25 +282,9 @@ fun goal_as_string (pst:Proof.state) ((Or_N, [term]):key) = Isabelle_Utils.trm_t
 fun keys_tobe_expanded_in (ctxt:Proof.context) (graph:abduction_graph): keys =
   let
     val or_keys                        = PGraph.keys graph |> filter is_ornode          : keys;
-(*
-val _ = tracing ("ALL OR_KEYS: ");
-val _ = map (print_key ctxt) or_keys;
-*)
     val orleaf_keys                    = filter_out (is_branch graph) or_keys           : keys
-(*
-val _ = tracing ("ALL orleaf_keys: ");
-val _ = map (print_key ctxt) orleaf_keys;
-*)
     val keys_worth_trying              = filter (is_worth_proving ctxt graph) orleaf_keys: keys;
-(*
-val _ = tracing ("ALL keys_worth_trying: ");
-val _ = map (print_key ctxt) keys_worth_trying;
-*)
     val final_goal_key                 = get_final_goal_key graph                        : key;
-(*
-val _ = tracing ("FINAL GOAL IS: ");
-val _ =  print_key ctxt final_goal_key;
-*)
     val keys_reachable_from_final_goal = PGraph.all_succs graph [final_goal_key]        : keys;
     val _                              = tracing ("Number of keys_reachable_from_final_goal: " ^ Int.toString (length keys_reachable_from_final_goal));
     val _ = map (print_key ctxt) keys_reachable_from_final_goal
@@ -355,5 +342,30 @@ fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph
       result
     end
   | prove_orkey_completely _ _ _ = error "try_to_prove_orkey_completely failed!";
+
+(* print_lemma_and_proof_of_key *)
+fun print_lemma_and_proof_of_key (pst:Proof.state) (graph:abduction_graph) (key:key) =
+  let
+    val name  = lemma_name_of graph key: string;
+    val stmt  = goal_as_string pst key : string;
+    val proof = proof_of graph key     : string;
+  in
+     "lemma " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ "\n" ^ proof
+  end;
+
+(* print_proof_of_graph *)
+fun print_proof_of_graph (pst:Proof.state) (graph:abduction_graph) =
+  let
+    val keys                         = PGraph.keys graph |> filter is_ornode |> rev           : keys;
+    val key_prf_id_pairs             = map (fn key => (key, proof_id_of graph key)) keys      : (key * int option) list;
+    val key_prf_id_pairs_solved_only = filter (fn (_, id) => is_some id) key_prf_id_pairs     : (key * int option) list;
+    val key_prf_id_pairs_wo_opt      = map (apsnd the) key_prf_id_pairs_solved_only           : (key * int) list;
+    fun compare ((_, id1), (_, id2)) = Int.compare (id1, id2)                                 : order;
+    val sorted_keys                  = sort compare key_prf_id_pairs_wo_opt |> map fst        : key list;
+    val final_script                 = "\n" ^ (map (print_lemma_and_proof_of_key pst graph) sorted_keys |> String.concatWith "\n");
+    val _ = Active.sendback_markup_properties [Markup.padding_command] final_script |> tracing;
+  in
+    ()
+  end;
 
 end;
