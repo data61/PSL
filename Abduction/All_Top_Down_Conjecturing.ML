@@ -180,7 +180,6 @@ fun top_down_conjectures (ctxt:Proof.context) trm =
       |> parallel_filter_out (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.has_func_with_three_occs_in_a_row trm)
       |> parallel_filter (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.fvars_in_prem_should_appear_in_concl trm)
       |> parallel_filter (fn (_, trm) => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) SeLFiE_for_Top_Down.does_not_have_trivial_equality trm);
-    val _ = map (tracing o Isabelle_Utils.trm_to_string ctxt o snd) results: unit list;
     val _ = tracing "[[[[[[[[[[[top_down_conjecture ends]]]]]]]]]]": unit;
   in
     results

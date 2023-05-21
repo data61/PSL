@@ -174,18 +174,9 @@ end;
 
 fun add_nodes (key_value_pairs: (key * abduction_node) list) (graph: abduction_graph) (or_and:string) =
     let
-      val numb_of_created_keys = length key_value_pairs: int;
-(*
-      val _ = if or_and = "or" then tracing ("Number of newly produced " ^ or_and ^ "-nodes: " ^ Int.toString numb_of_created_keys ^ ".") else ();
-*)
       fun new_node (k, v) (acc, g:abduction_graph): (keys * abduction_graph) =
-          (k :: acc, PGraph.new_node (k, v) g)
-          handle PGraph.DUP _ => ((*tracing ("Duplicated " ^ or_and ^ "-node. We use the existing one, which may have been proved_wo_assmng_cnjctr.");*) (k :: acc, g));
+          (k :: acc, PGraph.new_node (k, v) g) handle PGraph.DUP _ => (k :: acc, g);
       val (newly_added_keys, resulting_graph) = fold new_node key_value_pairs ([], graph): keys * abduction_graph;
-      val number_of_duplicated_keys = numb_of_created_keys - length newly_added_keys;
-(*
-      val _ = if or_and = "or" then tracing ("Number of discarded "^ or_and ^"-nodes due to duplication: " ^ Int.toString number_of_duplicated_keys ^ ".") else ();
-*)
     in
      (newly_added_keys, resulting_graph)
     end;
