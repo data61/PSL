@@ -110,13 +110,7 @@ fun add_or2and_edge
      val name_term_pairs      = map mk_name_term_pair or_leave_keys                                     : (string * term) list;
      val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME:*)
      val timeouts             = {overall = 30.0, hammer = 5.0, quickcheck = 1.0, nitpick = 2.0}         : TBC_Utils.timeouts;
-     (*TODO: FIXME: \<rightarrow> No need to fix?*)
-     (*
-      * The use of pst_w_or_term_assmd is wrong here.
-      * We use a Proof.state to attack the (remaining) of or-node.
-      * But this state is for the and-node.
-      * We should send a proof state that is associated with or-node.
-      *)
+
      (*very expensive*)
      val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst: string option;
 
