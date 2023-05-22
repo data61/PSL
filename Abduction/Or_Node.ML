@@ -15,7 +15,6 @@ type ornode;
 type ornodes;
 
 (* query on ornode *)
-val is_refuted          : ornode -> bool;
 val is_worth_proving    : Proof.context -> ornode -> bool;
 
 (* creation of ornode *)
@@ -26,7 +25,6 @@ val mk_ornode: is_final_goal -> term -> ornode;
 val update_gg_parent_not_finished: ornode -> bool -> ornode;
 val update_proved_completely     : ornode -> ornode;
 val update_proof_n_proof_id      : string -> ornode -> ornode;
-val update_refuted               : ornode -> ornode;
 val update_branch                : ornode -> ornode;
 
 end;
@@ -44,7 +42,6 @@ type ornode = {
   lemma_term                      : term,(*For now we ignore "assumes" and "using".*)
   proof                           : string option,(*Proof script to finish proving this node.*)
   proof_id                        : int option,(*To track dependency. based on the timing proved with or w/o assuming conjectures.*)
-  refuted                         : bool,
   proved_completely               : bool, (*= proved w/o assuming conjectures.*)
   (* If an or-node has a great grandparent that is not proved or refuted and this node is not
    * proved_completely, this node still needs a proof.*)
@@ -54,9 +51,6 @@ type ornode = {
 type ornodes = ornode list;
               
 (** query on ornode **)
-
-(* is_refuted *)
-fun is_refuted ({refuted,...}:ornode) = refuted: bool;
 
 (* is_worth_proving *)
 fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
@@ -73,8 +67,6 @@ fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
   andalso
     #gg_parent_not_finished ornode
   andalso
-    not (#refuted ornode): bool
-  andalso
     is_none (#proof ornode));
 
 (* creation of ornode *)
@@ -90,7 +82,6 @@ fun mk_ornode (is_final_goal:is_final_goal) (goal:term) =
     lemma_term             = goal,
     proof                  = NONE,
     proof_id               = NONE,
-    refuted                = false,
     proved_completely      = false,(*We do not search for a counterexample before checking for duplication.*)
     gg_parent_not_finished = true
    }: ornode
@@ -112,7 +103,6 @@ fun update_gg_parent_not_finished ({
   lemma_term       : term,
   proof            : string option,
   proof_id         : int option,
-  refuted          : bool,
   proved_completely: bool,...
 }: ornode) (gg_parent_not_finished: bool) =
 {
@@ -122,7 +112,6 @@ fun update_gg_parent_not_finished ({
   lemma_term             = lemma_term,
   proof                  = proof,
   proof_id               = proof_id,
-  refuted                = refuted,
   proved_completely      = proved_completely,
   gg_parent_not_finished = gg_parent_not_finished
 }: ornode;
@@ -135,7 +124,6 @@ fun update_proved_completely ({
   lemma_term            : term,
   proof                 : string option,
   proof_id              : int option,
-  refuted               : bool,
   gg_parent_not_finished: bool,...
 }: ornode) =
 {
@@ -145,7 +133,6 @@ fun update_proved_completely ({
   lemma_term            = lemma_term,
   proof                 = proof,     
   proof_id              = proof_id,
-  refuted               = refuted,
   proved_completely     = true,
   gg_parent_not_finished = gg_parent_not_finished
 }: ornode;
@@ -156,7 +143,6 @@ fun update_proof_n_proof_id (proof:string) ({
   branch                : bool,
   lemma_name            : string,
   lemma_term            : term,
-  refuted               : bool,
   proved_completely     : bool,
   gg_parent_not_finished: bool,...
 }: ornode)  =
@@ -169,33 +155,10 @@ fun update_proof_n_proof_id (proof:string) ({
   (*TODO: This should be synchronized.*)
   proof_id               = (Unsynchronized.inc TBC_Utils.proof_id_counter;
                             SOME (Unsynchronized.! TBC_Utils.proof_id_counter)),
-  refuted                = refuted,
   proved_completely      = proved_completely: bool,
   gg_parent_not_finished = gg_parent_not_finished
 }: ornode;
 
-(* update_refuted *)
-fun update_refuted ({
-  final_goal            : bool,
-  branch                : bool,
-  lemma_name            : string,
-  lemma_term            : term,
-  proof                 : string option,
-  proof_id              : int option,
-  proved_completely     : bool,
-  gg_parent_not_finished: bool,...
-}: ornode) =
-{
-  final_goal             = final_goal,
-  branch                 = branch,
-  lemma_name             = lemma_name,
-  lemma_term             = lemma_term,
-  proof                  = proof,
-  proof_id               = proof_id,
-  refuted                = true,
-  proved_completely      = proved_completely: bool,
-  gg_parent_not_finished = gg_parent_not_finished
-}: ornode;
 
 (* update_branch *)
 fun update_branch ({
@@ -204,7 +167,6 @@ fun update_branch ({
   lemma_term            : term,
   proof                 : string option,
   proof_id              : int option,
-  refuted               : bool,
   proved_completely     : bool,
   gg_parent_not_finished: bool,...
 }: ornode) =
@@ -215,7 +177,6 @@ fun update_branch ({
   lemma_term             = lemma_term,
   proof                  = proof,
   proof_id               = proof_id,
-  refuted                = refuted,
   proved_completely      = proved_completely: bool,
   gg_parent_not_finished = gg_parent_not_finished
 }: ornode;

@@ -29,6 +29,8 @@ val add_or2and_edge                                  : key -> seed_of_andnode ->
 val filter_out_bad_seeds_of_andnode: term (*parental or-node*) -> Proof.state -> abduction_graph -> seeds_of_andnode -> seeds_of_andnode
 val conjectures_to_seeds_of_andnode: (Proof.state (*default pst*) * Proof.state (*chained pst to proved the parental ornode*)) -> terms -> seeds_of_andnode;
 
+val seed_of_andnode_has_counterexample: Proof.state -> seed_of_andnode -> bool;
+
 end;
 
 (*** Seed_Of_And_Node ***)
@@ -85,8 +87,7 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
           val key   = (And_N, nonempty_subgs): key;
           val value = Abduction_Node.And_Node
                  ({subgoals          = nonempty_subgs,
-                   proved_completely = false,
-                   refuted           = false}: And_Node.andnode): abduction_node;
+                   proved_completely = false}: And_Node.andnode): abduction_node;
         in
           {proof = Or2And_Edge.Tactic pscript, andnode_key = key, value = value, state = pst}: seed_of_andnode
         end;
@@ -220,5 +221,10 @@ fun conjectures_to_seeds_of_andnode (pst:Proof.state, pst_to_prove_ornode:Proof.
   in
     result
   end;
+
+fun seed_of_andnode_has_counterexample (pst:Proof.state) ({andnode_key,...}:seed_of_andnode) =
+  case andnode_key of
+    (And_N, cnjctrs) => Shared_State.any_of_these_is_refuted pst cnjctrs
+  | _ => error "seed_of_andnode_has_counterexample failed. Not a seed_of_andnode."
 
 end;

@@ -26,7 +26,6 @@ val is_or2and_edge                               : abduction_node -> bool;
 
 (* query on abduction_node for ornode and andnode *)
 val is_proved_completely                         : abduction_node -> bool;
-val is_refuted                                   : abduction_node -> bool;
 
 (* query on abduction_node for ornode *)
 val proof_id_of                                  : abduction_node -> int option;
@@ -83,11 +82,6 @@ fun is_or2and_edge (Or_To_And _) = true
 fun is_proved_completely (Or_Node  nd) = #proved_completely nd
   | is_proved_completely (And_Node nd) = #proved_completely nd
   | is_proved_completely (Or_To_And _) = error "is_proved_completely failed."
-
-(* is_refuted *)
-fun is_refuted (Or_Node  ornode ) = #refuted ornode
-  | is_refuted (And_Node andnode) = #refuted andnode
-  | is_refuted _                  = error "is_refuted failed. This should not be applied to an edge."
 
 (* is_worth_proving *)
 fun is_worth_proving ctxt (Or_Node  or_nd) = Or_Node.is_worth_proving ctxt or_nd

@@ -17,7 +17,6 @@ type andnodes;
 
 (* update of andnode *)
 val update_proved_completely: andnode -> andnode;
-val update_refuted          : andnode -> andnode;
 
 end
 
@@ -30,8 +29,7 @@ struct
 type andnode =
 {
  subgoals               : terms, (*Used to detect the order of sub-goals.*)
- proved_completely      : bool,
- refuted                : bool
+ proved_completely      : bool
 };
 
 (* andnodes *)
@@ -41,25 +39,11 @@ type andnodes = andnode list;
 (* update_proved_completely_of_andnode *)
 fun update_proved_completely (
 {
-  subgoals: terms,
-  refuted: bool, ...
+  subgoals: terms,...
 }: andnode) =
 {
   subgoals          = subgoals,
-  proved_completely = true,
-  refuted           = refuted
-}: andnode;
-
-(* update_refuted_of_andnode *)
-fun update_refuted (
-{
-  subgoals                  : terms,
-  proved_completely: bool,...
-}: andnode) =
-{
-  subgoals          = subgoals,
-  proved_completely = proved_completely,
-  refuted           = true
+  proved_completely = true
 }: andnode;
 
 end;

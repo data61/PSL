@@ -42,24 +42,9 @@ fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.sta
     val graph_w_ornode_is_now_branch         = update_branch or_key graph                                                      : abduction_graph;
     val (new_andnds_keys, graph_w_andnodes)  = add_andnodes pairs_to_mk_andnodes graph_w_ornode_is_now_branch                  : (keys * abduction_graph);
     val graph_w_ornodes(*expensive*)         = fold (process_andkey_and_add_child_ornodes pst) new_andnds_keys graph_w_andnodes: abduction_graph;
-
-    fun one_of_ands_child_nodes_is_refuted (and_key:key) (graph:abduction_graph) =
-      let
-        val child_ors    = PGraph.immediate_succs graph and_key: keys;
-        val is_refuted   = exists (is_refuted graph) child_ors: bool;
-        val result_graph = if is_refuted
-                           then PGraph.map_node and_key Update_Abduction_Node.update_refuted graph
-                           else graph;
-      in
-        result_graph:abduction_graph
-      end;
-
-    val graph_w_refuted_andnodes = fold one_of_ands_child_nodes_is_refuted new_andnds_keys graph_w_ornodes: abduction_graph;
-    fun seed_is_refuted ({andnode_key,...}:seed_of_andnode) = is_refuted graph_w_refuted_andnodes andnode_key                 : bool;
-    val seeds_not_refuted_yet                = filter_out seed_is_refuted seeds                                                               : seeds_of_andnode;
-    val seeds_of_newly_added_andnodes        = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds_not_refuted_yet: seeds_of_andnode;
+    val seeds_of_newly_added_andnodes        = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds : seeds_of_andnode;
     (*add_or2and_edge is very expensive*)
-    val graph_w_ornodes_n_or2add_edges       = fold (SOAN.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes               : abduction_graph;
+    val graph_w_ornodes_n_or2add_edges       = fold (SOAN.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes: abduction_graph;
   in
     graph_w_ornodes_n_or2add_edges: abduction_graph
   end;
@@ -87,13 +72,14 @@ fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abduct
           val seeds_from_tactics = SOAN.apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes pst_to_prove: seeds_of_andnode;
 
           (*conjecturing*)
-          val seeds_from_conjectures = All_Top_Down_Conjecturing.top_down_conjectures (Proof.context_of pst) lemma_term
-                                    |> map snd (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
-                                    |> SOAN.conjectures_to_seeds_of_andnode (pst, pst_to_prove): seeds_of_andnode;
-          val filtered_seeds = SOAN.filter_out_bad_seeds_of_andnode lemma_term pst graph (seeds_from_conjectures @ seeds_from_tactics): seeds_of_andnode;
+          val seeds_from_conjectures  = All_Top_Down_Conjecturing.top_down_conjectures (Proof.context_of pst) lemma_term
+                                     |> map snd (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
+                                     |> SOAN.conjectures_to_seeds_of_andnode (pst, pst_to_prove): seeds_of_andnode;
+          val filtered_seeds          = SOAN.filter_out_bad_seeds_of_andnode lemma_term pst graph (seeds_from_conjectures @ seeds_from_tactics): seeds_of_andnode;
+          val seeds_wo_counterexample = filter_out (Seed_Of_And_Node.seed_of_andnode_has_counterexample pst) filtered_seeds: seeds_of_andnode;
         in
           (*seeds_to_updated_graph is very expensive*)
-          (pst, seeds_to_updated_graph or_key filtered_seeds pst graph)
+          (pst, seeds_to_updated_graph or_key seeds_wo_counterexample pst graph)
         end
     end
   | work_on_ornode _ _ = error "work_on_ornode failed. Not an Or_N.";     
@@ -110,7 +96,7 @@ fun loop (counter:int) (pst:state, graph: abduction_graph) =
       let
         val _                          = tracing ("==== In loop. Counter is: " ^ Int.toString counter ^ " =====");
         val ctxt                       = Proof.context_of pst;
-        val orkeys_worth_expanding     = keys_tobe_expanded_in ctxt graph: keys;
+        val orkeys_worth_expanding     = orkeys_tobe_expanded_in ctxt graph: keys;
         val _ = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
         val _ = tracing "They are:"
         val _ = map (print_key ctxt) orkeys_worth_expanding

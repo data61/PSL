@@ -18,7 +18,6 @@ type abduction_node;
 val update_gg_parent_not_finished: bool -> abduction_node -> abduction_node;
 val update_proved_completely     : abduction_node -> abduction_node;
 val update_proof_n_proof_id      : string -> abduction_node -> abduction_node;
-val update_refuted               : abduction_node -> abduction_node;
 val update_branch                : abduction_node -> abduction_node;
 
 end;
@@ -42,11 +41,6 @@ fun update_proved_completely (Or_Node  ornode ) = Or_Node.update_proved_complete
 (* update_proof_n_proof_id *)
 fun update_proof_n_proof_id proof (Or_Node ornode) = Or_Node.update_proof_n_proof_id proof ornode |> Or_Node
   | update_proof_n_proof_id _      and_or_edge     = and_or_edge;
-
-(* update_refuted *)
-fun update_refuted (Or_Node  ornode ) = Or_Node.update_refuted  ornode  |> Or_Node
-  | update_refuted (And_Node andnode) = And_Node.update_refuted andnode |> And_Node
-  | update_refuted _                  = error "update_refuted failed. Or_To_And edge!";
 
 (* update_branch *)
 fun update_branch (Or_Node ornode) = Or_Node.update_branch ornode |> Or_Node

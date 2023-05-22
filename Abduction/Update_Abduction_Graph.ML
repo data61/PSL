@@ -23,7 +23,6 @@ val add_andnodes                        : (key * abduction_node) list -> abducti
 val add_ornodes                         : (key * abduction_node) list -> abduction_graph -> keys * abduction_graph;
 val add_edge_acyclic_if_possible        : key -> key -> update_abduction_graph;
 val add_edges_from_andnodes_to_ornodes  : keys -> update_abduction_graph;
-val find_counterexample_update          : Proof.state -> key -> update_abduction_graph;
 val process_andkey_and_add_child_ornodes: Proof.state -> key -> update_abduction_graph;
 
 end;
@@ -199,8 +198,7 @@ local
 fun add_edges_from_andnode_to_ornodes (and_key as (And_N, terms):key) (graph:abduction_graph) =
   let
     val ornode_keys = map (fn trm => (Or_N, [trm])) terms: keys;
-    val non_refuted_ornode_keys = filter_out (Abduction_Graph.is_refuted graph) ornode_keys: keys;
-    val graph_w_and_to_or_edges = fold (add_edge_acyclic_if_possible and_key) non_refuted_ornode_keys graph: abduction_graph;
+    val graph_w_and_to_or_edges = fold (add_edge_acyclic_if_possible and_key) ornode_keys graph: abduction_graph;
   in
     graph_w_and_to_or_edges
   end
@@ -214,24 +212,12 @@ fun add_edges_from_andnodes_to_ornodes (and_keys:keys) (graph:abduction_graph) =
 
 end;
 
-(* find_counterexample_update *)
-fun find_counterexample_update (pst:Proof.state) (orkey:key) (graph:abduction_graph) =
-  let
-    val found_counter_example = exists (Shared_State.is_refuted pst) (snd orkey): bool;
-  in
-    if   found_counter_example
-    then PGraph.map_node orkey Update_Abduction_Node.update_refuted graph(*TODO: We need update_refuted in Proof_Graph.ML*)
-    else graph
-  end;
-
 (* process_andkey_and_add_child_ornodes *)
 fun process_andkey_and_add_child_ornodes (pst:Proof.state) (and_key as (And_N, subgoals):key) (graph:abduction_graph) =
     let
-      val pairs_to_mk_ornodes            = map (mk_ornode false) subgoals                                           : (key * abduction_node) list;
-      val (new_or_keys, graph_w_ornodes) = add_ornodes pairs_to_mk_ornodes graph                                    : keys * abduction_graph;
-      (*expensive*)
-      val graph_w_quickchecked_ornodes   = fold (find_counterexample_update pst) new_or_keys graph_w_ornodes        : abduction_graph;
-      val graph_w_edges                  = add_edges_from_andnodes_to_ornodes [and_key] graph_w_quickchecked_ornodes: abduction_graph;
+      val pairs_to_mk_ornodes            = map (mk_ornode false) subgoals                              : (key * abduction_node) list;
+      val (new_or_keys, graph_w_ornodes) = add_ornodes pairs_to_mk_ornodes graph                       : keys * abduction_graph;
+      val graph_w_edges                  = add_edges_from_andnodes_to_ornodes [and_key] graph_w_ornodes: abduction_graph;
     in
       graph_w_edges
     end

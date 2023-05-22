@@ -19,9 +19,9 @@ val lookup: term_refute_table -> term -> bool;
 
 val insert: term * bool -> term_refute_table -> term_refute_table;
 
-val are_refuted: Proof.state -> terms -> bool;
-
 val is_refuted: Proof.state -> term -> bool;
+
+val any_of_these_is_refuted: Proof.state -> terms -> bool;
 
 end;
 
@@ -54,19 +54,6 @@ fun update_refutation_table (pairs: (term * bool) list) (old_tb:term_refute_tabl
 fun update_synched_refutation_table (pairs: (term * bool) list) =
   Synchronized.change refutation_table (update_refutation_table pairs): unit;
 
-fun are_refuted (pst:Proof.state) (cnjctrs:terms) =
-  let
-    val old_table = Synchronized.value refutation_table: term_refute_table;
-    val cnjctrs_not_checked = filter_out (defined old_table) cnjctrs: terms;
-    fun quickcheck (cnjctr:term) = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr): (term * bool);
-    val newly_checked_results = map quickcheck cnjctrs_not_checked: (term * bool) list;
-    val _ = update_synched_refutation_table newly_checked_results: unit;
-    val new_table = Synchronized.value refutation_table: term_refute_table;
-    val result = exists (lookup new_table) cnjctrs: bool;
-  in
-    result
-  end;
-
 fun update_synched_refutation_table (pair: (term * bool)) =
   Synchronized.change refutation_table (insert pair): unit;
 
@@ -82,5 +69,8 @@ fun is_refuted (pst:Proof.state) (cnjctr:term) =
   in
     result
   end;
+
+fun any_of_these_is_refuted (pst:Proof.state) (terms:terms) =
+  exists (is_refuted pst) terms;
 
 end;

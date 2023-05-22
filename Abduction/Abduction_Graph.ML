@@ -45,7 +45,6 @@ val is_or2and_edge: key -> bool;
 
 (* query on abduction_node for ornode and andnode *)
 val is_proved_completely                         : abduction_graph -> key -> bool;
-val is_refuted                                   : abduction_graph -> key -> bool;
 
 (* query on abduction_node for ornode *)
 val is_final_goal                                : abduction_graph -> key -> bool;
@@ -66,7 +65,7 @@ val is_worth_proving                             : Proof.context -> abduction_gr
 (*TODO: it is a little strange that we have proof_of and or2and_edge_to_proof separately.*)
 val get_final_goal_term                          : abduction_graph -> term;
 val get_final_goal_key                           : abduction_graph -> key;
-val keys_tobe_expanded_in                        : Proof.context -> abduction_graph -> keys;
+val orkeys_tobe_expanded_in                      : Proof.context -> abduction_graph -> keys;
 
 val goal_as_string                               : Proof.state -> key -> string;
 
@@ -145,8 +144,7 @@ fun mk_andnode (goals:terms) =
     (And_N, goals): key,
      Abduction_Node.And_Node {
       subgoals          = goals,
-      proved_completely = false,
-      refuted           = false
+      proved_completely = false
    });
 
 (* key to term *)
@@ -182,10 +180,6 @@ fun is_or2and_edge (O2A_E _, _) = true
 (* is_proved_completely *)
 fun is_proved_completely (graph:abduction_graph) (key:key): bool =
   PGraph.get_node graph key |> Abduction_Node.is_proved_completely;
-
-(* is_refuted *)
-fun is_refuted (graph:abduction_graph) (key:key): bool =
-  PGraph.get_node graph key |> Abduction_Node.is_refuted;
 
 (* lemma_name_of *)
 fun lemma_name_of (graph:abduction_graph) (key:key) =
@@ -278,19 +272,17 @@ fun goal_as_string (pst:Proof.state) ((Or_N, [term]):key) = Isabelle_Utils.trm_t
   | goal_as_string (pst:Proof.state) ((And_N, terms):key) = map (Isabelle_Utils.trm_to_string (Proof.context_of pst)) terms |> String.concatWith "\n"
   | goal_as_string _ _ = error "goal_as_string in Proof_Graph.ML failed"
 
-(* keys_tobe_expanded_in *)
-fun keys_tobe_expanded_in (ctxt:Proof.context) (graph:abduction_graph): keys =
+(* orkeys_tobe_expanded_in *)
+fun orkeys_tobe_expanded_in (ctxt:Proof.context) (graph:abduction_graph): keys =
   let
-    val or_keys                        = PGraph.keys graph |> filter is_ornode          : keys;
-    val orleaf_keys                    = filter_out (is_branch graph) or_keys           : keys
+    val or_keys                        = PGraph.keys graph |> filter is_ornode           : keys;
+    val orleaf_keys                    = filter_out (is_branch graph) or_keys            : keys
     val keys_worth_trying              = filter (is_worth_proving ctxt graph) orleaf_keys: keys;
     val final_goal_key                 = get_final_goal_key graph                        : key;
-    val keys_reachable_from_final_goal = PGraph.all_succs graph [final_goal_key]        : keys;
+    val keys_reachable_from_final_goal = PGraph.all_succs graph [final_goal_key]         : keys;
     val _                              = tracing ("Number of keys_reachable_from_final_goal: " ^ Int.toString (length keys_reachable_from_final_goal));
-    val _ = map (print_key ctxt) keys_reachable_from_final_goal
-    val result = inter equal_keys keys_worth_trying keys_reachable_from_final_goal;
-    val _                              = tracing ("Number of keys_reachable_from_final_goal after removing dups: " ^ Int.toString (length result));
-    val _ = map (print_key ctxt) result
+    (*val _ = map (print_key ctxt) keys_reachable_from_final_goal*)
+    val result                         = inter equal_keys keys_worth_trying keys_reachable_from_final_goal;
   in
     result
   end;
