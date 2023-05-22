@@ -325,7 +325,7 @@ fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph
     let
       val lemma_name            = lemma_name_of graph or_key                                                : string;
       val pst_to_prove          = mk_pst_to_prove_from_key pst or_key                                       : Proof.state;
-      val timeouts              = {overall = 30.0, hammer = 5.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
+      val timeouts              = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
       val maybe_result          = TBC_Utils.pst_to_proofscript_opt timeouts "Attack_On_Or_Node" pst_to_prove: (string * Proof.state) option;
       val cheated_pst           = TBC_Utils.cheat_lemma_term_in_pst lemma_name lemma_term pst
       fun mk_result (script, _) = Option.map (rpair script) cheated_pst;

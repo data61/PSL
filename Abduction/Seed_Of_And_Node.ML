@@ -68,8 +68,9 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
     val script_n_psts = map (apfst Dynamic_Utils.mk_apply_script) result_list              : (string * Proof.state) list;
     fun mk_proof_key_value (pscript, pst) =
         let
-          val subgs = Isabelle_Utils.pst_to_subgs pst
-          val subgs_wo_meta_uni = map strip_outermost_meta_quantifiers subgs: terms;
+          val subgs              = Isabelle_Utils.pst_to_subgs pst
+          val subgs_wo_meta_uni  = map strip_outermost_meta_quantifiers subgs: terms;
+          val standardized_subgs = map Top_Down_Util.standardize_vnames subgs_wo_meta_uni: terms;
           fun check_print_read ctxt term = term
            |> Syntax.check_term ctxt
            |> Isabelle_Utils.trm_to_string ctxt
@@ -80,9 +81,9 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
           fun pass_check_print_read_terms ctxt terms = try (check_print_read_terms ctxt) terms |> is_some;
   
           val nonempty_subgs =
-            if length subgs = 0 orelse not (pass_check_print_read_terms ctxt subgs_wo_meta_uni)
+            if length subgs = 0 orelse not (pass_check_print_read_terms ctxt standardized_subgs)
             then [@{prop "True"}]
-            else subgs_wo_meta_uni: terms;
+            else standardized_subgs: terms;
   
           val key   = (And_N, nonempty_subgs): key;
           val value = Abduction_Node.And_Node
@@ -95,6 +96,25 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
     map mk_proof_key_value script_n_psts: seeds_of_andnode
   end;
 
+(* cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals *)
+(*This cuts the edge that connects or2and_edge_key and andnode.*)
+fun cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals
+  (andnode_key: key) (or2and_edge_key:key) (graph:abduction_graph): abduction_graph =
+  (* If connecting the labelled-edge and and-node would make the graph cyclic, *)
+  (* we should not have added an edge between the labelled-edge and and-node.  *)
+  if PGraph.is_edge graph (andnode_key, or2and_edge_key)
+  then
+    let
+      val and_keys = PGraph.immediate_succs graph or2and_edge_key: keys;
+      val _        = if length and_keys = 1 then () else error "cut_edge_from_andnode_to_ornode_if_no_parental_ornode_can_be_proved_assmng_subgoals failed. Zero or more than one and_keys.";
+      val and_key  = hd and_keys: key;
+    in
+      if   ornode_proved_assmng_andnodes graph or2and_edge_key
+      then graph
+      else PGraph.del_edge (or2and_edge_key, and_key) graph
+    end
+  else graph;
+
 (* add_or2and_edge *)
 fun add_or2and_edge
      (or_key as (Or_N, [ornode_term]):key)(*parent node*)
@@ -104,13 +124,11 @@ fun add_or2and_edge
    (graph:abduction_graph): abduction_graph =
    let
      val _ = tracing "start add_or2and";
-     val or_leave_keys = PGraph.immediate_succs graph andnode_key: keys;(*these or_leave_keys are gg_children of or_key*)
-     (*TODO: move it to Proof_Graph.ML*)
-
      fun mk_name_term_pair (orleaf_key:key) = (lemma_name_of graph orleaf_key, orkey_to_term orleaf_key): (string * term);
+     val or_leave_keys        = PGraph.immediate_succs graph andnode_key                                : keys;(*these or_leave_keys are gg_children of or_key*)
      val name_term_pairs      = map mk_name_term_pair or_leave_keys                                     : (string * term) list;
-     val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME:*)
-     val timeouts             = {overall = 30.0, hammer = 5.0, quickcheck = 1.0, nitpick = 2.0}         : TBC_Utils.timeouts;
+     val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME: how?*)
+     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}        : TBC_Utils.timeouts;
 
      (*very expensive*)
      val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst: string option;
@@ -123,37 +141,18 @@ fun add_or2and_edge
             script_opt_gen
           else
             Option.map mk_script_opt_for_tactic script_opt_gen;
-     (*TODO: or2and_edge_val is a function on abduction_node. It should be encapsulated in Proof_Node.ML.*)
      val or2and_edge_val     = Abduction_Node.Or_To_And {
                                  how_to_get_andnodes_from_ornode = proof,
                                  proof_of_ornode_assmng_andnodes = script_opt}: abduction_node;
      val or2and_edge_key     = ((O2A_E (serial())), []): key;
 
      (* updating abduction_graph *)
-     (* TODO: These 3 functions should be executed atomically with Mutex.*)
-     val graph_w_or2and_edge = PGraph.new_node (or2and_edge_key, or2and_edge_val) graph: abduction_graph;
-     val graph_w_or2and_edge_connected = graph_w_or2and_edge
-                                      |> Update_Abduction_Graph.add_edge_acyclic_if_possible or_key or2and_edge_key
-                                      |> Update_Abduction_Graph.add_edge_acyclic_if_possible or2and_edge_key andnode_key: abduction_graph;
-     (*This cuts the edge that connects or2and_edge_key and andnode.*)
-     fun cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals (or2and_edge_key:key) (graph:abduction_graph): abduction_graph =
-       (* If connecting the labelled-edge and and-node would make the graph cyclic, *)
-       (* we should not have added an edge between the labelled-edge and and-node.  *)
-       if PGraph.is_edge graph (andnode_key, or2and_edge_key)
-       then
-         let
-           val and_keys = PGraph.immediate_succs graph or2and_edge_key: keys;
-           val _        = if length and_keys = 1 then () else error "cut_edge_from_andnode_to_ornode_if_no_parental_ornode_can_be_proved_assmng_subgoals failed. Zero or more than one and_keys.";
-           val and_key  = hd and_keys: key;
-           val parental_ornode_can_be_proved_assmng_subgoals = ornode_proved_assmng_andnodes graph or2and_edge_key: bool;
-         in
-           if parental_ornode_can_be_proved_assmng_subgoals
-           then graph
-           else PGraph.del_edge (or2and_edge_key, and_key) graph
-         end
-       else graph;
+     val graph_w_or2and_edge_connected = graph
+      |> PGraph.new_node (or2and_edge_key, or2and_edge_val)
+      |> Update_Abduction_Graph.add_edge_acyclic_if_possible or_key or2and_edge_key
+      |> Update_Abduction_Graph.add_edge_acyclic_if_possible or2and_edge_key andnode_key: abduction_graph;
 
-     val result = cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals or2and_edge_key graph_w_or2and_edge_connected;
+     val result = cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals andnode_key or2and_edge_key graph_w_or2and_edge_connected;
    in
      if is_some script_opt then result else graph
    end
@@ -192,8 +191,8 @@ fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (ag:abduction_gra
           exists (has_counter_example_in_prems pst) terms: bool;
     in
       trms_empty orelse too_large () orelse
-      (eq_to_final_goal () andalso seed_is_from_tactic seed) orelse
-      (concl_is_eq_to_final_goal () andalso seed_is_from_tactic seed) orelse
+      eq_to_final_goal () andalso seed_is_from_tactic seed orelse
+      concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*) orelse
       has_func_with_three_occs_in_a_row () orelse
       terms_have_counter_example_in_prems pst trms(*TODO: cache the results of quickcheck.*)
     end;

@@ -74,8 +74,9 @@ fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abduct
           (*conjecturing*)
           val seeds_from_conjectures  = All_Top_Down_Conjecturing.top_down_conjectures (Proof.context_of pst) lemma_term
                                      |> map snd (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
-                                     |> SOAN.conjectures_to_seeds_of_andnode (pst, pst_to_prove): seeds_of_andnode;
-          val filtered_seeds          = SOAN.filter_out_bad_seeds_of_andnode lemma_term pst graph (seeds_from_conjectures @ seeds_from_tactics): seeds_of_andnode;
+                                     |> SOAN.conjectures_to_seeds_of_andnode (pst, pst_to_prove)                           : seeds_of_andnode;
+          val all_seeds               = seeds_from_conjectures @ seeds_from_tactics                                        : seeds_of_andnode;
+          val filtered_seeds          = SOAN.filter_out_bad_seeds_of_andnode lemma_term pst graph all_seeds                : seeds_of_andnode;
           val seeds_wo_counterexample = filter_out (Seed_Of_And_Node.seed_of_andnode_has_counterexample pst) filtered_seeds: seeds_of_andnode;
         in
           (*seeds_to_updated_graph is very expensive*)
@@ -112,7 +113,8 @@ fun loop (counter:int) (pst:state, graph: abduction_graph) =
 (* proof_by_abduction *)
 fun proof_by_abduction (pst:state) (term:(*normal*)term) =
     let
-      val initial_graph            = mk_initial_graph term;
+      val standardized_term        = Top_Down_Util.standardize_vnames term;
+      val initial_graph            = mk_initial_graph standardized_term;
       val (final_pst, final_graph) = loop 0 (pst, initial_graph);
     in
       print_proof_of_graph final_pst final_graph
