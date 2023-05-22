@@ -54,20 +54,12 @@ type ornodes = ornode list;
 
 (* is_worth_proving *)
 fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
-((*
- tracing "@@ In is_worth_proving";
- tracing ("  " ^ Isabelle_Utils.trm_to_string ctxt (#lemma_term ornode));
- if is_none (#proof ornode) then tracing "  TRUE: has no proof" else tracing "  has a proof";
- if #gg_parent_not_finished ornode then tracing "  TRUE: gg_parent_not_finished" else tracing "  gg_parent_finished";
- if not (#refuted ornode) then tracing "  TRUE: not refuted" else tracing "  refuted";
- *)
-
     (*TODO: I don't think type checking should happen here. But much earlier.*)
     is_some (try (Syntax.check_term ctxt) (#lemma_term ornode))
   andalso
     #gg_parent_not_finished ornode
   andalso
-    is_none (#proof ornode));
+    is_none (#proof ornode);
 
 (* creation of ornode *)
 type is_final_goal = bool;

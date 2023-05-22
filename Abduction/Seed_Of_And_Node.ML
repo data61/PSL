@@ -109,7 +109,7 @@ fun cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals
       val _        = if length and_keys = 1 then () else error "cut_edge_from_andnode_to_ornode_if_no_parental_ornode_can_be_proved_assmng_subgoals failed. Zero or more than one and_keys.";
       val and_key  = hd and_keys: key;
     in
-      if   ornode_proved_assmng_andnodes graph or2and_edge_key
+    if   ornode_proved_assmng_andnodes graph or2and_edge_key
       then graph
       else PGraph.del_edge (or2and_edge_key, and_key) graph
     end
