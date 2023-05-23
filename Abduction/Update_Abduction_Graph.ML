@@ -165,8 +165,9 @@ fun update_after_proving_ornode (proof:string) (or_key as (Or_N, _): key) (ctxt:
   let
     val updated1 = update_proof_n_proof_id proof or_key g;
     val updated2 = update_proved_wo_assmng_cnjctr or_key updated1;
+    val updated3 = update_gg_parent_not_finished updated2
   in
-    updated2: abduction_graph
+    updated3: abduction_graph
   end
  | update_after_proving_ornode _ _ _ _ = error "update_after_proving_ornode failed. Not an or-node key."
 

@@ -52,7 +52,7 @@ fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.sta
     val proved_child_ornodes                = filter (is_proved_completely graph_w_ornodes_n_or2add_edges) child_ornode_keys         : keys;
     val result                              = fold update_proved_wo_assmng_cnjctr proved_child_ornodes graph_w_ornodes_n_or2add_edges: abduction_graph;
   in
-    result: abduction_graph 
+    result: abduction_graph
   end;
 
 (* work_on_ornode *)
@@ -108,11 +108,11 @@ fun loop (counter:int) (pst:state, graph: abduction_graph) =
         val _ = tracing "They are:"
         val _ = map (print_key ctxt) orkeys_worth_expanding
         val (new_pst, graph_w_keys_expanded)      = fold work_on_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
-        val graph_gg_parent_not_finished_updated  = update_gg_parent_not_finished graph_w_keys_expanded                                  : abduction_graph;
+(*        val graph_w_keys_expanded  = update_gg_parent_not_finished graph_w_keys_expanded                                  : abduction_graph;*)
         val solved                                = final_goal_proved_completely graph_w_keys_expanded: bool;
         val _                                     = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")
       in
-        (if solved then K I else loop) (counter + 1) (new_pst, graph_gg_parent_not_finished_updated)
+        (if solved then K I else loop) (counter + 1) (new_pst, graph_w_keys_expanded)
       end
     else
       (pst, graph);
