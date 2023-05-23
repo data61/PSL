@@ -38,15 +38,21 @@ type seeds_of_andnode = seed_of_andnode list;
 
 fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.state) (graph:abduction_graph): abduction_graph =
   let
-    val pairs_to_mk_andnodes                 = map (fn {andnode_key, value,...} => (andnode_key, value)) seeds                 : (key * abduction_node) list;
-    val graph_w_ornode_is_now_branch         = update_branch or_key graph                                                      : abduction_graph;
-    val (new_andnds_keys, graph_w_andnodes)  = add_andnodes pairs_to_mk_andnodes graph_w_ornode_is_now_branch                  : (keys * abduction_graph);
-    val graph_w_ornodes(*expensive*)         = fold (process_andkey_and_add_child_ornodes pst) new_andnds_keys graph_w_andnodes: abduction_graph;
-    val seeds_of_newly_added_andnodes        = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds : seeds_of_andnode;
+    val pairs_to_mk_andnodes                = map (fn {andnode_key, value,...} => (andnode_key, value)) seeds                 : (key * abduction_node) list;
+    val graph_w_ornode_is_now_branch        = update_is_branch or_key graph                                                   : abduction_graph;
+    val (new_andnds_keys, graph_w_andnodes) = add_andnodes pairs_to_mk_andnodes graph_w_ornode_is_now_branch                  : (keys * abduction_graph);
+    val graph_w_ornodes(*expensive*)        = fold (add_child_ornodes_for_this_andnode pst) new_andnds_keys graph_w_andnodes  : abduction_graph;
+    val seeds_of_newly_added_andnodes       = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds : seeds_of_andnode;
     (*add_or2and_edge is very expensive*)
-    val graph_w_ornodes_n_or2add_edges       = fold (SOAN.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes: abduction_graph;
+    val graph_w_ornodes_n_or2add_edges      = fold (SOAN.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes: abduction_graph;
+
+    (*If and_nodes are already proved_completely, we should propagate this information to upper nodes.*)
+    val child_ornode_terms                  = map andkey_to_terms new_andnds_keys |> flat                                            : terms;
+    val child_ornode_keys                   = map (fn term => (Or_N, single term)) child_ornode_terms                                : keys;
+    val proved_child_ornodes                = filter (is_proved_completely graph_w_ornodes_n_or2add_edges) child_ornode_keys         : keys;
+    val result                              = fold update_proved_wo_assmng_cnjctr proved_child_ornodes graph_w_ornodes_n_or2add_edges: abduction_graph;
   in
-    graph_w_ornodes_n_or2add_edges: abduction_graph
+    result: abduction_graph 
   end;
 
 (* work_on_ornode *)
@@ -101,11 +107,12 @@ fun loop (counter:int) (pst:state, graph: abduction_graph) =
         val _ = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
         val _ = tracing "They are:"
         val _ = map (print_key ctxt) orkeys_worth_expanding
-        val (new_pst, graph_w_keys_expanded) = fold work_on_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
-        val solved                     = final_goal_proved_completely graph_w_keys_expanded: bool;
-        val _                          = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")
+        val (new_pst, graph_w_keys_expanded)      = fold work_on_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
+        val graph_gg_parent_not_finished_updated  = update_gg_parent_not_finished graph_w_keys_expanded                                  : abduction_graph;
+        val solved                                = final_goal_proved_completely graph_w_keys_expanded: bool;
+        val _                                     = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")
       in
-        (if solved then K I else loop) (counter + 1) (new_pst, graph_w_keys_expanded)
+        (if solved then K I else loop) (counter + 1) (new_pst, graph_gg_parent_not_finished_updated)
       end
     else
       (pst, graph);

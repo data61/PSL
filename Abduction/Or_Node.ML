@@ -25,7 +25,7 @@ val mk_ornode: is_final_goal -> term -> ornode;
 val update_gg_parent_not_finished: ornode -> bool -> ornode;
 val update_proved_completely     : ornode -> ornode;
 val update_proof_n_proof_id      : string -> ornode -> ornode;
-val update_branch                : ornode -> ornode;
+val update_is_branch             : ornode -> ornode;
 
 end;
 
@@ -37,7 +37,7 @@ struct
 (* ornode and ornodes *)
 type ornode = {
   final_goal                      : bool,
-  branch                          : bool,
+  is_branch                       : bool,
   lemma_name                      : string,
   lemma_term                      : term,(*For now we ignore "assumes" and "using".*)
   proof                           : string option,(*Proof script to finish proving this node.*)
@@ -69,7 +69,7 @@ fun mk_ornode (is_final_goal:is_final_goal) (goal:term) =
     val name = (if is_final_goal then "original_goal_" else "top_down_lemma_") ^ serial_string ();
   in
    {final_goal             = is_final_goal,
-    branch                 = false,
+    is_branch              = false,
     lemma_name             = name,
     lemma_term             = goal,
     proof                  = NONE,
@@ -90,7 +90,7 @@ fun mk_ornode (is_final_goal:is_final_goal) (goal:term) =
  *)
 fun update_gg_parent_not_finished ({
   final_goal       : bool,
-  branch           : bool,
+  is_branch        : bool,
   lemma_name       : string,
   lemma_term       : term,
   proof            : string option,
@@ -99,7 +99,7 @@ fun update_gg_parent_not_finished ({
 }: ornode) (gg_parent_not_finished: bool) =
 {
   final_goal             = final_goal,
-  branch                 = branch,
+  is_branch              = is_branch,
   lemma_name             = lemma_name,
   lemma_term             = lemma_term,
   proof                  = proof,
@@ -111,7 +111,7 @@ fun update_gg_parent_not_finished ({
 (* update_proved_completely *)
 fun update_proved_completely ({
   final_goal            : bool,
-  branch                : bool,
+  is_branch             : bool,
   lemma_name            : string,
   lemma_term            : term,
   proof                 : string option,
@@ -120,7 +120,7 @@ fun update_proved_completely ({
 }: ornode) =
 {
   final_goal            = final_goal,
-  branch                = branch,
+  is_branch             = is_branch,
   lemma_name            = lemma_name,
   lemma_term            = lemma_term,
   proof                 = proof,     
@@ -132,7 +132,7 @@ fun update_proved_completely ({
 (* update_proof_n_proof_id *)
 fun update_proof_n_proof_id (proof:string) ({
   final_goal            : bool,
-  branch                : bool,
+  is_branch             : bool,
   lemma_name            : string,
   lemma_term            : term,
   proved_completely     : bool,
@@ -140,7 +140,7 @@ fun update_proof_n_proof_id (proof:string) ({
 }: ornode)  =
 {
   final_goal             = final_goal,
-  branch                 = branch,
+  is_branch              = is_branch,
   lemma_name             = lemma_name,
   lemma_term             = lemma_term,
   proof                  = SOME proof,
@@ -153,7 +153,7 @@ fun update_proof_n_proof_id (proof:string) ({
 
 
 (* update_branch *)
-fun update_branch ({
+fun update_is_branch ({
   final_goal            : bool,
   lemma_name            : string,
   lemma_term            : term,
@@ -164,7 +164,7 @@ fun update_branch ({
 }: ornode) =
 {
   final_goal             = final_goal,
-  branch                 = true,
+  is_branch              = true,
   lemma_name             = lemma_name,
   lemma_term             = lemma_term,
   proof                  = proof,

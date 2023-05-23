@@ -96,7 +96,7 @@ fun proof_of (Or_Node or_nd) = #proof or_nd
   | proof_of  _              = error "proof_of failed. This is not Or_Node."
 
 (* is_branch *)
-fun is_branch (Or_Node or_nd) = #branch or_nd
+fun is_branch (Or_Node or_nd) = #is_branch or_nd
   | is_branch _ = error "is_branch failed. This is not Or_Node."
 
 (* is_final_goal *)

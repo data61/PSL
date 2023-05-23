@@ -109,7 +109,7 @@ fun cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals
       val _        = if length and_keys = 1 then () else error "cut_edge_from_andnode_to_ornode_if_no_parental_ornode_can_be_proved_assmng_subgoals failed. Zero or more than one and_keys.";
       val and_key  = hd and_keys: key;
     in
-    if   ornode_proved_assmng_andnodes graph or2and_edge_key
+      if   ornode_proved_assmng_andnodes graph or2and_edge_key
       then graph
       else PGraph.del_edge (or2and_edge_key, and_key) graph
     end
@@ -127,7 +127,7 @@ fun add_or2and_edge
      fun mk_name_term_pair (orleaf_key:key) = (lemma_name_of graph orleaf_key, orkey_to_term orleaf_key): (string * term);
      val or_leave_keys        = PGraph.immediate_succs graph andnode_key                                : keys;(*these or_leave_keys are gg_children of or_key*)
      val name_term_pairs      = map mk_name_term_pair or_leave_keys                                     : (string * term) list;
-     val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME: how?*)
+     val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME: how? Proof.assume?*)
      val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}        : TBC_Utils.timeouts;
 
      (*very expensive*)
@@ -194,7 +194,7 @@ fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (ag:abduction_gra
       eq_to_final_goal () andalso seed_is_from_tactic seed orelse
       concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*) orelse
       has_func_with_three_occs_in_a_row () orelse
-      terms_have_counter_example_in_prems pst trms(*TODO: cache the results of quickcheck.*)
+      terms_have_counter_example_in_prems pst trms
     end;
 
 fun filter_out_bad_seeds_of_andnode (parent_or:term) (pst:Proof.state) (graph:abduction_graph) (seeds:seeds_of_andnode) =

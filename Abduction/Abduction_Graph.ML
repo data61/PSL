@@ -32,7 +32,8 @@ val mk_ornode:  is_final_goal -> term -> (key * abduction_node);
 val mk_andnode: terms -> (key * abduction_node);
 
 (* key to term *)
-val orkey_to_term: key -> term;
+val orkey_to_term  : key -> term;
+val andkey_to_terms: key -> terms;
 
 (* initialization *)
 val mk_initial_graph                              : term -> abduction_graph; (*TODO: Is there any reason to expose this function?*)
@@ -150,6 +151,10 @@ fun mk_andnode (goals:terms) =
 (* key to term *)
 fun orkey_to_term (Or_N, [orleaf_term]) = orleaf_term
   | orkey_to_term  _                    = error "orkey_to_term failed.";
+
+fun andkey_to_terms (And_N, terms) = terms
+  | andkey_to_terms  _             = error "andkey_to_terms failed.";
+
 
 (* mk_initial_graph *)
 fun mk_initial_graph (goal:term) =
