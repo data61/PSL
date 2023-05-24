@@ -123,7 +123,25 @@ Synchronized.guarded_access;
 Par_List.map;
 
 fun prems (term:term) = Logic.strip_imp_prems;
-TBC_Utils.term_has_counterexample_in_pst
+TBC_Utils.term_has_counterexample_in_pst;
+
+val asdf = Token.unparse;
+
+val asdf2 = Token.explode;
+val asdf3 = String.isPrefix  "asd" "asdf";
+
+fun get_topdown_lemma_names_from_sledgehammer_output (pst:Proof.state) (sh_output:string) =
+  let
+    val thy           = Proof.theory_of pst         : theory;
+    val keywords      = Thy_Header.get_keywords thy : Keyword.keywords;
+    val tokens        = Token.explode keywords Position.none sh_output;
+    val strings       = map Token.unparse tokens: strings;
+    val filtered      = filter (String.isPrefix "top_down_lemma_") strings: strings;
+in
+    filtered
+end;
+
+
 \<close>
 
 end

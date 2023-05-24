@@ -127,7 +127,7 @@ fun add_or2and_edge
      fun mk_name_term_pair (orleaf_key:key) = (lemma_name_of graph orleaf_key, orkey_to_term orleaf_key): (string * term);
      val or_leave_keys        = PGraph.immediate_succs graph andnode_key                                : keys;(*these or_leave_keys are gg_children of or_key*)
      val name_term_pairs      = map mk_name_term_pair or_leave_keys                                     : (string * term) list;
-     val pst_w_or_terms_assmd = Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) state: Proof.state;(*TODO: FIXME: how? Proof.assume?*)
+     val pst_w_or_terms_assmd = Top_Down_Util.assume_cnjctrs_in_pst name_term_pairs state               : Proof.state;
      val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}        : TBC_Utils.timeouts;
 
      (*very expensive*)

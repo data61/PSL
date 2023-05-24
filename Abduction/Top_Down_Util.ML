@@ -30,6 +30,8 @@ val get_fresh_free_vars_of_typ_in_trm: Proof.context -> typ -> term -> int -> te
 val is_prop                          : term -> bool;
 val mk_pst_to_prove_from_term        : Proof.context -> term -> Proof.state;
 val mk_unbound_bound_vars_free_vars  : Proof.context -> term -> term;
+val get_lemma_names_from_sh_output   : theory -> string -> strings;
+val assume_cnjctrs_in_pst            : (string * term) list -> Proof.state -> Proof.state;
 
 end;
 
@@ -201,5 +203,19 @@ fun mk_unbound_bound_vars_free_vars (ctxt:Proof.context) (trm:term) =
   in
     result: term
   end;
+
+fun get_lemma_names_from_sh_output (thy:theory) (sh_output:string) =
+  let
+    val keywords      = Thy_Header.get_keywords thy                       : Keyword.keywords;
+    val tokens        = Token.explode keywords Position.none sh_output    : Token.T list;
+    val strings       = map Token.unparse tokens                          : strings;
+    val filtered      = filter (String.isPrefix "top_down_lemma_") strings: strings;
+in
+    filtered
+end;
+
+(*TODO: FIXME: how? Proof.assume?*)
+fun assume_cnjctrs_in_pst (name_term_pairs: (string * term) list) (pst:Proof.state): Proof.state =
+  Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) pst;
 
 end;
