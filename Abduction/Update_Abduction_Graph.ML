@@ -207,6 +207,9 @@ fun add_edges_from_andnode_to_ornodes (and_key as (And_N, terms):key) (graph_w_c
  | add_edges_from_andnode_to_ornodes _ _ = error "add_edges_from_andnode_to_ornodes failed.";
 
 (* add_edges_from_andnodes_to_ornodes *)
+(*TODO: no need to take a list of and_keys. It is always an and_key.*)
+(*TODO: throw an error if the key is not a key for an and_node.*)
+(*TODO: We actually do not need this function because we already have add_edges_from_andnode_to_ornodes.*)
 fun add_edges_from_andnodes_to_ornodes (and_keys:keys) (graph_w_child_ornodes:abduction_graph) =
     fold add_edges_from_andnode_to_ornodes and_keys graph_w_child_ornodes:abduction_graph;
 

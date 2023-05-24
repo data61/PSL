@@ -96,13 +96,12 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
     map mk_proof_key_value script_n_psts: seeds_of_andnode
   end;
 
-(* cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals *)
 (*This cuts the edge that connects or2and_edge_key and andnode.*)
 fun cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals
   (andnode_key: key) (or2and_edge_key:key) (graph:abduction_graph): abduction_graph =
   (* If connecting the labelled-edge and and-node would make the graph cyclic, *)
   (* we should not have added an edge between the labelled-edge and and-node.  *)
-  if PGraph.is_edge graph (andnode_key, or2and_edge_key)
+  if PGraph.is_edge graph (or2and_edge_key, andnode_key)
   then
     let
       val and_keys = PGraph.immediate_succs graph or2and_edge_key: keys;
@@ -116,6 +115,7 @@ fun cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals
   else graph;
 
 (* add_or2and_edge *)
+(*TODO: rename this function to emphasize that it also cuts edges to and-nodes (and or-nodes).*)
 fun add_or2and_edge
      (or_key as (Or_N, [ornode_term]):key)(*parent node*)
      ({andnode_key: key,
@@ -153,6 +153,7 @@ fun add_or2and_edge
       |> Update_Abduction_Graph.add_edge_acyclic_if_possible or2and_edge_key andnode_key: abduction_graph;
 
      val result = cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals andnode_key or2and_edge_key graph_w_or2and_edge_connected;
+    (*TODO: cut edges from and-nodes to or-nodes if their parental and-nodes are not used.*)
    in
      if is_some script_opt then result else graph
    end
@@ -212,11 +213,12 @@ fun conjectures_to_seed_of_andnode (pst:Proof.state) (cnjctr:term): seed_of_andn
 
 fun conjectures_to_seeds_of_andnode (pst:Proof.state, pst_to_prove_ornode:Proof.state) (cnjctrs:terms) =
   let
+    (*TODO: Why do we need two Proof.states?*)
     val ctxt                      = Proof.context_of pst                                               : Proof.context;
     fun get_ctxt_w_proof_goal trm = Proof.context_of (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm): Proof.context;
     fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm            : term option;
-    val checked_cnjctrs = List.mapPartial check_prop cnjctrs
-    val result          = map (fn trm => conjectures_to_seed_of_andnode pst_to_prove_ornode trm) checked_cnjctrs
+    val checked_cnjctrs           = List.mapPartial check_prop cnjctrs
+    val result                    = map (fn trm => conjectures_to_seed_of_andnode pst_to_prove_ornode trm) checked_cnjctrs
   in
     result
   end;
