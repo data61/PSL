@@ -36,24 +36,31 @@ structure SOAN = Seed_Of_And_Node;
 type seed_of_andnode  = SOAN.seed_of_andnode;
 type seeds_of_andnode = seed_of_andnode list;
 
-fun seeds_to_updated_graph (or_key:key) (seeds: seeds_of_andnode) (pst:Proof.state) (graph:abduction_graph): abduction_graph =
+fun seed_to_updated_graph (parent_ornd:key) (pst:Proof.state) (seed: seed_of_andnode) (graph:abduction_graph): abduction_graph =
   let
-    val pairs_to_mk_andnodes                = map (fn {andnode_key, value,...} => (andnode_key, value)) seeds                 : (key * abduction_node) list;
-    val graph_w_ornode_is_now_branch        = update_is_branch or_key graph                                                   : abduction_graph;
-    val (new_andnds_keys, graph_w_andnodes) = add_andnodes pairs_to_mk_andnodes graph_w_ornode_is_now_branch                  : (keys * abduction_graph);
-    val graph_w_ornodes(*expensive*)        = fold (add_child_ornodes_for_this_andnode pst) new_andnds_keys graph_w_andnodes  : abduction_graph;
-    val seeds_of_newly_added_andnodes       = filter (fn seed => member equal_keys new_andnds_keys (#andnode_key seed)) seeds : seeds_of_andnode;
-    (*add_or2and_edge is very expensive*)
-    val graph_w_ornodes_n_or2add_edges      = fold (SOAN.add_or2and_edge or_key) seeds_of_newly_added_andnodes graph_w_ornodes: abduction_graph;
-
+    val pair_to_mk_andnode                  = (#andnode_key seed, #value seed)                                       : (key * abduction_node);
+    val graph_w_ornode_is_now_branch        = update_is_branch parent_ornd graph                                     : abduction_graph;
+    val ([new_andnd_key], graph_w_andnodes) = add_andnode pair_to_mk_andnode graph_w_ornode_is_now_branch            : (keys * abduction_graph);
+    val graph_w_ornodes(*expensive*)        = add_child_ornodes_for_this_andnode pst new_andnd_key graph_w_andnodes  : abduction_graph;
+    val graph_w_and2or_edges                = add_edges_from_andnode_to_ornodes new_andnd_key graph_w_ornodes        : abduction_graph;
+    val graph_w_ornodes_n_or2add_edges      = SOAN.add_or2and_edge parent_ornd seed graph_w_and2or_edges(*very expensive*): abduction_graph;
     (*If and_nodes are already proved_completely, we should propagate this information to upper nodes.*)
-    val child_ornode_terms                  = map andkey_to_terms new_andnds_keys |> flat                                            : terms;
-    val child_ornode_keys                   = map (fn term => (Or_N, single term)) child_ornode_terms                                : keys;
-    val proved_child_ornodes                = filter (is_proved_completely graph_w_ornodes_n_or2add_edges) child_ornode_keys         : keys;
-    val result                              = fold update_proved_wo_assmng_cnjctr proved_child_ornodes graph_w_ornodes_n_or2add_edges: abduction_graph;
+    (*TODO: cut some and2or edges depending on the proof script in or2and edges.*)
+    (*TODO: We should not use andkey_to_terms here.
+     * some and-terms in the and-node are not used to prove the parent_ornd.
+     * We should cut the and2or edges for these and-terms. *)
+    val child_ornode_terms                  = andkey_to_terms new_andnd_key                                                 : terms;
+    val child_ornode_keys                   = map (fn term => (Or_N, single term)) child_ornode_terms                       : keys;
+    val all_child_ornds_are_already_proved  = forall (is_proved_completely graph_w_ornodes_n_or2add_edges) child_ornode_keys: bool;
+    val result: abduction_graph             = if   all_child_ornds_are_already_proved
+                                              then update_proved_wo_assmng_cnjctr parent_ornd graph_w_ornodes_n_or2add_edges
+                                              else graph_w_ornodes_n_or2add_edges;
   in
     result: abduction_graph
   end;
+
+fun seeds_to_updated_graph (parent_ornd:key) (seeds: seeds_of_andnode) (pst:Proof.state) (graph:abduction_graph) =
+  fold (seed_to_updated_graph parent_ornd pst) seeds graph: abduction_graph;
 
 (* work_on_ornode *)
 fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abduction_graph): state * abduction_graph =

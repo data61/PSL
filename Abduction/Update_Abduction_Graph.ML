@@ -21,9 +21,10 @@ val update_gg_parent_not_finished     : update_abduction_graph;
 val update_is_branch                  : key -> update_abduction_graph;(*TODO: no need to expose?*)
 val update_proved_wo_assmng_cnjctr    : key -> update_abduction_graph;
 val update_after_proving_ornode       : (*proof*)string -> (*or*)key -> Proof.context -> update_abduction_graph;
-val add_andnodes                      : (key * abduction_node) list -> abduction_graph -> keys * abduction_graph;
+val add_andnode                       : (key * abduction_node) -> abduction_graph -> keys * abduction_graph;
 val add_ornodes                       : (key * abduction_node) list -> abduction_graph -> keys * abduction_graph;
 val add_edge_acyclic_if_possible      : key -> key -> update_abduction_graph;
+val add_edges_from_andnode_to_ornodes : (*or*)key -> update_abduction_graph;
 val add_child_ornodes_for_this_andnode: Proof.state -> key -> update_abduction_graph;
 
 end;
@@ -182,9 +183,9 @@ fun add_nodes (key_value_pairs: (key * abduction_node) list) (graph: abduction_g
      (newly_added_keys, resulting_graph)
     end;
 
-(* add_andnodes *)
-fun add_andnodes (key_value_pairs: (key * abduction_node) list) (graph: abduction_graph) =
-    add_nodes key_value_pairs graph "and";
+(* add_andnode *)
+fun add_andnode (key_value_pair: (key * abduction_node)) (graph: abduction_graph) =
+    add_nodes [key_value_pair] graph "and";
 
 (* add_ornodes *)
 fun add_ornodes (key_value_pairs: (key * abduction_node) list) (graph: abduction_graph) =
@@ -193,8 +194,6 @@ fun add_ornodes (key_value_pairs: (key * abduction_node) list) (graph: abduction
 (* add_edge_acyclic_if_possible *)
 fun add_edge_acyclic_if_possible source_key target_key g =
   PGraph.add_edge_acyclic (source_key, target_key) g handle PGraph.CYCLES _ => (tracing "CYCLES detected!"; g): abduction_graph;
-
-local
 
 (* add_edges_from_andnode_to_ornodes *)
 fun add_edges_from_andnode_to_ornodes (and_key as (And_N, terms):key) (graph_w_child_ornodes:abduction_graph) =
@@ -206,26 +205,14 @@ fun add_edges_from_andnode_to_ornodes (and_key as (And_N, terms):key) (graph_w_c
   end
  | add_edges_from_andnode_to_ornodes _ _ = error "add_edges_from_andnode_to_ornodes failed.";
 
-(* add_edges_from_andnodes_to_ornodes *)
-(*TODO: no need to take a list of and_keys. It is always an and_key.*)
-(*TODO: throw an error if the key is not a key for an and_node.*)
-(*TODO: We actually do not need this function because we already have add_edges_from_andnode_to_ornodes.*)
-fun add_edges_from_andnodes_to_ornodes (and_keys:keys) (graph_w_child_ornodes:abduction_graph) =
-    fold add_edges_from_andnode_to_ornodes and_keys graph_w_child_ornodes:abduction_graph;
-
-in
-
 (* add_child_ornodes_for_this_andnode *)
 fun add_child_ornodes_for_this_andnode (pst:Proof.state) (and_key as (And_N, subgoals):key) (graph:abduction_graph) =
     let
       val pairs_to_mk_ornodes  = map (mk_ornode false) subgoals                              : (key * abduction_node) list;
       val (_, graph_w_ornodes) = add_ornodes pairs_to_mk_ornodes graph                       : keys * abduction_graph;
-      val graph_w_edges        = add_edges_from_andnodes_to_ornodes [and_key] graph_w_ornodes: abduction_graph;
     in
-      graph_w_edges
+      graph_w_ornodes
     end
   | add_child_ornodes_for_this_andnode _ _ _ = error "work_on_andnode failed! Not an And_N key!";
-
-end;
 
 end;

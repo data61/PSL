@@ -142,7 +142,7 @@ fun tool_output_n_timeout_to_logtac (sh_output:string) (to:real) (state:Proof.st
       in
         if Utils.debug then (tracing1 (); tracing2 (); tracing3 (); ()) else ()
       end;
-      val _ = Basics.try;
+
     val state_w_using = Proof.using_cmd using_raw state : Proof.state;
     fun timeout f     = Utils.try_with Seq.empty (Isabelle_Utils.timeout_apply (seconds to) f)
     val tac_results   = timeout (Proof.apply checked_range) state_w_using

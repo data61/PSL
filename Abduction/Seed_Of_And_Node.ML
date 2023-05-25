@@ -97,21 +97,16 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_andnodes (pst:Proof.state) =
   end;
 
 (*This cuts the edge that connects or2and_edge_key and andnode.*)
-fun cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals
+(*TODO: move this to Abduction_Graph.ML \<rightarrow> No. Remove this.*)
+fun cut_edge_from_or2and_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals
   (andnode_key: key) (or2and_edge_key:key) (graph:abduction_graph): abduction_graph =
   (* If connecting the labelled-edge and and-node would make the graph cyclic, *)
   (* we should not have added an edge between the labelled-edge and and-node.  *)
   if PGraph.is_edge graph (or2and_edge_key, andnode_key)
   then
-    let
-      val and_keys = PGraph.immediate_succs graph or2and_edge_key: keys;
-      val _        = if length and_keys = 1 then () else error "cut_edge_from_andnode_to_ornode_if_no_parental_ornode_can_be_proved_assmng_subgoals failed. Zero or more than one and_keys.";
-      val and_key  = hd and_keys: key;
-    in
-      if   ornode_proved_assmng_andnodes graph or2and_edge_key
-      then graph
-      else PGraph.del_edge (or2and_edge_key, and_key) graph
-    end
+    if   ornode_proved_assmng_andnodes graph or2and_edge_key
+    then graph
+    else PGraph.del_edge (or2and_edge_key, andnode_key) graph
   else graph;
 
 (* add_or2and_edge *)
@@ -152,8 +147,10 @@ fun add_or2and_edge
       |> Update_Abduction_Graph.add_edge_acyclic_if_possible or_key or2and_edge_key
       |> Update_Abduction_Graph.add_edge_acyclic_if_possible or2and_edge_key andnode_key: abduction_graph;
 
-     val result = cut_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals andnode_key or2and_edge_key graph_w_or2and_edge_connected;
-    (*TODO: cut edges from and-nodes to or-nodes if their parental and-nodes are not used.*)
+     (*TODO: call cut_edge_from_or2and_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals not here
+              but in seed_to_updated_graph in Proof_By_Abduction.ML*)
+     val result = cut_edge_from_or2and_edge_to_andnode_if_no_parental_ornode_can_be_proved_assmng_subgoals
+                  andnode_key or2and_edge_key graph_w_or2and_edge_connected;
    in
      if is_some script_opt then result else graph
    end
