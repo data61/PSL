@@ -129,17 +129,11 @@ fun add_or2and_edge
      val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst: string option;
 
      val how_we_got_andnode   = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof         : string;
-     fun mk_script_opt_for_tactic (tactic_script:string) = how_we_got_andnode ^ tactic_script: string;
-     val script_opt: string option =
-          if how_we_got_andnode = "" (*explicit conjecturing*)
-          then                                                                                     
-            script_opt_gen
-          else
-            Option.map mk_script_opt_for_tactic script_opt_gen;
-     val or2and_edge_val     = Abduction_Node.Or_To_And {
+     val script_opt           = Option.map (fn script => how_we_got_andnode ^ script) script_opt_gen;
+     val or2and_edge_val      = Abduction_Node.Or_To_And {
                                  how_to_get_andnodes_from_ornode = proof,
                                  proof_of_ornode_assmng_andnodes = script_opt}: abduction_node;
-     val or2and_edge_key     = ((O2A_E (serial())), []): key;
+     val or2and_edge_key      = ((O2A_E (serial())), []): key;
 
      (* updating abduction_graph *)
      val graph_w_or2and_edge_connected = graph
