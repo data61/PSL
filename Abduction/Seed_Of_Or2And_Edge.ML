@@ -14,9 +14,9 @@ type key;
 type how_to_get_andnodes_from_ornode;
 type abduction_node
 type seed_of_or2and_edge =
-     {new_goals  : terms,
-      proof      : how_to_get_andnodes_from_ornode,
-      state      : Proof.state};
+     {new_goals: terms,
+      proof    : how_to_get_andnodes_from_ornode,
+      state    : Proof.state};
 type seeds_of_or2and_edge;
 
 val print_seed_of_or2and_edge: Proof.context -> seed_of_or2and_edge -> unit list;
