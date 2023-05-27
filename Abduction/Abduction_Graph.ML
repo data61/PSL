@@ -58,7 +58,6 @@ val grand_children                               : abduction_graph -> key -> key
 val all_gg_parents_are_proved                    : abduction_graph -> key -> bool;
 
 (* query on abduction_node for or2and_edge *)
-val ornode_proved_assmng_andnodes                : abduction_graph -> key -> bool;
 val or2and_edge_to_proof                         : abduction_graph -> key -> string;
 
 val is_worth_proving                             : Proof.context -> abduction_graph -> key -> bool;
@@ -288,10 +287,6 @@ fun orkeys_tobe_expanded_in (ctxt:Proof.context) (graph:abduction_graph): keys =
   in
     result
   end;
-
-(* ornode_proved_assmng_andnodes *)
-fun ornode_proved_assmng_andnodes (graph:abduction_graph) (key:key) =
-    Abduction_Node.ornode_proved_assmng_andnodes (PGraph.get_node graph key);
 
 (* or2and_edge_to_proof *)
 fun or2and_edge_to_proof (graph:abduction_graph) (key:key) =

@@ -23,10 +23,10 @@ val print_seed_of_or2and_edge: Proof.context -> seed_of_or2and_edge -> unit list
 val seed_is_from_tactic      : seed_of_or2and_edge -> bool;
 
 val apply_PSL_to_get_seeds_of_or2and_edges: Proof.state -> seeds_of_or2and_edge;
-val filter_out_bad_seeds_of_or2and_edge: term (*parental or-node*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
-val conjectures_to_seeds_of_or2and_edge: (Proof.state (*default pst*) * Proof.state (*chained pst to proved the parental ornode*)) -> (string * term) list -> seeds_of_or2and_edge;
-val seed_has_counterexample            : Proof.state -> seed_of_or2and_edge -> bool;
-val seeds_to_updated_graph             : key -> seeds_of_or2and_edge -> Update_Abduction_Graph.update_abduction_graph;
+val filter_out_bad_seeds_of_or2and_edge   : term (*parental or-node*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
+val conjectures_to_seeds_of_or2and_edge   : (Proof.state (*default pst*) * Proof.state (*chained pst to proved the parental ornode*)) -> (string * term) list -> seeds_of_or2and_edge;
+val seed_has_counterexample               : Proof.state -> seed_of_or2and_edge -> bool;
+val seeds_to_updated_graph                : key -> seeds_of_or2and_edge -> Update_Abduction_Graph.update_abduction_graph;
 
 end;
 
@@ -170,19 +170,16 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
      if proved_parent_or
      then
        let
-         val how_we_got_andnode    = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof: string;
-         val script_to_prove_andnd = the script_opt_gen                                  : string;
-         val script_to_prove_ornd  = how_we_got_andnode ^ script_to_prove_andnd          : string;
+         val how_we_got_andnode    = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof                        : string;
+         val script_to_prove_andnd = the script_opt_gen                                                          : string;
+         val script_to_prove_ornd  = how_we_got_andnode ^ script_to_prove_andnd                                  : string;
          val or2and_edge_val       = Abduction_Node.Or_To_And {
                                       how_to_get_andnodes_from_ornode = proof,
-                                      (*TODO: Should we really need to use the option type here?*)
-                                      proof_of_ornode_assmng_andnodes = SOME script_to_prove_ornd}               : abduction_node;
+                                      proof_of_ornode_assmng_andnodes = script_to_prove_ornd}                    : abduction_node;
          val or2and_edge_key      = ((O2A_E (serial())), [])                                                     : key;
          val thy                  = Proof.theory_of state                                                        : theory;
          val used_cnjctr_names    = Top_Down_Util.get_lemma_names_from_sh_output thy script_to_prove_andnd       : strings;
-
          val used_name_term_pairs = filter (fn (name, _) => member (op =) used_cnjctr_names name) name_term_pairs: (string * term) list;
-
          val relevant_name_term_pairs = if   Or2And_Edge.how_to_get_andnodes_from_ornode_of proof = "" (*if this is the result of tactic application*)
                                         then used_name_term_pairs
                                         else name_term_pairs;

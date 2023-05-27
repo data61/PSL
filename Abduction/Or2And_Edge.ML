@@ -37,12 +37,9 @@ fun proof_is_from_tactic (Tactic _) = true
 (* or2and_edge *)
 type or2and_edge = {
   how_to_get_andnodes_from_ornode: how_to_get_andnodes_from_ornode,
-  proof_of_ornode_assmng_andnodes: string option}(*NONE: we cannot prove the or-node.*)
+  proof_of_ornode_assmng_andnodes: string}(*NONE: we cannot prove the or-node.*)
 
 (* or2and_edge_to_proof *)
-fun or2and_edge_to_proof ({proof_of_ornode_assmng_andnodes, ...}:or2and_edge) =
-  if   is_some proof_of_ornode_assmng_andnodes
-  then the proof_of_ornode_assmng_andnodes
-  else error "edge_to_final_proof failed. We do not know how to prove the or-node assuming the subgoals of the and-node.";
+fun or2and_edge_to_proof ({proof_of_ornode_assmng_andnodes, ...}:or2and_edge) = proof_of_ornode_assmng_andnodes;
 
 end;

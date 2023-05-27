@@ -36,7 +36,6 @@ val lemma_name_of                                : abduction_node -> string;
 val is_worth_proving                             : Proof.context -> abduction_node -> bool;
 
 (* query on abduction_node for or2and_edge *)
-val ornode_proved_assmng_andnodes: abduction_node -> bool;
 val or2and_edge_to_proof         : abduction_node -> string;
 
 (* destructors of abduction_node *)
@@ -103,11 +102,6 @@ fun is_branch (Or_Node or_nd) = #is_branch or_nd
 (* is_final_goal *)
 fun is_final_goal (Or_Node or_nd) = #final_goal or_nd
   | is_final_goal  _              = error "is_final_goal. This is not Or_Node."
-
-(* ornode_proved_assmng_andnodes *)
-fun ornode_proved_assmng_andnodes (Or_To_And or2and_edge:abduction_node) =
-    #proof_of_ornode_assmng_andnodes or2and_edge |> is_some
-  | ornode_proved_assmng_andnodes _ = error "ornode_proved_assmng_andnodes";
 
 (* or2and_edge_to_proof *)
 fun or2and_edge_to_proof (Or_To_And or2and_edge:abduction_node) = Or2And_Edge.or2and_edge_to_proof or2and_edge
