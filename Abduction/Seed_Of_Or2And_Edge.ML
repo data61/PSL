@@ -116,7 +116,7 @@ fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (ag:abduction_gra
         let
           val prems = Logic.strip_imp_prems term: terms;
         in
-           exists (Shared_State.is_refuted pst) prems: bool
+           Shared_State.any_of_these_is_refuted pst prems: bool
         end;
       fun terms_have_counter_example_in_prems (pst:Proof.state) (terms:terms) =
           exists (has_counter_example_in_prems pst) terms: bool;

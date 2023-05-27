@@ -9,18 +9,6 @@ sig
 
 type abduction_graph;
 
-type term_refute_table;
-
-type synched_refutation_table;
-
-val defined: term_refute_table -> term -> bool;
-
-val lookup: term_refute_table -> term -> bool;
-
-val insert: term * bool -> term_refute_table -> term_refute_table;
-
-val is_refuted: Proof.state -> term -> bool;
-
 val any_of_these_is_refuted: Proof.state -> terms -> bool;
 
 end;
@@ -30,17 +18,15 @@ struct
 
 type abduction_graph = Abduction_Graph.abduction_graph;
 
-structure Term_Refuted_Table = Table (type key = term val ord = Term_Ord.term_ord);
+local
 
-type term_refute_table = bool Term_Refuted_Table.table; (*true = refuted, false = not refuted*)
-
+structure Term_Refuted_Table  = Table (type key = term val ord = Term_Ord.term_ord);
+type term_refute_table        = bool Term_Refuted_Table.table; (*true = refuted, false = not refuted*)
 type synched_refutation_table = term_refute_table Synchronized.var;
 
+val defined          = Term_Refuted_Table.defined;
+val lookup           = Utils.the' "lookup in Shared_State failed." oo Term_Refuted_Table.lookup;
 val refutation_table = Synchronized.var "refutation_table" Term_Refuted_Table.empty: synched_refutation_table;
-
-val defined = Term_Refuted_Table.defined;
-
-val lookup = Utils.the' "lookup in Shared_State failed." oo Term_Refuted_Table.lookup;
 
 (*Once we refute a term. The term remains refuted in the table forever.*)
 fun insert (cnjctr:term, refuted:bool) (table:term_refute_table) =
@@ -48,14 +34,9 @@ fun insert (cnjctr:term, refuted:bool) (table:term_refute_table) =
   of NONE           => table
    | SOME new_table => new_table;
 
-fun update_refutation_table (pairs: (term * bool) list) (old_tb:term_refute_table) =
-  fold insert pairs old_tb: term_refute_table;
+in
 
-fun update_synched_refutation_table (pairs: (term * bool) list) =
-  Synchronized.change refutation_table (update_refutation_table pairs): unit;
-
-fun update_synched_refutation_table (pair: (term * bool)) =
-  Synchronized.change refutation_table (insert pair): unit;
+fun update_synched_refutation_table (pair: (term * bool)) = Synchronized.change refutation_table (insert pair): unit;
 
 fun is_refuted (pst:Proof.state) (cnjctr:term) =
   let
@@ -69,7 +50,8 @@ fun is_refuted (pst:Proof.state) (cnjctr:term) =
     result
   end;
 
-fun any_of_these_is_refuted (pst:Proof.state) (terms:terms) =
-  exists (is_refuted pst) terms;
+fun any_of_these_is_refuted (pst:Proof.state) (terms:terms) = exists (is_refuted pst) terms;
+
+end;
 
 end;
