@@ -32,6 +32,8 @@ val mk_pst_to_prove_from_term        : Proof.context -> term -> Proof.state;
 val mk_unbound_bound_vars_free_vars  : Proof.context -> term -> term;
 val get_lemma_names_from_sh_output   : theory -> string -> strings;
 val assume_cnjctrs_in_pst            : (string * term) list -> Proof.state -> Proof.state;
+val is_thm_registered                : Proof.context -> string -> bool;
+val mk_new_lemma_name                : Proof.context -> string;
 
 end;
 
@@ -217,5 +219,17 @@ end;
 (*TODO: FIXME: how? Proof.assume?*)
 fun assume_cnjctrs_in_pst (name_term_pairs: (string * term) list) (pst:Proof.state): Proof.state =
   Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) pst;
+
+fun is_thm_registered (ctxt:Proof.context) (thm_name:string) = try (Proof_Context.get_thm ctxt) thm_name |> is_some: bool;
+
+fun mk_new_lemma_name (ctxt:Proof.context): string =
+  let
+    val candidate_name = "top_down_lemma_" ^ Int.toString (serial()): string;
+    val this_name_is_already_taken = is_thm_registered ctxt candidate_name;
+  in
+    if   this_name_is_already_taken
+    then mk_new_lemma_name ctxt
+    else candidate_name
+  end
 
 end;

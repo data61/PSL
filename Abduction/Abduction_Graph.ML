@@ -28,7 +28,7 @@ type abduction_graph;
 
 (* creation of key_val pair *)
 type is_final_goal = bool;
-val mk_ornode:  is_final_goal -> term -> (key * abduction_node);
+val mk_ornode:  is_final_goal -> string -> term -> (key * abduction_node);
 val mk_andnode: terms -> (key * abduction_node);
 
 (* key to term *)
@@ -77,7 +77,7 @@ val mk_pst_to_prove_from_key                     : Proof.state -> key -> Proof.s
 val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * string) option;
 
 val print_lemma_and_proof_of_key        : Proof.state -> abduction_graph -> key -> string; (*TODO: move this to Abduction_Graph.ML*)
-val print_proof_of_graph : Proof.state -> abduction_graph -> unit; (*TODO: move this to Abduction_Graph.ML*)
+val print_proof_of_graph : Proof.state -> abduction_graph -> unit;
 
 end;
 
@@ -134,19 +134,15 @@ fun equal_keys key_pair = PGraph_Key.ord key_pair = EQUAL;
 (* creation of key_val pair *)
 type is_final_goal = bool;
 
-fun mk_ornode (is_final_goal:is_final_goal) (goal:term) =
+fun mk_ornode (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
   (
     (Or_N, [goal]): key,
-    Abduction_Node.mk_ornode is_final_goal goal: abduction_node
+    Abduction_Node.mk_ornode is_final_goal lemma_name goal: abduction_node
    );
 
 fun mk_andnode (goals:terms) =
-  (
-    (And_N, goals): key,
-     Abduction_Node.And_Node {
-      subgoals          = goals,
-      proved_completely = false
-   });
+  ((And_N, goals): key,
+    Abduction_Node.mk_andnode goals);
 
 (* key to term *)
 fun orkey_to_term (Or_N, [orleaf_term]) = orleaf_term
@@ -159,7 +155,8 @@ fun andkey_to_terms (And_N, terms) = terms
 (* mk_initial_graph *)
 fun mk_initial_graph (goal:term) =
   let
-    val root_pair = mk_ornode true goal: key * Abduction_Node.abduction_node;
+    val root_pair = mk_ornode true "(*we do not need to pass a name for the top goal.*)" goal
+                  : key * Abduction_Node.abduction_node;
     val empty_graph = PGraph.empty: abduction_graph;
   in
     PGraph.new_node root_pair empty_graph

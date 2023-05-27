@@ -17,6 +17,7 @@ type andnodes;
 
 (* update of andnode *)
 val update_proved_completely: andnode -> andnode;
+val mk_andnode: terms -> andnode;
 
 end
 
@@ -44,6 +45,12 @@ fun update_proved_completely (
 {
   subgoals          = subgoals,
   proved_completely = true
+}: andnode;
+
+fun mk_andnode (subgoals:terms) =
+{
+  subgoals          = subgoals,
+  proved_completely = false
 }: andnode;
 
 end;

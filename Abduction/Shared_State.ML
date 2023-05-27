@@ -62,8 +62,8 @@ fun is_refuted (pst:Proof.state) (cnjctr:term) =
     val old_table = Synchronized.value refutation_table: term_refute_table;
     val already_checked = defined old_table cnjctr: bool;
     fun quickcheck (cnjctr:term) = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr): (term * bool);
-    val _ = if already_checked then (tracing "already_checked") else
-            (tracing "NOT checked YET"; update_synched_refutation_table (quickcheck cnjctr)): unit;
+    val _ = if already_checked then (*tracing "already_checked"*) () else
+            ((*tracing "NOT checked YET";*) update_synched_refutation_table (quickcheck cnjctr)): unit;
     val new_table = Synchronized.value refutation_table: term_refute_table;
     val result = lookup new_table cnjctr: bool;
   in

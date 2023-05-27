@@ -36,7 +36,7 @@ structure SOAN = Seed_Of_And_Node;
 type seed_of_andnode  = SOAN.seed_of_andnode;
 type seeds_of_andnode = seed_of_andnode list;
 
-fun seed_to_updated_graph (parent_ornd:key) (pst:Proof.state) (seed: seed_of_andnode) (graph:abduction_graph): abduction_graph =
+(*fun seed_to_updated_graph (parent_ornd:key) (pst:Proof.state) (seed: seed_of_andnode) (graph:abduction_graph): abduction_graph =
   let
     val pair_to_mk_andnode                  = (#andnode_key seed, #value seed)                                       : (key * abduction_node);
     val graph_w_ornode_is_now_branch        = update_is_branch parent_ornd graph                                     : abduction_graph;
@@ -57,10 +57,37 @@ fun seed_to_updated_graph (parent_ornd:key) (pst:Proof.state) (seed: seed_of_and
                                               else graph_w_ornodes_n_or2add_edges;
   in
     result: abduction_graph
+  end;*)
+
+fun seed_to_updated_graph (parent_ornd:key) (seed: seed_of_andnode) (graph:abduction_graph): abduction_graph =
+  let
+    val graph_w_ornode_is_now_branch        = update_is_branch parent_ornd graph                                     : abduction_graph;
+    (*add an or2and_ege and connect them to their parental or-node if we can prove the or-node assuming the and-node.*)
+    val (or2and_edge_opt, used_and_node_name_term_pairs, graph_w_or2add_edges) =
+       SOAN.add_or2and_edge_connected_to_parental_ornode parent_ornd seed graph_w_ornode_is_now_branch
+      : (key option * (string * term) list * abduction_graph);
+    val parent_ornd_is_proved_assmng_seed   = is_some or2and_edge_opt: bool;
+  in
+    if   parent_ornd_is_proved_assmng_seed
+    then
+      let
+        val and_node_terms = map snd used_and_node_name_term_pairs: terms;
+        (*length added_andnode_keys should be 1.*)
+        val (added_andnode_keys, graph_w_addnodes) = add_andnode and_node_terms graph_w_or2add_edges: (key list * abduction_graph);
+        val or2and_edge_key            = the or2and_edge_opt: key;
+        val _                          = if length added_andnode_keys = 1 then () else error "length added_andnode_keys != 1"
+        val added_andnode_key          = hd added_andnode_keys: key;
+        val graph_w_connected_andnode  = add_edge_acyclic_if_possible or2and_edge_key added_andnode_key graph_w_addnodes: abduction_graph;
+        val graph_w_child_ornode       = fold add_child_ornode used_and_node_name_term_pairs graph_w_connected_andnode: abduction_graph;
+        val graph_w_connected_child_ornode = add_edges_from_andnode_to_ornodes added_andnode_key graph_w_child_ornode
+      in
+        graph_w_connected_child_ornode
+      end
+    else graph
   end;
 
-fun seeds_to_updated_graph (parent_ornd:key) (seeds: seeds_of_andnode) (pst:Proof.state) (graph:abduction_graph) =
-  fold (seed_to_updated_graph parent_ornd pst) seeds graph: abduction_graph;
+fun seeds_to_updated_graph (parent_ornd:key) (seeds: seeds_of_andnode) (graph:abduction_graph) =
+  fold (seed_to_updated_graph parent_ornd) seeds graph: abduction_graph;
 
 (* work_on_ornode *)
 fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abduction_graph): state * abduction_graph =
@@ -93,7 +120,7 @@ fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abduct
           val seeds_wo_counterexample = filter_out (Seed_Of_And_Node.seed_of_andnode_has_counterexample pst) filtered_seeds: seeds_of_andnode;
         in
           (*seeds_to_updated_graph is very expensive*)
-          (pst, seeds_to_updated_graph or_key seeds_wo_counterexample pst graph)
+          (pst, seeds_to_updated_graph or_key seeds_wo_counterexample graph)
         end
     end
   | work_on_ornode _ _ = error "work_on_ornode failed. Not an Or_N.";     
