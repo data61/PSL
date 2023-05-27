@@ -1,12 +1,12 @@
 (*
- * Seed_Of_And_Node.ML 
+ * Seed_Of_Or2And_Edge.ML 
  *
  * Authors:
  *   Yutaka Nagashima, Daniel Goc Sebastian
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
-(*** SEED_OF_PR2AND_EDGE ***)
-signature SEED_OF_PR2AND_EDGE =
+(*** SEED_OF_OR2AND_EDGE ***)
+signature SEED_OF_OR2AND_EDGE =
 sig
 
 type abduction_graph;
@@ -22,20 +22,16 @@ type seeds_of_or2and_edge;
 val print_seed_of_or2and_edge: Proof.context -> seed_of_or2and_edge -> unit list;
 val seed_is_from_tactic      : seed_of_or2and_edge -> bool;
 
-val apply_Extend_Leaf_to_pst_to_get_seeds_of_or2and_edges: Proof.state -> seeds_of_or2and_edge;
-val add_or2and_edge_connected_to_parental_ornode: key -> seed_of_or2and_edge -> abduction_graph ->
-    ((*or2edge*)key option * (*used and_nodes*)(string * term) list *  abduction_graph);
-
+val apply_PSL_to_get_seeds_of_or2and_edges: Proof.state -> seeds_of_or2and_edge;
 val filter_out_bad_seeds_of_or2and_edge: term (*parental or-node*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
-val conjectures_to_seeds_of_or2and_edge: (Proof.state (*default pst*) * Proof.state (*chained pst to proved the parental ornode*)) -> terms -> seeds_of_or2and_edge;
-
-val seed_has_counterexample: Proof.state -> seed_of_or2and_edge -> bool;
-val seeds_to_updated_graph : key -> seeds_of_or2and_edge -> Update_Abduction_Graph.update_abduction_graph;
+val conjectures_to_seeds_of_or2and_edge: (Proof.state (*default pst*) * Proof.state (*chained pst to proved the parental ornode*)) -> (string * term) list -> seeds_of_or2and_edge;
+val seed_has_counterexample            : Proof.state -> seed_of_or2and_edge -> bool;
+val seeds_to_updated_graph             : key -> seeds_of_or2and_edge -> Update_Abduction_Graph.update_abduction_graph;
 
 end;
 
 (*** Seed_Of_Or2And_Edge ***)
-structure Seed_Of_Or2And_Edge: SEED_OF_PR2AND_EDGE =
+structure Seed_Of_Or2And_Edge: SEED_OF_OR2AND_EDGE =
 struct
 
 open Abduction_Graph;
@@ -59,7 +55,7 @@ fun seed_is_from_tactic ({proof, ...}) = Or2And_Edge.proof_is_from_tactic proof:
 
 (* apply_Extend_Leaf_to_pst_get_records_to_mk_andnodes *)
 (*TODO: handle the case where we actually finish to prove this.*)
-fun apply_Extend_Leaf_to_pst_to_get_seeds_of_or2and_edges (pst:Proof.state) =
+fun apply_PSL_to_get_seeds_of_or2and_edges (pst:Proof.state) =
   let
     val ctxt          = Proof.context_of pst;
     val extend_str    = PSL_Interface.lookup ctxt "Extend_Leaf" |> the                     : PSL_Interface.strategy;
@@ -92,65 +88,6 @@ fun apply_Extend_Leaf_to_pst_to_get_seeds_of_or2and_edges (pst:Proof.state) =
   in
     map mk_proof_key_value script_n_psts: seeds_of_or2and_edge
   end;
-
-fun add_or2and_edge_connected_to_parental_ornode
-     (parent_or_key as (Or_N, _): key)(*parent node*)
-     ({new_goals            : terms,
-       proof                : how_to_get_andnodes_from_ornode,
-       state(*chained*)     : Proof.state, ...}: seed_of_or2and_edge)(*child nodes*)
-     (graph:abduction_graph): (key option * (string * term) list * abduction_graph) =
-   let
-     val _ = tracing "start add_or2and";
-     fun mk_temp_name (trm:term) =
-       let
-         val child_or_key             = (Or_N, [trm]) : key;
-         val maybe_child_or_val       = try (PGraph.get_node graph) child_or_key: abduction_node option;
-         val child_or_already_exists  = is_some (maybe_child_or_val): bool;
-       in
-         if child_or_already_exists
-         then
-           lemma_name_of graph child_or_key: string
-         else
-           Top_Down_Util.mk_new_lemma_name (Proof.context_of state)
-       end;
-     val name_term_pairs      = map (fn and_trm => (mk_temp_name and_trm, and_trm)) new_goals   : (string * term) list;
-     val pst_w_or_terms_assmd = Top_Down_Util.assume_cnjctrs_in_pst name_term_pairs state       : Proof.state;
-     (*TODO: maybe we should assume or-nodes that have been already proved completely in the abduction_graph.*)
-     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
-     (*very expensive*)
-     val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "finish_goal_after_assuming_subgoals_n_conjectures" pst_w_or_terms_assmd <$> fst: string option;
-     val proved_parent_or     = is_some script_opt_gen: bool;
-   in
-     if proved_parent_or
-     then
-       let
-         val how_we_got_andnode    = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof: string;
-         val script_to_prove_andnd = the script_opt_gen                                  : string;
-         val script_to_prove_ornd  = how_we_got_andnode ^ script_to_prove_andnd          : string;
-         val or2and_edge_val       = Abduction_Node.Or_To_And {
-                                      how_to_get_andnodes_from_ornode = proof,
-                                      (*TODO: Should we really need to use the option type here?*)
-                                      proof_of_ornode_assmng_andnodes = SOME script_to_prove_ornd}               : abduction_node;
-         val or2and_edge_key      = ((O2A_E (serial())), [])                                                     : key;
-         val thy                  = Proof.theory_of state                                                        : theory;
-         val used_cnjctr_names    = Top_Down_Util.get_lemma_names_from_sh_output thy script_to_prove_andnd       : strings;
-
-         val used_name_term_pairs = filter (fn (name, _) => member (op =) used_cnjctr_names name) name_term_pairs: (string * term) list;
-
-         val relevant_name_term_pairs = if   Or2And_Edge.how_to_get_andnodes_from_ornode_of proof = "" (*if this is the result of tactic application*)
-                                        then used_name_term_pairs
-                                        else name_term_pairs;
-
-         (* updating abduction_graph *)
-         val graph_w_ornode_to_or2and_edge = graph
-          |> PGraph.new_node (or2and_edge_key, or2and_edge_val)
-          |> Update_Abduction_Graph.add_edge_acyclic_if_possible parent_or_key or2and_edge_key: abduction_graph;
-       in
-         (SOME or2and_edge_key, relevant_name_term_pairs, graph_w_ornode_to_or2and_edge)
-       end
-     else (NONE, [], graph)
-   end
- | add_or2and_edge_connected_to_parental_ornode _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed."
 
 fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (ag:abduction_graph) (seed:seed_of_or2and_edge) =
     let
@@ -199,19 +136,78 @@ fun conjectures_to_seed_of_or2and_edge (pst:Proof.state) (cnjctr:term): seed_of_
    proof       = Or2And_Edge.Conjecture: how_to_get_andnodes_from_ornode,
    state       = pst                   : Proof.state};
 
-fun conjectures_to_seeds_of_or2and_edge (pst:Proof.state, pst_to_prove_ornode:Proof.state) (cnjctrs:terms) =
+fun conjectures_to_seeds_of_or2and_edge (pst:Proof.state, pst_to_prove_ornode:Proof.state) (cnjctrs_w_name: (string * term) list) =
   let
-    val ctxt                      = Proof.context_of pst                                               : Proof.context;
-    fun get_ctxt_w_proof_goal trm = Proof.context_of (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm): Proof.context;
-    fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm            : term option;
-    val checked_cnjctrs           = List.mapPartial check_prop cnjctrs
-    val result                    = map (fn trm => conjectures_to_seed_of_or2and_edge pst_to_prove_ornode trm) checked_cnjctrs
+    val ctxt                      = Proof.context_of pst                                                                      : Proof.context;
+    fun get_ctxt_w_proof_goal trm = Proof.context_of (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm)                       : Proof.context;
+    fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm                                   : term option;
+    val cnjctrs                   = map snd cnjctrs_w_name                                                                    : terms;
+    val checked_cnjctrs           = List.mapPartial check_prop cnjctrs                                                        : terms;
+    val result                    = map (fn trm => conjectures_to_seed_of_or2and_edge pst_to_prove_ornode trm) checked_cnjctrs: seeds_of_or2and_edge;
   in
     result
   end;
 
 fun seed_has_counterexample (pst:Proof.state) ({new_goals,...}:seed_of_or2and_edge) =
     Shared_State.any_of_these_is_refuted pst new_goals;
+
+fun add_or2and_edge_connected_to_parental_ornode
+     (parent_or_key as (Or_N, _): key)(*parent node*)
+     ({new_goals            : terms,
+       proof                : how_to_get_andnodes_from_ornode,
+       state(*chained*)     : Proof.state, ...}: seed_of_or2and_edge)(*child nodes*)
+     (graph:abduction_graph): (key option * (string * term) list * abduction_graph) =
+   let
+     fun mk_temp_name (trm:term) =
+       let
+         val child_or_key             = (Or_N, [trm]) : key;
+         val maybe_child_or_val       = try (PGraph.get_node graph) child_or_key: abduction_node option;
+         val child_or_already_exists  = is_some (maybe_child_or_val): bool;
+       in
+         if child_or_already_exists
+         then
+           lemma_name_of graph child_or_key: string
+         else
+           Top_Down_Util.mk_new_lemma_name (Proof.context_of state)
+       end;
+     val name_term_pairs      = map (fn and_trm => (mk_temp_name and_trm, and_trm)) new_goals   : (string * term) list;
+     val pst_w_or_terms_assmd = Top_Down_Util.assume_cnjctrs_in_pst name_term_pairs state       : Proof.state;
+     (*TODO: maybe we should assume or-nodes that have been already proved completely in the abduction_graph.*)
+     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
+     (*very expensive*)
+     val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "Finish_Goal_After_Assuming_Subgoals_And_Conjectures" pst_w_or_terms_assmd <$> fst: string option;
+     val proved_parent_or     = is_some script_opt_gen: bool;
+   in
+     if proved_parent_or
+     then
+       let
+         val how_we_got_andnode    = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof: string;
+         val script_to_prove_andnd = the script_opt_gen                                  : string;
+         val script_to_prove_ornd  = how_we_got_andnode ^ script_to_prove_andnd          : string;
+         val or2and_edge_val       = Abduction_Node.Or_To_And {
+                                      how_to_get_andnodes_from_ornode = proof,
+                                      (*TODO: Should we really need to use the option type here?*)
+                                      proof_of_ornode_assmng_andnodes = SOME script_to_prove_ornd}               : abduction_node;
+         val or2and_edge_key      = ((O2A_E (serial())), [])                                                     : key;
+         val thy                  = Proof.theory_of state                                                        : theory;
+         val used_cnjctr_names    = Top_Down_Util.get_lemma_names_from_sh_output thy script_to_prove_andnd       : strings;
+
+         val used_name_term_pairs = filter (fn (name, _) => member (op =) used_cnjctr_names name) name_term_pairs: (string * term) list;
+
+         val relevant_name_term_pairs = if   Or2And_Edge.how_to_get_andnodes_from_ornode_of proof = "" (*if this is the result of tactic application*)
+                                        then used_name_term_pairs
+                                        else name_term_pairs;
+
+         (* updating abduction_graph *)
+         val graph_w_ornode_to_or2and_edge = graph
+          |> PGraph.new_node (or2and_edge_key, or2and_edge_val)
+          |> Update_Abduction_Graph.add_edge_acyclic_if_possible parent_or_key or2and_edge_key: abduction_graph;
+       in
+         (SOME or2and_edge_key, relevant_name_term_pairs, graph_w_ornode_to_or2and_edge)
+       end
+     else (NONE, [], graph)
+   end
+ | add_or2and_edge_connected_to_parental_ornode _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
 
 fun add_then_connect_or2and_edge_andnd_ornds (parent_ornd:key) (seed: seed_of_or2and_edge) (graph:abduction_graph): abduction_graph =
   let

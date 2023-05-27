@@ -13,7 +13,7 @@ type abduction_graph;
 type key;
 type state;
 
-val work_on_ornode    : key -> (state * abduction_graph) -> (state * abduction_graph);(*TODO: No need to expose?*)
+val expand_ornode     : key -> (state * abduction_graph) -> (state * abduction_graph);(*TODO: No need to expose?*)
 val loop              : int -> (state * abduction_graph) -> (state * abduction_graph);(*TODO: No need to expose?*)
 val proof_by_abduction: state -> term -> unit;
 
@@ -36,31 +36,32 @@ structure SOOE = Seed_Of_Or2And_Edge;
 type seed_of_or2and_edge  = SOOE.seed_of_or2and_edge;
 type seeds_of_or2and_edge = SOOE.seeds_of_or2and_edge;
 
-(* work_on_ornode *)
-fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abduction_graph): state * abduction_graph =
+(* expand_ornode *)
+fun expand_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abduction_graph): state * abduction_graph =
     (*TODO: we should check if the node is still worth proving.*)
     let
-       val _ = tracing "Start computing work_on_ornode"
+       val _ = tracing "Start computing expand_ornode"
        (*very expensive*)
        val maybe_proved = prove_orkey_completely or_key graph pst: (state * string) option;
     in
       if is_some maybe_proved (*ornode was proved completely.*)
       then
         let
-          val _ = tracing "We PROVED the work_on_ornode"
+          val _ = tracing "We PROVED the or-node.";
           val (pst_w_proved_lemma, proof) = the maybe_proved: (state * string);
         in
-           (pst_w_proved_lemma,  update_after_proving_ornode proof or_key (Proof.context_of pst) graph)(*TODO: We are actually not taking advantage of pst_w_proved_lemma. pst seems good enough.*)
+           (pst_w_proved_lemma, update_after_proving_ornode proof or_key (Proof.context_of pst) graph)(*TODO: We are actually not taking advantage of pst_w_proved_lemma. pst seems good enough.*)
         end
       else (*if we cannot prove the ornode completely, expand it using Extend_Leaf and conjecturing*)
         let
+          val _ = tracing "We did NOT prove the or-node.";
           val pst_to_prove            = mk_pst_to_prove_from_key pst or_key                                    : state;
           (*tactic application as conjecturing.  a little expensive*)
-          val seeds_from_tactics      = SOOE.apply_Extend_Leaf_to_pst_to_get_seeds_of_or2and_edges pst_to_prove: seeds_of_or2and_edge;
+          val seeds_from_tactics      = SOOE.apply_PSL_to_get_seeds_of_or2and_edges pst_to_prove               : seeds_of_or2and_edge;
           (*top-down explicit conjecturing*)
           val top_down_conjectures    = All_Top_Down_Conjecturing.top_down_conjectures (Proof.context_of pst) lemma_term: (string * term) list;
-          val seeds_from_conjectures  = map snd top_down_conjectures (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
-                                     |> SOOE.conjectures_to_seeds_of_or2and_edge (pst, pst_to_prove)           : seeds_of_or2and_edge;
+          val seeds_from_conjectures  = (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
+                                        SOOE.conjectures_to_seeds_of_or2and_edge (pst, pst_to_prove) top_down_conjectures           : seeds_of_or2and_edge;
           val all_seeds               = seeds_from_conjectures @ seeds_from_tactics                            : seeds_of_or2and_edge;
           val filtered_seeds          = SOOE.filter_out_bad_seeds_of_or2and_edge lemma_term pst graph all_seeds: seeds_of_or2and_edge;
           val seeds_wo_counterexample = filter_out (SOOE.seed_has_counterexample pst) filtered_seeds           : seeds_of_or2and_edge;
@@ -70,12 +71,12 @@ fun work_on_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abduct
           (pst, expanded_graph)
         end
     end
-  | work_on_ornode _ _ = error "work_on_ornode failed. Not an Or_N.";     
+  | expand_ornode _ _ = error "expand_ornode failed. Not an Or_N.";
 
-fun work_on_ornode_if_original_goral_is_unproved (or_key:key) (pst, graph) =
+fun expand_ornode_if_original_goral_is_unproved (or_key:key) (pst, graph) =
   if   final_goal_proved_completely graph
   then (pst, graph)
-  else work_on_ornode or_key (pst, graph)
+  else expand_ornode or_key (pst, graph)
 
 (* loop *)
 fun loop (counter:int) (pst:state, graph: abduction_graph) =
@@ -88,8 +89,7 @@ fun loop (counter:int) (pst:state, graph: abduction_graph) =
         val _ = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
         val _ = tracing "They are:"
         val _ = map (print_key ctxt) orkeys_worth_expanding
-        val (new_pst, graph_w_keys_expanded)      = fold work_on_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
-(*        val graph_w_keys_expanded  = update_gg_parent_not_finished graph_w_keys_expanded                                  : abduction_graph;*)
+        val (new_pst, graph_w_keys_expanded)      = fold expand_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
         val solved                                = final_goal_proved_completely graph_w_keys_expanded: bool;
         val _                                     = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")
       in
