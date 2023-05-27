@@ -40,7 +40,7 @@ strategy Extend_Leaf =
     ]
   ]
 
-strategy finish_goal_after_assuming_subgoals_n_conjectures =
+strategy Finish_Goal_After_Assuming_Subgoals_And_Conjectures =
   Thens [
     Repeat (Hammer),
     IsSolved

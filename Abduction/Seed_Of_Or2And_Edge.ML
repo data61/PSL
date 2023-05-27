@@ -151,26 +151,15 @@ fun conjectures_to_seeds_of_or2and_edge (pst:Proof.state, pst_to_prove_ornode:Pr
 fun seed_has_counterexample (pst:Proof.state) ({new_goals,...}:seed_of_or2and_edge) =
     Shared_State.any_of_these_is_refuted pst new_goals;
 
-fun add_or2and_edge_connected_to_parental_ornode
+fun add_or2and_edge_and_connect_it_to_parental_ornode
      (parent_or_key as (Or_N, _): key)(*parent node*)
      ({new_goals            : terms,
        proof                : how_to_get_andnodes_from_ornode,
        state(*chained*)     : Proof.state, ...}: seed_of_or2and_edge)(*child nodes*)
      (graph:abduction_graph): (key option * (string * term) list * abduction_graph) =
    let
-     fun mk_temp_name (trm:term) =
-       let
-         val child_or_key             = (Or_N, [trm]) : key;
-         val maybe_child_or_val       = try (PGraph.get_node graph) child_or_key: abduction_node option;
-         val child_or_already_exists  = is_some (maybe_child_or_val): bool;
-       in
-         if child_or_already_exists
-         then
-           lemma_name_of graph child_or_key: string
-         else
-           Top_Down_Util.mk_new_lemma_name (Proof.context_of state)
-       end;
-     val name_term_pairs      = map (fn and_trm => (mk_temp_name and_trm, and_trm)) new_goals   : (string * term) list;
+     val ctxt                 = Proof.context_of state;
+     val name_term_pairs      = map (fn and_trm => (Shared_State.get_lemma_name ctxt and_trm, and_trm)) new_goals   : (string * term) list;
      val pst_w_or_terms_assmd = Top_Down_Util.assume_cnjctrs_in_pst name_term_pairs state       : Proof.state;
      (*TODO: maybe we should assume or-nodes that have been already proved completely in the abduction_graph.*)
      val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
@@ -207,14 +196,24 @@ fun add_or2and_edge_connected_to_parental_ornode
        end
      else (NONE, [], graph)
    end
- | add_or2and_edge_connected_to_parental_ornode _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
+ | add_or2and_edge_and_connect_it_to_parental_ornode _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
 
+(*
+ * 0. We have an or-node to expand.
+ * 1. add an or2and-edge.
+ * 2. connect the or2and-edge to its parental or-node.
+ * 3. prove the parental or-node using the sub-goals or some conjectures.
+ * 4. add an and-node that consists of the sub-goals or used conjectures.
+ * 5. connect the and-node to its parental or2and-edge.
+ * 6. add child-or-nodes that correspond to the sub-goals or used conjectures in the and-node.
+ * 7. connect the child-or-nodes to the and-node.
+ *)
 fun add_then_connect_or2and_edge_andnd_ornds (parent_ornd:key) (seed: seed_of_or2and_edge) (graph:abduction_graph): abduction_graph =
   let
     val graph_w_ornode_is_now_branch        = UAG.update_is_branch parent_ornd graph                                 : abduction_graph;
     (*add an or2and_ege and connect them to their parental or-node if we can prove the or-node assuming the and-node.*)
     val (or2and_edge_opt, used_and_node_name_term_pairs, graph_w_connected_or2add_edges) =
-       add_or2and_edge_connected_to_parental_ornode parent_ornd seed graph_w_ornode_is_now_branch: (key option * (string * term) list * abduction_graph);
+       add_or2and_edge_and_connect_it_to_parental_ornode parent_ornd seed graph_w_ornode_is_now_branch: (key option * (string * term) list * abduction_graph);
     val parent_ornd_is_proved_assmng_seed   = is_some or2and_edge_opt: bool;
   in
     if   parent_ornd_is_proved_assmng_seed
