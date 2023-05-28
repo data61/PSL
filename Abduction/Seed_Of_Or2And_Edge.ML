@@ -19,9 +19,8 @@ type seed_of_or2and_edge =
       state    : Proof.state};
 type seeds_of_or2and_edge;
 
-val print_seed_of_or2and_edge: Proof.context -> seed_of_or2and_edge -> unit list;
-val seed_is_from_tactic      : seed_of_or2and_edge -> bool;
-
+val print_seed_of_or2and_edge             : Proof.context -> seed_of_or2and_edge -> unit list;
+val seed_is_from_tactic                   : seed_of_or2and_edge -> bool;
 val apply_PSL_to_get_seeds_of_or2and_edges: Proof.state -> seeds_of_or2and_edge;
 val filter_out_bad_seeds_of_or2and_edge   : term (*parental or-node*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
 val conjectures_to_seeds_of_or2and_edge   : (Proof.state (*default pst*) * Proof.state (*chained pst to proved the parental ornode*)) -> (string * term) list -> seeds_of_or2and_edge;
