@@ -19,6 +19,7 @@ ML_file \<open>Abstract_Same_Term.ML\<close>
 ML_file \<open>Remove_Function.ML\<close>
 ML_file \<open>Remove_Outermost_Assumption.ML\<close>
 ML_file \<open>Replace_Imp_With_Eq.ML\<close>
+ML_file \<open>SeLFiE_For_Top_Down.ML\<close>
 ML_file \<open>All_Top_Down_Conjecturing.ML\<close>
 ML_file \<open>And_Node.ML\<close>
 ML_file \<open>Or_Node.ML\<close>

@@ -117,7 +117,7 @@ fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (ag:abduction_gra
       fun eq_to_final_goal _          = exists (Top_Down_Util.alpha_eq_over_fvar final_goal) trms                 : bool;
       fun concl_is_eq_to_final_goal _ = exists (concl_is_alpha_eq_to final_goal) trms                             : bool;
       fun has_func_with_three_occs_in_a_row _ = exists
-        (fn trm => SeLFiE_for_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term (Proof.context_of pst) trm) SeLFiE_for_Top_Down.has_func_with_three_occs_in_a_row trm) trms;
+        (fn trm => SeLFiE_For_Top_Down.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term (Proof.context_of pst) trm) SeLFiE_For_Top_Down.has_func_with_three_occs_in_a_row trm) trms;
       fun has_counter_example_in_prems (pst:Proof.state) (term:term) =
         let
           val prems = Logic.strip_imp_prems term: terms;
