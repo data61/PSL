@@ -86,7 +86,7 @@ val has_func_with_three_occs_in_a_row =
     ]
   );
 
-fun run_assertion (pst:Proof.state)  (assrt:assert) (cnjctr:term) =
+fun run_assertion' (pst:Proof.state)  (assrt:assert) (cnjctr:term) =
   let
     val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst cnjctr                                               : Outer_Path_To_Unode.path_to_unode_table;
     val gen_path_table            = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table                                                        : Gen_Path.gen_path_to_unode_table;
@@ -95,5 +95,8 @@ fun run_assertion (pst:Proof.state)  (assrt:assert) (cnjctr:term) =
   in
     eval pst outer_path_to_unode_table outer_domains empty_argument assrt = True
   end;
+
+fun run_assertion (ctxt:Proof.context) (trm:term) (assert:Eval_Syntactic_Sugar.assert) =
+    run_assertion' (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) assert trm: bool;
 
 end;

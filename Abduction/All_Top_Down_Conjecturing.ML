@@ -67,9 +67,6 @@ fun template_conjectures (ctxt:Proof.context) (trm:term): (string * term) list =
 
 structure S4TD = SeLFiE_For_Top_Down;
 
-fun run_assertion (ctxt:Proof.context) (trm:term) (assert:Eval_Syntactic_Sugar.assert) =
-    S4TD.run_assertion (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) assert trm;
-
 fun top_down_conjectures (ctxt:Proof.context) trm =
   let
     val _ = tracing "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
@@ -89,9 +86,9 @@ fun top_down_conjectures (ctxt:Proof.context) trm =
 (*
       |> parallel_filter_out (fn (_, trm) => eq_over_same_func ctxt trm)
 *)
-      |> parallel_filter_out (fn (_, trm) => run_assertion ctxt trm S4TD.has_func_with_three_occs_in_a_row)
-      |> parallel_filter     (fn (_, trm) => run_assertion ctxt trm S4TD.fvars_in_prem_should_appear_in_concl)
-      |> parallel_filter     (fn (_, trm) => run_assertion ctxt trm S4TD.does_not_have_trivial_equality);
+      |> parallel_filter_out (fn (_, trm) => S4TD.run_assertion ctxt trm S4TD.has_func_with_three_occs_in_a_row)
+      |> parallel_filter     (fn (_, trm) => S4TD.run_assertion ctxt trm S4TD.fvars_in_prem_should_appear_in_concl)
+      |> parallel_filter     (fn (_, trm) => S4TD.run_assertion ctxt trm S4TD.does_not_have_trivial_equality);
     val _ = tracing "[[[[[[[[[[[top_down_conjecture ends]]]]]]]]]]": unit;
   in
     results
