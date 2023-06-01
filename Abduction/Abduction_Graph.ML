@@ -99,14 +99,11 @@ fun node_type_compare (Or_N,     Or_N    ) = EQUAL
  |  node_type_compare (O2A_E i1, O2A_E i2) = Int.compare (i1, i2)
  |  node_type_compare (O2A_E _,  _       ) = GREATER;
 
-fun term_compare (trm1, trm2) =
-  Term_Ord.term_ord ((Top_Down_Util.standardize_vnames trm1), (Top_Down_Util.standardize_vnames trm2))
-
 (* PGraph_Key *)
 structure PGraph_Key =
     struct
       type key = (node_type * terms(*normal terms not thms*))
-      val  ord = prod_ord node_type_compare (list_ord term_compare)
+      val  ord = prod_ord node_type_compare (list_ord Top_Down_Util.term_compare)
     end:KEY
 
 (* PGraph *)
@@ -134,14 +131,23 @@ fun equal_keys key_pair = PGraph_Key.ord key_pair = EQUAL;
 type is_final_goal = bool;
 
 fun mk_ornode (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
+let
+  val standardized_goal = Top_Down_Util.standardize_vnames goal;
+in
   (
-    (Or_N, [goal]): key,
-    Abduction_Node.mk_ornode is_final_goal lemma_name goal: abduction_node
-   );
+    (Or_N, [standardized_goal]): key,
+    Abduction_Node.mk_ornode is_final_goal lemma_name standardized_goal: abduction_node
+   )
+end;
 
 fun mk_andnode (goals:terms) =
-  ((And_N, goals): key,
-    Abduction_Node.mk_andnode goals);
+let
+  val standardized_terms = map Top_Down_Util.standardize_vnames goals;
+  val sorted_terms       = sort Term_Ord.term_ord standardized_terms;
+in
+  ((And_N, sorted_terms): key,
+    Abduction_Node.mk_andnode sorted_terms)
+end;
 
 (* key to term *)
 fun orkey_to_term (Or_N, [orleaf_term]) = orleaf_term

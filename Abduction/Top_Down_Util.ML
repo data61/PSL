@@ -34,6 +34,7 @@ val get_lemma_names_from_sh_output   : theory -> string -> strings;
 val assume_cnjctrs_in_pst            : (string * term) list -> Proof.state -> Proof.state;
 val is_thm_registered                : Proof.context -> string -> bool;
 val mk_new_lemma_name                : Proof.context -> string;
+val term_compare                     : term * term -> order;
 
 end;
 
@@ -231,5 +232,8 @@ fun mk_new_lemma_name (ctxt:Proof.context): string =
     then mk_new_lemma_name ctxt
     else candidate_name
   end
+
+fun term_compare (trm1, trm2) =
+  Term_Ord.term_ord (standardize_vnames trm1, standardize_vnames trm2);
 
 end;

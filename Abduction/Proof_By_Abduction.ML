@@ -83,15 +83,15 @@ fun loop (counter:int) (pst:state, graph: abduction_graph) =
     if counter < 8
     then
       let
-        val _                          = tracing ("==== In loop. Counter is: " ^ Int.toString counter ^ " =====");
-        val ctxt                       = Proof.context_of pst;
-        val orkeys_worth_expanding     = orkeys_tobe_expanded_in ctxt graph: keys;
-        val _ = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
-        val _ = tracing "They are:"
-        val _ = map (print_key ctxt) orkeys_worth_expanding
-        val (new_pst, graph_w_keys_expanded)      = fold expand_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
-        val solved                                = final_goal_proved_completely graph_w_keys_expanded: bool;
-        val _                                     = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")
+        val _                                = tracing ("==== In loop. Counter is: " ^ Int.toString counter ^ " =====");
+        val ctxt                             = Proof.context_of pst;
+        val orkeys_worth_expanding           = orkeys_tobe_expanded_in ctxt graph: keys;
+        val _                                = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
+        val _                                = tracing "They are:"
+        val _                                = map (print_key ctxt) orkeys_worth_expanding
+        val (new_pst, graph_w_keys_expanded) = fold expand_ornode_if_original_goral_is_unproved orkeys_worth_expanding (pst, graph): (state * abduction_graph);
+        val solved                           = final_goal_proved_completely graph_w_keys_expanded: bool;
+        val _                                = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")
       in
         (if solved then K I else loop) (counter + 1) (new_pst, graph_w_keys_expanded)
       end

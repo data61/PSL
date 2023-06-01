@@ -88,6 +88,13 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (pst:Proof.state) =
     map mk_proof_key_value script_n_psts: seeds_of_or2and_edge
   end;
 
+(*TODO*)
+fun condition_to_filter_out_cnjctr (parent_or:term) (pst:Proof.state) (ag:abduction_graph) (cnjctr:term) = true;
+
+datatype conjecture_typ = Explicit_Conjecturing | Implicit_Conjecturing (*tactic application*);
+
+fun filtering_policy Explicit_Conjecturing = ()
+
 fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (ag:abduction_graph) (seed:seed_of_or2and_edge) =
     let
       val final_goal      = get_final_goal_key ag |> snd |> hd: term;
@@ -120,7 +127,11 @@ fun condition_to_filter_out (parent_or:term) (pst:Proof.state) (ag:abduction_gra
       fun terms_have_counter_example_in_prems (pst:Proof.state) (terms:terms) =
           exists (has_counter_example_in_prems pst) terms: bool;
     in
-      trms_empty orelse too_large () orelse
+      (*TODO: for each stage we should filter out either
+              some of conjectures in a seed (Explicit Conjecturing) or
+              all conjectures in a seed (Implicit Conjecturing)*)
+      trms_empty orelse
+      too_large () orelse
       eq_to_final_goal () andalso seed_is_from_tactic seed orelse
       concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*) orelse
       has_func_with_three_occs_in_a_row () orelse
