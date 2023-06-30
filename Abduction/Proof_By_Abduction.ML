@@ -61,14 +61,21 @@ fun expand_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abducti
           (*top-down explicit conjecturing*)
           val top_down_conjectures    = All_Top_Down_Conjecturing.top_down_conjectures (Proof.context_of pst) lemma_term: (string * term) list;
           val seeds_from_conjectures  = (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
-                                        SOOE.conjectures_to_seeds_of_or2and_edge (pst, pst_to_prove) top_down_conjectures           : seeds_of_or2and_edge;
+                                        SOOE.conjectures_to_seeds_of_or2and_edge (pst, pst_to_prove) top_down_conjectures : seeds_of_or2and_edge;
           val all_seeds               = seeds_from_conjectures @ seeds_from_tactics                            : seeds_of_or2and_edge;
           val filtered_seeds          = SOOE.filter_out_bad_seeds_of_or2and_edge lemma_term pst graph all_seeds: seeds_of_or2and_edge;
           val seeds_wo_counterexample = filter_out (SOOE.seed_has_counterexample pst) filtered_seeds           : seeds_of_or2and_edge;
+(*
           val expanded_graph          = SOOE.seeds_to_updated_graph or_key seeds_wo_counterexample graph       : abduction_graph;
+*)
+          val good_seeds_from_tactics = filter SOOE.seed_is_from_tactic seeds_wo_counterexample                : seeds_of_or2and_edge;
+          val graph_extended_by_tactics = SOOE.seeds_to_updated_graph or_key good_seeds_from_tactics graph                   : abduction_graph;
+          val good_seeds_from_cnjctr    = filter_out SOOE.seed_is_from_tactic seeds_wo_counterexample                        : seeds_of_or2and_edge;
+          val graph_extended_by_cnjctr  = SOOE.seeds_to_updated_graph or_key good_seeds_from_cnjctr graph_extended_by_tactics: abduction_graph;
+
         in
           (*seeds_to_updated_graph is very expensive*)
-          (pst, expanded_graph)
+          (pst, graph_extended_by_cnjctr(*expanded_graph*))
         end
     end
   | expand_ornode _ _ = error "expand_ornode failed. Not an Or_N.";
