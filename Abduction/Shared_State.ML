@@ -9,8 +9,12 @@ sig
 
 type abduction_graph;
 
-val any_of_these_is_refuted: Proof.state -> terms -> bool;
-val get_lemma_name         : Proof.context -> term -> string;
+val clean_refuation_table  : unit -> unit;
+val is_refuted             : Proof.state   -> term  -> bool;
+val any_of_these_is_refuted: Proof.state   -> terms -> bool;
+val clean_lemma_name_table : unit -> unit;
+val get_lemma_name         : Proof.context -> term  -> string;
+val get_orkey_name         : Proof.context -> Abduction_Graph.key -> string;
 (*TODO: share abduction_graph*)
 
 end;
@@ -38,11 +42,14 @@ fun insert (cnjctr:term, refuted:bool) (table:term_refute_table) =
 
 in
 
+fun clean_refuation_table _ = Synchronized.change refutation_table (K Term_Table.empty): unit;
+
 fun is_refuted (pst:Proof.state) (cnjctr:term) =
   let
-    val old_table         = Synchronized.value refutation_table                          : term_refute_table;
-    val already_checked   = defined old_table cnjctr                                     : bool;
-    fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr): (term * bool);
+    val cnjctr_prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
+    val old_table         = Synchronized.value refutation_table                                        : term_refute_table;
+    val already_checked   = defined old_table cnjctr_prop                                              : bool;
+    fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * bool);
     val _                 =
       if   already_checked then ()
       else
@@ -50,15 +57,27 @@ fun is_refuted (pst:Proof.state) (cnjctr:term) =
           (* It is okay to spend some time to run quick-check before calling Synchronized.change:
            * Even if other threads find a counter-example for the same conjecture,
            * the result should be the same. *)
-          val pair = quickcheck cnjctr
+          val pair = quickcheck cnjctr_prop
         in
           Synchronized.change refutation_table (insert pair): unit
         end;
     val new_table         = Synchronized.value refutation_table                          : term_refute_table;
-    val result            = lookup new_table cnjctr                                      : bool;
+    val result            = lookup new_table cnjctr_prop                                 : bool;
+(*
+    val _ = tracing "\n"
+val _ = "Quick-Checking this:"
+val _ = tracing (Isabelle_Utils.trm_to_string (Proof.context_of pst) cnjctr);
+    val _ = tracing ((if result then "" else "NOT ") ^ " REFUTED according to the table")
+    val result_wo_using_table = TBC_Utils.term_has_counterexample_in_pst pst cnjctr;
+*)
+
+(*
+    val _ = tracing ((if result then "" else "NOT ") ^ " REFUTED W/O using the table")
+*)
   in
     result
   end;
+
 
 fun any_of_these_is_refuted (pst:Proof.state) (terms:terms) = exists (is_refuted pst) terms;
 
@@ -78,16 +97,22 @@ fun insert (cnjctr:term, lemma_name:string) (old_table:term_lemma_name_table) =
 
 in
 
+fun clean_lemma_name_table _ = Synchronized.change lemma_name_table (K Term_Table.empty): unit;
+
 fun get_lemma_name (ctxt:Proof.context) (term:term) =
   let
-    fun mk_new_name_pair _ = (term, Top_Down_Util.mk_new_lemma_name ctxt)                            : (term * string);
-    val _                  = Synchronized.change lemma_name_table (insert (mk_new_name_pair ()))     : unit;
-    val new_table          = Synchronized.value lemma_name_table                                     : term_lemma_name_table;
-    val result             = lookup new_table term                                                   : string;
+    val standardized_term  = Top_Down_Util.standardize_vnames term                              : term;
+    fun mk_new_name_pair _ = (standardized_term, Top_Down_Util.mk_new_lemma_name ctxt)          : (term * string);
+    val _                  = Synchronized.change lemma_name_table (insert (mk_new_name_pair ())): unit;
+    val new_table          = Synchronized.value lemma_name_table                                : term_lemma_name_table;
+    val result             = lookup new_table standardized_term                                 : string;
   in
     result
   end;
 
 end;
+
+fun get_orkey_name (ctxt:Proof.context) ((Or_N, [term]): Abduction_Graph.key) = get_lemma_name ctxt term
+  | get_orkey_name _ _ = error "get_orkey_name failed. Not an orkey."
 
 end;

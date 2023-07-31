@@ -18,8 +18,8 @@ structure PGraph: GRAPH
 
 type abduction_node;
 
-type key;
-type keys;
+type key = (node_type * terms(*normal terms not thms*));
+type keys = key list;
 
 val print_key: Proof.context -> key -> unit list;
 val equal_keys: (key * key) -> bool;
@@ -50,7 +50,7 @@ val is_proved_completely                         : abduction_graph -> key -> boo
 (* query on abduction_node for ornode *)
 val is_final_goal                                : abduction_graph -> key -> bool;
 val lemma_name_of                                : abduction_graph -> key -> string;
-val proof_of                                     : abduction_graph -> key -> string;
+val proof_of                                     : abduction_graph -> key -> strings;
 val proof_id_of                                  : abduction_graph -> key -> int option;
 
 val grand_parents                                : abduction_graph -> key -> keys;
@@ -58,13 +58,15 @@ val grand_children                               : abduction_graph -> key -> key
 val all_gg_parents_are_proved                    : abduction_graph -> key -> bool;
 
 (* query on abduction_node for or2and_edge *)
-val or2and_edge_to_proof                         : abduction_graph -> key -> string;
+val or2and_edge_to_proof                         : abduction_graph -> key -> strings;
 
 val is_worth_proving                             : Proof.context -> abduction_graph -> key -> bool;
 
 (*TODO: it is a little strange that we have proof_of and or2and_edge_to_proof separately.*)
 val get_final_goal_term                          : abduction_graph -> term;
+val get_leaf_orterms                             : abduction_graph -> terms;
 val get_final_goal_key                           : abduction_graph -> key;
+(* TODO: orkeys_tobe_expanded_in should be improved using Abduction_Tree. *)
 val orkeys_tobe_expanded_in                      : Proof.context -> abduction_graph -> keys;
 
 val goal_as_string                               : Proof.state -> key -> string;
@@ -73,10 +75,10 @@ val goal_as_string                               : Proof.state -> key -> string;
 val final_goal_proved_completely                 : abduction_graph -> bool;
 
 val mk_pst_to_prove_from_key                     : Proof.state -> key -> Proof.state;(*TODO: Is it necessary to expose this function?*)
-val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * string) option;
+val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * strings) option;
 
-val print_lemma_and_proof_of_key        : Proof.state -> abduction_graph -> key -> string; (*TODO: move this to Abduction_Graph.ML*)
-val print_proof_of_graph : Proof.state -> abduction_graph -> unit;
+val print_lemma_and_proof_of_key                 : Proof.state -> abduction_graph -> key -> string; (*TODO: move this to Abduction_Graph.ML*)
+val print_proof_of_graph                         : Proof.state -> abduction_graph -> unit;
 
 end;
 
@@ -235,6 +237,17 @@ fun is_final_goal (graph:abduction_graph) (key as (Or_N, _): key): bool =
     PGraph.get_node graph key |> Abduction_Node.is_final_goal
   | is_final_goal _ _ = false;
 
+fun get_leaf_orterms (graph:abduction_graph) =
+  let
+    val all_keys     = PGraph.keys graph: keys;
+    val or_keys      = filter is_ornode all_keys: keys;
+    fun has_no_child (key:key) = null (PGraph.immediate_succs graph key): bool;
+    val orleaf_keys  = filter has_no_child or_keys: keys;
+    val orleaf_terms = map orkey_to_term orleaf_keys: terms;
+  in
+    orleaf_terms: terms
+  end;
+
 (* get_final_goal_key *)
 fun get_final_goal_key (graph:abduction_graph) =
   let
@@ -267,7 +280,7 @@ fun proof_id_of (graph:abduction_graph) (key:key) = PGraph.get_node graph key |>
 (* proof_of *)
 fun proof_of (graph:abduction_graph) (key:key) =
   let
-    val maybe_proof = PGraph.get_node graph key |> Abduction_Node.proof_of: string option;
+    val maybe_proof = PGraph.get_node graph key |> Abduction_Node.proof_of: strings option;
   in
     if is_some maybe_proof
     then the maybe_proof
@@ -309,6 +322,7 @@ fun final_goal_proved_completely (graph:abduction_graph) =
 
 (* mk_pst_to_prove_from_key *)
 (*TODO: Don't ignore local assumptions.*)
+(*TODO: This function is becoming outdated. Should be removed soon.*)
 fun mk_pst_to_prove_from_key (pst:Proof.state) (Or_N, [term]) =
     let
       val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
@@ -326,13 +340,18 @@ fun mk_pst_to_prove_from_key (pst:Proof.state) (Or_N, [term]) =
 (* prove_orkey_completely *)
 fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph:abduction_graph) (pst:Proof.state) =
     let
-      val lemma_name            = lemma_name_of graph or_key                                                : string;
-      val pst_to_prove          = mk_pst_to_prove_from_key pst or_key                                       : Proof.state;
+      fun tracing' _ = ();
+      val lemma_name            = lemma_name_of graph or_key                                                 : string;
+      val _ = tracing' "Before calling mk_pst_to_prove_from_key from prove_orkey_completely"
+      val pst_to_prove          = mk_pst_to_prove_from_key pst or_key                                        : Proof.state;
       val timeouts              = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
-      val maybe_result          = TBC_Utils.pst_to_proofscript_opt timeouts "Attack_On_Or_Node" pst_to_prove: (string * Proof.state) option;
+      val _ = tracing' "Before calling TBC_Utils.pst_to_proofscripts_opt from prove_orkey_completely"
+      val maybe_result          = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;
+      val _ = tracing' "After calling TBC_Utils.pst_to_proofscripts_opt from prove_orkey_completely"
       val cheated_pst           = TBC_Utils.cheat_lemma_term_in_pst lemma_name lemma_term pst
       fun mk_result (script, _) = Option.map (rpair script) cheated_pst;
-      val result                = Option.mapPartial mk_result maybe_result: (Proof.state * string) option
+      val result                = Option.mapPartial mk_result maybe_result: (Proof.state * strings) option
+      val _ = tracing ("\n " ^ (if is_some result then "YEY! Completely proved " else "Mehhhh did NOT proved ") ^ lemma_name ^ " " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
     in
       result
     end
@@ -341,9 +360,10 @@ fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph
 (* print_lemma_and_proof_of_key *)
 fun print_lemma_and_proof_of_key (pst:Proof.state) (graph:abduction_graph) (key:key) =
   let
-    val name  = lemma_name_of graph key: string;
-    val stmt  = goal_as_string pst key : string;
-    val proof = proof_of graph key     : string;
+    val name  = lemma_name_of graph key : string;
+    val stmt  = goal_as_string pst key  : string;
+    val proofs= proof_of graph key      : strings;
+    val proof = space_implode " " proofs: string;
   in
      "lemma " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ "\n" ^ proof
   end;

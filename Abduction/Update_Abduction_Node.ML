@@ -17,7 +17,7 @@ type abduction_node;
 (* update of abduction_node *)
 val update_gg_parent_not_finished: bool -> abduction_node -> abduction_node;
 val update_proved_completely     : abduction_node -> abduction_node;
-val update_proof_n_proof_id      : string -> abduction_node -> abduction_node;
+val update_proof_n_proof_id      : strings -> abduction_node -> abduction_node;
 val update_is_branch             : abduction_node -> abduction_node;
 
 end;

@@ -1131,10 +1131,11 @@ sig
   val writer_to_state     : (log * 'state) seq -> 'state st_monad;
   val nontac_to_logtac    : node -> 'a nontac -> 'a logtac;
   val logtac_to_stttac    : 'a logtac -> 'a stttac;
-  val log_n_nontac_to_stttac     : log * 'a nontac -> 'a stttac;
-  val string_to_nontac_on_pstate : string -> state nontac;
-  val string_to_stttac_on_pstate : string -> state stttac;
-  val mk_apply_script            : log -> string;
+  val log_n_nontac_to_stttac        : log * 'a nontac -> 'a stttac;
+  val string_to_nontac_on_pstate    : string -> state nontac;
+  val string_to_stttac_on_pstate    : string -> state stttac;
+  val mk_apply_script               : log -> string;
+  val mk_apply_scripts_for_abduction: log -> strings; (*For Proof by Abduction.*)
 end;
 
 (*** Dynamic_Utils: Utility functions useful to generate tactics at run-time. ***)
@@ -1262,11 +1263,15 @@ local
    |  mk_proof_script1 (Subgoal : node) = "subgoal \n"
    |  mk_proof_script1 (Defer   : node) = "defer \n"
    |  mk_proof_script1 (Apply n : node) = mk_apply_script1 n;
+
 in
   fun mk_apply_script (log:log) =
     map mk_proof_script1 log
     |> String.concat
     |> Active.sendback_markup_properties [Markup.padding_command] : string;
+
+  fun mk_apply_scripts_for_abduction (log:log) = map mk_proof_script1 log;
+
 end;
 
 end;

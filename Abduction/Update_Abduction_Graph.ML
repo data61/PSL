@@ -20,9 +20,8 @@ type keys;
 val update_gg_parent_not_finished     : update_abduction_graph;
 val update_is_branch                  : key -> update_abduction_graph;(*TODO: no need to expose?*)
 val update_proved_wo_assmng_cnjctr    : key -> update_abduction_graph;
-val update_after_proving_ornode       : (*proof*)string -> (*or*)key -> Proof.context -> update_abduction_graph;
+val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
 val add_andnode                       : terms -> abduction_graph -> keys * abduction_graph;
-val add_edge_acyclic_if_possible      : key -> key -> update_abduction_graph;
 val add_edges_from_andnode_to_ornodes : (*and*)key -> update_abduction_graph;
 val add_child_ornode                  : (string * term) -> update_abduction_graph;
 
@@ -73,7 +72,7 @@ end;
 local
 
 (* update_proof_n_proof_id *)
-fun update_proof_n_proof_id (proof:string) (key:key) (graph:abduction_graph) =
+fun update_proof_n_proof_id (proof:strings) (key:key) (graph:abduction_graph) =
     PGraph.map_node key (Update_Abduction_Node.update_proof_n_proof_id proof) graph: abduction_graph;
 
 (* update_proved_completely *)
@@ -140,7 +139,7 @@ and update_branch key graph (forall_or_exists) (parent_or_grand_parent) (child_o
               val from_or_edges          = PGraph.immediate_succs graph_w_one_node_updated' key
               val inter_edges            = inter equal_keys to_and_edges from_or_edges;
               val or2edge                = if length inter_edges > 0 then hd inter_edges else error "graph_w_one_node_updated failed!";
-              val script_to_prove_ornode = or2and_edge_to_proof graph_w_one_node_updated' or2edge: string;
+              val script_to_prove_ornode = or2and_edge_to_proof graph_w_one_node_updated' or2edge: strings;
             in
               update_proof_n_proof_id script_to_prove_ornode key graph_w_one_node_updated'
             end
@@ -161,7 +160,7 @@ and update_branch key graph (forall_or_exists) (parent_or_grand_parent) (child_o
     end;
 
 (*Important tricky part!*)
-fun update_after_proving_ornode (proof:string) (or_key as (Or_N, _): key) (ctxt:Proof.context) (g:abduction_graph) =
+fun update_after_proving_ornode (proof:strings) (or_key as (Or_N, _): key) (ctxt:Proof.context) (g:abduction_graph) =
   let
     val updated1 = update_proof_n_proof_id proof or_key g;
     val updated2 = update_proved_wo_assmng_cnjctr or_key updated1;
@@ -183,18 +182,14 @@ fun add_nodes (key_value_pairs: (key * abduction_node) list) (graph: abduction_g
     end;
 
 (* add_andnode *)
-fun add_andnode (subgoals:terms) (graph: abduction_graph) =
+fun add_andnode (subgoals:terms) (graph: abduction_graph): (keys * abduction_graph) =
     add_nodes [mk_andnode subgoals] graph "and";
-
-(* add_edge_acyclic_if_possible *)
-fun add_edge_acyclic_if_possible source_key target_key g =
-  PGraph.add_edge_acyclic (source_key, target_key) g handle PGraph.CYCLES _ => (tracing "CYCLES detected!"; g): abduction_graph;
 
 (* add_edges_from_andnode_to_ornodes *)
 fun add_edges_from_andnode_to_ornodes (and_key as (And_N, terms):key) (graph_w_child_ornodes:abduction_graph) =
   let
-    val ornode_keys             = map (fn trm => (Or_N, [trm])) terms                                          : keys;
-    val graph_w_and_to_or_edges = fold (add_edge_acyclic_if_possible and_key) ornode_keys graph_w_child_ornodes: abduction_graph;
+    val ornode_keys             = map (fn trm => (Or_N, [trm])) terms                                                            : keys;
+    val graph_w_and_to_or_edges = fold (fn target_key => PGraph.add_edge (and_key, target_key)) ornode_keys graph_w_child_ornodes: abduction_graph;
   in
     graph_w_and_to_or_edges
   end

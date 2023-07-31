@@ -15,7 +15,7 @@ type or2and_edge;
 
 (** proof_node **)
 datatype abduction_node =
-  Or_Node   of ornode  (*Edges from Or_Node are alternative steps to prove this node, one of which we have to complete.*)
+  Or_Node   of ornode  (*Edgs from Or_Node are alternative steps to prove this node, one of which we have to complete.*)
 | And_Node  of andnode (*sub-goals, all of which we have to prove.*)
 | Or_To_And of or2and_edge;
 
@@ -29,14 +29,14 @@ val is_proved_completely                         : abduction_node -> bool;
 
 (* query on abduction_node for ornode *)
 val proof_id_of                                  : abduction_node -> int option;
-val proof_of                                     : abduction_node -> string option;
+val proof_of                                     : abduction_node -> strings option;
 val is_branch                                    : abduction_node -> bool;
 val is_final_goal                                : abduction_node -> bool;
 val lemma_name_of                                : abduction_node -> string;
 val is_worth_proving                             : Proof.context -> abduction_node -> bool;
 
 (* query on abduction_node for or2and_edge *)
-val or2and_edge_to_proof         : abduction_node -> string;
+val or2and_edge_to_proof         : abduction_node -> strings;
 
 (* destructors of abduction_node *)
 val dest_Or_Node  : abduction_node -> ornode;

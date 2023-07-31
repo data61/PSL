@@ -9,6 +9,19 @@ theory Abduction
   keywords "prove" :: thy_goal_stmt
 begin
 
+lemma "True"
+  by auto
+
+ML\<open>
+Specification.theorem_cmd false "lemma" NONE (K I):  Attrib.binding ->
+              (xstring * Position.T) list ->
+                Element.context list ->
+                  Element.statement ->
+                    bool -> local_theory -> Proof.state;
+
+type sdf = Element.statement
+\<close>
+
 (*** Top_Down_Util ***)
 ML_file \<open>Top_Down_Util.ML\<close>
 ML_file \<open>Top_Down_Util2.ML\<close>
@@ -20,7 +33,6 @@ ML_file \<open>Remove_Function.ML\<close>
 ML_file \<open>Remove_Outermost_Assumption.ML\<close>
 ML_file \<open>Replace_Imp_With_Eq.ML\<close>
 ML_file \<open>SeLFiE_For_Top_Down.ML\<close>
-ML_file \<open>All_Top_Down_Conjecturing.ML\<close>
 ML_file \<open>And_Node.ML\<close>
 ML_file \<open>Or_Node.ML\<close>
 ML_file \<open>Or2And_Edge.ML\<close>
@@ -28,6 +40,10 @@ ML_file \<open>Abduction_Node.ML\<close>
 ML_file \<open>Update_Abduction_Node.ML\<close>
 ML_file \<open>Abduction_Graph.ML\<close>
 ML_file \<open>Shared_State.ML\<close>
+ML_file \<open>All_Top_Down_Conjecturing.ML\<close>
+(*
+ML_file \<open>Abduction_Tree_Proved.ML\<close>
+*)
 ML_file \<open>Update_Abduction_Graph.ML\<close>
 ML_file \<open>Seed_Of_Or2And_Edge.ML\<close>
 ML_file \<open>Proof_By_Abduction.ML\<close>
@@ -52,7 +68,7 @@ strategy Attack_On_Or_Node =
     Thens [
       Smart_Induct,
       Thens [
-        Auto,
+        User< simp_all>,
         IsSolved
       ]
     ],
@@ -93,6 +109,8 @@ fun theorem _ descr =
     (((long_statement || short_statement) >> (fn (_, _, _, _(*elems*), concl) =>
        (fn lthy =>
           let
+            val _ = Shared_State.clean_refuation_table ();
+            val _ = Shared_State.clean_lemma_name_table ();
             fun stmt_to_stmt_as_string (Element.Shows [((_, _), [(stmt, _)])]) = stmt: string
               | stmt_to_stmt_as_string _ = error "stmt_to_concl_name failed in United_Reasoning";
             val cncl_as_trm  = Syntax.read_term lthy (stmt_to_stmt_as_string concl) |> Top_Down_Util.standardize_vnames: term;
@@ -143,6 +161,13 @@ in
 end;
 
 
+val _ = Proof.local_skip_proof:  bool -> Proof.state -> Proof.state;
+val _ = Proof.assume;
+val _ = (Method.sorry_text true);
+
+val pro = @{prop "x (qrevflat var_0 nil2) nil2 = revflat var_0 \<Longrightarrow> x (qrevflat var_0 (x (rev var_1) nil2)) nil2 = x (revflat var_0) (rev var_1) "}
+
+fun foo pst = Proof.theorem NONE (K I) [[(pro, [])]] (Proof.context_of pst) |> Proof.local_skip_proof true
 \<close>
 
 end

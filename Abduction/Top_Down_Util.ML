@@ -212,15 +212,24 @@ fun get_lemma_names_from_sh_output (thy:theory) (sh_output:string) =
     val keywords      = Thy_Header.get_keywords thy                       : Keyword.keywords;
     val tokens        = Token.explode keywords Position.none sh_output    : Token.T list;
     val strings       = map Token.unparse tokens                          : strings;
-    val filtered      = filter (String.isPrefix "top_down_lemma_") strings: strings;
+    fun get_base_name (name:string) = if Long_Name.is_qualified name then Long_Name.base_name name else name;
+    val base_names    = map get_base_name strings: strings;
+    val filtered      = filter (String.isPrefix "top_down_lemma_") base_names: strings;
 in
     filtered
 end;
 
 (*TODO: FIXME: how? Proof.assume?*)
 fun assume_cnjctrs_in_pst (name_term_pairs: (string * term) list) (pst:Proof.state): Proof.state =
-  Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) pst;
 
+  Proof.map_context (TBC_Utils.assume_terms_in_ctxt name_term_pairs) pst;
+(*
+  let
+    val ctxt = Proof.context_of pst: Proof.context;
+  in
+
+  end
+*)
 fun is_thm_registered (ctxt:Proof.context) (thm_name:string) = try (Proof_Context.get_thm ctxt) thm_name |> is_some: bool;
 
 fun mk_new_lemma_name (ctxt:Proof.context): string =

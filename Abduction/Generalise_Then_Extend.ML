@@ -76,7 +76,7 @@ let
 in
   result_terms
 end;
-
+(*TODO: FIXME: use Isabelle_Utils.get_free_var_names_in_trm*)
 fun get_free_vars_in_trm' trm = if Term.is_Free trm then [trm] else [];
 
 fun get_free_vars_in_trm trm = Term.fold_aterms (fn trm => fn acc => get_free_vars_in_trm' trm @ acc |> distinct (op =)) trm [];

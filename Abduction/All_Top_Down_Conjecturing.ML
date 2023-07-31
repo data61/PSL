@@ -69,7 +69,8 @@ structure S4TD = SeLFiE_For_Top_Down;
 
 fun top_down_conjectures (ctxt:Proof.context) trm =
   let
-    val _ = tracing "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
+    fun tracing' mssg = ()(*tracing mssg*);
+    val _ = tracing' "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
     val standardized_trm = Top_Down_Util.standardize_vnames trm
     val results = (
       Remove_Outermost_Assumption.top_down_conjectures ctxt standardized_trm
@@ -82,14 +83,17 @@ fun top_down_conjectures (ctxt:Proof.context) trm =
     @ template_conjectures ctxt standardized_trm)
       |> Par_List.map (apsnd (simp_non_prop_term ctxt))
       |> Par_List.map (apsnd Top_Down_Util.standardize_vnames)
+      |> map (fn (name, term) => (name, if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term))
       |> distinct (fn (f, s) => snd f = snd s)
 (*
       |> parallel_filter_out (fn (_, trm) => eq_over_same_func ctxt trm)
 *)
+      |> parallel_filter_out (fn (_, cnjctr_trm) => cnjctr_trm = trm)
       |> parallel_filter_out (fn (_, trm) => S4TD.run_assertion ctxt trm S4TD.has_func_with_three_occs_in_a_row)
       |> parallel_filter     (fn (_, trm) => S4TD.run_assertion ctxt trm S4TD.fvars_in_prem_should_appear_in_concl)
-      |> parallel_filter     (fn (_, trm) => S4TD.run_assertion ctxt trm S4TD.does_not_have_trivial_equality);
-    val _ = tracing "[[[[[[[[[[[top_down_conjecture ends]]]]]]]]]]": unit;
+      |> parallel_filter     (fn (_, trm) => S4TD.run_assertion ctxt trm S4TD.does_not_have_trivial_equality)
+      |> map (fn (_,    term) => (Shared_State.get_lemma_name ctxt term, term));
+    val _ = tracing' "[[[[[[[[[[[top_down_conjecture ends]]]]]]]]]]": unit;
   in
     results
   end;

@@ -13,6 +13,7 @@ end;
 (*** SUBTOOLS: A collection of sub-tools. ***)
 signature SUBTOOLS =
 sig
+  val tool_output_n_timeout_to_logtac: string -> real -> Proof.state -> (Dynamic_Utils.log * Proof.state) Seq.seq;
   val quickcheck  : real -> Proof.state Dynamic_Utils.stttac;
   val nitpick     : real -> Proof.state Dynamic_Utils.stttac;
   val hammer      : real -> Proof.state Dynamic_Utils.stttac;
@@ -239,8 +240,9 @@ fun state_stttacs (timeout:real) (pst:Proof.state) =
   let
     val induct_output_strs = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds timeout) pst_to_smart_induct_output_strs) pst: strings;
     val stttacs            = Par_List.map mk_state_stttac induct_output_strs:  Proof.state Dynamic_Utils.stttac list;
+    val top_5              = take 5 stttacs: Proof.state Dynamic_Utils.stttac list;;
   in
-    stttacs
+    top_5
   end;
 
 end;

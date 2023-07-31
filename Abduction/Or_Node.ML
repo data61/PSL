@@ -24,7 +24,7 @@ val mk_ornode: is_final_goal -> string -> term -> ornode;
 (* update of ornode *)
 val update_gg_parent_not_finished: ornode -> bool -> ornode;
 val update_proved_completely     : ornode -> ornode;
-val update_proof_n_proof_id      : string -> ornode -> ornode;
+val update_proof_n_proof_id      : strings -> ornode -> ornode;
 val update_is_branch             : ornode -> ornode;
 
 end;
@@ -40,7 +40,7 @@ type ornode = {
   is_branch                       : bool,
   lemma_name                      : string,
   lemma_term                      : term,(*For now we ignore "assumes" and "using".*)
-  proof                           : string option,(*Proof script to finish proving this node.*)
+  proof                           : strings option,(*Proof script to finish proving this node.*)
   proof_id                        : int option,(*To track dependency. based on the timing proved with or w/o assuming conjectures.*)
   proved_completely               : bool, (*= proved w/o assuming conjectures.*)
   (* If an or-node has a great grandparent that is not proved or refuted and this node is not
@@ -93,7 +93,7 @@ fun update_gg_parent_not_finished ({
   is_branch        : bool,
   lemma_name       : string,
   lemma_term       : term,
-  proof            : string option,
+  proof            : strings option,
   proof_id         : int option,
   proved_completely: bool,...
 }: ornode) (gg_parent_not_finished: bool) =
@@ -114,7 +114,7 @@ fun update_proved_completely ({
   is_branch             : bool,
   lemma_name            : string,
   lemma_term            : term,
-  proof                 : string option,
+  proof                 : strings option,
   proof_id              : int option,
   gg_parent_not_finished: bool,...
 }: ornode) =
@@ -130,7 +130,7 @@ fun update_proved_completely ({
 }: ornode;
 
 (* update_proof_n_proof_id *)
-fun update_proof_n_proof_id (proof:string) ({
+fun update_proof_n_proof_id (proof:strings) ({
   final_goal            : bool,
   is_branch             : bool,
   lemma_name            : string,
@@ -157,7 +157,7 @@ fun update_is_branch ({
   final_goal            : bool,
   lemma_name            : string,
   lemma_term            : term,
-  proof                 : string option,
+  proof                 : strings option,
   proof_id              : int option,
   proved_completely     : bool,
   gg_parent_not_finished: bool,...

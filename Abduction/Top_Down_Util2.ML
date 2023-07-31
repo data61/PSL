@@ -169,6 +169,7 @@ fun replace_redundant_compound_subtrm_with_free_var ctxt (lhs, rhs) =
 |> replace_redundant_compound_subtrm_with_free_var' ctxt
 |> swap;
 
+(*TODO: duplicated definition of remove_Trueprop.*)
 fun remove_Trueprop (Abs (name, typ, trm)) = Abs (name, typ, remove_Trueprop trm)
   | remove_Trueprop (Const ("HOL.Trueprop", _) $ trm2) = remove_Trueprop trm2
   | remove_Trueprop (trm1 $ trm2) = remove_Trueprop trm1 $ remove_Trueprop trm2

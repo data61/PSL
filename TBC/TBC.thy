@@ -110,7 +110,8 @@ val original_goal_was_proved_in_nth_round:    pnodes -> int -> bool;
 val number_of_conjectures_proved_in_nth_round:pnodes -> int -> int;
 val ctxt_n_trm_to_conjecture:                 Proof.context -> term -> {lemma_name:string, lemma_stmt:string};
 val psl_strategy_to_monadic_tactic:           timeouts -> Monadic_Prover.str -> Proof.state -> Proof.state Monadic_Prover.monad;
-val pst_to_proofscript_opt:                   timeouts -> string -> Proof.state -> (string * Proof.state) option;
+val pst_to_proofscript_opt:                   timeouts -> string -> Proof.state -> (string  * Proof.state) option;
+val pst_to_proofscripts_opt:                  timeouts -> string -> Proof.state -> (strings * Proof.state) option;
 val pst_n_conjecture_has_counterexample:      Proof.state -> string -> bool;
 val term_has_counterexample_in_pst:           Proof.state-> term -> bool;
 val assume_term_in_ctxt:                      (string * term) -> Proof.context -> local_theory;
@@ -240,6 +241,16 @@ fun pst_to_proofscript_opt (timeouts:timeouts) (strategy_name:string )(pst:Proof
     val result_seq          = psl_strategy_to_monadic_tactic timeouts psl_strategy pst []     : (Dynamic_Utils.log * Proof.state) Seq.seq;
     val result_opt          = try Seq.hd result_seq                                           : (Dynamic_Utils.log * Proof.state) option;
     val result = Option.map (apfst Dynamic_Utils.mk_apply_script) result_opt                  : (string * Proof.state) option;
+  in
+    result
+  end;
+
+fun pst_to_proofscripts_opt (timeouts:timeouts) (strategy_name:string )(pst:Proof.state): (strings * Proof.state) option =
+  let
+    val psl_strategy        = PSL_Interface.lookup (Proof.context_of pst) strategy_name |> the: PSL_Interface.strategy;
+    val result_seq          = psl_strategy_to_monadic_tactic timeouts psl_strategy pst []     : (Dynamic_Utils.log * Proof.state) Seq.seq;
+    val result_opt          = try Seq.hd result_seq                                           : (Dynamic_Utils.log * Proof.state) option;
+    val result = Option.map (apfst Dynamic_Utils.mk_apply_scripts_for_abduction) result_opt   : (strings * Proof.state) option;
   in
     result
   end;
@@ -451,6 +462,7 @@ fun get_relevant_constants (ctxt:Proof.context) (goal:term) =
     fun print_terms (trms:term list) = map (fn trm => tracing ("  " ^ Term.term_name trm)) trms;
     fun deep_print (trms) = map (fn trm => tracing ("  " ^ fst (dest_Const trm) ^ " " ^ range_name trm )) trms;
     fun we_have_something (trms:'a list) (something_str:string) =  tracing ("We have " ^ Int.toString (length trms) ^ something_str);
+
     (* debug *)
     val _ = we_have_something consts_in_cncl " constants in cl before filtering:";
     val _ = deep_print consts_in_cncl;
