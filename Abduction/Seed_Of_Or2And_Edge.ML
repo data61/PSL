@@ -242,9 +242,6 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode (pst:Proof.state) (parent_
    let
      fun tracing' mssg = ();
      val _ = tracing' "\n--------- Try to prove this:";
-     (*
-     val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_orkey;
-     *)
      val _ = tracing' "--------- assuming these:";
      val _ = map (tracing' o (Isabelle_Utils.trm_to_string (Proof.context_of pst)) o snd) new_goals;
      val _ = if Or2And_Edge.proof_is_from_tactic proof 
@@ -306,13 +303,7 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode (pst:Proof.state) (parent_
 
      val proof_to_get_here = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof: strings;
      val pst_after_applying_how_to_get_andnodes_from_ornode = apply_proofs proof_to_get_here pst_to_apply_tactics: Proof.state;
-(*
-     val pst_to_prove_cnjctrs = Abduction_Graph.mk_pst_to_prove_from_key pst parent_orkey: Proof.state;
-     val pst_to_prove_parental_orkey = Abduction_Graph.mk_pst_to_prove_from_key pst parent_orkey: Proof.state;
-     
-     val pst_w_or_terms_assmd = Top_Down_Util.assume_cnjctrs_in_pst new_goals pst       : Proof.state;
-*)
-     (*TODO: maybe we should assume or-nodes that have been already proved completely in the abduction_graph.*)
+
      val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
      (*very expensive*)
      val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "Finish_Goal_After_Assuming_Subgoals_And_Conjectures" pst_after_applying_how_to_get_andnodes_from_ornode
@@ -360,60 +351,7 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode (pst:Proof.state) (parent_
    end
  | add_or2and_edge_and_connect_it_to_parental_ornode _ _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
 
-(*
- * 0. We have an or-node to expand.
- * 1. add an or2and-edge.
- * 2. connect the or2and-edge to its parental or-node.
- * 3. prove the parental or-node using the sub-goals or some conjectures.
- * 4. add an and-node that consists of the sub-goals or used conjectures.
- * 5. connect the and-node to its parental or2and-edge.
- * 6. add child-or-nodes that correspond to the sub-goals or used conjectures in the and-node.
- * 7. connect the child-or-nodes to the and-node.
- *)
-fun add_then_connect_or2and_edge_andnd_ornds (pst:Proof.state) (parent_ornd:key) (seed: seed_of_or2and_edge) (graph:abduction_graph): abduction_graph =
-  let
-    fun tracing' mssg = ();
-    val graph_w_ornode_is_now_branch        = UAG.update_is_branch parent_ornd graph                                 : abduction_graph;
-    (*add an or2and_ege and connect them to their parental or-node if we can prove the or-node assuming the and-node.*)
-    (*1,2,3*)
-    val (or2and_edge_opt,
-         used_and_node_name_term_pairs,
-         graph_w_connected_or2add_edges) =
-         add_or2and_edge_and_connect_it_to_parental_ornode pst parent_ornd seed graph_w_ornode_is_now_branch;
-    val parent_ornd_is_proved_assmng_seed   = is_some or2and_edge_opt: bool;
-  in
-    if   parent_ornd_is_proved_assmng_seed
-    then
-      let
-        val _ = tracing' "BBB parent_ornd_is_proved_assmng_seed TRUE"
-        val and_node_terms = map snd used_and_node_name_term_pairs: terms;
-        (*length added_andnode_keys should be 1.*)
-        (*4*)
-        val (added_andnode_keys, graph_w_addnodes) = UAG.add_andnode and_node_terms graph_w_connected_or2add_edges                       : (key list * abduction_graph);
-        val _                                      = if length added_andnode_keys = 1 then () else error "length added_andnode_keys != 1"
-        val or2and_edge_key                        = the or2and_edge_opt                                                                 : key;
-        val added_andnode_key                      = hd added_andnode_keys                                                               : key;
-        (*5*)
-        val graph_w_connected_andnode              = PGraph.add_edge (or2and_edge_key, added_andnode_key) graph_w_addnodes               : abduction_graph;
-        (*6*)
-        val graph_w_child_ornode                   = fold UAG.add_child_ornode used_and_node_name_term_pairs graph_w_connected_andnode   : abduction_graph;
-        (*7*)
-        val graph_w_connected_child_ornode         = UAG.add_edges_from_andnode_to_ornodes added_andnode_key graph_w_child_ornode        : abduction_graph;
-      in
-        graph_w_connected_child_ornode
-      end
-    else
-     (tracing' "BBB parent_ornd_is_proved_assmng_seed FALSE"; 
-      graph
-      )
-  end;
-
-fun seeds_to_updated_graph (pst:Proof.state) (parent_ornd:key) (seeds: seeds_of_or2and_edge) (graph:abduction_graph) =
-  fold (add_then_connect_or2and_edge_andnd_ornds pst parent_ornd) seeds graph: abduction_graph;
-
-
 (* decremental abduction*)
-(* TODO: Too much code-duplication *)
 (*
  * step 0. We have an or-node to expand.
  * step 1. add an or2and-edge.
@@ -427,62 +365,61 @@ fun seeds_to_updated_graph (pst:Proof.state) (parent_ornd:key) (seeds: seeds_of_
 fun one_step (pst:Proof.state) (parent_ornd:key) (seed: seed_of_or2and_edge) (graph:abduction_graph): (seeds_of_or2and_edge * abduction_graph) =
   let
     fun tracing' mssg = ();
-    val _ = tracing' "\n++++ one_step starts ++++";
     val graph_w_ornode_is_now_branch        = UAG.update_is_branch parent_ornd graph: abduction_graph;
     (*add an or2and_ege and connect them to their parental or-node if we can prove the or-node assuming the and-node.*)
     (*step 1, step 2, step 3*)
-    val (or2and_edge_opt, relevant_cnjctrs, graph_w_connected_or2add_edges) =
-       add_or2and_edge_and_connect_it_to_parental_ornode pst parent_ornd seed graph_w_ornode_is_now_branch;
+    val (or2and_edge_opt,
+         used_andnd_name_term_pairs,
+         graph_w_connected_or2add_edges) =
+         add_or2and_edge_and_connect_it_to_parental_ornode pst parent_ornd seed graph_w_ornode_is_now_branch;
     val parent_ornd_is_proved_assmng_seed   = is_some or2and_edge_opt: bool;
   in
     if   parent_ornd_is_proved_assmng_seed
     then
       let
-        val and_node_terms = map snd relevant_cnjctrs: terms;
+        val and_node_terms = map snd used_andnd_name_term_pairs: terms;
         (*length added_andnode_keys should be 1.*)
+        (*step 4*)
         val (added_andnode_keys, graph_w_addnodes) = UAG.add_andnode and_node_terms graph_w_connected_or2add_edges                       : (key list * abduction_graph);
         val _                                      = if length added_andnode_keys = 1 then () else error "length added_andnode_keys != 1"
         val or2and_edge_key                        = the or2and_edge_opt                                                                 : key;
-        (*step 4*)
         val added_andnode_key                      = hd added_andnode_keys                                                               : key;
         (*step 5*)
-        val graph_w_connected_andnode              = PGraph.add_edge (or2and_edge_key, added_andnode_key) graph_w_addnodes : abduction_graph;
+        val graph_w_connected_andnode              = PGraph.add_edge (or2and_edge_key, added_andnode_key) graph_w_addnodes               : abduction_graph;
         (*step 6*)
-        val graph_w_child_ornode                   = fold UAG.add_child_ornode relevant_cnjctrs graph_w_connected_andnode      : abduction_graph;
+        val graph_w_child_ornode                   = fold UAG.add_child_ornode used_andnd_name_term_pairs graph_w_connected_andnode                : abduction_graph;
         (*step 7*)
         val graph_w_connected_child_ornode         = UAG.add_edges_from_andnode_to_ornodes added_andnode_key graph_w_child_ornode        : abduction_graph;
 
-        val _ = tracing' "\n USED ANDND TERMS:"
-      
-        val _ = map (tracing' o fst) relevant_cnjctrs
-(*
-        val _ = map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of (#state seed)) o snd) relevant_cnjctrs
-*)        
-        val mk_new_goals_wo_one_used_goal = map (remove (op =)) relevant_cnjctrs   : ((string * term) list -> (string * term) list) list;
-        val old_goals                     = #new_goals seed                                  : (string * term) list;
+        (*=from here only for explicit conjecturing not for implicit conjecturing=*)
+        val mk_new_goals_wo_one_used_goal = map (remove (op =)) used_andnd_name_term_pairs: ((string * term) list -> (string * term) list) list;
+        val old_goals                     = #new_goals seed                     : (string * term) list;
         val new_goals_wo_one_used_goal    = Utils.map_arg old_goals mk_new_goals_wo_one_used_goal
                                           |> distinct (op =)
                                           |> map (distinct (op =)): (string * term) list list;
         val new_seeds                     = map conjecture_to_seed_of_or2and_edge new_goals_wo_one_used_goal: seeds_of_or2and_edge;
+        (*=till here only for explicit conjecturing not for implicit conjecturing=*)
       in
         (new_seeds, graph_w_connected_child_ornode)
       end
     else ([], graph)
   end;
 
+(*implicit conjecturing*)
+fun seeds_to_updated_graph (pst:Proof.state) (parent_ornd:key) (seeds: seeds_of_or2and_edge) (graph:abduction_graph) =
+  fold (snd oo one_step pst parent_ornd) seeds graph: abduction_graph;
+
+(*explicit conjecturing*)
 fun decremental (pst:Proof.state) (_          :key) ([]         : seeds_of_or2and_edge) (graph:abduction_graph) = ([], graph)
   | decremental (pst:Proof.state) (parent_ornd:key) (seed::seeds: seeds_of_or2and_edge) (graph:abduction_graph) =
-let
-(*
-  val _ = tracing "= decremental ="
-*)
-  val (new_seeds, new_graph) = one_step pst parent_ornd seed graph: (seeds_of_or2and_edge * abduction_graph);
-  (* I only compare the name of conjectures. It seems that in some cases we have similar conjectures of the same name.
-   * This is probably caused by the inconsistent use of the conversion from term to prop. *)
-  val distinct_seeds         = distinct (fn (seed1, seed2) => map fst (#new_goals seed1) = map fst (#new_goals seed2)) (seeds @ new_seeds)
-in
-  decremental pst parent_ornd distinct_seeds new_graph
-end;
+    let
+      val (new_seeds, new_graph) = one_step pst parent_ornd seed graph: (seeds_of_or2and_edge * abduction_graph);
+      (* I only compare the name of conjectures. It seems that in some cases we have similar conjectures of the same name.
+       * This is probably caused by the inconsistent use of the conversion from term to prop. *)
+      val distinct_seeds         = distinct (fn (seed1, seed2) => map fst (#new_goals seed1) = map fst (#new_goals seed2)) (seeds @ new_seeds)
+    in
+      decremental pst parent_ornd distinct_seeds new_graph
+    end;
 
 fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (seed:seed_of_or2and_edge) (graph:abduction_graph) =
   let

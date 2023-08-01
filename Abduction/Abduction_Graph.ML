@@ -66,7 +66,6 @@ val is_worth_proving                             : Proof.context -> abduction_gr
 val get_final_goal_term                          : abduction_graph -> term;
 val get_leaf_orterms                             : abduction_graph -> terms;
 val get_final_goal_key                           : abduction_graph -> key;
-(* TODO: orkeys_tobe_expanded_in should be improved using Abduction_Tree. *)
 val orkeys_tobe_expanded_in                      : Proof.context -> abduction_graph -> keys;
 
 val goal_as_string                               : Proof.state -> key -> string;
@@ -77,7 +76,7 @@ val final_goal_proved_completely                 : abduction_graph -> bool;
 val mk_pst_to_prove_from_key                     : Proof.state -> key -> Proof.state;(*TODO: Is it necessary to expose this function?*)
 val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * strings) option;
 
-val print_lemma_and_proof_of_key                 : Proof.state -> abduction_graph -> key -> string; (*TODO: move this to Abduction_Graph.ML*)
+val print_lemma_and_proof_of_key                 : Proof.state -> abduction_graph -> key -> string;
 val print_proof_of_graph                         : Proof.state -> abduction_graph -> unit;
 
 end;
