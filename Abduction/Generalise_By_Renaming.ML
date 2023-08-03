@@ -9,7 +9,7 @@
  *)
 (*** structure Generalise_By_Renaming ***)
 structure Generalise_By_Renaming: TOP_DOWN_CONJECTURING =
-(*TODO: too many candidates are produced.*)
+
 struct
 
 fun count_fvars' (Const _) acc = acc
@@ -68,16 +68,10 @@ fun generalise_by_rename_free_variables' _ (trm:term) =
     end
   else [];
 
-(*Util*)
-fun remove_Trueprop (Abs (name, typ, trm)) = Abs (name, typ, remove_Trueprop trm)
-  | remove_Trueprop (Const ("HOL.Trueprop", _) $ trm2) = remove_Trueprop trm2
-  | remove_Trueprop (trm1 $ trm2) = remove_Trueprop trm1 $ remove_Trueprop trm2
-  | remove_Trueprop atom = atom;
-
 fun top_down_conjectures ctxt trm =
   map (fn tm => ("generalise_by_renaming", tm))
   (generalise_by_rename_free_variables' ctxt trm
-  |> map (HOLogic.mk_Trueprop o remove_Trueprop)
+  |> map (HOLogic.mk_Trueprop o Top_Down_Util.remove_Trueprop)
   |> map (try (Syntax.check_term ctxt))
   |> Utils.somes);
 

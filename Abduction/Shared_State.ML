@@ -29,13 +29,12 @@ val defined          = Term_Table.defined;
 
 local
 
-type term_refute_table        = bool Term_Table.table; (*true = refuted, false = not refuted*)
-type synched_refutation_table = term_refute_table Synchronized.var;
-
+type term2bool_table = bool Term_Table.table; (*true = refuted, false = not refuted*)
+type synched_refutation_table = term2bool_table Synchronized.var;
 val refutation_table = Synchronized.var "refutation_table" Term_Table.empty: synched_refutation_table;
-val lookup           = Utils.the' "lookup for get_lemma_name failed." oo Term_Table.lookup;
+val lookup           = Utils.the' "lookup for is_refuted failed." oo Term_Table.lookup;
 (*Once we refute a term. The term remains refuted in the table forever.*)
-fun insert (cnjctr:term, refuted:bool) (table:term_refute_table) =
+fun insert (cnjctr:term, refuted:bool) (table:term2bool_table) =
   case try (Term_Table.insert (op =) (cnjctr, refuted)) table
   of NONE           => table
    | SOME new_table => new_table;
@@ -47,7 +46,7 @@ fun clean_refuation_table _ = Synchronized.change refutation_table (K Term_Table
 fun is_refuted (pst:Proof.state) (cnjctr:term) =
   let
     val cnjctr_prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
-    val old_table         = Synchronized.value refutation_table                                        : term_refute_table;
+    val old_table         = Synchronized.value refutation_table                                        : term2bool_table;
     val already_checked   = defined old_table cnjctr_prop                                              : bool;
     fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * bool);
     val _                 =
@@ -61,8 +60,8 @@ fun is_refuted (pst:Proof.state) (cnjctr:term) =
         in
           Synchronized.change refutation_table (insert pair): unit
         end;
-    val new_table         = Synchronized.value refutation_table                          : term_refute_table;
-    val result            = lookup new_table cnjctr_prop                                 : bool;
+    val new_table         = Synchronized.value refutation_table: term2bool_table;
+    val result            = lookup new_table cnjctr_prop       : bool;
 (*
     val _ = tracing "\n"
 val _ = "Quick-Checking this:"

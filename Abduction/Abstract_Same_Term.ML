@@ -15,7 +15,6 @@ open Term_Table_for_Abduction;
 
 fun abstract_same_term_str (ctxt:Proof.context) (trm:term) =
   let
-    (*TODO: Where should I standardize free variable names? I should avoid repeating this operation as far as possible.*)
     val trm       = standardize_vnames trm: term;
     val p2u_table = Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table (Proof.init ctxt) trm;  
     val p2p_table = Print_To_Inner_Paths.path_to_unode_table_to_print_to_paths_table p2u_table;

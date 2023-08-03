@@ -18,7 +18,7 @@ type keys;
 
 (* update of abduction_graph *)
 val update_gg_parent_not_finished     : update_abduction_graph;
-val update_is_branch                  : key -> update_abduction_graph;(*TODO: no need to expose?*)
+val update_is_branch                  : key -> update_abduction_graph;
 val update_proved_wo_assmng_cnjctr    : key -> update_abduction_graph;
 val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
 val add_andnode                       : terms -> abduction_graph -> keys * abduction_graph;

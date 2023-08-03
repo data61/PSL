@@ -132,23 +132,23 @@ fun equal_keys key_pair = PGraph_Key.ord key_pair = EQUAL;
 type is_final_goal = bool;
 
 fun mk_ornode (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
-let
-  val standardized_goal = Top_Down_Util.standardize_vnames goal;
-in
-  (
-    (Or_N, [standardized_goal]): key,
-    Abduction_Node.mk_ornode is_final_goal lemma_name standardized_goal: abduction_node
-   )
-end;
+  let
+    val standardized_goal = Top_Down_Util.standardize_vnames goal;
+  in
+    (
+      (Or_N, [standardized_goal]): key,
+      Abduction_Node.mk_ornode is_final_goal lemma_name standardized_goal: abduction_node
+     )
+  end;
 
 fun mk_andnode (goals:terms) =
-let
-  val standardized_terms = map Top_Down_Util.standardize_vnames goals;
-  val sorted_terms       = sort Term_Ord.term_ord standardized_terms;
-in
-  ((And_N, sorted_terms): key,
-    Abduction_Node.mk_andnode sorted_terms)
-end;
+  let
+    val standardized_terms = map Top_Down_Util.standardize_vnames goals;
+    val sorted_terms       = sort Term_Ord.term_ord standardized_terms;
+  in
+    ((And_N, sorted_terms): key,
+      Abduction_Node.mk_andnode sorted_terms)
+  end;
 
 (* key to term *)
 fun orkey_to_term (Or_N, [orleaf_term]) = orleaf_term

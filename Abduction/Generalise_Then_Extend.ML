@@ -41,8 +41,6 @@ open Term_Table_for_Abduction;
 
 fun generalise_exactly_one_subterm_str (ctxt:Proof.context) (trm:term) =
   let
-    (*TODO: Where should I standardize free variable names? I should avoid repeating this operation as far as possible.*)
-    val trm                    = standardize_vnames trm                                        : term;
     val p2u_table              = Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table (Proof.init ctxt) trm   : table;
     val numb_of_distinct_fvars = numb_of_distinct_fvars trm                                    : int;
     fun mk_new_unode_of_fvar (var_id:int) (path:ints) = new_unode_of_fvar var_id path                         : unode;

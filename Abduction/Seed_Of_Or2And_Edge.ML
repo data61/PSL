@@ -78,20 +78,7 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (pst:Proof.state) =
           val standardized_subgs = map Top_Down_Util.standardize_vnames subgs_wo_meta_uni: terms;
           val standardized_props = map (fn term => if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term) standardized_subgs: terms;
           val _ = map (tracing' o (Isabelle_Utils.trm_to_string ctxt)) standardized_props: unit list;
-(*
-          fun check_print_read ctxt term = term
-|> (fn x => (tracing ("checking " ^ Isabelle_Utils.trm_to_string ctxt term); x))
-|> (fn x => (tracing "STEP 1"; x))
-           |> Isabelle_Utils.strip_atyp
-|> (fn x => (tracing "STEP 2"; x))
-           |> Syntax.check_term ctxt
-|> (fn x => (tracing "STEP 3"; x))
-           |> Isabelle_Utils.trm_to_string ctxt
-|> (fn x => (tracing "STEP 4"; x))
-           |> Syntax.read_term ctxt
-|> (fn x => (tracing "STEP 5"; x))
-           |> Top_Down_Util.standardize_vnames;
-*)
+
           fun check_print_read ctxt term = term
            |> (fn x => (tracing' ("checking " ^ Isabelle_Utils.trm_to_string ctxt term); x))
            |> Isabelle_Utils.trm_to_string ctxt
@@ -102,7 +89,6 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (pst:Proof.state) =
            |> (fn x => (tracing' "STEP 3"; x))
            |> Syntax.check_term ctxt
            |> (fn x => (tracing' "STEP 4"; x))
-           |> (fn x => (tracing' "STEP 5"; x))
            |> Top_Down_Util.standardize_vnames;
 
 
@@ -145,7 +131,7 @@ fun condition_to_filter_out_cnjctr (parent_or:term) (pst:Proof.state) (ag:abduct
       val upper_limit = 45.0
       fun concl_is_alpha_eq_to trm imp =
         let
-          val cncl = Logic.strip_imp_concl imp |> remove_Trueprop: term;
+          val cncl = Logic.strip_imp_concl imp |> Top_Down_Util.remove_Trueprop: term;
         in
           Top_Down_Util.alpha_eq_over_fvar trm cncl
         end;

@@ -24,7 +24,6 @@ type sdf = Element.statement
 
 (*** Top_Down_Util ***)
 ML_file \<open>Top_Down_Util.ML\<close>
-ML_file \<open>Top_Down_Util2.ML\<close>
 ML_file \<open>Generalise_By_Renaming.ML\<close>
 ML_file \<open>Term_Table_for_Abduction.ML\<close>
 ML_file \<open>Generalise_Then_Extend.ML\<close>

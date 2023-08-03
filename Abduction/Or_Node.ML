@@ -129,6 +129,13 @@ fun update_proved_completely ({
   gg_parent_not_finished = gg_parent_not_finished
 }: ornode;
 
+local
+
+  val  synched_int = Synchronized.var "current_proof_id" 0: int Synchronized.var;
+  fun increment (i:int) = (i + 1, i + 1);
+  fun get_proof_id  _ = SOME (Synchronized.change_result synched_int increment): int option;
+in
+
 (* update_proof_n_proof_id *)
 fun update_proof_n_proof_id (proof:strings) ({
   final_goal            : bool,
@@ -145,12 +152,12 @@ fun update_proof_n_proof_id (proof:strings) ({
   lemma_term             = lemma_term,
   proof                  = SOME proof,
   (*TODO: This should be synchronized.*)
-  proof_id               = (Unsynchronized.inc TBC_Utils.proof_id_counter;
-                            SOME (Unsynchronized.! TBC_Utils.proof_id_counter)),
+  proof_id               = get_proof_id (),
   proved_completely      = proved_completely: bool,
   gg_parent_not_finished = gg_parent_not_finished
 }: ornode;
 
+end;
 
 (* update_branch *)
 fun update_is_branch ({
