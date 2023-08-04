@@ -23,7 +23,6 @@ val seed_is_from_tactic                   : seed_of_or2and_edge -> bool;
 val apply_PSL_to_get_seeds_of_or2and_edges: Proof.state -> seeds_of_or2and_edge;
 val condition_to_filter_out_cnjctr        : term -> Proof.state -> abduction_graph -> bool (*from_tactic*) -> term (*cnjctr*) -> bool;
 val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
-val conjectures_to_seeds_of_or2and_edge   : Proof.state -> (string * term) list -> seeds_of_or2and_edge;
 val conjectures_to_seed_of_or2and_edge    : Proof.state -> (string * term) list -> seed_of_or2and_edge;
 val seed_has_counterexample               : Proof.state -> seed_of_or2and_edge -> bool;
 val seeds_to_updated_graph                : Proof.state -> key -> seeds_of_or2and_edge -> Update_Abduction_Graph.update_abduction_graph;
@@ -172,35 +171,20 @@ fun conjecture_to_seed_of_or2and_edge (cnjctrs:(string * term) list): seed_of_or
   {new_goals = cnjctrs: (string * term) list,
    proof     = Or2And_Edge.Conjecture: how_to_get_andnodes_from_ornode};
 
-(* TODO: probably conjectures_to_seeds_of_or2and_edge is no longer used. *)
-fun conjectures_to_seeds_of_or2and_edge (pst:Proof.state) (cnjctrs_w_name: (string * term) list) =
-  let
-    val ctxt                      = Proof.context_of pst                                                                                  : Proof.context;
-    fun get_ctxt_w_proof_goal trm = Proof.context_of (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm)                                   : Proof.context;
-    fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm                                               : term option;
-    val cnjctrs                   = map snd cnjctrs_w_name                                                                                : terms;
-    val checked_cnjctrs           = List.mapPartial check_prop cnjctrs                                                                    : terms;
-    val name_cnjctr_pairs         = map (fn cnjctr => (Shared_State.get_lemma_name ctxt cnjctr, cnjctr)) checked_cnjctrs: (string * term) list;
-    val result                    = map (conjecture_to_seed_of_or2and_edge o single) name_cnjctr_pairs                  : seeds_of_or2and_edge;
-  in
-    result: seeds_of_or2and_edge
-  end;
-
-(* TODO: too much code-duplication with coconjectures_to_seed_of_or2and_edgenjectures_to_seed_of_or2and_edge *)
+(* TODO: too much code-duplication with conjectures_to_seed_of_or2and_edgenjectures_to_seed_of_or2and_edge *)
 fun conjectures_to_seed_of_or2and_edge (pst:Proof.state) (cnjctrs_w_name: (string * term) list) =
-  let                                       
-    val ctxt                      = Proof.context_of pst                                                                                  : Proof.context;
-    fun get_ctxt_w_proof_goal trm = Proof.context_of (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm)                                   : Proof.context;
-fun mk_prop term = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term: term;
-    fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm                                               : term option;
-
-    val cnjctrs                   = map snd cnjctrs_w_name                                                                                : terms;
-    val cnjctrs_as_props          = map mk_prop cnjctrs                                                                                   : terms;
-    val checked_cnjctrs           = List.mapPartial check_prop cnjctrs_as_props                                                           : terms;
+  let
+    fun get_ctxt_w_proof_goal trm = Proof.context_of (mk_pst_to_prove_from_term pst trm)        : Proof.context;
+    fun mk_prop term = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term    : term;
+    fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm     : term option;
+    val cnjctrs                   = map snd cnjctrs_w_name                                      : terms;
+    val cnjctrs_as_props          = map mk_prop cnjctrs                                         : terms;
+    val checked_cnjctrs           = List.mapPartial check_prop cnjctrs_as_props                 : terms;
 (*
 val _ = tracing "++ 2: conjectures_to_seed_of_or2and_edge ++"
 val _ = checked_cnjctrs |> map (tracing o Isabelle_Utils.trm_to_string (Proof.context_of pst));
 *)
+    val ctxt                      = Proof.context_of pst                                                                : Proof.context;
     val name_cnjctr_pairs         = map (fn cnjctr => (Shared_State.get_lemma_name ctxt cnjctr, cnjctr)) checked_cnjctrs: (string * term) list;
     val result                    = conjecture_to_seed_of_or2and_edge name_cnjctr_pairs                                 : seed_of_or2and_edge;
 

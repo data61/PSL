@@ -54,7 +54,6 @@ type ornodes = ornode list;
 
 (* is_worth_proving *)
 fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
-    (*TODO: I don't think type checking should happen here. But much earlier.*)
     is_some (try (Syntax.check_term ctxt) (#lemma_term ornode))
   andalso
     #gg_parent_not_finished ornode
@@ -151,7 +150,6 @@ fun update_proof_n_proof_id (proof:strings) ({
   lemma_name             = lemma_name,
   lemma_term             = lemma_term,
   proof                  = SOME proof,
-  (*TODO: This should be synchronized.*)
   proof_id               = get_proof_id (),
   proved_completely      = proved_completely: bool,
   gg_parent_not_finished = gg_parent_not_finished

@@ -28,7 +28,6 @@ val check_terms                      : Proof.context -> terms -> terms;
 val get_fresh_free_var_of_typ_in_trm : Proof.context -> typ -> term -> term;
 val get_fresh_free_vars_of_typ_in_trm: Proof.context -> typ -> term -> int -> terms;
 val is_prop                          : term -> bool;
-val mk_pst_to_prove_from_term        : Proof.context -> term -> Proof.state;
 val mk_unbound_bound_vars_free_vars  : Proof.context -> term -> term;
 val get_lemma_names_from_sh_output   : theory -> string -> strings;
 val is_thm_registered                : Proof.context -> string -> bool;
@@ -142,13 +141,6 @@ fun get_fresh_free_var_name_in_trm' (ctxt:Proof.context) (trm:term) (n:int) =
   end;
 
 fun is_prop trm = body_type (type_of trm) = @{typ "prop"};
-
-fun mk_pst_to_prove_from_term (ctxt:Proof.context) (term:term) =
-    let
-      val prop = if is_prop term then term else HOLogic.mk_Trueprop term;
-    in
-      Proof.theorem NONE (K I) [[(prop, [])]] ctxt: Proof.state
-    end;
 
 fun get_all_names_in_trm trm =
   Isabelle_Utils.get_cnames_in_trm trm @ Isabelle_Utils.get_abs_names_in_trm trm @ Isabelle_Utils.get_free_var_names_in_trm trm;
@@ -410,6 +402,24 @@ end;
 
 fun parallel_filter     (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out true  condition xs;
 fun parallel_filter_out (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out false condition xs;
+
+(* mk_pst_to_prove_from_term *)
+(*TODO: Don't ignore local assumptions.
+        Code-duplication.*)
+fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term): Proof.state =
+    let 
+      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
+    in
+      Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
+    end;
+
+fun mk_pst_to_prove_from_ctxt_n_term (ctxt:Proof.context) (term:term) =
+    let
+      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
+    in
+      Proof.theorem NONE (K I) [[(prop, [])]] ctxt: Proof.state
+    end;
+
 
 (*** signature TOP_DOWN_CONJECTURING ***)
 signature TOP_DOWN_CONJECTURING =

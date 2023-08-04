@@ -97,6 +97,6 @@ fun run_assertion' (pst:Proof.state)  (assrt:assert) (cnjctr:term) =
   end;
 
 fun run_assertion (ctxt:Proof.context) (trm:term) (assert:Eval_Syntactic_Sugar.assert) =
-    run_assertion' (Top_Down_Util.mk_pst_to_prove_from_term ctxt trm) assert trm: bool;
+    run_assertion' (mk_pst_to_prove_from_ctxt_n_term ctxt trm) assert trm: bool;
 
 end;
