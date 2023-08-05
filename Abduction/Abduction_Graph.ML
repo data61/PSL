@@ -36,7 +36,7 @@ val orkey_to_term  : key -> term;
 val andkey_to_terms: key -> terms;
 
 (* initialization *)
-val mk_initial_graph                              : term -> abduction_graph; (*TODO: Is there any reason to expose this function?*)
+val mk_initial_graph: term -> abduction_graph;
 
 (* query on key and graph *)
 val is_branch     : abduction_graph -> key -> bool;

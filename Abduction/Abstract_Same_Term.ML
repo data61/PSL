@@ -20,9 +20,7 @@ fun abstract_same_term_str (ctxt:Proof.context) (trm:term) =
     val p2p_table = Print_To_Inner_Paths.path_to_unode_table_to_print_to_paths_table p2u_table;
     val numb_of_distinct_fvars = numb_of_distinct_fvars trm: int;
   
-    fun mk_new_unode_of_fvar (var_id:int) (path:ints) = new_unode_of_fvar var_id path: unode;
-  
-    fun mk_paths_n_unodes_pairs (var_id:int, paths:ints list) = map (fn path => (path, mk_new_unode_of_fvar var_id path)) paths: (ints * unode) list;
+    fun mk_paths_n_unodes_pairs (var_id:int, paths:ints list) = map (fn path => (path, new_unode_of_fvar var_id path)) paths: (ints * unode) list;
   
     fun update_table_for_pair (path:ints, unode:unode) (t:table): table = update_unode_then_its_ancestors_in_table t path unode;
   

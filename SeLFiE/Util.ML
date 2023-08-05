@@ -473,6 +473,7 @@ sig
   val contract_abbrevs                            : Proof.context -> term -> term;
   val strip_atyp                                  : term -> term;
   val takes_n_arguments                           : term -> int -> bool;
+  val read_term_then_check_term                   : Proof.context -> string -> (term -> bool) -> bool;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -924,6 +925,11 @@ fun contract_abbrevs (ctxt:Proof.context) (t:term) =
 val strip_atyp = Term.map_types (map_atyps (K dummyT)): term -> term;
 
 fun takes_n_arguments (f:term) (n:int) = length (fst (strip_type (type_of f))) = n;
+
+fun read_term_then_check_term (ctxt:Proof.context) (print:string) (checker: term -> bool) =
+    try (Syntax.read_term ctxt) print
+<$> checker
+ |> Utils.is_some_true
 
 end;
 

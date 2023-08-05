@@ -9,13 +9,7 @@
 signature PROOF_BY_ABDUCTION =
 sig
 
-type abduction_graph;
-type key;
-type state;
-
-val expand_ornode     : key -> (state * abduction_graph) -> (state * abduction_graph);(*TODO: No need to expose?*)
-val loop              : int -> int -> (state * abduction_graph) -> (state * abduction_graph);(*TODO: No need to expose?*)
-val proof_by_abduction: state -> term -> unit;
+val proof_by_abduction: Proof.state -> term -> unit;
 
 end;
 

@@ -11,12 +11,6 @@ struct
 
 fun is_composite trm = Isabelle_Utils.is_Abs trm orelse Isabelle_Utils.is_App trm: bool;
 
-(*TODO: code-duplication with SeLFiE/Eval_Print.ML*)
-fun read_term_then_check_term (ctxt:Proof.context) (print:string) (checker: term -> bool) =
-    try (Syntax.read_term ctxt) print
-<$> checker
- |> Utils.is_some_true;
-
 fun has_no_multiple_occ_of_composite_subtrm (ctxt:Proof.context) (trm:term) =
 let
   val p2u_table = Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table (Proof.init ctxt) trm: Inner_Path_To_Unode.path_to_unode_table;
@@ -29,9 +23,10 @@ let
     in
       has_multi
     end;
-  val duplicated_prints = filter print_has_multiple_paths prints: strings;
-  val duplicated_composites = filter (fn print => read_term_then_check_term ctxt print is_composite) duplicated_prints: strings;
-  val has_dupulicates = null duplicated_composites: bool;
+  val duplicated_prints     = filter print_has_multiple_paths prints: strings;
+  fun checker printed_term  = Isabelle_Utils.read_term_then_check_term ctxt printed_term is_composite: bool;
+  val duplicated_composites = filter checker duplicated_prints: strings;
+  val has_dupulicates       = null duplicated_composites: bool;
 in
   has_dupulicates: bool
 end;

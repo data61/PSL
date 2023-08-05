@@ -119,7 +119,7 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (pst:Proof.state) =
   end;
 
 
-fun condition_to_filter_out_cnjctr (parent_or:term) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (cnjctr:term) =
+fun condition_to_filter_out_cnjctr (_(*parent_or*):term) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (cnjctr:term) =
     let
       val final_goal      = get_final_goal_key ag |> snd |> hd: term;
 (*

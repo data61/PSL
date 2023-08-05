@@ -44,7 +44,6 @@ fun generalise_exactly_one_subterm_str (ctxt:Proof.context) (trm:term) =
     val trm                    = standardize_vnames trm                                        : term;
     val p2u_table              = Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table (Proof.init ctxt) trm   : table;
     val numb_of_distinct_fvars = numb_of_distinct_fvars trm                                    : int;
-    fun mk_new_unode_of_fvar (var_id:int) (path:ints) = new_unode_of_fvar var_id path                         : unode;
     fun unode_is_not_var ({node,...}:unode) = not (Unique_Node.is_NF node orelse
                                                    Unique_Node.is_NV node orelse
                                                    Unique_Node.is_NB node)                                    : bool;
@@ -54,7 +53,7 @@ fun generalise_exactly_one_subterm_str (ctxt:Proof.context) (trm:term) =
     val var_id_n_path_pairs = map (pair numb_of_distinct_fvars) all_non_var_paths                             : (int * ints) list;
     fun abstract_over_one_print (table:table) (var_id:int, path:ints): table =
       let
-        val unode     = mk_new_unode_of_fvar var_id path;
+        val unode     = new_unode_of_fvar var_id path;
         val new_table = update_unode_then_its_ancestors_in_table table path unode;
       in
         new_table
