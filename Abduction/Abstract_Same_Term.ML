@@ -69,11 +69,12 @@ fun abstract_same_term_str (ctxt:Proof.context) (trm:term) =
     roots_prints
   end;
   
-  fun top_down_conjectures (ctxt:Proof.context) (trm:term) =
+  fun top_down_conjectures (pst:Proof.state) (trm:term) =
     let
+      val ctxt                 = Proof.context_of pst                                                  : Proof.context;
       val cnjctrs_strs         = abstract_same_term_str ctxt trm                                       : strings;
       val cnjctrs              = map (try (Syntax.read_prop ctxt)) cnjctrs_strs |> map the_list |> flat: terms;
-      val standardized_cnjctrs = map standardize_vnames cnjctrs                         : terms;
+      val standardized_cnjctrs = map standardize_vnames cnjctrs                                        : terms;
       val unique_cnjectrs      = distinct (op =) standardized_cnjctrs                                  : terms;
       val tagged_cnjctrs       = map (pair "abstract_same_term)") unique_cnjectrs                      : (string * term) list;
     in

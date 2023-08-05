@@ -96,7 +96,7 @@ fun run_assertion' (pst:Proof.state)  (assrt:assert) (cnjctr:term) =
     eval pst outer_path_to_unode_table outer_domains empty_argument assrt = True
   end;
 
-fun run_assertion (ctxt:Proof.context) (trm:term) (assert:Eval_Syntactic_Sugar.assert) =
-    run_assertion' (mk_pst_to_prove_from_ctxt_n_term ctxt trm) assert trm: bool;
+fun run_assertion (pst:Proof.state) (trm:term) (assert:Eval_Syntactic_Sugar.assert) =
+    run_assertion' (mk_pst_to_prove_from_term pst trm) assert trm: bool;
 
 end;

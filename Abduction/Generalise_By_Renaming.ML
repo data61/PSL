@@ -68,11 +68,15 @@ fun generalise_by_rename_free_variables' _ (trm:term) =
     end
   else [];
 
-fun top_down_conjectures ctxt trm =
-  map (fn tm => ("generalise_by_renaming", tm))
-  (generalise_by_rename_free_variables' ctxt trm
-  |> map (HOLogic.mk_Trueprop o Top_Down_Util.remove_Trueprop)
-  |> map (try (Syntax.check_term ctxt))
-  |> Utils.somes);
+fun top_down_conjectures (pst:Proof.state) (trm:term) =
+  let
+    val ctxt = Proof.context_of pst;
+  in
+    map (fn tm => ("generalise_by_renaming", tm))
+    (generalise_by_rename_free_variables' ctxt trm
+    |> map (HOLogic.mk_Trueprop o Top_Down_Util.remove_Trueprop)
+    |> map (try (Syntax.check_term ctxt))
+    |> Utils.somes)
+  end;
 
 end;

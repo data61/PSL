@@ -139,7 +139,7 @@ fun condition_to_filter_out_cnjctr (parent_or:term) (pst:Proof.state) (ag:abduct
       fun eq_to_final_goal _          = Top_Down_Util.alpha_eq_over_fvar final_goal cnjctr: bool;
       fun concl_is_eq_to_final_goal _ = concl_is_alpha_eq_to final_goal cnjctr            : bool;
       fun has_func_with_three_occs_in_a_row _ =
-          SeLFiE_For_Top_Down.run_assertion (Proof.context_of pst) cnjctr SeLFiE_For_Top_Down.has_func_with_three_occs_in_a_row;
+          SeLFiE_For_Top_Down.run_assertion pst cnjctr SeLFiE_For_Top_Down.has_func_with_three_occs_in_a_row;
       fun has_counter_example_in_prems (pst:Proof.state) (term:term) =
         let
           val prems = Logic.strip_imp_prems term: terms;

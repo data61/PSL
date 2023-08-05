@@ -61,7 +61,7 @@ fun expand_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abducti
         let
           val _ = tracing' "We did NOT prove the or-node.";
           (*top-down explicit conjecturing*)
-          val explicit_conjectures        = All_Top_Down_Conjecturing.top_down_conjectures (Proof.context_of pst) lemma_term                      : (string * term) list;
+          val explicit_conjectures        = All_Top_Down_Conjecturing.top_down_conjectures pst lemma_term                                         : (string * term) list;
 (*
  val _ = tracing "\n\n++ explicit_conjectures ++ ";
  val _ = map snd explicit_conjectures |> map (tracing o Isabelle_Utils.trm_to_string (Proof.context_of pst));

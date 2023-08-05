@@ -23,8 +23,9 @@ fun count_const_of_name_in (cname:string) (trm:term) =
     count_const_of_name' trm 0
   end;
 
-fun top_down_conjectures (ctxt:Proof.context) (trm:term) =
+fun top_down_conjectures (pst:Proof.state) (trm:term) =
   let
+    val ctxt                     = Proof.context_of pst: Proof.context;
     val has_exactly_one_meta_imp = count_const_of_name_in "Pure.imp" trm = 1;
     fun replace_imp_w_eq (Const ("Pure.imp", _)) = Const ("HOL.eq", dummyT)
       | replace_imp_w_eq (Const  p             ) = Const p
