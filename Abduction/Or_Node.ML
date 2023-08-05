@@ -19,7 +19,7 @@ val is_worth_proving    : Proof.context -> ornode -> bool;
 
 (* creation of ornode *)
 type is_final_goal = bool;
-val mk_ornode: is_final_goal -> string -> term -> ornode;
+val mk_ornode: Proof.context -> is_final_goal -> string -> term -> ornode;
 
 (* update of ornode *)
 val update_gg_parent_not_finished: ornode -> bool -> ornode;
@@ -62,10 +62,10 @@ fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
 
 (* creation of ornode *)
 type is_final_goal = bool;
-fun mk_ornode (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
+fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
   let
     (*TODO: check if the name is already taken.*)
-    val name = (if is_final_goal then "original_goal_" ^ serial_string () else lemma_name) ;
+    val name = (if is_final_goal then Top_Down_Util.mk_new_lemma_name ctxt is_final_goal else lemma_name);
   in
    {final_goal             = is_final_goal,
     is_branch              = false,

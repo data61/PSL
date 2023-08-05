@@ -347,7 +347,9 @@ fun one_step (pst:Proof.state) (parent_ornd:key) (seed: seed_of_or2and_edge) (gr
         (*step 5*)
         val graph_w_connected_andnode              = PGraph.add_edge (or2and_edge_key, added_andnode_key) graph_w_addnodes               : abduction_graph;
         (*step 6*)
-        val graph_w_child_ornode                   = fold UAG.add_child_ornode used_andnd_name_term_pairs graph_w_connected_andnode                : abduction_graph;
+        val ctxt                                   = Proof.context_of pst;
+        val add_child_ornode                       = UAG.add_child_ornode ctxt;
+        val graph_w_child_ornode                   = fold add_child_ornode used_andnd_name_term_pairs graph_w_connected_andnode          : abduction_graph;
         (*step 7*)
         val graph_w_connected_child_ornode         = UAG.add_edges_from_andnode_to_ornodes added_andnode_key graph_w_child_ornode        : abduction_graph;
 

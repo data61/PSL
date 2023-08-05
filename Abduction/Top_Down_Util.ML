@@ -30,8 +30,8 @@ val get_fresh_free_vars_of_typ_in_trm: Proof.context -> typ -> term -> int -> te
 val is_prop                          : term -> bool;
 val mk_unbound_bound_vars_free_vars  : Proof.context -> term -> term;
 val get_lemma_names_from_sh_output   : theory -> string -> strings;
-val is_thm_registered                : Proof.context -> string -> bool;
-val mk_new_lemma_name                : Proof.context -> string;
+val is_thm_name_registered           : Proof.context -> string -> bool;
+val mk_new_lemma_name                : Proof.context -> bool(*is_final_goal*) -> string;
 val term_compare                     : term * term -> order;
 
 end;
@@ -210,15 +210,16 @@ in
     filtered
 end;
 
-fun is_thm_registered (ctxt:Proof.context) (thm_name:string) = try (Proof_Context.get_thm ctxt) thm_name |> is_some: bool;
+fun is_thm_name_registered (ctxt:Proof.context) (thm_name:string) = try (Proof_Context.get_thm ctxt) thm_name |> is_some: bool;
 
-fun mk_new_lemma_name (ctxt:Proof.context): string =
+fun mk_new_lemma_name (ctxt:Proof.context) (is_final_goal:bool): string =
   let
-    val candidate_name = "top_down_lemma_" ^ Int.toString (serial()): string;
-    val this_name_is_already_taken = is_thm_registered ctxt candidate_name;
+    val name_header    = if is_final_goal then "original_goal_" else "top_down_lemma_";
+    val candidate_name = name_header ^ Int.toString (serial()): string;
+    val this_name_is_already_taken = is_thm_name_registered ctxt candidate_name;
   in
     if   this_name_is_already_taken
-    then mk_new_lemma_name ctxt
+    then mk_new_lemma_name ctxt is_final_goal
     else candidate_name
   end
 

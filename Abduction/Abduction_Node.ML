@@ -45,7 +45,7 @@ val dest_Or_To_And: abduction_node -> or2and_edge;
 
 (* creation of abduction_node *)
 type is_final_goal = bool;
-val mk_ornode: is_final_goal -> string -> term -> abduction_node;
+val mk_ornode: Proof.context -> is_final_goal -> string -> term -> abduction_node;
 val mk_andnode: terms -> abduction_node;
 
 end;
@@ -128,8 +128,8 @@ fun dest_Or_To_And (Or_To_And edge) = edge
 type is_final_goal = bool;
 
 (* mk_ornode *)
-fun mk_ornode (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
-    Or_Node (Or_Node.mk_ornode is_final_goal lemma_name goal): abduction_node;
+fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
+    Or_Node (Or_Node.mk_ornode ctxt is_final_goal lemma_name goal): abduction_node;
 
 (* mk_andnode *)
 fun mk_andnode (subgoals:terms) = And_Node (And_Node.mk_andnode subgoals);

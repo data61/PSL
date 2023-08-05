@@ -28,7 +28,7 @@ type abduction_graph;
 
 (* creation of key_val pair *)
 type is_final_goal = bool;
-val mk_ornode:  is_final_goal -> string -> term -> (key * abduction_node);
+val mk_ornode:  Proof.context -> is_final_goal -> string -> term -> (key * abduction_node);
 val mk_andnode: terms -> (key * abduction_node);
 
 (* key to term *)
@@ -36,7 +36,7 @@ val orkey_to_term  : key -> term;
 val andkey_to_terms: key -> terms;
 
 (* initialization *)
-val mk_initial_graph: term -> abduction_graph;
+val mk_initial_graph: Proof.context -> term -> abduction_graph;
 
 (* query on key and graph *)
 val is_branch     : abduction_graph -> key -> bool;
@@ -129,13 +129,13 @@ fun equal_keys key_pair = PGraph_Key.ord key_pair = EQUAL;
 (* creation of key_val pair *)
 type is_final_goal = bool;
 
-fun mk_ornode (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
+fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
   let
     val standardized_goal = Top_Down_Util.standardize_vnames goal;
   in
     (
       (Or_N, [standardized_goal]): key,
-      Abduction_Node.mk_ornode is_final_goal lemma_name standardized_goal: abduction_node
+      Abduction_Node.mk_ornode ctxt is_final_goal lemma_name standardized_goal: abduction_node
      )
   end;
 
@@ -157,9 +157,9 @@ fun andkey_to_terms (And_N, terms) = terms
 
 
 (* mk_initial_graph *)
-fun mk_initial_graph (goal:term) =
+fun mk_initial_graph (ctxt:Proof.context) (goal:term) =
   let
-    val root_pair = mk_ornode true "(*we do not need to pass a name for the top goal.*)" goal
+    val root_pair = mk_ornode ctxt true "(*we do not need to pass a name for the top goal.*)" goal
                   : key * Abduction_Node.abduction_node;
     val empty_graph = PGraph.empty: abduction_graph;
   in

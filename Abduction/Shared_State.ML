@@ -100,7 +100,7 @@ fun clean_lemma_name_table _ = Synchronized.change lemma_name_table (K Term_Tabl
 fun get_lemma_name (ctxt:Proof.context) (term:term) =
   let
     val standardized_term  = Top_Down_Util.standardize_vnames term                              : term;
-    fun mk_new_name_pair _ = (standardized_term, Top_Down_Util.mk_new_lemma_name ctxt)          : (term * string);
+    fun mk_new_name_pair _ = (standardized_term, Top_Down_Util.mk_new_lemma_name ctxt false)    : (term * string);
     val _                  = Synchronized.change lemma_name_table (insert (mk_new_name_pair ())): unit;
     val new_table          = Synchronized.value lemma_name_table                                : term_lemma_name_table;
     val result             = lookup new_table standardized_term                                 : string;

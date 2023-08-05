@@ -69,7 +69,7 @@ val _ = map snd filtered_explicit |> map (tracing o Isabelle_Utils.trm_to_string
 val _ = tracing "\n\n++ explicit_wo_counterexample ++ ";
 val _ = map snd explicit_wo_counterexample |> map (tracing o Isabelle_Utils.trm_to_string (Proof.context_of pst));
 *)
-          val seed_from_explicit          = (*TODO: At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
+          val seed_from_explicit          = (*At the moment, we throw away the hints for top-down auxiliary lemma names, since incorporating this information requires changing the type of andnode.*)
                                             SOOE.conjectures_to_seed_of_or2and_edge pst explicit_wo_counterexample                : seed_of_or2and_edge;
           val _ = tracing' "AAAAAAAAAAAAAAAAAAAAAA seed_from_explicit finished:"
           val graph_extended_by_cnjctr    = SOOE.decremental_abduction pst or_key seed_from_explicit graph                                        : abduction_graph;
@@ -133,7 +133,8 @@ fun proof_by_abduction (pst:state) (term:(*normal*)term) =
     let
       val max_depth                = 5;
       val standardized_term        = Top_Down_Util.standardize_vnames term;
-      val initial_graph            = mk_initial_graph standardized_term;
+      val ctxt                     = Proof.context_of pst;
+      val initial_graph            = mk_initial_graph ctxt standardized_term;
       val (final_pst, final_graph) = loop 0 max_depth (pst, initial_graph);
     in
       print_proof_of_graph final_pst final_graph

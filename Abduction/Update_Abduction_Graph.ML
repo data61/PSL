@@ -23,7 +23,7 @@ val update_proved_wo_assmng_cnjctr    : key -> update_abduction_graph;
 val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
 val add_andnode                       : terms -> abduction_graph -> keys * abduction_graph;
 val add_edges_from_andnode_to_ornodes : (*and*)key -> update_abduction_graph;
-val add_child_ornode                  : (string * term) -> update_abduction_graph;
+val add_child_ornode                  : Proof.context -> (string * term) -> update_abduction_graph;
 
 end;
 
@@ -200,9 +200,9 @@ fun add_ornodes (key_value_pairs: (key * abduction_node) list) (graph: abduction
     add_nodes key_value_pairs graph "or";
 
 (* add_child_ornode *)
-fun add_child_ornode (lemma_name:string, goal:term) (graph:abduction_graph) =
+fun add_child_ornode (ctxt:Proof.context) (lemma_name:string, goal:term) (graph:abduction_graph) =
     let
-      val (child_or_key, child_or_val) = Abduction_Graph.mk_ornode false lemma_name goal: (key * abduction_node);
+      val (child_or_key, child_or_val) = Abduction_Graph.mk_ornode ctxt false lemma_name goal: (key * abduction_node);
       val (_, graph_w_ornodes) = add_ornodes [(child_or_key, child_or_val)] graph: keys * abduction_graph;
     in
       graph_w_ornodes
