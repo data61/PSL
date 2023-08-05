@@ -60,20 +60,18 @@ val all_gg_parents_are_proved                    : abduction_graph -> key -> boo
 (* query on abduction_node for or2and_edge *)
 val or2and_edge_to_proof                         : abduction_graph -> key -> strings;
 
+(* general queries *)
 val is_worth_proving                             : Proof.context -> abduction_graph -> key -> bool;
-
-(*TODO: it is a little strange that we have proof_of and or2and_edge_to_proof separately.*)
 val get_final_goal_term                          : abduction_graph -> term;
 val get_leaf_orterms                             : abduction_graph -> terms;
 val get_final_goal_key                           : abduction_graph -> key;
 val orkeys_tobe_expanded_in                      : Proof.context -> abduction_graph -> keys;
-
 val goal_as_string                               : Proof.state -> key -> string;
 
 (* query on abduction_graph *)
 val final_goal_proved_completely                 : abduction_graph -> bool;
 
-val mk_pst_to_prove_from_key                     : Proof.state -> key -> Proof.state;(*TODO: Is it necessary to expose this function?*)
+val mk_pst_to_prove_from_orkey                   : Proof.state -> key -> Proof.state;(*TODO: Is it necessary to expose this function?*)
 val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * strings) option;
 
 val print_lemma_and_proof_of_key                 : Proof.state -> abduction_graph -> key -> string;
@@ -319,30 +317,17 @@ fun final_goal_proved_completely (graph:abduction_graph) =
     final_goal_proved
   end;
 
-(* mk_pst_to_prove_from_key *)
-(*TODO: Don't ignore local assumptions.*)
-(*TODO: This function is becoming outdated. Should be removed soon.*)
-fun mk_pst_to_prove_from_key (pst:Proof.state) (Or_N, [term]) =
-    let
-      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
-    in
-      Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
-    end
-  | mk_pst_to_prove_from_key (pst:Proof.state) (And_N, [term]) =
-    let
-      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
-    in
-      Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
-    end
-  | mk_pst_to_prove_from_key _ _ = error "mk_pst_to_prove_from_key failed!";
+(* mk_pst_to_prove_from_orkey *)
+fun mk_pst_to_prove_from_orkey (pst:Proof.state) (Or_N, [term]) = mk_pst_to_prove_from_term pst term: Proof.state
+  | mk_pst_to_prove_from_orkey _ _ = error "mk_pst_to_prove_from_orkey failed!";
 
 (* prove_orkey_completely *)
 fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph:abduction_graph) (pst:Proof.state) =
     let
       fun tracing' _ = ();
       val lemma_name            = lemma_name_of graph or_key                                                 : string;
-      val _ = tracing' "Before calling mk_pst_to_prove_from_key from prove_orkey_completely"
-      val pst_to_prove          = mk_pst_to_prove_from_key pst or_key                                        : Proof.state;
+      val _ = tracing' "Before calling mk_pst_to_prove_from_orkey from prove_orkey_completely"
+      val pst_to_prove          = mk_pst_to_prove_from_orkey pst or_key                                        : Proof.state;
       val timeouts              = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
       val _ = tracing' "Before calling TBC_Utils.pst_to_proofscripts_opt from prove_orkey_completely"
       val maybe_result          = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;

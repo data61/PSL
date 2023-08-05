@@ -404,7 +404,6 @@ fun parallel_filter     (condition:'a -> bool) (xs:'a list) = parallel_filter_in
 fun parallel_filter_out (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out false condition xs;
 
 (* mk_pst_to_prove_from_term *)
-(*TODO: Don't ignore local assumptions.*)
 fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term): Proof.state =
     let 
       val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;

@@ -3,7 +3,6 @@
  * Authors:
  *   Yutaka Nagashima
  *)
-(* TODO: Use Synchronized.var *)
 signature SHARED_STATE =
 sig
 

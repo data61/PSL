@@ -41,7 +41,6 @@ fun expand_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abducti
     (*TODO: we should check if the node is still worth proving.*)
     let
        fun tracing' mssg = ()(*tracing mssg*);
-       val ctxt = Proof.context_of pst: Proof.context;
        val _ = tracing' "Start computing expand_ornode"
        (*very expensive*)
        val maybe_proved = prove_orkey_completely or_key graph pst: (state * strings) option;
@@ -53,9 +52,9 @@ fun expand_ornode (or_key as (Or_N, [lemma_term]):key) (pst:state, graph:abducti
           val _ = tracing' "We PROVED the or-node.";
           val _= tracing' (Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term);
           val _ = tracing' "\n"
-          val (pst_w_proved_lemma, proof) = the maybe_proved: (state * strings);
+          val (_, proof) = the maybe_proved: (state * strings);
         in
-           (pst(*_w_proved_lemma*), update_after_proving_ornode proof or_key (Proof.context_of pst) graph)(*TODO: We are actually not taking advantage of pst_w_proved_lemma. pst seems good enough.*)
+           (pst, update_after_proving_ornode proof or_key (Proof.context_of pst) graph)
         end
       else (*if we cannot prove the ornode completely, expand it using Extend_Leaf and conjecturing*)
         let
@@ -81,7 +80,7 @@ val _ = map snd explicit_wo_counterexample |> map (tracing o Isabelle_Utils.trm_
           val _ = tracing' "AAAAAAAAAAAAAAAAAAAAAA seed_from_explicit finished:"
           val graph_extended_by_cnjctr    = SOOE.decremental_abduction pst or_key seed_from_explicit graph                                        : abduction_graph;
           (*tactic application as conjecturing.  a little expensive*)
-          val pst_to_prove                = mk_pst_to_prove_from_key pst or_key                                       : state;
+          val pst_to_prove                = mk_pst_to_prove_from_orkey pst or_key                                       : state;
           val seeds_from_tactics          = SOOE.apply_PSL_to_get_seeds_of_or2and_edges pst_to_prove                                        : seeds_of_or2and_edge;
           val _ = tracing' "\n AAAAAAAAAAAAAAAAAAAAAA The length of seeds_from_tactics:\n seeds are:"
           (*val _ = map (Seed_Of_Or2And_Edge.print_seed_of_or2and_edge ctxt) seeds_from_tactics*)

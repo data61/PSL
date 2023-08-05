@@ -100,13 +100,13 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (pst:Proof.state) =
                    then tracing' "FFFFF not (pass_check_print_read_terms ctxt standardized_props)" 
                    else tracing' "FFFFFF (pass_check_print_read_terms ctxt standardized_props)";
   
-          (*TODO: cleanup*)
           val nonempty_subgs =
             if length subgs = 0 (*orelse not (pass_check_print_read_terms ctxt standardized_props)*)
             then [(mk_lemma_name ctxt @{prop "True"}, @{prop "True"})]
             else (tracing' "SUCCESS!";
               map (mk_lemma_name ctxt) standardized_props ~~ standardized_props: (string * term) list
               );
+
           val result = if length subgs = 0 (*orelse not (pass_check_print_read_terms ctxt standardized_props)*)
                        then NONE
                        else SOME {proof = Or2And_Edge.Tactic pscript, new_goals = nonempty_subgs}
@@ -171,7 +171,6 @@ fun conjecture_to_seed_of_or2and_edge (cnjctrs:(string * term) list): seed_of_or
   {new_goals = cnjctrs: (string * term) list,
    proof     = Or2And_Edge.Conjecture: how_to_get_andnodes_from_ornode};
 
-(* TODO: too much code-duplication with conjectures_to_seed_of_or2and_edgenjectures_to_seed_of_or2and_edge *)
 fun conjectures_to_seed_of_or2and_edge (pst:Proof.state) (cnjctrs_w_name: (string * term) list) =
   let
     fun get_ctxt_w_proof_goal trm = Proof.context_of (mk_pst_to_prove_from_term pst trm)        : Proof.context;
