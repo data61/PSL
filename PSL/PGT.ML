@@ -7,6 +7,7 @@ This file presents the functions for automatic generalization of tactics.
 signature PROOF_GOAL_TRANSFORMER =
 sig
 
+val get_subtrms    : term -> terms;
 val generalize_str : Proof.context -> thm -> string list;
 val conjecture_strs: Proof.context -> thm -> string list;
 

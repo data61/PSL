@@ -71,7 +71,7 @@ val goal_as_string                               : Proof.state -> key -> string;
 (* query on abduction_graph *)
 val final_goal_proved_completely                 : abduction_graph -> bool;
 
-val mk_pst_to_prove_from_orkey                   : Proof.state -> key -> Proof.state;(*TODO: Is it necessary to expose this function?*)
+val mk_pst_to_prove_from_orkey                   : Proof.state -> key -> Proof.state;
 val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * strings) option;
 
 val print_lemma_and_proof_of_key                 : Proof.state -> abduction_graph -> key -> string;

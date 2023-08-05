@@ -9,19 +9,6 @@ theory Abduction
   keywords "prove" :: thy_goal_stmt
 begin
 
-lemma "True"
-  by auto
-
-ML\<open>
-Specification.theorem_cmd false "lemma" NONE (K I):  Attrib.binding ->
-              (xstring * Position.T) list ->
-                Element.context list ->
-                  Element.statement ->
-                    bool -> local_theory -> Proof.state;
-
-type sdf = Element.statement
-\<close>
-
 (*** Top_Down_Util ***)
 ML_file \<open>Top_Down_Util.ML\<close>
 ML_file \<open>Generalise_By_Renaming.ML\<close>
@@ -127,43 +114,6 @@ in
 val _ = theorem \<^command_keyword>\<open>prove\<close> "prove";
 
 end;
-\<close>
-
-ML\<open>
-HOLogic.mk_conj;
-Logic.mk_conjunction;
-Logic.strip_imp_prems;
-strip_imp_prems;
-Synchronized.guarded_access;
-Par_List.map;
-
-fun prems (term:term) = Logic.strip_imp_prems;
-TBC_Utils.term_has_counterexample_in_pst;
-
-val asdf = Token.unparse;
-
-val asdf2 = Token.explode;
-val asdf3 = String.isPrefix  "asd" "asdf";
-
-fun get_topdown_lemma_names_from_sledgehammer_output (pst:Proof.state) (sh_output:string) =
-  let
-    val thy           = Proof.theory_of pst         : theory;
-    val keywords      = Thy_Header.get_keywords thy : Keyword.keywords;
-    val tokens        = Token.explode keywords Position.none sh_output;
-    val strings       = map Token.unparse tokens: strings;
-    val filtered      = filter (String.isPrefix "top_down_lemma_") strings: strings;
-in
-    filtered
-end;
-
-
-val _ = Proof.local_skip_proof:  bool -> Proof.state -> Proof.state;
-val _ = Proof.assume;
-val _ = (Method.sorry_text true);
-
-val pro = @{prop "x (qrevflat var_0 nil2) nil2 = revflat var_0 \<Longrightarrow> x (qrevflat var_0 (x (rev var_1) nil2)) nil2 = x (revflat var_0) (rev var_1) "}
-
-fun foo pst = Proof.theorem NONE (K I) [[(pro, [])]] (Proof.context_of pst) |> Proof.local_skip_proof true
 \<close>
 
 end

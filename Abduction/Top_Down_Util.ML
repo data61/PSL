@@ -18,7 +18,6 @@ val remove_Trueprop                  : term -> term;
 val mk_free_variable_of_typ          : typ -> int -> term;
 val numb_of_distinct_fvars           : term -> int;
 val numb_of_distinct_bvars           : term -> int;
-val get_subtrms                      : term -> terms;
 val get_both_sides_of_eqs_in_term    : term -> (term * term) list;
 val get_consts_for_conjecturing      : Proof.context -> term -> terms;
 val remove_type_consts               : term -> term;
@@ -92,17 +91,9 @@ fun numb_of_distinct_fvars (trm:term) = numb_of_distinct_atom is_Free trm;
 
 fun numb_of_distinct_bvars (trm:term) = numb_of_distinct_atom is_Bound trm;
 
-(* How to get the list of subterms? *)(*TODO: code-duplication with Proof_Goal_Transformer.*)
-fun get_subtrms (Const p:term) = [Const p]
- |  get_subtrms (Free  p:term) = [Free  p]
- |  get_subtrms (Var   p:term) = [Var   p]
- |  get_subtrms (Bound i:term) = [Bound i]
- |  get_subtrms (trm as Abs (_, _, sub)) = trm :: get_subtrms sub
- |  get_subtrms (trm as trm1 $ trm2) = trm :: get_subtrms trm1 @ get_subtrms trm2;
-
 fun get_both_sides_of_eqs_in_term (term:term): (term * term) list =
   let
-    val subtrms = get_subtrms term: terms;
+    val subtrms = Proof_Goal_Transformer.get_subtrms term: terms;
     val pairs   = List.mapPartial (try HOLogic.dest_eq) subtrms;
   in
     pairs
@@ -300,7 +291,6 @@ fun strip_outermost_meta_quantifiers (trm:term) =
 
 fun mk_extended_rhses (ctxt:Proof.context) (candidate_args:terms) (candidate_func as Const _:term): terms =
   let
-   (*TODO: if func does not take explicit functions, filter out non-nullary constants from candidate_args*)
     val candidate_func_wo_type_consts = Top_Down_Util.remove_type_consts candidate_func      : term;
     val candidate_args_wo_type_consts = map Top_Down_Util.remove_type_consts candidate_args  : terms;
     val arg_numb                      = type_of candidate_func |> Term.binder_types |> length: int;

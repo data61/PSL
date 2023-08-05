@@ -89,10 +89,10 @@ fun top_down_conjectures (pst:Proof.state) (orig_trm:term) =
     val consts                    = get_consts_for_conjecturing ctxt orig_trm                         : terms;
     val equality_pairs            = get_both_sides_of_eqs_in_term orig_trm                            : (term * term) list;
     val cleaned_pairs             = map (apply2 (mk_unbound_bound_vars_free_vars ctxt)) equality_pairs: (term * term) list;
-    (*TODO: move this filter to mk_extended_rhses*)
     fun is_nullary_const (Const (_, typ)) = Isabelle_Utils.count_numb_of_args_of_fun_typ typ = 0
       | is_nullary_const  _               = false
     val nullalry_consts = filter is_nullary_const consts
+    fun add_candidate_args (lhs, rhs) = (lhs, distinct (op =) (rhs :: nullalry_consts @ standardized_fvars_in_gen) |> distinct (op =))  : term * term list;
 
     fun generalise_pairs (lhs: term, rhs: term) =
     let
@@ -104,11 +104,8 @@ fun top_down_conjectures (pst:Proof.state) (orig_trm:term) =
       new_pairs: (term * term) list
     end;
     val generalised_pairs  = map generalise_pairs cleaned_pairs |> flat;
-    fun add_candidate_args (lhs, rhs) = (lhs, distinct (op =) (rhs :: nullalry_consts @ standardized_fvars_in_gen) |> distinct (op =))  : term * term list;
     val candidate_pairs    = map add_candidate_args generalised_pairs                      : (term * term list) list;
-
     val filtered_pairs     = filter_out (is_Free o fst) candidate_pairs                    : (term * term list) list;
-
     val extension_eqs      = map (extension_for_one_lhs ctxt consts) filtered_pairs |> flat: terms;
     val checked_eqs        = check_terms ctxt extension_eqs                                : terms;
     val results            = map (pair "generalisation_then_extension") checked_eqs

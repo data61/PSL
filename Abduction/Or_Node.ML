@@ -64,8 +64,9 @@ fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
 type is_final_goal = bool;
 fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
   let
-    (*TODO: check if the name is already taken.*)
-    val name = (if is_final_goal then Top_Down_Util.mk_new_lemma_name ctxt is_final_goal else lemma_name);
+    val name = if   is_final_goal
+               then Top_Down_Util.mk_new_lemma_name ctxt is_final_goal
+               else lemma_name;
   in
    {final_goal             = is_final_goal,
     is_branch              = false,
