@@ -404,22 +404,13 @@ fun parallel_filter     (condition:'a -> bool) (xs:'a list) = parallel_filter_in
 fun parallel_filter_out (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out false condition xs;
 
 (* mk_pst_to_prove_from_term *)
-(*TODO: Don't ignore local assumptions.
-        Code-duplication.*)
+(*TODO: Don't ignore local assumptions.*)
 fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term): Proof.state =
     let 
       val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
     in
       Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
     end;
-
-fun mk_pst_to_prove_from_ctxt_n_term (ctxt:Proof.context) (term:term) =
-    let
-      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
-    in
-      Proof.theorem NONE (K I) [[(prop, [])]] ctxt: Proof.state
-    end;
-
 
 (*** signature TOP_DOWN_CONJECTURING ***)
 signature TOP_DOWN_CONJECTURING =

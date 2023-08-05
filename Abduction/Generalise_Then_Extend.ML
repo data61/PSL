@@ -75,13 +75,12 @@ let
 in
   result_terms
 end;
-(*TODO: FIXME: use Isabelle_Utils.get_free_var_names_in_trm*)
+
+(*We do not use Isabelle_Utils.get_free_var_names_in_trm here because we do not want to call Utils.remove__s.*)
 fun get_free_vars_in_trm' trm = if Term.is_Free trm then [trm] else [];
-
-fun get_free_vars_in_trm trm = Term.fold_aterms (fn trm => fn acc => get_free_vars_in_trm' trm @ acc |> distinct (op =)) trm [];
-
-fun mk_fvar_of (i:int) = Free ("var_" ^ Int.toString i, dummyT);
-fun mk_fvars   (i:int) = map mk_fvar_of (List.tabulate (i, I));
+fun get_free_vars_in_trm  trm = Term.fold_aterms (fn trm => fn acc => get_free_vars_in_trm' trm @ acc |> distinct (op =)) trm [];
+fun mk_fvar_of        (i:int) = Free ("var_" ^ Int.toString i, dummyT);
+fun mk_fvars          (i:int) = map mk_fvar_of (List.tabulate (i, I));
 
 fun top_down_conjectures (pst:Proof.state) (orig_trm:term) =
   let

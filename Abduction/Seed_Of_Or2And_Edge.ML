@@ -247,15 +247,6 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode (pst:Proof.state) (parent_
 
      val _ = tracing' "--------- after pst_with_new_goals_assmed";
 
-     (* mk_pst_to_prove_from_term *)
-     (*TODO: Don't ignore local assumptions.*)
-     fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term): Proof.state =
-         let 
-           val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
-         in
-           Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
-         end;
-
      val pst_to_apply_tactics = mk_pst_to_prove_from_term pst_with_new_goals_assmed orterm: Proof.state;
 
      val _ = tracing' "--------- after pst_to_apply_tactics";

@@ -86,17 +86,15 @@ val has_func_with_three_occs_in_a_row =
     ]
   );
 
-fun run_assertion' (pst:Proof.state)  (assrt:assert) (cnjctr:term) =
+fun run_assertion (pst:Proof.state) (cnjctr:term) (assert:Eval_Syntactic_Sugar.assert) =
   let
-    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst cnjctr                                               : Outer_Path_To_Unode.path_to_unode_table;
+    val pst_to_prove              = mk_pst_to_prove_from_term pst cnjctr                                                                          : Proof.state;
+    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst_to_prove cnjctr                                      : Outer_Path_To_Unode.path_to_unode_table;
     val gen_path_table            = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table                                                        : Gen_Path.gen_path_to_unode_table;
     val empty_argument            = SeLFiE_Util.Induct_Arguments {ons = [], arbs = [], rules = []}                                                : SeLFiE_Util.induct_arguments;
     val outer_domains             = Quantifier_Domain.inout_pst_n_trm_n_induct_args_to_domains Quantifier_Domain.Out gen_path_table empty_argument: Quantifier_Domain.domains;
   in
-    eval pst outer_path_to_unode_table outer_domains empty_argument assrt = True
+    eval pst_to_prove outer_path_to_unode_table outer_domains empty_argument assert = True
   end;
-
-fun run_assertion (pst:Proof.state) (trm:term) (assert:Eval_Syntactic_Sugar.assert) =
-    run_assertion' (mk_pst_to_prove_from_term pst trm) assert trm: bool;
 
 end;
