@@ -14,7 +14,20 @@ val any_of_these_is_refuted: Proof.state   -> terms -> bool;
 val clean_lemma_name_table : unit -> unit;
 val get_lemma_name         : Proof.context -> term  -> string;
 val get_orkey_name         : Proof.context -> Abduction_Graph.key -> string;
-(*TODO: share abduction_graph*)
+
+type synched_abduction_graph = abduction_graph Synchronized.var;
+
+val mk_synched_abduction_graph       : Proof.context -> term -> synched_abduction_graph;
+val update_is_branch                 : Abduction_Graph.key -> synched_abduction_graph -> unit;
+val add_andnodes                     : terms -> synched_abduction_graph -> Abduction_Graph.keys;
+val add_child_ornode                 : Proof.context -> synched_abduction_graph -> (string * term) -> unit;
+val add_edges_from_andnode_to_ornodes: Abduction_Graph.key -> synched_abduction_graph -> unit;
+val update_after_proving_ornode      : strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
+
+val final_goal_proved_completely     : synched_abduction_graph -> bool;
+
+val new_node: (Abduction_Graph.key * Abduction_Graph.abduction_node) -> synched_abduction_graph -> unit;
+val add_edge: (Abduction_Graph.key * Abduction_Graph.key) -> synched_abduction_graph -> unit;
 
 end;
 
@@ -28,7 +41,7 @@ val defined          = Term_Table.defined;
 
 local
 
-type term2bool_table = bool Term_Table.table; (*true = refuted, false = not refuted*)
+type term2bool_table          = bool Term_Table.table; (*true = refuted, false = not refuted*)
 type synched_refutation_table = term2bool_table Synchronized.var;
 val refutation_table = Synchronized.var "refutation_table" Term_Table.empty: synched_refutation_table;
 val lookup           = Utils.the' "lookup for is_refuted failed." oo Term_Table.lookup;
@@ -110,7 +123,47 @@ fun get_lemma_name (ctxt:Proof.context) (term:term) =
 
 end;
 
-fun get_orkey_name (ctxt:Proof.context) ((Or_N, [term]): Abduction_Graph.key) = get_lemma_name ctxt term
+structure AG  = Abduction_Graph;
+structure UAG = Update_Abduction_Graph;
+
+fun get_orkey_name (ctxt:Proof.context) ((AG.Or_N, [term]): AG.key) = get_lemma_name ctxt term
   | get_orkey_name _ _ = error "get_orkey_name failed. Not an orkey."
+
+type synched_abduction_graph = abduction_graph Synchronized.var;
+
+fun mk_synched_abduction_graph (ctxt:Proof.context) (goal:term) =
+  let
+    val initial_graph = AG.mk_initial_graph ctxt goal;
+  in
+    Synchronized.var "abduction_graph" initial_graph
+  end;
+
+fun update_is_branch (key:AG.key) (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (UAG.update_is_branch key): unit;
+
+fun add_andnodes (andterms:terms) (sagraph:synched_abduction_graph) =
+  Synchronized.change_result sagraph (UAG.add_andnode andterms): AG.keys;
+
+fun add_child_ornode (ctxt:Proof.context) (sagraph:synched_abduction_graph) (lemma_name:string, lemma_term:term) =
+  Synchronized.change sagraph (UAG.add_child_ornode ctxt (lemma_name, lemma_term)): unit;
+
+fun add_edges_from_andnode_to_ornodes (key:AG.key) (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (UAG.add_edges_from_andnode_to_ornodes key): unit;
+
+fun update_after_proving_ornode (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (UAG.update_after_proving_ornode proof orkey ctxt): unit;
+
+fun final_goal_proved_completely (sagraph:synched_abduction_graph) =
+  let
+    val agraph = Synchronized.value sagraph: AG.abduction_graph;
+  in
+    AG.final_goal_proved_completely agraph: bool
+  end;
+
+fun new_node (key: AG.key, node:AG.abduction_node) (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (AG.PGraph.new_node (key, node)): unit;
+
+fun add_edge (parent_key: AG.key, child_key: AG.key) (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (AG.PGraph.add_edge (parent_key, child_key)): unit;
 
 end;

@@ -17,10 +17,9 @@ type key;
 type keys;
 
 (* update of abduction_graph *)
-val update_gg_parent_not_finished     : update_abduction_graph;
 val update_is_branch                  : key -> update_abduction_graph;
-val update_proved_wo_assmng_cnjctr    : key -> update_abduction_graph;
 val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
+(*TODO: add_andnodes*)
 val add_andnode                       : terms -> abduction_graph -> keys * abduction_graph;
 val add_edges_from_andnode_to_ornodes : (*and*)key -> update_abduction_graph;
 val add_child_ornode                  : Proof.context -> (string * term) -> update_abduction_graph;
@@ -51,8 +50,6 @@ fun update_gg_parent_not_finished_of_or_key (key as (Or_N, _):key) (gr:abduction
     end
   | update_gg_parent_not_finished_of_or_key _ _ = error "update_gg_parent_not_finished_of_or_key failed. Not an or-key.";
 
-in
-
 (* update_gg_parent_not_finished *)
 (* update_gg_parent_not_finished assumes that the graph is already updated by
  * update_proved_completely_of_graph_because_orleaf_is_proved. *)
@@ -67,10 +64,6 @@ fun update_gg_parent_not_finished (graph:abduction_graph) =
       fold update_gg_parent_not_finished_of_or_key or_keys graph
     end;
 
-end;
-
-local
-
 (* update_proof_n_proof_id *)
 fun update_proof_n_proof_id (proof:strings) (key:key) (graph:abduction_graph) =
     PGraph.map_node key (Update_Abduction_Node.update_proof_n_proof_id proof) graph: abduction_graph;
@@ -84,8 +77,6 @@ fun forall_at_least_one assertion xs = forall assertion xs andalso (length xs > 
 
 val children = PGraph.immediate_succs;
 val parents  = PGraph.immediate_preds;
-
-in
 
 (* update_proved_wo_assmng_cnjctr_of_graph and update_branch *)
 fun update_proved_wo_assmng_cnjctr (key as (Or_N, _)) (graph:abduction_graph) =
@@ -158,6 +149,8 @@ and update_branch key graph (forall_or_exists) (parent_or_grand_parent) (child_o
     in
       result
     end;
+
+in
 
 (*Important tricky part!*)
 fun update_after_proving_ornode (proof:strings) (or_key as (Or_N, _): key) (ctxt:Proof.context) (g:abduction_graph) =
