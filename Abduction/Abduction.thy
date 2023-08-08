@@ -27,7 +27,6 @@ ML_file \<open>Update_Abduction_Node.ML\<close>
 ML_file \<open>Abduction_Graph.ML\<close>
 ML_file \<open>Update_Abduction_Graph.ML\<close>
 ML_file \<open>Shared_State.ML\<close>
-
 ML_file \<open>All_Top_Down_Conjecturing.ML\<close>
 ML_file \<open>Seed_Of_Or2And_Edge.ML\<close>
 ML_file \<open>Proof_By_Abduction.ML\<close>
@@ -93,8 +92,6 @@ fun theorem _ descr =
     (((long_statement || short_statement) >> (fn (_, _, _, _(*elems*), concl) =>
        (fn lthy =>
           let
-            val _ = Shared_State.clean_refuation_table ();
-            val _ = Shared_State.clean_lemma_name_table ();
             fun stmt_to_stmt_as_string (Element.Shows [((_, _), [(stmt, _)])]) = stmt: string
               | stmt_to_stmt_as_string _ = error "stmt_to_concl_name failed in United_Reasoning";
             val cncl_as_trm  = Syntax.read_term lthy (stmt_to_stmt_as_string concl) |> Top_Down_Util.standardize_vnames: term;

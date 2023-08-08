@@ -335,7 +335,7 @@ fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph
       val cheated_pst           = TBC_Utils.cheat_lemma_term_in_pst lemma_name lemma_term pst
       fun mk_result (script, _) = Option.map (rpair script) cheated_pst;
       val result                = Option.mapPartial mk_result maybe_result: (Proof.state * strings) option
-      val _ = tracing ("\n " ^ (if is_some result then "YEY! Completely proved " else "Mehhhh did NOT proved ") ^ lemma_name ^ " " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
+      val _ = tracing' ("\n " ^ (if is_some result then "YEY! Completely proved " else "Mehhhh did NOT proved ") ^ lemma_name ^ " " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
     in
       result
     end
@@ -355,13 +355,18 @@ fun print_lemma_and_proof_of_key (pst:Proof.state) (graph:abduction_graph) (key:
 (* print_proof_of_graph *)
 fun print_proof_of_graph (pst:Proof.state) (graph:abduction_graph) =
   let
-    val keys                         = PGraph.keys graph |> filter is_ornode |> rev           : keys;
-    val key_prf_id_pairs             = map (fn key => (key, proof_id_of graph key)) keys      : (key * int option) list;
-    val key_prf_id_pairs_solved_only = filter (fn (_, id) => is_some id) key_prf_id_pairs     : (key * int option) list;
-    val key_prf_id_pairs_wo_opt      = map (apsnd the) key_prf_id_pairs_solved_only           : (key * int) list;
-    fun compare ((_, id1), (_, id2)) = Int.compare (id1, id2)                                 : order;
-    val sorted_keys                  = sort compare key_prf_id_pairs_wo_opt |> map fst        : key list;
+    val keys                         = PGraph.keys graph |> filter is_ornode |> rev                                        : keys;
+    val key_prf_id_pairs             = map (fn key => (key, proof_id_of graph key)) keys                                   : (key * int option) list;
+    val key_prf_id_pairs_solved_only = filter (fn (_, id) => is_some id) key_prf_id_pairs                                  : (key * int option) list;
+    val key_prf_id_pairs_wo_opt      = map (apsnd the) key_prf_id_pairs_solved_only                                        : (key * int) list;
+    val key_of_original_goal         = get_final_goal_key graph                                                            : key;
+    val prf_id_of_original_goal      = proof_id_of graph key_of_original_goal                 
+                                    |> Utils.the' "print_proof_of_graph faild."                                            : int;
+    val relevant_key_prf_id_pairs    = filter (fn (_, prf_id) => prf_id <= prf_id_of_original_goal) key_prf_id_pairs_wo_opt: (key * int) list;
+    fun compare ((_, id1), (_, id2)) = Int.compare (id1, id2)                                                              : order;
+    val sorted_keys                  = sort compare relevant_key_prf_id_pairs |> map fst                                   : key list;
     val final_script                 = "\n" ^ (map (print_lemma_and_proof_of_key pst graph) sorted_keys |> String.concatWith "\n");
+    (*TODO: Do not show the proofs of or-nodes proved after we prove the original goal.*)
     val _ = Active.sendback_markup_properties [Markup.padding_command] final_script |> tracing;
   in
     ()

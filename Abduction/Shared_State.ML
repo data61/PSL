@@ -7,22 +7,24 @@ signature SHARED_STATE =
 sig
 
 type abduction_graph;
+type synched_term2bool_table;
 
-val clean_refuation_table  : unit -> unit;
-val is_refuted             : Proof.state   -> term  -> bool;
-val any_of_these_is_refuted: Proof.state   -> terms -> bool;
+val mk_synched_term_table  : unit -> synched_term2bool_table;
+val is_refuted             : synched_term2bool_table -> Proof.state   -> term  -> bool;
+val any_of_these_is_refuted: synched_term2bool_table -> Proof.state   -> terms -> bool;
 val clean_lemma_name_table : unit -> unit;
 val get_lemma_name         : Proof.context -> term  -> string;
 val get_orkey_name         : Proof.context -> Abduction_Graph.key -> string;
 
 type synched_abduction_graph = abduction_graph Synchronized.var;
 
-val mk_synched_abduction_graph       : Proof.context -> term -> synched_abduction_graph;
-val update_is_branch                 : Abduction_Graph.key -> synched_abduction_graph -> unit;
-val add_andnodes                     : terms -> synched_abduction_graph -> Abduction_Graph.keys;
-val add_child_ornode                 : Proof.context -> synched_abduction_graph -> (string * term) -> unit;
-val add_edges_from_andnode_to_ornodes: Abduction_Graph.key -> synched_abduction_graph -> unit;
-val update_after_proving_ornode      : strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
+val mk_synched_abduction_graph                    : Proof.context -> term -> synched_abduction_graph;
+val update_is_branch                              : Abduction_Graph.key -> synched_abduction_graph -> unit;
+val add_andnodes                                  : terms -> synched_abduction_graph -> Abduction_Graph.keys;
+val add_child_ornode                              : Proof.context -> synched_abduction_graph -> (string * term) -> unit;
+val add_edges_from_andnode_to_ornodes             : Abduction_Graph.key -> synched_abduction_graph -> unit;
+val update_after_proving_ornode                   : strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
+val update_after_connecting_andnd_to_existing_ornd: Proof.context -> synched_abduction_graph -> (*or_key*)Abduction_Graph.keys -> unit list;
 
 val final_goal_proved_completely     : synched_abduction_graph -> bool;
 
@@ -39,17 +41,57 @@ type abduction_graph = Abduction_Graph.abduction_graph;
 structure Term_Table = Table (type key = term val ord = Term_Ord.term_ord);
 val defined          = Term_Table.defined;
 
+type term2bool_table         = bool Term_Table.table; (*true = refuted, false = not refuted*)
+type synched_term2bool_table = term2bool_table Synchronized.var;
+
 local
 
-type term2bool_table          = bool Term_Table.table; (*true = refuted, false = not refuted*)
-type synched_refutation_table = term2bool_table Synchronized.var;
-val refutation_table = Synchronized.var "refutation_table" Term_Table.empty: synched_refutation_table;
-val lookup           = Utils.the' "lookup for is_refuted failed." oo Term_Table.lookup;
-(*Once we refute a term. The term remains refuted in the table forever.*)
-fun insert (cnjctr:term, refuted:bool) (table:term2bool_table) =
-  case try (Term_Table.insert (op =) (cnjctr, refuted)) table
+val lookup                   = Utils.the' "lookup in Shared_State failed for Term_Table." oo Term_Table.lookup;
+fun insert_bool (cnjctr:term, b:bool) (table:term2bool_table) =
+  case try (Term_Table.insert (op =) (cnjctr, b)) table
   of NONE           => table
    | SOME new_table => new_table;
+
+(*Once we refute a term. The term remains refuted in the table forever.*)
+
+in
+
+fun mk_synched_term_table _ = Synchronized.var "refutation_table" Term_Table.empty: synched_term2bool_table;
+
+fun is_refuted (synched_table:synched_term2bool_table) (pst:Proof.state) (cnjctr:term) =
+  let
+    val cnjctr_prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
+    val old_table         = Synchronized.value synched_table                                           : term2bool_table;
+    val already_checked   = defined old_table cnjctr_prop                                              : bool;
+    fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * bool);
+    val _                 =
+      if   already_checked then ()
+      else
+        let
+          (* It is okay to spend some time to run quick-check before calling Synchronized.change:
+           * Even if other threads find a counter-example for the same conjecture,
+           * the result should be the same. *)
+          val pair = quickcheck cnjctr_prop
+        in
+          Synchronized.change synched_table (insert_bool pair): unit
+        end;
+    val new_table         = Synchronized.value synched_table: term2bool_table;
+    val result            = lookup new_table cnjctr_prop    : bool;
+  in
+    result
+  end;
+
+
+fun any_of_these_is_refuted (synched_table:synched_term2bool_table) (pst:Proof.state) (terms:terms) =
+    exists (is_refuted synched_table pst) terms;
+
+end;
+(*
+local
+
+val completely_proved_table = Synchronized.var "completely_proved_table" Term_Table.empty: synched_term2bool_table;
+val lookup                  = Utils.the' "lookup for completely_proved_table failed." oo Term_Table.lookup;
+(*Once we refute a term. The term remains refuted in the table forever.*)
 
 in
 
@@ -74,25 +116,12 @@ fun is_refuted (pst:Proof.state) (cnjctr:term) =
         end;
     val new_table         = Synchronized.value refutation_table: term2bool_table;
     val result            = lookup new_table cnjctr_prop       : bool;
-(*
-    val _ = tracing "\n"
-val _ = "Quick-Checking this:"
-val _ = tracing (Isabelle_Utils.trm_to_string (Proof.context_of pst) cnjctr);
-    val _ = tracing ((if result then "" else "NOT ") ^ " REFUTED according to the table")
-    val result_wo_using_table = TBC_Utils.term_has_counterexample_in_pst pst cnjctr;
-*)
-
-(*
-    val _ = tracing ((if result then "" else "NOT ") ^ " REFUTED W/O using the table")
-*)
   in
     result
   end;
 
-
-fun any_of_these_is_refuted (pst:Proof.state) (terms:terms) = exists (is_refuted pst) terms;
-
 end;
+*)
 
 local
 
@@ -152,6 +181,12 @@ fun add_edges_from_andnode_to_ornodes (key:AG.key) (sagraph:synched_abduction_gr
 
 fun update_after_proving_ornode (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
   Synchronized.change sagraph (UAG.update_after_proving_ornode proof orkey ctxt): unit;
+
+fun update_after_connecting_andnd_to_existing_ornd' (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkey:AG.key) =
+  Synchronized.change sagraph (UAG.update_after_connecting_andnd_to_existing_ornd orkey ctxt): unit;
+
+fun update_after_connecting_andnd_to_existing_ornd (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkeys:AG.keys) =
+  map (update_after_connecting_andnd_to_existing_ornd' ctxt sagraph) orkeys;
 
 fun final_goal_proved_completely (sagraph:synched_abduction_graph) =
   let

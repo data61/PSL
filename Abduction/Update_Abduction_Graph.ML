@@ -19,6 +19,7 @@ type keys;
 (* update of abduction_graph *)
 val update_is_branch                  : key -> update_abduction_graph;
 val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
+val update_after_connecting_andnd_to_existing_ornd: (*or*)key -> Proof.context -> update_abduction_graph;
 (*TODO: add_andnodes*)
 val add_andnode                       : terms -> abduction_graph -> keys * abduction_graph;
 val add_edges_from_andnode_to_ornodes : (*and*)key -> update_abduction_graph;
@@ -152,7 +153,7 @@ and update_branch key graph (forall_or_exists) (parent_or_grand_parent) (child_o
 
 in
 
-(*Important tricky part!*)
+(*Important tricky part 1!*)
 fun update_after_proving_ornode (proof:strings) (or_key as (Or_N, _): key) (ctxt:Proof.context) (g:abduction_graph) =
   let
     val updated1 = update_proof_n_proof_id proof or_key g;
@@ -162,6 +163,19 @@ fun update_after_proving_ornode (proof:strings) (or_key as (Or_N, _): key) (ctxt
     updated3: abduction_graph
   end
  | update_after_proving_ornode _ _ _ _ = error "update_after_proving_ornode failed. Not an or-node key."
+
+(*Important tricky part 2! It might require some modifications.*)
+fun update_after_connecting_andnd_to_existing_ornd (or_key as (Or_N, _): key) (ctxt:Proof.context) (ag:abduction_graph) =
+    if Abduction_Graph.is_proved_completely ag or_key
+    then
+      let
+        val updated1 = update_proved_wo_assmng_cnjctr or_key ag;
+        val updated2 = update_gg_parent_not_finished updated1
+      in
+        updated2: abduction_graph
+      end
+    else ag
+  | update_after_connecting_andnd_to_existing_ornd _ _ _ = error "update_after_proving_ornode failed. Not an or-node key."
 
 end;
 

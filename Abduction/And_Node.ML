@@ -29,7 +29,7 @@ struct
 (* andnode *)
 type andnode =
 {
- subgoals               : terms, (*Used to detect the order of sub-goals.*)(*TODO: where is it used to detect the order?*)
+ subgoals               : terms, (*Used to detect the order of sub-goals.*)
  proved_completely      : bool
 };
 
