@@ -81,7 +81,7 @@ fun get_free_vars_in_trm  trm = Term.fold_aterms (fn trm => fn acc => get_free_v
 fun mk_fvar_of        (i:int) = Free ("var_" ^ Int.toString i, dummyT);
 fun mk_fvars          (i:int) = map mk_fvar_of (List.tabulate (i, I));
 
-fun top_down_conjectures (pst:Proof.state) (orig_trm:term) =
+fun top_down_conjectures _ (pst:Proof.state) (orig_trm:term) =
   let
     val ctxt                      = Proof.context_of pst                                              : Proof.context;
     val freevars_in_orig          = get_free_vars_in_trm orig_trm                                     : terms;

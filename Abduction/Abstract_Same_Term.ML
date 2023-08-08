@@ -67,7 +67,7 @@ fun abstract_same_term_str (ctxt:Proof.context) (trm:term) =
     roots_prints
   end;
   
-  fun top_down_conjectures (pst:Proof.state) (trm:term) =
+  fun top_down_conjectures _ (pst:Proof.state) (trm:term) =
     let
       val ctxt                 = Proof.context_of pst                                                  : Proof.context;
       val cnjctrs_strs         = abstract_same_term_str ctxt trm                                       : strings;

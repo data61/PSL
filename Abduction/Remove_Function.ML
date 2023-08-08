@@ -64,7 +64,7 @@ fun remove_multiple_occurrences_of_functions (ctxt:Proof.context) (trm:term) =
     cnjctrs
   end;
 
-fun top_down_conjectures (pst:Proof.state) (trm:term) =
+fun top_down_conjectures _ (pst:Proof.state) (trm:term) =
   let
     val ctxt                 = Proof.context_of pst                             : Proof.context;
 (*

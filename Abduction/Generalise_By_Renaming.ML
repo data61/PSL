@@ -68,7 +68,7 @@ fun generalise_by_rename_free_variables' _ (trm:term) =
     end
   else [];
 
-fun top_down_conjectures (pst:Proof.state) (trm:term) =
+fun top_down_conjectures _ (pst:Proof.state) (trm:term) =
   let
     val ctxt = Proof.context_of pst;
   in

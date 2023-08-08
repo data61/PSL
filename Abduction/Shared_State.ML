@@ -7,14 +7,16 @@ signature SHARED_STATE =
 sig
 
 type abduction_graph;
-type synched_term2bool_table;
 
-val mk_synched_term_table  : unit -> synched_term2bool_table;
+type synched_term2bool_table;
+val mk_term2bool_table     : unit -> synched_term2bool_table;
 val is_refuted             : synched_term2bool_table -> Proof.state   -> term  -> bool;
 val any_of_these_is_refuted: synched_term2bool_table -> Proof.state   -> terms -> bool;
-val clean_lemma_name_table : unit -> unit;
-val get_lemma_name         : Proof.context -> term  -> string;
-val get_orkey_name         : Proof.context -> Abduction_Graph.key -> string;
+
+type synched_term2string_table;
+val mk_term2string_table   : unit -> synched_term2string_table;
+val get_lemma_name         : synched_term2string_table -> Proof.context -> term  -> string;
+val get_orkey_name         : synched_term2string_table -> Proof.context -> Abduction_Graph.key -> string;
 
 type synched_abduction_graph = abduction_graph Synchronized.var;
 
@@ -44,6 +46,8 @@ val defined          = Term_Table.defined;
 type term2bool_table         = bool Term_Table.table; (*true = refuted, false = not refuted*)
 type synched_term2bool_table = term2bool_table Synchronized.var;
 
+fun mk_term2bool_table _ = Synchronized.var "term2bool_table" Term_Table.empty: synched_term2bool_table;
+
 local
 
 val lookup                   = Utils.the' "lookup in Shared_State failed for Term_Table." oo Term_Table.lookup;
@@ -53,10 +57,7 @@ fun insert_bool (cnjctr:term, b:bool) (table:term2bool_table) =
    | SOME new_table => new_table;
 
 (*Once we refute a term. The term remains refuted in the table forever.*)
-
 in
-
-fun mk_synched_term_table _ = Synchronized.var "refutation_table" Term_Table.empty: synched_term2bool_table;
 
 fun is_refuted (synched_table:synched_term2bool_table) (pst:Proof.state) (cnjctr:term) =
   let
@@ -86,66 +87,29 @@ fun any_of_these_is_refuted (synched_table:synched_term2bool_table) (pst:Proof.s
     exists (is_refuted synched_table pst) terms;
 
 end;
-(*
-local
 
-val completely_proved_table = Synchronized.var "completely_proved_table" Term_Table.empty: synched_term2bool_table;
-val lookup                  = Utils.the' "lookup for completely_proved_table failed." oo Term_Table.lookup;
-(*Once we refute a term. The term remains refuted in the table forever.*)
+type term2string_table         = string Term_Table.table;
+type synched_term2string_table = term2string_table Synchronized.var;
 
-in
-
-fun clean_refuation_table _ = Synchronized.change refutation_table (K Term_Table.empty): unit;
-
-fun is_refuted (pst:Proof.state) (cnjctr:term) =
-  let
-    val cnjctr_prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
-    val old_table         = Synchronized.value refutation_table                                        : term2bool_table;
-    val already_checked   = defined old_table cnjctr_prop                                              : bool;
-    fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * bool);
-    val _                 =
-      if   already_checked then ()
-      else
-        let
-          (* It is okay to spend some time to run quick-check before calling Synchronized.change:
-           * Even if other threads find a counter-example for the same conjecture,
-           * the result should be the same. *)
-          val pair = quickcheck cnjctr_prop
-        in
-          Synchronized.change refutation_table (insert pair): unit
-        end;
-    val new_table         = Synchronized.value refutation_table: term2bool_table;
-    val result            = lookup new_table cnjctr_prop       : bool;
-  in
-    result
-  end;
-
-end;
-*)
+fun mk_term2string_table _ = Synchronized.var "term2string_table" Term_Table.empty: synched_term2string_table;
 
 local
 
-type term_lemma_name_table    = string Term_Table.table;
-type synched_lemma_name_table = term_lemma_name_table Synchronized.var;
-
-val lemma_name_table = Synchronized.var "lemma_name_table" Term_Table.empty: synched_lemma_name_table;
-val lookup           = Utils.the' "lookup for get_lemma_name failed." oo Term_Table.lookup;
-fun insert (cnjctr:term, lemma_name:string) (old_table:term_lemma_name_table) =
+val lookup           = Utils.the' "lookup for term2string_table failed." oo Term_Table.lookup;
+fun insert (cnjctr:term, lemma_name:string) (old_table:term2string_table) =
   if   defined old_table cnjctr
   then old_table
   else Term_Table.insert (op =) (cnjctr, lemma_name) old_table;
 
 in
 
-fun clean_lemma_name_table _ = Synchronized.change lemma_name_table (K Term_Table.empty): unit;
-
-fun get_lemma_name (ctxt:Proof.context) (term:term) =
+fun get_lemma_name (synched_table:synched_term2string_table) (ctxt:Proof.context) (term:term) =
   let
-    val standardized_term  = Top_Down_Util.standardize_vnames term                              : term;
-    fun mk_new_name_pair _ = (standardized_term, Top_Down_Util.mk_new_lemma_name ctxt false)    : (term * string);
-    val _                  = Synchronized.change lemma_name_table (insert (mk_new_name_pair ())): unit;
-    val new_table          = Synchronized.value lemma_name_table                                : term_lemma_name_table;
-    val result             = lookup new_table standardized_term                                 : string;
+    val standardized_term  = Top_Down_Util.standardize_vnames term                           : term;
+    fun mk_new_name_pair _ = (standardized_term, Top_Down_Util.mk_new_lemma_name ctxt false) : (term * string);
+    val _                  = Synchronized.change synched_table (insert (mk_new_name_pair ())): unit;
+    val new_table          = Synchronized.value synched_table                                : term2string_table;
+    val result             = lookup new_table standardized_term                              : string;
   in
     result
   end;
@@ -155,8 +119,9 @@ end;
 structure AG  = Abduction_Graph;
 structure UAG = Update_Abduction_Graph;
 
-fun get_orkey_name (ctxt:Proof.context) ((AG.Or_N, [term]): AG.key) = get_lemma_name ctxt term
-  | get_orkey_name _ _ = error "get_orkey_name failed. Not an orkey."
+fun get_orkey_name (synched_table:synched_term2string_table) (ctxt:Proof.context) ((AG.Or_N, [term]): AG.key) =
+    get_lemma_name synched_table ctxt term
+  | get_orkey_name _ _ _ = error "get_orkey_name failed. Not an orkey."
 
 type synched_abduction_graph = abduction_graph Synchronized.var;
 
@@ -200,5 +165,13 @@ fun new_node (key: AG.key, node:AG.abduction_node) (sagraph:synched_abduction_gr
 
 fun add_edge (parent_key: AG.key, child_key: AG.key) (sagraph:synched_abduction_graph) =
   Synchronized.change sagraph (AG.PGraph.add_edge (parent_key, child_key)): unit;
+
+end;
+
+(*** signature TOP_DOWN_CONJECTURING ***)
+signature TOP_DOWN_CONJECTURING =
+sig
+
+val top_down_conjectures: Shared_State.synched_term2string_table -> Proof.state -> term -> (string * term) list;
 
 end;
