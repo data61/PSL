@@ -401,11 +401,3 @@ fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term): Proof.state =
     in
       Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
     end;
-
-(*** signature TOP_DOWN_CONJECTURING ***)
-signature TOP_DOWN_CONJECTURING =
-sig
-
-val top_down_conjectures: Shared_State.synched_term2string_table -> Proof.state -> term -> (string * term) list;
-
-end;

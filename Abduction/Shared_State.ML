@@ -17,9 +17,12 @@ type synched_term2string_table;
 val mk_term2string_table   : unit -> synched_term2string_table;
 val get_lemma_name         : synched_term2string_table -> Proof.context -> term  -> string;
 val get_orkey_name         : synched_term2string_table -> Proof.context -> Abduction_Graph.key -> string;
-
+(*
+type synched_string2term_table;
+val mk_string2term_table: unit -> synched_string2term_table;
+val is_completely_proved: synched_string2term_table -> string -> term;
+*)
 type synched_abduction_graph = abduction_graph Synchronized.var;
-
 val mk_synched_abduction_graph                    : Proof.context -> term -> synched_abduction_graph;
 val update_is_branch                              : Abduction_Graph.key -> synched_abduction_graph -> unit;
 val add_andnodes                                  : terms -> synched_abduction_graph -> Abduction_Graph.keys;
@@ -82,7 +85,6 @@ fun is_refuted (synched_table:synched_term2bool_table) (pst:Proof.state) (cnjctr
     result
   end;
 
-
 fun any_of_these_is_refuted (synched_table:synched_term2bool_table) (pst:Proof.state) (terms:terms) =
     exists (is_refuted synched_table pst) terms;
 
@@ -96,20 +98,33 @@ fun mk_term2string_table _ = Synchronized.var "term2string_table" Term_Table.emp
 local
 
 val lookup           = Utils.the' "lookup for term2string_table failed." oo Term_Table.lookup;
-fun insert (cnjctr:term, lemma_name:string) (old_table:term2string_table) =
-  if   defined old_table cnjctr
-  then old_table
-  else Term_Table.insert (op =) (cnjctr, lemma_name) old_table;
+fun insert_string (cnjctr:term, lemma_name:string) (old_table:term2string_table) =
+  case try (Term_Table.insert (op =) (cnjctr, lemma_name)) old_table
+  of NONE           => old_table
+   | SOME new_table => new_table;
 
 in
 
 fun get_lemma_name (synched_table:synched_term2string_table) (ctxt:Proof.context) (term:term) =
   let
     val standardized_term  = Top_Down_Util.standardize_vnames term                           : term;
+    val old_table          = Synchronized.value synched_table                                : term2string_table;
+    val already_checked    = defined old_table standardized_term                             : bool;
     fun mk_new_name_pair _ = (standardized_term, Top_Down_Util.mk_new_lemma_name ctxt false) : (term * string);
-    val _                  = Synchronized.change synched_table (insert (mk_new_name_pair ())): unit;
-    val new_table          = Synchronized.value synched_table                                : term2string_table;
-    val result             = lookup new_table standardized_term                              : string;
+
+    val _                 =
+      if   already_checked then ()
+      else
+        let
+          (* It is okay to spend some time to run quick-check before calling Synchronized.change:
+           * Even if other threads find a counter-example for the same conjecture,
+           * the result should be the same. *)
+          val pair = mk_new_name_pair standardized_term
+        in
+          Synchronized.change synched_table (insert_string pair): unit
+        end;
+    val new_table          = Synchronized.value synched_table  : term2string_table;
+    val result             = lookup new_table standardized_term: string;
   in
     result
   end;

@@ -11,14 +11,7 @@ begin
 
 (*** Top_Down_Util ***)
 ML_file \<open>Top_Down_Util.ML\<close>
-ML_file \<open>Generalise_By_Renaming.ML\<close>
-ML_file \<open>Term_Table_for_Abduction.ML\<close>
-ML_file \<open>Generalise_Then_Extend.ML\<close>
-ML_file \<open>Abstract_Same_Term.ML\<close>
-ML_file \<open>Remove_Function.ML\<close>
-ML_file \<open>Remove_Outermost_Assumption.ML\<close>
-ML_file \<open>Replace_Imp_With_Eq.ML\<close>
-ML_file \<open>SeLFiE_For_Top_Down.ML\<close>
+
 ML_file \<open>And_Node.ML\<close>
 ML_file \<open>Or_Node.ML\<close>
 ML_file \<open>Or2And_Edge.ML\<close>
@@ -27,6 +20,15 @@ ML_file \<open>Update_Abduction_Node.ML\<close>
 ML_file \<open>Abduction_Graph.ML\<close>
 ML_file \<open>Update_Abduction_Graph.ML\<close>
 ML_file \<open>Shared_State.ML\<close>
+
+ML_file \<open>Generalise_By_Renaming.ML\<close>
+ML_file \<open>Term_Table_for_Abduction.ML\<close>
+ML_file \<open>Generalise_Then_Extend.ML\<close>
+ML_file \<open>Abstract_Same_Term.ML\<close>
+ML_file \<open>Remove_Function.ML\<close>
+ML_file \<open>Remove_Outermost_Assumption.ML\<close>
+ML_file \<open>Replace_Imp_With_Eq.ML\<close>
+ML_file \<open>SeLFiE_For_Top_Down.ML\<close>
 ML_file \<open>All_Top_Down_Conjecturing.ML\<close>
 ML_file \<open>Seed_Of_Or2And_Edge.ML\<close>
 ML_file \<open>Proof_By_Abduction.ML\<close>
