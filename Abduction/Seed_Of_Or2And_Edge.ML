@@ -384,10 +384,13 @@ fun eq_seed_modulo_reordering (seed1:seed_of_or2and_edge, seed2:seed_of_or2and_e
   end;
 
 (*explicit conjecturing*)
-fun decremental (pst:Proof.state) (_          :key) ([]         :seeds_of_or2and_edge) (_            :seeds_of_or2and_edge) (_             :SS.synched_abduction_graph) = ()
-  | decremental (pst:Proof.state) (parent_ornd:key) (seed::seeds:seeds_of_or2and_edge) (checked_seeds:seeds_of_or2and_edge) (synched_agraph:SS.synched_abduction_graph) =
+fun decremental  _            (pst:Proof.state) (_          :key) ([]         :seeds_of_or2and_edge) (_            :seeds_of_or2and_edge) (_             :SS.synched_abduction_graph) = ()
+  | decremental (counter:int) (pst:Proof.state) (parent_ornd:key) (seed::seeds:seeds_of_or2and_edge) (checked_seeds:seeds_of_or2and_edge) (synched_agraph:SS.synched_abduction_graph) =
+    if counter > 0
+    then
     let
-      val _ = tracing "\n====== inside decremental =="     
+      val _ = tracing "\n====== inside decremental =="
+      val _ = tracing ("=== The counter is: " ^ Int.toString counter);
       val _ = tracing ("=== The number of seeds are: " ^ Int.toString (length (seed::seeds)))
       val _ = tracing "===  seed to judge is:"
       val _ = print_seed_of_or2and_edge @{context} seed
@@ -401,7 +404,7 @@ fun decremental (pst:Proof.state) (_          :key) ([]         :seeds_of_or2and
       (* I only compare the name of conjectures. It seems that in some cases we have similar conjectures of the same name.
        * This is probably caused by the inconsistent use of the conversion from term to prop. *)
       val unchecked_seeds = filter_out (fn new_seed => member eq_seed_modulo_reordering checked_seeds new_seed) new_seeds
-      val distinct_seeds  = distinct eq_seed_modulo_reordering (unchecked_seeds @ seeds)
+      val distinct_seeds  = distinct eq_seed_modulo_reordering (seeds @ unchecked_seeds)
 
       val _ = tracing ("=== The number of distinct_seeds are: " ^ Int.toString (length distinct_seeds))
 (*
@@ -409,8 +412,13 @@ fun decremental (pst:Proof.state) (_          :key) ([]         :seeds_of_or2and
       val _ = map (fn seed => (print_seed_of_or2and_edge @{context} seed; tracing "-")) distinct_seeds
 *)
     in
-      decremental pst parent_ornd (distinct_seeds) (seed :: checked_seeds) synched_agraph
-    end;
+      decremental (counter - 1) pst parent_ornd distinct_seeds (seed :: checked_seeds) synched_agraph
+    end
+    else
+    let
+      val _ = tracing "\n====== inside decremental =="
+      val _ = tracing ("=== The counter is: " ^ Int.toString counter);
+    in () end;
 
 fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (seed:seed_of_or2and_edge)
   (term2name:SS.synched_term2string_table) (synched_agraph: SS.synched_abduction_graph) =
@@ -421,7 +429,7 @@ fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (seed:seed_of_or2a
     val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
     val _ = tracing " decremental abduction starts";
     val _ = map snd (#new_goals seed) |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
-    val _ = decremental pst parent_ornd [seed] [] synched_agraph: unit;
+    val _ = decremental 10 pst parent_ornd [seed] [] synched_agraph: unit;
     val _ = tracing " decremental abduction ends";
   in
     ()
