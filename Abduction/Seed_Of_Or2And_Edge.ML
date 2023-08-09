@@ -347,8 +347,11 @@ fun one_step (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abdu
         val connected_orkeys   = map (fn or_term => (Or_N, [or_term])) and_node_terms                                  : keys;
         val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph connected_orkeys: unit list;
         (*=from here only for explicit conjecturing not for implicit conjecturing=*)
-        val mk_new_goals_wo_one_used_goal = map (remove (op =)) used_andnd_name_term_pairs: ((string * term) list -> (string * term) list) list;
-        val old_goals                     = #new_goals seed                     : (string * term) list;
+        val abduction_graph    = Synchronized.value synched_agraph                                                     : SS.abduction_graph;(*TODO: maybe we should avoid this?*)
+        fun is_completely_proved (_, term) = is_proved_completely abduction_graph (Or_N, [term])                       : bool;
+        val unproved_used_andnd_name_term_pairs = filter_out is_completely_proved used_andnd_name_term_pairs           : (string * term) list;
+        val mk_new_goals_wo_one_used_goal = map (remove (op =)) unproved_used_andnd_name_term_pairs                    : ((string * term) list -> (string * term) list) list;
+        val old_goals                     = #new_goals seed                                                            : (string * term) list;
         val _ = tracing ("=== Inside one_step.");
         val _ = tracing ("=== The number of used conjectures are " ^ (Int.toString (length used_andnd_name_term_pairs)));
         val _ = tracing ("=== They are: ")
