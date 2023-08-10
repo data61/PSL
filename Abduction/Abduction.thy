@@ -116,11 +116,4 @@ val _ = theorem \<^command_keyword>\<open>prove\<close> "prove";
 end;
 \<close>
 
-
-ML\<open>
-distinct (op =) [1,3,2,5,1,3];
-Utils.map_arg [2,4,5,6] (map (remove (op =)) [3,1]);
-subset (op =)([1,2], [1,2,3]);
-sort length_ord [[1,3,2],[2],[1,2]]
-\<close>
 end
