@@ -315,7 +315,7 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
  * step 6. add child-or-nodes that correspond to the sub-goals or used conjectures in the and-node.
  * step 7. connect the child-or-nodes to the and-node.
  *)
-fun one_step (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abduction_graph) (seed: seed_of_or2and_edge): seeds_of_or2and_edge =
+fun one_step (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abduction_graph) (seed: seed_of_or2and_edge): (string * term) list =
   let
     fun tracing' mssg = ();
     val _ = SS.update_is_branch parent_ornd synched_agraph: unit;
@@ -346,25 +346,16 @@ fun one_step (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abdu
         val _                  = SS.add_edges_from_andnode_to_ornodes added_andnode_key synched_agraph                 : unit;
         val connected_orkeys   = map (fn or_term => (Or_N, [or_term])) and_node_terms                                  : keys;
         val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph connected_orkeys: unit list;
-        (*=from here only for explicit conjecturing not for implicit conjecturing=*)
-        val abduction_graph    = Synchronized.value synched_agraph                                                     : SS.abduction_graph;(*TODO: maybe we should avoid this?*)
-        fun is_completely_proved (_, term) = is_proved_completely abduction_graph (Or_N, [term])                       : bool;
-        val unproved_used_andnd_name_term_pairs = filter_out is_completely_proved used_andnd_name_term_pairs           : (string * term) list;
-        val mk_new_goals_wo_one_used_goal = map (remove (op =)) unproved_used_andnd_name_term_pairs                    : ((string * term) list -> (string * term) list) list;
-        val old_goals                     = #new_goals seed                                                            : (string * term) list;
-        val _ = tracing ("=== Inside one_step.");
-        val _ = tracing ("=== The number of used conjectures are " ^ (Int.toString (length used_andnd_name_term_pairs)));
-        val _ = tracing ("=== They are: ")
-        val _ = map tracing (map (fn (str, trm) => str ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm) used_andnd_name_term_pairs)
-        val new_goals_wo_one_used_goal    = Utils.map_arg old_goals mk_new_goals_wo_one_used_goal
-                                          |> distinct (op =)
-                                          |> map (distinct (op =)): (string * term) list list;
-        val new_seeds                     = map conjecture_to_seed_of_or2and_edge new_goals_wo_one_used_goal: seeds_of_or2and_edge;
-        (*=till here only for explicit conjecturing not for implicit conjecturing=*)
+
+(*
+      val _ = tracing ("=== Used cnjctrs are: ")
+      val _ = map tracing (map (fn (str, trm) => str ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm) used_andnd_name_term_pairs)
+*)
       in
-        new_seeds
+        used_andnd_name_term_pairs
       end
-    else []
+    else
+      ([])
   end;
 
 (*implicit conjecturing*)
@@ -373,51 +364,114 @@ fun seeds_to_updated_graph (pst:Proof.state) (parent_ornd:key) (seeds: seeds_of_
     val _ = map (one_step pst parent_ornd sagraph) seeds;
   in () end;
 
-fun eq_seed_modulo_reordering (seed1:seed_of_or2and_edge, seed2:seed_of_or2and_edge) =
+type cnjctrs = (string * term) list;
+
+fun eq_cnjctrs (pairs1:cnjctrs, pairs2:cnjctrs): bool =
   let
-    val new_goals1 = #new_goals seed1: (string * term) list;
-    val new_goals2 = #new_goals seed2: (string * term) list;
-    val goal_names1 = map fst new_goals1: strings;
-    val goal_names2 = map fst new_goals2: strings;
+    val goal_names1 = map fst pairs1;
+    val goal_names2 = map fst pairs2;
   in
     eq_set (op =) (goal_names1, goal_names2)
   end;
 
 (*explicit conjecturing*)
-fun decremental  _            (pst:Proof.state) (_          :key) ([]         :seeds_of_or2and_edge) (_            :seeds_of_or2and_edge) (_             :SS.synched_abduction_graph) = ()
-  | decremental (counter:int) (pst:Proof.state) (parent_ornd:key) (seed::seeds:seeds_of_or2and_edge) (checked_seeds:seeds_of_or2and_edge) (synched_agraph:SS.synched_abduction_graph) =
+fun decremental  _            (pst:Proof.state) (_          :key) ([]            :cnjctrs list)    (_      :cnjctrs list) (_             :SS.synched_abduction_graph)  _                        = ()
+  | decremental (counter:int) (pst:Proof.state) (parent_ornd:key) (cnjctrs::cnjctrss:cnjctrs list) (checked:cnjctrs list) (synched_agraph:SS.synched_abduction_graph) (failed_set:cnjctrs list) =
     if counter > 0
     then
     let
-      val _ = tracing "\n====== inside decremental =="
       val _ = tracing ("=== The counter is: " ^ Int.toString counter);
-      val _ = tracing ("=== The number of seeds are: " ^ Int.toString (length (seed::seeds)))
-      val _ = tracing "===  seed to judge is:"
-      val _ = print_seed_of_or2and_edge @{context} seed
+(*
+      val _ = tracing ("\n=== Inside one_step. ===");
+      val _ = tracing ("=== The number of conjectures are " ^ (Int.toString (length cnjctrs)));
 
-      val new_seeds       = one_step pst parent_ornd synched_agraph seed: seeds_of_or2and_edge;
+      val _ = tracing ("=== Candidate cnjctrs are: ")
+      val _ = map tracing (map (fn (str, trm) => str ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm) cnjctrs)
+*)
+(*1  apply one_step. identify used conjectures.*)
+(*2a identify used conjectures that are not proved.*)
+(*2b if there are no used conjectures, then go to 3, else go to 4.*)
+(*3a register the conjectures inside seed as a set of failed attempt.*)
+(*4a make a new set of conjectures from seed, so that each member of the set lacks exactly one conjecture that was used but not proved.*)
+(*4b pick seeds that contain the conjectures that are used not proved.*)
+(*4c apply 3a to those seeds.*)
+(*5a filter out those seeds whose conjectures are a subset of any set in the registered failed attempt.*)
+(*5b remove duplication from seeds for the next iteration.*)
+(*5c reorder the seeds for the next iteration, so that seeds with more conjectures will be checked first.*)
+
+(*1  apply one_step. identify used conjectures.*)
+      val seed                       = conjecture_to_seed_of_or2and_edge cnjctrs                                     : seed_of_or2and_edge;
+      val used_andnd_name_term_pairs = one_step pst parent_ornd synched_agraph seed                                  : cnjctrs;
+                                              
+(*2a identify used conjectures that are not proved.*)
+      val abduction_graph            = Synchronized.value synched_agraph                                             : SS.abduction_graph;(*TODO: maybe we should avoid this?*)
+      fun is_completely_proved (_, term) = is_proved_completely abduction_graph (Or_N, [term])                       : bool;
+      val unproved_used_andnd_name_term_pairs = filter_out is_completely_proved used_andnd_name_term_pairs           : cnjctrs;
+
+(*3a register the conjectures inside seed as a set of failed attempt.*)
+(*TODO*)                                             
+
+(*4a make a new set of conjectures from seed, so that each member of the set lacks exactly one conjecture that was used but not proved.*)
+      val (new_failed_set, new_candidates): (cnjctrs list * cnjctrs list) =
+       (if null used_andnd_name_term_pairs
+        then
+          let
+(*
+            val _ = tracing "=== not proved!"
+*)
+            val new_failed_set = distinct eq_cnjctrs (cnjctrs::failed_set)
+          in
+            (new_failed_set, cnjctrss)
+          end
+        else
+          let
+(*
+            val _ = tracing "=== proved!"
+            val _ = tracing ("=== The number of used unproven conjectures are " ^ (Int.toString (length (unproved_used_andnd_name_term_pairs))));
+*)
+            val mk_new_cnjctr_set_by_removing_one_of = map (remove (op =)) unproved_used_andnd_name_term_pairs: (cnjctrs -> cnjctrs) list;
+            fun mk_new_goals_wo_one_used_goal (those_sent_to_one_step:cnjctrs) =
+                Utils.map_arg those_sent_to_one_step mk_new_cnjctr_set_by_removing_one_of: cnjctrs list;
+            (*fun mk_new_goals_wo_used_proved_goals (cnjncts) = subtract (fn (p1,p2) => fst p1 = fst p2) unproved_used_andnd_name_term_pairs cnjncts: cnjctrs;*)
+            val new_cnjctrss      = map mk_new_goals_wo_one_used_goal (cnjctrs::cnjctrss)
+                                 |> flat
+                                 |> distinct eq_cnjctrs
+                                 |> distinct eq_cnjctrs
+                                 |> sort length_ord |> rev; (*We want to check seeds with more conjectures first because they tend to be more powerful.*)
+          in
+            (failed_set, new_cnjctrss)
+          end
+       );
+     val new_checked = cnjctrs :: checked: cnjctrs list;
+     fun eq_to_one_of_checked (cnjctrs:cnjctrs) = exists (curry eq_cnjctrs cnjctrs) new_checked: bool;
+     val genuinely_new_candidates = filter_out eq_to_one_of_checked new_candidates: cnjctrs list;
+
+    fun is_subset_of (sub:cnjctrs) (sup:cnjctrs) = subset (op =) (sub, sup);
+    fun is_subset_of_any_failed_cnjctrs (sub:cnjctrs) = exists (is_subset_of sub) new_failed_set;
+    val promising_candidates = filter_out is_subset_of_any_failed_cnjctrs genuinely_new_candidates;
+(*
+     val _ = tracing ("\n=== The number of genuinely_new_candidates are " ^ (Int.toString (length (genuinely_new_candidates))));
+     val _ = tracing ("=== The number of promising_candidates are     " ^ (Int.toString (length (promising_candidates))));
+*)
+(*
+
+      val _ = tracing ("=== The number of used conjectures are " ^ (Int.toString (length used_andnd_name_term_pairs)));
+      val _ = tracing ("=== They are: ")
+      val _ = map tracing (map (fn (str, trm) => str ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm) used_andnd_name_term_pairs)
 
       val _ = tracing ("=== The number of new seeds are: " ^ Int.toString (length new_seeds))
       val _ =  tracing "===  new seeds are:"
       val _ = map (fn seed => (print_seed_of_or2and_edge @{context} seed; tracing "-")) new_seeds
-
-      (* I only compare the name of conjectures. It seems that in some cases we have similar conjectures of the same name.
-       * This is probably caused by the inconsistent use of the conversion from term to prop. *)
-      val unchecked_seeds = filter_out (fn new_seed => member eq_seed_modulo_reordering checked_seeds new_seed) new_seeds
-      val distinct_seeds  = distinct eq_seed_modulo_reordering (seeds @ unchecked_seeds)
-
-      val _ = tracing ("=== The number of distinct_seeds are: " ^ Int.toString (length distinct_seeds))
-(*
-      val _ =  tracing "--new distinct seeds are:"
-      val _ = map (fn seed => (print_seed_of_or2and_edge @{context} seed; tracing "-")) distinct_seeds
 *)
     in
-      decremental (counter - 1) pst parent_ornd distinct_seeds (seed :: checked_seeds) synched_agraph
+      decremental (counter - 1) pst parent_ornd promising_candidates new_checked synched_agraph new_failed_set
     end
     else
     let
+(*
       val _ = tracing "\n====== inside decremental =="
       val _ = tracing ("=== The counter is: " ^ Int.toString counter);
+*)
     in () end;
 
 fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (seed:seed_of_or2and_edge)
@@ -429,7 +483,8 @@ fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (seed:seed_of_or2a
     val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
     val _ = tracing " decremental abduction starts";
     val _ = map snd (#new_goals seed) |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
-    val _ = decremental 10 pst parent_ornd [seed] [] synched_agraph: unit;
+    val max_number = if (Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd) then 5 else 1;
+    val _ = decremental max_number pst parent_ornd [#new_goals seed] [] synched_agraph []: unit;
     val _ = tracing " decremental abduction ends";
   in
     ()
