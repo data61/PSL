@@ -32,7 +32,10 @@ type seeds_of_or2and_edge = SOOE.seeds_of_or2and_edge;
 
 (* expand_ornode *)
 fun expand_ornode_if_original_goral_is_unproved
-  (pst:state, synched_agraph: SS.synched_abduction_graph, refutation:SS.synched_term2bool_table, term2name:SS.synched_term2string_table)
+  (pst:state,
+   synched_agraph: SS.synched_abduction_graph,
+   refutation    : SS.synched_term2bool_table,
+   term2name     : SS.synched_term2string_table)
   (or_key as (Or_N, [lemma_term]):key): bool =
     let
        fun tracing' mssg = ()(*tracing mssg*);
@@ -45,10 +48,10 @@ fun expand_ornode_if_original_goral_is_unproved
       if is_some maybe_proved (*ornode was proved completely.*)
       then
         let
-          val _ = tracing' "We PROVED the or-node.";
-          val _ = tracing' (Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term);
+          val _          = tracing' "We PROVED the or-node.";
+          val _          = tracing' (Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term);
           val (_, proof) = the maybe_proved: (state * strings);
-          val _ = SS.update_after_proving_ornode proof or_key (Proof.context_of pst) synched_agraph
+          val _          = SS.update_after_proving_ornode proof or_key (Proof.context_of pst) synched_agraph;
         in
            SS.final_goal_proved_completely synched_agraph
         end
@@ -76,7 +79,9 @@ fun expand_ornode_if_original_goral_is_unproved
   | expand_ornode_if_original_goral_is_unproved _ _ = error "expand_ornode failed. Not an Or_N.";
 
 (* loop *)
-fun loop (counter:int) (max_depth:int) (pst:state, synched_agraph: SS.synched_abduction_graph, refutation:SS.synched_term2bool_table, term2name:SS.synched_term2string_table) =
+fun loop (counter:int) (max_depth:int)
+    (pst:state, synched_agraph: SS.synched_abduction_graph, refutation:SS.synched_term2bool_table,
+     term2name:SS.synched_term2string_table) =
     if counter < 8
     then
       let
@@ -97,32 +102,46 @@ fun loop (counter:int) (max_depth:int) (pst:state, synched_agraph: SS.synched_ab
     else
       pst;
 
-(*TODO*)
-fun print_proof_of_graph' (pst:Proof.state) (ag:abduction_graph) (name2term:SS.string2term_table)
-      (already_printed_lemmas:strings) (results:strings) (lemma_tobe_printed::lemmas_tobe_printeds:strings) =
+type string2term_table = term Symtab.table;
+
+fun insert_into_string2term (name:string, term:term) (string2term:string2term_table): string2term_table =
+  Symtab.insert (op =) (name, term) string2term handle Symtab.DUP _ => string2term;
+
+fun abduction_graph_to_string2term_table (ag:abduction_graph): string2term_table =
+  let
+    val or_keys     = keys ag |> filter is_ornode: keys;
+    fun key_to_pair (key as (Or_N, [term])) = (lemma_name_of ag key, term)
+      | key_to_pair _                       = error "abduction_graph_to_string2term_table failed.";
+    val pairs       = map key_to_pair or_keys: (string * term) list;
+    val string2term = fold insert_into_string2term pairs Symtab.empty: string2term_table;
+  in
+    string2term
+  end;
+
+fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table)
+      (already_printed_lemmas:strings)  (lemma_tobe_printed::lemmas_tobe_printeds:strings) (results:strings) =
     let
       val lemma_term_opt = Symtab.lookup name2term lemma_tobe_printed: term option;
     in
       if is_none lemma_term_opt orelse member (op =) already_printed_lemmas lemma_tobe_printed
       then
-        [(*TODO*)]
+        print_necessary_proofs_only pst ag name2term already_printed_lemmas lemmas_tobe_printeds results: strings
       else
         let
-          val lemma_term = the lemma_term_opt;
-          val orkey = (Abduction_Graph.Or_N, [lemma_term]): Abduction_Graph.key;
-          val proof = Abduction_Graph.proof_of ag orkey |> String.concatWith " ": string;
-          val thy   = Proof.theory_of pst: theory;
+          val lemma_term       = the lemma_term_opt;
+          val orkey            = (Or_N, [lemma_term]): Abduction_Graph.key;
+          val proof            = Abduction_Graph.proof_of ag orkey |> String.concatWith " ": string;
+          val thy              = Proof.theory_of pst: theory;
           val used_lemma_names = Top_Down_Util.get_lemma_names_from_sh_output thy proof: strings;
-          val ctxt  = Proof.context_of pst: Proof.context;
-          val remaining_lemmas = (lemmas_tobe_printeds @ used_lemma_names)
-                              |> remove (op =) lemma_tobe_printed;
-          val new_result  = Abduction_Graph.print_lemma_and_proof_of_key ctxt ag orkey: string;
-          val new_results = new_result :: results: strings
+          val ctxt             = Proof.context_of pst: Proof.context;
+          val remaining_lemmas = distinct (op =) (lemmas_tobe_printeds @ used_lemma_names);
+          val new_result       = Abduction_Graph.print_lemma_and_proof_of_key ctxt ag orkey: string;
+          val new_results      = new_result :: results: strings
         in
-          print_proof_of_graph' pst ag name2term (lemma_tobe_printed::already_printed_lemmas) remaining_lemmas new_results: strings
+          print_necessary_proofs_only pst ag name2term (lemma_tobe_printed::already_printed_lemmas) remaining_lemmas new_results: strings
         end
     end
- | print_proof_of_graph' _ _ _ _ results [] = results
+ | print_necessary_proofs_only _ _ _ _ [] results = results
 
 (* proof_by_abduction *)
 fun proof_by_abduction (pst:Proof.state) (term:term) =
@@ -133,11 +152,14 @@ fun proof_by_abduction (pst:Proof.state) (term:term) =
       val synched_agraph           = SS.mk_synched_abduction_graph ctxt standardized_term: SS.synched_abduction_graph;
       val synched_refutation_table = Shared_State.mk_term2bool_table ();
       val synched_lemma_name_table = Shared_State.mk_term2string_table ();
-      (*TODO: make name2term table. update it whenever I prove an or-node.*)
-      val final_pst                = loop 0 max_depth (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table);
+      val _                        = loop 0 max_depth (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table);
       val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
+      val lemma_name_2_term        = abduction_graph_to_string2term_table final_graph: string2term_table;
+      val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
+      val tobeprinted              = print_necessary_proofs_only pst final_graph lemma_name_2_term [] [final_goal_name] ["\n"] |> String.concatWith "\n";
+      val _                        = Active.sendback_markup_properties [Markup.padding_command] tobeprinted |> tracing;
     in
-      print_proof_of_graph final_pst final_graph
+      ()
     end;
 
 end;

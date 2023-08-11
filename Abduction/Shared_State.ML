@@ -14,16 +14,13 @@ val mk_term2bool_table     : unit -> synched_term2bool_table;
 val is_refuted             : synched_term2bool_table -> Proof.state   -> term  -> bool;
 val any_of_these_is_refuted: synched_term2bool_table -> Proof.state   -> terms -> bool;
 
+(*TODO: Do we really need a table that maps terms to lemma names? Can we use Abduction_Graph for this?*)
 type term2string_table;
 type synched_term2string_table;
 val mk_term2string_table: unit -> synched_term2string_table;
 val get_lemma_name      : synched_term2string_table -> Proof.context -> term  -> string;
+(*TODO: Do we really need get_orkey_name even though we have get_lemma_name?*)
 val get_orkey_name      : synched_term2string_table -> Proof.context -> Abduction_Graph.key -> string;
-
-type string2term_table;
-type synched_string2term_table;
-val mk_string2term_table  : unit -> synched_string2term_table;
-val lemma_name_to_term_opt: synched_string2term_table -> string -> term option;
 
 type synched_abduction_graph = abduction_graph Synchronized.var;
 val mk_synched_abduction_graph                    : Proof.context -> term -> synched_abduction_graph;
@@ -97,7 +94,6 @@ type term2string_table         = string Term_Table.table;
 type synched_term2string_table = term2string_table Synchronized.var;
 
 fun mk_term2string_table _ = Synchronized.var "synched_term2string_table" Term_Table.empty: synched_term2string_table;
-val term2string_table_looup = Term_Table.lookup: term2string_table -> term -> string option;
 
 local
 
@@ -141,19 +137,6 @@ structure UAG = Update_Abduction_Graph;
 fun get_orkey_name (synched_table:synched_term2string_table) (ctxt:Proof.context) ((AG.Or_N, [term]): AG.key) =
     get_lemma_name synched_table ctxt term
   | get_orkey_name _ _ _ = error "get_orkey_name failed. Not an orkey."
-
-type string2term_table = term Symtab.table;
-type synched_string2term_table = string2term_table Synchronized.var;
-
-fun mk_string2term_table _ = Synchronized.var "synched_string2term_table" Symtab.empty: synched_string2term_table: synched_string2term_table;
-
-fun lemma_name_to_term_opt (synched_table:synched_string2term_table) (name:string) =
-  let
-    val string2term_table = Synchronized.value synched_table    : string2term_table;
-    val maybe_term        = Symtab.lookup string2term_table name: term option;
-  in
-    maybe_term
-  end;
 
 type synched_abduction_graph = abduction_graph Synchronized.var;
 

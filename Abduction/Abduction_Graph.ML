@@ -72,10 +72,11 @@ val final_goal_proved_completely                 : abduction_graph -> bool;
 
 val mk_pst_to_prove_from_orkey                   : Proof.state -> key -> Proof.state;
 val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * strings) option;
+val keys                                         : abduction_graph -> keys;
 
 val goal_as_string                               : Proof.context -> key -> string;
 val print_lemma_and_proof_of_key                 : Proof.context -> abduction_graph -> key -> string;
-val print_proof_of_graph                         : Proof.state -> abduction_graph -> unit;
+(*TODO: no longer used.*)val print_proof_of_graph: Proof.state -> abduction_graph -> unit;
 
 end;
 
@@ -335,6 +336,9 @@ fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph
       result
     end
   | prove_orkey_completely _ _ _ = error "try_to_prove_orkey_completely failed!";
+
+(* keys *)
+fun keys (ag:abduction_graph) = PGraph.keys ag;
 
 (* goal_as_string *)
 fun goal_as_string (ctxt:Proof.context) ((Or_N, [term]):key) = Isabelle_Utils.trm_to_string ctxt term
