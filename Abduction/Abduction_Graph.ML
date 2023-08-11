@@ -66,7 +66,6 @@ val get_final_goal_term                          : abduction_graph -> term;
 val get_leaf_orterms                             : abduction_graph -> terms;
 val get_final_goal_key                           : abduction_graph -> key;
 val orkeys_tobe_expanded_in                      : Proof.context -> abduction_graph -> keys;
-val goal_as_string                               : Proof.state -> key -> string;
 
 (* query on abduction_graph *)
 val final_goal_proved_completely                 : abduction_graph -> bool;
@@ -74,7 +73,8 @@ val final_goal_proved_completely                 : abduction_graph -> bool;
 val mk_pst_to_prove_from_orkey                   : Proof.state -> key -> Proof.state;
 val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * strings) option;
 
-val print_lemma_and_proof_of_key                 : Proof.state -> abduction_graph -> key -> string;
+val goal_as_string                               : Proof.context -> key -> string;
+val print_lemma_and_proof_of_key                 : Proof.context -> abduction_graph -> key -> string;
 val print_proof_of_graph                         : Proof.state -> abduction_graph -> unit;
 
 end;
@@ -284,11 +284,6 @@ fun proof_of (graph:abduction_graph) (key:key) =
     else error "proof_of failed. No proof yet."
   end;
 
-(* goal_as_string *)
-fun goal_as_string (pst:Proof.state) ((Or_N, [term]):key) = Isabelle_Utils.trm_to_string (Proof.context_of pst) term
-  | goal_as_string (pst:Proof.state) ((And_N, terms):key) = map (Isabelle_Utils.trm_to_string (Proof.context_of pst)) terms |> String.concatWith "\n"
-  | goal_as_string _ _ = error "goal_as_string in Proof_Graph.ML failed"
-
 (* orkeys_tobe_expanded_in *)
 fun orkeys_tobe_expanded_in (ctxt:Proof.context) (graph:abduction_graph): keys =
   let
@@ -341,11 +336,16 @@ fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph
     end
   | prove_orkey_completely _ _ _ = error "try_to_prove_orkey_completely failed!";
 
+(* goal_as_string *)
+fun goal_as_string (ctxt:Proof.context) ((Or_N, [term]):key) = Isabelle_Utils.trm_to_string ctxt term
+  | goal_as_string (ctxt:Proof.context) ((And_N, terms):key) = map (Isabelle_Utils.trm_to_string ctxt) terms |> String.concatWith "\n"
+  | goal_as_string _ _ = error "goal_as_string in Proof_Graph.ML failed"
+
 (* print_lemma_and_proof_of_key *)
-fun print_lemma_and_proof_of_key (pst:Proof.state) (graph:abduction_graph) (key:key) =
+fun print_lemma_and_proof_of_key (ctxt:Proof.context) (graph:abduction_graph) (key:key) =
   let
     val name  = lemma_name_of graph key : string;
-    val stmt  = goal_as_string pst key  : string;
+    val stmt  = goal_as_string ctxt key : string;
     val proofs= proof_of graph key      : strings;
     val proof = space_implode " " proofs: string;
   in
@@ -365,7 +365,7 @@ fun print_proof_of_graph (pst:Proof.state) (graph:abduction_graph) =
     val relevant_key_prf_id_pairs    = filter (fn (_, prf_id) => prf_id <= prf_id_of_original_goal) key_prf_id_pairs_wo_opt: (key * int) list;
     fun compare ((_, id1), (_, id2)) = Int.compare (id1, id2)                                                              : order;
     val sorted_keys                  = sort compare relevant_key_prf_id_pairs |> map fst                                   : key list;
-    val final_script                 = "\n" ^ (map (print_lemma_and_proof_of_key pst graph) sorted_keys |> String.concatWith "\n");
+    val final_script                 = "\n" ^ (map (print_lemma_and_proof_of_key (Proof.context_of pst) graph) sorted_keys |> String.concatWith "\n");
     (*TODO: Do not show the proofs of or-nodes proved after we prove the original goal.*)
     val _ = Active.sendback_markup_properties [Markup.padding_command] final_script |> tracing;
   in

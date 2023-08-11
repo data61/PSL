@@ -385,7 +385,6 @@ fun decremental  _            (pst:Proof.state) (_          :key) ([]           
         fun is_completely_proved (_, term) = is_proved_completely abduction_graph (Or_N, [term])                       : bool;
         val unproved_used_andnd_name_term_pairs = filter_out is_completely_proved used_andnd_name_term_pairs           : cnjctrs;
 
-
         val (new_failed_set, new_candidates): (cnjctrs list * cnjctrs list) =
           (if null used_andnd_name_term_pairs
            then
