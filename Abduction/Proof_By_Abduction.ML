@@ -118,14 +118,17 @@ fun abduction_graph_to_string2term_table (ag:abduction_graph): string2term_table
     string2term
   end;
 
-fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table)
-      (already_printed_lemmas:strings)  (lemma_tobe_printed::lemmas_tobe_printeds:strings) (results:strings) =
+
+(*rose tree to print proofs*)
+datatype print_proof_tree = PPTree of (string * print_proof_tree list);
+
+fun get_print_proof_tree (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table) (lemma_name:string) =
     let
-      val lemma_term_opt = Symtab.lookup name2term lemma_tobe_printed: term option;
+      val lemma_term_opt = Symtab.lookup name2term lemma_name: term option;
     in
-      if is_none lemma_term_opt orelse member (op =) already_printed_lemmas lemma_tobe_printed
+      if is_none lemma_term_opt
       then
-        print_necessary_proofs_only pst ag name2term already_printed_lemmas lemmas_tobe_printeds results: strings
+        PPTree (lemma_name, []) (*The lemma was proved before calling our tool.*)
       else
         let
           val lemma_term       = the lemma_term_opt;
@@ -133,15 +136,30 @@ fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2ter
           val proof            = Abduction_Graph.proof_of ag orkey |> String.concatWith " ": string;
           val thy              = Proof.theory_of pst: theory;
           val used_lemma_names = Top_Down_Util.get_lemma_names_from_sh_output thy proof: strings;
-          val ctxt             = Proof.context_of pst: Proof.context;
-          val remaining_lemmas = distinct (op =) (lemmas_tobe_printeds @ used_lemma_names);
-          val new_result       = Abduction_Graph.print_lemma_and_proof_of_key ctxt ag orkey: string;
-          val new_results      = new_result :: results: strings
+          val result           = PPTree (lemma_name, map (get_print_proof_tree pst ag name2term) used_lemma_names)
         in
-          print_necessary_proofs_only pst ag name2term (lemma_tobe_printed::already_printed_lemmas) remaining_lemmas new_results: strings
+          result
         end
-    end
- | print_necessary_proofs_only _ _ _ _ [] results = results
+    end;
+
+fun order_pptree' (PPTree (lem_name, []  )) = [lem_name]: strings
+  | order_pptree' (PPTree (lem_name, kids)) = flat (map order_pptree' kids) @ [lem_name];
+
+(*note that "distinct" preserves the order*)
+fun order_pptree (pptree:print_proof_tree) = order_pptree' pptree |> distinct (op =);
+
+fun print_necessary_proofs_only2 (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table) (goal_name:string) =
+let
+  val pptree = get_print_proof_tree pst ag name2term goal_name: print_proof_tree;
+  val lemma_names = order_pptree pptree: strings;
+  val lemma_terms = map (Symtab.lookup name2term) lemma_names |> Utils.somes: terms;
+  val orkeys      = map (fn trm => (Or_N, [trm])) lemma_terms: keys;
+  val ctxt        = Proof.context_of pst: Proof.context;
+  val proofs      = map (Abduction_Graph.print_lemma_and_proof_of_key ctxt ag) orkeys |> String.concatWith "\n";
+  val whole_proof = Active.sendback_markup_properties [Markup.padding_command] proofs
+in
+  tracing whole_proof
+end;
 
 (* proof_by_abduction *)
 fun proof_by_abduction (pst:Proof.state) (term:term) =
@@ -156,8 +174,7 @@ fun proof_by_abduction (pst:Proof.state) (term:term) =
       val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
       val lemma_name_2_term        = abduction_graph_to_string2term_table final_graph: string2term_table;
       val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
-      val tobeprinted              = print_necessary_proofs_only pst final_graph lemma_name_2_term [] [final_goal_name] ["\n"] |> String.concatWith "\n";
-      val _                        = Active.sendback_markup_properties [Markup.padding_command] tobeprinted |> tracing;
+      val _ = print_necessary_proofs_only2 pst final_graph lemma_name_2_term final_goal_name
     in
       ()
     end;
