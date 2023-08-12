@@ -85,17 +85,16 @@ fun loop (counter:int) (max_depth:int)
     if counter < 8
     then
       let
-        val _                      = tracing ("==== In loop. Counter is: " ^ Int.toString counter ^ " =====");
+        val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ " =====");
         val ctxt                   = Proof.context_of pst;
         val abduction_graph        = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
         val orkeys_worth_expanding = orkeys_tobe_expanded_in ctxt abduction_graph: keys;
         val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
         val _                      = tracing "They are:"
-        val _                      = map (tracing o Shared_State.get_orkey_name term2name ctxt) orkeys_worth_expanding;
         val _                      = map (print_key ctxt) orkeys_worth_expanding
         val some_orkey             = Par_List.find_some (expand_ornode_if_original_goral_is_unproved (pst, synched_agraph, refutation, term2name)) orkeys_worth_expanding: key option;
         val solved                 = is_some some_orkey: bool;
-        val _                      = tracing (if solved then "    In loop. Solved." else "    In loop. Not solved.")
+        val _                      = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
       in
         (if solved then pst else loop (counter + 1) max_depth (pst, synched_agraph, refutation, term2name))
       end
@@ -117,7 +116,6 @@ fun abduction_graph_to_string2term_table (ag:abduction_graph): string2term_table
   in
     string2term
   end;
-
 
 (*rose tree to print proofs*)
 datatype print_proof_tree = PPTree of (string * print_proof_tree list);
@@ -148,14 +146,14 @@ fun order_pptree' (PPTree (lem_name, []  )) = [lem_name]: strings
 (*note that "distinct" preserves the order*)
 fun order_pptree (pptree:print_proof_tree) = order_pptree' pptree |> distinct (op =);
 
-fun print_necessary_proofs_only2 (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table) (goal_name:string) =
+fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table) (goal_name:string) =
 let
   val pptree = get_print_proof_tree pst ag name2term goal_name: print_proof_tree;
   val lemma_names = order_pptree pptree: strings;
   val lemma_terms = map (Symtab.lookup name2term) lemma_names |> Utils.somes: terms;
   val orkeys      = map (fn trm => (Or_N, [trm])) lemma_terms: keys;
   val ctxt        = Proof.context_of pst: Proof.context;
-  val proofs      = map (Abduction_Graph.print_lemma_and_proof_of_key ctxt ag) orkeys |> String.concatWith "\n";
+  val proofs      = "\n" :: map (print_lemma_and_proof_of_key ctxt ag) orkeys |> String.concatWith "\n";
   val whole_proof = Active.sendback_markup_properties [Markup.padding_command] proofs
 in
   tracing whole_proof
@@ -172,9 +170,9 @@ fun proof_by_abduction (pst:Proof.state) (term:term) =
       val synched_lemma_name_table = Shared_State.mk_term2string_table ();
       val _                        = loop 0 max_depth (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table);
       val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
-      val lemma_name_2_term        = abduction_graph_to_string2term_table final_graph: string2term_table;
+      val lemma_name2term          = abduction_graph_to_string2term_table final_graph: string2term_table;
       val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
-      val _ = print_necessary_proofs_only2 pst final_graph lemma_name_2_term final_goal_name
+      val _                        = print_necessary_proofs_only pst final_graph lemma_name2term final_goal_name
     in
       ()
     end;
