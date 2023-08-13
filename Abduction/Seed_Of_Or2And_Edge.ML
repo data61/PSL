@@ -428,11 +428,11 @@ fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (seed:seed_of_or2a
     val _ = tracing "\n ** Trying to prove **:";
     val _ = tracing (SS.get_orkey_name term2name (Proof.context_of pst) parent_ornd);
     val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
-    val _ = tracing " decremental abduction starts";
+    val _ = tracing' " decremental abduction starts";
     val _ = map snd (#new_goals seed) |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
     val max_number = if (Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd) then 5 else 5;
     val _ = decremental max_number pst parent_ornd [#new_goals seed] [] synched_agraph []: unit;
-    val _ = tracing " decremental abduction ends";
+    val _ = tracing' " decremental abduction ends";
   in
     ()
   end;

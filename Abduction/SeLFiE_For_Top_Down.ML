@@ -76,12 +76,49 @@ val has_func_with_three_occs_in_a_row =
                       )
                     ]
                   )
-
                 ]
               )
             ]
           )
         ]
+      )
+    ]
+  );
+
+val var_appears_many_times_but_always_in_the_same_subtrm =
+  Some ("subtrm", SeLFiE_Util.QOuter_Print,
+    Some ("var", SeLFiE_Util.QOuter_Print,
+      Ands [
+        Not (Are_Same_Prints (Variable "subtrm", Variable "var")),
+        Print_Is_Free (Variable "var"),
+        Is_Subprint_Of (Variable "var", Variable "subtrm"),
+        All_Of ("var_occ", Variable "var",
+          Some_Of ("subtrm_occ1", Variable "subtrm",
+            Ands [
+              Is_Path_Above (Variable "subtrm_occ1", Variable "var_occ"),
+              Some_Of ("subtrm_occ2", Variable "subtrm",
+                Not (Is_Same_Path_As (Variable "subtrm_occ1", Variable "subtrm_occ2"))
+              )
+            ]
+          )
+        )
+      ]
+    )
+  );
+
+val nested_eq =
+  Some ("eq", SeLFiE_Util.QOuter_Print,
+    Ands [
+      Are_Same_Prints(Variable "eq", Print "HOL.eq"),
+      Some_Of ("eq_occ1", Variable "eq",
+        Some_Of ("eq_occ2", Variable "eq",
+          Some ("subtrm", SeLFiE_Util.QOuter_Path,
+            Ands [
+              Is_An_Argument_Of (Variable "subtrm", Variable "eq_occ1"),
+              Is_Parent_Of      (Variable "subtrm", Variable "eq_occ2")
+            ]
+          )
+        )
       )
     ]
   );
