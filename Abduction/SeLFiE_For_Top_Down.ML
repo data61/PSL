@@ -123,6 +123,74 @@ val nested_eq =
     ]
   );
 
+val congruence =(*Probably unsafe. Not recommended to use this.*)
+  Some ("eq_occ", SeLFiE_Util.QOuter_Path,
+    Ands [
+      Unode_Has_Print (Variable "eq_occ", Print "HOL.eq"),
+      Some ("lhs_occ", SeLFiE_Util.QOuter_Path,
+        Ands [
+          Is_Nth_Argument_Of (Variable "lhs_occ", Number 0, Variable "eq_occ"),
+          Node_Is_App (Variable "lhs_occ"),
+          Some ("rhs_occ", SeLFiE_Util.QOuter_Path,
+            Ands [
+              Is_Nth_Argument_Of (Variable "rhs_occ", Number 1, Variable "eq_occ"),
+              Node_Is_App (Variable "rhs_occ"),
+              Some ("func_lhs_occ", SeLFiE_Util.QOuter_Path,
+                Ands [
+                  Is_Nth_Child_Of (Variable "func_lhs_occ", Number 0, Variable "lhs_occ"),
+                  Ors [
+                    Not (Node_Takes_Less_Than_N_Arguments (Variable "func_lhs_occ", Number 2))
+                  ],
+                  Some ("func_rhs_occ", SeLFiE_Util.QOuter_Path,
+                    Ands [
+                      Is_Nth_Child_Of (Variable "func_rhs_occ", Number 0, Variable "rhs_occ"),
+                      Has_Same_Prnt_As (Variable "func_rhs_occ", Variable "func_lhs_occ"),
+                      Some ("arg_numb_of_diff_arg", SeLFiE_Util.QOuter_Number,
+                        Ands [
+                          Node_Takes_Less_Than_N_Arguments (Variable "func_rhs_occ", Variable "arg_numb_of_diff_arg"),
+                          All ("arg_numb_of_same_arg", SeLFiE_Util.QOuter_Number,
+                            Imply (
+                              Ands [
+                                Node_Takes_Less_Than_N_Arguments (Variable "func_rhs_occ", Variable "arg_numb_of_same_arg"),
+                                Not (Are_Same_Number (Variable "arg_numb_of_diff_arg", Variable "arg_numb_of_same_arg"))
+                              ],
+                              All ("lhs_arg_occ", SeLFiE_Util.QOuter_Path,
+                                Ands [
+                                  Imply (
+                                    Is_Nth_Argument_Of (Variable "lhs_arg_occ", Variable "arg_numb_of_same_arg", Variable "func_lhs_occ"),
+                                    Some ("rhs_arg_occ", SeLFiE_Util.QOuter_Path,
+                                      Ands [
+                                        Is_Nth_Argument_Of (Variable "rhs_arg_occ", Variable "arg_numb_of_same_arg", Variable "func_rhs_occ"),
+                                        Has_Same_Prnt_As (Variable "lhs_arg_occ", Variable "rhs_arg_occ")
+                                      ]
+                                    )
+                                  ),
+                                  Imply (
+                                    Is_Nth_Argument_Of (Variable "lhs_arg_occ", Variable "arg_numb_of_diff_arg", Variable "func_lhs_occ"),
+                                    Some ("rhs_arg_occ", SeLFiE_Util.QOuter_Path,
+                                      Ands [
+                                        Is_Nth_Argument_Of (Variable "rhs_arg_occ", Variable "arg_numb_of_diff_arg", Variable "func_rhs_occ"),
+                                        Have_Different_Prnts (Variable "lhs_arg_occ", Variable "rhs_arg_occ")
+                                      ]
+                                    )
+                                  )
+                                ]
+                              )
+                            )
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    ]
+  );
+
 fun run_assertion (pst:Proof.state) (cnjctr:term) (assert:Eval_Syntactic_Sugar.assert) =
   let
     val pst_to_prove              = mk_pst_to_prove_from_term pst cnjctr                                                                          : Proof.state;

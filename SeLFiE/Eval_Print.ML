@@ -27,7 +27,8 @@ datatype assert =
 | Print_Is_Defined_With             of string * Definition_Pattern.command
 | Print_Is_Defined_With_N_Clauses   of string * int
 | Print_Takes_N_Arguments           of string * int
-| Print_Takes_Less_Than_N_Arguments of string * int;
+| Print_Takes_Less_Than_N_Arguments of string * int
+| Print_Takes_More_Than_N_Arguments of string * int;
 
 val eval: assert -> SeLFiE_Util.induct_arguments -> Proof.context -> Eval_Bool.assert;
 
@@ -62,7 +63,8 @@ datatype assert =
 | Print_Is_Defined_With             of string * Definition_Pattern.command
 | Print_Is_Defined_With_N_Clauses   of string * int
 | Print_Takes_N_Arguments           of string * int
-| Print_Takes_Less_Than_N_Arguments of string * int;
+| Print_Takes_Less_Than_N_Arguments of string * int
+| Print_Takes_More_Than_N_Arguments of string * int;
 
 infix Is_Printed_As;
 
@@ -117,7 +119,8 @@ fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                             
   | eval' (Print_Is_Defined_With           (print, command)) _   ctxt = Definition_Pattern.get_command ctxt print = command
   | eval' (Print_Is_Defined_With_N_Clauses (print, numb))    _   ctxt = SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt print = numb
   | eval' (Print_Takes_N_Arguments (print, numb))    _           ctxt = numb = print_n_context_to_numb_of_arguments print ctxt
-  | eval' (Print_Takes_Less_Than_N_Arguments (print, numb))  _   ctxt = numb < print_n_context_to_numb_of_arguments print ctxt;
+  | eval' (Print_Takes_Less_Than_N_Arguments (print, numb))  _   ctxt = print_n_context_to_numb_of_arguments print ctxt < numb
+  | eval' (Print_Takes_More_Than_N_Arguments (print, numb))  _   ctxt = print_n_context_to_numb_of_arguments print ctxt > numb;
 
 fun eval  assert (ind_args:SU.induct_arguments) ctxt = eval' assert ind_args ctxt |> EB.bool_to_assert;
 

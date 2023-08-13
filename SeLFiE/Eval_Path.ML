@@ -21,6 +21,7 @@ datatype assert =
 | Is_Set_Of_Node                   of string * gen_path
 | Node_Takes_N_Arguments           of gen_path * int
 | Node_Takes_Less_Than_N_Arguments of gen_path * int
+| Node_Takes_More_Than_N_Arguments of gen_path * int
 (*Eval_Unode*)
 | Has_Same_Prnt_As              of gen_path * gen_path
 | Is_Deeper_Than                of gen_path * gen_path
@@ -96,6 +97,7 @@ fun eval (pst:Proof.state) (path_to_unode_table:GP.gen_path_to_unode_table) asse
       | eval' (PA.Is_Set_Of_Node                   (set,  p)) ctxt = END.eval (END.Is_Set_Of_Node                   (set,            path_to_node p)) ctxt
       | eval' (PA.Node_Takes_N_Arguments           (p,    n)) ctxt = END.eval (END.Node_Takes_N_Arguments           (path_to_node p, n             )) ctxt
       | eval' (PA.Node_Takes_Less_Than_N_Arguments (p,    n)) ctxt = END.eval (END.Node_Takes_Less_Than_N_Arguments (path_to_node p, n             )) ctxt
+      | eval' (PA.Node_Takes_More_Than_N_Arguments (p,    n)) ctxt = END.eval (END.Node_Takes_More_Than_N_Arguments (path_to_node p, n             )) ctxt
       (*Eval_Unode*)
       | eval' (PA.Has_Same_Prnt_As              pair)     _ = path2_to_unode2 pair        |> EU.Has_Same_Prnt_As              |> EU.eval
       | eval' (PA.Is_Deeper_Than                pair)     _ = path2_to_unode2 pair        |> EU.Is_Deeper_Than                |> EU.eval

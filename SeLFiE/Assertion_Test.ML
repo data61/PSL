@@ -196,7 +196,7 @@ Lambdas (["number"],
           Is_Nth_Child_Of (Variable "lfs_path", Number 1, Variable "root_path"),
           Some ("nth_param", QInner_Path,
             Ands [
-              Node_Takes_Less_Than_N_Arguments (Variable "lfs_path", Variable "number"),
+              Node_Takes_More_Than_N_Arguments (Variable "lfs_path", Variable "number"),
               Is_N_Plus_One_th_Child_Of (Variable "nth_param", Variable "number", Variable "lfs_path"),
               Ors [
                 Node_Is_Cnst (Variable "nth_param"),
@@ -234,7 +234,7 @@ Imply (
               All ("number", QOuter_Number,
                 Imply (
                   Ands [
-                    Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
+                    Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "number"),
                     Is_Nth_Argument_Of (Variable "ind_occ", Variable "number", Variable "func_occ")
                   ],
                   Ands [

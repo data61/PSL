@@ -31,6 +31,7 @@ datatype assert =
 | Is_Set_Of_Node                   of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
+| Node_Takes_More_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
@@ -59,6 +60,7 @@ datatype assert =
 | Print_Is_Defined_With_N_Clauses   of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
+| Print_Takes_More_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print                          of assert * assert
 | Is_In_Subgoal                            of assert
@@ -155,6 +157,7 @@ datatype assert =
 | Is_Set_Of_Node                   of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
+| Node_Takes_More_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
@@ -183,6 +186,7 @@ datatype assert =
 | Print_Is_Defined_With_N_Clauses   of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
+| Print_Takes_More_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print                          of assert * assert
 | Is_In_Subgoal                            of assert
@@ -290,6 +294,7 @@ and
   | convert loc (Is_Set_Of_Node                   pair)  = ES.Is_Set_Of_Node                   (convert_pair loc pair)
   | convert loc (Node_Takes_N_Arguments           pair)  = ES.Node_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Node_Takes_Less_Than_N_Arguments pair)  = ES.Node_Takes_Less_Than_N_Arguments (convert_pair loc pair)
+  | convert loc (Node_Takes_More_Than_N_Arguments pair)  = ES.Node_Takes_More_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Unode*)
   | convert loc (Has_Same_Prnt_As              pair) = ES.Has_Same_Prnt_As       (convert_pair loc pair)
   | convert loc (Is_Deeper_Than                pair) = ES.And (convert loc (Are_In_Same_Location pair), ES.Is_Deeper_Than    (convert_pair loc pair))(*TODO:Should I add this same-location check somewhere else?*)
@@ -337,6 +342,7 @@ and
   | convert loc (Print_Is_Defined_With_N_Clauses   pair) = ES.Print_Is_Defined_With_N_Clauses   (convert_pair loc pair)
   | convert loc (Print_Takes_N_Arguments           pair) = ES.Print_Takes_N_Arguments           (convert_pair loc pair)
   | convert loc (Print_Takes_Less_Than_N_Arguments pair) = ES.Print_Takes_Less_Than_N_Arguments (convert_pair loc pair)
+  | convert loc (Print_Takes_More_Than_N_Arguments pair) = ES.Print_Takes_More_Than_N_Arguments (convert_pair loc pair)
   (*Eval_Path*)
   | convert loc (Unode_Has_Print                          pair) = ES.Unode_Has_Print                          (convert_pair loc pair)
   | convert loc (Is_In_Subgoal                            ass)  = ES.Is_In_Subgoal                            (convert loc ass)

@@ -1319,6 +1319,7 @@ datatype atomic_assert =
 | Node_Is_Defined_With
 | Node_Takes_N_Arguments
 | Node_Takes_Less_Than_N_Arguments
+| Node_Takes_More_Than_N_Arguments
 | Node_Is_Defined_With_N_Clauses
 (*Eval_Unode*)
 | Has_Same_Prnt_As
@@ -1354,6 +1355,7 @@ datatype atomic_assert =
 | Print_Is_Defined_With_N_Clauses
 | Print_Takes_N_Arguments
 | Print_Takes_Less_Than_N_Arguments
+| Print_Takes_More_Than_N_Arguments
 (*Eval_Path*)
 | Unode_Has_Print
 | Is_In_Subgoal
@@ -1485,6 +1487,7 @@ datatype atomic_assert =
 | Node_Is_Defined_With
 | Node_Takes_N_Arguments
 | Node_Takes_Less_Than_N_Arguments
+| Node_Takes_More_Than_N_Arguments
 | Node_Is_Defined_With_N_Clauses
 (*Eval_Unode*)
 | Has_Same_Prnt_As
@@ -1520,6 +1523,7 @@ datatype atomic_assert =
 | Print_Is_Defined_With_N_Clauses
 | Print_Takes_N_Arguments
 | Print_Takes_Less_Than_N_Arguments
+| Print_Takes_More_Than_N_Arguments
 (*Eval_Path*)
 | Unode_Has_Print
 | Is_In_Subgoal
@@ -1553,6 +1557,7 @@ fun(*Eval_Node*)
   | print_atomic_assert (Node_Is_Lambda                            ) = "Node_Is_Lambda"
   | print_atomic_assert (Node_Is_App                               ) = "Node_Is_App"
   | print_atomic_assert (Node_Takes_Less_Than_N_Arguments          ) = "Node_Takes_Less_Than_N_Arguments"
+  | print_atomic_assert (Node_Takes_More_Than_N_Arguments          ) = "Node_Takes_More_Than_N_Arguments"
   | print_atomic_assert (Node_Is_Defined_With                      ) = "Node_Is_Defined_With"
   | print_atomic_assert (Node_Is_Defined_With_N_Clauses            ) = "Node_Is_Defined_With_N_Clauses"
   | print_atomic_assert (Is_Rule_Of_Node                           ) = "Is_Rule_Of_Node"
@@ -1608,6 +1613,7 @@ fun(*Eval_Node*)
   | print_atomic_assert (Print_Is_Defined_With_N_Clauses           ) = "Print_Is_Defined_With_N_Clauses"
   | print_atomic_assert (Print_Takes_N_Arguments                   ) = "Print_Takes_N_Arguments"
   | print_atomic_assert (Print_Takes_Less_Than_N_Arguments         ) = "Print_Takes_Less_Than_N_Arguments"
+  | print_atomic_assert (Print_Takes_More_Than_N_Arguments         ) = "Print_Takes_More_Than_N_Arguments"
   | print_atomic_assert (Debug_Non_Path_Literal                    ) = "Debug_Non_Path_Literal"
   | print_atomic_assert (Debug_Print_Unode                         ) = "Debug_Print_Unode"
   | print_atomic_assert (Dummy                                     ) = "Dummy";

@@ -148,7 +148,7 @@ Imply (
             Some_Of ("arg_occ", Variable "ind",
               Some ("numb", QOuter_Number,
                 Ands [
-                  Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "numb"),
+                  Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "numb"),
                   Is_Nth_Argument_Of (Variable "arg_occ", Variable "numb", Variable "func_occ"),
                   Is_Nth_Induct (Variable "ind", Variable "numb")
                 ]
@@ -364,7 +364,7 @@ Imply (
             Some ("arg_occ", QOuter_Path,
               Some ("number", QOuter_Number,
                 Ands [
-                  Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
+                  Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "number"),
                   Is_Nth_Argument_Of (Variable "arg_occ", Variable "number", Variable "func_occ"),
                   In_Some_Definitions (Variable "func", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
                 ]
@@ -384,7 +384,7 @@ Imply (
             Some_Of ("ind_occ", Variable "induct",
               Some ("number", QOuter_Number,
                 Ands [
-                  Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "number"),
+                  Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "number"),
                   Is_Nth_Argument_Of (Variable "ind_occ", Variable "number", Variable "func_occ"),
                   In_Some_Definitions (Variable "func", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
                 ]
@@ -455,7 +455,7 @@ Imply (
         Applies (print_defined_recursively, [Variable "func1_term"]),
         Some ("func2_occ_is_below_nth_arg_of_func1_occ", QOuter_Number,
           Ands [
-            Print_Takes_Less_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
+            Print_Takes_More_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
             In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
             Some_Of ("func1_occ", Variable "func1_term",
               Ands [
@@ -464,7 +464,7 @@ Imply (
                     Applies (print_defined_recursively, [Variable "func2_term"]),
                     Some ("ind_occ_is_below_nth_arg_of_func2_occ", QOuter_Number,
                       Ands [
-                        Print_Takes_Less_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
+                        Print_Takes_More_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
                         In_Some_Definitions (Variable "func2_term", is_defined_recursively_on_nth, [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"]),
                         Some_Of ("func2_occ", Variable "func2_term",
                           Ands [
@@ -487,7 +487,7 @@ Imply (
       Applies (print_defined_recursively, [Variable "func1_term"]),
       Some ("func2_occ_is_below_nth_arg_of_func1_occ", QOuter_Number,
         Ands [
-          Print_Takes_Less_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
+          Print_Takes_More_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
           In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
           Some_Of ("func1_occ", Variable "func1_term",
             Ands [
@@ -496,7 +496,7 @@ Imply (
                   Applies (print_defined_recursively, [Variable "func2_term"]),
                   Some ("ind_occ_is_below_nth_arg_of_func2_occ", QOuter_Number,
                     Ands [
-                      Print_Takes_Less_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
+                      Print_Takes_More_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
                       In_Some_Definitions (Variable "func2_term", is_defined_recursively_on_nth, [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"]),
                       Some_Of ("func2_occ", Variable "func2_term",
                         Ands [
@@ -664,7 +664,7 @@ Imply (
                   Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ", Variable "func_occ"),
                   Some ("ind_occ_is_in_nth_arg_of_func_occ", QOuter_Number,
                     Ands [
-                      Print_Takes_Less_Than_N_Arguments (Variable "func", Variable "ind_occ_is_in_nth_arg_of_func_occ"),
+                      Print_Takes_More_Than_N_Arguments (Variable "func", Variable "ind_occ_is_in_nth_arg_of_func_occ"),
                       Is_Nth_Argument_Or_Below_Nth_Argument_Of    (Variable "ind_occ", Variable "ind_occ_is_in_nth_arg_of_func_occ", Variable "func_occ"),
                       In_Some_Definitions (
                         Variable "func",
@@ -793,7 +793,7 @@ Imply (
                   Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ", Variable "func_occ"),
                   Some ("ind_occ_is_in_nth_arg_of_func_occ", QOuter_Number,
                     Ands [
-                      Print_Takes_Less_Than_N_Arguments (Variable "func",    Variable "ind_occ_is_in_nth_arg_of_func_occ"),
+                      Print_Takes_More_Than_N_Arguments (Variable "func",    Variable "ind_occ_is_in_nth_arg_of_func_occ"),
                       Is_Nth_Argument_Or_Below_Nth_Argument_Of    (Variable "ind_occ", Variable "ind_occ_is_in_nth_arg_of_func_occ", Variable "func_occ"),
                       In_Some_Definitions (
                         Variable "func",

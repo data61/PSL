@@ -64,6 +64,7 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Is_Set_Of_Node                   [Non_Path (Print rule), Outer_Path path       ] = EPT.eval pst term_tables (PA.Is_Set_Of_Node                   (rule, GP.Outer_Path path))
       | eval' SU.Node_Takes_N_Arguments           [Outer_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Takes_N_Arguments           (GP.Outer_Path path, n))
       | eval' SU.Node_Takes_Less_Than_N_Arguments [Outer_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Takes_Less_Than_N_Arguments (GP.Outer_Path path, n))
+      | eval' SU.Node_Takes_More_Than_N_Arguments [Outer_Path path,       Non_Path (Number n)   ] = EPT.eval pst term_tables (PA.Node_Takes_More_Than_N_Arguments (GP.Outer_Path path, n))
       (*Eval_Node (Inner)*)
       | eval' SU.Node_Is_Cnst                     [Inner_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_Cnst                     (GP.Inner_Path p))
       | eval' SU.Node_Is_Free                     [Inner_Path p]                                  = EPT.eval pst term_tables (PA.Node_Is_Free                     (GP.Inner_Path p))
@@ -155,6 +156,7 @@ fun eval pst term_tables induct_args assert literals =
       | eval' SU.Print_Is_Defined_With_N_Clauses   [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Is_Defined_With_N_Clauses   (print, numb)) induct_args ctxt
       | eval' SU.Print_Takes_N_Arguments           [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_N_Arguments           (print, numb)) induct_args ctxt
       | eval' SU.Print_Takes_Less_Than_N_Arguments [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_Less_Than_N_Arguments (print, numb)) induct_args ctxt
+      | eval' SU.Print_Takes_More_Than_N_Arguments [Non_Path (Print print), Non_Path (Number  numb)] = EPR.eval (EPR.Print_Takes_More_Than_N_Arguments (print, numb)) induct_args ctxt
       (*Eval_Number*)
       | eval' SU.Are_Same_Number     [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Are_Same_Number     (numb1, numb2))
       | eval' SU.Is_Less_Than        [Non_Path (Number numb1), Non_Path (Number numb2)] = ENMB.eval (ENMB.Is_Less_Than        (numb1, numb2))

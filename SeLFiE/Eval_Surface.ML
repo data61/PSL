@@ -30,6 +30,7 @@ datatype assert =
 | Is_Set_Of_Node                   of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
+| Node_Takes_More_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
@@ -64,6 +65,7 @@ datatype assert =
 | Print_Is_Defined_With_N_Clauses   of assert * assert
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
+| Print_Takes_More_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print                          of assert * assert
 | Is_In_Subgoal                            of assert
@@ -137,6 +139,7 @@ datatype assert =
 | Is_Set_Of_Node                   of assert * assert
 | Node_Takes_N_Arguments           of assert * assert
 | Node_Takes_Less_Than_N_Arguments of assert * assert
+| Node_Takes_More_Than_N_Arguments of assert * assert
 (*Eval_Unode*)
 | Has_Same_Prnt_As       of assert * assert
 | Is_Deeper_Than         of assert * assert
@@ -171,6 +174,7 @@ datatype assert =
 | Print_Takes_N_Arguments           of assert * assert
 | Print_Is_Defined_With_N_Clauses   of assert * assert
 | Print_Takes_Less_Than_N_Arguments of assert * assert
+| Print_Takes_More_Than_N_Arguments of assert * assert
 (*Eval_Path*)
 | Unode_Has_Print                          of assert * assert
 | Is_In_Subgoal                            of assert
@@ -235,6 +239,7 @@ and (*bool*)
   | surf_to_var (Is_Set_Of_Node                   pair) = EV.Assert (SU.Atomic SU.Is_Set_Of_Node,                   surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_N_Arguments           pair) = EV.Assert (SU.Atomic SU.Node_Takes_N_Arguments,           surf_to_var_pair_to_list pair)
   | surf_to_var (Node_Takes_Less_Than_N_Arguments pair) = EV.Assert (SU.Atomic SU.Node_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list pair)
+  | surf_to_var (Node_Takes_More_Than_N_Arguments pair) = EV.Assert (SU.Atomic SU.Node_Takes_More_Than_N_Arguments, surf_to_var_pair_to_list pair)
   (*Eval_Unode*)
   | surf_to_var (Has_Same_Prnt_As              args) = EV.Assert (SU.Atomic SU.Has_Same_Prnt_As,       surf_to_var_pair_to_list args)
   | surf_to_var (Is_Deeper_Than                args) = EV.Assert (SU.Atomic SU.Is_Deeper_Than,         surf_to_var_pair_to_list args)
@@ -269,6 +274,7 @@ and (*bool*)
   | surf_to_var (Print_Is_Defined_With_N_Clauses   args) = EV.Assert (SU.Atomic SU.Print_Is_Defined_With_N_Clauses,   surf_to_var_pair_to_list args)
   | surf_to_var (Print_Takes_N_Arguments           args) = EV.Assert (SU.Atomic SU.Print_Takes_N_Arguments,           surf_to_var_pair_to_list args)
   | surf_to_var (Print_Takes_Less_Than_N_Arguments args) = EV.Assert (SU.Atomic SU.Print_Takes_Less_Than_N_Arguments, surf_to_var_pair_to_list args)
+  | surf_to_var (Print_Takes_More_Than_N_Arguments args) = EV.Assert (SU.Atomic SU.Print_Takes_More_Than_N_Arguments, surf_to_var_pair_to_list args)
   (*Eval_Path*)
   | surf_to_var (Unode_Has_Print                          args) = EV.Assert (SU.Atomic SU.Unode_Has_Print,                          surf_to_var_pair_to_list args)
   | surf_to_var (Is_In_Subgoal                            arg ) = EV.Assert (SU.Atomic SU.Is_In_Subgoal,                            surf_to_var_singleton    arg )

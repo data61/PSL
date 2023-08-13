@@ -17,7 +17,8 @@ datatype assert =
 | Is_Rule_Of_Node                  of string  * UN.node
 | Is_Set_Of_Node                   of string  * UN.node
 | Node_Takes_N_Arguments           of UN.node * int
-| Node_Takes_Less_Than_N_Arguments of UN.node * int;
+| Node_Takes_Less_Than_N_Arguments of UN.node * int
+| Node_Takes_More_Than_N_Arguments of UN.node * int;
 
 val eval': assert -> Proof.context -> bool;
 val eval : assert -> Proof.context -> Eval_Bool.assert;
@@ -39,7 +40,8 @@ datatype assert =
 | Is_Rule_Of_Node                  of string  * UN.node
 | Is_Set_Of_Node                   of string  * UN.node
 | Node_Takes_N_Arguments           of UN.node * int
-| Node_Takes_Less_Than_N_Arguments of UN.node * int;
+| Node_Takes_Less_Than_N_Arguments of UN.node * int
+| Node_Takes_More_Than_N_Arguments of UN.node * int;
 
 fun eval' (Node_Is_Cnst                      node                      ) _    = UN.is_NC node
   | eval' (Node_Is_Free                      node                      ) _    = UN.is_NF node
@@ -55,7 +57,8 @@ fun eval' (Node_Is_Cnst                      node                      ) _    = 
   | eval' (Is_Set_Of_Node                   (set_name, UN.NC (cname, _))) _   = set_name = cname
   | eval' (Is_Set_Of_Node                    _                         ) _    = false
   | eval' (Node_Takes_N_Arguments           (node, n))                   _    = UN.node_to_numb_of_arguments node = n
-  | eval' (Node_Takes_Less_Than_N_Arguments (node, n))                   _    = n < UN.node_to_numb_of_arguments node;(*Note the direction.*)
+  | eval' (Node_Takes_Less_Than_N_Arguments (node, n))                   _    = UN.node_to_numb_of_arguments node < n
+  | eval' (Node_Takes_More_Than_N_Arguments (node, n))                   _    = UN.node_to_numb_of_arguments node > n;
 
 fun eval assert ctxt = eval' assert ctxt |> Eval_Bool.bool_to_assert;
 
