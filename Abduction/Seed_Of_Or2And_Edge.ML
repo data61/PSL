@@ -11,6 +11,8 @@ sig
 
 type abduction_graph;
 type key;
+type cnjctr  = (string * term);
+type cnjctrs = cnjctr list;
 type how_to_get_andnodes_from_ornode = Or2And_Edge.how_to_get_andnodes_from_ornode;
 type abduction_node;
 type seed_of_or2and_edge =
@@ -26,7 +28,7 @@ val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_
 val conjectures_to_seed_of_or2and_edge    : Shared_State.synched_term2string_table -> Proof.state -> (string * term) list -> seed_of_or2and_edge;
 val seed_has_counterexample               : Shared_State.synched_term2bool_table -> Proof.state -> seed_of_or2and_edge -> bool;
 val seeds_to_updated_graph                : Proof.state -> key -> seeds_of_or2and_edge -> Shared_State.synched_abduction_graph -> unit;
-val decremental_abduction                 : Proof.state -> key -> seed_of_or2and_edge -> Shared_State.synched_term2string_table -> Shared_State.synched_abduction_graph -> unit;
+val decremental_abduction                 : Proof.state -> key -> cnjctrs -> Shared_State.synched_term2string_table -> Shared_State.synched_abduction_graph -> unit;
 
 end;
 
@@ -38,10 +40,11 @@ open Abduction_Graph;
 structure UAG = Update_Abduction_Graph;
 structure SS  = Shared_State;
 
+type cnjctr  = (string * term);
+type cnjctrs = (string * term) list;
 type how_to_get_andnodes_from_ornode = Or2And_Edge.how_to_get_andnodes_from_ornode;
-
 type seed_of_or2and_edge =
-     {new_goals: (string * term) list,
+     {new_goals: cnjctrs,
       proof    : how_to_get_andnodes_from_ornode};
 
 type seeds_of_or2and_edge = seed_of_or2and_edge list;
@@ -116,7 +119,7 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (synched_term2string:SS.synched_term2
 
 fun condition_to_filter_out_cnjctr (_(*parent_or*):term) (refutation:SS.synched_term2bool_table) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (cnjctr:term) =
     let
-      val final_goal      = get_final_goal_key ag |> snd |> hd: term;
+      val final_goal = get_final_goal_key ag |> snd |> hd: term;
 (*
       val final_goal_size = Term.size_of_term final_goal |> Real.fromInt: real;
       val factor = case #proof seed of Or2And_Edge.Tactic _ => 5.0 | _ => 3.0: real;
@@ -201,17 +204,8 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
      ({new_goals: (string * term) list, proof: how_to_get_andnodes_from_ornode}: seed_of_or2and_edge)(*child nodes*)
      (synched_agraph:SS.synched_abduction_graph): (key option * (string * term) list) =
    let
-     fun tracing' mssg = ();
-     val _ = tracing' "\n--------- Try to prove this:";
-     val _ = tracing' "--------- assuming these:";
-     val _ = map (tracing' o (Isabelle_Utils.trm_to_string (Proof.context_of pst)) o snd) new_goals;
-     val _ = if Or2And_Edge.proof_is_from_tactic proof 
-             then tracing' ("--------- because they are the result of applying this induction: " ^ space_implode " " (Or2And_Edge.how_to_get_andnodes_from_ornode_of proof))
-             else tracing'  "--------- because they are the result of explicit conjecturing";
-
      fun register_proved_thm_in_lthy (name:string) (thm:thm) (lthy:local_theory): local_theory =
-       Local_Theory.note ((Binding.name name, []), [thm]) lthy |> snd: local_theory;
-
+         Local_Theory.note ((Binding.name name, []), [thm]) lthy |> snd: local_theory;
      fun assm_cnjctr_in_pst (name:string, cnjctr:term) (pst:Proof.state) =
        let
          val ctxt          = Proof.context_of pst                                                           : Proof.context;
@@ -221,7 +215,6 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
        in
          pst_w_cnjctr
        end;
-
      val pst_with_new_goals_assmed = fold assm_cnjctr_in_pst new_goals pst                     : Proof.state;
      val pst_to_apply_tactics      = mk_pst_to_prove_from_term pst_with_new_goals_assmed orterm: Proof.state;
 
@@ -233,13 +226,10 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
      in
        result_pst
      end;
-
      fun apply_proofs (proofs:strings) (pst_tobe_proved:Proof.state) = fold apply_proof proofs pst_tobe_proved: Proof.state;
-
      val proof_to_get_here = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof: strings;
      val pst_after_applying_how_to_get_andnodes_from_ornode = apply_proofs proof_to_get_here pst_to_apply_tactics: Proof.state;
-
-     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
+     val timeouts             = {overall = 30.0, hammer = 5.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
      (*very expensive*)
      val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "Finish_Goal_After_Assuming_Subgoals_And_Conjectures" pst_after_applying_how_to_get_andnodes_from_ornode
                             <$> fst: string option;
@@ -250,12 +240,6 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
        let
          val how_we_got_andnode    = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof                        : strings;
          val script_to_prove_andnd = the script_opt_gen                                                          : string;
-
-         val _ = tracing' "\nscript_to_prove_andnd"
-         val _ = tracing' script_to_prove_andnd
-         val _ = tracing' "how_to_get_andnodes_from_ornode"
-         val _ = map tracing' (Or2And_Edge.how_to_get_andnodes_from_ornode_of proof)
-
          val script_to_prove_ornd  = how_we_got_andnode @ single script_to_prove_andnd                           : strings;
          val or2and_edge_val       = Abduction_Node.Or_To_And {
                                       how_to_get_andnodes_from_ornode = proof,
@@ -264,17 +248,9 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
          val thy                  = Proof.theory_of pst                                                          : theory;
          val used_cnjctr_names    = Top_Down_Util.get_lemma_names_from_sh_output thy script_to_prove_andnd       : strings;
          val used_new_goals       = filter (fn (name, _) => member (op =) used_cnjctr_names name) new_goals      : (string * term) list;
-
-         val _ = tracing' "\n used_new_goals"
-         val _ = map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst) o snd) used_new_goals;
-
          val relevant_new_goals   = if   Or2And_Edge.proof_is_from_tactic proof (*if this is the result of tactic application*)
-                                    then (tracing' "\nDDD Relevant_new_golas are new_goals because from tactics"; new_goals)
-                                    else (tracing' "\nDDD Relevant_new_golas are used_new_goals because from explict conjecturing"; used_new_goals);
+                                    then (new_goals) else (used_new_goals);
 
-         val _ = tracing' "\n relevant_new_goals are:"
-         val _ = map (tracing' o fst) relevant_new_goals;
-         val _ = map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst) o snd) relevant_new_goals;
          (* updating abduction_graph *)
          val _ = SS.new_node (or2and_edge_key, or2and_edge_val) synched_agraph: unit;
          val _ = SS.add_edge (parent_orkey, or2and_edge_key) synched_agraph: unit;
@@ -341,8 +317,6 @@ fun seeds_to_updated_graph (pst:Proof.state) (parent_ornd:key) (seeds: seeds_of_
     val _ = map (one_step pst parent_ornd sagraph) seeds;
   in () end;
 
-type cnjctrs = (string * term) list;
-
 fun eq_cnjctrs (pairs1:cnjctrs, pairs2:cnjctrs): bool =
   let
     val goal_names1 = map fst pairs1;
@@ -402,7 +376,7 @@ fun decremental  _            (pst:Proof.state) (_          :key) ([]           
       end
     else ();
 
-fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (seed:seed_of_or2and_edge)
+fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (cnjctrs:cnjctrs)
   (term2name:SS.synched_term2string_table) (synched_agraph: SS.synched_abduction_graph) =
   let
     fun tracing' mssg = ();
@@ -410,9 +384,9 @@ fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (seed:seed_of_or2a
     val _ = tracing (SS.get_orkey_name term2name (Proof.context_of pst) parent_ornd);
     val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
     val _ = tracing' " decremental abduction starts";
-    val _ = map snd (#new_goals seed) |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
+    val _ = map snd cnjctrs |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
     val max_number = if (Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd) then 5 else 5;
-    val _ = decremental max_number pst parent_ornd [#new_goals seed] [] synched_agraph []: unit;
+    val _ = decremental max_number pst parent_ornd [cnjctrs] [] synched_agraph []: unit;
     val _ = tracing' " decremental abduction ends";
   in
     ()

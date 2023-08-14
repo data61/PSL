@@ -62,7 +62,7 @@ fun expand_ornode_if_original_goral_is_unproved
           val _ = tracing' "We did NOT prove the or-node.";
           (*top-down explicit conjecturing*)
           val explicit_conjectures        = All_Top_Down_Conjecturing.top_down_conjectures term2name pst graph lemma_term                                    : (string * term) list;
-          val filtered_explicit           = filter_out (SOOE.condition_to_filter_out_cnjctr lemma_term refutation pst graph false o snd) explicit_conjectures: (string * term) list;
+          val filtered_explicit           = filter_out (SOOE.condition_to_filter_out_cnjnctr lemma_term refutation pst graph false o snd) explicit_conjectures: (string * term) list;
           val explicit_wo_counterexample  = filter_out (Shared_State.is_refuted refutation pst o snd) filtered_explicit                                      : (string * term) list;
 
 (*TODO: I should apply simplification using proved lemmas here not in top_down_conjectures.*)
@@ -117,15 +117,16 @@ val _ = if null used_and_existing_lemmas then () else tracing "NOT NULL";
 
           val explicit_wo_counterexample = explicit_wo_counterexample |> Par_List.map replace_cnjctr_if_we_can_simplify_it_to_term_in_graph |> flat |> distinct (op =)
 *)
-          val seed_from_explicit          = SOOE.conjectures_to_seed_of_or2and_edge term2name pst explicit_wo_counterexample                                 : seed_of_or2and_edge;
-          val _                           = SOOE.decremental_abduction pst or_key seed_from_explicit term2name synched_agraph                                : unit;
+          val seed_from_explicit          = SOOE.conjectures_to_seed_of_or2and_edge term2name pst explicit_wo_counterexample                           : seed_of_or2and_edge;
+          val explicit_cnjnctrs           = #new_goals seed_from_explicit                                                                              : SOOE.cnjnctrs;
+          val _                           = SOOE.decremental_abduction pst or_key explicit_cnjnctrs term2name synched_agraph                           : unit;
           (*tactic application as conjecturing. A little expensive*)
-          val pst_to_prove                = mk_pst_to_prove_from_orkey pst or_key                                                                            : state;
-          val seeds_from_tactics          = SOOE.apply_PSL_to_get_seeds_of_or2and_edges term2name pst_to_prove                                               : seeds_of_or2and_edge;
-          val graph_extended_by_cnjctr    = Synchronized.value synched_agraph                                                                                : abduction_graph;
+          val pst_to_prove                = mk_pst_to_prove_from_orkey pst or_key                                                                      : state;
+          val seeds_from_tactics          = SOOE.apply_PSL_to_get_seeds_of_or2and_edges term2name pst_to_prove                                         : seeds_of_or2and_edge;
+          val graph_extended_by_cnjctr    = Synchronized.value synched_agraph                                                                          : abduction_graph;
           val filtered_seeds_from_tactics = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation pst graph_extended_by_cnjctr seeds_from_tactics
-                                         |> filter_out (SOOE.seed_has_counterexample refutation pst)                                                         : seeds_of_or2and_edge;
-          val _                           = SOOE.seeds_to_updated_graph pst or_key filtered_seeds_from_tactics synched_agraph                                : unit;
+                                         |> filter_out (SOOE.seed_has_counterexample refutation pst)                                                   : seeds_of_or2and_edge;
+          val _                           = SOOE.seeds_to_updated_graph pst or_key filtered_seeds_from_tactics synched_agraph                          : unit;
         in
           (*seeds_to_updated_graph is very expensive*)
           SS.final_goal_proved_completely synched_agraph
