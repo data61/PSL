@@ -359,7 +359,7 @@ fun print_lemma_and_proof_of_key (ctxt:Proof.context) (graph:abduction_graph) (k
 (* print_proof_of_graph *)
 fun print_proof_of_graph (pst:Proof.state) (graph:abduction_graph) =
   let
-    val keys                         = PGraph.keys graph |> filter is_ornode |> rev                                        : keys;
+    val keys                         = keys graph |> filter is_ornode |> rev                                        : keys;
     val key_prf_id_pairs             = map (fn key => (key, proof_id_of graph key)) keys                                   : (key * int option) list;
     val key_prf_id_pairs_solved_only = filter (fn (_, id) => is_some id) key_prf_id_pairs                                  : (key * int option) list;
     val key_prf_id_pairs_wo_opt      = map (apsnd the) key_prf_id_pairs_solved_only                                        : (key * int) list;

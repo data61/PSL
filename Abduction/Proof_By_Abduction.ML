@@ -23,6 +23,8 @@ open Abduction_Graph;
 
 structure SOOE = Seed_Of_Or2And_Edge;
 structure SS   = Shared_State;
+structure AG   = Abduction_Graph;
+structure TDU  = Top_Down_Util;
 
 (** functions to expand ornode leaves **)
 
@@ -59,9 +61,62 @@ fun expand_ornode_if_original_goral_is_unproved
         let
           val _ = tracing' "We did NOT prove the or-node.";
           (*top-down explicit conjecturing*)
-          val explicit_conjectures        = All_Top_Down_Conjecturing.top_down_conjectures term2name pst lemma_term                                          : (string * term) list;
+          val explicit_conjectures        = All_Top_Down_Conjecturing.top_down_conjectures term2name pst graph lemma_term                                    : (string * term) list;
           val filtered_explicit           = filter_out (SOOE.condition_to_filter_out_cnjctr lemma_term refutation pst graph false o snd) explicit_conjectures: (string * term) list;
           val explicit_wo_counterexample  = filter_out (Shared_State.is_refuted refutation pst o snd) filtered_explicit                                      : (string * term) list;
+
+(*TODO: I should apply simplification using proved lemmas here not in top_down_conjectures.*)
+(*
+    val agraph = Synchronized.value synched_agraph;
+    val ctxt = Proof.context_of pst
+    fun is_already_in_graph (simplified:term) =
+        let
+          val orkey          = (Abduction_Graph.Or_N, [simplified]): AG.key;
+          val already_exists = try (Abduction_Graph.PGraph.get_node agraph) orkey |> is_some;
+          val is_True        = simplified = @{term True};
+          val _ = if already_exists then tracing ("already_exists: " ^ Isabelle_Utils.trm_to_string ctxt simplified) else ();
+        in
+          already_exists orelse is_True
+        end: bool;
+    val keys   = AG.keys agraph: AG.keys;
+    val orkeys = filter AG.is_ornode keys: AG.keys;
+    val completely_proved_orkeys = filter (AG.is_proved_completely agraph) orkeys: AG.keys;
+    val completely_proved_terms:terms = map AG.orkey_to_term completely_proved_orkeys: terms;
+    val completely_proved_lemmas:thms = map (TDU.term_to_thm ctxt) completely_proved_terms: thms;
+    fun mk_simplifier (added:thm) (tobe_simplified:thm) = (added, Basic_Simplifier.asm_full_simplify (Simplifier.add_simp added ctxt) tobe_simplified): (thm * thm);
+    val simplifiers = map (mk_simplifier) completely_proved_lemmas: (thm -> (thm *thm)) list;
+    fun simplify_cnjctr_using_proved_lemma (cnjctr:term) =
+        let
+val _ = tracing "Conjecture is:"
+val _ = tracing (Isabelle_Utils.trm_to_string ctxt cnjctr);
+          val cnjctr_as_thm  = TDU.term_to_thm ctxt cnjctr;
+          val thm_pairs      = Utils.map_arg cnjctr_as_thm simplifiers: (thm * thm) list;(*(used_proved_lemma * simplified_result) list*)
+          val term_pairs     = map (apply2 Thm.full_prop_of) thm_pairs: (term * term) list;
+val _ = tracing ("The length of term_pairs is: " ^ Int.toString (length term_pairs))
+val _ = tracing "They are:"
+val _ = map (fn (_, trm) => tracing (Isabelle_Utils.trm_to_string ctxt trm)) term_pairs
+(*We only care if we can simplify the conjecture using already proved lemmas.*)
+          val filtered       = filter_out (fn (_, simplified:term) => cnjctr = simplified) term_pairs: (term * term) list;
+val _ = tracing ("The length of filtered is: " ^ Int.toString (length filtered))
+          val used_lemmas    = map fst filtered: terms;
+          val distinct_pairs = distinct (op =) filtered: (term * term) list;
+        in
+          distinct_pairs (*already completely proved lemmas that are used to reduce the conjecture to an or-term in the abduction graph.*) 
+        end;
+
+    fun replace_cnjctr_if_we_can_simplify_it_to_term_in_graph (string:string, cnjctr:term) =
+        let
+          val used_and_existing_lemma_pairs = simplify_cnjctr_using_proved_lemma cnjctr;
+          val used_and_existing_lemmas = map Utils.pair_to_list used_and_existing_lemma_pairs |> flat |> distinct (op =): terms;
+          val result_terms = if null used_and_existing_lemmas then [cnjctr] else used_and_existing_lemmas;
+val _ = if null used_and_existing_lemmas then () else tracing "NOT NULL";
+          val w_string     = map (pair string) result_terms: (string * term) list;
+        in
+          w_string: (string * term) list
+        end;
+
+          val explicit_wo_counterexample = explicit_wo_counterexample |> Par_List.map replace_cnjctr_if_we_can_simplify_it_to_term_in_graph |> flat |> distinct (op =)
+*)
           val seed_from_explicit          = SOOE.conjectures_to_seed_of_or2and_edge term2name pst explicit_wo_counterexample                                 : seed_of_or2and_edge;
           val _                           = SOOE.decremental_abduction pst or_key seed_from_explicit term2name synched_agraph                                : unit;
           (*tactic application as conjecturing. A little expensive*)

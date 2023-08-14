@@ -80,17 +80,11 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (synched_term2string:SS.synched_term2
           val _ = map (tracing' o (Isabelle_Utils.trm_to_string ctxt)) standardized_props: unit list;
 
           fun check_print_read ctxt term = term
-           |> (fn x => (tracing' ("checking " ^ Isabelle_Utils.trm_to_string ctxt term); x))
            |> Isabelle_Utils.trm_to_string ctxt
-           |> (fn x => (tracing' "STEP 1"; x))
            |> Syntax.read_term ctxt
-           |> (fn x => (tracing' "STEP 2"; x))
            |> Isabelle_Utils.strip_atyp
-           |> (fn x => (tracing' "STEP 3"; x))
            |> Syntax.check_term ctxt
-           |> (fn x => (tracing' "STEP 4"; x))
            |> Top_Down_Util.standardize_vnames;
-
 
           fun check_print_read_terms ctxt terms      = map (check_print_read ctxt) terms: terms;
           fun pass_check_print_read_terms ctxt terms = try (check_print_read_terms ctxt) terms |> is_some;
@@ -180,10 +174,6 @@ fun conjectures_to_seed_of_or2and_edge (term2name:SS.synched_term2string_table) 
     val cnjctrs                   = map snd cnjctrs_w_name                                      : terms;
     val cnjctrs_as_props          = map mk_prop cnjctrs                                         : terms;
     val checked_cnjctrs           = List.mapPartial check_prop cnjctrs_as_props                 : terms;
-(*
-val _ = tracing "++ 2: conjectures_to_seed_of_or2and_edge ++"
-val _ = checked_cnjctrs |> map (tracing o Isabelle_Utils.trm_to_string (Proof.context_of pst));
-*)
     val ctxt                      = Proof.context_of pst                                                                : Proof.context;
     val name_cnjctr_pairs         = map (fn cnjctr => (SS.get_lemma_name term2name ctxt cnjctr, cnjctr)) checked_cnjctrs: (string * term) list;
     val result                    = conjecture_to_seed_of_or2and_edge name_cnjctr_pairs                                 : seed_of_or2and_edge;
@@ -219,22 +209,13 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
              then tracing' ("--------- because they are the result of applying this induction: " ^ space_implode " " (Or2And_Edge.how_to_get_andnodes_from_ornode_of proof))
              else tracing'  "--------- because they are the result of explicit conjecturing";
 
-     fun cnjctr_to_thm (ctxt:Proof.context) (cnjctr:term) =
-       let
-         val prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr;
-         val fvar_names = Isabelle_Utils.get_free_var_names_in_trm prop |> distinct (op =): strings;
-         val thm        = Goal.prove ctxt fvar_names [] cnjctr (fn _ => ALLGOALS (Skip_Proof.cheat_tac ctxt)): thm;
-       in
-         thm
-       end;
-
      fun register_proved_thm_in_lthy (name:string) (thm:thm) (lthy:local_theory): local_theory =
        Local_Theory.note ((Binding.name name, []), [thm]) lthy |> snd: local_theory;
 
      fun assm_cnjctr_in_pst (name:string, cnjctr:term) (pst:Proof.state) =
        let
-         val ctxt          = Proof.context_of pst                                                  : Proof.context;
-         val cnjctr_as_thm = cnjctr_to_thm ctxt cnjctr                                             : thm;
+         val ctxt          = Proof.context_of pst                                                           : Proof.context;
+         val cnjctr_as_thm = Top_Down_Util.term_to_thm ctxt cnjctr                                          : thm;
          val pst_w_cnjctr_opt = try (Proof.map_context (register_proved_thm_in_lthy name cnjctr_as_thm)) pst: Proof.state option;
          val pst_w_cnjctr     = case pst_w_cnjctr_opt of SOME no_dup_pst => no_dup_pst | _ => pst
        in

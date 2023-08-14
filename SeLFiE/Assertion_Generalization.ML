@@ -256,7 +256,7 @@ Imply (
                   All ("recursive_on_nth_param", QOuter_Number,
                     Imply (
                       Ands [
-                        Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "recursive_on_nth_param"),
+                        Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "recursive_on_nth_param"),
                         In_Some_Definitions (
                           Variable "func",
                           is_defined_recursively_on_nth,
@@ -266,7 +266,7 @@ Imply (
                       All ("used_to_update_mth_arg", QOuter_Number,
                         Imply (
                           Ands [
-                            Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
+                            Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
                             Not (Are_Same_Number (Variable "recursive_on_nth_param", Variable "used_to_update_mth_arg")),
                             In_Some_Definitions (
                               Variable "func",
@@ -342,12 +342,12 @@ Imply (
                 Ands [
                   Some ("func_is_recurse_on_nth", QOuter_Number,
                     Ands [
-                      Node_Takes_Less_Than_N_Arguments (Variable "func_trm_occ", Variable "func_is_recurse_on_nth"),                  (*Does this actually harm us?*)
+                      Node_Takes_More_Than_N_Arguments (Variable "func_trm_occ", Variable "func_is_recurse_on_nth"),                  (*Does this actually harm us?*)
                       Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ", Variable "func_is_recurse_on_nth", Variable "func_trm_occ"),(*Does this actually harm us?*)
                       Some_Of ("arb_trm_occ", Variable "arb_trm",
                         Some ("mth_arg_of_func_occ_has_arb", QOuter_Number,
                           Ands [
-                            Node_Takes_Less_Than_N_Arguments (Variable "func_trm_occ", Variable "mth_arg_of_func_occ_has_arb"),
+                            Node_Takes_More_Than_N_Arguments (Variable "func_trm_occ", Variable "mth_arg_of_func_occ_has_arb"),
                             Some_Of ("func_trm_occ2", Variable "func_trm", (*we do not always talk about the same occurrence of the function. See addO_exp\<omega>_inj in Goodstein_Lambda.thy where we have to deal with two different occurrences of add0.*)
                               Ands [
                                 Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm_occ2"),
@@ -488,7 +488,7 @@ Ors [
             Ands [
               All ("used_to_update_mth_arg", QOuter_Number,
                   Ands [
-                    Node_Takes_Less_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
+                    Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
                     In_Some_Definitions (
                       Variable "func",
                       mth_arg_of_func_occ_has_different_print_straw,

@@ -32,6 +32,7 @@ val get_lemma_names_from_sh_output   : theory -> string -> strings;
 val is_thm_name_registered           : Proof.context -> string -> bool;
 val mk_new_lemma_name                : Proof.context -> bool(*is_final_goal*) -> string;
 val term_compare                     : term * term -> order;
+val term_to_thm                      : Proof.context -> term -> thm;
 
 end;
 
@@ -217,6 +218,15 @@ fun mk_new_lemma_name (ctxt:Proof.context) (is_final_goal:bool): string =
 fun term_compare (trm1, trm2) =
   Term_Ord.term_ord (standardize_vnames trm1, standardize_vnames trm2);
 
+fun term_to_thm (ctxt:Proof.context) (cnjctr:term) =
+  let
+    val prop       = if is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr;
+    val fvar_names = Isabelle_Utils.get_free_var_names_in_trm prop |> distinct (op =): strings;
+    val thm        = Goal.prove ctxt fvar_names [] cnjctr (fn _ => ALLGOALS (Skip_Proof.cheat_tac ctxt)): thm;
+  in
+    thm
+  end;
+
 end;
 
 
@@ -243,7 +253,7 @@ fun non_prop_trm_to_dummy_eq (ctxt:Proof.context) (lhs:term) =
 fun simp_non_prop_term (ctxt:Proof.context) (trm:term) =
   let
     val dummy_thm            = non_prop_trm_to_dummy_eq ctxt trm: thm option;
-    val simplifier           = Basic_Simplifier.simplify ctxt
+    val simplifier           = Basic_Simplifier.asm_full_simplify ctxt
     val simped_dummy_thm     = Option.mapPartial (try (Isabelle_Utils.timeout_apply (Time.fromSeconds 1) simplifier)) dummy_thm: thm option;
     val simped_fst_goal      = Option.map Thm.concl_of simped_dummy_thm: term option;
     val simped_fst_pair      = Option.mapPartial (try (HOLogic.dest_eq o HOLogic.dest_Trueprop)) simped_fst_goal: (term * term) option;

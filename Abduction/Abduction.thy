@@ -115,5 +115,7 @@ val _ = theorem \<^command_keyword>\<open>prove\<close> "prove";
 
 end;
 \<close>
+ML\<open>
 
+\<close>
 end
