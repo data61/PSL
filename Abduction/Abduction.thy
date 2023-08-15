@@ -51,6 +51,10 @@ strategy Finish_Goal_After_Assuming_Subgoals_And_Conjectures =
 strategy Attack_On_Or_Node = 
   Ors [
     Thens [
+      Auto,
+      IsSolved
+    ],
+    Thens [
       Smart_Induct,
       Thens [
         User< simp_all>,
@@ -103,10 +107,18 @@ fun theorem _ descr =
              |> Config.put Metis_Generate.verbose false
              |> Context_Position.set_visible false: Proof.context;
             val pst = Proof.init cxtx_wo_verbose_warnings: Proof.state;
-            val _ = Proof_By_Abduction.proof_by_abduction pst standardized_cncl;
+            val proof_by_abduction = Proof_By_Abduction.proof_by_abduction pst: term -> bool;
+            fun timing f x = Timing.timing f x |> apfst #elapsed: Time.time * 'b;
+            fun timing_w_timeout upperlimit default f x = Timeout.apply_physical upperlimit (timing f) x handle Timeout.TIMEOUT to => (to, default)
+            val (elapsed, solved) = timing_w_timeout (seconds 7200.0) false proof_by_abduction standardized_cncl;
+            val elapsed_str = Time.toReal elapsed |> Real.toString: string;
+            val message = "We spent " ^ elapsed_str ^ "seconds. " ^ (if solved then "And we proved the goal." else "We failed, but tried.");
+            val _ = tracing message: unit;
           in
             lthy
-          end)))
+          end)
+       )
+      )
      );
 
 in
@@ -115,7 +127,5 @@ val _ = theorem \<^command_keyword>\<open>prove\<close> "prove";
 
 end;
 \<close>
-ML\<open>
 
-\<close>
 end

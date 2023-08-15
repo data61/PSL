@@ -71,7 +71,7 @@ val orkeys_tobe_expanded_in                      : Proof.context -> abduction_gr
 val final_goal_proved_completely                 : abduction_graph -> bool;
 
 val mk_pst_to_prove_from_orkey                   : Proof.state -> key -> Proof.state;
-val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> (Proof.state * strings) option;
+val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> strings option;
 val keys                                         : abduction_graph -> keys;
 
 val goal_as_string                               : Proof.context -> key -> string;
@@ -320,20 +320,15 @@ fun mk_pst_to_prove_from_orkey (pst:Proof.state) (Or_N, [term]) = mk_pst_to_prov
 (* prove_orkey_completely *)
 fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph:abduction_graph) (pst:Proof.state) =
     let
-      fun tracing' _ = ();
-      val lemma_name            = lemma_name_of graph or_key                                                 : string;
-      val _ = tracing' "Before calling mk_pst_to_prove_from_orkey from prove_orkey_completely"
-      val pst_to_prove          = mk_pst_to_prove_from_orkey pst or_key                                        : Proof.state;
-      val timeouts              = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
-      val _ = tracing' "Before calling TBC_Utils.pst_to_proofscripts_opt from prove_orkey_completely"
-      val maybe_result          = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;
-      val _ = tracing' "After calling TBC_Utils.pst_to_proofscripts_opt from prove_orkey_completely"
-      val cheated_pst           = TBC_Utils.cheat_lemma_term_in_pst lemma_name lemma_term pst
-      fun mk_result (script, _) = Option.map (rpair script) cheated_pst;
-      val result                = Option.mapPartial mk_result maybe_result: (Proof.state * strings) option
-      val _ = tracing' ("\n " ^ (if is_some result then "YEY! Completely proved " else "Mehhhh did NOT proved ") ^ lemma_name ^ " " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
+      fun tracing' m = ();
+      val lemma_name   = lemma_name_of graph or_key                                                 : string;
+      val pst_to_prove = mk_pst_to_prove_from_orkey pst or_key                                      : Proof.state;
+      val timeouts     = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
+      val maybe_result = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;
+      val maybe_script = Option.map fst maybe_result                                                : strings option;
+      val _ = tracing' ((if is_some maybe_result then "Proved: " else "Did not prove: ") ^ lemma_name ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
     in
-      result
+      maybe_script
     end
   | prove_orkey_completely _ _ _ = error "try_to_prove_orkey_completely failed!";
 
@@ -359,7 +354,7 @@ fun print_lemma_and_proof_of_key (ctxt:Proof.context) (graph:abduction_graph) (k
 (* print_proof_of_graph *)
 fun print_proof_of_graph (pst:Proof.state) (graph:abduction_graph) =
   let
-    val keys                         = keys graph |> filter is_ornode |> rev                                        : keys;
+    val keys                         = keys graph |> filter is_ornode |> rev                                               : keys;
     val key_prf_id_pairs             = map (fn key => (key, proof_id_of graph key)) keys                                   : (key * int option) list;
     val key_prf_id_pairs_solved_only = filter (fn (_, id) => is_some id) key_prf_id_pairs                                  : (key * int option) list;
     val key_prf_id_pairs_wo_opt      = map (apsnd the) key_prf_id_pairs_solved_only                                        : (key * int) list;

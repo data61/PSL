@@ -6,7 +6,7 @@
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
 (*** structure All_Top_Down_Conjecturing ***)
-structure All_Top_Down_Conjecturing(*: TOP_DOWN_CONJECTURING*) =
+structure All_Top_Down_Conjecturing: TOP_DOWN_CONJECTURING =
 struct
 
 fun is_composite trm = Isabelle_Utils.is_Abs trm orelse Isabelle_Utils.is_App trm: bool;
@@ -64,11 +64,10 @@ structure S4TD = SeLFiE_For_Top_Down;
 structure SS   = Shared_State;
 structure AG   = Abduction_Graph;
 
-fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.state)
-  (agraph:AG.abduction_graph) (trm:term) =
+fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.state) (trm:term) =
   let
     val ctxt = Proof.context_of pst: Proof.context;
-    fun tracing' mssg = ()(*tracing mssg*);
+    fun tracing' mssg = ();
     val _ = tracing' "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
     val standardized_trm = Top_Down_Util.standardize_vnames trm
     val results = (
@@ -93,7 +92,6 @@ fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.st
       |> parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.does_not_have_trivial_equality)
       |> parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.nested_eq)
       |> parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.var_appears_many_times_but_always_in_the_same_subtrm)
-|> (fn xs=> (map snd xs |> map (Isabelle_Utils.trm_to_string ctxt) |> map tracing; xs))
       |> map (fn (_,    term) => (SS.get_lemma_name term2name ctxt term, term));
     val _ = tracing' "[[[[[[[[[[[top_down_conjecture ends]]]]]]]]]]": unit;
   in
