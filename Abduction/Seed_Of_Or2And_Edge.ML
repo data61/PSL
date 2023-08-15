@@ -211,7 +211,8 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
          val ctxt          = Proof.context_of pst                                                           : Proof.context;
          val cnjctr_as_thm = Top_Down_Util.term_to_thm ctxt cnjctr                                          : thm;
          val pst_w_cnjctr_opt = try (Proof.map_context (register_proved_thm_in_lthy name cnjctr_as_thm)) pst: Proof.state option;
-         val pst_w_cnjctr     = case pst_w_cnjctr_opt of SOME no_dup_pst => no_dup_pst | _ => pst
+         val pst_w_cnjctr     = case pst_w_cnjctr_opt of SOME no_dup_pst => no_dup_pst
+           | _ => (tracing ("WARNING: Failed to Assume: " ^ Isabelle_Utils.trm_to_string ctxt cnjctr);pst)
        in
          pst_w_cnjctr
        end;
@@ -302,8 +303,8 @@ fun one_step (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abdu
         val _                  = SS.add_edges_from_andnode_to_ornodes added_andnode_key synched_agraph                 : unit;
         val connected_orkeys   = map (fn or_term => (Or_N, [or_term])) and_node_terms                                  : keys;
         val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph connected_orkeys: unit list;
-        val _ = tracing' ("=== Used cnjctrs are: ")
-        val _ = map tracing' (map (fn (str, trm) => str ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm) used_andnd_name_term_pairs)
+        val _ = tracing ("=== Used cnjctrs are: ")
+        val _ = map tracing (map (fn (str, trm) => str ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm) used_andnd_name_term_pairs)
       in
         used_andnd_name_term_pairs
       end
@@ -331,6 +332,10 @@ fun decremental  _            (pst:Proof.state) (_          :key) ([]           
     if counter > 0
     then
       let
+
+        val _ = tracing ("=== Candidate cnjctrs are: ")
+        val _ = map tracing (map (fn (str, trm) => str ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) trm) cnjctrs)
+
         (*1  apply one_step. identify used conjectures.*)
         val seed                       = conjecture_to_seed_of_or2and_edge cnjctrs                                     : seed_of_or2and_edge;
         val used_andnd_name_term_pairs = one_step pst parent_ornd synched_agraph seed                                  : cnjctrs;
@@ -384,8 +389,8 @@ fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (cnjctrs:cnjctrs)
     val _ = tracing (SS.get_orkey_name term2name (Proof.context_of pst) parent_ornd);
     val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
     val _ = tracing' " decremental abduction starts";
-    val _ = map snd cnjctrs |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
-    val max_number = if (Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd) then 5 else 5;
+    val _ = map snd cnjctrs |> map (tracing o Isabelle_Utils.trm_to_string (Proof.context_of pst));
+    val max_number = if (Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd) then 50 else 10;
     val _ = decremental max_number pst parent_ornd [cnjctrs] [] synched_agraph []: unit;
     val _ = tracing' " decremental abduction ends";
   in
