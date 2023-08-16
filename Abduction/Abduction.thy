@@ -67,6 +67,8 @@ strategy Attack_On_Or_Node =
     ]
   ]
 
+setup\<open> Config.put_global Top_Down_Util.timeout_config (60.0 * 60.0 * 10.0) \<close>
+
 (* UI *)
 ML\<open> (*This part (the definitions of long_keyword, long_statement, and short_statement) are from
 by Pure/Pure.thy in Isabelle/HOL's source code.*)
@@ -100,6 +102,7 @@ fun theorem _ descr =
           let
             fun stmt_to_stmt_as_string (Element.Shows [((_, _), [(stmt, _)])]) = stmt: string
               | stmt_to_stmt_as_string _ = error "stmt_to_concl_name failed in United_Reasoning";
+            val start = (fn _ => Timing.start ()) lthy: Timing.start;
             val cncl_as_trm  = Syntax.read_term lthy (stmt_to_stmt_as_string concl) |> Top_Down_Util.standardize_vnames: term;
             val standardized_cncl = Top_Down_Util.standardize_vnames cncl_as_trm;
             val cxtx_wo_verbose_warnings =
@@ -107,12 +110,11 @@ fun theorem _ descr =
              |> Config.put Metis_Generate.verbose false
              |> Context_Position.set_visible false: Proof.context;
             val pst = Proof.init cxtx_wo_verbose_warnings: Proof.state;
-            val proof_by_abduction = Proof_By_Abduction.proof_by_abduction pst: term -> bool;
-            fun timing f x = Timing.timing f x |> apfst #elapsed: Time.time * 'b;
-            fun timing_w_timeout upperlimit default f x = Timeout.apply_physical upperlimit (timing f) x handle Timeout.TIMEOUT to => (to, default)
-            val (elapsed, solved) = timing_w_timeout (seconds 7200.0) false proof_by_abduction standardized_cncl;
+            val proof_by_abduction = Proof_By_Abduction.proof_by_abduction pst start: term -> bool;
+            val solved = proof_by_abduction standardized_cncl;
+            val elapsed = #elapsed (Timing.result start): Time.time;
             val elapsed_str = Time.toReal elapsed |> Real.toString: string;
-            val message = "We spent " ^ elapsed_str ^ "seconds. " ^ (if solved then "And we proved the goal." else "We failed, but tried.");
+            val message = "We spent " ^ elapsed_str ^ " seconds. " ^ (if solved then "And we proved the goal." else "We failed, but tried.");
             val _ = tracing message: unit;
           in
             lthy

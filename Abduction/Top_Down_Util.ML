@@ -33,6 +33,7 @@ val is_thm_name_registered           : Proof.context -> string -> bool;
 val mk_new_lemma_name                : Proof.context -> bool(*is_final_goal*) -> string;
 val term_compare                     : term * term -> order;
 val term_to_thm                      : Proof.context -> term -> thm;
+val timeout_config                   : real Config.T;
 
 end;
 
@@ -226,6 +227,9 @@ fun term_to_thm (ctxt:Proof.context) (cnjctr:term) =
   in
     thm
   end;
+
+(*default timeout is 10 hours*)
+val timeout_config = Config.declare_real ("prove_timeout", \<^here>) (K (60.0 * 60.0 * 10.0)): real Config.T;
 
 end;
 

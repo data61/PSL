@@ -215,7 +215,7 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
      (pst:Proof.state)
      (parent_orkey as (Or_N, [orterm]): key)(*parent node*)
      (seed_of_or2and_edge as {new_goals, proof}: seed_of_or2and_edge)(*child nodes*)
-     (synched_agraph:SS.synched_abduction_graph): (key option * (string * term) list * (key * abduction_node) option) =
+     : (key option * (string * term) list * (key * abduction_node) option) =
    let
      val (proved_parent_or, script_opt_gen) = prove_goal_assuming_conjectures pst parent_orkey seed_of_or2and_edge: (bool * string option);
    in
@@ -241,7 +241,7 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
        end
      else (NONE, [], NONE)
    end
- | add_or2and_edge_and_connect_it_to_parental_ornode _ _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
+ | add_or2and_edge_and_connect_it_to_parental_ornode _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
 
 (*
  * step 0. We have an or-node to expand.
@@ -262,7 +262,7 @@ fun one_step (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abdu
     val (or2and_edge_opt,
          used_andnd_name_term_pairs,
          edge_pair_opt) =
-         add_or2and_edge_and_connect_it_to_parental_ornode pst parent_ornd seed synched_agraph;
+         add_or2and_edge_and_connect_it_to_parental_ornode pst parent_ornd seed;
     val parent_ornd_is_proved_assmng_seed   = is_some or2and_edge_opt: bool;
   in
     if   parent_ornd_is_proved_assmng_seed
@@ -371,7 +371,7 @@ fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (conjectures:conje
     val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
     val _ = tracing' " decremental abduction starts";
     val _ = map snd conjectures |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
-    val max_number = if (Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd) then 50 else 10;
+    val max_number = if (Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd) then 50 else 5;
     val _ = decremental max_number pst parent_ornd [conjectures] [] synched_agraph []: unit;
     val _ = tracing' " decremental abduction ends";
   in

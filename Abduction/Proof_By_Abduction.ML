@@ -9,7 +9,7 @@
 signature PROOF_BY_ABDUCTION =
 sig
 
-val proof_by_abduction: Proof.state -> term -> bool;
+val proof_by_abduction: Proof.state -> Timing.start -> term -> bool;
 
 end;
 
@@ -128,11 +128,22 @@ val _ = if null used_and_existing_lemmas then () else tracing "NOT NULL";
     end
   | expand_ornode_if_original_goral_is_unproved _ _ = error "expand_ornode failed. Not an Or_N.";
 
+fun get_timeout (pst:Proof.state) = Config.get (Proof.context_of pst) Top_Down_Util.timeout_config: real;
+fun current_time (start:Timing.start) = Time.toReal (#elapsed (Timing.result start)): real;
+fun still_has_time (start:Timing.start) (pst:Proof.state) = current_time start < get_timeout pst: bool;
+
+fun expand_ornode_if_original_goral_is_unproved_w_timeout (start:Timing.start)
+      (pst:state, synched_agraph, refutation, term2name) (or_key as (Or_N, [_]):key): bool =
+    if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
+    then expand_ornode_if_original_goral_is_unproved (pst, synched_agraph, refutation, term2name) or_key
+    else false
+| expand_ornode_if_original_goral_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
+
 (* loop *)
-fun loop (counter:int) (max_depth:int)
+fun loop (counter:int) (max_depth:int) (start:Timing.start)
     (pst:state, synched_agraph: SS.synched_abduction_graph, refutation:SS.synched_term2bool_table,
      term2name:SS.synched_term2string_table) =
-    if counter < 8
+    if counter < 8 andalso still_has_time start pst
     then
       let
         val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ " =====");
@@ -142,11 +153,11 @@ fun loop (counter:int) (max_depth:int)
         val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
         val _                      = tracing "They are:"
         val _                      = map (print_key ctxt) orkeys_worth_expanding
-        val some_orkey             = Par_List.find_some (expand_ornode_if_original_goral_is_unproved (pst, synched_agraph, refutation, term2name)) orkeys_worth_expanding: key option;
+        val some_orkey             = Par_List.find_some (expand_ornode_if_original_goral_is_unproved_w_timeout start (pst, synched_agraph, refutation, term2name)) orkeys_worth_expanding: key option;
         val solved                 = is_some some_orkey: bool;
         val _                      = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
       in
-        (if solved then solved else loop (counter + 1) max_depth (pst, synched_agraph, refutation, term2name))
+        (if solved then solved else loop (counter + 1) max_depth start (pst, synched_agraph, refutation, term2name))
       end
     else
       false;
@@ -211,7 +222,7 @@ in
 end;
 
 (* proof_by_abduction *)
-fun proof_by_abduction (pst:Proof.state) (term:term) =
+fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
     let
       val max_depth                = 5;
       val standardized_term        = Top_Down_Util.standardize_vnames term;
@@ -219,7 +230,7 @@ fun proof_by_abduction (pst:Proof.state) (term:term) =
       val synched_agraph           = SS.mk_synched_abduction_graph ctxt standardized_term: SS.synched_abduction_graph;
       val synched_refutation_table = Shared_State.mk_term2bool_table ();
       val synched_lemma_name_table = Shared_State.mk_term2string_table ();
-      val solved                   = loop 0 max_depth (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table);
+      val solved                   = loop 0 max_depth start (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table);
       val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
       val lemma_name2term          = abduction_graph_to_string2term_table final_graph: string2term_table;
       val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
