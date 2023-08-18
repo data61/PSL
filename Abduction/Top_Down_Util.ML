@@ -34,6 +34,8 @@ val mk_new_lemma_name                : Proof.context -> bool(*is_final_goal*) ->
 val term_compare                     : term * term -> order;
 val term_to_thm                      : Proof.context -> term -> thm;
 val timeout_config                   : real Config.T;
+val limit_for_first_decrement        : int Config.T;
+val limit_for_other_decrement        : int Config.T;
 
 end;
 
@@ -230,6 +232,10 @@ fun term_to_thm (ctxt:Proof.context) (cnjctr:term) =
 
 (*default timeout is 10 hours*)
 val timeout_config = Config.declare_real ("prove_timeout", \<^here>) (K (60.0 * 60.0 * 10.0)): real Config.T;
+
+val limit_for_first_decrement = Config.declare_int ("limit_for_first_decrement", \<^here>) (K 15): int Config.T;
+
+val limit_for_other_decrement = Config.declare_int ("limit_for_first_decrement", \<^here>) (K  5): int Config.T;
 
 end;
 

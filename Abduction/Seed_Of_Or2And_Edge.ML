@@ -371,7 +371,10 @@ fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (conjectures:conje
     val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
     val _ = tracing' " decremental abduction starts";
     val _ = map snd conjectures |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
-    val max_number = if (Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd) then 50 else 5;
+    val ctxt = Proof.context_of pst: Proof.context;
+    val max_number = if Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd
+                     then Config.get ctxt Top_Down_Util.limit_for_first_decrement
+                     else Config.get ctxt Top_Down_Util.limit_for_other_decrement
     val _ = decremental max_number pst parent_ornd [conjectures] [] synched_agraph []: unit;
     val _ = tracing' " decremental abduction ends";
   in
