@@ -6,6 +6,13 @@
 signature SHARED_STATE =
 sig
 
+type proved_simps = (string * term) list; (*lemma name, lemma term*)
+type synched_proved_simps = (string * term) list Synchronized.var;
+
+val mk_synched_proved_simps: unit -> synched_proved_simps;
+val lookup_proved_simps: synched_proved_simps -> string -> term option;
+val add_proved_simp: synched_proved_simps -> (string * term) -> unit;
+
 type abduction_graph;
 
 type term2bool_table;
@@ -28,6 +35,9 @@ val update_is_branch                              : Abduction_Graph.key -> synch
 val add_andnodes                                  : terms -> synched_abduction_graph -> Abduction_Graph.keys;
 val add_child_ornode                              : Proof.context -> synched_abduction_graph -> (string * term) -> unit;
 val add_edges_from_andnode_to_ornodes             : Abduction_Graph.key -> synched_abduction_graph -> unit;
+
+val update_proved_completely                      : Abduction_Graph.key -> synched_abduction_graph -> unit;
+val update_proof_n_proof_id                       : (*proof*)strings -> (*or*)Abduction_Graph.key -> synched_abduction_graph -> unit;
 val update_after_proving_ornode                   : strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
 val update_after_connecting_andnd_to_existing_ornd: Proof.context -> synched_abduction_graph -> (*or_key*)Abduction_Graph.keys -> unit list;
 
@@ -35,11 +45,30 @@ val final_goal_proved_completely     : synched_abduction_graph -> bool;
 
 val new_node: (Abduction_Graph.key * Abduction_Graph.abduction_node) -> synched_abduction_graph -> unit;
 val add_edge: (Abduction_Graph.key * Abduction_Graph.key) -> synched_abduction_graph -> unit;
+(*
+type proved_ors = (string * term) list; (*lemma name, lemma term*)
+type synched_proved_ors = (string * term) list Synchronized.var;
+*)
 
 end;
 
 structure Shared_State: SHARED_STATE =
 struct
+
+type proved_simps = (string * term) list; (*lemma name, lemma term*)
+type synched_proved_simps = (string * term) list Synchronized.var;
+
+fun mk_synched_proved_simps _ = Synchronized.var "synchronized_proved_simps" []: synched_proved_simps;
+
+fun lookup_proved_simps (salist:synched_proved_simps) (name:string) =
+  let
+    val alist = Synchronized.value salist;
+  in
+     AList.lookup (op =) alist name
+  end;
+
+fun add_proved_simp (salist:synched_proved_simps) (new_simp:(string * term)) =
+    Synchronized.change salist (AList.update (op =) new_simp);
 
 type abduction_graph = Abduction_Graph.abduction_graph;
 
@@ -158,6 +187,12 @@ fun add_child_ornode (ctxt:Proof.context) (sagraph:synched_abduction_graph) (lem
 
 fun add_edges_from_andnode_to_ornodes (key:AG.key) (sagraph:synched_abduction_graph) =
   Synchronized.change sagraph (UAG.add_edges_from_andnode_to_ornodes key): unit;
+
+fun update_proved_completely (key:AG.key) (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (UAG.update_proved_completely key): unit;
+
+fun update_proof_n_proof_id (proof:strings) (key:AG.key) (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (UAG.update_proof_n_proof_id proof key): unit;
 
 fun update_after_proving_ornode (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
   Synchronized.change sagraph (UAG.update_after_proving_ornode proof orkey ctxt): unit;

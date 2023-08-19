@@ -6,7 +6,7 @@
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
 (*** structure All_Top_Down_Conjecturing ***)
-structure All_Top_Down_Conjecturing: TOP_DOWN_CONJECTURING =
+structure All_Top_Down_Conjecturing(*: TOP_DOWN_CONJECTURING*) =
 struct
 
 fun is_composite trm = Isabelle_Utils.is_Abs trm orelse Isabelle_Utils.is_App trm: bool;
@@ -63,6 +63,32 @@ fun template_conjectures (ctxt:Proof.context) (trm:term): (string * term) list =
 structure S4TD = SeLFiE_For_Top_Down;
 structure SS   = Shared_State;
 structure AG   = Abduction_Graph;
+structure TBC  = Template_Based_Conjecturing;
+
+fun template_based_conjecture_for_simplification (ctxt:Proof.context) (trm): (string * term) list =
+  let
+    val (_, relevant_binary_funcs, relevant_unary_funcs) = TBC_Utils.get_relevant_constants ctxt trm;
+    fun ctxt_n_const_to_all_conjecture_term context tm =
+         (TBC.ctxt_n_const_to_identity     ctxt tm
+        @ TBC.ctxt_n_const_to_idempotence  ctxt tm
+        @ TBC.ctxt_n_const_to_zero_element ctxt tm
+        @ TBC.ctxt_n_consts_to_projection  ctxt tm
+        @ TBC.ctxt_n_consts_to_square      ctxt tm)
+       |> map (apfst Template_Based_Conjecturing.property_as_string);
+    val result = map (ctxt_n_const_to_all_conjecture_term ctxt) (relevant_unary_funcs @ relevant_binary_funcs) |> flat
+      : (string * term) list;
+  in
+    result
+  end;
+(*
+   (TBC.ctxt_n_const_to_identity     ctxt func
+  @ TBC.ctxt_n_const_to_idempotence  ctxt func
+  @ TBC.ctxt_n_const_to_zero_element ctxt func
+  @ TBC.ctxt_n_consts_to_projection  ctxt func
+  @ TBC.ctxt_n_consts_to_square      ctxt func)
+ |> map (apfst Template_Based_Conjecturing.property_as_string)
+| template_based_conjecture_for_simplification _ _ = [];
+*)
 
 fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.state) (trm:term) =
   let

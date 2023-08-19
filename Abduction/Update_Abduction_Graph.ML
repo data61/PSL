@@ -16,6 +16,10 @@ type update_abduction_graph;
 type key;
 type keys;
 
+(* update of abduction_node based on or-key *)
+val update_proved_completely          : key -> update_abduction_graph;
+val update_proof_n_proof_id           : (*proof*)strings -> (*or*)key -> update_abduction_graph;
+
 (* update of abduction_graph *)
 val update_is_branch                  : key -> update_abduction_graph;
 val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
@@ -35,6 +39,12 @@ open Abduction_Node;
 open Abduction_Graph;
 
 type update_abduction_graph = abduction_graph -> abduction_graph;
+
+fun update_proved_completely (key:key) (ag:abduction_graph) =
+    PGraph.map_node key (Update_Abduction_Node.update_proved_completely) ag: abduction_graph;
+
+fun update_proof_n_proof_id (prf:strings) (key:key) (ag:abduction_graph) =
+    PGraph.map_node key (Update_Abduction_Node.update_proof_n_proof_id prf) ag: abduction_graph;
 
 (* update_branch *)
 fun update_is_branch (key:key) (graph:abduction_graph) =
@@ -163,7 +173,7 @@ fun update_after_proving_ornode (proof:strings) (or_key as (Or_N, _): key) (ctxt
     updated3: abduction_graph
   end
  | update_after_proving_ornode _ _ _ _ = error "update_after_proving_ornode failed. Not an or-node key."
-
+ 
 (*Important tricky part 2! It might require some modifications.*)
 fun update_after_connecting_andnd_to_existing_ornd (or_key as (Or_N, _): key) (ctxt:Proof.context) (ag:abduction_graph) =
     if Abduction_Graph.is_proved_completely ag or_key

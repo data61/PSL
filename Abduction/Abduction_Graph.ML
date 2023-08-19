@@ -69,8 +69,7 @@ val orkeys_tobe_expanded_in                      : Proof.context -> abduction_gr
 
 (* query on abduction_graph *)
 val final_goal_proved_completely                 : abduction_graph -> bool;
-
-val mk_pst_to_prove_from_orkey                   : Proof.state -> key -> Proof.state;
+val prove_term_completely                        : Proof.state -> term -> strings option;
 val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> strings option;
 val keys                                         : abduction_graph -> keys;
 
@@ -313,20 +312,24 @@ fun final_goal_proved_completely (graph:abduction_graph) =
     final_goal_proved
   end;
 
-(* mk_pst_to_prove_from_orkey *)
-fun mk_pst_to_prove_from_orkey (pst:Proof.state) (Or_N, [term]) = mk_pst_to_prove_from_term pst term: Proof.state
-  | mk_pst_to_prove_from_orkey _ _ = error "mk_pst_to_prove_from_orkey failed!";
+(* prove_term_completely *)
+fun prove_term_completely (pst:Proof.state) (lemma_term:term) =
+    let
+      val pst_to_prove = mk_pst_to_prove_from_term pst lemma_term                                   : Proof.state;
+      val timeouts     = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
+      val maybe_result = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;
+      val maybe_script = Option.map fst maybe_result                                                : strings option;
+    in
+      maybe_script
+    end
 
 (* prove_orkey_completely *)
 fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph:abduction_graph) (pst:Proof.state) =
     let
       fun tracing' m = ();
-      val lemma_name   = lemma_name_of graph or_key                                                 : string;
-      val pst_to_prove = mk_pst_to_prove_from_orkey pst or_key                                      : Proof.state;
-      val timeouts     = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
-      val maybe_result = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;
-      val maybe_script = Option.map fst maybe_result                                                : strings option;
-      val _ = tracing' ((if is_some maybe_result then "Proved: " else "Did not prove: ") ^ lemma_name ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
+      val lemma_name   = lemma_name_of graph or_key          : string;
+      val maybe_script = prove_term_completely pst lemma_term: strings option;
+      val _ = tracing' ((if is_some maybe_script then "Proved: " else "Did not prove: ") ^ lemma_name ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
     in
       maybe_script
     end
