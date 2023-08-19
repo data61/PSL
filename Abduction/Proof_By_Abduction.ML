@@ -68,7 +68,8 @@ fun expand_ornode_if_original_goral_is_unproved
   (pst:state,
    synched_agraph: SS.synched_abduction_graph,
    refutation    : SS.synched_term2bool_table,
-   term2name     : SS.synched_term2string_table)
+   term2name     : SS.synched_term2string_table,
+   proved_ors    : SS.synched_proved_simps)
   (or_key as (Or_N, [lemma_term]):key): bool =
     let
        (*very expensive*)
@@ -92,7 +93,7 @@ fun expand_ornode_if_original_goral_is_unproved
           val explicit_wo_counterexample  = parallel_filter_out (Shared_State.is_refuted refutation pst o snd) filtered_explicit  : (string * term) list;
           val seed_from_explicit          = SOOE.conjectures_to_seed_of_or2and_edge term2name pst explicit_wo_counterexample      : seed_of_or2and_edge;
           val explicit_cnjnctrs           = #new_goals seed_from_explicit                                                         : SOOE.conjectures;
-          val _                           = SOOE.decremental_abduction pst or_key explicit_cnjnctrs term2name synched_agraph      : unit;
+          val _                           = SOOE.decremental_abduction pst or_key explicit_cnjnctrs term2name synched_agraph proved_ors: unit;
           (*tactic application as conjecturing. A little expensive*)
           val pst_to_prove                = mk_pst_to_prove_from_term pst lemma_term                                              : state;
           val seeds_from_tactics          = SOOE.apply_PSL_to_get_seeds_of_or2and_edges term2name pst_to_prove                    : seeds_of_or2and_edge;
@@ -112,9 +113,9 @@ fun current_time (start:Timing.start) = Time.toReal (#elapsed (Timing.result sta
 fun still_has_time (start:Timing.start) (pst:Proof.state) = current_time start < get_timeout pst: bool;
 
 fun expand_ornode_if_original_goral_is_unproved_w_timeout (start:Timing.start)
-      (pst:state, synched_agraph, refutation, term2name) (or_key as (Or_N, [_]):key): bool =
+      (pst:state, synched_agraph, refutation, term2name, proved_ors) (or_key as (Or_N, [_]):key): bool =
     if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
-    then expand_ornode_if_original_goral_is_unproved (pst, synched_agraph, refutation, term2name) or_key
+    then expand_ornode_if_original_goral_is_unproved (pst, synched_agraph, refutation, term2name, proved_ors) or_key
     else false
 | expand_ornode_if_original_goral_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
 
@@ -135,7 +136,7 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
         val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding));
         val _                      = tracing "They are:"
         val _                      = map (print_key ctxt) orkeys_worth_expanding
-        val some_orkey             = Par_List.find_some (expand_ornode_if_original_goral_is_unproved_w_timeout start (pst, synched_agraph, refutation, term2name)) orkeys_worth_expanding: key option;
+        val some_orkey             = Par_List.find_some (expand_ornode_if_original_goral_is_unproved_w_timeout start (pst, synched_agraph, refutation, term2name, proved_ors)) orkeys_worth_expanding: key option;
         val solved                 = is_some some_orkey: bool;
         val _                      = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
       in

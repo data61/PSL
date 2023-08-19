@@ -28,7 +28,7 @@ val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_
 val conjectures_to_seed_of_or2and_edge    : Shared_State.synched_term2string_table -> Proof.state -> (string * term) list -> seed_of_or2and_edge;
 val seed_has_counterexample               : Shared_State.synched_term2bool_table -> Proof.state -> seed_of_or2and_edge -> bool;
 val implicit_conjecturing                 : Proof.state -> key -> seeds_of_or2and_edge -> Shared_State.synched_abduction_graph -> unit;
-val decremental_abduction                 : Proof.state -> key -> conjectures -> Shared_State.synched_term2string_table -> Shared_State.synched_abduction_graph -> unit;
+val decremental_abduction                 : Proof.state -> key -> conjectures -> Shared_State.synched_term2string_table -> Shared_State.synched_abduction_graph -> Shared_State.synched_proved_simps-> unit;
 
 end;
 
@@ -206,6 +206,8 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
    end
   | prove_goal_assuming_conjectures _ _ _  = error "prove_goal_assuming_conjectures failed.";
 
+type edge_conjectures_edgepairs = (key * (string * term) list * (key * abduction_node));
+
 (*
  * step 1. prove the parental or-node using some conjectures.
  *)
@@ -214,7 +216,7 @@ fun prove_ornode_assuming_andnode
      (parent_orkey as (Or_N, [orterm]): key)(*parent node*)
      (sagraph:SS.synched_abduction_graph)
      (seed_of_or2and_edge as {new_goals, proof}: seed_of_or2and_edge)(*child nodes*)
-     : (key * (string * term) list * (key * abduction_node)) option =
+     : edge_conjectures_edgepairs option =
    let
     val _ = SS.update_is_branch parent_orkey sagraph: unit;
      val (proved_parent_or, script_opt_gen) = prove_goal_assuming_conjectures pst parent_orkey seed_of_or2and_edge: (bool * string option);
@@ -244,7 +246,7 @@ fun prove_ornode_assuming_andnode
  | prove_ornode_assuming_andnode _ _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
 
 fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abduction_graph)
-  (or2and_edge_key:key, used_conjectures, edge_pair): unit =
+  ((or2and_edge_key:key, used_conjectures, edge_pair): edge_conjectures_edgepairs): unit =
   let
         val ctxt                 = Proof.context_of pst;
         val (edge_key, edge_val) = edge_pair: (key * abduction_node);
@@ -290,17 +292,6 @@ fun implicit_conjecturing (pst:Proof.state) (parent_or:key) (seeds: seeds_of_or2
     val _       = Par_List.map (add_nodes_and_edges_to_graph pst parent_or sagraph) triples
   in () end;
 
-(*explicit conjecturing*)
-fun explicit_conjecturing (pst:Proof.state) (parent_or:key) (seed: seed_of_or2and_edge) (sagraph:SS.synched_abduction_graph) =
-  let
-    (*step 1*)
-    val triple_opt = prove_ornode_assuming_andnode pst parent_or sagraph seed;
-    val used_conjectures =
-        if   is_some triple_opt
-        then (#2 (the triple_opt))
-        else []
-  in triple_opt end;
-
 fun eq_conjectures (pairs1:conjectures, pairs2:conjectures): bool =
   let
     val goal_names1 = map fst pairs1;
@@ -309,22 +300,19 @@ fun eq_conjectures (pairs1:conjectures, pairs2:conjectures): bool =
     eq_set (op =) (goal_names1, goal_names2)
   end;
 
-fun decremental  _ (_:Proof.state) (_:key) ([]:conjectures list) (_:conjectures list) (_:SS.synched_abduction_graph)_ = ()
-  | decremental (counter:int) (pst:Proof.state) (parent_ornd:key) (conjectures::conjecturess:conjectures list)
-      (checked:conjectures list) (synched_agraph:SS.synched_abduction_graph) (failed_set:conjectures list) =
+fun decremental  _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_proved_simps) (_:key) ([]:conjectures list) (_:conjectures list) _ results = results
+  | decremental (counter:int) (pst:Proof.state, synched_agraph:SS.synched_abduction_graph, synched_proved_ors:SS.synched_proved_simps) (parent_ornd:key) (conjectures::conjecturess:conjectures list)
+      (checked:conjectures list) (failed_set:conjectures list) (results:edge_conjectures_edgepairs list) =
     if counter > 0
     then
       let
         (*1  apply explicit_conjecturing. identify used conjectures.*)
         val seed       = conjecture_to_seed_of_or2and_edge conjectures                               : seed_of_or2and_edge;
         val triple_opt = prove_ornode_assuming_andnode pst parent_ornd synched_agraph seed           : (key * conjectures * (key * abduction_node)) option;
-        val _          = if is_none triple_opt then () else add_nodes_and_edges_to_graph pst parent_ornd synched_agraph (the triple_opt);(*step 2 - 7*)
         val used_conjectures = if is_none triple_opt then [] else #2 (Utils.the' "decremental failed." triple_opt)                : conjectures;
         (*2 identify used conjectures that are not proved.*)
-        val abduction_graph            = Synchronized.value synched_agraph                           : SS.abduction_graph;(*TODO: maybe we should avoid this?*)
-        fun is_completely_proved (_, term) = is_proved_completely abduction_graph (Or_N, [term])     : bool;
-        val unproved_used_conjectures = filter_out is_completely_proved used_conjectures             : conjectures;
-
+        fun is_completely_proved cnjctr   = member (op =) (Synchronized.value synched_proved_ors) cnjctr: bool;
+        val unproved_used_conjectures     = filter_out is_completely_proved used_conjectures            : conjectures;
         val (new_failed_set, new_candidates): (conjectures list * conjectures list) =
           (if null used_conjectures
            then
@@ -355,26 +343,28 @@ fun decremental  _ (_:Proof.state) (_:key) ([]:conjectures list) (_:conjectures 
         fun is_subset_of (sub:conjectures) (sup:conjectures) = subset (op =) (sub, sup);
         fun is_subset_of_any_failed_conjectures (sub:conjectures) = exists (is_subset_of sub) new_failed_set;
         val promising_candidates = filter_out is_subset_of_any_failed_conjectures genuinely_new_candidates;
+        val new_results = (if is_none triple_opt then [] else [the triple_opt]) @ results
       in
-        decremental (counter - 1) pst parent_ornd promising_candidates newly_checked synched_agraph new_failed_set
+        decremental (counter - 1) (pst, synched_agraph, synched_proved_ors) parent_ornd promising_candidates newly_checked new_failed_set new_results
       end
-    else ();
+    else results;
 
 fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (conjectures:conjectures)
-  (term2name:SS.synched_term2string_table) (synched_agraph: SS.synched_abduction_graph) =
+  (term2name:SS.synched_term2string_table) (synched_agraph: SS.synched_abduction_graph) (proved_ors:SS.synched_proved_simps) =
   let
     fun tracing' mssg = ();
-    val _ = tracing "\n ** Trying to prove **:";
-    val _ = tracing (SS.get_orkey_name term2name (Proof.context_of pst) parent_ornd);
-    val _ = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
-    val _ = tracing' " decremental abduction starts";
-    val _ = map snd conjectures |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
-    val ctxt = Proof.context_of pst: Proof.context;
-    val max_number = if Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd
-                     then Config.get ctxt Top_Down_Util.limit_for_first_decrement
-                     else Config.get ctxt Top_Down_Util.limit_for_other_decrement
-    val _ = decremental max_number pst parent_ornd [conjectures] [] synched_agraph []: unit;
-    val _ = tracing' " decremental abduction ends";
+    val _       = tracing "\n ** Trying to prove **:";
+    val _       = tracing (SS.get_orkey_name term2name (Proof.context_of pst) parent_ornd);
+    val _       = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
+    val _       = tracing' " decremental abduction starts";
+    val _       = map snd conjectures |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
+    val ctxt    = Proof.context_of pst: Proof.context;
+    val limit   = if   Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd
+                  then Config.get ctxt Top_Down_Util.limit_for_first_decrement
+                  else Config.get ctxt Top_Down_Util.limit_for_other_decrement
+    val triples = decremental limit (pst, synched_agraph, proved_ors) parent_ornd [conjectures] [] [] []: (key * conjectures * (key * abduction_node)) list;
+    val _       = Par_List.map (add_nodes_and_edges_to_graph pst parent_ornd synched_agraph) triples: unit list;
+    val _       = tracing' " decremental abduction ends";
   in
     ()
   end;
