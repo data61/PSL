@@ -99,7 +99,7 @@ fun expand_ornode_if_original_goral_is_unproved
           val graph_extended_by_conjecture    = Synchronized.value synched_agraph                                                 : abduction_graph;
           val filtered_seeds_from_tactics = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation pst graph_extended_by_conjecture seeds_from_tactics
                                          |> filter_out (SOOE.seed_has_counterexample refutation pst)                              : seeds_of_or2and_edge;
-          val _                           = SOOE.seeds_to_updated_graph pst or_key filtered_seeds_from_tactics synched_agraph     : unit;
+          val _                           = SOOE.implicit_conjecturing pst or_key filtered_seeds_from_tactics synched_agraph     : unit;
         in
           (*seeds_to_updated_graph is very expensive*)
           SS.final_goal_proved_completely synched_agraph

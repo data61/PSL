@@ -27,7 +27,7 @@ val condition_to_filter_out_conjecture    : term -> Shared_State.synched_term2bo
 val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_State.synched_term2bool_table -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
 val conjectures_to_seed_of_or2and_edge    : Shared_State.synched_term2string_table -> Proof.state -> (string * term) list -> seed_of_or2and_edge;
 val seed_has_counterexample               : Shared_State.synched_term2bool_table -> Proof.state -> seed_of_or2and_edge -> bool;
-val seeds_to_updated_graph                : Proof.state -> key -> seeds_of_or2and_edge -> Shared_State.synched_abduction_graph -> unit;
+val implicit_conjecturing                 : Proof.state -> key -> seeds_of_or2and_edge -> Shared_State.synched_abduction_graph -> unit;
 val decremental_abduction                 : Proof.state -> key -> conjectures -> Shared_State.synched_term2string_table -> Shared_State.synched_abduction_graph -> unit;
 
 end;
@@ -147,16 +147,16 @@ fun conjecture_to_seed_of_or2and_edge (conjectures:(string * term) list): seed_o
 
 fun conjectures_to_seed_of_or2and_edge (term2name:SS.synched_term2string_table) (pst:Proof.state) (conjectures_w_name: (string * term) list) =
   let
-    fun get_ctxt_w_proof_goal trm = Proof.context_of (mk_pst_to_prove_from_term pst trm)        : Proof.context;
-    fun mk_prop term = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term    : term;
-    fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm     : term option;
-    val conjectures                   = map snd conjectures_w_name                                      : terms;
-    val conjectures_as_props          = map mk_prop conjectures                                         : terms;
-    val checked_conjectures           = List.mapPartial check_prop conjectures_as_props                 : terms;
-    val ctxt                      = Proof.context_of pst                                                                : Proof.context;
-    val name_conjecture_pairs         = map (fn conjecture => (SS.get_lemma_name term2name ctxt conjecture, conjecture)) checked_conjectures: (string * term) list;
-    val result                    = conjecture_to_seed_of_or2and_edge name_conjecture_pairs                                 : seed_of_or2and_edge;
-
+    fun get_ctxt_w_proof_goal trm = Proof.context_of (mk_pst_to_prove_from_term pst trm)                      : Proof.context;
+    fun mk_prop term              = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term     : term;
+    fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm                   : term option;
+    val conjectures               = map snd conjectures_w_name                                                : terms;
+    val conjectures_as_props      = map mk_prop conjectures                                                   : terms;
+    val checked_conjectures       = List.mapPartial check_prop conjectures_as_props                           : terms;
+    val ctxt                      = Proof.context_of pst                                                      : Proof.context;
+    val attach_lemma_name         = fn conjecture => (SS.get_lemma_name term2name ctxt conjecture, conjecture): string * term;
+    val name_conjecture_pairs     = map attach_lemma_name checked_conjectures: (string * term) list           : (string * term) list;
+    val result                    = conjecture_to_seed_of_or2and_edge name_conjecture_pairs                   : seed_of_or2and_edge;
   in
     result: seed_of_or2and_edge
   end;
@@ -175,21 +175,21 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
          Local_Theory.note ((Binding.name name, []), [thm]) lthy |> snd: local_theory;
      fun assm_conjecture_in_pst (name:string, conjecture:term) (pst:Proof.state) =
        let
-         val ctxt               = Proof.context_of pst                                                 : Proof.context;
-         val conjecture_as_thm     = Top_Down_Util.term_to_thm ctxt conjecture                               : thm;
+         val ctxt                 = Proof.context_of pst                                                     : Proof.context;
+         val conjecture_as_thm    = Top_Down_Util.term_to_thm ctxt conjecture                                : thm;
          val pst_w_conjecture_opt = try (Proof.map_context (register_thm_in_lthy name conjecture_as_thm)) pst: Proof.state option;
          val pst_w_conjecture     = case pst_w_conjecture_opt of SOME no_dup_pst => no_dup_pst | _ => pst
        in
          pst_w_conjecture
        end;
-     val pst_with_new_goals_assmed = fold assm_conjecture_in_pst new_goals pst                     : Proof.state;
+     val pst_with_new_goals_assmed = fold assm_conjecture_in_pst new_goals pst                 : Proof.state;
      val pst_to_apply_tactics      = mk_pst_to_prove_from_term pst_with_new_goals_assmed orterm: Proof.state;
 
      (*apply_proof considers the first result only.*)
      fun apply_proof (proof:string) (pst_tobe_proved:Proof.state) =
      let
        val sh_result = Subtools.tool_output_n_timeout_to_logtac proof 5.0 pst_tobe_proved;
-       val result_pst = Seq.pull sh_result <$> fst <$>  snd |> the: Proof.state;
+       val result_pst = Seq.pull sh_result <$> fst <$>  snd |> Utils.the' "prove_goal_assuming_conjectures failed.": Proof.state;
      in
        result_pst
      end;
@@ -209,19 +209,21 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
 (*
  * step 1. prove the parental or-node using some conjectures.
  *)
-fun add_or2and_edge_and_connect_it_to_parental_ornode
+fun prove_ornode_assuming_andnode
      (pst:Proof.state)
      (parent_orkey as (Or_N, [orterm]): key)(*parent node*)
+     (sagraph:SS.synched_abduction_graph)
      (seed_of_or2and_edge as {new_goals, proof}: seed_of_or2and_edge)(*child nodes*)
      : (key * (string * term) list * (key * abduction_node)) option =
    let
+    val _ = SS.update_is_branch parent_orkey sagraph: unit;
      val (proved_parent_or, script_opt_gen) = prove_goal_assuming_conjectures pst parent_orkey seed_of_or2and_edge: (bool * string option);
    in
      if proved_parent_or
      then
        let
          val how_we_got_andnode    = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof                        : strings;
-         val script_to_prove_andnd = the script_opt_gen                                                          : string;
+         val script_to_prove_andnd = Utils.the' "prove_ornode_assuming_andnode failed." script_opt_gen           : string;
          val script_to_prove_ornd  = how_we_got_andnode @ single script_to_prove_andnd                           : strings;
          val or2and_edge_val       = Abduction_Node.Or_To_And {
                                        how_to_get_andnodes_from_ornode = proof,
@@ -239,8 +241,37 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
        end
      else NONE
    end
- | add_or2and_edge_and_connect_it_to_parental_ornode _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
+ | prove_ornode_assuming_andnode _ _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
 
+fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abduction_graph)
+  (or2and_edge_key:key, used_conjectures, edge_pair): unit =
+  let
+        val ctxt                 = Proof.context_of pst;
+        val (edge_key, edge_val) = edge_pair: (key * abduction_node);
+        (*step 2.*)
+        val _                    = SS.new_node (edge_key, edge_val) synched_agraph   : unit;
+        (*step 3.*)
+        val _                    = SS.add_edge (parent_ornd, edge_key) synched_agraph: unit;
+        val and_node_terms       = map snd used_conjectures: terms;
+        (*length added_andnode_keys should be 1.*)
+        (*step 4*)
+        val added_andnode_keys = SS.add_andnodes and_node_terms synched_agraph                                       : keys;
+        val _                  = if length added_andnode_keys = 1 then () else error "length added_andnode_keys != 1"
+        val added_andnode_key  = hd added_andnode_keys                                                               : key;
+        (*step 5*)
+        val _                  = SS.add_edge (or2and_edge_key, added_andnode_key) synched_agraph                     : unit;
+        (*step 6*)
+        val add_child_ornode   = SS.add_child_ornode ctxt synched_agraph                                             : string * term -> unit;
+        val _                  = map add_child_ornode used_conjectures                                     : unit list;
+        (*step 7*)
+        val _                  = SS.add_edges_from_andnode_to_ornodes added_andnode_key synched_agraph                 : unit;
+        val connected_orkeys   = map (fn or_term => (Or_N, [or_term])) and_node_terms                                  : keys;
+        val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph connected_orkeys: unit list;
+  in
+    ()
+  end;
+
+(*implicit conjecturing*)
 (*
  * step 0. We have an or-node to expand.
  * step 1. prove the parental or-node using some conjectures.
@@ -251,66 +282,24 @@ fun add_or2and_edge_and_connect_it_to_parental_ornode
  * step 6. add child-or-nodes that correspond to the sub-goals or used conjectures in the and-node.
  * step 7. connect the child-or-nodes to the and-node.
  *)
-fun one_step
-     (pst:Proof.state)
-     (parent_orkey as (Or_N, [orterm]): key)(*parent node*)
-     (sagraph:SS.synched_abduction_graph)
-     (seed_of_or2and_edge as {new_goals, proof}: seed_of_or2and_edge)(*child nodes*) =
+fun implicit_conjecturing (pst:Proof.state) (parent_or:key) (seeds: seeds_of_or2and_edge) (sagraph:SS.synched_abduction_graph) =
   let
-    fun tracing' mssg = ();
-    val _ = SS.update_is_branch parent_orkey sagraph: unit;
-    (*add an or2and_ege and connect them to their parental or-node if we can prove the or-node assuming the and-node.*)
-    (*step 1. prove the parental or-node using some conjectures.*)
-    val maybe_triple = add_or2and_edge_and_connect_it_to_parental_ornode pst parent_orkey seed_of_or2and_edge;
-  in
-    maybe_triple
-  end
-  | one_step _ _ _ _ = error "one_step failed."
-
-fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_agraph:SS.synched_abduction_graph)
-  (or2and_edge_key:key, used_andnd_name_term_pairs, edge_pair): unit =
-  let
-        val ctxt                 = Proof.context_of pst;
-        val (edge_key, edge_val) = edge_pair: (key * abduction_node);
-        (*step 2. add an or2and-edge. *)
-        val _                    = SS.new_node (edge_key, edge_val) synched_agraph   : unit;
-        (*step 3. connect the or2and-edge to its parental or-node.*)
-        val _                    = SS.add_edge (parent_ornd, edge_key) synched_agraph: unit;
-        val and_node_terms       = map snd used_andnd_name_term_pairs: terms;
-        (*length added_andnode_keys should be 1.*)
-        (*step 4*)
-        val added_andnode_keys = SS.add_andnodes and_node_terms synched_agraph                                       : keys;
-        val _                  = if length added_andnode_keys = 1 then () else error "length added_andnode_keys != 1"
-        val added_andnode_key  = hd added_andnode_keys                                                               : key;
-        (*step 5*)
-        val _                  = SS.add_edge (or2and_edge_key, added_andnode_key) synched_agraph                     : unit;
-        (*step 6*)
-        val add_child_ornode   = SS.add_child_ornode ctxt synched_agraph                                             : string * term -> unit;
-        val _                  = map add_child_ornode used_andnd_name_term_pairs                                     : unit list;
-        (*step 7*)
-        val _                  = SS.add_edges_from_andnode_to_ornodes added_andnode_key synched_agraph                 : unit;
-        val connected_orkeys   = map (fn or_term => (Or_N, [or_term])) and_node_terms                                  : keys;
-        val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph connected_orkeys: unit list;
-  in
-    ()
-  end;
-
-(*implicit conjecturing*)
-fun seeds_to_updated_graph (pst:Proof.state) (parent_or:key) (seeds: seeds_of_or2and_edge) (sagraph:SS.synched_abduction_graph) =
-  let
-    val triples = Par_List.map (one_step pst parent_or sagraph) seeds |> Utils.somes;
+    (*step 1*)
+    val triples = Par_List.map (prove_ornode_assuming_andnode pst parent_or sagraph) seeds |> Utils.somes;
+    (*step 2 - 7*)
     val _       = Par_List.map (add_nodes_and_edges_to_graph pst parent_or sagraph) triples
   in () end;
 
 (*explicit conjecturing*)
-fun seed_to_updated_graph (pst:Proof.state) (parent_or:key) (seed: seed_of_or2and_edge) (sagraph:SS.synched_abduction_graph) =
+fun explicit_conjecturing (pst:Proof.state) (parent_or:key) (seed: seed_of_or2and_edge) (sagraph:SS.synched_abduction_graph) =
   let
-    val triple_opt = one_step pst parent_or sagraph seed;
-    val used_andnd_name_term_pairs =
+    (*step 1*)
+    val triple_opt = prove_ornode_assuming_andnode pst parent_or sagraph seed;
+    val used_conjectures =
         if   is_some triple_opt
-        then (add_nodes_and_edges_to_graph pst parent_or sagraph (the triple_opt); #2 (the triple_opt)) else []
-  in used_andnd_name_term_pairs
-  end;
+        then (#2 (the triple_opt))
+        else []
+  in triple_opt end;
 
 fun eq_conjectures (pairs1:conjectures, pairs2:conjectures): bool =
   let
@@ -326,17 +315,18 @@ fun decremental  _ (_:Proof.state) (_:key) ([]:conjectures list) (_:conjectures 
     if counter > 0
     then
       let
-        (*1  apply one_step. identify used conjectures.*)
-        val seed                       = conjecture_to_seed_of_or2and_edge conjectures                      : seed_of_or2and_edge;
-        val used_andnd_name_term_pairs = seed_to_updated_graph pst parent_ornd seed synched_agraph          : conjectures;
-
+        (*1  apply explicit_conjecturing. identify used conjectures.*)
+        val seed       = conjecture_to_seed_of_or2and_edge conjectures                               : seed_of_or2and_edge;
+        val triple_opt = prove_ornode_assuming_andnode pst parent_ornd synched_agraph seed           : (key * conjectures * (key * abduction_node)) option;
+        val _          = if is_none triple_opt then () else add_nodes_and_edges_to_graph pst parent_ornd synched_agraph (the triple_opt);(*step 2 - 7*)
+        val used_conjectures = if is_none triple_opt then [] else #2 (Utils.the' "decremental failed." triple_opt)                : conjectures;
         (*2 identify used conjectures that are not proved.*)
-        val abduction_graph            = Synchronized.value synched_agraph                                  : SS.abduction_graph;(*TODO: maybe we should avoid this?*)
-        fun is_completely_proved (_, term) = is_proved_completely abduction_graph (Or_N, [term])            : bool;
-        val unproved_used_andnd_name_term_pairs = filter_out is_completely_proved used_andnd_name_term_pairs: conjectures;
+        val abduction_graph            = Synchronized.value synched_agraph                           : SS.abduction_graph;(*TODO: maybe we should avoid this?*)
+        fun is_completely_proved (_, term) = is_proved_completely abduction_graph (Or_N, [term])     : bool;
+        val unproved_used_conjectures = filter_out is_completely_proved used_conjectures             : conjectures;
 
         val (new_failed_set, new_candidates): (conjectures list * conjectures list) =
-          (if null used_andnd_name_term_pairs
+          (if null used_conjectures
            then
             (*3. register the conjectures inside seed as a set of failed attempt.*)
              let
@@ -347,13 +337,12 @@ fun decremental  _ (_:Proof.state) (_:key) ([]:conjectures list) (_:conjectures 
            else
             (*4 make sets of conjectures from seeds, so that each member of the set lacks exactly one conjecture that was used but not proved.*)
              let
-               val mk_new_conjecture_set_by_removing_one_of = map (remove (op =)) unproved_used_andnd_name_term_pairs: (conjectures -> conjectures) list;
+               val mk_new_conjecture_set_by_removing_one_of = map (remove (op =)) unproved_used_conjectures: (conjectures -> conjectures) list;
                fun mk_new_goals_wo_one_used_goal (those_sent_to_one_step:conjectures) =
                    Utils.map_arg those_sent_to_one_step mk_new_conjecture_set_by_removing_one_of: conjectures list;
-               (*fun mk_new_goals_wo_used_proved_goals (cnjncts) = subtract (fn (p1,p2) => fst p1 = fst p2) unproved_used_andnd_name_term_pairs cnjncts: conjectures;*)
+               (*fun mk_new_goals_wo_used_proved_goals (cnjncts) = subtract (fn (p1,p2) => fst p1 = fst p2) unproved_used_conjectures cnjncts: conjectures;*)
                val new_conjecturess = map mk_new_goals_wo_one_used_goal (conjectures::conjecturess)
                                |> flat
-                               |> distinct eq_conjectures
                                |> distinct eq_conjectures
                                |> sort length_ord |> rev; (*We want to check seeds with more conjectures first because they tend to be more powerful.*)
              in
