@@ -29,7 +29,6 @@ val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_
 val conjectures_to_seed_of_or2and_edge    : Shared_State.synched_term2string_table -> Proof.state -> (string * term) list -> seed_of_or2and_edge;
 val seed_has_counterexample               : Shared_State.synched_term2bool_table -> Proof.state -> seed_of_or2and_edge -> bool;
 val abduction_for_tactic_based_conjectures: Proof.state -> key -> seeds_of_or2and_edge -> Shared_State.synched_abduction_graph -> unit;
-val decremental_abduction                 : Proof.state -> key -> conjectures -> Shared_State.synched_term2string_table -> Shared_State.synched_abduction_graph -> Shared_State.synched_proved_simps-> add_or2and_edge list;
 val abduction_for_explicit_conjectures    : Proof.state -> key -> conjectures -> (Shared_State.synched_term2string_table * Shared_State.synched_abduction_graph) -> Shared_State.synched_proved_simps-> unit;
 
 end;
@@ -350,115 +349,24 @@ fun decremental  _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_p
       end
     else results;
 
-fun decremental_abduction (pst:Proof.state) (parent_ornd:key) (conjectures:conjectures)
-  (term2name:SS.synched_term2string_table) (synched_agraph: SS.synched_abduction_graph) (proved_ors:SS.synched_proved_simps) =
+fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (conjectures:conjectures)
+  (sterm2name:SS.synched_term2string_table, sagraph: SS.synched_abduction_graph) (proved_ors:SS.synched_proved_simps) =
   let
     fun tracing' mssg = ();
-    val _       = tracing "\n ** Trying to prove **:";
-    val _       = tracing (SS.get_orkey_name term2name (Proof.context_of pst) parent_ornd);
-    val _       = Abduction_Graph.print_key (Proof.context_of pst) parent_ornd;
+    val _       = tracing' "\n ** Trying to prove **:";
+    val _       = tracing' (SS.get_orkey_name sterm2name (Proof.context_of pst) parent_orkey);
+    val _       = Abduction_Graph.print_key (Proof.context_of pst) parent_orkey;
     val _       = tracing' " decremental abduction starts";
     val _       = map snd conjectures |> map (tracing' o Isabelle_Utils.trm_to_string (Proof.context_of pst));
     val ctxt    = Proof.context_of pst: Proof.context;
-    val limit   = if   Abduction_Graph.is_final_goal (Synchronized.value synched_agraph) parent_ornd
+    val limit   = if   Abduction_Graph.is_final_goal (Synchronized.value sagraph) parent_orkey
                   then Config.get ctxt Top_Down_Util.limit_for_first_decrement
                   else Config.get ctxt Top_Down_Util.limit_for_other_decrement
-    val triples = decremental limit (pst, synched_agraph, proved_ors) parent_ornd [conjectures] [] [] []: add_or2and_edge list;
+    val triples = decremental limit (pst, sagraph, proved_ors) parent_orkey [conjectures] [] [] []: add_or2and_edge list;
     val _       = tracing' " decremental abduction ends";
+    val _       = Par_List.map (add_nodes_and_edges_to_graph pst parent_orkey sagraph) triples: unit list;
   in
-    triples: add_or2and_edge list
-  end;
-
-fun simp_explicit_conjecture (synched_term2string:SS.synched_term2string_table) (ctxt:Proof.context)
- (parental_orterm:term) (simp as (_:string, simp_term:term)) (cnjctr as (_:string, cnjctr_term:term)): conjectures =
-  let
-    val simp_thm = TDU.term_to_thm ctxt simp_term: thm;
-    val ctxt_w_simp = Simplifier.add_simp simp_thm ctxt: Proof.context;
-    val simplifier = Basic_Simplifier.simplify ctxt_w_simp: thm -> thm;(*asm_full_simplify*)
-    val simplifier_w_timeout = try (Isabelle_Utils.timeout_apply (Time.fromSeconds 1) simplifier): thm -> thm option;
-    val cnjctr_thm = TDU.term_to_thm ctxt cnjctr_term: thm;
-    val simped_cnjctr = simplifier_w_timeout cnjctr_thm: thm option;
-    fun schematic_to_free (Var ((str, i), typ)) =
-      let
-        val vname = space_explode "." str |> hd
-      in Free (vname, typ)
-      end
-      | schematic_to_free aterm = aterm;
-    fun remove_schematic (term:term) = (map_aterms schematic_to_free term);
-  in
-    if   is_none simped_cnjctr
-    then [cnjctr]
-    else
-      let
-        val rm_Trueprop = Top_Down_Util.remove_Trueprop o Isabelle_Utils.strip_atyp;
-        val simped_cnjctr_term = the simped_cnjctr |> Thm.full_prop_of
-           |> remove_schematic
-        val simped_cnjctr_name = SS.get_lemma_name synched_term2string ctxt simped_cnjctr_term: string;
-      in
-        if rm_Trueprop simped_cnjctr_term = rm_Trueprop cnjctr_term (*orelse simped_cnjctr_term = @{term True}*)
-           orelse rm_Trueprop simped_cnjctr_term = rm_Trueprop parental_orterm
-        then ([cnjctr])
-        else ((*tracing "\nSimplified from: ";
-              tracing (Isabelle_Utils.trm_to_string ctxt cnjctr_term);
-              tracing "Simplified to: ";
-              tracing (Isabelle_Utils.trm_to_string ctxt simped_cnjctr_term);
-              tracing "using: ";
-              tracing (Isabelle_Utils.trm_to_string ctxt (snd simp));*)
-              [simp, (simped_cnjctr_name, simped_cnjctr_term)])
-      end
-  end;
-
-fun simp_explicit_conjectures (synched_term2string:SS.synched_term2string_table) (ctxt:Proof.context)
-  (parental_orterm:term) (cnjctrs:conjectures) (simp:conjecture): conjectures =
-  map (simp_explicit_conjecture synched_term2string ctxt parental_orterm simp) cnjctrs |> flat |> distinct (op =);
-
-fun replace_triple_for_one_simp_if_provability_remains
-  (synched_term2string:SS.synched_term2string_table, synched_agraph: SS.synched_abduction_graph)
-  (parent_orkey as (Or_N, [orterm]):key) (pst:Proof.state)
-  (simp:conjecture) (old_triple as (_, _, cnjctrs):add_or2and_edge) =
-  let
-    val ctxt           = Proof.context_of pst: Proof.context;
-    val simped_cnjctrs = simp_explicit_conjectures synched_term2string ctxt orterm cnjctrs simp: conjectures;
-    val simplified     = not (eq_conjectures (cnjctrs, simped_cnjctrs)): bool;(*TODO: check if it was a simplification*)
-    val new_cnjctrs    = distinct (op =) (simp::simped_cnjctrs): conjectures;
-    val new_seed       = conjecture_to_seed_of_or2and_edge new_cnjctrs: seed_of_or2and_edge;
-    val new_triple_opt = if   simplified
-                         then prove_ornode_assuming_andnode pst true parent_orkey synched_agraph new_seed
-                         else NONE: add_or2and_edge option;
-    val result_triple  = if is_some new_triple_opt
-                         then Utils.the' "replace_triple_if_provability_remains failed" new_triple_opt
-                         else old_triple;
-  in
-    result_triple
-  end
-  | replace_triple_for_one_simp_if_provability_remains _ _ _ _ _ = error "replace_triple_for_one_simp_if_provability_remains failed.";
-
-(*TODO: folding is suspicious*)
-fun replace_triple_for_simps_if_provability_remains shared_states
-  (parent_orkey:key) (pst:Proof.state) (simps:conjectures) (old_triple:add_or2and_edge) :add_or2and_edge =
-  fold (replace_triple_for_one_simp_if_provability_remains shared_states parent_orkey pst) simps old_triple;
-
-fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (conjectures:conjectures)
-  (shared_states as (term2name:SS.synched_term2string_table, synched_agraph: SS.synched_abduction_graph))
-  (proved_ors:SS.synched_proved_simps) =
-  let
-    val _ = tracing "=== from abduction_for_explicit_conjectures ==="
-    val old_triples = decremental_abduction (pst:Proof.state) (parent_orkey:key) (conjectures:conjectures)
-                      (term2name:SS.synched_term2string_table) (synched_agraph: SS.synched_abduction_graph)
-                      (proved_ors:SS.synched_proved_simps): add_or2and_edge list;
-    val _ = tracing "old_conjectures are: ";
-    fun print_conjecture (_, _, cnjctrs) = map (tracing o Isabelle_Utils.trm_to_string (Proof.context_of pst) o snd) cnjctrs;
-    val _           = map (fn triple => (tracing "---"; print_conjecture triple)) old_triples;
-    val simps       = Synchronized.value proved_ors: SS.proved_simps;
-    val new_triples = map (replace_triple_for_simps_if_provability_remains shared_states parent_orkey pst simps) old_triples: add_or2and_edge list;
-    val _ = tracing "\n\nnew_conjectures are: ";
-    val _ = map (fn triple => (tracing "---"; print_conjecture triple)) new_triples;
-(*
-    val _       = Par_List.map (add_nodes_and_edges_to_graph pst parent_orkey synched_agraph) old_triples: unit list;
-*)
-    val _       = Par_List.map (add_nodes_and_edges_to_graph pst parent_orkey synched_agraph) new_triples: unit list;
-  in
-   ()
+    (): unit
   end;
 
 end;
