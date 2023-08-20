@@ -1,2 +1,0 @@
-:load Main
-:def test const $ return ":main --report ../../hlint/data/Default.hs --hol=../examples/HLint.thy"
