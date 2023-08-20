@@ -132,4 +132,66 @@ val _ = theorem \<^command_keyword>\<open>prove\<close> "prove";
 end;
 \<close>
 
+ML\<open>
+structure df = Syntax
+type tsdf = thm
+val thm = Top_Down_Util.term_to_thm @{context} (Syntax.read_term @{context} "x = x");
+\<close>
+find_theorems name: "List"
+ML\<open>
+structure TDU  = Top_Down_Util;
+structure SS   = Shared_State;
+structure SOOE = Seed_Of_Or2And_Edge;
+
+val timeout = Isabelle_Utils.timeout_apply (Time.fromSeconds 1);
+
+val d = Basic_Simplifier.asm_full_simplify @{context} thm;
+val s = simp_non_prop_term @{context} @{term "True = True"};
+
+fun simp_explicit_conjecture (synched_term2string:SS.synched_term2string_table) (ctxt:Proof.context)
+  (simp as (_:string, simp_term:term)) (cnjctr as (_:string, cnjctr_term:term)): SOOE.conjectures =
+  let
+    val simp_thm = TDU.term_to_thm ctxt simp_term: thm;
+    val ctxt_w_simp = Simplifier.add_simp simp_thm ctxt: Proof.context;
+    val simplifier = Basic_Simplifier.asm_full_simplify ctxt_w_simp: thm -> thm;
+    val simplifier_w_timeout = try (Isabelle_Utils.timeout_apply (Time.fromSeconds 1) simplifier): thm -> thm option;
+    val cnjctr_thm = TDU.term_to_thm ctxt simp_term: thm;
+    val simp_result = simplifier_w_timeout cnjctr_thm: thm option;
+  in
+    if   is_none simp_result
+    then [cnjctr]
+    else
+      let
+        val simp_result_term = the simp_result |> Thm.full_prop_of: term;
+        val simp_result_name = SS.get_lemma_name synched_term2string ctxt simp_result_term: string;
+      in
+        if simp_result_term = cnjctr_term
+        then [simp, (simp_result_name, simp_result_term)]
+        else [cnjctr]
+      end
+  end;
+
+fun simp_explicit_conjectures (synched_term2string:SS.synched_term2string_table) (ctxt:Proof.context)
+  (cnjctrs:SOOE.conjectures) (simp:SOOE.conjecture): SOOE.conjectures =
+  map (simp_explicit_conjecture synched_term2string ctxt simp) cnjctrs |> flat;
+
+
+
+
+val sdf = Thm.prop_of @{thm List.distinct_adj_Nil};
+\<close>
+ML\<open>
+val saf = @{thm List.distinct_adj_ConsD} |> Thm.full_prop_of |> Isabelle_Utils.trm_to_string @{context} |> tracing;
+\<close>
+thm List.distinct_adj_Nil
+
+lemma "False \<Longrightarrow> True"
+  apply(tactic \<open>fn thm => (
+    thm |> Thm.full_prop_of |> Isabelle_Utils.trm_to_string @{context} |> tracing;
+    thm |> Thm.prop_of |> Isabelle_Utils.trm_to_string @{context} |> tracing;
+    thm |> Thm.concl_of |> Isabelle_Utils.trm_to_string @{context} |> tracing;
+
+    Seq.single thm)\<close>)
+  oops
+
 end

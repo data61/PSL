@@ -223,9 +223,12 @@ fun term_compare (trm1, trm2) =
 
 fun term_to_thm (ctxt:Proof.context) (cnjctr:term) =
   let
-    val prop       = if is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr;
-    val fvar_names = Isabelle_Utils.get_free_var_names_in_trm prop |> distinct (op =): strings;
-    val thm        = Goal.prove ctxt fvar_names [] cnjctr (fn _ => ALLGOALS (Skip_Proof.cheat_tac ctxt)): thm;
+    val prop              = if is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr;
+    val prop_wo_typ_const = remove_type_consts prop: term;
+    val checked_prop      = Syntax.check_prop ctxt prop_wo_typ_const: term;
+    val fvar_names        = Isabelle_Utils.get_free_var_names_in_trm prop |> distinct (op =): strings;
+    fun cheat _           = ALLGOALS (Skip_Proof.cheat_tac ctxt);
+    val thm               = Goal.prove ctxt fvar_names [] checked_prop cheat: thm;
   in
     thm
   end;
