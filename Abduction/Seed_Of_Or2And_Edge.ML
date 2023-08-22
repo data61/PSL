@@ -103,7 +103,7 @@ fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.sync
       val factor = case #proof seed of Or2And_Edge.Tactic _ => 5.0 | _ => 3.0: real;
       val upper_limit     = Real.min (factor * final_goal_size, 45.0): real;
 *)
-      val upper_limit = 45.0
+      val upper_limit = 200.0;(*TODO: magic number*)
       fun concl_is_alpha_eq_to trm imp =
         let
           val cncl = Logic.strip_imp_concl imp |> Top_Down_Util.remove_Trueprop: term;

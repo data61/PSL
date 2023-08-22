@@ -67,18 +67,8 @@ fun remove_multiple_occurrences_of_functions (ctxt:Proof.context) (trm:term) =
 fun top_down_conjectures _ (pst:Proof.state) (trm:term) =
   let
     val ctxt                 = Proof.context_of pst                             : Proof.context;
-(*
-val _ = tracing "The original term is "
-val _ = tracing (Isabelle_Utils.trm_to_string ctxt trm);
-*)
     val one_less_occ         = remove_functions_in_trm ctxt trm                 : terms;
     val one_less_prnt        = remove_multiple_occurrences_of_functions ctxt trm: terms;
-(*
-val _ = tracing "one_less_occ is "
-val _ = map (tracing o Isabelle_Utils.trm_to_string ctxt) one_less_occ;
-val _ = tracing "one_less_prnt is "
-val _ = map (tracing o Isabelle_Utils.trm_to_string ctxt) one_less_prnt;
-*)
     val cnjctrs              = one_less_occ @ one_less_prnt |> distinct (op =)  : terms;
     val standardized_cnjctrs = map standardize_vnames cnjctrs    : terms;
     val unique_cnjectrs      = distinct (op =) standardized_cnjctrs             : terms;

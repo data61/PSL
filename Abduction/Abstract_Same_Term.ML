@@ -38,20 +38,22 @@ fun abstract_same_term_str (ctxt:Proof.context) (trm:term) =
     fun powerset (xs:'a list) =
       let
         fun poset ([],    base) = single base
-          | poset (y::ys, base) = (poset (ys, base)) @ (poset (ys, y::base))
+          | poset (y::ys, base) = (poset (ys, base)) @ (poset (ys, y::base));
+        val upper_bound = 15 (*TODO: magic number*);
+        val zs = take upper_bound xs;
       in
-        poset (xs, [])
+        poset (zs, [])
       end;
-  
+
     val paths_powerset = powerset same_compound_print_paths: ints list list list;
-  
+
     fun tag_var_id_to_paths_set' _      ([]:ints list list) acc = acc: (int * ints list) list
       | tag_var_id_to_paths_set' var_id (paths::set)        acc = tag_var_id_to_paths_set' (var_id + 1) set (pair var_id paths :: acc);
-  
+
     fun tag_var_id_to_paths_set paths_set = tag_var_id_to_paths_set' numb_of_distinct_fvars paths_set []: (int * ints list) list;
-  
+
     val var_id_n_paths_powerset = map tag_var_id_to_paths_set paths_powerset: (int * ints list) list list;
-  
+
     fun abstract_over_one_print (var_id:int, paths:ints list) (table:table): table =
       let
         val path_n_unode_pairs = mk_paths_n_unodes_pairs (var_id, paths): (ints * unode) list;
@@ -60,8 +62,11 @@ fun abstract_same_term_str (ctxt:Proof.context) (trm:term) =
       end;
   
     fun abstract_over_mult_prints (pairs:(int * ints list) list) = fold abstract_over_one_print pairs p2u_table: table;
+
     val new_tables       = map abstract_over_mult_prints var_id_n_paths_powerset: table list;
+
     val roots            = map (the o Utils.flip Inner_Path_Table.lookup []) new_tables: unode list;
+
     val roots_prints     = map #print roots                                            : strings;
   in
     roots_prints
