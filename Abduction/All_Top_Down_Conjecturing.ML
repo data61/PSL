@@ -31,23 +31,6 @@ in
   has_dupulicates: bool
 end;
 
-(* Prod31 for example needs this congruence(?).
-fun eq_over_same_func (ctxt:Proof.context) (trm:term) =
-  let
-    val trm_wo_Trueprop = Isabelle_Utils.remove_Trueprop trm;
-    val trm_w_prnt  = Unique_Node.trm_to_trm_w_prnt ctxt trm_wo_Trueprop;
-    val utrm_w_prnt = Unique_Node.trm_w_prnt_to_utrm_w_prnt trm_w_prnt;
-    val result = case utrm_w_prnt of
-        Unique_Node.UA_Prnt (Unique_Node.UC_Prnt ("HOL.eq", _, "HOL.eq"),
-          [Unique_Node.UA_Prnt (func1, _, _),
-           Unique_Node.UA_Prnt (func2, _, _)], _) => func1 = func2
-      | _ => false
-  in
-    result
-  end;
-*)
-
-
 fun template_conjectures (ctxt:Proof.context) (trm:term): (string * term) list =
   let
     val (_, relevant_binary_funcs, relevant_unary_funcs) = TBC_Utils.get_relevant_constants ctxt trm;
