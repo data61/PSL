@@ -81,15 +81,6 @@ fun template_based_conjecture_for_simplification term2name (ctxt:Proof.context) 
   in
     result
   end;
-(*
-   (TBC.ctxt_n_const_to_identity     ctxt func
-  @ TBC.ctxt_n_const_to_idempotence  ctxt func
-  @ TBC.ctxt_n_const_to_zero_element ctxt func
-  @ TBC.ctxt_n_consts_to_projection  ctxt func
-  @ TBC.ctxt_n_consts_to_square      ctxt func)
- |> map (apfst Template_Based_Conjecturing.property_as_string)
-| template_based_conjecture_for_simplification _ _ = [];
-*)
 
 fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.state) (trm:term) =
   let
@@ -99,20 +90,18 @@ fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.st
     val standardized_trm = Top_Down_Util.standardize_vnames trm
     val results = (
       Remove_Outermost_Assumption.top_down_conjectures term2name pst standardized_trm
-    (*@ Generalise_By_Renaming.top_down_conjectures pst standardized_trm*)
-    @ (Generalise_Then_Extend.top_down_conjectures term2name pst standardized_trm
-    |> filter (fn (_, trm) => has_no_multiple_occ_of_composite_subtrm ctxt trm))
+    @ Generalise_By_Renaming.top_down_conjectures term2name pst standardized_trm
+    @ (Generalise_Then_Extend.top_down_conjectures term2name pst standardized_trm |> filter (fn (_, trm) => has_no_multiple_occ_of_composite_subtrm ctxt trm))
     @ Remove_Function.top_down_conjectures term2name pst standardized_trm
     @ Abstract_Same_Term.top_down_conjectures term2name pst standardized_trm
     @ Replace_Imp_With_Eq.top_down_conjectures term2name pst standardized_trm
     @ template_conjectures ctxt standardized_trm)
       |> Par_List.map (apsnd (simp_non_prop_term ctxt))
       |> Par_List.map (apsnd Top_Down_Util.standardize_vnames)
+      |> map (fn (name, term) => (name, Syntax.check_term ctxt term))(*necessary to apply Top_Down_Util.is_prop in some cases*)
       |> map (fn (name, term) => (name, if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term))
       |> distinct (fn (f, s) => snd f = snd s)
-(*
-      |> parallel_filter_out (fn (_, trm) => eq_over_same_func ctxt trm)
-*)
+    (*|> parallel_filter_out (fn (_, trm) => eq_over_same_func ctxt trm)*)
       |> parallel_filter_out (fn (_, cnjctr_trm) => cnjctr_trm = trm)
       |> parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.has_func_with_three_occs_in_a_row)
       |> parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.fvars_in_prem_should_appear_in_concl)

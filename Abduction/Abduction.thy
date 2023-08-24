@@ -9,7 +9,6 @@ theory Abduction
   keywords "prove" :: thy_goal_stmt
 begin
 
-(*** Top_Down_Util ***)
 ML_file \<open>Top_Down_Util.ML\<close>
 
 ML_file \<open>And_Node.ML\<close>
