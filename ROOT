@@ -22,29 +22,26 @@ session "PSL" (psl) in PSL = "SeLFiE" +
     "root.tex"
     "root.bib"
 
-session Smart_Isabelle (psl) = "PSL" +
+session "TBC" (psl) in TBC =  "PSL" +
+  options [timeout = 600]
+  theories [document = false]
+    "TBC"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "Abduction" (psl) in Abduction = "TBC" +
+  options [timeout = 600]
+  theories [document = false]
+    "Abduction"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session Smart_Isabelle (psl) = "Abduction" +
   options [timeout = 30000]
   theories
     Smart_Isabelle
   document_files
     "root.tex"
     "root.bib"
-
-
-(*
-session Evaluation (psl) in "Smart_Induct/Evaluation" = "Smart_Induct" +
-  options [timeout = 300000]
-  sessions
-    "HOL-Data_Structures"
-    "HOL-Analysis"
-(* The top-level theories of the submission: *)
-  theories
-    "Nearest_Neighbors"
-    "Goodstein_Lambda"
-    "DFS"
-    "PST_RBT"
-    "Challenge1A"
-  document_files
-    "root.tex"
-    "root.bib"
-*)

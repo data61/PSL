@@ -6,10 +6,18 @@ session "SeLFiE" (psl) in "../SeLFiE" = HOL +
     "root.tex"
     "root.bib"
 
-session "PSL" (psl) in "." = SeLFiE +
+session "PSL" (psl) in "../PSL" = SeLFiE +
   options [timeout = 600]
   theories [document = false]
     "PSL"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "TBC" (psl) in "." = PSL +
+  options [timeout = 600]
+  theories [document = false]
+    "TBC"
   document_files
     "root.tex"
     "root.bib"

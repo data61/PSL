@@ -1,0 +1,31 @@
+session "SeLFiE" (psl) in "../SeLFiE" = HOL +
+  options [timeout = 600]
+  theories [document = false]
+    "SeLFiE"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "PSL" (psl) in "../PSL" = SeLFiE +
+  options [timeout = 600]
+  theories [document = false]
+    "PSL"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "TBC" (psl) in "../TBC" = PSL +
+  options [timeout = 600]
+  theories [document = false]
+    "TBC"
+  document_files
+    "root.tex"
+    "root.bib"
+
+session "Abduction" (psl) in "." = TBC +
+  options [timeout = 600]
+  theories [document = false]
+    "Abduction"
+  document_files
+    "root.tex"
+    "root.bib"

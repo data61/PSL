@@ -5,7 +5,7 @@
  *   Huawei Technologies Research & Development (UK) Limited.
  *)
 theory Abduction
-  imports "../TBC/TBC"
+  imports "TBC.TBC"
   keywords "prove" :: thy_goal_stmt
 begin
 
@@ -106,7 +106,7 @@ fun theorem _ descr =
                      ("Currently, the \"prover\" keyword does not support the use of following keywords: \n" ^
                       "\"constraints\", \"assumes\", \"defines\", \"notes\", and  \"lazy_notes\".\n" ^
                       "Please present your proof goal as one single term.")
-            fun stmt_to_stmt_as_string (Element.Shows [((_, _), [(stmt, strs:strings)])]) = ( (tracing o Int.toString o length) strs; stmt: string)
+            fun stmt_to_stmt_as_string (Element.Shows [((_, _), [(stmt, strs:strings)])]) = stmt: string
               | stmt_to_stmt_as_string _ = error "stmt_to_concl_name failed in United_Reasoning";
             val start = (fn _ => Timing.start ()) lthy: Timing.start;
             val cncl_as_trm  = Syntax.read_term lthy (stmt_to_stmt_as_string concl)
