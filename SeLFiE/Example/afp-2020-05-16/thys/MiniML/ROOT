@@ -1,9 +1,0 @@
-chapter AFP
-
-session MiniML (AFP) = HOL +
-  options [timeout = 600]
-  theories
-    W
-  document_files
-    "root.bib"
-    "root.tex"

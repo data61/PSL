@@ -1,8 +1,0 @@
-chapter AFP
-
-session Paraconsistency (AFP) = HOL +
-  options [timeout = 600]
-  theories
-    Paraconsistency
-  document_files
-    "root.tex"

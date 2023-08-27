@@ -1,8 +1,0 @@
-chapter AFP
-
-session Ordinal (AFP) = HOL +
-  options [timeout = 600]
-  theories
-    Ordinal
-  document_files
-    "root.tex"

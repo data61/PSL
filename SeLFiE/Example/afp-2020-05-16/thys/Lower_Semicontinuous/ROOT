@@ -1,8 +1,0 @@
-chapter AFP
-
-session Lower_Semicontinuous (AFP) = "HOL-Analysis" +
-  options [timeout = 600]
-  theories
-    Lower_Semicontinuous
-  document_files
-    "root.tex"

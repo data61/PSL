@@ -1,9 +1,0 @@
-chapter AFP
-
-session "Category3" (AFP) = "HOL-Library" +
-  options [timeout = 3000, names_unique = false]
-  theories
-    Limit Subcategory EquivalenceOfCategories
-  document_files
-    "root.bib"
-    "root.tex"

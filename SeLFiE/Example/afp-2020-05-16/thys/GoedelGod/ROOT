@@ -1,7 +1,0 @@
-chapter AFP
-
-session "GoedelGod" (AFP) = "HOL" +
-  options [timeout = 600]
-  theories GoedelGod
-  document_files
-    "root.tex"
