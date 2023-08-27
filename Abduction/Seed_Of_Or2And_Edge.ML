@@ -305,13 +305,14 @@ fun decremental  _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_p
     then
       let
         (*1  apply explicit_conjecturing. identify used conjectures.*)
-        val seed             = conjecture_to_seed_of_or2and_edge conjectures                    : seed_of_or2and_edge;
+        val seed             = conjecture_to_seed_of_or2and_edge conjectures: seed_of_or2and_edge;
         val triple_opt       = prove_ornode_assuming_andnode pst false parent_ornd synched_agraph seed: add_or2and_edge option;
         val used_conjectures = if is_none triple_opt then []
-                               else #3 (Utils.the' "decremental failed." triple_opt)            : conjectures;
+                               else #3 (Utils.the' "decremental failed." triple_opt): conjectures;
         (*2 identify used conjectures that are not proved.*)
-        fun is_completely_proved cnjctr = member (op =) (Synchronized.value synched_proved_ors) cnjctr: bool;
-        val unproved_used_conjectures   = filter_out is_completely_proved used_conjectures            : conjectures;
+        val proved_ors       = Synchronized.value synched_proved_ors;
+        fun is_completely_proved cnjctr = member (op =) proved_ors cnjctr: bool;
+        val unproved_used_conjectures   = filter_out is_completely_proved used_conjectures: conjectures;
         val (new_failed_set, new_candidates): (conjectures list * conjectures list) =
           (if null used_conjectures
            then

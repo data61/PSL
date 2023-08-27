@@ -45,10 +45,6 @@ val final_goal_proved_completely     : synched_abduction_graph -> bool;
 
 val new_node: (Abduction_Graph.key * Abduction_Graph.abduction_node) -> synched_abduction_graph -> unit;
 val add_edge: (Abduction_Graph.key * Abduction_Graph.key) -> synched_abduction_graph -> unit;
-(*
-type proved_ors = (string * term) list; (*lemma name, lemma term*)
-type synched_proved_ors = (string * term) list Synchronized.var;
-*)
 
 end;
 

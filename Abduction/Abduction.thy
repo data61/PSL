@@ -34,8 +34,8 @@ strategy Extend_Leaf =
   Alts [
     Clarsimp,
     Thens [
-      Smart_Induct(*,
-      User< simp_all>*)
+      Smart_Induct,
+      User< simp_all>(*TODO: this simplification is sometimes harmful.*)
     ]
   ]
 
