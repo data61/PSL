@@ -253,9 +253,6 @@ val semantic_induct_cmd =
                              "\n  (* The score is " ^ Real.toString (#score record) ^ " out of " ^ Real.toString arb_max_point ^ ". *)";
     val best_arb_messages     = map mk_arb_message arb_best_records: strings;
     val best_arb_mssg_w_ranks = take (length best_arb_messages) fst_till_tenth ~~ best_arb_messages |> map (op ^);
-(*
-    val _                     = tracing "\n\nTry these promising inductions with generalization!";
-*)
     val _                     = map tracing best_arb_mssg_w_ranks;
   in
     ()
@@ -373,8 +370,12 @@ fun activate _ =
         token_parser_false;
 
     val _ =
-     Outer_Syntax.command @{command_keyword sem_ind} "recommend which method to use." 
-       (Scan.succeed semantic_induct_cmd); 
+     Outer_Syntax.command @{command_keyword smart_induct} "recommend how to apply induction."
+       (Scan.succeed semantic_induct_cmd);
+
+    val _ =
+     Outer_Syntax.command @{command_keyword sem_ind} "recommend how to apply induction."
+       (Scan.succeed semantic_induct_cmd);
 
     val _ =
      Outer_Syntax.command @{command_keyword all_induction_heuristic} "check all induction heuristics."

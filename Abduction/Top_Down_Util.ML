@@ -20,13 +20,13 @@ val numb_of_distinct_fvars           : term -> int;
 val numb_of_distinct_bvars           : term -> int;
 val get_both_sides_of_eqs_in_term    : term -> (term * term) list;
 val get_consts_for_conjecturing      : Proof.context -> term -> terms;
-val remove_type_consts               : term -> term;
 val read_terms                       : Proof.context -> strings -> terms;
 val read_props                       : Proof.context -> strings -> terms;
 val check_terms                      : Proof.context -> terms -> terms;
 val get_fresh_free_var_of_typ_in_trm : Proof.context -> typ -> term -> term;
 val get_fresh_free_vars_of_typ_in_trm: Proof.context -> typ -> term -> int -> terms;
 val is_prop                          : term -> bool;
+val mk_prop                          : Proof.context -> term -> term;
 val mk_unbound_bound_vars_free_vars  : Proof.context -> term -> term;
 val get_lemma_names_from_sh_output   : theory -> string -> strings;
 val is_thm_name_registered           : Proof.context -> string -> bool;
@@ -36,12 +36,26 @@ val term_to_thm                      : Proof.context -> term -> thm;
 val timeout_config                   : real Config.T;
 val limit_for_first_decrement        : int Config.T;
 val limit_for_other_decrement        : int Config.T;
+val is_in                            : term -> term -> bool;
+val is_only_in_subtrm_of             : term -> term -> term -> bool;
+val has_fvar_appearing_only_in_the_same_compound_trm: term -> bool;
+val mk_pst_to_prove_from_term        : Proof.state -> term -> Proof.state;
+val non_prop_trm_to_dummy_eq         : Proof.context -> term -> thm option;
+val simp_non_prop_term               : Proof.context -> term -> term;
+val strip_outermost_meta_quantifier  : term -> (bool * term);
+val strip_outermost_meta_quantifiers : term -> term;
+val mk_extended_rhses                : Proof.context -> terms -> term -> terms;
+val replace_redundant_compound_subtrm_with_free_var: Proof.context -> (term * term) -> (term * term);
+val parallel_filter                  : ('a -> bool) -> 'a list -> 'a list;
+val parallel_filter_out              : ('a -> bool) -> 'a list -> 'a list;
 
 end;
 
 (*** structure Top_Down_Util ***)
 structure Top_Down_Util: TOP_DOWN_UTIL =
 struct
+
+structure IU = Isabelle_Utils;
 
 (* How to standardize variable names to var_n? *)
 exception NOT_THE_SAME_TERMS;
@@ -106,14 +120,13 @@ fun get_both_sides_of_eqs_in_term (term:term): (term * term) list =
 (* How can I find a list of constants used in the definitions of the constants appearing in a term? *)
 fun get_consts_for_conjecturing (ctxt:Proof.context) (trm:term) =
   let
-    val cnames_in_trm   = Isabelle_Utils.get_cnames_in_trm trm: string list;
+    val cnames_in_trm   = IU.get_cnames_in_trm trm: string list;
     val simp_rules      = map (Find_Theorems2.get_thms_of_name_with_suffix ctxt "simps") cnames_in_trm |> flat;
-    val consts_in_simps = map Isabelle_Utils.get_consts_in_thm simp_rules |> flat |> distinct (op =);
+    val consts_in_simps = map IU.get_consts_in_thm simp_rules |> flat |> distinct (op =);
   in
     consts_in_simps : terms
   end;
 
-val remove_type_consts = Isabelle_Utils.strip_atyp: term -> term;
 fun read_terms ctxt    = List.mapPartial (try (Syntax.read_term ctxt)): strings -> terms;
 fun read_props ctxt    = List.mapPartial (try (Syntax.read_prop ctxt)): strings -> terms;
 fun check_terms ctxt   = List.mapPartial (try (Syntax.check_term ctxt)): terms -> terms;
@@ -124,7 +137,7 @@ fun get_fresh_free_var_name_in_trm' (ctxt:Proof.context) (trm:term) (n:int) =
     val fst_candidate = mk_free_variable_of_typ dummyT numb_of_fvars |> dest_Free |> fst: string;
     fun is_free_in_ctxt (name:string) = is_Free (Syntax.read_term ctxt name): bool;
     fun get_all_names_in_trm trm =
-        Isabelle_Utils.get_cnames_in_trm trm @ Isabelle_Utils.get_abs_names_in_trm trm @ Isabelle_Utils.get_free_var_names_in_trm trm;
+        IU.get_cnames_in_trm trm @ IU.get_abs_names_in_trm trm @ IU.get_free_var_names_in_trm trm;
     val all_names_in_trm  = get_all_names_in_trm trm |> distinct (op =): strings;                                                                                                                      
     fun is_fresh (current_candidate:string) = 
         not (member (op =) all_names_in_trm current_candidate) andalso is_free_in_ctxt current_candidate;
@@ -135,10 +148,28 @@ fun get_fresh_free_var_name_in_trm' (ctxt:Proof.context) (trm:term) (n:int) =
     result
   end;
 
+fun clean_type_of_term (term:term) = Term.map_types (map_atyps (K dummyT)) term: term;
+(*
+fun rm_typ (Const (str, _))  = Const (str, dummyT)
+  | rm_typ (Free  (str, _))  = Free  (str, dummyT)
+  | rm_typ (Var   (idx, _))  = Var   (idx, dummyT)
+  | rm_typ (Bound  i      )  = Bound i
+  | rm_typ (Abs (str, _, t)) = Abs   (str, dummyT, t)
+  | rm_typ (tm1 $ tm2)       = rm_typ tm1 $ rm_typ tm2;*)
+
 fun is_prop trm = body_type (type_of trm) = @{typ "prop"};
 
+fun mk_prop (ctxt:Proof.context) (term:term) =
+  let
+    val term_w_clean_typ = clean_type_of_term term;
+    val prop    = if is_prop term then term else HOLogic.mk_Trueprop term_w_clean_typ;
+    val checked = clean_type_of_term prop |> Syntax.check_term ctxt: term;
+  in
+    checked
+  end;
+
 fun get_all_names_in_trm trm =
-  Isabelle_Utils.get_cnames_in_trm trm @ Isabelle_Utils.get_abs_names_in_trm trm @ Isabelle_Utils.get_free_var_names_in_trm trm;
+  IU.get_cnames_in_trm trm @ IU.get_abs_names_in_trm trm @ IU.get_free_var_names_in_trm trm;
 
 fun get_fresh_free_var_name_in_trm' (ctxt:Proof.context) (trm:term) (n:int) =
   let
@@ -224,9 +255,9 @@ fun term_compare (trm1, trm2) =
 fun term_to_thm (ctxt:Proof.context) (cnjctr:term) =
   let
     val prop              = if is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr;
-    val prop_wo_typ_const = remove_type_consts prop: term;
+    val prop_wo_typ_const = IU.strip_atyp prop: term;
     val checked_prop      = Syntax.check_prop ctxt prop_wo_typ_const: term;
-    val fvar_names        = Isabelle_Utils.get_free_var_names_in_trm prop |> distinct (op =): strings;
+    val fvar_names        = IU.get_free_var_names_in_trm prop |> distinct (op =): strings;
     fun cheat _           = ALLGOALS (Skip_Proof.cheat_tac ctxt);
     val thm               = Goal.prove ctxt fvar_names [] checked_prop cheat: thm;
   in
@@ -240,42 +271,6 @@ val limit_for_first_decrement = Config.declare_int ("limit_for_first_decrement",
 
 val limit_for_other_decrement = Config.declare_int ("limit_for_first_decrement", \<^here>) (K  5): int Config.T;
 
-end;
-
-
-(*** Util2 ***)
-fun rm_typ (Const (str, _))  = Const (str, dummyT)
-  | rm_typ (Free  (str, _))  = Free  (str, dummyT)
-  | rm_typ (Var   (idx, _))  = Var   (idx, dummyT)
-  | rm_typ (Bound  i      )  = Bound i
-  | rm_typ (Abs (str, _, t)) = Abs   (str, dummyT, t)
-  | rm_typ (tm1 $ tm2)       = rm_typ tm1 $ rm_typ tm2;
-
-fun non_prop_trm_to_dummy_eq (ctxt:Proof.context) (lhs:term) =
-  let
-    val new_free_var     = Top_Down_Util.get_fresh_free_var_of_typ_in_trm ctxt dummyT lhs;
-    val dummy_eq         = HOLogic.mk_eq (lhs, new_free_var);
-    val dummy_eq_prop    = HOLogic.mk_Trueprop dummy_eq;
-    val checked_eq       = try (Syntax.check_prop ctxt) dummy_eq_prop;
-    val dummy_cterm      = Option.map (Thm.cterm_of ctxt) checked_eq;
-    val dummy_thm        = Option.map Thm.trivial dummy_cterm;
-  in
-    dummy_thm
-  end;
-
-fun simp_non_prop_term (ctxt:Proof.context) (trm:term) =
-  let
-    val dummy_thm            = non_prop_trm_to_dummy_eq ctxt trm: thm option;
-    val simplifier           = Basic_Simplifier.asm_full_simplify ctxt
-    val simped_dummy_thm     = Option.mapPartial (try (Isabelle_Utils.timeout_apply (Time.fromSeconds 1) simplifier)) dummy_thm: thm option;
-    val simped_fst_goal      = Option.map Thm.concl_of simped_dummy_thm: term option;
-    val simped_fst_pair      = Option.mapPartial (try (HOLogic.dest_eq o HOLogic.dest_Trueprop)) simped_fst_goal: (term * term) option;
-    val simped_lhs           = Option.map fst simped_fst_pair: term option;
-    val possibly_simped_term = if is_some simped_lhs then the simped_lhs else trm: term;
-  in
-    possibly_simped_term: term
-  end;
-
 fun is_in (small:term) (big:term) =
   let
     fun is_in' (small':term) (big':term) =
@@ -286,7 +281,78 @@ fun is_in (small:term) (big:term) =
         | mid1 $ mid2 => is_in' small' mid1 orelse is_in' small' mid2
         | _ => false
   in
-    is_in' (rm_typ small) (rm_typ big)
+    is_in' (clean_type_of_term small) (clean_type_of_term big)
+  end;
+
+fun is_only_in_subtrm_of (small:term) (subtrm:term) (big:term) =
+  let
+    val small'  = clean_type_of_term small;
+    val subtrm' = clean_type_of_term subtrm;
+    val big'    = clean_type_of_term big;
+    fun is_only_in_subtrm_of' (big' as Abs (_, _, mid)) =
+        if   subtrm' = big'
+        then true
+        else (is_only_in_subtrm_of' mid)
+      | is_only_in_subtrm_of' (big' as mid1 $ mid2) =
+        if subtrm' = big'
+        then true
+        else
+            (if (is_only_in_subtrm_of' mid1) then true else not (is_in small' mid1))
+          andalso
+            (if (is_only_in_subtrm_of' mid2) then true else not (is_in small' mid2))
+      | is_only_in_subtrm_of' atom = subtrm' = atom; 
+  in
+            is_in small'  subtrm'
+    andalso is_in subtrm' big'
+    andalso is_only_in_subtrm_of' big'
+  end;
+
+fun has_fvar_appearing_only_in_the_same_compound_trm (trm:term) =
+(* this might be strictly more powerful than replace_redundant_compound_subtrm_with_free_var' *)
+  let
+  (*flatten ignores Abs.*)
+    val subtrms = IU.flatten_trm trm |> map clean_type_of_term |> distinct (op =): terms;
+    fun is_compound (subterm:term) = IU.is_Abs subterm orelse IU.is_App subterm: bool;
+    val compound_subtrms = filter is_compound subtrms: terms;
+    val free_vars = filter is_Free subtrms: terms;
+    fun fvar_appears_only_in_the_same_compound_trm (fvar:term) = exists (fn sub => is_only_in_subtrm_of fvar sub trm) compound_subtrms;
+    val result = exists fvar_appears_only_in_the_same_compound_trm free_vars
+  in
+    result
+  end
+
+fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term): Proof.state =
+    let 
+      val ctxt    = Proof.context_of pst;
+      val prop    = if is_prop term then term else HOLogic.mk_Trueprop term;
+      val checked = clean_type_of_term prop |> Syntax.check_term ctxt: term;
+    in
+      Proof.theorem NONE (K I) [[(checked, [])]] ctxt: Proof.state
+    end;
+
+fun non_prop_trm_to_dummy_eq (ctxt:Proof.context) (lhs:term) =
+  let
+    val new_free_var  = get_fresh_free_var_of_typ_in_trm ctxt dummyT lhs;
+    val dummy_eq      = HOLogic.mk_eq (lhs, new_free_var);
+    val dummy_eq_prop = HOLogic.mk_Trueprop dummy_eq;
+    val checked_eq    = try (Syntax.check_prop ctxt) dummy_eq_prop;
+    val dummy_cterm   = Option.map (Thm.cterm_of ctxt) checked_eq;
+    val dummy_thm     = Option.map Thm.trivial dummy_cterm;
+  in
+    dummy_thm
+  end;
+
+fun simp_non_prop_term (ctxt:Proof.context) (trm:term) =
+  let
+    val dummy_thm            = non_prop_trm_to_dummy_eq ctxt trm: thm option;
+    val simplifier           = Basic_Simplifier.asm_full_simplify ctxt
+    val simped_dummy_thm     = Option.mapPartial (try (IU.timeout_apply (Time.fromSeconds 1) simplifier)) dummy_thm: thm option;
+    val simped_fst_goal      = Option.map Thm.concl_of simped_dummy_thm: term option;
+    val simped_fst_pair      = Option.mapPartial (try (HOLogic.dest_eq o HOLogic.dest_Trueprop)) simped_fst_goal: (term * term) option;
+    val simped_lhs           = Option.map fst simped_fst_pair: term option;
+    val possibly_simped_term = if is_some simped_lhs then the simped_lhs else trm: term;
+  in
+    possibly_simped_term: term
   end;
 
 fun strip_outermost_meta_quantifier (trm as (quantifier $ abstraction)) =
@@ -314,87 +380,51 @@ fun strip_outermost_meta_quantifiers (trm:term) =
 
 fun mk_extended_rhses (ctxt:Proof.context) (candidate_args:terms) (candidate_func as Const _:term): terms =
   let
-    val candidate_func_wo_type_consts = Top_Down_Util.remove_type_consts candidate_func      : term;
-    val candidate_args_wo_type_consts = map Top_Down_Util.remove_type_consts candidate_args  : terms;
+    val candidate_func_wo_type_consts = IU.strip_atyp candidate_func             : term;
+    val candidate_args_wo_type_consts = map IU.strip_atyp candidate_args         : terms;
     val arg_numb                      = type_of candidate_func |> Term.binder_types |> length: int;
     fun mk_rhses (n:int) (partial_cnjct:term) =
       if n > 0
       then
         let
           val unchecked_partial_terms      = map (fn arg => partial_cnjct $ arg) candidate_args_wo_type_consts: terms;
-          val checked_partial_terms        = Top_Down_Util.check_terms ctxt unchecked_partial_terms                         : terms;
-          val partial_terms_wo_type_consts = map Top_Down_Util.remove_type_consts checked_partial_terms                     : terms;
+          val checked_partial_terms        = check_terms ctxt unchecked_partial_terms                         : terms;
+          val partial_terms_wo_type_consts = map IU.strip_atyp checked_partial_terms              : terms;
           val result                       = map (mk_rhses (n-1)) partial_terms_wo_type_consts |> flat        : terms;
         in
-           result
+          result
         end
       else [partial_cnjct];
     val rhses = mk_rhses arg_numb candidate_func_wo_type_consts: terms;
-    val rhses_wo_type_consts = map Top_Down_Util.remove_type_consts rhses: terms;
+    val rhses_wo_type_consts = map IU.strip_atyp rhses: terms;
     val simped_rhses = map (simp_non_prop_term ctxt) rhses_wo_type_consts;
     val rhses_wo_duplications =  distinct (op =) simped_rhses: terms;
   in
-    rhses_wo_duplications |> map Top_Down_Util.remove_type_consts
+    rhses_wo_duplications |> map IU.strip_atyp
   end
   | mk_extended_rhses _ _ _ = [];
 
 fun replace_redundant_compound_subtrm_with_free_var' (ctxt:Proof.context) (lhs, rhs) =
   let
     val ((*func*)_, args) = strip_comb lhs: (term * terms);
-    val fvars_in_rhs = Isabelle_Utils.get_free_var_names_in_trm rhs: strings;
+    val fvars_in_rhs = IU.get_free_var_names_in_trm rhs: strings;
     fun in_rhs (fvar_name:string) = exists (equal fvar_name) fvars_in_rhs: bool;
     fun has_fvar_that_is_not_in_rhs (arg:term) =
       let
-        val fvar_names_in_arg = Isabelle_Utils.get_free_var_names_in_trm arg: strings;
+        val fvar_names_in_arg = IU.get_free_var_names_in_trm arg: strings;
         val result = forall (fn fvar_in_arg => not (in_rhs fvar_in_arg)) fvar_names_in_arg: bool;
       in
         result
       end;
-    val compound_args = filter (fn arg => Isabelle_Utils.is_Abs arg orelse Isabelle_Utils.is_App arg) args: terms;
+    val compound_args = filter (fn arg => IU.is_Abs arg orelse IU.is_App arg) args: terms;
     val args_to_be_abstracted = filter has_fvar_that_is_not_in_rhs compound_args;
     val numb_of_args_to_be_abstracted = length args_to_be_abstracted: int
-    val fresh_free_vars = Top_Down_Util.get_fresh_free_vars_of_typ_in_trm ctxt dummyT (lhs $ rhs) numb_of_args_to_be_abstracted: terms;
+    val fresh_free_vars = get_fresh_free_vars_of_typ_in_trm ctxt dummyT (lhs $ rhs) numb_of_args_to_be_abstracted: terms;
     val subst = subst_free (args_to_be_abstracted ~~ fresh_free_vars)
-    val new_lhs = subst lhs
+    val new_lhs = subst lhs: term;
   in
     (new_lhs, rhs)
   end;
-
-fun is_only_in_subtrm_of (small:term) (subtrm:term) (big:term) =
-  let
-    val small'  = rm_typ small;
-    val subtrm' = rm_typ subtrm;
-    val big'    = rm_typ big;
-    fun is_only_in_subtrm_of' (big' as Abs (_, _, mid)) =
-        if   subtrm' = big'
-        then true
-        else (is_only_in_subtrm_of' mid)
-      | is_only_in_subtrm_of' (big' as mid1 $ mid2) =
-        if subtrm' = big'
-        then true
-        else
-            (if (is_only_in_subtrm_of' mid1) then true else not (is_in small' mid1))
-          andalso
-            (if (is_only_in_subtrm_of' mid2) then true else not (is_in small' mid2))
-      | is_only_in_subtrm_of' atom = subtrm' = atom; 
-  in
-            is_in small'  subtrm'
-    andalso is_in subtrm' big'
-    andalso is_only_in_subtrm_of' big'
-  end;
-
-fun has_fvar_appearing_only_in_the_same_compound_trm (trm:term) =
-(* this might be strictly more powerful than replace_redundant_compound_subtrm_with_free_var' *)
-let
-(*flatten ignores Abs!*)
-  val subtrms = Isabelle_Utils.flatten_trm trm |> map rm_typ |> distinct (op =): terms;
-  val compound_subtrms = filter (fn subtrm => Isabelle_Utils.is_Abs subtrm orelse Isabelle_Utils.is_App subtrm) subtrms: terms;
-  val free_vars = filter is_Free subtrms: terms;
-  fun fvar_appears_only_in_the_same_compound_trm (fvar:term) = exists (fn sub => is_only_in_subtrm_of fvar sub trm) compound_subtrms;
-  val result = exists fvar_appears_only_in_the_same_compound_trm free_vars
-in
-  result
-end
 
 fun replace_redundant_compound_subtrm_with_free_var ctxt (lhs, rhs) =
    replace_redundant_compound_subtrm_with_free_var' ctxt (lhs, rhs)
@@ -403,24 +433,18 @@ fun replace_redundant_compound_subtrm_with_free_var ctxt (lhs, rhs) =
 |> swap;
 
 fun parallel_filter_in_or_out (filter_in:bool) (condition:'a -> bool) (xs:'a list) =
-let
-  val bools          = Par_List.map condition xs: bool list;
-  val pairs          = xs ~~ bools              : ('a * bool) list;
-  val filtered_pairs = if filter_in
-                       then filter     snd pairs
-                       else filter_out snd pairs: ('a * bool) list;
-  val result         = map fst filtered_pairs   : 'a list;
-in
-  result
-end;
+  let
+    val bools          = Par_List.map condition xs: bool list;
+    val pairs          = xs ~~ bools              : ('a * bool) list;
+    val filtered_pairs = if filter_in
+                         then filter     snd pairs
+                         else filter_out snd pairs: ('a * bool) list;
+    val result         = map fst filtered_pairs   : 'a list;
+  in
+    result
+  end;
 
 fun parallel_filter     (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out true  condition xs;
 fun parallel_filter_out (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out false condition xs;
 
-(* mk_pst_to_prove_from_term *)
-fun mk_pst_to_prove_from_term (pst:Proof.state) (term:term): Proof.state =
-    let 
-      val prop = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term;
-    in
-      Proof.theorem NONE (K I) [[(prop, [])]] (Proof.context_of pst): Proof.state
-    end;
+end;

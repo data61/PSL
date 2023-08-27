@@ -58,7 +58,7 @@ fun replace (Const p) [] = Const p
   | replace _ _ = error "replace failed. Pattern-matching failed!";
 
 fun generalise_by_rename_free_variables' _ (trm:term) =
-  if 0 < count_fvars trm andalso count_fvars trm < 8
+  if 0 < count_fvars trm andalso count_fvars trm < 8(*TODO: magic number*)
   then
     let
       val numb_of_fvars = count_fvars trm: int;

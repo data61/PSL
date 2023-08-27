@@ -193,7 +193,7 @@ val congruence =(*Probably unsafe. Not recommended to use this.*)
 
 fun run_assertion (pst:Proof.state) (cnjctr:term) (assert:Eval_Syntactic_Sugar.assert) =
   let
-    val pst_to_prove              = mk_pst_to_prove_from_term pst cnjctr                                                                          : Proof.state;
+    val pst_to_prove              = Top_Down_Util.mk_pst_to_prove_from_term pst cnjctr                                                            : Proof.state;
     val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst_to_prove cnjctr                                      : Outer_Path_To_Unode.path_to_unode_table;
     val gen_path_table            = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table                                                        : Gen_Path.gen_path_to_unode_table;
     val empty_argument            = SeLFiE_Util.Induct_Arguments {ons = [], arbs = [], rules = []}                                                : SeLFiE_Util.induct_arguments;

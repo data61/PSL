@@ -73,11 +73,10 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (synched_term2string:SS.synched_term2
     fun mk_proof_key_value (pscript, pst) =
         let
           val subgs              = Isabelle_Utils.pst_to_subgs pst
-          val subgs_wo_meta_uni  = map strip_outermost_meta_quantifiers subgs: terms;
+          val subgs_wo_meta_uni  = map TDU.strip_outermost_meta_quantifiers subgs: terms;
           val standardized_subgs = map Top_Down_Util.standardize_vnames subgs_wo_meta_uni: terms;
           val standardized_props = map (fn term => if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term) standardized_subgs: terms;
           val mk_lemma_name      = SS.get_lemma_name synched_term2string ctxt: term -> string;
-
           val nonempty_subgs =
             if length subgs = 0 (*orelse not (pass_check_print_read_terms ctxt standardized_props)*)
             then [(mk_lemma_name @{prop "True"}, @{prop "True"})]
@@ -103,7 +102,7 @@ fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.sync
       val factor = case #proof seed of Or2And_Edge.Tactic _ => 5.0 | _ => 3.0: real;
       val upper_limit     = Real.min (factor * final_goal_size, 45.0): real;
 *)
-      val upper_limit = 200.0;(*TODO: magic number*)
+      val upper_limit = 100.0;(*TODO: magic number*)
       fun concl_is_alpha_eq_to trm imp =
         let
           val cncl = Logic.strip_imp_concl imp |> Top_Down_Util.remove_Trueprop: term;
@@ -149,7 +148,7 @@ fun conjecture_to_seed_of_or2and_edge (conjectures:(string * term) list): seed_o
 
 fun conjectures_to_seed_of_or2and_edge (term2name:SS.synched_term2string_table) (pst:Proof.state) (conjectures_w_name: (string * term) list) =
   let
-    fun get_ctxt_w_proof_goal trm = Proof.context_of (mk_pst_to_prove_from_term pst trm)                      : Proof.context;
+    fun get_ctxt_w_proof_goal trm = Proof.context_of (TDU.mk_pst_to_prove_from_term pst trm)                  : Proof.context;
     fun mk_prop term              = if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term     : term;
     fun check_prop (trm:term)     = try (Syntax.check_prop (get_ctxt_w_proof_goal trm)) trm                   : term option;
     val conjectures               = map snd conjectures_w_name                                                : terms;
@@ -184,8 +183,8 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
        in
          pst_w_conjecture
        end;
-     val pst_with_new_goals_assmed = fold assm_conjecture_in_pst new_goals pst                 : Proof.state;
-     val pst_to_apply_tactics      = mk_pst_to_prove_from_term pst_with_new_goals_assmed orterm: Proof.state;
+     val pst_with_new_goals_assmed = fold assm_conjecture_in_pst new_goals pst                     : Proof.state;
+     val pst_to_apply_tactics      = TDU.mk_pst_to_prove_from_term pst_with_new_goals_assmed orterm: Proof.state;
      (*apply_proof considers the first result only.*)
      fun apply_proof (proof:string) (pst_tobe_proved:Proof.state) =
      let

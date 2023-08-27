@@ -16,6 +16,7 @@ theory SeLFiE
   imports "Pure"
   keywords "assert_SeLFiE_true"          :: diag
   and      "assert_SeLFiE_false"         :: diag
+  and      "smart_induct"                :: diag
   and      "sem_ind"                     :: diag
   and      "all_induction_heuristic"     :: diag
   and      "all_generalization_heuristic":: diag

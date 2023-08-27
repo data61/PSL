@@ -26,7 +26,7 @@ fun extension_for_one_lhs_n_one_func (ctxt:Proof.context) (lhs:term, candidate_a
     val eqs_wo_meaningless_compound = filter_out has_fvar_appearing_only_in_the_same_compound_trm eqs_checked
     val result_as_strings           = map (Isabelle_Utils.trm_to_string ctxt) eqs_wo_meaningless_compound: strings;
     val result_as_terms             = List.mapPartial (try (Syntax.read_prop ctxt)) result_as_strings    : terms;
-    val result_wo_type_consts       = map remove_type_consts result_as_terms                             : terms;
+    val result_wo_type_consts       = map Isabelle_Utils.strip_atyp result_as_terms                      : terms;
   in
     result_wo_type_consts
   end;

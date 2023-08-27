@@ -455,6 +455,7 @@ fun get_relevant_constants (ctxt:Proof.context) (goal:term) =
                                 relevant_consts: terms;
     val relevant_unary_funcs  = filter (fn trm => Isabelle_Utils.takes_n_arguments trm 1
                                           andalso not (is_defined_in_pure_or_hol trm)) relevant_consts: terms;
+
     (*
     (* debug *)
     fun range_name trm  = trm |> type_of |> body_type   |> dest_Type |> fst;
@@ -1598,7 +1599,7 @@ fun ctxt_n_const_to_associativity (ctxt:Proof.context) (func:term) =
 datatype zero_or_identity = Zero_Elem | Identity_Elem;
 
 fun ctxt_n_const_to_zero_or_identity' (z_or_i:zero_or_identity) (ctxt:Proof.context) (direct:direction)
-  (func as Const (_, typ):term) =
+  (func as Const (cname, typ):term) =
 (*left  identity: f (e, x) = x*)
 (*right identity: f (x, e) = x*)
 (*left  zero    : f (z, x) = z*)

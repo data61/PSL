@@ -9,7 +9,10 @@
 structure All_Top_Down_Conjecturing(*: TOP_DOWN_CONJECTURING*) =
 struct
 
-fun is_composite trm = Isabelle_Utils.is_Abs trm orelse Isabelle_Utils.is_App trm: bool;
+structure IU  = Isabelle_Utils;
+structure TDU = Top_Down_Util;
+
+fun is_composite trm = IU.is_Abs trm orelse IU.is_App trm: bool;
 
 fun has_no_multiple_occ_of_composite_subtrm (ctxt:Proof.context) (trm:term) =
 let
@@ -24,7 +27,7 @@ let
       has_multi
     end;
   val duplicated_prints     = filter print_has_multiple_paths prints: strings;
-  fun checker printed_term  = Isabelle_Utils.read_term_then_check_term ctxt printed_term is_composite: bool;
+  fun checker printed_term  = IU.read_term_then_check_term ctxt printed_term is_composite: bool;
   val duplicated_composites = filter checker duplicated_prints: strings;
   val has_dupulicates       = null duplicated_composites: bool;
 in
@@ -59,8 +62,8 @@ fun template_based_conjecture_for_simplification term2name (ctxt:Proof.context) 
         @ TBC.ctxt_n_consts_to_square      ctxt tm)
        |> map (apfst Template_Based_Conjecturing.property_as_string)
        |> map (fn (_,    term) => (SS.get_lemma_name term2name ctxt term, term));;
-    val result = map (ctxt_n_const_to_all_conjecture_term ctxt) (relevant_unary_funcs @ relevant_binary_funcs) |> flat
-      : (string * term) list;
+    val result = map (ctxt_n_const_to_all_conjecture_term ctxt) (relevant_unary_funcs @ relevant_binary_funcs)
+              |> flat: (string * term) list;
   in
     result
   end;
@@ -70,7 +73,7 @@ fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.st
     val ctxt = Proof.context_of pst: Proof.context;
     fun tracing' mssg = ();
     val _ = tracing' "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
-    val standardized_trm = Top_Down_Util.standardize_vnames trm
+    val standardized_trm = TDU.standardize_vnames trm
     val results = (
       Remove_Outermost_Assumption.top_down_conjectures term2name pst standardized_trm
     @ Generalise_By_Renaming.top_down_conjectures term2name pst standardized_trm
@@ -79,18 +82,18 @@ fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.st
     @ Abstract_Same_Term.top_down_conjectures term2name pst standardized_trm
     @ Replace_Imp_With_Eq.top_down_conjectures term2name pst standardized_trm
     @ template_conjectures ctxt standardized_trm)
-      |> Par_List.map (apsnd (simp_non_prop_term ctxt))
-      |> Par_List.map (apsnd Top_Down_Util.standardize_vnames)
-      |> map (fn (name, term) => (name, Syntax.check_term ctxt term))(*necessary to apply Top_Down_Util.is_prop in some cases*)
-      |> map (fn (name, term) => (name, if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term))
+      |> Par_List.map (apsnd (TDU.simp_non_prop_term ctxt))
+      |> Par_List.map (apsnd TDU.standardize_vnames)
+      |> map (fn (name, term) => (name, Syntax.check_term ctxt term))(*necessary to apply TDU.is_prop in some cases*)
+      |> map (fn (name, term) => (name, if TDU.is_prop term then term else HOLogic.mk_Trueprop term))
       |> distinct (fn (f, s) => snd f = snd s)
     (*|> parallel_filter_out (fn (_, trm) => eq_over_same_func ctxt trm)*)
-      |> parallel_filter_out (fn (_, cnjctr_trm) => cnjctr_trm = trm)
-      |> parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.has_func_with_three_occs_in_a_row)
-      |> parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.fvars_in_prem_should_appear_in_concl)
-      |> parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.does_not_have_trivial_equality)
-      |> parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.nested_eq)
-      |> parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.var_appears_many_times_but_always_in_the_same_subtrm)
+      |> TDU.parallel_filter_out (fn (_, cnjctr_trm) => cnjctr_trm = trm)
+      |> TDU.parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.has_func_with_three_occs_in_a_row)
+      |> TDU.parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.fvars_in_prem_should_appear_in_concl)
+      |> TDU.parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.does_not_have_trivial_equality)
+      |> TDU.parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.nested_eq)
+      |> TDU.parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.var_appears_many_times_but_always_in_the_same_subtrm)
       |> map (fn (_,    term) => (SS.get_lemma_name term2name ctxt term, term));
     val _ = tracing' "[[[[[[[[[[[top_down_conjecture ends]]]]]]]]]]": unit;
   in
