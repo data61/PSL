@@ -121,7 +121,7 @@ fun expand_ornode_if_original_goral_is_unproved
                   val size_of_simped_cnjctr = Term.size_of_term (rm_Trueprop simped_cnjctr_term): int;
                   val size_of_orig_cnjctr   = Term.size_of_term (rm_Trueprop cnjctr_term): int;
                 in
-                  if size_of_simped_cnjctr > size_of_orig_cnjctr (*orelse simped_cnjctr_term = @{term True}*)
+                  if size_of_simped_cnjctr >= size_of_orig_cnjctr (*orelse simped_cnjctr_term = @{term True}*)
                      (*orelse rm_Trueprop simped_cnjctr_term = rm_Trueprop lemma_term*)
                   then [cnjctr]
                   else [simp, (simped_cnjctr_name, simped_cnjctr_term)](*TODO: not efficient.*)
