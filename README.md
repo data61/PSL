@@ -1,6 +1,6 @@
 # News
 - We updated this repository to Isabelle2023.
-- _NEW_: The introduction of Abduction Prover. You can watch a demo of Abduction Prover in [our YouTube channel](https://youtu.be/d7IXk0vB2p0).
+- _NEW_: The introduction of **Abduction Prover**. You can watch a demo of Abduction Prover in [our YouTube channel](https://youtu.be/d7IXk0vB2p0).
 - LiFtEr and Smart_Induct are no-longer supported, since their successors, SeLFiE and sem_ind, have shown superior performance.
 - _PaMpeR is currently not supported either,_ since we want to minimise the cost necessary to maintain this repository. 
 - This is the development version of PSL, SeLFiE, and sem_ind where we try out possibly immature ideas. In case you find problems, please send your feedback.
