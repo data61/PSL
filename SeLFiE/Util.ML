@@ -692,7 +692,7 @@ fun is_in_Main (ctxt:Proof.context) (thm:thm) =
     val this_thy          = Proof_Context.theory_of ctxt:theory;
     val thy_names_in_main = Context.get_theory {long=false} this_thy "Main"
       |> Theory.ancestors_of
-      |> map Context.theory_name:strings;
+      |> map (Context.theory_name {long=true}):strings;
     fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;
     val thy_name = get_theory_name thm;
     val result = exists (equal thy_name) thy_names_in_main;

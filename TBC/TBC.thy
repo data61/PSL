@@ -418,7 +418,7 @@ fun write_proof_script_in_result_file (pst:Proof.state) (what_to_write:string) =
   let                           
     val thy                 = Proof.theory_of pst;
     val ctxt                = Proof.context_of pst;
-    val theory_name         = Local_Theory.exit_global ctxt |> Context.theory_name
+    val theory_name         = Local_Theory.exit_global ctxt |> Context.theory_name {long=true}
     val file_name           = "eval_scripts.txt": string;
     val path                = File.platform_path (Resources.master_directory thy);
     val separator           = "==========" ^ theory_name ^ "==========\n";
@@ -1461,7 +1461,7 @@ fun get_ancestors_of_main ctxt =
   let
     fun get_Main ctxt = SOME (Theory.check {long = true} ctxt ("Main", Position.none))
                         handle ERROR _ => NONE;
-    fun ancestor_list ctxt = (Theory.ancestors_of ctxt |> map Context.theory_name)
+    fun ancestor_list ctxt = Theory.ancestors_of ctxt |> map (Context.theory_name {long=true})
     val maybe_main = get_Main ctxt
     val ancestors_list = case maybe_main of
               NONE   => []
@@ -2087,7 +2087,8 @@ fun prove_by_conjecturing _ descr output_to_external_file =
     (((long_statement || short_statement) >> (fn (_, _, _, _(*elems*), concl: (string, string) Element.stmt) =>
        (fn lthy: local_theory =>
           let
-            val stat_w_thy_name = TBC_Eval_Stat.update_theory_name_by_psl_in_stat (Local_Theory.exit_global lthy |> Context.theory_name) TBC_Eval_Stat.default_stat;
+            fun get_theory_name lthy = Local_Theory.exit_global lthy |> Context.theory_name {long=true};
+            val stat_w_thy_name = TBC_Eval_Stat.update_theory_name_by_psl_in_stat (get_theory_name lthy) TBC_Eval_Stat.default_stat;
             val pst             = Proof.init lthy: Proof.state;
             val original_goal   = TBC_Utils.statement_to_conjecture pst concl: TBC_Utils.pnode;
             val timeout = seconds 3600.0;(*3600.0 for Isaplanner and Prod, 900.0 for TIP15*)
