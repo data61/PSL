@@ -271,9 +271,9 @@ fun pst_n_conjecture_has_counterexample (pst:Proof.state) (conjecture:string) =
 (*used in top-down*)
 fun term_has_counterexample_in_pst (pst:Proof.state) (term:term) =
   let
-    val quickpick        = PSL_Interface.lookup (Proof.context_of pst) "Quickcheck" |> the      : PSL_Interface.strategy;
+    val quickpick        = PSL_Interface.lookup (Proof.context_of pst) "Quick_Pick" |> the      : PSL_Interface.strategy;
     val pst_to_be_proved = Proof.theorem NONE (K I) [[(term, [])]] (Proof.context_of pst)       : Proof.state;
-    val timeouts         = {overall = 30.0, hammer = 30.0, quickcheck = 2.0, nitpick = 2.0}     : timeouts;
+    val timeouts         = {overall = 30.0, hammer = 30.0, quickcheck = 2.0, nitpick = 3.5}     : timeouts;
     val result_seq       = psl_strategy_to_monadic_tactic timeouts quickpick pst_to_be_proved []: (Dynamic_Utils.log * Proof.state) Seq.seq;
   in
     is_none (Seq.pull result_seq)
@@ -2046,7 +2046,7 @@ Ors [
   ]
 ]
 
-strategy Quick_Pick = Thens [Quickcheck]
+strategy Quick_Pick = Thens [Quickcheck, Nitpick]
 
 ML\<open> (*This part (the definitions of long_keyword, long_statement, and short_statement) are from
 by Pure/Pure.thy in Isabelle/HOL's source code.*)
