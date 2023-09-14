@@ -266,6 +266,7 @@ fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_ag
     (*step 7*)
     val _                  = SS.add_edges_from_andnode_to_ornodes added_andnode_key synched_agraph: unit;
     val connected_orkeys   = map (fn or_term => (Or_N, [or_term])) and_node_terms: keys;
+    (*step 8: TODO: add the importance of the child-or-nodes.*)
     val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph connected_orkeys: unit list;
   in
     ()
@@ -281,6 +282,7 @@ fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_ag
  * step 5. connect the and-node to its parental or2and-edge.
  * step 6. add child-or-nodes that correspond to the sub-goals or used conjectures in the and-node.
  * step 7. connect the child-or-nodes to the and-node.
+ * step 8. TODO: add the importance of the child-or-nodes.
  *)
 fun abduction_for_tactic_based_conjectures (pst:Proof.state) (parent_or:key) (seeds: seeds_of_or2and_edge) (sagraph:SS.synched_abduction_graph) =
   let
