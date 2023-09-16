@@ -167,9 +167,10 @@ type synched_abduction_graph = abduction_graph Synchronized.var;
 
 fun mk_synched_abduction_graph (ctxt:Proof.context) (goal:term) =
   let
-    val initial_graph = AG.mk_initial_graph ctxt goal;
+    val initial_graph_wo_imp = AG.mk_initial_graph ctxt goal;
+    val initial_graph_w_imp  = UAG.update_importance (AG.Or_N, [goal]) 1.0 initial_graph_wo_imp
   in
-    Synchronized.var "abduction_graph" initial_graph
+    Synchronized.var "abduction_graph" initial_graph_w_imp
   end;
 
 fun update_is_branch (key:AG.key) (sagraph:synched_abduction_graph) =

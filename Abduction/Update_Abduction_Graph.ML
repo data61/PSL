@@ -22,6 +22,8 @@ val update_proof_n_proof_id           : (*proof*)strings -> (*or*)key -> update_
 
 (* update of abduction_graph *)
 val update_is_branch                  : key -> update_abduction_graph;
+val update_importance                 : key -> real -> update_abduction_graph;
+
 val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
 val update_after_connecting_andnd_to_existing_ornd: (*or*)key -> Proof.context -> update_abduction_graph;
 (*TODO: add_andnodes*)
@@ -46,9 +48,11 @@ fun update_proved_completely (key:key) (ag:abduction_graph) =
 fun update_proof_n_proof_id (prf:strings) (key:key) (ag:abduction_graph) =
     PGraph.map_node key (Update_Abduction_Node.update_proof_n_proof_id prf) ag: abduction_graph;
 
-(* update_branch *)
 fun update_is_branch (key:key) (graph:abduction_graph) =
     PGraph.map_node key Update_Abduction_Node.update_is_branch graph: abduction_graph;
+
+fun update_importance (key:key) (imp:real) (graph:abduction_graph) =
+    PGraph.map_node key (Update_Abduction_Node.update_importance imp) graph: abduction_graph;
 
 local
 
