@@ -16,8 +16,9 @@ type conjectures = conjecture list;
 type how_to_get_andnodes_from_ornode = Or2And_Edge.how_to_get_andnodes_from_ornode;
 type abduction_node;
 type seed_of_or2and_edge =
-     {new_goals: (string * term) list,
-      proof    : how_to_get_andnodes_from_ornode};
+     {new_goals : (string * term) list,
+      proof     : how_to_get_andnodes_from_ornode,
+      importance: real};
 type seeds_of_or2and_edge;
 type add_or2and_edge = (key * abduction_node * conjectures);
 
@@ -46,8 +47,9 @@ type conjecture  = (string * term);
 type conjectures = (string * term) list;
 type how_to_get_andnodes_from_ornode = Or2And_Edge.how_to_get_andnodes_from_ornode;
 type seed_of_or2and_edge =
-     {new_goals: conjectures,
-      proof    : how_to_get_andnodes_from_ornode};
+     {new_goals : conjectures,
+      proof     : how_to_get_andnodes_from_ornode,
+      importance: real};
 
 type seeds_of_or2and_edge = seed_of_or2and_edge list;
 
@@ -81,11 +83,11 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (synched_term2string:SS.synched_term2
             if length subgs = 0 (*orelse not (pass_check_print_read_terms ctxt standardized_props)*)
             then [(mk_lemma_name @{prop "True"}, @{prop "True"})]
             else map mk_lemma_name standardized_props ~~ standardized_props: (string * term) list;
-
           val result = if length subgs = 0 (*orelse not (pass_check_print_read_terms ctxt standardized_props)*)
                        then NONE
-                       else SOME {proof = Or2And_Edge.Tactic pscript, new_goals = nonempty_subgs}
-
+                       else SOME {proof      = Or2And_Edge.Tactic pscript,
+                                  new_goals  = nonempty_subgs,
+                                  importance = 1.0}(*TODO*)
         in
           result: seed_of_or2and_edge option
         end;
@@ -143,8 +145,9 @@ fun filter_out_bad_seeds_from_tactic (parent_or:term) (refutation:SS.synched_ter
   filter_out (condition_to_filter_out_seed_from_tactic parent_or refutation pst graph) seeds: seeds_of_or2and_edge;
 
 fun conjecture_to_seed_of_or2and_edge (conjectures:(string * term) list): seed_of_or2and_edge =
-  {new_goals = conjectures: (string * term) list,
-   proof     = Or2And_Edge.Conjecture: how_to_get_andnodes_from_ornode};
+  {new_goals  = conjectures: (string * term) list,
+   proof      = Or2And_Edge.Conjecture: how_to_get_andnodes_from_ornode,
+   importance = 0.95};(*TODO: We should use different importance for different explicit conjectures?*)
 
 fun conjectures_to_seed_of_or2and_edge (term2name:SS.synched_term2string_table) (pst:Proof.state) (conjectures_w_name: (string * term) list) =
   let
@@ -170,7 +173,9 @@ fun seed_has_counterexample (refutation:SS.synched_term2bool_table) (pst:Proof.s
   end;
 
 fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*parent node*)
-     ({new_goals: (string * term) list, proof: how_to_get_andnodes_from_ornode}: seed_of_or2and_edge)(*child nodes*) =
+     ({new_goals : (string * term) list,
+       proof     : how_to_get_andnodes_from_ornode,
+       importance: real}: seed_of_or2and_edge)(*child nodes*) =
    let
      fun register_thm_in_lthy (name:string) (thm:thm) (lthy:local_theory): local_theory =
          Local_Theory.note ((Binding.name name, []), [thm]) lthy |> snd: local_theory;
@@ -214,7 +219,7 @@ fun prove_ornode_assuming_andnode
      (simp_mode_for_explicit_conjecturing:bool)
      (parent_orkey as (Or_N, [_]): key)(*parent node*)
      (sagraph:SS.synched_abduction_graph)
-     (seed_of_or2and_edge as {new_goals, proof}: seed_of_or2and_edge)(*child nodes*)
+     (seed_of_or2and_edge as {new_goals, proof, importance}: seed_of_or2and_edge)(*child nodes*)
      : add_or2and_edge option =
    let
      val _ = SS.update_is_branch parent_orkey sagraph: unit;
@@ -228,7 +233,8 @@ fun prove_ornode_assuming_andnode
          val script_to_prove_ornd  = how_we_got_andnode @ single script_to_prove_andnd                           : strings;
          val or2and_edge_val       = Abduction_Node.Or_To_And {
                                        how_to_get_andnodes_from_ornode = proof,
-                                       proof_of_ornode_assmng_andnodes = script_to_prove_ornd}                   : abduction_node;
+                                       proof_of_ornode_assmng_andnodes = script_to_prove_ornd,
+                                       importance                      = importance}                             : abduction_node;
          val or2and_edge_key       = ((O2A_E (serial())), [])                                                    : key;
          val thy                   = Proof.theory_of pst                                                         : theory;
          val used_conjecture_names = Top_Down_Util.get_lemma_names_from_sh_output thy script_to_prove_andnd      : strings;
