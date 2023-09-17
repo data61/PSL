@@ -42,7 +42,7 @@ struct
       val method_str_w_attr = "(" ^ meth_name ^ mods_to_string mods ^ ")";
       fun nontac_on_state st = (Utils.try_with (K Seq.empty) DG.string_to_nontac_on_pstate method_str_w_attr
         |> Isabelle_Utils.TIMEOUT_in 0.3) st;
-      val trace_node         = DG.Apply {using = [], methN = method_str_w_attr, back = 0};
+      val trace_node      = DG.Apply {using = [], methN = method_str_w_attr, back = 0, importance = NONE(*TODO*)};
       val logtac_on_state = DG.nontac_to_logtac trace_node nontac_on_state;
       val stttac_on_state = DG.logtac_to_stttac logtac_on_state;
     in

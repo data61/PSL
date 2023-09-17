@@ -13,7 +13,7 @@ end;
 (*** SUBTOOLS: A collection of sub-tools. ***)
 signature SUBTOOLS =
 sig
-  val tool_output_n_timeout_to_logtac: string -> real -> Proof.state -> (Dynamic_Utils.log * Proof.state) Seq.seq;
+  val tool_output_n_timeout_to_logtac: string -> real option (*importance*)-> real (*timeout*)-> Proof.state -> (Dynamic_Utils.log * Proof.state) Seq.seq;
   val quickcheck  : real -> Proof.state Dynamic_Utils.stttac;
   val nitpick     : real -> Proof.state Dynamic_Utils.stttac;
   val hammer      : real -> Proof.state Dynamic_Utils.stttac;
@@ -86,7 +86,7 @@ fun state_stttac timeout = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac time
 end;
 
 (** sledgehammer/sem_ind output to monadic tactics on proof state **)
-fun tool_output_n_timeout_to_logtac (sh_output:string) (to:real) (state:Proof.state) =
+fun tool_output_n_timeout_to_logtac (sh_output:string) (importance: real option) (to:real) (state:Proof.state) =
   let
     (*syntax sugars*)
     type text_range        = Method.text_range;
@@ -130,7 +130,8 @@ fun tool_output_n_timeout_to_logtac (sh_output:string) (to:real) (state:Proof.st
                          then tracing "using_strings in sh_output_to_sh_logtac failed." else ();
                          ["Failed constructing using_strings."])
                       : string list;
-    val node : Dynamic_Utils.node = Dynamic_Utils.Apply {using = using_strings, methN = methN, back = 0};
+    val node          = Dynamic_Utils.Apply {using = using_strings, methN = methN, back = 0, importance = importance}
+                      : Dynamic_Utils.node;
     (*print messages for debugging.*)
     val _ =
       let
@@ -156,14 +157,14 @@ fun tool_output_n_timeout_to_logtac (sh_output:string) (to:real) (state:Proof.st
     results_w_log : (Dynamic_Utils.log * Proof.state) Seq.seq
   end;
 
-fun sh_output_to_sh_stttac (output:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac output 10.0 )
+fun sh_output_to_sh_stttac (output:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac output NONE 10.0)
   : Proof.state Dynamic_Utils.stttac;
 
 (** Sledgehammer_Tacctic: Sledgehammer as a state monad based tactic. **)
 structure Sledgehammer_Tactic : SUBTOOL =
 struct
 
-fun hammer_logtac (timeout:real) (pstate:Proof.state) =
+fun hammer_logtac (timeout:real) (pstate:Proof.state): (Dynamic_Utils.log * Proof.state) Seq.seq =
   let
     (*syntax sugars*)
     infix <$>
@@ -203,7 +204,7 @@ fun hammer_logtac (timeout:real) (pstate:Proof.state) =
   in
     if   sh_returned
     then
-      tool_output_n_timeout_to_logtac (valOf apply_script_cntnt) 10.0 pstate
+      tool_output_n_timeout_to_logtac (valOf apply_script_cntnt) NONE 10.0 pstate
     else Seq.empty : (Dynamic_Utils.log * Proof.state) Seq.seq
   end;
 
@@ -222,10 +223,10 @@ let
     val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst thm_term: Outer_Path_To_Unode.path_to_unode_table;
     val (ind_best_records, ind_max_point) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs 0.0 [] [] Apply_SeLFiE.Induction_Heuristic 5 pst outer_path_to_unode_table;
     fun record_to_pair {score, modifiers,...} = (score, modifiers);
-    val best_pairs            = Par_List.map record_to_pair ind_best_records
+    val best_pairs            = Par_List.map record_to_pair ind_best_records: (real * SeLFiE_Util.induct_arguments) list;
+    val fst_subg_n_chaineds   = Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst: terms;
+    val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst fst_subg_n_chaineds best_pairs
                               : (real * SeLFiE_Util.induct_arguments) list;
-    val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs
-                              :  (real * SeLFiE_Util.induct_arguments) list;
     val (arb_best_records, _) = Apply_SeLFiE.score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Apply_SeLFiE.Generalization_Heuristic 10 pst outer_path_to_unode_table;
     fun mk_arb_message (record:{modifiers: SeLFiE_Util.induct_arguments, score: real}) = SeLFiE_Util.induct_arguments_to_string (#modifiers record);
     val best_arb_messages     = map mk_arb_message arb_best_records: strings;
@@ -234,15 +235,26 @@ in
   app_best_arb_messages:strings
 end;
 
-fun mk_state_stttac (smart_induct_output_str:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac smart_induct_output_str 30.0);
+fun mk_state_stttac (smart_induct_output_str:string, importance:real) =
+  let
+    val logtac = tool_output_n_timeout_to_logtac smart_induct_output_str (SOME importance) 30.0;
+    val stttac = Dynamic_Utils.logtac_to_stttac logtac: Proof.state Dynamic_Utils.stttac;
+  in
+    stttac
+  end;
 
 fun state_stttacs (timeout:real) (pst:Proof.state) =
   let
     val induct_output_strs = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds timeout) pst_to_smart_induct_output_strs) pst: strings;
-    val stttacs            = Par_List.map mk_state_stttac induct_output_strs:  Proof.state Dynamic_Utils.stttac list;
+    val numb_of_candidates = length induct_output_strs;
+    val low_importances    = replicate numb_of_candidates 0.7: real list;
+    val importances        = 0.95 :: 0.9 :: 0.85 :: 0.8 :: 0.75 :: low_importances (*TODO: magic number*)
+                          |> take numb_of_candidates: real list;
+    val induct_outputs     = induct_output_strs ~~ importances: (string * real) list;
+    val stttacs            = Par_List.map mk_state_stttac induct_outputs: Proof.state Dynamic_Utils.stttac list;
     val top_5              = take 5 stttacs: Proof.state Dynamic_Utils.stttac list;;
   in
-    top_5
+    top_5: Proof.state Dynamic_Utils.stttac list
   end;
 
 end;

@@ -1122,21 +1122,21 @@ sig
   type 'a seq;
   type 'a nontac   = 'a -> 'a seq;
   datatype node    = Subgoal | Done | Defer
-                   | Apply of {using:strings, methN:string, back:int};
+                   | Apply of {using:strings, methN:string, back:int, importance: real option};
   type log;
   type 'a logtac   = 'a -> (log * 'a) seq;
   type 'a st_monad = log -> (log * 'a) seq;
   type 'a stttac   = 'a -> 'a st_monad;
 
-  val check_src           : context -> src -> src;
-  val checked_src_to_meth : context -> src -> Method.method;
-  val str_to_tokens       : context -> string -> Token.T list;
-  val get_tokens          : string -> Token.T list -> src;
-  val get_meth_nm         : string -> strings -> string;
-  val reform              : log * 'goal nontac -> 'goal logtac;
-  val writer_to_state     : (log * 'state) seq -> 'state st_monad;
-  val nontac_to_logtac    : node -> 'a nontac -> 'a logtac;
-  val logtac_to_stttac    : 'a logtac -> 'a stttac;
+  val check_src                     : context -> src -> src;
+  val checked_src_to_meth           : context -> src -> Method.method;
+  val str_to_tokens                 : context -> string -> Token.T list;
+  val get_tokens                    : string -> Token.T list -> src;
+  val get_meth_nm                   : string -> strings -> string;
+  val reform                        : log * 'goal nontac -> 'goal logtac;
+  val writer_to_state               : (log * 'state) seq -> 'state st_monad;
+  val nontac_to_logtac              : node -> 'a nontac -> 'a logtac;
+  val logtac_to_stttac              : 'a logtac -> 'a stttac;
   val log_n_nontac_to_stttac        : log * 'a nontac -> 'a stttac;
   val string_to_nontac_on_pstate    : string -> state nontac;
   val string_to_stttac_on_pstate    : string -> state stttac;
@@ -1154,7 +1154,7 @@ type src         = Token.src;
 type 'a seq      = 'a Seq.seq;
 type 'a nontac   = 'a -> 'a seq;
 datatype node    = Subgoal | Done | Defer
-                 | Apply of {using:strings, methN:string, back:int};
+                 | Apply of {using:strings, methN:string, back:int, importance: real option};
 type log         = node list;
 type 'a logtac   = 'a -> (log * 'a) seq;
 type 'a st_monad = log -> (log * 'a) seq;
@@ -1223,8 +1223,8 @@ fun string_to_nontac_on_pstate meth_name proof_state =
 fun writer_to_state (writerTSeq : (log * 'state) seq) (trace : log) =
   Seq.map (fn (this_step, pstate) => (trace @ this_step, pstate)) writerTSeq : (log * 'state) seq
 
-fun add_back (n, (Apply {methN = methN, using = using, ...}, result)) =
-  ([Apply {methN = methN, using = using, back = n}], result)
+fun add_back (n, (Apply {methN = methN, using = using, importance = importance,...}, result)) =
+  ([Apply {methN = methN, using = using, back = n, importance = importance}], result)
   | add_back (0, (other, result)) = (tracing "add_back 0";([other], result))
   | add_back _ = (tracing "add_back in Dynamic_Utils.thy failed."; error "add_back")
 
@@ -1235,7 +1235,7 @@ fun nontac_to_logtac (node:node) (nontac:'a nontac) (goal:'a) : (log * 'a) seq =
 
 fun logtac_to_stttac (logtac:'a logtac) = (fn (goal:'a) =>
   let
-    val logtac_results = logtac goal;
+    val logtac_results = logtac goal                   : (log * 'a) Seq.seq;
     val state_monad    = writer_to_state logtac_results:'a st_monad;
   in
     state_monad : 'a st_monad
@@ -1248,11 +1248,14 @@ fun log_n_nontac_to_stttac (log:log, nontac:'a nontac) = (log, nontac)
 
 fun string_to_stttac_on_pstate (meth_name:string) =
   let
-    val nontac         = string_to_nontac_on_pstate meth_name               : state nontac;
-    val nontac_with_TO = Isabelle_Utils.TIMEOUT_in 1.0  nontac              : state nontac;
-    val trace_node     = Apply {using = [], methN = meth_name, back = 0}    : node;
-    val logtac         = nontac_to_logtac trace_node nontac_with_TO         : state logtac;
-    val stttac         = logtac_to_stttac logtac                            : state stttac;
+    val nontac         = string_to_nontac_on_pstate meth_name      : state nontac;
+    val nontac_with_TO = Isabelle_Utils.TIMEOUT_in 1.0  nontac     : state nontac;
+    val trace_node     = Apply {using = [],
+                                methN = meth_name,
+                                back = 0,
+                                importance = NONE}                 : node;
+    val logtac         = nontac_to_logtac trace_node nontac_with_TO: state logtac;
+    val stttac         = logtac_to_stttac logtac                   : state stttac;
   in
     stttac : state stttac
   end;
@@ -1263,7 +1266,7 @@ local
   fun mk_apply methN  = "apply " ^ methN ^ "";
   fun mk_backs (n:int) = replicate n "back" |> String.concatWith " " handle Subscript =>
     (tracing "mk_backs in Isabelle_Utils.thy failed. It should take 0 or a positive integer.";"");
-  fun mk_apply_script1 {methN : string, using : strings, back : int} =
+  fun mk_apply_script1 {methN : string, using : strings, back : int, ...} =
     mk_using using ^ mk_apply methN ^ mk_backs back ^ "\n";
   fun mk_proof_script1 (Done    : node) = "done \n"
    |  mk_proof_script1 (Subgoal : node) = "subgoal \n"
