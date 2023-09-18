@@ -247,10 +247,11 @@ fun pst_to_proofscript_opt (timeouts:timeouts) (strategy_name:string )(pst:Proof
 
 fun pst_to_proofscripts_opt (timeouts:timeouts) (strategy_name:string )(pst:Proof.state): (strings * Proof.state) option =
   let
-    val psl_strategy        = PSL_Interface.lookup (Proof.context_of pst) strategy_name |> the: PSL_Interface.strategy;
-    val result_seq          = psl_strategy_to_monadic_tactic timeouts psl_strategy pst []     : (Dynamic_Utils.log * Proof.state) Seq.seq;
-    val result_opt          = try Seq.hd result_seq                                           : (Dynamic_Utils.log * Proof.state) option;
-    val result = Option.map (apfst Dynamic_Utils.mk_apply_scripts_for_abduction) result_opt   : (strings * Proof.state) option;
+    val psl_strategy = PSL_Interface.lookup (Proof.context_of pst) strategy_name |> the      : PSL_Interface.strategy;
+    val result_seq   = psl_strategy_to_monadic_tactic timeouts psl_strategy pst []           : (Dynamic_Utils.log * Proof.state) Seq.seq;
+    val result_opt   = try Seq.hd result_seq                                                 : (Dynamic_Utils.log * Proof.state) option;
+    val result_pair  = Option.map (apfst Dynamic_Utils.log_to_script_n_importance) result_opt: ((strings * real) * Proof.state) option;
+    val result       = Option.map (apfst fst) result_pair
   in
     result
   end;

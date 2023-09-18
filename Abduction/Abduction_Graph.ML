@@ -43,6 +43,7 @@ val is_branch     : abduction_graph -> key -> bool;
 val is_ornode     : key -> bool;
 val is_andnode    : key -> bool;
 val is_or2and_edge: key -> bool;
+val importance    : abduction_graph -> key -> real;
 
 (* query on abduction_node for ornode and andnode *)
 val is_proved_completely                         : abduction_graph -> key -> bool;
@@ -52,9 +53,12 @@ val is_final_goal                                : abduction_graph -> key -> boo
 val lemma_name_of                                : abduction_graph -> key -> string;
 val proof_of                                     : abduction_graph -> key -> strings;
 val proof_id_of                                  : abduction_graph -> key -> int option;
+val compute_importance_of_ornode                 : abduction_graph -> key -> real;
+val sort_orkeys_based_on_importance              : abduction_graph -> keys -> keys;
 
 val grand_parents                                : abduction_graph -> key -> keys;
 val grand_children                               : abduction_graph -> key -> keys;
+val great_grand_parents                          : abduction_graph -> key -> keys;
 val all_gg_parents_are_proved                    : abduction_graph -> key -> bool;
 
 (* query on abduction_node for or2and_edge *)
@@ -183,6 +187,29 @@ fun is_andnode (And_N, _) = true
 fun is_or2and_edge (O2A_E _, _) = true
   | is_or2and_edge  _           = false;
 
+(* importance *)
+fun importance (ag:abduction_graph) (orkey as (Or_N, _)) =
+     PGraph.get_node ag orkey |> Abduction_Node.importance
+  | importance (ag:abduction_graph) (edge_key as (O2A_E _, _)) =
+     PGraph.get_node ag edge_key |> Abduction_Node.importance
+  | importance (ag:abduction_graph) (andkey as (And_N, _)) =
+let
+  val parents_of             = PGraph.immediate_preds ag;
+  val parent_or2and_edges    = parents_of andkey: keys;
+  fun computation f x        = (x, f x);
+  val edge_and_ornodes_pairs = map (computation parents_of) parent_or2and_edges: (key * keys) list;
+  val ornodess               = map snd edge_and_ornodes_pairs: keys list;
+  val _ = if forall (fn ornodes => length ornodes = 1) ornodess then () else error "importance_of_andnode failed";
+  val edge_and_ornode_pairs  = map (apsnd hd) edge_and_ornodes_pairs: (key * key) list;
+  val importance_pairs       = map (apply2 (importance ag)) edge_and_ornode_pairs: (real * real) list;
+  val importances            = map (fn (imp1, imp2) => imp1 * imp2) importance_pairs: real list;
+  val importance             = case Utils.reals_to_max_option importances of
+                                 NONE     => error "importance in Abduction_Graph failed. No ancestral pairs."
+                               | SOME max => max: real;
+in
+  importance
+end;
+
 (* is_proved_completely *)
 fun is_proved_completely (graph:abduction_graph) (key:key): bool =
   PGraph.get_node graph key |> Abduction_Node.is_proved_completely;
@@ -273,6 +300,28 @@ fun is_worth_proving (ctxt:Proof.context) (graph:abduction_graph) (key:key)  =
 
 (* proof_id_of *)
 fun proof_id_of (graph:abduction_graph) (key:key) = PGraph.get_node graph key |> Abduction_Node.proof_id_of: int option;
+
+(* compute_importance_of_ornode *)
+fun compute_importance_of_ornode (ag:abduction_graph) (orkey as (Or_N, _)) =
+    let
+      val parent_andkeys         = PGraph.immediate_preds ag orkey: keys;
+      val importances_of_parents = map (importance ag) parent_andkeys: real list;
+      val importance             = case Utils.reals_to_max_option importances_of_parents of
+                                     NONE     => error "compute_importance_of_ornode. No ancestral andnode."
+                                   | SOME max => max: real;
+    in
+      importance
+    end
+  | compute_importance_of_ornode _ _ = error "compute_importance_of_ornode failed. It expects a key of an or-node.";
+
+(* sort_orkeys_based_on_importance *)
+fun sort_orkeys_based_on_importance (ag:abduction_graph) (keys:keys) =
+  let
+    fun key_compare (key1, key2) = Real.compare (importance ag key1, importance ag key2);
+    val sorted_keys = sort key_compare keys |> rev;
+  in
+    sorted_keys: keys
+  end;
 
 (* proof_of *)
 fun proof_of (graph:abduction_graph) (key:key) =

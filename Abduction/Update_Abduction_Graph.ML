@@ -23,6 +23,8 @@ val update_proof_n_proof_id           : (*proof*)strings -> (*or*)key -> update_
 (* update of abduction_graph *)
 val update_is_branch                  : key -> update_abduction_graph;
 val update_importance                 : key -> real -> update_abduction_graph;
+val update_imp_if_this_is_larger      : key -> real -> update_abduction_graph;
+val update_importance_of_ornode       : key -> update_abduction_graph;
 
 val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
 val update_after_connecting_andnd_to_existing_ornd: (*or*)key -> Proof.context -> update_abduction_graph;
@@ -37,29 +39,40 @@ end;
 structure Update_Abduction_Graph: UPDATE_ABDUCTION_GRAPH =
 struct
 
-open Abduction_Node;
 open Abduction_Graph;
+structure UAN = Update_Abduction_Node;
 
 type update_abduction_graph = abduction_graph -> abduction_graph;
 
 fun update_proved_completely (key:key) (ag:abduction_graph) =
-    PGraph.map_node key (Update_Abduction_Node.update_proved_completely) ag: abduction_graph;
+    PGraph.map_node key (UAN.update_proved_completely) ag: abduction_graph;
 
 fun update_proof_n_proof_id (prf:strings) (key:key) (ag:abduction_graph) =
-    PGraph.map_node key (Update_Abduction_Node.update_proof_n_proof_id prf) ag: abduction_graph;
+    PGraph.map_node key (UAN.update_proof_n_proof_id prf) ag: abduction_graph;
 
 fun update_is_branch (key:key) (graph:abduction_graph) =
-    PGraph.map_node key Update_Abduction_Node.update_is_branch graph: abduction_graph;
+    PGraph.map_node key UAN.update_is_branch graph: abduction_graph;
 
 fun update_importance (key:key) (imp:real) (graph:abduction_graph) =
-    PGraph.map_node key (Update_Abduction_Node.update_importance imp) graph: abduction_graph;
+    PGraph.map_node key (UAN.update_importance imp) graph: abduction_graph;
+
+fun update_imp_if_this_is_larger (key:key) (imp:real) (graph:abduction_graph) =
+    PGraph.map_node key (UAN.update_imp_if_this_is_larger imp) graph: abduction_graph;
+
+fun update_importance_of_ornode (orkey:key) (graph:abduction_graph) =
+  let
+    val importance = compute_importance_of_ornode graph orkey: real;
+    val new_graph  = PGraph.map_node orkey (UAN.update_importance importance) graph: abduction_graph;
+  in
+    new_graph
+  end;
 
 local
 
 fun update_gg_parent_not_finished_of_or_key (key as (Or_N, _):key) (gr:abduction_graph): abduction_graph =
     let
       val does_need_proof = not (all_gg_parents_are_proved gr key)                             : bool;
-      val update          = Update_Abduction_Node.update_gg_parent_not_finished does_need_proof: abduction_node -> abduction_node;
+      val update          = UAN.update_gg_parent_not_finished does_need_proof: abduction_node -> abduction_node;
     in
       PGraph.map_node key update gr
     end
@@ -81,11 +94,11 @@ fun update_gg_parent_not_finished (graph:abduction_graph) =
 
 (* update_proof_n_proof_id *)
 fun update_proof_n_proof_id (proof:strings) (key:key) (graph:abduction_graph) =
-    PGraph.map_node key (Update_Abduction_Node.update_proof_n_proof_id proof) graph: abduction_graph;
+    PGraph.map_node key (UAN.update_proof_n_proof_id proof) graph: abduction_graph;
 
 (* update_proved_completely *)
 fun update_proved_completely_of_node (key:key) (graph:abduction_graph) =
-    PGraph.map_node key Update_Abduction_Node.update_proved_completely graph: abduction_graph;
+    PGraph.map_node key UAN.update_proved_completely graph: abduction_graph;
 
 (* forall_at_least_one *)
 fun forall_at_least_one assertion xs = forall assertion xs andalso (length xs > 0);

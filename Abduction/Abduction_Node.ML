@@ -23,6 +23,7 @@ datatype abduction_node =
 val is_ornode                                    : abduction_node -> bool;
 val is_andnode                                   : abduction_node -> bool;
 val is_or2and_edge                               : abduction_node -> bool;
+val importance                                   : abduction_node -> real;
 
 (* query on abduction_node for ornode and andnode *)
 val is_proved_completely                         : abduction_node -> bool;
@@ -36,7 +37,7 @@ val lemma_name_of                                : abduction_node -> string;
 val is_worth_proving                             : Proof.context -> abduction_node -> bool;
 
 (* query on abduction_node for or2and_edge *)
-val or2and_edge_to_proof         : abduction_node -> strings;
+val or2and_edge_to_proof                         : abduction_node -> strings;
 
 (* destructors of abduction_node *)
 val dest_Or_Node  : abduction_node -> ornode;
@@ -77,6 +78,13 @@ fun is_andnode (And_Node _) = true
 (* is_or2and_edge *)
 fun is_or2and_edge (Or_To_And _) = true
   | is_or2and_edge _ = false;
+
+(* importance *)
+fun importance (Or_To_And {importance,...}) = importance
+  | importance (Or_Node   {importance,...}) = (case importance of
+      NONE => (warning "Importance is not defined for this Or_Node!"; 0.0)
+    | SOME imp => imp)
+  | importance _ = error "importance in Abduction_Node failed. And_Node does not carry importance explicilty";
 
 (* is_proved_completely *)
 fun is_proved_completely (Or_Node  nd) = #proved_completely nd

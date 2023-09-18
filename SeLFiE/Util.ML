@@ -75,6 +75,7 @@ sig
   val alist_lookup_eq                         : (''a * 'a) list -> ''a -> 'a option;
   val opt_equal                               : (''a option * ''a option) -> bool;
   val ints_to_max_option                      : ints -> int option;
+  val reals_to_max_option                     : real list -> real option;
   val mk_ints                                 : int -> ints;
 end;
 
@@ -286,7 +287,13 @@ fun ints_to_max' ([]:ints)    acc = acc
   | ints_to_max' (i::is:ints) acc = ints_to_max' is (Int.max (i, acc));
 
 fun ints_to_max_option  []          = NONE
-  | ints_to_max_option (i::is:ints) = SOME (ints_to_max' is i)
+  | ints_to_max_option (i::is:ints) = SOME (ints_to_max' is i);
+
+fun reals_to_max' ([]   : real list) acc = acc
+  | reals_to_max' (i::is: real list) acc = reals_to_max' is (Real.max (i, acc));
+
+fun reals_to_max_option  []               = NONE
+  | reals_to_max_option (i::is:real list) = SOME (reals_to_max' is i);
 
 fun mk_ints (n:int) = List.tabulate (n, I);
 
@@ -1141,7 +1148,7 @@ sig
   val string_to_nontac_on_pstate    : string -> state nontac;
   val string_to_stttac_on_pstate    : string -> state stttac;
   val mk_apply_script               : log -> string;
-  val mk_apply_scripts_for_abduction: log -> strings; (*For Proof by Abduction.*)
+  val log_to_script_n_importance    : log -> (strings * real);(*For Proof by Abduction.*)
 end;
 
 (*** Dynamic_Utils: Utility functions useful to generate tactics at run-time. ***)
@@ -1261,6 +1268,7 @@ fun string_to_stttac_on_pstate (meth_name:string) =
   end;
 
 local
+
   fun mk_using  ([]   : strings) = ""
    |  mk_using  (using: strings) = "using " ^ String.concatWith " " using ^ " ";
   fun mk_apply methN  = "apply " ^ methN ^ "";
@@ -1274,14 +1282,22 @@ local
    |  mk_proof_script1 (Apply n : node) = mk_apply_script1 n;
 
 in
-  fun mk_apply_script (log:log) =
-    map mk_proof_script1 log
-    |> String.concat
-    |> Active.sendback_markup_properties [Markup.padding_command] : string;
 
-  fun mk_apply_scripts_for_abduction (log:log) = map mk_proof_script1 log;
+fun mk_apply_script (log:log) =
+  map mk_proof_script1 log
+  |> String.concat
+  |> Active.sendback_markup_properties [Markup.padding_command] : string;
 
-end;
+fun log_to_importance [] (acc:real) = acc
+  | log_to_importance ((Apply {importance,...}:node)::log) (acc:real) = (
+    case importance of
+      NONE     => log_to_importance log acc
+    | SOME imp => log_to_importance log (acc * imp))
+  | log_to_importance ((_:node)::log) (acc:real) = log_to_importance log acc
+
+fun log_to_script_n_importance (log:log) = (map mk_proof_script1 log, log_to_importance log 1.0): (strings * real);
+
+end
 
 end;
 

@@ -21,6 +21,7 @@ val update_proved_completely     : update_abduction_node;
 val update_proof_n_proof_id      : strings -> update_abduction_node;
 val update_is_branch             : update_abduction_node;
 val update_importance            : real -> update_abduction_node;
+val update_imp_if_this_is_larger : real -> update_abduction_node;
 
 end;
 
@@ -53,5 +54,9 @@ fun update_is_branch (Or_Node ornode) = Or_Node.update_is_branch ornode |> Or_No
 (* update_importance *)
 fun update_importance (imp:real) (Or_Node ornode) = Or_Node.update_importance imp ornode |> Or_Node
   | update_importance  _          _               = error "update_importance failed!";
+
+(* update_imp_if_this_is_larger *)
+fun update_imp_if_this_is_larger (imp:real) (Or_Node ornode) = Or_Node.update_imp_if_this_is_larger imp ornode |> Or_Node
+  | update_imp_if_this_is_larger  _          _               = error "update_importance failed!";
 
 end;

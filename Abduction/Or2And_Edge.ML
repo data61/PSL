@@ -39,7 +39,7 @@ fun proof_is_from_tactic (Tactic _) = true
 type or2and_edge = {
   how_to_get_andnodes_from_ornode: how_to_get_andnodes_from_ornode,
   proof_of_ornode_assmng_andnodes: strings,
-  importance                     : real}
+  importance                     : real};
 
 (* or2and_edge_to_proof *)
 fun or2and_edge_to_proof ({proof_of_ornode_assmng_andnodes, ...}:or2and_edge) = proof_of_ornode_assmng_andnodes;

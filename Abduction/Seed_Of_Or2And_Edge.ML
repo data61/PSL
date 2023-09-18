@@ -67,12 +67,12 @@ fun seed_is_from_tactic ({proof, ...}) = Or2And_Edge.proof_is_from_tactic proof:
 fun apply_PSL_to_get_seeds_of_or2and_edges (synched_term2string:SS.synched_term2string_table) (pst:Proof.state) =
   let
     val ctxt          = Proof.context_of pst;
-    val extend_str    = PSL_Interface.lookup ctxt "Extend_Leaf" |> the                      : PSL_Interface.strategy;
-    val timeouts      = {overall = 60.0, hammer = 8.0, quickcheck = 1.0, nitpick = 2.0}     : TBC_Utils.timeouts;
-    val result_seq    = TBC_Utils.psl_strategy_to_monadic_tactic timeouts extend_str pst [] : (Dynamic_Utils.log * Proof.state) Seq.seq;
-    val result_list   = Seq.list_of result_seq                                              : (Dynamic_Utils.log * Proof.state) list;
-    val script_n_psts = map (apfst Dynamic_Utils.mk_apply_scripts_for_abduction) result_list: (strings * Proof.state) list;
-    fun mk_proof_key_value (pscript, pst) =
+    val extend_str    = PSL_Interface.lookup ctxt "Extend_Leaf" |> the                     : PSL_Interface.strategy;
+    val timeouts      = {overall = 60.0, hammer = 8.0, quickcheck = 1.0, nitpick = 2.0}    : TBC_Utils.timeouts;
+    val result_seq    = TBC_Utils.psl_strategy_to_monadic_tactic timeouts extend_str pst []: (Dynamic_Utils.log * Proof.state) Seq.seq;
+    val result_list   = Seq.list_of result_seq                                             : (Dynamic_Utils.log * Proof.state) list;
+    val pairs_n_psts  = map (apfst Dynamic_Utils.log_to_script_n_importance) result_list   : ((strings * real) * Proof.state) list;
+    fun mk_proof_key_value ((pscript, importance), pst) =
         let
           val subgs              = Isabelle_Utils.pst_to_subgs pst
           val subgs_wo_meta_uni  = map TDU.strip_outermost_meta_quantifiers subgs: terms;
@@ -87,12 +87,12 @@ fun apply_PSL_to_get_seeds_of_or2and_edges (synched_term2string:SS.synched_term2
                        then NONE
                        else SOME {proof      = Or2And_Edge.Tactic pscript,
                                   new_goals  = nonempty_subgs,
-                                  importance = 1.0}(*TODO*)
+                                  importance = importance};
         in
           result: seed_of_or2and_edge option
         end;
   in
-    List.mapPartial mk_proof_key_value script_n_psts: seeds_of_or2and_edge
+    List.mapPartial mk_proof_key_value pairs_n_psts: seeds_of_or2and_edge
   end;
 
 
@@ -147,7 +147,7 @@ fun filter_out_bad_seeds_from_tactic (parent_or:term) (refutation:SS.synched_ter
 fun conjecture_to_seed_of_or2and_edge (conjectures:(string * term) list): seed_of_or2and_edge =
   {new_goals  = conjectures: (string * term) list,
    proof      = Or2And_Edge.Conjecture: how_to_get_andnodes_from_ornode,
-   importance = 0.95};(*TODO: We should use different importance for different explicit conjectures?*)
+   importance = 0.95};(*TODO: magic number.*)
 
 fun conjectures_to_seed_of_or2and_edge (term2name:SS.synched_term2string_table) (pst:Proof.state) (conjectures_w_name: (string * term) list) =
   let
@@ -174,8 +174,7 @@ fun seed_has_counterexample (refutation:SS.synched_term2bool_table) (pst:Proof.s
 
 fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*parent node*)
      ({new_goals : (string * term) list,
-       proof     : how_to_get_andnodes_from_ornode,
-       importance: real}: seed_of_or2and_edge)(*child nodes*) =
+       proof     : how_to_get_andnodes_from_ornode,...}: seed_of_or2and_edge)(*child nodes*) =
    let
      fun register_thm_in_lthy (name:string) (thm:thm) (lthy:local_theory): local_theory =
          Local_Theory.note ((Binding.name name, []), [thm]) lthy |> snd: local_theory;
@@ -271,9 +270,11 @@ fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_ag
     val _                  = map add_child_ornode used_conjectures: unit list;
     (*step 7*)
     val _                  = SS.add_edges_from_andnode_to_ornodes added_andnode_key synched_agraph: unit;
-    val connected_orkeys   = map (fn or_term => (Or_N, [or_term])) and_node_terms: keys;
     (*step 8: TODO: add the importance of the child-or-nodes.*)
-    val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph connected_orkeys: unit list;
+    val child_orkeys       = map (fn or_term => (Or_N, [or_term])) and_node_terms: keys;
+    val _                  = map (SS.update_importance_of_ornode synched_agraph) child_orkeys: unit list;
+    (*step 9*)
+    val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph child_orkeys: unit list;
   in
     ()
   end;
@@ -289,6 +290,7 @@ fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_ag
  * step 6. add child-or-nodes that correspond to the sub-goals or used conjectures in the and-node.
  * step 7. connect the child-or-nodes to the and-node.
  * step 8. TODO: add the importance of the child-or-nodes.
+ * step 9. update the values of or-nodes and and-nodes in the graph.
  *)
 fun abduction_for_tactic_based_conjectures (pst:Proof.state) (parent_or:key) (seeds: seeds_of_or2and_edge) (sagraph:SS.synched_abduction_graph) =
   let

@@ -39,6 +39,7 @@ val add_edges_from_andnode_to_ornodes             : Abduction_Graph.key -> synch
 val update_proved_completely                      : Abduction_Graph.key -> synched_abduction_graph -> unit;
 val update_proof_n_proof_id                       : (*proof*)strings -> (*or*)Abduction_Graph.key -> synched_abduction_graph -> unit;
 val update_after_proving_ornode                   : strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
+val update_importance_of_ornode                   : synched_abduction_graph -> Abduction_Graph.key -> unit;
 val update_after_connecting_andnd_to_existing_ornd: Proof.context -> synched_abduction_graph -> (*or_key*)Abduction_Graph.keys -> unit list;
 
 val final_goal_proved_completely     : synched_abduction_graph -> bool;
@@ -193,6 +194,9 @@ fun update_proof_n_proof_id (proof:strings) (key:AG.key) (sagraph:synched_abduct
 
 fun update_after_proving_ornode (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
   Synchronized.change sagraph (UAG.update_after_proving_ornode proof orkey ctxt): unit;
+
+fun update_importance_of_ornode (sagraph:synched_abduction_graph) (orkey:AG.key) =
+  Synchronized.change sagraph (UAG.update_importance_of_ornode orkey): unit;
 
 fun update_after_connecting_andnd_to_existing_ornd' (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkey:AG.key) =
   Synchronized.change sagraph (UAG.update_after_connecting_andnd_to_existing_ornd orkey ctxt): unit;

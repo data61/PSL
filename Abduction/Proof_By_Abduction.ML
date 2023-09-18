@@ -173,10 +173,12 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val ctxt                   = Proof.context_of pst;
       val abduction_graph        = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
       val orkeys_worth_expanding = orkeys_tobe_expanded_in ctxt abduction_graph: keys;
-      val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length orkeys_worth_expanding) ^ ".");
+      val sorted_orkeys          = sort_orkeys_based_on_importance abduction_graph orkeys_worth_expanding: keys;
+      val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length sorted_orkeys) ^ ".");
       val _                      = tracing "They are:"
-      val _                      = map (print_key ctxt) orkeys_worth_expanding
-      val some_orkey             = Par_List.find_some (expand_ornode_if_original_goral_is_unproved_w_timeout start (pst, synched_agraph, refutation, term2name, proved_ors)) orkeys_worth_expanding: key option;
+      val _                      = map (print_key ctxt) sorted_orkeys
+      val expand_ornode          = expand_ornode_if_original_goral_is_unproved_w_timeout start (pst, synched_agraph, refutation, term2name, proved_ors): Abduction_Graph.key -> bool;
+      val some_orkey             = Par_List.find_some expand_ornode sorted_orkeys: key option;
       val solved                 = is_some some_orkey: bool;
       val _                      = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
     in
