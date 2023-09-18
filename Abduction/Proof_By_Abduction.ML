@@ -178,7 +178,8 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing "They are:"
       val _                      = map (print_key ctxt) sorted_orkeys
       val expand_ornode          = expand_ornode_if_original_goral_is_unproved_w_timeout start (pst, synched_agraph, refutation, term2name, proved_ors): Abduction_Graph.key -> bool;
-      val some_orkey             = Par_List.find_some expand_ornode sorted_orkeys: key option;
+      val top_ornodes            = take 15 sorted_orkeys: keys;(*TODO: magic number*)
+      val some_orkey             = Par_List.find_some expand_ornode top_ornodes: key option;
       val solved                 = is_some some_orkey: bool;
       val _                      = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
     in
