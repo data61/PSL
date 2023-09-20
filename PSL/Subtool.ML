@@ -61,9 +61,9 @@ end;
 structure Nitpick_Tactic : SUBTOOL =
 struct
 
-fun nontac (timeout:real) (state:Proof.state) =
+fun state_stttac (timeout:real) (state:Proof.state) (log:Dynamic_Utils.log) =
   let
-    val single             = Seq.single state;
+
     val thy:theory         = (Proof.theory_of state);
     val params             = Nitpick_Commands.default_params thy [];
     val timeout            = Isabelle_Utils.timeout_apply (seconds timeout);
@@ -73,15 +73,19 @@ fun nontac (timeout:real) (state:Proof.state) =
     fun nitpick_result' _  = Nitpick.pick_nits_in_subgoal state params Nitpick.Normal 1 1;
     val nitpick_result     = timeout nitpick_result' () handle Timeout.TIMEOUT to => (trace_to to; ("timeout", []));
     (*"genuine" means "genuine counter-example".*)
-    val nitpick_succeed    = fst nitpick_result = "genuine";
+    val fst_result         = fst nitpick_result;
+    val nitpick_succeed    = fst_result = Nitpick.genuineN;
+    val importance         = if fst_result = Nitpick.quasi_genuineN
+                             then 0.1 else if fst_result = Nitpick.potentialN
+                             then 0.6 else 1.0;(*TODO: magic numbers*)
+    val node               = Dynamic_Utils.Apply {using = [], methN = "-", back = 0, importance = SOME importance}
+                           : Dynamic_Utils.node;
+    val single             = Seq.single (log @ [node], state);
     val nitpick_tac_result = if nitpick_succeed then Seq.empty else single
+                           : (Dynamic_Utils.node list * Proof.state) Seq.seq;
   in
-    nitpick_tac_result : Proof.state Seq.seq
+    nitpick_tac_result
   end;
-
-fun timeout f = Utils.try_with Seq.empty (Isabelle_Utils.timeout_apply (seconds 2.0) f);
-
-fun state_stttac timeout = Dynamic_Utils.log_n_nontac_to_stttac ([], nontac timeout);
 
 end;
 

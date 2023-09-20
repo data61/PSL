@@ -27,6 +27,7 @@ val update_proved_completely     : ornode -> ornode;
 val update_proof_n_proof_id      : strings -> ornode -> ornode;
 val update_is_branch             : ornode -> ornode;
 val update_importance            : real -> ornode -> ornode;
+val multiply_importance          : real -> ornode -> ornode;
 val update_imp_if_this_is_larger : real -> ornode -> ornode;
 
 end;
@@ -213,6 +214,10 @@ fun update_importance (importance:real) ({
   gg_parent_not_finished = gg_parent_not_finished,
   importance             = SOME importance
 }: ornode;
+
+fun multiply_importance (importance:real) (ornode:ornode) = case #importance ornode of
+  NONE => update_importance importance ornode
+| SOME old_imp => update_importance (importance * old_imp) ornode;
 
 (* update_imp_if_this_is_larger *)
 fun update_imp_if_this_is_larger (new_imp:real) (ornode as {importance: real option, ...}: ornode) =

@@ -17,6 +17,7 @@ val proof_is_from_tactic: how_to_get_andnodes_from_ornode -> bool;
 type or2and_edge;
 val or2and_edge_to_proof: or2and_edge -> strings;
 val or2and_edge_to_importance: or2and_edge -> real;
+val multiply_importance: real -> or2and_edge -> or2and_edge;
 
 end;
 
@@ -46,5 +47,11 @@ fun or2and_edge_to_proof ({proof_of_ornode_assmng_andnodes, ...}:or2and_edge) = 
 
 (* or2and_edge_to_importance *)
 fun or2and_edge_to_importance ({importance,...}:or2and_edge) = importance: real;
+
+(* update_importance *)
+fun multiply_importance (new_importance:real) {how_to_get_andnodes_from_ornode, proof_of_ornode_assmng_andnodes, importance} =
+    {how_to_get_andnodes_from_ornode = how_to_get_andnodes_from_ornode,
+     proof_of_ornode_assmng_andnodes = proof_of_ornode_assmng_andnodes,
+     importance                      = importance * new_importance}: or2and_edge;
 
 end;

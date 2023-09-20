@@ -113,7 +113,7 @@ val psl_strategy_to_monadic_tactic:           timeouts -> Monadic_Prover.str -> 
 val pst_to_proofscript_opt:                   timeouts -> string -> Proof.state -> (string  * Proof.state) option;
 val pst_to_proofscripts_opt:                  timeouts -> string -> Proof.state -> (strings * Proof.state) option;
 val pst_n_conjecture_has_counterexample:      Proof.state -> string -> bool;
-val term_has_counterexample_in_pst:           Proof.state-> term -> bool;
+val term_has_counterexample_in_pst:           Proof.state-> term -> real;
 val assume_term_in_ctxt:                      (string * term) -> Proof.context -> local_theory;
 val assume_terms_in_ctxt:                     (string * term) list -> Proof.context -> Proof.context;
 val cheat_lemma_term_in_pst:                  string -> term -> Proof.state -> Proof.state option;
@@ -276,8 +276,12 @@ fun term_has_counterexample_in_pst (pst:Proof.state) (term:term) =
     val pst_to_be_proved = Proof.theorem NONE (K I) [[(term, [])]] (Proof.context_of pst)       : Proof.state;
     val timeouts         = {overall = 30.0, hammer = 30.0, quickcheck = 2.0, nitpick = 3.5}     : timeouts;
     val result_seq       = psl_strategy_to_monadic_tactic timeouts quickpick pst_to_be_proved []: (Dynamic_Utils.log * Proof.state) Seq.seq;
+    val result_opt       = Seq.pull result_seq
+    val result_real      = (case result_opt of
+                           NONE => 0.0
+                         | SOME ((log, _), _) => Dynamic_Utils.log_to_script_n_importance log |> snd)
   in
-    is_none (Seq.pull result_seq)
+    result_real
   end;
 
 

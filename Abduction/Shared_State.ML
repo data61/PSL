@@ -15,11 +15,13 @@ val add_proved_simp: synched_proved_simps -> (string * term) -> unit;
 
 type abduction_graph;
 
-type term2bool_table;
-type synched_term2bool_table;
-val mk_term2bool_table     : unit -> synched_term2bool_table;
-val is_refuted             : synched_term2bool_table -> Proof.state   -> term  -> bool;
-val any_of_these_is_refuted: synched_term2bool_table -> Proof.state   -> terms -> bool;
+type term2real_table;
+type synched_term2real_table;
+val mk_term2real_table     : unit -> synched_term2real_table;
+val refute                 : synched_term2real_table -> Proof.state -> term  -> real;
+val is_refuted             : synched_term2real_table -> Proof.state -> term  -> bool;
+val refute_any_of_these    : synched_term2real_table -> Proof.state -> terms -> real;
+val any_of_these_is_refuted: synched_term2real_table -> Proof.state -> terms -> bool;
 
 (*TODO: Do we really need a table that maps terms to lemma names? Can we use Abduction_Graph for this?*)
 type term2string_table;
@@ -72,28 +74,28 @@ type abduction_graph = Abduction_Graph.abduction_graph;
 structure Term_Table = Table (type key = term val ord = Term_Ord.term_ord);
 val defined          = Term_Table.defined;
 
-type term2bool_table         = bool Term_Table.table; (*true = refuted, false = not refuted*)
-type synched_term2bool_table = term2bool_table Synchronized.var;
+type term2real_table         = real Term_Table.table; (*true = refuted, false = not refuted*)
+type synched_term2real_table = term2real_table Synchronized.var;
 
-fun mk_term2bool_table _ = Synchronized.var "synched_term2bool_table" Term_Table.empty: synched_term2bool_table;
+fun mk_term2real_table _ = Synchronized.var "synched_term2real_table" Term_Table.empty: synched_term2real_table;
 
 local
 
 val lookup                   = Utils.the' "lookup in Shared_State failed for Term_Table." oo Term_Table.lookup;
-fun insert_bool (cnjctr:term, b:bool) (table:term2bool_table) =
-  case try (Term_Table.insert (op =) (cnjctr, b)) table
+fun insert_bool (cnjctr:term, r:real) (table:term2real_table) =
+  case try (Term_Table.insert (Real.==) (cnjctr, r)) table
   of NONE           => table
    | SOME new_table => new_table;
 
 (*Once we refute a term. The term remains refuted in the table forever.*)
 in
 
-fun is_refuted (synched_table:synched_term2bool_table) (pst:Proof.state) (cnjctr:term) =
+fun refute (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): real =
   let
     val cnjctr_prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
-    val old_table         = Synchronized.value synched_table                                           : term2bool_table;
+    val old_table         = Synchronized.value synched_table                                           : term2real_table;
     val already_checked   = defined old_table cnjctr_prop                                              : bool;
-    fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * bool);
+    fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * real);
     val _                 =
       if   already_checked then ()
       else
@@ -105,14 +107,24 @@ fun is_refuted (synched_table:synched_term2bool_table) (pst:Proof.state) (cnjctr
         in
           Synchronized.change synched_table (insert_bool pair): unit
         end;
-    val new_table         = Synchronized.value synched_table: term2bool_table;
-    val result            = lookup new_table cnjctr_prop    : bool;
+    val new_table         = Synchronized.value synched_table: term2real_table;
+    val result            = lookup new_table cnjctr_prop    : real;
   in
-    result
+    result: real
   end;
 
-fun any_of_these_is_refuted (synched_table:synched_term2bool_table) (pst:Proof.state) (terms:terms) =
+fun is_refuted (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): bool =
+    Real.== (refute synched_table pst cnjctr, 0.0);
+
+fun any_of_these_is_refuted (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
     exists (is_refuted synched_table pst) terms;
+
+fun refute_any_of_these (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
+  let
+    val importances = map (refute synched_table pst) terms: real list;
+  in
+    fold (fn r1:real => fn r2:real => r1 * r2) importances 1.0
+  end;
 
 end;
 

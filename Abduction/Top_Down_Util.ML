@@ -149,13 +149,6 @@ fun get_fresh_free_var_name_in_trm' (ctxt:Proof.context) (trm:term) (n:int) =
   end;
 
 fun clean_type_of_term (term:term) = Term.map_types (map_atyps (K dummyT)) term: term;
-(*
-fun rm_typ (Const (str, _))  = Const (str, dummyT)
-  | rm_typ (Free  (str, _))  = Free  (str, dummyT)
-  | rm_typ (Var   (idx, _))  = Var   (idx, dummyT)
-  | rm_typ (Bound  i      )  = Bound i
-  | rm_typ (Abs (str, _, t)) = Abs   (str, dummyT, t)
-  | rm_typ (tm1 $ tm2)       = rm_typ tm1 $ rm_typ tm2;*)
 
 fun is_prop trm = body_type (type_of trm) = @{typ "prop"};
 
