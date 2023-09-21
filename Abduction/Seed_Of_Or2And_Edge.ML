@@ -25,8 +25,8 @@ type add_or2and_edge = (key * abduction_node * conjectures);
 val print_seed_of_or2and_edge             : Proof.context -> seed_of_or2and_edge -> unit list;
 val seed_is_from_tactic                   : seed_of_or2and_edge -> bool;
 val apply_PSL_to_get_seeds_of_or2and_edges: (Shared_State.synched_term2string_table * Shared_State.synched_term2real_table) -> Proof.state -> seeds_of_or2and_edge;
-val condition_to_filter_out_conjecture    : term -> Shared_State.synched_term2real_table -> Proof.state -> abduction_graph -> bool (*from_tactic*) -> term (*conjecture*) -> bool;
-val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_State.synched_term2real_table -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
+val condition_to_filter_out_conjecture    : term -> Shared_State.synched_term2real_table -> terms -> Proof.state -> abduction_graph -> bool (*from_tactic*) -> term (*conjecture*) -> bool;
+val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_State.synched_term2real_table -> terms (*original premises*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
 val conjectures_to_seed_of_or2and_edge    : Shared_State.synched_term2string_table -> Proof.state -> (string * term) list -> seed_of_or2and_edge;
 val seed_has_counterexample               : Shared_State.synched_term2real_table -> Proof.state -> seed_of_or2and_edge -> bool;
 val abduction_for_tactic_based_conjectures: Proof.state -> key -> seeds_of_or2and_edge -> Shared_State.synched_abduction_graph -> unit;
@@ -116,8 +116,8 @@ fun apply_PSL_to_get_seeds_of_or2and_edges
     List.mapPartial mk_proof_key_value pairs_n_psts: seeds_of_or2and_edge
   end;
 
-
-fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.synched_term2real_table) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (conjecture:term) =
+(*TODO: maybe we should add the premises of parent_or to orig_prems after cleaning types and free-variable names.*)
+fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (conjecture:term) =
     let
       val final_goal  = get_final_goal_key ag |> snd |> hd: term;
       val upper_limit = 100.0;(*TODO: magic number*)
@@ -135,8 +135,11 @@ fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.sync
           SeLFiE_For_Top_Down.run_assertion pst conjecture SeLFiE_For_Top_Down.has_func_with_three_occs_in_a_row;
       fun has_counter_example_in_prems (pst:Proof.state) (term:term) =
         let
-          val prems  = Logic.strip_imp_prems term: terms;
-          val result = SS.any_of_these_is_refuted refutation pst prems: bool
+          (*If the original goal contains a premise that alone can be made equivalent to false, that premise is okay.*)
+          val prems             = Logic.strip_imp_prems term |> map TDU.standardize_vnames |> map Isabelle_Utils.strip_atyp: terms;
+          fun in_orig_prem prem = exists (fn orig_prem => orig_prem = prem) orig_prems    : bool;
+          val non_orig_prems    = filter_out in_orig_prem prems                           : terms;
+          val result            = SS.any_of_these_is_refuted refutation pst non_orig_prems: bool
         in
            result
         end;
@@ -146,21 +149,22 @@ fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.sync
       eq_to_final_goal () andalso from_tactic orelse
       concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*) orelse
       has_func_with_three_occs_in_a_row () orelse
-      has_counter_example_in_prems pst conjecture
+      (not from_tactic) andalso has_counter_example_in_prems pst conjecture
     end;
 
 datatype conjecture_typ = Explicit_Conjecturing | Implicit_Conjecturing (*tactic application*);
 
-fun condition_to_filter_out_seed_from_tactic (parent_or:term) (refutation:SS.synched_term2real_table) (pst:Proof.state) (ag:abduction_graph) (seed:seed_of_or2and_edge): bool =
+fun condition_to_filter_out_seed_from_tactic (parent_or:term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (ag:abduction_graph) (seed:seed_of_or2and_edge): bool =
   let
     val subgoals   = #new_goals seed |> map snd: terms;
     val no_subgoal = null subgoals: bool;
   in
-    no_subgoal orelse exists (condition_to_filter_out_conjecture parent_or refutation pst ag true) subgoals 
+    (*For conjectures from tactics, we do not care if a premise is equivalent to false or not for now.*)
+    no_subgoal orelse exists (condition_to_filter_out_conjecture parent_or refutation orig_prems pst ag true) subgoals
   end;
 
-fun filter_out_bad_seeds_from_tactic (parent_or:term) (refutation:SS.synched_term2real_table) (pst:Proof.state) (graph:abduction_graph) (seeds:seeds_of_or2and_edge) =
-  filter_out (condition_to_filter_out_seed_from_tactic parent_or refutation pst graph) seeds: seeds_of_or2and_edge;
+fun filter_out_bad_seeds_from_tactic (parent_or:term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (graph:abduction_graph) (seeds:seeds_of_or2and_edge) =
+  filter_out (condition_to_filter_out_seed_from_tactic parent_or refutation orig_prems pst graph) seeds: seeds_of_or2and_edge;
 
 fun conjecture_to_seed_of_or2and_edge (conjectures:(string * term) list): seed_of_or2and_edge =
   {new_goals  = conjectures: (string * term) list,

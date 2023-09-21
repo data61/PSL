@@ -39,17 +39,18 @@ fun prove_standard_simp_rules
    synched_agraph: SS.synched_abduction_graph,
    refutation    : SS.synched_term2real_table,
    term2name     : SS.synched_term2string_table,
-   proved_ors    : SS.synched_proved_simps)
+   proved_ors    : SS.synched_proved_simps,
+   orig_prems    : terms)
   (lemma_term:term): unit =
   let
     (*top-down explicit conjecturing*)
     val ctxt = Proof.context_of pst: Proof.context;
-    val graph                      = Synchronized.value synched_agraph                                                  : abduction_graph;
-    val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture lemma_term refutation pst graph false o snd: string * term -> bool;
-    val explicit_conjectures       = ATDC.template_based_conjecture_for_simplification term2name ctxt lemma_term        : (string * term) list;
-    val filtered_explicit          = TDU.parallel_filter_out condition_to_filter_out explicit_conjectures               : (string * term) list;
-    val refute                     = Shared_State.is_refuted refutation pst o snd                                       : (string * term) -> bool;
-    val explicit_wo_counterexample = TDU.parallel_filter_out refute filtered_explicit                                   : (string * term) list;
+    val graph                      = Synchronized.value synched_agraph                                                             : abduction_graph;
+    val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture lemma_term refutation orig_prems pst graph false o snd: string * term -> bool;
+    val explicit_conjectures       = ATDC.template_based_conjecture_for_simplification term2name ctxt lemma_term                   : (string * term) list;
+    val filtered_explicit          = TDU.parallel_filter_out condition_to_filter_out explicit_conjectures                          : (string * term) list;
+    val refute                     = Shared_State.is_refuted refutation pst o snd                                                  : (string * term) -> bool;
+    val explicit_wo_counterexample = TDU.parallel_filter_out refute filtered_explicit                                              : (string * term) list;
     fun prove_save_in_graph (lem_name:string, lem_term:term) =
       let
         (*expensive*)
@@ -69,7 +70,8 @@ fun expand_ornode_if_original_goral_is_unproved
    synched_agraph: SS.synched_abduction_graph,
    refutation    : SS.synched_term2real_table,
    term2name     : SS.synched_term2string_table,
-   proved_ors    : SS.synched_proved_simps)
+   proved_ors    : SS.synched_proved_simps,
+   orig_prems    : terms)
   (or_key as (Or_N, [lemma_term]):key): bool =
     let
        (*very expensive*)
@@ -87,13 +89,13 @@ fun expand_ornode_if_original_goral_is_unproved
       else (*if we cannot prove the ornode completely, expand it using Extend_Leaf and conjecturing*)
         let
           (*top-down explicit conjecturing*)
-          val explicit_conjectures       = All_Top_Down_Conjecturing.top_down_conjectures term2name pst lemma_term                   : (string * term) list;
-          val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture lemma_term refutation pst graph false o snd       : string * term -> bool;
-          val filtered_explicit          = TDU.parallel_filter_out condition_to_filter_out explicit_conjectures: (string * term) list: (string * term) list;
-          val explicit_wo_counterexample = TDU.parallel_filter_out (Shared_State.is_refuted refutation pst o snd) filtered_explicit  : (string * term) list;
-          val seed_from_explicit         = SOOE.conjectures_to_seed_of_or2and_edge term2name pst explicit_wo_counterexample          : seed_of_or2and_edge;
-          val explicit_cnjnctrs          = #new_goals seed_from_explicit                                                             : SOOE.conjectures;
-          val ctxt                       = Proof.context_of pst                                                                      : Proof.context;
+          val explicit_conjectures       = All_Top_Down_Conjecturing.top_down_conjectures term2name pst lemma_term                       : (string * term) list;
+          val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture lemma_term refutation orig_prems pst graph false o snd: string * term -> bool;
+          val filtered_explicit          = TDU.parallel_filter_out condition_to_filter_out explicit_conjectures: (string * term) list    : (string * term) list;
+          val explicit_wo_counterexample = TDU.parallel_filter_out (Shared_State.is_refuted refutation pst o snd) filtered_explicit      : (string * term) list;
+          val seed_from_explicit         = SOOE.conjectures_to_seed_of_or2and_edge term2name pst explicit_wo_counterexample              : seed_of_or2and_edge;
+          val explicit_cnjnctrs          = #new_goals seed_from_explicit                                                                 : SOOE.conjectures;
+          val ctxt                       = Proof.context_of pst                                                                          : Proof.context;
           fun simp_explicit_conjecture (simp as (_:string, simp_term:term)) (cnjctr as (_:string, cnjctr_term:term)): SOOE.conjectures =
             let
               val simp_thm = TDU.term_to_thm ctxt simp_term: thm;
@@ -139,7 +141,7 @@ fun expand_ornode_if_original_goral_is_unproved
           val pst_to_prove                 = TDU.mk_pst_to_prove_from_term pst lemma_term: state;
           val seeds_from_tactics           = SOOE.apply_PSL_to_get_seeds_of_or2and_edges (term2name, refutation) pst_to_prove: seeds_of_or2and_edge;
           val graph_extended_by_conjecture = Synchronized.value synched_agraph: abduction_graph;
-          val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation pst graph_extended_by_conjecture seeds_from_tactics
+          val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation orig_prems pst graph_extended_by_conjecture seeds_from_tactics
                                           |> filter_out (SOOE.seed_has_counterexample refutation pst): seeds_of_or2and_edge;
           val _                            = SOOE.abduction_for_tactic_based_conjectures pst or_key filtered_seeds_from_tactics synched_agraph: unit;
         in
@@ -154,19 +156,21 @@ fun current_time (start:Timing.start) = Time.toReal (#elapsed (Timing.result sta
 fun still_has_time (start:Timing.start) (pst:Proof.state) = current_time start < get_timeout pst: bool;
 
 fun expand_ornode_if_original_goral_is_unproved_w_timeout (start:Timing.start)
-      (pst:state, synched_agraph, refutation, term2name, proved_ors) (or_key as (Or_N, [_]):key): bool =
+      (pst:state, synched_agraph, refutation, term2name, proved_ors, orig_prems) (or_key as (Or_N, [_]):key): bool =
     if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
-    then expand_ornode_if_original_goral_is_unproved (pst, synched_agraph, refutation, term2name, proved_ors) or_key
+    then expand_ornode_if_original_goral_is_unproved (pst, synched_agraph, refutation, term2name, proved_ors, orig_prems) or_key
     else false
 | expand_ornode_if_original_goral_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
 
 (* loop *)
 fun loop (counter:int) (max_depth:int) (start:Timing.start)
+    (quintuple as
     (pst:state,
      synched_agraph: SS.synched_abduction_graph,
      refutation:SS.synched_term2real_table,
      term2name:SS.synched_term2string_table,
-     proved_ors:SS.synched_proved_simps) =
+     proved_ors:SS.synched_proved_simps,
+     orig_prems: terms)) =
   if counter < 8 andalso still_has_time start pst
   then
     let
@@ -178,13 +182,15 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length sorted_orkeys) ^ ".");
       val _                      = tracing "They are:"
       val _                      = map (print_key ctxt) sorted_orkeys
-      val expand_ornode          = expand_ornode_if_original_goral_is_unproved_w_timeout start (pst, synched_agraph, refutation, term2name, proved_ors): Abduction_Graph.key -> bool;
+      val expand_ornode          = expand_ornode_if_original_goral_is_unproved_w_timeout start
+                                   (pst, synched_agraph, refutation, term2name, proved_ors, orig_prems)
+                                 : Abduction_Graph.key -> bool;
       val top_ornodes            = take 8 sorted_orkeys: keys;(*TODO: magic number*)
       val some_orkey             = Par_List.find_some expand_ornode top_ornodes: key option;
       val solved                 = is_some some_orkey: bool;
       val _                      = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
     in
-      (if solved then solved else loop (counter + 1) max_depth start (pst, synched_agraph, refutation, term2name, proved_ors))
+      (if solved then solved else loop (counter + 1) max_depth start quintuple)
     end
   else
     false;
@@ -258,9 +264,10 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
     val synched_refutation_table = SS.mk_term2real_table ();
     val synched_lemma_name_table = SS.mk_term2string_table ();
     val synched_proved_simps     = SS.mk_synched_proved_simps ();
-    val quadruple                = (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table, synched_proved_simps);
-    val _                        = prove_standard_simp_rules quadruple standardized_term: unit;
-    val solved                   = loop 0 max_depth start quadruple;
+    val ori_prems                = Logic.strip_imp_prems term |> map TDU.standardize_vnames |> map Isabelle_Utils.strip_atyp: terms;
+    val quintuple                = (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table, synched_proved_simps, ori_prems);
+    val _                        = prove_standard_simp_rules quintuple standardized_term: unit;
+    val solved                   = loop 0 max_depth start quintuple;
     val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
     val lemma_name2term          = abduction_graph_to_string2term_table final_graph: string2term_table;
     val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
