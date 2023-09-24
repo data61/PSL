@@ -385,7 +385,7 @@ then
         conjectures_n_pst_to_pst_n_proof' unprocessed_pnodes new_pst (processed_pnodes @ [processed_pnode])
       end;
 
-    val _ = if counter = 0 then () else tracing ("\nProperty-Based Conjecturing. Round: " ^ Int.toString counter ^ ".");
+    val _ = if counter = 0 then () else tracing ("\nTemplate-Based Conjecturing. Round: " ^ Int.toString counter ^ ".");
     val (new_pst, processed_pnodes) = conjectures_n_pst_to_pst_n_proof' unprocessed_pnodes pst [];
   in
     if original_goal_is_proved processed_pnodes

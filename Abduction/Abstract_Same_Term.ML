@@ -79,7 +79,7 @@ fun abstract_same_term_str (ctxt:Proof.context) (trm:term) =
       val cnjctrs              = map (try (Syntax.read_prop ctxt)) cnjctrs_strs |> map the_list |> flat: terms;
       val standardized_cnjctrs = map standardize_vnames cnjctrs                                        : terms;
       val unique_cnjectrs      = distinct (op =) standardized_cnjctrs                                  : terms;
-      val tagged_cnjctrs       = map (pair "abstract_same_term)") unique_cnjectrs                      : (string * term) list;
+      val tagged_cnjctrs       = map (pair "abstract_same_term") unique_cnjectrs                      : (string * term) list;
     in
       tagged_cnjctrs
     end;

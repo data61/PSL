@@ -6,7 +6,4 @@ theory Smart_Isabelle
   "Abduction.Abduction"
 begin
 
-lemma "True"
-  oops
-
 end

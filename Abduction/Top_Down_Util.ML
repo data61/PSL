@@ -30,7 +30,7 @@ val mk_prop                          : Proof.context -> term -> term;
 val mk_unbound_bound_vars_free_vars  : Proof.context -> term -> term;
 val get_lemma_names_from_sh_output   : theory -> string -> strings;
 val is_thm_name_registered           : Proof.context -> string -> bool;
-val mk_new_lemma_name                : Proof.context -> bool(*is_final_goal*) -> string;
+val mk_new_lemma_name                : Proof.context -> bool(*is_final_goal*) -> string (*lemma_type*) -> string;
 val term_compare                     : term * term -> order;
 val term_to_thm                      : Proof.context -> term -> thm;
 val timeout_config                   : real Config.T;
@@ -48,6 +48,7 @@ val mk_extended_rhses                : Proof.context -> terms -> term -> terms;
 val replace_redundant_compound_subtrm_with_free_var: Proof.context -> (term * term) -> (term * term);
 val parallel_filter                  : ('a -> bool) -> 'a list -> 'a list;
 val parallel_filter_out              : ('a -> bool) -> 'a list -> 'a list;
+val is_template_based                : string -> bool;
 
 end;
 
@@ -224,21 +225,21 @@ fun get_lemma_names_from_sh_output (thy:theory) (sh_output:string) =
     val strings       = map Token.unparse tokens                          : strings;
     fun get_base_name (name:string) = if Long_Name.is_qualified name then Long_Name.base_name name else name;
     val base_names    = map get_base_name strings: strings;
-    val filtered      = filter (String.isPrefix "top_down_lemma_") base_names: strings;
+    val filtered      = filter (String.isPrefix "abduced_lemma_") base_names: strings;
 in
     filtered
 end;
 
 fun is_thm_name_registered (ctxt:Proof.context) (thm_name:string) = try (Proof_Context.get_thm ctxt) thm_name |> is_some: bool;
 
-fun mk_new_lemma_name (ctxt:Proof.context) (is_final_goal:bool): string =
+fun mk_new_lemma_name (ctxt:Proof.context) (is_final_goal:bool) (lemma_type:string): string =
   let
-    val name_header    = if is_final_goal then "original_goal_" else "top_down_lemma_";
+    val name_header    = (if is_final_goal then "original_goal_" else "abduced_lemma_") ^ lemma_type;
     val candidate_name = name_header ^ Int.toString (serial()): string;
     val this_name_is_already_taken = is_thm_name_registered ctxt candidate_name;
   in
     if   this_name_is_already_taken
-    then mk_new_lemma_name ctxt is_final_goal
+    then mk_new_lemma_name ctxt is_final_goal lemma_type
     else candidate_name
   end
 
@@ -439,5 +440,29 @@ fun parallel_filter_in_or_out (filter_in:bool) (condition:'a -> bool) (xs:'a lis
 
 fun parallel_filter     (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out true  condition xs;
 fun parallel_filter_out (condition:'a -> bool) (xs:'a list) = parallel_filter_in_or_out false condition xs;
+
+val isPrefix = String.isPrefix;
+
+fun is_template_based (name:string) =
+    isPrefix "abduced_lemma_Associativity"           name orelse
+    isPrefix "abduced_lemma_Identity"                name orelse
+    isPrefix "abduced_lemma_Invertibility"           name orelse
+    isPrefix "abduced_lemma_Commutativity"           name orelse
+    isPrefix "abduced_lemma_Idempotent_Element"      name orelse
+    isPrefix "abduced_lemma_Idempotency"             name orelse
+    isPrefix "abduced_lemma_Zero_Element"            name orelse
+    isPrefix "abduced_lemma_Distributivity"          name orelse
+    isPrefix "abduced_lemma_Ant_Distributivity"      name orelse
+    isPrefix "abduced_lemma_Homomorphism_2"          name orelse
+    isPrefix "abduced_lemma_Transitivity"            name orelse
+    isPrefix "abduced_lemma_Symmetry"                name orelse
+    isPrefix "abduced_lemma_Connexity"               name orelse
+    isPrefix "abduced_lemma_Reflexivity"             name orelse
+    isPrefix "abduced_lemma_Square"                  name orelse
+    isPrefix "abduced_lemma_Square_Root"             name orelse
+    isPrefix "abduced_lemma_Projection"              name orelse
+    isPrefix "abduced_lemma_Swap_Constructor"        name orelse
+    isPrefix "abduced_lemma_Swap_Unary"              name orelse
+    isPrefix "abduced_lemma_Composite_Commutativity" name;
 
 end;

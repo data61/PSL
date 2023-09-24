@@ -27,7 +27,7 @@ val any_of_these_is_refuted: synched_term2real_table -> Proof.state -> terms -> 
 type term2string_table;
 type synched_term2string_table;
 val mk_term2string_table: unit -> synched_term2string_table;
-val get_lemma_name      : synched_term2string_table -> Proof.context -> term  -> string;
+val get_lemma_name      : synched_term2string_table -> Proof.context -> string -> term  -> string;
 (*TODO: Do we really need get_orkey_name even though we have get_lemma_name?*)
 val get_orkey_name      : synched_term2string_table -> Proof.context -> Abduction_Graph.key -> string;
 
@@ -143,12 +143,13 @@ fun insert_string (cnjctr:term, lemma_name:string) (old_table:term2string_table)
 
 in
 
-fun get_lemma_name (synched_table:synched_term2string_table) (ctxt:Proof.context) (term:term) =
+fun get_lemma_name (synched_table:synched_term2string_table) (ctxt:Proof.context) (candidate:string) (term:term) =
   let
-    val standardized_term  = Top_Down_Util.standardize_vnames term                           : term;
-    val old_table          = Synchronized.value synched_table                                : term2string_table;
-    val already_checked    = defined old_table standardized_term                             : bool;
-    fun mk_new_name_pair _ = (standardized_term, Top_Down_Util.mk_new_lemma_name ctxt false) : (term * string);
+    val standardized_term  = Top_Down_Util.standardize_vnames term                      : term;
+    val old_table          = Synchronized.value synched_table                           : term2string_table;
+    val already_checked    = defined old_table standardized_term                        : bool;
+    val mk_new_lemma_name  = Top_Down_Util.mk_new_lemma_name                            : Proof.context -> bool -> string -> string;
+    fun mk_new_name_pair _ = (standardized_term, mk_new_lemma_name ctxt false candidate): (term * string);
 
     val _                 =
       if   already_checked then ()
@@ -173,7 +174,7 @@ structure AG  = Abduction_Graph;
 structure UAG = Update_Abduction_Graph;
 
 fun get_orkey_name (synched_table:synched_term2string_table) (ctxt:Proof.context) ((AG.Or_N, [term]): AG.key) =
-    get_lemma_name synched_table ctxt term
+    get_lemma_name synched_table ctxt "" term
   | get_orkey_name _ _ _ = error "get_orkey_name failed. Not an orkey."
 
 type synched_abduction_graph = abduction_graph Synchronized.var;

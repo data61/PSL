@@ -72,7 +72,7 @@ fun top_down_conjectures _ (pst:Proof.state) (trm:term) =
     val cnjctrs              = one_less_occ @ one_less_prnt |> distinct (op =)  : terms;
     val standardized_cnjctrs = map standardize_vnames cnjctrs    : terms;
     val unique_cnjectrs      = distinct (op =) standardized_cnjctrs             : terms;
-    val tagged_cnjctrs       = map (pair "remove_function)") unique_cnjectrs    : (string * term) list;
+    val tagged_cnjctrs       = map (pair "remove_function") unique_cnjectrs    : (string * term) list;
   in
     tagged_cnjctrs
   end;

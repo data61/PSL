@@ -148,20 +148,20 @@ fun tool_output_n_timeout_to_logtac (sh_output:string) (importance: real option)
       in
         if Utils.debug then (tracing1 (); tracing2 (); tracing3 (); ()) else ()
       end;
-
     val state_w_using = Proof.using_cmd using_raw state : Proof.state;
     fun timeout f     = Utils.try_with Seq.empty (Isabelle_Utils.timeout_apply (seconds to) f)
     val tac_results   = timeout (Proof.apply checked_range) state_w_using
                         |> Seq.filter_results
-                       (*Why Seq.try Seq.hd? Because we want to evaluate the head of
-                         sequence strictly here to catch errors immediately.*)
-                        |> Utils.try_with Seq.empty (Seq.try Seq.hd): Proof.state Seq.seq;
+                        (*Why Seq.try Seq.hd? Because we want to evaluate the head of
+                          sequence strictly here to catch errors immediately.*)
+                        (*Note that we have to use timeout here due to the use of lazy sequence.*)
+                        |> Utils.try_with Seq.empty (timeout (Seq.try Seq.hd)): Proof.state Seq.seq;
     val results_w_log = Seq.map (fn x => ([node], x)) tac_results : (Dynamic_Utils.log * Proof.state) Seq.seq;
   in
     results_w_log : (Dynamic_Utils.log * Proof.state) Seq.seq
   end;
 
-fun sh_output_to_sh_stttac (output:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac output NONE 10.0)
+fun sh_output_to_sh_stttac (output:string) = Dynamic_Utils.logtac_to_stttac (tool_output_n_timeout_to_logtac output NONE 7.0)
   : Proof.state Dynamic_Utils.stttac;
 
 (** Sledgehammer_Tacctic: Sledgehammer as a state monad based tactic. **)
@@ -252,7 +252,7 @@ fun state_stttacs (timeout:real) (pst:Proof.state) =
     val induct_output_strs = Utils.try_with [] (Isabelle_Utils.timeout_apply (seconds timeout) pst_to_smart_induct_output_strs) pst: strings;
     val numb_of_candidates = length induct_output_strs;
     val low_importances    = replicate numb_of_candidates 0.7: real list;
-    val importances        = 0.95 :: 0.9 :: 0.85 :: 0.8 :: 0.75 :: low_importances (*TODO: magic number*)
+    val importances        = 0.95 :: 0.9 :: 0.85 :: 0.8 :: 0.75 :: low_importances (*TODO: magic number for Abduction Prover*)
                           |> take numb_of_candidates: real list;
     val induct_outputs     = induct_output_strs ~~ importances: (string * real) list;
     val stttacs            = Par_List.map mk_state_stttac induct_outputs: Proof.state Dynamic_Utils.stttac list;

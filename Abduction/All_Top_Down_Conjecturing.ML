@@ -61,7 +61,7 @@ fun template_based_conjecture_for_simplification term2name (ctxt:Proof.context) 
         @ TBC.ctxt_n_consts_to_projection  ctxt tm
         @ TBC.ctxt_n_consts_to_square      ctxt tm)
        |> map (apfst Template_Based_Conjecturing.property_as_string)
-       |> map (fn (_,    term) => (SS.get_lemma_name term2name ctxt term, term));;
+       |> map (fn (lemma_typ, term) => (SS.get_lemma_name term2name ctxt lemma_typ term, term));;
     val result = map (ctxt_n_const_to_all_conjecture_term ctxt) (relevant_unary_funcs @ relevant_binary_funcs)
               |> flat: (string * term) list;
   in
@@ -75,13 +75,16 @@ fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.st
     val _ = tracing' "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
     val standardized_trm = TDU.standardize_vnames trm
     val results = (
-      Remove_Outermost_Assumption.top_down_conjectures term2name pst standardized_trm
+      (*It is important to have template_conjectures as the first because
+       * - we remove duplication based on the term.
+       * - we do not apply simplification for the conjectures produced by template-based conjecturing.*)
+      template_conjectures ctxt standardized_trm)
+    @ Remove_Outermost_Assumption.top_down_conjectures term2name pst standardized_trm
     @ Generalise_By_Renaming.top_down_conjectures term2name pst standardized_trm
     @ (Generalise_Then_Extend.top_down_conjectures term2name pst standardized_trm |> filter (fn (_, trm) => has_no_multiple_occ_of_composite_subtrm ctxt trm))
     @ Remove_Function.top_down_conjectures term2name pst standardized_trm
     @ Abstract_Same_Term.top_down_conjectures term2name pst standardized_trm
     @ Replace_Imp_With_Eq.top_down_conjectures term2name pst standardized_trm
-    @ template_conjectures ctxt standardized_trm)
       |> Par_List.map (apsnd (TDU.simp_non_prop_term ctxt))
       |> Par_List.map (apsnd TDU.standardize_vnames)
       |> map (fn (name, term) => (name, Syntax.check_term ctxt term))(*necessary to apply TDU.is_prop in some cases*)
@@ -94,7 +97,7 @@ fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.st
       |> TDU.parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.does_not_have_trivial_equality)
       |> TDU.parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.nested_eq)
       |> TDU.parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.var_appears_many_times_but_always_in_the_same_subtrm)
-      |> map (fn (_,    term) => (SS.get_lemma_name term2name ctxt term, term));
+      |> map (fn (lemma_typ:string, term) => (SS.get_lemma_name term2name ctxt lemma_typ term, term));
     val _ = tracing' "[[[[[[[[[[[top_down_conjecture ends]]]]]]]]]]": unit;
   in
     results

@@ -69,7 +69,7 @@ type is_final_goal = bool;
 fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
   let
     val name = if   is_final_goal
-               then Top_Down_Util.mk_new_lemma_name ctxt is_final_goal
+               then Top_Down_Util.mk_new_lemma_name ctxt is_final_goal ""
                else lemma_name;
   in
    {final_goal             = is_final_goal,
