@@ -53,15 +53,17 @@ open Unique_Node;
 fun remove_multiple_occurrences_of_functions (ctxt:Proof.context) (trm:term) =
   let
     val const_names = Term.add_const_names trm []: strings;
-    fun rm_a_func_of_name (Const (name, typ) $ arg) (cname:string) = if cname = name then arg else (Const (name, typ) $ rm_a_func_of_name arg cname)
+    fun rm_a_func_of_name (Const (name, typ) $ arg) (cname:string) =
+        if cname = name then arg else (Const (name, typ) $ rm_a_func_of_name arg cname)
       | rm_a_func_of_name (func $ arg) (cname:string) = rm_a_func_of_name func cname $ rm_a_func_of_name arg cname
       | rm_a_func_of_name (Abs (str, typ, subtrm)) (cname:string) = Abs (str, typ, rm_a_func_of_name subtrm cname)
       | rm_a_func_of_name trm _ = trm
-    val new_trms = map (rm_a_func_of_name trm) const_names: terms;
-    val new_strs = map (Isabelle_Utils.trm_to_string ctxt) new_trms: strings;
-    val cnjctrs = Top_Down_Util.read_props ctxt new_strs: terms;
+    val trms_wo_func = map (rm_a_func_of_name trm) const_names: terms;
+    val trms_dummyT  = map Isabelle_Utils.strip_atyp trms_wo_func: terms;
+    val new_strs     = map (Isabelle_Utils.trm_to_string ctxt) trms_dummyT: strings;
+    val cnjctrs      = Top_Down_Util.read_props ctxt new_strs: terms;
   in
-    cnjctrs
+    cnjctrs: terms
   end;
 
 fun top_down_conjectures _ (pst:Proof.state) (trm:term) =
@@ -74,7 +76,7 @@ fun top_down_conjectures _ (pst:Proof.state) (trm:term) =
     val unique_cnjectrs      = distinct (op =) standardized_cnjctrs             : terms;
     val tagged_cnjctrs       = map (pair "remove_function") unique_cnjectrs    : (string * term) list;
   in
-    tagged_cnjctrs
+    tagged_cnjctrs: (string * term) list
   end;
 
 end;

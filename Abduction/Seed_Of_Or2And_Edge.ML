@@ -144,13 +144,14 @@ fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.sync
         in
            result
         end;
+       val orig_prem_is_refuted = SS.any_of_these_is_refuted refutation pst orig_prems: bool;
     in
       (*TODO: these can be handled numerically using "importance".*)
       too_large () orelse
       eq_to_final_goal () andalso from_tactic orelse
       concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*) orelse
       has_func_with_three_occs_in_a_row () orelse
-      (not from_tactic) andalso has_counter_example_in_prems pst conjecture
+      not from_tactic andalso not orig_prem_is_refuted andalso has_counter_example_in_prems pst conjecture
     end;
 
 datatype conjecture_typ = Explicit_Conjecturing | Implicit_Conjecturing (*tactic application*);
