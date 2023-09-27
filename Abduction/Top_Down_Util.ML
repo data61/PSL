@@ -258,7 +258,7 @@ fun term_to_thm (ctxt:Proof.context) (cnjctr:term) =
     thm
   end;
 
-(*default timeout is 10 hours*)
+(*default overall timeout is 10 hours*)
 val timeout_config = Config.declare_real ("prove_timeout", \<^here>) (K (60.0 * 60.0 * 10.0)): real Config.T;
 
 val limit_for_first_decrement = Config.declare_int ("limit_for_first_decrement", \<^here>) (K 15): int Config.T;

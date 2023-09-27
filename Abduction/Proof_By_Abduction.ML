@@ -65,7 +65,7 @@ fun prove_standard_simp_rules
   end;
 
 (* expand_ornode *)
-fun expand_ornode_if_original_goral_is_unproved
+fun expand_ornode_if_original_goal_is_unproved
   (pst:state,
    synched_agraph: SS.synched_abduction_graph,
    refutation    : SS.synched_term2real_table,
@@ -78,6 +78,7 @@ fun expand_ornode_if_original_goral_is_unproved
        val graph       = Synchronized.value synched_agraph      : abduction_graph;
        val maybe_proof = prove_orkey_completely or_key graph pst: strings option;
     in
+(*
       if is_some maybe_proof (*ornode was proved completely.*)
       then
         let
@@ -87,6 +88,7 @@ fun expand_ornode_if_original_goral_is_unproved
            SS.final_goal_proved_completely synched_agraph
         end
       else (*if we cannot prove the ornode completely, expand it using Extend_Leaf and conjecturing*)
+*)
         let
           (*top-down explicit conjecturing*)
           val explicit_conjectures       = All_Top_Down_Conjecturing.top_down_conjectures term2name pst lemma_term                       : (string * term) list;
@@ -154,18 +156,18 @@ fun expand_ornode_if_original_goral_is_unproved
           SS.final_goal_proved_completely synched_agraph
         end
     end
-  | expand_ornode_if_original_goral_is_unproved _ _ = error "expand_ornode failed. Not an Or_N.";
+  | expand_ornode_if_original_goal_is_unproved _ _ = error "expand_ornode failed. Not an Or_N.";
 
 fun get_timeout (pst:Proof.state) = Config.get (Proof.context_of pst) Top_Down_Util.timeout_config: real;
 fun current_time (start:Timing.start) = Time.toReal (#elapsed (Timing.result start)): real;
 fun still_has_time (start:Timing.start) (pst:Proof.state) = current_time start < get_timeout pst: bool;
 
-fun expand_ornode_if_original_goral_is_unproved_w_timeout (start:Timing.start)
+fun expand_ornode_if_original_goal_is_unproved_w_timeout (start:Timing.start)
       (pst:state, synched_agraph, refutation, term2name, proved_ors, orig_prems) (or_key as (Or_N, [_]):key): bool =
     if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
-    then expand_ornode_if_original_goral_is_unproved (pst, synched_agraph, refutation, term2name, proved_ors, orig_prems) or_key
+    then expand_ornode_if_original_goal_is_unproved (pst, synched_agraph, refutation, term2name, proved_ors, orig_prems) or_key
     else false
-| expand_ornode_if_original_goral_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
+| expand_ornode_if_original_goal_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
 
 (* loop *)
 fun loop (counter:int) (max_depth:int) (start:Timing.start)
@@ -187,12 +189,13 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length sorted_orkeys) ^ ".");
       val _                      = tracing "They are:"
       val _                      = map (print_key ctxt) sorted_orkeys
-      val expand_ornode          = expand_ornode_if_original_goral_is_unproved_w_timeout start
+      val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start
                                    (pst, synched_agraph, refutation, term2name, proved_ors, orig_prems)
                                  : Abduction_Graph.key -> bool;
       val numb_of_processors     = Thread.numProcessors ():int;
       val _                      = tracing ("numb_of_processors is " ^ Int.toString numb_of_processors ^ ".");
-      val top_ornodes            = take numb_of_processors sorted_orkeys: keys;(*TODO: magic number*)
+      val numb_of_nds_to_expand  = 2 * numb_of_processors;(*TODO: magic number*)
+      val top_ornodes            = take numb_of_nds_to_expand sorted_orkeys: keys;
       val some_orkey             = Par_List.find_some expand_ornode top_ornodes: key option;
       val solved                 = is_some some_orkey: bool;
       val _                      = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");

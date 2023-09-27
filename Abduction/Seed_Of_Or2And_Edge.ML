@@ -86,7 +86,7 @@ fun apply_PSL_to_get_seeds_of_or2and_edges
   let
     val ctxt          = Proof.context_of pst;
     val extend_str    = PSL_Interface.lookup ctxt "Extend_Leaf" |> the                     : PSL_Interface.strategy;
-    val timeouts      = {overall = 60.0, hammer = 8.0, quickcheck = 1.0, nitpick = 2.0}    : TBC_Utils.timeouts;
+    val timeouts      = {overall = 60.0, hammer = 30.0, quickcheck = 1.0, nitpick = 2.0}    : TBC_Utils.timeouts;
     val result_seq    = TBC_Utils.psl_strategy_to_monadic_tactic timeouts extend_str pst []: (Dynamic_Utils.log * Proof.state) Seq.seq;
     val result_list   = Seq.list_of result_seq                                             : (Dynamic_Utils.log * Proof.state) list;
     val pairs_n_psts  = map (apfst Dynamic_Utils.log_to_script_n_importance) result_list   : ((strings * real) * Proof.state) list;
@@ -217,14 +217,18 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
      fun apply_proof (proof:string) (pst_tobe_proved:Proof.state) =
      let
        val sh_result = Subtools.tool_output_n_timeout_to_logtac proof NONE 15.0 pst_tobe_proved;
+(*     val _ = tracing ("Trying_to_prove: " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) orterm);
+       val _ = tracing "using ...";
+       val _ = map (fn (name, term) => tracing (name ^ " " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) term)) new_goals;*)
        val result_pst = Seq.pull sh_result <$> fst <$>  snd |> Utils.the' "prove_goal_assuming_conjectures failed.": Proof.state;
      in
        result_pst
      end;
      fun apply_proofs (proofs:strings) (pst_tobe_proved:Proof.state) = fold apply_proof proofs pst_tobe_proved: Proof.state;
      val proof_to_get_here = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof: strings;
+   (*val _ = tracing ("proof_to_get_here_is:" ^ String.concatWith " " proof_to_get_here);*)
      val pst_after_applying_how_to_get_andnodes_from_ornode = apply_proofs proof_to_get_here pst_to_apply_tactics: Proof.state;
-     val timeouts             = {overall = 30.0, hammer = 10.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
+     val timeouts             = {overall = 60.0, hammer = 30.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
      (*very expensive*)
      val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "Finish_Goal_After_Assuming_Subgoals_And_Conjectures" pst_after_applying_how_to_get_andnodes_from_ornode
                             <$> fst: string option;
@@ -232,7 +236,7 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
    in
      (proved_parent_or, script_opt_gen)
    end
-  | prove_goal_assuming_conjectures _ _ _  = error "prove_goal_assuming_conjectures failed.";
+  | prove_goal_assuming_conjectures _ _ _  = error "prove_goal_assuming_conjectures failed badly.";
 
 type add_or2and_edge = (key * abduction_node * conjectures);
 
@@ -299,6 +303,24 @@ fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_ag
     val _                  = map (SS.update_importance_of_ornode synched_agraph) child_orkeys: unit list;
     (*step 9*)
     val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph child_orkeys: unit list;
+
+(*step 10*)
+fun try_to_prove_ornode_and_update_graph (orkey:key) =
+  let
+       val graph       = Synchronized.value synched_agraph      : abduction_graph;
+       val maybe_proof = prove_orkey_completely orkey graph pst: strings option;
+  in
+      if is_some maybe_proof (*ornode was proved completely.*)
+      then
+        let
+          val proof      = the maybe_proof: strings;
+          val _          = SS.update_after_proving_ornode proof orkey (Proof.context_of pst) synched_agraph;
+        in
+           ()
+        end
+      else ()
+  end;
+    val _ = Par_List.map try_to_prove_ornode_and_update_graph child_orkeys
   in
     ()
   end;
