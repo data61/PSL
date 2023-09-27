@@ -76,6 +76,7 @@ sig
   val opt_equal                               : (''a option * ''a option) -> bool;
   val ints_to_max_option                      : ints -> int option;
   val reals_to_max_option                     : real list -> real option;
+  val reals_to_min_option                     : real list -> real option;
   val mk_ints                                 : int -> ints;
 end;
 
@@ -294,6 +295,12 @@ fun reals_to_max' ([]   : real list) acc = acc
 
 fun reals_to_max_option  []               = NONE
   | reals_to_max_option (i::is:real list) = SOME (reals_to_max' is i);
+
+fun reals_to_min' ([]   : real list) acc = acc
+  | reals_to_min' (i::is: real list) acc = reals_to_min' is (Real.min (i, acc));
+
+fun reals_to_min_option  []               = NONE
+  | reals_to_min_option (i::is:real list) = SOME (reals_to_min' is i);
 
 fun mk_ints (n:int) = List.tabulate (n, I);
 

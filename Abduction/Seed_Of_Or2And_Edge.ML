@@ -118,7 +118,7 @@ fun apply_PSL_to_get_seeds_of_or2and_edges
   end;
 
 (*TODO: maybe we should add the premises of parent_or to orig_prems after cleaning types and free-variable names.*)
-fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (conjecture:term) =
+fun condition_to_filter_out_conjecture (parent_or(*parent_or*):term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (conjecture:term) =
     let
       val final_goal  = get_final_goal_key ag |> snd |> hd: term;
       val upper_limit = 100.0;(*TODO: magic number*)
@@ -144,9 +144,9 @@ fun condition_to_filter_out_conjecture (_(*parent_or*):term) (refutation:SS.sync
         in
            result
         end;
-       val orig_prem_is_refuted = SS.any_of_these_is_refuted refutation pst orig_prems: bool;
+       val parent_prems = Logic.strip_imp_prems parent_or |> map TDU.standardize_vnames |> map Isabelle_Utils.strip_atyp: terms;
+       val orig_prem_is_refuted = SS.any_of_these_is_refuted refutation pst parent_prems: bool;
     in
-      (*TODO: these can be handled numerically using "importance".*)
       too_large () orelse
       eq_to_final_goal () andalso from_tactic orelse
       concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*) orelse
@@ -391,17 +391,23 @@ fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (con
     val _       = tracing' (SS.get_orkey_name sterm2name (Proof.context_of pst) parent_orkey);
     val ctxt    = Proof.context_of pst;
     val _       = Abduction_Graph.print_key ctxt parent_orkey;
+    val agraph  = Synchronized.value sagraph: abduction_graph;
     val _       = tracing' " decremental abduction starts";
-    val limit   = if   Abduction_Graph.is_final_goal (Synchronized.value sagraph) parent_orkey
+    val limit   = if   Abduction_Graph.is_final_goal agraph parent_orkey
                   then Config.get ctxt Top_Down_Util.limit_for_first_decrement
                   else Config.get ctxt Top_Down_Util.limit_for_other_decrement
     val triples = decremental limit (pst, sagraph, proved_ors) parent_orkey [conjectures] [] [] []: add_or2and_edge list;
     val _       = tracing' " decremental abduction ends";
     fun update_imp (key, abd_node, cnjctrs) =
       let
+        val orig_term      = Abduction_Graph.get_final_goal_term agraph: term;
+        val orig_size      = Term.size_of_term orig_term: int;
+        fun sz_wght (t:term) = if Term.size_of_term t > (5 * orig_size) then 0.85 else (*TODO: magic numbers*)
+                               if Term.size_of_term t > (4 * orig_size) then 0.90 else (*TODO: magic numbers*)
+                               if Term.size_of_term t > (3 * orig_size) then 0.95 else 1.0;
         val cnjctr_terms   = map snd cnjctrs: terms;
-        val further_weight = SS.refute_any_of_these refutation pst cnjctr_terms: real;
-        val new_abd_node   = Update_Abduction_Node.multiply_importance further_weight abd_node;
+        val max_weight     = map sz_wght cnjctr_terms |> Utils.reals_to_min_option |> Utils.try_with 1.0 the: real;
+        val new_abd_node   = Update_Abduction_Node.multiply_importance (max_weight * max_weight) abd_node;
       in
         (key, new_abd_node, cnjctrs)
       end;

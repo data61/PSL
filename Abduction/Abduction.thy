@@ -35,7 +35,10 @@ strategy Extend_Leaf =
     Clarsimp,
     Thens [
       Smart_Induct,
-      User< simp_all>(*TODO: this simplification is sometimes harmful.*)
+      Alts [
+        User< simp_all>(*TODO: this simplification is sometimes harmful.*),
+        Auto
+      ]
     ]
   ]
 
@@ -53,9 +56,15 @@ strategy Attack_On_Or_Node =
     ],
     Thens [
       Smart_Induct,
-      Thens [
-        User< simp_all>,
-        IsSolved
+      Ors [
+        Thens [
+          User< simp_all>,
+          IsSolved
+        ],
+        Thens [
+          Auto,
+          IsSolved
+        ]
       ]
     ],
     Thens [

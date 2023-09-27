@@ -264,7 +264,7 @@ fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2ter
 (* proof_by_abduction *)
 fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
   let
-    val max_depth                = 5;
+    val max_depth                = 10;
     val ctxt                     = Proof.context_of pst;
     val standardized_term        = Top_Down_Util.standardize_vnames term |> Isabelle_Utils.strip_atyp |> Syntax.check_term ctxt;
     val synched_agraph           = SS.mk_synched_abduction_graph ctxt standardized_term: SS.synched_abduction_graph;
