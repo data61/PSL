@@ -29,6 +29,7 @@ val update_is_branch             : ornode -> ornode;
 val update_importance            : real -> ornode -> ornode;
 val multiply_importance          : real -> ornode -> ornode;
 val update_imp_if_this_is_larger : real -> ornode -> ornode;
+val update_attacked              : ornode -> ornode;
 
 end;
 
@@ -49,7 +50,8 @@ type ornode = {
   (* If an or-node has a great grandparent that is not proved or refuted and this node is not
    * proved_completely, this node still needs a proof.*)
   gg_parent_not_finished          : bool,
-  importance                      : real option(*NONE means "not computed yet"*)
+  importance                      : real option(*NONE means "not computed yet"*),
+  attacked                        : bool (*if already attacked by the Attack_On_Or_Node strategy.*)
 };
 
 type ornodes = ornode list;
@@ -80,7 +82,8 @@ fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:str
     proof_id               = NONE,
     proved_completely      = false,(*We do not search for a counterexample before checking for duplication.*)
     gg_parent_not_finished = true,
-    importance             = NONE
+    importance             = NONE,
+    attacked               = false
    }: ornode
   end;
 
@@ -101,7 +104,8 @@ fun update_gg_parent_not_finished ({
   proof            : strings option,
   proof_id         : int option,
   proved_completely: bool,
-  importance       : real option,...
+  importance       : real option,
+  attacked         : bool,...
 }: ornode) (gg_parent_not_finished: bool) =
 {
   final_goal             = final_goal,
@@ -112,7 +116,8 @@ fun update_gg_parent_not_finished ({
   proof_id               = proof_id,
   proved_completely      = proved_completely,
   gg_parent_not_finished = gg_parent_not_finished,
-  importance             = importance
+  importance             = importance,
+  attacked               = attacked
 }: ornode;
 
 (* update_proved_completely *)
@@ -124,7 +129,8 @@ fun update_proved_completely ({
   proof                 : strings option,
   proof_id              : int option,
   gg_parent_not_finished: bool,
-  importance            : real option,...
+  importance            : real option,
+  attacked              : bool,...
 }: ornode) =
 {
   final_goal             = final_goal,
@@ -135,7 +141,8 @@ fun update_proved_completely ({
   proof_id               = proof_id,
   proved_completely      = true,
   gg_parent_not_finished = gg_parent_not_finished,
-  importance             = importance
+  importance             = importance,
+  attacked               = attacked
 }: ornode;
 
 local
@@ -153,7 +160,8 @@ fun update_proof_n_proof_id (proof:strings) ({
   lemma_term            : term,
   proved_completely     : bool,
   gg_parent_not_finished: bool,
-  importance            : real option,...
+  importance            : real option,
+  attacked              : bool,...
 }: ornode)  =
 {
   final_goal             = final_goal,
@@ -164,7 +172,8 @@ fun update_proof_n_proof_id (proof:strings) ({
   proof_id               = get_proof_id (),
   proved_completely      = proved_completely: bool,
   gg_parent_not_finished = gg_parent_not_finished,
-  importance             = importance
+  importance             = importance,
+  attacked               = attacked
 }: ornode;
 
 end;
@@ -178,7 +187,8 @@ fun update_is_branch ({
   proof_id              : int option,
   proved_completely     : bool,
   gg_parent_not_finished: bool,
-  importance            : real option,...
+  importance            : real option,
+  attacked              : bool,...
 }: ornode) =
 {
   final_goal             = final_goal,
@@ -189,7 +199,8 @@ fun update_is_branch ({
   proof_id               = proof_id,
   proved_completely      = proved_completely: bool,
   gg_parent_not_finished = gg_parent_not_finished,
-  importance             = importance
+  importance             = importance,
+  attacked               = attacked
 }: ornode;
 
 (* update_importance *)
@@ -201,7 +212,8 @@ fun update_importance (importance:real) ({
   proof                 : strings option,
   proof_id              : int option,
   proved_completely     : bool,
-  gg_parent_not_finished: bool,...
+  gg_parent_not_finished: bool,
+  attacked              : bool,...
 }: ornode) =
 {
   final_goal             = final_goal,
@@ -212,7 +224,8 @@ fun update_importance (importance:real) ({
   proof_id               = proof_id,
   proved_completely      = proved_completely: bool,
   gg_parent_not_finished = gg_parent_not_finished,
-  importance             = SOME importance
+  importance             = SOME importance,
+  attacked               = attacked
 }: ornode;
 
 fun multiply_importance (importance:real) (ornode:ornode) = case #importance ornode of
@@ -227,5 +240,30 @@ fun update_imp_if_this_is_larger (new_imp:real) (ornode as {importance: real opt
       if   old_imp < new_imp
       then update_importance new_imp ornode
       else ornode;
+
+(* update_attacked *)
+fun update_attacked({
+  final_goal            : bool,
+  is_branch             : bool,
+  lemma_name            : string,
+  lemma_term            : term,
+  proof                 : strings option,
+  proof_id              : int option,
+  proved_completely     : bool,
+  gg_parent_not_finished: bool,
+  importance            : real option,...
+}: ornode) =
+{
+  final_goal             = final_goal,
+  is_branch              = is_branch,
+  lemma_name             = lemma_name,
+  lemma_term             = lemma_term,
+  proof                  = proof,
+  proof_id               = proof_id,
+  proved_completely      = proved_completely: bool,
+  gg_parent_not_finished = gg_parent_not_finished,
+  importance             = importance,
+  attacked               = true
+}: ornode;
 
 end;

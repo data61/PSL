@@ -25,6 +25,7 @@ val update_is_branch                  : key -> update_abduction_graph;
 val update_importance                 : key -> real -> update_abduction_graph;
 val update_imp_if_this_is_larger      : key -> real -> update_abduction_graph;
 val update_importance_of_ornode       : key -> update_abduction_graph;
+val update_attacked                   : key -> update_abduction_graph;
 
 val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
 val update_after_connecting_andnd_to_existing_ornd: (*or*)key -> Proof.context -> update_abduction_graph;
@@ -66,6 +67,9 @@ fun update_importance_of_ornode (orkey:key) (graph:abduction_graph) =
   in
     new_graph
   end;
+
+fun update_attacked (orkey:key) (graph:abduction_graph) =
+    PGraph.map_node orkey UAN.update_attacked graph: abduction_graph;
 
 local
 

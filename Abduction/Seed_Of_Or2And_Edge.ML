@@ -280,24 +280,9 @@ fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_ag
     (*step 9*)
     val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph child_orkeys: unit list;
     (*step 10*)
-    fun try_to_prove_ornode_and_update_graph (orkey:key) =
-      let
-           val graph       = Synchronized.value synched_agraph      : abduction_graph;
-           val maybe_proof = prove_orkey_completely orkey graph pst: strings option;
-      in
-          if is_some maybe_proof (*ornode was proved completely.*)
-          then
-            let
-              val proof      = the maybe_proof: strings;
-              val _          = SS.update_after_proving_ornode proof orkey (Proof.context_of pst) synched_agraph;
-            in
-               ()
-            end
-          else ()
-      end;
-        val _ = Par_List.map try_to_prove_ornode_and_update_graph child_orkeys
-      in
-        ()
+    val _                  = Par_List.map (SS.try_to_prove_ornode_and_update_graph pst synched_agraph) child_orkeys
+  in
+    ()
   end;
 
 (*implicit conjecturing:tactic-based conjecturing*)
@@ -312,7 +297,8 @@ fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_ag
  * step 7. connect the child-or-nodes to the and-node.
  * step 8. add the importance of the child-or-nodes.
  * step 9. update the values of or-nodes and and-nodes in the graph.
- * step 10. try to prove the new child or-nodes completely using Attack_On_Or_Node.
+ * step 10. try to prove the new child or-nodes completely using Attack_On_Or_Node
+ *          and update the synchronised graph in case of success.
  *)
 fun abduction_for_tactic_based_conjectures (pst:Proof.state) (parent_or:key) (seeds: seeds_of_or2and_edge) (sagraph:SS.synched_abduction_graph) =
   let

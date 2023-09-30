@@ -21,8 +21,8 @@ type abduction_node;
 type key = (node_type * terms(*normal terms not thms*));
 type keys = key list;
 
-val print_key: Proof.context -> key -> unit list;
-val equal_keys: (key * key) -> bool;
+val print_key  : Proof.context -> key -> unit list;
+val equal_keys : (key * key) -> bool;
 
 type abduction_graph;
 
@@ -51,6 +51,7 @@ val is_proved_completely                         : abduction_graph -> key -> boo
 (* query on abduction_node for ornode *)
 val is_final_goal                                : abduction_graph -> key -> bool;
 val lemma_name_of                                : abduction_graph -> key -> string;
+val print_orkey                                  : Proof.context -> abduction_graph -> key -> unit;
 val proof_of                                     : abduction_graph -> key -> strings;
 val proof_id_of                                  : abduction_graph -> key -> int option;
 val compute_importance_of_ornode                 : abduction_graph -> key -> real;
@@ -120,7 +121,7 @@ type key  = PGraph.key
 
 fun print_key  (ctxt:Proof.context) ((_, trms): key) =
   (
-    tracing "  key is";
+    tracing "  key is:";
     map (fn trm => tracing ("    " ^ Isabelle_Utils.trm_to_string ctxt trm)) trms
   );
 
@@ -217,6 +218,13 @@ fun is_proved_completely (graph:abduction_graph) (key:key): bool =
 (* lemma_name_of *)
 fun lemma_name_of (graph:abduction_graph) (key:key) =
   PGraph.get_node graph key |> Abduction_Node.lemma_name_of: string;
+
+fun print_orkey  (ctxt:Proof.context) (graph:abduction_graph) (orkey as (_, [trm]): key) =
+  (
+    tracing "  abduced_lemma is:";
+    tracing ("    " ^ lemma_name_of graph orkey);
+    tracing ("    " ^ Isabelle_Utils.trm_to_string ctxt trm)
+  );
 
 (* grand_relatives *)
 fun grand_relatives (graph:abduction_graph) (key:key) (preds_or_succs: abduction_graph -> key -> key list): keys =

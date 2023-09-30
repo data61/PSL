@@ -40,11 +40,15 @@ val add_edges_from_andnode_to_ornodes             : Abduction_Graph.key -> synch
 
 val update_proved_completely                      : Abduction_Graph.key -> synched_abduction_graph -> unit;
 val update_proof_n_proof_id                       : (*proof*)strings -> (*or*)Abduction_Graph.key -> synched_abduction_graph -> unit;
-val update_after_proving_ornode                   : strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
-val update_importance_of_ornode                   : synched_abduction_graph -> Abduction_Graph.key -> unit;
-val update_after_connecting_andnd_to_existing_ornd: Proof.context -> synched_abduction_graph -> (*or_key*)Abduction_Graph.keys -> unit list;
 
-val final_goal_proved_completely     : synched_abduction_graph -> bool;
+val update_importance_of_ornode                   : synched_abduction_graph -> Abduction_Graph.key -> unit;
+val update_attacked                               : synched_abduction_graph -> Abduction_Graph.key -> unit;
+
+val update_after_proving_ornode                   : strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
+val update_after_connecting_andnd_to_existing_ornd: Proof.context -> synched_abduction_graph -> (*or_key*)Abduction_Graph.keys -> unit list;
+val try_to_prove_ornode_and_update_graph          : Proof.state -> synched_abduction_graph -> Abduction_Graph.key -> unit;
+
+val final_goal_proved_completely                  : synched_abduction_graph -> bool;
 
 val new_node: (Abduction_Graph.key * Abduction_Graph.abduction_node) -> synched_abduction_graph -> unit;
 val add_edge: (Abduction_Graph.key * Abduction_Graph.key) -> synched_abduction_graph -> unit;
@@ -205,17 +209,37 @@ fun update_proved_completely (key:AG.key) (sagraph:synched_abduction_graph) =
 fun update_proof_n_proof_id (proof:strings) (key:AG.key) (sagraph:synched_abduction_graph) =
   Synchronized.change sagraph (UAG.update_proof_n_proof_id proof key): unit;
 
-fun update_after_proving_ornode (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (UAG.update_after_proving_ornode proof orkey ctxt): unit;
-
 fun update_importance_of_ornode (sagraph:synched_abduction_graph) (orkey:AG.key) =
   Synchronized.change sagraph (UAG.update_importance_of_ornode orkey): unit;
+
+fun update_attacked (sagraph:synched_abduction_graph) (orkey:AG.key) =
+  Synchronized.change sagraph (UAG.update_attacked orkey): unit;
+
+fun update_after_proving_ornode (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (UAG.update_after_proving_ornode proof orkey ctxt): unit;
 
 fun update_after_connecting_andnd_to_existing_ornd' (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkey:AG.key) =
   Synchronized.change sagraph (UAG.update_after_connecting_andnd_to_existing_ornd orkey ctxt): unit;
 
 fun update_after_connecting_andnd_to_existing_ornd (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkeys:AG.keys) =
   map (update_after_connecting_andnd_to_existing_ornd' ctxt sagraph) orkeys;
+
+fun try_to_prove_ornode_and_update_graph (pst:Proof.state) (sagraph:synched_abduction_graph) (orkey:AG.key) =
+      let
+           val graph       = Synchronized.value sagraph               : abduction_graph;
+           val maybe_proof = AG.prove_orkey_completely orkey graph pst: strings option;
+           val _           = update_attacked sagraph orkey            : unit;
+      in
+          if is_some maybe_proof (*ornode was proved completely.*)
+          then
+            let
+              val proof      = the maybe_proof: strings;
+              val _          = update_after_proving_ornode proof orkey (Proof.context_of pst) sagraph;
+            in
+               ()
+            end
+          else ()
+      end;
 
 fun final_goal_proved_completely (sagraph:synched_abduction_graph) =
   let

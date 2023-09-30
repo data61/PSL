@@ -188,7 +188,7 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val sorted_orkeys          = sort_orkeys_based_on_importance abduction_graph orkeys_worth_expanding: keys;
       val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length sorted_orkeys) ^ ".");
       val _                      = tracing "They are:"
-      val _                      = map (print_key ctxt) sorted_orkeys
+      val _                      = map (print_orkey ctxt abduction_graph) sorted_orkeys
       val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start
                                    (pst, synched_agraph, refutation, term2name, proved_ors, orig_prems)
                                  : Abduction_Graph.key -> bool;

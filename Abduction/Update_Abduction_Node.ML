@@ -23,6 +23,7 @@ val update_is_branch             : update_abduction_node;
 val update_importance            : real -> update_abduction_node;
 val update_imp_if_this_is_larger : real -> update_abduction_node;
 val multiply_importance          : real -> update_abduction_node;
+val update_attacked              : update_abduction_node;
 
 end;
 
@@ -64,5 +65,9 @@ fun update_imp_if_this_is_larger (imp:real) (Or_Node ornode) = Or_Node.update_im
 fun multiply_importance (imp:real) (Or_To_And edge) = Or2And_Edge.multiply_importance imp edge |> Or_To_And
   | multiply_importance (imp:real) (Or_Node ornode) = Or_Node.multiply_importance imp ornode |> Or_Node
   | multiply_importance _ _ = error "multiply_importance failed in Update_Abduction_Node.ML."
+
+(* update_attacked *)
+fun update_attacked (Or_Node ornode) = Or_Node.update_attacked ornode |> Or_Node
+  | update_attacked _ = error "update_attacked in Update_Abduction_Node.ML failed."
 
 end;
