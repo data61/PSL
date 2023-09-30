@@ -76,7 +76,6 @@ fun expand_ornode_if_original_goal_is_unproved
     let
        (*very expensive*)
        val graph       = Synchronized.value synched_agraph      : abduction_graph;
-       val maybe_proof = prove_orkey_completely or_key graph pst: strings option;
     in
 (*
       if is_some maybe_proof (*ornode was proved completely.*)
@@ -136,6 +135,7 @@ fun expand_ornode_if_original_goal_is_unproved
               map (simp_explicit_conjecture simp) cnjctrs |> flat |> distinct (op =);
           fun simp_explicit_conjectures_for_many_rules (cnjctrs:SOOE.conjectures) (simps:SOOE.conjectures) =
               fold simp_explicit_conjectures_for_one_rule simps cnjctrs: SOOE.conjectures;
+
           val simps                        = Synchronized.value proved_ors: SS.proved_simps;
           val (tb_cnjctrs, td_cnjctrs)     = List.partition (TDU.is_template_based o fst) explicit_cnjnctrs: (SOOE.conjectures * SOOE.conjectures);
           val simped_explicit_conjectures  = simp_explicit_conjectures_for_many_rules td_cnjctrs simps: SOOE.conjectures;
@@ -149,8 +149,8 @@ fun expand_ornode_if_original_goal_is_unproved
           val seeds_from_tactics           = SOOE.apply_PSL_to_get_seeds_of_or2and_edges (term2name, refutation) pst_to_prove: seeds_of_or2and_edge;
           val graph_extended_by_conjecture = Synchronized.value synched_agraph: abduction_graph;
           val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation orig_prems pst graph_extended_by_conjecture seeds_from_tactics
-                                          |> filter_out (SOOE.seed_has_counterexample refutation pst): seeds_of_or2and_edge;
-          val _                            = SOOE.abduction_for_tactic_based_conjectures pst or_key filtered_seeds_from_tactics synched_agraph: unit;
+          val tactics_seeds_wo_counterexam = filter_out (SOOE.seed_has_counterexample refutation pst) filtered_seeds_from_tactics: seeds_of_or2and_edge;
+          val _                            = SOOE.abduction_for_tactic_based_conjectures pst or_key tactics_seeds_wo_counterexam synched_agraph: unit;
         in
           (*seeds_to_updated_graph is very expensive*)
           SS.final_goal_proved_completely synched_agraph
