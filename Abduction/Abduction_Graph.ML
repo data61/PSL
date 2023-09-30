@@ -243,7 +243,7 @@ fun great_grand_relatives (graph:abduction_graph) (key:key) (preds_or_succs: abd
   end;
 
 (* great_grand_parents *)
-fun great_grand_parents (graph:abduction_graph) (key:key): keys = great_grand_relatives graph key grand_parents;
+fun great_grand_parents (graph:abduction_graph) (key:key): keys = great_grand_relatives graph key PGraph.immediate_preds;
 
 (* all_gg_parents_are_proved *)
 fun all_gg_parents_are_proved (graph:abduction_graph) (key as (Or_N, _)): bool = all_great_grandparents_are_proved_for_or key graph
@@ -365,7 +365,7 @@ fun final_goal_proved_completely (graph:abduction_graph) =
 fun prove_term_completely (pst:Proof.state) (lemma_term:term) =
     let
       val pst_to_prove = Top_Down_Util.mk_pst_to_prove_from_term pst lemma_term                                   : Proof.state;
-      val timeouts     = {overall = 60.0, hammer = 30.0, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
+      val timeouts     = {overall = 60.0, hammer = 8.5, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
       val maybe_result = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;
       val maybe_script = Option.map fst maybe_result                                                : strings option;
     in
