@@ -234,7 +234,7 @@ fun is_thm_name_registered (ctxt:Proof.context) (thm_name:string) = try (Proof_C
 
 fun mk_new_lemma_name (ctxt:Proof.context) (is_final_goal:bool) (lemma_type:string): string =
   let
-    val name_header    = (if is_final_goal then "original_goal_" else "abduced_lemma_") ^ lemma_type;
+    val name_header    = (if is_final_goal then "original_goal" else "abduced_lemma_") ^ lemma_type ^ "_";
     val candidate_name = name_header ^ Int.toString (serial()): string;
     val this_name_is_already_taken = is_thm_name_registered ctxt candidate_name;
   in
@@ -444,25 +444,25 @@ fun parallel_filter_out (condition:'a -> bool) (xs:'a list) = parallel_filter_in
 val isPrefix = String.isPrefix;
 
 fun is_template_based (name:string) =
-    isPrefix "abduced_lemma_Associativity"           name orelse
-    isPrefix "abduced_lemma_Identity"                name orelse
-    isPrefix "abduced_lemma_Invertibility"           name orelse
-    isPrefix "abduced_lemma_Commutativity"           name orelse
-    isPrefix "abduced_lemma_Idempotent_Element"      name orelse
-    isPrefix "abduced_lemma_Idempotency"             name orelse
-    isPrefix "abduced_lemma_Zero_Element"            name orelse
-    isPrefix "abduced_lemma_Distributivity"          name orelse
-    isPrefix "abduced_lemma_Ant_Distributivity"      name orelse
-    isPrefix "abduced_lemma_Homomorphism_2"          name orelse
-    isPrefix "abduced_lemma_Transitivity"            name orelse
-    isPrefix "abduced_lemma_Symmetry"                name orelse
-    isPrefix "abduced_lemma_Connexity"               name orelse
-    isPrefix "abduced_lemma_Reflexivity"             name orelse
-    isPrefix "abduced_lemma_Square"                  name orelse
-    isPrefix "abduced_lemma_Square_Root"             name orelse
-    isPrefix "abduced_lemma_Projection"              name orelse
-    isPrefix "abduced_lemma_Swap_Constructor"        name orelse
-    isPrefix "abduced_lemma_Swap_Unary"              name orelse
-    isPrefix "abduced_lemma_Composite_Commutativity" name;
+    isPrefix "abduced_lemma_associativity"           name orelse
+    isPrefix "abduced_lemma_identity"                name orelse
+    isPrefix "abduced_lemma_invertibility"           name orelse
+    isPrefix "abduced_lemma_commutativity"           name orelse
+    isPrefix "abduced_lemma_idempotent_element"      name orelse
+    isPrefix "abduced_lemma_idempotency"             name orelse
+    isPrefix "abduced_lemma_zero_element"            name orelse
+    isPrefix "abduced_lemma_distributivity"          name orelse
+    isPrefix "abduced_lemma_ant_distributivity"      name orelse
+    isPrefix "abduced_lemma_homomorphism_2"          name orelse
+    isPrefix "abduced_lemma_transitivity"            name orelse
+    isPrefix "abduced_lemma_symmetry"                name orelse
+    isPrefix "abduced_lemma_connexity"               name orelse
+    isPrefix "abduced_lemma_reflexivity"             name orelse
+    isPrefix "abduced_lemma_square"                  name orelse
+    isPrefix "abduced_lemma_square_root"             name orelse
+    isPrefix "abduced_lemma_projection"              name orelse
+    isPrefix "abduced_lemma_swap_constructor"        name orelse
+    isPrefix "abduced_lemma_swap_unary"              name orelse
+    isPrefix "abduced_lemma_composite_commutativity" name;
 
 end;
