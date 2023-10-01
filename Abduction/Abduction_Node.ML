@@ -34,6 +34,7 @@ val proof_of                                     : abduction_node -> strings opt
 val is_branch                                    : abduction_node -> bool;
 val is_final_goal                                : abduction_node -> bool;
 val lemma_name_of                                : abduction_node -> string;
+val is_template_based                            : abduction_node -> bool;
 val is_worth_proving                             : Proof.context -> abduction_node -> bool;
 
 (* query on abduction_node for or2and_edge *)
@@ -118,6 +119,10 @@ fun or2and_edge_to_proof (Or_To_And or2and_edge:abduction_node) = Or2And_Edge.or
 (* lemma_name_of *)
 fun lemma_name_of (Or_Node or_nd) = #lemma_name or_nd
   | lemma_name_of _ = error "lemma_name_of failed. Not an Or_Node."
+
+(* is_template_based *)
+fun is_template_based (Or_Node ornode) = Or_Node.is_template_based ornode
+  | is_template_based _ = error "is_template_based in Abduction_Node.ML failed";
 
 (** destructors on abduction_node **)
 (* dest_Or_Node *)

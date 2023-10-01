@@ -21,6 +21,8 @@ val is_worth_proving    : Proof.context -> ornode -> bool;
 type is_final_goal = bool;
 val mk_ornode: Proof.context -> is_final_goal -> string -> term -> ornode;
 
+val is_template_based: ornode -> bool;
+
 (* update of ornode *)
 val update_gg_parent_not_finished: ornode -> bool -> ornode;
 val update_proved_completely     : ornode -> ornode;
@@ -68,6 +70,7 @@ fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
 
 (* creation of ornode *)
 type is_final_goal = bool;
+
 fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
   let
     val name = if   is_final_goal
@@ -86,6 +89,9 @@ fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:str
     attacked               = false
    }: ornode
   end;
+
+fun is_template_based ({lemma_name, ...}: ornode) =
+  Top_Down_Util.is_template_based lemma_name;
 
 (** update of ornode **)
 (* update_gg_parent_not_finished *)

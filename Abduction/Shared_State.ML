@@ -111,8 +111,8 @@ fun refute (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:ter
         in
           Synchronized.change synched_table (insert_bool pair): unit
         end;
-    val new_table         = Synchronized.value synched_table: term2real_table;
-    val result            = lookup new_table cnjctr_prop    : real;
+    val new_table = Synchronized.value synched_table: term2real_table;
+    val result    = lookup new_table cnjctr_prop    : real;
   in
     result: real
   end;
@@ -139,7 +139,7 @@ fun mk_term2string_table _ = Synchronized.var "synched_term2string_table" Term_T
 
 local
 
-val lookup           = Utils.the' "lookup for term2string_table failed." oo Term_Table.lookup;
+val lookup = Utils.the' "lookup for term2string_table failed." oo Term_Table.lookup;
 fun insert_string (cnjctr:term, lemma_name:string) (old_table:term2string_table) =
   case try (Term_Table.insert (op =) (cnjctr, lemma_name)) old_table
   of NONE           => old_table
@@ -154,8 +154,7 @@ fun get_lemma_name (synched_table:synched_term2string_table) (ctxt:Proof.context
     val already_checked    = defined old_table standardized_term                        : bool;
     val mk_new_lemma_name  = Top_Down_Util.mk_new_lemma_name                            : Proof.context -> bool -> string -> string;
     fun mk_new_name_pair _ = (standardized_term, mk_new_lemma_name ctxt false candidate): (term * string);
-
-    val _                 =
+    val _ =
       if   already_checked then ()
       else
         let
@@ -166,8 +165,8 @@ fun get_lemma_name (synched_table:synched_term2string_table) (ctxt:Proof.context
         in
           Synchronized.change synched_table (insert_string pair): unit
         end;
-    val new_table          = Synchronized.value synched_table  : term2string_table;
-    val result             = lookup new_table standardized_term: string;
+    val new_table = Synchronized.value synched_table  : term2string_table;
+    val result    = lookup new_table standardized_term: string;
   in
     result
   end;
@@ -225,21 +224,21 @@ fun update_after_connecting_andnd_to_existing_ornd (ctxt:Proof.context) (sagraph
   map (update_after_connecting_andnd_to_existing_ornd' ctxt sagraph) orkeys;
 
 fun try_to_prove_ornode_and_update_graph (pst:Proof.state) (sagraph:synched_abduction_graph) (orkey:AG.key) =
-      let
-           val graph       = Synchronized.value sagraph               : abduction_graph;
-           val maybe_proof = AG.prove_orkey_completely orkey graph pst: strings option;
-           val _           = update_attacked sagraph orkey            : unit;
-      in
-          if is_some maybe_proof (*ornode was proved completely.*)
-          then
-            let
-              val proof      = the maybe_proof: strings;
-              val _          = update_after_proving_ornode proof orkey (Proof.context_of pst) sagraph;
-            in
-               ()
-            end
-          else ()
-      end;
+  let
+       val graph       = Synchronized.value sagraph               : abduction_graph;
+       val maybe_proof = AG.prove_orkey_completely orkey graph pst: strings option;
+       val _           = update_attacked sagraph orkey            : unit;
+  in
+      if is_some maybe_proof (*ornode was proved completely.*)
+      then
+        let
+          val proof      = the maybe_proof: strings;
+          val _          = update_after_proving_ornode proof orkey (Proof.context_of pst) sagraph;
+        in
+           ()
+        end
+      else ()
+  end;
 
 fun final_goal_proved_completely (sagraph:synched_abduction_graph) =
   let

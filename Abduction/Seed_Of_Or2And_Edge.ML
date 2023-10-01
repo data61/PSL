@@ -76,7 +76,7 @@ fun apply_PSL_to_get_seeds_of_or2and_edges
   let
     val ctxt          = Proof.context_of pst;
     val extend_str    = PSL_Interface.lookup ctxt "Extend_Leaf" |> the                     : PSL_Interface.strategy;
-    val timeouts      = {overall = 60.0, hammer = 8.5, quickcheck = 1.0, nitpick = 2.0}    : TBC_Utils.timeouts;
+    val timeouts      = {overall = 60.0, hammer = 9.0, quickcheck = 1.0, nitpick = 2.0}    : TBC_Utils.timeouts;
     val result_seq    = TBC_Utils.psl_strategy_to_monadic_tactic timeouts extend_str pst []: (Dynamic_Utils.log * Proof.state) Seq.seq;
     val result_list   = Seq.list_of result_seq                                             : (Dynamic_Utils.log * Proof.state) list;
     val pairs_n_psts  = map (apfst Dynamic_Utils.log_to_script_n_importance) result_list   : ((strings * real) * Proof.state) list;
@@ -126,12 +126,29 @@ fun condition_to_filter_out_conjecture (parent_or(*parent_or*):term) (refutation
           not (SFTD.run_assertion pst parent_or SFTD.has_func_with_three_occs_in_a_row)
           andalso
           SFTD.run_assertion pst conjecture SFTD.has_func_with_three_occs_in_a_row;
+      fun has_counter_example_in_prems (pst:Proof.state) (term:term) =
+        let
+          val prems = Logic.strip_imp_prems term: terms;
+        in
+           SS.any_of_these_is_refuted refutation pst prems: bool
+        end;
+      fun get_concl (term:term)       = try (snd o Logic.dest_implies) term
+                                    <$> Top_Down_Util.standardize_vnames
+                                    <$> Isabelle_Utils.strip_atyp
+                                      : term option;
+      val concl_of_meta_imp_in_parent = get_concl parent_or : term option;
+      val concl_of_meta_imp_in_conjec = get_concl conjecture: term option;
+      fun concls_are_same _ = Utils.mk_option_pair (concl_of_meta_imp_in_parent, concl_of_meta_imp_in_conjec)
+                          <$> (op =) |> Utils.is_some_true;
     in
       too_large () orelse
       eq_to_final_goal () andalso from_tactic orelse
       concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*) orelse
-      has_func_with_three_occs_in_a_row_even_though_the_parent_does_not_have_those ()(* orelse
-      not from_tactic andalso not orig_prem_is_refuted andalso has_counter_example_in_prems pst conjecture: This is BAD.*)
+      has_func_with_three_occs_in_a_row_even_though_the_parent_does_not_have_those () orelse
+      concls_are_same ()
+(*
+      (*not from_tactic andalso not orig_prem_is_refuted andalso*) has_counter_example_in_prems pst conjecture(*TODO: This is BAD. We should also check if the conclusions are the same in the parent-node and the conjecture.*)
+*)
     end;
 
 datatype conjecture_typ = Explicit_Conjecturing | Implicit_Conjecturing (*tactic application*);
@@ -187,7 +204,8 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
          val ctxt                 = Proof.context_of pst                                                     : Proof.context;
          val conjecture_as_thm    = TDU.term_to_thm ctxt conjecture                                          : thm;
          val pst_w_conjecture_opt = try (Proof.map_context (register_thm_in_lthy name conjecture_as_thm)) pst: Proof.state option;
-         val pst_w_conjecture     = case pst_w_conjecture_opt of SOME no_dup_pst => no_dup_pst | _ => pst
+         val pst_w_conjecture     = case pst_w_conjecture_opt of SOME no_dup_pst => no_dup_pst
+                                  | _ => (tracing ("Warning! We could not assume " ^ name ^ "successfully."); pst)
        in
          pst_w_conjecture
        end;
@@ -204,7 +222,7 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
      fun apply_proofs (proofs:strings) (pst_tobe_proved:Proof.state) = fold apply_proof proofs pst_tobe_proved: Proof.state;
      val proof_to_get_here = Or2And_Edge.how_to_get_andnodes_from_ornode_of proof: strings;
      val pst_after_applying_how_to_get_andnodes_from_ornode = apply_proofs proof_to_get_here pst_to_apply_tactics: Proof.state;
-     val timeouts             = {overall = 60.0, hammer = 8.5, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
+     val timeouts             = {overall = 60.0, hammer = 9.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
      (*very expensive*)
      val script_opt_gen       = TBC_Utils.pst_to_proofscript_opt timeouts "Finish_Goal_After_Assuming_Subgoals_And_Conjectures" pst_after_applying_how_to_get_andnodes_from_ornode
                             <$> fst: string option;
@@ -214,7 +232,7 @@ fun prove_goal_assuming_conjectures (pst:Proof.state) ((Or_N, [orterm]): key)(*p
    end
   | prove_goal_assuming_conjectures _ _ _  = error "prove_goal_assuming_conjectures failed badly.";
 
-type add_or2and_edge = (key * abduction_node * conjectures);
+type add_or2and_edge = ((*edge key*)key * (*edge val*)abduction_node * (*used*)conjectures);
 
 (*step 1. prove the parental or-node using some conjectures.*)
 fun prove_ornode_assuming_andnode
@@ -248,7 +266,7 @@ fun prove_ornode_assuming_andnode
          SOME (or2and_edge_key, or2and_edge_val, relevant_new_goals)
        end
      else
-       NONE
+        NONE
    end
  | prove_ornode_assuming_andnode _ _ _ _ _ = error "how_to_prove_ornode_assmng_subgs_of_andnode failed.";
 
@@ -317,9 +335,10 @@ fun eq_conjectures (pairs1:conjectures, pairs2:conjectures): bool =
     eq_set (op =) (goal_names1, goal_names2)
   end;
 
-fun decremental  _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_proved_simps) (_:key) ([]:conjectures list) (_:conjectures list) _ results = results
+fun decremental  _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_proved_simps) (_:key) ([]:conjectures list) (_:conjectures list) _ results =
+    results: add_or2and_edge list
   | decremental (counter:int)
-    (pst:Proof.state, synched_agraph:SS.synched_abduction_graph, synched_proved_ors:SS.synched_proved_simps)
+    (pst:Proof.state, synched_agraph:SS.synched_abduction_graph, synched_proved_simps:SS.synched_proved_simps)
     (parent_ornd:key) (conjectures::conjecturess:conjectures list)
     (checked:conjectures list) (failed_set:conjectures list) (results:add_or2and_edge list) =
     if counter > 0
@@ -331,8 +350,8 @@ fun decremental  _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_p
         val used_conjectures = if is_none triple_opt then []
                                else #3 (Utils.the' "decremental failed." triple_opt): conjectures;
         (*2 identify used conjectures that are not proved.*)
-        val proved_ors       = Synchronized.value synched_proved_ors;
-        fun is_completely_proved cnjctr = member (op =) proved_ors cnjctr: bool;
+        val proved_simps     = Synchronized.value synched_proved_simps;
+        fun is_completely_proved cnjctr = member (op =) proved_simps cnjctr: bool;
         val unproved_used_conjectures   = filter_out is_completely_proved used_conjectures: conjectures;
         val (new_failed_set, new_candidates): (conjectures list * conjectures list) =
           (if null used_conjectures
@@ -365,12 +384,12 @@ fun decremental  _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_p
         val promising_candidates = filter_out is_subset_of_any_failed_conjectures genuinely_new_candidates;
         val new_results = (if is_none triple_opt then [] else [the triple_opt]) @ results
       in
-        decremental (counter - 1) (pst, synched_agraph, synched_proved_ors) parent_ornd promising_candidates newly_checked new_failed_set new_results
+        decremental (counter - 1) (pst, synched_agraph, synched_proved_simps) parent_ornd promising_candidates newly_checked new_failed_set new_results
       end
     else results;
 
 fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (conjectures:conjectures)
-  (sterm2name:SS.synched_term2string_table, refutation: SS.synched_term2real_table, sagraph: SS.synched_abduction_graph, proved_ors:SS.synched_proved_simps) =
+  (sterm2name:SS.synched_term2string_table, refutation: SS.synched_term2real_table, sagraph: SS.synched_abduction_graph, proved_simps:SS.synched_proved_simps) =
   let
     fun tracing' mssg = tracing mssg;
     val _       = tracing' "\n ** Trying to prove **:";
@@ -382,9 +401,9 @@ fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (con
     val limit   = if   Abduction_Graph.is_final_goal agraph parent_orkey
                   then Config.get ctxt Top_Down_Util.limit_for_first_decrement
                   else Config.get ctxt Top_Down_Util.limit_for_other_decrement
-    val triples = decremental limit (pst, sagraph, proved_ors) parent_orkey [conjectures] [] [] []: add_or2and_edge list;
+    val triples = decremental limit (pst, sagraph, proved_simps) parent_orkey [conjectures] [] [] []: add_or2and_edge list;
     val _       = tracing' " decremental abduction ends";
-    fun update_imp (key, abd_node, cnjctrs) =
+    fun update_imp (key, abd_node, cnjctrs:conjectures) =
       let
         val orig_term      = Abduction_Graph.get_final_goal_term agraph: term;
         val orig_size      = Term.size_of_term orig_term: int;

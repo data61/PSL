@@ -54,6 +54,7 @@ val lemma_name_of                                : abduction_graph -> key -> str
 val print_orkey                                  : Proof.context -> abduction_graph -> key -> unit;
 val proof_of                                     : abduction_graph -> key -> strings;
 val proof_id_of                                  : abduction_graph -> key -> int option;
+val is_template_based                            : abduction_graph -> key -> bool;
 val compute_importance_of_ornode                 : abduction_graph -> key -> real;
 val sort_orkeys_based_on_importance              : abduction_graph -> keys -> keys;
 
@@ -309,14 +310,26 @@ fun is_worth_proving (ctxt:Proof.context) (graph:abduction_graph) (key:key)  =
 (* proof_id_of *)
 fun proof_id_of (graph:abduction_graph) (key:key) = PGraph.get_node graph key |> Abduction_Node.proof_id_of: int option;
 
+(* is_template_based *)
+fun is_template_based (ag:abduction_graph) (key:key) =
+  let
+    val node   = PGraph.get_node ag key: abduction_node;
+    val result = Abduction_Node.is_template_based node;
+  in
+    result
+  end;
+
 (* compute_importance_of_ornode *)
 fun compute_importance_of_ornode (ag:abduction_graph) (orkey as (Or_N, _)) =
     let
       val parent_andkeys         = PGraph.immediate_preds ag orkey: keys;
       val importances_of_parents = map (importance ag) parent_andkeys: real list;
-      val importance             = case Utils.reals_to_max_option importances_of_parents of
+      val importance_from_parent = case Utils.reals_to_max_option importances_of_parents of
                                      NONE     => error "compute_importance_of_ornode. No ancestral andnode."
                                    | SOME max => max: real;
+      val importance = if is_template_based ag orkey
+                       then (1.0 + importance_from_parent) / 2.0
+                       else importance_from_parent: real; (*TODO: magic number & magic formula*)
     in
       importance
     end
