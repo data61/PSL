@@ -75,7 +75,7 @@ strategy Attack_On_Or_Node =
 
 setup\<open> Config.put_global Top_Down_Util.timeout_config (60.0 * 60.0 * 10.0) \<close>
 setup\<open> Config.put_global Top_Down_Util.limit_for_first_decrement 40 \<close>
-setup\<open> Config.put_global Top_Down_Util.limit_for_other_decrement 20 \<close>
+setup\<open> Config.put_global Top_Down_Util.limit_for_other_decrement 40 \<close>
 
 (* UI *)
 ML\<open> (*This part (the definitions of long_keyword, long_statement, and short_statement) are from

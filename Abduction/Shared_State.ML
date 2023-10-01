@@ -97,8 +97,11 @@ in
 fun refute (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): real =
   let
     val cnjctr_prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
+    val cnjctr_prop_clean = Top_Down_Util.standardize_vnames cnjctr_prop
+                         |> Isabelle_Utils.strip_atyp
+                         |> Utils.try_with @{prop "False"} (Syntax.check_prop (Proof.context_of pst))  : term;
     val old_table         = Synchronized.value synched_table                                           : term2real_table;
-    val already_checked   = defined old_table cnjctr_prop                                              : bool;
+    val already_checked   = defined old_table cnjctr_prop_clean                                        : bool;
     fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * real);
     val _                 =
       if   already_checked then ()
@@ -107,12 +110,12 @@ fun refute (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:ter
           (* It is okay to spend some time to run quick-check before calling Synchronized.change:
            * Even if other threads find a counter-example for the same conjecture,
            * the result should be the same. *)
-          val pair = quickcheck cnjctr_prop
+          val pair = quickcheck cnjctr_prop_clean
         in
           Synchronized.change synched_table (insert_bool pair): unit
         end;
-    val new_table = Synchronized.value synched_table: term2real_table;
-    val result    = lookup new_table cnjctr_prop    : real;
+    val new_table = Synchronized.value synched_table  : term2real_table;
+    val result    = lookup new_table cnjctr_prop_clean: real;
   in
     result: real
   end;
