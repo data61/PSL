@@ -82,8 +82,8 @@ We also plan to improve the proof automation using evolutionary computation. We 
 
 - **Smart Induction**
 `Yutaka Nagashima. Smart Induction for Isabelle/HOL (Tool Paper). In: Ivrii A., Strichman O. (eds) Proceedings of the 20th Conference on Formal Methods in Computer-Aided Design – FMCAD 2020 DOI:https://doi.org/10.34727/2020/isbn.978-3-85448-042-6_32
-`
 
+`
 - **sem_ind**
 `Yutaka Nagashima. Faster Smarter Proof by Induction in Isabelle/HOL. Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence Main Track. Pages 1981-1988`
 
@@ -94,7 +94,8 @@ We also plan to improve the proof automation using evolutionary computation. We 
 `Nagashima, Y., Xu, Z., Wang, N., Goc, D.S., Bang, J. (2023). Template-Based Conjecturing for Automated Induction in Isabelle/HOL. In: Hojjat, H., Ábrahám, E. (eds) Fundamentals of Software Engineering. FSEN 2023. Lecture Notes in Computer Science, vol 14155 . Springer, Cham. https://doi.org/10.1007/978-3-031-42441-0_9`
 
 ## Screenshots
-- a PSL example
+### PSL example
 ![Screenshot](./image/screen_shot_tall.png)
-- a PGT example
-![Screenshot](./image/screen_shot_pgt.png)
+
+### Abduction Prover example
+![Screenshot](./image/screenshot_prod06.png)
