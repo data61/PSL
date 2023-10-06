@@ -98,4 +98,4 @@ We also plan to improve the proof automation using evolutionary computation. We 
 ![Screenshot](./image/screen_shot_tall.png)
 
 ### Abduction Prover example
-![Screenshot](./image/screenshot_prod06.png)
+![Screenshot](./image/screenshot_abduction_prover.png)
