@@ -1,3 +1,8 @@
+# Note on Isabelle2024 and the latest version of Sledgehammer
+While Isabelle2024 has been released, the updates for PSL and Abduction Prover are not yet complete. 
+Furthermore, due to improvements made to Sledgehammer in Isabelle2024, there seems to be an issue with the integration with PSL. 
+We will address this as soon as possible. 🙇
+
 # News
 - We updated this repository to Isabelle2023.
 - _NEW_: The introduction of **Abduction Prover**. You can watch a demo of Abduction Prover in [our YouTube channel](https://youtu.be/d7IXk0vB2p0).
