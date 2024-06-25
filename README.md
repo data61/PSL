@@ -1,10 +1,10 @@
 # Note on Isabelle2024 and its Sledgehammer
-While Isabelle2024 has been released, the updates for PSL and Abduction Prover are not yet complete. 
-Furthermore, due to improvements made to Sledgehammer in Isabelle2024, there seems to be an issue with the integration with PSL. 
-We will address this as soon as possible. 🙇
+This repository has been updated to Isabelle2024. However, we have received reports that the integration of Sledgehammer with this repository is now less stable under Isabelle2024. Therefore, although we have confirmed that the Abduction Prover works in some cases, its performance may currently be suboptimal. We are working to resolve this issue as quickly as possible. 🙇
+
+For users seeking the best performance, we recommend using Isabelle2023 and [this version of the Abduction Prover (v0.2.7-alpha)](https://github.com/data61/PSL/releases/tag/v0.2.7-alpha), which was developed specifically for Isabelle2023."
 
 # News
-- We updated this repository to Isabelle2023.
+- We updated this repository to Isabelle2024.
 - _NEW_: The introduction of **Abduction Prover**. You can watch a demo of Abduction Prover in [our YouTube channel](https://youtu.be/d7IXk0vB2p0).
 - LiFtEr and Smart_Induct are no-longer supported, since their successors, SeLFiE and sem_ind, have shown superior performance.
 - _PaMpeR is currently not supported either,_ since we want to minimise the cost necessary to maintain this repository. 
@@ -25,19 +25,19 @@ We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92u
 
 
 ## Installation (of SeLFiE, PSL, and sem_ind in one go) (for MacOS/Lunux users)
-1. Install [Isabelle2023](https://isabelle.in.tum.de).
+1. Install [Isabelle2024](https://isabelle.in.tum.de).
 2. Download or clone this repository (git clone https://github.com/data61/PSL.git).
 3. Open Isabelle/jEdit with PSL and all that. You can do this by opening Isabelle/jEdit as following:
    * `(path to the Isabelle binary)isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`
    * If you are a MacOS user and your current directory is this one with this README.md, probably you should type something like this in Terminal:
-   * `/Applications/Isabelle2023.app/bin/isabelle jedit -d . -l Smart_Isabelle`
+   * `/Applications/Isabelle2024.app/bin/isabelle jedit -d . -l Smart_Isabelle`
 4. Then, You can use SeLFiE/PSL/sem_ind to your theory files
    with the Isabelle keyword, **imports** as ``imports "Smart_Isabelle.Smart_Isabelle"``.
 5. Open `Example/Example.thy` to see if the installation is successful.
 
 ### Note on installation for Windows users
 The basic steps are the same as MacOS and Linux. 
-However, instead of using the binary file directly, use `Isabelle2023\Cygwin-Terminal` in Command Prompt. Once you start `Isabelle2023\Cygwin-Terminal`, you can install our tools by typing `isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`. Note that once you started `Isabelle2023\Cygwin-Terminal`, you should not specify the path to the Isabelle binary file. Therefore, the command you need after starting `Isabelle2023\Cygwin-Terminal` is something like `isabelle jedit -d . -l Smart_Isabelle`, assuming that your current directory is this one with this README.md/
+However, instead of using the binary file directly, use `Isabelle2024\Cygwin-Terminal` in Command Prompt. Once you start `Isabelle2024\Cygwin-Terminal`, you can install our tools by typing `isabelle jedit -d (path to the directory that contains this README file) -l Smart_Isabelle`. Note that once you started `Isabelle2024\Cygwin-Terminal`, you should not specify the path to the Isabelle binary file. Therefore, the command you need after starting `Isabelle2024\Cygwin-Terminal` is something like `isabelle jedit -d . -l Smart_Isabelle`, assuming that your current directory is this one with this README.md/
 
 ![Screenshot](./image/screen_shot_import.png)
 
