@@ -641,16 +641,16 @@ fun mk_proof_obligation ctxt (prop_str:string) =
 fun timeout_apply timeout f x =
   Thread_Attributes.with_attributes Thread_Attributes.no_interrupts (fn orig_atts =>
     let
-      val self = Thread.self ();
+      val self = Thread.Thread.self ();
       val start = Time.now ();
       val request =
         Event_Timer.request {physical = false} (start + timeout)
-          (fn () => Isabelle_Thread.interrupt_unsynchronized self);
+          (fn () => Thread.Thread.interrupt self handle Thread.Thread _ => ());
       val result =
         Exn.capture (fn () => Thread_Attributes.with_attributes orig_atts (fn _ => f x)) ();
       val stop = Time.now ();
       val was_timeout = not (Event_Timer.cancel request);
-      val test = Exn.capture Thread_Attributes.expose_interrupt ();
+      val test = Exn.capture Isabelle_Thread.expose_interrupt ();
       fun my_release (Exn.Res rel) = rel
        |  my_release _ = error "my_release failed"
     in

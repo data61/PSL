@@ -176,7 +176,7 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start
                                    (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems)
                                  : Abduction_Graph.key -> bool;
-      val numb_of_processors     = Thread.numProcessors ():int;
+      val numb_of_processors     = Thread.Thread.numProcessors ():int;
       val _                      = tracing ("numb_of_processors is " ^ Int.toString numb_of_processors ^ ".");
       val numb_of_nds_to_expand  = numb_of_processors;(*TODO: magic number*)
       val top_ornodes            = take numb_of_nds_to_expand sorted_orkeys: keys;
