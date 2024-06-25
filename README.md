@@ -1,3 +1,8 @@
+# Note on Isabelle2024 and its Sledgehammer
+While Isabelle2024 has been released, the updates for PSL and Abduction Prover are not yet complete. 
+Furthermore, due to improvements made to Sledgehammer in Isabelle2024, there seems to be an issue with the integration with PSL. 
+We will address this as soon as possible. 🙇
+
 # News
 - We updated this repository to Isabelle2023.
 - _NEW_: The introduction of **Abduction Prover**. You can watch a demo of Abduction Prover in [our YouTube channel](https://youtu.be/d7IXk0vB2p0).
@@ -10,11 +15,14 @@
 
 This repository contains various tools to support interactive theorem proving in Isabelle/HOL using artificial intelligence.
 This repository contains the implementation of *proof strategy language (PSL)* and its default strategy,
-**try_hard**, for [Isabelle2023](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2023, are no longer supported.
+**try_hard**, for [Isabelle2023](https://isabelle.in.tum.de). Past versions of Isabelle, such as Isabelle2022-1, are no longer supported.
 
 ## YouTube
 
 We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
+
+[![Video Thumbnail](https://img.youtube.com/vi/rXU-lJxP_GI/maxresdefault.jpg)](https://www.youtube.com/watch?v=rXU-lJxP_GI)
+
 
 ## Installation (of SeLFiE, PSL, and sem_ind in one go) (for MacOS/Lunux users)
 1. Install [Isabelle2023](https://isabelle.in.tum.de).
@@ -62,30 +70,24 @@ We are currently developing ``MeLoId``, an extension to `PSL` to improve its pro
 We also plan to improve the proof automation using evolutionary computation. We presented our plan during the poster session at [GECCO2019](https://gecco-2019.sigevo.org/index.html/HomePage). Our poster-only paper is available at [ACM digital library](https://doi.org/10.1145/3319619.3321921) and [arXiv](https://arxiv.org/abs/1904.08468).
 
 ## Preferred Citation
-- **PSL**:
-`Nagashima Y., Kumar R. (2017) A Proof Strategy Language and Proof Script Generation for Isabelle/HOL. In: de Moura L. (eds) Automated Deduction – CADE 26. CADE 2017. Lecture Notes in Computer Science, vol 10395. Springer, Cham`
+- **PSL**: `Nagashima, Y., Kumar, R. (2017). A Proof Strategy Language and Proof Script Generation for Isabelle/HOL. In: de Moura, L. (eds) Automated Deduction – CADE 26. CADE 2017. Lecture Notes in Computer Science(), vol 10395. Springer, Cham. https://doi.org/10.1007/978-3-319-63046-5_32`
 
-- **PGT**:
-`Nagashima Y., Parsert J. (2018) Goal-Oriented Conjecturing for Isabelle/HOL. In: Rabe F., Farmer W., Passmore G., Youssef A. (eds) Intelligent Computer Mathematics. CICM 2018. Lecture Notes in Computer Science, vol 11006. Springer, Cham`
+- **PGT**: `Nagashima, Y., Parsert, J. (2018). Goal-Oriented Conjecturing for Isabelle/HOL. In: Rabe, F., Farmer, W., Passmore, G., Youssef, A. (eds) Intelligent Computer Mathematics. CICM 2018. Lecture Notes in Computer Science(), vol 11006. Springer, Cham. https://doi.org/10.1007/978-3-319-96812-4_19`
 
-- **PaMpeR**:
-`Yutaka Nagashima and Yilun He. 2018. PaMpeR: proof method recommendation system for Isabelle/HOL. In Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering (ASE 2018). Association for Computing Machinery, New York, NY, USA, 362–372. DOI:https://doi.org/10.1145/3238147.3238210`
+- **PaMpeR**: `Yutaka Nagashima and Yilun He. 2018. PaMpeR: proof method recommendation system for Isabelle/HOL. In Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering (ASE 2018). Association for Computing Machinery, New York, NY, USA, 362–372. DOI:https://doi.org/10.1145/3238147.3238210`
 
-- **Towards Evolutionary Theorem Proving for Isabelle/HOL**:
-`Yutaka Nagashima. 2019. Towards evolutionary theorem proving for Isabelle/HOL. In Proceedings of the Genetic and Evolutionary Computation Conference Companion (GECCO ’19). Association for Computing Machinery, New York, NY, USA, 419–420. DOI:https://doi.org/10.1145/3319619.3321921`
+- **Towards Evolutionary Theorem Proving for Isabelle/HOL**: `Yutaka Nagashima. 2019. Towards evolutionary theorem proving for Isabelle/HOL. In Proceedings of the Genetic and Evolutionary Computation Conference Companion (GECCO ’19). Association for Computing Machinery, New York, NY, USA, 419–420. DOI:https://doi.org/10.1145/3319619.3321921`
 
-- **LiFtEr**:
-`Nagashima Y. (2019) LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL. In: Lin A. (eds) Programming Languages and Systems. APLAS 2019. Lecture Notes in Computer Science, vol 11893. Springer, Cham`
+- **LiFtEr**: `Nagashima, Y. (2019). LiFtEr: Language to Encode Induction Heuristics for Isabelle/HOL. In: Lin, A. (eds) Programming Languages and Systems. APLAS 2019. Lecture Notes in Computer Science(), vol 11893. Springer, Cham. https://doi.org/10.1007/978-3-030-34175-6_14`
 
 - **Simple Dataset**
 `Nagashima Y. (2020) Simple Dataset for Proof Method Recommendation in Isabelle/HOL. In: Benzmüller C., Miller B. (eds) Intelligent Computer Mathematics. CICM 2020. Lecture Notes in Computer Science, vol 12236. Springer, Cham. https://doi.org/10.1007/978-3-030-53518-6_21`
 
 - **Smart Induction**
-`Yutaka Nagashima. Smart Induction for Isabelle/HOL (Tool Paper). In: Ivrii A., Strichman O. (eds) Proceedings of the 20th Conference on Formal Methods in Computer-Aided Design – FMCAD 2020 DOI:https://doi.org/10.34727/2020/isbn.978-3-85448-042-6_32
-`
+`Yutaka Nagashima. Smart Induction for Isabelle/HOL (Tool Paper). In: Ivrii A., Strichman O. (eds) Proceedings of the 20th Conference on Formal Methods in Computer-Aided Design – FMCAD 2020 DOI:https://doi.org/10.34727/2020/isbn.978-3-85448-042-6_32`
 
 - **sem_ind**
-`Yutaka Nagashima. Faster Smarter Proof by Induction in Isabelle/HOL. Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence Main Track. Pages 1981-1988`
+`Yutaka Nagashima. Faster Smarter Proof by Induction in Isabelle/HOL. Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence Main Track. Pages 1981-1988 DOI:https://doi.org/10.24963/ijcai.2021/273`
 
 - **Definitional Quantifier and SeLFiE**
 `Nagashima, Y. (2022). Definitional Quantifiers Realise Semantic Reasoning for Proof by Induction. In: Kovács, L., Meinke, K. (eds) Tests and Proofs. TAP 2022. Lecture Notes in Computer Science, vol 13361. Springer, Cham. https://doi.org/10.1007/978-3-031-09827-7_4`
@@ -94,7 +96,8 @@ We also plan to improve the proof automation using evolutionary computation. We 
 `Nagashima, Y., Xu, Z., Wang, N., Goc, D.S., Bang, J. (2023). Template-Based Conjecturing for Automated Induction in Isabelle/HOL. In: Hojjat, H., Ábrahám, E. (eds) Fundamentals of Software Engineering. FSEN 2023. Lecture Notes in Computer Science, vol 14155 . Springer, Cham. https://doi.org/10.1007/978-3-031-42441-0_9`
 
 ## Screenshots
-- a PSL example
+### PSL example
 ![Screenshot](./image/screen_shot_tall.png)
-- a PGT example
-![Screenshot](./image/screen_shot_pgt.png)
+
+### Abduction Prover example
+![Screenshot](./image/screenshot_abduction_prover.png)
