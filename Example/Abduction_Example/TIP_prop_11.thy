@@ -20,6 +20,7 @@ fun rev :: "'a list => 'a list" where
   "rev (nil2) = nil2"
 | "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
 
+(*On a MacBook Pro 2021 or later, this takes about 10 minutes.*)
 prove property0 :
   "((rev (x (rev y) (rev z))) = (x z y))"
 

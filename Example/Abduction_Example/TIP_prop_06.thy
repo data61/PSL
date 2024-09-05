@@ -30,6 +30,7 @@ fun t2 :: "Nat => Nat => Nat" where
   "t2 (Z) z = z"
 | "t2 (S z2) z = S (t2 z2 z)"
 
+(*On a MacBook Pro 2021 or later, this takes about 30 minutes.*)
 prove  property0: "((length (rev (x y z))) = (t2 (length y) (length z)))"
 
 end
