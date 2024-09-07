@@ -21,7 +21,7 @@ This repository contains the implementation of *proof strategy language (PSL)* a
 
 We opened [a YouTube channel](https://www.youtube.com/channel/UCjnY6hIaryOEgG92udvogAw/) to introduce aspects of this project.
 
-[![Video Thumbnail](https://img.youtube.com/vi/rXU-lJxP_GI/maxresdefault.jpg)](https://www.youtube.com/watch?v=rXU-lJxP_GI)
+[![Video Thumbnail](https://github.com/data61/PSL/blob/master/image/abduction_demo_3mb.gif)](https://www.youtube.com/watch?v=rXU-lJxP_GI)
 
 
 ## Installation (of SeLFiE, PSL, and sem_ind in one go) (for MacOS/Lunux users)
