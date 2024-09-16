@@ -9,7 +9,7 @@ For users seeking the best performance, we recommend using Isabelle2023 and [thi
 - LiFtEr and Smart_Induct are no-longer supported, since their successors, SeLFiE and sem_ind, have shown superior performance.
 - _PaMpeR is currently not supported either,_ since we want to minimise the cost necessary to maintain this repository. 
 - This is the development version of PSL, SeLFiE, and sem_ind where we try out possibly immature ideas. In case you find problems, please send your feedback.
-- The main developer of this repository, Yutaka, has taken a full-time position at a private company, and he works on [PSL and all that](https://github.com/data61/PSL/) only in his spare time. Therefore, the progress of this project, unfortunately, will be slow for the foreseeable future. In case you find problems and requests about data61/PSL, contact Yutaka (email: united.reasoning+gmail.com (reaplace + with @), twitter: [YutakangE](https://twitter.com/YutakangE)) or open an issue.
+- The main developer of this repository, Yutaka, has taken a full-time position at a private company, and he works on [PSL and all that](https://github.com/data61/PSL/) only in his spare time. Therefore, the progress of this project, unfortunately, will be slow for the foreseeable future. In case you find problems and requests about data61/PSL, contact Yutaka (email: nagashima+cs.cas.cz (reaplace + with @), twitter: [YutakangE](https://twitter.com/YutakangE)) or open an issue.
 
 # Smart_Isabelle
 
