@@ -1342,9 +1342,9 @@ datatype property =
 | Connexity    (*x R y \<or> y R x \<or> (x = y)*)
 | Reflexivity  (*x R x*)
 (* bottom-up conjecturing for unary operators *)
-| Square      (*f (f x) = x for all x *) (*Prod/11*)
+| Involution   (*f (f x) = x for all x *) (*Prod/11*)
 |(*TODO*) Square_Root (*f (f x) = x for some x*)
-| Projection  (*f (f x) = f x for all x *) (*TIP15 sorts*)
+| Idempotence  (*f (f x) = f x for all x *) (*TIP15 sorts*)
 (* non-algebraic bottom-up conjecturing *)
 |(*TODO*) Swap_Constructor (*Prod/13*)(*Prod/15*)
 | Swap_Unary (*f (x, g (y)) = f ( g (x), y )*)
@@ -1373,9 +1373,9 @@ val ctxt_n_const_to_zero_element:        Proof.context -> term -> (property * te
 val ctxt_n_consts_to_distributivity:     Proof.context -> term -> (property * term) list;
 val ctxt_n_consts_to_anti_distributivity:Proof.context -> term -> (property * term) list;
 val ctxt_n_consts_to_homomorphism_2:     Proof.context -> term -> (property * term) list;
-val ctxt_n_consts_to_square:             Proof.context -> term -> (property * term) list;
+val ctxt_n_consts_to_involution:         Proof.context -> term -> (property * term) list;
 val ctxt_n_consts_to_square_root:        Proof.context -> term -> (property * term) list;
-val ctxt_n_consts_to_projection:         Proof.context -> term -> (property * term) list;
+val ctxt_n_consts_to_idempotence:         Proof.context -> term -> (property * term) list;
 val ctxt_n_consts_to_swap_constructor:   Proof.context -> term -> (property * term) list;
 val ctxt_n_consts_to_transitivity:       Proof.context -> term -> (property * term) list;
 val ctxt_n_consts_to_symmetry:           Proof.context -> term -> (property * term) list;
@@ -1415,9 +1415,9 @@ datatype property =
 | Connexity
 | Reflexivity
 (* bottom-up conjecturing for unary operators *)
-| Square (*f (f x) = x for all x*) (*Prod/11*)
+| Involution (*f (f x) = x for all x*) (*Prod/11*)
 |(*TODO*) Square_Root (*f (f x) = x for some x*)
-| Projection  (*f (f x) = f x for all x *) (*TIP15 sorts*)
+| Idempotence  (*f (f x) = f x for all x *) (*TIP15 sorts*)
 (* non-algebraic bottom-up conjecturing *)
 | Swap_Constructor
 | Swap_Unary
@@ -1437,9 +1437,9 @@ fun property_as_string Associativity           = "associativity"
   | property_as_string Symmetry                = "symmetry"
   | property_as_string Connexity               = "connexity"
   | property_as_string Reflexivity             = "reflexivity"
-  | property_as_string Square                  = "square"
+  | property_as_string Involution              = "involution"
   | property_as_string Square_Root             = "square_root"
-  | property_as_string Projection              = "projection"
+  | property_as_string Idempotence             = "idempotence"
   | property_as_string Swap_Constructor        = "swap_constructor"
   | property_as_string Swap_Unary              = "swap_unary"
   | property_as_string Composite_Commutativity = "composite_commutativity";
@@ -1860,7 +1860,7 @@ fun ctxt_n_consts_to_homomorphism_2 (ctxt:Proof.context) (preserved_binary as (C
     else []
   | ctxt_n_consts_to_homomorphism_2 _ _ = [];
 
-fun ctxt_n_consts_to_square (ctxt:Proof.context) (func:term) =
+fun ctxt_n_consts_to_involution (ctxt:Proof.context) (func:term) =
 (* f (f x) = x *)
     if takes_n_arguments func 1 andalso all_args_are_same_typ [func]
     then 
@@ -1868,9 +1868,9 @@ fun ctxt_n_consts_to_square (ctxt:Proof.context) (func:term) =
           val tracing' = if false then tracing else K ();
           val _ = tracing' "===  takes_n_arguments func 1 returned true."
           val var1 = mk_free_variable_of_dummyT 1;
-          val _ = tracing' "===  before calling square."
+          val _ = tracing' "===  before calling involution."
           val func_wo_typ = strip_atyp func;
-          val square = 
+          val involution =
                 Const ("HOL.eq", dummyT )
                   $ (func_wo_typ $ (func_wo_typ $ var1)) 
                   $ var1
@@ -1878,26 +1878,26 @@ fun ctxt_n_consts_to_square (ctxt:Proof.context) (func:term) =
                 |> (fn xyz => (tracing' "===  we pass this term sto Syntax.check_term:"; xyz))
                 |> (fn xyz => (tracing' ("===  " ^ Isabelle_Utils.trm_to_string ctxt xyz); xyz))
                 |> TBC_Utils.type_check ctxt:term option;
-          val _ = tracing' " :) ctxt_n_consts_to_square almost finished successfully."
-      in if is_some square then [(Square, the square)] else []
+          val _ = tracing' " :) ctxt_n_consts_to_involution almost finished successfully."
+      in if is_some involution then [(Involution, the involution)] else []
       end
     else []
 
 val ctxt_n_consts_to_square_root = undefined; (*TODO*)
 
-fun ctxt_n_consts_to_projection (ctxt:Proof.context) (func:term) =
+fun ctxt_n_consts_to_idempotence (ctxt:Proof.context) (func:term) =
 (* f (f x) = f x *)
     if takes_n_arguments func 1 andalso all_args_are_same_typ [func]
     then 
       let
           val var1 = mk_free_variable_of_dummyT 1;
           val func_wo_typ = strip_atyp func;
-          val projection = 
+          val idempotence =
                 Const ("HOL.eq", dummyT )
                   $ (func_wo_typ $ (func_wo_typ $ var1)) 
                   $ (func_wo_typ $ var1)
                 |> TBC_Utils.type_check ctxt:term option;
-      in if is_some projection then [(Projection, the projection)] else []
+      in if is_some idempotence then [(Idempotence, the idempotence)] else []
       end
     else []
 
@@ -1993,8 +1993,8 @@ fun ctxt_n_const_to_all_conjecture_term (ctxt:Proof.context) (func as (Const _))
 @ ctxt_n_consts_to_distributivity          ctxt func
 @ ctxt_n_consts_to_anti_distributivity     ctxt func
 @ ctxt_n_consts_to_homomorphism_2          ctxt func 
-@ ctxt_n_consts_to_projection              ctxt func
-@ ctxt_n_consts_to_square                  ctxt func
+@ ctxt_n_consts_to_idempotence             ctxt func
+@ ctxt_n_consts_to_involution              ctxt func
 @ ctxt_n_consts_to_symmetry                ctxt func
 @ ctxt_n_consts_to_reflexibility           ctxt func
 @ ctxt_n_consts_to_transitivity            ctxt func

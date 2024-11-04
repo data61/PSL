@@ -458,9 +458,9 @@ fun is_template_based (name:string) =
     isPrefix "abduced_lemma_symmetry"                name orelse
     isPrefix "abduced_lemma_connexity"               name orelse
     isPrefix "abduced_lemma_reflexivity"             name orelse
-    isPrefix "abduced_lemma_square"                  name orelse
+    isPrefix "abduced_lemma_involution"              name orelse
     isPrefix "abduced_lemma_square_root"             name orelse
-    isPrefix "abduced_lemma_projection"              name orelse
+    isPrefix "abduced_lemma_idempotence"             name orelse
     isPrefix "abduced_lemma_swap_constructor"        name orelse
     isPrefix "abduced_lemma_swap_unary"              name orelse
     isPrefix "abduced_lemma_composite_commutativity" name;
