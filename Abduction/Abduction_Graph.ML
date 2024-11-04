@@ -386,8 +386,8 @@ fun final_goal_proved_completely (graph:abduction_graph) =
 (* prove_term_completely *)
 fun prove_term_completely (pst:Proof.state) (lemma_term:term) =
     let
-      val pst_to_prove = Top_Down_Util.mk_pst_to_prove_from_term pst lemma_term                                   : Proof.state;
-      val timeouts     = {overall = 60.0, hammer = 8.5, quickcheck = 1.0, nitpick = 2.0}           : TBC_Utils.timeouts;
+      val pst_to_prove = Top_Down_Util.mk_pst_to_prove_from_term pst lemma_term                     : Proof.state;
+      val timeouts     = {overall = 60.0, hammer = 8.5, quickcheck = 1.0, nitpick = 2.0}            : TBC_Utils.timeouts;
       val maybe_result = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;
       val maybe_script = Option.map fst maybe_result                                                : strings option;
     in

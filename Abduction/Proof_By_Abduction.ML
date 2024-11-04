@@ -318,15 +318,33 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
     val synched_lemma_name_table = SS.mk_term2string_table ();
     val synched_proved_simps     = SS.mk_synched_proved_simps ();
     val ori_prems                = Logic.strip_imp_prems term |> map TDU.standardize_vnames |> map Isabelle_Utils.strip_atyp: terms;
-    val quintuple                = (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table, synched_proved_simps, ori_prems);
-    val _                        = prove_standard_simp_rules quintuple standardized_term: unit;
-    val solved                   = loop 0 max_depth start quintuple;
-    val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
-    val lemma_name2term          = abduction_graph_to_string2term_table final_graph: string2term_table;
-    val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
-    val _                        = if   solved
-                                   then print_necessary_proofs_only pst final_graph lemma_name2term final_goal_name
-                                   else ""
+    val final_goal_key           = (Or_N, [standardized_term]);
+    val _ = SS.try_to_prove_ornode_and_update_graph pst synched_agraph final_goal_key;
+    val solved =
+        if SS.final_goal_proved_completely synched_agraph: bool
+        then (*Proof by abduction is unnecessary.*)
+          let
+            val agraph = Synchronized.value synched_agraph;
+            val lemma_name2term = abduction_graph_to_string2term_table agraph: string2term_table;
+            val final_goal_name = lemma_name_of agraph (Or_N, [standardized_term]);
+            val _ = print_necessary_proofs_only pst agraph lemma_name2term final_goal_name;
+          in
+            true
+          end
+        else (*Proof by abduction is necessary.*)
+          let
+            val quintuple                = (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table, synched_proved_simps, ori_prems);
+            val _                        = prove_standard_simp_rules quintuple standardized_term: unit;
+            val solved_in_loop           = loop 0 max_depth start quintuple;(*expensive abduction!*)
+            val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
+            val lemma_name2term          = abduction_graph_to_string2term_table final_graph: string2term_table;
+            val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
+            val _                        = if   solved_in_loop
+                                           then print_necessary_proofs_only pst final_graph lemma_name2term final_goal_name
+                                           else ""
+          in
+            solved_in_loop
+          end;
   in
     solved
   end;

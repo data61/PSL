@@ -234,9 +234,9 @@ fun update_after_connecting_andnd_to_existing_ornd (ctxt:Proof.context) (sagraph
 
 fun try_to_prove_ornode_and_update_graph (pst:Proof.state) (sagraph:synched_abduction_graph) (orkey:AG.key) =
   let
-       val graph       = Synchronized.value sagraph               : abduction_graph;
-       val maybe_proof = AG.prove_orkey_completely orkey graph pst: strings option;
-       val _           = update_attacked sagraph orkey            : unit;
+    val graph       = Synchronized.value sagraph               : abduction_graph;
+    val maybe_proof = AG.prove_orkey_completely orkey graph pst: strings option;
+    val _           = update_attacked sagraph orkey            : unit;
   in
       if is_some maybe_proof (*ornode was proved completely.*)
       then
