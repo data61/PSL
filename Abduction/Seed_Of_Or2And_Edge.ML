@@ -24,7 +24,7 @@ type add_or2and_edge = (key * abduction_node * conjectures);
 
 val print_seed_of_or2and_edge             : Proof.context -> seed_of_or2and_edge -> unit list;
 val seed_is_from_tactic                   : seed_of_or2and_edge -> bool;
-val apply_PSL_to_get_seeds_of_or2and_edges: (Shared_State.synched_term2string_table * Shared_State.synched_term2real_table) -> Proof.state -> seeds_of_or2and_edge;
+val apply_PSL_to_get_seeds_of_or2and_edges: (Shared_State.synched_term2string_table * Shared_State.synched_term2real_table) -> (*original*)Proof.state -> Proof.state(*to prove*)-> seeds_of_or2and_edge;
 val condition_to_filter_out_conjecture    : term -> Shared_State.synched_term2real_table -> terms -> Proof.state -> abduction_graph -> bool (*from_tactic*) -> term (*conjecture*) -> bool;
 val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_State.synched_term2real_table -> terms (*original premises*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
 val conjectures_to_seed_of_or2and_edge    : Shared_State.synched_term2string_table -> Proof.state -> (string * term) list -> seed_of_or2and_edge;
@@ -72,27 +72,29 @@ fun seed_is_from_tactic ({proof, ...}) = Or2And_Edge.proof_is_from_tactic proof:
  * proof states. *)
 fun apply_PSL_to_get_seeds_of_or2and_edges
     (name_table: SS.synched_term2string_table,
-     refutation: Shared_State.synched_term2real_table) (pst:Proof.state) =
+     refutation: Shared_State.synched_term2real_table) (orig_pst) (pst_to_prove:Proof.state) =
   let
-    val ctxt          = Proof.context_of pst;
-    val extend_str    = PSL_Interface.lookup ctxt "Extend_Leaf" |> the                     : PSL_Interface.strategy;
-    val timeouts      = {overall = 60.0, hammer = 9.0, quickcheck = 1.0, nitpick = 2.0}    : TBC_Utils.timeouts;
-    val result_seq    = TBC_Utils.psl_strategy_to_monadic_tactic timeouts extend_str pst []: (Dynamic_Utils.log * Proof.state) Seq.seq;
-    val result_list   = Seq.list_of result_seq                                             : (Dynamic_Utils.log * Proof.state) list;
-    val pairs_n_psts  = map (apfst Dynamic_Utils.log_to_script_n_importance) result_list   : ((strings * real) * Proof.state) list;
+    val orig_ctxt     = Proof.context_of orig_pst;
+    val ctxt_to_prove = Proof.context_of pst_to_prove;
+    val extend_str    = PSL_Interface.lookup ctxt_to_prove "Extend_Leaf" |> the: PSL_Interface.strategy;
+    val timeouts      = {overall = 60.0, hammer = 9.0, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
+    val result_seq    = TBC_Utils.psl_strategy_to_monadic_tactic timeouts extend_str pst_to_prove []: (Dynamic_Utils.log * Proof.state) Seq.seq;
+    val result_list   = Seq.list_of result_seq: (Dynamic_Utils.log * Proof.state) list;
+    val pairs_n_psts  = map (apfst Dynamic_Utils.log_to_script_n_importance) result_list: ((strings * real) * Proof.state) list;
     fun mk_proof_key_value ((pscript:strings, importance), pst) =
         let
           val subgs              = Isabelle_Utils.pst_to_subgs pst
           val subgs_wo_meta_uni  = map TDU.strip_outermost_meta_quantifiers subgs: terms;
           val standardized_subgs = map Top_Down_Util.standardize_vnames subgs_wo_meta_uni: terms;
           val standardized_props = map (fn term => if Top_Down_Util.is_prop term then term else HOLogic.mk_Trueprop term) standardized_subgs: terms;
-          val mk_lemma_name      = SS.get_lemma_name name_table ctxt "tactic": term -> string;
+          val mk_lemma_name      = SS.get_lemma_name name_table ctxt_to_prove "tactic": term -> string;
           val nonempty_subgs =
             if length subgs = 0 (*orelse not (pass_check_print_read_terms ctxt standardized_props)*)
             then [(mk_lemma_name @{prop "True"}, @{prop "True"})]
             else map mk_lemma_name standardized_props ~~ standardized_props: (string * term) list;
           val nonempty_subgs_terms = map snd nonempty_subgs |> map Top_Down_Util.standardize_vnames |> distinct (op =): terms;
-          val new_importance = importance * SS.refute_any_of_these refutation pst nonempty_subgs_terms: real;
+
+          val new_importance = importance * SS.refute_any_of_these true refutation orig_pst nonempty_subgs_terms: real;
           val result = if length subgs = 0 (*orelse not (pass_check_print_read_terms ctxt standardized_props)*)
                        then NONE
                        else SOME {proof      = Or2And_Edge.Tactic pscript,
@@ -244,7 +246,6 @@ fun prove_ornode_assuming_andnode
      (seed_of_or2and_edge as {new_goals, proof, importance}: seed_of_or2and_edge)(*child nodes*)
      : add_or2and_edge option =
    let
-     val _ = SS.update_is_branch parent_orkey sagraph: unit;(*TODO: Double-check. Why do I need to update_is_branch here? It should be done when expanding the parental or-node.*)
      val (proved_parent_or, script_opt_gen) = prove_goal_assuming_conjectures pst parent_orkey seed_of_or2and_edge: (bool * string option);
    in
      if proved_parent_or
@@ -298,7 +299,7 @@ fun add_nodes_and_edges_to_graph (pst:Proof.state) (parent_ornd:key) (synched_ag
     val _                  = map (SS.update_importance_of_ornode synched_agraph) child_orkeys: unit list;
     (*step 9*)
     val _                  = SS.update_after_connecting_andnd_to_existing_ornd ctxt synched_agraph child_orkeys: unit list;
-    (*step 10*)
+    (*step 10: expensive*)
     val _                  = Par_List.map (SS.try_to_prove_ornode_and_update_graph pst synched_agraph) child_orkeys
   in
     ()
@@ -323,7 +324,7 @@ fun abduction_for_tactic_based_conjectures (pst:Proof.state) (parent_or:key) (se
   let
     (*step 1*)
     val triples = Par_List.map (prove_ornode_assuming_andnode pst false parent_or sagraph) seeds |> Utils.somes: add_or2and_edge list;
-    (*step 2 - 7*)
+    (*step 2 - 10*)
     val _       = Par_List.map (add_nodes_and_edges_to_graph pst parent_or sagraph) triples
   in () end;
 

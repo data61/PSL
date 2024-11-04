@@ -182,13 +182,14 @@ fun hammer_logtac (timeout:real) (pstate:Proof.state): (Dynamic_Utils.log * Proo
     val fact_override      = Sledgehammer_Fact.no_fact_override;
     val run_sledgehammer   = Sledgehammer.run_sledgehammer params Auto_Try NONE 1 fact_override
                            : Proof.state -> bool * (Sledgehammer.sledgehammer_outcome * string);
-    val timeout            = Isabelle_Utils.timeout_apply (seconds timeout);
+    val apply_timeout      = Isabelle_Utils.timeout_apply (seconds timeout);
+
+
 
     (*function body*)
-    val result             = try (timeout run_sledgehammer) pstate
-                             handle ERROR _ =>
-                             (if Utils.debug then tracing "ERROR in hammer_logtac" else ();
-                              NONE)
+    (*TODO: Double-check. Should we really use futures here?*)
+    val result             = Future.fork (fn () => run_sledgehammer pstate)
+                          |> (fn f => try (apply_timeout Future.join) f handle Timeout.TIMEOUT _ => NONE)
                            : (bool * (Sledgehammer.sledgehammer_outcome * string)) option;
     val orig_string        = result <$> snd <$> snd  handle Empty =>
                              (if Utils.debug then tracing "Empty in orig_string/hammer_logtac" else (); 

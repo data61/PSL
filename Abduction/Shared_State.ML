@@ -6,6 +6,7 @@
 signature SHARED_STATE =
 sig
 
+type debug = bool;
 type proved_simps = (string * term) list; (*lemma name, lemma term*)
 type synched_proved_simps = (string * term) list Synchronized.var;
 
@@ -18,9 +19,9 @@ type abduction_graph;
 type term2real_table;
 type synched_term2real_table;
 val mk_term2real_table     : unit -> synched_term2real_table;
-val refute                 : synched_term2real_table -> Proof.state -> term  -> real;
+val refute                 : debug -> synched_term2real_table -> Proof.state -> term  -> real;
 val is_refuted             : synched_term2real_table -> Proof.state -> term  -> bool;
-val refute_any_of_these    : synched_term2real_table -> Proof.state -> terms -> real;
+val refute_any_of_these    : debug -> synched_term2real_table -> Proof.state -> terms -> real;
 val any_of_these_is_refuted: synched_term2real_table -> Proof.state -> terms -> bool;
 
 (*TODO: Do we really need a table that maps terms to lemma names? Can we use Abduction_Graph for this?*)
@@ -58,6 +59,7 @@ end;
 structure Shared_State: SHARED_STATE =
 struct
 
+type debug = bool;
 type proved_simps = (string * term) list; (*lemma name, lemma term*)
 type synched_proved_simps = (string * term) list Synchronized.var;
 
@@ -94,12 +96,16 @@ fun insert_bool (cnjctr:term, r:real) (table:term2real_table) =
 (*Once we refute a term. The term remains refuted in the table forever.*)
 in
 
-fun refute (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): real =
+fun refute (_(*debug*): bool) (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): real =
   let
     val cnjctr_prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
     val cnjctr_prop_clean = Top_Down_Util.standardize_vnames cnjctr_prop
                          |> Isabelle_Utils.strip_atyp
-                         |> Utils.try_with @{prop "False"} (Syntax.check_prop (Proof.context_of pst))  : term;
+                         |> Utils.try_with @{prop "True"} (Syntax.check_prop (Proof.context_of pst))  : term;
+    (* If syntax check fails for this conjecture for some unknown reasons, we consider that we cannot refute it.
+     * The reasons is that we have already applied type-checking prior to this stage.
+     * So, if Syntax.check_prop fails here, it is caused by some unknown reasons, for which
+     * we do not want to refute the conjecture. *)
     val old_table         = Synchronized.value synched_table                                           : term2real_table;
     val already_checked   = defined old_table cnjctr_prop_clean                                        : bool;
     fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * real);
@@ -121,16 +127,16 @@ fun refute (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:ter
   end;
 
 fun is_refuted (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): bool =
-    Real.== (refute synched_table pst cnjctr, 0.0);
+    Real.== (refute false synched_table pst cnjctr, 0.0);
 
 fun any_of_these_is_refuted (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
     exists (is_refuted synched_table pst) terms;
 
-fun refute_any_of_these (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
+fun refute_any_of_these (debug:bool) (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
   let
-    val importances = map (refute synched_table pst) terms: real list;
-  in
-    fold (fn r1:real => fn r2:real => r1 * r2) importances 1.0
+    val importances = map (refute debug synched_table pst) terms: real list;
+    val result = if exists (fn impo => Real.== (impo, 0.0)) importances then 0.0 else 1.0;
+  in result
   end;
 
 end;

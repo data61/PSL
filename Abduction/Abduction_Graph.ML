@@ -224,7 +224,8 @@ fun print_orkey  (ctxt:Proof.context) (graph:abduction_graph) (orkey as (_, [trm
   (
     tracing "  abduced_lemma is:";
     tracing ("    " ^ lemma_name_of graph orkey);
-    tracing ("    " ^ Isabelle_Utils.trm_to_string ctxt trm)
+    tracing ("    " ^ Isabelle_Utils.trm_to_string ctxt trm);
+    tracing ("    " ^ "Importance is: " ^ (importance graph orkey |> Real.toString))
   );
 
 (* grand_relatives *)

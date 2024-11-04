@@ -66,7 +66,9 @@ fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
   andalso
     #gg_parent_not_finished ornode
   andalso
-    is_none (#proof ornode);
+    is_none (#proof ornode)
+  andalso
+    not (#is_branch ornode);
 
 (* creation of ornode *)
 type is_final_goal = bool;

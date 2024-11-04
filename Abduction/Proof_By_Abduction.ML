@@ -131,13 +131,12 @@ fun expand_ornode_if_original_goal_is_unproved
                                          (term2name, refutation, synched_agraph, proved_simps): unit;
       (*tactic application as conjecturing. A little expensive*)
       val pst_to_prove                 = TDU.mk_pst_to_prove_from_term pst lemma_term: state;
-      val seeds_from_tactics           = SOOE.apply_PSL_to_get_seeds_of_or2and_edges (term2name, refutation) pst_to_prove: seeds_of_or2and_edge;
+      val seeds_from_tactics           = SOOE.apply_PSL_to_get_seeds_of_or2and_edges (term2name, refutation) pst pst_to_prove: seeds_of_or2and_edge;
       val graph_extended_by_conjecture = Synchronized.value synched_agraph: abduction_graph;
       val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation orig_prems pst graph_extended_by_conjecture seeds_from_tactics
       val tactics_seeds_wo_counterexam = filter_out (SOOE.seed_has_counterexample refutation pst) filtered_seeds_from_tactics: seeds_of_or2and_edge;
       val _                            = SOOE.abduction_for_tactic_based_conjectures pst or_key tactics_seeds_wo_counterexam synched_agraph: unit;
     in
-      (*seeds_to_updated_graph is very expensive*)
       SS.final_goal_proved_completely synched_agraph
     end
   | expand_ornode_if_original_goal_is_unproved _ _ = error "expand_ornode failed. Not an Or_N.";
@@ -149,7 +148,12 @@ fun still_has_time (start:Timing.start) (pst:Proof.state) = current_time start <
 fun expand_ornode_if_original_goal_is_unproved_w_timeout (start:Timing.start)
       (pst:state, synched_agraph, refutation, term2name, proved_simps, orig_prems) (or_key as (Or_N, [_]):key): bool =
     if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
-    then expand_ornode_if_original_goal_is_unproved (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems) or_key
+    then
+    (*TODO: Double-check if we really need to use future here. Is Timeout.apply good enough inside Par_List.find_some?*)
+      Future.fork
+       (fn () => (SS.update_is_branch or_key synched_agraph: unit; expand_ornode_if_original_goal_is_unproved) (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems) or_key)
+    |> (fn f => Timeout.apply (Time.fromSeconds 600) Future.join f
+        handle Timeout.TIMEOUT _ => (tracing ("Timeout from expand_ornode_if_original_goal_is_unproved_w_timeout"); false))
     else false
 | expand_ornode_if_original_goal_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
 
@@ -162,7 +166,7 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
      term2name:SS.synched_term2string_table,
      proved_simps:SS.synched_proved_simps,
      orig_prems: terms)) =
-  if counter < 8 andalso still_has_time start pst
+  if counter < 15 andalso still_has_time start pst
   then
     let
       val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ ". =====");
@@ -188,6 +192,60 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
     end
   else
     false;
+(*
+fun loop_pervasive_parallel (start:Timing.start)
+    (pst: state,
+     synched_agraph: SS.synched_abduction_graph,
+     refutation:SS.synched_term2real_table,
+     term2name:SS.synched_term2string_table,
+     proved_simps:SS.synched_proved_simps,
+     orig_prems: terms) =
+  let
+    val numb_of_processors     = Thread.Thread.numProcessors ():int;
+    val _                      = tracing ("numb_of_processors is " ^ Int.toString numb_of_processors ^ ".");
+    val numb_of_nds_to_expand  = numb_of_processors + 1: int;(*TODO: magic number*)
+    val curr_numb_of_threads   = Synchronized.var "curr_numb_of_threads" 1: int Synchronized.var;
+    fun minus_one int          = int - 1;
+    fun plus_one int           = int + 1;
+    fun syn_minus_one ()       = Synchronized.change curr_numb_of_threads minus_one: unit;
+    fun syn_plus_one ()        = Synchronized.change curr_numb_of_threads plus_one: unit;
+    val ctxt                   = Proof.context_of pst;
+    val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start
+                                 (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems)
+                               : Abduction_Graph.key -> bool;
+    val counter = 0;
+    (*Should we accumulate futures and cancel them when we find a proof?*)
+    fun inner_loop (in_counter:int) =
+      let
+        val _ = OS.Process.sleep (Time.fromSeconds 5);
+      in
+        if Synchronized.value curr_numb_of_threads < numb_of_nds_to_expand then
+         (if in_counter < 15000 andalso still_has_time start pst   
+          then
+            let
+              val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ ". =====");
+              val abduction_graph        = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
+              val orkeys_worth_expanding = orkeys_tobe_expanded_in ctxt abduction_graph: keys;
+              val sorted_orkeys          = sort_orkeys_based_on_importance abduction_graph orkeys_worth_expanding: keys;
+              val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length sorted_orkeys) ^ ".");
+              val _                      = tracing "They are:"
+              val _                      = map (print_orkey ctxt abduction_graph) sorted_orkeys
+              val some_parent_orkey      = try hd sorted_orkeys: key option;
+              val _                      = Option.map (fn porkey => SS.update_is_branch porkey synched_agraph) some_parent_orkey: unit option;
+              val _                      = if is_some some_parent_orkey then (Future.fork  (fn u => (syn_plus_one (); expand_ornode (the some_parent_orkey); syn_minus_one u)); ()) else ();
+              val solved                 = SS.final_goal_proved_completely synched_agraph: bool;
+            in
+              (if solved then true else inner_loop (in_counter + 1))
+            end
+          else
+            false)
+        else
+          inner_loop in_counter
+    end;
+  in
+    inner_loop counter
+  end;
+*)
 
 type string2term_table = term Symtab.table;
 
