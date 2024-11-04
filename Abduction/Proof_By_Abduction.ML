@@ -149,11 +149,9 @@ fun expand_ornode_if_original_goal_is_unproved_w_timeout (start:Timing.start)
       (pst:state, synched_agraph, refutation, term2name, proved_simps, orig_prems) (or_key as (Or_N, [_]):key): bool =
     if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
     then
-    (*TODO: Double-check if we really need to use future here. Is Timeout.apply good enough inside Par_List.find_some?*)
-      Future.fork
-       (fn () => (SS.update_is_branch or_key synched_agraph: unit; expand_ornode_if_original_goal_is_unproved) (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems) or_key)
-    |> (fn f => Timeout.apply (Time.fromSeconds 600) Future.join f
-        handle Timeout.TIMEOUT _ => (tracing ("Timeout from expand_ornode_if_original_goal_is_unproved_w_timeout"); false))
+      (SS.update_is_branch or_key synched_agraph: unit;
+       (Timeout.apply (Time.fromSeconds 600) (expand_ornode_if_original_goal_is_unproved (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems)) or_key
+        handle Timeout.TIMEOUT _ => (tracing ("Timeout from one-depth."); false)))
     else false
 | expand_ornode_if_original_goal_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
 
