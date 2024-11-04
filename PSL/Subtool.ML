@@ -187,7 +187,8 @@ fun hammer_logtac (timeout:real) (pstate:Proof.state): (Dynamic_Utils.log * Proo
 
 
     (*function body*)
-    (*TODO: Double-check. Should we really use futures here?*)
+    (*Why Future here? Because Isabelle_Utils.timeout_apply alone is not reliable.*)
+    (*TODO: Probably it is better to improve Isabelle_Utils.timeout_apply.*)
     val result             = Future.fork (fn () => run_sledgehammer pstate)
                           |> (fn f => try (apply_timeout Future.join) f handle Timeout.TIMEOUT _ => NONE)
                            : (bool * (Sledgehammer.sledgehammer_outcome * string)) option;

@@ -74,6 +74,14 @@ fun expand_ornode_if_original_goal_is_unproved
    orig_prems    : terms)
   (or_key as (Or_N, [lemma_term]):key): bool =
     let
+      (*tactic application as conjecturing. A little expensive*)
+      val pst_to_prove                 = TDU.mk_pst_to_prove_from_term pst lemma_term: state;
+      val seeds_from_tactics           = SOOE.apply_PSL_to_get_seeds_of_or2and_edges (term2name, refutation) pst pst_to_prove: seeds_of_or2and_edge;
+      val graph_extended_by_conjecture = Synchronized.value synched_agraph: abduction_graph;
+      val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation orig_prems pst graph_extended_by_conjecture seeds_from_tactics
+      val tactics_seeds_wo_counterexam = filter_out (SOOE.seed_has_counterexample refutation pst) filtered_seeds_from_tactics: seeds_of_or2and_edge;
+      val _                            = SOOE.abduction_for_tactic_based_conjectures pst or_key tactics_seeds_wo_counterexam synched_agraph: unit;
+
       val graph                      = Synchronized.value synched_agraph                                                             : abduction_graph;
       (*top-down explicit conjecturing*)
       val explicit_conjectures       = All_Top_Down_Conjecturing.top_down_conjectures term2name pst lemma_term                       : (string * term) list;
@@ -129,13 +137,6 @@ fun expand_ornode_if_original_goal_is_unproved
                                       |> distinct (op =)(*TODO: should it be done here?*)
       val _                            = SOOE.abduction_for_explicit_conjectures pst or_key standardized_conjectures
                                          (term2name, refutation, synched_agraph, proved_simps): unit;
-      (*tactic application as conjecturing. A little expensive*)
-      val pst_to_prove                 = TDU.mk_pst_to_prove_from_term pst lemma_term: state;
-      val seeds_from_tactics           = SOOE.apply_PSL_to_get_seeds_of_or2and_edges (term2name, refutation) pst pst_to_prove: seeds_of_or2and_edge;
-      val graph_extended_by_conjecture = Synchronized.value synched_agraph: abduction_graph;
-      val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation orig_prems pst graph_extended_by_conjecture seeds_from_tactics
-      val tactics_seeds_wo_counterexam = filter_out (SOOE.seed_has_counterexample refutation pst) filtered_seeds_from_tactics: seeds_of_or2and_edge;
-      val _                            = SOOE.abduction_for_tactic_based_conjectures pst or_key tactics_seeds_wo_counterexam synched_agraph: unit;
     in
       SS.final_goal_proved_completely synched_agraph
     end
@@ -149,9 +150,11 @@ fun expand_ornode_if_original_goal_is_unproved_w_timeout (start:Timing.start)
       (pst:state, synched_agraph, refutation, term2name, proved_simps, orig_prems) (or_key as (Or_N, [_]):key): bool =
     if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
     then
-      (SS.update_is_branch or_key synched_agraph: unit;
-       (Timeout.apply (Time.fromSeconds 600) (expand_ornode_if_original_goal_is_unproved (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems)) or_key
-        handle Timeout.TIMEOUT _ => (tracing ("Timeout from one-depth."); false)))
+      (*Why Future? Because Timeout.apply alone cannot be trusted.*)
+      Future.fork
+       (fn () => (SS.update_is_branch or_key synched_agraph: unit; expand_ornode_if_original_goal_is_unproved) (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems) or_key)
+    |> (fn f => Timeout.apply (Time.fromSeconds 600) Future.join f
+        handle Timeout.TIMEOUT _ => (tracing ("Timeout from expand_ornode_if_original_goal_is_unproved_w_timeout"); false))
     else false
 | expand_ornode_if_original_goal_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
 
