@@ -58,8 +58,8 @@ fun template_based_conjecture_for_simplification term2name (ctxt:Proof.context) 
          (TBC.ctxt_n_const_to_identity     ctxt tm
         @ TBC.ctxt_n_const_to_idempotence  ctxt tm
         @ TBC.ctxt_n_const_to_zero_element ctxt tm
-        @ TBC.ctxt_n_consts_to_projection  ctxt tm
-        @ TBC.ctxt_n_consts_to_square      ctxt tm)
+        @ TBC.ctxt_n_consts_to_idempotence ctxt tm
+        @ TBC.ctxt_n_consts_to_involution  ctxt tm)
        |> map (apfst Template_Based_Conjecturing.property_as_string)
        |> map (fn (lemma_typ, term) => (SS.get_lemma_name term2name ctxt lemma_typ term, term));;
     val result = map (ctxt_n_const_to_all_conjecture_term ctxt) (relevant_unary_funcs @ relevant_binary_funcs)
