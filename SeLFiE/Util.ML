@@ -488,6 +488,7 @@ sig
   val strip_atyp                                  : term -> term;
   val takes_n_arguments                           : term -> int -> bool;
   val read_term_then_check_term                   : Proof.context -> string -> (term -> bool) -> bool;
+  val YXML_content_of                             : string -> string;
 end;
 
 (*** Isabelle_Utils : Utility functions specific to Isabelle/HOL. ***)
@@ -707,7 +708,7 @@ fun is_in_Main (ctxt:Proof.context) (thm:thm) =
     val thy_names_in_main = Context.get_theory {long=false} this_thy "Main"
       |> Theory.ancestors_of
       |> map (Context.theory_name {long=true}):strings;
-    fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> fst_qualifier;
+    fun get_theory_name (thm:thm) = thm |> Thm.get_name_hint |> Thm_Name.short |> fst_qualifier;
     val thy_name = get_theory_name thm;
     val result = exists (equal thy_name) thy_names_in_main;
   in
@@ -926,14 +927,18 @@ fun normalize_trm_as_string (ctxt:Proof.context) (trm_as_string:string) =
     Syntax.read_term ctxt trm_as_string |> trm_to_string ctxt: string;
 
 (*This contract_abbrevs is a modified version of contract_abbrevs in Pure/Isar/proof_context.ML.*)
-fun contract_abbrevs (ctxt:Proof.context) (t:term) =
+fun contract_abbrevs ctxt tm =
   let
-    val thy            = Proof_Context.theory_of ctxt;
-    val consts         = Proof_Context.consts_of ctxt;
-    val retrieve       = Consts.retrieve_abbrevs consts (print_mode_value () @ [""]);
-    fun match_abbrev u = Option.map #1 (get_first (Pattern.match_rew thy u) (retrieve u));
+    val thy = Proof_Context.theory_of ctxt;
+    val consts = Proof_Context.consts_of ctxt;
+    val inst = #1 (Variable.import_inst true [tm] ctxt);
+    val nets = Consts.revert_abbrevs consts (print_mode_value () @ [""]);
+    val rew = Option.map #1 oo Pattern.match_rew thy;
+    fun match_abbrev t = get_first (fn net => get_first (rew t) (Item_Net.retrieve net t)) nets;
   in
-    Pattern.rewrite_term_top thy [] [match_abbrev] t
+    Term_Subst.instantiate inst tm
+    |> Pattern.rewrite_term_yoyo thy [] [match_abbrev]
+    |> Term_Subst.instantiate_frees (Variable.import_inst_revert inst)
   end;
 
 val strip_atyp = Term.map_types (map_atyps (K dummyT)): term -> term;
@@ -944,6 +949,8 @@ fun read_term_then_check_term (ctxt:Proof.context) (print:string) (checker: term
     try (Syntax.read_term ctxt) print
 <$> checker
  |> Utils.is_some_true
+
+val YXML_content_of = YXML.parse_body #> XML.content_of;
 
 end;
 
@@ -956,8 +963,7 @@ signature FIND_THEOREMS2 =
 sig
   include FIND_THEOREMS;
   type context;
-  type ref;
-  type get_rules           = context -> thm -> (ref * thm) list;
+  type get_rules           = context -> thm -> (string * thm) list;
   type get_rule_names      = context -> thm -> strings;
   type pstate_to_thms      = Proof.state -> thms;
   type pstate_to_thm_names = Proof.state -> strings;
@@ -997,8 +1003,8 @@ fun (m liftM f) = Option.map f m;
 open Find_Theorems;
 
 type context = Proof.context;
-type ref = Facts.ref;
-type get_rules = context -> thm -> (ref * thm) list;
+type fact_name = string;
+type get_rules = context -> thm -> (fact_name * thm) list;
 type get_rule_names = context -> thm -> strings;
 type pstate_to_thms      = Proof.state -> thms;
 type pstate_to_thm_names = Proof.state -> strings;
@@ -1007,17 +1013,18 @@ fun get_criterion kind_name ([]:strings) = [(true, Name kind_name)]
   | get_criterion kind_name (name::names:strings) = (true, Name name)::get_criterion kind_name names;
 
 fun all_names_to_rules kind_name (names:strings) ctxt (_(*just for type checking*):thm) =
-  try (find_theorems ctxt NONE NONE true) (get_criterion kind_name names) liftM snd |> Utils.is_some_null;
+  try (find_theorems ctxt NONE NONE true) (get_criterion kind_name names) liftM snd |> Utils.is_some_null
+|> map (apfst Thm_Name.print);
 
-fun some_names_to_rules kind_name names ctxt goal = names
-  |> map (fn name:string => all_names_to_rules kind_name [name] ctxt goal)
+fun some_names_to_rules kind_name names ctxt goal: (string * thm) list = names
+  |> map (fn name:string => all_names_to_rules kind_name [name] ctxt goal: (string * thm) list)
   |> flat
   |> distinct (Thm.eq_thm o Utils.map_pair snd);
 
-fun get_rule_names (get_rules:context -> thm -> (ref * thm) list) ctxt goal =
+fun get_rule_names (get_rules:context -> thm -> (string * thm) list) ctxt goal =
   let
     val related_rules          = get_rules ctxt goal;
-    val related_rule_names     = map (Facts.string_of_ref o fst) related_rules;
+    val related_rule_names     = map fst related_rules;
     fun get_thm  thm_nm        = SOME (Proof_Context.get_thm  ctxt thm_nm) handle ERROR _ => NONE;
     fun get_thms thm_nm        = SOME (Proof_Context.get_thms ctxt
       (Utils.rm_parentheses_with_contents_in_the_end thm_nm)) handle ERROR _ => NONE;
@@ -1032,12 +1039,12 @@ fun get_rule_names (get_rules:context -> thm -> (ref * thm) list) ctxt goal =
 fun get_simp_rules (ctxt:context) (goal:thm) =
   let
     val cnames   = Isabelle_Utils.get_cnames_in_1st_subg goal;
-    val related_rules = some_names_to_rules "" cnames ctxt goal;
+    val related_rules = some_names_to_rules "" cnames ctxt goal: (string * thm) list;
     val simpset_thms  = ctxt |> simpset_of |> Raw_Simplifier.dest_ss |> #simps |> map snd;
     fun eq_test (thm1, (_, thm2)) = Thm.eq_thm (thm1, thm2);
     val unique_rules  = subtract eq_test simpset_thms related_rules;
   in
-    unique_rules : (Facts.ref * thm) list
+    unique_rules : (string * thm) list
   end;
 
 fun get_simp_rule_names ctxt goal = get_rule_names get_simp_rules ctxt goal : strings;
@@ -1047,7 +1054,7 @@ fun get_induct_rules (ctxt:context) (goal:thm) =
     val cnames  = Isabelle_Utils.get_cnames_in_1st_subg goal         : strings;
     val induct_rules = some_names_to_rules ".induct" cnames ctxt goal;
   in
-    induct_rules : (Facts.ref * thm) list
+    induct_rules : (string * thm) list
   end;
 
 fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal : strings;
@@ -1101,14 +1108,16 @@ fun get_coinduction_rules (ctxt:context) (goal:thm) =
     val coinduct_rules1 = get_coinduct_rules ".coinduct";
     val coinduct_rules2 = get_coinduct_rules ".coinduct_strong";
   in
-    coinduct_rules1 @ coinduct_rules2: (Facts.ref * thm) list
+    coinduct_rules1 @ coinduct_rules2: (string * thm) list
   end;
 
 fun get_coinduction_rule_names ctxt goal = get_rule_names get_coinduction_rules ctxt goal : strings;
 
-fun get_elim_rules  ctxt goal = find_theorems ctxt (SOME goal) NONE true [(true, Elim)] |> snd;
-fun get_intro_rules ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Intro)] |> snd;
-fun get_dest_rules  ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Dest)] |> snd;
+fun post_proc (_, pairs: (Thm_Name.T * thm) list) = map (apfst Thm_Name.print) pairs: (string * thm) list;
+
+fun get_elim_rules  ctxt goal = find_theorems ctxt (SOME goal) NONE true [(true, Elim)] |> post_proc;
+fun get_intro_rules ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Intro)] |> post_proc;
+fun get_dest_rules  ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Dest)] |> post_proc;
         
 fun get_elim_rule_names  ctxt goal = get_rule_names get_elim_rules  ctxt goal : strings;
 fun get_intro_rule_names ctxt goal = get_rule_names get_intro_rules ctxt goal : strings;
@@ -1120,7 +1129,7 @@ fun get_split_rules ctxt goal =
     val used_typ_names = Isabelle_Utils.get_typ_names_in_1st_subg goal;
     val related_rules  = some_names_to_rules "split" used_typ_names ctxt goal
   in
-    related_rules : (Facts.ref * thm) list
+    related_rules : (string * thm) list
   end;
 
 fun get_split_rule_names ctxt goal = get_rule_names get_split_rules ctxt goal;

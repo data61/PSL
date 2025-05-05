@@ -43,7 +43,7 @@ fun nontac (timeout:real) (state:Proof.state) =
     fun trace_cexm _    = show_trace "Quickcheck.quickcheck found a  counterexample";
     fun trace_scexn _   = show_trace ("Quickcheck.quickcheck found a potentially spurious " ^
                                       "counterexample due to underspecified functions");
-    fun trace_to to     = show_trace ("Quickcheck timed out after " ^ Timeout.print to);
+    fun trace_to to     = show_trace ("Quickcheck timed out after " ^ Timeout.message to);
     val timeout         = Isabelle_Utils.timeout_apply (seconds timeout);
     fun get_result _    =  (case timeout (quickcheck [] 1) state of
       NONE => (trace_no_cexm (); single)
@@ -69,7 +69,7 @@ fun state_stttac (timeout:real) (state:Proof.state) (log:Dynamic_Utils.log) =
     val timeout            = Isabelle_Utils.timeout_apply (seconds timeout);
     val do_trace           = false;
     fun show_trace text    = if do_trace then tracing text else ();
-    fun trace_to to        = show_trace ("Nitpick timed out after " ^ Timeout.print to);
+    fun trace_to to        = show_trace ("Nitpick timed out after " ^ Timeout.message to);
     fun nitpick_result' _  = Nitpick.pick_nits_in_subgoal state params Nitpick.Normal 1 1;
     val nitpick_result     = timeout nitpick_result' () handle Timeout.TIMEOUT to => (trace_to to; ("timeout", []));
     (*"genuine" means "genuine counter-example".*)
@@ -198,13 +198,13 @@ fun hammer_logtac (timeout:real) (pstate:Proof.state): (Dynamic_Utils.log * Proo
     fun did_smt_timeout (out::timed::_) = (Utils.are_same ("out)", out)) andalso
                                           (Utils.are_same ("timed", timed))
      |  did_smt_timeout _  = error "Something went wrong in Subtool.ML";
-    val one_line_apply     = orig_string <$> space_explode " "
+    val one_line_apply     = orig_string <$> Isabelle_Utils.YXML_content_of <$> space_explode " "
                             <$> drop 2                           (* drop "Try this:"*)
                             <$> rev <$> (fn tokens =>
                                 if did_smt_timeout tokens then drop 5 tokens else drop 2 tokens)
                             <$> rev           (* drop "(0.1 ms)." and such.*)
                             <$> String.concatWith " "            : string option;
-    val apply_script_cntnt = omap YXML.content_of one_line_apply : string option;
+    val apply_script_cntnt = omap Isabelle_Utils.YXML_content_of one_line_apply : string option;
     val sh_returned        = if is_some apply_script_cntnt
                              then valOf result |> fst else false : bool;
   in

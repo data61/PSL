@@ -175,16 +175,18 @@ type pnodes = pnode list;
 val proof_id_counter = Unsynchronized.ref 0: int Unsynchronized.ref;
 
 fun statement_to_conjecture (pst:Proof.state) (Element.Shows [((binding, _), [(stmt:string, _(*assumptions_maybe*))])]) =
+(tracing ("TBC.thy stmt is: " ^ stmt);
+ tracing ("TBC.thy content is: " ^ Isabelle_Utils.YXML_content_of stmt);
       {
         is_final_goal = true,
         lemma_name = mk_lemma_name (Proof.context_of pst) Original_Goal "": string,
-        lemma_stmt = stmt |> YXML.content_of |> String.explode |> Utils.init |> tl |> String.implode,
+        lemma_stmt = stmt |> Isabelle_Utils.YXML_content_of |> String.explode |> Utils.init |> tl |> String.implode,
         proof = NONE,
         proof_id = NONE,
         refuted = false,(*we assume the final goal is a true statement.*)
         proved_wo_assmng_cnjctr = false,
         proved_in_nth_round = NONE
-      }: pnode
+      }): pnode
   | statement_to_conjecture _ _ = error "statement_to_conjecture failed for the final goal.";
 
 fun sort_pnodes (pnodes:pnodes): pnodes =
@@ -2065,12 +2067,7 @@ val long_keyword =
 val long_statement =
   Scan.optional (Parse_Spec.opt_thm_name ":" --| Scan.ahead long_keyword) Binding.empty_atts --
   Scan.optional Parse_Spec.includes [] -- Parse_Spec.long_statement
-    >> (fn ((binding, includes), (elems, concl)) => (true, binding, includes, elems, concl))
-: Token.T list ->
-  (bool * Attrib.binding * (xstring * Position.T) list *
-   Element.context list * Element.statement)
-  *
-  Token.T list;
+    >> (fn ((binding, includes), (elems, concl)) => (true, binding, includes, elems, concl));
 
 val short_statement =
   Parse_Spec.statement -- Parse_Spec.if_statement -- Parse.for_fixes

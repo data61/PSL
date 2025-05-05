@@ -90,12 +90,7 @@ val long_keyword =
 val long_statement =
   Scan.optional (Parse_Spec.opt_thm_name ":" --| Scan.ahead long_keyword) Binding.empty_atts --
   Scan.optional Parse_Spec.includes [] -- Parse_Spec.long_statement
-    >> (fn ((binding, includes), (elems, concl)) => (true, binding, includes, elems, concl))
-: Token.T list ->
-  (bool * Attrib.binding * (xstring * Position.T) list *
-   Element.context list * Element.statement)
-  *
-  Token.T list;
+    >> (fn ((binding, includes), (elems, concl)) => (true, binding, includes, elems, concl));
 
 val short_statement =
   Parse_Spec.statement -- Parse_Spec.if_statement -- Parse.for_fixes
