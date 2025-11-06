@@ -55,7 +55,7 @@ function stooge1sort2 :: "int list => int list"
          and stoogesort :: "int list => int list"
          and stooge1sort1 :: "int list => int list" where
 "stooge1sort2 y =
-   (case splitAt ((op div) (length y) 3) (reverse y) of
+   (case splitAt (divide (length y) 3) (reverse y) of
       pair2 ys2 zs2 => x (stoogesort zs2) (reverse ys2))"
 | "stoogesort (nil2) = nil2"
 | "stoogesort (cons2 z (nil2)) = cons2 z (nil2)"
@@ -64,7 +64,7 @@ function stooge1sort2 :: "int list => int list"
      stooge1sort2
        (stooge1sort1 (stooge1sort2 (cons2 z (cons2 y2 (cons2 x3 x4)))))"
 | "stooge1sort1 y =
-     (case splitAt ((op div) (length y) 3) y of
+     (case splitAt (divide (length y) 3) y of
         pair2 ys2 zs1 => x ys2 (stoogesort zs1))"
 by pat_completeness auto
 
