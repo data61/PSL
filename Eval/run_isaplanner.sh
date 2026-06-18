@@ -6,5 +6,5 @@ python3 Eval/eval_methods_round_robin.py \
   --methods psl tbc abduction \
   --root . \
   --threads 0 \
-  --timeout 100 \
+  --timeout 2000 \
   --out Eval/results/Isaplanner
