@@ -290,8 +290,32 @@ fun get_print_proof_tree (pst:Proof.state) (ag:abduction_graph) (name2term:strin
 fun order_pptree' (PPTree (lem_name, []  )) = [lem_name]: strings
   | order_pptree' (PPTree (lem_name, kids)) = flat (map order_pptree' kids) @ [lem_name];
 
-(*note that "distinct" preserves the order*)
+(*note that "dtheoremistinct" preserves the order*)
 fun order_pptree (pptree:print_proof_tree) = order_pptree' pptree |> distinct (op =);
+
+(* for evaluation *)
+fun write_proof_script_in_result_file pst what_to_write =
+  let
+    val ctxt = Proof.context_of pst;
+    val eval_dir = getenv "PSL_EVAL_PROOF_DIR";
+    val enabled = getenv "PSL_EVAL_MODE" = "1";
+    val file_name =
+         Local_Theory.exit_global ctxt
+      |> Context.theory_name {long = true}
+      |> space_explode "."
+      |> String.concatWith "_";
+    val result_path = Path.append (Path.explode eval_dir) (Path.basic (file_name ^ ".proof"));
+    val content =
+      what_to_write ^ "\n";
+  in
+    if enabled andalso eval_dir <> ""
+    then File.write result_path content
+    else ()
+  end;
+
+fun clean_markup s =
+  XML.content_of (YXML.parse_body s)
+  handle ERROR _ => s;
 
 fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table) (goal_name:string) =
   let
@@ -303,6 +327,8 @@ fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2ter
     val proofs      = "\n" :: map (print_lemma_and_proof_of_key ctxt ag) orkeys |> String.concatWith "\n";
     val whole_proof = Active.sendback_markup_properties [Markup.padding_command] proofs;
     val _           = tracing whole_proof;
+    val clean_prfs  = clean_markup proofs;
+    val _           = write_proof_script_in_result_file pst clean_prfs;
   in
     whole_proof
   end;
