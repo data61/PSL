@@ -103,6 +103,35 @@ fun parser_to_trans_trans_parser (inv_p : 'a Pc.parser)
 
 end;
 
+fun psl_eval_enabled () =
+  getenv "PSL_EVAL_MODE" = "1";
+
+fun psl_eval_method () =
+  let val m = getenv "PSL_EVAL_METHOD"
+  in if m = "" then "psl" else m end;
+
+fun clean_markup s =
+  XML.content_of (YXML.parse_body s)
+  handle ERROR _ => s;
+
+fun eval_file_name ctxt =
+  Local_Theory.exit_global ctxt
+  |> Context.theory_name {long = true}
+  |> space_explode "."
+  |> String.concatWith "_";
+
+fun write_eval_proof ctxt proof =
+  let
+    val dir = getenv "PSL_EVAL_PROOF_DIR";
+    val method = psl_eval_method ();
+    val file_name = method ^ "__" ^ eval_file_name ctxt ^ ".proof";
+    val path = Path.append (Path.explode dir) (Path.basic file_name);
+  in
+    if psl_eval_enabled () andalso dir <> ""
+    then File.write path (clean_markup proof ^ "\n")
+    else ()
+  end;
+
 fun get_trans_trans (strategy_name:string) =
       (Toplevel.keep_proof:(Toplevel.state -> unit) -> trans_trans)
         (fn top =>
@@ -119,12 +148,18 @@ fun get_trans_trans (strategy_name:string) =
            val results       = results' []            : (log * Proof.state) Seq.seq;
            val logs          = lmap fst results       : log Seq.seq;
            val applies       = lmap Dynamic_Utils.mk_apply_script logs;
-           val print         = writeln (case Seq.pull applies of
-             NONE => error "empty sequence. no proof found."
-           | SOME _ => Seq.hd applies);
-         in
-           print
-         end)
+           val print =
+            (case Seq.pull applies of
+               NONE =>
+                 if psl_eval_enabled ()
+                 then writeln "PSL_EVAL: no proof found."
+                 else error "empty sequence. no proof found."
+             | SOME (script, _) =>
+                 let
+                   val _ = write_eval_proof context script;
+                   val _ = writeln script;
+                 in () end);
+         in print end)
        :trans_trans;
 
 fun activate_isar_interface _ =

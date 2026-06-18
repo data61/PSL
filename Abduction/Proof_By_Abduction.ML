@@ -300,10 +300,11 @@ fun write_proof_script_in_result_file pst what_to_write =
     val eval_dir = getenv "PSL_EVAL_PROOF_DIR";
     val enabled = getenv "PSL_EVAL_MODE" = "1";
     val file_name =
-         Local_Theory.exit_global ctxt
-      |> Context.theory_name {long = true}
-      |> space_explode "."
-      |> String.concatWith "_";
+      "abduction_" ^
+      (Local_Theory.exit_global ctxt
+       |> Context.theory_name {long = true}
+       |> space_explode "."
+       |> String.concatWith "_");
     val result_path = Path.append (Path.explode eval_dir) (Path.basic (file_name ^ ".proof"));
     val content =
       what_to_write ^ "\n";

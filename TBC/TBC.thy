@@ -8,6 +8,7 @@ theory TBC
   imports Main "PSL.PSL"
   keywords "prove_by_conjecturing" :: thy_goal_stmt
   and      "evaluate_property_based_conjecturing" :: thy_goal_stmt
+  and      "evaluate_tbc" :: thy_goal_stmt
 begin
 
 declare[[names_short]]
@@ -2192,7 +2193,62 @@ in
 val _ = prove_by_conjecturing \<^command_keyword>\<open>prove_by_conjecturing\<close> "theorem" false;
 val _ = prove_by_conjecturing \<^command_keyword>\<open>evaluate_property_based_conjecturing\<close> "theorem" true;
 
+(*Evaluation functions for AbductionProver*)
+fun tbc_eval_enabled () =
+  getenv "PSL_EVAL_MODE" = "1";
+
+fun clean_markup s =
+  XML.content_of (YXML.parse_body s)
+  handle ERROR _ => s;
+
+fun tbc_eval_file_name lthy =
+  Local_Theory.exit_global lthy
+  |> Context.theory_name {long = true}
+  |> space_explode "."
+  |> String.concatWith "_";
+
+fun write_tbc_eval_proof lthy proof =
+  let
+    val dir = getenv "PSL_EVAL_PROOF_DIR";
+    val file_name = "tbc__" ^ tbc_eval_file_name lthy ^ ".proof";
+    val path = Path.append (Path.explode dir) (Path.basic file_name);
+  in
+    if tbc_eval_enabled () andalso dir <> ""
+    then File.write path (clean_markup proof ^ "\n")
+    else ()
+  end;
+
+fun evaluate_tbc_command () =
+  Outer_Syntax.local_theory @{command_keyword evaluate_tbc}
+    "evaluate TBC alone for benchmarking"
+    (((long_statement || short_statement) >>
+      (fn (_, _, _, _, concl: (string, string) Element.stmt) =>
+        (fn lthy: local_theory =>
+          let
+            val pst = Proof.init lthy;
+            val original_goal =
+              TBC_Utils.statement_to_conjecture pst concl;
+
+            fun run_tbc () =
+              TBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit
+                TBC_Utils.TBC_Strategy 3 0 [original_goal] pst;
+
+            val (_, processed_nodes) = run_tbc ();
+
+            val proof_text =
+              TBC_Utils.print_proved_nodes processed_nodes;
+
+            val _ =
+              if TBC_Utils.original_goal_is_proved processed_nodes
+              then write_tbc_eval_proof lthy proof_text
+              else tracing "TBC_EVAL: no proof found.";
+          in
+            lthy
+          end))));
+
 end;
+
+val _ = evaluate_tbc_command ();
 \<close>
 
 end
