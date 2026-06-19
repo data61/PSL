@@ -6,6 +6,7 @@ import os
 import signal
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Set
@@ -19,6 +20,16 @@ DEFAULT_LOGIC = {
 
 
 def terminate_process_group(proc: subprocess.Popen) -> None:
+    """
+    Terminate the whole process group started by subprocess.Popen(...,
+    start_new_session=True).
+
+    This should kill the Isabelle wrapper and its Poly/ML descendants, as long
+    as they did not deliberately escape into another process group.
+    """
+    if proc.poll() is not None:
+        return
+
     try:
         os.killpg(proc.pid, signal.SIGTERM)
     except ProcessLookupError:
@@ -31,6 +42,29 @@ def terminate_process_group(proc: subprocess.Popen) -> None:
             os.killpg(proc.pid, signal.SIGKILL)
         except ProcessLookupError:
             pass
+
+
+def brutal_kill_isabelle_processes() -> None:
+    """
+    Last-resort cleanup.
+
+    WARNING:
+      This may kill unrelated Isabelle/jEdit/PolyML processes belonging to the
+      same user. Use only on a dedicated evaluation machine/session.
+    """
+    patterns = [
+        "poly",
+        "PolyML",
+        "isabelle build",
+        "isabelle process",
+    ]
+
+    for pat in patterns:
+        subprocess.run(
+            ["pkill", "-9", "-f", pat],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
 
 def safe_name(s: str) -> str:
@@ -112,9 +146,14 @@ def collect_targets(method_root: Path) -> Dict[str, Path]:
         if p.name != "Test_Base.thy" and not p.name.endswith(".thy~")
     )
 
-    result = {}
+    result: Dict[str, Path] = {}
+
     for p in targets:
         target_id = p.relative_to(method_root).as_posix()
+
+        if target_id in result:
+            raise RuntimeError(f"Duplicate target id under {method_root}: {target_id}")
+
         result[target_id] = p
 
     return result
@@ -150,6 +189,7 @@ def run_one(
     target: Path,
     timeout: int,
     threads: int,
+    kill_all_isabelle_on_abort: bool,
 ) -> Dict[str, object]:
     session_name = safe_session_name(method, target_id)
     safe_target = safe_name(Path(target_id).with_suffix("").as_posix())
@@ -197,6 +237,10 @@ def run_one(
         session_name,
     ]
 
+    print(f"    session: {session_name}", flush=True)
+    print(f"    target : {target}", flush=True)
+    print(f"    log    : {log_file}", flush=True)
+
     start = time.time()
 
     proc = subprocess.Popen(
@@ -221,17 +265,30 @@ def run_one(
 
     except subprocess.TimeoutExpired:
         terminate_process_group(proc)
-        output, _ = proc.communicate()
+
+        if kill_all_isabelle_on_abort:
+            brutal_kill_isabelle_processes()
+
+        try:
+            output, _ = proc.communicate(timeout=5)
+        except Exception:
+            output = output or ""
+
         elapsed = time.time() - start
         status = "timeout"
 
     except KeyboardInterrupt:
         interrupted = True
         terminate_process_group(proc)
+
+        if kill_all_isabelle_on_abort:
+            brutal_kill_isabelle_processes()
+
         try:
             output, _ = proc.communicate(timeout=5)
         except Exception:
             output = output or ""
+
         elapsed = time.time() - start
         status = "interrupted"
 
@@ -246,9 +303,11 @@ def run_one(
 
     if proof_found:
         total_lines = 0
+
         for proof_path in proof_paths:
             total_lines += normalize_proof_file(proof_path)
             proof_files.append(str(proof_path))
+
         proof_num_lines = str(total_lines)
 
     error_kind = classify_error(
@@ -314,6 +373,14 @@ def main() -> None:
         choices=["round-robin", "method-major"],
         default="round-robin",
     )
+    parser.add_argument(
+        "--kill-all-isabelle-on-abort",
+        action="store_true",
+        help=(
+            "After timeout/Ctrl+C, also pkill PolyML/Isabelle processes. "
+            "Dangerous if other Isabelle sessions are running."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -357,6 +424,16 @@ def main() -> None:
         if len(missing) > 20:
             print(f"  ... and {len(missing) - 20} more")
 
+    print(f"Benchmark       : {args.benchmark}")
+    print(f"Methods         : {' '.join(args.methods)}")
+    print(f"Targets         : {len(target_ids)}")
+    print(f"Order           : {args.order}")
+    print(f"Timeout         : {args.timeout}s")
+    print(f"Threads         : {args.threads}")
+    print(f"Output CSV      : {csv_file}")
+    print(f"Brutal cleanup  : {args.kill_all_isabelle_on_abort}")
+    print("")
+
     fieldnames = [
         "method",
         "benchmark",
@@ -387,10 +464,7 @@ def main() -> None:
             logic = DEFAULT_LOGIC[method]
             target = targets_by_method[method][target_id]
 
-            print(
-                f"=== [{method}] {target_id} ===",
-                flush=True,
-            )
+            print(f"=== [{method}] {target_id} ===", flush=True)
 
             row = run_one(
                 isabelle=args.isabelle,
@@ -403,12 +477,21 @@ def main() -> None:
                 target=target,
                 timeout=args.timeout,
                 threads=args.threads,
+                kill_all_isabelle_on_abort=args.kill_all_isabelle_on_abort,
             )
 
             interrupted = bool(row.pop("interrupted"))
 
             writer.writerow(row)
             csv_out.flush()
+
+            print(
+                f"    result : {row['status']}, "
+                f"proof_found={row['proof_found']}, "
+                f"elapsed={row['elapsed_sec']}s",
+                flush=True,
+            )
+            print("")
 
             return interrupted
 
@@ -436,7 +519,15 @@ def main() -> None:
         except KeyboardInterrupt:
             print("Interrupted before launching next Isabelle process.", flush=True)
 
+            if args.kill_all_isabelle_on_abort:
+                brutal_kill_isabelle_processes()
+
     print(f"Summary written to: {csv_file}")
+
+    if interrupted:
+        print("Interrupted. Current Isabelle process group was terminated.")
+        if args.kill_all_isabelle_on_abort:
+            print("Brutal Isabelle/PolyML cleanup was also performed.")
 
 
 if __name__ == "__main__":
