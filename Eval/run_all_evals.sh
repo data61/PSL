@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+rm -rf Eval/results/*/sessions
+rm -rf Eval/results/*/logs
+rm -rf Eval/results/*/proofs
+
 ./Eval/run_eval.sh Isaplanner full 2000
 
 ./Eval/run_eval.sh Prod full 2000
