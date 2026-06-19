@@ -3,6 +3,7 @@
 import argparse
 import csv
 import os
+import random
 import signal
 import shutil
 import subprocess
@@ -190,6 +191,7 @@ def run_one(
     timeout: int,
     threads: int,
     kill_all_isabelle_on_abort: bool,
+    keep_isabelle_temp: bool,
 ) -> Dict[str, object]:
     session_name = safe_session_name(method, target_id)
     safe_target = safe_name(Path(target_id).with_suffix("").as_posix())
@@ -220,7 +222,15 @@ def run_one(
         theory_stem=target.stem,
     )
 
+    # Use a per-target Isabelle user home so heaps, browser_info, and other
+    # Isabelle-side cache files do not accumulate under ~/.isabelle.
+    isabelle_home_user = session_dir / "isabelle_home_user"
+    if isabelle_home_user.exists():
+        shutil.rmtree(isabelle_home_user)
+    isabelle_home_user.mkdir(parents=True, exist_ok=True)
+
     env = os.environ.copy()
+    env["ISABELLE_HOME_USER"] = str(isabelle_home_user)
     env["PSL_EVAL_MODE"] = "1"
     env["PSL_EVAL_METHOD"] = method
     env["PSL_EVAL_PROOF_DIR"] = str(proof_target_dir)
@@ -234,6 +244,8 @@ def run_one(
         "-d", str(repo_root),
         "-d", str(session_dir),
         "-o", f"threads={threads}",
+        "-o", "browser_info=false",
+        "-o", "document=false",
         session_name,
     ]
 
@@ -291,6 +303,9 @@ def run_one(
 
         elapsed = time.time() - start
         status = "interrupted"
+
+    if not keep_isabelle_temp:
+        shutil.rmtree(isabelle_home_user, ignore_errors=True)
 
     output = output or ""
     log_file.write_text(output, encoding="utf-8", errors="replace")
@@ -369,6 +384,29 @@ def main() -> None:
         help="Use common targets only, or all targets found in any method",
     )
     parser.add_argument(
+        "--sample-size",
+        type=int,
+        default=None,
+        help=(
+            "Randomly evaluate only this many target theories after applying "
+            "--target-set. The sample is reproducible with --sample-seed."
+        ),
+    )
+    parser.add_argument(
+        "--sample-seed",
+        type=int,
+        default=0,
+        help="Random seed used with --sample-size. Default: 0.",
+    )
+    parser.add_argument(
+        "--selected-targets-out",
+        default=None,
+        help=(
+            "Optional path where the selected target IDs are written, one per line. "
+            "Defaults to <out>/selected_targets.txt when --sample-size is used."
+        ),
+    )
+    parser.add_argument(
         "--order",
         choices=["round-robin", "method-major"],
         default="round-robin",
@@ -379,6 +417,14 @@ def main() -> None:
         help=(
             "After timeout/Ctrl+C, also pkill PolyML/Isabelle processes. "
             "Dangerous if other Isabelle sessions are running."
+        ),
+    )
+    parser.add_argument(
+        "--keep-isabelle-temp",
+        action="store_true",
+        help=(
+            "Keep per-target ISABELLE_HOME_USER directories for debugging. "
+            "By default they are deleted after each target."
         ),
     )
 
@@ -410,6 +456,33 @@ def main() -> None:
     if not target_ids:
         raise RuntimeError("No target theories found for the selected methods/benchmark.")
 
+    total_targets_before_sampling = len(target_ids)
+
+    if args.sample_size is not None:
+        if args.sample_size <= 0:
+            raise RuntimeError("--sample-size must be a positive integer.")
+        if args.sample_size > len(target_ids):
+            raise RuntimeError(
+                f"--sample-size {args.sample_size} exceeds the number of available "
+                f"targets after --target-set={args.target_set}: {len(target_ids)}"
+            )
+
+        rng = random.Random(args.sample_seed)
+        target_ids = sorted(rng.sample(target_ids, args.sample_size))
+
+        selected_targets_out = (
+            Path(args.selected_targets_out).resolve()
+            if args.selected_targets_out
+            else out_dir / "selected_targets.txt"
+        )
+        selected_targets_out.parent.mkdir(parents=True, exist_ok=True)
+        selected_targets_out.write_text(
+            "\n".join(target_ids) + "\n",
+            encoding="utf-8",
+        )
+    else:
+        selected_targets_out = None
+
     missing = []
     for method in args.methods:
         method_targets = set(targets_by_method[method].keys())
@@ -426,12 +499,18 @@ def main() -> None:
 
     print(f"Benchmark       : {args.benchmark}")
     print(f"Methods         : {' '.join(args.methods)}")
-    print(f"Targets         : {len(target_ids)}")
+    if args.sample_size is None:
+        print(f"Targets         : {len(target_ids)}")
+    else:
+        print(f"Targets         : {len(target_ids)} sampled from {total_targets_before_sampling}")
+        print(f"Sample seed     : {args.sample_seed}")
+        print(f"Selected targets: {selected_targets_out}")
     print(f"Order           : {args.order}")
     print(f"Timeout         : {args.timeout}s")
     print(f"Threads         : {args.threads}")
     print(f"Output CSV      : {csv_file}")
     print(f"Brutal cleanup  : {args.kill_all_isabelle_on_abort}")
+    print(f"Keep temp files : {args.keep_isabelle_temp}")
     print("")
 
     fieldnames = [
@@ -451,6 +530,10 @@ def main() -> None:
         "log_file",
         "timeout",
         "threads",
+        "sample_size",
+        "sample_seed",
+        "target_index",
+        "targets_total",
     ]
 
     with csv_file.open("w", newline="", encoding="utf-8") as csv_out:
@@ -478,9 +561,15 @@ def main() -> None:
                 timeout=args.timeout,
                 threads=args.threads,
                 kill_all_isabelle_on_abort=args.kill_all_isabelle_on_abort,
+                keep_isabelle_temp=args.keep_isabelle_temp,
             )
 
             interrupted = bool(row.pop("interrupted"))
+
+            row["sample_size"] = args.sample_size if args.sample_size is not None else ""
+            row["sample_seed"] = args.sample_seed if args.sample_size is not None else ""
+            row["target_index"] = target_ids.index(target_id) + 1
+            row["targets_total"] = len(target_ids)
 
             writer.writerow(row)
             csv_out.flush()
