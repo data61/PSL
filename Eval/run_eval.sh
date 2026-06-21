@@ -15,6 +15,9 @@ ISABELLE="${ISABELLE:-isabelle}"
 THREADS="${THREADS:-0}"
 METHODS="${METHODS:-psl tbc abduction}"
 
+# Important: define as empty array for "full" mode.
+EXTRA_ARGS=()
+
 case "$BENCHMARK" in
   Isaplanner|Prod|TIP15)
     ;;
@@ -27,7 +30,6 @@ esac
 case "$MODE" in
   full)
     OUT="${RESULTS_ROOT}/${BENCHMARK}"
-    EXTRA_ARGS=()
     ;;
   sample)
     OUT="${RESULTS_ROOT}/${BENCHMARK}_sample_${SAMPLE_SIZE}_seed_${SAMPLE_SEED}"
@@ -59,5 +61,5 @@ python3 Eval/eval_methods_round_robin.py \
   --threads "$THREADS" \
   --timeout "$TIMEOUT" \
   --out "$OUT" \
-  "${EXTRA_ARGS[@]}" \
+  "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}" \
   --kill-all-isabelle-on-abort

@@ -68,6 +68,26 @@ def brutal_kill_isabelle_processes() -> None:
         )
 
 
+def cleanup_global_cnf_tmp_files() -> int:
+    """Remove leftover /tmp/tmp*cnf files.
+
+    Sledgehammer/ATP subtools may leave CNF files directly under /tmp on Ubuntu.
+    These files are not part of the experimental output and can accumulate to
+    many GB across long evaluation runs.
+    """
+    removed = 0
+    tmp = Path("/tmp")
+    current_user = os.environ.get("USER", "")
+    for p in tmp.glob("tmp*cnf"):
+        try:
+            if p.is_file() and p.owner() == current_user:
+                p.unlink()
+                removed += 1
+        except Exception:
+            pass
+    return removed
+
+
 def safe_name(s: str) -> str:
     return "".join(c if c.isalnum() or c == "_" else "_" for c in s)
 
@@ -229,8 +249,22 @@ def run_one(
         shutil.rmtree(isabelle_home_user)
     isabelle_home_user.mkdir(parents=True, exist_ok=True)
 
+    # Use a per-target TMPDIR as well. This catches temporary files produced by
+    # external provers/Sledgehammer subtools instead of letting them accumulate
+    # in the global /tmp directory.
+    tmp_dir = session_dir / "tmp"
+    if tmp_dir.exists():
+        shutil.rmtree(tmp_dir)
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+
+    # Backup cleanup for old/leaked Sledgehammer CNF files directly under /tmp.
+    cleanup_global_cnf_tmp_files()
+
     env = os.environ.copy()
     env["ISABELLE_HOME_USER"] = str(isabelle_home_user)
+    env["TMPDIR"] = str(tmp_dir)
+    env["TMP"] = str(tmp_dir)
+    env["TEMP"] = str(tmp_dir)
     env["PSL_EVAL_MODE"] = "1"
     env["PSL_EVAL_METHOD"] = method
     env["PSL_EVAL_PROOF_DIR"] = str(proof_target_dir)
@@ -304,8 +338,12 @@ def run_one(
         elapsed = time.time() - start
         status = "interrupted"
 
+    # Clean target-local temporary files and any CNF files that external ATPs
+    # still managed to leave in /tmp.
     if not keep_isabelle_temp:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
         shutil.rmtree(isabelle_home_user, ignore_errors=True)
+    cleanup_global_cnf_tmp_files()
 
     output = output or ""
     log_file.write_text(output, encoding="utf-8", errors="replace")
@@ -511,6 +549,7 @@ def main() -> None:
     print(f"Output CSV      : {csv_file}")
     print(f"Brutal cleanup  : {args.kill_all_isabelle_on_abort}")
     print(f"Keep temp files : {args.keep_isabelle_temp}")
+    print("TMP cleanup     : per-target TMPDIR + /tmp/tmp*cnf cleanup")
     print("")
 
     fieldnames = [
