@@ -3,6 +3,7 @@
  * Authors:
  *   Yutaka Nagashima
  *   Huawei Technologies Research & Development (UK) Limited.
+ *   Institute of Computer Science, the Czech Academy of Sciences
  *)
 theory TBC
   imports Main "PSL.PSL"
@@ -2218,22 +2219,91 @@ fun write_tbc_eval_proof lthy proof =
     else ()
   end;
 
+fun stmt_to_stmt_as_string_for_tbc_eval (Element.Shows [((_, _), [(stmt, _)])]) = stmt: string
+  | stmt_to_stmt_as_string_for_tbc_eval _ =
+      error "stmt_to_stmt_as_string_for_tbc_eval failed in evaluate_tbc.";
+
+fun run_full_tbc_for_eval (lthy: local_theory) (concl: (string, string) Element.stmt) =
+  let
+    val pst = Proof.init lthy;
+    val original_goal =
+      TBC_Utils.statement_to_conjecture pst concl;
+
+    (* Round 0: first try the original goal directly using TBC_Strategy.
+       This corresponds to the zeroth round reported in the TBC paper. *)
+    val (_, processed_nodes_after_0th_round) =
+      TBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit
+        TBC_Utils.TBC_Strategy 1 0 [original_goal] pst;
+
+    val processed_nodes =
+      if TBC_Utils.original_goal_is_proved processed_nodes_after_0th_round
+      then processed_nodes_after_0th_round
+      else
+        let
+          (* Same bottom-up conjecture-generation path as
+             evaluate_property_based_conjecturing. *)
+          val cncl_as_trm =
+            Syntax.read_term lthy (stmt_to_stmt_as_string_for_tbc_eval concl);
+
+          val (relevant_consts, relevant_binary_funcs, relevant_unary_funcs) =
+            TBC_Utils.get_relevant_constants lthy cncl_as_trm;
+
+          val conjectures_as_tagged_terms =
+            map (TBC.ctxt_n_const_to_all_conjecture_term lthy)
+                (relevant_unary_funcs @ relevant_binary_funcs)
+            |> flat: (TBC.property * term) list;
+
+          val _ =
+            tracing ("\nTBC_EVAL: generated "
+              ^ Int.toString (length conjectures_as_tagged_terms)
+              ^ " template-based conjectures.");
+
+          val conjectures =
+            map (TBC.pst_n_property_n_trm_to_pnode pst)
+                conjectures_as_tagged_terms: TBC_Utils.pnodes;
+
+          val conjectures_w_counterexample =
+            filter (fn pnode => #refuted pnode) conjectures;
+
+          val conjectures_wo_counterexample =
+            filter_out (fn pnode => #refuted pnode) conjectures;
+
+          val _ =
+            tracing ("TBC_EVAL: "
+              ^ Int.toString (length conjectures_w_counterexample)
+              ^ " conjectures refuted by Quickcheck/Nitpick.");
+
+          val _ =
+            tracing ("TBC_EVAL: "
+              ^ Int.toString (length conjectures_wo_counterexample)
+              ^ " conjectures survived counterexample filtering.");
+
+          (* Rounds 1 and 2: prove surviving conjectures, register proved ones
+             as auxiliary lemmas, and retry the original goal.  This is the
+             actual PBC/TBC loop, not merely TBC_Strategy on the original goal. *)
+          val (_, processed_pnodes) =
+            TBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit
+              TBC_Utils.TBC_Strategy
+              3
+              1
+              (conjectures_wo_counterexample @ [original_goal])
+              pst;
+        in
+          processed_pnodes
+        end;
+  in
+    processed_nodes
+  end;
+
 fun evaluate_tbc_command () =
   Outer_Syntax.local_theory @{command_keyword evaluate_tbc}
-    "evaluate TBC alone for benchmarking"
+    "evaluate full template-based conjecturing for benchmarking"
     (((long_statement || short_statement) >>
       (fn (_, _, _, _, concl: (string, string) Element.stmt) =>
         (fn lthy: local_theory =>
           let
-            val pst = Proof.init lthy;
-            val original_goal =
-              TBC_Utils.statement_to_conjecture pst concl;
-
-            fun run_tbc () =
-              TBC_Utils.conjectures_n_pst_to_pst_n_proof_w_limit
-                TBC_Utils.TBC_Strategy 3 0 [original_goal] pst;
-
-            val (_, processed_nodes) = run_tbc ();
+            val processed_nodes =
+              run_full_tbc_for_eval lthy concl;
 
             val proof_text =
               TBC_Utils.print_proved_nodes processed_nodes;
