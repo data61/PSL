@@ -34,7 +34,7 @@ strategy Extend_Leaf =
   Alts [
     Clarsimp,
     Thens [
-      Smart_Induct,
+      Cut 10 (Smart_Induct),
       Alts [
         User< simp_all>(*TODO: this simplification is sometimes harmful.*),
         Auto
@@ -55,7 +55,10 @@ strategy Attack_On_Or_Node =
       IsSolved
     ],
     Thens [
-      Smart_Induct,
+      Alts [
+        DInduct,
+        Smart_Induct
+      ],
       Ors [
         Thens [
           User< simp_all>,

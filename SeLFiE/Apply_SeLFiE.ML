@@ -233,7 +233,7 @@ val semantic_induct_cmd =
   let
 (*    val _                  = tracing "smart_induct started producing combinations of induction arguments.";*)
     val fst_and_snd        = ["1st candidate is ", "2nd candidate is "]
-    val third_till_tenth   = List.tabulate (11, I) |> map Int.toString |> drop 3 |> map (fn rank => rank ^ "th candidate is ");
+    val third_till_tenth   = List.tabulate (21, I) |> map Int.toString |> drop 3 |> map (fn rank => rank ^ "th candidate is ");
     val fst_till_tenth     = fst_and_snd @ third_till_tenth;
     fun ind_args_to_sendb ind_args = SU.induct_arguments_to_string ind_args
                                   |> (fn induct => "apply " ^ induct)
@@ -248,7 +248,7 @@ val semantic_induct_cmd =
                               : (real * SU.induct_arguments) list;
     val arb_pairs             = Smart_Construction.proof_state_n_terms_n_induct_argumentss_to_induct_argumentss_w_arbs pst (Isabelle_Utils.pstate_to_1st_subg_n_chained_facts pst) best_pairs
                               :  (real * SU.induct_arguments) list;
-    val (arb_best_records, arb_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Generalization_Heuristic 10 pst outer_path_to_unode_table;
+    val (arb_best_records, arb_max_point) = score_n_induct_argss_n_proof_state_to_best_pairs ind_max_point arb_pairs best_pairs Generalization_Heuristic 20 pst outer_path_to_unode_table;
     fun mk_arb_message record = ind_args_to_sendb (#modifiers record) ^
                              "\n  (* The score is " ^ Real.toString (#score record) ^ " out of " ^ Real.toString arb_max_point ^ ". *)";
     val best_arb_messages     = map mk_arb_message arb_best_records: strings;
