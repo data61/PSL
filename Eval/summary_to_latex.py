@@ -28,6 +28,7 @@ Generated files:
 LaTeX preamble requirements:
   \usepackage{booktabs}
   \usepackage{tikz}
+  \usetikzlibrary{patterns}
   \usepackage{pgfplots}
   \pgfplotsset{compat=1.18}
   \usepgfplotslibrary{groupplots}
@@ -276,9 +277,29 @@ def row_stats(rows: list[EvalRow]) -> dict[str, Optional[float] | int]:
     solved = [r for r in rows if r.proof_found and is_finite_number(r.elapsed_sec)]
     solved_times = [r.elapsed_sec for r in solved if is_finite_number(r.elapsed_sec)]
     solved_lines = [r.proof_num_lines for r in solved if is_finite_number(r.proof_num_lines)]
-    no_proof = [r for r in rows if (not r.proof_found and r.error_kind == "no_proof")]
-    timeout_rows = [r for r in rows if (r.status == "timeout" or r.error_kind == "timeout")]
-    error_rows = [r for r in rows if (r.status == "error" or r.error_kind == "error")]
+
+    # Classify only unsolved rows into mutually exclusive categories.
+    # This guarantees:
+    #   N = Solved + No proof + TO + Err
+    unsolved = [r for r in rows if not r.proof_found]
+
+    timeout_rows = [
+        r for r in unsolved
+        if r.status == "timeout" or r.error_kind == "timeout"
+    ]
+
+    no_proof = [
+        r for r in unsolved
+        if r not in timeout_rows and r.error_kind == "no_proof"
+    ]
+
+    # Err means every remaining unsolved abnormal case, including interrupted,
+    # unknown, empty status, killed process, disk-full failure, etc.
+    error_rows = [
+        r for r in unsolved
+        if r not in timeout_rows and r not in no_proof
+    ]
+
     return {
         "targets": len(rows),
         "solved": len(solved),
@@ -300,6 +321,7 @@ def group_rows(rows: list[EvalRow]) -> dict[str, dict[str, list[EvalRow]]]:
     return grouped
 
 
+
 def write_summary_table(
     out: Path,
     grouped: dict[str, dict[str, list[EvalRow]]],
@@ -308,10 +330,10 @@ def write_summary_table(
     labels: dict[str, str],
 ) -> None:
     lines = []
-    lines.append(r"\begin{tabular}{llrrrrrrrr}")
+    lines.append(r"\begin{tabular}{llrrrrrr}")
     lines.append(r"\toprule")
     lines.append(
-        r"Benchmark & Method & $N$ & Solved & No proof & TO & Err & Timeout & Med. $t$ & PAR2 \\" 
+        r"Benchmark & Method & $N$ & Proved & Proved \% & TO & Med. $t$ & PAR2 \\"
     )
     lines.append(r"\midrule")
     for b_idx, b in enumerate(benchmarks):
@@ -321,20 +343,20 @@ def write_summary_table(
             if not rs:
                 continue
             s = row_stats(rs)
+            proved_pct = (100.0 * s["solved"] / s["targets"]) if s["targets"] else None
             bench_cell = tex_escape(b) if first else ""
             first = False
             lines.append(
                 f"{bench_cell} & {tex_escape(labels.get(m, m))} & "
-                f"{s['targets']} & {s['solved']} & {s['no_proof']} & "
-                f"{s['timeouts']} & {s['errors']} & "
-                f"{fmt_num(s['timeout'], 0)} & {fmt_num(s['median_time'], 2)} & {fmt_num(s['par2'], 2)} \\\\" 
+                f"{s['targets']} & {s['solved']} & {fmt_num(proved_pct, 1)} & "
+                f"{s['timeouts']} & "
+                f"{fmt_num(s['median_time'], 2)} & {fmt_num(s['par2'], 2)} \\\\"
             )
         if b_idx != len(benchmarks) - 1:
             lines.append(r"\midrule")
     lines.append(r"\bottomrule")
     lines.append(r"\end{tabular}")
     (out / "summary_table_all.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
-
 
 def regression_for(rows: list[EvalRow]) -> dict[str, Optional[float] | int]:
     solved = [
@@ -392,6 +414,19 @@ def write_correlation_table(
 def axis_log_common() -> list[str]:
     return [
         r"  ymode=log,",
+        r"  log basis y=10,",
+        r"  log ticks with fixed point,",
+        r"  grid=both,",
+        r"  minor grid style={draw=gray!15},",
+        r"  major grid style={draw=gray!30},",
+    ]
+
+
+def axis_loglog_common() -> list[str]:
+    return [
+        r"  xmode=log,",
+        r"  ymode=log,",
+        r"  log basis x=10,",
         r"  log basis y=10,",
         r"  log ticks with fixed point,",
         r"  grid=both,",
@@ -491,6 +526,19 @@ def write_cactus_all(
     (out / "fig_cactus_all.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+
+def bar_style_for_method(m: str) -> str:
+    # Black-and-white bar styles using patterns, not colour.
+    # Requires LaTeX preamble: \usetikzlibrary{patterns}
+    styles = {
+        "psl": r"draw=black, fill=white",
+        "tbc": r"draw=black, fill=white, postaction={pattern=north east lines}",
+        "abduction": r"draw=black, fill=white, postaction={pattern=crosshatch}",
+    }
+    return styles.get(m, r"draw=black, fill=white, postaction={pattern=dots}")
+
+
+
 def write_solved_bar_all(
     out: Path,
     grouped: dict[str, dict[str, list[EvalRow]]],
@@ -510,9 +558,10 @@ def write_solved_bar_all(
         r"  bar width=7pt,",
         rf"  symbolic x coords={{{sym}}},",
         r"  xtick=data,",
-        r"  ylabel={Solved problems},",
+        r"  ylabel={Proved goals (\%)},",
         r"  xlabel={Benchmark},",
         r"  ymin=0,",
+        r"  ymax=100,",
         r"  width=0.85\linewidth,",
         r"  height=0.42\linewidth,",
         r"  legend style={at={(0.5,1.05)},anchor=south,legend columns=-1},",
@@ -522,9 +571,11 @@ def write_solved_bar_all(
         coords = []
         for b in benchmarks:
             rs = grouped.get(b, {}).get(m, [])
-            solved = sum(1 for r in rs if r.proof_found)
-            coords.append(f"({safe_coord_name(b)},{solved})")
-        lines.append(rf"\addplot coordinates {{{' '.join(coords)}}};")
+            total = len(rs)
+            proved = sum(1 for r in rs if r.proof_found)
+            proved_pct = (100.0 * proved / total) if total else 0.0
+            coords.append(f"({safe_coord_name(b)},{proved_pct:.3f})")
+        lines.append(rf"\addplot+[{bar_style_for_method(m)}] coordinates {{{' '.join(coords)}}};")
         lines.append(rf"\addlegendentry{{{tex_escape(labels.get(m, m))}}}")
     lines.append(r"\end{axis}")
     lines.append(r"\end{tikzpicture}")
@@ -539,7 +590,8 @@ def write_lines_time_one(
     labels: dict[str, str],
     jitter: float,
 ) -> None:
-    offsets = {m: (i - (len(methods) - 1) / 2.0) * jitter for i, m in enumerate(methods)}
+    # Runtime-vs-proof-length plots use log-log axes.  Do not apply horizontal
+    # jitter here, because additive offsets distort ratios on a logarithmic axis.
     lines = []
     lines.append(r"\begin{tikzpicture}")
     lines.append(r"\begin{axis}[")
@@ -551,14 +603,19 @@ def write_lines_time_one(
         r"  width=0.8\linewidth,",
         r"  height=0.5\linewidth,",
     ])
-    lines.extend(axis_log_common())
+    lines.extend(axis_loglog_common())
     lines.append(r"]")
     for m in methods:
         coords = []
         for r in by_method.get(m, []):
-            if r.proof_found and is_finite_number(r.elapsed_sec) and r.elapsed_sec > 0 and is_finite_number(r.proof_num_lines):
-                x = r.proof_num_lines + offsets.get(m, 0.0)
-                coords.append(f"({x:.3f},{r.elapsed_sec:.3f})")
+            if (
+                r.proof_found
+                and is_finite_number(r.elapsed_sec)
+                and r.elapsed_sec > 0
+                and is_finite_number(r.proof_num_lines)
+                and r.proof_num_lines > 0
+            ):
+                coords.append(f"({r.proof_num_lines:.3f},{r.elapsed_sec:.3f})")
         coords_s = " ".join(coords)
         if append_plot_if_nonempty(lines, f"mark={marker_for_method(m)}, only marks", coords_s):
             lines.append(rf"\addlegendentry{{{tex_escape(labels.get(m, m))}}}")
@@ -580,7 +637,9 @@ def write_lines_time_all(
         return
     n = len(benchmarks)
     width = "0.33\\linewidth" if n >= 3 else "0.46\\linewidth"
-    offsets = {m: (i - (len(methods) - 1) / 2.0) * jitter for i, m in enumerate(methods)}
+
+    # Runtime-vs-proof-length plots use log-log axes.  Do not apply horizontal
+    # jitter here, because additive offsets distort ratios on a logarithmic axis.
     lines = []
     lines.append(r"\begin{tikzpicture}")
     lines.append(r"\begin{groupplot}[")
@@ -592,16 +651,21 @@ def write_lines_time_all(
         r"  height=0.35\linewidth,",
         r"  legend pos=north west,",
     ])
-    lines.extend(axis_log_common())
+    lines.extend(axis_loglog_common())
     lines.append(r"]")
     for b_idx, b in enumerate(benchmarks):
         lines.append(rf"\nextgroupplot[title={{{tex_escape(b)}}}]")
         for m in methods:
             coords = []
             for r in grouped.get(b, {}).get(m, []):
-                if r.proof_found and is_finite_number(r.elapsed_sec) and r.elapsed_sec > 0 and is_finite_number(r.proof_num_lines):
-                    x = r.proof_num_lines + offsets.get(m, 0.0)
-                    coords.append(f"({x:.3f},{r.elapsed_sec:.3f})")
+                if (
+                    r.proof_found
+                    and is_finite_number(r.elapsed_sec)
+                    and r.elapsed_sec > 0
+                    and is_finite_number(r.proof_num_lines)
+                    and r.proof_num_lines > 0
+                ):
+                    coords.append(f"({r.proof_num_lines:.3f},{r.elapsed_sec:.3f})")
             coords_s = " ".join(coords)
             if append_plot_if_nonempty(lines, f"mark={marker_for_method(m)}, only marks", coords_s):
                 if b_idx == 0:
@@ -609,7 +673,6 @@ def write_lines_time_all(
     lines.append(r"\end{groupplot}")
     lines.append(r"\end{tikzpicture}")
     (out / "fig_lines_time_all.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
-
 
 def parse_label_args(args: list[str]) -> dict[str, str]:
     labels = dict(DEFAULT_METHOD_LABEL)
@@ -631,8 +694,8 @@ def main() -> None:
     ap.add_argument("--benchmark-order", nargs="+", default=DEFAULT_BENCHMARK_ORDER)
     ap.add_argument("--method-label", nargs="*", default=[],
                     help="Optional labels, e.g. --method-label psl=PSL tbc=TBC abduction=AbductionProver")
-    ap.add_argument("--jitter", type=float, default=0.10,
-                    help="Horizontal offset used in proof-lines-vs-time scatter plots. Use 0 to disable.")
+    ap.add_argument("--jitter", type=float, default=0.0,
+                    help="Deprecated/ignored: proof-length/runtime plots now use log-log axes without jitter.")
     args = ap.parse_args()
 
     csvs = discover_csvs(args.results_root, args.summary_csvs)
