@@ -3,6 +3,17 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-python3 summary_to_latex.py \
-  --results-root results \
-  --out latex
+mkdir -p latex/main
+mkdir -p latex/screening
+
+python3 summary_to_latex.py 
+--results-root results 
+--out latex/main
+
+python3 summary_to_latex.py 
+--results-root results_screening 
+--out latex/screening
+
+echo "Generated:"
+echo "  latex/main"
+echo "  latex/screening"

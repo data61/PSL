@@ -55,6 +55,8 @@ echo "Timeout   : ${TIMEOUT}s"
 echo "Threads   : $THREADS"
 echo "Methods   : $PSL_EVAL_METHODS"
 echo "SH grace  : ${PSL_EVAL_SLEDGEHAMMER_GRACE_SEC}s"
+echo "Isabelle  : $ISABELLE"
+echo "Results   : $RESULTS_ROOT"
 echo "Output    : $OUT"
 
 # shellcheck disable=SC2086
@@ -62,6 +64,7 @@ python3 Eval/eval_methods_round_robin.py \
   --generated-root "$GENERATED_ROOT" \
   --benchmark "$BENCHMARK" \
   --methods $PSL_EVAL_METHODS \
+  --isabelle "$ISABELLE" \
   --root "$ROOT" \
   --threads "$THREADS" \
   --timeout "$TIMEOUT" \
