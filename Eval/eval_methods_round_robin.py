@@ -4,6 +4,7 @@ import argparse
 import csv
 import os
 import random
+import re
 import signal
 import shutil
 import subprocess
@@ -14,6 +15,7 @@ from typing import Dict, List, Optional, Set
 
 
 DEFAULT_LOGIC = {
+    "sledgehammer": "HOL",
     "abduction": "Smart_Isabelle",
     "psl": "PSL",
     "tbc": "TBC",
@@ -129,6 +131,41 @@ def normalize_proof_file(path: Path) -> int:
     return sum(1 for line in lines if line.strip())
 
 
+def extract_sledgehammer_proof(output: str) -> Optional[str]:
+    """Extract an Isabelle proof suggestion from Sledgehammer batch output.
+
+    Generated Sledgehammer-baseline theories run the Isabelle command
+    `sledgehammer ...` in an open proof state.  In batch mode the command does
+    not apply the proof; it prints suggestions such as:
+
+        Try this: by (metis ...) (1.2 ms)
+
+    We treat the presence of such a suggestion as a successful Sledgehammer
+    baseline run and store the suggested proof text in a .proof file so that
+    the rest of the evaluation pipeline can stay unchanged.
+    """
+    candidates: List[str] = []
+
+    for line in output.splitlines():
+        if "Try this:" not in line:
+            continue
+
+        proof = line.split("Try this:", 1)[1].strip()
+
+        # Drop Isabelle/Sledgehammer timing suffixes such as "(3 ms)" or
+        # "(0.42 s)" if they are present at the end of the line.
+        proof = re.sub(r"\s+\([0-9.]+\s*(?:ms|s)\)\s*$", "", proof)
+
+        if proof.startswith(("by ", "apply ", "using ")):
+            candidates.append(proof)
+
+    if not candidates:
+        return None
+
+    # Prefer the shortest suggestion when several provers produce proofs.
+    return min(candidates, key=len)
+
+
 def classify_error(
     status: str,
     returncode: Optional[int],
@@ -210,6 +247,7 @@ def run_one(
     target: Path,
     timeout: int,
     threads: int,
+    sledgehammer_grace_sec: int,
     kill_all_isabelle_on_abort: bool,
     keep_isabelle_temp: bool,
 ) -> Dict[str, object]:
@@ -280,14 +318,29 @@ def run_one(
         "-o", f"threads={threads}",
         "-o", "browser_info=false",
         "-o", "document=false",
-        session_name,
     ]
+
+    # Sledgehammer targets contain the plain standard Isar command
+    # "sledgehammer" without a baked-in timeout.  The Isabelle command obtains
+    # its default timeout from the system option "sledgehammer_timeout"; this
+    # lets us set the same logical timeout as the other methods at evaluation
+    # time without regenerating or editing the committed target files.
+    if method == "sledgehammer":
+        cmd.extend(["-o", f"sledgehammer_timeout={timeout}"])
+
+    cmd.append(session_name)
 
     print(f"    session: {session_name}", flush=True)
     print(f"    target : {target}", flush=True)
     print(f"    log    : {log_file}", flush=True)
 
     start = time.time()
+
+    # For Sledgehammer, the logical timeout is passed internally via the
+    # sledgehammer_timeout system option.  We allow a small external grace period
+    # so Isabelle can return cleanly and print a "Try this:" suggestion.  The
+    # CSV still records the logical timeout, not the hard-kill timeout.
+    hard_timeout = timeout + sledgehammer_grace_sec if method == "sledgehammer" else timeout
 
     proc = subprocess.Popen(
         cmd,
@@ -305,7 +358,7 @@ def run_one(
     interrupted = False
 
     try:
-        output, _ = proc.communicate(timeout=timeout)
+        output, _ = proc.communicate(timeout=hard_timeout)
         elapsed = time.time() - start
         status = "ok" if proc.returncode == 0 else "error"
 
@@ -347,6 +400,15 @@ def run_one(
 
     output = output or ""
     log_file.write_text(output, encoding="utf-8", errors="replace")
+
+    if method == "sledgehammer":
+        suggested_proof = extract_sledgehammer_proof(output)
+        if suggested_proof:
+            suggested_proof_file = proof_target_dir / "sledgehammer.proof"
+            suggested_proof_file.write_text(
+                suggested_proof.rstrip() + "\n",
+                encoding="utf-8",
+            )
 
     proof_paths = sorted(proof_target_dir.glob("*.proof"))
     proof_found = bool(proof_paths)
@@ -407,12 +469,23 @@ def main() -> None:
     parser.add_argument(
         "--methods",
         nargs="+",
-        default=["psl", "tbc", "abduction"],
-        choices=["psl", "tbc", "abduction"],
+        default=["sledgehammer", "psl", "tbc", "abduction"],
+        choices=["sledgehammer", "psl", "tbc", "abduction"],
     )
     parser.add_argument("--isabelle", default="isabelle")
     parser.add_argument("--root", default=".", help="PSL repository root")
     parser.add_argument("--timeout", type=int, default=1800)
+    parser.add_argument(
+        "--sledgehammer-grace-sec",
+        type=int,
+        default=30,
+        help=(
+            "External hard-kill grace period for the Sledgehammer baseline. "
+            "The Sledgehammer internal timeout is still set to --timeout via "
+            "Isabelle option sledgehammer_timeout; this grace period only lets "
+            "Isabelle print the proof suggestion cleanly."
+        ),
+    )
     parser.add_argument("--threads", type=int, default=0)
     parser.add_argument("--out", default="Eval/results")
     parser.add_argument(
@@ -545,6 +618,8 @@ def main() -> None:
         print(f"Selected targets: {selected_targets_out}")
     print(f"Order           : {args.order}")
     print(f"Timeout         : {args.timeout}s")
+    if "sledgehammer" in args.methods:
+        print(f"SH hard timeout : {args.timeout + args.sledgehammer_grace_sec}s")
     print(f"Threads         : {args.threads}")
     print(f"Output CSV      : {csv_file}")
     print(f"Brutal cleanup  : {args.kill_all_isabelle_on_abort}")
@@ -599,6 +674,7 @@ def main() -> None:
                 target=target,
                 timeout=args.timeout,
                 threads=args.threads,
+                sledgehammer_grace_sec=args.sledgehammer_grace_sec,
                 kill_all_isabelle_on_abort=args.kill_all_isabelle_on_abort,
                 keep_isabelle_temp=args.keep_isabelle_temp,
             )

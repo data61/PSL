@@ -9,6 +9,8 @@ IMPORTS = {
     "abduction": "imports Main Smart_Isabelle.Smart_Isabelle",
     "psl": "imports Main PSL.PSL",
     "tbc": "imports Main TBC.TBC",
+    # Keep the Sledgehammer baseline independent of PSL/TBC/Abduction code.
+    "sledgehammer": "imports Main",
 }
 
 
@@ -55,6 +57,24 @@ def convert_for_tbc(text: str) -> str:
     return text
 
 
+def convert_for_sledgehammer(text: str) -> str:
+    # Direct Sledgehammer baseline, without going through PSL.
+    # We keep the original theorem/lemma statement, insert the plain standard
+    # Sledgehammer command in the active proof state, and close with oops.
+    #
+    # Important: We intentionally do NOT bake a timeout into the generated .thy
+    # file.  The timeout is supplied at evaluation time via Isabelle's system
+    # option "sledgehammer_timeout" in eval_methods_round_robin.py.  This keeps
+    # committed targets stable while allowing fair timeout settings per run.
+    text = re.sub(
+        r"(?m)^(\s*)oops\s*$",
+        r"\1sledgehammer\n\1oops",
+        text,
+        count=1,
+    )
+    return text
+
+
 def convert_theory_text(text: str, method: str) -> str:
     text = replace_imports(text, method)
 
@@ -64,6 +84,8 @@ def convert_theory_text(text: str, method: str) -> str:
         return convert_for_psl(text)
     if method == "tbc":
         return convert_for_tbc(text)
+    if method == "sledgehammer":
+        return convert_for_sledgehammer(text)
 
     raise ValueError(f"unknown method: {method}")
 
@@ -71,7 +93,7 @@ def convert_theory_text(text: str, method: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--method", required=True,
-                        choices=["abduction", "psl", "tbc"])
+                        choices=["abduction", "psl", "tbc", "sledgehammer"])
     parser.add_argument("source_dir")
     parser.add_argument("target_dir")
     args = parser.parse_args()

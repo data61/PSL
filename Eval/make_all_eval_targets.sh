@@ -4,9 +4,10 @@ set -euo pipefail
 rm -rf Eval/generated
 
 METHODS=(
-  abduction
+  sledgehammer
   psl
   tbc
+  abduction
 )
 
 BENCHMARKS=(

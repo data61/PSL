@@ -13,7 +13,11 @@ RESULTS_ROOT="${RESULTS_ROOT:-Eval/results}"
 ROOT="${ROOT:-.}"
 ISABELLE="${ISABELLE:-isabelle}"
 THREADS="${THREADS:-0}"
-METHODS="${METHODS:-psl tbc abduction}"
+
+# Use PSL_EVAL_* names to avoid accidental interference from generic
+# environment variables such as METHODS.
+PSL_EVAL_METHODS="${PSL_EVAL_METHODS:-sledgehammer psl tbc abduction}"
+PSL_EVAL_SLEDGEHAMMER_GRACE_SEC="${PSL_EVAL_SLEDGEHAMMER_GRACE_SEC:-30}"
 
 # Important: define as empty array for "full" mode.
 EXTRA_ARGS=()
@@ -49,17 +53,19 @@ echo "Benchmark : $BENCHMARK"
 echo "Mode      : $MODE"
 echo "Timeout   : ${TIMEOUT}s"
 echo "Threads   : $THREADS"
-echo "Methods   : $METHODS"
+echo "Methods   : $PSL_EVAL_METHODS"
+echo "SH grace  : ${PSL_EVAL_SLEDGEHAMMER_GRACE_SEC}s"
 echo "Output    : $OUT"
 
 # shellcheck disable=SC2086
 python3 Eval/eval_methods_round_robin.py \
   --generated-root "$GENERATED_ROOT" \
   --benchmark "$BENCHMARK" \
-  --methods $METHODS \
+  --methods $PSL_EVAL_METHODS \
   --root "$ROOT" \
   --threads "$THREADS" \
   --timeout "$TIMEOUT" \
+  --sledgehammer-grace-sec "$PSL_EVAL_SLEDGEHAMMER_GRACE_SEC" \
   --out "$OUT" \
-  "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}" \
+  ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"} \
   --kill-all-isabelle-on-abort
