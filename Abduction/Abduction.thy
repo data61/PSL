@@ -49,12 +49,12 @@ strategy Finish_Goal_After_Assuming_Subgoals_And_Conjectures =
   ]
 
 strategy Attack_On_Or_Node = 
-  Ors [
+  POrs [
     Thens [
       Auto,
       IsSolved
     ],
-    Thens [
+    PThenOne [
       Alts [
         DInduct,
         Smart_Induct
