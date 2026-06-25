@@ -188,43 +188,45 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing ("numb_of_processors is " ^ Int.toString numb_of_processors ^ ".");
       val numb_of_nds_to_expand  = numb_of_processors;(*TODO: magic number*)
       val top_ornodes            = take numb_of_nds_to_expand sorted_orkeys: keys;
-      val {size = ref_cache_size, hits = ref_cache_hits, misses = ref_cache_misses} =
-        SS.refutation_cache_statistics refutation;
-      val ref_cache_total        = ref_cache_hits + ref_cache_misses;
-      val ref_cache_hit_rate     = if ref_cache_total = 0
+      fun record_loop_after_round () =
+        let
+          val {size = ref_cache_size, hits = ref_cache_hits, misses = ref_cache_misses} =
+            SS.refutation_cache_statistics refutation;
+          val ref_cache_total    = ref_cache_hits + ref_cache_misses;
+          val ref_cache_hit_rate = if ref_cache_total = 0
                                    then 0.0
                                    else Real.fromInt ref_cache_hits / Real.fromInt ref_cache_total;
-      val _                      = Abduction_Statistics.record_loop pst synched_statistics
-                                    {depth = counter,
-                                     reachable_keys = reachable_count,
-                                     worth_expanding = worth_expanding_count,
-                                     selected_ornodes = length top_ornodes,
-                                     num_processors = numb_of_processors,
-                                     refutation_cache_size = ref_cache_size,
-                                     refutation_cache_hits = ref_cache_hits,
-                                     refutation_cache_misses = ref_cache_misses,
-                                     refutation_cache_hit_rate = ref_cache_hit_rate,
-                                     elapsed_sec = current_time start};
-      val solved                 =
-        if worth_expanding_count = 0
-        then
-          let
-            val _ = tracing "No worth-expanding or-node remains; terminating the abduction loop.";
-          in
-            false
-          end
-        else
-          let
-            val some_orkey = Par_List.find_some expand_ornode top_ornodes: key option;
-            val solved = is_some some_orkey: bool;
-            val _ = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
-          in
-            solved
-          end;
+        in
+          Abduction_Statistics.record_loop pst synched_statistics
+            {depth = counter,
+             reachable_keys = reachable_count,
+             worth_expanding = worth_expanding_count,
+             selected_ornodes = length top_ornodes,
+             num_processors = numb_of_processors,
+             refutation_cache_size = ref_cache_size,
+             refutation_cache_hits = ref_cache_hits,
+             refutation_cache_misses = ref_cache_misses,
+             refutation_cache_hit_rate = ref_cache_hit_rate,
+             elapsed_sec = current_time start}
+        end;
     in
       if worth_expanding_count = 0
-      then false
-      else if solved then solved else loop (counter + 1) max_depth start synched_statistics quintuple
+      then
+        let
+          val _ = record_loop_after_round ();
+          val _ = tracing "No contributive OR-leaf node remains; terminating the abduction loop.";
+        in
+          false
+        end
+      else
+        let
+          val some_orkey = Par_List.find_some expand_ornode top_ornodes: key option;
+          val solved     = is_some some_orkey: bool;
+          val _          = record_loop_after_round ();
+          val _          = tracing ("We have " ^ (if solved then "already solved" else "not solved") ^ " the final goal.");
+        in
+          if solved then true else loop (counter + 1) max_depth start synched_statistics quintuple
+        end
     end
   else
     false;
