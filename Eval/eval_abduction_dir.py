@@ -74,6 +74,90 @@ def normalize_proof_file(path: Path) -> int:
     return sum(1 for line in lines if line.strip())
 
 
+
+
+def read_csv_rows_from_dir(directory: Path, pattern: str) -> List[dict]:
+    rows: List[dict] = []
+    if not directory.exists():
+        return rows
+    for path in sorted(directory.glob(pattern)):
+        try:
+            with path.open(encoding="utf-8", newline="") as f:
+                for row in csv.DictReader(f):
+                    row = dict(row)
+                    row["source_file"] = str(path)
+                    rows.append(row)
+        except Exception:
+            pass
+    return rows
+
+
+ABDUCTION_STATISTICS_FIELDNAMES = [
+    "method", "benchmark", "target_id", "status", "error_kind", "proof_found",
+    "elapsed_sec", "timeout", "threads", "loop_kind", "loop_index", "depth",
+    "reachable_keys", "worth_expanding", "selected_ornodes", "num_processors",
+    "refutation_cache_size", "refutation_cache_hits", "refutation_cache_misses",
+    "refutation_cache_hit_rate", "loop_elapsed_sec", "abduction_stats_file",
+]
+
+
+def collect_abduction_statistics(row: Dict[str, object], stats_dir: str) -> List[dict]:
+    stats_path = Path(stats_dir) if stats_dir else Path("__missing_abduction_stats__")
+    loop_rows = read_csv_rows_from_dir(stats_path, "*.loops.csv")
+
+    def base_row() -> dict:
+        return {
+            "method": row.get("method", ""),
+            "benchmark": row.get("benchmark", ""),
+            "target_id": row.get("target_id", ""),
+            "status": row.get("status", ""),
+            "error_kind": row.get("error_kind", ""),
+            "proof_found": row.get("proof_found", ""),
+            "elapsed_sec": row.get("elapsed_sec", ""),
+            "timeout": row.get("timeout", ""),
+            "threads": row.get("threads", ""),
+        }
+
+    if not loop_rows:
+        out = base_row()
+        out.update({
+            "loop_kind": "no_loop",
+            "loop_index": 0,
+            "depth": 0,
+            "reachable_keys": 0,
+            "worth_expanding": 0,
+            "selected_ornodes": 0,
+            "num_processors": "",
+            "refutation_cache_size": "",
+            "refutation_cache_hits": "",
+            "refutation_cache_misses": "",
+            "refutation_cache_hit_rate": "",
+            "loop_elapsed_sec": "",
+            "abduction_stats_file": "",
+        })
+        return [out]
+
+    statistic_rows: List[dict] = []
+    for idx, loop_row in enumerate(loop_rows, start=1):
+        out = base_row()
+        out.update({
+            "loop_kind": "loop",
+            "loop_index": idx,
+            "depth": loop_row.get("depth", ""),
+            "reachable_keys": loop_row.get("reachable_keys", ""),
+            "worth_expanding": loop_row.get("worth_expanding", ""),
+            "selected_ornodes": loop_row.get("selected_ornodes", ""),
+            "num_processors": loop_row.get("num_processors", ""),
+            "refutation_cache_size": loop_row.get("refutation_cache_size", ""),
+            "refutation_cache_hits": loop_row.get("refutation_cache_hits", ""),
+            "refutation_cache_misses": loop_row.get("refutation_cache_misses", ""),
+            "refutation_cache_hit_rate": loop_row.get("refutation_cache_hit_rate", ""),
+            "loop_elapsed_sec": loop_row.get("elapsed_sec", ""),
+            "abduction_stats_file": loop_row.get("source_file", ""),
+        })
+        statistic_rows.append(out)
+    return statistic_rows
+
 def classify_error(
     status: str,
     returncode: Optional[int],
@@ -156,6 +240,7 @@ def run_one(
 
     log_dir = out_dir / "logs" / method
     proof_target_dir = out_dir / "proofs" / method / safe_target
+    stats_target_dir = out_dir / "abduction_stats" / safe_target
     session_dir = out_dir / "sessions" / method / safe_target
 
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -163,6 +248,11 @@ def run_one(
     if proof_target_dir.exists():
         shutil.rmtree(proof_target_dir)
     proof_target_dir.mkdir(parents=True, exist_ok=True)
+
+    if method == "abduction":
+        if stats_target_dir.exists():
+            shutil.rmtree(stats_target_dir)
+        stats_target_dir.mkdir(parents=True, exist_ok=True)
 
     if session_dir.exists():
         shutil.rmtree(session_dir)
@@ -184,6 +274,8 @@ def run_one(
     env["PSL_EVAL_MODE"] = "1"
     env["PSL_EVAL_METHOD"] = method
     env["PSL_EVAL_PROOF_DIR"] = str(proof_target_dir)
+    if method == "abduction":
+        env["PSL_EVAL_ABDUCTION_STATS_DIR"] = str(stats_target_dir)
     env["PSL_EVAL_TIMEOUT"] = str(timeout)
     env["PSL_EVAL_THREADS"] = str(threads)
 
@@ -275,6 +367,7 @@ def run_one(
         "log_file": str(log_file),
         "timeout": timeout,
         "threads": threads,
+        "abduction_stats_dir": str(stats_target_dir) if method == "abduction" else "",
         "interrupted": interrupted,
     }
 
@@ -323,6 +416,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     csv_file = out_dir / "summary.csv"
+    abduction_statistics_file = out_dir / "abduction_statistics.csv"
 
     targets_by_method: Dict[str, Dict[str, Path]] = {}
 
@@ -376,9 +470,12 @@ def main() -> None:
         "threads",
     ]
 
-    with csv_file.open("w", newline="", encoding="utf-8") as csv_out:
+    with csv_file.open("w", newline="", encoding="utf-8") as csv_out, \
+         abduction_statistics_file.open("w", newline="", encoding="utf-8") as abd_out:
         writer = csv.DictWriter(csv_out, fieldnames=fieldnames)
         writer.writeheader()
+        abduction_writer = csv.DictWriter(abd_out, fieldnames=ABDUCTION_STATISTICS_FIELDNAMES)
+        abduction_writer.writeheader()
 
         def run_and_write(method: str, target_id: str) -> bool:
             if target_id not in targets_by_method[method]:
@@ -406,9 +503,15 @@ def main() -> None:
             )
 
             interrupted = bool(row.pop("interrupted"))
+            abduction_stats_dir = str(row.pop("abduction_stats_dir", ""))
 
             writer.writerow(row)
             csv_out.flush()
+
+            if method == "abduction":
+                for abd_stat_row in collect_abduction_statistics(row, abduction_stats_dir):
+                    abduction_writer.writerow(abd_stat_row)
+                abd_out.flush()
 
             return interrupted
 

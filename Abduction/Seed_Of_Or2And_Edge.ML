@@ -412,9 +412,9 @@ fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (con
         fun sz_wght (t:term) = if Term.size_of_term t > (5 * orig_size) then 0.85 else (*TODO: magic numbers*)
                                if Term.size_of_term t > (4 * orig_size) then 0.90 else (*TODO: magic numbers*)
                                if Term.size_of_term t > (3 * orig_size) then 0.95 else 1.0;
-        val cnjctr_terms   = map snd cnjctrs: terms;
-        val max_weight     = map sz_wght cnjctr_terms |> Utils.reals_to_min_option |> Utils.try_with 1.0 the: real;
-        val new_abd_node   = Update_Abduction_Node.multiply_importance (max_weight * max_weight) abd_node;
+        val cnjctr_terms = map snd cnjctrs: terms;
+        val size_penalty = map sz_wght cnjctr_terms |> Utils.reals_to_min_option |> Utils.try_with 1.0 the: real;
+        val new_abd_node = Update_Abduction_Node.multiply_importance size_penalty abd_node;
       in
         (key, new_abd_node, cnjctrs)
       end;

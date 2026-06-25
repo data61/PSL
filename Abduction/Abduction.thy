@@ -28,6 +28,7 @@ ML_file \<open>Replace_Imp_With_Eq.ML\<close>
 ML_file \<open>SeLFiE_For_Top_Down.ML\<close>
 ML_file \<open>All_Top_Down_Conjecturing.ML\<close>
 ML_file \<open>Seed_Of_Or2And_Edge.ML\<close>
+ML_file \<open>Abduction_Statistics.ML\<close>
 ML_file \<open>Proof_By_Abduction.ML\<close>
 
 strategy Extend_Leaf =

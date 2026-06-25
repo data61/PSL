@@ -19,6 +19,8 @@ type abduction_graph;
 type term2real_table;
 type synched_term2real_table;
 val mk_term2real_table     : unit -> synched_term2real_table;
+type refutation_cache_statistics = {size: int, hits: int, misses: int};
+val refutation_cache_statistics: synched_term2real_table -> refutation_cache_statistics;
 val refute                 : debug -> synched_term2real_table -> Proof.state -> term  -> real;
 val is_refuted             : synched_term2real_table -> Proof.state -> term  -> bool;
 val refute_any_of_these    : debug -> synched_term2real_table -> Proof.state -> terms -> real;
@@ -80,18 +82,70 @@ type abduction_graph = Abduction_Graph.abduction_graph;
 structure Term_Table = Table (type key = term val ord = Term_Ord.term_ord);
 val defined          = Term_Table.defined;
 
-type term2real_table         = real Term_Table.table; (*true = refuted, false = not refuted*)
+datatype refutation_cache_entry = Refuting | Refuted of real;
+
+type refutation_cache_statistics = {size: int, hits: int, misses: int};
+type term2real_table =
+ {table : refutation_cache_entry Term_Table.table,
+  hits  : int,                     (*calls served from the cache or by waiting for an in-progress result*)
+  misses: int};                    (*calls that actually ran Quickcheck/Nitpick*)
 type synched_term2real_table = term2real_table Synchronized.var;
 
-fun mk_term2real_table _ = Synchronized.var "synched_term2real_table" Term_Table.empty: synched_term2real_table;
+fun empty_term2real_table () =
+  {table = Term_Table.empty, hits = 0, misses = 0}: term2real_table;
+
+fun mk_term2real_table _ =
+  Synchronized.var "synched_term2real_table" (empty_term2real_table ()): synched_term2real_table;
+
+fun finished_cache_entry (_, Refuted _) = true
+  | finished_cache_entry _              = false;
+
+fun refutation_cache_statistics (synched_table:synched_term2real_table) =
+  let
+    val {table, hits, misses} = Synchronized.value synched_table;
+    val size = Term_Table.dest table |> filter finished_cache_entry |> length;
+  in
+    {size = size, hits = hits, misses = misses}: refutation_cache_statistics
+  end;
 
 local
 
-val lookup                   = Utils.the' "lookup in Shared_State failed for Term_Table." oo Term_Table.lookup;
-fun insert_bool (cnjctr:term, r:real) (table:term2real_table) =
-  case try (Term_Table.insert (Real.==) (cnjctr, r)) table
-  of NONE           => table
-   | SOME new_table => new_table;
+(*
+ * reserve_or_get is the synchronization point for the refutation cache.
+ *
+ * - If the term is already refuted/not-refuted, this is an exact cache hit.
+ * - If another thread is already checking the same term, this thread waits; once
+ *   the result is published, this call is counted as a hit because it avoided
+ *   another Quickcheck/Nitpick run.
+ * - If the term is new, this call reserves the term and is counted as one miss.
+ *
+ * Therefore, misses count actual expensive refutation checks, and hits count
+ * calls that avoided such checks.  The expensive check itself is deliberately
+ * performed outside the lock.
+ *)
+fun reserve_or_get (synched_table:synched_term2real_table) (cnjctr:term): real option =
+  Synchronized.guarded_access synched_table
+    (fn ({table, hits, misses}:term2real_table) =>
+      case Term_Table.lookup table cnjctr of
+        SOME (Refuted r) =>
+          SOME (SOME r, {table = table, hits = hits + 1, misses = misses})
+      | SOME Refuting =>
+          NONE
+      | NONE =>
+          SOME (NONE,
+            {table = Term_Table.update (cnjctr, Refuting) table,
+             hits = hits,
+             misses = misses + 1}));
+
+fun publish_result (synched_table:synched_term2real_table) (cnjctr:term, r:real): unit =
+  Synchronized.change synched_table
+    (fn ({table, hits, misses}:term2real_table) =>
+      {table = Term_Table.update (cnjctr, Refuted r) table,
+       hits = hits,
+       misses = misses});
+
+fun quickcheck pst cnjctr =
+  TBC_Utils.term_has_counterexample_in_pst pst cnjctr: real;
 
 (*Once we refute a term. The term remains refuted in the table forever.*)
 in
@@ -106,24 +160,17 @@ fun refute (_(*debug*): bool) (synched_table:synched_term2real_table) (pst:Proof
      * The reasons is that we have already applied type-checking prior to this stage.
      * So, if Syntax.check_prop fails here, it is caused by some unknown reasons, for which
      * we do not want to refute the conjecture. *)
-    val old_table         = Synchronized.value synched_table                                           : term2real_table;
-    val already_checked   = defined old_table cnjctr_prop_clean                                        : bool;
-    fun quickcheck cnjctr = (cnjctr, TBC_Utils.term_has_counterexample_in_pst pst cnjctr)              : (term * real);
-    val _                 =
-      if   already_checked then ()
-      else
-        let
-          (* It is okay to spend some time to run quick-check before calling Synchronized.change:
-           * Even if other threads find a counter-example for the same conjecture,
-           * the result should be the same. *)
-          val pair = quickcheck cnjctr_prop_clean
-        in
-          Synchronized.change synched_table (insert_bool pair): unit
-        end;
-    val new_table = Synchronized.value synched_table  : term2real_table;
-    val result    = lookup new_table cnjctr_prop_clean: real;
+    val cached = reserve_or_get synched_table cnjctr_prop_clean: real option;
   in
-    result: real
+    case cached of
+      SOME r => r
+    | NONE =>
+        let
+          val r = quickcheck pst cnjctr_prop_clean;
+          val _ = publish_result synched_table (cnjctr_prop_clean, r);
+        in
+          r
+        end
   end;
 
 fun is_refuted (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): bool =

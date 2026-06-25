@@ -71,7 +71,7 @@ val is_worth_proving                             : Proof.context -> abduction_gr
 val get_final_goal_term                          : abduction_graph -> term;
 val get_leaf_orterms                             : abduction_graph -> terms;
 val get_final_goal_key                           : abduction_graph -> key;
-val orkeys_tobe_expanded_in                      : Proof.context -> abduction_graph -> keys;
+val orkeys_tobe_expanded_in_with_reachable_count : Proof.context -> abduction_graph -> (keys * int);
 
 (* query on abduction_graph *)
 val final_goal_proved_completely                 : abduction_graph -> bool;
@@ -356,18 +356,19 @@ fun proof_of (graph:abduction_graph) (key:key) =
   end;
 
 (* orkeys_tobe_expanded_in *)
-fun orkeys_tobe_expanded_in (ctxt:Proof.context) (graph:abduction_graph): keys =
+fun orkeys_tobe_expanded_in_with_reachable_count (ctxt:Proof.context) (graph:abduction_graph): (keys * int) =
   let
     val or_keys                        = PGraph.keys graph |> filter is_ornode           : keys;
     val orleaf_keys                    = filter_out (is_branch graph) or_keys            : keys
     val keys_worth_trying              = filter (is_worth_proving ctxt graph) orleaf_keys: keys;
     val final_goal_key                 = get_final_goal_key graph                        : key;
     val keys_reachable_from_final_goal = PGraph.all_succs graph [final_goal_key]         : keys;
-    val _                              = tracing ("Number of keys_reachable_from_final_goal: " ^ Int.toString (length keys_reachable_from_final_goal));
+    val reachable_count                = length keys_reachable_from_final_goal           : int;
+    val _                              = tracing ("Number of keys_reachable_from_final_goal: " ^ Int.toString reachable_count);
     (*val _ = map (print_key ctxt) keys_reachable_from_final_goal*)
     val result                         = inter equal_keys keys_worth_trying keys_reachable_from_final_goal;
   in
-    result
+    (result, reachable_count)
   end;
 
 (* or2and_edge_to_proof *)

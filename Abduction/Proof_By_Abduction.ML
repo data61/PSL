@@ -160,6 +160,7 @@ fun expand_ornode_if_original_goal_is_unproved_w_timeout (start:Timing.start)
 
 (* loop *)
 fun loop (counter:int) (max_depth:int) (start:Timing.start)
+    (synched_statistics: Abduction_Statistics.synched_statistics)
     (quintuple as
     (pst:state,
      synched_agraph: SS.synched_abduction_graph,
@@ -173,9 +174,11 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ ". =====");
       val ctxt                   = Proof.context_of pst;
       val abduction_graph        = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
-      val orkeys_worth_expanding = orkeys_tobe_expanded_in ctxt abduction_graph: keys;
+      val (orkeys_worth_expanding, reachable_count) =
+        orkeys_tobe_expanded_in_with_reachable_count ctxt abduction_graph: (keys * int);
       val sorted_orkeys          = sort_orkeys_based_on_importance abduction_graph orkeys_worth_expanding: keys;
-      val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length sorted_orkeys) ^ ".");
+      val worth_expanding_count  = length sorted_orkeys: int;
+      val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString worth_expanding_count ^ ".");
       val _                      = tracing "They are:"
       val _                      = map (print_orkey ctxt abduction_graph) sorted_orkeys
       val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start
@@ -185,68 +188,46 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing ("numb_of_processors is " ^ Int.toString numb_of_processors ^ ".");
       val numb_of_nds_to_expand  = numb_of_processors;(*TODO: magic number*)
       val top_ornodes            = take numb_of_nds_to_expand sorted_orkeys: keys;
-      val some_orkey             = Par_List.find_some expand_ornode top_ornodes: key option;
-      val solved                 = is_some some_orkey: bool;
-      val _                      = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
+      val {size = ref_cache_size, hits = ref_cache_hits, misses = ref_cache_misses} =
+        SS.refutation_cache_statistics refutation;
+      val ref_cache_total        = ref_cache_hits + ref_cache_misses;
+      val ref_cache_hit_rate     = if ref_cache_total = 0
+                                   then 0.0
+                                   else Real.fromInt ref_cache_hits / Real.fromInt ref_cache_total;
+      val _                      = Abduction_Statistics.record_loop pst synched_statistics
+                                    {depth = counter,
+                                     reachable_keys = reachable_count,
+                                     worth_expanding = worth_expanding_count,
+                                     selected_ornodes = length top_ornodes,
+                                     num_processors = numb_of_processors,
+                                     refutation_cache_size = ref_cache_size,
+                                     refutation_cache_hits = ref_cache_hits,
+                                     refutation_cache_misses = ref_cache_misses,
+                                     refutation_cache_hit_rate = ref_cache_hit_rate,
+                                     elapsed_sec = current_time start};
+      val solved                 =
+        if worth_expanding_count = 0
+        then
+          let
+            val _ = tracing "No worth-expanding or-node remains; terminating the abduction loop.";
+          in
+            false
+          end
+        else
+          let
+            val some_orkey = Par_List.find_some expand_ornode top_ornodes: key option;
+            val solved = is_some some_orkey: bool;
+            val _ = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
+          in
+            solved
+          end;
     in
-      (if solved then solved else loop (counter + 1) max_depth start quintuple)
+      if worth_expanding_count = 0
+      then false
+      else if solved then solved else loop (counter + 1) max_depth start synched_statistics quintuple
     end
   else
     false;
-(*
-fun loop_pervasive_parallel (start:Timing.start)
-    (pst: state,
-     synched_agraph: SS.synched_abduction_graph,
-     refutation:SS.synched_term2real_table,
-     term2name:SS.synched_term2string_table,
-     proved_simps:SS.synched_proved_simps,
-     orig_prems: terms) =
-  let
-    val numb_of_processors     = Thread.Thread.numProcessors ():int;
-    val _                      = tracing ("numb_of_processors is " ^ Int.toString numb_of_processors ^ ".");
-    val numb_of_nds_to_expand  = numb_of_processors + 1: int;(*TODO: magic number*)
-    val curr_numb_of_threads   = Synchronized.var "curr_numb_of_threads" 1: int Synchronized.var;
-    fun minus_one int          = int - 1;
-    fun plus_one int           = int + 1;
-    fun syn_minus_one ()       = Synchronized.change curr_numb_of_threads minus_one: unit;
-    fun syn_plus_one ()        = Synchronized.change curr_numb_of_threads plus_one: unit;
-    val ctxt                   = Proof.context_of pst;
-    val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start
-                                 (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems)
-                               : Abduction_Graph.key -> bool;
-    val counter = 0;
-    (*Should we accumulate futures and cancel them when we find a proof?*)
-    fun inner_loop (in_counter:int) =
-      let
-        val _ = OS.Process.sleep (Time.fromSeconds 5);
-      in
-        if Synchronized.value curr_numb_of_threads < numb_of_nds_to_expand then
-         (if in_counter < 15000 andalso still_has_time start pst   
-          then
-            let
-              val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ ". =====");
-              val abduction_graph        = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
-              val orkeys_worth_expanding = orkeys_tobe_expanded_in ctxt abduction_graph: keys;
-              val sorted_orkeys          = sort_orkeys_based_on_importance abduction_graph orkeys_worth_expanding: keys;
-              val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString (length sorted_orkeys) ^ ".");
-              val _                      = tracing "They are:"
-              val _                      = map (print_orkey ctxt abduction_graph) sorted_orkeys
-              val some_parent_orkey      = try hd sorted_orkeys: key option;
-              val _                      = Option.map (fn porkey => SS.update_is_branch porkey synched_agraph) some_parent_orkey: unit option;
-              val _                      = if is_some some_parent_orkey then (Future.fork  (fn u => (syn_plus_one (); expand_ornode (the some_parent_orkey); syn_minus_one u)); ()) else ();
-              val solved                 = SS.final_goal_proved_completely synched_agraph: bool;
-            in
-              (if solved then true else inner_loop (in_counter + 1))
-            end
-          else
-            false)
-        else
-          inner_loop in_counter
-    end;
-  in
-    inner_loop counter
-  end;
-*)
 
 type string2term_table = term Symtab.table;
 
@@ -344,6 +325,7 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
     val synched_refutation_table = SS.mk_term2real_table ();
     val synched_lemma_name_table = SS.mk_term2string_table ();
     val synched_proved_simps     = SS.mk_synched_proved_simps ();
+    val synched_statistics       = Abduction_Statistics.mk_statistics ();
     val ori_prems                = Logic.strip_imp_prems term |> map TDU.standardize_vnames |> map Isabelle_Utils.strip_atyp: terms;
     val final_goal_key           = (Or_N, [standardized_term]);
     val _ = SS.try_to_prove_ornode_and_update_graph pst synched_agraph final_goal_key;
@@ -362,13 +344,13 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
           let
             val quintuple                = (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table, synched_proved_simps, ori_prems);
             val _                        = prove_standard_simp_rules quintuple standardized_term: unit;
-            val solved_in_loop           = loop 0 max_depth start quintuple;(*expensive abduction!*)
+            val solved_in_loop           = loop 0 max_depth start synched_statistics quintuple;(*expensive abduction!*)
             val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
             val lemma_name2term          = abduction_graph_to_string2term_table final_graph: string2term_table;
             val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
             val _                        = if   solved_in_loop
                                            then print_necessary_proofs_only pst final_graph lemma_name2term final_goal_name
-                                           else ""
+                                           else "";
           in
             solved_in_loop
           end;
