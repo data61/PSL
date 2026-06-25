@@ -144,9 +144,6 @@ fun publish_result (synched_table:synched_term2real_table) (cnjctr:term, r:real)
        hits = hits,
        misses = misses});
 
-fun quickcheck pst cnjctr =
-  TBC_Utils.term_has_counterexample_in_pst pst cnjctr: real;
-
 (*Once we refute a term. The term remains refuted in the table forever.*)
 in
 
@@ -166,7 +163,7 @@ fun refute (_(*debug*): bool) (synched_table:synched_term2real_table) (pst:Proof
       SOME r => r
     | NONE =>
         let
-          val r = quickcheck pst cnjctr_prop_clean;
+          val r = TBC_Utils.term_has_counterexample_in_pst pst cnjctr_prop_clean: real;
           val _ = publish_result synched_table (cnjctr_prop_clean, r);
         in
           r
