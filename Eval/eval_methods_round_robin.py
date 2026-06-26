@@ -179,6 +179,61 @@ ABDUCTION_STATISTICS_FIELDNAMES = [
 ]
 
 
+ABDUCTION_DECREMENTAL_FIELDNAMES = [
+    "method",
+    "benchmark",
+    "target_id",
+    "status",
+    "error_kind",
+    "proof_found",
+    "elapsed_sec",
+    "timeout",
+    "threads",
+    "sample_size",
+    "sample_seed",
+    "target_index",
+    "targets_total",
+    "top_loop_index",
+    "parent_or_name",
+    "is_root_or_node",
+    "decremental_round_index",
+    "decremental_limit",
+    "candidate_sets_before",
+    "selected_sets",
+    "carried_over_sets",
+    "skipped_duplicate_sets",
+    "skipped_subsumed_sets",
+    "actual_proof_attempts",
+    "successful_attempts",
+    "failed_attempts",
+    "new_sets",
+    "candidate_sets_after",
+    "accepted_edges_in_round",
+    "accepted_edges_so_far",
+    "selected_cardinality_min",
+    "selected_cardinality_median",
+    "selected_cardinality_max",
+    "attempted_cardinality_min",
+    "attempted_cardinality_median",
+    "attempted_cardinality_max",
+    "next_cardinality_min",
+    "next_cardinality_median",
+    "next_cardinality_max",
+    "selected_depth_min",
+    "selected_depth_median",
+    "selected_depth_max",
+    "attempted_depth_min",
+    "attempted_depth_median",
+    "attempted_depth_max",
+    "next_depth_min",
+    "next_depth_median",
+    "next_depth_max",
+    "decremental_elapsed_sec",
+    "abduction_decremental_file",
+]
+
+
+
 def collect_abduction_statistics(row: Dict[str, object], stats_dir: str) -> List[dict]:
     stats_path = Path(stats_dir) if stats_dir else Path("__missing_abduction_stats__")
     loop_rows = read_csv_rows_from_dir(stats_path, "*.loops.csv")
@@ -241,6 +296,45 @@ def collect_abduction_statistics(row: Dict[str, object], stats_dir: str) -> List
     return statistic_rows
 
 
+def collect_abduction_decremental_statistics(row: Dict[str, object], stats_dir: str) -> List[dict]:
+    """Collect round-level decremental-conjecturing statistics.
+
+    The ML side emits one .decremental.csv row per decremental round per
+    selected parent OR-node.  Candidate sets carry a max-depth value: the
+    initial full set has depth 0, and deleting one conjecture increments the
+    depth by 1.
+    """
+    stats_path = Path(stats_dir) if stats_dir else Path("__missing_abduction_stats__")
+    dec_rows = read_csv_rows_from_dir(stats_path, "*.decremental.csv")
+
+    def base_row() -> dict:
+        return {
+            "method": row.get("method", ""),
+            "benchmark": row.get("benchmark", ""),
+            "target_id": row.get("target_id", ""),
+            "status": row.get("status", ""),
+            "error_kind": row.get("error_kind", ""),
+            "proof_found": row.get("proof_found", ""),
+            "elapsed_sec": row.get("elapsed_sec", ""),
+            "timeout": row.get("timeout", ""),
+            "threads": row.get("threads", ""),
+            "sample_size": row.get("sample_size", ""),
+            "sample_seed": row.get("sample_seed", ""),
+            "target_index": row.get("target_index", ""),
+            "targets_total": row.get("targets_total", ""),
+        }
+
+    out_rows: List[dict] = []
+    decremental_columns = ['top_loop_index', 'parent_or_name', 'is_root_or_node', 'decremental_round_index', 'decremental_limit', 'candidate_sets_before', 'selected_sets', 'carried_over_sets', 'skipped_duplicate_sets', 'skipped_subsumed_sets', 'actual_proof_attempts', 'successful_attempts', 'failed_attempts', 'new_sets', 'candidate_sets_after', 'accepted_edges_in_round', 'accepted_edges_so_far', 'selected_cardinality_min', 'selected_cardinality_median', 'selected_cardinality_max', 'attempted_cardinality_min', 'attempted_cardinality_median', 'attempted_cardinality_max', 'next_cardinality_min', 'next_cardinality_median', 'next_cardinality_max', 'selected_depth_min', 'selected_depth_median', 'selected_depth_max', 'attempted_depth_min', 'attempted_depth_median', 'attempted_depth_max', 'next_depth_min', 'next_depth_median', 'next_depth_max', 'decremental_elapsed_sec']
+    for dec_row in dec_rows:
+        out = base_row()
+        for column in decremental_columns:
+            out[column] = dec_row.get(column, "")
+        out["abduction_decremental_file"] = dec_row.get("source_file", "")
+        out_rows.append(out)
+    return out_rows
+
+
 def extract_sledgehammer_proof(output: str) -> Optional[str]:
     """Extract an Isabelle proof suggestion from Sledgehammer batch output.
 
@@ -282,12 +376,15 @@ def classify_error(
     output: str,
     proof_found: bool,
 ) -> str:
-    if proof_found:
-        return ""
+    # Timeout/interruption must take precedence over the mere presence of a
+    # .proof file.  Some methods can emit a proof file just before the
+    # evaluator kills the Isabelle process; such runs are not cleanly solved.
     if status == "timeout":
         return "timeout"
     if status == "interrupted":
         return "interrupted"
+    if proof_found:
+        return ""
     if returncode == 0:
         return "no_proof"
 
@@ -529,12 +626,16 @@ def run_one(
             )
 
     proof_paths = sorted(proof_target_dir.glob("*.proof"))
-    proof_found = bool(proof_paths)
+    proof_file_found = bool(proof_paths)
+    # A proof counts as found only if Isabelle returned cleanly.  A timeout run
+    # may still leave a .proof file behind if it was killed while/after writing
+    # it; that file is useful diagnostics, but it is not a clean success.
+    proof_found = status == "ok" and proof_file_found
 
     proof_files: List[str] = []
     proof_num_lines = ""
 
-    if proof_found:
+    if proof_file_found:
         total_lines = 0
 
         for proof_path in proof_paths:
@@ -562,6 +663,7 @@ def run_one(
         "elapsed_sec": round(elapsed, 3),
         "returncode": proc.returncode,
         "proof_found": proof_found,
+        "proof_file_found": proof_file_found,
         "proof_file": ";".join(proof_files),
         "proof_num_lines": proof_num_lines,
         "log_file": str(log_file),
@@ -667,6 +769,7 @@ def main() -> None:
 
     csv_file = out_dir / "summary.csv"
     abduction_statistics_file = out_dir / "abduction_statistics.csv"
+    abduction_decremental_file = out_dir / "abduction_decremental_statistics.csv"
 
     targets_by_method: Dict[str, Dict[str, Path]] = {}
 
@@ -743,6 +846,7 @@ def main() -> None:
     print(f"Threads         : {args.threads}")
     print(f"Output CSV      : {csv_file}")
     print(f"Abduction stats : {abduction_statistics_file}")
+    print(f"Abduction dec.  : {abduction_decremental_file}")
     print(f"Brutal cleanup  : {args.kill_all_isabelle_on_abort}")
     print(f"Keep temp files : {args.keep_isabelle_temp}")
     print("TMP cleanup     : per-target TMPDIR + /tmp/tmp*cnf cleanup")
@@ -760,6 +864,7 @@ def main() -> None:
         "elapsed_sec",
         "returncode",
         "proof_found",
+        "proof_file_found",
         "proof_file",
         "proof_num_lines",
         "log_file",
@@ -772,11 +877,14 @@ def main() -> None:
     ]
 
     with csv_file.open("w", newline="", encoding="utf-8") as csv_out, \
-         abduction_statistics_file.open("w", newline="", encoding="utf-8") as abd_out:
+         abduction_statistics_file.open("w", newline="", encoding="utf-8") as abd_out, \
+         abduction_decremental_file.open("w", newline="", encoding="utf-8") as dec_out:
         writer = csv.DictWriter(csv_out, fieldnames=fieldnames)
         writer.writeheader()
         abduction_writer = csv.DictWriter(abd_out, fieldnames=ABDUCTION_STATISTICS_FIELDNAMES)
         abduction_writer.writeheader()
+        decremental_writer = csv.DictWriter(dec_out, fieldnames=ABDUCTION_DECREMENTAL_FIELDNAMES)
+        decremental_writer.writeheader()
 
         def run_and_write(method: str, target_id: str) -> bool:
             if target_id not in targets_by_method[method]:
@@ -818,10 +926,14 @@ def main() -> None:
                 for abd_stat_row in collect_abduction_statistics(row, abduction_stats_dir):
                     abduction_writer.writerow(abd_stat_row)
                 abd_out.flush()
+                for dec_stat_row in collect_abduction_decremental_statistics(row, abduction_stats_dir):
+                    decremental_writer.writerow(dec_stat_row)
+                dec_out.flush()
 
             print(
                 f"    result : {row['status']}, "
                 f"proof_found={row['proof_found']}, "
+                f"proof_file_found={row.get('proof_file_found')}, "
                 f"elapsed={row['elapsed_sec']}s",
                 flush=True,
             )

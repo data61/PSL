@@ -19,6 +19,7 @@ type abduction_graph;
 type term2real_table;
 type synched_term2real_table;
 val mk_term2real_table     : unit -> synched_term2real_table;
+val refutation_cache_statistics_enabled: unit -> bool;
 type refutation_cache_statistics = {size: int, hits: int, misses: int};
 val refutation_cache_statistics: synched_term2real_table -> refutation_cache_statistics;
 val refute                 : debug -> synched_term2real_table -> Proof.state -> term  -> real;
@@ -97,16 +98,22 @@ fun empty_term2real_table () =
 fun mk_term2real_table _ =
   Synchronized.var "synched_term2real_table" (empty_term2real_table ()): synched_term2real_table;
 
+fun refutation_cache_statistics_enabled () =
+  getenv "PSL_EVAL_MODE" = "1" andalso getenv "PSL_EVAL_ABDUCTION_STATS_DIR" <> "";
+
 fun finished_cache_entry (_, Refuted _) = true
   | finished_cache_entry _              = false;
 
 fun refutation_cache_statistics (synched_table:synched_term2real_table) =
-  let
-    val {table, hits, misses} = Synchronized.value synched_table;
-    val size = Term_Table.dest table |> filter finished_cache_entry |> length;
-  in
-    {size = size, hits = hits, misses = misses}: refutation_cache_statistics
-  end;
+  if not (refutation_cache_statistics_enabled ())
+  then {size = 0, hits = 0, misses = 0}: refutation_cache_statistics
+  else
+    let
+      val {table, hits, misses} = Synchronized.value synched_table;
+      val size = Term_Table.dest table |> filter finished_cache_entry |> length;
+    in
+      {size = size, hits = hits, misses = misses}: refutation_cache_statistics
+    end;
 
 local
 
@@ -123,19 +130,19 @@ local
  * calls that avoided such checks.  The expensive check itself is deliberately
  * performed outside the lock.
  *)
-fun reserve_or_get (synched_table:synched_term2real_table) (cnjctr:term): real option =
+fun reserve_or_get (count_enabled:bool) (synched_table:synched_term2real_table) (cnjctr:term): real option =
   Synchronized.guarded_access synched_table
     (fn ({table, hits, misses}:term2real_table) =>
       case Term_Table.lookup table cnjctr of
         SOME (Refuted r) =>
-          SOME (SOME r, {table = table, hits = hits + 1, misses = misses})
+          SOME (SOME r, {table = table, hits = hits + (if count_enabled then 1 else 0), misses = misses})
       | SOME Refuting =>
           NONE
       | NONE =>
           SOME (NONE,
             {table = Term_Table.update (cnjctr, Refuting) table,
              hits = hits,
-             misses = misses + 1}));
+             misses = misses + (if count_enabled then 1 else 0)}));
 
 fun publish_result (synched_table:synched_term2real_table) (cnjctr:term, r:real): unit =
   Synchronized.change synched_table
@@ -143,6 +150,9 @@ fun publish_result (synched_table:synched_term2real_table) (cnjctr:term, r:real)
       {table = Term_Table.update (cnjctr, Refuted r) table,
        hits = hits,
        misses = misses});
+
+fun quickcheck pst cnjctr =
+  TBC_Utils.term_has_counterexample_in_pst pst cnjctr: real;
 
 (*Once we refute a term. The term remains refuted in the table forever.*)
 in
@@ -157,13 +167,13 @@ fun refute (_(*debug*): bool) (synched_table:synched_term2real_table) (pst:Proof
      * The reasons is that we have already applied type-checking prior to this stage.
      * So, if Syntax.check_prop fails here, it is caused by some unknown reasons, for which
      * we do not want to refute the conjecture. *)
-    val cached = reserve_or_get synched_table cnjctr_prop_clean: real option;
+    val cached = reserve_or_get (refutation_cache_statistics_enabled ()) synched_table cnjctr_prop_clean: real option;
   in
     case cached of
       SOME r => r
     | NONE =>
         let
-          val r = TBC_Utils.term_has_counterexample_in_pst pst cnjctr_prop_clean: real;
+          val r = quickcheck pst cnjctr_prop_clean;
           val _ = publish_result synched_table (cnjctr_prop_clean, r);
         in
           r

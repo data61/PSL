@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import math
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Callable, Iterable, Optional
@@ -80,8 +81,24 @@ def actual_loop_rows(rows: list[dict]) -> list[dict]:
     return [r for r in rows if r.get("loop_kind") == "loop" and to_int(r.get("loop_index"), 0) > 0]
 
 
+def is_clean_proof(row: dict) -> bool:
+    """Return True only for cleanly solved rows.
+
+    Older CSV files can contain status=timeout together with proof_found=True
+    when a .proof file was written just before the evaluator killed Isabelle.
+    Those rows must remain unproved in paper-facing plots.
+    """
+    status = str(row.get("status", "")).strip().lower()
+    proof_text = str(row.get("proof_found", "")).strip()
+
+    if proof_text:
+        return truthy(proof_text) and status in {"ok", "proved", "success"}
+
+    return status in {"proved", "success"}
+
+
 def status_group(rows: list[dict]) -> str:
-    return "proved" if any(truthy(r.get("proof_found")) for r in rows) else "unproved"
+    return "proved" if any(is_clean_proof(r) for r in rows) else "unproved"
 
 
 def trim_after_first_zero_worth(rows: list[dict]) -> list[dict]:
@@ -114,6 +131,29 @@ def fmt_num(x: float) -> str:
     return f"{x:.6g}"
 
 
+def log_minor_y_ticks(ymin: float, ymax: float) -> str:
+    """Explicit minor ticks for log-y plots: 2..9 in each visible decade.
+
+    PGFPlots' minor y tick num does not reliably create the desired
+    logarithmic minor grid lines when we also specify major y ticks.  Therefore
+    we explicitly request ticks at 2,3,...,9 times each power of ten.
+    """
+    if ymax <= 1.0:
+        return "{}"
+
+    lo_exp = int(math.floor(math.log10(max(ymin, 1e-12))))
+    hi_exp = int(math.ceil(math.log10(max(ymax, 1.0))))
+    ticks: list[float] = []
+    for exp in range(lo_exp, hi_exp + 1):
+        base = 10.0 ** exp
+        for m in range(2, 10):
+            tick = float(m) * base
+            if ymin < tick < ymax:
+                ticks.append(tick)
+
+    return "{" + ",".join(fmt_num(tick) for tick in ticks) + "}"
+
+
 def pgf_coordinates(points: Iterable[tuple[float, float]]) -> str:
     pts = " ".join(f"({fmt_num(x)},{fmt_num(y)})" for x, y in points)
     return "{" + pts + "}"
@@ -142,12 +182,14 @@ def make_axis_begin(
         r"width=0.95\linewidth,",
         r"height=0.62\linewidth,",
         r"grid=both,",
-        r"minor grid style={draw=gray!15},",
-        r"major grid style={draw=gray!30},",
+        r"minor grid style={draw=gray!24,line width=0.15pt},",
+        r"major grid style={draw=gray!42,line width=0.25pt},",
+        r"minor x tick num=1,",
+        r"minor y tick num=9," if log_y else r"minor y tick num=3,",
         r"legend cell align=left,",
         f"legend pos={legend_pos},",
         r"tick align=outside,",
-        r"every axis plot/.append style={line width=0.6pt},",
+        r"every axis plot/.append style={line width=1.0pt},",
         r"enlarge x limits=false,",
         f"xmin=1, xmax={fmt_num(xmax)},",
         f"ymin={fmt_num(ymin)}, ymax={fmt_num(ymax)},",
@@ -161,7 +203,9 @@ def make_axis_begin(
             r"ymode=log,",
             r"log basis y=10,",
             r"unbounded coords=discard,",
+            r"yminorgrids=true,",
             r"ytick={1,10,100,1000,10000,100000},",
+            f"minor ytick={log_minor_y_ticks(ymin, ymax)},",
         ])
 
     if extra_options:
@@ -244,7 +288,7 @@ def write_line_graph(
     for _benchmark, _target_id, status, points in series:
         style = "blue, solid" if status == "proved" else "red, dashed"
         lines.append(
-            rf"\addplot+[{style}, no marks, opacity=0.55] coordinates {pgf_coordinates(points)};"
+            rf"\addplot+[{style}, no marks, opacity=0.72] coordinates {pgf_coordinates(points)};"
         )
 
     lines.extend([r"\end{axis}", r"\end{tikzpicture}", ""])
@@ -315,8 +359,8 @@ def write_first_zero_hist(problem_groups: dict[tuple[str, str], list[dict]], out
         r"ybar,",
         r"bar width=7pt,",
         r"grid=both,",
-        r"minor grid style={draw=gray!15},",
-        r"major grid style={draw=gray!30},",
+        r"minor grid style={draw=gray!15,line width=0.15pt},",
+        r"major grid style={draw=gray!30,line width=0.25pt},",
         r"tick align=outside,",
         r"enlarge x limits=false,",
         f"xmin=0.5, xmax={fmt_num(max(1.5, float(xmax) + 0.5))},",
@@ -387,6 +431,12 @@ def main() -> None:
         ylabel="Number of contributive OR-leaf nodes",
         log_y=use_log_counts,
         legend_pos="north west",
+        extra_axis_options=[
+            r"minor x tick num=4,",
+            r"minor y tick num=9,",
+            r"minor grid style={draw=gray!28,line width=0.15pt},",
+            r"major grid style={draw=gray!45,line width=0.25pt},",
+        ],
     )
 
     write_line_graph(
@@ -397,6 +447,12 @@ def main() -> None:
         ylabel="Number of root-descendant nodes",
         log_y=use_log_counts,
         legend_pos="north west",
+        extra_axis_options=[
+            r"minor x tick num=4,",
+            r"minor y tick num=9,",
+            r"minor grid style={draw=gray!28,line width=0.15pt},",
+            r"major grid style={draw=gray!45,line width=0.25pt},",
+        ],
     )
 
     write_line_graph(

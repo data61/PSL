@@ -30,7 +30,7 @@ val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_
 val conjectures_to_seed_of_or2and_edge    : Shared_State.synched_term2string_table -> Proof.state -> (string * term) list -> seed_of_or2and_edge;
 val seed_has_counterexample               : Shared_State.synched_term2real_table -> Proof.state -> seed_of_or2and_edge -> bool;
 val abduction_for_tactic_based_conjectures: Proof.state -> key -> seeds_of_or2and_edge -> Shared_State.synched_abduction_graph -> unit;
-val abduction_for_explicit_conjectures    : Proof.state -> key -> conjectures ->
+val abduction_for_explicit_conjectures    : Proof.state -> int -> key -> conjectures ->
                                             (Shared_State.synched_term2string_table *
                                              Shared_State.synched_term2real_table *
                                              Shared_State.synched_abduction_graph *
@@ -337,65 +337,373 @@ fun eq_conjectures (pairs1:conjectures, pairs2:conjectures): bool =
     eq_set (op =) (goal_names1, goal_names2)
   end;
 
-fun decremental  _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_proved_simps) (_:key) ([]:conjectures list) (_:conjectures list) _ results =
-    results: add_or2and_edge list
-  | decremental (counter:int)
+type decremental_candidate = conjectures * int;
+
+fun candidate_conjectures ((conjectures, _):decremental_candidate) = conjectures: conjectures;
+fun candidate_depth ((_, depth):decremental_candidate) = depth: int;
+
+fun eq_decremental_candidate ((c1, _):decremental_candidate, (c2, _):decremental_candidate) =
+  eq_conjectures (c1, c2): bool;
+
+fun insert_candidate_max_depth ((conjectures, depth):decremental_candidate) [] =
+      [(conjectures, depth)]
+  | insert_candidate_max_depth ((conjectures, depth):decremental_candidate)
+      (((conjectures', depth')::rest):decremental_candidate list) =
+      if eq_conjectures (conjectures, conjectures')
+      then (conjectures', Int.max (depth, depth')) :: rest
+      else (conjectures', depth') :: insert_candidate_max_depth (conjectures, depth) rest;
+
+fun merge_candidates_max_depth (candidates:decremental_candidate list) =
+  fold insert_candidate_max_depth candidates []: decremental_candidate list;
+
+fun candidate_length_ord ((c1, d1):decremental_candidate, (c2, d2):decremental_candidate) =
+  case int_ord (length c1, length c2) of
+      EQUAL => int_ord (d1, d2)
+    | order => order;
+
+fun sort_candidates (candidates:decremental_candidate list) =
+  candidates |> merge_candidates_max_depth |> sort candidate_length_ord |> rev: decremental_candidate list;
+
+fun decremental_statistics_enabled () =
+  getenv "PSL_EVAL_MODE" = "1" andalso getenv "PSL_EVAL_ABDUCTION_STATS_DIR" <> "";
+
+datatype decremental_worker_result =
+    Skipped_Duplicate of decremental_candidate
+  | Skipped_Subsumed_By_Failed_Set of decremental_candidate
+  | Tried_Decrement of {
+      candidate: decremental_candidate,
+      triple_opt: add_or2and_edge option,
+      unproved_used_conjectures: conjectures};
+
+fun int_stats (ints:int list): int * int * int =
+  let
+    val sorted = sort int_ord ints;
+    val n = length sorted;
+  in
+    if n = 0 then (0, 0, 0)
+    else (hd sorted, nth sorted (n div 2), List.last sorted)
+  end;
+
+fun cardinality_stats (candidates:decremental_candidate list): int * int * int =
+  int_stats (map (length o candidate_conjectures) candidates): int * int * int;
+
+fun depth_stats (candidates:decremental_candidate list): int * int * int =
+  int_stats (map candidate_depth candidates): int * int * int;
+
+fun attempted_candidates_from_results (attempt_results:decremental_worker_result list) =
+  List.mapPartial
+    (fn Tried_Decrement {candidate, ...} => SOME candidate
+      | _ => NONE)
+    attempt_results: decremental_candidate list;
+
+fun count_skipped_duplicate (Skipped_Duplicate _) = 1
+  | count_skipped_duplicate _ = 0;
+
+fun count_skipped_subsumed (Skipped_Subsumed_By_Failed_Set _) = 1
+  | count_skipped_subsumed _ = 0;
+
+fun count_attempt (Tried_Decrement _) = 1
+  | count_attempt _ = 0;
+
+fun count_success (Tried_Decrement {triple_opt = SOME _, ...}) = 1
+  | count_success _ = 0;
+
+fun count_failure (Tried_Decrement {triple_opt = NONE, ...}) = 1
+  | count_failure _ = 0;
+
+fun safe_div_int (numerator:int) (denominator:int): real =
+  if denominator <= 0
+  then 0.0
+  else Real.fromInt numerator / Real.fromInt denominator;
+
+fun make_decremental_entry
+    (top_loop_index:int) (parent_or_name:string) (is_root_or_node:bool)
+    (decremental_round_index:int) (decremental_limit:int)
+    (candidate_sets_before:int) (selected_sets:int) (carried_over_sets:int)
+    (skipped_duplicate_sets:int) (skipped_subsumed_sets:int)
+    (actual_proof_attempts:int) (successful_attempts:int) (failed_attempts:int)
+    (new_sets:int) (candidate_sets_after:int)
+    (accepted_edges_in_round:int) (accepted_edges_so_far:int)
+    (selected_candidates:decremental_candidate list)
+    (attempted_candidates:decremental_candidate list)
+    (next_candidates:decremental_candidate list)
+    (decremental_elapsed_sec:real) =
+  let
+    val (selected_cardinality_min, selected_cardinality_median, selected_cardinality_max) =
+      cardinality_stats selected_candidates;
+    val (attempted_cardinality_min, attempted_cardinality_median, attempted_cardinality_max) =
+      cardinality_stats attempted_candidates;
+    val (next_cardinality_min, next_cardinality_median, next_cardinality_max) =
+      cardinality_stats next_candidates;
+    val (selected_depth_min, selected_depth_median, selected_depth_max) =
+      depth_stats selected_candidates;
+    val (attempted_depth_min, attempted_depth_median, attempted_depth_max) =
+      depth_stats attempted_candidates;
+    val (next_depth_min, next_depth_median, next_depth_max) =
+      depth_stats next_candidates;
+    val decremental_exact_duplicate_hits = skipped_duplicate_sets: int;
+    val decremental_failed_subsumption_hits = skipped_subsumed_sets: int;
+    val decremental_cache_hits = skipped_duplicate_sets + skipped_subsumed_sets: int;
+    val decremental_cache_misses = actual_proof_attempts: int;
+    val decremental_exact_duplicate_hit_rate =
+      safe_div_int decremental_exact_duplicate_hits
+        (decremental_exact_duplicate_hits + decremental_cache_misses): real;
+    val decremental_avoidance_rate =
+      safe_div_int decremental_cache_hits selected_sets: real;
+  in
+    {top_loop_index = top_loop_index,
+     parent_or_name = parent_or_name,
+     is_root_or_node = is_root_or_node,
+     decremental_round_index = decremental_round_index,
+     decremental_limit = decremental_limit,
+     candidate_sets_before = candidate_sets_before,
+     selected_sets = selected_sets,
+     carried_over_sets = carried_over_sets,
+     skipped_duplicate_sets = skipped_duplicate_sets,
+     skipped_subsumed_sets = skipped_subsumed_sets,
+     actual_proof_attempts = actual_proof_attempts,
+     successful_attempts = successful_attempts,
+     failed_attempts = failed_attempts,
+     decremental_exact_duplicate_hits = decremental_exact_duplicate_hits,
+     decremental_failed_subsumption_hits = decremental_failed_subsumption_hits,
+     decremental_cache_hits = decremental_cache_hits,
+     decremental_cache_misses = decremental_cache_misses,
+     decremental_exact_duplicate_hit_rate = decremental_exact_duplicate_hit_rate,
+     decremental_avoidance_rate = decremental_avoidance_rate,
+     new_sets = new_sets,
+     candidate_sets_after = candidate_sets_after,
+     accepted_edges_in_round = accepted_edges_in_round,
+     accepted_edges_so_far = accepted_edges_so_far,
+     selected_cardinality_min = selected_cardinality_min,
+     selected_cardinality_median = selected_cardinality_median,
+     selected_cardinality_max = selected_cardinality_max,
+     attempted_cardinality_min = attempted_cardinality_min,
+     attempted_cardinality_median = attempted_cardinality_median,
+     attempted_cardinality_max = attempted_cardinality_max,
+     next_cardinality_min = next_cardinality_min,
+     next_cardinality_median = next_cardinality_median,
+     next_cardinality_max = next_cardinality_max,
+     selected_depth_min = selected_depth_min,
+     selected_depth_median = selected_depth_median,
+     selected_depth_max = selected_depth_max,
+     attempted_depth_min = attempted_depth_min,
+     attempted_depth_median = attempted_depth_median,
+     attempted_depth_max = attempted_depth_max,
+     next_depth_min = next_depth_min,
+     next_depth_median = next_depth_median,
+     next_depth_max = next_depth_max,
+     decremental_elapsed_sec = decremental_elapsed_sec}: Abduction_Statistics.decremental_entry
+  end;
+
+fun one_decrement
     (pst:Proof.state, synched_agraph:SS.synched_abduction_graph, synched_proved_simps:SS.synched_proved_simps)
-    (parent_ornd:key) (conjectures::conjecturess:conjectures list)
-    (checked:conjectures list) (failed_set:conjectures list) (results:add_or2and_edge list) =
+    (top_loop_index:int) (parent_or_name:string) (is_root_or_node:bool)
+    (decremental_round_index:int) (decremental_limit:int)
+    (parent_ornd:key) (candidate_conjecturess:decremental_candidate list)
+    (synched_checked:conjectures list Synchronized.var)
+    (synched_failed_set:conjectures list Synchronized.var)
+    (results:add_or2and_edge list) =
+      let
+        val record_decremental_statistics = decremental_statistics_enabled ();
+        val decremental_round_start =
+          if record_decremental_statistics then SOME (Timing.start ()) else NONE;
+        (*
+         * The expensive proof attempt must not be performed while holding a lock.
+         * The checked and failed-set tables are created once per parent OR-node,
+         * in abduction_for_explicit_conjectures, and are shared by all
+         * one_decrement rounds within that decremental-conjecturing run.
+         *)
+
+        (*
+         * Process only a bounded prefix of the current candidate queue in this
+         * decremental round.  The remaining conjecture sets are carried over to
+         * the next round instead of being submitted to Par_List.map immediately.
+         *)
+        val numb_of_processors = Thread.Thread.numProcessors (): int;
+        val numb_of_conjecture_sets_to_try = Int.max (1, numb_of_processors): int;
+        val active_candidates =
+          take numb_of_conjecture_sets_to_try candidate_conjecturess: decremental_candidate list;
+        val carried_over_candidates =
+          drop numb_of_conjecture_sets_to_try candidate_conjecturess: decremental_candidate list;
+
+        fun is_subset_of (sub:conjectures) (sup:conjectures) = subset (op =) (sub, sup);
+        fun eq_to_one_of_conjecturess (conjectures:conjectures) (conjecturess:conjectures list) =
+          exists (curry eq_conjectures conjectures) conjecturess: bool;
+        fun is_subset_of_any_failed_conjectures (sub:conjectures) (failed_set:conjectures list) =
+          exists (is_subset_of sub) failed_set: bool;
+
+        fun claim_as_checked (conjectures:conjectures): bool =
+          Synchronized.change_result synched_checked
+            (fn checked =>
+              if eq_to_one_of_conjecturess conjectures checked
+              then (false, checked)
+              else (true, conjectures :: checked));
+
+        fun register_failed (conjectures:conjectures): unit =
+          Synchronized.change synched_failed_set
+            (fn failed_set => distinct eq_conjectures (conjectures :: failed_set));
+
+        fun already_subsumed_by_failed_set (conjectures:conjectures): bool =
+          is_subset_of_any_failed_conjectures conjectures (Synchronized.value synched_failed_set);
+
+        fun try_one_conjecture_set (candidate as (conjectures, _):decremental_candidate): decremental_worker_result =
+          if already_subsumed_by_failed_set conjectures
+          then Skipped_Subsumed_By_Failed_Set candidate
+          else if not (claim_as_checked conjectures)
+          then Skipped_Duplicate candidate
+          else
+            let
+              (*1 apply explicit conjecturing and identify used conjectures.*)
+              val seed             = conjecture_to_seed_of_or2and_edge conjectures: seed_of_or2and_edge;
+              val triple_opt       = prove_ornode_assuming_andnode pst false parent_ornd synched_agraph seed: add_or2and_edge option;
+              val used_conjectures = if is_none triple_opt then []
+                                     else #3 (Utils.the' "decremental failed." triple_opt): conjectures;
+              (*2 identify used conjectures that are not proved.*)
+              val proved_simps     = Synchronized.value synched_proved_simps;
+              fun is_completely_proved cnjctr = member (op =) proved_simps cnjctr: bool;
+              val unproved_used_conjectures = filter_out is_completely_proved used_conjectures: conjectures;
+              val _ =
+                if null used_conjectures
+                then register_failed conjectures
+                else ();
+            in
+              Tried_Decrement {candidate = candidate, triple_opt = triple_opt, unproved_used_conjectures = unproved_used_conjectures}
+            end;
+
+        val attempt_results =
+          Par_List.map try_one_conjecture_set active_candidates: decremental_worker_result list;
+
+        val newly_checked = Synchronized.value synched_checked: conjectures list;
+        val new_failed_set = Synchronized.value synched_failed_set: conjectures list;
+
+        val new_triples =
+          List.mapPartial
+            (fn Tried_Decrement {triple_opt, ...} => triple_opt
+              | _ => NONE)
+            attempt_results: add_or2and_edge list;
+
+        val unproved_used_conjectures =
+          List.mapPartial
+            (fn Tried_Decrement {unproved_used_conjectures, ...} =>
+                  if null unproved_used_conjectures then NONE else SOME unproved_used_conjectures
+              | _ => NONE)
+            attempt_results
+          |> flat
+          |> distinct (op =): conjectures;
+
+        (*3 make new candidate sets by removing one used-but-unproved conjecture.
+         * A candidate carries its maximum depth in the refinement DAG.  The
+         * initial candidate has depth 0.  Whenever a set is produced by deleting
+         * one conjecture from a parent set, the new depth is parent depth + 1.
+         * If the same conjecture set is reached through multiple parents, we keep
+         * the maximum depth.
+         *)
+        val generated_candidates =
+          if null unproved_used_conjectures
+          then []
+          else
+            let
+              fun mk_new_candidates_from (candidate as (conjectures, depth):decremental_candidate) =
+                map (fn used_conjecture =>
+                      let
+                        val new_conjectures = remove (op =) used_conjecture conjectures: conjectures;
+                      in
+                        if length new_conjectures < length conjectures
+                        then SOME (new_conjectures, depth + 1)
+                        else NONE
+                      end)
+                    unproved_used_conjectures
+                |> Utils.somes: decremental_candidate list;
+            in
+              map mk_new_candidates_from active_candidates
+              |> flat
+              |> sort_candidates
+            end;
+
+        val new_candidates = carried_over_candidates @ generated_candidates: decremental_candidate list;
+
+        fun eq_to_one_of_checked (conjectures:conjectures) =
+          eq_to_one_of_conjecturess conjectures newly_checked: bool;
+        val genuinely_new_candidates =
+          filter_out (eq_to_one_of_checked o candidate_conjectures) new_candidates: decremental_candidate list;
+
+        fun is_subset_of_any_new_failed_conjectures (sub:conjectures) =
+          is_subset_of_any_failed_conjectures sub new_failed_set: bool;
+        val promising_candidates =
+          filter_out (is_subset_of_any_new_failed_conjectures o candidate_conjectures) genuinely_new_candidates
+          |> sort_candidates: decremental_candidate list;
+
+        val new_results = new_triples @ results: add_or2and_edge list;
+
+        val _ =
+          if record_decremental_statistics
+          then
+            let
+              val selected_sets = length active_candidates: int;
+              val carried_over_sets = length carried_over_candidates: int;
+              val skipped_duplicate_sets = fold (fn r => fn n => n + count_skipped_duplicate r) attempt_results 0: int;
+              val skipped_subsumed_sets = fold (fn r => fn n => n + count_skipped_subsumed r) attempt_results 0: int;
+              val actual_proof_attempts = fold (fn r => fn n => n + count_attempt r) attempt_results 0: int;
+              val successful_attempts = fold (fn r => fn n => n + count_success r) attempt_results 0: int;
+              val failed_attempts = fold (fn r => fn n => n + count_failure r) attempt_results 0: int;
+              val candidate_sets_before = length candidate_conjecturess: int;
+              val new_sets = length generated_candidates: int;
+              val candidate_sets_after = length promising_candidates: int;
+              val accepted_edges_in_round = length new_triples: int;
+              val accepted_edges_so_far = length new_results: int;
+              val attempted_candidates = attempted_candidates_from_results attempt_results: decremental_candidate list;
+              val elapsed_sec =
+                case decremental_round_start of
+                    SOME start => Time.toReal (#elapsed (Timing.result start))
+                  | NONE => (0.0: real);
+              val decremental_entry = make_decremental_entry
+                   top_loop_index parent_or_name is_root_or_node decremental_round_index decremental_limit
+                   candidate_sets_before selected_sets carried_over_sets skipped_duplicate_sets skipped_subsumed_sets
+                   actual_proof_attempts successful_attempts failed_attempts new_sets candidate_sets_after
+                   accepted_edges_in_round accepted_edges_so_far
+                   active_candidates attempted_candidates promising_candidates elapsed_sec;
+            in
+              Abduction_Statistics.record_decremental_entries pst [decremental_entry]
+            end
+          else ();
+      in
+        (promising_candidates, new_results)
+      end;
+
+fun decremental _ _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_proved_simps)
+      (_:int) (_:string) (_:bool) (_:key) ([]:decremental_candidate list)
+      (_:conjectures list Synchronized.var) (_:conjectures list Synchronized.var) results =
+    results: add_or2and_edge list
+  | decremental (decremental_limit:int) (counter:int)
+    (pst:Proof.state, synched_agraph:SS.synched_abduction_graph, synched_proved_simps:SS.synched_proved_simps)
+    (top_loop_index:int) (parent_or_name:string) (is_root_or_node:bool)
+    (parent_ornd:key) (candidate_conjecturess:decremental_candidate list)
+    (synched_checked:conjectures list Synchronized.var)
+    (synched_failed_set:conjectures list Synchronized.var)
+    (results:add_or2and_edge list) =
     if counter > 0
     then
       let
-        (*1  apply explicit_conjecturing. identify used conjectures.*)
-        val seed             = conjecture_to_seed_of_or2and_edge conjectures: seed_of_or2and_edge;
-        val triple_opt       = prove_ornode_assuming_andnode pst false parent_ornd synched_agraph seed: add_or2and_edge option;
-        val used_conjectures = if is_none triple_opt then []
-                               else #3 (Utils.the' "decremental failed." triple_opt): conjectures;
-        (*2 identify used conjectures that are not proved.*)
-        val proved_simps     = Synchronized.value synched_proved_simps;
-        fun is_completely_proved cnjctr = member (op =) proved_simps cnjctr: bool;
-        val unproved_used_conjectures   = filter_out is_completely_proved used_conjectures: conjectures;
-        val (new_failed_set, new_candidates): (conjectures list * conjectures list) =
-          (if null used_conjectures
-           then
-            (*3. register the conjectures inside seed as a set of failed attempt.*)
-             let
-               val new_failed_set = distinct eq_conjectures (conjectures::failed_set)
-             in
-               (new_failed_set, conjecturess)
-             end
-           else
-            (*4 make sets of conjectures from seeds, so that each member of the set lacks exactly one conjecture that was used but not proved.*)
-             let
-               val mk_new_conjecture_set_by_removing_one_of = map (remove (op =)) unproved_used_conjectures: (conjectures -> conjectures) list;
-               fun mk_new_goals_wo_one_used_goal (those_sent_to_one_step:conjectures) =
-                   Utils.map_arg those_sent_to_one_step mk_new_conjecture_set_by_removing_one_of: conjectures list;
-               val new_conjecturess = map mk_new_goals_wo_one_used_goal (conjectures::conjecturess)
-                               |> flat
-                               |> distinct eq_conjectures
-                               |> sort length_ord |> rev; (*We want to check seeds with more conjectures first because they tend to be more powerful.*)
-             in
-               (failed_set, new_conjecturess)
-             end
-          );
-        val newly_checked = conjectures :: checked: conjectures list;
-        fun eq_to_one_of_checked (conjectures:conjectures) = exists (curry eq_conjectures conjectures) newly_checked: bool;
-        val genuinely_new_candidates = filter_out eq_to_one_of_checked new_candidates: conjectures list;
-        fun is_subset_of (sub:conjectures) (sup:conjectures) = subset (op =) (sub, sup);
-        fun is_subset_of_any_failed_conjectures (sub:conjectures) = exists (is_subset_of sub) new_failed_set;
-        val promising_candidates = filter_out is_subset_of_any_failed_conjectures genuinely_new_candidates;
-        val new_results = (if is_none triple_opt then [] else [the triple_opt]) @ results
+        val decremental_round_index = decremental_limit - counter + 1: int;
+        val (promising_candidates, new_results) =
+          one_decrement (pst, synched_agraph, synched_proved_simps)
+            top_loop_index parent_or_name is_root_or_node decremental_round_index decremental_limit
+            parent_ornd candidate_conjecturess synched_checked synched_failed_set results
       in
-        decremental (counter - 1) (pst, synched_agraph, synched_proved_simps) parent_ornd promising_candidates newly_checked new_failed_set new_results
+        decremental decremental_limit (counter - 1)
+          (pst, synched_agraph, synched_proved_simps)
+          top_loop_index parent_or_name is_root_or_node parent_ornd promising_candidates
+          synched_checked synched_failed_set new_results
       end
     else results;
 
-fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (conjectures:conjectures)
+fun abduction_for_explicit_conjectures (pst:Proof.state) (top_loop_index:int) (parent_orkey:key) (conjectures:conjectures)
   (sterm2name:SS.synched_term2string_table, refutation: SS.synched_term2real_table, sagraph: SS.synched_abduction_graph, proved_simps:SS.synched_proved_simps) =
   let
     fun tracing' mssg = tracing mssg;
     val _       = tracing' "\n ** Trying to prove **:";
-    val _       = tracing' (SS.get_orkey_name sterm2name (Proof.context_of pst) parent_orkey);
+    val parent_or_name = SS.get_orkey_name sterm2name (Proof.context_of pst) parent_orkey: string;
+    val _       = tracing' parent_or_name;
     val ctxt    = Proof.context_of pst;
     val _       = Abduction_Graph.print_key ctxt parent_orkey;
     val agraph  = Synchronized.value sagraph: abduction_graph;
@@ -403,7 +711,17 @@ fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (con
     val limit   = if   Abduction_Graph.is_final_goal agraph parent_orkey
                   then Config.get ctxt Top_Down_Util.limit_for_first_decrement
                   else Config.get ctxt Top_Down_Util.limit_for_other_decrement
-    val triples = decremental limit (pst, sagraph, proved_simps) parent_orkey [conjectures] [] [] []: add_or2and_edge list;
+    val is_root_or_node = Abduction_Graph.is_final_goal agraph parent_orkey: bool;
+    val synched_checked =
+      Synchronized.var "Seed_Of_Or2And_Edge.decremental.checked.parent" []
+        : conjectures list Synchronized.var;
+    val synched_failed_set =
+      Synchronized.var "Seed_Of_Or2And_Edge.decremental.failed_set.parent" []
+        : conjectures list Synchronized.var;
+    val triples =
+      decremental limit limit (pst, sagraph, proved_simps)
+        top_loop_index parent_or_name is_root_or_node parent_orkey [(conjectures, 0)]
+        synched_checked synched_failed_set []: add_or2and_edge list;
     val _       = tracing' " decremental abduction ends";
     fun update_imp (key, abd_node, cnjctrs:conjectures) =
       let
@@ -412,9 +730,9 @@ fun abduction_for_explicit_conjectures (pst:Proof.state) (parent_orkey:key) (con
         fun sz_wght (t:term) = if Term.size_of_term t > (5 * orig_size) then 0.85 else (*TODO: magic numbers*)
                                if Term.size_of_term t > (4 * orig_size) then 0.90 else (*TODO: magic numbers*)
                                if Term.size_of_term t > (3 * orig_size) then 0.95 else 1.0;
-        val cnjctr_terms = map snd cnjctrs: terms;
-        val size_penalty = map sz_wght cnjctr_terms |> Utils.reals_to_min_option |> Utils.try_with 1.0 the: real;
-        val new_abd_node = Update_Abduction_Node.multiply_importance size_penalty abd_node;
+        val cnjctr_terms   = map snd cnjctrs: terms;
+        val size_penalty   = map sz_wght cnjctr_terms |> Utils.reals_to_min_option |> Utils.try_with 1.0 the: real;
+        val new_abd_node   = Update_Abduction_Node.multiply_importance size_penalty abd_node;
       in
         (key, new_abd_node, cnjctrs)
       end;

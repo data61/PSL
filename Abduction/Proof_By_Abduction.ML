@@ -66,6 +66,7 @@ fun prove_standard_simp_rules
 
 (* expand_ornode *)
 fun expand_ornode_if_original_goal_is_unproved
+  (top_loop_index:int)
   (pst:state,
    synched_agraph: SS.synched_abduction_graph,
    refutation    : SS.synched_term2real_table,
@@ -135,28 +136,28 @@ fun expand_ornode_if_original_goal_is_unproved
       val tb_and_simped_conjectures    = tb_cnjctrs @ simped_explicit_conjectures
       val standardized_conjectures     = map (apsnd Top_Down_Util.standardize_vnames) tb_and_simped_conjectures
                                       |> distinct (op =)(*TODO: should it be done here?*)
-      val _                            = SOOE.abduction_for_explicit_conjectures pst or_key standardized_conjectures
+      val _                            = SOOE.abduction_for_explicit_conjectures pst top_loop_index or_key standardized_conjectures
                                          (term2name, refutation, synched_agraph, proved_simps): unit;
     in
       SS.final_goal_proved_completely synched_agraph
     end
-  | expand_ornode_if_original_goal_is_unproved _ _ = error "expand_ornode failed. Not an Or_N.";
+  | expand_ornode_if_original_goal_is_unproved _ _ _ = error "expand_ornode failed. Not an Or_N.";
 
 fun get_timeout (pst:Proof.state) = Config.get (Proof.context_of pst) Top_Down_Util.timeout_config: real;
 fun current_time (start:Timing.start) = Time.toReal (#elapsed (Timing.result start)): real;
 fun still_has_time (start:Timing.start) (pst:Proof.state) = current_time start < get_timeout pst: bool;
 
-fun expand_ornode_if_original_goal_is_unproved_w_timeout (start:Timing.start)
+fun expand_ornode_if_original_goal_is_unproved_w_timeout (start:Timing.start) (top_loop_index:int)
       (pst:state, synched_agraph, refutation, term2name, proved_simps, orig_prems) (or_key as (Or_N, [_]):key): bool =
     if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
     then
       (*Why Future? Because Timeout.apply alone cannot be trusted.*)
       Future.fork
-       (fn () => (SS.update_is_branch or_key synched_agraph: unit; expand_ornode_if_original_goal_is_unproved) (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems) or_key)
+       (fn () => (SS.update_is_branch or_key synched_agraph: unit; expand_ornode_if_original_goal_is_unproved top_loop_index) (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems) or_key)
     |> (fn f => Timeout.apply (Time.fromSeconds 600) Future.join f
         handle Timeout.TIMEOUT _ => (tracing ("Timeout from expand_ornode_if_original_goal_is_unproved_w_timeout"); false))
     else false
-| expand_ornode_if_original_goal_is_unproved_w_timeout _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
+| expand_ornode_if_original_goal_is_unproved_w_timeout _ _ _ _ = error "expand_ornode_if_original_goral_is_unproved_w_timeout failed.";
 
 (* loop *)
 fun loop (counter:int) (max_depth:int) (start:Timing.start)
@@ -181,52 +182,56 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString worth_expanding_count ^ ".");
       val _                      = tracing "They are:"
       val _                      = map (print_orkey ctxt abduction_graph) sorted_orkeys
-      val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start
+      val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start (counter + 1)
                                    (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems)
                                  : Abduction_Graph.key -> bool;
       val numb_of_processors     = Thread.Thread.numProcessors ():int;
       val _                      = tracing ("numb_of_processors is " ^ Int.toString numb_of_processors ^ ".");
       val numb_of_nds_to_expand  = numb_of_processors;(*TODO: magic number*)
       val top_ornodes            = take numb_of_nds_to_expand sorted_orkeys: keys;
-      fun record_loop_after_round () =
-        let
-          val {size = ref_cache_size, hits = ref_cache_hits, misses = ref_cache_misses} =
-            SS.refutation_cache_statistics refutation;
-          val ref_cache_total    = ref_cache_hits + ref_cache_misses;
-          val ref_cache_hit_rate = if ref_cache_total = 0
+      val solved                 =
+        if worth_expanding_count = 0
+        then
+          let
+            val _ = tracing "No contributive OR-leaf node remains; terminating the abduction loop.";
+          in
+            false
+          end
+        else
+          let
+            val some_orkey = Par_List.find_some expand_ornode top_ornodes: key option;
+            val solved = is_some some_orkey: bool;
+            val _ = tracing ("We have " ^ (if solved then "already solved" else "not solve") ^ " the final goal.");
+          in
+            solved
+          end;
+      (*
+       * Record loop statistics after the selected OR-nodes have been attacked.
+       * The graph-frontier quantities above describe the state at the beginning of
+       * this loop round, whereas the refutation-cache statistics below describe the
+       * cumulative cache state after this loop round has completed.
+       *)
+      val {size = ref_cache_size, hits = ref_cache_hits, misses = ref_cache_misses} =
+        SS.refutation_cache_statistics refutation;
+      val ref_cache_total        = ref_cache_hits + ref_cache_misses;
+      val ref_cache_hit_rate     = if ref_cache_total = 0
                                    then 0.0
                                    else Real.fromInt ref_cache_hits / Real.fromInt ref_cache_total;
-        in
-          Abduction_Statistics.record_loop pst synched_statistics
-            {depth = counter,
-             reachable_keys = reachable_count,
-             worth_expanding = worth_expanding_count,
-             selected_ornodes = length top_ornodes,
-             num_processors = numb_of_processors,
-             refutation_cache_size = ref_cache_size,
-             refutation_cache_hits = ref_cache_hits,
-             refutation_cache_misses = ref_cache_misses,
-             refutation_cache_hit_rate = ref_cache_hit_rate,
-             elapsed_sec = current_time start}
-        end;
+      val _                      = Abduction_Statistics.record_loop pst synched_statistics
+                                    {depth = counter,
+                                     reachable_keys = reachable_count,
+                                     worth_expanding = worth_expanding_count,
+                                     selected_ornodes = length top_ornodes,
+                                     num_processors = numb_of_processors,
+                                     refutation_cache_size = ref_cache_size,
+                                     refutation_cache_hits = ref_cache_hits,
+                                     refutation_cache_misses = ref_cache_misses,
+                                     refutation_cache_hit_rate = ref_cache_hit_rate,
+                                     elapsed_sec = current_time start};
     in
       if worth_expanding_count = 0
-      then
-        let
-          val _ = record_loop_after_round ();
-          val _ = tracing "No contributive OR-leaf node remains; terminating the abduction loop.";
-        in
-          false
-        end
-      else
-        let
-          val some_orkey = Par_List.find_some expand_ornode top_ornodes: key option;
-          val solved     = is_some some_orkey: bool;
-          val _          = record_loop_after_round ();
-          val _          = tracing ("We have " ^ (if solved then "already solved" else "not solved") ^ " the final goal.");
-        in
-          if solved then true else loop (counter + 1) max_depth start synched_statistics quintuple
-        end
+      then false
+      else if solved then solved else loop (counter + 1) max_depth start synched_statistics quintuple
     end
   else
     false;
