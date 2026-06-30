@@ -26,6 +26,20 @@ val equal_keys : (key * key) -> bool;
 
 type abduction_graph;
 
+type graph_profile =
+ {nodes_total: int,
+  edges_total: int,
+  or_nodes: int,
+  and_nodes: int,
+  or2and_edge_nodes: int,
+  avg_indegree: real,
+  max_indegree: int,
+  scc_count: int,
+  cyclic_scc_count: int,
+  largest_scc_size: int};
+
+val graph_profile: abduction_graph -> graph_profile;
+
 (* creation of key_val pair *)
 type is_final_goal = bool;
 val mk_ornode:  Proof.context -> is_final_goal -> string -> term -> (key * abduction_node);
@@ -117,6 +131,18 @@ structure PGraph = Graph (PGraph_Key): GRAPH;
 (* abduction_graph *)
 type abduction_graph = abduction_node PGraph.T;
 
+type graph_profile =
+ {nodes_total: int,
+  edges_total: int,
+  or_nodes: int,
+  and_nodes: int,
+  or2and_edge_nodes: int,
+  avg_indegree: real,
+  max_indegree: int,
+  scc_count: int,
+  cyclic_scc_count: int,
+  largest_scc_size: int};
+
 (* key *)
 type key  = PGraph.key
 
@@ -188,6 +214,37 @@ fun is_andnode (And_N, _) = true
 (* is_or2and_edge *)
 fun is_or2and_edge (O2A_E _, _) = true
   | is_or2and_edge  _           = false;
+
+fun int_max xs = fold (fn x => fn acc => Int.max (x, acc)) xs 0;
+
+fun graph_profile (graph:abduction_graph): graph_profile =
+  let
+    val ks = PGraph.keys graph: keys;
+    val nodes_total = length ks: int;
+    fun succs key = PGraph.immediate_succs graph key handle PGraph.UNDEF _ => [];
+    fun preds key = PGraph.immediate_preds graph key handle PGraph.UNDEF _ => [];
+    val edges_total = fold (fn key => fn n => n + length (succs key)) ks 0: int;
+    val pred_counts = map (length o preds) ks: int list;
+    val avg_indegree =
+      if nodes_total = 0 then 0.0
+      else Real.fromInt edges_total / Real.fromInt nodes_total: real;
+    val max_indegree = int_max pred_counts: int;
+    val sccs = PGraph.strong_conn graph: keys list;
+    fun has_self_edge key = member equal_keys (succs key) key;
+    fun cyclic_component [key] = has_self_edge key
+      | cyclic_component component = length component > 1;
+  in
+   {nodes_total = nodes_total,
+    edges_total = edges_total,
+    or_nodes = length (filter is_ornode ks),
+    and_nodes = length (filter is_andnode ks),
+    or2and_edge_nodes = length (filter is_or2and_edge ks),
+    avg_indegree = avg_indegree,
+    max_indegree = max_indegree,
+    scc_count = length sccs,
+    cyclic_scc_count = length (filter cyclic_component sccs),
+    largest_scc_size = int_max (map length sccs)}
+  end;
 
 (* importance *)
 fun importance (ag:abduction_graph) (orkey as (Or_N, _)) =

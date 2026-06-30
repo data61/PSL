@@ -13,16 +13,18 @@ if [[ -d results ]]; then
   if find results -name abduction_statistics.csv -print -quit | grep -q .; then
     python3 abduction_statistics_to_latex.py \
       --results-root results \
-      --benchmark Prod \
+      --out latex/main
+
+    python3 abduction_graph_to_latex.py \
+      --results-root results \
       --out latex/main
   else
-    echo "No abduction_statistics.csv found under results; skipping Abduction statistics figures."
+    echo "No abduction_statistics.csv found under results; skipping Abduction statistics and AbductionGraph figures."
   fi
 
   if find results -name abduction_decremental_statistics.csv -print -quit | grep -q .; then
     python3 abduction_decremental_to_latex.py \
       --results-root results \
-      --benchmark Prod \
       --out latex/main
   else
     echo "No abduction_decremental_statistics.csv found under results; skipping decremental conjecturing figures."

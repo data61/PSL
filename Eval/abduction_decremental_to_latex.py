@@ -2,10 +2,16 @@
 """
 Generate paper-facing figures for decremental conjecturing statistics.
 
-Input: abduction_decremental_statistics.csv produced by the evaluation scripts.
-The expected CSV is the round-level v12 format: one row per decremental round
-per parent OR-node, with columns such as actual_proof_attempts and
-attempted_depth_max.
+Input: one or more abduction_decremental_statistics.csv files produced by the
+evaluation scripts.  The expected CSV is the round-level v12 format: one row per
+decremental round per parent OR-node, with columns such as actual_proof_attempts
+and attempted_depth_max.
+
+This script is intentionally limited to decremental-conjecturing metrics.  It
+generates one family of figures per benchmark found, unless one or more
+--benchmark options are passed.  Generic contributive-node-loop metrics belong
+in abduction_statistics_to_latex.py.  AbductionGraph sharing metrics belong in
+abduction_graph_to_latex.py.
 """
 
 from __future__ import annotations
@@ -80,8 +86,13 @@ def read_rows(csvs: Iterable[Path]) -> list[dict]:
             for row in reader:
                 row = dict(row)
                 row.setdefault("source_csv", str(path))
+                row["benchmark"] = (row.get("benchmark") or path.parent.name).strip() or path.parent.name
                 rows.append(row)
     return rows
+
+
+def distinct_benchmarks(rows: Iterable[dict]) -> list[str]:
+    return sorted({str(row.get("benchmark", "")).strip() for row in rows if str(row.get("benchmark", "")).strip()})
 
 
 def target_id(row: dict) -> str:
@@ -407,12 +418,82 @@ zero on a logarithmic axis.
     out_path.write_text(text, encoding="utf-8")
 
 
+def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str) -> bool:
+    rows = filter_rows(rows, benchmark)
+    if not rows:
+        print(f"No decremental rows found for benchmark {benchmark}; skipping decremental figures.")
+        return False
+
+    total_series, total_statuses = total_attempts_by_loop(rows)
+    max_parent_series, max_parent_statuses = max_attempts_per_parent_by_loop(rows)
+    depth_series, depth_statuses = max_depth_by_loop(rows)
+    exact_hit_rate_series, exact_hit_rate_statuses = decremental_exact_duplicate_hit_rate_by_loop(rows)
+    avoidance_rate_series, avoidance_rate_statuses = decremental_avoidance_rate_by_loop(rows)
+    avoided_attempts_series, avoided_attempts_statuses = avoided_attempts_by_loop(rows)
+
+    suffix = f"_{benchmark}" if benchmark else ""
+    write_line_figure(
+        out_dir / f"abduction_decremental_total_attempts_by_top_loop{suffix}.tex",
+        series=total_series,
+        statuses=total_statuses,
+        title="Decremental conjecturing effort by top-level loop",
+        y_label="Total conjecture-set proof attempts",
+        log_y=True,
+    )
+    write_line_figure(
+        out_dir / f"abduction_decremental_max_attempts_per_parent_by_top_loop{suffix}.tex",
+        series=max_parent_series,
+        statuses=max_parent_statuses,
+        title="Maximum decremental effort per parent OR-node",
+        y_label="Maximum attempts per parent OR-node",
+        log_y=True,
+    )
+    write_line_figure(
+        out_dir / f"abduction_decremental_max_refinement_depth_by_top_loop{suffix}.tex",
+        series=depth_series,
+        statuses=depth_statuses,
+        title="Maximum refinement depth by top-level loop",
+        y_label="Maximum candidate-set depth",
+    )
+    write_line_figure(
+        out_dir / f"abduction_decremental_avoided_attempts_by_top_loop{suffix}.tex",
+        series=avoided_attempts_series,
+        statuses=avoided_attempts_statuses,
+        title="Avoided decremental proof attempts by top-level loop",
+        y_label="Avoided proof attempts",
+        log_y=True,
+    )
+    write_line_figure(
+        out_dir / f"abduction_decremental_exact_duplicate_hit_rate_by_top_loop{suffix}.tex",
+        series=exact_hit_rate_series,
+        statuses=exact_hit_rate_statuses,
+        title="Exact duplicate avoidance in decremental conjecturing",
+        y_label="Exact duplicate hit rate",
+        y_cap=1.0,
+    )
+    write_line_figure(
+        out_dir / f"abduction_decremental_avoidance_rate_by_top_loop{suffix}.tex",
+        series=avoidance_rate_series,
+        statuses=avoidance_rate_statuses,
+        title="Avoidance rate in decremental conjecturing",
+        y_label="Avoided / selected candidate sets",
+        y_cap=1.0,
+    )
+    write_notes(out_dir / f"abduction_decremental_figures{suffix}_notes.txt", benchmark)
+    return True
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("csv", nargs="*", type=Path)
     parser.add_argument("--results-root", type=Path, default=None)
     parser.add_argument("--out", type=Path, default=Path("latex/main"))
-    parser.add_argument("--benchmark", default="Prod")
+    parser.add_argument(
+        "--benchmark",
+        action="append",
+        default=[],
+        help="Generate figures for this benchmark. Can be passed multiple times. If omitted, figures are generated separately for every benchmark found.",
+    )
     # Accepted for compatibility with the previous heatmap-oriented script.
     parser.add_argument("--phase", default=None)
     parser.add_argument("--style", default=None)
@@ -425,71 +506,22 @@ def main() -> None:
         print("No abduction_decremental_statistics.csv found; skipping decremental figures.")
         return
 
-    rows = filter_rows(read_rows(csvs), args.benchmark)
-    if not rows:
-        print(f"No decremental rows found for benchmark {args.benchmark}; skipping decremental figures.")
+    rows = read_rows(csvs)
+    benchmarks = list(args.benchmark) if args.benchmark else distinct_benchmarks(rows)
+    if not benchmarks:
+        print("No benchmark names found in decremental statistics; skipping decremental figures.")
         return
 
     args.out.mkdir(parents=True, exist_ok=True)
+    generated = 0
+    for benchmark in benchmarks:
+        if write_figures_for_benchmark(rows, args.out, benchmark):
+            generated += 1
 
-    total_series, total_statuses = total_attempts_by_loop(rows)
-    max_parent_series, max_parent_statuses = max_attempts_per_parent_by_loop(rows)
-    depth_series, depth_statuses = max_depth_by_loop(rows)
-    exact_hit_rate_series, exact_hit_rate_statuses = decremental_exact_duplicate_hit_rate_by_loop(rows)
-    avoidance_rate_series, avoidance_rate_statuses = decremental_avoidance_rate_by_loop(rows)
-    avoided_attempts_series, avoided_attempts_statuses = avoided_attempts_by_loop(rows)
-
-    suffix = f"_{args.benchmark}" if args.benchmark else ""
-    write_line_figure(
-        args.out / f"abduction_decremental_total_attempts_by_top_loop{suffix}.tex",
-        series=total_series,
-        statuses=total_statuses,
-        title="Decremental conjecturing effort by top-level loop",
-        y_label="Total conjecture-set proof attempts",
-        log_y=True,
-    )
-    write_line_figure(
-        args.out / f"abduction_decremental_max_attempts_per_parent_by_top_loop{suffix}.tex",
-        series=max_parent_series,
-        statuses=max_parent_statuses,
-        title="Maximum decremental effort per parent OR-node",
-        y_label="Maximum attempts per parent OR-node",
-        log_y=True,
-    )
-    write_line_figure(
-        args.out / f"abduction_decremental_max_refinement_depth_by_top_loop{suffix}.tex",
-        series=depth_series,
-        statuses=depth_statuses,
-        title="Maximum refinement depth by top-level loop",
-        y_label="Maximum candidate-set depth",
-    )
-    write_line_figure(
-        args.out / f"abduction_decremental_avoided_attempts_by_top_loop{suffix}.tex",
-        series=avoided_attempts_series,
-        statuses=avoided_attempts_statuses,
-        title="Avoided decremental proof attempts by top-level loop",
-        y_label="Avoided proof attempts",
-        log_y=True,
-    )
-    write_line_figure(
-        args.out / f"abduction_decremental_exact_duplicate_hit_rate_by_top_loop{suffix}.tex",
-        series=exact_hit_rate_series,
-        statuses=exact_hit_rate_statuses,
-        title="Exact duplicate avoidance in decremental conjecturing",
-        y_label="Exact duplicate hit rate",
-        y_cap=1.0,
-    )
-    write_line_figure(
-        args.out / f"abduction_decremental_avoidance_rate_by_top_loop{suffix}.tex",
-        series=avoidance_rate_series,
-        statuses=avoidance_rate_statuses,
-        title="Avoidance rate in decremental conjecturing",
-        y_label="Avoided / selected candidate sets",
-        y_cap=1.0,
-    )
-    write_notes(args.out / f"abduction_decremental_figures{suffix}_notes.txt", args.benchmark)
-
-    print(f"Generated decremental conjecturing LaTeX in: {args.out}")
+    if generated == 0:
+        print("No decremental rows found for the selected benchmarks; skipping decremental figures.")
+    else:
+        print(f"Generated decremental conjecturing LaTeX for {generated} benchmark(s) in: {args.out}")
 
 
 if __name__ == "__main__":

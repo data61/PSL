@@ -1,20 +1,30 @@
 #!/usr/bin/env python3
-"""Generate PGFPlots figures from AbductionProver per-loop statistics CSV files.
+"""Generate PGFPlots figures for AbductionProver loop-level statistics.
 
 Input: one or more abduction_statistics.csv files.
-Output: LaTeX/PGFPlots .tex files, primarily for Prod/full AbductionProver runs.
+Output: LaTeX/PGFPlots .tex files for every benchmark found, unless one or more
+--benchmark options are passed.
 
-The generated line plots intentionally do not include one legend entry per problem:
-there can be about 50 problems, so individual legends obscure the plot. Instead,
-solid lines mean proved problems and dashed lines mean unproved problems.
+This script is intentionally limited to the generic top-level-loop statistics
+that explain contributive-node focusing:
 
-The plot labels follow the paper terminology: "worth_expanding" is shown as
-contributive OR-leaf nodes, while "reachable_keys" is shown as
-root-descendant nodes.
+* contributive OR-leaf nodes (formerly worth_expanding),
+* root-descendant nodes (formerly reachable_keys),
+* the ratio between the two,
+* refutation-cache hit rate, and
+* the first loop in which no contributive OR-leaf remains.
+
+AbductionGraph sharing metrics belong in abduction_graph_to_latex.py.
+Decremental-conjecturing metrics belong in abduction_decremental_to_latex.py.
+
+The generated line plots intentionally do not include one legend entry per
+problem: there can be about 50 problems, so individual legends obscure the plot.
+Instead, solid lines mean proved problems and dashed lines mean unproved problems.
 
 For count plots, the y-axis is logarithmic by default.  Zero values cannot be
-shown on a log axis, so zero worth-expanding rows are omitted from the line plot;
-the separate first-zero histogram records exactly where those zero rows first occur.
+shown on a log axis, so zero contributive-node rows are omitted from the line
+plot; the separate first-zero histogram records exactly where those zero rows
+first occur.
 """
 
 from __future__ import annotations
@@ -54,7 +64,7 @@ def discover_csvs(results_root: Optional[Path], explicit_csvs: list[Path]) -> li
     if results_root:
         if not results_root.exists():
             raise FileNotFoundError(f"No such results root: {results_root}")
-        csvs.extend(sorted(results_root.glob("*/abduction_statistics.csv")))
+        csvs.extend(sorted(results_root.rglob("abduction_statistics.csv")))
 
     seen = set()
     out: list[Path] = []
@@ -75,6 +85,10 @@ def read_rows(csvs: list[Path]) -> list[dict]:
                 row["benchmark"] = (row.get("benchmark") or path.parent.name).strip() or path.parent.name
                 rows.append(row)
     return rows
+
+
+def distinct_benchmarks(rows: Iterable[dict]) -> list[str]:
+    return sorted({str(row.get("benchmark", "")).strip() for row in rows if str(row.get("benchmark", "")).strip()})
 
 
 def actual_loop_rows(rows: list[dict]) -> list[dict]:
@@ -394,47 +408,19 @@ def write_first_zero_hist(problem_groups: dict[tuple[str, str], list[dict]], out
     (out_path.parent / (out_path.stem + "_notes.txt")).write_text("\n".join(note_lines) + "\n", encoding="utf-8")
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("csv", nargs="*", type=Path)
-    parser.add_argument("--results-root", type=Path, default=None)
-    parser.add_argument("--out", type=Path, default=Path("Eval/latex"))
-    parser.add_argument(
-        "--benchmark",
-        action="append",
-        default=[],
-        help="Restrict the figures to this benchmark. Can be passed multiple times.",
-    )
-    parser.add_argument(
-        "--linear-count-y",
-        action="store_true",
-        help="Use a linear y-axis for reachable/worth-expanding count plots instead of the default log y-axis.",
-    )
-    args = parser.parse_args()
-
-    csvs = discover_csvs(args.results_root, args.csv)
-    if not csvs:
-        print("No abduction_statistics.csv files found; skipping Abduction statistics figures.")
-        return
-
-    rows = read_rows(csvs)
-    if args.benchmark:
-        wanted = set(args.benchmark)
-        rows = [row for row in rows if row.get("benchmark") in wanted]
-
+def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str, *, linear_count_y: bool) -> bool:
+    rows = [row for row in rows if row.get("benchmark") == benchmark]
     if not rows:
-        print("No matching Abduction statistics rows found; skipping Abduction statistics figures.")
-        return
+        print(f"No matching Abduction statistics rows found for benchmark {benchmark}; skipping.")
+        return False
 
     problem_groups = group_problem_rows(rows)
-    args.out.mkdir(parents=True, exist_ok=True)
-
-    suffix = "_" + "_".join(args.benchmark) if args.benchmark else ""
-    use_log_counts = not args.linear_count_y
+    suffix = f"_{benchmark}" if benchmark else ""
+    use_log_counts = not linear_count_y
 
     write_line_graph(
         problem_groups,
-        args.out / f"abduction_worth_expanding_by_loop{suffix}.tex",
+        out_dir / f"abduction_worth_expanding_by_loop{suffix}.tex",
         value_of_row=worth_expanding_value,
         title="Contributive OR-leaf nodes by loop",
         ylabel="Number of contributive OR-leaf nodes",
@@ -450,7 +436,7 @@ def main() -> None:
 
     write_line_graph(
         problem_groups,
-        args.out / f"abduction_reachable_by_loop{suffix}.tex",
+        out_dir / f"abduction_reachable_by_loop{suffix}.tex",
         value_of_row=reachable_keys_value,
         title="Root-descendant nodes by loop",
         ylabel="Number of root-descendant nodes",
@@ -466,7 +452,7 @@ def main() -> None:
 
     write_line_graph(
         problem_groups,
-        args.out / f"abduction_expandable_ratio_by_loop{suffix}.tex",
+        out_dir / f"abduction_expandable_ratio_by_loop{suffix}.tex",
         value_of_row=expandable_ratio_value,
         title="Proportion of contributive OR-leaf nodes by loop",
         ylabel="Contributive OR-leaf / root-descendant",
@@ -476,7 +462,7 @@ def main() -> None:
 
     write_line_graph(
         problem_groups,
-        args.out / f"abduction_refutation_cache_hit_rate_by_loop{suffix}.tex",
+        out_dir / f"abduction_refutation_cache_hit_rate_by_loop{suffix}.tex",
         value_of_row=refutation_cache_hit_rate_value,
         title="Refutation cache hit rate by loop",
         ylabel="Cache hits / cache lookups",
@@ -486,10 +472,50 @@ def main() -> None:
 
     write_first_zero_hist(
         problem_groups,
-        args.out / f"abduction_first_zero_expandable_hist{suffix}.tex",
+        out_dir / f"abduction_first_zero_expandable_hist{suffix}.tex",
     )
+    return True
 
-    print(f"Generated Abduction statistics figures in: {args.out}")
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("csv", nargs="*", type=Path)
+    parser.add_argument("--results-root", type=Path, default=None)
+    parser.add_argument("--out", type=Path, default=Path("Eval/latex"))
+    parser.add_argument(
+        "--benchmark",
+        action="append",
+        default=[],
+        help="Generate figures for this benchmark. Can be passed multiple times. If omitted, figures are generated separately for every benchmark found.",
+    )
+    parser.add_argument(
+        "--linear-count-y",
+        action="store_true",
+        help="Use a linear y-axis for reachable/worth-expanding count plots instead of the default log y-axis.",
+    )
+    args = parser.parse_args()
+
+    csvs = discover_csvs(args.results_root, args.csv)
+    if not csvs:
+        print("No abduction_statistics.csv files found; skipping Abduction statistics figures.")
+        return
+
+    rows = read_rows(csvs)
+    benchmarks = list(args.benchmark) if args.benchmark else distinct_benchmarks(rows)
+    if not benchmarks:
+        print("No benchmark names found in Abduction statistics; skipping.")
+        return
+
+    args.out.mkdir(parents=True, exist_ok=True)
+    generated = 0
+    for benchmark in benchmarks:
+        if write_figures_for_benchmark(rows, args.out, benchmark, linear_count_y=args.linear_count_y):
+            generated += 1
+
+    if generated == 0:
+        print("No matching Abduction statistics rows found; skipping Abduction statistics figures.")
+    else:
+        print(f"Generated Abduction statistics figures for {generated} benchmark(s) in: {args.out}")
 
 
 if __name__ == "__main__":

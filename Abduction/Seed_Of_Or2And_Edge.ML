@@ -706,7 +706,7 @@ fun abduction_for_explicit_conjectures (pst:Proof.state) (top_loop_index:int) (p
     val _       = tracing' parent_or_name;
     val ctxt    = Proof.context_of pst;
     val _       = Abduction_Graph.print_key ctxt parent_orkey;
-    val agraph  = Synchronized.value sagraph: abduction_graph;
+    val agraph  = SS.value_of_graph sagraph: abduction_graph;
     val _       = tracing' " decremental abduction starts";
     val limit   = if   Abduction_Graph.is_final_goal agraph parent_orkey
                   then Config.get ctxt Top_Down_Util.limit_for_first_decrement

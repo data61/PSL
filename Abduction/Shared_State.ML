@@ -35,8 +35,29 @@ val get_lemma_name      : synched_term2string_table -> Proof.context -> string -
 (*TODO: Do we really need get_orkey_name even though we have get_lemma_name?*)
 val get_orkey_name      : synched_term2string_table -> Proof.context -> Abduction_Graph.key -> string;
 
-type synched_abduction_graph = abduction_graph Synchronized.var;
+type graph_update_statistics =
+ {node_attempts: int,
+  nodes_created: int,
+  node_reuses: int,
+  ornode_attempts: int,
+  ornodes_created: int,
+  ornodes_reused: int,
+  andnode_attempts: int,
+  andnodes_created: int,
+  andnodes_reused: int,
+  edge_node_attempts: int,
+  edge_nodes_created: int,
+  edge_nodes_reused: int,
+  edge_attempts: int,
+  edges_created: int,
+  edge_reuses: int,
+  or_expansion_attempts: int,
+  or_expansions_started: int};
+
+type synched_abduction_graph;
 val mk_synched_abduction_graph                    : Proof.context -> term -> synched_abduction_graph;
+val value_of_graph                                : synched_abduction_graph -> abduction_graph;
+val graph_update_statistics                       : synched_abduction_graph -> graph_update_statistics;
 val update_is_branch                              : Abduction_Graph.key -> synched_abduction_graph -> unit;
 val add_andnodes                                  : terms -> synched_abduction_graph -> Abduction_Graph.keys;
 val add_child_ornode                              : Proof.context -> synched_abduction_graph -> (string * term) -> unit;
@@ -243,54 +264,258 @@ fun get_orkey_name (synched_table:synched_term2string_table) (ctxt:Proof.context
     get_lemma_name synched_table ctxt "" term
   | get_orkey_name _ _ _ = error "get_orkey_name failed. Not an orkey."
 
-type synched_abduction_graph = abduction_graph Synchronized.var;
+type graph_update_statistics =
+ {node_attempts: int,
+  nodes_created: int,
+  node_reuses: int,
+  ornode_attempts: int,
+  ornodes_created: int,
+  ornodes_reused: int,
+  andnode_attempts: int,
+  andnodes_created: int,
+  andnodes_reused: int,
+  edge_node_attempts: int,
+  edge_nodes_created: int,
+  edge_nodes_reused: int,
+  edge_attempts: int,
+  edges_created: int,
+  edge_reuses: int,
+  or_expansion_attempts: int,
+  or_expansions_started: int};
+
+type abduction_graph_state =
+ {graph: abduction_graph,
+  statistics: graph_update_statistics};
+
+type synched_abduction_graph = abduction_graph_state Synchronized.var;
+
+fun empty_graph_update_statistics () =
+ {node_attempts = 0,
+  nodes_created = 0,
+  node_reuses = 0,
+  ornode_attempts = 0,
+  ornodes_created = 0,
+  ornodes_reused = 0,
+  andnode_attempts = 0,
+  andnodes_created = 0,
+  andnodes_reused = 0,
+  edge_node_attempts = 0,
+  edge_nodes_created = 0,
+  edge_nodes_reused = 0,
+  edge_attempts = 0,
+  edges_created = 0,
+  edge_reuses = 0,
+  or_expansion_attempts = 0,
+  or_expansions_started = 0}: graph_update_statistics;
+
+fun value_of_graph (sagraph:synched_abduction_graph) =
+  #graph (Synchronized.value sagraph): abduction_graph;
+
+fun graph_update_statistics (sagraph:synched_abduction_graph) =
+  #statistics (Synchronized.value sagraph): graph_update_statistics;
 
 fun mk_synched_abduction_graph (ctxt:Proof.context) (goal:term) =
   let
     val initial_graph_wo_imp = AG.mk_initial_graph ctxt goal;
-    val initial_graph_w_imp  = UAG.update_importance (AG.Or_N, [goal]) 1.0 initial_graph_wo_imp
+    val initial_graph_w_imp  = UAG.update_importance (AG.Or_N, [goal]) 1.0 initial_graph_wo_imp;
+    val initial_statistics =
+      let
+        val st = empty_graph_update_statistics ();
+      in
+        {node_attempts = #node_attempts st + 1,
+         nodes_created = #nodes_created st + 1,
+         node_reuses = #node_reuses st,
+         ornode_attempts = #ornode_attempts st + 1,
+         ornodes_created = #ornodes_created st + 1,
+         ornodes_reused = #ornodes_reused st,
+         andnode_attempts = #andnode_attempts st,
+         andnodes_created = #andnodes_created st,
+         andnodes_reused = #andnodes_reused st,
+         edge_node_attempts = #edge_node_attempts st,
+         edge_nodes_created = #edge_nodes_created st,
+         edge_nodes_reused = #edge_nodes_reused st,
+         edge_attempts = #edge_attempts st,
+         edges_created = #edges_created st,
+         edge_reuses = #edge_reuses st,
+         or_expansion_attempts = #or_expansion_attempts st,
+         or_expansions_started = #or_expansions_started st}
+      end: graph_update_statistics;
   in
-    Synchronized.var "abduction_graph" initial_graph_w_imp
+    Synchronized.var "abduction_graph" {graph = initial_graph_w_imp, statistics = initial_statistics}
   end;
 
+fun node_defined (graph:abduction_graph) (key:AG.key): bool =
+  (AG.PGraph.get_node graph key; true) handle AG.PGraph.UNDEF _ => false;
+
+fun edge_defined (graph:abduction_graph) (parent_key:AG.key, child_key:AG.key): bool =
+  member AG.equal_keys (AG.PGraph.immediate_succs graph parent_key) child_key
+  handle AG.PGraph.UNDEF _ => false;
+
+fun bump_node_statistics (key:AG.key) (created:bool)
+    ({node_attempts, nodes_created, node_reuses,
+      ornode_attempts, ornodes_created, ornodes_reused,
+      andnode_attempts, andnodes_created, andnodes_reused,
+      edge_node_attempts, edge_nodes_created, edge_nodes_reused,
+      edge_attempts, edges_created, edge_reuses,
+      or_expansion_attempts, or_expansions_started}:graph_update_statistics) =
+  let
+    val is_or = AG.is_ornode key;
+    val is_and = AG.is_andnode key;
+    val is_edge_node = AG.is_or2and_edge key;
+  in
+   {node_attempts = node_attempts + 1,
+    nodes_created = nodes_created + (if created then 1 else 0),
+    node_reuses = node_reuses + (if created then 0 else 1),
+    ornode_attempts = ornode_attempts + (if is_or then 1 else 0),
+    ornodes_created = ornodes_created + (if is_or andalso created then 1 else 0),
+    ornodes_reused = ornodes_reused + (if is_or andalso not created then 1 else 0),
+    andnode_attempts = andnode_attempts + (if is_and then 1 else 0),
+    andnodes_created = andnodes_created + (if is_and andalso created then 1 else 0),
+    andnodes_reused = andnodes_reused + (if is_and andalso not created then 1 else 0),
+    edge_node_attempts = edge_node_attempts + (if is_edge_node then 1 else 0),
+    edge_nodes_created = edge_nodes_created + (if is_edge_node andalso created then 1 else 0),
+    edge_nodes_reused = edge_nodes_reused + (if is_edge_node andalso not created then 1 else 0),
+    edge_attempts = edge_attempts,
+    edges_created = edges_created,
+    edge_reuses = edge_reuses,
+    or_expansion_attempts = or_expansion_attempts,
+    or_expansions_started = or_expansions_started}
+  end;
+
+fun bump_edge_statistics (created:bool)
+    ({node_attempts, nodes_created, node_reuses,
+      ornode_attempts, ornodes_created, ornodes_reused,
+      andnode_attempts, andnodes_created, andnodes_reused,
+      edge_node_attempts, edge_nodes_created, edge_nodes_reused,
+      edge_attempts, edges_created, edge_reuses,
+      or_expansion_attempts, or_expansions_started}:graph_update_statistics) =
+   {node_attempts = node_attempts,
+    nodes_created = nodes_created,
+    node_reuses = node_reuses,
+    ornode_attempts = ornode_attempts,
+    ornodes_created = ornodes_created,
+    ornodes_reused = ornodes_reused,
+    andnode_attempts = andnode_attempts,
+    andnodes_created = andnodes_created,
+    andnodes_reused = andnodes_reused,
+    edge_node_attempts = edge_node_attempts,
+    edge_nodes_created = edge_nodes_created,
+    edge_nodes_reused = edge_nodes_reused,
+    edge_attempts = edge_attempts + 1,
+    edges_created = edges_created + (if created then 1 else 0),
+    edge_reuses = edge_reuses + (if created then 0 else 1),
+    or_expansion_attempts = or_expansion_attempts,
+    or_expansions_started = or_expansions_started};
+
+fun bump_expansion_statistics (started:bool)
+    ({node_attempts, nodes_created, node_reuses,
+      ornode_attempts, ornodes_created, ornodes_reused,
+      andnode_attempts, andnodes_created, andnodes_reused,
+      edge_node_attempts, edge_nodes_created, edge_nodes_reused,
+      edge_attempts, edges_created, edge_reuses,
+      or_expansion_attempts, or_expansions_started}:graph_update_statistics) =
+   {node_attempts = node_attempts,
+    nodes_created = nodes_created,
+    node_reuses = node_reuses,
+    ornode_attempts = ornode_attempts,
+    ornodes_created = ornodes_created,
+    ornodes_reused = ornodes_reused,
+    andnode_attempts = andnode_attempts,
+    andnodes_created = andnodes_created,
+    andnodes_reused = andnodes_reused,
+    edge_node_attempts = edge_node_attempts,
+    edge_nodes_created = edge_nodes_created,
+    edge_nodes_reused = edge_nodes_reused,
+    edge_attempts = edge_attempts,
+    edges_created = edges_created,
+    edge_reuses = edge_reuses,
+    or_expansion_attempts = or_expansion_attempts + 1,
+    or_expansions_started = or_expansions_started + (if started then 1 else 0)};
+
+fun add_node_measured (key:AG.key, node:AG.abduction_node)
+    ({graph, statistics}:abduction_graph_state): abduction_graph_state =
+  let
+    val existed = node_defined graph key: bool;
+    val graph' = if existed then graph else AG.PGraph.new_node (key, node) graph;
+    val statistics' = bump_node_statistics key (not existed) statistics;
+  in
+    {graph = graph', statistics = statistics'}
+  end;
+
+fun add_edge_measured (parent_key:AG.key, child_key:AG.key)
+    ({graph, statistics}:abduction_graph_state): abduction_graph_state =
+  let
+    val existed = edge_defined graph (parent_key, child_key): bool;
+    val graph' = if existed then graph else AG.PGraph.add_edge (parent_key, child_key) graph;
+    val statistics' = bump_edge_statistics (not existed) statistics;
+  in
+    {graph = graph', statistics = statistics'}
+  end;
+
+fun change_graph f (sagraph:synched_abduction_graph) =
+  Synchronized.change sagraph (fn {graph, statistics} => {graph = f graph, statistics = statistics});
+
 fun update_is_branch (key:AG.key) (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (UAG.update_is_branch key): unit;
+  Synchronized.change sagraph
+    (fn ({graph, statistics}:abduction_graph_state) =>
+      let
+        val was_branch = node_defined graph key andalso AG.is_branch graph key;
+        val graph' = UAG.update_is_branch key graph;
+        val statistics' = bump_expansion_statistics (not was_branch) statistics;
+      in
+        {graph = graph', statistics = statistics'}
+      end): unit;
 
 fun add_andnodes (andterms:terms) (sagraph:synched_abduction_graph) =
-  Synchronized.change_result sagraph (UAG.add_andnode andterms): AG.keys;
+  let
+    val pair as (and_key, _) = AG.mk_andnode andterms;
+  in
+    Synchronized.change_result sagraph
+      (fn state => ([and_key], add_node_measured pair state)): AG.keys
+  end;
 
 fun add_child_ornode (ctxt:Proof.context) (sagraph:synched_abduction_graph) (lemma_name:string, lemma_term:term) =
-  Synchronized.change sagraph (UAG.add_child_ornode ctxt (lemma_name, lemma_term)): unit;
+  let
+    val pair = AG.mk_ornode ctxt false lemma_name lemma_term;
+  in
+    Synchronized.change sagraph (add_node_measured pair): unit
+  end;
 
-fun add_edges_from_andnode_to_ornodes (key:AG.key) (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (UAG.add_edges_from_andnode_to_ornodes key): unit;
+fun add_edges_from_andnode_to_ornodes (and_key as (AG.And_N, terms):AG.key) (sagraph:synched_abduction_graph) =
+  let
+    val ornode_keys = map (fn trm => (AG.Or_N, [trm])) terms: AG.keys;
+  in
+    Synchronized.change sagraph
+      (fn state => fold (fn target_key => add_edge_measured (and_key, target_key)) ornode_keys state): unit
+  end
+ | add_edges_from_andnode_to_ornodes _ _ = error "add_edges_from_andnode_to_ornodes failed.";
 
 fun update_proved_completely (key:AG.key) (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (UAG.update_proved_completely key): unit;
+  change_graph (UAG.update_proved_completely key) sagraph: unit;
 
 fun update_proof_n_proof_id (proof:strings) (key:AG.key) (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (UAG.update_proof_n_proof_id proof key): unit;
+  change_graph (UAG.update_proof_n_proof_id proof key) sagraph: unit;
 
 fun update_importance_of_ornode (sagraph:synched_abduction_graph) (orkey:AG.key) =
-  Synchronized.change sagraph (UAG.update_importance_of_ornode orkey): unit;
+  change_graph (UAG.update_importance_of_ornode orkey) sagraph: unit;
 
 fun update_attacked (sagraph:synched_abduction_graph) (orkey:AG.key) =
-  Synchronized.change sagraph (UAG.update_attacked orkey): unit;
+  change_graph (UAG.update_attacked orkey) sagraph: unit;
 
 fun update_after_proving_ornode (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (UAG.update_after_proving_ornode proof orkey ctxt): unit;
+  change_graph (UAG.update_after_proving_ornode proof orkey ctxt) sagraph: unit;
 
 fun update_after_connecting_andnd_to_existing_ornd' (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkey:AG.key) =
-  Synchronized.change sagraph (UAG.update_after_connecting_andnd_to_existing_ornd orkey ctxt): unit;
+  change_graph (UAG.update_after_connecting_andnd_to_existing_ornd orkey ctxt) sagraph: unit;
 
 fun update_after_connecting_andnd_to_existing_ornd (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkeys:AG.keys) =
   map (update_after_connecting_andnd_to_existing_ornd' ctxt sagraph) orkeys;
 
 fun try_to_prove_ornode_and_update_graph (pst:Proof.state) (sagraph:synched_abduction_graph) (orkey:AG.key) =
   let
-    val graph       = Synchronized.value sagraph               : abduction_graph;
+    val graph       = value_of_graph sagraph                 : abduction_graph;
     val maybe_proof = AG.prove_orkey_completely orkey graph pst: strings option;
-    val _           = update_attacked sagraph orkey            : unit;
+    val _           = update_attacked sagraph orkey          : unit;
   in
       if is_some maybe_proof (*ornode was proved completely.*)
       then
@@ -304,17 +529,13 @@ fun try_to_prove_ornode_and_update_graph (pst:Proof.state) (sagraph:synched_abdu
   end;
 
 fun final_goal_proved_completely (sagraph:synched_abduction_graph) =
-  let
-    val agraph = Synchronized.value sagraph: AG.abduction_graph;
-  in
-    AG.final_goal_proved_completely agraph: bool
-  end;
+  AG.final_goal_proved_completely (value_of_graph sagraph): bool;
 
 fun new_node (key: AG.key, node:AG.abduction_node) (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (AG.PGraph.new_node (key, node)): unit;
+  Synchronized.change sagraph (add_node_measured (key, node)): unit;
 
 fun add_edge (parent_key: AG.key, child_key: AG.key) (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (AG.PGraph.add_edge (parent_key, child_key)): unit;
+  Synchronized.change sagraph (add_edge_measured (parent_key, child_key)): unit;
 
 end;
 

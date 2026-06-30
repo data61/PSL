@@ -45,7 +45,7 @@ fun prove_standard_simp_rules
   let
     (*top-down explicit conjecturing*)
     val ctxt = Proof.context_of pst: Proof.context;
-    val graph                      = Synchronized.value synched_agraph                                                             : abduction_graph;
+    val graph                      = SS.value_of_graph synched_agraph                                                             : abduction_graph;
     val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture lemma_term refutation orig_prems pst graph false o snd: string * term -> bool;
     val explicit_conjectures       = ATDC.template_based_conjecture_for_simplification term2name ctxt lemma_term                   : (string * term) list;
     val filtered_explicit          = TDU.parallel_filter_out condition_to_filter_out explicit_conjectures                          : (string * term) list;
@@ -78,12 +78,12 @@ fun expand_ornode_if_original_goal_is_unproved
       (*tactic application as conjecturing. A little expensive*)
       val pst_to_prove                 = TDU.mk_pst_to_prove_from_term pst lemma_term: state;
       val seeds_from_tactics           = SOOE.apply_PSL_to_get_seeds_of_or2and_edges (term2name, refutation) pst pst_to_prove: seeds_of_or2and_edge;
-      val graph_extended_by_conjecture = Synchronized.value synched_agraph: abduction_graph;
+      val graph_extended_by_conjecture = SS.value_of_graph synched_agraph: abduction_graph;
       val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation orig_prems pst graph_extended_by_conjecture seeds_from_tactics
       val tactics_seeds_wo_counterexam = filter_out (SOOE.seed_has_counterexample refutation pst) filtered_seeds_from_tactics: seeds_of_or2and_edge;
       val _                            = SOOE.abduction_for_tactic_based_conjectures pst or_key tactics_seeds_wo_counterexam synched_agraph: unit;
 
-      val graph                      = Synchronized.value synched_agraph                                                             : abduction_graph;
+      val graph                      = SS.value_of_graph synched_agraph                                                             : abduction_graph;
       (*top-down explicit conjecturing*)
       val explicit_conjectures       = All_Top_Down_Conjecturing.top_down_conjectures term2name pst lemma_term                       : (string * term) list;
       val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture lemma_term refutation orig_prems pst graph false o snd: string * term -> bool;
@@ -174,7 +174,7 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
     let
       val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ ". =====");
       val ctxt                   = Proof.context_of pst;
-      val abduction_graph        = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
+      val abduction_graph        = SS.value_of_graph synched_agraph: Abduction_Graph.abduction_graph;
       val (orkeys_worth_expanding, reachable_count) =
         orkeys_tobe_expanded_in_with_reachable_count ctxt abduction_graph: (keys * int);
       val sorted_orkeys          = sort_orkeys_based_on_importance abduction_graph orkeys_worth_expanding: keys;
@@ -211,23 +211,96 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
        * this loop round, whereas the refutation-cache statistics below describe the
        * cumulative cache state after this loop round has completed.
        *)
-      val {size = ref_cache_size, hits = ref_cache_hits, misses = ref_cache_misses} =
-        SS.refutation_cache_statistics refutation;
-      val ref_cache_total        = ref_cache_hits + ref_cache_misses;
-      val ref_cache_hit_rate     = if ref_cache_total = 0
-                                   then 0.0
-                                   else Real.fromInt ref_cache_hits / Real.fromInt ref_cache_total;
-      val _                      = Abduction_Statistics.record_loop pst synched_statistics
-                                    {depth = counter,
-                                     reachable_keys = reachable_count,
-                                     worth_expanding = worth_expanding_count,
-                                     selected_ornodes = length top_ornodes,
-                                     num_processors = numb_of_processors,
-                                     refutation_cache_size = ref_cache_size,
-                                     refutation_cache_hits = ref_cache_hits,
-                                     refutation_cache_misses = ref_cache_misses,
-                                     refutation_cache_hit_rate = ref_cache_hit_rate,
-                                     elapsed_sec = current_time start};
+      val _ =
+        if Abduction_Statistics.enabled ()
+        then
+          let
+  fun rate numerator denominator =
+    if denominator = 0 then 0.0
+    else Real.fromInt numerator / Real.fromInt denominator;
+  val graph_after_loop = SS.value_of_graph synched_agraph: Abduction_Graph.abduction_graph;
+  val {nodes_total = graph_nodes,
+       edges_total = graph_edges,
+       or_nodes = graph_or_nodes,
+       and_nodes = graph_and_nodes,
+       or2and_edge_nodes = graph_or2and_edge_nodes,
+       avg_indegree = graph_avg_indegree,
+       max_indegree = graph_max_indegree,
+       scc_count = graph_scc_count,
+       cyclic_scc_count = graph_cyclic_scc_count,
+       largest_scc_size = graph_largest_scc_size} =
+    Abduction_Graph.graph_profile graph_after_loop;
+  val {node_attempts = graph_node_attempts,
+       nodes_created = graph_nodes_created,
+       node_reuses = graph_node_reuses,
+       ornode_attempts = graph_ornode_attempts,
+       ornodes_created = graph_ornodes_created,
+       ornodes_reused = graph_ornodes_reused,
+       andnode_attempts = graph_andnode_attempts,
+       andnodes_created = graph_andnodes_created,
+       andnodes_reused = graph_andnodes_reused,
+       edge_node_attempts = graph_edge_node_attempts,
+       edge_nodes_created = graph_edge_nodes_created,
+       edge_nodes_reused = graph_edge_nodes_reused,
+       edge_attempts = graph_edge_attempts,
+       edges_created = graph_edges_created,
+       edge_reuses = graph_edge_reuses,
+       or_expansion_attempts = or_expansion_attempts,
+       or_expansions_started = or_expansions_started} =
+    SS.graph_update_statistics synched_agraph;
+  val {size = ref_cache_size, hits = ref_cache_hits, misses = ref_cache_misses} =
+    SS.refutation_cache_statistics refutation;
+  val ref_cache_total        = ref_cache_hits + ref_cache_misses;
+  val ref_cache_hit_rate     = rate ref_cache_hits ref_cache_total;
+  val _                      = Abduction_Statistics.record_loop pst synched_statistics
+                                {depth = counter,
+                                 reachable_keys = reachable_count,
+                                 worth_expanding = worth_expanding_count,
+                                 selected_ornodes = length top_ornodes,
+                                 selection_rate = rate (length top_ornodes) worth_expanding_count,
+                                 num_processors = numb_of_processors,
+                                 graph_nodes = graph_nodes,
+                                 graph_edges = graph_edges,
+                                 graph_or_nodes = graph_or_nodes,
+                                 graph_and_nodes = graph_and_nodes,
+                                 graph_or2and_edge_nodes = graph_or2and_edge_nodes,
+                                 graph_avg_indegree = graph_avg_indegree,
+                                 graph_max_indegree = graph_max_indegree,
+                                 graph_scc_count = graph_scc_count,
+                                 graph_cyclic_scc_count = graph_cyclic_scc_count,
+                                 graph_largest_scc_size = graph_largest_scc_size,
+                                 graph_node_attempts = graph_node_attempts,
+                                 graph_nodes_created = graph_nodes_created,
+                                 graph_node_reuses = graph_node_reuses,
+                                 graph_node_reuse_rate = rate graph_node_reuses graph_node_attempts,
+                                 graph_ornode_attempts = graph_ornode_attempts,
+                                 graph_ornodes_created = graph_ornodes_created,
+                                 graph_ornodes_reused = graph_ornodes_reused,
+                                 graph_ornode_reuse_rate = rate graph_ornodes_reused graph_ornode_attempts,
+                                 graph_andnode_attempts = graph_andnode_attempts,
+                                 graph_andnodes_created = graph_andnodes_created,
+                                 graph_andnodes_reused = graph_andnodes_reused,
+                                 graph_andnode_reuse_rate = rate graph_andnodes_reused graph_andnode_attempts,
+                                 graph_edge_node_attempts = graph_edge_node_attempts,
+                                 graph_edge_nodes_created = graph_edge_nodes_created,
+                                 graph_edge_nodes_reused = graph_edge_nodes_reused,
+                                 graph_edge_node_reuse_rate = rate graph_edge_nodes_reused graph_edge_node_attempts,
+                                 graph_edge_attempts = graph_edge_attempts,
+                                 graph_edges_created = graph_edges_created,
+                                 graph_edge_reuses = graph_edge_reuses,
+                                 graph_edge_reuse_rate = rate graph_edge_reuses graph_edge_attempts,
+                                 or_expansion_attempts = or_expansion_attempts,
+                                 or_expansions_started = or_expansions_started,
+                                 or_expansion_reuse_rate = rate (or_expansion_attempts - or_expansions_started) or_expansion_attempts,
+                                 refutation_cache_size = ref_cache_size,
+                                 refutation_cache_hits = ref_cache_hits,
+                                 refutation_cache_misses = ref_cache_misses,
+                                 refutation_cache_hit_rate = ref_cache_hit_rate,
+                                 elapsed_sec = current_time start};
+          in
+            ()
+          end
+        else ();
     in
       if worth_expanding_count = 0
       then false
@@ -340,7 +413,7 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
         if SS.final_goal_proved_completely synched_agraph: bool
         then (*Proof by abduction is unnecessary.*)
           let
-            val agraph = Synchronized.value synched_agraph;
+            val agraph = SS.value_of_graph synched_agraph;
             val lemma_name2term = abduction_graph_to_string2term_table agraph: string2term_table;
             val final_goal_name = lemma_name_of agraph (Or_N, [standardized_term]);
             val _ = print_necessary_proofs_only pst agraph lemma_name2term final_goal_name;
@@ -352,7 +425,7 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
             val quintuple                = (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table, synched_proved_simps, ori_prems);
             val _                        = prove_standard_simp_rules quintuple standardized_term: unit;
             val solved_in_loop           = loop 0 max_depth start synched_statistics quintuple;(*expensive abduction!*)
-            val final_graph              = Synchronized.value synched_agraph: Abduction_Graph.abduction_graph;
+            val final_graph              = SS.value_of_graph synched_agraph: Abduction_Graph.abduction_graph;
             val lemma_name2term          = abduction_graph_to_string2term_table final_graph: string2term_table;
             val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
             val _                        = if   solved_in_loop
