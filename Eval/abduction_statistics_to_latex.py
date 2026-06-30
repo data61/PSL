@@ -188,6 +188,15 @@ def make_axis_begin(
         r"minor y tick num=9," if log_y else r"minor y tick num=3,",
         r"legend cell align=left,",
         f"legend pos={legend_pos},",
+        (
+            r"legend style={"
+            r"draw=black,"
+            r"fill=white,"
+            r"fill opacity=0.85,"
+            r"text opacity=1,"
+            r"rounded corners=1pt"
+            r"},"
+        ),
         r"tick align=outside,",
         r"every axis plot/.append style={line width=1.0pt},",
         r"enlarge x limits=false,",
