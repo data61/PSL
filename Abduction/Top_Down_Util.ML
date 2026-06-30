@@ -263,7 +263,7 @@ val timeout_config = Config.declare_real ("prove_timeout", \<^here>) (K (60.0 * 
 
 val limit_for_first_decrement = Config.declare_int ("limit_for_first_decrement", \<^here>) (K 15): int Config.T;
 
-val limit_for_other_decrement = Config.declare_int ("limit_for_first_decrement", \<^here>) (K  5): int Config.T;
+val limit_for_other_decrement = Config.declare_int ("limit_for_other_decrement", \<^here>) (K  5): int Config.T;
 
 fun is_in (small:term) (big:term) =
   let
