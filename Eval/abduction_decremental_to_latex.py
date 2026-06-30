@@ -14,7 +14,6 @@ import argparse
 import csv
 from collections import defaultdict
 from pathlib import Path
-from statistics import median
 from typing import DefaultDict, Dict, Iterable, List, Tuple
 
 
@@ -132,7 +131,7 @@ def total_attempts_by_loop(rows: list[dict]) -> tuple[SeriesMap, StatusMap]:
     return {k: dict(v) for k, v in series.items()}, statuses
 
 
-def median_attempts_per_parent_by_loop(rows: list[dict]) -> tuple[SeriesMap, StatusMap]:
+def max_attempts_per_parent_by_loop(rows: list[dict]) -> tuple[SeriesMap, StatusMap]:
     per_parent: DefaultDict[tuple[str, int], DefaultDict[str, int]] = defaultdict(lambda: defaultdict(int))
     statuses: StatusMap = {}
     for row in rows:
@@ -148,7 +147,7 @@ def median_attempts_per_parent_by_loop(rows: list[dict]) -> tuple[SeriesMap, Sta
     for (tid, loop), parent_counts in per_parent.items():
         vals = list(parent_counts.values())
         if vals:
-            series[tid][loop] = float(median(vals))
+            series[tid][loop] = float(max(vals))
     return {k: dict(v) for k, v in series.items()}, statuses
 
 
@@ -356,7 +355,7 @@ def write_line_figure(
         r"  major grid style={draw=black!18,line width=0.25pt},",
         r"  minor x tick num=1,",
         r"  minor y tick num=9," if log_y else r"  minor y tick num=3,",
-        r"  legend style={at={(0.02,0.98)},anchor=north west,draw=none,fill=none},",
+        r"  legend style={at={(0.02,0.98)},anchor=north west,draw=black,fill=white,fill opacity=0.85,text opacity=1,rounded corners=1pt},",
         r"  legend cell align=left,",
         r"  tick align=outside,",
         r"  scaled y ticks=false,",
@@ -434,7 +433,7 @@ def main() -> None:
     args.out.mkdir(parents=True, exist_ok=True)
 
     total_series, total_statuses = total_attempts_by_loop(rows)
-    median_series, median_statuses = median_attempts_per_parent_by_loop(rows)
+    max_parent_series, max_parent_statuses = max_attempts_per_parent_by_loop(rows)
     depth_series, depth_statuses = max_depth_by_loop(rows)
     exact_hit_rate_series, exact_hit_rate_statuses = decremental_exact_duplicate_hit_rate_by_loop(rows)
     avoidance_rate_series, avoidance_rate_statuses = decremental_avoidance_rate_by_loop(rows)
@@ -450,11 +449,11 @@ def main() -> None:
         log_y=True,
     )
     write_line_figure(
-        args.out / f"abduction_decremental_median_attempts_per_parent_by_top_loop{suffix}.tex",
-        series=median_series,
-        statuses=median_statuses,
-        title="Median decremental effort per parent OR-node",
-        y_label="Median attempts per parent OR-node",
+        args.out / f"abduction_decremental_max_attempts_per_parent_by_top_loop{suffix}.tex",
+        series=max_parent_series,
+        statuses=max_parent_statuses,
+        title="Maximum decremental effort per parent OR-node",
+        y_label="Maximum attempts per parent OR-node",
         log_y=True,
     )
     write_line_figure(
