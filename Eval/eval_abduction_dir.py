@@ -238,21 +238,43 @@ def collect_abduction_decremental_statistics(row: Dict[str, object], stats_dir: 
     return out_rows
 
 
+
+def output_reports_abduction_success(output: str) -> bool:
+    return "And we proved the goal." in output
+
+
+def extract_abduction_internal_elapsed(output: str) -> Optional[float]:
+    """Return the time printed by AbductionProver itself, if present.
+
+    This is useful when Isabelle/Sledgehammer leaves background work alive after
+    AbductionProver has already printed and written a proof; the external
+    evaluator may then kill Isabelle at the hard timeout even though the proof
+    was found much earlier.
+    """
+    matches = re.findall(r"We spent\s+([0-9]+(?:\.[0-9]+)?)\s+seconds\.\s+And we proved the goal\.", output)
+    if not matches:
+        return None
+    try:
+        return float(matches[-1])
+    except ValueError:
+        return None
+
 def classify_error(
     status: str,
     returncode: Optional[int],
     output: str,
     proof_found: bool,
 ) -> str:
-    # Timeout/interruption must take precedence over the mere presence of a
-    # .proof file.  Some methods can emit a proof file just before the
-    # evaluator kills the Isabelle process; such runs are not cleanly solved.
+    # A verified proof must take precedence over later timeout/give-up noise.
+    # In particular, AbductionProver can print/write a proof and then leave
+    # background Sledgehammer/ATP activity that eventually emits "Gave up" or
+    # causes the external evaluator to kill Isabelle.
+    if proof_found:
+        return ""
     if status == "timeout":
         return "timeout"
     if status == "interrupted":
         return "interrupted"
-    if proof_found:
-        return ""
     if returncode == 0:
         return "no_proof"
 
@@ -418,20 +440,34 @@ def run_one(
 
     proof_paths = sorted(proof_target_dir.glob("*.proof"))
     proof_file_found = bool(proof_paths)
-    # A proof counts as found only if Isabelle returned cleanly.  A timeout run
-    # may still leave a .proof file behind if it was killed while/after writing
-    # it; that file is useful diagnostics, but it is not a clean success.
-    proof_found = status == "ok" and proof_file_found
 
     proof_files: List[str] = []
     proof_num_lines = ""
+    total_proof_lines = 0
 
     if proof_file_found:
-        total_lines = 0
         for proof_path in proof_paths:
-            total_lines += normalize_proof_file(proof_path)
+            total_proof_lines += normalize_proof_file(proof_path)
             proof_files.append(str(proof_path))
-        proof_num_lines = str(total_lines)
+        proof_num_lines = str(total_proof_lines)
+
+    abduction_success_after_late_noise = (
+        method == "abduction"
+        and proof_file_found
+        and total_proof_lines > 0
+        and output_reports_abduction_success(output)
+    )
+
+    proof_found = (
+        (status == "ok" and proof_file_found and total_proof_lines > 0)
+        or abduction_success_after_late_noise
+    )
+
+    if abduction_success_after_late_noise:
+        status = "ok"
+        internal_elapsed = extract_abduction_internal_elapsed(output)
+        if internal_elapsed is not None:
+            elapsed = internal_elapsed
 
     error_kind = classify_error(
         status=status,
