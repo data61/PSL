@@ -40,6 +40,10 @@ def tex_escape(s: object) -> str:
     return "".join(replacements.get(ch, ch) for ch in text)
 
 
+
+def title_with_benchmark(title: str, benchmark: str) -> str:
+    return f"{title} ({benchmark})" if benchmark else title
+
 def to_int(value: object, default: int = 0) -> int:
     if value is None:
         return default
@@ -436,7 +440,7 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
         out_dir / f"abduction_decremental_total_attempts_by_top_loop{suffix}.tex",
         series=total_series,
         statuses=total_statuses,
-        title="Decremental conjecturing effort by top-level loop",
+        title=title_with_benchmark("Decremental conjecturing effort by top-level loop", benchmark),
         y_label="Total conjecture-set proof attempts",
         log_y=True,
     )
@@ -444,7 +448,7 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
         out_dir / f"abduction_decremental_max_attempts_per_parent_by_top_loop{suffix}.tex",
         series=max_parent_series,
         statuses=max_parent_statuses,
-        title="Maximum decremental effort per parent OR-node",
+        title=title_with_benchmark("Maximum decremental effort per parent OR-node", benchmark),
         y_label="Maximum attempts per parent OR-node",
         log_y=True,
     )
@@ -452,14 +456,14 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
         out_dir / f"abduction_decremental_max_refinement_depth_by_top_loop{suffix}.tex",
         series=depth_series,
         statuses=depth_statuses,
-        title="Maximum refinement depth by top-level loop",
+        title=title_with_benchmark("Maximum refinement depth by top-level loop", benchmark),
         y_label="Maximum candidate-set depth",
     )
     write_line_figure(
         out_dir / f"abduction_decremental_avoided_attempts_by_top_loop{suffix}.tex",
         series=avoided_attempts_series,
         statuses=avoided_attempts_statuses,
-        title="Avoided decremental proof attempts by top-level loop",
+        title=title_with_benchmark("Avoided decremental proof attempts by top-level loop", benchmark),
         y_label="Avoided proof attempts",
         log_y=True,
     )
@@ -467,7 +471,7 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
         out_dir / f"abduction_decremental_exact_duplicate_hit_rate_by_top_loop{suffix}.tex",
         series=exact_hit_rate_series,
         statuses=exact_hit_rate_statuses,
-        title="Exact duplicate avoidance in decremental conjecturing",
+        title=title_with_benchmark("Exact duplicate avoidance in decremental conjecturing", benchmark),
         y_label="Exact duplicate hit rate",
         y_cap=1.0,
     )
@@ -475,7 +479,7 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
         out_dir / f"abduction_decremental_avoidance_rate_by_top_loop{suffix}.tex",
         series=avoidance_rate_series,
         statuses=avoidance_rate_statuses,
-        title="Avoidance rate in decremental conjecturing",
+        title=title_with_benchmark("Avoidance rate in decremental conjecturing", benchmark),
         y_label="Avoided / selected candidate sets",
         y_cap=1.0,
     )

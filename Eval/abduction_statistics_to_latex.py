@@ -9,8 +9,8 @@ This script is intentionally limited to the generic top-level-loop statistics
 that explain contributive-node focusing:
 
 * contributive OR-leaf nodes (formerly worth_expanding),
-* root-descendant nodes (formerly reachable_keys),
-* the ratio between the two,
+* root-reachable OR-nodes (reachable_or_nodes),
+* the ratio between contributive OR-leaves and root-reachable OR-nodes,
 * refutation-cache hit rate, and
 * the first loop in which no contributive OR-leaf remains.
 
@@ -40,6 +40,10 @@ from typing import Callable, Iterable, Optional
 def truthy(x: object) -> bool:
     return str(x).strip().lower() in {"1", "true", "yes", "y"}
 
+
+
+def title_with_benchmark(title: str, benchmark: str) -> str:
+    return f"{title} ({benchmark})" if benchmark else title
 
 def to_int(x: object, default: int = 0) -> int:
     try:
@@ -291,7 +295,7 @@ def write_line_graph(
 
     lines = make_axis_begin(
         title=title,
-        xlabel="Loop index",
+        xlabel="Top-level loop round",
         ylabel=ylabel,
         xmax=xmax,
         ymax=ymax,
@@ -302,16 +306,16 @@ def write_line_graph(
 
     # Only two legend entries: no per-problem labels.
     lines.extend([
-        r"\addlegendimage{blue, solid}",
+        r"\addlegendimage{blue,solid,line width=1.0pt}",
         r"\addlegendentry{proved}",
-        r"\addlegendimage{red, dashed}",
+        r"\addlegendimage{red,dashed,line width=1.0pt}",
         r"\addlegendentry{unproved}",
     ])
 
     for _benchmark, _target_id, status, points in series:
-        style = "blue, solid" if status == "proved" else "red, dashed"
+        style = "blue,solid" if status == "proved" else "red,dashed"
         lines.append(
-            rf"\addplot+[{style}, no marks, opacity=0.72] coordinates {pgf_coordinates(points)};"
+            rf"\addplot+[{style},no marks,opacity=0.72] coordinates {pgf_coordinates(points)};"
         )
 
     lines.extend([r"\end{axis}", r"\end{tikzpicture}", ""])
@@ -322,15 +326,23 @@ def worth_expanding_value(row: dict) -> Optional[float]:
     return float(to_int(row.get("worth_expanding")))
 
 
-def reachable_keys_value(row: dict) -> Optional[float]:
-    return float(to_int(row.get("reachable_keys")))
+def reachable_or_nodes_value(row: dict) -> Optional[float]:
+    # New CSVs provide reachable_or_nodes, excluding implementation edge-nodes
+    # and AND-nodes.  The fallback keeps the script usable on old CSVs.
+    raw = row.get("reachable_or_nodes")
+    if raw is None or str(raw).strip() == "":
+        raw = row.get("reachable_keys")
+    return float(to_int(raw))
 
 
 def expandable_ratio_value(row: dict) -> Optional[float]:
-    reachable = to_int(row.get("reachable_keys"))
-    if reachable <= 0:
+    raw = row.get("reachable_or_nodes")
+    if raw is None or str(raw).strip() == "":
+        raw = row.get("reachable_keys")
+    reachable_or_nodes = to_int(raw)
+    if reachable_or_nodes <= 0:
         return None
-    return float(to_int(row.get("worth_expanding"))) / float(reachable)
+    return float(to_int(row.get("worth_expanding"))) / float(reachable_or_nodes)
 
 
 def refutation_cache_hit_rate_value(row: dict) -> Optional[float]:
@@ -347,7 +359,7 @@ def refutation_cache_hit_rate_value(row: dict) -> Optional[float]:
     return float(hits) / float(total)
 
 
-def write_first_zero_hist(problem_groups: dict[tuple[str, str], list[dict]], out_path: Path) -> None:
+def write_first_zero_hist(problem_groups: dict[tuple[str, str], list[dict]], out_path: Path, benchmark: str = "") -> None:
     counts: Counter[int] = Counter()
     unproved_without_zero: list[str] = []
 
@@ -374,8 +386,8 @@ def write_first_zero_hist(problem_groups: dict[tuple[str, str], list[dict]], out
     lines = [
         r"\begin{tikzpicture}",
         r"\begin{axis}[",
-        r"title={Unproved problems: first loop with no contributive OR-leaf nodes},",
-        r"xlabel={Loop index},",
+        f"title={{{title_with_benchmark('Unproved problems: first loop with no contributive OR-leaf nodes', benchmark)}}},",
+        r"xlabel={Top-level loop round},",
         r"ylabel={Number of problems},",
         r"width=0.95\linewidth,",
         r"height=0.58\linewidth,",
@@ -386,9 +398,9 @@ def write_first_zero_hist(problem_groups: dict[tuple[str, str], list[dict]], out
         r"major grid style={draw=gray!30,line width=0.25pt},",
         r"tick align=outside,",
         r"enlarge x limits=false,",
-        f"xmin=0.5, xmax={fmt_num(max(1.5, float(xmax) + 0.5))},",
+        f"xmin=1, xmax={fmt_num(max(1.0, float(xmax)))},",
         f"ymin=0, ymax={fmt_num(max(1.0, float(ymax) + 1.0))},",
-        r"xtick=data,",
+        f"xtick={{{','.join(str(i) for i in range(1, max(1, xmax) + 1))}}},",
         r"]",
         rf"\addplot+[draw=black, fill=gray!55] coordinates {pgf_coordinates(coords)};",
         r"\end{axis}",
@@ -422,7 +434,7 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str,
         problem_groups,
         out_dir / f"abduction_worth_expanding_by_loop{suffix}.tex",
         value_of_row=worth_expanding_value,
-        title="Contributive OR-leaf nodes by loop",
+        title=title_with_benchmark("Contributive OR-leaf nodes by loop", benchmark),
         ylabel="Number of contributive OR-leaf nodes",
         log_y=use_log_counts,
         legend_pos="north west",
@@ -437,9 +449,9 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str,
     write_line_graph(
         problem_groups,
         out_dir / f"abduction_reachable_by_loop{suffix}.tex",
-        value_of_row=reachable_keys_value,
-        title="Root-descendant nodes by loop",
-        ylabel="Number of root-descendant nodes",
+        value_of_row=reachable_or_nodes_value,
+        title=title_with_benchmark("Root-reachable OR-nodes by loop", benchmark),
+        ylabel="Number of root-reachable OR-nodes",
         log_y=use_log_counts,
         legend_pos="north west",
         extra_axis_options=[
@@ -454,8 +466,8 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str,
         problem_groups,
         out_dir / f"abduction_expandable_ratio_by_loop{suffix}.tex",
         value_of_row=expandable_ratio_value,
-        title="Proportion of contributive OR-leaf nodes by loop",
-        ylabel="Contributive OR-leaf / root-descendant",
+        title=title_with_benchmark("Proportion of contributive OR-leaf nodes by loop", benchmark),
+        ylabel="Contributive OR-leaf / root-reachable OR-node",
         ymax_min=1.0,
         extra_axis_options=[r"yticklabel style={/pgf/number format/fixed},"],
     )
@@ -464,7 +476,7 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str,
         problem_groups,
         out_dir / f"abduction_refutation_cache_hit_rate_by_loop{suffix}.tex",
         value_of_row=refutation_cache_hit_rate_value,
-        title="Refutation cache hit rate by loop",
+        title=title_with_benchmark("Refutation cache hit rate by loop", benchmark),
         ylabel="Cache hits / cache lookups",
         ymax_min=1.0,
         extra_axis_options=[r"yticklabel style={/pgf/number format/fixed},"],

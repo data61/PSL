@@ -36,7 +36,19 @@ type graph_profile =
   max_indegree: int,
   scc_count: int,
   cyclic_scc_count: int,
-  largest_scc_size: int};
+  largest_scc_size: int,
+  or_projected_edges: int,
+  or_projected_avg_indegree: real,
+  or_projected_max_indegree: int,
+  or_projected_scc_count: int,
+  or_projected_cyclic_scc_count: int,
+  or_projected_largest_scc_size: int,
+  and_projected_edges: int,
+  and_projected_avg_indegree: real,
+  and_projected_max_indegree: int,
+  and_projected_scc_count: int,
+  and_projected_cyclic_scc_count: int,
+  and_projected_largest_scc_size: int};
 
 val graph_profile: abduction_graph -> graph_profile;
 
@@ -85,7 +97,11 @@ val is_worth_proving                             : Proof.context -> abduction_gr
 val get_final_goal_term                          : abduction_graph -> term;
 val get_leaf_orterms                             : abduction_graph -> terms;
 val get_final_goal_key                           : abduction_graph -> key;
-val orkeys_tobe_expanded_in_with_reachable_count : Proof.context -> abduction_graph -> (keys * int);
+type frontier_counts =
+ {reachable_keys: int,
+  reachable_or_nodes: int,
+  reachable_or_leaf_nodes: int};
+val orkeys_tobe_expanded_in_with_reachable_count : Proof.context -> abduction_graph -> (keys * frontier_counts);
 
 (* query on abduction_graph *)
 val final_goal_proved_completely                 : abduction_graph -> bool;
@@ -141,7 +157,19 @@ type graph_profile =
   max_indegree: int,
   scc_count: int,
   cyclic_scc_count: int,
-  largest_scc_size: int};
+  largest_scc_size: int,
+  or_projected_edges: int,
+  or_projected_avg_indegree: real,
+  or_projected_max_indegree: int,
+  or_projected_scc_count: int,
+  or_projected_cyclic_scc_count: int,
+  or_projected_largest_scc_size: int,
+  and_projected_edges: int,
+  and_projected_avg_indegree: real,
+  and_projected_max_indegree: int,
+  and_projected_scc_count: int,
+  and_projected_cyclic_scc_count: int,
+  and_projected_largest_scc_size: int};
 
 (* key *)
 type key  = PGraph.key
@@ -154,6 +182,11 @@ fun print_key  (ctxt:Proof.context) ((_, trms): key) =
 
 (* keys *)
 type keys = PGraph.key list;
+
+type frontier_counts =
+ {reachable_keys: int,
+  reachable_or_nodes: int,
+  reachable_or_leaf_nodes: int};
 
 (* equal_key *)
 fun equal_keys key_pair = PGraph_Key.ord key_pair = EQUAL;
@@ -217,33 +250,170 @@ fun is_or2and_edge (O2A_E _, _) = true
 
 fun int_max xs = fold (fn x => fn acc => Int.max (x, acc)) xs 0;
 
-fun graph_profile (graph:abduction_graph): graph_profile =
+fun distinct_keys (ks:keys) =
+  fold (fn key => fn acc => if member equal_keys acc key then acc else key :: acc) ks [] |> rev;
+
+fun equal_key_pair ((p1, c1), (p2, c2)) =
+  equal_keys (p1, p2) andalso equal_keys (c1, c2);
+
+fun distinct_edges edges =
+  fold (fn edge => fn acc => if member equal_key_pair acc edge then acc else edge :: acc) edges [] |> rev;
+
+fun key_in (ks:keys) key = member equal_keys ks key;
+
+fun filter_edges_over_nodes nodes edges =
+  filter (fn (p, c) => key_in nodes p andalso key_in nodes c) edges;
+
+fun edge_in edges edge = member equal_key_pair edges edge;
+
+fun succs_from_edges edges key =
+  map snd (filter (fn (p, _) => equal_keys (p, key)) edges);
+
+fun preds_from_edges edges key =
+  map fst (filter (fn (_, c) => equal_keys (c, key)) edges);
+
+fun reachable_from succs start =
   let
-    val ks = PGraph.keys graph: keys;
-    val nodes_total = length ks: int;
-    fun succs key = PGraph.immediate_succs graph key handle PGraph.UNDEF _ => [];
-    fun preds key = PGraph.immediate_preds graph key handle PGraph.UNDEF _ => [];
-    val edges_total = fold (fn key => fn n => n + length (succs key)) ks 0: int;
-    val pred_counts = map (length o preds) ks: int list;
+    fun visit [] seen = seen
+      | visit (key :: rest) seen =
+          if member equal_keys seen key
+          then visit rest seen
+          else visit (succs key @ rest) (key :: seen);
+  in
+    visit [start] []
+  end;
+
+fun subtract_keys xs ys = filter (fn x => not (member equal_keys ys x)) xs;
+
+fun intersect_keys xs ys = filter (fn x => member equal_keys ys x) xs;
+
+fun sccs_from_edges nodes edges =
+  let
+    val nodes' = distinct_keys nodes;
+    fun succs key = succs_from_edges edges key;
+    fun preds key = preds_from_edges edges key;
+    fun loop [] acc = rev acc
+      | loop (key :: rest) acc =
+          let
+            val forwards  = reachable_from succs key;
+            val backwards = reachable_from preds key;
+            val component = intersect_keys forwards backwards;
+            val rest'     = subtract_keys rest component;
+          in
+            loop rest' (component :: acc)
+          end;
+  in
+    loop nodes' []
+  end;
+
+type directed_profile =
+ {edges: int,
+  avg_indegree: real,
+  max_indegree: int,
+  scc_count: int,
+  cyclic_scc_count: int,
+  largest_scc_size: int};
+
+fun directed_profile nodes raw_edges : directed_profile =
+  let
+    val nodes' = distinct_keys nodes;
+    val edges = raw_edges |> filter_edges_over_nodes nodes' |> distinct_edges;
+    val nodes_total = length nodes': int;
+    val edges_total = length edges: int;
+    val pred_counts = map (length o preds_from_edges edges) nodes': int list;
     val avg_indegree =
       if nodes_total = 0 then 0.0
       else Real.fromInt edges_total / Real.fromInt nodes_total: real;
-    val max_indegree = int_max pred_counts: int;
-    val sccs = PGraph.strong_conn graph: keys list;
-    fun has_self_edge key = member equal_keys (succs key) key;
-    fun cyclic_component [key] = has_self_edge key
+    val sccs = sccs_from_edges nodes' edges: keys list;
+    fun cyclic_component [key] = edge_in edges (key, key)
       | cyclic_component component = length component > 1;
   in
-   {nodes_total = nodes_total,
-    edges_total = edges_total,
-    or_nodes = length (filter is_ornode ks),
-    and_nodes = length (filter is_andnode ks),
-    or2and_edge_nodes = length (filter is_or2and_edge ks),
+   {edges = edges_total,
     avg_indegree = avg_indegree,
-    max_indegree = max_indegree,
+    max_indegree = int_max pred_counts,
     scc_count = length sccs,
     cyclic_scc_count = length (filter cyclic_component sccs),
     largest_scc_size = int_max (map length sccs)}
+  end;
+
+fun graph_profile (graph:abduction_graph): graph_profile =
+  let
+    val ks = PGraph.keys graph: keys;
+    fun succs key = PGraph.immediate_succs graph key;
+    val full_edges = maps (fn parent => map (fn child => (parent, child)) (succs parent)) ks;
+    val or_keys = filter is_ornode ks;
+    val and_keys = filter is_andnode ks;
+    val edge_keys = filter is_or2and_edge ks;
+
+    fun or_projected_children parent_or =
+      succs parent_or
+      |> filter is_or2and_edge
+      |> maps (fn edge_key =>
+           succs edge_key
+           |> filter is_andnode
+           |> maps (fn and_key => succs and_key |> filter is_ornode))
+      |> distinct_keys;
+
+    val or_projected_edges =
+      maps (fn parent_or => map (fn child_or => (parent_or, child_or))
+                               (or_projected_children parent_or)) or_keys;
+
+    fun and_projected_children parent_and =
+      succs parent_and
+      |> filter is_ornode
+      |> maps (fn or_key =>
+           succs or_key
+           |> filter is_or2and_edge
+           |> maps (fn edge_key => succs edge_key |> filter is_andnode))
+      |> distinct_keys;
+
+    val and_projected_edges =
+      maps (fn parent_and => map (fn child_and => (parent_and, child_and))
+                                (and_projected_children parent_and)) and_keys;
+
+    val {edges = edges_total,
+         avg_indegree = avg_indegree,
+         max_indegree = max_indegree,
+         scc_count = scc_count,
+         cyclic_scc_count = cyclic_scc_count,
+         largest_scc_size = largest_scc_size} = directed_profile ks full_edges;
+
+    val {edges = or_projected_edges_total,
+         avg_indegree = or_projected_avg_indegree,
+         max_indegree = or_projected_max_indegree,
+         scc_count = or_projected_scc_count,
+         cyclic_scc_count = or_projected_cyclic_scc_count,
+         largest_scc_size = or_projected_largest_scc_size} = directed_profile or_keys or_projected_edges;
+
+    val {edges = and_projected_edges_total,
+         avg_indegree = and_projected_avg_indegree,
+         max_indegree = and_projected_max_indegree,
+         scc_count = and_projected_scc_count,
+         cyclic_scc_count = and_projected_cyclic_scc_count,
+         largest_scc_size = and_projected_largest_scc_size} = directed_profile and_keys and_projected_edges;
+  in
+   {nodes_total = length ks,
+    edges_total = edges_total,
+    or_nodes = length or_keys,
+    and_nodes = length and_keys,
+    or2and_edge_nodes = length edge_keys,
+    avg_indegree = avg_indegree,
+    max_indegree = max_indegree,
+    scc_count = scc_count,
+    cyclic_scc_count = cyclic_scc_count,
+    largest_scc_size = largest_scc_size,
+    or_projected_edges = or_projected_edges_total,
+    or_projected_avg_indegree = or_projected_avg_indegree,
+    or_projected_max_indegree = or_projected_max_indegree,
+    or_projected_scc_count = or_projected_scc_count,
+    or_projected_cyclic_scc_count = or_projected_cyclic_scc_count,
+    or_projected_largest_scc_size = or_projected_largest_scc_size,
+    and_projected_edges = and_projected_edges_total,
+    and_projected_avg_indegree = and_projected_avg_indegree,
+    and_projected_max_indegree = and_projected_max_indegree,
+    and_projected_scc_count = and_projected_scc_count,
+    and_projected_cyclic_scc_count = and_projected_cyclic_scc_count,
+    and_projected_largest_scc_size = and_projected_largest_scc_size}
   end;
 
 (* importance *)
@@ -413,19 +583,27 @@ fun proof_of (graph:abduction_graph) (key:key) =
   end;
 
 (* orkeys_tobe_expanded_in *)
-fun orkeys_tobe_expanded_in_with_reachable_count (ctxt:Proof.context) (graph:abduction_graph): (keys * int) =
+fun orkeys_tobe_expanded_in_with_reachable_count (ctxt:Proof.context) (graph:abduction_graph): (keys * frontier_counts) =
   let
     val or_keys                        = PGraph.keys graph |> filter is_ornode           : keys;
-    val orleaf_keys                    = filter_out (is_branch graph) or_keys            : keys
+    val orleaf_keys                    = filter_out (is_branch graph) or_keys            : keys;
     val keys_worth_trying              = filter (is_worth_proving ctxt graph) orleaf_keys: keys;
     val final_goal_key                 = get_final_goal_key graph                        : key;
     val keys_reachable_from_final_goal = PGraph.all_succs graph [final_goal_key]         : keys;
+    val reachable_or_keys              = filter is_ornode keys_reachable_from_final_goal : keys;
+    val reachable_orleaf_keys          = filter_out (is_branch graph) reachable_or_keys  : keys;
     val reachable_count                = length keys_reachable_from_final_goal           : int;
+    val reachable_or_count             = length reachable_or_keys                        : int;
+    val reachable_orleaf_count         = length reachable_orleaf_keys                    : int;
     val _                              = tracing ("Number of keys_reachable_from_final_goal: " ^ Int.toString reachable_count);
+    val _                              = tracing ("Number of OR-keys reachable from final goal: " ^ Int.toString reachable_or_count);
     (*val _ = map (print_key ctxt) keys_reachable_from_final_goal*)
-    val result                         = inter equal_keys keys_worth_trying keys_reachable_from_final_goal;
+    val result                         = inter equal_keys keys_worth_trying reachable_orleaf_keys;
   in
-    (result, reachable_count)
+    (result,
+     {reachable_keys = reachable_count,
+      reachable_or_nodes = reachable_or_count,
+      reachable_or_leaf_nodes = reachable_orleaf_count})
   end;
 
 (* or2and_edge_to_proof *)

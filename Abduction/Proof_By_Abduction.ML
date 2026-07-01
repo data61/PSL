@@ -175,8 +175,11 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ ". =====");
       val ctxt                   = Proof.context_of pst;
       val abduction_graph        = SS.value_of_graph synched_agraph: Abduction_Graph.abduction_graph;
-      val (orkeys_worth_expanding, reachable_count) =
-        orkeys_tobe_expanded_in_with_reachable_count ctxt abduction_graph: (keys * int);
+      val (orkeys_worth_expanding, frontier_counts) =
+        orkeys_tobe_expanded_in_with_reachable_count ctxt abduction_graph;
+      val {reachable_keys = reachable_count,
+           reachable_or_nodes = reachable_or_count,
+           reachable_or_leaf_nodes = reachable_orleaf_count} = frontier_counts;
       val sorted_orkeys          = sort_orkeys_based_on_importance abduction_graph orkeys_worth_expanding: keys;
       val worth_expanding_count  = length sorted_orkeys: int;
       val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString worth_expanding_count ^ ".");
@@ -228,7 +231,19 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
        max_indegree = graph_max_indegree,
        scc_count = graph_scc_count,
        cyclic_scc_count = graph_cyclic_scc_count,
-       largest_scc_size = graph_largest_scc_size} =
+       largest_scc_size = graph_largest_scc_size,
+       or_projected_edges = graph_or_projected_edges,
+       or_projected_avg_indegree = graph_or_projected_avg_indegree,
+       or_projected_max_indegree = graph_or_projected_max_indegree,
+       or_projected_scc_count = graph_or_projected_scc_count,
+       or_projected_cyclic_scc_count = graph_or_projected_cyclic_scc_count,
+       or_projected_largest_scc_size = graph_or_projected_largest_scc_size,
+       and_projected_edges = graph_and_projected_edges,
+       and_projected_avg_indegree = graph_and_projected_avg_indegree,
+       and_projected_max_indegree = graph_and_projected_max_indegree,
+       and_projected_scc_count = graph_and_projected_scc_count,
+       and_projected_cyclic_scc_count = graph_and_projected_cyclic_scc_count,
+       and_projected_largest_scc_size = graph_and_projected_largest_scc_size} =
     Abduction_Graph.graph_profile graph_after_loop;
   val {node_attempts = graph_node_attempts,
        nodes_created = graph_nodes_created,
@@ -253,8 +268,10 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
   val ref_cache_total        = ref_cache_hits + ref_cache_misses;
   val ref_cache_hit_rate     = rate ref_cache_hits ref_cache_total;
   val _                      = Abduction_Statistics.record_loop pst synched_statistics
-                                {depth = counter,
+                                {depth = counter + 1,
                                  reachable_keys = reachable_count,
+                                 reachable_or_nodes = reachable_or_count,
+                                 reachable_or_leaf_nodes = reachable_orleaf_count,
                                  worth_expanding = worth_expanding_count,
                                  selected_ornodes = length top_ornodes,
                                  selection_rate = rate (length top_ornodes) worth_expanding_count,
@@ -269,6 +286,18 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
                                  graph_scc_count = graph_scc_count,
                                  graph_cyclic_scc_count = graph_cyclic_scc_count,
                                  graph_largest_scc_size = graph_largest_scc_size,
+                                 graph_or_projected_edges = graph_or_projected_edges,
+                                 graph_or_projected_avg_indegree = graph_or_projected_avg_indegree,
+                                 graph_or_projected_max_indegree = graph_or_projected_max_indegree,
+                                 graph_or_projected_scc_count = graph_or_projected_scc_count,
+                                 graph_or_projected_cyclic_scc_count = graph_or_projected_cyclic_scc_count,
+                                 graph_or_projected_largest_scc_size = graph_or_projected_largest_scc_size,
+                                 graph_and_projected_edges = graph_and_projected_edges,
+                                 graph_and_projected_avg_indegree = graph_and_projected_avg_indegree,
+                                 graph_and_projected_max_indegree = graph_and_projected_max_indegree,
+                                 graph_and_projected_scc_count = graph_and_projected_scc_count,
+                                 graph_and_projected_cyclic_scc_count = graph_and_projected_cyclic_scc_count,
+                                 graph_and_projected_largest_scc_size = graph_and_projected_largest_scc_size,
                                  graph_node_attempts = graph_node_attempts,
                                  graph_nodes_created = graph_nodes_created,
                                  graph_node_reuses = graph_node_reuses,
