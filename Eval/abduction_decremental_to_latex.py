@@ -44,6 +44,17 @@ def tex_escape(s: object) -> str:
 def title_with_benchmark(title: str, benchmark: str) -> str:
     return f"{title} ({benchmark})" if benchmark else title
 
+
+def outcome_group_from_rows(rows: list[dict]) -> str:
+    return "proved" if any(is_proved(r) for r in rows) else "unproved"
+
+
+def outcome_style(outcome: str) -> tuple[str, str, str, str]:
+    if outcome == "proved":
+        return ("proved", "blue", "*", "solid")
+    return ("unproved", "red", "square*", "dashed")
+
+
 def to_int(value: object, default: int = 0) -> int:
     if value is None:
         return default
@@ -130,7 +141,7 @@ def filter_rows(rows: list[dict], benchmark: str) -> list[dict]:
 
 
 SeriesMap = Dict[str, Dict[int, float]]
-StatusMap = Dict[str, bool]
+StatusMap = Dict[str, str]
 
 
 def total_attempts_by_loop(rows: list[dict]) -> tuple[SeriesMap, StatusMap]:
@@ -142,7 +153,9 @@ def total_attempts_by_loop(rows: list[dict]) -> tuple[SeriesMap, StatusMap]:
         if loop <= 0:
             continue
         series[tid][loop] += to_int(row.get("actual_proof_attempts"))
-        statuses[tid] = statuses.get(tid, False) or is_proved(row)
+        statuses[tid] = outcome_group_from_rows([row]) if tid not in statuses or statuses[tid] != "proved" else statuses[tid]
+        if is_proved(row):
+            statuses[tid] = "proved"
     return {k: dict(v) for k, v in series.items()}, statuses
 
 
@@ -156,7 +169,9 @@ def max_attempts_per_parent_by_loop(rows: list[dict]) -> tuple[SeriesMap, Status
             continue
         parent = str(row.get("parent_or_name", "")) or "<unknown parent>"
         per_parent[(tid, loop)][parent] += to_int(row.get("actual_proof_attempts"))
-        statuses[tid] = statuses.get(tid, False) or is_proved(row)
+        statuses[tid] = outcome_group_from_rows([row]) if tid not in statuses or statuses[tid] != "proved" else statuses[tid]
+        if is_proved(row):
+            statuses[tid] = "proved"
 
     series: DefaultDict[str, Dict[int, float]] = defaultdict(dict)
     for (tid, loop), parent_counts in per_parent.items():
@@ -183,7 +198,9 @@ def max_depth_by_loop(rows: list[dict]) -> tuple[SeriesMap, StatusMap]:
             series[tid][loop] = max(series[tid][loop], float(depth))
         else:
             series[tid][loop] = max(series[tid][loop], 0.0)
-        statuses[tid] = statuses.get(tid, False) or is_proved(row)
+        statuses[tid] = outcome_group_from_rows([row]) if tid not in statuses or statuses[tid] != "proved" else statuses[tid]
+        if is_proved(row):
+            statuses[tid] = "proved"
     return {k: dict(v) for k, v in series.items()}, statuses
 
 
@@ -214,12 +231,14 @@ def decremental_exact_duplicate_hit_rate_by_loop(rows: list[dict]) -> tuple[Seri
         key = (tid, loop)
         hits[key] += row_int_with_fallback(row, "decremental_exact_duplicate_hits", "skipped_duplicate_sets")
         misses[key] += row_int_with_fallback(row, "decremental_cache_misses", "actual_proof_attempts")
-        statuses[tid] = statuses.get(tid, False) or is_proved(row)
+        statuses[tid] = outcome_group_from_rows([row]) if tid not in statuses or statuses[tid] != "proved" else statuses[tid]
+        if is_proved(row):
+            statuses[tid] = "proved"
 
     series: DefaultDict[str, Dict[int, float]] = defaultdict(dict)
     for (tid, loop), h in hits.items():
         denom = h + misses[(tid, loop)]
-        series[tid][loop] = (float(h) / float(denom)) if denom > 0 else 0.0
+        series[tid][loop] = (100.0 * float(h) / float(denom)) if denom > 0 else 0.0
     return {k: dict(v) for k, v in series.items()}, statuses
 
 
@@ -243,12 +262,14 @@ def decremental_avoidance_rate_by_loop(rows: list[dict]) -> tuple[SeriesMap, Sta
         subsumption_hits = row_int_with_fallback(row, "decremental_failed_subsumption_hits", "skipped_subsumed_sets")
         avoided[key] += exact_hits + subsumption_hits
         selected[key] += to_int(row.get("selected_sets"))
-        statuses[tid] = statuses.get(tid, False) or is_proved(row)
+        statuses[tid] = outcome_group_from_rows([row]) if tid not in statuses or statuses[tid] != "proved" else statuses[tid]
+        if is_proved(row):
+            statuses[tid] = "proved"
 
     series: DefaultDict[str, Dict[int, float]] = defaultdict(dict)
     for (tid, loop), h in avoided.items():
         denom = selected[(tid, loop)]
-        series[tid][loop] = (float(h) / float(denom)) if denom > 0 else 0.0
+        series[tid][loop] = (100.0 * float(h) / float(denom)) if denom > 0 else 0.0
     return {k: dict(v) for k, v in series.items()}, statuses
 
 
@@ -269,7 +290,9 @@ def avoided_attempts_by_loop(rows: list[dict]) -> tuple[SeriesMap, StatusMap]:
         exact_hits = row_int_with_fallback(row, "decremental_exact_duplicate_hits", "skipped_duplicate_sets")
         subsumption_hits = row_int_with_fallback(row, "decremental_failed_subsumption_hits", "skipped_subsumed_sets")
         series[tid][loop] += exact_hits + subsumption_hits
-        statuses[tid] = statuses.get(tid, False) or is_proved(row)
+        statuses[tid] = outcome_group_from_rows([row]) if tid not in statuses or statuses[tid] != "proved" else statuses[tid]
+        if is_proved(row):
+            statuses[tid] = "proved"
     return {k: dict(v) for k, v in series.items()}, statuses
 
 
@@ -375,25 +398,28 @@ def write_line_figure(
         r"  tick align=outside,",
         r"  scaled y ticks=false,",
         r"]",
-        r"\addlegendimage{blue,solid,line width=1.0pt}",
-        r"\addlegendentry{proved}",
-        r"\addlegendimage{red,dashed,line width=1.0pt}",
-        r"\addlegendentry{unproved}",
+        *[item for label, colour, _mark, style in [outcome_style("proved"), outcome_style("unproved")]
+          for item in (rf"\addlegendimage{{{colour},{style},line width=1.0pt}}", rf"\addlegendentry{{{label}}}")],
     ]
 
     for tid in sorted(series):
         pts = series[tid]
         if not pts:
             continue
-        proved = statuses.get(tid, False)
-        style = "solid" if proved else "dashed"
-        colour = "blue" if proved else "red"
+        status = statuses.get(tid, "unproved")
+        _label, colour, _mark, style = outcome_style(status)
         coords = coordinates(pts, positive_only=log_y)
         if coords == "":
             continue
-        lines.append(
-            rf"\addplot+[mark=none,forget plot,{style},{colour},line width=1.0pt,opacity=0.78] coordinates {{{coords}}};"
-        )
+        if len(coords.split()) == 1:
+            single_mark = "+" if status == "proved" else "x"
+            lines.append(
+                rf"\addplot[{colour},only marks,mark={single_mark},mark size=1.7pt,forget plot,line width=1.0pt,opacity=1.0] coordinates {{{coords}}};"
+            )
+        else:
+            lines.append(
+                rf"\addplot[{colour},{style},no marks,forget plot,line width=1.0pt,opacity=0.78] coordinates {{{coords}}};"
+            )
 
     lines.extend([r"\end{axis}", r"\end{tikzpicture}", ""])
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -401,6 +427,9 @@ def write_line_figure(
 
 def write_notes(out_path: Path, benchmark: str) -> None:
     text = f"""Decremental conjecturing figures for {benchmark or 'all benchmarks'}.
+
+The figures use the same outcome convention as the other AbductionProver figures:
+blue solid lines are proved runs; red dashed lines are unproved runs. Spaghetti plots omit per-loop markers.
 
 The CSV is round-level: one row corresponds to one decremental round for one parent OR-node.
 
@@ -413,11 +442,14 @@ created by deleting one conjecture from an existing set, its depth is parent dep
 the same conjecture set is reached through multiple paths in the refinement DAG, the ML code
 keeps the maximum depth observed for that set.
 
-The exact-duplicate hit rate is skipped_duplicate_sets / (skipped_duplicate_sets + actual_proof_attempts),
+The exact-duplicate hit rate is 100 * skipped_duplicate_sets / (skipped_duplicate_sets + actual_proof_attempts),
 aggregated by target and top-level loop.  The broader avoidance rate is
-(skipped_duplicate_sets + skipped_subsumed_sets) / selected_sets.  Count-like effort plots with very wide ranges use a
-logarithmic y-axis; zero-valued points are omitted in those plots because PGFPlots cannot place
-zero on a logarithmic axis.
+100 * (skipped_duplicate_sets + skipped_subsumed_sets) / selected_sets.  Rate plots are shown as percentages
+on a fixed 0--100 y-axis.  Count-like effort plots with very wide ranges use a logarithmic y-axis;
+zero-valued points are omitted in those plots because PGFPlots cannot place zero on a logarithmic axis.
+
+If exact-duplicate avoidance or broader decremental avoidance is flat at 0%, the corresponding figure is
+diagnostic rather than paper-facing evidence and is a good candidate for the appendix or omission.
 """
     out_path.write_text(text, encoding="utf-8")
 
@@ -472,16 +504,18 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
         series=exact_hit_rate_series,
         statuses=exact_hit_rate_statuses,
         title=title_with_benchmark("Exact duplicate avoidance in decremental conjecturing", benchmark),
-        y_label="Exact duplicate hit rate",
-        y_cap=1.0,
+        y_label="Exact duplicate hit rate (%)",
+        fixed_ymax=100.0,
+        ytick="{0,20,40,60,80,100}",
     )
     write_line_figure(
         out_dir / f"abduction_decremental_avoidance_rate_by_top_loop{suffix}.tex",
         series=avoidance_rate_series,
         statuses=avoidance_rate_statuses,
         title=title_with_benchmark("Avoidance rate in decremental conjecturing", benchmark),
-        y_label="Avoided / selected candidate sets",
-        y_cap=1.0,
+        y_label="Avoided / selected candidate sets (%)",
+        fixed_ymax=100.0,
+        ytick="{0,20,40,60,80,100}",
     )
     write_notes(out_dir / f"abduction_decremental_figures{suffix}_notes.txt", benchmark)
     return True

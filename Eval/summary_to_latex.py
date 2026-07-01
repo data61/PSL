@@ -535,7 +535,7 @@ def bar_style_for_method(m: str) -> str:
         "tbc": r"draw=black, fill=white, postaction={pattern=north east lines}",
         "abduction": r"draw=black, fill=white, postaction={pattern=crosshatch}",
     }
-    return styles.get(m, r"draw=black, fill=white, postaction={pattern=dots}")
+    return styles.get(m, r"draw=black, fill=white")
 
 
 

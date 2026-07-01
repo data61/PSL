@@ -34,6 +34,17 @@ def truthy(x: object) -> bool:
 def title_with_benchmark(title: str, benchmark: str) -> str:
     return f"{title} ({benchmark})" if benchmark else title
 
+
+def outcome_group(rows: list[dict]) -> str:
+    return "proved" if any(is_clean_proof(r) for r in rows) else "unproved"
+
+
+def outcome_style(outcome: str) -> tuple[str, str, str, str]:
+    if outcome == "proved":
+        return ("proved", "blue", "*", "solid")
+    return ("unproved", "red", "square*", "dashed")
+
+
 def to_int(x: object, default: int = 0) -> int:
     try:
         text = str(x).strip()
@@ -101,7 +112,7 @@ def is_clean_proof(row: dict) -> bool:
 
 
 def status_group(rows: list[dict]) -> str:
-    return "proved" if any(is_clean_proof(r) for r in rows) else "unproved"
+    return outcome_group(rows)
 
 
 def actual_loop_rows(rows: list[dict]) -> list[dict]:
@@ -173,9 +184,9 @@ def make_axis_begin(
     ymin = 1.0 if log_y else ymin
     ymax = max(ymin + 1e-9, ymax)
     options = [
-        f"title={{{title}}},",
+        f"title={{{tex_escape(title)}}},",
         r"xlabel={Top-level loop round},",
-        f"ylabel={{{ylabel}}},",
+        f"ylabel={{{tex_escape(ylabel)}}},",
         r"width=0.95\linewidth,",
         r"height=0.62\linewidth,",
         r"grid=both,",
@@ -244,18 +255,21 @@ def write_line_graph(
     lines = make_axis_begin(title, ylabel, xmax, ymax * (1.08 if ymax > 0 else 1.0), log_y=log_y, legend_pos=legend_pos)
 
     # Only two legend entries: no per-problem labels.
-    lines.extend([
-        r"\addlegendimage{blue,solid,line width=1.0pt}",
-        r"\addlegendentry{proved}",
-        r"\addlegendimage{red,dashed,line width=1.0pt}",
-        r"\addlegendentry{unproved}",
-    ])
+    for _label, colour, _mark, style in [outcome_style("proved"), outcome_style("unproved")]:
+        lines.append(rf"\addlegendimage{{{colour},{style},line width=1.0pt}}")
+        lines.append(rf"\addlegendentry{{{_label}}}")
 
     for _benchmark, _target_id, status, points in series:
-        style = "blue,solid" if status == "proved" else "red,dashed"
-        lines.append(
-            rf"\addplot+[{style},no marks,opacity=0.72] coordinates {pgf_coordinates(points)};"
-        )
+        _label, colour, _mark, style = outcome_style(status)
+        if len(points) == 1:
+            single_mark = "+" if status == "proved" else "x"
+            lines.append(
+                rf"\addplot[{colour},only marks,mark={single_mark},mark size=1.7pt,line width=0.95pt,opacity=1.0] coordinates {pgf_coordinates(points)};"
+            )
+        else:
+            lines.append(
+                rf"\addplot[{colour},{style},no marks,line width=0.95pt,opacity=0.72] coordinates {pgf_coordinates(points)};"
+            )
     lines.extend([r"\end{axis}", r"\end{tikzpicture}", ""])
     out_path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -335,9 +349,9 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
         )
 
     reuse_specs = [
-        ("abduction_graph_node_reuse_rate_by_top_loop", "All-node reuse rate in AbductionGraph", "All-node reuse rate (\\%)", "graph_node_reuse_rate"),
-        ("abduction_graph_ornode_reuse_rate_by_top_loop", "OR-node reuse rate in AbductionGraph", "OR-node reuse rate (\\%)", "graph_ornode_reuse_rate"),
-        ("abduction_graph_andnode_reuse_rate_by_top_loop", "AND-node reuse rate in AbductionGraph", "AND-node reuse rate (\\%)", "graph_andnode_reuse_rate"),
+        ("abduction_graph_node_reuse_rate_by_top_loop", "All-node reuse rate in AbductionGraph", "All-node reuse rate (%)", "graph_node_reuse_rate"),
+        ("abduction_graph_ornode_reuse_rate_by_top_loop", "OR-node reuse rate in AbductionGraph", "OR-node reuse rate (%)", "graph_ornode_reuse_rate"),
+        ("abduction_graph_andnode_reuse_rate_by_top_loop", "AND-node reuse rate in AbductionGraph", "AND-node reuse rate (%)", "graph_andnode_reuse_rate"),
     ]
     for filename, title, ylabel, column in reuse_specs:
         write_line_graph(
@@ -369,7 +383,6 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
             ymax_min=1.0,
             legend_pos="north west",
         )
-
     write_notes(out_dir / f"abduction_graph_figures{suffix}_notes.txt", benchmark)
     return True
 
