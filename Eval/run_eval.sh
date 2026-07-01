@@ -16,8 +16,10 @@ THREADS="${THREADS:-0}"
 
 # Use PSL_EVAL_* names to avoid accidental interference from generic
 # environment variables such as METHODS.
-PSL_EVAL_METHODS="${PSL_EVAL_METHODS:-sledgehammer psl tbc abduction}"
+PSL_EVAL_METHODS="${PSL_EVAL_METHODS:-sledgehammer psl tbc abduction preprocessed_abduction}"
 PSL_EVAL_SLEDGEHAMMER_GRACE_SEC="${PSL_EVAL_SLEDGEHAMMER_GRACE_SEC:-30}"
+PSL_EVAL_TBC_PREPROCESS_ROUNDS="${PSL_EVAL_TBC_PREPROCESS_ROUNDS:-2}"
+export PSL_EVAL_TBC_PREPROCESS_ROUNDS
 
 # Important: define as empty array for "full" mode.
 EXTRA_ARGS=()
@@ -55,6 +57,7 @@ echo "Timeout   : ${TIMEOUT}s"
 echo "Threads   : $THREADS"
 echo "Methods   : $PSL_EVAL_METHODS"
 echo "SH grace  : ${PSL_EVAL_SLEDGEHAMMER_GRACE_SEC}s"
+echo "TBC pre   : ${PSL_EVAL_TBC_PREPROCESS_ROUNDS} round(s)"
 echo "Isabelle  : $ISABELLE"
 echo "Results   : $RESULTS_ROOT"
 echo "Output    : $OUT"

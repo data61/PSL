@@ -4,24 +4,24 @@ set -euo pipefail
 # Two-stage evaluation:
 #
 # 1. Screening run:
-#      all four methods, including direct Sledgehammer, on Isaplanner only,
+#      all five methods, including direct Sledgehammer, on Isaplanner only,
 #      with a shorter timeout.  This establishes whether Sledgehammer is
 #      competitive on the easiest benchmark.
 #
 # 2. Main run:
-#      PSL, TBC, and AbductionProver only, with the full timeout, on the main
+#      PSL, TBC, AbductionProver, and preprocessed AbductionProver, with the full timeout, on the main
 #      benchmark suite.
 #
 # Override examples:
 #   PSL_EVAL_SCREEN_TIMEOUT=300 ./Eval/run_all_evals.sh
 #   PSL_EVAL_MAIN_TIMEOUT=3000 ./Eval/run_all_evals.sh
-#   PSL_EVAL_MAIN_METHODS="psl tbc abduction" ./Eval/run_all_evals.sh
+#   PSL_EVAL_MAIN_METHODS="psl tbc abduction preprocessed_abduction" ./Eval/run_all_evals.sh
 
 PSL_EVAL_SCREEN_RESULTS_ROOT="${PSL_EVAL_SCREEN_RESULTS_ROOT:-Eval/results_screening}"
 PSL_EVAL_MAIN_RESULTS_ROOT="${PSL_EVAL_MAIN_RESULTS_ROOT:-Eval/results}"
 
-PSL_EVAL_SCREEN_METHODS="${PSL_EVAL_SCREEN_METHODS:-sledgehammer psl tbc abduction}"
-PSL_EVAL_MAIN_METHODS="${PSL_EVAL_MAIN_METHODS:-psl tbc abduction}"
+PSL_EVAL_SCREEN_METHODS="${PSL_EVAL_SCREEN_METHODS:-sledgehammer psl tbc abduction preprocessed_abduction}"
+PSL_EVAL_MAIN_METHODS="${PSL_EVAL_MAIN_METHODS:-psl tbc abduction preprocessed_abduction}"
 
 PSL_EVAL_SCREEN_TIMEOUT="${PSL_EVAL_SCREEN_TIMEOUT:-100}"
 PSL_EVAL_MAIN_TIMEOUT="${PSL_EVAL_MAIN_TIMEOUT:-3000}"
@@ -31,7 +31,9 @@ PSL_EVAL_TIP15_SAMPLE_SIZE="${PSL_EVAL_TIP15_SAMPLE_SIZE:-50}"
 PSL_EVAL_TIP15_SAMPLE_SEED="${PSL_EVAL_TIP15_SAMPLE_SEED:-2027}"
 
 PSL_EVAL_SLEDGEHAMMER_GRACE_SEC="${PSL_EVAL_SLEDGEHAMMER_GRACE_SEC:-30}"
+PSL_EVAL_TBC_PREPROCESS_ROUNDS="${PSL_EVAL_TBC_PREPROCESS_ROUNDS:-2}"
 export PSL_EVAL_SLEDGEHAMMER_GRACE_SEC
+export PSL_EVAL_TBC_PREPROCESS_ROUNDS
 
 echo "=== Cleaning old evaluation artefacts ==="
 rm -rf "${PSL_EVAL_SCREEN_RESULTS_ROOT:?}"/*/sessions
@@ -57,6 +59,7 @@ echo "=== Stage 2: main evaluation without Sledgehammer ==="
 echo "Results root : $PSL_EVAL_MAIN_RESULTS_ROOT"
 echo "Methods      : $PSL_EVAL_MAIN_METHODS"
 echo "Timeout      : ${PSL_EVAL_MAIN_TIMEOUT}s"
+echo "TBC pre      : ${PSL_EVAL_TBC_PREPROCESS_ROUNDS} round(s)"
 
 RESULTS_ROOT="$PSL_EVAL_MAIN_RESULTS_ROOT" \
 PSL_EVAL_METHODS="$PSL_EVAL_MAIN_METHODS" \

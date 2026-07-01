@@ -7,6 +7,7 @@
 theory Abduction
   imports "TBC.TBC"
   keywords "prove" :: thy_goal_stmt
+  and "prove_by_preprocessed_abduction" :: thy_goal_stmt
 begin
 
 ML_file \<open>Top_Down_Util.ML\<close>
@@ -102,8 +103,13 @@ val short_statement =
       (false, Binding.empty_atts, [], [Element.Fixes fixes, Element.Assumes assumes],
         Element.Shows shows));
 
-fun theorem _ descr =
-  Outer_Syntax.local_theory @{command_keyword prove} ("state " ^ descr)
+fun getenv_int name default =
+  case Int.fromString (getenv name) of
+      SOME n => n
+    | NONE => default;
+
+fun theorem command_keyword descr use_tbc_preprocessing =
+  Outer_Syntax.local_theory command_keyword ("state " ^ descr)
     (((long_statement || short_statement) >> (fn (_, _, _, elems, concl) =>
        (fn lthy =>
           let
@@ -126,9 +132,22 @@ fun theorem _ descr =
                 Config.put SMT_Config.verbose false lthy
              |> Config.put Metis_Generate.verbose false
              |> Context_Position.set_visible false: Proof.context;
-            val pst = Proof.init cxtx_wo_verbose_warnings: Proof.state;
-            val proof_by_abduction = Proof_By_Abduction.proof_by_abduction pst start: term -> bool;
-            val solved = proof_by_abduction standardized_cncl;
+            val pst0 = Proof.init cxtx_wo_verbose_warnings: Proof.state;
+            val (pst, preprocessed_nodes) =
+              if use_tbc_preprocessing
+              then
+                let
+                  val rounds = getenv_int "PSL_EVAL_TBC_PREPROCESS_ROUNDS" 2;
+                  val _ = tracing ("TBC_PREPROCESSOR: running " ^ Int.toString rounds ^ " preprocessing round(s) before AbductionProver.");
+                in
+                  TBC_Preprocessor.preprocess_term rounds pst0 standardized_cncl
+                end
+              else (pst0, []: TBC_Utils.pnodes);
+            val prelude_proofs = TBC_Utils.proved_nodes_to_proof_text preprocessed_nodes;
+            val solved =
+              if use_tbc_preprocessing andalso TBC_Utils.original_goal_is_proved preprocessed_nodes
+              then (Proof_By_Abduction.write_proof_script_in_result_file pst prelude_proofs; true)
+              else Proof_By_Abduction.proof_by_abduction_with_prelude prelude_proofs pst start standardized_cncl;
             val elapsed = #elapsed (Timing.result start): Time.time;
             val elapsed_str = Time.toReal elapsed |> Real.toString: string;
             val message = "We spent " ^ elapsed_str ^ " seconds. " ^ (if solved then "And we proved the goal." else "We failed, but tried.");
@@ -142,7 +161,8 @@ fun theorem _ descr =
 
 in
 
-val _ = theorem \<^command_keyword>\<open>prove\<close> "prove";
+val _ = theorem \<^command_keyword>\<open>prove\<close> "prove" false;
+val _ = theorem \<^command_keyword>\<open>prove_by_preprocessed_abduction\<close> "prove by preprocessed abduction" true;
 
 end;
 \<close>

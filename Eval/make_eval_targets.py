@@ -7,6 +7,7 @@ from pathlib import Path
 
 IMPORTS = {
     "abduction": "imports Main Smart_Isabelle.Smart_Isabelle",
+    "preprocessed_abduction": "imports Main Smart_Isabelle.Smart_Isabelle",
     "psl": "imports Main PSL.PSL",
     "tbc": "imports Main TBC.TBC",
     # Keep the Sledgehammer baseline independent of PSL/TBC/Abduction code.
@@ -33,6 +34,16 @@ def convert_for_abduction(text: str) -> str:
     text = re.sub(r"(?m)^\s*oops\s*$\n?", "", text, count=1)
     return text
 
+
+def convert_for_preprocessed_abduction(text: str) -> str:
+    text = re.sub(
+        r"(?m)^(\s*)(theorem|lemma|corollary|proposition|prove)\b",
+        r"\1prove_by_preprocessed_abduction",
+        text,
+        count=1,
+    )
+    text = re.sub(r"(?m)^\s*oops\s*$\n?", "", text, count=1)
+    return text
 
 def convert_for_psl(text: str) -> str:
     # PSL needs an active proof state, so keep theorem/lemma and insert try_hard.
@@ -80,6 +91,8 @@ def convert_theory_text(text: str, method: str) -> str:
 
     if method == "abduction":
         return convert_for_abduction(text)
+    if method == "preprocessed_abduction":
+        return convert_for_preprocessed_abduction(text)
     if method == "psl":
         return convert_for_psl(text)
     if method == "tbc":
@@ -93,7 +106,7 @@ def convert_theory_text(text: str, method: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--method", required=True,
-                        choices=["abduction", "psl", "tbc", "sledgehammer"])
+                        choices=["abduction", "preprocessed_abduction", "psl", "tbc", "sledgehammer"])
     parser.add_argument("source_dir")
     parser.add_argument("target_dir")
     args = parser.parse_args()

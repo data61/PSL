@@ -8,6 +8,7 @@ METHODS=(
   psl
   tbc
   abduction
+  preprocessed_abduction
 )
 
 BENCHMARKS=(

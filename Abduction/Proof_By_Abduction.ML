@@ -10,6 +10,8 @@ signature PROOF_BY_ABDUCTION =
 sig
 
 val proof_by_abduction: Proof.state -> Timing.start -> term -> bool;
+val proof_by_abduction_with_prelude: string -> Proof.state -> Timing.start -> term -> bool;
+val write_proof_script_in_result_file: Proof.state -> string -> unit;
 
 end;
 
@@ -430,14 +432,15 @@ fun clean_markup s =
   XML.content_of (YXML.parse_body s)
   handle ERROR _ => s;
 
-fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table) (goal_name:string) =
+fun print_necessary_proofs_only (prelude_proofs:string) (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table) (goal_name:string) =
   let
     val pptree      = get_print_proof_tree pst ag name2term goal_name: print_proof_tree;
     val lemma_names = order_pptree pptree: strings;
     val lemma_terms = map (Symtab.lookup name2term) lemma_names |> Utils.somes: terms;
     val orkeys      = map (fn trm => (Or_N, [trm])) lemma_terms: keys;
     val ctxt        = Proof.context_of pst: Proof.context;
-    val proofs      = "\n" :: map (print_lemma_and_proof_of_key ctxt ag) orkeys |> String.concatWith "\n";
+    val abduction_proofs = "\n" :: map (print_lemma_and_proof_of_key ctxt ag) orkeys |> String.concatWith "\n";
+    val proofs      = prelude_proofs ^ abduction_proofs;
     val whole_proof = Active.sendback_markup_properties [Markup.padding_command] proofs;
     val _           = tracing whole_proof;
     val clean_prfs  = clean_markup proofs;
@@ -447,7 +450,7 @@ fun print_necessary_proofs_only (pst:Proof.state) (ag:abduction_graph) (name2ter
   end;
 
 (* proof_by_abduction *)
-fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
+fun proof_by_abduction_with_prelude (prelude_proofs:string) (pst:Proof.state) (start:Timing.start) (term:term) =
   let
     val max_depth                = 10;
     val ctxt                     = Proof.context_of pst;
@@ -468,7 +471,7 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
             val agraph = SS.value_of_graph synched_agraph;
             val lemma_name2term = abduction_graph_to_string2term_table agraph: string2term_table;
             val final_goal_name = lemma_name_of agraph (Or_N, [standardized_term]);
-            val _ = print_necessary_proofs_only pst agraph lemma_name2term final_goal_name;
+            val _ = print_necessary_proofs_only prelude_proofs pst agraph lemma_name2term final_goal_name;
           in
             true
           end
@@ -481,7 +484,7 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
             val lemma_name2term          = abduction_graph_to_string2term_table final_graph: string2term_table;
             val final_goal_name          = lemma_name_of final_graph (Or_N, [standardized_term]): string;
             val _                        = if   solved_in_loop
-                                           then print_necessary_proofs_only pst final_graph lemma_name2term final_goal_name
+                                           then print_necessary_proofs_only prelude_proofs pst final_graph lemma_name2term final_goal_name
                                            else "";
           in
             solved_in_loop
@@ -489,5 +492,8 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
   in
     solved
   end;
+
+fun proof_by_abduction pst start term =
+  proof_by_abduction_with_prelude "" pst start term;
 
 end;

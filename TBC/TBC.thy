@@ -105,8 +105,10 @@ val theorem_typ_to_str:                       theorem_typ -> string;
 val mk_lemma_name:                            Proof.context -> theorem_typ -> string -> string;
 val proof_id_counter:                         int Unsynchronized.ref;
 val statement_to_conjecture:                  Proof.state -> (string, string) Element.stmt -> pnode;
+val term_to_original_goal_pnode:               Proof.state -> term -> pnode;
 val sort_pnodes:                              pnodes -> pnodes;
 val print_conjecture_w_proof:                 pnode -> string;
+val proved_nodes_to_proof_text:               pnodes -> string;
 val print_proved_nodes:                       pnodes -> string;
 val original_goal_was_proved_in_nth_round:    pnodes -> int -> bool;
 val number_of_conjectures_proved_in_nth_round:pnodes -> int -> int;
@@ -123,6 +125,7 @@ datatype strategy_for_eval = TAP21 | TBC_Strategy_W_Old_Smart_Induct | TBC_Strat
 val pnode_n_pst_to_pst_n_proof:               strategy_for_eval -> real -> pnode -> int -> Proof.state -> Proof.state * pnode;
 val original_goal_is_proved:                  pnodes -> bool;
 val conjectures_n_pst_to_pst_n_proof_w_limit: strategy_for_eval -> int -> int -> pnodes -> Proof.state -> Proof.state * pnodes;
+val conjectures_n_pst_to_pst_n_proof_parallel_w_limit: strategy_for_eval -> int -> int -> pnodes -> Proof.state -> Proof.state * pnodes;
 val type_check:                               Proof.context -> term -> term option;
 val remove_sledgehammer_mash_file:            bool -> int;
 val write_one_line_in_result_file:            Proof.state -> string -> unit;
@@ -191,6 +194,23 @@ fun statement_to_conjecture (pst:Proof.state) (Element.Shows [((binding, _), [(s
       }): pnode
   | statement_to_conjecture _ _ = error "statement_to_conjecture failed for the final goal.";
 
+fun term_to_original_goal_pnode (pst:Proof.state) (goal_term:term) =
+  let
+    val ctxt = Proof.context_of pst;
+    val goal_stmt = Isabelle_Utils.trm_to_string ctxt goal_term;
+  in
+    {
+      is_final_goal = true,
+      lemma_name = mk_lemma_name ctxt Original_Goal "": string,
+      lemma_stmt = goal_stmt,
+      proof = NONE,
+      proof_id = NONE,
+      refuted = false,(*we assume the final goal is a true statement.*)
+      proved_wo_assmng_cnjctr = false,
+      proved_in_nth_round = NONE
+    }: pnode
+  end;
+
 fun sort_pnodes (pnodes:pnodes): pnodes =
     sort (fn pnode_pair => option_ord int_ord (apply2 #proof_id pnode_pair)) pnodes;
 
@@ -200,13 +220,20 @@ fun print_conjecture_w_proof ({lemma_name, lemma_stmt, proof, ...}:pnode) =
     else "lemma " ^ lemma_name ^ ": " ^ enclose "\"" "\"" lemma_stmt ^ "\n" ^ the proof: string;
 
 
-fun print_proved_nodes (pnodes:pnodes) =
+fun proved_nodes_to_proof_text (pnodes:pnodes) =
   filter #proved_wo_assmng_cnjctr pnodes
   |> sort_pnodes
-  |> (fn prfnds => (tracing (Int.toString (length prfnds) ^ " proofs found:"); prfnds))
-  |> (fn prf_nds => "\n" :: map print_conjecture_w_proof prf_nds) 
-  |> String.concatWith "\n"
-  |> Active.sendback_markup_properties [Markup.padding_command];
+  |> (fn prf_nds => "\n" :: map print_conjecture_w_proof prf_nds)
+  |> String.concatWith "\n";
+
+fun print_proved_nodes (pnodes:pnodes) =
+  let
+    val proved_pnodes = filter #proved_wo_assmng_cnjctr pnodes |> sort_pnodes;
+    val _ = tracing (Int.toString (length proved_pnodes) ^ " proofs found:");
+  in
+    proved_nodes_to_proof_text proved_pnodes
+    |> Active.sendback_markup_properties [Markup.padding_command]
+  end;
 
 fun original_goal_was_proved_in_nth_round (pnodes:pnodes) (n:int) =
   exists (fn nd => #is_final_goal nd andalso #proved_in_nth_round nd = SOME n) pnodes;
@@ -398,6 +425,82 @@ then
   end
 else (pst, unprocessed_pnodes);
 
+
+
+fun pnode_n_pst_to_proof_attempt (strategy:strategy_for_eval) (hammer_duration:real) (nth_round:int) (pst:Proof.state) (pnode:pnode): pnode * string option =
+  if #proved_wo_assmng_cnjctr pnode
+  then (pnode, NONE)
+  else
+    let
+      val lemma_name = #lemma_name pnode: string;
+      val lemma_stmt = #lemma_stmt pnode: string;
+      val _ = tracing ("  try to prove " ^ lemma_name ^ ": " ^ lemma_stmt);
+      val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(lemma_stmt, [])]] (Proof.context_of pst): Proof.state;
+      val timeout_hammer   = hammer_duration;
+      val timeouts         = {overall = 300.0, hammer = timeout_hammer, quickcheck = 1.0, nitpick = 2.0}: timeouts;
+      val strategy_name    = case strategy of
+                             TAP21                           => "TAP_2021"
+                           | TBC_Strategy_W_Old_Smart_Induct => "Old_TBC_Strategy"
+                           | TBC_Strategy                    => "TBC_Strategy";
+      val script_opt       = pst_to_proofscript_opt timeouts strategy_name pst_to_be_proved <$> fst: string option;
+      val _ = if is_some script_opt then tracing ("    proved " ^ lemma_name ^ ":" ^ lemma_stmt) else ();
+    in
+      (pnode, script_opt)
+    end;
+
+fun proof_attempt_to_pnode (nth_round:int) ((pnode:pnode), (script_opt:string option)): pnode =
+  case script_opt of
+      NONE => pnode
+    | SOME script =>
+        (Unsynchronized.inc proof_id_counter;
+         {is_final_goal               = #is_final_goal pnode: bool,
+          lemma_name                  = #lemma_name pnode: string,
+          lemma_stmt                  = #lemma_stmt pnode: string,
+          proof                       = SOME script: string option,
+          proof_id                    = SOME (Unsynchronized.! proof_id_counter): int option,
+          refuted                     = #refuted pnode: bool,
+          proved_wo_assmng_cnjctr     = true: bool,
+          proved_in_nth_round         = SOME nth_round: int option});
+
+fun newly_proved_attempt_to_named_term (pst:Proof.state) ((pnode:pnode), (script_opt:string option)): (string * term) option =
+  if is_some script_opt
+  then
+    let
+      val context = Proof.context_of pst;
+      val goal_term = Syntax.read_prop context (#lemma_stmt pnode): term;
+    in
+      SOME (#lemma_name pnode, goal_term)
+    end
+  else NONE;
+
+fun conjectures_n_pst_to_pst_n_proof_parallel_w_limit (strategy:strategy_for_eval) (limit:int) (counter:int) unprocessed_pnodes pst: (Proof.state * pnodes) =
+if limit > counter
+then
+  let
+    val _ = if counter = 0 then tracing "\nTemplate-Based Conjecturing. Direct goal attempt."
+            else tracing ("\nTemplate-Based Conjecturing. Parallel round: " ^ Int.toString counter ^ ".");
+
+    fun hammer_duration_for (pnode:pnode) =
+        if #is_final_goal pnode
+        then Long_Hammer
+        else
+          if counter mod 2 = 1
+          then Short_Hammer
+          else Long_Hammer;
+
+    fun attempt pnode =
+      pnode_n_pst_to_proof_attempt strategy (hammer_duration_for pnode) counter pst pnode;
+
+    val attempts = Par_List.map attempt unprocessed_pnodes: (pnode * string option) list;
+    val processed_pnodes = map (proof_attempt_to_pnode counter) attempts: pnodes;
+    val newly_proved_named_terms = map (newly_proved_attempt_to_named_term pst) attempts |> Utils.somes: (string * term) list;
+    val new_pst = Proof.map_context (assume_terms_in_ctxt newly_proved_named_terms) pst: Proof.state;
+  in
+    if original_goal_is_proved processed_pnodes
+    then (new_pst, processed_pnodes)
+    else conjectures_n_pst_to_pst_n_proof_parallel_w_limit strategy limit (counter+1) processed_pnodes new_pst
+  end
+else (pst, unprocessed_pnodes);
 
 fun type_check (ctxt:Proof.context) (trm:term) = try (Syntax.check_term ctxt) trm: term option;
 
@@ -2191,6 +2294,8 @@ fun prove_by_conjecturing _ descr output_to_external_file =
 
 in
 
+
+
 val _ = prove_by_conjecturing \<^command_keyword>\<open>prove_by_conjecturing\<close> "theorem" false;
 val _ = prove_by_conjecturing \<^command_keyword>\<open>evaluate_property_based_conjecturing\<close> "theorem" true;
 
@@ -2317,6 +2422,87 @@ fun evaluate_tbc_command () =
           end))));
 
 end;
+
+
+signature TBC_PREPROCESSOR =
+sig
+val template_conjectures_for_term: Proof.state -> term -> TBC_Utils.pnodes;
+val preprocess_term: int -> Proof.state -> term -> Proof.state * TBC_Utils.pnodes;
+end;
+
+structure TBC_Preprocessor: TBC_PREPROCESSOR =
+struct
+
+fun template_conjectures_for_term (pst:Proof.state) (goal_term:term) =
+  let
+    val ctxt = Proof.context_of pst;
+    val (relevant_consts, relevant_binary_funcs, relevant_unary_funcs) =
+      TBC_Utils.get_relevant_constants ctxt goal_term;
+
+    val conjectures_as_tagged_terms =
+      map (Template_Based_Conjecturing.ctxt_n_const_to_all_conjecture_term ctxt)
+          (relevant_unary_funcs @ relevant_binary_funcs)
+      |> flat: (Template_Based_Conjecturing.property * term) list;
+
+    val _ =
+      tracing ("\nTBC_PREPROCESSOR: generated "
+        ^ Int.toString (length conjectures_as_tagged_terms)
+        ^ " template-based conjectures.");
+
+    val conjectures =
+      map (Template_Based_Conjecturing.pst_n_property_n_trm_to_pnode pst)
+          conjectures_as_tagged_terms: TBC_Utils.pnodes;
+
+    val conjectures_w_counterexample =
+      filter (fn pnode => #refuted pnode) conjectures;
+
+    val conjectures_wo_counterexample =
+      filter_out (fn pnode => #refuted pnode) conjectures;
+
+    val _ =
+      tracing ("TBC_PREPROCESSOR: "
+        ^ Int.toString (length conjectures_w_counterexample)
+        ^ " conjectures refuted by Quickcheck/Nitpick.");
+
+    val _ =
+      tracing ("TBC_PREPROCESSOR: "
+        ^ Int.toString (length conjectures_wo_counterexample)
+        ^ " conjectures survived counterexample filtering.");
+  in
+    conjectures_wo_counterexample
+  end;
+
+fun preprocess_term (rounds:int) (pst:Proof.state) (goal_term:term) =
+  let
+    val rounds_to_run = if rounds < 0 then 0 else rounds;
+    val original_goal = TBC_Utils.term_to_original_goal_pnode pst goal_term;
+
+    (* Round 0: retain the old TBC convention of trying the original goal once
+       before producing template-based conjectures.  The parallel function is
+       used even here so the preprocessor has one implementation path. *)
+    val (pst_after_round0, processed_after_round0) =
+      TBC_Utils.conjectures_n_pst_to_pst_n_proof_parallel_w_limit
+        TBC_Utils.TBC_Strategy 1 0 [original_goal] pst;
+  in
+    if TBC_Utils.original_goal_is_proved processed_after_round0 orelse rounds_to_run = 0
+    then (pst_after_round0, processed_after_round0)
+    else
+      let
+        val surviving_conjectures = template_conjectures_for_term pst goal_term;
+        val (pst_after_preprocessing, processed_pnodes) =
+          TBC_Utils.conjectures_n_pst_to_pst_n_proof_parallel_w_limit
+            TBC_Utils.TBC_Strategy
+            (rounds_to_run + 1)
+            1
+            (surviving_conjectures @ [original_goal])
+            pst_after_round0;
+      in
+        (pst_after_preprocessing, processed_pnodes)
+      end
+  end;
+
+end;
+
 
 val _ = evaluate_tbc_command ();
 \<close>

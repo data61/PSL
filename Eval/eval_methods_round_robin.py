@@ -17,9 +17,12 @@ from typing import Dict, List, Optional, Set
 DEFAULT_LOGIC = {
     "sledgehammer": "HOL",
     "abduction": "Smart_Isabelle",
+    "preprocessed_abduction": "Smart_Isabelle",
     "psl": "PSL",
     "tbc": "TBC",
 }
+
+ABDUCTION_LIKE_METHODS = {"abduction", "preprocessed_abduction"}
 
 
 def terminate_process_group(proc: subprocess.Popen) -> None:
@@ -662,7 +665,7 @@ def run_one(
         shutil.rmtree(proof_target_dir)
     proof_target_dir.mkdir(parents=True, exist_ok=True)
 
-    if method == "abduction":
+    if method in ABDUCTION_LIKE_METHODS:
         if stats_target_dir.exists():
             shutil.rmtree(stats_target_dir)
         stats_target_dir.mkdir(parents=True, exist_ok=True)
@@ -709,7 +712,7 @@ def run_one(
     env["PSL_EVAL_MODE"] = "1"
     env["PSL_EVAL_METHOD"] = method
     env["PSL_EVAL_PROOF_DIR"] = str(proof_target_dir)
-    if method == "abduction":
+    if method in ABDUCTION_LIKE_METHODS:
         env["PSL_EVAL_ABDUCTION_STATS_DIR"] = str(stats_target_dir)
     env["PSL_EVAL_TIMEOUT"] = str(timeout)
     env["PSL_EVAL_THREADS"] = str(threads)
@@ -830,7 +833,7 @@ def run_one(
         proof_num_lines = str(total_proof_lines)
 
     abduction_success_after_late_noise = (
-        method == "abduction"
+        method in ABDUCTION_LIKE_METHODS
         and proof_file_found
         and total_proof_lines > 0
         and output_reports_abduction_success(output)
@@ -872,7 +875,7 @@ def run_one(
         "log_file": str(log_file),
         "timeout": timeout,
         "threads": threads,
-        "abduction_stats_dir": str(stats_target_dir) if method == "abduction" else "",
+        "abduction_stats_dir": str(stats_target_dir) if method in ABDUCTION_LIKE_METHODS else "",
         "interrupted": interrupted,
     }
 
@@ -893,8 +896,8 @@ def main() -> None:
     parser.add_argument(
         "--methods",
         nargs="+",
-        default=["sledgehammer", "psl", "tbc", "abduction"],
-        choices=["sledgehammer", "psl", "tbc", "abduction"],
+        default=["sledgehammer", "psl", "tbc", "abduction", "preprocessed_abduction"],
+        choices=["sledgehammer", "psl", "tbc", "abduction", "preprocessed_abduction"],
     )
     parser.add_argument("--isabelle", default="isabelle")
     parser.add_argument("--root", default=".", help="PSL repository root")
@@ -1125,7 +1128,7 @@ def main() -> None:
             writer.writerow(row)
             csv_out.flush()
 
-            if method == "abduction":
+            if method in ABDUCTION_LIKE_METHODS:
                 for abd_stat_row in collect_abduction_statistics(row, abduction_stats_dir):
                     abduction_writer.writerow(abd_stat_row)
                 abd_out.flush()
