@@ -28,27 +28,6 @@ val fvars_in_prem_should_appear_in_concl =
     )
   );
 
-(* Due to the use of simplifier, this might be obsolete.*)
-val does_not_have_trivial_equality =
-  Not (
-    Some ("equality", SeLFiE_Util.QOuter_Path,
-      And (
-        Unode_Has_Print (Variable "equality", Print "HOL.eq"),
-        Some ("lhs", SeLFiE_Util.QOuter_Path,
-          And (
-            Is_Nth_Argument_Of (Variable "lhs", Number 0, Variable "equality"),
-            Some ("rhs", SeLFiE_Util.QOuter_Path,
-              And (
-                Has_Same_Prnt_As (Variable "lhs", Variable "rhs"),
-                Is_Nth_Argument_Of (Variable "rhs", Number 1, Variable "equality")
-              )
-            )
-          )
-        )
-      )
-    )
-  );
-
 val has_func_with_three_occs_in_a_row =
   Some ("func", SeLFiE_Util.QOuter_Print,
     Ands [

@@ -74,18 +74,18 @@ fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.st
     fun tracing' mssg = ();
     val _ = tracing' "[[[[[[[[[[[top_down_conjecture starts]]]]]]]]]]": unit;
     val standardized_trm = TDU.standardize_vnames trm
-    val results = (
+    val results =
       (*It is important to have template_conjectures as the first because
        * - we remove duplication based on the term.
        * - we do not apply simplification for the conjectures produced by template-based conjecturing.*)
-      template_conjectures ctxt standardized_trm)
-    @ Remove_Outermost_Assumption.top_down_conjectures term2name pst standardized_trm
-    @ Generalise_By_Renaming.top_down_conjectures term2name pst standardized_trm
-    @ (Generalise_Then_Extend.top_down_conjectures term2name pst standardized_trm |> filter (fn (_, trm) => has_no_multiple_occ_of_composite_subtrm ctxt trm))
-    @ Remove_Function.top_down_conjectures term2name pst standardized_trm
-    @ Abstract_Same_Term.top_down_conjectures term2name pst standardized_trm
-    @ Replace_Imp_With_Eq.top_down_conjectures term2name pst standardized_trm
-      |> Par_List.map (apsnd (TDU.simp_non_prop_term ctxt))
+     (template_conjectures ctxt standardized_trm
+      @ (Remove_Outermost_Assumption.top_down_conjectures term2name pst standardized_trm
+       @ Generalise_By_Renaming.top_down_conjectures term2name pst standardized_trm
+       @ (Generalise_Then_Extend.top_down_conjectures term2name pst standardized_trm |> filter (fn (_, trm) => has_no_multiple_occ_of_composite_subtrm ctxt trm))
+       @ Remove_Function.top_down_conjectures term2name pst standardized_trm
+       @ Abstract_Same_Term.top_down_conjectures term2name pst standardized_trm
+       @ Replace_Imp_With_Eq.top_down_conjectures term2name pst standardized_trm
+      |> Par_List.map (apsnd (TDU.simp_non_prop_term ctxt))))
       |> Par_List.map (apsnd TDU.standardize_vnames)
       |> map (fn (name, term) => (name, Syntax.check_term ctxt term))(*necessary to apply TDU.is_prop in some cases*)
       |> map (fn (name, term) => (name, if TDU.is_prop term then term else HOLogic.mk_Trueprop term))
@@ -94,7 +94,6 @@ fun top_down_conjectures (term2name: SS.synched_term2string_table) (pst:Proof.st
       |> TDU.parallel_filter_out (fn (_, cnjctr_trm) => cnjctr_trm = trm)
       |> TDU.parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.has_func_with_three_occs_in_a_row)
       |> TDU.parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.fvars_in_prem_should_appear_in_concl)
-      |> TDU.parallel_filter     (fn (_, trm) => S4TD.run_assertion pst trm S4TD.does_not_have_trivial_equality)
       |> TDU.parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.nested_eq)
       |> TDU.parallel_filter_out (fn (_, trm) => S4TD.run_assertion pst trm S4TD.var_appears_many_times_but_always_in_the_same_subtrm)
       |> map (fn (lemma_typ:string, term) => (SS.get_lemma_name term2name ctxt lemma_typ term, term));
