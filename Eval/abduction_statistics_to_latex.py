@@ -11,7 +11,9 @@ that explain contributive-node focusing:
 * contributive OR-leaf nodes (formerly worth_expanding),
 * root-reachable OR-nodes (reachable_or_nodes),
 * the ratio between contributive OR-leaves and root-reachable OR-nodes,
-* refutation-cache hit rate, and
+* refutation-cache hit rate,
+* per-loop counterexample-filtering counts,
+* per-loop Sledgehammer abduction-filtering counts, and
 * the first loop in which no contributive OR-leaf remains.
 
 AbductionGraph sharing metrics belong in abduction_graph_to_latex.py.
@@ -359,6 +361,52 @@ def refutation_cache_hit_rate_value(row: dict) -> Optional[float]:
     return float(hits) / float(total)
 
 
+def filter_refutation_checked_value(row: dict) -> Optional[float]:
+    return float(to_int(row.get("filter_refutation_checked")))
+
+
+def filter_refutation_refuted_value(row: dict) -> Optional[float]:
+    return float(to_int(row.get("filter_refutation_refuted")))
+
+
+def filter_refutation_survived_value(row: dict) -> Optional[float]:
+    return float(to_int(row.get("filter_refutation_survived")))
+
+
+def filter_refutation_survival_rate_value(row: dict) -> Optional[float]:
+    rate = str(row.get("filter_refutation_survival_rate", "")).strip()
+    if rate:
+        return to_float(rate)
+    checked = to_int(row.get("filter_refutation_checked"))
+    survived = to_int(row.get("filter_refutation_survived"))
+    if checked <= 0:
+        return None
+    return float(survived) / float(checked)
+
+
+def filter_abduction_checked_value(row: dict) -> Optional[float]:
+    return float(to_int(row.get("filter_abduction_checked_conjectures")))
+
+
+def filter_abduction_used_value(row: dict) -> Optional[float]:
+    return float(to_int(row.get("filter_abduction_used_conjectures")))
+
+
+def filter_abduction_discarded_value(row: dict) -> Optional[float]:
+    return float(to_int(row.get("filter_abduction_discarded_conjectures")))
+
+
+def filter_abduction_retention_rate_value(row: dict) -> Optional[float]:
+    rate = str(row.get("filter_abduction_retention_rate", "")).strip()
+    if rate:
+        return to_float(rate)
+    checked = to_int(row.get("filter_abduction_checked_conjectures"))
+    used = to_int(row.get("filter_abduction_used_conjectures"))
+    if checked <= 0:
+        return None
+    return float(used) / float(checked)
+
+
 def write_first_zero_hist(problem_groups: dict[tuple[str, str], list[dict]], out_path: Path, benchmark: str = "") -> None:
     counts: Counter[int] = Counter()
     unproved_without_zero: list[str] = []
@@ -482,9 +530,90 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str,
         extra_axis_options=[r"yticklabel style={/pgf/number format/fixed},"],
     )
 
+    write_line_graph(
+        problem_groups,
+        out_dir / f"abduction_refutation_checked_by_loop{suffix}.tex",
+        value_of_row=filter_refutation_checked_value,
+        title=title_with_benchmark("Conjectures checked by counterexample filtering", benchmark),
+        ylabel="Unique conjectures checked",
+        log_y=use_log_counts,
+        legend_pos="north west",
+    )
+
+    write_line_graph(
+        problem_groups,
+        out_dir / f"abduction_refutation_refuted_by_loop{suffix}.tex",
+        value_of_row=filter_refutation_refuted_value,
+        title=title_with_benchmark("Conjectures refuted by counterexample filtering", benchmark),
+        ylabel="Unique conjectures refuted",
+        log_y=use_log_counts,
+        legend_pos="north west",
+    )
+
+    write_line_graph(
+        problem_groups,
+        out_dir / f"abduction_refutation_survived_by_loop{suffix}.tex",
+        value_of_row=filter_refutation_survived_value,
+        title=title_with_benchmark("Conjectures surviving counterexample filtering", benchmark),
+        ylabel="Unique conjectures surviving",
+        log_y=use_log_counts,
+        legend_pos="north west",
+    )
+
+    write_line_graph(
+        problem_groups,
+        out_dir / f"abduction_refutation_survival_rate_by_loop{suffix}.tex",
+        value_of_row=filter_refutation_survival_rate_value,
+        title=title_with_benchmark("Counterexample-filter survival rate", benchmark),
+        ylabel="Survived / checked",
+        ymax_min=1.0,
+        extra_axis_options=[r"yticklabel style={/pgf/number format/fixed},"],
+    )
+
+    write_line_graph(
+        problem_groups,
+        out_dir / f"abduction_filter_checked_by_loop{suffix}.tex",
+        value_of_row=filter_abduction_checked_value,
+        title=title_with_benchmark("Conjectures submitted to Sledgehammer abduction check", benchmark),
+        ylabel="Unique conjectures submitted",
+        log_y=use_log_counts,
+        legend_pos="north west",
+    )
+
+    write_line_graph(
+        problem_groups,
+        out_dir / f"abduction_filter_used_by_loop{suffix}.tex",
+        value_of_row=filter_abduction_used_value,
+        title=title_with_benchmark("Conjectures used by Sledgehammer abduction check", benchmark),
+        ylabel="Unique conjectures used",
+        log_y=use_log_counts,
+        legend_pos="north west",
+    )
+
+    write_line_graph(
+        problem_groups,
+        out_dir / f"abduction_filter_discarded_by_loop{suffix}.tex",
+        value_of_row=filter_abduction_discarded_value,
+        title=title_with_benchmark("Conjectures discarded by Sledgehammer abduction check", benchmark),
+        ylabel="Unique conjectures discarded",
+        log_y=use_log_counts,
+        legend_pos="north west",
+    )
+
+    write_line_graph(
+        problem_groups,
+        out_dir / f"abduction_filter_retention_rate_by_loop{suffix}.tex",
+        value_of_row=filter_abduction_retention_rate_value,
+        title=title_with_benchmark("Sledgehammer abduction-check retention rate", benchmark),
+        ylabel="Used / submitted",
+        ymax_min=1.0,
+        extra_axis_options=[r"yticklabel style={/pgf/number format/fixed},"],
+    )
+
     write_first_zero_hist(
         problem_groups,
         out_dir / f"abduction_first_zero_expandable_hist{suffix}.tex",
+        benchmark,
     )
     return True
 

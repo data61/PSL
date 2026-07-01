@@ -65,6 +65,14 @@ type loop_entry =
   refutation_cache_hits: int,
   refutation_cache_misses: int,
   refutation_cache_hit_rate: real,
+  filter_refutation_checked: int,
+  filter_refutation_refuted: int,
+  filter_refutation_survived: int,
+  filter_refutation_survival_rate: real,
+  filter_abduction_checked_conjectures: int,
+  filter_abduction_used_conjectures: int,
+  filter_abduction_discarded_conjectures: int,
+  filter_abduction_retention_rate: real,
   elapsed_sec: real};
 
 type decremental_entry =
@@ -182,6 +190,14 @@ type loop_entry =
   refutation_cache_hits: int,
   refutation_cache_misses: int,
   refutation_cache_hit_rate: real,
+  filter_refutation_checked: int,
+  filter_refutation_refuted: int,
+  filter_refutation_survived: int,
+  filter_refutation_survival_rate: real,
+  filter_abduction_checked_conjectures: int,
+  filter_abduction_used_conjectures: int,
+  filter_abduction_discarded_conjectures: int,
+  filter_abduction_retention_rate: real,
   elapsed_sec: real};
 
 type decremental_entry =
@@ -276,7 +292,7 @@ fun append_line_with_header path header line =
   else File.write path (header ^ line);
 
 val loop_header =
-  "depth,reachable_keys,reachable_or_nodes,reachable_or_leaf_nodes,worth_expanding,selected_ornodes,selection_rate,num_processors,graph_nodes,graph_edges,graph_or_nodes,graph_and_nodes,graph_or2and_edge_nodes,graph_avg_indegree,graph_max_indegree,graph_scc_count,graph_cyclic_scc_count,graph_largest_scc_size,graph_or_projected_edges,graph_or_projected_avg_indegree,graph_or_projected_max_indegree,graph_or_projected_scc_count,graph_or_projected_cyclic_scc_count,graph_or_projected_largest_scc_size,graph_and_projected_edges,graph_and_projected_avg_indegree,graph_and_projected_max_indegree,graph_and_projected_scc_count,graph_and_projected_cyclic_scc_count,graph_and_projected_largest_scc_size,graph_node_attempts,graph_nodes_created,graph_node_reuses,graph_node_reuse_rate,graph_ornode_attempts,graph_ornodes_created,graph_ornodes_reused,graph_ornode_reuse_rate,graph_andnode_attempts,graph_andnodes_created,graph_andnodes_reused,graph_andnode_reuse_rate,graph_edge_node_attempts,graph_edge_nodes_created,graph_edge_nodes_reused,graph_edge_node_reuse_rate,graph_edge_attempts,graph_edges_created,graph_edge_reuses,graph_edge_reuse_rate,or_expansion_attempts,or_expansions_started,or_expansion_reuse_rate,refutation_cache_size,refutation_cache_hits,refutation_cache_misses,refutation_cache_hit_rate,elapsed_sec\n";
+  "depth,reachable_keys,reachable_or_nodes,reachable_or_leaf_nodes,worth_expanding,selected_ornodes,selection_rate,num_processors,graph_nodes,graph_edges,graph_or_nodes,graph_and_nodes,graph_or2and_edge_nodes,graph_avg_indegree,graph_max_indegree,graph_scc_count,graph_cyclic_scc_count,graph_largest_scc_size,graph_or_projected_edges,graph_or_projected_avg_indegree,graph_or_projected_max_indegree,graph_or_projected_scc_count,graph_or_projected_cyclic_scc_count,graph_or_projected_largest_scc_size,graph_and_projected_edges,graph_and_projected_avg_indegree,graph_and_projected_max_indegree,graph_and_projected_scc_count,graph_and_projected_cyclic_scc_count,graph_and_projected_largest_scc_size,graph_node_attempts,graph_nodes_created,graph_node_reuses,graph_node_reuse_rate,graph_ornode_attempts,graph_ornodes_created,graph_ornodes_reused,graph_ornode_reuse_rate,graph_andnode_attempts,graph_andnodes_created,graph_andnodes_reused,graph_andnode_reuse_rate,graph_edge_node_attempts,graph_edge_nodes_created,graph_edge_nodes_reused,graph_edge_node_reuse_rate,graph_edge_attempts,graph_edges_created,graph_edge_reuses,graph_edge_reuse_rate,or_expansion_attempts,or_expansions_started,or_expansion_reuse_rate,refutation_cache_size,refutation_cache_hits,refutation_cache_misses,refutation_cache_hit_rate,filter_refutation_checked,filter_refutation_refuted,filter_refutation_survived,filter_refutation_survival_rate,filter_abduction_checked_conjectures,filter_abduction_used_conjectures,filter_abduction_discarded_conjectures,filter_abduction_retention_rate,elapsed_sec\n";
 
 fun loop_entry_to_csv
     ({depth, reachable_keys, reachable_or_nodes, reachable_or_leaf_nodes, worth_expanding, selected_ornodes, selection_rate,
@@ -296,7 +312,12 @@ fun loop_entry_to_csv
       graph_edge_attempts, graph_edges_created, graph_edge_reuses, graph_edge_reuse_rate,
       or_expansion_attempts, or_expansions_started, or_expansion_reuse_rate,
       refutation_cache_size, refutation_cache_hits, refutation_cache_misses,
-      refutation_cache_hit_rate, elapsed_sec}: loop_entry) =
+      refutation_cache_hit_rate,
+      filter_refutation_checked, filter_refutation_refuted, filter_refutation_survived,
+      filter_refutation_survival_rate,
+      filter_abduction_checked_conjectures, filter_abduction_used_conjectures,
+      filter_abduction_discarded_conjectures, filter_abduction_retention_rate,
+      elapsed_sec}: loop_entry) =
   String.concatWith ","
     [int_to_csv depth,
      int_to_csv reachable_keys,
@@ -355,6 +376,14 @@ fun loop_entry_to_csv
      int_to_csv refutation_cache_hits,
      int_to_csv refutation_cache_misses,
      real_to_csv refutation_cache_hit_rate,
+     int_to_csv filter_refutation_checked,
+     int_to_csv filter_refutation_refuted,
+     int_to_csv filter_refutation_survived,
+     real_to_csv filter_refutation_survival_rate,
+     int_to_csv filter_abduction_checked_conjectures,
+     int_to_csv filter_abduction_used_conjectures,
+     int_to_csv filter_abduction_discarded_conjectures,
+     real_to_csv filter_abduction_retention_rate,
      real_to_csv elapsed_sec] ^ "\n";
 
 fun write_loop_entry pst entry =

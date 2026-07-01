@@ -40,6 +40,7 @@ fun prove_standard_simp_rules
    refutation    : SS.synched_term2real_table,
    term2name     : SS.synched_term2string_table,
    proved_simps  : SS.synched_proved_simps,
+   filter_stats  : SS.synched_filter_statistics,
    orig_prems    : terms)
   (lemma_term:term): unit =
   let
@@ -72,6 +73,7 @@ fun expand_ornode_if_original_goal_is_unproved
    refutation    : SS.synched_term2real_table,
    term2name     : SS.synched_term2string_table,
    proved_simps  : SS.synched_proved_simps,
+   filter_stats  : SS.synched_filter_statistics,
    orig_prems    : terms)
   (or_key as (Or_N, [lemma_term]):key): bool =
     let
@@ -137,7 +139,7 @@ fun expand_ornode_if_original_goal_is_unproved
       val standardized_conjectures     = map (apsnd Top_Down_Util.standardize_vnames) tb_and_simped_conjectures
                                       |> distinct (op =)(*TODO: should it be done here?*)
       val _                            = SOOE.abduction_for_explicit_conjectures pst top_loop_index or_key standardized_conjectures
-                                         (term2name, refutation, synched_agraph, proved_simps): unit;
+                                         (term2name, refutation, synched_agraph, proved_simps, filter_stats): unit;
     in
       SS.final_goal_proved_completely synched_agraph
     end
@@ -148,12 +150,12 @@ fun current_time (start:Timing.start) = Time.toReal (#elapsed (Timing.result sta
 fun still_has_time (start:Timing.start) (pst:Proof.state) = current_time start < get_timeout pst: bool;
 
 fun expand_ornode_if_original_goal_is_unproved_w_timeout (start:Timing.start) (top_loop_index:int)
-      (pst:state, synched_agraph, refutation, term2name, proved_simps, orig_prems) (or_key as (Or_N, [_]):key): bool =
+      (pst:state, synched_agraph, refutation, term2name, proved_simps, filter_stats, orig_prems) (or_key as (Or_N, [_]):key): bool =
     if   Time.toReal (#elapsed (Timing.result start)) < get_timeout pst
     then
       (*Why Future? Because Timeout.apply alone cannot be trusted.*)
       Future.fork
-       (fn () => (SS.update_is_branch or_key synched_agraph: unit; expand_ornode_if_original_goal_is_unproved top_loop_index) (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems) or_key)
+       (fn () => (SS.update_is_branch or_key synched_agraph: unit; expand_ornode_if_original_goal_is_unproved top_loop_index) (pst, synched_agraph, refutation, term2name, proved_simps, filter_stats, orig_prems) or_key)
     |> (fn f => Timeout.apply (Time.fromSeconds 600) Future.join f
         handle Timeout.TIMEOUT _ => (tracing ("Timeout from expand_ornode_if_original_goal_is_unproved_w_timeout"); false))
     else false
@@ -168,11 +170,14 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
      refutation:SS.synched_term2real_table,
      term2name:SS.synched_term2string_table,
      proved_simps:SS.synched_proved_simps,
+     filter_stats:SS.synched_filter_statistics,
      orig_prems: terms)) =
   if counter < 15 andalso still_has_time start pst
   then
     let
+      val top_loop_round         = counter + 1: int;
       val _                      = tracing ("==== In loop. The depth is: " ^ Int.toString counter ^ ". =====");
+      val _                      = SS.reset_filter_statistics_for_loop filter_stats top_loop_round;
       val ctxt                   = Proof.context_of pst;
       val abduction_graph        = SS.value_of_graph synched_agraph: Abduction_Graph.abduction_graph;
       val (orkeys_worth_expanding, frontier_counts) =
@@ -185,8 +190,8 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
       val _                      = tracing ("The number of keys worth expanding is:" ^ Int.toString worth_expanding_count ^ ".");
       val _                      = tracing "They are:"
       val _                      = map (print_orkey ctxt abduction_graph) sorted_orkeys
-      val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start (counter + 1)
-                                   (pst, synched_agraph, refutation, term2name, proved_simps, orig_prems)
+      val expand_ornode          = expand_ornode_if_original_goal_is_unproved_w_timeout start top_loop_round
+                                   (pst, synched_agraph, refutation, term2name, proved_simps, filter_stats, orig_prems)
                                  : Abduction_Graph.key -> bool;
       val numb_of_processors     = Thread.Thread.numProcessors ():int;
       val _                      = tracing ("numb_of_processors is " ^ Int.toString numb_of_processors ^ ".");
@@ -267,8 +272,17 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
     SS.refutation_cache_statistics refutation;
   val ref_cache_total        = ref_cache_hits + ref_cache_misses;
   val ref_cache_hit_rate     = rate ref_cache_hits ref_cache_total;
+  val {refutation_checked = filter_refutation_checked,
+       refutation_refuted = filter_refutation_refuted,
+       refutation_survived = filter_refutation_survived,
+       abduction_checked_conjectures = filter_abduction_checked_conjectures,
+       abduction_used_conjectures = filter_abduction_used_conjectures,
+       abduction_discarded_conjectures = filter_abduction_discarded_conjectures,
+       ...} = SS.filter_statistics_snapshot filter_stats;
+  val filter_refutation_survival_rate = rate filter_refutation_survived filter_refutation_checked;
+  val filter_abduction_retention_rate = rate filter_abduction_used_conjectures filter_abduction_checked_conjectures;
   val _                      = Abduction_Statistics.record_loop pst synched_statistics
-                                {depth = counter + 1,
+                                {depth = top_loop_round,
                                  reachable_keys = reachable_count,
                                  reachable_or_nodes = reachable_or_count,
                                  reachable_or_leaf_nodes = reachable_orleaf_count,
@@ -325,6 +339,14 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
                                  refutation_cache_hits = ref_cache_hits,
                                  refutation_cache_misses = ref_cache_misses,
                                  refutation_cache_hit_rate = ref_cache_hit_rate,
+                                 filter_refutation_checked = filter_refutation_checked,
+                                 filter_refutation_refuted = filter_refutation_refuted,
+                                 filter_refutation_survived = filter_refutation_survived,
+                                 filter_refutation_survival_rate = filter_refutation_survival_rate,
+                                 filter_abduction_checked_conjectures = filter_abduction_checked_conjectures,
+                                 filter_abduction_used_conjectures = filter_abduction_used_conjectures,
+                                 filter_abduction_discarded_conjectures = filter_abduction_discarded_conjectures,
+                                 filter_abduction_retention_rate = filter_abduction_retention_rate,
                                  elapsed_sec = current_time start};
           in
             ()
@@ -431,7 +453,8 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
     val ctxt                     = Proof.context_of pst;
     val standardized_term        = Top_Down_Util.standardize_vnames term |> Isabelle_Utils.strip_atyp |> Syntax.check_term ctxt;
     val synched_agraph           = SS.mk_synched_abduction_graph ctxt standardized_term: SS.synched_abduction_graph;
-    val synched_refutation_table = SS.mk_term2real_table ();
+    val synched_filter_stats     = SS.mk_filter_statistics ();
+    val synched_refutation_table = SS.mk_term2real_table (SOME synched_filter_stats);
     val synched_lemma_name_table = SS.mk_term2string_table ();
     val synched_proved_simps     = SS.mk_synched_proved_simps ();
     val synched_statistics       = Abduction_Statistics.mk_statistics ();
@@ -451,7 +474,7 @@ fun proof_by_abduction (pst:Proof.state) (start:Timing.start) (term:term) =
           end
         else (*Proof by abduction is necessary.*)
           let
-            val quintuple                = (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table, synched_proved_simps, ori_prems);
+            val quintuple                = (pst, synched_agraph, synched_refutation_table, synched_lemma_name_table, synched_proved_simps, synched_filter_stats, ori_prems);
             val _                        = prove_standard_simp_rules quintuple standardized_term: unit;
             val solved_in_loop           = loop 0 max_depth start synched_statistics quintuple;(*expensive abduction!*)
             val final_graph              = SS.value_of_graph synched_agraph: Abduction_Graph.abduction_graph;

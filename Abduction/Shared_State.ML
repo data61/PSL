@@ -16,9 +16,24 @@ val add_proved_simp: synched_proved_simps -> (string * term) -> unit;
 
 type abduction_graph;
 
+type filter_statistics_snapshot =
+ {top_loop_index: int,
+  refutation_checked: int,
+  refutation_refuted: int,
+  refutation_survived: int,
+  abduction_checked_conjectures: int,
+  abduction_used_conjectures: int,
+  abduction_discarded_conjectures: int};
+type synched_filter_statistics;
+val mk_filter_statistics              : unit -> synched_filter_statistics;
+val reset_filter_statistics_for_loop  : synched_filter_statistics -> int -> unit;
+val filter_statistics_snapshot        : synched_filter_statistics -> filter_statistics_snapshot;
+val record_abduction_filter_input     : synched_filter_statistics -> terms -> unit;
+val record_abduction_filter_used      : synched_filter_statistics -> terms -> unit;
+
 type term2real_table;
 type synched_term2real_table;
-val mk_term2real_table     : unit -> synched_term2real_table;
+val mk_term2real_table     : synched_filter_statistics option -> synched_term2real_table;
 val refutation_cache_statistics_enabled: unit -> bool;
 type refutation_cache_statistics = {size: int, hits: int, misses: int};
 val refutation_cache_statistics: synched_term2real_table -> refutation_cache_statistics;
@@ -104,20 +119,136 @@ type abduction_graph = Abduction_Graph.abduction_graph;
 structure Term_Table = Table (type key = term val ord = Term_Ord.term_ord);
 val defined          = Term_Table.defined;
 
+type filter_statistics_snapshot =
+ {top_loop_index: int,
+  refutation_checked: int,
+  refutation_refuted: int,
+  refutation_survived: int,
+  abduction_checked_conjectures: int,
+  abduction_used_conjectures: int,
+  abduction_discarded_conjectures: int};
+
+type filter_loop_statistics =
+ {top_loop_index: int,
+  refutation_checked: unit Term_Table.table,
+  refutation_refuted: unit Term_Table.table,
+  refutation_survived: unit Term_Table.table,
+  abduction_checked_conjectures: unit Term_Table.table,
+  abduction_used_conjectures: unit Term_Table.table};
+
+type synched_filter_statistics = filter_loop_statistics Synchronized.var;
+
+fun filter_statistics_enabled () =
+  getenv "PSL_EVAL_MODE" = "1" andalso getenv "PSL_EVAL_ABDUCTION_STATS_DIR" <> "";
+
+fun empty_filter_loop_statistics (top_loop_index:int): filter_loop_statistics =
+ {top_loop_index = top_loop_index,
+  refutation_checked = Term_Table.empty,
+  refutation_refuted = Term_Table.empty,
+  refutation_survived = Term_Table.empty,
+  abduction_checked_conjectures = Term_Table.empty,
+  abduction_used_conjectures = Term_Table.empty};
+
+fun mk_filter_statistics _ =
+  Synchronized.var "abduction_filter_statistics" (empty_filter_loop_statistics 0): synched_filter_statistics;
+
+fun reset_filter_statistics_for_loop (synched_stats:synched_filter_statistics) (top_loop_index:int) =
+  if filter_statistics_enabled ()
+  then Synchronized.change synched_stats (fn _ => empty_filter_loop_statistics top_loop_index)
+  else ();
+
+fun insert_unit (trm:term) (table:unit Term_Table.table) =
+  Term_Table.update (trm, ()) table;
+
+fun canonical_filter_term (trm:term) =
+  Top_Down_Util.standardize_vnames trm |> Isabelle_Utils.strip_atyp: term;
+
+fun record_refutation_filter_result (stats_opt:synched_filter_statistics option) (cnjctr:term) (is_refuted:bool): unit =
+  case stats_opt of
+      NONE => ()
+    | SOME synched_stats =>
+        if not (filter_statistics_enabled ())
+        then ()
+        else
+          let
+            val clean = canonical_filter_term cnjctr;
+          in
+            Synchronized.change synched_stats
+              (fn {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
+                   abduction_checked_conjectures, abduction_used_conjectures} =>
+                {top_loop_index = top_loop_index,
+                 refutation_checked = insert_unit clean refutation_checked,
+                 refutation_refuted = if is_refuted then insert_unit clean refutation_refuted else refutation_refuted,
+                 refutation_survived = if is_refuted then refutation_survived else insert_unit clean refutation_survived,
+                 abduction_checked_conjectures = abduction_checked_conjectures,
+                 abduction_used_conjectures = abduction_used_conjectures})
+          end;
+
+fun record_terms_into_table (terms:terms) (table:unit Term_Table.table) =
+  fold (insert_unit o canonical_filter_term) terms table;
+
+fun record_abduction_filter_input (synched_stats:synched_filter_statistics) (terms:terms): unit =
+  if not (filter_statistics_enabled ())
+  then ()
+  else
+    Synchronized.change synched_stats
+      (fn {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
+           abduction_checked_conjectures, abduction_used_conjectures} =>
+        {top_loop_index = top_loop_index,
+         refutation_checked = refutation_checked,
+         refutation_refuted = refutation_refuted,
+         refutation_survived = refutation_survived,
+         abduction_checked_conjectures = record_terms_into_table terms abduction_checked_conjectures,
+         abduction_used_conjectures = abduction_used_conjectures});
+
+fun record_abduction_filter_used (synched_stats:synched_filter_statistics) (terms:terms): unit =
+  if not (filter_statistics_enabled ())
+  then ()
+  else
+    Synchronized.change synched_stats
+      (fn {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
+           abduction_checked_conjectures, abduction_used_conjectures} =>
+        {top_loop_index = top_loop_index,
+         refutation_checked = refutation_checked,
+         refutation_refuted = refutation_refuted,
+         refutation_survived = refutation_survived,
+         abduction_checked_conjectures = abduction_checked_conjectures,
+         abduction_used_conjectures = record_terms_into_table terms abduction_used_conjectures});
+
+fun table_size (table:unit Term_Table.table) = Term_Table.dest table |> length;
+
+fun filter_statistics_snapshot (synched_stats:synched_filter_statistics) =
+  let
+    val {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
+         abduction_checked_conjectures, abduction_used_conjectures} = Synchronized.value synched_stats;
+    val checked = table_size abduction_checked_conjectures;
+    val used = table_size abduction_used_conjectures;
+    val discarded = Int.max (0, checked - used);
+  in
+   {top_loop_index = top_loop_index,
+    refutation_checked = table_size refutation_checked,
+    refutation_refuted = table_size refutation_refuted,
+    refutation_survived = table_size refutation_survived,
+    abduction_checked_conjectures = checked,
+    abduction_used_conjectures = used,
+    abduction_discarded_conjectures = discarded}: filter_statistics_snapshot
+  end;
+
 datatype refutation_cache_entry = Refuting | Refuted of real;
 
 type refutation_cache_statistics = {size: int, hits: int, misses: int};
 type term2real_table =
  {table : refutation_cache_entry Term_Table.table,
   hits  : int,                     (*calls served from the cache or by waiting for an in-progress result*)
-  misses: int};                    (*calls that actually ran Quickcheck/Nitpick*)
+  misses: int,                     (*calls that actually ran Quickcheck/Nitpick*)
+  filter_statistics: synched_filter_statistics option};
 type synched_term2real_table = term2real_table Synchronized.var;
 
-fun empty_term2real_table () =
-  {table = Term_Table.empty, hits = 0, misses = 0}: term2real_table;
+fun empty_term2real_table filter_statistics =
+  {table = Term_Table.empty, hits = 0, misses = 0, filter_statistics = filter_statistics}: term2real_table;
 
-fun mk_term2real_table _ =
-  Synchronized.var "synched_term2real_table" (empty_term2real_table ()): synched_term2real_table;
+fun mk_term2real_table filter_statistics =
+  Synchronized.var "synched_term2real_table" (empty_term2real_table filter_statistics): synched_term2real_table;
 
 fun refutation_cache_statistics_enabled () =
   getenv "PSL_EVAL_MODE" = "1" andalso getenv "PSL_EVAL_ABDUCTION_STATS_DIR" <> "";
@@ -130,7 +261,7 @@ fun refutation_cache_statistics (synched_table:synched_term2real_table) =
   then {size = 0, hits = 0, misses = 0}: refutation_cache_statistics
   else
     let
-      val {table, hits, misses} = Synchronized.value synched_table;
+      val {table, hits, misses, filter_statistics = _} = Synchronized.value synched_table;
       val size = Term_Table.dest table |> filter finished_cache_entry |> length;
     in
       {size = size, hits = hits, misses = misses}: refutation_cache_statistics
@@ -153,24 +284,27 @@ local
  *)
 fun reserve_or_get (count_enabled:bool) (synched_table:synched_term2real_table) (cnjctr:term): real option =
   Synchronized.guarded_access synched_table
-    (fn ({table, hits, misses}:term2real_table) =>
+    (fn ({table, hits, misses, filter_statistics}:term2real_table) =>
       case Term_Table.lookup table cnjctr of
         SOME (Refuted r) =>
-          SOME (SOME r, {table = table, hits = hits + (if count_enabled then 1 else 0), misses = misses})
+          SOME (SOME r, {table = table, hits = hits + (if count_enabled then 1 else 0), misses = misses,
+                         filter_statistics = filter_statistics})
       | SOME Refuting =>
           NONE
       | NONE =>
           SOME (NONE,
             {table = Term_Table.update (cnjctr, Refuting) table,
              hits = hits,
-             misses = misses + (if count_enabled then 1 else 0)}));
+             misses = misses + (if count_enabled then 1 else 0),
+             filter_statistics = filter_statistics}));
 
 fun publish_result (synched_table:synched_term2real_table) (cnjctr:term, r:real): unit =
   Synchronized.change synched_table
-    (fn ({table, hits, misses}:term2real_table) =>
+    (fn ({table, hits, misses, filter_statistics}:term2real_table) =>
       {table = Term_Table.update (cnjctr, Refuted r) table,
        hits = hits,
-       misses = misses});
+       misses = misses,
+       filter_statistics = filter_statistics});
 
 fun quickcheck pst cnjctr =
   TBC_Utils.term_has_counterexample_in_pst pst cnjctr: real;
@@ -188,14 +322,17 @@ fun refute (_(*debug*): bool) (synched_table:synched_term2real_table) (pst:Proof
      * The reasons is that we have already applied type-checking prior to this stage.
      * So, if Syntax.check_prop fails here, it is caused by some unknown reasons, for which
      * we do not want to refute the conjecture. *)
+    val ({filter_statistics, ...}: term2real_table) = Synchronized.value synched_table;
     val cached = reserve_or_get (refutation_cache_statistics_enabled ()) synched_table cnjctr_prop_clean: real option;
+    fun record r = record_refutation_filter_result filter_statistics cnjctr_prop_clean (Real.== (r, 0.0));
   in
     case cached of
-      SOME r => r
+      SOME r => (record r; r)
     | NONE =>
         let
           val r = quickcheck pst cnjctr_prop_clean;
           val _ = publish_result synched_table (cnjctr_prop_clean, r);
+          val _ = record r;
         in
           r
         end

@@ -34,7 +34,8 @@ val abduction_for_explicit_conjectures    : Proof.state -> int -> key -> conject
                                             (Shared_State.synched_term2string_table *
                                              Shared_State.synched_term2real_table *
                                              Shared_State.synched_abduction_graph *
-                                             Shared_State.synched_proved_simps) -> unit;
+                                             Shared_State.synched_proved_simps *
+                                             Shared_State.synched_filter_statistics) -> unit;
 
 end;
 
@@ -496,7 +497,8 @@ fun make_decremental_entry
   end;
 
 fun one_decrement
-    (pst:Proof.state, synched_agraph:SS.synched_abduction_graph, synched_proved_simps:SS.synched_proved_simps)
+    (pst:Proof.state, synched_agraph:SS.synched_abduction_graph,
+     synched_proved_simps:SS.synched_proved_simps, filter_stats:SS.synched_filter_statistics)
     (top_loop_index:int) (parent_or_name:string) (is_root_or_node:bool)
     (decremental_round_index:int) (decremental_limit:int)
     (parent_ornd:key) (candidate_conjecturess:decremental_candidate list)
@@ -591,6 +593,25 @@ fun one_decrement
           |> flat
           |> distinct (op =): conjectures;
 
+        val abduction_checked_conjectures =
+          attempted_candidates_from_results attempt_results
+          |> map candidate_conjectures
+          |> flat
+          |> map snd
+          |> distinct (op =): terms;
+
+        val abduction_used_conjectures =
+          List.mapPartial
+            (fn Tried_Decrement {triple_opt = SOME (_, _, used_conjectures), ...} => SOME used_conjectures
+              | _ => NONE)
+            attempt_results
+          |> flat
+          |> map snd
+          |> distinct (op =): terms;
+
+        val _ = SS.record_abduction_filter_input filter_stats abduction_checked_conjectures;
+        val _ = SS.record_abduction_filter_used filter_stats abduction_used_conjectures;
+
         (*3 make new candidate sets by removing one used-but-unproved conjecture.
          * A candidate carries its maximum depth in the refinement DAG.  The
          * initial candidate has depth 0.  Whenever a set is produced by deleting
@@ -670,12 +691,13 @@ fun one_decrement
         (promising_candidates, new_results)
       end;
 
-fun decremental _ _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_proved_simps)
+fun decremental _ _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_proved_simps, _:SS.synched_filter_statistics)
       (_:int) (_:string) (_:bool) (_:key) ([]:decremental_candidate list)
       (_:conjectures list Synchronized.var) (_:conjectures list Synchronized.var) results =
     results: add_or2and_edge list
   | decremental (decremental_limit:int) (counter:int)
-    (pst:Proof.state, synched_agraph:SS.synched_abduction_graph, synched_proved_simps:SS.synched_proved_simps)
+    (pst:Proof.state, synched_agraph:SS.synched_abduction_graph,
+     synched_proved_simps:SS.synched_proved_simps, filter_stats:SS.synched_filter_statistics)
     (top_loop_index:int) (parent_or_name:string) (is_root_or_node:bool)
     (parent_ornd:key) (candidate_conjecturess:decremental_candidate list)
     (synched_checked:conjectures list Synchronized.var)
@@ -686,19 +708,21 @@ fun decremental _ _ (_:Proof.state,  _:SS.synched_abduction_graph, _:SS.synched_
       let
         val decremental_round_index = decremental_limit - counter + 1: int;
         val (promising_candidates, new_results) =
-          one_decrement (pst, synched_agraph, synched_proved_simps)
+          one_decrement (pst, synched_agraph, synched_proved_simps, filter_stats)
             top_loop_index parent_or_name is_root_or_node decremental_round_index decremental_limit
             parent_ornd candidate_conjecturess synched_checked synched_failed_set results
       in
         decremental decremental_limit (counter - 1)
-          (pst, synched_agraph, synched_proved_simps)
+          (pst, synched_agraph, synched_proved_simps, filter_stats)
           top_loop_index parent_or_name is_root_or_node parent_ornd promising_candidates
           synched_checked synched_failed_set new_results
       end
     else results;
 
 fun abduction_for_explicit_conjectures (pst:Proof.state) (top_loop_index:int) (parent_orkey:key) (conjectures:conjectures)
-  (sterm2name:SS.synched_term2string_table, refutation: SS.synched_term2real_table, sagraph: SS.synched_abduction_graph, proved_simps:SS.synched_proved_simps) =
+  (sterm2name:SS.synched_term2string_table, refutation: SS.synched_term2real_table,
+   sagraph: SS.synched_abduction_graph, proved_simps:SS.synched_proved_simps,
+   filter_stats:SS.synched_filter_statistics) =
   let
     fun tracing' mssg = tracing mssg;
     val _       = tracing' "\n ** Trying to prove **:";
@@ -719,7 +743,7 @@ fun abduction_for_explicit_conjectures (pst:Proof.state) (top_loop_index:int) (p
       Synchronized.var "Seed_Of_Or2And_Edge.decremental.failed_set.parent" []
         : conjectures list Synchronized.var;
     val triples =
-      decremental limit limit (pst, sagraph, proved_simps)
+      decremental limit limit (pst, sagraph, proved_simps, filter_stats)
         top_loop_index parent_or_name is_root_or_node parent_orkey [(conjectures, 0)]
         synched_checked synched_failed_set []: add_or2and_edge list;
     val _       = tracing' " decremental abduction ends";
