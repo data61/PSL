@@ -19,6 +19,7 @@ DEFAULT_LOGIC = {
 }
 
 ABDUCTION_LIKE_METHODS = {"abduction", "preprocessed_abduction"}
+TBC_SEEDED_METHODS = {"preprocessed_abduction"}
 
 
 def terminate_process_group(proc: subprocess.Popen) -> None:
@@ -204,6 +205,65 @@ ABDUCTION_DECREMENTAL_FIELDNAMES = [
     "abduction_decremental_file",
 ]
 
+
+
+TBC_SEED_PREPROCESSING_FIELDNAMES = [
+    "method", "benchmark", "target_id", "status", "error_kind", "proof_found",
+    "elapsed_sec", "timeout", "threads", "preprocessing_stats_kind",
+    "rounds_requested", "direct_goal_attempted", "direct_goal_proved",
+    "direct_goal_elapsed_sec", "generated_conjectures", "refuted_by_counterexample",
+    "surviving_conjectures", "parallel_rounds_run", "parallel_candidate_nodes",
+    "proved_template_lemmas", "original_goal_proved_by_tbc",
+    "original_goal_proved_in_round", "tbc_preprocessing_elapsed_sec",
+    "abduction_invoked", "abduction_solved", "abduction_elapsed_sec",
+    "total_elapsed_sec", "tbc_seed_stats_file",
+]
+
+
+def collect_tbc_seed_preprocessing_statistics(row: Dict[str, object], stats_dir: str) -> List[dict]:
+    stats_path = Path(stats_dir) if stats_dir else Path("__missing_tbc_seed_stats__")
+    stats_rows = read_csv_rows_from_dir(stats_path, "*.csv")
+
+    def base_row() -> dict:
+        return {
+            "method": row.get("method", ""),
+            "benchmark": row.get("benchmark", ""),
+            "target_id": row.get("target_id", ""),
+            "status": row.get("status", ""),
+            "error_kind": row.get("error_kind", ""),
+            "proof_found": row.get("proof_found", ""),
+            "elapsed_sec": row.get("elapsed_sec", ""),
+            "timeout": row.get("timeout", ""),
+            "threads": row.get("threads", ""),
+        }
+
+    technical_columns = [
+        "rounds_requested", "direct_goal_attempted", "direct_goal_proved",
+        "direct_goal_elapsed_sec", "generated_conjectures", "refuted_by_counterexample",
+        "surviving_conjectures", "parallel_rounds_run", "parallel_candidate_nodes",
+        "proved_template_lemmas", "original_goal_proved_by_tbc",
+        "original_goal_proved_in_round", "tbc_preprocessing_elapsed_sec",
+        "abduction_invoked", "abduction_solved", "abduction_elapsed_sec",
+        "total_elapsed_sec",
+    ]
+
+    if not stats_rows:
+        out = base_row()
+        out["preprocessing_stats_kind"] = "missing"
+        for column in technical_columns:
+            out[column] = ""
+        out["tbc_seed_stats_file"] = ""
+        return [out]
+
+    out_rows: List[dict] = []
+    for stats_row in stats_rows:
+        out = base_row()
+        out["preprocessing_stats_kind"] = "preprocessing"
+        for column in technical_columns:
+            out[column] = stats_row.get(column, "")
+        out["tbc_seed_stats_file"] = stats_row.get("source_file", "")
+        out_rows.append(out)
+    return out_rows
 
 
 def collect_abduction_statistics(row: Dict[str, object], stats_dir: str) -> List[dict]:
@@ -512,6 +572,7 @@ def run_one(
     log_dir = out_dir / "logs" / method
     proof_target_dir = out_dir / "proofs" / method / safe_target
     stats_target_dir = out_dir / "abduction_stats" / safe_target
+    tbc_seed_stats_target_dir = out_dir / "tbc_seed_stats" / safe_target
     session_dir = out_dir / "sessions" / method / safe_target
 
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -524,6 +585,11 @@ def run_one(
         if stats_target_dir.exists():
             shutil.rmtree(stats_target_dir)
         stats_target_dir.mkdir(parents=True, exist_ok=True)
+
+    if method in TBC_SEEDED_METHODS:
+        if tbc_seed_stats_target_dir.exists():
+            shutil.rmtree(tbc_seed_stats_target_dir)
+        tbc_seed_stats_target_dir.mkdir(parents=True, exist_ok=True)
 
     if session_dir.exists():
         shutil.rmtree(session_dir)
@@ -547,6 +613,8 @@ def run_one(
     env["PSL_EVAL_PROOF_DIR"] = str(proof_target_dir)
     if method in ABDUCTION_LIKE_METHODS:
         env["PSL_EVAL_ABDUCTION_STATS_DIR"] = str(stats_target_dir)
+    if method in TBC_SEEDED_METHODS:
+        env["PSL_EVAL_TBC_PREPROCESS_STATS_DIR"] = str(tbc_seed_stats_target_dir)
     env["PSL_EVAL_TIMEOUT"] = str(timeout)
     env["PSL_EVAL_THREADS"] = str(threads)
 
@@ -661,6 +729,7 @@ def run_one(
         "timeout": timeout,
         "threads": threads,
         "abduction_stats_dir": str(stats_target_dir) if method in ABDUCTION_LIKE_METHODS else "",
+        "tbc_seed_stats_dir": str(tbc_seed_stats_target_dir) if method in TBC_SEEDED_METHODS else "",
         "interrupted": interrupted,
     }
 
@@ -711,6 +780,7 @@ def main() -> None:
     csv_file = out_dir / "summary.csv"
     abduction_statistics_file = out_dir / "abduction_statistics.csv"
     abduction_decremental_file = out_dir / "abduction_decremental_statistics.csv"
+    tbc_seed_preprocessing_file = out_dir / "tbc_seed_preprocessing_statistics.csv"
 
     targets_by_method: Dict[str, Dict[str, Path]] = {}
 
@@ -767,13 +837,16 @@ def main() -> None:
 
     with csv_file.open("w", newline="", encoding="utf-8") as csv_out, \
          abduction_statistics_file.open("w", newline="", encoding="utf-8") as abd_out, \
-         abduction_decremental_file.open("w", newline="", encoding="utf-8") as dec_out:
+         abduction_decremental_file.open("w", newline="", encoding="utf-8") as dec_out, \
+         tbc_seed_preprocessing_file.open("w", newline="", encoding="utf-8") as tbc_seed_out:
         writer = csv.DictWriter(csv_out, fieldnames=fieldnames)
         writer.writeheader()
         abduction_writer = csv.DictWriter(abd_out, fieldnames=ABDUCTION_STATISTICS_FIELDNAMES)
         abduction_writer.writeheader()
         decremental_writer = csv.DictWriter(dec_out, fieldnames=ABDUCTION_DECREMENTAL_FIELDNAMES)
         decremental_writer.writeheader()
+        tbc_seed_writer = csv.DictWriter(tbc_seed_out, fieldnames=TBC_SEED_PREPROCESSING_FIELDNAMES)
+        tbc_seed_writer.writeheader()
 
         def run_and_write(method: str, target_id: str) -> bool:
             if target_id not in targets_by_method[method]:
@@ -802,6 +875,7 @@ def main() -> None:
 
             interrupted = bool(row.pop("interrupted"))
             abduction_stats_dir = str(row.pop("abduction_stats_dir", ""))
+            tbc_seed_stats_dir = str(row.pop("tbc_seed_stats_dir", ""))
 
             writer.writerow(row)
             csv_out.flush()
@@ -813,6 +887,11 @@ def main() -> None:
                 for dec_stat_row in collect_abduction_decremental_statistics(row, abduction_stats_dir):
                     decremental_writer.writerow(dec_stat_row)
                 dec_out.flush()
+
+            if method in TBC_SEEDED_METHODS:
+                for tbc_seed_row in collect_tbc_seed_preprocessing_statistics(row, tbc_seed_stats_dir):
+                    tbc_seed_writer.writerow(tbc_seed_row)
+                tbc_seed_out.flush()
 
             return interrupted
 

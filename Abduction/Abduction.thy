@@ -36,7 +36,7 @@ strategy Extend_Leaf =
   Alts [
     Clarsimp,
     Thens [
-      Cut 5 (Smart_Induct),
+      Cut 10 (Smart_Induct),
       Alts [
         User< simp_all>(*TODO: this simplification is sometimes harmful.*),
         Auto
@@ -133,6 +133,7 @@ fun theorem command_keyword descr use_tbc_preprocessing =
              |> Config.put Metis_Generate.verbose false
              |> Context_Position.set_visible false: Proof.context;
             val pst0 = Proof.init cxtx_wo_verbose_warnings: Proof.state;
+            val tbc_seed_statistics = TBC_Preprocessor_Statistics.mk_statistics ();
             val (pst, preprocessed_nodes) =
               if use_tbc_preprocessing
               then
@@ -140,16 +141,38 @@ fun theorem command_keyword descr use_tbc_preprocessing =
                   val rounds = getenv_int "PSL_EVAL_TBC_PREPROCESS_ROUNDS" 2;
                   val _ = tracing ("TBC_PREPROCESSOR: running " ^ Int.toString rounds ^ " preprocessing round(s) before AbductionProver.");
                 in
-                  TBC_Preprocessor.preprocess_term rounds pst0 standardized_cncl
+                  TBC_Preprocessor.preprocess_term_with_statistics
+                    tbc_seed_statistics rounds pst0 standardized_cncl
                 end
               else (pst0, []: TBC_Utils.pnodes);
             val prelude_proofs = TBC_Utils.proved_nodes_to_proof_text preprocessed_nodes;
-            val solved =
-              if use_tbc_preprocessing andalso TBC_Utils.original_goal_is_proved preprocessed_nodes
-              then (Proof_By_Abduction.write_proof_script_in_result_file pst prelude_proofs; true)
-              else Proof_By_Abduction.proof_by_abduction_with_prelude prelude_proofs pst start standardized_cncl;
+            val tbc_preprocessing_solved_goal =
+              use_tbc_preprocessing andalso TBC_Utils.original_goal_is_proved preprocessed_nodes;
+            val abduction_invoked = not tbc_preprocessing_solved_goal;
+            val (solved, abduction_elapsed_sec) =
+              if tbc_preprocessing_solved_goal
+              then (Proof_By_Abduction.write_proof_script_in_result_file pst prelude_proofs; (true, 0.0))
+              else
+                let
+                  val abduction_start = Timing.start ();
+                  val solved_by_abduction =
+                    Proof_By_Abduction.proof_by_abduction_with_prelude
+                      prelude_proofs pst abduction_start standardized_cncl;
+                  val elapsed_by_abduction = #elapsed (Timing.result abduction_start) |> Time.toReal;
+                in
+                  (solved_by_abduction, elapsed_by_abduction)
+                end;
             val elapsed = #elapsed (Timing.result start): Time.time;
             val elapsed_str = Time.toReal elapsed |> Real.toString: string;
+            val _ =
+              if use_tbc_preprocessing
+              then
+                TBC_Preprocessor_Statistics.write_final pst tbc_seed_statistics
+                 {abduction_invoked = abduction_invoked,
+                  abduction_solved = solved andalso abduction_invoked,
+                  abduction_elapsed_sec = abduction_elapsed_sec,
+                  total_elapsed_sec = Time.toReal elapsed}
+              else ();
             val message = "We spent " ^ elapsed_str ^ " seconds. " ^ (if solved then "And we proved the goal." else "We failed, but tried.");
             val _ = tracing message: unit;
           in

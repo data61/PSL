@@ -2116,7 +2116,7 @@ end;
 \<close>
 
 strategy TBC_Strategy =
-Ors [
+POrs [
   Thens [Auto, IsSolved],
   PThenOne [Smart_Induct, Thens [Auto, IsSolved]],
   Thens [Hammer, IsSolved],
@@ -2125,7 +2125,7 @@ Ors [
     Ors
       [Thens [
          Repeat (
-           Ors [
+           POrs [
              Fastforce,
              Hammer,
              Thens [
@@ -2424,16 +2424,177 @@ fun evaluate_tbc_command () =
 end;
 
 
+
+signature TBC_PREPROCESSOR_STATISTICS =
+sig
+
+type preprocessing_entry =
+ {rounds_requested: int,
+  direct_goal_attempted: bool,
+  direct_goal_proved: bool,
+  direct_goal_elapsed_sec: real,
+  generated_conjectures: int,
+  refuted_by_counterexample: int,
+  surviving_conjectures: int,
+  parallel_rounds_run: int,
+  parallel_candidate_nodes: int,
+  proved_template_lemmas: int,
+  original_goal_proved_by_tbc: bool,
+  original_goal_proved_in_round: int option,
+  tbc_preprocessing_elapsed_sec: real};
+
+type statistics;
+type synched_statistics = statistics Synchronized.var;
+
+val mk_statistics: unit -> synched_statistics;
+val set_preprocessing_entry: synched_statistics -> preprocessing_entry -> unit;
+val write_final:
+  Proof.state -> synched_statistics ->
+   {abduction_invoked: bool,
+    abduction_solved: bool,
+    abduction_elapsed_sec: real,
+    total_elapsed_sec: real} -> unit;
+
+end;
+
+structure TBC_Preprocessor_Statistics: TBC_PREPROCESSOR_STATISTICS =
+struct
+
+type preprocessing_entry =
+ {rounds_requested: int,
+  direct_goal_attempted: bool,
+  direct_goal_proved: bool,
+  direct_goal_elapsed_sec: real,
+  generated_conjectures: int,
+  refuted_by_counterexample: int,
+  surviving_conjectures: int,
+  parallel_rounds_run: int,
+  parallel_candidate_nodes: int,
+  proved_template_lemmas: int,
+  original_goal_proved_by_tbc: bool,
+  original_goal_proved_in_round: int option,
+  tbc_preprocessing_elapsed_sec: real};
+
+type statistics = preprocessing_entry option;
+type synched_statistics = statistics Synchronized.var;
+
+fun mk_statistics () =
+  Synchronized.var "TBC_Preprocessor_Statistics.statistics" NONE: synched_statistics;
+
+fun set_preprocessing_entry synched_statistics entry =
+  Synchronized.change synched_statistics (fn _ => SOME entry);
+
+fun safe_char c =
+  if Char.isAlphaNum c orelse c = #"_" then str c else "_";
+
+fun safe_name s = String.translate safe_char s;
+
+fun theory_name_of_pst pst =
+  Proof.context_of pst
+  |> Local_Theory.exit_global
+  |> Context.theory_name {long = true}
+  |> safe_name;
+
+fun stats_dir () = getenv "PSL_EVAL_TBC_PREPROCESS_STATS_DIR";
+
+fun enabled () = getenv "PSL_EVAL_MODE" = "1" andalso stats_dir () <> "";
+
+fun base_path pst =
+  Path.append (Path.explode (stats_dir ()))
+    (Path.basic ("tbc_seed_" ^ theory_name_of_pst pst ^ ".csv"));
+
+fun int_to_csv i = Int.toString i;
+fun real_to_csv r = Real.toString r;
+fun bool_to_csv b = if b then "true" else "false";
+fun int_opt_to_csv NONE = ""
+  | int_opt_to_csv (SOME i) = Int.toString i;
+
+fun append_line_with_header path header line =
+  if File.exists path
+  then File.append path line
+  else File.write path (header ^ line);
+
+val header =
+  "rounds_requested,direct_goal_attempted,direct_goal_proved,direct_goal_elapsed_sec,generated_conjectures,refuted_by_counterexample,surviving_conjectures,parallel_rounds_run,parallel_candidate_nodes,proved_template_lemmas,original_goal_proved_by_tbc,original_goal_proved_in_round,tbc_preprocessing_elapsed_sec,abduction_invoked,abduction_solved,abduction_elapsed_sec,total_elapsed_sec\n";
+
+fun entry_to_csv
+    ({rounds_requested, direct_goal_attempted, direct_goal_proved, direct_goal_elapsed_sec,
+      generated_conjectures, refuted_by_counterexample, surviving_conjectures,
+      parallel_rounds_run, parallel_candidate_nodes, proved_template_lemmas,
+      original_goal_proved_by_tbc, original_goal_proved_in_round,
+      tbc_preprocessing_elapsed_sec}: preprocessing_entry)
+    ({abduction_invoked, abduction_solved, abduction_elapsed_sec, total_elapsed_sec}) =
+  String.concatWith ","
+    [int_to_csv rounds_requested,
+     bool_to_csv direct_goal_attempted,
+     bool_to_csv direct_goal_proved,
+     real_to_csv direct_goal_elapsed_sec,
+     int_to_csv generated_conjectures,
+     int_to_csv refuted_by_counterexample,
+     int_to_csv surviving_conjectures,
+     int_to_csv parallel_rounds_run,
+     int_to_csv parallel_candidate_nodes,
+     int_to_csv proved_template_lemmas,
+     bool_to_csv original_goal_proved_by_tbc,
+     int_opt_to_csv original_goal_proved_in_round,
+     real_to_csv tbc_preprocessing_elapsed_sec,
+     bool_to_csv abduction_invoked,
+     bool_to_csv abduction_solved,
+     real_to_csv abduction_elapsed_sec,
+     real_to_csv total_elapsed_sec] ^ "\n";
+
+fun default_entry () =
+ {rounds_requested = 0,
+  direct_goal_attempted = false,
+  direct_goal_proved = false,
+  direct_goal_elapsed_sec = 0.0,
+  generated_conjectures = 0,
+  refuted_by_counterexample = 0,
+  surviving_conjectures = 0,
+  parallel_rounds_run = 0,
+  parallel_candidate_nodes = 0,
+  proved_template_lemmas = 0,
+  original_goal_proved_by_tbc = false,
+  original_goal_proved_in_round = NONE,
+  tbc_preprocessing_elapsed_sec = 0.0}: preprocessing_entry;
+
+fun write_final pst synched_statistics final =
+  if enabled ()
+  then
+    let
+      val entry = the_default (default_entry ()) (Synchronized.value synched_statistics);
+      val line = entry_to_csv entry final;
+    in
+      append_line_with_header (base_path pst) header line
+    end
+  else ();
+
+end;
+
 signature TBC_PREPROCESSOR =
 sig
 val template_conjectures_for_term: Proof.state -> term -> TBC_Utils.pnodes;
 val preprocess_term: int -> Proof.state -> term -> Proof.state * TBC_Utils.pnodes;
+val preprocess_term_with_statistics:
+  TBC_Preprocessor_Statistics.synched_statistics ->
+  int -> Proof.state -> term -> Proof.state * TBC_Utils.pnodes;
 end;
 
 structure TBC_Preprocessor: TBC_PREPROCESSOR =
 struct
 
-fun template_conjectures_for_term (pst:Proof.state) (goal_term:term) =
+type template_generation_summary =
+ {generated_conjectures: int,
+  refuted_by_counterexample: int,
+  surviving_conjectures: int};
+
+fun original_goal_proved_round ([]: TBC_Utils.pnodes) = NONE
+  | original_goal_proved_round (pnode :: pnodes) =
+      if #is_final_goal pnode andalso #proved_wo_assmng_cnjctr pnode
+      then #proved_in_nth_round pnode
+      else original_goal_proved_round pnodes;
+
+fun template_conjectures_for_term_with_summary (pst:Proof.state) (goal_term:term) =
   let
     val ctxt = Proof.context_of pst;
     val (relevant_consts, relevant_binary_funcs, relevant_unary_funcs) =
@@ -2468,27 +2629,87 @@ fun template_conjectures_for_term (pst:Proof.state) (goal_term:term) =
       tracing ("TBC_PREPROCESSOR: "
         ^ Int.toString (length conjectures_wo_counterexample)
         ^ " conjectures survived counterexample filtering.");
+
+    val summary =
+     {generated_conjectures = length conjectures_as_tagged_terms,
+      refuted_by_counterexample = length conjectures_w_counterexample,
+      surviving_conjectures = length conjectures_wo_counterexample}:
+        template_generation_summary;
   in
-    conjectures_wo_counterexample
+    (summary, conjectures_wo_counterexample)
   end;
 
-fun preprocess_term (rounds:int) (pst:Proof.state) (goal_term:term) =
+fun template_conjectures_for_term pst goal_term =
+  template_conjectures_for_term_with_summary pst goal_term |> snd;
+
+fun mk_preprocessing_entry rounds_to_run direct_goal_proved direct_goal_elapsed_sec
+    ({generated_conjectures, refuted_by_counterexample, surviving_conjectures}: template_generation_summary)
+    parallel_candidate_nodes processed_pnodes preprocessing_elapsed_sec =
   let
+    val original_round = original_goal_proved_round processed_pnodes;
+    val original_goal_proved = TBC_Utils.original_goal_is_proved processed_pnodes;
+    val parallel_rounds_run =
+      if direct_goal_proved then 0
+      else
+        (case original_round of
+           SOME n => if n > 0 then n else 0
+         | NONE => rounds_to_run);
+    val proved_template_lemmas =
+      filter (fn pnode => not (#is_final_goal pnode) andalso #proved_wo_assmng_cnjctr pnode) processed_pnodes
+      |> length;
+  in
+   {rounds_requested = rounds_to_run,
+    direct_goal_attempted = true,
+    direct_goal_proved = direct_goal_proved,
+    direct_goal_elapsed_sec = direct_goal_elapsed_sec,
+    generated_conjectures = generated_conjectures,
+    refuted_by_counterexample = refuted_by_counterexample,
+    surviving_conjectures = surviving_conjectures,
+    parallel_rounds_run = parallel_rounds_run,
+    parallel_candidate_nodes = parallel_candidate_nodes,
+    proved_template_lemmas = proved_template_lemmas,
+    original_goal_proved_by_tbc = original_goal_proved,
+    original_goal_proved_in_round = original_round,
+    tbc_preprocessing_elapsed_sec = preprocessing_elapsed_sec}:
+      TBC_Preprocessor_Statistics.preprocessing_entry
+  end;
+
+fun preprocess_term_with_statistics synched_statistics (rounds:int) (pst:Proof.state) (goal_term:term) =
+  let
+    val preprocessing_start = Timing.start ();
     val rounds_to_run = if rounds < 0 then 0 else rounds;
     val original_goal = TBC_Utils.term_to_original_goal_pnode pst goal_term;
 
     (* Round 0: retain the old TBC convention of trying the original goal once
        before producing template-based conjectures.  The parallel function is
        used even here so the preprocessor has one implementation path. *)
+    val direct_start = Timing.start ();
     val (pst_after_round0, processed_after_round0) =
       TBC_Utils.conjectures_n_pst_to_pst_n_proof_parallel_w_limit
         TBC_Utils.TBC_Strategy 1 0 [original_goal] pst;
+    val direct_goal_elapsed_sec = #elapsed (Timing.result direct_start) |> Time.toReal;
+    val direct_goal_proved = TBC_Utils.original_goal_is_proved processed_after_round0;
   in
-    if TBC_Utils.original_goal_is_proved processed_after_round0 orelse rounds_to_run = 0
-    then (pst_after_round0, processed_after_round0)
+    if direct_goal_proved orelse rounds_to_run = 0
+    then
+      let
+        val preprocessing_elapsed_sec = #elapsed (Timing.result preprocessing_start) |> Time.toReal;
+        val empty_generation_summary =
+         {generated_conjectures = 0,
+          refuted_by_counterexample = 0,
+          surviving_conjectures = 0}: template_generation_summary;
+        val entry =
+          mk_preprocessing_entry rounds_to_run direct_goal_proved direct_goal_elapsed_sec
+            empty_generation_summary 0 processed_after_round0 preprocessing_elapsed_sec;
+        val _ = TBC_Preprocessor_Statistics.set_preprocessing_entry synched_statistics entry;
+      in
+        (pst_after_round0, processed_after_round0)
+      end
     else
       let
-        val surviving_conjectures = template_conjectures_for_term pst goal_term;
+        val (generation_summary, surviving_conjectures) =
+          template_conjectures_for_term_with_summary pst goal_term;
+        val parallel_candidate_nodes = length surviving_conjectures + 1;
         val (pst_after_preprocessing, processed_pnodes) =
           TBC_Utils.conjectures_n_pst_to_pst_n_proof_parallel_w_limit
             TBC_Utils.TBC_Strategy
@@ -2496,9 +2717,21 @@ fun preprocess_term (rounds:int) (pst:Proof.state) (goal_term:term) =
             1
             (surviving_conjectures @ [original_goal])
             pst_after_round0;
+        val preprocessing_elapsed_sec = #elapsed (Timing.result preprocessing_start) |> Time.toReal;
+        val entry =
+          mk_preprocessing_entry rounds_to_run direct_goal_proved direct_goal_elapsed_sec
+            generation_summary parallel_candidate_nodes processed_pnodes preprocessing_elapsed_sec;
+        val _ = TBC_Preprocessor_Statistics.set_preprocessing_entry synched_statistics entry;
       in
         (pst_after_preprocessing, processed_pnodes)
       end
+  end;
+
+fun preprocess_term (rounds:int) (pst:Proof.state) (goal_term:term) =
+  let
+    val synched_statistics = TBC_Preprocessor_Statistics.mk_statistics ();
+  in
+    preprocess_term_with_statistics synched_statistics rounds pst goal_term
   end;
 
 end;

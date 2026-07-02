@@ -108,6 +108,21 @@ def distinct_benchmarks(rows: Iterable[dict]) -> list[str]:
     return sorted({str(row.get("benchmark", "")).strip() for row in rows if str(row.get("benchmark", "")).strip()})
 
 
+def filter_rows_by_method(rows: list[dict], method: str) -> list[dict]:
+    wanted = str(method or "").strip()
+    if wanted in {"", "all"}:
+        return rows
+    return [row for row in rows if str(row.get("method", "")).strip() == wanted]
+
+
+def method_output_dir(base: Path, method: str) -> Path:
+    wanted = str(method or "").strip()
+    if wanted in {"", "abduction", "all"}:
+        return base
+    safe = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "_" for ch in wanted)
+    return base / safe
+
+
 def actual_loop_rows(rows: list[dict]) -> list[dict]:
     return [r for r in rows if r.get("loop_kind") == "loop" and to_int(r.get("loop_index"), 0) > 0]
 
@@ -1150,6 +1165,11 @@ def main() -> None:
         action="store_true",
         help="Use a linear y-axis for reachable/worth-expanding count plots instead of the default log y-axis.",
     )
+    parser.add_argument(
+        "--method",
+        default="abduction",
+        help="Method to plot from abduction_statistics.csv. Defaults to pure 'abduction'. Use 'preprocessed_abduction' for the Abduction phase after TBC seeding, or 'all' only for ad-hoc diagnostics.",
+    )
     args = parser.parse_args()
 
     csvs = discover_csvs(args.results_root, args.csv)
@@ -1157,22 +1177,23 @@ def main() -> None:
         print("No abduction_statistics.csv files found; skipping Abduction statistics figures.")
         return
 
-    rows = read_rows(csvs)
+    rows = filter_rows_by_method(read_rows(csvs), args.method)
     benchmarks = list(args.benchmark) if args.benchmark else distinct_benchmarks(rows)
     if not benchmarks:
         print("No benchmark names found in Abduction statistics; skipping.")
         return
 
-    args.out.mkdir(parents=True, exist_ok=True)
+    out_dir = method_output_dir(args.out, args.method)
+    out_dir.mkdir(parents=True, exist_ok=True)
     generated = 0
     for benchmark in benchmarks:
-        if write_figures_for_benchmark(rows, args.out, benchmark, linear_count_y=args.linear_count_y):
+        if write_figures_for_benchmark(rows, out_dir, benchmark, linear_count_y=args.linear_count_y):
             generated += 1
 
     if generated == 0:
         print("No matching Abduction statistics rows found; skipping Abduction statistics figures.")
     else:
-        print(f"Generated Abduction statistics figures for {generated} benchmark(s) in: {args.out}")
+        print(f"Generated Abduction statistics figures for method={args.method!r}, {generated} benchmark(s) in: {out_dir}")
 
 
 if __name__ == "__main__":
