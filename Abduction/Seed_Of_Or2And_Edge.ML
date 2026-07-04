@@ -25,8 +25,8 @@ type add_or2and_edge = (key * abduction_node * conjectures);
 val print_seed_of_or2and_edge             : Proof.context -> seed_of_or2and_edge -> unit list;
 val seed_is_from_tactic                   : seed_of_or2and_edge -> bool;
 val apply_PSL_to_get_seeds_of_or2and_edges: (Shared_State.synched_term2string_table * Shared_State.synched_term2real_table) -> (*original*)Proof.state -> Proof.state(*to prove*)-> seeds_of_or2and_edge;
-val condition_to_filter_out_conjecture    : term -> Shared_State.synched_term2real_table -> terms -> Proof.state -> abduction_graph -> bool (*from_tactic*) -> term (*conjecture*) -> bool;
-val filter_out_bad_seeds_from_tactic      : term (*parental or-node*) -> Shared_State.synched_term2real_table -> terms (*original premises*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
+val condition_to_filter_out_conjecture    : Shared_State.synched_filter_statistics -> term -> Shared_State.synched_term2real_table -> terms -> Proof.state -> abduction_graph -> bool (*from_tactic*) -> term (*conjecture*) -> bool;
+val filter_out_bad_seeds_from_tactic      : Shared_State.synched_filter_statistics -> term (*parental or-node*) -> Shared_State.synched_term2real_table -> terms (*original premises*) -> Proof.state -> abduction_graph -> seeds_of_or2and_edge -> seeds_of_or2and_edge
 val conjectures_to_seed_of_or2and_edge    : Shared_State.synched_term2string_table -> Proof.state -> (string * term) list -> seed_of_or2and_edge;
 val seed_has_counterexample               : Shared_State.synched_term2real_table -> Proof.state -> seed_of_or2and_edge -> bool;
 val abduction_for_tactic_based_conjectures: Proof.state -> key -> seeds_of_or2and_edge -> Shared_State.synched_abduction_graph -> unit;
@@ -111,7 +111,7 @@ fun apply_PSL_to_get_seeds_of_or2and_edges
   end;
 
 (*TODO: maybe we should add the premises of parent_or to orig_prems after cleaning types and free-variable names.*)
-fun condition_to_filter_out_conjecture (parent_or(*parent_or*):term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (conjecture:term) =
+fun condition_to_filter_out_conjecture (filter_stats:SS.synched_filter_statistics) (parent_or(*parent_or*):term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (ag:abduction_graph) (from_tactic:bool) (conjecture:term) =
     let
       val final_goal  = get_final_goal_key ag |> snd |> hd: term;
       val upper_limit = 100.0;(*TODO: magic number*)
@@ -143,13 +143,22 @@ fun condition_to_filter_out_conjecture (parent_or(*parent_or*):term) (refutation
           else if SS.is_refuted refutation pst (the concl_of_meta_imp_in_parent)
              then false
              else  SS.is_refuted refutation pst (the concl_of_meta_imp_in_conjec);
+      fun reject reason =
+        (SS.record_orelse_filter_rejection filter_stats reason conjecture; true);
     in
-      too_large () orelse
-      eq_to_final_goal () andalso from_tactic orelse
-      concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*) orelse
-      has_func_with_three_occs_in_a_row_even_though_the_parent_does_not_have_those () orelse
-      concls_are_same () orelse
-      concl_of_conj_refuted_even_cncl_of_parent_is_not ()
+      if too_large ()
+      then reject SS.Orelse_Too_Large
+      else if eq_to_final_goal () andalso from_tactic
+      then reject SS.Orelse_Eq_To_Final_Goal_From_Tactic
+      else if concl_is_eq_to_final_goal () (*andalso seed_is_from_tactic seed*)
+      then reject SS.Orelse_Concl_Is_Eq_To_Final_Goal
+      else if has_func_with_three_occs_in_a_row_even_though_the_parent_does_not_have_those ()
+      then reject SS.Orelse_Has_Func_With_Three_Occs_In_A_Row
+      else if concls_are_same ()
+      then reject SS.Orelse_Concls_Are_Same
+      else if concl_of_conj_refuted_even_cncl_of_parent_is_not ()
+      then reject SS.Orelse_Concl_Of_Conj_Refuted
+      else false
 (*
       (*not from_tactic andalso not orig_prem_is_refuted andalso*) has_counter_example_in_prems pst conjecture(*TODO: This is BAD. We should also check if the conclusions are the same in the parent-node and the conjecture.*)
 *)
@@ -157,17 +166,17 @@ fun condition_to_filter_out_conjecture (parent_or(*parent_or*):term) (refutation
 
 datatype conjecture_typ = Explicit_Conjecturing | Implicit_Conjecturing (*tactic application*);
 
-fun condition_to_filter_out_seed_from_tactic (parent_or:term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (ag:abduction_graph) (seed:seed_of_or2and_edge): bool =
+fun condition_to_filter_out_seed_from_tactic (filter_stats:SS.synched_filter_statistics) (parent_or:term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (ag:abduction_graph) (seed:seed_of_or2and_edge): bool =
   let
     val subgoals   = #new_goals seed |> map snd: terms;
     val no_subgoal = null subgoals: bool;
   in
     (*For conjectures from tactics, we do not care if a premise is equivalent to false or not for now.*)
-    no_subgoal orelse exists (condition_to_filter_out_conjecture parent_or refutation orig_prems pst ag true) subgoals
+    no_subgoal orelse exists (condition_to_filter_out_conjecture filter_stats parent_or refutation orig_prems pst ag true) subgoals
   end;
 
-fun filter_out_bad_seeds_from_tactic (parent_or:term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (graph:abduction_graph) (seeds:seeds_of_or2and_edge) =
-  filter_out (condition_to_filter_out_seed_from_tactic parent_or refutation orig_prems pst graph) seeds: seeds_of_or2and_edge;
+fun filter_out_bad_seeds_from_tactic (filter_stats:SS.synched_filter_statistics) (parent_or:term) (refutation:SS.synched_term2real_table) (orig_prems:terms) (pst:Proof.state) (graph:abduction_graph) (seeds:seeds_of_or2and_edge) =
+  filter_out (condition_to_filter_out_seed_from_tactic filter_stats parent_or refutation orig_prems pst graph) seeds: seeds_of_or2and_edge;
 
 fun conjecture_to_seed_of_or2and_edge (conjectures:(string * term) list): seed_of_or2and_edge =
   {new_goals  = conjectures: (string * term) list,

@@ -49,7 +49,7 @@ fun prove_standard_simp_rules
     (*top-down explicit conjecturing*)
     val ctxt = Proof.context_of pst: Proof.context;
     val graph                      = SS.value_of_graph synched_agraph                                                             : abduction_graph;
-    val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture lemma_term refutation orig_prems pst graph false o snd: string * term -> bool;
+    val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture filter_stats lemma_term refutation orig_prems pst graph false o snd: string * term -> bool;
     val explicit_conjectures       = ATDC.template_based_conjecture_for_simplification term2name ctxt lemma_term                   : (string * term) list;
     val filtered_explicit          = TDU.parallel_filter_out condition_to_filter_out explicit_conjectures                          : (string * term) list;
     val refute                     = Shared_State.is_refuted refutation pst o snd                                                  : (string * term) -> bool;
@@ -83,14 +83,14 @@ fun expand_ornode_if_original_goal_is_unproved
       val pst_to_prove                 = TDU.mk_pst_to_prove_from_term pst lemma_term: state;
       val seeds_from_tactics           = SOOE.apply_PSL_to_get_seeds_of_or2and_edges (term2name, refutation) pst pst_to_prove: seeds_of_or2and_edge;
       val graph_extended_by_conjecture = SS.value_of_graph synched_agraph: abduction_graph;
-      val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic lemma_term refutation orig_prems pst graph_extended_by_conjecture seeds_from_tactics
+      val filtered_seeds_from_tactics  = SOOE.filter_out_bad_seeds_from_tactic filter_stats lemma_term refutation orig_prems pst graph_extended_by_conjecture seeds_from_tactics
       val tactics_seeds_wo_counterexam = filter_out (SOOE.seed_has_counterexample refutation pst) filtered_seeds_from_tactics: seeds_of_or2and_edge;
       val _                            = SOOE.abduction_for_tactic_based_conjectures pst or_key tactics_seeds_wo_counterexam synched_agraph: unit;
 
       val graph                      = SS.value_of_graph synched_agraph                                                             : abduction_graph;
       (*top-down explicit conjecturing*)
       val explicit_conjectures       = All_Top_Down_Conjecturing.top_down_conjectures term2name pst lemma_term                       : (string * term) list;
-      val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture lemma_term refutation orig_prems pst graph false o snd: string * term -> bool;
+      val condition_to_filter_out    = SOOE.condition_to_filter_out_conjecture filter_stats lemma_term refutation orig_prems pst graph false o snd: string * term -> bool;
       val filtered_explicit          = TDU.parallel_filter_out condition_to_filter_out explicit_conjectures: (string * term) list    : (string * term) list;
       val explicit_wo_counterexample = TDU.parallel_filter_out (Shared_State.is_refuted refutation pst o snd) filtered_explicit      : (string * term) list;
       val seed_from_explicit         = SOOE.conjectures_to_seed_of_or2and_edge term2name pst explicit_wo_counterexample              : seed_of_or2and_edge;
@@ -280,7 +280,14 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
        abduction_checked_conjectures = filter_abduction_checked_conjectures,
        abduction_used_conjectures = filter_abduction_used_conjectures,
        abduction_discarded_conjectures = filter_abduction_discarded_conjectures,
-       ...} = SS.filter_statistics_snapshot filter_stats;
+       orelse_rejected_conjectures = filter_orelse_rejected_conjectures,
+       orelse_too_large = filter_orelse_too_large,
+       orelse_eq_to_final_goal_from_tactic = filter_orelse_eq_to_final_goal_from_tactic,
+       orelse_concl_is_eq_to_final_goal = filter_orelse_concl_is_eq_to_final_goal,
+       orelse_has_func_with_three_occs_in_a_row = filter_orelse_has_func_with_three_occs_in_a_row,
+       orelse_concls_are_same = filter_orelse_concls_are_same,
+       orelse_concl_of_conj_refuted = filter_orelse_concl_of_conj_refuted,
+       top_loop_index = _} = SS.filter_statistics_snapshot filter_stats;
   val filter_refutation_survival_rate = rate filter_refutation_survived filter_refutation_checked;
   val filter_abduction_retention_rate = rate filter_abduction_used_conjectures filter_abduction_checked_conjectures;
   val _                      = Abduction_Statistics.record_loop pst synched_statistics
@@ -349,6 +356,13 @@ fun loop (counter:int) (max_depth:int) (start:Timing.start)
                                  filter_abduction_used_conjectures = filter_abduction_used_conjectures,
                                  filter_abduction_discarded_conjectures = filter_abduction_discarded_conjectures,
                                  filter_abduction_retention_rate = filter_abduction_retention_rate,
+                                 filter_orelse_rejected_conjectures = filter_orelse_rejected_conjectures,
+                                 filter_orelse_too_large = filter_orelse_too_large,
+                                 filter_orelse_eq_to_final_goal_from_tactic = filter_orelse_eq_to_final_goal_from_tactic,
+                                 filter_orelse_concl_is_eq_to_final_goal = filter_orelse_concl_is_eq_to_final_goal,
+                                 filter_orelse_has_func_with_three_occs_in_a_row = filter_orelse_has_func_with_three_occs_in_a_row,
+                                 filter_orelse_concls_are_same = filter_orelse_concls_are_same,
+                                 filter_orelse_concl_of_conj_refuted = filter_orelse_concl_of_conj_refuted,
                                  elapsed_sec = current_time start};
           in
             ()

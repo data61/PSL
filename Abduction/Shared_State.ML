@@ -23,13 +23,28 @@ type filter_statistics_snapshot =
   refutation_survived: int,
   abduction_checked_conjectures: int,
   abduction_used_conjectures: int,
-  abduction_discarded_conjectures: int};
+  abduction_discarded_conjectures: int,
+  orelse_rejected_conjectures: int,
+  orelse_too_large: int,
+  orelse_eq_to_final_goal_from_tactic: int,
+  orelse_concl_is_eq_to_final_goal: int,
+  orelse_has_func_with_three_occs_in_a_row: int,
+  orelse_concls_are_same: int,
+  orelse_concl_of_conj_refuted: int};
 type synched_filter_statistics;
+datatype orelse_filter_reason =
+    Orelse_Too_Large
+  | Orelse_Eq_To_Final_Goal_From_Tactic
+  | Orelse_Concl_Is_Eq_To_Final_Goal
+  | Orelse_Has_Func_With_Three_Occs_In_A_Row
+  | Orelse_Concls_Are_Same
+  | Orelse_Concl_Of_Conj_Refuted;
 val mk_filter_statistics              : unit -> synched_filter_statistics;
 val reset_filter_statistics_for_loop  : synched_filter_statistics -> int -> unit;
 val filter_statistics_snapshot        : synched_filter_statistics -> filter_statistics_snapshot;
 val record_abduction_filter_input     : synched_filter_statistics -> terms -> unit;
 val record_abduction_filter_used      : synched_filter_statistics -> terms -> unit;
+val record_orelse_filter_rejection    : synched_filter_statistics -> orelse_filter_reason -> term -> unit;
 
 type term2real_table;
 type synched_term2real_table;
@@ -126,7 +141,22 @@ type filter_statistics_snapshot =
   refutation_survived: int,
   abduction_checked_conjectures: int,
   abduction_used_conjectures: int,
-  abduction_discarded_conjectures: int};
+  abduction_discarded_conjectures: int,
+  orelse_rejected_conjectures: int,
+  orelse_too_large: int,
+  orelse_eq_to_final_goal_from_tactic: int,
+  orelse_concl_is_eq_to_final_goal: int,
+  orelse_has_func_with_three_occs_in_a_row: int,
+  orelse_concls_are_same: int,
+  orelse_concl_of_conj_refuted: int};
+
+datatype orelse_filter_reason =
+    Orelse_Too_Large
+  | Orelse_Eq_To_Final_Goal_From_Tactic
+  | Orelse_Concl_Is_Eq_To_Final_Goal
+  | Orelse_Has_Func_With_Three_Occs_In_A_Row
+  | Orelse_Concls_Are_Same
+  | Orelse_Concl_Of_Conj_Refuted;
 
 type filter_loop_statistics =
  {top_loop_index: int,
@@ -134,7 +164,14 @@ type filter_loop_statistics =
   refutation_refuted: unit Term_Table.table,
   refutation_survived: unit Term_Table.table,
   abduction_checked_conjectures: unit Term_Table.table,
-  abduction_used_conjectures: unit Term_Table.table};
+  abduction_used_conjectures: unit Term_Table.table,
+  orelse_rejected_conjectures: unit Term_Table.table,
+  orelse_too_large: unit Term_Table.table,
+  orelse_eq_to_final_goal_from_tactic: unit Term_Table.table,
+  orelse_concl_is_eq_to_final_goal: unit Term_Table.table,
+  orelse_has_func_with_three_occs_in_a_row: unit Term_Table.table,
+  orelse_concls_are_same: unit Term_Table.table,
+  orelse_concl_of_conj_refuted: unit Term_Table.table};
 
 type synched_filter_statistics = filter_loop_statistics Synchronized.var;
 
@@ -147,7 +184,14 @@ fun empty_filter_loop_statistics (top_loop_index:int): filter_loop_statistics =
   refutation_refuted = Term_Table.empty,
   refutation_survived = Term_Table.empty,
   abduction_checked_conjectures = Term_Table.empty,
-  abduction_used_conjectures = Term_Table.empty};
+  abduction_used_conjectures = Term_Table.empty,
+  orelse_rejected_conjectures = Term_Table.empty,
+  orelse_too_large = Term_Table.empty,
+  orelse_eq_to_final_goal_from_tactic = Term_Table.empty,
+  orelse_concl_is_eq_to_final_goal = Term_Table.empty,
+  orelse_has_func_with_three_occs_in_a_row = Term_Table.empty,
+  orelse_concls_are_same = Term_Table.empty,
+  orelse_concl_of_conj_refuted = Term_Table.empty};
 
 fun mk_filter_statistics _ =
   Synchronized.var "abduction_filter_statistics" (empty_filter_loop_statistics 0): synched_filter_statistics;
@@ -175,13 +219,24 @@ fun record_refutation_filter_result (stats_opt:synched_filter_statistics option)
           in
             Synchronized.change synched_stats
               (fn {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
-                   abduction_checked_conjectures, abduction_used_conjectures} =>
+                   abduction_checked_conjectures, abduction_used_conjectures,
+                   orelse_rejected_conjectures, orelse_too_large,
+                   orelse_eq_to_final_goal_from_tactic, orelse_concl_is_eq_to_final_goal,
+                   orelse_has_func_with_three_occs_in_a_row, orelse_concls_are_same,
+                   orelse_concl_of_conj_refuted} =>
                 {top_loop_index = top_loop_index,
                  refutation_checked = insert_unit clean refutation_checked,
                  refutation_refuted = if is_refuted then insert_unit clean refutation_refuted else refutation_refuted,
                  refutation_survived = if is_refuted then refutation_survived else insert_unit clean refutation_survived,
                  abduction_checked_conjectures = abduction_checked_conjectures,
-                 abduction_used_conjectures = abduction_used_conjectures})
+                 abduction_used_conjectures = abduction_used_conjectures,
+                 orelse_rejected_conjectures = orelse_rejected_conjectures,
+                 orelse_too_large = orelse_too_large,
+                 orelse_eq_to_final_goal_from_tactic = orelse_eq_to_final_goal_from_tactic,
+                 orelse_concl_is_eq_to_final_goal = orelse_concl_is_eq_to_final_goal,
+                 orelse_has_func_with_three_occs_in_a_row = orelse_has_func_with_three_occs_in_a_row,
+                 orelse_concls_are_same = orelse_concls_are_same,
+                 orelse_concl_of_conj_refuted = orelse_concl_of_conj_refuted})
           end;
 
 fun record_terms_into_table (terms:terms) (table:unit Term_Table.table) =
@@ -193,13 +248,24 @@ fun record_abduction_filter_input (synched_stats:synched_filter_statistics) (ter
   else
     Synchronized.change synched_stats
       (fn {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
-           abduction_checked_conjectures, abduction_used_conjectures} =>
+           abduction_checked_conjectures, abduction_used_conjectures,
+           orelse_rejected_conjectures, orelse_too_large,
+           orelse_eq_to_final_goal_from_tactic, orelse_concl_is_eq_to_final_goal,
+           orelse_has_func_with_three_occs_in_a_row, orelse_concls_are_same,
+           orelse_concl_of_conj_refuted} =>
         {top_loop_index = top_loop_index,
          refutation_checked = refutation_checked,
          refutation_refuted = refutation_refuted,
          refutation_survived = refutation_survived,
          abduction_checked_conjectures = record_terms_into_table terms abduction_checked_conjectures,
-         abduction_used_conjectures = abduction_used_conjectures});
+         abduction_used_conjectures = abduction_used_conjectures,
+         orelse_rejected_conjectures = orelse_rejected_conjectures,
+         orelse_too_large = orelse_too_large,
+         orelse_eq_to_final_goal_from_tactic = orelse_eq_to_final_goal_from_tactic,
+         orelse_concl_is_eq_to_final_goal = orelse_concl_is_eq_to_final_goal,
+         orelse_has_func_with_three_occs_in_a_row = orelse_has_func_with_three_occs_in_a_row,
+         orelse_concls_are_same = orelse_concls_are_same,
+         orelse_concl_of_conj_refuted = orelse_concl_of_conj_refuted});
 
 fun record_abduction_filter_used (synched_stats:synched_filter_statistics) (terms:terms): unit =
   if not (filter_statistics_enabled ())
@@ -207,20 +273,76 @@ fun record_abduction_filter_used (synched_stats:synched_filter_statistics) (term
   else
     Synchronized.change synched_stats
       (fn {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
-           abduction_checked_conjectures, abduction_used_conjectures} =>
+           abduction_checked_conjectures, abduction_used_conjectures,
+           orelse_rejected_conjectures, orelse_too_large,
+           orelse_eq_to_final_goal_from_tactic, orelse_concl_is_eq_to_final_goal,
+           orelse_has_func_with_three_occs_in_a_row, orelse_concls_are_same,
+           orelse_concl_of_conj_refuted} =>
         {top_loop_index = top_loop_index,
          refutation_checked = refutation_checked,
          refutation_refuted = refutation_refuted,
          refutation_survived = refutation_survived,
          abduction_checked_conjectures = abduction_checked_conjectures,
-         abduction_used_conjectures = record_terms_into_table terms abduction_used_conjectures});
+         abduction_used_conjectures = record_terms_into_table terms abduction_used_conjectures,
+         orelse_rejected_conjectures = orelse_rejected_conjectures,
+         orelse_too_large = orelse_too_large,
+         orelse_eq_to_final_goal_from_tactic = orelse_eq_to_final_goal_from_tactic,
+         orelse_concl_is_eq_to_final_goal = orelse_concl_is_eq_to_final_goal,
+         orelse_has_func_with_three_occs_in_a_row = orelse_has_func_with_three_occs_in_a_row,
+         orelse_concls_are_same = orelse_concls_are_same,
+         orelse_concl_of_conj_refuted = orelse_concl_of_conj_refuted});
+
+fun record_orelse_filter_rejection (synched_stats:synched_filter_statistics) (reason:orelse_filter_reason) (cnjctr:term): unit =
+  if not (filter_statistics_enabled ())
+  then ()
+  else
+    let
+      val clean = canonical_filter_term cnjctr;
+      fun update_reason_table Orelse_Too_Large table = insert_unit clean table
+        | update_reason_table _ table = table;
+      fun update_eq_goal_table Orelse_Eq_To_Final_Goal_From_Tactic table = insert_unit clean table
+        | update_eq_goal_table _ table = table;
+      fun update_concl_eq_goal_table Orelse_Concl_Is_Eq_To_Final_Goal table = insert_unit clean table
+        | update_concl_eq_goal_table _ table = table;
+      fun update_three_occs_table Orelse_Has_Func_With_Three_Occs_In_A_Row table = insert_unit clean table
+        | update_three_occs_table _ table = table;
+      fun update_concls_same_table Orelse_Concls_Are_Same table = insert_unit clean table
+        | update_concls_same_table _ table = table;
+      fun update_concl_refuted_table Orelse_Concl_Of_Conj_Refuted table = insert_unit clean table
+        | update_concl_refuted_table _ table = table;
+    in
+      Synchronized.change synched_stats
+        (fn {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
+             abduction_checked_conjectures, abduction_used_conjectures,
+             orelse_rejected_conjectures, orelse_too_large,
+             orelse_eq_to_final_goal_from_tactic, orelse_concl_is_eq_to_final_goal,
+             orelse_has_func_with_three_occs_in_a_row, orelse_concls_are_same,
+             orelse_concl_of_conj_refuted} =>
+          {top_loop_index = top_loop_index,
+           refutation_checked = refutation_checked,
+           refutation_refuted = refutation_refuted,
+           refutation_survived = refutation_survived,
+           abduction_checked_conjectures = abduction_checked_conjectures,
+           abduction_used_conjectures = abduction_used_conjectures,
+           orelse_rejected_conjectures = insert_unit clean orelse_rejected_conjectures,
+           orelse_too_large = update_reason_table reason orelse_too_large,
+           orelse_eq_to_final_goal_from_tactic = update_eq_goal_table reason orelse_eq_to_final_goal_from_tactic,
+           orelse_concl_is_eq_to_final_goal = update_concl_eq_goal_table reason orelse_concl_is_eq_to_final_goal,
+           orelse_has_func_with_three_occs_in_a_row = update_three_occs_table reason orelse_has_func_with_three_occs_in_a_row,
+           orelse_concls_are_same = update_concls_same_table reason orelse_concls_are_same,
+           orelse_concl_of_conj_refuted = update_concl_refuted_table reason orelse_concl_of_conj_refuted})
+    end;
 
 fun table_size (table:unit Term_Table.table) = Term_Table.dest table |> length;
 
 fun filter_statistics_snapshot (synched_stats:synched_filter_statistics) =
   let
     val {top_loop_index, refutation_checked, refutation_refuted, refutation_survived,
-         abduction_checked_conjectures, abduction_used_conjectures} = Synchronized.value synched_stats;
+         abduction_checked_conjectures, abduction_used_conjectures,
+         orelse_rejected_conjectures, orelse_too_large,
+         orelse_eq_to_final_goal_from_tactic, orelse_concl_is_eq_to_final_goal,
+         orelse_has_func_with_three_occs_in_a_row, orelse_concls_are_same,
+         orelse_concl_of_conj_refuted} = Synchronized.value synched_stats;
     val checked = table_size abduction_checked_conjectures;
     val used = table_size abduction_used_conjectures;
     val discarded = Int.max (0, checked - used);
@@ -231,7 +353,14 @@ fun filter_statistics_snapshot (synched_stats:synched_filter_statistics) =
     refutation_survived = table_size refutation_survived,
     abduction_checked_conjectures = checked,
     abduction_used_conjectures = used,
-    abduction_discarded_conjectures = discarded}: filter_statistics_snapshot
+    abduction_discarded_conjectures = discarded,
+    orelse_rejected_conjectures = table_size orelse_rejected_conjectures,
+    orelse_too_large = table_size orelse_too_large,
+    orelse_eq_to_final_goal_from_tactic = table_size orelse_eq_to_final_goal_from_tactic,
+    orelse_concl_is_eq_to_final_goal = table_size orelse_concl_is_eq_to_final_goal,
+    orelse_has_func_with_three_occs_in_a_row = table_size orelse_has_func_with_three_occs_in_a_row,
+    orelse_concls_are_same = table_size orelse_concls_are_same,
+    orelse_concl_of_conj_refuted = table_size orelse_concl_of_conj_refuted}: filter_statistics_snapshot
   end;
 
 datatype refutation_cache_entry = Refuting | Refuted of real;

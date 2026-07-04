@@ -18,8 +18,12 @@ if [[ -d results ]]; then
     python3 abduction_graph_to_latex.py \
       --results-root results \
       --out latex/main
+
+    python3 abduction_filter_funnel_to_latex.py \
+      --results-root results \
+      --out latex/main
   else
-    echo "No abduction_statistics.csv found under results; skipping Abduction statistics and AbductionGraph figures."
+    echo "No abduction_statistics.csv found under results; skipping Abduction statistics, AbductionGraph, and filter-attrition figures."
   fi
 
   if find results -name abduction_decremental_statistics.csv -print -quit | grep -q .; then
