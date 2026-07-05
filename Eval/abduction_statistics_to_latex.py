@@ -128,20 +128,18 @@ def actual_loop_rows(rows: list[dict]) -> list[dict]:
 
 
 def is_clean_proof(row: dict) -> bool:
-    """Return True only for cleanly solved rows.
+    """Return True when the summary CSV says the target was proved.
 
-    Older CSV files can contain status=timeout together with proof_found=True
-    when a .proof file was written just before the evaluator killed Isabelle.
-    Those rows must remain unproved in paper-facing plots.
+    The evaluator now validates completed Abduction proof artifacts before
+    setting proof_found=True, so downstream plots should trust proof_found
+    rather than reclassifying proved-but-process-abnormal rows as failures.
     """
-    status = str(row.get("status", "")).strip().lower()
     proof_text = str(row.get("proof_found", "")).strip()
-
     if proof_text:
-        return truthy(proof_text) and status in {"ok", "proved", "success"}
+        return truthy(proof_text)
 
-    return status in {"proved", "success"}
-
+    status = str(row.get("status", "")).strip().lower()
+    return status in {"ok", "proved", "success"}
 
 def outcome_group(rows: list[dict]) -> str:
     return "proved" if any(is_clean_proof(r) for r in rows) else "unproved"

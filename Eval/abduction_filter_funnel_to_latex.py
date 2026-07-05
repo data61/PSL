@@ -21,8 +21,7 @@ The script also keeps the previous aggregate loop/totals figures for diagnostics
 
 Notes:
 - Filled regions use TikZ patterns rather than only grayscale fills.
-- A black triangle marker indicates a proved target according to summary.csv for the
-  selected method.
+- Success/failure is encoded directly in problem tick labels, e.g. S-01 and F-01.
 - The generated .tex files require: \usetikzlibrary{patterns}
 """
 
@@ -56,16 +55,15 @@ STAGE_COLUMNS = [
 
 GRAYS = [10, 28, 46, 64, 78, 90, 18, 36, 54, 72]
 PATTERNS = [
+    "crosshatch",
+    "grid",
+    "crosshatch dots",
+    "dots",
     "north east lines",
     "north west lines",
-    "vertical lines",
-    "horizontal lines",
-    "grid",
-    "crosshatch",
-    "dots",
-    "crosshatch dots",
-    "fivepointed stars",
     "bricks",
+    "fivepointed stars",
+    "sixpointed stars",
 ]
 
 
@@ -129,6 +127,28 @@ def natural_key(s):
 
 def compact_problem_label(target_id):
     return Path(str(target_id)).stem or str(target_id)
+
+
+def target_number_from_row(row, fallback_index):
+    target_id = compact_problem_label(row.get("target_id", ""))
+    m = re.search(r"TIP_prop_(\d+)$", target_id)
+    if m:
+        return int(m.group(1))
+    target_index = to_int(row.get("target_index"), 0)
+    if target_index > 0:
+        return target_index
+    m = re.search(r"(?:^|_)(\d+)$", target_id)
+    if m:
+        return int(m.group(1))
+    return fallback_index
+
+
+def problem_plot_label(row, fallback_index):
+    prefix = "S" if row.get("proved") else "F"
+    number = target_number_from_row(row, fallback_index)
+    if number < 1000:
+        return f"{prefix}-{number:02d}"
+    return f"{prefix}-{number}"
 
 
 def y_max_for_log(value):
@@ -279,7 +299,13 @@ def aggregate_by_problem(problem_groups, columns, proved_map=None):
     rows = []
     proved_map = proved_map or {}
     for (benchmark, target_id), problem_rows in problem_groups.items():
-        item = {"benchmark": benchmark, "target_id": target_id, "proved": bool(proved_map.get((benchmark, target_id), False))}
+        first_row = problem_rows[0] if problem_rows else {}
+        item = {
+            "benchmark": benchmark,
+            "target_id": target_id,
+            "target_index": to_int(first_row.get("target_index"), 0),
+            "proved": bool(proved_map.get((benchmark, target_id), False)),
+        }
         for col in columns:
             item[column_key(col)] = 0
         for row in trim_after_first_zero_worth(actual_loop_rows(problem_rows)):
@@ -288,6 +314,14 @@ def aggregate_by_problem(problem_groups, columns, proved_map=None):
         item["total"] = sum(item[column_key(col)] for col in columns)
         rows.append(item)
     return rows
+
+
+def has_any_column(rows, columns):
+    wanted = {column_data_key(col) for col in columns}
+    for row in rows:
+        if any(col in row for col in wanted):
+            return True
+    return False
 
 
 def order_problem_aggregates(problem_rows, order):
@@ -323,7 +357,9 @@ def mean_proportions_by_loop(problem_groups, columns):
     return result
 
 
-def plot_options_for_series(index, *, use_patterns=True):
+def plot_options_for_series(index, *, key=None, use_patterns=True):
+    if key == "abduction_used":
+        return "draw=black,fill=black"
     gray = GRAYS[index % len(GRAYS)]
     if use_patterns:
         pattern = PATTERNS[index % len(PATTERNS)]
@@ -331,22 +367,29 @@ def plot_options_for_series(index, *, use_patterns=True):
     return f"draw=black,fill=black!{gray}"
 
 
-def marker_plot_options():
-    return "only marks,mark=triangle*,mark options={solid,fill=black,scale=0.85},black"
+def write_no_data_tex(out_path, *, title, benchmark, message):
+    lines = [
+        r"\begin{tikzpicture}",
+        r"\node[draw=black,rounded corners=1pt,align=left,text width=0.90\linewidth,inner sep=5pt] {",
+        rf"\textbf{{{title_with_benchmark(title, tex_escape(benchmark))}}}\\[2pt]",
+        tex_escape(message),
+        r"};",
+        r"\end{tikzpicture}",
+        "",
+    ]
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    return False
 
 
 def write_stacked_loop_bar_graph(out_path, *, benchmark, title, ylabel, columns, by_loop, linear_y, legend_columns=2):
     if not by_loop:
-        out_path.write_text("% No filter data found.\n", encoding="utf-8")
-        return False
+        return write_no_data_tex(out_path, title=title, benchmark=benchmark, message="No filter data found in the selected abduction statistics CSV.")
     loops = sorted(by_loop)
     ymax = max(sum(by_loop[loop].get(column_key(col), 0) for col in columns) for loop in loops)
     if ymax <= 0:
-        out_path.write_text("% No positive filter data found.\n", encoding="utf-8")
-        return False
+        return write_no_data_tex(out_path, title=title, benchmark=benchmark, message="No positive filter counts were found for this plot.")
 
     axis_options = [
-        "% Requires: \\usetikzlibrary{patterns}",
         rf"title={{{title_with_benchmark(title, tex_escape(benchmark))}}},",
         r"xlabel={Top-level loop round},",
         rf"ylabel={{{ylabel}}},",
@@ -371,7 +414,7 @@ def write_stacked_loop_bar_graph(out_path, *, benchmark, title, ylabel, columns,
     else:
         axis_options.extend([r"ymode=log,", r"log basis y=10,", r"ymin=1,", rf"ymax={fmt_num(y_max_for_log(ymax))},", r"minor y tick num=9,"])
 
-    lines = [r"\begin{tikzpicture}", r"\begin{axis}["]
+    lines = ["% Requires: \\usetikzlibrary{patterns}", r"\begin{tikzpicture}", r"\begin{axis}["]
     lines.extend(axis_options)
     lines.append(r"]")
     for i, col in enumerate(columns):
@@ -381,7 +424,7 @@ def write_stacked_loop_bar_graph(out_path, *, benchmark, title, ylabel, columns,
             for loop in loops
             if linear_y or by_loop[loop].get(key, 0) > 0
         )
-        lines.append(rf"\addplot+[{plot_options_for_series(i, use_patterns=True)},ybar] coordinates {{{coords}}};")
+        lines.append(rf"\addplot+[{plot_options_for_series(i, key=key, use_patterns=True)},ybar] coordinates {{{coords}}};")
         lines.append(rf"\addlegendentry{{{tex_escape(label)}}}")
     lines.extend([r"\end{axis}", r"\end{tikzpicture}", ""])
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -391,8 +434,7 @@ def write_stacked_loop_bar_graph(out_path, *, benchmark, title, ylabel, columns,
 def write_totals_bar_graph(out_path, *, benchmark, columns, totals, title, ylabel, linear_y):
     positive = [(column_key(col), column_label(col), totals.get(column_key(col), 0)) for col in columns if totals.get(column_key(col), 0) > 0]
     if not positive:
-        out_path.write_text("% No positive filter data found.\n", encoding="utf-8")
-        return False
+        return write_no_data_tex(out_path, title=title, benchmark=benchmark, message="No positive aggregate filter counts were found for this plot.")
     labels = [label for _key, label, _value in positive]
     ymax = max(value for _key, _label, value in positive)
     coords = " ".join(f"({idx},{value})" for idx, (_key, _label, value) in enumerate(positive, start=1))
@@ -400,7 +442,6 @@ def write_totals_bar_graph(out_path, *, benchmark, columns, totals, title, ylabe
     xticklabels = ",".join("{" + tex_escape(label) + "}" for label in labels)
 
     lines = [
-        "% Requires: \\usetikzlibrary{patterns}",
         r"\begin{tikzpicture}",
         r"\begin{axis}[",
         rf"title={{{title_with_benchmark(title, tex_escape(benchmark))}}},",
@@ -425,7 +466,7 @@ def write_totals_bar_graph(out_path, *, benchmark, columns, totals, title, ylabe
         lines.extend([r"ymode=log,", r"log basis y=10,", r"ymin=1,", rf"ymax={fmt_num(y_max_for_log(ymax))},", r"minor y tick num=9,"])
     lines.extend([
         r"]",
-        rf"\addplot+[{plot_options_for_series(1, use_patterns=True)},ybar] coordinates {{{coords}}};",
+        rf"\addplot+[{plot_options_for_series(1, key=positive[0][0], use_patterns=True)},ybar] coordinates {{{coords}}};",
         r"\end{axis}",
         r"\end{tikzpicture}",
         "",
@@ -435,20 +476,15 @@ def write_totals_bar_graph(out_path, *, benchmark, columns, totals, title, ylabe
 
 
 def make_problem_xticklabels(ordered, max_problem_labels):
-    n = len(ordered)
-    if n <= max_problem_labels:
-        return ",".join("{" + tex_escape(compact_problem_label(row.get("target_id", ""))) + "}" for row in ordered)
-    return ",".join("{" + str(i) + "}" for i in range(1, n + 1))
+    return ",".join("{" + tex_escape(problem_plot_label(row, idx)) + "}" for idx, row in enumerate(ordered, start=1))
 
 
 def write_problem_decomposition_graph(out_path, *, benchmark, title, columns, problem_rows, problem_order, max_problem_labels, ylabel, percentage=False):
     ordered = order_problem_aggregates(problem_rows, problem_order)
     if not ordered:
-        out_path.write_text("% No problem-level filter data found.\n", encoding="utf-8")
-        return False
+        return write_no_data_tex(out_path, title=title, benchmark=benchmark, message="No problem-level filter data found in the selected abduction statistics CSV.")
     if max((row.get("total", 0) for row in ordered), default=0) <= 0:
-        out_path.write_text("% No positive problem-level filter data found.\n", encoding="utf-8")
-        return False
+        return write_no_data_tex(out_path, title=title, benchmark=benchmark, message="No positive problem-level filter counts were found for this plot.")
 
     n = len(ordered)
     xticks = ",".join(str(i) for i in range(1, n + 1))
@@ -461,7 +497,6 @@ def write_problem_decomposition_graph(out_path, *, benchmark, title, columns, pr
         ymax = y_max_for_linear(max_total * 1.08)
 
     lines = [
-        "% Requires: \\usetikzlibrary{patterns}",
         r"\begin{tikzpicture}",
         r"\begin{axis}[%",
         r"width=0.96\linewidth,",
@@ -510,19 +545,8 @@ def write_problem_decomposition_graph(out_path, *, benchmark, title, columns, pr
         else:
             last_value = last_row.get(key, 0)
         coords.append(f"({n + 0.5:.6f},{fmt_num(last_value)})")
-        lines.append(rf"\addplot+[{plot_options_for_series(i, use_patterns=True)}] coordinates {{{' '.join(coords)}}} \closedcycle;")
+        lines.append(rf"\addplot+[{plot_options_for_series(i, key=key, use_patterns=True)}] coordinates {{{' '.join(coords)}}} \closedcycle;")
         lines.append(rf"\addlegendentry{{{tex_escape(label)}}}")
-
-    proved_rows = [(idx, row) for idx, row in enumerate(ordered, start=1) if row.get("proved")]
-    if proved_rows:
-        if percentage:
-            proved_coords = " ".join(f"({idx},103)" for idx, _row in proved_rows)
-        else:
-            max_total = max(row.get("total", 0) for row in ordered)
-            bump = max(1.0, 0.03 * max_total)
-            proved_coords = " ".join(f"({idx},{fmt_num(row.get('total', 0) + bump)})" for idx, row in proved_rows)
-        lines.append(rf"\addplot+[{marker_plot_options()}] coordinates {{{proved_coords}}};")
-        lines.append(r"\addlegendentry{Proved}")
 
     lines.extend([r"\end{axis}", r"\end{tikzpicture}", ""])
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -531,18 +555,16 @@ def write_problem_decomposition_graph(out_path, *, benchmark, title, columns, pr
 
 def write_loop_mean_proportion_graph(out_path, *, benchmark, title, columns, mean_props):
     if not mean_props:
-        out_path.write_text("% No loop-round proportion data found.\n", encoding="utf-8")
-        return False
+        return write_no_data_tex(out_path, title=title, benchmark=benchmark, message="No positive loop-round proportion data found for this plot.")
     loops = sorted(mean_props)
     lines = [
-        "% Requires: \\usetikzlibrary{patterns}",
         r"\begin{tikzpicture}",
         r"\begin{axis}[%",
         r"width=0.95\linewidth,",
         r"height=0.56\linewidth,",
         rf"title={{{title_with_benchmark(title, tex_escape(benchmark))}}},",
         r"xlabel={Top-level loop round},",
-        r"ylabel={Mean per-problem share (\\%)},",
+        r"ylabel={Mean per-problem share (\%)},",
         r"ybar stacked,",
         r"bar width=7pt,",
         r"xmin=0.5,",
@@ -567,7 +589,7 @@ def write_loop_mean_proportion_graph(out_path, *, benchmark, title, columns, mea
     for i, col in enumerate(columns):
         key, label = column_key(col), column_label(col)
         coords = " ".join(f"({loop},{fmt_num(mean_props[loop].get(key, 0.0))})" for loop in loops)
-        lines.append(rf"\addplot+[{plot_options_for_series(i, use_patterns=True)},ybar] coordinates {{{coords}}};")
+        lines.append(rf"\addplot+[{plot_options_for_series(i, key=key, use_patterns=True)},ybar] coordinates {{{coords}}};")
         lines.append(rf"\addlegendentry{{{tex_escape(label)}}}")
     lines.extend([r"\end{axis}", r"\end{tikzpicture}", ""])
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -592,12 +614,14 @@ def write_loop_mean_proportion_csv(out_path, columns, mean_props):
 def write_problem_label_map(out_path, problem_rows, problem_order):
     ordered = order_problem_aggregates(problem_rows, problem_order)
     with out_path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["problem_index", "target_id", "total", "proved"])
+        writer = csv.DictWriter(f, fieldnames=["problem_index", "plot_label", "target_id", "target_index", "total", "proved"])
         writer.writeheader()
         for idx, row in enumerate(ordered, start=1):
             writer.writerow({
                 "problem_index": idx,
+                "plot_label": problem_plot_label(row, idx),
                 "target_id": row.get("target_id", ""),
+                "target_index": row.get("target_index", 0),
                 "total": row.get("total", 0),
                 "proved": str(bool(row.get("proved", False))).lower(),
             })
@@ -623,9 +647,11 @@ def write_notes(out_dir, benchmark, problem_order):
         "absolute filter volume, while the percentage version shows composition "
         "independent of total volume.\n\n"
         "Filled regions use black-and-white TikZ patterns rather than only grayscale "
-        "fills, to remain distinguishable in monochrome printing. A black triangle "
-        "marker above a bar indicates that the corresponding problem was proved "
-        "according to summary.csv for the selected method.\n\n"
+        "fills, to remain distinguishable in monochrome printing. The S-/F- prefix "
+        "in problem tick labels indicates whether the corresponding problem was proved "
+        "according to summary.csv for the selected method. The SH-used category is "
+        "drawn with a solid black fill because retained conjectures are usually the "
+        "most important part of the decomposition.\n\n"
         "The 100%-stacked loop-round figures use mean per-problem proportions. For "
         "each problem and loop, the script first normalises by that problem-loop's "
         "positive filter-activity total, and then averages the shares across problems. "
@@ -637,6 +663,69 @@ def write_notes(out_dir, benchmark, problem_order):
         "rejection to the first condition that fired in the original short-circuit order.\n"
     )
     (out_dir / f"abduction_filter_attrition_notes{suffix}.txt").write_text(text, encoding="utf-8")
+
+
+
+def format_count_pct(count, total):
+    if total <= 0:
+        return f"{int(count)} (0.0\\%)"
+    return f"{int(count)} ({100.0 * float(count) / float(total):.1f}\\%)"
+
+
+def write_filter_stage_summary_table(out_path, csv_path, rows, benchmarks, proved_map):
+    table_rows = []
+    for benchmark in benchmarks:
+        bench_rows = [r for r in rows if str(r.get("benchmark", "")).strip() == benchmark]
+        if not bench_rows:
+            continue
+        problem_groups = group_problem_rows(bench_rows)
+        totals = aggregate_totals(problem_groups, STAGE_COLUMNS)
+        total = sum(totals.get(column_key(col), 0) for col in STAGE_COLUMNS)
+        targets = sorted({str(r.get("target_id", "")).strip() for r in bench_rows if str(r.get("target_id", "")).strip()}, key=natural_key)
+        proved_count = sum(1 for target_id in targets if proved_map.get((benchmark, target_id), False))
+        table_rows.append((benchmark, len(targets), proved_count, total, totals))
+
+    if not table_rows:
+        write_no_data_tex(out_path, title="Filter-effect summary by problem set", benchmark="", message="No filter statistics were found for the selected method.")
+        csv_path.write_text("benchmark,targets,proved,total\n", encoding="utf-8")
+        return False
+
+    with csv_path.open("w", encoding="utf-8", newline="") as f:
+        fieldnames = ["benchmark", "targets", "proved", "total"]
+        for col in STAGE_COLUMNS:
+            fieldnames.extend([column_key(col), column_key(col) + "_pct"])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for benchmark, n_targets, n_proved, total, totals in table_rows:
+            row = {"benchmark": benchmark, "targets": n_targets, "proved": n_proved, "total": total}
+            for col in STAGE_COLUMNS:
+                key = column_key(col)
+                value = totals.get(key, 0)
+                row[key] = value
+                row[key + "_pct"] = 0.0 if total <= 0 else 100.0 * float(value) / float(total)
+            writer.writerow(row)
+
+    lines = [
+        r"\begingroup",
+        r"\scriptsize",
+        r"\begin{tabular}{lccccc}",
+        r"\hline",
+        r"Problem set & Proved & Cheap OR & CEX refuted & SH discarded & SH used \\",
+        r"\hline",
+    ]
+    for benchmark, n_targets, n_proved, total, totals in table_rows:
+        cells = [
+            tex_escape(benchmark),
+            f"{n_proved}/{n_targets}",
+            format_count_pct(totals.get("cheap", 0), total),
+            format_count_pct(totals.get("counterexample", 0), total),
+            format_count_pct(totals.get("abduction_discarded", 0), total),
+            format_count_pct(totals.get("abduction_used", 0), total),
+        ]
+        lines.append(" & ".join(cells) + r" \\")
+    lines.extend([r"\hline", r"\end{tabular}", r"\endgroup", ""])
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    return True
 
 
 def write_figures_for_benchmark(rows, out_dir, benchmark, *, linear_y, problem_order, max_problem_labels, proved_map):
@@ -651,9 +740,10 @@ def write_figures_for_benchmark(rows, out_dir, benchmark, *, linear_y, problem_o
     by_loop_reasons = aggregate_by_loop(problem_groups, ORELSE_REASON_COLUMNS)
     totals_stages = aggregate_totals(problem_groups, STAGE_COLUMNS)
     problem_stages = aggregate_by_problem(problem_groups, STAGE_COLUMNS, proved_map=proved_map)
-    problem_reasons = aggregate_by_problem(problem_groups, ORELSE_REASON_COLUMNS, proved_map=proved_map)
+    has_orelse_columns = has_any_column(bench_rows, ORELSE_REASON_COLUMNS)
+    problem_reasons = aggregate_by_problem(problem_groups, ORELSE_REASON_COLUMNS, proved_map=proved_map) if has_orelse_columns else []
     mean_stage_props = mean_proportions_by_loop(problem_groups, STAGE_COLUMNS)
-    mean_reason_props = mean_proportions_by_loop(problem_groups, ORELSE_REASON_COLUMNS)
+    mean_reason_props = mean_proportions_by_loop(problem_groups, ORELSE_REASON_COLUMNS) if has_orelse_columns else {}
 
     generated = False
     generated |= write_problem_decomposition_graph(
@@ -685,35 +775,41 @@ def write_figures_for_benchmark(rows, out_dir, benchmark, *, linear_y, problem_o
         columns=STAGE_COLUMNS,
         mean_props=mean_stage_props,
     )
-    generated |= write_problem_decomposition_graph(
-        out_dir / f"abduction_orelse_problem_decomposition{suffix}.tex",
-        benchmark=benchmark,
-        title="Cheap OR-filter reasons by problem",
-        columns=ORELSE_REASON_COLUMNS,
-        problem_rows=problem_reasons,
-        problem_order=problem_order,
-        max_problem_labels=max_problem_labels,
-        ylabel="Per-loop unique cheap-filter rejections",
-        percentage=False,
-    )
-    generated |= write_problem_decomposition_graph(
-        out_dir / f"abduction_orelse_problem_percentage{suffix}.tex",
-        benchmark=benchmark,
-        title="Cheap OR-filter reason composition by problem",
-        columns=ORELSE_REASON_COLUMNS,
-        problem_rows=problem_reasons,
-        problem_order=problem_order,
-        max_problem_labels=max_problem_labels,
-        ylabel="Share of per-problem cheap-filter rejections (\\%)",
-        percentage=True,
-    )
-    generated |= write_loop_mean_proportion_graph(
-        out_dir / f"abduction_orelse_loop_mean_proportions{suffix}.tex",
-        benchmark=benchmark,
-        title="Mean cheap OR-filter reason proportions by loop",
-        columns=ORELSE_REASON_COLUMNS,
-        mean_props=mean_reason_props,
-    )
+    if has_orelse_columns:
+        generated |= write_problem_decomposition_graph(
+            out_dir / f"abduction_orelse_problem_decomposition{suffix}.tex",
+            benchmark=benchmark,
+            title="Cheap OR-filter reasons by problem",
+            columns=ORELSE_REASON_COLUMNS,
+            problem_rows=problem_reasons,
+            problem_order=problem_order,
+            max_problem_labels=max_problem_labels,
+            ylabel="Per-loop unique cheap-filter rejections",
+            percentage=False,
+        )
+        generated |= write_problem_decomposition_graph(
+            out_dir / f"abduction_orelse_problem_percentage{suffix}.tex",
+            benchmark=benchmark,
+            title="Cheap OR-filter reason composition by problem",
+            columns=ORELSE_REASON_COLUMNS,
+            problem_rows=problem_reasons,
+            problem_order=problem_order,
+            max_problem_labels=max_problem_labels,
+            ylabel="Share of per-problem cheap-filter rejections (\\%)",
+            percentage=True,
+        )
+        generated |= write_loop_mean_proportion_graph(
+            out_dir / f"abduction_orelse_loop_mean_proportions{suffix}.tex",
+            benchmark=benchmark,
+            title="Mean cheap OR-filter reason proportions by loop",
+            columns=ORELSE_REASON_COLUMNS,
+            mean_props=mean_reason_props,
+        )
+    else:
+        msg = "No filter_orelse_* columns were found in abduction_statistics.csv. Rerun the evaluation with the OR-filter counter instrumentation and export fix enabled."
+        write_no_data_tex(out_dir / f"abduction_orelse_problem_decomposition{suffix}.tex", benchmark=benchmark, title="Cheap OR-filter reasons by problem", message=msg)
+        write_no_data_tex(out_dir / f"abduction_orelse_problem_percentage{suffix}.tex", benchmark=benchmark, title="Cheap OR-filter reason composition by problem", message=msg)
+        write_no_data_tex(out_dir / f"abduction_orelse_loop_mean_proportions{suffix}.tex", benchmark=benchmark, title="Mean cheap OR-filter reason proportions by loop", message=msg)
 
     # Backward-compatible diagnostic figures.
     generated |= write_stacked_loop_bar_graph(
@@ -726,16 +822,19 @@ def write_figures_for_benchmark(rows, out_dir, benchmark, *, linear_y, problem_o
         linear_y=linear_y,
         legend_columns=2,
     )
-    generated |= write_stacked_loop_bar_graph(
-        out_dir / f"abduction_orelse_reason_breakdown{suffix}.tex",
-        benchmark=benchmark,
-        title="Cheap OR-filter rejection reasons by loop",
-        ylabel="Per-loop unique cheap-filter rejections",
-        columns=ORELSE_REASON_COLUMNS,
-        by_loop=by_loop_reasons,
-        linear_y=linear_y,
-        legend_columns=2,
-    )
+    if has_orelse_columns:
+        generated |= write_stacked_loop_bar_graph(
+            out_dir / f"abduction_orelse_reason_breakdown{suffix}.tex",
+            benchmark=benchmark,
+            title="Cheap OR-filter rejection reasons by loop",
+            ylabel="Per-loop unique cheap-filter rejections",
+            columns=ORELSE_REASON_COLUMNS,
+            by_loop=by_loop_reasons,
+            linear_y=linear_y,
+            legend_columns=2,
+        )
+    else:
+        write_no_data_tex(out_dir / f"abduction_orelse_reason_breakdown{suffix}.tex", benchmark=benchmark, title="Cheap OR-filter rejection reasons by loop", message="No filter_orelse_* columns were found in abduction_statistics.csv.")
     generated |= write_totals_bar_graph(
         out_dir / f"abduction_filter_stage_totals{suffix}.tex",
         benchmark=benchmark,
@@ -825,8 +924,16 @@ def main():
         ):
             generated += 1
 
+    write_filter_stage_summary_table(
+        out_dir / "abduction_filter_stage_summary.tex",
+        out_dir / "abduction_filter_stage_summary.csv",
+        rows,
+        benchmarks,
+        proved_map,
+    )
+
     if generated == 0:
-        print("No matching Abduction filter-attrition data found; skipping.")
+        print("No matching Abduction filter-attrition data found; generated only summary/no-data artifacts where possible.")
     else:
         print(f"Generated Abduction filter-attrition figures for method={args.method!r}, {generated} benchmark(s) in: {out_dir}")
 

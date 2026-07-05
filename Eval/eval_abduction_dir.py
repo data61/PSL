@@ -22,6 +22,16 @@ ABDUCTION_LIKE_METHODS = {"abduction", "preprocessed_abduction"}
 TBC_SEEDED_METHODS = {"preprocessed_abduction"}
 
 
+ORELSE_FILTER_FIELDNAMES = [
+    "filter_orelse_rejected_conjectures",
+    "filter_orelse_too_large",
+    "filter_orelse_eq_to_final_goal_from_tactic",
+    "filter_orelse_concl_is_eq_to_final_goal",
+    "filter_orelse_has_func_with_three_occs_in_a_row",
+    "filter_orelse_concls_are_same",
+    "filter_orelse_concl_of_conj_refuted",
+]
+
 def terminate_process_group(proc: subprocess.Popen) -> None:
     try:
         os.killpg(proc.pid, signal.SIGTERM)
@@ -78,6 +88,39 @@ def normalize_proof_file(path: Path) -> int:
     return sum(1 for line in lines if line.strip())
 
 
+
+
+
+def proof_file_has_completed_abduction_goal(path: Path) -> bool:
+    """Return True if an Abduction-style .proof file contains a completed final goal.
+
+    The Isabelle process can occasionally be killed after AbductionProver has
+    already emitted a usable proof file.  In that case stdout may not contain
+    "And we proved the goal.", so the evaluator must also inspect the artifact
+    itself.  We deliberately require the final original_goal lemma and a real
+    proof terminator, rather than accepting any non-empty .proof file.
+    """
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+
+    if not text.strip():
+        return False
+
+    if re.search(r"(?m)^\s*(sorry|oops)\b", text):
+        return False
+
+    return re.search(
+        r"(?ms)^\s*lemma\s+original_goal[\w']*\s*:\s*.*?^\s*(?:done|qed)\s*$",
+        text,
+    ) is not None
+
+
+def proof_files_show_completed_abduction_goal(paths: List[Path], method: str) -> bool:
+    return method in ABDUCTION_LIKE_METHODS and any(
+        proof_file_has_completed_abduction_goal(path) for path in paths
+    )
 
 
 def read_csv_rows_from_dir(directory: Path, pattern: str) -> List[dict]:
@@ -152,6 +195,7 @@ ABDUCTION_STATISTICS_FIELDNAMES = [
     "filter_refutation_survival_rate",
     "filter_abduction_checked_conjectures", "filter_abduction_used_conjectures",
     "filter_abduction_discarded_conjectures", "filter_abduction_retention_rate",
+    *ORELSE_FILTER_FIELDNAMES,
     "loop_elapsed_sec", "abduction_stats_file",
 ]
 
@@ -353,6 +397,7 @@ def collect_abduction_statistics(row: Dict[str, object], stats_dir: str) -> List
             "filter_abduction_used_conjectures": "",
             "filter_abduction_discarded_conjectures": "",
             "filter_abduction_retention_rate": "",
+            **{column: "" for column in ORELSE_FILTER_FIELDNAMES},
             "loop_elapsed_sec": "",
             "abduction_stats_file": "",
         })
@@ -429,6 +474,7 @@ def collect_abduction_statistics(row: Dict[str, object], stats_dir: str) -> List
             "filter_abduction_used_conjectures": loop_row.get("filter_abduction_used_conjectures", ""),
             "filter_abduction_discarded_conjectures": loop_row.get("filter_abduction_discarded_conjectures", ""),
             "filter_abduction_retention_rate": loop_row.get("filter_abduction_retention_rate", ""),
+            **{column: loop_row.get(column, "") for column in ORELSE_FILTER_FIELDNAMES},
             "loop_elapsed_sec": loop_row.get("elapsed_sec", ""),
             "abduction_stats_file": loop_row.get("source_file", ""),
         })
@@ -692,13 +738,23 @@ def run_one(
         and output_reports_abduction_success(output)
     )
 
+    completed_abduction_goal_in_proof_file = proof_files_show_completed_abduction_goal(
+        proof_paths,
+        method,
+    )
+
     proof_found = (
         (status == "ok" and proof_file_found and total_proof_lines > 0)
         or abduction_success_after_late_noise
+        or completed_abduction_goal_in_proof_file
     )
 
-    if abduction_success_after_late_noise:
-        status = "ok"
+    if abduction_success_after_late_noise or completed_abduction_goal_in_proof_file:
+        # If the process timed out or returned non-zero after writing a valid
+        # final proof, record the logical prover outcome as proved.  The raw
+        # process abnormality is still visible from returncode/log_file.
+        if status != "ok":
+            status = "proved"
         internal_elapsed = extract_abduction_internal_elapsed(output)
         if internal_elapsed is not None:
             elapsed = internal_elapsed

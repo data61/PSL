@@ -114,12 +114,11 @@ def filter_rows(rows: list[dict], method: str, benchmark: Optional[str]) -> list
 
 
 def is_clean_proof(row: dict) -> bool:
-    status = str(row.get("status", "")).strip().lower()
     proof_text = str(row.get("proof_found", "")).strip()
     if proof_text:
-        return truthy(proof_text) and status in {"ok", "proved", "success"}
+        return truthy(proof_text)
+    status = str(row.get("status", "")).strip().lower()
     return status in {"ok", "proved", "success"}
-
 
 def method_output_dir(base: Path, method: str) -> Path:
     wanted = str(method or "").strip()

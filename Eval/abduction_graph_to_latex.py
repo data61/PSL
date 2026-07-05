@@ -119,12 +119,11 @@ def method_output_dir(base: Path, method: str) -> Path:
 
 
 def is_clean_proof(row: dict) -> bool:
-    status = str(row.get("status", "")).strip().lower()
     proof_text = str(row.get("proof_found", "")).strip()
     if proof_text:
-        return truthy(proof_text) and status in {"ok", "proved", "success"}
-    return status in {"proved", "success"}
-
+        return truthy(proof_text)
+    status = str(row.get("status", "")).strip().lower()
+    return status in {"ok", "proved", "success"}
 
 def status_group(rows: list[dict]) -> str:
     return outcome_group(rows)

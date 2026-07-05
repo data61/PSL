@@ -291,12 +291,22 @@ fun pst_to_proofscripts_opt (timeouts:timeouts) (strategy_name:string )(pst:Proo
 (*used in bottom-up*)
 fun pst_n_conjecture_has_counterexample (pst:Proof.state) (conjecture:string) =
   let
-    val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(conjecture, [])]] (Proof.context_of pst)
-    val quickpick        = PSL_Interface.lookup (Proof.context_of pst) "Quick_Pick" |> the      : PSL_Interface.strategy;
-    val timeouts         = {overall = 30.0, hammer = 30.0, quickcheck = 1.0, nitpick = 2.0}     : timeouts;
-    val result_seq       = psl_strategy_to_monadic_tactic timeouts quickpick pst_to_be_proved []: (Dynamic_Utils.log * Proof.state) Seq.seq;
+    fun has_counterexample _ =
+      let
+        val ctxt             = Proof.context_of pst;
+        val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(conjecture, [])]] ctxt;
+        val quickpick        = PSL_Interface.lookup ctxt "Quick_Pick" |> the: PSL_Interface.strategy;
+        val timeouts         = {overall = 30.0, hammer = 30.0, quickcheck = 1.0, nitpick = 2.0}: timeouts;
+        val result_seq       = psl_strategy_to_monadic_tactic timeouts quickpick pst_to_be_proved []: (Dynamic_Utils.log * Proof.state) Seq.seq;
+      in
+        is_none (Seq.pull result_seq)(*TODO: Double-Check*)
+      end;
   in
-    is_none (Seq.pull result_seq)(*TODO: Double-Check*)
+    case try has_counterexample () of
+        SOME result => result
+      | NONE =>
+          (warning ("Quickcheck/Nitpick failed while testing a generated conjecture; skipping counterexample result.\n  conjecture: " ^ conjecture);
+           false)
   end;
 
 
@@ -356,42 +366,50 @@ fun pnode_n_pst_to_pst_n_proof (strategy:strategy_for_eval) (hammer_duration:rea
       val lemma_name = #lemma_name pnode: string;
       val lemma_stmt = #lemma_stmt pnode: string;
       val _ = tracing ("  try to prove " ^ lemma_name ^ ": " ^ lemma_stmt);
-      val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(lemma_stmt, [])]] (Proof.context_of pst): Proof.state;
-      val timeout_hammer   = hammer_duration
-      val timeouts         = {overall = 300.0, hammer = timeout_hammer, quickcheck = 1.0, nitpick = 2.0}   : timeouts;
-      val strategy_name    = case strategy of
-                             TAP21                           => "TAP_2021"
-                           | TBC_Strategy_W_Old_Smart_Induct => "Old_TBC_Strategy"
-                           | TBC_Strategy                    => "TBC_Strategy";
-      val script_opt       = pst_to_proofscript_opt timeouts strategy_name pst_to_be_proved <$> fst         : string option;
-      val pst_n_prfnode    = case script_opt of
-         NONE                 => (pst, pnode)
-       | SOME (script:string) => (
-         let
-           val tracing' = if false then tracing else K ();
-           val _ = tracing' script;
-           val _ =  ("    proved " ^ lemma_name ^ ":"^ lemma_stmt) |> tracing;
-           (*TODO: use cheat_lemma_term_in_pst*)
-           val context       = Proof.context_of pst;
-           val _             = tracing' "  Before calling Syntax.read_prop";
-           val goal_term     = Syntax.read_prop context lemma_stmt: term;
-           val _             = tracing' "  Before calling Proof.map_context";
-           val pst_to_return = Proof.map_context (assume_term_in_ctxt (lemma_name, goal_term)) pst;
-           val _             = tracing' "  Before returning from pst_n_prfnode.";
-         in
-           (pst_to_return,
-             {is_final_goal               = #is_final_goal pnode: bool,
-              lemma_name                  = #lemma_name pnode: string,
-              lemma_stmt                  = #lemma_stmt pnode: string,
-              proof                       = SOME script: string option,
-              proof_id                    = (Unsynchronized.inc proof_id_counter; SOME (Unsynchronized.! proof_id_counter)): int option,
-              refuted                     = #refuted pnode: bool,
-              proved_wo_assmng_cnjctr     = true: bool,
-              proved_in_nth_round         = SOME nth_round: int option
-              })
-         end);
+      fun attempt _ =
+        let
+          val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(lemma_stmt, [])]] (Proof.context_of pst): Proof.state;
+          val timeout_hammer   = hammer_duration
+          val timeouts         = {overall = 300.0, hammer = timeout_hammer, quickcheck = 1.0, nitpick = 2.0}: timeouts;
+          val strategy_name    = case strategy of
+                                 TAP21                           => "TAP_2021"
+                               | TBC_Strategy_W_Old_Smart_Induct => "Old_TBC_Strategy"
+                               | TBC_Strategy                    => "TBC_Strategy";
+          val script_opt       = pst_to_proofscript_opt timeouts strategy_name pst_to_be_proved <$> fst: string option;
+        in
+          case script_opt of
+             NONE => (pst, pnode)
+           | SOME (script:string) =>
+             let
+               val tracing' = if false then tracing else K ();
+               val _ = tracing' script;
+               val _ = ("    proved " ^ lemma_name ^ ":"^ lemma_stmt) |> tracing;
+               (*TODO: use cheat_lemma_term_in_pst*)
+               val context       = Proof.context_of pst;
+               val _             = tracing' "  Before calling Syntax.read_prop";
+               val goal_term     = Syntax.read_prop context lemma_stmt: term;
+               val _             = tracing' "  Before calling Proof.map_context";
+               val pst_to_return = Proof.map_context (assume_term_in_ctxt (lemma_name, goal_term)) pst;
+               val _             = tracing' "  Before returning from pst_n_prfnode.";
+             in
+               (pst_to_return,
+                 {is_final_goal               = #is_final_goal pnode: bool,
+                  lemma_name                  = #lemma_name pnode: string,
+                  lemma_stmt                  = #lemma_stmt pnode: string,
+                  proof                       = SOME script: string option,
+                  proof_id                    = (Unsynchronized.inc proof_id_counter; SOME (Unsynchronized.! proof_id_counter)): int option,
+                  refuted                     = #refuted pnode: bool,
+                  proved_wo_assmng_cnjctr     = true: bool,
+                  proved_in_nth_round         = SOME nth_round: int option
+                  })
+             end
+        end;
     in
-      pst_n_prfnode: Proof.state * pnode
+      case try attempt () of
+          SOME result => result
+        | NONE =>
+            (warning ("TBC skipped a generated conjecture after a local proof-attempt failure.\n  lemma: " ^ lemma_name ^ "\n  statement: " ^ lemma_stmt);
+             (pst, pnode))
     end;
 
 fun original_goal_is_proved (nodes:pnodes) = exists (fn nd => #is_final_goal nd andalso #proved_wo_assmng_cnjctr nd) nodes: bool;
@@ -435,17 +453,26 @@ fun pnode_n_pst_to_proof_attempt (strategy:strategy_for_eval) (hammer_duration:r
       val lemma_name = #lemma_name pnode: string;
       val lemma_stmt = #lemma_stmt pnode: string;
       val _ = tracing ("  try to prove " ^ lemma_name ^ ": " ^ lemma_stmt);
-      val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(lemma_stmt, [])]] (Proof.context_of pst): Proof.state;
-      val timeout_hammer   = hammer_duration;
-      val timeouts         = {overall = 300.0, hammer = timeout_hammer, quickcheck = 1.0, nitpick = 2.0}: timeouts;
-      val strategy_name    = case strategy of
-                             TAP21                           => "TAP_2021"
-                           | TBC_Strategy_W_Old_Smart_Induct => "Old_TBC_Strategy"
-                           | TBC_Strategy                    => "TBC_Strategy";
-      val script_opt       = pst_to_proofscript_opt timeouts strategy_name pst_to_be_proved <$> fst: string option;
-      val _ = if is_some script_opt then tracing ("    proved " ^ lemma_name ^ ":" ^ lemma_stmt) else ();
+      fun attempt _ =
+        let
+          val pst_to_be_proved = Proof.theorem_cmd NONE (K I) [[(lemma_stmt, [])]] (Proof.context_of pst): Proof.state;
+          val timeout_hammer   = hammer_duration;
+          val timeouts         = {overall = 300.0, hammer = timeout_hammer, quickcheck = 1.0, nitpick = 2.0}: timeouts;
+          val strategy_name    = case strategy of
+                                 TAP21                           => "TAP_2021"
+                               | TBC_Strategy_W_Old_Smart_Induct => "Old_TBC_Strategy"
+                               | TBC_Strategy                    => "TBC_Strategy";
+          val script_opt       = pst_to_proofscript_opt timeouts strategy_name pst_to_be_proved <$> fst: string option;
+          val _ = if is_some script_opt then tracing ("    proved " ^ lemma_name ^ ":" ^ lemma_stmt) else ();
+        in
+          (pnode, script_opt)
+        end;
     in
-      (pnode, script_opt)
+      case try attempt () of
+          SOME result => result
+        | NONE =>
+            (warning ("TBC skipped a generated conjecture after a local parallel proof-attempt failure.\n  lemma: " ^ lemma_name ^ "\n  statement: " ^ lemma_stmt);
+             (pnode, NONE))
     end;
 
 fun proof_attempt_to_pnode (nth_round:int) ((pnode:pnode), (script_opt:string option)): pnode =
@@ -467,9 +494,8 @@ fun newly_proved_attempt_to_named_term (pst:Proof.state) ((pnode:pnode), (script
   then
     let
       val context = Proof.context_of pst;
-      val goal_term = Syntax.read_prop context (#lemma_stmt pnode): term;
     in
-      SOME (#lemma_name pnode, goal_term)
+      try (fn stmt => (#lemma_name pnode, Syntax.read_prop context stmt)) (#lemma_stmt pnode)
     end
   else NONE;
 
@@ -1626,11 +1652,30 @@ fun ctxt_n_typ_to_consts_full ctxt typ =
         end;
     in try (ctxt_n_typ_to_consts_full' ctxt) typ |> Utils.is_some_null end;
 
+fun ctxt_n_typ_to_consts_full_with_arity ctxt arity typ =
+    let
+      fun ctxt_n_typ_to_consts_full_with_arity' (ctxt:Proof.context) (typ:typ) =
+        let
+          val typ_as_string   = Syntax.string_of_typ ctxt typ
+          |> YXML.parse_body
+          |> XML.content_of : string;
+          val const_typ_pairs = Pretty_Consts.pretty_consts ctxt [(true, Find_Consts.Strict typ_as_string)]: (string * typ) list;
+          val const_typ_pairs_with_arity =
+            filter (fn (_, const_typ) => length (binder_types const_typ) = arity) const_typ_pairs;
+          val const_names     = map fst const_typ_pairs_with_arity: strings;
+          val filtered_const_names = filter_out_invalid_names ctxt const_names
+          val consts_w_dummyT = map (fn cname => Const (cname, dummyT)) filtered_const_names: terms;
+        in
+          consts_w_dummyT: terms
+        end;
+    in try (ctxt_n_typ_to_consts_full_with_arity' ctxt) typ |> Utils.is_some_null end;
+
 fun ctxt_n_typ_to_consts_domain ctxt typ =
     let
       (* the 2 auxiliary functions are used to check if the domain type of the term is typ *)
       fun replace_tvars_with_dummyT typ' = map_atyps (K dummyT) typ'
       fun check_domain typ' = fst (dest_Type typ') = "fun" andalso 
+                              length (binder_types typ') = 1 andalso
                               replace_tvars_with_dummyT (domain_type typ') = replace_tvars_with_dummyT typ
       fun ctxt_n_typ_to_consts_domain' (ctxt:Proof.context) (typ:typ) =
         let
@@ -1649,16 +1694,16 @@ fun ctxt_n_typ_to_consts_domain ctxt typ =
     in try (ctxt_n_typ_to_consts_domain' ctxt) typ |> Utils.is_some_null end;
 
 (*to find candidates for the identity element*)
-fun ctxt_n_typ_to_nullary_const ctxt typ = ctxt_n_typ_to_consts_full ctxt typ;
+fun ctxt_n_typ_to_nullary_const ctxt typ = ctxt_n_typ_to_consts_full_with_arity ctxt 0 typ;
 
 (*to find candidates for the inverse function*)
-fun ctxt_n_typ_to_unary_const ctxt typ = ctxt_n_typ_to_consts_full ctxt (typ --> typ);
+fun ctxt_n_typ_to_unary_const ctxt typ = ctxt_n_typ_to_consts_full_with_arity ctxt 1 (typ --> typ);
 
 (* to find unary functions with specified domain *)
 fun ctxt_n_domain_typ_to_unary_const ctxt typ = ctxt_n_typ_to_consts_domain ctxt typ;
 
 (*to find candidates for the distributive property*)
-fun ctxt_n_typ_to_binary_const ctxt typ = ctxt_n_typ_to_consts_full ctxt ([typ, typ] ---> typ);
+fun ctxt_n_typ_to_binary_const ctxt typ = ctxt_n_typ_to_consts_full_with_arity ctxt 2 ([typ, typ] ---> typ);
 
 fun mk_free_variable_of_typ (typ:typ) (i:int) = Free ("var_" ^ Int.toString i, typ);
 
@@ -1917,14 +1962,19 @@ fun ctxt_n_consts_to_swap_unary' (ctxt:Proof.context) (binary_func:term) (unary_
      if all_args_are_same_typ [unary_func]
      then
        let
-         val (var1, var2)           = Utils.map_pair mk_free_variable_of_dummyT (1,2): term * term;
-         val lhs = binary_func $ var1 $ (unary_func $ var2): term;
-         val rhs = binary_func $ (unary_func $ var1) $ var2: term;
-         val equation = mk_eq (lhs, rhs);
-         val property = try (Syntax.check_term ctxt) equation: term option;
+         fun build_eq _ =
+           let
+             val (var1, var2) = Utils.map_pair mk_free_variable_of_dummyT (1,2): term * term;
+             val lhs = binary_func $ var1 $ (unary_func $ var2): term;
+             val rhs = binary_func $ (unary_func $ var1) $ var2: term;
+           in
+             mk_eq (lhs, rhs): term
+           end;
        in
-         (* TODO: clean-up with monad.*)
-         if is_some property then [(Swap_Unary, the property)] else []
+         try build_eq ()
+         >>= try (Syntax.check_term ctxt)
+         <$> (fn trm => (Swap_Unary, trm))
+         |> the_list
        end
      else [];
   
@@ -2091,24 +2141,28 @@ fun ctxt_n_consts_to_reflexibility (_:Proof.context) (func as (Const _):term) =
 (*TODO: name: 
   FIXME: We only start with the binary function. This is strange.*)
 fun ctxt_n_const_to_all_conjecture_term (ctxt:Proof.context) (func as (Const _)): (property * term) list =
-  ctxt_n_const_to_associativity            ctxt func
-@ ctxt_n_const_to_identity                 ctxt func
-@ ctxt_n_const_to_commutativity            ctxt func
-@ ctxt_n_const_to_idempotent_element       ctxt func
-@ ctxt_n_const_to_idempotence              ctxt func
-@ ctxt_n_const_to_zero_element             ctxt func
-@ ctxt_n_consts_to_distributivity          ctxt func
-@ ctxt_n_consts_to_anti_distributivity     ctxt func
-@ ctxt_n_consts_to_homomorphism_2          ctxt func 
-@ ctxt_n_consts_to_idempotence             ctxt func
-@ ctxt_n_consts_to_involution              ctxt func
-@ ctxt_n_consts_to_symmetry                ctxt func
-@ ctxt_n_consts_to_reflexibility           ctxt func
-@ ctxt_n_consts_to_transitivity            ctxt func
-@ ctxt_n_consts_to_connexity               ctxt func
-@ ctxt_n_consts_to_swap_unary              ctxt func
-@ ctxt_n_consts_to_composite_commutativity ctxt func
-
+  let
+    fun safely_make_conjectures maker =
+      try (maker ctxt) func |> Utils.is_some_null;
+  in
+    safely_make_conjectures ctxt_n_const_to_associativity
+  @ safely_make_conjectures ctxt_n_const_to_identity
+  @ safely_make_conjectures ctxt_n_const_to_commutativity
+  @ safely_make_conjectures ctxt_n_const_to_idempotent_element
+  @ safely_make_conjectures ctxt_n_const_to_idempotence
+  @ safely_make_conjectures ctxt_n_const_to_zero_element
+  @ safely_make_conjectures ctxt_n_consts_to_distributivity
+  @ safely_make_conjectures ctxt_n_consts_to_anti_distributivity
+  @ safely_make_conjectures ctxt_n_consts_to_homomorphism_2
+  @ safely_make_conjectures ctxt_n_consts_to_idempotence
+  @ safely_make_conjectures ctxt_n_consts_to_involution
+  @ safely_make_conjectures ctxt_n_consts_to_symmetry
+  @ safely_make_conjectures ctxt_n_consts_to_reflexibility
+  @ safely_make_conjectures ctxt_n_consts_to_transitivity
+  @ safely_make_conjectures ctxt_n_consts_to_connexity
+  @ safely_make_conjectures ctxt_n_consts_to_swap_unary
+  @ safely_make_conjectures ctxt_n_consts_to_composite_commutativity
+  end
 
 | ctxt_n_const_to_all_conjecture_term _ _ = error "ctxt_n_const_to_all_conjecture_term func. This term is not a constant.";
 
@@ -2119,6 +2173,7 @@ strategy TBC_Strategy =
 POrs [
   Thens [Auto, IsSolved],
   PThenOne [Smart_Induct, Thens [Auto, IsSolved]],
+  PThenOne [DInduct, Thens [Auto, IsSolved]],
   Thens [Hammer, IsSolved],
   PThenOne [
     Smart_Induct,

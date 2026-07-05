@@ -134,20 +134,13 @@ def target_id(row: dict) -> str:
 
 
 def is_proved(row: dict) -> bool:
-    """Return True only for cleanly solved rows.
-
-    Older CSV files can contain status=timeout together with proof_found=True
-    when a .proof file was written just before the evaluator killed Isabelle.
-    Those rows must remain unproved in paper-facing plots.
-    """
-    status = str(row.get("status", "")).strip().lower()
+    """Return True when the summary CSV says the target was proved."""
     proof_text = str(row.get("proof_found", "")).strip()
-
     if proof_text:
-        return truthy(proof_text) and status in {"ok", "proved", "success"}
+        return truthy(proof_text)
 
-    return status in {"proved", "success"}
-
+    status = str(row.get("status", "")).strip().lower()
+    return status in {"ok", "proved", "success"}
 
 def filter_rows(rows: list[dict], benchmark: str) -> list[dict]:
     if not benchmark:
