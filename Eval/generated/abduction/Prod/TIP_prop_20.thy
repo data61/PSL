@@ -27,6 +27,6 @@ fun even :: "Nat => bool" where
 | "even (S (Z)) = False"
 | "even (S (S z2)) = even z2"
 
-prove property0 :
+prove_by_abduction property0 :
   "even (length (x y y))"
 end

@@ -26,6 +26,6 @@ fun t2 :: "Nat => Nat => Nat" where
 "t2 (Z) z = z"
 | "t2 (S z2) z = S (t2 z2 z)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((length (x y z)) = (t2 (length z) (length y)))"
 end

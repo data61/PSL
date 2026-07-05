@@ -18,6 +18,6 @@ fun y :: "'a list => ('a => 'b list) => 'b list" where
 "y (nil2) y2 = nil2"
 | "y (cons2 z2 xs) y2 = x (y2 z2) (y xs y2)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((y (y m f) g) = (y m (% (z :: 'a) => y (f z) g)))"
 end

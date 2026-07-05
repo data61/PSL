@@ -24,6 +24,6 @@ fun zipConcat :: "'a => 'a list => 'b list =>
   "zipConcat x y (nil2) = nil2"
 | "zipConcat x y (cons2 y2 ys) = cons2 (pair2 x y2) (zip y ys)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((zip (cons2 x xs) ys) = (zipConcat x xs ys))"
 end

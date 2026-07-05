@@ -19,7 +19,7 @@ fun zip :: "'a list => 'b list => (('a, 'b) pair) list" where
 | "zip (cons2 z x2) (nil2) = nil2"
 | "zip (cons2 z x2) (cons2 x3 x4) = cons2 (pair2 z x3) (zip x2 x4)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((zip (cons2 x xs) (cons2 y ys)) =
       (cons2 (pair2 x y) (zip xs ys)))"
 end

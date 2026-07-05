@@ -77,6 +77,6 @@ fun recognise :: "R => A list => bool" where
 "recognise x (nil2) = eps x"
 | "recognise x (cons2 z xs) = recognise (step x z) xs"
 
-prove property0 :
+prove_by_abduction property0 :
   "((recognise (Atom a) s) = (eqList s (cons2 a (nil2))))"
 end

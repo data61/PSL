@@ -24,6 +24,6 @@ fun qrev :: "'a list => 'a list => 'a list" where
   "qrev (nil2) z = z"
 | "qrev (cons2 z2 xs) z = qrev xs (cons2 z2 z)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((rev y) = (qrev y (nil2)))"
 end

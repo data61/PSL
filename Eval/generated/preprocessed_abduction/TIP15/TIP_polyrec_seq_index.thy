@@ -52,6 +52,6 @@ fun fromList :: "'a list => 'a Seq" where
 "fromList (nil2) = Nil"
 | "fromList (cons2 y2 xs) = Cons y2 (fromList (pair3 xs))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((n >= 0) ==> ((lookup n xs) = (index n (fromList xs))))"
 end

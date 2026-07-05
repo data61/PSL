@@ -13,6 +13,6 @@ function m :: "int => int" where
 "m x = (if x > 100 then x - 10 else m (m (x + 11)))"
 by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "((n >= 101) ==> ((m n) = (n - 10)))"
 end

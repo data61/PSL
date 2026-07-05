@@ -30,7 +30,7 @@ fun formulapow :: "Nat => Nat => Nat" where
 "formulapow x (Z) = S Z"
 | "formulapow x (S z) = times x (formulapow x z)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((plus
        (formulapow (plus (S Z) x) (plus (S (S (S Z))) n))
        (formulapow2 (plus (S Z) y) (plus (S (S (S Z))) n))) ~=

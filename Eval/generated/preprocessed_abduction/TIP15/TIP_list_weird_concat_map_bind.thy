@@ -30,6 +30,6 @@ fun map :: "('a => 'b) => 'a list => 'b list" where
 "map f (nil2) = nil2"
 | "map f (cons2 y2 xs) = cons2 (f y2) (map f xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((weirdconcat (map f xs)) = (y xs f))"
 end

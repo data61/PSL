@@ -51,6 +51,6 @@ fun ordered :: "Nat list => bool" where
 | "ordered (cons2 y (cons2 y2 xs)) =
      ((le y y2) & (ordered (cons2 y2 xs)))"
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (msortbu xs)"
 end

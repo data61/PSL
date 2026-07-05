@@ -21,6 +21,6 @@ fun t2 :: "Nat => Nat => bool" where
 | "t2 (Z) (S z) = True"
 | "t2 (S x2) (S z) = t2 x2 z"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "t2 i (S (t22 i m))"
 end

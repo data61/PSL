@@ -29,7 +29,7 @@ fun t2 :: "Nat => Nat => Nat" where
   "t2 (Z) z = z"
 | "t2 (S z2) z = S (t2 z2 z)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((t2 (count n xs) (count n (cons2 m (nil2)))) =
       (count n (cons2 m xs)))"
 end

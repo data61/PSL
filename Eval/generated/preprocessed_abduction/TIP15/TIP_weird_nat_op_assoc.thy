@@ -23,6 +23,6 @@ fun op1 :: "Nat => Nat => Nat => Nat => Nat" where
               | S x6 => fail)
          | S x5 => fail))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((op1 (op1 a b Z Z) c d e) = (op1 a (op1 b c Z Z) d e))"
 end

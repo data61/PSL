@@ -42,6 +42,6 @@ function ssort :: "int list => int list" where
                 (% (z :: int) => % (x2 :: int) => (z = x2)) m (cons2 y ys))))"
   by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "((ssort xs) = (isort xs))"
 end

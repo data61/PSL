@@ -40,6 +40,6 @@ fun mul3 :: "Nat => Nat => Nat => Nat" where
            else
            fail))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((mul3 x y z) = (times (times x y) z))"
 end

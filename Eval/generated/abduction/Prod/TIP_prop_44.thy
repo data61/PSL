@@ -34,6 +34,6 @@ fun intersect :: "Nat list => Nat list => Nat list" where
      (if elem z2 y2 then cons2 z2 (intersect xs y2) else
         intersect xs y2)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((elem z y2) ==> ((elem z z2) ==> (elem z (intersect y2 z2))))"
 end

@@ -17,6 +17,6 @@ fun max :: "Nat => Nat => Nat" where
 | "max (S z) (Z) = S z"
 | "max (S z) (S x2) = S (max z x2)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((max (max a b) c) = (max a (max b c)))"
 end

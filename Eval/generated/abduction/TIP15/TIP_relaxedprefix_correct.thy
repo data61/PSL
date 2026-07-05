@@ -46,6 +46,6 @@ fun spec :: "It list => (It list) list => bool list" where
 fun spec2 :: "It list => It list => bool" where
 "spec2 x y = or2 (spec y (cons2 x (removeOne2 x)))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((isRelaxedPrefix xs ys) = (spec2 xs ys))"
 end

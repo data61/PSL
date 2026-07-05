@@ -25,6 +25,6 @@ fun count :: "Nat => Nat list => Nat" where
 | "count y (cons2 z2 ys) =
      (if x y z2 then S (count y ys) else count y ys)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((n = y) ==> ((S (count n xs)) = (count n (cons2 y xs))))"
 end

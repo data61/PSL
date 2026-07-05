@@ -73,6 +73,6 @@ fun plus2 :: "Integer => Integer => Integer" where
 | "plus2 (N m2) (P n2) = t2 n2 (plus (S Z) m2)"
 | "plus2 (N m2) (N n3) = N (plus (plus (S Z) m2) n3)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((times (plus2 x y) z) = (plus2 (times x z) (times y z)))"
 end

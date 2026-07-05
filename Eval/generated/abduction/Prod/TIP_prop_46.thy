@@ -38,6 +38,6 @@ fun insert :: "Nat => Nat list => Nat list" where
 | "insert z (cons2 z2 xs) =
      (if t2 z z2 then cons2 z (cons2 z2 xs) else cons2 z2 (insert z xs))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((z = y2) ==> (elem z (insert y2 z2)))"
 end

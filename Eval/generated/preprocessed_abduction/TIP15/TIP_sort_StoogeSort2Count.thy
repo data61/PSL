@@ -65,6 +65,6 @@ fun count :: "'a => 'a list => int" where
 | "count y (cons2 z2 ys) =
      (if (y = z2) then 1 + (count y ys) else count y ys)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((count y (stoogesort2 xs)) = (count y xs))"
 end

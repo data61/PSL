@@ -89,6 +89,6 @@ function bsort :: "Nat list => Nat list" where
        (bsort (odds (cons2 z (cons2 x2 x3))))"
   by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "isPermutation (bsort xs) xs"
 end

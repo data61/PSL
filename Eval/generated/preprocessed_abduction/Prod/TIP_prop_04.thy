@@ -26,6 +26,6 @@ fun double :: "Nat => Nat" where
   "double (Z) = Z"
 | "double (S z) = S (S (double z))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((length (x y y)) = (double (length y)))"
 end

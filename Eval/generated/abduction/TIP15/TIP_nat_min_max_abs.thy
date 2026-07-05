@@ -15,7 +15,7 @@ fun le :: "Nat => Nat => bool" where
 | "le (S z) (Z) = False"
 | "le (S z) (S x2) = le z x2"
 
-prove property0 :
+prove_by_abduction property0 :
   "((let z :: Nat = (if le x y then y else x)
      in (if le x z then x else z)) =
       x)"

@@ -51,7 +51,7 @@ fun all :: "('a => bool) => 'a list => bool" where
 "all p (nil2) = True"
 | "all p (cons2 y xs) = ((p y) & (all p xs))"
 
-prove property0 :
+prove_by_abduction property0 :
   "all
      (% (x :: 'a list) => isPermutation x xs) (formula (select2 xs))"
 end

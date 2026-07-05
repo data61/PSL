@@ -14,6 +14,6 @@ fun accplus :: "Nat => Nat => Nat" where
 "accplus (Z) y = y"
 | "accplus (S z) y = accplus z (S y)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((accplus x y) = (accplus y x))"
 end

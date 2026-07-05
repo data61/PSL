@@ -21,6 +21,6 @@ fun y :: "'a list => ('a => 'b list) => 'b list" where
 fun return :: "'a => 'a list" where
 "return z = cons2 z (nil2)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((y xs (% (z :: 'a) => return z)) = xs)"
 end

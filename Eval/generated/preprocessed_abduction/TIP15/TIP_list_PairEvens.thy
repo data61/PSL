@@ -33,7 +33,7 @@ function evens :: "'a list => 'a list"
 | "odds (cons2 y xs) = evens xs"
   by pat_completeness auto
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((let eta :: int = length xs
      in ((let md :: int = eta mod 2
           in (if

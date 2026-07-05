@@ -35,6 +35,6 @@ fun toNat :: "Bin => Nat" where
 | "toNat (ZeroAnd xs) = plus (toNat xs) (toNat xs)"
 | "toNat (OneAnd ys) = plus (plus (S Z) (toNat ys)) (toNat ys)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((toNat (plus2 x y)) = (plus (toNat x) (toNat y)))"
 end

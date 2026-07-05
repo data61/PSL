@@ -27,6 +27,6 @@ fun half :: "Nat => Nat" where
 | "half (S (Z)) = Z"
 | "half (S (S z2)) = S (half z2)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((half (length (x y z))) = (half (length (x z y))))"
 end

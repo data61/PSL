@@ -18,6 +18,6 @@ fun le :: "Nat => Nat => bool" where
 fun ge :: "Nat => Nat => bool" where
 "ge x y = le y x"
 
-prove property0 :
+prove_by_abduction property0 :
   "((ge x y) ==> ((ge y x) ==> (x = y)))"
 end

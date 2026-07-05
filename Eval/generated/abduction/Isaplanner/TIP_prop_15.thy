@@ -28,6 +28,6 @@ fun ins :: "Nat => Nat list => Nat list" where
 | "ins x (cons2 z xs) =
      (if t2 x z then cons2 x (cons2 z xs) else cons2 z (ins x xs))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((len (ins x xs)) = (S (len xs)))"
 end

@@ -29,6 +29,6 @@ fun delete :: "Nat => Nat list => Nat list" where
 | "delete y (cons2 z2 xs) =
      (if x y z2 then delete y xs else cons2 z2 (delete y xs))"
 
-prove property0 :
+prove_by_abduction property0 :
   "(~ (elem y (delete y xs)))"
 end

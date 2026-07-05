@@ -27,6 +27,6 @@ fun lastOfTwo :: "Nat list => Nat list => Nat" where
   "lastOfTwo y (nil2) = last y"
 | "lastOfTwo y (cons2 z2 x2) = last (cons2 z2 x2)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((last (x xs ys)) = (lastOfTwo xs ys))"
 end

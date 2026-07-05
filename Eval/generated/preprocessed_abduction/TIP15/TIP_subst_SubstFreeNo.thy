@@ -51,7 +51,7 @@ function subst :: "int => Expr => Expr => Expr" where
 | "subst y z (App a2 b2) = App (subst y z a2) (subst y z b2)"
   by pat_completeness auto
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((~ (elem y (free a))) ==>
       ((elem z (free a)) = (elem z (free (subst y e a)))))"
 end

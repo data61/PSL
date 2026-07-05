@@ -17,6 +17,6 @@ fun dropWhile :: "('a => bool) => 'a list => 'a list" where
 | "dropWhile x (cons2 z xs) =
      (if x z then dropWhile x xs else cons2 z xs)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((dropWhile (% (x :: 'a) => False) xs) = xs)"
 end

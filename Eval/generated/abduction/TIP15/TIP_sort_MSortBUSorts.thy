@@ -44,6 +44,6 @@ function mergingbu :: "(int list) list => int list" where
 fun msortbu :: "int list => int list" where
   "msortbu x = mergingbu (map (% (y :: int) => cons2 y (nil2)) x)"
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (msortbu xs)"
 end

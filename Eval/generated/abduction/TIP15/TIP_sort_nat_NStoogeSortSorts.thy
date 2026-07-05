@@ -95,6 +95,6 @@ function nstooge1sort2 :: "Nat list => Nat list"
         pair2 ys2 zs1 => x ys2 (nstoogesort zs1))"
 by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (nstoogesort xs)"
 end

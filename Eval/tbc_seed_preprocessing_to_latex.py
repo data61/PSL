@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a stacked runtime-profile figure for TBC-seeded AbductionProver.
+r"""Generate a stacked runtime-profile figure for TBC-seeded AbductionProver.
 
 Input:
   Eval/results/<benchmark>/tbc_seed_preprocessing_statistics.csv
@@ -8,13 +8,14 @@ Output:
   One PGFPlots/TikZ figure per benchmark that shows, for solved problems only,
   a stacked runtime decomposition over solved-problem rank:
 
-    * direct goal attack time,
+    * PSL/direct goal attack time,
     * remaining TBC preprocessing time, and
-    * AbductionProver time.
+    * Pure AbductionProver time.
 
 The solved problems are sorted by total runtime, so the x-axis acts like a
 cactus-style solved-problem rank.  The result is a stacked area plot with three
-planes, one for each stage.
+planes, one for each stage.  The generated figure uses black-and-white TikZ
+patterns; add \usetikzlibrary{patterns} to the LaTeX preamble.
 """
 
 from __future__ import annotations
@@ -178,6 +179,16 @@ def coordinates(values: list[float]) -> str:
     return "{" + " ".join(points) + "}"
 
 
+def runtime_stage_style(stage: str) -> str:
+    if stage == "psl":
+        return "draw=black,fill=black"
+    if stage == "tbc":
+        return "draw=black,fill=white,pattern=grid,pattern color=black"
+    if stage == "abduction":
+        return "draw=black,fill=white,pattern=crosshatch,pattern color=black"
+    raise ValueError(f"unknown runtime stage: {stage}")
+
+
 def summary_box_lines(rows: list[dict], profiles: list[dict]) -> list[str]:
     solved_count = len(profiles)
     total_count = len(rows)
@@ -219,11 +230,12 @@ def write_runtime_profile(path: Path, benchmark: str, rows: list[dict], profiles
     ymax = max(total)
     ymax = max(1.0, ymax * 1.10)
     lines: list[str] = []
+    lines.append(r"% Requires: \usetikzlibrary{patterns}")
     lines.append(r"\begin{tikzpicture}")
     lines.append(r"\begin{axis}[")
     lines.append(r"width=0.96\linewidth,")
     lines.append(r"height=0.56\linewidth,")
-    lines.append(rf"title={{Runtime decomposition of TBC-seeded AbductionProver ({tex_escape(benchmark)})}},")
+    lines.append(rf"title={{Runtime decomposition of Combo Prover ({tex_escape(benchmark)})}},")
     lines.append(r"xlabel={Solved-problem rank (sorted by total runtime)},")
     lines.append(r"ylabel={Runtime (s)},")
     lines.append(r"xmin=0.5,")
@@ -242,11 +254,16 @@ def write_runtime_profile(path: Path, benchmark: str, rows: list[dict], profiles
     lines.append(r"area style,")
     lines.append(r"const plot,")
     lines.append(r"clip=false,")
+    lines.append(r"legend style={at={(0.02,0.98)},anchor=north west,draw=black,fill=white,fill opacity=0.92,text opacity=1,rounded corners=1pt,font=\scriptsize},")
+    lines.append(r"legend cell align=left,")
     lines.append(r"]")
 
-    lines.append(rf"\addplot+[draw=black,fill=black!12] coordinates {coordinates(direct)} \closedcycle;")
-    lines.append(rf"\addplot+[draw=black,fill=black!28] coordinates {coordinates(tbc_only)} \closedcycle;")
-    lines.append(rf"\addplot+[draw=black,fill=black!48] coordinates {coordinates(abduction)} \closedcycle;")
+    lines.append(rf"\addplot+[{runtime_stage_style('psl')}] coordinates {coordinates(direct)} \closedcycle;")
+    lines.append(r"\addlegendentry{PSL/direct}")
+    lines.append(rf"\addplot+[{runtime_stage_style('tbc')}] coordinates {coordinates(tbc_only)} \closedcycle;")
+    lines.append(r"\addlegendentry{TBC}")
+    lines.append(rf"\addplot+[{runtime_stage_style('abduction')}] coordinates {coordinates(abduction)} \closedcycle;")
+    lines.append(r"\addlegendentry{Abduction}")
     lines.append(r"\end{axis}")
     lines.append(r"\end{tikzpicture}")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")

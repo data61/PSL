@@ -33,6 +33,6 @@ fun union :: "Nat list => Nat list => Nat list" where
 | "union (cons2 z2 xs) y2 =
      (if elem z2 y2 then union xs y2 else cons2 z2 (union xs y2))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((elem z y2) ==> (elem z (union y2 z2)))"
 end

@@ -23,6 +23,6 @@ fun last :: "Nat list => Nat" where
 | "last (cons2 z (nil2)) = z"
 | "last (cons2 z (cons2 x2 x3)) = last (cons2 x2 x3)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((ys = (nil2)) ==> ((last (x xs ys)) = (last xs)))"
 end

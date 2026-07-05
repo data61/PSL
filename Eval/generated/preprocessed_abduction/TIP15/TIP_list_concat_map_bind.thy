@@ -26,6 +26,6 @@ fun concat :: "('a list) list => 'a list" where
 "concat (nil2) = nil2"
 | "concat (cons2 y2 xs) = x y2 (concat xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((concat (map f xs)) = (y xs f))"
 end

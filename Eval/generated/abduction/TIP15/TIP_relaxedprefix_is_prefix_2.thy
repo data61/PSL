@@ -30,6 +30,6 @@ fun isRelaxedPrefix :: "It list => It list => bool" where
      (if (z2 = x5) then isRelaxedPrefix (cons2 x3 x4) x6 else
         isPrefix (cons2 x3 x4) (cons2 x5 x6))"
 
-prove property0 :
+prove_by_abduction property0 :
   "isRelaxedPrefix (x xs (x (cons2 y (nil2)) ys)) (x xs (x ys zs))"
 end

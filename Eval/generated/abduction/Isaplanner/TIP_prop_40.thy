@@ -19,6 +19,6 @@ fun take :: "Nat => 'a list => 'a list" where
 | "take (S z) (nil2) = nil2"
 | "take (S z) (cons2 x2 x3) = cons2 x2 (take z x3)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((take Z xs) = (nil2))"
 end

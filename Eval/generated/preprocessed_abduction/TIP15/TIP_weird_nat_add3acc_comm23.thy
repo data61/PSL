@@ -15,6 +15,6 @@ fun add3acc :: "Nat => Nat => Nat => Nat" where
 | "add3acc (Z) (S x3) z = add3acc Z x3 (S z)"
 | "add3acc (S x2) y z = add3acc x2 (S y) z"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((add3acc x y z) = (add3acc x z y))"
 end

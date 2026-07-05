@@ -20,6 +20,6 @@ fun accaltmul :: "Nat => Nat => Nat" where
 | "accaltmul (S z) (S x2) =
      accplus (S z) (accplus x2 (accaltmul z x2))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((accaltmul x (accaltmul y z)) = (accaltmul (accaltmul x y) z))"
 end

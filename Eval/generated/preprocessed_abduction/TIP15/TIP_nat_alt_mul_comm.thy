@@ -20,6 +20,6 @@ fun altmul :: "Nat => Nat => Nat" where
 | "altmul (S z) (S x2) =
      plus (plus (plus (S Z) (altmul z x2)) z) x2"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((altmul x y) = (altmul y x))"
 end

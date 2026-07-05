@@ -69,6 +69,6 @@ function bsort :: "int list => int list" where
        (bsort (odds (cons2 z (cons2 x2 x3))))"
 by pat_completeness auto
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((count y (bsort xs)) = (count y xs))"
 end

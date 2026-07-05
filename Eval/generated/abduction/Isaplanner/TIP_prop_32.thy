@@ -17,6 +17,6 @@ fun min :: "Nat => Nat => Nat" where
 | "min (S z) (Z) = Z"
 | "min (S z) (S y1) = S (min z y1)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((min a b) = (min b a))"
 end

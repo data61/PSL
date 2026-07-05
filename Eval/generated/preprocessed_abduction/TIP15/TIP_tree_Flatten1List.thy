@@ -35,6 +35,6 @@ fun concatMap :: "('a => 'b list) => 'a list => 'b list" where
   "concatMap f (nil2) = nil2"
 | "concatMap f (cons2 z xs) = x (f z) (concatMap f xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((flatten1 ps) = (concatMap (% (y :: 'b Tree) => flatten0 y) ps))"
 end

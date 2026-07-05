@@ -49,6 +49,6 @@ function ssort :: "Nat list => Nat list" where
                 (% (z :: Nat) => % (x2 :: Nat) => (z = x2)) m (cons2 y ys))))"
   by pat_completeness auto
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((ssort xs) = (isort xs))"
 end

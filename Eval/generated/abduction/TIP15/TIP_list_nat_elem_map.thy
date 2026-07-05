@@ -18,7 +18,7 @@ fun elem :: "'a => 'a list => bool" where
 "elem x (nil2) = False"
 | "elem x (cons2 z xs) = ((z = x) | (elem x xs))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((elem y (map f xs)) ==>
       (? (x :: 'a) . (((f x) = y) & (elem y xs))))"
 end

@@ -34,6 +34,6 @@ fun ins :: "Nat => Nat list => Nat list" where
 | "ins y (cons2 z2 xs) =
      (if t2 y z2 then cons2 y (cons2 z2 xs) else cons2 z2 (ins y xs))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((t2 y z) ==> ((elem y (ins z xs)) = (elem y xs)))"
 end

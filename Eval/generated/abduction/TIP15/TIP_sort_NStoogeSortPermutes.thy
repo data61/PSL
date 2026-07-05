@@ -90,6 +90,6 @@ fun isPermutation :: "'a list => 'a list => bool" where
         (isPermutation
            xs (deleteBy (% (x4 :: 'a) => % (x5 :: 'a) => (x4 = x5)) x3 z)))"
 
-prove property0 :
+prove_by_abduction property0 :
   "isPermutation (nstoogesort xs) xs"
 end

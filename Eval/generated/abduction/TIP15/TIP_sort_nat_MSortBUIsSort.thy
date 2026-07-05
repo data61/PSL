@@ -54,6 +54,6 @@ fun isort :: "Nat list => Nat list" where
   "isort (nil2) = nil2"
 | "isort (cons2 y xs) = insert y (isort xs)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((msortbu xs) = (isort xs))"
 end

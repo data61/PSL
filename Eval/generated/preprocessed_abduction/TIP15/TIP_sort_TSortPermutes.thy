@@ -46,6 +46,6 @@ fun toTree :: "int list => Tree" where
 fun tsort :: "int list => int list" where
 "tsort x = flatten (toTree x) (nil2)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "isPermutation (tsort xs) xs"
 end

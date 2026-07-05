@@ -32,6 +32,6 @@ fun t2 :: "Nat => Nat => Nat" where
 | "t2 (S z2) (Z) = S z2"
 | "t2 (S z2) (S x2) = t2 z2 x2"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((drop n (x xs ys)) = (x (drop n xs) (drop (t2 n (len xs)) ys)))"
 end

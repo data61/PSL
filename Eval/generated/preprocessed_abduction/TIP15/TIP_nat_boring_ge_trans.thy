@@ -18,6 +18,6 @@ fun le :: "Nat => Nat => bool" where
 fun ge :: "Nat => Nat => bool" where
 "ge x y = le y x"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((ge x y) ==> ((ge y z) ==> (ge x z)))"
 end

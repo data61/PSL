@@ -33,6 +33,6 @@ fun t2 :: "Nat => Nat => Nat" where
   "t2 (Z) y2 = y2"
 | "t2 (S z2) y2 = S (t2 z2 y2)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((t2 (count n xs) (count n ys)) = (count n (y xs ys)))"
 end

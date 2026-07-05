@@ -22,7 +22,7 @@ function nubBy :: "('a => ('a => bool)) => 'a list => 'a list" where
      cons2 z (nubBy x (filter (% (y2 :: 'a) => (~ ((x z) y2))) xs))"
   by pat_completeness auto
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((nubBy
        (% (x :: 'a) => % (y :: 'a) => (x = y))
        (nubBy (% (z :: 'a) => % (x2 :: 'a) => (z = x2)) xs)) =

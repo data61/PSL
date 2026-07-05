@@ -51,7 +51,7 @@ function imod :: "Nat => Nat => Nat" where
   "imod x y = (if lt x y then x else imod (minus x y) y)"
   by pat_completeness auto
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((let eta :: Nat = length xs
      in ((let md :: Nat = imod eta (S (S Z))
           in (if

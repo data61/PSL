@@ -24,6 +24,6 @@ fun mul2 :: "Nat => Nat => Nat" where
 | "mul2 (S z) (Z) = Z"
 | "mul2 (S z) (S x2) = plus (S Z) (add3acc z x2 (mul2 z x2))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((mul2 x (mul2 y z)) = (mul2 (mul2 x y) z))"
 end

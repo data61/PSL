@@ -27,7 +27,7 @@ fun map :: "('a => 'b) => 'a list => 'b list" where
 "map f (nil2) = nil2"
 | "map f (cons2 y xs) = cons2 (f y) (map f xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((map
        (% (x :: ('b, ('b list)) pair) => (case x of pair2 y z => y))
        (select2 xs)) =

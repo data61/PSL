@@ -86,6 +86,6 @@ fun valid :: "Form => bool" where
       nil2 => True
       | cons2 y2 z2 => False)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((valid (x p p)) = (valid p))"
 end

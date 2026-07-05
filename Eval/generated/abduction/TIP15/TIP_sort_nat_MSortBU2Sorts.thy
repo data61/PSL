@@ -58,6 +58,6 @@ fun risers :: "Nat list => (Nat list) list" where
 fun msortbu2 :: "Nat list => Nat list" where
   "msortbu2 x = mergingbu2 (risers x)"
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (msortbu2 xs)"
 end

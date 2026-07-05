@@ -63,7 +63,7 @@ fun drop :: "Nat => 'a list => 'a list" where
          nil2 => nil2
          | cons2 z2 xs1 => (case y of S x2 => drop x2 xs1)))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((rotate n xs) =
       (x (drop (modstructural n (length xs)) xs)
          (take (modstructural n (length xs)) xs)))"

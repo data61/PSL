@@ -20,6 +20,6 @@ fun s :: "Bin => Bin" where
 | "s (ZeroAnd xs) = OneAnd xs"
 | "s (OneAnd ys) = ZeroAnd (s ys)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((toNat (s n)) = (1 + (toNat n)))"
 end

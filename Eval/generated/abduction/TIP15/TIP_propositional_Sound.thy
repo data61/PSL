@@ -95,6 +95,6 @@ fun formula :: "Form => (((int, bool) pair) list) list =>
   "formula p (nil2) = True"
 | "formula p (cons2 y2 xs) = ((t2 y2 p) & (formula p xs))"
 
-prove property0 :
+prove_by_abduction property0 :
   "formula p (models3 p (nil2))"
 end

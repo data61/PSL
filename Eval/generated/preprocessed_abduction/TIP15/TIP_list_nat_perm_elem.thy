@@ -28,6 +28,6 @@ fun isPermutation :: "'a list => 'a list => bool" where
         (isPermutation
            xs (deleteBy (% (x4 :: 'a) => % (x5 :: 'a) => (x4 = x5)) x3 y)))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((elem x xs) ==> ((isPermutation xs ys) ==> (elem x ys)))"
 end

@@ -45,6 +45,6 @@ function bubsort :: "Nat list => Nat list" where
    (case bubble x of pair2 b1 ys => (if b1 then bubsort ys else x))"
   by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "((count x (bubsort xs)) = (count x xs))"
 end

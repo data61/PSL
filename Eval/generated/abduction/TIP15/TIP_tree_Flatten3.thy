@@ -29,6 +29,6 @@ fun flatten0 :: "'a Tree => 'a list" where
    x (flatten0 p) (x (cons2 z (nil2)) (flatten0 q))"
 | "flatten0 (Nil) = nil2"
 
-prove property0 :
+prove_by_abduction property0 :
   "((flatten3 p) = (flatten0 p))"
 end

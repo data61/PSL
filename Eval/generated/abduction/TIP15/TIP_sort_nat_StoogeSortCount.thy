@@ -94,6 +94,6 @@ fun count :: "'a => 'a list => Nat" where
 | "count y (cons2 z2 ys) =
      (if (y = z2) then plus (S Z) (count y ys) else count y ys)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((count y (stoogesort xs)) = (count y xs))"
 end

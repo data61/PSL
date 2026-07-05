@@ -19,6 +19,6 @@ function cubes :: "int => int" where
    (if (x = 0) then 0 else (cubes (x - 1)) + ((x * x) * x))"
   by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "((cubes n) = ((sum n) * (sum n)))"
 end

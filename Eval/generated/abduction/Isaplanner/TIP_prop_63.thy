@@ -33,6 +33,6 @@ fun t2 :: "Nat => Nat => bool" where
 | "t2 (Z) (S z) = True"
 | "t2 (S x2) (S z) = t2 x2 z"
 
-prove property0 :
+prove_by_abduction property0 :
   "((t2 n (len xs)) ==> ((last (drop n xs)) = (last xs)))"
 end

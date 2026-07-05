@@ -51,6 +51,6 @@ function mergingbu2 :: "(int list) list => int list" where
 fun msortbu2 :: "int list => int list" where
   "msortbu2 x = mergingbu2 (risers x)"
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (msortbu2 xs)"
 end

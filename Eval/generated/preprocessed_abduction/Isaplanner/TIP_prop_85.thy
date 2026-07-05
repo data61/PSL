@@ -34,7 +34,7 @@ fun len :: "'a list => Nat" where
   "len (nil2) = Z"
 | "len (cons2 z xs) = S (len xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "(((len xs) = (len ys)) ==>
       ((zip (rev xs) (rev ys)) = (rev (zip xs ys))))"
 end

@@ -26,7 +26,7 @@ fun length :: "'a list => int" where
   "length (nil2) = 0"
 | "length (cons2 y l) = 1 + (length l)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((let eta :: int = length xs
      in ((let md :: int = eta mod 2
           in (if

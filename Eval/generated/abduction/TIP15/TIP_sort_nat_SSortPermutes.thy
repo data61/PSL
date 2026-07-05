@@ -52,6 +52,6 @@ function ssort :: "Nat list => Nat list" where
                 (% (z :: Nat) => % (x2 :: Nat) => (z = x2)) m (cons2 y ys))))"
   by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "isPermutation (ssort xs) xs"
 end

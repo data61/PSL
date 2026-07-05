@@ -97,6 +97,6 @@ fun formula :: "(((int, bool) pair) list) list => bool" where
   "formula (nil2) = True"
 | "formula (cons2 y2 xs) = ((okay2 y2) & (formula xs))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "formula (models3 p (nil2))"
 end

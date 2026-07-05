@@ -40,7 +40,7 @@ fun drop :: "Nat => 'a list => 'a list" where
 | "drop (S z2) (nil2) = nil2"
 | "drop (S z2) (cons2 x2 x3) = drop z2 x3"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((zip xs (x ys zs)) =
       (x (zip (take (len ys) xs) ys) (zip (drop (len ys) xs) zs)))"
 end

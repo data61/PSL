@@ -32,7 +32,7 @@ fun elem :: "'a => 'a list => bool" where
 "elem y (nil2) = False"
 | "elem y (cons2 z2 xs) = ((z2 = y) | (elem y xs))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((elem a (flatten0 p)) ==>
       ((elem b (flatten0 p)) ==>
          ((elem a (flatten0 (swap a b p))) &

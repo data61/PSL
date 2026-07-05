@@ -26,6 +26,6 @@ fun butlastConcat :: "'a list => 'a list => 'a list" where
   "butlastConcat y (nil2) = butlast y"
 | "butlastConcat y (cons2 z2 x2) = x y (butlast (cons2 z2 x2))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((butlast (x xs ys)) = (butlastConcat xs ys))"
 end

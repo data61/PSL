@@ -62,6 +62,6 @@ function toList :: "Heap => Nat list" where
 fun hsort :: "Nat list => Nat list" where
   "hsort x = toList (toHeap2 x)"
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (hsort xs)"
 end

@@ -36,6 +36,6 @@ fun escape :: "Token list => Token list" where
      (if isSpecial y then cons2 ESC (cons2 (code y) (escape xs)) else
         cons2 y (escape xs))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "(((escape xs) = (escape ys)) ==> (xs = ys))"
 end

@@ -548,7 +548,7 @@ def main() -> None:
     parser.add_argument(
         "--method",
         default="abduction",
-        help="Method to plot from abduction_decremental_statistics.csv. Defaults to pure 'abduction'. Use 'preprocessed_abduction' for the Abduction phase after TBC seeding, or 'all' only for ad-hoc diagnostics.",
+        help="Method to plot from abduction_decremental_statistics.csv. Defaults to pure 'abduction' (Pure AbductionProver). Use 'preprocessed_abduction' for the Combo Prover's Abduction phase after TBC seeding, or 'all' only for ad-hoc diagnostics.",
     )
     args = parser.parse_args()
 

@@ -20,6 +20,6 @@ fun rev :: "'a list => 'a list" where
   "rev (nil2) = nil2"
 | "rev (cons2 z xs) = x (rev xs) (cons2 z (nil2))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((rev (x (rev y) (nil2))) = y)"
 end

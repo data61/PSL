@@ -34,6 +34,6 @@ fun sorted :: "Nat list => bool" where
 | "sorted (cons2 z (cons2 y2 ys)) =
      x (t2 z y2) (sorted (cons2 y2 ys))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((sorted xs) ==> (sorted (insort y xs)))"
 end

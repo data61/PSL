@@ -28,6 +28,6 @@ fun qrevflat :: "('a list) list => 'a list => 'a list" where
   "qrevflat (nil2) z = z"
 | "qrevflat (cons2 xs xss) z = qrevflat xss (x (rev xs) z)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((revflat y) = (qrevflat y (nil2)))"
 end

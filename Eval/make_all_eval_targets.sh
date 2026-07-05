@@ -14,7 +14,7 @@ METHODS=(
 BENCHMARKS=(
   "Prod:UR/TIP/Prod/Prod"
   "Isaplanner:UR/TIP/Isaplanner/Isaplanner"
-  "TIP15:UR/TIP/TIP15"
+  "TIP15:UR/TIP/TIP15/TIP15"
 )
 
 for method in "${METHODS[@]}"; do

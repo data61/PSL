@@ -29,6 +29,6 @@ fun times :: "Bin => Bin => Bin" where
 | "times (ZeroAnd xs1) y = ZeroAnd (times xs1 y)"
 | "times (OneAnd xs12) y = plus (ZeroAnd (times xs12 y)) y"
 
-prove property0 :
+prove_by_abduction property0 :
   "((times x (times y z)) = (times (times x y) z))"
 end

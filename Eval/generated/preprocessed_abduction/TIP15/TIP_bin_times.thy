@@ -34,6 +34,6 @@ fun times :: "Bin => Bin => Bin" where
 | "times (ZeroAnd xs1) y = ZeroAnd (times xs1 y)"
 | "times (OneAnd xs12) y = plus (ZeroAnd (times xs12 y)) y"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((toNat (times x y)) = ((toNat x) * (toNat y)))"
 end

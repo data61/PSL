@@ -15,6 +15,6 @@ fun lt :: "Nat => Nat => bool" where
 | "lt (Z) (S z) = True"
 | "lt (S n) (S z) = lt n z"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((lt x y) ==> ((lt y z) ==> (lt x z)))"
 end

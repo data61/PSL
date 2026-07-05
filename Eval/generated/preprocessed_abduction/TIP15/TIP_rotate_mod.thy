@@ -65,7 +65,7 @@ fun drop :: "Nat => 'a list => 'a list" where
          nil2 => nil2
          | cons2 z2 xs1 => (case y of S x2 => drop x2 xs1)))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((rotate n xs) =
       (x (drop (mod2 n (length xs)) xs) (take (mod2 n (length xs)) xs)))"
 end

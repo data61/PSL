@@ -58,6 +58,6 @@ function toList :: "Heap => int list" where
 fun hsort :: "int list => int list" where
   "hsort x = toList (toHeap2 x)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((hsort xs) = (isort xs))"
 end

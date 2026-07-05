@@ -39,6 +39,6 @@ fun isort :: "Nat list => Nat list" where
   "isort (nil2) = nil2"
 | "isort (cons2 z xs) = insert z (isort xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((count y (isort z)) = (count y z))"
 end

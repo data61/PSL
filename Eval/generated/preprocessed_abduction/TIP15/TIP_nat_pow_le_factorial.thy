@@ -31,7 +31,7 @@ fun factorial :: "Nat => Nat" where
 "factorial (Z) = S Z"
 | "factorial (S y) = times (S y) (factorial y)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "lt
      (formulapow (S (S Z)) (plus (S (S (S (S Z)))) n))
      (factorial (plus (S (S (S (S Z)))) n))"

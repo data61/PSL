@@ -22,6 +22,6 @@ fun formulapow :: "Nat => Nat => Nat" where
 "formulapow x (Z) = S Z"
 | "formulapow x (S z) = times x (formulapow x z)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((formulapow (S Z) x) = (S Z))"
 end

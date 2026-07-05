@@ -33,6 +33,6 @@ function qsort :: "int list => int list" where
        (x (cons2 z (nil2)) (qsort (filter (% (x2 :: int) => x2 > z) xs)))"
   by pat_completeness auto
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "ordered (qsort xs)"
 end

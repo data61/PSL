@@ -27,6 +27,6 @@ fun height :: "'a Tree => Nat" where
   "height (Leaf) = Z"
 | "height (Node l y r) = S (max (height l) (height r))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((height (mirror a1)) = (height a1))"
 end

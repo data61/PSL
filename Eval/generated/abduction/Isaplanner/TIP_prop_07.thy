@@ -21,6 +21,6 @@ fun t2 :: "Nat => Nat => Nat" where
 | "t2 (S z) (Z) = S z"
 | "t2 (S z) (S x2) = t2 z x2"
 
-prove property0 :
+prove_by_abduction property0 :
   "((t2 (t22 n m) n) = m)"
 end

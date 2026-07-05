@@ -31,6 +31,6 @@ fun op1 :: "Nat => Nat => Nat => Nat => Nat" where
               | S x6 => fail)
          | S x5 => fail))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((op1 a b c d) = (plus (plus (times a b) c) d))"
 end

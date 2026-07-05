@@ -26,7 +26,7 @@ fun elem :: "'a => 'a list => bool" where
   "elem x (nil2) = False"
 | "elem x (cons2 z xs) = ((z = x) | (elem x xs))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((elem x (nubBy (% (y :: 'a) => % (z :: 'a) => (y = z)) xs)) ==>
       (elem x xs))"
 end

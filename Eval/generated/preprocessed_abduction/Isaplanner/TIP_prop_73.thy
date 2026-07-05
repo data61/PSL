@@ -25,6 +25,6 @@ fun filter :: "('a => bool) => 'a list => 'a list" where
 | "filter y (cons2 z2 xs) =
      (if y z2 then cons2 z2 (filter y xs) else filter y xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((rev (filter p xs)) = (filter p (rev xs)))"
 end

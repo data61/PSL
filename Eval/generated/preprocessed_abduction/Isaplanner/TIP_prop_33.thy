@@ -28,6 +28,6 @@ fun t2 :: "Nat => Nat => bool" where
 | "t2 (S z2) (Z) = False"
 | "t2 (S z2) (S x2) = t2 z2 x2"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((x (min a b) a) = (t2 a b))"
 end

@@ -41,6 +41,6 @@ fun toTree :: "Nat list => Tree" where
 fun tsort :: "Nat list => Nat list" where
 "tsort x = flatten (toTree x) (nil2)"
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (tsort xs)"
 end

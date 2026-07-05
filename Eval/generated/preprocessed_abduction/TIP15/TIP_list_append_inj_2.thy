@@ -14,6 +14,6 @@ fun x :: "'a list => 'a list => 'a list" where
 "x (nil2) z = z"
 | "x (cons2 z2 xs) z = cons2 z2 (x xs z)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "(((x xs ys) = (x xs zs)) ==> (ys = zs))"
 end

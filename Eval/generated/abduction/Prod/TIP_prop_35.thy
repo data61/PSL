@@ -31,6 +31,6 @@ fun qexp :: "Nat => Nat => Nat => Nat" where
   "qexp x (Z) z = z"
 | "qexp x (S n) z = qexp x n (t22 x z)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((exp x y) = (qexp x y one))"
 end

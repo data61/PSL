@@ -29,6 +29,6 @@ fun elem :: "Nat => Nat list => bool" where
   "elem y (nil2) = False"
 | "elem y (cons2 z2 xs) = (if x y z2 then True else elem y xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "elem y (ins1 y xs)"
 end

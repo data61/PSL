@@ -42,6 +42,6 @@ fun isort :: "Nat list => Nat list" where
   "isort (nil2) = nil2"
 | "isort (cons2 y2 xs) = insert y2 (isort xs)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((elem z (isort y2)) ==> (elem z y2))"
 end

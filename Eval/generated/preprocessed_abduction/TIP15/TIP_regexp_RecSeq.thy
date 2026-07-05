@@ -93,6 +93,6 @@ fun formula :: "R => R => (((A list), (A list)) pair) list =>
 | "formula p q (cons2 (pair2 s1 s2) z) =
      cons2 ((recognise p s1) & (recognise q s2)) (formula p q z)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((recognise (Seq p q) s) = (or2 (formula p q (split2 s))))"
 end

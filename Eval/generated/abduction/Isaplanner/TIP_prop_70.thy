@@ -17,6 +17,6 @@ fun t2 :: "Nat => Nat => bool" where
 | "t2 (S z) (Z) = False"
 | "t2 (S z) (S x2) = t2 z x2"
 
-prove property0 :
+prove_by_abduction property0 :
   "((t2 m n) ==> (t2 m (S n)))"
 end

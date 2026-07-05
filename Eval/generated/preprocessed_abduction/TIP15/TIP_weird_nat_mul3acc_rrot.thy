@@ -37,6 +37,6 @@ fun mul3acc :: "Nat => Nat => Nat => Nat" where
            else
            fail))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((mul3acc x y z) = (mul3acc z x y))"
 end

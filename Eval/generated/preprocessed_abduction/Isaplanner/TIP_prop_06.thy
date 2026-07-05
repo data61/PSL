@@ -21,6 +21,6 @@ fun t2 :: "Nat => Nat => Nat" where
 | "t2 (S z) (Z) = S z"
 | "t2 (S z) (S x2) = t2 z x2"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((t2 n (t22 n m)) = Z)"
 end

@@ -36,6 +36,6 @@ fun mul3 :: "Nat => Nat => Nat => Nat" where
            else
            fail))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((mul3 x1 (mul3 x2 x3 x4) x5) = (mul3 x1 x2 (mul3 x3 x4 x5)))"
 end

@@ -29,6 +29,6 @@ fun length :: "'a list => Nat" where
 "length (nil2) = Z"
 | "length (cons2 y l) = plus (S Z) (length l)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((rotate (length xs) xs) = xs)"
 end

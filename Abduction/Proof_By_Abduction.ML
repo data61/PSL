@@ -12,6 +12,7 @@ sig
 val proof_by_abduction: Proof.state -> Timing.start -> term -> bool;
 val proof_by_abduction_with_prelude: string -> Proof.state -> Timing.start -> term -> bool;
 val write_proof_script_in_result_file: Proof.state -> string -> unit;
+val emit_proof_script: Proof.state -> string -> string;
 
 end;
 
@@ -446,6 +447,16 @@ fun clean_markup s =
   XML.content_of (YXML.parse_body s)
   handle ERROR _ => s;
 
+fun emit_proof_script pst proofs =
+  let
+    val whole_proof = Active.sendback_markup_properties [Markup.padding_command] proofs;
+    val _           = tracing whole_proof;
+    val clean_prfs  = clean_markup proofs;
+    val _           = write_proof_script_in_result_file pst clean_prfs;
+  in
+    whole_proof
+  end;
+
 fun print_necessary_proofs_only (prelude_proofs:string) (pst:Proof.state) (ag:abduction_graph) (name2term:string2term_table) (goal_name:string) =
   let
     val pptree      = get_print_proof_tree pst ag name2term goal_name: print_proof_tree;
@@ -455,12 +466,8 @@ fun print_necessary_proofs_only (prelude_proofs:string) (pst:Proof.state) (ag:ab
     val ctxt        = Proof.context_of pst: Proof.context;
     val abduction_proofs = "\n" :: map (print_lemma_and_proof_of_key ctxt ag) orkeys |> String.concatWith "\n";
     val proofs      = prelude_proofs ^ abduction_proofs;
-    val whole_proof = Active.sendback_markup_properties [Markup.padding_command] proofs;
-    val _           = tracing whole_proof;
-    val clean_prfs  = clean_markup proofs;
-    val _           = write_proof_script_in_result_file pst clean_prfs;
   in
-    whole_proof
+    emit_proof_script pst proofs
   end;
 
 (* proof_by_abduction *)

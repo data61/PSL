@@ -32,6 +32,6 @@ fun sort :: "Nat list => Nat list" where
   "sort (nil2) = nil2"
 | "sort (cons2 y xs) = insort y (sort xs)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((len (sort xs)) = (len xs))"
 end

@@ -54,6 +54,6 @@ fun times :: "Integer => Integer => Integer" where
    toInteger
      (timesSign (sign x) (sign y)) (times2 (absVal x) (absVal y))"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "(x = (times one x))"
 end

@@ -36,6 +36,6 @@ fun go :: "Nat => Nat => Nat => Nat" where
 fun modstructural :: "Nat => Nat => Nat" where
 "modstructural x y = go x Z y"
 
-prove property0 :
+prove_by_abduction property0 :
   "((mod2 m n) = (modstructural m n))"
 end

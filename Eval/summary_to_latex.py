@@ -50,8 +50,8 @@ DEFAULT_METHOD_ORDER = ["psl", "tbc", "abduction", "preprocessed_abduction"]
 DEFAULT_METHOD_LABEL = {
     "psl": "PSL",
     "tbc": "TBC",
-    "abduction": "Abduction",
-    "preprocessed_abduction": "Pre-Abduction",
+    "abduction": "Pure AbductionProver",
+    "preprocessed_abduction": "Combo Prover",
 }
 DEFAULT_BENCHMARK_ORDER = ["Isaplanner", "Prod", "TIP15"]
 
@@ -695,7 +695,7 @@ def main() -> None:
     ap.add_argument("--method-order", nargs="+", default=DEFAULT_METHOD_ORDER)
     ap.add_argument("--benchmark-order", nargs="+", default=DEFAULT_BENCHMARK_ORDER)
     ap.add_argument("--method-label", nargs="*", default=[],
-                    help="Optional labels, e.g. --method-label psl=PSL tbc=TBC abduction=AbductionProver preprocessed_abduction=Pre-Abduction")
+                    help="Optional labels, e.g. --method-label psl=PSL tbc=TBC abduction=Pure-AbductionProver preprocessed_abduction=Combo-Prover")
     ap.add_argument("--jitter", type=float, default=0.0,
                     help="Deprecated/ignored: proof-length/runtime plots now use log-log axes without jitter.")
     args = ap.parse_args()

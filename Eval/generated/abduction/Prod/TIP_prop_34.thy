@@ -24,6 +24,6 @@ fun mult :: "Nat => Nat => Nat => Nat" where
   "mult (Z) y z = z"
 | "mult (S x2) y z = mult x2 y (t2 y z)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((t22 x y) = (mult x y Z))"
 end

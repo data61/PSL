@@ -20,6 +20,6 @@ fun t2 :: "Nat => Nat => Nat" where
   "t2 (Z) y = y"
 | "t2 (S z) y = S (t2 z y)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((double x) = (t2 x x))"
 end

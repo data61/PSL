@@ -82,6 +82,6 @@ function nstooge1sort2 :: "int list => int list"
         pair2 ys2 zs1 => x ys2 (nstoogesort zs1))"
   by pat_completeness auto
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((nstoogesort xs) = (isort xs))"
 end

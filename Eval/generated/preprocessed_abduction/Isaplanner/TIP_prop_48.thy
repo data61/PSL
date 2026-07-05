@@ -29,7 +29,7 @@ fun butlast :: "'a list => 'a list" where
 | "butlast (cons2 z (cons2 x2 x3)) =
      cons2 z (butlast (cons2 x2 x3))"
 
-prove_by_preprocessed_abduction property0 :(*Manually fixed TIP's bug.*)
+prove property0 :(*Manually fixed TIP's bug.*)
   "((case xs of
          nil2 => True
          | cons2 y z => False) ==>

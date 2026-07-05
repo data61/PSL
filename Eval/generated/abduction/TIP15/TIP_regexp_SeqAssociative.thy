@@ -70,7 +70,7 @@ fun recognise :: "R => A list => bool" where
 "recognise x (nil2) = eps x"
 | "recognise x (cons2 z xs) = recognise (step x z) xs"
 
-prove property0 :
+prove_by_abduction property0 :
   "((recognise (Seq p (Seq q r)) s) =
       (recognise (Seq (Seq p q) r) s))"
 end

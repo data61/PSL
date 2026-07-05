@@ -25,6 +25,6 @@ fun rotate :: "Nat => 'a list => 'a list" where
 | "rotate (S z2) (nil2) = nil2"
 | "rotate (S z2) (cons2 z22 xs1) = rotate z2 (snoc z22 xs1)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((rotate n (x xs xs)) = (x (rotate n xs) (rotate n xs)))"
 end

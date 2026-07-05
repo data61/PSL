@@ -41,6 +41,6 @@ fun toHeap2 :: "int list => Heap" where
 fun hsort2 :: "int list => int list" where
   "hsort2 x = toList (toHeap2 x)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "ordered (hsort2 xs)"
 end

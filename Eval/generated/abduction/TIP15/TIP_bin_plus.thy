@@ -29,6 +29,6 @@ fun plus :: "Bin => Bin => Bin" where
 | "plus (OneAnd x2) (ZeroAnd zs) = OneAnd (plus x2 zs)"
 | "plus (OneAnd x2) (OneAnd ys2) = ZeroAnd (s (plus x2 ys2))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((toNat (plus x y)) = ((toNat x) + (toNat y)))"
 end

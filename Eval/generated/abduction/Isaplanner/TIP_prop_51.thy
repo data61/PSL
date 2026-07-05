@@ -22,6 +22,6 @@ fun butlast :: "'a list => 'a list" where
 | "butlast (cons2 z (cons2 x2 x3)) =
      cons2 z (butlast (cons2 x2 x3))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((butlast (x xs (cons2 y (nil2)))) = xs)"
 end

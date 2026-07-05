@@ -31,6 +31,6 @@ fun qfac :: "Nat => Nat => Nat" where
   "qfac (Z) y = y"
 | "qfac (S z) y = qfac z (t22 (S z) y)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((fac x) = (qfac x one))"
 end

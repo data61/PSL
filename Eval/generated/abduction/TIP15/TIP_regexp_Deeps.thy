@@ -80,6 +80,6 @@ fun deeps :: "R => R" where
         Seq r q2)"
 | "deeps (Star p2) = deeps p2"
 
-prove property0 :
+prove_by_abduction property0 :
   "((recognise (Star p) s) = (recognise (Star (deeps p)) s))"
 end

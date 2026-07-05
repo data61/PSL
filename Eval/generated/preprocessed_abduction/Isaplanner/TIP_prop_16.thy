@@ -19,6 +19,6 @@ fun last :: "Nat list => Nat" where
 | "last (cons2 y (nil2)) = y"
 | "last (cons2 y (cons2 x2 x3)) = last (cons2 x2 x3)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((xs = (nil2)) ==> ((last (cons2 x xs)) = x))"
 end

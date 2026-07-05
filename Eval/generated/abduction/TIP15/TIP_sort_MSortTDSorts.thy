@@ -52,6 +52,6 @@ function msorttd :: "int list => int list" where
           (msorttd (drop k (cons2 y (cons2 x2 x3)))))"
   by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (msorttd xs)"
 end

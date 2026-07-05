@@ -27,7 +27,7 @@ def replace_imports(text: str, method: str) -> str:
 def convert_for_abduction(text: str) -> str:
     text = re.sub(
         r"(?m)^(\s*)(theorem|lemma|corollary|proposition)\b",
-        r"\1prove",
+        r"\1prove_by_abduction",
         text,
         count=1,
     )
@@ -38,7 +38,7 @@ def convert_for_abduction(text: str) -> str:
 def convert_for_preprocessed_abduction(text: str) -> str:
     text = re.sub(
         r"(?m)^(\s*)(theorem|lemma|corollary|proposition|prove)\b",
-        r"\1prove_by_preprocessed_abduction",
+        r"\1prove",
         text,
         count=1,
     )
@@ -119,6 +119,12 @@ def main() -> None:
             continue
 
         rel = src.relative_to(source_dir)
+        # Some benchmark trees contain an extra same-named wrapper directory,
+        # e.g. UR/TIP/TIP15/TIP15/*.thy while the desired output root is
+        # Eval/generated/<method>/TIP15.  Avoid generating
+        # Eval/generated/<method>/TIP15/TIP15/*.thy in such cases.
+        if rel.parts and rel.parts[0] == source_dir.name and target_dir.name == source_dir.name:
+            rel = Path(*rel.parts[1:])
         dst = target_dir / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
 

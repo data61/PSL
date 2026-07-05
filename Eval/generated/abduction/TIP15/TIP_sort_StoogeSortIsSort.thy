@@ -74,6 +74,6 @@ function stooge1sort2 :: "int list => int list"
         pair2 ys2 zs1 => x ys2 (stoogesort zs1))"
 by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "((stoogesort xs) = (isort xs))"
 end

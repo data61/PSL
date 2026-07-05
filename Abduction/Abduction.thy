@@ -7,6 +7,7 @@
 theory Abduction
   imports "TBC.TBC"
   keywords "prove" :: thy_goal_stmt
+  and "prove_by_abduction" :: thy_goal_stmt
   and "prove_by_preprocessed_abduction" :: thy_goal_stmt
 begin
 
@@ -151,7 +152,7 @@ fun theorem command_keyword descr use_tbc_preprocessing =
             val abduction_invoked = not tbc_preprocessing_solved_goal;
             val (solved, abduction_elapsed_sec) =
               if tbc_preprocessing_solved_goal
-              then (Proof_By_Abduction.write_proof_script_in_result_file pst prelude_proofs; (true, 0.0))
+              then (Proof_By_Abduction.emit_proof_script pst prelude_proofs; (true, 0.0))
               else
                 let
                   val abduction_start = Timing.start ();
@@ -184,8 +185,9 @@ fun theorem command_keyword descr use_tbc_preprocessing =
 
 in
 
-val _ = theorem \<^command_keyword>\<open>prove\<close> "prove" false;
-val _ = theorem \<^command_keyword>\<open>prove_by_preprocessed_abduction\<close> "prove by preprocessed abduction" true;
+val _ = theorem \<^command_keyword>\<open>prove\<close> "prove with the combo prover" true;
+val _ = theorem \<^command_keyword>\<open>prove_by_abduction\<close> "prove by Pure AbductionProver" false;
+val _ = theorem \<^command_keyword>\<open>prove_by_preprocessed_abduction\<close> "prove by preprocessed abduction (legacy alias of prove)" true;
 
 end;
 \<close>

@@ -28,6 +28,6 @@ fun elem :: "Nat => Nat list => bool" where
   "elem z (nil2) = False"
 | "elem z (cons2 z2 xs) = (if x z z2 then True else elem z xs)"
 
-prove property0 :
+prove_by_abduction property0 :
   "elem z (y xs (cons2 z (nil2)))"
 end

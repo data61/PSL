@@ -24,6 +24,6 @@ fun add3 :: "Nat => Nat => Nat => Nat" where
 | "add3 (Z) (S x3) z = plus (S Z) (add3 Z x3 z)"
 | "add3 (S x2) y z = plus (S Z) (add3 x2 y z)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((add3 x y z) = (add3acc x y z))"
 end

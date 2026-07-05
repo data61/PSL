@@ -41,6 +41,6 @@ fun plus :: "Integer => Integer => Integer" where
 | "plus (N m2) (P n2) = t2 n2 (plus2 (S Z) m2)"
 | "plus (N m2) (N n3) = N (plus2 (plus2 (S Z) m2) n3)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((plus x y) = (plus y x))"
 end

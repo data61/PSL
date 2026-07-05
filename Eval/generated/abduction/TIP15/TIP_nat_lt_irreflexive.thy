@@ -15,6 +15,6 @@ fun lt :: "Nat => Nat => bool" where
 | "lt (Z) (S z) = True"
 | "lt (S n) (S z) = lt n z"
 
-prove property0 :
+prove_by_abduction property0 :
   "(~ (lt x x))"
 end

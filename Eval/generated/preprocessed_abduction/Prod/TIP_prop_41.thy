@@ -42,6 +42,6 @@ fun subset :: "Nat list => Nat list => bool" where
   "subset (nil2) y2 = True"
 | "subset (cons2 z2 xs) y2 = z (elem z2 y2) (subset xs y2)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((subset x2 y2) ==> ((intersect x2 y2) = x2))"
 end

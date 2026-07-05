@@ -17,6 +17,6 @@ fun takeWhile :: "('a => bool) => 'a list => 'a list" where
 | "takeWhile x (cons2 z xs) =
      (if x z then cons2 z (takeWhile x xs) else nil2)"
 
-prove property0 :
+prove_by_abduction property0 :
   "((takeWhile (% (x :: 'a) => True) xs) = xs)"
 end

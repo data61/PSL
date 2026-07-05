@@ -54,6 +54,6 @@ fun count :: "'a => 'a list => Nat" where
 | "count x (cons2 z ys) =
      (if (x = z) then plus (S Z) (count x ys) else count x ys)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "((count x (msortbu xs)) = (count x xs))"
 end

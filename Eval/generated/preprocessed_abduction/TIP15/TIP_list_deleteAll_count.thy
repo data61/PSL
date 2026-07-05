@@ -26,7 +26,7 @@ fun count :: "'a => 'a list => int" where
 | "count x (cons2 z ys) =
      (if (x = z) then 1 + (count x ys) else count x ys)"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "(((deleteAll x xs) =
        (deleteBy (% (y :: 'a) => % (z :: 'a) => (y = z)) x xs)) ==>
       ((count x xs) <= 1))"

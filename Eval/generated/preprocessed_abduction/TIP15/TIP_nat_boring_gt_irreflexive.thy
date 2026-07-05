@@ -18,6 +18,6 @@ fun lt :: "Nat => Nat => bool" where
 fun gt :: "Nat => Nat => bool" where
 "gt x y = lt y x"
 
-prove_by_preprocessed_abduction property0 :
+prove property0 :
   "(~ (gt x x))"
 end

@@ -49,6 +49,6 @@ function qsort :: "Nat list => Nat list" where
           (qsort (filter (% (x2 :: Nat) => gt x2 z) xs)))"
   by pat_completeness auto
 
-prove property0 :
+prove_by_abduction property0 :
   "ordered (qsort xs)"
 end

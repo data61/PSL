@@ -37,7 +37,7 @@ fun mul3acc :: "Nat => Nat => Nat => Nat" where
            else
            fail))"
 
-prove property0 :
+prove_by_abduction property0 :
   "((mul3acc (mul3acc x1 x2 x3acc) x4 x5) =
       (mul3acc x1 (mul3acc x2 x3acc x4) x5))"
 end
