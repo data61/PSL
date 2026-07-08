@@ -24,6 +24,7 @@ Generated files:
   fig_cactus_<benchmark>.tex
   fig_lines_time_all.tex
   fig_lines_time_<benchmark>.tex
+  fig_cactus_lines_time_<benchmark>.tex
 
 LaTeX preamble requirements:
   \usepackage{booktabs}
@@ -676,6 +677,101 @@ def write_lines_time_all(
     lines.append(r"\end{tikzpicture}")
     (out / "fig_lines_time_all.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
+
+def safe_legend_name(prefix: str, benchmark: str) -> str:
+    """Return a PGFPlots legend name using only simple letters/digits."""
+    cleaned = "".join(ch for ch in safe_coord_name(benchmark) if ch.isalnum())
+    return f"{prefix}{cleaned or 'Benchmark'}"
+
+
+def cactus_coords(rows: list[EvalRow]) -> str:
+    times = sorted(
+        r.elapsed_sec for r in rows
+        if r.proof_found and is_finite_number(r.elapsed_sec) and r.elapsed_sec > 0
+    )
+    return " ".join(f"({i+1},{t:.3f})" for i, t in enumerate(times))
+
+
+def lines_time_coords(rows: list[EvalRow]) -> str:
+    coords = []
+    for r in rows:
+        if (
+            r.proof_found
+            and is_finite_number(r.elapsed_sec)
+            and r.elapsed_sec > 0
+            and is_finite_number(r.proof_num_lines)
+            and r.proof_num_lines > 0
+        ):
+            coords.append(f"({r.proof_num_lines:.3f},{r.elapsed_sec:.3f})")
+    return " ".join(coords)
+
+
+def write_cactus_lines_time_one(
+    out: Path,
+    benchmark: str,
+    by_method: dict[str, list[EvalRow]],
+    methods: list[str],
+    labels: dict[str, str],
+) -> None:
+    """Write a two-panel figure: cactus plot and runtime/proof-length plot.
+
+    The two panels share one external legend.  This is intended for paper-facing
+    figures where the individual one-panel plots would waste vertical space.
+    Fonts are not scaled: only axis width/height are set.
+    """
+    legend_name = safe_legend_name("cactusLinesTimeLegend", benchmark)
+    lines: list[str] = []
+    lines.append(r"\begin{tikzpicture}")
+    lines.append(r"\begin{groupplot}[")
+    lines.extend([
+        r"  group style={group size=2 by 1, horizontal sep=1.35cm},",
+        r"  width=0.46\linewidth,",
+        r"  height=0.34\linewidth,",
+        r"  grid=both,",
+        r"  minor grid style={draw=gray!15},",
+        r"  major grid style={draw=gray!30},",
+        r"  log ticks with fixed point,",
+    ])
+    lines.append(r"]")
+
+    lines.append(r"\nextgroupplot[")
+    lines.extend([
+        f"  title={{{tex_escape(benchmark)}}},",
+        r"  xlabel={Solved problems},",
+        r"  ylabel={Runtime (s)},",
+        r"  ymode=log,",
+        r"  log basis y=10,",
+        rf"  legend to name={legend_name},",
+        r"  legend columns=-1,",
+        r"  legend cell align=left,",
+    ])
+    lines.append(r"]")
+    for m in methods:
+        coords = cactus_coords(by_method.get(m, []))
+        if append_plot_if_nonempty(lines, f"only marks, mark={marker_for_method(m)}", coords):
+            lines.append(rf"\addlegendentry{{{tex_escape(labels.get(m, m))}}}")
+
+    lines.append(r"\nextgroupplot[")
+    lines.extend([
+        f"  title={{{tex_escape(benchmark)}}},",
+        r"  xlabel={Proof length (lines)},",
+        r"  ylabel={},",
+        r"  xmode=log,",
+        r"  ymode=log,",
+        r"  log basis x=10,",
+        r"  log basis y=10,",
+    ])
+    lines.append(r"]")
+    for m in methods:
+        coords = lines_time_coords(by_method.get(m, []))
+        append_plot_if_nonempty(lines, f"mark={marker_for_method(m)}, only marks", coords)
+
+    lines.append(r"\end{groupplot}")
+    lines.append(r"\end{tikzpicture}")
+    lines.append(r"\par\vspace{0.35em}")
+    lines.append(rf"\pgfplotslegendfromname{{{legend_name}}}")
+    (out / f"fig_cactus_lines_time_{safe_coord_name(benchmark)}.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
 def parse_label_args(args: list[str]) -> dict[str, str]:
     labels = dict(DEFAULT_METHOD_LABEL)
     for item in args:
@@ -733,6 +829,7 @@ def main() -> None:
     for b in benchmarks:
         write_cactus_one(args.out, b, grouped[b], methods, labels)
         write_lines_time_one(args.out, b, grouped[b], methods, labels, args.jitter)
+        write_cactus_lines_time_one(args.out, b, grouped[b], methods, labels)
 
     print(f"Read {len(all_rows)} rows from {len(csvs)} summary CSV file(s).")
     print(f"Benchmarks: {', '.join(benchmarks)}")
