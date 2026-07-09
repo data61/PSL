@@ -1171,7 +1171,15 @@ def main() -> None:
             )
 
         rng = random.Random(args.sample_seed)
-        target_ids = sorted(rng.sample(target_ids, args.sample_size))
+        sampled_target_ids = rng.sample(target_ids, args.sample_size)
+        if args.benchmark == "TIP15":
+            # For TIP15 sampled runs, keep the random sample order.
+            # This allows a deadline-limited run to report a completed
+            # prefix of a reproducible random permutation.
+            target_ids = sampled_target_ids
+        else:
+            # For smaller benchmarks, retain the previous stable reporting order.
+            target_ids = sorted(sampled_target_ids)
 
         selected_targets_out = (
             Path(args.selected_targets_out).resolve()
