@@ -6,9 +6,12 @@ scripts.  The ML side emits graph-sharing metrics once per top-level
 AbductionProver loop.  This script generates one family of figures per benchmark
 found, unless one or more --benchmark options are passed.
 
-This script is intentionally limited to AbductionGraph representation metrics:
+This script is primarily limited to AbductionGraph representation metrics:
 node/edge growth, node reuse, child-node sharing, indegree, and SCC structure.
-Generic contributive-node-loop metrics belong in abduction_statistics_to_latex.py.
+It also emits one paper-facing two-panel summary that pairs OR-node reuse
+with the contributive-frontier ratio, because these two diagnostics are
+intended to be discussed together in the paper.  Other generic
+contributive-node-loop metrics belong in abduction_statistics_to_latex.py.
 Decremental-conjecturing metrics belong in abduction_decremental_to_latex.py.
 
 The figures are meant to support the paper claim that AbductionGraph avoids the
@@ -184,6 +187,136 @@ def pgf_coordinates(points: Iterable[tuple[float, float]]) -> str:
     return "{" + " ".join(f"({fmt_num(x)},{fmt_num(y)})" for x, y in points) + "}"
 
 
+def quantile(sorted_values: list[float], q: float) -> Optional[float]:
+    if not sorted_values:
+        return None
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+    pos = (len(sorted_values) - 1) * q
+    lo = int(math.floor(pos))
+    hi = int(math.ceil(pos))
+    if lo == hi:
+        return sorted_values[lo]
+    weight = pos - lo
+    return sorted_values[lo] * (1.0 - weight) + sorted_values[hi] * weight
+
+
+def trim_after_first_zero_worth(rows: list[dict]) -> list[dict]:
+    """Keep rows up to and including the first worth_expanding = 0 row."""
+    trimmed: list[dict] = []
+    for row in rows:
+        trimmed.append(row)
+        if to_int(row.get("worth_expanding")) == 0:
+            break
+    return trimmed
+
+
+def summary_quantile_series(
+    groups: dict[tuple[str, str], list[dict]],
+    *,
+    value_of_row: Callable[[dict], Optional[float]],
+    trim_after_zero: bool,
+) -> tuple[
+    dict[str, list[tuple[float, float]]],
+    dict[str, list[tuple[float, float]]],
+    dict[str, list[tuple[float, float]]],
+    float,
+    float,
+]:
+    by_status_loop: dict[str, dict[int, list[float]]] = {
+        "proved": defaultdict(list),
+        "unproved": defaultdict(list),
+    }
+    xmax = 1.0
+    ymax = 100.0
+
+    for (_benchmark, _target_id), rows in sorted(groups.items()):
+        loops = actual_loop_rows(rows)
+        if trim_after_zero:
+            loops = trim_after_first_zero_worth(loops)
+        status = outcome_group(rows)
+        for row in loops:
+            loop = to_int(row.get("loop_index"))
+            value = value_of_row(row)
+            if value is None:
+                continue
+            by_status_loop[status][loop].append(float(value))
+            xmax = max(xmax, float(loop))
+            ymax = max(ymax, float(value))
+
+    median_series: dict[str, list[tuple[float, float]]] = {}
+    q1_series: dict[str, list[tuple[float, float]]] = {}
+    q3_series: dict[str, list[tuple[float, float]]] = {}
+
+    for status in ["proved", "unproved"]:
+        med_pts: list[tuple[float, float]] = []
+        q1_pts: list[tuple[float, float]] = []
+        q3_pts: list[tuple[float, float]] = []
+        for loop in sorted(by_status_loop[status]):
+            values = sorted(by_status_loop[status][loop])
+            q1 = quantile(values, 0.25)
+            med = quantile(values, 0.50)
+            q3 = quantile(values, 0.75)
+            if q1 is None or med is None or q3 is None:
+                continue
+            q1_pts.append((float(loop), q1))
+            med_pts.append((float(loop), med))
+            q3_pts.append((float(loop), q3))
+        if med_pts:
+            median_series[status] = med_pts
+            q1_series[status] = q1_pts
+            q3_series[status] = q3_pts
+
+    return median_series, q1_series, q3_series, xmax, ymax
+
+
+def write_summary_quantile_graph(
+    groups: dict[tuple[str, str], list[dict]],
+    out_path: Path,
+    *,
+    value_of_row: Callable[[dict], Optional[float]],
+    title: str,
+    ylabel: str,
+    trim_after_zero: bool = False,
+    extra_axis_options: Optional[list[str]] = None,
+) -> None:
+    median_series, q1_series, q3_series, xmax, ymax = summary_quantile_series(
+        groups,
+        value_of_row=value_of_row,
+        trim_after_zero=trim_after_zero,
+    )
+
+    if not median_series:
+        out_path.write_text("% No summary-quantile data found.\n", encoding="utf-8")
+        return
+
+    lines = make_axis_begin(
+        title,
+        ylabel,
+        xmax,
+        max(100.0, ymax),
+        ymin=0.0,
+        log_y=False,
+        legend_pos="north west",
+        extra_options=extra_axis_options,
+    )
+
+    for label, colour, _mark, style in [outcome_style("proved"), outcome_style("unproved")]:
+        lines.append(rf"\addlegendimage{{{colour},{style},line width=1.25pt}}")
+        lines.append(rf"\addlegendentry{{{label} median}}")
+
+    for status in ["proved", "unproved"]:
+        if status not in median_series:
+            continue
+        _label, colour, _mark, style = outcome_style(status)
+        lines.append(rf"\addplot[{colour},{style},no marks,line width=0.65pt,opacity=0.34,forget plot] coordinates {pgf_coordinates(q1_series[status])};")
+        lines.append(rf"\addplot[{colour},{style},no marks,line width=0.65pt,opacity=0.34,forget plot] coordinates {pgf_coordinates(q3_series[status])};")
+        lines.append(rf"\addplot[{colour},{style},no marks,line width=1.25pt,opacity=0.95] coordinates {pgf_coordinates(median_series[status])};")
+
+    lines.extend([r"\end{axis}", r"\end{tikzpicture}", ""])
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def make_axis_begin(
     title: str,
     ylabel: str,
@@ -193,6 +326,7 @@ def make_axis_begin(
     ymin: float = 0.0,
     log_y: bool = False,
     legend_pos: str = "north east",
+    extra_options: Optional[list[str]] = None,
 ) -> list[str]:
     xmax = max(1.0, xmax)
     ymin = 1.0 if log_y else ymin
@@ -228,6 +362,8 @@ def make_axis_begin(
             r"ytick={1,10,100,1000,10000,100000,1000000},",
             f"minor ytick={log_minor_y_ticks(ymin, ymax)},",
         ])
+    if extra_options:
+        options.extend(extra_options)
     return [r"\begin{tikzpicture}", r"\begin{axis}[", *options, r"]"]
 
 
@@ -303,6 +439,113 @@ def percent_metric_value(row: dict, key: str) -> Optional[float]:
         return None
     return 100.0 * value
 
+def expandable_ratio_value(row: dict) -> Optional[float]:
+    raw = row.get("reachable_or_nodes")
+    if raw is None or str(raw).strip() == "":
+        raw = row.get("reachable_keys")
+    reachable_or_nodes = to_int(raw)
+    if reachable_or_nodes <= 0:
+        return None
+    return 100.0 * float(to_int(row.get("worth_expanding"))) / float(reachable_or_nodes)
+
+
+def write_summary_quantile_panel(
+    lines: list[str],
+    *,
+    median_series: dict[str, list[tuple[float, float]]],
+    q1_series: dict[str, list[tuple[float, float]]],
+    q3_series: dict[str, list[tuple[float, float]]],
+    add_legend: bool,
+) -> None:
+    if add_legend:
+        for label, colour, _mark, style in [outcome_style("proved"), outcome_style("unproved")]:
+            lines.append(rf"\addlegendimage{{{colour},{style},line width=1.25pt}}")
+            lines.append(rf"\addlegendentry{{{label} median}}")
+
+    for status in ["proved", "unproved"]:
+        if status not in median_series:
+            continue
+        _label, colour, _mark, style = outcome_style(status)
+        lines.append(rf"\addplot[{colour},{style},no marks,line width=0.65pt,opacity=0.34,forget plot] coordinates {pgf_coordinates(q1_series[status])};")
+        lines.append(rf"\addplot[{colour},{style},no marks,line width=0.65pt,opacity=0.34,forget plot] coordinates {pgf_coordinates(q3_series[status])};")
+        lines.append(rf"\addplot[{colour},{style},no marks,line width=1.25pt,opacity=0.95] coordinates {pgf_coordinates(median_series[status])};")
+
+
+def write_reuse_frontier_summary_groupplot(
+    groups: dict[tuple[str, str], list[dict]],
+    out_path: Path,
+    *,
+    benchmark: str,
+) -> None:
+    reuse_med, reuse_q1, reuse_q3, reuse_xmax, _reuse_ymax = summary_quantile_series(
+        groups,
+        value_of_row=lambda row: percent_metric_value(row, "graph_ornode_reuse_rate"),
+        trim_after_zero=False,
+    )
+    frontier_med, frontier_q1, frontier_q3, frontier_xmax, _frontier_ymax = summary_quantile_series(
+        groups,
+        value_of_row=expandable_ratio_value,
+        trim_after_zero=True,
+    )
+
+    if not reuse_med and not frontier_med:
+        out_path.write_text("% No OR-node reuse/frontier summary data found.\n", encoding="utf-8")
+        return
+
+    xmax = max(reuse_xmax, frontier_xmax)
+    xtick_line = r"  xtick distance=1," if xmax <= 30 else ""
+
+    lines = [
+        r"% Requires: \usepgfplotslibrary{groupplots}",
+        r"\begin{tikzpicture}",
+        r"\begin{groupplot}[",
+        r"  group style={group size=2 by 1, horizontal sep=1.35cm},",
+        r"  width=0.48\linewidth,",
+        r"  height=0.42\linewidth,",
+        r"  xlabel={Top-level loop round},",
+        r"  ymin=0, ymax=100,",
+        f"  xmin=1, xmax={fmt_num(xmax)},",
+        r"  ytick={0,20,40,60,80,100},",
+        r"  grid=both,",
+        r"  minor grid style={draw=gray!24,line width=0.15pt},",
+        r"  major grid style={draw=gray!42,line width=0.25pt},",
+        r"  minor x tick num=1,",
+        r"  minor y tick num=3,",
+        r"  legend cell align=left,",
+        r"  legend pos=north west,",
+        r"  legend style={draw=black,fill=white,fill opacity=0.85,text opacity=1,rounded corners=1pt,font=\scriptsize},",
+        r"  tick align=outside,",
+        r"  every axis plot/.append style={line width=1.0pt},",
+        r"  enlarge x limits=false,",
+        r"  scaled y ticks=false,",
+    ]
+    if xtick_line:
+        lines.append(xtick_line)
+    lines.extend([
+        r"]",
+        rf"\nextgroupplot[title={{{tex_escape(title_with_benchmark('OR-node reuse summary', benchmark))}}}, ylabel={{OR-node reuse rate (\%)}}, ylabel style={{xshift=0.9em}}]",
+    ])
+    write_summary_quantile_panel(
+        lines,
+        median_series=reuse_med,
+        q1_series=reuse_q1,
+        q3_series=reuse_q3,
+        add_legend=True,
+    )
+    lines.append(
+        rf"\nextgroupplot[title={{{tex_escape(title_with_benchmark('Contributive-frontier summary', benchmark))}}}, ylabel={{Contributive OR-leaf ratio (\%)}}, ylabel style={{xshift=1.2em}}]"
+    )
+    write_summary_quantile_panel(
+        lines,
+        median_series=frontier_med,
+        q1_series=frontier_q1,
+        q3_series=frontier_q3,
+        add_legend=False,
+    )
+    lines.extend([r"\end{groupplot}", r"\end{tikzpicture}", ""])
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def write_notes(out_path: Path, benchmark: str) -> None:
     text = f"""AbductionGraph figure notes for benchmark {benchmark or '<all>'}.
 
@@ -329,6 +572,16 @@ Structural plots:
 - graph_and_projected_* is computed over the AND-projection: parent AND -> child
   AND whenever the full graph contains parent AND -> OR -> edge-node -> child AND.
   This is mainly a diagnostic view of decomposition-event sharing.
+
+Summary plots:
+- Summary curves show the median per-loop value for proved and unproved runs.
+  The two thinner curves around each median are the 25th- and 75th-percentile
+  curves for the same group and loop.
+- The two-panel paper-facing summary places OR-node reuse on the left and the
+  contributive-frontier ratio on the right: the former describes structural
+  sharing in AbductionGraph, while the latter describes how much of the
+  root-reachable OR frontier remains expandable.
+
 - Projected edge-count plots are intentionally not generated by default: they are
   easy to misread, and zero-valued early rounds disappear on logarithmic axes.
 """
@@ -378,6 +631,22 @@ def write_figures_for_benchmark(rows: list[dict], out_dir: Path, benchmark: str)
             ymax_min=100.0,
             legend_pos="south east",
         )
+
+    write_summary_quantile_graph(
+        groups,
+        out_dir / f"abduction_graph_ornode_reuse_rate_summary_by_top_loop{suffix}.tex",
+        value_of_row=lambda row: percent_metric_value(row, "graph_ornode_reuse_rate"),
+        title=title_with_benchmark("OR-node reuse-rate summary", benchmark),
+        ylabel="OR-node reuse rate (%)",
+        trim_after_zero=False,
+        extra_axis_options=[r"ytick={0,20,40,60,80,100},", r"scaled y ticks=false,"],
+    )
+
+    write_reuse_frontier_summary_groupplot(
+        groups,
+        out_dir / f"abduction_graph_reuse_frontier_summary_by_loop{suffix}.tex",
+        benchmark=benchmark,
+    )
 
     structural_specs = [
         ("abduction_graph_or_projected_avg_indegree_by_top_loop", "Average indegree in OR-projected graph", "OR-projected average indegree", "graph_or_projected_avg_indegree", False),
