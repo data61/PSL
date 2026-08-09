@@ -223,10 +223,7 @@ fun run_abduction_search (use_tbc_preprocessing:bool)
              (fn () =>
                 case TBC_Utils.progress_pnodes_text (Proof.context_of pst0) of
                   "" => ""
-                | lemmas =>
-                    "(* Standalone, fully-proved lemmas: paste them ABOVE your theorem\n\
-                    \   statement, after the definitions they mention. Nothing here is\n\
-                    \   sorried; each was proved outright. *)\n" ^ lemmas))
+                | lemmas => Proof_By_Abduction.preprocessing_snapshot_header ^ lemmas))
       else NONE;
     val (pst, preprocessed_nodes) =
       if use_tbc_preprocessing
@@ -704,10 +701,7 @@ fun run_solve_body (stop_search: string -> unit)
         (fn () =>
            case TBC_Utils.progress_pnodes_text (Proof.context_of pst0) of
              "" => ""
-           | lemmas =>
-               "(* Standalone, fully-proved lemmas: paste them ABOVE your theorem\n\
-               \   statement, after the definitions they mention. Nothing here is\n\
-               \   sorried; each was proved outright. *)\n" ^ lemmas);
+           | lemmas => Proof_By_Abduction.preprocessing_snapshot_header ^ lemmas);
     (* No handler: if preprocessing raises, this task's failure cancels the monitored group
        and the reporter future dies with it; the explicit stop covers the normal path. *)
     val (pst_tbc, preprocessed_nodes) =

@@ -69,6 +69,19 @@ val refute_root: Proof.state -> term -> string option;
 val fork_root_refutation_watchdog:
   (string -> unit) -> string option Synchronized.var -> Proof.state -> term -> unit future;
 
+(* CONTRACT SURFACE, pinned by Contract_Test and consumed by the Heinzelmen webservice.
+   wrap_partial_block shapes every unproved emission and graph-phase snapshot; the two
+   phrase constants anchor the consumer's counterexample extraction; the report builder
+   renders <theory>_refutation.txt's lines. Change only together with the fixtures and
+   after coordinating with consumers. *)
+val wrap_partial_block: string -> string -> string;
+val preprocessing_snapshot_header: string;
+val refutation_message_prefix: string;
+val refutation_trace_prefix: string;
+val refutation_report_lines:
+  {qc_outcome: string, qc_secs: real, np_outcome: string, np_secs: real,
+   counterexample: string option} -> string list;
+
 (* Periodic progress snapshots to the Output pane and <theory>_progress.thy - see the
    implementation comment. Takes the phase's name and a snapshot closure ("" for "nothing
    proved yet"); the graph phase forks its own internally, the entry points fork one over
@@ -742,6 +755,23 @@ fun with_memory_monitor (floor_mb: real) (describe: unit -> string)
     (result, reason)
   end;
 
+(* The contract phrases and the refutation-record builder, single-sourced so the emission
+   sites and Contract_Test cannot drift apart. The consumer greps the phrases; the record's
+   line format is their per-tool calibration channel. *)
+val refutation_message_prefix = "The goal itself has a genuine counterexample (";
+val refutation_trace_prefix = "  refutation watchdog: ";
+
+fun refutation_report_lines {qc_outcome, qc_secs, np_outcome, np_secs, counterexample} =
+  let
+    fun fmt_secs s = Real.fmt (StringCvt.FIX (SOME 1)) s;
+  in
+    ["quickcheck: " ^ qc_outcome ^ " in " ^ fmt_secs qc_secs ^ "s",
+     "nitpick: " ^ np_outcome ^
+     (if String.isPrefix "not run" np_outcome orelse np_outcome = "disabled"
+      then "" else " in " ^ fmt_secs np_secs ^ "s")]
+    @ (case counterexample of SOME c => ["counterexample: " ^ c] | NONE => [])
+  end;
+
 (* refute_root *)
 (* Quickcheck and nitpick on the root goal itself. TBC already spends one or two seconds of
  * these tools on every generated conjecture (TBC_Utils.pst_n_conjecture_has_counterexample);
@@ -828,16 +858,12 @@ fun refute_root (pst: Proof.state) (cncl: term): string option =
              if outcome = Nitpick.genuineN
              then ("genuine", SOME (render_nitpick_model msgs))
              else (outcome, NONE));
-    fun fmt_secs s = Real.fmt (StringCvt.FIX (SOME 1)) s;
     val report_lines =
-      ["quickcheck: " ^ #outcome qc ^ " in " ^ fmt_secs (#secs qc) ^ "s",
-       "nitpick: " ^ #outcome np ^
-       (if String.isPrefix "not run" (#outcome np) orelse #outcome np = "disabled"
-        then "" else " in " ^ fmt_secs (#secs np) ^ "s")]
-      @ (case (#cex qc, #cex np) of
-           (SOME c, _) => ["counterexample: " ^ c]
-         | (_, SOME c) => ["counterexample: " ^ c]
-         | _ => []);
+      refutation_report_lines
+        {qc_outcome = #outcome qc, qc_secs = #secs qc,
+         np_outcome = #outcome np, np_secs = #secs np,
+         counterexample = (case (#cex qc, #cex np) of
+                             (SOME c, _) => SOME c | (_, SOME c) => SOME c | _ => NONE)};
     (* Bounded by construction on the consumer's behalf: their guest returns one small output
        disk, and an overflow costs the visitor's actual result. *)
     val report_text =
@@ -851,8 +877,10 @@ fun refute_root (pst: Proof.state) (cncl: term): string option =
       | dir =>
           let
             val base = Context.theory_base_name (Proof_Context.theory_of ctxt);
-            val tmp = Path.explode (dir ^ "/" ^ base ^ "_refutation.txt.tmp");
-            val final = Path.explode (dir ^ "/" ^ base ^ "_refutation.txt");
+            val tmp =
+              Path.explode (dir ^ "/" ^ base ^ Top_Down_Util.refutation_file_suffix ^ ".tmp");
+            val final =
+              Path.explode (dir ^ "/" ^ base ^ Top_Down_Util.refutation_file_suffix);
           in
             ignore (try (fn () =>
               (File.write tmp report_text;
@@ -891,8 +919,8 @@ fun fork_root_refutation_watchdog (stop: string -> unit) (cex: string option Syn
            Heinzelmen service greps to extract the counterexample for its visitors (anchoring
            on the word "counterexample" alone would match the search's OWN refuted
            conjectures). Coordinate with the service before rewording either. *)
-         TBC_Utils.tbc_trace ("  refutation watchdog: " ^ why);
-         stop ("The goal itself has a genuine counterexample (" ^ why
+         TBC_Utils.tbc_trace (refutation_trace_prefix ^ why);
+         stop (refutation_message_prefix ^ why
                ^ "). Stopping the proof search: there is nothing to prove.")));
 
 fun expand_ornode_if_original_goal_is_unproved_w_timeout
@@ -2286,6 +2314,13 @@ fun partial_proofs_text (tbc_facts: strings) (pst:Proof.state) (graph:abduction_
    was searched (the statement position prove/prove_by_abduction/suggest-at-the-statement
    use); a caller mid-apply-chain whose pending goal has been transformed replaces that line
    with their own show, or drops the wrapper. See docs/2026_08_09_partial_proofs_guide.html. *)
+(* The header every preprocessing-phase snapshot leads with; the consumer keys its
+   splice-verifiable classification and its user instructions off this shape. *)
+val preprocessing_snapshot_header =
+  "(* Standalone, fully-proved lemmas: paste them ABOVE your theorem\n\
+  \   statement, after the definitions they mention. Nothing here is\n\
+  \   sorried; each was proved outright. *)\n";
+
 fun wrap_partial_block (prelude_proofs: string) (haves: string): string =
   "(* AbductionProver did not prove the goal. These auxiliary lemmas were proved\n\
   \   completely, in the order they were proved. Pasted as-is at the point the prover\n\
@@ -2339,8 +2374,10 @@ fun fork_progress_reporter (pst: Proof.state) (start: Timing.start) (phase: stri
         "" => ()
       | dir =>
           let
-            val final_path = Path.explode (dir ^ "/" ^ theory_base ^ "_progress.thy");
-            val tmp_path = Path.explode (dir ^ "/" ^ theory_base ^ "_progress.thy.tmp");
+            val final_path =
+              Path.explode (dir ^ "/" ^ theory_base ^ Top_Down_Util.progress_file_suffix);
+            val tmp_path =
+              Path.explode (dir ^ "/" ^ theory_base ^ Top_Down_Util.progress_file_suffix ^ ".tmp");
           in
             ignore (try (fn () =>
               (File.write tmp_path text;

@@ -1,0 +1,3 @@
+quickcheck: genuine in 2.4s
+nitpick: not run: quickcheck refuted
+counterexample: b = 0, a = 1

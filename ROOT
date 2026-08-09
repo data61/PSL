@@ -59,3 +59,9 @@ session Smart_Isabelle (psl) = "Abduction" +
   document_files
     "root.tex"
     "root.bib"
+session Contract_Test (psl) in "Contract_Test" = Smart_Isabelle +
+  description "The producer's half of the PSL/consumer contract - golden fixtures for
+    everything external consumers parse. See Contract_Test.thy's header."
+  options [timeout = 600]
+  theories
+    Contract_Test

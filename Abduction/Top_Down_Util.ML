@@ -60,6 +60,16 @@ val write_verdict_applied            : Proof.context -> bool -> real -> unit;
 (* The root goal itself has a genuine counterexample: there is nothing to prove, and a
    webservice runner reading verdicts.csv must be able to tell that apart from "unproved". *)
 val write_verdict_refuted            : Proof.context -> real -> unit;
+(* CONTRACT SURFACE, pinned by Contract_Test and consumed by the Heinzelmen webservice:
+   the verdict vocabulary and the artifact names. Change these only together with the
+   fixtures and after coordinating with consumers. *)
+val verdict_proved                   : string;
+val verdict_unproved                 : string;
+val verdict_proved_applied           : string;
+val verdict_refuted                  : string;
+val verdicts_file_name               : string;
+val progress_file_suffix             : string;
+val refutation_file_suffix           : string;
 (* Budgets for the root refutation watchdog (quickcheck, then nitpick, run in parallel with
    the search). A value <= 0 disables that tool. *)
 val refute_root_quickcheck_timeout   : real Config.T;
@@ -541,6 +551,16 @@ fun write_proof_to_file (ctxt: Proof.context) (script: string): unit =
  * is not merely unmet but wrong, and checking it would warn on every successful run. Its rows say
  * "proved-applied" so a harness can tell the two apart rather than reading a legitimately absent
  * file as a lost proof, which is the exact confusion this whole mechanism exists to end. *)
+(* The contract constants. Single-sourced here and used by every writer below, so the
+   vocabulary a consumer greps cannot drift from the vocabulary we write. *)
+val verdict_proved         = "proved";
+val verdict_unproved       = "unproved";
+val verdict_proved_applied = "proved-applied";
+val verdict_refuted        = "refuted";
+val verdicts_file_name     = "verdicts.csv";
+val progress_file_suffix   = "_progress.thy";
+val refutation_file_suffix = "_refutation.txt";
+
 fun warn_if_proof_output_dir_unset (): unit =
   if getenv "PSL_PROOF_OUTPUT_DIR" <> "" then ()
   else
@@ -567,9 +587,9 @@ fun write_verdict_gen (expect_proof_file: bool) (ctxt: Proof.context) (solved: b
       let
         val theory_name = Context.theory_long_name (Proof_Context.theory_of ctxt): string;
         val verdict =
-          (if not solved then "unproved"
-           else if expect_proof_file then "proved"
-           else "proved-applied"): string;
+          (if not solved then verdict_unproved
+           else if expect_proof_file then verdict_proved
+           else verdict_proved_applied): string;
         (* This goal's own files, not the directory's. A run over many goals accumulates them all
            here, so counting the directory would let one goal's proof satisfy another goal's
            invariant - and would report a cumulative total as if it were this goal's. Proof files
@@ -584,7 +604,7 @@ fun write_verdict_gen (expect_proof_file: bool) (ctxt: Proof.context) (solved: b
         val line =
           theory_name ^ "," ^ verdict ^ "," ^ Real.toString elapsed_sec ^ ","
           ^ string_of_int (length proof_files) ^ "\n";
-        val _ = try (File.append (Path.explode (dir ^ "/verdicts.csv"))) line;
+        val _ = try (File.append (Path.explode (dir ^ "/" ^ verdicts_file_name))) line;
       in
         if expect_proof_file andalso solved andalso null proof_files
         then warning ("AbductionProver reported the goal proved, but no .proof file exists in "
@@ -617,10 +637,10 @@ fun write_verdict_refuted (ctxt: Proof.context) (elapsed_sec: real): unit =
                filter (fn e => String.isSuffix ".proof" e andalso String.isPrefix stem_prefix e)
                  entries): string list;
         val line =
-          theory_name ^ ",refuted," ^ Real.toString elapsed_sec ^ ","
+          theory_name ^ "," ^ verdict_refuted ^ "," ^ Real.toString elapsed_sec ^ ","
           ^ string_of_int (length proof_files) ^ "\n";
       in
-        ignore (try (File.append (Path.explode (dir ^ "/verdicts.csv"))) line)
+        ignore (try (File.append (Path.explode (dir ^ "/" ^ verdicts_file_name))) line)
       end;
 
 (* Root-refutation budgets. Larger than the one/two seconds the conjecture filter spends per

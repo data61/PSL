@@ -1,0 +1,3 @@
+(* Standalone, fully-proved lemmas: paste them ABOVE your theorem
+   statement, after the definitions they mention. Nothing here is
+   sorried; each was proved outright. *)

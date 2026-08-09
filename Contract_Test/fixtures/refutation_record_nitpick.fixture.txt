@@ -1,0 +1,3 @@
+quickcheck: disabled in 0.0s
+nitpick: genuine in 4.5s
+counterexample: Auto Nitpick found a counterexample: Free variable: n = 5
