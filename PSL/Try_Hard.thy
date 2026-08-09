@@ -15,6 +15,7 @@ keywords "strategy"     :: thy_decl
 
 begin
 
+ML_file "Resource_Limit.ML"
 ML_file "PGT.ML"
 ML_file "Dynamic_Tactic_Generation.ML"
 ML_file "Subtool.ML"

@@ -44,7 +44,8 @@ struct
     let
       val some_str = lookup ctxt name : Mp.str option;
       val strategy = Utils.the' (name ^ "?\nDid you really define such a strategy?\n"
-        ^ "Also, you should not forget that PThenOne and PThenAll take *exactly* two sub-strategies!")
+        ^ "Also, you should not forget that PThenOne and PThenAll take *exactly* two"
+        ^ " sub-strategies!")
         some_str : Mp.str;
     in
       strategy
@@ -57,8 +58,9 @@ fun put_strategy (name:string, str:strategy) = update name str
   |> Context.theory_map
   |> Local_Theory.background_theory;
 
-fun parse_strategy_def_tokens ctxt = Pc.string_parser_to_token_parser (PSL_Parser.strategy_parser ctxt)
-  : (string * Mp.str) Token.parser;
+fun parse_strategy_def_tokens ctxt =
+      Pc.string_parser_to_token_parser (PSL_Parser.strategy_parser ctxt)
+      : (string * Mp.str) Token.parser;
 
 val parse_and_put_strategy_def : (local_theory -> local_theory) Token.parser = fn tokens =>
   let
@@ -82,7 +84,8 @@ fun get_monad_tactic (strategy:strategy) (proof_state:Proof.state) =
     val timeouts  = {overall = 1000000.0, hammer = 30.0, quickcheck = 2.0, nitpick = 1.0};
   in
     Isabelle_Utils.timeout_apply (seconds 6000000.0)
-    (interpret (Mp.eval_prim, Mp.eval_para, Mp.eval_pgt, Mp.eval_strategic, Mp.m_equal, Mp.iddfc, (1,20), timeouts)
+    (interpret (Mp.eval_prim, Mp.eval_para, Mp.eval_pgt, Mp.eval_strategic, Mp.m_equal, Mp.iddfc,
+                 (1,20), timeouts)
                 core_tac) pst_wo_warnings
   end : Proof.state Mp.monad;
 
@@ -99,7 +102,8 @@ in
 
 fun parser_to_trans_trans_parser (inv_p : 'a Pc.parser)
   (get_trans_trans : 'a -> trans_trans) =
-  Pc.string_parser_to_token_parser (inv_p >>= (Pc.result o get_trans_trans)) : trans_trans Token.parser;
+  Pc.string_parser_to_token_parser (inv_p >>= (Pc.result o get_trans_trans))
+  : trans_trans Token.parser;
 
 end;
 

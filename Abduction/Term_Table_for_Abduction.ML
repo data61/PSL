@@ -1,9 +1,8 @@
-(*
- * Term_Table_for_Abduction.ML
- *
- * Authors:
- *   Yutaka Nagashima
- *)
+(*  Title:      Abduction/Term_Table_for_Abduction.ML
+    Author:     Yutaka Nagashima
+
+A table mapping terms to paths, used to detect and reuse sub-terms during abduction.
+*)
 (*** signature TERM_TABLE_FOR_ABDUCTION ***)
 signature TERM_TABLE_FOR_ABDUCTION =
 sig
@@ -24,8 +23,10 @@ val update_print_of_unode     : string -> unode -> unode;
 val update_inner_path_of_unode: path -> unode -> unode;
 
 val update_tag_of_unode                          : Proof.context -> unode -> unode;
-val update_unode                                 : Proof.context -> unode -> string -> node -> unode;
-val update_unode_in_table                        : Proof.context -> unode -> string -> node -> table -> table;
+val update_unode                                 :
+  Proof.context -> unode -> string -> node -> unode;
+val update_unode_in_table                        :
+  Proof.context -> unode -> string -> node -> table -> table;
 val update_print_of_unode_because_of_its_children: unode -> table -> table;
 val update_print_of_path_because_of_its_children : table -> path -> table;
 val update_unode_then_its_ancestors_in_table     : table -> path -> unode -> table;
@@ -54,15 +55,19 @@ fun update_ancestors_of _                                (table:table) [] = tabl
       update_ancestors_of update  updated_table (parent_path)
     end;
 
-fun get_children' (path_to_unode_table:Inner_Path_To_Unode.path_to_unode_table) (parent_path:path) (nth_child:int) (acc:paths) =
+fun get_children'
+    (path_to_unode_table:Inner_Path_To_Unode.path_to_unode_table) (parent_path:path)
+    (nth_child:int) (acc:paths) =
   let
-    val nth_child_is_defined = Inner_Path_To_Unode.defined path_to_unode_table (parent_path @ single nth_child): bool;
+    val nth_child_is_defined =
+          Inner_Path_To_Unode.defined path_to_unode_table (parent_path @ single nth_child): bool;
     val result =
       if   nth_child_is_defined
-      then get_children' path_to_unode_table parent_path (nth_child + 1) (acc @ single (parent_path @ single nth_child))
+      then get_children' path_to_unode_table parent_path (nth_child + 1)
+             (acc @ single (parent_path @ single nth_child))
       else acc
   in
-    result         
+    result
   end;
 
 fun get_children (path_to_unode_table:table) (parent_path:path) =
@@ -114,13 +119,16 @@ fun update_tag_of_unode (ctxt:Proof.context) (unode as {node, print, inner_path,
     case node of (NC (cname, typ)) =>
       let
         val new_tag = {
-          part_of_prem           = #part_of_prem  tag                                                      : bool,
-          part_of_cncl           = #part_of_cncl  tag                                                      : bool,
-          is_premise             = #is_premise    tag                                                      : bool,
-          is_conclusion          = #is_conclusion tag                                                      : bool,
-          defined_with_n_clauses = SOME (SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt cname): int option,
-          is_defined_with        = SOME (Definition_Pattern.get_command ctxt cname)                        : Definition_Pattern.command option,
-          take_n_params          = SOME (Isabelle_Utils.count_numb_of_args_of_fun_typ typ)                 : int option
+          part_of_prem  = #part_of_prem  tag: bool,
+          part_of_cncl  = #part_of_cncl  tag: bool,
+          is_premise    = #is_premise    tag: bool,
+          is_conclusion = #is_conclusion tag: bool,
+          defined_with_n_clauses =
+            SOME (SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt cname): int option,
+          is_defined_with =
+            SOME (Definition_Pattern.get_command ctxt cname): Definition_Pattern.command option,
+          take_n_params =
+            SOME (Isabelle_Utils.count_numb_of_args_of_fun_typ typ): int option
         }: tag;
       in
         {node       = node,
@@ -136,7 +144,8 @@ fun update_unode (ctxt:Proof.context) (old_unode:unode) (new_print:string) (new_
 |> update_print_of_unode new_print
 |> update_tag_of_unode ctxt: unode;
 
-fun update_unode_in_table (ctxt:Proof.context) (old_unode:unode) (new_print:string) (new_node:node) (old_table:table) =
+fun update_unode_in_table
+    (ctxt:Proof.context) (old_unode:unode) (new_print:string) (new_node:node) (old_table:table) =
   let
     val new_unode = update_unode ctxt old_unode new_print new_node: unode;
     val path      = #inner_path old_unode: ints;
@@ -145,7 +154,8 @@ fun update_unode_in_table (ctxt:Proof.context) (old_unode:unode) (new_print:stri
     new_table: table
   end;
 
-fun update_print_of_unode_because_of_its_children (unode as {node, inner_path, ...}: unode) (table:table): table =
+fun update_print_of_unode_because_of_its_children
+    (unode as {node, inner_path, ...}: unode) (table:table): table =
   case node of
     NA =>
       let
@@ -182,7 +192,9 @@ fun update_print_of_unode_because_of_its_children (unode as {node, inner_path, .
 fun update_print_of_path_because_of_its_children (table:table) (path:path): table =
   let
     val is_defined = Inner_Path_To_Unode.defined table path: bool;
-    val _          = if is_defined then () else error "update_print_of_path_because_of_its_children failed. undefined unique_node.";
+    val _          =
+          if is_defined then ()
+          else error "update_print_of_path_because_of_its_children failed. undefined unique_node.";
     val unode      = Inner_Path_To_Unode.lookup table path |> the: unode;
     val new_table  = update_print_of_unode_because_of_its_children unode table;
   in
@@ -192,12 +204,17 @@ fun update_print_of_path_because_of_its_children (table:table) (path:path): tabl
 fun update_unode_then_its_ancestors_in_table (table:table) (path:path) (unode:unode) =
   let
     val is_defined        = Inner_Path_To_Unode.defined table path: bool;
-    val _                 = if is_defined then () else error "update_print_of_path_because_of_its_children failed. undefined unique_node.";
+    val _                 =
+          if is_defined then ()
+          else error "update_print_of_path_because_of_its_children failed. undefined unique_node.";
     val table_w_new_unode = Inner_Path_Table.update (path, unode) table: table;
-    val has_parent        = length path > 0                            : bool;
-    val table             = if has_parent
-                            then update_ancestors_of (uncurry update_print_of_path_because_of_its_children) table_w_new_unode path: table
-                            else table_w_new_unode;
+    val has_parent        = length path > 0: bool;
+    val table             =
+          if has_parent
+          then update_ancestors_of
+                 (uncurry update_print_of_path_because_of_its_children) table_w_new_unode path
+               : table
+          else table_w_new_unode;
   in
     table
   end;

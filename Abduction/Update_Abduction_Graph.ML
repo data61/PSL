@@ -1,11 +1,9 @@
-(*
- * Update_Abduction_Graph.ML
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/Update_Abduction_Graph.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
 
+Functions that update the abduction graph as the proof search progresses.
+*)
 (*** UPDATE_ABDUCTION_GRAPH ***)
 signature UPDATE_ABDUCTION_GRAPH =
 sig
@@ -27,8 +25,10 @@ val update_imp_if_this_is_larger      : key -> real -> update_abduction_graph;
 val update_importance_of_ornode       : key -> update_abduction_graph;
 val update_attacked                   : key -> update_abduction_graph;
 
-val update_after_proving_ornode       : (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
-val update_after_connecting_andnd_to_existing_ornd: (*or*)key -> Proof.context -> update_abduction_graph;
+val update_after_proving_ornode       :
+  (*proof*)strings -> (*or*)key -> Proof.context -> update_abduction_graph;
+val update_after_connecting_andnd_to_existing_ornd:
+  (*or*)key -> Proof.context -> update_abduction_graph;
 (*TODO: add_andnodes*)
 val add_andnode                       : terms -> abduction_graph -> keys * abduction_graph;
 val add_edges_from_andnode_to_ornodes : (*and*)key -> update_abduction_graph;
@@ -63,7 +63,8 @@ fun update_imp_if_this_is_larger (key:key) (imp:real) (graph:abduction_graph) =
 fun update_importance_of_ornode (orkey:key) (graph:abduction_graph) =
   let
     val importance = compute_importance_of_ornode graph orkey: real;
-    val new_graph  = PGraph.map_node orkey (UAN.update_importance importance) graph: abduction_graph;
+    val new_graph  =
+          PGraph.map_node orkey (UAN.update_importance importance) graph: abduction_graph;
   in
     new_graph
   end;
@@ -73,32 +74,66 @@ fun update_attacked (orkey:key) (graph:abduction_graph) =
 
 local
 
-fun update_gg_parent_not_finished_of_or_key (key as (Or_N, _):key) (gr:abduction_graph): abduction_graph =
-    let
-      val does_need_proof = not (all_gg_parents_are_proved gr key)                             : bool;
-      val update          = UAN.update_gg_parent_not_finished does_need_proof: abduction_node -> abduction_node;
-    in
-      PGraph.map_node key update gr
-    end
-  | update_gg_parent_not_finished_of_or_key _ _ = error "update_gg_parent_not_finished_of_or_key failed. Not an or-key.";
+(* is_uncompleted *)
+(* Or2And-edge (O2A_E) nodes carry no completion status of their own: each one is a
+ * labelled edge between an or-node and the and-node it leads to, so the traversal
+ * below always passes straight through it. *)
+fun is_uncompleted (graph:abduction_graph) (key:key) =
+      is_or2and_edge key orelse not (is_proved_completely graph key): bool;
 
-(* update_gg_parent_not_finished *)
-(* update_gg_parent_not_finished assumes that the graph is already updated by
+(* compute_contributive_keys *)
+(* Root-directed contributivity check, implementing Algorithm 1 ("update-contributive")
+ * of root_directed_contributivity_check.tex: a node is contributive iff it is
+ * reachable from the root by a path consisting entirely of uncompleted nodes.
+ * This is a pure query over the graph (unlike the update_ functions elsewhere in this
+ * file, it does not return an abduction_graph): it just reports which keys are
+ * currently contributive, leaving the caller to decide what to do with that.
+ * next is a fresh accumulator on every call rather than being seeded from the
+ * contributive flags already stored in the graph: a node that was contributive
+ * before the latest completion update must still be re-examined, or the traversal
+ * could stop at an unchanged parent and leave stale statuses on its descendants (see
+ * the discussion following Algorithm 1 in the tex).
+ * enqueued additionally records every key that has ever been added to pending, so
+ * that a node reachable via several parents - unremarkable in an AND-OR graph, where
+ * subgoals and conjectures are routinely shared - is only ever visited once; this
+ * keeps the traversal linear in the size of the graph and safe on cycles. *)
+fun compute_contributive_keys (graph:abduction_graph) =
+  let
+    val root = get_final_goal_key graph: key;
+
+    fun work ([]:keys) (next:keys) (_:keys) = next
+      | work (key::pending) next enqueued =
+          if not (is_uncompleted graph key)
+          then work pending next enqueued
+          else
+            let
+              val children      = PGraph.immediate_succs graph key: keys;
+              val newly_reached =
+                    filter (fn k => not (member equal_keys enqueued k)) children: keys;
+            in
+              work (newly_reached @ pending) (key :: next) (newly_reached @ enqueued)
+            end;
+  in
+    work [root] [] [root]
+  end;
+
+(* update_contributive_status_of_graph *)
+(* update_contributive_status_of_graph assumes that the graph is already updated by
  * update_proved_completely_of_graph_because_orleaf_is_proved. *)
-(* There is no point in updating gg_parent_not_finished for a particular node:
- * proving one ornode may change proved_completely of any node in the graph. *)
-fun update_gg_parent_not_finished (graph:abduction_graph) =
+(* There is no point in updating the contributive status for a particular node:
+ * proving one ornode may change the completion status of any node in the graph, so
+ * we recompute contributivity for the whole graph in one root-directed pass rather
+ * than trying to patch individual nodes. *)
+fun update_contributive_status_of_graph (graph:abduction_graph) =
     let
-      val keys    = PGraph.keys graph    : keys;
-      val or_keys = filter is_ornode keys: keys;
-
+      val contributive_keys = compute_contributive_keys graph: keys;
+      fun set_contributive (key:key) (gr:abduction_graph): abduction_graph =
+            PGraph.map_node key
+              (UAN.update_is_contributive (member equal_keys contributive_keys key)) gr;
+      val or_keys = PGraph.keys graph |> filter is_ornode: keys;
     in
-      fold update_gg_parent_not_finished_of_or_key or_keys graph
+      fold set_contributive or_keys graph
     end;
-
-(* update_proof_n_proof_id *)
-fun update_proof_n_proof_id (proof:strings) (key:key) (graph:abduction_graph) =
-    PGraph.map_node key (UAN.update_proof_n_proof_id proof) graph: abduction_graph;
 
 (* update_proved_completely *)
 fun update_proved_completely_of_node (key:key) (graph:abduction_graph) =
@@ -112,20 +147,27 @@ val parents  = PGraph.immediate_preds;
 
 (* update_proved_wo_assmng_cnjctr_of_graph and update_branch *)
 fun update_proved_wo_assmng_cnjctr (key as (Or_N, _)) (graph:abduction_graph) =
-    if not (is_branch graph key)(*If this or-node is a leaf, we do not have to care about the effects of its children.*)
+    (*If this or-node is a leaf, we do not have to care about the effects of its children.*)
+    if not (is_branch graph key)
     then
       let
-        val graph_w_one_node_updated = update_proved_completely_of_node key graph                               : abduction_graph;
-        val parents_keys             = parents graph_w_one_node_updated key                                     : keys;
-        val result                   = fold update_proved_wo_assmng_cnjctr parents_keys graph_w_one_node_updated: abduction_graph;
+        val graph_w_one_node_updated =
+              update_proved_completely_of_node key graph: abduction_graph;
+        val parents_keys = parents graph_w_one_node_updated key: keys;
+        val result =
+              fold update_proved_wo_assmng_cnjctr parents_keys graph_w_one_node_updated
+              : abduction_graph;
       in
         result: abduction_graph
       end
     else
-      update_branch key graph exists parents grand_children (* Root ~ And -> OR -> Edge -> And ~ Leaf *)
+      (* Root ~ And -> OR -> Edge -> And ~ Leaf *)
+      update_branch key graph exists parents grand_children
   | update_proved_wo_assmng_cnjctr (key as (And_N, trms)) (graph:abduction_graph) =
-    update_branch key graph forall_at_least_one grand_parents children (* Root ~ OR -> Edge -> And -> OR ~ Leaf *)
-  | update_proved_wo_assmng_cnjctr (O2A_E _, _) _ = error "update_proved_wo_assmng_cnjctr failed! O2A_E!"
+    (* Root ~ OR -> Edge -> And -> OR ~ Leaf *)
+    update_branch key graph forall_at_least_one grand_parents children
+  | update_proved_wo_assmng_cnjctr (O2A_E _, _) _ =
+      error "update_proved_wo_assmng_cnjctr failed! O2A_E!"
 and update_branch key graph (forall_or_exists) (parent_or_grand_parent) (child_or_grand_child) =
     let
       val children_keys = child_or_grand_child graph key: keys;
@@ -141,7 +183,8 @@ and update_branch key graph (forall_or_exists) (parent_or_grand_parent) (child_o
           if   is_ornode key andalso this_node_is_newly_proved_wo_assmng_cnjctr
           then (
             let
-              val proved_grandchildren = filter (fn key => is_proved_completely graph key) children_keys: keys;
+              val proved_grandchildren =
+                    filter (fn key => is_proved_completely graph key) children_keys: keys;
             in
               SOME (hd proved_grandchildren: key)
             end
@@ -157,12 +200,18 @@ and update_branch key graph (forall_or_exists) (parent_or_grand_parent) (child_o
           if   is_some some_grandchild_of_ornode_that_proved_completely (*key is ornode*)
           then (
             let
-              val grandchild_of_ornode_that_proved_completely = the some_grandchild_of_ornode_that_proved_completely: key;
-              val to_and_edges           = PGraph.immediate_preds graph_w_one_node_updated' grandchild_of_ornode_that_proved_completely;
-              val from_or_edges          = PGraph.immediate_succs graph_w_one_node_updated' key
-              val inter_edges            = inter equal_keys to_and_edges from_or_edges;
-              val or2edge                = if length inter_edges > 0 then hd inter_edges else error "graph_w_one_node_updated failed!";
-              val script_to_prove_ornode = or2and_edge_to_proof graph_w_one_node_updated' or2edge: strings;
+              val grandchild_of_ornode_that_proved_completely =
+                    the some_grandchild_of_ornode_that_proved_completely: key;
+              val to_and_edges  =
+                    PGraph.immediate_preds graph_w_one_node_updated'
+                      grandchild_of_ornode_that_proved_completely;
+              val from_or_edges = PGraph.immediate_succs graph_w_one_node_updated' key
+              val inter_edges   = inter equal_keys to_and_edges from_or_edges;
+              val or2edge       =
+                    if length inter_edges > 0 then hd inter_edges
+                    else error "graph_w_one_node_updated failed!";
+              val script_to_prove_ornode =
+                    or2and_edge_to_proof graph_w_one_node_updated' or2edge: strings;
             in
               update_proof_n_proof_id script_to_prove_ornode key graph_w_one_node_updated'
             end
@@ -185,36 +234,42 @@ and update_branch key graph (forall_or_exists) (parent_or_grand_parent) (child_o
 in
 
 (*Important tricky part 1!*)
-fun update_after_proving_ornode (proof:strings) (or_key as (Or_N, _): key) (ctxt:Proof.context) (g:abduction_graph) =
+fun update_after_proving_ornode
+    (proof:strings) (or_key as (Or_N, _): key) (ctxt:Proof.context) (g:abduction_graph) =
   let
     val updated1 = update_proof_n_proof_id proof or_key g;
     val updated2 = update_proved_wo_assmng_cnjctr or_key updated1;
-    val updated3 = update_gg_parent_not_finished updated2
+    val updated3 = update_contributive_status_of_graph updated2
   in
     updated3: abduction_graph
   end
- | update_after_proving_ornode _ _ _ _ = error "update_after_proving_ornode failed. Not an or-node key."
- 
+ | update_after_proving_ornode _ _ _ _ =
+     error "update_after_proving_ornode failed. Not an or-node key."
+
 (*Important tricky part 2! It might require some modifications.*)
-fun update_after_connecting_andnd_to_existing_ornd (or_key as (Or_N, _): key) (ctxt:Proof.context) (ag:abduction_graph) =
+fun update_after_connecting_andnd_to_existing_ornd
+    (or_key as (Or_N, _): key) (ctxt:Proof.context) (ag:abduction_graph) =
     if Abduction_Graph.is_proved_completely ag or_key
     then
       let
         val updated1 = update_proved_wo_assmng_cnjctr or_key ag;
-        val updated2 = update_gg_parent_not_finished updated1
+        val updated2 = update_contributive_status_of_graph updated1
       in
         updated2: abduction_graph
       end
     else ag
-  | update_after_connecting_andnd_to_existing_ornd _ _ _ = error "update_after_proving_ornode failed. Not an or-node key."
+  | update_after_connecting_andnd_to_existing_ornd _ _ _ =
+      error "update_after_proving_ornode failed. Not an or-node key."
 
 end;
 
-fun add_nodes (key_value_pairs: (key * abduction_node) list) (graph: abduction_graph) (or_and:string) =
+fun add_nodes
+    (key_value_pairs: (key * abduction_node) list) (graph: abduction_graph) (or_and:string) =
     let
       fun new_node (k, v) (acc, g:abduction_graph): (keys * abduction_graph) =
           (k :: acc, PGraph.new_node (k, v) g) handle PGraph.DUP _ => (k :: acc, g);
-      val (newly_added_keys, resulting_graph) = fold new_node key_value_pairs ([], graph): keys * abduction_graph;
+      val (newly_added_keys, resulting_graph) =
+            fold new_node key_value_pairs ([], graph): keys * abduction_graph;
     in
      (newly_added_keys, resulting_graph)
     end;
@@ -224,10 +279,14 @@ fun add_andnode (subgoals:terms) (graph: abduction_graph): (keys * abduction_gra
     add_nodes [mk_andnode subgoals] graph "and";
 
 (* add_edges_from_andnode_to_ornodes *)
-fun add_edges_from_andnode_to_ornodes (and_key as (And_N, terms):key) (graph_w_child_ornodes:abduction_graph) =
+fun add_edges_from_andnode_to_ornodes
+    (and_key as (And_N, terms):key) (graph_w_child_ornodes:abduction_graph) =
   let
-    val ornode_keys             = map (fn trm => (Or_N, [trm])) terms                                                            : keys;
-    val graph_w_and_to_or_edges = fold (fn target_key => PGraph.add_edge (and_key, target_key)) ornode_keys graph_w_child_ornodes: abduction_graph;
+    val ornode_keys = map (fn trm => (Or_N, [trm])) terms: keys;
+    val graph_w_and_to_or_edges =
+          fold (fn target_key => PGraph.add_edge (and_key, target_key)) ornode_keys
+            graph_w_child_ornodes
+          : abduction_graph;
   in
     graph_w_and_to_or_edges
   end
@@ -240,8 +299,10 @@ fun add_ornodes (key_value_pairs: (key * abduction_node) list) (graph: abduction
 (* add_child_ornode *)
 fun add_child_ornode (ctxt:Proof.context) (lemma_name:string, goal:term) (graph:abduction_graph) =
     let
-      val (child_or_key, child_or_val) = Abduction_Graph.mk_ornode ctxt false lemma_name goal: (key * abduction_node);
-      val (_, graph_w_ornodes) = add_ornodes [(child_or_key, child_or_val)] graph: keys * abduction_graph;
+      val (child_or_key, child_or_val) =
+            Abduction_Graph.mk_ornode ctxt false lemma_name goal: (key * abduction_node);
+      val (_, graph_w_ornodes) =
+            add_ornodes [(child_or_key, child_or_val)] graph: keys * abduction_graph;
     in
       graph_w_ornodes
     end;

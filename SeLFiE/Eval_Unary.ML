@@ -11,8 +11,9 @@ datatype expr =
 | Apply     of expr * expr
 | Literal   of Eval_Parameter.literal
 | Assert    of SeLFiE_Util.assert * expr list
-| Dive_In   of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
-| Deep_Dive of expr * expr * expr list * SeLFiE_Util.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
+(*outer target, inner lambda, outer arguments, ands_or_ors*)
+| Dive_In   of expr * expr * expr list * SeLFiE_Util.assert
+| Deep_Dive of expr * expr * expr list * SeLFiE_Util.assert
 | All       of SeLFiE_Util.qtyp * expr
 | Some      of SeLFiE_Util.qtyp * expr;
 
@@ -22,7 +23,9 @@ type key_for_each_lambda   = expr;
 type inner_alist           = (key_for_each_lambda * alist_for_each_lambda) list;
 type inner_alist_table     = inner_alist Symtab.table;
 val cache_term_to_alist: inner_alist_table Unsynchronized.ref;
-val eval: Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> Quantifier_Domain.domains -> SeLFiE_Util.induct_arguments -> expr -> expr;
+val eval:
+  Proof.state -> Outer_Path_To_Unode.path_to_unode_table -> Quantifier_Domain.domains ->
+  SeLFiE_Util.induct_arguments -> expr -> expr;
 
 end;
 
@@ -42,8 +45,9 @@ datatype expr =
 | Apply     of expr * expr
 | Literal   of Eval_Parameter.literal
 | Assert    of SU.assert * expr list
-| Dive_In   of expr * expr * expr list * SU.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
-| Deep_Dive of expr * expr * expr list * SU.assert(*outer target, inner lambda, outer arguments, ands_or_ors*)
+(*outer target, inner lambda, outer arguments, ands_or_ors*)
+| Dive_In   of expr * expr * expr list * SU.assert
+| Deep_Dive of expr * expr * expr list * SU.assert
 | All       of SeLFiE_Util.qtyp * expr
 | Some      of SeLFiE_Util.qtyp * expr;
 
@@ -68,8 +72,10 @@ fun subst i u (Bound j) =
   | subst i u (Apply (t1, t2))                   = Apply (subst i u t1, subst i u t2)
   | subst _ _ (Literal param)                    = Literal param
   | subst i u (Assert (ass, exprs))              = Assert (ass, map (subst i u) exprs)
-  | subst i u (Dive_In   (t, l, args, ands_ors)) = Dive_In   (subst i u t, subst i u l, map (subst i u) args, ands_ors)
-  | subst i u (Deep_Dive (t, l, args, ands_ors)) = Deep_Dive (subst i u t, subst i u l, map (subst i u) args, ands_ors)
+  | subst i u (Dive_In   (t, l, args, ands_ors)) =
+      Dive_In   (subst i u t, subst i u l, map (subst i u) args, ands_ors)
+  | subst i u (Deep_Dive (t, l, args, ands_ors)) =
+      Deep_Dive (subst i u t, subst i u l, map (subst i u) args, ands_ors)
   | subst i u (All  (typ, expr))                 = All  (typ, subst (i+1) u expr)
   | subst i u (Some (typ, expr))                 = Some (typ, subst (i+1) u expr)
 
@@ -84,9 +90,14 @@ fun print_expr (Bound i)            = "B.Bound " ^ Int.toString i ^ " "
        | EP.Print   _ => "print!"
        | EP.Number  _ => "number!"
        | EP.Command _ => "command!")
-  | print_expr (Assert (_, expres)) = "B.Assert " ^ (fold_rev (curry (op ^)) (map print_expr expres) " ")
-  | print_expr (Dive_In   (target, lambda, args, _)) = "B.Dive_In ( "   ^ print_expr target ^ ", " ^ print_expr lambda ^ ", " ^ (String.concat o map print_expr) args ^ ") "
-  | print_expr (Deep_Dive (target, lambda, args, _)) = "B.Deep_Dive ( " ^ print_expr target ^ ", " ^ print_expr lambda ^ ", " ^ (String.concat o map print_expr) args ^ ") "
+  | print_expr (Assert (_, expres)) =
+      "B.Assert " ^ (fold_rev (curry (op ^)) (map print_expr expres) " ")
+  | print_expr (Dive_In (target, lambda, args, _)) =
+      "B.Dive_In ( " ^ print_expr target ^ ", " ^ print_expr lambda ^ ", "
+      ^ (String.concat o map print_expr) args ^ ") "
+  | print_expr (Deep_Dive (target, lambda, args, _)) =
+      "B.Deep_Dive ( " ^ print_expr target ^ ", " ^ print_expr lambda ^ ", "
+      ^ (String.concat o map print_expr) args ^ ") "
   | print_expr (All (typ, expr)) = "B.All ( "  ^ SU.print_qtyp typ ^ ", " ^ print_expr expr ^ " ) "
   | print_expr (Some (typ, expr)) = "B.All ( " ^ SU.print_qtyp typ ^ ", " ^ print_expr expr ^ " ) ";
 
@@ -98,17 +109,22 @@ fun param_with_bool_to_bound (Literal param) = param
       error ("eval_prim in Eval_Bound failed with " ^ mssg)
     end;
 
-fun check_all_args_are_non_path_lits  []                           = true
-  | check_all_args_are_non_path_lits (Literal (EP.Non_Path _)::ls) = check_all_args_are_non_path_lits ls
-  | check_all_args_are_non_path_lits _ = error "check_all_args_are_non_path_lits only takes non_paths.";
+fun check_all_args_are_non_path_lits [] = true
+  | check_all_args_are_non_path_lits (Literal (EP.Non_Path _)::ls) =
+      check_all_args_are_non_path_lits ls
+  | check_all_args_are_non_path_lits _ =
+      error "check_all_args_are_non_path_lits only takes non_paths.";
 
 fun mk_nested_app func []          = func
   | mk_nested_app func (arg::args) = mk_nested_app (Apply (func, arg)) args;
 
 fun mk_nested_lamb (Lambda lambda) 0 = Lambda lambda
-  | mk_nested_lamb (Lambda lambda) n = if n = ~1 then lambda else
-                                       if n < 0  then error "mk_nested_lamb failed." else Lambda (mk_nested_lamb lambda (n - 1))
-  | mk_nested_lamb expr n = error ("mk_nested_lamb failed with " ^ print_expr expr ^ Int.toString n);
+  | mk_nested_lamb (Lambda lambda) n =
+      if      n = ~1 then lambda
+      else if n < 0  then error "mk_nested_lamb failed."
+      else                Lambda (mk_nested_lamb lambda (n - 1))
+  | mk_nested_lamb expr n =
+      error ("mk_nested_lamb failed with " ^ print_expr expr ^ Int.toString n);
 
 fun mk_inner_expr (lamb as Lambda _) (arguments:exprs) =
     mk_nested_app (mk_nested_lamb lamb (length arguments - 1)) arguments
@@ -130,11 +146,13 @@ val cache_term_to_alist = Unsynchronized.ref Symtab.empty: inner_alist_table Uns
 
 val cache_simp_rule_str_to_tables  = Unsynchronized.ref Symtab.empty;
 
-fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:Quantifier_Domain.domains) (induct_args:SU.induct_arguments) (expr:expr) =
+fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table)
+    (domains:Quantifier_Domain.domains) (induct_args:SU.induct_arguments) (expr:expr) =
   let
-    fun subexpr_n_qtyp_n_domains_to_apps (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) (domains:QD.domains) =
+    fun subexpr_n_qtyp_n_domains_to_apps
+        (subexpr:expr) (qtyp:SU.qtyp) (ands_or_ors:SU.assert) (domains:QD.domains) =
       let
-        val params = QD.domains_n_qtyp_to_domain domains qtyp                      : EP.literals;
+        val params = QD.domains_n_qtyp_to_domain domains qtyp: EP.literals;
         val apps   = map (fn param => Apply (Lambda subexpr, Literal param)) params: exprs;
       in
         Assert (ands_or_ors, apps): expr
@@ -149,20 +167,29 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:
         | u1          => Apply (u1, eval' arg table domains))
       | eval' (Assert (assert, param_exprs)) table domains =
           let
-            (* Note that param_exprs are always Literal at this point because of the strict evaluation of Standard ML.*)
-            val lazy_param_exprs = Seq.of_list param_exprs                                                                      : expr Seq.seq
-            val lazy_params      = Seq.map (param_with_bool_to_bound o (fn param => eval' param table domains)) lazy_param_exprs: Eval_Parameter.literal Seq.seq;
+            (* Note that param_exprs are always Literal at this point because of the strict
+               evaluation of Standard ML.*)
+            val lazy_param_exprs = Seq.of_list param_exprs: expr Seq.seq
+            fun eval_to_literal param = param_with_bool_to_bound (eval' param table domains);
+            val lazy_params =
+                  Seq.map eval_to_literal lazy_param_exprs: Eval_Parameter.literal Seq.seq;
           in
             EPWB.eval pst table induct_args assert lazy_params |> Literal
           end
-      | eval' (Dive_In   (quadruple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _, _))) table domains = check_cache_then_dive_in quadruple table domains
-      | eval' (Dive_In _) _ _                                                                               = error "Dive_In failed in Eval_Unary.ML"
-      | eval' (Deep_Dive (quadruple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _, _))) table domains = check_cache_then_dive_in quadruple table domains
-      | eval' (Deep_Dive _) _ _                                                                             = error "Deep_Dive failed in Eval_Unary.ML"
-      | eval' (All  (qtyp, subexpr)) table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ands domains) table domains
-      | eval' (Some (qtyp, subexpr)) table domains = eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ors  domains) table domains
+      | eval' (Dive_In (quadruple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _, _)))
+          table domains = check_cache_then_dive_in quadruple table domains
+      | eval' (Dive_In _) _ _ = error "Dive_In failed in Eval_Unary.ML"
+      | eval' (Deep_Dive (quadruple as (Literal (EP.Non_Path (EP.Print _)), Lambda _, _, _)))
+          table domains = check_cache_then_dive_in quadruple table domains
+      | eval' (Deep_Dive _) _ _ = error "Deep_Dive failed in Eval_Unary.ML"
+      | eval' (All  (qtyp, subexpr)) table domains =
+          eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ands domains) table domains
+      | eval' (Some (qtyp, subexpr)) table domains =
+          eval' (subexpr_n_qtyp_n_domains_to_apps subexpr qtyp SU.Ors domains) table domains
       | eval' expr _ _ = expr
-    and check_cache_then_dive_in (quadruple as (Literal (EP.Non_Path (EP.Print target_print)), lambda, args, ands_ors)) table domains =(*TODO: Can this be a little better?*)
+    and check_cache_then_dive_in
+        (quadruple as (Literal (EP.Non_Path (EP.Print target_print)), lambda, args, ands_ors))
+        table domains =(*TODO: Can this be a little better?*)
       let
         val old_cache              = !cache_term_to_alist                : inner_alist_table;
         val cached_inner_alist_opt = Symtab.lookup old_cache target_print: inner_alist option;
@@ -170,10 +197,14 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:
         if   is_some cached_inner_alist_opt
         then (*some inner associative list*)
           let
-            val alist_for_this_lambda_opt = cached_inner_alist_opt
-                                  >>= (fn alist => AList.lookup (op =) alist lambda: alist_for_each_lambda option): alist_for_each_lambda option;
-            val cached_result_opt = alist_for_this_lambda_opt
-                                  >>= (fn alist => AList.lookup (op =) alist (args, ands_ors)): cached_result option;
+            val alist_for_this_lambda_opt =
+                  cached_inner_alist_opt
+                  >>= (fn alist => AList.lookup (op =) alist lambda: alist_for_each_lambda option)
+                  : alist_for_each_lambda option;
+            val cached_result_opt =
+                  alist_for_this_lambda_opt
+                  >>= (fn alist => AList.lookup (op =) alist (args, ands_ors))
+                  : cached_result option;
           in
             if is_some alist_for_this_lambda_opt andalso is_some cached_result_opt
             then (*some result in cache*)
@@ -182,60 +213,93 @@ fun eval (pst:Proof.state) (outer_path_table:OPTU.path_to_unode_table) (domains:
             if is_some alist_for_this_lambda_opt andalso is_none cached_result_opt
             then
               let
-                val new_result                = dive quadruple table domains                                                            : cached_result;
-                val new_alist_for_this_lambda = AList.update (op =) ((args, ands_ors), new_result)       (the alist_for_this_lambda_opt): alist_for_each_lambda;
-                val new_inner_alist           = AList.update (op =) (lambda, new_alist_for_this_lambda)   []                            : inner_alist;
-                val _ = Unsynchronized.:= (cache_term_to_alist, Symtab.update (target_print, new_inner_alist) old_cache)                : unit;
+                val new_result = dive quadruple table domains: cached_result;
+                val new_alist_for_this_lambda =
+                      AList.update (op =) ((args, ands_ors), new_result)
+                        (the alist_for_this_lambda_opt): alist_for_each_lambda;
+                val new_inner_alist =
+                      AList.update (op =) (lambda, new_alist_for_this_lambda) []: inner_alist;
+                val _ =
+                      Unsynchronized.:=
+                        (cache_term_to_alist, Symtab.update (target_print, new_inner_alist)
+                          old_cache): unit;
               in
                 new_result
               end
             else(*no inner associative list*)
               let
-                val new_result                = dive quadruple table domains                                            : cached_result;
-                val new_alist_for_this_lambda = AList.update (op =) ((args, ands_ors), new_result)       []             : alist_for_each_lambda;
-                val new_inner_alist           = AList.update (op =) (lambda, new_alist_for_this_lambda)  []             : inner_alist;
-                val _ = Unsynchronized.:= (cache_term_to_alist, Symtab.update (target_print, new_inner_alist) old_cache): unit;
+                val new_result = dive quadruple table domains: cached_result;
+                val new_alist_for_this_lambda =
+                      AList.update (op =) ((args, ands_ors), new_result) []: alist_for_each_lambda;
+                val new_inner_alist =
+                      AList.update (op =) (lambda, new_alist_for_this_lambda) []: inner_alist;
+                val _ =
+                      Unsynchronized.:=
+                        (cache_term_to_alist, Symtab.update (target_print, new_inner_alist)
+                          old_cache): unit;
               in
                 new_result
               end
           end
         else
           let
-            val new_result                = dive quadruple table domains                                            : cached_result;
-            val new_alist_for_this_lambda = AList.update (op =) ((args, ands_ors), new_result)       []             : alist_for_each_lambda;
-            val new_inner_alist           = AList.update (op =) (lambda, new_alist_for_this_lambda)  []             : inner_alist;
-            val _ = Unsynchronized.:= (cache_term_to_alist, Symtab.update (target_print, new_inner_alist) old_cache): unit;
+            val new_result = dive quadruple table domains: cached_result;
+            val new_alist_for_this_lambda =
+                  AList.update (op =) ((args, ands_ors), new_result) []: alist_for_each_lambda;
+            val new_inner_alist =
+                  AList.update (op =) (lambda, new_alist_for_this_lambda) []: inner_alist;
+            val _ =
+                  Unsynchronized.:=
+                    (cache_term_to_alist, Symtab.update (target_print, new_inner_alist)
+                      old_cache): unit;
           in
             new_result
           end
       end
       | check_cache_then_dive_in _ _ _ = error "check_cache_then_dive_in failed in Eval_Unary.ML"
-    and dive (Literal (EP.Non_Path (EP.Print cname)), Lambda lambda, args, ands_ors) table _  =
+    and dive (Literal (EP.Non_Path (EP.Print cname)), Lambda lambda, args, ands_ors) table _ =
         let
-          val _             = if check_all_args_are_non_path_lits args then () else error "Some arguments in Dive_In are not Literal Non_Path";
-          val simp_rules    = SU.pst_n_cname_to_definitions pst cname |> Seq.of_list: term Seq.seq;
-          val curried_expr  = mk_inner_expr (Lambda lambda) args  : expr;
-          val inner_results = Seq.map (fn simp_rule =>
-                              let
-                                val trm_str   = Isabelle_Utils.trm_to_string (Proof.context_of pst) simp_rule: string;
-                                val old_cache = !cache_simp_rule_str_to_tables                               : (Gen_Path.gen_path_to_unode_table) Symtab.table;
-                                val table_opt = Symtab.lookup old_cache trm_str                              : (Gen_Path.gen_path_to_unode_table) option;
-                                val table =
-                                  if is_some table_opt
-                                  then the table_opt
-                                  else
-                                    let
-                                      val new_table  = (GP.Inner_Path_To_Unode o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) simp_rule: GP.gen_path_to_unode_table;
-                                      val  _         = Unsynchronized.:= (cache_simp_rule_str_to_tables, Symtab.update_new (trm_str, (new_table)) old_cache);
-                                    in
-                                      new_table
-                                    end
-                                val new_domains = QD.inout_pst_n_trm_n_induct_args_to_domains QD.In table induct_args: QD.domains;
-                              in
-                                eval' curried_expr table new_domains
-                              end) simp_rules: expr Seq.seq;
-          (* Note that param_exprs are always Literal at this point because of the strict evaluation of Standard ML.*)
-          val lazy_params = Seq.map param_with_bool_to_bound inner_results: Eval_Parameter.literal Seq.seq;
+          val _ =
+                if check_all_args_are_non_path_lits args then ()
+                else error "Some arguments in Dive_In are not Literal Non_Path";
+          val simp_rules   = SU.pst_n_cname_to_definitions pst cname |> Seq.of_list: term Seq.seq;
+          val curried_expr = mk_inner_expr (Lambda lambda) args: expr;
+          fun simp_rule_to_result simp_rule =
+              let
+                val trm_str =
+                      Isabelle_Utils.trm_to_string (Proof.context_of pst) simp_rule: string;
+                val old_cache =
+                      !cache_simp_rule_str_to_tables
+                      : (Gen_Path.gen_path_to_unode_table) Symtab.table;
+                val table_opt =
+                      Symtab.lookup old_cache trm_str: (Gen_Path.gen_path_to_unode_table) option;
+                val table =
+                  if is_some table_opt
+                  then the table_opt
+                  else
+                    let
+                      val new_table =
+                            (GP.Inner_Path_To_Unode
+                              o Inner_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst) simp_rule
+                            : GP.gen_path_to_unode_table;
+                      val _ =
+                            Unsynchronized.:=
+                              (cache_simp_rule_str_to_tables,
+                                Symtab.update_new (trm_str, (new_table)) old_cache);
+                    in
+                      new_table
+                    end
+                val new_domains =
+                      QD.inout_pst_n_trm_n_induct_args_to_domains QD.In table induct_args
+                      : QD.domains;
+              in
+                eval' curried_expr table new_domains
+              end;
+          val inner_results = Seq.map simp_rule_to_result simp_rules: expr Seq.seq;
+          (* Note that param_exprs are always Literal at this point because of the strict
+             evaluation of Standard ML.*)
+          val lazy_params =
+                Seq.map param_with_bool_to_bound inner_results: Eval_Parameter.literal Seq.seq;
         in
           EPWB.eval pst table induct_args ands_ors lazy_params |> Literal
         end

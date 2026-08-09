@@ -40,7 +40,8 @@ fun is_bool_type (typ: typ     ) = try (fst o dest_Type) typ = SOME "HOL.bool":b
 fun is_inductive_set_type typ =
    case try strip_type typ of
   NONE => false
-| SOME (argument_types, return_type) => has_set_type argument_types andalso is_bool_type return_type;
+| SOME (argument_types, return_type) =>
+    has_set_type argument_types andalso is_bool_type return_type;
 
 fun has_inductive_set_type (ctxt:Proof.context) (cname:string) =
   let
@@ -60,8 +61,12 @@ orelse
   (*Note that this can be defined with the inductive keyword instead of inductive_set.*)
   has_inductive_set_type ctxt cname;
 
-val suffix_for_definition = ([(*"_def"*)], ["cases", "elims", "induct", "pelims", "simps", "intros"]);(*We should not check for "_def" since the definition package can make arbitrary name for the relevant rule.*)
-val suffix_for_fun =       (["cases", "elims", "induct", "pelims", "simps"], ["inducts", "intros"]);(*The "fun" keyword produces psimps.*)
+(*We should not check for "_def" since the definition package can make arbitrary name for the
+  relevant rule.*)
+val suffix_for_definition =
+  ([(*"_def"*)], ["cases", "elims", "induct", "pelims", "simps", "intros"]);
+(*The "fun" keyword produces psimps.*)
+val suffix_for_fun = (["cases", "elims", "induct", "pelims", "simps"], ["inducts", "intros"]);
 val suffix_for_function =  (["cases", "pelims", "psimps"], ["elims", "simps", "intros"]);
 val suffix_for_primrec =   (["simps"], ["cases", "pelims", "psimps","elims", "intros"]);
 val suffix_for_inductive = (["cases", "induct", "inducts", "intros", "simps"], ["pelims", "elims"]);
@@ -73,7 +78,8 @@ val suffix_for_inductive = (["cases", "induct", "inducts", "intros", "simps"], [
 type suffixes = (string list * string list);
 
 fun check_suffix (ctxt:Proof.context) (cnst_name:string) ((haves, donts): suffixes) =
-   (map (has_rule_with_suffix ctxt cnst_name) haves @  (map (has_no_rule_with_suffix ctxt cnst_name) donts))
+   (map (has_rule_with_suffix ctxt cnst_name) haves
+    @  (map (has_no_rule_with_suffix ctxt cnst_name) donts))
   |> filter_out I
   |> null;
 
@@ -90,7 +96,8 @@ fun get_command (ctxt:Proof.context) (trm_name:string) =
     (if checks = [true,  false, false, false, false] then Primrec   else
      if checks = [false, true,  false, false, false] then Fun       else
      if checks = [false, false, true,  false, false] then Function  else
-     if checks = [false, false, false, true,  false] andalso is_defined_with_inductive_set ctxt trm_name then Inductive_Set else
+     if checks = [false, false, false, true,  false]
+        andalso is_defined_with_inductive_set ctxt trm_name then Inductive_Set else
      if checks = [false, false, false, true,  false] then Inductive else
      if checks = [false, false, false, false, true ] then Definition else
      Unknown)

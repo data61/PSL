@@ -1,11 +1,9 @@
-(*
- * Update_Abduction_Node.ML
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/Update_Abduction_Node.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
 
+Functions that update individual nodes of the abduction graph as the proof search progresses.
+*)
 (*** UPDATE_ABDUCTION_NODE ***)
 signature UPDATE_ABDUCTION_NODE =
 sig
@@ -16,7 +14,7 @@ type abduction_node;
 type update_abduction_node;
 
 (* update of abduction_node *)
-val update_gg_parent_not_finished: bool -> update_abduction_node;
+val update_is_contributive       : bool -> update_abduction_node;
 val update_proved_completely     : update_abduction_node;
 val update_proof_n_proof_id      : strings -> update_abduction_node;
 val update_is_branch             : update_abduction_node;
@@ -36,17 +34,21 @@ open Abduction_Node;
 type update_abduction_node = abduction_node -> abduction_node;
 
 (** update of abduction_node **)
-(* update_gg_parent_not_finished *)
-fun update_gg_parent_not_finished b (Or_Node ornode) = Or_Node.update_gg_parent_not_finished ornode b |> Or_Node
-  | update_gg_parent_not_finished _  and_or_edge     = and_or_edge;
+(* update_is_contributive *)
+fun update_is_contributive b (Or_Node ornode) =
+      Or_Node.update_is_contributive ornode b |> Or_Node
+  | update_is_contributive _  and_or_edge     = and_or_edge;
 
 (* update_proved_completely *)
-fun update_proved_completely (Or_Node  ornode ) = Or_Node.update_proved_completely ornode |> Or_Node
-  | update_proved_completely (And_Node andnode) = And_Node.update_proved_completely andnode |> And_Node
+fun update_proved_completely (Or_Node  ornode ) =
+      Or_Node.update_proved_completely ornode |> Or_Node
+  | update_proved_completely (And_Node andnode) =
+      And_Node.update_proved_completely andnode |> And_Node
   | update_proved_completely (Or_To_And      _) = error "update_proved_completely failed.";
 
 (* update_proof_n_proof_id *)
-fun update_proof_n_proof_id proof (Or_Node ornode) = Or_Node.update_proof_n_proof_id proof ornode |> Or_Node
+fun update_proof_n_proof_id proof (Or_Node ornode) =
+      Or_Node.update_proof_n_proof_id proof ornode |> Or_Node
   | update_proof_n_proof_id _      and_or_edge     = and_or_edge;
 
 (* update_branch *)
@@ -58,12 +60,15 @@ fun update_importance (imp:real) (Or_Node ornode) = Or_Node.update_importance im
   | update_importance  _          _               = error "update_importance failed!";
 
 (* update_imp_if_this_is_larger *)
-fun update_imp_if_this_is_larger (imp:real) (Or_Node ornode) = Or_Node.update_imp_if_this_is_larger imp ornode |> Or_Node
+fun update_imp_if_this_is_larger (imp:real) (Or_Node ornode) =
+      Or_Node.update_imp_if_this_is_larger imp ornode |> Or_Node
   | update_imp_if_this_is_larger  _          _               = error "update_importance failed!";
 
 (* multiply_importance *)
-fun multiply_importance (imp:real) (Or_To_And edge) = Or2And_Edge.multiply_importance imp edge |> Or_To_And
-  | multiply_importance (imp:real) (Or_Node ornode) = Or_Node.multiply_importance imp ornode |> Or_Node
+fun multiply_importance (imp:real) (Or_To_And edge) =
+      Or2And_Edge.multiply_importance imp edge |> Or_To_And
+  | multiply_importance (imp:real) (Or_Node ornode) =
+      Or_Node.multiply_importance imp ornode |> Or_Node
   | multiply_importance _ _ = error "multiply_importance failed in Update_Abduction_Node.ML."
 
 (* update_attacked *)

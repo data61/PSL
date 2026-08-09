@@ -1,3 +1,9 @@
+(*  Title:      SeLFiE/Test_SeLFiE.thy
+    Author:     Yutaka Nagashima
+
+Regression tests exercising sem_ind (SeLFiE-based induction heuristic) on a
+range of example lemmas.
+*)
 theory Test_SeLFiE
 imports Main SeLFiE
 begin
@@ -384,7 +390,7 @@ schematic_goal "?x = ?x"
 let
   val fst_subg = try (hd o Thm.prems_of) x: term option;
   val _        = if length (Thm.prems_of x) = 0 then tracing "empty" else tracing "no empty";
-  
+
   val _ = Option.map (tracing o Isabelle_Utils.trm_to_string @{context}) (fst_subg);
 
   val _ = if Utils.is_some_true (Option.map (exists_subterm (is_Var)) fst_subg)

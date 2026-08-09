@@ -56,7 +56,7 @@ structure Strings = mk_Monoid (Strings_Min) : MONOID;
 (** Cons Prod **)
 (*
  * We have to define CONS_PROD because Standard ML cannot handle
- * ML{* type ('f, 'g, 'p) cons_prod = ('p 'f) * ('p 'g); *}  
+ * ML{* type ('f, 'g, 'p) cons_prod = ('p 'f) * ('p 'g); *}
  *)
 signature CONS_PROD =
 sig
@@ -88,13 +88,14 @@ ListOptionConsProdMonadMin.return "foo";
 
 (** State **)
 (* the minimum state monad0plus transformer *)
-functor mk_stateMT_M0P_Min (structure State : TYP; structure Base : MONAD_0PLUS_MIN) : TMONAD_0PLUS_MIN =
+functor mk_stateMT_M0P_Min
+    (structure State : TYP; structure Base : MONAD_0PLUS_MIN) : TMONAD_0PLUS_MIN =
 struct
   structure Base = Base;
   type 'a monad = State.typ -> (State.typ * 'a) Base.monad;
   (*MONAD_CORE*)
   fun return valu = fn state => Base.return (state, valu);
-  fun bind st_trans bfun = fn state0 => 
+  fun bind st_trans bfun = fn state0 =>
     Base.bind (st_trans state0) (fn (state1, result1) => bfun result1 state1);
   (*MONADT*)
   fun lift m  = fn state => Base.bind m (fn result => Base.return (state, result));
@@ -106,7 +107,8 @@ end
 (* the full state monad0plus transformer *)
 functor mk_state_M0PT (structure Log : TYP; structure Base : MONAD_0PLUS_MIN): TMONAD_0PLUS =
 let
-  structure SMT_M0P_Core = mk_stateMT_M0P_Min(struct structure State = Log; structure Base = Base end);
+  structure SMT_M0P_Core =
+    mk_stateMT_M0P_Min(struct structure State = Log; structure Base = Base end);
   structure SMT_M0P = mk_TMonad_0Plus(SMT_M0P_Core);
 in
   SMT_M0P

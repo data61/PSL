@@ -5,44 +5,82 @@
 signature ASSERTION_INDUCT =
 sig
 
-val lifter2_improved                                                                                                                     : Eval_Syntactic_Sugar.assert;
-val lifter_3_improved                                                                                                                    : Eval_Syntactic_Sugar.assert;
-val lifter_5                                                                                                                             : Eval_Syntactic_Sugar.assert;
-val lifter_7                                                                                                                             : Eval_Syntactic_Sugar.assert;
-val lifter_8                                                                                                                             : Eval_Syntactic_Sugar.assert;
-val lifter_9_improved                                                                                                                    : Eval_Syntactic_Sugar.assert;
-val lifter_11                                                                                                                            : Eval_Syntactic_Sugar.assert;
-val lifter_15                                                                                                                            : Eval_Syntactic_Sugar.assert;
-val lifter_20                                                                                                                            : Eval_Syntactic_Sugar.assert;
-val is_defined_recursively_on_nth_outer                                                                                                  : Eval_Syntactic_Sugar.assert;
-val is_defined_recursively_on_nth                                                                                                        : Eval_Syntactic_Sugar.assert;
-val if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs                                                              : Eval_Syntactic_Sugar.assert;
-val outer_induct_on_arg_of_set_member_n_set_outer                                                                                        : Eval_Syntactic_Sugar.assert;
-val induct_on_arg_of_set_member_n_set_syntax_only                                                                                        : Eval_Syntactic_Sugar.assert;
-val induct_on_2nd_arg_of_map_outer                                                                                                       : Eval_Syntactic_Sugar.assert;
-val structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp                                                : Eval_Syntactic_Sugar.assert;
-val rule_inversion_using_the_deepest_const                                                                                               : Eval_Syntactic_Sugar.assert;
-val complex_lhs_causes_functional_induction_outer                                                                                        : Eval_Syntactic_Sugar.assert;
-val is_defined_recursively_on_nth_n_mth_by_two_funs                                                                                      : Eval_Syntactic_Sugar.assert;
-val if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs                                                    : Eval_Syntactic_Sugar.assert;
-val all_ind_should_be_atom                                                                                                               : Eval_Syntactic_Sugar.assert;
-val if_rule_induct_using_const_defined_with_inductive_set_in_snd_argument_of_membership_then_induct_on_var_in_fst_argument_of_membership : Eval_Syntactic_Sugar.assert;
-val if_defined_with_inductive_set_in_meta_premise_then_set_induction                                                                     : Eval_Syntactic_Sugar.assert;
-val trancl_induct                                                                                                                        : Eval_Syntactic_Sugar.assert;
-val tranclp_induct                                                                                                                       : Eval_Syntactic_Sugar.assert;
-val rtrancl_induct                                                                                                                       : Eval_Syntactic_Sugar.assert;
-val rtranclp_induct                                                                                                                      : Eval_Syntactic_Sugar.assert;
-val trancl_induct2                                                                                                                       : Eval_Syntactic_Sugar.assert;
-val tranclp_induct2                                                                                                                      : Eval_Syntactic_Sugar.assert;
-val rtrancl_induct2                                                                                                                      : Eval_Syntactic_Sugar.assert;
-val rtranclp_induct2                                                                                                                     : Eval_Syntactic_Sugar.assert;
-val if_two_occs_of_length_or_size_in_assum_or_chained_fact_then_list_induct2                                                             : Eval_Syntactic_Sugar.assert;
-val rule_is_list_induct2'                                                                                                                : Eval_Syntactic_Sugar.assert;
-val if_list_all2_then_list_all2_induct                                                                                                   : Eval_Syntactic_Sugar.assert;
-val if_list_induct2'_then_two_induct_terms                                                                                               : Eval_Syntactic_Sugar.assert;
-val if_not_equal_in_premise_or_chained_then_rev_nonempty_induct                                                                          : Eval_Syntactic_Sugar.assert;
-val if_less_eq_in_premise_or_chained_but_not_nonempty_induct_then_inc_induct                                                             : Eval_Syntactic_Sugar.assert;
-val if_less_or_less_eq_in_premise_or_chained_but_not_nonempty_induct_then_less_induct                                                    : Eval_Syntactic_Sugar.assert;
+val lifter2_improved:
+  Eval_Syntactic_Sugar.assert;
+val lifter_3_improved:
+  Eval_Syntactic_Sugar.assert;
+val lifter_5:
+  Eval_Syntactic_Sugar.assert;
+val lifter_7:
+  Eval_Syntactic_Sugar.assert;
+val lifter_8:
+  Eval_Syntactic_Sugar.assert;
+val lifter_9_improved:
+  Eval_Syntactic_Sugar.assert;
+val lifter_11:
+  Eval_Syntactic_Sugar.assert;
+val lifter_15:
+  Eval_Syntactic_Sugar.assert;
+val lifter_20:
+  Eval_Syntactic_Sugar.assert;
+val is_defined_recursively_on_nth_outer:
+  Eval_Syntactic_Sugar.assert;
+val is_defined_recursively_on_nth:
+  Eval_Syntactic_Sugar.assert;
+val if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_then_induct_on_part_of_lhs:
+  Eval_Syntactic_Sugar.assert;
+val outer_induct_on_arg_of_set_member_n_set_outer:
+  Eval_Syntactic_Sugar.assert;
+val induct_on_arg_of_set_member_n_set_syntax_only:
+  Eval_Syntactic_Sugar.assert;
+val induct_on_2nd_arg_of_map_outer:
+  Eval_Syntactic_Sugar.assert;
+val structural_induction_on_an_arg_of_inductive_defined_constant_in_the_concl_of_meta_imp:
+  Eval_Syntactic_Sugar.assert;
+val rule_inversion_using_the_deepest_const:
+  Eval_Syntactic_Sugar.assert;
+val complex_lhs_causes_functional_induction_outer:
+  Eval_Syntactic_Sugar.assert;
+val is_defined_recursively_on_nth_n_mth_by_two_funs:
+  Eval_Syntactic_Sugar.assert;
+val if_part_of_lhs_n_part_of_rhs_of_eq_is_induct_rule_then_induct_rule_on_part_of_lhs:
+  Eval_Syntactic_Sugar.assert;
+val all_ind_should_be_atom:
+  Eval_Syntactic_Sugar.assert;
+val if_rule_induct_using_const_defined_with_inductive_set_in_snd_argument_of_membership_then_induct_on_var_in_fst_argument_of_membership:
+  Eval_Syntactic_Sugar.assert;
+val if_defined_with_inductive_set_in_meta_premise_then_set_induction:
+  Eval_Syntactic_Sugar.assert;
+val trancl_induct:
+  Eval_Syntactic_Sugar.assert;
+val tranclp_induct:
+  Eval_Syntactic_Sugar.assert;
+val rtrancl_induct:
+  Eval_Syntactic_Sugar.assert;
+val rtranclp_induct:
+  Eval_Syntactic_Sugar.assert;
+val trancl_induct2:
+  Eval_Syntactic_Sugar.assert;
+val tranclp_induct2:
+  Eval_Syntactic_Sugar.assert;
+val rtrancl_induct2:
+  Eval_Syntactic_Sugar.assert;
+val rtranclp_induct2:
+  Eval_Syntactic_Sugar.assert;
+val if_two_occs_of_length_or_size_in_assum_or_chained_fact_then_list_induct2:
+  Eval_Syntactic_Sugar.assert;
+val rule_is_list_induct2':
+  Eval_Syntactic_Sugar.assert;
+val if_list_all2_then_list_all2_induct:
+  Eval_Syntactic_Sugar.assert;
+val if_list_induct2'_then_two_induct_terms:
+  Eval_Syntactic_Sugar.assert;
+val if_not_equal_in_premise_or_chained_then_rev_nonempty_induct:
+  Eval_Syntactic_Sugar.assert;
+val if_less_eq_in_premise_or_chained_but_not_nonempty_induct_then_inc_induct:
+  Eval_Syntactic_Sugar.assert;
+val if_less_or_less_eq_in_premise_or_chained_but_not_nonempty_induct_then_less_induct:
+  Eval_Syntactic_Sugar.assert;
 
 end
 
@@ -329,14 +367,21 @@ Lambdas (["func", "number"],
             Applies (is_lhs_of_root, [Variable "lhs_path", Variable "root_path"]),
             Some ("part_of_nth_param_on_lhs", QInner_Path,
               Ands [
-                Is_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs", Variable "number", Variable "lhs_path"),
+                Is_Below_N_Plus_One_th_Child_Of
+                  (Variable "part_of_nth_param_on_lhs", Variable "number", Variable "lhs_path"),
                 Some_Of ("func_occ_on_rhs", Variable "func",
                   Ands [
-                    Not (Is_Nth_Child_Of (Variable "func_occ_on_rhs", Number 0, Variable "lhs_path")),
+                    Not (Is_Nth_Child_Of
+                      (Variable "func_occ_on_rhs", Number 0, Variable "lhs_path")),
                     Some ("part_of_nth_param_on_rhs", QInner_Path,
                       Ands [
-                        Has_Same_Prnt_As (Variable "part_of_nth_param_on_rhs", Variable "part_of_nth_param_on_lhs"),
-                        (*Is_Nth_Argument_Or_Below_Nth_Argument_Of*)Is_Nth_Argument_Of (Variable "part_of_nth_param_on_rhs", Variable "number", Variable "func_occ_on_rhs")
+                        Has_Same_Prnt_As
+                          (Variable "part_of_nth_param_on_rhs",
+                           Variable "part_of_nth_param_on_lhs"),
+                        (*Is_Nth_Argument_Or_Below_Nth_Argument_Of*)
+                        Is_Nth_Argument_Of
+                          (Variable "part_of_nth_param_on_rhs", Variable "number",
+                           Variable "func_occ_on_rhs")
                       ]
                     )
                   ]
@@ -366,7 +411,9 @@ Imply (
                 Ands [
                   Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "number"),
                   Is_Nth_Argument_Of (Variable "arg_occ", Variable "number", Variable "func_occ"),
-                  In_Some_Definitions (Variable "func", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
+                  In_Some_Definitions
+                    (Variable "func", is_defined_recursively_on_nth,
+                     [Variable "func", Variable "number"])
                 ]
               )
             )
@@ -386,7 +433,9 @@ Imply (
                 Ands [
                   Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "number"),
                   Is_Nth_Argument_Of (Variable "ind_occ", Variable "number", Variable "func_occ"),
-                  In_Some_Definitions (Variable "func", is_defined_recursively_on_nth, [Variable "func", Variable "number"])
+                  In_Some_Definitions
+                    (Variable "func", is_defined_recursively_on_nth,
+                     [Variable "func", Variable "number"])
                 ]
               )
             )
@@ -423,14 +472,21 @@ Lambdas (["func", "number"],
             Applies (is_lhs_of_root, [Variable "lhs_path", Variable "root_path"]),
             Some ("part_of_nth_param_on_lhs", QInner_Path,
               Ands [
-                Is_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs", Variable "number", Variable "lhs_path"),
+                Is_Below_N_Plus_One_th_Child_Of
+                  (Variable "part_of_nth_param_on_lhs", Variable "number", Variable "lhs_path"),
                 Some_Of ("func_occ_on_rhs", Variable "func",
                   Ands [
-                    Not (Is_Nth_Child_Of (Variable "func_occ_on_rhs", Number 0, Variable "lhs_path")),
+                    Not (Is_Nth_Child_Of
+                      (Variable "func_occ_on_rhs", Number 0, Variable "lhs_path")),
                     Some ("part_of_nth_param_on_rhs", QInner_Path,
                       Ands [
-                        Has_Same_Prnt_As (Variable "part_of_nth_param_on_rhs", Variable "part_of_nth_param_on_lhs"),
-                        (*Is_Nth_Argument_Or_Below_Nth_Argument_Of*)Is_Nth_Argument_Of (Variable "part_of_nth_param_on_rhs", Variable "number", Variable "func_occ_on_rhs")
+                        Has_Same_Prnt_As
+                          (Variable "part_of_nth_param_on_rhs",
+                           Variable "part_of_nth_param_on_lhs"),
+                        (*Is_Nth_Argument_Or_Below_Nth_Argument_Of*)
+                        Is_Nth_Argument_Of
+                          (Variable "part_of_nth_param_on_rhs", Variable "number",
+                           Variable "func_occ_on_rhs")
                       ]
                     )
                   ]
@@ -455,8 +511,11 @@ Imply (
         Applies (print_defined_recursively, [Variable "func1_term"]),
         Some ("func2_occ_is_below_nth_arg_of_func1_occ", QOuter_Number,
           Ands [
-            Print_Takes_More_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
-            In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
+            Print_Takes_More_Than_N_Arguments
+              (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
+            In_Some_Definitions
+              (Variable "func1_term", is_defined_recursively_on_nth,
+               [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
             Some_Of ("func1_occ", Variable "func1_term",
               Ands [
                 Some ("func2_term", QOuter_Print,
@@ -464,11 +523,18 @@ Imply (
                     Applies (print_defined_recursively, [Variable "func2_term"]),
                     Some ("ind_occ_is_below_nth_arg_of_func2_occ", QOuter_Number,
                       Ands [
-                        Print_Takes_More_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
-                        In_Some_Definitions (Variable "func2_term", is_defined_recursively_on_nth, [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"]),
+                        Print_Takes_More_Than_N_Arguments
+                          (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
+                        In_Some_Definitions
+                          (Variable "func2_term", is_defined_recursively_on_nth,
+                           [Variable "func2_term",
+                            Variable "ind_occ_is_below_nth_arg_of_func2_occ"]),
                         Some_Of ("func2_occ", Variable "func2_term",
                           Ands [
-                            Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ")
+                            Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                            (Variable "func2_occ",
+                             Variable "func2_occ_is_below_nth_arg_of_func1_occ",
+                             Variable "func1_occ")
                           ]
                         )
                       ]
@@ -487,8 +553,11 @@ Imply (
       Applies (print_defined_recursively, [Variable "func1_term"]),
       Some ("func2_occ_is_below_nth_arg_of_func1_occ", QOuter_Number,
         Ands [
-          Print_Takes_More_Than_N_Arguments (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
-          In_Some_Definitions (Variable "func1_term", is_defined_recursively_on_nth, [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
+          Print_Takes_More_Than_N_Arguments
+            (Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"),
+          In_Some_Definitions
+            (Variable "func1_term", is_defined_recursively_on_nth,
+             [Variable "func1_term", Variable "func2_occ_is_below_nth_arg_of_func1_occ"]),
           Some_Of ("func1_occ", Variable "func1_term",
             Ands [
               Some ("func2_term", QOuter_Print,
@@ -496,14 +565,23 @@ Imply (
                   Applies (print_defined_recursively, [Variable "func2_term"]),
                   Some ("ind_occ_is_below_nth_arg_of_func2_occ", QOuter_Number,
                     Ands [
-                      Print_Takes_More_Than_N_Arguments (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
-                      In_Some_Definitions (Variable "func2_term", is_defined_recursively_on_nth, [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"]),
+                      Print_Takes_More_Than_N_Arguments
+                        (Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"),
+                      In_Some_Definitions
+                        (Variable "func2_term", is_defined_recursively_on_nth,
+                         [Variable "func2_term", Variable "ind_occ_is_below_nth_arg_of_func2_occ"]),
                       Some_Of ("func2_occ", Variable "func2_term",
                         Ands [
-                          Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "func2_occ", Variable "func2_occ_is_below_nth_arg_of_func1_occ", Variable "func1_occ"),
+                          Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                            (Variable "func2_occ",
+                             Variable "func2_occ_is_below_nth_arg_of_func1_occ",
+                             Variable "func1_occ"),
                           All ("ind_term", QInd,
                             Some_Of ("ind_occ", Variable "ind_term",
-                              Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ", Variable "ind_occ_is_below_nth_arg_of_func2_occ", Variable "func2_occ")
+                              Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                                (Variable "ind_occ",
+                                 Variable "ind_occ_is_below_nth_arg_of_func2_occ",
+                                 Variable "func2_occ")
                             )
                           )
                         ]
@@ -532,21 +610,25 @@ Imply (
             Some_Of ("ind_occ1", Variable "ind_trm1",
               Ors [
                 Ands [(*induct only on the LHS of the equation*)
-                  Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ1"),
+                  Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                    (Variable "ind_occ1", Number 0, Variable "hol_eq_occ1"),
                   Not (
                     Some ("ind_trm2", QInd,
                       Some_Of ("ind_occ2", Variable "ind_trm2",
-                        Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ2")
+                        Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                          (Variable "ind_occ2", Number 1, Variable "hol_eq_occ2")
                       )
                     )
                   )
                 ],
                 Ands [(*induct only on the RHS of the equation*)
-                  Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ1", Number 1, Variable "hol_eq_occ1"),
+                  Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                    (Variable "ind_occ1", Number 1, Variable "hol_eq_occ1"),
                   Not (
                     Some ("ind_trm2", QInd,
                       Some_Of ("ind_occ2", Variable "ind_trm2",
-                        Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ2", Number 0, Variable "hol_eq_occ2")
+                        Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                          (Variable "ind_occ2", Number 0, Variable "hol_eq_occ2")
                       )
                     )
                   )
@@ -565,11 +647,13 @@ Imply (
         Some_Of ("ind_occ1", Variable "ind_trm1",
           Ors [
             Ands [(*induct only on the LHS of the equation*)
-              Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
+              Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                (Variable "ind_occ1", Number 0, Variable "hol_eq_occ"),
               Not (
                 Some ("ind_trm2", QInd,
                   Some_Of ("ind_occ2", Variable "ind_trm2",
-                    Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
+                    Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                      (Variable "ind_occ2", Number 1, Variable "hol_eq_occ")
                   )
                 )
               )
@@ -591,22 +675,26 @@ Lambdas (["nth"],
           Is_Nth_Child_Of (Variable "lhs_path", Number 1, Variable "root_path"),
           Some ("nth_param_on_lhs_path", QInner_Path,
             Ands [
-              Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "nth_param_on_lhs_path", Variable "nth", Variable "lhs_path"),
+              Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of
+                (Variable "nth_param_on_lhs_path", Variable "nth", Variable "lhs_path"),
               Some ("rhs_path", QInner_Path,
                 Ands [
                   Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
                   Some ("nth_param_on_rhs_path", QInner_Path,
                     Ands [
                       Is_Path_Below (Variable "nth_param_on_rhs_path", Variable "rhs_path"),
-                      Has_Same_Prnt_As (Variable "nth_param_on_lhs_path", Variable "nth_param_on_rhs_path"),
+                      Has_Same_Prnt_As
+                        (Variable "nth_param_on_lhs_path", Variable "nth_param_on_rhs_path"),
                       Some ("set_member", QInner_Path,
                         Ands [
                           Unode_Has_Print (Variable "set_member", Print "Set.member"),
                           Some ("set", QInner_Path,
                             Ands [
                               Unode_Has_Print (Variable "set", Print "List.list.set"),
-                              Is_Nth_Argument_Or_Below_Nth_Argument_Of      (Variable "set", Number 1, Variable "set_member"),
-                              Is_An_Argument_Or_Below_Argument_Of (Variable "nth_param_on_rhs_path", Variable "set")
+                              Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                                (Variable "set", Number 1, Variable "set_member"),
+                              Is_An_Argument_Or_Below_Argument_Of
+                                (Variable "nth_param_on_rhs_path", Variable "set")
                             ]
                           )
                         ]
@@ -626,8 +714,8 @@ Lambdas (["nth"],
 val has_set_and_set_member_in_definition =
 Lambdas (["to_be_ignored"],
   Ands [
-    Some ("set",        QInner_Print, Are_Same_Prints (Variable "set",        Print "List.list.set")),
-    Some ("set_member", QInner_Print, Are_Same_Prints (Variable "set_member", Print "Set.member"   ))
+    Some ("set", QInner_Print, Are_Same_Prints (Variable "set", Print "List.list.set")),
+    Some ("set_member", QInner_Print, Are_Same_Prints (Variable "set_member", Print "Set.member"))
   ]
 );
 
@@ -664,8 +752,11 @@ Imply (
                   Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ", Variable "func_occ"),
                   Some ("ind_occ_is_in_nth_arg_of_func_occ", QOuter_Number,
                     Ands [
-                      Print_Takes_More_Than_N_Arguments (Variable "func", Variable "ind_occ_is_in_nth_arg_of_func_occ"),
-                      Is_Nth_Argument_Or_Below_Nth_Argument_Of    (Variable "ind_occ", Variable "ind_occ_is_in_nth_arg_of_func_occ", Variable "func_occ"),
+                      Print_Takes_More_Than_N_Arguments
+                        (Variable "func", Variable "ind_occ_is_in_nth_arg_of_func_occ"),
+                      Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                        (Variable "ind_occ", Variable "ind_occ_is_in_nth_arg_of_func_occ",
+                         Variable "func_occ"),
                       In_Some_Definitions (
                         Variable "func",
                         induct_on_arg_of_setmember_n_set_inner,
@@ -688,8 +779,8 @@ Imply (
   Ands [
     Some ("ind", QInd, True),
     Not (Some ("rule", QRule, True)),
-    Some ("set",        QOuter_Print, Are_Same_Prints (Variable "set",        Print "List.list.set")),
-    Some ("set_member", QOuter_Print, Are_Same_Prints (Variable "set_member", Print "Set.member"   ))
+    Some ("set", QOuter_Print, Are_Same_Prints (Variable "set", Print "List.list.set")),
+    Some ("set_member", QOuter_Print, Are_Same_Prints (Variable "set_member", Print "Set.member"))
   ],
   Ands [
     Some ("set_member_occ", QOuter_Path,
@@ -698,7 +789,8 @@ Imply (
         Some ("set_occ", QOuter_Path,
           Ands [
             Unode_Has_Print (Variable "set_occ", Print "List.list.set"),
-            Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "set_occ", Number 1, Variable "set_member_occ"),
+            Is_Nth_Argument_Or_Below_Nth_Argument_Of
+              (Variable "set_occ", Number 1, Variable "set_member_occ"),
             All ("ind", QInd, (*!*)
               Some_Of ("ind_occ", Variable "ind",
                 Ands [
@@ -723,18 +815,21 @@ Lambdas (["nth"],
           Is_Nth_Child_Of (Variable "lhs_path", Number 1, Variable "root_path"),
           Some ("nth_param_on_lhs_path", QInner_Path,
             Ands [
-              Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of (Variable "nth_param_on_lhs_path", Variable "nth", Variable "lhs_path"),
+              Is_N_Plus_One_th_Child_Or_Below_N_Plus_One_th_Child_Of
+                (Variable "nth_param_on_lhs_path", Variable "nth", Variable "lhs_path"),
               Some ("rhs_path", QInner_Path,
                 Ands [
                   Is_Nth_Child_Of (Variable "rhs_path", Number 2, Variable "root_path"),
                   Some ("nth_param_on_rhs_path", QInner_Path,
                     Ands [
                       Is_Path_Below (Variable "nth_param_on_rhs_path", Variable "rhs_path"),
-                      Has_Same_Prnt_As (Variable "nth_param_on_lhs_path", Variable "nth_param_on_rhs_path"),
+                      Has_Same_Prnt_As
+                        (Variable "nth_param_on_lhs_path", Variable "nth_param_on_rhs_path"),
                       Some ("map", QInner_Path,
                         Ands [
                           Unode_Has_Print (Variable "map", Print "List.list.map"),
-                          Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "nth_param_on_rhs_path", Number 1, Variable "map")
+                          Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                            (Variable "nth_param_on_rhs_path", Number 1, Variable "map")
                         ]
                       )
                     ]
@@ -793,8 +888,11 @@ Imply (
                   Is_An_Argument_Or_Below_Argument_Of (Variable "ind_occ", Variable "func_occ"),
                   Some ("ind_occ_is_in_nth_arg_of_func_occ", QOuter_Number,
                     Ands [
-                      Print_Takes_More_Than_N_Arguments (Variable "func",    Variable "ind_occ_is_in_nth_arg_of_func_occ"),
-                      Is_Nth_Argument_Or_Below_Nth_Argument_Of    (Variable "ind_occ", Variable "ind_occ_is_in_nth_arg_of_func_occ", Variable "func_occ"),
+                      Print_Takes_More_Than_N_Arguments
+                        (Variable "func", Variable "ind_occ_is_in_nth_arg_of_func_occ"),
+                      Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                        (Variable "ind_occ", Variable "ind_occ_is_in_nth_arg_of_func_occ",
+                         Variable "func_occ"),
                       In_Some_Definitions (
                         Variable "func",
                         induct_on_2nd_arg_of_map_inner,
@@ -823,7 +921,7 @@ Imply (
           Some ("pure_imp", QOuter_Path,
             Ands [
               Unode_Has_Print (Variable "pure_imp", Print "Pure.imp"),
-              Is_Child_Of     (Variable "pure_imp", Variable "root"),
+              Is_Child_Of (Variable "pure_imp", Variable "root"),
               Some ("inductive_trm", QOuter_Print,
                 Ands [
                   Ors [
@@ -833,14 +931,21 @@ Imply (
                     Ands [
                       Some ("nth_arg_of_pure_imp", QOuter_Path,
                         Ands [
-                          Is_Nth_Argument_Of (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args", Variable "pure_imp"),
+                          Is_Nth_Argument_Of
+                            (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args",
+                             Variable "pure_imp"),
                           All ("pure_imp_has_more_than_m_args", QOuter_Number,
                             Ands [
                               All ("mth_arg_of_pure_imp", QOuter_Path,
                                 Ands [
                                   Imply (
-                                    Is_Nth_Argument_Of (Variable "mth_arg_of_pure_imp", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp"),
-                                    Is_Less_Than_Or_Equal (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
+                                    Is_Nth_Argument_Of
+                                      (Variable "mth_arg_of_pure_imp",
+                                       Variable "pure_imp_has_more_than_m_args",
+                                       Variable "pure_imp"),
+                                    Is_Less_Than_Or_Equal
+                                      (Variable "pure_imp_has_more_than_m_args",
+                                       Variable "pure_imp_has_n_args")
                                   )
                                 ]
                               )
@@ -849,16 +954,24 @@ Imply (
                           Some ("ind_occ_in_meta_cncl", QOuter_Path,
                             Ands [
                               Node_Is_Free (Variable "ind_occ_in_meta_cncl"),
-                              Is_Path_Below (Variable "ind_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp"),
+                              Is_Path_Below
+                                (Variable "ind_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp"),
                               All ("pure_imp_has_more_than_m_args", QOuter_Number,
                                 Ands [
                                   Imply (
-                                    Is_Less_Than (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args"),
+                                    Is_Less_Than
+                                      (Variable "pure_imp_has_more_than_m_args",
+                                       Variable "pure_imp_has_n_args"),
                                     Not (
                                       Some ("ind_occ_in_assumption", QOuter_Path,
                                         Ands [
-                                          Has_Same_Prnt_As (Variable "ind_occ_in_meta_cncl", Variable "ind_occ_in_assumption"),
-                                          Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ_in_assumption", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
+                                          Has_Same_Prnt_As
+                                            (Variable "ind_occ_in_meta_cncl",
+                                             Variable "ind_occ_in_assumption"),
+                                          Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                                            (Variable "ind_occ_in_assumption",
+                                             Variable "pure_imp_has_more_than_m_args",
+                                             Variable "pure_imp")
                                         ]
                                       )
                                     )
@@ -888,7 +1001,7 @@ Imply (
           Some ("pure_imp", QOuter_Path,
             Ands [
               Unode_Has_Print (Variable "pure_imp", Print "Pure.imp"),
-              Is_Child_Of     (Variable "pure_imp", Variable "root"),
+              Is_Child_Of (Variable "pure_imp", Variable "root"),
               Some ("inductive_trm", QOuter_Print,
                 Ands [
                   Ors [
@@ -898,14 +1011,21 @@ Imply (
                     Ands [
                       Some ("nth_arg_of_pure_imp", QOuter_Path,
                         Ands [
-                          Is_Nth_Argument_Of (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args", Variable "pure_imp"),
+                          Is_Nth_Argument_Of
+                            (Variable "nth_arg_of_pure_imp", Variable "pure_imp_has_n_args",
+                             Variable "pure_imp"),
                           All ("pure_imp_has_more_than_m_args", QOuter_Number,
                             Ands [
                               All ("mth_arg_of_pure_imp", QOuter_Path,
                                 Ands [
                                   Imply (
-                                    Is_Nth_Argument_Of (Variable "mth_arg_of_pure_imp", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp"),
-                                    Is_Less_Than_Or_Equal (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args")
+                                    Is_Nth_Argument_Of
+                                      (Variable "mth_arg_of_pure_imp",
+                                       Variable "pure_imp_has_more_than_m_args",
+                                       Variable "pure_imp"),
+                                    Is_Less_Than_Or_Equal
+                                      (Variable "pure_imp_has_more_than_m_args",
+                                       Variable "pure_imp_has_n_args")
                                   )
                                 ]
                               )
@@ -914,16 +1034,24 @@ Imply (
                           Some_Of ("ind_occ_in_meta_cncl", Variable "ind",(*!*)
                             Ands [
                               Node_Is_Free (Variable "ind_occ_in_meta_cncl"),
-                              Is_Path_Below (Variable "ind_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp"),
+                              Is_Path_Below
+                                (Variable "ind_occ_in_meta_cncl", Variable "nth_arg_of_pure_imp"),
                               All ("pure_imp_has_more_than_m_args", QOuter_Number,
                                 Ands [
                                   Imply (
-                                    Is_Less_Than (Variable "pure_imp_has_more_than_m_args", Variable "pure_imp_has_n_args"),
+                                    Is_Less_Than
+                                      (Variable "pure_imp_has_more_than_m_args",
+                                       Variable "pure_imp_has_n_args"),
                                     Not (
                                       Some_Of ("ind_occ_in_assumption", Variable "ind",(*!*)
                                         Ands [
-                                          Has_Same_Prnt_As (Variable "ind_occ_in_meta_cncl", Variable "ind_occ_in_assumption"),
-                                          Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ_in_assumption", Variable "pure_imp_has_more_than_m_args", Variable "pure_imp")
+                                          Has_Same_Prnt_As
+                                            (Variable "ind_occ_in_meta_cncl",
+                                             Variable "ind_occ_in_assumption"),
+                                          Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                                            (Variable "ind_occ_in_assumption",
+                                             Variable "pure_imp_has_more_than_m_args",
+                                             Variable "pure_imp")
                                         ]
                                       )
                                     )
@@ -957,7 +1085,8 @@ Imply (
           Is_Rule_Of_Node (Variable "rule", Variable "rec_occ1"),
           Some ("rec_occ2", QOuter_Path,
             Ands [
-              Applies (node_defined_recursively, [Variable "rec_occ2"]),(*TODO: Double-check! This is not really a condition for rule inversion.*)
+              (*TODO: Double-check! This is not really a condition for rule inversion.*)
+              Applies (node_defined_recursively, [Variable "rec_occ2"]),
               Are_In_Same_Location (Variable "rec_occ1", Variable "rec_occ2"),
               Not (Has_Same_Prnt_As (Variable "rec_occ1", Variable "rec_occ2"))
             ]
@@ -1036,7 +1165,9 @@ Imply (
   Some ("func_term", QOuter_Print,
     Ands [
       Print_Is_Cnst (Variable "func_term"),
-      In_Some_Definitions (Variable "func_term", complex_lhs_causes_functional_induction_inner, [Variable "func_term"])
+      In_Some_Definitions
+        (Variable "func_term", complex_lhs_causes_functional_induction_inner,
+         [Variable "func_term"])
     ]
   ),
   Some ("rule", QRule,
@@ -1045,7 +1176,9 @@ Imply (
         Ands [
           Print_Is_Cnst (Variable "func_term"),
           Is_Rule_Of_Print (Variable "rule", Variable "func_term"),
-          In_Some_Definitions (Variable "func_term", complex_lhs_causes_functional_induction_inner, [Variable "func_term"])
+          In_Some_Definitions
+            (Variable "func_term", complex_lhs_causes_functional_induction_inner,
+             [Variable "func_term"])
         ]
       )
     ]
@@ -1070,10 +1203,12 @@ Imply (
                     Ands [
                       Ors [
                         Ands [(*induct only on the LHS of the equation*)
-                          Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "rec_fun1_occ", Number 0, Variable "hol_eq_occ1")
+                          Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                            (Variable "rec_fun1_occ", Number 0, Variable "hol_eq_occ1")
                         ],
                         Ands [(*induct only on the RHS of the equation*)
-                          Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "rec_fun1_occ", Number 1, Variable "hol_eq_occ1")
+                          Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                            (Variable "rec_fun1_occ", Number 1, Variable "hol_eq_occ1")
                         ]
                       ]
                     ]
@@ -1100,7 +1235,8 @@ Imply (
                   Ands [
                     Ors [
                       Ands [(*induct only on the LHS of the equation*)
-                        Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "rec_fun1_occ", Number 0, Variable "hol_eq_occ1")
+                        Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                          (Variable "rec_fun1_occ", Number 0, Variable "hol_eq_occ1")
                       ]
                     ]
                   ]
@@ -1140,16 +1276,22 @@ val if_defined_with_inductive_set_in_meta_premise_then_set_induction =
 Imply (
   Some ("node_defined_as_inductive_set", QOuter_Path,
     Ands [
-      Node_Is_Defined_With       (Variable "node_defined_as_inductive_set", Command Definition_Pattern.Inductive_Set),
+      Node_Is_Defined_With
+        (Variable "node_defined_as_inductive_set", Command Definition_Pattern.Inductive_Set),
       Is_A_Meta_Premise_Or_Below (Variable "node_defined_as_inductive_set"),
-      Not ((*To prevent recommending induction on set for cases like "hbase_funC" in Goodstein_Lambda.thy*)
+      (*To prevent recommending induction on set for cases like "hbase_funC" in
+        Goodstein_Lambda.thy*)
+      Not (
         Some_Of ("membership", Print "Print Set.member",
           Ands [
-            Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "node_defined_as_inductive_set", Number 1, Variable "membership"),
+            Is_Nth_Argument_Or_Below_Nth_Argument_Of
+              (Variable "node_defined_as_inductive_set", Number 1, Variable "membership"),
             Some ("rec_node_in_first_arg_of_set_membership", QOuter_Path,
               Ands [
-                Applies (node_defined_recursively, [Variable "rec_node_in_first_arg_of_set_membership"]),
-                Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "node_defined_as_inductive_set", Number 0, Variable "membership")
+                Applies
+                  (node_defined_recursively, [Variable "rec_node_in_first_arg_of_set_membership"]),
+                Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                  (Variable "node_defined_as_inductive_set", Number 0, Variable "membership")
               ]
             )
           ]
@@ -1420,7 +1562,7 @@ Imply (
         Is_In_Chained_Fact (Variable "less_eq"),
         Is_A_Meta_Premise_Or_Below (Variable "less_eq")
       ],
-      Not ( 
+      Not (
         Some ("nonempty_induct", QRule,
           Ors [
             Are_Same_Prints (Variable "nonempty_induct", Print "List.rev_nonempty_induct"),
@@ -1447,7 +1589,7 @@ Imply (
         Is_In_Chained_Fact (Variable "less_or_less_eq"),
         Is_A_Meta_Premise_Or_Below (Variable "less_or_less_eq")
       ],
-      Not ( 
+      Not (
         Some ("nonempty_induct", QRule,
           Ors [
             Are_Same_Prints (Variable "nonempty_induct", Print "List.rev_nonempty_induct"),

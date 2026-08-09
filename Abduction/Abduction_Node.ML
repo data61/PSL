@@ -1,10 +1,9 @@
-(*
- * Abduction_Node.ML
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/Abduction_Node.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
+
+Node type shared by the abduction graph, combining OR-node and AND-node information.
+*)
 (*** ABDUCTION_NODE ***)
 signature ABDUCTION_NODE =
 sig
@@ -15,7 +14,9 @@ type or2and_edge;
 
 (** proof_node **)
 datatype abduction_node =
-  Or_Node   of ornode  (*Edgs from Or_Node are alternative steps to prove this node, one of which we have to complete.*)
+  (*Edgs from Or_Node are alternative steps to prove this node, one of which we have to
+    complete.*)
+  Or_Node   of ornode
 | And_Node  of andnode (*sub-goals, all of which we have to prove.*)
 | Or_To_And of or2and_edge;
 
@@ -63,7 +64,9 @@ open Or2And_Edge;
 
 (** abduction_node **)
 datatype abduction_node =
-  Or_Node   of ornode  (*Edges from Or_Node are alternative steps to prove this node, one of which we have to complete.*)
+  (*Edges from Or_Node are alternative steps to prove this node, one of which we have to
+    complete.*)
+  Or_Node   of ornode
 | And_Node  of andnode (*sub-goals, all of which we have to prove.*)
 | Or_To_And of or2and_edge;
 
@@ -85,7 +88,8 @@ fun importance (Or_To_And {importance,...}) = importance
   | importance (Or_Node   {importance,...}) = (case importance of
       NONE => (warning "Importance is not defined for this Or_Node!"; 0.0)
     | SOME imp => imp)
-  | importance _ = error "importance in Abduction_Node failed. And_Node does not carry importance explicilty";
+  | importance _ =
+      error "importance in Abduction_Node failed. And_Node does not carry importance explicitly";
 
 (* is_proved_completely *)
 fun is_proved_completely (Or_Node  nd) = #proved_completely nd
@@ -113,7 +117,8 @@ fun is_final_goal (Or_Node or_nd) = #final_goal or_nd
   | is_final_goal  _              = error "is_final_goal. This is not Or_Node."
 
 (* or2and_edge_to_proof *)
-fun or2and_edge_to_proof (Or_To_And or2and_edge:abduction_node) = Or2And_Edge.or2and_edge_to_proof or2and_edge
+fun or2and_edge_to_proof (Or_To_And or2and_edge:abduction_node) =
+      Or2And_Edge.or2and_edge_to_proof or2and_edge
   | or2and_edge_to_proof _ = error "or2and_edge_to_proof failed. This is not or2and_edge."
 
 (* lemma_name_of *)

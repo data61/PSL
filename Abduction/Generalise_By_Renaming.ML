@@ -1,12 +1,9 @@
-(*
- * Generalise_By_Renaming.ML
- *
- * Utility functions for our top-down approach, as known as "deep conjecturing".
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/Generalise_By_Renaming.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
+
+Utility functions for our top-down approach, as known as "deep conjecturing".
+*)
 (*** structure Generalise_By_Renaming ***)
 structure Generalise_By_Renaming: TOP_DOWN_CONJECTURING =
 
@@ -23,7 +20,7 @@ fun count_fvars trm = count_fvars' trm 0;
 
 fun get_ints (ints_so_far:ints) =
   let
-    val _ = if length ints_so_far = 0 then error "get_ints failed with an empty list." else (); 
+    val _ = if length ints_so_far = 0 then error "get_ints failed with an empty list." else ();
     val maximum = Utils.ints_to_max_option ints_so_far |> the;
     val next_candidates = 1 upto (maximum + 1): ints;
     val new_intss = map (fn new_int => ints_so_far @ [new_int]) next_candidates: ints list;

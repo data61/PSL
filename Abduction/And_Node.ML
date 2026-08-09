@@ -1,11 +1,9 @@
-(*
- * And_Node.ML
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/And_Node.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
 
+The AND-node type of the abduction graph, representing a conjunction of sub-goals.
+*)
 (*** AND_NODE ***)
 signature AND_NODE =
 sig

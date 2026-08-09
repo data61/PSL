@@ -86,42 +86,62 @@ fun read_term_then_check_term (ctxt:Proof.context) (print:string) (checker: term
  |> Utils.is_some_true
 
 fun get_rule_names' []                                    acc = acc
-  | get_rule_names' ((SU.Ind_Rule  rule_name)::ind_rules) acc = get_rule_names' ind_rules (rule_name :: acc)
+  | get_rule_names' ((SU.Ind_Rule  rule_name)::ind_rules) acc =
+      get_rule_names' ind_rules (rule_name :: acc)
   | get_rule_names' ((SU.Ind_Set   _        )::ind_rules) acc = get_rule_names' ind_rules acc
-  | get_rule_names' ((SU.Hand_Rule rule_name)::ind_rules) acc = get_rule_names' ind_rules (rule_name :: acc);
+  | get_rule_names' ((SU.Hand_Rule rule_name)::ind_rules) acc =
+      get_rule_names' ind_rules (rule_name :: acc);
 
 fun get_rule_names ind_rules = get_rule_names' ind_rules [];
 
 fun get_set_names' []                                   acc = acc
   | get_set_names' ((SU.Ind_Rule _        )::ind_rules) acc = get_set_names' ind_rules acc
-  | get_set_names' ((SU.Ind_Set  set_name )::ind_rules) acc = get_set_names' ind_rules (set_name :: acc)
+  | get_set_names' ((SU.Ind_Set  set_name )::ind_rules) acc =
+      get_set_names' ind_rules (set_name :: acc)
   | get_set_names' ((SU.Hand_Rule  _      )::ind_rules) acc = get_rule_names' ind_rules acc;
 
-fun get_set_names ind_sets = (get_set_names' ind_sets [] |> map tracing; get_set_names' ind_sets []);
+fun get_set_names ind_sets =
+      (get_set_names' ind_sets [] |> map tracing; get_set_names' ind_sets []);
 
-fun eval' (Are_Same_Prints       (prnt1, prnt2))  _                                                     _ = prnt1 = prnt2
-  | eval' (Is_Subprint_Of        (sub,   full))   _                                                     _ = String.isSubstring sub full
-  | eval' (Is_Nth_Induct         (print, n))    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _ = print_is_nth_of print n ons
-  | eval' (Is_Nth_Arbitrary      (print, n))    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _ = print_is_nth_of print n arbs
-  | eval' (Is_Induct              print    )    (SU.Induct_Arguments {ons,   ...}: SU.induct_arguments) _ = member (op =) ons   print
-  | eval' (Is_Arbitrary           print    )    (SU.Induct_Arguments {arbs,  ...}: SU.induct_arguments) _ = member (op =) arbs  print
-  | eval' (Is_Rule                print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _ = member (op =) (get_rule_names rules) print
-  | eval' (Is_Rule_Of_Print      (rule, cname))  _                                                   ctxt = SU.rule_to_const_name ctxt rule = cname(* orelse rule = cname*)
-  | eval' (Is_Set                 print    )    (SU.Induct_Arguments {rules, ...}: SU.induct_arguments) _ = member (op =) (get_set_names rules) print
-  | eval' (Is_Set_Of_Print       (set,  cname))  _                                                     _  = set = cname
+fun eval' (Are_Same_Prints (prnt1, prnt2)) _ _ = prnt1 = prnt2
+  | eval' (Is_Subprint_Of (sub, full)) _ _ = String.isSubstring sub full
+  | eval' (Is_Nth_Induct (print, n)) (SU.Induct_Arguments {ons,...}: SU.induct_arguments) _ =
+      print_is_nth_of print n ons
+  | eval' (Is_Nth_Arbitrary (print, n)) (SU.Induct_Arguments {arbs,...}: SU.induct_arguments) _ =
+      print_is_nth_of print n arbs
+  | eval' (Is_Induct print) (SU.Induct_Arguments {ons,...}: SU.induct_arguments) _ =
+      member (op =) ons print
+  | eval' (Is_Arbitrary print) (SU.Induct_Arguments {arbs,...}: SU.induct_arguments) _ =
+      member (op =) arbs print
+  | eval' (Is_Rule print) (SU.Induct_Arguments {rules,...}: SU.induct_arguments) _ =
+      member (op =) (get_rule_names rules) print
+  | eval' (Is_Rule_Of_Print (rule, cname)) _ ctxt =
+      SU.rule_to_const_name ctxt rule = cname(* orelse rule = cname*)
+  | eval' (Is_Set print) (SU.Induct_Arguments {rules,...}: SU.induct_arguments) _ =
+      member (op =) (get_set_names rules) print
+  | eval' (Is_Set_Of_Print (set, cname)) _ _ = set = cname
   (*node*)
-  | eval' (Print_Is_Cnst          print    )     _               ctxt = read_term ctxt print <$> is_Const |> Utils.is_some_true
-  | eval' (Print_Is_Free          print    )     _               ctxt = read_term_then_check_term ctxt print is_Free
-  | eval' (Print_Is_Var           print    )     _               ctxt = read_term_then_check_term ctxt print is_Var
-  | eval' (Print_Is_Bound         print    )     _               ctxt = read_term_then_check_term ctxt print is_Bound
-  | eval' (Print_Is_Lambda        print    )     _               ctxt = read_term_then_check_term ctxt print Isabelle_Utils.is_Abs
-  | eval' (Print_Is_App           print    )     _               ctxt = read_term_then_check_term ctxt print Isabelle_Utils.is_App
-  | eval' (Print_Is_Defined_With           (print, command)) _   ctxt = Definition_Pattern.get_command ctxt print = command
-  | eval' (Print_Is_Defined_With_N_Clauses (print, numb))    _   ctxt = SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt print = numb
-  | eval' (Print_Takes_N_Arguments (print, numb))    _           ctxt = numb = print_n_context_to_numb_of_arguments print ctxt
-  | eval' (Print_Takes_Less_Than_N_Arguments (print, numb))  _   ctxt = print_n_context_to_numb_of_arguments print ctxt < numb
-  | eval' (Print_Takes_More_Than_N_Arguments (print, numb))  _   ctxt = print_n_context_to_numb_of_arguments print ctxt > numb;
+  | eval' (Print_Is_Cnst print) _ ctxt =
+      read_term ctxt print <$> is_Const |> Utils.is_some_true
+  | eval' (Print_Is_Free print) _ ctxt = read_term_then_check_term ctxt print is_Free
+  | eval' (Print_Is_Var print) _ ctxt = read_term_then_check_term ctxt print is_Var
+  | eval' (Print_Is_Bound print) _ ctxt = read_term_then_check_term ctxt print is_Bound
+  | eval' (Print_Is_Lambda print) _ ctxt =
+      read_term_then_check_term ctxt print Isabelle_Utils.is_Abs
+  | eval' (Print_Is_App print) _ ctxt =
+      read_term_then_check_term ctxt print Isabelle_Utils.is_App
+  | eval' (Print_Is_Defined_With (print, command)) _ ctxt =
+      Definition_Pattern.get_command ctxt print = command
+  | eval' (Print_Is_Defined_With_N_Clauses (print, numb)) _ ctxt =
+      SeLFiE_Util.ctxt_n_cname_to_number_of_defining_clauses ctxt print = numb
+  | eval' (Print_Takes_N_Arguments (print, numb)) _ ctxt =
+      numb = print_n_context_to_numb_of_arguments print ctxt
+  | eval' (Print_Takes_Less_Than_N_Arguments (print, numb)) _ ctxt =
+      print_n_context_to_numb_of_arguments print ctxt < numb
+  | eval' (Print_Takes_More_Than_N_Arguments (print, numb)) _ ctxt =
+      print_n_context_to_numb_of_arguments print ctxt > numb;
 
-fun eval  assert (ind_args:SU.induct_arguments) ctxt = eval' assert ind_args ctxt |> EB.bool_to_assert;
+fun eval assert (ind_args:SU.induct_arguments) ctxt =
+      eval' assert ind_args ctxt |> EB.bool_to_assert;
 
 end;

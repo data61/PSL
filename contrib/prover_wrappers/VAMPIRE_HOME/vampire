@@ -1,0 +1,85 @@
+#!/bin/bash
+# PSL prover wrapper: run an external prover under a resident-memory ceiling.
+#
+# Isabelle locates every prover through a settings variable, so the only place a
+# limit can be imposed is between that variable and the real binary. PSL's
+# component settings (etc/settings) point the variables here and keep the
+# originals in PSL_REAL_<VARIABLE>.
+#
+# Off unless PSL_PROVER_MEMORY_MB is set to a positive number: with it unset this
+# script is one extra exec and nothing else, which is what makes it safe to ship
+# enabled by default.
+#
+#   PSL_PROVER_MEMORY_MB=2048 isabelle build -d . Abduction
+#
+# The ceiling is a cgroup MemoryMax, not "ulimit -v". ulimit caps virtual address
+# space, so a solver that reserves a range it never touches is killed for memory
+# it never used - measured, that cost proofs and could not be calibrated. A
+# cgroup charges a solver for what it actually touches. MemorySwapMax=0 as well,
+# because a ceiling a solver can page around is not a ceiling.
+set -u
+
+self="$(basename "$0")"
+group="$(basename "$(dirname "$0")")"   # the settings variable this stands in for
+eval real="\${PSL_REAL_${group}:-}"
+
+if [ -z "$real" ]; then
+  echo "psl_limit_prover: PSL_REAL_${group} is unset; cannot find the real $self" >&2
+  exit 127
+fi
+
+if [ -d "$real" ]; then
+  # A directory-valued setting (E_HOME and friends). Isabelle picks the first name
+  # in its own candidate list that exists *here*, and we present all of them, so a
+  # name may have no binary behind it on this machine - E_HOME lists eprover-ho
+  # before eprover, and a given install may ship only the latter. .psl_order
+  # repeats Isabelle's order so the same choice is made against the real
+  # directory; without it Isabelle would settle on a wrapper leading nowhere.
+  target="$real/$self"
+  if [ ! -x "$target" ] && [ -f "$(dirname "$0")/.psl_order" ]; then
+    for candidate in $(cat "$(dirname "$0")/.psl_order"); do
+      if [ -x "$real/$candidate" ]; then target="$real/$candidate"; break; fi
+    done
+  fi
+  # Bundled shared libraries live beside the binary (zipperposition ships its own
+  # libgmp), and we have moved the directory Isabelle believes it is running from.
+  export LD_LIBRARY_PATH="$real${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+else
+  target="$real"                        # an executable-valued setting
+fi
+
+if [ ! -x "$target" ]; then
+  echo "psl_limit_prover: $target is not executable" >&2
+  exit 127
+fi
+
+limit="${PSL_PROVER_MEMORY_MB:-}"
+if [ -n "$limit" ] && [ "$limit" -gt 0 ] 2>/dev/null \
+   && command -v systemd-run >/dev/null 2>&1 \
+   && [ -n "${XDG_RUNTIME_DIR:-}" ] && [ -S "${XDG_RUNTIME_DIR}/bus" ]; then
+  # Every prover joins one shared slice, so there is an aggregate ceiling as well as a
+  # per-process one. The per-process cap alone does not protect the machine: the search runs
+  # several Sledgehammer invocations at once, each launching every prover, so the total is a
+  # product of those levels and bounded only by arithmetic - Resource_Limit.hammer_slots times
+  # the quota. Putting them in a slice makes it a guarantee instead.
+  #
+  #   systemctl --user set-property psl-provers.slice MemoryMax=8G
+  #
+  # once per machine sets the aggregate; PSL_PROVER_SLICE renames it if something else is
+  # already using that name.
+  #
+  # memory.oom.group is deliberately NOT set on the slice. It kills every process in the
+  # cgroup at once, and this slice spans concurrent invocations, so one rogue prover would
+  # take down provers belonging to unrelated ones. Left off, the kernel kills the largest
+  # offender, Sledgehammer records that prover as failed and carries on with the others -
+  # which is what its own error handling is built for, and what keeps a cheap prover that was
+  # about to succeed alive. Measured on one stock call: veriT 6105MB against eprover's 297MB.
+  #
+  # --collect so a run of thousands of invocations does not leave a failed unit
+  # behind for each one.
+  exec systemd-run --user --scope -q --collect \
+       --slice="${PSL_PROVER_SLICE:-psl-provers.slice}" \
+       -p "MemoryMax=${limit}M" -p MemorySwapMax=0 -- "$target" "$@"
+fi
+
+exec "$target" "$@"

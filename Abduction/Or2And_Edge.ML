@@ -1,10 +1,9 @@
-(*
- * Or2And_Edge.ML
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/Or2And_Edge.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
+
+The edge type connecting OR-nodes to AND-nodes in the abduction graph.
+*)
 signature OR2AND_EDGE =
 
 sig
@@ -43,13 +42,15 @@ type or2and_edge = {
   importance                     : real};
 
 (* or2and_edge_to_proof *)
-fun or2and_edge_to_proof ({proof_of_ornode_assmng_andnodes, ...}:or2and_edge) = proof_of_ornode_assmng_andnodes;
+fun or2and_edge_to_proof ({proof_of_ornode_assmng_andnodes, ...}:or2and_edge) =
+      proof_of_ornode_assmng_andnodes;
 
 (* or2and_edge_to_importance *)
 fun or2and_edge_to_importance ({importance,...}:or2and_edge) = importance: real;
 
 (* update_importance *)
-fun multiply_importance (new_importance:real) {how_to_get_andnodes_from_ornode, proof_of_ornode_assmng_andnodes, importance} =
+fun multiply_importance (new_importance:real)
+    {how_to_get_andnodes_from_ornode, proof_of_ornode_assmng_andnodes, importance} =
     {how_to_get_andnodes_from_ornode = how_to_get_andnodes_from_ornode,
      proof_of_ornode_assmng_andnodes = proof_of_ornode_assmng_andnodes,
      importance                      = importance * new_importance}: or2and_edge;

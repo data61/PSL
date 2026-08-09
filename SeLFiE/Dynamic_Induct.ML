@@ -7,7 +7,7 @@ It is similar to Dynamic (Induct) in PSL but tailored for MiLkMaId.
 signature DYNAMIC_INDUCT =
 sig
 
-datatype modifier = 
+datatype modifier =
   Ind  of string
 | Arb  of string
 | Rule of Definition_Pattern.command * string;
@@ -38,9 +38,12 @@ type modifiers = modifier list;
 fun order (mods:modifiers) =
   let
     fun order' ordered [] = ordered
-     |  order' (ons, arbs, rules) (Ind  var  :: mods) = order' (Ind var::ons, arbs,          rules           ) mods
-     |  order' (ons, arbs, rules) (Arb  var  :: mods) = order' (ons,          Arb var::arbs, rules           ) mods
-     |  order' (ons, arbs, rules) (Rule rule :: mods) = order' (ons,          arbs,          Rule rule::rules) mods;
+     |  order' (ons, arbs, rules) (Ind  var  :: mods) =
+          order' (Ind var::ons, arbs, rules) mods
+     |  order' (ons, arbs, rules) (Arb  var  :: mods) =
+          order' (ons, Arb var::arbs, rules) mods
+     |  order' (ons, arbs, rules) (Rule rule :: mods) =
+          order' (ons, arbs, Rule rule::rules) mods;
     val (inds, abs, rules) = order' ([],[],[]) mods : (modifiers * modifiers * modifiers);
   in
     (rev inds, rev abs, rev rules)

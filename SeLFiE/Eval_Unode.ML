@@ -55,7 +55,7 @@ infix
   Is_Nth_Child
   Is_N_Plus_One_th_Child;
 
-val unode2_to_depth2                        = apply2 Unique_Node.unode_to_depth: unode * unode -> int * int;
+val unode2_to_depth2 = apply2 Unique_Node.unode_to_depth: unode * unode -> int * int;
 fun unode2_to_print2 (unode2:unode * unode) = apply2 #print unode2;
 
 fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
@@ -94,13 +94,15 @@ fun eval' (unode1 Has_Same_Prnt_As unode2): bool =
       Utils.is_some_true result_option
     end
   | eval' (Is_Root_In_A_Location {inner_path,...}) = inner_path = []
-  | eval' (Debug_Print_Unode             {print,...})  = (tracing ("Debug_Print_Unode: " ^ print); true)
+  | eval' (Debug_Print_Unode             {print,...})  =
+      (tracing ("Debug_Print_Unode: " ^ print); true)
   | eval' (Node_Is_Defined_With          (unode, cmd)) = UN.is_defined_by unode cmd
   | eval' (Is_A_Meta_Premise             {tag,...})    = #is_premise    tag
   | eval' (Is_A_Meta_Conclusion          {tag,...})    = #is_conclusion tag
   | eval' (Is_A_Meta_Premise_Or_Below    {tag,...})    = #part_of_prem  tag
   | eval' (Is_A_Meta_Conclusion_Or_Below {tag,...})    = #part_of_cncl  tag
-  | eval' (Unode_Has_As_Subprint         ({print,...}, subprint))  = String.isSubstring subprint print;
+  | eval' (Unode_Has_As_Subprint         ({print,...}, subprint))  =
+      String.isSubstring subprint print;
 
 fun eval assert = eval' assert |> Eval_Bool.bool_to_assert;
 

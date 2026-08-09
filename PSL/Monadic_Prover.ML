@@ -14,11 +14,13 @@ sig
                      | CSubgoal;
   datatype cpgt      = CGeneralize | CConjecture;(*proof goal transformer*)
   datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
-                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule | CSmart_Induct;
+                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule
+                     | CSmart_Induct;
   datatype cstatic = CSPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
   datatype cdynamic = CDPrim of cprim_str | CPGT of cpgt;
   datatype catom_str = CSttc of cstatic | CDyn of cdynamic;
-  (*CPThen cannot be a part of core_str, as the constructor class does not provide enough information.*)
+  (*CPThen cannot be a part of core_str, as the constructor class does not provide enough
+    information.*)
   datatype cstrategic = CSolve1 | CRepeatN | CCut of int | CPSeq | CPSeq1 | CPOr | CPAlt;
   datatype core_str =
     CAtom of catom_str
@@ -29,7 +31,8 @@ sig
   | CAlt       of (core_str * core_str)
   | CRepBT     of core_str
   | CRepNB     of core_str
-  | CFails     of core_str (*Fails cannot be defined as just a syntactic sugar as the definition involves goal.*)
+  (*Fails cannot be defined as just a syntactic sugar as the definition involves goal.*)
+  | CFails     of core_str
   | CStrategic of (cstrategic * core_str list);
   type 'a stttac;
   type 'a params;
@@ -47,7 +50,8 @@ struct
   datatype cpgt     =  CGeneralize | CConjecture;(*proof goal transformer*)
   (*default tactics*)
   datatype cprim_str = CClarsimp | CSimp | CBlast | CFastforce | CAuto | CInduct
-                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule | CSmart_Induct;
+                     | CInductTac | CCoinduction | CCases | CCaseTac | CRule | CErule
+                     | CSmart_Induct;
   datatype combine = Unique | First;
   datatype cstatic = CSPrim of cprim_str | CSpec of cspecial | CSubt of csubtool | CUser of string;
   datatype cdynamic = CDPrim of cprim_str | CPGT of cpgt;
@@ -64,7 +68,8 @@ struct
   | CAlt      of (core_str * core_str)
   | CRepBT    of core_str
   | CRepNB    of core_str
-  | CFails    of core_str (*I cannot Fails as a syntactic sugar as the definition involves goal.*)
+  (*I cannot define Fails as a syntactic sugar as the definition involves goal.*)
+  | CFails    of core_str
   | CStrategic of (cstrategic * core_str list);
   type 'a stttac         = 'a -> 'a monad;
   type timeouts          = {overall: real, hammer: real, quickcheck: real, nitpick: real};
@@ -75,17 +80,23 @@ struct
   type 'a equal          = 'a monad -> 'a monad -> bool;
   type 'a iddfc          = int -> (catom_str -> 'a stttac) -> (catom_str -> 'a stttac);
   type depths            = (int * int);
-  type 'a params         = ('a eval_prim * 'a eval_para * 'a eval_pgt * 'a eval_strategic * 'a equal * 'a iddfc * depths * timeouts);
+  type 'a params         =
+    ('a eval_prim * 'a eval_para * 'a eval_pgt * 'a eval_strategic * 'a equal * 'a iddfc * depths
+     * timeouts);
   type 'a interpret      = 'a params -> core_str -> 'a stttac;
 
-  (*Interpret function similar to that of "A Monadic Interpretation of Tactics" by A. Martin et. al.*)
+  (*Interpret function similar to that of "A Monadic Interpretation of Tactics" by A. Martin
+    et. al.*)
   (*TODO: use timeouts*)
-  fun interpret (eval_prim, eval_para, eval_pgt, eval_strategic, m_equal, iddfc, (n_deepenings, n_steps_each), timeouts)
-                (strategy:core_str) goal =
+  fun interpret
+      (eval_prim, eval_para, eval_pgt, eval_strategic, m_equal, iddfc,
+        (n_deepenings, n_steps_each), timeouts)
+      (strategy:core_str) goal =
     let
        fun is_mzero monad        = m_equal monad mzero;
        fun eval (CSttc str) goal = Utils.try_with mzero (eval_prim timeouts str) goal
-         | eval (CDyn (CPGT str)) goal = (*TODO: remove the code duplication with the following clause.*)
+         | eval (CDyn (CPGT str)) goal =
+             (*TODO: remove the code duplication with the following clause.*)
            let
              fun how_to_combine_results CGeneralize = Unique
               |  how_to_combine_results CConjecture = Unique
@@ -157,7 +168,7 @@ struct
                   let
                     val res1             = inter str res0;
                     fun get_next current = bind current inter_CRepBT;
-                    val result           = if is_mzero res1 then return res0 
+                    val result           = if is_mzero res1 then return res0
                                                             else mplus (get_next res1, return res0)
                   in
                     result
@@ -179,15 +190,16 @@ struct
               in
                 bind first_failed_result inter_CRepNB
               end
-            (*Note that it's not possible to treat Rep as a syntactic sugar. Desugaring gets stuck.*)
+            (*Note that it's not possible to treat Rep as a syntactic sugar. Desugaring gets
+              stuck.*)
             | inter (CFails str) goal = if is_mzero (inter str goal) then return goal else mzero
             | inter (CStrategic (sttgic, strs)) goal = eval_strategic (sttgic, map inter strs) goal;
       in
         inter strategy goal
       end
 
-    (* Yutaka no longer wants to use iteratively deepening depth first search based on this implementation
-     * because this implementation involves too many repetitions. *)
+    (* Yutaka no longer wants to use iteratively deepening depth first search based on this
+     * implementation because this implementation involves too many repetitions. *)
     fun results' 0 = mzero
       | results' m =
           let
@@ -198,13 +210,14 @@ struct
           end
     val results = Timeout.apply_physical (seconds (#overall timeouts)) (*results' n_deepenings*)
                   inter_with_limit (n_deepenings * n_steps_each) handle Timeout.TIMEOUT _ => mzero
-  in 
+  in
     results
   end
 end;
 
 (*** Monadic_Interpreter_Core: The core of PSL. ***)
-(** mk_Monadic_Interpreter_Core_from_Monad_0plus_Min: makes the core of PSL from a monoid and a monad with a zero and plus **)
+(** mk_Monadic_Interpreter_Core_from_Monad_0plus_Min: makes the core of PSL from a monoid and a
+    monad with a zero and plus **)
 functor mk_Monadic_Interpreter_Core_from_Monad_0plus_Min
  (structure Log : MONOID; structure M0P_Min : MONAD_0PLUS_MIN) =
 let
@@ -434,12 +447,12 @@ fun desugar Clarsimp        = prim CClarsimp
  |  desugar Skip            = CSkip
  |  desugar Fail            = CFail
  |  desugar (Seq strs1)     = (case Seq.pull strs1 of
-     NONE               => error "Seq needs at least one arguement."
+     NONE               => error "Seq needs at least one argument."
    | SOME (str1, strs2) => case Seq.pull strs2 of
        NONE   => desugar str1
      | SOME _ => desugar str1 CSeq (desugar (Seq strs2)))
  |  desugar (Alt strs1)     = (case Seq.pull strs1 of
-     NONE               => error "Alt needs at least one arguement."
+     NONE               => error "Alt needs at least one argument."
    | SOME (str1, strs2) => case Seq.pull strs2 of
        NONE   => desugar str1
      | SOME _ => desugar str1 CAlt (desugar (Alt strs2)))
@@ -450,7 +463,7 @@ fun desugar Clarsimp        = prim CClarsimp
     (*non-monadic strategics that are syntactic sugar.*)
     (*desugar (str1 Or str2) = desugar (str1 Alt (Fails str1 Seq str2)) is very inefficient.*)
  |  desugar (Or strs1)      = (case Seq.pull strs1 of
-     NONE               => error "Alt needs at least one arguement."
+     NONE               => error "Or needs at least one argument."
    | SOME (str1, strs2) => case Seq.pull strs2 of
        NONE   => desugar str1
      | SOME _ => desugar str1 COr (desugar (Or strs2)))
@@ -502,7 +515,8 @@ type eval_para       = MIC.cprim_str -> state -> state MIC.stttac Seq.seq;
 type eval_pgt        = MIC.cpgt -> state -> state MIC.stttac Seq.seq;
 type eval_strategic  = MIC.cstrategic * state MIC.stttac list -> state MIC.stttac;
 type m_equal         = state MIC.monad -> state MIC.monad -> bool;
-type iddfc           = int -> (MIC.catom_str -> state MIC.stttac) -> MIC.catom_str -> state MIC.stttac;
+type iddfc           =
+  int -> (MIC.catom_str -> state MIC.stttac) -> MIC.catom_str -> state MIC.stttac;
 type log             = Dynamic_Utils.log;
 type monad           = state Dynamic_Utils.st_monad;
 type monad_tac       = state Dynamic_Utils.stttac;
@@ -547,15 +561,21 @@ fun eval_prim (timeouts:timeouts) (prim:MIC.cstatic) (goal_state:state) =
     | MIC.CSPrim MIC.CCaseTac =>      (show_trace "CCaseTac";       string_to_stttac "case_tac")
     | MIC.CSPrim MIC.CRule   =>       (show_trace "CRule";          string_to_stttac "rule")
     | MIC.CSPrim MIC.CErule  =>       (show_trace "CErule";         string_to_stttac "erule")
-    | MIC.CSPrim MIC.CSmart_Induct => (show_trace "CSmart_Induct";  error "eval_prim failed. Smart_Induct is only for eval_para")
-    | MIC.CSpec MIC.CIntroClasses =>  (show_trace "CIntro_Classes"; string_to_stttac "intro_classes")
+    | MIC.CSPrim MIC.CSmart_Induct =>
+        (show_trace "CSmart_Induct";  error "eval_prim failed. Smart_Induct is only for eval_para")
+    | MIC.CSpec MIC.CIntroClasses =>
+        (show_trace "CIntro_Classes"; string_to_stttac "intro_classes")
     | MIC.CSpec MIC.CTransfer =>      (show_trace "CTransfer";      string_to_stttac "transfer")
-    | MIC.CSpec MIC.CNormalization => (show_trace "CNormalization"; string_to_stttac "normalization")
+    | MIC.CSpec MIC.CNormalization =>
+        (show_trace "CNormalization"; string_to_stttac "normalization")
     | MIC.CSpec MIC.CSubgoal =>       (show_trace "CSubgoal";       Subtools.subgoal ())
-    | MIC.CSubt MIC.CHammer =>        (show_trace "CHammer";        Subtools.hammer (#hammer timeouts))
+    | MIC.CSubt MIC.CHammer =>
+        (show_trace "CHammer";        Subtools.hammer (#hammer timeouts))
     | MIC.CSpec MIC.CIsSolved =>      (show_trace "CIs_Solved";     Subtools.is_solved ())
-    | MIC.CSubt MIC.CQuickcheck=>     (show_trace "CQuickcheck";    Subtools.quickcheck (#quickcheck timeouts))
-    | MIC.CSubt MIC.CNitpick   =>     (show_trace "CNitpick";       Subtools.nitpick (#nitpick timeouts))
+    | MIC.CSubt MIC.CQuickcheck=>
+        (show_trace "CQuickcheck";    Subtools.quickcheck (#quickcheck timeouts))
+    | MIC.CSubt MIC.CNitpick   =>
+        (show_trace "CNitpick";       Subtools.nitpick (#nitpick timeouts))
     | MIC.CSpec MIC.CDefer     =>     (show_trace "CDefer";         Subtools.defer ())
     | MIC.CUser tac_name =>           (show_trace tac_name;         user_stttac tac_name);
   in
@@ -586,8 +606,10 @@ fun eval_para (str:MIC.cprim_str) (state:Proof.state) =
     Seq2.try_seq get_state_stttacs state : monad_tac seq
   end;
 
-fun eval_pgt (MIC.CGeneralize:MIC.cpgt) (state:Proof.state) = Seq2.try_seq Dynamic_Tactic_Generation.generalize state : monad_tac seq
- |  eval_pgt (MIC.CConjecture:MIC.cpgt) (state:Proof.state) = Seq2.try_seq Dynamic_Tactic_Generation.conjecture state : monad_tac seq;
+fun eval_pgt (MIC.CGeneralize:MIC.cpgt) (state:Proof.state) =
+      Seq2.try_seq Dynamic_Tactic_Generation.generalize state : monad_tac seq
+ |  eval_pgt (MIC.CConjecture:MIC.cpgt) (state:Proof.state) =
+      Seq2.try_seq Dynamic_Tactic_Generation.conjecture state : monad_tac seq;
 
 (* m_equal *)
 fun m_equal (st_mona1:monad) (st_mona2:state MIC.monad) =
@@ -610,7 +632,8 @@ fun m_equal (st_mona1:monad) (st_mona2:state MIC.monad) =
 fun solve_1st_subg (tac:monad_tac) (goal:state) (log:log) =
   let
     val get_thm = Isabelle_Utils.proof_state_to_thm;
-    fun same_except_for_fst_prem' x y = Isabelle_Utils.same_except_for_fst_prem (get_thm x) (get_thm y)
+    fun same_except_for_fst_prem' x y =
+          Isabelle_Utils.same_except_for_fst_prem (get_thm x) (get_thm y)
   in
     tac goal log
     |> Seq.filter (fn (_, st')  => same_except_for_fst_prem' goal st'):(log * state) Seq.seq
@@ -638,13 +661,37 @@ val of_list = Seq.of_list;
 
 in
 
+(* The P-prefixed combinators: PThenAll, PThenOne, POrs, PAlts.
+ *
+ * They exist to run their branches in parallel, and they no longer do. What they do now is
+ * exactly what their names say - "then all", "then one", "or", "alternatives" - evaluated in
+ * order, on this thread.
+ *
+ * Two of them, POrs and PThenOne, used Par_List.get_some, which stops the branches it no longer
+ * needs by cancelling their task group. That interrupts the shared worker threads those
+ * branches are running on, and since a worker takes over other queued work whenever it waits,
+ * the interrupt can land on a thread that has already moved on to something unrelated;
+ * Future.worker_exec then cancels that unrelated task's group, which in a batch build is the
+ * theory's. The same mechanism was measured directly in TBC preprocessing - four failures in
+ * eight runs of a command that had itself completed normally, with the interrupt surfacing as a
+ * positionless "*** Interrupt" belonging to no command at all (see TBC_Preprocessor).
+ *
+ * Surviving one's own cancellations also required suppressing interrupts in two places - one
+ * inside a branch, one for an interrupt left pending on this thread afterwards - and the
+ * implementation manual names precisely that (Exn.capture without Exn.release) as what makes a
+ * program's behaviour depend on physical events. Both are gone with the parallelism that needed
+ * them, and an interrupt arriving here now means what it says.
+ *
+ * The parallelism that matters for throughput is above this layer, in the OR-node worker pool:
+ * it keeps every worker busy on a different node, and it never cancels anything. Parallelism
+ * inside a single strategy was duplicating that at the level where it does the damage. *)
+
 (* pseq *)
-(*Note that pthen locally introduces strict evaluation.*)
 fun pseq (tac1::[tac2]:monad_tac list) : monad_tac = (fn goal:state =>
   let
-     val pmap = Par_List.map;
      fun pbind (monad:monad) (tactic:monad_tac) : monad = fn state0 : log => (fn seq => fn func =>
-       of_list (flat (pmap (list_of o func) (list_of seq)))) (monad state0) (fn (state1, result1) =>
+       of_list (flat (map (fn x => list_of (func x)) (list_of seq))))
+         (monad state0) (fn (state1, result1) =>
        tactic result1 state1);
   in
     pbind (tac1 goal) tac2
@@ -653,13 +700,12 @@ fun pseq (tac1::[tac2]:monad_tac list) : monad_tac = (fn goal:state =>
 
 (* pseq1 *)
 (*Note that pthen1 does not satisfy the monad law as a bind.*)
-(*Nevertheless, pthen1 is useful to exploit parallelism.*)
 fun pseq1 (tac1::[tac2]:monad_tac list) : monad_tac = (fn goal:state =>
   let
-     val get_some   = Par_List.get_some;
      val seq_to_opt = Seq2.seq_to_option;
      fun pbind (monad:monad) (tactic:monad_tac) : monad = fn state0 : log => (fn seq => fn func =>
-       of_list (the_list (get_some (seq_to_opt o func) (list_of seq)))) (monad state0) (fn (state1, result1) =>
+       of_list (the_list (get_first (fn x => seq_to_opt (func x)) (list_of seq))))
+         (monad state0) (fn (state1, result1) =>
        tactic result1 state1);
   in
     pbind (tac1 goal) tac2
@@ -668,56 +714,75 @@ fun pseq1 (tac1::[tac2]:monad_tac list) : monad_tac = (fn goal:state =>
 
 
 (* pors *)
-fun pors' (goal:state, tactic:monad_tac) : monad option =
-  let
-    val result      = (fn (log:log) => tactic goal log) : monad;
-    (*some_result forces evaluation to exploit parallelism.*)
-    val some_result = if m_equal MIC.mzero result then NONE else SOME result : monad option;
-  in
-    some_result
-end;
+(*Number of results forced from a winning branch. The previous implementation already forced
+  five (via m_equal against mzero), so this is not extra work - it is the same probe, kept.*)
+val pors_branch_depth = 5;
 
-fun pors (tactics:monad_tac list) : monad_tac = (fn goal:state =>
-  let
-    val states = replicate (length tactics) goal : state list;
-    val some_monad = Par_List.get_some pors' (ListPair.zip (states, tactics));
-    val result = case some_monad of
-      NONE       => MIC.mzero
-    | SOME monad => monad;
-  in
-    result:monad
-  end);
+(*Run one branch to a pure value: NONE if it produced nothing, otherwise its results.*)
+fun pors' (goal:state) (log:log) (tactic:monad_tac) : (log * state) list option =
+  case Seq.list_of (Seq.take pors_branch_depth (tactic goal log)) of
+    []      => NONE
+  | results => SOME results;
+
+(*Ors, taking the first branch in order that yields anything.
+
+  The branches run one after another. They used to run concurrently under
+  Par_List.get_some, and that is the last place in this codebase where cancellation was used as
+  control flow: get_some stops the losing branches by cancelling their task group, which
+  interrupts the shared worker threads they are running on. A worker takes over other queued
+  work whenever it waits, so such an interrupt can land on a thread that has moved on to
+  something else entirely, and Future.worker_exec then cancels that unrelated task's group - in
+  a batch build, the theory's. The same mechanism was measured directly in TBC preprocessing
+  (see TBC_Preprocessor): four failures in eight runs, in a command that had itself completed
+  normally.
+
+  Running the branches in parallel also needed two suppressions to survive its own cancellations
+  - one absorbing an interrupt inside a branch, one consuming an interrupt left pending on this
+  thread afterwards - and the implementation manual names exactly that (Exn.capture without
+  Exn.release) as what makes a program depend on physical events. Both are gone with the
+  parallelism that required them.
+
+  What this costs is that a slow branch is no longer overlapped with a fast one: the cost of an
+  Ors is now the sum of the branches tried rather than the time of the winner. What it buys is
+  that AbductionProver leaves nothing behind that can abort somebody else's proof. The
+  parallelism that matters for throughput is above this, in the OR-node worker pool, which keeps
+  every worker busy on a different node and never cancels anything.*)
+fun pors (tactics:monad_tac list) : monad_tac = (fn goal:state => fn log:log =>
+  case get_first (pors' goal log) tactics of
+    NONE         => MIC.mzero log
+  | SOME results => Seq.of_list results);
 
 (* palts *)
+(*Lazy, as it must be: an alternative may yield unboundedly many results, so the alternatives are
+  not forced up front. Seq.map and Seq.flat both pull on demand.*)
 fun palts (tactics:monad_tac list) : monad_tac = (fn goal:state => (fn log:log =>
-  let
-    val goal_n_log  = replicate (length tactics) (log, goal) : (log * state) list;
-    val get_result  = fn ((log:log, goal:state), tactic:monad_tac) => tactic goal log : (log * state) seq;
-    val result_list = Par_List.map get_result (ListPair.zip (goal_n_log, tactics))
-                    : (log * state) seq list;
-    val result_seq  = result_list |> of_list |> Seq.flat : (log * state) seq;
-  in
-    result_seq
-  end) : monad) : monad_tac;
+  Seq.of_list tactics |> Seq.map (fn tactic => tactic goal log) |> Seq.flat) : monad) : monad_tac;
 
 end;
 
 (* eval_strategic *)
 fun eval_strategic (MIC.CSolve1, [tac:monad_tac])  = solve_1st_subg tac
- |  eval_strategic (MIC.CSolve1, _)  = error "eval_strategic failed. M.Solve1 needs exactly one tactic."
+ |  eval_strategic (MIC.CSolve1, _)  =
+      error "eval_strategic failed. M.Solve1 needs exactly one tactic."
  |  eval_strategic (MIC.CRepeatN, [tac:monad_tac]) = repeat_n tac
- |  eval_strategic (MIC.CRepeatN, _) = error "eval_strategic failed. M.RepeatN needs exactly one tactic."
+ |  eval_strategic (MIC.CRepeatN, _) =
+      error "eval_strategic failed. M.RepeatN needs exactly one tactic."
  |  eval_strategic (MIC.CCut lim, [tac:monad_tac]) =
       if lim > 0 then cut lim tac
       else error "eval_strategic failed. The limit for CCut has to be larger than 0."
- |  eval_strategic (MIC.CCut _, _)   = error "eval strategic failed. M.CCut needs exactly one tactic."
+ |  eval_strategic (MIC.CCut _, _)   =
+      error "eval strategic failed. M.CCut needs exactly one tactic."
  |  eval_strategic (MIC.CPSeq1, tac1::[tac2]) = pseq1 (tac1::[tac2])
- |  eval_strategic (MIC.CPSeq1, _)   = error "eval strategic failed. MIC.CPSeq1 needs exactly two tactics."
+ |  eval_strategic (MIC.CPSeq1, _)   =
+      error "eval strategic failed. MIC.CPSeq1 needs exactly two tactics."
  |  eval_strategic (MIC.CPSeq, tac1::[tac2]) = pseq (tac1::[tac2])
- |  eval_strategic (MIC.CPSeq, _)    = error "eval strategic failed. MIC.CPSeq needs exactly two tactics."
- |  eval_strategic (MIC.CPOr, [])    = error "eval strategic failed. MIC.CPSeq needs at least one tactic."
+ |  eval_strategic (MIC.CPSeq, _)    =
+      error "eval strategic failed. MIC.CPSeq needs exactly two tactics."
+ |  eval_strategic (MIC.CPOr, [])    =
+      error "eval strategic failed. MIC.CPSeq needs at least one tactic."
  |  eval_strategic (MIC.CPOr, tacs)  = pors tacs
- |  eval_strategic (MIC.CPAlt,[])    = error "eval strategic failed. M.PAlt needs at least one tactic."
+ |  eval_strategic (MIC.CPAlt,[])    =
+      error "eval strategic failed. M.PAlt needs at least one tactic."
  |  eval_strategic (MIC.CPAlt,tacs)  = palts tacs;
 
 (* iddfc *)

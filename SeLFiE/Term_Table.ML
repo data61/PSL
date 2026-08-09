@@ -13,7 +13,8 @@ val unodes_to_unode_table: UN.unodes -> UN.unode Inner_Path_Table.table;
 type print_to_inner_paths_table  = UN.inner_paths Print_Table.table;
 type print_to_inner_paths_tables = print_to_inner_paths_table list;
 
-val print_to_inner_paths_table_n_print_to_inner_paths: print_to_inner_paths_table -> string -> UN.inner_paths;
+val print_to_inner_paths_table_n_print_to_inner_paths:
+  print_to_inner_paths_table -> string -> UN.inner_paths;
 
 (* location: first sub-goal = Nth_Subg 0. *)
 datatype location      = Nth_Subg of int | Chained_Fact of int;
@@ -25,7 +26,8 @@ val in_chained_facts: location -> bool;
 val same_location   : (location * location) -> bool;
 
 (*Use One_Term.keys to implement it.*)
-val inner_paths_at_the_same_level            : UN.inner_path -> UN.inner_path -> bool;(*TODO: Move this to Unique_Node?*)
+(*TODO: Move this to Unique_Node?*)
+val inner_paths_at_the_same_level            : UN.inner_path -> UN.inner_path -> bool;
 val inner_path1_is_an_arg_of_inner_path2     : UN.inner_path -> UN.inner_path -> bool;
 val inner_path1_is_nth_arg_of_inner_path2    : UN.inner_path -> int -> UN.inner_path -> bool;
 val inner_path_to_unode_table_to_lowest_fvars: inner_path_to_unode_table -> UN.inner_paths;
@@ -41,12 +43,14 @@ struct
 type inner_path_to_unode_table     = UN.unode       Inner_Path_Table.table;
 
 fun unodes_to_unode_table (unodes:UN.unodes) =
-   List.map (fn unode => (#inner_path unode, unode)) unodes |> Inner_Path_Table.make: UN.unode Inner_Path_Table.table;
+   List.map (fn unode => (#inner_path unode, unode)) unodes |> Inner_Path_Table.make
+   : UN.unode Inner_Path_Table.table;
 
 type print_to_inner_paths_table  = Unique_Node.inner_path list Print_Table.table;
 type print_to_inner_paths_tables = print_to_inner_paths_table list;
 
-fun print_to_inner_paths_table_n_print_to_inner_paths (print_to_inner_paths_table:print_to_inner_paths_table) (print: string) =
+fun print_to_inner_paths_table_n_print_to_inner_paths
+    (print_to_inner_paths_table:print_to_inner_paths_table) (print: string) =
   Print_Table.lookup_list print_to_inner_paths_table print;
 
 (* location: first sub-goal = Nth_Subg 0. *)(*TODO: should I declare this here?*)
@@ -85,27 +89,35 @@ fun inner_path1_is_an_arg_of_inner_path2 (inner_path1:UN.inner_path) (inner_path
     val inner_path2_last_option = try Utils.last inner_path2: int option;
     (*TODO: This is not always correct. We have to exclude Abstraction by checking the parent node.
      *      For this, we need the inner_path_to_node table. *)
-    val inner_path2_is_func     = Option.map (      equal 0) inner_path2_last_option |> Utils.is_some_true: bool;
-    val inner_path1_is_arg      = Option.map (not o equal 0) inner_path1_last_option |> Utils.is_some_true: bool;
+    val inner_path2_is_func =
+          Option.map (      equal 0) inner_path2_last_option |> Utils.is_some_true: bool;
+    val inner_path1_is_arg  =
+          Option.map (not o equal 0) inner_path1_last_option |> Utils.is_some_true: bool;
   in
     same_inits inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_arg
   end;
 
-fun inner_path1_is_nth_arg_of_inner_path2 (inner_path1:UN.inner_path) (n:int) (inner_path2:UN.inner_path) =
+fun inner_path1_is_nth_arg_of_inner_path2
+    (inner_path1:UN.inner_path) (n:int) (inner_path2:UN.inner_path) =
   let
     val inner_path1_last_option = try Utils.last inner_path1: int option;
     val inner_path2_last_option = try Utils.last inner_path2: int option;
     (*TODO: This is not always correct. We have to exclude Abstraction by checking the parent node.
      *      For this, we need the inner_path_to_node table. *)
-    val inner_path2_is_func    = Option.map (equal 0) inner_path2_last_option |> Utils.is_some_true: bool;
+    val inner_path2_is_func =
+          Option.map (equal 0) inner_path2_last_option |> Utils.is_some_true: bool;
     (* "n + 1" because the "0" is used for the function (or lambda abstraction).*)
-    val inner_path1_is_nth_arg = Option.map (equal (n + 1)) inner_path1_last_option |> Utils.is_some_true: bool;
+    val inner_path1_is_nth_arg =
+          Option.map (equal (n + 1)) inner_path1_last_option |> Utils.is_some_true: bool;
   in
     same_inits inner_path1 inner_path2 andalso inner_path2_is_func andalso inner_path1_is_nth_arg
   end;
 
-val inner_path_to_unode_table_to_lowest_fvars = undefined: inner_path_to_unode_table -> Unique_Node.inner_path list;
-val inner_path_to_ancestor_inner_paths        = undefined: Unique_Node.inner_path -> Unique_Node.inner_path list;
-val inner_path_to_descendent_inner_paths      = undefined: Unique_Node.inner_path -> Unique_Node.inner_path list;
+val inner_path_to_unode_table_to_lowest_fvars =
+      undefined: inner_path_to_unode_table -> Unique_Node.inner_path list;
+val inner_path_to_ancestor_inner_paths =
+      undefined: Unique_Node.inner_path -> Unique_Node.inner_path list;
+val inner_path_to_descendent_inner_paths =
+      undefined: Unique_Node.inner_path -> Unique_Node.inner_path list;
 
 end;

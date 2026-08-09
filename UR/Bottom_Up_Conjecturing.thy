@@ -365,7 +365,7 @@ fun term_is_relation (Const (_, typ)) = body_type typ = @{typ "HOL.bool"}
 fun condition_for_relation (func:term) =
   term_is_relation func andalso
   takes_n_arguments func 2 andalso
-  all_args_are_same_typ [func]                                             
+  all_args_are_same_typ [func]
 
 
 fun mk_implies (ctxt:Proof.context) (prem, cncl) =

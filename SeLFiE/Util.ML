@@ -51,7 +51,8 @@ sig
   val debug_mssg                              : bool -> string -> 'a -> 'a;
   val try'                                    : string -> ('a -> 'b) -> 'a -> 'b;
   val try_with                                : 'b -> ('a -> 'b) -> 'a -> 'b;
-  val are_same                                : (string * string) -> bool; (*FIXME: Isn't this redundant? We already have equal.*)
+  (*FIXME: Isn't this redundant? We already have equal.*)
+  val are_same                                : (string * string) -> bool;
   val index                                   : 'a list -> (int * 'a) list;
   val power                                   : int -> int -> int;
   val nat_to_frac                             : int -> real;
@@ -65,12 +66,14 @@ sig
   val cart_prod                               : 'a list -> 'b list -> ('a * 'b) list;
   val add_index                               : 'a list -> (int * 'a) list; (*index starts at 0*);
   val order_sensitive_multi_subset            : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool;
-  val map_flat_distinct                       : (term -> 'a list) -> ('a * 'a -> bool) -> terms -> 'a list;
+  val map_flat_distinct                       :
+    (term -> 'a list) -> ('a * 'a -> bool) -> terms -> 'a list;
   val exist_n                                 : ('a -> bool) -> int -> 'a list -> bool;
   val exist_mult                              : ('a -> bool) -> 'a list -> bool;
   val mk_option_pair                          : ('a option * 'b option) -> ('a * 'b) option;
   val mk_options_pair                         : ('a * 'b) option -> ('a option * 'b option);
-  val mapPartial2                             : ('a -> 'b option) -> ('a * 'a) option -> ('b * 'b) option;
+  val mapPartial2                             :
+    ('a -> 'b option) -> ('a * 'a) option -> ('b * 'b) option;
   val alist_add                               : (''a * 'a) list -> (''a * 'a) -> (''a * 'a) list;
   val alist_lookup_eq                         : (''a * 'a) list -> ''a -> 'a option;
   val opt_equal                               : (''a option * ''a option) -> bool;
@@ -277,7 +280,8 @@ fun mapPartial2  (f:'a -> 'b option) (SOME (x1, x2)) =
     in result end
   | mapPartial2 _ _ = NONE;
 
-fun alist_add       (alist: (''a * 'a) list) (key:''a, value:'a) = AList.update (op =) (key, value) alist: (''a * 'a) list;
+fun alist_add       (alist: (''a * 'a) list) (key:''a, value:'a) =
+  AList.update (op =) (key, value) alist: (''a * 'a) list;
 
 fun alist_lookup_eq (alist: (''a * 'b) list) (key:''a)           = AList.lookup (op =) alist key;
 
@@ -309,7 +313,7 @@ end;
 (*** SEQ2 : Auxiliary functions on Seq.seq ***)
 (*
   SEQ2 contains useful functions defined on Seq.seq that do not appear the Isabelle source code.
-  AEQ2 does not have significant duplication with the Isabelle source code. 
+  AEQ2 does not have significant duplication with the Isabelle source code.
 *)
 signature SEQ2 =
 sig
@@ -333,7 +337,7 @@ struct
     let
       val seq   = func goal
       val pairs = Seq.map (fn x => (logs, (x, ctxt))) seq
-    in 
+    in
       pairs
     end;
 
@@ -367,12 +371,12 @@ struct
     in
       itr_seq sq
     end;
-  
+
   fun seq_number (xs:'a Seq.seq) : (int * 'a) Seq.seq =
     let
       fun seq_number' (xs : 'a Seq.seq) (n:int) (ys : (int * 'a) Seq.seq) = case Seq.pull xs of
         NONE              => ys : (int * 'a) Seq.seq
-      | SOME (x:'a, tail) => 
+      | SOME (x:'a, tail) =>
          if   n < 0 then error "seq_number' in Utils failed. negative index!"
          else seq_number' tail (n + 1) (Seq.append  ys (Seq.single (n, x)) : (int * 'a) Seq.seq);
     in
@@ -380,8 +384,9 @@ struct
     end;
 
   (*For "same_seq test (xs, ys)" to be true, they have to be of the same length.*)
-  fun same_seq (are_same : (('a * 'a) -> bool)) (xs:'a Seq.seq,  ys:'a Seq.seq):bool = case Seq.pull xs of
-    NONE => (case Seq.pull ys of 
+  fun same_seq (are_same : (('a * 'a) -> bool)) (xs:'a Seq.seq, ys:'a Seq.seq):bool =
+    case Seq.pull xs of
+    NONE => (case Seq.pull ys of
       NONE   => true
     | SOME _ => false)
   | SOME (x, _) => (case Seq.pull ys of
@@ -420,7 +425,8 @@ sig
   val get_1st_subg                      : thm -> term option;
   val flatten_trm                       : term -> terms;
   val get_trms_in_thm                   : thm -> terms;
-  val get_trm_in                        : location -> thm -> term option;(*Should it return a list of terms?*)
+  (*Should it return a list of terms?*)
+  val get_trm_in                        : location -> thm -> term option;
   val get_cnames_in_trm                 : term -> strings;
   val get_outmost_cname                 : term -> string option;
   val get_typ_names_in_trm              : term -> strings;
@@ -455,7 +461,8 @@ sig
   val trm_to_fst_args_of_const          : string -> term -> terms;
   val trm_to_snd_args_of_const          : string -> term -> terms;
   val pstate_to_1st_subg_n_chained_facts: Proof.state -> terms;
-  val pstate_to_1st_subg_n_chained_facts_record   : Proof.state -> {fst_subg:term option, chained_facts:terms};
+  val pstate_to_1st_subg_n_chained_facts_record   :
+    Proof.state -> {fst_subg:term option, chained_facts:terms};
   val pstate_to_cnames_in_1st_subg_n_chained_facts: Proof.state -> string list;
   val trms_have_cname                             : string -> terms -> bool;
   val trm_has_prop                                : term -> bool;
@@ -463,20 +470,26 @@ sig
   val is_typ_of_name                              : string -> typ -> bool;
   val is_nat_typ                                  : typ -> bool;
   val trm_has_nat_typ                             : term -> bool;
-  val trm_to_nats                                 : term -> {consts: term list, frees: term list, vars: term list};
+  val trm_to_nats                                 :
+    term -> {consts: term list, frees: term list, vars: term list};
   val is_fun_typ                                  : typ -> bool;
   val trm_has_fun_typ                             : term -> bool;
-  val trm_to_funs                                 : term -> {consts: term list, frees: term list, vars: term list};
+  val trm_to_funs                                 :
+    term -> {consts: term list, frees: term list, vars: term list};
   val is_set_typ                                  : typ -> bool;
   val trm_has_set_typ                             : term -> bool;
   val is_int_typ                                  : typ -> bool;
   val trm_has_int_typ                             : term -> bool;
   val is_record_trm                               : term -> bool;
-  val trm_to_sets                                 : term -> {consts: term list, frees: term list, vars: term list};
-  val is_list_typ                                 : typ -> bool;(*TODO: this name is misleading.*)
+  val trm_to_sets                                 :
+    term -> {consts: term list, frees: term list, vars: term list};
+  (*TODO: this name is misleading.*)
+  val is_list_typ                                 : typ -> bool;
   val trm_has_list_typ                            : term -> bool;
-  val trm_to_lists                                : term -> {consts: term list, frees: term list, vars: term list};
-  val trm_to_sets_and_lists                       : term -> {consts: term list, frees: term list, vars: term list};
+  val trm_to_lists                                :
+    term -> {consts: term list, frees: term list, vars: term list};
+  val trm_to_sets_and_lists                       :
+    term -> {consts: term list, frees: term list, vars: term list};
   val trm_to_string                               : Proof.context -> term -> string;
   val count_numb_of_args_of_fun_typ               : typ -> int;
   val is_recursive_eq_about_cosnt_name            : term -> string -> bool;
@@ -487,7 +500,8 @@ sig
   val contract_abbrevs                            : Proof.context -> term -> term;
   val strip_atyp                                  : term -> term;
   val takes_n_arguments                           : term -> int -> bool;
-  val read_term_then_check_term                   : Proof.context -> string -> (term -> bool) -> bool;
+  val read_term_then_check_term                   :
+    Proof.context -> string -> (term -> bool) -> bool;
   val YXML_content_of                             : string -> string;
 end;
 
@@ -542,7 +556,8 @@ fun get_outmost_cname (trm:term) =
     val snd_last_cname      = try (nth cnames) (numb - 2): string option;
     val outmost_is_Trueprop = Option.map (equal "HOL.Trueprop") last_cname: bool option;
   in
-    Option.map (Utils.If (snd_last_cname, last_cname)) outmost_is_Trueprop |> Option.join: string option
+    Option.map (Utils.If (snd_last_cname, last_cname)) outmost_is_Trueprop |> Option.join
+    : string option
   end;
 
 fun get_cnames_in_1st_subg (goal:thm) = goal
@@ -637,28 +652,25 @@ fun mk_proof_obligation ctxt (prop_str:string) =
   Syntax.read_prop ctxt prop_str
   |> Thm.cterm_of ctxt
   |> Thm.trivial;
-
 (*Very similar to Timeout.apply but with my own release function, my_release.*)
-fun timeout_apply timeout f x =
-  Thread_Attributes.with_attributes Thread_Attributes.no_interrupts (fn orig_atts =>
-    let
-      val self = Thread.Thread.self ();
-      val start = Time.now ();
-      val request =
-        Event_Timer.request {physical = false} (start + timeout)
-          (fn () => Thread.Thread.interrupt self handle Thread.Thread _ => ());
-      val result =
-        Exn.capture (fn () => Thread_Attributes.with_attributes orig_atts (fn _ => f x)) ();
-      val stop = Time.now ();
-      val was_timeout = not (Event_Timer.cancel request);
-      val test = Exn.capture Isabelle_Thread.expose_interrupt ();
-      fun my_release (Exn.Res rel) = rel
-       |  my_release _ = error "my_release failed"
-    in
-      if was_timeout andalso (Exn.is_interrupt_exn result orelse Exn.is_interrupt_exn test)
-      then (raise Timeout.TIMEOUT (stop - start))
-      else (Exn.release test; my_release result)
-    end);
+(* timeout_apply *)
+(* Isabelle's own Timeout.apply. This used to be a hand-written copy of it, and differed in
+ * three ways that matter:
+ *
+ *   - it interrupted the thread with Thread.Thread.interrupt, the raw Poly/ML operation, where
+ *     Isabelle uses Isabelle_Thread.interrupt_thread, which raises the managed interrupt its
+ *     own machinery recognises;
+ *   - it tested Exn.is_interrupt_exn where Isabelle tests is_interrupt_PROPER_exn, so a
+ *     breakdown interrupt was mistaken for a user break and vice versa;
+ *   - it released results through a hand-rolled my_release that raises ERROR rather than
+ *     releasing.
+ *
+ * The consequence was that a timeout could put a raw interrupt on the thread instead of
+ * raising Timeout.TIMEOUT, which is why callers grew handlers for interrupts that should never
+ * have reached them. The note at the Sledgehammer call site - "Why Future here? Because
+ * Isabelle_Utils.timeout_apply alone is not reliable", with a TODO to improve it - is about
+ * this. See docs/2026_08_01_concurrency_review.md. *)
+fun timeout_apply timeout f x = Timeout.apply timeout f x;
 
 local
 (* SINGLE is copied from Tactical.ML, but the types are more general.*)
@@ -683,7 +695,8 @@ fun get_meth_name (Method.Source src) = (fst (Token.name_of_src src))
 
 end;
 
-(*same_except_for_fst_prem checks if two thms are the same except for the first premise of the second.*)
+(*same_except_for_fst_prem checks if two thms are the same except for the first premise of
+  the second.*)
 fun same_except_for_fst_prem (goal1:thm) (goal2:thm) =
 let
   (*goal1 should have one less premise.*)
@@ -754,7 +767,8 @@ fun pstate_to_chained_facts_as_terms (pst:Proof.state) =
     chained_trms
   end;
 
-fun trm_to_fst_args_of_const (cname:string) (Const (fn_cname, _) $ arg) = if cname = fn_cname
+fun trm_to_fst_args_of_const (cname:string) (Const (fn_cname, _) $ arg) =
+    if cname = fn_cname
     then trm_to_fst_args_of_const cname arg @ [arg]
     else trm_to_fst_args_of_const cname arg
   | trm_to_fst_args_of_const (cname:string)(trm1 $ trm2) =
@@ -762,7 +776,8 @@ fun trm_to_fst_args_of_const (cname:string) (Const (fn_cname, _) $ arg) = if cna
   | trm_to_fst_args_of_const (cname:string) (Abs (_, _, trm)) = trm_to_fst_args_of_const cname trm
   | trm_to_fst_args_of_const _ _ = [];
 
-fun trm_to_snd_args_of_const (cname:string) (Const (fn_cname, _) $ arg1 $ arg2) = if cname = fn_cname
+fun trm_to_snd_args_of_const (cname:string) (Const (fn_cname, _) $ arg1 $ arg2) =
+    if cname = fn_cname
     then trm_to_snd_args_of_const cname arg1 @ [arg2]
     else trm_to_snd_args_of_const cname arg1 @ trm_to_snd_args_of_const cname arg2
   | trm_to_snd_args_of_const (cname:string)(trm1 $ trm2) =
@@ -825,7 +840,8 @@ and trm_to_prop_trms (trm:term) =
     val props       = all @ equals @ implies @ conjcts                                  : terms;
     val deeper_lvl  = trm_to_prop_trms_help trm                                         : terms;
     val this_lvl    = map trm_to_prop_trms props |> flat                                : terms;
-    (*filter_out trm_has_prop removes some valuable terms in @{term "(\<And>x. y (z \<Longrightarrow> w) )"}*)
+    (*filter_out trm_has_prop removes some valuable terms in
+      @{term "(\<And>x. y (z \<Longrightarrow> w) )"}*)
     val all_results = (*filter_out trm_has_prop*) props @ this_lvl @ deeper_lvl         : terms;
   in
     distinct Term.aconv all_results
@@ -844,7 +860,8 @@ fun trm_to_certain_var_free_const (assert_trm:term -> bool) (trm:term) =
     result:{consts: term list, frees: term list, vars: term list}
   end;
 
-fun is_typ_of_name (typ_name:string) (typ:typ) = try dest_Type typ <$> fst <$> equal typ_name |> Utils.is_some_true;
+fun is_typ_of_name (typ_name:string) (typ:typ) =
+  try dest_Type typ <$> fst <$> equal typ_name |> Utils.is_some_true;
 
 fun is_nat_typ (typ:typ) = is_typ_of_name "Nat.nat" typ;
 
@@ -858,10 +875,14 @@ fun trm_has_fun_typ (trm:term) = Term.exists_type is_fun_typ trm: bool;
 
 fun trm_to_funs (trm:term) = trm_to_certain_var_free_const trm_has_fun_typ trm;
 
-fun is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ (inner as (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ _ ))) =
+fun is_record_trm
+      (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $
+        (inner as (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ _ ))) =
     is_record_trm inner
-  | is_record_trm (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $ Const ("Orderings.bot_class.bot", _))                                      = true
-  | is_record_trm  _                                                                                                                                    = false;
+  | is_record_trm
+      (Const ("Set.insert", _) $ (Const ("HOL.eq", _) $ _ $ _) $
+        Const ("Orderings.bot_class.bot", _)) = true
+  | is_record_trm  _ = false;
 
 fun is_set_typ (typ:typ) = is_typ_of_name "Set.set" typ;
 
@@ -912,7 +933,8 @@ fun has_recursive_simp_about_const_names (_   :Proof.context)  []             = 
      (check_thm_list (Proof_Context.get_thms ctxt (cname^".simps")) cname handle ERROR _ =>
       has_recursive_simp_about_const_names ctxt cnames);
 
-fun has_recursive_simp_about_const_name (ctxt:Proof.context) (cname:string) = has_recursive_simp_about_const_names ctxt [cname]
+fun has_recursive_simp_about_const_name (ctxt:Proof.context) (cname:string) =
+  has_recursive_simp_about_const_names ctxt [cname]
 
 fun has_recursive_psimp_about_const_name (ctxt:Proof.context) (cname:string) =
   let
@@ -920,7 +942,8 @@ fun has_recursive_psimp_about_const_name (ctxt:Proof.context) (cname:string) =
     val psimps              = try (Proof_Context.get_thms ctxt) psimps_name |> these: thms;
     val psimps_props        = map Thm.prop_of psimps                                : terms;
     val cncls_as_props      = map Logic.strip_imp_concl psimps_props                : terms;
-    val has_recursive_psimp = List.exists ((fn trm => is_recursive_eq_about_cosnt_name trm cname)) cncls_as_props;
+    val has_recursive_psimp =
+      List.exists ((fn trm => is_recursive_eq_about_cosnt_name trm cname)) cncls_as_props;
   in has_recursive_psimp end;
 
 fun normalize_trm_as_string (ctxt:Proof.context) (trm_as_string:string) =
@@ -975,7 +998,8 @@ sig
   val get_thms_of_name_with_these_substrs: context -> string list -> thm list;
   val get_thms_of_name_with_suffix       : context -> string -> string -> thm list;
   val get_thms_of_names_with_suffix      : context -> string list -> string -> thm list;
-  val get_induct_rules                   : get_rules;      (*used in PSL. TODO: to be replaced with pstate_to_induct_thms*)
+  (*used in PSL. TODO: to be replaced with pstate_to_induct_thms*)
+  val get_induct_rules                   : get_rules;
   val pstate_to_induct_thms              : pstate_to_thms; (*used in MeLoId*)
   val get_coinduction_rules              : get_rules;
   (*These get_(elim, intro, dest)_rules may not be powerful enough.*)
@@ -984,7 +1008,8 @@ sig
   val get_dest_rules                     : get_rules;
   val get_split_rules                    : get_rules;
   val get_simp_rule_names                : get_rule_names;
-  val get_induct_rule_names              : get_rule_names;      (*used in PSL. TODO: to be replaced with pstate_to_induct_thm_names*)
+  (*used in PSL. TODO: to be replaced with pstate_to_induct_thm_names*)
+  val get_induct_rule_names              : get_rule_names;
   val pstate_to_induct_thm_names         : pstate_to_thm_names; (*used in MeLoId*)
   val get_coinduction_rule_names         : get_rule_names;
   val get_elim_rule_names                : get_rule_names;
@@ -1010,11 +1035,13 @@ type pstate_to_thms      = Proof.state -> thms;
 type pstate_to_thm_names = Proof.state -> strings;
 
 fun get_criterion kind_name ([]:strings) = [(true, Name kind_name)]
-  | get_criterion kind_name (name::names:strings) = (true, Name name)::get_criterion kind_name names;
+  | get_criterion kind_name (name::names:strings) =
+      (true, Name name)::get_criterion kind_name names;
 
 fun all_names_to_rules kind_name (names:strings) ctxt (_(*just for type checking*):thm) =
-  try (find_theorems ctxt NONE NONE true) (get_criterion kind_name names) liftM snd |> Utils.is_some_null
-|> map (apfst Thm_Name.print);
+  try (find_theorems ctxt NONE NONE true) (get_criterion kind_name names) liftM snd
+  |> Utils.is_some_null
+  |> map (apfst Thm_Name.print);
 
 fun some_names_to_rules kind_name names ctxt goal: (string * thm) list = names
   |> map (fn name:string => all_names_to_rules kind_name [name] ctxt goal: (string * thm) list)
@@ -1059,11 +1086,13 @@ fun get_induct_rules (ctxt:context) (goal:thm) =
 
 fun get_induct_rule_names ctxt goal = get_rule_names get_induct_rules ctxt goal : strings;
 
-(* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant with a given suffix from the current context. *)
+(* get_thms_of_const_name_with_suffix returns the thms that are named after a given constant
+   with a given suffix from the current context. *)
 fun get_thms_of_name_with_suffix (ctxt:context) (sfx:string) (name:string) =
   try (Proof_Context.get_thms ctxt) (name ^ "." ^ sfx) |> these: thms;
 
-(* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with multiple constant names. *)
+(* get_thms_of_cnames_with_suffix is similar to get_thms_of_const_name_with_suffix, but with
+   multiple constant names. *)
 fun get_thms_of_names_with_suffix (ctxt:context) (names:strings) (sfx:string) =
   map (get_thms_of_name_with_suffix ctxt sfx) names |> flat: thms;
 
@@ -1080,9 +1109,9 @@ fun get_thms_of_name_with_these_substrs (ctxt:context) (substrs:strings) =
 
 fun pstate_to_induct_thms (pstate:Proof.state) =
   let
-    val ctxt        = Proof.context_of pstate                                           : Proof.context;
+    val ctxt        = Proof.context_of pstate: Proof.context;
     val cnames      = Isabelle_Utils.pstate_to_cnames_in_1st_subg_n_chained_facts pstate: strings;
-    val induct_thms = get_thms_of_names_with_suffix ctxt cnames "induct"                : thms;
+    val induct_thms = get_thms_of_names_with_suffix ctxt cnames "induct": thms;
   in
     induct_thms
   end;
@@ -1091,7 +1120,8 @@ fun pstate_to_induct_thm_names (pstate:Proof.state) =
   let
     val ctxt   = Proof.context_of pstate;
     val cnames = Isabelle_Utils.pstate_to_cnames_in_1st_subg_n_chained_facts pstate: strings;
-    fun ctxt_has_thm_of_name (thm_name:string) = (*TODO: This function should be defined outside pstate_to_induct_thm_names? *)
+    (*TODO: This function should be defined outside pstate_to_induct_thm_names? *)
+    fun ctxt_has_thm_of_name (thm_name:string) =
         case try (Proof_Context.get_thms ctxt) thm_name of
          NONE      => false
        | SOME thms => null thms |> not;
@@ -1111,14 +1141,19 @@ fun get_coinduction_rules (ctxt:context) (goal:thm) =
     coinduct_rules1 @ coinduct_rules2: (string * thm) list
   end;
 
-fun get_coinduction_rule_names ctxt goal = get_rule_names get_coinduction_rules ctxt goal : strings;
+fun get_coinduction_rule_names ctxt goal =
+  get_rule_names get_coinduction_rules ctxt goal : strings;
 
-fun post_proc (_, pairs: (Thm_Name.T * thm) list) = map (apfst Thm_Name.print) pairs: (string * thm) list;
+fun post_proc (_, pairs: (Thm_Name.T * thm) list) =
+  map (apfst Thm_Name.print) pairs: (string * thm) list;
 
-fun get_elim_rules  ctxt goal = find_theorems ctxt (SOME goal) NONE true [(true, Elim)] |> post_proc;
-fun get_intro_rules ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Intro)] |> post_proc;
-fun get_dest_rules  ctxt goal = find_theorems ctxt (SOME goal) (SOME 100) true [(true, Dest)] |> post_proc;
-        
+fun get_elim_rules  ctxt goal =
+  find_theorems ctxt (SOME goal) NONE true [(true, Elim)] |> post_proc;
+fun get_intro_rules ctxt goal =
+  find_theorems ctxt (SOME goal) (SOME 100) true [(true, Intro)] |> post_proc;
+fun get_dest_rules  ctxt goal =
+  find_theorems ctxt (SOME goal) (SOME 100) true [(true, Dest)] |> post_proc;
+
 fun get_elim_rule_names  ctxt goal = get_rule_names get_elim_rules  ctxt goal : strings;
 fun get_intro_rule_names ctxt goal = get_rule_names get_intro_rules ctxt goal : strings;
 fun get_dest_rule_names  ctxt goal = get_rule_names get_dest_rules  ctxt goal : strings;
@@ -1203,7 +1238,8 @@ in
 
 fun check_src ctxt src = (get_token_getter_n_src_checker ctxt |> snd) src |> fst;
 
-fun checked_src_to_meth ctxt src = ((get_token_getter_n_src_checker ctxt |> snd) src |> snd |> fst) src ctxt;
+fun checked_src_to_meth ctxt src =
+  ((get_token_getter_n_src_checker ctxt |> snd) src |> snd |> fst) src ctxt;
 
 fun str_to_tokens (ctxt:Proof.context) (str:string) : Token.T list =
   (get_token_getter_n_src_checker ctxt |> fst) str;
@@ -1236,7 +1272,9 @@ fun string_to_nontac_on_pstate meth_name proof_state =
     val checked_src = check_src ctxt src;
     val text        = Method.Source checked_src;
     val text_range  = (text, (Position.none, Position.none)) : Method.text_range;
-    val results     = Seq2.try_seq (Isabelle_Utils.TIMEOUT_in 30.0 (Proof.apply text_range)) proof_state(*TODO: timeout too long?*)
+    (*TODO: timeout too long?*)
+    val results     = Seq2.try_seq (Isabelle_Utils.TIMEOUT_in 30.0 (Proof.apply text_range))
+                                    proof_state
                     :  Proof.state Seq.result Seq.seq;
     val filtered_results = Seq.filter_results results :  Proof.state Seq.seq;
   in
@@ -1251,7 +1289,7 @@ fun add_back (n, (Apply {methN = methN, using = using, importance = importance,.
   | add_back (0, (other, result)) = (tracing "add_back 0";([other], result))
   | add_back _ = (tracing "add_back in Dynamic_Utils.thy failed."; error "add_back")
 
-fun nontac_to_logtac (node:node) (nontac:'a nontac) (goal:'a) : (log * 'a) seq = 
+fun nontac_to_logtac (node:node) (nontac:'a nontac) (goal:'a) : (log * 'a) seq =
     Seq.map (fn result => (node, result)) (nontac goal)
  |> Seq2.seq_number
  |> Seq2.try_seq (Seq.map add_back);
@@ -1311,7 +1349,8 @@ fun log_to_importance [] (acc:real) = acc
     | SOME imp => log_to_importance log (acc * imp))
   | log_to_importance ((_:node)::log) (acc:real) = log_to_importance log acc
 
-fun log_to_script_n_importance (log:log) = (map mk_proof_script1 log, log_to_importance log 1.0): (strings * real);
+fun log_to_script_n_importance (log:log) =
+  (map mk_proof_script1 log, log_to_importance log 1.0): (strings * real);
 
 end
 
@@ -1331,13 +1370,17 @@ val ctxt_n_string_to_cname: Proof.context -> string -> string option;
 datatype rule_or_set          = Ind_Rule of string | Ind_Set of string | Hand_Rule of string;
 type     rule_or_sets         = rule_or_set list;
 val rule_or_set_to_string     : rule_or_set -> string;
-datatype induct_arguments     = Induct_Arguments of {ons: strings, arbs: strings, rules: rule_or_sets};
-val dest_induct_arguments     : induct_arguments -> {ons: strings, arbs: strings, rules: rule_or_sets};
+datatype induct_arguments     =
+  Induct_Arguments of {ons: strings, arbs: strings, rules: rule_or_sets};
+val dest_induct_arguments     :
+  induct_arguments -> {ons: strings, arbs: strings, rules: rule_or_sets};
 val induct_arguments_to_string: induct_arguments -> string;
 val ord_induct_arguments      : induct_arguments * induct_arguments -> order;
 val sort_induct_argumentss    : induct_arguments list -> induct_arguments list;
 
-datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;
+datatype qtyp =
+  QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number |
+  QInd | QArb | QRule;
 
 val print_qtyp: qtyp -> string;
 
@@ -1489,14 +1532,19 @@ fun induct_arguments_to_string (Induct_Arguments {ons, arbs, rules}) =
     apply
   end;
 
-fun numb_of_args (Induct_Arguments {ons, arbs, rules}) = length ons + length arbs + length rules: int;
+fun numb_of_args (Induct_Arguments {ons, arbs, rules}) =
+  length ons + length arbs + length rules: int;
 
-fun ord_induct_arguments (args1, args2) = (Int.compare (numb_of_args args1, numb_of_args args2)): order;
+fun ord_induct_arguments (args1, args2) =
+  (Int.compare (numb_of_args args1, numb_of_args args2)): order;
 
-fun sort_induct_argumentss (induct_argumentss:induct_arguments list) = sort ord_induct_arguments induct_argumentss
+fun sort_induct_argumentss (induct_argumentss:induct_arguments list) =
+  sort ord_induct_arguments induct_argumentss
   : induct_arguments list;
 
-datatype qtyp = QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number | QInd | QArb | QRule;
+datatype qtyp =
+  QOuter_Path | QInner_Path | QOuter_Print | QInner_Print | QOuter_Number | QInner_Number |
+  QInd | QArb | QRule;
 
 fun print_qtyp QOuter_Path = "QOuter_Path"
   | print_qtyp QInner_Path = "QInner_Path"
@@ -1591,10 +1639,10 @@ fun(*Eval_Node*)
   | print_atomic_assert (Node_Is_Bound                             ) = "Node_Is_Bound"
   | print_atomic_assert (Node_Is_Lambda                            ) = "Node_Is_Lambda"
   | print_atomic_assert (Node_Is_App                               ) = "Node_Is_App"
-  | print_atomic_assert (Node_Takes_Less_Than_N_Arguments          ) = "Node_Takes_Less_Than_N_Arguments"
-  | print_atomic_assert (Node_Takes_More_Than_N_Arguments          ) = "Node_Takes_More_Than_N_Arguments"
+  | print_atomic_assert Node_Takes_Less_Than_N_Arguments = "Node_Takes_Less_Than_N_Arguments"
+  | print_atomic_assert Node_Takes_More_Than_N_Arguments = "Node_Takes_More_Than_N_Arguments"
   | print_atomic_assert (Node_Is_Defined_With                      ) = "Node_Is_Defined_With"
-  | print_atomic_assert (Node_Is_Defined_With_N_Clauses            ) = "Node_Is_Defined_With_N_Clauses"
+  | print_atomic_assert Node_Is_Defined_With_N_Clauses = "Node_Is_Defined_With_N_Clauses"
   | print_atomic_assert (Is_Rule_Of_Node                           ) = "Is_Rule_Of_Node"
   | print_atomic_assert (Is_Set_Of_Node                            ) = "Is_Set_Of_Node"
   | print_atomic_assert (Node_Takes_N_Arguments                    ) = "Takes_N_Arguments"
@@ -1616,11 +1664,11 @@ fun(*Eval_Node*)
   | print_atomic_assert (Is_Path_Above                             ) = "Is_Path_Above"
   | print_atomic_assert (Is_Same_Path_As                           ) = "Is_Same_Path_As"
   | print_atomic_assert (Is_An_Argument_Of                         ) = "Is_An_Argument_Of"
-  | print_atomic_assert (Is_An_Argument_Or_Below_Argument_Of       ) = "Is_An_Argument_Or_Below_Argument_Of"
-  | print_atomic_assert (Is_Nth_Child_Or_Below_Nth_Child_Of        ) = "Is_Nth_Child_Or_Below_Nth_Child_Of"
-  | print_atomic_assert (Is_Below_N_Plus_One_th_Child_Of           ) = "Is_Below_N_Plus_One_th_Child_Of"
+  | print_atomic_assert Is_An_Argument_Or_Below_Argument_Of = "Is_An_Argument_Or_Below_Argument_Of"
+  | print_atomic_assert Is_Nth_Child_Or_Below_Nth_Child_Of = "Is_Nth_Child_Or_Below_Nth_Child_Of"
+  | print_atomic_assert Is_Below_N_Plus_One_th_Child_Of = "Is_Below_N_Plus_One_th_Child_Of"
   | print_atomic_assert (Is_Nth_Argument_Of                        ) = "Is_Nth_Argument_Of"
-  | print_atomic_assert (Is_Nth_Argument_Or_Below_Nth_Argument_Of  ) = "Is_Nth_Arg_Or_Below_Nth_Arg_Of"
+  | print_atomic_assert Is_Nth_Argument_Or_Below_Nth_Argument_Of = "Is_Nth_Arg_Or_Below_Nth_Arg_Of"
   | print_atomic_assert (Is_A_Meta_Premise                         ) = "Is_A_Meta_Premise"
   | print_atomic_assert (Is_A_Meta_Conclusion                      ) = "Is_A_Meta_Conclusion"
   | print_atomic_assert (Is_A_Meta_Premise_Or_Below                ) = "Is_A_Meta_Premise"
@@ -1645,10 +1693,10 @@ fun(*Eval_Node*)
   | print_atomic_assert (Print_Is_Lambda                           ) = "Print_Is_Lambda"
   | print_atomic_assert (Print_Is_App                              ) = "Print_Is_App"
   | print_atomic_assert (Print_Is_Defined_With                     ) = "Print_Is_Defined_With"
-  | print_atomic_assert (Print_Is_Defined_With_N_Clauses           ) = "Print_Is_Defined_With_N_Clauses"
+  | print_atomic_assert Print_Is_Defined_With_N_Clauses = "Print_Is_Defined_With_N_Clauses"
   | print_atomic_assert (Print_Takes_N_Arguments                   ) = "Print_Takes_N_Arguments"
-  | print_atomic_assert (Print_Takes_Less_Than_N_Arguments         ) = "Print_Takes_Less_Than_N_Arguments"
-  | print_atomic_assert (Print_Takes_More_Than_N_Arguments         ) = "Print_Takes_More_Than_N_Arguments"
+  | print_atomic_assert Print_Takes_Less_Than_N_Arguments = "Print_Takes_Less_Than_N_Arguments"
+  | print_atomic_assert Print_Takes_More_Than_N_Arguments = "Print_Takes_More_Than_N_Arguments"
   | print_atomic_assert (Debug_Non_Path_Literal                    ) = "Debug_Non_Path_Literal"
   | print_atomic_assert (Debug_Print_Unode                         ) = "Debug_Print_Unode"
   | print_atomic_assert (Dummy                                     ) = "Dummy";
@@ -1720,13 +1768,19 @@ in
 fun ctxt_n_cname_to_definitions (ctxt:Proof.context) (cname:string) :terms =
   let
     val command = Definition_Pattern.get_command ctxt cname;
-    fun command_to_definitions Definition_Pattern.Definition = ctxt_n_cname_to_definition_for_def        ctxt cname "_def"
-      | command_to_definitions Definition_Pattern.Fun        = ctxt_n_cname_to_definitions_for_fun       ctxt cname
-      | command_to_definitions Definition_Pattern.Primrec    = ctxt_n_cname_to_definitions_for_primrec   ctxt cname
-      | command_to_definitions Definition_Pattern.Function   = ctxt_n_cname_to_definitions_for_function  ctxt cname
-      | command_to_definitions Definition_Pattern.Inductive  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
+    fun command_to_definitions Definition_Pattern.Definition =
+          ctxt_n_cname_to_definition_for_def ctxt cname "_def"
+      | command_to_definitions Definition_Pattern.Fun =
+          ctxt_n_cname_to_definitions_for_fun ctxt cname
+      | command_to_definitions Definition_Pattern.Primrec =
+          ctxt_n_cname_to_definitions_for_primrec ctxt cname
+      | command_to_definitions Definition_Pattern.Function =
+          ctxt_n_cname_to_definitions_for_function ctxt cname
+      | command_to_definitions Definition_Pattern.Inductive =
+          ctxt_n_cname_to_definitions_for_inductive ctxt cname
       (*TODO: Inductive_Set*)
-      | command_to_definitions Definition_Pattern.Inductive_Set  = ctxt_n_cname_to_definitions_for_inductive ctxt cname
+      | command_to_definitions Definition_Pattern.Inductive_Set =
+          ctxt_n_cname_to_definitions_for_inductive ctxt cname
       | command_to_definitions Definition_Pattern.Unknown    = [];
   in
     command_to_definitions command: terms

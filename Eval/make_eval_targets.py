@@ -86,19 +86,44 @@ def convert_for_sledgehammer(text: str) -> str:
     return text
 
 
+def ensure_theory_end(text: str) -> str:
+    """Guarantee a real theory is terminated by a top-level "end".
+
+    TIP_sort_NStoogeSort2Count stops at "oops" and never closes the theory.  That
+    is harmless while "oops" is still present, but the abduction/tbc conversions
+    above strip it, leaving a theory with no "end" at all -- Isabelle then rejects
+    the file with "Malformed theory" only *after* the proof search has run, so the
+    target was lost after burning 16m50s for a reason that has nothing to do with
+    the prover under evaluation.
+
+    Only files that actually open a theory are touched.  TIP_list_weird_is_normal
+    is a seven-line stub containing nothing but the TIP comment header -- no
+    "theory ... begin", no statement.  Appending "end" there would produce a file
+    that still cannot build ("command \"theory\" expected, but end-of-input was
+    found") while looking as though it had been repaired, so it is deliberately
+    left alone; that target is unrecoverable without the missing source and fails
+    for all methods alike.
+    """
+    if not re.search(r"(?m)^\s*theory\b", text):
+        return text
+    if re.search(r"(?m)^\s*end\s*$", text):
+        return text
+    return text.rstrip() + "\n\nend\n"
+
+
 def convert_theory_text(text: str, method: str) -> str:
     text = replace_imports(text, method)
 
     if method == "abduction":
-        return convert_for_abduction(text)
+        return ensure_theory_end(convert_for_abduction(text))
     if method == "preprocessed_abduction":
-        return convert_for_preprocessed_abduction(text)
+        return ensure_theory_end(convert_for_preprocessed_abduction(text))
     if method == "psl":
-        return convert_for_psl(text)
+        return ensure_theory_end(convert_for_psl(text))
     if method == "tbc":
-        return convert_for_tbc(text)
+        return ensure_theory_end(convert_for_tbc(text))
     if method == "sledgehammer":
-        return convert_for_sledgehammer(text)
+        return ensure_theory_end(convert_for_sledgehammer(text))
 
     raise ValueError(f"unknown method: {method}")
 

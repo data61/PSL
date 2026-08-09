@@ -69,7 +69,7 @@ fun trm_to_thm (ctxt:Proof.context) (trm:term) =
 
 (* How to create a subgoal_tac? *)
 fun generalize (ctxt:Proof.context) (goal:thm) =
- if Isabelle_Utils.get_1st_subg goal |> is_none then [] else 
+ if Isabelle_Utils.get_1st_subg goal |> is_none then [] else
  let
    val fst_subg     = Isabelle_Utils.get_1st_subg goal |> the: term;
    val consts       = Term.add_consts fst_subg [] |> map Const;
@@ -81,7 +81,7 @@ fun generalize (ctxt:Proof.context) (goal:thm) =
  end;
 
 fun generalize_str (ctxt:Proof.context) (goal:thm) =
- if Isabelle_Utils.get_1st_subg goal |> is_none then [] else 
+ if Isabelle_Utils.get_1st_subg goal |> is_none then [] else
  let
    val generalizeds = generalize ctxt goal: term list;
    val gen_strs     = map (trm_to_string ctxt) generalizeds: string list;
@@ -91,7 +91,7 @@ fun generalize_str (ctxt:Proof.context) (goal:thm) =
  end;
 
 (* How to apply quickcheck to a raw thm? *)
-(* No, I only apply quickcheck after applying fastforce. 
+(* No, I only apply quickcheck after applying fastforce.
    So, I can use quickcheck as part of PSL strategies. *)
 
 fun get_max' (xs:int list) = fold (curry Int.max) xs;
@@ -101,8 +101,10 @@ fun get_max xs = get_max' xs 0;
 fun replace_with (trm:term) (subterm:term) (new:term) =
   let
     val new_dummyT = atyps_to_dummyT new;
-    fun repl (trm as Abs (name, typ, in_trm):term) subt = if trm = subt then new_dummyT else Abs (name, typ, repl in_trm subt)
-     |  repl (trm as trm1 $ trm2:term) (subt:term) = if trm = subt then new_dummyT else repl trm1 subt $ repl trm2 subt
+    fun repl (trm as Abs (name, typ, in_trm):term) subt =
+          if trm = subt then new_dummyT else Abs (name, typ, repl in_trm subt)
+     |  repl (trm as trm1 $ trm2:term) (subt:term) =
+          if trm = subt then new_dummyT else repl trm1 subt $ repl trm2 subt
      |  repl (atomic_trm:term) (subt:term) = if atomic_trm = subt then new_dummyT else atomic_trm;
   in
     repl (atyps_to_dummyT trm) (atyps_to_dummyT subterm)
@@ -140,12 +142,15 @@ fun get_new_trms (orig_trm:term) (subtrm:term) (func:term) : term list =
     map (replace_with orig_trm subtrm) new_subtrms |> distinct (op =): term list
   end;
 
-(* How can I find a list of constants used in the definitions of the constants appearing in a term? *)
+(* How can I find a list of constants used in the definitions of the constants appearing in a
+   term? *)
 fun get_consts_to_conjecture (ctxt:Proof.context) (trm:term) =
 let
   val cnames_in_trm = Isabelle_Utils.get_cnames_in_trm trm: string list;
-  val simp_rules = map (Find_Theorems2.get_thms_of_name_with_suffix ctxt "simps") cnames_in_trm |> flat;
-  val consts_to_conjecture = map Isabelle_Utils.get_consts_in_thm simp_rules |> flat |> distinct (op =);
+  val simp_rules =
+        map (Find_Theorems2.get_thms_of_name_with_suffix ctxt "simps") cnames_in_trm |> flat;
+  val consts_to_conjecture =
+        map Isabelle_Utils.get_consts_in_thm simp_rules |> flat |> distinct (op =);
 in
   consts_to_conjecture : term list
 end;
@@ -169,7 +174,8 @@ fun conjecture_strs (ctxt:Proof.context) (goal:thm) =
  let
    val fst_subg       = Isabelle_Utils.get_1st_subg goal |> the: term;
    val generalizeds   = generalize ctxt goal: term list;
-   val conjectures    = map (conjecture ctxt) (fst_subg::generalizeds) |> flat |> distinct (op =): term list;
+   val conjectures    =
+         map (conjecture ctxt) (fst_subg::generalizeds) |> flat |> distinct (op =): term list;
    val checked_cnjcts = List.mapPartial ((try o Syntax.check_term) ctxt) conjectures: term list;
    val cnjct_strs     = map (trm_to_string ctxt) checked_cnjcts: string list;
    val subgoals       = map (fn x => " \"" ^ x ^ "\"") cnjct_strs;

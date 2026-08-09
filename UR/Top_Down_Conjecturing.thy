@@ -1,3 +1,9 @@
+(*  Title:      UR/Top_Down_Conjecturing.thy
+    Author:     Yutaka Nagashima
+
+Signature and exemplary cases for top-down ("deep") conjecturing, generalising
+or specialising sub-terms of a goal to help discharge it.
+*)
 theory Top_Down_Conjecturing
   imports "PSL.PSL"
 begin

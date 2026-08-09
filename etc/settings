@@ -1,0 +1,59 @@
+# -*- shell-script -*- :mode=shellscript:
+#
+# PSL component settings, sourced by Isabelle when this directory is registered
+# as a component:
+#
+#     echo /path/to/PSL >> "$(isabelle getenv -b ISABELLE_HOME_USER)/etc/components"
+#
+# What it does: points each external prover's settings variable at a wrapper in
+# contrib/prover_wrappers, keeping the original in PSL_REAL_<VARIABLE>.
+#
+# Why here and not in ML: Isabelle builds a prover's command line from these
+# variables while the environment is being set up, long before any session's ML
+# runs, so ML has no hook on the process launch. This file is the only place the
+# path between Isabelle and the prover binary can be intercepted, which is why
+# the memory policy lives half here and half in PSL/Resource_Limit.ML.
+#
+# The wrappers impose nothing unless PSL_PROVER_MEMORY_MB is set to a positive
+# number of megabytes; with it unset they exec the real binary and are a no-op:
+#
+#     PSL_PROVER_MEMORY_MB=2048 isabelle build -d . Abduction
+#
+# Keep that number and the "hammer_memory_quota_mb" config in
+# PSL/Resource_Limit.ML in step. One divides the machine's memory to decide how
+# many Sledgehammer invocations may run at once, the other is the ceiling each
+# prover process gets; if they disagree, the search admits more concurrent
+# provers than the machine has ceilings for. See README.md, "Bounding prover
+# memory".
+
+PSL_PROVER_WRAPPERS="$COMPONENT/contrib/prover_wrappers"
+
+# A prover that is not installed leaves its variable empty; rewiring it would
+# turn "this prover is unavailable", which Sledgehammer handles by skipping it,
+# into a path that exists but leads nowhere.
+psl_wrap_prover () {   # $1 = settings variable, $2 = name under the wrapper dir
+  local var="$1" leaf="$2" current
+  eval current="\${$var:-}"
+  [ -n "$current" ] || return 0
+  case "$current" in "$PSL_PROVER_WRAPPERS"*) return 0 ;; esac   # already wrapped
+  eval "PSL_REAL_${var}=\"\$current\""
+  eval "export PSL_REAL_${var}"
+  if [ -n "$leaf" ]
+  then eval "${var}=\"\$PSL_PROVER_WRAPPERS/${var}/${leaf}\""     # names a binary
+  else eval "${var}=\"\$PSL_PROVER_WRAPPERS/${var}\""             # names a directory
+  fi
+  eval "export ${var}"
+}
+
+# Executable-valued: the variable names the binary itself.
+psl_wrap_prover Z3_SOLVER      z3
+psl_wrap_prover CVC5_SOLVER    cvc5
+psl_wrap_prover ISABELLE_VERIT veriT
+
+# Directory-valued: the variable names a directory Isabelle looks inside, so the
+# wrapper directory has to answer to every name Isabelle may ask for there -
+# including companions it invokes directly, such as E_HOME/epclextract.
+psl_wrap_prover E_HOME              ""
+psl_wrap_prover VAMPIRE_HOME        ""
+psl_wrap_prover SPASS_HOME          ""
+psl_wrap_prover ZIPPERPOSITION_HOME ""

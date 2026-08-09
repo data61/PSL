@@ -1,10 +1,9 @@
-(*
- * SeLFiE_for_Top_Down.ML
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/SeLFiE_For_Top_Down.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
+
+Glue code that applies SeLFiE's semantic filtering to top-down (deep) conjecturing.
+*)
 (*** SeLFiE_For_Top_Down ***)
 structure SeLFiE_For_Top_Down =
 struct
@@ -50,7 +49,8 @@ val has_func_with_three_occs_in_a_row =
                       Is_An_Argument_Of (Variable "arg_of_func_occ2", Variable "func_occ2"),
                       Some_Of ("func_occ3", Variable "func",
                         Ands [
-                          Is_Nth_Child_Of (Variable "func_occ3", Number 0, Variable "arg_of_func_occ2")
+                          Is_Nth_Child_Of
+                            (Variable "func_occ3", Number 0, Variable "arg_of_func_occ2")
                         ]
                       )
                     ]
@@ -126,30 +126,44 @@ val congruence =(*Probably unsafe. Not recommended to use this.*)
                       Has_Same_Prnt_As (Variable "func_rhs_occ", Variable "func_lhs_occ"),
                       Some ("arg_numb_of_diff_arg", SeLFiE_Util.QOuter_Number,
                         Ands [
-                          Node_Takes_Less_Than_N_Arguments (Variable "func_rhs_occ", Variable "arg_numb_of_diff_arg"),
+                          Node_Takes_Less_Than_N_Arguments
+                            (Variable "func_rhs_occ", Variable "arg_numb_of_diff_arg"),
                           All ("arg_numb_of_same_arg", SeLFiE_Util.QOuter_Number,
                             Imply (
                               Ands [
-                                Node_Takes_Less_Than_N_Arguments (Variable "func_rhs_occ", Variable "arg_numb_of_same_arg"),
-                                Not (Are_Same_Number (Variable "arg_numb_of_diff_arg", Variable "arg_numb_of_same_arg"))
+                                Node_Takes_Less_Than_N_Arguments
+                                  (Variable "func_rhs_occ", Variable "arg_numb_of_same_arg"),
+                                Not (Are_Same_Number
+                                  (Variable "arg_numb_of_diff_arg",
+                                   Variable "arg_numb_of_same_arg"))
                               ],
                               All ("lhs_arg_occ", SeLFiE_Util.QOuter_Path,
                                 Ands [
                                   Imply (
-                                    Is_Nth_Argument_Of (Variable "lhs_arg_occ", Variable "arg_numb_of_same_arg", Variable "func_lhs_occ"),
+                                    Is_Nth_Argument_Of
+                                      (Variable "lhs_arg_occ", Variable "arg_numb_of_same_arg",
+                                       Variable "func_lhs_occ"),
                                     Some ("rhs_arg_occ", SeLFiE_Util.QOuter_Path,
                                       Ands [
-                                        Is_Nth_Argument_Of (Variable "rhs_arg_occ", Variable "arg_numb_of_same_arg", Variable "func_rhs_occ"),
-                                        Has_Same_Prnt_As (Variable "lhs_arg_occ", Variable "rhs_arg_occ")
+                                        Is_Nth_Argument_Of
+                                          (Variable "rhs_arg_occ", Variable "arg_numb_of_same_arg",
+                                           Variable "func_rhs_occ"),
+                                        Has_Same_Prnt_As
+                                          (Variable "lhs_arg_occ", Variable "rhs_arg_occ")
                                       ]
                                     )
                                   ),
                                   Imply (
-                                    Is_Nth_Argument_Of (Variable "lhs_arg_occ", Variable "arg_numb_of_diff_arg", Variable "func_lhs_occ"),
+                                    Is_Nth_Argument_Of
+                                      (Variable "lhs_arg_occ", Variable "arg_numb_of_diff_arg",
+                                       Variable "func_lhs_occ"),
                                     Some ("rhs_arg_occ", SeLFiE_Util.QOuter_Path,
                                       Ands [
-                                        Is_Nth_Argument_Of (Variable "rhs_arg_occ", Variable "arg_numb_of_diff_arg", Variable "func_rhs_occ"),
-                                        Have_Different_Prnts (Variable "lhs_arg_occ", Variable "rhs_arg_occ")
+                                        Is_Nth_Argument_Of
+                                          (Variable "rhs_arg_occ", Variable "arg_numb_of_diff_arg",
+                                           Variable "func_rhs_occ"),
+                                        Have_Different_Prnts
+                                          (Variable "lhs_arg_occ", Variable "rhs_arg_occ")
                                       ]
                                     )
                                   )
@@ -172,11 +186,19 @@ val congruence =(*Probably unsafe. Not recommended to use this.*)
 
 fun run_assertion (pst:Proof.state) (cnjctr:term) (assert:Eval_Syntactic_Sugar.assert) =
   let
-    val pst_to_prove              = Top_Down_Util.mk_pst_to_prove_from_term pst cnjctr                                                            : Proof.state;
-    val outer_path_to_unode_table = Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst_to_prove cnjctr                                      : Outer_Path_To_Unode.path_to_unode_table;
-    val gen_path_table            = Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table                                                        : Gen_Path.gen_path_to_unode_table;
-    val empty_argument            = SeLFiE_Util.Induct_Arguments {ons = [], arbs = [], rules = []}                                                : SeLFiE_Util.induct_arguments;
-    val outer_domains             = Quantifier_Domain.inout_pst_n_trm_n_induct_args_to_domains Quantifier_Domain.Out gen_path_table empty_argument: Quantifier_Domain.domains;
+    val pst_to_prove = Top_Down_Util.mk_pst_to_prove_from_term pst cnjctr: Proof.state;
+    val outer_path_to_unode_table =
+          Outer_Path_To_Unode.pst_n_trm_to_path_to_unode_table pst_to_prove cnjctr
+          : Outer_Path_To_Unode.path_to_unode_table;
+    val gen_path_table =
+          Gen_Path.Outer_Path_To_Unode outer_path_to_unode_table: Gen_Path.gen_path_to_unode_table;
+    val empty_argument =
+          SeLFiE_Util.Induct_Arguments {ons = [], arbs = [], rules = []}
+          : SeLFiE_Util.induct_arguments;
+    val outer_domains =
+          Quantifier_Domain.inout_pst_n_trm_n_induct_args_to_domains Quantifier_Domain.Out
+            gen_path_table empty_argument
+          : Quantifier_Domain.domains;
   in
     eval pst_to_prove outer_path_to_unode_table outer_domains empty_argument assert = True
   end;

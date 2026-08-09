@@ -102,7 +102,8 @@ sig
   val <**>   : ('a applicative * ('a -> 'b) applicative) -> 'b applicative;
   val liftA  : ('a -> 'b) -> 'a applicative -> 'b applicative;
   val liftA2 : ('a -> 'b -> 'c) -> 'a applicative -> 'b applicative -> 'c applicative;
-  val liftA3 : ('a -> 'b -> 'c -> 'd) -> 'a applicative -> 'b applicative -> 'c applicative -> 'd applicative;
+  val liftA3 :
+    ('a -> 'b -> 'c -> 'd) -> 'a applicative -> 'b applicative -> 'c applicative -> 'd applicative;
 end;
 
 (** mk_Applicative **)
@@ -153,7 +154,7 @@ sig
   val comp   : ('a -> 'b monad) -> ('b -> 'c monad) -> 'a -> 'c monad;
   val >=>    : ('a -> 'b monad) * ('b -> 'c monad) -> 'a -> 'c monad;
   val <=<    : ('b -> 'c monad) * ('a -> 'b monad) -> 'a -> 'c monad;
-  val forever: 'a monad -> 'b monad;  
+  val forever: 'a monad -> 'b monad;
   val liftM  : ('a -> 'b) -> ('a monad -> 'b monad);
   val join   : 'a monad monad -> 'a monad;
   (* mapM, mapM_, forM, forM_, sequence, sequence_, foldM, and foldM here,
@@ -275,7 +276,7 @@ sig
 
   (* ALTERNATIVE_MIN *)
   include ALTERNATIVE_MIN;
-  (* ALTERNATIVE: we cannot use the keyword "include" to avoid the collision of Applicatives 
+  (* ALTERNATIVE: we cannot use the keyword "include" to avoid the collision of Applicatives
    * from Monad and Alternative. *)
   sharing type alternative = applicative;
   (* methods *)
@@ -314,7 +315,7 @@ sig
 end;
 
 (** TMONAD **)
-signature TMONAD = 
+signature TMONAD =
 (* The signature of transformed monad (= the return type of monad transformer). *)
 sig
   include MONAD;

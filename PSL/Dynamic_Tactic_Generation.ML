@@ -7,8 +7,8 @@ Boiler-plate programming is avoided by using ML's module system.
 
 (*** DYNAMIC_TACTIC_GENERATOR_SEED: makes inputs to tactic-generator. ***)
 (*
-  This following provides a mechanism to derive functions that are necessary to generate tactics at 
-  run-time in the PSL framework. Essentially, the functor, "mk_Dynamic_Tactic_Generator", abstracts 
+  This following provides a mechanism to derive functions that are necessary to generate tactics at
+  run-time in the PSL framework. Essentially, the functor, "mk_Dynamic_Tactic_Generator", abstracts
   functions that are commonly observed when dynamically generating tactics, thus avoiding
   code-duplication.
 *)
@@ -26,13 +26,18 @@ end;
 signature DYNAMIC_TACTIC_GENERATOR =
 sig
   include DYNAMIC_TACTIC_GENERATOR_SEED;
-  val meth_name_n_modifiers_to_nontac_on_state: string -> modifiers -> Proof.state Dynamic_Utils.nontac;
-  val meth_name_n_modifiers_to_logtac_on_state: string -> modifiers -> Proof.state Dynamic_Utils.logtac;
-  val meth_name_n_modifiers_to_stttac_on_state: string -> modifiers -> Proof.state Dynamic_Utils.stttac;
+  val meth_name_n_modifiers_to_nontac_on_state:
+    string -> modifiers -> Proof.state Dynamic_Utils.nontac;
+  val meth_name_n_modifiers_to_logtac_on_state:
+    string -> modifiers -> Proof.state Dynamic_Utils.logtac;
+  val meth_name_n_modifiers_to_stttac_on_state:
+    string -> modifiers -> Proof.state Dynamic_Utils.stttac;
 end;
 
-(*** mk_Dynamic_Tactic_Generator: makes DYNAMIC_TACTIC_GENERATOR from DYNAMIC_TACTIC_GENERATOR_SEED. ***)
-functor mk_Dynamic_Tactic_Generator (Seed:DYNAMIC_TACTIC_GENERATOR_SEED) : DYNAMIC_TACTIC_GENERATOR =
+(*** mk_Dynamic_Tactic_Generator: makes DYNAMIC_TACTIC_GENERATOR from
+     DYNAMIC_TACTIC_GENERATOR_SEED. ***)
+functor mk_Dynamic_Tactic_Generator (Seed:DYNAMIC_TACTIC_GENERATOR_SEED)
+    : DYNAMIC_TACTIC_GENERATOR =
 struct
   open Seed;
   structure DG = Dynamic_Utils;
@@ -40,9 +45,11 @@ struct
   fun general_case (meth_name:string) (mods:modifiers) =
     let
       val method_str_w_attr = "(" ^ meth_name ^ mods_to_string mods ^ ")";
-      fun nontac_on_state st = (Utils.try_with (K Seq.empty) DG.string_to_nontac_on_pstate method_str_w_attr
-        |> Isabelle_Utils.TIMEOUT_in 0.3) st;
-      val trace_node      = DG.Apply {using = [], methN = method_str_w_attr, back = 0, importance = NONE(*TODO*)};
+      fun nontac_on_state st =
+            (Utils.try_with (K Seq.empty) DG.string_to_nontac_on_pstate method_str_w_attr
+             |> Isabelle_Utils.TIMEOUT_in 0.3) st;
+      val trace_node =
+            DG.Apply {using = [], methN = method_str_w_attr, back = 0, importance = NONE(*TODO*)};
       val logtac_on_state = DG.nontac_to_logtac trace_node nontac_on_state;
       val stttac_on_state = DG.logtac_to_stttac logtac_on_state;
     in
@@ -206,7 +213,8 @@ fun get_all_modifiers (state:Proof.state) =
   let
     val {context: Proof.context, goal: thm,...} = Proof.goal state;
     val simp_rule_names = Find_Theorems2.get_simp_rule_names context goal;
-    val standard_rules  = ["arith", "algebra", "ac_simps", "field_simps", "algebra_simps", "divide_simps"]
+    val standard_rules  =
+          ["arith", "algebra", "ac_simps", "field_simps", "algebra_simps", "divide_simps"]
     val all_simp_mods   = get_adds (standard_rules @ simp_rule_names);
   in
     all_simp_mods : modifiers
@@ -242,7 +250,7 @@ struct
 structure Induct_Seed : DYNAMIC_TACTIC_GENERATOR_SEED =
 struct
 
-datatype modifier = 
+datatype modifier =
   On        of string
 | Arbitrary of string
 | Rule      of string;
@@ -256,7 +264,8 @@ fun get_rules (rules:string list) = map Rule rules;
 (*TODO: Double-check. This function flips the order of each kind of modifiers.*)
 fun order' ordered [] = ordered
  |  order' (ons, arbs, rules) (On        var :: mods) = order' (On var::ons, arbs, rules) mods
- |  order' (ons, arbs, rules) (Arbitrary var :: mods) = order' (ons, Arbitrary var::arbs, rules) mods
+ |  order' (ons, arbs, rules) (Arbitrary var :: mods) =
+      order' (ons, Arbitrary var::arbs, rules) mods
  |  order' (ons, arbs, rules) (Rule     rule :: mods) = order' (ons, arbs, Rule rule::rules) mods;
 
 fun order (mods:modifiers) = (*(ons, arbs, rules)*)
@@ -269,7 +278,7 @@ fun get_name (On        name) = name
 val get_names = map get_name;
 
 fun mods_to_string (mods:modifiers) =
-  let 
+  let
     val prefix_if_nonnil = Utils.prefix_if_nonempty;
   in
     mods |> order |> (fn (ons, arbs, rules) =>
@@ -284,7 +293,8 @@ fun get_all_modifiers (state:Proof.state) =
     val {context: Proof.context, goal: thm,...} = Proof.goal state;
     val free_var_names   = Isabelle_Utils.get_free_var_names_in_1st_subg goal;
     val induct_rules     = Find_Theorems2.get_induct_rule_names context goal : string list;
-    val all_induct_mods  = get_ons free_var_names @ get_arbs free_var_names @ get_rules induct_rules;
+    val all_induct_mods  =
+          get_ons free_var_names @ get_arbs free_var_names @ get_rules induct_rules;
   in
     all_induct_mods : modifiers
   end;
@@ -391,9 +401,10 @@ fun get_state_stttacs (state:Proof.state) =
     val all_modifiers  = ITTG.get_all_modifiers state : ITTG.modifiers;
     val all_modifierss = Seq2.powerset (Seq.of_list all_modifiers)
                       |> Seq.map Seq.list_of: ITTG.modifiers Seq.seq;
-    val stttacs        = Seq.map (ITTG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
+    val stttacs        =
+          Seq.map (ITTG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
-  in 
+  in
     stttacs : Proof.state stttac Seq.seq
   end;
 
@@ -407,7 +418,7 @@ struct
 structure Coinduction_Seed : DYNAMIC_TACTIC_GENERATOR_SEED =
 struct
 
-datatype modifier = 
+datatype modifier =
   On        of string
 | Arbitrary of string
 | Rule      of string;
@@ -420,7 +431,8 @@ fun get_rules (rules:string list) = map Rule rules;
 
 fun order' ordered [] = ordered
  |  order' (ons, arbs, rules) (On        var :: mods) = order' (On var::ons, arbs, rules) mods
- |  order' (ons, arbs, rules) (Arbitrary var :: mods) = order' (ons, Arbitrary var::arbs, rules) mods
+ |  order' (ons, arbs, rules) (Arbitrary var :: mods) =
+      order' (ons, Arbitrary var::arbs, rules) mods
  |  order' (ons, arbs, rules) (Rule     rule :: mods) = order' (ons, arbs, Rule rule::rules) mods;
 
 fun order (mods:modifiers) = (*(ons, arbs, rules)*)
@@ -433,7 +445,7 @@ fun get_name (On        name) = name
 val get_names = map get_name;
 
 fun mods_to_string (mods:modifiers) =
-  let 
+  let
     val prefix_if_nonnil = Utils.prefix_if_nonempty;
   in
     mods |> order |> (fn (ons, arbs, rules) =>
@@ -448,7 +460,8 @@ fun get_all_modifiers (state:Proof.state) =
     val {context:Proof.context, goal: thm,...} = Proof.goal state;
     val free_var_names   = Isabelle_Utils.get_free_var_names_in_1st_subg goal;
     val induct_rules     = Find_Theorems2.get_coinduction_rule_names context goal : string list;
-    val all_induct_mods  = get_ons free_var_names @ get_arbs free_var_names @ get_rules induct_rules;
+    val all_induct_mods  =
+          get_ons free_var_names @ get_arbs free_var_names @ get_rules induct_rules;
   in
     all_induct_mods : modifiers
   end;
@@ -466,9 +479,10 @@ fun get_state_stttacs (state:Proof.state) =
     val all_modifiers  = CITG.get_all_modifiers state : CITG.modifiers;
     val all_modifierss = Seq2.powerset (Seq.of_list all_modifiers)
                       |> Seq.map Seq.list_of: CITG.modifiers Seq.seq;
-    val stttacs        = Seq.map (CITG.meth_name_n_modifiers_to_stttac_on_state coinduction) all_modifierss;
+    val stttacs        =
+          Seq.map (CITG.meth_name_n_modifiers_to_stttac_on_state coinduction) all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
-  in 
+  in
     stttacs : Proof.state stttac Seq.seq
   end;
 
@@ -518,7 +532,8 @@ fun get_state_stttacs (state:Proof.state) =
     val induct         = "cases";
     val all_modifiers  = CTG.get_all_modifiers state : CTG.modifiers;
     val all_modifierss = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
-    val stttacs        = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
+    val stttacs        =
+          Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
   in
     stttacs : Proof.state stttac Seq.seq
@@ -570,9 +585,10 @@ fun get_state_stttacs (state:Proof.state) =
     val induct         = "case_tac";
     val all_modifiers  = CTTG.get_all_modifiers state : CTTG.modifiers;
     val all_modifierss = map single all_modifiers |> Seq.of_list : CTTG.modifiers Seq.seq;
-    val stttacs        = Seq.map (CTTG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
+    val stttacs        =
+          Seq.map (CTTG.meth_name_n_modifiers_to_stttac_on_state induct) all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
-  in 
+  in
     stttacs : Proof.state stttac Seq.seq
   end;
 
@@ -582,7 +598,7 @@ end;
 structure Classical_Seed : DYNAMIC_TACTIC_GENERATOR_SEED =
 struct
 
-datatype modifier = 
+datatype modifier =
   Simp  of string
 | Split of string
 | Dest  of string
@@ -592,11 +608,16 @@ datatype modifier =
 type modifiers = modifier list;
 
 fun order' ordered [] = ordered
- |  order' (simps, splits, dests, elims, intros) (Simp  rule ::params) = order' (Simp rule::simps, splits, dests, elims, intros)  params
- |  order' (simps, splits, dests, elims, intros) (Split rule ::params) = order' (simps, Split rule::splits, dests, elims, intros) params
- |  order' (simps, splits, dests, elims, intros) (Dest  rule ::params) = order' (simps, splits, Dest rule::dests, elims, intros)  params
- |  order' (simps, splits, dests, elims, intros) (Elim  rule ::params) = order' (simps, splits, dests, Elim rule::elims, intros)  params
- |  order' (simps, splits, dests, elims, intros) (Intro rule ::params) = order' (simps, splits, dests, elims, Intro rule::intros) params
+ |  order' (simps, splits, dests, elims, intros) (Simp  rule ::params) =
+      order' (Simp rule::simps, splits, dests, elims, intros)  params
+ |  order' (simps, splits, dests, elims, intros) (Split rule ::params) =
+      order' (simps, Split rule::splits, dests, elims, intros) params
+ |  order' (simps, splits, dests, elims, intros) (Dest  rule ::params) =
+      order' (simps, splits, Dest rule::dests, elims, intros)  params
+ |  order' (simps, splits, dests, elims, intros) (Elim  rule ::params) =
+      order' (simps, splits, dests, Elim rule::elims, intros)  params
+ |  order' (simps, splits, dests, elims, intros) (Intro rule ::params) =
+      order' (simps, splits, dests, elims, Intro rule::intros) params
 
 fun order (mods:modifiers) =
   order' ([],[],[],[],[]) mods : (modifiers * modifiers * modifiers * modifiers * modifiers)
@@ -610,7 +631,7 @@ fun get_name (Simp  name) = name
 val get_names = map get_name;
 
 fun mods_to_string (mods:modifiers) =
-  let 
+  let
     val prefix_if_nonnil = Utils.prefix_if_nonempty;
   in
     mods |> order |> (fn (simps, splits, dests, elims, intros) =>
@@ -637,7 +658,8 @@ fun get_fact_names_mesh (state: Proof.state) =
       : Sledgehammer_Fact.lazy_fact list;
     val no_override = Sledgehammer_Fact.no_fact_override: Sledgehammer_Fact.fact_override;
     val relevant_facts : (string * Sledgehammer_MaSh.fact list) list =
-      Sledgehammer_MaSh.relevant_facts context params (hd provers) 200 no_override hyps cncl all_facts;
+      Sledgehammer_MaSh.relevant_facts context params (hd provers) 200 no_override hyps cncl
+        all_facts;
     (*convert relevant facts into a string list*)
     val relevant_fact_names = relevant_facts |> map #2 |> flat |> map (fn x => #1 (#1 x));
   in
@@ -686,7 +708,7 @@ fun get_state_stttacs (state:Proof.state) =
     val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
     val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state "clarsimp") all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
-  in 
+  in
     stttacs : Proof.state stttac Seq.seq
   end;
 
@@ -702,10 +724,10 @@ fun get_state_stttacs (state:Proof.state) =
     val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
     val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state "fastforce") all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
-  in 
+  in
     stttacs : Proof.state stttac Seq.seq
   end;
-                                                    
+
 end;
 
 (** Dynamic_Blast: The tactic generator for the fastforce method. **)
@@ -733,7 +755,8 @@ type pstate = Proof.state;
 
 (*We do not use incremental tactic specialisation for now.
 fun increment  _                 ([]:mods)           (added:mods) (_:pstate) (_:pstate) _ = added
-  | increment (meth_name:string) (new_mod::new_mods) (added:mods) (old_st:pstate) (orig_st:pstate) _ =
+  | increment (meth_name:string) (new_mod::new_mods) (added:mods) (old_st:pstate)
+      (orig_st:pstate) _ =
      let
        val pstate_to_thm    = Isabelle_Utils.proof_state_to_thm;
        val olds_and_new     = added@[new_mod] : mods;
@@ -759,7 +782,7 @@ fun get_state_stttacs (state:Proof.state) =
     val all_modifierss   = map single all_modifiers |> Seq.of_list : CTG.modifiers Seq.seq;
     val stttacs = Seq.map (CTG.meth_name_n_modifiers_to_stttac_on_state "auto") all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
-  in 
+  in
     stttacs : Proof.state stttac Seq.seq
   end;
 
@@ -803,7 +826,8 @@ fun get_state_stttacs (state:Proof.state) =
   let
     val all_modifiers  = PGTGG.get_all_modifiers state : PGTGG.modifiers;
     val all_modifierss = map single all_modifiers |> Seq.of_list : PGTGG.modifiers Seq.seq;
-    val stttacs        = Seq.map (PGTGG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
+    val stttacs        =
+          Seq.map (PGTGG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
   in
     stttacs : Proof.state stttac Seq.seq
@@ -847,7 +871,8 @@ fun get_state_stttacs (state:Proof.state) =
   let
     val all_modifiers  = PGTCG.get_all_modifiers state : PGTCG.modifiers;
     val all_modifierss = map single all_modifiers |> Seq.of_list : PGTCG.modifiers Seq.seq;
-    val stttacs        = Seq.map (PGTCG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
+    val stttacs        =
+          Seq.map (PGTCG.meth_name_n_modifiers_to_stttac_on_state "subgoal_tac") all_modifierss;
     type 'a stttac = 'a Dynamic_Utils.stttac;
   in
     stttacs : Proof.state stttac Seq.seq
@@ -857,19 +882,42 @@ end;
 
 (** Dynamic_Tactic_Generation: body. **)
 type get_stttacs = Proof.state -> Proof.state Dynamic_Utils.stttac Seq.seq;
-val rule        = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Rule.get_state_stttacs;
-val erule       = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Erule.get_state_stttacs;
-val simp        = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Simp.get_state_stttacs;
-val induct      = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Induct.get_state_stttacs;
-val induct_tac  = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Induct_Tac.get_state_stttacs;
-val coinduction = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Coinduction.get_state_stttacs;
-val cases       = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Cases.get_state_stttacs;
-val case_tac    = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Case_Tac.get_state_stttacs;
-val clarsimp    = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Clarsimp.get_state_stttacs;
-val blast       = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Blast.get_state_stttacs;
-val fastforce   = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Fastforce.get_state_stttacs;
-val auto        = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Auto.get_state_stttacs;
-val generalize  = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Generalize.get_state_stttacs;
-val conjecture  = Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Conjecture.get_state_stttacs;
+val rule        =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Rule.get_state_stttacs;
+val erule       =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Erule.get_state_stttacs;
+val simp        =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Simp.get_state_stttacs;
+val induct      =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Induct.get_state_stttacs;
+val induct_tac  =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Induct_Tac.get_state_stttacs;
+val coinduction =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Coinduction.get_state_stttacs;
+val cases       =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Cases.get_state_stttacs;
+val case_tac    =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Case_Tac.get_state_stttacs;
+val clarsimp    =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Clarsimp.get_state_stttacs;
+val blast       =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Blast.get_state_stttacs;
+val fastforce   =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*)
+        Dynamic_Fastforce.get_state_stttacs;
+val auto        =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Dynamic_Auto.get_state_stttacs;
+val generalize  =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Generalize.get_state_stttacs;
+val conjecture  =
+      Isabelle_Utils.timeout_apply (seconds 30.0)(*TIMEOUT_in 30.0*) Conjecture.get_state_stttacs;
 
 end;

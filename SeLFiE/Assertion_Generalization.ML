@@ -185,14 +185,21 @@ Lambdas (["func", "number"],
             Applies (is_lhs_of_root, [Variable "lhs_path", Variable "root_path"]),
             Some ("part_of_nth_param_on_lhs", QInner_Path,
               Ands [
-                Is_Below_N_Plus_One_th_Child_Of (Variable "part_of_nth_param_on_lhs", Variable "number", Variable "lhs_path"),
+                Is_Below_N_Plus_One_th_Child_Of
+                  (Variable "part_of_nth_param_on_lhs", Variable "number", Variable "lhs_path"),
                 Some_Of ("func_occ_on_rhs", Variable "func",
                   Ands [
-                    Not (Is_Nth_Child_Of (Variable "func_occ_on_rhs", Number 0, Variable "lhs_path")),
+                    Not (Is_Nth_Child_Of
+                      (Variable "func_occ_on_rhs", Number 0, Variable "lhs_path")),
                     Some ("part_of_nth_param_on_rhs", QInner_Path,
                       Ands [
-                        Has_Same_Prnt_As (Variable "part_of_nth_param_on_rhs", Variable "part_of_nth_param_on_lhs"),
-                        (*Is_Nth_Argument_Or_Below_Nth_Argument_Of*)Is_Nth_Argument_Of (Variable "part_of_nth_param_on_rhs", Variable "number", Variable "func_occ_on_rhs")
+                        Has_Same_Prnt_As
+                          (Variable "part_of_nth_param_on_rhs",
+                           Variable "part_of_nth_param_on_lhs"),
+                        (*Is_Nth_Argument_Or_Below_Nth_Argument_Of*)
+                        Is_Nth_Argument_Of
+                          (Variable "part_of_nth_param_on_rhs", Variable "number",
+                           Variable "func_occ_on_rhs")
                       ]
                     )
                   ]
@@ -216,13 +223,18 @@ Lambdas (["mth_arg_of_func_occ_has_arb"(*Inner_Number*), "func"(*Term*)],
           Applies (is_lhs_of_root, [Variable "lhs_path", Variable "root_path"]),
           Some ("mth_param_on_lhs_path", QInner_Path,
             Ands [
-              Is_N_Plus_One_th_Child_Of (Variable "mth_param_on_lhs_path", Variable "mth_arg_of_func_occ_has_arb", Variable "lhs_path"),
+              Is_N_Plus_One_th_Child_Of
+                (Variable "mth_param_on_lhs_path", Variable "mth_arg_of_func_occ_has_arb",
+                 Variable "lhs_path"),
               Some ("mth_param_on_rhs_path", QInner_Path,
                 Ands [
-                  Not (Has_Same_Prnt_As (Variable "mth_param_on_rhs_path", Variable "mth_param_on_lhs_path")),
+                  Not (Has_Same_Prnt_As
+                    (Variable "mth_param_on_rhs_path", Variable "mth_param_on_lhs_path")),
                   Some_Of ("func_occ_on_rhs", Variable "func",
                     Ands [
-                      Is_Nth_Argument_Of (Variable "mth_param_on_rhs_path", Variable "mth_arg_of_func_occ_has_arb", Variable "func_occ_on_rhs")
+                      Is_Nth_Argument_Of
+                        (Variable "mth_param_on_rhs_path", Variable "mth_arg_of_func_occ_has_arb",
+                         Variable "func_occ_on_rhs")
                     ]
                   )
                 ]
@@ -256,7 +268,8 @@ Imply (
                   All ("recursive_on_nth_param", QOuter_Number,
                     Imply (
                       Ands [
-                        Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "recursive_on_nth_param"),
+                        Node_Takes_More_Than_N_Arguments
+                          (Variable "func_occ", Variable "recursive_on_nth_param"),
                         In_Some_Definitions (
                           Variable "func",
                           is_defined_recursively_on_nth,
@@ -266,8 +279,11 @@ Imply (
                       All ("used_to_update_mth_arg", QOuter_Number,
                         Imply (
                           Ands [
-                            Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
-                            Not (Are_Same_Number (Variable "recursive_on_nth_param", Variable "used_to_update_mth_arg")),
+                            Node_Takes_More_Than_N_Arguments
+                              (Variable "func_occ", Variable "used_to_update_mth_arg"),
+                            Not (Are_Same_Number
+                              (Variable "recursive_on_nth_param",
+                               Variable "used_to_update_mth_arg")),
                             In_Some_Definitions (
                               Variable "func",
                               mth_arg_of_func_occ_has_different_print,
@@ -281,7 +297,9 @@ Imply (
                                   Ands [
                                     Some_Of ("arb_occ", Variable "arb",
                                       Ands [
-                                        Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "arb_occ", Variable "used_to_update_mth_arg", Variable "func_occ_4_arb")
+                                        Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                                          (Variable "arb_occ", Variable "used_to_update_mth_arg",
+                                           Variable "func_occ_4_arb")
                                       ]
                                     )
                                   ]
@@ -332,7 +350,8 @@ Imply (
   Not (Some ("rule", QRule, True)),
   All ("arb_trm", QArb,
     Ors [
-      Applies (lifter_6_lambda_over_arb, [Variable "arb_trm"])(*TODO: No syntactic heuristics indicate "arb_trm" should be generalized.*),
+      (*TODO: No syntactic heuristics indicate "arb_trm" should be generalized.*)
+      Applies (lifter_6_lambda_over_arb, [Variable "arb_trm"]),
       Some ("ind_trm", QInd,
         Some_Of ("ind_occ", Variable "ind_trm",
           Some ("func_trm", QOuter_Print,
@@ -342,21 +361,40 @@ Imply (
                 Ands [
                   Some ("func_is_recurse_on_nth", QOuter_Number,
                     Ands [
-                      Node_Takes_More_Than_N_Arguments (Variable "func_trm_occ", Variable "func_is_recurse_on_nth"),                  (*Does this actually harm us?*)
-                      Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "ind_occ", Variable "func_is_recurse_on_nth", Variable "func_trm_occ"),(*Does this actually harm us?*)
+                      (*Does this actually harm us?*)
+                      Node_Takes_More_Than_N_Arguments
+                        (Variable "func_trm_occ", Variable "func_is_recurse_on_nth"),
+                      (*Does this actually harm us?*)
+                      Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                        (Variable "ind_occ", Variable "func_is_recurse_on_nth",
+                         Variable "func_trm_occ"),
                       Some_Of ("arb_trm_occ", Variable "arb_trm",
                         Some ("mth_arg_of_func_occ_has_arb", QOuter_Number,
                           Ands [
-                            Node_Takes_More_Than_N_Arguments (Variable "func_trm_occ", Variable "mth_arg_of_func_occ_has_arb"),
-                            Some_Of ("func_trm_occ2", Variable "func_trm", (*we do not always talk about the same occurrence of the function. See addO_exp\<omega>_inj in Goodstein_Lambda.thy where we have to deal with two different occurrences of add0.*)
+                            Node_Takes_More_Than_N_Arguments
+                              (Variable "func_trm_occ", Variable "mth_arg_of_func_occ_has_arb"),
+                            (*we do not always talk about the same occurrence of the function.
+                              See addO_exp\<omega>_inj in Goodstein_Lambda.thy where we have to deal
+                              with two different occurrences of add0.*)
+                            Some_Of ("func_trm_occ2", Variable "func_trm",
                               Ands [
-                                Is_Nth_Argument_Or_Below_Nth_Argument_Of (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb", Variable "func_trm_occ2"),
-                                Imply ( 
+                                Is_Nth_Argument_Or_Below_Nth_Argument_Of
+                                  (Variable "arb_trm_occ", Variable "mth_arg_of_func_occ_has_arb",
+                                   Variable "func_trm_occ2"),
+                                Imply (
                                   Ands [
-                                    Is_Same_Path_As (Variable "func_trm_occ", Variable "func_trm_occ2"),
-                                    Are_In_Same_Location (Variable "func_trm_occ", Variable "func_trm_occ2")
+                                    Is_Same_Path_As
+                                      (Variable "func_trm_occ", Variable "func_trm_occ2"),
+                                    Are_In_Same_Location
+                                      (Variable "func_trm_occ", Variable "func_trm_occ2")
                                   ],
-                                  Not (Are_Same_Number (Variable "func_is_recurse_on_nth", Variable "mth_arg_of_func_occ_has_arb"))(*We should check this because parameter for recursion is always changing in a recursive call. Maybe we can get rid of this check, and let other heuristics check Inds and Arbs are disjoint.*)
+                                  (*We should check this because parameter for recursion is
+                                    always changing in a recursive call. Maybe we can get rid of
+                                    this check, and let other heuristics check Inds and Arbs are
+                                    disjoint.*)
+                                  Not (Are_Same_Number
+                                    (Variable "func_is_recurse_on_nth",
+                                     Variable "mth_arg_of_func_occ_has_arb"))
                                 )
                               ]
                             ),
@@ -473,7 +511,8 @@ Not (
 
 (*
 
-(*what should be generalized deep.*)(*Look how this heuristic handles, for example, soundness' in Hybrid_Logic.thy*)
+(*what should be generalized deep.*)
+(*Look how this heuristic handles, for example, soundness' in Hybrid_Logic.thy*)
 val generalize_arguments_used_in_recursion_deep =
 Ors [
   All ("ind", QInd,
@@ -488,7 +527,8 @@ Ors [
             Ands [
               All ("used_to_update_mth_arg", QOuter_Number,
                   Ands [
-                    Node_Takes_More_Than_N_Arguments (Variable "func_occ", Variable "used_to_update_mth_arg"),
+                    Node_Takes_More_Than_N_Arguments
+                      (Variable "func_occ", Variable "used_to_update_mth_arg"),
                     In_Some_Definitions (
                       Variable "func",
                       mth_arg_of_func_occ_has_different_print_straw,
@@ -506,7 +546,8 @@ Ors [
                               Some_Of ("arb_occ", Variable "arb",
                                 Ands [
                                   Is_Nth_Argument_Or_Below_Nth_Argument_Of
-                                   (Variable "arb_occ", Variable "used_to_update_mth_arg", Variable "func_occ2")
+                                   (Variable "arb_occ", Variable "used_to_update_mth_arg",
+                                    Variable "func_occ2")
                                 ]
                               )
                             ]

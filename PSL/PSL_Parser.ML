@@ -7,7 +7,8 @@ This file provides the monadic parser of PSL.
 (*** PSL_PARSER: The PSL parser. ***)
 signature PSL_PARSER =
 sig
-  val strategy_parser   : Proof.context -> (string * Monadic_Interpreter.str) Parser_Combinator.parser;
+  val strategy_parser   :
+    Proof.context -> (string * Monadic_Interpreter.str) Parser_Combinator.parser;
   val invocation_parser : string Parser_Combinator.parser;
 end;
 

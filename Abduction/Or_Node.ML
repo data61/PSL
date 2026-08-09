@@ -1,11 +1,9 @@
-(*
- * Or_Node.ML
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/Or_Node.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
 
+The OR-node type of the abduction graph, representing alternative ways to prove a goal.
+*)
 (*** OR_NODE ***)
 signature OR_NODE =
 sig
@@ -24,7 +22,7 @@ val mk_ornode: Proof.context -> is_final_goal -> string -> term -> ornode;
 val is_template_based: ornode -> bool;
 
 (* update of ornode *)
-val update_gg_parent_not_finished: ornode -> bool -> ornode;
+val update_is_contributive       : ornode -> bool -> ornode;
 val update_proved_completely     : ornode -> ornode;
 val update_proof_n_proof_id      : strings -> ornode -> ornode;
 val update_is_branch             : ornode -> ornode;
@@ -47,24 +45,27 @@ type ornode = {
   lemma_name                      : string,
   lemma_term                      : term,(*For now we ignore "assumes" and "using".*)
   proof                           : strings option,(*Proof script to finish proving this node.*)
-  proof_id                        : int option,(*To track dependency. based on the timing proved with or w/o assuming conjectures.*)
+  (*To track dependency. based on the timing proved with or w/o assuming conjectures.*)
+  proof_id                        : int option,
   proved_completely               : bool, (*= proved w/o assuming conjectures.*)
-  (* If an or-node has a great grandparent that is not proved or refuted and this node is not
-   * proved_completely, this node still needs a proof.*)
-  gg_parent_not_finished          : bool,
+  (* Whether this or-node is still reachable from the root by a path of uncompleted nodes,
+   * per the root-directed contributivity check (Update_Abduction_Graph.compute_contributive_keys).
+   * If false, completing this node would no longer help complete the root, so there is no
+   * point in still trying to prove it. *)
+  is_contributive                 : bool,
   importance                      : real option(*NONE means "not computed yet"*),
   attacked                        : bool (*if already attacked by the Attack_On_Or_Node strategy.*)
 };
 
 type ornodes = ornode list;
-              
+
 (** query on ornode **)
 
 (* is_worth_proving *)
 fun is_worth_proving (ctxt:Proof.context) (ornode:ornode) =
     is_some (try (Syntax.check_term ctxt) (#lemma_term ornode))
   andalso
-    #gg_parent_not_finished ornode
+    #is_contributive ornode
   andalso
     is_none (#proof ornode)
   andalso
@@ -85,8 +86,9 @@ fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:str
     lemma_term             = goal,
     proof                  = NONE,
     proof_id               = NONE,
-    proved_completely      = false,(*We do not search for a counterexample before checking for duplication.*)
-    gg_parent_not_finished = true,
+    (*We do not search for a counterexample before checking for duplication.*)
+    proved_completely      = false,
+    is_contributive        = true,
     importance             = NONE,
     attacked               = false
    }: ornode
@@ -96,15 +98,15 @@ fun is_template_based ({lemma_name, ...}: ornode) =
   Top_Down_Util.is_template_based lemma_name;
 
 (** update of ornode **)
-(* update_gg_parent_not_finished *)
-(* 
- * unlike proved_completely, gg_parent_not_finished can change both ways.
+(* update_is_contributive *)
+(*
+ * unlike proved_completely, is_contributive can change both ways.
  * For example, when a new conjecture from one or-node is identical to an existing conjecture,
- * we have to add a new grand parent to this existing conjecture. 
- * Such operation may change the gg_parent_not_finished of this existing one from
+ * we have to add a new grand parent to this existing conjecture.
+ * Such operation may change the is_contributive status of this existing one from
  * false to true.
  *)
-fun update_gg_parent_not_finished ({
+fun update_is_contributive ({
   final_goal       : bool,
   is_branch        : bool,
   lemma_name       : string,
@@ -114,7 +116,7 @@ fun update_gg_parent_not_finished ({
   proved_completely: bool,
   importance       : real option,
   attacked         : bool,...
-}: ornode) (gg_parent_not_finished: bool) =
+}: ornode) (is_contributive: bool) =
 {
   final_goal             = final_goal,
   is_branch              = is_branch,
@@ -123,7 +125,7 @@ fun update_gg_parent_not_finished ({
   proof                  = proof,
   proof_id               = proof_id,
   proved_completely      = proved_completely,
-  gg_parent_not_finished = gg_parent_not_finished,
+  is_contributive        = is_contributive,
   importance             = importance,
   attacked               = attacked
 }: ornode;
@@ -136,7 +138,7 @@ fun update_proved_completely ({
   lemma_term            : term,
   proof                 : strings option,
   proof_id              : int option,
-  gg_parent_not_finished: bool,
+  is_contributive       : bool,
   importance            : real option,
   attacked              : bool,...
 }: ornode) =
@@ -148,7 +150,7 @@ fun update_proved_completely ({
   proof                  = proof,
   proof_id               = proof_id,
   proved_completely      = true,
-  gg_parent_not_finished = gg_parent_not_finished,
+  is_contributive        = is_contributive,
   importance             = importance,
   attacked               = attacked
 }: ornode;
@@ -167,7 +169,7 @@ fun update_proof_n_proof_id (proof:strings) ({
   lemma_name            : string,
   lemma_term            : term,
   proved_completely     : bool,
-  gg_parent_not_finished: bool,
+  is_contributive       : bool,
   importance            : real option,
   attacked              : bool,...
 }: ornode)  =
@@ -179,7 +181,7 @@ fun update_proof_n_proof_id (proof:strings) ({
   proof                  = SOME proof,
   proof_id               = get_proof_id (),
   proved_completely      = proved_completely: bool,
-  gg_parent_not_finished = gg_parent_not_finished,
+  is_contributive        = is_contributive,
   importance             = importance,
   attacked               = attacked
 }: ornode;
@@ -194,7 +196,7 @@ fun update_is_branch ({
   proof                 : strings option,
   proof_id              : int option,
   proved_completely     : bool,
-  gg_parent_not_finished: bool,
+  is_contributive       : bool,
   importance            : real option,
   attacked              : bool,...
 }: ornode) =
@@ -206,7 +208,7 @@ fun update_is_branch ({
   proof                  = proof,
   proof_id               = proof_id,
   proved_completely      = proved_completely: bool,
-  gg_parent_not_finished = gg_parent_not_finished,
+  is_contributive        = is_contributive,
   importance             = importance,
   attacked               = attacked
 }: ornode;
@@ -220,7 +222,7 @@ fun update_importance (importance:real) ({
   proof                 : strings option,
   proof_id              : int option,
   proved_completely     : bool,
-  gg_parent_not_finished: bool,
+  is_contributive       : bool,
   attacked              : bool,...
 }: ornode) =
 {
@@ -231,7 +233,7 @@ fun update_importance (importance:real) ({
   proof                  = proof,
   proof_id               = proof_id,
   proved_completely      = proved_completely: bool,
-  gg_parent_not_finished = gg_parent_not_finished,
+  is_contributive        = is_contributive,
   importance             = SOME importance,
   attacked               = attacked
 }: ornode;
@@ -258,7 +260,7 @@ fun update_attacked({
   proof                 : strings option,
   proof_id              : int option,
   proved_completely     : bool,
-  gg_parent_not_finished: bool,
+  is_contributive       : bool,
   importance            : real option,...
 }: ornode) =
 {
@@ -269,7 +271,7 @@ fun update_attacked({
   proof                  = proof,
   proof_id               = proof_id,
   proved_completely      = proved_completely: bool,
-  gg_parent_not_finished = gg_parent_not_finished,
+  is_contributive        = is_contributive,
   importance             = importance,
   attacked               = true
 }: ornode;

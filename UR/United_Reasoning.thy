@@ -146,7 +146,7 @@ fun conjecture_n_pst_to_pst_n_proof conjectures pst = conjectures_n_pst_to_pst_n
 
 strategy ur_strategy =
 Ors [
-  Thens [Auto, IsSolved],                                       
+  Thens [Auto, IsSolved],
   PThenOne [
     Smart_Induct,
     Ors
@@ -328,13 +328,13 @@ lemma "((t2 x1 (S x1)) = (S (t2 x1 x1)))"
 
 
 (*
-prove 
+prove
   assumes "True"
   shows dfd:"((t2 x1 (S x1)) = (S (t2 x1 x1)))"
 *)
 
 
-ML\<open> 
+ML\<open>
 
 \<close>
 

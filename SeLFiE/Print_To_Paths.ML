@@ -25,12 +25,15 @@ type print_to_paths_table = Path_Table.key list Print_Table.table;
 
 fun print_to_paths_table_to_prints table = Print_Table.keys table;
 
-fun path_to_unode_table_to_print_to_paths_table (inner_path_to_unode_table:UN.unode Path_Table.table) =
+fun path_to_unode_table_to_print_to_paths_table
+    (inner_path_to_unode_table:UN.unode Path_Table.table) =
   let
-    val path_n_unode_list    = Path_Table.dest inner_path_to_unode_table: (Path_Table.key * UN.unode) list;
-    val path_n_print_list    = List.map (apsnd #print) path_n_unode_list: (Path_Table.key * string) list;
-    val print_n_path_list    = map swap path_n_print_list               : (string * Path_Table.key) list;
-    val print_to_paths_table = Print_Table.make_list print_n_path_list  : print_to_paths_table;
+    val path_n_unode_list =
+          Path_Table.dest inner_path_to_unode_table: (Path_Table.key * UN.unode) list;
+    val path_n_print_list =
+          List.map (apsnd #print) path_n_unode_list: (Path_Table.key * string) list;
+    val print_n_path_list    = map swap path_n_print_list: (string * Path_Table.key) list;
+    val print_to_paths_table = Print_Table.make_list print_n_path_list: print_to_paths_table;
   in
     print_to_paths_table: print_to_paths_table
   end;

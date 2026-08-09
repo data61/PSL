@@ -1,8 +1,8 @@
-(*
- * Shared_State.ML
- * Authors:
- *   Yutaka Nagashima
- *)
+(*  Title:      Abduction/Shared_State.ML
+    Author:     Yutaka Nagashima
+
+Mutable state (proved auxiliary lemmas, debug flags) shared across an AbductionProver run.
+*)
 signature SHARED_STATE =
 sig
 
@@ -44,7 +44,8 @@ val reset_filter_statistics_for_loop  : synched_filter_statistics -> int -> unit
 val filter_statistics_snapshot        : synched_filter_statistics -> filter_statistics_snapshot;
 val record_abduction_filter_input     : synched_filter_statistics -> terms -> unit;
 val record_abduction_filter_used      : synched_filter_statistics -> terms -> unit;
-val record_orelse_filter_rejection    : synched_filter_statistics -> orelse_filter_reason -> term -> unit;
+val record_orelse_filter_rejection:
+  synched_filter_statistics -> orelse_filter_reason -> term -> unit;
 
 type term2real_table;
 type synched_term2real_table;
@@ -57,13 +58,15 @@ val is_refuted             : synched_term2real_table -> Proof.state -> term  -> 
 val refute_any_of_these    : debug -> synched_term2real_table -> Proof.state -> terms -> real;
 val any_of_these_is_refuted: synched_term2real_table -> Proof.state -> terms -> bool;
 
-(*TODO: Do we really need a table that maps terms to lemma names? Can we use Abduction_Graph for this?*)
+(*TODO: Do we really need a table that maps terms to lemma names? Can we use Abduction_Graph
+  for this?*)
 type term2string_table;
 type synched_term2string_table;
 val mk_term2string_table: unit -> synched_term2string_table;
 val get_lemma_name      : synched_term2string_table -> Proof.context -> string -> term  -> string;
 (*TODO: Do we really need get_orkey_name even though we have get_lemma_name?*)
-val get_orkey_name      : synched_term2string_table -> Proof.context -> Abduction_Graph.key -> string;
+val get_orkey_name:
+  synched_term2string_table -> Proof.context -> Abduction_Graph.key -> string;
 
 type graph_update_statistics =
  {node_attempts: int,
@@ -85,28 +88,87 @@ type graph_update_statistics =
   or_expansions_started: int};
 
 type synched_abduction_graph;
-val mk_synched_abduction_graph                    : Proof.context -> term -> synched_abduction_graph;
+val mk_synched_abduction_graph:
+  Proof.context -> term -> synched_abduction_graph;
 val value_of_graph                                : synched_abduction_graph -> abduction_graph;
-val graph_update_statistics                       : synched_abduction_graph -> graph_update_statistics;
-val update_is_branch                              : Abduction_Graph.key -> synched_abduction_graph -> unit;
-val add_andnodes                                  : terms -> synched_abduction_graph -> Abduction_Graph.keys;
-val add_child_ornode                              : Proof.context -> synched_abduction_graph -> (string * term) -> unit;
-val add_edges_from_andnode_to_ornodes             : Abduction_Graph.key -> synched_abduction_graph -> unit;
+val graph_update_statistics:
+  synched_abduction_graph -> graph_update_statistics;
+val update_is_branch:
+  Abduction_Graph.key -> synched_abduction_graph -> unit;
+val add_andnodes:
+  terms -> synched_abduction_graph -> Abduction_Graph.keys;
+val add_child_ornode:
+  Proof.context -> synched_abduction_graph -> (string * term) -> unit;
+val add_edges_from_andnode_to_ornodes:
+  Abduction_Graph.key -> synched_abduction_graph -> unit;
 
-val update_proved_completely                      : Abduction_Graph.key -> synched_abduction_graph -> unit;
-val update_proof_n_proof_id                       : (*proof*)strings -> (*or*)Abduction_Graph.key -> synched_abduction_graph -> unit;
+val update_proved_completely:
+  Abduction_Graph.key -> synched_abduction_graph -> unit;
+val update_proof_n_proof_id:
+  (*proof*)strings -> (*or*)Abduction_Graph.key -> synched_abduction_graph -> unit;
 
-val update_importance_of_ornode                   : synched_abduction_graph -> Abduction_Graph.key -> unit;
-val update_attacked                               : synched_abduction_graph -> Abduction_Graph.key -> unit;
+val update_importance_of_ornode:
+  synched_abduction_graph -> Abduction_Graph.key -> unit;
+val update_attacked:
+  synched_abduction_graph -> Abduction_Graph.key -> unit;
 
-val update_after_proving_ornode                   : strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
-val update_after_connecting_andnd_to_existing_ornd: Proof.context -> synched_abduction_graph -> (*or_key*)Abduction_Graph.keys -> unit list;
-val try_to_prove_ornode_and_update_graph          : Proof.state -> synched_abduction_graph -> Abduction_Graph.key -> unit;
+val update_after_proving_ornode:
+  strings -> Abduction_Graph.key -> Proof.context -> synched_abduction_graph -> unit;
+val update_after_connecting_andnd_to_existing_ornd:
+  Proof.context -> synched_abduction_graph -> (*or_key*)Abduction_Graph.keys -> unit list;
+val try_to_prove_ornode_and_update_graph:
+  Proof.state -> synched_abduction_graph -> Abduction_Graph.key -> unit;
 
 val final_goal_proved_completely                  : synched_abduction_graph -> bool;
 
-val new_node: (Abduction_Graph.key * Abduction_Graph.abduction_node) -> synched_abduction_graph -> unit;
+val new_node:
+  (Abduction_Graph.key * Abduction_Graph.abduction_node) -> synched_abduction_graph -> unit;
 val add_edge: (Abduction_Graph.key * Abduction_Graph.key) -> synched_abduction_graph -> unit;
+
+(* synched_work_queue *)
+(* The shared priority queue driving the worker-pool replacement for Proof_By_Abduction.ML's
+   old, per-round Par_List.find_some-based loop - see run_worker_pool there. Backs a pool of N
+   persistent workers continuously draining the highest-importance still-worth-expanding
+   OR-node, refilled in periodic whole-graph batches (reusing
+   orkeys_tobe_expanded_in_with_reachable_count/sort_orkeys_based_on_importance unchanged)
+   rather than recomputed per item, so the (expensive, full graph reachability walk) refill
+   cost is paid once per batch, not once per node - the leading hypothesis for why an earlier,
+   naive work-stealing attempt at this same redesign ended up slower than the code it replaced.
+   Priorities are static: fixed at the point a node is pushed into the queue by a refill, not
+   continuously re-ranked while sitting in it between refills. *)
+datatype work_pop_result = Work_Item of Abduction_Graph.key | Work_Refill | Work_Stop;
+
+type synched_work_queue;
+val mk_synched_work_queue: unit -> synched_work_queue;
+(* Pops the highest-importance queued item (marking it in-flight), signals the caller that IT
+   should perform the next (expensive, unlocked) refill scan (Work_Refill - at most one caller
+   is ever told this at a time, others block instead), returns Work_Stop once the search is
+   over, or blocks (this call itself, not the caller) until the queue's state changes in a way
+   that could resolve the above. *)
+val pop_or_request_refill: synched_work_queue -> work_pop_result;
+(* Call once a Work_Item's own expansion has completed, whether or not it found anything -
+   decrements the in-flight count and wakes any worker blocked in pop_or_request_refill so it
+   can re-check (e.g. a worker waiting to see whether it should become the next refiller). *)
+val finish_item: synched_work_queue -> Abduction_Graph.key -> unit;
+(* Call after a Work_Refill's own (unlocked) graph scan has produced its batch of
+   (importance, key) pairs - pushes them into the queue and clears the "someone is refilling"
+   flag. An empty batch here is deliberately NOT treated as "search exhausted, stop" on its
+   own: a refill's own scan filters out keys currently in flight (see currently_in_flight), so
+   a batch can legitimately come back empty simply because everything presently worth
+   expanding is already being attacked by another worker, with more to try again once that
+   finishes - not because there is nothing left in the whole graph. The caller is responsible
+   for calling mark_stopped itself once it has confirmed genuine exhaustion (mirroring the old
+   loop's own worth_expanding_count = 0 check, computed BEFORE any in-flight filtering). *)
+val complete_refill: synched_work_queue -> (real * Abduction_Graph.key) list -> unit;
+(* Marks the queue stopped unconditionally (goal proved, out of time, or the caller has
+   confirmed genuine exhaustion) and wakes everyone. *)
+val mark_stopped: synched_work_queue -> unit;
+(* The keys currently claimed by an in-progress Work_Item expansion - the caller filters these
+   out of a fresh refill batch, to avoid a second worker concurrently re-attacking the same
+   node (the old per-round design never had this risk, since a round's own batch could never
+   contain the same key twice by construction; a continuously-refilling queue can, since a
+   refill can race with an expansion that hasn't finished yet). *)
+val currently_in_flight: synched_work_queue -> Abduction_Graph.keys;
 
 end;
 
@@ -117,7 +179,8 @@ type debug = bool;
 type proved_simps = (string * term) list; (*lemma name, lemma term*)
 type synched_proved_simps = (string * term) list Synchronized.var;
 
-fun mk_synched_proved_simps _ = Synchronized.var "synchronized_proved_simps" []: synched_proved_simps;
+fun mk_synched_proved_simps _ =
+  Synchronized.var "synchronized_proved_simps" []: synched_proved_simps;
 
 fun lookup_proved_simps (salist:synched_proved_simps) (name:string) =
   let
@@ -194,9 +257,11 @@ fun empty_filter_loop_statistics (top_loop_index:int): filter_loop_statistics =
   orelse_concl_of_conj_refuted = Term_Table.empty};
 
 fun mk_filter_statistics _ =
-  Synchronized.var "abduction_filter_statistics" (empty_filter_loop_statistics 0): synched_filter_statistics;
+  Synchronized.var "abduction_filter_statistics" (empty_filter_loop_statistics 0)
+  : synched_filter_statistics;
 
-fun reset_filter_statistics_for_loop (synched_stats:synched_filter_statistics) (top_loop_index:int) =
+fun reset_filter_statistics_for_loop
+    (synched_stats:synched_filter_statistics) (top_loop_index:int) =
   if filter_statistics_enabled ()
   then Synchronized.change synched_stats (fn _ => empty_filter_loop_statistics top_loop_index)
   else ();
@@ -207,7 +272,8 @@ fun insert_unit (trm:term) (table:unit Term_Table.table) =
 fun canonical_filter_term (trm:term) =
   Top_Down_Util.standardize_vnames trm |> Isabelle_Utils.strip_atyp: term;
 
-fun record_refutation_filter_result (stats_opt:synched_filter_statistics option) (cnjctr:term) (is_refuted:bool): unit =
+fun record_refutation_filter_result
+    (stats_opt:synched_filter_statistics option) (cnjctr:term) (is_refuted:bool): unit =
   case stats_opt of
       NONE => ()
     | SOME synched_stats =>
@@ -226,15 +292,19 @@ fun record_refutation_filter_result (stats_opt:synched_filter_statistics option)
                    orelse_concl_of_conj_refuted} =>
                 {top_loop_index = top_loop_index,
                  refutation_checked = insert_unit clean refutation_checked,
-                 refutation_refuted = if is_refuted then insert_unit clean refutation_refuted else refutation_refuted,
-                 refutation_survived = if is_refuted then refutation_survived else insert_unit clean refutation_survived,
+                 refutation_refuted =
+                   if is_refuted then insert_unit clean refutation_refuted else refutation_refuted,
+                 refutation_survived =
+                   if is_refuted then refutation_survived
+                   else insert_unit clean refutation_survived,
                  abduction_checked_conjectures = abduction_checked_conjectures,
                  abduction_used_conjectures = abduction_used_conjectures,
                  orelse_rejected_conjectures = orelse_rejected_conjectures,
                  orelse_too_large = orelse_too_large,
                  orelse_eq_to_final_goal_from_tactic = orelse_eq_to_final_goal_from_tactic,
                  orelse_concl_is_eq_to_final_goal = orelse_concl_is_eq_to_final_goal,
-                 orelse_has_func_with_three_occs_in_a_row = orelse_has_func_with_three_occs_in_a_row,
+                 orelse_has_func_with_three_occs_in_a_row =
+                   orelse_has_func_with_three_occs_in_a_row,
                  orelse_concls_are_same = orelse_concls_are_same,
                  orelse_concl_of_conj_refuted = orelse_concl_of_conj_refuted})
           end;
@@ -257,7 +327,8 @@ fun record_abduction_filter_input (synched_stats:synched_filter_statistics) (ter
          refutation_checked = refutation_checked,
          refutation_refuted = refutation_refuted,
          refutation_survived = refutation_survived,
-         abduction_checked_conjectures = record_terms_into_table terms abduction_checked_conjectures,
+         abduction_checked_conjectures =
+           record_terms_into_table terms abduction_checked_conjectures,
          abduction_used_conjectures = abduction_used_conjectures,
          orelse_rejected_conjectures = orelse_rejected_conjectures,
          orelse_too_large = orelse_too_large,
@@ -292,7 +363,9 @@ fun record_abduction_filter_used (synched_stats:synched_filter_statistics) (term
          orelse_concls_are_same = orelse_concls_are_same,
          orelse_concl_of_conj_refuted = orelse_concl_of_conj_refuted});
 
-fun record_orelse_filter_rejection (synched_stats:synched_filter_statistics) (reason:orelse_filter_reason) (cnjctr:term): unit =
+fun record_orelse_filter_rejection
+    (synched_stats:synched_filter_statistics) (reason:orelse_filter_reason)
+    (cnjctr:term): unit =
   if not (filter_statistics_enabled ())
   then ()
   else
@@ -302,9 +375,11 @@ fun record_orelse_filter_rejection (synched_stats:synched_filter_statistics) (re
         | update_reason_table _ table = table;
       fun update_eq_goal_table Orelse_Eq_To_Final_Goal_From_Tactic table = insert_unit clean table
         | update_eq_goal_table _ table = table;
-      fun update_concl_eq_goal_table Orelse_Concl_Is_Eq_To_Final_Goal table = insert_unit clean table
+      fun update_concl_eq_goal_table Orelse_Concl_Is_Eq_To_Final_Goal table =
+            insert_unit clean table
         | update_concl_eq_goal_table _ table = table;
-      fun update_three_occs_table Orelse_Has_Func_With_Three_Occs_In_A_Row table = insert_unit clean table
+      fun update_three_occs_table Orelse_Has_Func_With_Three_Occs_In_A_Row table =
+            insert_unit clean table
         | update_three_occs_table _ table = table;
       fun update_concls_same_table Orelse_Concls_Are_Same table = insert_unit clean table
         | update_concls_same_table _ table = table;
@@ -326,11 +401,15 @@ fun record_orelse_filter_rejection (synched_stats:synched_filter_statistics) (re
            abduction_used_conjectures = abduction_used_conjectures,
            orelse_rejected_conjectures = insert_unit clean orelse_rejected_conjectures,
            orelse_too_large = update_reason_table reason orelse_too_large,
-           orelse_eq_to_final_goal_from_tactic = update_eq_goal_table reason orelse_eq_to_final_goal_from_tactic,
-           orelse_concl_is_eq_to_final_goal = update_concl_eq_goal_table reason orelse_concl_is_eq_to_final_goal,
-           orelse_has_func_with_three_occs_in_a_row = update_three_occs_table reason orelse_has_func_with_three_occs_in_a_row,
+           orelse_eq_to_final_goal_from_tactic =
+             update_eq_goal_table reason orelse_eq_to_final_goal_from_tactic,
+           orelse_concl_is_eq_to_final_goal =
+             update_concl_eq_goal_table reason orelse_concl_is_eq_to_final_goal,
+           orelse_has_func_with_three_occs_in_a_row =
+             update_three_occs_table reason orelse_has_func_with_three_occs_in_a_row,
            orelse_concls_are_same = update_concls_same_table reason orelse_concls_are_same,
-           orelse_concl_of_conj_refuted = update_concl_refuted_table reason orelse_concl_of_conj_refuted})
+           orelse_concl_of_conj_refuted =
+             update_concl_refuted_table reason orelse_concl_of_conj_refuted})
     end;
 
 fun table_size (table:unit Term_Table.table) = Term_Table.dest table |> length;
@@ -360,7 +439,8 @@ fun filter_statistics_snapshot (synched_stats:synched_filter_statistics) =
     orelse_concl_is_eq_to_final_goal = table_size orelse_concl_is_eq_to_final_goal,
     orelse_has_func_with_three_occs_in_a_row = table_size orelse_has_func_with_three_occs_in_a_row,
     orelse_concls_are_same = table_size orelse_concls_are_same,
-    orelse_concl_of_conj_refuted = table_size orelse_concl_of_conj_refuted}: filter_statistics_snapshot
+    orelse_concl_of_conj_refuted =
+      table_size orelse_concl_of_conj_refuted}: filter_statistics_snapshot
   end;
 
 datatype refutation_cache_entry = Refuting | Refuted of real;
@@ -368,16 +448,18 @@ datatype refutation_cache_entry = Refuting | Refuted of real;
 type refutation_cache_statistics = {size: int, hits: int, misses: int};
 type term2real_table =
  {table : refutation_cache_entry Term_Table.table,
-  hits  : int,                     (*calls served from the cache or by waiting for an in-progress result*)
-  misses: int,                     (*calls that actually ran Quickcheck/Nitpick*)
+  hits  : int, (*calls served from the cache or by waiting for an in-progress result*)
+  misses: int, (*calls that actually ran Quickcheck/Nitpick*)
   filter_statistics: synched_filter_statistics option};
 type synched_term2real_table = term2real_table Synchronized.var;
 
 fun empty_term2real_table filter_statistics =
-  {table = Term_Table.empty, hits = 0, misses = 0, filter_statistics = filter_statistics}: term2real_table;
+  {table = Term_Table.empty, hits = 0, misses = 0, filter_statistics = filter_statistics}
+  : term2real_table;
 
 fun mk_term2real_table filter_statistics =
-  Synchronized.var "synched_term2real_table" (empty_term2real_table filter_statistics): synched_term2real_table;
+  Synchronized.var "synched_term2real_table" (empty_term2real_table filter_statistics)
+  : synched_term2real_table;
 
 fun refutation_cache_statistics_enabled () =
   getenv "PSL_EVAL_MODE" = "1" andalso getenv "PSL_EVAL_ABDUCTION_STATS_DIR" <> "";
@@ -411,13 +493,15 @@ local
  * calls that avoided such checks.  The expensive check itself is deliberately
  * performed outside the lock.
  *)
-fun reserve_or_get (count_enabled:bool) (synched_table:synched_term2real_table) (cnjctr:term): real option =
+fun reserve_or_get
+    (count_enabled:bool) (synched_table:synched_term2real_table) (cnjctr:term): real option =
   Synchronized.guarded_access synched_table
     (fn ({table, hits, misses, filter_statistics}:term2real_table) =>
       case Term_Table.lookup table cnjctr of
         SOME (Refuted r) =>
-          SOME (SOME r, {table = table, hits = hits + (if count_enabled then 1 else 0), misses = misses,
-                         filter_statistics = filter_statistics})
+          SOME (SOME r,
+                {table = table, hits = hits + (if count_enabled then 1 else 0), misses = misses,
+                 filter_statistics = filter_statistics})
       | SOME Refuting =>
           NONE
       | NONE =>
@@ -441,19 +525,26 @@ fun quickcheck pst cnjctr =
 (*Once we refute a term. The term remains refuted in the table forever.*)
 in
 
-fun refute (_(*debug*): bool) (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): real =
+fun refute
+    (_(*debug*): bool) (synched_table:synched_term2real_table) (pst:Proof.state)
+    (cnjctr:term): real =
   let
-    val cnjctr_prop       = if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
+    val cnjctr_prop       =
+      if Top_Down_Util.is_prop cnjctr then cnjctr else HOLogic.mk_Trueprop cnjctr: term;
     val cnjctr_prop_clean = Top_Down_Util.standardize_vnames cnjctr_prop
                          |> Isabelle_Utils.strip_atyp
-                         |> Utils.try_with @{prop "True"} (Syntax.check_prop (Proof.context_of pst))  : term;
-    (* If syntax check fails for this conjecture for some unknown reasons, we consider that we cannot refute it.
-     * The reasons is that we have already applied type-checking prior to this stage.
-     * So, if Syntax.check_prop fails here, it is caused by some unknown reasons, for which
-     * we do not want to refute the conjecture. *)
+                         |> Utils.try_with @{prop "True"} (Syntax.check_prop (Proof.context_of pst))
+                         : term;
+    (* If syntax check fails for this conjecture for some unknown reasons, we consider that we
+     * cannot refute it. The reasons is that we have already applied type-checking prior to
+     * this stage. So, if Syntax.check_prop fails here, it is caused by some unknown reasons,
+     * for which we do not want to refute the conjecture. *)
     val ({filter_statistics, ...}: term2real_table) = Synchronized.value synched_table;
-    val cached = reserve_or_get (refutation_cache_statistics_enabled ()) synched_table cnjctr_prop_clean: real option;
-    fun record r = record_refutation_filter_result filter_statistics cnjctr_prop_clean (Real.== (r, 0.0));
+    val cached =
+      reserve_or_get (refutation_cache_statistics_enabled ()) synched_table cnjctr_prop_clean
+      : real option;
+    fun record r =
+      record_refutation_filter_result filter_statistics cnjctr_prop_clean (Real.== (r, 0.0));
   in
     case cached of
       SOME r => (record r; r)
@@ -470,10 +561,12 @@ fun refute (_(*debug*): bool) (synched_table:synched_term2real_table) (pst:Proof
 fun is_refuted (synched_table:synched_term2real_table) (pst:Proof.state) (cnjctr:term): bool =
     Real.== (refute false synched_table pst cnjctr, 0.0);
 
-fun any_of_these_is_refuted (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
+fun any_of_these_is_refuted
+    (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
     exists (is_refuted synched_table pst) terms;
 
-fun refute_any_of_these (debug:bool) (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
+fun refute_any_of_these
+    (debug:bool) (synched_table:synched_term2real_table) (pst:Proof.state) (terms:terms) =
   let
     val importances = map (refute debug synched_table pst) terms: real list;
     val result = if exists (fn impo => Real.== (impo, 0.0)) importances then 0.0 else 1.0;
@@ -485,7 +578,8 @@ end;
 type term2string_table         = string Term_Table.table;
 type synched_term2string_table = term2string_table Synchronized.var;
 
-fun mk_term2string_table _ = Synchronized.var "synched_term2string_table" Term_Table.empty: synched_term2string_table;
+fun mk_term2string_table _ =
+  Synchronized.var "synched_term2string_table" Term_Table.empty: synched_term2string_table;
 
 local
 
@@ -497,13 +591,17 @@ fun insert_string (cnjctr:term, lemma_name:string) (old_table:term2string_table)
 
 in
 
-fun get_lemma_name (synched_table:synched_term2string_table) (ctxt:Proof.context) (candidate:string) (term:term) =
+fun get_lemma_name
+    (synched_table:synched_term2string_table) (ctxt:Proof.context) (candidate:string)
+    (term:term) =
   let
-    val standardized_term  = Top_Down_Util.standardize_vnames term                      : term;
-    val old_table          = Synchronized.value synched_table                           : term2string_table;
-    val already_checked    = defined old_table standardized_term                        : bool;
-    val mk_new_lemma_name  = Top_Down_Util.mk_new_lemma_name                            : Proof.context -> bool -> string -> string;
-    fun mk_new_name_pair _ = (standardized_term, mk_new_lemma_name ctxt false candidate): (term * string);
+    val standardized_term  = Top_Down_Util.standardize_vnames term: term;
+    val old_table          = Synchronized.value synched_table: term2string_table;
+    val already_checked    = defined old_table standardized_term: bool;
+    val mk_new_lemma_name  =
+      Top_Down_Util.mk_new_lemma_name: Proof.context -> bool -> string -> string;
+    fun mk_new_name_pair _ =
+      (standardized_term, mk_new_lemma_name ctxt false candidate): (term * string);
     val _ =
       if   already_checked then ()
       else
@@ -526,7 +624,9 @@ end;
 structure AG  = Abduction_Graph;
 structure UAG = Update_Abduction_Graph;
 
-fun get_orkey_name (synched_table:synched_term2string_table) (ctxt:Proof.context) ((AG.Or_N, [term]): AG.key) =
+fun get_orkey_name
+    (synched_table:synched_term2string_table) (ctxt:Proof.context)
+    ((AG.Or_N, [term]): AG.key) =
     get_lemma_name synched_table ctxt "" term
   | get_orkey_name _ _ _ = error "get_orkey_name failed. Not an orkey."
 
@@ -607,7 +707,8 @@ fun mk_synched_abduction_graph (ctxt:Proof.context) (goal:term) =
          or_expansions_started = #or_expansions_started st}
       end: graph_update_statistics;
   in
-    Synchronized.var "abduction_graph" {graph = initial_graph_w_imp, statistics = initial_statistics}
+    Synchronized.var "abduction_graph"
+      {graph = initial_graph_w_imp, statistics = initial_statistics}
   end;
 
 fun node_defined (graph:abduction_graph) (key:AG.key): bool =
@@ -719,7 +820,8 @@ fun add_edge_measured (parent_key:AG.key, child_key:AG.key)
   end;
 
 fun change_graph f (sagraph:synched_abduction_graph) =
-  Synchronized.change sagraph (fn {graph, statistics} => {graph = f graph, statistics = statistics});
+  Synchronized.change sagraph
+    (fn {graph, statistics} => {graph = f graph, statistics = statistics});
 
 fun update_is_branch (key:AG.key) (sagraph:synched_abduction_graph) =
   Synchronized.change sagraph
@@ -740,19 +842,24 @@ fun add_andnodes (andterms:terms) (sagraph:synched_abduction_graph) =
       (fn state => ([and_key], add_node_measured pair state)): AG.keys
   end;
 
-fun add_child_ornode (ctxt:Proof.context) (sagraph:synched_abduction_graph) (lemma_name:string, lemma_term:term) =
+fun add_child_ornode
+    (ctxt:Proof.context) (sagraph:synched_abduction_graph)
+    (lemma_name:string, lemma_term:term) =
   let
     val pair = AG.mk_ornode ctxt false lemma_name lemma_term;
   in
     Synchronized.change sagraph (add_node_measured pair): unit
   end;
 
-fun add_edges_from_andnode_to_ornodes (and_key as (AG.And_N, terms):AG.key) (sagraph:synched_abduction_graph) =
+fun add_edges_from_andnode_to_ornodes
+    (and_key as (AG.And_N, terms):AG.key) (sagraph:synched_abduction_graph) =
   let
     val ornode_keys = map (fn trm => (AG.Or_N, [trm])) terms: AG.keys;
   in
     Synchronized.change sagraph
-      (fn state => fold (fn target_key => add_edge_measured (and_key, target_key)) ornode_keys state): unit
+      (fn state =>
+        fold (fn target_key => add_edge_measured (and_key, target_key)) ornode_keys state)
+    : unit
   end
  | add_edges_from_andnode_to_ornodes _ _ = error "add_edges_from_andnode_to_ornodes failed.";
 
@@ -768,16 +875,20 @@ fun update_importance_of_ornode (sagraph:synched_abduction_graph) (orkey:AG.key)
 fun update_attacked (sagraph:synched_abduction_graph) (orkey:AG.key) =
   change_graph (UAG.update_attacked orkey) sagraph: unit;
 
-fun update_after_proving_ornode (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
+fun update_after_proving_ornode
+    (proof:strings) (orkey:AG.key) (ctxt:Proof.context) (sagraph:synched_abduction_graph) =
   change_graph (UAG.update_after_proving_ornode proof orkey ctxt) sagraph: unit;
 
-fun update_after_connecting_andnd_to_existing_ornd' (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkey:AG.key) =
+fun update_after_connecting_andnd_to_existing_ornd'
+    (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkey:AG.key) =
   change_graph (UAG.update_after_connecting_andnd_to_existing_ornd orkey ctxt) sagraph: unit;
 
-fun update_after_connecting_andnd_to_existing_ornd (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkeys:AG.keys) =
+fun update_after_connecting_andnd_to_existing_ornd
+    (ctxt:Proof.context) (sagraph:synched_abduction_graph) (orkeys:AG.keys) =
   map (update_after_connecting_andnd_to_existing_ornd' ctxt sagraph) orkeys;
 
-fun try_to_prove_ornode_and_update_graph (pst:Proof.state) (sagraph:synched_abduction_graph) (orkey:AG.key) =
+fun try_to_prove_ornode_and_update_graph
+    (pst:Proof.state) (sagraph:synched_abduction_graph) (orkey:AG.key) =
   let
     val graph       = value_of_graph sagraph                 : abduction_graph;
     val maybe_proof = AG.prove_orkey_completely orkey graph pst: strings option;
@@ -803,12 +914,124 @@ fun new_node (key: AG.key, node:AG.abduction_node) (sagraph:synched_abduction_gr
 fun add_edge (parent_key: AG.key, child_key: AG.key) (sagraph:synched_abduction_graph) =
   Synchronized.change sagraph (add_edge_measured (parent_key, child_key)): unit;
 
+structure WorkHeap = Heap(
+  type elem = real * AG.key
+  (* Reversed: Heap.min/min_elem always returns the *least* element under ord, and we want
+     that to be the *most important* queued key. Ties (equal importance) are left unordered
+     between themselves - Heap doesn't require antisymmetry for correctness, only a total
+     preorder on priority, and which of several equally-important nodes comes out first is not
+     meaningful here. *)
+  val ord = fn ((imp1,_):elem, (imp2,_):elem) => Real.compare (imp2, imp1));
+
+datatype work_pop_result = Work_Item of AG.key | Work_Refill | Work_Stop;
+
+(* wakeup: a passive future, fulfilled and immediately replaced by a fresh one every time the
+   state changes in a way that could unblock a waiting pop_or_request_refill call (i.e. inside
+   finish_item/complete_refill/mark_stopped - the same three events the previous
+   Synchronized.guarded_access-based version relied on its own broadcast-on-every-change for).
+   This is not cosmetic: run_worker_pool forks numb_of_processors *persistent* workers up front
+   (see there), and Synchronized.guarded_access blocks an idle worker via a raw condition-
+   variable wait that Isabelle's Future scheduler has no visibility into - it just ties up that
+   worker's OS thread in Isabelle's future worker-thread pool (see Future.forks's own doc
+   comment in ~~/src/Pure/Concurrent/future.ML on "the pool of worker threads is limited" and
+   how "workers yield CPU time via wait operations" distorts it) for as long as it stays
+   blocked. Future.join, in contrast, is scheduler-aware: a worker blocked in it takes over
+   evaluating some other queued future in the meantime. Since expand_ornode's own internal
+   search relies on nested Par_List/Future parallelism, tying up idle workers via
+   Synchronized.guarded_access starves that nested work of the entire pool whenever every OTHER
+   worker happens to be idle at once - confirmed empirically via a minimal, isolated
+   microbenchmark: with numb_of_processors - 1 idle workers parked in
+   Synchronized.guarded_access, a plain Par_List.map job sharing the same pool went from 2.25s
+   to 14.29s (6.4x, i.e. essentially fully serialised); the identical test with idle workers
+   parked in Future.join instead showed no measurable slowdown (1.93s vs 1.95s) - matching the
+   ~2-3x real-world slowdown seen on solved goals after switching loop to run_worker_pool. *)
+type work_queue_state =
+ {queue: WorkHeap.T,
+  in_flight: AG.keys,
+  refilling: bool,
+  stopped: bool,
+  wakeup: unit future};
+
+type synched_work_queue = work_queue_state Synchronized.var;
+
+fun fresh_wakeup () : unit future = Future.promise (fn () => ());
+
+fun mk_synched_work_queue () : synched_work_queue =
+  Synchronized.var "synched_work_queue"
+    {queue = WorkHeap.empty, in_flight = [], refilling = false, stopped = false,
+     wakeup = fresh_wakeup ()};
+
+(* One non-blocking step against a snapshot of the state: SOME (result, state') on progress (a
+   genuine pop, becoming the refiller, or a confirmed stop), or NONE if the caller has nothing
+   to do right now and must wait for some other worker to change the state first. *)
+fun try_pop_step (s as {queue, in_flight, refilling, stopped, wakeup}: work_queue_state) =
+  if stopped then SOME (Work_Stop, s)
+  else if not (WorkHeap.is_empty queue) then
+    let val ((_, key), queue') = WorkHeap.min_elem queue in
+      SOME (Work_Item key,
+        {queue = queue', in_flight = key :: in_flight, refilling = refilling,
+         stopped = stopped, wakeup = wakeup})
+    end
+  else if null in_flight andalso not refilling then
+    SOME (Work_Refill,
+      {queue = queue, in_flight = in_flight, refilling = true, stopped = stopped, wakeup = wakeup})
+  else NONE (*someone else may still enqueue more - wait for a wakeup, then re-check*);
+
+fun pop_or_request_refill (qv: synched_work_queue) : work_pop_result =
+  let
+    (* Both branches return #wakeup of the very state try_pop_step just examined, captured
+       atomically within the same Synchronized.change_result call: since every mutation below
+       also goes through Synchronized.change_result on the same qv, no mutation can slip in
+       between "try_pop_step failed" and "the wakeup we will Future.join is chosen" - so this
+       cannot miss a wakeup that was already signalled by the time we decided to wait. *)
+    val (outcome, wait_for) =
+      Synchronized.change_result qv (fn s =>
+        case try_pop_step s of
+          SOME (result, s') => ((SOME result, #wakeup s), s')
+        | NONE => ((NONE, #wakeup s), s));
+  in
+    case outcome of
+      SOME result => result
+    | NONE => (Future.join wait_for; pop_or_request_refill qv)
+  end;
+
+fun mutate (qv: synched_work_queue) (f: work_queue_state -> work_queue_state) : unit =
+  let
+    val new_wakeup = fresh_wakeup ();
+    val old_wakeup =
+      Synchronized.change_result qv (fn s =>
+        let val {queue, in_flight, refilling, stopped, ...} = f s in
+          (#wakeup s, {queue = queue, in_flight = in_flight, refilling = refilling,
+            stopped = stopped, wakeup = new_wakeup})
+        end);
+  in
+    Future.fulfill old_wakeup ()
+  end;
+
+fun finish_item (qv: synched_work_queue) (key: AG.key) : unit =
+  mutate qv (fn {queue, in_flight, refilling, stopped, wakeup} =>
+    {queue = queue, in_flight = filter_out (fn k => AG.equal_keys (k, key)) in_flight,
+     refilling = refilling, stopped = stopped, wakeup = wakeup});
+
+fun complete_refill (qv: synched_work_queue) (new_items: (real * AG.key) list) : unit =
+  mutate qv (fn {queue, in_flight, refilling = _, stopped, wakeup} =>
+    {queue = fold WorkHeap.insert new_items queue, in_flight = in_flight, refilling = false,
+     stopped = stopped, wakeup = wakeup});
+
+fun mark_stopped (qv: synched_work_queue) : unit =
+  mutate qv (fn {queue, in_flight, refilling, stopped = _, wakeup} =>
+    {queue = queue, in_flight = in_flight, refilling = refilling, stopped = true, wakeup = wakeup});
+
+fun currently_in_flight (qv: synched_work_queue) : AG.keys =
+  #in_flight (Synchronized.value qv);
+
 end;
 
 (*** signature TOP_DOWN_CONJECTURING ***)
 signature TOP_DOWN_CONJECTURING =
 sig
 
-val top_down_conjectures: Shared_State.synched_term2string_table -> Proof.state -> term -> (string * term) list;
+val top_down_conjectures:
+  Shared_State.synched_term2string_table -> Proof.state -> term -> (string * term) list;
 
 end;

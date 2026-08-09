@@ -36,7 +36,7 @@ sig
   val bracket: 'a parser -> 'b parser -> 'c parser -> 'b parser;
   val ints   : int Seq.seq parser;
   val sepby  : 'a parser * 'b parser -> 'a Seq.seq parser;
-  
+
   val first  : 'a parser -> 'a parser;
   val +++    : 'a parser * 'a parser -> 'a parser;
   val spaces : unit parser;
@@ -45,10 +45,13 @@ sig
   val parse  : 'a parser -> 'a parser;
   val token  : 'a parser -> 'a parser;
 
-  (* These two methods riginally resided in Isar_Interface.ML, but migrated to Parser_Combinator.ML
-   * because the SeLFiE interpreter uses them but the interpreter cannot define PSL keywords multiple times.*)
+  (* These two methods originally resided in Isar_Interface.ML, but migrated to
+   * Parser_Combinator.ML because the SeLFiE interpreter uses them but the interpreter cannot
+   * define PSL keywords multiple times.*)
   val string_parser_to_token_parser: 'a parser -> 'a Token.parser;
-  val parser_to_trans_trans_parser: 'a parser -> ('a -> Toplevel.transition -> Toplevel.transition) -> (Toplevel.transition -> Toplevel.transition) Token.parser;
+  val parser_to_trans_trans_parser:
+    'a parser -> ('a -> Toplevel.transition -> Toplevel.transition) ->
+    (Toplevel.transition -> Toplevel.transition) Token.parser;
 end;
 
 (*** Parser_Combinator: monadic parser combinators ***)
@@ -125,7 +128,9 @@ struct
 
   val digit_or_period = sat (fn symb => Symbol.is_digit symb orelse equal "." symb);
   (*FIXME: digit_or_period is not good enough to parse real: think about "-0.0  .something*)
-  val positive_real   = many1 digit_or_period >>= (fn xs => xs |> Seq.list_of |> String.concat |> Real.fromString |> the |> result);
+  val positive_real   =
+        many1 digit_or_period
+        >>= (fn xs => xs |> Seq.list_of |> String.concat |> Real.fromString |> the |> result);
   val real =
     let
       val id  = fn inp => Seq.single (I, inp);
@@ -138,7 +143,7 @@ struct
 
   infix sepby1;
   fun p sepby1 sep = p >>= (fn x =>
-                    (many (sep >>= (fn _ => p >>= (fn y => result y)))) >>= (fn xs => 
+                    (many (sep >>= (fn _ => p >>= (fn y => result y)))) >>= (fn xs =>
                     result (Seq.cons x xs)));
   fun bracket openp p closep = token openp  >>= (fn _ =>
                                token p      >>= (fn x =>

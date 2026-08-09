@@ -1,10 +1,9 @@
-(*
- * Abduction_Graph.ML
- *
- * Authors:
- *   Yutaka Nagashima, Daniel Goc Sebastian
- *   Huawei Technologies Research & Development (UK) Limited.
- *)
+(*  Title:      Abduction/Abduction_Graph.ML
+    Author:     Yutaka Nagashima, Huawei Technologies Research & Development (UK) Limited.
+    Author:     Daniel Goc Sebastian, Huawei Technologies Research & Development (UK) Limited.
+
+Data structure representing the abduction (AND/OR) graph used by AbductionProver.
+*)
 (*** ABDUCTION_GRAPH ***)
 signature ABDUCTION_GRAPH =
 sig
@@ -86,8 +85,6 @@ val sort_orkeys_based_on_importance              : abduction_graph -> keys -> ke
 
 val grand_parents                                : abduction_graph -> key -> keys;
 val grand_children                               : abduction_graph -> key -> keys;
-val great_grand_parents                          : abduction_graph -> key -> keys;
-val all_gg_parents_are_proved                    : abduction_graph -> key -> bool;
 
 (* query on abduction_node for or2and_edge *)
 val or2and_edge_to_proof                         : abduction_graph -> key -> strings;
@@ -101,17 +98,29 @@ type frontier_counts =
  {reachable_keys: int,
   reachable_or_nodes: int,
   reachable_or_leaf_nodes: int};
-val orkeys_tobe_expanded_in_with_reachable_count : Proof.context -> abduction_graph -> (keys * frontier_counts);
+val orkeys_tobe_expanded_in_with_reachable_count :
+  Proof.context -> abduction_graph -> (keys * frontier_counts);
 
 (* query on abduction_graph *)
 val final_goal_proved_completely                 : abduction_graph -> bool;
 val prove_term_completely                        : Proof.state -> term -> strings option;
-val prove_orkey_completely                       : key -> abduction_graph -> Proof.state -> strings option;
+val prove_orkey_completely                       :
+  key -> abduction_graph -> Proof.state -> strings option;
 val keys                                         : abduction_graph -> keys;
 
 val goal_as_string                               : Proof.context -> key -> string;
-val print_lemma_and_proof_of_key                 : Proof.context -> abduction_graph -> key -> string;
-(*TODO: no longer used.*)val print_proof_of_graph: Proof.state -> abduction_graph -> unit;
+(* The strings are the names of the TBC-preprocessed facts the search context held as simp
+   rules; a graph script's simp-consuming steps name them explicitly on the way out - see
+   TBC_Utils.augment_method_with_facts. *)
+val print_lemma_and_proof_of_key                 :
+  Proof.context -> strings -> abduction_graph -> key -> string;
+(* The int is the offset at which this node's variables are renumbered, so that an assembled
+   proof has no two unrelated var_0s - see Top_Down_Util.offset_vnames. *)
+val print_have_and_proof_of_key                  :
+  Proof.context -> strings -> abduction_graph -> int -> key -> string;
+val print_proof_of_key_only                      : abduction_graph -> key -> string;
+(*TODO: no longer used.*)
+val print_proof_of_graph: Proof.state -> abduction_graph -> unit;
 
 end;
 
@@ -194,9 +203,27 @@ fun equal_keys key_pair = PGraph_Key.ord key_pair = EQUAL;
 (* creation of key_val pair *)
 type is_final_goal = bool;
 
+(* Standardised IN CONTEXT, so a variable the surrounding proof has fixed keeps its own name.
+ *
+ * This used to call the context-free standardize_vnames, and ctxt was taken but not used for it.
+ * That undid, one layer down, the in-context standardisation the callers perform: the goal reached
+ * focus_and_prepare_search as "double x = t2 x x" and entered the graph as
+ * "double var_0 = t2 var_0 var_0", so every script found for it said "induct var_0" while the
+ * caller's goal still said x. The replay then failed with "Unable to figure out induct rule" - the
+ * defect docs/2026_08_02_progress_report.md 4.9 describes, whose fix was applied at
+ * proof_by_abduction_with_prelude_using and not here. Measured: solve on TIP_prop_01 found a proof
+ * in 448s and could not replay it, with the rename mapping legitimately empty because nothing
+ * upstream had renamed anything.
+ *
+ * Safe for deduplication, which is the reason to check before touching this. Graph keys compare
+ * through PGraph_Key.ord -> Top_Down_Util.term_compare, which standardises BOTH sides before
+ * comparing, so alpha-equivalent nodes still unify whatever names the stored term carries. The
+ * canonical form is a property of the comparison, not of the stored term - the same separation
+ * offset_vnames rests on. *)
 fun mk_ornode (ctxt:Proof.context) (is_final_goal:is_final_goal) (lemma_name:string) (goal:term) =
   let
-    val standardized_goal = Top_Down_Util.standardize_vnames goal;
+    val standardized_goal =
+      Top_Down_Util.standardize_vnames_with_mapping_in_ctxt ctxt goal |> fst;
   in
     (
       (Or_N, [standardized_goal]): key,
@@ -257,7 +284,8 @@ fun equal_key_pair ((p1, c1), (p2, c2)) =
   equal_keys (p1, p2) andalso equal_keys (c1, c2);
 
 fun distinct_edges edges =
-  fold (fn edge => fn acc => if member equal_key_pair acc edge then acc else edge :: acc) edges [] |> rev;
+  fold (fn edge => fn acc => if member equal_key_pair acc edge then acc else edge :: acc) edges []
+  |> rev;
 
 fun key_in (ks:keys) key = member equal_keys ks key;
 
@@ -383,14 +411,16 @@ fun graph_profile (graph:abduction_graph): graph_profile =
          max_indegree = or_projected_max_indegree,
          scc_count = or_projected_scc_count,
          cyclic_scc_count = or_projected_cyclic_scc_count,
-         largest_scc_size = or_projected_largest_scc_size} = directed_profile or_keys or_projected_edges;
+         largest_scc_size = or_projected_largest_scc_size} =
+          directed_profile or_keys or_projected_edges;
 
     val {edges = and_projected_edges_total,
          avg_indegree = and_projected_avg_indegree,
          max_indegree = and_projected_max_indegree,
          scc_count = and_projected_scc_count,
          cyclic_scc_count = and_projected_cyclic_scc_count,
-         largest_scc_size = and_projected_largest_scc_size} = directed_profile and_keys and_projected_edges;
+         largest_scc_size = and_projected_largest_scc_size} =
+          directed_profile and_keys and_projected_edges;
   in
    {nodes_total = length ks,
     edges_total = edges_total,
@@ -428,12 +458,16 @@ let
   fun computation f x        = (x, f x);
   val edge_and_ornodes_pairs = map (computation parents_of) parent_or2and_edges: (key * keys) list;
   val ornodess               = map snd edge_and_ornodes_pairs: keys list;
-  val _ = if forall (fn ornodes => length ornodes = 1) ornodess then () else error "importance_of_andnode failed";
+  val _ =
+        if forall (fn ornodes => length ornodes = 1) ornodess then ()
+        else error "importance_of_andnode failed";
   val edge_and_ornode_pairs  = map (apsnd hd) edge_and_ornodes_pairs: (key * key) list;
-  val importance_pairs       = map (apply2 (importance ag)) edge_and_ornode_pairs: (real * real) list;
+  val importance_pairs       =
+        map (apply2 (importance ag)) edge_and_ornode_pairs: (real * real) list;
   val importances            = map (fn (imp1, imp2) => imp1 * imp2) importance_pairs: real list;
   val importance             = case Utils.reals_to_max_option importances of
-                                 NONE     => error "importance in Abduction_Graph failed. No ancestral pairs."
+                                 NONE     =>
+                                   error "importance in Abduction_Graph failed. No ancestral pairs."
                                | SOME max => max: real;
 in
   importance
@@ -456,7 +490,8 @@ fun print_orkey  (ctxt:Proof.context) (graph:abduction_graph) (orkey as (_, [trm
   );
 
 (* grand_relatives *)
-fun grand_relatives (graph:abduction_graph) (key:key) (preds_or_succs: abduction_graph -> key -> key list): keys =
+fun grand_relatives
+    (graph:abduction_graph) (key:key) (preds_or_succs: abduction_graph -> key -> key list): keys =
   let
     val immediate_keys = preds_or_succs graph key: keys;
     val grand_keys = map (preds_or_succs graph) immediate_keys |> flat |> distinct equal_keys;
@@ -465,33 +500,12 @@ fun grand_relatives (graph:abduction_graph) (key:key) (preds_or_succs: abduction
   end;
 
 (* grand_parents *)
-fun grand_parents (graph:abduction_graph) (key:key): keys = grand_relatives graph key PGraph.immediate_preds;
+fun grand_parents (graph:abduction_graph) (key:key): keys =
+      grand_relatives graph key PGraph.immediate_preds;
 
 (* grand_children *)
-fun grand_children (graph:abduction_graph) (key:key): keys = grand_relatives graph key PGraph.immediate_succs;
-
-(* great_grand_relatives *)
-fun great_grand_relatives (graph:abduction_graph) (key:key) (preds_or_succs: abduction_graph -> key -> key list): keys =
-  let
-    val grand_relatives_keys = grand_relatives graph key preds_or_succs: keys;
-    val grand_keys = map (preds_or_succs graph) grand_relatives_keys |> flat |> distinct equal_keys;
-  in
-    grand_keys
-  end;
-
-(* great_grand_parents *)
-fun great_grand_parents (graph:abduction_graph) (key:key): keys = great_grand_relatives graph key PGraph.immediate_preds;
-
-(* all_gg_parents_are_proved *)
-fun all_gg_parents_are_proved (graph:abduction_graph) (key as (Or_N, _)): bool = all_great_grandparents_are_proved_for_or key graph
-  | all_gg_parents_are_proved _ _: bool = error "all_great_grandparents_are_proved failed. And_N"
-and all_great_grandparents_are_proved_for_or key graph =
-  let
-    val great_grand_parents_keys  = great_grand_parents graph key: keys;
-    val great_grand_parents_nodes = map (PGraph.get_node graph) great_grand_parents_keys: abduction_node list;
-  in
-   null great_grand_parents_keys orelse forall Abduction_Node.is_proved_completely great_grand_parents_nodes
-  end;
+fun grand_children (graph:abduction_graph) (key:key): keys =
+      grand_relatives graph key PGraph.immediate_succs;
 
 (* is_final_goal *)
 fun is_final_goal (graph:abduction_graph) (key as (Or_N, _): key): bool =
@@ -536,7 +550,8 @@ fun is_worth_proving (ctxt:Proof.context) (graph:abduction_graph) (key:key)  =
   PGraph.get_node graph key |> Abduction_Node.is_worth_proving ctxt: bool;
 
 (* proof_id_of *)
-fun proof_id_of (graph:abduction_graph) (key:key) = PGraph.get_node graph key |> Abduction_Node.proof_id_of: int option;
+fun proof_id_of (graph:abduction_graph) (key:key) =
+      PGraph.get_node graph key |> Abduction_Node.proof_id_of: int option;
 
 (* is_template_based *)
 fun is_template_based (ag:abduction_graph) (key:key) =
@@ -553,7 +568,8 @@ fun compute_importance_of_ornode (ag:abduction_graph) (orkey as (Or_N, _)) =
       val parent_andkeys         = PGraph.immediate_preds ag orkey: keys;
       val importances_of_parents = map (importance ag) parent_andkeys: real list;
       val importance_from_parent = case Utils.reals_to_max_option importances_of_parents of
-                                     NONE     => error "compute_importance_of_ornode. No ancestral andnode."
+                                     NONE     =>
+                                       error "compute_importance_of_ornode. No ancestral andnode."
                                    | SOME max => max: real;
       val importance = if is_template_based ag orkey
                        then (1.0 + importance_from_parent) / 2.0
@@ -561,7 +577,8 @@ fun compute_importance_of_ornode (ag:abduction_graph) (orkey as (Or_N, _)) =
     in
       importance
     end
-  | compute_importance_of_ornode _ _ = error "compute_importance_of_ornode failed. It expects a key of an or-node.";
+  | compute_importance_of_ornode _ _ =
+      error "compute_importance_of_ornode failed. It expects a key of an or-node.";
 
 (* sort_orkeys_based_on_importance *)
 fun sort_orkeys_based_on_importance (ag:abduction_graph) (keys:keys) =
@@ -583,7 +600,8 @@ fun proof_of (graph:abduction_graph) (key:key) =
   end;
 
 (* orkeys_tobe_expanded_in *)
-fun orkeys_tobe_expanded_in_with_reachable_count (ctxt:Proof.context) (graph:abduction_graph): (keys * frontier_counts) =
+fun orkeys_tobe_expanded_in_with_reachable_count
+    (ctxt:Proof.context) (graph:abduction_graph): (keys * frontier_counts) =
   let
     val or_keys                        = PGraph.keys graph |> filter is_ornode           : keys;
     val orleaf_keys                    = filter_out (is_branch graph) or_keys            : keys;
@@ -595,8 +613,11 @@ fun orkeys_tobe_expanded_in_with_reachable_count (ctxt:Proof.context) (graph:abd
     val reachable_count                = length keys_reachable_from_final_goal           : int;
     val reachable_or_count             = length reachable_or_keys                        : int;
     val reachable_orleaf_count         = length reachable_orleaf_keys                    : int;
-    val _                              = tracing ("Number of keys_reachable_from_final_goal: " ^ Int.toString reachable_count);
-    val _                              = tracing ("Number of OR-keys reachable from final goal: " ^ Int.toString reachable_or_count);
+    val _                              =
+          tracing ("Number of keys_reachable_from_final_goal: " ^ Int.toString reachable_count);
+    val _                              =
+          tracing ("Number of OR-keys reachable from final goal: "
+            ^ Int.toString reachable_or_count);
     (*val _ = map (print_key ctxt) keys_reachable_from_final_goal*)
     val result                         = inter equal_keys keys_worth_trying reachable_orleaf_keys;
   in
@@ -622,21 +643,32 @@ fun final_goal_proved_completely (graph:abduction_graph) =
 (* prove_term_completely *)
 fun prove_term_completely (pst:Proof.state) (lemma_term:term) =
     let
-      val pst_to_prove = Top_Down_Util.mk_pst_to_prove_from_term pst lemma_term                     : Proof.state;
-      val timeouts     = {overall = 60.0, hammer = 8.5, quickcheck = 1.0, nitpick = 2.0}            : TBC_Utils.timeouts;
-      val maybe_result = TBC_Utils.pst_to_proofscripts_opt timeouts "Attack_On_Or_Node" pst_to_prove: (strings * Proof.state) option;
-      val maybe_script = Option.map fst maybe_result                                                : strings option;
+      val pst_to_prove = Top_Down_Util.mk_pst_to_prove_from_term pst lemma_term: Proof.state;
+      val timeouts     =
+            {overall = 60.0, hammer = 8.5, quickcheck = 1.0, nitpick = 2.0}: TBC_Utils.timeouts;
+      (*An "instance" or "interpretation" obligation needs intro_classes/unfold_locales before
+        Attack_On_Or_Node can make progress on it.*)
+      val strategy_name =
+            TBC_Utils.strategy_for_goal "Attack_On_Or_Node" (Proof.context_of pst) lemma_term;
+      val maybe_result =
+            TBC_Utils.pst_to_proofscripts_opt timeouts strategy_name pst_to_prove
+            : (strings * Proof.state) option;
+      val maybe_script = Option.map fst maybe_result: strings option;
     in
       maybe_script
     end
 
 (* prove_orkey_completely *)
-fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph:abduction_graph) (pst:Proof.state) =
+fun prove_orkey_completely
+    (or_key as (Or_N:node_type, [lemma_term]):key) (graph:abduction_graph) (pst:Proof.state) =
     let
       fun tracing' m = ();
       val lemma_name   = lemma_name_of graph or_key          : string;
       val maybe_script = prove_term_completely pst lemma_term: strings option;
-      val _ = tracing' ((if is_some maybe_script then "Proved: " else "Did not prove: ") ^ lemma_name ^ " | " ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
+      val _ =
+            tracing' ((if is_some maybe_script then "Proved: " else "Did not prove: ")
+              ^ lemma_name ^ " | "
+              ^ Isabelle_Utils.trm_to_string (Proof.context_of pst) lemma_term)
     in
       maybe_script
     end
@@ -646,37 +678,112 @@ fun prove_orkey_completely (or_key as (Or_N:node_type, [lemma_term]):key) (graph
 fun keys (ag:abduction_graph) = PGraph.keys ag;
 
 (* goal_as_string *)
-fun goal_as_string (ctxt:Proof.context) ((Or_N, [term]):key) = Isabelle_Utils.trm_to_string ctxt term
-  | goal_as_string (ctxt:Proof.context) ((And_N, terms):key) = map (Isabelle_Utils.trm_to_string ctxt) terms |> String.concatWith "\n"
+fun goal_as_string (ctxt:Proof.context) ((Or_N, [term]):key) =
+      Isabelle_Utils.trm_to_string ctxt term
+  | goal_as_string (ctxt:Proof.context) ((And_N, terms):key) =
+      map (Isabelle_Utils.trm_to_string ctxt) terms |> String.concatWith "\n"
   | goal_as_string _ _ = error "goal_as_string in Proof_Graph.ML failed"
 
 (* print_lemma_and_proof_of_key *)
-fun print_lemma_and_proof_of_key (ctxt:Proof.context) (graph:abduction_graph) (key:key) =
+(* tbc_facts: the graph search ran in a context whose simp set held every non-permutative
+ * TBC-preprocessed conjecture (TBC_Utils.assume_term_in_ctxt), so this script's simp-consuming
+ * steps may have used any of them without naming them. They are named here, in the method text
+ * itself, so the emitted script carries its dependencies - see
+ * TBC_Utils.augment_method_with_facts. Falls back to the raw script when it will not parse,
+ * exactly as print_have_and_proof_of_key does. *)
+fun print_lemma_and_proof_of_key (ctxt:Proof.context) (tbc_facts:strings)
+    (graph:abduction_graph) (key:key) =
   let
     val name  = lemma_name_of graph key : string;
     val stmt  = goal_as_string ctxt key : string;
     val proofs= proof_of graph key      : strings;
-    val proof = space_implode " " proofs: string;
+    val proof =
+      case try TBC_Utils.parse_tactic_steps proofs of
+        SOME steps =>
+          TBC_Utils.proof_steps_to_text (TBC_Utils.augment_steps_with_facts tbc_facts steps)
+      | NONE       => space_implode " " proofs;
   in
      "lemma " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ "\n" ^ proof
   end;
 
+(* print_have_and_proof_of_key *)
+(* Like print_lemma_and_proof_of_key, but with a "have" header instead of "lemma": for
+ * suggesting an auxiliary fact that nests inside an already-open structured proof (a
+ * "proof - ... qed" block wrapped around an in-progress goal) instead of as a fresh top-level
+ * lemma, which is illegal syntax while a proof is open (suggest/solve).
+ * Every free variable mentioned in the statement is listed in an explicit "for" clause, for
+ * the same reason and by the same mechanism as TBC_Utils.print_conjecture_w_have - see there
+ * for why this is required (not cosmetic) for a nested "have" to behave as a genuinely general
+ * fact instead of one about one fixed, arbitrary value. *)
+(* offset renumbers this node's variables above every earlier node's, so an assembled suggestion
+ * has no two unrelated var_0s - the same renaming the replay applies, from the same function, so
+ * the printed block and the applied one cannot disagree. See Top_Down_Util.offset_vnames. *)
+fun print_have_and_proof_of_key (ctxt:Proof.context) (tbc_facts:strings)
+    (graph:abduction_graph) (offset:int) (key:key) =
+  let
+    val name  = lemma_name_of graph key : string;
+    val stmt0 = (case key of (Or_N, [trm]) => trm
+                  | _ => error "print_have_and_proof_of_key: expected a single-term Or-node");
+    val (stmt_term, renaming) = Top_Down_Util.offset_vnames offset stmt0;
+    val stmt  = Isabelle_Utils.trm_to_string ctxt stmt_term: string;
+    val proofs= proof_of graph key |> map (TBC_Utils.rename_vars_in_script renaming): strings;
+    (* Rendered from the same proof_step list the replay applies (apply_have_of_key parses this
+       very script), so a printed suggestion and an applied proof cannot describe different
+       proofs. Falls back to joining the raw script when it will not parse: the replay would fail
+       on such a script anyway, and printing something the reader can still inspect beats turning
+       a partly-useful suggestion into an error.
+       tbc_facts as in print_lemma_and_proof_of_key: the search context held these as simp
+       rules, so the script's simp-consuming steps name them on the way out. *)
+    val proof =
+      case try TBC_Utils.parse_tactic_steps proofs of
+        SOME steps =>
+          TBC_Utils.proof_steps_to_text (TBC_Utils.augment_steps_with_facts tbc_facts steps)
+      | NONE       => space_implode " " proofs;
+    (* From the RENAMED term, so this clause is the same list apply_have_of_key fixes - see
+       TBC_Utils.fixes_for_have for what went wrong when the two were computed separately, and
+       note that reading it off the original term would reintroduce exactly that: a "for var_0"
+       above a statement that now says var_2. *)
+    val for_clause = TBC_Utils.for_clause_of ctxt stmt_term;
+  in
+     "have " ^ name ^ ": " ^ enclose "\"" "\"" stmt ^ for_clause ^ "\n" ^ proof
+  end;
+
+(* print_proof_of_key_only *)
+(* Like print_lemma_and_proof_of_key, but without the "lemma name: stmt" header - just the
+ * bare tactic script. Used for the root goal when the suggested script is meant to be pasted
+ * as the continuation of an already-open proof (suggest/solve) rather
+ * than as a fresh top-level lemma: the goal is already stated at that point, so restating it
+ * would be wrong. *)
+fun print_proof_of_key_only (graph:abduction_graph) (key:key) =
+    proof_of graph key |> space_implode " ": string;
+
 (* print_proof_of_graph *)
 fun print_proof_of_graph (pst:Proof.state) (graph:abduction_graph) =
   let
-    val keys                         = keys graph |> filter is_ornode |> rev                                               : keys;
-    val key_prf_id_pairs             = map (fn key => (key, proof_id_of graph key)) keys                                   : (key * int option) list;
-    val key_prf_id_pairs_solved_only = filter (fn (_, id) => is_some id) key_prf_id_pairs                                  : (key * int option) list;
-    val key_prf_id_pairs_wo_opt      = map (apsnd the) key_prf_id_pairs_solved_only                                        : (key * int) list;
-    val key_of_original_goal         = get_final_goal_key graph                                                            : key;
-    val prf_id_of_original_goal      = proof_id_of graph key_of_original_goal                 
-                                    |> Utils.the' "print_proof_of_graph faild."                                            : int;
-    val relevant_key_prf_id_pairs    = filter (fn (_, prf_id) => prf_id <= prf_id_of_original_goal) key_prf_id_pairs_wo_opt: (key * int) list;
-    fun compare ((_, id1), (_, id2)) = Int.compare (id1, id2)                                                              : order;
-    val sorted_keys                  = sort compare relevant_key_prf_id_pairs |> map fst                                   : key list;
-    val final_script                 = "\n" ^ (map (print_lemma_and_proof_of_key (Proof.context_of pst) graph) sorted_keys |> String.concatWith "\n");
+    val keys             = keys graph |> filter is_ornode |> rev: keys;
+    val key_prf_id_pairs =
+          map (fn key => (key, proof_id_of graph key)) keys: (key * int option) list;
+    val key_prf_id_pairs_solved_only =
+          filter (fn (_, id) => is_some id) key_prf_id_pairs: (key * int option) list;
+    val key_prf_id_pairs_wo_opt = map (apsnd the) key_prf_id_pairs_solved_only: (key * int) list;
+    val key_of_original_goal    = get_final_goal_key graph: key;
+    val prf_id_of_original_goal =
+          proof_id_of graph key_of_original_goal
+          |> Utils.the' "print_proof_of_graph faild.": int;
+    val relevant_key_prf_id_pairs =
+          filter (fn (_, prf_id) => prf_id <= prf_id_of_original_goal) key_prf_id_pairs_wo_opt
+          : (key * int) list;
+    fun compare ((_, id1), (_, id2)) = Int.compare (id1, id2): order;
+    val sorted_keys  = sort compare relevant_key_prf_id_pairs |> map fst: key list;
+    (*No TBC fact names reach this dead path - see the sig's "no longer used" note.*)
+    fun print_key key = print_lemma_and_proof_of_key (Proof.context_of pst) [] graph key;
+    val final_script = "\n" ^ (map print_key sorted_keys |> String.concatWith "\n");
     (*TODO: Do not show the proofs of or-nodes proved after we prove the original goal.*)
     val _ = Active.sendback_markup_properties [Markup.padding_command] final_script |> tracing;
+    (* Traced only, until now. This is the path prove_by_abduction takes when it prints the whole
+       graph proof, and it never reached emit_proof_script - so goals proved this way were
+       reported as successes and their proofs discarded. Measured: two of five. *)
+    val _ = Top_Down_Util.write_proof_to_file (Proof.context_of pst) final_script;
   in
     ()
   end;
